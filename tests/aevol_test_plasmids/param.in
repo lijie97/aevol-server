@@ -1,0 +1,102 @@
+###################################
+#         AEVOL PARAMATERS        #
+###################################
+
+##### 1. Initial setup ############
+SEED                    7250909
+INITIAL_GENOME_LENGTH   500
+INIT_POP_SIZE           100
+
+# INIT_METHOD <any combination (separated by a space) of one or more of the following : ONE_GOOD_GENE, CLONE, WITH_INS_SEQ>
+# i.e.        INIT_METHOD     ONE_GOOD_GENE CLONE
+INIT_METHOD             ONE_GOOD_GENE CLONE
+NB_GENER                10000
+
+##### 2. Selection ################
+SELECTION_SCHEME        fittest
+SELECTION_PRESSURE      0.998
+
+##### 3. Mutation rates ###########
+POINT_MUTATION_RATE     5e-5
+SMALL_INSERTION_RATE    5e-5
+SMALL_DELETION_RATE     5e-5
+MAX_INDEL_SIZE          6
+
+##### 4. Rearrangement rates (w/o alignements)
+DUPLICATION_RATE        5e-5
+DELETION_RATE           5e-5
+TRANSLOCATION_RATE      5e-5
+INVERSION_RATE          5e-5
+
+##### 5. Population Structure #####
+POP_STRUCTURE           true
+GRID_X                  10
+GRID_Y                  10
+MIGRATION_NUMBER        0
+
+##### 6. Target function ##########
+ENV_SAMPLING      300
+ENV_ADD_GAUSSIAN  0.5   0.8   0.05
+ENV_ADD_GAUSSIAN  0.3   0.1   0.03
+ENV_ADD_GAUSSIAN  0.2   0.5   0.03
+ENV_ADD_GAUSSIAN  0.3   0.6   0.03
+
+##### 7. Environment variation ####
+ENV_VARIATION           none
+ENV_SEED                0
+
+##### 8. Phenotypic axis ##########
+ENV_AXIS_SEGMENTS 0.1 0.66
+ENV_AXIS_FEATURES NEUTRAL SECRETION METABOLISM
+
+##### 9. Recording ################
+BACKUP_STEP             100
+TREE_STEP               100
+RECORD_TREE             false
+TREE_MODE               normal
+MORE_STATS              false
+DUMP_PERIOD             0
+
+##### 10. Secretion ###############
+SECRETION_FITNESS_CONTRIB   0.6  
+SECRETION_INITIAL           0
+SECRETION_DIFUSION_PROP     0.05
+SECRETION_DEGRADATION_PROP  0.01
+SECRETION_COST              0.1
+
+##### 11. Plasmids ################
+ALLOW_PLASMIDS              true
+PLASMID_INITIAL_LENGTH      200
+PLASMID_MINIMAL_LENGTH      40
+WITH_TRANSFER               true
+PROB_HORIZONTAL_TRANS       0.1
+COMPUTE_PHEN_CONTRIB_BY_GU  true
+
+##### 12. Alignment ###############
+WITH_ALIGNMENTS         false
+ALIGN_MIN_SCORE         40  
+ALIGN_MAX_SCORE         100 
+ALIGN_MAX_SHIFT         20  
+ALIGN_W_ZONE_H_LEN      50
+
+##### 13. Rearrangement rates (w/ alignements)
+NEIGHBOURHOOD_RATE       5e-5
+DUPLICATION_PROPORTION   5e-5
+DELETION_PROPORTION      5e-5
+TRANSLOCATION_PROPORTION 5e-5
+INVERSION_PROPORTION     5e-5
+
+##### 14. Regulation ##############
+#HILL_SHAPE_N                   4 
+#HILL_SHAPE_THETA               0.5
+#DEGRADATION_RATE               1 
+#DEGRADATION_STEP               0.1
+#INDIVIDUAL_EVALUATION_DATES    NULL
+#INDIVIDUAL_LIFE_TIME           0
+#BINDING_ZEROS_PERCENTAGE       0.75
+#WITH_HEREDITY                  false
+#PROTEIN_PRESENCE_LIMIT         1e-5
+
+##### 15. Other, to be (fully) implemented
+TRANSLATION_COST                0
+

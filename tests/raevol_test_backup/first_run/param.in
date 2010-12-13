@@ -1,0 +1,50 @@
+#############################
+#   parameters for aevol    #
+#############################
+SEED 16812
+
+BACKUP_STEP             100
+TREE_STEP               100
+
+INITIAL_GENOME_LENGTH   5000
+INIT_POP_SIZE           1000
+INIT_METHOD             ONE_GOOD_GENE_CLONE
+
+SELECTION_SCHEME    exponential
+SELECTION_PRESSURE  0.998
+
+ENV_SAMPLING      300
+ENV_ADD_GAUSSIAN  1.2   0.52  0.12
+ENV_ADD_GAUSSIAN -1.4   0.5   0.07
+ENV_ADD_GAUSSIAN  0.3   0.8   0.03
+#ENV_VARIATION     autoregressive_mean_variation 0.01 1000
+
+#ENV_AXIS_SEGMENTS 0.3 0.35
+#ENV_AXIS_FEATURES METABOLISM NEUTRAL METABOLISM
+
+
+POINT_MUTATION_RATE   5e-5
+SMALL_INSERTION_RATE  5e-5
+SMALL_DELETION_RATE   5e-5
+
+DUPLICATION_RATE      5e-5
+DELETION_RATE         5e-5
+TRANSLOCATION_RATE    5e-5
+INVERSION_RATE        5e-5
+
+#############################
+#   parameters for raevol   #
+#############################
+
+# uncomment these lines when you use raevol
+
+HILL_SHAPE_N                   4 
+HILL_SHAPE_THETA               0.5
+DEGRADATION_RATE               1 
+DEGRADATION_STEP               0.1
+INDIVIDUAL_EVALUATION_DATES    NULL
+BINDING_ZEROS_PERCENTAGE       0.75
+WITH_HEREDITY                  false
+PROTEIN_PRESENCE_LIMIT         1e-2
+
+#WITH_HERIDITY
