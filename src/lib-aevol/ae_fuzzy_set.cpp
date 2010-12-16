@@ -628,11 +628,10 @@ double ae_fuzzy_set::get_geometric_area( void ) const
 {
   double area = 0;
   double tmp, tmp2;
-  ae_list_node* next_point_node  = _points->get_first();
-  ae_point_2d*  point       = (ae_point_2d*) next_point_node->get_obj();
-  ae_point_2d*  next_point  = NULL;
-
-  next_point_node = next_point_node->get_next();
+  
+  ae_point_2d*  point           = (ae_point_2d*) _points->get_first()->get_obj();
+  ae_list_node* next_point_node = _points->get_first()->get_next();
+  ae_point_2d*  next_point      = NULL;
 
   while ( next_point_node != NULL )
   {
