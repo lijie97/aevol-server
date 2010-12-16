@@ -76,12 +76,21 @@ void print_help( void );
 // aminoacid sequence). In the case of Raevol, the concentration used here is the 
 // final one, i.e. the one reached after all the time steps of the lifetime. 
 // If a coding sequence has several promoters, only one triangle is drawn.
-void draw_triangles( ae_individual * indiv, char * directoryName );
+void draw_triangles( ae_individual* indiv, ae_environment* env, char * directoryName );
+
+
+
+// In the case of Raevol, the profile is drawn using the final concentrations
+// of the proteins, i.e. the ones reached after all the time steps of the lifetime.
+void draw_pos_neg_profiles( ae_individual * indiv, ae_environment* env, char * directoryName );
+
 
 
 // In the case of Raevol, the phenotype is drawn using the final concentrations
 // of the proteins, i.e. the ones reached after all the time steps of the lifetime.
 void draw_phenotype( ae_individual * indiv, ae_environment * envir, char * directoryName );
+
+
 
 
 // The chromosome is drawn as a circle. Coding sequences are represented by arcs starting 
@@ -106,10 +115,12 @@ int main( int argc, char* argv[] )
   //
   // 1) Initialize command-line option variables with default values
 
-  char* backup_file_name  = NULL;
+  bool  verbose               = false;
+  bool  use_single_indiv_file = false;
+  char* backup_file_name      = NULL;
   
   // 2) Define allowed options
-  const char * options_list = "hf:";
+  const char * options_list = "hvf:";
   static struct option long_options_list[] = {
     { "file", 1, NULL, 'f' },
     { 0, 0, 0, 0 }
@@ -125,7 +136,18 @@ int main( int argc, char* argv[] )
         print_help();
         exit( EXIT_SUCCESS );
         break;
+      case 'v' :
+        verbose = true;
+        break;
       case 'f' :
+        if ( strstr( optarg, "best" ) != NULL )
+        {
+          use_single_indiv_file = true;
+        }
+        else
+        {
+          printf( "%s|\n", optarg );
+        }
         backup_file_name = new char[strlen(optarg) + 1];
         sprintf( backup_file_name, "%s", optarg );
         break;
@@ -136,7 +158,11 @@ int main( int argc, char* argv[] )
   // =================================================================
   //                       Read the backup file
   // =================================================================
-
+  
+  ae_individual*  best_indiv;
+  ae_environment* env;
+  int32_t         num_gener;
+  
   if ( backup_file_name == NULL )
   {
     printf("You must specify a backup file. Please use the option -f or --file.\n");
@@ -144,30 +170,41 @@ int main( int argc, char* argv[] )
   }
   else
   {
-    printf( "Reading backup file <%s>... ", backup_file_name );
-    fflush(stdout);
+    if ( use_single_indiv_file )
+    {
+      // TODO : best* backups don't look right...
+      printf( "Reading single individual backup file <%s>... ", backup_file_name );
+      gzFile* backup_file = (gzFile*) gzopen( backup_file_name, "r" );
+      ae_common::read_from_backup( backup_file, verbose );
+      env = new ae_environment(); // Uses the ae_common data
+      best_indiv = new ae_individual( backup_file );
+      
+      num_gener = -1; // TODO!!!
+      printf("done\n");
+    }
+    else
+    {
+      printf( "Reading backup file <%s>... ", backup_file_name );
+      fflush(stdout);
 
-    // Load simulation from backup
-    ae_common::sim = new ae_simulation ( backup_file_name, false );
-    printf("done\n");
+      // Load simulation from backup
+      ae_common::sim  = new ae_simulation ( backup_file_name, false );
+      best_indiv      = ae_common::sim->get_pop()->get_best();
+      env             = ae_common::sim->get_env();
+      num_gener       = ae_common::sim->get_num_gener();
+      printf("done\n");
+    }
   }
-
-
-
-  // =================================================================
-  //                      Evaluate the individuals
-  // =================================================================
-
-
+  
+  
   // The constructor of the ae_simulation has read the genomes of the individuals
   // and located their promoters, but has not performed the translation nor the
   // phenotype computation. We must do it now.
   // However, as the individuals in the backups are sorted, we don't need to evaluate
   // all the individuals, only those we are interested in (here only the best one)
     
-  ae_individual* best_indiv = ae_common::sim->get_pop()->get_best();
-  best_indiv->evaluate( ae_common::sim->get_env() );
-  printf( "length : %"PRId32"\n", best_indiv->get_genetic_unit( 0 )->get_dna()->get_length() );
+  
+  best_indiv->evaluate( env );
 
 
     
@@ -176,7 +213,7 @@ int main( int argc, char* argv[] )
   // =================================================================
 
   char directory_name[30];
-  sprintf( directory_name, "files-generation%06"PRId32, ae_common::sim->get_num_gener() );
+  sprintf( directory_name, "files-generation%06"PRId32, num_gener );
 
   // Check whether the directory already exists and is writable
   if ( access( directory_name, F_OK ) == 0 )
@@ -189,8 +226,6 @@ int main( int argc, char* argv[] )
     if ( access( directory_name, X_OK | W_OK) != 0 )
     {
       fprintf(stderr, "Error: cannot enter or write in directory %s.\n", directory_name);
-      delete [] backup_file_name;
-      delete ae_common::sim;
       exit( EXIT_FAILURE );
     }
   }
@@ -200,8 +235,6 @@ int main( int argc, char* argv[] )
     if ( mkdir( directory_name, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) != 0 )
     {
       fprintf(stderr, "Error: cannot create directory %s.\n", directory_name);
-      delete [] backup_file_name;
-      delete ae_common::sim;
       exit( EXIT_FAILURE );
     }
   }
@@ -216,12 +249,18 @@ int main( int argc, char* argv[] )
     
   printf( "Creating the EPS file with the triangles of the best individual... " );
   fflush(stdout);
-  draw_triangles( best_indiv, directory_name );
+  draw_triangles( best_indiv, env, directory_name );
   printf( "OK\n" );
+
+  printf( "Creating the EPS file with the positive and negatives profiles of the best individual... " );
+  fflush(stdout);
+  draw_pos_neg_profiles( best_indiv, env, directory_name );
+  printf( "OK\n" );
+
     
   printf( "Creating the EPS file with the phenotype of the best individual... " );
   fflush(stdout);  
-  draw_phenotype( best_indiv, ae_common::sim->get_env(), directory_name );
+  draw_phenotype( best_indiv, env, directory_name );
   printf( "OK\n" );
 
   printf( "Creating the EPS file with the CDS of the best individual... " );
@@ -236,7 +275,16 @@ int main( int argc, char* argv[] )
 
 
   delete [] backup_file_name;
-  delete ae_common::sim;
+  
+  if ( use_single_indiv_file )
+  {
+    delete best_indiv;
+    delete env;
+  }
+  else
+  {
+    delete ae_common::sim;
+  }
 
   return EXIT_SUCCESS;
 }
@@ -251,7 +299,7 @@ void print_help( void )
 
 
 
-void draw_triangles(ae_individual * indiv, char * directoryName)
+void draw_triangles( ae_individual* indiv, ae_environment* env, char * directoryName )
 {
   const uint8_t bbsize = 200;  // a4 paper: 595*842 
   double margin = 0.1;
@@ -268,10 +316,35 @@ void draw_triangles(ae_individual * indiv, char * directoryName)
   fprintf(drawingfile, "%d %d scale\n", bbsize, bbsize);
   fprintf(drawingfile, "%d %d 8 [100 0 0 -100 0 100]\n",bbsize, bbsize);
   fprintf(drawingfile, "{currentfile 3 100 mul string readhexstring pop} bind\n");
+
+
+  // -----------------------------
+  //  paint neutral zones in grey
+  // -----------------------------
+  if ( ae_common::env_axis_is_segmented )
+  {
+    int16_t nb_segments = env->get_nb_segments();
+    ae_env_segment** segments = env->get_segments();
+    
+    for ( int16_t i = 0 ; i < nb_segments ; i++ )
+    {
+      if ( segments[i]->feature == NEUTRAL )
+      {    
+        fprintf( drawingfile, "%lf 0 moveto\n", margin + scale * segments[i]->start );
+        fprintf( drawingfile, "%lf 1 lineto\n", margin + scale * segments[i]->start );
+        fprintf( drawingfile, "%lf 1 lineto\n", margin + scale * segments[i]->stop );
+        fprintf( drawingfile, "%lf 0 lineto\n", margin + scale * segments[i]->stop );
+        fprintf( drawingfile, "closepath\n" );
+        fprintf( drawingfile, "0.8 setgray\n" );
+        fprintf( drawingfile, "fill\n" );
+        fprintf( drawingfile, "0 setgray\n" );
+      }
+    }
+  }
  
-  // ----
-  // axis
-  // ----
+  // -----------
+  //  draw axis
+  // -----------
 
   double arrowsize = 0.03;
   double arrowangle = 3.14/6;
@@ -291,20 +364,20 @@ void draw_triangles(ae_individual * indiv, char * directoryName)
   fprintf(drawingfile, "stroke\n");
 
   // axis Y + arrow
-  fprintf(drawingfile, "%lf %lf moveto\n", margin, margin/2);
-  fprintf(drawingfile, "%lf %lf lineto\n", margin, 1-margin);
-  fprintf(drawingfile, "%lf %lf moveto\n", margin, 1-margin);
-  fprintf(drawingfile, "%lf %lf lineto\n", margin-arrowsize*sin(arrowangle), 1 - margin - arrowsize*cos(arrowangle) );
-  fprintf(drawingfile, "stroke\n");
-  fprintf(drawingfile, "%lf %lf moveto\n", margin, 1-margin);
-  fprintf(drawingfile, "%lf %lf lineto\n", margin+arrowsize*sin(arrowangle), 1 - margin - arrowsize*cos(arrowangle) );
-  fprintf(drawingfile, "stroke\n");
+  fprintf( drawingfile, "%lf %lf moveto\n", margin, margin/2);
+  fprintf( drawingfile, "%lf %lf lineto\n", margin, 1-margin);
+  fprintf( drawingfile, "%lf %lf moveto\n", margin, 1-margin);
+  fprintf( drawingfile, "%lf %lf lineto\n", margin-arrowsize*sin(arrowangle), 1 - margin - arrowsize*cos(arrowangle) );
+  fprintf( drawingfile, "stroke\n");
+  fprintf( drawingfile, "%lf %lf moveto\n", margin, 1-margin);
+  fprintf( drawingfile, "%lf %lf lineto\n", margin+arrowsize*sin(arrowangle), 1 - margin - arrowsize*cos(arrowangle) );
+  fprintf( drawingfile, "stroke\n");
 
 
-  // -----------
-  //  triangles
-  // -----------
 
+  // ----------------
+  //  draw triangles
+  // ----------------
 
   fprintf(drawingfile,"[ ] 0 setdash\n");
 
@@ -361,8 +434,128 @@ void draw_triangles(ae_individual * indiv, char * directoryName)
 
 
 
+void draw_pos_neg_profiles( ae_individual * indiv, ae_environment* env, char * directoryName )
+{
+  const uint8_t bbsize = 200;  // a4 paper: 595*842 
+  double margin = 0.1;
+  double scale = 0.8*(1 - 2*margin);
+  
+  char filename[50];
+  strncpy( filename, directoryName, 29 );
+  strcat(  filename, "/best_pos_neg_profiles.eps" );
+  FILE * drawingfile = fopen( filename, "w" );
 
-void draw_phenotype(ae_individual * indiv, ae_environment * envir, char * directoryName)
+
+  fprintf(drawingfile, "%%!PS-Adobe-3.0 EPSF-3.0\n");
+  fprintf(drawingfile, "%%%%BoundingBox: 0 0 %d %d\n", bbsize, bbsize);
+  fprintf(drawingfile, "%d %d scale\n", bbsize, bbsize);
+  fprintf(drawingfile, "%d %d 8 [100 0 0 -100 0 100]\n",bbsize, bbsize);
+  fprintf(drawingfile, "{currentfile 3 100 mul string readhexstring pop} bind\n");
+
+
+  // -----------------------------
+  //  paint neutral zones in grey
+  // -----------------------------
+  if ( ae_common::env_axis_is_segmented )
+  {
+    int16_t nb_segments = env->get_nb_segments();
+    ae_env_segment** segments = env->get_segments();
+    
+    for ( int16_t i = 0 ; i < nb_segments ; i++ )
+    {
+      if ( segments[i]->feature == NEUTRAL )
+      {    
+        fprintf( drawingfile, "%lf 0 moveto\n", margin + scale * segments[i]->start );
+        fprintf( drawingfile, "%lf 1 lineto\n", margin + scale * segments[i]->start );
+        fprintf( drawingfile, "%lf 1 lineto\n", margin + scale * segments[i]->stop );
+        fprintf( drawingfile, "%lf 0 lineto\n", margin + scale * segments[i]->stop );
+        fprintf( drawingfile, "closepath\n" );
+        fprintf( drawingfile, "0.8 setgray\n" );
+        fprintf( drawingfile, "fill\n" );
+        fprintf( drawingfile, "0 setgray\n" );
+      }
+    }
+  }
+  
+ 
+  // -----------
+  //  draw axis
+  // -----------
+
+  double arrowsize = 0.03;
+  double arrowangle = 3.14/6;
+
+  fprintf(drawingfile, "0.001 setlinewidth\n");
+  fprintf(drawingfile, "0 0 0 setrgbcolor\n");
+
+  // axis X + arrow
+  fprintf(drawingfile, "%lf %lf moveto\n", margin/2, 0.5);
+  fprintf(drawingfile, "%lf %lf lineto\n", 1-margin, 0.5);
+  fprintf(drawingfile, "stroke\n");
+  fprintf(drawingfile, "%lf %lf moveto\n", 1-margin, 0.5);
+  fprintf(drawingfile, "%lf %lf lineto\n", 1-margin-arrowsize*cos(arrowangle), 0.5 + arrowsize*sin(arrowangle) );
+  fprintf(drawingfile, "stroke\n");
+  fprintf(drawingfile, "%lf %lf moveto\n", 1-margin, 0.5);
+  fprintf(drawingfile, "%lf %lf lineto\n", 1-margin-arrowsize*cos(arrowangle), 0.5 - arrowsize*sin(arrowangle) );
+  fprintf(drawingfile, "stroke\n");
+
+  // axis Y + arrow
+  fprintf(drawingfile, "%lf %lf moveto\n", margin, margin/2);
+  fprintf(drawingfile, "%lf %lf lineto\n", margin, 1-margin);
+  fprintf(drawingfile, "%lf %lf moveto\n", margin, 1-margin);
+  fprintf(drawingfile, "%lf %lf lineto\n", margin-arrowsize*sin(arrowangle), 1 - margin - arrowsize*cos(arrowangle) );
+  fprintf(drawingfile, "stroke\n");
+  fprintf(drawingfile, "%lf %lf moveto\n", margin, 1-margin);
+  fprintf(drawingfile, "%lf %lf lineto\n", margin+arrowsize*sin(arrowangle), 1 - margin - arrowsize*cos(arrowangle) );
+  fprintf(drawingfile, "stroke\n");
+
+
+  // -----------------------
+  //  draw positive profile
+  // -----------------------
+
+  fprintf(drawingfile,"[ ] 0 setdash\n");
+  fprintf(drawingfile, "0.002 setlinewidth\n");
+  fprintf(drawingfile, "%lf %lf moveto\n", margin, 0.5);
+
+  ae_list_node * node = ((indiv->get_phenotype_activ())->get_points())->get_first();
+  ae_point_2d * pt = NULL;
+  while (node != NULL)
+  {
+    pt = (ae_point_2d *) node->get_obj();
+    fprintf(drawingfile, "%lf %lf lineto\n", margin + scale*pt->x, 0.5 + scale*pt->y);
+    node = node->get_next();
+  }
+  fprintf(drawingfile, "stroke\n");
+    
+
+  // -----------------------
+  //  draw negative profile
+  // -----------------------
+
+  fprintf(drawingfile,"[ ] 0 setdash\n");
+  fprintf(drawingfile, "0.002 setlinewidth\n");
+  fprintf(drawingfile, "%lf %lf moveto\n", margin, 0.5);
+    
+  node = ((indiv->get_phenotype_inhib())->get_points())->get_first();
+  pt = NULL;
+  while (node != NULL)
+  {
+    pt = (ae_point_2d *) node->get_obj();
+    fprintf(drawingfile, "%lf %lf lineto\n", margin + scale*pt->x, 0.5 + scale*pt->y);
+    node = node->get_next();
+  }
+  fprintf(drawingfile, "stroke\n");
+
+  fprintf(drawingfile,"%%%%EOF\n");
+  fclose(drawingfile);
+
+}
+
+
+
+
+void draw_phenotype( ae_individual * indiv, ae_environment * envir, char * directoryName )
 {
   const uint8_t bbsize = 200;  // a4 paper: 595*842 
   double margin = 0.1;
@@ -386,10 +579,36 @@ void draw_phenotype(ae_individual * indiv, ae_environment * envir, char * direct
   fprintf(drawingfile, "%d %d scale\n", bbsize, bbsize);
   fprintf(drawingfile, "%d %d 8 [100 0 0 -100 0 100]\n",bbsize, bbsize);
   fprintf(drawingfile, "{currentfile 3 100 mul string readhexstring pop} bind\n");
+
+
+  // -----------------------------
+  //  paint neutral zones in grey
+  // -----------------------------
+  if ( ae_common::env_axis_is_segmented )
+  {
+    int16_t nb_segments = envir->get_nb_segments();
+    ae_env_segment** segments = envir->get_segments();
+    
+    for ( int16_t i = 0 ; i < nb_segments ; i++ )
+    {
+      if ( segments[i]->feature == NEUTRAL )
+      {    
+        fprintf( drawingfile, "%lf 0 moveto\n", margin + scale * segments[i]->start );
+        fprintf( drawingfile, "%lf 1 lineto\n", margin + scale * segments[i]->start );
+        fprintf( drawingfile, "%lf 1 lineto\n", margin + scale * segments[i]->stop );
+        fprintf( drawingfile, "%lf 0 lineto\n", margin + scale * segments[i]->stop );
+        fprintf( drawingfile, "closepath\n" );
+        fprintf( drawingfile, "0.8 setgray\n" );
+        fprintf( drawingfile, "fill\n" );
+        fprintf( drawingfile, "0 setgray\n" );
+      }
+    }
+  }
  
-  // ----
-  // axis
-  // ----
+    
+  // -----------
+  //  draw axis
+  // -----------
 
   double arrowsize = 0.03;
   double arrowangle = 3.14/6;
@@ -425,9 +644,9 @@ void draw_phenotype(ae_individual * indiv, ae_environment * envir, char * direct
   fprintf(drawingfile, "stroke\n");
 
 
-  // -----------
-  //  phenotype
-  // -----------
+  // ----------------
+  //  draw phenotype
+  // ----------------
   fprintf(drawingfile,"[ ] 0 setdash\n");
   fprintf(drawingfile, "0.002 setlinewidth\n");
   fprintf(drawingfile, "%lf %lf moveto\n", margin, margin);
@@ -442,9 +661,9 @@ void draw_phenotype(ae_individual * indiv, ae_environment * envir, char * direct
   fprintf(drawingfile, "stroke\n");
 
 
-  // --------------
-  //  environment
-  // --------------
+  // ------------------
+  //  draw environment
+  // ------------------
   fprintf(drawingfile,"[ ] 0 setdash\n");
   fprintf(drawingfile, "0.001 setlinewidth\n");
   fprintf(drawingfile, "%lf %lf moveto\n", margin, margin);
@@ -564,7 +783,8 @@ void draw_genetic_unit_with_CDS( ae_genetic_unit* gen_unit, char * directoryName
     theta_first   = utils::mod( 90 - alpha_first, 360 );  //  == tetaB
     theta_last    = utils::mod( 90 - alpha_last, 360 );  //   == tetaA
     if ( theta_first == theta_last ) theta_first = utils::mod( theta_first + 1, 360 ); 
-    nb_sect       = utils::mod( theta_first - theta_last + 1,  360 );
+
+    nb_sect = utils::mod( theta_first - theta_last + 1, 360 );
 
 
     // Outside the circle, look for the inmost layer that has all the sectors between
@@ -572,55 +792,55 @@ void draw_genetic_unit_with_CDS( ae_genetic_unit* gen_unit, char * directoryName
     layer = 0;
     sectors_free = false;
     while ( ! sectors_free )
+    {
+      sectors_free = true;
+      for ( rho = 0 ; rho < nb_sect ; rho++ )
       {
-        sectors_free = true;
-        for ( rho = 0 ; rho < nb_sect ; rho++ )
-          {
-            if ( occupied_sectors[LEADING][layer][utils::mod(theta_first - rho, 360)] )
-              {
-                sectors_free = false;
-                break;
-              }
-          }
-        
-        if ( sectors_free )
-          {
-            break; // All the needed sectors are free on the current layer
-          }
-        else
-          {
-            layer++;
-
-            if ( (layer >= outmost_layer) && (layer < 49) )
-              {
-                // Add a new layer (actually, 2 layers, to maintain the symmetry)
-                occupied_sectors[LEADING][outmost_layer] = new bool[360];
-                occupied_sectors[LAGGING][outmost_layer] = new bool[360];
-                for ( int16_t angle = 0 ; angle < 360 ; angle++ )
-                  {
-                    occupied_sectors[LEADING][outmost_layer][angle] = false;
-                    occupied_sectors[LAGGING][outmost_layer][angle] = false;
-                  }
-                
-                outmost_layer++;
-                break; // A new layer is necessarily free, no need to look further
-              }
-            if ( layer == 49 ) 
-              {
-                // We shall not create a 51th layer, the CDS will be drawn on the
-                // layer, probably over another CDS
-                break;
-              }
-          }
+        if ( occupied_sectors[LEADING][layer][utils::mod(theta_first - rho, 360)] )
+        {
+          sectors_free = false;
+          break;
+        }
       }
+        
+      if ( sectors_free )
+      {
+        break; // All the needed sectors are free on the current layer
+      }
+      else
+      {
+        layer++;
+
+        if ( (layer >= outmost_layer) && (layer < 49) )
+        {
+          // Add a new layer (actually, 2 layers, to maintain the symmetry)
+          occupied_sectors[LEADING][outmost_layer] = new bool[360];
+          occupied_sectors[LAGGING][outmost_layer] = new bool[360];
+          for ( int16_t angle = 0 ; angle < 360 ; angle++ )
+          {
+            occupied_sectors[LEADING][outmost_layer][angle] = false;
+            occupied_sectors[LAGGING][outmost_layer][angle] = false;
+          }
+                
+          outmost_layer++;
+          break; // A new layer is necessarily free, no need to look further
+        }
+        if ( layer == 49 ) 
+        {
+          // We shall not create a 51th layer, the CDS will be drawn on the
+          // layer, probably over another CDS
+          break;
+        }
+      }
+    }
     
     printf("f %d, l %d, af %d, al %d, tf %d, tl %d, nbsect %d, layer %d\n", first, last, alpha_first, alpha_last, theta_first, theta_last, nb_sect, layer);
 
     // Mark sectors to be drawn as occupied
     for ( rho = 0 ; rho < nb_sect ; rho++ )
-      {
-        occupied_sectors[LEADING][layer][utils::mod(theta_first - rho, 360)] = true;
-      }
+    {
+      occupied_sectors[LEADING][layer][utils::mod(theta_first - rho, 360)] = true;
+    }
     // Mark flanking sectors as occupied
     occupied_sectors[LEADING][layer][utils::mod(theta_first + 1, 360)] = true;
     occupied_sectors[LEADING][layer][utils::mod(theta_first - nb_sect, 360)] = true;
@@ -632,19 +852,19 @@ void draw_genetic_unit_with_CDS( ae_genetic_unit* gen_unit, char * directoryName
     layer++; // index starting at 0 but needed to start at 1
     
     if (theta_last > theta_first) 
-      {
-        fprintf(drawingfile, "newpath\n");
-        fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r + layer*0.02, theta_last, 360);
-        fprintf(drawingfile, "stroke\n");
-        fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r + layer*0.02, 0, theta_first);
-        fprintf(drawingfile, "stroke\n");
-      }
+    {
+      fprintf(drawingfile, "newpath\n");
+      fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r + layer*0.02, theta_last, 360);
+      fprintf(drawingfile, "stroke\n");
+      fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r + layer*0.02, 0, theta_first);
+      fprintf(drawingfile, "stroke\n");
+    }
     else
-      {
-        fprintf(drawingfile, "newpath\n");
-        fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r + layer*0.02, theta_last, theta_first);
-        fprintf(drawingfile, "stroke\n");
-      }
+    {
+      fprintf(drawingfile, "newpath\n");
+      fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r + layer*0.02, theta_last, theta_first);
+      fprintf(drawingfile, "stroke\n");
+    }
     
     node = node->get_next();
   }
@@ -664,7 +884,8 @@ void draw_genetic_unit_with_CDS( ae_genetic_unit* gen_unit, char * directoryName
     theta_first   = utils::mod( 90 - alpha_first, 360 );  
     theta_last    = utils::mod( 90 - alpha_last, 360 );     
     if ( theta_first == theta_last ) theta_last = utils::mod( theta_last + 1, 360 ); 
-    nb_sect       = utils::mod( theta_last - theta_first + 1,  360 );
+
+    nb_sect = utils::mod( theta_last - theta_first + 1, 360 );
 
 
     // Inside the circle, look for the inmost layer that has all the sectors between
@@ -847,72 +1068,74 @@ void draw_genetic_unit_with_mRNAs( ae_genetic_unit* gen_unit, char * directoryNa
 
   node = (gen_unit->get_rna_list())[LEADING]->get_first();
   while (node != NULL)
+  {
+    rna = (ae_rna *) node->get_obj();
+    first = rna->get_first_transcribed_pos();
+    last = rna->get_last_transcribed_pos();
+    
+    
+    alpha_first   = (int16_t) round(  (double)(360 * first) / (double)gen_length );  //  == sect1 == alphaB
+    alpha_last    = (int16_t) round(  (double)(360 * last)  / (double)gen_length );  //  == sect2 == alphaA
+    theta_first   = utils::mod( 90 - alpha_first, 360 );  //  == tetaB
+    theta_last    = utils::mod( 90 - alpha_last, 360 );  //   == tetaA
+    if ( theta_first == theta_last ) theta_first = utils::mod( theta_first + 1, 360 ); 
+
+    nb_sect = utils::mod( theta_first - theta_last + 1, 360 );
+
+
+    // Outside the circle, look for the inmost layer that has all the sectors between
+    // theta_first and theta_last free
+    layer = 0;
+    sectors_free = false;
+    while ( ! sectors_free )
     {
-      rna = (ae_rna *) node->get_obj();
-      first = rna->get_first_transcribed_pos();
-      last = rna->get_last_transcribed_pos();
-
-
-      alpha_first   = (int16_t) round(  (double)(360 * first) / (double)gen_length );  //  == sect1 == alphaB
-      alpha_last    = (int16_t) round(  (double)(360 * last)  / (double)gen_length );  //  == sect2 == alphaA
-      theta_first   = utils::mod( 90 - alpha_first, 360 );  //  == tetaB
-      theta_last    = utils::mod( 90 - alpha_last, 360 );  //   == tetaA
-      if ( theta_first == theta_last ) theta_first = utils::mod( theta_first + 1, 360 ); 
-      nb_sect       = utils::mod( theta_first - theta_last + 1,  360 );
-
-
-      // Outside the circle, look for the inmost layer that has all the sectors between
-      // theta_first and theta_last free
-      layer = 0;
-      sectors_free = false;
-      while ( ! sectors_free )
+      sectors_free = true;
+      for ( rho = 0 ; rho < nb_sect ; rho++ )
+      {
+        if ( occupied_sectors[LEADING][layer][utils::mod(theta_first - rho, 360)] )
         {
-          sectors_free = true;
-          for ( rho = 0 ; rho < nb_sect ; rho++ )
-            {
-              if ( occupied_sectors[LEADING][layer][utils::mod(theta_first - rho, 360)] )
-                {
-                  sectors_free = false;
-                  break;
-                }
-            }
-          
-          if ( sectors_free )
-            {
-              break; // All the needed sectors are free on the current layer
-            }
-          else
-            {
-              layer++;
-
-              if ( (layer >= outmost_layer) && (layer < 49) )
-                {
-                  // Add a new layer (actually, 2 layers, to maintain the symmetry)
-                  occupied_sectors[LEADING][outmost_layer] = new bool[360];
-                  occupied_sectors[LAGGING][outmost_layer] = new bool[360];
-                  for ( int16_t angle = 0 ; angle < 360 ; angle++ )
-                    {
-                      occupied_sectors[LEADING][outmost_layer][angle] = false;
-                      occupied_sectors[LAGGING][outmost_layer][angle] = false;
-                    }
-                  
-                  outmost_layer++;
-                  break; // A new layer is necessarily free, no need to look further
-                }
-              if ( layer == 49 ) 
-                {
-                  // We shall not create a 51th layer, the CDS will be drawn on the
-                  // layer, probably over another CDS
-                  break;
-                }
-            }
+          sectors_free = false;
+          break;
         }
+      }
+          
+      if ( sectors_free )
+      {
+        break; // All the needed sectors are free on the current layer
+      }
+      else
+      {
+        layer++;
+
+        if ( (layer >= outmost_layer) && (layer < 49) )
+        {
+          // Add a new layer (actually, 2 layers, to maintain the symmetry)
+          occupied_sectors[LEADING][outmost_layer] = new bool[360];
+          occupied_sectors[LAGGING][outmost_layer] = new bool[360];
+          for ( int16_t angle = 0 ; angle < 360 ; angle++ )
+          {
+            occupied_sectors[LEADING][outmost_layer][angle] = false;
+            occupied_sectors[LAGGING][outmost_layer][angle] = false;
+          }
+                  
+          outmost_layer++;
+          break; // A new layer is necessarily free, no need to look further
+        }
+        if ( layer == 49 ) 
+        {
+          // We shall not create a 51th layer, the CDS will be drawn on the
+          // layer, probably over another CDS
+          break;
+        }
+      }
+    }
 
     // Mark sectors to be drawn as occupied
     for ( rho = 0 ; rho < nb_sect ; rho++ )
-      {
-        occupied_sectors[LEADING][layer][utils::mod(theta_first - rho, 360)] = true;
-      }
+    {
+      occupied_sectors[LEADING][layer][utils::mod(theta_first - rho, 360)] = true;
+    }
+
     // Mark flanking sectors as occupied
     occupied_sectors[LEADING][layer][utils::mod(theta_first + 1, 360)] = true;
     occupied_sectors[LEADING][layer][utils::mod(theta_first - nb_sect, 360)] = true;
@@ -925,93 +1148,93 @@ void draw_genetic_unit_with_mRNAs( ae_genetic_unit* gen_unit, char * directoryNa
     layer++; // index starting at 0 but needed to start at 1
 
     if (theta_last > theta_first) 
-      {
-        fprintf(drawingfile, "newpath\n");
-        fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r + layer*0.02, theta_last, 360);
-        fprintf(drawingfile, "stroke\n");
-        fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r + layer*0.02, 0, theta_first);
-        fprintf(drawingfile, "stroke\n");
-      }
-    else
-      {
-        fprintf(drawingfile, "newpath\n");
-        fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r + layer*0.02, theta_last, theta_first);
-        fprintf(drawingfile, "stroke\n");
-      }
-        
-      node = node->get_next();
+    {
+      fprintf(drawingfile, "newpath\n");
+      fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r + layer*0.02, theta_last, 360);
+      fprintf(drawingfile, "stroke\n");
+      fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r + layer*0.02, 0, theta_first);
+      fprintf(drawingfile, "stroke\n");
     }
+    else
+    {
+      fprintf(drawingfile, "newpath\n");
+      fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r + layer*0.02, theta_last, theta_first);
+      fprintf(drawingfile, "stroke\n");
+    }
+        
+    node = node->get_next();
+  }
   
 
 
   node = (gen_unit->get_rna_list())[LAGGING]->get_first();
   while (node != NULL)
+  {
+    rna = (ae_rna *) node->get_obj();
+    first = rna->get_first_transcribed_pos();
+    last = rna->get_last_transcribed_pos();
+
+
+    alpha_first   = (int16_t) round(  (double)(360 * first) / (double)gen_length );  
+    alpha_last    = (int16_t) round(  (double)(360 * last)  / (double)gen_length );
+    theta_first   = utils::mod( 90 - alpha_first, 360 );  
+    theta_last    = utils::mod( 90 - alpha_last, 360 );     
+    nb_sect = utils::mod( alpha_first - alpha_last + 1,  360 );
+
+
+    // Inside the circle, look for the inmost layer that has all the sectors between
+    // theta_first and theta_last free
+    layer = 0;
+    sectors_free = false;
+    while ( ! sectors_free )
     {
-      rna = (ae_rna *) node->get_obj();
-      first = rna->get_first_transcribed_pos();
-      last = rna->get_last_transcribed_pos();
-
-
-      alpha_first   = (int16_t) round(  (double)(360 * first) / (double)gen_length );  
-      alpha_last    = (int16_t) round(  (double)(360 * last)  / (double)gen_length );
-      theta_first   = utils::mod( 90 - alpha_first, 360 );  
-      theta_last    = utils::mod( 90 - alpha_last, 360 );     
-      if ( theta_first == theta_last ) theta_last = utils::mod( theta_last + 1, 360 ); 
-      nb_sect       = utils::mod( theta_last - theta_first + 1,  360 );
-
-
-      // Inside the circle, look for the inmost layer that has all the sectors between
-      // theta_first and theta_last free
-      layer = 0;
-      sectors_free = false;
-      while ( ! sectors_free )
+      sectors_free = true;
+      for ( rho = 0 ; rho < nb_sect ; rho++ )
+      {
+        if ( occupied_sectors[LAGGING][layer][utils::mod(theta_first + rho, 360)] )
         {
-          sectors_free = true;
-          for ( rho = 0 ; rho < nb_sect ; rho++ )
-            {
-              if ( occupied_sectors[LAGGING][layer][utils::mod(theta_first + rho, 360)] )
-                {
-                  sectors_free = false;
-                  break;
-                }
-            }
-          
-          if ( sectors_free )
-            {
-              break; // All the needed sectors are free on the current layer
-            }
-          else
-            {
-              layer++;
-
-              if ( (layer >= outmost_layer) && (layer < 49) )
-                {
-                  // Add a new layer (actually, 2 layers, to maintain the symmetry)
-                  occupied_sectors[LEADING][outmost_layer] = new bool[360];
-                  occupied_sectors[LAGGING][outmost_layer] = new bool[360];
-                  for ( angle = 0 ; angle < 360 ; angle++ )
-                    {
-                      occupied_sectors[LEADING][outmost_layer][angle] = false;
-                      occupied_sectors[LAGGING][outmost_layer][angle] = false;
-                    }
-                  
-                  outmost_layer++;
-                  break; // A new layer is necessarily free, no need to look further
-                }
-              if ( layer == 49 ) 
-                {
-                  // We shall not create a 51th layer, the CDS will be drawn on the
-                  // layer, probably over another CDS
-                  break;
-                }
-            }
+          sectors_free = false;
+          break;
         }
+      }
+          
+      if ( sectors_free )
+      {
+        break; // All the needed sectors are free on the current layer
+      }
+      else
+      {
+        layer++;
+
+        if ( (layer >= outmost_layer) && (layer < 49) )
+        {
+          // Add a new layer (actually, 2 layers, to maintain the symmetry)
+          occupied_sectors[LEADING][outmost_layer] = new bool[360];
+          occupied_sectors[LAGGING][outmost_layer] = new bool[360];
+          for ( angle = 0 ; angle < 360 ; angle++ )
+          {
+            occupied_sectors[LEADING][outmost_layer][angle] = false;
+            occupied_sectors[LAGGING][outmost_layer][angle] = false;
+          }
+                  
+          outmost_layer++;
+          break; // A new layer is necessarily free, no need to look further
+        }
+        if ( layer == 49 ) 
+        {
+          // We shall not create a 51th layer, the CDS will be drawn on the
+          // layer, probably over another CDS
+          break;
+        }
+      }
+    }
 
     // Mark sectors to be drawn as occupied
     for ( rho = 0 ; rho < nb_sect ; rho++ )
-      {
-        occupied_sectors[LAGGING][layer][utils::mod(theta_first + rho, 360)] = true;
-      }
+    {
+      occupied_sectors[LAGGING][layer][utils::mod(theta_first + rho, 360)] = true;
+    }
+
     // Mark flanking sectors as occupied
     occupied_sectors[LAGGING][layer][utils::mod(theta_first - 1, 360)] = true;
     occupied_sectors[LAGGING][layer][utils::mod(theta_first + nb_sect, 360)] = true;
@@ -1024,22 +1247,22 @@ void draw_genetic_unit_with_mRNAs( ae_genetic_unit* gen_unit, char * directoryNa
     layer++; // index starting at 0 but needed to start at 1
 
     if (theta_first > theta_last) 
-      {
-        fprintf(drawingfile, "newpath\n");
-        fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r - layer*0.02, theta_first, 360);
-        fprintf(drawingfile, "stroke\n");
-        fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r - layer*0.02, 0, theta_last);
-        fprintf(drawingfile, "stroke\n");
-      }
-    else
-      {
-        fprintf(drawingfile, "newpath\n");
-        fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r - layer*0.02, theta_first, theta_last);
-        fprintf(drawingfile, "stroke\n");
-      }
-        
-      node = node->get_next();
+    {
+      fprintf(drawingfile, "newpath\n");
+      fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r - layer*0.02, theta_first, 360);
+      fprintf(drawingfile, "stroke\n");
+      fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r - layer*0.02, 0, theta_last);
+      fprintf(drawingfile, "stroke\n");
     }
+    else
+    {
+      fprintf(drawingfile, "newpath\n");
+      fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r - layer*0.02, theta_first, theta_last);
+      fprintf(drawingfile, "stroke\n");
+    }
+        
+    node = node->get_next();
+  }
 
 
   fprintf(drawingfile,"showpage\n");
@@ -1053,3 +1276,4 @@ void draw_genetic_unit_with_mRNAs( ae_genetic_unit* gen_unit, char * directoryNa
   }
 
 }
+  

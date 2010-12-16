@@ -165,7 +165,6 @@ int main( int argc, char* argv[] )
 
   ae_common::sim_display->toggle_display_on_off();
   ae_common::sim_display->display();
-  
   while ( ae_common::sim_display->quit_signal_received() == false )
   {
     ae_common::sim_display->handle_events();
