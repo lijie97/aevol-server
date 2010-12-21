@@ -194,7 +194,7 @@ ae_individual::ae_individual( void )
 // Copy constructor
 ae_individual::ae_individual( const ae_individual &model )
 {
-  _index_in_population = -1;
+  _index_in_population = model._index_in_population;
   
   _evaluated                    = model._evaluated;
   _transcribed                  = model._transcribed;
@@ -222,9 +222,18 @@ ae_individual::ae_individual( const ae_individual &model )
   }
   
   // Copy phenotype
-  _phenotype_activ = new ae_fuzzy_set( *(model._phenotype_activ) );
-  _phenotype_inhib = new ae_fuzzy_set( *(model._phenotype_inhib) );
-  _phenotype = new ae_phenotype( this, *(model._phenotype) );
+  if ( _phenotype_computed )
+  {
+    _phenotype_activ  = new ae_fuzzy_set( *(model._phenotype_activ) );
+    _phenotype_inhib  = new ae_fuzzy_set( *(model._phenotype_inhib) );
+    _phenotype        = new ae_phenotype( this, *(model._phenotype) );
+  }
+  else
+  {
+    _phenotype_activ  = new ae_fuzzy_set();;
+    _phenotype_inhib  = new ae_fuzzy_set();;
+    _phenotype        = NULL;
+  }
   
   // Copy fitness-related stuff
   if ( ae_common::env_axis_is_segmented )
@@ -250,7 +259,7 @@ ae_individual::ae_individual( const ae_individual &model )
     _fitness_by_feature[i] = model._fitness_by_feature[i];
   }
   
-  _fitness            = model._fitness;
+  _fitness = model._fitness;
   
   // Copy statistical data
   _total_genome_size                = model._total_genome_size;
@@ -295,9 +304,9 @@ ae_individual::ae_individual( const ae_individual &model )
  *
  * The phenotype and the fitness are not set, neither is the statistical data.
  */
-ae_individual::ae_individual( ae_individual* const parent )
+ae_individual::ae_individual( ae_individual* const parent, int32_t index )
 {
-  _index_in_population = -1;
+  _index_in_population = index;
   
   _evaluated                    = false;
   _transcribed                  = false;
@@ -560,20 +569,17 @@ ae_individual* ae_individual::do_replication( int32_t index, int16_t x, int16_t 
   // Copy parent
   #ifdef __NO_X
     #ifndef __REGUL
-      new_indiv = new ae_individual( this );
+      new_indiv = new ae_individual( this, index );
     #else
-      new_indiv = new ae_individual_R( dynamic_cast<ae_individual_R*>(this) );
+      new_indiv = new ae_individual_R( dynamic_cast<ae_individual_R*>(this), index );
     #endif
   #elif defined __X11
     #ifndef __REGUL
-      new_indiv = new ae_individual_X11( dynamic_cast<ae_individual_X11*>(this) );
+      new_indiv = new ae_individual_X11( dynamic_cast<ae_individual_X11*>(this), index );
     #else
-      new_indiv = new ae_individual_R_X11( dynamic_cast<ae_individual_R_X11*>(this) );
+      new_indiv = new ae_individual_R_X11( dynamic_cast<ae_individual_R_X11*>(this), index );
     #endif
   #endif
-  
-  // Set new indiv's index in population
-  new_indiv->set_index_in_population( index );
   
   // Update the new individual's location on the grid
   // this is needed if the population is structured

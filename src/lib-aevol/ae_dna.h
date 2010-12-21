@@ -100,6 +100,8 @@ class ae_dna : public ae_string
     inline ae_dna_replic_report*  get_replic_report( void ) const;
     inline void                   set_replic_report( ae_dna_replic_report * rep ); // for post-treatment only
     
+    inline ae_genetic_unit *      get_genetic_unit( void ) const;
+    
     char* get_subsequence( int32_t from, int32_t to, ae_strand strand ) const; // WARNING : creates a new char[...] (up to you to delete it!)
 
 
@@ -208,6 +210,11 @@ inline ae_dna_replic_report* ae_dna::get_replic_report( void ) const
 inline void ae_dna::set_replic_report( ae_dna_replic_report * rep )
 {
   _replic_report = rep;
+}
+
+inline ae_genetic_unit * ae_dna::get_genetic_unit( void ) const
+{
+  return _gen_unit;
 }
 
 

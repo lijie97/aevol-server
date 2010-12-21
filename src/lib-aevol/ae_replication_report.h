@@ -81,6 +81,7 @@ class ae_replication_report : public ae_object
     // =================================================================
     //                              Accessors
     // =================================================================
+    inline ae_individual * get_indiv( void ) const;
     int32_t         get_index( void ) const;
     inline void     set_parent_index( int32_t parent_index );
     inline int32_t  get_parent_index( void ) const;
@@ -162,6 +163,11 @@ class ae_replication_report : public ae_object
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
+inline ae_individual * ae_replication_report::get_indiv( void ) const
+{
+  return _indiv;
+}
+
 int32_t ae_replication_report::get_parent_index( void ) const
 {
   return _parent_index;

@@ -70,7 +70,7 @@ ae_individual_X11::ae_individual_X11( void ) : ae_individual()
   init_occupied_sectors();
 }
 
-ae_individual_X11::ae_individual_X11( ae_individual_X11* const parent ) : ae_individual( parent )
+ae_individual_X11::ae_individual_X11( ae_individual_X11* const parent, int32_t index ) : ae_individual( parent, index )
 {
   init_occupied_sectors();
 }

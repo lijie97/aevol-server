@@ -77,7 +77,7 @@ class ae_individual : public ae_object
     // =================================================================
     ae_individual( void );
     ae_individual( const ae_individual &model );
-    ae_individual( ae_individual* const parent );
+    ae_individual( ae_individual* const parent, int32_t index );
     ae_individual( gzFile* backup_file );
 
     // =================================================================
@@ -204,7 +204,13 @@ class ae_individual : public ae_object
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    int32_t       _index_in_population; // TODO : check duplicate info with replication report
+    int32_t  _index_in_population;
+    int32_t  _rank_in_population;
+    // WARNING : The index is no longer corresponding to the rank of the individual.
+    //           The reason for this change is that we now need an identifier for the individuals
+    //           as soon as they are created (the rank is only known when all the individuals have been evaluated).
+    //           The rank will now be handled in a specific new attribute.
+    
     ae_fuzzy_set* _phenotype_activ;
     ae_fuzzy_set* _phenotype_inhib;
     ae_phenotype* _phenotype;

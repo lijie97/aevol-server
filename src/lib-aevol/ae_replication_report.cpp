@@ -105,16 +105,23 @@ ae_replication_report::ae_replication_report( gzFile* backup_file )
 {
   gzread( backup_file, &_parent_index,  sizeof(_parent_index) );
   gzread( backup_file, &_donnor_index,  sizeof(_donnor_index) );
+  printf( "  _parent_index : %"PRId32"\n", _parent_index );
+  printf( "  _donnor_index : %"PRId32"\n", _donnor_index );
 
   gzread( backup_file, &_parent_metabolic_error,  sizeof(_parent_metabolic_error) );
   gzread( backup_file, &_parent_secretion_error,  sizeof(_parent_secretion_error) );
   gzread( backup_file, &_donnor_metabolic_error,  sizeof(_donnor_metabolic_error) );
   gzread( backup_file, &_parent_genome_size,      sizeof(_parent_genome_size) );
   gzread( backup_file, &_donnor_genome_size,      sizeof(_donnor_genome_size) );
+  printf( "  _parent_metabolic_error : %lf\n", _parent_metabolic_error );
+  printf( "  _parent_secretion_error : %lf\n", _parent_secretion_error );
+  printf( "  _donnor_metabolic_error : %lf\n", _donnor_metabolic_error );
+  printf( "  _parent_genome_size : %"PRId32"\n", _parent_genome_size );
+  printf( "  _donnor_genome_size : %"PRId32"\n", _donnor_genome_size );
   
   int32_t nb_dna_replic_reports;
   gzread( backup_file, &nb_dna_replic_reports, sizeof(nb_dna_replic_reports) );
-  
+  printf( "  nb_dna_replic_reports : %"PRId32"\n", nb_dna_replic_reports );
   
   
   _dna_replic_reports = new ae_list();
@@ -127,17 +134,21 @@ ae_replication_report::ae_replication_report( gzFile* backup_file )
   for ( mydnareport = 0 ; mydnareport < nb_dna_replic_reports ; mydnareport++ )
   {
     dnareport = new ae_dna_replic_report();
+    
     gzread( backup_file, &nb_rears, sizeof(nb_rears) );
-    for ( myevent  = 0 ; myevent < nb_rears ; myevent ++ )
+    printf( "  nb_rears : %"PRId32"\n", nb_rears );
+    for ( myevent  = 0 ; myevent < nb_rears ; myevent++ )
     {
-      event = new ae_mutation(backup_file);
-      dnareport->get_rearrangements()->add(event);
+      event = new ae_mutation( backup_file );
+      dnareport->get_rearrangements()->add( event );
     }
+    
     gzread( backup_file, &nb_muts, sizeof(nb_muts) );
-    for(myevent  = 0; myevent < nb_muts; myevent ++)
+    printf( "  nb_rears : %"PRId32"\n", nb_rears );
+    for(myevent  = 0 ; myevent < nb_muts ; myevent++ )
     {
-      event = new ae_mutation(backup_file);
-      dnareport->get_mutations()->add(event);
+      event = new ae_mutation( backup_file );
+      dnareport->get_mutations()->add( event );
     }
 
     dnareport->compute_stats();
@@ -170,6 +181,8 @@ void ae_replication_report::write_to_backup( gzFile* backup_file )
   // Store individual identifiers
   gzwrite( backup_file, &_parent_index, sizeof(_parent_index) );
   gzwrite( backup_file, &_donnor_index, sizeof(_donnor_index) );
+  printf( "  _parent_index : %"PRId32"\n", _parent_index );
+  printf( "  _donnor_index : %"PRId32"\n", _donnor_index );
 
   // Store parent and donnor's basic info
   gzwrite( backup_file, &_parent_metabolic_error, sizeof(_parent_metabolic_error) );
@@ -177,10 +190,16 @@ void ae_replication_report::write_to_backup( gzFile* backup_file )
   gzwrite( backup_file, &_donnor_metabolic_error, sizeof(_donnor_metabolic_error) );
   gzwrite( backup_file, &_parent_genome_size,     sizeof(_parent_genome_size) );
   gzwrite( backup_file, &_donnor_genome_size,     sizeof(_donnor_genome_size) );
+  printf( "  _parent_metabolic_error : %lf\n", _parent_metabolic_error );
+  printf( "  _parent_secretion_error : %lf\n", _parent_secretion_error );
+  printf( "  _donnor_metabolic_error : %lf\n", _donnor_metabolic_error );
+  printf( "  _parent_genome_size : %"PRId32"\n", _parent_genome_size );
+  printf( "  _donnor_genome_size : %"PRId32"\n", _donnor_genome_size );
   
   // For each genetic unit, write the mutations and rearrangements undergone during replication
   int32_t nb_dna_replic_reports = _dna_replic_reports->get_nb_elts();
   gzwrite( backup_file, &nb_dna_replic_reports, sizeof(nb_dna_replic_reports) );
+  printf( "  nb_dna_replic_reports : %"PRId32"\n", nb_dna_replic_reports );
 
   ae_list_node*         report_node = _dna_replic_reports->get_first();
   ae_dna_replic_report* report      = NULL;
@@ -192,6 +211,7 @@ void ae_replication_report::write_to_backup( gzFile* backup_file )
     // Store rearrangements
     int32_t nb_rears = report->get_nb_rearrangements();
     gzwrite( backup_file, &nb_rears, sizeof(nb_rears) );
+    printf( "  nb_rears : %"PRId32"\n", nb_rears );
 
     ae_list_node* rear_node  = report->get_rearrangements()->get_first();
     while ( rear_node != NULL )
@@ -203,6 +223,7 @@ void ae_replication_report::write_to_backup( gzFile* backup_file )
     // Store mutations
     int32_t nb_muts = report->get_nb_small_mutations();
     gzwrite( backup_file, &nb_muts, sizeof(nb_muts) );
+    printf( "  nb_muts : %"PRId32"\n", nb_muts );
 
     ae_list_node* mut_node  = report->get_mutations()->get_first();
     while ( mut_node != NULL )

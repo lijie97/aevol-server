@@ -352,8 +352,7 @@ int main(int argc, char** argv)
       }
       
       ae_simulation * sim = new ae_simulation ( backup_file_name, false );
-      stored_indiv = new ae_individual( (ae_individual *) \
-                     ((sim->get_pop())->get_indivs())->get_object(index) ); // copy TODO : Why not use the copy constructor?
+      stored_indiv = new ae_individual( * (ae_individual *)sim->get_pop()->get_indivs()->get_object(index) );
       
 
       ae_environment * stored_env = sim->get_env();

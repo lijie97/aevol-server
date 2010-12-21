@@ -83,8 +83,15 @@ ae_dna::ae_dna( ae_genetic_unit* gen_unit, const ae_dna &model ) : ae_string( mo
   _gen_unit = gen_unit;
   
   if ( ae_common::sim->get_num_gener() > 0 && ae_common::record_tree )
-  {  
-    _replic_report = new ae_dna_replic_report( *(model._replic_report) );
+  {
+    if ( model._replic_report != NULL )
+    {
+      _replic_report = new ae_dna_replic_report( *(model._replic_report) );
+    }
+    else
+    {
+      _replic_report = NULL;
+    }
   }
 }
 
@@ -1003,6 +1010,12 @@ ae_mutation* ae_dna::do_duplication( void )
   // Remember the length of the segment to be duplicated and of the former genome
   int32_t segment_length = utils::mod( pos_2 - pos_1, _length );
   int32_t former_genome_size = _length;
+  
+  if ( _gen_unit->get_indiv()->get_index_in_population() == 826 || _gen_unit->get_indiv()->get_index_in_population() == 284 )
+  {
+    printf( "ind %"PRId32" DUPL( %"PRId32", %"PRId32", %"PRId32" ) (%"PRId32" %"PRId32" => %"PRId32")\n", _gen_unit->get_indiv()->get_index_in_population(), 
+            pos_1, pos_2, pos_3, _gen_unit->get_indiv()->get_amount_of_dna(), _length, _length+segment_length );
+  }
   
   if ( do_duplication( pos_1, pos_2, pos_3 ) == true )
   {

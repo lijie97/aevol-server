@@ -85,7 +85,7 @@ int main(int argc, char** argv)
   // OK si NORMAL, sortir si LIGHT
 
 
-  printf("\n ***** WARNING : Parameters' change in the middle of a generation is not managed *****\n");
+  printf("\n  WARNING : Parameters' change in the middle of a generation is not managed.n");
  
 
   // =====================
@@ -202,7 +202,7 @@ int main(int argc, char** argv)
     // population, we know that the best individual has the index
     // N-1, if N is the size of the population.
     final_indiv = tree->get_nb_indivs( end_gener ) - 1;
-    if ( verbose ) printf("The final individual has the index %"PRId32"\n", final_indiv);
+    if ( verbose ) printf( "The final individual has the index %"PRId32"\n", final_indiv );
   }
 
 
@@ -240,48 +240,57 @@ int main(int argc, char** argv)
     printf("================================================================================\n");
   }
 
-  ae_replication_report ** reports = new ae_replication_report*[end_gener - begin_gener];
+  // Indices and replication reports of the individuals in the lineage
+  int32_t *                 indices = new int32_t[end_gener - begin_gener + 1];
+  ae_replication_report **  reports = new ae_replication_report*[end_gener - begin_gener];
   // NB: we do not need the report of the ancestor at generation begin_gener
   // (it might be the generation 0, for which we have no reports)
   // reports[0] = how ancestor at generation begin_gener + 1 was created 
   // reports[i] = how ancestor at generation begin_gener + i + 1 was created
-  // reports[end_gener - begin_gener - 1] = how the final individual was created  
-  reports[end_gener - begin_gener - 1] = new ae_replication_report( *(tree->get_report(end_gener, final_indiv)) ); // copy 
+  // reports[end_gener - begin_gener - 1] = how the final individual was created
+  
+  // Copy the replication report of the individual whose lineage we are computing
+  indices[end_gener - begin_gener] = final_indiv;
 
-  int32_t i, t;
-  int32_t index; 
-
+  
+  int32_t i, num_gener;
  
-  for ( i = end_gener - begin_gener - 2 ; i >= 0 ; i-- )
+  for ( i = end_gener - begin_gener - 1 ; i >= 0 ; i-- )
   {
     // We want to fill reports[i], that is to say, how the ancestor
-    // at generation  begin_gener + i + 1  was created
+    // at generation begin_gener + i + 1  was created
 
-    t = begin_gener + i + 1;
-    if ( verbose ) printf("Getting the replication report for the ancestor at generation %"PRId32"\n", t);
+    num_gener = begin_gener + i + 1;
+    if ( verbose ) printf( "Getting the replication report for the ancestor at generation %"PRId32"\n", num_gener );
 
     
-    if ( utils::mod( t, ae_common::tree_step ) == 0 ) 
+    if ( utils::mod( num_gener, ae_common::tree_step ) == 0 ) 
     {
       // Change the tree file 
       delete tree;
 
       #ifdef __REGUL
-        sprintf(tree_file_name,"tree/tree_%06"PRId32".rae", t); 
+        sprintf( tree_file_name,"tree/tree_%06"PRId32".rae", num_gener ); 
       #else
-        sprintf(tree_file_name,"tree/tree_%06"PRId32".ae",  t); 
+        sprintf( tree_file_name,"tree/tree_%06"PRId32".ae",  num_gener ); 
       #endif
       
       tree = new ae_tree( backup_file_name, tree_file_name );
     }
     
 
-    // We look in the previously retrieved report to find the index of the ancestor 
-    index = reports[i + 1]->get_parent_index(); 
+    // Copy the replication report of the ancestor
+    reports[i] = new ae_replication_report( *(tree->get_report(num_gener, indices[i + 1])) );
 
-    reports[i] = new ae_replication_report( *(tree->get_report(t, index)) ); // copy
-
+    // Retreive the index of the ancestor from the report
+    indices[i] = reports[i]->get_parent_index();
   }
+  
+  for ( i = 0 ; i < end_gener - begin_gener ; i++ )
+  {
+    printf( "  indices[%"PRId32"] : %"PRId32"\n", i, indices[i] );
+  }
+  
 
   if ( verbose )  printf("OK\n");
 
@@ -300,17 +309,18 @@ int main(int argc, char** argv)
 
   char genomes_file_name[50];
 #ifdef __REGUL
-  sprintf(genomes_file_name,"backup/gen_%06"PRId32".rae", begin_gener);
+  sprintf( genomes_file_name,"backup/gen_%06"PRId32".rae", begin_gener );
 #else
-  sprintf(genomes_file_name,"backup/gen_%06"PRId32".ae",  begin_gener);
+  sprintf( genomes_file_name,"backup/gen_%06"PRId32".ae",  begin_gener );
 #endif
 
 
   ae_simulation * sim = new ae_simulation ( genomes_file_name, false );
 
-  // The list of individuals is sorted according to the index
-  ae_individual * initial_ancestor = new ae_individual( (ae_individual *) \
-   ((sim->get_pop())->get_indivs())->get_object(reports[0]->get_parent_index()) ); // copy
+  // Copy the initial ancestor
+  // NB : The list of individuals is sorted according to the index
+  ae_individual * initial_ancestor_tmp  = (ae_individual *)sim->get_pop()->get_indivs()->get_object( indices[0] );
+  ae_individual * initial_ancestor      = new ae_individual( *initial_ancestor_tmp );
   
   ae_common::write_to_backup( lineage_file );
   
@@ -347,16 +357,16 @@ int main(int argc, char** argv)
   }
 
 
-  ae_list_node * repnode = NULL;
+  ae_list_node * report_node = NULL;
   ae_dna_replic_report * rep = NULL;
-  ae_list_node * mnode = NULL;
+  ae_list_node * mut_node = NULL;
   ae_mutation *  mut = NULL;
-  ae_list_node*   unitnode = NULL;
+  ae_list_node*   gen_unit_node = NULL;
   ae_genetic_unit *  unit = NULL;
 
-  ae_individual * stored_indiv = NULL;
-  ae_list_node*   storedunitnode = NULL;
-  ae_genetic_unit *  storedunit = NULL;
+  ae_individual *   stored_indiv          = NULL;
+  ae_list_node *    stored_gen_unit_node  = NULL;
+  ae_genetic_unit * stored_gen_unit       = NULL;
 
   
 
@@ -364,127 +374,144 @@ int main(int argc, char** argv)
   // replaying the mutations has side effects on the list of promoters,
   // which is stored in the individual
 
-  for ( i = 0; i < end_gener - begin_gener; i++ )
+  for ( i = 0 ; i < end_gener - begin_gener ; i++ )
+  {
+    num_gener = begin_gener + i + 1; // where are we in time...
+    
+    if ( verbose )
     {
-      t = begin_gener + i + 1;         // where are we in time...
-      index = reports[i]->get_index(); // who are we building...
-      
-      if ( verbose ) printf("Writing the replication report for generation %"PRId32" (index %"PRId32")\n", t, index); 
-      reports[i]->write_to_backup( lineage_file );
-      if ( verbose ) printf(" OK\n");
-      
+      printf( "Writing the replication report for generation %"PRId32" (built from indiv %"PRId32" at generation %"PRId32")\n",
+              num_gener, indices[i], num_gener-1 );
+    }
+    reports[i]->write_to_backup( lineage_file );
+    if ( verbose ) printf( " OK\n" );
+    
 
-      if( check_genome )
-        {
-          if (utils::mod(t, ae_common::backup_step) == 0)
-            {
+    if( check_genome )
+    {
+      if ( utils::mod( num_gener, ae_common::backup_step ) == 0 )
+      {
 #ifdef __REGUL
-              sprintf(genomes_file_name,"backup/gen_%06"PRId32".rae", t);
+        sprintf( genomes_file_name,"backup/gen_%06"PRId32".rae", num_gener );
 #else
-              sprintf(genomes_file_name,"backup/gen_%06"PRId32".ae", t);
+        sprintf( genomes_file_name,"backup/gen_%06"PRId32".ae", num_gener );
 #endif
-              if ( verbose )
-                {
-                  printf("Loading the data stored in backup file %s\n",genomes_file_name);
-                }
-              
-              sim = new ae_simulation ( genomes_file_name, false );
-              stored_indiv = new ae_individual( (ae_individual *) \
-                                                ((sim->get_pop())->get_indivs())->get_object(index) ); // copy
-              
-              delete sim;
-            }
-              
-      
-          // Warning: this portion of code won't work if the number of units changes
-          // during the evolution
-          
-          repnode = (reports[i]->get_dna_replic_reports())->get_first();
-          unitnode = (initial_ancestor->get_genetic_unit_list())->get_first();
-          if (utils::mod(t, ae_common::backup_step) == 0) storedunitnode = (stored_indiv->get_genetic_unit_list())->get_first();
-          while (repnode != NULL)
-            {
-              assert(unitnode != NULL);
-              if (utils::mod(t, ae_common::backup_step) == 0) assert(storedunitnode != NULL);
-              
-              rep = (ae_dna_replic_report *) repnode->get_obj();
-              unit = (ae_genetic_unit *) unitnode->get_obj();
-              if (utils::mod(t, ae_common::backup_step) == 0) storedunit = (ae_genetic_unit *) storedunitnode->get_obj();
-              
-              mnode = (rep->get_rearrangements())->get_first();              
-              while (mnode != NULL)
-                {
-                  mut = (ae_mutation *) mnode->get_obj();
-                  (unit->get_dna())->undergo_this_mutation(mut); 
-                  mnode = mnode->get_next();
-                }
-              
-              mnode = (rep->get_mutations())->get_first();              
-              while (mnode != NULL)
-                {
-                  mut = (ae_mutation *) mnode->get_obj();
-                  (unit->get_dna())->undergo_this_mutation(mut); 
-                  mnode = mnode->get_next();
-                }
-
-              if (utils::mod(t, ae_common::backup_step) == 0)
-                {
-                  if ( verbose )
-                    {
-                      printf("Checking the sequence of the unit...");
-                      fflush(NULL);
-                    }
-
-                  char * str1 = new char[(unit->get_dna())->get_length() + 1];
-                  memcpy(str1, (unit->get_dna())->get_data(), \
-                         (unit->get_dna())->get_length()*sizeof(char));
-                  str1[(unit->get_dna())->get_length()] = '\0';
-                  
-                  char * str2 = new char[(storedunit->get_dna())->get_length() + 1];
-                  memcpy(str2, (storedunit->get_dna())->get_data(), (storedunit->get_dna())->get_length()*sizeof(char));
-                  str2[(storedunit->get_dna())->get_length()] = '\0';
-                  
-                  if(strncmp(str1,str2, (storedunit->get_dna())->get_length())==0)
-                    {
-                      if ( verbose ) printf(" OK\n");
-                    }
-                  else
-                    {
-                      if ( verbose ) printf( " ERROR !\n" );
-                      fprintf( stderr, "Error: the rebuilt unit is not the same as \n");
-                      fprintf( stderr, "the one stored in backup file %s\n", genomes_file_name);
-                      fprintf( stderr, "Rebuilt unit : %"PRId32" bp\n %s\n", (int32_t)strlen(str1), str1 );
-                      fprintf( stderr, "Stored unit  : %"PRId32" bp\n %s\n", (int32_t)strlen(str2), str2 );
-                      delete [] str1;
-                      delete [] str2;
-                      gzclose(lineage_file);
-                      delete initial_ancestor;
-                      delete stored_indiv;
-                      delete [] reports;
-                      exit(EXIT_FAILURE);
-                    }
-                  
-                  delete [] str1;
-                  delete [] str2;
-                }
-
-          
-              repnode = repnode->get_next();
-              unitnode = unitnode->get_next();
-              if (utils::mod(t, ae_common::backup_step) == 0) storedunitnode = storedunitnode->get_next();
-            }
-          
-          assert(unitnode == NULL);
-          if (utils::mod(t, ae_common::backup_step) == 0)
-            {
-              assert(storedunitnode == NULL);
-              delete stored_indiv;
-            }
-
+        if ( verbose )
+        {
+          printf( "Loading the data stored in backup file %s\n",genomes_file_name );
         }
-      //      initial_ancestor->evaluate();
+        
+        // Copy the ancestor from the backup
+        sim = new ae_simulation ( genomes_file_name, false );
+        ae_individual * stored_indiv_tmp = (ae_individual *) sim->get_pop()->get_indivs()->get_object( indices[i+1] );
+        stored_indiv = new ae_individual( *stored_indiv_tmp );
+        
+        delete sim;
+      }
+          
+  
+      // Warning: this portion of code won't work if the number of units changes
+      // during the evolution
+      
+      report_node   = reports[i]->get_dna_replic_reports()->get_first();
+      gen_unit_node = initial_ancestor->get_genetic_unit_list()->get_first();
+      if ( utils::mod( num_gener, ae_common::backup_step ) == 0 )
+      {
+        stored_gen_unit_node = stored_indiv->get_genetic_unit_list()->get_first();
+      }
+      
+      while ( report_node != NULL )
+      {
+        assert( gen_unit_node != NULL );
+        if ( utils::mod( num_gener, ae_common::backup_step ) == 0 )
+        {
+          assert( stored_gen_unit_node != NULL );
+        }
+        
+        rep = (ae_dna_replic_report *) report_node->get_obj();
+        unit = (ae_genetic_unit *) gen_unit_node->get_obj();
+        if ( utils::mod( num_gener, ae_common::backup_step ) == 0 )
+        {
+          stored_gen_unit = (ae_genetic_unit *) stored_gen_unit_node->get_obj();
+        }
+        
+        mut_node = (rep->get_rearrangements())->get_first();              
+        while ( mut_node != NULL )
+        {
+          mut = (ae_mutation *) mut_node->get_obj();
+          (unit->get_dna())->undergo_this_mutation(mut);
+          mut_node = mut_node->get_next();
+        }
+        
+        mut_node = (rep->get_mutations())->get_first();              
+        while (mut_node != NULL)
+        {
+          mut = (ae_mutation *) mut_node->get_obj();
+          (unit->get_dna())->undergo_this_mutation(mut); 
+          mut_node = mut_node->get_next();
+        }
+
+        if ( utils::mod( num_gener, ae_common::backup_step ) == 0 )
+        {
+          if ( verbose )
+          {
+            printf( "Checking the sequence of the unit..." );
+            fflush( stdout );
+          }
+
+          char * str1 = new char[(unit->get_dna())->get_length() + 1];
+          memcpy(str1, (unit->get_dna())->get_data(), \
+                 (unit->get_dna())->get_length()*sizeof(char));
+          str1[(unit->get_dna())->get_length()] = '\0';
+          
+          char * str2 = new char[(stored_gen_unit->get_dna())->get_length() + 1];
+          memcpy(str2, (stored_gen_unit->get_dna())->get_data(), (stored_gen_unit->get_dna())->get_length()*sizeof(char));
+          str2[(stored_gen_unit->get_dna())->get_length()] = '\0';
+          
+          if ( strncmp( str1, str2, (stored_gen_unit->get_dna())->get_length() ) == 0 )
+          {
+            if ( verbose ) printf( " OK\n" );
+          }
+          else
+          {
+            if ( verbose ) printf( " ERROR !\n" );
+            fprintf( stderr, "Error: the rebuilt unit is not the same as \n");
+            fprintf( stderr, "the one stored in backup file %s\n", genomes_file_name);
+            fprintf( stderr, "Rebuilt unit : %"PRId32" bp\n %s\n", (int32_t)strlen(str1), str1 );
+            fprintf( stderr, "Stored unit  : %"PRId32" bp\n %s\n", (int32_t)strlen(str2), str2 );
+            delete [] str1;
+            delete [] str2;
+            gzclose(lineage_file);
+            delete initial_ancestor;
+            delete stored_indiv;
+            delete [] reports;
+            exit(EXIT_FAILURE);
+          }
+          
+          delete [] str1;
+          delete [] str2;
+        }
+
+    
+        report_node = report_node->get_next();
+        gen_unit_node = gen_unit_node->get_next();
+        if ( utils::mod(num_gener, ae_common::backup_step) == 0 )
+        {
+          stored_gen_unit_node = stored_gen_unit_node->get_next();
+        }
+      }
+      
+      assert(gen_unit_node == NULL);
+      if ( utils::mod( num_gener, ae_common::backup_step ) == 0 )
+      {
+        assert(stored_gen_unit_node == NULL);
+        delete stored_indiv;
+      }
 
     }
+    //      initial_ancestor->evaluate();
+
+  }
 
   //  ae_common::clean();
 

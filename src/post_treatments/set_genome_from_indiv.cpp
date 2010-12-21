@@ -118,7 +118,7 @@ int main( int argc, char* argv[] )
   int i;
   for (i=0;i<nb_indivs;i++)
   {
-    ae_individual* new_indiv = new ae_individual(indiv);
+    ae_individual* new_indiv = new ae_individual( *indiv );
     ae_individual* old_indiv = (ae_individual*) indiv_node->get_obj();
     delete old_indiv;
     indiv_node->set_obj(new_indiv);

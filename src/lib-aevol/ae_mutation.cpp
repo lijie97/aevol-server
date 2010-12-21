@@ -133,7 +133,7 @@ ae_mutation::ae_mutation( const ae_mutation &model )
     }
     default :
     {
-      fprintf( stderr, "ERROR, invalid mutation type.\n" );
+      fprintf( stderr, "ERROR, invalid mutation type \"%d\" in file %s:%d.\n", model._mut_type, __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
       break;
     }
@@ -161,8 +161,9 @@ ae_mutation::ae_mutation( gzFile* backup_file )
     case S_INS :
     {
       _pos = new int32_t;
-      gzread( backup_file, _pos,  sizeof(*_pos) );
+      gzread( backup_file, _pos,      sizeof(*_pos) );
       gzread( backup_file, &_length,  sizeof(_length) );
+      
       _seq = new char[_length + 1];
       gzread( backup_file, _seq,  _length * sizeof(_seq[0]) );
       _seq[_length] = '\0';
@@ -171,7 +172,7 @@ ae_mutation::ae_mutation( gzFile* backup_file )
     case S_DEL :
     {
       _pos = new int32_t;
-      gzread( backup_file, _pos,  sizeof(*_pos) );
+      gzread( backup_file, _pos,      sizeof(*_pos) );
       gzread( backup_file, &_length,  sizeof(_length) );
       break;
     }
@@ -179,32 +180,49 @@ ae_mutation::ae_mutation( gzFile* backup_file )
     {
       _pos = new int32_t[3];
       gzread( backup_file, _pos,  3 * sizeof(_pos[0]) );
+      
+      _align_score = new int16_t;
+      gzread( backup_file, _align_score, sizeof(*_align_score) );
+      
       break;
     }
     case DEL :
     {
       _pos = new int32_t[2];
       gzread( backup_file, _pos,  2 * sizeof(_pos[0]) );
+      
+      _align_score = new int16_t;
+      gzread( backup_file, _align_score, sizeof(*_align_score) );
+      
       break;
     }
     case TRANS :
     {
       _pos = new int32_t[4];
       gzread( backup_file, _pos,  4 * sizeof(_pos[0]) );
+      
       int8_t tmp_invert;
       gzread( backup_file, &tmp_invert,  sizeof(tmp_invert) );
       _invert = (tmp_invert != 0);
+      
+      _align_score = new int16_t[2];
+      gzread( backup_file, _align_score, 2 * sizeof(_align_score[0]) );
+      
       break;
     }
     case INV :
     {
       _pos = new int32_t[2];
       gzread( backup_file, _pos,  2 * sizeof(_pos[0]) );
+      
+      _align_score = new int16_t;
+      gzread( backup_file, _align_score, sizeof(*_align_score) );
+      
       break;
     }
     default :
     {
-      fprintf( stderr, "ERROR, invalid mutation type.\n" );
+      fprintf( stderr, "ERROR, invalid mutation type \"%d\" in file %s:%d.\n", _mut_type, __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
       break;
     }
@@ -255,7 +273,7 @@ ae_mutation::~ae_mutation( void )
       delete [] _seq;
       break;
     default :
-      printf( "ERROR, invalid mutation type in file %s:%d\n", __FILE__, __LINE__ );
+      fprintf( stderr, "ERROR, invalid mutation type \"%d\" in file %s:%d.\n", _mut_type, __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
       break;
   }
@@ -367,6 +385,7 @@ void ae_mutation::write_to_backup( gzFile* backup_file ) // Usually <backup_file
 {
   int8_t tmp_mut_type = _mut_type;
   gzwrite( backup_file, &tmp_mut_type,  sizeof(tmp_mut_type) );
+  printf( "write tmp_mut_type : %"PRId8"\n", tmp_mut_type );
 
   switch ( _mut_type )
   {
@@ -391,13 +410,17 @@ void ae_mutation::write_to_backup( gzFile* backup_file ) // Usually <backup_file
     case DUPL :
     {
       gzwrite( backup_file, _pos,         3 * sizeof(_pos[0]) );
+      printf( "write _pos : %"PRId32" %"PRId32" %"PRId32"\n", _pos[0], _pos[1], _pos[2] );
       gzwrite( backup_file, _align_score, sizeof(*_align_score) );
+      printf( "write _align_score : %"PRId16"\n", *_align_score );
       break;
     }
     case DEL :
     {
       gzwrite( backup_file, _pos,         2 * sizeof(_pos[0]) );
+      printf( "write _pos : %"PRId32" %"PRId32"\n", _pos[0], _pos[1] );
       gzwrite( backup_file, _align_score, sizeof(*_align_score) );
+      printf( "write _align_score : %"PRId16"\n", *_align_score );
       break;
     }
     case TRANS :
@@ -416,7 +439,7 @@ void ae_mutation::write_to_backup( gzFile* backup_file ) // Usually <backup_file
     }
     default :
     {
-      printf( "ERROR, invalid mutation type in file %s:%d\n", __FILE__, __LINE__ );
+      fprintf( stderr, "ERROR, invalid mutation type \"%d\" in file %s:%d.\n", _mut_type, __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
       break;
     }
@@ -477,7 +500,7 @@ void ae_mutation::get_generic_description_string( char * str )
     }
     default :
     {
-      printf( "ERROR, invalid mutation type in file %s:%d\n", __FILE__, __LINE__ );
+      fprintf( stderr, "ERROR, invalid mutation type \"%d\" in file %s:%d.\n", _mut_type, __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
       break;
     }
@@ -552,7 +575,7 @@ int32_t ae_mutation::segment_length( int32_t gen_unit_len )
     }
     default :
     {
-      printf( "ERROR, invalid mutation type in file %s:%d\n", __FILE__, __LINE__ );
+      fprintf( stderr, "ERROR, invalid mutation type \"%d\" in file %s:%d.\n", _mut_type, __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
       break;
     }

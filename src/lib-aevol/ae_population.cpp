@@ -240,18 +240,17 @@ ae_population::ae_population( gzFile* backup_file )
       {
         #ifdef __NO_X
           #ifndef __REGUL
-            indiv = new ae_individual( dynamic_cast <ae_individual*> (_indivs->get_object(i)) );
+            indiv = new ae_individual( dynamic_cast <ae_individual*> (_indivs->get_object(i)), nbclone * _nb_indivs + i );
           #else
-            indiv = new ae_individual_R( dynamic_cast <ae_individual_R*> (_indivs->get_object(i)) );
+            indiv = new ae_individual_R( dynamic_cast <ae_individual_R*> (_indivs->get_object(i)), nbclone * _nb_indivs + i );
           #endif
         #elif defined __X11
           #ifndef __REGUL
-            indiv = new ae_individual_X11( dynamic_cast <ae_individual_X11*> (_indivs->get_object(i)) );
+            indiv = new ae_individual_X11( dynamic_cast <ae_individual_X11*> (_indivs->get_object(i)), nbclone * _nb_indivs + i );
           #else
-            indiv = new ae_individual_R_X11( dynamic_cast <ae_individual_R_X11*> (_indivs->get_object(i)) );
+            indiv = new ae_individual_R_X11( dynamic_cast <ae_individual_R_X11*> (_indivs->get_object(i)), nbclone * _nb_indivs + i );
           #endif
         #endif
-        indiv->set_index_in_population( nbclone * _nb_indivs + i );
         _indivs->add( indiv );
       }
     }

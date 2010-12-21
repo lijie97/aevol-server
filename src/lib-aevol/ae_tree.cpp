@@ -336,8 +336,11 @@ void ae_tree::write_to_backup( gzFile* backup_file )
       
       for ( int32_t gener_i = 0 ; gener_i < ae_common::tree_step ; gener_i++ )
       {
+        printf( "********** gener %"PRId32" => %"PRId32" **********\n", ae_common::sim->get_num_gener() - ae_common::tree_step + gener_i, 
+                                                                        ae_common::sim->get_num_gener() - ae_common::tree_step + gener_i + 1 );
         for ( int32_t indiv_i = 0 ; indiv_i < _nb_indivs[gener_i] ; indiv_i++ )
         {
+          printf( "INDIV #%"PRId32" (%"PRId32" bp)\n", indiv_i, _replics[gener_i][indiv_i]->get_indiv()->get_amount_of_dna() );
           _replics[gener_i][indiv_i]->write_to_backup( backup_file );
         }
       }
