@@ -88,7 +88,8 @@
  */
 ae_individual::ae_individual( void )
 {
-  _index_in_population = -1;
+  _index_in_population  = -1;
+  _rank_in_population   = -1;
   
   _evaluated                    = false;
   _transcribed                  = false;
@@ -182,8 +183,8 @@ ae_individual::ae_individual( void )
   _overall_size_non_metabolic_genes = 0;
   
   _nb_bases_in_0_CDS                  = -1;
-  _nb_bases_in_0_non_null_CDS         = -1;
-  _nb_bases_in_0_null_CDS             = -1;
+  _nb_bases_in_0_metabolic_CDS        = -1;
+  _nb_bases_in_0_non_metabolic_CDS    = -1;
   _nb_bases_in_0_RNA                  = -1;
   _nb_bases_in_0_coding_RNA           = -1;
   _nb_bases_in_0_non_coding_RNA       = -1;
@@ -194,7 +195,8 @@ ae_individual::ae_individual( void )
 // Copy constructor
 ae_individual::ae_individual( const ae_individual &model )
 {
-  _index_in_population = model._index_in_population;
+  _index_in_population  = model._index_in_population;
+  _rank_in_population   = model._rank_in_population;
   
   _evaluated                    = model._evaluated;
   _transcribed                  = model._transcribed;
@@ -273,8 +275,8 @@ ae_individual::ae_individual( const ae_individual &model )
   _overall_size_non_metabolic_genes = model._overall_size_non_metabolic_genes;
   
   _nb_bases_in_0_CDS                  = model._nb_bases_in_0_CDS;
-  _nb_bases_in_0_non_null_CDS         = model._nb_bases_in_0_non_null_CDS;
-  _nb_bases_in_0_null_CDS             = model._nb_bases_in_0_null_CDS;
+  _nb_bases_in_0_metabolic_CDS        = model._nb_bases_in_0_metabolic_CDS;
+  _nb_bases_in_0_non_metabolic_CDS    = model._nb_bases_in_0_non_metabolic_CDS;
   _nb_bases_in_0_RNA                  = model._nb_bases_in_0_RNA;
   _nb_bases_in_0_coding_RNA           = model._nb_bases_in_0_coding_RNA;
   _nb_bases_in_0_non_coding_RNA       = model._nb_bases_in_0_non_coding_RNA;
@@ -306,7 +308,8 @@ ae_individual::ae_individual( const ae_individual &model )
  */
 ae_individual::ae_individual( ae_individual* const parent, int32_t index )
 {
-  _index_in_population = index;
+  _index_in_population  = index;
+  _rank_in_population   = -1;
   
   _evaluated                    = false;
   _transcribed                  = false;
@@ -394,8 +397,8 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t index )
   _overall_size_non_metabolic_genes = 0;
   
   _nb_bases_in_0_CDS                  = -1;
-  _nb_bases_in_0_non_null_CDS         = -1;
-  _nb_bases_in_0_null_CDS             = -1;
+  _nb_bases_in_0_metabolic_CDS        = -1;
+  _nb_bases_in_0_non_metabolic_CDS    = -1;
   _nb_bases_in_0_RNA                  = -1;
   _nb_bases_in_0_coding_RNA           = -1;
   _nb_bases_in_0_non_coding_RNA       = -1;
@@ -425,6 +428,9 @@ ae_individual::ae_individual( gzFile* backup_file )
   
   // Retreive index in population
   gzread( backup_file, &_index_in_population, sizeof(_index_in_population) );
+  
+  // The rank is not in the backup, it can be interpolated because individuals are written
+  // ordered by their increasing rank (<=> increasing fitness)
   
   // Retreive generic probes
   _int_probes     = new int32_t[5];
@@ -506,8 +512,8 @@ ae_individual::ae_individual( gzFile* backup_file )
   _overall_size_non_metabolic_genes = 0;
   
   _nb_bases_in_0_CDS                  = -1;
-  _nb_bases_in_0_non_null_CDS         = -1;
-  _nb_bases_in_0_null_CDS             = -1;
+  _nb_bases_in_0_metabolic_CDS        = -1;
+  _nb_bases_in_0_non_metabolic_CDS    = -1;
   _nb_bases_in_0_RNA                  = -1;
   _nb_bases_in_0_coding_RNA           = -1;
   _nb_bases_in_0_non_coding_RNA       = -1;
@@ -613,6 +619,7 @@ ae_individual* ae_individual::do_replication( int32_t index, int16_t x, int16_t 
     // Set parent's data in the replication report
     new_indiv->_replic_report->set_parent_index( this->_index_in_population );
     new_indiv->_replic_report->set_parent_metabolic_error( this->_dist_to_target_by_feature[METABOLISM] );
+    new_indiv->_replic_report->set_parent_genome_size( this->get_amount_of_dna() );
   }
  
   // TODO !! the following 2 lines
@@ -626,6 +633,7 @@ ae_individual* ae_individual::do_replication( int32_t index, int16_t x, int16_t 
   // Evaluate new individual
   new_indiv->evaluate( ae_common::sim->get_env() );
   new_indiv->compute_statistical_data();
+  
   return new_indiv;
 }
 
@@ -636,7 +644,7 @@ void ae_individual::compute_phenotype( void )
   
   
   // We will use two fuzzy sets :
-  //   * _phenotype_activ for the proteins actually realising a set of functions
+  //   * _phenotype_activ for the proteins realising a set of functions
   //   * _phenotype_inhib for the proteins inhibitting a set of functions
   // The phenotype will then be given by the sum of these 2 fuzzy sets
   
@@ -833,8 +841,8 @@ void ae_individual::reevaluate( ae_environment* envir )
   _overall_size_non_metabolic_genes = 0;
   
   _nb_bases_in_0_CDS                  = -1;
-  _nb_bases_in_0_non_null_CDS         = -1;
-  _nb_bases_in_0_null_CDS             = -1;
+  _nb_bases_in_0_metabolic_CDS        = -1;
+  _nb_bases_in_0_non_metabolic_CDS    = -1;
   _nb_bases_in_0_RNA                  = -1;
   _nb_bases_in_0_coding_RNA           = -1;
   _nb_bases_in_0_non_coding_RNA       = -1;
@@ -928,8 +936,8 @@ void ae_individual::compute_non_coding( void )
   _non_coding_computed = true;
   
   _nb_bases_in_0_CDS                  = 0;
-  _nb_bases_in_0_non_null_CDS         = 0;
-  _nb_bases_in_0_null_CDS             = 0;
+  _nb_bases_in_0_metabolic_CDS        = 0;
+  _nb_bases_in_0_non_metabolic_CDS    = 0;
   _nb_bases_in_0_RNA                  = 0;
   _nb_bases_in_0_coding_RNA           = 0;
   _nb_bases_in_0_non_coding_RNA       = 0;
@@ -942,8 +950,8 @@ void ae_individual::compute_non_coding( void )
     gen_unit = (ae_genetic_unit*)gen_unit_node->get_obj();
     
     _nb_bases_in_0_CDS                  += gen_unit->get_nb_bases_in_0_CDS();
-    _nb_bases_in_0_non_null_CDS         += gen_unit->get_nb_bases_in_0_non_null_CDS();
-    _nb_bases_in_0_null_CDS             += gen_unit->get_nb_bases_in_0_null_CDS();
+    _nb_bases_in_0_metabolic_CDS        += gen_unit->get_nb_bases_in_0_metabolic_CDS();
+    _nb_bases_in_0_non_metabolic_CDS    += gen_unit->get_nb_bases_in_0_non_metabolic_CDS();
     _nb_bases_in_0_RNA                  += gen_unit->get_nb_bases_in_0_RNA();
     _nb_bases_in_0_coding_RNA           += gen_unit->get_nb_bases_in_0_coding_RNA();
     _nb_bases_in_0_non_coding_RNA       += gen_unit->get_nb_bases_in_0_non_coding_RNA();
@@ -1167,6 +1175,9 @@ void ae_individual::write_to_backup( gzFile* backup_file )
 {
   // Write index in population
   gzwrite( backup_file, &_index_in_population, sizeof(_index_in_population) );
+  
+  // The rank is not written, it can be interpolated because individuals are written
+  // ordered by their increasing rank (<=> increasing fitness)
   
   // Write generic probes
   for ( int8_t i = 0 ; i < 5 ; i++ )

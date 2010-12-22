@@ -86,8 +86,9 @@ class ae_tree : public ae_object
   // the tree was emptied every TREE_STEP generations ==> it contains
   // only the last generations since the last emptying ==> do not ask
   // something about an older generation 
-  int32_t get_nb_indivs( int32_t generation ); 
-  ae_replication_report * get_report( int32_t generation, int32_t indiv );
+  int32_t get_nb_indivs( int32_t generation ) const; 
+  ae_replication_report * get_report_by_index( int32_t generation, int32_t index ) const;
+  ae_replication_report * get_report_by_rank( int32_t generation, int32_t rank ) const;
   
   void fill_tree_with_cur_gener( void );
   void write_to_backup( gzFile* backup_file );
@@ -142,7 +143,7 @@ class ae_tree : public ae_object
   //
   // !!!!! WARNING !!!!!
   // The report at line 0, column 5 is for the
-  // replication that created the indiv #5 of generation 1 (not generation 0)
+  // replication that created the indiv with index 5 of generation 1 (not generation 0)
   
   // light tree representation
   int32_t** _parent;

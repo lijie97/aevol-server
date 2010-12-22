@@ -763,7 +763,7 @@ void ae_genetic_unit::do_translation( void )
                 _protein_list[LEADING]->add( protein );
                 rna->add_transcribed_protein( protein );
                 
-                if ( ! protein->is_degenerated() )
+                if ( protein->get_is_metabolic() )
                 {
                   _nb_met_genes++;
                   //~ _overall_size_met_genes += ( protein->get_length() + 2 ) * CODON_SIZE;
@@ -881,7 +881,7 @@ void ae_genetic_unit::do_translation( void )
                 _protein_list[LAGGING]->add( protein );
                 rna->add_transcribed_protein( protein );
                 
-                if ( ! protein->is_degenerated() )
+                if ( protein->get_is_metabolic() )
                 {
                   _nb_met_genes++;
                   //~ _overall_size_met_genes += ( protein->get_length() + 2 ) * CODON_SIZE;
@@ -949,7 +949,7 @@ void ae_genetic_unit::compute_phenotypic_contribution( void )
   {
     prot = (ae_protein*) prot_node->get_obj();
 
-    if ( !prot->is_degenerated() )
+    if ( prot->get_is_metabolic() )
     {
       if ( prot->get_height() > 0 )
       {
@@ -974,7 +974,7 @@ void ae_genetic_unit::compute_phenotypic_contribution( void )
   {
     prot = (ae_protein*) prot_node->get_obj();
 
-    if ( !prot->is_degenerated() )
+    if ( prot->get_is_metabolic() )
     {
       if ( prot->get_height() > 0 )
       {
@@ -1179,9 +1179,10 @@ void ae_genetic_unit::print_proteins( void ) const
   {
     prot = (ae_protein*) prot_node->get_obj();
 
-    printf( "    Gene on LEADING at %"PRId32" (%"PRId32") (%lf %lf %lf) (%lf)\n",
+    printf( "    Gene on LEADING at %"PRId32" (%"PRId32") (%lf %lf %lf) (%lf) %s\n",
             prot->get_first_translated_pos(), prot->get_length(),
-            prot->get_mean(), prot->get_width(), prot->get_height(), prot->get_concentration() );
+            prot->get_mean(), prot->get_width(), prot->get_height(), prot->get_concentration(),
+            prot->get_is_metabolic() ? "metabolic" : "non metabolic" );
 
     prot_node = prot_node->get_next();
   }
@@ -1194,9 +1195,10 @@ void ae_genetic_unit::print_proteins( void ) const
   {
     prot = (ae_protein*) prot_node->get_obj();
 
-    printf( "    Gene on LAGGING at %"PRId32" (%"PRId32") (%lf %lf %lf) (%lf)\n",
+    printf( "    Gene on LAGGING at %"PRId32" (%"PRId32") (%lf %lf %lf) (%lf) %s\n",
             prot->get_first_translated_pos(), prot->get_length(),
-            prot->get_mean(), prot->get_width(), prot->get_height(), prot->get_concentration() );
+            prot->get_mean(), prot->get_width(), prot->get_height(), prot->get_concentration(),
+            prot->get_is_metabolic() ? "metabolic" : "non metabolic" );
 
     prot_node = prot_node->get_next();
   }
@@ -1342,32 +1344,37 @@ void ae_genetic_unit::compute_non_coding( void )
   // Create a table of <genome_length> bools initialized to false (non-coding)
   int32_t genome_length = _dna->get_length();
   
-  bool* belongs_to_CDS;           // Including Shine-Dalgarno, spacer, START and STOP
-  bool* belongs_to_non_null_CDS;
-  bool* belongs_to_null_CDS;
-  bool* belongs_to_RNA;           // Including Promoters and terminators
+  // Including Shine-Dalgarno, spacer, START and STOP
+  bool* belongs_to_CDS;
+  bool* belongs_to_metabolic_CDS;
+  bool* belongs_to_non_metabolic_CDS; // non-metabolic CDSs are those that have a null area or that lack a kind of codons (M, W or H)
+  
+  // Including Promoters and terminators
+  bool* belongs_to_RNA;
   bool* belongs_to_coding_RNA;
   bool* belongs_to_non_coding_RNA;
-  bool* is_essential_DNA;                       // Genes + prom + term (but not UTRs)
-  bool* is_essential_DNA_including_null_genes;  // Null genes are considered essential
   
-  belongs_to_CDS                        = new bool[genome_length];
-  belongs_to_non_null_CDS               = new bool[genome_length];
-  belongs_to_null_CDS                   = new bool[genome_length];
-  belongs_to_RNA                        = new bool[genome_length];
-  belongs_to_coding_RNA                 = new bool[genome_length];
-  belongs_to_non_coding_RNA             = new bool[genome_length];
-  is_essential_DNA                      = new bool[genome_length];
-  is_essential_DNA_including_null_genes = new bool[genome_length];
+  // Genes + prom + term (but not UTRs)
+  bool* is_essential_DNA;
+  bool* is_essential_DNA_including_nm_genes; // Adds non-metabolic genes + promoters & terminators
   
-  memset( belongs_to_CDS, 0, genome_length );
-  memset( belongs_to_non_null_CDS, 0, genome_length );
-  memset( belongs_to_null_CDS, 0, genome_length );
-  memset( belongs_to_RNA, 0, genome_length );
-  memset( belongs_to_coding_RNA, 0, genome_length );
-  memset( belongs_to_non_coding_RNA, 0, genome_length );
-  memset( is_essential_DNA, 0, genome_length );
-  memset( is_essential_DNA_including_null_genes, 0, genome_length );
+  belongs_to_CDS                      = new bool[genome_length];
+  belongs_to_metabolic_CDS            = new bool[genome_length];
+  belongs_to_non_metabolic_CDS        = new bool[genome_length];
+  belongs_to_RNA                      = new bool[genome_length];
+  belongs_to_coding_RNA               = new bool[genome_length];
+  belongs_to_non_coding_RNA           = new bool[genome_length];
+  is_essential_DNA                    = new bool[genome_length];
+  is_essential_DNA_including_nm_genes = new bool[genome_length];
+  
+  memset( belongs_to_CDS,                      0, genome_length );
+  memset( belongs_to_metabolic_CDS,            0, genome_length );
+  memset( belongs_to_non_metabolic_CDS,        0, genome_length );
+  memset( belongs_to_RNA,                      0, genome_length );
+  memset( belongs_to_coding_RNA,               0, genome_length );
+  memset( belongs_to_non_coding_RNA,           0, genome_length );
+  memset( is_essential_DNA,                    0, genome_length );
+  memset( is_essential_DNA_including_nm_genes, 0, genome_length );
   
   
   // Parse protein lists and mark the corresponding bases as coding
@@ -1398,8 +1405,8 @@ void ae_genetic_unit::compute_non_coding( void )
         for ( int32_t i = first ; i <= last ; i++ )
         {
           belongs_to_CDS[i] = true;
-          if ( ! prot->is_degenerated() ) is_essential_DNA[i] = true;
-          is_essential_DNA_including_null_genes[i] = true;
+          if ( prot->get_is_metabolic() ) is_essential_DNA[i] = true;
+          is_essential_DNA_including_nm_genes[i] = true;
         }
       }
       else
@@ -1407,14 +1414,14 @@ void ae_genetic_unit::compute_non_coding( void )
         for ( int32_t i = first ; i < genome_length ; i++ )
         {
           belongs_to_CDS[i] = true;
-          if ( ! prot->is_degenerated() ) is_essential_DNA[i] = true;
-          is_essential_DNA_including_null_genes[i] = true;
+          if ( prot->get_is_metabolic() ) is_essential_DNA[i] = true;
+          is_essential_DNA_including_nm_genes[i] = true;
         }
         for ( int32_t i = 0 ; i <= last ; i++ )
         {
           belongs_to_CDS[i] = true;
-          if ( ! prot->is_degenerated() ) is_essential_DNA[i] = true;
-          is_essential_DNA_including_null_genes[i] = true;
+          if ( prot->get_is_metabolic() ) is_essential_DNA[i] = true;
+          is_essential_DNA_including_nm_genes[i] = true;
         }
       }
       
@@ -1458,8 +1465,8 @@ void ae_genetic_unit::compute_non_coding( void )
           for ( int32_t i = prom_first ; i <= prom_last ; i++ )
           {
             //~ printf( "%ld ", i );
-            if ( ! prot->is_degenerated() ) is_essential_DNA[i] = true;
-            is_essential_DNA_including_null_genes[i] = true;
+            if ( prot->get_is_metabolic() ) is_essential_DNA[i] = true;
+            is_essential_DNA_including_nm_genes[i] = true;
           }
         }
         else
@@ -1467,14 +1474,14 @@ void ae_genetic_unit::compute_non_coding( void )
           for ( int32_t i = prom_first ; i < genome_length ; i++ )
           {
             //~ printf( "%ld ", i );
-            if ( ! prot->is_degenerated() ) is_essential_DNA[i] = true;
-            is_essential_DNA_including_null_genes[i] = true;
+            if ( prot->get_is_metabolic() ) is_essential_DNA[i] = true;
+            is_essential_DNA_including_nm_genes[i] = true;
           }
           for ( int32_t i = 0 ; i <= prom_last ; i++ )
           {
             //~ printf( "%ld ", i );
-            if ( ! prot->is_degenerated() ) is_essential_DNA[i] = true;
-            is_essential_DNA_including_null_genes[i] = true;
+            if ( prot->get_is_metabolic() ) is_essential_DNA[i] = true;
+            is_essential_DNA_including_nm_genes[i] = true;
           }
         }
         //~ printf( "\n" );
@@ -1485,8 +1492,8 @@ void ae_genetic_unit::compute_non_coding( void )
           for ( int32_t i = term_first ; i <= term_last ; i++ )
           {
             //~ printf( "%ld ", i );
-            if ( ! prot->is_degenerated() ) is_essential_DNA[i] = true;
-            is_essential_DNA_including_null_genes[i] = true;
+            if ( prot->get_is_metabolic() ) is_essential_DNA[i] = true;
+            is_essential_DNA_including_nm_genes[i] = true;
           }
         }
         else
@@ -1494,14 +1501,14 @@ void ae_genetic_unit::compute_non_coding( void )
           for ( int32_t i = term_first ; i < genome_length ; i++ )
           {
             //~ printf( "%ld ", i );
-            if ( ! prot->is_degenerated() ) is_essential_DNA[i] = true;
-            is_essential_DNA_including_null_genes[i] = true;
+            if ( prot->get_is_metabolic() ) is_essential_DNA[i] = true;
+            is_essential_DNA_including_nm_genes[i] = true;
           }
           for ( int32_t i = 0 ; i <= term_last ; i++ )
           {
             //~ printf( "%ld ", i );
-            if ( ! prot->is_degenerated() ) is_essential_DNA[i] = true;
-            is_essential_DNA_including_null_genes[i] = true;
+            if ( prot->get_is_metabolic() ) is_essential_DNA[i] = true;
+            is_essential_DNA_including_nm_genes[i] = true;
           }
         }
         //~ printf( "\n" );
@@ -1513,24 +1520,24 @@ void ae_genetic_unit::compute_non_coding( void )
       
       
       
-      if ( ! prot->is_degenerated() )
+      if ( prot->get_is_metabolic() )
       {
         if ( first <= last )
         {
           for ( int32_t i = first ; i <= last ; i++ )
           {
-            belongs_to_non_null_CDS[i] = true;
+            belongs_to_metabolic_CDS[i] = true;
           }
         }
         else
         {
           for ( int32_t i = first ; i < genome_length ; i++ )
           {
-            belongs_to_non_null_CDS[i] = true;
+            belongs_to_metabolic_CDS[i] = true;
           }
           for ( int32_t i = 0 ; i <= last ; i++ )
           {
-            belongs_to_non_null_CDS[i] = true;
+            belongs_to_metabolic_CDS[i] = true;
           }
         }
       }
@@ -1540,18 +1547,18 @@ void ae_genetic_unit::compute_non_coding( void )
         {
           for ( int32_t i = first ; i <= last ; i++ )
           {
-            belongs_to_null_CDS[i] = true;
+            belongs_to_non_metabolic_CDS[i] = true;
           }
         }
         else
         {
           for ( int32_t i = first ; i < genome_length ; i++ )
           {
-            belongs_to_null_CDS[i] = true;
+            belongs_to_non_metabolic_CDS[i] = true;
           }
           for ( int32_t i = 0 ; i <= last ; i++ )
           {
-            belongs_to_null_CDS[i] = true;
+            belongs_to_non_metabolic_CDS[i] = true;
           }
         }
       }
@@ -1655,14 +1662,14 @@ void ae_genetic_unit::compute_non_coding( void )
   }
   
   // Count non-coding bases
-  _nb_bases_in_0_CDS                  = 0;
-  _nb_bases_in_0_non_null_CDS         = 0;
-  _nb_bases_in_0_null_CDS             = 0;
-  _nb_bases_in_0_RNA                  = 0;
-  _nb_bases_in_0_coding_RNA           = 0;
-  _nb_bases_in_0_non_coding_RNA       = 0;
-  _nb_bases_non_essential             = 0;
-  _nb_bases_non_essential_null_genes  = 0;
+  _nb_bases_in_0_CDS                = 0;
+  _nb_bases_in_0_metabolic_CDS      = 0;
+  _nb_bases_in_0_non_metabolic_CDS  = 0;
+  _nb_bases_in_0_RNA                = 0;
+  _nb_bases_in_0_coding_RNA         = 0;
+  _nb_bases_in_0_non_coding_RNA     = 0;
+  _nb_bases_non_essential                     = 0;
+  _nb_bases_non_essential_including_nm_genes  = 0;
   
   for ( int32_t i = 0 ; i < genome_length ; i++ )
   {
@@ -1670,13 +1677,13 @@ void ae_genetic_unit::compute_non_coding( void )
     {
       _nb_bases_in_0_CDS++;
     }
-    if ( belongs_to_non_null_CDS[i] == false )
+    if ( belongs_to_metabolic_CDS[i] == false )
     {
-      _nb_bases_in_0_non_null_CDS++;
+      _nb_bases_in_0_metabolic_CDS++;
     }
-    if ( belongs_to_null_CDS[i] == false )
+    if ( belongs_to_non_metabolic_CDS[i] == false )
     {
-      _nb_bases_in_0_null_CDS++;
+      _nb_bases_in_0_non_metabolic_CDS++;
     }
     if ( belongs_to_RNA[i] == false )
     {
@@ -1694,20 +1701,20 @@ void ae_genetic_unit::compute_non_coding( void )
     {
       _nb_bases_non_essential++;
     }
-    if ( is_essential_DNA_including_null_genes[i] == false )
+    if ( is_essential_DNA_including_nm_genes[i] == false )
     {
-      _nb_bases_non_essential_null_genes++;
+      _nb_bases_non_essential_including_nm_genes++;
     }
   }
   
   delete [] belongs_to_CDS;
-  delete [] belongs_to_non_null_CDS;
-  delete [] belongs_to_null_CDS;
+  delete [] belongs_to_metabolic_CDS;
+  delete [] belongs_to_non_metabolic_CDS;
   delete [] belongs_to_RNA;
   delete [] belongs_to_coding_RNA;
   delete [] belongs_to_non_coding_RNA;
   delete [] is_essential_DNA;
-  delete [] is_essential_DNA_including_null_genes;
+  delete [] is_essential_DNA_including_nm_genes;
 }
 
 void ae_genetic_unit::duplicate_promoters_included_in( int32_t pos_1, int32_t pos_2, ae_list** duplicated_promoters )
@@ -2914,13 +2921,13 @@ void ae_genetic_unit::init_statistical_data( void ) // TODO : integrate into com
   _overall_size_non_met_genes   = 0;
   
   _nb_bases_in_0_CDS                = -1;
-  _nb_bases_in_0_non_null_CDS       = -1;
-  _nb_bases_in_0_null_CDS           = -1;
+  _nb_bases_in_0_metabolic_CDS      = -1;
+  _nb_bases_in_0_non_metabolic_CDS  = -1;
   _nb_bases_in_0_RNA                = -1;
   _nb_bases_in_0_coding_RNA         = -1;
   _nb_bases_in_0_non_coding_RNA     = -1;
-  _nb_bases_non_essential_null_genes  = -1;
-  _nb_bases_non_essential             = -1;
+  _nb_bases_non_essential                     = -1;
+  _nb_bases_non_essential_including_nm_genes  = -1;
   
   _modularity = -1;
 }

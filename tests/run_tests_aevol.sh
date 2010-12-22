@@ -15,6 +15,11 @@ cd ./aevol_test_backup
 ./run_test.sh x
 cd ..
 
+echo -n "running aevol_test_post_treatments... "
+cd ./aevol_test_post_treatments
+./run_test.sh x
+cd ..
+
 echo -n "running aevol_test_env-var... "
 cd ./aevol_test_env-var
 ./run_test.sh x

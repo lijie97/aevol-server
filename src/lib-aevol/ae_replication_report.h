@@ -83,6 +83,9 @@ class ae_replication_report : public ae_object
     // =================================================================
     inline ae_individual * get_indiv( void ) const;
     int32_t         get_index( void ) const;
+    void            set_index( int32_t index );
+    int32_t         get_rank( void ) const;
+    void            set_rank( int32_t rank );
     inline void     set_parent_index( int32_t parent_index );
     inline int32_t  get_parent_index( void ) const;
     inline void     set_donnor_index( int32_t donnor_index );
@@ -139,6 +142,8 @@ class ae_replication_report : public ae_object
     //                          Protected Attributes
     // =================================================================
     ae_individual*  _indiv;
+    int32_t         _index;
+    int32_t         _rank;
     int32_t         _parent_index;
     int32_t         _donnor_index; // Horizontal transfer donnor
     double          _parent_metabolic_error;
@@ -167,6 +172,27 @@ inline ae_individual * ae_replication_report::get_indiv( void ) const
 {
   return _indiv;
 }
+
+inline int32_t ae_replication_report::get_index( void ) const
+{
+  return _index;
+}
+
+inline void ae_replication_report::set_index( int32_t index )
+{
+  _index = index;
+}
+
+inline int32_t ae_replication_report::get_rank( void ) const
+{
+  return _rank;
+}
+
+inline void ae_replication_report::set_rank( int32_t rank )
+{
+  _rank = rank;
+}
+
 
 int32_t ae_replication_report::get_parent_index( void ) const
 {
@@ -219,25 +245,25 @@ double ae_replication_report::get_donnor_metabolic_error( void ) const
 }
 
 
-//~ void ae_replication_report::set_parent_genome_size( int32_t parent_genome_size )
-//~ {
-  //~ _parent_genome_size = parent_genome_size;
-//~ }
+void ae_replication_report::set_parent_genome_size( int32_t parent_genome_size )
+{
+  _parent_genome_size = parent_genome_size;
+}
 
-//~ int32_t ae_replication_report::get_parent_genome_size( void ) const
-//~ {
-  //~ return _parent_genome_size;
-//~ }
+int32_t ae_replication_report::get_parent_genome_size( void ) const
+{
+  return _parent_genome_size;
+}
 
-//~ void ae_replication_report::set_donnor_genome_size( int32_t donnor_genome_size )
-//~ {
-  //~ _donnor_genome_size = donnor_genome_size;
-//~ }
+void ae_replication_report::set_donnor_genome_size( int32_t donnor_genome_size )
+{
+  _donnor_genome_size = donnor_genome_size;
+}
 
-//~ int32_t ae_replication_report::get_donnor_genome_size( void ) const
-//~ {
-  //~ return _donnor_genome_size;
-//~ }
+int32_t ae_replication_report::get_donnor_genome_size( void ) const
+{
+  return _donnor_genome_size;
+}
 
 inline ae_list* ae_replication_report::get_dna_replic_reports( void ) const
 {

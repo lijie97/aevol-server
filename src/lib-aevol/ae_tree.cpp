@@ -110,7 +110,7 @@ ae_tree::ae_tree( char* backup_file_name, char* tree_file_name )
 {
   // Retrieve the ae_common's informations in backup_file
   int16_t bfn_len = strlen( backup_file_name );
-printf("%s\n", tree_file_name);
+  printf("%s\n", tree_file_name);
   #ifdef __REGUL
     if ( strcmp( &backup_file_name[bfn_len-4], ".rae" ) != 0 )
     {
@@ -133,22 +133,20 @@ printf("%s\n", tree_file_name);
     exit( EXIT_FAILURE );
   }
 
-  // Retreive random generator state
+  // Retreive random generator state and get rid of it
   printf( "  Loading random generator\n" );
   ae_rand_mt* alea = new ae_rand_mt( backup_file );
+  delete alea;
 
   // Retreive common data
   printf( "  Loading common data\n" );
   ae_common::read_from_backup( backup_file );
-
 
   _tree_mode = ae_common::tree_mode;
   switch ( _tree_mode )
   {
     case NORMAL :
     {
-      // To be called when we want to inspect a tree, not when we want to run a simulation
-      
       gzFile* tree_file = (gzFile*) gzopen( tree_file_name, "r" );
       if ( tree_file == Z_NULL )
       {
@@ -156,10 +154,10 @@ printf("%s\n", tree_file_name);
         exit( EXIT_FAILURE );
       }
       
-      
+      ae_replication_report * replic_report = NULL;
+            
       _nb_indivs    = new int32_t[ae_common::tree_step];
-      _replics      = new ae_replication_report**[ae_common::tree_step];
-      
+      _replics      = new ae_replication_report**[ae_common::tree_step];      
       
       gzread( tree_file, _nb_indivs, ae_common::tree_step * sizeof(_nb_indivs[0]) );
 
@@ -168,9 +166,13 @@ printf("%s\n", tree_file_name);
         printf("gener_i %d nbindivs %d\n", gener_i, _nb_indivs[gener_i]);
         _replics[gener_i] = new ae_replication_report*[_nb_indivs[gener_i]];
         for ( int32_t indiv_i = 0 ; indiv_i < _nb_indivs[gener_i] ; indiv_i++ )
-          {
-            _replics[gener_i][indiv_i] = new ae_replication_report( tree_file );
-          }
+        {
+          // Retreive a replication report
+          replic_report = new ae_replication_report( tree_file );
+          
+          // Put it at its rightful position
+          _replics[gener_i][replic_report->get_index()] = replic_report;
+        }
       }      
       gzclose( backup_file );
       gzclose( tree_file );
@@ -251,17 +253,36 @@ ae_tree::~ae_tree( void )
 
 
 
-int32_t ae_tree::get_nb_indivs( int32_t generation )
+int32_t ae_tree::get_nb_indivs( int32_t generation ) const
 {
   return _nb_indivs[utils::mod(generation - 1, ae_common::tree_step)];
 }
 
 
-ae_replication_report * ae_tree::get_report( int32_t generation, int32_t indiv )
+ae_replication_report * ae_tree::get_report_by_index( int32_t generation, int32_t index ) const
 {
   assert( _tree_mode == NORMAL );
   
-  return _replics[utils::mod(generation - 1, ae_common::tree_step)][indiv];
+  return _replics[utils::mod(generation - 1, ae_common::tree_step)][index];
+}
+
+
+ae_replication_report * ae_tree::get_report_by_rank( int32_t generation, int32_t rank ) const
+{
+  assert( _tree_mode == NORMAL );
+  int32_t nb_indivs = get_nb_indivs( generation );
+  assert( rank <= nb_indivs );
+  
+  for ( int32_t i = 0 ; i < nb_indivs ; i++ )
+  {
+    if ( _replics[utils::mod(generation - 1, ae_common::tree_step)][i]->get_rank() == rank )
+    {
+      return _replics[utils::mod(generation - 1, ae_common::tree_step)][i];
+    }
+  }
+  
+  fprintf( stderr, "ERROR: Couldn't find indiv with rank %"PRId32" in file %s:%d\n", rank, __FILE__, __LINE__ );
+  return NULL;
 }
 
 
@@ -336,11 +357,8 @@ void ae_tree::write_to_backup( gzFile* backup_file )
       
       for ( int32_t gener_i = 0 ; gener_i < ae_common::tree_step ; gener_i++ )
       {
-        printf( "********** gener %"PRId32" => %"PRId32" **********\n", ae_common::sim->get_num_gener() - ae_common::tree_step + gener_i, 
-                                                                        ae_common::sim->get_num_gener() - ae_common::tree_step + gener_i + 1 );
         for ( int32_t indiv_i = 0 ; indiv_i < _nb_indivs[gener_i] ; indiv_i++ )
         {
-          printf( "INDIV #%"PRId32" (%"PRId32" bp)\n", indiv_i, _replics[gener_i][indiv_i]->get_indiv()->get_amount_of_dna() );
           _replics[gener_i][indiv_i]->write_to_backup( backup_file );
         }
       }

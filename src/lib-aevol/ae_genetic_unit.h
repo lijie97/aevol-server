@@ -109,14 +109,14 @@ class ae_genetic_unit : public ae_object
     inline double   get_av_size_non_metabolic_genes( void )       const;
     
     inline int32_t  get_nb_bases_in_0_CDS( void );
-    inline int32_t  get_nb_bases_in_0_non_null_CDS( void );
-    inline int32_t  get_nb_bases_in_0_null_CDS( void );
+    inline int32_t  get_nb_bases_in_0_metabolic_CDS( void );
+    inline int32_t  get_nb_bases_in_0_non_metabolic_CDS( void );
     inline int32_t  get_nb_bases_in_0_RNA( void );
     inline int32_t  get_nb_bases_in_0_coding_RNA( void );
     inline int32_t  get_nb_bases_in_0_non_coding_RNA( void );
     
     inline int32_t  get_nb_bases_non_essential( void );
-    inline int32_t  get_nb_bases_non_essential_null_genes( void );
+    inline int32_t  get_nb_bases_non_essential_including_nm_genes( void );
     
     inline double   get_modularity( void )                        const;
 
@@ -278,15 +278,18 @@ class ae_genetic_unit : public ae_object
     double  _overall_size_met_genes;        // Average size of metabolic genes
     double  _overall_size_non_met_genes;    // Average size of non-metabolic genes
     
-    int32_t _nb_bases_in_0_CDS;             // Number of bases that are not included in any gene
-    int32_t _nb_bases_in_0_non_null_CDS;    // Number of bases that are not included in any non-degenerated gene
-    int32_t _nb_bases_in_0_null_CDS;        // Number of bases that are not included in any degenerated gene
-    int32_t _nb_bases_in_0_RNA;             // Number of bases that are not included in any RNA
-    int32_t _nb_bases_in_0_coding_RNA;      // Number of bases that are not included in any coding RNA
-                                            // (RNAs containing at least one CDS)
-    int32_t _nb_bases_in_0_non_coding_RNA;  // Number of bases that are not included in any non coding RNA
-    int32_t _nb_bases_non_essential;        // Number of bases that are not included in any non-degenerated gene or involved in its expression
-    int32_t _nb_bases_non_essential_null_genes; // Number of bases that are not included in any gene or involved in its expression
+    
+    int32_t _nb_bases_in_0_CDS;               // Number of bases that are not included in any gene
+    int32_t _nb_bases_in_0_metabolic_CDS;     // Number of bases that are not included in any non-degenerated gene
+    int32_t _nb_bases_in_0_non_metabolic_CDS; // Number of bases that are not included in any degenerated gene
+    
+    int32_t _nb_bases_in_0_RNA;               // Number of bases that are not included in any RNA
+    int32_t _nb_bases_in_0_coding_RNA;        // Number of bases that are not included in any coding RNA
+                                              // (RNAs containing at least one CDS)
+    int32_t _nb_bases_in_0_non_coding_RNA;    // Number of bases that are not included in any non coding RNA
+    
+    int32_t _nb_bases_non_essential;                    // Number of bases that are not included in any non-degenerated gene or involved in its expression
+    int32_t _nb_bases_non_essential_including_nm_genes; // Number of bases that are not included in any gene or involved in its expression
 
     double  _modularity;  // Ratio between the pairwise distance between genes whose corresponding
                           // phenotypic triangles overlap and the average intergenic distance 
@@ -441,16 +444,16 @@ inline int32_t ae_genetic_unit::get_nb_bases_in_0_CDS( void )
   return _nb_bases_in_0_CDS;
 }
 
-inline int32_t ae_genetic_unit::get_nb_bases_in_0_non_null_CDS( void )
+inline int32_t ae_genetic_unit::get_nb_bases_in_0_metabolic_CDS( void )
 {
   if ( ! _non_coding_computed ) compute_non_coding();
-  return _nb_bases_in_0_non_null_CDS;
+  return _nb_bases_in_0_metabolic_CDS;
 }
 
-inline int32_t ae_genetic_unit::get_nb_bases_in_0_null_CDS( void )
+inline int32_t ae_genetic_unit::get_nb_bases_in_0_non_metabolic_CDS( void )
 {
   if ( ! _non_coding_computed ) compute_non_coding();
-  return _nb_bases_in_0_null_CDS;
+  return _nb_bases_in_0_non_metabolic_CDS;
 }
 
 inline int32_t ae_genetic_unit::get_nb_bases_in_0_RNA( void )
@@ -477,10 +480,10 @@ inline int32_t ae_genetic_unit::get_nb_bases_non_essential( void )
   return _nb_bases_non_essential;
 }
 
-inline int32_t ae_genetic_unit::get_nb_bases_non_essential_null_genes( void )
+inline int32_t ae_genetic_unit::get_nb_bases_non_essential_including_nm_genes( void )
 {
   if ( ! _non_coding_computed ) compute_non_coding();
-  return _nb_bases_non_essential_null_genes;
+  return _nb_bases_non_essential_including_nm_genes;
 }
 
 inline double ae_genetic_unit::get_modularity( void ) const

@@ -437,193 +437,194 @@ void ae_stats::write_headers( void )
   
   for ( int8_t j = 0; j < 12; j++) 
   {
-    if (j==0 || ( ae_common::allow_plasmids && (j == 4 || j==8 ) ) )
+    if ( j == 0 || ( ae_common::allow_plasmids && (j == 4 || j == 8) ) )
     {
       if (_stat_files_best != NULL)
-        {
-          i = 1; 
-          write_header( _stat_files_best[j], "-------------------------------------" );
-          write_header( _stat_files_best[j], "Fittest individual fitness statistics" );
-          write_header( _stat_files_best[j], "-------------------------------------" );
-          write_header( _stat_files_best[j], "" );
-          write_header( _stat_files_best[j], "Generation", i++ );
-          write_header( _stat_files_best[j], "Fitness", i++ );
-          write_header( _stat_files_best[j], "Genome size (amount of DNA)", i++ );
-          write_header( _stat_files_best[j], "Metabolic error", i++ );
-          write_header( _stat_files_best[j], "Parent's metabolic error", i++ );
-          write_header( _stat_files_best[j], "Secretion error", i++ );
-          write_header( _stat_files_best[j], "Parent's secretion error", i++ );
-          write_header( _stat_files_best[j], "Amount of compound secreted by an individual", i++ );
-          write_header( _stat_files_best[j], "Amount of compound present in the grid-cell", i++ );
+      {
+        i = 1; 
+        write_header( _stat_files_best[j], "-------------------------------------" );
+        write_header( _stat_files_best[j], "Fittest individual fitness statistics" );
+        write_header( _stat_files_best[j], "-------------------------------------" );
+        write_header( _stat_files_best[j], "" );
+        write_header( _stat_files_best[j], "Generation", i++ );
+        write_header( _stat_files_best[j], "Population size", i++ );
+        write_header( _stat_files_best[j], "Fitness", i++ );
+        write_header( _stat_files_best[j], "Genome size (amount of DNA)", i++ );
+        write_header( _stat_files_best[j], "Metabolic error", i++ );
+        write_header( _stat_files_best[j], "Parent's metabolic error", i++ );
+        write_header( _stat_files_best[j], "Secretion error", i++ );
+        write_header( _stat_files_best[j], "Parent's secretion error", i++ );
+        write_header( _stat_files_best[j], "Amount of compound secreted by an individual", i++ );
+        write_header( _stat_files_best[j], "Amount of compound present in the grid-cell", i++ );
 
 #ifdef __REGUL
-          write_header( _stat_files_best[j], "Number of links in the regulation graph", i++ );
-          write_header( _stat_files_best[j], "Number of positive links in the regulation graph", i++ );
-          write_header( _stat_files_best[j], "Number of negative links in the regulation graph", i++ );
-          write_header( _stat_files_best[j], "Average value of links in the regulation graph", i++ );
-          write_header( _stat_files_best[j], "Average value of positive links in the regulation graph", i++ );
-          write_header( _stat_files_best[j], "Average value of negative links in the regulation graph", i++ );
+        write_header( _stat_files_best[j], "Number of links in the regulation graph", i++ );
+        write_header( _stat_files_best[j], "Number of positive links in the regulation graph", i++ );
+        write_header( _stat_files_best[j], "Number of negative links in the regulation graph", i++ );
+        write_header( _stat_files_best[j], "Average value of links in the regulation graph", i++ );
+        write_header( _stat_files_best[j], "Average value of positive links in the regulation graph", i++ );
+        write_header( _stat_files_best[j], "Average value of negative links in the regulation graph", i++ );
 #endif
-          write_header( _stat_files_best[j], ""); 
-        }
-
-
-      if (_stat_files_glob != NULL) // remember, no glob files for ancstats
-        {
-          i = 1; 
-          write_header( _stat_files_glob[j], "--------------------------" );
-          write_header( _stat_files_glob[j], "Average fitness statistics" );
-          write_header( _stat_files_glob[j], "--------------------------" );
-          write_header( _stat_files_glob[j], "" );
-          write_header( _stat_files_glob[j], "Generation", i++ );
-          write_header( _stat_files_glob[j], "Population size", i++ );
-          write_header( _stat_files_glob[j], "Fitness", i++ );
-          write_header( _stat_files_glob[j], "Genome size, (amount of DNA)", i++ );
-          write_header( _stat_files_glob[j], "Metabolic error", i++ );
-          write_header( _stat_files_glob[j], "Parent's metabolic error", i++ );
-          write_header( _stat_files_glob[j], "Secretion error", i++ );
-          write_header( _stat_files_glob[j], "Parent's secretion error", i++ );
-          write_header( _stat_files_glob[j], "Amount of compound secreted by an individual", i++ );
-          write_header( _stat_files_glob[j], "Amount of compound present in a grid-cell", i++ );
-          
-#ifdef __REGUL
-          write_header( _stat_files_glob[j], "Number of links in the regulation graph", i++ );
-          write_header( _stat_files_glob[j], "Number of positive links in the regulation graph", i++ );
-          write_header( _stat_files_glob[j], "Number of negative links in the regulation graph", i++ );
-          write_header( _stat_files_glob[j], "Average value of links in the regulation graph", i++ );
-          write_header( _stat_files_glob[j], "Average value of positive links in the regulation graph", i++ );
-          write_header( _stat_files_glob[j], "Average value of negative links in the regulation graph", i++ );
-#endif
-          write_header( _stat_files_glob[j], "" );
-        }
-    }
-
-    if (j==1 || ( ae_common::allow_plasmids && (j == 5 || j==9 ) ) )
-    {
-      if (_stat_files_glob != NULL) // remember, no glob files for ancstats
-        {
-          i = 1; 
-          write_header( _stat_files_glob[j], "---------------------------" );
-          write_header( _stat_files_glob[j], "Average mutation statistics" );
-          write_header( _stat_files_glob[j], "---------------------------" );
-          write_header( _stat_files_glob[j], "" );
-          write_header( _stat_files_glob[j], "Generation", i++ );
-          write_header( _stat_files_glob[j], "Number of local mutations undergone", i++ );
-          write_header( _stat_files_glob[j], "Number of chromosomic rearrangements undergone", i++ );
-          write_header( _stat_files_glob[j], "Number of switch undergone", i++ );
-          write_header( _stat_files_glob[j], "Number of indels undergone", i++ );
-          write_header( _stat_files_glob[j], "Number of duplications undergone", i++ );
-          write_header( _stat_files_glob[j], "Number of deletions undergone", i++ );
-          write_header( _stat_files_glob[j], "Number of translocations undergone", i++ );
-          write_header( _stat_files_glob[j], "Number of inversions undergone", i++ );
-          write_header( _stat_files_glob[j], "" );
-        }
-
-     if (_stat_files_best != NULL) 
-        {
-          i = 1; 
-          write_header( _stat_files_best[j], "--------------------------------------" );
-          write_header( _stat_files_best[j], "Fittest individual mutation statistics" );
-          write_header( _stat_files_best[j], "--------------------------------------" );
-          write_header( _stat_files_best[j], "" );
-          write_header( _stat_files_best[j], "Generation", i++ );
-          write_header( _stat_files_best[j], "Number of local mutations undergone", i++ );
-          write_header( _stat_files_best[j], "Number of chromosomic rearrangements undergone", i++ );
-          write_header( _stat_files_best[j], "Number of switch undergone", i++ );
-          write_header( _stat_files_best[j], "Number of indels undergone", i++ );
-          write_header( _stat_files_best[j], "Number of duplications undergone", i++ );
-          write_header( _stat_files_best[j], "Number of deletions undergone", i++ );
-          write_header( _stat_files_best[j], "Number of translocations undergone", i++ );
-          write_header( _stat_files_best[j], "Number of inversions undergone", i++ );
-          write_header( _stat_files_best[j], "" );
-        }
-    }
-    
-    if (j==2 || ( ae_common::allow_plasmids && (j == 6 || j==10 ) ) )
-    {
-      if (_stat_files_glob != NULL) // remember, no glob files for ancstats
-        {
-          i = 1; 
-          write_header( _stat_files_glob[j], "" );
-          write_header( _stat_files_glob[j], "-----------------------" );
-          write_header( _stat_files_glob[j], "Average gene statistics" );
-          write_header( _stat_files_glob[j], "-----------------------" );
-          write_header( _stat_files_glob[j], "" );
-          write_header( _stat_files_glob[j], "Generation", i++ );
-          write_header( _stat_files_glob[j], "Number of coding RNAs (at least one gene on RNA)", i++ );
-          write_header( _stat_files_glob[j], "Number of non-coding RNAs", i++ );
-          write_header( _stat_files_glob[j], "Average size of coding RNAs (at least one gene on RNA)", i++ );
-          write_header( _stat_files_glob[j], "Average size of non-coding RNAs", i++ );
-          write_header( _stat_files_glob[j], "Number of non-null genes", i++ );
-          // Genes coding for proteins with W=0 or H=0 have no  activity => null-genes
-          write_header( _stat_files_glob[j], "Nb of null genes", i++ );
-          write_header( _stat_files_glob[j], "Average size of non-null genes", i++ );
-          write_header( _stat_files_glob[j], "Average size of null genes", i++ );
-          write_header( _stat_files_glob[j], "" );
-        }
-
-      if (_stat_files_best != NULL)
-        {
-          i = 1; 
-          write_header( _stat_files_best[j], "----------------------------------" );
-          write_header( _stat_files_best[j], "Fittest individual gene statistics" );
-          write_header( _stat_files_best[j], "----------------------------------" );
-          write_header( _stat_files_best[j], "" );      
-          write_header( _stat_files_best[j], "Generation", i++ );
-          write_header( _stat_files_best[j], "Number of coding RNAs (at least one gene on RNA)", i++ );
-          write_header( _stat_files_best[j], "Number of non-coding RNAs", i++ );
-          write_header( _stat_files_best[j], "Average size of coding RNAs (at least one gene on RNA)", i++ );
-          write_header( _stat_files_best[j], "Average size of non-coding RNAs", i++ );
-          write_header( _stat_files_best[j], "Number of non-null genes", i++ );
-          // Genes coding for proteins with W=0 or H=0 have no  activity => null-genes
-          write_header( _stat_files_best[j], "Nb of null genes", i++ );
-          write_header( _stat_files_best[j], "Average size of non-null genes", i++ );
-          write_header( _stat_files_best[j], "Average size of null genes", i++ );
-          write_header( _stat_files_best[j], "" );
-        } 
-    }
-
-
-
-    if (j==3 || ( ae_common::allow_plasmids && (j == 7 || j==11 ) ) )
-    {
-      if (_stat_files_glob != NULL) // remember, no glob files for ancstats
-        {
-          // TO DO (if needed) . This file is not yet implemented 
-          i = 1; 
-          write_header( _stat_files_glob[j], "----------------------------" );
-          write_header( _stat_files_glob[j], "Average base pair statistics" );
-          write_header( _stat_files_glob[j], "----------------------------" );
-          write_header( _stat_files_glob[j], "" );
-          write_header( _stat_files_glob[j], " This file is not yet implemented"); 
-          write_header( _stat_files_glob[j], " Calculating bp stats for all individuals is extremely computationaly costly" );
-          write_header( _stat_files_glob[j], "" ); 
-          // write_header( _stat_files_glob[j], "Generation", i++ );
-          // write_header( _stat_files_glob[j], "Number of bp not included in any CDS", i++ );
-          // write_header( _stat_files_glob[j], "Number of bp not included in any non degenerated CDS", i++ );
-          // write_header( _stat_files_glob[j], "Number of bp not included in any degenerated CDS", i++ );
-          // write_header( _stat_files_glob[j], "Number of bp not included in any RNA", i++ );
-          // write_header( _stat_files_glob[j], "Number of bp not included in any coding RNA", i++ );
-          // write_header( _stat_files_glob[j], "Number of bp not included in any non coding RNA", i++ );
-          // write_header( _stat_files_glob[j], "" );
+        write_header( _stat_files_best[j], ""); 
       }
 
-      if (_stat_files_best!= NULL)
-        {          
-          i = 1; 
-          write_header( _stat_files_best[j], "---------------------------------------" );
-          write_header( _stat_files_best[j], "Fittest individual base pair statistics" );
-          write_header( _stat_files_best[j], "---------------------------------------" );
-          write_header( _stat_files_best[j], "" ); 
-          write_header( _stat_files_best[j], "Generation", i++ );
-          write_header( _stat_files_best[j], "Number of bp not included in any CDS", i++ );
-          write_header( _stat_files_best[j], "Number of bp not included in any non degenerated CDS", i++ );
-          write_header( _stat_files_best[j], "Number of bp not included in any degenerated CDS", i++ );
-          write_header( _stat_files_best[j], "Number of bp not included in any RNA", i++ );
-          write_header( _stat_files_best[j], "Number of bp not included in any coding RNA", i++ );
-          write_header( _stat_files_best[j], "Number of bp not included in any non coding RNA", i++ );
-          write_header( _stat_files_best[j], "" );
-        }
+
+      if ( _stat_files_glob != NULL ) // remember, no glob files for ancstats
+      {
+        i = 1; 
+        write_header( _stat_files_glob[j], "--------------------------" );
+        write_header( _stat_files_glob[j], "Average fitness statistics" );
+        write_header( _stat_files_glob[j], "--------------------------" );
+        write_header( _stat_files_glob[j], "" );
+        write_header( _stat_files_glob[j], "Generation", i++ );
+        write_header( _stat_files_glob[j], "Population size", i++ );
+        write_header( _stat_files_glob[j], "Fitness", i++ );
+        write_header( _stat_files_glob[j], "Genome size, (amount of DNA)", i++ );
+        write_header( _stat_files_glob[j], "Metabolic error", i++ );
+        write_header( _stat_files_glob[j], "Parent's metabolic error", i++ );
+        write_header( _stat_files_glob[j], "Secretion error", i++ );
+        write_header( _stat_files_glob[j], "Parent's secretion error", i++ );
+        write_header( _stat_files_glob[j], "Amount of compound secreted by an individual", i++ );
+        write_header( _stat_files_glob[j], "Amount of compound present in a grid-cell", i++ );
+        
+#ifdef __REGUL
+        write_header( _stat_files_glob[j], "Number of links in the regulation graph", i++ );
+        write_header( _stat_files_glob[j], "Number of positive links in the regulation graph", i++ );
+        write_header( _stat_files_glob[j], "Number of negative links in the regulation graph", i++ );
+        write_header( _stat_files_glob[j], "Average value of links in the regulation graph", i++ );
+        write_header( _stat_files_glob[j], "Average value of positive links in the regulation graph", i++ );
+        write_header( _stat_files_glob[j], "Average value of negative links in the regulation graph", i++ );
+#endif
+        write_header( _stat_files_glob[j], "" );
+      }
+    }
+
+    if ( j == 1 || ( ae_common::allow_plasmids && (j == 5 || j == 9) ) )
+    {
+      if ( _stat_files_glob != NULL ) // remember, no glob files for ancstats
+      {
+        i = 1; 
+        write_header( _stat_files_glob[j], "---------------------------" );
+        write_header( _stat_files_glob[j], "Average mutation statistics" );
+        write_header( _stat_files_glob[j], "---------------------------" );
+        write_header( _stat_files_glob[j], "" );
+        write_header( _stat_files_glob[j], "Generation", i++ );
+        write_header( _stat_files_glob[j], "Number of local mutations undergone", i++ );
+        write_header( _stat_files_glob[j], "Number of chromosomic rearrangements undergone", i++ );
+        write_header( _stat_files_glob[j], "Number of switch undergone", i++ );
+        write_header( _stat_files_glob[j], "Number of indels undergone", i++ );
+        write_header( _stat_files_glob[j], "Number of duplications undergone", i++ );
+        write_header( _stat_files_glob[j], "Number of deletions undergone", i++ );
+        write_header( _stat_files_glob[j], "Number of translocations undergone", i++ );
+        write_header( _stat_files_glob[j], "Number of inversions undergone", i++ );
+        write_header( _stat_files_glob[j], "" );
+      }
+
+      if ( _stat_files_best != NULL )
+      {
+        i = 1; 
+        write_header( _stat_files_best[j], "--------------------------------------" );
+        write_header( _stat_files_best[j], "Fittest individual mutation statistics" );
+        write_header( _stat_files_best[j], "--------------------------------------" );
+        write_header( _stat_files_best[j], "" );
+        write_header( _stat_files_best[j], "Generation", i++ );
+        write_header( _stat_files_best[j], "Number of local mutations undergone", i++ );
+        write_header( _stat_files_best[j], "Number of chromosomic rearrangements undergone", i++ );
+        write_header( _stat_files_best[j], "Number of switch undergone", i++ );
+        write_header( _stat_files_best[j], "Number of indels undergone", i++ );
+        write_header( _stat_files_best[j], "Number of duplications undergone", i++ );
+        write_header( _stat_files_best[j], "Number of deletions undergone", i++ );
+        write_header( _stat_files_best[j], "Number of translocations undergone", i++ );
+        write_header( _stat_files_best[j], "Number of inversions undergone", i++ );
+        write_header( _stat_files_best[j], "" );
+      }
+    }
+    
+    if ( j == 2 || ( ae_common::allow_plasmids && (j == 6 || j == 10) ) )
+    {
+      if ( _stat_files_glob != NULL ) // remember, no glob files for ancstats
+      {
+        i = 1; 
+        write_header( _stat_files_glob[j], "" );
+        write_header( _stat_files_glob[j], "-----------------------" );
+        write_header( _stat_files_glob[j], "Average gene statistics" );
+        write_header( _stat_files_glob[j], "-----------------------" );
+        write_header( _stat_files_glob[j], "" );
+        write_header( _stat_files_glob[j], "Generation", i++ );
+        write_header( _stat_files_glob[j], "Number of coding RNAs (at least one gene on RNA)", i++ );
+        write_header( _stat_files_glob[j], "Number of non-coding RNAs", i++ );
+        write_header( _stat_files_glob[j], "Average size of coding RNAs (at least one gene on RNA)", i++ );
+        write_header( _stat_files_glob[j], "Average size of non-coding RNAs", i++ );
+        write_header( _stat_files_glob[j], "Number of metabolic genes", i++ );
+        // Non metabolic genes are those with _width == 0 or _height == 0 or those that lack one kind of codons (M, W or H)
+        write_header( _stat_files_glob[j], "Nb of non metabolic genes", i++ );
+        write_header( _stat_files_glob[j], "Average size of metabolic genes", i++ );
+        write_header( _stat_files_glob[j], "Average size of non metabolic genes (WARNING : bias towards 0)", i++ );
+        write_header( _stat_files_glob[j], "" );
+      }
+
+      if ( _stat_files_best != NULL )
+      {
+        i = 1; 
+        write_header( _stat_files_best[j], "----------------------------------" );
+        write_header( _stat_files_best[j], "Fittest individual gene statistics" );
+        write_header( _stat_files_best[j], "----------------------------------" );
+        write_header( _stat_files_best[j], "" );      
+        write_header( _stat_files_best[j], "Generation", i++ );
+        write_header( _stat_files_best[j], "Number of coding RNAs (at least one gene on RNA)", i++ );
+        write_header( _stat_files_best[j], "Number of non-coding RNAs", i++ );
+        write_header( _stat_files_best[j], "Average size of coding RNAs (at least one gene on RNA)", i++ );
+        write_header( _stat_files_best[j], "Average size of non-coding RNAs", i++ );
+        write_header( _stat_files_best[j], "Number of metabolic genes", i++ );
+        // Non metabolic genes are those with _width == 0 or _height == 0 or those that lack one kind of codons (M, W or H)
+        write_header( _stat_files_best[j], "Nb of non metabolic genes", i++ );
+        write_header( _stat_files_best[j], "Average size of metabolic genes", i++ );
+        write_header( _stat_files_best[j], "Average size of non metabolic genes (WARNING : bias towards 0)", i++ );
+        write_header( _stat_files_best[j], "" );
+      }
+    }
+
+
+
+    if ( j == 3 || ( ae_common::allow_plasmids && (j == 7 || j == 11) ) )
+    {
+      if ( _stat_files_glob != NULL ) // remember, no glob files for ancstats
+      {
+        // TO DO (if needed) . This file is not yet implemented 
+        i = 1; 
+        write_header( _stat_files_glob[j], "----------------------------" );
+        write_header( _stat_files_glob[j], "Average base pair statistics" );
+        write_header( _stat_files_glob[j], "----------------------------" );
+        write_header( _stat_files_glob[j], "" );
+        write_header( _stat_files_glob[j], " This data is not available"); 
+        write_header( _stat_files_glob[j], " Computing bp stats for all individuals is extremely costly computationaly" );
+        write_header( _stat_files_glob[j], "" ); 
+        // write_header( _stat_files_glob[j], "Generation", i++ );
+        // write_header( _stat_files_glob[j], "Number of bp not included in any CDS", i++ );
+        // write_header( _stat_files_glob[j], "Number of bp not included in any metabolic CDS", i++ );
+        // write_header( _stat_files_glob[j], "Number of bp not included in any non metabolic CDS", i++ );
+        // write_header( _stat_files_glob[j], "Number of bp not included in any RNA", i++ );
+        // write_header( _stat_files_glob[j], "Number of bp not included in any coding RNA", i++ );
+        // write_header( _stat_files_glob[j], "Number of bp not included in any non coding RNA", i++ );
+        // write_header( _stat_files_glob[j], "" );
+      }
+
+      if ( _stat_files_best!= NULL )
+      {          
+        i = 1; 
+        write_header( _stat_files_best[j], "---------------------------------------" );
+        write_header( _stat_files_best[j], "Fittest individual base pair statistics" );
+        write_header( _stat_files_best[j], "---------------------------------------" );
+        write_header( _stat_files_best[j], "" ); 
+        write_header( _stat_files_best[j], "Generation", i++ );
+        write_header( _stat_files_best[j], "Number of bp not included in any CDS", i++ );
+        write_header( _stat_files_best[j], "Number of bp not included in any metabolic CDS", i++ );
+        write_header( _stat_files_best[j], "Number of bp not included in any non metabolic CDS", i++ );
+        write_header( _stat_files_best[j], "Number of bp not included in any RNA", i++ );
+        write_header( _stat_files_best[j], "Number of bp not included in any coding RNA", i++ );
+        write_header( _stat_files_best[j], "Number of bp not included in any non coding RNA", i++ );
+        write_header( _stat_files_best[j], "" );
+      }
     }
   }    
   flush();
@@ -636,81 +637,84 @@ void ae_stats::write_headers( void )
 void ae_stats::write_statistics_of_this_indiv( ae_individual * indiv, int32_t t )
 {
   if ( ! ae_common::allow_plasmids )
-    {
-      // ----------------------------------------------------------
-      // Compute and write statistical data for the best individual
-      // ----------------------------------------------------------
-      ae_stat_record* stat_record = new ae_stat_record( indiv, CHROM, true, t );
-      stat_record->write_to_file( _stat_files_best[0], FITNESS_STATS);
-      stat_record->write_to_file( _stat_files_best[1], MUTATION_STATS);
-      stat_record->write_to_file( _stat_files_best[2], GENES_STATS);
-      stat_record->write_to_file( _stat_files_best[3], BP_STATS);
-      delete stat_record;
-    }
+  {
+    // ----------------------------------------------------------
+    // Compute and write statistical data for the best individual
+    // ----------------------------------------------------------
+    ae_stat_record* stat_record = new ae_stat_record( indiv, CHROM, true, t );
+    stat_record->write_to_file( _stat_files_best[0], FITNESS_STATS  );
+    stat_record->write_to_file( _stat_files_best[1], MUTATION_STATS );
+    stat_record->write_to_file( _stat_files_best[2], GENES_STATS    );
+    stat_record->write_to_file( _stat_files_best[3], BP_STATS       );
+    delete stat_record;
+  }
   else
+  {
+    ae_stat_record* stat_record;
+
+    // i: 0 = ALL GUs; 1 = CHROM; 2 = PLASMIDS
+    for ( int8_t i = 0 ; i < 3 ; i++ )
     {
-      ae_stat_record* stat_record;
-
-      // i: 0 = ALL GUs; 1 = CHROM; 2 = PLASMIDS
-      for (int8_t i = 0; i < 3; i++ )
+      stat_record = new ae_stat_record( ae_common::sim->get_pop()->get_best(), (chrom_or_gen_unit) i, true, t ); 
+      // j : 0 = FITNESS_STATS; 1 = MUTATION_STATS; 2 = GENES_STATS; 3 = BP_STATS
+      for ( int8_t j = 0 ; j < 4 ; j++ )
       {
-        stat_record    = new ae_stat_record( ae_common::sim->get_pop()->get_best(), (chrom_or_gen_unit) i, true, t ); 
-        // j : 0 = FITNESS_STATS; 1 = MUTATION_STATS; 2 = GENES_STATS; 3 = BP_STATS
-        for (int8_t j = 0; j < 4; j++ )
-          stat_record->write_to_file( _stat_files_best[i*4+j], (stats_type) j );
-        }
-
-      delete stat_record;
+        stat_record->write_to_file( _stat_files_best[i*4+j], (stats_type) j );
+      }
     }
+
+    delete stat_record;
+  }
 }
 
 
 void ae_stats::write_current_generation_statistics( void )
 {
- ae_stat_record* stat_record;
- if ( ! ae_common::allow_plasmids )
-   {
-     // ----------------------------------------------------------
-     // Compute and write statistical data for the best individual
-     // ----------------------------------------------------------
-     stat_record = new ae_stat_record( ae_common::sim->get_pop()->get_best() );
-     stat_record->write_to_file( _stat_files_best[0], FITNESS_STATS);
-     stat_record->write_to_file( _stat_files_best[1], MUTATION_STATS);
-     stat_record->write_to_file( _stat_files_best[2], GENES_STATS);
-     stat_record->write_to_file( _stat_files_best[3], BP_STATS);
-     
-     delete stat_record;
+  ae_stat_record* stat_record;
+  
+  if ( ! ae_common::allow_plasmids )
+  {
+    // ----------------------------------------------------------
+    // Compute and write statistical data for the best individual
+    // ----------------------------------------------------------
+    stat_record = new ae_stat_record( ae_common::sim->get_pop()->get_best() );
+    stat_record->write_to_file( _stat_files_best[0], FITNESS_STATS  );
+    stat_record->write_to_file( _stat_files_best[1], MUTATION_STATS );
+    stat_record->write_to_file( _stat_files_best[2], GENES_STATS    );
+    stat_record->write_to_file( _stat_files_best[3], BP_STATS       );
+    
+    delete stat_record;
  
-     // -----------------------------------------------------
-     // Compute and write statistical data for the population
-     // -----------------------------------------------------
-     stat_record = new ae_stat_record( ae_common::sim->get_pop() );
-     stat_record->write_to_file( _stat_files_glob[0], FITNESS_STATS);
-     stat_record->write_to_file( _stat_files_glob[1], MUTATION_STATS);
-     stat_record->write_to_file( _stat_files_glob[2], GENES_STATS);
-     // DM: don't write anything, this is not implemented yet!
-     //stat_record->write_to_file( _stat_files_glob[3], BP_STATS);
+    // -----------------------------------------------------
+    // Compute and write statistical data for the population
+    // -----------------------------------------------------
+    stat_record = new ae_stat_record( ae_common::sim->get_pop() );
+    stat_record->write_to_file( _stat_files_glob[0], FITNESS_STATS  );
+    stat_record->write_to_file( _stat_files_glob[1], MUTATION_STATS );
+    stat_record->write_to_file( _stat_files_glob[2], GENES_STATS    );
+    // NB: It's too expensive to compute bp stats for every indivs in the pop!
+    //~ stat_record->write_to_file( _stat_files_glob[3], BP_STATS       );
 
-     delete stat_record;
-   }
+    delete stat_record;
+  }
   else
   {
     // i: 0 = ALL GUs; 1 = CHROM; 2 = PLASMIDS
-    for (int8_t i = 0; i < 3; i++ )
+    for ( int8_t i = 0 ; i < 3 ; i++ )
     {
-      stat_record    = new ae_stat_record( ae_common::sim->get_pop()->get_best(), (chrom_or_gen_unit) i ); 
+      stat_record = new ae_stat_record( ae_common::sim->get_pop()->get_best(), (chrom_or_gen_unit) i ); 
 
       // j : 0 = FITNESS_STATS; 1 = MUTATION_STATS; 2 = GENES_STATS; 3 = BP_STATS
-      for (int8_t j = 0; j < 4; j++ )
+      for ( int8_t j = 0 ; j < 4 ; j++ )
       {
         stat_record->write_to_file( _stat_files_best[i*4+j], (stats_type) j );
       }
       delete stat_record;
 
-      stat_record    = new ae_stat_record( ae_common::sim->get_pop(), (chrom_or_gen_unit) i );    
+      stat_record = new ae_stat_record( ae_common::sim->get_pop(), (chrom_or_gen_unit) i );    
       // j : 0 = FITNESS_STATS; 1 = MUTATION_STATS; 2 = GENES_STATS; 3 = BP_STATS
       // TO DO (if needed): add global base-pair stats; for now, avoid it
-      for (int8_t j = 0; j < 3; j++ )
+      for ( int8_t j = 0 ; j < 3 ; j++ )
       {
         stat_record->write_to_file( _stat_files_glob[i*4+j], (stats_type) j );
       }

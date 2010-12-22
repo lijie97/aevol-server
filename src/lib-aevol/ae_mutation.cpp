@@ -148,7 +148,7 @@ ae_mutation::ae_mutation( gzFile* backup_file )
   int8_t tmp_mut_type;
   gzread( backup_file, &tmp_mut_type,  sizeof(tmp_mut_type) );
   _mut_type = (ae_mutation_type) tmp_mut_type;
-  //printf("mut type %d\n", _mut_type);
+  //~ printf("mut type %d\n", _mut_type);
 
   switch ( _mut_type )
   {
@@ -385,7 +385,6 @@ void ae_mutation::write_to_backup( gzFile* backup_file ) // Usually <backup_file
 {
   int8_t tmp_mut_type = _mut_type;
   gzwrite( backup_file, &tmp_mut_type,  sizeof(tmp_mut_type) );
-  printf( "write tmp_mut_type : %"PRId8"\n", tmp_mut_type );
 
   switch ( _mut_type )
   {
@@ -410,17 +409,13 @@ void ae_mutation::write_to_backup( gzFile* backup_file ) // Usually <backup_file
     case DUPL :
     {
       gzwrite( backup_file, _pos,         3 * sizeof(_pos[0]) );
-      printf( "write _pos : %"PRId32" %"PRId32" %"PRId32"\n", _pos[0], _pos[1], _pos[2] );
       gzwrite( backup_file, _align_score, sizeof(*_align_score) );
-      printf( "write _align_score : %"PRId16"\n", *_align_score );
       break;
     }
     case DEL :
     {
       gzwrite( backup_file, _pos,         2 * sizeof(_pos[0]) );
-      printf( "write _pos : %"PRId32" %"PRId32"\n", _pos[0], _pos[1] );
       gzwrite( backup_file, _align_score, sizeof(*_align_score) );
-      printf( "write _align_score : %"PRId16"\n", *_align_score );
       break;
     }
     case TRANS :

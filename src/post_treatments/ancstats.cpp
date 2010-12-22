@@ -84,9 +84,10 @@ FILE* term_output_file    = NULL;
 FILE* zones_output_file   = NULL;
 FILE* operons_output_file = NULL;
 
-int32_t begin_gener = 0;
-int32_t end_gener   = 0;
-int32_t final_index = 0;
+int32_t begin_gener       = 0;
+int32_t end_gener         = 0;
+int32_t final_indiv_index = 0;
+int32_t final_indiv_rank  = 0;
 
 
 
@@ -181,15 +182,17 @@ int main(int argc, char** argv)
   
   ae_common::read_from_backup( lineage_file );
 
-  gzread( lineage_file, &begin_gener, sizeof(begin_gener) );
-  gzread( lineage_file, &end_gener,   sizeof(end_gener)   );
-  gzread( lineage_file, &final_index, sizeof(final_index) );
+  gzread( lineage_file, &begin_gener,       sizeof(begin_gener)       );
+  gzread( lineage_file, &end_gener,         sizeof(end_gener)         );
+  gzread( lineage_file, &final_indiv_index, sizeof(final_indiv_index) );
+  gzread( lineage_file, &final_indiv_rank,  sizeof(final_indiv_rank)  );
 
   if ( verbose )
   {
     printf("\n\n");
-    printf("================================================================================\n");
-    printf(" Statistics of the ancestors of indiv. #%"PRId32" (t=%"PRId32" to %"PRId32")\n", final_index, begin_gener, end_gener);
+    printf( "===============================================================================\n" );
+    printf( " Statistics of the ancestors of indiv. %"PRId32" (rank %"PRId32") from generation %"PRId32" to %"PRId32")\n",
+            final_indiv_index, final_indiv_rank, begin_gener, end_gener );
     printf("================================================================================\n");
   }
 
@@ -198,7 +201,7 @@ int main(int argc, char** argv)
   //  Open the output file(s)
   // =========================
   char output_file_name[60];
-  snprintf( output_file_name, 60, "ancstats-b%06"PRId32"-e%06"PRId32"-i%"PRId32, begin_gener, end_gener, final_index );
+  snprintf( output_file_name, 60, "ancstats-b%06"PRId32"-e%06"PRId32"-i%"PRId32, begin_gener, end_gener, final_indiv_index );
   ae_stats * mystats = new ae_stats( output_file_name );
   mystats->write_headers();
   
@@ -280,7 +283,7 @@ int main(int argc, char** argv)
   indiv->compute_statistical_data();
   indiv->compute_non_coding();
   
-  mystats->write_statistics_of_this_indiv(indiv, t);
+  mystats->write_statistics_of_this_indiv( indiv, t );
   
   
   // Optional outputs
@@ -352,7 +355,7 @@ int main(int argc, char** argv)
       }
       
       ae_simulation * sim = new ae_simulation ( backup_file_name, false );
-      stored_indiv = new ae_individual( * (ae_individual *)sim->get_pop()->get_indivs()->get_object(index) );
+      stored_indiv = new ae_individual( * (ae_individual *)sim->get_pop()->get_indiv_by_index( index ) );
       
 
       ae_environment * stored_env = sim->get_env();
@@ -494,14 +497,13 @@ int main(int argc, char** argv)
   delete indiv;
   delete env;
 
-  fclose( env_output_file );
-  fclose( term_output_file );
-  fclose( zones_output_file );
-  fclose( operons_output_file );
-
+  // Optional outputs
+  //~ fclose( env_output_file );
+  //~ fclose( term_output_file );
+  //~ fclose( zones_output_file );
+  //~ fclose( operons_output_file );
 
   exit(EXIT_SUCCESS);
-  
 }
 
 
@@ -511,7 +513,7 @@ void open_environment_stat_file( void )
 {
   // Open file
   char env_output_file_name[60];
-  snprintf( env_output_file_name, 60, "envir-b%06"PRId32"-e%06"PRId32"-i%"PRId32".out", begin_gener, end_gener, final_index );
+  snprintf( env_output_file_name, 60, "envir-b%06"PRId32"-e%06"PRId32"-i%"PRId32".out", begin_gener, end_gener, final_indiv_index );
   env_output_file = fopen( env_output_file_name, "w" );
   
   // Write headers
@@ -542,7 +544,7 @@ void write_environment_stats( int32_t num_gener, ae_environment * env )
 void open_terminators_stat_file( void )
 {
   char term_output_file_name[60];
-  snprintf( term_output_file_name, 60, "nb_term-b%06"PRId32"-e%06"PRId32"-i%"PRId32, begin_gener, end_gener, final_index );
+  snprintf( term_output_file_name, 60, "nb_term-b%06"PRId32"-e%06"PRId32"-i%"PRId32, begin_gener, end_gener, final_indiv_index );
   term_output_file = fopen( term_output_file_name, "w" );
 }
 
@@ -560,7 +562,7 @@ void open_zones_stat_file( void )
 {
   // Open file
   char zones_output_file_name[60];
-  snprintf( zones_output_file_name, 60, "zones-b%06"PRId32"-e%06"PRId32"-i%"PRId32, begin_gener, end_gener, final_index );
+  snprintf( zones_output_file_name, 60, "zones-b%06"PRId32"-e%06"PRId32"-i%"PRId32, begin_gener, end_gener, final_indiv_index );
   zones_output_file = fopen( zones_output_file_name, "w" );
   
   // Write headers
@@ -623,7 +625,7 @@ void write_zones_stats( int32_t num_gener, ae_individual * indiv, ae_environment
     }
     
     // Add a genes (activ or inhib)
-    if ( ! prot->is_degenerated() )
+    if ( prot->get_is_metabolic() )
     {
       if ( prot->get_height() > 0 )
       {
@@ -685,7 +687,7 @@ void write_zones_stats( int32_t num_gener, ae_individual * indiv, ae_environment
 void open_operons_stat_file( void )
 {
   char operons_output_file_name[60];
-  snprintf( operons_output_file_name, 60, "operons-b%06"PRId32"-e%06"PRId32"-i%"PRId32, begin_gener, end_gener, final_index );
+  snprintf( operons_output_file_name, 60, "operons-b%06"PRId32"-e%06"PRId32"-i%"PRId32, begin_gener, end_gener, final_indiv_index );
   operons_output_file = fopen( operons_output_file_name, "w" );
 }
 
@@ -743,5 +745,47 @@ void write_operons_stats( int32_t num_gener, ae_individual * indiv )
 
 void print_help( void )
 {
-  // TODO
+  printf( "\n" ); 
+  printf( "*********************** aevol - Artificial Evolution ******************* \n" );
+  printf( "*                                                                      * \n" );
+  printf( "*                      Ancstats post-treatment program                 * \n" );
+  printf( "*                                                                      * \n" );
+  printf( "************************************************************************ \n" );
+  printf( "\n\n" ); 
+  printf( "This program is Free Software. No Warranty.\n" );
+  printf( "Copyright (C) 2009  LIRIS.\n" );
+  printf( "\n" ); 
+#ifdef __REGUL
+  printf( "Usage : rancstats -h\n");
+  printf( "or :    rancstats [-vn] -f backup_file \n" );
+#else
+  printf( "Usage : ancstats -h\n");
+  printf( "or :    ancstats [-vn] -f backup_file \n" );
+#endif
+  printf( "\n" ); 
+#ifdef __REGUL
+  printf( "This program does ....\n" );
+#else
+  printf( "This program does ...\n" );
+#endif
+  printf( "\n" ); 
+  printf( "WARNING: This program should not be used for simulations run with lateral\n" ); 
+  printf( "transfer. When an individual has more than one parent, the notion of lineage\n" ); 
+  printf( "used here is not relevant.\n" );
+  printf( "\n" );  
+  printf( "\t-h or --help    : Display this help.\n" );
+  printf( "\n" ); 
+  printf( "\t-v or --verbose : Be verbose, listing generations as they are \n" );
+  printf( "\t                  treated.\n" );
+  printf( "\n" ); 
+  printf( "\t-n or --nocheck : Disable genome sequence checking. Makes the \n"); 
+  printf( "\t                  program faster, but it is not recommended. \n");
+  printf( "\t                  It is better to let the program check that \n");
+  printf( "\t                  when we rebuild the genomes of the ancestors\n");
+  printf( "\t                  from the lineage file, we get the same sequences\n");
+  printf( "\t                  as those stored in the backup files.\n" );
+  printf( "\n" ); 
+  printf( "\t-f lineage_file or --file lineage_file : \n" );
+  printf( "\t                  ...\n" );
+  printf( "\n" );
 }

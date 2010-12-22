@@ -92,11 +92,11 @@ class ae_protein : public ae_object
     inline double     get_height( void )                const;
     inline int32_t    get_length( void )                const; // Number of Amino-Acids (not including START and STOP)
     inline double     get_concentration( void )         const;
+    inline  bool      get_is_metabolic( void )          const;
 
     // =================================================================
     //                            Public Methods
     // =================================================================
-    inline  bool  is_degenerated( void ) const;
             void  add_RNA( ae_rna* rna );
             char* get_AA_sequence( void ) const; // WARNING : creates a new char[...] (up to you to delete it!)
     virtual void  write_to_backup( gzFile* backup_file );
@@ -140,6 +140,7 @@ class ae_protein : public ae_object
     int32_t           _last_translated_pos;   // Index of the last base before the STOP codon
     int32_t           _length;                // Number of Amino-Acids (START and STOP codon do NOT produce AAs)
     double            _concentration;
+    bool              _is_metabolic;
     
     ae_list*          _AA_list;
 
@@ -203,13 +204,14 @@ double ae_protein::get_concentration( void ) const
   return _concentration;
 }
 
+bool ae_protein::get_is_metabolic( void ) const
+{
+  return _is_metabolic;
+}
+
 
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-bool ae_protein::is_degenerated( void ) const
-{
-  return ( _width == 0 || _height == 0 );
-}
 
 #endif // __AE_PROTEIN_H__

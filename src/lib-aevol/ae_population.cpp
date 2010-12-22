@@ -89,10 +89,8 @@ ae_population::ae_population( void )
     if ( ae_common::init_method & CLONE )
     {
       // Create an individual with a "good" gene (in fact, make an indiv whose fitness is better than that corresponding to a flat phenotype)
-      indiv = create_random_individual_with_good_gene();
-    
-      // Set the index of the individual we've just created
-      indiv->set_index_in_population( index_new_indiv++ );
+      // and set its index in the population
+      indiv = create_random_individual_with_good_gene( index_new_indiv++ );
       
       // Add it to the list
       _indivs->add( indiv );
@@ -102,11 +100,8 @@ ae_population::ae_population( void )
       ae_individual* clone = NULL;
       for ( int32_t i = 1 ; i < _nb_indivs ; i++ )
       {
-        // Create a clone
-        clone = create_clone( indiv );
-        
-        // Set its index
-        clone->set_index_in_population( index_new_indiv++ );
+        // Create a clone, setting its index
+        clone = create_clone( indiv, index_new_indiv++ );
         
         // Add it to the list
         _indivs->add( clone );
@@ -116,11 +111,8 @@ ae_population::ae_population( void )
     {
       for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
       {
-        // Create an individual
-        indiv = create_random_individual_with_good_gene();
-        
-        // Set its index
-        indiv->set_index_in_population( index_new_indiv++ );
+        // Create an individual and set its index
+        indiv = create_random_individual_with_good_gene( index_new_indiv++ );
         
         // Add it to the list
         _indivs->add( indiv );
@@ -304,7 +296,6 @@ ae_population::ae_population( gzFile* backup_file )
 
     // update the number of individuals
     _nb_indivs = ae_common::init_pop_size;
-
   }
   // If population size has decreased, then we only keep some individuals
   else if ( _nb_indivs > ae_common::init_pop_size )
@@ -414,7 +405,6 @@ ae_population::ae_population( gzFile* backup_file )
     
     // update the number of individuals
     _nb_indivs = ae_common::init_pop_size;
-    
   }
   // Otherwise we keep all the individuals
   else
@@ -470,7 +460,6 @@ ae_population::ae_population( gzFile* backup_file )
     compute_prob_reprod();
   }
 #endif
-  
 }
 
 
@@ -617,11 +606,6 @@ void ae_population::step_to_next_generation( void )
 // This function creates the next generation in a spatially structured population
 void ae_population::step_to_next_generation_grid( void )
 {
-  // Use this to create a new population when the population is spatially structured  
-  ae_individual* indiv      = NULL;
-  ae_list_node*  indiv_node = _indivs->get_first();
-
-
   // create a  grid matrix to store new individuals and fitness matrix to store the fitness values
   ae_individual*** new_pop_grid = new ae_individual** [ae_common::grid_x];
   for ( int16_t i = 0 ; i < ae_common::grid_x ; i++ )
@@ -733,16 +717,6 @@ void ae_population::step_to_next_generation_grid( void )
   
   //printf( "new_gen : 0x%x nb_indivs : %ld\n", new_generation, new_generation->get_nb_elts() );
   //printf( "first node : 0x%x obj : 0x%x\n", new_generation->get_first(), new_generation->get_first()->get_obj() );
-  
-  // Update the index-of-the-individual-in-the-population in the replication reports
-  indiv_node = _indivs->get_first();
-  
-  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
-  {
-    indiv = (ae_individual *) indiv_node->get_obj();
-    indiv->set_index_in_population( i );
-    indiv_node = indiv_node->get_next();
-  } 
  
   // delete the new grid
   for ( int16_t x = 0 ; x < ae_common::grid_x ; x++ )
@@ -1101,9 +1075,20 @@ void ae_population::sort_individuals( void )
       }
     }
   }
+  
+  // Update the rank of the individuals
+  ae_list_node *  indiv_node  = _indivs->get_first();
+  ae_individual * indiv       = NULL;
+  
+  for ( int32_t rank = 1 ; rank <= _nb_indivs ; rank++ )
+  {
+    indiv = (ae_individual *) indiv_node->get_obj();
+    indiv->set_rank_in_population( rank );
+    indiv_node = indiv_node->get_next();
+  }
 }
 
-ae_individual* ae_population::create_random_individual( void )
+ae_individual* ae_population::create_random_individual( int32_t index )
 {
   ae_individual* indiv;
   
@@ -1122,6 +1107,8 @@ ae_individual* ae_population::create_random_individual( void )
       indiv = new ae_individual_R_X11();
     #endif
   #endif
+  
+  indiv->set_index_in_population( index );
   
   // <DEBUG>
   //~ int32_t pos1;
@@ -1242,10 +1229,10 @@ ae_individual* ae_population::create_random_individual( void )
   return indiv;
 }
 
-ae_individual* ae_population::create_random_individual_with_good_gene( void )
+ae_individual* ae_population::create_random_individual_with_good_gene( int32_t index )
 {
   // Create a random individual and evaluate it
-  ae_individual* indiv = create_random_individual();
+  ae_individual* indiv = create_random_individual( index );
   indiv->evaluate( ae_common::sim->get_env() );
   
   // While the created individual is not better than the flat individual (indiv whith no metabolic gene),
@@ -1261,7 +1248,7 @@ ae_individual* ae_population::create_random_individual_with_good_gene( void )
   }
 
   // If there are plasmids, make sure there is at least one metabolic gene on each genetic units
-  if ( ae_common::allow_plasmids) 
+  if ( ae_common::allow_plasmids ) 
   {
     if ( ae_common::plasmid_initial_gene == 1)
     {
@@ -1269,7 +1256,7 @@ ae_individual* ae_population::create_random_individual_with_good_gene( void )
              indiv->get_genetic_unit(1)->get_dist_to_target_by_feature( METABOLISM ) >= env_metabolic_area  )
       {
         delete indiv;
-        indiv = create_random_individual();
+        indiv = create_random_individual( index );
         indiv->evaluate( ae_common::sim->get_env() );
       }
     }
@@ -1280,7 +1267,7 @@ ae_individual* ae_population::create_random_individual_with_good_gene( void )
       while ( indiv->get_dist_to_target_by_feature( METABOLISM ) >= env_metabolic_area )
       {
         delete indiv;
-        indiv = create_random_individual();
+        indiv = create_random_individual( index );
         indiv->evaluate( ae_common::sim->get_env() );
       }
     }
@@ -1290,7 +1277,7 @@ ae_individual* ae_population::create_random_individual_with_good_gene( void )
     while ( indiv->get_dist_to_target_by_feature( METABOLISM ) >= env_metabolic_area )
     {
       delete indiv;
-      indiv = create_random_individual();
+      indiv = create_random_individual( index );
       indiv->evaluate( ae_common::sim->get_env() );
     }
   }
@@ -1304,7 +1291,7 @@ ae_individual* ae_population::create_random_individual_with_good_gene( void )
   return indiv;
 }
 
-ae_individual* ae_population::create_clone( ae_individual* dolly )
+ae_individual* ae_population::create_clone( ae_individual* dolly, int32_t index )
 {
   ae_individual* indiv;
   
@@ -1321,6 +1308,9 @@ ae_individual* ae_population::create_clone( ae_individual* dolly )
       indiv = new ae_individual_R_X11( *(dynamic_cast<ae_individual_R_X11*>(dolly)) );
     #endif
   #endif
+  
+  indiv->set_index_in_population( index );
+  
   return indiv;
 }
 
@@ -1438,4 +1428,27 @@ void ae_population::compute_prob_reprod( void )
     printf( "ERROR, invalid selection scheme in file %s:%d\n", __FILE__, __LINE__ );
     exit( EXIT_FAILURE );
   }
+}
+
+
+// =================================================================
+//                          Non inline accessors
+// =================================================================
+ae_individual * ae_population::get_indiv_by_index( int32_t index ) const
+{
+  ae_list_node*   indiv_node = _indivs->get_first();
+  ae_individual*  indiv;
+  while ( indiv_node != NULL )
+  {
+    indiv = ( ae_individual* ) indiv_node->get_obj();
+    
+    if ( indiv->get_index_in_population() == index )
+    {
+      return indiv;
+    }
+    
+    indiv_node = indiv_node->get_next();
+  }
+  
+  return NULL;
 }

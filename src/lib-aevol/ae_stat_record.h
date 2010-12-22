@@ -184,14 +184,14 @@ class ae_stat_record : public ae_object
     double  _nb_inv;
     
     double  _nb_bases_in_0_CDS;
-    double  _nb_bases_in_0_non_null_CDS;
-    double  _nb_bases_in_0_null_CDS;
+    double  _nb_bases_in_0_metabolic_CDS;
+    double  _nb_bases_in_0_non_metabolic_CDS;
     double  _nb_bases_in_0_RNA;
     double  _nb_bases_in_0_coding_RNA;
     double  _nb_bases_in_0_non_coding_RNA;
     
     double  _nb_bases_non_essential;
-    double  _nb_bases_non_essential_null_genes;
+    double  _nb_bases_non_essential_including_nm_genes;
     
     #ifdef __REGUL
       double  _nb_influences;

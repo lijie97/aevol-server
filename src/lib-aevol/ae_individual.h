@@ -98,7 +98,10 @@ class ae_individual : public ae_object
     inline ae_grid_cell*    get_grid_cell( void )                                         const;
     inline bool             get_placed_in_population()                                    const;
     
+    inline int32_t          get_index_in_population( void ) const;
     inline void             set_index_in_population( int32_t index );
+    inline int32_t          get_rank_in_population( void ) const;
+    inline void             set_rank_in_population( int32_t rank );
     inline void             set_grid_cell( ae_grid_cell* grid_cell );
     inline void             set_placed_in_population( bool placed_in_population );
     inline void             set_replication_report( ae_replication_report * rep );
@@ -131,15 +134,14 @@ class ae_individual : public ae_object
     inline double   get_av_size_non_metabolic_genes( void );
     
     inline int32_t  get_nb_bases_in_0_CDS( void );
-    inline int32_t  get_nb_bases_in_0_non_null_CDS( void );
-    inline int32_t  get_nb_bases_in_0_null_CDS( void );
+    inline int32_t  get_nb_bases_in_0_metabolic_CDS( void );
+    inline int32_t  get_nb_bases_in_0_non_metabolic_CDS( void );
     inline int32_t  get_nb_bases_in_0_RNA( void );
     inline int32_t  get_nb_bases_in_0_coding_RNA( void );
     inline int32_t  get_nb_bases_in_0_non_coding_RNA( void );
     
     inline double get_modularity( void ); // Not const
-
-    inline int32_t get_index_in_population( void ) const;
+    
     // =================================================================
     //                            Public Methods
     // =================================================================
@@ -209,7 +211,7 @@ class ae_individual : public ae_object
     // WARNING : The index is no longer corresponding to the rank of the individual.
     //           The reason for this change is that we now need an identifier for the individuals
     //           as soon as they are created (the rank is only known when all the individuals have been evaluated).
-    //           The rank will now be handled in a specific new attribute.
+    //           The rank will now be handled in a specific new attribute. (1 for the worst indiv, POP_SIZE for the best)
     
     ae_fuzzy_set* _phenotype_activ;
     ae_fuzzy_set* _phenotype_inhib;
@@ -264,13 +266,13 @@ class ae_individual : public ae_object
     
     // Mutation/Rearrangement statistics are managed in the replication report
     
-    int32_t _nb_bases_in_0_CDS;             // Number of bases that are not included in any gene
-    int32_t _nb_bases_in_0_non_null_CDS;    // Number of bases that are not included in any metabolic gene
-    int32_t _nb_bases_in_0_null_CDS;        // Number of bases that are not included in any degenerated gene
-    int32_t _nb_bases_in_0_RNA;             // Number of bases that are not included in any RNA
-    int32_t _nb_bases_in_0_coding_RNA;      // Number of bases that are not included in any coding RNA
-                                            // (RNAs containing at least one CDS)
-    int32_t _nb_bases_in_0_non_coding_RNA;  // Number of bases that are not included in any non coding RNA
+    int32_t _nb_bases_in_0_CDS;               // Number of bases that are not included in any gene
+    int32_t _nb_bases_in_0_metabolic_CDS;     // Number of bases that are not included in any metabolic gene
+    int32_t _nb_bases_in_0_non_metabolic_CDS; // Number of bases that are not included in any degenerated gene
+    int32_t _nb_bases_in_0_RNA;               // Number of bases that are not included in any RNA
+    int32_t _nb_bases_in_0_coding_RNA;        // Number of bases that are not included in any coding RNA
+                                              // (RNAs containing at least one CDS)
+    int32_t _nb_bases_in_0_non_coding_RNA;    // Number of bases that are not included in any non coding RNA
                                       
     double _modularity; // Ratio between the pairwise distance between genes whose corresponding
                         // phenotypic triangles overlap and the average intergenic distance 
@@ -300,9 +302,34 @@ class ae_individual : public ae_object
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
+inline int32_t ae_individual::get_index_in_population( void ) const
+{
+  return _index_in_population;
+}
+
 inline void ae_individual::set_index_in_population( int32_t index )
 {
   _index_in_population = index;
+  
+  if ( _replic_report != NULL )
+  {
+    _replic_report->set_index( index );
+  }
+}
+
+inline int32_t ae_individual::get_rank_in_population( void ) const
+{
+  return _rank_in_population;
+}
+
+inline void ae_individual::set_rank_in_population( int32_t rank )
+{
+  _rank_in_population = rank;
+  
+  if ( _replic_report != NULL )
+  {
+    _replic_report->set_rank( rank );
+  }
 }
 
 inline void ae_individual::set_grid_cell( ae_grid_cell* grid_cell )
@@ -549,18 +576,18 @@ inline int32_t ae_individual::get_nb_bases_in_0_CDS( void )
   return _nb_bases_in_0_CDS;
 }
 
-inline int32_t ae_individual::get_nb_bases_in_0_non_null_CDS( void )
+inline int32_t ae_individual::get_nb_bases_in_0_metabolic_CDS( void )
 {
   if ( ! _statistical_data_computed ) compute_statistical_data();
   if ( ! _non_coding_computed ) compute_non_coding();
-  return _nb_bases_in_0_non_null_CDS;
+  return _nb_bases_in_0_metabolic_CDS;
 }
 
-inline int32_t ae_individual::get_nb_bases_in_0_null_CDS( void )
+inline int32_t ae_individual::get_nb_bases_in_0_non_metabolic_CDS( void )
 {
   if ( ! _statistical_data_computed ) compute_statistical_data();
   if ( ! _non_coding_computed ) compute_non_coding();
-  return _nb_bases_in_0_null_CDS;
+  return _nb_bases_in_0_non_metabolic_CDS;
 }
 
 inline int32_t ae_individual::get_nb_bases_in_0_RNA( void )
@@ -589,12 +616,6 @@ inline double ae_individual::get_modularity( void )
   //~ if ( _modularity < 0 ) compute_modularity();
   //~ return _modularity;
   return 0;
-}
-
-
-inline int32_t ae_individual::get_index_in_population( void ) const
-{
-  return _index_in_population;
 }
 
 // =====================================================================

@@ -75,6 +75,7 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, const ae_protein &model )
   _last_translated_pos    = model._last_translated_pos;
   _length                 = model._length;
   _concentration          = model._concentration;
+  _is_metabolic           = model._is_metabolic;
   
   _rna_list = new ae_list();
   
@@ -112,7 +113,7 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, ae_list* codon_list, ae_stran
   _concentration  = rna->get_basal_level();
   // In Raevol, there is two case, depending on the heredity
   #else
-  if (ae_common::with_heredity)
+  if ( ae_common::with_heredity )
   {
     // With heredity the new protein has a concentration set at 0, because there are inherited proteins which allow the regulation
     _concentration = 0;
@@ -177,6 +178,7 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, ae_list* codon_list, ae_stran
     switch ( codon->get_value() )
     {
       case CODON_M0 :
+      {
         // M codon found
         nb_m++;
 
@@ -191,9 +193,9 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, ae_list* codon_list, ae_stran
         if ( bin_m ) M += 1;
 
         break;
-
-
+      }
       case CODON_M1 :
+      {
         // M codon found
         nb_m++;
 
@@ -208,9 +210,9 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, ae_list* codon_list, ae_stran
         if ( bin_m ) M += 1;
 
         break;
-
-
+      }
       case CODON_W0 :
+      {
         // W codon found
         nb_w++;
 
@@ -225,9 +227,9 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, ae_list* codon_list, ae_stran
         if ( bin_w ) W += 1;
 
         break;
-
-
+      }
       case CODON_W1 :
+      {
         // W codon found
         nb_w++;
 
@@ -242,10 +244,10 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, ae_list* codon_list, ae_stran
         if ( bin_w ) W += 1;
 
         break;
-
-
+      }
       case CODON_H0 :
       case CODON_START : // Start codon codes for the same amino-acid as H0 codon
+      {
         // H codon found
         nb_h++;
 
@@ -260,9 +262,9 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, ae_list* codon_list, ae_stran
         if ( bin_h ) H += 1;
 
         break;
-
-
+      }
       case CODON_H1 :
+      {
         // H codon found
         nb_h++;
 
@@ -277,6 +279,7 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, ae_list* codon_list, ae_stran
         if ( bin_h ) H += 1;
 
         break;
+      }
     }
 
     node = node->get_next();
@@ -288,11 +291,11 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, ae_list* codon_list, ae_stran
   //  2) Normalize M, W and H values in [0;1] according to number of codons of each kind
   //  ----------------------------------------------------------------------------------
   if ( nb_m != 0 )  _mean = M / (pow(2, nb_m) - 1);
-  else              _mean = 0.0;
+  else              _mean = 0.5;
   if ( nb_w != 0 )  _width = W / (pow(2, nb_w) - 1);
   else              _width = 0.0;
   if ( nb_h != 0 )  _height = H / (pow(2, nb_h) - 1);
-  else              _height = 0.0;  // TODO : I think that produces a triangle of height -1, should be 0...
+  else              _height = 0.5;
 
   assert( _mean >= 0.0 && _mean <= 1.0 );
   assert( _width >= 0.0 && _width <= 1.0 );
@@ -309,6 +312,15 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, ae_list* codon_list, ae_stran
   _mean   = (MAX_X - MIN_X) * _mean + MIN_X;
   _width  = (MAX_W - MIN_W) * _width + MIN_W;
   _height = (MAX_H - MIN_H) * _height + MIN_H;
+  
+  if ( nb_m == 0 || nb_w == 0 || nb_h == 0 || _width == 0.0 || _height == 0.0 )
+  {
+    _is_metabolic = false;
+  }
+  else
+  {
+    _is_metabolic = true;
+  }
 
   assert( _mean >= MIN_X && _mean <= MAX_X );
   assert( _width >= MIN_W && _width <= MAX_W );
@@ -334,16 +346,17 @@ ae_protein::ae_protein( ae_protein* parent )
 ae_protein::ae_protein( gzFile* backup_file )
 {
   // the Rna_list is empty, and is not uselfull there, thus it is not save.
-  gzread( backup_file, &_gen_unit,   			sizeof(_gen_unit) );
-  gzread( backup_file, &_strand,    	 		sizeof(_strand) );
-  gzread( backup_file, &_shine_dal_pos,			sizeof(_shine_dal_pos) );
-  gzread( backup_file, &_first_translated_pos, 		sizeof(_first_translated_pos) );
-  gzread( backup_file, &_last_translated_pos,  		sizeof(_last_translated_pos) );
-  gzread( backup_file, &_length,     			sizeof(_length) );
-  gzread( backup_file, &_concentration,     		sizeof(_concentration) );
-  gzread( backup_file, &_mean,  			sizeof(_mean) );
-  gzread( backup_file, &_width,    			sizeof(_width) );
-  gzread( backup_file, &_height,		     	sizeof(_height) );
+  gzread( backup_file, &_gen_unit,   			      sizeof(_gen_unit)             );
+  gzread( backup_file, &_strand,    	 		      sizeof(_strand)               );
+  gzread( backup_file, &_shine_dal_pos,			    sizeof(_shine_dal_pos)        );
+  gzread( backup_file, &_first_translated_pos, 	sizeof(_first_translated_pos) );
+  gzread( backup_file, &_last_translated_pos,  	sizeof(_last_translated_pos)  );
+  gzread( backup_file, &_length,     			      sizeof(_length)               );
+  gzread( backup_file, &_concentration,     		sizeof(_concentration)        );
+  gzread( backup_file, &_is_metabolic,          sizeof(_is_metabolic)         );
+  gzread( backup_file, &_mean,  			          sizeof(_mean)                 );
+  gzread( backup_file, &_width,    			        sizeof(_width)                );
+  gzread( backup_file, &_height,                sizeof(_height)               );
   
   _rna_list = new ae_list();
 
@@ -354,7 +367,7 @@ ae_protein::ae_protein( gzFile* backup_file )
   
   for ( int16_t i = 0 ; i < nb_AA ; i++ )
   {
-	_AA_list->add( new ae_codon( backup_file ) );
+    _AA_list->add( new ae_codon( backup_file ) );
   }
   
 }
@@ -461,16 +474,17 @@ char* ae_protein::get_AA_sequence( void ) const
 void ae_protein::write_to_backup( gzFile* backup_file )
 {
   // The rna_list is not write because there is no need to, it is an empty list.
-  gzwrite( backup_file, &_gen_unit,   			sizeof(_gen_unit) );
-  gzwrite( backup_file, &_strand,    	 		sizeof(_strand) );
-  gzwrite( backup_file, &_shine_dal_pos,		sizeof(_shine_dal_pos) );
-  gzwrite( backup_file, &_first_translated_pos, 	sizeof(_first_translated_pos) );
-  gzwrite( backup_file, &_last_translated_pos,  	sizeof(_last_translated_pos) );
-  gzwrite( backup_file, &_length,     			sizeof(_length) );
-  gzwrite( backup_file, &_concentration,     		sizeof(_concentration) );
-  gzwrite( backup_file, &_mean,  			sizeof(_mean) );
-  gzwrite( backup_file, &_width,    			sizeof(_width) );
-  gzwrite( backup_file, &_height,		     	sizeof(_height) );
+  gzwrite( backup_file, &_gen_unit,             sizeof(_gen_unit)             );
+  gzwrite( backup_file, &_strand,               sizeof(_strand)               );
+  gzwrite( backup_file, &_shine_dal_pos,        sizeof(_shine_dal_pos)        );
+  gzwrite( backup_file, &_first_translated_pos, sizeof(_first_translated_pos) );
+  gzwrite( backup_file, &_last_translated_pos,  sizeof(_last_translated_pos)  );
+  gzwrite( backup_file, &_length,     			    sizeof(_length)               );
+  gzwrite( backup_file, &_concentration,     		sizeof(_concentration)        );
+  gzwrite( backup_file, &_is_metabolic,         sizeof(_is_metabolic)         );
+  gzwrite( backup_file, &_mean,  			          sizeof(_mean)                 );
+  gzwrite( backup_file, &_width,    			      sizeof(_width)                );
+  gzwrite( backup_file, &_height,		     	      sizeof(_height)               );
 
   // Write the Acide Amino in the backup file
   int16_t nb_AA = _AA_list->get_nb_elts();

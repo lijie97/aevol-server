@@ -83,7 +83,7 @@ ae_stat_record::ae_stat_record( ae_individual* indiv, chrom_or_gen_unit chrom_or
   ae_list_node*             replic_report_node;
   ae_dna_replic_report*     dna_replic_report; 
     
-  if ( !ae_common::allow_plasmids || chrom_or_gu == ALL_GU)
+  if ( !ae_common::allow_plasmids || chrom_or_gu == ALL_GU )
   { 
     
     initialize();
@@ -169,15 +169,15 @@ ae_stat_record::ae_stat_record( ae_individual* indiv, chrom_or_gen_unit chrom_or
 
       if ( compute_non_coding )
       {
-        _nb_bases_in_0_CDS                  += gen_unit->get_nb_bases_in_0_CDS();
-        _nb_bases_in_0_non_null_CDS         += gen_unit->get_nb_bases_in_0_non_null_CDS();
-        _nb_bases_in_0_null_CDS             += gen_unit->get_nb_bases_in_0_null_CDS();
-        _nb_bases_in_0_RNA                  += gen_unit->get_nb_bases_in_0_RNA();
-        _nb_bases_in_0_coding_RNA           += gen_unit->get_nb_bases_in_0_coding_RNA();
-        _nb_bases_in_0_non_coding_RNA       += gen_unit->get_nb_bases_in_0_non_coding_RNA();
+        _nb_bases_in_0_CDS                += gen_unit->get_nb_bases_in_0_CDS();
+        _nb_bases_in_0_metabolic_CDS      += gen_unit->get_nb_bases_in_0_metabolic_CDS();
+        _nb_bases_in_0_non_metabolic_CDS  += gen_unit->get_nb_bases_in_0_non_metabolic_CDS();
+        _nb_bases_in_0_RNA                += gen_unit->get_nb_bases_in_0_RNA();
+        _nb_bases_in_0_coding_RNA         += gen_unit->get_nb_bases_in_0_coding_RNA();
+        _nb_bases_in_0_non_coding_RNA     += gen_unit->get_nb_bases_in_0_non_coding_RNA();
         
-        _nb_bases_non_essential             += gen_unit->get_nb_bases_non_essential();
-        _nb_bases_non_essential_null_genes  += gen_unit->get_nb_bases_non_essential_null_genes();
+        _nb_bases_non_essential                     += gen_unit->get_nb_bases_non_essential();
+        _nb_bases_non_essential_including_nm_genes  += gen_unit->get_nb_bases_non_essential_including_nm_genes();
       }
       
       if ( _num_gener > 0 && ae_common::record_tree )
@@ -282,14 +282,14 @@ ae_stat_record::ae_stat_record( ae_individual* indiv, chrom_or_gen_unit chrom_or
     if ( compute_non_coding )
     {
       _nb_bases_in_0_CDS                  = gen_unit->get_nb_bases_in_0_CDS();
-      _nb_bases_in_0_non_null_CDS         = gen_unit->get_nb_bases_in_0_non_null_CDS();
-      _nb_bases_in_0_null_CDS             = gen_unit->get_nb_bases_in_0_null_CDS();
+      _nb_bases_in_0_metabolic_CDS        = gen_unit->get_nb_bases_in_0_metabolic_CDS();
+      _nb_bases_in_0_non_metabolic_CDS    = gen_unit->get_nb_bases_in_0_non_metabolic_CDS();
       _nb_bases_in_0_RNA                  = gen_unit->get_nb_bases_in_0_RNA();
       _nb_bases_in_0_coding_RNA           = gen_unit->get_nb_bases_in_0_coding_RNA();
       _nb_bases_in_0_non_coding_RNA       = gen_unit->get_nb_bases_in_0_non_coding_RNA();
       
-      _nb_bases_non_essential            = gen_unit->get_nb_bases_non_essential();
-      _nb_bases_non_essential_null_genes = gen_unit->get_nb_bases_non_essential_null_genes();
+      _nb_bases_non_essential                     = gen_unit->get_nb_bases_non_essential();
+      _nb_bases_non_essential_including_nm_genes  = gen_unit->get_nb_bases_non_essential_including_nm_genes();
     }
     
     if ( _num_gener > 0 && ae_common::record_tree )
@@ -377,14 +377,14 @@ ae_stat_record::ae_stat_record( const ae_stat_record &model )
   _nb_inv    = model._nb_inv;
   
   _nb_bases_in_0_CDS                = model._nb_bases_in_0_CDS;
-  _nb_bases_in_0_non_null_CDS       = model._nb_bases_in_0_non_null_CDS;
-  _nb_bases_in_0_null_CDS           = model._nb_bases_in_0_null_CDS;
+  _nb_bases_in_0_metabolic_CDS      = model._nb_bases_in_0_metabolic_CDS;
+  _nb_bases_in_0_non_metabolic_CDS  = model._nb_bases_in_0_non_metabolic_CDS;
   _nb_bases_in_0_RNA                = model._nb_bases_in_0_RNA;
   _nb_bases_in_0_coding_RNA         = model._nb_bases_in_0_coding_RNA;
   _nb_bases_in_0_non_coding_RNA     = model._nb_bases_in_0_non_coding_RNA;
       
-  _nb_bases_non_essential             = model._nb_bases_non_essential;
-  _nb_bases_non_essential_null_genes  = model._nb_bases_non_essential_null_genes;
+  _nb_bases_non_essential                     = model._nb_bases_non_essential;
+  _nb_bases_non_essential_including_nm_genes  = model._nb_bases_non_essential_including_nm_genes;
     
   #ifdef __REGUL
     _nb_influences                 = model._nb_influences;
@@ -442,14 +442,14 @@ void ae_stat_record::initialize( void )
   _nb_inv    = 0.0;
   
   _nb_bases_in_0_CDS                = 0.0;
-  _nb_bases_in_0_non_null_CDS       = 0.0;
-  _nb_bases_in_0_null_CDS           = 0.0;
+  _nb_bases_in_0_metabolic_CDS      = 0.0;
+  _nb_bases_in_0_non_metabolic_CDS  = 0.0;
   _nb_bases_in_0_RNA                = 0.0;
   _nb_bases_in_0_coding_RNA         = 0.0;
   _nb_bases_in_0_non_coding_RNA     = 0.0;
     
-  _nb_bases_non_essential             = 0.0;
-  _nb_bases_non_essential_null_genes  = 0.0;
+  _nb_bases_non_essential                     = 0.0;
+  _nb_bases_non_essential_including_nm_genes  = 0.0;
     
   #ifdef __REGUL
     _nb_influences                 = 0.0;
@@ -465,10 +465,11 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
 {
   if ( _record_type == INDIV )
   {
-    if (stat_type_to_print == FITNESS_STATS)
+    if ( stat_type_to_print == FITNESS_STATS )
     {
-      fprintf(  stat_file, "%"PRId32" %lf %lf %lf %lf %lf %lf %lf %lf", 
+      fprintf( stat_file, "%"PRId32" %"PRId32" %lf %lf %lf %lf %lf %lf %lf %lf", 
               (int32_t) _num_gener,
+              (int32_t) _pop_size,
               _fitness,              
               _amount_of_dna, 
               _metabolic_error,
@@ -476,7 +477,7 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
               _secretion_error,
               _parent_secretion_error,
               _compound_secreted,
-              _compound_amount);
+              _compound_amount );
 
       #ifdef __REGUL
         fprintf(  stat_file, " %"PRId32" %"PRId32" %"PRId32" %lf %lf %lf",
@@ -520,13 +521,13 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
       fprintf(  stat_file, "%"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32"",
               (int32_t) _num_gener,
               (int32_t) _nb_bases_in_0_CDS,
-              (int32_t) _nb_bases_in_0_non_null_CDS,
-              (int32_t) _nb_bases_in_0_null_CDS,
+              (int32_t) _nb_bases_in_0_metabolic_CDS,
+              (int32_t) _nb_bases_in_0_non_metabolic_CDS,
               (int32_t) _nb_bases_in_0_RNA,
               (int32_t) _nb_bases_in_0_coding_RNA,
               (int32_t) _nb_bases_in_0_non_coding_RNA,
               (int32_t) _nb_bases_non_essential,
-              (int32_t) _nb_bases_non_essential_null_genes );
+              (int32_t) _nb_bases_non_essential_including_nm_genes );
     } 
   }
   else // if _record_type == POP
@@ -586,20 +587,20 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
     }
 
 
-    if (stat_type_to_print == BP_STATS)
+    if ( stat_type_to_print == BP_STATS )
     {
      // TO DO (if needed) : base-pair stats for all individuals, not just for the best one. 
      //
      // fprintf(  stat_file, "%"PRId32" %lf %lf %lf %lf %lf %lf %lf %lf",
      //         (int32_t)_num_gener,
      //         _nb_bases_in_0_CDS,
-     //         _nb_bases_in_0_non_null_CDS,
-     //         _nb_bases_in_0_null_CDS,
+     //         _nb_bases_in_0_metabolic_CDS,
+     //         _nb_bases_in_0_non_metabolic_CDS,
      //         _nb_bases_in_0_RNA,
      //         _nb_bases_in_0_coding_RNA,
      //         _nb_bases_in_0_non_coding_RNA,
      //         _nb_bases_non_essential,
-     //         _nb_bases_non_essential_null_genes );
+     //         _nb_bases_non_essential_including_nm_genes );
     } 
   }
   
@@ -641,14 +642,14 @@ void ae_stat_record::divide( double divisor )
   _nb_inv    /= divisor;
   
   _nb_bases_in_0_CDS                /= divisor;
-  _nb_bases_in_0_non_null_CDS       /= divisor;
-  _nb_bases_in_0_null_CDS           /= divisor;
+  _nb_bases_in_0_metabolic_CDS      /= divisor;
+  _nb_bases_in_0_non_metabolic_CDS  /= divisor;
   _nb_bases_in_0_RNA                /= divisor;
   _nb_bases_in_0_coding_RNA         /= divisor;
   _nb_bases_in_0_non_coding_RNA     /= divisor;
     
-  _nb_bases_non_essential             /= divisor;
-  _nb_bases_non_essential_null_genes  /= divisor;
+  _nb_bases_non_essential                     /= divisor;
+  _nb_bases_non_essential_including_nm_genes  /= divisor;
     
   #ifdef __REGUL
     _nb_influences                 /= divisor;
@@ -695,14 +696,14 @@ void ae_stat_record::add( ae_stat_record* to_add )
   _nb_inv    += to_add->_nb_inv;
   
   _nb_bases_in_0_CDS                += to_add->_nb_bases_in_0_CDS;
-  _nb_bases_in_0_non_null_CDS       += to_add->_nb_bases_in_0_non_null_CDS;
-  _nb_bases_in_0_null_CDS           += to_add->_nb_bases_in_0_null_CDS;
+  _nb_bases_in_0_metabolic_CDS      += to_add->_nb_bases_in_0_metabolic_CDS;
+  _nb_bases_in_0_non_metabolic_CDS  += to_add->_nb_bases_in_0_non_metabolic_CDS;
   _nb_bases_in_0_RNA                += to_add->_nb_bases_in_0_RNA;
   _nb_bases_in_0_coding_RNA         += to_add->_nb_bases_in_0_coding_RNA;
   _nb_bases_in_0_non_coding_RNA     += to_add->_nb_bases_in_0_non_coding_RNA;
     
-  _nb_bases_non_essential             += to_add->_nb_bases_non_essential;
-  _nb_bases_non_essential_null_genes  += to_add->_nb_bases_non_essential_null_genes;
+  _nb_bases_non_essential                     += to_add->_nb_bases_non_essential;
+  _nb_bases_non_essential_including_nm_genes  += to_add->_nb_bases_non_essential_including_nm_genes;
     
   #ifdef __REGUL
     _nb_influences                 += to_add->_nb_influences;

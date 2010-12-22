@@ -86,6 +86,7 @@ class ae_population : public ae_object
     inline double**     get_secreted_amount( void );
     inline double**     get_fitness_metabolic( void );
     inline double**     get_fitness_total( void );
+    ae_individual *   get_indiv_by_index( int32_t index ) const;
 
     // =================================================================
     //                            Public Methods
@@ -130,9 +131,9 @@ class ae_population : public ae_object
     // =================================================================
     void sort_individuals( void );
   
-    ae_individual* create_random_individual( void );
-    ae_individual* create_random_individual_with_good_gene( void );
-    ae_individual* create_clone( ae_individual* dolly );
+    ae_individual* create_random_individual( int32_t index );
+    ae_individual* create_random_individual_with_good_gene( int32_t index );
+    ae_individual* create_clone( ae_individual* dolly, int32_t index );
     
     void compute_prob_reprod( void );
 

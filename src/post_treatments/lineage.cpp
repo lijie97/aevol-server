@@ -85,7 +85,7 @@ int main(int argc, char** argv)
   // OK si NORMAL, sortir si LIGHT
 
 
-  printf("\n  WARNING : Parameters' change in the middle of a generation is not managed.n");
+  printf("\n  WARNING : Parameters' change in the middle of a generation is not managed.\n");
  
 
   // =====================
@@ -93,11 +93,12 @@ int main(int argc, char** argv)
   // =====================
 
   // Default values
-  bool    check_genome    = true;
-  bool    verbose         = false;
-  int32_t begin_gener = 0; 
-  int32_t end_gener   = 100;
-  int32_t final_indiv = -1; 
+  bool    check_genome      = true;
+  bool    verbose           = false;
+  int32_t begin_gener       = 0; 
+  int32_t end_gener         = 100;
+  int32_t final_indiv_index = -1; 
+  int32_t final_indiv_rank  = -1; 
 
   char* backup_file_name = NULL;
   char tree_file_name[50];
@@ -108,7 +109,8 @@ int main(int argc, char** argv)
     {"verbose", no_argument,       NULL, 'v'},
     {"nocheck", no_argument,       NULL, 'n'},
     {"begin",   required_argument, NULL, 'b'},
-    {"indiv",   required_argument, NULL, 'i'},
+    {"index",   required_argument, NULL, 'i'},
+    {"rank",    required_argument, NULL, 'r'},
     {"file",    required_argument, NULL, 'f'},
     {0, 0, 0, 0}
   };
@@ -118,16 +120,18 @@ int main(int argc, char** argv)
   {
     switch( option ) 
     {
-      case 'h' : print_help(); exit(EXIT_SUCCESS); break;
-      case 'v' : verbose = true;                   break;
-      case 'n' : check_genome = false;             break;
-      case 'b' : begin_gener  = atol(optarg);      break;
-      case 'i' : final_indiv  = atol(optarg);      break;
+      case 'h' : print_help(); exit(EXIT_SUCCESS);  break;
+      case 'v' : verbose = true;                    break;
+      case 'n' : check_genome = false;              break;
+      case 'b' : begin_gener  = atol(optarg);       break;
+      case 'i' : final_indiv_index  = atol(optarg); break;
+      case 'r' : final_indiv_rank  = atol(optarg);  break;
       case 'f' :
       {
         if ( strcmp( optarg, "" ) == 0 )
         {
           printf( "ERROR : Option -f or --file : missing argument.\n" );
+          fflush( stdout );
           exit( EXIT_FAILURE );
         }
        
@@ -149,6 +153,28 @@ int main(int argc, char** argv)
     exit( EXIT_FAILURE );
   }
 
+  
+  
+  // The tree
+  ae_tree * tree = NULL;
+
+  // Indices, ranks and replication reports of the individuals in the lineage
+  int32_t *                 indices = new int32_t[end_gener - begin_gener + 1];
+  //~ int32_t *                 ranks   = new int32_t[end_gener - begin_gener + 1];
+  ae_replication_report **  reports = new ae_replication_report*[end_gener - begin_gener];
+  // NB: we do not need the report of the ancestor at generation begin_gener
+  // (it might be the generation 0, for which we have no reports)
+  // reports[0] = how ancestor at generation begin_gener + 1 was created 
+  // reports[i] = how ancestor at generation begin_gener + i + 1 was created
+  // reports[end_gener - begin_gener - 1] = how the final individual was created
+  //
+  //            -----------------------------------------------------------------------------------------
+  //  reports  | gener_0 => gener_1 | gener_1 => gener_2 | ... | gener_n-1 => gener_n | //////////////// |
+  //            -----------------------------------------------------------------------------------------
+  //  indices  |  index at gener_0  |  index at gener_1  | ... |  index at gener_n-1  | index at gener_n |
+  //            -----------------------------------------------------------------------------------------
+  
+  
 
   // =========================
   //  Load the last tree file
@@ -180,7 +206,7 @@ int main(int argc, char** argv)
     sprintf( tree_file_name,"tree/tree_%06"PRId32".ae", end_gener ); 
   #endif
 
-  ae_tree * tree = new ae_tree( backup_file_name, tree_file_name );
+  tree = new ae_tree( backup_file_name, tree_file_name );
 
   if ( verbose )
   {
@@ -189,36 +215,50 @@ int main(int argc, char** argv)
   }
 
 
-  // ========================================
-  //  Find the index of the final individual
-  // ========================================
-
-
-  if ( final_indiv == -1 )
+  // ============================================================================
+  //  Find the index of the final individual and retreive its replication report
+  // ============================================================================
+  if ( final_indiv_index != -1 )
   {
-    // No index was given in the command line.
-    // By default, we construct the lineage of the best individual.
-    // Since individuals are indexed according to their ranks in the
-    // population, we know that the best individual has the index
-    // N-1, if N is the size of the population.
-    final_indiv = tree->get_nb_indivs( end_gener ) - 1;
-    if ( verbose ) printf( "The final individual has the index %"PRId32"\n", final_indiv );
+    // The index was directly provided, get the replication report and update the indices and ranks tables
+    reports[end_gener - begin_gener - 1] = new ae_replication_report( *(tree->get_report_by_index(end_gener, final_indiv_index)) );
+    final_indiv_rank = reports[end_gener - begin_gener - 1]->get_rank();
+    
+    indices[end_gener - begin_gener]  = final_indiv_index;
+    //~ ranks[end_gener - begin_gener]    = final_indiv_rank;
   }
-
-
+  else
+  {
+    if ( final_indiv_rank == -1 )
+    {
+      // No index nor rank was given in the command line.
+      // By default, we construct the lineage of the best individual, the rank of which
+      // is simply the number of individuals in the population.
+      final_indiv_rank = tree->get_nb_indivs( end_gener );
+    }
+    
+    reports[end_gener - begin_gener - 1] = new ae_replication_report( *(tree->get_report_by_rank(end_gener, final_indiv_rank)) );
+    final_indiv_index = reports[end_gener - begin_gener - 1]->get_index();
+    
+    indices[end_gener - begin_gener]  = final_indiv_index;
+    //~ ranks[end_gener - begin_gener]    = final_indiv_rank;
+  }
+  
+  if ( verbose ) printf( "The final individual has the index %"PRId32" (rank %"PRId32")\n", final_indiv_index, final_indiv_rank );
+  
+  
   // =======================
   //  Open the output file
   // =======================
-
   char output_file_name[101];
 #ifdef __REGUL
-  snprintf(output_file_name, 100, "lineage-b%06"PRId32"-e%06"PRId32"-i%"PRId32".rae", begin_gener, end_gener, final_indiv);
+  snprintf( output_file_name, 100, "lineage-b%06"PRId32"-e%06"PRId32"-r%"PRId32".rae", begin_gener, end_gener, final_indiv_rank );
 #else 
-  snprintf(output_file_name, 100, "lineage-b%06"PRId32"-e%06"PRId32"-i%"PRId32".ae", begin_gener, end_gener, final_indiv);
+  snprintf( output_file_name, 100, "lineage-b%06"PRId32"-e%06"PRId32"-r%"PRId32".ae",  begin_gener, end_gener, final_indiv_rank );
 #endif
 
   gzFile * lineage_file = (gzFile*) gzopen(output_file_name, "w");
-  if(lineage_file == NULL)
+  if ( lineage_file == NULL )
   {
     fprintf(stderr, "File %s could not be created, exiting.\n", output_file_name);
     fprintf(stderr, "Please check your permissions in this directory.\n");
@@ -235,27 +275,18 @@ int main(int argc, char** argv)
   if ( verbose )
   {
     printf("\n\n\n");
-    printf("================================================================================\n");
-    printf(" Parsing tree files to retrieve the ancestors and their replication reports... \n");
-    printf("================================================================================\n");
+    printf("======================================================================\n");
+    printf(" Parsing tree files to retrieve the ancestors' replication reports... \n");
+    printf("======================================================================\n");
   }
 
-  // Indices and replication reports of the individuals in the lineage
-  int32_t *                 indices = new int32_t[end_gener - begin_gener + 1];
-  ae_replication_report **  reports = new ae_replication_report*[end_gener - begin_gener];
-  // NB: we do not need the report of the ancestor at generation begin_gener
-  // (it might be the generation 0, for which we have no reports)
-  // reports[0] = how ancestor at generation begin_gener + 1 was created 
-  // reports[i] = how ancestor at generation begin_gener + i + 1 was created
-  // reports[end_gener - begin_gener - 1] = how the final individual was created
   
-  // Copy the replication report of the individual whose lineage we are computing
-  indices[end_gener - begin_gener] = final_indiv;
-
   
-  int32_t i, num_gener;
+  // Retreive the index of the first ancestor from the last replicatino report
+  indices[end_gener - begin_gener -1] = reports[end_gener - begin_gener -1]->get_parent_index();
  
-  for ( i = end_gener - begin_gener - 1 ; i >= 0 ; i-- )
+  int32_t i, num_gener;
+  for ( i = end_gener - begin_gener - 2 ; i >= 0 ; i-- )
   {
     // We want to fill reports[i], that is to say, how the ancestor
     // at generation begin_gener + i + 1  was created
@@ -280,16 +311,22 @@ int main(int argc, char** argv)
     
 
     // Copy the replication report of the ancestor
-    reports[i] = new ae_replication_report( *(tree->get_report(num_gener, indices[i + 1])) );
+    reports[i] = new ae_replication_report( *(tree->get_report_by_index(num_gener, indices[i + 1])) );
 
-    // Retreive the index of the ancestor from the report
+    // Retreive the index and rank of the next ancestor from the report
     indices[i] = reports[i]->get_parent_index();
   }
   
-  for ( i = 0 ; i < end_gener - begin_gener ; i++ )
-  {
-    printf( "  indices[%"PRId32"] : %"PRId32"\n", i, indices[i] );
-  }
+  // <DEBUG>
+  //~ for ( i = 0 ; i <= end_gener - begin_gener ; i++ )
+  //~ {
+    //~ printf( "  indices[%"PRId32"] : %"PRId32"\n", i, indices[i] );
+  //~ }
+  //~ for ( i = 0 ; i < end_gener - begin_gener ; i++ )
+  //~ {
+    //~ printf( "  reports[%"PRId32"]->index : %"PRId32"\n", i, reports[i]->get_index() );
+  //~ }
+  // </DEBUG>
   
 
   if ( verbose )  printf("OK\n");
@@ -319,7 +356,7 @@ int main(int argc, char** argv)
 
   // Copy the initial ancestor
   // NB : The list of individuals is sorted according to the index
-  ae_individual * initial_ancestor_tmp  = (ae_individual *)sim->get_pop()->get_indivs()->get_object( indices[0] );
+  ae_individual * initial_ancestor_tmp  = sim->get_pop()->get_indiv_by_index( indices[0] );
   ae_individual * initial_ancestor      = new ae_individual( *initial_ancestor_tmp );
   
   ae_common::write_to_backup( lineage_file );
@@ -328,9 +365,10 @@ int main(int argc, char** argv)
     
     
     
-  gzwrite( lineage_file, &begin_gener,  sizeof(begin_gener) );
-  gzwrite( lineage_file, &end_gener,    sizeof(end_gener)   );
-  gzwrite( lineage_file, &final_indiv,  sizeof(final_indiv) );
+  gzwrite( lineage_file, &begin_gener,        sizeof(begin_gener) );
+  gzwrite( lineage_file, &end_gener,          sizeof(end_gener)   );
+  gzwrite( lineage_file, &final_indiv_index,  sizeof(final_indiv_index) );
+  gzwrite( lineage_file, &final_indiv_rank,   sizeof(final_indiv_rank) );
   
   initial_ancestor->write_to_backup( lineage_file );
 
@@ -403,7 +441,7 @@ int main(int argc, char** argv)
         
         // Copy the ancestor from the backup
         sim = new ae_simulation ( genomes_file_name, false );
-        ae_individual * stored_indiv_tmp = (ae_individual *) sim->get_pop()->get_indivs()->get_object( indices[i+1] );
+        ae_individual * stored_indiv_tmp = sim->get_pop()->get_indiv_by_index( indices[i+1] );
         stored_indiv = new ae_individual( *stored_indiv_tmp );
         
         delete sim;
@@ -485,6 +523,7 @@ int main(int argc, char** argv)
             delete initial_ancestor;
             delete stored_indiv;
             delete [] reports;
+            fflush( stdout );
             exit(EXIT_FAILURE);
           }
           
@@ -548,10 +587,10 @@ void print_help( void )
   printf( "\n" ); 
 #ifdef __REGUL
   printf( "Usage : rlineage -h\n");
-  printf( "or :    rlineage [-vn] [-i index] [-b gener1] -f backup_file \n" );
+  printf( "or :    rlineage [-vn] [-i index | -r rank] [-b gener1] -f backup_file \n" );
 #else
   printf( "Usage : lineage -h\n");
-  printf( "or :    lineage [-vn] [-i index] [-b gener1] -f backup_file \n" );
+  printf( "or :    lineage [-vn] [-i index | -r rank] [-b gener1] -f backup_file \n" );
 #endif
   printf( "\n" ); 
 #ifdef __REGUL
@@ -574,7 +613,7 @@ void print_help( void )
   printf( "transfer. When an individual has more than one parent, the notion of lineage\n" ); 
   printf( "used here is not relevant.\n" );
   printf( "\n" );  
-  printf( "\t-h or --help    : Display this screen.\n" );
+  printf( "\t-h or --help    : Display this help.\n" );
   printf( "\n" ); 
   printf( "\t-v or --verbose : Be verbose, listing generations as they are \n" );
   printf( "\t                  treated.\n" );
@@ -586,13 +625,23 @@ void print_help( void )
   printf( "\t                  from the tree files, we get the same sequences\n");
   printf( "\t                  as those stored in the backup files.\n" );
   printf( "\n" ); 
-  printf( "\t-i index or --indiv index : \n" );
+  printf( "\t-i index or --index index : \n" );
   printf( "\t                  Retrieve the lineage of the individual whose\n" );
   printf( "\t                  index is index. The index must be comprised \n" );
   printf( "\t                  between 0 and N-1, with N the size of the \n" );
-  printf( "\t                  population at generation gener2. If not \n" );
-  printf( "\t                  specified, the program retrieves the lineage \n" );
-  printf( "\t                  of the best individual of generation gener2.\n");
+  printf( "\t                  population at the ending generation. If neither\n" );
+  printf( "\t                  index nor rank are specified, the program computes \n" );
+  printf( "\t                  the lineage of the best individual of the ending \n" );
+  printf( "\t                  generation.\n");
+  printf( "\n" ); 
+  printf( "\t-r rank or --rank rank : \n" );
+  printf( "\t                  Retrieve the lineage of the individual whose\n" );
+  printf( "\t                  rank is rank. The rank must be comprised \n" );
+  printf( "\t                  between 1 and N, with N the size of the \n" );
+  printf( "\t                  population at the endind generation. If neither\n" );
+  printf( "\t                  index nor rank are specified, the program computes \n" );
+  printf( "\t                  the lineage of the best individual of the ending \n" );
+  printf( "\t                  generation.\n");
   printf( "\n" ); 
   printf( "\t-b gener1 or --begin gener1 : \n" );
   printf( "\t                  Retrieve the lineage up to generation gener1.\n" );
@@ -603,6 +652,6 @@ void print_help( void )
   printf( "\t-f backup_file or --file backup_file : \n" );
   printf( "\t                  Retrieve the lineage of an individual that \n" );
   printf( "\t                  belongs to the generation of the backup_file.\n" );
-  printf( "\n" ); 
+  printf( "\n" );
 
 }
