@@ -92,7 +92,7 @@ class ae_protein : public ae_object
     inline double     get_height( void )                const;
     inline int32_t    get_length( void )                const; // Number of Amino-Acids (not including START and STOP)
     inline double     get_concentration( void )         const;
-    inline  bool      get_is_metabolic( void )          const;
+    inline  bool      get_is_functional( void )         const;
 
     // =================================================================
     //                            Public Methods
@@ -140,7 +140,7 @@ class ae_protein : public ae_object
     int32_t           _last_translated_pos;   // Index of the last base before the STOP codon
     int32_t           _length;                // Number of Amino-Acids (START and STOP codon do NOT produce AAs)
     double            _concentration;
-    bool              _is_metabolic;
+    bool              _is_functional;
     
     ae_list*          _AA_list;
 
@@ -204,9 +204,9 @@ double ae_protein::get_concentration( void ) const
   return _concentration;
 }
 
-bool ae_protein::get_is_metabolic( void ) const
+bool ae_protein::get_is_functional( void ) const
 {
-  return _is_metabolic;
+  return _is_functional;
 }
 
 

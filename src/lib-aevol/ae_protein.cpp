@@ -75,7 +75,7 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, const ae_protein &model )
   _last_translated_pos    = model._last_translated_pos;
   _length                 = model._length;
   _concentration          = model._concentration;
-  _is_metabolic           = model._is_metabolic;
+  _is_functional          = model._is_functional;
   
   _rna_list = new ae_list();
   
@@ -315,11 +315,11 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, ae_list* codon_list, ae_stran
   
   if ( nb_m == 0 || nb_w == 0 || nb_h == 0 || _width == 0.0 || _height == 0.0 )
   {
-    _is_metabolic = false;
+    _is_functional = false;
   }
   else
   {
-    _is_metabolic = true;
+    _is_functional = true;
   }
 
   assert( _mean >= MIN_X && _mean <= MAX_X );
@@ -353,7 +353,7 @@ ae_protein::ae_protein( gzFile* backup_file )
   gzread( backup_file, &_last_translated_pos,  	sizeof(_last_translated_pos)  );
   gzread( backup_file, &_length,     			      sizeof(_length)               );
   gzread( backup_file, &_concentration,     		sizeof(_concentration)        );
-  gzread( backup_file, &_is_metabolic,          sizeof(_is_metabolic)         );
+  gzread( backup_file, &_is_functional,         sizeof(_is_functional)         );
   gzread( backup_file, &_mean,  			          sizeof(_mean)                 );
   gzread( backup_file, &_width,    			        sizeof(_width)                );
   gzread( backup_file, &_height,                sizeof(_height)               );
@@ -481,7 +481,7 @@ void ae_protein::write_to_backup( gzFile* backup_file )
   gzwrite( backup_file, &_last_translated_pos,  sizeof(_last_translated_pos)  );
   gzwrite( backup_file, &_length,     			    sizeof(_length)               );
   gzwrite( backup_file, &_concentration,     		sizeof(_concentration)        );
-  gzwrite( backup_file, &_is_metabolic,         sizeof(_is_metabolic)         );
+  gzwrite( backup_file, &_is_functional,        sizeof(_is_functional)         );
   gzwrite( backup_file, &_mean,  			          sizeof(_mean)                 );
   gzwrite( backup_file, &_width,    			      sizeof(_width)                );
   gzwrite( backup_file, &_height,		     	      sizeof(_height)               );

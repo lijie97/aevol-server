@@ -126,16 +126,16 @@ class ae_individual : public ae_object
     inline double   get_av_size_coding_RNAs( void );
     inline double   get_overall_size_non_coding_RNAs( void );
     inline double   get_av_size_non_coding_RNAs( void );
-    inline int32_t  get_nb_metabolic_genes( void );
-    inline int32_t  get_nb_non_metabolic_genes( void );
-    inline double   get_overall_size_metabolic_genes( void );
-    inline double   get_av_size_metabolic_genes( void );
-    inline double   get_overall_size_non_metabolic_genes( void );
-    inline double   get_av_size_non_metabolic_genes( void );
+    inline int32_t  get_nb_functional_genes( void );
+    inline int32_t  get_nb_non_functional_genes( void );
+    inline double   get_overall_size_functional_genes( void );
+    inline double   get_av_size_functional_genes( void );
+    inline double   get_overall_size_non_functional_genes( void );
+    inline double   get_av_size_non_functional_genes( void );
     
     inline int32_t  get_nb_bases_in_0_CDS( void );
-    inline int32_t  get_nb_bases_in_0_metabolic_CDS( void );
-    inline int32_t  get_nb_bases_in_0_non_metabolic_CDS( void );
+    inline int32_t  get_nb_bases_in_0_functional_CDS( void );
+    inline int32_t  get_nb_bases_in_0_non_functional_CDS( void );
     inline int32_t  get_nb_bases_in_0_RNA( void );
     inline int32_t  get_nb_bases_in_0_coding_RNA( void );
     inline int32_t  get_nb_bases_in_0_non_coding_RNA( void );
@@ -259,16 +259,16 @@ class ae_individual : public ae_object
     int32_t _nb_non_coding_RNAs;                // Number of non-coding-RNAs
     double  _overall_size_coding_RNAs;          // Average size of coding RNAs
     double  _overall_size_non_coding_RNAs;      // Average size of non-coding RNAs
-    int32_t _nb_metabolic_genes;                // Number of metabolic genes
-    int32_t _nb_non_metabolic_genes;            // Number of non-metabolic genes
-    double  _overall_size_metabolic_genes;      // Average size of metabolic genes
-    double  _overall_size_non_metabolic_genes;  // Average size of non-metabolic genes
+    int32_t _nb_functional_genes;               // Number of functional genes
+    int32_t _nb_non_functional_genes;           // Number of non-functional genes
+    double  _overall_size_functional_genes;     // Average size of functional genes
+    double  _overall_size_non_functional_genes; // Average size of non-functional genes
     
     // Mutation/Rearrangement statistics are managed in the replication report
     
     int32_t _nb_bases_in_0_CDS;               // Number of bases that are not included in any gene
-    int32_t _nb_bases_in_0_metabolic_CDS;     // Number of bases that are not included in any metabolic gene
-    int32_t _nb_bases_in_0_non_metabolic_CDS; // Number of bases that are not included in any degenerated gene
+    int32_t _nb_bases_in_0_functional_CDS;    // Number of bases that are not included in any functional gene
+    int32_t _nb_bases_in_0_non_functional_CDS;// Number of bases that are not included in any degenerated gene
     int32_t _nb_bases_in_0_RNA;               // Number of bases that are not included in any RNA
     int32_t _nb_bases_in_0_coding_RNA;        // Number of bases that are not included in any coding RNA
                                               // (RNAs containing at least one CDS)
@@ -276,7 +276,7 @@ class ae_individual : public ae_object
                                       
     double _modularity; // Ratio between the pairwise distance between genes whose corresponding
                         // phenotypic triangles overlap and the average intergenic distance 
-                        // (ignoring non-metabolic genes)void compute_phenotype( void );
+                        // (ignoring non-functional genes)void compute_phenotype( void );
     
     
     
@@ -525,46 +525,46 @@ inline double ae_individual::get_av_size_non_coding_RNAs( void )
   else return 0.0;
 }
 
-inline int32_t ae_individual::get_nb_metabolic_genes( void ) 
+inline int32_t ae_individual::get_nb_functional_genes( void ) 
 {
   if ( ! _statistical_data_computed ) compute_statistical_data();
-  return _nb_metabolic_genes;
+  return _nb_functional_genes;
 }
 
-inline int32_t ae_individual::get_nb_non_metabolic_genes( void ) 
+inline int32_t ae_individual::get_nb_non_functional_genes( void ) 
 {
   if ( ! _statistical_data_computed ) compute_statistical_data();
-  return _nb_non_metabolic_genes;
+  return _nb_non_functional_genes;
 }
 
-inline double ae_individual::get_overall_size_metabolic_genes( void ) 
+inline double ae_individual::get_overall_size_functional_genes( void ) 
 {
   if ( ! _statistical_data_computed ) compute_statistical_data();
-  return _overall_size_metabolic_genes;
+  return _overall_size_functional_genes;
 }
 
-inline double ae_individual::get_av_size_metabolic_genes( void ) 
+inline double ae_individual::get_av_size_functional_genes( void ) 
 {
   if ( ! _statistical_data_computed ) compute_statistical_data();
-  if ( _nb_metabolic_genes != 0 )
+  if ( _nb_functional_genes != 0 )
   {
-    return _overall_size_metabolic_genes / _nb_metabolic_genes;
+    return _overall_size_functional_genes / _nb_functional_genes;
   }
   else return 0.0;
 }
 
-inline double ae_individual::get_overall_size_non_metabolic_genes( void ) 
+inline double ae_individual::get_overall_size_non_functional_genes( void ) 
 {
   if ( ! _statistical_data_computed ) compute_statistical_data();
-  return _overall_size_non_metabolic_genes;
+  return _overall_size_non_functional_genes;
 }
 
-inline double ae_individual::get_av_size_non_metabolic_genes( void ) 
+inline double ae_individual::get_av_size_non_functional_genes( void ) 
 {
   if ( ! _statistical_data_computed ) compute_statistical_data();
-  if ( _nb_non_metabolic_genes != 0 )
+  if ( _nb_non_functional_genes != 0 )
   {
-    return _overall_size_non_metabolic_genes / _nb_non_metabolic_genes;
+    return _overall_size_non_functional_genes / _nb_non_functional_genes;
   }
   else return 0.0;
 }
@@ -576,18 +576,18 @@ inline int32_t ae_individual::get_nb_bases_in_0_CDS( void )
   return _nb_bases_in_0_CDS;
 }
 
-inline int32_t ae_individual::get_nb_bases_in_0_metabolic_CDS( void )
+inline int32_t ae_individual::get_nb_bases_in_0_functional_CDS( void )
 {
   if ( ! _statistical_data_computed ) compute_statistical_data();
   if ( ! _non_coding_computed ) compute_non_coding();
-  return _nb_bases_in_0_metabolic_CDS;
+  return _nb_bases_in_0_functional_CDS;
 }
 
-inline int32_t ae_individual::get_nb_bases_in_0_non_metabolic_CDS( void )
+inline int32_t ae_individual::get_nb_bases_in_0_non_functional_CDS( void )
 {
   if ( ! _statistical_data_computed ) compute_statistical_data();
   if ( ! _non_coding_computed ) compute_non_coding();
-  return _nb_bases_in_0_non_metabolic_CDS;
+  return _nb_bases_in_0_non_functional_CDS;
 }
 
 inline int32_t ae_individual::get_nb_bases_in_0_RNA( void )

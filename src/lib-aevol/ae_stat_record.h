@@ -169,10 +169,10 @@ class ae_stat_record : public ae_object
     double  _nb_non_coding_rnas;
     double  _av_size_coding_rnas;      // NOT including promoter but including terminator
     double  _av_size_non_coding_rnas;  // NOT including promoter but including terminator
-    double  _nb_metabolic_genes;
-    double  _nb_non_metabolic_genes;
-    double  _av_size_metabolic_gene;     // NOT including START and STOP codons
-    double  _av_size_non_metabolic_gene; // NOT including START and STOP codons
+    double  _nb_functional_genes;
+    double  _nb_non_functional_genes;
+    double  _av_size_functional_gene;     // NOT including START and STOP codons
+    double  _av_size_non_functional_gene; // NOT including START and STOP codons
 
     double  _nb_mut;
     double  _nb_rear;
@@ -184,14 +184,14 @@ class ae_stat_record : public ae_object
     double  _nb_inv;
     
     double  _nb_bases_in_0_CDS;
-    double  _nb_bases_in_0_metabolic_CDS;
-    double  _nb_bases_in_0_non_metabolic_CDS;
+    double  _nb_bases_in_0_functional_CDS;
+    double  _nb_bases_in_0_non_functional_CDS;
     double  _nb_bases_in_0_RNA;
     double  _nb_bases_in_0_coding_RNA;
     double  _nb_bases_in_0_non_coding_RNA;
     
     double  _nb_bases_non_essential;
-    double  _nb_bases_non_essential_including_nm_genes;
+    double  _nb_bases_non_essential_including_nf_genes;
     
     #ifdef __REGUL
       double  _nb_influences;

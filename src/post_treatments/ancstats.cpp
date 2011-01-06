@@ -625,7 +625,7 @@ void write_zones_stats( int32_t num_gener, ae_individual * indiv, ae_environment
     }
     
     // Add a genes (activ or inhib)
-    if ( prot->get_is_metabolic() )
+    if ( prot->get_is_functional() )
     {
       if ( prot->get_height() > 0 )
       {

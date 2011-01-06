@@ -555,11 +555,11 @@ void ae_stats::write_headers( void )
         write_header( _stat_files_glob[j], "Number of non-coding RNAs", i++ );
         write_header( _stat_files_glob[j], "Average size of coding RNAs (at least one gene on RNA)", i++ );
         write_header( _stat_files_glob[j], "Average size of non-coding RNAs", i++ );
-        write_header( _stat_files_glob[j], "Number of metabolic genes", i++ );
-        // Non metabolic genes are those with _width == 0 or _height == 0 or those that lack one kind of codons (M, W or H)
-        write_header( _stat_files_glob[j], "Nb of non metabolic genes", i++ );
-        write_header( _stat_files_glob[j], "Average size of metabolic genes", i++ );
-        write_header( _stat_files_glob[j], "Average size of non metabolic genes (WARNING : bias towards 0)", i++ );
+        write_header( _stat_files_glob[j], "Number of functional genes", i++ );
+        // Non functional genes are those with _width == 0 or _height == 0 or those that lack one kind of codons (M, W or H)
+        write_header( _stat_files_glob[j], "Nb of non functional genes", i++ );
+        write_header( _stat_files_glob[j], "Average size of functional genes", i++ );
+        write_header( _stat_files_glob[j], "Average size of non functional genes (WARNING : bias towards 0)", i++ );
         write_header( _stat_files_glob[j], "" );
       }
 
@@ -575,11 +575,11 @@ void ae_stats::write_headers( void )
         write_header( _stat_files_best[j], "Number of non-coding RNAs", i++ );
         write_header( _stat_files_best[j], "Average size of coding RNAs (at least one gene on RNA)", i++ );
         write_header( _stat_files_best[j], "Average size of non-coding RNAs", i++ );
-        write_header( _stat_files_best[j], "Number of metabolic genes", i++ );
-        // Non metabolic genes are those with _width == 0 or _height == 0 or those that lack one kind of codons (M, W or H)
-        write_header( _stat_files_best[j], "Nb of non metabolic genes", i++ );
-        write_header( _stat_files_best[j], "Average size of metabolic genes", i++ );
-        write_header( _stat_files_best[j], "Average size of non metabolic genes (WARNING : bias towards 0)", i++ );
+        write_header( _stat_files_best[j], "Number of functional genes", i++ );
+        // Non functional genes are those with _width == 0 or _height == 0 or those that lack one kind of codons (M, W or H)
+        write_header( _stat_files_best[j], "Nb of non functional genes", i++ );
+        write_header( _stat_files_best[j], "Average size of functional genes", i++ );
+        write_header( _stat_files_best[j], "Average size of non functional genes (WARNING : bias towards 0)", i++ );
         write_header( _stat_files_best[j], "" );
       }
     }
@@ -601,8 +601,8 @@ void ae_stats::write_headers( void )
         write_header( _stat_files_glob[j], "" ); 
         // write_header( _stat_files_glob[j], "Generation", i++ );
         // write_header( _stat_files_glob[j], "Number of bp not included in any CDS", i++ );
-        // write_header( _stat_files_glob[j], "Number of bp not included in any metabolic CDS", i++ );
-        // write_header( _stat_files_glob[j], "Number of bp not included in any non metabolic CDS", i++ );
+        // write_header( _stat_files_glob[j], "Number of bp not included in any functional CDS", i++ );
+        // write_header( _stat_files_glob[j], "Number of bp not included in any non functional CDS", i++ );
         // write_header( _stat_files_glob[j], "Number of bp not included in any RNA", i++ );
         // write_header( _stat_files_glob[j], "Number of bp not included in any coding RNA", i++ );
         // write_header( _stat_files_glob[j], "Number of bp not included in any non coding RNA", i++ );
@@ -618,8 +618,8 @@ void ae_stats::write_headers( void )
         write_header( _stat_files_best[j], "" ); 
         write_header( _stat_files_best[j], "Generation", i++ );
         write_header( _stat_files_best[j], "Number of bp not included in any CDS", i++ );
-        write_header( _stat_files_best[j], "Number of bp not included in any metabolic CDS", i++ );
-        write_header( _stat_files_best[j], "Number of bp not included in any non metabolic CDS", i++ );
+        write_header( _stat_files_best[j], "Number of bp not included in any functional CDS", i++ );
+        write_header( _stat_files_best[j], "Number of bp not included in any non functional CDS", i++ );
         write_header( _stat_files_best[j], "Number of bp not included in any RNA", i++ );
         write_header( _stat_files_best[j], "Number of bp not included in any coding RNA", i++ );
         write_header( _stat_files_best[j], "Number of bp not included in any non coding RNA", i++ );
