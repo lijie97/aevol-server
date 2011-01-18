@@ -1680,7 +1680,7 @@ bool ae_dna::do_inter_GU_translocation( int32_t pos_1_rel, int32_t pos_2_rel, in
 
   if (  pos_1_rel == pos_2_rel ) 
   {
-    return NULL; 
+    return false; 
   }
   
   // Do not allow translocation if it would decrease the size of the GU below a threshold
@@ -1688,14 +1688,14 @@ bool ae_dna::do_inter_GU_translocation( int32_t pos_1_rel, int32_t pos_2_rel, in
   { 
     if ( (_length - (pos_2_rel - pos_1_rel) ) < ae_common::plasmid_minimal_length) 
     { 
-      return NULL; 
+      return false; 
     }  
   }
   else 
   {
     if ( ( pos_1_rel - pos_2_rel ) < ae_common::plasmid_minimal_length )
     {
-      return NULL; 
+      return false; 
     }
   }
     

@@ -61,6 +61,16 @@
 
 
 
+enum check_type
+{
+  FULL_CHECK  = 0,
+  LIGHT_CHECK = 1,
+  NO_CHECK    = 2
+};
+
+
+
+
 void print_help( void );
 
 
@@ -93,25 +103,26 @@ int main(int argc, char** argv)
   // =====================
 
   // Default values
-  bool    check_genome      = true;
-  bool    verbose           = false;
-  int32_t begin_gener       = 0; 
-  int32_t end_gener         = 100;
-  int32_t final_indiv_index = -1; 
-  int32_t final_indiv_rank  = -1; 
+  check_type  check_genome      = LIGHT_CHECK;
+  bool        verbose           = false;
+  int32_t     begin_gener       = 0; 
+  int32_t     end_gener         = 100;
+  int32_t     final_indiv_index = -1; 
+  int32_t     final_indiv_rank  = -1; 
 
   char* backup_file_name = NULL;
   char tree_file_name[50];
 
   const char * short_options = "hvnb:i:f:"; 
   static struct option long_options[] = {
-    {"help",    no_argument,       NULL, 'h'},
-    {"verbose", no_argument,       NULL, 'v'},
-    {"nocheck", no_argument,       NULL, 'n'},
-    {"begin",   required_argument, NULL, 'b'},
-    {"index",   required_argument, NULL, 'i'},
-    {"rank",    required_argument, NULL, 'r'},
-    {"file",    required_argument, NULL, 'f'},
+    {"help",      no_argument,       NULL, 'h'},
+    {"verbose",   no_argument,       NULL, 'v'},
+    {"nocheck",   no_argument,       NULL, 'n'},
+    {"fullcheck", no_argument,       NULL, 'c'},
+    {"begin",     required_argument, NULL, 'b'},
+    {"index",     required_argument, NULL, 'i'},
+    {"rank",      required_argument, NULL, 'r'},
+    {"file",      required_argument, NULL, 'f'},
     {0, 0, 0, 0}
   };
 
@@ -122,7 +133,8 @@ int main(int argc, char** argv)
     {
       case 'h' : print_help(); exit(EXIT_SUCCESS);  break;
       case 'v' : verbose = true;                    break;
-      case 'n' : check_genome = false;              break;
+      case 'n' : check_genome = NO_CHECK;           break;
+      case 'c' : check_genome = FULL_CHECK;         break;
       case 'b' : begin_gener  = atol(optarg);       break;
       case 'i' : final_indiv_index  = atol(optarg); break;
       case 'r' : final_indiv_rank  = atol(optarg);  break;
@@ -411,11 +423,17 @@ int main(int argc, char** argv)
   // NB: I must keep the genome encapsulated inside an ae_individual, because
   // replaying the mutations has side effects on the list of promoters,
   // which is stored in the individual
-
+  bool check_genome_now = false;
   for ( i = 0 ; i < end_gener - begin_gener ; i++ )
   {
-    num_gener = begin_gener + i + 1; // where are we in time...
+    // Where are we in time...
+    num_gener = begin_gener + i + 1;
     
+    // Do we need to check the genome now?
+    check_genome_now =  ( ( check_genome == FULL_CHECK && utils::mod( num_gener, ae_common::backup_step ) == 0 ) ||
+                          ( check_genome == LIGHT_CHECK && num_gener == end_gener ) );
+    
+    // Write the replication report of the ancestor for current generation
     if ( verbose )
     {
       printf( "Writing the replication report for generation %"PRId32" (built from indiv %"PRId32" at generation %"PRId32")\n",
@@ -424,133 +442,117 @@ int main(int argc, char** argv)
     reports[i]->write_to_backup( lineage_file );
     if ( verbose ) printf( " OK\n" );
     
-
-    if( check_genome )
+    
+    if ( check_genome_now )
     {
-      if ( utils::mod( num_gener, ae_common::backup_step ) == 0 )
-      {
-#ifdef __REGUL
+      #ifdef __REGUL
         sprintf( genomes_file_name,"backup/gen_%06"PRId32".rae", num_gener );
-#else
+      #else
         sprintf( genomes_file_name,"backup/gen_%06"PRId32".ae", num_gener );
-#endif
-        if ( verbose )
-        {
-          printf( "Loading the data stored in backup file %s\n",genomes_file_name );
-        }
-        
-        // Copy the ancestor from the backup
-        sim = new ae_simulation ( genomes_file_name, false );
-        ae_individual * stored_indiv_tmp = sim->get_pop()->get_indiv_by_index( indices[i+1] );
-        stored_indiv = new ae_individual( *stored_indiv_tmp );
-        
-        delete sim;
+      #endif
+      if ( verbose )
+      {
+        printf( "Loading the data stored in backup file %s\n",genomes_file_name );
       }
+      
+      // Copy the ancestor from the backup
+      sim = new ae_simulation ( genomes_file_name, false );
+      ae_individual * stored_indiv_tmp = sim->get_pop()->get_indiv_by_index( indices[i+1] );
+      stored_indiv = new ae_individual( *stored_indiv_tmp );
+      stored_gen_unit_node = stored_indiv->get_genetic_unit_list()->get_first();
+      
+      delete sim;
+    }
           
   
-      // Warning: this portion of code won't work if the number of units changes
-      // during the evolution
+    // Warning: this portion of code won't work if the number of units changes
+    // during the evolution
+    
+    report_node   = reports[i]->get_dna_replic_reports()->get_first();
+    gen_unit_node = initial_ancestor->get_genetic_unit_list()->get_first();
+    
+    while ( report_node != NULL )
+    {
+      assert( gen_unit_node != NULL );
       
-      report_node   = reports[i]->get_dna_replic_reports()->get_first();
-      gen_unit_node = initial_ancestor->get_genetic_unit_list()->get_first();
-      if ( utils::mod( num_gener, ae_common::backup_step ) == 0 )
+      rep = (ae_dna_replic_report *) report_node->get_obj();
+      unit = (ae_genetic_unit *) gen_unit_node->get_obj();
+      
+      mut_node = rep->get_rearrangements()->get_first();              
+      while ( mut_node != NULL )
       {
-        stored_gen_unit_node = stored_indiv->get_genetic_unit_list()->get_first();
+        mut = (ae_mutation *) mut_node->get_obj();
+        (unit->get_dna())->undergo_this_mutation( mut );
+        mut_node = mut_node->get_next();
       }
       
-      while ( report_node != NULL )
+      mut_node = rep->get_mutations()->get_first();              
+      while ( mut_node != NULL )
       {
-        assert( gen_unit_node != NULL );
-        if ( utils::mod( num_gener, ae_common::backup_step ) == 0 )
-        {
-          assert( stored_gen_unit_node != NULL );
-        }
-        
-        rep = (ae_dna_replic_report *) report_node->get_obj();
-        unit = (ae_genetic_unit *) gen_unit_node->get_obj();
-        if ( utils::mod( num_gener, ae_common::backup_step ) == 0 )
-        {
-          stored_gen_unit = (ae_genetic_unit *) stored_gen_unit_node->get_obj();
-        }
-        
-        mut_node = (rep->get_rearrangements())->get_first();              
-        while ( mut_node != NULL )
-        {
-          mut = (ae_mutation *) mut_node->get_obj();
-          (unit->get_dna())->undergo_this_mutation(mut);
-          mut_node = mut_node->get_next();
-        }
-        
-        mut_node = (rep->get_mutations())->get_first();              
-        while (mut_node != NULL)
-        {
-          mut = (ae_mutation *) mut_node->get_obj();
-          (unit->get_dna())->undergo_this_mutation(mut); 
-          mut_node = mut_node->get_next();
-        }
+        mut = (ae_mutation *) mut_node->get_obj();
+        unit->get_dna()->undergo_this_mutation( mut ); 
+        mut_node = mut_node->get_next();
+      }
 
-        if ( utils::mod( num_gener, ae_common::backup_step ) == 0 )
+      if ( check_genome_now )
+      {
+        if ( verbose )
         {
-          if ( verbose )
-          {
-            printf( "Checking the sequence of the unit..." );
-            fflush( stdout );
-          }
+          printf( "Checking the sequence of the unit..." );
+          fflush( stdout );
+        }
+        
+        assert( stored_gen_unit_node != NULL );
+        stored_gen_unit = (ae_genetic_unit *) stored_gen_unit_node->get_obj();
 
-          char * str1 = new char[(unit->get_dna())->get_length() + 1];
-          memcpy(str1, (unit->get_dna())->get_data(), \
-                 (unit->get_dna())->get_length()*sizeof(char));
-          str1[(unit->get_dna())->get_length()] = '\0';
-          
-          char * str2 = new char[(stored_gen_unit->get_dna())->get_length() + 1];
-          memcpy(str2, (stored_gen_unit->get_dna())->get_data(), (stored_gen_unit->get_dna())->get_length()*sizeof(char));
-          str2[(stored_gen_unit->get_dna())->get_length()] = '\0';
-          
-          if ( strncmp( str1, str2, (stored_gen_unit->get_dna())->get_length() ) == 0 )
-          {
-            if ( verbose ) printf( " OK\n" );
-          }
-          else
-          {
-            if ( verbose ) printf( " ERROR !\n" );
-            fprintf( stderr, "Error: the rebuilt unit is not the same as \n");
-            fprintf( stderr, "the one stored in backup file %s\n", genomes_file_name);
-            fprintf( stderr, "Rebuilt unit : %"PRId32" bp\n %s\n", (int32_t)strlen(str1), str1 );
-            fprintf( stderr, "Stored unit  : %"PRId32" bp\n %s\n", (int32_t)strlen(str2), str2 );
-            delete [] str1;
-            delete [] str2;
-            gzclose(lineage_file);
-            delete initial_ancestor;
-            delete stored_indiv;
-            delete [] reports;
-            fflush( stdout );
-            exit(EXIT_FAILURE);
-          }
-          
+        char * str1 = new char[unit->get_dna()->get_length() + 1];
+        memcpy( str1, unit->get_dna()->get_data(), unit->get_dna()->get_length() * sizeof(char) );
+        str1[unit->get_dna()->get_length()] = '\0';
+        
+        char * str2 = new char[stored_gen_unit->get_dna()->get_length() + 1];
+        memcpy(str2, stored_gen_unit->get_dna()->get_data(), stored_gen_unit->get_dna()->get_length() * sizeof(char));
+        str2[stored_gen_unit->get_dna()->get_length()] = '\0';
+        
+        if ( strncmp( str1, str2, stored_gen_unit->get_dna()->get_length() ) == 0 )
+        {
+          if ( verbose ) printf( " OK\n" );
+        }
+        else
+        {
+          if ( verbose ) printf( " ERROR !\n" );
+          fprintf( stderr, "Error: the rebuilt unit is not the same as \n");
+          fprintf( stderr, "the one stored in backup file %s\n", genomes_file_name);
+          fprintf( stderr, "Rebuilt unit : %"PRId32" bp\n %s\n", (int32_t)strlen(str1), str1 );
+          fprintf( stderr, "Stored unit  : %"PRId32" bp\n %s\n", (int32_t)strlen(str2), str2 );
           delete [] str1;
           delete [] str2;
+          gzclose( lineage_file );
+          delete initial_ancestor;
+          delete stored_indiv;
+          delete [] reports;
+          fflush( stdout );
+          exit(EXIT_FAILURE);
         }
-
-    
-        report_node = report_node->get_next();
-        gen_unit_node = gen_unit_node->get_next();
-        if ( utils::mod(num_gener, ae_common::backup_step) == 0 )
-        {
-          stored_gen_unit_node = stored_gen_unit_node->get_next();
-        }
+        
+        delete [] str1;
+        delete [] str2;
+        
+        stored_gen_unit_node = stored_gen_unit_node->get_next();
       }
-      
-      assert(gen_unit_node == NULL);
-      if ( utils::mod( num_gener, ae_common::backup_step ) == 0 )
-      {
-        assert(stored_gen_unit_node == NULL);
-        delete stored_indiv;
-      }
-
+  
+      report_node   = report_node->get_next();
+      gen_unit_node = gen_unit_node->get_next();
     }
-    //      initial_ancestor->evaluate();
-
+    
+    assert( gen_unit_node == NULL );
+    if ( check_genome_now )
+    {
+      assert( stored_gen_unit_node == NULL );
+      delete stored_indiv;
+    }
   }
+  //      initial_ancestor->evaluate();
+  
 
   //  ae_common::clean();
 
@@ -617,14 +619,18 @@ void print_help( void )
   printf( "\n" ); 
   printf( "\t-v or --verbose : Be verbose, listing generations as they are \n" );
   printf( "\t                  treated.\n" );
-  printf( "\n" ); 
-  printf( "\t-n or --nocheck : Disable genome sequence checking. Makes the \n"); 
-  printf( "\t                  program faster, but it is not recommended. \n");
-  printf( "\t                  It is better to let the program check that \n");
-  printf( "\t                  when we rebuild the genomes of the ancestors\n");
-  printf( "\t                  from the tree files, we get the same sequences\n");
-  printf( "\t                  as those stored in the backup files.\n" );
-  printf( "\n" ); 
+  printf( "\n" );
+  printf( "\t-n or --nocheck    : Disable genome sequence checking. Makes the \n"); 
+  printf( "\t                       program faster, but it is not recommended. \n");
+  printf( "\t                       It is better to let the program check that \n");
+  printf( "\t                       when we rebuild the genomes of the ancestors\n");
+  printf( "\t                       from the lineage file, we get the same sequences\n");
+  printf( "\t                       as those stored in the backup files.\n" );
+  printf( "\n" );
+  printf( "\t-c or --fullcheck  : Will perform the genome checks every <BACKUP_STEP>\n" );
+  printf( "\t                       generations. Default behaviour is lighter as it\n" );
+  printf( "\t                       only performs these checks at the ending generation.\n" );
+  printf( "\n" );
   printf( "\t-i index or --index index : \n" );
   printf( "\t                  Retrieve the lineage of the individual whose\n" );
   printf( "\t                  index is index. The index must be comprised \n" );

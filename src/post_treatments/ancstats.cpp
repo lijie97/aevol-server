@@ -63,6 +63,16 @@
 
 
 
+
+enum check_type
+{
+  FULL_CHECK  = 0,
+  LIGHT_CHECK = 1,
+  NO_CHECK    = 2
+};
+
+
+
 void open_environment_stat_file( void );
 void write_environment_stats( int32_t num_gener, ae_environment * env );
 
@@ -119,17 +129,18 @@ int main(int argc, char** argv)
   // =====================
 
   // Default values
-  char*   lineage_file_name   = NULL;
-  bool    verbose             = false;
-  bool    check               = true;
+  char*       lineage_file_name   = NULL;
+  bool        verbose             = false;
+  check_type  check               = LIGHT_CHECK;   // TODO : Check what?
 
   const char * short_options = "hvnf:"; 
   static struct option long_options[] =
   {
-    {"help",    no_argument,       NULL, 'h'},
-    {"verbose", no_argument,       NULL, 'v'},
-    {"nocheck", no_argument,       NULL, 'n'},
-    {"file",    required_argument, NULL, 'f'},
+    {"help",        no_argument,       NULL, 'h'},
+    {"verbose",     no_argument,       NULL, 'v'},
+    {"nocheck",     no_argument,       NULL, 'n'},
+    {"fullcheck",   no_argument,       NULL, 'c'},
+    {"file",        required_argument, NULL, 'f'},
     {0, 0, 0, 0}
   };
 
@@ -140,7 +151,8 @@ int main(int argc, char** argv)
     {
       case 'h' : print_help(); exit(EXIT_SUCCESS);  break;
       case 'v' : verbose = true;                    break;
-      case 'n' : check = false;                     break;
+      case 'n' : check = NO_CHECK;                  break;
+      case 'c' : check = FULL_CHECK;                break;
       case 'f' :
       {
         if ( strcmp( optarg, "" ) == 0 )
@@ -208,8 +220,8 @@ int main(int argc, char** argv)
   // Optional outputs
   //~ open_environment_stat_file();
   //~ open_terminators_stat_file();
-  //~ open_zones_stat_file();
-  //~ open_operons_stat_file();
+  open_zones_stat_file();
+  open_operons_stat_file();
   
 
 
@@ -229,10 +241,9 @@ int main(int argc, char** argv)
   // seed, according to the ae_common::env_seed value.
   ae_environment * env = new ae_environment();
 
-  int32_t t = 0;
   if ( ae_common::env_var_method != NONE )
   {
-    for ( t = 0 ; t < begin_gener ; t++ )
+    for ( int32_t num_gener = 0 ; num_gener < begin_gener ; num_gener++ )
     {
       env->apply_variation();
     }
@@ -241,15 +252,15 @@ int main(int argc, char** argv)
   if ( verbose ) printf("OK\n");
 
   char backup_file_name[50];
-  if ( check )
+  if ( check != NO_CHECK )
   {
     // check that the environment is now identical to the one stored
     // in the backup file of generation begin_gener
     
 #ifdef __REGUL
-    sprintf(backup_file_name,"backup/gen_%06"PRId32".rae", begin_gener);
+    sprintf( backup_file_name,"backup/gen_%06"PRId32".rae", begin_gener );
 #else
-    sprintf(backup_file_name,"backup/gen_%06"PRId32".ae",  begin_gener);
+    sprintf( backup_file_name,"backup/gen_%06"PRId32".ae",  begin_gener );
 #endif
     if ( verbose )
     {
@@ -260,11 +271,11 @@ int main(int argc, char** argv)
     
     ae_environment * stored_env = sim->get_env();
 
-    if ( ! (env->is_identical_to(stored_env)) )
+    if ( ! ( env->is_identical_to(stored_env) ) )
     {
-      fprintf(stderr, "ERROR: The replayed environment is not the same\n");
-      fprintf(stderr, "       as the one in %s\n", backup_file_name);
-      exit(EXIT_FAILURE);
+      fprintf( stderr, "ERROR: The replayed environment is not the same\n" );
+      fprintf( stderr, "       as the one in %s\n", backup_file_name );
+      exit( EXIT_FAILURE );
     }
     
     if ( verbose ) printf("OK\n");
@@ -283,14 +294,14 @@ int main(int argc, char** argv)
   indiv->compute_statistical_data();
   indiv->compute_non_coding();
   
-  mystats->write_statistics_of_this_indiv( indiv, t );
+  mystats->write_statistics_of_this_indiv( indiv, begin_gener );
   
   
   // Optional outputs
   //~ write_environment_stats( 0, env );
   //~ write_terminators_stats( 0, indiv );
-  //~ write_zones_stats( 0, indiv, env );
-  //~ write_operons_stats( 0, indiv );
+  write_zones_stats( 0, indiv, env );
+  write_operons_stats( 0, indiv );
   
   
   if ( verbose )
@@ -307,7 +318,8 @@ int main(int argc, char** argv)
   //  is available)
   // ===============================================================================
 
-
+  int32_t num_gener = 0;
+  
   ae_replication_report * rep         = NULL;
   ae_list_node *          dnarepnode  = NULL;
   ae_dna_replic_report *  dnarep      = NULL;
@@ -325,27 +337,33 @@ int main(int argc, char** argv)
   int32_t index;
   int32_t nb_gener = end_gener - begin_gener;
   
+  bool check_now = false;
+  
   for ( int32_t i = 0 ; i < nb_gener ; i++ )
   {
-    t = begin_gener + i + 1;  // where we are in time...
+    num_gener = begin_gener + i + 1;  // where we are in time...
     rep = new ae_replication_report( lineage_file );
     index = rep->get_index(); // who we are building...
     indiv->set_replication_report( rep );
+    
+    // Check now?
+    check_now = ( ( check == FULL_CHECK && utils::mod( num_gener, ae_common::backup_step ) == 0 ) ||
+                  ( check == LIGHT_CHECK && num_gener == end_gener ) );
 
-    if ( verbose ) printf("Rebuilding ancestor at generation %"PRId32" (index %"PRId32")...", t, index); 
+    if ( verbose ) printf("Rebuilding ancestor at generation %"PRId32" (index %"PRId32")...", num_gener, index); 
 
     // 1) Rebuild environment
     env->apply_variation();
     
-    if ( check && utils::mod(t, ae_common::backup_step) == 0 )
+    if ( check_now )
     {
       // check that the environment is now identical to the one stored
       // in the backup file of generation begin_gener
       
       #ifdef __REGUL
-        sprintf(backup_file_name,"backup/gen_%06"PRId32".rae", t);
+        sprintf( backup_file_name,"backup/gen_%06"PRId32".rae", num_gener );
       #else
-        sprintf(backup_file_name,"backup/gen_%06"PRId32".ae",  t);
+        sprintf( backup_file_name,"backup/gen_%06"PRId32".ae",  num_gener );
       #endif
       
       if ( verbose )
@@ -379,7 +397,7 @@ int main(int argc, char** argv)
     dnarepnode  = rep->get_dna_replic_reports()->get_first();
     unitnode    = indiv->get_genetic_unit_list()->get_first();
     
-    if ( check && utils::mod(t, ae_common::backup_step) == 0 )
+    if ( check_now )
     {
       storedunitnode = stored_indiv->get_genetic_unit_list()->get_first();
     }
@@ -410,7 +428,7 @@ int main(int argc, char** argv)
         mnode = mnode->get_next();
       }
 
-      if ( check && utils::mod(t, ae_common::backup_step) == 0 )
+      if ( check_now )
       {
         if ( verbose )
         {
@@ -469,22 +487,22 @@ int main(int argc, char** argv)
     indiv->compute_statistical_data();
     indiv->compute_non_coding();
 
-    mystats->write_statistics_of_this_indiv( indiv, t );
+    mystats->write_statistics_of_this_indiv( indiv, num_gener );
 
 
     // Optional outputs
-    //~ write_environment_stats( t, env );
-    //~ write_terminators_stats( t, indiv );
-    //~ write_zones_stats( t, indiv, env );
-    //~ write_operons_stats( t, indiv );
+    //~ write_environment_stats( num_gener, env );
+    //~ write_terminators_stats( num_gener, indiv );
+    write_zones_stats( num_gener, indiv, env );
+    write_operons_stats( num_gener, indiv );
     
 
     if ( verbose ) printf(" OK\n");
 
     delete rep;
-    if ( utils::mod(t, ae_common::backup_step) == 0 )
+    if ( check_now )
     {
-      assert(storedunitnode == NULL);
+      assert( storedunitnode == NULL );
       delete stored_indiv;
     }
   }
@@ -500,8 +518,8 @@ int main(int argc, char** argv)
   // Optional outputs
   //~ fclose( env_output_file );
   //~ fclose( term_output_file );
-  //~ fclose( zones_output_file );
-  //~ fclose( operons_output_file );
+  fclose( zones_output_file );
+  fclose( operons_output_file );
 
   exit(EXIT_SUCCESS);
 }
@@ -757,35 +775,40 @@ void print_help( void )
   printf( "\n" ); 
 #ifdef __REGUL
   printf( "Usage : rancstats -h\n");
-  printf( "or :    rancstats [-vn] -f backup_file \n" );
+  printf( "or :    rancstats [-vn] -f lineage_file \n" );
 #else
   printf( "Usage : ancstats -h\n");
-  printf( "or :    ancstats [-vn] -f backup_file \n" );
+  printf( "or :    ancstats [-vn] -f lineage_file \n" );
 #endif
   printf( "\n" ); 
 #ifdef __REGUL
-  printf( "This program does ....\n" );
+  printf( "This program does -TODO-.\n" );
 #else
-  printf( "This program does ...\n" );
+  printf( "This program does -TODO-.\n" );
 #endif
   printf( "\n" ); 
   printf( "WARNING: This program should not be used for simulations run with lateral\n" ); 
   printf( "transfer. When an individual has more than one parent, the notion of lineage\n" ); 
   printf( "used here is not relevant.\n" );
   printf( "\n" );  
-  printf( "\t-h or --help    : Display this help.\n" );
+  printf( "\t-h or --help       : Display this help.\n" );
   printf( "\n" ); 
-  printf( "\t-v or --verbose : Be verbose, listing generations as they are \n" );
-  printf( "\t                  treated.\n" );
-  printf( "\n" ); 
-  printf( "\t-n or --nocheck : Disable genome sequence checking. Makes the \n"); 
-  printf( "\t                  program faster, but it is not recommended. \n");
-  printf( "\t                  It is better to let the program check that \n");
-  printf( "\t                  when we rebuild the genomes of the ancestors\n");
-  printf( "\t                  from the lineage file, we get the same sequences\n");
-  printf( "\t                  as those stored in the backup files.\n" );
+  printf( "\t-v or --verbose    : Be verbose, listing generations as they are \n" );
+  printf( "\t                       treated.\n" );
+  printf( "\n" );
+  printf( "\t-n or --nocheck    : Disable genome sequence checking. Makes the \n"); 
+  printf( "\t                       program faster, but it is not recommended. \n");
+  printf( "\t                       It is better to let the program check that \n");
+  printf( "\t                       when we rebuild the genomes of the ancestors\n");
+  printf( "\t                       from the lineage file, we get the same sequences\n");
+  printf( "\t                       as those stored in the backup files.\n" );
+  printf( "\n" );
+  printf( "\t-c or --fullcheck  : Will perform the genome and environment checks every\n" );
+  printf( "\t                       <BACKUP_STEP> generations. Default behaviour is\n" );
+  printf( "\t                       lighter as it only perform sthese checks at the\n" );
+  printf( "\t                       ending generation.\n" );
   printf( "\n" ); 
   printf( "\t-f lineage_file or --file lineage_file : \n" );
-  printf( "\t                  ...\n" );
+  printf( "\t                     -TODO-.\n" );
   printf( "\n" );
 }

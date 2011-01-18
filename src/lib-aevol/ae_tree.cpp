@@ -110,7 +110,6 @@ ae_tree::ae_tree( char* backup_file_name, char* tree_file_name )
 {
   // Retrieve the ae_common's informations in backup_file
   int16_t bfn_len = strlen( backup_file_name );
-  printf("%s\n", tree_file_name);
   #ifdef __REGUL
     if ( strcmp( &backup_file_name[bfn_len-4], ".rae" ) != 0 )
     {
@@ -134,12 +133,10 @@ ae_tree::ae_tree( char* backup_file_name, char* tree_file_name )
   }
 
   // Retreive random generator state and get rid of it
-  printf( "  Loading random generator\n" );
   ae_rand_mt* alea = new ae_rand_mt( backup_file );
   delete alea;
 
   // Retreive common data
-  printf( "  Loading common data\n" );
   ae_common::read_from_backup( backup_file );
 
   _tree_mode = ae_common::tree_mode;
@@ -163,7 +160,6 @@ ae_tree::ae_tree( char* backup_file_name, char* tree_file_name )
 
       for ( int32_t gener_i = 0 ; gener_i < ae_common::tree_step ; gener_i++ )
       {
-        printf("gener_i %d nbindivs %d\n", gener_i, _nb_indivs[gener_i]);
         _replics[gener_i] = new ae_replication_report*[_nb_indivs[gener_i]];
         for ( int32_t indiv_i = 0 ; indiv_i < _nb_indivs[gener_i] ; indiv_i++ )
         {
