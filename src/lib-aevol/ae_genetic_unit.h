@@ -101,6 +101,8 @@ class ae_genetic_unit : public ae_object
     inline double   get_av_size_coding_RNAs( void )               const;
     inline double   get_overall_size_non_coding_RNAs( void )      const;
     inline double   get_av_size_non_coding_RNAs( void )           const;
+    inline int32_t  get_nb_genes_activ( void )                    const;
+    inline int32_t  get_nb_genes_inhib( void )                    const;
     inline int32_t  get_nb_functional_genes( void )               const;
     inline int32_t  get_nb_non_functional_genes( void )           const;
     inline double   get_overall_size_functional_genes( void )     const;
@@ -273,6 +275,8 @@ class ae_genetic_unit : public ae_object
     int32_t _nb_non_coding_RNAs;            // Number of non-coding-RNAs
     double  _overall_size_coding_RNAs;      // Average size of coding RNAs
     double  _overall_size_non_coding_RNAs;  // Average size of non-coding RNAs
+    int32_t _nb_genes_activ;                // Number of genes realizing a function
+    int32_t _nb_genes_inhib;                // Number of genes inhibitting a function
     int32_t _nb_fun_genes;                  // Number of functional genes
     int32_t _nb_non_fun_genes;              // Number of non-functional genes
     double  _overall_size_fun_genes;        // Average size of functional genes
@@ -297,13 +301,13 @@ class ae_genetic_unit : public ae_object
     
     
     // TODO : check and comment what it is for
-    int32_t _nb_promoters[2];
-    int32_t _nb_genes[2];
-    int32_t _nb_functional_genes[2]; 
-    double  _average_gene_size;
-    double  _average_functional_gene_size;
-    int32_t _nb_coding_bp;
-    double  _clustering;
+    //~ int32_t _nb_promoters[2];
+    //~ int32_t _nb_genes[2];
+    //~ int32_t _nb_functional_genes[2]; 
+    //~ double  _average_gene_size;
+    //~ double  _average_functional_gene_size;
+    //~ int32_t _nb_coding_bp;
+    //~ double  _clustering;
     
     // We keep trace of what we have already computed to avoid double computation (mainly in post-treaments)
     bool _transcribed;
@@ -398,6 +402,16 @@ inline double ae_genetic_unit::get_av_size_non_coding_RNAs( void ) const
     return _overall_size_non_coding_RNAs / _nb_non_coding_RNAs;
   }
   else return 0.0;
+}
+
+inline int32_t ae_genetic_unit::get_nb_genes_activ( void ) const
+{
+  return _nb_genes_activ;
+}
+
+inline int32_t ae_genetic_unit::get_nb_genes_inhib( void ) const
+{
+  return _nb_genes_inhib;
 }
 
 inline int32_t ae_genetic_unit::get_nb_functional_genes( void ) const

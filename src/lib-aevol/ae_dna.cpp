@@ -558,6 +558,8 @@ void ae_dna::do_rearrangements_with_align( void )
         continue;
       }
       
+      //~ printf( "direct   needed_score : %"PRId32"\n", needed_score );
+      
       ////////////////////////////////////////////////////////////////////////
       // 4) Determine the type of rearrangement to be performed and proceed //
       ////////////////////////////////////////////////////////////////////////
@@ -662,6 +664,7 @@ void ae_dna::do_rearrangements_with_align( void )
           
           if ( alignment_2 != NULL )
           {
+            //~ printf( "transloc needed_score : %"PRId32"\n", needed_score_2 );
             break;
           }
         }
@@ -717,6 +720,8 @@ void ae_dna::do_rearrangements_with_align( void )
         continue;
       }
       
+      //~ printf( "indirect needed_score : %"PRId32"\n", needed_score );
+      
       ////////////////////////////////////////////////////////////////////
       // 3) Test the existence of an alignment with a high enough score //
       ////////////////////////////////////////////////////////////////////
@@ -731,8 +736,6 @@ void ae_dna::do_rearrangements_with_align( void )
       /////////////////////////////
       // 4) Proceed to inversion //
       /////////////////////////////
-      assert( alignment->get_i_1() != alignment->get_i_2() );
-      
       // Make sure the segment to be inverted doesn't contain OriC
       if ( alignment->get_i_1() > alignment->get_i_2() )
       {
@@ -1805,6 +1808,7 @@ bool ae_dna::do_inversion( int32_t pos_1, int32_t pos_2 )
 // Invert segment going from pos_1 to pos_2
 // Exemple : sequence 011101001100 => 110011010001
 {
+  if ( pos_1 == pos_2 ) return false; // Invert everything <=> Invert nothing!
   assert( pos_1 < pos_2 );
   
   //                                                     

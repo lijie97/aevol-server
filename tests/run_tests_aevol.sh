@@ -5,13 +5,13 @@ cd ..
 make
 cd tests
 
-echo -n "running aevol_test_align... "
-cd ./aevol_test_align
+echo -n "running aevol_test_backup... "
+cd ./aevol_test_backup
 ./run_test.sh x
 cd ..
 
-echo -n "running aevol_test_backup... "
-cd ./aevol_test_backup
+echo -n "running aevol_test_align... "
+cd ./aevol_test_align
 ./run_test.sh x
 cd ..
 

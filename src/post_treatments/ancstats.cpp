@@ -214,14 +214,14 @@ int main(int argc, char** argv)
   // =========================
   char output_file_name[60];
   snprintf( output_file_name, 60, "ancstats-b%06"PRId32"-e%06"PRId32"-i%"PRId32, begin_gener, end_gener, final_indiv_index );
-  ae_stats * mystats = new ae_stats( output_file_name );
+  ae_stats * mystats = new ae_stats( output_file_name, true );
   mystats->write_headers();
   
   // Optional outputs
   //~ open_environment_stat_file();
   //~ open_terminators_stat_file();
-  open_zones_stat_file();
-  open_operons_stat_file();
+  //~ open_zones_stat_file();
+  //~ open_operons_stat_file();
   
 
 
@@ -300,8 +300,8 @@ int main(int argc, char** argv)
   // Optional outputs
   //~ write_environment_stats( 0, env );
   //~ write_terminators_stats( 0, indiv );
-  write_zones_stats( 0, indiv, env );
-  write_operons_stats( 0, indiv );
+  //~ write_zones_stats( 0, indiv, env );
+  //~ write_operons_stats( 0, indiv );
   
   
   if ( verbose )
@@ -493,8 +493,8 @@ int main(int argc, char** argv)
     // Optional outputs
     //~ write_environment_stats( num_gener, env );
     //~ write_terminators_stats( num_gener, indiv );
-    write_zones_stats( num_gener, indiv, env );
-    write_operons_stats( num_gener, indiv );
+    //~ write_zones_stats( num_gener, indiv, env );
+    //~ write_operons_stats( num_gener, indiv );
     
 
     if ( verbose ) printf(" OK\n");
@@ -518,8 +518,8 @@ int main(int argc, char** argv)
   // Optional outputs
   //~ fclose( env_output_file );
   //~ fclose( term_output_file );
-  fclose( zones_output_file );
-  fclose( operons_output_file );
+  //~ fclose( zones_output_file );
+  //~ fclose( operons_output_file );
 
   exit(EXIT_SUCCESS);
 }
@@ -595,6 +595,8 @@ void open_zones_stat_file( void )
 
 void write_zones_stats( int32_t num_gener, ae_individual * indiv, ae_environment * env )
 {
+  assert( ae_common::env_axis_is_segmented );
+  
   int16_t           nb_segments = env->get_nb_segments();
   int16_t           num_segment = 0;
   ae_env_segment ** segments    = env->get_segments();

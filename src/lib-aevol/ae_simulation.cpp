@@ -446,20 +446,20 @@ void ae_simulation::write_backup( void )
 
 void ae_simulation::write_tree( void )
 {
-  char backup_file_name[50];
+  char tree_file_name[50];
   
 #ifdef __REGUL
-  sprintf( backup_file_name, "tree/tree_%06"PRId32".rae", _num_gener );
+  sprintf( tree_file_name, "tree/tree_%06"PRId32".rae", _num_gener );
 #else
-  sprintf( backup_file_name, "tree/tree_%06"PRId32".ae", _num_gener );
+  sprintf( tree_file_name, "tree/tree_%06"PRId32".ae", _num_gener );
 #endif
   
-  gzFile* backup_file = (gzFile*) gzopen( backup_file_name, "w" );
+  gzFile* tree_file = (gzFile*) gzopen( tree_file_name, "w" );
   
   // Write phylogenetic data (tree)
-  _tree->write_to_backup( backup_file );
+  _tree->write_to_tree_file( tree_file );
   
-  gzclose( backup_file );
+  gzclose( tree_file );
 }
 
 

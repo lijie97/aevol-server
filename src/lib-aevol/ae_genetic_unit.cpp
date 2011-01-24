@@ -768,6 +768,9 @@ void ae_genetic_unit::do_translation( void )
                   _nb_fun_genes++;
                   //~ _overall_size_fun_genes += ( protein->get_length() + 2 ) * CODON_SIZE;
                   _overall_size_fun_genes += protein->get_length() * CODON_SIZE;
+                  
+                  if ( protein->get_height() > 0 )  _nb_genes_activ++;
+                  else                              _nb_genes_inhib++;
                 }
                 else
                 {
@@ -886,6 +889,9 @@ void ae_genetic_unit::do_translation( void )
                   _nb_fun_genes++;
                   //~ _overall_size_fun_genes += ( protein->get_length() + 2 ) * CODON_SIZE;
                   _overall_size_fun_genes += protein->get_length() * CODON_SIZE;
+                  
+                  if ( protein->get_height() > 0 )  _nb_genes_activ++;
+                  else                              _nb_genes_inhib++;
                 }
                 else
                 {
@@ -2900,21 +2906,21 @@ int32_t ae_genetic_unit::get_nb_terminators( void )
 // =================================================================
 void ae_genetic_unit::init_statistical_data( void ) // TODO : integrate into compute_statistical_data
 {
-  _nb_promoters[LEADING]        = 0;
-  _nb_promoters[LAGGING]        = 0;
-  _nb_genes[LEADING]            = 0;
-  _nb_genes[LAGGING]            = 0;
-  _nb_functional_genes[LEADING] = 0;
-  _nb_functional_genes[LAGGING] = 0;
-  _average_gene_size            = 0;
-  _average_functional_gene_size = 0;
-  _nb_coding_bp                 = 0;
-  _clustering                   = 0;
+  //~ _nb_promoters[LEADING]        = 0;
+  //~ _nb_promoters[LAGGING]        = 0;
+  //~ _nb_genes[LEADING]            = 0;
+  //~ _nb_genes[LAGGING]            = 0;
+  //~ _average_gene_size            = 0;
+  //~ _average_functional_gene_size = 0;
+  //~ _nb_coding_bp                 = 0;
+  //~ _clustering                   = 0;
   
   _nb_coding_RNAs               = 0;
   _nb_non_coding_RNAs           = 0;
   _overall_size_coding_RNAs     = 0;
   _overall_size_non_coding_RNAs = 0;
+  _nb_genes_activ               = 0;
+  _nb_genes_inhib               = 0;
   _nb_fun_genes                 = 0;
   _nb_non_fun_genes             = 0;
   _overall_size_fun_genes       = 0;

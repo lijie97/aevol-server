@@ -67,9 +67,8 @@ class ae_stats : public ae_object
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_stats( void );
-    ae_stats( int32_t num_gener );
-    ae_stats( const char * ancstat_file_name ); // for post-treatments
+    ae_stats( const char * prefix = "stat", bool best_indiv_only = false );
+    ae_stats( int32_t num_gener, const char * prefix = "stat", bool best_indiv_only = false );
 
  
     // =================================================================
@@ -86,12 +85,9 @@ class ae_stats : public ae_object
     // =================================================================
 
     void write_current_generation_statistics( void );
-    void write_statistics_of_this_indiv( ae_individual * indiv, int32_t t ); // for post-treatments
+    void write_statistics_of_this_indiv( ae_individual * indiv, int32_t num_gener );
     
     void flush( void );
-
-    inline void write_header( FILE* file_name, const char* header );
-    inline void write_header( FILE* file_name, const char* header, int8_t key );
 
     void write_headers( void );
 
@@ -124,15 +120,25 @@ class ae_stats : public ae_object
     // =================================================================
     //                           Protected Methods
     // =================================================================
+    void init_data( void );
+    void set_file_names( const char * prefix, bool best_indiv_only );
+    void open_files( void );
+    
+    inline void write_header( FILE* file_name, const char* header );
+    inline void write_header( FILE* file_name, const char* header, int8_t key );
   
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    
-    FILE** _stat_files_best;
-    FILE** _stat_files_glob;
-    char** _stat_files_best_names;
-    char** _stat_files_glob_names;
+    // 3D tables of stat files (FILE*) and their names (char*)
+    // Dimensions are given by:
+    //    * genetic unit (ALL_GU, CHROM or PLASMIDS)
+    //    * BEST or GLOB
+    //    * stat type (FITNESS_STATS, MUTATION_STATS, GENES_STATS, BP_STATS or REAR_STATS)
+    // Files that are not wanted MUST have their name set to NULL.
+    // The files themselves are also NULL because we don't fopen() them.
+    FILE**** _stat_files;
+    char**** _stat_files_names;
     
 };
 
@@ -146,12 +152,12 @@ class ae_stats : public ae_object
 // =====================================================================
 
 
-void ae_stats::write_header( FILE* file_name, const char* header )
+inline void ae_stats::write_header( FILE* file_name, const char* header )
 {
   if ( file_name != NULL) fprintf( file_name, "# %s\n", header );
 }
 
-void ae_stats::write_header( FILE* file_name, const char* header, int8_t key )
+inline void ae_stats::write_header( FILE* file_name, const char* header, int8_t key )
 {
   if ( file_name != NULL) fprintf( file_name, "# %2d. %s\n", key, header );
 }

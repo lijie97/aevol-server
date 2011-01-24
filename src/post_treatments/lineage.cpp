@@ -439,7 +439,7 @@ int main(int argc, char** argv)
       printf( "Writing the replication report for generation %"PRId32" (built from indiv %"PRId32" at generation %"PRId32")\n",
               num_gener, indices[i], num_gener-1 );
     }
-    reports[i]->write_to_backup( lineage_file );
+    reports[i]->write_to_tree_file( lineage_file );
     if ( verbose ) printf( " OK\n" );
     
     

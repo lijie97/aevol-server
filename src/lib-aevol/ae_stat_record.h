@@ -58,15 +58,24 @@ class ae_population;
 
 enum indiv_or_pop
 {
-  INDIV  = 0,
-  POP   = 1
+  INDIV           = 0,
+  POP             = 1,
+  NB_INDIV_OR_POP = 2
 };
 
 enum chrom_or_gen_unit
 {
-  ALL_GU    = 0,
-  CHROM     = 1,
-  PLASMIDS  = 2
+  ALL_GU          = 0,
+  CHROM           = 1,
+  PLASMIDS        = 2,
+  NB_CHROM_OR_GU  = 3
+};
+
+enum best_or_glob
+{
+  BEST            = 0,
+  GLOB            = 1,
+  NB_BEST_OR_GLOB = 2
 };
 
 enum stats_type
@@ -74,7 +83,9 @@ enum stats_type
   FITNESS_STATS   = 0,
   MUTATION_STATS  = 1,
   GENES_STATS     = 2,
-  BP_STATS        = 3
+  BP_STATS        = 3,
+  REAR_STATS      = 4,
+  NB_STATS_TYPES  = 5
 };
 
 
@@ -107,7 +118,7 @@ class ae_stat_record : public ae_object
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void initialize( void );
+    void initialize_data( void );
     void write_to_file( FILE* stat_file, stats_type stat_type_to_print ) const;
     void divide( double divisor );
     void add( ae_stat_record* to_add );
@@ -182,6 +193,12 @@ class ae_stat_record : public ae_object
     double  _nb_del;
     double  _nb_trans;
     double  _nb_inv;
+    
+    double  _dupl_rate;
+    double  _del_rate;
+    double  _trans_rate;
+    double  _inv_rate;
+    double  _mean_align_score;
     
     double  _nb_bases_in_0_CDS;
     double  _nb_bases_in_0_functional_CDS;

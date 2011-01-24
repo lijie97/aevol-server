@@ -126,6 +126,8 @@ class ae_individual : public ae_object
     inline double   get_av_size_coding_RNAs( void );
     inline double   get_overall_size_non_coding_RNAs( void );
     inline double   get_av_size_non_coding_RNAs( void );
+    inline int32_t  get_nb_genes_activ( void );
+    inline int32_t  get_nb_genes_inhib( void );
     inline int32_t  get_nb_functional_genes( void );
     inline int32_t  get_nb_non_functional_genes( void );
     inline double   get_overall_size_functional_genes( void );
@@ -259,6 +261,8 @@ class ae_individual : public ae_object
     int32_t _nb_non_coding_RNAs;                // Number of non-coding-RNAs
     double  _overall_size_coding_RNAs;          // Average size of coding RNAs
     double  _overall_size_non_coding_RNAs;      // Average size of non-coding RNAs
+    int32_t _nb_genes_activ;                    // Number of genes realizing a function
+    int32_t _nb_genes_inhib;                    // Number of genes inhibitting a function
     int32_t _nb_functional_genes;               // Number of functional genes
     int32_t _nb_non_functional_genes;           // Number of non-functional genes
     double  _overall_size_functional_genes;     // Average size of functional genes
@@ -525,6 +529,18 @@ inline double ae_individual::get_av_size_non_coding_RNAs( void )
   else return 0.0;
 }
 
+inline int32_t ae_individual::get_nb_genes_activ( void )
+{
+  if ( ! _statistical_data_computed ) compute_statistical_data();
+  return _nb_genes_activ;
+}
+
+inline int32_t ae_individual::get_nb_genes_inhib( void )
+{
+  if ( ! _statistical_data_computed ) compute_statistical_data();
+  return _nb_genes_inhib;
+}
+
 inline int32_t ae_individual::get_nb_functional_genes( void ) 
 {
   if ( ! _statistical_data_computed ) compute_statistical_data();
@@ -681,31 +697,11 @@ void ae_individual::do_transcription_translation_folding( void )
 {
   if ( _transcribed == true && _translated == true && _folded == true ) return;
   
-  // If some but not all (checked above) of the transcription-translation-folding process has been performed,
-  // we use the dedicated functions that check what's done and what's not.
-  // Else, if everything has to be done, do everything at once for each GU (parse list only once).
-  if ( _transcribed == true || _translated == true || _folded == true )
-  {
-    do_transcription();
-    do_translation();
-    do_folding();
-  }
-  else
-  {
-    ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
-    ae_genetic_unit*  gen_unit;
-    
-    while ( gen_unit_node != NULL )
-    {
-      gen_unit = (ae_genetic_unit*)gen_unit_node->get_obj();
-      
-      gen_unit->do_transcription();
-      gen_unit->do_translation();
-      gen_unit->compute_phenotypic_contribution();
-       
-      gen_unit_node = gen_unit_node->get_next();
-    }
-  }
+  do_transcription();
+  do_translation();
+  do_folding();
+  
+  make_protein_list();
 }
 
 #ifdef DEBUG

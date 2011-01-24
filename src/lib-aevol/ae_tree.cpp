@@ -342,20 +342,20 @@ void ae_tree::fill_tree_with_cur_gener( void )
   }
 }
 
-void ae_tree::write_to_backup( gzFile* backup_file )
+void ae_tree::write_to_tree_file( gzFile* tree_file )
 {
   switch ( _tree_mode )
   {
     case NORMAL :
     {
       // Write the tree in the backup
-      gzwrite( backup_file, &_nb_indivs[0], ae_common::tree_step * sizeof(_nb_indivs[0]) );
+      gzwrite( tree_file, &_nb_indivs[0], ae_common::tree_step * sizeof(_nb_indivs[0]) );
       
       for ( int32_t gener_i = 0 ; gener_i < ae_common::tree_step ; gener_i++ )
       {
         for ( int32_t indiv_i = 0 ; indiv_i < _nb_indivs[gener_i] ; indiv_i++ )
         {
-          _replics[gener_i][indiv_i]->write_to_backup( backup_file );
+          _replics[gener_i][indiv_i]->write_to_tree_file( tree_file );
         }
       }
       

@@ -91,7 +91,7 @@ class ae_tree : public ae_object
   ae_replication_report * get_report_by_rank( int32_t generation, int32_t rank ) const;
   
   void fill_tree_with_cur_gener( void );
-  void write_to_backup( gzFile* backup_file );
+  void write_to_tree_file( gzFile* tree_file );
   
   inline int32_t get_LCA( int32_t num_gener, int32_t a, int32_t b, int32_t *j );
   // Returns the generation of the last common ancestor of individuals number a and b

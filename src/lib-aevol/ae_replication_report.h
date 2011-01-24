@@ -66,7 +66,7 @@ class ae_replication_report : public ae_object
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_replication_report( ae_individual * indiv );
+    ae_replication_report( ae_individual * indiv, ae_individual * parent, ae_individual * donnor = NULL );
 
     // Creates a completely independent copy of the original report
     ae_replication_report( const ae_replication_report &model );
@@ -100,8 +100,9 @@ class ae_replication_report : public ae_object
     inline int32_t  get_parent_genome_size( void ) const;
     inline void     set_donnor_genome_size( int32_t donnor_genome_size );
     inline int32_t  get_donnor_genome_size( void ) const;
+    inline double   get_mean_align_score( void ) const;
     
-    inline ae_list*  get_dna_replic_reports( void ) const;
+    inline ae_list* get_dna_replic_reports( void ) const;
 
 
     // =================================================================
@@ -110,7 +111,8 @@ class ae_replication_report : public ae_object
     //~ inline void add_mutation_list( ae_list* mut_list );
     //~ inline void add_rearrangement_list( ae_list* rear_list );
     
-    void write_to_backup( gzFile* backup_file );
+    void signal_end_of_replication( void );
+    void write_to_tree_file( gzFile* tree_file ) const;
 
 
     // =================================================================
@@ -142,17 +144,31 @@ class ae_replication_report : public ae_object
     //                          Protected Attributes
     // =================================================================
     ae_individual*  _indiv;
+    
+    // ********** Data recorded in the tree **********
     int32_t         _index;
     int32_t         _rank;
     int32_t         _parent_index;
     int32_t         _donnor_index; // Horizontal transfer donnor
+    
+    int32_t         _genome_size;
+    int32_t         _metabolic_error;
+    int16_t         _nb_genes_activ;
+    int16_t         _nb_genes_inhib;
+    int16_t         _nb_non_fun_genes;
+    int16_t         _nb_coding_RNAs;
+    int16_t         _nb_non_coding_RNAs;
+    
+    ae_list*  _dna_replic_reports; // List of each genetic unit's replication report
+    // ********** END Data recorded in the tree **********
+    
     double          _parent_metabolic_error;
     double          _parent_secretion_error;
     double          _donnor_metabolic_error;
     int32_t         _parent_genome_size;
     int32_t         _donnor_genome_size;
     
-    ae_list*  _dna_replic_reports; // List of each genetic unit's replicatino report
+    double          _mean_align_score;
     
     //~ ae_list*  _mutations;       // These are lists of lists of mutations (resp rearrangements)
     //~ ae_list*  _rearrangements;  // undergone during the replication.
@@ -263,6 +279,11 @@ void ae_replication_report::set_donnor_genome_size( int32_t donnor_genome_size )
 int32_t ae_replication_report::get_donnor_genome_size( void ) const
 {
   return _donnor_genome_size;
+}
+
+inline double ae_replication_report::get_mean_align_score( void ) const
+{
+  return _mean_align_score;
 }
 
 inline ae_list* ae_replication_report::get_dna_replic_reports( void ) const
