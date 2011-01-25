@@ -69,7 +69,7 @@ ae_replication_report::ae_replication_report( ae_individual * indiv, ae_individu
   _parent_index = parent->get_index_in_population();
     
   _genome_size        = 0;
-  _metabolic_error    = 0;
+  _metabolic_error    = 0.0;
   _nb_genes_activ     = 0;
   _nb_genes_inhib     = 0;
   _nb_non_fun_genes   = 0;

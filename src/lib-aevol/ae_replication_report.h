@@ -152,7 +152,7 @@ class ae_replication_report : public ae_object
     int32_t         _donnor_index; // Horizontal transfer donnor
     
     int32_t         _genome_size;
-    int32_t         _metabolic_error;
+    double          _metabolic_error;
     int16_t         _nb_genes_activ;
     int16_t         _nb_genes_inhib;
     int16_t         _nb_non_fun_genes;
