@@ -97,7 +97,7 @@ double  ae_common::small_deletion_rate    = 1e-5;
 int16_t ae_common::max_indel_size         = 6;
 
 // Rearrangements and Transfer
-bool ae_common::with_4pts_rears   = true;
+bool ae_common::with_4pts_trans   = true;
 bool ae_common::with_alignments   = false;
 bool ae_common::with_transfer     = false;
 
@@ -115,8 +115,12 @@ double ae_common::translocation_proportion  = 0.3;
 double ae_common::inversion_proportion      = 0.3;
 
 // Alignements
-int16_t ae_common::align_min_score      = 0;
-int16_t ae_common::align_max_score      = 100;
+ae_align_fun_shape ae_common::align_fun_shape = SIGMOID;
+
+double  ae_common::align_sigm_lambda    = 4;
+int16_t ae_common::align_sigm_mean      = 50;
+int16_t ae_common::align_lin_min        = 0;
+int16_t ae_common::align_lin_max        = 100;
 int16_t ae_common::align_max_shift      = 20; // Maximum shift of one seq on the other
 int16_t ae_common::align_w_zone_h_len   = 50; // Work zone half length
 int16_t ae_common::align_match_bonus    = 1;  // Corresponding residues match bonus
@@ -245,8 +249,8 @@ void ae_common::write_to_backup( gzFile* backup_file )
   gzwrite( backup_file, &max_indel_size,              sizeof(max_indel_size)            );
 
   // Rearrangements and Transfer
-  int8_t tmp_with_4pts_rears = with_4pts_rears? 1 : 0;
-  gzwrite( backup_file, &tmp_with_4pts_rears,         sizeof(tmp_with_4pts_rears)       );
+  int8_t tmp_with_4pts_trans = with_4pts_trans? 1 : 0;
+  gzwrite( backup_file, &tmp_with_4pts_trans,         sizeof(tmp_with_4pts_trans)       );
   int8_t tmp_with_alignments = with_alignments? 1 : 0;
   gzwrite( backup_file, &tmp_with_alignments,         sizeof(tmp_with_alignments)       );
   int8_t tmp_with_transfer = with_transfer? 1 : 0;
@@ -266,8 +270,11 @@ void ae_common::write_to_backup( gzFile* backup_file )
   gzwrite( backup_file, &inversion_proportion,        sizeof(inversion_proportion)      );
 
   // Alignements
-  gzwrite( backup_file, &align_min_score,             sizeof(align_min_score)           );
-  gzwrite( backup_file, &align_max_score,             sizeof(align_max_score)           );
+  gzwrite( backup_file, &align_fun_shape,             sizeof(align_fun_shape)           );
+  gzwrite( backup_file, &align_sigm_lambda,           sizeof(align_sigm_lambda)         );
+  gzwrite( backup_file, &align_sigm_mean,             sizeof(align_sigm_mean)           );
+  gzwrite( backup_file, &align_lin_min,               sizeof(align_lin_min)             );
+  gzwrite( backup_file, &align_lin_max,               sizeof(align_lin_max)             );
   gzwrite( backup_file, &align_max_shift,             sizeof(align_max_shift)           );
   gzwrite( backup_file, &align_w_zone_h_len,          sizeof(align_w_zone_h_len)        );
   gzwrite( backup_file, &align_match_bonus,           sizeof(align_match_bonus)         );
@@ -446,9 +453,9 @@ void ae_common::read_from_backup( gzFile* backup_file, bool verbose )
   gzread( backup_file, &max_indel_size,               sizeof(max_indel_size)            );
 
   // Rearrangements and Transfer
-  int8_t tmp_with_4pts_rears;
-  gzread( backup_file, &tmp_with_4pts_rears,          sizeof(tmp_with_4pts_rears)       );
-  with_4pts_rears = (tmp_with_4pts_rears!=0);
+  int8_t tmp_with_4pts_trans;
+  gzread( backup_file, &tmp_with_4pts_trans,          sizeof(tmp_with_4pts_trans)       );
+  with_4pts_trans = (tmp_with_4pts_trans!=0);
   int8_t tmp_with_alignments;
   gzread( backup_file, &tmp_with_alignments,          sizeof(tmp_with_alignments)       );
   with_alignments = (tmp_with_alignments!=0);
@@ -470,12 +477,15 @@ void ae_common::read_from_backup( gzFile* backup_file, bool verbose )
   gzread( backup_file, &inversion_proportion,         sizeof(inversion_proportion)      );
 
   // Alignements
-  gzread( backup_file, &align_min_score,             sizeof(align_min_score)            );
-  gzread( backup_file, &align_max_score,             sizeof(align_max_score)            );
-  gzread( backup_file, &align_max_shift,             sizeof(align_max_shift)            );
-  gzread( backup_file, &align_w_zone_h_len,          sizeof(align_w_zone_h_len)         );
-  gzread( backup_file, &align_match_bonus,           sizeof(align_match_bonus)          );
-  gzread( backup_file, &align_mismatch_cost,         sizeof(align_mismatch_cost)        );
+  gzread( backup_file, &align_fun_shape,              sizeof(align_fun_shape)           );
+  gzread( backup_file, &align_sigm_lambda,            sizeof(align_sigm_lambda)         );
+  gzread( backup_file, &align_sigm_mean,              sizeof(align_sigm_mean)           );
+  gzread( backup_file, &align_lin_min,                sizeof(align_lin_min)             );
+  gzread( backup_file, &align_lin_max,                sizeof(align_lin_max)             );
+  gzread( backup_file, &align_max_shift,              sizeof(align_max_shift)           );
+  gzread( backup_file, &align_w_zone_h_len,           sizeof(align_w_zone_h_len)        );
+  gzread( backup_file, &align_match_bonus,            sizeof(align_match_bonus)         );
+  gzread( backup_file, &align_mismatch_cost,          sizeof(align_mismatch_cost)       );
 
   // Selection
   if ( verbose )
@@ -643,15 +653,15 @@ void ae_common::print_to_file( void )
   assert( param_out );
   
   // PseudoRandom Number Generator
-  fprintf( param_out, "seed :                      %"PRId32"\n", seed                    );
-  fprintf( param_out, "env_seed :                  %"PRId32"\n", env_seed                );
+  fprintf( param_out, "seed :                       %"PRId32"\n", seed                    );
+  fprintf( param_out, "env_seed :                   %"PRId32"\n", env_seed                );
 
   // Initial conditions
-  fprintf( param_out, "initial_genome_length :     %"PRId32"\n", initial_genome_length   );
-  fprintf( param_out, "min_genome_length :         %"PRId32"\n", min_genome_length       );
-  fprintf( param_out, "max_genome_length :         %"PRId32"\n", max_genome_length       );
+  fprintf( param_out, "initial_genome_length :      %"PRId32"\n", initial_genome_length   );
+  fprintf( param_out, "min_genome_length :          %"PRId32"\n", min_genome_length       );
+  fprintf( param_out, "max_genome_length :          %"PRId32"\n", max_genome_length       );
   
-  fprintf( param_out, "init_method :              " );
+  fprintf( param_out, "init_method :               " );
   if ( init_method & ONE_GOOD_GENE )
   {
     fprintf( param_out, " ONE_GOOD_GENE" );
@@ -666,103 +676,106 @@ void ae_common::print_to_file( void )
   }
   fprintf( param_out, "\n" );
   
-  fprintf( param_out, "MIN_W :               %lf\n", min_w );
-  fprintf( param_out, "MAX_W :               %lf\n", max_w );
+  fprintf( param_out, "MIN_W :                      %f\n", min_w );
+  fprintf( param_out, "MAX_W :                      %f\n", max_w );
 
   // Statistics collection
-  fprintf( param_out, "backup_step :               %"PRId32"\n",  backup_step );
-  fprintf( param_out, "tree_step :                 %"PRId32"\n",  tree_step );
-  fprintf( param_out, "record_tree :               %s\n",  record_tree? "true" : "false" );
+  fprintf( param_out, "backup_step :                %"PRId32"\n",  backup_step );
+  fprintf( param_out, "tree_step :                  %"PRId32"\n",  tree_step );
+  fprintf( param_out, "record_tree :                %s\n",  record_tree? "true" : "false" );
   switch ( tree_mode )
   {
     case LIGHT :
     {
-      fprintf( param_out, "tree_mode   :               LIGHT\n" );
+      fprintf( param_out, "tree_mode   :                LIGHT\n" );
       break;
     }
     case NORMAL :
     {
-      fprintf( param_out, "tree_mode   :               NORMAL\n" );
+      fprintf( param_out, "tree_mode   :                NORMAL\n" );
       break;
     }
     default :
     {
-      fprintf( param_out, "tree_mode   :               UNKNOWN\n" );
+      fprintf( param_out, "tree_mode   :                UNKNOWN\n" );
       break;
     }
   }
-  fprintf( param_out, "more_stats :                %s\n",  more_stats? "true" : "false"  );
-  fprintf( param_out, "dump_period :               %"PRId32"\n",  dump_period            );
+  fprintf( param_out, "more_stats :                 %s\n",  more_stats? "true" : "false"  );
+  fprintf( param_out, "dump_period :                %"PRId32"\n",  dump_period            );
 
   // Population size, structure, and other properties 
-  fprintf( param_out, "init_pop_size :             %"PRId32"\n", init_pop_size             );
-  fprintf( param_out, "pop_structure :             %s\n",  pop_structure? "true" : "false" );
-  fprintf( param_out, "grid_x :                    %"PRId16"\n", grid_x                    ); 
-  fprintf( param_out, "grid_y :                    %"PRId16"\n", grid_y                    ); 
-  fprintf( param_out, "migration_number :          %"PRId32"\n", migration_number          ); 
+  fprintf( param_out, "init_pop_size :              %"PRId32"\n", init_pop_size             );
+  fprintf( param_out, "pop_structure :              %s\n",  pop_structure? "true" : "false" );
+  fprintf( param_out, "grid_x :                     %"PRId16"\n", grid_x                    ); 
+  fprintf( param_out, "grid_y :                     %"PRId16"\n", grid_y                    ); 
+  fprintf( param_out, "migration_number :           %"PRId32"\n", migration_number          ); 
   
   // Mutation rates
-  fprintf( param_out, "point_mutation_rate :       %e\n",  point_mutation_rate        );
-  fprintf( param_out, "small_insertion_rate :      %e\n",  small_insertion_rate       );
-  fprintf( param_out, "small_deletion_rate :       %e\n",  small_deletion_rate        );
-  fprintf( param_out, "max_indel_size :            %"PRId16"\n", max_indel_size       );
+  fprintf( param_out, "point_mutation_rate :        %e\n",  point_mutation_rate        );
+  fprintf( param_out, "small_insertion_rate :       %e\n",  small_insertion_rate       );
+  fprintf( param_out, "small_deletion_rate :        %e\n",  small_deletion_rate        );
+  fprintf( param_out, "max_indel_size :             %"PRId16"\n", max_indel_size       );
 
   // Rearrangements and Transfer
-  fprintf( param_out, "with_4pts_rears :           %s\n",  with_4pts_rears? "true" : "false" );
-  fprintf( param_out, "with_alignments :           %s\n",  with_alignments? "true" : "false" );
-  fprintf( param_out, "with_transfer :             %s\n",  with_transfer? "true" : "false"   );
+  fprintf( param_out, "with_4pts_trans :            %s\n",  with_4pts_trans? "true" : "false" );
+  fprintf( param_out, "with_alignments :            %s\n",  with_alignments? "true" : "false" );
+  fprintf( param_out, "with_transfer :              %s\n",  with_transfer? "true" : "false"   );
 
   // Rearrangement rates (without alignements)
-  fprintf( param_out, "duplication_rate :          %e\n",  duplication_rate           );
-  fprintf( param_out, "deletion_rate :             %e\n",  deletion_rate              );
-  fprintf( param_out, "translocation_rate :        %e\n",  translocation_rate         );
-  fprintf( param_out, "inversion_rate :            %e\n",  inversion_rate             );
+  fprintf( param_out, "duplication_rate :           %e\n",  duplication_rate           );
+  fprintf( param_out, "deletion_rate :              %e\n",  deletion_rate              );
+  fprintf( param_out, "translocation_rate :         %e\n",  translocation_rate         );
+  fprintf( param_out, "inversion_rate :             %e\n",  inversion_rate             );
 
   // Rearrangement rates (with alignements)
-  fprintf( param_out, "neighbourhood_rate :        %e\n",  neighbourhood_rate         );
-  fprintf( param_out, "duplication_proportion :    %e\n",  duplication_proportion     );
-  fprintf( param_out, "deletion_proportion :       %e\n",  deletion_proportion        );
-  fprintf( param_out, "translocation_proportion :  %e\n",  translocation_proportion   );
-  fprintf( param_out, "inversion_proportion :      %e\n",  inversion_proportion       );
+  fprintf( param_out, "neighbourhood_rate :         %e\n",  neighbourhood_rate         );
+  fprintf( param_out, "duplication_proportion :     %e\n",  duplication_proportion     );
+  fprintf( param_out, "deletion_proportion :        %e\n",  deletion_proportion        );
+  fprintf( param_out, "translocation_proportion :   %e\n",  translocation_proportion   );
+  fprintf( param_out, "inversion_proportion :       %e\n",  inversion_proportion       );
 
   // Alignements
-  fprintf( param_out, "align_min_score :           %"PRId16"\n", align_min_score            );
-  fprintf( param_out, "align_max_score :           %"PRId16"\n", align_max_score            );
-  fprintf( param_out, "align_max_shift :           %"PRId16"\n", align_max_shift            );
-  fprintf( param_out, "align_w_zone_h_len :        %"PRId16"\n", align_w_zone_h_len         );
-  fprintf( param_out, "align_match_bonus :         %"PRId16"\n", align_match_bonus          );
-  fprintf( param_out, "align_mismatch_cost :       %"PRId16"\n", align_mismatch_cost        );
+  fprintf( param_out, "align_fun_shape :            %"PRId16"\n", align_fun_shape       );
+  fprintf( param_out, "align_sigm_lambda :          %f\n",        align_sigm_lambda     );
+  fprintf( param_out, "align_sigm_mean :            %"PRId16"\n", align_sigm_mean       );
+  fprintf( param_out, "align_lin_min :              %"PRId16"\n", align_lin_min         );
+  fprintf( param_out, "align_lin_max :              %"PRId16"\n", align_lin_max         );
+  fprintf( param_out, "align_max_shift :            %"PRId16"\n", align_max_shift       );
+  fprintf( param_out, "align_w_zone_h_len :         %"PRId16"\n", align_w_zone_h_len    );
+  fprintf( param_out, "align_match_bonus :          %"PRId16"\n", align_match_bonus     );
+  fprintf( param_out, "align_mismatch_cost :        %"PRId16"\n", align_mismatch_cost   );
 
   // Selection
   switch ( selection_scheme )
   {
     case RANK_LINEAR :
     {
-      fprintf( param_out, "selection_scheme   :        RANK_LINEAR\n" );
+      fprintf( param_out, "selection_scheme   :         RANK_LINEAR\n" );
       break;
     }
     case RANK_EXPONENTIAL :
     {
-      fprintf( param_out, "selection_scheme   :        RANK_EXPONENTIAL\n" );
+      fprintf( param_out, "selection_scheme   :         RANK_EXPONENTIAL\n" );
       break;
     }
     case FITNESS_PROPORTIONATE :
     {
-      fprintf( param_out, "selection_scheme   :        FITNESS_PROPORTIONATE\n" );
+      fprintf( param_out, "selection_scheme   :         FITNESS_PROPORTIONATE\n" );
       break;
     }
     case FITTEST :
     {
-      fprintf( param_out, "selection_scheme   :        FITTEST\n" );
+      fprintf( param_out, "selection_scheme   :         FITTEST\n" );
       break;
     }
     default :
     {
-      fprintf( param_out, "selection_scheme   :        UNKNOWN\n" );
+      fprintf( param_out, "selection_scheme   :         UNKNOWN\n" );
       break;
     }
   }
-  fprintf( param_out, "selection_pressure :        %e\n",  selection_pressure         );
+  fprintf( param_out, "selection_pressure :         %e\n",  selection_pressure         );
   
   // Environment
   // TODO
@@ -800,7 +813,7 @@ void ae_common::print_to_file( void )
   fprintf( param_out, "compute_phen_contrib_by_GU : %s\n", compute_phen_contrib_by_GU? "true" : "false"  );
 
   // Translation cost
-  fprintf( param_out, "translation_cost :          %e\n",  translation_cost           );
+  fprintf( param_out, "translation_cost :           %e\n",  translation_cost           );
 
   #ifdef __REGUL
     fprintf( param_out, "\n********** RAEVOL SPECIFIC PARAMETERS **********\n" );

@@ -435,14 +435,41 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
       ae_common::inversion_proportion = atof( line->words[1] );
       break;
     }
-    case ALIGN_MIN_SCORE :
+    case ALIGN_FUNCTION :
     {
-      ae_common::align_min_score = atol( line->words[1] );
-      break;
-    }
-    case ALIGN_MAX_SCORE :
-    {
-      ae_common::align_max_score = atol( line->words[1] );
+      if ( line->nb_words != 2 && line->nb_words != 4 )
+      {
+        printf( "ERROR in param file \"%s\" on line %"PRId32" : incorrect number of parameters for keyword \"%s\".\n",
+                INPUT_FILE_NAME, cur_line, line->words[0] );
+        exit( EXIT_FAILURE );
+      }
+      
+      if ( strcmp( line->words[1], "LINEAR" ) == 0 )
+      {
+        ae_common::align_fun_shape = LINEAR;
+        
+        if ( line->nb_words == 4 )
+        {
+          ae_common::align_lin_min  = atol( line->words[2] );
+          ae_common::align_lin_max  = atol( line->words[3] );
+        }
+      }
+      else if ( strcmp( line->words[1], "SIGMOID" ) == 0 )
+      {
+        ae_common::align_fun_shape = SIGMOID;
+        
+        if ( line->nb_words == 4 )
+        {
+          ae_common::align_sigm_lambda  = atol( line->words[2] );
+          ae_common::align_sigm_mean    = atol( line->words[3] );
+        }
+      }
+      else
+      {
+        printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown align function shape \"%s\".\n",
+                INPUT_FILE_NAME, cur_line, line->words[1] );
+        exit( EXIT_FAILURE );
+      }
       break;
     }
     case ALIGN_MAX_SHIFT :
@@ -506,21 +533,21 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
       ae_common::nb_generations = atol( line->words[1] );
       break;
     }
-    case WITH_4PTS_REARS :
+    case WITH_4PTS_TRANS :
     {
       if ( strncmp( line->words[1], "true", 4 ) == 0 )
       {
-        ae_common::with_4pts_rears = true;
+        ae_common::with_4pts_trans = true;
       }
       else if ( strncmp( line->words[1], "false", 5 ) == 0 )
       {
         printf( "ERROR: 3 points rear hasn't been implemented yet\n" );
         exit( EXIT_FAILURE );
-        ae_common::with_4pts_rears = false;
+        ae_common::with_4pts_trans = false;
       }
       else
       {
-        printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown 4pts_rears option (use true/false).\n",
+        printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown 4pts_trans option (use true/false).\n",
                 INPUT_FILE_NAME, cur_line );
         exit( EXIT_FAILURE ); 
       }
@@ -906,14 +933,14 @@ f_line* ae_param_loader::get_line( void )
     format_line( formated_line, line, &found_interpretable_line );
   }
 
-  if ( feof( param_in ) )
+  if ( found_interpretable_line )
   {
-    delete formated_line;
-    return NULL;
+    return formated_line;
   }
   else
   {
-    return formated_line;
+    delete formated_line;
+    return NULL;
   }
 }
 
@@ -954,7 +981,7 @@ ae_keywd f_line::get_keywd( void )
   if ( !strcmp( words[0], "SMALL_INSERTION_RATE" ) )        return SMALL_INSERTION_RATE;
   if ( !strcmp( words[0], "SMALL_DELETION_RATE" ) )         return SMALL_DELETION_RATE;
   if ( !strcmp( words[0], "MAX_INDEL_SIZE" ) )              return MAX_INDEL_SIZE;
-  if ( !strcmp( words[0], "WITH_4PTS_REARS" ) )             return WITH_4PTS_REARS;
+  if ( !strcmp( words[0], "WITH_4PTS_TRANS" ) )             return WITH_4PTS_TRANS;
   if ( !strcmp( words[0], "WITH_ALIGNMENTS" ) )             return WITH_ALIGNMENTS;
   if ( !strcmp( words[0], "DUPLICATION_RATE" ) )            return DUPLICATION_RATE;
   if ( !strcmp( words[0], "DELETION_RATE" ) )               return DELETION_RATE;
@@ -966,8 +993,7 @@ ae_keywd f_line::get_keywd( void )
   if ( !strcmp( words[0], "DELETION_PROPORTION" ) )         return DELETION_PROPORTION;
   if ( !strcmp( words[0], "TRANSLOCATION_PROPORTION" ) )    return TRANSLOCATION_PROPORTION;
   if ( !strcmp( words[0], "INVERSION_PROPORTION" ) )        return INVERSION_PROPORTION;
-  if ( !strcmp( words[0], "ALIGN_MIN_SCORE" ) )             return ALIGN_MIN_SCORE;
-  if ( !strcmp( words[0], "ALIGN_MAX_SCORE" ) )             return ALIGN_MAX_SCORE;
+  if ( !strcmp( words[0], "ALIGN_FUNCTION" ) )              return ALIGN_FUNCTION;
   if ( !strcmp( words[0], "ALIGN_MAX_SHIFT" ) )             return ALIGN_MAX_SHIFT;
   if ( !strcmp( words[0], "ALIGN_W_ZONE_H_LEN" ) )          return ALIGN_W_ZONE_H_LEN;
   if ( !strcmp( words[0], "ALIGN_MATCH_BONUS" ) )           return ALIGN_MATCH_BONUS;

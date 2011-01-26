@@ -121,7 +121,7 @@ void ae_protein_R::compute_delta_concentration( void )
     rna_node = rna_node->get_next();
   }
 
-  //printf("degradation rate : %lf \n", ae_common::degradation_rate);
+  //printf("degradation rate : %f \n", ae_common::degradation_rate);
   _delta_concentration -= ae_common::degradation_rate * _concentration;
   _delta_concentration *= ae_common::degradation_step;
 }

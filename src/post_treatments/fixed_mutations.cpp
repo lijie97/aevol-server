@@ -486,8 +486,8 @@ int main(int argc, char** argv)
           if ( verbose ) printf( " ERROR !\n" );
           fprintf( stderr, "Error: the rebuilt unit is not the same as \n");
           fprintf( stderr, "the one stored in backup file %s\n", backup_file_name);
-          fprintf( stderr, "Rebuilt unit : %ld bp\n %s\n", strlen(str1), str1 );
-          fprintf( stderr, "Stored unit  : %ld bp\n %s\n", strlen(str2), str2 );
+          fprintf( stderr, "Rebuilt unit : %zu bp\n %s\n", strlen(str1), str1 );
+          fprintf( stderr, "Stored unit  : %zu bp\n %s\n", strlen(str2), str2 );
           delete [] str1;
           delete [] str2;
           gzclose(lineage_file);

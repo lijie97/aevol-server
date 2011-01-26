@@ -246,6 +246,22 @@ void ae_logs::write_headers( void ) const
 {
 }
 
+void ae_logs::flush( void )
+{
+  if ( ae_common::logs & REAR )
+  {
+    fflush( _rear_log );
+  }
+  if ( ae_common::logs & BARRIER )
+  {
+    fflush( _barrier_log );
+  }
+  if ( ae_common::logs & LOADS )
+  {
+    fflush( _load_from_backup_log );
+  }
+}
+
 // =================================================================
 //                           Protected Methods
 // =================================================================

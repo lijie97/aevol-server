@@ -676,7 +676,7 @@ void ae_genetic_unit::do_transcription( void )
 
       //~ printf( "rna seq : %s\n", seq );
       printf( "RNA at pos : %"PRId32"      length : %"PRId32"\n", rna->get_promoter_pos(), rna->get_transcript_length() );
-      printf( "  strand : %s    basal_level : %lf\n", (rna->get_strand() == LEADING)?"LEADING":"LAGGING", rna->get_basal_level() );
+      printf( "  strand : %s    basal_level : %f\n", (rna->get_strand() == LEADING)?"LEADING":"LAGGING", rna->get_basal_level() );
       //~ getchar();
 
       rna_node = rna_node->get_next();
@@ -1167,7 +1167,7 @@ void ae_genetic_unit::print_rnas( ae_list * rnas, ae_strand strand )
     assert( rna->get_strand() == strand );
 
     printf( "    Promoter on %s at %"PRId32"\n", strand == LEADING ? "LEADING" : "LAGGING", rna->get_promoter_pos() );
-    //~ printf( "      length %"PRId32"  basal_level %lf\n", rna->get_transcript_length(), rna->get_basal_level() );
+    //~ printf( "      length %"PRId32"  basal_level %f\n", rna->get_transcript_length(), rna->get_basal_level() );
 
     rna_node = rna_node->get_next();
   }
@@ -1185,7 +1185,7 @@ void ae_genetic_unit::print_proteins( void ) const
   {
     prot = (ae_protein*) prot_node->get_obj();
 
-    printf( "    Gene on LEADING at %"PRId32" (%"PRId32") (%lf %lf %lf) (%lf) %s\n",
+    printf( "    Gene on LEADING at %"PRId32" (%"PRId32") (%f %f %f) (%f) %s\n",
             prot->get_first_translated_pos(), prot->get_length(),
             prot->get_mean(), prot->get_width(), prot->get_height(), prot->get_concentration(),
             prot->get_is_functional() ? "functional" : "non functional" );
@@ -1201,7 +1201,7 @@ void ae_genetic_unit::print_proteins( void ) const
   {
     prot = (ae_protein*) prot_node->get_obj();
 
-    printf( "    Gene on LAGGING at %"PRId32" (%"PRId32") (%lf %lf %lf) (%lf) %s\n",
+    printf( "    Gene on LAGGING at %"PRId32" (%"PRId32") (%f %f %f) (%f) %s\n",
             prot->get_first_translated_pos(), prot->get_length(),
             prot->get_mean(), prot->get_width(), prot->get_height(), prot->get_concentration(),
             prot->get_is_functional() ? "functional" : "non functional" );

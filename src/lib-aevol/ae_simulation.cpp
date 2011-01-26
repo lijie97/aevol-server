@@ -327,7 +327,7 @@ void ae_simulation::run( void )
   while ( _num_gener < _last_gener )
   {
     printf( "============================== %"PRId32" ==============================\n", _num_gener );
-    printf( "  distance to target (metabolic) : %lf\n", ((ae_individual *) _pop->get_indivs()->get_last()->get_obj())->get_dist_to_target_by_feature( METABOLISM ) );
+    printf( "  distance to target (metabolic) : %f\n", ((ae_individual *) _pop->get_indivs()->get_last()->get_obj())->get_dist_to_target_by_feature( METABOLISM ) );
 
     #ifdef __X11
       if ( ((ae_simulation_X11*)this)->quit_signal_received() ) break;
@@ -362,6 +362,7 @@ void ae_simulation::run( void )
       
       if ( _num_gener % ae_common::backup_step == 0 )
       {
+        _logs->flush();
         _stats->flush();
         write_backup();
         
@@ -396,7 +397,7 @@ void ae_simulation::run( void )
   }
   
   printf( "============================== %"PRId32" ==============================\n", _num_gener );
-  printf( "  distance to target (metabolic) : %lf\n", ((ae_individual *) _pop->get_indivs()->get_last()->get_obj())->get_dist_to_target_by_feature( METABOLISM ) );
+  printf( "  distance to target (metabolic) : %f\n", ((ae_individual *) _pop->get_indivs()->get_last()->get_obj())->get_dist_to_target_by_feature( METABOLISM ) );
 }
 
 void ae_simulation::set_total_generations( int32_t nb_generations )

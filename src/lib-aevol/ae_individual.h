@@ -716,7 +716,7 @@ void ae_individual::do_transcription_translation_folding( void )
       
       char* prot_sequence = prot->get_AA_sequence();
       printf( "prot at pos : %"PRId32"      length : %"PRId32" AAs\n", prot->get_first_translated_pos(), prot->get_length() );
-      printf( "  strand : %s    concentration : %lf\n", (prot->get_strand() == LEADING)?"LEADING":"LAGGING", prot->get_concentration() );
+      printf( "  strand : %s    concentration : %f\n", (prot->get_strand() == LEADING)?"LEADING":"LAGGING", prot->get_concentration() );
       printf( "  sequence : %s\n", prot_sequence );
       delete prot_sequence;
       

@@ -2,23 +2,37 @@
 #         AEVOL PARAMATERS        #
 ###################################
 
-##### 1. Initial setup ############
-# SEED                  7250909
+
+####################################################################################
+                                  Initial setup
+####################################################################################
+SEED                    408610
 INITIAL_GENOME_LENGTH   5000
 MIN_GENOME_LENGTH       10
 MAX_GENOME_LENGTH       10000000
 INIT_POP_SIZE           1000
-# INIT_METHOD <any combination (separated by a space) of one or more of the following : ONE_GOOD_GENE, CLONE, WITH_INS_SEQ>
+# INIT_METHOD <any combination (separated by a space) of one or more of the following:
+# ONE_GOOD_GENE, CLONE, WITH_INS_SEQ>
 # i.e.        INIT_METHOD     ONE_GOOD_GENE CLONE
 INIT_METHOD             ONE_GOOD_GENE CLONE
 NB_GENER                10000
+MIN_TRIANGLE_WIDTH      0.0
+MAX_TRIANGLE_WIDTH      0.01
 
-##### 2. Selection ################
+
+
+####################################################################################
+                                    Selection
+####################################################################################
 # SELECTION_SCHEME linear_ranking | exponential_ranking | fitness | fittest
 SELECTION_SCHEME        exponential_ranking
 SELECTION_PRESSURE      0.998
 
-##### 3. Mutation rates ###########
+
+####################################################################################
+                          Mutation / Rearrangement / Transfer
+####################################################################################
+############ Mutation rates ############
 POINT_MUTATION_RATE     5e-5
 SMALL_INSERTION_RATE    5e-5
 SMALL_DELETION_RATE     5e-5
@@ -27,26 +41,65 @@ MAX_INDEL_SIZE          6
 # Whether to use 4 point rearrangements (if false, will use 3 points rear instead - i.e will translocate sequence as is)
 WITH_4PTS_REARS         true
 
-##### 4. Rearrangement rates (w/o alignements)
+############ Rearrangement rates (w/o alignements) ############
 DUPLICATION_RATE        5e-5
 DELETION_RATE           5e-5
 TRANSLOCATION_RATE      5e-5
 INVERSION_RATE          5e-5
 
-##### 5. Population Structure #####
+############ Alignment ###############
+# WITH_ALIGNMENTS         true | false
+# ALIGN_FUNCTION          LINEAR [min_score max_score]  |  SIGMOID [lambda mean]
+WITH_ALIGNMENTS         true
+ALIGN_FUNCTION          SIGMOID 4 50
+ALIGN_MAX_SHIFT         20  
+ALIGN_W_ZONE_H_LEN      50
+
+############ Rearrangement rates (w/ alignements) ############
+# Warning:  The sum DUPLICATION_PROPORTION + DELETION_PROPORTION + TRANSLOCATION_PROPORTION must be < 1
+#           INVERSION_PROPORTION must also be < 1
+NEIGHBOURHOOD_RATE       1e-3
+DUPLICATION_PROPORTION   0.3
+DELETION_PROPORTION      0.3
+TRANSLOCATION_PROPORTION 0.3
+INVERSION_PROPORTION     0.3
+
+############ Transfer ############
+WITH_TRANSFER               false
+
+
+
+####################################################################################
+                                Population Structure
+####################################################################################
 POP_STRUCTURE           false
 GRID_X                  25
 GRID_Y                  40
 MIGRATION_NUMBER        0
 
-##### 6. Target function ##########
-ENV_SAMPLING      300
-ENV_ADD_GAUSSIAN  0.3   0.8   0.03
-ENV_ADD_GAUSSIAN  0.3   0.1   0.03
-ENV_ADD_GAUSSIAN  0.2   0.5   0.03
-ENV_ADD_GAUSSIAN  0.3   0.6   0.03
 
-##### 7. Recording ################
+
+####################################################################################
+                                    Environment
+####################################################################################
+############ Target function ##########
+ENV_SAMPLING          300
+ENV_ADD_GAUSSIAN      0.3   0.1   0.02
+ENV_ADD_GAUSSIAN      0.3   0.9   0.02
+
+############ Phenotypic axis ############
+ENV_AXIS_SEGMENTS     0.25  0.5  0.75
+ENV_AXIS_FEATURES     METABOLISM NEUTRAL METABOLISM METABOLISM
+
+############ Environment variation ############
+ENV_VARIATION           none
+ENV_SEED                0
+
+
+
+####################################################################################
+                                    Recording
+####################################################################################
 BACKUP_STEP             500
 TREE_STEP               100
 RECORD_TREE             false
@@ -56,41 +109,30 @@ DUMP_PERIOD             0
 # LOG <any combination (separated by a space) of one or more of the following : REAR, BARRIER, LOADS>
 LOG                     REAR BARRIER LOADS
 
-##### 8. Environment variation ####
-ENV_VARIATION           none
-ENV_SEED                0
 
-##### 9. Phenotypic axis ##########
-# ENV_AXIS_SEGMENTS 0.33 0.66
-# ENV_AXIS_FEATURES NEUTRAL SECRETION METABOLISM
 
-##### 10. Secretion ###############
+####################################################################################
+                                    Secretion
+####################################################################################
 SECRETION_FITNESS_CONTRIB   0  
 SECRETION_INITIAL           0
 SECRETION_DIFUSION_PROP     0.05
 SECRETION_DEGRADATION_PROP  0.01
 SECRETION_COST              0.1
 
-##### 11. Plasmids ################
+
+
+####################################################################################
+                                    Plasmids
+####################################################################################
 ALLOW_PLASMIDS              false
-WITH_TRANSFER               false
 PROB_HORIZONTAL_TRANS       0
 
-##### 12. Alignment ###############
-WITH_ALIGNMENTS         false
-MIN_ALIGN_SCORE         40  
-MAX_ALIGN_SCORE         100 
-MAX_SHIFT               20  
-W_ZONE_H_LEN            50
 
-##### 13. Rearrangement rates (w/ alignements)
-NEIGHBOURHOOD_RATE       5e-5
-DUPLICATION_PROPORTION   5e-5
-DELETION_PROPORTION      5e-5
-TRANSLOCATION_PROPORTION 5e-5
-INVERSION_PROPORTION     5e-5
 
-##### 14. Regulation ##############
+####################################################################################
+                                    Regulation
+####################################################################################
 #HILL_SHAPE_N                   4 
 #HILL_SHAPE_THETA               0.5
 #DEGRADATION_RATE               1 
@@ -100,6 +142,10 @@ INVERSION_PROPORTION     5e-5
 #WITH_HEREDITY                  false
 #PROTEIN_PRESENCE_LIMIT         1e-2
 
-##### 15. Other, to be (fully) implemented
-TRANSLATION_COST                0
+
+
+####################################################################################
+                          Other, to be (fully) implemented
+####################################################################################
+TRANSLATION_COST  0
 

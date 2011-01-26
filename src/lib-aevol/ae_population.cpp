@@ -82,7 +82,7 @@ ae_population::ae_population( void )
   ae_individual* indiv            = NULL;
   int32_t        index_new_indiv  = 0;
 
-  printf( "geometric area of the environment : %lf\n", ae_common::sim->get_env()->get_geometric_area() );
+  printf( "geometric area of the environment : %f\n", ae_common::sim->get_env()->get_geometric_area() );
   
   if ( ae_common::init_method & ONE_GOOD_GENE )
   {

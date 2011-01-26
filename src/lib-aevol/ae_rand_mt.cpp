@@ -282,7 +282,7 @@ void ae_rand_mt::multinomial_roulette( int32_t* destination, double* source, int
     int32_t j = 0;
     while ( rand_value >= accumulative_probs[j] ) j++;
     
-    //~ printf( "rand_value = %lf   accumulative_probs[j] = %lf\n", rand_value, accumulative_probs[j] );
+    //~ printf( "rand_value = %f   accumulative_probs[j] = %f\n", rand_value, accumulative_probs[j] );
     
     destination[j]++;
   }

@@ -279,7 +279,7 @@ void ae_environment::build( void )
   //~ printf( "AXIS SEGMENTATION :\n" );
   //~ for ( int16_t i = 0 ; i < _nb_segments ; i++ )
   //~ {
-    //~ printf( "[%lf ; %lf] : ", _segments[i]->start, _segments[i]->stop );
+    //~ printf( "[%f ; %f] : ", _segments[i]->start, _segments[i]->stop );
     //~ if ( _segments[i]->feature == NEUTRAL ) printf( "NEUTRAL\n" );
     //~ else if ( _segments[i]->feature == METABOLISM ) printf( "METABOLISM\n" );
     //~ else if ( _segments[i]->feature == SECRETION ) printf( "SECRETION\n" );

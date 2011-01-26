@@ -97,6 +97,12 @@ enum ae_env_var
   LOCAL_GAUSSIANS_VAR     = 2
 };
 
+enum ae_align_fun_shape
+{
+  LINEAR  = 0,
+  SIGMOID = 1
+};
+
 
 
 
@@ -174,8 +180,11 @@ class ae_common
     static double   small_deletion_rate;
     static int16_t  max_indel_size;
 
+
+
+
     // Rearrangements and Transfer
-    static bool with_4pts_rears;
+    static bool with_4pts_trans;
     static bool with_alignments;
     static bool with_transfer;
 
@@ -193,12 +202,19 @@ class ae_common
     static double inversion_proportion;
 
     // Alignements
-    static int16_t align_min_score;
-    static int16_t align_max_score;
+    static ae_align_fun_shape align_fun_shape;
+    static double  align_sigm_lambda;
+    static int16_t align_sigm_mean;
+    static int16_t align_lin_min;
+    static int16_t align_lin_max;
+    
     static int16_t align_max_shift;     // Maximum shift of one seq on the other
     static int16_t align_w_zone_h_len;  // Work zone half length
     static int16_t align_match_bonus;   // Corresponding residues match bonus
     static int16_t align_mismatch_cost; // Corresponding residues mismatch cost
+
+
+
 
     // Selection
     static ae_selection_scheme  selection_scheme;

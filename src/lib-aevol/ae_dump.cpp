@@ -75,7 +75,7 @@
 //                            Public Methods
 // =================================================================
 
-#define DUMP_FORMAT "\t%d\t%d\t%lf\n"
+#define DUMP_FORMAT "\t%d\t%d\t%f\n"
 
 void ae_dump :: write_current_generation_dump( void )
 {

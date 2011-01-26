@@ -207,7 +207,7 @@ void ae_fuzzy_set::print_points( void ) const
   {
     point = (ae_point_2d*) point_node->get_obj();
 
-    printf( "  (%lf, %lf)\n", point->x, point->y );
+    printf( "  (%f, %f)\n", point->x, point->y );
 
     point_node = point_node->get_next();
   }

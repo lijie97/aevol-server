@@ -531,8 +531,26 @@ void ae_dna::do_rearrangements_with_align( void )
     //////////////////////////////////////////////////////////////////////////////////
     // 2) Determine the minimum alignment score needed for a rearrangement to occur //
     //////////////////////////////////////////////////////////////////////////////////
-    needed_score = (int16_t)ceil( ae_common::align_min_score +
-                                  ae_common::sim->alea->random() * ( ae_common::align_max_score - ae_common::align_min_score ) );
+    if ( ae_common::align_fun_shape == LINEAR )
+    {
+      needed_score = (int16_t)ceil( ae_common::align_lin_min +
+                                    ae_common::sim->alea->random() * ( ae_common::align_lin_max - ae_common::align_lin_min ) );
+    }
+    else
+    {
+      // I want the probability of rearrangement for an alignment of score <score> to be
+      // prob = 1 / ( 1 + exp( -(score-mean)/lambda ) )
+      // The score needed for a rearrangement to take place with a given random drawing is hence
+      // needed_score = ceil( -lambda * log( 1/rand - 1 ) + mean )
+      needed_score = ceil( -ae_common::align_sigm_lambda * log( 1/ae_common::sim->alea->random() - 1 ) + ae_common::align_sigm_mean );
+      if ( needed_score < 0 ) needed_score = 0;
+      
+      //~ <DEBUG>
+      //~ FILE* tmp_file = fopen( "scores.out", "a" );
+      //~ fprintf( tmp_file, "%"PRId16"\n", needed_score );
+      //~ fclose( tmp_file );
+      //~ </DEBUG>
+    }
     
     // Determine where to look for an alignement (draw seeds)
     seed1 = ae_common::sim->alea->random( _length );
@@ -648,8 +666,18 @@ void ae_dna::do_rearrangements_with_align( void )
             ; nb_pairs-- )
         {
           direct_sense    = (ae_common::sim->alea->random() < 0.5);
-          needed_score_2  = (int16_t)ceil(  ae_common::align_min_score +
-                                            ae_common::sim->alea->random() * ( ae_common::align_max_score - ae_common::align_min_score ) );
+          
+          if ( ae_common::align_fun_shape == LINEAR )
+          {
+            needed_score_2  = (int16_t)ceil(  ae_common::align_lin_min +
+                                              ae_common::sim->alea->random() * ( ae_common::align_lin_max - ae_common::align_lin_min ) );
+          }
+          else
+          {
+            needed_score_2 = ceil( -ae_common::align_sigm_lambda * log( 1/ae_common::sim->alea->random() - 1 ) + ae_common::align_sigm_mean );
+            if ( needed_score < 0 ) needed_score = 0;
+          }
+
           seed1 = ae_common::sim->alea->random( _length );
           seed2 = ae_common::sim->alea->random( _length );
           
