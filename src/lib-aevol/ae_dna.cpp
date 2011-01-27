@@ -533,8 +533,8 @@ void ae_dna::do_rearrangements_with_align( void )
     //////////////////////////////////////////////////////////////////////////////////
     if ( ae_common::align_fun_shape == LINEAR )
     {
-      needed_score = (int16_t)ceil( ae_common::align_lin_min +
-                                    ae_common::sim->alea->random() * ( ae_common::align_lin_max - ae_common::align_lin_min ) );
+      needed_score = (int16_t) ceil( ae_common::align_lin_min +
+                                     ae_common::sim->alea->random() * ( ae_common::align_lin_max - ae_common::align_lin_min ) );
     }
     else
     {
@@ -542,7 +542,7 @@ void ae_dna::do_rearrangements_with_align( void )
       // prob = 1 / ( 1 + exp( -(score-mean)/lambda ) )
       // The score needed for a rearrangement to take place with a given random drawing is hence
       // needed_score = ceil( -lambda * log( 1/rand - 1 ) + mean )
-      needed_score = ceil( -ae_common::align_sigm_lambda * log( 1/ae_common::sim->alea->random() - 1 ) + ae_common::align_sigm_mean );
+      needed_score = (int16_t) ceil( -ae_common::align_sigm_lambda * log( 1/ae_common::sim->alea->random() - 1 ) + ae_common::align_sigm_mean );
       if ( needed_score < 0 ) needed_score = 0;
       
       //~ <DEBUG>
@@ -669,13 +669,13 @@ void ae_dna::do_rearrangements_with_align( void )
           
           if ( ae_common::align_fun_shape == LINEAR )
           {
-            needed_score_2  = (int16_t)ceil(  ae_common::align_lin_min +
-                                              ae_common::sim->alea->random() * ( ae_common::align_lin_max - ae_common::align_lin_min ) );
+            needed_score_2  = (int16_t) ceil(  ae_common::align_lin_min +
+                                               ae_common::sim->alea->random() * ( ae_common::align_lin_max - ae_common::align_lin_min ) );
           }
           else
           {
-            needed_score_2 = ceil( -ae_common::align_sigm_lambda * log( 1/ae_common::sim->alea->random() - 1 ) + ae_common::align_sigm_mean );
-            if ( needed_score < 0 ) needed_score = 0;
+            needed_score_2 = (int16_t) ceil( -ae_common::align_sigm_lambda * log( 1/ae_common::sim->alea->random() - 1 ) + ae_common::align_sigm_mean );
+            if ( needed_score_2 < 0 ) needed_score_2 = 0;
           }
 
           seed1 = ae_common::sim->alea->random( _length );

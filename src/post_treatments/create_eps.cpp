@@ -1276,4 +1276,3 @@ void draw_genetic_unit_with_mRNAs( ae_genetic_unit* gen_unit, char * directoryNa
   }
 
 }
-  

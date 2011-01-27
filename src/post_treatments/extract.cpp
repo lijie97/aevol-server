@@ -230,33 +230,34 @@ inline void analyse_indiv( ae_individual* indiv, FILE* phenotype_file , FILE* se
       int32_t lpos = prot->get_last_translated_pos();
       int32_t zone = 0;
       
-      if (mean!=1)
+      if ( mean != 1 )
       {
-        zone = floor(mean*ae_common::env_axis_nb_segments);
+        zone = (int32_t) floor( mean * ae_common::env_axis_nb_segments );
       }
       else
       {
-        zone = floor(mean*ae_common::env_axis_nb_segments) -1;
+        zone = (int32_t) floor( mean * ae_common::env_axis_nb_segments ) - 1;
       }
+      
       ae_env_axis_feature feat = ae_common::env_axis_features[zone];
       int nfeat = -1;
-      switch(feat)
+      switch ( feat )
       {
-      case NEUTRAL :
-        nfeat=1;
-        break;
-      case METABOLISM :
-        nfeat=2;
-        break;
-      case SECRETION :
-        nfeat=3;
-        break;
-      case TRANSFER :
-        nfeat=4;
-        break;
-      case NB_FEATURES : 
-        nfeat=-1;
-        break;
+        case NEUTRAL :
+          nfeat=1;
+          break;
+        case METABOLISM :
+          nfeat=2;
+          break;
+        case SECRETION :
+          nfeat=3;
+          break;
+        case TRANSFER :
+          nfeat=4;
+          break;
+        case NB_FEATURES : 
+          nfeat=-1;
+          break;
       }
 
       if (phenotype_file!=NULL)
