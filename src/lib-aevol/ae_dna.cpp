@@ -873,8 +873,10 @@ ae_mutation* ae_dna::do_small_insertion( void )
     {
       // Write an entry in the barrier log file
       fprintf(  ae_common::sim->get_logs()->get_log( BARRIER ), "%"PRId32" %"PRId32" S_INS %"PRId32" %"PRId32"\n",
-                ae_common::sim->get_num_gener(), _gen_unit->get_indiv()->get_index_in_population(),
-                nb_insert, _length );
+                ae_common::sim->get_num_gener(),
+                _gen_unit->get_indiv()->get_index_in_population(),
+                nb_insert,
+                _length );
     }
     
     return NULL;
@@ -931,8 +933,10 @@ ae_mutation* ae_dna::do_small_deletion( void )
     {
       // Write an entry in the barrier log file
       fprintf(  ae_common::sim->get_logs()->get_log( BARRIER ), "%"PRId32" %"PRId32" S_DEL %"PRId32" %"PRId32"\n",
-                ae_common::sim->get_num_gener(), _gen_unit->get_indiv()->get_index_in_population(),
-                nb_del, _length );
+                ae_common::sim->get_num_gener(),
+                _gen_unit->get_indiv()->get_index_in_population(),
+                nb_del,
+                _length );
     }
     
     return NULL;
@@ -1410,8 +1414,10 @@ bool ae_dna::do_duplication( int32_t pos_1, int32_t pos_2, int32_t pos_3 )
       {
         // Write an entry in the barrier log file
         fprintf(  ae_common::sim->get_logs()->get_log( BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32"\n",
-                  ae_common::sim->get_num_gener(), _gen_unit->get_indiv()->get_index_in_population(),
-                  seg_length, _length );
+                  ae_common::sim->get_num_gener(),
+                  _gen_unit->get_indiv()->get_index_in_population(),
+                  seg_length,
+                  _length );
       }
       
       return false;
@@ -1446,8 +1452,10 @@ bool ae_dna::do_duplication( int32_t pos_1, int32_t pos_2, int32_t pos_3 )
       {
         // Write an entry in the barrier log file
         fprintf(  ae_common::sim->get_logs()->get_log( BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32"\n",
-                  ae_common::sim->get_num_gener(), _gen_unit->get_indiv()->get_index_in_population(),
-                  seg_length, _length );
+                  ae_common::sim->get_num_gener(),
+                  _gen_unit->get_indiv()->get_index_in_population(),
+                  seg_length,
+                  _length );
       }
       
       return false;
