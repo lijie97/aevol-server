@@ -264,9 +264,9 @@ int main(int argc, char** argv)
   // =======================
   char output_file_name[101];
 #ifdef __REGUL
-  snprintf( output_file_name, 100, "lineage-b%06"PRId32"-e%06"PRId32"-r%"PRId32".rae", begin_gener, end_gener, final_indiv_rank );
+  snprintf( output_file_name, 100, "lineage-b%06"PRId32"-e%06"PRId32".rae", begin_gener, end_gener, final_indiv_rank );
 #else 
-  snprintf( output_file_name, 100, "lineage-b%06"PRId32"-e%06"PRId32"-r%"PRId32".ae",  begin_gener, end_gener, final_indiv_rank );
+  snprintf( output_file_name, 100, "lineage-b%06"PRId32"-e%06"PRId32".ae",  begin_gener, end_gener, final_indiv_rank );
 #endif
 
   gzFile * lineage_file = (gzFile*) gzopen(output_file_name, "w");

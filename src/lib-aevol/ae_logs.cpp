@@ -245,49 +245,58 @@ ae_logs::~ae_logs( void )
 void ae_logs::write_headers( void ) const
 {
   // ========== REAR LOG ==========
-  fprintf( _rear_log, "######################################################################\n" );
-  fprintf( _rear_log, "#                 Chromosomal rearrangement log\n" );
-  fprintf( _rear_log, "#\n" );
-  fprintf( _rear_log, "# Log of every rearrangement that occured during the simulation\n" );
-  fprintf( _rear_log, "# (not just one lineage)\n" );
-  fprintf( _rear_log, "#\n" );
-  fprintf( _rear_log, "# 1. Generation\n" );
-  fprintf( _rear_log, "# 2. Index of the individual that has undergone the rearrangement\n" );
-  fprintf( _rear_log, "# 3. Type of rearrangement\n" );
-  fprintf( _rear_log, "# 4. Length of the rearranged segment\n" );
-  fprintf( _rear_log, "# 5. Size of the genome before the rearrangement\n" );
-  fprintf( _rear_log, "# 6. Alignment score that was needed for this rearrangement to occur\n" );
-  fprintf( _rear_log, "# 7. Second alignment score (translocation only)\n" );
-  fprintf( _rear_log, "#\n" );
-  fprintf( _rear_log, "######################################################################\n" );
-  fprintf( _rear_log, "#\n" );
-  fprintf( _rear_log, "# Header for R\n" );
-  fprintf( _rear_log, "gener indiv r_type seg_len genome_size score1 score2\n" );
-  fprintf( _rear_log, "#\n" );
+  if ( ae_common::logs & REAR )
+  {
+    fprintf( _rear_log, "######################################################################\n" );
+    fprintf( _rear_log, "#                 Chromosomal rearrangement log\n" );
+    fprintf( _rear_log, "#\n" );
+    fprintf( _rear_log, "# Log of every rearrangement that occured during the simulation\n" );
+    fprintf( _rear_log, "# (not just one lineage)\n" );
+    fprintf( _rear_log, "#\n" );
+    fprintf( _rear_log, "# 1. Generation\n" );
+    fprintf( _rear_log, "# 2. Index of the individual that has undergone the rearrangement\n" );
+    fprintf( _rear_log, "# 3. Type of rearrangement\n" );
+    fprintf( _rear_log, "# 4. Length of the rearranged segment\n" );
+    fprintf( _rear_log, "# 5. Size of the genome before the rearrangement\n" );
+    fprintf( _rear_log, "# 6. Alignment score that was needed for this rearrangement to occur\n" );
+    fprintf( _rear_log, "# 7. Second alignment score (translocation only)\n" );
+    fprintf( _rear_log, "#\n" );
+    fprintf( _rear_log, "######################################################################\n" );
+    fprintf( _rear_log, "#\n" );
+    fprintf( _rear_log, "# Header for R\n" );
+    fprintf( _rear_log, "gener indiv r_type seg_len genome_size score1 score2\n" );
+    fprintf( _rear_log, "#\n" );
+  }
   
   // ========== BARRIER LOG ==========
-  fprintf( _barrier_log, "######################################################################\n" );
-  fprintf( _barrier_log, "#                     Genome size limits log\n" );
-  fprintf( _barrier_log, "#\n" );
-  fprintf( _barrier_log, "# An entry is written whenever a mutation would have produced a\n" );
-  fprintf( _barrier_log, "# genome whose size wouldn't lie in [min, max].\n" );
-  fprintf( _barrier_log, "# The corresponding mutation is \"cancelled\"\n" );
-  fprintf( _barrier_log, "#\n" );
-  fprintf( _barrier_log, "# 1. Generation\n" );
-  fprintf( _barrier_log, "# 2. Index of the individual\n" );
-  fprintf( _barrier_log, "# 3. Type of mutation\n" );
-  fprintf( _barrier_log, "# 4. Segment length\n" );
-  fprintf( _barrier_log, "# 5. Genome size (before the mutation)\n" );
-  fprintf( _barrier_log, "#\n" );
-  fprintf( _barrier_log, "######################################################################\n" );
+  if ( ae_common::logs & BARRIER )
+  {
+    fprintf( _barrier_log, "######################################################################\n" );
+    fprintf( _barrier_log, "#                     Genome size limits log\n" );
+    fprintf( _barrier_log, "#\n" );
+    fprintf( _barrier_log, "# An entry is written whenever a mutation would have produced a\n" );
+    fprintf( _barrier_log, "# genome whose size wouldn't lie in [min, max].\n" );
+    fprintf( _barrier_log, "# The corresponding mutation is \"cancelled\"\n" );
+    fprintf( _barrier_log, "#\n" );
+    fprintf( _barrier_log, "# 1. Generation\n" );
+    fprintf( _barrier_log, "# 2. Index of the individual\n" );
+    fprintf( _barrier_log, "# 3. Type of mutation\n" );
+    fprintf( _barrier_log, "# 4. Segment length\n" );
+    fprintf( _barrier_log, "# 5. Genome size (before the mutation)\n" );
+    fprintf( _barrier_log, "#\n" );
+    fprintf( _barrier_log, "######################################################################\n" );
   
+  }
   
   // ========== LOADS LOG ==========
-  fprintf( _load_from_backup_log, "######################################################################\n" );
-  fprintf( _load_from_backup_log, "#                     Load from backup log\n" );
-  fprintf( _load_from_backup_log, "#\n" );
-  fprintf( _load_from_backup_log, "# An entry is written whenever the simulation is reloaded from a backup.\n" );
-  fprintf( _load_from_backup_log, "######################################################################\n" );
+  if ( ae_common::logs & LOADS )
+  {
+    fprintf( _load_from_backup_log, "######################################################################\n" );
+    fprintf( _load_from_backup_log, "#                     Load from backup log\n" );
+    fprintf( _load_from_backup_log, "#\n" );
+    fprintf( _load_from_backup_log, "# An entry is written whenever the simulation is reloaded from a backup.\n" );
+    fprintf( _load_from_backup_log, "######################################################################\n" );
+  }
 }
 
 void ae_logs::flush( void )

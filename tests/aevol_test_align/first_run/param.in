@@ -52,9 +52,10 @@ DUMP_PERIOD             0
 
 
 ##### Alignment ###############
+# WITH_ALIGNMENTS       true | false
+# ALIGN_FUNCTION        LINEAR [min_score max_score]  |  SIGMOID [lambda mean]
 WITH_ALIGNMENTS         true
-ALIGN_MIN_SCORE         0  
-ALIGN_MAX_SCORE         100 
+ALIGN_FUNCTION          SIGMOID 4 50
 ALIGN_MAX_SHIFT         20  
 ALIGN_W_ZONE_H_LEN      50
 

@@ -177,12 +177,17 @@ ae_stat_record::ae_stat_record( ae_individual* indiv, chrom_or_gen_unit chrom_or
       _trans_rate = _nb_trans / parent_genome_size;
       _inv_rate   = _nb_inv   / parent_genome_size;
       
-      //~ printf( "_nb_dupl : %"PRId32"\n_nb_del : %"PRId32"\n_nb_trans : %"PRId32"\n_nb_inv : %"PRId32"\n",
-              //~ (int32_t) _nb_dupl, (int32_t) _nb_del, (int32_t) _nb_trans, (int32_t) _nb_inv );
-      //~ printf( "parent genome size : %"PRId32"\n", parent_genome_size );
-      //~ printf( "_dupl_rate : %f\n_del_rate : %f\n_trans_rate : %f\n_inv_rate : %f\n",
-              //~ _dupl_rate, _del_rate, _trans_rate, _inv_rate );
-      //~ getchar();
+      //~ // <DEBUG>
+      //~ if ( _nb_dupl + _nb_del + _nb_trans + _nb_inv != 0 )
+      //~ {
+        //~ printf( "_nb_dupl : %"PRId32"\n_nb_del : %"PRId32"\n_nb_trans : %"PRId32"\n_nb_inv : %"PRId32"\n",
+                //~ (int32_t) _nb_dupl, (int32_t) _nb_del, (int32_t) _nb_trans, (int32_t) _nb_inv );
+        //~ printf( "parent genome size : %"PRId32"\n", parent_genome_size );
+        //~ printf( "_dupl_rate : %f\n_del_rate : %f\n_trans_rate : %f\n_inv_rate : %f\n",
+                //~ _dupl_rate, _del_rate, _trans_rate, _inv_rate );
+        //~ getchar();
+      //~ }
+      //~ // </DEBUG>
       
       _mean_align_score = replic_report->get_mean_align_score();
     }
@@ -618,7 +623,7 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
     }
     if ( stat_type_to_print == REAR_STATS )
     {
-      fprintf(  stat_file, "%"PRId32" %f %f %f %f %f",
+      fprintf(  stat_file, "%"PRId32" %e %e %e %e %f",
               (int32_t) _num_gener,
               _dupl_rate,
               _del_rate,
@@ -697,7 +702,7 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
     }
     if ( stat_type_to_print == REAR_STATS )
     {
-      fprintf(  stat_file, "%"PRId32" %f %f %f %f %f",
+      fprintf(  stat_file, "%"PRId32" %e %e %e %e %f",
               (int32_t) _num_gener,
               _dupl_rate,
               _del_rate,
