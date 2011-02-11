@@ -176,6 +176,9 @@ class ae_individual : public ae_object
     
     #ifdef DEBUG
       inline void print_protein_list( void );
+    
+      inline void assert_promoters( void );
+      inline void assert_promoters_order( void );
     #endif
 
 
@@ -721,6 +724,38 @@ void ae_individual::do_transcription_translation_folding( void )
       delete prot_sequence;
       
       prot_node = prot_node->get_next();
+    }
+  }
+  
+  inline void ae_individual::assert_promoters( void )
+  {
+    // Perform assertion for each genetic unit
+    ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
+    ae_genetic_unit*  gen_unit      = NULL;
+    
+    while ( gen_unit_node != NULL )
+    {
+      gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
+      
+      gen_unit->assert_promoters();
+
+      gen_unit_node = gen_unit_node->get_next();
+    }
+  }
+  
+  inline void ae_individual::assert_promoters_order( void )
+  {
+    // Perform assertion for each genetic unit
+    ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
+    ae_genetic_unit*  gen_unit      = NULL;
+    
+    while ( gen_unit_node != NULL )
+    {
+      gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
+      
+      gen_unit->assert_promoters_order();
+
+      gen_unit_node = gen_unit_node->get_next();
     }
   }
 #endif

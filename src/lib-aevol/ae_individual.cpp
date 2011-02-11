@@ -635,6 +635,11 @@ ae_individual* ae_individual::do_replication( int32_t index, int16_t x, int16_t 
     new_indiv->_replic_report->signal_end_of_replication();
   }
   
+  #ifdef DEBUG
+    ae_common::sim->get_logs()->flush();
+    new_indiv->assert_promoters();
+  #endif
+  
   return new_indiv;
 }
 
@@ -893,7 +898,7 @@ void ae_individual::evaluate( ae_environment* envir )
   }
 }
 
-void ae_individual::inject_GU(ae_individual* donor)
+void ae_individual::inject_GU( ae_individual* donor )
 {  
   ae_list_node* gen_unit_node = donor->get_genetic_unit_list()->get_first()->get_next();
   ae_genetic_unit* temp_GU = new ae_genetic_unit( this, *((ae_genetic_unit*)gen_unit_node->get_obj()) );  

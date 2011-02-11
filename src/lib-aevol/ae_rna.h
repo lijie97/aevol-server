@@ -92,8 +92,8 @@ class ae_rna : public ae_object
     inline void              set_genetic_unit( ae_genetic_unit*  gen_unit );
     inline ae_strand  get_strand( void ) const;
     inline void       set_strand( ae_strand strand );
-    inline void       set_promoter_pos( int32_t pos );
     inline int32_t    get_promoter_pos( void ) const;
+    inline void       set_promoter_pos( int32_t pos );
     inline double     get_basal_level( void ) const;
     inline int32_t    get_transcript_length( void ) const; // The promoter is NOT transcribed.
     inline void       set_transcript_length( int32_t length );

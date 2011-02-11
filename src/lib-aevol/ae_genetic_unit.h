@@ -185,17 +185,11 @@ class ae_genetic_unit : public ae_object
     void insert_promoters_at( ae_list** promoters_to_insert, int32_t pos );
     
     inline void remove_promoters_around( int32_t pos );
-    void remove_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2 );
-    void remove_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2 );
-    void remove_leading_promoters_before( int32_t pos );
-    void remove_lagging_promoters_before( int32_t pos );
-    void remove_leading_promoters_after( int32_t pos );
-    void remove_lagging_promoters_after( int32_t pos );
+    inline void remove_promoters_around( int32_t pos_1, int32_t pos_2 );
     inline void remove_all_promoters( void );
     
     inline void look_for_new_promoters_around( int32_t pos );
-    void look_for_new_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2 );
-    void look_for_new_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2 );
+    inline void look_for_new_promoters_around( int32_t pos_1, int32_t pos_2 );
     
     inline void move_all_promoters_after( int32_t pos, int32_t delta_pos );
     void move_all_leading_promoters_after( int32_t pos, int32_t delta_pos );
@@ -251,6 +245,21 @@ class ae_genetic_unit : public ae_object
     //                           Protected Methods
     // =================================================================
     void init_statistical_data( void );
+    
+    
+    void remove_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2 );
+    void remove_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2 );
+    void remove_leading_promoters_starting_before( int32_t pos );
+    void remove_lagging_promoters_starting_before( int32_t pos );
+    void remove_leading_promoters_starting_after( int32_t pos );
+    void remove_lagging_promoters_starting_after( int32_t pos );
+    
+    void look_for_new_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2 );
+    void look_for_new_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2 );
+    void look_for_new_leading_promoters_starting_after( int32_t pos );
+    void look_for_new_lagging_promoters_starting_after( int32_t pos );
+    void look_for_new_leading_promoters_starting_before( int32_t pos );
+    void look_for_new_lagging_promoters_starting_before( int32_t pos );
 
     // =================================================================
     //                          Protected Attributes
@@ -579,16 +588,117 @@ inline void ae_genetic_unit::extract_promoters_starting_between( int32_t pos_1, 
   extract_lagging_promoters_starting_between( pos_1, pos_2, extracted_promoters[LAGGING] );
 }
 
+
+/*!
+  \brief  Remove those promoters that would be broken if the chromosome was cut at pos.
+
+  Remove promoters that include BOTH the base before AND after pos (marked X in the cartoon below).
+  If the genome is smaller than the size of a promoter, all the promoters will be removed.
+  
+  \verbatim
+     -------------------------------------------------------
+    |   |   |   |   | X | X |   |   |   |   |   |   |   |   |
+     -------------------------------------------------------
+    ^                   ^
+    0                  pos
+  \endverbatim
+*/
 inline void ae_genetic_unit::remove_promoters_around( int32_t pos )
 {
-  remove_leading_promoters_starting_between( utils::mod(pos - PROM_SIZE + 1, _dna->get_length()), pos );
-  remove_lagging_promoters_starting_between( pos, utils::mod(pos + PROM_SIZE - 1, _dna->get_length()) );
+  if ( _dna->get_length() >= PROM_SIZE )
+  {
+    remove_leading_promoters_starting_between( utils::mod(pos - PROM_SIZE + 1, _dna->get_length()), pos );
+    remove_lagging_promoters_starting_between( pos, utils::mod(pos + PROM_SIZE - 1, _dna->get_length()) );
+  }
+  else
+  {
+    remove_all_promoters();
+  }
 }
 
+
+/*!
+  \brief  Remove those promoters that would be broken if the sequence [pos_1 ; pos_2[ was deleted.
+
+  Remove promoters that     * include BOTH the base before AND after pos_1 (marked X in the cartoon below).
+                            * include BOTH the base before AND after pos_2 (marked Y in the cartoon below).
+                            * are completely contained between pos_1 and pos_2.
+  If the remaining sequence, i.e. [pos_2 ; pos_1[ is smaller than the size of a promoter, all the promoters will be removed.
+
+  \verbatim
+     -------------------------------------------------------
+    |   |   |   |   | X | X |   |   |   | Y | Y |   |   |   |
+     -------------------------------------------------------
+    ^                   ^                   ^
+    0                 pos_1               pos_2
+  \endverbatim
+*/
+inline void ae_genetic_unit::remove_promoters_around( int32_t pos_1, int32_t pos_2 )
+{
+  if ( utils::mod(pos_1 - pos_2, _dna->get_length()) >= PROM_SIZE )
+  {
+    remove_leading_promoters_starting_between( utils::mod(pos_1 - PROM_SIZE + 1, _dna->get_length()), pos_2 );
+    remove_lagging_promoters_starting_between( pos_1, utils::mod(pos_2 + PROM_SIZE - 1, _dna->get_length()) );
+  }
+  else
+  {
+    remove_all_promoters();
+  }
+}
+
+
+/*!
+  \brief  Look for promoters that are astride pos and add them to the list of promoters (_rna_list).
+
+  Look for promoters that include BOTH the base before AND after pos (marked X in the cartoon below).
+  If the genome is smaller than the size of a promoter, no search is performed.
+  
+  \verbatim
+     -------------------------------------------------------
+    |   |   |   |   | X | X |   |   |   |   |   |   |   |   |
+     -------------------------------------------------------
+    ^                   ^
+    0                  pos
+  \endverbatim
+*/
 inline void ae_genetic_unit::look_for_new_promoters_around( int32_t pos )
 {
-  look_for_new_leading_promoters_starting_between( utils::mod(pos - PROM_SIZE + 1, _dna->get_length()), pos );
-  look_for_new_lagging_promoters_starting_between( pos, utils::mod(pos + PROM_SIZE - 1, _dna->get_length()) );
+  if ( _dna->get_length() >= PROM_SIZE )
+  {
+    look_for_new_leading_promoters_starting_between( utils::mod(pos - PROM_SIZE + 1, _dna->get_length()), pos );
+    look_for_new_lagging_promoters_starting_between( pos, utils::mod(pos + PROM_SIZE - 1, _dna->get_length()) );
+  }
+}
+
+
+/*!
+  \brief  Look for promoters that contain at least 1 base lying in [pos_1 ; pos_2[ and add them to the list of promoters (_rna_list).
+
+  Look for promoters that   * include BOTH the base before AND after pos_1 (marked X in the cartoon below).
+                            * include BOTH the base before AND after pos_2 (marked Y in the cartoon below).
+                            * are completely contained between pos_1 and pos_2.
+  If the genome is smaller than the size of a promoter, no search is performed.
+  
+  \verbatim
+     -------------------------------------------------------
+    |   |   |   |   | X | X |   |   |   | Y | Y |   |   |   |
+     -------------------------------------------------------
+    ^                   ^                   ^
+    0                 pos_1               pos_2
+  \endverbatim
+*/
+inline void ae_genetic_unit::look_for_new_promoters_around( int32_t pos_1, int32_t pos_2 )
+{
+  //~ if ( utils::mod( pos_1 - pos_2, _dna->get_length()) == PROM_SIZE - 1 )
+  //~ {
+    //~ // We have to look at every possible position on the genome.
+    //~ locate_promoters();
+  //~ }
+  /*else*/ if ( _dna->get_length() >= PROM_SIZE )
+  {
+    look_for_new_leading_promoters_starting_between( utils::mod(pos_1 - PROM_SIZE + 1, _dna->get_length()), pos_2 );
+    look_for_new_lagging_promoters_starting_between( pos_1, utils::mod(pos_2 + PROM_SIZE - 1, _dna->get_length()) );
+  }
 }
 
 //~ inline void ae_genetic_unit::duplicate_promoters_starting_between( int32_t pos_1, int32_t pos_2, int32_t delta_pos )

@@ -2240,12 +2240,12 @@ void ae_genetic_unit::extract_lagging_promoters_starting_after( int32_t pos, ae_
   }
 }
 
-/**
- * Shift all the promoters in <promoters_to_shift> by <delta_pos> in a sequence of length <seq_length>.
- *
- * Every promoter in double stranded list <promoters_to_shift> will be shifted by <delta_pos>,
- * then a modulo <seq_length> will be applied
- */
+/*!
+  Shift all the promoters in <promoters_to_shift> by <delta_pos> in a sequence of length <seq_length>.
+ 
+  Every promoter in double stranded list <promoters_to_shift> will be shifted by <delta_pos>,
+  then a modulo <seq_length> will be applied
+*/
 /*static*/ void ae_genetic_unit::shift_promoters( ae_list** promoters_to_shift, int32_t delta_pos, int32_t seq_length )
 {
   ae_list_node* rna_node  = NULL;
@@ -2267,13 +2267,13 @@ void ae_genetic_unit::extract_lagging_promoters_starting_after( int32_t pos, ae_
   }
 }
 
-/**
- * Insert promoters in double stranded list <promoters_to_insert> into <this->_rna_list>.
- *
- * The promoters in <promoters_to_insert> must already be at their rightful position according to <this>
- * and the positions of the promoters from <promoters_to_insert> and <this->_rna_list> must not be interlaced
- * i.e. no promoter in <this->_rna_list> must have a position in [first_prom_to_insert->pos ; last_prom_to_insert->pos]
- */
+/*!
+  Insert promoters in double stranded list <promoters_to_insert> into <this->_rna_list>.
+ 
+  The promoters in <promoters_to_insert> must already be at their rightful position according to <this>
+  and the positions of the promoters from <promoters_to_insert> and <this->_rna_list> must not be interlaced
+  i.e. no promoter in <this->_rna_list> must have a position in [first_prom_to_insert->pos ; last_prom_to_insert->pos]
+*/
 void ae_genetic_unit::insert_promoters( ae_list** promoters_to_insert )
 {
   ae_list_node* rna_node            = NULL;
@@ -2336,12 +2336,12 @@ void ae_genetic_unit::insert_promoters( ae_list** promoters_to_insert )
   }
 }
 
-/**
- * Insert promoters in double stranded list <promoters_to_insert> into <this->_rna_list> at position <pos>
- *
- * The promoters in <promoters_to_insert> must be at their rightful position according to a stand-alone sequence
- * (i.e. at a RELATIVE position). Their position will be updated automatically.
- */
+/*!
+  Insert promoters in double stranded list <promoters_to_insert> into <this->_rna_list> at position <pos>
+ 
+  The promoters in <promoters_to_insert> must be at their rightful position according to a stand-alone sequence
+  (i.e. at a RELATIVE position). Their position will be updated automatically.
+*/
 void ae_genetic_unit::insert_promoters_at( ae_list** promoters_to_insert, int32_t pos )
 {
   ae_list_node* rna_node = NULL;
@@ -2410,14 +2410,18 @@ void ae_genetic_unit::insert_promoters_at( ae_list** promoters_to_insert, int32_
   }
 }
 
+
+/*!
+  \brief Remove the RNAs of the LEADING strand whose starting positions lie in [pos_1 ; pos_2[
+*/
 void ae_genetic_unit::remove_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2 )
 {
   assert( pos_1 >= 0 && pos_1 < _dna->get_length() && pos_2 >= 0 && pos_2 <= _dna->get_length() );
   
   if ( pos_1 > pos_2 )
   {
-    remove_leading_promoters_after( pos_1 );
-    remove_leading_promoters_before( pos_2 );
+    remove_leading_promoters_starting_after( pos_1 );
+    remove_leading_promoters_starting_before( pos_2 );
   }
   else
   {
@@ -2443,6 +2447,21 @@ void ae_genetic_unit::remove_leading_promoters_starting_between( int32_t pos_1, 
   }
 }
 
+
+/*!
+  \brief Remove the RNAs of the LAGGING strand whose starting positions lie in [pos_1 ; pos_2[
+
+  NOTE : A lagging promoter whose starting position is pos spans [pos-PROM_SIZE+1 ; pos], not [pos-PROM_SIZE ; pos[
+
+  Assuming (PROM_SIZE == 4), the LAGGING promoter whose starting position is pos spans the cells filled with X on the following cartoon:
+  \verbatim
+     -------------------------------
+    |   |   | X | X | X | X |   |   |
+     -------------------------------
+                        ^
+                       pos
+  \endverbatim
+*/
 void ae_genetic_unit::remove_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2 )
 {
   assert( pos_1 >= 0 && pos_1 <= _dna->get_length() && pos_2 >= 0 && pos_2 <= _dna->get_length() );
@@ -2452,8 +2471,8 @@ void ae_genetic_unit::remove_lagging_promoters_starting_between( int32_t pos_1, 
   
   if ( pos_1 > pos_2 )
   {
-    remove_lagging_promoters_after( pos_1 );
-    remove_lagging_promoters_before( pos_2 );
+    remove_lagging_promoters_starting_after( pos_1 );
+    remove_lagging_promoters_starting_before( pos_2 );
   }
   else
   {
@@ -2479,18 +2498,20 @@ void ae_genetic_unit::remove_lagging_promoters_starting_between( int32_t pos_1, 
   }
 }
 
-void ae_genetic_unit::remove_leading_promoters_before( int32_t pos )
+
+/*!
+  \brief Remove the promoters from the LEADING strand whose starting positions are < pos
+*/
+void ae_genetic_unit::remove_leading_promoters_starting_before( int32_t pos )
 {
   assert( pos >= 0 && pos < _dna->get_length() );
   
   ae_list_node* rna_node  = _rna_list[LEADING]->get_first();
   
-  // Delete RNAs until we pass pos (or we reach the end of the list)
+  // Delete RNAs until we reach pos (or we reach the end of the list)
   while ( rna_node != NULL && ((ae_rna*)rna_node->get_obj())->get_promoter_pos() < pos )
   {
     ae_list_node* next_node = rna_node->get_next();
-      //~ printf( "remove LEADING promoter at [%"PRId32", %"PRId32"]\n", ((ae_rna*)rna_node->get_obj())->get_promoter_pos(),
-              //~ utils::mod( ((ae_rna*)rna_node->get_obj())->get_promoter_pos() + PROM_SIZE, _dna->get_length() ) );
     
     _rna_list[LEADING]->remove( rna_node, DELETE_OBJ, DELETE_OBJ );
     
@@ -2498,27 +2519,44 @@ void ae_genetic_unit::remove_leading_promoters_before( int32_t pos )
   }
 }
 
-void ae_genetic_unit::remove_lagging_promoters_before( int32_t pos )
+
+/*!
+  \brief Remove the promoters from the LAGGING strand whose starting positions are < pos
+
+  NOTE : A lagging promoter whose starting position is pos spans [pos-PROM_SIZE+1 ; pos], not [pos-PROM_SIZE ; pos[
+
+  Assuming (PROM_SIZE == 4), the LAGGING promoter whose starting position is pos spans the cells filled with X on the following cartoon:
+  \verbatim
+     -------------------------------
+    |   |   | X | X | X | X |   |   |
+     -------------------------------
+                        ^
+                       pos
+  \endverbatim
+*/
+void ae_genetic_unit::remove_lagging_promoters_starting_before( int32_t pos )
 {
   assert( pos >= 0 && pos < _dna->get_length() );
   
   ae_list_node* rna_node  = _rna_list[LAGGING]->get_last();
   
-  // Delete RNAs until we pass pos (or we reach the beginning of the list )
+  // Delete RNAs until we reach pos (or we reach the beginning of the list )
   ae_list_node* prev_node = NULL;
   while ( rna_node != NULL && ((ae_rna*)rna_node->get_obj())->get_promoter_pos() < pos )
   {
     prev_node = rna_node->get_prev();
     
-      //~ printf( "remove LAGGING promoter at [%"PRId32", %"PRId32"]\n", ((ae_rna*)rna_node->get_obj())->get_promoter_pos(),
-              //~ utils::mod( ((ae_rna*)rna_node->get_obj())->get_promoter_pos() - PROM_SIZE, _dna->get_length() ) );
     _rna_list[LAGGING]->remove( rna_node, DELETE_OBJ, DELETE_OBJ );
     
     rna_node = prev_node;
   }
 }
 
-void ae_genetic_unit::remove_leading_promoters_after( int32_t pos )
+
+/*!
+  \brief Remove the promoters from the LEADING strand whose starting positions are >= pos
+*/
+void ae_genetic_unit::remove_leading_promoters_starting_after( int32_t pos )
 {
   assert( pos >= 0 && pos < _dna->get_length() );
   
@@ -2537,7 +2575,22 @@ void ae_genetic_unit::remove_leading_promoters_after( int32_t pos )
   }
 }
 
-void ae_genetic_unit::remove_lagging_promoters_after( int32_t pos )
+
+/*!
+  \brief Remove the promoters from the LAGGING strand whose starting positions are >= pos
+
+  NOTE : A lagging promoter whose starting position is pos spans [pos-PROM_SIZE+1 ; pos], not [pos-PROM_SIZE ; pos[
+
+  Assuming (PROM_SIZE == 4), the LAGGING promoter whose starting position is pos spans the cells filled with X on the following cartoon:
+  \verbatim
+     -------------------------------
+    |   |   | X | X | X | X |   |   |
+     -------------------------------
+                        ^
+                       pos
+  \endverbatim
+*/
+void ae_genetic_unit::remove_lagging_promoters_starting_after( int32_t pos )
 {
   assert( pos < _dna->get_length() && pos >= 0 );
   
@@ -2557,14 +2610,24 @@ void ae_genetic_unit::remove_lagging_promoters_after( int32_t pos )
   }
 }
 
+
+/*!
+  \brief Look for new promoters on the LEADING strand whose starting positions would lie in [pos_1 ; pos_2[
+*/
 void ae_genetic_unit::look_for_new_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2 )
 {
-  assert( pos_1 >= 0 && pos_1 <= _dna->get_length() && pos_2 >= 0 && pos_2 <= _dna->get_length() );
+  assert( pos_1 >= 0 && pos_1 < _dna->get_length() && pos_2 >= 0 && pos_2 < _dna->get_length() );
   
-  if ( pos_1 > pos_2 )
+  // When pos_1 > pos_2, we will perform the search in 2 steps.
+  // As positions  0 and _dna->get_length() are equivalent, it's preferable to
+  // keep 0 for pos_1 and _dna->get_length() for pos_2.
+  //~ if ( pos_2 == 0 ) pos_2 = _dna->get_length();
+  
+  
+  if ( pos_1 >= pos_2 )
   {
-    look_for_new_leading_promoters_starting_between( pos_1, _dna->get_length() );
-    look_for_new_leading_promoters_starting_between( 0, pos_2 );
+    look_for_new_leading_promoters_starting_after( pos_1 );
+    look_for_new_leading_promoters_starting_before( pos_2 );
   }
   else
   {
@@ -2609,17 +2672,35 @@ void ae_genetic_unit::look_for_new_leading_promoters_starting_between( int32_t p
   }
 }
 
+
+/*!
+  \brief Look for new promoters on the LAGGIN strand whose starting positions would lie in [pos_1 ; pos_2[
+
+  NOTE : A lagging promoter whose starting position is pos spans [pos-PROM_SIZE+1 ; pos], not [pos-PROM_SIZE ; pos[
+
+  Assuming (PROM_SIZE == 4), the LAGGING promoter whose starting position is pos spans the cells filled with X on the following cartoon:
+  \verbatim
+     -------------------------------
+    |   |   | X | X | X | X |   |   |
+     -------------------------------
+                        ^
+                       pos
+  \endverbatim
+*/
 void ae_genetic_unit::look_for_new_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2 )
 {
-  assert( pos_1 >= 0 && pos_1 <= _dna->get_length() && pos_2 >= 0 && pos_2 <= _dna->get_length() );
+  assert( pos_1 >= 0 && pos_1 < _dna->get_length() && pos_2 >= 0 && pos_2 < _dna->get_length() );
   
-  if ( pos_1 == _dna->get_length() ) pos_1 = 0;
-  if ( pos_2 == 0 )                  pos_2 = _dna->get_length();
+  // When pos_1 > pos_2, we will perform the search in 2 steps.
+  // As positions  0 and _dna->get_length() are equivalent, it's preferable to
+  // keep 0 for pos_1 and _dna->get_length() for pos_2.
+  //~ if ( pos_1 == _dna->get_length() ) pos_1 = 0;
+  //~ if ( pos_2 == 0 )                  pos_2 = _dna->get_length();
   
-  if ( pos_1 > pos_2 )
+  if ( pos_1 >= pos_2 )
   {
-    look_for_new_lagging_promoters_starting_between( pos_1, _dna->get_length() );
-    look_for_new_lagging_promoters_starting_between( 0, pos_2 );
+    look_for_new_lagging_promoters_starting_after( pos_1 );
+    look_for_new_lagging_promoters_starting_before( pos_2 );
   }
   else
   {
@@ -2661,6 +2742,235 @@ void ae_genetic_unit::look_for_new_lagging_promoters_starting_between( int32_t p
   }
 }
 
+
+/*!
+  \brief Look for new promoters on the LEADING strand whose starting positions would be >= pos
+*/
+void ae_genetic_unit::look_for_new_leading_promoters_starting_after( int32_t pos )
+{
+  assert( pos >= 0 && pos < _dna->get_length() );
+  
+  
+  // Hamming distance of the sequence from the promoter consensus
+  int8_t dist;
+  
+  // rna list node used to find the new promoter's place in the list
+  ae_list_node* rna_node  = _rna_list[LEADING]->get_first();
+  
+  
+  for ( int32_t i = pos ; i < _dna->get_length() ; i++ )
+  {
+    if ( is_promoter( LEADING, i, dist ) ) // dist takes the hamming distance of the sequence from the consensus
+    {
+      //~ char tmp[255];
+      //~ memcpy( tmp, &_dna->get_data()[i], PROM_SIZE * sizeof(char) );
+      //~ printf( "new promoter found on the LEADING strand at position %"PRId32" : %s\n", i, tmp );
+      
+      // Look for the right place to insert the new promoter in the list
+      while( rna_node != NULL && ((ae_rna*)rna_node->get_obj())->get_promoter_pos() < i )
+      {
+        rna_node = rna_node->get_next();
+      }
+      
+      if ( rna_node == NULL )
+      {
+        // Add at the end of the list
+        #ifndef __REGUL
+          _rna_list[LEADING]->add( new ae_rna( this, LEADING, i, dist ) );
+        #else
+          _rna_list[LEADING]->add( new ae_rna_R( this, LEADING, i, dist ) );
+        #endif
+      }
+      else if ( ((ae_rna*)rna_node->get_obj())->get_promoter_pos() != i ) // If not already in list
+      {
+        // Add before rna_node
+        #ifndef __REGUL
+          _rna_list[LEADING]->add_before( new ae_rna( this, LEADING, i, dist ), rna_node );
+        #else
+          _rna_list[LEADING]->add_before( new ae_rna_R( this, LEADING, i, dist ), rna_node );
+        #endif
+      }
+    }
+  }
+}
+
+
+/*!
+  \brief Look for new promoters on the LAGGING strand whose starting positions would be >= pos
+
+  NOTE : A lagging promoter whose starting position is pos spans [pos-PROM_SIZE+1 ; pos], not [pos-PROM_SIZE ; pos[
+
+  Assuming (PROM_SIZE == 4), the LAGGING promoter whose starting position is pos spans the cells filled with X on the following cartoon:
+  \verbatim
+     -------------------------------
+    |   |   | X | X | X | X |   |   |
+     -------------------------------
+                        ^
+                       pos
+  \endverbatim
+*/
+void ae_genetic_unit::look_for_new_lagging_promoters_starting_after( int32_t pos )
+{
+  assert( pos >= 0 && pos < _dna->get_length() );
+  
+  
+  // Hamming distance of the sequence from the promoter consensus
+  int8_t dist;
+  
+  // rna list node used to find the new promoter's place in the list
+  ae_list_node* rna_node  = _rna_list[LAGGING]->get_first();
+  
+  
+  for ( int32_t i = _dna->get_length() - 1 ; i >= pos ; i-- )
+  {
+    if ( is_promoter( LAGGING, i, dist ) ) // dist takes the hamming distance of the sequence from the consensus
+    {
+      assert ( i >= 0 && i < _dna->get_length() );
+      
+      // Look for the right place to insert the new promoter in the list
+      while( rna_node != NULL && ((ae_rna*)rna_node->get_obj())->get_promoter_pos() > i )
+      {
+        rna_node = rna_node->get_next();
+      }
+      
+      if ( rna_node == NULL )
+      {
+        // Add at the end of the list
+        #ifndef __REGUL
+          _rna_list[LAGGING]->add( new ae_rna( this, LAGGING, i, dist ) );
+        #else
+          _rna_list[LAGGING]->add( new ae_rna_R( this, LAGGING, i, dist ) );
+        #endif
+      }
+      else if ( ((ae_rna*)rna_node->get_obj())->get_promoter_pos() != i ) // If not already in list
+      {
+        // Add before rna_node
+        #ifndef __REGUL
+          _rna_list[LAGGING]->add_before( new ae_rna( this, LAGGING, i, dist ), rna_node );
+        #else
+          _rna_list[LAGGING]->add_before( new ae_rna_R( this, LAGGING, i, dist ), rna_node );
+        #endif
+      }
+    }
+  }
+}
+
+
+/*!
+  \brief Look for new promoters on the LEADING strand whose starting positions would be < pos
+*/
+void ae_genetic_unit::look_for_new_leading_promoters_starting_before( int32_t pos )
+{
+  assert( pos >= 0 && pos < _dna->get_length() );
+  
+  
+  // Hamming distance of the sequence from the promoter consensus
+  int8_t dist;
+  
+  // rna list node used to find the new promoter's place in the list
+  ae_list_node* rna_node  = _rna_list[LEADING]->get_first();
+  
+  
+  for ( int32_t i = 0 ; i < pos ; i++ )
+  {
+    if ( is_promoter( LEADING, i, dist ) ) // dist takes the hamming distance of the sequence from the consensus
+    {
+      //~ char tmp[255];
+      //~ memcpy( tmp, &_dna->get_data()[i], PROM_SIZE * sizeof(char) );
+      //~ printf( "new promoter found on the LEADING strand at position %"PRId32" : %s\n", i, tmp );
+      
+      // Look for the right place to insert the new promoter in the list
+      while( rna_node != NULL && ((ae_rna*)rna_node->get_obj())->get_promoter_pos() < i )
+      {
+        rna_node = rna_node->get_next();
+      }
+      
+      if ( rna_node == NULL )
+      {
+        // Add at the end of the list
+        #ifndef __REGUL
+          _rna_list[LEADING]->add( new ae_rna( this, LEADING, i, dist ) );
+        #else
+          _rna_list[LEADING]->add( new ae_rna_R( this, LEADING, i, dist ) );
+        #endif
+      }
+      else if ( ((ae_rna*)rna_node->get_obj())->get_promoter_pos() != i ) // If not already in list
+      {
+        // Add before rna_node
+        #ifndef __REGUL
+          _rna_list[LEADING]->add_before( new ae_rna( this, LEADING, i, dist ), rna_node );
+        #else
+          _rna_list[LEADING]->add_before( new ae_rna_R( this, LEADING, i, dist ), rna_node );
+        #endif
+      }
+    }
+  }
+}
+
+
+/*!
+  \brief Look for new promoters on the LAGGING strand whose starting positions would be < pos
+
+  NOTE : A lagging promoter whose starting position is pos spans [pos-PROM_SIZE+1 ; pos], not [pos-PROM_SIZE ; pos[
+
+  Assuming (PROM_SIZE == 4), the LAGGING promoter whose starting position is pos spans the cells filled with X on the following cartoon:
+  \verbatim
+     -------------------------------
+    |   |   | X | X | X | X |   |   |
+     -------------------------------
+                        ^
+                       pos
+  \endverbatim
+*/
+void ae_genetic_unit::look_for_new_lagging_promoters_starting_before( int32_t pos )
+{
+  assert( pos >= 0 && pos < _dna->get_length() );
+  
+  // Hamming distance of the sequence from the promoter consensus
+  int8_t dist;
+  
+  // rna list node used to find the new promoter's place in the list
+  ae_list_node* rna_node  = _rna_list[LAGGING]->get_first();
+  
+  
+  for ( int32_t i = pos - 1 ; i >= 0 ; i-- )
+  {
+    if ( is_promoter( LAGGING, i, dist ) ) // dist takes the hamming distance of the sequence from the consensus
+    {
+      assert ( i >= 0 && i < _dna->get_length() );
+      
+      // Look for the right place to insert the new promoter in the list
+      while( rna_node != NULL && ((ae_rna*)rna_node->get_obj())->get_promoter_pos() > i )
+      {
+        rna_node = rna_node->get_next();
+      }
+      
+      if ( rna_node == NULL )
+      {
+        // Add at the end of the list
+        #ifndef __REGUL
+          _rna_list[LAGGING]->add( new ae_rna( this, LAGGING, i, dist ) );
+        #else
+          _rna_list[LAGGING]->add( new ae_rna_R( this, LAGGING, i, dist ) );
+        #endif
+      }
+      else if ( ((ae_rna*)rna_node->get_obj())->get_promoter_pos() != i ) // If not already in list
+      {
+        // Add before rna_node
+        #ifndef __REGUL
+          _rna_list[LAGGING]->add_before( new ae_rna( this, LAGGING, i, dist ), rna_node );
+        #else
+          _rna_list[LAGGING]->add_before( new ae_rna_R( this, LAGGING, i, dist ), rna_node );
+        #endif
+      }
+    }
+  }
+}
+
+
+/*!
+  \brief Shift (by delta_post) the positions of the promoters from the LEADING strand whose starting positions are >= pos.
+*/
 void ae_genetic_unit::move_all_leading_promoters_after( int32_t pos, int32_t delta_pos )
 {
   ae_list_node* rna_node  = _rna_list[LEADING]->get_first();
@@ -2683,6 +2993,21 @@ void ae_genetic_unit::move_all_leading_promoters_after( int32_t pos, int32_t del
   }
 }
 
+
+/*!
+  \brief Shift (by delta_post) the positions of the promoters from the LAGGING strand whose starting positions are >= pos.
+
+  NOTE : A lagging promoter whose starting position is pos spans [pos-PROM_SIZE+1 ; pos], not [pos-PROM_SIZE ; pos[
+
+  Assuming (PROM_SIZE == 4), the LAGGING promoter whose starting position is pos spans the cells filled with X on the following cartoon:
+  \verbatim
+     -------------------------------
+    |   |   | X | X | X | X |   |   |
+     -------------------------------
+                        ^
+                       pos
+  \endverbatim
+*/
 void ae_genetic_unit::move_all_lagging_promoters_after( int32_t pos, int32_t delta_pos )
 {
   ae_list_node* rna_node  = _rna_list[LAGGING]->get_first();
@@ -2700,6 +3025,10 @@ void ae_genetic_unit::move_all_lagging_promoters_after( int32_t pos, int32_t del
   }
 }
 
+
+/*!
+  \brief Copy (into new_promoter_list) the promoters from the LEADING strand whose starting positions lie in [pos_1 ; pos_2[
+*/
 void ae_genetic_unit::copy_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list* new_promoter_list )
 {
   // Go to first RNA to copy
@@ -2719,6 +3048,21 @@ void ae_genetic_unit::copy_leading_promoters_starting_between( int32_t pos_1, in
   }
 }
 
+
+/*!
+  \brief Copy (into new_promoter_list) the promoters from the LAGGING strand whose starting positions lie in [pos_1 ; pos_2[
+
+  NOTE : A lagging promoter whose starting position is pos spans [pos-PROM_SIZE+1 ; pos], not [pos-PROM_SIZE ; pos[
+
+  Assuming (PROM_SIZE == 4), the LAGGING promoter whose starting position is pos spans the cells filled with X on the following cartoon:
+  \verbatim
+     -------------------------------
+    |   |   | X | X | X | X |   |   |
+     -------------------------------
+                        ^
+                       pos
+  \endverbatim
+*/
 void ae_genetic_unit::copy_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list* new_promoter_list )
 {
   assert( pos_1 > pos_2 ); // Doesn't work when [pos_1 ; pos_2] includes OriC
@@ -2731,7 +3075,7 @@ void ae_genetic_unit::copy_lagging_promoters_starting_between( int32_t pos_1, in
   }
   
   // Copy RNAs
-  while ( rna_node != NULL && ((ae_rna*)rna_node->get_obj())->get_promoter_pos() >= pos_2 )
+  while ( rna_node != NULL && ((ae_rna*)rna_node->get_obj())->get_promoter_pos() < pos_2 )
   {
     new_promoter_list->add_front( new ae_rna( this, *((ae_rna*)rna_node->get_obj()) ) );
     
@@ -2799,6 +3143,7 @@ int32_t ae_genetic_unit::get_nb_terminators( void )
           printf( "is : \n" );
           print_rnas( old_rna_list );
           printf( "****************************************************************************\n" );
+          printf( "  genome length : %"PRId32"\n", _dna->get_length() );
           assert( node_old != NULL && node_new != NULL );
         }
         
@@ -2813,6 +3158,10 @@ int32_t ae_genetic_unit::get_nb_terminators( void )
           printf( "is : \n" );
           print_rnas( old_rna_list );
           printf( "****************************************************************************\n" );
+          printf( "  %"PRId32" (%s) : %f    vs    %"PRId32" (%s) : %f\n",
+                  rna_old->get_promoter_pos(), rna_old->get_strand() == LEADING ? "LEADING" : "LAGGING", rna_old->get_basal_level(),
+                  rna_new->get_promoter_pos(), rna_new->get_strand() == LEADING ? "LEADING" : "LAGGING", rna_new->get_basal_level() );
+          printf( "  genome length : %"PRId32"\n", _dna->get_length() );
           assert( rna_old->get_strand() == rna_new->get_strand() );
         }
         
@@ -2824,6 +3173,10 @@ int32_t ae_genetic_unit::get_nb_terminators( void )
           printf( "is : \n" );
           print_rnas( old_rna_list );
           printf( "****************************************************************************\n" );
+          printf( "  %"PRId32" (%s) : %f    vs    %"PRId32" (%s) : %f\n",
+                  rna_old->get_promoter_pos(), rna_old->get_strand() == LEADING ? "LEADING" : "LAGGING", rna_old->get_basal_level(),
+                  rna_new->get_promoter_pos(), rna_new->get_strand() == LEADING ? "LEADING" : "LAGGING", rna_new->get_basal_level() );
+          printf( "  genome length : %"PRId32"\n", _dna->get_length() );
           assert( rna_old->get_promoter_pos() == rna_new->get_promoter_pos()  );
         }
         
@@ -2835,6 +3188,10 @@ int32_t ae_genetic_unit::get_nb_terminators( void )
           printf( "is : \n" );
           print_rnas( old_rna_list );
           printf( "****************************************************************************\n" );
+          printf( "  %"PRId32" (%s) : %f    vs    %"PRId32" (%s) : %f\n",
+                  rna_old->get_promoter_pos(), rna_old->get_strand() == LEADING ? "LEADING" : "LAGGING", rna_old->get_basal_level(),
+                  rna_new->get_promoter_pos(), rna_new->get_strand() == LEADING ? "LEADING" : "LAGGING", rna_new->get_basal_level() );
+          printf( "  genome length : %"PRId32"\n", _dna->get_length() );
           assert( rna_old->get_basal_level() == rna_new->get_basal_level() );
         }
         

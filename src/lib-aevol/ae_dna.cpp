@@ -215,10 +215,6 @@ void ae_dna::perform_mutations( void )
   do_small_mutations();
   
   
-  #ifdef DEBUG
-  //~ _gen_unit->assert_promoters();
-  #endif
-  
   // Store mutation events in replication report (temporary lists are emptied)
   // TODO : next 2 lines
   //~ new_indiv->_replic_report->set_parent_genome_size( (this->_genome)->get_length() );  
@@ -960,15 +956,15 @@ bool ae_dna::do_switch( int32_t pos )
   if ( _data[pos] == '0' )  _data[pos] = '1';
   else                      _data[pos] = '0';
 
-  // Update promoter list
-  _gen_unit->remove_leading_promoters_starting_between( utils::mod(pos - PROM_SIZE + 1, _length), pos + 1 );
-  _gen_unit->remove_lagging_promoters_starting_between( pos, utils::mod(pos + PROM_SIZE, _length) );
+  // Remove promoters containing the switched base
+  _gen_unit->remove_promoters_around( pos, utils::mod(pos + 1, _length) );
   
+  // Look for potential new promoters containing the switched base  
   if ( _length >= PROM_SIZE )
   {
-    _gen_unit->look_for_new_leading_promoters_starting_between( utils::mod(pos - PROM_SIZE + 1, _length), pos + 1 );
-    _gen_unit->look_for_new_lagging_promoters_starting_between( pos, utils::mod(pos + PROM_SIZE, _length) );
+    _gen_unit->look_for_new_promoters_around( pos, utils::mod(pos + 1, _length) );
   }
+  
   
   return true;
 }
@@ -987,9 +983,17 @@ bool ae_dna::do_small_insertion( int32_t pos, int16_t nb_insert, char * seq )
   // Look for new promoters
   if ( _length >= PROM_SIZE )
   {
-    _gen_unit->move_all_promoters_after( pos, nb_insert );
-    _gen_unit->look_for_new_leading_promoters_starting_between( utils::mod(pos - PROM_SIZE + 1, _length), pos + nb_insert );
-    _gen_unit->look_for_new_lagging_promoters_starting_between( pos, utils::mod(pos + nb_insert + PROM_SIZE - 1, _length) );
+    if ( _length - nb_insert < PROM_SIZE )
+    {
+      // Special case where the genome was smaller than a promoter before the insertion and greater than (or as big as) a promoter after the insertion.
+      // In that case, we must look for new promoters thoroughly on the whole genome using locate_promoters
+      _gen_unit->locate_promoters();
+    }
+    else
+    {
+      _gen_unit->move_all_promoters_after( pos, nb_insert );
+      _gen_unit->look_for_new_promoters_around( pos, utils::mod(pos + nb_insert, _length) );
+    }
   }
 
   return true;
@@ -1000,34 +1004,36 @@ bool ae_dna::do_small_deletion( int32_t pos, int16_t nb_del )
   // Check genome size limit
   assert( _length - nb_del >= ae_common::min_genome_length );
   
-  if ( _length >= PROM_SIZE )
-  {
-    _gen_unit->remove_leading_promoters_starting_between( utils::mod(pos - PROM_SIZE + 1, _length), (pos + nb_del) % _length );
-    _gen_unit->remove_lagging_promoters_starting_between( pos, utils::mod(pos + PROM_SIZE + nb_del - 1, _length) );
-  }
-  else
-  {
-    _gen_unit->remove_all_promoters();
-  }
+  // Remove promoters containing at least one nucleotide from the sequence to delete
+  _gen_unit->remove_promoters_around( pos, utils::mod(pos + nb_del, _length) );
 
-  // Do the deletion(s)
-  if ( pos + nb_del <= _length )
+  // Do the deletion and update promoter list
+  if ( pos + nb_del <= _length ) // if deletion contains OriC
   {
+    // Do the deletion
     remove( pos, pos + nb_del );
+    
+    // Update promoter list
+    if ( _length >= PROM_SIZE )
+    {
+      _gen_unit->move_all_promoters_after( pos, -nb_del );
+      _gen_unit->look_for_new_promoters_around( utils::mod(pos, _length) );
+    }
   }
   else
   {
-    int32_t nb_del_at_pos_0 = _length - pos;
+    // Do the deletion
+    int32_t nb_del_at_pos_0 = nb_del - _length + pos;
     remove( pos, _length );
     remove( 0, nb_del_at_pos_0 );
     pos -= nb_del_at_pos_0;
-  }
-
-  // Update promoter list
-  if ( _length >= PROM_SIZE )
-  {
-    _gen_unit->move_all_promoters_after( pos, -nb_del );
-    _gen_unit->look_for_new_promoters_around( pos );
+    
+    // Update promoter list
+    if ( _length >= PROM_SIZE )
+    {
+      _gen_unit->move_all_promoters_after( 0, -nb_del_at_pos_0 );
+      _gen_unit->look_for_new_promoters_around( 0 );
+    }
   }
   
   return true;
@@ -1480,12 +1486,21 @@ bool ae_dna::do_duplication( int32_t pos_1, int32_t pos_2, int32_t pos_3 )
   
   if ( _length >= PROM_SIZE )
   {
-    _gen_unit->move_all_promoters_after( pos_3, seg_length );
-    
-    _gen_unit->insert_promoters_at( duplicated_promoters, pos_3 );
-    
-    _gen_unit->look_for_new_promoters_around( pos_3 );
-    _gen_unit->look_for_new_promoters_around( pos_3 + seg_length );
+    if ( _length - seg_length < PROM_SIZE )
+    {
+      // Special case where the genome was smaller than a promoter before the insertion and greater than (or as big as) a promoter after the insertion.
+      // In that case, we must look for new promoters thoroughly on the whole genome using locate_promoters
+      _gen_unit->locate_promoters();
+    }
+    else
+    {
+      _gen_unit->move_all_promoters_after( pos_3, seg_length );
+      
+      _gen_unit->insert_promoters_at( duplicated_promoters, pos_3 );
+      
+      _gen_unit->look_for_new_promoters_around( pos_3 );
+      _gen_unit->look_for_new_promoters_around( pos_3 + seg_length );
+    }
   }
   
   
@@ -1518,20 +1533,10 @@ bool ae_dna::do_deletion( int32_t pos_1, int32_t pos_2 )
     if ( _length - segment_length >= ae_common::min_genome_length )
     {
       // Remove promoters containing at least one nucleotide from the sequence to delete
-      if ( _length - segment_length >= PROM_SIZE )
-      {
-        _gen_unit->remove_leading_promoters_starting_between( utils::mod(pos_1 - PROM_SIZE + 1, _length), pos_2 );
-        _gen_unit->remove_lagging_promoters_starting_between( pos_1, utils::mod(pos_2 + PROM_SIZE - 1, _length) );
-      }
-      else
-      {
-        _gen_unit->remove_all_promoters();
-      }
-      
+      _gen_unit->remove_promoters_around( pos_1, pos_2 );
       
       // Delete the sequence between pos_1 and pos_2
       remove( pos_1, pos_2 );
-
       
       // Update promoter list
       if ( _length >= PROM_SIZE )
@@ -1574,18 +1579,7 @@ bool ae_dna::do_deletion( int32_t pos_1, int32_t pos_2 )
     if ( _length - segment_length >= ae_common::min_genome_length )
     {
       // Remove promoters containing at least one nucleotide from the sequence to delete
-      if ( _length - segment_length >= PROM_SIZE )
-      {
-        _gen_unit->remove_leading_promoters_after( utils::mod(pos_1 - PROM_SIZE + 1, _length) );
-        _gen_unit->remove_lagging_promoters_after( pos_1 );
-        _gen_unit->remove_leading_promoters_before( pos_2 );
-        _gen_unit->remove_lagging_promoters_before( utils::mod(pos_2 + PROM_SIZE - 1, _length) );
-      }
-      else
-      {
-        _gen_unit->remove_all_promoters();
-      }
-      
+      _gen_unit->remove_promoters_around( pos_1, pos_2 );
       
       // Delete the sequence between pos_1 and pos_2
       remove( pos_1, _length ); // delete tmp1 from genome
@@ -1902,8 +1896,7 @@ bool ae_dna::do_insertion( int32_t pos, const char* seq_to_insert, int32_t seq_l
   if ( _length >= PROM_SIZE )
   {
     _gen_unit->move_all_promoters_after( pos, seq_length );
-    _gen_unit->look_for_new_leading_promoters_starting_between( utils::mod(pos - PROM_SIZE + 1, _length), pos + seq_length );
-    _gen_unit->look_for_new_lagging_promoters_starting_between( pos, utils::mod(pos + seq_length + PROM_SIZE - 1, _length) );
+    _gen_unit->look_for_new_promoters_around( pos, pos + seq_length );
   }
   
   return true;
