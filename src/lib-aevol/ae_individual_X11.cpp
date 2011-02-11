@@ -164,15 +164,15 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)
     // nb_sect : "length" in degrees of the arc to be drawn
-    alpha_first   = (int16_t) round(  (double)(360 * cds->get_first_translated_pos()) / (double)genome_length );
-    alpha_last    = (int16_t) round(  (double)(360 * cds->get_last_translated_pos())  / (double)genome_length );
+    alpha_first   = (int16_t) round(  360 * ((double)cds->get_first_translated_pos() / (double)genome_length ));
+    alpha_last    = (int16_t) round(  360 * ((double)cds->get_last_translated_pos()  / (double)genome_length ));
     theta_first   = utils::mod( 90 - alpha_first, 360 );
     theta_last    = utils::mod( 90 - alpha_last, 360 );
     nb_sect       = utils::mod( alpha_last - alpha_first + 1,  360 );
 
     // These are the same as above but with a higher precision (1/64 degrees)
-    alpha_first_64   = (int16_t) round(  (double)(64 * 360 * cds->get_first_translated_pos()) / (double)genome_length );
-    alpha_last_64    = (int16_t) round(  (double)(64 * 360 * cds->get_last_translated_pos())  / (double)genome_length );
+    alpha_first_64   = (int16_t) round(64 * 360 * ((double)cds->get_first_translated_pos() / (double)genome_length ));
+    alpha_last_64    = (int16_t) round(64 * 360 * ((double)cds->get_last_translated_pos() / (double)genome_length ));    
     theta_first_64   = utils::mod( 64 * 90 - alpha_first_64, 64 * 360 );
     theta_last_64    = utils::mod( 64 * 90 - alpha_last_64, 64 * 360 );
     nb_sect_64       = utils::mod( alpha_last_64 - alpha_first_64 + 1,  64 * 360 );
@@ -248,15 +248,15 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)
     // nb_sect : "length" in degrees of the arc to be drawn
-    alpha_first   = (int16_t) round(  (double)(360 * cds->get_first_translated_pos()) / (double)genome_length );
-    alpha_last    = (int16_t) round(  (double)(360 * cds->get_last_translated_pos())  / (double)genome_length );
+    alpha_first   = (int16_t) round(  360 * ((double)cds->get_first_translated_pos() / (double)genome_length ));
+    alpha_last    = (int16_t) round(  360 * ((double)cds->get_last_translated_pos()  / (double)genome_length ));
     theta_first   = utils::mod( 90 - alpha_first, 360 );
     theta_last    = utils::mod( 90 - alpha_last, 360 );
     nb_sect = utils::mod( alpha_first - alpha_last + 1,  360 );
 
     // These are the same as above but with a higher precision (1/64 degrees)
-    alpha_first_64   = (int16_t) round(  (double)(64 * 360 * cds->get_first_translated_pos()) / (double)genome_length );
-    alpha_last_64    = (int16_t) round(  (double)(64 * 360 * cds->get_last_translated_pos())  / (double)genome_length );
+    alpha_first_64   = (int16_t) round(64 * 360 * ((double)cds->get_first_translated_pos() / (double)genome_length ));
+    alpha_last_64    = (int16_t) round(64 * 360 * ((double)cds->get_last_translated_pos() / (double)genome_length ));
     theta_first_64   = utils::mod( 64 * 90 - alpha_first_64, 64 * 360 );
     theta_last_64    = utils::mod( 64 * 90 - alpha_last_64, 64 * 360 );
     nb_sect_64 = utils::mod( alpha_first_64 - alpha_last_64 + 1,  64 * 360 );
@@ -384,15 +384,15 @@ void ae_individual_X11::display_rnas( ae_X11_window* win )
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)
     // nb_sect : "length" in degrees of the arc to be drawn
-    alpha_first   = (int16_t) round(  (double)(360 * rna->get_first_transcribed_pos()) / (double)genome_length );
-    alpha_last    = (int16_t) round(  (double)(360 * rna->get_last_transcribed_pos())  / (double)genome_length );
+    alpha_first   = (int16_t) round(  360 * ((double)rna->get_first_transcribed_pos() / (double)genome_length ));
+    alpha_last    = (int16_t) round(  360 * ((double)rna->get_last_transcribed_pos() / (double)genome_length ));
     theta_first   = utils::mod( 90 - alpha_first, 360 );
     theta_last    = utils::mod( 90 - alpha_last, 360 );
     nb_sect       = utils::mod( alpha_last - alpha_first + 1,  360 );
 
     // These are the same as above but with a higher precision (1/64 degrees)
-    alpha_first_64   = (int16_t) round(  (double)(64 * 360 * rna->get_first_transcribed_pos()) / (double)genome_length );
-    alpha_last_64    = (int16_t) round(  (double)(64 * 360 * rna->get_last_transcribed_pos())  / (double)genome_length );
+    alpha_first_64   = (int16_t) round(64 * 360 * ((double)rna->get_first_transcribed_pos() / (double)genome_length ));
+    alpha_last_64    = (int16_t) round(64 * 360 * ((double)rna->get_last_transcribed_pos() / (double)genome_length ));
     theta_first_64   = utils::mod( 64 * 90 - alpha_first_64, 64 * 360 );
     theta_last_64    = utils::mod( 64 * 90 - alpha_last_64, 64 * 360 );
     nb_sect_64       = utils::mod( alpha_last_64 - alpha_first_64 + 1,  64 * 360 );
@@ -489,15 +489,15 @@ void ae_individual_X11::display_rnas( ae_X11_window* win )
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)
     // nb_sect : "length" in degrees of the arc to be drawn
-    alpha_first   = (int16_t) round(  (double)(360 * rna->get_first_transcribed_pos()) / (double)genome_length );
-    alpha_last    = (int16_t) round(  (double)(360 * rna->get_last_transcribed_pos())  / (double)genome_length );
+    alpha_first   = (int16_t) round(  360 * ((double)rna->get_first_transcribed_pos() / (double)genome_length ));
+    alpha_last    = (int16_t) round(  360 * ((double)rna->get_last_transcribed_pos()  / (double)genome_length ));
     theta_first   = utils::mod( 90 - alpha_first, 360 );
     theta_last    = utils::mod( 90 - alpha_last, 360 );
     nb_sect = utils::mod( alpha_first - alpha_last + 1,  360 );
 
     // These are the same as above but with a higher precision (1/64 degrees)
-    alpha_first_64   = (int16_t) round(  (double)(64 * 360 * rna->get_first_transcribed_pos()) / (double)genome_length );
-    alpha_last_64    = (int16_t) round(  (double)(64 * 360 * rna->get_last_transcribed_pos())  / (double)genome_length );
+    alpha_first_64   = (int16_t) round(64 * 360 * ((double)rna->get_first_transcribed_pos() / (double)genome_length ));
+    alpha_last_64    = (int16_t) round(64 * 360 * ((double)rna->get_last_transcribed_pos()  / (double)genome_length ));
     theta_first_64   = utils::mod( 64 * 90 - alpha_first_64, 64 * 360 );
     theta_last_64    = utils::mod( 64 * 90 - alpha_last_64, 64 * 360 );
     nb_sect_64 = utils::mod( alpha_first_64 - alpha_last_64 + 1,  64 * 360 );
