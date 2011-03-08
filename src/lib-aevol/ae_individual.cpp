@@ -792,10 +792,14 @@ void ae_individual::reevaluate( ae_environment* envir )
   while (unit_node != NULL)
   {
     unit = (ae_genetic_unit *) unit_node->get_obj();
+    
     unit->reset_expression();
+    
     unit_node = unit_node->get_next();
   }
 
+  
+  
   if (_phenotype_activ != NULL)
   {
     delete _phenotype_activ;
@@ -834,7 +838,7 @@ void ae_individual::reevaluate( ae_environment* envir )
   }
   
   _rna_list->erase( NO_DELETE );
-  _protein_list->erase( NO_DELETE ); 
+  _protein_list->erase( NO_DELETE );
   
 
 
