@@ -777,7 +777,9 @@ void ae_individual::reevaluate( ae_environment* envir )
   // useful for post-treatment programs, who replay mutations
   // on a single individual playing the role of the successive
   // ancestors
-
+  _transcribed                  = false;
+  _translated                   = false;
+  _folded                       = false;
   _evaluated                    = false;
   _phenotype_computed           = false;
   _distance_to_target_computed  = false;
