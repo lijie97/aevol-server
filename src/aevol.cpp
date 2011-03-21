@@ -292,7 +292,7 @@ If an option is not set, the programm use the default value for this parameter.\
   printf( "\n\nExamples :\n\
 \t%s -h : \n\
 \t  Print this screen\n\n\
-\t%s -f file.ae --n 1000 : \n\
+\t%s -f file.ae -n 1000 : \n\
 \t  Read the file file.ae and do 1000 new generations\n\n\
 \t%s --noX -f file.ae -p \"BACKUP_STEP 50\" : \n\
 \t  Read file.ae and continue, writing a backup every 50 generations.\n\
