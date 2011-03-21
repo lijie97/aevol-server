@@ -186,7 +186,7 @@ ae_simulation::ae_simulation( char* backup_file_name, bool to_be_run /* = TRUE *
       exit( EXIT_FAILURE );
     }
   #else
-    if ( strcmp( &backup_file_name[bfn_len-3], ".ae" ) != 0 )
+    if ( strcmp( &backup_file_name[bfn_len-3], ".ae" ) != 0 || strstr(backup_file_name,"best") !=NULL)
     {
       printf( "ERROR : %s is not valid AEVOL backup file.\n", backup_file_name );
       exit( EXIT_FAILURE );

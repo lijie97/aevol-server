@@ -86,11 +86,11 @@ ae_stats::ae_stats( int32_t num_gener, const char * prefix /* = "stat" */, bool 
   char* old_file_name = new char[100];
   FILE* old_file;
   char* cur_file_name;  // Syntaxic sugar for _stat_files_names[][][]
-  FILE* cur_file;       // Syntaxic sugar for _stat_files[][][]
+   FILE* cur_file;       // Syntaxic sugar for _stat_files[][][]
   char  line[500];
   char* trash;
   for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
-  {
+  { 
     for ( int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++ )
     {
       for ( int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++ )
@@ -98,8 +98,13 @@ ae_stats::ae_stats( int32_t num_gener, const char * prefix /* = "stat" */, bool 
         cur_file_name = _stat_files_names[chrom_or_GU][best_or_glob][stat_type];
         if ( cur_file_name != NULL )
         {
-          sprintf( old_file_name, "%s.old", cur_file_name );
-          rename( cur_file_name, old_file_name );
+	  sprintf( old_file_name, "%s.old", cur_file_name );
+          int8_t exist_file = rename( cur_file_name, old_file_name );
+          if (exist_file != 0 )
+	    {
+	      printf( "ERROR : %s has not be found.\n",old_file_name );
+	      exit( EXIT_FAILURE );
+	    }
           
           old_file = fopen( old_file_name, "r" );
           cur_file = fopen( cur_file_name, "w" );
