@@ -50,6 +50,7 @@
 #include <ae_fuzzy_set.h>
 #include <ae_common.h>
 #include <ae_environment.h>
+#include <ae_utils.h>
 
 
 
@@ -200,9 +201,11 @@ class ae_genetic_unit : public ae_object
     //~ void duplicate_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2, int32_t delta_pos );
     //~ void duplicate_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2, int32_t delta_pos );
     
+    inline void copy_promoters_included_in( int32_t pos_1, int32_t pos_2, ae_list** new_promoter_lists );
     inline void copy_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list** new_promoter_lists );
     void copy_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list* new_promoter_list );
     void copy_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list* new_promoter_list );
+    //~ inline void copy_all_promoters( ae_list** new_promoter_lists );
 
     void write_to_backup( gzFile* backup_file );
     
@@ -246,7 +249,6 @@ class ae_genetic_unit : public ae_object
     // =================================================================
     void init_statistical_data( void );
     
-    
     void remove_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2 );
     void remove_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2 );
     void remove_leading_promoters_starting_before( int32_t pos );
@@ -260,6 +262,7 @@ class ae_genetic_unit : public ae_object
     void look_for_new_lagging_promoters_starting_after( int32_t pos );
     void look_for_new_leading_promoters_starting_before( int32_t pos );
     void look_for_new_lagging_promoters_starting_before( int32_t pos );
+
 
     // =================================================================
     //                          Protected Attributes
@@ -607,8 +610,8 @@ inline void ae_genetic_unit::remove_promoters_around( int32_t pos )
 {
   if ( _dna->get_length() >= PROM_SIZE )
   {
-    remove_leading_promoters_starting_between( utils::mod(pos - PROM_SIZE + 1, _dna->get_length()), pos );
-    remove_lagging_promoters_starting_between( pos, utils::mod(pos + PROM_SIZE - 1, _dna->get_length()) );
+    remove_leading_promoters_starting_between( ae_utils::mod(pos - PROM_SIZE + 1, _dna->get_length()), pos );
+    remove_lagging_promoters_starting_between( pos, ae_utils::mod(pos + PROM_SIZE - 1, _dna->get_length()) );
   }
   else
   {
@@ -635,10 +638,10 @@ inline void ae_genetic_unit::remove_promoters_around( int32_t pos )
 */
 inline void ae_genetic_unit::remove_promoters_around( int32_t pos_1, int32_t pos_2 )
 {
-  if ( utils::mod(pos_1 - pos_2, _dna->get_length()) >= PROM_SIZE )
+  if ( ae_utils::mod(pos_1 - pos_2, _dna->get_length()) >= PROM_SIZE )
   {
-    remove_leading_promoters_starting_between( utils::mod(pos_1 - PROM_SIZE + 1, _dna->get_length()), pos_2 );
-    remove_lagging_promoters_starting_between( pos_1, utils::mod(pos_2 + PROM_SIZE - 1, _dna->get_length()) );
+    remove_leading_promoters_starting_between( ae_utils::mod(pos_1 - PROM_SIZE + 1, _dna->get_length()), pos_2 );
+    remove_lagging_promoters_starting_between( pos_1, ae_utils::mod(pos_2 + PROM_SIZE - 1, _dna->get_length()) );
   }
   else
   {
@@ -663,10 +666,14 @@ inline void ae_genetic_unit::remove_promoters_around( int32_t pos_1, int32_t pos
 */
 inline void ae_genetic_unit::look_for_new_promoters_around( int32_t pos )
 {
+  assert( pos >= 0 && pos <= _dna->get_length() );
+  
   if ( _dna->get_length() >= PROM_SIZE )
   {
-    look_for_new_leading_promoters_starting_between( utils::mod(pos - PROM_SIZE + 1, _dna->get_length()), pos );
-    look_for_new_lagging_promoters_starting_between( pos, utils::mod(pos + PROM_SIZE - 1, _dna->get_length()) );
+    look_for_new_leading_promoters_starting_between(  ae_utils::mod(pos - PROM_SIZE + 1, _dna->get_length()),
+                                                      ae_utils::mod(pos                , _dna->get_length()) );
+    look_for_new_lagging_promoters_starting_between(  ae_utils::mod(pos                , _dna->get_length()),
+                                                      ae_utils::mod(pos + PROM_SIZE - 1, _dna->get_length()) );
   }
 }
 
@@ -689,15 +696,15 @@ inline void ae_genetic_unit::look_for_new_promoters_around( int32_t pos )
 */
 inline void ae_genetic_unit::look_for_new_promoters_around( int32_t pos_1, int32_t pos_2 )
 {
-  //~ if ( utils::mod( pos_1 - pos_2, _dna->get_length()) == PROM_SIZE - 1 )
+  //~ if ( ae_utils::mod( pos_1 - pos_2, _dna->get_length()) == PROM_SIZE - 1 )
   //~ {
     //~ // We have to look at every possible position on the genome.
     //~ locate_promoters();
   //~ }
   /*else*/ if ( _dna->get_length() >= PROM_SIZE )
   {
-    look_for_new_leading_promoters_starting_between( utils::mod(pos_1 - PROM_SIZE + 1, _dna->get_length()), pos_2 );
-    look_for_new_lagging_promoters_starting_between( pos_1, utils::mod(pos_2 + PROM_SIZE - 1, _dna->get_length()) );
+    look_for_new_leading_promoters_starting_between( ae_utils::mod(pos_1 - PROM_SIZE + 1, _dna->get_length()), pos_2 );
+    look_for_new_lagging_promoters_starting_between( pos_1, ae_utils::mod(pos_2 + PROM_SIZE - 1, _dna->get_length()) );
   }
 }
 
@@ -707,10 +714,36 @@ inline void ae_genetic_unit::look_for_new_promoters_around( int32_t pos_1, int32
   //~ duplicate_lagging_promoters_starting_between( pos_1, pos_2, delta_pos );
 //~ }
 
+inline void ae_genetic_unit::copy_promoters_included_in( int32_t pos_1, int32_t pos_2, ae_list** new_promoter_lists )
+{
+  if ( ae_utils::mod( pos_2 - pos_1 - 1, _dna->get_length() ) + 1 >= PROM_SIZE )
+  {
+    copy_leading_promoters_starting_between( pos_1, ae_utils::mod( pos_2 - PROM_SIZE + 1, _dna->get_length() ), new_promoter_lists[LEADING] );
+    copy_lagging_promoters_starting_between( ae_utils::mod( pos_1 + PROM_SIZE - 1, _dna->get_length() ), pos_2, new_promoter_lists[LAGGING] );
+  }
+}
+
 inline void ae_genetic_unit::copy_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list** new_promoter_lists )
 {
   copy_leading_promoters_starting_between( pos_1, pos_2, new_promoter_lists[LEADING] );
   copy_lagging_promoters_starting_between( pos_1, pos_2, new_promoter_lists[LAGGING] );
 }
+
+//~ inline void ae_genetic_unit::copy_all_promoters( ae_list** new_promoter_lists )
+//~ {
+  //~ ae_list_node* rna_node = NULL;
+  
+  //~ for ( int8_t strand = LEADING ; strand <= LAGGING ; strand++ )
+  //~ {
+    //~ rna_node = _rna_list[strand]->get_first();
+    
+    //~ while ( rna_node != NULL )
+    //~ {
+      //~ new_promoter_lists[strand]->add( new ae_rna( this, *((ae_rna*)rna_node->get_obj()) ) );
+      
+      //~ rna_node = rna_node->get_next();
+    //~ }
+  //~ }
+//~ }
 
 #endif // __ae_genetic_unit_H__

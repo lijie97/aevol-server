@@ -143,8 +143,8 @@ char* ae_dna::get_subsequence( int32_t from, int32_t to, ae_strand strand ) cons
 {
   char* subseq = NULL;
   
-  from  = utils::mod( from, _length );
-  to    = utils::mod( to, _length );
+  from  = ae_utils::mod( from, _length );
+  to    = ae_utils::mod( to, _length );
   
   if ( strand == LEADING )
   {
@@ -214,11 +214,10 @@ void ae_dna::perform_mutations( void )
   
   do_small_mutations();
   
-  
   // Store mutation events in replication report (temporary lists are emptied)
   // TODO : next 2 lines
   //~ new_indiv->_replic_report->set_parent_genome_size( (this->_genome)->get_length() );  
-  // if crossover => please set also donnor_index, donnor_misadaptation_value and donnor_genome_size
+  // if crossover => please set also donor_index, donor_misadaptation_value and donor_genome_size
   
   // TODO!!!
   //~ new_indiv->_replic_report->compute_statistical_data();
@@ -271,25 +270,16 @@ void ae_dna::do_small_mutations( void )
     if ( random_value < nb_swi )
     {
       mut = do_switch();
+      assert( mut != NULL || !(ae_common::record_tree && ae_common::tree_mode == NORMAL) );
       
       if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
       {
-        if ( mut != NULL ) 
-        {
-          _replic_report->add_mut( mut );
-        }
-        else
-        {
-          printf( "Switch not done\n" );
-        }
+        _replic_report->add_mut( mut );
       }
       else
       {
-        if ( mut != NULL )
-        {
-          delete mut;
-          mut = NULL;
-        }
+        delete mut;
+        mut = NULL;
       }
       
       nb_swi--;  // updating the urn (no replacement!)...
@@ -303,10 +293,6 @@ void ae_dna::do_small_mutations( void )
         if ( mut != NULL )
         {
           _replic_report->add_mut( mut );
-        }
-        else
-        {
-          printf( "Small insertion not done\n" );
         }
       }
       else
@@ -329,10 +315,6 @@ void ae_dna::do_small_mutations( void )
         if ( mut != NULL )
         {
           _replic_report->add_mut( mut );
-        }
-        else
-        {
-          printf( "Small deletion not done\n" );
         }
       }
       else
@@ -488,9 +470,9 @@ void ae_dna::do_rearrangements( void )
 void ae_dna::do_rearrangements_with_align( void )
 {
 	bool    direct_sense; // Whether we look for a direct or indirect alignment
-	double  rand1 = 0.0;  // Determines the type of rearrangement that will be done if an alignement is found
-	int16_t needed_score; // Minimum alignement score needed to recombine (stochastic)
-  int32_t seed1, seed2; // Points defining the sequences between which we will look for an alignement
+	double  rand1 = 0.0;  // Determines the type of rearrangement that will be done if an alignment is found
+	int16_t needed_score; // Minimum alignment score needed to recombine (stochastic)
+  int32_t seed1, seed2; // Points defining the sequences between which we will look for an alignment
   
 	double ttl = 1.0; // Indiv's Time To Live
 	int32_t nb_pairs; // Number of pairs of sequences we will try to align
@@ -548,7 +530,7 @@ void ae_dna::do_rearrangements_with_align( void )
       //~ </DEBUG>
     }
     
-    // Determine where to look for an alignement (draw seeds)
+    // Determine where to look for an alignment (draw seeds)
     seed1 = ae_common::sim->alea->random( _length );
     seed2 = ae_common::sim->alea->random( _length );
     
@@ -564,7 +546,7 @@ void ae_dna::do_rearrangements_with_align( void )
       ////////////////////////////////////////////////////////////////////
       // 3) Test the existence of an alignment with a high enough score //
       ////////////////////////////////////////////////////////////////////
-      alignment = ae_align::search_alignement_direct( this, seed1, this, seed2, needed_score );
+      alignment = ae_align::search_alignment_direct( this, seed1, this, seed2, needed_score );
       
       if ( alignment == NULL )
       {
@@ -579,60 +561,91 @@ void ae_dna::do_rearrangements_with_align( void )
       ////////////////////////////////////////////////////////////////////////
       if ( rand1 < ae_common::duplication_proportion )
       {
-        // Remember the length of the segment to be duplicated and of the former genome
-        int32_t segment_length      = utils::mod( alignment->get_i_2() - alignment->get_i_1(), _length );
-        int32_t former_genome_size  = _length;
+        // Remember the length of the segment to be duplicated and of the genome before the duplication
+        int32_t segment_length      = ae_utils::mod( alignment->get_i_2() - alignment->get_i_1(), _length );
+        int32_t genome_size_before  = _length;
+        int32_t genome_size_after   = _length + segment_length;
         
-        // Perform in situ (tandem) DUPLICATION
-        do_duplication( alignment->get_i_1(), alignment->get_i_2(), alignment->get_i_2() );
-        
-        // Report the duplication
-        if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
+        if ( genome_size_after > ae_common::max_genome_length )
         {
-          // Report the insertion
-          mut = new ae_mutation();
-          mut->report_duplication( alignment->get_i_1(), alignment->get_i_2(), alignment->get_i_2(), needed_score );
+          if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_BARRIER ) == true )
+          {
+            // Write an entry in the barrier log file
+            fprintf(  ae_common::sim->get_logs()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32" %"PRId32"\n",
+                      ae_common::sim->get_num_gener(),
+                      _gen_unit->get_indiv()->get_index_in_population(),
+                      segment_length,
+                      0,
+                      genome_size_before );
+          }
         }
-        
-        // Write a line in rearrangement logfile
-        if ( ae_common::sim->get_logs()->get_to_be_logged( REAR ) == true )
+        else
         {
-          fprintf(  ae_common::sim->get_logs()->get_log( REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
-                    ae_common::sim->get_num_gener(),
-                    _gen_unit->get_indiv()->get_index_in_population(),
-                    DUPL,
-                    segment_length,
-                    former_genome_size,
-                    needed_score );
+          // Perform in situ (tandem) DUPLICATION
+          do_duplication( alignment->get_i_1(), alignment->get_i_2(), alignment->get_i_2() );
+          
+          // Report the duplication
+          if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
+          {
+            // Report the insertion
+            mut = new ae_mutation();
+            mut->report_duplication( alignment->get_i_1(), alignment->get_i_2(), alignment->get_i_2(), needed_score );
+          }
+          
+          // Write a line in rearrangement logfile
+          if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_REAR ) == true )
+          {
+            fprintf(  ae_common::sim->get_logs()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
+                      ae_common::sim->get_num_gener(),
+                      _gen_unit->get_indiv()->get_index_in_population(),
+                      DUPL,
+                      segment_length,
+                      genome_size_before,
+                      needed_score );
+          }
         }
       }
       else if ( rand1 < ae_common::duplication_proportion + ae_common::deletion_proportion )
       {
-        // Remember the length of the segment to be duplicated and of the former genome
-        int32_t segment_length = utils::mod( alignment->get_i_2() - alignment->get_i_1(), _length );
-        int32_t former_genome_size = _length;
+        // Remember the length of the segment to be duplicated and of the genome before the deletion
+        int32_t segment_length      = ae_utils::mod( alignment->get_i_2() - alignment->get_i_1() - 1, _length ) + 1;
+        int32_t genome_size_before  = _length;
+        int32_t genome_size_after   = _length - segment_length;
         
-        // Perform DELETION
-        do_deletion( alignment->get_i_1(), alignment->get_i_2() );
-        
-        // Report the deletion
-        if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
+        if ( genome_size_after < ae_common::min_genome_length )
         {
-          // Report the insertion
-          mut = new ae_mutation();
-          mut->report_deletion( alignment->get_i_1(), alignment->get_i_2(), needed_score );
+          if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_BARRIER ) == true )
+          {
+            // Write an entry in the barrier log file
+            fprintf(  ae_common::sim->get_logs()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32" %"PRId32"\n",
+                      ae_common::sim->get_num_gener(), _gen_unit->get_indiv()->get_index_in_population(),
+                      segment_length, 0, genome_size_before );
+          }
         }
-        
-        // Write a line in rearrangement logfile
-        if ( ae_common::sim->get_logs()->get_to_be_logged( REAR ) == true )
+        else
         {
-          fprintf(  ae_common::sim->get_logs()->get_log( REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
-                    ae_common::sim->get_num_gener(),
-                    _gen_unit->get_indiv()->get_index_in_population(),
-                    DEL,
-                    segment_length,
-                    former_genome_size,
-                    needed_score );
+          // Perform DELETION
+          do_deletion( alignment->get_i_1(), alignment->get_i_2() );
+          
+          // Report the deletion
+          if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
+          {
+            // Report the insertion
+            mut = new ae_mutation();
+            mut->report_deletion( alignment->get_i_1(), alignment->get_i_2(), needed_score );
+          }
+          
+          // Write a line in rearrangement logfile
+          if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_REAR ) == true )
+          {
+            fprintf(  ae_common::sim->get_logs()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
+                      ae_common::sim->get_num_gener(),
+                      _gen_unit->get_indiv()->get_index_in_population(),
+                      DEL,
+                      segment_length,
+                      genome_size_before,
+                      needed_score );
+          }
         }
       }
       else
@@ -640,14 +653,14 @@ void ae_dna::do_rearrangements_with_align( void )
         assert( rand1 < ae_common::duplication_proportion + ae_common::deletion_proportion + ae_common::translocation_proportion );
         
         // Perform TRANSLOCATION
-        // Make sure the segment to be translocated doesn't contain OriC
+        // Make sure the segment to be translocated doesn't contain OriC TODO : is that still necessary?
         if ( alignment->get_i_1() > alignment->get_i_2() )
         {
           alignment->swap();
         }
         
         // Remember the length of the segment to be translocated
-        int32_t segment_length = utils::mod( alignment->get_i_2() - alignment->get_i_1(), _length );
+        int32_t segment_length = ae_utils::mod( alignment->get_i_2() - alignment->get_i_1(), _length );
         
         // Extract the segment to be translocated
         ae_genetic_unit* translocated_segment = extract_into_new_GU( alignment->get_i_1(), alignment->get_i_2() );
@@ -675,15 +688,15 @@ void ae_dna::do_rearrangements_with_align( void )
           }
 
           seed1 = ae_common::sim->alea->random( _length );
-          seed2 = ae_common::sim->alea->random( _length );
+          seed2 = ae_common::sim->alea->random( segment_length );
           
           if ( direct_sense )
           {
-            alignment_2 = ae_align::search_alignement_direct( this, seed1, translocated_segment->get_dna(), seed2, needed_score_2 );
+            alignment_2 = ae_align::search_alignment_direct( this, seed1, translocated_segment->get_dna(), seed2, needed_score_2 );
           }
           else // if indirect
           {
-            alignment_2 = ae_align::search_alignement_indirect( this, seed1, translocated_segment->get_dna(), seed2, needed_score_2 );
+            alignment_2 = ae_align::search_alignment_indirect( this, seed1, translocated_segment->get_dna(), seed2, needed_score_2 );
           }
           
           if ( alignment_2 != NULL )
@@ -701,19 +714,19 @@ void ae_dna::do_rearrangements_with_align( void )
           // Proceed to the translocation
           insert_GU( translocated_segment, alignment_2->get_i_1(), alignment_2->get_i_2(), (alignment_2->get_sense() == INDIRECT) );
 
-          //Report the translocation
+          // Report the translocation
           if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
           {
             mut = new ae_mutation();
             mut->report_translocation( alignment->get_i_1(), alignment->get_i_2(),
-                                       alignment_2->get_i_1(), alignment_2->get_i_2(),
+                                       alignment_2->get_i_1(), alignment_2->get_i_2(), segment_length,
                                        (alignment_2->get_sense() == INDIRECT), needed_score, needed_score_2 );
           }
         
           // Write a line in rearrangement logfile
-          if ( ae_common::sim->get_logs()->get_to_be_logged( REAR ) == true )
+          if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_REAR ) == true )
           {
-            fprintf(  ae_common::sim->get_logs()->get_log( REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16" %"PRId16"\n", 
+            fprintf(  ae_common::sim->get_logs()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16" %"PRId16"\n", 
                       ae_common::sim->get_num_gener(),
                       _gen_unit->get_indiv()->get_index_in_population(),
                       TRANS,
@@ -749,7 +762,7 @@ void ae_dna::do_rearrangements_with_align( void )
       ////////////////////////////////////////////////////////////////////
       // 3) Test the existence of an alignment with a high enough score //
       ////////////////////////////////////////////////////////////////////
-      alignment = ae_align::search_alignement_indirect( this, seed1, this, seed2, needed_score );
+      alignment = ae_align::search_alignment_indirect( this, seed1, this, seed2, needed_score );
       
       if ( alignment == NULL )
       {
@@ -767,7 +780,7 @@ void ae_dna::do_rearrangements_with_align( void )
       }
       
       // Remember the length of the segment to be duplicated
-      int32_t segment_length = utils::mod( alignment->get_i_2() - alignment->get_i_1(), _length );
+      int32_t segment_length = ae_utils::mod( alignment->get_i_2() - alignment->get_i_1(), _length );
       
       // Proceed
       do_inversion( alignment->get_i_1(), alignment->get_i_2() );
@@ -776,13 +789,13 @@ void ae_dna::do_rearrangements_with_align( void )
       if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
       {
         mut = new ae_mutation();
-        mut->report_inversion( alignment->get_i_1(), alignment->get_i_2(), needed_score );
+        mut->report_inversion( alignment->get_i_1(), alignment->get_i_2(), segment_length, needed_score );
       }
         
       // Write a line in rearrangement logfile
-      if ( ae_common::sim->get_logs()->get_to_be_logged( REAR ) == true )
+      if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_REAR ) == true )
       {
-        fprintf(  ae_common::sim->get_logs()->get_log( REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
+        fprintf(  ae_common::sim->get_logs()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
                   ae_common::sim->get_num_gener(),
                   _gen_unit->get_indiv()->get_index_in_population(),
                   INV,
@@ -865,13 +878,14 @@ ae_mutation* ae_dna::do_small_insertion( void )
   // Check that the insertion won't throw the genome size over the limit
   if ( _length + nb_insert > ae_common::max_genome_length )
   {
-    if ( ae_common::sim->get_logs()->get_to_be_logged( BARRIER ) == true )
+    if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_BARRIER ) == true )
     {
       // Write an entry in the barrier log file
-      fprintf(  ae_common::sim->get_logs()->get_log( BARRIER ), "%"PRId32" %"PRId32" S_INS %"PRId32" %"PRId32"\n",
+      fprintf(  ae_common::sim->get_logs()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" S_INS %"PRId32" %"PRId32" %"PRId32"\n",
                 ae_common::sim->get_num_gener(),
                 _gen_unit->get_indiv()->get_index_in_population(),
                 nb_insert,
+                0,
                 _length );
     }
     
@@ -925,13 +939,14 @@ ae_mutation* ae_dna::do_small_deletion( void )
   // Check that the insertion won't shrink the genome size under the limit
   if ( _length - nb_del < ae_common::min_genome_length )
   {
-    if ( ae_common::sim->get_logs()->get_to_be_logged( BARRIER ) == true )
+    if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_BARRIER ) == true )
     {
       // Write an entry in the barrier log file
-      fprintf(  ae_common::sim->get_logs()->get_log( BARRIER ), "%"PRId32" %"PRId32" S_DEL %"PRId32" %"PRId32"\n",
+      fprintf(  ae_common::sim->get_logs()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" S_DEL %"PRId32" %"PRId32" %"PRId32"\n",
                 ae_common::sim->get_num_gener(),
                 _gen_unit->get_indiv()->get_index_in_population(),
                 nb_del,
+                0,
                 _length );
     }
     
@@ -955,14 +970,14 @@ bool ae_dna::do_switch( int32_t pos )
   // Perform the mutation
   if ( _data[pos] == '0' )  _data[pos] = '1';
   else                      _data[pos] = '0';
-
+  
   // Remove promoters containing the switched base
-  _gen_unit->remove_promoters_around( pos, utils::mod(pos + 1, _length) );
+  _gen_unit->remove_promoters_around( pos, ae_utils::mod(pos + 1, _length) );
   
   // Look for potential new promoters containing the switched base  
   if ( _length >= PROM_SIZE )
   {
-    _gen_unit->look_for_new_promoters_around( pos, utils::mod(pos + 1, _length) );
+    _gen_unit->look_for_new_promoters_around( pos, ae_utils::mod(pos + 1, _length) );
   }
   
   
@@ -992,7 +1007,7 @@ bool ae_dna::do_small_insertion( int32_t pos, int16_t nb_insert, char * seq )
     else
     {
       _gen_unit->move_all_promoters_after( pos, nb_insert );
-      _gen_unit->look_for_new_promoters_around( pos, utils::mod(pos + nb_insert, _length) );
+      _gen_unit->look_for_new_promoters_around( pos, ae_utils::mod(pos + nb_insert, _length) );
     }
   }
 
@@ -1005,7 +1020,7 @@ bool ae_dna::do_small_deletion( int32_t pos, int16_t nb_del )
   assert( _length - nb_del >= ae_common::min_genome_length );
   
   // Remove promoters containing at least one nucleotide from the sequence to delete
-  _gen_unit->remove_promoters_around( pos, utils::mod(pos + nb_del, _length) );
+  _gen_unit->remove_promoters_around( pos, ae_utils::mod(pos + nb_del, _length) );
 
   // Do the deletion and update promoter list
   if ( pos + nb_del <= _length ) // if deletion contains OriC
@@ -1017,7 +1032,7 @@ bool ae_dna::do_small_deletion( int32_t pos, int16_t nb_del )
     if ( _length >= PROM_SIZE )
     {
       _gen_unit->move_all_promoters_after( pos, -nb_del );
-      _gen_unit->look_for_new_promoters_around( utils::mod(pos, _length) );
+      _gen_unit->look_for_new_promoters_around( ae_utils::mod(pos, _length) );
     }
   }
   else
@@ -1049,27 +1064,44 @@ ae_mutation* ae_dna::do_duplication( void )
   pos_3 = ae_common::sim->alea->random( _length );
   
   // Remember the length of the segment to be duplicated and of the former genome
-  int32_t segment_length = utils::mod( pos_2 - pos_1, _length );
-  int32_t former_genome_size = _length;
+  int32_t segment_length      = ae_utils::mod( pos_2 - pos_1 - 1, _length ) + 1;
+  int32_t genome_size_before  = _length;
+  int32_t genome_size_after   = _length + segment_length;
   
-  if ( do_duplication( pos_1, pos_2, pos_3 ) == true )
+  if ( genome_size_after > ae_common::max_genome_length )
   {
+    if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_BARRIER ) == true )
+    {
+      // Write an entry in the barrier log file
+      fprintf(  ae_common::sim->get_logs()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32" %"PRId32"\n",
+                ae_common::sim->get_num_gener(),
+                _gen_unit->get_indiv()->get_index_in_population(),
+                segment_length,
+                0,
+                genome_size_before );
+    }
+  }
+  else
+  {
+    // Perform the duplication
+    do_duplication( pos_1, pos_2, pos_3 );
+    
     // Report the duplication
     if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
     {
       mut = new ae_mutation();
-      mut->report_duplication( pos_1, pos_2, pos_3 );
+      mut->report_duplication( pos_1, pos_2, pos_3, segment_length );
     }
 
     // Write a line in rearrangement logfile
-    if ( ae_common::sim->get_logs()->get_to_be_logged( REAR ) == true )
+    if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_REAR ) == true )
     {
-      fprintf(  ae_common::sim->get_logs()->get_log( REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
+      fprintf(  ae_common::sim->get_logs()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
                 ae_common::sim->get_num_gener(),
                 _gen_unit->get_indiv()->get_index_in_population(),
                 DUPL,
                 segment_length,
-                former_genome_size );
+                genome_size_before );
     }
   }
   
@@ -1084,30 +1116,43 @@ ae_mutation* ae_dna::do_deletion( void )
   pos_1 = ae_common::sim->alea->random( _length );
   pos_2 = ae_common::sim->alea->random( _length );
   
-  // Remember the length of the segment to be duplicated and of the former genome
-  int32_t segment_length = utils::mod( pos_2 - pos_1, _length );
-  int32_t former_genome_size = _length;
+  // Remember the length of the segment to be duplicated and of the genome before the deletion
+  int32_t segment_length      = ae_utils::mod( pos_2 - pos_1 - 1, _length ) + 1;
+  int32_t genome_size_before  = _length;
+  int32_t genome_size_after   = _length - segment_length;
   
-  //~ if ( pos_1 == pos_2 ) return NULL;
-  
-  if ( do_deletion( pos_1, pos_2 ) == true )
+        
+  if ( genome_size_after < ae_common::min_genome_length )
   {
+    if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_BARRIER ) == true )
+    {
+      // Write an entry in the barrier log file
+      fprintf(  ae_common::sim->get_logs()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32" %"PRId32"\n",
+                ae_common::sim->get_num_gener(), _gen_unit->get_indiv()->get_index_in_population(),
+                segment_length, 0, genome_size_before );
+    }
+  }
+  else
+  {
+    // Perform the deletion
+    do_deletion( pos_1, pos_2 );
+    
     // Report the deletion
     if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
     {
       mut = new ae_mutation();
-      mut->report_deletion( pos_1, pos_2 );
+      mut->report_deletion( pos_1, pos_2, segment_length );
     }
         
     // Write a line in rearrangement logfile
-    if ( ae_common::sim->get_logs()->get_to_be_logged( REAR ) == true )
+    if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_REAR ) == true )
     {
-      fprintf(  ae_common::sim->get_logs()->get_log( REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
+      fprintf(  ae_common::sim->get_logs()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
                 ae_common::sim->get_num_gener(),
                 _gen_unit->get_indiv()->get_index_in_population(),
                 DEL,
                 segment_length,
-                former_genome_size );
+                genome_size_before );
     }
   }
   
@@ -1139,9 +1184,9 @@ ae_mutation* ae_dna::do_translocation( void )
     pos_1_rel = ae_common::sim->alea->random( _length );
     pos_2_rel = ae_common::sim->alea->random( _length );
     
-    int32_t segment_length = utils::mod( pos_2_rel - pos_1_rel, _length );
+    int32_t segment_length = ae_utils::mod( pos_2_rel - pos_1_rel, _length );
     
-    pos_3_rel = utils::mod( pos_1_rel + ae_common::sim->alea->random( segment_length ), _length );
+    pos_3_rel = ae_utils::mod( pos_1_rel + ae_common::sim->alea->random( segment_length ), _length );
     
     if ( _gen_unit == chromosome )
     {
@@ -1234,13 +1279,13 @@ ae_mutation* ae_dna::do_translocation( void )
         if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
         {
           mut = new ae_mutation();
-          mut->report_translocation( pos_1_rel, pos_2_rel, pos_3_rel, pos_4_rel, invert );
+          mut->report_translocation( pos_1_rel, pos_2_rel, pos_3_rel, pos_4_rel, segment_length, invert );
         }
         
         // Write a line in rearrangement logfile
-        if ( ae_common::sim->get_logs()->get_to_be_logged( REAR ) == true )
+        if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_REAR ) == true )
         {
-          fprintf(  ae_common::sim->get_logs()->get_log( REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
+          fprintf(  ae_common::sim->get_logs()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
                     ae_common::sim->get_num_gener(),
                     _gen_unit->get_indiv()->get_index_in_population(),
                     TRANS,
@@ -1266,13 +1311,13 @@ ae_mutation* ae_dna::do_translocation( void )
         if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
         {
           mut = new ae_mutation();
-          mut->report_translocation( pos_1_rel, pos_2_rel, pos_3_rel, pos_4_rel, invert );
+          mut->report_translocation( pos_1_rel, pos_2_rel, pos_3_rel, pos_4_rel, segment_length, invert );
         }
         
         // Write a line in rearrangement logfile
-        if ( ae_common::sim->get_logs()->get_to_be_logged( REAR ) == true )
+        if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_REAR ) == true )
         {
-          fprintf(  ae_common::sim->get_logs()->get_log( REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
+          fprintf(  ae_common::sim->get_logs()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
                     ae_common::sim->get_num_gener(),
                     _gen_unit->get_indiv()->get_index_in_population(),
                     TRANS,
@@ -1291,7 +1336,7 @@ ae_mutation* ae_dna::do_translocation( void )
     // As it will be seen in do_translocation( int32_t pos_1, int32_t pos_2, int32_t pos_3, int32_t pos_4, bool invert ),
     // translocating segment [pos_1, pos_2] is the same as translocating segment  [pos_2, pos_1]
     // Since OriC must be at position 0, we will always traslocate segment [pos_1, pos_2] with pos_1 < pos_2
-    if ( pos_1 > pos_2 ) utils::exchange( pos_1, pos_2 );
+    if ( pos_1 > pos_2 ) ae_utils::exchange( pos_1, pos_2 );
     
     segment_length = pos_2 - pos_1;
     
@@ -1310,13 +1355,13 @@ ae_mutation* ae_dna::do_translocation( void )
       if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
       {
         mut = new ae_mutation();
-        mut->report_translocation( pos_1, pos_2, pos_3, pos_4, invert );
+        mut->report_translocation( pos_1, pos_2, pos_3, pos_4, segment_length, invert );
       }
         
       // Write a line in rearrangement logfile
-      if ( ae_common::sim->get_logs()->get_to_be_logged( REAR ) == true )
+      if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_REAR ) == true )
       {
-        fprintf(  ae_common::sim->get_logs()->get_log( REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
+        fprintf(  ae_common::sim->get_logs()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
                   ae_common::sim->get_num_gener(),
                   _gen_unit->get_indiv()->get_index_in_population(),
                   TRANS,
@@ -1339,7 +1384,7 @@ ae_mutation* ae_dna::do_inversion( void )
   pos_2 = ae_common::sim->alea->random( _length );
   
   if ( pos_1 == pos_2 ) return NULL; // Invert everything <=> Invert nothing!
-  if ( pos_1 >  pos_2 ) utils::exchange( pos_1, pos_2 ); // Invert the segment that don't contain OriC
+  if ( pos_1 >  pos_2 ) ae_utils::exchange( pos_1, pos_2 ); // Invert the segment that don't contain OriC
   
   segment_length = pos_2 - pos_1;
   
@@ -1349,13 +1394,13 @@ ae_mutation* ae_dna::do_inversion( void )
     if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
     {
       mut = new ae_mutation();
-      mut->report_inversion( pos_1, pos_2 );
+      mut->report_inversion( pos_1, pos_2, segment_length );
     }
         
     // Write a line in rearrangement logfile
-    if ( ae_common::sim->get_logs()->get_to_be_logged( REAR ) == true )
+    if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_REAR ) == true )
     {
-      fprintf(  ae_common::sim->get_logs()->get_log( REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
+      fprintf(  ae_common::sim->get_logs()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
                 ae_common::sim->get_num_gener(),
                 _gen_unit->get_indiv()->get_index_in_population(),
                 INV,
@@ -1386,7 +1431,7 @@ ae_mutation* ae_dna::do_insertion( const char* seq_to_insert, int32_t seq_length
     {
       // Report the insertion
       mut = new ae_mutation();
-      mut->report_insertion( pos, seq_to_insert, seq_length );
+      mut->report_insertion( pos, seq_length, seq_to_insert );
     }
   }
   
@@ -1416,10 +1461,10 @@ bool ae_dna::do_duplication( int32_t pos_1, int32_t pos_2, int32_t pos_3 )
     
     if ( _length + seg_length > ae_common::max_genome_length )
     {
-      if ( ae_common::sim->get_logs()->get_to_be_logged( BARRIER ) == true )
+      if ( ae_common::sim != NULL && ae_common::sim->get_logs()->get_to_be_logged( LOG_BARRIER ) == true )
       {
         // Write an entry in the barrier log file
-        fprintf(  ae_common::sim->get_logs()->get_log( BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32"\n",
+        fprintf(  ae_common::sim->get_logs()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32"\n",
                   ae_common::sim->get_num_gener(),
                   _gen_unit->get_indiv()->get_index_in_population(),
                   seg_length,
@@ -1454,10 +1499,10 @@ bool ae_dna::do_duplication( int32_t pos_1, int32_t pos_2, int32_t pos_3 )
     
     if ( _length + seg_length > ae_common::max_genome_length )
     {
-      if ( ae_common::sim->get_logs()->get_to_be_logged( BARRIER ) == true )
+      if ( ae_common::sim != NULL && ae_common::sim->get_logs()->get_to_be_logged( LOG_BARRIER ) == true )
       {
         // Write an entry in the barrier log file
-        fprintf(  ae_common::sim->get_logs()->get_log( BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32"\n",
+        fprintf(  ae_common::sim->get_logs()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32"\n",
                   ae_common::sim->get_num_gener(),
                   _gen_unit->get_indiv()->get_index_in_population(),
                   seg_length,
@@ -1530,28 +1575,25 @@ bool ae_dna::do_deletion( int32_t pos_1, int32_t pos_2 )
     
     int32_t segment_length = pos_2 - pos_1;
     
-    if ( _length - segment_length >= ae_common::min_genome_length )
+    // Remove promoters containing at least one nucleotide from the sequence to delete
+    _gen_unit->remove_promoters_around( pos_1, pos_2 );
+    
+    // Delete the sequence between pos_1 and pos_2
+    remove( pos_1, pos_2 );
+    
+    // Update promoter list
+    if ( _length >= PROM_SIZE )
     {
-      // Remove promoters containing at least one nucleotide from the sequence to delete
-      _gen_unit->remove_promoters_around( pos_1, pos_2 );
+      _gen_unit->move_all_promoters_after( pos_1, -segment_length );
       
-      // Delete the sequence between pos_1 and pos_2
-      remove( pos_1, pos_2 );
-      
-      // Update promoter list
-      if ( _length >= PROM_SIZE )
-      {
-        _gen_unit->move_all_promoters_after( pos_1, -segment_length );
-        
-        _gen_unit->look_for_new_promoters_around( pos_1 );
-      }
+      _gen_unit->look_for_new_promoters_around( pos_1 );
     }
     else
     {
-      if ( ae_common::sim->get_logs()->get_to_be_logged( BARRIER ) == true )
+      if ( ae_common::sim != NULL && ae_common::sim->get_logs()->get_to_be_logged( LOG_BARRIER ) == true )
       {
         // Write an entry in the barrier log file
-        fprintf(  ae_common::sim->get_logs()->get_log( BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32"\n",
+        fprintf(  ae_common::sim->get_logs()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32"\n",
                   ae_common::sim->get_num_gener(), _gen_unit->get_indiv()->get_index_in_population(),
                   segment_length, _length );
       }
@@ -1576,29 +1618,26 @@ bool ae_dna::do_deletion( int32_t pos_1, int32_t pos_2 )
     
     int32_t segment_length = _length + pos_2 - pos_1;
     
-    if ( _length - segment_length >= ae_common::min_genome_length )
+    // Remove promoters containing at least one nucleotide from the sequence to delete
+    _gen_unit->remove_promoters_around( pos_1, pos_2 );
+    
+    // Delete the sequence between pos_1 and pos_2
+    remove( pos_1, _length ); // delete tmp1 from genome
+    remove( 0, pos_2 );       // delete tmp2 from genome
+    
+    // Update promoter list
+    if ( _length >= PROM_SIZE )
     {
-      // Remove promoters containing at least one nucleotide from the sequence to delete
-      _gen_unit->remove_promoters_around( pos_1, pos_2 );
+      _gen_unit->move_all_promoters_after( 0, -pos_2 );
       
-      // Delete the sequence between pos_1 and pos_2
-      remove( pos_1, _length ); // delete tmp1 from genome
-      remove( 0, pos_2 );       // delete tmp2 from genome
-      
-      // Update promoter list
-      if ( _length >= PROM_SIZE )
-      {
-        _gen_unit->move_all_promoters_after( 0, -pos_2 );
-        
-        _gen_unit->look_for_new_promoters_around( 0 );
-      }
+      _gen_unit->look_for_new_promoters_around( 0 );
     }
     else
     {
-      if ( ae_common::sim->get_logs()->get_to_be_logged( BARRIER ) == true )
+      if ( ae_common::sim != NULL && ae_common::sim->get_logs()->get_to_be_logged( LOG_BARRIER ) == true )
       {
         // Write an entry in the barrier log file
-        fprintf(  ae_common::sim->get_logs()->get_log( BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32"\n",
+        fprintf(  ae_common::sim->get_logs()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32"\n",
                   ae_common::sim->get_num_gener(), _gen_unit->get_indiv()->get_index_in_population(),
                   segment_length, _length );
       }
@@ -1663,7 +1702,7 @@ bool ae_dna::do_translocation( int32_t pos_1, int32_t pos_2, int32_t pos_3, int3
   //
   
   // Determine which position comes first and do the corresponding rearrangement
-  int32_t pos_min = utils::min( pos_1, utils::min( pos_2, utils::min( pos_3, pos_4 ) ) );
+  int32_t pos_min = ae_utils::min( pos_1, ae_utils::min( pos_2, ae_utils::min( pos_3, pos_4 ) ) );
   
   if ( ! invert )
   {
@@ -1710,8 +1749,9 @@ bool ae_dna::do_translocation( int32_t pos_1, int32_t pos_2, int32_t pos_3, int3
 bool ae_dna::do_inter_GU_translocation( int32_t pos_1_rel, int32_t pos_2_rel, int32_t pos_3_rel, int32_t pos_4_rel, bool invert )
 {
   // TODO check GU lengths according to positions and size limit
+  int32_t segment_length;
 
-  if (  pos_1_rel == pos_2_rel ) 
+  if (  pos_1_rel == pos_2_rel ) // TODO : should'nt that raise an error?
   {
     return false; 
   }
@@ -1755,7 +1795,7 @@ bool ae_dna::do_inter_GU_translocation( int32_t pos_1_rel, int32_t pos_2_rel, in
   //~ //                                                                                  p4r+(_length-(p1r-p2r))
   
   // Determine which position comes first and do the corresponding rearrangement
-  // int32_t pos_min = utils::min( pos_1, pos_2 );
+  // int32_t pos_min = ae_utils::min( pos_1, pos_2 );
   
   if ( ! invert )
   {
@@ -1781,6 +1821,7 @@ bool ae_dna::do_inter_GU_translocation( int32_t pos_1_rel, int32_t pos_2_rel, in
       //                   _gen_unit->get_indiv()->get_amount_of_dna() );
       //       }
       
+      segment_length = ae_utils::mod( pos_2_rel - pos_1_rel, _length );
       inter_GU_ABCDE_to_ACDBE( pos_1_rel, pos_2_rel, pos_4_rel );
     }
     else 
@@ -1805,6 +1846,7 @@ bool ae_dna::do_inter_GU_translocation( int32_t pos_1_rel, int32_t pos_2_rel, in
       //                   _gen_unit->get_indiv()->get_amount_of_dna() );
       //       }
       
+      segment_length = ae_utils::mod( pos_1_rel - pos_2_rel, _length );
       inter_GU_ABCDE_to_BDCAE( pos_2_rel, pos_1_rel, pos_4_rel );
     }
   }
@@ -1812,23 +1854,24 @@ bool ae_dna::do_inter_GU_translocation( int32_t pos_1_rel, int32_t pos_2_rel, in
   {
     if ( pos_1_rel < pos_2_rel )
     {
-      do_inversion(pos_1_rel, pos_2_rel); 
+      segment_length = ae_utils::mod( pos_2_rel - pos_1_rel, _length );
+      do_inversion( pos_1_rel, pos_2_rel );
       inter_GU_ABCDE_to_ACDBE( pos_1_rel, pos_2_rel, pos_4_rel );
     }
     else // pos_1_rel > pos_2_rel
     {
+      segment_length = ae_utils::mod( pos_1_rel - pos_2_rel, _length );
       if (pos_2_rel != 0)       { do_inversion( 0, pos_2_rel); }
       if (pos_1_rel != _length) { do_inversion( pos_1_rel, _length); }
       inter_GU_ABCDE_to_BDCAE( pos_2_rel, pos_1_rel, pos_4_rel );
     }
-    
   }
   
   // Report rearrangement and return it
   if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
   {
     mut = new ae_mutation();
-    mut->report_translocation( pos_1_rel, pos_2_rel, pos_3_rel, pos_4_rel, invert );
+    mut->report_translocation( pos_1_rel, pos_2_rel, pos_3_rel, pos_4_rel, segment_length, invert );
   }
   
   return mut;
@@ -1937,7 +1980,18 @@ void ae_dna::undergo_this_mutation( ae_mutation * mut )
       break;
     case TRANS:
       mut->get_infos_translocation( &pos1, &pos2, &pos3, &pos4, &invert );
-      do_translocation( pos1, pos2, pos3, pos4, invert );
+      if ( ae_common::with_alignments )
+      {
+        // Extract the segment to be translocated
+        ae_genetic_unit* translocated_segment = extract_into_new_GU( pos1, pos2 );
+        
+        // Reinsert the segment
+        insert_GU( translocated_segment, pos3, pos4, invert );
+      }
+      else
+      {
+        do_translocation( pos1, pos2, pos3, pos4, invert );
+      }
       break;
     case INV:
       mut->get_infos_inversion( &pos1, &pos2 );
@@ -2018,13 +2072,6 @@ void ae_dna::compute_statistical_data( void )
 }
 
 
-// =================================================================
-//                           Protected Methods
-// =================================================================
-/**
- * Extract the sequence going from pos_1 (included) to pos_2 (excluded) into a new standalone genetic unit.
- * Promoter lists are created / updated accordingly
- */
 ae_genetic_unit* ae_dna::extract_into_new_GU( int32_t pos_1, int32_t pos_2 )
 {
   assert( pos_1 < pos_2 );
@@ -2041,7 +2088,7 @@ ae_genetic_unit* ae_dna::extract_into_new_GU( int32_t pos_1, int32_t pos_2 )
   proms_GU_1[LEADING]   = new ae_list();
   proms_GU_1[LAGGING]   = new ae_list();
   _gen_unit->extract_promoters_included_in( pos_1, pos_2, proms_GU_1 );  
-  ae_genetic_unit::shift_promoters( proms_GU_1, -pos_1, _gen_unit->get_dna()->get_length() );
+  ae_genetic_unit::shift_promoters( proms_GU_1, -pos_1, _length );
   
   
   // ==================== Manage sequences ====================
@@ -2077,26 +2124,77 @@ ae_genetic_unit* ae_dna::extract_into_new_GU( int32_t pos_1, int32_t pos_2 )
 }
 
 
-/**
- * Insert the genetic unit <GU_to_insert> (segments C and D) into the current GU.
- * Breakpoints are <pos_D> on the GU to insert and <pos_B> on the current GU.
- *
- * If <invert> is false, the insertion will render ADCB
- *          A        B                  C        D                          A       D       C        B
- *      |-------[>-------|     +     |=====[>========|        =>        |-------[>=====|========[>-------|
- *            pos_B                      pos_D
- *
- *
- * If <invert> is true, the insertion will render ACpDpB, with Cp (resp. Dp) = inverted C (resp. D).
- *          A        B                  C        D                          A       Cp     Dp        B
- *      |-------[>-------|     +     |=====<]========|        =>        |-------[>=====|========[>-------|
- *            pos_B                      pos_D
- */
+/*!
+  \brief Copy the sequence going from pos_1 (included) to pos_2 (excluded) into a new standalone genetic unit.
+
+  The new genetic unit's list of promoter is up-to-date.
+  if ( pos_1 == pos_2 ), the whole genome is copied
+*/
+ae_genetic_unit* ae_dna::copy_into_new_GU( int32_t pos_1, int32_t pos_2 ) const
+{
+  int32_t seq_length = ae_utils::mod( pos_2 - pos_1, _length );
+  if ( seq_length == 0 ) seq_length = _length;
+  
+  // ==================== Copy promoters from old sequence ====================
+  // Copy the promoters belonging to the sequence to be copied from the "old" GU
+  // into a stand-alone promoter list (with indices ranging from 0 to seq_length-1)
+  ae_list** proms_new_GU  = new ae_list*[2];
+  proms_new_GU[LEADING]   = new ae_list();
+  proms_new_GU[LAGGING]   = new ae_list();
+  _gen_unit->copy_promoters_included_in( pos_1, pos_2, proms_new_GU );
+  ae_genetic_unit::shift_promoters( proms_new_GU, -pos_1, _length );
+  
+  
+  // ==================== Manage sequences ====================
+  // Copy the sequence in a stand-alone char* (size must be multiple of BLOCK_SIZE)
+  int32_t length_new_GU     = seq_length;
+  char*   sequence_new_GU   = new char[nb_blocks( length_new_GU ) * BLOCK_SIZE];
+  if ( pos_1 < pos_2 )
+  {
+    memcpy( sequence_new_GU, &_data[pos_1], length_new_GU * sizeof(char) );
+  }
+  else
+  {
+    memcpy( sequence_new_GU, &_data[pos_1], (_length - pos_1) * sizeof(char) );
+    memcpy( &sequence_new_GU[_length - pos_1], &_data[0], pos_2 * sizeof(char) );
+  }
+  sequence_new_GU[length_new_GU] = '\0';
+  
+  
+  // ==================== Create the new genetic unit ====================
+  ae_genetic_unit* new_GU = new ae_genetic_unit( _gen_unit->get_indiv(), sequence_new_GU, length_new_GU, proms_new_GU );
+  
+  
+  // ==================== Update new GU promoter list ====================
+  // Look for new promoters around breakpoints
+  new_GU->look_for_new_promoters_around( 0 );
+  
+  return new_GU;
+}
+
+/*!
+  \brief Insert the genetic unit GU_to_insert at pos_B, through pos_D. (sequence is inverted if invert == true)
+
+  GU to insert: segments C and D, breakpoint pos_D.
+  Current GU:   segments A and B, breakpoint pos_B.
+ 
+  \verbatim
+  If invert is false, the insertion will render ADCB
+           A        B                  C        D                          A       D       C        B
+       |-------[>-------|     +     |=====[>========|        =>        |-------[>=====|========[>-------|
+             pos_B                      pos_D
+ 
+ 
+  If invert is true, the insertion will render ACpDpB, with Cp (resp. Dp) = inverted C (resp. D).
+           A        B                  C        D                          A       Cp     Dp        B
+       |-------[>-------|     +     |=====<]========|        =>        |-------[>=====|========[>-------|
+             pos_B                      pos_D
+  \endverbatim
+
+  Sequence from GU_to_insert is untouched but its list of promoters is emptied
+*/
 void ae_dna::insert_GU( ae_genetic_unit* GU_to_insert, int32_t pos_B, int32_t pos_D, bool invert )
 {
-  //~ printf( "ae_dna::insert_GU( %p, %"PRId32", %"PRId32", %d )\n", GU_to_insert, pos_B, pos_D, invert );
-  //~ getchar();
-  
   // Compute segment lengths
   const char* GUti_data = GU_to_insert->get_dna()->get_data();
   int32_t len_A     = pos_B;
@@ -2193,8 +2291,8 @@ void ae_dna::insert_GU( ae_genetic_unit* GU_to_insert, int32_t pos_B, int32_t po
     GU_to_insert->extract_promoters_starting_between( 0, pos_D, proms_C );
   }
   GU_to_insert->extract_promoters_starting_between( pos_D, len_CD, proms_D );
-  assert( GU_to_insert->get_rna_list()[LEADING]->get_nb_elts() == 0 );
-  assert( GU_to_insert->get_rna_list()[LAGGING]->get_nb_elts() == 0 );
+  assert( GU_to_insert->get_rna_list()[LEADING]->is_empty() );
+  assert( GU_to_insert->get_rna_list()[LAGGING]->is_empty() );
   ae_genetic_unit::shift_promoters( proms_D, -len_C, len_D );
   
   if ( invert )
@@ -2235,6 +2333,91 @@ void ae_dna::insert_GU( ae_genetic_unit* GU_to_insert, int32_t pos_B, int32_t po
   set_GU( _gen_unit->get_rna_list(), _gen_unit );
 }
 
+
+/*!
+  \brief Looks for an alignment between chrom1 and chrom2 in the given sense with max nb_pairs trials. nb_pairs is updated accordingly
+ 
+  Performs local alignment searches between chrom1 and chrom2 around randomly drawn pairs of points.
+  The minimum score will be generated according to ae_common::align_fun_shape and associated parameters for each pair of points.
+  The parameter nb_pairs will be updated according to how many trials were necessary for an alignment to be found.
+
+  The sense of the searched alignment can be either DIRECT, INDIRECT or BOTH_SENSE. \
+  In the latter case, the sense will be randomly drawn (uniformly between DIRECT and INDIRECT) for each pair of points.
+*/
+/*static*/ ae_vis_a_vis* ae_dna::search_alignment( ae_dna* chrom1, ae_dna* chrom2, int32_t& nb_pairs, ae_sense sense )
+{
+  ae_vis_a_vis* alignment = NULL;
+  ae_sense cur_sense = sense; // Which sense (direct or indirect)
+  int16_t needed_score;       // Minimum alignement score needed to recombine (stochastic)
+  
+  for ( ; nb_pairs > 0 ; nb_pairs-- )
+  {
+    ///////////////////////////////////////
+    //  1) Draw random sense (if needed) //
+    ///////////////////////////////////////
+    if ( sense == BOTH_SENSES )
+    {
+      cur_sense = (ae_common::sim->alea->random() < 0.5) ? DIRECT : INDIRECT;
+    }
+    
+    /////////////////////////////////////////////////////
+    // 2) Determine the minimum alignment score needed //
+    /////////////////////////////////////////////////////
+    if ( ae_common::align_fun_shape == LINEAR )
+    {
+      needed_score = (int16_t) ceil( ae_common::align_lin_min +
+                                     ae_common::sim->alea->random() * ( ae_common::align_lin_max - ae_common::align_lin_min ) );
+    }
+    else
+    {
+      // I want the probability of rearrangement for an alignment of score <score> to be
+      // prob = 1 / ( 1 + exp( -(score-mean_score)/lambda ) )
+      // The score needed for a rearrangement to take place with a given random drawing is hence
+      // needed_score = ceil( -lambda * log( 1/rand - 1 ) + mean )
+      needed_score = (int16_t) ceil( -ae_common::align_sigm_lambda * log( 1/ae_common::sim->alea->random() - 1 ) + ae_common::align_sigm_mean );
+      if ( needed_score < 0 ) needed_score = 0;
+    }
+    
+    ///////////////////////////////////////////////////////////////
+    // 3) Determine where to look for an alignement (draw seeds) //
+    ///////////////////////////////////////////////////////////////
+    int32_t seed1 = ae_common::sim->alea->random( chrom1->get_length() );
+    int32_t seed2 = ae_common::sim->alea->random( chrom2->get_length() );
+    
+    ////////////////////////////////////////////////////////////////////
+    // 3) Test the existence of an alignment with a high enough score //
+    ////////////////////////////////////////////////////////////////////
+    if ( cur_sense == DIRECT )
+    {
+      alignment = ae_align::search_alignment_direct( chrom1, seed1, chrom2, seed2, needed_score );
+      if ( alignment != NULL )
+      {
+        return alignment;
+      }
+    }
+    else // if ( cur_sense = INDIRECT )
+    {
+      alignment = ae_align::search_alignment_indirect( chrom1, seed1, chrom2, seed2, needed_score );
+      if ( alignment != NULL )
+      {
+        return alignment;
+      }
+    }
+  }
+  
+  return NULL;
+}
+
+
+
+
+// =================================================================
+//                           Protected Methods
+// =================================================================
+/**
+ * Extract the sequence going from pos_1 (included) to pos_2 (excluded) into a new standalone genetic unit.
+ * Promoter lists are created / updated accordingly
+ */
 void ae_dna::ABCDE_to_ADCBE( int32_t pos_B, int32_t pos_C, int32_t pos_D, int32_t pos_E )
 {
   // Rearrange the sequence from ABCDE to ADCBE (complex translocation of segment defined
@@ -2645,7 +2828,6 @@ void ae_dna::inter_GU_ABCDE_to_ACDBE( int32_t pos_B, int32_t pos_C, int32_t pos_
   // Check points' order and range
   assert( ( pos_B >= 0 && pos_C >= pos_B ) && ( pos_E >= 0 ) );
   
-  
   if ( pos_B != pos_C )
   {
     // Usefull values
@@ -2752,177 +2934,7 @@ void ae_dna::inter_GU_ABCDE_to_ACDBE( int32_t pos_B, int32_t pos_C, int32_t pos_
     destination_GU->look_for_new_promoters_around( 0 );
     destination_GU->look_for_new_promoters_around( len_D );
     destination_GU->look_for_new_promoters_around( len_DB );
-  
-    // ***** NOTE by DM ******
-    // Code below was used for testing whether the translocation between GUs was done properly
-    // it breaks down when main genetic unit (GU 0) has no RNAs
-    // left here, for now,  for potential future debugging purposes. 
-    
-    //       ae_list** rna_list_0 = indiv->get_genetic_unit( 0 )->get_rna_list();
-    //       ae_list** rna_list_1 = indiv->get_genetic_unit( 1 )->get_rna_list();
-    //       ae_list** new_list = new ae_list*[2];
-    //       new_list[LEADING]  = new ae_list();
-    //       new_list[LAGGING]  = new ae_list();
-    //       indiv->get_genetic_unit( 0 )->set_rna_list( new_list );
-    //       new_list = new ae_list*[2];
-    //       new_list[LEADING]  = new ae_list();
-    //       new_list[LAGGING]  = new ae_list();
-    //       indiv->get_genetic_unit( 1 )->set_rna_list( new_list );
-    
-    //      bool identical = true;
-    
-    //      printf( "************************************\n" );
-    //      indiv->get_genetic_unit( 0 )->locate_promoters();
-    //      indiv->get_genetic_unit( 1 )->locate_promoters();
-    
-    
-    // ae_list** rna_list_0_bis = indiv->get_genetic_unit( 0 )->get_rna_list();
-    //       ae_list** rna_list_1_bis = indiv->get_genetic_unit( 1 )->get_rna_list();
-    //       
-    //       
-    //       ae_list_node* rna_node = rna_list_0[LEADING]->get_first();
-    //       ae_list_node* rna_node_bis = rna_list_0_bis[LEADING]->get_first();
-    //       ae_rna* rna;
-    //       ae_rna* rna_bis;
-    //       
-    //       while ( rna_node )
-    //       {
-    //         assert( rna_node_bis );
-    //         rna = (ae_rna*) rna_node->get_obj();
-    //         rna_bis = (ae_rna*) rna_node_bis->get_obj();
-    //         
-    //         if ( rna->get_promoter_pos() != rna_bis->get_promoter_pos() )
-    //         {
-    //           identical = false;
-    //         }
-    //         
-    //         rna_node = rna_node->get_next();
-    //         rna_node_bis = rna_node_bis->get_next();
-    //       }
-    //       
-    //       rna_node = rna_list_0[LAGGING]->get_first();
-    //       rna_node_bis = rna_list_0_bis[LAGGING]->get_first();
-    //       while ( rna_node )
-    //       {
-    //       
-    //         if (rna_list_0_bis[LAGGING]->get_first() == NULL) printf("EMPTY LIST!!!!!!!!!!!!!!!"); 
-    //         assert( rna_node_bis );
-    //         rna = (ae_rna*) rna_node->get_obj();
-    //         rna_bis = (ae_rna*) rna_node_bis->get_obj();
-    //         
-    //         if ( rna->get_promoter_pos() != rna_bis->get_promoter_pos() )
-    //         {
-    //           identical = false;
-    //         }
-    //         
-    //         rna_node = rna_node->get_next();
-    //         rna_node_bis = rna_node_bis->get_next();
-    //       }
-    //       
-    //       
-    //       rna_node = rna_list_1[LEADING]->get_first();
-    //       rna_node_bis = rna_list_1_bis[LEADING]->get_first();
-    //       while ( rna_node )
-    //       {
-    //         assert( rna_node_bis );
-    //         rna = (ae_rna*) rna_node->get_obj();
-    //         rna_bis = (ae_rna*) rna_node_bis->get_obj();
-    //         
-    //         if ( rna->get_promoter_pos() != rna_bis->get_promoter_pos() )
-    //         {
-    //           identical = false;
-    //         }
-    //         
-    //         rna_node = rna_node->get_next();
-    //         rna_node_bis = rna_node_bis->get_next();
-    //       }
-    //       
-    //       rna_node = rna_list_1[LAGGING]->get_first();
-    //       rna_node_bis = rna_list_1_bis[LAGGING]->get_first();
-    //       while ( rna_node )
-    //       {
-    //         assert( rna_node_bis );
-    //         rna = (ae_rna*) rna_node->get_obj();
-    //         rna_bis = (ae_rna*) rna_node_bis->get_obj();
-    //         
-    //         if ( rna->get_promoter_pos() != rna_bis->get_promoter_pos() )
-    //         {
-    //           identical = false;
-    //         }
-    //         
-    //         rna_node = rna_node->get_next();
-    //         rna_node_bis = rna_node_bis->get_next();
-    //       }
-    //       
-    //       
-    //       if ( ! identical )
-    //       {
-    //         rna_node = rna_list_0[LEADING]->get_first();
-    //         rna_node_bis = rna_list_0_bis[LEADING]->get_first();
-    //         
-    //         while ( rna_node )
-    //         {
-    //           assert( rna_node_bis );
-    //           rna = (ae_rna*) rna_node->get_obj();
-    //           rna_bis = (ae_rna*) rna_node_bis->get_obj();
-    //           
-    //           printf( "LEADING 0       %"PRId32"\n", rna->get_promoter_pos() );
-    //           printf( "LEADING 0 (bis) %"PRId32"\n", rna_bis->get_promoter_pos() );
-    //           
-    //           rna_node = rna_node->get_next();
-    //           rna_node_bis = rna_node_bis->get_next();
-    //         }
-    //         
-    //         rna_node = rna_list_0[LAGGING]->get_first();
-    //         rna_node_bis = rna_list_0_bis[LAGGING]->get_first();
-    //         while ( rna_node )
-    //         {
-    //           assert( rna_node_bis );
-    //           rna = (ae_rna*) rna_node->get_obj();
-    //           rna_bis = (ae_rna*) rna_node_bis->get_obj();
-    //           
-    //           printf( "LAGGING 0       %"PRId32"\n", rna->get_promoter_pos() );
-    //           printf( "LAGGING 0 (bis) %"PRId32"\n", rna_bis->get_promoter_pos() );
-    //           
-    //           rna_node = rna_node->get_next();
-    //           rna_node_bis = rna_node_bis->get_next();
-    //         }
-    //         
-    //         
-    //         rna_node = rna_list_1[LEADING]->get_first();
-    //         rna_node_bis = rna_list_1_bis[LEADING]->get_first();
-    //         while ( rna_node )
-    //         {
-    //           assert( rna_node_bis );
-    //           rna = (ae_rna*) rna_node->get_obj();
-    //           rna_bis = (ae_rna*) rna_node_bis->get_obj();
-    //           
-    //           printf( "LEADING 1       %"PRId32"\n", rna->get_promoter_pos() );
-    //           printf( "LEADING 1 (bis) %"PRId32"\n", rna_bis->get_promoter_pos() );
-    //           
-    //           rna_node = rna_node->get_next();
-    //           rna_node_bis = rna_node_bis->get_next();
-    //         }
-    //         
-    //         rna_node = rna_list_1[LAGGING]->get_first();
-    //         rna_node_bis = rna_list_1_bis[LAGGING]->get_first();
-    //         while ( rna_node )
-    //         {
-    //           //assert( rna_node_bis );
-    //           rna = (ae_rna*) rna_node->get_obj();
-    //           rna_bis = (ae_rna*) rna_node_bis->get_obj();
-    //           
-    //           printf( "LAGGING 1       %"PRId32"\n", rna->get_promoter_pos() );
-    //           printf( "LAGGING 1 (bis) %"PRId32"\n", rna_bis->get_promoter_pos() );
-    //           
-    //           rna_node = rna_node->get_next();
-    //           rna_node_bis = rna_node_bis->get_next();
-    //         }
-    //         
-    //         getchar();
-    //      }
-  }  
-  
+  }
 }
 
 void ae_dna::inter_GU_ABCDE_to_BDCAE( int32_t pos_B, int32_t pos_C, int32_t pos_E )

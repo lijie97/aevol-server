@@ -74,10 +74,6 @@ COMPUTE_PHEN_CONTRIB_BY_GU  true
 
 ##### 12. Alignment ###############
 WITH_ALIGNMENTS         false
-ALIGN_MIN_SCORE         40  
-ALIGN_MAX_SCORE         100 
-ALIGN_MAX_SHIFT         20  
-ALIGN_W_ZONE_H_LEN      50
 
 ##### 13. Rearrangement rates (w/ alignements)
 NEIGHBOURHOOD_RATE       5e-5

@@ -95,7 +95,7 @@ int main(int argc, char** argv)
   // OK si NORMAL, sortir si LIGHT
 
 
-  printf("\n  WARNING : Parameters' change in the middle of a generation is not managed.\n");
+  printf("\n  WARNING : Parameters' change in the middle of a simulation is not managed.\n");
  
 
   // =====================
@@ -113,7 +113,7 @@ int main(int argc, char** argv)
   char* backup_file_name = NULL;
   char tree_file_name[50];
 
-  const char * short_options = "hvnb:i:f:"; 
+  const char * short_options = "hvncb:i:f:"; 
   static struct option long_options[] = {
     {"help",      no_argument,       NULL, 'h'},
     {"verbose",   no_argument,       NULL, 'v'},
@@ -264,9 +264,9 @@ int main(int argc, char** argv)
   // =======================
   char output_file_name[101];
 #ifdef __REGUL
-  snprintf( output_file_name, 100, "lineage-b%06"PRId32"-e%06"PRId32".rae", begin_gener, end_gener, final_indiv_rank );
+  snprintf( output_file_name, 100, "lineage-b%06"PRId32"-e%06"PRId32".rae", begin_gener, end_gener );
 #else 
-  snprintf( output_file_name, 100, "lineage-b%06"PRId32"-e%06"PRId32".ae",  begin_gener, end_gener, final_indiv_rank );
+  snprintf( output_file_name, 100, "lineage-b%06"PRId32"-e%06"PRId32".ae",  begin_gener, end_gener );
 #endif
 
   gzFile * lineage_file = (gzFile*) gzopen(output_file_name, "w");
@@ -307,7 +307,7 @@ int main(int argc, char** argv)
     if ( verbose ) printf( "Getting the replication report for the ancestor at generation %"PRId32"\n", num_gener );
 
     
-    if ( utils::mod( num_gener, ae_common::tree_step ) == 0 ) 
+    if ( ae_utils::mod( num_gener, ae_common::tree_step ) == 0 ) 
     {
       // Change the tree file 
       delete tree;
@@ -430,7 +430,7 @@ int main(int argc, char** argv)
     num_gener = begin_gener + i + 1;
     
     // Do we need to check the genome now?
-    check_genome_now =  ( ( check_genome == FULL_CHECK && utils::mod( num_gener, ae_common::backup_step ) == 0 ) ||
+    check_genome_now =  ( ( check_genome == FULL_CHECK && ae_utils::mod( num_gener, ae_common::backup_step ) == 0 ) ||
                           ( check_genome == LIGHT_CHECK && num_gener == end_gener ) );
     
     // Write the replication report of the ancestor for current generation

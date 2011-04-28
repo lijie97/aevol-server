@@ -150,18 +150,18 @@ ae_simulation::ae_simulation( ae_param_overloader* param_overloader )
   
   
   // Write an entry in the LOADS log file
-  if ( _logs->get_to_be_logged( LOADS ) == true )
+  if ( _logs->get_to_be_logged( LOG_LOADS ) == true )
   {
-    fprintf( _logs->get_log( LOADS ), "Simulation lauched\n" );
+    fprintf( _logs->get_log( LOG_LOADS ), "Simulation lauched\n" );
     if ( param_overloader != NULL )
     {
-      fprintf( _logs->get_log( LOADS ), "  Overloaded parameters:\n" );
-      param_overloader->write_log( _logs->get_log( LOADS ) );
-      fprintf( _logs->get_log( LOADS ), "\n" );
+      fprintf( _logs->get_log( LOG_LOADS ), "  Overloaded parameters:\n" );
+      param_overloader->write_log( _logs->get_log( LOG_LOADS ) );
+      fprintf( _logs->get_log( LOG_LOADS ), "\n" );
     }
     else
     {
-      fprintf( _logs->get_log( LOADS ), "  No overloaded parameters\n\n" );
+      fprintf( _logs->get_log( LOG_LOADS ), "  No overloaded parameters\n\n" );
     }
   }
 }
@@ -272,19 +272,19 @@ ae_simulation::ae_simulation( char* backup_file_name, bool to_be_run /* = TRUE *
     // Evaluate individuals
     _pop->evaluate_individuals( _env );
     
-    if ( _logs->get_to_be_logged( LOADS ) == true )
+    if ( _logs->get_to_be_logged( LOG_LOADS ) == true )
     {
       // Write an entry in the LOADS log file
-      fprintf(  _logs->get_log( LOADS ), "Population loaded from backup at generation %"PRId32"\n", _num_gener );
-      if ( param_overloader != NULL )
+      fprintf( _logs->get_log( LOG_LOADS ), "Population loaded from backup at generation %"PRId32"\n", _num_gener );
+      if ( param_overloader->get_nb_overloaded() > 0 )
       {
-        fprintf( _logs->get_log( LOADS ), "  Overloaded parameters:\n" );
-        param_overloader->write_log( _logs->get_log( LOADS ) );
-        fprintf( _logs->get_log( LOADS ), "\n" );
+        fprintf( _logs->get_log( LOG_LOADS ), "  Overloaded parameters:\n" );
+        param_overloader->write_log( _logs->get_log( LOG_LOADS ) );
+        fprintf( _logs->get_log( LOG_LOADS ), "\n" );
       }
       else
       {
-        fprintf( _logs->get_log( LOADS ), "  No overloaded parameters\n\n" );
+        fprintf( _logs->get_log( LOG_LOADS ), "  No overloaded parameters\n\n" );
       }
     }
   }

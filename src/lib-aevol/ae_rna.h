@@ -220,7 +220,7 @@ void ae_rna::add_transcribed_protein( ae_protein* prot )
 
 void ae_rna::shift_position( int32_t delta_pos, int32_t genome_length )
 {
-  _pos = utils::mod( _pos + delta_pos, genome_length );
+  _pos = ae_utils::mod( _pos + delta_pos, genome_length );
 }
 
 

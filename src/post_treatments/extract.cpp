@@ -146,9 +146,6 @@ int main( int argc, char* argv[] )
 
   // Evaluate the individuals
   (ae_common::sim->get_pop())->evaluate_individuals(ae_common::sim->get_env());
-  
-  int i = 0;
-  int nb_indiv = (ae_common::sim->get_pop())->get_nb_indivs();
 
   
   // Parse the individuals
@@ -168,7 +165,6 @@ int main( int argc, char* argv[] )
         {
           ae_individual* indiv = (_pop_grid[x][y]->get_individual());
           analyse_indiv(indiv, phenotype_file, sequence_file);
-          i++;
         }  
       }
     }
@@ -182,7 +178,6 @@ int main( int argc, char* argv[] )
         indiv = (ae_individual *) indiv_node->get_obj();
         analyse_indiv(indiv, phenotype_file, sequence_file);
         indiv_node = indiv_node->get_next();
-        i++;
       }
     }
   }

@@ -58,11 +58,7 @@
 
 
 
-enum ae_sense
-{
-  DIRECT    = 0,
-  INDIRECT  = 1
-};
+
 
 class ae_vis_a_vis : public ae_object
 {
@@ -89,6 +85,7 @@ class ae_vis_a_vis : public ae_object
     inline const ae_dna*  get_chrom_2( void ) const;
     inline int32_t        get_i_1( void ) const;
     inline int32_t        get_i_2( void ) const;
+    inline int16_t        get_score( void ) const;
     inline ae_sense       get_sense( void ) const;
 
     // =================================================================
@@ -152,6 +149,7 @@ class ae_vis_a_vis : public ae_object
     const ae_dna *  _chrom_2;
     int32_t         _i_1; // Index on chrom_1
     int32_t         _i_2; // Index on chrom_2
+    int16_t         _score;
     ae_sense        _sense; // Sense (DIRECT or INDIRECT) of the vis_a_vis (alignement)
     // Say we have the following sequences :
     //    0 1 2 3 4 5 6 7 8 9             0 1 2 3 4 5 6 7 8 9
@@ -187,6 +185,11 @@ inline int32_t ae_vis_a_vis::get_i_1( void ) const
 inline int32_t ae_vis_a_vis::get_i_2( void ) const
 {
   return _i_2;
+}
+
+inline int16_t ae_vis_a_vis::get_score( void ) const
+{
+  return _score;
 }
 
 inline ae_sense ae_vis_a_vis::get_sense( void ) const
@@ -227,7 +230,7 @@ inline bool ae_vis_a_vis::match( void )
 {
   if ( _sense == DIRECT )
   {
-    return ( _chrom_1->get_data()[utils::mod(_i_1, _chrom_1->get_length())] == _chrom_2->get_data()[utils::mod(_i_2, _chrom_2->get_length())] );
+    return ( _chrom_1->get_data()[ae_utils::mod(_i_1, _chrom_1->get_length())] == _chrom_2->get_data()[ae_utils::mod(_i_2, _chrom_2->get_length())] );
   }
   else // ( _sense == INDIRECT )
   {
@@ -239,7 +242,7 @@ inline bool ae_vis_a_vis::match( void )
     //      9 8 7 6 5 4 3 2 1 0
     //
     // The breakpoint F-5 puts into a vis_a_vis the nucleotide at index F on seq1 and that at index 4 (not 5!!!) on seq2
-    return ( _chrom_1->get_data()[utils::mod(_i_1, _chrom_1->get_length())] != _chrom_2->get_data()[utils::mod(_i_2-1, _chrom_2->get_length())] );
+    return ( _chrom_1->get_data()[ae_utils::mod(_i_1, _chrom_1->get_length())] != _chrom_2->get_data()[ae_utils::mod(_i_2-1, _chrom_2->get_length())] );
   }
 }
 
@@ -350,8 +353,8 @@ inline void ae_vis_a_vis::copy( ae_vis_a_vis * source )
 
 inline void ae_vis_a_vis::check_indices( void )
 {
-  _i_1 = utils::mod( _i_1, _chrom_1->get_length() );
-  _i_2 = utils::mod( _i_2, _chrom_2->get_length() );
+  _i_1 = ae_utils::mod( _i_1, _chrom_1->get_length() );
+  _i_2 = ae_utils::mod( _i_2, _chrom_2->get_length() );
 }
 
 

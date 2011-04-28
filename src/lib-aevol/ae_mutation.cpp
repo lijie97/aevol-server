@@ -287,7 +287,8 @@ void ae_mutation::report_point_mutation( int32_t pos )
   //~ printf( "report point mutation at %ld\n", pos );
   
   _mut_type = SWITCH;
-  _pos = new int32_t( pos );
+  _pos      = new int32_t( pos );
+  _length   = 1;
 }
 
 void ae_mutation::report_small_insertion( int32_t pos, int32_t length, const char* seq )
@@ -311,7 +312,7 @@ void ae_mutation::report_small_deletion( int32_t pos, int32_t length )
   _length = length;
 }
 
-void ae_mutation::report_duplication( int32_t pos_1, int32_t pos_2, int32_t pos_3, int16_t align_score )
+void ae_mutation::report_duplication( int32_t pos_1, int32_t pos_2, int32_t pos_3, int32_t length, int16_t align_score )
 {
   //~ printf( "report duplication of [%ld, %ld] to %ld\n", pos_1, pos_2, pos_3 );
   
@@ -322,10 +323,12 @@ void ae_mutation::report_duplication( int32_t pos_1, int32_t pos_2, int32_t pos_
   _pos[1] = pos_2;
   _pos[2] = pos_3;
   
+  _length = length;
+  
   _align_score = new int16_t( align_score );
 }
 
-void ae_mutation::report_deletion( int32_t pos_1, int32_t pos_2, int16_t align_score )
+void ae_mutation::report_deletion( int32_t pos_1, int32_t pos_2, int32_t length, int16_t align_score )
 {
   //~ printf( "report deletion of [%ld, %ld]\n", pos_1, pos_2 );
   
@@ -335,10 +338,12 @@ void ae_mutation::report_deletion( int32_t pos_1, int32_t pos_2, int16_t align_s
   _pos[0] = pos_1;
   _pos[1] = pos_2;
   
+  _length = length;
+  
   _align_score = new int16_t( align_score );
 }
 
-void ae_mutation::report_translocation( int32_t pos_1, int32_t pos_2, int32_t pos_3, int32_t pos_4, bool invert, int16_t align_score_1, int16_t align_score_2 )
+void ae_mutation::report_translocation( int32_t pos_1, int32_t pos_2, int32_t pos_3, int32_t pos_4, int32_t length, bool invert, int16_t align_score_1, int16_t align_score_2 )
 {
   //~ printf( "report translocation of [%ld, %ld] to %ld through %ld (%s)\n", pos_1, pos_2, pos_3, pos_4, invert?"invert":"plain" );
   
@@ -351,12 +356,14 @@ void ae_mutation::report_translocation( int32_t pos_1, int32_t pos_2, int32_t po
   _pos[3] = pos_4;
   _invert = invert;
   
+  _length = length;
+  
   _align_score = new int16_t[2];
   _align_score[0] = align_score_1;
   _align_score[1] = align_score_2;
 }
 
-void ae_mutation::report_inversion( int32_t pos_1, int32_t pos_2, int16_t align_score )
+void ae_mutation::report_inversion( int32_t pos_1, int32_t pos_2, int32_t length, int16_t align_score )
 {
   //~ printf( "report inversion of [%ld, %ld]\n", pos_1, pos_2 );
   
@@ -366,10 +373,12 @@ void ae_mutation::report_inversion( int32_t pos_1, int32_t pos_2, int16_t align_
   _pos[0] = pos_1;
   _pos[1] = pos_2;
   
+  _length = length;
+  
   _align_score = new int16_t( align_score );
 }
 
-void ae_mutation::report_insertion( int32_t pos, const char* seq, int32_t length )
+void ae_mutation::report_insertion( int32_t pos, int32_t length, const char* seq )
 {
   //~ printf( "report insertion of %s (%ld) at %ld\n", seq, length, pos );
   
@@ -443,53 +452,51 @@ void ae_mutation::write_to_backup( gzFile* backup_file ) // Usually <backup_file
 
 
 
-/* str must be the address of a buffer of at least 60 bytes :
-   type pos[0] pos[1] pos[2] pos[3] invert
-*/
+
 void ae_mutation::get_generic_description_string( char * str )
 {
   switch ( _mut_type )
   {
     case SWITCH :
     {
-      sprintf(str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" ", \
+      sprintf( str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" ", \
               (int8_t) _mut_type, _pos[0], -1, -1, -1, (int8_t) -1, (int16_t) -1, (int16_t) -1 );
       break;
     }
     case S_INS :
     {
-      sprintf(str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" ", \
+      sprintf( str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" ", \
               (int8_t) _mut_type, _pos[0], -1, -1, -1, (int8_t) -1, (int16_t) -1, (int16_t) -1 );
       break;
     }
     case S_DEL :
     {
-      sprintf(str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" ", \
+      sprintf( str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" ", \
               (int8_t) _mut_type, _pos[0], -1, -1, -1, (int8_t) -1, (int16_t) -1, (int16_t) -1 );
       break;
     }
     case DUPL :
     {
-      sprintf(str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" ", \
+      sprintf( str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" ", \
               (int8_t) _mut_type, _pos[0], _pos[1], _pos[2], -1, (int8_t) -1, *_align_score, (int16_t) -1 );
       break;
     }
     case DEL :
     {
-      sprintf(str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" ", \
+      sprintf( str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" ", \
               (int8_t) _mut_type, _pos[0], _pos[1], -1, -1, (int8_t) -1, *_align_score, (int16_t) -1 );
       break;
     }
     case TRANS :
     {
       int8_t tmp_invert = _invert? 1 : 0;
-      sprintf(str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" ", \
+      sprintf( str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" ", \
               (int8_t) _mut_type, _pos[0], _pos[1], _pos[2], _pos[3], tmp_invert, _align_score[0], _align_score[1] );
       break;
     }
     case INV :
     {
-      sprintf(str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" ", \
+      sprintf( str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" ", \
               (int8_t) _mut_type, _pos[0], _pos[1], -1, -1, (int8_t) -1, *_align_score, (int16_t) -1 );
       break;
     }
@@ -505,6 +512,7 @@ void ae_mutation::get_generic_description_string( char * str )
 
 
 
+/* DEPRECATED, use get_length instead */
 int32_t ae_mutation::segment_length( int32_t gen_unit_len )
 {
   int32_t res;
@@ -531,8 +539,8 @@ int32_t ae_mutation::segment_length( int32_t gen_unit_len )
       // pos 1 = end_seg;
       // pos 2 = insertion_point;
 
-      if (_pos[0] <= _pos[1]) res = _pos[1] - _pos[0] + 1;
-      else res = gen_unit_len - _pos[0] + _pos[1] + 1;
+      if (_pos[0] <= _pos[1]) res = _pos[1] - _pos[0];
+      else res = gen_unit_len - _pos[0] + _pos[1];
 
       break;
     }
@@ -541,8 +549,8 @@ int32_t ae_mutation::segment_length( int32_t gen_unit_len )
       // pos 0 = begin_seg;
       // pos 1 = end_seg;
 
-      if (_pos[0] <= _pos[1]) res = _pos[1] - _pos[0] + 1;
-      else res = gen_unit_len - _pos[0] + _pos[1] + 1;
+      if (_pos[0] <= _pos[1]) res = _pos[1] - _pos[0];
+      else res = gen_unit_len - _pos[0] + _pos[1];
       
       break;
     }
@@ -553,8 +561,8 @@ int32_t ae_mutation::segment_length( int32_t gen_unit_len )
       // pos 2 = cutting_point_in_translocated_segment (1st reinserted bp)
       // pos 3 = reinsertion_point_in_chromosome;
 
-      if (_pos[0] <= _pos[1]) res = _pos[1] - _pos[0] + 1;
-      else res = gen_unit_len - _pos[0] + _pos[1] + 1;
+      if (_pos[0] <= _pos[1]) res = _pos[1] - _pos[0];
+      else res = gen_unit_len - _pos[0] + _pos[1];
 
       break;
     }
@@ -563,8 +571,8 @@ int32_t ae_mutation::segment_length( int32_t gen_unit_len )
       // pos 0 = begin_seg;
       // pos 1 = end_seg;
 
-      if (_pos[0] <= _pos[1]) res = _pos[1] - _pos[0] + 1;
-      else res = gen_unit_len - _pos[0] + _pos[1] + 1;
+      if (_pos[0] <= _pos[1]) res = _pos[1] - _pos[0];
+      else res = gen_unit_len - _pos[0] + _pos[1];
 
       break;
     }
@@ -576,9 +584,7 @@ int32_t ae_mutation::segment_length( int32_t gen_unit_len )
     }
   }
 
-
   return res;
-
 }
 
 

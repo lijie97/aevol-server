@@ -586,7 +586,17 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
         printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown transfer option (use true/false).\n",
                 INPUT_FILE_NAME, cur_line );
         exit( EXIT_FAILURE ); 
-      }        
+      }
+      break;
+    }
+    case TRANSFER_INS_RATE :
+    {
+      ae_common::transfer_ins_rate  = atof( line->words[1] );
+      break;
+    }
+    case TRANSFER_REPL_RATE :
+    {
+      ae_common::transfer_repl_rate  = atof( line->words[1] );
       break;
     }
     case TRANSLATION_COST :
@@ -740,17 +750,21 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
       
       for ( int8_t i = 1 ; i < line->nb_words ; i++ )
       {
-        if ( strcmp( line->words[i], "REAR" ) == 0 )
+        if ( strcmp( line->words[i], "TRANSFER" ) == 0 )
         {
-          ae_common::logs |= REAR;
+          ae_common::logs |= LOG_TRANSFER;
+        }
+        else if ( strcmp( line->words[i], "REAR" ) == 0 )
+        {
+          ae_common::logs |= LOG_REAR;
         }
         else if ( strcmp( line->words[i], "BARRIER" ) == 0 )
         {
-          ae_common::logs |= BARRIER;
+          ae_common::logs |= LOG_BARRIER;
         }
         else if ( strcmp( line->words[i], "LOADS" ) == 0 )
         {
-          ae_common::logs |= LOADS;
+          ae_common::logs |= LOG_LOADS;
         }   
         else
         {
@@ -854,7 +868,7 @@ void ae_param_loader::load( void )
   cur_line = 0;
   f_line* line;
 
-  while ( line = get_line() ) // TODO : write line = new f_line( param_in ) => f_line::f_line( char* )
+  while ( ( line = get_line() ) != NULL ) // TODO : write line = new f_line( param_in ) => f_line::f_line( char* )
   {
     interpret_line( line, cur_line );
     delete line;
@@ -988,6 +1002,8 @@ ae_keywd f_line::get_keywd( void )
   if ( !strcmp( words[0], "TRANSLOCATION_RATE" ) )          return TRANSLOCATION_RATE;
   if ( !strcmp( words[0], "INVERSION_RATE" ) )              return INVERSION_RATE;
   if ( !strcmp( words[0], "WITH_TRANSFER" ) )               return WITH_TRANSFER;
+  if ( !strcmp( words[0], "TRANSFER_INS_RATE" ) )           return TRANSFER_INS_RATE;
+  if ( !strcmp( words[0], "TRANSFER_REPL_RATE" ) )          return TRANSFER_REPL_RATE;
   if ( !strcmp( words[0], "NEIGHBOURHOOD_RATE" ) )          return NEIGHBOURHOOD_RATE;
   if ( !strcmp( words[0], "DUPLICATION_PROPORTION" ) )      return DUPLICATION_PROPORTION;
   if ( !strcmp( words[0], "DELETION_PROPORTION" ) )         return DELETION_PROPORTION;

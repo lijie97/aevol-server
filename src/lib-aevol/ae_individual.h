@@ -147,10 +147,7 @@ class ae_individual : public ae_object
     // =================================================================
     //                            Public Methods
     // =================================================================
-    ae_individual* do_replication( int32_t index, int16_t x = 0, int16_t y = 0 );         // Replicate without horizontal transfer
-    ae_individual* do_replication( ae_individual* donnor, int16_t x = 0, int16_t y = 0);  // Replicate with horizontal transfer (not imlemented yet)
-    
-    void inject_GU(ae_individual* donor); 
+    void inject_GU( ae_individual* donor );
     
     virtual void evaluate( ae_environment* envir );
     virtual void reevaluate( ae_environment* envir );
@@ -211,8 +208,8 @@ class ae_individual : public ae_object
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    int32_t  _index_in_population;
-    int32_t  _rank_in_population;
+    int32_t  _index_in_population;  // [0 ; POP_SIZE[
+    int32_t  _rank_in_population;   // [1 ; POP_SIZE]
     // WARNING : The index is no longer corresponding to the rank of the individual.
     //           The reason for this change is that we now need an identifier for the individuals
     //           as soon as they are created (the rank is only known when all the individuals have been evaluated).

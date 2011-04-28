@@ -90,8 +90,6 @@ int main( int argc, char* argv[] )
     exit(EXIT_FAILURE);
   }
   
-  int32_t _num_gener=0;
-  
 
   // Load simulation from backup
   gzFile* indiv_file = (gzFile*) gzopen( indiv_file_name, "w" );

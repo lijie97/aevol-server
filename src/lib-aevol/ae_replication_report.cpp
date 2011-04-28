@@ -59,7 +59,7 @@
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_replication_report::ae_replication_report( ae_individual * indiv, ae_individual * parent, ae_individual * donnor /* = NULL */ )
+ae_replication_report::ae_replication_report( ae_individual * indiv, ae_individual * parent, ae_individual * donor /* = NULL */ )
 {
   _indiv = indiv;
   
@@ -81,17 +81,17 @@ ae_replication_report::ae_replication_report( ae_individual * indiv, ae_individu
   _parent_genome_size     = parent->get_total_genome_size();
   _mean_align_score       = 0.0;
   
-  if ( donnor == NULL )
+  if ( donor == NULL )
   {
-    _donnor_index = -1;
-    _donnor_metabolic_error = 0.0;
-    _donnor_genome_size     = 0;
+    _donor_index = -1;
+    _donor_metabolic_error = 0.0;
+    _donor_genome_size     = 0;
   }
   else
   {
-    _donnor_index           = donnor->get_index_in_population();
-    _donnor_metabolic_error = donnor->get_dist_to_target_by_feature( METABOLISM );
-    _donnor_genome_size     = donnor->get_total_genome_size();
+    _donor_index           = donor->get_index_in_population();
+    _donor_metabolic_error = donor->get_dist_to_target_by_feature( METABOLISM );
+    _donor_genome_size     = donor->get_total_genome_size();
   }
   
   _dna_replic_reports = new ae_list();
@@ -102,7 +102,7 @@ ae_replication_report::ae_replication_report( ae_individual * indiv, ae_individu
 ae_replication_report::ae_replication_report( const ae_replication_report &model )
 {
   _parent_index = model._parent_index;
-  _donnor_index = model._donnor_index;
+  _donor_index  = model._donor_index;
   
   _index = model._index;
   _rank  = model._rank;
@@ -117,9 +117,9 @@ ae_replication_report::ae_replication_report( const ae_replication_report &model
 
   _parent_metabolic_error = model._parent_metabolic_error;
   _parent_secretion_error = model._parent_secretion_error;
-  _donnor_metabolic_error = model._donnor_metabolic_error;
+  _donor_metabolic_error  = model._donor_metabolic_error;
   _parent_genome_size     = model._parent_genome_size;
-  _donnor_genome_size     = model._donnor_genome_size;
+  _donor_genome_size      = model._donor_genome_size;
   _mean_align_score       = model._mean_align_score;
   
   _dna_replic_reports = new ae_list();
@@ -135,16 +135,18 @@ ae_replication_report::ae_replication_report( const ae_replication_report &model
 }
 
 
-ae_replication_report::ae_replication_report( gzFile* tree_file )
+ae_replication_report::ae_replication_report( gzFile * tree_file, ae_individual * indiv )
 {
+  _indiv = indiv;
+    
   gzread( tree_file, &_index,         sizeof(_index)        );
   gzread( tree_file, &_rank,          sizeof(_rank)         );
   gzread( tree_file, &_parent_index,  sizeof(_parent_index) );
-  gzread( tree_file, &_donnor_index,  sizeof(_donnor_index) );
+  gzread( tree_file, &_donor_index,   sizeof(_donor_index) );
   //~ printf( "  _index : %"PRId32"\n",         _index );
   //~ printf( "  _rank : %"PRId32"\n",          _rank );
   //~ printf( "  _parent_index : %"PRId32"\n", _parent_index );
-  //~ printf( "  _donnor_index : %"PRId32"\n", _donnor_index );
+  //~ printf( "  _donor_index : %"PRId32"\n",  _donor_index );
   
   gzread( tree_file, &_genome_size,         sizeof(_genome_size) );
   gzread( tree_file, &_metabolic_error,     sizeof(_metabolic_error) );
@@ -189,6 +191,13 @@ ae_replication_report::ae_replication_report( gzFile* tree_file )
     dnareport->compute_stats();
     _dna_replic_reports->add( dnareport );
   }
+  
+  _parent_metabolic_error = -1;
+  _parent_secretion_error = -1;
+  _donor_metabolic_error  = -1;
+  _parent_genome_size     = -1;
+  _donor_genome_size      = -1;
+  _mean_align_score       = 0.0;
 }
 
 
@@ -310,11 +319,11 @@ void ae_replication_report::write_to_tree_file( gzFile* tree_file ) const
   gzwrite( tree_file, &_index,        sizeof(_index)        );
   gzwrite( tree_file, &_rank,         sizeof(_rank)         );
   gzwrite( tree_file, &_parent_index, sizeof(_parent_index) );
-  gzwrite( tree_file, &_donnor_index, sizeof(_donnor_index) );
+  gzwrite( tree_file, &_donor_index,  sizeof(_donor_index) );
   //~ printf( "  _index : %"PRId32"\n",         _index );
   //~ printf( "  _rank : %"PRId32"\n",          _rank );
   //~ printf( "  _parent_index : %"PRId32"\n",  _parent_index );
-  //~ printf( "  _donnor_index : %"PRId32"\n",  _donnor_index );
+  //~ printf( "  _donor_index : %"PRId32"\n",   _donor_index );
   
   gzwrite( tree_file, &_genome_size,         sizeof(_genome_size) );
   gzwrite( tree_file, &_metabolic_error,     sizeof(_metabolic_error) );

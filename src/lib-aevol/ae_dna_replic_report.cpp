@@ -137,7 +137,6 @@ void ae_dna_replic_report::compute_stats( void )
   
   ae_list_node * event_node = _rearrangements->get_first();
   ae_mutation *  event      = NULL;
-  ae_mutation_type event_type;
   
   while ( event_node != NULL )
   {

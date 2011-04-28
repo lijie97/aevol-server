@@ -8,7 +8,7 @@ INITIAL_GENOME_LENGTH   5000
 INIT_POP_SIZE           1000
 # INIT_METHOD <any combination (separated by a space) of one or more of the following : ONE_GOOD_GENE, CLONE, WITH_INS_SEQ>
 # i.e.        INIT_METHOD     ONE_GOOD_GENE CLONE
-INIT_METHOD             ONE_GOOD_GENE CLONE
+INIT_METHOD             ONE_GOOD_GENE CLONE WITH_INS_SEQ
 MIN_TRIANGLE_WIDTH      0.0
 MAX_TRIANGLE_WIDTH      0.033333333
 
@@ -19,15 +19,10 @@ SELECTION_PRESSURE      0.998
 
 
 ##### Mutation rates ###########
-POINT_MUTATION_RATE   1e-5
-SMALL_INSERTION_RATE  1e-5
-SMALL_DELETION_RATE   1e-5
-MAX_INDEL_SIZE        6
-
-DUPLICATION_RATE      1e-5
-DELETION_RATE         1e-5
-TRANSLOCATION_RATE    1e-5
-INVERSION_RATE        1e-5
+POINT_MUTATION_RATE     1e-5
+SMALL_INSERTION_RATE    1e-5
+SMALL_DELETION_RATE     1e-5
+MAX_INDEL_SIZE          6
 
 
 ##### Population Structure #####
@@ -48,8 +43,8 @@ ENV_SEED                0
 
 
 ##### Recording ################
-BACKUP_STEP             100
-TREE_STEP               100
+BACKUP_STEP             50
+TREE_STEP               50
 RECORD_TREE             true
 TREE_MODE               normal
 MORE_STATS              false
@@ -57,4 +52,25 @@ DUMP_PERIOD             0
 
 
 ##### Alignment ###############
-WITH_ALIGNMENTS         false
+# WITH_ALIGNMENTS       true | false
+# ALIGN_FUNCTION        LINEAR [min_score max_score]  |  SIGMOID [lambda mean]
+WITH_ALIGNMENTS         true
+ALIGN_FUNCTION          SIGMOID 4 50
+ALIGN_MAX_SHIFT         20  
+ALIGN_W_ZONE_H_LEN      50
+
+
+############ Transfer ############
+WITH_TRANSFER         true
+TRANSFER_INS_RATE     1
+TRANSFER_REPL_RATE    0.5
+
+
+##### Rearrangement rates (w/ alignements)
+# Warning:  The sum DUPLICATION_PROPORTION + DELETION_PROPORTION + TRANSLOCATION_PROPORTION must be < 1
+#           INVERSION_PROPORTION must also be < 1
+NEIGHBOURHOOD_RATE       1e-2
+DUPLICATION_PROPORTION   0.3
+DELETION_PROPORTION      0.3
+TRANSLOCATION_PROPORTION 0.3
+INVERSION_PROPORTION     0.3

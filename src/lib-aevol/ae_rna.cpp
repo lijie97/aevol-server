@@ -133,11 +133,11 @@ int32_t ae_rna::get_first_transcribed_pos( void ) const
 {
   if ( _strand == LEADING )
   {
-    return utils::mod( _pos + PROM_SIZE, _gen_unit->get_dna()->get_length() );
+    return ae_utils::mod( _pos + PROM_SIZE, _gen_unit->get_dna()->get_length() );
   }
   else
   {
-    return utils::mod( _pos - PROM_SIZE, _gen_unit->get_dna()->get_length() );
+    return ae_utils::mod( _pos - PROM_SIZE, _gen_unit->get_dna()->get_length() );
   }
 }
 
@@ -145,11 +145,11 @@ int32_t ae_rna::get_last_transcribed_pos( void ) const
 {
   if ( _strand == LEADING )
   {
-    return utils::mod( _pos +  PROM_SIZE + _transcript_length - 1, _gen_unit->get_dna()->get_length() );
+    return ae_utils::mod( _pos +  PROM_SIZE + _transcript_length - 1, _gen_unit->get_dna()->get_length() );
   }
   else
   {
-    return utils::mod( _pos - (PROM_SIZE + _transcript_length - 1), _gen_unit->get_dna()->get_length() );
+    return ae_utils::mod( _pos - (PROM_SIZE + _transcript_length - 1), _gen_unit->get_dna()->get_length() );
   }
 }
 

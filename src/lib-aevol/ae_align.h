@@ -79,10 +79,10 @@ class ae_align : public ae_object
     // =================================================================
     //                            Public Methods
     // =================================================================
-    static ae_vis_a_vis* search_alignement_direct( const ae_dna* chrom1, const int32_t seed1,
-                                                   const ae_dna* chrom2, const int32_t seed2, int16_t needed_score );
-    static ae_vis_a_vis* search_alignement_indirect( const ae_dna* chrom1, const int32_t seed1,
-                                                     const ae_dna* chrom2, const int32_t seed2, int16_t needed_score );
+    static ae_vis_a_vis* search_alignment_direct( const ae_dna* chrom1, const int32_t seed1,
+                                                  const ae_dna* chrom2, const int32_t seed2, int16_t needed_score );
+    static ae_vis_a_vis* search_alignment_indirect( const ae_dna* chrom1, const int32_t seed1,
+                                                    const ae_dna* chrom2, const int32_t seed2, int16_t needed_score );
 
     // =================================================================
     //                           Public Attributes

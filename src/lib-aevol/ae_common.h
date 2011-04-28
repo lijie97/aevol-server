@@ -41,6 +41,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
+#include <ae_enums.h>
 #include <ae_macros.h>
 #include <ae_rand_mt.h>
 #ifdef __REGUL
@@ -52,56 +53,12 @@
 //                          Class declarations
 // =================================================================
 class ae_simulation;
+#ifdef __X11
+  class ae_simulation_X11;
+#endif
 class ae_list;
 
-#ifdef __X11
-class ae_simulation_X11;
-#endif
 
-
-
-enum ae_init_method
-{
-  ONE_GOOD_GENE   = 0x01,
-  CLONE           = 0x02,
-  WITH_INS_SEQ    = 0x04
-};
-  
-enum ae_tree_mode
-{
-  LIGHT,
-  NORMAL
-};
-  
-enum ae_selection_scheme
-{
-  RANK_LINEAR,
-  RANK_EXPONENTIAL,
-  FITNESS_PROPORTIONATE,
-  FITTEST
-};
-
-enum ae_env_axis_feature
-{
-  NEUTRAL,
-  METABOLISM,
-  SECRETION,
-  TRANSFER,
-  NB_FEATURES // This is used to know how many possible features exist to make them easy to parse.
-};
-
-enum ae_env_var
-{
-  NONE                    = 0,
-  AUTOREGRESSIVE_MEAN_VAR = 1,
-  LOCAL_GAUSSIANS_VAR     = 2
-};
-
-enum ae_align_fun_shape
-{
-  LINEAR  = 0,
-  SIGMOID = 1
-};
 
 
 
@@ -184,9 +141,11 @@ class ae_common
 
 
     // Rearrangements and Transfer
-    static bool with_4pts_trans;
-    static bool with_alignments;
-    static bool with_transfer;
+    static bool   with_4pts_trans;
+    static bool   with_alignments;
+    static bool   with_transfer;
+    static double transfer_ins_rate;
+    static double transfer_repl_rate;
 
     // Rearrangement rates (without alignements)
     static double duplication_rate;

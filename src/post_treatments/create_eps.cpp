@@ -54,6 +54,7 @@
 #include <ae_rna.h>
 #include <ae_list.h>
 #include <ae_simulation.h>
+#include <ae_utils.h>
 
 
 
@@ -780,11 +781,11 @@ void draw_genetic_unit_with_CDS( ae_genetic_unit* gen_unit, char * directoryName
 
     alpha_first   = (int16_t) round(  (double)(360 * first) / (double)gen_length );  //  == sect1 == alphaB
     alpha_last    = (int16_t) round(  (double)(360 * last)  / (double)gen_length );  //  == sect2 == alphaA
-    theta_first   = utils::mod( 90 - alpha_first, 360 );  //  == tetaB
-    theta_last    = utils::mod( 90 - alpha_last, 360 );  //   == tetaA
-    if ( theta_first == theta_last ) theta_first = utils::mod( theta_first + 1, 360 ); 
+    theta_first   = ae_utils::mod( 90 - alpha_first, 360 );  //  == tetaB
+    theta_last    = ae_utils::mod( 90 - alpha_last, 360 );  //   == tetaA
+    if ( theta_first == theta_last ) theta_first = ae_utils::mod( theta_first + 1, 360 ); 
 
-    nb_sect = utils::mod( theta_first - theta_last + 1, 360 );
+    nb_sect = ae_utils::mod( theta_first - theta_last + 1, 360 );
 
 
     // Outside the circle, look for the inmost layer that has all the sectors between
@@ -796,7 +797,7 @@ void draw_genetic_unit_with_CDS( ae_genetic_unit* gen_unit, char * directoryName
       sectors_free = true;
       for ( rho = 0 ; rho < nb_sect ; rho++ )
       {
-        if ( occupied_sectors[LEADING][layer][utils::mod(theta_first - rho, 360)] )
+        if ( occupied_sectors[LEADING][layer][ae_utils::mod(theta_first - rho, 360)] )
         {
           sectors_free = false;
           break;
@@ -839,11 +840,11 @@ void draw_genetic_unit_with_CDS( ae_genetic_unit* gen_unit, char * directoryName
     // Mark sectors to be drawn as occupied
     for ( rho = 0 ; rho < nb_sect ; rho++ )
     {
-      occupied_sectors[LEADING][layer][utils::mod(theta_first - rho, 360)] = true;
+      occupied_sectors[LEADING][layer][ae_utils::mod(theta_first - rho, 360)] = true;
     }
     // Mark flanking sectors as occupied
-    occupied_sectors[LEADING][layer][utils::mod(theta_first + 1, 360)] = true;
-    occupied_sectors[LEADING][layer][utils::mod(theta_first - nb_sect, 360)] = true;
+    occupied_sectors[LEADING][layer][ae_utils::mod(theta_first + 1, 360)] = true;
+    occupied_sectors[LEADING][layer][ae_utils::mod(theta_first - nb_sect, 360)] = true;
     
     
     // draw !
@@ -881,11 +882,11 @@ void draw_genetic_unit_with_CDS( ae_genetic_unit* gen_unit, char * directoryName
 
     alpha_first   = (int16_t) round(  (double)(360 * first) / (double)gen_length );  
     alpha_last    = (int16_t) round(  (double)(360 * last)  / (double)gen_length );
-    theta_first   = utils::mod( 90 - alpha_first, 360 );  
-    theta_last    = utils::mod( 90 - alpha_last, 360 );     
-    if ( theta_first == theta_last ) theta_last = utils::mod( theta_last + 1, 360 ); 
+    theta_first   = ae_utils::mod( 90 - alpha_first, 360 );  
+    theta_last    = ae_utils::mod( 90 - alpha_last, 360 );     
+    if ( theta_first == theta_last ) theta_last = ae_utils::mod( theta_last + 1, 360 ); 
 
-    nb_sect = utils::mod( theta_last - theta_first + 1, 360 );
+    nb_sect = ae_utils::mod( theta_last - theta_first + 1, 360 );
 
 
     // Inside the circle, look for the inmost layer that has all the sectors between
@@ -897,7 +898,7 @@ void draw_genetic_unit_with_CDS( ae_genetic_unit* gen_unit, char * directoryName
       sectors_free = true;
       for ( rho = 0 ; rho < nb_sect ; rho++ )
       {
-        if ( occupied_sectors[LAGGING][layer][utils::mod(theta_first + rho, 360)] )
+        if ( occupied_sectors[LAGGING][layer][ae_utils::mod(theta_first + rho, 360)] )
         {
           sectors_free = false;
           break;
@@ -940,11 +941,11 @@ void draw_genetic_unit_with_CDS( ae_genetic_unit* gen_unit, char * directoryName
     // Mark sectors to be drawn as occupied
     for ( rho = 0 ; rho < nb_sect ; rho++ )
     {
-      occupied_sectors[LAGGING][layer][utils::mod(theta_first + rho, 360)] = true;
+      occupied_sectors[LAGGING][layer][ae_utils::mod(theta_first + rho, 360)] = true;
     }
     // Mark flanking sectors as occupied
-    occupied_sectors[LAGGING][layer][utils::mod(theta_first - 1, 360)] = true;
-    occupied_sectors[LAGGING][layer][utils::mod(theta_first + nb_sect, 360)] = true;
+    occupied_sectors[LAGGING][layer][ae_utils::mod(theta_first - 1, 360)] = true;
+    occupied_sectors[LAGGING][layer][ae_utils::mod(theta_first + nb_sect, 360)] = true;
 
   
     // draw !
@@ -1076,11 +1077,11 @@ void draw_genetic_unit_with_mRNAs( ae_genetic_unit* gen_unit, char * directoryNa
     
     alpha_first   = (int16_t) round(  (double)(360 * first) / (double)gen_length );  //  == sect1 == alphaB
     alpha_last    = (int16_t) round(  (double)(360 * last)  / (double)gen_length );  //  == sect2 == alphaA
-    theta_first   = utils::mod( 90 - alpha_first, 360 );  //  == tetaB
-    theta_last    = utils::mod( 90 - alpha_last, 360 );  //   == tetaA
-    if ( theta_first == theta_last ) theta_first = utils::mod( theta_first + 1, 360 ); 
+    theta_first   = ae_utils::mod( 90 - alpha_first, 360 );  //  == tetaB
+    theta_last    = ae_utils::mod( 90 - alpha_last, 360 );  //   == tetaA
+    if ( theta_first == theta_last ) theta_first = ae_utils::mod( theta_first + 1, 360 ); 
 
-    nb_sect = utils::mod( theta_first - theta_last + 1, 360 );
+    nb_sect = ae_utils::mod( theta_first - theta_last + 1, 360 );
 
 
     // Outside the circle, look for the inmost layer that has all the sectors between
@@ -1092,7 +1093,7 @@ void draw_genetic_unit_with_mRNAs( ae_genetic_unit* gen_unit, char * directoryNa
       sectors_free = true;
       for ( rho = 0 ; rho < nb_sect ; rho++ )
       {
-        if ( occupied_sectors[LEADING][layer][utils::mod(theta_first - rho, 360)] )
+        if ( occupied_sectors[LEADING][layer][ae_utils::mod(theta_first - rho, 360)] )
         {
           sectors_free = false;
           break;
@@ -1133,12 +1134,12 @@ void draw_genetic_unit_with_mRNAs( ae_genetic_unit* gen_unit, char * directoryNa
     // Mark sectors to be drawn as occupied
     for ( rho = 0 ; rho < nb_sect ; rho++ )
     {
-      occupied_sectors[LEADING][layer][utils::mod(theta_first - rho, 360)] = true;
+      occupied_sectors[LEADING][layer][ae_utils::mod(theta_first - rho, 360)] = true;
     }
 
     // Mark flanking sectors as occupied
-    occupied_sectors[LEADING][layer][utils::mod(theta_first + 1, 360)] = true;
-    occupied_sectors[LEADING][layer][utils::mod(theta_first - nb_sect, 360)] = true;
+    occupied_sectors[LEADING][layer][ae_utils::mod(theta_first + 1, 360)] = true;
+    occupied_sectors[LEADING][layer][ae_utils::mod(theta_first - nb_sect, 360)] = true;
 
     
     // draw !
@@ -1177,9 +1178,9 @@ void draw_genetic_unit_with_mRNAs( ae_genetic_unit* gen_unit, char * directoryNa
 
     alpha_first   = (int16_t) round(  (double)(360 * first) / (double)gen_length );  
     alpha_last    = (int16_t) round(  (double)(360 * last)  / (double)gen_length );
-    theta_first   = utils::mod( 90 - alpha_first, 360 );  
-    theta_last    = utils::mod( 90 - alpha_last, 360 );     
-    nb_sect = utils::mod( alpha_first - alpha_last + 1,  360 );
+    theta_first   = ae_utils::mod( 90 - alpha_first, 360 );  
+    theta_last    = ae_utils::mod( 90 - alpha_last, 360 );     
+    nb_sect = ae_utils::mod( alpha_first - alpha_last + 1,  360 );
 
 
     // Inside the circle, look for the inmost layer that has all the sectors between
@@ -1191,7 +1192,7 @@ void draw_genetic_unit_with_mRNAs( ae_genetic_unit* gen_unit, char * directoryNa
       sectors_free = true;
       for ( rho = 0 ; rho < nb_sect ; rho++ )
       {
-        if ( occupied_sectors[LAGGING][layer][utils::mod(theta_first + rho, 360)] )
+        if ( occupied_sectors[LAGGING][layer][ae_utils::mod(theta_first + rho, 360)] )
         {
           sectors_free = false;
           break;
@@ -1232,12 +1233,12 @@ void draw_genetic_unit_with_mRNAs( ae_genetic_unit* gen_unit, char * directoryNa
     // Mark sectors to be drawn as occupied
     for ( rho = 0 ; rho < nb_sect ; rho++ )
     {
-      occupied_sectors[LAGGING][layer][utils::mod(theta_first + rho, 360)] = true;
+      occupied_sectors[LAGGING][layer][ae_utils::mod(theta_first + rho, 360)] = true;
     }
 
     // Mark flanking sectors as occupied
-    occupied_sectors[LAGGING][layer][utils::mod(theta_first - 1, 360)] = true;
-    occupied_sectors[LAGGING][layer][utils::mod(theta_first + nb_sect, 360)] = true;
+    occupied_sectors[LAGGING][layer][ae_utils::mod(theta_first - 1, 360)] = true;
+    occupied_sectors[LAGGING][layer][ae_utils::mod(theta_first + nb_sect, 360)] = true;
 
     
     // draw !

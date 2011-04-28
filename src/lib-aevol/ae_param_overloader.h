@@ -72,6 +72,7 @@ class ae_param_overloader
     // =================================================================
     //                              Accessors
     // =================================================================
+    inline int16_t get_nb_overloaded( void ) const;
   
     // =================================================================
     //                            Public Methods
@@ -119,6 +120,10 @@ class ae_param_overloader
 // =====================================================================
 //                          Accessors definitions
 // =====================================================================
+inline int16_t ae_param_overloader::get_nb_overloaded( void ) const
+{
+  return _nb_overloaded;
+}
 
 // =====================================================================
 //                       Inline functions' definition

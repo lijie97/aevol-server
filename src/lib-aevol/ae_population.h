@@ -78,21 +78,24 @@ class ae_population : public ae_object
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline ae_list*         get_indivs( void );
+    inline ae_list*         get_indivs( void )                  const;
+    inline int32_t          get_nb_indivs( void )               const;
+    inline ae_individual*   get_best( void )                    const;
+    ae_individual *         get_indiv_by_index( int32_t index ) const;
+    inline ae_individual *  get_indiv_by_rank( int32_t rank )   const;
+  
     inline ae_grid_cell***  get_pop_grid( void );
-    inline int32_t          get_nb_indivs( void );
-    inline ae_individual*   get_best( void );
-    inline double**     get_secretion_present( void );
-    inline double**     get_secreted_amount( void );
-    inline double**     get_fitness_metabolic( void );
-    inline double**     get_fitness_total( void );
-    ae_individual *   get_indiv_by_index( int32_t index ) const;
+    inline double**         get_secretion_present( void );
+    inline double**         get_secreted_amount( void );
+    inline double**         get_fitness_metabolic( void );
+    inline double**         get_fitness_total( void );
 
     // =================================================================
     //                            Public Methods
     // =================================================================
     void            step_to_next_generation( void );
     void            step_to_next_generation_grid( void );
+    ae_individual*  do_replication( ae_individual* parent, int32_t index, int16_t x = 0, int16_t y = 0 );
     void            secretion_grid_update ( void ); 
     ae_individual*  calculate_local_competition ( int16_t x, int16_t y );
     ae_individual*  calculate_GU_transfer ( int16_t x, int16_t y );
@@ -154,24 +157,42 @@ class ae_population : public ae_object
 // =====================================================================
 //                          Accessors definitions
 // =====================================================================
-ae_list* ae_population::get_indivs( void )
+ae_list* ae_population::get_indivs( void ) const
 {
   return _indivs;
 }
 
-ae_grid_cell*** ae_population::get_pop_grid( void )
-{
-  return _pop_grid;
-}
-
-int32_t ae_population::get_nb_indivs( void )
+int32_t ae_population::get_nb_indivs( void ) const
 {
   return _nb_indivs;
 }
 
-ae_individual* ae_population::get_best( void )
+ae_individual* ae_population::get_best( void ) const
 {
   return (ae_individual*)_indivs->get_last()->get_obj();
+}
+
+ae_individual * ae_population::get_indiv_by_rank( int32_t rank ) const
+{
+  ae_list_node* indiv_node = _indivs->get_first();
+  
+  for ( int32_t i = 1 ; i < rank ; i++ )
+  {
+    indiv_node = indiv_node->get_next();
+  }
+  
+  // <DEBUG>
+    assert( ((ae_individual*) indiv_node->get_obj())->get_rank_in_population() == rank );
+  // </DEBUG>
+  
+  return (ae_individual*) indiv_node->get_obj();
+}
+
+
+
+ae_grid_cell*** ae_population::get_pop_grid( void )
+{
+  return _pop_grid;
 }
 
 double** ae_population::get_secretion_present( void )

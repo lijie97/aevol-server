@@ -133,7 +133,7 @@ int main(int argc, char** argv)
   bool        verbose             = false;
   check_type  check               = LIGHT_CHECK;   // TODO : Check what?
 
-  const char * short_options = "hvnf:"; 
+  const char * short_options = "hvncf:"; 
   static struct option long_options[] =
   {
     {"help",        no_argument,       NULL, 'h'},
@@ -213,7 +213,7 @@ int main(int argc, char** argv)
   //  Open the output file(s)
   // =========================
   char output_file_name[60];
-  snprintf( output_file_name, 60, "ancstats-b%06"PRId32"-e%06"PRId32, begin_gener, end_gener, final_indiv_index );
+  snprintf( output_file_name, 60, "ancstats-b%06"PRId32"-e%06"PRId32, begin_gener, end_gener );
   ae_stats * mystats = new ae_stats( output_file_name, true );
   mystats->write_headers();
   
@@ -342,12 +342,12 @@ int main(int argc, char** argv)
   for ( int32_t i = 0 ; i < nb_gener ; i++ )
   {
     num_gener = begin_gener + i + 1;  // where we are in time...
-    rep = new ae_replication_report( lineage_file );
+    rep = new ae_replication_report( lineage_file, indiv );
     index = rep->get_index(); // who we are building...
     indiv->set_replication_report( rep );
     
     // Check now?
-    check_now = ( ( check == FULL_CHECK && utils::mod( num_gener, ae_common::backup_step ) == 0 ) ||
+    check_now = ( ( check == FULL_CHECK && ae_utils::mod( num_gener, ae_common::backup_step ) == 0 ) ||
                   ( check == LIGHT_CHECK && num_gener == end_gener ) );
 
     if ( verbose ) printf("Rebuilding ancestor at generation %"PRId32" (index %"PRId32")...", num_gener, index); 
@@ -531,7 +531,7 @@ void open_environment_stat_file( void )
 {
   // Open file
   char env_output_file_name[60];
-  snprintf( env_output_file_name, 60, "ancstats-b%06"PRId32"-e%06"PRId32"_envir.out", begin_gener, end_gener, final_indiv_index );
+  snprintf( env_output_file_name, 60, "ancstats-b%06"PRId32"-e%06"PRId32"_envir.out", begin_gener, end_gener );
   env_output_file = fopen( env_output_file_name, "w" );
   
   // Write headers
@@ -562,7 +562,7 @@ void write_environment_stats( int32_t num_gener, ae_environment * env )
 void open_terminators_stat_file( void )
 {
   char term_output_file_name[60];
-  snprintf( term_output_file_name, 60, "ancstats-b%06"PRId32"-e%06"PRId32"_nb_term.out", begin_gener, end_gener, final_indiv_index );
+  snprintf( term_output_file_name, 60, "ancstats-b%06"PRId32"-e%06"PRId32"_nb_term.out", begin_gener, end_gener );
   term_output_file = fopen( term_output_file_name, "w" );
 }
 
@@ -580,7 +580,7 @@ void open_zones_stat_file( void )
 {
   // Open file
   char zones_output_file_name[60];
-  snprintf( zones_output_file_name, 60, "ancstats-b%06"PRId32"-e%06"PRId32"_zones.out", begin_gener, end_gener, final_indiv_index );
+  snprintf( zones_output_file_name, 60, "ancstats-b%06"PRId32"-e%06"PRId32"_zones.out", begin_gener, end_gener );
   zones_output_file = fopen( zones_output_file_name, "w" );
   
   // Write headers
@@ -707,7 +707,7 @@ void write_zones_stats( int32_t num_gener, ae_individual * indiv, ae_environment
 void open_operons_stat_file( void )
 {
   char operons_output_file_name[60];
-  snprintf( operons_output_file_name, 60, "ancstats-b%06"PRId32"-e%06"PRId32"_operons.out", begin_gener, end_gener, final_indiv_index );
+  snprintf( operons_output_file_name, 60, "ancstats-b%06"PRId32"-e%06"PRId32"_operons.out", begin_gener, end_gener );
   operons_output_file = fopen( operons_output_file_name, "w" );
 }
 

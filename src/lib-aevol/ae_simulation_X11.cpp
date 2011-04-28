@@ -326,7 +326,7 @@ void ae_simulation_X11::handle_events( void )
       }
       case ClientMessage :
       {
-        if ( (event.xclient.data.l[0] == _atoms[0]) ) // TODO : Warning on this line
+        if ( ((Atom) event.xclient.data.l[0]) == _atoms[0] )
         {
           // the user closed the window by clicking on the cross
           delete _win[win_number];

@@ -92,6 +92,7 @@ class ae_mutation : public ae_object
     //                              Accessors
     // =================================================================
     inline ae_mutation_type get_mut_type( void );
+    inline int32_t          get_length( void );
 
     void get_infos_point_mutation( int32_t* pos );
     void get_infos_small_insertion( int32_t* pos, int32_t* length ); // everything except the sequence
@@ -110,13 +111,16 @@ class ae_mutation : public ae_object
     void report_point_mutation( int32_t pos );
     void report_small_insertion( int32_t pos, int32_t length, const char* seq );
     void report_small_deletion( int32_t pos, int32_t length );
-    void report_duplication( int32_t pos_1, int32_t pos_2, int32_t pos_3, int16_t align_score = -1 );
-    void report_deletion( int32_t pos_1, int32_t pos_2, int16_t align_score = -1 );
-    void report_translocation( int32_t pos_1, int32_t pos_2, int32_t pos_3, int32_t pos_4, bool invert, int16_t align_score_1 = -1, int16_t align_score_2 = -1 );
-    void report_inversion( int32_t pos_1, int32_t pos_2, int16_t align_score = -1 );
-    void report_insertion( int32_t pos, const char* seq, int32_t length );
+    void report_duplication( int32_t pos_1, int32_t pos_2, int32_t pos_3, int32_t length, int16_t align_score = -1 );
+    void report_deletion( int32_t pos_1, int32_t pos_2, int32_t length, int16_t align_score = -1 );
+    void report_translocation( int32_t pos_1, int32_t pos_2, int32_t pos_3, int32_t pos_4, int32_t length,
+                                bool invert, int16_t align_score_1 = -1, int16_t align_score_2 = -1 );
+    void report_inversion( int32_t pos_1, int32_t pos_2, int32_t length, int16_t align_score = -1 );
+    void report_insertion( int32_t pos, int32_t length, const char* seq );
 
     void get_generic_description_string( char * str );
+    
+    /* DEPRECATED, use get_length instead */
     int32_t segment_length( int32_t gen_unit_len );
 
     void write_to_backup( gzFile* backup_file );
@@ -163,6 +167,11 @@ class ae_mutation : public ae_object
 ae_mutation_type ae_mutation::get_mut_type( void )
 {
   return _mut_type;
+}
+
+inline int32_t ae_mutation::get_length( void )
+{
+  return _length;
 }
 
 

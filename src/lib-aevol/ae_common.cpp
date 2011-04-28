@@ -97,9 +97,11 @@ double  ae_common::small_deletion_rate    = 1e-5;
 int16_t ae_common::max_indel_size         = 6;
 
 // Rearrangements and Transfer
-bool ae_common::with_4pts_trans   = true;
-bool ae_common::with_alignments   = false;
-bool ae_common::with_transfer     = false;
+bool    ae_common::with_4pts_trans    = true;
+bool    ae_common::with_alignments    = false;
+bool    ae_common::with_transfer      = false;
+double  ae_common::transfer_ins_rate  = 0.0;
+double  ae_common::transfer_repl_rate = 0.0;
 
 // Rearrangement rates (without alignements)
 double ae_common::duplication_rate      = 5e-5;
@@ -255,6 +257,8 @@ void ae_common::write_to_backup( gzFile* backup_file )
   gzwrite( backup_file, &tmp_with_alignments,         sizeof(tmp_with_alignments)       );
   int8_t tmp_with_transfer = with_transfer? 1 : 0;
   gzwrite( backup_file, &tmp_with_transfer,           sizeof(tmp_with_transfer)         );
+  gzwrite( backup_file, &transfer_ins_rate,           sizeof(transfer_ins_rate)         );
+  gzwrite( backup_file, &transfer_repl_rate,          sizeof(transfer_repl_rate)        );
 
   // Rearrangement rates (without alignements)
   gzwrite( backup_file, &duplication_rate,            sizeof(duplication_rate)          );
@@ -462,6 +466,8 @@ void ae_common::read_from_backup( gzFile* backup_file, bool verbose )
   int8_t tmp_with_transfer;
   gzread( backup_file, &tmp_with_transfer,            sizeof(tmp_with_transfer)         );
   with_transfer = (tmp_with_transfer!=0);
+  gzread( backup_file, &transfer_ins_rate,            sizeof(transfer_ins_rate)         );
+  gzread( backup_file, &transfer_repl_rate,           sizeof(transfer_repl_rate)        );
 
   // Rearrangement rates (without alignements)
   gzread( backup_file, &duplication_rate,             sizeof(duplication_rate)          );
@@ -721,6 +727,8 @@ void ae_common::print_to_file( void )
   fprintf( param_out, "with_4pts_trans :            %s\n",  with_4pts_trans? "true" : "false" );
   fprintf( param_out, "with_alignments :            %s\n",  with_alignments? "true" : "false" );
   fprintf( param_out, "with_transfer :              %s\n",  with_transfer? "true" : "false"   );
+  fprintf( param_out, "transfer_ins_rate :          %e\n",  transfer_ins_rate );
+  fprintf( param_out, "transfer_repl_rate :         %e\n",  transfer_repl_rate );
 
   // Rearrangement rates (without alignements)
   fprintf( param_out, "duplication_rate :           %e\n",  duplication_rate           );

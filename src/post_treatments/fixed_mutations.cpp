@@ -58,8 +58,17 @@
 #include <ae_mutation.h>
 #include <ae_param_loader.h>
 
-//debug
-//#include <ae_gaussian.h>
+
+
+
+enum check_type
+{
+  FULL_CHECK  = 0,
+  LIGHT_CHECK = 1,
+  NO_CHECK    = 2
+};
+
+
 
 
 void print_help( void );
@@ -89,17 +98,18 @@ int main(int argc, char** argv)
   // =====================
 
   // Default values
-  char*   lineage_file_name   = NULL;
-  bool    verbose             = false;
-  bool    check               = true;
+  check_type  check               = LIGHT_CHECK;
+  char*       lineage_file_name   = NULL;
+  bool        verbose             = false;
 
-  const char * short_options = "hvnf:"; 
+  const char * short_options = "hvncf:"; 
   static struct option long_options[] =
   {
-    {"help",    no_argument,       NULL, 'h'},
-    {"verbose", no_argument,       NULL, 'v'},
-    {"nocheck", no_argument,       NULL, 'n'},
-    {"file",    required_argument, NULL, 'f'},
+    {"help",      no_argument,       NULL, 'h'},
+    {"verbose",   no_argument,       NULL, 'v'},
+    {"nocheck",   no_argument,       NULL, 'n'},
+    {"fullcheck", no_argument,       NULL, 'c'},
+    {"file",      required_argument, NULL, 'f'},
     {0, 0, 0, 0}
   };
 
@@ -110,7 +120,8 @@ int main(int argc, char** argv)
     {
       case 'h' : print_help(); exit(EXIT_SUCCESS);  break;
       case 'v' : verbose = true;                    break;
-      case 'n' : check = false;                     break;
+      case 'n' : check = NO_CHECK;                  break;
+      case 'c' : check = FULL_CHECK;                break;
       case 'f' :
       {
         if ( strcmp( optarg, "" ) == 0 )
@@ -152,29 +163,31 @@ int main(int argc, char** argv)
 
   ae_common::read_from_backup( lineage_file );
 
-  int32_t begin_gener, end_gener, final_index;
-  gzread(lineage_file, &begin_gener, sizeof(begin_gener));
-  gzread(lineage_file, &end_gener, sizeof(end_gener));
-  gzread(lineage_file, &final_index, sizeof(final_index) );
+  int32_t begin_gener, end_gener, final_index, final_indiv_rank;
+  gzread( lineage_file, &begin_gener,       sizeof(begin_gener)       );
+  gzread( lineage_file, &end_gener,         sizeof(end_gener)         );
+  gzread( lineage_file, &final_index,       sizeof(final_index)       );
+  gzread( lineage_file, &final_indiv_rank,  sizeof(final_indiv_rank)  );
 
   if ( verbose )
   {
     printf("\n\n");
     printf("================================================================================\n");
-    printf(" Statistics of the ancestors of indiv. #%"PRId32" (t=%"PRId32" to %"PRId32")\n", final_index, begin_gener, end_gener);
+        printf( " Mutations in the lineage of indiv. %"PRId32" (rank %"PRId32") from generation %"PRId32" to %"PRId32")\n",
+            final_index, final_indiv_rank, begin_gener, end_gener );
     printf("================================================================================\n");
   }
 
 
-  // =======================
-  //  Open the output file
-  // =======================
+  // =========================
+  //  Open the output file(s)
+  // =========================
 
   char output_file_name[60];
-  snprintf(output_file_name, 60, "fixedmut-b%06"PRId32"-e%06"PRId32"-i%"PRId32".out", begin_gener, end_gener, final_index);
+  snprintf( output_file_name, 60, "fixedmut-b%06"PRId32"-e%06"PRId32".out", begin_gener, end_gener );
 
   FILE * output = fopen(output_file_name, "w");
-  if (output == NULL)
+  if ( output == NULL )
   {
     fprintf( stderr, "ERROR : Could not create the output file %s\n", output_file_name );
     exit( EXIT_FAILURE );
@@ -182,18 +195,27 @@ int main(int argc, char** argv)
 
 
   // Write the header
-  fprintf( output, "# Mutations in the lineage of indiv #%"PRId32" bw t=%"PRId32" and t=%"PRId32"\n", final_index, begin_gener, end_gener );
-  fprintf( output, "# 1:  Generation (mut. occurred when producing the indiv. of this generation) \n" );
-  fprintf( output, "# 2:  Genetic unit which underwent the mutation (0 = chromosome) \n" );
-  fprintf( output, "# 3:  Mutation type (0: switch, 1: smallins, 2: smalldel, 3:duplication, 4: deletion, 5:transloc, 6:inversion) \n" );
-  fprintf( output, "# 4:  pos[0] (position for the small events, begin_segment for the rearrangements) \n" );
-  fprintf( output, "# 5:  pos[1] (-1 for the small events, end_segment for the rearrangements) \n" );
-  fprintf( output, "# 6:  pos[2] (reinsertion point for duplic., cutting point in segment for transloc., -1 for other events)\n" );
-  fprintf( output, "# 7:  pos[3] (reinsertion point for transloc., -1 for other events)\n" );
-  fprintf( output, "# 8:  For transloc., was the segment inverted (0/1)? (-1 for other events)\n" );
-  fprintf( output, "# 9:  Length of the segment\n" );
-  fprintf( output, "# 10: Length of the genetic unit before the event\n" );
-  fprintf( output, "# 11: Impact of the mutation on the metabolic error (negative value = smaller gap after = beneficial mutation) \n" );
+  fprintf( output, "# #################################################################\n" );
+  fprintf( output, "#  Mutations in the lineage of the best indiv at generation %"PRId32"\n", end_gener );
+  fprintf( output, "# #################################################################\n" );
+  fprintf( output, "#  1.  Generation       (mut. occurred when producing the indiv. of this generation)\n" );
+  fprintf( output, "#  2.  Genetic unit     (which underwent the mutation, 0 = chromosome) \n" );
+  fprintf( output, "#  3.  Mutation type    (0: switch, 1: smallins, 2: smalldel, 3:dupl, 4: del, 5:trans, 6:inv) \n" );
+  fprintf( output, "#  4.  pos_0            (position for the small events, begin_segment for the rearrangements) \n" );
+  fprintf( output, "#  5.  pos_1            (-1 for the small events, end_segment for the rearrangements) \n" );
+  fprintf( output, "#  6.  pos_2            (reinsertion point for duplic., cutting point in segment for transloc., -1 for other events)\n" );
+  fprintf( output, "#  7.  pos_3            (reinsertion point for transloc., -1 for other events)\n" );
+  fprintf( output, "#  8.  invert           (transloc only, was the segment inverted (0/1)? (-1 for other events))\n" );
+  fprintf( output, "#  9.  align_score      (score that was needed for this rearrangement to occur)\n" );
+  fprintf( output, "#  10. align_score2     (transloc only, score for the reinsertion)\n" );
+  fprintf( output, "#  11. segment_length   \n" );
+  fprintf( output, "#  12. GU_length        (before the event)\n" );
+  fprintf( output, "#  13. Impact of the mutation on the metabolic error (negative value = smaller gap after = beneficial mutation) \n" );
+  fprintf( output, "####################################################################################################################\n" );
+  fprintf( output, "#\n" );
+  fprintf( output, "# Header for R\n" );
+  fprintf( output, "gener gen_unit mut_type pos_0 pos_1 pos_2 pos_3 invert align_score align_score_2 seg_len GU_len impact\n" );
+  fprintf( output, "#\n" );
 
   // =========================
   //  Prepare the environment
@@ -212,8 +234,8 @@ int main(int argc, char** argv)
 
   ae_environment * env = new ae_environment();
 
-  int32_t t = 0;
-  for (t = 0; t < begin_gener; t++)
+  int32_t num_gener = 0;
+  for ( num_gener = 0 ; num_gener < begin_gener ; num_gener++ )
   {
     env->apply_variation();
   }
@@ -222,7 +244,7 @@ int main(int argc, char** argv)
   if ( verbose ) printf("OK\n");
 
   char backup_file_name[50];
-  if ( check )
+  if ( check != NO_CHECK )
   {
     // check that the environment is now identical to the one stored
     // in the backup file of generation begin_gener
@@ -234,8 +256,8 @@ int main(int argc, char** argv)
 #endif
     if ( verbose )
     {
-      printf("Comparing the environment with the one in %s... ", backup_file_name);  
-      fflush(NULL);
+      printf( "Comparing the environment with the one in %s... ", backup_file_name );
+      fflush( stdout );
     }
     
     ae_simulation * sim = new ae_simulation ( backup_file_name, false );
@@ -280,14 +302,15 @@ int main(int argc, char** argv)
   //  Prepare the initial ancestor
   // ==============================
 
-  ae_individual * indiv = new ae_individual(lineage_file);
+  ae_individual * indiv = new ae_individual( lineage_file );
   indiv->evaluate( env );
   indiv->compute_statistical_data();
+  
   if ( verbose )
-    {
-      printf("Initial fitness     = %f\n", indiv->get_fitness());
-      printf("Initial genome size = %"PRId32"\n", indiv->get_total_genome_size());
-    }
+  {
+    printf("Initial fitness     = %f\n", indiv->get_fitness());
+    printf("Initial genome size = %"PRId32"\n", indiv->get_total_genome_size());
+  }
 
 
 
@@ -298,46 +321,52 @@ int main(int argc, char** argv)
   // ===============================================================================
 
 
-  ae_replication_report * rep = NULL;
-  ae_list_node * dnarepnode = NULL;
+  ae_replication_report * rep   = NULL;
+  ae_list_node * dnarepnode     = NULL;
   ae_dna_replic_report * dnarep = NULL;
 
-  ae_list_node * mnode = NULL;
-  ae_mutation *  mut = NULL;
+  ae_list_node * mnode  = NULL;
+  ae_mutation *  mut    = NULL;
 
-  ae_list_node*   unitnode = NULL;
-  ae_genetic_unit *  unit = NULL;
+  ae_list_node*   unitnode  = NULL;
+  ae_genetic_unit *  unit   = NULL;
 
-  ae_individual * stored_indiv = NULL;
-  ae_list_node*   storedunitnode = NULL;
-  ae_genetic_unit *  storedunit = NULL;
+  ae_individual * stored_indiv    = NULL;
+  ae_list_node*   storedunitnode  = NULL;
+  ae_genetic_unit *  storedunit   = NULL;
 
   int32_t i, index, genetic_unit_number, unitlen_before, seglen;
   double metabolic_error_before, metabolic_error_after, impact_on_metabolic_error;
   char mut_descr_string[80];
+  
+  bool check_now = false;
 
   for ( i = 0; i < end_gener - begin_gener; i++ )
   {
-    t = begin_gener + i + 1;  // where are we in time...
+    num_gener = begin_gener + i + 1;  // where are we in time...
 
-    rep = new ae_replication_report(lineage_file);
+    rep = new ae_replication_report( lineage_file, indiv );
     index = rep->get_index(); // who are we building...
     indiv->set_replication_report(rep);
+    
+    // Check now?
+    check_now = ( ( check == FULL_CHECK && ae_utils::mod( num_gener, ae_common::backup_step ) == 0 ) ||
+                  ( check == LIGHT_CHECK && num_gener == end_gener ) );
 
 
-    if ( verbose ) printf("Rebuilding ancestor at generation %"PRId32" (index %"PRId32")...", t, index); 
+    if ( verbose ) printf("Rebuilding ancestor at generation %"PRId32" (index %"PRId32")...", num_gener, index); 
 
     env->apply_variation();
     
-    if ( check && utils::mod(t, ae_common::backup_step) == 0 )
+    if ( check_now )
     {
       // check that the environment is now identical to the one stored
       // in the backup file of generation begin_gener
       
       #ifdef __REGUL
-        sprintf(backup_file_name,"backup/gen_%06"PRId32".rae", t);
+        sprintf( backup_file_name,"backup/gen_%06"PRId32".rae", num_gener );
       #else
-        sprintf(backup_file_name,"backup/gen_%06"PRId32".ae",  t);
+        sprintf( backup_file_name,"backup/gen_%06"PRId32".ae",  num_gener );
       #endif
       
       if ( verbose )
@@ -347,7 +376,7 @@ int main(int argc, char** argv)
       }
       
       ae_simulation * sim = new ae_simulation ( backup_file_name, false );
-      stored_indiv = new ae_individual( * (ae_individual *)sim->get_pop()->get_indivs()->get_object(index) ); // copy
+      stored_indiv = new ae_individual( * (ae_individual *)sim->get_pop()->get_indiv_by_index( index ) ); // copy
       
 
       ae_environment * stored_env = sim->get_env();
@@ -388,10 +417,10 @@ int main(int argc, char** argv)
     // during the evolution
     
     genetic_unit_number = 0;
-    dnarepnode = (rep->get_dna_replic_reports())->get_first();
-    unitnode = (indiv->get_genetic_unit_list())->get_first();
+    dnarepnode = rep->get_dna_replic_reports()->get_first();
+    unitnode   = indiv->get_genetic_unit_list()->get_first();
     
-    if ( check && utils::mod(t, ae_common::backup_step) == 0 )
+    if ( check_now )
     {
       storedunitnode = stored_indiv->get_genetic_unit_list()->get_first();
     }
@@ -401,7 +430,8 @@ int main(int argc, char** argv)
       assert( unitnode != NULL );
 
       dnarep = (ae_dna_replic_report *) dnarepnode->get_obj();
-      unit = (ae_genetic_unit *) unitnode->get_obj();
+      unit   = (ae_genetic_unit *) unitnode->get_obj();
+      
       unit->get_dna()->set_replic_report( dnarep );
 
       mnode = dnarep->get_rearrangements()->get_first();              
@@ -414,7 +444,7 @@ int main(int argc, char** argv)
         seglen = mut->segment_length( unitlen_before );
         // TODO : number of affected genes
 
-        unit->get_dna()->undergo_this_mutation( mut ); 
+        unit->get_dna()->undergo_this_mutation( mut );
 
         indiv->reevaluate(env);
         metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
@@ -422,7 +452,7 @@ int main(int argc, char** argv)
 
         mut->get_generic_description_string( mut_descr_string );
         fprintf( output, "%"PRId32" %"PRId32" %s %"PRId32" %"PRId32" %.15f \n",\
-                 t, genetic_unit_number, \
+                 num_gener, genetic_unit_number, \
                  mut_descr_string, seglen, \
                  unitlen_before, \
                  impact_on_metabolic_error );
@@ -449,7 +479,7 @@ int main(int argc, char** argv)
 
         mut->get_generic_description_string( mut_descr_string );
         fprintf( output, "%"PRId32" %"PRId32" %s %"PRId32" %"PRId32" %.15f \n",\
-                 t, genetic_unit_number, \
+                 num_gener, genetic_unit_number, \
                  mut_descr_string, seglen, \
                  unitlen_before, \
                  impact_on_metabolic_error );
@@ -457,7 +487,7 @@ int main(int argc, char** argv)
         mnode = mnode->get_next();
       }
 
-      if ( check && utils::mod(t, ae_common::backup_step) == 0 )
+      if ( check_now )
       {
         if ( verbose )
         {
@@ -486,8 +516,8 @@ int main(int argc, char** argv)
           if ( verbose ) printf( " ERROR !\n" );
           fprintf( stderr, "Error: the rebuilt unit is not the same as \n");
           fprintf( stderr, "the one stored in backup file %s\n", backup_file_name);
-          fprintf( stderr, "Rebuilt unit : %zu bp\n %s\n", strlen(str1), str1 );
-          fprintf( stderr, "Stored unit  : %zu bp\n %s\n", strlen(str2), str2 );
+          fprintf( stderr, "Rebuilt unit : %ld bp\n %s\n", strlen(str1), str1 );
+          fprintf( stderr, "Stored unit  : %ld bp\n %s\n", strlen(str2), str2 );
           delete [] str1;
           delete [] str2;
           gzclose(lineage_file);
@@ -516,7 +546,8 @@ int main(int argc, char** argv)
     if ( verbose ) printf(" OK\n");
 
     delete rep;
-    if ( utils::mod(t, ae_common::backup_step) == 0 )
+    
+    if ( ae_utils::mod(num_gener, ae_common::backup_step) == 0 )
     {
       assert(storedunitnode == NULL);
       delete stored_indiv;

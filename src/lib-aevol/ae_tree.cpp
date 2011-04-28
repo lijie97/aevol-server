@@ -44,6 +44,7 @@
 #include <ae_simulation.h>
 #include <ae_population.h>
 #include <ae_individual.h>
+#include <ae_utils.h>
 
 
 
@@ -164,7 +165,7 @@ ae_tree::ae_tree( char* backup_file_name, char* tree_file_name )
         for ( int32_t indiv_i = 0 ; indiv_i < _nb_indivs[gener_i] ; indiv_i++ )
         {
           // Retreive a replication report
-          replic_report = new ae_replication_report( tree_file );
+          replic_report = new ae_replication_report( tree_file, NULL );
           
           // Put it at its rightful position
           _replics[gener_i][replic_report->get_index()] = replic_report;
@@ -251,7 +252,7 @@ ae_tree::~ae_tree( void )
 
 int32_t ae_tree::get_nb_indivs( int32_t generation ) const
 {
-  return _nb_indivs[utils::mod(generation - 1, ae_common::tree_step)];
+  return _nb_indivs[ae_utils::mod(generation - 1, ae_common::tree_step)];
 }
 
 
@@ -259,7 +260,7 @@ ae_replication_report * ae_tree::get_report_by_index( int32_t generation, int32_
 {
   assert( _tree_mode == NORMAL );
   
-  return _replics[utils::mod(generation - 1, ae_common::tree_step)][index];
+  return _replics[ae_utils::mod(generation - 1, ae_common::tree_step)][index];
 }
 
 
@@ -271,9 +272,9 @@ ae_replication_report * ae_tree::get_report_by_rank( int32_t generation, int32_t
   
   for ( int32_t i = 0 ; i < nb_indivs ; i++ )
   {
-    if ( _replics[utils::mod(generation - 1, ae_common::tree_step)][i]->get_rank() == rank )
+    if ( _replics[ae_utils::mod(generation - 1, ae_common::tree_step)][i]->get_rank() == rank )
     {
-      return _replics[utils::mod(generation - 1, ae_common::tree_step)][i];
+      return _replics[ae_utils::mod(generation - 1, ae_common::tree_step)][i];
     }
   }
   
@@ -294,7 +295,7 @@ void ae_tree::fill_tree_with_cur_gener( void )
       // generations n*TREE_STEP+1 --> (n+1)*ae_common::tree_step
       // (for ae_common::tree_step == 100, informations on generations
       // 1 to 100, or 101 to 200, or 201 to 300, etc)
-      int32_t gener_i     = utils::mod( ae_common::sim->get_num_gener() - 1, ae_common::tree_step );
+      int32_t gener_i     = ae_utils::mod( ae_common::sim->get_num_gener() - 1, ae_common::tree_step );
       _nb_indivs[gener_i] = ae_common::sim->get_pop()->get_nb_indivs();
       _replics[gener_i]   = new ae_replication_report* [_nb_indivs[gener_i]];
       
@@ -320,7 +321,7 @@ void ae_tree::fill_tree_with_cur_gener( void )
       // TO CHECK !!
       // not sure that gener_i should be used in this block...
 
-      int32_t gener_i     = utils::mod( ae_common::sim->get_num_gener() - 1, ae_common::tree_step );
+      int32_t gener_i     = ae_utils::mod( ae_common::sim->get_num_gener() - 1, ae_common::tree_step );
       _nb_indivs[gener_i] = ae_common::sim->get_pop()->get_nb_indivs();
       _parent[gener_i] = new int32_t [_nb_indivs[gener_i]];
       

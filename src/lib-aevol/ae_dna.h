@@ -45,10 +45,11 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_string.h>
+#include <ae_dna_replic_report.h>
+#include <ae_enums.h>
 #include <ae_list.h>
 #include <ae_mutation.h>
-#include <ae_dna_replic_report.h>
+#include <ae_string.h>
 
 
 
@@ -57,25 +58,16 @@
 //                          Class declarations
 // =================================================================
 class ae_genetic_unit;
+class ae_vis_a_vis;
 
 
 
 
 
-enum ae_strand
-{
-  LEADING = 0,
-  LAGGING = 1
-};
 
-
-
-
- 
 class ae_dna : public ae_string
 {  
   public :
-  
     // =================================================================
     //                             Constructors
     // =================================================================
@@ -145,6 +137,13 @@ class ae_dna : public ae_string
     bool do_inversion( int32_t pos_1, int32_t pos_2 );
     bool do_insertion( int32_t pos, const char* seq_to_insert, int32_t seq_length );
     
+    
+    ae_genetic_unit*  extract_into_new_GU( int32_t pos_1, int32_t pos_2 );
+    ae_genetic_unit*  copy_into_new_GU   ( int32_t pos_1, int32_t pos_2 ) const;
+    void insert_GU( ae_genetic_unit* GU_to_insert, int32_t pos_B, int32_t pos_D, bool invert );
+    
+    static ae_vis_a_vis* search_alignment( ae_dna* chrom1, ae_dna* chrom2, int32_t& nb_pairs, ae_sense sense );
+    
     void undergo_this_mutation( ae_mutation * mut ); // useful when we replay the evolution
 
     void compute_statistical_data( void );
@@ -180,9 +179,6 @@ class ae_dna : public ae_string
     // =================================================================
     //                           Protected Methods
     // =================================================================
-    ae_genetic_unit*  extract_into_new_GU( int32_t pos_1, int32_t pos_2 );
-    void insert_GU( ae_genetic_unit* GU_to_insert, int32_t pos_B, int32_t pos_D, bool invert );
-    
     void ABCDE_to_ADCBE(   int32_t pos_B, int32_t pos_C, int32_t pos_D, int32_t pos_E );
     void ABCDE_to_ADBpCpE( int32_t pos_B, int32_t pos_C, int32_t pos_D, int32_t pos_E );
     void ABCDE_to_ACpDpBE( int32_t pos_B, int32_t pos_C, int32_t pos_D, int32_t pos_E );
@@ -193,6 +189,10 @@ class ae_dna : public ae_string
     // =================================================================
     //                          Protected Attributes
     // =================================================================
+    // From ae_string
+    //   char*   _data;
+    //   int32_t _length;
+    //   int32_t _nb_blocks;    
     ae_genetic_unit*      _gen_unit; // Genetic unit which the genetic unit belongs to
     ae_dna_replic_report* _replic_report;
 };

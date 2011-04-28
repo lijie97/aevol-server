@@ -65,14 +65,16 @@
 // =================================================================
 //                            Public Methods
 // =================================================================
-ae_vis_a_vis* ae_align::search_alignement_direct( const ae_dna* chrom_1, const int32_t seed_1,
-                                                  const ae_dna* chrom_2, const int32_t seed_2, const int16_t needed_score )
+ae_vis_a_vis* ae_align::search_alignment_direct( const ae_dna* chrom_1, const int32_t seed_1,
+                                                 const ae_dna* chrom_2, const int32_t seed_2, const int16_t needed_score )
 {
   ae_vis_a_vis * best_alignment = NULL;
   
   int16_t nb_diags = 2 * ae_common::align_max_shift + 1;
-  int16_t cur_score;
   ae_vis_a_vis * cur_vav = NULL;
+  
+  // TODO : As ae_vis_a_vis now contains its score, we should adapt the code to make it more integrated
+  int16_t cur_score;
   
   
   // Zone 1 (Indice on the chromosome)
@@ -108,8 +110,8 @@ ae_vis_a_vis* ae_align::search_alignement_direct( const ae_dna* chrom_1, const i
       cur_vav = new ae_vis_a_vis( chrom_1, chrom_2, w_zone_1_first, w_zone_2_first, DIRECT );
     }
     
-    // A sequence against itself is not an alignement
-    if ( chrom_1 == chrom_2 && utils::mod(cur_vav->_i_1, chrom_1->get_length()) == utils::mod(cur_vav->_i_2, chrom_2->get_length()) )
+    // A sequence against itself is not an alignment
+    if ( chrom_1 == chrom_2 && ae_utils::mod(cur_vav->_i_1, chrom_1->get_length()) == ae_utils::mod(cur_vav->_i_2, chrom_2->get_length()) )
     {
       delete cur_vav;
       continue;
@@ -119,10 +121,10 @@ ae_vis_a_vis* ae_align::search_alignement_direct( const ae_dna* chrom_1, const i
     cur_score = 0;
     
     
-    // Parse diagonal
+    // Parse current diagonal
     while ( cur_vav->_i_1 <= w_zone_1_last && cur_vav->_i_2 <= w_zone_2_last )
     {
-      // Re-initialize score and potential alignement starting point if score <= 0
+      // Re-initialize score and potential alignment starting point if score <= 0
       if ( cur_score <= 0 )
       {
         cur_score = 0;
@@ -147,6 +149,7 @@ ae_vis_a_vis* ae_align::search_alignement_direct( const ae_dna* chrom_1, const i
           delete cur_vav;
           best_alignment->check_indices();
           
+          best_alignment->_score = cur_score;
           return best_alignment;
         }
       }
@@ -168,12 +171,12 @@ ae_vis_a_vis* ae_align::search_alignement_direct( const ae_dna* chrom_1, const i
     delete best_alignment;
   }
   
-  return NULL; // Didn't find any alignement with sufficient score.
+  return NULL; // Didn't find any alignment with sufficient score.
 }
 
 
-ae_vis_a_vis* ae_align::search_alignement_indirect( const ae_dna* chrom_1, const int32_t seed_1,
-                                                    const ae_dna* chrom_2, const int32_t seed_2, const int16_t needed_score )
+ae_vis_a_vis* ae_align::search_alignment_indirect( const ae_dna* chrom_1, const int32_t seed_1,
+                                                   const ae_dna* chrom_2, const int32_t seed_2, const int16_t needed_score )
 {
   ae_vis_a_vis * best_alignment = NULL;
   
@@ -249,7 +252,7 @@ ae_vis_a_vis* ae_align::search_alignement_indirect( const ae_dna* chrom_1, const
     // Parse diagonal
     while ( cur_vav->_i_1 <= w_zone_1_last && cur_vav->_i_2 >= w_zone_2_last )
     {
-      // Re-initialize score and potential alignement starting point if score <= 0
+      // Re-initialize score and potential alignment starting point if score <= 0
       if ( cur_score <= 0 )
       {
         cur_score = 0;
@@ -270,9 +273,11 @@ ae_vis_a_vis* ae_align::search_alignement_indirect( const ae_dna* chrom_1, const
         
         // Check whether score is high enough to rearrange
         if ( cur_score >= needed_score )
-        {          
+        {
           delete cur_vav;
           best_alignment->check_indices();
+          
+          best_alignment->_score = cur_score;
           return best_alignment;
         }
       }
@@ -294,7 +299,7 @@ ae_vis_a_vis* ae_align::search_alignement_indirect( const ae_dna* chrom_1, const
     delete best_alignment;
   }
   
-  return NULL; // Didn't find any alignement with sufficient score.
+  return NULL; // Didn't find any alignment with sufficient score.
 }
 
 // =================================================================

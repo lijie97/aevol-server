@@ -52,12 +52,6 @@
 // =================================================================
 //                          Class declarations
 // =================================================================
-enum ae_log_type
-{
-  REAR    = 0x01,
-  BARRIER = 0x02,
-  LOADS   = 0x04
-};
 
 
 
@@ -127,6 +121,7 @@ class ae_logs : public ae_object
     // =================================================================
     //                          Protected Attributes
     // =================================================================
+    FILE* _transfer_log;
     FILE* _rear_log;
     FILE* _barrier_log;
     FILE* _load_from_backup_log;
@@ -140,15 +135,19 @@ inline FILE* ae_logs::get_log( ae_log_type log_type ) const
 {
   switch ( log_type )
   {
-    case REAR :
+    case LOG_TRANSFER :
+    {
+      return _transfer_log;
+    }
+    case LOG_REAR :
     {
       return _rear_log;
     }
-    case BARRIER :
+    case LOG_BARRIER :
     {
       return _barrier_log;
     }
-    case LOADS :
+    case LOG_LOADS :
     {
       return _load_from_backup_log;
     }
@@ -164,17 +163,21 @@ inline bool ae_logs::get_to_be_logged( ae_log_type log_type ) const
 {
   switch ( log_type )
   {
-    case REAR :
+    case LOG_TRANSFER :
     {
-      return ( (ae_common::logs & REAR) == true );
+      return ( ae_common::logs & LOG_TRANSFER );
     }
-    case BARRIER :
+    case LOG_REAR :
     {
-      return ( (ae_common::logs & BARRIER) == true );
+      return ( ae_common::logs & LOG_REAR );
     }
-    case LOADS :
+    case LOG_BARRIER :
     {
-      return ( (ae_common::logs & LOADS) == true );
+      return ( ae_common::logs & LOG_BARRIER );
+    }
+    case LOG_LOADS :
+    {
+      return ( ae_common::logs & LOG_LOADS );
     }
     default:
     {

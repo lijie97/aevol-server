@@ -117,8 +117,6 @@ ae_population::ae_population( void )
         // Add it to the list
         _indivs->add( indiv );
       }
-      
-      sort_individuals();
     }
   }
   else
@@ -165,6 +163,8 @@ ae_population::ae_population( void )
       _pop_grid[(int16_t)ae_common::grid_x/2][(int16_t)ae_common::grid_y/2]->set_compound_amount( ae_common::secretion_init );
     }
   }
+  
+  sort_individuals();
 }
 
 ae_population::ae_population( gzFile* backup_file )
@@ -555,51 +555,42 @@ void ae_population::step_to_next_generation( void )
     
     for ( int32_t j = 0 ; j < nb_offsprings[i] ; j++ )
     {
-      // Create a new individual
-      if ( ae_common::with_transfer )
-      {
-        //~ new_generation->add( indiv->do_replication( ae_individual* donnor ) );
-        printf( "ERROR, transfer has not yet been implemented. in file %s:%d\n", __FILE__, __LINE__ );
-        exit( EXIT_FAILURE );
-      }
-      else
-      {
-        new_generation->add( indiv->do_replication( index_new_indiv++ ) );
-        // NB : the new individual is evaluated at the end of do_replication
-      }
+      // Create a new individual (evaluated at the end of do_replication)
+      new_generation->add( do_replication( indiv, index_new_indiv++ ) );
     }
     
-    // All the offsprings of this individual have been generated, the indiv can hence be deleted
-    if ( indiv_node->get_obj() != NULL )
+    // All the offsprings of this individual have been generated, if there is no transfer,
+    // the indiv will not be used any more and can hence be deleted
+    if ( ! ae_common::with_transfer )
     {
       _indivs->remove( indiv_node, DELETE_OBJ, DELETE_OBJ );
-    }
-    else
-    {
-       printf( "Possible attempt to delete something twice: %s %d\n", __FILE__, __LINE__ );
     }
         
     indiv_node = next_indiv_node;
   }
-
-  assert( _indivs->is_empty() );
+  
+  if ( ae_common::with_transfer )
+  {
+    // The individuals have not yet been deleted, do it now.
+    _indivs->erase( DELETE_OBJ );
+  }
   
 
   delete [] nb_offsprings;
 
 
 
-  //~ // -----------------------------------------------------------
-  //~ // 4) Replace the current generation by the newly created one.
-  //~ // -----------------------------------------------------------
+  // -------------------------------------------------------------
+  //  4) Replace the current generation by the newly created one.
+  // -------------------------------------------------------------
   assert( _indivs->is_empty() );
   delete _indivs;
   _indivs = new_generation;
 
 
-  // ------------------------------------
-  // 5) Sort the newly created population
-  // ------------------------------------
+  // --------------------------------------
+  //  5) Sort the newly created population
+  // --------------------------------------
   sort_individuals();
 }
 
@@ -613,7 +604,7 @@ void ae_population::step_to_next_generation_grid( void )
     new_pop_grid[i] = new ae_individual* [ae_common::grid_y];
   }
 
-  // difusion and degradation of compound in the environment
+  // diffusion and degradation of compound in the environment
   secretion_grid_update();
 
   // randomly migrate some organisms, if necessary 
@@ -649,7 +640,7 @@ void ae_population::step_to_next_generation_grid( void )
     {
       
         tmp_secretion = _pop_grid[x][y]->get_compound_amount() + _pop_grid[x][y]->get_individual()->get_fitness_by_feature(SECRETION);        
-        _pop_grid[x][y]->set_individual( new_pop_grid[x][y]->do_replication( -1, x, y ) );       
+        _pop_grid[x][y]->set_individual( do_replication( new_pop_grid[x][y], -1, x, y ) );       
         _pop_grid[x][y]->set_compound_amount( tmp_secretion );
         new_generation->add( _pop_grid[x][y]->get_individual() );
     
@@ -726,6 +717,368 @@ void ae_population::step_to_next_generation_grid( void )
   
   delete [] new_pop_grid;
   
+}
+
+/*!
+  \brief Replicate an individual, giving the new iniv the index i [and coordinates (x, y) if the population is structured]
+
+  The new individual will:
+    1) Inherit the genome of its parent.
+    2) (if population is structured) Be located on the population grid at coordinate (x, y).
+    3) (if transfer enabled) Potentially receive some DNA from a random donor
+    4) Undergo rearrangements and mutations
+    5) Be evaluated
+    6) Have its statistics computed
+*/
+ae_individual* ae_population::do_replication( ae_individual* parent, int32_t index, int16_t x /*= 0*/, int16_t y /*= 0*/ )
+{
+  ae_individual* new_indiv = NULL;
+
+  // ===========================================================================
+  //  1) Copy parent
+  // ===========================================================================
+  #ifdef __NO_X
+    #ifndef __REGUL
+      new_indiv = new ae_individual( parent, index );
+    #else
+      new_indiv = new ae_individual_R( dynamic_cast<ae_individual_R*>(parent), index );
+    #endif
+  #elif defined __X11
+    #ifndef __REGUL
+      new_indiv = new ae_individual_X11( dynamic_cast<ae_individual_X11*>(parent), index );
+    #else
+      new_indiv = new ae_individual_R_X11( dynamic_cast<ae_individual_R_X11*>(parent), index );
+    #endif
+  #endif
+  
+  
+  // ===========================================================================
+  //  2) Set the new individual's location on the grid
+  //     (needed if the population is structured)
+  // ===========================================================================
+  if ( ae_common::pop_structure == true )
+  {
+    new_indiv->set_grid_cell( ae_common::sim->get_pop()->get_pop_grid()[x][y] );
+    new_indiv->set_placed_in_population( true ); // TODO : Shouldn't _place_in_pop be set to true in set_grid_cell()?
+    ae_common::sim->get_pop()->get_pop_grid()[x][y]->set_individual( new_indiv );
+  }
+  
+  
+  // ===========================================================================
+  //  3) Perform transfer
+  // ===========================================================================
+  // -----------------------------------
+  //  a) Insertion transfer
+  // -----------------------------------
+  if ( ae_common::sim->alea->random() < ae_common::transfer_ins_rate )
+  {
+    // Insertion transfer
+    // Requirements:
+    //    * A circular exogenote => an alignment on the donor chromosome
+    //    * An alignment between the exogenote and the endogenote
+    
+    // 1) Draw a random donor (uniform drawing).
+    // We use the rank because indivs are sorted by rank (1 for the worst, POP_SIZE for the best).
+    ae_individual * donor = NULL;
+    do donor = get_indiv_by_rank( ae_common::sim->alea->random( _nb_indivs ) + 1 );
+    while ( donor == parent );
+    
+    // 2) Look for an alignment within the donor genome
+    ae_vis_a_vis* alignment_1   = NULL;
+    ae_dna*       donor_dna     = donor->get_genetic_unit( 0 )->get_dna();
+    ae_dna*       new_indiv_dna = new_indiv->get_genetic_unit( 0 )->get_dna();
+    int32_t       nb_pairs_1    = (int32_t)( ceil( donor_dna->get_length() * ae_common::neighbourhood_rate ) );
+    
+    alignment_1 = ae_dna::search_alignment( donor_dna, donor_dna, nb_pairs_1, DIRECT );
+    
+    if ( alignment_1 != NULL )
+    {
+      // 3) Make a copy of the sequence to be transferred (the exogenote)
+      ae_genetic_unit* exogenote = donor_dna->copy_into_new_GU( alignment_1->get_i_1(), alignment_1->get_i_2() );
+      
+      // 4) Look for an alignments between the exogenote and the endogenote
+      ae_vis_a_vis* alignment_2 = NULL;
+      int32_t       nb_pairs_2  = (int32_t)( ceil( new_indiv_dna->get_length() * ae_common::neighbourhood_rate ) );
+      
+      alignment_2 = ae_dna::search_alignment( exogenote->get_dna(), new_indiv_dna, nb_pairs_2, BOTH_SENSES );
+      
+      if ( alignment_2 != NULL )
+      {
+        //~ FILE * logfile = fopen( "transfer.out", "w" );
+        //~ fprintf( logfile, "DONOR:\n%s\n\n\n", donor_dna->get_data() );
+        //~ fprintf( logfile, "EXOGENOTE:\n%s\n\n\n", exogenote->get_dna()->get_data() );
+        //~ fprintf( logfile, "RECIPIENT:\n%s\n\n\n", new_indiv_dna->get_data() );
+        //~ #ifdef DEBUG
+          //~ ae_common::sim->get_logs()->flush();
+          //~ new_indiv->assert_promoters();
+          //~ new_indiv->assert_promoters_order();
+        //~ #endif
+        
+        //~ printf( "new indiv length: %"PRId32" parent: %"PRId32" donor: %"PRId32" exogenote: %"PRId32"\n",
+                //~ new_indiv_dna->get_length(), parent->get_genetic_unit( 0 )->get_dna()->get_length(), donor_dna->get_length(), exogenote->get_dna()->get_length() );
+        
+        //~ printf( "************************************************************\n" );
+        //~ donor->get_genetic_unit( 0 )->print_rnas();
+        //~ printf( "************************************************************\n" );
+        //~ exogenote->print_rnas();
+        //~ printf( "************************************************************\n" );
+        
+        int32_t genome_length_before  = new_indiv_dna->get_length();
+        int32_t genome_length_after   = new_indiv_dna->get_length() + exogenote->get_dna()->get_length();
+        
+        if ( genome_length_after > ae_common::max_genome_length )
+        {
+          if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_BARRIER ) == true )
+          {
+            // Write an entry in the barrier log file
+            fprintf(  ae_common::sim->get_logs()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" INS_TRANSFER %"PRId32" %"PRId32" %"PRId32"\n",
+                      ae_common::sim->get_num_gener(),
+                      new_indiv->get_index_in_population(),
+                      exogenote->get_dna()->get_length(),
+                      0,
+                      genome_length_before );
+          }
+        }
+        else
+        {
+          new_indiv_dna->insert_GU( exogenote, alignment_2->get_i_2(), alignment_2->get_i_1(), (alignment_2->get_sense() == INDIRECT) );
+          //~ fprintf( logfile, "RESULT:\n%s\n\n\n", new_indiv_dna->get_data() );
+          //~ fflush( logfile );
+          
+
+          // Write a line in transfer logfile
+          if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_TRANSFER ) == true )
+          {
+            fprintf(  ae_common::sim->get_logs()->get_log( LOG_TRANSFER ),
+                      "%"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId16" %"PRId32" %"PRId32" %"PRId16"\n",
+                      ae_common::sim->get_num_gener(),
+                      new_indiv->get_index_in_population(),
+                      donor->get_index_in_population(),
+                      0, // Transfer type
+                      exogenote->get_dna()->get_length(),
+                      0,
+                      genome_length_before,
+                      new_indiv_dna->get_length(),
+                      alignment_1->get_i_1(),
+                      alignment_1->get_i_2(),
+                      alignment_1->get_score(),
+                      alignment_2->get_i_1(),
+                      alignment_2->get_i_2(),
+                      alignment_2->get_score() );
+          }
+          
+          //~ printf( "INS  Transfer (%"PRId32", %"PRId32") => (%"PRId32", %"PRId32"). Length: %"PRId32"\n",
+                  //~ alignment_1->get_i_1(), alignment_1->get_i_2(),
+                  //~ alignment_2->get_i_1(), alignment_2->get_i_2(), new_indiv_dna->get_length() );
+          //~ getchar();
+    
+          //~ #ifdef DEBUG
+            //~ ae_common::sim->get_logs()->flush();
+            //~ new_indiv->assert_promoters();
+            //~ new_indiv->assert_promoters_order();
+          //~ #endif
+        }
+        
+        delete alignment_2;
+      }
+      
+      delete exogenote;
+      delete alignment_1;
+    }
+  }
+  
+  // -----------------------------------
+  //  b) Replacement transfer
+  // -----------------------------------
+  if ( ae_common::sim->alea->random() < ae_common::transfer_repl_rate )
+  {
+    // Replacement transfer
+    // Requirements:
+    //    * 2 distinct alignments between the (linear) exogenote and the endogenote
+    
+    // 1) Draw a random donor (uniform drawing).
+    // We use the rank because indivs are sorted by rank (1 for the worst, POP_SIZE for the best).
+    ae_individual * donor = NULL;
+    do donor = get_indiv_by_rank( ae_common::sim->alea->random( _nb_indivs ) + 1 );
+    while ( donor == parent );
+    
+    // 2) Look for an alignment between the parent genome and the donor genome
+    ae_vis_a_vis* alignment_1   = NULL;
+    ae_vis_a_vis* alignment_2   = NULL;
+    ae_dna*       parent_dna    = parent->get_genetic_unit( 0 )->get_dna();
+    ae_dna*       donor_dna     = donor->get_genetic_unit( 0 )->get_dna();
+    ae_dna*       new_indiv_dna = new_indiv->get_genetic_unit( 0 )->get_dna();
+    ae_sense      sense         = (ae_common::sim->alea->random() < 0.5) ? DIRECT : INDIRECT;
+    int32_t       nb_pairs_1    = (int32_t)( ceil( new_indiv_dna->get_length() * ae_common::neighbourhood_rate ) );
+    int32_t       nb_pairs_2    = (int32_t)( ceil( new_indiv_dna->get_length() * ae_common::neighbourhood_rate ) );
+    
+    alignment_1 = ae_dna::search_alignment( parent_dna, donor_dna, nb_pairs_1, sense );
+    
+    if ( alignment_1 != NULL )
+    {
+      // Look for a second alignement between the parent and the donor (must be different from alignment_1)
+      while ( alignment_2 == NULL && nb_pairs_2 > 0 )
+      {
+        alignment_2 = ae_dna::search_alignment( parent_dna, donor_dna, nb_pairs_2, sense );
+        
+        // Forbid the replacement of the whole genome of the parent
+        if ( alignment_2 != NULL && alignment_2->get_i_1() == alignment_1->get_i_1() )
+        {
+          delete alignment_2;
+          alignment_2 = NULL;
+        }
+      }
+    
+    
+      // If both alignments were found, proceed to the transfer
+      if ( alignment_2 != NULL )
+      {
+        int32_t genome_length_before  = new_indiv_dna->get_length();
+        int32_t genome_length_after   = new_indiv_dna->get_length();
+        int32_t exogenote_length      = ae_utils::mod( alignment_2->get_i_2() - alignment_1->get_i_2() - 1, donor_dna->get_length() ) + 1;
+        int32_t replaced_seq_length   = ae_utils::mod( alignment_2->get_i_1() - alignment_1->get_i_1() - 1, genome_length_before ) + 1;
+        
+        if ( genome_length_after < ae_common::min_genome_length || genome_length_after > ae_common::max_genome_length )
+        {
+          if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_BARRIER ) == true )
+          {
+            // Write an entry in the barrier log file
+            fprintf(  ae_common::sim->get_logs()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" REPL_TRANSFER %"PRId32" %"PRId32" %"PRId32"\n",
+                      ae_common::sim->get_num_gener(),
+                      new_indiv->get_index_in_population(),
+                      exogenote_length,
+                      replaced_seq_length,
+                      genome_length_before );
+          }
+        }
+        
+        // 3) Make a copy of the sequence to be transferred (the exogenote)
+        ae_genetic_unit* exogenote = NULL;
+        if ( sense == DIRECT )
+        {
+          exogenote = donor_dna->copy_into_new_GU( alignment_1->get_i_2(), alignment_2->get_i_2() );
+        }
+        else
+        {
+          exogenote = donor_dna->copy_into_new_GU( alignment_2->get_i_2(), alignment_1->get_i_2() );
+        }
+        
+        
+        //~ FILE * logfile = fopen( "transfer.out", "w" );
+        //~ fprintf( logfile, "DONOR:\n%s\n\n\n", donor_dna->get_data() );
+        //~ fprintf( logfile, "EXOGENOTE:\n%s\n\n\n", exogenote->get_dna()->get_data() );
+        //~ fprintf( logfile, "RECIPIENT:\n%s\n\n\n", new_indiv_dna->get_data() );
+        //~ #ifdef DEBUG
+          //~ ae_common::sim->get_logs()->flush();
+          //~ new_indiv->assert_promoters();
+          //~ new_indiv->assert_promoters_order();
+        //~ #endif
+        
+        //~ printf( "new indiv length: %"PRId32" parent: %"PRId32" donor: %"PRId32" exogenote: %"PRId32"\n",
+                //~ new_indiv_dna->get_length(), parent->get_genetic_unit( 0 )->get_dna()->get_length(), donor_dna->get_length(), exogenote->get_dna()->get_length() );
+        
+        //~ printf( "************************************************************\n" );
+        //~ donor->get_genetic_unit( 0 )->print_rnas();
+        //~ printf( "************************************************************\n" );
+        //~ exogenote->print_rnas();
+        //~ printf( "************************************************************\n" );
+        // Delete the sequence to be replaced
+        new_indiv_dna->do_deletion( alignment_1->get_i_1(), alignment_2->get_i_1() );
+        
+        //~ printf( "intermediate genome length : %"PRId32"\n", new_indiv_dna->get_length() );
+        
+        // Insert the transfered sequence
+        if ( alignment_1->get_i_1() < alignment_2->get_i_1() )
+        {
+          new_indiv_dna->insert_GU( exogenote, alignment_1->get_i_1(), 0, sense == INDIRECT );
+        }
+        else
+        {
+          new_indiv_dna->insert_GU( exogenote, 0, 0, sense == INDIRECT );
+        }
+        
+
+        // Write a line in transfer logfile
+        if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_TRANSFER ) == true )
+        {
+          fprintf(  ae_common::sim->get_logs()->get_log( LOG_TRANSFER ),
+                    "%"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId16" %"PRId32" %"PRId32" %"PRId16"\n",
+                    ae_common::sim->get_num_gener(),
+                    new_indiv->get_index_in_population(),
+                    donor->get_index_in_population(),
+                    1, // Transfer type
+                    exogenote->get_dna()->get_length(),
+                    replaced_seq_length,
+                    genome_length_before,
+                    new_indiv_dna->get_length(),
+                    alignment_1->get_i_1(),
+                    alignment_1->get_i_2(),
+                    alignment_1->get_score(),
+                    alignment_2->get_i_1(),
+                    alignment_2->get_i_2(),
+                    alignment_2->get_score() );
+        }
+        
+        //~ fprintf( logfile, "RESULT:\n%s\n\n\n", new_indiv_dna->get_data() );
+        //~ fflush( logfile );
+        //~ printf( "REPL Transfer (%"PRId32", %"PRId32") replacing (%"PRId32", %"PRId32"). Length: %"PRId32"\n", alignment_1->get_i_2(), alignment_2->get_i_2(), alignment_1->get_i_1(), alignment_2->get_i_1(), new_indiv_dna->get_length() );
+        //~ getchar();
+
+        //~ #ifdef DEBUG
+          //~ ae_common::sim->get_logs()->flush();
+          //~ new_indiv->assert_promoters();
+          //~ new_indiv->assert_promoters_order();
+        //~ #endif
+        
+        delete exogenote;
+        delete alignment_2;
+      }
+      
+      delete alignment_1;
+    }
+  }
+  
+  
+  // ===========================================================================
+  //  4) Perform rearrangements and mutations for each genetic unit
+  // ===========================================================================
+  ae_list_node*     gen_unit_node = new_indiv->get_genetic_unit_list()->get_first();
+  ae_genetic_unit*  gen_unit      = NULL;
+  
+  while ( gen_unit_node != NULL )
+  {
+    gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
+    
+    gen_unit->get_dna()->perform_mutations();
+    
+    if ( new_indiv->get_replic_report() != NULL )
+    {
+      new_indiv->get_replic_report()->get_dna_replic_reports()->add( gen_unit->get_dna()->get_replic_report() );
+    }
+
+    gen_unit_node = gen_unit_node->get_next();
+  }
+  
+  
+  // ===========================================================================
+  //  5) Evaluate new individual
+  // ===========================================================================
+  new_indiv->evaluate( ae_common::sim->get_env() );
+  
+  
+  // ===========================================================================
+  //  6) Compute statistics
+  // ===========================================================================
+  new_indiv->compute_statistical_data();
+  
+  
+  #ifdef DEBUG
+    ae_common::sim->get_logs()->flush();
+    new_indiv->assert_promoters();
+  #endif
+  
+  
+  return new_indiv;
 }
 
 ae_individual* ae_population::calculate_local_competition ( int16_t x, int16_t y )
@@ -1203,7 +1556,7 @@ ae_individual* ae_population::create_random_individual( int32_t index )
     
     // <DEBUG>
     //~ ae_vis_a_vis* align = NULL;
-    //~ align = ae_align::search_alignement_indirect( indiv->get_genetic_unit(0)->get_dna(), pos1, indiv->get_genetic_unit(0)->get_dna(), pos2+50, 40 );
+    //~ align = ae_align::search_alignment_indirect( indiv->get_genetic_unit(0)->get_dna(), pos1, indiv->get_genetic_unit(0)->get_dna(), pos2+50, 40 );
     
     //~ if ( align == NULL )
     //~ {

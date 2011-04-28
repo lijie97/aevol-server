@@ -76,12 +76,12 @@ int compare_prot_pos( const void * pos, const void * prot ) // This one has to b
 // =================================================================
 //                             Constructors
 // =================================================================
-/**
- * Creates a new genetic unit for <indiv> with a random DNA sequence of length <length>
- *
- * Promoters will be looked for on the whole sequence but no further process
- * will be performed.
- */
+/*!
+  \brief Create a new genetic unit for indiv with a random DNA sequence of length length
+ 
+  Promoters will be looked for on the whole sequence but no further process
+  will be performed.
+*/
 ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, int32_t length )
 {
   _indiv = indiv;
@@ -141,15 +141,15 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, int32_t length )
   init_statistical_data();
 }
 
-/**
- * Creates a new genetic unit for <indiv> with sequence <seq> [of size <length>] [and containing promoters <prom_list>]
- *
- * Promoters will be looked for if <prom_list> is not provided (this may take some time).
- *
- * WARNING : 
- *   <seq> will be used directly which means the caller must not delete it
- *   The same goes for <prom_list> if it is provided.
- */
+/*!
+  \brief Create a new genetic unit for indiv with sequence seq [of size length] [and containing promoters prom_list]
+ 
+  Promoters will be looked for if prom_list is not provided (this may take some time).
+ 
+  WARNING : 
+    seq will be used directly which means the caller must not delete it
+    The same goes for prom_list if it is provided.
+*/
 ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, char* seq, int32_t length, ae_list** prom_list )
 {
   _indiv = indiv;
@@ -219,13 +219,12 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, char* seq, int32_t lengt
   init_statistical_data();
 }
 
-/**
- * Copy constructor.
- *
- * Copies the DNA and recomputes all the rest.
- * It is slower than copying as much as possible and regenerate only what is necessary but it works whatever the state
- * of the model GU.
- */
+/*!
+  \brief Copy constructor.
+ 
+  Copies the DNA and recomputes all the rest.
+  It is slower than copying as much as possible and regenerate only what is necessary but it works whatever the state of the model GU.
+*/
 ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, const ae_genetic_unit &model )
 {
   _indiv = indiv;
@@ -713,8 +712,8 @@ void ae_genetic_unit::do_translation( void )
     // (3 codons for START + STOP + at least one amino-acid)
     for ( int32_t i = 0 ; transcript_length - i >= SHINE_DAL_SIZE + SHINE_START_SPACER + 3 * CODON_SIZE ; i++ )
     {
-      if (  ( is_shine_dalgarno( LEADING, utils::mod(transcript_start + i, genome_length) ) ) &&
-            ( is_start( LEADING, utils::mod(transcript_start + i + SHINE_DAL_SIZE + SHINE_START_SPACER, genome_length) ) ) )
+      if (  ( is_shine_dalgarno( LEADING, ae_utils::mod(transcript_start + i, genome_length) ) ) &&
+            ( is_start( LEADING, ae_utils::mod(transcript_start + i + SHINE_DAL_SIZE + SHINE_START_SPACER, genome_length) ) ) )
       {
         // We found a translation initiation, we can now build the protein until we find a STOP codon or until we reach the end
         // of the transcript (in which case the protein is not valid)
@@ -743,7 +742,7 @@ void ae_genetic_unit::do_translation( void )
 
           while ( (transcript_length - j >= CODON_SIZE) )
           {
-            codon = new ae_codon( _dna, LEADING, utils::mod(transcript_start + j, genome_length) );
+            codon = new ae_codon( _dna, LEADING, ae_utils::mod(transcript_start + j, genome_length) );
 
             if ( codon->is_stop() )
             {
@@ -835,8 +834,8 @@ void ae_genetic_unit::do_translation( void )
     // (3 codons for START + STOP + at least one amino-acid)
     for ( int32_t i = 0 ; transcript_length - i >= SHINE_DAL_SIZE + SHINE_START_SPACER + 3 * CODON_SIZE ; i++ )
     {
-      if (  ( is_shine_dalgarno( LAGGING, utils::mod(transcript_start - i, genome_length) ) ) &&
-            ( is_start( LAGGING, utils::mod(transcript_start - i - SHINE_DAL_SIZE - SHINE_START_SPACER, genome_length) ) ) )
+      if (  ( is_shine_dalgarno( LAGGING, ae_utils::mod(transcript_start - i, genome_length) ) ) &&
+            ( is_start( LAGGING, ae_utils::mod(transcript_start - i - SHINE_DAL_SIZE - SHINE_START_SPACER, genome_length) ) ) )
       {
         // We found a translation initiation, we can now build the protein until we find a STOP codon or until we reach the end
         // of the transcript (in which case the protein is not valid)
@@ -864,7 +863,7 @@ void ae_genetic_unit::do_translation( void )
 
           while ( (transcript_length - j >= CODON_SIZE) )
           {
-            codon = new ae_codon( _dna, LAGGING, utils::mod(transcript_start - j, genome_length) );
+            codon = new ae_codon( _dna, LAGGING, ae_utils::mod(transcript_start - j, genome_length) );
 
             if ( codon->is_stop() )
             {
@@ -1016,9 +1015,12 @@ void ae_genetic_unit::compute_phenotypic_contribution( void )
   }
 }
 
+/*!
+  \brief Compute the areas between the phenotype and the environment for each environmental segment.
+
+  If the environment is not segmented, the total area is computed
+*/
 void ae_genetic_unit::compute_distance_to_target( ae_environment* envir )
-// Compute the areas between the phenotype and the environment for each environmental segment
-// If the environment is not segmented, the total area is computed
 {
 
   if ( _distance_to_target_computed ) return; // _distance_to_target has already been computed, nothing to do.
@@ -1052,10 +1054,13 @@ void ae_genetic_unit::compute_distance_to_target( ae_environment* envir )
   delete delta;
 }
     
+/*!
+  \brief Compute a "proper" fitness value (one that increases when the individual is fitter).
+
+  The behaviour of this function depends on many parameters and most notably on whether it is
+  a "composite" fitness or not, and on the selection scheme.
+*/
 void ae_genetic_unit::compute_fitness( ae_environment* envir )
-// Computation of a "proper" fitness value (one that increases when the individual is fitter)
-// The behaviour of this function depends on many parameters and most notably on whether it is
-// a "composite" fitness or not, and on the selection scheme.
 {
   if ( _fitness_computed ) return; // Fitness has already been computed, nothing to do.
   _fitness_computed = true;
@@ -1243,7 +1248,7 @@ bool ae_genetic_unit::is_promoter( ae_strand strand, int32_t pos, int8_t& dist )
     for ( int16_t i = 0 ; i < PROM_SIZE ; i++ )
     {
       //~ printf( "  i : %"PRId32" dist : %"PRId8"\n", i, dist );
-      if ( genome[utils::mod((pos-i),len)] == PROM_SEQ[i] ) // == and not != because we are on the complementary strand...
+      if ( genome[ae_utils::mod((pos-i),len)] == PROM_SEQ[i] ) // == and not != because we are on the complementary strand...
       {
         dist++;
         if ( dist > PROM_MAX_DIFF )
@@ -1269,14 +1274,14 @@ bool ae_genetic_unit::is_terminator( ae_strand strand, int32_t pos ) const
   {
     for ( int16_t i = 0 ; i < TERM_STEM_SIZE ; i++ )
     {
-      if ( genome[utils::mod(pos+i,len)] != genome[utils::mod(pos+(TERM_SIZE-1)-i,len)] ) return false;
+      if ( genome[ae_utils::mod(pos+i,len)] == genome[ae_utils::mod(pos+(TERM_SIZE-1)-i,len)] ) return false;
     }
   }
   else // ( strand == LAGGING )
   {
     for ( int16_t i = 0 ; i < TERM_STEM_SIZE ; i++ )
     {
-      if ( genome[utils::mod(pos-i,len)] != genome[utils::mod(pos-(TERM_SIZE-1)+i,len)] ) return false;
+      if ( genome[ae_utils::mod(pos-i,len)] == genome[ae_utils::mod(pos-(TERM_SIZE-1)+i,len)] ) return false;
     }
   }
 
@@ -1292,7 +1297,7 @@ bool ae_genetic_unit::is_shine_dalgarno( ae_strand strand, int32_t pos ) const
   {
     for ( int8_t i = 0 ; i < SHINE_DAL_SIZE ; i++ )
     {
-      if ( genome[utils::mod((pos+i),len)] != SHINE_DAL_SEQ[i] )
+      if ( genome[ae_utils::mod((pos+i),len)] != SHINE_DAL_SEQ[i] )
       {
         return false;
       }
@@ -1302,7 +1307,7 @@ bool ae_genetic_unit::is_shine_dalgarno( ae_strand strand, int32_t pos ) const
   {
     for ( int8_t i = 0 ; i < SHINE_DAL_SIZE ; i++ )
     {
-      if ( genome[utils::mod((pos-i),len)] == SHINE_DAL_SEQ[i] ) // == and not != because we are on the complementary strand...
+      if ( genome[ae_utils::mod((pos-i),len)] == SHINE_DAL_SEQ[i] ) // == and not != because we are on the complementary strand...
       {
         return false;
       }
@@ -1322,7 +1327,7 @@ int8_t ae_genetic_unit::get_codon( ae_strand strand, int32_t pos ) const
   {
     for ( int8_t i = 0 ; i < CODON_SIZE ; i++ )
     {
-      if ( genome[utils::mod((pos+i),len)] == '1' )
+      if ( genome[ae_utils::mod((pos+i),len)] == '1' )
       {
         codon += 1 << ( CODON_SIZE - i - 1 ); //pow( 2, CODON_SIZE - i - 1 );
       }
@@ -1332,7 +1337,7 @@ int8_t ae_genetic_unit::get_codon( ae_strand strand, int32_t pos ) const
   {
     for ( int8_t i = 0 ; i < CODON_SIZE ; i++ )
     {
-      if ( genome[utils::mod((pos-i),len)] != '1' ) // == and not != because we are on the complementary strand...
+      if ( genome[ae_utils::mod((pos-i),len)] != '1' ) // == and not != because we are on the complementary strand...
       {
         codon += 1 << ( CODON_SIZE - i - 1 ); //pow( 2, CODON_SIZE - i - 1 );
       }
@@ -1447,16 +1452,16 @@ void ae_genetic_unit::compute_non_coding( void )
         if ( strand == LEADING )
         {
           prom_first  = rna->get_promoter_pos();
-          prom_last   = utils::mod( prom_first + PROM_SIZE - 1, _dna->get_length() );
+          prom_last   = ae_utils::mod( prom_first + PROM_SIZE - 1, _dna->get_length() );
           term_last   = rna->get_last_transcribed_pos();
-          term_first  = utils::mod( term_last - TERM_SIZE + 1, _dna->get_length() );
+          term_first  = ae_utils::mod( term_last - TERM_SIZE + 1, _dna->get_length() );
         }
         else
         {
           prom_last   = rna->get_promoter_pos();
-          prom_first  = utils::mod( prom_last - PROM_SIZE + 1, _dna->get_length() );
+          prom_first  = ae_utils::mod( prom_last - PROM_SIZE + 1, _dna->get_length() );
           term_first  = rna->get_last_transcribed_pos();
-          term_last   = utils::mod( term_first + TERM_SIZE - 1, _dna->get_length() );
+          term_last   = ae_utils::mod( term_first + TERM_SIZE - 1, _dna->get_length() );
         }
         //~ printf( "\n" );
         //~ if ( strand == LEADING ) printf( "LEADING\n" );
@@ -1972,19 +1977,19 @@ void ae_genetic_unit::invert_promoters_included_in( int32_t pos_1, int32_t pos_2
   }
 }
 
-/**
- * Inverts all the promoters of <promoter_lists> for a sequence of length <seq_length>.
- */
+/*!
+  \brief Invert all the promoters of promoter_lists for a sequence of length seq_length.
+*/
 /*static*/ void ae_genetic_unit::invert_promoters( ae_list** promoter_lists, int32_t seq_length )
 {
   ae_genetic_unit::invert_promoters( promoter_lists, 0, seq_length );
 }
 
-/**
- * WARNING : This function is pretty specific, make sure you understand its precise behaviour before using it.
- * It inverts all the promoters of <promoter_lists> knowing that they represent the promoters of a subsequence
- * beginning at <pos_1> and ending at <pos_2>.
- */
+/*!
+  \brief Invert all the promoters of promoter_lists knowing that they represent the promoters of a subsequence beginning at pos_1 and ending at pos_2.
+
+  WARNING : This function is pretty specific, make sure you understand its precise behaviour before using it.
+*/
 /*static*/ void ae_genetic_unit::invert_promoters( ae_list** promoter_lists, int32_t pos_1, int32_t pos_2 )
 {
   assert( pos_1 >= 0 && pos_1 <= pos_2 ); // Could check (pos_2 < length) but another parameter would be necessary
@@ -2241,7 +2246,7 @@ void ae_genetic_unit::extract_lagging_promoters_starting_after( int32_t pos, ae_
 }
 
 /*!
-  Shift all the promoters in <promoters_to_shift> by <delta_pos> in a sequence of length <seq_length>.
+  \brief Shift all the promoters in <promoters_to_shift> by <delta_pos> in a sequence of length <seq_length>.
  
   Every promoter in double stranded list <promoters_to_shift> will be shifted by <delta_pos>,
   then a modulo <seq_length> will be applied
@@ -2268,7 +2273,7 @@ void ae_genetic_unit::extract_lagging_promoters_starting_after( int32_t pos, ae_
 }
 
 /*!
-  Insert promoters in double stranded list <promoters_to_insert> into <this->_rna_list>.
+  \brief Insert promoters in double stranded list <promoters_to_insert> into <this->_rna_list>.
  
   The promoters in <promoters_to_insert> must already be at their rightful position according to <this>
   and the positions of the promoters from <promoters_to_insert> and <this->_rna_list> must not be interlaced
@@ -2438,7 +2443,7 @@ void ae_genetic_unit::remove_leading_promoters_starting_between( int32_t pos_1, 
     {
       ae_list_node* next_node = rna_node->get_next();
       //~ printf( "remove LEADING promoter at [%"PRId32", %"PRId32"]\n", ((ae_rna*)rna_node->get_obj())->get_promoter_pos(),
-              //~ utils::mod( ((ae_rna*)rna_node->get_obj())->get_promoter_pos() + PROM_SIZE, _dna->get_length() ) );
+              //~ ae_utils::mod( ((ae_rna*)rna_node->get_obj())->get_promoter_pos() + PROM_SIZE, _dna->get_length() ) );
       
       _rna_list[LEADING]->remove( rna_node, DELETE_OBJ, DELETE_OBJ );
       
@@ -2490,7 +2495,7 @@ void ae_genetic_unit::remove_lagging_promoters_starting_between( int32_t pos_1, 
       ae_list_node* next_node = rna_node->get_next();
       
       //~ printf( "remove LAGGING promoter at [%"PRId32", %"PRId32"]\n", ((ae_rna*)rna_node->get_obj())->get_promoter_pos(),
-              //~ utils::mod( ((ae_rna*)rna_node->get_obj())->get_promoter_pos() - PROM_SIZE, _dna->get_length() ) );
+              //~ ae_utils::mod( ((ae_rna*)rna_node->get_obj())->get_promoter_pos() - PROM_SIZE, _dna->get_length() ) );
       _rna_list[LAGGING]->remove( rna_node, DELETE_OBJ, DELETE_OBJ );
       
       rna_node = next_node;
@@ -2567,7 +2572,7 @@ void ae_genetic_unit::remove_leading_promoters_starting_after( int32_t pos )
   {
     ae_list_node* prev_node = rna_node->get_prev();
     //~ printf( "remove LEADING promoter at [%"PRId32", %"PRId32"]\n", ((ae_rna*)rna_node->get_obj())->get_promoter_pos(),
-            //~ utils::mod( ((ae_rna*)rna_node->get_obj())->get_promoter_pos() + PROM_SIZE, _dna->get_length() ) );
+            //~ ae_utils::mod( ((ae_rna*)rna_node->get_obj())->get_promoter_pos() + PROM_SIZE, _dna->get_length() ) );
     
     _rna_list[LEADING]->remove( rna_node, DELETE_OBJ, DELETE_OBJ );
     
@@ -2603,7 +2608,7 @@ void ae_genetic_unit::remove_lagging_promoters_starting_after( int32_t pos )
     next_node = rna_node->get_next();
     
     //~ printf( "remove LAGGING promoter at [%"PRId32", %"PRId32"]\n", ((ae_rna*)rna_node->get_obj())->get_promoter_pos(),
-            //~ utils::mod( ((ae_rna*)rna_node->get_obj())->get_promoter_pos() - PROM_SIZE, _dna->get_length() ) );
+            //~ ae_utils::mod( ((ae_rna*)rna_node->get_obj())->get_promoter_pos() - PROM_SIZE, _dna->get_length() ) );
     _rna_list[LAGGING]->remove( rna_node, DELETE_OBJ, DELETE_OBJ );
     
     rna_node  = next_node;
@@ -3031,7 +3036,7 @@ void ae_genetic_unit::move_all_lagging_promoters_after( int32_t pos, int32_t del
 */
 void ae_genetic_unit::copy_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list* new_promoter_list )
 {
-  // Go to first RNA to copy
+  // 1) Go to first RNA to copy
   ae_list_node* rna_node  = _rna_list[LEADING]->get_first();
   while ( rna_node != NULL && ((ae_rna*)rna_node->get_obj())->get_promoter_pos() < pos_1 )
   {
@@ -3039,12 +3044,35 @@ void ae_genetic_unit::copy_leading_promoters_starting_between( int32_t pos_1, in
     rna_node = rna_node->get_next();
   }
   
-  // Copy RNAs
-  while ( rna_node != NULL && ((ae_rna*)rna_node->get_obj())->get_promoter_pos() < pos_2 )
+  // 2) Copy RNAs
+  if ( pos_1 < pos_2 )
   {
-    new_promoter_list->add( new ae_rna( this, *((ae_rna*)rna_node->get_obj()) ) );
+    // Copy from pos_1 to pos_2
+    while ( rna_node != NULL && ((ae_rna*)rna_node->get_obj())->get_promoter_pos() < pos_2 )
+    {
+      new_promoter_list->add( new ae_rna( this, *((ae_rna*)rna_node->get_obj()) ) );
+      
+      rna_node = rna_node->get_next();
+    }
+  }
+  else
+  {
+    // Copy from pos_1 to the end of the list
+    while ( rna_node != NULL )
+    {
+      new_promoter_list->add( new ae_rna( this, *((ae_rna*)rna_node->get_obj()) ) );
+      
+      rna_node = rna_node->get_next();
+    }
     
-    rna_node = rna_node->get_next();
+    // Copy from the beginning of the list to pos_2
+    rna_node  = _rna_list[LEADING]->get_first();
+    while ( rna_node != NULL && ((ae_rna*)rna_node->get_obj())->get_promoter_pos() < pos_2 )
+    {
+      new_promoter_list->add( new ae_rna( this, *((ae_rna*)rna_node->get_obj()) ) );
+      
+      rna_node = rna_node->get_next();
+    }
   }
 }
 
@@ -3065,8 +3093,6 @@ void ae_genetic_unit::copy_leading_promoters_starting_between( int32_t pos_1, in
 */
 void ae_genetic_unit::copy_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list* new_promoter_list )
 {
-  assert( pos_1 > pos_2 ); // Doesn't work when [pos_1 ; pos_2] includes OriC
-  
   // Go to first RNA to copy
   ae_list_node* rna_node  = _rna_list[LAGGING]->get_last();
   while ( rna_node != NULL && ((ae_rna*)rna_node->get_obj())->get_promoter_pos() < pos_1 )
@@ -3075,11 +3101,34 @@ void ae_genetic_unit::copy_lagging_promoters_starting_between( int32_t pos_1, in
   }
   
   // Copy RNAs
-  while ( rna_node != NULL && ((ae_rna*)rna_node->get_obj())->get_promoter_pos() < pos_2 )
+  if ( pos_1 < pos_2 )
   {
-    new_promoter_list->add_front( new ae_rna( this, *((ae_rna*)rna_node->get_obj()) ) );
+    // Copy from pos_1 to pos_2
+    while ( rna_node != NULL && ((ae_rna*)rna_node->get_obj())->get_promoter_pos() < pos_2 )
+    {
+      new_promoter_list->add_front( new ae_rna( this, *((ae_rna*)rna_node->get_obj()) ) );
+      
+      rna_node = rna_node->get_prev();
+    }
+  }
+  else
+  {
+    // Copy from pos_1 to the beginning of the list (we are going backwards)
+    while ( rna_node != NULL )
+    {
+      new_promoter_list->add_front( new ae_rna( this, *((ae_rna*)rna_node->get_obj()) ) );
+      
+      rna_node = rna_node->get_prev();
+    }
     
-    rna_node = rna_node->get_prev();
+    // Copy from the end of the list to pos_2 (we are going backwards)
+    rna_node  = _rna_list[LAGGING]->get_last();
+    while ( rna_node != NULL && ((ae_rna*)rna_node->get_obj())->get_promoter_pos() < pos_2 )
+    {
+      new_promoter_list->add_front( new ae_rna( this, *((ae_rna*)rna_node->get_obj()) ) );
+      
+      rna_node = rna_node->get_prev();
+    }
   }
 }
 
