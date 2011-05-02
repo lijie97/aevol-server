@@ -35,6 +35,14 @@ if 1 == 1:
   
   
   
+  ####################################################################################
+  ## Open the general archive: a tgz file to put our "big backup"
+  ####################################################################################
+  general_archive_name = sim_name + '_' + last_gener + '.tgz'
+  general_archive = tarfile.open( general_archive_name, 'w:gz' )
+  
+  
+  
   ##################################################################################
   ## Save a copy of all the stat files in a targzipped "stat_<last_gener>" directory
   ##################################################################################
@@ -55,42 +63,13 @@ if 1 == 1:
   
   
   
-  #######################################################################################
-  ## Save the backup directory in "backup_<last_gener>.tgz" and empty it (the backup dir)
-  #######################################################################################
-  # tar zcf backup_<last_gener>.tgz backup
-  backup_archive = tarfile.open( 'backup_' + last_gener + '.tgz', 'w:gz' )
-  backup_archive.add( 'backup' )
-  backup_archive.close()
-  
-  # rm -f backup/*
-  shutil.rmtree( 'backup' )
-  os.makedirs( 'backup' )
-  
-  
-  
-  #################################################################################
-  ## Save the tree directory in "tree_<last_gener>.tgz" and empty it (the tree dir)
-  #################################################################################
-  # tar zcf tree_<last_gener>.tgz tree
-  tree_archive = tarfile.open( 'tree_' + last_gener + '.tgz', 'w:gz' )
-  tree_archive.add( 'tree' )
-  tree_archive.close()
-  
-  # rm -f tree/*
-  shutil.rmtree( 'tree' )
-  os.makedirs( 'tree' )
-  
-  
-  
   ####################################################################################
-  ## Put these files (stat, backup and tree) into a tar archive and move it to the SPS
+  ## Put stat_<last_gener>.tgz in the general archive
   ####################################################################################
-  # tar zf <sim_name>_<last_gener>.tgz (stat, backup, tree)_<last_gener>.tgz
-  general_archive = tarfile.open( sim_name + '_' + last_gener + '.tar', 'w' )
   general_archive.add( 'stat_' + last_gener + '.tgz' )
-  general_archive.add( 'backup_' + last_gener + '.tgz' )
-  general_archive.add( 'tree_' + last_gener + '.tgz' )
+  general_archive.add( 'backup' )
+  general_archive.add( 'tree' )
+  
   # add *.txt to general archive
   for filename in glob.glob( os.path.join( '.', '*.txt' ) ):
     general_archive.add( filename )
@@ -98,11 +77,17 @@ if 1 == 1:
   
   # rm (stat, backup, tree)_<last_gener>.tgz
   os.remove( 'stat_' + last_gener + '.tgz' )
-  os.remove( 'backup_' + last_gener + '.tgz' )
-  os.remove( 'tree_' + last_gener + '.tgz' )
+  
+  # rm -f backup/* (keeping only the last backup)
+  os.rename( 'backup', 'backup.tmp' )
+  os.makedirs( 'backup' )
+  os.rename( 'backup.tmp/gen_' + '{0:0>6}'.format( last_gener ) + '.ae', 'backup/gen_' + '{0:0>6}'.format( last_gener ) + '.ae' )
+  shutil.rmtree( 'backup.tmp' )
+  # rm -f tree/*
+  shutil.rmtree( 'tree' )
+  os.makedirs( 'tree' )
   
   # move general archive to SPS
-  #os.rename( sim_name + '_' + last_gener + '.tar', sps_dir + '/' + sim_name + '_' + last_gener + '.tar')
-  shutil.copy( sim_name + '_' + last_gener + '.tar', sps_dir )
-  os.remove( sim_name + '_' + last_gener + '.tar' )
+  shutil.copy( general_archive_name, sps_dir )
+  os.remove( general_archive_name )
   

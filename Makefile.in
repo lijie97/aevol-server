@@ -60,7 +60,7 @@ AM_RECURSIVE_TARGETS = $(RECURSIVE_TARGETS:-recursive=) \
 	distdir dist dist-all distcheck
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = src doc
+DIST_SUBDIRS = $(SUBDIRS)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -193,9 +193,13 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-@WITH_IN2P3_FALSE@SUBDIRS = src doc
-@WITH_IN2P3_TRUE@SUBDIRS = src
-EXTRA_DIST = make_big_backup_IN2P3.py
+
+#if WITH_IN2P3
+SUBDIRS = src
+#else # WITHOUT_IN2P3
+#  SUBDIRS = src doc
+#endif # IN2P3
+EXTRA_DIST = src/misc
 all: all-recursive
 
 .SUFFIXES:
