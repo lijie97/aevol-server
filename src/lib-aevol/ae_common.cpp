@@ -655,12 +655,18 @@ void ae_common::read_from_backup( gzFile* backup_file, bool verbose )
 
 void ae_common::print_to_file( void )
 {
+
   FILE* param_out = fopen( "param.out", "w" );
   assert( param_out );
-  
+
+  fprintf( param_out, "Parameters used at first run \n");
   // PseudoRandom Number Generator
   fprintf( param_out, "seed :                       %"PRId32"\n", seed                    );
   fprintf( param_out, "env_seed :                   %"PRId32"\n", env_seed                );
+
+  // NB Generations to compute
+  fprintf( param_out, "nb_generations               %"PRId32"\n", nb_generations          );
+  
 
   // Initial conditions
   fprintf( param_out, "initial_genome_length :      %"PRId32"\n", initial_genome_length   );
@@ -687,6 +693,7 @@ void ae_common::print_to_file( void )
 
   // Statistics collection
   fprintf( param_out, "backup_step :                %"PRId32"\n",  backup_step );
+  fprintf( param_out, "big_backup_step              %"PRId32"\n",big_backup_step);
   fprintf( param_out, "tree_step :                  %"PRId32"\n",  tree_step );
   fprintf( param_out, "record_tree :                %s\n",  record_tree? "true" : "false" );
   switch ( tree_mode )
@@ -785,24 +792,100 @@ void ae_common::print_to_file( void )
   }
   fprintf( param_out, "selection_pressure :         %e\n",  selection_pressure         );
   
-  // Environment
-  // TODO
-  //~ static ae_list    env_gaussians;
-  //~ static ae_list    env_custom_points;
-  //~ static int16_t    env_sampling;
-  
-  //~ static ae_env_var env_var_method;
-  //~ static double     env_sigma;
-  //~ static int32_t    env_tau;
+  // Environment parameters
+  fprintf( param_out, "env_sampling :               %"PRId16"\n", env_sampling                );
+  {
+    //Every gaussians
+    ae_list_node * node = env_gaussians.get_first();
+    while ( node != NULL )
+      {
+	ae_gaussian * gauss = (ae_gaussian *) node->get_obj();
+	fprintf( param_out, "env_add_gaussian:    %f %f %f \n",gauss->get_height(),gauss->get_mean(),gauss->get_width());
+	node = node->get_next();
+      }
+    //Every custom_points
+    node = env_custom_points.get_first();
+    while ( node != NULL )
+      {
+	ae_point_2d * point = (ae_point_2d *)node->get_obj();
+	fprintf( param_out, "env_add_point:    %f %f \n",point->x,point->y);
+	node = node->get_next();	
+      }
+  }
+  fprintf (param_out, "env_sigma :                    %f \n", env_sigma);
+  fprintf (param_out, "env_tau   :                    %"PRId32"\n",env_tau);
+switch (env_var_method )
+  {
+  case NONE :
+    {
+      fprintf( param_out, "env_var_method   :         NONE\n" );
+      break;
+    }
+  case AUTOREGRESSIVE_MEAN_VAR :
+    {
+      fprintf( param_out, "env_var_method   :         auto_regressive_mean_var\n" );
+      break;
+    }
+  case LOCAL_GAUSSIANS_VAR :
+    {
+      fprintf( param_out, "env_var_method   :         local_gaussians_var\n" );
+      break;
+    }
 
-  //~ static bool                 env_axis_is_segmented;
-  //~ static int16_t              env_axis_nb_segments;
-  //~ static double*              env_axis_segment_boundaries;
-  //~ static ae_env_axis_feature* env_axis_features;
-  //~ static bool                 env_separate_segments;
+  default :
+    {
+      fprintf( param_out, "selection_scheme   :         UNKNOWN\n" );
+      break;
+    }
+  }
   
-  //~ static bool                 composite_fitness;
-  
+  fprintf( param_out, "env_axis_is_segmented  :           %s\n", env_axis_is_segmented? "true" : "false");
+  fprintf( param_out, "env_axis_nb_segments   :     %"PRId16"\n", env_axis_nb_segments);
+  //Axis segment boundaries multiple
+  fprintf( param_out, "env_axis_segment_boundaries :");
+  printf("bla\n");
+  fflush(stdout);
+  if(env_axis_nb_segments > 1)
+    {
+      for(int k = 0; k < env_axis_nb_segments + 1 ; k++)
+	{
+	  fprintf( param_out, " %f ",env_axis_segment_boundaries[k]);
+	}
+      printf("bla\n");
+      fflush(stdout);
+      fprintf( param_out, "\n");
+      fprintf( param_out, "env_axis_features :");
+      for(int k = 0; k < env_axis_nb_segments; k++)
+	{
+	  switch(env_axis_features[k])
+	    {
+	    case NEUTRAL :
+	      {
+		fprintf( param_out, " NEUTRAL " );
+		break;
+	      }
+	    case METABOLISM :
+	      {
+		fprintf( param_out, " METABOLISM ");
+		break;
+	      }
+	    case SECRETION :
+	      {
+		fprintf( param_out, " SECRETION ");
+		break;
+	      }
+	      
+	    default :
+	      {
+		fprintf( param_out, " UNKNOWN " );
+		break;
+	      }
+	    }
+	}
+    }
+  fprintf( param_out, "\n");
+
+  fprintf( param_out, "env_separate_segments :    %s  ", env_separate_segments? "true" : "false"); 
   
   // Secretion
   fprintf( param_out, "use_secretion :              %s\n", use_secretion? "true" : "false" );
