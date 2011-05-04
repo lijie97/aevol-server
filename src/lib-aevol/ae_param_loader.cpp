@@ -285,11 +285,17 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
     {
       if ( strncmp( line->words[1], "NONE", 4 ) == 0 )
       {
-        ae_common::min_genome_length = 0;
+        ae_common::min_genome_length = 1; // Must not be 0
       }
       else
       {
         ae_common::min_genome_length = atol( line->words[1] );
+        if ( ae_common::min_genome_length == 0 )
+        {
+          printf( "ERROR in param file \"%s\" on line %"PRId32" : MIN_GENOME_LENGTH must be > 0.\n",
+                  INPUT_FILE_NAME, cur_line );
+          exit( EXIT_FAILURE ); 
+        }
       }
       break;
     }

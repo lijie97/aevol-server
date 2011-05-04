@@ -841,48 +841,45 @@ switch (env_var_method )
   
   fprintf( param_out, "env_axis_is_segmented  :           %s\n", env_axis_is_segmented? "true" : "false");
   fprintf( param_out, "env_axis_nb_segments   :     %"PRId16"\n", env_axis_nb_segments);
+  
   //Axis segment boundaries multiple
   fprintf( param_out, "env_axis_segment_boundaries :");
-  printf("bla\n");
-  fflush(stdout);
   if(env_axis_nb_segments > 1)
+  {
+    for(int k = 0; k < env_axis_nb_segments + 1 ; k++)
     {
-      for(int k = 0; k < env_axis_nb_segments + 1 ; k++)
-	{
-	  fprintf( param_out, " %f ",env_axis_segment_boundaries[k]);
-	}
-      printf("bla\n");
-      fflush(stdout);
-      fprintf( param_out, "\n");
-      fprintf( param_out, "env_axis_features :");
-      for(int k = 0; k < env_axis_nb_segments; k++)
-	{
-	  switch(env_axis_features[k])
+      fprintf( param_out, " %f ",env_axis_segment_boundaries[k]);
+    }
+
+    fprintf( param_out, "\n");
+    fprintf( param_out, "env_axis_features :");
+    for(int k = 0; k < env_axis_nb_segments; k++)
+    {
+      switch(env_axis_features[k])
 	    {
-	    case NEUTRAL :
+        case NEUTRAL :
 	      {
-		fprintf( param_out, " NEUTRAL " );
-		break;
+          fprintf( param_out, " NEUTRAL " );
+          break;
 	      }
-	    case METABOLISM :
+        case METABOLISM :
 	      {
-		fprintf( param_out, " METABOLISM ");
-		break;
+          fprintf( param_out, " METABOLISM ");
+          break;
 	      }
-	    case SECRETION :
+        case SECRETION :
 	      {
-		fprintf( param_out, " SECRETION ");
-		break;
+          fprintf( param_out, " SECRETION ");
+          break;
 	      }
-	      
-	    default :
+        default :
 	      {
-		fprintf( param_out, " UNKNOWN " );
-		break;
+          fprintf( param_out, " UNKNOWN " );
+          break;
 	      }
 	    }
-	}
     }
+  }
   fprintf( param_out, "\n");
 
   fprintf( param_out, "env_separate_segments :    %s  ", env_separate_segments? "true" : "false"); 

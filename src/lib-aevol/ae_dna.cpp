@@ -936,7 +936,7 @@ ae_mutation* ae_dna::do_small_deletion( void )
     // <nb_del> must be in [1 ; max_indel_size]
   }
   
-  // Check that the insertion won't shrink the genome size under the limit
+  // Check that the insertion won't shrink the genome size under the limit nor to nothing
   if ( _length - nb_del < ae_common::min_genome_length )
   {
     if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_BARRIER ) == true )
