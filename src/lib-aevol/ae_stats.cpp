@@ -364,9 +364,11 @@ void ae_stats::write_headers( void )
       write_header( _stat_files[chrom_or_GU][GLOB][BP_STATS], " Computing bp stats for all individuals is extremely costly computationaly" );
       write_header( _stat_files[chrom_or_GU][GLOB][BP_STATS], "" );
       
-      // Mark file as "not to be written into"
+      // Mark file as "not to be written into" and close it
       delete [] _stat_files_names[chrom_or_GU][GLOB][BP_STATS];
       _stat_files_names[chrom_or_GU][GLOB][BP_STATS] = NULL;
+      fclose( _stat_files[chrom_or_GU][GLOB][BP_STATS] );
+      _stat_files[chrom_or_GU][GLOB][BP_STATS] = NULL;
     }
     
     for ( int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++ )
