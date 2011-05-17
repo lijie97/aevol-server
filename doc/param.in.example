@@ -4,7 +4,7 @@
 
 
 ####################################################################################
-                                  Initial setup
+#                                  Initial setup
 ####################################################################################
 SEED                    408610
 INITIAL_GENOME_LENGTH   5000
@@ -22,7 +22,7 @@ MAX_TRIANGLE_WIDTH      0.01
 
 
 ####################################################################################
-                                    Selection
+#                                    Selection
 ####################################################################################
 # SELECTION_SCHEME linear_ranking | exponential_ranking | fitness | fittest
 SELECTION_SCHEME        exponential_ranking
@@ -30,7 +30,7 @@ SELECTION_PRESSURE      0.998
 
 
 ####################################################################################
-                          Mutation / Rearrangement / Transfer
+#                          Mutation / Rearrangement / Transfer
 ####################################################################################
 ############ Mutation rates ############
 POINT_MUTATION_RATE     5e-5
@@ -39,7 +39,7 @@ SMALL_DELETION_RATE     5e-5
 MAX_INDEL_SIZE          6
 
 # Whether to use 4 point rearrangements (if false, will use 3 points rear instead - i.e will translocate sequence as is)
-WITH_4PTS_REARS         true
+# WITH_4PTS_REARS         true
 
 ############ Rearrangement rates (w/o alignements) ############
 DUPLICATION_RATE        5e-5
@@ -70,7 +70,7 @@ WITH_TRANSFER               false
 
 
 ####################################################################################
-                                Population Structure
+#                                Population Structure
 ####################################################################################
 POP_STRUCTURE           false
 GRID_X                  25
@@ -80,7 +80,7 @@ MIGRATION_NUMBER        0
 
 
 ####################################################################################
-                                    Environment
+#                                    Environment
 ####################################################################################
 ############ Target function ##########
 ENV_SAMPLING          300
@@ -98,7 +98,7 @@ ENV_SEED                0
 
 
 ####################################################################################
-                                    Recording
+#                                    Recording
 ####################################################################################
 BACKUP_STEP             500
 TREE_STEP               100
@@ -112,7 +112,7 @@ LOG                     REAR BARRIER LOADS
 
 
 ####################################################################################
-                                    Secretion
+#                                    Secretion
 ####################################################################################
 SECRETION_FITNESS_CONTRIB   0  
 SECRETION_INITIAL           0
@@ -123,7 +123,7 @@ SECRETION_COST              0.1
 
 
 ####################################################################################
-                                    Plasmids
+#                                    Plasmids
 ####################################################################################
 ALLOW_PLASMIDS              false
 PROB_HORIZONTAL_TRANS       0
@@ -131,7 +131,7 @@ PROB_HORIZONTAL_TRANS       0
 
 
 ####################################################################################
-                                    Regulation
+#                                    Regulation
 ####################################################################################
 #HILL_SHAPE_N                   4 
 #HILL_SHAPE_THETA               0.5
@@ -145,7 +145,7 @@ PROB_HORIZONTAL_TRANS       0
 
 
 ####################################################################################
-                          Other, to be (fully) implemented
+#                         Other, to be (fully) implemented
 ####################################################################################
 TRANSLATION_COST  0
 
