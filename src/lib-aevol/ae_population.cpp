@@ -668,7 +668,7 @@ void ae_population::step_to_next_generation_grid( void )
           while ( pick_one > 0 ) { pick_one -= probs[++found_org]; }
           
           // for simplicity of calculations, assume that plasmid may "transfer" to the same cell
-          x_offset = ( found_org / 3 ) - 1;
+          x_offset = ( found_org % 3 ) - 1;
           y_offset = ( found_org % 3 ) - 1;
           
           //For now, assume that it is the second genetic unit that is being transfered
