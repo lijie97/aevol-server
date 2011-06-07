@@ -46,10 +46,11 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_simulation.h>
-#include <ae_population.h>
 #include <ae_codon.h>
 #include <ae_common.h>
+#include <ae_simulation.h>
+#include <ae_population.h>
+#include <ae_vis_a_vis.h>
 #include <ae_utils.h>
 
 #ifdef __NO_X
@@ -289,6 +290,7 @@ ae_individual::ae_individual( const ae_individual &model )
   
   // We don't copy the generation report
   // One of the reasons is that we use this at generation 0 and _replic_report of the model is NULL
+  // NOTE : This is not a good reason!
   _replic_report = NULL;
   
   _protein_list = new ae_list();
@@ -434,6 +436,7 @@ ae_individual::ae_individual( gzFile* backup_file )
   
   // Retreive index in population
   gzread( backup_file, &_index_in_population, sizeof(_index_in_population) );
+  gzread( backup_file, &_rank_in_population, sizeof(_rank_in_population) );
   
   // The rank is not in the backup, it can be interpolated because individuals are written
   // ordered by their increasing rank (<=> increasing fitness)
@@ -529,6 +532,111 @@ ae_individual::ae_individual( gzFile* backup_file )
   _modularity = -1;
 }
 
+/**
+ * Creates a new individual with a genome read in from a file.
+ *
+ * Promoters will be looked for on the whole genome but no further process
+ * will be performed.
+ * The phenotype and the fitness are not set, neither is the statistical data.
+ */
+ae_individual::ae_individual( char* organism_file_name )
+{
+  _index_in_population  = -1;
+  _rank_in_population   = -1;
+  
+  _evaluated                    = false;
+  _transcribed                  = false;
+  _translated                   = false;
+  _folded                       = false;
+  _phenotype_computed           = false;
+  _distance_to_target_computed  = false;
+  _fitness_computed             = false;
+  _statistical_data_computed    = false;
+  _non_coding_computed          = false;
+  _modularity_computed          = false;
+  
+  _placed_in_population = false;
+  
+  // Create a list of genetic units with only the main chromosome
+  _genetic_unit_list = new ae_list();
+  
+  if ( ae_common::allow_plasmids )
+  {
+    printf( "ERROR, not implemented for plasmids yet %s:%d\n", __FILE__, __LINE__ );
+  }
+  else
+  {
+    _genetic_unit_list->add( new ae_genetic_unit( this, organism_file_name ) );
+  }
+  
+  // Create empty fuzzy sets for activation and inhibition
+  _phenotype_activ = new ae_fuzzy_set();
+  _phenotype_inhib = new ae_fuzzy_set();
+  _phenotype = NULL;
+  
+  // Initialize all the fitness-related stuff
+  if ( ae_common::env_axis_is_segmented )
+  {
+    _dist_to_target_segment = new double [ae_common::env_axis_nb_segments];
+    
+    for ( int16_t i = 0 ; i < ae_common::env_axis_nb_segments ; i++ )
+    {
+      _dist_to_target_segment[i] = 0;
+    }
+  }
+  else
+  {
+    _dist_to_target_segment = NULL;
+  }
+  
+  _dist_to_target_by_feature  = new double [NB_FEATURES];
+  _fitness_by_feature         = new double [NB_FEATURES];
+  
+  for ( int8_t i = 0 ; i < NB_FEATURES ; i++ )
+  {
+    _dist_to_target_by_feature[i] = 0.0;
+    _fitness_by_feature[i]        = 0.0;
+  }
+  
+  // We are at generation 0, individual has no replication to report
+  _replic_report = NULL;
+  
+  _protein_list = new ae_list();
+  _rna_list     = new ae_list();
+  
+  _int_probes     = new int32_t[5];
+  _double_probes  = new double[5];
+  for ( int8_t i = 0 ; i < 5 ; i++ )
+  {
+    _int_probes[i]    = 0;
+    _double_probes[i] = 0;
+  }
+  
+  // Initialize statistical data // TODO : => function
+  _total_genome_size                  = 0;
+  _nb_coding_RNAs                     = 0;
+  _nb_non_coding_RNAs                 = 0;
+  _overall_size_coding_RNAs           = 0;
+  _overall_size_non_coding_RNAs       = 0;
+  _nb_genes_activ                     = 0;
+  _nb_genes_inhib                     = 0;
+  _nb_functional_genes                = 0;
+  _nb_non_functional_genes            = 0;
+  _overall_size_functional_genes      = 0;
+  _overall_size_non_functional_genes  = 0;
+  
+  _nb_bases_in_0_CDS                  = -1;
+  _nb_bases_in_0_functional_CDS       = -1;
+  _nb_bases_in_0_non_functional_CDS   = -1;
+  _nb_bases_in_0_RNA                  = -1;
+  _nb_bases_in_0_coding_RNA           = -1;
+  _nb_bases_in_0_non_coding_RNA       = -1;
+  
+  _modularity = -1;
+}
+
+
+
 // =================================================================
 //                             Destructors
 // =================================================================
@@ -569,115 +677,6 @@ ae_individual::~ae_individual( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-/**
- * This method creates a new individual, replicating "this".
- *
- * The new individual is fully evaluated
- * Statistical data is computed
- * The x and y parameters (default 0) are used only for spacialized populations
- */
-ae_individual* ae_individual::do_replication( int32_t index, int16_t x, int16_t y )
-{
-  ae_individual* new_indiv;
-
-  // Copy parent
-  #ifdef __NO_X
-    #ifndef __REGUL
-      new_indiv = new ae_individual( this, index );
-    #else
-      new_indiv = new ae_individual_R( dynamic_cast<ae_individual_R*>(this), index );
-    #endif
-  #elif defined __X11
-    #ifndef __REGUL
-      new_indiv = new ae_individual_X11( dynamic_cast<ae_individual_X11*>(this), index );
-    #else
-      new_indiv = new ae_individual_R_X11( dynamic_cast<ae_individual_R_X11*>(this), index );
-    #endif
-  #endif
-  
-  // Update the new individual's location on the grid
-  // this is needed if the population is structured
-  if ( ae_common::pop_structure == true )
-  {
-    new_indiv->set_grid_cell( ae_common::sim->get_pop()->get_pop_grid()[x][y] );
-    new_indiv->set_placed_in_population( true );
-    ae_common::sim->get_pop()->get_pop_grid()[x][y]->set_individual( new_indiv );
-  }
-
-  // Perform mutations for each genetic unit
-  int32_t number_GU=ae_common::sim->alea->random((int32_t) 2);// It draws a number between 0 and 1.
-  
-  ae_list_node*     gen_unit_node = new_indiv->_genetic_unit_list->get_first();
-  ae_genetic_unit*  gen_unit      = NULL;
-  if(number_GU<1) // if the number is 0 : we begin with the chromosome
-	{
-		while ( gen_unit_node != NULL )
-		{
-			gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
-			
-			gen_unit->get_dna()->perform_mutations();
-			
-			if ( new_indiv->_replic_report != NULL )
-			{
-				new_indiv->_replic_report->get_dna_replic_reports()->add( gen_unit->get_dna()->get_replic_report() );
-			}
-
-			gen_unit_node = gen_unit_node->get_next();
-		}
-
-	}  
-  else  // if the number is 1 : we begin with the plasmid
-	{
-		gen_unit_node = gen_unit_node->get_next();  // we take the second GU
-		while ( gen_unit_node != NULL )
-		{
-			gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
-			
-			gen_unit->get_dna()->perform_mutations();
-			
-			if ( new_indiv->_replic_report != NULL )
-			{
-				new_indiv->_replic_report->get_dna_replic_reports()->add( gen_unit->get_dna()->get_replic_report() );
-			}
-
-			gen_unit_node = gen_unit_node->get_next();
-		}
-		
-		gen_unit_node = new_indiv->_genetic_unit_list->get_first(); // We make the operation on the first GU
-		gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
-		
-		gen_unit->get_dna()->perform_mutations();
-		
-		if ( new_indiv->_replic_report != NULL )
-		{
-			new_indiv->_replic_report->get_dna_replic_reports()->add( gen_unit->get_dna()->get_replic_report() );
-		}
-
-		gen_unit_node = gen_unit_node->get_next();
-		
-	}
-
-  // TODO : check this
-  //~ new_indiv->set_secretion_present( this->_secretion_present ); 
-  
-  // Evaluate new individual
-  new_indiv->evaluate( ae_common::sim->get_env() );
-  new_indiv->compute_statistical_data();
-  
-  if ( new_indiv->_replic_report != NULL )
-  {
-    // Finalize statistical data in the replication report
-    new_indiv->_replic_report->signal_end_of_replication();
-  }
-  
-  #ifdef DEBUG
-    ae_common::sim->get_logs()->flush();
-    new_indiv->assert_promoters();
-  #endif
-  
-  return new_indiv;
-}
-
 void ae_individual::compute_phenotype( void )
 {
   if ( _phenotype_computed ) return; // Phenotype has already been computed, nothing to do.
@@ -776,9 +775,8 @@ void ae_individual::compute_fitness( ae_environment* envir )
     {
       if ( i == SECRETION )
       {
-        _fitness_by_feature[SECRETION] = exp( -ae_common::selection_pressure * _dist_to_target_by_feature[SECRETION] )
-                                        - exp( -ae_common::selection_pressure
-                                              * envir->get_area_by_feature(SECRETION) );
+        _fitness_by_feature[SECRETION] =  exp( -ae_common::selection_pressure * _dist_to_target_by_feature[SECRETION] )
+                                        - exp( -ae_common::selection_pressure * envir->get_area_by_feature(SECRETION) );
         
         if ( _fitness_by_feature[i] < 0 )
         {
@@ -816,6 +814,9 @@ void ae_individual::reevaluate( ae_environment* envir )
   _translated                   = false;
   _folded                       = false;
   _evaluated                    = false;
+  _transcribed                  = false;
+  _translated                   = false;
+  _folded                       = false;
   _phenotype_computed           = false;
   _distance_to_target_computed  = false;
   _fitness_computed             = false;
@@ -829,14 +830,10 @@ void ae_individual::reevaluate( ae_environment* envir )
   while (unit_node != NULL)
   {
     unit = (ae_genetic_unit *) unit_node->get_obj();
-    
     unit->reset_expression();
-    
     unit_node = unit_node->get_next();
   }
 
-  
-  
   if (_phenotype_activ != NULL)
   {
     delete _phenotype_activ;
@@ -875,7 +872,7 @@ void ae_individual::reevaluate( ae_environment* envir )
   }
   
   _rna_list->erase( NO_DELETE );
-  _protein_list->erase( NO_DELETE );
+  _protein_list->erase( NO_DELETE ); 
   
 
 
@@ -939,11 +936,12 @@ void ae_individual::evaluate( ae_environment* envir )
   }
 }
 
+
 void ae_individual::inject_GU( ae_individual* donor )
 {  
   ae_list_node* gen_unit_node = donor->get_genetic_unit_list()->get_first()->get_next();
   ae_genetic_unit* temp_GU = new ae_genetic_unit( this, *((ae_genetic_unit*)gen_unit_node->get_obj()) );  
-  _genetic_unit_list->add( temp_GU) ;
+  _genetic_unit_list->add( temp_GU );
 }
 
 
@@ -979,6 +977,12 @@ void ae_individual::compute_statistical_data( void )
     _overall_size_non_functional_genes += gen_unit->get_overall_size_non_functional_genes();
     
     gen_unit_node = gen_unit_node->get_next();
+  }
+  
+  if ( _replic_report != NULL )
+  {
+    // Finalize statistical data in the replication report
+    _replic_report->signal_end_of_replication();
   }
 }
 
@@ -1227,6 +1231,7 @@ void ae_individual::write_to_backup( gzFile* backup_file )
 {
   // Write index in population
   gzwrite( backup_file, &_index_in_population, sizeof(_index_in_population) );
+  gzwrite( backup_file, &_rank_in_population, sizeof(_rank_in_population) );
   
   // The rank is not written, it can be interpolated because individuals are written
   // ordered by their increasing rank (<=> increasing fitness)

@@ -166,6 +166,104 @@ ae_simulation::ae_simulation( ae_param_overloader* param_overloader )
   }
 }
 
+ae_simulation::ae_simulation( char* organism_file_name, ae_param_overloader* param_overloader )
+{
+  // Some calls in this constructor will need to access the simulation (i.e. <this>)
+  // through <ae_common::sim> which would normaly be initialized at the end of the construction.
+  //
+  // In order to keep the access to the simulation homogeneous within the entire application,
+  // we will force the affectation now.
+  //
+  // Note that this is done by obligation here, it must not be considered good practice
+  
+  ae_common::sim = this;  
+
+  // Initialize "trivial" attributes
+  _first_gener  = 0;
+  _num_gener    = 0;
+
+  // Load parameter file
+  ae_param_loader* params = new ae_param_loader();
+  params->load();
+  if ( param_overloader != NULL )
+  {
+    param_overloader->overload_params();
+  }
+  
+  // Create a pseudo-random number generator
+  alea = new ae_rand_mt( ae_common::seed );
+  
+  #ifdef __REGUL
+  // Initialisation of the evaluation dates
+  if ( ae_common::individual_evaluation_dates == NULL )
+  {
+    ae_common::individual_evaluation_dates = new ae_array_short( ae_common::individual_evaluation_nbr );
+    ae_common::individual_evaluation_dates->set_value( 0, 10 );
+  }
+  ae_common::init_binding_matrix();
+  #endif
+  
+  delete params;
+
+  // Create the environment
+  _env = new ae_environment();
+
+ // Create new population
+  #ifdef __NO_X
+    _pop = new ae_population( organism_file_name );
+  #elif defined __X11
+    printf( "ERROR : starting X11 runs from single organism is not yet implemented!" );
+    _pop = new ae_population_X11();
+  #endif
+
+  // Create statistics files
+  _stats = new ae_stats();
+  _stats->write_headers();
+  _stats->write_current_generation_statistics();
+  
+  // Create log files
+  _logs = new ae_logs();
+  _logs->write_headers();
+
+  // Create backup directory and write backup 
+  mkdir( "backup", 0755 );
+  write_backup();
+  
+  // Create dump directory and init dump
+  _dump = NULL;
+  if ( ae_common::dump_period > 0 )
+  {
+    mkdir( "dump", 0755 );
+    _dump = new ae_dump();
+  }
+  
+  // Create tree directory and init tree
+  _tree = NULL;
+  if ( ae_common::record_tree == true )
+  { 
+    mkdir( "tree", 0755 );
+    _tree = new ae_tree();
+  }
+  
+  
+  // Write an entry in the LOADS log file
+  if ( _logs->get_to_be_logged( LOG_LOADS ) == true )
+  {
+    fprintf( _logs->get_log( LOG_LOADS ), "Simulation lauched\n" );
+    if ( param_overloader != NULL )
+    {
+      fprintf( _logs->get_log( LOG_LOADS ), "  Overloaded parameters:\n" );
+      param_overloader->write_log( _logs->get_log( LOG_LOADS ) );
+      fprintf( _logs->get_log( LOG_LOADS ), "\n" );
+    }
+    else
+    {
+      fprintf( _logs->get_log( LOG_LOADS ), "  No overloaded parameters\n\n" );
+    }
+  }
+}
+
+
 ae_simulation::ae_simulation( char* backup_file_name, bool to_be_run /* = TRUE */, ae_param_overloader* param_overloader /* = NULL */ )
 {
   // Some calls in this constructor will need to access the simulation (i.e. <this>)
@@ -398,6 +496,13 @@ void ae_simulation::run( void )
   
   printf( "============================== %"PRId32" ==============================\n", _num_gener );
   printf( "  distance to target (metabolic) : %f\n", ((ae_individual *) _pop->get_indivs()->get_last()->get_obj())->get_dist_to_target_by_feature( METABOLISM ) );
+  printf( "===================================================================\n");
+  printf ("  The run is finished. \n"); 
+  printf ("  Printing the final best individual into best_last_org.txt \n"); 
+  char* out_file_name = "best_last_org.txt"; 
+  FILE* org_file = fopen( out_file_name, "w" );
+  fputs( ((ae_individual *) _pop->get_indivs()->get_last()->get_obj())->get_genetic_unit(0)->get_dna()->get_data(), org_file); 
+  fclose ( org_file ); 
 }
 
 void ae_simulation::set_total_generations( int32_t nb_generations )

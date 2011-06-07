@@ -75,6 +75,8 @@ class ae_genetic_unit : public ae_object
     ae_genetic_unit( ae_individual* indiv, const ae_genetic_unit &model );
     ae_genetic_unit( ae_individual* indiv, ae_genetic_unit* const parent );
     ae_genetic_unit( ae_individual* indiv, gzFile* backup_file );
+    ae_genetic_unit( ae_individual* indiv, char* organism_file_name );
+
 
     // =================================================================
     //                             Destructors

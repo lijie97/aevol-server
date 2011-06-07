@@ -76,6 +76,7 @@ class ae_string : public ae_object
     ae_string( const char* seq, int32_t length );
     ae_string( char* seq, int32_t length, bool use_seq );
     ae_string( gzFile* backup_file );
+    ae_string( char* organism_file_name );
   
     // =================================================================
     //                             Destructors

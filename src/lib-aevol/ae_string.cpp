@@ -129,6 +129,34 @@ ae_string::ae_string( gzFile* backup_file )
   //~ printf( "read %ld bytes (_data : %s)\n", (_length + 1) * sizeof(*_data), _data );
 }
 
+ae_string::ae_string( char* organism_file_name )
+{
+  FILE* org_file = fopen( organism_file_name, "r" );
+  int c; 
+  int length; 
+  
+  if (org_file==NULL) printf ("Error opening organism file\n");
+  else
+  {
+    fseek (org_file , 0 , SEEK_END);
+    length = ftell (org_file);
+    rewind (org_file);
+    
+    _nb_blocks = nb_blocks( length );
+    _length = length;
+    _data = new char[_nb_blocks * BLOCK_SIZE];
+    for ( int32_t i = 0 ; i < _length -1 ; i++ )
+    {
+      _data[i] = fgetc (org_file);
+
+    }
+    
+    _data[_length] = '\0';
+  }
+  
+  fclose ( org_file ); 
+  
+}
 // =================================================================
 //                             Destructors
 // =================================================================

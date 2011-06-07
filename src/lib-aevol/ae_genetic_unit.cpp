@@ -424,6 +424,71 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, gzFile* backup_file )
   init_statistical_data();
 }
 
+/*!
+  \brief Create a new genetic unit for indiv with a sequence saved in a text file
+ 
+  Promoters will be looked for on the whole sequence but no further process
+  will be performed.
+*/
+ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, char* organism_file_name )
+{
+  _indiv = indiv;
+  
+  _transcribed                        = false;
+  _translated                         = false;
+  _phenotypic_contributions_computed  = false;
+  _non_coding_computed                = false;
+  _distance_to_target_computed        = false;
+  _fitness_computed                   = false;
+  
+  _dna = new ae_dna( this, organism_file_name );
+  
+  // Create empty rna and protein lists
+  _rna_list           = new ae_list* [2];
+  _rna_list[LEADING]  = new ae_list();
+  _rna_list[LAGGING]  = new ae_list();
+
+  _protein_list           = new ae_list* [2];
+  _protein_list[LEADING]  = new ae_list();
+  _protein_list[LAGGING]  = new ae_list();
+  
+  // Create empty fuzzy sets for the phenotypic contributions
+  _activ_contribution = new ae_fuzzy_set();
+  _inhib_contribution = new ae_fuzzy_set();
+  _phenotypic_contribution = NULL;
+  // NB : _phenotypic_contribution is only an indicative value,
+  //      it is not used for the whole phenotype computation
+  
+  // Initialize all the fitness-related stuff
+  if ( ae_common::env_axis_is_segmented )
+  {
+    _dist_to_target_per_segment = new double [ae_common::env_axis_nb_segments];
+    
+    for ( int16_t i = 0 ; i < ae_common::env_axis_nb_segments ; i++ )
+    {
+      _dist_to_target_per_segment[i] = 0;
+    }
+  }
+  else
+  {
+    _dist_to_target_per_segment = NULL;
+  }
+  
+  _dist_to_target_by_feature  = new double [NB_FEATURES];
+  _fitness_by_feature         = new double [NB_FEATURES];
+  
+  for ( int8_t i = 0 ; i < NB_FEATURES ; i++ )
+  {
+    _dist_to_target_by_feature[i] = 0.0;
+    _fitness_by_feature[i]        = 0.0;
+  }
+  
+  // Look for promoters
+  locate_promoters();
+  
+  init_statistical_data();
+}
+
 // =================================================================
 //                             Destructors
 // =================================================================

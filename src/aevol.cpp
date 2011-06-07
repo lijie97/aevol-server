@@ -89,6 +89,7 @@ int main( int argc, char* argv[] )
   //
   // 1) Initialize command-line option variables with default values
   char*   initial_backup_file_name  = NULL;
+  char*   initial_organism_file_name  = NULL;
   
   ae_param_overloader* param_overloader = new ae_param_overloader();
   
@@ -98,11 +99,12 @@ int main( int argc, char* argv[] )
   #endif
   
   // 2) Define allowed options
-  const char * options_list = "hxf:n:s:p:";
+  const char * options_list = "hxf:o:n:s:p:";
   static struct option long_options_list[] = {
     { "help",     no_argument, NULL, 'h' },
     { "noX",      no_argument, NULL, 'x' },
     { "file",     required_argument, NULL, 'f' },
+    { "organism", required_argument, NULL, 'o' },
     { "nbgener",  required_argument, NULL, 'n' },
     { "seed",     required_argument, NULL, 's' },
     { "param",    required_argument, NULL, 'p' },
@@ -140,6 +142,19 @@ int main( int argc, char* argv[] )
         
         initial_backup_file_name = new char[strlen(optarg) + 1];
         sprintf( initial_backup_file_name, "%s", optarg );
+        
+        break;      
+      }
+      case 'o' :
+      {
+        if ( strcmp( optarg, "" ) == 0 )
+        {
+          printf( "ERROR : Option -o or --organism : missing argument.\n" );
+          exit( EXIT_FAILURE );
+        }
+        
+        initial_organism_file_name = new char[strlen(optarg) + 1];
+        sprintf( initial_organism_file_name, "%s", optarg );
         
         break;      
       }
@@ -195,19 +210,34 @@ int main( int argc, char* argv[] )
   //                       Create the simulation
   // =================================================================
 #ifdef __NO_X
-  if ( initial_backup_file_name == NULL )
+  if ( initial_backup_file_name == NULL  && initial_organism_file_name == NULL)
   {    
     // Create a new simulation
     ae_common::sim = new ae_simulation( param_overloader );
   }
   else
   {
-    printf( "Loading simulation from backup file <%s>...\n", initial_backup_file_name );
+    if ( initial_organism_file_name == NULL ) 
+    {
+      printf( "Loading simulation from backup file <%s>...\n", initial_backup_file_name );
     
-    // Load simulation from backup
-    ae_common::sim = new ae_simulation( initial_backup_file_name, true, param_overloader );
+      // Load simulation from backup
+      ae_common::sim = new ae_simulation( initial_backup_file_name, true, param_overloader );
+    }
+    else
+    {
+      printf( "Loading simulation from organism file <%s>...\n", initial_organism_file_name );
+    
+      // Load simulation from backup
+      ae_common::sim = new ae_simulation( initial_organism_file_name, param_overloader );    
+    }
   }
 #elif defined __X11
+  if ( initial_organism_file_name != NULL )
+  {
+    printf( "Loading of single organism under X11 not implemented yet.... \n"); 
+  } 
+  
   if ( initial_backup_file_name == NULL )
   {
     
@@ -226,6 +256,7 @@ int main( int argc, char* argv[] )
 #endif
   
   delete [] initial_backup_file_name;
+  delete [] initial_organism_file_name;
   delete param_overloader;
   ae_common::print_to_file();
 

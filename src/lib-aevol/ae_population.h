@@ -68,6 +68,7 @@ class ae_population : public ae_object
     //                             Constructors
     // =================================================================
     ae_population( void );
+    ae_population( char* organism_file_name );
     ae_population( gzFile* backup_file );
 
     // =================================================================
@@ -137,6 +138,7 @@ class ae_population : public ae_object
     ae_individual* create_random_individual( int32_t index );
     ae_individual* create_random_individual_with_good_gene( int32_t index );
     ae_individual* create_clone( ae_individual* dolly, int32_t index );
+    ae_individual* create_individual_from_file( char* organism_file_name, int32_t index );
     
     void compute_prob_reprod( void );
 

@@ -129,6 +129,16 @@ ae_dna::ae_dna( ae_genetic_unit* gen_unit, gzFile* backup_file ) : ae_string( ba
   _replic_report = NULL;
 }
 
+/**
+ * Creates a dna sequence from a text file
+ * The replication report is set to NULL
+ */
+ae_dna::ae_dna( ae_genetic_unit* gen_unit, char* organism_file_name ) : ae_string( organism_file_name )
+{
+  _gen_unit       = gen_unit;
+  _replic_report  = NULL;
+}
+
 // =================================================================
 //                             Destructors
 // =================================================================

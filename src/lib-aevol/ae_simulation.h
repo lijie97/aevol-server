@@ -73,6 +73,7 @@ class ae_simulation : public ae_object
     // =================================================================
     ae_simulation( ae_param_overloader* param_overloader = NULL );
     ae_simulation( char* backup_file_name, bool to_be_run = true, ae_param_overloader* param_overloader = NULL );
+    ae_simulation( char* organism_file_name, ae_param_overloader* param_overloader = NULL );
   
     // =================================================================
     //                             Destructors

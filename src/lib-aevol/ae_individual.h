@@ -79,6 +79,7 @@ class ae_individual : public ae_object
     ae_individual( const ae_individual &model );
     ae_individual( ae_individual* const parent, int32_t index );
     ae_individual( gzFile* backup_file );
+    ae_individual( char* organism_file_name );
 
     // =================================================================
     //                             Destructors
