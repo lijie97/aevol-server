@@ -810,9 +810,7 @@ void ae_individual::reevaluate( ae_environment* envir )
   // useful for post-treatment programs, who replay mutations
   // on a single individual playing the role of the successive
   // ancestors
-  _transcribed                  = false;
-  _translated                   = false;
-  _folded                       = false;
+
   _evaluated                    = false;
   _transcribed                  = false;
   _translated                   = false;
@@ -871,10 +869,41 @@ void ae_individual::reevaluate( ae_environment* envir )
     _fitness_by_feature[i]        = 0.0;
   }
   
+  //For each RNA / individual / genetic_unit delete proteins it knows
+  //Deleting the protein it self is made only once
+  
   _rna_list->erase( NO_DELETE );
   _protein_list->erase( NO_DELETE ); 
   
+  ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
+  ae_genetic_unit*  gen_unit      = NULL;
+  ae_list_node *    rna_node = NULL;
+  ae_rna*           rna = NULL;
+ 
+  while ( gen_unit_node != NULL )
+    {
+      gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
 
+      rna_node = (gen_unit->get_rna_list()[LEADING])->get_first();
+      while(rna_node !=NULL)
+	{
+	  rna = (ae_rna *) rna_node->get_obj();
+	  rna->get_transcribed_proteins()->erase( NO_DELETE );
+	  rna_node = rna_node->get_next();
+	}
+      rna_node = (gen_unit->get_rna_list()[LAGGING])->get_first();
+      while(rna_node !=NULL)
+	{
+	  rna = (ae_rna *) rna_node->get_obj();
+	  rna->get_transcribed_proteins()->erase( NO_DELETE );
+	  rna_node = rna_node->get_next();
+	}
+      
+      (gen_unit->get_protein_list()[LEADING])->erase( DELETE_OBJ );
+      (gen_unit->get_protein_list()[LAGGING])->erase( DELETE_OBJ );
+      
+      gen_unit_node = gen_unit_node->get_next();
+    }
 
   // Initialize statistical data
   _total_genome_size                  = 0;
