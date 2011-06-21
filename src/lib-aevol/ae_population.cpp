@@ -727,48 +727,125 @@ void ae_population::step_to_next_generation_grid( void )
 
   if ( ae_common::with_transfer )
   {
-    // First transfer all the plasmids, but just add them at the end of the list of the GUs
-    for ( int16_t x = 0 ; x < ae_common::grid_x ; x++ )
-    {
-      for ( int16_t y = 0 ; y < ae_common::grid_y ; y++ )
-      { 
-        // 1. Will there be any plasmid transfer? 
-        // The probability that at least one of 8 neighbours sends a plasmid is  
-        // 1 minus the probability that none send it, so (1-(1-pht)^8)
-        // where pht is the probability that an individual plasmid transfers
-        if (ae_common::sim->alea->random() < (1.0 - pow( (1.0 - ae_common::prob_horiz_trans), 9)) ) 
+	// int16_t ae_common::nb_horiz_trans=3;    //How much plasmids can a cell send in its neighboorhood per generation
+	for (int16_t i=0;i<ae_common::nb_horiz_trans;i++) 
+	{
+      
+	  //We will shuffle the grid:
+	  int16_t total_size=((ae_common::grid_x)*(ae_common::grid_y));
+	  int16_t** shuffled_table=new int16_t* [total_size];
+	  for(int16_t z=0;z <total_size;z++)
+	  {
+	  	shuffled_table[z]=new int16_t[2];
+	  	int16_t quotient=z/ae_common::grid_x;
+	  	int16_t remainder=z%ae_common::grid_x;
+	  	shuffled_table[z][0]=(int16_t) quotient;
+	  	shuffled_table[z][1]=(int16_t) remainder;
+	  	
+	  }
+	  
+	  for(int16_t z=0;z <total_size-1;z++)
+	  {
+	  	int16_t rand_nb=ae_common::sim->alea->random((int16_t) (total_size-z));
+	  	int16_t* tmp=shuffled_table[z+rand_nb];
+	  	shuffled_table[z+rand_nb]=shuffled_table[z];
+	  	shuffled_table[z]=tmp;		
+	  }
+	  
+	  
+      
+	    
+        // First transfer all the plasmids, but just add them at the end of the list of the GUs
+        for ( int16_t z = 0 ; z < total_size ; z++ )
         {
-          // 2. pick which neighbor that will donate the plasmid
-          pick_one = 0.0;
-          while ( pick_one == 0 ) { pick_one = ae_common::sim->alea->random(); }
-          found_org = 0;
-          pick_one -= probs[0];
-          while ( pick_one > 0 ) { pick_one -= probs[++found_org]; }
+	    // 1. Will there be the plasmid transfered this time
+	    // The probability that at least one of 8 neighbours sends a plasmid is  
+	    // 1 minus the probability that none send it, so (1-(1-pht)^8)
+	    // where pht is the probability that an individual plasmid transfers
+        
+	      if (ae_common::sim->alea->random() < (1.0 - pow( (1.0 - ae_common::prob_horiz_trans), 9)) ) 
+	      {
+        
+	        int16_t x=shuffled_table[z][0];
+	        int16_t y=shuffled_table[z][1];
+	        // printf('\ny: ');printf(y); 
+	        // 2. pick which neighbor that will donate the plasmid
+	        pick_one = 0.0;
+	        while ( pick_one == 0 ) { pick_one = ae_common::sim->alea->random(); }
+	        found_org = 0;
+	        pick_one -= probs[0];
+	        while ( pick_one > 0 ) { pick_one -= probs[++found_org]; }
+  	      
+	        // for simplicity of calculations, assume that plasmid may "transfer" to the same cell
+	        x_offset = ( found_org / 3 ) - 1;
+	        y_offset = ( found_org % 3 ) - 1;
+  	      
+	        //For now, assume that it is the second genetic unit that is being transfered
+	        new_x = (x+x_offset+ae_common::grid_x) % ae_common::grid_x;
+	        new_y = (y+y_offset+ae_common::grid_y) % ae_common::grid_y;
+	        _pop_grid[x][y]->get_individual()->inject_GU(_pop_grid[new_x][new_y]->get_individual()); 
+  	      
+	      }	
+	    }
+	  delete [] shuffled_table;
+	}
+
+
+  	
+	
+	
+	
+    // // First transfer all the plasmids, but just add them at the end of the list of the GUs
+    // for ( int16_t x = 0 ; x < ae_common::grid_x ; x++ )
+    // {
+      // for ( int16_t y = 0 ; y < ae_common::grid_y ; y++ )
+      // { 
+        // // 1. Will there be any plasmid transfer? 
+        // // The probability that at least one of 8 neighbours sends a plasmid is  
+        // // 1 minus the probability that none send it, so (1-(1-pht)^8)
+        // // where pht is the probability that an individual plasmid transfers
+        // if (ae_common::sim->alea->random() < (1.0 - pow( (1.0 - ae_common::prob_horiz_trans), 9)) ) 
+        // {
+          // // 2. pick which neighbor that will donate the plasmid
+          // pick_one = 0.0;
+          // while ( pick_one == 0 ) { pick_one = ae_common::sim->alea->random(); }
+          // found_org = 0;
+          // pick_one -= probs[0];
+          // while ( pick_one > 0 ) { pick_one -= probs[++found_org]; }
           
-          // for simplicity of calculations, assume that plasmid may "transfer" to the same cell
-          x_offset = ( found_org / 3 ) - 1;
-          y_offset = ( found_org % 3 ) - 1;
+          // // for simplicity of calculations, assume that plasmid may "transfer" to the same cell
+          // x_offset = ( found_org / 3 ) - 1;
+          // y_offset = ( found_org % 3 ) - 1;
           
-          //For now, assume that it is the second genetic unit that is being transfered
-          new_x = (x+x_offset+ae_common::grid_x) % ae_common::grid_x;
-          new_y = (y+y_offset+ae_common::grid_y) % ae_common::grid_y;
-          _pop_grid[x][y]->get_individual()->inject_GU(_pop_grid[new_x][new_y]->get_individual()); 
+          // //For now, assume that it is the second genetic unit that is being transfered
+          // new_x = (x+x_offset+ae_common::grid_x) % ae_common::grid_x;
+          // new_y = (y+y_offset+ae_common::grid_y) % ae_common::grid_y;
+          // _pop_grid[x][y]->get_individual()->inject_GU(_pop_grid[new_x][new_y]->get_individual()); 
           
-        }
-      }      
-    }
+        // }
+      // }      
+    // }
     
-    // If an individual has more than 2 GUs, delete the second one
+	
+	
+    // If an individual has more than 2 GUs, it keeps only the last one
     // and re-evaluate the individual
     for ( int16_t x = 0 ; x < ae_common::grid_x ; x++ )
     {
       for ( int16_t y = 0 ; y < ae_common::grid_y ; y++ )
       { 
-        if (_pop_grid[x][y]->get_individual()->get_genetic_unit_list()->get_nb_elts() > 2) 
+		bool reevaluate=false;
+		while (_pop_grid[x][y]->get_individual()->get_genetic_unit_list()->get_nb_elts() > 2) 
         {
+		  reevaluate=true;
           _pop_grid[x][y]->get_individual()->get_genetic_unit_list()->remove(_pop_grid[x][y]->get_individual()->get_genetic_unit_list()->get_first()->get_next(), DELETE_OBJ, DELETE_OBJ);
-          _pop_grid[x][y]->get_individual()->evaluate( ae_common::sim->get_env() );
-        }
+		}
+		
+		if (reevaluate)
+		{
+		  _pop_grid[x][y]->get_individual()->evaluate( ae_common::sim->get_env() );
+		}
+        
       }
     }
     

@@ -216,6 +216,8 @@ class ae_common
     static int32_t  plasmid_initial_gene;
     static int32_t  plasmid_minimal_length;
     static double   prob_horiz_trans;
+    static int16_t  nb_horiz_trans;
+	
     static bool     compute_phen_contrib_by_GU;
     
     

@@ -166,6 +166,7 @@ int32_t ae_common::plasmid_initial_length     = 1000;
 int32_t ae_common::plasmid_initial_gene       = 0;
 int32_t ae_common::plasmid_minimal_length     = 40;
 double  ae_common::prob_horiz_trans           = 0;
+int16_t ae_common::nb_horiz_trans			  = 1;
 bool    ae_common::compute_phen_contrib_by_GU = false;
 
 // Translation cost
@@ -376,6 +377,8 @@ void ae_common::write_to_backup( gzFile* backup_file )
   gzwrite( backup_file, &plasmid_initial_gene,            sizeof(plasmid_initial_gene)          );
   gzwrite( backup_file, &plasmid_minimal_length,          sizeof(plasmid_minimal_length)        );
   gzwrite( backup_file, &prob_horiz_trans,                sizeof(prob_horiz_trans)              );
+  gzwrite( backup_file, &nb_horiz_trans,                  sizeof(nb_horiz_trans)                );
+  
   int8_t tmp_compute_phen_contrib_by_GU = compute_phen_contrib_by_GU? 1 : 0;
   gzwrite( backup_file, &tmp_compute_phen_contrib_by_GU, sizeof(tmp_compute_phen_contrib_by_GU) );
   
@@ -611,6 +614,8 @@ void ae_common::read_from_backup( gzFile* backup_file, bool verbose )
   gzread( backup_file, &plasmid_initial_gene,            sizeof(plasmid_initial_gene)           );
   gzread( backup_file, &plasmid_minimal_length,          sizeof(plasmid_minimal_length)         );
   gzread( backup_file, &prob_horiz_trans,                sizeof(prob_horiz_trans)               );
+  gzread( backup_file, &nb_horiz_trans,                  sizeof(nb_horiz_trans)                 );
+  
   int8_t tmp_compute_phen_contrib_by_GU;
   gzread( backup_file, &tmp_compute_phen_contrib_by_GU,  sizeof(tmp_compute_phen_contrib_by_GU) );
   compute_phen_contrib_by_GU = (tmp_compute_phen_contrib_by_GU!=0);
@@ -898,6 +903,7 @@ switch (env_var_method )
   fprintf( param_out, "plasmid_initial_gene :       %"PRId32"\n", plasmid_initial_gene                   );
   fprintf( param_out, "plasmid_minimal_length :     %"PRId32"\n", plasmid_minimal_length                 );
   fprintf( param_out, "prob_horiz_trans :           %e\n", prob_horiz_trans                              );
+  fprintf( param_out, "nb_horiz_trans :             %e\n", nb_horiz_trans                                );
   fprintf( param_out, "compute_phen_contrib_by_GU : %s\n", compute_phen_contrib_by_GU? "true" : "false"  );
 
   // Translation cost

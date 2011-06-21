@@ -732,6 +732,12 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
       ae_common::prob_horiz_trans = atof( line->words[1] );
       break; 
     }
+	case NB_HORIZONTAL_TRANS :
+	{
+	  ae_common::nb_horiz_trans = atoi( line->words[1] );
+	  break;
+	}
+	
     case COMPUTE_PHEN_CONTRIB_BY_GU :
     {
       if ( strncmp( line->words[1], "true", 4 ) == 0 )
@@ -1039,6 +1045,7 @@ ae_keywd f_line::get_keywd( void )
   if ( !strcmp( words[0], "PLASMID_INITIAL_GENE" ) )        return PLASMID_INITIAL_GENE;
   if ( !strcmp( words[0], "PLASMID_MINIMAL_LENGTH" ) )      return PLASMID_MINIMAL_LENGTH;
   if ( !strcmp( words[0], "PROB_HORIZONTAL_TRANS" ) )       return PROB_HORIZONTAL_TRANS;
+  if ( !strcmp( words[0], "NB_HORIZONTAL_TRANS" ) )         return NB_HORIZONTAL_TRANS;
   if ( !strcmp( words[0], "COMPUTE_PHEN_CONTRIB_BY_GU" ) )  return COMPUTE_PHEN_CONTRIB_BY_GU;
   if ( !strcmp( words[0], "LOG" ) )                         return LOG;
  
