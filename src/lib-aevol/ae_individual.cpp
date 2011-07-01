@@ -968,7 +968,8 @@ void ae_individual::evaluate( ae_environment* envir )
 
 void ae_individual::inject_GU( ae_individual* donor )
 {  
-  ae_list_node* gen_unit_node = donor->get_genetic_unit_list()->get_first()->get_next();
+  //We Add the GU at the end of the list
+  ae_list_node* gen_unit_node = donor->get_genetic_unit_list()->get_last();
   ae_genetic_unit* temp_GU = new ae_genetic_unit( this, *((ae_genetic_unit*)gen_unit_node->get_obj()) );  
   _genetic_unit_list->add( temp_GU );
 }

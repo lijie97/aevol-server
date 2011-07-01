@@ -843,7 +843,7 @@ void ae_population::step_to_next_generation_grid( void )
 		
 		if (reevaluate)
 		{
-		  _pop_grid[x][y]->get_individual()->evaluate( ae_common::sim->get_env() );
+		  _pop_grid[x][y]->get_individual()->reevaluate( ae_common::sim->get_env() );
 		}
         
       }
