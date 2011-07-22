@@ -739,8 +739,8 @@ void ae_population::step_to_next_generation_grid( void )
 	  	shuffled_table[z]=new int16_t[2];
 	  	int16_t quotient=z/ae_common::grid_x;
 	  	int16_t remainder=z%ae_common::grid_x;
-	  	shuffled_table[z][0]=(int16_t) quotient;
-	  	shuffled_table[z][1]=(int16_t) remainder;
+	  	shuffled_table[z][0]=(int16_t) remainder;
+	  	shuffled_table[z][1]=(int16_t) quotient;
 	  	
 	  }
 	  
