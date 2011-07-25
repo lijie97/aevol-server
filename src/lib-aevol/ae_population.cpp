@@ -1197,23 +1197,61 @@ ae_individual* ae_population::do_replication( ae_individual* parent, int32_t ind
   // ===========================================================================
   //  4) Perform rearrangements and mutations for each genetic unit
   // ===========================================================================
+  // Perform mutations for each genetic unit
+  int32_t number_GU=ae_common::sim->alea->random((int32_t) 2);// It draws a number between 0 and 1.
+  
+  
   ae_list_node*     gen_unit_node = new_indiv->get_genetic_unit_list()->get_first();
   ae_genetic_unit*  gen_unit      = NULL;
-  
-  while ( gen_unit_node != NULL )
-  {
-    gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
-    
-    gen_unit->get_dna()->perform_mutations();
-    
-    if ( new_indiv->get_replic_report() != NULL )
-    {
-      new_indiv->get_replic_report()->get_dna_replic_reports()->add( gen_unit->get_dna()->get_replic_report() );
-    }
+  if(number_GU<1) // if the number is 0 : we begin with the chromosome
+	{
+		while ( gen_unit_node != NULL )
+		{
+			gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
+			
+			gen_unit->get_dna()->perform_mutations();
+			
+			if ( new_indiv->get_replic_report() != NULL )
+			{
+				new_indiv->get_replic_report()->get_dna_replic_reports()->add( gen_unit->get_dna()->get_replic_report() );
+			}
 
-    gen_unit_node = gen_unit_node->get_next();
-  }
-  
+			gen_unit_node = gen_unit_node->get_next();
+		}
+
+	}  
+  else  // if the number is 1 : we begin with the plasmid
+	{
+		gen_unit_node = gen_unit_node->get_next();  // we take the second GU
+		while ( gen_unit_node != NULL )
+		{
+			gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
+			
+			gen_unit->get_dna()->perform_mutations();
+			
+			if ( new_indiv->get_replic_report() != NULL )
+			{
+				new_indiv->get_replic_report()->get_dna_replic_reports()->add( gen_unit->get_dna()->get_replic_report() );
+			}
+
+			gen_unit_node = gen_unit_node->get_next();
+		}
+		
+		gen_unit_node = new_indiv->get_genetic_unit_list()->get_first(); // We make the operation on the first GU
+		gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
+		
+		gen_unit->get_dna()->perform_mutations();
+		
+		if ( new_indiv->get_replic_report() != NULL )
+		{
+			new_indiv->get_replic_report()->get_dna_replic_reports()->add( gen_unit->get_dna()->get_replic_report() );
+		}
+
+		gen_unit_node = gen_unit_node->get_next();
+		
+	}
+
+
   
   // ===========================================================================
   //  5) Evaluate new individual
