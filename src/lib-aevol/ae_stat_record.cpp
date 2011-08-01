@@ -392,6 +392,7 @@ ae_stat_record::ae_stat_record( ae_individual* indiv, chrom_or_gen_unit chrom_or
   }
 }
 
+// Calculate average statistics for all the recorded values 
 ae_stat_record::ae_stat_record( ae_population* pop, chrom_or_gen_unit chrom_or_gu )
 {
   initialize_data();
@@ -426,6 +427,77 @@ ae_stat_record::ae_stat_record( ae_population* pop, chrom_or_gen_unit chrom_or_g
   // ------------------------------------------------------------------
   this->divide( _pop_size );
 }
+
+// Calculate standard deviation for all the recorded values 
+ae_stat_record::ae_stat_record( ae_population* pop, ae_stat_record* means, chrom_or_gen_unit chrom_or_gu )
+{
+  initialize_data();
+  
+  _record_type = STDEVS;
+  
+  // ---------------
+  // Simulation data
+  // ---------------
+  _num_gener = (double) ae_common::sim->get_num_gener();
+  _pop_size  = (double) pop->get_nb_indivs();
+
+  // ------------------------------------------------------------------
+  // Compute statistical data for the each individual in the population
+  // ------------------------------------------------------------------
+  ae_list_node*   indiv_node  = pop->get_indivs()->get_first();
+  ae_individual*  indiv       = NULL;
+
+  while ( indiv_node != NULL )
+  {
+    indiv = (ae_individual*) indiv_node->get_obj();
+    ae_stat_record* indiv_stat_record = new ae_stat_record( indiv, chrom_or_gu, false );
+   // printf (" %e %e  %e  \n",  _fitness, pop_means->_fitness, indiv_stat_record->_fitness); 
+    this-> substract_power( means, indiv_stat_record, 2 );
+    delete indiv_stat_record;
+    
+    indiv_node = indiv_node->get_next();
+  }
+  
+  // ---------------------------------------------------------------------------------
+  // Divide every accumulator by the square root of number of indivs in the population
+  // ---------------------------------------------------------------------------------
+  this->divide( pow((_pop_size-1), 0.5) );
+}
+
+ // Calculate skewness for all the recorded values 
+ae_stat_record::ae_stat_record( ae_population* pop, ae_stat_record* means, ae_stat_record* stdevs, chrom_or_gen_unit chrom_or_gu )
+{
+  initialize_data();
+  
+  _record_type = SKEWNESS;
+  
+  // ---------------
+  // Simulation data
+  // ---------------
+  _num_gener = (double) ae_common::sim->get_num_gener();
+  _pop_size  = (double) pop->get_nb_indivs();
+
+  // ------------------------------------------------------------------
+  // Compute statistical data for the each individual in the population
+  // ------------------------------------------------------------------
+  ae_list_node*   indiv_node  = pop->get_indivs()->get_first();
+  ae_individual*  indiv       = NULL;
+
+  while ( indiv_node != NULL )
+  {
+    indiv = (ae_individual*) indiv_node->get_obj();
+    ae_stat_record* indiv_stat_record = new ae_stat_record( indiv, chrom_or_gu, false );
+    this-> substract_power( means, indiv_stat_record, 3 );    
+    delete indiv_stat_record;
+    indiv_node = indiv_node->get_next();
+  }
+
+  this->divide( - _pop_size );
+  
+  this->divide_record( stdevs, 3/2 );
+
+}
+
 
 ae_stat_record::ae_stat_record( const ae_stat_record &model )
 {
@@ -759,8 +831,8 @@ void ae_stat_record::divide( double divisor )
   _mean_align_score /= divisor;
   
   _nb_bases_in_0_CDS                /= divisor;
-  _nb_bases_in_0_functional_CDS      /= divisor;
-  _nb_bases_in_0_non_functional_CDS  /= divisor;
+  _nb_bases_in_0_functional_CDS     /= divisor;
+  _nb_bases_in_0_non_functional_CDS /= divisor;
   _nb_bases_in_0_RNA                /= divisor;
   _nb_bases_in_0_coding_RNA         /= divisor;
   _nb_bases_in_0_non_coding_RNA     /= divisor;
@@ -775,6 +847,67 @@ void ae_stat_record::divide( double divisor )
     _av_value_influences           /= divisor;
     _av_value_enhancing_influences /= divisor;
     _av_value_operating_influences /= divisor;
+  #endif
+}
+
+
+void ae_stat_record::divide_record( ae_stat_record* to_divide, double power )
+{
+  // NB : _num_gener and pop_size are global values and are not to be divided.
+  
+  if (to_divide->_fitness != 0) { _fitness    /= pow(to_divide->_fitness, power); }
+  
+  if (to_divide->_metabolic_error != 0)        { _metabolic_error         /= pow(to_divide->_metabolic_error, power); }
+  if (to_divide->_parent_metabolic_error != 0) { _parent_metabolic_error  /= pow(to_divide->_parent_metabolic_error, power); }
+
+  if (to_divide->_secretion_error != 0)        { _secretion_error         /= pow(to_divide->_secretion_error, power); }
+  if (to_divide->_parent_secretion_error != 0) { _parent_secretion_error  /= pow(to_divide->_parent_secretion_error, power); }
+  
+  if (to_divide->_compound_secreted != 0)       { _compound_secreted       /= pow(to_divide->_compound_secreted, power); }
+  if (to_divide->_compound_amount != 0)        { _compound_amount         /= pow(to_divide->_compound_amount, power); }
+  
+  if (to_divide->_amount_of_dna != 0)               { _amount_of_dna               /= pow(to_divide->_amount_of_dna, power); }
+  if (to_divide->_nb_coding_rnas != 0)              { _nb_coding_rnas              /= pow(to_divide->_nb_coding_rnas, power); }
+  if (to_divide->_nb_non_coding_rnas != 0)          { _nb_non_coding_rnas          /= pow(to_divide->_nb_non_coding_rnas, power); }
+  if (to_divide->_av_size_coding_rnas != 0)         { _av_size_coding_rnas         /= pow(to_divide->_av_size_coding_rnas, power); }
+  if (to_divide->_av_size_non_coding_rnas != 0)     { _av_size_non_coding_rnas     /= pow(to_divide->_av_size_non_coding_rnas, power); }
+  if (to_divide->_nb_functional_genes != 0)         { _nb_functional_genes         /= pow(to_divide->_nb_functional_genes, power); }
+  if (to_divide->_nb_non_functional_genes != 0)     { _nb_non_functional_genes     /= pow(to_divide->_nb_non_functional_genes, power); }
+  if (to_divide->_av_size_functional_gene != 0)     { _av_size_functional_gene     /= pow(to_divide->_av_size_functional_gene, power); }
+  if (to_divide->_av_size_non_functional_gene != 0) { _av_size_non_functional_gene /= pow(to_divide->_av_size_non_functional_gene, power); }
+
+  if (to_divide->_nb_mut != 0)     { _nb_mut    /= pow(to_divide->_nb_mut, power); }
+  if (to_divide->_nb_rear != 0)    { _nb_rear   /= pow(to_divide->_nb_rear, power); }
+  if (to_divide->_nb_switch != 0)  { _nb_switch /= pow(to_divide->_nb_switch, power); }
+  if (to_divide->_nb_indels != 0)  { _nb_indels /= pow(to_divide->_nb_indels, power); }
+  if (to_divide->_nb_dupl != 0)    { _nb_dupl   /= pow(to_divide->_nb_dupl, power); }
+  if (to_divide->_nb_del != 0)     { _nb_del    /= pow(to_divide->_nb_del, power); }
+  if (to_divide->_nb_trans != 0)   { _nb_trans  /= pow(to_divide->_nb_trans, power); }
+  if (to_divide->_nb_inv != 0)     { _nb_inv    /= pow(to_divide->_nb_inv, power); }
+  
+  if (to_divide->_dupl_rate != 0)        { _dupl_rate  /= pow(to_divide->_dupl_rate, power); }
+  if (to_divide->_del_rate != 0)         { _del_rate   /= pow(to_divide->_del_rate, power); }
+  if (to_divide->_trans_rate != 0)       { _trans_rate /= pow(to_divide->_trans_rate, power); }
+  if (to_divide->_inv_rate != 0)         { _inv_rate   /= pow(to_divide->_inv_rate, power); }
+  if (to_divide->_mean_align_score != 0) { _mean_align_score /= pow(to_divide->_mean_align_score, power); }
+  
+  if (to_divide->_nb_bases_in_0_CDS != 0)                { _nb_bases_in_0_CDS                /= pow(to_divide->_nb_bases_in_0_CDS, power); }
+  if (to_divide->_nb_bases_in_0_functional_CDS != 0)     { _nb_bases_in_0_functional_CDS     /= pow(to_divide->_nb_bases_in_0_functional_CDS, power); }
+  if (to_divide->_nb_bases_in_0_non_functional_CDS != 0) { _nb_bases_in_0_non_functional_CDS /= pow(to_divide->_nb_bases_in_0_non_functional_CDS, power); }
+  if (to_divide->_nb_bases_in_0_RNA != 0)                { _nb_bases_in_0_RNA                /= pow(to_divide->_nb_bases_in_0_RNA, power); }
+  if (to_divide->_nb_bases_in_0_coding_RNA != 0)         { _nb_bases_in_0_coding_RNA         /= pow(to_divide->_nb_bases_in_0_coding_RNA, power); }
+  if (to_divide->_nb_bases_in_0_non_coding_RNA != 0)     { _nb_bases_in_0_non_coding_RNA     /= pow(to_divide->_nb_bases_in_0_non_coding_RNA, power); }
+    
+  if (to_divide->_nb_bases_non_essential != 0)                    { _nb_bases_non_essential                     /= pow(to_divide->_nb_bases_non_essential, power); }
+  if (to_divide->_nb_bases_non_essential_including_nf_genes != 0) { _nb_bases_non_essential_including_nf_genes  /= pow(to_divide->_nb_bases_non_essential_including_nf_genes, power); }
+    
+  #ifdef __REGUL
+    if (to_divide->_nb_influences != 0)                 { _nb_influences                 /= pow(to_divide->_nb_influences, power); }
+    if (to_divide->_nb_enhancing_influences != 0)       { _nb_enhancing_influences       /= pow(to_divide->_nb_enhancing_influences, power); }
+    if (to_divide->_nb_operating_influences != 0)       { _nb_operating_influences       /= pow(to_divide->_nb_operating_influences, power); }
+    if (to_divide->_av_value_influences != 0)           { _av_value_influences           /= pow(to_divide->_av_value_influences, power); }
+    if (to_divide->_av_value_enhancing_influences != 0) { _av_value_enhancing_influences /= pow(to_divide->_av_value_enhancing_influences, power); }
+    if (to_divide->_av_value_operating_influences != 0) { _av_value_operating_influences /= pow(to_divide->_av_value_operating_influences, power); }
   #endif
 }
 
@@ -838,6 +971,68 @@ void ae_stat_record::add( ae_stat_record* to_add )
     _av_value_operating_influences += to_add->_av_value_operating_influences;
   #endif
 }
+
+void ae_stat_record::substract_power( ae_stat_record* means, ae_stat_record* to_substract, double power )
+{
+  // NB : _num_gener and pop_size are global values and are not to be summed.
+  
+  _fitness                 += pow( means->_fitness - to_substract->_fitness, power );
+  
+  _metabolic_error         += pow( means->_metabolic_error - to_substract->_metabolic_error, power );
+  _parent_metabolic_error  += pow( means->_parent_metabolic_error - to_substract->_parent_metabolic_error, power );
+
+  _secretion_error         += pow( means->_secretion_error - to_substract->_secretion_error, power );
+  _parent_secretion_error  += pow( means->_parent_secretion_error - to_substract->_parent_secretion_error, power );
+  
+  _compound_secreted       += pow( means->_compound_secreted - to_substract->_compound_secreted, power );
+  _compound_amount         += pow( means->_compound_amount - to_substract->_compound_amount, power );
+  _amount_of_dna               += pow( means->_amount_of_dna - to_substract->_amount_of_dna, power );
+  _nb_coding_rnas              += pow( means->_nb_coding_rnas - to_substract->_nb_coding_rnas, power );
+  _nb_non_coding_rnas          += pow( means->_nb_non_coding_rnas - to_substract->_nb_non_coding_rnas, power );
+  _av_size_coding_rnas         += pow( means->_av_size_coding_rnas - to_substract->_av_size_coding_rnas, power );
+  _av_size_non_coding_rnas     += pow( means->_av_size_non_coding_rnas - to_substract->_av_size_non_coding_rnas, power );
+  _nb_functional_genes         += pow( means->_nb_functional_genes - to_substract->_nb_functional_genes, power );
+  _nb_non_functional_genes     += pow( means->_nb_non_functional_genes - to_substract->_nb_non_functional_genes, power );
+  _av_size_functional_gene     += pow( means->_av_size_functional_gene - to_substract->_av_size_functional_gene, power );
+  _av_size_non_functional_gene += pow( means->_av_size_non_functional_gene - to_substract->_av_size_non_functional_gene, power );
+
+  _nb_mut    += pow( means->_nb_mut - to_substract->_nb_mut, power );
+  _nb_rear   += pow( means->_nb_rear - to_substract->_nb_rear, power );
+  _nb_switch += pow( means->_nb_switch - to_substract->_nb_switch, power );
+  _nb_indels += pow( means->_nb_indels - to_substract->_nb_indels, power );
+  _nb_dupl   += pow( means->_nb_dupl - to_substract->_nb_dupl, power );
+  _nb_del    += pow( means->_nb_del - to_substract->_nb_del, power );
+  _nb_trans  += pow( means->_nb_trans - to_substract->_nb_trans, power );
+  _nb_inv    += pow( means->_nb_inv - to_substract->_nb_inv, power );
+    
+  _dupl_rate  += pow( means->_dupl_rate - to_substract->_dupl_rate, power );
+  _del_rate   += pow( means->_del_rate - to_substract->_del_rate, power );
+  _trans_rate += pow( means->_trans_rate - to_substract->_trans_rate, power );
+  _inv_rate   += pow( means->_inv_rate - to_substract->_inv_rate, power );
+  //~ printf( "%f %f %f %f\n", to_substract->_dupl_rate, to_substract->_del_rate, to_substract->_trans_rate, to_substract->_inv_rate );
+  _mean_align_score += pow( means->_mean_align_score - to_substract->_mean_align_score, power );
+  
+  _nb_bases_in_0_CDS                += pow( means->_nb_bases_in_0_CDS - to_substract->_nb_bases_in_0_CDS, power );
+  _nb_bases_in_0_functional_CDS     += pow( means->_nb_bases_in_0_functional_CDS - to_substract->_nb_bases_in_0_functional_CDS, power );
+  _nb_bases_in_0_non_functional_CDS += pow( means->_nb_bases_in_0_non_functional_CDS - to_substract->_nb_bases_in_0_non_functional_CDS, power );
+  _nb_bases_in_0_RNA                += pow( means->_nb_bases_in_0_RNA - to_substract->_nb_bases_in_0_RNA, power );
+  _nb_bases_in_0_coding_RNA         += pow( means->_nb_bases_in_0_coding_RNA - to_substract->_nb_bases_in_0_coding_RNA, power );
+  _nb_bases_in_0_non_coding_RNA     += pow( means->_nb_bases_in_0_non_coding_RNA - to_substract->_nb_bases_in_0_non_coding_RNA, power );
+    
+  _nb_bases_non_essential                     += pow( means->_nb_bases_non_essential - to_substract->_nb_bases_non_essential, power );
+  _nb_bases_non_essential_including_nf_genes  += pow( means->_nb_bases_non_essential_including_nf_genes - to_substract->_nb_bases_non_essential_including_nf_genes, power );
+    
+  #ifdef __REGUL
+    _nb_influences                 += pow( means->_nb_influences - to_substract->_nb_influences, power );
+    _nb_enhancing_influences       += pow( means->_nb_enhancing_influences - to_substract->_nb_enhancing_influences, power );
+    _nb_operating_influences       += pow( means->_nb_operating_influences - to_substract->_nb_operating_influences, power );
+    _av_value_influences           += pow( means->_av_value_influences - to_substract->_av_value_influences, power );
+    _av_value_enhancing_influences += pow( means->_av_value_enhancing_influences - to_substract->_av_value_enhancing_influences, power );
+    _av_value_operating_influences += pow( means->_av_value_operating_influences - to_substract->_av_value_operating_influences, power );
+  #endif
+
+}
+
 
 // =================================================================
 //                           Protected Methods

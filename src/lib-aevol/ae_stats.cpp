@@ -86,7 +86,7 @@ ae_stats::ae_stats( int32_t num_gener, const char * prefix /* = "stat" */, bool 
   char* old_file_name = new char[100];
   FILE* old_file;
   char* cur_file_name;  // Syntaxic sugar for _stat_files_names[][][]
-   FILE* cur_file;       // Syntaxic sugar for _stat_files[][][]
+  FILE* cur_file;       // Syntaxic sugar for _stat_files[][][]
   char  line[500];
   char* trash;
   for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
@@ -98,7 +98,7 @@ ae_stats::ae_stats( int32_t num_gener, const char * prefix /* = "stat" */, bool 
         cur_file_name = _stat_files_names[chrom_or_GU][best_or_glob][stat_type];
         if ( cur_file_name != NULL )
         {
-	  sprintf( old_file_name, "%s.old", cur_file_name );
+	        sprintf( old_file_name, "%s.old", cur_file_name );
           int8_t exist_file = rename( cur_file_name, old_file_name );
           if (exist_file != 0 )
 	    {
@@ -224,6 +224,23 @@ void ae_stats::write_headers( void )
       write_header( _stat_files[chrom_or_GU][GLOB][FITNESS_STATS], "------------------------------------------------" );
       write_header( _stat_files[chrom_or_GU][GLOB][FITNESS_STATS], "" );
     }
+    
+    if ( _stat_files_names[chrom_or_GU][SDEV][FITNESS_STATS] != NULL )
+    {
+      write_header( _stat_files[chrom_or_GU][SDEV][FITNESS_STATS], "------------------------------------------------------------" );
+      write_header( _stat_files[chrom_or_GU][SDEV][FITNESS_STATS], " Standard deviation, fitness statistics over the population " );
+      write_header( _stat_files[chrom_or_GU][SDEV][FITNESS_STATS], "------------------------------------------------------------" );
+      write_header( _stat_files[chrom_or_GU][SDEV][FITNESS_STATS], "" );
+    }
+    
+    if ( _stat_files_names[chrom_or_GU][SKEW][FITNESS_STATS] != NULL )
+    {
+      write_header( _stat_files[chrom_or_GU][SKEW][FITNESS_STATS], "--------------------------------------------------" );
+      write_header( _stat_files[chrom_or_GU][SKEW][FITNESS_STATS], " Skewness statistics, fitness over the population " );
+      write_header( _stat_files[chrom_or_GU][SKEW][FITNESS_STATS], "--------------------------------------------------" );
+      write_header( _stat_files[chrom_or_GU][SKEW][FITNESS_STATS], "" );
+    }
+    
     
     for ( int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++ )
     {
@@ -436,6 +453,8 @@ void ae_stats::write_headers( void )
 void ae_stats::write_current_generation_statistics( void )
 {
   ae_stat_record* stat_record;
+  ae_stat_record* stat_record_means;
+  ae_stat_record* stat_record_stdev;
   
   for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
   {
@@ -443,26 +462,47 @@ void ae_stats::write_current_generation_statistics( void )
     // Still, it avoids looping around in the following, never fulfilling the necessary conditions
     if ( chrom_or_GU != ALL_GU && ! ae_common::allow_plasmids ) continue;
     
+
     for ( int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++ )
     {
-      if ( best_or_glob == BEST )
+      switch ( best_or_glob) 
       {
-        stat_record = new ae_stat_record( ae_common::sim->get_pop()->get_best(), (chrom_or_gen_unit) chrom_or_GU );
-      }
-      else if ( best_or_glob == GLOB )
-      {
-        stat_record = new ae_stat_record( ae_common::sim->get_pop(), (chrom_or_gen_unit) chrom_or_GU );
-      }
+        case BEST : 
+        {
+          stat_record = new ae_stat_record( ae_common::sim->get_pop()->get_best(), (chrom_or_gen_unit) chrom_or_GU );
+          break; 
+        }
       
+        case GLOB :
+        {
+          stat_record = new ae_stat_record( ae_common::sim->get_pop(), (chrom_or_gen_unit) chrom_or_GU );
+          stat_record_means = new ae_stat_record( *stat_record ) ;
+          break; 
+        }
+        
+        case SDEV :
+        {
+          stat_record = new ae_stat_record( ae_common::sim->get_pop(), stat_record_means, (chrom_or_gen_unit) chrom_or_GU );
+          stat_record_stdev = new ae_stat_record( *stat_record );
+
+          break; 
+        }
+        case SKEW :
+        {
+          stat_record = new ae_stat_record( ae_common::sim->get_pop(), stat_record_means, stat_record_stdev, (chrom_or_gen_unit) chrom_or_GU );
+          break; 
+        }
+      }
+        
       for ( int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++ )
       {
         if ( _stat_files_names[chrom_or_GU][best_or_glob][stat_type] != NULL )
         {
-          stat_record->write_to_file( _stat_files[chrom_or_GU][best_or_glob][stat_type], (stats_type) stat_type );
+        stat_record->write_to_file( _stat_files[chrom_or_GU][best_or_glob][stat_type], (stats_type) stat_type );
         }
       }
       
-      delete stat_record;
+      delete stat_record, stat_record_means, stat_record_stdev;
     }
   }
 }
@@ -552,7 +592,7 @@ void ae_stats::init_data( void )
 void ae_stats::set_file_names( const char * prefix, bool one_lambda_indiv_only )
 {
   const char* chrom_or_gu_name[NB_CHROM_OR_GU]    = { "", "_chromosome", "_plasmids" };
-  const char* best_or_glob_name[NB_BEST_OR_GLOB]  = { "_best", "_glob" };
+  const char* best_or_glob_name[NB_BEST_OR_GLOB]  = { "_best", "_glob", "_sdev", "_skew" };
   const char* stat_type_name[NB_STATS_TYPES]      = { "_fitness", "_mutation", "_genes", "_bp", "_rear" };
   
   for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
@@ -568,6 +608,9 @@ void ae_stats::set_file_names( const char * prefix, bool one_lambda_indiv_only )
       {
         // We don't want REAR_STATS when ae_common::with_alignments is false
         if ( stat_type == REAR_STATS && ! ae_common::with_alignments ) continue;
+        
+        // For now, we only want sdev and skew for fitness data
+        if ( best_or_glob > GLOB && stat_type > FITNESS_STATS) continue; 
         
         _stat_files_names[chrom_or_GU][best_or_glob][stat_type] = new char[80];
         
@@ -589,8 +632,10 @@ void ae_stats::set_file_names( const char * prefix, bool one_lambda_indiv_only )
                     chrom_or_gu_name[chrom_or_GU],
                     best_or_glob_name[best_or_glob] );
         }
+        
       }
     }
+    
   }
 }
 
