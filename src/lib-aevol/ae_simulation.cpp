@@ -350,6 +350,7 @@ ae_simulation::ae_simulation( char* backup_file_name, bool to_be_run /* = TRUE *
     // Prepare tree
     if ( ae_common::record_tree == true )
     { 
+      mkdir( "tree", 0755 );
       _tree  = new ae_tree(); 
     }
     else
@@ -360,12 +361,15 @@ ae_simulation::ae_simulation( char* backup_file_name, bool to_be_run /* = TRUE *
     // Prepare dump
     if ( ae_common::dump_period > 0 )
     {
+      mkdir( "dump", 0755 );
       _dump = new ae_dump();
     }
     else
     {
       _dump = NULL;
     }
+    
+    mkdir( "backup", 0755 );
     
     // Evaluate individuals
     _pop->evaluate_individuals( _env );
@@ -443,7 +447,6 @@ void ae_simulation::run( void )
 
     // Write statistical data and store phylogenetic data (tree)
     _stats->write_current_generation_statistics();
-
 
     if ( ae_common::record_tree == true )
     { 
