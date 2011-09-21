@@ -102,6 +102,7 @@ class ae_population : public ae_object
     ae_individual*  calculate_GU_transfer ( int16_t x, int16_t y );
     void            do_random_migrations ( void );
     inline void     evaluate_individuals( ae_environment* envir );
+    void            sort_individuals( void );
 
     void    write_to_backup( gzFile* backup_file );
 
@@ -133,7 +134,6 @@ class ae_population : public ae_object
     // =================================================================
     //                           Protected Methods
     // =================================================================
-    void sort_individuals( void );
   
     ae_individual* create_random_individual( int32_t index );
     ae_individual* create_random_individual_with_good_gene( int32_t index );
@@ -260,7 +260,7 @@ inline void ae_population::evaluate_individuals( ae_environment* envir )
   while ( indiv_node != NULL )
   {
     indiv = (ae_individual *) indiv_node->get_obj();
-    
+    void sort_individuals( void );
     indiv->evaluate( envir );
     indiv->compute_statistical_data();
     

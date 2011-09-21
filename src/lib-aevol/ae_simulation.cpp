@@ -341,6 +341,18 @@ ae_simulation::ae_simulation( char* backup_file_name, bool to_be_run /* = TRUE *
 
   gzclose( backup_file );
 
+  // Evaluate individuals
+  _pop->evaluate_individuals( _env );
+
+  // if the population is spatially structured, then the individuals have been saved and loaded in the order of the grid and not in increasing order of fitness
+  // so we have to sort the individuals
+
+  if ( ae_common::pop_structure == true )
+  {
+    _pop->sort_individuals();
+  }
+
+
   if ( to_be_run ) // We want to restart the run from here (not just do a post-processing)
   {
     // Prepare stat and log files
@@ -370,9 +382,6 @@ ae_simulation::ae_simulation( char* backup_file_name, bool to_be_run /* = TRUE *
     }
     
     mkdir( "backup", 0755 );
-    
-    // Evaluate individuals
-    _pop->evaluate_individuals( _env );
     
     if ( _logs->get_to_be_logged( LOG_LOADS ) == true )
     {

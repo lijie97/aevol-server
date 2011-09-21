@@ -284,7 +284,7 @@ Usage : extract -h\n\
    or : extract -f source [-p phenotype_file] [-s sequence_file] [-b] \n\n\
 \t-h : display this screen\n\
 \t--file source : read from the backup file source\n\
-\t--phenotype pf : extract and save some infos about the phenotypes of the individuals to file pf\
-\t--sequence sf : extract and save the sequences of the individuals to file sf\
+\t--phenotype pf : extract and save some infos about the phenotypes of the individuals to file pf\n\
+\t--sequence sf : extract and save the sequences of the individuals to file sf\n\
 \t--best : only treat the best individual\n");
 }
