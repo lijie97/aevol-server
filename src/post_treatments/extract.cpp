@@ -15,7 +15,7 @@
 //    At the end of each line, "@n" is printed, where n is the number
 //    of bases of the individual.
 //
-//  * sequence of the individuals (option -s) : write the sequences 
+//  * sequences of the individuals (option -s) : write the sequences 
 //    in a text file. A new line delimits two individuals. It can be
 //    used to do sequence analysis in matlab.
 //
@@ -80,6 +80,7 @@ int main( int argc, char* argv[] )
   // Define allowed options
   const char * options_list = "hf:p:s:b";
   static struct option long_options_list[] = {
+    { "help", 1, NULL, 'h' },
     { "file", 1, NULL, 'f' },
     { "phenotype", 1, NULL, 'p' },
     { "sequence", 1, NULL, 's' },
@@ -146,6 +147,9 @@ int main( int argc, char* argv[] )
 
   // Evaluate the individuals
   (ae_common::sim->get_pop())->evaluate_individuals(ae_common::sim->get_env());
+  
+  int i = 0;
+  int nb_indiv = (ae_common::sim->get_pop())->get_nb_indivs();
 
   
   // Parse the individuals
@@ -165,6 +169,7 @@ int main( int argc, char* argv[] )
         {
           ae_individual* indiv = (_pop_grid[x][y]->get_individual());
           analyse_indiv(indiv, phenotype_file, sequence_file);
+          i++;
         }  
       }
     }
@@ -178,6 +183,7 @@ int main( int argc, char* argv[] )
         indiv = (ae_individual *) indiv_node->get_obj();
         analyse_indiv(indiv, phenotype_file, sequence_file);
         indiv_node = indiv_node->get_next();
+        i++;
       }
     }
   }
@@ -202,11 +208,16 @@ int main( int argc, char* argv[] )
 // The export fonction
 inline void analyse_indiv( ae_individual* indiv, FILE* phenotype_file , FILE* sequence_file)
 {
-  ae_list* lrnas = indiv->get_rna_list();
+
+  ae_genetic_unit* chr = indiv->get_genetic_unit(0);
+  ae_list** llrnas = chr->get_rna_list();
+  ae_list* lrnas = new ae_list(*llrnas[LEADING]);
+  lrnas->add_list(llrnas[LAGGING]);
   ae_list_node* rna_node = lrnas->get_first();
   ae_rna* rna = NULL;
-  int32_t nb_bases =  indiv->get_genetic_unit(0)->get_dna()->get_length();
+  int32_t nb_bases =  chr->get_dna()->get_length();
   int rna_nb=0;
+
   while( rna_node != NULL )
   {
     rna = (ae_rna *) rna_node->get_obj();
@@ -214,6 +225,7 @@ inline void analyse_indiv( ae_individual* indiv, FILE* phenotype_file , FILE* se
     ae_list* lprot = rna->get_transcribed_proteins();
     ae_list_node* prot_node = lprot->get_first();
     ae_protein* prot = NULL;
+
     while( prot_node != NULL )
     {
       prot = (ae_protein*) prot_node->get_obj();
@@ -225,34 +237,38 @@ inline void analyse_indiv( ae_individual* indiv, FILE* phenotype_file , FILE* se
       int32_t lpos = prot->get_last_translated_pos();
       int32_t zone = 0;
       
-      if ( mean != 1 )
-      {
-        zone = (int32_t) floor( mean * ae_common::env_axis_nb_segments );
-      }
-      else
-      {
-        zone = (int32_t) floor( mean * ae_common::env_axis_nb_segments ) - 1;
-      }
-      
-      ae_env_axis_feature feat = ae_common::env_axis_features[zone];
       int nfeat = -1;
-      switch ( feat )
+      if (ae_common::env_axis_is_segmented)
       {
-        case NEUTRAL :
-          nfeat=1;
-          break;
-        case METABOLISM :
-          nfeat=2;
-          break;
-        case SECRETION :
-          nfeat=3;
-          break;
-        case TRANSFER :
-          nfeat=4;
-          break;
-        case NB_FEATURES : 
-          nfeat=-1;
-          break;
+        if ( mean != 1 )
+        {
+          zone = (int32_t) floor( mean * ae_common::env_axis_nb_segments );
+        }
+        else
+        {
+          zone = (int32_t) floor( mean * ae_common::env_axis_nb_segments ) - 1;
+        }
+
+        ae_env_axis_feature feat = ae_common::env_axis_features[zone];
+
+        switch ( feat )
+        {
+          case NEUTRAL :
+            nfeat=1;
+            break;
+          case METABOLISM :
+            nfeat=2;
+            break;
+          case SECRETION :
+            nfeat=3;
+            break;
+          case TRANSFER :
+            nfeat=4;
+            break;
+          case NB_FEATURES : 
+            nfeat=-1;
+            break;
+        }
       }
 
       if (phenotype_file!=NULL)
@@ -265,6 +281,7 @@ inline void analyse_indiv( ae_individual* indiv, FILE* phenotype_file , FILE* se
     rna_node = rna_node->get_next();
     rna_nb++;
   }
+
   if (phenotype_file!=NULL)
   {
     fprintf(phenotype_file,"@%d\n",nb_bases);
@@ -275,6 +292,8 @@ inline void analyse_indiv( ae_individual* indiv, FILE* phenotype_file , FILE* se
     int32_t length = indiv->get_genetic_unit(0)->get_dna()->get_length();
     fprintf(sequence_file,"%.*s\n",length,dna);
   }
+
+  delete lrnas;
 }
 
 void print_help( char* prog_name ) 
@@ -283,8 +302,8 @@ void print_help( char* prog_name )
 Usage : extract -h\n\
    or : extract -f source [-p phenotype_file] [-s sequence_file] [-b] \n\n\
 \t-h : display this screen\n\
-\t--file source : read from the backup file source\n\
-\t--phenotype pf : extract and save some infos about the phenotypes of the individuals to file pf\n\
-\t--sequence sf : extract and save the sequences of the individuals to file sf\n\
-\t--best : only treat the best individual\n");
+\t-f source : read from the backup file source\n\
+\t-p pf : extract and save some infos about the phenotypes of the individuals to file pf\n\
+\t-s sf : extract and save the sequences of the individuals to file sf\n\
+\t-b : only treat the best individual\n");
 }
