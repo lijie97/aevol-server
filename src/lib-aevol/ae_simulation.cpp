@@ -435,7 +435,7 @@ void ae_simulation::run( void )
 {
   _last_gener = _first_gener + ae_common::nb_generations;
 
-  % dump the initial state of the population; useful for restarts
+  // dump the initial state of the population; useful for restarts
   if( ae_common::dump_period > 0 ) 
   {
     _dump->write_current_generation_dump();
