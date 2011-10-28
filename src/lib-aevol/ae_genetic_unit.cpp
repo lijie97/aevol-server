@@ -526,6 +526,9 @@ ae_genetic_unit::~ae_genetic_unit( void )
   delete [] _dist_to_target_by_feature;
   assert( _fitness_by_feature != NULL );
   delete [] _fitness_by_feature;
+
+  if ( _beginning_neutral_regions != NULL ) { delete [] _beginning_neutral_regions; }
+  if ( _end_neutral_regions != NULL )       { delete [] _end_neutral_regions; }
 }
 
 // =================================================================
@@ -1433,6 +1436,9 @@ void ae_genetic_unit::compute_non_coding( void )
   // Genes + prom + term (but not UTRs)
   bool* is_essential_DNA;
   bool* is_essential_DNA_including_nf_genes; // Adds non-functional genes + promoters & terminators
+
+  bool* is_not_neutral;            // prom + term + everything in between (as opposed to neutral)
+
   
   belongs_to_CDS                      = new bool[genome_length];
   belongs_to_functional_CDS           = new bool[genome_length];
@@ -1442,6 +1448,7 @@ void ae_genetic_unit::compute_non_coding( void )
   belongs_to_non_coding_RNA           = new bool[genome_length];
   is_essential_DNA                    = new bool[genome_length];
   is_essential_DNA_including_nf_genes = new bool[genome_length];
+  is_not_neutral                      = new bool[genome_length];
   
   memset( belongs_to_CDS,                      0, genome_length );
   memset( belongs_to_functional_CDS,           0, genome_length );
@@ -1451,7 +1458,8 @@ void ae_genetic_unit::compute_non_coding( void )
   memset( belongs_to_non_coding_RNA,           0, genome_length );
   memset( is_essential_DNA,                    0, genome_length );
   memset( is_essential_DNA_including_nf_genes, 0, genome_length );
-  
+  memset( is_not_neutral,                      0, genome_length );
+
   
   // Parse protein lists and mark the corresponding bases as coding
   for ( int8_t strand = LEADING ; strand <= LAGGING ; strand++ )
@@ -1502,6 +1510,7 @@ void ae_genetic_unit::compute_non_coding( void )
       }
       
       // Include the promoter and terminator to essential DNA
+      // Mark everything between promoter and terminator as not neutral
       ae_list_node* rna_node  = prot->get_rna_list()->get_first();
       ae_rna*       rna       = NULL;
       
@@ -1513,6 +1522,8 @@ void ae_genetic_unit::compute_non_coding( void )
         int32_t prom_last;
         int32_t term_first;
         int32_t term_last;
+        int32_t rna_first;
+	int32_t rna_last;
         
         if ( strand == LEADING )
         {
@@ -1520,6 +1531,8 @@ void ae_genetic_unit::compute_non_coding( void )
           prom_last   = ae_utils::mod( prom_first + PROM_SIZE - 1, _dna->get_length() );
           term_last   = rna->get_last_transcribed_pos();
           term_first  = ae_utils::mod( term_last - TERM_SIZE + 1, _dna->get_length() );
+	  rna_first   = prom_first;
+	  rna_last    = term_last;
         }
         else
         {
@@ -1527,6 +1540,8 @@ void ae_genetic_unit::compute_non_coding( void )
           prom_first  = ae_utils::mod( prom_last - PROM_SIZE + 1, _dna->get_length() );
           term_first  = rna->get_last_transcribed_pos();
           term_last   = ae_utils::mod( term_first + TERM_SIZE - 1, _dna->get_length() );
+	  rna_first   = term_first;
+	  rna_last    = prom_last;
         }
         //~ printf( "\n" );
         //~ if ( strand == LEADING ) printf( "LEADING\n" );
@@ -1535,6 +1550,18 @@ void ae_genetic_unit::compute_non_coding( void )
         //~ printf( "term_first : %ld    term_last %ld   (size %ld)\n", term_first, term_last, _dna->get_length() );
         //~ getchar();
         
+        // Let us begin with "non-neutral" regions
+	if ( rna_first <= rna_last )
+	{
+	  for ( int32_t i = rna_first ; i <= rna_last ; i++ ) { is_not_neutral[i] = true; }
+	}
+	else
+	{
+	  for ( int32_t i = rna_first ; i < genome_length ; i++ ) { is_not_neutral[i] = true; }
+	  for ( int32_t i = 0 ; i <= rna_last ; i++ ) { is_not_neutral[i] = true; }
+	}
+	
+	// and go on with essential DNA
         //~ printf( "prom " );
         if ( prom_first <= prom_last )
         {
@@ -1746,7 +1773,17 @@ void ae_genetic_unit::compute_non_coding( void )
   _nb_bases_in_0_non_coding_RNA     = 0;
   _nb_bases_non_essential                     = 0;
   _nb_bases_non_essential_including_nf_genes  = 0;
+  _nb_bases_in_neutral_regions        = 0;
+  _nb_neutral_regions                 = 0;
   
+  // We do not know how many neutral regions there will be, but
+  // there should be less than _nb_coding_RNAs + 1
+  // As we will see, there may be a shift in values so we take size _nb_coding_RNAs + 2
+  int32_t* tmp_beginning_neutral_regions = new int32_t [ _nb_coding_RNAs + 2 ];
+  int32_t* tmp_end_neutral_regions = new int32_t [ _nb_coding_RNAs + 2 ];
+  memset( tmp_beginning_neutral_regions, -1, _nb_coding_RNAs + 2 );
+  memset( tmp_end_neutral_regions, -1, _nb_coding_RNAs + 2 );
+
   for ( int32_t i = 0 ; i < genome_length ; i++ )
   {
     if ( belongs_to_CDS[i] == false )
@@ -1781,8 +1818,88 @@ void ae_genetic_unit::compute_non_coding( void )
     {
       _nb_bases_non_essential_including_nf_genes++;
     }
+    if ( is_not_neutral[i] == false )
+    {
+      _nb_bases_in_neutral_regions++;
+    }
+    if ( i != 0 )
+    {
+      if ( is_not_neutral[i] != is_not_neutral[i-1] )
+      {
+	if ( is_not_neutral[i-1] == true ) // beginning of a neutral region
+	{
+	  tmp_beginning_neutral_regions [ _nb_neutral_regions ] = i;
+	}
+	else // end of a neutral region
+	{
+	  tmp_end_neutral_regions [ _nb_neutral_regions ] = i-1;
+	  _nb_neutral_regions++;
+	}
+      }
+    }
+    else // i = 0
+    {
+      // we arbitrarily set 0 as the beginning of a neutral region (linkage with end of genetic unit
+      // will be done later)
+      if ( is_not_neutral[0] == false ) { tmp_beginning_neutral_regions [ _nb_neutral_regions ] = 0; }
+    }
   }
   
+  // we have to treat specifically the last base of the genetic unit in order to link neutral regions
+  // at the end and the beginning of genetic unit
+  int32_t shift = 0;
+  if ( is_not_neutral[genome_length-1] == false )
+  {
+    if ( is_not_neutral[0] == true ) // end of a neutral region
+    {
+      tmp_end_neutral_regions[ _nb_neutral_regions ] = genome_length-1;
+      _nb_neutral_regions++;
+    }
+    else // neutral region goes on after base 0, linkage to be done
+    {
+      if ( _nb_neutral_regions != 0 )
+      {
+	tmp_end_neutral_regions[ _nb_neutral_regions ] = tmp_end_neutral_regions[ 0 ];
+	// the first neutral region is only a subpart of the last one, it should not be
+	// taken into account. When we transfer values to the final array, we introduce a shift
+	shift = 1;
+	// we do not ++ _nb_neutral_regions as it was already counted
+      }
+      else // no neutral region detected until now -> all the genetic unit is neutral
+      {
+	// as all the chromosome is neutral, we indicate 0 as the beginning of the region
+	// and genome_length - 1 as its end
+	tmp_end_neutral_regions[ 0 ] = genome_length - 1;
+	_nb_neutral_regions++;
+      }
+    }
+  }
+
+  // now that we know how many neutral regions there are, we can transfer data to correctly sized arrays
+  assert( _nb_neutral_regions <= _nb_coding_RNAs + 1 );
+  if ( _beginning_neutral_regions != NULL ) { delete [] _beginning_neutral_regions; }
+  if ( _end_neutral_regions != NULL )       { delete [] _end_neutral_regions; }
+  
+  if ( _nb_neutral_regions > 0 ) // as unlikely as it seems, there may be no neutral region
+  {
+    _beginning_neutral_regions = new int32_t [ _nb_neutral_regions ];
+    _end_neutral_regions = new int32_t [ _nb_neutral_regions ];
+    // transfer from tmp to attributes
+    for (int32_t i = 0; i < _nb_neutral_regions; i++)
+    {
+      _beginning_neutral_regions[i] = tmp_beginning_neutral_regions[i+shift];
+      _end_neutral_regions[i]       = tmp_end_neutral_regions[i+shift];
+    }
+  }
+  else // _nb_neutral_regions == 0
+  {
+    _beginning_neutral_regions = NULL;
+    _end_neutral_regions       = NULL;
+  }
+
+  delete [] tmp_beginning_neutral_regions;
+  delete [] tmp_end_neutral_regions;
+    
   delete [] belongs_to_CDS;
   delete [] belongs_to_functional_CDS;
   delete [] belongs_to_non_functional_CDS;
@@ -1791,6 +1908,7 @@ void ae_genetic_unit::compute_non_coding( void )
   delete [] belongs_to_non_coding_RNA;
   delete [] is_essential_DNA;
   delete [] is_essential_DNA_including_nf_genes;
+  delete [] is_not_neutral;
 }
 
 void ae_genetic_unit::duplicate_promoters_included_in( int32_t pos_1, int32_t pos_2, ae_list** duplicated_promoters )
@@ -3407,5 +3525,8 @@ void ae_genetic_unit::init_statistical_data( void ) // TODO : integrate into com
   _nb_bases_non_essential_including_nf_genes  = -1;
   
   _modularity = -1;
+
+  _beginning_neutral_regions = NULL;
+  _end_neutral_regions = NULL;
 }
 

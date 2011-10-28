@@ -142,6 +142,8 @@ class ae_individual : public ae_object
     inline int32_t  get_nb_bases_in_0_RNA( void );
     inline int32_t  get_nb_bases_in_0_coding_RNA( void );
     inline int32_t  get_nb_bases_in_0_non_coding_RNA( void );
+    inline int32_t  get_nb_bases_in_neutral_regions( void );
+    inline int32_t  get_nb_neutral_regions( void );
     
     inline double get_modularity( void ); // Not const
     
@@ -179,6 +181,16 @@ class ae_individual : public ae_object
       inline void assert_promoters_order( void );
     #endif
 
+    double compute_experimental_f_nu( int32_t nb_children, double* neutral_or_better = NULL );
+    double compute_theoritical_f_nu( void );
+    // These functions compute the probability of neutral reproduction (F_nu).
+    // The first method replicates the individual "nb_children" times and counts how often
+    // a child has the same fitness as its parent (and if second argument not NULL, how often
+    // a child has same or better fitness and stores the result at the adress contained in the
+    // pointer). Results are proportions.
+    // The second is an estimate based on genome structure as defined by Carole.
+    // They have been implemented on the chromosome only !
+    
 
     // =================================================================
     //                           Public Attributes
@@ -278,6 +290,10 @@ class ae_individual : public ae_object
     int32_t _nb_bases_in_0_coding_RNA;        // Number of bases that are not included in any coding RNA
                                               // (RNAs containing at least one CDS)
     int32_t _nb_bases_in_0_non_coding_RNA;    // Number of bases that are not included in any non coding RNA
+    int32_t _nb_bases_in_neutral_regions;   // Number of bases that are in a neutral region
+                                            // A base is considered neutral when neither itself NOR its corresponding base on the other
+                                            // strand belongs to a coding promoter->terminator region (both included)
+    int32_t _nb_neutral_regions;            // Number of neutral regions
                                       
     double _modularity; // Ratio between the pairwise distance between genes whose corresponding
                         // phenotypic triangles overlap and the average intergenic distance 
@@ -626,6 +642,20 @@ inline int32_t ae_individual::get_nb_bases_in_0_non_coding_RNA( void )
   if ( ! _statistical_data_computed ) compute_statistical_data();
   if ( ! _non_coding_computed ) compute_non_coding();
   return _nb_bases_in_0_non_coding_RNA;
+}
+
+inline int32_t ae_individual::get_nb_bases_in_neutral_regions( void )
+{
+  if ( ! _statistical_data_computed ) compute_statistical_data();
+  if ( ! _non_coding_computed ) compute_non_coding();
+  return _nb_bases_in_neutral_regions;
+}
+
+inline int32_t ae_individual::get_nb_neutral_regions( void )
+{
+  if ( ! _statistical_data_computed ) compute_statistical_data();
+  if ( ! _non_coding_computed ) compute_non_coding();
+  return _nb_neutral_regions;
 }
 
 inline double ae_individual::get_modularity( void )

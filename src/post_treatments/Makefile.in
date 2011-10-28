@@ -36,84 +36,104 @@ POST_UNINSTALL = :
 @WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	create_eps$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	extract$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	fixed_mutations$(EXEEXT) \
+@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	genome_stats$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	get_best_indiv$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	lineage$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	mutagenesis$(EXEEXT) \
+@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	robustness$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	set_genome_from_indiv$(EXEEXT)
 @WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@bin_PROGRAMS = rancstats$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	rcreate_eps$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	rextract$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	rfixed_mutations$(EXEEXT) \
+@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	rgenome_stats$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	rget_best_indiv$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	rlineage$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	rmutagenesis$(EXEEXT) \
+@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	rrobustness$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	rset_genome_from_indiv$(EXEEXT)
 @WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@bin_PROGRAMS = ancstats$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	create_eps$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	extract$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	fixed_mutations$(EXEEXT) \
+@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	genome_stats$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	get_best_indiv$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	lineage$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	mutagenesis$(EXEEXT) \
+@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	robustness$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	set_genome_from_indiv$(EXEEXT)
 @WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@bin_PROGRAMS = rancstats$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	rcreate_eps$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	rextract$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	rfixed_mutations$(EXEEXT) \
+@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	rgenome_stats$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	rget_best_indiv$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	rlineage$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	rmutagenesis$(EXEEXT) \
+@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	rrobustness$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	rset_genome_from_indiv$(EXEEXT)
 @WITH_DEBUG_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@bin_PROGRAMS = ancstats$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	create_eps$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	extract$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	fixed_mutations$(EXEEXT) \
+@WITH_DEBUG_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	genome_stats$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	get_best_indiv$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	lineage$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	mutagenesis$(EXEEXT) \
+@WITH_DEBUG_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	robustness$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	set_genome_from_indiv$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	view_generation$(EXEEXT)
 @WITH_DEBUG_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@bin_PROGRAMS = rancstats$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	rcreate_eps$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	rextract$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	rfixed_mutations$(EXEEXT) \
+@WITH_DEBUG_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	rgenome_stats$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	rget_best_indiv$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	rlineage$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	rmutagenesis$(EXEEXT) \
+@WITH_DEBUG_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	rrobustness$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	rset_genome_from_indiv$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	rview_generation$(EXEEXT)
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@bin_PROGRAMS = ancstats_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	create_eps_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	extract_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	fixed_mutations_debug$(EXEEXT) \
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	genome_stats_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	get_best_indiv_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	lineage_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	mutagenesis_debug$(EXEEXT) \
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	robustness_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	set_genome_from_indiv_debug$(EXEEXT)
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@bin_PROGRAMS = ancstats_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	create_eps_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	extract_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	fixed_mutations_debug$(EXEEXT) \
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	genome_stats_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	get_best_indiv_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	lineage_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	mutagenesis_debug$(EXEEXT) \
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	robustness_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	set_genome_from_indiv_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	view_generation_debug$(EXEEXT)
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@bin_PROGRAMS = rancstats_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	rcreate_eps_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	rextract_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	rfixed_mutations_debug$(EXEEXT) \
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	rgenome_stats_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	rget_best_indiv_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	rlineage_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	rmutagenesis_debug$(EXEEXT) \
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	rrobustness_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	rset_genome_from_indiv_debug$(EXEEXT)
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@bin_PROGRAMS = rancstats_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	rcreate_eps_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	rextract_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	rfixed_mutations_debug$(EXEEXT) \
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	rgenome_stats_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	rget_best_indiv_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	rlineage_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	rmutagenesis_debug$(EXEEXT) \
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	rrobustness_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	rset_genome_from_indiv_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	rview_generation_debug$(EXEEXT)
 subdir = src/post_treatments
@@ -233,6 +253,33 @@ fixed_mutations_debug_LDADD = $(LDADD)
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@fixed_mutations_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-X11-debug.a
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@fixed_mutations_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-debug.a
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@fixed_mutations_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-X11-debug.a
+am_genome_stats_OBJECTS = genome_stats-genome_stats.$(OBJEXT)
+genome_stats_OBJECTS = $(am_genome_stats_OBJECTS)
+genome_stats_LDADD = $(LDADD)
+@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@genome_stats_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol.a
+@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@genome_stats_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol.a
+@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@genome_stats_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-IN2P3.a
+@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@genome_stats_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-IN2P3.a
+@WITH_DEBUG_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@genome_stats_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-X11.a
+@WITH_DEBUG_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@genome_stats_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-X11.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@genome_stats_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-debug.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@genome_stats_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-X11-debug.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@genome_stats_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-debug.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@genome_stats_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-X11-debug.a
+am_genome_stats_debug_OBJECTS =  \
+	genome_stats_debug-genome_stats.$(OBJEXT)
+genome_stats_debug_OBJECTS = $(am_genome_stats_debug_OBJECTS)
+genome_stats_debug_LDADD = $(LDADD)
+@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@genome_stats_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol.a
+@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@genome_stats_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol.a
+@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@genome_stats_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-IN2P3.a
+@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@genome_stats_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-IN2P3.a
+@WITH_DEBUG_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@genome_stats_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-X11.a
+@WITH_DEBUG_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@genome_stats_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-X11.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@genome_stats_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-debug.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@genome_stats_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-X11-debug.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@genome_stats_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-debug.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@genome_stats_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-X11-debug.a
 am_get_best_indiv_OBJECTS = get_best_indiv-get_best_indiv.$(OBJEXT)
 get_best_indiv_OBJECTS = $(am_get_best_indiv_OBJECTS)
 get_best_indiv_LDADD = $(LDADD)
@@ -419,6 +466,33 @@ rfixed_mutations_debug_LDADD = $(LDADD)
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@rfixed_mutations_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-X11-debug.a
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@rfixed_mutations_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-debug.a
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@rfixed_mutations_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-X11-debug.a
+am_rgenome_stats_OBJECTS = rgenome_stats-genome_stats.$(OBJEXT)
+rgenome_stats_OBJECTS = $(am_rgenome_stats_OBJECTS)
+rgenome_stats_LDADD = $(LDADD)
+@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@rgenome_stats_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol.a
+@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@rgenome_stats_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol.a
+@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@rgenome_stats_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-IN2P3.a
+@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@rgenome_stats_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-IN2P3.a
+@WITH_DEBUG_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@rgenome_stats_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-X11.a
+@WITH_DEBUG_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@rgenome_stats_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-X11.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@rgenome_stats_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-debug.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@rgenome_stats_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-X11-debug.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@rgenome_stats_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-debug.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@rgenome_stats_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-X11-debug.a
+am_rgenome_stats_debug_OBJECTS =  \
+	rgenome_stats_debug-genome_stats.$(OBJEXT)
+rgenome_stats_debug_OBJECTS = $(am_rgenome_stats_debug_OBJECTS)
+rgenome_stats_debug_LDADD = $(LDADD)
+@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@rgenome_stats_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol.a
+@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@rgenome_stats_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol.a
+@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@rgenome_stats_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-IN2P3.a
+@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@rgenome_stats_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-IN2P3.a
+@WITH_DEBUG_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@rgenome_stats_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-X11.a
+@WITH_DEBUG_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@rgenome_stats_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-X11.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@rgenome_stats_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-debug.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@rgenome_stats_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-X11-debug.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@rgenome_stats_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-debug.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@rgenome_stats_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-X11-debug.a
 am_rget_best_indiv_OBJECTS = rget_best_indiv-get_best_indiv.$(OBJEXT)
 rget_best_indiv_OBJECTS = $(am_rget_best_indiv_OBJECTS)
 rget_best_indiv_LDADD = $(LDADD)
@@ -499,6 +573,58 @@ rmutagenesis_debug_LDADD = $(LDADD)
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@rmutagenesis_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-X11-debug.a
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@rmutagenesis_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-debug.a
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@rmutagenesis_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-X11-debug.a
+am_robustness_OBJECTS = robustness-robustness.$(OBJEXT)
+robustness_OBJECTS = $(am_robustness_OBJECTS)
+robustness_LDADD = $(LDADD)
+@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@robustness_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol.a
+@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@robustness_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol.a
+@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@robustness_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-IN2P3.a
+@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@robustness_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-IN2P3.a
+@WITH_DEBUG_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@robustness_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-X11.a
+@WITH_DEBUG_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@robustness_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-X11.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@robustness_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-debug.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@robustness_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-X11-debug.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@robustness_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-debug.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@robustness_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-X11-debug.a
+am_robustness_debug_OBJECTS = robustness_debug-robustness.$(OBJEXT)
+robustness_debug_OBJECTS = $(am_robustness_debug_OBJECTS)
+robustness_debug_LDADD = $(LDADD)
+@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@robustness_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol.a
+@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@robustness_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol.a
+@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@robustness_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-IN2P3.a
+@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@robustness_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-IN2P3.a
+@WITH_DEBUG_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@robustness_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-X11.a
+@WITH_DEBUG_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@robustness_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-X11.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@robustness_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-debug.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@robustness_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-X11-debug.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@robustness_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-debug.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@robustness_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-X11-debug.a
+am_rrobustness_OBJECTS = rrobustness-robustness.$(OBJEXT)
+rrobustness_OBJECTS = $(am_rrobustness_OBJECTS)
+rrobustness_LDADD = $(LDADD)
+@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@rrobustness_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol.a
+@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@rrobustness_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol.a
+@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@rrobustness_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-IN2P3.a
+@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@rrobustness_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-IN2P3.a
+@WITH_DEBUG_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@rrobustness_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-X11.a
+@WITH_DEBUG_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@rrobustness_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-X11.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@rrobustness_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-debug.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@rrobustness_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-X11-debug.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@rrobustness_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-debug.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@rrobustness_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-X11-debug.a
+am_rrobustness_debug_OBJECTS = rrobustness_debug-robustness.$(OBJEXT)
+rrobustness_debug_OBJECTS = $(am_rrobustness_debug_OBJECTS)
+rrobustness_debug_LDADD = $(LDADD)
+@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@rrobustness_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol.a
+@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@rrobustness_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol.a
+@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@rrobustness_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-IN2P3.a
+@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@rrobustness_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-IN2P3.a
+@WITH_DEBUG_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@rrobustness_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-X11.a
+@WITH_DEBUG_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@rrobustness_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-X11.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@rrobustness_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-debug.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@rrobustness_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-aevol-X11-debug.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@rrobustness_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-debug.a
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@rrobustness_debug_DEPENDENCIES = $(top_srcdir)/src/lib-aevol/lib-raevol-X11-debug.a
 am_rset_genome_from_indiv_OBJECTS =  \
 	rset_genome_from_indiv-set_genome_from_indiv.$(OBJEXT)
 rset_genome_from_indiv_OBJECTS = $(am_rset_genome_from_indiv_OBJECTS)
@@ -626,6 +752,7 @@ SOURCES = $(ancstats_SOURCES) $(ancstats_debug_SOURCES) \
 	$(create_eps_SOURCES) $(create_eps_debug_SOURCES) \
 	$(extract_SOURCES) $(extract_debug_SOURCES) \
 	$(fixed_mutations_SOURCES) $(fixed_mutations_debug_SOURCES) \
+	$(genome_stats_SOURCES) $(genome_stats_debug_SOURCES) \
 	$(get_best_indiv_SOURCES) $(get_best_indiv_debug_SOURCES) \
 	$(lineage_SOURCES) $(lineage_debug_SOURCES) \
 	$(mutagenesis_SOURCES) $(mutagenesis_debug_SOURCES) \
@@ -633,9 +760,12 @@ SOURCES = $(ancstats_SOURCES) $(ancstats_debug_SOURCES) \
 	$(rcreate_eps_SOURCES) $(rcreate_eps_debug_SOURCES) \
 	$(rextract_SOURCES) $(rextract_debug_SOURCES) \
 	$(rfixed_mutations_SOURCES) $(rfixed_mutations_debug_SOURCES) \
+	$(rgenome_stats_SOURCES) $(rgenome_stats_debug_SOURCES) \
 	$(rget_best_indiv_SOURCES) $(rget_best_indiv_debug_SOURCES) \
 	$(rlineage_SOURCES) $(rlineage_debug_SOURCES) \
 	$(rmutagenesis_SOURCES) $(rmutagenesis_debug_SOURCES) \
+	$(robustness_SOURCES) $(robustness_debug_SOURCES) \
+	$(rrobustness_SOURCES) $(rrobustness_debug_SOURCES) \
 	$(rset_genome_from_indiv_SOURCES) \
 	$(rset_genome_from_indiv_debug_SOURCES) \
 	$(rview_generation_SOURCES) $(rview_generation_debug_SOURCES) \
@@ -646,6 +776,7 @@ DIST_SOURCES = $(ancstats_SOURCES) $(ancstats_debug_SOURCES) \
 	$(create_eps_SOURCES) $(create_eps_debug_SOURCES) \
 	$(extract_SOURCES) $(extract_debug_SOURCES) \
 	$(fixed_mutations_SOURCES) $(fixed_mutations_debug_SOURCES) \
+	$(genome_stats_SOURCES) $(genome_stats_debug_SOURCES) \
 	$(get_best_indiv_SOURCES) $(get_best_indiv_debug_SOURCES) \
 	$(lineage_SOURCES) $(lineage_debug_SOURCES) \
 	$(mutagenesis_SOURCES) $(mutagenesis_debug_SOURCES) \
@@ -653,9 +784,12 @@ DIST_SOURCES = $(ancstats_SOURCES) $(ancstats_debug_SOURCES) \
 	$(rcreate_eps_SOURCES) $(rcreate_eps_debug_SOURCES) \
 	$(rextract_SOURCES) $(rextract_debug_SOURCES) \
 	$(rfixed_mutations_SOURCES) $(rfixed_mutations_debug_SOURCES) \
+	$(rgenome_stats_SOURCES) $(rgenome_stats_debug_SOURCES) \
 	$(rget_best_indiv_SOURCES) $(rget_best_indiv_debug_SOURCES) \
 	$(rlineage_SOURCES) $(rlineage_debug_SOURCES) \
 	$(rmutagenesis_SOURCES) $(rmutagenesis_debug_SOURCES) \
+	$(robustness_SOURCES) $(robustness_debug_SOURCES) \
+	$(rrobustness_SOURCES) $(rrobustness_debug_SOURCES) \
 	$(rset_genome_from_indiv_SOURCES) \
 	$(rset_genome_from_indiv_debug_SOURCES) \
 	$(rview_generation_SOURCES) $(rview_generation_debug_SOURCES) \
@@ -833,6 +967,18 @@ rfixed_mutations_CPPFLAGS = $(AM_CPPFLAGS)
 rfixed_mutations_debugdir = $(bindir)
 rfixed_mutations_debug_SOURCES = fixed_mutations.cpp
 rfixed_mutations_debug_CPPFLAGS = $(AM_CPPFLAGS)
+genome_statsdir = $(bindir)
+genome_stats_SOURCES = genome_stats.cpp
+genome_stats_CPPFLAGS = $(AM_CPPFLAGS)
+genome_stats_debugdir = $(bindir)
+genome_stats_debug_SOURCES = genome_stats.cpp
+genome_stats_debug_CPPFLAGS = $(AM_CPPFLAGS)
+rgenome_statsdir = $(bindir)
+rgenome_stats_SOURCES = genome_stats.cpp
+rgenome_stats_CPPFLAGS = $(AM_CPPFLAGS)
+rgenome_stats_debugdir = $(bindir)
+rgenome_stats_debug_SOURCES = genome_stats.cpp
+rgenome_stats_debug_CPPFLAGS = $(AM_CPPFLAGS)
 get_best_indivdir = $(bindir)
 get_best_indiv_SOURCES = get_best_indiv.cpp
 get_best_indiv_CPPFLAGS = $(AM_CPPFLAGS)
@@ -869,6 +1015,18 @@ rmutagenesis_CPPFLAGS = $(AM_CPPFLAGS)
 rmutagenesis_debugdir = $(bindir)
 rmutagenesis_debug_SOURCES = mutagenesis.cpp
 rmutagenesis_debug_CPPFLAGS = $(AM_CPPFLAGS)
+robustnessdir = $(bindir)
+robustness_SOURCES = robustness.cpp
+robustness_CPPFLAGS = $(AM_CPPFLAGS)
+robustness_debugdir = $(bindir)
+robustness_debug_SOURCES = robustness.cpp
+robustness_debug_CPPFLAGS = $(AM_CPPFLAGS)
+rrobustnessdir = $(bindir)
+rrobustness_SOURCES = robustness.cpp
+rrobustness_CPPFLAGS = $(AM_CPPFLAGS)
+rrobustness_debugdir = $(bindir)
+rrobustness_debug_SOURCES = robustness.cpp
+rrobustness_debug_CPPFLAGS = $(AM_CPPFLAGS)
 set_genome_from_indivdir = $(bindir)
 set_genome_from_indiv_SOURCES = set_genome_from_indiv.cpp
 set_genome_from_indiv_CPPFLAGS = $(AM_CPPFLAGS)
@@ -988,6 +1146,12 @@ fixed_mutations$(EXEEXT): $(fixed_mutations_OBJECTS) $(fixed_mutations_DEPENDENC
 fixed_mutations_debug$(EXEEXT): $(fixed_mutations_debug_OBJECTS) $(fixed_mutations_debug_DEPENDENCIES) 
 	@rm -f fixed_mutations_debug$(EXEEXT)
 	$(CXXLINK) $(fixed_mutations_debug_OBJECTS) $(fixed_mutations_debug_LDADD) $(LIBS)
+genome_stats$(EXEEXT): $(genome_stats_OBJECTS) $(genome_stats_DEPENDENCIES) 
+	@rm -f genome_stats$(EXEEXT)
+	$(CXXLINK) $(genome_stats_OBJECTS) $(genome_stats_LDADD) $(LIBS)
+genome_stats_debug$(EXEEXT): $(genome_stats_debug_OBJECTS) $(genome_stats_debug_DEPENDENCIES) 
+	@rm -f genome_stats_debug$(EXEEXT)
+	$(CXXLINK) $(genome_stats_debug_OBJECTS) $(genome_stats_debug_LDADD) $(LIBS)
 get_best_indiv$(EXEEXT): $(get_best_indiv_OBJECTS) $(get_best_indiv_DEPENDENCIES) 
 	@rm -f get_best_indiv$(EXEEXT)
 	$(CXXLINK) $(get_best_indiv_OBJECTS) $(get_best_indiv_LDADD) $(LIBS)
@@ -1030,6 +1194,12 @@ rfixed_mutations$(EXEEXT): $(rfixed_mutations_OBJECTS) $(rfixed_mutations_DEPEND
 rfixed_mutations_debug$(EXEEXT): $(rfixed_mutations_debug_OBJECTS) $(rfixed_mutations_debug_DEPENDENCIES) 
 	@rm -f rfixed_mutations_debug$(EXEEXT)
 	$(CXXLINK) $(rfixed_mutations_debug_OBJECTS) $(rfixed_mutations_debug_LDADD) $(LIBS)
+rgenome_stats$(EXEEXT): $(rgenome_stats_OBJECTS) $(rgenome_stats_DEPENDENCIES) 
+	@rm -f rgenome_stats$(EXEEXT)
+	$(CXXLINK) $(rgenome_stats_OBJECTS) $(rgenome_stats_LDADD) $(LIBS)
+rgenome_stats_debug$(EXEEXT): $(rgenome_stats_debug_OBJECTS) $(rgenome_stats_debug_DEPENDENCIES) 
+	@rm -f rgenome_stats_debug$(EXEEXT)
+	$(CXXLINK) $(rgenome_stats_debug_OBJECTS) $(rgenome_stats_debug_LDADD) $(LIBS)
 rget_best_indiv$(EXEEXT): $(rget_best_indiv_OBJECTS) $(rget_best_indiv_DEPENDENCIES) 
 	@rm -f rget_best_indiv$(EXEEXT)
 	$(CXXLINK) $(rget_best_indiv_OBJECTS) $(rget_best_indiv_LDADD) $(LIBS)
@@ -1048,6 +1218,18 @@ rmutagenesis$(EXEEXT): $(rmutagenesis_OBJECTS) $(rmutagenesis_DEPENDENCIES)
 rmutagenesis_debug$(EXEEXT): $(rmutagenesis_debug_OBJECTS) $(rmutagenesis_debug_DEPENDENCIES) 
 	@rm -f rmutagenesis_debug$(EXEEXT)
 	$(CXXLINK) $(rmutagenesis_debug_OBJECTS) $(rmutagenesis_debug_LDADD) $(LIBS)
+robustness$(EXEEXT): $(robustness_OBJECTS) $(robustness_DEPENDENCIES) 
+	@rm -f robustness$(EXEEXT)
+	$(CXXLINK) $(robustness_OBJECTS) $(robustness_LDADD) $(LIBS)
+robustness_debug$(EXEEXT): $(robustness_debug_OBJECTS) $(robustness_debug_DEPENDENCIES) 
+	@rm -f robustness_debug$(EXEEXT)
+	$(CXXLINK) $(robustness_debug_OBJECTS) $(robustness_debug_LDADD) $(LIBS)
+rrobustness$(EXEEXT): $(rrobustness_OBJECTS) $(rrobustness_DEPENDENCIES) 
+	@rm -f rrobustness$(EXEEXT)
+	$(CXXLINK) $(rrobustness_OBJECTS) $(rrobustness_LDADD) $(LIBS)
+rrobustness_debug$(EXEEXT): $(rrobustness_debug_OBJECTS) $(rrobustness_debug_DEPENDENCIES) 
+	@rm -f rrobustness_debug$(EXEEXT)
+	$(CXXLINK) $(rrobustness_debug_OBJECTS) $(rrobustness_debug_LDADD) $(LIBS)
 rset_genome_from_indiv$(EXEEXT): $(rset_genome_from_indiv_OBJECTS) $(rset_genome_from_indiv_DEPENDENCIES) 
 	@rm -f rset_genome_from_indiv$(EXEEXT)
 	$(CXXLINK) $(rset_genome_from_indiv_OBJECTS) $(rset_genome_from_indiv_LDADD) $(LIBS)
@@ -1087,6 +1269,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/extract_debug-extract.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fixed_mutations-fixed_mutations.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fixed_mutations_debug-fixed_mutations.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/genome_stats-genome_stats.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/genome_stats_debug-genome_stats.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/get_best_indiv-get_best_indiv.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/get_best_indiv_debug-get_best_indiv.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lineage-lineage.Po@am__quote@
@@ -1101,12 +1285,18 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rextract_debug-extract.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rfixed_mutations-fixed_mutations.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rfixed_mutations_debug-fixed_mutations.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rgenome_stats-genome_stats.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rgenome_stats_debug-genome_stats.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rget_best_indiv-get_best_indiv.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rget_best_indiv_debug-get_best_indiv.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rlineage-lineage.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rlineage_debug-lineage.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rmutagenesis-mutagenesis.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rmutagenesis_debug-mutagenesis.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/robustness-robustness.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/robustness_debug-robustness.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rrobustness-robustness.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rrobustness_debug-robustness.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rset_genome_from_indiv-set_genome_from_indiv.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rset_genome_from_indiv_debug-set_genome_from_indiv.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rview_generation-view_generation.Po@am__quote@
@@ -1241,6 +1431,34 @@ fixed_mutations_debug-fixed_mutations.obj: fixed_mutations.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='fixed_mutations.cpp' object='fixed_mutations_debug-fixed_mutations.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(fixed_mutations_debug_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o fixed_mutations_debug-fixed_mutations.obj `if test -f 'fixed_mutations.cpp'; then $(CYGPATH_W) 'fixed_mutations.cpp'; else $(CYGPATH_W) '$(srcdir)/fixed_mutations.cpp'; fi`
+
+genome_stats-genome_stats.o: genome_stats.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(genome_stats_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT genome_stats-genome_stats.o -MD -MP -MF $(DEPDIR)/genome_stats-genome_stats.Tpo -c -o genome_stats-genome_stats.o `test -f 'genome_stats.cpp' || echo '$(srcdir)/'`genome_stats.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/genome_stats-genome_stats.Tpo $(DEPDIR)/genome_stats-genome_stats.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='genome_stats.cpp' object='genome_stats-genome_stats.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(genome_stats_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o genome_stats-genome_stats.o `test -f 'genome_stats.cpp' || echo '$(srcdir)/'`genome_stats.cpp
+
+genome_stats-genome_stats.obj: genome_stats.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(genome_stats_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT genome_stats-genome_stats.obj -MD -MP -MF $(DEPDIR)/genome_stats-genome_stats.Tpo -c -o genome_stats-genome_stats.obj `if test -f 'genome_stats.cpp'; then $(CYGPATH_W) 'genome_stats.cpp'; else $(CYGPATH_W) '$(srcdir)/genome_stats.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/genome_stats-genome_stats.Tpo $(DEPDIR)/genome_stats-genome_stats.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='genome_stats.cpp' object='genome_stats-genome_stats.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(genome_stats_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o genome_stats-genome_stats.obj `if test -f 'genome_stats.cpp'; then $(CYGPATH_W) 'genome_stats.cpp'; else $(CYGPATH_W) '$(srcdir)/genome_stats.cpp'; fi`
+
+genome_stats_debug-genome_stats.o: genome_stats.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(genome_stats_debug_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT genome_stats_debug-genome_stats.o -MD -MP -MF $(DEPDIR)/genome_stats_debug-genome_stats.Tpo -c -o genome_stats_debug-genome_stats.o `test -f 'genome_stats.cpp' || echo '$(srcdir)/'`genome_stats.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/genome_stats_debug-genome_stats.Tpo $(DEPDIR)/genome_stats_debug-genome_stats.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='genome_stats.cpp' object='genome_stats_debug-genome_stats.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(genome_stats_debug_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o genome_stats_debug-genome_stats.o `test -f 'genome_stats.cpp' || echo '$(srcdir)/'`genome_stats.cpp
+
+genome_stats_debug-genome_stats.obj: genome_stats.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(genome_stats_debug_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT genome_stats_debug-genome_stats.obj -MD -MP -MF $(DEPDIR)/genome_stats_debug-genome_stats.Tpo -c -o genome_stats_debug-genome_stats.obj `if test -f 'genome_stats.cpp'; then $(CYGPATH_W) 'genome_stats.cpp'; else $(CYGPATH_W) '$(srcdir)/genome_stats.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/genome_stats_debug-genome_stats.Tpo $(DEPDIR)/genome_stats_debug-genome_stats.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='genome_stats.cpp' object='genome_stats_debug-genome_stats.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(genome_stats_debug_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o genome_stats_debug-genome_stats.obj `if test -f 'genome_stats.cpp'; then $(CYGPATH_W) 'genome_stats.cpp'; else $(CYGPATH_W) '$(srcdir)/genome_stats.cpp'; fi`
 
 get_best_indiv-get_best_indiv.o: get_best_indiv.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(get_best_indiv_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT get_best_indiv-get_best_indiv.o -MD -MP -MF $(DEPDIR)/get_best_indiv-get_best_indiv.Tpo -c -o get_best_indiv-get_best_indiv.o `test -f 'get_best_indiv.cpp' || echo '$(srcdir)/'`get_best_indiv.cpp
@@ -1438,6 +1656,34 @@ rfixed_mutations_debug-fixed_mutations.obj: fixed_mutations.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(rfixed_mutations_debug_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o rfixed_mutations_debug-fixed_mutations.obj `if test -f 'fixed_mutations.cpp'; then $(CYGPATH_W) 'fixed_mutations.cpp'; else $(CYGPATH_W) '$(srcdir)/fixed_mutations.cpp'; fi`
 
+rgenome_stats-genome_stats.o: genome_stats.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(rgenome_stats_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT rgenome_stats-genome_stats.o -MD -MP -MF $(DEPDIR)/rgenome_stats-genome_stats.Tpo -c -o rgenome_stats-genome_stats.o `test -f 'genome_stats.cpp' || echo '$(srcdir)/'`genome_stats.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/rgenome_stats-genome_stats.Tpo $(DEPDIR)/rgenome_stats-genome_stats.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='genome_stats.cpp' object='rgenome_stats-genome_stats.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(rgenome_stats_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o rgenome_stats-genome_stats.o `test -f 'genome_stats.cpp' || echo '$(srcdir)/'`genome_stats.cpp
+
+rgenome_stats-genome_stats.obj: genome_stats.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(rgenome_stats_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT rgenome_stats-genome_stats.obj -MD -MP -MF $(DEPDIR)/rgenome_stats-genome_stats.Tpo -c -o rgenome_stats-genome_stats.obj `if test -f 'genome_stats.cpp'; then $(CYGPATH_W) 'genome_stats.cpp'; else $(CYGPATH_W) '$(srcdir)/genome_stats.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/rgenome_stats-genome_stats.Tpo $(DEPDIR)/rgenome_stats-genome_stats.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='genome_stats.cpp' object='rgenome_stats-genome_stats.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(rgenome_stats_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o rgenome_stats-genome_stats.obj `if test -f 'genome_stats.cpp'; then $(CYGPATH_W) 'genome_stats.cpp'; else $(CYGPATH_W) '$(srcdir)/genome_stats.cpp'; fi`
+
+rgenome_stats_debug-genome_stats.o: genome_stats.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(rgenome_stats_debug_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT rgenome_stats_debug-genome_stats.o -MD -MP -MF $(DEPDIR)/rgenome_stats_debug-genome_stats.Tpo -c -o rgenome_stats_debug-genome_stats.o `test -f 'genome_stats.cpp' || echo '$(srcdir)/'`genome_stats.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/rgenome_stats_debug-genome_stats.Tpo $(DEPDIR)/rgenome_stats_debug-genome_stats.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='genome_stats.cpp' object='rgenome_stats_debug-genome_stats.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(rgenome_stats_debug_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o rgenome_stats_debug-genome_stats.o `test -f 'genome_stats.cpp' || echo '$(srcdir)/'`genome_stats.cpp
+
+rgenome_stats_debug-genome_stats.obj: genome_stats.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(rgenome_stats_debug_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT rgenome_stats_debug-genome_stats.obj -MD -MP -MF $(DEPDIR)/rgenome_stats_debug-genome_stats.Tpo -c -o rgenome_stats_debug-genome_stats.obj `if test -f 'genome_stats.cpp'; then $(CYGPATH_W) 'genome_stats.cpp'; else $(CYGPATH_W) '$(srcdir)/genome_stats.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/rgenome_stats_debug-genome_stats.Tpo $(DEPDIR)/rgenome_stats_debug-genome_stats.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='genome_stats.cpp' object='rgenome_stats_debug-genome_stats.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(rgenome_stats_debug_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o rgenome_stats_debug-genome_stats.obj `if test -f 'genome_stats.cpp'; then $(CYGPATH_W) 'genome_stats.cpp'; else $(CYGPATH_W) '$(srcdir)/genome_stats.cpp'; fi`
+
 rget_best_indiv-get_best_indiv.o: get_best_indiv.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(rget_best_indiv_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT rget_best_indiv-get_best_indiv.o -MD -MP -MF $(DEPDIR)/rget_best_indiv-get_best_indiv.Tpo -c -o rget_best_indiv-get_best_indiv.o `test -f 'get_best_indiv.cpp' || echo '$(srcdir)/'`get_best_indiv.cpp
 @am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/rget_best_indiv-get_best_indiv.Tpo $(DEPDIR)/rget_best_indiv-get_best_indiv.Po
@@ -1521,6 +1767,62 @@ rmutagenesis_debug-mutagenesis.obj: mutagenesis.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='mutagenesis.cpp' object='rmutagenesis_debug-mutagenesis.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(rmutagenesis_debug_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o rmutagenesis_debug-mutagenesis.obj `if test -f 'mutagenesis.cpp'; then $(CYGPATH_W) 'mutagenesis.cpp'; else $(CYGPATH_W) '$(srcdir)/mutagenesis.cpp'; fi`
+
+robustness-robustness.o: robustness.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(robustness_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT robustness-robustness.o -MD -MP -MF $(DEPDIR)/robustness-robustness.Tpo -c -o robustness-robustness.o `test -f 'robustness.cpp' || echo '$(srcdir)/'`robustness.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/robustness-robustness.Tpo $(DEPDIR)/robustness-robustness.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='robustness.cpp' object='robustness-robustness.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(robustness_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o robustness-robustness.o `test -f 'robustness.cpp' || echo '$(srcdir)/'`robustness.cpp
+
+robustness-robustness.obj: robustness.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(robustness_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT robustness-robustness.obj -MD -MP -MF $(DEPDIR)/robustness-robustness.Tpo -c -o robustness-robustness.obj `if test -f 'robustness.cpp'; then $(CYGPATH_W) 'robustness.cpp'; else $(CYGPATH_W) '$(srcdir)/robustness.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/robustness-robustness.Tpo $(DEPDIR)/robustness-robustness.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='robustness.cpp' object='robustness-robustness.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(robustness_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o robustness-robustness.obj `if test -f 'robustness.cpp'; then $(CYGPATH_W) 'robustness.cpp'; else $(CYGPATH_W) '$(srcdir)/robustness.cpp'; fi`
+
+robustness_debug-robustness.o: robustness.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(robustness_debug_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT robustness_debug-robustness.o -MD -MP -MF $(DEPDIR)/robustness_debug-robustness.Tpo -c -o robustness_debug-robustness.o `test -f 'robustness.cpp' || echo '$(srcdir)/'`robustness.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/robustness_debug-robustness.Tpo $(DEPDIR)/robustness_debug-robustness.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='robustness.cpp' object='robustness_debug-robustness.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(robustness_debug_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o robustness_debug-robustness.o `test -f 'robustness.cpp' || echo '$(srcdir)/'`robustness.cpp
+
+robustness_debug-robustness.obj: robustness.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(robustness_debug_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT robustness_debug-robustness.obj -MD -MP -MF $(DEPDIR)/robustness_debug-robustness.Tpo -c -o robustness_debug-robustness.obj `if test -f 'robustness.cpp'; then $(CYGPATH_W) 'robustness.cpp'; else $(CYGPATH_W) '$(srcdir)/robustness.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/robustness_debug-robustness.Tpo $(DEPDIR)/robustness_debug-robustness.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='robustness.cpp' object='robustness_debug-robustness.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(robustness_debug_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o robustness_debug-robustness.obj `if test -f 'robustness.cpp'; then $(CYGPATH_W) 'robustness.cpp'; else $(CYGPATH_W) '$(srcdir)/robustness.cpp'; fi`
+
+rrobustness-robustness.o: robustness.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(rrobustness_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT rrobustness-robustness.o -MD -MP -MF $(DEPDIR)/rrobustness-robustness.Tpo -c -o rrobustness-robustness.o `test -f 'robustness.cpp' || echo '$(srcdir)/'`robustness.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/rrobustness-robustness.Tpo $(DEPDIR)/rrobustness-robustness.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='robustness.cpp' object='rrobustness-robustness.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(rrobustness_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o rrobustness-robustness.o `test -f 'robustness.cpp' || echo '$(srcdir)/'`robustness.cpp
+
+rrobustness-robustness.obj: robustness.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(rrobustness_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT rrobustness-robustness.obj -MD -MP -MF $(DEPDIR)/rrobustness-robustness.Tpo -c -o rrobustness-robustness.obj `if test -f 'robustness.cpp'; then $(CYGPATH_W) 'robustness.cpp'; else $(CYGPATH_W) '$(srcdir)/robustness.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/rrobustness-robustness.Tpo $(DEPDIR)/rrobustness-robustness.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='robustness.cpp' object='rrobustness-robustness.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(rrobustness_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o rrobustness-robustness.obj `if test -f 'robustness.cpp'; then $(CYGPATH_W) 'robustness.cpp'; else $(CYGPATH_W) '$(srcdir)/robustness.cpp'; fi`
+
+rrobustness_debug-robustness.o: robustness.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(rrobustness_debug_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT rrobustness_debug-robustness.o -MD -MP -MF $(DEPDIR)/rrobustness_debug-robustness.Tpo -c -o rrobustness_debug-robustness.o `test -f 'robustness.cpp' || echo '$(srcdir)/'`robustness.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/rrobustness_debug-robustness.Tpo $(DEPDIR)/rrobustness_debug-robustness.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='robustness.cpp' object='rrobustness_debug-robustness.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(rrobustness_debug_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o rrobustness_debug-robustness.o `test -f 'robustness.cpp' || echo '$(srcdir)/'`robustness.cpp
+
+rrobustness_debug-robustness.obj: robustness.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(rrobustness_debug_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT rrobustness_debug-robustness.obj -MD -MP -MF $(DEPDIR)/rrobustness_debug-robustness.Tpo -c -o rrobustness_debug-robustness.obj `if test -f 'robustness.cpp'; then $(CYGPATH_W) 'robustness.cpp'; else $(CYGPATH_W) '$(srcdir)/robustness.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/rrobustness_debug-robustness.Tpo $(DEPDIR)/rrobustness_debug-robustness.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='robustness.cpp' object='rrobustness_debug-robustness.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(rrobustness_debug_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o rrobustness_debug-robustness.obj `if test -f 'robustness.cpp'; then $(CYGPATH_W) 'robustness.cpp'; else $(CYGPATH_W) '$(srcdir)/robustness.cpp'; fi`
 
 rset_genome_from_indiv-set_genome_from_indiv.o: set_genome_from_indiv.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(rset_genome_from_indiv_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT rset_genome_from_indiv-set_genome_from_indiv.o -MD -MP -MF $(DEPDIR)/rset_genome_from_indiv-set_genome_from_indiv.Tpo -c -o rset_genome_from_indiv-set_genome_from_indiv.o `test -f 'set_genome_from_indiv.cpp' || echo '$(srcdir)/'`set_genome_from_indiv.cpp

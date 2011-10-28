@@ -123,6 +123,11 @@ class ae_genetic_unit : public ae_object
     inline int32_t  get_nb_bases_non_essential( void );
     inline int32_t  get_nb_bases_non_essential_including_nf_genes( void );
     
+    inline int32_t  get_nb_bases_in_neutral_regions( void );
+    inline int32_t  get_nb_neutral_regions( void );
+    inline int32_t* get_beginning_neutral_regions( void );
+    inline int32_t* get_end_neutral_regions( void );
+    
     inline double   get_modularity( void )                        const;
 
     inline double   get_dist_to_target_by_feature( ae_env_axis_feature feature )  const;
@@ -308,6 +313,12 @@ class ae_genetic_unit : public ae_object
     
     int32_t _nb_bases_non_essential;                    // Number of bases that are not included in any non-degenerated gene or involved in its expression
     int32_t _nb_bases_non_essential_including_nf_genes; // Number of bases that are not included in any gene or involved in its expression
+    int32_t _nb_bases_in_neutral_regions;   // Number of bases that are not included in a neutral region
+                                            // A base is considered neutral when neither itself NOR its corresponding base on the other
+                                            // strand belongs to a coding promoter->terminator region (both included)
+    int32_t _nb_neutral_regions;            // Number of neutral regions
+    int32_t* _beginning_neutral_regions;    // Beginning of neutral regions
+    int32_t* _end_neutral_regions;          // Corresponding ends of neutral regions
 
     double  _modularity;  // Ratio between the pairwise distance between genes whose corresponding
                           // phenotypic triangles overlap and the average intergenic distance 
@@ -512,6 +523,30 @@ inline int32_t ae_genetic_unit::get_nb_bases_non_essential_including_nf_genes( v
 {
   if ( ! _non_coding_computed ) compute_non_coding();
   return _nb_bases_non_essential_including_nf_genes;
+}
+
+inline int32_t ae_genetic_unit::get_nb_bases_in_neutral_regions( void )
+{
+  if ( ! _non_coding_computed ) compute_non_coding();
+  return _nb_bases_in_neutral_regions;
+}
+
+inline int32_t ae_genetic_unit::get_nb_neutral_regions( void )
+{
+  if ( ! _non_coding_computed ) compute_non_coding();
+  return _nb_neutral_regions;
+}
+
+inline int32_t* ae_genetic_unit::get_beginning_neutral_regions( void )
+{
+  if ( ! _non_coding_computed ) compute_non_coding();
+  return _beginning_neutral_regions;
+}
+
+inline int32_t* ae_genetic_unit::get_end_neutral_regions( void )
+{
+  if ( ! _non_coding_computed ) compute_non_coding();
+  return _end_neutral_regions;
 }
 
 inline double ae_genetic_unit::get_modularity( void ) const

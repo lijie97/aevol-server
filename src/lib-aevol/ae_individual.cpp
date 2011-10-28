@@ -191,6 +191,8 @@ ae_individual::ae_individual( void )
   _nb_bases_in_0_RNA                  = -1;
   _nb_bases_in_0_coding_RNA           = -1;
   _nb_bases_in_0_non_coding_RNA       = -1;
+  _nb_bases_in_neutral_regions        = -1;
+  _nb_neutral_regions                 = -1;
   
   _modularity = -1;
 }
@@ -285,7 +287,9 @@ ae_individual::ae_individual( const ae_individual &model )
   _nb_bases_in_0_RNA                  = model._nb_bases_in_0_RNA;
   _nb_bases_in_0_coding_RNA           = model._nb_bases_in_0_coding_RNA;
   _nb_bases_in_0_non_coding_RNA       = model._nb_bases_in_0_non_coding_RNA;
-  
+  _nb_bases_in_neutral_regions        = model._nb_bases_in_neutral_regions;
+  _nb_neutral_regions                 = model._nb_neutral_regions;
+
   _modularity = model._modularity;
   
   // We don't copy the generation report
@@ -410,7 +414,9 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t index )
   _nb_bases_in_0_RNA                  = -1;
   _nb_bases_in_0_coding_RNA           = -1;
   _nb_bases_in_0_non_coding_RNA       = -1;
-  
+  _nb_bases_in_neutral_regions        = -1;
+  _nb_neutral_regions                 = -1;
+
   _modularity = -1;
 }
 
@@ -528,6 +534,8 @@ ae_individual::ae_individual( gzFile* backup_file )
   _nb_bases_in_0_RNA                  = -1;
   _nb_bases_in_0_coding_RNA           = -1;
   _nb_bases_in_0_non_coding_RNA       = -1;
+  _nb_bases_in_neutral_regions        = -1;
+  _nb_neutral_regions                 = -1;
   
   _modularity = -1;
 }
@@ -812,9 +820,6 @@ void ae_individual::reevaluate( ae_environment* envir )
   // ancestors
 
   _evaluated                    = false;
-  _transcribed                  = false;
-  _translated                   = false;
-  _folded                       = false;
   _phenotype_computed           = false;
   _distance_to_target_computed  = false;
   _fitness_computed             = false;
@@ -924,6 +929,8 @@ void ae_individual::reevaluate( ae_environment* envir )
   _nb_bases_in_0_RNA                  = -1;
   _nb_bases_in_0_coding_RNA           = -1;
   _nb_bases_in_0_non_coding_RNA       = -1;
+  _nb_bases_in_neutral_regions        = -1;
+  _nb_neutral_regions                 = -1;
   
   _modularity = -1;
 
@@ -1027,7 +1034,9 @@ void ae_individual::compute_non_coding( void )
   _nb_bases_in_0_RNA                  = 0;
   _nb_bases_in_0_coding_RNA           = 0;
   _nb_bases_in_0_non_coding_RNA       = 0;
-  
+  _nb_bases_in_neutral_regions        = 0;
+  _nb_neutral_regions                 = 0;
+
   ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
   ae_genetic_unit*  gen_unit;
   
@@ -1041,7 +1050,8 @@ void ae_individual::compute_non_coding( void )
     _nb_bases_in_0_RNA                  += gen_unit->get_nb_bases_in_0_RNA();
     _nb_bases_in_0_coding_RNA           += gen_unit->get_nb_bases_in_0_coding_RNA();
     _nb_bases_in_0_non_coding_RNA       += gen_unit->get_nb_bases_in_0_non_coding_RNA();
-    
+    _nb_bases_in_neutral_regions        += gen_unit->get_nb_bases_in_neutral_regions();
+    _nb_neutral_regions                 += gen_unit->get_nb_neutral_regions();
     gen_unit_node = gen_unit_node->get_next();
   }
 }
@@ -1306,6 +1316,107 @@ int32_t ae_individual::get_nb_terminators( void )
   }
   
   return nb_term;
+}
+
+double ae_individual::compute_experimental_f_nu( int32_t nb_children, double* neutral_or_better /*=NULL*/ )
+{
+  double initial_fitness = get_fitness();
+  double Fv = 0;
+  if ( neutral_or_better != NULL ) { *neutral_or_better = 0; }
+
+  // ------------------------------------------
+  //      Simulate fitness degradation
+  // ------------------------------------------
+	      
+  double fitness_child = 0;
+	      
+  // replicate this individual to create 'nb_children' children 
+  ae_individual * child = NULL;
+  for (int i = 0; i < nb_children; i++)
+    {
+      child = ae_common::sim->get_pop()->do_replication(this, _index_in_population); 
+      fitness_child = child->get_fitness(); // child is automatically evaluated
+      //count neutral offspring
+      if ( fabs(initial_fitness - fitness_child) < 1e-15 )
+      { 
+	Fv += 1; 
+	if ( neutral_or_better != NULL ) { *neutral_or_better += 1; }
+      }
+      else if ( (neutral_or_better != NULL) && (fitness_child > initial_fitness) )
+      {
+	*neutral_or_better += 1;
+      }
+      delete child;
+    }
+  //compute Fv
+  Fv /= nb_children;
+  if ( neutral_or_better != NULL ) { *neutral_or_better /= nb_children; }
+ 
+  return Fv;
+}
+
+double ae_individual::compute_theoritical_f_nu( void )
+{
+  // We first have to collect information about genome structure.
+  // Abbreviations are chosen according to Carole's formula.
+  // Please notice that compared to the formula we have the beginning
+  // and ends of neutral regions instead of 'functional regions'
+  ae_genetic_unit* chromosome = (ae_genetic_unit*) get_genetic_unit_list()->get_first()->get_obj();
+  int32_t L         = chromosome->get_dna()->get_length();
+  int32_t N_G       = chromosome->get_nb_neutral_regions(); // which is not exactly Carole's original definition
+  int32_t* b_i      = chromosome->get_beginning_neutral_regions();
+  int32_t* e_i      = chromosome->get_end_neutral_regions();
+  int32_t lambda    = chromosome->get_nb_bases_in_neutral_regions();
+  int32_t l         = L - lambda; // nb bases in 'functional regions'
+  
+  int32_t* lambda_i = NULL;  // nb bases in ith neutral region
+  if ( N_G > 0 ) // all the chromosome may be functional
+  {
+    lambda_i = new int32_t [ N_G ];
+  
+    for ( int32_t i = 0; i < N_G - 1; i++)
+    {
+      lambda_i[i] = e_i[i] - b_i[i] + 1;
+    }
+    if ( b_i[N_G-1] > e_i[N_G-1] ) // last neutral region is overlapping on the beginning of chromosome
+    {
+      lambda_i[N_G-1] = ( e_i[N_G-1] + L ) - b_i[N_G-1] + 1;
+    }
+    else // no overlap
+    {
+      lambda_i[N_G-1] = e_i[N_G-1] - b_i[N_G-1] + 1;
+    }
+  }
+
+  // we now compute the probabilities of neutral reproduction for
+  // each type of mutation and rearrangement and update Fv
+  double Fv = 1;
+
+  // mutation + insertion + deletion
+  double nu_local_mutation = 1 - ((double) l)/L;
+  Fv  = pow( 1 - ae_common::point_mutation_rate  * ( 1 - nu_local_mutation ), L);
+  Fv *= pow( 1 - ae_common::small_insertion_rate * ( 1 - nu_local_mutation ), L);
+  Fv *= pow( 1 - ae_common::small_deletion_rate  * ( 1 - nu_local_mutation ), L);
+
+  // inversion ~ two local mutations
+  double nu_inversion = nu_local_mutation * nu_local_mutation;
+  Fv *= pow( 1 - ae_common::inversion_rate       * ( 1 - nu_inversion )     , L);
+
+  // translocation ~ inversion + insertion (mathematically)
+  Fv *= pow( 1 - ae_common::translocation_rate   * ( 1 - nu_inversion * nu_local_mutation ), L);
+
+  // long deletion
+  double nu_deletion = 0; // if N_G == 0, a deletion is always not neutral
+  for ( int32_t i = 0; i < N_G; i++) { nu_deletion += lambda_i[i] * (lambda_i[i] + 1); }
+  nu_deletion /= ((double) 2*L*L);
+  Fv *= pow( 1 - ae_common::deletion_rate        * ( 1 - nu_deletion )      , L);
+
+  // duplication ~ big deletion + insertion
+  Fv *= pow( 1 - ae_common::duplication_rate     * ( 1 - nu_deletion * nu_local_mutation ), L);
+  
+  if ( lambda_i != NULL ) delete [] lambda_i;
+
+  return Fv;
 }
 
 

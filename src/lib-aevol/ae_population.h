@@ -85,6 +85,8 @@ class ae_population : public ae_object
     ae_individual *         get_indiv_by_index( int32_t index ) const;
     inline ae_individual *  get_indiv_by_rank( int32_t rank )   const;
   
+    inline double*          get_prob_reprod( void );
+
     inline ae_grid_cell***  get_pop_grid( void );
     inline double**         get_secretion_present( void );
     inline double**         get_secreted_amount( void );
@@ -190,7 +192,12 @@ ae_individual * ae_population::get_indiv_by_rank( int32_t rank ) const
   return (ae_individual*) indiv_node->get_obj();
 }
 
-
+double* ae_population::get_prob_reprod( void )
+{
+  // TODO: check whether this line is relevant
+  if ( _prob_reprod == NULL ) compute_prob_reprod();
+  return _prob_reprod;
+}
 
 ae_grid_cell*** ae_population::get_pop_grid( void )
 {
