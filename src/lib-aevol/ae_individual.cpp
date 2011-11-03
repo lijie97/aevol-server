@@ -820,6 +820,9 @@ void ae_individual::reevaluate( ae_environment* envir )
   // ancestors
 
   _evaluated                    = false;
+  _transcribed                  = false;
+  _translated                   = false;
+  _folded                       = false;
   _phenotype_computed           = false;
   _distance_to_target_computed  = false;
   _fitness_computed             = false;
