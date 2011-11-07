@@ -55,9 +55,6 @@
 
 
 
-
-
-
 class ae_logs : public ae_object
 {
   public :

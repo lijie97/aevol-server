@@ -152,12 +152,12 @@ ae_simulation::ae_simulation( ae_param_overloader* param_overloader )
   // Write an entry in the LOADS log file
   if ( _logs->get_to_be_logged( LOG_LOADS ) == true )
   {
-    fprintf( _logs->get_log( LOG_LOADS ), "Simulation lauched\n" );
+    //fprintf( _logs->get_log( LOG_LOADS ), "Simulation lauched\n" );
     if ( param_overloader != NULL )
     {
-      fprintf( _logs->get_log( LOG_LOADS ), "  Overloaded parameters:\n" );
+      //fprintf( _logs->get_log( LOG_LOADS ), "  Overloaded parameters:\n" );
       param_overloader->write_log( _logs->get_log( LOG_LOADS ) );
-      fprintf( _logs->get_log( LOG_LOADS ), "\n" );
+      //fprintf( _logs->get_log( LOG_LOADS ), "\n" );
     }
     else
     {
@@ -386,10 +386,10 @@ ae_simulation::ae_simulation( char* backup_file_name, bool to_be_run /* = TRUE *
     if ( _logs->get_to_be_logged( LOG_LOADS ) == true )
     {
       // Write an entry in the LOADS log file
-      fprintf( _logs->get_log( LOG_LOADS ), "Population loaded from backup at generation %"PRId32"\n", _num_gener );
+      fprintf( _logs->get_log( LOG_LOADS ), "GENERATION_OVERLOAD %"PRId32"\n", _num_gener );
       if ( param_overloader->get_nb_overloaded() > 0 )
-      {
-        fprintf( _logs->get_log( LOG_LOADS ), "  Overloaded parameters:\n" );
+	  {
+        //fprintf( _logs->get_log( LOG_LOADS ), "  Overloaded parameters:\n" );
         param_overloader->write_log( _logs->get_log( LOG_LOADS ) );
         fprintf( _logs->get_log( LOG_LOADS ), "\n" );
       }
@@ -511,6 +511,9 @@ void ae_simulation::run( void )
       }
     }
   }
+  
+  _logs->flush();
+  _stats->flush();
   
   printf( "============================== %"PRId32" ==============================\n", _num_gener );
   printf( "  distance to target (metabolic) : %f\n", ((ae_individual *) _pop->get_indivs()->get_last()->get_obj())->get_dist_to_target_by_feature( METABOLISM ) );

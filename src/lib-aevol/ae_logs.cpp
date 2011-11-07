@@ -245,14 +245,14 @@ ae_logs::ae_logs( int32_t num_gener )
     }
     
     // Copy file headers
-    ret = fgets( line, 500, old_load_from_backup_log );
-    while ( !feof( old_load_from_backup_log ) && line[0] == '#' )
-    {
-      fputs( line, _load_from_backup_log );
-      ret = fgets( line, 500, old_load_from_backup_log );
-    }
+    //ret = fgets( line, 500, old_load_from_backup_log );
+    //while ( !feof( old_load_from_backup_log ) && line[0] == '#' )
+    //{
+    //  fputs( line, _load_from_backup_log );
+    //  ret = fgets( line, 500, old_load_from_backup_log );
+    //}
     // This is the empty line between the header and the values
-    fputs( line, _load_from_backup_log );
+    //fputs( line, _load_from_backup_log );
     
     // Copy log entries until num_gener (included)
     ret = fgets( line, 500, old_load_from_backup_log );
@@ -371,15 +371,16 @@ void ae_logs::write_headers( void ) const
   
   }
   
-  // ========== LOADS LOG ==========
-  if ( ae_common::logs & LOG_LOADS )
+  // ========== LOADS LOG ==========     
+  //No header because this file is used by post-treatment like ancstat, it's not meant to be human readable but has to be program readable.
+  /*if ( ae_common::logs & LOG_LOADS )
   {
     fprintf( _load_from_backup_log, "######################################################################\n" );
     fprintf( _load_from_backup_log, "#                     Load from backup log\n" );
     fprintf( _load_from_backup_log, "#\n" );
     fprintf( _load_from_backup_log, "# An entry is written whenever the simulation is reloaded from a backup.\n" );
     fprintf( _load_from_backup_log, "######################################################################\n" );
-  }
+  }*/
 }
 
 void ae_logs::flush( void )

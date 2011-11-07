@@ -104,8 +104,10 @@ void ae_param_overloader::overload_params( void ) const
 
 void ae_param_overloader::write_log( FILE* log_file ) const
 {
+  fprintf( log_file, "NB_PARAM_OVERLOADED %i\n", _nb_overloaded );
   for( int16_t i = 0 ; i < _nb_overloaded ; i++ )
   {
     fprintf( log_file, "    %s\n", _tokens_overloaded[i] );
   }
+  fprintf( log_file, "\n");
 }

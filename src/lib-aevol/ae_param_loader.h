@@ -120,6 +120,7 @@ typedef enum
   NB_HORIZONTAL_TRANS,
   COMPUTE_PHEN_CONTRIB_BY_GU,
   LOG,
+  GENERATION_OVERLOAD,
 
 #ifdef __REGUL
   HILL_SHAPE_N,
@@ -176,7 +177,8 @@ class ae_param_loader
     static void format_line( f_line*, char*, bool* );
     static void interpret_line( f_line* line, int32_t cur_line );
     void load( void );
-
+    
+    f_line* get_line( void ); 
     // =================================================================
     //                           Public Attributes
     // =================================================================
@@ -204,7 +206,9 @@ class ae_param_loader
     // =================================================================
     //                           Protected Methods
     // =================================================================
-    f_line* get_line( void );
+    //f_line* get_line( void );
+    
+    
 
     // =================================================================
     //                          Protected Attributes

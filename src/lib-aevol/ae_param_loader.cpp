@@ -83,6 +83,19 @@ ae_param_loader::ae_param_loader( void )
   cur_line = 0;
 }
 
+
+ae_param_loader::ae_param_loader( const char* file_name )
+{
+  param_in  = fopen( file_name,  "r" );
+  if ( param_in == NULL )
+  {
+    printf( "ERROR : couldn't open file %s\n", file_name );
+    exit( EXIT_FAILURE );
+  }
+  assert( param_in );
+  cur_line = 0;
+}
+
 // =================================================================
 //                             Destructors
 // =================================================================
@@ -1048,7 +1061,7 @@ ae_keywd f_line::get_keywd( void )
   if ( !strcmp( words[0], "NB_HORIZONTAL_TRANS" ) )         return NB_HORIZONTAL_TRANS;
   if ( !strcmp( words[0], "COMPUTE_PHEN_CONTRIB_BY_GU" ) )  return COMPUTE_PHEN_CONTRIB_BY_GU;
   if ( !strcmp( words[0], "LOG" ) )                         return LOG;
- 
+  if ( !strcmp( words[0], "GENERATION_OVERLOAD" ))          return GENERATION_OVERLOAD;
   #ifdef __REGUL
     if ( !strcmp( words[0], "HILL_SHAPE_N" ) )                return HILL_SHAPE_N;
     if ( !strcmp( words[0], "HILL_SHAPE_THETA" ) )            return HILL_SHAPE_THETA;

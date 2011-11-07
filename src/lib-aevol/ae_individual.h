@@ -101,6 +101,13 @@ class ae_individual : public ae_object
     
     inline int32_t          get_index_in_population( void ) const;
     inline void             set_index_in_population( int32_t index );
+    
+    inline double* 	    get_dist_to_target_segment( void ) const;
+    inline void 	    set_dist_to_target_segment( double * dist_to_target_segment );
+    inline void 	    new_dist_to_target_segment( void );
+    inline void 	    new_dist_to_target_by_feature( void );
+    inline void 	    new_fitness_by_feature( void );
+    
     inline int32_t          get_rank_in_population( void ) const;
     inline void             set_rank_in_population( int32_t rank );
     inline void             set_grid_cell( ae_grid_cell* grid_cell );
@@ -336,6 +343,36 @@ inline void ae_individual::set_index_in_population( int32_t index )
   {
     _replic_report->set_index( index );
   }
+}
+
+inline double* ae_individual::get_dist_to_target_segment( void ) const
+{
+  return _dist_to_target_segment;
+}
+
+inline void ae_individual::set_dist_to_target_segment( double * dist_to_target_segment )
+{
+  for ( int16_t i=0; i < ae_common::env_axis_nb_segments; i++)
+  {
+    _dist_to_target_segment[i] = dist_to_target_segment[i];
+  }
+}
+
+inline void ae_individual::new_dist_to_target_segment( void )
+{
+  _dist_to_target_segment = new double [ae_common::env_axis_nb_segments];
+}
+
+
+inline void ae_individual::new_dist_to_target_by_feature( void )
+{
+  _dist_to_target_by_feature = new double [NB_FEATURES];
+}
+
+
+inline void ae_individual::new_fitness_by_feature( void )
+{
+  _fitness_by_feature = new double [NB_FEATURES];
 }
 
 inline int32_t ae_individual::get_rank_in_population( void ) const

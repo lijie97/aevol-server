@@ -7,7 +7,7 @@ SEED                    7250909
 INITIAL_GENOME_LENGTH   5000
 INIT_POP_SIZE           1000
 INIT_METHOD             ONE_GOOD_GENE CLONE
-NB_GENER                10
+NB_GENER                500
 
 ##### 2. Selection ################
 SELECTION_SCHEME        fittest

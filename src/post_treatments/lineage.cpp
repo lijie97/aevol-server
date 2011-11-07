@@ -95,7 +95,7 @@ int main(int argc, char** argv)
   // OK si NORMAL, sortir si LIGHT
 
 
-  printf("\n  WARNING : Parameters' change in the middle of a simulation is not managed.\n");
+  printf("\n  WARNING : Parameters' change in the middle of a generation is not managed.\n");
  
 
   // =====================

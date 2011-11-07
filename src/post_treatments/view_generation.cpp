@@ -59,10 +59,10 @@
 
 
 void print_help( char* prog_name );
-
-
-
-
+void open_protein_list_file( void );
+void write_protein_list_file( ae_population * pop );
+FILE* protein_list_file     = NULL;
+int32_t end_gener;
 
 int main( int argc, char* argv[] )
 {
@@ -137,6 +137,22 @@ int main( int argc, char* argv[] )
 
   ae_list_node  * indiv_node = ((ae_common::sim->get_pop())->get_indivs())->get_first();
   ae_individual * indiv      = NULL;
+  ae_population * pop = ae_common::sim->get_pop();
+  
+  end_gener = 100;
+  int32_t size = 100;
+  char size_file_name[60];
+  FILE* size_file     = NULL;
+  char codant_file_name[60];
+  FILE* codant_file     = NULL;
+  
+  end_gener = atoi((const char*)&backup_file_name[11]);
+  open_protein_list_file();
+  snprintf( size_file_name, 60, "genome-size-e%06"PRId32, end_gener );
+  size_file = fopen( size_file_name, "w" );
+  
+  snprintf( codant_file_name, 60, "codant-size-e%06"PRId32, end_gener );
+  codant_file = fopen( codant_file_name, "w" );
 
 
   while( indiv_node != NULL )
@@ -151,10 +167,19 @@ int main( int argc, char* argv[] )
     // executed will be either ae_individual::evaluate() or
     // ae_individual_R::evaluate().
     indiv->evaluate( ae_common::sim->get_env() );
+    
+    size = indiv->get_total_genome_size();
+    fprintf( size_file, "%"PRId32"\n", size );
+    
+    size = indiv->get_overall_size_functional_genes();
+    fprintf( codant_file, "%"PRId32"\n", size );
 
     indiv_node = indiv_node->get_next();
   }
-
+  write_protein_list_file(pop);
+  fclose(size_file);
+  fclose(codant_file);
+  fclose(protein_list_file);
   printf( "done\n" );
 
 
@@ -179,8 +204,49 @@ int main( int argc, char* argv[] )
   return EXIT_SUCCESS;
 }
 
+void open_protein_list_file( void )
+{
+  // Open file
+  char prot_list_file_name[60];
 
+  snprintf( prot_list_file_name, 60, "view_generation_best-e%06"PRId32"_protein_list.out", end_gener );
+  protein_list_file = fopen( prot_list_file_name, "w" );
+  
+  // Write headers
+  fprintf( protein_list_file, "# Proteins of the best individual of generation %"PRId32"\n", end_gener );
+  fprintf( protein_list_file, "# 1:  Strand on which is the protein (0 = chromosome) \n" );
+  fprintf( protein_list_file, "# 2:  Shine-Dalgarno position \n" );
+  fprintf( protein_list_file, "# 3:  Mean \n" );
+  fprintf( protein_list_file, "# 4:  Half-width \n" );
+  fprintf( protein_list_file, "# 5:  Height \n" );
+  fprintf( protein_list_file, "# 6:  Length (number of codons) \n" );
+  fprintf( protein_list_file, "# 7:  Concentration \n" );
+  fprintf( protein_list_file, "# 8:  Whether the protein is functional (0 = False, 1 = True)\n" );
+  fprintf( protein_list_file, "# \n" );
+}
 
+void write_protein_list_file( ae_population * pop )
+{
+  ae_individual* indiv1     = pop->get_best();
+  // For each protein : Strand, Shine-Dal pos, mean, width, height, length, concentration, is-functionnal
+  ae_list_node * protnode  = indiv1->get_protein_list()->get_first();
+  ae_protein *  prot       = NULL;
+  while ( protnode != NULL )
+  {
+    prot = (ae_protein *) protnode->get_obj();
+    fprintf( protein_list_file, "%"PRId32" %d %f %f %f %d %f %d \n", prot->get_strand(), 
+									  prot->get_shine_dal_pos(), 
+									  prot->get_mean() ,
+									  prot->get_width(),
+									  prot->get_height(),
+									  prot->get_length(),
+									  prot->get_concentration(),
+									  prot->get_is_functional() );
+    protnode = protnode->get_next();
+  }
+  
+  fprintf( protein_list_file, "\n" );
+}
 
 void print_help( char* prog_name ) 
 {

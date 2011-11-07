@@ -121,6 +121,58 @@ ae_environment::ae_environment( gzFile* backup_file ) :
   _segments         = NULL;
   
   // Retreive gaussians
+  int16_t nb_gaussians_back;
+  gzread( backup_file, &nb_gaussians_back, sizeof(nb_gaussians_back) );
+  int16_t nb_gaussians = ae_common::env_gaussians.get_nb_elts();
+  if ( nb_gaussians == nb_gaussians_back )  //no change with back_up
+  {
+
+    printf( "    nb_gaussians : %d\n", nb_gaussians_back );
+  
+    _gaussians = new ae_list();
+    for ( int16_t i = 0 ; i < nb_gaussians_back ; i++ )
+    {
+      _gaussians->add( new ae_gaussian( backup_file ) );
+    }
+  }
+  else //number of gaussians changed => data from ae_common
+  {
+    
+    ae_gaussian* tmpgaussian;
+        
+//reading of backup file anyway because the cursor in the file has to move
+    for ( int16_t i = 0 ; i < nb_gaussians_back ; i++ )
+    {
+      tmpgaussian =  new ae_gaussian( backup_file ) ;
+      delete tmpgaussian;
+    }
+
+    printf( "    nb_gaussians : %d\n", nb_gaussians );
+    _gaussians = new ae_list();
+    ae_list_node* ref_gaussian_node = ae_common::env_gaussians.get_first();
+    ae_gaussian*  ref_gaussian;
+    for ( int16_t i = 0 ; i < nb_gaussians ; i++ )
+    {
+
+      ref_gaussian = ( ae_gaussian* ) ref_gaussian_node->get_obj();
+
+      _gaussians->add( new ae_gaussian( *ref_gaussian ) );
+      
+      //printf(" gaussienne ref : %d, mean : %lg, h : %lg, s : %lg\n",i,ref_gaussian->get_mean(),ref_gaussian->get_height(),ref_gaussian->get_width());
+     // printf(" gaussienne : %d, mean : %lg, h : %lg, s : %lg\n",i,_gaussians->get_mean(),_gaussians->get_height(),_gaussians->get_width());
+
+      ref_gaussian_node = ref_gaussian_node->get_next();
+      
+    }
+    //delete ref_gaussian_node;
+    //ref_gaussian_node = 0;
+    //delete ref_gaussian;
+    //ref_gaussian = 0;
+    
+  }
+  
+
+/*  // Retreive gaussians
   int16_t nb_gaussians;
   gzread( backup_file, &nb_gaussians, sizeof(nb_gaussians) );
   printf( "    nb_gaussians : %d\n", nb_gaussians );
@@ -130,8 +182,8 @@ ae_environment::ae_environment( gzFile* backup_file ) :
   {
     _gaussians->add( new ae_gaussian( backup_file ) );
   }
- 
-  
+ */
+
   // Retreive custom points
   int16_t nb_custom_points;
   gzread( backup_file, &nb_custom_points, sizeof(nb_custom_points) );
@@ -145,10 +197,27 @@ ae_environment::ae_environment( gzFile* backup_file ) :
   _alea = new ae_rand_mt( backup_file );
   int8_t tmp_variation_method;
   gzread( backup_file, &tmp_variation_method, sizeof(tmp_variation_method)  );
-  _variation_method = (ae_env_var) tmp_variation_method;
+  if (tmp_variation_method != ae_common::env_var_method)
+  {
+    _variation_method = (ae_env_var) ae_common::env_var_method; 
+  }
+  else
+  {
+    _variation_method = (ae_env_var) tmp_variation_method;
+  }
+  
   gzread( backup_file, &_sigma,            sizeof(_sigma)             );
+  if (_sigma != ae_common::env_sigma)
+  {
+    _sigma = ae_common::env_sigma;
+  }
+  
   gzread( backup_file, &_tau,              sizeof(_tau)               );
-
+  if (_tau != ae_common::env_tau)
+  {
+    _tau = ae_common::env_tau;
+  }
+  
 
   // Retreive miscellaneous data
   gzread( backup_file, &_sampling,        sizeof(_sampling)       );
@@ -192,10 +261,10 @@ ae_environment::~ae_environment( void )
   //~ _custom_points->add( new ae_point_2d( x, y ) );
 //~ }
 
-//~ void ae_environment::add_gaussian( double a, double b, double c )
-//~ {
-  //~ _gaussians->add( new ae_gaussian( a, b, c ) );
-//~ }
+void ae_environment::add_gaussian( double a, double b, double c )
+{
+  _gaussians->add( new ae_gaussian( a, b, c ) );
+}
 
 void ae_environment::build( void )
 {
