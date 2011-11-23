@@ -127,11 +127,15 @@ ae_population::ae_population( void )
   }
   
   #ifdef FIXED_POPULATION_SIZE
-    if ( ae_common::selection_scheme == RANK_LINEAR || ae_common::selection_scheme == RANK_EXPONENTIAL )
+    if ( ae_common::selection_scheme == RANK_LINEAR || ae_common::selection_scheme == RANK_EXPONENTIAL || ae_common::selection_scheme == FITTEST )
     {
       if ( ae_common::pop_structure == false )
       {
         compute_prob_reprod();
+      }
+      else
+      {
+        compute_local_prob_reprod();
       }
     }
   #endif
@@ -203,11 +207,15 @@ ae_population::ae_population( char* organism_file_name )
   }
     
   #ifdef FIXED_POPULATION_SIZE
-    if ( ae_common::selection_scheme == RANK_LINEAR || ae_common::selection_scheme == RANK_EXPONENTIAL )
+    if ( ae_common::selection_scheme == RANK_LINEAR || ae_common::selection_scheme == RANK_EXPONENTIAL || ae_common::selection_scheme == FITTEST )
     {
       if ( ae_common::pop_structure == false )
       {
         compute_prob_reprod();
+      }
+      else
+      {
+        compute_local_prob_reprod();
       }
     }
   #endif
@@ -608,11 +616,17 @@ ae_population::ae_population( gzFile* backup_file )
   _prob_reprod = NULL;
 
 #ifdef FIXED_POPULATION_SIZE
-  // if population is spacially structured, then the probability of reproduction is computed at each step.
-  // If the selection scheme is FITNESS_PROPORTIONATE, same thing.
-  if ((ae_common::pop_structure==false)&&(ae_common::selection_scheme != FITNESS_PROPORTIONATE))
+  // If the selection scheme is FITNESS_PROPORTIONATE, then the probability of reproduction is computed at each step.
+  if ( ae_common::selection_scheme == RANK_LINEAR || ae_common::selection_scheme == RANK_EXPONENTIAL || ae_common::selection_scheme == FITTEST )
   {
-    compute_prob_reprod();
+    if ( ae_common::pop_structure == false )
+    {
+      compute_prob_reprod();
+    }
+    else
+    {
+      compute_local_prob_reprod();
+    }
   }
 #endif
 }
@@ -653,6 +667,8 @@ ae_population::~ae_population( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
+
+
 void ae_population::step_to_next_generation( void )
 {
   // To create the new generation, we must create _nb_indivs new individuals
@@ -752,6 +768,11 @@ void ae_population::step_to_next_generation( void )
 // This function creates the next generation in a spatially structured population
 void ae_population::step_to_next_generation_grid( void )
 {
+  #ifndef FIXED_POPULATION_SIZE
+    printf( "ERROR, not implemented %s:%d\n", __FILE__, __LINE__ );
+    exit( EXIT_FAILURE );
+  #endif
+  
   // create a  grid matrix to store new individuals and fitness matrix to store the fitness values
   ae_individual*** new_pop_grid = new ae_individual** [ae_common::grid_x];
   for ( int16_t i = 0 ; i < ae_common::grid_x ; i++ )
@@ -935,8 +956,8 @@ void ae_population::step_to_next_generation_grid( void )
   _indivs = new_generation;
   
   
-  // Sort the newly created population
-  sort_individuals();
+  // Update the best individual
+  update_best();
   
   //printf( "new_gen : 0x%x nb_indivs : %ld\n", new_generation, new_generation->get_nb_elts() );
   //printf( "first node : 0x%x obj : 0x%x\n", new_generation->get_first(), new_generation->get_first()->get_obj() );
@@ -1361,11 +1382,9 @@ ae_individual* ae_population::calculate_local_competition ( int16_t x, int16_t y
   double *  local_fit_array   = new double[neighborhood_size];
   double *  sort_fit_array    = new double[neighborhood_size];
   int16_t * initial_location  = new int16_t[neighborhood_size];
-  int16_t * ranks             = new int16_t[neighborhood_size];
   double *  probs             = new double[neighborhood_size];
   int16_t   count             = 0;
   double    sum_local_fit     = 0.0;
-  double    sum_local_probs   = 0.0;
 
   for ( int8_t i = -1 ; i < 2 ; i++ )
   {
@@ -1381,122 +1400,63 @@ ae_individual* ae_population::calculate_local_competition ( int16_t x, int16_t y
     }
   }
 
-  // sort the local fitness values using bubble sort :
-  // we sort by increasing order, so the first element will have the worst fitness.
-  bool swaped = true;
-  int16_t loop_length = 8; 
-  double  tmp_holder;
-  int16_t tmp_holder2;
-  while ( swaped == true )
-  {   
-    swaped = false;
-    for ( int16_t i = 0 ; i < loop_length ; i++ )
-    {
-      //if the first is higher than the second,  exchange them
-      if ( sort_fit_array[i] > sort_fit_array[i+1] )
-      {
-        tmp_holder = sort_fit_array[i];
-        sort_fit_array[i] = sort_fit_array[i+1];
-        sort_fit_array[i+1] = tmp_holder;
-
-        tmp_holder2 = initial_location[i];
-        initial_location[i] = initial_location[i+1];
-        initial_location[i+1] = tmp_holder2;
-
-        swaped = true;
-      }
-    }
-    
-    loop_length = loop_length - 1;
-  }
-  
-  // Assign the ranks to each organism in the neighborhood. 
-  for ( int16_t i = 0; i < neighborhood_size ; i++ )
-  {
-    ranks[initial_location[i]] = i+1 ;
-  }
-  
   // Do the competitions between the individuals, based on one of the 4 methods: 
   // 1. Rank linear
   // 2. Rank exponential
   // 3. Fitness proportionate
   // 4. Fittest individual
   
-  // 1. Linear rank based selection
-  if (ae_common::selection_scheme == RANK_LINEAR ) 
-  { 
-    double increment = (2 * (ae_common::selection_pressure-1)) / (neighborhood_size * (neighborhood_size-1));
-    double init_prob = (2 - ae_common::selection_pressure) / neighborhood_size;
-
-    for ( int16_t i = 0 ; i < neighborhood_size ; i++ )
-    {
-      // The loop is done on the sorted individuals. 
-      // In order to know where they are, it uses the initial_location
-      probs[initial_location[i]] = init_prob + increment * i;
-    }   
-  }   
-
-  // 2. Exponential  rank based selection
-  else if (ae_common::selection_scheme == RANK_EXPONENTIAL ) {
-    double SP_N = pow(ae_common::selection_pressure, neighborhood_size); 
-    probs[initial_location[0]] = ( (ae_common::selection_pressure - 1) * SP_N ) /
-                                 ( (SP_N - 1) * ae_common::selection_pressure );
-
-    for ( int16_t i = 1 ; i < neighborhood_size ; i++ )
-    {
-      probs[initial_location[i]] =  probs[initial_location[i-1]] /  ae_common::selection_pressure ; 
+  // Any rank based selection
+  if ( (ae_common::selection_scheme == RANK_LINEAR ) || (ae_common::selection_scheme == RANK_EXPONENTIAL ) || (ae_common::selection_scheme == FITTEST) )
+  {
+    // First we sort the local fitness values using bubble sort :
+    // we sort by increasing order, so the first element will have the worst fitness.
+    bool swaped = true;
+    int16_t loop_length = 8; 
+    double  tmp_holder;
+    int16_t tmp_holder2;
+    while ( swaped == true )
+    {   
+      swaped = false;
+      for ( int16_t i = 0 ; i < loop_length ; i++ )
+      {
+        //if the first is higher than the second,  exchange them
+        if ( sort_fit_array[i] > sort_fit_array[i+1] )
+        {
+          tmp_holder = sort_fit_array[i];
+          sort_fit_array[i] = sort_fit_array[i+1];
+          sort_fit_array[i+1] = tmp_holder;
+          
+          tmp_holder2 = initial_location[i];
+          initial_location[i] = initial_location[i+1];
+          initial_location[i+1] = tmp_holder2;
+          
+          swaped = true;
+        }
+      }
+      
+      loop_length = loop_length - 1;
     }
+    // Then we use the already computed probabilities
     for ( int16_t i = 0 ; i < neighborhood_size ; i++ )
     {
-      // TODO : ?
-    } 
+      probs[initial_location[i]] = _prob_reprod[i];
+    }
   }
-  
-  // 3. Fitness proportionate selection
+  // Fitness proportionate selection
   else if (ae_common::selection_scheme == FITNESS_PROPORTIONATE)
   {
     for( int16_t i = 0 ; i < neighborhood_size ; i++ )
     {
       probs[i] = local_fit_array[i]/sum_local_fit;
-      sum_local_probs += probs[i];
     }
-    
-    //printf("sum local fitness probs   %f \n", sum_local_probs);
   }
-
-  // 4. Fittest individual
-  else if ( ae_common::selection_scheme == FITTEST )
-  {
-    for ( int16_t i = 0 ; i < neighborhood_size ; i++ )
-    {
-	
-      if ( ranks[i] == neighborhood_size ) //if its rank is neighborhood_size, then it is the best individual
-      {
-        probs[i] = 1;
-      }
-      else
-      {
-        probs[i] = 0;
-      }
-    }
-  }  
   else
   {
     printf( "ERROR, invalid selection scheme in file %s:%d\n", __FILE__, __LINE__ );
     exit( EXIT_FAILURE );
   }
   
-  count = 0; 
-  for ( int8_t i = -1 ; i < 2 ; i++ )
-  {
-    for ( int8_t j = -1 ; j < 2 ; j++ )
-    {
-      cur_x = ( x + i + ae_common::grid_x ) % ae_common::grid_x;
-      cur_y = ( y + j + ae_common::grid_y ) % ae_common::grid_y;
-      
-      count = count + 1;
-    } 
-  }
   
   // pick one organism to reproduce, based on probs[] calculated above,  using roulette selection
   double pick_one = 0.0;
@@ -1518,8 +1478,7 @@ ae_individual* ae_population::calculate_local_competition ( int16_t x, int16_t y
   
   delete [] local_fit_array; 
   delete [] sort_fit_array; 
-  delete [] initial_location; 
-  delete [] ranks; 
+  delete [] initial_location;
   delete [] probs; 
   
   return _pop_grid[(x+x_offset+ae_common::grid_x) % ae_common::grid_x]
@@ -1714,6 +1673,28 @@ void ae_population::sort_individuals( void )
     indiv->set_rank_in_population( rank );
     indiv_node = indiv_node->get_next();
   }
+  
+}
+
+// Find the best individual and put it at the end of the list: this is quicker than sorting the whole list in case we only need the best individual, for example when we have spatial structure.
+void ae_population::update_best( void )
+{
+  ae_list_node* current_best  = _indivs->get_first();
+  ae_list_node* candidate = _indivs->get_first();
+  
+  while ( candidate != NULL )
+  {
+    if (  (((ae_individual*)candidate->get_obj())->get_fitness()) >= (((ae_individual*)current_best->get_obj())->get_fitness()) )
+    {
+      current_best = candidate;
+    }
+    candidate = candidate->get_next();
+  }
+  
+  _indivs->remove( current_best, NO_DELETE, NO_DELETE );
+  _indivs->add( current_best );
+
+  ((ae_individual*)current_best->get_obj())->set_rank_in_population( _nb_indivs );
 }
 
 ae_individual* ae_population::create_random_individual( int32_t index )
@@ -1876,8 +1857,21 @@ ae_individual* ae_population::create_individual_from_file( char* organism_file_n
   indiv->set_index_in_population( index );
   indiv->evaluate( ae_common::sim->get_env() );
   indiv->compute_statistical_data();
-
-  printf ("Loaded an individual with metabolism : %f . Metabolic area: %f . \n", indiv->get_dist_to_target_by_feature( METABOLISM ), ae_common::sim->get_env()->get_area_by_feature( METABOLISM ));
+  
+  float metabolism;
+  float metabolic_area;
+  
+  metabolism = indiv->get_dist_to_target_by_feature( METABOLISM );
+  
+  if ( ae_common::env_axis_is_segmented )
+  {
+    metabolic_area = ae_common::sim->get_env()->get_area_by_feature( METABOLISM );
+  }
+  else
+  {
+    metabolic_area = ae_common::sim->get_env()->get_total_area();
+  }
+  printf ("Loaded an individual with metabolism : %f . Metabolic area: %f . \n", metabolism, metabolic_area);
 
   return indiv;
 }
@@ -2063,18 +2057,61 @@ void ae_population::compute_prob_reprod( void )
   }
   else if ( ae_common::selection_scheme == FITTEST) //  Fittest individual
   {
-    if (ae_common::pop_structure == false) // If we are here, it should always be the case
-    { 
-      printf( "Warning: fittest selection scheme is meant to be used for spatially structure populations, using rank exponential \n");
-    }
-    double SP_N = pow(ae_common::selection_pressure, _nb_indivs); // SP^N
-    _prob_reprod[0] = ( (ae_common::selection_pressure - 1) * SP_N ) /
-                      ( (SP_N - 1) * ae_common::selection_pressure );
+    printf( "ERROR, fittest selection scheme is meant to be used for spatially structured populations %s:%d\n", __FILE__, __LINE__ );
+    exit( EXIT_FAILURE );
+  }
+  else
+  {
+    printf( "ERROR, invalid selection scheme in file %s:%d\n", __FILE__, __LINE__ );
+    exit( EXIT_FAILURE );
+  }
+}
 
-    for ( int32_t i = 1 ; i < _nb_indivs ; i++ )
+void ae_population::compute_local_prob_reprod( void )
+{
+  int16_t neighborhood_size = 9;
+  
+  if ( _prob_reprod != NULL )
+  {
+    printf ("Warning, already defined %s:%d\n", __FILE__, __LINE__);
+    delete [] _prob_reprod;
+  }
+  
+  _prob_reprod = new double[neighborhood_size];
+  
+  if ( ae_common::selection_scheme == RANK_LINEAR )
+  {
+    double increment = (2 * (ae_common::selection_pressure-1)) / (neighborhood_size * (neighborhood_size-1));
+    double init_prob = (2 - ae_common::selection_pressure) / neighborhood_size;
+    
+    for ( int16_t i = 0 ; i < neighborhood_size ; i++ )
     {
-      _prob_reprod[i] = _prob_reprod[i-1] / ae_common::selection_pressure;
+      _prob_reprod[i] = init_prob + increment * i;
+    }   
+  }
+  else if ( ae_common::selection_scheme == RANK_EXPONENTIAL )
+  {
+    double SP_N = pow(ae_common::selection_pressure, neighborhood_size); 
+    _prob_reprod[0] = ( (ae_common::selection_pressure - 1) * SP_N ) /
+    ( (SP_N - 1) * ae_common::selection_pressure );
+    
+    for ( int16_t i = 1 ; i < neighborhood_size ; i++ )
+    {
+      _prob_reprod[i] =  _prob_reprod[i-1] /  ae_common::selection_pressure ; 
     }
+  }
+  else if ( ae_common::selection_scheme == FITTEST) //  Fittest individual
+  {
+    for ( int16_t i = 0 ; i < neighborhood_size-1 ; i++ )
+    {
+      _prob_reprod[i] = 0.;
+    }
+    _prob_reprod[neighborhood_size-1] = 1.;
+  }
+  else if ( ae_common::selection_scheme == FITNESS_PROPORTIONATE ) // Fitness Proportionate
+  {
+    printf( "ERROR, this function is not intented to be use with this selection scheme %s:%d\n", __FILE__, __LINE__ );
+    exit( EXIT_FAILURE );
   }
   else
   {
@@ -2089,6 +2126,11 @@ void ae_population::compute_prob_reprod( void )
 // =================================================================
 ae_individual * ae_population::get_indiv_by_index( int32_t index ) const
 {
+  if (ae_common::pop_structure)
+  {
+    printf( "Warning, be sure you call sort_individuals() before using get_index_by_index %s:%d\n", __FILE__, __LINE__ );
+  }
+  printf("get_indiv_by_index \n");
   ae_list_node*   indiv_node = _indivs->get_first();
   ae_individual*  indiv;
   while ( indiv_node != NULL )

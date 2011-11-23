@@ -332,6 +332,10 @@ class ae_individual : public ae_object
 // =====================================================================
 inline int32_t ae_individual::get_index_in_population( void ) const
 {
+  if (ae_common::pop_structure)
+  {
+    printf( "Warning, be sure you call sort_individuals() before using get_index_in_population %s:%d\n", __FILE__, __LINE__ );
+  }
   return _index_in_population;
 }
 
@@ -377,6 +381,10 @@ inline void ae_individual::new_fitness_by_feature( void )
 
 inline int32_t ae_individual::get_rank_in_population( void ) const
 {
+  if (ae_common::pop_structure)
+  {
+    printf( "Warning, be sure you call sort_individuals() before using get_rank_in_population %s:%d\n", __FILE__, __LINE__ );
+  }
   return _rank_in_population;
 }
 

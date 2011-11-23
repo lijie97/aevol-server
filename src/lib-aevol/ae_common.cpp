@@ -903,7 +903,7 @@ switch (env_var_method )
   fprintf( param_out, "plasmid_initial_gene :       %"PRId32"\n", plasmid_initial_gene                   );
   fprintf( param_out, "plasmid_minimal_length :     %"PRId32"\n", plasmid_minimal_length                 );
   fprintf( param_out, "prob_horiz_trans :           %e\n", prob_horiz_trans                              );
-  fprintf( param_out, "nb_horiz_trans :             %e\n", nb_horiz_trans                                );
+  fprintf( param_out, "nb_horiz_trans :             %d\n", nb_horiz_trans                                );
   fprintf( param_out, "compute_phen_contrib_by_GU : %s\n", compute_phen_contrib_by_GU? "true" : "false"  );
 
   // Translation cost

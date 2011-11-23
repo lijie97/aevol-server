@@ -47,7 +47,7 @@
 // =================================================================
 #include <ae_list.h>
 #include <ae_individual.h>
-
+#include <ae_common.h>
 
 
 
@@ -105,6 +105,7 @@ class ae_population : public ae_object
     void            do_random_migrations ( void );
     inline void     evaluate_individuals( ae_environment* envir );
     void            sort_individuals( void );
+    void            update_best( void );
 
     void    write_to_backup( gzFile* backup_file );
 
@@ -143,6 +144,7 @@ class ae_population : public ae_object
     ae_individual* create_individual_from_file( char* organism_file_name, int32_t index );
     
     void compute_prob_reprod( void );
+    void compute_local_prob_reprod( void );
 
     // =================================================================
     //                          Protected Attributes
@@ -178,6 +180,11 @@ ae_individual* ae_population::get_best( void ) const
 
 ae_individual * ae_population::get_indiv_by_rank( int32_t rank ) const
 {
+  if (ae_common::pop_structure)
+  {
+    printf( "Warning, be sure you call sort_individuals() before using get_indiv_by_rank %s:%d\n", __FILE__, __LINE__ );
+  }
+  
   ae_list_node* indiv_node = _indivs->get_first();
   
   for ( int32_t i = 1 ; i < rank ; i++ )
@@ -194,8 +201,11 @@ ae_individual * ae_population::get_indiv_by_rank( int32_t rank ) const
 
 double* ae_population::get_prob_reprod( void )
 {
-  // TODO: check whether this line is relevant
-  if ( _prob_reprod == NULL ) compute_prob_reprod();
+  if ( _prob_reprod == NULL )
+  {
+    printf( "ERROR, _prob_reprod has not been computed %s:%d\n", __FILE__, __LINE__ );
+    exit( EXIT_FAILURE );
+  }
   return _prob_reprod;
 }
 
@@ -267,7 +277,6 @@ inline void ae_population::evaluate_individuals( ae_environment* envir )
   while ( indiv_node != NULL )
   {
     indiv = (ae_individual *) indiv_node->get_obj();
-    void sort_individuals( void );
     indiv->evaluate( envir );
     indiv->compute_statistical_data();
     
