@@ -309,7 +309,7 @@ int main( int argc, char* argv[] )
 #endif
 #endif
 	initial_indiv->evaluate(ae_common::sim->get_env());
-	printf("found indiv %"PRId32" with fitness %lf (rank %d)\n", tmpind->get_index_in_population(), tmpind->get_fitness(), current_rank);
+	printf("found indiv %"PRId32" with fitness %le (rank %d)\n", tmpind->get_index_in_population(), tmpind->get_fitness(), current_rank);
 
 	// ------------------------------------
 	//              Compute Fv
@@ -327,14 +327,13 @@ int main( int argc, char* argv[] )
 	  exp_fv = initial_indiv->compute_experimental_f_nu( nb_children, &neutral_or_better );
 	}
 	double th_fv = initial_indiv->compute_theoritical_f_nu();
-	      
 	// ------------------------------------
 	//            Write to file
 	// ------------------------------------     
 	double* reprod_proba = ae_common::sim->get_pop()->get_prob_reprod();
 	if ( fv_output != NULL )
 	{
-	  fprintf( fv_output, "%d %d %lf %lf %lf %lf %lf %"PRId32"\n",
+	  fprintf( fv_output, "%d %d %le %le %le %le %le %"PRId32"\n",
 		   current_rank, current_index, initial_indiv->get_fitness(),
 		   reprod_proba[ae_common::init_pop_size-current_rank],
 		   exp_fv, neutral_or_better, th_fv, ae_common::init_pop_size );
@@ -417,7 +416,7 @@ double compute_experimental_fv( ae_individual* indiv, int nb_children, double* n
   if ( replication_output != NULL )
   {
     //general statistics of the individual
-    fprintf( replication_output, "#%"PRId32" %"PRId32" %"PRId32" %d %.15lf",
+    fprintf( replication_output, "#%"PRId32" %"PRId32" %"PRId32" %d %le",
 	    indiv->get_index_in_population(),
 	    indiv->get_total_genome_size(),
 	    indiv->get_nb_functional_genes(),
@@ -564,7 +563,7 @@ void print_replication_stats( FILE* output_file, ae_individual* initial_indiv, i
   // --------------------------------------------------------------
   //         print statistics on current line
   // --------------------------------------------------------------
-  fprintf(output_file, " %.15lf %.15lf %.15lf %.15lf %.15lf %.15lf ", average_fit, sd, prop_same_as_parent, prop_better_than_parent, prop_no_genes_affected, avg_nb_aff_genes);
+  fprintf(output_file, " %le %le %le %le %le %le ", average_fit, sd, prop_same_as_parent, prop_better_than_parent, prop_no_genes_affected, avg_nb_aff_genes);
   fprintf(output_file, "\n");
   
   // --------------------------------------------------------------
@@ -572,7 +571,7 @@ void print_replication_stats( FILE* output_file, ae_individual* initial_indiv, i
   // --------------------------------------------------------------
   for (int i = 0; i < nb_children; i++)
   {
-    fprintf(output_file, "%.15lf %d \n", fitnesses[i], nb_aff_genes[i]);
+    fprintf(output_file, "%le %d \n", fitnesses[i], nb_aff_genes[i]);
   }
 }
 

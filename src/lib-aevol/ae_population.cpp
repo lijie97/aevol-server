@@ -1364,8 +1364,8 @@ ae_individual* ae_population::do_replication( ae_individual* parent, int32_t ind
   
   
   #ifdef DEBUG
-    ae_common::sim->get_logs()->flush();
-    new_indiv->assert_promoters();
+  ae_common::sim->get_logs()->flush();
+  new_indiv->assert_promoters();
   #endif
   
   

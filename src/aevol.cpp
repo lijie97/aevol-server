@@ -63,6 +63,7 @@ void catch_usr1( int sig_num );
 
 #ifdef __IN2P3
 void catch_usr1( int sig_num );
+void catch_xcpu( int sig_num );
 #endif
 
 void print_help( char* prog_name );
@@ -76,7 +77,11 @@ int main( int argc, char* argv[] )
 #ifndef __NO_X
   signal( SIGUSR1, catch_usr1 );
 #endif
-  
+
+#ifdef __IN2P3
+  signal( SIGUSR1, catch_usr1 );
+  signal( SIGXCPU, catch_xcpu );
+#endif  
   
   #ifdef DEBUG
     printf( "aevol is being run in DEBUG mode\n" );
@@ -294,7 +299,13 @@ void catch_usr1( int sig_num )
 #ifdef __IN2P3
 void catch_usr1( int sig_num )
 {
-  system( "./make_big_backup.py" );
+  //system( "./make_big_backup.py" );
+  exit( EXIT_FAILURE );
+}
+
+void catch_xcpu( int sig_num )
+{
+  //system( "./make_big_backup.py" );
   exit( EXIT_FAILURE );
 }
 #endif

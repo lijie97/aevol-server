@@ -402,6 +402,7 @@ ae_simulation::ae_simulation( char* backup_file_name, bool to_be_run /* = TRUE *
   else
   {
     // We just want to inspect the state of the simulation at this moment
+    ae_common::logs = false;
     _logs  = NULL;
     _stats = NULL;
     _tree  = NULL; 

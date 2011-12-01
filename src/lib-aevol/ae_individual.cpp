@@ -1332,7 +1332,7 @@ double ae_individual::compute_experimental_f_nu( int32_t nb_children, double* ne
   // ------------------------------------------
 	      
   double fitness_child = 0;
-	      
+		
   // replicate this individual to create 'nb_children' children 
   ae_individual * child = NULL;
   for (int i = 0; i < nb_children; i++)
@@ -1354,7 +1354,6 @@ double ae_individual::compute_experimental_f_nu( int32_t nb_children, double* ne
   //compute Fv
   Fv /= nb_children;
   if ( neutral_or_better != NULL ) { *neutral_or_better /= nb_children; }
- 
   return Fv;
 }
 
