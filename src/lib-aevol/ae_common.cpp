@@ -100,6 +100,7 @@ int16_t ae_common::max_indel_size         = 6;
 bool    ae_common::with_4pts_trans    = true;
 bool    ae_common::with_alignments    = false;
 bool    ae_common::with_transfer      = false;
+bool    ae_common::swap_GUs           = false;
 double  ae_common::transfer_ins_rate  = 0.0;
 double  ae_common::transfer_repl_rate = 0.0;
 
@@ -258,6 +259,8 @@ void ae_common::write_to_backup( gzFile* backup_file )
   gzwrite( backup_file, &tmp_with_alignments,         sizeof(tmp_with_alignments)       );
   int8_t tmp_with_transfer = with_transfer? 1 : 0;
   gzwrite( backup_file, &tmp_with_transfer,           sizeof(tmp_with_transfer)         );
+  int8_t tmp_swap_GUs = swap_GUs? 1 : 0;
+  gzwrite( backup_file, &tmp_swap_GUs,                sizeof(tmp_swap_GUs)              );
   gzwrite( backup_file, &transfer_ins_rate,           sizeof(transfer_ins_rate)         );
   gzwrite( backup_file, &transfer_repl_rate,          sizeof(transfer_repl_rate)        );
 
@@ -469,6 +472,9 @@ void ae_common::read_from_backup( gzFile* backup_file, bool verbose )
   int8_t tmp_with_transfer;
   gzread( backup_file, &tmp_with_transfer,            sizeof(tmp_with_transfer)         );
   with_transfer = (tmp_with_transfer!=0);
+  int8_t tmp_swap_GUs;
+  gzread( backup_file, &tmp_swap_GUs,                 sizeof(tmp_swap_GUs)              );
+  swap_GUs = (tmp_swap_GUs!=0);
   gzread( backup_file, &transfer_ins_rate,            sizeof(transfer_ins_rate)         );
   gzread( backup_file, &transfer_repl_rate,           sizeof(transfer_repl_rate)        );
 
@@ -739,6 +745,7 @@ void ae_common::print_to_file( void )
   fprintf( param_out, "with_4pts_trans :            %s\n",  with_4pts_trans? "true" : "false" );
   fprintf( param_out, "with_alignments :            %s\n",  with_alignments? "true" : "false" );
   fprintf( param_out, "with_transfer :              %s\n",  with_transfer? "true" : "false"   );
+  fprintf( param_out, "swap_GUs :                   %s\n",  swap_GUs? "true" : "false"   );
   fprintf( param_out, "transfer_ins_rate :          %e\n",  transfer_ins_rate );
   fprintf( param_out, "transfer_repl_rate :         %e\n",  transfer_repl_rate );
 

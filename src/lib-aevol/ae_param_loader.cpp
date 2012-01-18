@@ -608,6 +608,24 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
       }
       break;
     }
+    case SWAP_GUS:
+    {
+      if ( strncmp( line->words[1], "true", 4 ) == 0 )
+      {
+        ae_common::swap_GUs = true;
+      }
+      else if ( strncmp( line->words[1], "false", 5 ) == 0 )
+      {
+        ae_common::swap_GUs = false;
+      }
+      else
+      {
+        printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown swap option (use true/false).\n",
+                INPUT_FILE_NAME, cur_line );
+        exit( EXIT_FAILURE ); 
+      }
+      break;
+    }
     case TRANSFER_INS_RATE :
     {
       ae_common::transfer_ins_rate  = atof( line->words[1] );
@@ -1027,6 +1045,7 @@ ae_keywd f_line::get_keywd( void )
   if ( !strcmp( words[0], "TRANSLOCATION_RATE" ) )          return TRANSLOCATION_RATE;
   if ( !strcmp( words[0], "INVERSION_RATE" ) )              return INVERSION_RATE;
   if ( !strcmp( words[0], "WITH_TRANSFER" ) )               return WITH_TRANSFER;
+  if ( !strcmp( words[0], "SWAP_GUS" ) )                    return SWAP_GUS;
   if ( !strcmp( words[0], "TRANSFER_INS_RATE" ) )           return TRANSFER_INS_RATE;
   if ( !strcmp( words[0], "TRANSFER_REPL_RATE" ) )          return TRANSFER_REPL_RATE;
   if ( !strcmp( words[0], "NEIGHBOURHOOD_RATE" ) )          return NEIGHBOURHOOD_RATE;

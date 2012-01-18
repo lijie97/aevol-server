@@ -158,6 +158,7 @@ class ae_individual : public ae_object
     //                            Public Methods
     // =================================================================
     void inject_GU( ae_individual* donor );
+    void inject_2GUs( ae_individual* partner );
     
     virtual void evaluate( ae_environment* envir );
     virtual void reevaluate( ae_environment* envir );

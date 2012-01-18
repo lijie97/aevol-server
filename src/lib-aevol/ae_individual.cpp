@@ -984,6 +984,18 @@ void ae_individual::inject_GU( ae_individual* donor )
   _genetic_unit_list->add( temp_GU );
 }
 
+void ae_individual::inject_2GUs( ae_individual* partner )
+{  
+  //We swap GUs from the end of the list
+  ae_list_node* gen_unit_node_1 = partner->get_genetic_unit_list()->get_last();
+  ae_list_node* gen_unit_node_2 = _genetic_unit_list->get_last();
+  
+  ae_genetic_unit* temp_GU_1 = new ae_genetic_unit( this, *((ae_genetic_unit*)gen_unit_node_1->get_obj()) );  
+  ae_genetic_unit* temp_GU_2 = new ae_genetic_unit( this, *((ae_genetic_unit*)gen_unit_node_2->get_obj()) );  
+  
+  _genetic_unit_list->add( temp_GU_1 );
+  partner->get_genetic_unit_list()->add( temp_GU_2 );
+}
 
 void ae_individual::compute_statistical_data( void )
 {

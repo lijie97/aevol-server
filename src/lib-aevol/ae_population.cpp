@@ -878,10 +878,19 @@ void ae_population::step_to_next_generation_grid( void )
 	        x_offset = ( found_org / 3 ) - 1;
 	        y_offset = ( found_org % 3 ) - 1;
   	      
-	        //For now, assume that it is the second genetic unit that is being transfered
+	        //For now, assume that it is the last genetic unit that is being transfered
 	        new_x = (x+x_offset+ae_common::grid_x) % ae_common::grid_x;
 	        new_y = (y+y_offset+ae_common::grid_y) % ae_common::grid_y;
-	        _pop_grid[x][y]->get_individual()->inject_GU(_pop_grid[new_x][new_y]->get_individual()); 
+	        
+	        // Check if the transfer is uni or bi directional
+	        if ( ae_common::swap_GUs )
+	        {
+	          _pop_grid[x][y]->get_individual()->inject_2GUs(_pop_grid[new_x][new_y]->get_individual()); 
+	        }
+	        else
+	        {
+	          _pop_grid[x][y]->get_individual()->inject_GU(_pop_grid[new_x][new_y]->get_individual()); 
+	        } 
   	      
 	      }	
 	    }

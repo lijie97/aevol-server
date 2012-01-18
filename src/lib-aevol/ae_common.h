@@ -144,6 +144,7 @@ class ae_common
     static bool   with_4pts_trans;
     static bool   with_alignments;
     static bool   with_transfer;
+    static bool   swap_GUs;
     static double transfer_ins_rate;
     static double transfer_repl_rate;
 
