@@ -93,7 +93,7 @@ class ae_environment : public ae_fuzzy_set_X11
     inline ae_list*         get_gaussians( void ) const;
     inline ae_env_segment** get_segments( void ) const;
     inline int16_t          get_nb_segments( void ) const;
-    inline double           get_area_by_feature( ae_env_axis_feature feature ) const;
+    inline double           get_area_by_feature( int feature ) const;
     inline double           get_total_area( void ) const;
     
     inline void   set_sampling( int16_t val );
@@ -187,7 +187,7 @@ inline int16_t ae_environment::get_nb_segments( void ) const
   return _nb_segments;
 }
 
-inline double ae_environment::get_area_by_feature( ae_env_axis_feature feature ) const
+inline double ae_environment::get_area_by_feature( int feature ) const
 {
   return _area_by_feature[ feature ];
 }

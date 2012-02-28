@@ -123,6 +123,7 @@ class ae_common
     static ae_tree_mode tree_mode;    
     static bool         more_stats;   // TODO : explain
     static int32_t      dump_period;  // TODO : explain
+    static bool         delete_old_stats;
 
     // Population  size, structure, and other properties
     static int32_t  init_pop_size;

@@ -98,13 +98,13 @@ ae_stats::ae_stats( int32_t num_gener, const char * prefix /* = "stat" */, bool 
         cur_file_name = _stat_files_names[chrom_or_GU][best_or_glob][stat_type];
         if ( cur_file_name != NULL )
         {
-	        sprintf( old_file_name, "%s.old", cur_file_name );
+          sprintf( old_file_name, "%s.old", cur_file_name );
           int8_t exist_file = rename( cur_file_name, old_file_name );
           if (exist_file != 0 )
-	    {
-	      printf( "ERROR : %s has not be found.\n",old_file_name );
-	      exit( EXIT_FAILURE );
-	    }
+          {
+            printf( "ERROR : %s has not been found.\n",old_file_name );
+            exit( EXIT_FAILURE );
+          }
           
           old_file = fopen( old_file_name, "r" );
           cur_file = fopen( cur_file_name, "w" );
@@ -131,6 +131,12 @@ ae_stats::ae_stats( int32_t num_gener, const char * prefix /* = "stat" */, bool 
           fclose( old_file );
           
           _stat_files[chrom_or_GU][best_or_glob][stat_type] = cur_file;
+          
+          if (ae_common::delete_old_stats)
+          {
+            int r = remove( old_file_name );
+          }
+          
         }
       }
     }
@@ -255,9 +261,10 @@ void ae_stats::write_headers( void )
         write_header( _stat_files[chrom_or_GU][best_or_glob][FITNESS_STATS], "Genome size (amount of DNA)", key++ );
         write_header( _stat_files[chrom_or_GU][best_or_glob][FITNESS_STATS], "Metabolic error", key++ );
         write_header( _stat_files[chrom_or_GU][best_or_glob][FITNESS_STATS], "Parent's metabolic error", key++ );
+        write_header( _stat_files[chrom_or_GU][best_or_glob][FITNESS_STATS], "Metabolic fitness", key++ );
         write_header( _stat_files[chrom_or_GU][best_or_glob][FITNESS_STATS], "Secretion error", key++ );
         write_header( _stat_files[chrom_or_GU][best_or_glob][FITNESS_STATS], "Parent's secretion error", key++ );
-        write_header( _stat_files[chrom_or_GU][best_or_glob][FITNESS_STATS], "Amount of compound secreted by an individual", key++ );
+        write_header( _stat_files[chrom_or_GU][best_or_glob][FITNESS_STATS], "Secretion fitness", key++ );
         write_header( _stat_files[chrom_or_GU][best_or_glob][FITNESS_STATS], "Amount of compound present in the grid-cell", key++ );
 
         #ifdef __REGUL

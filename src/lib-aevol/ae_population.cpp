@@ -1018,7 +1018,7 @@ ae_individual* ae_population::do_replication( ae_individual* parent, int32_t ind
   //  2) Set the new individual's location on the grid
   //     (needed if the population is structured)
   // ===========================================================================
-  if ( ae_common::pop_structure == true )
+  if ( ( ae_common::pop_structure == true ) && ( x!=-1 ) )
   {
     new_indiv->set_grid_cell( ae_common::sim->get_pop()->get_pop_grid()[x][y] );
     new_indiv->set_placed_in_population( true ); // TODO : Shouldn't _place_in_pop be set to true in set_grid_cell()?

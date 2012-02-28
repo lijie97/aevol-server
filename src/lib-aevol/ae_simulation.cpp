@@ -476,32 +476,32 @@ void ae_simulation::run( void )
       { 
         write_tree();
       }
+    }
       
-      if ( _num_gener % ae_common::backup_step == 0 )
+    if ( _num_gener % ae_common::backup_step == 0 )
+    {
+      _logs->flush();
+      _stats->flush();
+      write_backup();
+      
+      // Update the last_gener.txt file
+      FILE* last_gener_file = fopen( "last_gener.txt", "w" );
+      if ( last_gener_file != NULL )
       {
-        _logs->flush();
-        _stats->flush();
-        write_backup();
-        
-        // Update the last_gener.txt file
-        FILE* last_gener_file = fopen( "last_gener.txt", "w" );
-        if ( last_gener_file != NULL )
-        {
-          fprintf( last_gener_file, "%"PRId32"\n", _num_gener );
-          fclose( last_gener_file );
-        }
-        else
-        {
-          printf( "Error : could not open file last_gener.txt\n" );
-        }
-        
-        #ifdef __IN2P3
-          if ( _num_gener % ae_common::big_backup_step == 0 )
-          {
-            system( "./make_big_backup.py" );
-          }
-        #endif
+        fprintf( last_gener_file, "%"PRId32"\n", _num_gener );
+        fclose( last_gener_file );
       }
+      else
+      {
+        printf( "Error : could not open file last_gener.txt\n" );
+      }
+      
+      #ifdef __IN2P3
+        if ( _num_gener % ae_common::big_backup_step == 0 )
+        {
+          system( "./make_big_backup.py" );
+        }
+      #endif
     }
 
     if( ae_common::dump_period > 0 ) 

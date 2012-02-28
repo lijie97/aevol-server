@@ -98,7 +98,7 @@ class ae_population : public ae_object
     // =================================================================
     void            step_to_next_generation( void );
     void            step_to_next_generation_grid( void );
-    ae_individual*  do_replication( ae_individual* parent, int32_t index, int16_t x = 0, int16_t y = 0 );
+    ae_individual*  do_replication( ae_individual* parent, int32_t index, int16_t x = -1, int16_t y = -1 );
     void            secretion_grid_update ( void ); 
     ae_individual*  calculate_local_competition ( int16_t x, int16_t y );
     ae_individual*  calculate_GU_transfer ( int16_t x, int16_t y );

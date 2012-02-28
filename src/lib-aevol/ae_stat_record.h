@@ -178,11 +178,12 @@ class ae_stat_record : public ae_object
 
     double  _metabolic_error;
     double  _parent_metabolic_error;
+    double  _metabolic_fitness;
 
     double  _secretion_error;
     double  _parent_secretion_error;
-
-    double  _compound_secreted;
+    double  _secretion_fitness;
+  
     double  _compound_amount;
     
     double  _amount_of_dna;

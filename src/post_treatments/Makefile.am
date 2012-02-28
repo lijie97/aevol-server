@@ -30,23 +30,23 @@ else # WITHOUT_RAEVOL
 if WITH_X
 if WITH_DEBUG
   bin_PROGRAMS =  ancstats_debug create_eps_debug extract_debug fixed_mutations_debug genome_stats_debug get_best_indiv_debug
-  bin_PROGRAMS += lineage_debug mutagenesis_debug robustness_debug set_genome_from_indiv_debug view_generation_debug
+  bin_PROGRAMS += lineage_debug mutagenesis_debug mutationalrobustness_debug robustness_debug set_genome_from_indiv_debug view_generation_debug
   LDADD = $(top_srcdir)/src/lib-aevol/lib-aevol-X11-debug.a
 else # WITHOUT_DEBUG
-  bin_PROGRAMS = ancstats create_eps extract fixed_mutations genome_stats get_best_indiv lineage mutagenesis robustness set_genome_from_indiv view_generation
+  bin_PROGRAMS = ancstats create_eps extract fixed_mutations genome_stats get_best_indiv lineage mutagenesis mutationalrobustness robustness set_genome_from_indiv view_generation
   LDADD = $(top_srcdir)/src/lib-aevol/lib-aevol-X11.a
 endif # DEBUG
 else # WITHOUT_X11
 if WITH_DEBUG
   bin_PROGRAMS =  ancstats_debug create_eps_debug extract_debug fixed_mutations_debug genome_stats_debug get_best_indiv_debug
-  bin_PROGRAMS += lineage_debug mutagenesis_debug robustness_debug set_genome_from_indiv_debug
+  bin_PROGRAMS += lineage_debug mutagenesis_debug mutationalrobustness_debug robustness_debug set_genome_from_indiv_debug
   LDADD = $(top_srcdir)/src/lib-aevol/lib-aevol-debug.a
 else # WITHOUT_DEBUG
 if WITH_IN2P3
-  bin_PROGRAMS = ancstats create_eps extract fixed_mutations genome_stats get_best_indiv lineage mutagenesis robustness set_genome_from_indiv
+  bin_PROGRAMS = ancstats create_eps extract fixed_mutations genome_stats get_best_indiv lineage mutagenesis mutationalrobustness robustness set_genome_from_indiv
   LDADD = $(top_srcdir)/src/lib-aevol/lib-aevol-IN2P3.a
 else # WITHOUT_IN2P3
-  bin_PROGRAMS = ancstats create_eps extract fixed_mutations genome_stats get_best_indiv lineage mutagenesis robustness set_genome_from_indiv
+  bin_PROGRAMS = ancstats create_eps extract fixed_mutations genome_stats get_best_indiv lineage mutagenesis mutationalrobustness robustness set_genome_from_indiv
   LDADD = $(top_srcdir)/src/lib-aevol/lib-aevol.a
 endif # IN2P3
 endif # DEBUG
@@ -208,6 +208,15 @@ rmutagenesis_CPPFLAGS = $(AM_CPPFLAGS)
 rmutagenesis_debugdir = $(bindir)
 rmutagenesis_debug_SOURCES = mutagenesis.cpp
 rmutagenesis_debug_CPPFLAGS = $(AM_CPPFLAGS)
+
+
+mutationalrobustnessdir = $(bindir)
+mutationalrobustness_SOURCES = mutationalrobustness.cpp
+mutationalrobustness_CPPFLAGS = $(AM_CPPFLAGS)
+
+mutationalrobustness_debugdir = $(bindir)
+mutationalrobustness_debug_SOURCES = mutationalrobustness.cpp
+mutationalrobustness_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
 
 robustnessdir = $(bindir)

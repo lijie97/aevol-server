@@ -235,45 +235,28 @@ inline void analyse_indiv( ae_individual* indiv, FILE* phenotype_file , FILE* se
       double mean = prot->get_mean();
       int32_t fpos = prot->get_first_translated_pos();
       int32_t lpos = prot->get_last_translated_pos();
-      int32_t zone = 0;
       
       int nfeat = -1;
+      
       if (ae_common::env_axis_is_segmented)
       {
-        if ( mean != 1 )
+        for ( int i=0; i<=(ae_common::env_axis_nb_segments - 1); i++ )
         {
-          zone = (int32_t) floor( mean * ae_common::env_axis_nb_segments );
+          if ( (mean > ae_common::env_axis_segment_boundaries[i]) && (mean < ae_common::env_axis_segment_boundaries[i+1]) )
+          {
+            nfeat = ae_common::env_axis_features[i];
+            break;
+          }
         }
-        else
-        {
-          zone = (int32_t) floor( mean * ae_common::env_axis_nb_segments ) - 1;
-        }
-
-        ae_env_axis_feature feat = ae_common::env_axis_features[zone];
-
-        switch ( feat )
-        {
-          case NEUTRAL :
-            nfeat=1;
-            break;
-          case METABOLISM :
-            nfeat=2;
-            break;
-          case SECRETION :
-            nfeat=3;
-            break;
-          case TRANSFER :
-            nfeat=4;
-            break;
-          case NB_FEATURES : 
-            nfeat=-1;
-            break;
-        }
+      }
+      else // Everything is metabolism
+      {
+        nfeat = METABOLISM;
       }
 
       if (phenotype_file!=NULL)
       {
-        fprintf(phenotype_file,"%f_%f_%f_%d_%i_%i_%d ",mean,height,width,rna_nb,fpos,lpos,nfeat);
+        fprintf(phenotype_file,"%f_%f_%f_%d_%d_%i_%i_%d ",mean,height,width,rna_nb,rna->get_strand(),fpos,lpos,nfeat);
       }
       prot_node = prot_node->get_next();
     }

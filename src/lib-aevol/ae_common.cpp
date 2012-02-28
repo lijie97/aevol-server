@@ -82,6 +82,7 @@ bool          ae_common::record_tree      = true;
 ae_tree_mode  ae_common::tree_mode        = NORMAL;
 bool          ae_common::more_stats       = false;
 int32_t       ae_common::dump_period      = 0;
+bool          ae_common::delete_old_stats = false;
 
 // Population size, structure, and other properties
 int32_t ae_common::init_pop_size     = 1000;
@@ -778,27 +779,27 @@ void ae_common::print_to_file( void )
   {
     case RANK_LINEAR :
     {
-      fprintf( param_out, "selection_scheme   :         RANK_LINEAR\n" );
+      fprintf( param_out, "selection_scheme :           RANK_LINEAR\n" );
       break;
     }
     case RANK_EXPONENTIAL :
     {
-      fprintf( param_out, "selection_scheme   :         RANK_EXPONENTIAL\n" );
+      fprintf( param_out, "selection_scheme :           RANK_EXPONENTIAL\n" );
       break;
     }
     case FITNESS_PROPORTIONATE :
     {
-      fprintf( param_out, "selection_scheme   :         FITNESS_PROPORTIONATE\n" );
+      fprintf( param_out, "selection_scheme :           FITNESS_PROPORTIONATE\n" );
       break;
     }
     case FITTEST :
     {
-      fprintf( param_out, "selection_scheme   :         FITTEST\n" );
+      fprintf( param_out, "selection_scheme :           FITTEST\n" );
       break;
     }
     default :
     {
-      fprintf( param_out, "selection_scheme   :         UNKNOWN\n" );
+      fprintf( param_out, "selection_scheme :           UNKNOWN\n" );
       break;
     }
   }
@@ -812,7 +813,7 @@ void ae_common::print_to_file( void )
     while ( node != NULL )
       {
 	ae_gaussian * gauss = (ae_gaussian *) node->get_obj();
-	fprintf( param_out, "env_add_gaussian:    %f %f %f \n",gauss->get_height(),gauss->get_mean(),gauss->get_width());
+	fprintf( param_out, "env_add_gaussian :           %f %f %f \n",gauss->get_height(),gauss->get_mean(),gauss->get_width());
 	node = node->get_next();
       }
     //Every custom_points
@@ -824,23 +825,23 @@ void ae_common::print_to_file( void )
 	node = node->get_next();	
       }
   }
-  fprintf (param_out, "env_sigma :                    %f \n", env_sigma);
-  fprintf (param_out, "env_tau   :                    %"PRId32"\n",env_tau);
+  fprintf (param_out, "env_sigma :                  %f \n", env_sigma);
+  fprintf (param_out, "env_tau   :                  %"PRId32"\n",env_tau);
 switch (env_var_method )
   {
   case NONE :
     {
-      fprintf( param_out, "env_var_method   :         NONE\n" );
+      fprintf( param_out, "env_var_method :             NONE\n" );
       break;
     }
   case AUTOREGRESSIVE_MEAN_VAR :
     {
-      fprintf( param_out, "env_var_method   :         auto_regressive_mean_var\n" );
+      fprintf( param_out, "env_var_method :             auto_regressive_mean_var\n" );
       break;
     }
   case LOCAL_GAUSSIANS_VAR :
     {
-      fprintf( param_out, "env_var_method   :         local_gaussians_var\n" );
+      fprintf( param_out, "env_var_method :             local_gaussians_var\n" );
       break;
     }
 
@@ -851,7 +852,7 @@ switch (env_var_method )
     }
   }
   
-  fprintf( param_out, "env_axis_is_segmented  :           %s\n", env_axis_is_segmented? "true" : "false");
+  fprintf( param_out, "env_axis_is_segmented  :     %s\n", env_axis_is_segmented? "true" : "false");
   fprintf( param_out, "env_axis_nb_segments   :     %"PRId16"\n", env_axis_nb_segments);
   
   //Axis segment boundaries multiple
@@ -894,7 +895,7 @@ switch (env_var_method )
   }
   fprintf( param_out, "\n");
 
-  fprintf( param_out, "env_separate_segments :    %s  ", env_separate_segments? "true" : "false"); 
+  fprintf( param_out, "env_separate_segments :      %s\n", env_separate_segments? "true" : "false"); 
   
   // Secretion
   fprintf( param_out, "use_secretion :              %s\n", use_secretion? "true" : "false" );

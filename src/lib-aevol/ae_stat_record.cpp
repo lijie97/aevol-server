@@ -104,6 +104,7 @@ ae_stat_record::ae_stat_record( ae_individual* indiv, chrom_or_gen_unit chrom_or
     
     // Metabolic error stats
     _metabolic_error = (double) indiv->get_dist_to_target_by_feature( METABOLISM );
+    _metabolic_fitness = (double) indiv->get_fitness_by_feature( METABOLISM );
     _parent_metabolic_error = ( replic_report != NULL ) ? replic_report->get_parent_metabolic_error() : 0.0;
     
     // Fitness
@@ -113,7 +114,7 @@ ae_stat_record::ae_stat_record( ae_individual* indiv, chrom_or_gen_unit chrom_or
     if ( ae_common::use_secretion )
     {
        _secretion_error   = (double) indiv->get_dist_to_target_by_feature( SECRETION );
-       _compound_secreted = (double) indiv->get_fitness_by_feature(SECRETION);
+       _secretion_fitness = (double) indiv->get_fitness_by_feature( SECRETION );
        _compound_amount   = (double) indiv->get_grid_cell()->get_compound_amount();
        _parent_secretion_error = 0.0;
   
@@ -125,7 +126,7 @@ ae_stat_record::ae_stat_record( ae_individual* indiv, chrom_or_gen_unit chrom_or
     else
     {
       _secretion_error   = 0.0;
-      _compound_secreted = 0.0;
+      _secretion_fitness = 0.0;
       _compound_amount   = 0.0;
       _parent_secretion_error = 0.0;
     }
@@ -205,6 +206,7 @@ ae_stat_record::ae_stat_record( ae_individual* indiv, chrom_or_gen_unit chrom_or
     
     // Metabolic error stats
     _metabolic_error = (double) indiv->get_dist_to_target_by_feature( METABOLISM );
+    _metabolic_fitness = (double) indiv->get_fitness_by_feature( METABOLISM );
     _parent_metabolic_error = ( replic_report != NULL ) ? replic_report->get_parent_metabolic_error() : 0.0;
     
     // Fitness
@@ -214,7 +216,7 @@ ae_stat_record::ae_stat_record( ae_individual* indiv, chrom_or_gen_unit chrom_or
     if ( ae_common::use_secretion )
     {
        _secretion_error = (double) indiv->get_dist_to_target_by_feature( SECRETION );
-       _compound_secreted = (double) indiv->get_fitness_by_feature(SECRETION);
+       _secretion_fitness = (double) indiv->get_fitness_by_feature(SECRETION);
        _compound_amount   = (double) indiv->get_grid_cell()->get_compound_amount();
        _parent_secretion_error = 0.0;
   
@@ -226,7 +228,7 @@ ae_stat_record::ae_stat_record( ae_individual* indiv, chrom_or_gen_unit chrom_or
     else
     {
       _secretion_error   = 0.0;
-      _compound_secreted = 0.0;
+      _secretion_fitness = 0.0;
       _compound_amount   = 0.0;
       _parent_secretion_error = 0.0;
     }
@@ -315,6 +317,7 @@ ae_stat_record::ae_stat_record( ae_individual* indiv, chrom_or_gen_unit chrom_or
     
     // Metabolic error stats
     _metabolic_error = (double) indiv->get_dist_to_target_by_feature( METABOLISM );
+    _metabolic_fitness = (double) indiv->get_fitness_by_feature( METABOLISM );
     _parent_metabolic_error = ( replic_report != NULL ) ? replic_report->get_parent_metabolic_error() : 0.0;
     
     // Fitness
@@ -324,7 +327,7 @@ ae_stat_record::ae_stat_record( ae_individual* indiv, chrom_or_gen_unit chrom_or
     if ( ae_common::use_secretion )
     {
        _secretion_error = (double) gen_unit->get_dist_to_target_by_feature( SECRETION );
-       _compound_secreted = (double) gen_unit->get_fitness_by_feature(SECRETION);
+       _secretion_fitness = (double) gen_unit->get_fitness_by_feature( SECRETION );
        _compound_amount   = (double) indiv->get_grid_cell()->get_compound_amount();
        _parent_secretion_error = 0.0;
   
@@ -336,7 +339,7 @@ ae_stat_record::ae_stat_record( ae_individual* indiv, chrom_or_gen_unit chrom_or
     else
     {
       _secretion_error   = 0.0;
-      _compound_secreted = 0.0;
+      _secretion_fitness = 0.0;
       _compound_amount   = 0.0;
       _parent_secretion_error = 0.0;
     }
@@ -505,12 +508,13 @@ ae_stat_record::ae_stat_record( const ae_stat_record &model )
   _pop_size  = model._pop_size;
   
   _metabolic_error         = model._metabolic_error;
+  _metabolic_fitness       = model._metabolic_fitness;
   _parent_metabolic_error  = model._parent_metabolic_error;
   
   _secretion_error         = model._secretion_error;
+  _secretion_fitness       = model._secretion_fitness;
   _parent_secretion_error  = model._parent_secretion_error;
   
-  _compound_secreted = model._compound_secreted;
   _compound_amount   = model._compound_amount;
   
   _fitness = model._fitness;
@@ -570,12 +574,13 @@ void ae_stat_record::initialize_data( void )
   _pop_size  = 0.0;
   
   _metabolic_error         = 0.0;
+  _metabolic_fitness       = 0.0;
   _parent_metabolic_error  = 0.0;
 
   _secretion_error         = 0.0;
   _parent_secretion_error  = 0.0;
   
-  _compound_secreted = 0.0;
+  _secretion_fitness = 0.0;
   _compound_amount   = 0.0;
   
   _fitness = 0.0;
@@ -631,16 +636,17 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
   {
     if ( stat_type_to_print == FITNESS_STATS )
     {
-      fprintf( stat_file, "%"PRId32" %"PRId32" %e %f %e %e %e %e %e %e", 
+      fprintf( stat_file, "%"PRId32" %"PRId32" %e %f %e %e %e %e %e %e %e", 
               (int32_t) _num_gener,
               (int32_t) _pop_size,
               _fitness,              
               _amount_of_dna, 
               _metabolic_error,
               _parent_metabolic_error,
+              _metabolic_fitness,
               _secretion_error,
               _parent_secretion_error,
-              _compound_secreted,
+              _secretion_fitness,
               _compound_amount );
 
       #ifdef __REGUL
@@ -708,16 +714,17 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
   {
    if ( stat_type_to_print == FITNESS_STATS )
     {
-      fprintf(  stat_file, "%"PRId32" %"PRId32" %e %f %e %e %e %e %e %e", 
+      fprintf(  stat_file, "%"PRId32" %"PRId32" %e %f %e %e %e %e %e %e %e", 
               (int32_t) _num_gener,
               (int32_t) _pop_size,
               _fitness,              
               _amount_of_dna, 
               _metabolic_error,
               _parent_metabolic_error,
+              _metabolic_fitness,
               _secretion_error,
               _parent_secretion_error,
-              _compound_secreted,
+              _secretion_fitness,
               _compound_amount);
 
       #ifdef __REGUL
@@ -795,11 +802,12 @@ void ae_stat_record::divide( double divisor )
   
   _metabolic_error         /= divisor;
   _parent_metabolic_error  /= divisor;
+  _metabolic_fitness       /= divisor;
 
   _secretion_error         /= divisor;
   _parent_secretion_error  /= divisor;
   
-  _compound_secreted       /= divisor;
+  _secretion_fitness       /= divisor;
   _compound_amount         /= divisor;
   
   _amount_of_dna               /= divisor;
@@ -859,11 +867,12 @@ void ae_stat_record::divide_record( ae_stat_record* to_divide, double power )
   
   if (to_divide->_metabolic_error != 0)        { _metabolic_error         /= pow(to_divide->_metabolic_error, power); }
   if (to_divide->_parent_metabolic_error != 0) { _parent_metabolic_error  /= pow(to_divide->_parent_metabolic_error, power); }
-
+  if (to_divide->_metabolic_fitness != 0)        { _metabolic_fitness         /= pow(to_divide->_metabolic_fitness, power); }
+  
   if (to_divide->_secretion_error != 0)        { _secretion_error         /= pow(to_divide->_secretion_error, power); }
   if (to_divide->_parent_secretion_error != 0) { _parent_secretion_error  /= pow(to_divide->_parent_secretion_error, power); }
   
-  if (to_divide->_compound_secreted != 0)       { _compound_secreted       /= pow(to_divide->_compound_secreted, power); }
+  if (to_divide->_secretion_fitness != 0)       { _secretion_fitness       /= pow(to_divide->_secretion_fitness, power); }
   if (to_divide->_compound_amount != 0)        { _compound_amount         /= pow(to_divide->_compound_amount, power); }
   
   if (to_divide->_amount_of_dna != 0)               { _amount_of_dna               /= pow(to_divide->_amount_of_dna, power); }
@@ -919,11 +928,12 @@ void ae_stat_record::add( ae_stat_record* to_add )
   
   _metabolic_error         += to_add->_metabolic_error;
   _parent_metabolic_error  += to_add->_parent_metabolic_error;
+  _metabolic_fitness       += to_add->_metabolic_fitness;
 
   _secretion_error         += to_add->_secretion_error;
   _parent_secretion_error  += to_add->_parent_secretion_error;
   
-  _compound_secreted       += to_add->_compound_secreted;
+  _secretion_fitness       += to_add->_secretion_fitness;
   _compound_amount         += to_add->_compound_amount;
   
   _amount_of_dna               += to_add->_amount_of_dna;
@@ -980,12 +990,14 @@ void ae_stat_record::substract_power( ae_stat_record* means, ae_stat_record* to_
   
   _metabolic_error         += pow( means->_metabolic_error - to_substract->_metabolic_error, power );
   _parent_metabolic_error  += pow( means->_parent_metabolic_error - to_substract->_parent_metabolic_error, power );
-
+  _metabolic_fitness         += pow( means->_metabolic_fitness - to_substract->_metabolic_fitness, power );
+  
   _secretion_error         += pow( means->_secretion_error - to_substract->_secretion_error, power );
   _parent_secretion_error  += pow( means->_parent_secretion_error - to_substract->_parent_secretion_error, power );
   
-  _compound_secreted       += pow( means->_compound_secreted - to_substract->_compound_secreted, power );
+  _secretion_fitness       += pow( means->_secretion_fitness - to_substract->_secretion_fitness, power );
   _compound_amount         += pow( means->_compound_amount - to_substract->_compound_amount, power );
+  
   _amount_of_dna               += pow( means->_amount_of_dna - to_substract->_amount_of_dna, power );
   _nb_coding_rnas              += pow( means->_nb_coding_rnas - to_substract->_nb_coding_rnas, power );
   _nb_non_coding_rnas          += pow( means->_nb_non_coding_rnas - to_substract->_nb_non_coding_rnas, power );

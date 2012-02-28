@@ -104,7 +104,7 @@ int main( int argc, char* argv[] )
   #endif
   
   // 2) Define allowed options
-  const char * options_list = "hxf:o:n:s:p:";
+  const char * options_list = "hxdf:o:n:s:p:";
   static struct option long_options_list[] = {
     { "help",     no_argument, NULL, 'h' },
     { "noX",      no_argument, NULL, 'x' },
@@ -113,6 +113,7 @@ int main( int argc, char* argv[] )
     { "nbgener",  required_argument, NULL, 'n' },
     { "seed",     required_argument, NULL, 's' },
     { "param",    required_argument, NULL, 'p' },
+    { "delete-old-stats",   no_argument, NULL, 'd'},
     { 0, 0, 0, 0 }
   };
       
@@ -204,6 +205,12 @@ int main( int argc, char* argv[] )
         param_overloader->store_overload( tmp );
         // NOTE that the actual overloading of the parameters is done after loading the parameter file
         delete [] tmp;
+        
+        break;
+      }
+      case 'd' :
+      {
+        ae_common::delete_old_stats = true;
         
         break;
       }

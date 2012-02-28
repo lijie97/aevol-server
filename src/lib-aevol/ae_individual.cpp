@@ -214,7 +214,7 @@ ae_individual::ae_individual( const ae_individual &model )
   _non_coding_computed          = model._non_coding_computed;
   _modularity_computed          = model._modularity_computed;
   
-  _placed_in_population         = model._placed_in_population;
+  _placed_in_population         = false;
   
   // Create an empty list of genetic units
   _genetic_unit_list = new ae_list();
@@ -331,6 +331,8 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t index )
   _statistical_data_computed    = false;
   _non_coding_computed          = false;
   _modularity_computed          = false;
+  
+  _placed_in_population = false;
 
   // Create new genetic units with their DNA copied from here
   // NOTE : The RNA lists (one per genetic unit) will also be copied so that we don't
@@ -439,6 +441,8 @@ ae_individual::ae_individual( gzFile* backup_file )
   _statistical_data_computed    = false;
   _non_coding_computed          = false;
   _modularity_computed          = false;
+  
+  _placed_in_population = false;
   
   // Retreive index in population
   gzread( backup_file, &_index_in_population, sizeof(_index_in_population) );
@@ -784,7 +788,7 @@ void ae_individual::compute_fitness( ae_environment* envir )
       if ( i == SECRETION )
       {
         _fitness_by_feature[SECRETION] =  exp( -ae_common::selection_pressure * _dist_to_target_by_feature[SECRETION] )
-                                        - exp( -ae_common::selection_pressure * envir->get_area_by_feature(SECRETION) );
+        - exp( -ae_common::selection_pressure * envir->get_area_by_feature(SECRETION) );
         
         if ( _fitness_by_feature[i] < 0 )
         {
@@ -796,7 +800,7 @@ void ae_individual::compute_fitness( ae_environment* envir )
         _fitness_by_feature[i] = exp( -ae_common::selection_pressure * _dist_to_target_by_feature[i] );
       }  
     }
-
+    
     // Calculate combined, total fitness here!
     // Multiply the contribution of metabolism and the amount of compound in the environment 
     if ( ! _placed_in_population )
@@ -806,12 +810,11 @@ void ae_individual::compute_fitness( ae_environment* envir )
     else
     {   
       _fitness =  _fitness_by_feature[METABOLISM] * 
-                  ( 1 + ae_common::secretion_fitness_contrib * _grid_cell->get_compound_amount()
-                      - ae_common::secretion_cost * _fitness_by_feature[SECRETION] ); 
+      ( 1 + ae_common::secretion_fitness_contrib * _grid_cell->get_compound_amount()
+       - ae_common::secretion_cost * _fitness_by_feature[SECRETION] ); 
     }
   }
 }
-
 
 void ae_individual::reevaluate( ae_environment* envir )
 {
@@ -887,25 +890,25 @@ void ae_individual::reevaluate( ae_environment* envir )
   ae_genetic_unit*  gen_unit      = NULL;
   ae_list_node *    rna_node = NULL;
   ae_rna*           rna = NULL;
- 
+  
   while ( gen_unit_node != NULL )
     {
       gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
 
       rna_node = (gen_unit->get_rna_list()[LEADING])->get_first();
       while(rna_node !=NULL)
-	{
-	  rna = (ae_rna *) rna_node->get_obj();
-	  rna->get_transcribed_proteins()->erase( NO_DELETE );
-	  rna_node = rna_node->get_next();
-	}
+      {
+        rna = (ae_rna *) rna_node->get_obj();
+        rna->get_transcribed_proteins()->erase( NO_DELETE );
+        rna_node = rna_node->get_next();
+      }
       rna_node = (gen_unit->get_rna_list()[LAGGING])->get_first();
       while(rna_node !=NULL)
-	{
-	  rna = (ae_rna *) rna_node->get_obj();
-	  rna->get_transcribed_proteins()->erase( NO_DELETE );
-	  rna_node = rna_node->get_next();
-	}
+      {
+        rna = (ae_rna *) rna_node->get_obj();
+        rna->get_transcribed_proteins()->erase( NO_DELETE );
+        rna_node = rna_node->get_next();
+      }
       
       (gen_unit->get_protein_list()[LEADING])->erase( DELETE_OBJ );
       (gen_unit->get_protein_list()[LAGGING])->erase( DELETE_OBJ );
@@ -936,7 +939,6 @@ void ae_individual::reevaluate( ae_environment* envir )
   _nb_neutral_regions                 = -1;
   
   _modularity = -1;
-
   
   evaluate( envir );
 }
