@@ -627,11 +627,7 @@ void ae_simulation_X11::refresh_window( int8_t win_number )
             }
           }
         }
-      }
-      
-      // Display environment (red)
-      // ((ae_fuzzy_set_X11*)_env)->display( cur_win, RED ); // TODO : line replaced by next line
-      _env->display( cur_win, RED );      
+      }    
 
       // Display all the phenotypes (blue)
       ae_list_node*   indiv_node = _pop->get_indivs()->get_first();
@@ -654,16 +650,20 @@ void ae_simulation_X11::refresh_window( int8_t win_number )
         
       // Display best indiv's phenotype (white)
       ((ae_fuzzy_set_X11*)_pop->get_best()->get_phenotype())->display( cur_win, WHITE );
-      break;
+      
+      // Display environment (red)
+      // ((ae_fuzzy_set_X11*)_env)->display( cur_win, RED ); // TODO : line replaced by next line
+      _env->display( cur_win, RED );
     }
+    break;
 
     case 2:
     {
       cur_win->blacken();
       
       dynamic_cast<ae_individual_X11*>(_pop->get_best())->display_cdss( cur_win );
-      break;
     }
+    break;
 
     case 3:
     {
@@ -672,8 +672,8 @@ void ae_simulation_X11::refresh_window( int8_t win_number )
       ae_individual* indiv1     = _pop->get_best();
       ae_individual_X11* indiv2 = dynamic_cast<ae_individual_X11*>(indiv1);
       indiv2->display_rnas( cur_win );
-      break;
     }
+    break;
 
     // display the amount of secreted compound present at each location
     case 4:
@@ -684,9 +684,8 @@ void ae_simulation_X11::refresh_window( int8_t win_number )
       {
         ((ae_population_X11*)_pop)->display_grid( cur_win, _pop->get_secretion_present());
       }
-      
-      break;
     }
+    break;
    
     // display the metabolic fitness  grid
     case 5:
@@ -694,8 +693,8 @@ void ae_simulation_X11::refresh_window( int8_t win_number )
       cur_win->blacken();
       
       ((ae_population_X11*)_pop)->display_grid( cur_win, _pop->get_fitness_metabolic());
-      break;
     }
+    break;
 
     // display current secretion (how much is secreted by each organism)
     case 6:
@@ -703,8 +702,8 @@ void ae_simulation_X11::refresh_window( int8_t win_number )
       cur_win->blacken();
       
       ((ae_population_X11*)_pop)->display_grid( cur_win, _pop->get_secreted_amount());
-      break;
     }
+    break;
   }
 
   XFlush(_graphical_device);
