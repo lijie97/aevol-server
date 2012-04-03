@@ -773,29 +773,16 @@ void ae_population::step_to_next_generation_grid( void )
     exit( EXIT_FAILURE );
   #endif
   
-  // create a  grid matrix to store new individuals and fitness matrix to store the fitness values
+  
+  // create a temporary grid to store new individuals
   ae_individual*** new_pop_grid = new ae_individual** [ae_common::grid_x];
   for ( int16_t i = 0 ; i < ae_common::grid_x ; i++ )
   {
     new_pop_grid[i] = new ae_individual* [ae_common::grid_y];
   }
 
-  // diffusion and degradation of compound in the environment
-  secretion_grid_update();
-
-  // randomly migrate some organisms, if necessary 
-  if ( ae_common::migration_number > 0 )
-  {
-    do_random_migrations();
-  }    
-  
-
-  double *  probs = new double[9];
-  for ( int8_t i = 0 ; i < 9 ; i++ ) { probs[i] = ((double) 1) / 9; } 
-  double pick_one;
-  int16_t found_org, x_offset, y_offset, new_x, new_y; 
         
-  // go though the population and do local competitions
+  // Do local competitions
   for ( int16_t x = 0 ; x < ae_common::grid_x ; x++ )
   {
     for ( int16_t y = 0 ; y < ae_common::grid_y ; y++ )
@@ -807,63 +794,97 @@ void ae_population::step_to_next_generation_grid( void )
   }  
   
   
-  // Create the new generation
-  ae_list * new_generation = new ae_list(); 
+  // Add the compound secreted by the individuals
   double tmp_secretion; 
   for ( int16_t x = 0 ; x < ae_common::grid_x ; x++ )
   {
     for ( int16_t y = 0 ; y < ae_common::grid_y ; y++ )
     {
-      
-        tmp_secretion = _pop_grid[x][y]->get_compound_amount() + _pop_grid[x][y]->get_individual()->get_fitness_by_feature(SECRETION);        
-        _pop_grid[x][y]->set_individual( do_replication( new_pop_grid[x][y], -1, x, y ) );       
-        _pop_grid[x][y]->set_compound_amount( tmp_secretion );
-        new_generation->add( _pop_grid[x][y]->get_individual() );
-    
+      tmp_secretion = _pop_grid[x][y]->get_compound_amount() + _pop_grid[x][y]->get_individual()->get_fitness_by_feature(SECRETION);        
+      _pop_grid[x][y]->set_compound_amount( tmp_secretion );
     }
   }
+  
+  // Diffusion and degradation of compound in the environment
+  secretion_grid_update();
+  
+  // Create the new generation
+  ae_list * new_generation = new ae_list(); 
+  for ( int16_t x = 0 ; x < ae_common::grid_x ; x++ )
+  {
+    for ( int16_t y = 0 ; y < ae_common::grid_y ; y++ )
+    {
+        _pop_grid[x][y]->set_individual( do_replication( new_pop_grid[x][y], -1, x, y ) );       
+        new_generation->add( _pop_grid[x][y]->get_individual() );
+    }
+  }
+  
+  _indivs->erase( DELETE_OBJ );
+  delete _indivs;
+  _indivs = new_generation;
 
+  // delete the temporary grid
+  for ( int16_t x = 0 ; x < ae_common::grid_x ; x++ )
+  {
+    delete [] new_pop_grid[x];    
+  }
+  
+  delete [] new_pop_grid;
+  
+  // randomly migrate some organisms, if necessary 
+  if ( ae_common::migration_number > 0 )
+  {
+    do_random_migrations();
+  }
+  
+  // Perform transfer
   if ( ae_common::with_transfer )
   {
-	// int16_t ae_common::nb_horiz_trans=3;    //How much plasmids can a cell send in its neighboorhood per generation
-	for (int16_t i=0;i<ae_common::nb_horiz_trans;i++) 
-	{
+    
+    double *  probs = new double[9];
+    for ( int8_t i = 0 ; i < 9 ; i++ ) { probs[i] = ((double) 1) / 9; } 
+    double pick_one;
+    int16_t found_org, x_offset, y_offset, new_x, new_y; 
+    
+    // int16_t ae_common::nb_horiz_trans=3;    //How much plasmids can a cell send in its neighboorhood per generation
+    for (int16_t i=0;i<ae_common::nb_horiz_trans;i++) 
+    {
       
-	  //We will shuffle the grid:
-	  int16_t total_size=((ae_common::grid_x)*(ae_common::grid_y));
-	  int16_t** shuffled_table=new int16_t* [total_size];
-	  for(int16_t z=0;z <total_size;z++)
-	  {
-	  	shuffled_table[z]=new int16_t[2];
-	  	int16_t quotient=z/ae_common::grid_x;
-	  	int16_t remainder=z%ae_common::grid_x;
-	  	shuffled_table[z][0]=(int16_t) remainder;
-	  	shuffled_table[z][1]=(int16_t) quotient;
-	  	
-	  }
-	  
-	  for(int16_t z=0;z <total_size-1;z++)
-	  {
-	  	int16_t rand_nb=ae_common::sim->alea->random((int16_t) (total_size-z));
-	  	int16_t* tmp=shuffled_table[z+rand_nb];
-	  	shuffled_table[z+rand_nb]=shuffled_table[z];
-	  	shuffled_table[z]=tmp;		
-	  }
-	  
-	  
+      //We will shuffle the grid:
+      int16_t total_size=((ae_common::grid_x)*(ae_common::grid_y));
+      int16_t** shuffled_table=new int16_t* [total_size];
+      for(int16_t z=0;z <total_size;z++)
+      {
+        shuffled_table[z]=new int16_t[2];
+        int16_t quotient=z/ae_common::grid_x;
+        int16_t remainder=z%ae_common::grid_x;
+        shuffled_table[z][0]=(int16_t) remainder;
+        shuffled_table[z][1]=(int16_t) quotient;
+        
+      }
+      
+      for(int16_t z=0;z <total_size-1;z++)
+      {
+        int16_t rand_nb=ae_common::sim->alea->random((int16_t) (total_size-z));
+        int16_t* tmp=shuffled_table[z+rand_nb];
+        shuffled_table[z+rand_nb]=shuffled_table[z];
+        shuffled_table[z]=tmp;		
+      }
+      
+      
       
 	    
-        // First transfer all the plasmids, but just add them at the end of the list of the GUs
-        for ( int16_t z = 0 ; z < total_size ; z++ )
-        {
-	    // 1. Will there be the plasmid transfered this time
-	    // The probability that at least one of 8 neighbours sends a plasmid is  
-	    // 1 minus the probability that none send it, so (1-(1-pht)^8)
-	    // where pht is the probability that an individual plasmid transfers
+      // First transfer all the plasmids, but just add them at the end of the list of the GUs
+      for ( int16_t z = 0 ; z < total_size ; z++ )
+      {
+        // 1. Will there be the plasmid transfered this time
+        // The probability that at least one of 8 neighbours sends a plasmid is  
+        // 1 minus the probability that none send it, so (1-(1-pht)^8)
+        // where pht is the probability that an individual plasmid transfers
         
 	      if (ae_common::sim->alea->random() < (1.0 - pow( (1.0 - ae_common::prob_horiz_trans), 9)) ) 
 	      {
-        
+          
 	        int16_t x=shuffled_table[z][0];
 	        int16_t y=shuffled_table[z][1];
 	        // printf('\ny: ');printf(y); 
@@ -894,8 +915,8 @@ void ae_population::step_to_next_generation_grid( void )
   	      
 	      }	
 	    }
-	  delete [] shuffled_table;
-	}
+      delete [] shuffled_table;
+    }
 
 
   	
@@ -941,43 +962,28 @@ void ae_population::step_to_next_generation_grid( void )
     {
       for ( int16_t y = 0 ; y < ae_common::grid_y ; y++ )
       { 
-		bool reevaluate=false;
-		while (_pop_grid[x][y]->get_individual()->get_genetic_unit_list()->get_nb_elts() > 2) 
+        bool reevaluate=false;
+        while (_pop_grid[x][y]->get_individual()->get_genetic_unit_list()->get_nb_elts() > 2) 
         {
-		  reevaluate=true;
+          reevaluate=true;
           _pop_grid[x][y]->get_individual()->get_genetic_unit_list()->remove(_pop_grid[x][y]->get_individual()->get_genetic_unit_list()->get_first()->get_next(), DELETE_OBJ, DELETE_OBJ);
-		}
+        }
 		
-		if (reevaluate)
-		{
-		  _pop_grid[x][y]->get_individual()->reevaluate( ae_common::sim->get_env() );
-		}
+        if (reevaluate)
+        {
+          _pop_grid[x][y]->get_individual()->reevaluate( ae_common::sim->get_env() );
+        }
         
       }
     }
-    
+    delete [] probs;
   }
-      
-  delete [] probs;   
-  
-  _indivs->erase( DELETE_OBJ );
-  delete _indivs;
-  _indivs = new_generation;
-  
   
   // Update the best individual
   update_best();
   
   //printf( "new_gen : 0x%x nb_indivs : %ld\n", new_generation, new_generation->get_nb_elts() );
   //printf( "first node : 0x%x obj : 0x%x\n", new_generation->get_first(), new_generation->get_first()->get_obj() );
- 
-  // delete the new grid
-  for ( int16_t x = 0 ; x < ae_common::grid_x ; x++ )
-  {
-    delete [] new_pop_grid[x];    
-  }
-  
-  delete [] new_pop_grid;
   
 }
 

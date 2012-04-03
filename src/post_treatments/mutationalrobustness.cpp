@@ -69,17 +69,20 @@ int main( int argc, char* argv[] )
   //
   // 1) Initialize command-line option variables with default values
   char* backup_file_name = NULL;
-  long int ndiv = 100000;
+  int32_t ndiv = 100000;
   ae_param_overloader* param_overloader = new ae_param_overloader();
   char* output_file_name = NULL;
+  bool best_only = false;
   
   // 2) Define allowed options
-  const char * options_list = "hp:n:f:o:";
+  const char * options_list = "hp:n:f:o:b";
   static struct option long_options_list[] = {
+    { "help", 0, NULL, 'h' },
     { "number", 1, NULL, 'n' },
     { "file", 1, NULL, 'f' },
     { "output", 1, NULL, 'o' },
-    { "param",    required_argument, NULL, 'p' },
+    { "param", 1, NULL, 'p' },
+    { "best", 0, NULL, 'b' },
     { 0, 0, 0, 0 }
   };
 
@@ -122,6 +125,11 @@ int main( int argc, char* argv[] )
       {
         output_file_name = new char[strlen(optarg) + 1];
         sprintf( output_file_name, "%s", optarg );
+        break;
+      }
+      case 'b' :
+      {
+        best_only = true;
         break;
       }
     }
@@ -182,64 +190,78 @@ int main( int argc, char* argv[] )
 
   // Write the header
   fprintf( output, "# #################################################################\n" );
-  fprintf( output, "#              Mutations produced by mutagenesissecretion\n" );
+  fprintf( output, "#              Mutations produced by mutationalrobustness\n" );
   fprintf( output, "# #################################################################\n" );
+  fprintf( output, "# Number of replicate per individual : %"PRId32" \n",ndiv );
+  fprintf( output, "# Impact on metabolism SPACE impact on secretion\n" );
   fprintf( output, "#\n" );
-  fprintf( output, "impact on metabolism ; impact on secretion\n" );
-  fprintf( output, "#\n" );
-  
-
-
   
   // =================================================================
-  //                     Proceed to mutagenesis
+  //                     Parse the individuals
   // =================================================================
-  // Set some data
-  ae_individual*  initial_indiv = best_indiv;
-
-  double          initial_metabolic_error = initial_indiv->get_dist_to_target_by_feature( METABOLISM );
-  double          initial_secretion_error = initial_indiv->get_dist_to_target_by_feature( SECRETION );
+  // 
   
-  double final_metabolic_error      = 0.0;
-  double impact_on_metabolic_error  = 0.0;
-  
-  double final_secretion_error      = 0.0;
-  double impact_on_secretion_error  = 0.0;
-  
-  ae_individual*  indiv       = NULL;
-  ae_vis_a_vis*   alignment_1 = NULL;
-  ae_vis_a_vis*   alignment_2 = NULL;
-  int32_t         nb_pairs;
-  
-  int16_t i;
-  bool    rear_done;
-
-  // Perform ndiv reproductions with mutations
-  
-  for ( i = 0; i < ndiv; i++ )
+  for ( int16_t x = 0 ; x < ae_common::grid_x ; x++ )
   {
-    if ( i % 100 == 0 )
+    for ( int16_t y = 0 ; y < ae_common::grid_y ; y++ )
     {
-      printf( "*" );
-      fflush(stdout);
+      
+      ae_individual*  initial_indiv = ((ae_common::sim->get_pop())->get_pop_grid())[x][y]->get_individual();       
+
+      // =================================================================
+      //                      Proceed to mutagenesis
+      // =================================================================
+      
+      // Set some data
+      //ae_individual*  initial_indiv = best_indiv;
+      
+      double          initial_metabolic_error = initial_indiv->get_dist_to_target_by_feature( METABOLISM );
+      double          initial_secretion_error = initial_indiv->get_dist_to_target_by_feature( SECRETION );
+      
+      double final_metabolic_error      = 0.0;
+      double impact_on_metabolic_error  = 0.0;
+      
+      double final_secretion_error      = 0.0;
+      double impact_on_secretion_error  = 0.0;
+      
+      ae_individual*  indiv       = NULL;
+      
+      int32_t i;
+      
+      // Perform ndiv reproductions with mutations
+      
+      for ( i = 0; i < ndiv; i++ )
+      {
+        if ( i % 1000 == 0 )
+        {
+          printf( "*" );
+          fflush(stdout);
+        }
+        
+        indiv = ae_common::sim->get_pop()->do_replication( initial_indiv, -1 );
+        
+        indiv->reevaluate(env);
+        final_metabolic_error     = indiv->get_dist_to_target_by_feature( METABOLISM );
+        impact_on_metabolic_error = final_metabolic_error - initial_metabolic_error;
+        
+        final_secretion_error     = indiv->get_dist_to_target_by_feature( SECRETION );
+        impact_on_secretion_error = final_secretion_error - initial_secretion_error;
+        
+        fprintf( output, "%+.15f %+.15f \n",impact_on_metabolic_error, impact_on_secretion_error );
+        
+        delete indiv;
+        
+      }
+      
+      fprintf( output, "\n" );
+      
     }
-    
-    indiv = ae_common::sim->get_pop()->do_replication( best_indiv, -1 );
-    
-    indiv->reevaluate(env);
-    final_metabolic_error     = indiv->get_dist_to_target_by_feature( METABOLISM );
-    impact_on_metabolic_error = final_metabolic_error - initial_metabolic_error;
-    
-    final_secretion_error     = indiv->get_dist_to_target_by_feature( SECRETION );
-    impact_on_secretion_error = final_secretion_error - initial_secretion_error;
-
-    fprintf( output, "%+.15f %+.15f \n",impact_on_metabolic_error, impact_on_secretion_error );
-    
-    delete indiv;
-
   }
   
-
+  // =================================================================
+  //                             Clean up
+  // =================================================================
+  
   delete ae_common::sim;
 
   fclose(output);
