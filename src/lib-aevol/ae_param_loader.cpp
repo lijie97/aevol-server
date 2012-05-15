@@ -947,9 +947,9 @@ void ae_param_loader::format_line( f_line* formated_line, char* line, bool* line
   int16_t j;
 
   // Parse line
-  while ( line[i] != '\n' && line[i] != '\0' )
+  while ( line[i] != '\n' && line[i] != '\0' && line[i] != '\r')
   {
-    //      printf("i = %d\n", i);
+    //       printf("i = %d\n", i);
     j = 0;
 
     // Flush white spaces and tabs
@@ -962,7 +962,7 @@ void ae_param_loader::format_line( f_line* formated_line, char* line, bool* line
     *line_is_interpretable = true;
 
     // Parse word
-    while ( line[i] != ' '  && line[i] != '\n' && line[i] != '\0' )
+    while ( line[i] != ' '  && line[i] != '\n' && line[i] != '\0' && line[i] != '\r' )
     {
       formated_line->words[formated_line->nb_words][j++] = line[i++];
     }
