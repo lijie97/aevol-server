@@ -71,7 +71,7 @@ ae_fuzzy_set_X11::~ae_fuzzy_set_X11( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_fuzzy_set_X11::display( ae_X11_window* win, color_map color )
+void ae_fuzzy_set_X11::display( ae_X11_window* win, color_map color, bool fill /*= false*/, bool bold /*= false*/ )
 {
   double min_y = MIN_Y - 0.1 * MAX_Y; // Yields a bottom margin
   double max_y = MAX_Y * 1.1;         // Yields a top margin
@@ -98,7 +98,19 @@ void ae_fuzzy_set_X11::display( ae_X11_window* win, color_map color )
     next_x  = (      (next_point->x - MIN_X) / delta_x  ) * win->get_width();
     next_y  = ( 1 - ((next_point->y - min_y) / delta_y) ) * win->get_height();
     
-    win->draw_line( cur_x, cur_y, next_x, next_y, color );
+    if ( fill )
+    {
+      char* fill_color;
+      for ( int16_t i = cur_x ; i < next_x ; i++ )
+      {
+        fill_color = ae_X11_window::get_color( ((double)i / win->get_width()) * (MAX_X - MIN_X) );
+        win->draw_line( i, ( 1 - ((0 -  min_y) / delta_y) ) * win->get_height(),
+                        i, cur_y + (((i - cur_x) * (next_y - cur_y)) / (next_x - cur_x)) , fill_color );
+        delete fill_color;
+      }
+    }
+    
+    win->draw_line( cur_x, cur_y, next_x, next_y, color, bold );
     
     node = node->get_next();
   }

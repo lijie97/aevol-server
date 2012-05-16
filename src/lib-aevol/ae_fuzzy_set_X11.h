@@ -81,7 +81,7 @@ class ae_fuzzy_set_X11 : public ae_fuzzy_set
     // =================================================================
     //                            Public Methods
     // =================================================================
-    /*virtual */void display( ae_X11_window* win, color_map color ); // TODO
+    virtual void display( ae_X11_window* win, color_map color, bool fill = false, bool bold = false );
   
     // =================================================================
     //                           Public Attributes

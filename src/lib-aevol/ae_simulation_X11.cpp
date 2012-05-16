@@ -584,7 +584,8 @@ void ae_simulation_X11::refresh_window( int8_t win_number )
 
   switch ( win_number )
   {
-    case 0:
+    // Main window (population)
+    case 0 :
     {
       cur_win->blacken();
       
@@ -599,6 +600,7 @@ void ae_simulation_X11::refresh_window( int8_t win_number )
       break;
     }
     
+    // Display phenotypes and environment
     case 1 :
     {
       // Blacken all the window except the colour bar
@@ -649,15 +651,16 @@ void ae_simulation_X11::refresh_window( int8_t win_number )
       }
         
       // Display best indiv's phenotype (white)
-      ((ae_fuzzy_set_X11*)_pop->get_best()->get_phenotype())->display( cur_win, WHITE );
+      ((ae_fuzzy_set_X11*)_pop->get_best()->get_phenotype())->display( cur_win, WHITE, true );
       
       // Display environment (red)
       // ((ae_fuzzy_set_X11*)_env)->display( cur_win, RED ); // TODO : line replaced by next line
-      _env->display( cur_win, RED );
+      _env->display( cur_win, RED, false, true );
     }
     break;
 
-    case 2:
+    // Display genes
+    case 2 :
     {
       cur_win->blacken();
       
@@ -665,7 +668,8 @@ void ae_simulation_X11::refresh_window( int8_t win_number )
     }
     break;
 
-    case 3:
+    // Display RNAs
+    case 3 :
     {
       cur_win->blacken();
       
@@ -675,8 +679,8 @@ void ae_simulation_X11::refresh_window( int8_t win_number )
     }
     break;
 
-    // display the amount of secreted compound present at each location
-    case 4:
+    // Display the amount of secreted compound present at each location
+    case 4 :
     {
       cur_win->blacken();
       
@@ -687,8 +691,8 @@ void ae_simulation_X11::refresh_window( int8_t win_number )
     }
     break;
    
-    // display the metabolic fitness  grid
-    case 5:
+    // Display the metabolic fitness grid
+    case 5 :
     {
       cur_win->blacken();
       

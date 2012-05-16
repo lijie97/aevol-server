@@ -122,8 +122,39 @@ ae_population::ae_population( void )
     }
   }
   else
-  {
-    printf( "ERROR, the initialization method you have chosen has not been implemented yet. in file %s:%d\n", __FILE__, __LINE__ );
+  {    
+    if ( ae_common::init_method & CLONE )
+    {
+      // Create a random individual and set its index in the population
+      indiv = create_random_individual( index_new_indiv++ );
+      
+      // Add it to the list
+      _indivs->add( indiv );
+      
+      // Make the clones and add them to the list of individuals
+      ae_individual* clone = NULL;
+      for ( int32_t i = 1 ; i < _nb_indivs ; i++ )
+      {
+        // Create a clone, setting its index
+        clone = create_clone( indiv, index_new_indiv++ );
+        
+        // Add it to the list
+        _indivs->add( clone );
+      }
+    }
+    else
+    {
+      for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
+      {
+        // Create a random individual and set its index in the population
+        indiv = create_random_individual( index_new_indiv++ );
+        
+        // Add it to the list
+        _indivs->add( indiv );
+      }
+      
+      sort_individuals();
+    }
   }
   
   #ifdef FIXED_POPULATION_SIZE
@@ -1716,8 +1747,6 @@ ae_individual* ae_population::create_random_individual( int32_t index )
 {
   ae_individual* indiv;
   
-  //~ printf( "create_random_individual\n" );
-  
   #ifdef __NO_X
     #ifndef __REGUL
       indiv = new ae_individual();
@@ -1734,11 +1763,6 @@ ae_individual* ae_population::create_random_individual( int32_t index )
   
   indiv->set_index_in_population( index );
   
-  // <DEBUG>
-  //~ int32_t pos1;
-  //~ int32_t pos2;
-  //~ int32_t junk;
-  // </DEBUG>
   
   if ( ae_common::init_method & WITH_INS_SEQ )
   {
@@ -1760,9 +1784,6 @@ ae_individual* ae_population::create_random_individual( int32_t index )
     for ( int16_t i = 0 ; i < nb_insert ; i++ )
     {
       mut1 = indiv->get_genetic_unit(0)->get_dna()->do_insertion( ins_seq, seq_len );
-      // <DEBUG>
-      //~ mut1->get_infos_insertion( &pos1, &junk );
-      // </DEBUG>
       delete mut1;
     }
     
@@ -1778,77 +1799,14 @@ ae_individual* ae_population::create_random_individual( int32_t index )
     for ( int16_t i = 0 ; i < nb_invert ; i++ )
     {
       mut1 = indiv->get_genetic_unit(0)->get_dna()->do_insertion( inverted_seq, seq_len );
-      // <DEBUG>
-      //~ mut1->get_infos_insertion( &pos2, &junk );
-      // </DEBUG>
       delete mut1;
     }
-    
-    // <DEBUG>
-    //~ if ( pos2 <= pos1 ) pos1 += 50;
-    
-    //~ char* seqA1;
-    //~ char* seqA2;
-    //~ char* seqA3;
-    //~ char* seqB1;
-    //~ char* seqB2;
-    //~ char* seqB3;
-    //~ char* seqA1_inv;
-    //~ char* seqA2_inv;
-    //~ char* seqA3_inv;
-    //~ char* seqB1_inv;
-    //~ char* seqB2_inv;
-    //~ char* seqB3_inv;
-    //~ seqA1 = indiv->get_genetic_unit(0)->get_dna()->get_subsequence( pos1-10, pos1,    LEADING );
-    //~ seqA2 = indiv->get_genetic_unit(0)->get_dna()->get_subsequence( pos1,    pos1+50, LEADING );
-    //~ seqA3 = indiv->get_genetic_unit(0)->get_dna()->get_subsequence( pos1+50, pos1+60, LEADING );
-    //~ seqB1 = indiv->get_genetic_unit(0)->get_dna()->get_subsequence( pos2-10, pos2,    LEADING );
-    //~ seqB2 = indiv->get_genetic_unit(0)->get_dna()->get_subsequence( pos2,    pos2+50, LEADING );
-    //~ seqB3 = indiv->get_genetic_unit(0)->get_dna()->get_subsequence( pos2+50, pos2+60, LEADING );
-    //~ seqA1_inv = indiv->get_genetic_unit(0)->get_dna()->get_subsequence( pos1+60, pos1+50, LAGGING );
-    //~ seqA2_inv = indiv->get_genetic_unit(0)->get_dna()->get_subsequence( pos1+50, pos1,    LAGGING );
-    //~ seqA3_inv = indiv->get_genetic_unit(0)->get_dna()->get_subsequence( pos1,    pos1-10, LAGGING );
-    //~ seqB1_inv = indiv->get_genetic_unit(0)->get_dna()->get_subsequence( pos2+60, pos2+50, LAGGING );
-    //~ seqB2_inv = indiv->get_genetic_unit(0)->get_dna()->get_subsequence( pos2+50, pos2,    LAGGING );
-    //~ seqB3_inv = indiv->get_genetic_unit(0)->get_dna()->get_subsequence( pos2,    pos2-10, LAGGING );
-  
-    //~ printf( "             %s\n", ins_seq );
-    //~ printf( "             %s\n", inverted_seq );
-    //~ printf( "\n" );
-    //~ printf( "\n" );
-  
-    //~ printf( "  %s %s %s\n", seqA1, seqA2, seqA3 );
-    //~ printf( "  %s %s %s\n", seqB1_inv, seqB2_inv, seqB3_inv );
-    //~ printf( "\n" );
-    //~ printf( "  %s %s %s\n", seqB1, seqB2, seqB3 );
-    //~ printf( "  %s %s %s\n", seqA1_inv, seqA2_inv, seqA3_inv );
-    //~ getchar();
-    // </DEBUG>
-    
-    // <DEBUG>
-    //~ ae_vis_a_vis* align = NULL;
-    //~ align = ae_align::search_alignment_indirect( indiv->get_genetic_unit(0)->get_dna(), pos1, indiv->get_genetic_unit(0)->get_dna(), pos2+50, 40 );
-    
-    //~ if ( align == NULL )
-    //~ {
-      //~ printf( "NO ALIGNMENT!\n" );
-      //~ getchar();
-    //~ }
-    //~ else
-    //~ {
-      //~ printf( "Alignment found at %"PRId32", %"PRId32" (%"PRId32", %"PRId32")\n", align->get_i_1(), align->get_i_2(), pos1, pos2+50 );
-      //~ getchar();
-    //~ }
-    
-    //~ printf( "%s\n%s\n", ins_seq, inverted_seq );
-    //~ getchar();
-    // </DEBUG>
     
     delete [] ins_seq;
     delete [] inverted_seq;
   }
   
-  //~ printf( "random individual created\n" );
+  indiv->evaluate( ae_common::sim->get_env() );
   
   return indiv;
 }
@@ -1856,8 +1814,7 @@ ae_individual* ae_population::create_random_individual( int32_t index )
 
 ae_individual* ae_population::create_individual_from_file( char* organism_file_name, int32_t index )
 {
-  ae_individual* indiv;
-  
+  ae_individual* indiv;  
   
   #ifdef __NO_X
     #ifndef __REGUL
@@ -1895,7 +1852,6 @@ ae_individual* ae_population::create_random_individual_with_good_gene( int32_t i
 {
   // Create a random individual and evaluate it
   ae_individual* indiv = create_random_individual( index );
-  indiv->evaluate( ae_common::sim->get_env() );
   
   // While the created individual is not better than the flat individual (indiv whith no metabolic gene),
   // we delete it and replace it by another random individual
@@ -1943,9 +1899,6 @@ ae_individual* ae_population::create_random_individual_with_good_gene( int32_t i
       indiv->evaluate( ae_common::sim->get_env() );
     }
   }
-  //printf("found an individual! counter = %ld\n ", counter);
-  
-  //~ printf( "\"good\" individual created\n" );
   
   // Compute the "good" individual's statistics
   indiv->compute_statistical_data();

@@ -283,54 +283,73 @@ void ae_X11_window::draw_string( int16_t x, int16_t y, char * str )
   XDrawImageString( _display, _window, _gcWhite, x, y, str, strlen(str) );
 }
 
-void ae_X11_window::draw_line( int16_t x1, int16_t y1, int16_t x2, int16_t y2, color_map color )
+void ae_X11_window::draw_line( int16_t x1, int16_t y1, int16_t x2, int16_t y2, color_map color, bool bold /*= false*/ )
 {
+  GC* gc = NULL;
+  
+  // Determine which GC to use
   switch ( color )
   {
     case WHITE :
-      XDrawLine( _display, _window, _gcWhite, x1, y1, x2, y2 );
+      gc = &_gcWhite;
       break;
     case BLACK :
-      XDrawLine( _display, _window, _gcBlack, x1, y1, x2, y2 );
+      gc = & _gcBlack;
       break;
     case RED :
-      XDrawLine( _display, _window, _gcRed, x1, y1, x2, y2 );
+      gc = & _gcRed;
       break;
     case GREEN :
-      XDrawLine( _display, _window, _gcGreen, x1, y1, x2, y2 );
+      gc = & _gcGreen;
       break;
     case BLUE :
-      XDrawLine( _display, _window, _gcBlue, x1, y1, x2, y2 );
+      gc = & _gcBlue;
       break;
     case ORANGE :
-      XDrawLine( _display, _window, _gcOrange, x1, y1, x2, y2 );
+      gc = & _gcOrange;
       break;
     case YELLOW :
-      XDrawLine( _display, _window, _gcYellow, x1, y1, x2, y2 );
+      gc = & _gcYellow;
       break;
     case GREY :
-      XDrawLine( _display, _window, _gcGrey, x1, y1, x2, y2 );
+      gc = & _gcGrey;
       break;
     case LIGHT_GREY :
-      XDrawLine( _display, _window, _gcLightGrey, x1, y1, x2, y2 );
+      gc = & _gcLightGrey;
       break;
     case DARK_GREY :
-      XDrawLine( _display, _window, _gcDarkGrey, x1, y1, x2, y2 );
+      gc = & _gcDarkGrey;
       break;
     case DARKER_GREY :
-      XDrawLine( _display, _window, _gcDarkerGrey, x1, y1, x2, y2 );
+      gc = & _gcDarkerGrey;
       break;
+  }
+  
+  
+  // Draw line (lines if bold)
+  XDrawLine( _display, _window, *gc, x1, y1, x2, y2 );
+  if ( bold )
+  {
+    XDrawLine( _display, _window, *gc, x1-1, y1, x2-1, y2 );
+    XDrawLine( _display, _window, *gc, x1+1, y1, x2+1, y2 );
   }
 }
 
-void ae_X11_window::draw_line( int16_t x1, int16_t y1, int16_t x2, int16_t y2, char* color )
+void ae_X11_window::draw_line( int16_t x1, int16_t y1, int16_t x2, int16_t y2, char* color, bool bold /*= false*/ )
 {
+  // Create custom GC
   XGCValues values;
   values.foreground = get_pixel( _display, _screen, color, WhitePixel(_display,_screen) );
   values.background = get_pixel( _display, _screen, color, WhitePixel(_display,_screen) );
   GC tmp_gc = XCreateGC( _display, _window, GCForeground|GCBackground, &values );
 
+  // Draw line (lines if bold)
   XDrawLine( _display, _window, tmp_gc, x1, y1, x2, y2 );
+  if ( bold )
+  {
+    XDrawLine( _display, _window, tmp_gc, x1-1, y1, x2-1, y2 );
+    XDrawLine( _display, _window, tmp_gc, x1+1, y1, x2+1, y2 );
+  }
 
   XFreeGC( _display, tmp_gc );
 }

@@ -117,8 +117,8 @@ class ae_X11_window : public ae_object
     void resize( uint32_t width, uint32_t height ); 
     inline void blacken( void );
     void draw_string( int16_t x, int16_t y, char* str );
-    void draw_line( int16_t x1, int16_t y1, int16_t x2, int16_t y2, color_map color );
-    void draw_line( int16_t x1, int16_t y1, int16_t x2, int16_t y2, char* color );
+    void draw_line( int16_t x1, int16_t y1, int16_t x2, int16_t y2, color_map color, bool bold = false );
+    void draw_line( int16_t x1, int16_t y1, int16_t x2, int16_t y2, char* color, bool bold = false );
     void draw_circle( int16_t x, int16_t y, int16_t diam );
     void draw_arc( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2 );
     void draw_arc( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2, char* color );

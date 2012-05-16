@@ -947,9 +947,8 @@ void ae_param_loader::format_line( f_line* formated_line, char* line, bool* line
   int16_t j;
 
   // Parse line
-  while ( line[i] != '\n' && line[i] != '\0' && line[i] != '\r')
+  while ( line[i] != '\n' && line[i] != '\0' && line[i] != '\r' )
   {
-    //       printf("i = %d\n", i);
     j = 0;
 
     // Flush white spaces and tabs
@@ -967,8 +966,11 @@ void ae_param_loader::format_line( f_line* formated_line, char* line, bool* line
       formated_line->words[formated_line->nb_words][j++] = line[i++];
     }
 
-    // Add '\0' at end of word
-    formated_line->words[formated_line->nb_words++][j] = '\0';
+    // Add '\0' at end of word if it's not empty (line ending with space or tab)
+    if ( j != 0 )
+    {
+      formated_line->words[formated_line->nb_words++][j] = '\0';
+    }
   }
 }
 
