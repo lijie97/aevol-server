@@ -80,6 +80,7 @@ class ae_individual : public ae_object
     ae_individual( ae_individual* const parent, int32_t index );
     ae_individual( gzFile* backup_file );
     ae_individual( char* organism_file_name );
+    ae_individual( char* genome, int32_t genome_size );
 
     // =================================================================
     //                             Destructors
@@ -409,18 +410,18 @@ inline void ae_individual::set_placed_in_population( bool placed_in_population )
   _placed_in_population = placed_in_population;
 }
 
-/**
- * Set the individual's replication report
- * To be used by post-treatment only
- */
+/*!
+  Set the individual's replication report
+  To be used by post-treatment only
+*/
 inline void ae_individual::set_replication_report( ae_replication_report * rep )
 {
   _replic_report = rep;
 }
 
-/**
- * Returns the number of genetic units
- */
+/*!
+  Returns the number of genetic units
+*/
 inline int16_t ae_individual::get_nb_genetic_units( void ) const
 {
   return _genetic_unit_list->get_nb_elts();
@@ -445,17 +446,17 @@ inline int32_t ae_individual::get_amount_of_dna( void ) const
   return amount;
 }
 
-/**
- * Returns the list of genetic units
- */
+/*!
+  Returns the list of genetic units
+*/
 inline ae_list* ae_individual::get_genetic_unit_list( void ) const
 {
   return _genetic_unit_list;
 }
 
-/**
- * Returns genetic unit number <num_unit> (0 for main chromosome)
- */
+/*!
+  Returns genetic unit number <num_unit> (0 for main chromosome)
+*/
 inline ae_genetic_unit* ae_individual::get_genetic_unit( int16_t num_unit ) const
 {
   ae_list_node* gen_unit_node = _genetic_unit_list->get_first();

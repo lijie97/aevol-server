@@ -544,13 +544,13 @@ ae_individual::ae_individual( gzFile* backup_file )
   _modularity = -1;
 }
 
-/**
- * Creates a new individual with a genome read in from a file.
- *
- * Promoters will be looked for on the whole genome but no further process
- * will be performed.
- * The phenotype and the fitness are not set, neither is the statistical data.
- */
+/*!
+  Creates a new individual with a genome read in from a file.
+ 
+  Promoters will be looked for on the whole genome but no further process
+  will be performed.
+  The phenotype and the fitness are not set, neither is the statistical data.
+*/
 ae_individual::ae_individual( char* organism_file_name )
 {
   _index_in_population  = -1;
@@ -643,6 +643,115 @@ ae_individual::ae_individual( char* organism_file_name )
   _nb_bases_in_0_RNA                  = -1;
   _nb_bases_in_0_coding_RNA           = -1;
   _nb_bases_in_0_non_coding_RNA       = -1;
+  
+  _modularity = -1;
+}
+
+
+/*!
+  Creates a new individual with the given genome.
+ 
+  Promoters will be looked for on the whole genome but no further process
+  will be performed.
+  The phenotype and the fitness are not set, neither is the statistical data.
+ 
+  WARNING : 
+    genome will be used directly which means the caller must not delete it
+*/
+ae_individual::ae_individual( char* genome, int32_t genome_size )
+{
+  _index_in_population  = -1;
+  _rank_in_population   = -1;
+  
+  _evaluated                    = false;
+  _transcribed                  = false;
+  _translated                   = false;
+  _folded                       = false;
+  _phenotype_computed           = false;
+  _distance_to_target_computed  = false;
+  _fitness_computed             = false;
+  _statistical_data_computed    = false;
+  _non_coding_computed          = false;
+  _modularity_computed          = false;
+  
+  _placed_in_population = false;
+  
+  // Create a list of genetic units with only the main chromosome
+  _genetic_unit_list = new ae_list();
+  
+  if ( ae_common::allow_plasmids )
+  {
+    printf( "ERROR, functionality not implemented %s:%d\n", __FILE__, __LINE__ );
+  }
+  else
+  {
+    _genetic_unit_list->add( new ae_genetic_unit( this, genome, genome_size ) );
+  }
+  
+  // Create empty fuzzy sets for activation and inhibition
+  _phenotype_activ = new ae_fuzzy_set();
+  _phenotype_inhib = new ae_fuzzy_set();
+  _phenotype = NULL;
+  
+  // Initialize all the fitness-related stuff
+  if ( ae_common::env_axis_is_segmented )
+  {
+    _dist_to_target_segment = new double [ae_common::env_axis_nb_segments];
+    
+    for ( int16_t i = 0 ; i < ae_common::env_axis_nb_segments ; i++ )
+    {
+      _dist_to_target_segment[i] = 0;
+    }
+  }
+  else
+  {
+    _dist_to_target_segment = NULL;
+  }
+  
+  _dist_to_target_by_feature  = new double [NB_FEATURES];
+  _fitness_by_feature         = new double [NB_FEATURES];
+  
+  for ( int8_t i = 0 ; i < NB_FEATURES ; i++ )
+  {
+    _dist_to_target_by_feature[i] = 0.0;
+    _fitness_by_feature[i]        = 0.0;
+  }
+  
+  // Individual has no replication to report
+  _replic_report = NULL;
+  
+  _protein_list = new ae_list();
+  _rna_list     = new ae_list();
+  
+  _int_probes     = new int32_t[5];
+  _double_probes  = new double[5];
+  for ( int8_t i = 0 ; i < 5 ; i++ )
+  {
+    _int_probes[i]    = 0;
+    _double_probes[i] = 0;
+  }
+  
+  // Initialize statistical data // TODO : => function
+  _total_genome_size                  = 0;
+  _nb_coding_RNAs                     = 0;
+  _nb_non_coding_RNAs                 = 0;
+  _overall_size_coding_RNAs           = 0;
+  _overall_size_non_coding_RNAs       = 0;
+  _nb_genes_activ                     = 0;
+  _nb_genes_inhib                     = 0;
+  _nb_functional_genes                = 0;
+  _nb_non_functional_genes            = 0;
+  _overall_size_functional_genes      = 0;
+  _overall_size_non_functional_genes  = 0;
+  
+  _nb_bases_in_0_CDS                  = -1;
+  _nb_bases_in_0_functional_CDS       = -1;
+  _nb_bases_in_0_non_functional_CDS   = -1;
+  _nb_bases_in_0_RNA                  = -1;
+  _nb_bases_in_0_coding_RNA           = -1;
+  _nb_bases_in_0_non_coding_RNA       = -1;
+  _nb_bases_in_neutral_regions        = -1;
+  _nb_neutral_regions                 = -1;
   
   _modularity = -1;
 }

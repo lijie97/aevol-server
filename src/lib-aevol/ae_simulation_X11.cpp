@@ -73,22 +73,51 @@ static Bool AlwaysTruePredicate (Display*, XEvent*, char*) { return True; }
 // =================================================================
 ae_simulation_X11::ae_simulation_X11( ae_param_overloader* param_overloader /* = NULL */ ) : ae_simulation( param_overloader )
 {
-  _display                = false;
+  _display_on             = false;
   _handle_display_on_off  = false;
   
-  _graphical_device = XOpenDisplay( NULL );
-  _screen           = DefaultScreen( _graphical_device );
-  _atoms            = new Atom[2];
-  _atoms[0]         = XInternAtom( _graphical_device, "WM_DELETE_WINDOW", False );
-  _atoms[1]         = XInternAtom( _graphical_device, "WM_PROTOCOLS", False );
-  
+  // Initialize XLib stuff
+  _display  = XOpenDisplay( NULL );
+  _screen   = XDefaultScreen( _display );
+  _atoms    = new Atom[2];
+  _atoms[0] = XInternAtom( _display, "WM_DELETE_WINDOW", False );
+  _atoms[1] = XInternAtom( _display, "WM_PROTOCOLS", False );
   set_codes();
   
-  _win = new ae_X11_window* [NB_WIN];
+  // Initialize window structures
+  _win      = new ae_X11_window* [NB_WIN];
+  _win_size = new unsigned int* [NB_WIN];
+  _win_pos  = new int* [NB_WIN];
+  
   for ( int8_t i = 0 ; i < NB_WIN ; i++ )
   {
     _win[i] = NULL;
+    
+    // Default values
+    _win_size[i] = new unsigned int[2];
+    _win_size[i][0] = 300;
+    _win_size[i][1] = 300;
+    _win_pos[i] = new int[2];
+    _win_pos[i][0]  = 0;
+    _win_pos[i][1]  = 0;
   }
+  
+  // Set phenotype window width
+  _win_size[1][0] = 600;
+  
+  // If screen is large enough, set initial positions
+  if ( XDisplayWidth( _display, _screen ) >= 900 && XDisplayHeight( _display, _screen ) >= 650 )
+  {
+    _win_pos[0][0]  = 0;
+    _win_pos[0][1]  = 0;
+    _win_pos[1][0]  = 300;
+    _win_pos[1][1]  = 0;
+    _win_pos[2][0]  = 0;
+    _win_pos[2][1]  = 350;
+    _win_pos[3][0]  = 300;
+    _win_pos[3][1]  = 350;
+  }
+  
   
   // Visible windows at the beginning of the run
   if ( ae_common::pop_structure == true )
@@ -124,14 +153,14 @@ ae_simulation_X11::ae_simulation_X11( ae_param_overloader* param_overloader /* =
 ae_simulation_X11::ae_simulation_X11( char* backup_file_name, bool to_be_run /* = true */, ae_param_overloader* param_overloader /* = NULL */ ) : \
                    ae_simulation( backup_file_name, to_be_run, param_overloader  )
 {
-  _display                = false;
+  _display_on             = false;
   _handle_display_on_off  = false;
   
-  _graphical_device = XOpenDisplay( NULL );
-  _screen           = DefaultScreen( _graphical_device );
-  _atoms            = new Atom[2];
-  _atoms[0]         = XInternAtom( _graphical_device, "WM_DELETE_WINDOW", False );
-  _atoms[1]         = XInternAtom( _graphical_device, "WM_PROTOCOLS", False );
+  _display  = XOpenDisplay( NULL );
+  _screen   = DefaultScreen( _display );
+  _atoms    = new Atom[2];
+  _atoms[0] = XInternAtom( _display, "WM_DELETE_WINDOW", False );
+  _atoms[1] = XInternAtom( _display, "WM_PROTOCOLS", False );
 
   set_codes();
 
@@ -186,7 +215,7 @@ ae_simulation_X11::~ae_simulation_X11( void )
   }
   delete [] _win;
   
-  XCloseDisplay( _graphical_device );
+  XCloseDisplay( _display );
   
   delete [] _window_name;
 }
@@ -210,18 +239,31 @@ void ae_simulation_X11::display( void )
   {
     _handle_display_on_off = false;
     
-    if ( _display ) // Display was "on", close all windows
+    if ( _display_on ) // Display was "on", close all windows (after saving their current size and position)
     {
-      for ( int8_t i = 0 ; i < NB_WIN ; i++ )
+      for ( int8_t num_win = 0 ; num_win < NB_WIN ; num_win++ )
       {
-        if ( _win[i] != NULL )
+        if ( _win[num_win] != NULL )
         {
-          delete _win[i];
-          _win[i] = NULL;
+          // 1) Save current window position and size
+          Window aWindow; // Unused
+          int x_return, y_return;
+          int dest_x_return, dest_y_return;
+          unsigned int border_width_return, depth_return; // Unused
+          XGetGeometry( _display, _win[num_win]->get_window(), &aWindow, &x_return, &y_return,
+                        &_win_size[num_win][0], &_win_size[num_win][1], &border_width_return, &depth_return );
+          XTranslateCoordinates( _display, _win[num_win]->get_window(), DefaultRootWindow(_display), 0, 0, &dest_x_return, &dest_y_return, &aWindow );
+          
+          _win_pos[num_win][0] = dest_x_return - x_return;
+          _win_pos[num_win][1] = dest_y_return - y_return;
+          
+          // 2) Delete window
+          delete _win[num_win];
+          _win[num_win] = NULL;
         }
       }
       
-      _display = false;
+      _display_on = false;
     }
     else // Display was "off", open windows
     {
@@ -232,18 +274,11 @@ void ae_simulation_X11::display( void )
       {
         if ( get_show_window(i) )
         {
-          if ( i == 1 ) // Phenotype window
-          {
-            _win[i] = new ae_X11_window( _graphical_device, _screen, _atoms, 600, 300, _window_name[i] );
-          }
-          else
-          {
-            _win[i] = new ae_X11_window( _graphical_device, _screen, _atoms, 300, 300, _window_name[i] );
-          }
+          _win[i] = new ae_X11_window( _display, _screen, _atoms, _win_pos[i][0], _win_pos[i][1], _win_size[i][0], _win_size[i][1], _window_name[i] );
         }
       }
       
-      _display = true;
+      _display_on = true;
     }
   }
 
@@ -257,7 +292,7 @@ void ae_simulation_X11::display( void )
   // ----------
   // 3) Display
   // ----------
-  if ( _display )
+  if ( _display_on )
   {
     for ( int8_t i = 0 ; i < NB_WIN ; i++ )
     {
@@ -275,7 +310,7 @@ void ae_simulation_X11::display( void )
     }
     
     // Refresh all windows
-    XFlush( _graphical_device );
+    XFlush( _display );
   }
 }
 
@@ -290,7 +325,7 @@ void ae_simulation_X11::handle_events( void )
   // events are needed in order to catch "WM_DELETE_WINDOW")
   int iCurrEvent    = 0;
   int iIgnoreNoise  = 0;
-  while( XCheckIfEvent( _graphical_device, &event, AlwaysTruePredicate, 0) )
+  while( XCheckIfEvent( _display, &event, AlwaysTruePredicate, 0) )
   {
     iCurrEvent ++;
     win_number = identify_window( event.xany.window );
@@ -305,6 +340,7 @@ void ae_simulation_X11::handle_events( void )
       case ConfigureNotify :
       {
         _win[win_number]->resize( event.xconfigure.width, event.xconfigure.height );
+        //~ _win[win_number]->repos( event.xconfigure.x, event.xconfigure.y );
         
         // Mark window as having to be entirely redrawn
         _new_show_window |= 1 << win_number;
@@ -312,145 +348,102 @@ void ae_simulation_X11::handle_events( void )
       }
       case MapNotify :
       {
-        draw_window(win_number);
+        draw_window( win_number );
         break;
       }
       case Expose:
       {
         if( iCurrEvent > iIgnoreNoise )
         {
-          draw_window(win_number);
-          iIgnoreNoise = iCurrEvent + XQLength( _graphical_device );
+          draw_window( win_number );
+          iIgnoreNoise = iCurrEvent + XQLength( _display );
         }
         break;
       }
       case ClientMessage :
       {
-        if ( ((Atom) event.xclient.data.l[0]) == _atoms[0] )
+        if ( ((Atom) event.xclient.data.l[0]) == _atoms[0] ) // The user closed the window by clicking on the cross
         {
-          // the user closed the window by clicking on the cross
+          // 1) Save current window position and size
+          Window aWindow; // Unused
+          int x_return, y_return;
+          int dest_x_return, dest_y_return;
+          unsigned int border_width_return, depth_return; // Unused
+          XGetGeometry( _display, _win[win_number]->get_window(), &aWindow, &x_return, &y_return,
+                        &_win_size[win_number][0], &_win_size[win_number][1], &border_width_return, &depth_return );
+          XTranslateCoordinates( _display, _win[win_number]->get_window(), DefaultRootWindow(_display), 0, 0, &dest_x_return, &dest_y_return, &aWindow );
+          
+          _win_pos[win_number][0] = dest_x_return - x_return;
+          _win_pos[win_number][1] = dest_y_return - y_return;
+          
+          // 2) Delete window and mark as "not to be shown"
           delete _win[win_number];
           _win[win_number] = NULL;
           _show_window &= ~(1 << win_number);
           
+          // 3) If it was the main that was closed, turn display off.
           if ( _show_window == 0 )
           {
-            _display = false;
+            _display_on = false;
           }
         }
         break;
       }
       case KeyPress :
       {
-        if ( event.xkey.keycode == _key_codes[KEY_F1] )
+        // Not sure a switch would work on any platform => use ifs instead
+        if ( event.xkey.keycode == _key_codes[KEY_F1] ||
+             event.xkey.keycode == _key_codes[KEY_F2] ||
+             event.xkey.keycode == _key_codes[KEY_F3] ||
+             event.xkey.keycode == _key_codes[KEY_F4] ||
+             event.xkey.keycode == _key_codes[KEY_F5] ||
+             event.xkey.keycode == _key_codes[KEY_F6] )
         {
-          if ( get_show_window(1) )
+          int8_t num_win;
+          
+          // Not sure a switch would work on any platform => use ifs instead
+          if ( event.xkey.keycode == _key_codes[KEY_F1] ) num_win = 1;
+          else if ( event.xkey.keycode == _key_codes[KEY_F2] ) num_win = 2;
+          else if ( event.xkey.keycode == _key_codes[KEY_F3] ) num_win = 3;
+          else if ( event.xkey.keycode == _key_codes[KEY_F4] ) num_win = 4;
+          else if ( event.xkey.keycode == _key_codes[KEY_F5] ) num_win = 5;
+          else if ( event.xkey.keycode == _key_codes[KEY_F6] ) num_win = 6;
+          
+          if ( get_show_window( num_win ) )
           {
-            // Window 1 was shown, we must close it
-            delete _win[1];
-            _win[1] = NULL;
-            _show_window &= ~(1 << 1);
+            // 1) Save current window position and size
+            Window aWindow; // Unused
+            int x_return, y_return;
+            int dest_x_return, dest_y_return;
+            unsigned int border_width_return, depth_return; // Unused
+            XGetGeometry( _display, _win[num_win]->get_window(), &aWindow, &x_return, &y_return,
+                          &_win_size[num_win][0], &_win_size[num_win][1], &border_width_return, &depth_return );
+            XTranslateCoordinates( _display, _win[num_win]->get_window(), DefaultRootWindow(_display), 0, 0, &dest_x_return, &dest_y_return, &aWindow );
+            
+            _win_pos[num_win][0] = dest_x_return - x_return;
+            _win_pos[num_win][1] = dest_y_return - y_return;
+            
+            // 2) Delete window and mark as "not to be shown"
+            delete _win[num_win];
+            _win[num_win] = NULL;
+            _show_window &= ~(1 << num_win);
           }
           else
           {
-            _win[1] = new ae_X11_window( _graphical_device, _screen, _atoms, 300, 300, _window_name[1] );
-            _new_show_window |= 1 << 1;
+            _win[num_win] = new ae_X11_window(  _display, _screen, _atoms, _win_pos[num_win][0], _win_pos[num_win][1],
+                                                _win_size[num_win][0], _win_size[num_win][1], _window_name[1] );
+            _new_show_window |= 1 << num_win;
             _show_window |= _new_show_window;
-            draw_window( 1 );
+            draw_window( num_win );
           }
-        }
-        else if ( event.xkey.keycode == _key_codes[KEY_F2] )
-        {
-          if ( get_show_window(2) )
-          {
-            // Window 2 was shown, we must close it
-            delete _win[2];
-            _win[2] = NULL;
-            _show_window &= ~(1 << 2);
-          }
-          else
-          {
-            _win[2] = new ae_X11_window( _graphical_device, _screen, _atoms, 300, 300, _window_name[2] );
-            _new_show_window |= 1 << 2;
-            _show_window |= _new_show_window;
-            draw_window( 2 );
-          }
-        }
-        else if ( event.xkey.keycode == _key_codes[KEY_F3] )
-        {
-          if ( get_show_window(3) )
-          {
-            // Window 3 was shown, we must close it
-            delete _win[3];
-            _win[3] = NULL;
-            _show_window &= ~(1 << 3);
-          }
-          else
-          {
-            _win[3] = new ae_X11_window( _graphical_device, _screen, _atoms, 300, 300, _window_name[3] );
-            _new_show_window |= 1 << 3;
-            _show_window |= _new_show_window;
-            draw_window( 3 );
-          }
-        }          
-        else if ( event.xkey.keycode == _key_codes[KEY_F4] )
-        {
-          if ( get_show_window(4) )
-          {
-            // Window 4 was shown, we must close it
-            delete _win[4];
-            _win[4] = NULL;
-            _show_window &= ~(1 << 4);
-          }
-          else
-          {
-            _win[4] = new ae_X11_window( _graphical_device, _screen, _atoms, 300, 300, _window_name[4] );
-            _new_show_window |= 1 << 4;
-            _show_window |= _new_show_window;
-            draw_window( 4 );
-          }
-        }
-        else if ( event.xkey.keycode == _key_codes[KEY_F5] )
-        {
-          if ( get_show_window(5) )
-          {
-            // Window 5 was shown, we must close it
-            delete _win[5];
-            _win[5] = NULL;
-            _show_window &= ~(1 << 5);
-          }
-          else
-          {
-            _win[5] = new ae_X11_window( _graphical_device, _screen, _atoms, 300, 300, _window_name[5] );
-            _new_show_window |= 1 << 5;
-            _show_window |= _new_show_window;
-            draw_window( 5 );
-          }
-        }
-        else if ( event.xkey.keycode == _key_codes[KEY_F6] )
-        {
-          if ( get_show_window(6) )
-          {
-            // Window 6 was shown, we must close it
-            delete _win[6];
-            _win[6] = NULL;
-            _show_window &= ~(1 << 6);
-          }
-          else
-          {
-            _win[6] = new ae_X11_window( _graphical_device, _screen, _atoms, 300, 300, _window_name[6] );
-            _new_show_window |= 1 << 6;
-            _show_window |= _new_show_window;
-            draw_window( 6 );
-          }
-        }          
+        }     
         else if ( event.xkey.keycode == _key_codes[KEY_P] )
         {
           printf(" P A U S E D \n");
           bool pause_key  = false;
           while ( ! pause_key )
           {
-            if ( XCheckIfEvent( _graphical_device, &event, AlwaysTruePredicate, 0) )
+            if ( XCheckIfEvent( _display, &event, AlwaysTruePredicate, 0) )
             {
               if ( event.xkey.keycode == _key_codes[KEY_P] )
               {
@@ -569,7 +562,7 @@ void ae_simulation_X11::draw_window( int8_t win_number )
   refresh_window( win_number );
   _new_show_window &= ~(1 << win_number);
 
-  XFlush(_graphical_device);
+  XFlush(_display);
 }
 
 void ae_simulation_X11::refresh_window( int8_t win_number )
@@ -710,7 +703,7 @@ void ae_simulation_X11::refresh_window( int8_t win_number )
     break;
   }
 
-  XFlush(_graphical_device);
+  XFlush( _display );
 }
 
 
@@ -722,52 +715,52 @@ void ae_simulation_X11::set_codes( void )
   _key_codes = new KeyCode[50];
   assert( _key_codes );
   
-  _key_codes[KEY_ESCAPE]  = XKeysymToKeycode( _graphical_device, XK_Escape );
-  _key_codes[KEY_F1]      = XKeysymToKeycode( _graphical_device, XK_F1 );
-  _key_codes[KEY_F2]      = XKeysymToKeycode( _graphical_device, XK_F2 );
-  _key_codes[KEY_F3]      = XKeysymToKeycode( _graphical_device, XK_F3 );
-  _key_codes[KEY_F4]      = XKeysymToKeycode( _graphical_device, XK_F4 );
-  _key_codes[KEY_F5]      = XKeysymToKeycode( _graphical_device, XK_F5 );
-  _key_codes[KEY_F6]      = XKeysymToKeycode( _graphical_device, XK_F6 );
-  _key_codes[KEY_F7]      = XKeysymToKeycode( _graphical_device, XK_F7 );
-  _key_codes[KEY_F8]      = XKeysymToKeycode( _graphical_device, XK_F8 );
-  _key_codes[KEY_F9]      = XKeysymToKeycode( _graphical_device, XK_F9 );
-  _key_codes[KEY_F10]     = XKeysymToKeycode( _graphical_device, XK_F10 );
-  _key_codes[KEY_F11]     = XKeysymToKeycode( _graphical_device, XK_F11 );
-  _key_codes[KEY_F12]     = XKeysymToKeycode( _graphical_device, XK_F12 );
-  _key_codes[KEY_A]       = XKeysymToKeycode( _graphical_device, XK_A );
-  _key_codes[KEY_Q]       = XKeysymToKeycode( _graphical_device, XK_Q );
-  _key_codes[KEY_W]       = XKeysymToKeycode( _graphical_device, XK_W );
-  _key_codes[KEY_Z]       = XKeysymToKeycode( _graphical_device, XK_Z );
-  _key_codes[KEY_S]       = XKeysymToKeycode( _graphical_device, XK_S );
-  _key_codes[KEY_X]       = XKeysymToKeycode( _graphical_device, XK_X );
-  _key_codes[KEY_E]       = XKeysymToKeycode( _graphical_device, XK_E );
-  _key_codes[KEY_D]       = XKeysymToKeycode( _graphical_device, XK_D );
-  _key_codes[KEY_C]       = XKeysymToKeycode( _graphical_device, XK_C );
-  _key_codes[KEY_R]       = XKeysymToKeycode( _graphical_device, XK_R );
-  _key_codes[KEY_F]       = XKeysymToKeycode( _graphical_device, XK_F );
-  _key_codes[KEY_V]       = XKeysymToKeycode( _graphical_device, XK_V );
-  _key_codes[KEY_T]       = XKeysymToKeycode( _graphical_device, XK_T );
-  _key_codes[KEY_G]       = XKeysymToKeycode( _graphical_device, XK_G );
-  _key_codes[KEY_B]       = XKeysymToKeycode( _graphical_device, XK_B );
-  _key_codes[KEY_Y]       = XKeysymToKeycode( _graphical_device, XK_Y );
-  _key_codes[KEY_H]       = XKeysymToKeycode( _graphical_device, XK_H );
-  _key_codes[KEY_N]       = XKeysymToKeycode( _graphical_device, XK_N );
-  _key_codes[KEY_U]       = XKeysymToKeycode( _graphical_device, XK_U );
-  _key_codes[KEY_J]       = XKeysymToKeycode( _graphical_device, XK_J );
-  _key_codes[KEY_I]       = XKeysymToKeycode( _graphical_device, XK_I );
-  _key_codes[KEY_K]       = XKeysymToKeycode( _graphical_device, XK_K );
-  _key_codes[KEY_O]       = XKeysymToKeycode( _graphical_device, XK_O );
-  _key_codes[KEY_L]       = XKeysymToKeycode( _graphical_device, XK_L );
-  _key_codes[KEY_P]       = XKeysymToKeycode( _graphical_device, XK_P );
-  _key_codes[KEY_M]       = XKeysymToKeycode( _graphical_device, XK_M );
-  _key_codes[KEY_1]       = XKeysymToKeycode( _graphical_device, XK_1 );
-  _key_codes[KEY_2]       = XKeysymToKeycode( _graphical_device, XK_2 );
-  _key_codes[KEY_3]       = XKeysymToKeycode( _graphical_device, XK_3 );
-  _key_codes[KEY_4]       = XKeysymToKeycode( _graphical_device, XK_4 );
-  _key_codes[KEY_5]       = XKeysymToKeycode( _graphical_device, XK_5 );
-  _key_codes[KEY_6]       = XKeysymToKeycode( _graphical_device, XK_6 );
-  _key_codes[KEY_7]       = XKeysymToKeycode( _graphical_device, XK_7 );
-  _key_codes[KEY_8]       = XKeysymToKeycode( _graphical_device, XK_8 );
-  _key_codes[KEY_9]       = XKeysymToKeycode( _graphical_device, XK_9 );
+  _key_codes[KEY_ESCAPE]  = XKeysymToKeycode( _display, XK_Escape );
+  _key_codes[KEY_F1]      = XKeysymToKeycode( _display, XK_F1 );
+  _key_codes[KEY_F2]      = XKeysymToKeycode( _display, XK_F2 );
+  _key_codes[KEY_F3]      = XKeysymToKeycode( _display, XK_F3 );
+  _key_codes[KEY_F4]      = XKeysymToKeycode( _display, XK_F4 );
+  _key_codes[KEY_F5]      = XKeysymToKeycode( _display, XK_F5 );
+  _key_codes[KEY_F6]      = XKeysymToKeycode( _display, XK_F6 );
+  _key_codes[KEY_F7]      = XKeysymToKeycode( _display, XK_F7 );
+  _key_codes[KEY_F8]      = XKeysymToKeycode( _display, XK_F8 );
+  _key_codes[KEY_F9]      = XKeysymToKeycode( _display, XK_F9 );
+  _key_codes[KEY_F10]     = XKeysymToKeycode( _display, XK_F10 );
+  _key_codes[KEY_F11]     = XKeysymToKeycode( _display, XK_F11 );
+  _key_codes[KEY_F12]     = XKeysymToKeycode( _display, XK_F12 );
+  _key_codes[KEY_A]       = XKeysymToKeycode( _display, XK_A );
+  _key_codes[KEY_Q]       = XKeysymToKeycode( _display, XK_Q );
+  _key_codes[KEY_W]       = XKeysymToKeycode( _display, XK_W );
+  _key_codes[KEY_Z]       = XKeysymToKeycode( _display, XK_Z );
+  _key_codes[KEY_S]       = XKeysymToKeycode( _display, XK_S );
+  _key_codes[KEY_X]       = XKeysymToKeycode( _display, XK_X );
+  _key_codes[KEY_E]       = XKeysymToKeycode( _display, XK_E );
+  _key_codes[KEY_D]       = XKeysymToKeycode( _display, XK_D );
+  _key_codes[KEY_C]       = XKeysymToKeycode( _display, XK_C );
+  _key_codes[KEY_R]       = XKeysymToKeycode( _display, XK_R );
+  _key_codes[KEY_F]       = XKeysymToKeycode( _display, XK_F );
+  _key_codes[KEY_V]       = XKeysymToKeycode( _display, XK_V );
+  _key_codes[KEY_T]       = XKeysymToKeycode( _display, XK_T );
+  _key_codes[KEY_G]       = XKeysymToKeycode( _display, XK_G );
+  _key_codes[KEY_B]       = XKeysymToKeycode( _display, XK_B );
+  _key_codes[KEY_Y]       = XKeysymToKeycode( _display, XK_Y );
+  _key_codes[KEY_H]       = XKeysymToKeycode( _display, XK_H );
+  _key_codes[KEY_N]       = XKeysymToKeycode( _display, XK_N );
+  _key_codes[KEY_U]       = XKeysymToKeycode( _display, XK_U );
+  _key_codes[KEY_J]       = XKeysymToKeycode( _display, XK_J );
+  _key_codes[KEY_I]       = XKeysymToKeycode( _display, XK_I );
+  _key_codes[KEY_K]       = XKeysymToKeycode( _display, XK_K );
+  _key_codes[KEY_O]       = XKeysymToKeycode( _display, XK_O );
+  _key_codes[KEY_L]       = XKeysymToKeycode( _display, XK_L );
+  _key_codes[KEY_P]       = XKeysymToKeycode( _display, XK_P );
+  _key_codes[KEY_M]       = XKeysymToKeycode( _display, XK_M );
+  _key_codes[KEY_1]       = XKeysymToKeycode( _display, XK_1 );
+  _key_codes[KEY_2]       = XKeysymToKeycode( _display, XK_2 );
+  _key_codes[KEY_3]       = XKeysymToKeycode( _display, XK_3 );
+  _key_codes[KEY_4]       = XKeysymToKeycode( _display, XK_4 );
+  _key_codes[KEY_5]       = XKeysymToKeycode( _display, XK_5 );
+  _key_codes[KEY_6]       = XKeysymToKeycode( _display, XK_6 );
+  _key_codes[KEY_7]       = XKeysymToKeycode( _display, XK_7 );
+  _key_codes[KEY_8]       = XKeysymToKeycode( _display, XK_8 );
+  _key_codes[KEY_9]       = XKeysymToKeycode( _display, XK_9 );
 }

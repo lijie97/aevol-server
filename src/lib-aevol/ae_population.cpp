@@ -93,8 +93,7 @@ ae_population::ae_population( void )
       indiv = create_random_individual_with_good_gene( index_new_indiv++ );
       
       // Add it to the list
-      _indivs->add( indiv );
-      
+      _indivs->add( indiv );      
     
       // Make the clones and add them to the list of individuals
       ae_individual* clone = NULL;
@@ -1764,6 +1763,7 @@ ae_individual* ae_population::create_random_individual( int32_t index )
   indiv->set_index_in_population( index );
   
   
+  // Insert a few IS in the sequence
   if ( ae_common::init_method & WITH_INS_SEQ )
   {
     // Create a random sequence
@@ -1820,10 +1820,10 @@ ae_individual* ae_population::create_individual_from_file( char* organism_file_n
     #ifndef __REGUL
       indiv = new ae_individual( organism_file_name );
     #else
-      printf( "ERROR, not implemented %s:%d\n", __FILE__, __LINE__ );
+      printf( "ERROR, functionality not implemented %s:%d\n", __FILE__, __LINE__ );
     #endif
   #elif defined __X11
-     printf( "ERROR, not implemented %s:%d\n", __FILE__, __LINE__ );
+      printf( "ERROR, functionality not implemented %s:%d\n", __FILE__, __LINE__ );
   #endif
   
   indiv->set_index_in_population( index );
@@ -1875,7 +1875,6 @@ ae_individual* ae_population::create_random_individual_with_good_gene( int32_t i
       {
         delete indiv;
         indiv = create_random_individual( index );
-        indiv->evaluate( ae_common::sim->get_env() );
       }
     }
     else // if  ( ae_common::plasmid_initial_gene == 2 )
@@ -1886,7 +1885,6 @@ ae_individual* ae_population::create_random_individual_with_good_gene( int32_t i
       {
         delete indiv;
         indiv = create_random_individual( index );
-        indiv->evaluate( ae_common::sim->get_env() );
       }
     }
   }
@@ -1896,7 +1894,6 @@ ae_individual* ae_population::create_random_individual_with_good_gene( int32_t i
     {
       delete indiv;
       indiv = create_random_individual( index );
-      indiv->evaluate( ae_common::sim->get_env() );
     }
   }
   

@@ -150,7 +150,7 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, int32_t length )
     seq will be used directly which means the caller must not delete it
     The same goes for prom_list if it is provided.
 */
-ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, char* seq, int32_t length, ae_list** prom_list )
+ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, char* seq, int32_t length, ae_list** prom_list /*= NULL*/ )
 {
   _indiv = indiv;
   

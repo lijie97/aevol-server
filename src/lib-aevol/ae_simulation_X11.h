@@ -131,8 +131,8 @@ class ae_simulation_X11 : public ae_simulation
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline bool             get_display( void );
-    inline Display *        get_graphical_device( void );
+    inline bool             get_display_on( void );
+    inline Display *        get_display( void );
     inline int8_t           get_screen( void );
     inline Atom *           get_atoms ( void );
     inline bool             get_show_window( int8_t win );
@@ -184,32 +184,34 @@ class ae_simulation_X11 : public ae_simulation
   // =================================================================
   //                          Protected Attributes
   // =================================================================
-  bool      _display;
+  bool      _display_on;
   bool      _handle_display_on_off;
   bool      _quit_signal;
   uint32_t  _show_window;     // (bitmap) windows that have to be displayed (user switches value pressing F1, F2, ...)
   uint32_t  _new_show_window; // (bitmap) windows that have to be displayed but were not displayed at the last refresh
-  Display * _graphical_device;
+  Display*  _display;
   int8_t    _screen;
-  Atom *    _atoms;
-  KeyCode * _key_codes;
+  Atom*     _atoms;
+  KeyCode*  _key_codes;
   
   ae_X11_window** _win;         // Table containing the <nb_windows> windows
   char **         _window_name; // display window names
+  unsigned int**  _win_size;    // window sizes
+  int**           _win_pos;     // window positions
 };
 
 
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-bool ae_simulation_X11::get_display( void )
+bool ae_simulation_X11::get_display_on( void )
 {
-  return _display;
+  return _display_on;
 }
 
-Display * ae_simulation_X11::get_graphical_device( void )
+Display * ae_simulation_X11::get_display( void )
 {
-  return _graphical_device;
+  return _display;
 }
 
 

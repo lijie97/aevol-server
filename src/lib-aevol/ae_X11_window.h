@@ -81,9 +81,10 @@ class ae_X11_window : public ae_object
     //                             Constructors
     // =================================================================
     ae_X11_window( void );
-    ae_X11_window( Display * device, int8_t screen, Atom * atoms, \
-                   uint32_t width, uint32_t height, \
-                   const char* caption );
+    ae_X11_window(  Display* display, int8_t screen, Atom * atoms,
+                    uint16_t pos_x, uint16_t pos_y, 
+                    uint16_t width, uint16_t height,
+                    const char* caption );
   
     // =================================================================
     //                             Destructors
@@ -105,16 +106,16 @@ class ae_X11_window : public ae_object
     GC getGCOrange( void )      { return _gcOrange;     };
     GC getGCYellow( void )      { return _gcYellow;     };
 
-    int16_t    get_width( void )     { return _width;      };
-    int16_t    get_height( void )    { return _height;     };
-    Window     get_window( void )    { return _window;     };
-    Display *  get_display( void )   { return _display;     };
+    unsigned int  get_width( void )     { return _width;   };
+    unsigned int  get_height( void )    { return _height;  };
+    Window        get_window( void )    { return _window;  };
+    Display *     get_display( void )   { return _display; };
   
     // =================================================================
     //                            Public Methods
     // =================================================================
 
-    void resize( uint32_t width, uint32_t height ); 
+    void resize( unsigned int width, unsigned int height );
     inline void blacken( void );
     void draw_string( int16_t x, int16_t y, char* str );
     void draw_line( int16_t x1, int16_t y1, int16_t x2, int16_t y2, color_map color, bool bold = false );
@@ -170,8 +171,9 @@ class ae_X11_window : public ae_object
     int8_t    _screen;
     Window    _window;
     Cursor    _cursor;
-    uint32_t _width;
-    uint32_t _height;
+    
+    unsigned int _width;
+    unsigned int _height;
 
   
     // Graphic Contexts

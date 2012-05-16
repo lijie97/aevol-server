@@ -71,7 +71,7 @@ class ae_genetic_unit : public ae_object
     //                             Constructors
     // =================================================================
     ae_genetic_unit( ae_individual* indiv, int32_t length );
-    ae_genetic_unit( ae_individual* indiv, char* seq, int32_t length, ae_list** prom_list );
+    ae_genetic_unit( ae_individual* indiv, char* seq, int32_t length, ae_list** prom_list = NULL );
     ae_genetic_unit( ae_individual* indiv, const ae_genetic_unit &model );
     ae_genetic_unit( ae_individual* indiv, ae_genetic_unit* const parent );
     ae_genetic_unit( ae_individual* indiv, gzFile* backup_file );

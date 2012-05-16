@@ -156,36 +156,36 @@ ae_X11_window::ae_X11_window( void )
 }
 
 
-ae_X11_window::ae_X11_window( Display * device, int8_t screen, Atom * atoms,
-                              uint32_t width, uint32_t height, const char* caption )
+ae_X11_window::ae_X11_window( Display* display, int8_t screen, Atom* atoms,
+                              uint16_t x, uint16_t y, uint16_t width, uint16_t height,
+                              const char* caption )
 {
-  _width  = width;
-  _height = height;
-  _display = device;
-  _screen = screen;
+  _width    = width;
+  _height   = height;
+  _display  = display;
+  _screen   = screen;
 
 
   XSetWindowAttributes win_attributes;
   win_attributes.event_mask = StructureNotifyMask | ExposureMask | KeyPressMask;
   win_attributes.background_pixel = XBlackPixel( _display, _screen );
-
-  _window = XCreateWindow(  _display, DefaultRootWindow(_display), 0, 0, _width, _height, 0,
+  
+  _window = XCreateWindow(  _display, DefaultRootWindow(_display), x, y, _width, _height, 0,
                             CopyFromParent, CopyFromParent, CopyFromParent,
                             CWBackPixel|CWEventMask, &win_attributes );
   // NB: the 7th parameter is the width of the window's border, it has nothing to do with 
   // the border appended by the window manager, so this is most often set to zero. 
 
   // Define the title & iconname of the window 
-  XSetStandardProperties( device, _window, caption, caption, None, NULL, 0, NULL);
+  XSetStandardProperties( _display, _window, caption, caption, None, NULL, 0, NULL );
 
 
   // We want to get MapNotify events, KeyPress events...
-  XSelectInput( device, _window, StructureNotifyMask | ExposureMask | KeyPressMask );
+  XSelectInput( _display, _window, StructureNotifyMask | ExposureMask | KeyPressMask );
 
 
   // Create graphical contexts
-
-  uint32_t whiteColor = WhitePixel(device, screen);
+  uint32_t whiteColor = WhitePixel( _display, _screen );
   XGCValues values;
   values.line_width = 1;
 
@@ -235,12 +235,13 @@ ae_X11_window::ae_X11_window( Display * device, int8_t screen, Atom * atoms,
   _gcGrey = XCreateGC( _display, _window, GCForeground|GCBackground|GCLineWidth, &values );
 
 
-  XMapWindow( device, _window );
-  XFlush( device );
+  XMapWindow( _display, _window );
+  XMoveWindow( _display, _window, x, y );
+  XFlush( _display );
 
 
   // Necessary to handle window closing
-  XSetWMProtocols( device, _window, atoms, 2 );
+  XSetWMProtocols( _display, _window, atoms, 2 );
 }
 
 
@@ -271,9 +272,9 @@ ae_X11_window::~ae_X11_window( void )
 
 
 
-void ae_X11_window::resize( uint32_t width, uint32_t height )
+void ae_X11_window::resize( unsigned int width, unsigned int height )
 {
-  _width = width;
+  _width  = width;
   _height = height;
 }
 

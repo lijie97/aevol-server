@@ -81,6 +81,11 @@ ae_individual_X11::ae_individual_X11( gzFile* backup_file ) : ae_individual( bac
   init_occupied_sectors();
 }
 
+ae_individual_X11::ae_individual_X11( char* genome, int32_t genome_size ) : ae_individual( genome, genome_size )
+{
+  init_occupied_sectors();
+}
+
 // =================================================================
 //                             Destructors
 // =================================================================
