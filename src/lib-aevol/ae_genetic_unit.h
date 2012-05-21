@@ -94,7 +94,11 @@ class ae_genetic_unit : public ae_object
     inline ae_fuzzy_set*  get_activ_contribution( void )      const;
     inline ae_fuzzy_set*  get_inhib_contribution( void )      const;
     inline ae_fuzzy_set*  get_phenotypic_contribution( void ) const;
-
+    
+    
+    // Direct DNA access
+    inline const char*  get_sequence( void ) const;
+    inline int32_t      get_seq_length( void ) const;
 
     
     // Statistical data
@@ -389,6 +393,22 @@ inline ae_fuzzy_set* ae_genetic_unit::get_inhib_contribution( void ) const
 inline ae_fuzzy_set* ae_genetic_unit::get_phenotypic_contribution( void ) const
 {
   return _phenotypic_contribution;
+}
+
+/*!
+  Returns the DNA sequence
+*/
+inline const char* ae_genetic_unit::get_sequence( void ) const
+{
+  return _dna->get_data();
+}
+
+/*!
+  Returns the DNA sequence length
+*/
+inline int32_t ae_genetic_unit::get_seq_length( void ) const
+{
+  return _dna->get_length();
 }
 
 inline int32_t ae_genetic_unit::get_nb_coding_RNAs( void ) const

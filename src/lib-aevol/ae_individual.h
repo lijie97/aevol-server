@@ -100,10 +100,13 @@ class ae_individual : public ae_object
     inline ae_grid_cell*    get_grid_cell( void )                                         const;
     inline bool             get_placed_in_population()                                    const;
     
+    inline const char*      get_genetic_unit_sequence   ( int16_t num_unit ) const;
+    inline int32_t          get_genetic_unit_seq_length ( int16_t num_unit ) const;
+    
     inline int32_t          get_index_in_population( void ) const;
     inline void             set_index_in_population( int32_t index );
     
-    inline double* 	    get_dist_to_target_segment( void ) const;
+    inline double* 	  get_dist_to_target_segment( void ) const;
     inline void 	    set_dist_to_target_segment( double * dist_to_target_segment );
     inline void 	    new_dist_to_target_segment( void );
     inline void 	    new_dist_to_target_by_feature( void );
@@ -498,6 +501,22 @@ inline ae_grid_cell* ae_individual::get_grid_cell( void ) const
 inline bool ae_individual::get_placed_in_population ( void ) const
 {
   return _placed_in_population;
+}
+
+/*!
+  Returns the sequence of genetic unit number <num_unit> (0 for main chromosome)
+*/
+inline const char* ae_individual::get_genetic_unit_sequence( int16_t num_unit ) const
+{
+  return get_genetic_unit( num_unit )->get_sequence();
+}
+
+/*!
+  Returns the sequence length of genetic unit number <num_unit> (0 for main chromosome)
+*/
+inline int32_t ae_individual::get_genetic_unit_seq_length( int16_t num_unit ) const
+{
+  return get_genetic_unit( num_unit )->get_seq_length();
 }
 
 ae_fuzzy_set* ae_individual::get_phenotype_activ( void ) const
