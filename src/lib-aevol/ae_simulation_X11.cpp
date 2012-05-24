@@ -163,11 +163,39 @@ ae_simulation_X11::ae_simulation_X11( char* backup_file_name, bool to_be_run /* 
   _atoms[1] = XInternAtom( _display, "WM_PROTOCOLS", False );
 
   set_codes();
-
-  _win = new ae_X11_window* [NB_WIN];
+  
+  // Initialize window structures
+  _win      = new ae_X11_window* [NB_WIN];
+  _win_size = new unsigned int* [NB_WIN];
+  _win_pos  = new int* [NB_WIN];
+  
   for ( int8_t i = 0 ; i < NB_WIN ; i++ )
   {
     _win[i] = NULL;
+    
+    // Default values
+    _win_size[i] = new unsigned int[2];
+    _win_size[i][0] = 300;
+    _win_size[i][1] = 300;
+    _win_pos[i] = new int[2];
+    _win_pos[i][0]  = 0;
+    _win_pos[i][1]  = 0;
+  }
+  
+  // Set phenotype window width
+  _win_size[1][0] = 600;
+  
+  // If screen is large enough, set initial positions
+  if ( XDisplayWidth( _display, _screen ) >= 900 && XDisplayHeight( _display, _screen ) >= 650 )
+  {
+    _win_pos[0][0]  = 0;
+    _win_pos[0][1]  = 0;
+    _win_pos[1][0]  = 300;
+    _win_pos[1][1]  = 0;
+    _win_pos[2][0]  = 0;
+    _win_pos[2][1]  = 350;
+    _win_pos[3][0]  = 300;
+    _win_pos[3][1]  = 350;
   }
   
   // Visible windows at the beginning of the run
@@ -382,9 +410,9 @@ void ae_simulation_X11::handle_events( void )
           _show_window &= ~(1 << win_number);
           
           // 3) If it was the main that was closed, turn display off.
-          if ( _show_window == 0 )
+          if ( win_number == 0 )
           {
-            _display_on = false;
+            _handle_display_on_off = true;
           }
         }
         break;
@@ -431,7 +459,7 @@ void ae_simulation_X11::handle_events( void )
           else
           {
             _win[num_win] = new ae_X11_window(  _display, _screen, _atoms, _win_pos[num_win][0], _win_pos[num_win][1],
-                                                _win_size[num_win][0], _win_size[num_win][1], _window_name[1] );
+                                                _win_size[num_win][0], _win_size[num_win][1], _window_name[num_win] );
             _new_show_window |= 1 << num_win;
             _show_window |= _new_show_window;
             draw_window( num_win );
