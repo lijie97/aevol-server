@@ -24,13 +24,13 @@
 //*****************************************************************************
 
 
-/** \class
- *  \brief
- */
+/*! \class ae_params_record
+    \brief Singleton. Contains all the parameters regarding outputs (backups, stats, logs, ...).
+*/
 
 
-#ifndef __AE_LOGS_H__
-#define __AE_LOGS_H__
+#ifndef __AE_PARAMS_RECORD_H__
+#define __AE_PARAMS_RECORD_H__
 
 
 // =================================================================
@@ -46,6 +46,7 @@
 // =================================================================
 #include <ae_object.h>
 #include <ae_enums.h>
+#include <ae_logs.h>
 
 
 
@@ -56,25 +57,60 @@
 
 
 
-class ae_logs : public ae_object
+
+
+
+class ae_params_record : public ae_object
 {
   public :
-
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_logs( void );
+    ae_params_record( void );
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_logs( void );
+    virtual ~ae_params_record( void );
 
     // =================================================================
-    //                              Accessors
+    //                       Accessors: getters
     // =================================================================
-    inline FILE* get_log( ae_log_type log_type )   const;
-    inline bool  is_logged( ae_log_type log_type ) const;
+    // Backups
+    inline int32_t get_backup_step( void ) const;
+    inline int32_t get_big_backup_step( void ) const;
+    
+    // Tree
+    inline int32_t      get_tree_step( void ) const;
+    inline bool         get_record_tree( void ) const;
+    inline ae_tree_mode get_tree_mode( void ) const;
+    
+    // Logs
+    inline bool is_logged( ae_log_type log_type ) const;
+    inline FILE* get_log( ae_log_type log_type ) const;
+    
+    // Other
+    inline bool    get_more_stats( void ) const;
+    inline int32_t get_dump_period( void ) const;
+
+    // =================================================================
+    //                       Accessors: setters
+    // =================================================================
+    // Backups
+    inline void set_backup_step( int32_t backup_step );
+    inline void set_big_backup_step( int32_t big_backup_step );
+    
+    // Tree
+    inline void set_tree_step( int32_t tree_step );
+    inline void set_record_tree( bool record_tree );
+    inline void set_tree_mode( ae_tree_mode tree_mode );
+    
+    // Logs
+    inline void init_logs( int8_t to_be_logged );
+    
+    // Other
+    inline void set_more_stats( bool more_stats );
+    inline void set_dump_period( int32_t dump_period );
 
     // =================================================================
     //                              Operators
@@ -84,11 +120,8 @@ class ae_logs : public ae_object
     //                            Public Methods
     // =================================================================
     void write_to_backup( gzFile* backup_file ) const;
-    void read_from_backup( gzFile* backup_file );
+    void read_from_backup( gzFile* backup_file, bool verbose = false );
     void print_to_file( FILE* file ) const;
-    
-    void set_logs( int8_t logs );
-    void flush( void );
 
     // =================================================================
     //                           Public Attributes
@@ -103,12 +136,12 @@ class ae_logs : public ae_object
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    /*    ae_logs( void )
+    /*    ae_params_record( void )
     {
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
     };
-    ae_logs( const ae_logs &model )
+    ae_params_record( const ae_params_record &model )
     {
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
@@ -118,77 +151,128 @@ class ae_logs : public ae_object
     // =================================================================
     //                           Protected Methods
     // =================================================================
-    void write_headers( void ) const;
 
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    int8_t  _logs; // Which logs are "turned on" (bitmap)
-    FILE*   _transfer_log;
-    FILE*   _rear_log;
-    FILE*   _barrier_log;
-    FILE*   _load_from_backup_log;
+    // Backups
+    int32_t _backup_step;
+    int32_t _big_backup_step;
+    
+    // Tree
+    int32_t      _tree_step;
+    bool         _record_tree;
+    ae_tree_mode _tree_mode;
+    
+    // Logs
+    ae_logs* _logs;
+    
+    // Other
+    bool    _more_stats;   // TODO : explain
+    int32_t _dump_period;  // TODO : explain
 };
 
 
 // =====================================================================
-//                          Accessors' definitions
+//                          Getter definitions
 // =====================================================================
-inline FILE* ae_logs::get_log( ae_log_type log_type ) const
+// Backups
+inline int32_t ae_params_record::get_backup_step( void ) const
 {
-  switch ( log_type )
-  {
-    case LOG_TRANSFER :
-    {
-      return _transfer_log;
-    }
-    case LOG_REAR :
-    {
-      return _rear_log;
-    }
-    case LOG_BARRIER :
-    {
-      return _barrier_log;
-    }
-    case LOG_LOADS :
-    {
-      return _load_from_backup_log;
-    }
-    default:
-    {
-      printf( "ERROR: unknown log_type in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    }
-  }
+  return _backup_step;
 }
 
-inline bool ae_logs::is_logged( ae_log_type log_type ) const
+inline int32_t ae_params_record::get_big_backup_step( void ) const
 {
-  switch ( log_type )
-  {
-    case LOG_TRANSFER :
-    {
-      return ( _logs & LOG_TRANSFER );
-    }
-    case LOG_REAR :
-    {
-      return ( _logs & LOG_REAR );
-    }
-    case LOG_BARRIER :
-    {
-      return ( _logs & LOG_BARRIER );
-    }
-    case LOG_LOADS :
-    {
-      return ( _logs & LOG_LOADS );
-    }
-    default:
-    {
-      printf( "ERROR: unknown log_type in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    }
-  }
+  return _big_backup_step;
 }
+
+// Tree
+inline int32_t ae_params_record::get_tree_step( void ) const
+{
+  return _tree_step;
+}
+
+inline bool ae_params_record::get_record_tree( void ) const
+{
+  return _record_tree;
+}
+
+inline ae_tree_mode ae_params_record::get_tree_mode( void ) const
+{
+  return _tree_mode;
+}
+    
+// Logs
+inline bool ae_params_record::is_logged( ae_log_type log_type ) const
+{
+  return _logs->is_logged( log_type );
+}
+
+inline FILE* ae_params_record::get_log( ae_log_type log_type ) const
+{
+  return _logs->get_log( log_type );
+}
+
+// Other
+inline bool ae_params_record::get_more_stats( void ) const
+{
+  return _more_stats;
+}
+
+inline int32_t ae_params_record::get_dump_period( void ) const
+{
+  return _dump_period;
+}
+
+
+// =================================================================
+//                          Setter definitions
+// =================================================================
+// Backups
+inline void ae_params_record::set_backup_step( int32_t backup_step )
+{
+  _backup_step = backup_step;
+}
+
+inline void ae_params_record::set_big_backup_step( int32_t big_backup_step )
+{
+  _big_backup_step = big_backup_step;
+}
+
+// Tree
+inline void ae_params_record::set_tree_step( int32_t tree_step )
+{
+  _tree_step = tree_step;
+}
+
+inline void ae_params_record::set_record_tree( bool record_tree )
+{
+  _record_tree = record_tree;
+}
+
+inline void ae_params_record::set_tree_mode( ae_tree_mode tree_mode )
+{
+  _tree_mode = tree_mode;
+}
+    
+// Logs
+inline void ae_params_record::init_logs( int8_t to_be_logged )
+{
+  _logs->set_logs( to_be_logged );
+}
+
+// Other
+inline void ae_params_record::set_more_stats( bool more_stats )
+{
+  _more_stats = more_stats;
+}
+
+inline void ae_params_record::set_dump_period( int32_t dump_period )
+{
+  _dump_period = dump_period;
+}
+
 
 // =====================================================================
 //                          Operators' definitions
@@ -199,4 +283,4 @@ inline bool ae_logs::is_logged( ae_log_type log_type ) const
 // =====================================================================
 
 
-#endif // __AE_LOGS_H__
+#endif // __AE_PARAMS_RECORD_H__

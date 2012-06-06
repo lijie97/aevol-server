@@ -71,10 +71,16 @@ static Bool AlwaysTruePredicate (Display*, XEvent*, char*) { return True; }
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_simulation_X11::ae_simulation_X11( ae_param_overloader* param_overloader /* = NULL */ ) : ae_simulation( param_overloader )
+ae_simulation_X11::ae_simulation_X11( void ) : ae_simulation()
 {
+  // Basic initializations
+  _win      = NULL;
+  _win_size = NULL;
+  _win_pos  = NULL;
+  
   _display_on             = false;
   _handle_display_on_off  = false;
+  _quit_signal            = false;
   
   // Initialize XLib stuff
   _display  = XOpenDisplay( NULL );
@@ -83,151 +89,18 @@ ae_simulation_X11::ae_simulation_X11( ae_param_overloader* param_overloader /* =
   _atoms[0] = XInternAtom( _display, "WM_DELETE_WINDOW", False );
   _atoms[1] = XInternAtom( _display, "WM_PROTOCOLS", False );
   set_codes();
-  
-  // Initialize window structures
-  _win      = new ae_X11_window* [NB_WIN];
-  _win_size = new unsigned int* [NB_WIN];
-  _win_pos  = new int* [NB_WIN];
-  
-  for ( int8_t i = 0 ; i < NB_WIN ; i++ )
-  {
-    _win[i] = NULL;
-    
-    // Default values
-    _win_size[i] = new unsigned int[2];
-    _win_size[i][0] = 300;
-    _win_size[i][1] = 300;
-    _win_pos[i] = new int[2];
-    _win_pos[i][0]  = 0;
-    _win_pos[i][1]  = 0;
-  }
-  
-  // Set phenotype window width
-  _win_size[1][0] = 600;
-  
-  // If screen is large enough, set initial positions
-  if ( XDisplayWidth( _display, _screen ) >= 900 && XDisplayHeight( _display, _screen ) >= 650 )
-  {
-    _win_pos[0][0]  = 0;
-    _win_pos[0][1]  = 0;
-    _win_pos[1][0]  = 300;
-    _win_pos[1][1]  = 0;
-    _win_pos[2][0]  = 0;
-    _win_pos[2][1]  = 350;
-    _win_pos[3][0]  = 300;
-    _win_pos[3][1]  = 350;
-  }
-  
-  
-  // Visible windows at the beginning of the run
-  if ( ae_common::pop_structure == true )
-  {
-    _show_window  = 0x007F; // hex for bin 1111111  => show first 7 windows
-  }
-  else
-  {
-    _show_window  = 0x000F;   // hex for bin 1111   => show first 4 windows
-  }
-  _new_show_window = _show_window;
-  
-  
-  _quit_signal = false;
-  
-  _window_name = new char*[NB_WIN];
-  if ( ae_common::pop_structure == true )
-  {
-    _window_name[0] = (char*) "Population grid";
-  }
-  else
-  {
-    _window_name[0] = (char*) "Population";
-  }
-  _window_name[1] = (char*) "Phenotypic profile";
-  _window_name[2] = (char*) "Genes";
-  _window_name[3] = (char*) "RNAs";
-  _window_name[4] = (char*) "Secreted compound present";
-  _window_name[5] = (char*) "Metabolic fitness";
-  _window_name[6] = (char*) "Current secretion";
 }
 
-ae_simulation_X11::ae_simulation_X11( char* backup_file_name, bool to_be_run /* = true */, ae_param_overloader* param_overloader /* = NULL */ ) : \
-                   ae_simulation( backup_file_name, to_be_run, param_overloader  )
+//ae_simulation_X11::ae_simulation_X11( ae_param_overloader* param_overloader /* = NULL */ ) : ae_simulation( param_overloader )
+/*{
+  initialize();
+}*/
+
+//ae_simulation_X11::ae_simulation_X11( char* backup_file_name, bool to_be_run /* = true */, ae_param_overloader* param_overloader /* = NULL */ ) :
+/*                   ae_simulation( backup_file_name, to_be_run, param_overloader  )
 {
-  _display_on             = false;
-  _handle_display_on_off  = false;
-  
-  _display  = XOpenDisplay( NULL );
-  _screen   = DefaultScreen( _display );
-  _atoms    = new Atom[2];
-  _atoms[0] = XInternAtom( _display, "WM_DELETE_WINDOW", False );
-  _atoms[1] = XInternAtom( _display, "WM_PROTOCOLS", False );
-
-  set_codes();
-  
-  // Initialize window structures
-  _win      = new ae_X11_window* [NB_WIN];
-  _win_size = new unsigned int* [NB_WIN];
-  _win_pos  = new int* [NB_WIN];
-  
-  for ( int8_t i = 0 ; i < NB_WIN ; i++ )
-  {
-    _win[i] = NULL;
-    
-    // Default values
-    _win_size[i] = new unsigned int[2];
-    _win_size[i][0] = 300;
-    _win_size[i][1] = 300;
-    _win_pos[i] = new int[2];
-    _win_pos[i][0]  = 0;
-    _win_pos[i][1]  = 0;
-  }
-  
-  // Set phenotype window width
-  _win_size[1][0] = 600;
-  
-  // If screen is large enough, set initial positions
-  if ( XDisplayWidth( _display, _screen ) >= 900 && XDisplayHeight( _display, _screen ) >= 650 )
-  {
-    _win_pos[0][0]  = 0;
-    _win_pos[0][1]  = 0;
-    _win_pos[1][0]  = 300;
-    _win_pos[1][1]  = 0;
-    _win_pos[2][0]  = 0;
-    _win_pos[2][1]  = 350;
-    _win_pos[3][0]  = 300;
-    _win_pos[3][1]  = 350;
-  }
-  
-  // Visible windows at the beginning of the run
-  if ( ae_common::pop_structure == true )
-  {
-    _show_window  = 0x007F; // hex for bin 1111111  => show first 7 windows
-  }
-  else
-  {
-    _show_window  = 0x000F;   // hex for bin 1111   => show first 4 windows
-  }
-  _new_show_window = _show_window;
-  
-  
-  _quit_signal = false;
-  
-  _window_name = new char*[NB_WIN];
-  if ( ae_common::pop_structure == true )
-  {
-    _window_name[0] = (char*) "Population grid";
-  }
-  else
-  {
-    _window_name[0] = (char*) "Population";
-  }
-  _window_name[1] = (char*) "Phenotypic profile";
-  _window_name[2] = (char*) "Genes";
-  _window_name[3] = (char*) "RNAs";
-  _window_name[4] = (char*) "Secreted compound present";
-  _window_name[5] = (char*) "Metabolic fitness";
-  _window_name[6] = (char*) "Current secretion";
-}
+  initialize();
+}*/
 
 // =================================================================
 //                             Destructors
@@ -511,6 +384,119 @@ void ae_simulation_X11::toggle_display_on_off( void )
 // =================================================================
 //                           Protected Methods
 // =================================================================
+void ae_simulation_X11::initialize( bool with_grid /*= false*/, bool with_plasmids /*= false*/ )
+{
+  // Initialize window structures
+  _win      = new ae_X11_window* [NB_WIN];
+  _win_size = new unsigned int* [NB_WIN];
+  _win_pos  = new int* [NB_WIN];
+  
+  for ( int8_t i = 0 ; i < NB_WIN ; i++ )
+  {
+    _win[i] = NULL;
+    
+    // Default values
+    _win_size[i] = new unsigned int[2];
+    _win_size[i][0] = 300;
+    _win_size[i][1] = 300;
+    _win_pos[i] = new int[2];
+    _win_pos[i][0]  = 0;
+    _win_pos[i][1]  = 0;
+  }
+  
+  // Set phenotype window width
+  _win_size[1][0] = 600;
+  
+  // Set CDS and RNA window width
+  if ( with_plasmids )
+  {
+    _win_size[2][0] = 600;
+    _win_size[3][0] = 600;
+  }
+  
+  // Set initial positions if screen is large enough
+  if ( with_plasmids && with_grid )
+  {
+    //if ( XDisplayWidth( _display, _screen ) >= 900 && XDisplayHeight( _display, _screen ) >= 650 )
+    {
+      _win_pos[0][0]  = 0;
+      _win_pos[0][1]  = 0;
+      _win_pos[1][0]  = 300;
+      _win_pos[1][1]  = 0;
+      _win_pos[2][0]  = 0;
+      _win_pos[2][1]  = 350;
+      _win_pos[3][0]  = 0;
+      _win_pos[3][1]  = 700;
+    }
+  }
+  else if ( with_plasmids )
+  {
+    //if ( XDisplayWidth( _display, _screen ) >= 900 && XDisplayHeight( _display, _screen ) >= 650 )
+    {
+      _win_pos[0][0]  = 0;
+      _win_pos[0][1]  = 0;
+      _win_pos[1][0]  = 300;
+      _win_pos[1][1]  = 0;
+      _win_pos[2][0]  = 0;
+      _win_pos[2][1]  = 350;
+      _win_pos[3][0]  = 0;
+      _win_pos[3][1]  = 700;
+    }
+  }
+  else if ( with_grid )
+  {
+    //if ( XDisplayWidth( _display, _screen ) >= 900 && XDisplayHeight( _display, _screen ) >= 650 )
+    {
+      _win_pos[0][0]  = 0;
+      _win_pos[0][1]  = 0;
+      _win_pos[1][0]  = 300;
+      _win_pos[1][1]  = 0;
+      _win_pos[2][0]  = 0;
+      _win_pos[2][1]  = 350;
+      _win_pos[3][0]  = 300;
+      _win_pos[3][1]  = 350;
+    }
+  }
+  else // ( ! with_plasmids && ! with_grid )
+  {
+    //if ( XDisplayWidth( _display, _screen ) >= 900 && XDisplayHeight( _display, _screen ) >= 650 )
+    {
+      _win_pos[0][0]  = 0;
+      _win_pos[0][1]  = 0;
+      _win_pos[1][0]  = 300;
+      _win_pos[1][1]  = 0;
+      _win_pos[2][0]  = 0;
+      _win_pos[2][1]  = 350;
+      _win_pos[3][0]  = 300;
+      _win_pos[3][1]  = 350;
+    }
+  }
+  
+  
+  // Visible windows at the beginning of the run
+  if ( with_grid )
+  {
+    _show_window  = 0x007F; // hex for bin 1111111  => show first 7 windows
+  }
+  else
+  {
+    _show_window  = 0x000F;   // hex for bin 1111   => show first 4 windows
+  }
+  _new_show_window = _show_window;
+  
+  
+  _window_name = new char*[NB_WIN];
+  if ( with_grid )  _window_name[0] = (char*) "Population grid";
+  else              _window_name[0] = (char*) "Population";
+  
+  _window_name[1] = (char*) "Phenotypic profile";
+  _window_name[2] = (char*) "Genes";
+  _window_name[3] = (char*) "RNAs";
+  _window_name[4] = (char*) "Secreted compound present";
+  _window_name[5] = (char*) "Metabolic fitness";
+  _window_name[6] = (char*) "Current secretion";
+}
+
 int8_t ae_simulation_X11::identify_window( Window winID )
 {
   for ( int8_t i = 0 ; i < NB_WIN ; i++ )
@@ -628,11 +614,11 @@ void ae_simulation_X11::refresh_window( int8_t win_number )
       cur_win->fill_rectangle( 0, 0, cur_win->get_width(), cur_win->get_height() * 19 / 20, BLACK );
       
       // Mark all the non-metabolic segments (paint them in grey)
-      if ( ae_common::env_axis_is_segmented )
+      if ( ae_common::sim->get_env()->is_segmented() )
       {
         ae_env_segment** segments = _env->get_segments();
      
-        for ( int16_t i = 0 ; i < ae_common::env_axis_nb_segments ; i++ )
+        for ( int16_t i = 0 ; i < ae_common::sim->get_env()->get_nb_segments() ; i++ )
         {
           if ( segments[i]->feature != METABOLISM )
           {
@@ -662,7 +648,7 @@ void ae_simulation_X11::refresh_window( int8_t win_number )
         
         ((ae_fuzzy_set_X11*)indiv->get_phenotype())->display( cur_win, BLUE );
         
-        if ( ae_common::allow_plasmids )
+        if ( ae_common::params->get_allow_plasmids() )
         {
           ((ae_fuzzy_set_X11*)indiv->get_genetic_unit( 0 )->get_phenotypic_contribution())->display( cur_win, YELLOW );
           ((ae_fuzzy_set_X11*)indiv->get_genetic_unit( 1 )->get_phenotypic_contribution())->display( cur_win, GREEN );

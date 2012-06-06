@@ -149,12 +149,23 @@ class ae_population : public ae_object
     // =================================================================
     //                          Protected Attributes
     // =================================================================
+    // Individuals
+    int32_t           _nb_indivs;
     ae_list*          _indivs;
+    
+    // Spatial structure
+    //~ bool     pop_structure;
+    //~ int16_t  grid_x; 
+    //~ int16_t  grid_y;
+    //~ int32_t  migration_number;
     ae_grid_cell***   _pop_grid;
     double**          _output_grid;
     
-    int32_t           _nb_indivs;
+    // Selection parameters
+    //~ ae_selection_scheme  _selection_scheme;
+    //~ double               _selection_pressure;    
  
+    // Probability of reproduction of each organism
     double*           _prob_reprod;
     double            _prob_reprod_previous_best;
 };

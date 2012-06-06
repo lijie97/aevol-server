@@ -44,6 +44,9 @@
 #include <ae_enums.h>
 #include <ae_macros.h>
 #include <ae_rand_mt.h>
+#include <ae_params_init.h>
+#include <ae_params_record.h>
+#include <ae_params.h>
 #ifdef __REGUL
   #include <ae_array_short.h>
   #include <ae_matrix_double.h>
@@ -102,133 +105,24 @@ class ae_common
     static ae_simulation_X11* sim_display;
 #endif
 
-    // PseudoRandom Number Generator
-    static int32_t seed;
-    static int32_t env_seed; // Seed for the environment's random generator (environmental variation)
-
-    // Initial conditions
-    static int32_t  initial_genome_length;
-    static int32_t  min_genome_length;
-    static int32_t  max_genome_length;
-    static int8_t   init_method;
-    static int32_t  nb_generations;
-    static double   min_w;
-    static double   max_w;
+    // Initialization parameters
+    static ae_params_init* init_params;
     
-    // Statistics collection
-    static int32_t      backup_step;
-    static int32_t      big_backup_step;
-    static int32_t      tree_step;
-    static bool         record_tree;
-    static ae_tree_mode tree_mode;    
-    static bool         more_stats;   // TODO : explain
-    static int32_t      dump_period;  // TODO : explain
-    static bool         delete_old_stats;
+    // Permanent use parameters
+    static ae_params* params;
+    
+    // Recording parameters
+    static ae_params_record* rec_params;
+    
+    // Number of generations to be simulated
+    static int32_t  nb_generations;
 
-    // Population  size, structure, and other properties
-    static int32_t  init_pop_size;
+    // Population properties
     static bool     pop_structure;
     static int16_t  grid_x; 
     static int16_t  grid_y;
-    static int32_t  migration_number; // TODO : explain
-
-    // Mutation rates
-    static double   point_mutation_rate;
-    static double   small_insertion_rate;
-    static double   small_deletion_rate;
-    static int16_t  max_indel_size;
-
-
-
-
-    // Rearrangements and Transfer
-    static bool   with_4pts_trans;
-    static bool   with_alignments;
-    static bool   with_transfer;
-    static bool   swap_GUs;
-    static double transfer_ins_rate;
-    static double transfer_repl_rate;
-
-    // Rearrangement rates (without alignements)
-    static double duplication_rate;
-    static double deletion_rate;
-    static double translocation_rate;
-    static double inversion_rate;
-
-    // Rearrangement rates (with alignements)
-    static double neighbourhood_rate;
-    static double duplication_proportion;
-    static double deletion_proportion;
-    static double translocation_proportion;
-    static double inversion_proportion;
-
-    // Alignements
-    static ae_align_fun_shape align_fun_shape;
-    static double  align_sigm_lambda;
-    static int16_t align_sigm_mean;
-    static int16_t align_lin_min;
-    static int16_t align_lin_max;
+    static int32_t  migration_number;
     
-    static int16_t align_max_shift;     // Maximum shift of one seq on the other
-    static int16_t align_w_zone_h_len;  // Work zone half length
-    static int16_t align_match_bonus;   // Corresponding residues match bonus
-    static int16_t align_mismatch_cost; // Corresponding residues mismatch cost
-
-
-
-
-    // Selection
-    static ae_selection_scheme  selection_scheme;
-    static double               selection_pressure;
-    
-    // Environment
-    static ae_list    env_gaussians;
-    static ae_list    env_custom_points;
-    static int16_t    env_sampling;
-    
-    static ae_env_var env_var_method;
-    static double     env_sigma;
-    static int32_t    env_tau;
-    
-    static bool                 env_axis_is_segmented;        // true if environment is segmented    
-    static int16_t              env_axis_nb_segments;
-    static double*              env_axis_segment_boundaries;  // (sorted) including MIN_X and MAX_X
-    static ae_env_axis_feature* env_axis_features;            // Corresponding features
-    static bool                 env_separate_segments;        // Automatically separate segments
-    
-    static bool                 composite_fitness;            // true if the are multiple components of fitness,
-                                                              // i.e. 2 or more non-neutral features
-    
-    // Secretion
-    static bool   use_secretion;
-    static double secretion_fitness_contrib;      // (0,1)
-    // proportion that difuses into each cell, every generation, 0 for no difusion
-    static double secretion_difusion_prop;
-    // proportion of secreted substance that degrades every generation generation
-    static double secretion_degradation_prop;
-    // starting configuration of secretion grid; 0, all are 0; 1, point source of secreted compund
-    static double secretion_init;
-    // cost of secreting the compound, as a proportion of the amount secreted
-    static double secretion_cost;
-    
-    
-    // Plasmids
-    static bool     allow_plasmids;
-    static int32_t  plasmid_initial_length;
-    static int32_t  plasmid_initial_gene;
-    static int32_t  plasmid_minimal_length;
-    static double   prob_horiz_trans;
-    static int16_t  nb_horiz_trans;
-	
-    static bool     compute_phen_contrib_by_GU;
-    
-    
-    // Translation cost
-    static double translation_cost;
-    
-    
-    // Log files
-    static int8_t logs;
 
 #ifdef __REGUL
     // Regulation factors
@@ -243,9 +137,6 @@ class ae_common
     // Individual life
     static  int16_t         individual_evaluation_nbr;
     static  ae_array_short* individual_evaluation_dates;
-
-    // Binding matrix
-    static  double  binding_zeros_percentage;
 
     // Heredity
     static  bool    with_heredity;

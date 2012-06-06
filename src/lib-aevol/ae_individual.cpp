@@ -108,25 +108,25 @@ ae_individual::ae_individual( void )
   // Create a list of genetic units with only the main chromosome
   _genetic_unit_list = new ae_list();
   
-  if ( ae_common::allow_plasmids )
+  if ( ae_common::params->get_allow_plasmids() )
   {
     // Create both a chromosome and a plasmid, separately 
-    if ( ae_common::plasmid_initial_gene == 1 ) 
+    if ( ae_common::init_params->get_plasmid_initial_gene() == 1 ) 
     {
-      _genetic_unit_list->add( new ae_genetic_unit( this, ae_common::initial_genome_length ) );
-      _genetic_unit_list->add( new ae_genetic_unit( this, ae_common::plasmid_initial_length ) );
+      _genetic_unit_list->add( new ae_genetic_unit( this, ae_common::init_params->get_initial_genome_length() ) );
+      _genetic_unit_list->add( new ae_genetic_unit( this, ae_common::init_params->get_plasmid_initial_length() ) );
     }
     // create a plasmid that is identical to the chromosome
-    else // ae_common::plasmid_initial_gene == 2
+    else // ae_common::init_params->get_plasmid_initial_gene() == 2
     {
-      _genetic_unit_list->add( new ae_genetic_unit( this, ae_common::initial_genome_length ) );
+      _genetic_unit_list->add( new ae_genetic_unit( this, ae_common::init_params->get_initial_genome_length() ) );
       _genetic_unit_list->add( new ae_genetic_unit( this, *((ae_genetic_unit*)_genetic_unit_list->get_first()->get_obj()) ) );
     }
   
   }
   else
   {
-    _genetic_unit_list->add( new ae_genetic_unit( this, ae_common::initial_genome_length ) );
+    _genetic_unit_list->add( new ae_genetic_unit( this, ae_common::init_params->get_initial_genome_length() ) );
   }
   
   // Create empty fuzzy sets for activation and inhibition
@@ -135,11 +135,12 @@ ae_individual::ae_individual( void )
   _phenotype = NULL;
   
   // Initialize all the fitness-related stuff
-  if ( ae_common::env_axis_is_segmented )
+  if ( ae_common::sim->get_env()->is_segmented() )
   {
-    _dist_to_target_segment = new double [ae_common::env_axis_nb_segments];
+    int16_t nb_segments = ae_common::sim->get_env()->get_nb_segments();
+    _dist_to_target_segment = new double [nb_segments];
     
-    for ( int16_t i = 0 ; i < ae_common::env_axis_nb_segments ; i++ )
+    for ( int16_t i = 0 ; i < nb_segments ; i++ )
     {
       _dist_to_target_segment[i] = 0;
     }
@@ -237,17 +238,18 @@ ae_individual::ae_individual( const ae_individual &model )
   }
   else
   {
-    _phenotype_activ  = new ae_fuzzy_set();;
-    _phenotype_inhib  = new ae_fuzzy_set();;
+    _phenotype_activ  = new ae_fuzzy_set();
+    _phenotype_inhib  = new ae_fuzzy_set();
     _phenotype        = NULL;
   }
   
   // Copy fitness-related stuff
-  if ( ae_common::env_axis_is_segmented )
+  if ( ae_common::sim->get_env()->is_segmented() )
   {
-    _dist_to_target_segment = new double [ae_common::env_axis_nb_segments];
+    int16_t nb_segments = ae_common::sim->get_env()->get_nb_segments();
+    _dist_to_target_segment = new double [nb_segments];
     
-    for ( int16_t i = 0 ; i < ae_common::env_axis_nb_segments ; i++ )
+    for ( int16_t i = 0 ; i < nb_segments ; i++ )
     {
       _dist_to_target_segment[i] = model._dist_to_target_segment[i];
     }
@@ -352,11 +354,12 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t index )
   _phenotype = NULL;
   
   // Initialize all the fitness-related stuff
-  if ( ae_common::env_axis_is_segmented )
+  if ( ae_common::sim->get_env()->is_segmented() )
   {
-    _dist_to_target_segment = new double [ae_common::env_axis_nb_segments];
+    int16_t nb_segments = ae_common::sim->get_env()->get_nb_segments();
+    _dist_to_target_segment = new double [nb_segments];
     
-    for ( int16_t i = 0 ; i < ae_common::env_axis_nb_segments ; i++ )
+    for ( int16_t i = 0 ; i < nb_segments ; i++ )
     {
       _dist_to_target_segment[i] = 0;
     }
@@ -376,7 +379,7 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t index )
   }
 
   
-  if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
+  if ( ae_common::rec_params->get_record_tree() && ae_common::rec_params->get_tree_mode() == NORMAL )
   {
     _replic_report = new ae_replication_report( this, parent );
   }
@@ -483,11 +486,12 @@ ae_individual::ae_individual( gzFile* backup_file )
   
   
   // Initialize all the fitness-related stuff
-  if ( ae_common::env_axis_is_segmented )
+  if ( ae_common::sim->get_env()->is_segmented() )
   {
-    _dist_to_target_segment = new double [ae_common::env_axis_nb_segments];
+    int16_t nb_segments = ae_common::sim->get_env()->get_nb_segments();
+    _dist_to_target_segment = new double [nb_segments];
     
-    for ( int16_t i = 0 ; i < ae_common::env_axis_nb_segments ; i++ )
+    for ( int16_t i = 0 ; i < nb_segments ; i++ )
     {
       _dist_to_target_segment[i] = 0;
     }
@@ -572,7 +576,7 @@ ae_individual::ae_individual( char* organism_file_name )
   // Create a list of genetic units with only the main chromosome
   _genetic_unit_list = new ae_list();
   
-  if ( ae_common::allow_plasmids )
+  if ( ae_common::params->get_allow_plasmids() )
   {
     printf( "ERROR, not implemented for plasmids yet %s:%d\n", __FILE__, __LINE__ );
   }
@@ -587,11 +591,12 @@ ae_individual::ae_individual( char* organism_file_name )
   _phenotype = NULL;
   
   // Initialize all the fitness-related stuff
-  if ( ae_common::env_axis_is_segmented )
+  if ( ae_common::sim->get_env()->is_segmented() )
   {
-    _dist_to_target_segment = new double [ae_common::env_axis_nb_segments];
+    int16_t nb_segments = ae_common::sim->get_env()->get_nb_segments();
+    _dist_to_target_segment = new double [nb_segments];
     
-    for ( int16_t i = 0 ; i < ae_common::env_axis_nb_segments ; i++ )
+    for ( int16_t i = 0 ; i < nb_segments ; i++ )
     {
       _dist_to_target_segment[i] = 0;
     }
@@ -679,7 +684,7 @@ ae_individual::ae_individual( char* genome, int32_t genome_size )
   // Create a list of genetic units with only the main chromosome
   _genetic_unit_list = new ae_list();
   
-  if ( ae_common::allow_plasmids )
+  if ( ae_common::params->get_allow_plasmids() )
   {
     printf( "ERROR, functionality not implemented %s:%d\n", __FILE__, __LINE__ );
   }
@@ -694,11 +699,12 @@ ae_individual::ae_individual( char* genome, int32_t genome_size )
   _phenotype = NULL;
   
   // Initialize all the fitness-related stuff
-  if ( ae_common::env_axis_is_segmented )
+  if ( ae_common::sim->get_env()->is_segmented() )
   {
-    _dist_to_target_segment = new double [ae_common::env_axis_nb_segments];
+    int16_t nb_segments = ae_common::sim->get_env()->get_nb_segments();
+    _dist_to_target_segment = new double [nb_segments];
     
-    for ( int16_t i = 0 ; i < ae_common::env_axis_nb_segments ; i++ )
+    for ( int16_t i = 0 ; i < nb_segments ; i++ )
     {
       _dist_to_target_segment[i] = 0;
     }
@@ -847,7 +853,7 @@ void ae_individual::compute_distance_to_target( ae_environment* envir )
   ae_fuzzy_set* delta = new ae_fuzzy_set( *_phenotype );
   delta->sub( envir );
   
-  if ( ! ae_common::env_axis_is_segmented )
+  if ( ! ae_common::sim->get_env()->is_segmented() )
   {
     _dist_to_target_by_feature[METABOLISM] = delta->get_geometric_area();
   }
@@ -859,7 +865,7 @@ void ae_individual::compute_distance_to_target( ae_environment* envir )
     //   => We shouldn't parse the whole list of points on the left of the segment we are considering (we have 
     //      already been through them!)
     
-    for ( int16_t i = 0 ; i < ae_common::env_axis_nb_segments ; i++ )
+    for ( int16_t i = 0 ; i < ae_common::sim->get_env()->get_nb_segments() ; i++ )
     {
       _dist_to_target_segment[i] = delta->get_geometric_area( segments[i]->start, segments[i]->stop );
       _dist_to_target_by_feature[segments[i]->feature] += _dist_to_target_segment[i];
@@ -877,13 +883,13 @@ void ae_individual::compute_fitness( ae_environment* envir )
   if ( _fitness_computed ) return; // Fitness has already been computed, nothing to do.
   _fitness_computed = true;
   
-  if ( ! ae_common::composite_fitness )
+  if ( ! ae_common::sim->fitness_is_composite() )
   {
-    if ( ae_common::selection_scheme == FITNESS_PROPORTIONATE )
+    if ( ae_common::params->get_selection_scheme() == FITNESS_PROPORTIONATE )
     {
-      _fitness_by_feature[METABOLISM] = exp( -ae_common::selection_pressure * _dist_to_target_by_feature[METABOLISM] );
+      _fitness_by_feature[METABOLISM] = exp( -ae_common::params->get_selection_pressure() * _dist_to_target_by_feature[METABOLISM] );
     }
-    else // if ( ae_common::selection_scheme == XXX_RANKING )
+    else // if ( ae_common::params->get_selection_scheme() == XXX_RANKING )
     {
       // For ranking schemes, we use a faster measure, without exponential computation 
       _fitness_by_feature[METABOLISM] = ((MAX_X - MIN_X) * (MAX_Y - MIN_Y)) - _dist_to_target_by_feature[METABOLISM];
@@ -896,8 +902,8 @@ void ae_individual::compute_fitness( ae_environment* envir )
     {
       if ( i == SECRETION )
       {
-        _fitness_by_feature[SECRETION] =  exp( -ae_common::selection_pressure * _dist_to_target_by_feature[SECRETION] )
-        - exp( -ae_common::selection_pressure * envir->get_area_by_feature(SECRETION) );
+        _fitness_by_feature[SECRETION] =  exp( -ae_common::params->get_selection_pressure() * _dist_to_target_by_feature[SECRETION] )
+        - exp( -ae_common::params->get_selection_pressure() * envir->get_area_by_feature(SECRETION) );
         
         if ( _fitness_by_feature[i] < 0 )
         {
@@ -906,7 +912,7 @@ void ae_individual::compute_fitness( ae_environment* envir )
       }
       else
       {
-        _fitness_by_feature[i] = exp( -ae_common::selection_pressure * _dist_to_target_by_feature[i] );
+        _fitness_by_feature[i] = exp( - ae_common::params->get_selection_pressure() * _dist_to_target_by_feature[i] );
       }  
     }
     
@@ -919,8 +925,8 @@ void ae_individual::compute_fitness( ae_environment* envir )
     else
     {   
       _fitness =  _fitness_by_feature[METABOLISM] * 
-      ( 1 + ae_common::secretion_fitness_contrib * _grid_cell->get_compound_amount()
-       - ae_common::secretion_cost * _fitness_by_feature[SECRETION] ); 
+      ( 1 + ae_common::params->get_secretion_fitness_contrib() * _grid_cell->get_compound_amount()
+       - ae_common::params->get_secretion_cost() * _fitness_by_feature[SECRETION] ); 
     }
   }
 }
@@ -971,9 +977,9 @@ void ae_individual::reevaluate( ae_environment* envir )
   }
 
   // Initialize all the fitness-related stuff
-  if ( ae_common::env_axis_is_segmented )
+  if ( ae_common::sim->get_env()->is_segmented() )
   {
-    for ( int16_t i = 0 ; i < ae_common::env_axis_nb_segments ; i++ )
+    for ( int16_t i = 0 ; i < ae_common::sim->get_env()->get_nb_segments() ; i++ )
     {
       _dist_to_target_segment[i] = 0;
     }
@@ -1071,7 +1077,7 @@ void ae_individual::evaluate( ae_environment* envir )
   compute_distance_to_target( envir );
   compute_fitness( envir );
   
-  if ( ae_common::compute_phen_contrib_by_GU ) 
+  if ( ae_common::params->get_compute_phen_contrib_by_GU() ) 
   { 
     ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
     ae_genetic_unit*  gen_unit      = NULL;
@@ -1519,25 +1525,25 @@ double ae_individual::compute_theoritical_f_nu( void )
 
   // mutation + insertion + deletion
   double nu_local_mutation = 1 - ((double) l)/L;
-  Fv  = pow( 1 - ae_common::point_mutation_rate  * ( 1 - nu_local_mutation ), L);
-  Fv *= pow( 1 - ae_common::small_insertion_rate * ( 1 - nu_local_mutation ), L);
-  Fv *= pow( 1 - ae_common::small_deletion_rate  * ( 1 - nu_local_mutation ), L);
+  Fv  = pow( 1 - ae_common::params->get_point_mutation_rate()  * ( 1 - nu_local_mutation ), L);
+  Fv *= pow( 1 - ae_common::params->get_small_insertion_rate() * ( 1 - nu_local_mutation ), L);
+  Fv *= pow( 1 - ae_common::params->get_small_deletion_rate()  * ( 1 - nu_local_mutation ), L);
 
   // inversion ~ two local mutations
   double nu_inversion = nu_local_mutation * nu_local_mutation;
-  Fv *= pow( 1 - ae_common::inversion_rate       * ( 1 - nu_inversion )     , L);
+  Fv *= pow( 1 - ae_common::params->get_inversion_rate()       * ( 1 - nu_inversion )     , L);
 
   // translocation ~ inversion + insertion (mathematically)
-  Fv *= pow( 1 - ae_common::translocation_rate   * ( 1 - nu_inversion * nu_local_mutation ), L);
+  Fv *= pow( 1 - ae_common::params->get_translocation_rate()   * ( 1 - nu_inversion * nu_local_mutation ), L);
 
   // long deletion
   double nu_deletion = 0; // if N_G == 0, a deletion is always not neutral
   for ( int32_t i = 0; i < N_G; i++) { nu_deletion += lambda_i[i] * (lambda_i[i] + 1); }
   nu_deletion /= ((double) 2*L*L);
-  Fv *= pow( 1 - ae_common::deletion_rate        * ( 1 - nu_deletion )      , L);
+  Fv *= pow( 1 - ae_common::params->get_deletion_rate()        * ( 1 - nu_deletion )      , L);
 
   // duplication ~ big deletion + insertion
-  Fv *= pow( 1 - ae_common::duplication_rate     * ( 1 - nu_deletion * nu_local_mutation ), L);
+  Fv *= pow( 1 - ae_common::params->get_duplication_rate()     * ( 1 - nu_deletion * nu_local_mutation ), L);
   
   if ( lambda_i != NULL ) delete [] lambda_i;
 

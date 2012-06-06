@@ -52,9 +52,9 @@ AM_CPPFLAGS += -D__STDC_FORMAT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MA
 
 
 
-common_headers = ae_align.h ae_codon.h ae_common.h ae_dna.h ae_dump.h ae_enums.h ae_environment.h ae_env_segment.h ae_fuzzy_set.h ae_gaussian.h ae_genetic_unit.h ae_grid_cell.h ae_individual.h ae_list.h ae_logs.h ae_macros.h ae_mutation.h ae_object.h ae_param_loader.h ae_param_overloader.h ae_phenotype.h ae_population.h ae_point_1d.h ae_point_2d.h ae_protein.h ae_rand_mt.h ae_replication_report.h ae_dna_replic_report.h ae_rna.h ae_simulation.h ae_stats.h ae_stat_record.h ae_string.h ae_tree.h ae_utils.h ae_vis_a_vis.h
+common_headers = ae_align.h ae_codon.h ae_common.h ae_dna.h ae_dump.h ae_enums.h ae_environment.h ae_env_segment.h ae_fuzzy_set.h ae_gaussian.h ae_genetic_unit.h ae_grid_cell.h ae_individual.h ae_list.h ae_logs.h ae_macros.h ae_mutation.h ae_object.h ae_params.h ae_params_init.h ae_params_record.h ae_param_loader.h ae_param_overloader.h ae_phenotype.h ae_population.h ae_point_1d.h ae_point_2d.h ae_protein.h ae_rand_mt.h ae_replication_report.h ae_dna_replic_report.h ae_rna.h ae_simulation.h ae_stats.h ae_stat_record.h ae_string.h ae_tree.h ae_utils.h ae_vis_a_vis.h
 
-common_sources = ae_align.cpp ae_codon.cpp ae_common.cpp ae_dna.cpp ae_dump.cpp ae_environment.cpp ae_fuzzy_set.cpp ae_genetic_unit.cpp ae_grid_cell.cpp ae_individual.cpp ae_logs.cpp ae_mutation.cpp ae_param_loader.cpp ae_param_overloader.cpp ae_phenotype.cpp ae_population.cpp ae_protein.cpp ae_rand_mt.cpp ae_replication_report.cpp ae_dna_replic_report.cpp ae_rna.cpp ae_simulation.cpp ae_stats.cpp ae_stat_record.cpp ae_string.cpp ae_tree.cpp  ae_vis_a_vis.cpp
+common_sources = ae_align.cpp ae_codon.cpp ae_common.cpp ae_dna.cpp ae_dump.cpp ae_environment.cpp ae_fuzzy_set.cpp ae_genetic_unit.cpp ae_grid_cell.cpp ae_individual.cpp ae_logs.cpp ae_mutation.cpp ae_params.cpp ae_params_init.cpp ae_params_record.cpp ae_param_loader.cpp ae_param_overloader.cpp ae_phenotype.cpp ae_population.cpp ae_protein.cpp ae_rand_mt.cpp ae_replication_report.cpp ae_dna_replic_report.cpp ae_rna.cpp ae_simulation.cpp ae_stats.cpp ae_stat_record.cpp ae_string.cpp ae_tree.cpp  ae_vis_a_vis.cpp
 
 
 X11_headers = ae_fuzzy_set_X11.h ae_individual_X11.h ae_population_X11.h ae_simulation_X11.h ae_X11_window.h

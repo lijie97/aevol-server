@@ -74,7 +74,7 @@
 // =================================================================
 ae_population::ae_population( void )
 {
-  _nb_indivs  = ae_common::init_pop_size;
+  _nb_indivs  = ae_common::init_params->get_init_pop_size();
   _indivs     = new ae_list();
   _prob_reprod = NULL;
   _prob_reprod_previous_best = 0; // TODO
@@ -84,9 +84,9 @@ ae_population::ae_population( void )
 
   printf( "Entire geometric area of the environment : %f\n", ae_common::sim->get_env()->get_geometric_area() );
   
-  if ( ae_common::init_method & ONE_GOOD_GENE )
+  if ( ae_common::init_params->get_init_method() & ONE_GOOD_GENE )
   {
-    if ( ae_common::init_method & CLONE )
+    if ( ae_common::init_params->get_init_method() & CLONE )
     {
       // Create an individual with a "good" gene (in fact, make an indiv whose fitness is better than that corresponding to a flat phenotype)
       // and set its index in the population
@@ -122,7 +122,7 @@ ae_population::ae_population( void )
   }
   else
   {    
-    if ( ae_common::init_method & CLONE )
+    if ( ae_common::init_params->get_init_method() & CLONE )
     {
       // Create a random individual and set its index in the population
       indiv = create_random_individual( index_new_indiv++ );
@@ -157,7 +157,9 @@ ae_population::ae_population( void )
   }
   
   #ifdef FIXED_POPULATION_SIZE
-    if ( ae_common::selection_scheme == RANK_LINEAR || ae_common::selection_scheme == RANK_EXPONENTIAL || ae_common::selection_scheme == FITTEST )
+    if ( ae_common::params->get_selection_scheme() == RANK_LINEAR ||
+         ae_common::params->get_selection_scheme() == RANK_EXPONENTIAL ||
+         ae_common::params->get_selection_scheme() == FITTEST )
     {
       if ( ae_common::pop_structure == false )
       {
@@ -194,9 +196,9 @@ ae_population::ae_population( void )
     }
     
     // start with a point source of secreted compound
-    if ( ae_common::secretion_init > 0 )
+    if ( ae_common::init_params->get_secretion_init() > 0 )
     {
-      _pop_grid[(int16_t)ae_common::grid_x/2][(int16_t)ae_common::grid_y/2]->set_compound_amount( ae_common::secretion_init );
+      _pop_grid[(int16_t)ae_common::grid_x/2][(int16_t)ae_common::grid_y/2]->set_compound_amount( ae_common::init_params->get_secretion_init() );
     }
   }
   
@@ -209,7 +211,7 @@ ae_population::ae_population( char* organism_file_name )
 {
   printf( "Creating a population from a saved individual genome...\n"); 
   
-  _nb_indivs  = ae_common::init_pop_size;
+  _nb_indivs  = ae_common::init_params->get_init_pop_size();
   _indivs     = new ae_list();
   _prob_reprod = NULL;
   _prob_reprod_previous_best = 0; // TODO
@@ -237,7 +239,9 @@ ae_population::ae_population( char* organism_file_name )
   }
     
   #ifdef FIXED_POPULATION_SIZE
-    if ( ae_common::selection_scheme == RANK_LINEAR || ae_common::selection_scheme == RANK_EXPONENTIAL || ae_common::selection_scheme == FITTEST )
+    if ( ae_common::params->get_selection_scheme() == RANK_LINEAR ||
+         ae_common::params->get_selection_scheme() == RANK_EXPONENTIAL ||
+         ae_common::params->get_selection_scheme() == FITTEST )
     {
       if ( ae_common::pop_structure == false )
       {
@@ -274,9 +278,9 @@ ae_population::ae_population( char* organism_file_name )
     }
     
     // start with a point source of secreted compound
-    if ( ae_common::secretion_init > 0 )
+    if ( ae_common::init_params->get_secretion_init() > 0 )
     {
-      _pop_grid[(int16_t)ae_common::grid_x/2][(int16_t)ae_common::grid_y/2]->set_compound_amount( ae_common::secretion_init );
+      _pop_grid[(int16_t)ae_common::grid_x/2][(int16_t)ae_common::grid_y/2]->set_compound_amount( ae_common::init_params->get_secretion_init() );
     }
   }
   
@@ -324,16 +328,16 @@ ae_population::ae_population( gzFile* backup_file )
   // so we have to check if we need to create or delete some individuals
   
   // If population size has increased, then we create new individuals
-  if ( _nb_indivs < ae_common::init_pop_size )
+  if ( _nb_indivs < ae_common::init_params->get_init_pop_size() )
   {
-    int nbclone = ae_common::init_pop_size / _nb_indivs;
+    int nbclone = ae_common::init_params->get_init_pop_size() / _nb_indivs;
         
-    if ( (ae_common::init_pop_size % _nb_indivs) != 0 )
+    if ( (ae_common::init_params->get_init_pop_size() % _nb_indivs) != 0 )
     {
       printf( "ERROR : The new number of individual has to be divisible be the old one.\n" );
       exit( EXIT_FAILURE );
     }
-    if ( ae_common::init_pop_size == 0 )
+    if ( ae_common::init_params->get_init_pop_size() == 0 )
     {
       printf( "ERROR : The new number of individual has to be greater than 0.\n" );
       exit( EXIT_FAILURE );
@@ -346,23 +350,23 @@ ae_population::ae_population( gzFile* backup_file )
        // Create clones of the old individuals
       for ( int c = 1 ; c < nbclone ; c++ )
       {
-	for ( int i = 0; i < _nb_indivs; i++ )
-	{
-	  #ifdef __NO_X
-	    #ifndef __REGUL
-	      indiv = new ae_individual( dynamic_cast <ae_individual*> (_indivs->get_object(i)), c * _nb_indivs + i );
-	    #else
-	      indiv = new ae_individual_R( dynamic_cast <ae_individual_R*> (_indivs->get_object(i)), c * _nb_indivs + i );
-	    #endif
-	  #elif defined __X11
-	    #ifndef __REGUL
-	      indiv = new ae_individual_X11( dynamic_cast <ae_individual_X11*> (_indivs->get_object(i)), c * _nb_indivs + i );
-	    #else
-	      indiv = new ae_individual_R_X11( dynamic_cast <ae_individual_R_X11*> (_indivs->get_object(i)), c * _nb_indivs + i );
-	    #endif
-	  #endif
-	  _indivs->add( indiv );
-	}
+        for ( int i = 0; i < _nb_indivs; i++ )
+        {
+          #ifdef __NO_X
+            #ifndef __REGUL
+              indiv = new ae_individual( dynamic_cast <ae_individual*> (_indivs->get_object(i)), c * _nb_indivs + i );
+            #else
+              indiv = new ae_individual_R( dynamic_cast <ae_individual_R*> (_indivs->get_object(i)), c * _nb_indivs + i );
+            #endif
+          #elif defined __X11
+            #ifndef __REGUL
+              indiv = new ae_individual_X11( dynamic_cast <ae_individual_X11*> (_indivs->get_object(i)), c * _nb_indivs + i );
+            #else
+              indiv = new ae_individual_R_X11( dynamic_cast <ae_individual_R_X11*> (_indivs->get_object(i)), c * _nb_indivs + i );
+            #endif
+          #endif
+          _indivs->add( indiv );
+        }
       }
       
       // create the grid and put the individuals on it
@@ -396,32 +400,32 @@ ae_population::ae_population( gzFile* backup_file )
       
       for ( int c = 1 ; c < nbclone ; c++ )
       {
-	for ( int i = 0; i < _nb_indivs; i++ )
-	{
-	  #ifdef __NO_X
-	    #ifndef __REGUL
-	      ae_individual* my_indiv = dynamic_cast <ae_individual*> (_indivs->get_object(i));
-	      indiv = new ae_individual(  my_indiv, my_indiv->get_index_in_population() );
-	    #else
-	      ae_individual_R* my_indiv = dynamic_cast <ae_individual_R*> (_indivs->get_object(i));
-	      indiv = new ae_individual_R(  my_indiv, my_indiv->get_index_in_population() );
-	    #endif
-	  #elif defined __X11
-	    #ifndef __REGUL
-	      ae_individual_X11* my_indiv = dynamic_cast <ae_individual_X11*> (_indivs->get_object(i));
-	      indiv = new ae_individual_X11(  my_indiv, my_indiv->get_index_in_population() );
-	    #else
-	      ae_individual_R_X11* my_indiv = dynamic_cast <ae_individual_R_X11*> (_indivs->get_object(i));
-	      indiv = new ae_individual_R_X11(  my_indiv, my_indiv->get_index_in_population() );
-	    #endif
-	  #endif
-	  _indivs->add( indiv );
-	}
+        for ( int i = 0; i < _nb_indivs; i++ )
+        {
+          #ifdef __NO_X
+            #ifndef __REGUL
+              ae_individual* my_indiv = dynamic_cast <ae_individual*> (_indivs->get_object(i));
+              indiv = new ae_individual(  my_indiv, my_indiv->get_index_in_population() );
+            #else
+              ae_individual_R* my_indiv = dynamic_cast <ae_individual_R*> (_indivs->get_object(i));
+              indiv = new ae_individual_R(  my_indiv, my_indiv->get_index_in_population() );
+            #endif
+          #elif defined __X11
+            #ifndef __REGUL
+              ae_individual_X11* my_indiv = dynamic_cast <ae_individual_X11*> (_indivs->get_object(i));
+              indiv = new ae_individual_X11(  my_indiv, my_indiv->get_index_in_population() );
+            #else
+              ae_individual_R_X11* my_indiv = dynamic_cast <ae_individual_R_X11*> (_indivs->get_object(i));
+              indiv = new ae_individual_R_X11(  my_indiv, my_indiv->get_index_in_population() );
+            #endif
+          #endif
+          _indivs->add( indiv );
+        }
       }
     }
     
     // Reload the secretion grid and expand it
-    if ( ae_common::use_secretion ) 
+    if ( ae_common::params->get_use_secretion() ) 
     {
       double tmp_comp;
       for ( int16_t x = 0 ; x < ae_common::grid_x ; x++ )
@@ -442,10 +446,10 @@ ae_population::ae_population( gzFile* backup_file )
     }
 
     // update the number of individuals
-    _nb_indivs = ae_common::init_pop_size;
+    _nb_indivs = ae_common::init_params->get_init_pop_size();
   }
   // If population size has decreased, then we only keep some individuals
-  else if ( _nb_indivs > ae_common::init_pop_size )
+  else if ( _nb_indivs > ae_common::init_params->get_init_pop_size() )
   {
     // save the old list and delete it
     ae_list* _old_indivs = new ae_list(*_indivs);
@@ -457,16 +461,17 @@ ae_population::ae_population( gzFile* backup_file )
     
     if ( ae_common::pop_structure == true )
     {
-    	int32_t k = (int32_t) round( sqrt(ae_common::init_pop_size) );
+    	int32_t k = (int32_t) round( sqrt(ae_common::init_params->get_init_pop_size()) );
     	int32_t i = k;
     	bool    b = false;
 
 		// Find a rectangle that has the wanted area
     	while( (i > 0) && (!b) )
     	{
-      		if ((ae_common::init_pop_size/i)==(round(ae_common::init_pop_size)/i))
+      		if ((ae_common::init_params->get_init_pop_size()/i)==(round(ae_common::init_params->get_init_pop_size())/i))
       		{
-        		if ( ((i<=ae_common::grid_x)&&(ae_common::init_pop_size/i<=ae_common::grid_y)) || ((i<=ae_common::grid_y)&&(ae_common::init_pop_size/i<=ae_common::grid_x)) )
+        		if ( ((i<=ae_common::grid_x) && (ae_common::init_params->get_init_pop_size()/i<=ae_common::grid_y)) ||
+                 ((i<=ae_common::grid_y) && (ae_common::init_params->get_init_pop_size()/i<=ae_common::grid_x)) )
         		{
           			b=true;
         		}
@@ -492,15 +497,15 @@ ae_population::ae_population( gzFile* backup_file )
 	int ansx = ae_common::grid_x;
 	int ansy = ae_common::grid_y;
 
-	if ((i<=ansx)&&(ae_common::init_pop_size/i<=ansy))
+	if ((i<=ansx)&&(ae_common::init_params->get_init_pop_size()/i<=ansy))
 	{
 		ae_common::grid_x = i;
-		ae_common::grid_y = ae_common::init_pop_size/i;
+		ae_common::grid_y = ae_common::init_params->get_init_pop_size()/i;
 	}
 	else
 	{
 		ae_common::grid_y = i;
-		ae_common::grid_x = ae_common::init_pop_size/i;
+		ae_common::grid_x = ae_common::init_params->get_init_pop_size()/i;
 	}
 
 	// Create a population with the new number of individuals
@@ -537,7 +542,7 @@ ae_population::ae_population( gzFile* backup_file )
 	}
     
 	// reload the secretion grid and only keep the choosen part of it
-	if ( ae_common::use_secretion ) 
+	if ( ae_common::params->get_use_secretion() ) 
 	{
 		double tmp_comp;
 		for ( int16_t x = 0 ; x < ansx ; x++ )
@@ -560,7 +565,7 @@ ae_population::ae_population( gzFile* backup_file )
 		printf( "  Loading individuals " );
 		int k ;
 	
-		for ( int32_t i = 0 ; i < ae_common::init_pop_size ; i++ )
+		for ( int32_t i = 0 ; i < ae_common::init_params->get_init_pop_size() ; i++ )
 		{
 	  		if ( i && i % 100 == 0 )    
 	  		{
@@ -568,23 +573,23 @@ ae_population::ae_population( gzFile* backup_file )
 	    		fflush( stdout );
 	  		}
     	
-	  		k = ae_common::sim->alea->random(ae_common::init_pop_size);
+	  		k = ae_common::sim->alea->random(ae_common::init_params->get_init_pop_size());
 	  
 	  		#ifdef __NO_X
 	    		#ifndef __REGUL
-	      			ae_individual* my_indiv = dynamic_cast <ae_individual*> (_old_indivs->get_object(k));
-	      			indiv = new ae_individual(  my_indiv, my_indiv->get_index_in_population() );
+            ae_individual* my_indiv = dynamic_cast <ae_individual*> (_old_indivs->get_object(k));
+            indiv = new ae_individual(  my_indiv, my_indiv->get_index_in_population() );
 	    		#else
-	      			ae_individual_R* my_indiv = dynamic_cast <ae_individual_R*> (_old_indivs->get_object(k));
-	      			indiv = new ae_individual_R(  my_indiv, my_indiv->get_index_in_population() );
+            ae_individual_R* my_indiv = dynamic_cast <ae_individual_R*> (_old_indivs->get_object(k));
+            indiv = new ae_individual_R(  my_indiv, my_indiv->get_index_in_population() );
 	    		#endif
 	  		#elif defined __X11
 	    		#ifndef __REGUL
-	      			ae_individual_X11* my_indiv = dynamic_cast <ae_individual_X11*> (_old_indivs->get_object(k));
-	      			indiv = new ae_individual_X11(  my_indiv, my_indiv->get_index_in_population() );
+            ae_individual_X11* my_indiv = dynamic_cast <ae_individual_X11*> (_old_indivs->get_object(k));
+            indiv = new ae_individual_X11(  my_indiv, my_indiv->get_index_in_population() );
 	    		#else
-	      			ae_individual_R_X11* my_indiv = dynamic_cast <ae_individual_R_X11*> (_old_indivs->get_object(k));
-	      			indiv = new ae_individual_R_X11(  my_indiv, my_indiv->get_index_in_population() );
+            ae_individual_R_X11* my_indiv = dynamic_cast <ae_individual_R_X11*> (_old_indivs->get_object(k));
+            indiv = new ae_individual_R_X11(  my_indiv, my_indiv->get_index_in_population() );
 	    		#endif
 	  		#endif
 	  		_indivs->add( indiv );
@@ -596,7 +601,7 @@ ae_population::ae_population( gzFile* backup_file )
     _old_indivs->erase(DELETE_OBJ);
     delete _old_indivs;
       // update the number of individuals
-    _nb_indivs = ae_common::init_pop_size;
+    _nb_indivs = ae_common::init_params->get_init_pop_size();
   }
 
   // Otherwise we keep all the individuals
@@ -628,7 +633,7 @@ ae_population::ae_population( gzFile* backup_file )
       }
     }
   
-    if ( ae_common::use_secretion ) 
+    if ( ae_common::params->get_use_secretion() ) 
     {
       double tmp_comp;
       for ( int16_t x = 0 ; x < ae_common::grid_x ; x++ )
@@ -647,7 +652,9 @@ ae_population::ae_population( gzFile* backup_file )
 
 #ifdef FIXED_POPULATION_SIZE
   // If the selection scheme is FITNESS_PROPORTIONATE, then the probability of reproduction is computed at each step.
-  if ( ae_common::selection_scheme == RANK_LINEAR || ae_common::selection_scheme == RANK_EXPONENTIAL || ae_common::selection_scheme == FITTEST )
+  if ( ae_common::params->get_selection_scheme() == RANK_LINEAR ||
+       ae_common::params->get_selection_scheme() == RANK_EXPONENTIAL ||
+       ae_common::params->get_selection_scheme() == FITTEST )
   {
     if ( ae_common::pop_structure == false )
     {
@@ -717,7 +724,7 @@ void ae_population::step_to_next_generation( void )
   // 4) Replace the current generation by the newly created one.
   // 5) Sort the newly created population*
   
-  assert( ae_common::selection_scheme != FITTEST );
+  assert( ae_common::params->get_selection_scheme() != FITTEST );
 
 
   // -------------------------------------------------------------------------------
@@ -726,7 +733,7 @@ void ae_population::step_to_next_generation( void )
   #ifndef FIXED_POPULATION_SIZE
     compute_prob_reprod();
   #else
-    if ( ae_common::selection_scheme == FITNESS_PROPORTIONATE )
+    if ( ae_common::params->get_selection_scheme() == FITNESS_PROPORTIONATE )
     {
       compute_prob_reprod();
     }
@@ -762,7 +769,7 @@ void ae_population::step_to_next_generation( void )
     
     // All the offsprings of this individual have been generated, if there is no transfer,
     // the indiv will not be used any more and can hence be deleted
-    if ( ! ae_common::with_transfer )
+    if ( ! ae_common::params->get_with_transfer() )
     {
       _indivs->remove( indiv_node, DELETE_OBJ, DELETE_OBJ );
     }
@@ -770,7 +777,7 @@ void ae_population::step_to_next_generation( void )
     indiv_node = next_indiv_node;
   }
   
-  if ( ae_common::with_transfer )
+  if ( ae_common::params->get_with_transfer() )
   {
     // The individuals have not yet been deleted, do it now.
     _indivs->erase( DELETE_OBJ );
@@ -868,7 +875,7 @@ void ae_population::step_to_next_generation_grid( void )
   }
   
   // Perform transfer
-  if ( ae_common::with_transfer )
+  if ( ae_common::params->get_with_transfer() )
   {
     
     double *  probs = new double[9];
@@ -876,24 +883,21 @@ void ae_population::step_to_next_generation_grid( void )
     double pick_one;
     int16_t found_org, x_offset, y_offset, new_x, new_y; 
     
-    // int16_t ae_common::nb_horiz_trans=3;    //How much plasmids can a cell send in its neighboorhood per generation
-    for (int16_t i=0;i<ae_common::nb_horiz_trans;i++) 
+    for ( int16_t i = 0 ; i < ae_common::params->get_nb_horiz_trans() ; i++ )
     {
-      
-      //We will shuffle the grid:
-      int16_t total_size=((ae_common::grid_x)*(ae_common::grid_y));
-      int16_t** shuffled_table=new int16_t* [total_size];
-      for(int16_t z=0;z <total_size;z++)
+      // Shuffle the grid:
+      int16_t total_size = ((ae_common::grid_x)*(ae_common::grid_y));
+      int16_t** shuffled_table = new int16_t* [total_size];
+      for ( int16_t z = 0 ; z < total_size ; z++ )
       {
-        shuffled_table[z]=new int16_t[2];
-        int16_t quotient=z/ae_common::grid_x;
-        int16_t remainder=z%ae_common::grid_x;
-        shuffled_table[z][0]=(int16_t) remainder;
-        shuffled_table[z][1]=(int16_t) quotient;
-        
+        shuffled_table[z] = new int16_t[2];
+        int16_t quotient = z / ae_common::grid_x;
+        int16_t remainder = z % ae_common::grid_x;
+        shuffled_table[z][0] = (int16_t) remainder;
+        shuffled_table[z][1] = (int16_t) quotient;
       }
       
-      for(int16_t z=0;z <total_size-1;z++)
+      for ( int16_t z = 0 ;z < total_size - 1 ; z++ )
       {
         int16_t rand_nb=ae_common::sim->alea->random((int16_t) (total_size-z));
         int16_t* tmp=shuffled_table[z+rand_nb];
@@ -907,18 +911,17 @@ void ae_population::step_to_next_generation_grid( void )
       // First transfer all the plasmids, but just add them at the end of the list of the GUs
       for ( int16_t z = 0 ; z < total_size ; z++ )
       {
-        // 1. Will there be the plasmid transfered this time
+        // 1. Determine whether there will be a plasmid transfer this time
         // The probability that at least one of 8 neighbours sends a plasmid is  
         // 1 minus the probability that none send it, so (1-(1-pht)^8)
         // where pht is the probability that an individual plasmid transfers
         
-	      if (ae_common::sim->alea->random() < (1.0 - pow( (1.0 - ae_common::prob_horiz_trans), 9)) ) 
+	      if ( ae_common::sim->alea->random() < (1.0 - pow( (1.0 - ae_common::params->get_prob_horiz_trans()), 9)) ) 
 	      {
-          
 	        int16_t x=shuffled_table[z][0];
 	        int16_t y=shuffled_table[z][1];
-	        // printf('\ny: ');printf(y); 
-	        // 2. pick which neighbor that will donate the plasmid
+          
+	        // 2. pick which neighbour will donate the plasmid
 	        pick_one = 0.0;
 	        while ( pick_one == 0 ) { pick_one = ae_common::sim->alea->random(); }
 	        found_org = 0;
@@ -929,12 +932,12 @@ void ae_population::step_to_next_generation_grid( void )
 	        x_offset = ( found_org / 3 ) - 1;
 	        y_offset = ( found_org % 3 ) - 1;
   	      
-	        //For now, assume that it is the last genetic unit that is being transfered
+	        // For now, assume that it is the last genetic unit that is being transfered
 	        new_x = (x+x_offset+ae_common::grid_x) % ae_common::grid_x;
 	        new_y = (y+y_offset+ae_common::grid_y) % ae_common::grid_y;
 	        
 	        // Check if the transfer is uni or bi directional
-	        if ( ae_common::swap_GUs )
+	        if ( ae_common::params->get_swap_GUs() )
 	        {
 	          _pop_grid[x][y]->get_individual()->inject_2GUs(_pop_grid[new_x][new_y]->get_individual()); 
 	        }
@@ -962,7 +965,7 @@ void ae_population::step_to_next_generation_grid( void )
         // // The probability that at least one of 8 neighbours sends a plasmid is  
         // // 1 minus the probability that none send it, so (1-(1-pht)^8)
         // // where pht is the probability that an individual plasmid transfers
-        // if (ae_common::sim->alea->random() < (1.0 - pow( (1.0 - ae_common::prob_horiz_trans), 9)) ) 
+        // if (ae_common::sim->alea->random() < (1.0 - pow( (1.0 - ae_common::params->get_prob_horiz_trans()), 9)) ) 
         // {
           // // 2. pick which neighbor that will donate the plasmid
           // pick_one = 0.0;
@@ -1068,7 +1071,7 @@ ae_individual* ae_population::do_replication( ae_individual* parent, int32_t ind
   // -----------------------------------
   //  a) Insertion transfer
   // -----------------------------------
-  if ( ae_common::sim->alea->random() < ae_common::transfer_ins_rate )
+  if ( ae_common::sim->alea->random() < ae_common::params->get_transfer_ins_rate() )
   {
     // Insertion transfer
     // Requirements:
@@ -1085,7 +1088,7 @@ ae_individual* ae_population::do_replication( ae_individual* parent, int32_t ind
     ae_vis_a_vis* alignment_1   = NULL;
     ae_dna*       donor_dna     = donor->get_genetic_unit( 0 )->get_dna();
     ae_dna*       new_indiv_dna = new_indiv->get_genetic_unit( 0 )->get_dna();
-    int32_t       nb_pairs_1    = (int32_t)( ceil( donor_dna->get_length() * ae_common::neighbourhood_rate ) );
+    int32_t       nb_pairs_1    = (int32_t)( ceil( donor_dna->get_length() * ae_common::params->get_neighbourhood_rate() ) );
     
     alignment_1 = ae_dna::search_alignment( donor_dna, donor_dna, nb_pairs_1, DIRECT );
     
@@ -1096,7 +1099,7 @@ ae_individual* ae_population::do_replication( ae_individual* parent, int32_t ind
       
       // 4) Look for an alignments between the exogenote and the endogenote
       ae_vis_a_vis* alignment_2 = NULL;
-      int32_t       nb_pairs_2  = (int32_t)( ceil( new_indiv_dna->get_length() * ae_common::neighbourhood_rate ) );
+      int32_t       nb_pairs_2  = (int32_t)( ceil( new_indiv_dna->get_length() * ae_common::params->get_neighbourhood_rate() ) );
       
       alignment_2 = ae_dna::search_alignment( exogenote->get_dna(), new_indiv_dna, nb_pairs_2, BOTH_SENSES );
       
@@ -1124,12 +1127,12 @@ ae_individual* ae_population::do_replication( ae_individual* parent, int32_t ind
         int32_t genome_length_before  = new_indiv_dna->get_length();
         int32_t genome_length_after   = new_indiv_dna->get_length() + exogenote->get_dna()->get_length();
         
-        if ( genome_length_after > ae_common::max_genome_length )
+        if ( genome_length_after > ae_common::params->get_max_genome_length() )
         {
-          if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_BARRIER ) == true )
+          if ( ae_common::rec_params->is_logged( LOG_BARRIER ) == true )
           {
             // Write an entry in the barrier log file
-            fprintf(  ae_common::sim->get_logs()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" INS_TRANSFER %"PRId32" %"PRId32" %"PRId32"\n",
+            fprintf(  ae_common::rec_params->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" INS_TRANSFER %"PRId32" %"PRId32" %"PRId32"\n",
                       ae_common::sim->get_num_gener(),
                       new_indiv->get_index_in_population(),
                       exogenote->get_dna()->get_length(),
@@ -1145,9 +1148,9 @@ ae_individual* ae_population::do_replication( ae_individual* parent, int32_t ind
           
 
           // Write a line in transfer logfile
-          if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_TRANSFER ) == true )
+          if ( ae_common::rec_params->is_logged( LOG_TRANSFER ) == true )
           {
-            fprintf(  ae_common::sim->get_logs()->get_log( LOG_TRANSFER ),
+            fprintf(  ae_common::rec_params->get_log( LOG_TRANSFER ),
                       "%"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId16" %"PRId32" %"PRId32" %"PRId16"\n",
                       ae_common::sim->get_num_gener(),
                       new_indiv->get_index_in_population(),
@@ -1188,7 +1191,7 @@ ae_individual* ae_population::do_replication( ae_individual* parent, int32_t ind
   // -----------------------------------
   //  b) Replacement transfer
   // -----------------------------------
-  if ( ae_common::sim->alea->random() < ae_common::transfer_repl_rate )
+  if ( ae_common::sim->alea->random() < ae_common::params->get_transfer_repl_rate() )
   {
     // Replacement transfer
     // Requirements:
@@ -1207,8 +1210,8 @@ ae_individual* ae_population::do_replication( ae_individual* parent, int32_t ind
     ae_dna*       donor_dna     = donor->get_genetic_unit( 0 )->get_dna();
     ae_dna*       new_indiv_dna = new_indiv->get_genetic_unit( 0 )->get_dna();
     ae_sense      sense         = (ae_common::sim->alea->random() < 0.5) ? DIRECT : INDIRECT;
-    int32_t       nb_pairs_1    = (int32_t)( ceil( new_indiv_dna->get_length() * ae_common::neighbourhood_rate ) );
-    int32_t       nb_pairs_2    = (int32_t)( ceil( new_indiv_dna->get_length() * ae_common::neighbourhood_rate ) );
+    int32_t       nb_pairs_1    = (int32_t)( ceil( new_indiv_dna->get_length() * ae_common::params->get_neighbourhood_rate() ) );
+    int32_t       nb_pairs_2    = (int32_t)( ceil( new_indiv_dna->get_length() * ae_common::params->get_neighbourhood_rate() ) );
     
     alignment_1 = ae_dna::search_alignment( parent_dna, donor_dna, nb_pairs_1, sense );
     
@@ -1236,12 +1239,12 @@ ae_individual* ae_population::do_replication( ae_individual* parent, int32_t ind
         int32_t exogenote_length      = ae_utils::mod( alignment_2->get_i_2() - alignment_1->get_i_2() - 1, donor_dna->get_length() ) + 1;
         int32_t replaced_seq_length   = ae_utils::mod( alignment_2->get_i_1() - alignment_1->get_i_1() - 1, genome_length_before ) + 1;
         
-        if ( genome_length_after < ae_common::min_genome_length || genome_length_after > ae_common::max_genome_length )
+        if ( genome_length_after < ae_common::params->get_min_genome_length() || genome_length_after > ae_common::params->get_max_genome_length() )
         {
-          if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_BARRIER ) == true )
+          if ( ae_common::rec_params->is_logged( LOG_BARRIER ) == true )
           {
             // Write an entry in the barrier log file
-            fprintf(  ae_common::sim->get_logs()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" REPL_TRANSFER %"PRId32" %"PRId32" %"PRId32"\n",
+            fprintf(  ae_common::rec_params->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" REPL_TRANSFER %"PRId32" %"PRId32" %"PRId32"\n",
                       ae_common::sim->get_num_gener(),
                       new_indiv->get_index_in_population(),
                       exogenote_length,
@@ -1261,25 +1264,6 @@ ae_individual* ae_population::do_replication( ae_individual* parent, int32_t ind
           exogenote = donor_dna->copy_into_new_GU( alignment_2->get_i_2(), alignment_1->get_i_2() );
         }
         
-        
-        //~ FILE * logfile = fopen( "transfer.out", "w" );
-        //~ fprintf( logfile, "DONOR:\n%s\n\n\n", donor_dna->get_data() );
-        //~ fprintf( logfile, "EXOGENOTE:\n%s\n\n\n", exogenote->get_dna()->get_data() );
-        //~ fprintf( logfile, "RECIPIENT:\n%s\n\n\n", new_indiv_dna->get_data() );
-        //~ #ifdef DEBUG
-          //~ ae_common::sim->get_logs()->flush();
-          //~ new_indiv->assert_promoters();
-          //~ new_indiv->assert_promoters_order();
-        //~ #endif
-        
-        //~ printf( "new indiv length: %"PRId32" parent: %"PRId32" donor: %"PRId32" exogenote: %"PRId32"\n",
-                //~ new_indiv_dna->get_length(), parent->get_genetic_unit( 0 )->get_dna()->get_length(), donor_dna->get_length(), exogenote->get_dna()->get_length() );
-        
-        //~ printf( "************************************************************\n" );
-        //~ donor->get_genetic_unit( 0 )->print_rnas();
-        //~ printf( "************************************************************\n" );
-        //~ exogenote->print_rnas();
-        //~ printf( "************************************************************\n" );
         // Delete the sequence to be replaced
         new_indiv_dna->do_deletion( alignment_1->get_i_1(), alignment_2->get_i_1() );
         
@@ -1297,9 +1281,9 @@ ae_individual* ae_population::do_replication( ae_individual* parent, int32_t ind
         
 
         // Write a line in transfer logfile
-        if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_TRANSFER ) == true )
+        if ( ae_common::rec_params->is_logged( LOG_TRANSFER ) == true )
         {
-          fprintf(  ae_common::sim->get_logs()->get_log( LOG_TRANSFER ),
+          fprintf(  ae_common::rec_params->get_log( LOG_TRANSFER ),
                     "%"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId16" %"PRId32" %"PRId32" %"PRId16"\n",
                     ae_common::sim->get_num_gener(),
                     new_indiv->get_index_in_population(),
@@ -1317,17 +1301,6 @@ ae_individual* ae_population::do_replication( ae_individual* parent, int32_t ind
                     alignment_2->get_score() );
         }
         
-        //~ fprintf( logfile, "RESULT:\n%s\n\n\n", new_indiv_dna->get_data() );
-        //~ fflush( logfile );
-        //~ printf( "REPL Transfer (%"PRId32", %"PRId32") replacing (%"PRId32", %"PRId32"). Length: %"PRId32"\n", alignment_1->get_i_2(), alignment_2->get_i_2(), alignment_1->get_i_1(), alignment_2->get_i_1(), new_indiv_dna->get_length() );
-        //~ getchar();
-
-        //~ #ifdef DEBUG
-          //~ ae_common::sim->get_logs()->flush();
-          //~ new_indiv->assert_promoters();
-          //~ new_indiv->assert_promoters_order();
-        //~ #endif
-        
         delete exogenote;
         delete alignment_2;
       }
@@ -1341,12 +1314,12 @@ ae_individual* ae_population::do_replication( ae_individual* parent, int32_t ind
   //  4) Perform rearrangements and mutations for each genetic unit
   // ===========================================================================
   // Perform mutations for each genetic unit
-  int32_t number_GU=ae_common::sim->alea->random((int32_t) 2);// It draws a number between 0 and 1.
+  int32_t number_GU = ae_common::sim->alea->random((int32_t) 2);// It draws a number between 0 and 1.
   
   
   ae_list_node*     gen_unit_node = new_indiv->get_genetic_unit_list()->get_first();
   ae_genetic_unit*  gen_unit      = NULL;
-  if(number_GU<1) // if the number is 0 : we begin with the chromosome
+  if ( number_GU < 1 ) // if the number is 0 : we begin with the chromosome
 	{
 		while ( gen_unit_node != NULL )
 		{
@@ -1408,7 +1381,7 @@ ae_individual* ae_population::do_replication( ae_individual* parent, int32_t ind
   new_indiv->compute_statistical_data();
   
   
-  #ifdef DEBUG
+  #ifdef BIG_DEBUG
   ae_common::sim->get_logs()->flush();
   new_indiv->assert_promoters();
   #endif
@@ -1452,7 +1425,9 @@ ae_individual* ae_population::calculate_local_competition ( int16_t x, int16_t y
   // 4. Fittest individual
   
   // Any rank based selection
-  if ( (ae_common::selection_scheme == RANK_LINEAR ) || (ae_common::selection_scheme == RANK_EXPONENTIAL ) || (ae_common::selection_scheme == FITTEST) )
+  if ( (ae_common::params->get_selection_scheme() == RANK_LINEAR ) ||
+       (ae_common::params->get_selection_scheme() == RANK_EXPONENTIAL ) ||
+       (ae_common::params->get_selection_scheme() == FITTEST) )
   {
     // First we sort the local fitness values using bubble sort :
     // we sort by increasing order, so the first element will have the worst fitness.
@@ -1489,7 +1464,7 @@ ae_individual* ae_population::calculate_local_competition ( int16_t x, int16_t y
     }
   }
   // Fitness proportionate selection
-  else if (ae_common::selection_scheme == FITNESS_PROPORTIONATE)
+  else if (ae_common::params->get_selection_scheme() == FITNESS_PROPORTIONATE)
   {
     for( int16_t i = 0 ; i < neighborhood_size ; i++ )
     {
@@ -1579,22 +1554,22 @@ void ae_population::secretion_grid_update ( void )
           cur_x = (x + i + ae_common::grid_x) % ae_common::grid_x;
           cur_y = (y + j + ae_common::grid_y) % ae_common::grid_y;
           
-          // add the difusion from the neighboring cells
-          new_secretion[x][y] += _pop_grid[cur_x][cur_y]->get_compound_amount() * ae_common::secretion_difusion_prop;
+          // add the diffusion from the neighboring cells
+          new_secretion[x][y] += _pop_grid[cur_x][cur_y]->get_compound_amount() * ae_common::params->get_secretion_diffusion_prop();
         }
       }
     }
   }
   
-  // substract what has difused from each cell, and calculate the compound degradation
+  // substract what has diffused from each cell, and calculate the compound degradation
   for ( int16_t x = 0 ; x < ae_common::grid_x ; x++ )
   {
     for ( int16_t y = 0 ; y < ae_common::grid_y ; y++ )
     {
       _pop_grid[x][y]->set_compound_amount( new_secretion[x][y] - 9 * _pop_grid[x][y]->get_compound_amount()
-                                                                    * ae_common::secretion_difusion_prop );
+                                                                    * ae_common::params->get_secretion_diffusion_prop() );
       _pop_grid[x][y]->set_compound_amount(   _pop_grid[x][y]->get_compound_amount()
-                                            * (1 - ae_common::secretion_degradation_prop) );
+                                            * (1 - ae_common::params->get_secretion_degradation_prop()) );
     }
   }
   for ( int16_t x = 0 ; x < ae_common::grid_x ; x++ )
@@ -1624,7 +1599,7 @@ void ae_population::write_to_backup( gzFile* backup_file )
       }  
     }
     
-    if ( ae_common::use_secretion ) 
+    if ( ae_common::params->get_use_secretion() ) 
     {
       double tmp_comp;
       for ( int16_t x = 0 ; x < ae_common::grid_x ; x++ )
@@ -1764,7 +1739,7 @@ ae_individual* ae_population::create_random_individual( int32_t index )
   
   
   // Insert a few IS in the sequence
-  if ( ae_common::init_method & WITH_INS_SEQ )
+  if ( ae_common::init_params->get_init_method() & WITH_INS_SEQ )
   {
     // Create a random sequence
     int32_t seq_len = 50;
@@ -1835,7 +1810,7 @@ ae_individual* ae_population::create_individual_from_file( char* organism_file_n
   
   metabolism = indiv->get_dist_to_target_by_feature( METABOLISM );
   
-  if ( ae_common::env_axis_is_segmented )
+  if ( ae_common::sim->get_env()->is_segmented() )
   {
     metabolic_area = ae_common::sim->get_env()->get_area_by_feature( METABOLISM );
   }
@@ -1856,7 +1831,7 @@ ae_individual* ae_population::create_random_individual_with_good_gene( int32_t i
   // While the created individual is not better than the flat individual (indiv whith no metabolic gene),
   // we delete it and replace it by another random individual
   double env_metabolic_area;
-  if ( ae_common::env_axis_is_segmented )
+  if ( ae_common::sim->get_env()->is_segmented() )
   {
     env_metabolic_area = ae_common::sim->get_env()->get_area_by_feature( METABOLISM );
   }
@@ -1866,9 +1841,9 @@ ae_individual* ae_population::create_random_individual_with_good_gene( int32_t i
   }
 
   // If there are plasmids, make sure there is at least one metabolic gene on each genetic units
-  if ( ae_common::allow_plasmids ) 
+  if ( ae_common::params->get_allow_plasmids() ) 
   {
-    if ( ae_common::plasmid_initial_gene == 1)
+    if ( ae_common::init_params->get_plasmid_initial_gene() == 1)
     {
       while ( indiv->get_genetic_unit(0)->get_dist_to_target_by_feature( METABOLISM ) >= env_metabolic_area  ||
              indiv->get_genetic_unit(1)->get_dist_to_target_by_feature( METABOLISM ) >= env_metabolic_area  )
@@ -1877,7 +1852,7 @@ ae_individual* ae_population::create_random_individual_with_good_gene( int32_t i
         indiv = create_random_individual( index );
       }
     }
-    else // if  ( ae_common::plasmid_initial_gene == 2 )
+    else // if  ( ae_common::init_params->get_plasmid_initial_gene() == 2 )
     {
       // here things work the same as before, but in the constructor of the individual, 
       // a single genetic unit is created and then copied from the chromosome to the plasmid
@@ -1935,7 +1910,7 @@ void ae_population::compute_prob_reprod( void )
   
   _prob_reprod = new double[_nb_indivs];
 
-  if ( ae_common::selection_scheme == RANK_LINEAR )
+  if ( ae_common::params->get_selection_scheme() == RANK_LINEAR )
   {
     // The probability of reproduction for an individual is given by
     // ( 2-SP + 2 * (SP-1) * (R-1)/(N-1) ) / N
@@ -1950,8 +1925,8 @@ void ae_population::compute_prob_reprod( void )
     // probs[0] will hence be given by (2-SP)/N
     // probs[i+1] can then be expressed by probs[i] + (2*(SP-1)) / (N*(N-1))
 
-    double increment = (2 * (ae_common::selection_pressure-1)) / (_nb_indivs * (_nb_indivs-1));
-    _prob_reprod[0] = (2 - ae_common::selection_pressure) / _nb_indivs;
+    double increment = (2 * (ae_common::params->get_selection_pressure()-1)) / (_nb_indivs * (_nb_indivs-1));
+    _prob_reprod[0] = (2 - ae_common::params->get_selection_pressure()) / _nb_indivs;
 
     for ( int32_t i = 1 ; i < _nb_indivs ; i++ )
     {
@@ -1960,7 +1935,7 @@ void ae_population::compute_prob_reprod( void )
 
     // No need to normalize: The sum is always 1 for linear ranking
   }
-  else if ( ae_common::selection_scheme == RANK_EXPONENTIAL )
+  else if ( ae_common::params->get_selection_scheme() == RANK_EXPONENTIAL )
   {
     // The probability of reproduction for an individual is given by
     // ( (SP-1) * SP^(N-R) ) / ( SP^N - 1 )
@@ -1977,18 +1952,18 @@ void ae_population::compute_prob_reprod( void )
     // probs[i+1] can hence be expressed as (probs[i] / SP)
     // We will hence compute probs[0] with the original formula and infer the remaining values
 
-    double SP_N = pow(ae_common::selection_pressure, _nb_indivs); // SP^N
-    _prob_reprod[0] = ( (ae_common::selection_pressure - 1) * SP_N ) /
-                      ( (SP_N - 1) * ae_common::selection_pressure );
+    double SP_N = pow(ae_common::params->get_selection_pressure(), _nb_indivs); // SP^N
+    _prob_reprod[0] = ( (ae_common::params->get_selection_pressure() - 1) * SP_N ) /
+                      ( (SP_N - 1) * ae_common::params->get_selection_pressure() );
 
     for ( int32_t i = 1 ; i < _nb_indivs ; i++ )
     {
-      _prob_reprod[i] = _prob_reprod[i-1] / ae_common::selection_pressure;
+      _prob_reprod[i] = _prob_reprod[i-1] / ae_common::params->get_selection_pressure();
     }
 
     // No need to normalize: We don't allow ex-aequo
   }
-  else if ( ae_common::selection_scheme == FITNESS_PROPORTIONATE ) // Fitness Proportionate
+  else if ( ae_common::params->get_selection_scheme() == FITNESS_PROPORTIONATE ) // Fitness Proportionate
   {
     // The probability of reproduction for an individual is given by
     // exp( -SP * gap ) / sum of this measure on all individuals
@@ -2020,7 +1995,7 @@ void ae_population::compute_prob_reprod( void )
     // so it can be printed in stat.out
     _prob_reprod_previous_best = _prob_reprod[_nb_indivs-1];
   }
-  else if ( ae_common::selection_scheme == FITTEST) //  Fittest individual
+  else if ( ae_common::params->get_selection_scheme() == FITTEST) //  Fittest individual
   {
     printf( "ERROR, fittest selection scheme is meant to be used for spatially structured populations %s:%d\n", __FILE__, __LINE__ );
     exit( EXIT_FAILURE );
@@ -2044,28 +2019,28 @@ void ae_population::compute_local_prob_reprod( void )
   
   _prob_reprod = new double[neighborhood_size];
   
-  if ( ae_common::selection_scheme == RANK_LINEAR )
+  if ( ae_common::params->get_selection_scheme() == RANK_LINEAR )
   {
-    double increment = (2 * (ae_common::selection_pressure-1)) / (neighborhood_size * (neighborhood_size-1));
-    double init_prob = (2 - ae_common::selection_pressure) / neighborhood_size;
+    double increment = (2 * (ae_common::params->get_selection_pressure()-1)) / (neighborhood_size * (neighborhood_size-1));
+    double init_prob = (2 - ae_common::params->get_selection_pressure()) / neighborhood_size;
     
     for ( int16_t i = 0 ; i < neighborhood_size ; i++ )
     {
       _prob_reprod[i] = init_prob + increment * i;
     }   
   }
-  else if ( ae_common::selection_scheme == RANK_EXPONENTIAL )
+  else if ( ae_common::params->get_selection_scheme() == RANK_EXPONENTIAL )
   {
-    double SP_N = pow(ae_common::selection_pressure, neighborhood_size); 
-    _prob_reprod[0] = ( (ae_common::selection_pressure - 1) * SP_N ) /
-    ( (SP_N - 1) * ae_common::selection_pressure );
+    double SP_N = pow(ae_common::params->get_selection_pressure(), neighborhood_size); 
+    _prob_reprod[0] = ( (ae_common::params->get_selection_pressure() - 1) * SP_N ) /
+    ( (SP_N - 1) * ae_common::params->get_selection_pressure() );
     
     for ( int16_t i = 1 ; i < neighborhood_size ; i++ )
     {
-      _prob_reprod[i] =  _prob_reprod[i-1] /  ae_common::selection_pressure ; 
+      _prob_reprod[i] =  _prob_reprod[i-1] /  ae_common::params->get_selection_pressure(); 
     }
   }
-  else if ( ae_common::selection_scheme == FITTEST) //  Fittest individual
+  else if ( ae_common::params->get_selection_scheme() == FITTEST) //  Fittest individual
   {
     for ( int16_t i = 0 ; i < neighborhood_size-1 ; i++ )
     {
@@ -2073,7 +2048,7 @@ void ae_population::compute_local_prob_reprod( void )
     }
     _prob_reprod[neighborhood_size-1] = 1.;
   }
-  else if ( ae_common::selection_scheme == FITNESS_PROPORTIONATE ) // Fitness Proportionate
+  else if ( ae_common::params->get_selection_scheme() == FITNESS_PROPORTIONATE ) // Fitness Proportionate
   {
     printf( "ERROR, this function is not intented to be use with this selection scheme %s:%d\n", __FILE__, __LINE__ );
     exit( EXIT_FAILURE );
@@ -2091,7 +2066,7 @@ void ae_population::compute_local_prob_reprod( void )
 // =================================================================
 ae_individual * ae_population::get_indiv_by_index( int32_t index ) const
 {
-  if (ae_common::pop_structure)
+  if ( ae_common::pop_structure )
   {
     printf( "Warning, be sure you call sort_individuals() before using get_index_by_index %s:%d\n", __FILE__, __LINE__ );
   }

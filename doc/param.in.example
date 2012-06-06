@@ -116,7 +116,7 @@ LOG                     REAR BARRIER LOADS
 ####################################################################################
 SECRETION_FITNESS_CONTRIB   0  
 SECRETION_INITIAL           0
-SECRETION_DIFUSION_PROP     0.05
+SECRETION_DIFFUSION_PROP    0.05
 SECRETION_DEGRADATION_PROP  0.01
 SECRETION_COST              0.1
 

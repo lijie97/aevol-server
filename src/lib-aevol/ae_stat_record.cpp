@@ -70,7 +70,7 @@ ae_stat_record::ae_stat_record( void )
 }
 
 /* If used for post-treatments, num_gener is mandatory */
-ae_stat_record::ae_stat_record( ae_individual* indiv, chrom_or_gen_unit chrom_or_gu, bool compute_non_coding, int32_t num_gener )
+ae_stat_record::ae_stat_record( ae_individual const * indiv, chrom_or_gen_unit chrom_or_gu, bool compute_non_coding, int32_t num_gener )
 {
   initialize_data();
   _record_type = INDIV;
@@ -96,7 +96,7 @@ ae_stat_record::ae_stat_record( ae_individual* indiv, chrom_or_gen_unit chrom_or
     // Compute statistical data for the given individual
     // -------------------------------------------------
     ae_replication_report* replic_report = NULL;
-    if ( _num_gener > 0 && ae_common::record_tree )
+    if ( _num_gener > 0 && ae_common::rec_params->get_record_tree() )
     {
       replic_report = indiv->get_replic_report();
     }
@@ -111,7 +111,7 @@ ae_stat_record::ae_stat_record( ae_individual* indiv, chrom_or_gen_unit chrom_or
     _fitness = indiv->get_fitness();
   
     // Secretion stats
-    if ( ae_common::use_secretion )
+    if ( ae_common::params->get_use_secretion() )
     {
        _secretion_error   = (double) indiv->get_dist_to_target_by_feature( SECRETION );
        _secretion_fitness = (double) indiv->get_fitness_by_feature( SECRETION );
@@ -199,7 +199,7 @@ ae_stat_record::ae_stat_record( ae_individual* indiv, chrom_or_gen_unit chrom_or
     // Compute statistical data for the given individual
     // -------------------------------------------------
     ae_replication_report* replic_report = NULL;
-    if ( _num_gener > 0 && ae_common::record_tree )
+    if ( _num_gener > 0 && ae_common::rec_params->get_record_tree() )
     {
       replic_report = indiv->get_replic_report();
     }
@@ -213,14 +213,14 @@ ae_stat_record::ae_stat_record( ae_individual* indiv, chrom_or_gen_unit chrom_or
     _fitness = indiv->get_fitness();
   
     // Secretion stats
-    if ( ae_common::use_secretion )
+    if ( ae_common::params->get_use_secretion() )
     {
        _secretion_error = (double) indiv->get_dist_to_target_by_feature( SECRETION );
        _secretion_fitness = (double) indiv->get_fitness_by_feature(SECRETION);
        _compound_amount   = (double) indiv->get_grid_cell()->get_compound_amount();
        _parent_secretion_error = 0.0;
   
-      if ( _num_gener > 0 && ae_common::record_tree )
+      if ( _num_gener > 0 && ae_common::rec_params->get_record_tree() )
       {
         _parent_secretion_error = replic_report->get_parent_secretion_error();
       }
@@ -310,7 +310,7 @@ ae_stat_record::ae_stat_record( ae_individual* indiv, chrom_or_gen_unit chrom_or
     // Compute statistical data for the given individual
     // -------------------------------------------------
     ae_replication_report*  replic_report = NULL;
-    if ( _num_gener > 0 && ae_common::record_tree )
+    if ( _num_gener > 0 && ae_common::rec_params->get_record_tree() )
     {
       replic_report = indiv->get_replic_report();
     }
@@ -324,14 +324,14 @@ ae_stat_record::ae_stat_record( ae_individual* indiv, chrom_or_gen_unit chrom_or
     _fitness = indiv->get_fitness();
   
     // Secretion stats
-    if ( ae_common::use_secretion )
+    if ( ae_common::params->get_use_secretion() )
     {
        _secretion_error = (double) gen_unit->get_dist_to_target_by_feature( SECRETION );
        _secretion_fitness = (double) gen_unit->get_fitness_by_feature( SECRETION );
        _compound_amount   = (double) indiv->get_grid_cell()->get_compound_amount();
        _parent_secretion_error = 0.0;
   
-      if ( _num_gener > 0 && ae_common::record_tree )
+      if ( _num_gener > 0 && ae_common::rec_params->get_record_tree() )
       {
         _parent_secretion_error = replic_report->get_parent_secretion_error();
       }
@@ -370,7 +370,7 @@ ae_stat_record::ae_stat_record( ae_individual* indiv, chrom_or_gen_unit chrom_or
     }
     
     // Mutation stats
-    if ( _num_gener > 0 && ae_common::record_tree )
+    if ( _num_gener > 0 && ae_common::rec_params->get_record_tree() )
     {
       _nb_mut    = gen_unit->get_dna()->get_replic_report()->get_nb_small_mutations();
       _nb_rear   = gen_unit->get_dna()->get_replic_report()->get_nb_rearrangements();
@@ -396,7 +396,7 @@ ae_stat_record::ae_stat_record( ae_individual* indiv, chrom_or_gen_unit chrom_or
 }
 
 // Calculate average statistics for all the recorded values 
-ae_stat_record::ae_stat_record( ae_population* pop, chrom_or_gen_unit chrom_or_gu )
+ae_stat_record::ae_stat_record( ae_population const * pop, chrom_or_gen_unit chrom_or_gu )
 {
   initialize_data();
   
@@ -432,7 +432,7 @@ ae_stat_record::ae_stat_record( ae_population* pop, chrom_or_gen_unit chrom_or_g
 }
 
 // Calculate standard deviation for all the recorded values 
-ae_stat_record::ae_stat_record( ae_population* pop, ae_stat_record* means, chrom_or_gen_unit chrom_or_gu )
+ae_stat_record::ae_stat_record( ae_population const * pop, ae_stat_record const * means, chrom_or_gen_unit chrom_or_gu )
 {
   initialize_data();
   
@@ -454,8 +454,7 @@ ae_stat_record::ae_stat_record( ae_population* pop, ae_stat_record* means, chrom
   {
     indiv = (ae_individual*) indiv_node->get_obj();
     ae_stat_record* indiv_stat_record = new ae_stat_record( indiv, chrom_or_gu, false );
-   // printf (" %e %e  %e  \n",  _fitness, pop_means->_fitness, indiv_stat_record->_fitness); 
-    this-> substract_power( means, indiv_stat_record, 2 );
+    this->substract_power( means, indiv_stat_record, 2 );
     delete indiv_stat_record;
     
     indiv_node = indiv_node->get_next();
@@ -468,7 +467,7 @@ ae_stat_record::ae_stat_record( ae_population* pop, ae_stat_record* means, chrom
 }
 
  // Calculate skewness for all the recorded values 
-ae_stat_record::ae_stat_record( ae_population* pop, ae_stat_record* means, ae_stat_record* stdevs, chrom_or_gen_unit chrom_or_gu )
+ae_stat_record::ae_stat_record( ae_population const * pop, ae_stat_record const * means, ae_stat_record const * stdevs, chrom_or_gen_unit chrom_or_gu )
 {
   initialize_data();
   
@@ -490,7 +489,7 @@ ae_stat_record::ae_stat_record( ae_population* pop, ae_stat_record* means, ae_st
   {
     indiv = (ae_individual*) indiv_node->get_obj();
     ae_stat_record* indiv_stat_record = new ae_stat_record( indiv, chrom_or_gu, false );
-    this-> substract_power( means, indiv_stat_record, 3 );    
+    this->substract_power( means, indiv_stat_record, 3 );    
     delete indiv_stat_record;
     indiv_node = indiv_node->get_next();
   }
@@ -498,7 +497,6 @@ ae_stat_record::ae_stat_record( ae_population* pop, ae_stat_record* means, ae_st
   this->divide( - _pop_size );
   
   this->divide_record( stdevs, 3/2 );
-
 }
 
 
@@ -859,7 +857,7 @@ void ae_stat_record::divide( double divisor )
 }
 
 
-void ae_stat_record::divide_record( ae_stat_record* to_divide, double power )
+void ae_stat_record::divide_record( ae_stat_record const * to_divide, double power )
 {
   // NB : _num_gener and pop_size are global values and are not to be divided.
   
@@ -982,10 +980,9 @@ void ae_stat_record::add( ae_stat_record* to_add )
   #endif
 }
 
-void ae_stat_record::substract_power( ae_stat_record* means, ae_stat_record* to_substract, double power )
+void ae_stat_record::substract_power( ae_stat_record const * means, ae_stat_record const * to_substract, double power )
 {
   // NB : _num_gener and pop_size are global values and are not to be summed.
-  
   _fitness                 += pow( means->_fitness - to_substract->_fitness, power );
   
   _metabolic_error         += pow( means->_metabolic_error - to_substract->_metabolic_error, power );
@@ -1021,7 +1018,7 @@ void ae_stat_record::substract_power( ae_stat_record* means, ae_stat_record* to_
   _del_rate   += pow( means->_del_rate - to_substract->_del_rate, power );
   _trans_rate += pow( means->_trans_rate - to_substract->_trans_rate, power );
   _inv_rate   += pow( means->_inv_rate - to_substract->_inv_rate, power );
-  //~ printf( "%f %f %f %f\n", to_substract->_dupl_rate, to_substract->_del_rate, to_substract->_trans_rate, to_substract->_inv_rate );
+  
   _mean_align_score += pow( means->_mean_align_score - to_substract->_mean_align_score, power );
   
   _nb_bases_in_0_CDS                += pow( means->_nb_bases_in_0_CDS - to_substract->_nb_bases_in_0_CDS, power );
@@ -1042,7 +1039,6 @@ void ae_stat_record::substract_power( ae_stat_record* means, ae_stat_record* to_
     _av_value_enhancing_influences += pow( means->_av_value_enhancing_influences - to_substract->_av_value_enhancing_influences, power );
     _av_value_operating_influences += pow( means->_av_value_operating_influences - to_substract->_av_value_operating_influences, power );
   #endif
-
 }
 
 

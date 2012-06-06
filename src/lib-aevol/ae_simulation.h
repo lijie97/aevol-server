@@ -24,9 +24,9 @@
 //*****************************************************************************
 
 
-/** \class
- *  \brief
- */
+/*! \class ae_simulation
+    \brief This class contains all the data regarding a simulation (either main run or post-treatment)
+*/
  
  
 #ifndef  __AE_SIMULATION_H__
@@ -58,6 +58,7 @@
 // =================================================================
 //                          Class declarations
 // =================================================================
+class ae_param_loader;
 class ae_param_overloader;
 
 
@@ -71,9 +72,10 @@ class ae_simulation : public ae_object
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_simulation( ae_param_overloader* param_overloader = NULL );
-    ae_simulation( char* backup_file_name, bool to_be_run = true, ae_param_overloader* param_overloader = NULL );
-    ae_simulation( char* organism_file_name, ae_param_overloader* param_overloader = NULL );
+    ae_simulation( void );
+    //~ ae_simulation( ae_param_overloader* param_overloader /*= NULL*/ );
+    //~ ae_simulation( char* backup_file_name, bool to_be_run = true, ae_param_overloader* param_overloader = NULL );
+    //~ ae_simulation( char* organism_file_name, ae_param_overloader* param_overloader = NULL );
   
     // =================================================================
     //                             Destructors
@@ -81,7 +83,7 @@ class ae_simulation : public ae_object
     virtual ~ae_simulation( void );
   
     // =================================================================
-    //                              Accessors
+    //                         Accessors: getters
     // =================================================================
     inline ae_environment*  get_env( void )                       const;
     inline ae_population*   get_pop( void )                       const;
@@ -89,11 +91,18 @@ class ae_simulation : public ae_object
     inline int32_t          get_first_gener( void )               const;
     inline int32_t          get_num_gener( void )                 const;
   
-    inline ae_logs*         get_logs( void )                      const;
+    // =================================================================
+    //                         Accessors: setters
+    // =================================================================
+    inline void set_env( ae_environment* env );
   
     // =================================================================
     //                            Public Methods
     // =================================================================
+    // Initialization
+    void load_params( ae_param_loader* param_loader, ae_param_overloader* param_overloader = NULL );
+    void load_backup( char* backup_file_name, bool to_be_run = true, ae_param_overloader* param_overloader = NULL );
+    
     void run( void );
     
     void set_total_generations( int32_t nb_generations );
@@ -101,6 +110,8 @@ class ae_simulation : public ae_object
     void write_backup( void );
     void write_tree( void );
     void write_envir( void );
+    
+    inline bool fitness_is_composite( void );
   
     // =================================================================
     //                           Public Attributes
@@ -129,6 +140,7 @@ class ae_simulation : public ae_object
     // =================================================================
     //                           Protected Methods
     // =================================================================
+    void read_from_backup( gzFile* backup_file );
     virtual void display( void ){};
   
     // =================================================================
@@ -141,7 +153,6 @@ class ae_simulation : public ae_object
     ae_environment*   _env;
     ae_population*    _pop;
     
-    ae_logs*  _logs;
     ae_stats* _stats;
     ae_tree*  _tree;
     ae_dump*  _dump;
@@ -176,10 +187,16 @@ inline int32_t ae_simulation::get_num_gener( void ) const
   return _num_gener;
 }
 
-inline ae_logs* ae_simulation::get_logs( void ) const
+inline void ae_simulation::set_env( ae_environment* env )
 {
-  return _logs;
+  _env = env;
 }
+
+inline bool ae_simulation::fitness_is_composite( void )
+{
+  return _env->fitness_is_composite();
+}
+
 
 // =====================================================================
 //                       Inline functions' definition

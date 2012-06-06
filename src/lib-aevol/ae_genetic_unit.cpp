@@ -112,11 +112,12 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, int32_t length )
   //      it is not used for the whole phenotype computation
   
   // Initialize all the fitness-related stuff
-  if ( ae_common::env_axis_is_segmented )
+  if ( ae_common::sim->get_env()->is_segmented() )
   {
-    _dist_to_target_per_segment = new double [ae_common::env_axis_nb_segments];
+    int16_t nb_segments = ae_common::sim->get_env()->get_nb_segments();
+    _dist_to_target_per_segment = new double [nb_segments];
     
-    for ( int16_t i = 0 ; i < ae_common::env_axis_nb_segments ; i++ )
+    for ( int16_t i = 0 ; i < nb_segments ; i++ )
     {
       _dist_to_target_per_segment[i] = 0;
     }
@@ -193,11 +194,12 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, char* seq, int32_t lengt
   //      it is not used for the whole phenotype computation
   
   // Initialize all the fitness-related stuff
-  if ( ae_common::env_axis_is_segmented )
+  if ( ae_common::sim->get_env()->is_segmented() )
   {
-    _dist_to_target_per_segment = new double [ae_common::env_axis_nb_segments];
+    int16_t nb_segments = ae_common::sim->get_env()->get_nb_segments();
+    _dist_to_target_per_segment = new double [nb_segments];
     
-    for ( int16_t i = 0 ; i < ae_common::env_axis_nb_segments ; i++ )
+    for ( int16_t i = 0 ; i < nb_segments ; i++ )
     {
       _dist_to_target_per_segment[i] = 0;
     }
@@ -256,11 +258,12 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, const ae_genetic_unit &m
   // NB : _phenotypic_contribution is only an indicative value, not used for the whole phenotype computation
   
     // Copy fitness-related stuff
-  if ( ae_common::env_axis_is_segmented )
+  if ( ae_common::sim->get_env()->is_segmented() )
   {
-    _dist_to_target_per_segment = new double [ae_common::env_axis_nb_segments];
+    int16_t nb_segments = ae_common::sim->get_env()->get_nb_segments();
+    _dist_to_target_per_segment = new double [nb_segments];
     
-    for ( int16_t i = 0 ; i < ae_common::env_axis_nb_segments ; i++ )
+    for ( int16_t i = 0 ; i < nb_segments ; i++ )
     {
       _dist_to_target_per_segment[i] = model._dist_to_target_per_segment[i];
     }
@@ -340,11 +343,12 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, ae_genetic_unit* const p
   // NB : _phenotypic_contribution is only an indicative value, not used for the whole phenotype computation
 
   // Initialize all the fitness-related stuff
-  if ( ae_common::env_axis_is_segmented )
+  if ( ae_common::sim->get_env()->is_segmented() )
   {
-    _dist_to_target_per_segment = new double [ae_common::env_axis_nb_segments];
+    int16_t nb_segments = ae_common::sim->get_env()->get_nb_segments();
+    _dist_to_target_per_segment = new double [nb_segments];
     
-    for ( int16_t i = 0 ; i < ae_common::env_axis_nb_segments ; i++ )
+    for ( int16_t i = 0 ; i < nb_segments ; i++ )
     {
       _dist_to_target_per_segment[i] = 0;
     }
@@ -394,11 +398,12 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, gzFile* backup_file )
   // NB : _phenotypic_contribution is only an indicative value, not used for the whole phenotype computation
 
   // Initialize all the fitness-related stuff
-  if ( ae_common::env_axis_is_segmented )
+  if ( ae_common::sim->get_env()->is_segmented() )
   {
-    _dist_to_target_per_segment = new double [ae_common::env_axis_nb_segments];
+    int16_t nb_segments = ae_common::sim->get_env()->get_nb_segments();
+    _dist_to_target_per_segment = new double [nb_segments];
     
-    for ( int16_t i = 0 ; i < ae_common::env_axis_nb_segments ; i++ )
+    for ( int16_t i = 0 ; i < nb_segments ; i++ )
     {
       _dist_to_target_per_segment[i] = 0;
     }
@@ -460,11 +465,12 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, char* organism_file_name
   //      it is not used for the whole phenotype computation
   
   // Initialize all the fitness-related stuff
-  if ( ae_common::env_axis_is_segmented )
+  if ( ae_common::sim->get_env()->is_segmented() )
   {
-    _dist_to_target_per_segment = new double [ae_common::env_axis_nb_segments];
+    int16_t nb_segments = ae_common::sim->get_env()->get_nb_segments();
+    _dist_to_target_per_segment = new double [nb_segments];
     
-    for ( int16_t i = 0 ; i < ae_common::env_axis_nb_segments ; i++ )
+    for ( int16_t i = 0 ; i < nb_segments ; i++ )
     {
       _dist_to_target_per_segment[i] = 0;
     }
@@ -1074,9 +1080,9 @@ void ae_genetic_unit::compute_phenotypic_contribution( void )
   _activ_contribution->simplify();
   _inhib_contribution->simplify();
 
-  if ( ae_common::compute_phen_contrib_by_GU )
+  if ( ae_common::params->get_compute_phen_contrib_by_GU() )
   {
-    _phenotypic_contribution = new ae_fuzzy_set();
+    _phenotypic_contribution = new ae_phenotype();
     _phenotypic_contribution->add( _activ_contribution );
     _phenotypic_contribution->add( _inhib_contribution );
     _phenotypic_contribution->simplify();
@@ -1090,7 +1096,6 @@ void ae_genetic_unit::compute_phenotypic_contribution( void )
 */
 void ae_genetic_unit::compute_distance_to_target( ae_environment* envir )
 {
-
   if ( _distance_to_target_computed ) return; // _distance_to_target has already been computed, nothing to do.
   _distance_to_target_computed = true;
   
@@ -1100,19 +1105,19 @@ void ae_genetic_unit::compute_distance_to_target( ae_environment* envir )
   ae_fuzzy_set* delta = new ae_fuzzy_set( *_phenotypic_contribution );
   delta->sub( envir );
   
-  if ( ! ae_common::env_axis_is_segmented )
+  if ( ! ae_common::sim->get_env()->is_segmented() )
   {
     _dist_to_target_by_feature[METABOLISM] = delta->get_geometric_area();
   }
   else // Environment is segmented
   {
-    ae_env_segment** segments  = envir->get_segments();
+    ae_env_segment** segments = envir->get_segments();
     
     // TODO : We should take into account that we compute the areas in order (from the leftmost segment, rightwards)
     //   => We shouldn't parse the whole list of points on the left of the segment we are considering (we have 
     //      already been through them!)
     
-    for ( int16_t i = 0 ; i < ae_common::env_axis_nb_segments ; i++ )
+    for ( int16_t i = 0 ; i < envir->get_nb_segments() ; i++ )
     {
       _dist_to_target_per_segment[i] = delta->get_geometric_area( segments[i]->start, segments[i]->stop );
       _dist_to_target_by_feature[segments[i]->feature] += _dist_to_target_per_segment[i];
@@ -1133,11 +1138,11 @@ void ae_genetic_unit::compute_fitness( ae_environment* envir )
   if ( _fitness_computed ) return; // Fitness has already been computed, nothing to do.
   _fitness_computed = true;
   
-  if ( ! ae_common::composite_fitness )
+  if ( ! ae_common::sim->fitness_is_composite() )
   {
-    if ( ae_common::selection_scheme == FITNESS_PROPORTIONATE )
+    if ( ae_common::params->get_selection_scheme() == FITNESS_PROPORTIONATE )
     {
-      _fitness_by_feature[METABOLISM] = exp( -ae_common::selection_pressure * _dist_to_target_by_feature[METABOLISM] );
+      _fitness_by_feature[METABOLISM] = exp( -ae_common::params->get_selection_pressure() * _dist_to_target_by_feature[METABOLISM] );
     }
     else
     {
@@ -1152,9 +1157,8 @@ void ae_genetic_unit::compute_fitness( ae_environment* envir )
     {
       if ( i == SECRETION )
       {
-        _fitness_by_feature[SECRETION] = exp( -ae_common::selection_pressure * _dist_to_target_by_feature[SECRETION] )
-                                        - exp( -ae_common::selection_pressure
-                                              * envir->get_area_by_feature(SECRETION) );
+        _fitness_by_feature[SECRETION] =  exp( -ae_common::params->get_selection_pressure() * _dist_to_target_by_feature[SECRETION] )
+                                          - exp( -ae_common::params->get_selection_pressure() * envir->get_area_by_feature(SECRETION) );
         
         if ( _fitness_by_feature[i] < 0 )
         {
@@ -1163,7 +1167,7 @@ void ae_genetic_unit::compute_fitness( ae_environment* envir )
       }
       else
       {
-        _fitness_by_feature[i] = exp( -ae_common::selection_pressure * _dist_to_target_by_feature[i] );
+        _fitness_by_feature[i] = exp( -ae_common::params->get_selection_pressure() * _dist_to_target_by_feature[i] );
       }  
     }
 
@@ -1176,8 +1180,8 @@ void ae_genetic_unit::compute_fitness( ae_environment* envir )
     else
     {   
       _fitness =  _fitness_by_feature[METABOLISM] * 
-                  ( 1 + ae_common::secretion_fitness_contrib * get_indiv()->get_grid_cell()->get_compound_amount()
-                      - ae_common::secretion_cost * _fitness_by_feature[SECRETION] ); 
+                  ( 1 + ae_common::params->get_secretion_fitness_contrib() * get_indiv()->get_grid_cell()->get_compound_amount()
+                      - ae_common::params->get_secretion_cost() * _fitness_by_feature[SECRETION] ); 
     }
   }
 }
@@ -1216,7 +1220,7 @@ void ae_genetic_unit::reset_expression( void )
   if ( _phenotypic_contribution != NULL )
   {
     delete _phenotypic_contribution;
-    _phenotypic_contribution = new ae_fuzzy_set();
+    _phenotypic_contribution = new ae_environment();
   }
 
   init_statistical_data();

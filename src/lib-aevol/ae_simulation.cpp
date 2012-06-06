@@ -24,9 +24,9 @@
 //*****************************************************************************
 
 
-/** \class
- *  \brief
- */
+/*! \class ae_simulation
+    \brief This class contains all the data regarding a simulation (either main run or post-treatment)
+*/
 
 
 // =================================================================
@@ -53,6 +53,7 @@
 
 #include <ae_param_loader.h>
 #include <ae_param_overloader.h>
+#include <ae_simulation_X11.h>
 
 
 
@@ -70,7 +71,21 @@
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_simulation::ae_simulation( ae_param_overloader* param_overloader )
+ae_simulation::ae_simulation( void )
+{
+  _num_gener    = 0;
+  _first_gener  = 0;
+  _last_gener   = 0;
+
+  _env  = NULL;
+  _pop  = NULL;
+  
+  _stats  = NULL;
+  _tree   = NULL;
+  _dump   = NULL;
+}
+  
+/*ae_simulation::ae_simulation( ae_param_overloader* param_overloader )
 {
   // Some calls in this constructor will need to access the simulation (i.e. <this>)
   // through <ae_common::sim> which would normaly be initialized at the end of the construction.
@@ -95,16 +110,16 @@ ae_simulation::ae_simulation( ae_param_overloader* param_overloader )
   }
   
   // Create a pseudo-random number generator
-  alea = new ae_rand_mt( ae_common::seed );
+  alea = new ae_rand_mt( ae_common::init_params->get_seed() );
   
   #ifdef __REGUL
-  // Initialisation of the evaluation dates
-  if ( ae_common::individual_evaluation_dates == NULL )
-  {
-    ae_common::individual_evaluation_dates = new ae_array_short( ae_common::individual_evaluation_nbr );
-    ae_common::individual_evaluation_dates->set_value( 0, 10 );
-  }
-  ae_common::init_binding_matrix();
+    // Initialisation of the evaluation dates
+    if ( ae_common::params->get_individual_evaluation_dates() == NULL )
+    {
+      ae_common::individual_evaluation_dates = new ae_array_short( ae_common::individual_evaluation_nbr );
+      ae_common::individual_evaluation_dates->set_value( 0, 10 );
+    }
+    ae_common::init_binding_matrix();
   #endif
   
   delete params;
@@ -123,10 +138,6 @@ ae_simulation::ae_simulation( ae_param_overloader* param_overloader )
   _stats = new ae_stats();
   _stats->write_headers();
   _stats->write_current_generation_statistics();
-  
-  // Create log files
-  _logs = new ae_logs();
-  _logs->write_headers();
 
   // Create backup directory and write backup 
   mkdir( "backup", 0755 );
@@ -134,7 +145,7 @@ ae_simulation::ae_simulation( ae_param_overloader* param_overloader )
   
   // Create dump directory and init dump
   _dump = NULL;
-  if ( ae_common::dump_period > 0 )
+  if ( ae_common::rec_params->get_dump_period() > 0 )
   {
     mkdir( "dump", 0755 );
     _dump = new ae_dump();
@@ -142,7 +153,7 @@ ae_simulation::ae_simulation( ae_param_overloader* param_overloader )
   
   // Create tree directory and init tree
   _tree = NULL;
-  if ( ae_common::record_tree == true )
+  if ( ae_common::rec_params->get_record_tree() == true )
   { 
     mkdir( "tree", 0755 );
     _tree = new ae_tree();
@@ -150,23 +161,20 @@ ae_simulation::ae_simulation( ae_param_overloader* param_overloader )
   
   
   // Write an entry in the LOADS log file
-  if ( _logs->get_to_be_logged( LOG_LOADS ) == true )
+  if ( ae_common::rec_params->is_logged( LOG_LOADS ) == true )
   {
-    //fprintf( _logs->get_log( LOG_LOADS ), "Simulation lauched\n" );
     if ( param_overloader != NULL )
     {
-      //fprintf( _logs->get_log( LOG_LOADS ), "  Overloaded parameters:\n" );
-      param_overloader->write_log( _logs->get_log( LOG_LOADS ) );
-      //fprintf( _logs->get_log( LOG_LOADS ), "\n" );
+      param_overloader->write_log( ae_common::rec_params->get_log( LOG_LOADS ) );
     }
     else
     {
-      fprintf( _logs->get_log( LOG_LOADS ), "  No overloaded parameters\n\n" );
+      fprintf( ae_common::rec_params->get_log( LOG_LOADS ), "  No overloaded parameters\n\n" );
     }
   }
-}
+}*/
 
-ae_simulation::ae_simulation( char* organism_file_name, ae_param_overloader* param_overloader )
+/*ae_simulation::ae_simulation( char* organism_file_name, ae_param_overloader* param_overloader )
 {
   // Some calls in this constructor will need to access the simulation (i.e. <this>)
   // through <ae_common::sim> which would normaly be initialized at the end of the construction.
@@ -191,7 +199,7 @@ ae_simulation::ae_simulation( char* organism_file_name, ae_param_overloader* par
   }
   
   // Create a pseudo-random number generator
-  alea = new ae_rand_mt( ae_common::seed );
+  alea = new ae_rand_mt( ae_common::init_params->get_seed() );
   
   #ifdef __REGUL
   // Initialisation of the evaluation dates
@@ -220,10 +228,6 @@ ae_simulation::ae_simulation( char* organism_file_name, ae_param_overloader* par
   _stats = new ae_stats();
   _stats->write_headers();
   _stats->write_current_generation_statistics();
-  
-  // Create log files
-  _logs = new ae_logs();
-  _logs->write_headers();
 
   // Create backup directory and write backup 
   mkdir( "backup", 0755 );
@@ -231,7 +235,7 @@ ae_simulation::ae_simulation( char* organism_file_name, ae_param_overloader* par
   
   // Create dump directory and init dump
   _dump = NULL;
-  if ( ae_common::dump_period > 0 )
+  if ( ae_common::rec_params->get_dump_period() > 0 )
   {
     mkdir( "dump", 0755 );
     _dump = new ae_dump();
@@ -239,7 +243,7 @@ ae_simulation::ae_simulation( char* organism_file_name, ae_param_overloader* par
   
   // Create tree directory and init tree
   _tree = NULL;
-  if ( ae_common::record_tree == true )
+  if ( ae_common::rec_params->get_record_tree() == true )
   { 
     mkdir( "tree", 0755 );
     _tree = new ae_tree();
@@ -247,25 +251,25 @@ ae_simulation::ae_simulation( char* organism_file_name, ae_param_overloader* par
   
   
   // Write an entry in the LOADS log file
-  if ( _logs->get_to_be_logged( LOG_LOADS ) == true )
+  if ( ae_common::rec_params->is_logged( LOG_LOADS ) == true )
   {
-    fprintf( _logs->get_log( LOG_LOADS ), "Simulation lauched\n" );
+    fprintf( ae_common::rec_params->get_log( LOG_LOADS ), "Simulation lauched\n" );
     if ( param_overloader != NULL )
     {
-      fprintf( _logs->get_log( LOG_LOADS ), "  Overloaded parameters:\n" );
-      param_overloader->write_log( _logs->get_log( LOG_LOADS ) );
-      fprintf( _logs->get_log( LOG_LOADS ), "\n" );
+      fprintf( ae_common::rec_params->get_log( LOG_LOADS ), "  Overloaded parameters:\n" );
+      param_overloader->write_log( ae_common::rec_params->get_log( LOG_LOADS ) );
+      fprintf( ae_common::rec_params->get_log( LOG_LOADS ), "\n" );
     }
     else
     {
-      fprintf( _logs->get_log( LOG_LOADS ), "  No overloaded parameters\n\n" );
+      fprintf( ae_common::rec_params->get_log( LOG_LOADS ), "  No overloaded parameters\n\n" );
     }
   }
-}
+}*/
 
 
-ae_simulation::ae_simulation( char* backup_file_name, bool to_be_run /* = TRUE */, ae_param_overloader* param_overloader /* = NULL */ )
-{
+//ae_simulation::ae_simulation( char* backup_file_name, bool to_be_run /* = TRUE */, ae_param_overloader* param_overloader /* = NULL */ )
+/*{
   // Some calls in this constructor will need to access the simulation (i.e. <this>)
   // through <ae_common::sim> which would normaly be initialized at the end of the construction.
   //
@@ -300,7 +304,7 @@ ae_simulation::ae_simulation( char* backup_file_name, bool to_be_run /* = TRUE *
     exit( EXIT_FAILURE );
   }
 
-  // Retreive random generator state
+  // Retrieve random generator state
   printf( "  Loading random generator\n" );
   alea = new ae_rand_mt( backup_file );
 
@@ -309,27 +313,27 @@ ae_simulation::ae_simulation( char* backup_file_name, bool to_be_run /* = TRUE *
   ae_common::read_from_backup( backup_file );
   if ( param_overloader != NULL )
   {
-    int32_t seed_from_backup = ae_common::seed;
+    int32_t seed_from_backup = ae_common::init_params->get_seed();
     param_overloader->overload_params();
-    if (ae_common::seed != seed_from_backup)
+    if ( ae_common::init_params->get_seed() != seed_from_backup )
     {
       // We need to reseed
       delete alea;
-      alea = new ae_rand_mt(ae_common::seed);
+      alea = new ae_rand_mt( ae_common::init_params->get_seed() );
     }
   }
 
-  // Retreive simulation intrinsic data
+  // Retrieve current generation number
   printf( "  Loading simulation data\n" );
   gzread( backup_file, &_num_gener, sizeof(_num_gener) );
   printf( "    _num_gener : %d\n", _num_gener );
   _first_gener = _num_gener;
 
-  // Retreive environmental data
+  // Retrieve environmental data
   printf( "  Loading environment\n" );
   _env = new ae_environment( backup_file );
 
-  // Retreive population data and individuals
+  // Retrieve population data and individuals
   printf( "  Loading population\n" );
 #ifdef __NO_X
   //~ printf( "new ae_population( backup_file );\n" );
@@ -355,12 +359,11 @@ ae_simulation::ae_simulation( char* backup_file_name, bool to_be_run /* = TRUE *
 
   if ( to_be_run ) // We want to restart the run from here (not just do a post-processing)
   {
-    // Prepare stat and log files
+    // Prepare stat files
     _stats  = new ae_stats( _first_gener );
-    _logs   = new ae_logs( _first_gener );
     
     // Prepare tree
-    if ( ae_common::record_tree == true )
+    if ( ae_common::rec_params->get_record_tree() == true )
     { 
       mkdir( "tree", 0755 );
       _tree  = new ae_tree(); 
@@ -371,7 +374,7 @@ ae_simulation::ae_simulation( char* backup_file_name, bool to_be_run /* = TRUE *
     }
     
     // Prepare dump
-    if ( ae_common::dump_period > 0 )
+    if ( ae_common::rec_params->get_dump_period() > 0 )
     {
       mkdir( "dump", 0755 );
       _dump = new ae_dump();
@@ -383,61 +386,238 @@ ae_simulation::ae_simulation( char* backup_file_name, bool to_be_run /* = TRUE *
     
     mkdir( "backup", 0755 );
     
-    if ( _logs->get_to_be_logged( LOG_LOADS ) == true )
+    if ( ae_common::rec_params->is_logged( LOG_LOADS ) == true )
     {
       // Write an entry in the LOADS log file
-      fprintf( _logs->get_log( LOG_LOADS ), "GENERATION_OVERLOAD %"PRId32"\n", _num_gener );
+      fprintf( ae_common::rec_params->get_log( LOG_LOADS ), "GENERATION_OVERLOAD %"PRId32"\n", _num_gener );
       if ( param_overloader->get_nb_overloaded() > 0 )
-	  {
+      {
         //fprintf( _logs->get_log( LOG_LOADS ), "  Overloaded parameters:\n" );
-        param_overloader->write_log( _logs->get_log( LOG_LOADS ) );
-        fprintf( _logs->get_log( LOG_LOADS ), "\n" );
+        param_overloader->write_log( ae_common::rec_params->get_log( LOG_LOADS ) );
+        fprintf( ae_common::rec_params->get_log( LOG_LOADS ), "\n" );
       }
       else
       {
-        fprintf( _logs->get_log( LOG_LOADS ), "  No overloaded parameters\n\n" );
+        fprintf( ae_common::rec_params->get_log( LOG_LOADS ), "  No overloaded parameters\n\n" );
       }
     }
   }
   else
   {
     // We just want to inspect the state of the simulation at this moment
-    ae_common::logs = false;
-    _logs  = NULL;
+    ae_common::rec_params->init_logs( 0 );
     _stats = NULL;
     _tree  = NULL; 
     _dump  = NULL;
   }
-}
+}*/
 
 // =================================================================
 //                             Destructors
 // =================================================================
 ae_simulation::~ae_simulation( void )
 {
-  if (ae_common::record_tree == true) { delete _tree; } 
-  if (ae_common::dump_period > 0) { delete _dump; }
+  if (ae_common::rec_params->get_record_tree() == true) { delete _tree; } 
+  if (ae_common::rec_params->get_dump_period() > 0) { delete _dump; }
 
-  delete _logs;
   delete _stats;
   delete _pop;
   delete _env;
   
   delete alea;
-
-  // see the constructor to understand why...
-  ae_common::sim = NULL;
 }
 
 // =================================================================
 //                            Public Methods
 // =================================================================
+/*!
+  Create simulation according to parameters from a param file and pptionally parameter overloads
+*/ 
+void ae_simulation::load_params( ae_param_loader* param_loader, ae_param_overloader* param_overloader /*= NULL*/ )
+{
+  // Load parameters
+  param_loader->load();
+  if ( param_overloader != NULL )
+  {
+    param_overloader->overload_params();
+  }
+  
+  // Create a pseudo-random number generator
+  alea = new ae_rand_mt( ae_common::init_params->get_seed() );
+  
+  #ifdef __REGUL
+    // Initialisation of the evaluation dates
+    if ( ae_common::params->get_individual_evaluation_dates() == NULL )
+    {
+      ae_common::individual_evaluation_dates = new ae_array_short( ae_common::individual_evaluation_nbr );
+      ae_common::individual_evaluation_dates->set_value( 0, 10 );
+    }
+    ae_common::init_binding_matrix();
+  #endif
+
+  // Create the environment
+  _env = new ae_environment();
+
+ // Create new population
+  #ifdef __NO_X
+    _pop = new ae_population();
+  #elif defined __X11
+    _pop = new ae_population_X11();
+  #endif
+
+  // Create statistics files
+  _stats = new ae_stats();
+  _stats->write_headers();
+  _stats->write_current_generation_statistics();
+
+  // Create backup directory and write backup 
+  mkdir( "backup", 0755 );
+  write_backup();
+  
+  // Create dump directory and init dump
+  _dump = NULL;
+  if ( ae_common::rec_params->get_dump_period() > 0 )
+  {
+    mkdir( "dump", 0755 );
+    _dump = new ae_dump();
+  }
+  
+  // Create tree directory and init tree
+  _tree = NULL;
+  if ( ae_common::rec_params->get_record_tree() == true )
+  { 
+    mkdir( "tree", 0755 );
+    _tree = new ae_tree();
+  }
+  
+  
+  // Write an entry in the LOADS log file
+  if ( ae_common::rec_params->is_logged( LOG_LOADS ) == true )
+  {
+    if ( param_overloader != NULL )
+    {
+      param_overloader->write_log( ae_common::rec_params->get_log( LOG_LOADS ) );
+    }
+    else
+    {
+      fprintf( ae_common::rec_params->get_log( LOG_LOADS ), "  No overloaded parameters\n\n" );
+    }
+  }
+  
+  // Initialize display
+  #ifdef __X11
+    ((ae_simulation_X11*) this)->initialize( ae_common::pop_structure, ae_common::params->get_allow_plasmids() );
+  #endif // def __X11
+}
+
+/*!
+  Load the simulation from a backup. Optionally overload parameters and modify simulation accordingly
+*/ 
+void ae_simulation::load_backup( char* backup_file_name, bool to_be_run /*= true*/, ae_param_overloader* param_overloader /*= NULL*/ )
+{
+  // Open backup file
+  gzFile* backup_file = (gzFile*) gzopen( backup_file_name, "r" );
+  if ( backup_file == Z_NULL )
+  {
+    printf( "ERROR : Could not read backup file %s\n", backup_file_name );
+    exit( EXIT_FAILURE );
+  }
+  
+  // Retrieve data from the backup
+  this->read_from_backup( backup_file );
+  
+  // Close backup file
+  gzclose( backup_file );
+  
+  // Overload parameters
+  if ( param_overloader != NULL )
+  {
+    // TODO if ( param_overloader->is_overloadded( SEED ) ) ... !!!!!
+    int32_t seed_from_backup = ae_common::init_params->get_seed();
+    param_overloader->overload_params();
+    if ( ae_common::init_params->get_seed() != seed_from_backup )
+    {
+      // We need to reseed
+      delete alea;
+      alea = new ae_rand_mt( ae_common::init_params->get_seed() );
+    }
+  }
+
+  // Evaluate individuals
+  _pop->evaluate_individuals( _env );
+
+  // If the population is spatially structured, then the individuals are saved and loaded in the order of the grid and not in increasing order of fitness
+  // so we have to sort the individuals
+  if ( ae_common::pop_structure == true )
+  {
+    _pop->sort_individuals();
+  }
+
+
+  // If the simulation is being continued (not just do a post-processed), prepare output data accordingly
+  if ( to_be_run )
+  {
+    // Prepare stat files
+    _stats  = new ae_stats( _first_gener );
+    
+    // Prepare tree
+    if ( ae_common::rec_params->get_record_tree() == true )
+    { 
+      mkdir( "tree", 0755 );
+      _tree  = new ae_tree(); 
+    }
+    else
+    {
+      _tree = NULL;
+    }
+    
+    // Prepare dump
+    if ( ae_common::rec_params->get_dump_period() > 0 )
+    {
+      mkdir( "dump", 0755 );
+      _dump = new ae_dump();
+    }
+    else
+    {
+      _dump = NULL;
+    }
+    
+    mkdir( "backup", 0755 );
+    
+    if ( ae_common::rec_params->is_logged( LOG_LOADS ) == true )
+    {
+      // Write an entry in the LOADS log file
+      fprintf( ae_common::rec_params->get_log( LOG_LOADS ), "GENERATION_OVERLOAD %"PRId32"\n", _num_gener );
+      if ( param_overloader->get_nb_overloaded() > 0 )
+      {
+        //fprintf( _logs->get_log( LOG_LOADS ), "  Overloaded parameters:\n" );
+        param_overloader->write_log( ae_common::rec_params->get_log( LOG_LOADS ) );
+        fprintf( ae_common::rec_params->get_log( LOG_LOADS ), "\n" );
+      }
+      else
+      {
+        fprintf( ae_common::rec_params->get_log( LOG_LOADS ), "  No overloaded parameters\n\n" );
+      }
+    }
+  }
+  else
+  {
+    // We just want to inspect the state of the simulation at this moment
+    ae_common::rec_params->init_logs( 0 );
+  }
+  
+  // Initialize display
+  #ifdef __X11
+    ((ae_simulation_X11*) this)->initialize( ae_common::pop_structure, ae_common::params->get_allow_plasmids() );
+  #endif // def __X11
+}
+
 void ae_simulation::run( void )
 {
   _last_gener = _first_gener + ae_common::nb_generations;
 
   // dump the initial state of the population; useful for restarts
-  if( ae_common::dump_period > 0 ) 
+  if( ae_common::rec_params->get_dump_period() > 0 ) 
   {
     _dump->write_current_generation_dump();
   }
@@ -464,23 +644,22 @@ void ae_simulation::run( void )
     // Write statistical data and store phylogenetic data (tree)
     _stats->write_current_generation_statistics();
 
-    if ( ae_common::record_tree == true )
+    if ( ae_common::rec_params->get_record_tree() == true )
     { 
       _tree->fill_tree_with_cur_gener(); 
     }
 
     // Write backup and tree
-    if ( _num_gener % ae_common::tree_step == 0 )    
+    if ( _num_gener % ae_common::rec_params->get_tree_step() == 0 )    
     {
-      if ( ae_common::record_tree == true  && ae_common :: tree_mode == NORMAL ) 
+      if ( ae_common::rec_params->get_record_tree() == true  && ae_common::rec_params->get_tree_mode() == NORMAL ) 
       { 
         write_tree();
       }
     }
       
-    if ( _num_gener % ae_common::backup_step == 0 )
+    if ( _num_gener % ae_common::rec_params->get_backup_step() == 0 )
     {
-      _logs->flush();
       _stats->flush();
       write_backup();
       
@@ -504,16 +683,15 @@ void ae_simulation::run( void )
       #endif
     }
 
-    if( ae_common::dump_period > 0 ) 
+    if( ae_common::rec_params->get_dump_period() > 0 ) 
     {
-      if( _num_gener % ae_common::dump_period == 0 )
+      if( _num_gener % ae_common::rec_params->get_dump_period() == 0 )
       {
         _dump->write_current_generation_dump();
       }
     }
   }
   
-  _logs->flush();
   _stats->flush();
   
   printf( "============================== %"PRId32" ==============================\n", _num_gener );
@@ -521,7 +699,7 @@ void ae_simulation::run( void )
   printf( "===================================================================\n");
   printf ("  The run is finished. \n"); 
   printf ("  Printing the final best individual into best_last_org.txt \n"); 
-  char* out_file_name = "best_last_org.txt"; 
+  const char* out_file_name = "best_last_org.txt"; 
   FILE* org_file = fopen( out_file_name, "w" );
   fputs( ((ae_individual *) _pop->get_indivs()->get_last()->get_obj())->get_genetic_unit(0)->get_dna()->get_data(), org_file); 
   fclose ( org_file ); 
@@ -596,3 +774,42 @@ void ae_simulation::write_tree( void )
 // =================================================================
 //                           Protected Methods
 // =================================================================
+void ae_simulation::read_from_backup( gzFile* backup_file )
+{
+  // Retrieve random generator state
+  printf( "  Loading random generator..." );
+  fflush( stdout );
+  alea = new ae_rand_mt( backup_file );
+  printf( "OK\n" );
+
+  // Retreive common data
+  printf( "  Loading common data..." );
+  fflush( stdout );
+  ae_common::read_from_backup( backup_file );
+  printf( "OK\n" );
+
+  // Retrieve current generation number
+  printf( "  Loading simulation data..." );
+  fflush( stdout );
+  gzread( backup_file, &_num_gener, sizeof(_num_gener) );
+  _first_gener = _num_gener;
+  printf( "OK\n" );
+
+  // Retrieve environmental data
+  printf( "  Loading environment..." );
+  fflush( stdout );
+  _env = new ae_environment( backup_file );
+  printf( "OK\n" );
+
+  // Retrieve population data and individuals
+  printf( "  Loading population..." );
+  fflush( stdout );
+  #ifdef __NO_X
+    //~ printf( "new ae_population( backup_file );\n" );
+    _pop = new ae_population( backup_file );
+  #elif defined __X11
+    //~ printf( "new ae_population_X11( backup_file );\n" );
+    _pop = new ae_population_X11( backup_file );
+  #endif
+  printf( "OK\n" );
+}

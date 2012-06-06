@@ -40,6 +40,7 @@
 // =================================================================
 #include <ae_logs.h>
 #include <ae_common.h>
+#include <ae_simulation.h>
 
 
 
@@ -57,66 +58,65 @@
 // =================================================================
 //                             Constructors
 // =================================================================
+
 ae_logs::ae_logs( void )
 {
-  _transfer_log         = NULL;
-  _rear_log             = NULL;
-  _barrier_log          = NULL;
-  _load_from_backup_log = NULL;  
-  
-  // Open required log files
-  if ( ae_common::logs & LOG_TRANSFER )
-  {
-    _transfer_log = fopen( "log_transfer.out", "w" );
-    if ( _transfer_log == NULL )
-    {
-      printf( "Error: Failed to open file \"log_transfer.out\"\n" );
-      exit( EXIT_FAILURE );
-    }
-  }
-  if ( ae_common::logs & LOG_REAR )
-  {
-    _rear_log = fopen( "log_rear.out", "w" );
-    if ( _rear_log == NULL )
-    {
-      printf( "Error: Failed to open file \"log_rear.out\"\n" );
-      exit( EXIT_FAILURE );
-    }
-  }
-  if ( ae_common::logs & LOG_BARRIER )
-  {
-    _barrier_log = fopen( "log_barrier.out", "w" );
-    
-    if ( _barrier_log == NULL )
-    {
-      printf( "Error: Failed to open file \"log_barrier.out\"\n" );
-      exit( EXIT_FAILURE );
-    }
-  }
-  if ( ae_common::logs & LOG_LOADS )
-  {
-    _load_from_backup_log = fopen( "log_load_from_backup.out", "w" );
-    
-    if ( _load_from_backup_log == NULL )
-    {
-      printf( "Error: Failed to open file \"log_load_from_backup.out\"\n" );
-      exit( EXIT_FAILURE );
-    }
-  }
-}
-
-ae_logs::ae_logs( int32_t num_gener )
-{
-  char* line = new char[500];
-  char* ret;
+  _logs = 0;
   
   _transfer_log         = NULL;
   _rear_log             = NULL;
   _barrier_log          = NULL;
   _load_from_backup_log = NULL;
+}
+
+// =================================================================
+//                             Destructors
+// =================================================================
+ae_logs::~ae_logs( void )
+{
+  if ( _logs & LOG_TRANSFER )
+  {
+    fclose( _transfer_log );
+  }
+  if ( _logs & LOG_REAR )
+  {
+    fclose( _rear_log );
+  }
+  if ( _logs & LOG_BARRIER )
+  {
+    fclose( _barrier_log );
+  }
+  if ( _logs & LOG_LOADS )
+  {
+    fclose( _load_from_backup_log );
+  }
+}
+
+// =================================================================
+//                            Public Methods
+// =================================================================
+void ae_logs::write_to_backup( gzFile* backup_file ) const
+{
+  // TODO Temporary save, should be gotten rid of to use the value in ae_common::sim
+  int32_t num_gener = ae_common::sim->get_num_gener();
+  gzwrite( backup_file, &num_gener, sizeof(num_gener) );
+  
+  gzwrite( backup_file, &_logs, sizeof(_logs) );
+}
+
+void ae_logs::read_from_backup( gzFile* backup_file )
+{
+  char* line = new char[500];
+  char* ret;
+  
+  // TODO Temporary save, should be gotten rid of to use the value in ae_common::sim
+  int32_t num_gener;
+  gzread( backup_file, &num_gener, sizeof(num_gener) );
+  
+  gzread( backup_file, &_logs, sizeof(_logs) );
   
   // Prepare required log files
-  if ( ae_common::logs & LOG_TRANSFER )
+  if ( _logs & LOG_TRANSFER )
   {
     rename ( "log_transfer.out", "log_transfer.out.old" );
     FILE* old_transfer_log = fopen( "log_transfer.out.old", "r" );
@@ -153,7 +153,7 @@ ae_logs::ae_logs( int32_t num_gener )
     
     fclose( old_transfer_log );
   }
-  if ( ae_common::logs & LOG_REAR )
+  if ( _logs & LOG_REAR )
   {
     rename ( "log_rear.out", "log_rear.out.old" );
     FILE* old_rear_log = fopen( "log_rear.out.old", "r" );
@@ -190,7 +190,7 @@ ae_logs::ae_logs( int32_t num_gener )
     
     fclose( old_rear_log );
   }
-  if ( ae_common::logs & LOG_BARRIER )
+  if ( _logs & LOG_BARRIER )
   {
     rename ( "log_barrier.out", "log_barrier.out.old" );
     FILE* old_barrier_log = fopen( "log_barrier.out.old", "r" );
@@ -227,7 +227,7 @@ ae_logs::ae_logs( int32_t num_gener )
     
     fclose( old_barrier_log );
   }
-  if ( ae_common::logs & LOG_LOADS )
+  if ( _logs & LOG_LOADS )
   {
     rename ( "log_load_from_backup.out", "log_load_from_backup.out.old" );
     FILE* old_load_from_backup_log = fopen( "log_load_from_backup.out.old", "r" );
@@ -268,36 +268,85 @@ ae_logs::ae_logs( int32_t num_gener )
   delete [] line;
 }
 
-// =================================================================
-//                             Destructors
-// =================================================================
-ae_logs::~ae_logs( void )
+void ae_logs::print_to_file( FILE* file ) const
 {
-  if ( ae_common::logs & LOG_TRANSFER )
+  fprintf( file, "logs        :                %"PRId8"\n", _logs );
+}
+
+void ae_logs::set_logs( int8_t logs )
+{
+  _logs = logs;
+    
+  // Open required log files
+  if ( _logs & LOG_TRANSFER )
   {
-    fclose( _transfer_log );
+    _transfer_log = fopen( "log_transfer.out", "w" );
+    if ( _transfer_log == NULL )
+    {
+      printf( "Error: Failed to open file \"log_transfer.out\"\n" );
+      exit( EXIT_FAILURE );
+    }
   }
-  if ( ae_common::logs & LOG_REAR )
+  if ( _logs & LOG_REAR )
   {
-    fclose( _rear_log );
+    _rear_log = fopen( "log_rear.out", "w" );
+    if ( _rear_log == NULL )
+    {
+      printf( "Error: Failed to open file \"log_rear.out\"\n" );
+      exit( EXIT_FAILURE );
+    }
   }
-  if ( ae_common::logs & LOG_BARRIER )
+  if ( _logs & LOG_BARRIER )
   {
-    fclose( _barrier_log );
+    _barrier_log = fopen( "log_barrier.out", "w" );
+    
+    if ( _barrier_log == NULL )
+    {
+      printf( "Error: Failed to open file \"log_barrier.out\"\n" );
+      exit( EXIT_FAILURE );
+    }
   }
-  if ( ae_common::logs & LOG_LOADS )
+  if ( _logs & LOG_LOADS )
   {
-    fclose( _load_from_backup_log );
+    _load_from_backup_log = fopen( "log_load_from_backup.out", "w" );
+    
+    if ( _load_from_backup_log == NULL )
+    {
+      printf( "Error: Failed to open file \"log_load_from_backup.out\"\n" );
+      exit( EXIT_FAILURE );
+    }
+  }
+  
+  this->write_headers();
+}
+
+void ae_logs::flush( void )
+{
+  if ( _logs & LOG_TRANSFER )
+  {
+    fflush( _transfer_log );
+  }
+  if ( _logs & LOG_REAR )
+  {
+    fflush( _rear_log );
+  }
+  if ( _logs & LOG_BARRIER )
+  {
+    fflush( _barrier_log );
+  }
+  if ( _logs & LOG_LOADS )
+  {
+    fflush( _load_from_backup_log );
   }
 }
 
 // =================================================================
-//                            Public Methods
+//                           Protected Methods
 // =================================================================
 void ae_logs::write_headers( void ) const
 {
   // ========== TRANSFER LOG ==========
-  if ( ae_common::logs & LOG_TRANSFER )
+  if ( _logs & LOG_TRANSFER )
   {
     fprintf( _transfer_log, "######################################################################\n" );
     fprintf( _transfer_log, "#                 Horizontal transfer log\n" );
@@ -327,7 +376,7 @@ void ae_logs::write_headers( void ) const
   }
   
   // ========== REAR LOG ==========
-  if ( ae_common::logs & LOG_REAR )
+  if ( _logs & LOG_REAR )
   {
     fprintf( _rear_log, "######################################################################\n" );
     fprintf( _rear_log, "#                 Chromosomal rearrangement log\n" );
@@ -351,7 +400,7 @@ void ae_logs::write_headers( void ) const
   }
   
   // ========== BARRIER LOG ==========
-  if ( ae_common::logs & LOG_BARRIER )
+  if ( _logs & LOG_BARRIER )
   {
     fprintf( _barrier_log, "######################################################################\n" );
     fprintf( _barrier_log, "#                     Genome size limits log\n" );
@@ -373,7 +422,7 @@ void ae_logs::write_headers( void ) const
   
   // ========== LOADS LOG ==========     
   //No header because this file is used by post-treatment like ancstat, it's not meant to be human readable but has to be program readable.
-  /*if ( ae_common::logs & LOG_LOADS )
+  /*if ( _logs & LOG_LOADS )
   {
     fprintf( _load_from_backup_log, "######################################################################\n" );
     fprintf( _load_from_backup_log, "#                     Load from backup log\n" );
@@ -382,27 +431,3 @@ void ae_logs::write_headers( void ) const
     fprintf( _load_from_backup_log, "######################################################################\n" );
   }*/
 }
-
-void ae_logs::flush( void )
-{
-  if ( ae_common::logs & LOG_TRANSFER )
-  {
-    fflush( _transfer_log );
-  }
-  if ( ae_common::logs & LOG_REAR )
-  {
-    fflush( _rear_log );
-  }
-  if ( ae_common::logs & LOG_BARRIER )
-  {
-    fflush( _barrier_log );
-  }
-  if ( ae_common::logs & LOG_LOADS )
-  {
-    fflush( _load_from_backup_log );
-  }
-}
-
-// =================================================================
-//                           Protected Methods
-// =================================================================

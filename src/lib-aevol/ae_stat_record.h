@@ -106,11 +106,11 @@ class ae_stat_record : public ae_object
     //                             Constructors
     // =================================================================
     ae_stat_record( void );
-    ae_stat_record( ae_individual* indiv, chrom_or_gen_unit chrom_or_gu = CHROM, bool compute_non_coding = true, int32_t num_gener = -1 );
-    ae_stat_record( ae_population* pop, chrom_or_gen_unit chrom_or_gu = CHROM );
     ae_stat_record( const ae_stat_record &model );
-    ae_stat_record( ae_population* pop,  ae_stat_record* means, chrom_or_gen_unit chrom_or_gu = CHROM );
-    ae_stat_record( ae_population* pop, ae_stat_record* means, ae_stat_record* stdevs, chrom_or_gen_unit chrom_or_gu = CHROM );
+    ae_stat_record( ae_individual const * indiv, chrom_or_gen_unit chrom_or_gu = CHROM, bool compute_non_coding = true, int32_t num_gener = -1 );
+    ae_stat_record( ae_population const * pop, chrom_or_gen_unit chrom_or_gu = CHROM );
+    ae_stat_record( ae_population const * pop, ae_stat_record const * means, chrom_or_gen_unit chrom_or_gu = CHROM );
+    ae_stat_record( ae_population const * pop, ae_stat_record const * means, ae_stat_record const * stdevs, chrom_or_gen_unit chrom_or_gu = CHROM );
 
     // =================================================================
     //                             Destructors
@@ -128,10 +128,10 @@ class ae_stat_record : public ae_object
     void write_to_file( FILE* stat_file, stats_type stat_type_to_print ) const;
     
     void divide( double divisor );
-    void divide_record( ae_stat_record* means, double power );
+    void divide_record( ae_stat_record const * means, double power );
 
     void add( ae_stat_record* to_add );
-    void substract_power( ae_stat_record* means, ae_stat_record* to_substract, double power );
+    void substract_power( ae_stat_record const * means, ae_stat_record const * to_substract, double power );
     
     // =================================================================
     //                           Public Attributes

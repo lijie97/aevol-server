@@ -121,24 +121,24 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
     }
     case MIN_TRIANGLE_WIDTH :
     {
-      MIN_W = atof( line->words[1] );
+      ae_common::params->set_min_w( atof( line->words[1] ) );
       break;
     }
     case MAX_TRIANGLE_WIDTH :
     {
-      MAX_W = atof( line->words[1] );
+      ae_common::params->set_max_w( atof( line->words[1] ) );
       break;
     }
     case ENV_AXIS_SEGMENTS :
     {
       // Check consistency
-      if ( ae_common::env_axis_segment_boundaries != NULL )
+      if ( ae_common::init_params->get_env_axis_segment_boundaries() != NULL )
       {
         printf( "ERROR in param file \"%s\" on line %"PRId32" : ENV_AXIS_SEGMENT keyword found twice.\n",
                 INPUT_FILE_NAME, cur_line );
         exit( EXIT_FAILURE );
       }
-      if ( ae_common::env_axis_features != NULL && ae_common::env_axis_nb_segments != line->nb_words )
+      if ( ae_common::init_params->get_env_axis_features() != NULL && ae_common::init_params->get_env_axis_nb_segments() != line->nb_words )
       {
         printf( "ERROR in param file \"%s\" on line %"PRId32" : number of segment boundaries and number of features don't match.\n",
                 INPUT_FILE_NAME, cur_line );
@@ -146,29 +146,30 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
       }
       
       // OK, proceed
-      ae_common::env_axis_is_segmented = true;
-      ae_common::env_axis_nb_segments = line->nb_words; // in fact line->nb_words - 1 + 1
-      ae_common::env_axis_segment_boundaries = new double [ae_common::env_axis_nb_segments + 1];
+      ae_common::init_params->set_env_axis_is_segmented( true );
+      ae_common::init_params->set_env_axis_nb_segments( line->nb_words ); // in fact line->nb_words - 1 + 1
       
-      ae_common::env_axis_segment_boundaries[0] = MIN_X;
-      ae_common::env_axis_segment_boundaries[ae_common::env_axis_nb_segments] = MAX_X;
-      for ( int16_t i = 1 ; i < ae_common::env_axis_nb_segments ; i++ )
+      double* env_axis_segment_boundaries = new double [ae_common::init_params->get_env_axis_nb_segments() + 1];
+      env_axis_segment_boundaries[0] = MIN_X;
+      for ( int16_t i = 1 ; i < ae_common::init_params->get_env_axis_nb_segments() ; i++ )
       {
-        ae_common::env_axis_segment_boundaries[i] = atof( line->words[i] );
+        env_axis_segment_boundaries[i] = atof( line->words[i] );
       }
-      
+      env_axis_segment_boundaries[ae_common::init_params->get_env_axis_nb_segments()] = MAX_X;
+      ae_common::init_params->set_env_axis_segment_boundaries( env_axis_segment_boundaries );
+      // do not delete env_axis_segment_boundaries, no in-depth copy !
       break;
     }
     case ENV_AXIS_FEATURES :
     {
       // Check consistency
-      if ( ae_common::env_axis_features != NULL )
+      if ( ae_common::init_params->get_env_axis_features() != NULL )
       {
         printf( "ERROR in param file \"%s\" on line %"PRId32" : ENV_AXIS_FEATURES keyword found twice.\n",
                 INPUT_FILE_NAME, cur_line );
         exit( EXIT_FAILURE );
       }
-      if ( ae_common::env_axis_segment_boundaries != NULL && ae_common::env_axis_nb_segments != line->nb_words - 1 )
+      if ( ae_common::init_params->get_env_axis_segment_boundaries() != NULL && ae_common::init_params->get_env_axis_nb_segments() != line->nb_words - 1 )
       {
         printf( "ERROR in param file \"%s\" on line %"PRId32" : number of segment boundaries and number of features don't match.\n",
                 INPUT_FILE_NAME, cur_line );
@@ -176,29 +177,28 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
       }
       
       // OK, proceed
-      ae_common::env_axis_is_segmented = true;
-      ae_common::env_axis_nb_segments = line->nb_words - 1;
-      ae_common::env_axis_features = new ae_env_axis_feature[ae_common::env_axis_nb_segments];
+      ae_common::init_params->set_env_axis_is_segmented( true );
+      ae_common::init_params->set_env_axis_nb_segments( line->nb_words - 1 );
+      ae_env_axis_feature* env_axis_features = new ae_env_axis_feature[ae_common::init_params->get_env_axis_nb_segments()];
       
-      for ( int16_t i = 0 ; i < ae_common::env_axis_nb_segments ; i++ )
+      for ( int16_t i = 0 ; i < ae_common::init_params->get_env_axis_nb_segments() ; i++ )
       {
         if ( strcmp( line->words[i+1], "NEUTRAL" ) == 0 )
         {
-          ae_common::env_axis_features[i] = NEUTRAL;
+          env_axis_features[i] = NEUTRAL;
         }
         else if ( strcmp( line->words[i+1], "METABOLISM" ) == 0 )
         {
-          ae_common::env_axis_features[i] = METABOLISM;
+          env_axis_features[i] = METABOLISM;
         }
         else if ( strcmp( line->words[i+1], "SECRETION" ) == 0 )
         {
-          ae_common::use_secretion      = true;
-          ae_common::composite_fitness  = true;
-          ae_common::env_axis_features[i] = SECRETION;
+          ae_common::params->set_use_secretion( true );
+          env_axis_features[i] = SECRETION;
         }
         else if ( strcmp( line->words[i+1], "TRANSFER" ) == 0 )
         {
-          ae_common::env_axis_features[i] = TRANSFER;
+          env_axis_features[i] = TRANSFER;
         }
         else
         {
@@ -207,23 +207,25 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
           exit( EXIT_FAILURE );
         }
       }
+      ae_common::init_params->set_env_axis_features( env_axis_features );
+      // do not delete env_axis_features, no in-depth copy !
       
       break;
     }
     case ENV_SEPARATE_SEGMENTS :
     {
-      ae_common::env_separate_segments = true;
+      ae_common::init_params->set_env_axis_separate_segments( true );
       break;
     }
     case RECORD_TREE :
     {
       if ( strncmp( line->words[1], "true", 4 ) == 0 )
       {
-        ae_common::record_tree  = true;
+        ae_common::rec_params->set_record_tree( true );
       }
       else if ( strncmp( line->words[1], "false", 5 ) == 0 )
       {
-        ae_common::record_tree = false;
+        ae_common::rec_params->set_record_tree( false );
       }
       else
       {
@@ -237,11 +239,11 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
     {
       if ( strcmp( line->words[1], "light" ) == 0 )
       {
-        ae_common::tree_mode  = LIGHT;
+        ae_common::rec_params->set_tree_mode( LIGHT );
       }
       else if ( strcmp( line->words[1], "normal" ) == 0 )
       {
-        ae_common::tree_mode  = NORMAL;
+        ae_common::rec_params->set_tree_mode( NORMAL );
       }       
       else
       {
@@ -255,11 +257,11 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
     {
       if ( strncmp( line->words[1], "true", 4 ) == 0 )
       {
-        ae_common::more_stats  = true;
+        ae_common::rec_params->set_more_stats( true );
       }
       else if ( strncmp( line->words[1], "false", 5 ) == 0 )
       {
-        ae_common::more_stats = false;
+        ae_common::rec_params->set_more_stats( false );
       }       
       else
       {
@@ -271,39 +273,39 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
     }
     case DUMP_PERIOD :
     {
-      ae_common::dump_period = atol( line->words[1] );
+      ae_common::rec_params->set_dump_period( atol( line->words[1] ) );
       break;
     }
     case BACKUP_STEP :
     {
-      ae_common::backup_step = atol( line->words[1] );
+      ae_common::rec_params->set_backup_step( atol( line->words[1] ) );
       break;
     }
     case BIG_BACKUP_STEP :
     {
-      ae_common::big_backup_step = atol( line->words[1] );
+      ae_common::rec_params->set_big_backup_step( atol( line->words[1] ) );
       break;
     }
     case TREE_STEP :
     {
-      ae_common::tree_step = atol( line->words[1] );
+      ae_common::rec_params->set_tree_step( atol( line->words[1] ) );
       break;
     }
     case INITIAL_GENOME_LENGTH :
     {
-      ae_common::initial_genome_length = atol( line->words[1] );
+      ae_common::init_params->set_initial_genome_length( atol( line->words[1] ) );
       break;
     }
     case MIN_GENOME_LENGTH :
     {
       if ( strncmp( line->words[1], "NONE", 4 ) == 0 )
       {
-        ae_common::min_genome_length = 1; // Must not be 0
+        ae_common::params->set_min_genome_length( 1 ); // Must not be 0
       }
       else
       {
-        ae_common::min_genome_length = atol( line->words[1] );
-        if ( ae_common::min_genome_length == 0 )
+        ae_common::params->set_min_genome_length( atol( line->words[1] ) );
+        if ( ae_common::params->get_min_genome_length() == 0 )
         {
           printf( "ERROR in param file \"%s\" on line %"PRId32" : MIN_GENOME_LENGTH must be > 0.\n",
                   INPUT_FILE_NAME, cur_line );
@@ -316,17 +318,17 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
     {
       if ( strncmp( line->words[1], "NONE", 4 ) == 0 )
       {
-        ae_common::max_genome_length = INT32_MAX;
+        ae_common::params->set_max_genome_length( INT32_MAX );
       }
       else
       {
-        ae_common::max_genome_length = atol( line->words[1] );
+        ae_common::params->set_max_genome_length( atol( line->words[1] ) );
       }
       break;
     }
     case INIT_POP_SIZE :
     {
-      ae_common::init_pop_size = atol( line->words[1] );
+      ae_common::init_params->set_init_pop_size( atol( line->words[1] ) );
       break;      
     }
     case POP_STRUCTURE :
@@ -364,21 +366,21 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
     }
     case INIT_METHOD :
     {
-      ae_common::init_method = 0;
+      int8_t init_method = ae_common::init_params->get_init_method();
       
       for ( int8_t i = 1 ; i < line->nb_words ; i++ )
       {
         if ( strcmp( line->words[i], "ONE_GOOD_GENE" ) == 0 )
         {
-          ae_common::init_method |= ONE_GOOD_GENE;
+          init_method |= ONE_GOOD_GENE;
         }
         else if ( strcmp( line->words[i], "CLONE" ) == 0 )
         {
-          ae_common::init_method |= CLONE;
+          init_method |= CLONE;
         }
         else if ( strcmp( line->words[i], "WITH_INS_SEQ" ) == 0 )
         {
-          ae_common::init_method |= WITH_INS_SEQ;
+          init_method |= WITH_INS_SEQ;
         }   
         else
         {
@@ -387,71 +389,72 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
           exit( EXIT_FAILURE ); 
         }
       }
+      ae_common::init_params->set_init_method( init_method );
       break;
     }
     case POINT_MUTATION_RATE :
     {
-      ae_common::point_mutation_rate = atof( line->words[1] );
+      ae_common::params->set_point_mutation_rate( atof( line->words[1] ) );
       break;
     }
     case SMALL_INSERTION_RATE :
     {
-      ae_common::small_insertion_rate = atof( line->words[1] );
+      ae_common::params->set_small_insertion_rate( atof( line->words[1] ) );
       break;
     }
     case SMALL_DELETION_RATE :
     {
-      ae_common::small_deletion_rate = atof( line->words[1] );
+      ae_common::params->set_small_deletion_rate( atof( line->words[1] ) );
       break;
     }
     case MAX_INDEL_SIZE :
     {
-      ae_common::max_indel_size = atol( line->words[1] );
+      ae_common::params->set_max_indel_size( atol( line->words[1] ) );
       break;
     }
     case DUPLICATION_RATE :
     {
-      ae_common::duplication_rate = atof( line->words[1] );
+      ae_common::params->set_duplication_rate( atof( line->words[1] ) );
       break;
     }
     case DELETION_RATE :
     {
-      ae_common::deletion_rate = atof( line->words[1] );
+      ae_common::params->set_deletion_rate( atof( line->words[1] ) );
       break;
     }
     case TRANSLOCATION_RATE :
     {
-      ae_common::translocation_rate = atof( line->words[1] );
+      ae_common::params->set_translocation_rate( atof( line->words[1] ) );
       break;
     }
     case INVERSION_RATE :
     {
-      ae_common::inversion_rate = atof( line->words[1] );
+      ae_common::params->set_inversion_rate( atof( line->words[1] ) );
       break;
     }
     case NEIGHBOURHOOD_RATE :
     {
-      ae_common::neighbourhood_rate = atof( line->words[1] );
+      ae_common::params->set_neighbourhood_rate( atof( line->words[1] ) );
       break;
     }
     case DUPLICATION_PROPORTION :
     {
-      ae_common::duplication_proportion = atof( line->words[1] );
+      ae_common::params->set_duplication_proportion( atof( line->words[1] ) );
       break;
     }
     case DELETION_PROPORTION :
     {
-      ae_common::deletion_proportion = atof( line->words[1] );
+      ae_common::params->set_deletion_proportion( atof( line->words[1] ) );
       break;
     }
     case TRANSLOCATION_PROPORTION :
     {
-      ae_common::translocation_proportion = atof( line->words[1] );
+      ae_common::params->set_translocation_proportion( atof( line->words[1] ) );
       break;
     }
     case INVERSION_PROPORTION :
     {
-      ae_common::inversion_proportion = atof( line->words[1] );
+      ae_common::params->set_inversion_proportion( atof( line->words[1] ) );
       break;
     }
     case ALIGN_FUNCTION :
@@ -465,22 +468,22 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
       
       if ( strcmp( line->words[1], "LINEAR" ) == 0 )
       {
-        ae_common::align_fun_shape = LINEAR;
+        ae_common::params->set_align_fun_shape( LINEAR );
         
         if ( line->nb_words == 4 )
         {
-          ae_common::align_lin_min  = atol( line->words[2] );
-          ae_common::align_lin_max  = atol( line->words[3] );
+          ae_common::params->set_align_lin_min( atol( line->words[2] ) );
+          ae_common::params->set_align_lin_max( atol( line->words[3] ) );
         }
       }
       else if ( strcmp( line->words[1], "SIGMOID" ) == 0 )
       {
-        ae_common::align_fun_shape = SIGMOID;
+        ae_common::params->set_align_fun_shape( SIGMOID );
         
         if ( line->nb_words == 4 )
         {
-          ae_common::align_sigm_lambda  = atol( line->words[2] );
-          ae_common::align_sigm_mean    = atol( line->words[3] );
+          ae_common::params->set_align_sigm_lambda( atol( line->words[2] ) );
+          ae_common::params->set_align_sigm_mean( atol( line->words[3] ) );
         }
       }
       else
@@ -493,41 +496,41 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
     }
     case ALIGN_MAX_SHIFT :
     {
-      ae_common::align_max_shift = atol( line->words[1] );
+      ae_common::params->set_align_max_shift( atol( line->words[1] ) );
       break;
     }
     case ALIGN_W_ZONE_H_LEN :
     {
-      ae_common::align_w_zone_h_len = atol( line->words[1] );
+      ae_common::params->set_align_w_zone_h_len( atol( line->words[1] ) );
       break;
     }
     case ALIGN_MATCH_BONUS :
     {
-      ae_common::align_match_bonus = atol( line->words[1] );
+      ae_common::params->set_align_match_bonus( atol( line->words[1] ) );
       break;
     }
     case ALIGN_MISMATCH_COST :
     {
-      ae_common::align_mismatch_cost = atol( line->words[1] );
+      ae_common::params->set_align_mismatch_cost( atol( line->words[1] ) );
       break;
     }
     case SELECTION_SCHEME :
     {
       if ( strncmp( line->words[1], "lin", 3 ) == 0 )
       {
-        ae_common::selection_scheme = RANK_LINEAR;
+        ae_common::params->set_selection_scheme( RANK_LINEAR );
       }
       else if ( strncmp( line->words[1], "exp", 3 ) == 0 )
       {
-        ae_common::selection_scheme = RANK_EXPONENTIAL;
+        ae_common::params->set_selection_scheme( RANK_EXPONENTIAL );
       }
       else if ( strncmp( line->words[1], "fitness", 7 ) == 0 )
       {
-        ae_common::selection_scheme = FITNESS_PROPORTIONATE;
+        ae_common::params->set_selection_scheme( FITNESS_PROPORTIONATE );
       }
       else if ( strcmp( line->words[1], "fittest" ) == 0 )
       {
-        ae_common::selection_scheme = FITTEST;
+        ae_common::params->set_selection_scheme( FITTEST );
       }
       else
       {
@@ -539,12 +542,20 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
     }
     case SELECTION_PRESSURE :
     {
-      ae_common::selection_pressure = atof( line->words[1] );
+      ae_common::params->set_selection_pressure( atof( line->words[1] ) );
       break;
     }
     case SEED :
     {
-      ae_common::seed = atol( line->words[1] );
+      static bool seed_already_set = false;
+      if ( seed_already_set )
+      {
+        printf( "ERROR in param file \"%s\" on line %"PRId32" : duplicate entry for SEED.\n",
+                INPUT_FILE_NAME, cur_line );
+        exit( EXIT_FAILURE );
+      }
+      ae_common::init_params->set_seed( atol( line->words[1] ) );
+      seed_already_set = true;
       break;
     }
     case NB_GENER :
@@ -556,13 +567,12 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
     {
       if ( strncmp( line->words[1], "true", 4 ) == 0 )
       {
-        ae_common::with_4pts_trans = true;
+        ae_common::params->set_with_4pts_trans( true );
       }
       else if ( strncmp( line->words[1], "false", 5 ) == 0 )
       {
         printf( "ERROR: 3 points rear hasn't been implemented yet\n" );
         exit( EXIT_FAILURE );
-        ae_common::with_4pts_trans = false;
       }
       else
       {
@@ -576,11 +586,11 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
     {
       if ( strncmp( line->words[1], "true", 4 ) == 0 )
       {
-        ae_common::with_alignments = true;
+        ae_common::params->set_with_alignments( true );
       }
       else if ( strncmp( line->words[1], "false", 5 ) == 0 )
       {
-        ae_common::with_alignments = false;
+        ae_common::params->set_with_alignments( false );
       }
       else
       {
@@ -594,11 +604,11 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
     {
       if ( strncmp( line->words[1], "true", 4 ) == 0 )
       {
-        ae_common::with_transfer = true;
+        ae_common::params->set_with_transfer( true );
       }
       else if ( strncmp( line->words[1], "false", 5 ) == 0 )
       {
-        ae_common::with_transfer = false;
+        ae_common::params->set_with_transfer( false );
       }
       else
       {
@@ -612,11 +622,11 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
     {
       if ( strncmp( line->words[1], "true", 4 ) == 0 )
       {
-        ae_common::swap_GUs = true;
+        ae_common::params->set_swap_GUs( true );
       }
       else if ( strncmp( line->words[1], "false", 5 ) == 0 )
       {
-        ae_common::swap_GUs = false;
+        ae_common::params->set_swap_GUs( false );
       }
       else
       {
@@ -628,51 +638,49 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
     }
     case TRANSFER_INS_RATE :
     {
-      ae_common::transfer_ins_rate  = atof( line->words[1] );
+      ae_common::params->set_transfer_ins_rate( atof( line->words[1] ) );
       break;
     }
     case TRANSFER_REPL_RATE :
     {
-      ae_common::transfer_repl_rate  = atof( line->words[1] );
+      ae_common::params->set_transfer_repl_rate( atof( line->words[1] ) );
       break;
     }
     case TRANSLATION_COST :
     {
-      ae_common::translation_cost = atof( line->words[1] );
+      ae_common::params->set_translation_cost( atof( line->words[1] ) );
       break;
     }
     case ENV_ADD_POINT :
     {
-      ae_common::env_custom_points.add( new ae_point_2d(  atof( line->words[1] ), atof( line->words[2] ) ) );
+      ae_common::init_params->add_env_custom_point( new ae_point_2d(  atof( line->words[1] ), atof( line->words[2] ) ) );
       break;
     }
     case ENV_ADD_GAUSSIAN :
     {
-      ae_common::env_gaussians.add( new ae_gaussian(  atof( line->words[1] ),
-                                                      atof( line->words[2] ),
-                                                      atof( line->words[3] ) ) );
+      ae_common::init_params->add_env_gaussian( new ae_gaussian( atof( line->words[1] ), atof( line->words[2] ), atof( line->words[3] ) ) );
       break;
     }
     case ENV_SAMPLING :
     {
-      ae_common::env_sampling = atoi( line->words[1] );
+      ae_common::init_params->set_env_sampling( atoi( line->words[1] ) );
       break;
     }
     case ENV_VARIATION :
     {
       if ( strcmp( line->words[1], "none" ) == 0 )
       {
-        ae_common::env_var_method = NONE;
+        ae_common::init_params->set_env_var_method( NONE );
       }
       else if ( strcmp( line->words[1], "autoregressive_mean_variation" ) == 0 )
       {
-        ae_common::env_var_method = AUTOREGRESSIVE_MEAN_VAR;
-        ae_common::env_sigma      = atof( line->words[2] );
-        ae_common::env_tau        = atol( line->words[3] );
+        ae_common::init_params->set_env_var_method( AUTOREGRESSIVE_MEAN_VAR );
+        ae_common::init_params->set_env_var_sigma( atof( line->words[2] ) );
+        ae_common::init_params->set_env_var_tau( atol( line->words[3] ) );
       }
       else if ( strcmp( line->words[1], "add_local_gaussians" ) == 0 )
       {
-        ae_common::env_var_method = LOCAL_GAUSSIANS_VAR;
+        ae_common::init_params->set_env_var_method( LOCAL_GAUSSIANS_VAR );
       }
       else
       {
@@ -684,31 +692,31 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
     }
     case ENV_SEED :
     {
-      static bool seed_already_set = false;
-      if ( seed_already_set == true )
+      static bool env_seed_already_set = false;
+      if ( env_seed_already_set )
       {
         printf( "ERROR in param file \"%s\" on line %"PRId32" : duplicate entry for ENV_SEED.\n",
                 INPUT_FILE_NAME, cur_line );
         exit( EXIT_FAILURE );
       }
-      ae_common::env_seed = atoi( line->words[1] );
-      seed_already_set = true;
+      ae_common::init_params->set_env_seed( atoi( line->words[1] ) );
+      env_seed_already_set = true;
       break;
     }
     case SECRETION_FITNESS_CONTRIB :
     {
-      ae_common::secretion_fitness_contrib = atof( line->words[1] );
+      ae_common::params->set_secretion_fitness_contrib( atof( line->words[1] ) );
       break; 
     }
-    case SECRETION_DIFUSION_PROP :
+    case SECRETION_DIFFUSION_PROP :
     {
-      ae_common::secretion_difusion_prop = atof( line->words[1] );
+      ae_common::params->set_secretion_diffusion_prop( atof( line->words[1] ) );
       break; 
     }
     case SECRETION_DEGRADATION_PROP :
     {
-      ae_common::secretion_degradation_prop = atof( line->words[1] );
-      if ( ae_common::secretion_degradation_prop > 1 || ae_common::secretion_degradation_prop < 0 ) 
+      ae_common::params->set_secretion_degradation_prop( atof( line->words[1] ) );
+      if ( ae_common::params->get_secretion_degradation_prop() > 1 || ae_common::params->get_secretion_degradation_prop() < 0 ) 
       {
         printf( "ERROR in param file \"%s\" on line %"PRId32" : degradation must be in (0,1).\n", INPUT_FILE_NAME, cur_line );
         exit( EXIT_FAILURE );
@@ -717,23 +725,23 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
     }
     case SECRETION_INITIAL :
     {
-      ae_common::secretion_init = atof( line->words[1] );
+      ae_common::init_params->set_secretion_init( atof( line->words[1] ) );
       break; 
     }
     case SECRETION_COST :
     {
-      ae_common::secretion_cost = atof( line->words[1] );
+      ae_common::params->set_secretion_cost( atof( line->words[1] ) );
       break; 
     }
     case ALLOW_PLASMIDS :
     {
       if ( strncmp( line->words[1], "true", 4 ) == 0 )
       {
-        ae_common::allow_plasmids = true;
+        ae_common::params->set_allow_plasmids( true );
       }
       else if ( strncmp( line->words[1], "false", 5 ) == 0 )
       {
-        ae_common::allow_plasmids = false;
+        ae_common::params->set_allow_plasmids( false );
       }
       else
       {
@@ -745,39 +753,39 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
     }
     case PLASMID_INITIAL_LENGTH :
     {
-      ae_common::plasmid_initial_length = atoi( line->words[1] );
+      ae_common::init_params->set_plasmid_initial_length( atoi( line->words[1] ) );
       break; 
     }
     case PLASMID_INITIAL_GENE :
     {
-      ae_common::plasmid_initial_gene = atoi( line->words[1] );
+      ae_common::init_params->set_plasmid_initial_gene( atoi( line->words[1] ) );
       break; 
     }
     case PLASMID_MINIMAL_LENGTH :
     {
-      ae_common::plasmid_minimal_length = atoi( line->words[1] );
+      ae_common::params->set_plasmid_minimal_length( atoi( line->words[1] ) );
       break; 
     }
     case PROB_HORIZONTAL_TRANS :
     {
-      ae_common::prob_horiz_trans = atof( line->words[1] );
+      ae_common::params->set_prob_horiz_trans( atof( line->words[1] ) );
       break; 
     }
-	case NB_HORIZONTAL_TRANS :
-	{
-	  ae_common::nb_horiz_trans = atoi( line->words[1] );
-	  break;
-	}
+    case NB_HORIZONTAL_TRANS : // Plasmid transfers (?)
+    {
+      ae_common::params->set_nb_horiz_trans( atoi( line->words[1] ) );
+      break;
+    }
 	
     case COMPUTE_PHEN_CONTRIB_BY_GU :
     {
       if ( strncmp( line->words[1], "true", 4 ) == 0 )
       {
-        ae_common::compute_phen_contrib_by_GU = true;
+        ae_common::params->set_compute_phen_contrib_by_GU( true );
       }
       else if ( strncmp( line->words[1], "false", 5 ) == 0 )
       {
-        ae_common::compute_phen_contrib_by_GU = false;
+        ae_common::params->set_compute_phen_contrib_by_GU( false );
       }
       else
       {
@@ -789,25 +797,25 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
     }
     case LOG :
     {
-      ae_common::logs = 0;
+      int8_t tmp_to_be_logged = 0;
       
       for ( int8_t i = 1 ; i < line->nb_words ; i++ )
       {
         if ( strcmp( line->words[i], "TRANSFER" ) == 0 )
         {
-          ae_common::logs |= LOG_TRANSFER;
+          tmp_to_be_logged |= LOG_TRANSFER;
         }
         else if ( strcmp( line->words[i], "REAR" ) == 0 )
         {
-          ae_common::logs |= LOG_REAR;
+          tmp_to_be_logged |= LOG_REAR;
         }
         else if ( strcmp( line->words[i], "BARRIER" ) == 0 )
         {
-          ae_common::logs |= LOG_BARRIER;
+          tmp_to_be_logged |= LOG_BARRIER;
         }
         else if ( strcmp( line->words[i], "LOADS" ) == 0 )
         {
-          ae_common::logs |= LOG_LOADS;
+          tmp_to_be_logged |= LOG_LOADS;
         }   
         else
         {
@@ -816,73 +824,74 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
           exit( EXIT_FAILURE ); 
         }
       }
+      
+      ae_common::rec_params->init_logs( tmp_to_be_logged );
       break;
     }
     
     #ifdef __REGUL
       case HILL_SHAPE_N :
       {
-        ae_common::hill_shape_n = atof( line->words[1] );
+        ae_common::params->set_hill_shape_n( atof( line->words[1] ) );
         break;
       }
       case HILL_SHAPE_THETA :
       {
-        ae_common::hill_shape_theta = atof( line->words[1] );
+        ae_common::params->set_hill_shape_theta( atof( line->words[1] ) );
         break;
       }
       case DEGRADATION_RATE :
       {
-        ae_common::degradation_rate = atof( line->words[1] );
+        ae_common::params->set_degradation_rate( atof( line->words[1] ) );
         break;
       }
       case DEGRADATION_STEP :
       {
-        ae_common::degradation_step = atof( line->words[1] );
-	// we have to test if 1/degradation_step is an integer
-        int i = static_cast<int>(1/ae_common::degradation_step);
-        if( 1/ae_common::degradation_step != i )
+        ae_common::params->set_degradation_step( atof( line->words[1] ) );
+        // Check that 1/degradation_step is an integer
+        if( 1/ae_common::params->get_degradation_step() != ((int) 1/ae_common::params->get_degradation_step()) )
         {
           printf( "ERROR in param file \"%s\" on line %"PRId32" : DEGRADATION STEP\n", INPUT_FILE_NAME, cur_line );
-          printf( "This step have to divide 1.\n");
+          printf( "This step has to divide 1.\n");
           exit( EXIT_FAILURE );
         }
         break;
       }
       case INDIVIDUAL_EVALUATION_DATES :
       {
-        ae_common::individual_evaluation_nbr    = line->nb_words - 1;
-        if( !ae_common::individual_evaluation_nbr )
+        ae_common::params->set_individual_evaluation_nbr( line->nb_words - 1 );
+        if( ae_common::params->get_individual_evaluation_nbr() == 0 )
         {
-          printf( "ERROR in param file \"%s\" on line %"PRId32" : number of dates\n", INPUT_FILE_NAME, cur_line );
+          printf( "ERROR in param file \"%s\" on line %"PRId32" : no evaluation dates provided\n", INPUT_FILE_NAME, cur_line );
           exit( EXIT_FAILURE );
         }
-        ae_common::individual_evaluation_dates  = new ae_array_short( ae_common::individual_evaluation_nbr );
-        for( int16_t i = 0; i < ae_common::individual_evaluation_nbr; i++)
+        ae_array_short* individual_evaluation_dates  = new ae_array_short( ae_common::params->get_individual_evaluation_nbr() );
+        for( int16_t i = 0 ; i < ae_common::params->set_individual_evaluation_nbr() ; i++ )
         {
-          ae_common::individual_evaluation_dates->set_value( i, atoi( line->words[1 + i] ) );
+          individual_evaluation_dates->set_value( i, atoi( line->words[1 + i] ) );
         }
-        ae_common::individual_evaluation_dates->sort();
+        individual_evaluation_dates->sort();
+        ae_common::params->set_individual_evaluation_dates( individual_evaluation_dates );
         break;
       }
       case BINDING_ZEROS_PERCENTAGE :
       {
-        ae_common::binding_zeros_percentage = atof( line->words[1] );
+        ae_common::params->set_binding_zeros_percentage( atof( line->words[1] ) );
         break;
       }
       case WITH_HEREDITY :
       {
         if ( strncmp( line->words[1], "true", 4 ) == 0 )
         {
-          ae_common::with_heredity = true;
+          ae_common::params->set_with_heredity( true );
         }
         else if ( strncmp( line->words[1], "false", 5 ) == 0 )
         {
-          ae_common::with_heredity = false;
+          ae_common::params->set_with_heredity( false );
         }
         else
         {
-          printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown with_heredity option (use true/false).\n",
-                  INPUT_FILE_NAME, cur_line );
+          printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown with_heredity option (use true/false).\n", INPUT_FILE_NAME, cur_line );
           exit( EXIT_FAILURE ); 
         }
         
@@ -890,7 +899,7 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
       }
       case PROTEIN_PRESENCE_LIMIT :
       {
-        ae_common::protein_presence_limit = atof( line->words[1] );
+        ae_common::params->set_protein_presence_limit( atof( line->words[1] ) );
         break;
       }
     #endif
@@ -905,34 +914,26 @@ void ae_param_loader::interpret_line( f_line* line, int32_t cur_line )
 
 void ae_param_loader::load( void )
 {
-  // Thi rewind are only necessary when using multiple param files
+  // The rewind is only necessary when using multiple param files
   rewind( param_in );
 
   cur_line = 0;
   f_line* line;
+  
+  if ( ae_common::init_params != NULL ) delete ae_common::init_params;
+  ae_common::init_params = new ae_params_init();
+  
+  if ( ae_common::params != NULL ) delete ae_common::params;
+  ae_common::params = new ae_params();
+  
+  if ( ae_common::rec_params != NULL ) delete ae_common::rec_params;
+  ae_common::rec_params = new ae_params_record();
 
   while ( ( line = get_line() ) != NULL ) // TODO : write line = new f_line( param_in ) => f_line::f_line( char* )
   {
     interpret_line( line, cur_line );
     delete line;
   }
-  
-  
-  //  printf("Params loaded !\n");
-// 
-//   // Check mandatory parameters
-//   #ifdef __REGUL
-//     if( !ae_common::individual_evaluation_dates )
-//     {
-//       printf( "ERROR in param file \"%s\" : you must specifiy dates of evaluation\n", INPUT_FILE_NAME );
-//       exit( EXIT_FAILURE );
-//     }
-//     if( !ae_common::individual_life_time )
-//     {
-//       printf( "ERROR in param file \"%s\" : you must specifiy a life time for individuals\n", INPUT_FILE_NAME );
-//       exit( EXIT_FAILURE );
-//     }
-//   #endif
 }
 
 
@@ -1070,7 +1071,7 @@ ae_keywd f_line::get_keywd( void )
   if ( !strcmp( words[0], "ENV_VARIATION" ) )               return ENV_VARIATION;
   if ( !strcmp( words[0], "ENV_SEED" ) )                    return ENV_SEED;
   if ( !strcmp( words[0], "SECRETION_FITNESS_CONTRIB" ) )   return SECRETION_FITNESS_CONTRIB;
-  if ( !strcmp( words[0], "SECRETION_DIFUSION_PROP" ) )     return SECRETION_DIFUSION_PROP;
+  if ( !strcmp( words[0], "SECRETION_DIFFUSION_PROP" ) )    return SECRETION_DIFFUSION_PROP;
   if ( !strcmp( words[0], "SECRETION_DEGRADATION_PROP" ) )  return SECRETION_DEGRADATION_PROP;
   if ( !strcmp( words[0], "SECRETION_INITIAL" ) )           return SECRETION_INITIAL;
   if ( !strcmp( words[0], "SECRETION_COST" ) )              return SECRETION_COST;

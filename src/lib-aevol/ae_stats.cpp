@@ -89,6 +89,7 @@ ae_stats::ae_stats( int32_t num_gener, const char * prefix /* = "stat" */, bool 
   FILE* cur_file;       // Syntaxic sugar for _stat_files[][][]
   char  line[500];
   char* trash;
+  
   for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
   { 
     for ( int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++ )
@@ -100,9 +101,9 @@ ae_stats::ae_stats( int32_t num_gener, const char * prefix /* = "stat" */, bool 
         {
           sprintf( old_file_name, "%s.old", cur_file_name );
           int8_t exist_file = rename( cur_file_name, old_file_name );
-          if (exist_file != 0 )
+          if ( exist_file != 0 )
           {
-            printf( "ERROR : %s has not been found.\n",old_file_name );
+            printf( "ERROR : Could not rename %s as %s.\n", cur_file_name, old_file_name );
             exit( EXIT_FAILURE );
           }
           
@@ -132,11 +133,10 @@ ae_stats::ae_stats( int32_t num_gener, const char * prefix /* = "stat" */, bool 
           
           _stat_files[chrom_or_GU][best_or_glob][stat_type] = cur_file;
           
-          if (ae_common::delete_old_stats)
+          if ( ae_common::init_params->get_delete_old_stats() )
           {
             int r = remove( old_file_name );
           }
-          
         }
       }
     }
@@ -459,58 +459,35 @@ void ae_stats::write_headers( void )
 
 void ae_stats::write_current_generation_statistics( void )
 {
-  ae_stat_record* stat_record;
-  ae_stat_record* stat_record_means;
-  ae_stat_record* stat_record_stdev;
+  ae_stat_record** stat_records;
   
   for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
   {
     // This is not mandatory as everything should work fine without it
     // Still, it avoids looping around in the following, never fulfilling the necessary conditions
-    if ( chrom_or_GU != ALL_GU && ! ae_common::allow_plasmids ) continue;
+    if ( chrom_or_GU != ALL_GU && ! ae_common::params->get_allow_plasmids() ) continue;
     
-
+    stat_records = new ae_stat_record* [NB_BEST_OR_GLOB];
+    
+    stat_records[BEST] = new ae_stat_record( ae_common::sim->get_pop()->get_best(), (chrom_or_gen_unit) chrom_or_GU );
+    stat_records[GLOB] = new ae_stat_record( ae_common::sim->get_pop(), (chrom_or_gen_unit) chrom_or_GU );
+    stat_records[SDEV] = new ae_stat_record( ae_common::sim->get_pop(), stat_records[GLOB], (chrom_or_gen_unit) chrom_or_GU );
+    stat_records[SKEW] = new ae_stat_record( ae_common::sim->get_pop(), stat_records[GLOB], stat_records[SDEV], (chrom_or_gen_unit) chrom_or_GU );
+    
     for ( int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++ )
     {
-      switch ( best_or_glob) 
-      {
-        case BEST : 
-        {
-          stat_record = new ae_stat_record( ae_common::sim->get_pop()->get_best(), (chrom_or_gen_unit) chrom_or_GU );
-          break; 
-        }
-      
-        case GLOB :
-        {
-          stat_record = new ae_stat_record( ae_common::sim->get_pop(), (chrom_or_gen_unit) chrom_or_GU );
-          stat_record_means = new ae_stat_record( *stat_record ) ;
-          break; 
-        }
-        
-        case SDEV :
-        {
-          stat_record = new ae_stat_record( ae_common::sim->get_pop(), stat_record_means, (chrom_or_gen_unit) chrom_or_GU );
-          stat_record_stdev = new ae_stat_record( *stat_record );
-
-          break; 
-        }
-        case SKEW :
-        {
-          stat_record = new ae_stat_record( ae_common::sim->get_pop(), stat_record_means, stat_record_stdev, (chrom_or_gen_unit) chrom_or_GU );
-          break; 
-        }
-      }
-        
       for ( int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++ )
       {
         if ( _stat_files_names[chrom_or_GU][best_or_glob][stat_type] != NULL )
         {
-        stat_record->write_to_file( _stat_files[chrom_or_GU][best_or_glob][stat_type], (stats_type) stat_type );
+          stat_records[best_or_glob]->write_to_file( _stat_files[chrom_or_GU][best_or_glob][stat_type], (stats_type) stat_type );
         }
       }
       
-      delete stat_record, stat_record_means, stat_record_stdev;
+      delete stat_records[best_or_glob];
     }
+    
+    delete stat_records;
   }
 }
 
@@ -522,7 +499,7 @@ void ae_stats::write_statistics_of_this_indiv( ae_individual * indiv, int32_t nu
   {
     // This is not mandatory as everything should work fine without it
     // Still, it avoids doing stuff for nothing
-    if ( chrom_or_GU != ALL_GU && ! ae_common::allow_plasmids ) continue;
+    if ( chrom_or_GU != ALL_GU && ! ae_common::params->get_allow_plasmids() ) continue;
     
     stat_record = new ae_stat_record( indiv, (chrom_or_gen_unit) chrom_or_GU, true, num_gener );
     
@@ -605,7 +582,7 @@ void ae_stats::set_file_names( const char * prefix, bool one_lambda_indiv_only )
   for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
   {
     // We want only "ALL_GU" stats when ae_common::allow_plasmids is false
-    if ( chrom_or_GU != ALL_GU && ! ae_common::allow_plasmids ) continue;
+    if ( chrom_or_GU != ALL_GU && ! ae_common::params->get_allow_plasmids() ) continue;
     
     for ( int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++ )
     {
@@ -614,7 +591,7 @@ void ae_stats::set_file_names( const char * prefix, bool one_lambda_indiv_only )
       for ( int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++ )
       {
         // We don't want REAR_STATS when ae_common::with_alignments is false
-        if ( stat_type == REAR_STATS && ! ae_common::with_alignments ) continue;
+        if ( stat_type == REAR_STATS && ! ae_common::params->get_with_alignments() ) continue;
         
         // For now, we only want sdev and skew for fitness data
         if ( best_or_glob > GLOB && stat_type > FITNESS_STATS) continue; 

@@ -82,7 +82,7 @@ ae_dna::ae_dna( ae_genetic_unit* gen_unit, const ae_dna &model ) : ae_string( mo
 {
   _gen_unit = gen_unit;
   
-  if ( ae_common::sim->get_num_gener() > 0 && ae_common::record_tree )
+  if ( ae_common::sim->get_num_gener() > 0 && ae_common::rec_params->get_record_tree() )
   {
     if ( model._replic_report != NULL )
     {
@@ -208,12 +208,12 @@ char* ae_dna::get_subsequence( int32_t from, int32_t to, ae_strand strand ) cons
 // =================================================================
 void ae_dna::perform_mutations( void )
 {
-  if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
+  if ( ae_common::rec_params->get_record_tree() && ae_common::rec_params->get_tree_mode() == NORMAL )
   {
     _replic_report = new ae_dna_replic_report();
   }
   
-  if ( ae_common::with_alignments )
+  if ( ae_common::params->get_with_alignments() )
   {
     do_rearrangements_with_align();
   }
@@ -243,9 +243,9 @@ void ae_dna::do_small_mutations( void )
   // insertions we perform on the genome follows a binomial law B(n, p), with 
   // n = genome length.
   
-  int32_t nb_swi = ae_common::sim->alea->binomial_random( _length, ae_common::point_mutation_rate  );
-  int32_t nb_ins = ae_common::sim->alea->binomial_random( _length, ae_common::small_insertion_rate );
-  int32_t nb_del = ae_common::sim->alea->binomial_random( _length, ae_common::small_deletion_rate  );
+  int32_t nb_swi = ae_common::sim->alea->binomial_random( _length, ae_common::params->get_point_mutation_rate()  );
+  int32_t nb_ins = ae_common::sim->alea->binomial_random( _length, ae_common::params->get_small_insertion_rate() );
+  int32_t nb_del = ae_common::sim->alea->binomial_random( _length, ae_common::params->get_small_deletion_rate()  );
   int32_t nb_mut = nb_swi + nb_ins + nb_del;
 
 
@@ -280,17 +280,7 @@ void ae_dna::do_small_mutations( void )
     if ( random_value < nb_swi )
     {
       mut = do_switch();
-      assert( mut != NULL || !(ae_common::record_tree && ae_common::tree_mode == NORMAL) );
-      
-      if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
-      {
-        _replic_report->add_mut( mut );
-      }
-      else
-      {
-        delete mut;
-        mut = NULL;
-      }
+      assert( mut != NULL || !(ae_common::rec_params->get_record_tree() && ae_common::rec_params->get_tree_mode() == NORMAL) );
       
       nb_swi--;  // updating the urn (no replacement!)...
     }
@@ -298,45 +288,30 @@ void ae_dna::do_small_mutations( void )
     {
       mut = do_small_insertion();
       
-      if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
-      {
-        if ( mut != NULL )
-        {
-          _replic_report->add_mut( mut );
-        }
-      }
-      else
-      {
-        if ( mut != NULL )
-        {
-          delete mut;
-          mut = NULL;
-        }
-      }
-      
       nb_ins--;
     }
     else // ( random_value >= nb_swi + nb_ins ) => del
     {
       mut = do_small_deletion();
       
-      if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
-      {
-        if ( mut != NULL )
-        {
-          _replic_report->add_mut( mut );
-        }
-      }
-      else
-      {
-        if ( mut != NULL )
-        {
-          delete mut;
-          mut = NULL;
-        }
-      }
-      
       nb_del--;
+    }
+    
+    // Record mutation in tree
+    if ( ae_common::rec_params->get_record_tree() && ae_common::rec_params->get_tree_mode() == NORMAL )
+    {
+      if ( mut != NULL )
+      {
+        _replic_report->add_mut( mut );
+      }
+    }
+    else
+    {
+      if ( mut != NULL )
+      {
+        delete mut;
+        mut = NULL;
+      }
     }
   }
 }
@@ -351,10 +326,10 @@ void ae_dna::do_rearrangements( void )
   // duplications we perform on the genome follows a binomial law B(n, p), with 
   // n = genome length.
   
-  int32_t nb_dupl  = ae_common::sim->alea->binomial_random( _length, ae_common::duplication_rate );
-  int32_t nb_del   = ae_common::sim->alea->binomial_random( _length, ae_common::deletion_rate );
-  int32_t nb_trans = ae_common::sim->alea->binomial_random( _length, ae_common::translocation_rate );
-  int32_t nb_inv   = ae_common::sim->alea->binomial_random( _length, ae_common::inversion_rate );
+  int32_t nb_dupl  = ae_common::sim->alea->binomial_random( _length, ae_common::params->get_duplication_rate() );
+  int32_t nb_del   = ae_common::sim->alea->binomial_random( _length, ae_common::params->get_deletion_rate() );
+  int32_t nb_trans = ae_common::sim->alea->binomial_random( _length, ae_common::params->get_translocation_rate() );
+  int32_t nb_inv   = ae_common::sim->alea->binomial_random( _length, ae_common::params->get_inversion_rate() );
   int32_t nb_rear  = nb_dupl + nb_del + nb_trans + nb_inv;
 
 
@@ -390,43 +365,11 @@ void ae_dna::do_rearrangements( void )
     {
       mut = do_duplication();
       
-      if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
-      {
-        if ( mut != NULL )
-        {
-          _replic_report->add_rear( mut );
-        }
-      }
-      else
-      {
-        if ( mut != NULL )
-        {
-          delete mut;
-          mut = NULL;
-        }
-      }
-      
       nb_dupl--;  // Updating the urn (no replacement!)...
     }
     else if ( random_value < nb_dupl + nb_del ) 
     {
       mut = do_deletion();
-      
-      if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
-      {
-        if ( mut != NULL )
-        {
-          _replic_report->add_rear( mut );
-        }
-      }
-      else
-      {
-        if ( mut != NULL )
-        {
-          delete mut;
-          mut = NULL;
-        }
-      }
       
       nb_del--;
     }
@@ -434,45 +377,30 @@ void ae_dna::do_rearrangements( void )
     {
       mut = do_translocation();
       
-      if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
-      {
-        if ( mut != NULL )
-        {
-          _replic_report->add_rear( mut );
-        }
-      }
-      else
-      {
-        if ( mut != NULL )
-        {
-          delete mut;
-          mut = NULL;
-        }
-      }
-      
       nb_trans--;
     }
     else 
     {
       mut = do_inversion();
       
-      if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
-      {
-        if (mut != NULL)
-        {
-          _replic_report->add_rear( mut );
-        }
-      }
-      else
-      {
-        if ( mut != NULL )
-        {
-          delete mut;
-          mut = NULL;
-        }
-      }
-      
       nb_inv--;
+    }
+    
+    // Record rearrangement in tree
+    if ( ae_common::rec_params->get_record_tree() && ae_common::rec_params->get_tree_mode() == NORMAL )
+    {
+      if ( mut != NULL )
+      {
+        _replic_report->add_rear( mut );
+      }
+    }
+    else
+    {
+      if ( mut != NULL )
+      {
+        delete mut;
+        mut = NULL;
+      }
     }
   }
 }
@@ -503,7 +431,7 @@ void ae_dna::do_rearrangements_with_align( void )
   //    according to new genome size.
   // 6) If there was a rearrangement, we either save its record in the tree or delete it.
   //////////////////////////////////////////////////////////////////////////////////////////////////
-	for ( nb_pairs = (int32_t)( ceil( ttl * _length * ae_common::neighbourhood_rate ) )
+	for ( nb_pairs = (int32_t)( ceil( ttl * _length * ae_common::params->get_neighbourhood_rate() ) )
       ; nb_pairs > 0
       ; nb_pairs-- )
 	{
@@ -519,10 +447,10 @@ void ae_dna::do_rearrangements_with_align( void )
     //////////////////////////////////////////////////////////////////////////////////
     // 2) Determine the minimum alignment score needed for a rearrangement to occur //
     //////////////////////////////////////////////////////////////////////////////////
-    if ( ae_common::align_fun_shape == LINEAR )
+    if ( ae_common::params->get_align_fun_shape() == LINEAR )
     {
-      needed_score = (int16_t) ceil( ae_common::align_lin_min +
-                                     ae_common::sim->alea->random() * ( ae_common::align_lin_max - ae_common::align_lin_min ) );
+      needed_score = (int16_t) ceil( ae_common::params->get_align_lin_min() +
+                                     ae_common::sim->alea->random() * ( ae_common::params->get_align_lin_max() - ae_common::params->get_align_lin_min() ) );
     }
     else
     {
@@ -530,7 +458,8 @@ void ae_dna::do_rearrangements_with_align( void )
       // prob = 1 / ( 1 + exp( -(score-mean)/lambda ) )
       // The score needed for a rearrangement to take place with a given random drawing is hence
       // needed_score = ceil( -lambda * log( 1/rand - 1 ) + mean )
-      needed_score = (int16_t) ceil( -ae_common::align_sigm_lambda * log( 1/ae_common::sim->alea->random() - 1 ) + ae_common::align_sigm_mean );
+      needed_score = (int16_t) ceil( - ae_common::params->get_align_sigm_lambda() * log( 1/ae_common::sim->alea->random() - 1 ) +
+                                       ae_common::params->get_align_sigm_mean() );
       if ( needed_score < 0 ) needed_score = 0;
       
       //~ <DEBUG>
@@ -547,7 +476,7 @@ void ae_dna::do_rearrangements_with_align( void )
     
     if ( direct_sense )
     {
-      if ( rand1 >= ae_common::duplication_proportion + ae_common::deletion_proportion + ae_common::translocation_proportion )
+      if ( rand1 >= ae_common::params->get_duplication_proportion() + ae_common::params->get_deletion_proportion() + ae_common::params->get_translocation_proportion() )
       {
         // rand1 corresponds to "no rearrangement" => Nothing to do
         continue;
@@ -569,19 +498,19 @@ void ae_dna::do_rearrangements_with_align( void )
       ////////////////////////////////////////////////////////////////////////
       // 4) Determine the type of rearrangement to be performed and proceed //
       ////////////////////////////////////////////////////////////////////////
-      if ( rand1 < ae_common::duplication_proportion )
+      if ( rand1 < ae_common::params->get_duplication_proportion() )
       {
         // Remember the length of the segment to be duplicated and of the genome before the duplication
         int32_t segment_length      = ae_utils::mod( alignment->get_i_2() - alignment->get_i_1(), _length );
         int32_t genome_size_before  = _length;
         int32_t genome_size_after   = _length + segment_length;
         
-        if ( genome_size_after > ae_common::max_genome_length )
+        if ( genome_size_after > ae_common::params->get_max_genome_length() )
         {
-          if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_BARRIER ) == true )
+          if ( ae_common::rec_params->is_logged( LOG_BARRIER ) == true )
           {
             // Write an entry in the barrier log file
-            fprintf(  ae_common::sim->get_logs()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32" %"PRId32"\n",
+            fprintf(  ae_common::rec_params->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32" %"PRId32"\n",
                       ae_common::sim->get_num_gener(),
                       _gen_unit->get_indiv()->get_index_in_population(),
                       segment_length,
@@ -595,7 +524,7 @@ void ae_dna::do_rearrangements_with_align( void )
           do_duplication( alignment->get_i_1(), alignment->get_i_2(), alignment->get_i_2() );
           
           // Report the duplication
-          if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
+          if ( ae_common::rec_params->get_record_tree() && ae_common::rec_params->get_tree_mode() == NORMAL )
           {
             // Report the insertion
             mut = new ae_mutation();
@@ -603,9 +532,9 @@ void ae_dna::do_rearrangements_with_align( void )
           }
           
           // Write a line in rearrangement logfile
-          if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_REAR ) == true )
+          if ( ae_common::rec_params->is_logged( LOG_REAR ) == true )
           {
-            fprintf(  ae_common::sim->get_logs()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
+            fprintf(  ae_common::rec_params->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
                       ae_common::sim->get_num_gener(),
                       _gen_unit->get_indiv()->get_index_in_population(),
                       DUPL,
@@ -615,19 +544,19 @@ void ae_dna::do_rearrangements_with_align( void )
           }
         }
       }
-      else if ( rand1 < ae_common::duplication_proportion + ae_common::deletion_proportion )
+      else if ( rand1 < ae_common::params->get_duplication_proportion() + ae_common::params->get_deletion_proportion() )
       {
         // Remember the length of the segment to be duplicated and of the genome before the deletion
         int32_t segment_length      = ae_utils::mod( alignment->get_i_2() - alignment->get_i_1() - 1, _length ) + 1;
         int32_t genome_size_before  = _length;
         int32_t genome_size_after   = _length - segment_length;
         
-        if ( genome_size_after < ae_common::min_genome_length )
+        if ( genome_size_after < ae_common::params->get_min_genome_length() )
         {
-          if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_BARRIER ) == true )
+          if ( ae_common::rec_params->is_logged( LOG_BARRIER ) == true )
           {
             // Write an entry in the barrier log file
-            fprintf(  ae_common::sim->get_logs()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32" %"PRId32"\n",
+            fprintf(  ae_common::rec_params->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32" %"PRId32"\n",
                       ae_common::sim->get_num_gener(), _gen_unit->get_indiv()->get_index_in_population(),
                       segment_length, 0, genome_size_before );
           }
@@ -638,7 +567,7 @@ void ae_dna::do_rearrangements_with_align( void )
           do_deletion( alignment->get_i_1(), alignment->get_i_2() );
           
           // Report the deletion
-          if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
+          if ( ae_common::rec_params->get_record_tree() && ae_common::rec_params->get_tree_mode() == NORMAL )
           {
             // Report the insertion
             mut = new ae_mutation();
@@ -646,9 +575,9 @@ void ae_dna::do_rearrangements_with_align( void )
           }
           
           // Write a line in rearrangement logfile
-          if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_REAR ) == true )
+          if ( ae_common::rec_params->is_logged( LOG_REAR ) == true )
           {
-            fprintf(  ae_common::sim->get_logs()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
+            fprintf(  ae_common::rec_params->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
                       ae_common::sim->get_num_gener(),
                       _gen_unit->get_indiv()->get_index_in_population(),
                       DEL,
@@ -660,7 +589,9 @@ void ae_dna::do_rearrangements_with_align( void )
       }
       else
       {
-        assert( rand1 < ae_common::duplication_proportion + ae_common::deletion_proportion + ae_common::translocation_proportion );
+        assert( rand1 < ae_common::params->get_duplication_proportion() +
+                        ae_common::params->get_deletion_proportion() + 
+                        ae_common::params->get_translocation_proportion() );
         
         // Perform TRANSLOCATION
         // Make sure the segment to be translocated doesn't contain OriC TODO : is that still necessary?
@@ -680,20 +611,21 @@ void ae_dna::do_rearrangements_with_align( void )
         int16_t needed_score_2;
         ae_vis_a_vis* alignment_2 = NULL;
         int32_t seed1, seed2;
-        for ( nb_pairs = (int32_t)( ceil( ttl * _length * ae_common::neighbourhood_rate ) )
+        for ( nb_pairs = (int32_t)( ceil( ttl * _length * ae_common::params->get_neighbourhood_rate() ) )
             ; nb_pairs > 0
             ; nb_pairs-- )
         {
-          direct_sense    = (ae_common::sim->alea->random() < 0.5);
+          direct_sense = (ae_common::sim->alea->random() < 0.5);
           
-          if ( ae_common::align_fun_shape == LINEAR )
+          if ( ae_common::params->get_align_fun_shape() == LINEAR )
           {
-            needed_score_2  = (int16_t) ceil(  ae_common::align_lin_min +
-                                               ae_common::sim->alea->random() * ( ae_common::align_lin_max - ae_common::align_lin_min ) );
+            needed_score_2  = (int16_t) ceil(  ae_common::params->get_align_lin_min() +
+                                               ae_common::sim->alea->random() * ( ae_common::params->get_align_lin_max() - ae_common::params->get_align_lin_min() ) );
           }
           else
           {
-            needed_score_2 = (int16_t) ceil( -ae_common::align_sigm_lambda * log( 1/ae_common::sim->alea->random() - 1 ) + ae_common::align_sigm_mean );
+            needed_score_2 = (int16_t) ceil( - ae_common::params->get_align_sigm_lambda() * log( 1/ae_common::sim->alea->random() - 1 ) +
+                                               ae_common::params->get_align_sigm_mean() );
             if ( needed_score_2 < 0 ) needed_score_2 = 0;
           }
 
@@ -725,7 +657,7 @@ void ae_dna::do_rearrangements_with_align( void )
           insert_GU( translocated_segment, alignment_2->get_i_1(), alignment_2->get_i_2(), (alignment_2->get_sense() == INDIRECT) );
 
           // Report the translocation
-          if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
+          if ( ae_common::rec_params->get_record_tree() && ae_common::rec_params->get_tree_mode() == NORMAL )
           {
             mut = new ae_mutation();
             mut->report_translocation( alignment->get_i_1(), alignment->get_i_2(),
@@ -734,9 +666,9 @@ void ae_dna::do_rearrangements_with_align( void )
           }
         
           // Write a line in rearrangement logfile
-          if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_REAR ) == true )
+          if ( ae_common::rec_params->is_logged( LOG_REAR ) == true )
           {
-            fprintf(  ae_common::sim->get_logs()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16" %"PRId16"\n", 
+            fprintf(  ae_common::rec_params->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16" %"PRId16"\n", 
                       ae_common::sim->get_num_gener(),
                       _gen_unit->get_indiv()->get_index_in_population(),
                       TRANS,
@@ -761,7 +693,7 @@ void ae_dna::do_rearrangements_with_align( void )
     }
     else // if indirect
     {
-      if ( rand1 >= ae_common::inversion_proportion )
+      if ( rand1 >= ae_common::params->get_inversion_proportion() )
       {
         // rand1 corresponds to no rearrangement => Nothing to do
         continue;
@@ -796,16 +728,16 @@ void ae_dna::do_rearrangements_with_align( void )
       do_inversion( alignment->get_i_1(), alignment->get_i_2() );
       
       // Report the inversion
-      if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
+      if ( ae_common::rec_params->get_record_tree() && ae_common::rec_params->get_tree_mode() == NORMAL )
       {
         mut = new ae_mutation();
         mut->report_inversion( alignment->get_i_1(), alignment->get_i_2(), segment_length, needed_score );
       }
         
       // Write a line in rearrangement logfile
-      if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_REAR ) == true )
+      if ( ae_common::rec_params->is_logged( LOG_REAR ) == true )
       {
-        fprintf(  ae_common::sim->get_logs()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
+        fprintf(  ae_common::rec_params->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
                   ae_common::sim->get_num_gener(),
                   _gen_unit->get_indiv()->get_index_in_population(),
                   INV,
@@ -824,9 +756,9 @@ void ae_dna::do_rearrangements_with_align( void )
     //////////////////////////////////////////////////////////////////////////////
     if ( genome_size != _length )
     {
-      ttl = ((double)(nb_pairs-1)) / ((double)genome_size) / ae_common::neighbourhood_rate;
+      ttl = ((double)(nb_pairs-1)) / ((double)genome_size) / ae_common::params->get_neighbourhood_rate();
       genome_size = _length;
-      nb_pairs = (int32_t)( ceil( ttl * _length * ae_common::neighbourhood_rate ) ) + 1; 
+      nb_pairs = (int32_t)( ceil( ttl * _length * ae_common::params->get_neighbourhood_rate() ) ) + 1; 
     }
 		
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -834,7 +766,7 @@ void ae_dna::do_rearrangements_with_align( void )
     //////////////////////////////////////////////////////////////////////////////////////////
     if ( mut != NULL )
     {
-      if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
+      if ( ae_common::rec_params->get_record_tree() && ae_common::rec_params->get_tree_mode() == NORMAL )
       {
         _replic_report->add_rear( mut );
         mut = NULL;
@@ -857,7 +789,7 @@ ae_mutation* ae_dna::do_switch( void )
 
   if ( do_switch( pos ) )
   {
-    if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
+    if ( ae_common::rec_params->get_record_tree() && ae_common::rec_params->get_tree_mode() == NORMAL )
     {
       // Report the mutation
       mut = new ae_mutation();
@@ -875,23 +807,23 @@ ae_mutation* ae_dna::do_small_insertion( void )
   // Determine the position and size of the small insertion
   int32_t pos = ae_common::sim->alea->random( _length );
   int16_t nb_insert;
-  if ( ae_common::max_indel_size == 1 )
+  if ( ae_common::params->get_max_indel_size() == 1 )
   {
     nb_insert = 1;
   }
   else
   {
-    nb_insert = 1 + ae_common::sim->alea->random( ae_common::max_indel_size ); 
+    nb_insert = 1 + ae_common::sim->alea->random( ae_common::params->get_max_indel_size() ); 
     // <nb_insert> must be in [1 ; max_indel_size]
   }
   
   // Check that the insertion won't throw the genome size over the limit
-  if ( _length + nb_insert > ae_common::max_genome_length )
+  if ( _length + nb_insert > ae_common::params->get_max_genome_length() )
   {
-    if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_BARRIER ) == true )
+    if ( ae_common::rec_params->is_logged( LOG_BARRIER ) == true )
     {
       // Write an entry in the barrier log file
-      fprintf(  ae_common::sim->get_logs()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" S_INS %"PRId32" %"PRId32" %"PRId32"\n",
+      fprintf(  ae_common::rec_params->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" S_INS %"PRId32" %"PRId32" %"PRId32"\n",
                 ae_common::sim->get_num_gener(),
                 _gen_unit->get_indiv()->get_index_in_population(),
                 nb_insert,
@@ -915,7 +847,7 @@ ae_mutation* ae_dna::do_small_insertion( void )
   // Proceed to the insertion and report it
   if ( do_small_insertion( pos, nb_insert, inserted_seq ) )
   {
-    if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
+    if ( ae_common::rec_params->get_record_tree() && ae_common::rec_params->get_tree_mode() == NORMAL )
     {
       // Report the insertion
       mut = new ae_mutation();
@@ -936,23 +868,23 @@ ae_mutation* ae_dna::do_small_deletion( void )
   // Determine the position and size of the small deletion
   int32_t pos = ae_common::sim->alea->random( _length );
   int16_t nb_del;
-  if ( ae_common::max_indel_size == 1 )
+  if ( ae_common::params->get_max_indel_size() == 1 )
   {
     nb_del = 1;
   }
   else
   {
-    nb_del = 1 + ae_common::sim->alea->random( ae_common::max_indel_size );
+    nb_del = 1 + ae_common::sim->alea->random( ae_common::params->get_max_indel_size() );
     // <nb_del> must be in [1 ; max_indel_size]
   }
   
   // Check that the insertion won't shrink the genome size under the limit nor to nothing
-  if ( _length - nb_del < ae_common::min_genome_length )
+  if ( _length - nb_del < ae_common::params->get_min_genome_length() )
   {
-    if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_BARRIER ) == true )
+    if ( ae_common::rec_params->is_logged( LOG_BARRIER ) == true )
     {
       // Write an entry in the barrier log file
-      fprintf(  ae_common::sim->get_logs()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" S_DEL %"PRId32" %"PRId32" %"PRId32"\n",
+      fprintf(  ae_common::rec_params->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" S_DEL %"PRId32" %"PRId32" %"PRId32"\n",
                 ae_common::sim->get_num_gener(),
                 _gen_unit->get_indiv()->get_index_in_population(),
                 nb_del,
@@ -965,7 +897,7 @@ ae_mutation* ae_dna::do_small_deletion( void )
   
   if ( do_small_deletion( pos, nb_del ) )
   {
-    if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
+    if ( ae_common::rec_params->get_record_tree() && ae_common::rec_params->get_tree_mode() == NORMAL )
     {
       mut = new ae_mutation();
       mut->report_small_deletion( pos, nb_del );
@@ -997,7 +929,7 @@ bool ae_dna::do_switch( int32_t pos )
 bool ae_dna::do_small_insertion( int32_t pos, int16_t nb_insert, char * seq )
 {
   // Check genome size limit
-  assert( _length + nb_insert <= ae_common::max_genome_length );
+  assert( _length + nb_insert <= ae_common::params->get_max_genome_length() );
   
   // Remove the promoters that will be broken
   _gen_unit->remove_promoters_around( pos );
@@ -1027,7 +959,7 @@ bool ae_dna::do_small_insertion( int32_t pos, int16_t nb_insert, char * seq )
 bool ae_dna::do_small_deletion( int32_t pos, int16_t nb_del )
 {
   // Check genome size limit
-  assert( _length - nb_del >= ae_common::min_genome_length );
+  assert( _length - nb_del >= ae_common::params->get_min_genome_length() );
   
   // Remove promoters containing at least one nucleotide from the sequence to delete
   _gen_unit->remove_promoters_around( pos, ae_utils::mod(pos + nb_del, _length) );
@@ -1078,12 +1010,12 @@ ae_mutation* ae_dna::do_duplication( void )
   int32_t genome_size_before  = _length;
   int32_t genome_size_after   = _length + segment_length;
   
-  if ( genome_size_after > ae_common::max_genome_length )
+  if ( genome_size_after > ae_common::params->get_max_genome_length() )
   {
-    if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_BARRIER ) == true )
+    if ( ae_common::rec_params->is_logged( LOG_BARRIER ) == true )
     {
       // Write an entry in the barrier log file
-      fprintf(  ae_common::sim->get_logs()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32" %"PRId32"\n",
+      fprintf(  ae_common::rec_params->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32" %"PRId32"\n",
                 ae_common::sim->get_num_gener(),
                 _gen_unit->get_indiv()->get_index_in_population(),
                 segment_length,
@@ -1097,16 +1029,16 @@ ae_mutation* ae_dna::do_duplication( void )
     do_duplication( pos_1, pos_2, pos_3 );
     
     // Report the duplication
-    if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
+    if ( ae_common::rec_params->get_record_tree() && ae_common::rec_params->get_tree_mode() == NORMAL )
     {
       mut = new ae_mutation();
       mut->report_duplication( pos_1, pos_2, pos_3, segment_length );
     }
 
     // Write a line in rearrangement logfile
-    if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_REAR ) == true )
+    if ( ae_common::rec_params->is_logged( LOG_REAR ) == true )
     {
-      fprintf(  ae_common::sim->get_logs()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
+      fprintf(  ae_common::rec_params->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
                 ae_common::sim->get_num_gener(),
                 _gen_unit->get_indiv()->get_index_in_population(),
                 DUPL,
@@ -1132,12 +1064,12 @@ ae_mutation* ae_dna::do_deletion( void )
   int32_t genome_size_after   = _length - segment_length;
   
         
-  if ( genome_size_after < ae_common::min_genome_length )
+  if ( genome_size_after < ae_common::params->get_min_genome_length() )
   {
-    if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_BARRIER ) == true )
+    if ( ae_common::rec_params->is_logged( LOG_BARRIER ) == true )
     {
       // Write an entry in the barrier log file
-      fprintf(  ae_common::sim->get_logs()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32" %"PRId32"\n",
+      fprintf(  ae_common::rec_params->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32" %"PRId32"\n",
                 ae_common::sim->get_num_gener(), _gen_unit->get_indiv()->get_index_in_population(),
                 segment_length, 0, genome_size_before );
     }
@@ -1148,16 +1080,16 @@ ae_mutation* ae_dna::do_deletion( void )
     do_deletion( pos_1, pos_2 );
     
     // Report the deletion
-    if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
+    if ( ae_common::rec_params->get_record_tree() && ae_common::rec_params->get_tree_mode() == NORMAL )
     {
       mut = new ae_mutation();
       mut->report_deletion( pos_1, pos_2, segment_length );
     }
         
     // Write a line in rearrangement logfile
-    if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_REAR ) == true )
+    if ( ae_common::rec_params->is_logged( LOG_REAR ) == true )
     {
-      fprintf(  ae_common::sim->get_logs()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
+      fprintf(  ae_common::rec_params->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
                 ae_common::sim->get_num_gener(),
                 _gen_unit->get_indiv()->get_index_in_population(),
                 DEL,
@@ -1177,7 +1109,7 @@ ae_mutation* ae_dna::do_translocation( void )
   int32_t segment_length;
   bool invert;
   
-  if ( ae_common::allow_plasmids )
+  if ( ae_common::params->get_allow_plasmids() )
   {
     // -----------------------------------------------------------------
     // WARNING : This is only valid when there is only 1 plasmid allowed
@@ -1286,16 +1218,16 @@ ae_mutation* ae_dna::do_translocation( void )
       if ( do_inter_GU_translocation( pos_1_rel, pos_2_rel, pos_3_rel, pos_4_rel, invert ) )
       {
         // Report the translocation
-        if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
+        if ( ae_common::rec_params->get_record_tree() && ae_common::rec_params->get_tree_mode() == NORMAL )
         {
           mut = new ae_mutation();
           mut->report_translocation( pos_1_rel, pos_2_rel, pos_3_rel, pos_4_rel, segment_length, invert );
         }
         
         // Write a line in rearrangement logfile
-        if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_REAR ) == true )
+        if ( ae_common::rec_params->is_logged( LOG_REAR ) == true )
         {
-          fprintf(  ae_common::sim->get_logs()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
+          fprintf(  ae_common::rec_params->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
                     ae_common::sim->get_num_gener(),
                     _gen_unit->get_indiv()->get_index_in_population(),
                     TRANS,
@@ -1318,16 +1250,16 @@ ae_mutation* ae_dna::do_translocation( void )
       if ( do_translocation( pos_1_rel, pos_2_rel, pos_3_rel, pos_4_rel, invert ) )
       {
         // Report the translocation
-        if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
+        if ( ae_common::rec_params->get_record_tree() && ae_common::rec_params->get_tree_mode() == NORMAL )
         {
           mut = new ae_mutation();
           mut->report_translocation( pos_1_rel, pos_2_rel, pos_3_rel, pos_4_rel, segment_length, invert );
         }
         
         // Write a line in rearrangement logfile
-        if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_REAR ) == true )
+        if ( ae_common::rec_params->is_logged( LOG_REAR ) == true )
         {
-          fprintf(  ae_common::sim->get_logs()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
+          fprintf(  ae_common::rec_params->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
                     ae_common::sim->get_num_gener(),
                     _gen_unit->get_indiv()->get_index_in_population(),
                     TRANS,
@@ -1337,7 +1269,7 @@ ae_mutation* ae_dna::do_translocation( void )
       }
     }
   }
-  else // ( ! ae_common::allow_plasmids )
+  else // ( ! ae_common::params->get_allow_plasmids() )
   {
     pos_1 = ae_common::sim->alea->random( _length );
     pos_2 = ae_common::sim->alea->random( _length );
@@ -1362,16 +1294,16 @@ ae_mutation* ae_dna::do_translocation( void )
     if ( do_translocation( pos_1, pos_2, pos_3, pos_4, invert ) )
     {
       // Report the translocation
-      if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
+      if ( ae_common::rec_params->get_record_tree() && ae_common::rec_params->get_tree_mode() == NORMAL )
       {
         mut = new ae_mutation();
         mut->report_translocation( pos_1, pos_2, pos_3, pos_4, segment_length, invert );
       }
         
       // Write a line in rearrangement logfile
-      if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_REAR ) == true )
+      if ( ae_common::rec_params->is_logged( LOG_REAR ) == true )
       {
-        fprintf(  ae_common::sim->get_logs()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
+        fprintf(  ae_common::rec_params->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
                   ae_common::sim->get_num_gener(),
                   _gen_unit->get_indiv()->get_index_in_population(),
                   TRANS,
@@ -1401,16 +1333,16 @@ ae_mutation* ae_dna::do_inversion( void )
   if( do_inversion( pos_1, pos_2 ) == true )
   {
     // Report the inversion
-    if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
+    if ( ae_common::rec_params->get_record_tree() && ae_common::rec_params->get_tree_mode() == NORMAL )
     {
       mut = new ae_mutation();
       mut->report_inversion( pos_1, pos_2, segment_length );
     }
         
     // Write a line in rearrangement logfile
-    if ( ae_common::sim->get_logs()->get_to_be_logged( LOG_REAR ) == true )
+    if ( ae_common::rec_params->is_logged( LOG_REAR ) == true )
     {
-      fprintf(  ae_common::sim->get_logs()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
+      fprintf(  ae_common::rec_params->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
                 ae_common::sim->get_num_gener(),
                 _gen_unit->get_indiv()->get_index_in_population(),
                 INV,
@@ -1437,7 +1369,7 @@ ae_mutation* ae_dna::do_insertion( const char* seq_to_insert, int32_t seq_length
   
   if ( do_insertion( pos, seq_to_insert, seq_length ) )
   {
-    if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
+    if ( ae_common::rec_params->get_record_tree() && ae_common::rec_params->get_tree_mode() == NORMAL )
     {
       // Report the insertion
       mut = new ae_mutation();
@@ -1469,12 +1401,12 @@ bool ae_dna::do_duplication( int32_t pos_1, int32_t pos_2, int32_t pos_3 )
     
     seg_length = pos_2 - pos_1;
     
-    if ( _length + seg_length > ae_common::max_genome_length )
+    if ( _length + seg_length > ae_common::params->get_max_genome_length() )
     {
-      if ( ae_common::sim != NULL && ae_common::sim->get_logs()->get_to_be_logged( LOG_BARRIER ) == true )
+      if ( ae_common::rec_params->is_logged( LOG_BARRIER ) == true )
       {
         // Write an entry in the barrier log file
-        fprintf(  ae_common::sim->get_logs()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32"\n",
+        fprintf(  ae_common::rec_params->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32"\n",
                   ae_common::sim->get_num_gener(),
                   _gen_unit->get_indiv()->get_index_in_population(),
                   seg_length,
@@ -1507,12 +1439,12 @@ bool ae_dna::do_duplication( int32_t pos_1, int32_t pos_2, int32_t pos_3 )
     int32_t tmp2_len = pos_2;
     seg_length = tmp1_len + tmp2_len;
     
-    if ( _length + seg_length > ae_common::max_genome_length )
+    if ( _length + seg_length > ae_common::params->get_max_genome_length() )
     {
-      if ( ae_common::sim != NULL && ae_common::sim->get_logs()->get_to_be_logged( LOG_BARRIER ) == true )
+      if ( ae_common::rec_params->is_logged( LOG_BARRIER ) == true )
       {
         // Write an entry in the barrier log file
-        fprintf(  ae_common::sim->get_logs()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32"\n",
+        fprintf(  ae_common::rec_params->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32"\n",
                   ae_common::sim->get_num_gener(),
                   _gen_unit->get_indiv()->get_index_in_population(),
                   seg_length,
@@ -1600,10 +1532,10 @@ bool ae_dna::do_deletion( int32_t pos_1, int32_t pos_2 )
     }
     else
     {
-      if ( ae_common::sim != NULL && ae_common::sim->get_logs()->get_to_be_logged( LOG_BARRIER ) == true )
+      if ( ae_common::rec_params->is_logged( LOG_BARRIER ) == true )
       {
         // Write an entry in the barrier log file
-        fprintf(  ae_common::sim->get_logs()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32"\n",
+        fprintf(  ae_common::rec_params->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32"\n",
                   ae_common::sim->get_num_gener(), _gen_unit->get_indiv()->get_index_in_population(),
                   segment_length, _length );
       }
@@ -1644,10 +1576,10 @@ bool ae_dna::do_deletion( int32_t pos_1, int32_t pos_2 )
     }
     else
     {
-      if ( ae_common::sim != NULL && ae_common::sim->get_logs()->get_to_be_logged( LOG_BARRIER ) == true )
+      if ( ae_common::rec_params->is_logged( LOG_BARRIER ) == true )
       {
         // Write an entry in the barrier log file
-        fprintf(  ae_common::sim->get_logs()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32"\n",
+        fprintf(  ae_common::rec_params->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32"\n",
                   ae_common::sim->get_num_gener(), _gen_unit->get_indiv()->get_index_in_population(),
                   segment_length, _length );
       }
@@ -1769,14 +1701,14 @@ bool ae_dna::do_inter_GU_translocation( int32_t pos_1_rel, int32_t pos_2_rel, in
   // Do not allow translocation if it would decrease the size of the GU below a threshold
   if ( pos_1_rel < pos_2_rel) 
   { 
-    if ( (_length - (pos_2_rel - pos_1_rel) ) < ae_common::plasmid_minimal_length) 
+    if ( (_length - (pos_2_rel - pos_1_rel) ) < ae_common::params->get_plasmid_minimal_length() ) 
     { 
       return false; 
     }  
   }
   else 
   {
-    if ( ( pos_1_rel - pos_2_rel ) < ae_common::plasmid_minimal_length )
+    if ( ( pos_1_rel - pos_2_rel ) < ae_common::params->get_plasmid_minimal_length() )
     {
       return false; 
     }
@@ -1878,7 +1810,7 @@ bool ae_dna::do_inter_GU_translocation( int32_t pos_1_rel, int32_t pos_2_rel, in
   }
   
   // Report rearrangement and return it
-  if ( ae_common::record_tree && ae_common::tree_mode == NORMAL )
+  if ( ae_common::rec_params->get_record_tree() && ae_common::rec_params->get_tree_mode() == NORMAL )
   {
     mut = new ae_mutation();
     mut->report_translocation( pos_1_rel, pos_2_rel, pos_3_rel, pos_4_rel, segment_length, invert );
@@ -1990,7 +1922,7 @@ void ae_dna::undergo_this_mutation( ae_mutation * mut )
       break;
     case TRANS:
       mut->get_infos_translocation( &pos1, &pos2, &pos3, &pos4, &invert );
-      if ( ae_common::with_alignments )
+      if ( ae_common::params->get_with_alignments() )
       {
         // Extract the segment to be translocated
         ae_genetic_unit* translocated_segment = extract_into_new_GU( pos1, pos2 );
@@ -2348,7 +2280,7 @@ void ae_dna::insert_GU( ae_genetic_unit* GU_to_insert, int32_t pos_B, int32_t po
   \brief Looks for an alignment between chrom1 and chrom2 in the given sense with max nb_pairs trials. nb_pairs is updated accordingly
  
   Performs local alignment searches between chrom1 and chrom2 around randomly drawn pairs of points.
-  The minimum score will be generated according to ae_common::align_fun_shape and associated parameters for each pair of points.
+  The minimum score will be generated according to align_fun_shape and associated parameters for each pair of points.
   The parameter nb_pairs will be updated according to how many trials were necessary for an alignment to be found.
 
   The sense of the searched alignment can be either DIRECT, INDIRECT or BOTH_SENSE. \
@@ -2373,10 +2305,10 @@ void ae_dna::insert_GU( ae_genetic_unit* GU_to_insert, int32_t pos_B, int32_t po
     /////////////////////////////////////////////////////
     // 2) Determine the minimum alignment score needed //
     /////////////////////////////////////////////////////
-    if ( ae_common::align_fun_shape == LINEAR )
+    if ( ae_common::params->get_align_fun_shape() == LINEAR )
     {
-      needed_score = (int16_t) ceil( ae_common::align_lin_min +
-                                     ae_common::sim->alea->random() * ( ae_common::align_lin_max - ae_common::align_lin_min ) );
+      needed_score = (int16_t) ceil( ae_common::params->get_align_lin_min() +
+                                     ae_common::sim->alea->random() * ( ae_common::params->get_align_lin_max() - ae_common::params->get_align_lin_min() ) );
     }
     else
     {
@@ -2384,7 +2316,8 @@ void ae_dna::insert_GU( ae_genetic_unit* GU_to_insert, int32_t pos_B, int32_t po
       // prob = 1 / ( 1 + exp( -(score-mean_score)/lambda ) )
       // The score needed for a rearrangement to take place with a given random drawing is hence
       // needed_score = ceil( -lambda * log( 1/rand - 1 ) + mean )
-      needed_score = (int16_t) ceil( -ae_common::align_sigm_lambda * log( 1/ae_common::sim->alea->random() - 1 ) + ae_common::align_sigm_mean );
+      needed_score = (int16_t) ceil( - ae_common::params->get_align_sigm_lambda() * log( 1/ae_common::sim->alea->random() - 1 ) +
+                                       ae_common::params->get_align_sigm_mean() );
       if ( needed_score < 0 ) needed_score = 0;
     }
     

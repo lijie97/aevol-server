@@ -106,8 +106,8 @@ class ae_X11_window : public ae_object
     GC getGCOrange( void )      { return _gcOrange;     };
     GC getGCYellow( void )      { return _gcYellow;     };
 
-    unsigned int  get_width( void )     { return _width;   };
-    unsigned int  get_height( void )    { return _height;  };
+    uint16_t  get_width( void )         { return _width;   };
+    uint16_t  get_height( void )        { return _height;  };
     Window        get_window( void )    { return _window;  };
     Display *     get_display( void )   { return _display; };
   
@@ -172,8 +172,8 @@ class ae_X11_window : public ae_object
     Window    _window;
     Cursor    _cursor;
     
-    unsigned int _width;
-    unsigned int _height;
+    uint16_t _width;
+    uint16_t _height;
 
   
     // Graphic Contexts

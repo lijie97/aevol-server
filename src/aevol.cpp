@@ -210,8 +210,7 @@ int main( int argc, char* argv[] )
       }
       case 'd' :
       {
-        ae_common::delete_old_stats = true;
-        
+        ae_common::init_params->set_delete_old_stats( true );
         break;
       }
     }
@@ -225,7 +224,10 @@ int main( int argc, char* argv[] )
   if ( initial_backup_file_name == NULL  && initial_organism_file_name == NULL)
   {    
     // Create a new simulation
-    ae_common::sim = new ae_simulation( param_overloader );
+    ae_common::sim = new ae_simulation();
+    ae_param_loader* param_loader = new ae_param_loader( "param.in" );
+    ae_common::sim->load_params( param_loader, param_overloader );
+    delete param_loader;
   }
   else
   {
@@ -234,14 +236,15 @@ int main( int argc, char* argv[] )
       printf( "Loading simulation from backup file <%s>...\n", initial_backup_file_name );
     
       // Load simulation from backup
-      ae_common::sim = new ae_simulation( initial_backup_file_name, true, param_overloader );
+      ae_common::sim = new ae_simulation();
+      ae_common::sim->load_backup( initial_backup_file_name, true, param_overloader );
     }
     else
     {
-      printf( "Loading simulation from organism file <%s>...\n", initial_organism_file_name );
+      //~ printf( "Loading simulation from organism file <%s>...\n", initial_organism_file_name );
     
-      // Load simulation from backup
-      ae_common::sim = new ae_simulation( initial_organism_file_name, param_overloader );    
+      //~ // Load simulation from backup
+      //~ ae_common::sim = new ae_simulation( initial_organism_file_name, param_overloader );    
     }
   }
 #elif defined __X11
@@ -252,16 +255,19 @@ int main( int argc, char* argv[] )
   
   if ( initial_backup_file_name == NULL )
   {
-    
     // Create a new simulation
-    ae_common::sim = ae_common::sim_display = new ae_simulation_X11( param_overloader );
+    ae_common::sim = ae_common::sim_display = new ae_simulation_X11();
+    ae_param_loader* param_loader = new ae_param_loader( "param.in" );
+    ae_common::sim->load_params( param_loader, param_overloader );
+    delete param_loader;
   }
   else
   {
     printf( "Loading simulation from backup file <%s>...\n", initial_backup_file_name );
     
     // Load simulation from backup
-    ae_common::sim = ae_common::sim_display = new ae_simulation_X11( initial_backup_file_name, true, param_overloader );
+    ae_common::sim = ae_common::sim_display = new ae_simulation_X11();
+    ae_common::sim->load_backup( initial_backup_file_name, true, param_overloader );
   }
 #else
 #error You must specify a graphic option

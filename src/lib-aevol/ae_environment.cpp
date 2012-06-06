@@ -69,10 +69,12 @@ ae_environment::ae_environment( void ) :
 #error You must specify a graphic option
 #endif
 {
-  // Copy gaussians from ae_common
+  // --------------------------------
+  // 1) Copy gaussians from ae_common
+  // --------------------------------
   _gaussians = new ae_list();
-  int16_t nb_gaussians = ae_common::env_gaussians.get_nb_elts();
-  ae_list_node* ref_gaussian_node = ae_common::env_gaussians.get_first();
+  int16_t nb_gaussians = ae_common::init_params->get_env_gaussians()->get_nb_elts();
+  ae_list_node* ref_gaussian_node = ae_common::init_params->get_env_gaussians()->get_first();
   ae_gaussian*  ref_gaussian;
   for ( int16_t i = 0 ; i < nb_gaussians ; i++ )
   {
@@ -83,10 +85,13 @@ ae_environment::ae_environment( void ) :
     ref_gaussian_node = ref_gaussian_node->get_next();
   }
   
-  // Copy custom points from ae_common
+  
+  // ------------------------------------
+  // 2) Copy custom points from ae_common
+  // ------------------------------------
   _custom_points  = new ae_list();
-  int16_t nb_points = ae_common::env_custom_points.get_nb_elts();
-  ae_list_node* ref_point_node = ae_common::env_custom_points.get_first();
+  int16_t nb_points = ae_common::init_params->get_env_custom_points()->get_nb_elts();
+  ae_list_node* ref_point_node = ae_common::init_params->get_env_custom_points()->get_first();
   ae_point_2d*  ref_point;
   for ( int16_t i = 0 ; i < nb_points ; i++ )
   {
@@ -97,13 +102,54 @@ ae_environment::ae_environment( void ) :
     ref_point_node = ref_point_node->get_next();
   }
   
-  _alea = new ae_rand_mt( ae_common::env_seed );
-
-  _sampling         = ae_common::env_sampling;
-  _variation_method = ae_common::env_var_method;
-  _sigma            = ae_common::env_sigma;
-  _tau              = ae_common::env_tau;
   
+  // -----------------------------
+  // 3) Manage x-axis segmentation
+  // -----------------------------
+  // Check parameters consistency
+  if ( ( ae_common::init_params->get_env_axis_features() == NULL && ae_common::init_params->get_env_axis_segment_boundaries() != NULL ) ||
+       ( ae_common::init_params->get_env_axis_features() != NULL && ae_common::init_params->get_env_axis_segment_boundaries() == NULL ) )
+  {
+    printf( "ERROR in param file : you must specifies both the boundaries and the features of the x-axis segments\n" );
+    exit( EXIT_FAILURE );
+  }
+  
+  // Copy segmentation parameters from ae_common
+  _is_segmented = ae_common::init_params->get_env_axis_is_segmented();
+  _nb_segments  = ae_common::init_params->get_env_axis_nb_segments();
+  
+  if ( _is_segmented )
+  {
+    _segments = new ae_env_segment* [_nb_segments];
+    
+    for ( int16_t i = 0 ; i < _nb_segments; i++ )
+    {
+      _segments[i] = new ae_env_segment(  ae_common::init_params->get_env_axis_segment_boundaries()[i], 
+                                          ae_common::init_params->get_env_axis_segment_boundaries()[i+1], 
+                                          ae_common::init_params->get_env_axis_features()[i] );
+    }
+  
+    _area_by_feature = new double [NB_FEATURES];
+  }
+  else
+  {
+    _segments = NULL;
+  }
+  
+  
+  // ---------------------------------
+  // 4) Manage environmental variation
+  // ---------------------------------
+  _variation_method = ae_common::init_params->get_env_var_method();
+  _var_sigma        = ae_common::init_params->get_env_var_sigma();
+  _var_tau          = ae_common::init_params->get_env_var_tau();
+  _alea             = new ae_rand_mt( ae_common::init_params->get_env_seed() );
+  
+  
+  // -------------------------
+  // 5) Set sampling and build
+  // -------------------------
+  _sampling = ae_common::init_params->get_env_sampling();
   build();
 }
 
@@ -120,71 +166,41 @@ ae_environment::ae_environment( gzFile* backup_file ) :
   _area_by_feature  = NULL;
   _segments         = NULL;
   
-  // Retreive gaussians
-  int16_t nb_gaussians_back;
-  gzread( backup_file, &nb_gaussians_back, sizeof(nb_gaussians_back) );
-  int16_t nb_gaussians = ae_common::env_gaussians.get_nb_elts();
-  if ( nb_gaussians == nb_gaussians_back )  //no change with back_up
-  {
-
-    printf( "    nb_gaussians : %d\n", nb_gaussians_back );
-  
-    _gaussians = new ae_list();
-    for ( int16_t i = 0 ; i < nb_gaussians_back ; i++ )
-    {
-      _gaussians->add( new ae_gaussian( backup_file ) );
-    }
-  }
-  else //number of gaussians changed => data from ae_common
-  {
-    
-    ae_gaussian* tmpgaussian;
-        
-//reading of backup file anyway because the cursor in the file has to move
-    for ( int16_t i = 0 ; i < nb_gaussians_back ; i++ )
-    {
-      tmpgaussian =  new ae_gaussian( backup_file ) ;
-      delete tmpgaussian;
-    }
-
-    printf( "    nb_gaussians : %d\n", nb_gaussians );
-    _gaussians = new ae_list();
-    ae_list_node* ref_gaussian_node = ae_common::env_gaussians.get_first();
-    ae_gaussian*  ref_gaussian;
-    for ( int16_t i = 0 ; i < nb_gaussians ; i++ )
-    {
-
-      ref_gaussian = ( ae_gaussian* ) ref_gaussian_node->get_obj();
-
-      _gaussians->add( new ae_gaussian( *ref_gaussian ) );
-      
-      //printf(" gaussienne ref : %d, mean : %lg, h : %lg, s : %lg\n",i,ref_gaussian->get_mean(),ref_gaussian->get_height(),ref_gaussian->get_width());
-     // printf(" gaussienne : %d, mean : %lg, h : %lg, s : %lg\n",i,_gaussians->get_mean(),_gaussians->get_height(),_gaussians->get_width());
-
-      ref_gaussian_node = ref_gaussian_node->get_next();
-      
-    }
-    //delete ref_gaussian_node;
-    //ref_gaussian_node = 0;
-    //delete ref_gaussian;
-    //ref_gaussian = 0;
-    
-  }
-  
-
-/*  // Retreive gaussians
+  // ---------------------
+  // 1) Retreive gaussians
+  // ---------------------
   int16_t nb_gaussians;
   gzread( backup_file, &nb_gaussians, sizeof(nb_gaussians) );
-  printf( "    nb_gaussians : %d\n", nb_gaussians );
   
   _gaussians = new ae_list();
   for ( int16_t i = 0 ; i < nb_gaussians ; i++ )
   {
     _gaussians->add( new ae_gaussian( backup_file ) );
   }
- */
+  
+  // Check whether environment modifications were requested during reload
+  if ( nb_gaussians != ae_common::init_params->get_env_gaussians()->get_nb_elts() )
+  // For now, the only thing tested is whether the number of gaussians has been changed.
+  // TODO : check whether ANYTHING has changed !
+  {
+    _gaussians->erase( DELETE_OBJ );
+    
+    // Copy gaussians from ae_common
+    nb_gaussians = ae_common::init_params->get_env_gaussians()->get_nb_elts();
+    ae_list_node* ref_gaussian_node = ae_common::init_params->get_env_gaussians()->get_first();
+    ae_gaussian*  ref_gaussian;
+    for ( int16_t i = 0 ; i < nb_gaussians ; i++ )
+    {
+      ref_gaussian = ( ae_gaussian* ) ref_gaussian_node->get_obj();
+      _gaussians->add( new ae_gaussian( *ref_gaussian ) );
+      ref_gaussian_node = ref_gaussian_node->get_next();
+    }
+  }
 
-  // Retreive custom points
+  
+  // -------------------------
+  // 2) Retreive custom points
+  // -------------------------
   int16_t nb_custom_points;
   gzread( backup_file, &nb_custom_points, sizeof(nb_custom_points) );
   _custom_points = new ae_list();
@@ -192,37 +208,73 @@ ae_environment::ae_environment( gzFile* backup_file ) :
   {
     _custom_points->add( new ae_point_2d( backup_file ) );
   }
-    
-  // Retreive variation data
-  _alea = new ae_rand_mt( backup_file );
-  int8_t tmp_variation_method;
-  gzread( backup_file, &tmp_variation_method, sizeof(tmp_variation_method)  );
-  if (tmp_variation_method != ae_common::env_var_method)
+  
+  
+  // -------------------------------
+  // 3) Retrieve x-axis segmentation
+  // -------------------------------
+  // Check parameters consistency
+  if ( ( ae_common::init_params->get_env_axis_features() == NULL && ae_common::init_params->get_env_axis_segment_boundaries() != NULL ) ||
+       ( ae_common::init_params->get_env_axis_features() != NULL && ae_common::init_params->get_env_axis_segment_boundaries() == NULL ) )
   {
-    _variation_method = (ae_env_var) ae_common::env_var_method; 
+    printf( "ERROR in param file : you must specifies both the boundaries and the features of the x-axis segments\n" );
+    exit( EXIT_FAILURE );
+  }
+  
+  // Copy segmentation parameters from ae_common
+  _is_segmented = ae_common::init_params->get_env_axis_is_segmented();
+  _nb_segments  = ae_common::init_params->get_env_axis_nb_segments();
+  
+  if ( _is_segmented )
+  {
+    _segments = new ae_env_segment* [_nb_segments];
+    
+    for ( int16_t i = 0 ; i < _nb_segments; i++ )
+    {
+      _segments[i] = new ae_env_segment(  ae_common::init_params->get_env_axis_segment_boundaries()[i], 
+                                          ae_common::init_params->get_env_axis_segment_boundaries()[i+1], 
+                                          ae_common::init_params->get_env_axis_features()[i] );
+    }
+  
+    _area_by_feature = new double [NB_FEATURES];
   }
   else
   {
-    _variation_method = (ae_env_var) tmp_variation_method;
+    _segments = NULL;
   }
   
-  gzread( backup_file, &_sigma,            sizeof(_sigma)             );
-  if (_sigma != ae_common::env_sigma)
-  {
-    _sigma = ae_common::env_sigma;
-  }
   
-  gzread( backup_file, &_tau,              sizeof(_tau)               );
-  if (_tau != ae_common::env_tau)
-  {
-    _tau = ae_common::env_tau;
-  }
+  // ----------------------------------------
+  // 4) Retrieve environmental variation data
+  // ----------------------------------------
+  _alea = new ae_rand_mt( backup_file );
+  int8_t tmp_variation_method;
+  gzread( backup_file, &tmp_variation_method, sizeof(tmp_variation_method)  );
+  //~ if ( tmp_variation_method != ae_common::init_params->get_env_var_method() )
+  //~ {
+    //~ _variation_method = ae_common::init_params->get_env_var_method(); 
+  //~ }
+  //~ else
+  //~ {
+    //~ _variation_method = (ae_env_var) tmp_variation_method;
+  //~ }
+  // TODO : Manage param overload for multiple environments
+  _variation_method = ae_common::init_params->get_env_var_method(); 
   
-
-  // Retreive miscellaneous data
-  gzread( backup_file, &_sampling,        sizeof(_sampling)       );
+  gzread( backup_file, &_var_sigma, sizeof(_var_sigma) );
+  // Overload
+  _var_sigma = ae_common::init_params->get_env_var_sigma();
   
-  // Regenerate environment
+  gzread( backup_file, &_var_tau, sizeof(_var_tau) );
+  // Overload
+  _var_tau = ae_common::init_params->get_env_var_tau();
+  
+  
+  // ------------------------------
+  // 5) Retrieve sampling and build
+  // ------------------------------
+  gzread( backup_file, &_sampling, sizeof(_sampling) );
+  // Overload ?
   build();
 }
 
@@ -240,8 +292,7 @@ ae_environment::~ae_environment( void )
   delete _alea;
   
   
-  
-  if ( ae_common::env_axis_is_segmented )
+  if ( _is_segmented )
   {
     for ( int16_t i = 0 ; i < _nb_segments; i++ )
     {
@@ -302,7 +353,6 @@ void ae_environment::build( void )
   
   
   
-  
   // ---------------------------------------
   // 3) Simplify (get rid of useless points)
   // ---------------------------------------
@@ -311,63 +361,28 @@ void ae_environment::build( void )
   simplify();
   
   
-  
-  // TODO : do we really want this here? wouldn't it be better to put it directly in the contructor
-  // (or at least to put it in a function whose name tells really what it does)
-  // -----------------------------
-  // 4) Manage x-axis segmentation
-  // -----------------------------
-  // Check parameters consistency
-  if ( ( ae_common::env_axis_features == NULL && ae_common::env_axis_segment_boundaries != NULL ) ||
-       ( ae_common::env_axis_features != NULL && ae_common::env_axis_segment_boundaries == NULL ) )
-  {
-    printf( "ERROR in param file : you must specifies both the boundaries and the features of the x-axis segments\n" );
-    exit( EXIT_FAILURE );
-  }
-  
-  if ( ! ae_common::env_axis_is_segmented )
-  {
-    _segments = NULL;
-  }
-  else
-  {
-    _nb_segments = ae_common::env_axis_nb_segments;
-    _segments = new ae_env_segment*[_nb_segments];
-    
-    for ( int16_t i = 0 ; i < _nb_segments; i++ )
-    {
-      _segments[i] = new ae_env_segment(  ae_common::env_axis_segment_boundaries[i], 
-                                          ae_common::env_axis_segment_boundaries[i+1], 
-                                          ae_common::env_axis_features[i] );
-    }
-  
-    _area_by_feature = new double [NB_FEATURES];
-  }
-  
-  //~ // <DEBUG>
-  //~ printf( "AXIS SEGMENTATION :\n" );
-  //~ for ( int16_t i = 0 ; i < _nb_segments ; i++ )
-  //~ {
-    //~ printf( "[%f ; %f] : ", _segments[i]->start, _segments[i]->stop );
-    //~ if ( _segments[i]->feature == NEUTRAL ) printf( "NEUTRAL\n" );
-    //~ else if ( _segments[i]->feature == METABOLISM ) printf( "METABOLISM\n" );
-    //~ else if ( _segments[i]->feature == SECRETION ) printf( "SECRETION\n" );
-    //~ else if ( _segments[i]->feature == TRANSFER ) printf( "TRANSFER\n" );
-  //~ }
-  //~ // </DEBUG>
-
-  
-  
-  
   // ---------------------------------------
-  // 5) Compute areas (total and by feature)
+  // 4) Compute areas (total and by feature)
   // ---------------------------------------
   _compute_area();
 }
 
+bool ae_environment::fitness_is_composite( void )
+{
+  if ( ! _is_segmented ) return false;
+  
+  int features = 0;
+  for ( int16_t i = 0 ; i < _nb_segments ; i++ )
+  {
+    features |= _segments[i]->feature;
+  }
+  
+  return ( (features & METABOLISM) && (features & SECRETION) );
+}
+
 void ae_environment::_compute_area( void )
 {
-  if ( ae_common::env_axis_is_segmented )
+  if ( _is_segmented )
   {
     _total_area = 0.0;
     for ( int8_t i = 0 ; i < NB_FEATURES ; i++ )
@@ -375,10 +390,10 @@ void ae_environment::_compute_area( void )
       _area_by_feature[i] = 0.0;
     }
 
-    // TODO : We should take into account that we compute the areas in order (from the leftmost segment, rightwards)
+    // TODO : We should take into account that we compute the areas in a specific order (from the leftmost segment, rightwards)
     //   => We shouldn't parse the whole list of points on the left of the segment we are considering (we have 
     //      already been through them!)
-    for ( int16_t i = 0 ; i < ae_common::env_axis_nb_segments ; i++ )
+    for ( int16_t i = 0 ; i < _nb_segments ; i++ )
     {
       _area_by_feature[_segments[i]->feature] += get_geometric_area( _segments[i]->start, _segments[i]->stop );
       _total_area += _area_by_feature[_segments[i]->feature];
@@ -426,11 +441,11 @@ void ae_environment::write_to_backup( gzFile* backup_file )
   _alea->write_to_backup( backup_file );
   int8_t tmp_variation_method = _variation_method;
   gzwrite( backup_file, &tmp_variation_method,  sizeof(tmp_variation_method) );
-  gzwrite( backup_file, &_sigma,                sizeof(_sigma)            );
-  gzwrite( backup_file, &_tau,                  sizeof(_tau)              );
+  gzwrite( backup_file, &_var_sigma,            sizeof(_var_sigma)           );
+  gzwrite( backup_file, &_var_tau,              sizeof(_var_tau)             );
   
-  // Write miscellaneous data
-  gzwrite( backup_file, &_sampling,       sizeof(_sampling)       );
+  // Write sampling
+  gzwrite( backup_file, &_sampling, sizeof(_sampling) );
 }
 
 // =================================================================
@@ -447,7 +462,7 @@ void ae_environment::_apply_autoregressive_mean_variation( void )
   
   ae_list_node* gaussian_node = _gaussians->get_first();
   ae_gaussian*  gaussian;
-  ae_list_node* ref_gaussian_node = ae_common::env_gaussians.get_first();
+  ae_list_node* ref_gaussian_node = ae_common::init_params->get_env_gaussians()->get_first();
   ae_gaussian*  ref_gaussian;
   for ( int16_t i = 0 ; i < nb_gaussians ; i++ )
   {
@@ -459,7 +474,7 @@ void ae_environment::_apply_autoregressive_mean_variation( void )
 
     // compute the next value :
     // Dm(t+1) = Dm(t)*(1-1/tau) + ssd/tau*sqrt(2*tau-1)*normal_random()
-    delta_mean =  delta_mean * (1.0 - 1.0/_tau) + (_sigma/_tau) * sqrt(2*_tau- 1.0) * _alea->gaussian_random();
+    delta_mean =  delta_mean * (1.0 - 1.0/_var_tau) + (_var_sigma/_var_tau) * sqrt(2*_var_tau- 1.0) * _alea->gaussian_random();
 
     // deduce the new value of the mean : ref_mean + delta_m
     gaussian->set_mean( ref_gaussian->get_mean() + delta_mean );

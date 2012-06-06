@@ -39,8 +39,8 @@
 #define MIN_Y   0.0
 #define MAX_Y   1.0
 // MIN_W and MAX_W are defined through parameters => ae_common.h/cpp and ae_param_loader.h/cpp
-#define MIN_W   (ae_common::min_w)
-#define MAX_W   (ae_common::max_w)
+#define MIN_W   (ae_common::params->get_min_w())
+#define MAX_W   (ae_common::params->get_max_w())
 #define MIN_H   -1.0
 #define MAX_H   1.0
 

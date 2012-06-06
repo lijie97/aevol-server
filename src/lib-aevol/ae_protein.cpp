@@ -346,9 +346,10 @@ ae_protein::ae_protein( ae_protein* parent )
 
 ae_protein::ae_protein( gzFile* backup_file )
 {
-  // the Rna_list is empty, and is not uselfull there, thus it is not save.
-  gzread( backup_file, &_gen_unit,   			      sizeof(_gen_unit)             );
-  gzread( backup_file, &_strand,    	 		      sizeof(_strand)               );
+  _gen_unit = NULL;
+  int8_t tmp_strand;
+  gzread( backup_file, &tmp_strand, sizeof(tmp_strand) );
+  _strand = (ae_strand) tmp_strand;
   gzread( backup_file, &_shine_dal_pos,			    sizeof(_shine_dal_pos)        );
   gzread( backup_file, &_first_translated_pos, 	sizeof(_first_translated_pos) );
   gzread( backup_file, &_last_translated_pos,  	sizeof(_last_translated_pos)  );
@@ -475,8 +476,8 @@ char* ae_protein::get_AA_sequence( void ) const
 void ae_protein::write_to_backup( gzFile* backup_file )
 {
   // The rna_list is not write because there is no need to, it is an empty list.
-  gzwrite( backup_file, &_gen_unit,             sizeof(_gen_unit)             );
-  gzwrite( backup_file, &_strand,               sizeof(_strand)               );
+  int8_t tmp_strand = _strand;
+  gzwrite( backup_file, &tmp_strand,            sizeof(tmp_strand)            );
   gzwrite( backup_file, &_shine_dal_pos,        sizeof(_shine_dal_pos)        );
   gzwrite( backup_file, &_first_translated_pos, sizeof(_first_translated_pos) );
   gzwrite( backup_file, &_last_translated_pos,  sizeof(_last_translated_pos)  );

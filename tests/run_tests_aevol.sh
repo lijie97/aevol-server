@@ -2,6 +2,7 @@
 
 cd ..
 ./configure --with-debug
+make clean
 make
 cd tests
 

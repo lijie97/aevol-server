@@ -114,14 +114,17 @@ enum key_map
 
  
 class ae_simulation_X11 : public ae_simulation
-{  
+{
+  friend class ae_simulation;
+  
   public :
     
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_simulation_X11( ae_param_overloader* param_overloader = NULL );
-    ae_simulation_X11( char* backup_file_name, bool to_be_run = true, ae_param_overloader* param_overloader = NULL );
+    ae_simulation_X11( void );
+    //~ ae_simulation_X11( ae_param_overloader* param_overloader = NULL );
+    //~ ae_simulation_X11( char* backup_file_name, bool to_be_run = true, ae_param_overloader* param_overloader = NULL );
   
     // =================================================================
     //                             Destructors
@@ -163,10 +166,10 @@ class ae_simulation_X11 : public ae_simulation
     // =================================================================
     //~ ae_simulation_X11( void )
     //~ {
-    //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-    //~ exit( EXIT_FAILURE );
+      //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
+      //~ exit( EXIT_FAILURE );
     //~ };
-    ae_simulation_X11( const ae_simulation &model )
+    ae_simulation_X11( const ae_simulation_X11 &model )
     {
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
@@ -175,6 +178,7 @@ class ae_simulation_X11 : public ae_simulation
   // =================================================================
   //                           Protected Methods
   // =================================================================
+  void    initialize( bool with_grid = false, bool with_plasmids = false );
   void    set_codes( void );
   int8_t  identify_window( Window winID );
   void    draw_window( int8_t win_number );

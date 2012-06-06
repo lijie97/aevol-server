@@ -24,9 +24,9 @@
 //*****************************************************************************
 
 
-/** \class
- *  \brief
- */
+/*! \class ae_stats
+    \brief Manage statistics files
+*/
  
  
  #ifndef __AE_STATS_H__
@@ -85,7 +85,7 @@ class ae_stats : public ae_object
     // =================================================================
 
     void write_current_generation_statistics( void );
-    void write_statistics_of_this_indiv( ae_individual * indiv, int32_t num_gener );
+    void write_statistics_of_this_indiv( ae_individual* indiv, int32_t num_gener );
     
     void flush( void );
 
@@ -139,7 +139,6 @@ class ae_stats : public ae_object
     // The files themselves are also NULL because we don't fopen() them.
     FILE**** _stat_files;
     char**** _stat_files_names;
-    
 };
 
 

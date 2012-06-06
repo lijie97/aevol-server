@@ -47,6 +47,7 @@
 // =================================================================
 #include <ae_object.h>
 #include <ae_dna.h>
+#include <ae_macros.h>
 
 
 
