@@ -5,7 +5,7 @@
 AC_PREREQ([2.65])
 
 # Provide FULL-PACKAGE-NAME, VERSION and BUG-REPORT-ADDRESS
-AC_INIT([AEVOL], [3.0.2.0], aevol-bug-report@lists.gforge.liris.cnrs.fr)
+AC_INIT([AEVOL], [4.0.0.0], [aevol-bug-report@lists.gforge.liris.cnrs.fr], , [www.aevol.fr])
 
 # We want to use automake
 AM_INIT_AUTOMAKE
@@ -55,9 +55,9 @@ dnl ****************************************************************************
 dnl                                  OPTIONS
 dnl
 dnl             Default : without debug (with optimizations)
-dnl                       with xlib
+dnl                       with    x
 dnl                       without regulation
-dnl                       with in2p3
+dnl                       with    in2p3
 dnl ****************************************************************************
 
 
@@ -68,8 +68,8 @@ if test "x$with_in2p3" = "xyes" ; then
 if test "x$with_debug" = "xyes" ; then
    AC_ERROR([debug and in2p3 are not compatible])
 fi
-if test "x$with_xlib" != xno ; then
-   AC_ERROR([xlib and in2p3 are not compatible])
+if test "x$with_x" != xno ; then
+   AC_ERROR([x and in2p3 are not compatible])
 fi
 fi
 AC_MSG_RESULT([OK])
@@ -86,9 +86,7 @@ dnl  optimization options (-O3 - fexpensive-optimizations...).
 
 
 AC_MSG_CHECKING([whether to use debugging features])
-AC_ARG_WITH(debug, [--with-debug to enable degugging features],
-		 with_debug=$withval,
-		 with_debug=no)
+AC_ARG_WITH(debug, [  --with-debug to enable degugging features], , with_debug=no)
 AC_MSG_RESULT($with_debug)
 AM_CONDITIONAL(WITH_DEBUG, test x"$with_debug" != xno)
 if test "x$with_debug" = "xyes" ; then
@@ -103,7 +101,7 @@ fi
 
 
 
-dnl   ************************ --without-xlib option *********************
+dnl   ************************ --without-x option *********************
 dnl
 dnl   When this option is set, typing make will produce aevol, raevol and
 dnl   the post-treatment programs, but not aevol_X11 or raevol_X11. 
@@ -116,12 +114,10 @@ dnl   programs).
 
 
 AC_MSG_CHECKING([whether to enable graphical outputs])
-AC_ARG_WITH(xlib, [--without-xlib to disable xlib usage completely],
-		 with_xlib=$withval,
-		 with_xlib=yes)
-AC_MSG_RESULT($with_xlib)
-AM_CONDITIONAL(WITH_X, test x"$with_xlib" != xno)
-if test "x$with_xlib" != xno ; then
+AC_ARG_WITH(x, [  --without-x to disable graphical output], , with_x=yes)
+AC_MSG_RESULT($with_x)
+AM_CONDITIONAL(WITH_X, test x"$with_x" != xno)
+if test "x$with_x" != xno ; then
    AC_DEFINE(__X11)
    AC_PATH_XTRA
    LDFLAGS=($X_LIBS)
@@ -142,7 +138,7 @@ dnl
 
 
 AC_MSG_CHECKING([whether to use raevol])
-AC_ARG_WITH(raevol, [--with-raevol to enable regulation], raevol=$withval, raevol=no)
+AC_ARG_WITH(raevol, [  --with-raevol to enable regulation], raevol=$withval, raevol=no)
 AC_MSG_RESULT($raevol)
 AM_CONDITIONAL(WITH_RAEVOL, test x"$raevol" != xno)
 if test "x$raevol" = "xyes" ; then
@@ -158,9 +154,7 @@ dnl  With this option, the IN2P3 flag is defined
 
 
 AC_MSG_CHECKING([whether to use IN2P3 specific features])
-AC_ARG_WITH(in2p3, [--with-in2p3 to enable IN2P3 specific features],
-		 with_in2p3=$withval,
-		 with_in2p3=no)
+AC_ARG_WITH(in2p3, [  --with-in2p3 to enable IN2P3 specific features], , with_in2p3=no)
 AC_MSG_RESULT($with_in2p3)
 AM_CONDITIONAL(WITH_IN2P3, test x"$with_in2p3" != xno)
 if test "x$with_in2p3" = "xyes" ; then
