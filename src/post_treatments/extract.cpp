@@ -56,6 +56,7 @@
 #include <ae_common.h>
 #include <ae_population.h>
 #include <ae_individual.h>
+#include <ae_environment.h>
 #include <ae_list.h>
 #include <ae_simulation.h>
 
@@ -64,7 +65,7 @@
 
 
 void print_help( char* prog_name );
-void analyse_indiv( ae_individual* indiv, FILE* phenotype_file, FILE* sequence_file );
+void analyse_indiv( ae_individual* indiv, ae_environment* env, FILE* phenotype_file, FILE* sequence_file );
 
 
 
@@ -139,24 +140,24 @@ int main( int argc, char* argv[] )
   fflush(stdout);
 
   // Load the simulation from backup
-  ae_common::sim = new ae_simulation( backup_file_name, false );
+  ae_common::sim = new ae_simulation();
+  ae_common::sim->load_backup( backup_file_name, false, NULL );
   printf("done\n");
   
   printf( "Computing phenotypes... \n" );
   fflush( stdout );
 
   // Evaluate the individuals
-  (ae_common::sim->get_pop())->evaluate_individuals(ae_common::sim->get_env());
+  ae_common::sim->get_pop()->evaluate_individuals( ae_common::sim->get_env() );
   
   int i = 0;
   int nb_indiv = (ae_common::sim->get_pop())->get_nb_indivs();
 
   
   // Parse the individuals
-  if (best_only)
+  if ( best_only )
   {
-    ae_individual* best = ae_common::sim->get_pop()->get_best();
-    analyse_indiv(best, phenotype_file, sequence_file);
+    analyse_indiv( ae_common::sim->get_pop()->get_best(), ae_common::sim->get_env(), phenotype_file, sequence_file );
   }
   else
   {
@@ -167,8 +168,8 @@ int main( int argc, char* argv[] )
       {
         for ( int16_t y = 0 ; y < ae_common::grid_y ; y++ )
         {
-          ae_individual* indiv = (_pop_grid[x][y]->get_individual());
-          analyse_indiv(indiv, phenotype_file, sequence_file);
+          ae_individual* indiv = ( _pop_grid[x][y]->get_individual() );
+          analyse_indiv( indiv, ae_common::sim->get_env(), phenotype_file, sequence_file );
           i++;
         }  
       }
@@ -181,24 +182,19 @@ int main( int argc, char* argv[] )
       while( indiv_node != NULL )
       {
         indiv = (ae_individual *) indiv_node->get_obj();
-        analyse_indiv(indiv, phenotype_file, sequence_file);
+        analyse_indiv( indiv, ae_common::sim->get_env(), phenotype_file, sequence_file);
         indiv_node = indiv_node->get_next();
         i++;
       }
     }
   }
 
-  if (sequence_file_name != NULL)
-  {
-    fclose(sequence_file);
-  }
-  if (phenotype_file_name != NULL)
-  {
-    fclose(phenotype_file);
-  }
-  if (backup_file_name != NULL) {delete [] backup_file_name;}
-  if (phenotype_file_name != NULL) {delete [] phenotype_file_name;}
-  if (sequence_file_name != NULL) {delete [] sequence_file_name;}
+  if (sequence_file_name != NULL)   fclose( sequence_file );
+  if (phenotype_file_name != NULL)  fclose( phenotype_file );
+  
+  if (backup_file_name != NULL)     delete [] backup_file_name;
+  if (phenotype_file_name != NULL)  delete [] phenotype_file_name;
+  if (sequence_file_name != NULL)   delete [] sequence_file_name;
   
   delete ae_common::sim;
 
@@ -206,9 +202,8 @@ int main( int argc, char* argv[] )
 }
 
 // The export fonction
-inline void analyse_indiv( ae_individual* indiv, FILE* phenotype_file , FILE* sequence_file)
+inline void analyse_indiv( ae_individual* indiv, ae_environment* env, FILE* phenotype_file , FILE* sequence_file)
 {
-
   ae_genetic_unit* chr = indiv->get_genetic_unit(0);
   ae_list** llrnas = chr->get_rna_list();
   ae_list* lrnas = new ae_list(*llrnas[LEADING]);
@@ -238,13 +233,13 @@ inline void analyse_indiv( ae_individual* indiv, FILE* phenotype_file , FILE* se
       
       int nfeat = -1;
       
-      if (ae_common::env_axis_is_segmented)
+      if ( env->is_segmented() )
       {
-        for ( int i=0; i<=(ae_common::env_axis_nb_segments - 1); i++ )
+        for ( int i = 0 ; i <= env->get_nb_segments() - 1 ; i++ )
         {
-          if ( (mean > ae_common::env_axis_segment_boundaries[i]) && (mean < ae_common::env_axis_segment_boundaries[i+1]) )
+          if ( mean > env->get_segment_boundaries(i) && mean < env->get_segment_boundaries(i+1) )
           {
-            nfeat = ae_common::env_axis_features[i];
+            nfeat = env->get_axis_feature(i);
             break;
           }
         }

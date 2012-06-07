@@ -244,7 +244,8 @@ int main( int argc, char* argv[] )
     // the second argument (false) indicates that we just want to do
     // post-processing, no need to initialize structures like 'tree'
     // that are modified at each generation
-    ae_common::sim = new ae_simulation( backup_file_name, false, NULL );
+    ae_common::sim = new ae_simulation();
+    ae_common::sim->load_backup( backup_file_name, false, NULL );
   }
   else
   {
@@ -335,8 +336,8 @@ int main( int argc, char* argv[] )
 	{
 	  fprintf( fv_output, "%d %d %le %le %le %le %le %"PRId32"\n",
 		   current_rank, current_index, initial_indiv->get_fitness(),
-		   reprod_proba[ae_common::init_pop_size-current_rank],
-		   exp_fv, neutral_or_better, th_fv, ae_common::init_pop_size );
+		   reprod_proba[ae_common::init_params->get_init_pop_size()-current_rank],
+		   exp_fv, neutral_or_better, th_fv, ae_common::init_params->get_init_pop_size() );
 	  // fflush(fv_output);
 	}
 	      

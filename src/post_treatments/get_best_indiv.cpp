@@ -93,7 +93,8 @@ int main( int argc, char* argv[] )
 
   // Load simulation from backup
   gzFile* indiv_file = (gzFile*) gzopen( indiv_file_name, "w" );
-  ae_common::sim = new ae_simulation( backup_file_name, false );
+  ae_common::sim = new ae_simulation();
+  ae_common::sim->load_backup( backup_file_name, false, NULL );
   
   // Evaluate the individuals
   (ae_common::sim->get_pop())->evaluate_individuals(ae_common::sim->get_env());

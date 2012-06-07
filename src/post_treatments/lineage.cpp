@@ -201,7 +201,7 @@ int main(int argc, char** argv)
   }
 
 
-  // Example for ae_common::tree_step == 100 :
+  // Example for ae_common::rec_params->get_tree_step() == 100 :
   //
   // tree_000100.ae ==>  generations   1 to 100.
   // tree_000200.ae ==>  generations 101 to 200.
@@ -209,8 +209,8 @@ int main(int argc, char** argv)
   // etc.
   // 
   // Thus, the informations for generation end_gener are located 
-  // in the file called (end_gener/ae_common::tree_step + 1) * ae_common::tree_step,
-  // except if end_gener%ae_common::tree_step==0.
+  // in the file called (end_gener/ae_common::rec_params->get_tree_step() + 1) * ae_common::rec_params->get_tree_step(),
+  // except if end_gener%ae_common::rec_params->get_tree_step()==0.
 
   #ifdef __REGUL
     sprintf( tree_file_name,"tree/tree_%06"PRId32".rae", end_gener ); 
@@ -307,7 +307,7 @@ int main(int argc, char** argv)
     if ( verbose ) printf( "Getting the replication report for the ancestor at generation %"PRId32"\n", num_gener );
 
     
-    if ( ae_utils::mod( num_gener, ae_common::tree_step ) == 0 ) 
+    if ( ae_utils::mod( num_gener, ae_common::rec_params->get_tree_step() ) == 0 ) 
     {
       // Change the tree file 
       delete tree;
@@ -364,7 +364,9 @@ int main(int argc, char** argv)
 #endif
 
 
-  ae_simulation * sim = new ae_simulation ( genomes_file_name, false );
+  
+  ae_simulation* sim = new ae_simulation();
+  sim->load_backup( genomes_file_name, false, NULL );
 
   // Copy the initial ancestor
   // NB : The list of individuals is sorted according to the index
@@ -372,6 +374,7 @@ int main(int argc, char** argv)
   ae_individual * initial_ancestor      = new ae_individual( *initial_ancestor_tmp );
   
   ae_common::write_to_backup( lineage_file );
+  sim->get_env()->write_to_backup( lineage_file );
   
   delete sim; // we don't need the other individuals
     
@@ -430,7 +433,7 @@ int main(int argc, char** argv)
     num_gener = begin_gener + i + 1;
     
     // Do we need to check the genome now?
-    check_genome_now =  ( ( check_genome == FULL_CHECK && ae_utils::mod( num_gener, ae_common::backup_step ) == 0 ) ||
+    check_genome_now =  ( ( check_genome == FULL_CHECK && ae_utils::mod( num_gener, ae_common::rec_params->get_backup_step() ) == 0 ) ||
                           ( check_genome == LIGHT_CHECK && num_gener == end_gener ) );
     
     // Write the replication report of the ancestor for current generation
@@ -456,7 +459,9 @@ int main(int argc, char** argv)
       }
       
       // Copy the ancestor from the backup
-      sim = new ae_simulation ( genomes_file_name, false );
+      ae_simulation* sim = new ae_simulation();
+      sim->load_backup( backup_file_name, false, NULL );
+      
       ae_individual * stored_indiv_tmp = sim->get_pop()->get_indiv_by_index( indices[i+1] );
       stored_indiv = new ae_individual( *stored_indiv_tmp );
       stored_gen_unit_node = stored_indiv->get_genetic_unit_list()->get_first();

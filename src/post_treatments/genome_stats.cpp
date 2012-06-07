@@ -181,7 +181,8 @@ int main( int argc, char* argv[] )
   fflush( stdout );
 
   // Load the simulation from backup
-  ae_common::sim = new ae_simulation( backup_file_name, false );
+  ae_common::sim = new ae_simulation();
+  ae_common::sim->load_backup( backup_file_name, false, NULL );
   printf("done\n");
   delete [] backup_file_name;
 

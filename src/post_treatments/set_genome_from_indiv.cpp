@@ -50,6 +50,7 @@
 #include <ae_population.h>
 #include <ae_individual.h>
 #include <ae_simulation.h>
+#include <ae_param_loader.h>
 
 
 
@@ -102,6 +103,9 @@ int main( int argc, char* argv[] )
   // We create a new simulation
   printf("Creating the new simulation.\n");
   ae_simulation* sim1 = new ae_simulation();
+  ae_param_loader* param_loader = new ae_param_loader( "param.in" );
+  sim1->load_params( param_loader, NULL );
+  delete param_loader;
 
   
   // We modify its individuals

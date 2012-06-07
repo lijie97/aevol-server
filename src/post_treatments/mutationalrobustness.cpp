@@ -155,7 +155,8 @@ int main( int argc, char* argv[] )
     fflush(stdout);
 
     // Load simulation from backup
-    ae_common::sim  = new ae_simulation ( backup_file_name, false, param_overloader );
+    ae_common::sim = new ae_simulation();
+    ae_common::sim->load_backup( backup_file_name, false, param_overloader );
     best_indiv      = ae_common::sim->get_pop()->get_best();
     env             = ae_common::sim->get_env();
     num_gener       = ae_common::sim->get_num_gener();

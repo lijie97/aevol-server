@@ -117,7 +117,8 @@ int main( int argc, char* argv[] )
       fflush(stdout);
 
       // Load simulation from backup
-      ae_common::sim = ae_common::sim_display = new ae_simulation_X11( backup_file_name, false );
+      ae_common::sim = ae_common::sim_display = new ae_simulation_X11();
+      ae_common::sim->load_backup( backup_file_name, false, NULL );
       printf("done\n");
     }
 

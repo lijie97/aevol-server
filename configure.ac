@@ -44,6 +44,10 @@ AC_TYPE_UINT8_T
 # Checks for library functions.
 AC_CHECK_FUNCS([floor memset mkdir pow rint sqrt])
 
+# Make clean at the end of the configuration process
+# (usefull when several configurations will be done, typically during development)
+AC_CONFIG_COMMANDS(make, [make clean])
+
 
 
 
@@ -168,6 +172,6 @@ dnl  ************************* back to GENERAL stuff ***************************
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile
-                 src/lib-aevol/Makefile
+                 src/libaevol/Makefile
                  src/post_treatments/Makefile])
 AC_OUTPUT

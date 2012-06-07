@@ -1,8 +1,8 @@
 ######################    variables    ########################
-SUBDIRS = lib-aevol post_treatments
+SUBDIRS = libaevol post_treatments
 
 AM_CPPFLAGS = -I./
-AM_CPPFLAGS += -I$(top_srcdir)/src/lib-aevol
+AM_CPPFLAGS += -I$(top_srcdir)/src/libaevol
 
 ############################################
 # C99 exact-width integer specific support #
@@ -18,26 +18,29 @@ AM_CPPFLAGS += -D__STDC_FORMAT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MA
 ############################################
 # Set programs to build and library to use #
 ############################################
+AM_LDFLAGS = -L$(top_srcdir)/src/libaevol
+
+if WITH_RAEVOL
+  LDADD = -lraevol
+else # WITHOUT_RAEVOL
+  LDADD = -laevol
+endif # RAEVOL
+
 if WITH_RAEVOL
 if WITH_X
 if WITH_DEBUG
   bin_PROGRAMS = raevol_X11_debug
-  LDADD = $(top_srcdir)/src/lib-aevol/lib-raevol-X11-debug.a
 else # WITHOUT_DEBUG
   bin_PROGRAMS = raevol_X11
-  LDADD = $(top_srcdir)/src/lib-aevol/lib-raevol-X11.a
 endif # DEBUG
-else # WITHOUT_X11
+else # WITHOUT_X
 if WITH_DEBUG
   bin_PROGRAMS = raevol_debug
-  LDADD = $(top_srcdir)/src/lib-aevol/lib-raevol-debug.a
 else # WITHOUT_DEBUG
 if WITH_IN2P3
   bin_PROGRAMS = raevol_IN2P3
-  LDADD = $(top_srcdir)/src/lib-aevol/lib-raevol-IN2P3.a
 else # WITHOUT_IN2P3
   bin_PROGRAMS = raevol
-  LDADD = $(top_srcdir)/src/lib-aevol/lib-raevol.a
 endif # IN2P3
 endif # DEBUG
 endif # X
@@ -45,22 +48,17 @@ else # WITHOUT_RAEVOL
 if WITH_X
 if WITH_DEBUG
   bin_PROGRAMS = aevol_X11_debug
-  LDADD = $(top_srcdir)/src/lib-aevol/lib-aevol-X11-debug.a
 else # WITHOUT_DEBUG
   bin_PROGRAMS = aevol_X11
-  LDADD = $(top_srcdir)/src/lib-aevol/lib-aevol-X11.a
 endif # DEBUG
-else # WITHOUT_X11
+else # WITHOUT_X
 if WITH_DEBUG
   bin_PROGRAMS = aevol_debug
-  LDADD = $(top_srcdir)/src/lib-aevol/lib-aevol-debug.a
 else # WITHOUT_DEBUG
 if WITH_IN2P3
   bin_PROGRAMS = aevol_IN2P3
-  LDADD = $(top_srcdir)/src/lib-aevol/lib-aevol-IN2P3.a
 else # WITHOUT_IN2P3
   bin_PROGRAMS = aevol
-  LDADD = $(top_srcdir)/src/lib-aevol/lib-aevol.a
 endif # IN2P3
 endif # DEBUG
 endif # X

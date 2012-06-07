@@ -190,9 +190,9 @@ int main(int argc, char** argv)
   }
   
   
-  // ================================
-  //  Open the log file for overload
-  // ================================
+  // =================================
+  //  Open the log file for overloads
+  // =================================
   ae_param_loader* log_overload = NULL;
   int32_t num_generation_overload = -10;
   
@@ -231,7 +231,6 @@ int main(int argc, char** argv)
   // =======================
   //  Open the lineage file
   // =======================
-
   gzFile * lineage_file = (gzFile*) gzopen( lineage_file_name, "r" );
   if ( lineage_file == Z_NULL )
   {
@@ -239,7 +238,23 @@ int main(int argc, char** argv)
     exit( EXIT_FAILURE );
   }
   
+  // Read common data from lineage file
+  if ( verbose )
+  {
+    printf( "Retrieving common data from the lineage file... " );  
+    fflush( stdout );
+  }
   ae_common::read_from_backup( lineage_file );
+  if ( verbose ) printf("OK\n");
+  
+  // Retrieve the environment from the lineage file
+  if ( verbose )
+  {
+    printf( "Retrieving the environment from the lineage file... " );  
+    fflush( stdout );
+  }
+  ae_environment* env = new ae_environment( lineage_file );
+  if ( verbose ) printf("OK\n");
 
   gzread( lineage_file, &begin_gener,       sizeof(begin_gener)       );
   gzread( lineage_file, &end_gener,         sizeof(end_gener)         );
@@ -271,34 +286,9 @@ int main(int argc, char** argv)
   open_operons_stat_file();
   
 
-
-  // =========================
-  //  Prepare the environment
-  // =========================
-
-  if ( verbose )
-  {
-    printf( "Preparing the environment... " );  
-    fflush( stdout );
-  }
-
-
-  // Initialize the environment according the ae_common::... values
-  // This instruction also creates the random generator and sets its
-  // seed, according to the ae_common::env_seed value.
-  ae_environment * env = new ae_environment();
+  ae_common::sim = new ae_simulation();
+  ae_common::sim->set_env( env );  
   
-  printf("begin_gener %06"PRId32,begin_gener);
-
-  if ( ae_common::env_var_method != NONE )
-  {
-    for ( int32_t num_gener = 0 ; num_gener < begin_gener ; num_gener++ )
-    {
-      env->apply_variation();
-    }
-  }
-
-  if ( verbose ) printf("OK\n");
 
   char backup_file_name[50];
   if ( check != NO_CHECK )
@@ -306,21 +296,23 @@ int main(int argc, char** argv)
     // check that the environment is now identical to the one stored
     // in the backup file of generation begin_gener
     
-#ifdef __REGUL
-    sprintf( backup_file_name,"backup/gen_%06"PRId32".rae", begin_gener );
-#else
-    sprintf( backup_file_name,"backup/gen_%06"PRId32".ae",  begin_gener );
-#endif
+    #ifdef __REGUL
+      sprintf( backup_file_name,"backup/gen_%06"PRId32".rae", begin_gener );
+    #else
+      sprintf( backup_file_name,"backup/gen_%06"PRId32".ae",  begin_gener );
+    #endif
+    
     if ( verbose )
     {
       printf("Comparing the environment with the one in %s... ", backup_file_name);  
       fflush(NULL);
     }
-    ae_simulation * sim = new ae_simulation ( backup_file_name, false );
+    ae_simulation* sim_backup = new ae_simulation();
+    sim_backup->load_backup( backup_file_name, false, NULL );
     
-    ae_environment * stored_env = sim->get_env();
+    ae_environment* env_backup = sim_backup->get_env();
 
-    if ( ! ( env->is_identical_to(stored_env) ) )
+    if ( ! ( env->is_identical_to( env_backup ) ) )
     {
       fprintf( stderr, "ERROR: The replayed environment is not the same\n" );
       fprintf( stderr, "       as the one in %s\n", backup_file_name );
@@ -328,7 +320,7 @@ int main(int argc, char** argv)
     }
     
     if ( verbose ) printf("OK\n");
-    delete sim; 
+    delete sim_backup; 
   }
 
  
@@ -337,7 +329,6 @@ int main(int argc, char** argv)
   // ==================================================
   //  Prepare the initial ancestor and write its stats
   // ==================================================
-
   ae_individual * indiv = new ae_individual( lineage_file );
   indiv->evaluate( env );
   indiv->compute_statistical_data();
@@ -393,151 +384,197 @@ int main(int argc, char** argv)
     num_gener = begin_gener + i + 1;  // where we are in time..
     
     // overload of environment variations
-    if (log == true)
+    if ( log == true )
     {
-      while (num_gener == num_generation_overload)
+      while ( num_gener == num_generation_overload )
       {
-	f_line* line;
-	int16_t nb_param_overloaded;
+        f_line* line;
+        int16_t nb_param_overloaded;
+        
+        line = log_overload->get_line();
+        if ( strcmp( line->words[0], "NB_PARAM_OVERLOADED") == 0 )
+        {
+          nb_param_overloaded = atol( line->words[1] );
+        }
+        else
+        {
+          printf( "ERROR in log file for overload : unknown number of parameters overloaded\n");
+          exit( EXIT_FAILURE );
+        }
 	
-	line = log_overload->get_line();
-	if (strcmp( line->words[0], "NB_PARAM_OVERLOADED") == 0)
-	{
-	  nb_param_overloaded = atol( line->words[1] );
-	}
-	else
-	{
-	  printf( "ERROR in log file for overload : unknown number of parameters overloaded\n");
-	  exit( EXIT_FAILURE );
-	}
 	
-	
-	for ( int16_t i = 0 ; i < nb_param_overloaded ; i++ )
-	{
-	  line = log_overload->get_line();
-	  if (strcmp( line->words[0], "ENV_VARIATION") == 0)
-	  {
-	    if ( strcmp( line->words[1], "none" ) == 0 )
-	    {
-	      ae_common::env_var_method = NONE;
-	      env->set_variation_method( NONE );
-	    }
-	    else if ( strcmp( line->words[1], "autoregressive_mean_variation" ) == 0 )
-	    {
-	      ae_common::env_var_method = AUTOREGRESSIVE_MEAN_VAR;
-	      env->set_variation_method( AUTOREGRESSIVE_MEAN_VAR );
-	      ae_common::env_sigma      = atof( line->words[2] );
-	      ae_common::env_tau        = atol( line->words[3] );
-	      env->set_sigma_tau( ae_common::env_sigma, ae_common::env_tau );
-	    }
-	    else if ( strcmp( line->words[1], "add_local_gaussians" ) == 0 )
-	    {
-	      ae_common::env_var_method = LOCAL_GAUSSIANS_VAR;
-	      env->set_variation_method( LOCAL_GAUSSIANS_VAR );
-	    }
-	    else
-	    {
-	      printf( "ERROR in log file for overload : unknown environment variation method\n" );
-	      exit( EXIT_FAILURE );
-	    }
-	  }
-	  else if (strcmp( line->words[0], "ENV_AXIS_SEGMENTS") == 0)
-	  {
-	    ae_common::env_axis_is_segmented = true;
-	    ae_common::env_axis_nb_segments = line->nb_words;
-	    ae_common::env_axis_segment_boundaries = new double[(ae_common::env_axis_nb_segments + 1)];
-	    
-	    ae_common::env_axis_segment_boundaries[0] = MIN_X;
-	    ae_common::env_axis_segment_boundaries[ae_common::env_axis_nb_segments] = MAX_X;
-	    for ( int16_t i = 1 ; i < ae_common::env_axis_nb_segments ; i++ )
-	    {
-	      ae_common::env_axis_segment_boundaries[i] = atof( line->words[i] );
-	    }
-	  }
-	  else if (strcmp( line ->words[0], "ENV_AXIS_FEATURES") == 0)
-	  {
-	    ae_common::env_axis_is_segmented = true;
-	    ae_common::env_axis_nb_segments = line->nb_words - 1;
-	    ae_common::env_axis_features = new ae_env_axis_feature[(ae_common::env_axis_nb_segments)];
-	    for ( int16_t i = 0 ; i < ae_common::env_axis_nb_segments ; i++ )
-	    {
-	      if ( strcmp( line->words[(i+1)], "NEUTRAL" ) == 0 )
-	      {
-		ae_common::env_axis_features[i] = NEUTRAL;
-	      }
-	      else if ( strcmp( line->words[(i+1)], "METABOLISM" ) == 0 )
-	      {
-		ae_common::env_axis_features[i] = METABOLISM;
-	      }
-	      else if ( strcmp( line->words[(i+1)], "SECRETION" ) == 0 )
-	      {
-		ae_common::use_secretion      = true;
-		ae_common::composite_fitness  = true;
-		ae_common::env_axis_features[i] = SECRETION;
-	      }
-	      else if ( strcmp( line->words[(i+1)], "TRANSFER" ) == 0 )
-	      {
-		ae_common::env_axis_features[i] = TRANSFER;
-	      }
-	      else
-	      {
-		printf( "ERROR : unknown axis feature \"%s\".\n",line->words[i] );
-		exit( EXIT_FAILURE );
-	      }
-	    }
-      
-	  }
-	  else if (strcmp(line ->words[0], "ENV_ADD_GAUSSIAN") == 0)
-	  {
-	     env->add_gaussian( atof( line->words[1] ),
+        for ( int16_t i = 0 ; i < nb_param_overloaded ; i++ )
+        {
+          line = log_overload->get_line();
+          if ( strcmp( line->words[0], "ENV_VARIATION") == 0 )
+          {
+            if ( strcmp( line->words[1], "none" ) == 0 )
+            {
+              env->set_variation_method( NONE );
+            }
+            else if ( strcmp( line->words[1], "autoregressive_mean_variation" ) == 0 )
+            {
+              env->set_variation_method( AUTOREGRESSIVE_MEAN_VAR );
+              env->set_var_sigma_tau( atof( line->words[2] ), atol( line->words[3] ) );
+            }
+            else if ( strcmp( line->words[1], "add_local_gaussians" ) == 0 )
+            {
+              env->set_variation_method( LOCAL_GAUSSIANS_VAR );
+            }
+            else
+            {
+              printf( "ERROR in log file for overload : unknown environment variation method\n" );
+              exit( EXIT_FAILURE );
+            }
+          }
+          //
+          //  Attention au reload sur les ENV_AXIS-SEGMENTS ou ENV_AXIS_FEATURES
+          //  L'un dépend de l'autre ce qui peut entraîner des problèmes de cohérence.
+          //  Faut-il permettre de modifier l'un sans modifier l'autre?
+          //  Probablement mais il faut tous les garde-fous qui vont avec.
+          //
+          //  Pour les gaussiennes, ajouter un mot-clé RESET_GAUSSIANS
+          //
+          //
+          else if ( strcmp( line->words[0], "ENV_AXIS_SEGMENTS") == 0 || strcmp( line ->words[0], "ENV_AXIS_FEATURES") == 0 )
+          {
+            // Static variables for env axis segmentation
+            static int16_t              env_axis_nb_segments        = -1;
+            static double*              env_axis_segment_boundaries = NULL;
+            static ae_env_axis_feature* env_axis_features           = NULL;
+            static bool                 env_axis_separate_segments  = false;
+            
+            // Initialize static variables for env axis segmentation
+            if ( env_axis_segment_boundaries == NULL && strcmp( line->words[0], "ENV_AXIS_SEGMENTS") == 0 )
+            {
+              if ( env_axis_features != NULL )
+              {
+                if ( line->nb_words != env_axis_nb_segments + 1 )
+                {
+                  printf( "ERROR : Number of segments defined by ENV_AXIS_SEGMENTS and ENV_AXIS_FEATURES do not match. \"%s\".\n", line->words[i] );
+                }
+              }
+              else
+              {
+                env_axis_nb_segments = line->nb_words - 1;
+              }
+              
+              env_axis_segment_boundaries = new double[env_axis_nb_segments + 1];
+            }
+            else if ( env_axis_features == NULL && strcmp( line ->words[0], "ENV_AXIS_FEATURES") == 0 )
+            {
+              if ( env_axis_segment_boundaries != NULL )
+              {
+                if ( line->nb_words != env_axis_nb_segments )
+                {
+                  printf( "ERROR : Number of segments defined by ENV_AXIS_SEGMENTS and ENV_AXIS_FEATURES do not match. \"%s\".\n", line->words[i] );
+                }
+              }
+              else
+              {
+                env_axis_nb_segments = line->nb_words;
+              }
+              
+              env_axis_features = new ae_env_axis_feature[env_axis_nb_segments];
+            }
+            
+            // Set temp data (static variables) according to values in param file
+            if ( strcmp( line->words[0], "ENV_AXIS_SEGMENTS") == 0 )
+            {
+              env_axis_segment_boundaries[0] = MIN_X;
+              for ( int16_t i = 1 ; i < env_axis_nb_segments ; i++ )
+              {
+                env_axis_segment_boundaries[i] = atof( line->words[i] );
+              }
+              env_axis_segment_boundaries[env_axis_nb_segments] = MAX_X;
+            }
+            else // ( strcmp( line ->words[0], "ENV_AXIS_FEATURES") == 0 )
+            {
+              for ( int16_t i = 0 ; i < env_axis_nb_segments ; i++ )
+              {
+                if ( strcmp( line->words[(i+1)], "NEUTRAL" ) == 0 )
+                {
+                  env_axis_features[i] = NEUTRAL;
+                }
+                else if ( strcmp( line->words[(i+1)], "METABOLISM" ) == 0 )
+                {
+                  env_axis_features[i] = METABOLISM;
+                }
+                else if ( strcmp( line->words[(i+1)], "SECRETION" ) == 0 )
+                {
+                  ae_common::params->set_use_secretion( true );
+                  env_axis_features[i] = SECRETION;
+                }
+                else if ( strcmp( line->words[(i+1)], "TRANSFER" ) == 0 )
+                {
+                  env_axis_features[i] = TRANSFER;
+                }
+                else
+                {
+                  printf( "ERROR : unknown axis feature \"%s\".\n",line->words[i] );
+                  exit( EXIT_FAILURE );
+                }
+              }
+            }
+            
+            // If both boundaries and features have been defined, flush into environment
+            if ( env_axis_segment_boundaries != NULL && env_axis_features != NULL )
+            {
+              env->set_segmentation( env_axis_nb_segments, env_axis_segment_boundaries, env_axis_features, env_axis_separate_segments );
+              // do not delete env_axis_segment_boundaries and env_axis_features, no in-depth copy !
+              
+              env_axis_segment_boundaries = NULL;
+              env_axis_features = NULL;
+            }
+          }
+          else if ( strcmp(line ->words[0], "ENV_ADD_GAUSSIAN") == 0 )
+          {
+            env->add_gaussian( atof( line->words[1] ),
                                atof( line->words[2] ),
                                atof( line->words[3] ) );
-	     
-	     ae_common::env_gaussians.add( new ae_gaussian(  atof( line->words[1] ),
-							  atof( line->words[2] ),
-							  atof( line->words[3] ) ) );
-	  }
-	}
+             
+            ae_common::init_params->add_env_gaussian( new ae_gaussian( atof( line->words[1] ), atof( line->words[2] ), atof( line->words[3] ) ) );
+          }
+        }
 	
-	while ( (line != NULL) && (strcmp( line->words[0], "GENERATION_OVERLOAD") != 0) ) 
-	{
-	  line = log_overload->get_line();
-	}
+        while ( (line != NULL) && (strcmp( line->words[0], "GENERATION_OVERLOAD") != 0) ) 
+        {
+          line = log_overload->get_line();
+        }
     
    
-	if( line != NULL )
-	{
-	  num_generation_overload =  atol(line->words[1]) ;
-	  if( num_generation_overload < num_gener)
-	  {
-	      printf( "ERROR in log file for overload : overload of an anterior generation\n" );
-	      printf( "num_gen_overload : %d, num_gen : %d \n",num_generation_overload, num_gener);
-	      exit( EXIT_FAILURE );
-	  }
-	}
-	else
-	{
-	  num_generation_overload =  -10 ;
-	}
+        if( line != NULL )
+        {
+          num_generation_overload =  atol(line->words[1]) ;
+          if( num_generation_overload < num_gener)
+          {
+            printf( "ERROR in log file for overload : overload of an anterior generation\n" );
+            printf( "num_gen_overload : %d, num_gen : %d \n",num_generation_overload, num_gener);
+            exit( EXIT_FAILURE );
+          }
+        }
+        else
+        {
+          num_generation_overload =  -10 ;
+        }
 	
-	//if there is a modification in the segmentation of the environment
-	if ( ae_common::env_axis_is_segmented )
-	{
-	  indiv->new_dist_to_target_segment();
-	  dist_to_target_segment = new double [ae_common::env_axis_nb_segments];
-    
-	  for ( int16_t i = 0 ; i < ae_common::env_axis_nb_segments ; i++ )
-	  {
-	    fflush(stdout);
-	    dist_to_target_segment[i] = 0;
-	  }
-	  indiv->set_dist_to_target_segment(dist_to_target_segment);
-	  delete [] dist_to_target_segment;
-	  
-	  indiv->new_dist_to_target_by_feature();
-	  indiv->new_fitness_by_feature();
-	}
-	delete line; 
+        // If there was a modification in the segmentation of the environment
+        // TODO : Check that (it wasn't correctly tested and might not be functional
+        //~ if ( ae_common::env_axis_is_segmented )
+        //~ {
+          //~ dist_to_target_segment = new double [ae_common::init_params->get_env_axis_nb_segments()];
+          
+          //~ for ( int16_t i = 0 ; i < ae_common::init_params->get_env_axis_nb_segments() ; i++ )
+          //~ {
+            //~ dist_to_target_segment[i] = 0;
+          //~ }
+          //~ indiv->reset_dist_to_target_segment( dist_to_target_segment );
+          
+          //~ indiv->renew_dist_to_target_by_feature();
+          //~ indiv->renew_fitness_by_feature();
+        //~ }
+        
+        delete line; 
       }
     }
     
@@ -548,7 +585,7 @@ int main(int argc, char** argv)
     indiv->set_replication_report( rep );
     
     // Check now?
-    check_now = ( ( check == FULL_CHECK && ae_utils::mod( num_gener, ae_common::backup_step ) == 0 ) ||
+    check_now = ( ( check == FULL_CHECK && ae_utils::mod( num_gener, ae_common::rec_params->get_backup_step() ) == 0 ) ||
                   ( check == LIGHT_CHECK && num_gener == end_gener ) );
 
     if ( verbose ) printf("Rebuilding ancestor at generation %"PRId32" (index %"PRId32")...", num_gener, index); 
@@ -573,14 +610,16 @@ int main(int argc, char** argv)
         fflush(NULL);
       }
       
-      ae_simulation * sim = new ae_simulation ( backup_file_name, false );
-      stored_indiv = new ae_individual( * (ae_individual *)sim->get_pop()->get_indiv_by_index( index ) );
+      ae_simulation * sim_backup = new ae_simulation();
+      sim_backup->load_backup( backup_file_name, false, NULL );
+      
+      stored_indiv = new ae_individual( * (ae_individual *)sim_backup->get_pop()->get_indiv_by_index( index ) );
       
 
-      ae_environment * stored_env = sim->get_env();
+      ae_environment * env_backup = sim_backup->get_env();
 
 
-      if ( ! (env->is_identical_to(stored_env)) )
+      if ( ! env->is_identical_to(env_backup) )
       {
         fprintf(stderr, "ERROR: The replayed environment is not the same\n");
         fprintf(stderr, "       as the one in %s\n", backup_file_name);
@@ -588,7 +627,7 @@ int main(int argc, char** argv)
       }
       
       if ( verbose ) printf("OK\n");
-      delete sim;
+      delete sim_backup;
     }
 
     // Warning: this portion of code won't work if the number of units changes
@@ -798,7 +837,7 @@ void open_zones_stat_file( void )
 
 void write_zones_stats( int32_t num_gener, ae_individual * indiv, ae_environment * env )
 {
-  assert( ae_common::env_axis_is_segmented );
+  assert( env->is_segmented() );
   
   int16_t           nb_segments = env->get_nb_segments();
   int16_t           num_segment = 0;
