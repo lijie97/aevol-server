@@ -44,6 +44,7 @@
 //                            Project Files
 // =================================================================
 #include <ae_object.h>
+#include <ae_individual.h>
 
 
 
@@ -51,7 +52,6 @@
 // =================================================================
 //                          Class declarations
 // =================================================================
-class ae_individual;
 
 
 
@@ -72,20 +72,30 @@ class ae_grid_cell : public ae_object
     // =================================================================
     virtual ~ae_grid_cell( void );
 
-    // =================================================================
-    //                              Accessors
-    // =================================================================
 
-    inline int16_t get_x( void );
-    inline int16_t get_y( void );
-    inline double get_compound_amount( void );
+    // =================================================================
+    //                        Accessors: getters
+    // =================================================================
+    inline int16_t get_x( void ) const;
+    inline int16_t get_y( void ) const;
+    inline double get_compound_amount( void ) const;
+    inline ae_individual* get_individual( void ) const;
+  
+    inline double get_secreted_amount( void ) const;
+    inline double get_metabolic_fitness( void ) const;
+    inline double get_total_fitness( void ) const;
+
+    // =================================================================
+    //                        Accessors: setters
+    // =================================================================
     inline void set_compound_amount( double compound_amount );
-    inline ae_individual* get_individual( void );
     inline void set_individual( ae_individual * indiv );
 
     // =================================================================
     //                            Public Methods
     // =================================================================
+    void write_to_backup( gzFile* backup_file ) const;
+    void read_from_backup( gzFile* backup_file );
 
     // =================================================================
     //                           Public Attributes
@@ -134,38 +144,57 @@ class ae_grid_cell : public ae_object
 
 
 // =====================================================================
-//                          Accessors' definitions
+//                           Getters' definitions
 // =====================================================================
-
-inline int16_t ae_grid_cell::get_x( void )
+inline int16_t ae_grid_cell::get_x( void ) const
 {
   return _x;
 }
 
-inline int16_t ae_grid_cell::get_y( void )
+inline int16_t ae_grid_cell::get_y( void ) const
 {
   return _y;
 }
 
-inline double ae_grid_cell::get_compound_amount( void )
+inline double ae_grid_cell::get_compound_amount( void ) const
 {
   return _compound_amount;
 }
 
+inline ae_individual* ae_grid_cell::get_individual( void ) const
+{
+  return _individual;
+}
+
+inline double ae_grid_cell::get_secreted_amount( void ) const
+{
+  return _individual->get_fitness_by_feature( SECRETION );
+}
+
+inline double ae_grid_cell::get_metabolic_fitness( void ) const
+{
+  return _individual->get_fitness_by_feature( METABOLISM );
+}
+
+inline double ae_grid_cell::get_total_fitness( void ) const
+{
+  return _individual->get_fitness();
+}
+
+// =====================================================================
+//                           Setters' definitions
+// =====================================================================
 inline void ae_grid_cell::set_compound_amount(double compound_amount)
 {
   _compound_amount = compound_amount;
-}
-
-inline ae_individual* ae_grid_cell::get_individual( void )
-{
-  return _individual; 
 }
 
 inline void ae_grid_cell::set_individual( ae_individual * indiv )
 {
   _individual = indiv;
 }
+
+
 
 // =====================================================================
 //                       Inline functions' definition

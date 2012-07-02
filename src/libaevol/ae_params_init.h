@@ -320,7 +320,7 @@ inline bool ae_params_init::get_env_axis_separate_segments( void ) const
 {
   return _env_axis_separate_segments;
 }
-    
+
 inline ae_env_var ae_params_init::get_env_var_method( void ) const
 {
   return _env_var_method;

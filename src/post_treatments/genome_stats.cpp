@@ -76,7 +76,7 @@
 #include <ae_population.h>
 #include <ae_individual.h>
 #include <ae_list.h>
-#include <ae_simulation.h>
+#include <ae_experiment.h>
 
 
 
@@ -181,7 +181,7 @@ int main( int argc, char* argv[] )
   fflush( stdout );
 
   // Load the simulation from backup
-  ae_common::sim = new ae_simulation();
+  ae_common::sim = new ae_experiment();
   ae_common::sim->load_backup( backup_file_name, false, NULL );
   printf("done\n");
   delete [] backup_file_name;
@@ -190,17 +190,17 @@ int main( int argc, char* argv[] )
   fflush( stdout );
 
   // Evaluate the individuals
-  (ae_common::sim->get_pop())->evaluate_individuals(ae_common::sim->get_env());
+  ae_common::pop->evaluate_individuals(ae_common::sim->get_env());
   
   int i = 0;
-  int nb_indiv = (ae_common::sim->get_pop())->get_nb_indivs();
+  int nb_indiv = ae_common::pop->get_nb_indivs();
 
   // --------------------------------
   //         Parse individuals
   // --------------------------------
   if (best_only)
   {
-    ae_individual* best = ae_common::sim->get_pop()->get_best();
+    ae_individual* best = ae_common::pop->get_best();
     if ( main_output != NULL)           { print_genome_info(best, main_output); }
     if ( neutral_region_output != NULL) { print_neutral_regions(best, neutral_region_output); }
   }
@@ -208,7 +208,7 @@ int main( int argc, char* argv[] )
   {
     if (ae_common::pop_structure)
     {
-      ae_grid_cell*** _pop_grid = (ae_common::sim->get_pop())->get_pop_grid();
+      ae_grid_cell*** _pop_grid = ae_common::pop->get_pop_grid();
       for ( int16_t x = 0 ; x < ae_common::grid_x ; x++ )
       {
         for ( int16_t y = 0 ; y < ae_common::grid_y ; y++ )
@@ -222,7 +222,7 @@ int main( int argc, char* argv[] )
     }
     else
     {
-      ae_list_node  * indiv_node = ((ae_common::sim->get_pop())->get_indivs())->get_first();
+      ae_list_node  * indiv_node = ae_common::pop->get_indivs()->get_first();
       ae_individual * indiv      = NULL;
 
       while( indiv_node != NULL )

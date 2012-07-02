@@ -39,8 +39,10 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_codon.h>
 #include <ae_protein.h>
+
+#include <ae_codon.h>
+#include <ae_individual.h>
 #include <ae_genetic_unit.h>
 #include <ae_rna.h>
 #include <ae_utils.h>
@@ -307,12 +309,12 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, ae_list* codon_list, ae_stran
   //  ------------------------------------------------------------------------------------
   //  3) Normalize M, W and H values according to the allowed ranges (defined in macros.h)
   //  ------------------------------------------------------------------------------------
-  // min_x <= M <= max_x
-  // min_w <= W <= max_w
-  // min_h <= H <= max_h
-  _mean   = (MAX_X - MIN_X) * _mean + MIN_X;
-  _width  = (MAX_W - MIN_W) * _width + MIN_W;
-  _height = (MAX_H - MIN_H) * _height + MIN_H;
+  // x_min <= M <= x_max
+  // w_min <= W <= w_max
+  // h_min <= H <= h_max
+  _mean   = (X_MAX - X_MIN) * _mean + X_MIN;
+  _width  = (get_indiv()->get_w_max() - W_MIN) * _width + W_MIN;
+  _height = (H_MAX - H_MIN) * _height + H_MIN;
   
   if ( nb_m == 0 || nb_w == 0 || nb_h == 0 || _width == 0.0 || _height == 0.0 )
   {
@@ -323,9 +325,9 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, ae_list* codon_list, ae_stran
     _is_functional = true;
   }
 
-  assert( _mean >= MIN_X && _mean <= MAX_X );
-  assert( _width >= MIN_W && _width <= MAX_W );
-  assert( _height >= MIN_H && _height <= MAX_H );
+  assert( _mean >= X_MIN && _mean <= X_MAX );
+  assert( _width >= W_MIN && _width <= get_indiv()->get_w_max() );
+  assert( _height >= H_MIN && _height <= H_MAX );
 }
 
 /*
@@ -508,3 +510,11 @@ void ae_protein::write_to_backup( gzFile* backup_file )
 // =================================================================
 //                           Protected Methods
 // =================================================================
+
+// =================================================================
+//                          Non inline accessors
+// =================================================================
+ae_individual* ae_protein::get_indiv( void ) const
+{
+  return _gen_unit->get_indiv();
+}

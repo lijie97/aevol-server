@@ -57,6 +57,8 @@
 // =================================================================
 //                          Class declarations
 // =================================================================
+class ae_exp_manager;
+class ae_individual;
 class ae_genetic_unit;
 class ae_vis_a_vis;
 
@@ -143,7 +145,7 @@ class ae_dna : public ae_string
     ae_genetic_unit*  copy_into_new_GU   ( int32_t pos_1, int32_t pos_2 ) const;
     void insert_GU( ae_genetic_unit* GU_to_insert, int32_t pos_B, int32_t pos_D, bool invert );
     
-    static ae_vis_a_vis* search_alignment( ae_dna* chrom1, ae_dna* chrom2, int32_t& nb_pairs, ae_sense sense );
+    ae_vis_a_vis* search_alignment( ae_dna* chrom2, int32_t& nb_pairs, ae_sense sense );
     
     void undergo_this_mutation( ae_mutation * mut ); // useful when we replay the evolution
 
@@ -190,10 +192,13 @@ class ae_dna : public ae_string
     // =================================================================
     //                          Protected Attributes
     // =================================================================
+    ae_exp_manager* _exp_m;
+    
     // From ae_string
     //   char*   _data;
     //   int32_t _length;
-    //   int32_t _nb_blocks;    
+    //   int32_t _nb_blocks;
+    ae_individual*        _indiv;
     ae_genetic_unit*      _gen_unit; // Genetic unit which the genetic unit belongs to
     ae_dna_replic_report* _replic_report;
 };

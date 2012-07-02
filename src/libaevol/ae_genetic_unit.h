@@ -48,7 +48,6 @@
 #include <ae_rna.h>
 #include <ae_protein.h>
 #include <ae_fuzzy_set.h>
-#include <ae_common.h>
 #include <ae_environment.h>
 #include <ae_utils.h>
 
@@ -57,6 +56,7 @@
 // =================================================================
 //                          Class declarations
 // =================================================================
+class ae_exp_manager;
 
 
 
@@ -278,6 +278,8 @@ class ae_genetic_unit : public ae_object
     // =================================================================
     //                          Protected Attributes
     // =================================================================
+    ae_exp_manager* _exp_m;
+    
     ae_individual*  _indiv;
     ae_dna*         _dna;
     ae_list**       _rna_list;

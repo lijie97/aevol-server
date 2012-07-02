@@ -57,6 +57,7 @@
 // =================================================================
 //                          Class declarations
 // =================================================================
+class exp_manager;
 
 
 
@@ -139,7 +140,8 @@ class ae_fuzzy_set : public ae_object
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ae_list* _points;
+    exp_manager*  _exp_m;
+    ae_list*      _points;
   
   
   
@@ -171,8 +173,8 @@ ae_list* ae_fuzzy_set::get_points( void )
 void ae_fuzzy_set::initialize( void )
 {
   _points->erase( DELETE_OBJ );
-  _points->add( new ae_point_2d( MIN_X, 0.0 ) );
-  _points->add( new ae_point_2d( MAX_X, 0.0 ) );
+  _points->add( new ae_point_2d( X_MIN, 0.0 ) );
+  _points->add( new ae_point_2d( X_MAX, 0.0 ) );
 }
 
 double ae_fuzzy_set::get_y( double x ) const

@@ -28,6 +28,7 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 
 class ae_object
@@ -40,6 +41,7 @@ class ae_object
     ae_object( const ae_object &model )
     {
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
+      assert( false );
       exit( EXIT_FAILURE );
     };
 

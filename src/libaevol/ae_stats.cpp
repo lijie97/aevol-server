@@ -41,7 +41,8 @@
 // =================================================================
 #include <ae_stats.h>
 #include <ae_stat_record.h>
-#include <ae_simulation.h>
+#include <ae_exp_manager.h>
+#include <ae_exp_setup.h>
 #include <ae_population.h>
 #include <ae_individual.h>
 #include <ae_genetic_unit.h>
@@ -74,7 +75,7 @@ ae_stats::ae_stats( const char * prefix /* = "stat" */, bool best_indiv_only /* 
 }
 
 
-ae_stats::ae_stats( int32_t num_gener, const char * prefix /* = "stat" */, bool best_indiv_only /* = false */ )
+ae_stats::ae_stats( int32_t num_gener, const char * prefix /* = "stat" */, bool best_indiv_only /* = false */, bool delete_old_stats /* = false */ )
 {
   init_data();
   set_file_names( prefix, best_indiv_only );
@@ -123,7 +124,7 @@ ae_stats::ae_stats( int32_t num_gener, const char * prefix /* = "stat" */, bool 
           
           // Copy stats until num_gener (included)
           trash = fgets( line, 500, old_file );
-          while ( (int32_t)atol(line) <= ae_common::sim->get_first_gener() && !feof(old_file) )
+          while ( (int32_t)atol(line) <= _exp_m->get_first_gener() && !feof(old_file) )
           {
             fputs( line, cur_file );
             trash = fgets( line, 500, old_file );
@@ -133,9 +134,9 @@ ae_stats::ae_stats( int32_t num_gener, const char * prefix /* = "stat" */, bool 
           
           _stat_files[chrom_or_GU][best_or_glob][stat_type] = cur_file;
           
-          if ( ae_common::init_params->get_delete_old_stats() )
+          if ( delete_old_stats )
           {
-            int r = remove( old_file_name );
+            remove( old_file_name );
           }
         }
       }
@@ -465,14 +466,14 @@ void ae_stats::write_current_generation_statistics( void )
   {
     // This is not mandatory as everything should work fine without it
     // Still, it avoids looping around in the following, never fulfilling the necessary conditions
-    if ( chrom_or_GU != ALL_GU && ! ae_common::params->get_allow_plasmids() ) continue;
+    if ( chrom_or_GU != ALL_GU && ! _exp_m->get_allow_plasmids() ) continue;
     
     stat_records = new ae_stat_record* [NB_BEST_OR_GLOB];
     
-    stat_records[BEST] = new ae_stat_record( ae_common::sim->get_pop()->get_best(), (chrom_or_gen_unit) chrom_or_GU );
-    stat_records[GLOB] = new ae_stat_record( ae_common::sim->get_pop(), (chrom_or_gen_unit) chrom_or_GU );
-    stat_records[SDEV] = new ae_stat_record( ae_common::sim->get_pop(), stat_records[GLOB], (chrom_or_gen_unit) chrom_or_GU );
-    stat_records[SKEW] = new ae_stat_record( ae_common::sim->get_pop(), stat_records[GLOB], stat_records[SDEV], (chrom_or_gen_unit) chrom_or_GU );
+    stat_records[BEST] = new ae_stat_record( _exp_m->get_best_indiv(), (chrom_or_gen_unit) chrom_or_GU );
+    stat_records[GLOB] = new ae_stat_record( _exp_m->get_pop(), (chrom_or_gen_unit) chrom_or_GU );
+    stat_records[SDEV] = new ae_stat_record( _exp_m->get_pop(), stat_records[GLOB], (chrom_or_gen_unit) chrom_or_GU );
+    stat_records[SKEW] = new ae_stat_record( _exp_m->get_pop(), stat_records[GLOB], stat_records[SDEV], (chrom_or_gen_unit) chrom_or_GU );
     
     for ( int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++ )
     {
@@ -499,7 +500,7 @@ void ae_stats::write_statistics_of_this_indiv( ae_individual * indiv, int32_t nu
   {
     // This is not mandatory as everything should work fine without it
     // Still, it avoids doing stuff for nothing
-    if ( chrom_or_GU != ALL_GU && ! ae_common::params->get_allow_plasmids() ) continue;
+    if ( chrom_or_GU != ALL_GU && ! _exp_m->get_allow_plasmids() ) continue;
     
     stat_record = new ae_stat_record( indiv, (chrom_or_gen_unit) chrom_or_GU, true, num_gener );
     
@@ -582,7 +583,7 @@ void ae_stats::set_file_names( const char * prefix, bool one_lambda_indiv_only )
   for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
   {
     // We want only "ALL_GU" stats when ae_common::allow_plasmids is false
-    if ( chrom_or_GU != ALL_GU && ! ae_common::params->get_allow_plasmids() ) continue;
+    if ( chrom_or_GU != ALL_GU && ! _exp_m->get_allow_plasmids() ) continue;
     
     for ( int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++ )
     {
@@ -590,8 +591,8 @@ void ae_stats::set_file_names( const char * prefix, bool one_lambda_indiv_only )
       
       for ( int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++ )
       {
-        // We don't want REAR_STATS when ae_common::with_alignments is false
-        if ( stat_type == REAR_STATS && ! ae_common::params->get_with_alignments() ) continue;
+        //~ // We don't want REAR_STATS when rearrangements are done without alignments
+        //~ if ( stat_type == REAR_STATS && ! _exp_m->get_with_alignments() ) continue;
         
         // For now, we only want sdev and skew for fitness data
         if ( best_or_glob > GLOB && stat_type > FITNESS_STATS) continue; 

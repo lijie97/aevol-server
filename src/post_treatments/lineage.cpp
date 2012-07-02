@@ -48,7 +48,7 @@
 //                            Project Files
 // =================================================================
 #include <ae_utils.h>
-#include <ae_simulation.h>
+#include <ae_experiment.h>
 #include <ae_individual.h>
 #include <ae_genetic_unit.h>
 #include <ae_list.h>
@@ -365,12 +365,12 @@ int main(int argc, char** argv)
 
 
   
-  ae_simulation* sim = new ae_simulation();
+  ae_experiment* sim = new ae_experiment();
   sim->load_backup( genomes_file_name, false, NULL );
 
   // Copy the initial ancestor
   // NB : The list of individuals is sorted according to the index
-  ae_individual * initial_ancestor_tmp  = sim->get_pop()->get_indiv_by_index( indices[0] );
+  ae_individual * initial_ancestor_tmp  = NULL;//sim->get_pop()->get_indiv_by_index( indices[0] );
   ae_individual * initial_ancestor      = new ae_individual( *initial_ancestor_tmp );
   
   ae_common::write_to_backup( lineage_file );
@@ -459,10 +459,10 @@ int main(int argc, char** argv)
       }
       
       // Copy the ancestor from the backup
-      ae_simulation* sim = new ae_simulation();
+      ae_experiment* sim = new ae_experiment();
       sim->load_backup( backup_file_name, false, NULL );
       
-      ae_individual * stored_indiv_tmp = sim->get_pop()->get_indiv_by_index( indices[i+1] );
+      ae_individual * stored_indiv_tmp = NULL;//sim->get_pop()->get_indiv_by_index( indices[i+1] );
       stored_indiv = new ae_individual( *stored_indiv_tmp );
       stored_gen_unit_node = stored_indiv->get_genetic_unit_list()->get_first();
       

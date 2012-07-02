@@ -100,7 +100,7 @@
 
 #include <ae_list.h>
 #include <ae_common.h>
-#include <ae_simulation.h>
+#include <ae_experiment.h>
 #include <ae_population.h>
 #include <ae_protein.h>
 
@@ -244,7 +244,7 @@ int main( int argc, char* argv[] )
     // the second argument (false) indicates that we just want to do
     // post-processing, no need to initialize structures like 'tree'
     // that are modified at each generation
-    ae_common::sim = new ae_simulation();
+    ae_common::sim = new ae_experiment();
     ae_common::sim->load_backup( backup_file_name, false, NULL );
   }
   else
@@ -270,14 +270,14 @@ int main( int argc, char* argv[] )
      // remove dstory output
      remove("dstory.bak.gz"); */
   
-  ae_common::sim->get_pop()->evaluate_individuals(ae_common::sim->get_env());
+  ae_common::pop->evaluate_individuals(ae_common::sim->get_env());
  
   // --------------------------------------------------------------
   //       Get genome(s) of interest and compute Fv
   // --------------------------------------------------------------
   
   ae_individual* initial_indiv = NULL;
-  ae_list_node* node = ae_common::sim->get_pop()->get_indivs()->get_last();
+  ae_list_node* node = ae_common::pop->get_indivs()->get_last();
   int current_rank = 1;
   int current_index = -1;
   
@@ -331,7 +331,7 @@ int main( int argc, char* argv[] )
 	// ------------------------------------
 	//            Write to file
 	// ------------------------------------     
-	double* reprod_proba = ae_common::sim->get_pop()->get_prob_reprod();
+	double* reprod_proba = ae_common::pop->get_prob_reprod();
 	if ( fv_output != NULL )
 	{
 	  fprintf( fv_output, "%d %d %le %le %le %le %le %"PRId32"\n",
@@ -385,7 +385,7 @@ double compute_experimental_fv( ae_individual* indiv, int nb_children, double* n
   ae_individual * child = NULL;
   for (int i = 0; i < nb_children; i++)
   {
-    child = ae_common::sim->get_pop()->do_replication(indiv, index); 
+    child = ae_common::pop->do_replication(indiv, index); 
     childfit = child->get_fitness(); // child is automatically evaluated
     
     if (replication_output != NULL) // only interesting if we put that into a file...

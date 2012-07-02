@@ -40,7 +40,6 @@
 //                            Project Files
 // =================================================================
 #include <ae_fuzzy_set.h>
-#include <ae_common.h>
 
 
 
@@ -217,8 +216,8 @@ void ae_fuzzy_set::print_points( void ) const
 
 void ae_fuzzy_set::add_triangle( double mean, double width, double height )
 {
-  assert( MIN_X <= mean   && mean <= MAX_X );
-  assert( MIN_W <= width  && width <= MAX_W );
+  assert( X_MIN <= mean   && mean <= X_MAX );
+  assert( W_MIN <= width ); // the maximum width depends on each individual
   // assert( MIN_H <= height && height <= MAX_H ); Not necessarily because the concentration can be > 1
   
   if ( fabs(width) < 1e-15 || fabs(height) < 1e-15 ) return;
@@ -237,9 +236,9 @@ void ae_fuzzy_set::add_triangle( double mean, double width, double height )
   ae_list_node* node_1 = NULL;
   ae_list_node* node_2 = NULL;
 
-  if ( x0 >= MIN_X )  node_0 = create_interpolated_point( x0 );
+  if ( x0 >= X_MIN )  node_0 = create_interpolated_point( x0 );
                       node_1 = create_interpolated_point( x1, node_0 );
-  if ( x2 <= MAX_X )  node_2 = create_interpolated_point( x2, node_1 );
+  if ( x2 <= X_MAX )  node_2 = create_interpolated_point( x2, node_1 );
 
 
   // Update all the points in the list having their abscisse in ]x0;x2[
@@ -672,13 +671,13 @@ double ae_fuzzy_set::get_geometric_area( void ) const
 
 double ae_fuzzy_set::get_geometric_area( double start_segment, double end_segment ) const
 {
-  // Fuzzy set first (resp last) point must be at x = MIN_X (resp x = MAX_X)
+  // Fuzzy set first (resp last) point must be at x = X_MIN (resp x = X_MAX)
   assert( _points->get_first() != _points->get_last() );
-  assert( ((ae_point_2d*)_points->get_first()->get_obj())->x == MIN_X );
-  assert( ((ae_point_2d*)_points->get_last()->get_obj())->x == MAX_X );
+  assert( ((ae_point_2d*)_points->get_first()->get_obj())->x == X_MIN );
+  assert( ((ae_point_2d*)_points->get_last()->get_obj())->x == X_MAX );
   
-  // We must have ( MIN_X <= start_segment < end_segment <= MAX_X )
-  assert( start_segment >= MIN_X && start_segment < end_segment && end_segment <= MAX_X );
+  // We must have ( X_MIN <= start_segment < end_segment <= X_MAX )
+  assert( start_segment >= X_MIN && start_segment < end_segment && end_segment <= X_MAX );
   
   double area = 0;
   double tmp, tmp2;
@@ -902,7 +901,7 @@ double ae_fuzzy_set::get_y( double x, ae_list_node* list_entry ) const
 {
   if ( list_entry == NULL ) list_entry = _points->get_first();
 
-  assert( x >= MIN_X && x <= MAX_X );
+  assert( x >= X_MIN && x <= X_MAX );
   assert( list_entry != NULL );
   assert( ((ae_point_2d*)list_entry->get_obj())->x <= x );
   assert( _points->get_nb_elts() >= 2 );
@@ -931,7 +930,7 @@ ae_list_node* ae_fuzzy_set::create_interpolated_point( double x, ae_list_node* l
 {
   if ( list_entry == NULL ) list_entry = _points->get_first();
 
-  assert( x >= MIN_X && x <= MAX_X );
+  assert( x >= X_MIN && x <= X_MAX );
   assert( ((ae_point_2d*)list_entry->get_obj())->x <= x );
   assert( _points->get_nb_elts() >= 2 );
 
@@ -963,8 +962,8 @@ ae_list_node* ae_fuzzy_set::create_interpolated_point( double x, ae_list_node* l
 
 void ae_fuzzy_set::_assert_order( void )
 {
-  assert( ((ae_point_2d*)_points->get_first()->get_obj())->x == MIN_X );
-  assert( ((ae_point_2d*)_points->get_last()->get_obj())->x == MAX_X );
+  assert( ((ae_point_2d*)_points->get_first()->get_obj())->x == X_MIN );
+  assert( ((ae_point_2d*)_points->get_last()->get_obj())->x == X_MAX );
   
   ae_list_node* point_node  = _points->get_first();
   ae_list_node* next_point_node = point_node->get_next();

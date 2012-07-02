@@ -45,7 +45,6 @@
 //                            Project Files
 // =================================================================
 #include <ae_object.h>
-#include <ae_common.h>
 #include <ae_individual.h>
 
 
@@ -54,6 +53,7 @@
 // =================================================================
 //                          Class declarations
 // =================================================================
+class ae_exp_manager;
 
 
 
@@ -68,16 +68,20 @@ class ae_stats : public ae_object
     //                             Constructors
     // =================================================================
     ae_stats( const char * prefix = "stat", bool best_indiv_only = false );
-    ae_stats( int32_t num_gener, const char * prefix = "stat", bool best_indiv_only = false );
+    ae_stats( int32_t num_gener, const char * prefix = "stat", bool best_indiv_only = false, bool delete_old_stats = false );
 
  
     // =================================================================
     //                             Destructors
     // =================================================================
     virtual ~ae_stats( void );
-  
+
     // =================================================================
-    //                              Accessors
+    //                        Accessors: getters
+    // =================================================================
+
+    // =================================================================
+    //                        Accessors: setters
     // =================================================================
   
     // =================================================================
@@ -130,6 +134,8 @@ class ae_stats : public ae_object
     // =================================================================
     //                          Protected Attributes
     // =================================================================
+    ae_exp_manager* _exp_m;
+    
     // 3D tables of stat files (FILE*) and their names (char*)
     // Dimensions are given by:
     //    * genetic unit (ALL_GU, CHROM or PLASMIDS)

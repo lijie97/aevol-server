@@ -41,7 +41,9 @@
 //                            Project Files
 // =================================================================
 #include <ae_individual_X11.h>
-#include <ae_simulation_X11.h>
+
+#include <ae_exp_manager.h>
+#include <ae_exp_setup.h>
 #include <ae_utils.h>
 
 
@@ -60,31 +62,34 @@
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_individual_X11::ae_individual_X11( const ae_individual_X11 &model ) : ae_individual( model )
+ae_individual_X11::ae_individual_X11( ae_exp_manager* exp_manager, ae_rand_mt* alea, ae_params_mut* param_mut, int32_t id, int32_t age )
+        : ae_individual( exp_manager, alea, param_mut, id, age )
 {
   init_occupied_sectors();
 }
 
-ae_individual_X11::ae_individual_X11( void ) : ae_individual()
-{
-  //printf("ae_individual_X11( void )");
-  init_occupied_sectors();
-}
-
-ae_individual_X11::ae_individual_X11( ae_individual_X11* const parent, int32_t index ) : ae_individual( parent, index )
+ae_individual_X11::ae_individual_X11( ae_exp_manager* exp_manager, gzFile* backup_file )
+        : ae_individual( exp_manager, backup_file )
 {
   init_occupied_sectors();
 }
 
-ae_individual_X11::ae_individual_X11( gzFile* backup_file ) : ae_individual( backup_file )
+ae_individual_X11::ae_individual_X11( const ae_individual_X11 &model )
+        : ae_individual( model )
 {
   init_occupied_sectors();
 }
 
-ae_individual_X11::ae_individual_X11( char* genome, int32_t genome_size ) : ae_individual( genome, genome_size )
+
+/*ae_individual_X11::ae_individual_X11( ae_individual_X11* const parent, int32_t index ) : ae_individual( parent, index )
 {
   init_occupied_sectors();
-}
+}*/
+
+/*ae_individual_X11::ae_individual_X11( char* genome, int32_t genome_size ) : ae_individual( genome, genome_size )
+{
+  init_occupied_sectors();
+}*/
 
 // =================================================================
 //                             Destructors
@@ -122,7 +127,7 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
 
   // Compute display diameter according to genome length and window size
   int16_t canvas_width;
-  if ( ae_common::params->get_allow_plasmids() ) canvas_width = win->get_width() / 2;
+  if ( _exp_m->get_allow_plasmids() ) canvas_width = win->get_width() / 2;
   else canvas_width = win->get_width();
   int16_t canvas_height = win->get_height();
   
@@ -340,7 +345,7 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
   
   
   // --------------------------------------------------------------------------This is temporary, it is a big copy-paste of what's above.
-  if ( ae_common::params->get_allow_plasmids() )
+  if ( _exp_m->get_allow_plasmids() )
   {
     // Retreive the genetic unit corresponding to the plasmid
     ae_genetic_unit* gen_unit = get_genetic_unit(1);
@@ -353,7 +358,7 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
     int16_t canvas_width;
     int16_t canvas_height;
     int16_t canvas_size ;
-    if ( ae_common::params->get_allow_plasmids() )
+    if ( _exp_m->get_allow_plasmids() )
     {
       canvas_width  = win->get_width() / 2;
       canvas_size   = canvas_width;

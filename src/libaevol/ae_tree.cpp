@@ -39,9 +39,10 @@
 //                            Project Files
 // =================================================================
 #include <ae_tree.h>
+
 #include <ae_macros.h>
-#include <ae_common.h>
-#include <ae_simulation.h>
+#include <ae_exp_manager.h>
+#include <ae_exp_setup.h>
 #include <ae_population.h>
 #include <ae_individual.h>
 #include <ae_utils.h>
@@ -63,21 +64,22 @@ const int32_t ae_tree::NO_PARENT = -1;
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_tree::ae_tree( void )
+ae_tree::ae_tree( ae_tree_mode tree_mode, int32_t tree_step )
 {
-  _tree_mode = ae_common::rec_params->get_tree_mode();
+  _tree_mode = tree_mode;
+  _tree_step = tree_step;
 
   switch ( _tree_mode )
   {
     case NORMAL :
     {
-      _nb_indivs    = new int32_t[ae_common::rec_params->get_tree_step()];
-      _replics      = new ae_replication_report**[ae_common::rec_params->get_tree_step()];
+      _nb_indivs    = new int32_t [_tree_step];
+      _replics      = new ae_replication_report** [_tree_step];
       
       // All pointers in the _replics table must be set to NULL, otherwise
       // the destructor won't work properly if called before the matrix was 
       // filled 
-      for ( int32_t i = 0 ; i < ae_common::rec_params->get_tree_step() ; i++ )
+      for ( int32_t i = 0 ; i < tree_step ; i++ )
       {
         _replics[i] = NULL;
       }
@@ -86,19 +88,20 @@ ae_tree::ae_tree( void )
     }
     case LIGHT :
     {
-      // Creates the big arrays to store number of individuals and child->parent relations
-      _nb_indivs  = new int32_t[ae_common::nb_generations];
-      _parent     = new int32_t*[ae_common::nb_generations];
+      #warning LIGHT tree mode: constructor and destructor commented
+      //~ // Creates the big arrays to store number of individuals and child->parent relations
+      //~ _nb_indivs  = new int32_t[ae_common::nb_generations];
+      //~ _parent     = new int32_t*[ae_common::nb_generations];
       
-      _parent[0]    = new int32_t[ae_common::init_params->get_init_pop_size()];
+      //~ _parent[0]    = new int32_t[ae_common::init_params->get_init_pop_size()];
       
-      _nb_indivs[0] = ae_common::init_params->get_init_pop_size();
+      //~ _nb_indivs[0] = ae_common::init_params->get_init_pop_size();
       
-      // Individuals from the initial population don't have parents
-      for ( int32_t i = 0 ; i < _nb_indivs[0] ; i++ )
-      {
-        _parent[0][i] = NO_PARENT;
-      }
+      //~ // Individuals from the initial population don't have parents
+      //~ for ( int32_t i = 0 ; i < _nb_indivs[0] ; i++ )
+      //~ {
+        //~ _parent[0][i] = NO_PARENT;
+      //~ }
       
       break;
     }
@@ -109,80 +112,80 @@ ae_tree::ae_tree( void )
 
 ae_tree::ae_tree( char* backup_file_name, char* tree_file_name )
 {
-  // Retrieve the ae_common's informations in backup_file
-  int16_t bfn_len = strlen( backup_file_name );
-  #ifdef __REGUL
-    if ( strcmp( &backup_file_name[bfn_len-4], ".rae" ) != 0 )
-    {
-      printf( "ERROR : %s is not valid RAEVOL backup file.\n", backup_file_name );
-      exit( EXIT_FAILURE );
-    }
-  #else
-    if ( strcmp( &backup_file_name[bfn_len-3], ".ae" ) != 0 )
-    {
-      printf( "ERROR : %s is not valid AEVOL backup file.\n", backup_file_name );
-      exit( EXIT_FAILURE );
-    }
-  #endif
+  //~ // Retrieve the ae_common's informations in backup_file
+  //~ int16_t bfn_len = strlen( backup_file_name );
+  //~ #ifdef __REGUL
+    //~ if ( strcmp( &backup_file_name[bfn_len-4], ".rae" ) != 0 )
+    //~ {
+      //~ printf( "ERROR : %s is not valid RAEVOL backup file.\n", backup_file_name );
+      //~ exit( EXIT_FAILURE );
+    //~ }
+  //~ #else
+    //~ if ( strcmp( &backup_file_name[bfn_len-3], ".ae" ) != 0 )
+    //~ {
+      //~ printf( "ERROR : %s is not valid AEVOL backup file.\n", backup_file_name );
+      //~ exit( EXIT_FAILURE );
+    //~ }
+  //~ #endif
   
-  gzFile* backup_file = (gzFile*) gzopen( backup_file_name, "r" );
+  //~ gzFile* backup_file = (gzFile*) gzopen( backup_file_name, "r" );
 
-  if ( backup_file == Z_NULL )
-  {
-    printf( "ERROR : Could not read backup file %s\n", backup_file_name );
-    exit( EXIT_FAILURE );
-  }
+  //~ if ( backup_file == Z_NULL )
+  //~ {
+    //~ printf( "ERROR : Could not read backup file %s\n", backup_file_name );
+    //~ exit( EXIT_FAILURE );
+  //~ }
 
-  // Retreive random generator state and get rid of it
-  ae_rand_mt* alea = new ae_rand_mt( backup_file );
-  delete alea;
+  //~ // Retreive random generator state and get rid of it
+  //~ ae_rand_mt* alea = new ae_rand_mt( backup_file );
+  //~ delete alea;
 
-  // Retreive common data
-  ae_common::read_from_backup( backup_file );
+  //~ // Retreive common data
+  //~ ae_common::read_from_backup( backup_file );
 
-  _tree_mode = ae_common::rec_params->get_tree_mode();
-  switch ( _tree_mode )
-  {
-    case NORMAL :
-    {
-      gzFile* tree_file = (gzFile*) gzopen( tree_file_name, "r" );
-      if ( tree_file == Z_NULL )
-      {
-        printf( "ERROR : Could not read tree file %s\n", tree_file_name );
-        exit( EXIT_FAILURE );
-      }
+  //~ _tree_mode = ae_common::rec_params->get_tree_mode();
+  //~ switch ( _tree_mode )
+  //~ {
+    //~ case NORMAL :
+    //~ {
+      //~ gzFile* tree_file = (gzFile*) gzopen( tree_file_name, "r" );
+      //~ if ( tree_file == Z_NULL )
+      //~ {
+        //~ printf( "ERROR : Could not read tree file %s\n", tree_file_name );
+        //~ exit( EXIT_FAILURE );
+      //~ }
       
-      ae_replication_report * replic_report = NULL;
+      //~ ae_replication_report * replic_report = NULL;
             
-      _nb_indivs    = new int32_t[ae_common::rec_params->get_tree_step()];
-      _replics      = new ae_replication_report**[ae_common::rec_params->get_tree_step()];      
+      //~ _nb_indivs    = new int32_t[_tree_step];
+      //~ _replics      = new ae_replication_report**[_tree_step];      
       
-      gzread( tree_file, _nb_indivs, ae_common::rec_params->get_tree_step() * sizeof(_nb_indivs[0]) );
+      //~ gzread( tree_file, _nb_indivs, _tree_step * sizeof(_nb_indivs[0]) );
 
-      for ( int32_t gener_i = 0 ; gener_i < ae_common::rec_params->get_tree_step() ; gener_i++ )
-      {
-        _replics[gener_i] = new ae_replication_report*[_nb_indivs[gener_i]];
-        for ( int32_t indiv_i = 0 ; indiv_i < _nb_indivs[gener_i] ; indiv_i++ )
-        {
-          // Retreive a replication report
-          replic_report = new ae_replication_report( tree_file, NULL );
+      //~ for ( int32_t gener_i = 0 ; gener_i < _tree_step ; gener_i++ )
+      //~ {
+        //~ _replics[gener_i] = new ae_replication_report*[_nb_indivs[gener_i]];
+        //~ for ( int32_t indiv_i = 0 ; indiv_i < _nb_indivs[gener_i] ; indiv_i++ )
+        //~ {
+          //~ // Retreive a replication report
+          //~ replic_report = new ae_replication_report( tree_file, NULL );
           
-          // Put it at its rightful position
-          _replics[gener_i][replic_report->get_index()] = replic_report;
-        }
-      }      
-      gzclose( backup_file );
-      gzclose( tree_file );
+          //~ // Put it at its rightful position
+          //~ _replics[gener_i][replic_report->get_index()] = replic_report;
+        //~ }
+      //~ }      
+      //~ gzclose( backup_file );
+      //~ gzclose( tree_file );
 
         
-      break;
-    }
-    case LIGHT :
-    {
-      // TODO
-      break;
-    }
-  }
+      //~ break;
+    //~ }
+    //~ case LIGHT :
+    //~ {
+      //~ // TODO
+      //~ break;
+    //~ }
+  //~ }
 }
 
 
@@ -200,48 +203,37 @@ ae_tree::~ae_tree( void )
     {
       if ( _replics != NULL )
       {
-        for ( int32_t i = 0 ; i < ae_common::rec_params->get_tree_step() ; i++ )
+        for ( int32_t i = 0 ; i < _tree_step ; i++ )
         {
           if ( _replics[i] != NULL )
           {
             for ( int32_t j = 0 ; j < _nb_indivs[i] ; j++ )
             {
-              if ( _replics[i][j] != NULL )
-              {
-                delete _replics[i][j];
-                _replics[i][j] = NULL;
-              }
+              delete _replics[i][j];
             }
             
             delete [] _replics[i];
-            _replics[i] = NULL;
           }
         }
         delete [] _replics;
-        _replics = NULL;
       }
 
       break;
     }
     case LIGHT :
     {
-      for( int32_t n = 0 ; n < ae_common::nb_generations ; n++ )
-      {
-        delete _parent[n];
-      }
+      //~ for( int32_t n = 0 ; n < ae_common::nb_generations ; n++ )
+      //~ {
+        //~ delete _parent[n];
+      //~ }
       
-      delete [] _parent;
+      //~ delete [] _parent;
       
       break;
     }
   }
 
-
-  if ( _nb_indivs != NULL )
-  {
-    delete [] _nb_indivs;
-    _nb_indivs = NULL;
-  }
+  delete [] _nb_indivs;
 }
 
 // =================================================================
@@ -252,7 +244,7 @@ ae_tree::~ae_tree( void )
 
 int32_t ae_tree::get_nb_indivs( int32_t generation ) const
 {
-  return _nb_indivs[ae_utils::mod(generation - 1, ae_common::rec_params->get_tree_step())];
+  return _nb_indivs[ae_utils::mod(generation - 1, _tree_step)];
 }
 
 
@@ -260,7 +252,7 @@ ae_replication_report * ae_tree::get_report_by_index( int32_t generation, int32_
 {
   assert( _tree_mode == NORMAL );
   
-  return _replics[ae_utils::mod(generation - 1, ae_common::rec_params->get_tree_step())][index];
+  return _replics[ae_utils::mod(generation - 1, _tree_step)][index];
 }
 
 
@@ -272,9 +264,9 @@ ae_replication_report * ae_tree::get_report_by_rank( int32_t generation, int32_t
   
   for ( int32_t i = 0 ; i < nb_indivs ; i++ )
   {
-    if ( _replics[ae_utils::mod(generation - 1, ae_common::rec_params->get_tree_step())][i]->get_rank() == rank )
+    if ( _replics[ae_utils::mod(generation - 1, _tree_step)][i]->get_rank() == rank )
     {
-      return _replics[ae_utils::mod(generation - 1, ae_common::rec_params->get_tree_step())][i];
+      return _replics[ae_utils::mod(generation - 1, _tree_step)][i];
     }
   }
   
@@ -292,15 +284,15 @@ void ae_tree::fill_tree_with_cur_gener( void )
     case NORMAL :
     {
       //  -1 because the tree's arrays contain informations on 
-      // generations n*TREE_STEP+1 --> (n+1)*ae_common::rec_params->get_tree_step()
-      // (for ae_common::rec_params->get_tree_step() == 100, informations on generations
+      // generations n*TREE_STEP+1 --> (n+1)*_tree_step
+      // (for _tree_step == 100, informations on generations
       // 1 to 100, or 101 to 200, or 201 to 300, etc)
-      int32_t gener_i     = ae_utils::mod( ae_common::sim->get_num_gener() - 1, ae_common::rec_params->get_tree_step() );
-      _nb_indivs[gener_i] = ae_common::sim->get_pop()->get_nb_indivs();
+      int32_t gener_i     = ae_utils::mod( _exp_m->get_num_gener() - 1, _tree_step );
+      _nb_indivs[gener_i] = _exp_m->get_pop()->get_nb_indivs();
       _replics[gener_i]   = new ae_replication_report* [_nb_indivs[gener_i]];
       
       
-      ae_list_node*   indiv_node  = ae_common::sim->get_pop()->get_indivs()->get_first();
+      ae_list_node*   indiv_node  = _exp_m->get_indivs()->get_first();
       ae_individual*  indiv       = NULL;
       int32_t         num_indiv   = 0;
       
@@ -321,11 +313,11 @@ void ae_tree::fill_tree_with_cur_gener( void )
       // TO CHECK !!
       // not sure that gener_i should be used in this block...
 
-      int32_t gener_i     = ae_utils::mod( ae_common::sim->get_num_gener() - 1, ae_common::rec_params->get_tree_step() );
-      _nb_indivs[gener_i] = ae_common::sim->get_pop()->get_nb_indivs();
+      int32_t gener_i     = ae_utils::mod( _exp_m->get_num_gener() - 1, _tree_step );
+      _nb_indivs[gener_i] = _exp_m->get_nb_indivs();
       _parent[gener_i] = new int32_t [_nb_indivs[gener_i]];
       
-      ae_list_node*   indiv_node  = ae_common::sim->get_pop()->get_indivs()->get_first();
+      ae_list_node*   indiv_node  = _exp_m->get_indivs()->get_first();
       ae_individual*  indiv       = NULL;
       int32_t         num_indiv   = 0;
       
@@ -333,7 +325,7 @@ void ae_tree::fill_tree_with_cur_gener( void )
       {
         indiv = (ae_individual*) indiv_node->get_obj();
         
-        _parent[gener_i][num_indiv++] = indiv->get_replic_report()->get_parent_index();
+        _parent[gener_i][num_indiv++] = indiv->get_replic_report()->get_parent_id();
         
         indiv_node = indiv_node->get_next();
       }
@@ -350,9 +342,9 @@ void ae_tree::write_to_tree_file( gzFile* tree_file )
     case NORMAL :
     {
       // Write the tree in the backup
-      gzwrite( tree_file, &_nb_indivs[0], ae_common::rec_params->get_tree_step() * sizeof(_nb_indivs[0]) );
+      gzwrite( tree_file, &_nb_indivs[0], _tree_step * sizeof(_nb_indivs[0]) );
       
-      for ( int32_t gener_i = 0 ; gener_i < ae_common::rec_params->get_tree_step() ; gener_i++ )
+      for ( int32_t gener_i = 0 ; gener_i < _tree_step ; gener_i++ )
       {
         for ( int32_t indiv_i = 0 ; indiv_i < _nb_indivs[gener_i] ; indiv_i++ )
         {
@@ -361,7 +353,7 @@ void ae_tree::write_to_tree_file( gzFile* tree_file )
       }
       
       // Reinitialize the tree
-      for ( int32_t gener_i = 0 ; gener_i < ae_common::rec_params->get_tree_step() ; gener_i++ )
+      for ( int32_t gener_i = 0 ; gener_i < _tree_step ; gener_i++ )
       {
         for ( int32_t indiv_i = 0 ; indiv_i < _nb_indivs[gener_i] ; indiv_i++ )
         {

@@ -39,7 +39,7 @@ SMALL_DELETION_RATE     5e-5
 MAX_INDEL_SIZE          6
 
 # Whether to use 4 point rearrangements (if false, will use 3 points rear instead - i.e will translocate sequence as is)
-# WITH_4PTS_REARS         true
+WITH_4PTS_TRANS         true
 
 ############ Rearrangement rates (w/o alignements) ############
 DUPLICATION_RATE        5e-5

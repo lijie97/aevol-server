@@ -63,8 +63,8 @@
 #define MT_RAND_MAX         4294967295.0
 #define MT_RAND_MAX_PLUS_1  4294967296.0
 
-// That is  MT_RAND_MAX = OxFFFFFFFF
-//          MT_RAND_MAX = OxFFFFFFFF + 1 = 2e32
+// That is  MT_RAND_MAX         = OxFFFFFFFF
+//          MT_RAND_MAX_PLUS_1  = OxFFFFFFFF + 1 = 2e32
 
 // Not thread safe (unless auto-initialization is avoided and each thread has
 // its own ae_rand_mt object)
@@ -73,6 +73,7 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <time.h>
 #include <math.h>
 #include <zlib.h>
@@ -96,8 +97,9 @@ class ae_rand_mt
   //Methods
   public:
     // Constructors
-    ae_rand_mt( const uint32_t& oneSeed );  // initialize with a simple uint32_t
-    ae_rand_mt( gzFile* backup_file );      // Load from a gz backup file
+    ae_rand_mt( const uint32_t simple_seed ); // Initialize with a simple uint32_t
+    ae_rand_mt( const ae_rand_mt& model );    // Copy constructor
+    ae_rand_mt( gzFile* backup_file );        // Load from a gz backup file
   
     // Destructors
     virtual ~ae_rand_mt( void );
@@ -254,21 +256,15 @@ uint32_t ae_rand_mt::hash( time_t t, clock_t c )
 
 void ae_rand_mt::save( uint32_t* saveArray ) const
 {
-  register uint32_t *sa = saveArray;
-  register const uint32_t *s = state;
-  register int16_t i = N;
-  for( ; i--; *sa++ = *s++ ) {}
-  *sa = left;
+  memcpy( saveArray, state, N * sizeof(state[0]) );
+  saveArray[N] = left;
 }
 
 
 void ae_rand_mt::load( uint32_t *const loadArray )
 {
-  register uint32_t *s = state;
-  register uint32_t *la = loadArray;
-  register int16_t i = N;
-  for( ; i--; *s++ = *la++ ) {}
-  left = *la;
+  memcpy( state, loadArray, N * sizeof(loadArray[0]) );
+  left = loadArray[N];
   pNext = &state[N-left];
 }
 

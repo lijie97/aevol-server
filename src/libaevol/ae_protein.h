@@ -72,7 +72,7 @@ class ae_protein : public ae_object
     ae_protein( ae_genetic_unit* gen_unit, const ae_protein &model );
     ae_protein( ae_genetic_unit* gen_unit, ae_list* codon_list, ae_strand strand, int32_t shine_dal, ae_rna* rna );
     //ae_protein( ae_protein* parent );
-	ae_protein( gzFile* backup_file );
+    ae_protein( gzFile* backup_file );
     // =================================================================
     //                             Destructors
     // =================================================================
@@ -93,6 +93,8 @@ class ae_protein : public ae_object
     inline int32_t    get_length( void )                const; // Number of Amino-Acids (not including START and STOP)
     inline double     get_concentration( void )         const;
     inline  bool      get_is_functional( void )         const;
+    
+    ae_individual* get_indiv( void ) const;
 
     // =================================================================
     //                            Public Methods

@@ -24,13 +24,13 @@
 //*****************************************************************************
 
 
-/** \class
- *  \brief
- */
+/*! \class
+    \brief
+*/
  
  
-#ifndef  __AE_SIMULATION_X11_H__
-#define  __AE_SIMULATION_X11_H__
+#ifndef  __AE_EXP_SETUP_X11_H__
+#define  __AE_EXP_SETUP_X11_H__
  
  
 // =================================================================
@@ -46,7 +46,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_simulation.h>
+#include <ae_exp_setup.h>
 
 
 
@@ -54,7 +54,7 @@
 // =================================================================
 //                          Class declarations
 // =================================================================
-class ae_simulation;
+class ae_exp_setup;
 class ae_X11_window;
 
 enum key_map
@@ -113,23 +113,23 @@ enum key_map
 
 
  
-class ae_simulation_X11 : public ae_simulation
+class ae_exp_setup_X11 : public ae_exp_setup
 {
-  friend class ae_simulation;
+  friend class ae_exp_setup;
   
   public :
     
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_simulation_X11( void );
-    //~ ae_simulation_X11( ae_param_overloader* param_overloader = NULL );
-    //~ ae_simulation_X11( char* backup_file_name, bool to_be_run = true, ae_param_overloader* param_overloader = NULL );
+    ae_exp_setup_X11( void );
+    //~ ae_exp_setup_X11( ae_param_overloader* param_overloader = NULL );
+    //~ ae_exp_setup_X11( char* backup_file_name, bool to_be_run = true, ae_param_overloader* param_overloader = NULL );
   
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_simulation_X11( void );
+    virtual ~ae_exp_setup_X11( void );
   
     // =================================================================
     //                              Accessors
@@ -164,12 +164,12 @@ class ae_simulation_X11 : public ae_simulation
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    //~ ae_simulation_X11( void )
+    //~ ae_exp_setup_X11( void )
     //~ {
       //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       //~ exit( EXIT_FAILURE );
     //~ };
-    ae_simulation_X11( const ae_simulation_X11 &model )
+    ae_exp_setup_X11( const ae_exp_setup_X11 &model )
     {
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
@@ -208,41 +208,41 @@ class ae_simulation_X11 : public ae_simulation
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-bool ae_simulation_X11::get_display_on( void )
+bool ae_exp_setup_X11::get_display_on( void )
 {
   return _display_on;
 }
 
-Display * ae_simulation_X11::get_display( void )
+Display * ae_exp_setup_X11::get_display( void )
 {
   return _display;
 }
 
 
-bool ae_simulation_X11::get_show_window( int8_t win )
+bool ae_exp_setup_X11::get_show_window( int8_t win )
 {
   return ( (_show_window >> win) & 1 );
 }
 
-bool ae_simulation_X11::get_new_show_window( int8_t win )
+bool ae_exp_setup_X11::get_new_show_window( int8_t win )
 {
   return ( (_new_show_window >> win) & 1 );
 }
 
 
-int8_t ae_simulation_X11::get_screen( void )
+int8_t ae_exp_setup_X11::get_screen( void )
 {
   return _screen;
 }
 
 
-Atom* ae_simulation_X11::get_atoms( void )
+Atom* ae_exp_setup_X11::get_atoms( void )
 {
   return _atoms;
 }
 
 
-ae_X11_window* ae_simulation_X11::get_window( int8_t win )
+ae_X11_window* ae_exp_setup_X11::get_window( int8_t win )
 {
   return _win[win];
 }
@@ -252,4 +252,4 @@ ae_X11_window* ae_simulation_X11::get_window( int8_t win )
 // =====================================================================
 
 
-#endif // __AE_SIMULATION_X11_H__
+#endif // __AE_EXP_SETUP_X11_H__

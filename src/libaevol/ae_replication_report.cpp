@@ -63,10 +63,10 @@ ae_replication_report::ae_replication_report( ae_individual * indiv, ae_individu
 {
   _indiv = indiv;
   
-  _index = indiv->get_index_in_population();
-  _rank  = indiv->get_rank_in_population();
+  _id   = indiv->get_id();
+  _rank = indiv->get_rank();
   
-  _parent_index = parent->get_index_in_population();
+  _parent_id = parent->get_id();
     
   _genome_size        = 0;
   _metabolic_error    = 0.0;
@@ -83,13 +83,13 @@ ae_replication_report::ae_replication_report( ae_individual * indiv, ae_individu
   
   if ( donor == NULL )
   {
-    _donor_index = -1;
-    _donor_metabolic_error = 0.0;
-    _donor_genome_size     = 0;
+    _donor_id               = -1;
+    _donor_metabolic_error  = 0.0;
+    _donor_genome_size      = 0;
   }
   else
   {
-    _donor_index           = donor->get_index_in_population();
+    _donor_id              = donor->get_id();
     _donor_metabolic_error = donor->get_dist_to_target_by_feature( METABOLISM );
     _donor_genome_size     = donor->get_total_genome_size();
   }
@@ -101,11 +101,11 @@ ae_replication_report::ae_replication_report( ae_individual * indiv, ae_individu
 // Creates an independent copy of the original report
 ae_replication_report::ae_replication_report( const ae_replication_report &model )
 {
-  _parent_index = model._parent_index;
-  _donor_index  = model._donor_index;
+  _parent_id  = model._parent_id;
+  _donor_id   = model._donor_id;
   
-  _index = model._index;
-  _rank  = model._rank;
+  _id   = model._id;
+  _rank = model._rank;
     
   _genome_size        = model._genome_size;
   _metabolic_error    = model._metabolic_error;
@@ -139,14 +139,10 @@ ae_replication_report::ae_replication_report( gzFile * tree_file, ae_individual 
 {
   _indiv = indiv;
     
-  gzread( tree_file, &_index,         sizeof(_index)        );
-  gzread( tree_file, &_rank,          sizeof(_rank)         );
-  gzread( tree_file, &_parent_index,  sizeof(_parent_index) );
-  gzread( tree_file, &_donor_index,   sizeof(_donor_index) );
-  //~ printf( "  _index : %"PRId32"\n",         _index );
-  //~ printf( "  _rank : %"PRId32"\n",          _rank );
-  //~ printf( "  _parent_index : %"PRId32"\n", _parent_index );
-  //~ printf( "  _donor_index : %"PRId32"\n",  _donor_index );
+  gzread( tree_file, &_id,        sizeof(_id)         );
+  gzread( tree_file, &_rank,      sizeof(_rank)       );
+  gzread( tree_file, &_parent_id, sizeof(_parent_id)  );
+  gzread( tree_file, &_donor_id,  sizeof(_donor_id)   );
   
   gzread( tree_file, &_genome_size,         sizeof(_genome_size) );
   gzread( tree_file, &_metabolic_error,     sizeof(_metabolic_error) );
@@ -316,14 +312,10 @@ void ae_replication_report::signal_end_of_replication( void )
 void ae_replication_report::write_to_tree_file( gzFile* tree_file ) const
 {
   // Store individual identifiers and rank
-  gzwrite( tree_file, &_index,        sizeof(_index)        );
-  gzwrite( tree_file, &_rank,         sizeof(_rank)         );
-  gzwrite( tree_file, &_parent_index, sizeof(_parent_index) );
-  gzwrite( tree_file, &_donor_index,  sizeof(_donor_index) );
-  //~ printf( "  _index : %"PRId32"\n",         _index );
-  //~ printf( "  _rank : %"PRId32"\n",          _rank );
-  //~ printf( "  _parent_index : %"PRId32"\n",  _parent_index );
-  //~ printf( "  _donor_index : %"PRId32"\n",   _donor_index );
+  gzwrite( tree_file, &_id,         sizeof(_id)         );
+  gzwrite( tree_file, &_rank,       sizeof(_rank)       );
+  gzwrite( tree_file, &_parent_id,  sizeof(_parent_id)  );
+  gzwrite( tree_file, &_donor_id,   sizeof(_donor_id)   );
   
   gzwrite( tree_file, &_genome_size,         sizeof(_genome_size) );
   gzwrite( tree_file, &_metabolic_error,     sizeof(_metabolic_error) );

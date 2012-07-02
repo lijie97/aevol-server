@@ -48,7 +48,7 @@
 //                            Project Files
 // =================================================================
 #include <ae_utils.h>
-#include <ae_simulation.h>
+#include <ae_experiment.h>
 #include <ae_individual.h>
 #include <ae_genetic_unit.h>
 #include <ae_list.h>
@@ -286,7 +286,7 @@ int main(int argc, char** argv)
   open_operons_stat_file();
   
 
-  ae_common::sim = new ae_simulation();
+  ae_common::sim = new ae_experiment();
   ae_common::sim->set_env( env );  
   
 
@@ -307,7 +307,7 @@ int main(int argc, char** argv)
       printf("Comparing the environment with the one in %s... ", backup_file_name);  
       fflush(NULL);
     }
-    ae_simulation* sim_backup = new ae_simulation();
+    ae_experiment* sim_backup = new ae_experiment();
     sim_backup->load_backup( backup_file_name, false, NULL );
     
     ae_environment* env_backup = sim_backup->get_env();
@@ -610,10 +610,10 @@ int main(int argc, char** argv)
         fflush(NULL);
       }
       
-      ae_simulation * sim_backup = new ae_simulation();
+      ae_experiment * sim_backup = new ae_experiment();
       sim_backup->load_backup( backup_file_name, false, NULL );
       
-      stored_indiv = new ae_individual( * (ae_individual *)sim_backup->get_pop()->get_indiv_by_index( index ) );
+      stored_indiv = NULL;//new ae_individual( * (ae_individual *)sim_backup->get_pop()->get_indiv_by_index( index ) );
       
 
       ae_environment * env_backup = sim_backup->get_env();

@@ -49,7 +49,7 @@
 #include <ae_common.h>
 #include <ae_population.h>
 #include <ae_individual.h>
-#include <ae_simulation.h>
+#include <ae_experiment.h>
 #include <ae_param_loader.h>
 
 
@@ -100,12 +100,12 @@ int main( int argc, char* argv[] )
   
   int32_t _num_gener=0;
   
-  // We create a new simulation
-  printf("Creating the new simulation.\n");
-  ae_simulation* sim1 = new ae_simulation();
-  ae_param_loader* param_loader = new ae_param_loader( "param.in" );
-  sim1->load_params( param_loader, NULL );
-  delete param_loader;
+  //~ // We create a new simulation
+  //~ printf("Creating the new simulation.\n");
+  ae_experiment* sim1 = new ae_experiment();
+  //~ ae_param_loader* param_loader = new ae_param_loader( "param.in" );
+  //~ sim1->load_params( param_loader, NULL );
+  //~ delete param_loader;
 
   
   // We modify its individuals
@@ -115,8 +115,8 @@ int main( int argc, char* argv[] )
   printf("Closing the file.\n");
   gzclose(init_file);
   
-  ae_list* list_indivs = sim1->get_pop()->get_indivs();
-  int32_t nb_indivs = sim1->get_pop()->get_nb_indivs();
+  ae_list* list_indivs = NULL;//sim1->get_pop()->get_indivs();
+  int32_t nb_indivs = NULL;//sim1->get_pop()->get_nb_indivs();
   
   ae_list_node*  indiv_node = list_indivs->get_first();
   int i;
@@ -132,7 +132,7 @@ int main( int argc, char* argv[] )
   if ( ae_common::pop_structure == true )
   {
     ae_list_node*  indiv_node = list_indivs->get_first();
-    ae_grid_cell*** _pop_grid = (sim1->get_pop())->get_pop_grid();
+    ae_grid_cell*** _pop_grid = NULL;//sim1->get_pop()->get_pop_grid();
     for ( int16_t x = 0 ; x < ae_common::grid_x ; x++ )
     {
       for ( int16_t y = 0 ; y < ae_common::grid_y ; y++ )
@@ -145,9 +145,10 @@ int main( int argc, char* argv[] )
   }
   
   // Evaluate the new individuals
-  (sim1->get_pop())->evaluate_individuals(sim1->get_env());
+  ae_population* pop = NULL;
+  /*sim1->get_pop()*/pop->evaluate_individuals( sim1->get_env() );
   
-  // Delete the backup files created by the ae_simulation constructor
+  // Delete the backup files created by the ae_experiment constructor
   char backup_file_name[50];
   char best_indiv_file_name[50];
   

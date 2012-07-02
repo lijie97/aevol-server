@@ -39,8 +39,7 @@
 //                            Project Files
 // =================================================================
 #include <ae_logs.h>
-#include <ae_common.h>
-#include <ae_simulation.h>
+#include <ae_exp_setup.h>
 
 
 
@@ -97,10 +96,6 @@ ae_logs::~ae_logs( void )
 // =================================================================
 void ae_logs::write_to_backup( gzFile* backup_file ) const
 {
-  // TODO Temporary save, should be gotten rid of to use the value in ae_common::sim
-  int32_t num_gener = ae_common::sim->get_num_gener();
-  gzwrite( backup_file, &num_gener, sizeof(num_gener) );
-  
   gzwrite( backup_file, &_logs, sizeof(_logs) );
 }
 

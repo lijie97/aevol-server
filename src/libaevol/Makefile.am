@@ -20,13 +20,15 @@ AM_CPPFLAGS += -D__STDC_FORMAT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MA
 
 
 
-common_headers = ae_align.h ae_codon.h ae_common.h ae_dna.h ae_dump.h ae_enums.h ae_environment.h ae_env_segment.h ae_fuzzy_set.h ae_gaussian.h ae_genetic_unit.h ae_grid_cell.h ae_individual.h ae_list.h ae_logs.h ae_macros.h ae_mutation.h ae_object.h ae_params.h ae_params_init.h ae_params_record.h ae_param_loader.h ae_param_overloader.h ae_phenotype.h ae_population.h ae_point_1d.h ae_point_2d.h ae_protein.h ae_rand_mt.h ae_replication_report.h ae_dna_replic_report.h ae_rna.h ae_simulation.h ae_stats.h ae_stat_record.h ae_string.h ae_tree.h ae_utils.h ae_vis_a_vis.h
+common_headers = ae_align.h ae_codon.h ae_dna.h ae_dump.h ae_enums.h ae_environment.h ae_env_segment.h ae_exp_manager.h ae_exp_setup.h ae_fuzzy_set.h ae_gaussian.h ae_genetic_unit.h ae_grid_cell.h ae_individual.h ae_list.h ae_logs.h ae_macros.h ae_mutation.h ae_object.h ae_output_manager.h ae_params_init.h ae_params_mut.h ae_params_record.h ae_phenotype.h ae_population.h ae_point_1d.h ae_point_2d.h ae_protein.h ae_rand_mt.h ae_replication_report.h ae_dna_replic_report.h ae_rna.h ae_stats.h ae_stat_record.h ae_string.h ae_tree.h ae_utils.h ae_vis_a_vis.h ae_selection.h ae_spatial_structure.h
+common_headers += params.h param_loader.h
 
-common_sources = ae_align.cpp ae_codon.cpp ae_common.cpp ae_dna.cpp ae_dump.cpp ae_environment.cpp ae_fuzzy_set.cpp ae_genetic_unit.cpp ae_grid_cell.cpp ae_individual.cpp ae_logs.cpp ae_mutation.cpp ae_params.cpp ae_params_init.cpp ae_params_record.cpp ae_param_loader.cpp ae_param_overloader.cpp ae_phenotype.cpp ae_population.cpp ae_protein.cpp ae_rand_mt.cpp ae_replication_report.cpp ae_dna_replic_report.cpp ae_rna.cpp ae_simulation.cpp ae_stats.cpp ae_stat_record.cpp ae_string.cpp ae_tree.cpp  ae_vis_a_vis.cpp
+common_sources = ae_align.cpp ae_codon.cpp ae_dna.cpp ae_dump.cpp ae_environment.cpp ae_exp_manager.cpp ae_exp_setup.cpp ae_fuzzy_set.cpp ae_genetic_unit.cpp ae_grid_cell.cpp ae_individual.cpp ae_logs.cpp ae_mutation.cpp ae_output_manager.cpp ae_params_init.cpp ae_params_mut.cpp ae_params_record.cpp ae_phenotype.cpp ae_population.cpp ae_protein.cpp ae_rand_mt.cpp ae_replication_report.cpp ae_dna_replic_report.cpp ae_rna.cpp ae_stats.cpp ae_stat_record.cpp ae_string.cpp ae_tree.cpp ae_vis_a_vis.cpp ae_selection.cpp ae_spatial_structure.cpp
+common_sources += params.cpp param_loader.cpp
 
 
-X11_headers = ae_fuzzy_set_X11.h ae_individual_X11.h ae_population_X11.h ae_simulation_X11.h ae_X11_window.h
-X11_sources = ae_fuzzy_set_X11.cpp ae_individual_X11.cpp ae_population_X11.cpp ae_simulation_X11.cpp ae_X11_window.cpp
+X11_headers = ae_fuzzy_set_X11.h ae_individual_X11.h ae_population_X11.h ae_exp_setup_X11.h ae_X11_window.h
+X11_sources = ae_fuzzy_set_X11.cpp ae_individual_X11.cpp ae_population_X11.cpp ae_exp_setup_X11.cpp ae_X11_window.cpp
 
 raevol_headers = ae_array_short.h ae_individual_R.h ae_influence_R.h ae_matrix_double.h ae_protein_R.h ae_rna_R.h
 raevol_sources = ae_individual_R.cpp ae_influence_R.cpp ae_protein_R.cpp ae_rna_R.cpp

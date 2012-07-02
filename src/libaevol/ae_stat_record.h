@@ -44,7 +44,6 @@
 //                            Project Files
 // =================================================================
 #include <ae_object.h>
-#include <ae_common.h>
 
 
 
@@ -52,6 +51,7 @@
 // =================================================================
 //                          Class declarations
 // =================================================================
+class ae_exp_manager;
 class ae_stats;
 class ae_individual;
 class ae_population;
@@ -166,6 +166,7 @@ class ae_stat_record : public ae_object
     // =================================================================
     //                          Protected Attributes
     // =================================================================
+    ae_exp_manager* _exp_m;
     
     // NB : All the attributes are doubles because they will be used to
     //      compute averages over the population.

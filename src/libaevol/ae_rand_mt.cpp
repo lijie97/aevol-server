@@ -58,9 +58,16 @@
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_rand_mt::ae_rand_mt( const uint32_t& oneSeed )
+ae_rand_mt::ae_rand_mt( const uint32_t simple_seed )
 {
-  seed( oneSeed );
+  seed( simple_seed );
+}
+
+ae_rand_mt::ae_rand_mt( const ae_rand_mt& model )
+{
+  memcpy( state, model.state, N * sizeof(state[0]) );
+  left  = model.left;
+  pNext = &state[N-left];
 }
 
 ae_rand_mt::ae_rand_mt( gzFile* backup_file )

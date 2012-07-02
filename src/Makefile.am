@@ -1,5 +1,5 @@
 ######################    variables    ########################
-SUBDIRS = libaevol post_treatments
+SUBDIRS = libaevol #post_treatments
 
 AM_CPPFLAGS = -I./
 AM_CPPFLAGS += -I$(top_srcdir)/src/libaevol
@@ -18,13 +18,23 @@ AM_CPPFLAGS += -D__STDC_FORMAT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MA
 ############################################
 # Set programs to build and library to use #
 ############################################
-AM_LDFLAGS = -L$(top_srcdir)/src/libaevol
+
+
+##### The below solution is no longer used since it generates a dependency problem #####
+#AM_LDFLAGS = -L$(top_srcdir)/src/libaevol
+#if WITH_RAEVOL
+#  LDADD = -lraevol
+#else # WITHOUT_RAEVOL
+#  LDADD = -laevol
+#endif # RAEVOL
+#####  #####
 
 if WITH_RAEVOL
-  LDADD = -lraevol
+  LDADD = $(top_srcdir)/src/libaevol/libraevol.a
 else # WITHOUT_RAEVOL
-  LDADD = -laevol
+  LDADD = $(top_srcdir)/src/libaevol/libaevol.a
 endif # RAEVOL
+
 
 if WITH_RAEVOL
 if WITH_X
@@ -64,8 +74,10 @@ endif # DEBUG
 endif # X
 endif # RAEVOL
 
-CLEANFILES = aevol aevol_IN2P3 raevol raevol_IN2P3 aevol_debug raevol_debug aevol_X11 raevol_X11 aevol_X11_debug raevol_X11_debug
+bin_PROGRAMS += create_exp
 
+CLEANFILES = aevol aevol_IN2P3 raevol raevol_IN2P3 aevol_debug raevol_debug aevol_X11 raevol_X11 aevol_X11_debug raevol_X11_debug
+CLEANFILES += create_exp
 
 
 
@@ -113,3 +125,8 @@ raevol_X11_CPPFLAGS = $(AM_CPPFLAGS)
 raevol_X11_debugdir = $(bindir)
 raevol_X11_debug_SOURCES = aevol.cpp
 raevol_X11_debug_CPPFLAGS = $(AM_CPPFLAGS)
+
+
+create_exp_dir = $(bindir)
+create_exp_SOURCES = create_exp.cpp
+create_exp_CPPFLAGS = $(AM_CPPFLAGS)

@@ -55,9 +55,11 @@
 // =================================================================
 //                          Class declarations
 // =================================================================
-class ae_simulation;
+class ae_exp_setup;
+class ae_population;
 #ifdef __X11
-  class ae_simulation_X11;
+  class ae_exp_setup_X11;
+  class ae_population_X11;
 #endif
 class ae_list;
 
@@ -99,10 +101,12 @@ class ae_common
     // =================================================================
     //                           Public Attributes
     // =================================================================
-    static ae_simulation* sim;
+    static ae_exp_setup*  sim;
+    static ae_population* pop;
 
 #ifdef __X11
-    static ae_simulation_X11* sim_display;
+    static ae_exp_setup_X11*  sim_display;
+    static ae_population_X11* pop_display;
 #endif
 
     // Initialization parameters

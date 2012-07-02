@@ -41,8 +41,7 @@
 //                            Project Files
 // =================================================================
 #include <ae_string.h>
-#include <ae_common.h>
-#include <ae_simulation.h>
+#include <ae_exp_setup.h>
 
 
 
@@ -77,9 +76,9 @@ ae_string::ae_string( const ae_string &model )
   memcpy( _data, model._data, (_length+1) * sizeof(char) );
 }
 
-/**
- * Creates a new ae_string with a random string (of zeroes and ones) of length <length>.
- */
+/*!
+  Creates a new ae_string with enough space to store a string of the given length.
+*/
 ae_string::ae_string( int32_t length )
 {
   _nb_blocks = nb_blocks( length );
@@ -87,11 +86,11 @@ ae_string::ae_string( int32_t length )
   _data = new char[_nb_blocks * BLOCK_SIZE];
 
   // Generate a random genome
-  for ( int32_t i = 0 ; i < _length ; i++ )
+  /*for ( int32_t i = 0 ; i < _length ; i++ )
   {
     _data[i] = '0' + ae_common::sim->alea->random( NB_BASE );
   }
-  _data[_length] = '\0';
+  _data[_length] = '\0';*/
 }
 
 /**
@@ -132,7 +131,6 @@ ae_string::ae_string( gzFile* backup_file )
 ae_string::ae_string( char* organism_file_name )
 {
   FILE* org_file = fopen( organism_file_name, "r" );
-  int c; 
   int length; 
   
   if (org_file==NULL) printf ("Error opening organism file\n");

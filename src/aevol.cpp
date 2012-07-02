@@ -45,13 +45,19 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_common.h>
-#include <ae_param_overloader.h>
-#include <ae_simulation.h>
+//~ #ifdef __X11
+  //~ #include <ae_exp_setup_X11.h>
+  //~ #include <ae_population_X11.h>
+//~ #elif defined __NO_X
+  //~ #include <ae_exp_setup.h>
+  //~ #include <ae_population.h>
+//~ #else
+  //~ #error You must specify a graphic option
+//~ #endif
 
-#ifdef __X11
-#include <ae_simulation_X11.h>
-#endif
+#include <ae_exp_manager.h>
+//~ #include <ae_param_overloader.h>
+#include <ae_macros.h>
 
 
 
@@ -74,14 +80,14 @@ void print_help( char* prog_name );
 int main( int argc, char* argv[] )
 {
   // Catch SIGUSR1 in handler catch_usr1. SIGUSR1 will toggle
-#ifndef __NO_X
-  signal( SIGUSR1, catch_usr1 );
-#endif
+  #ifndef __NO_X
+    signal( SIGUSR1, catch_usr1 );
+  #endif
 
-#ifdef __IN2P3
-  signal( SIGUSR1, catch_usr1 );
-  signal( SIGXCPU, catch_xcpu );
-#endif  
+  #ifdef __IN2P3
+    signal( SIGUSR1, catch_usr1 );
+    signal( SIGXCPU, catch_xcpu );
+  #endif  
   
   #ifdef DEBUG
     printf( "aevol is being run in DEBUG mode\n" );
@@ -93,10 +99,12 @@ int main( int argc, char* argv[] )
   // =================================================================
   //
   // 1) Initialize command-line option variables with default values
-  char*   initial_backup_file_name  = NULL;
-  char*   initial_organism_file_name  = NULL;
+  char* exp_setup_file_name = NULL;
+  char* pop_file_name       = NULL;
+  char* out_man_file_name   = NULL;
+  int32_t num_gener = 0;
   
-  ae_param_overloader* param_overloader = new ae_param_overloader();
+  //~ ae_param_overloader* param_overloader = new ae_param_overloader();
   
   
   #ifndef __NO_X
@@ -104,16 +112,15 @@ int main( int argc, char* argv[] )
   #endif
   
   // 2) Define allowed options
-  const char * options_list = "hxdf:o:n:s:p:";
+  const char * options_list = "hr:e:p:o:xn:";
   static struct option long_options_list[] = {
-    { "help",     no_argument, NULL, 'h' },
-    { "noX",      no_argument, NULL, 'x' },
-    { "file",     required_argument, NULL, 'f' },
-    { "organism", required_argument, NULL, 'o' },
-    { "nbgener",  required_argument, NULL, 'n' },
-    { "seed",     required_argument, NULL, 's' },
-    { "param",    required_argument, NULL, 'p' },
-    { "delete-old-stats",   no_argument, NULL, 'd'},
+    { "help",     no_argument,        NULL, 'h' },
+    { "restart",  required_argument,  NULL, 'r' },
+    { "exp",      required_argument,  NULL, 'e' },
+    { "pop",      required_argument,  NULL, 'p' },
+    { "out",      required_argument,  NULL, 'o' },
+    { "noX",      no_argument,        NULL, 'x' },
+    { "nbgener",  required_argument,  NULL, 'n' },
     { 0, 0, 0, 0 }
   };
       
@@ -138,59 +145,25 @@ int main( int argc, char* argv[] )
         
         break;
       }
-      case 'f' :
+      case 'r' :
       {
         if ( strcmp( optarg, "" ) == 0 )
         {
-          printf( "ERROR : Option -f or --file : missing argument.\n" );
+          printf( "ERROR : Option -r or --restart : missing argument.\n" );
           exit( EXIT_FAILURE );
         }
         
-        initial_backup_file_name = new char[strlen(optarg) + 1];
-        sprintf( initial_backup_file_name, "%s", optarg );
+        num_gener = atol( optarg );
+        
+        exp_setup_file_name = new char[255];
+        pop_file_name       = new char[255];
+        out_man_file_name   = new char[255];
+        
+        sprintf( exp_setup_file_name, EXP_SETUP_BACKUP_FNAME_FORMAT,  num_gener );
+        sprintf( pop_file_name,       POP_BACKUP_FNAME_FORMAT,        num_gener );
+        sprintf( out_man_file_name,   OUT_PROF_BACKUP_FNAME_FORMAT,   num_gener );
         
         break;      
-      }
-      case 'o' :
-      {
-        if ( strcmp( optarg, "" ) == 0 )
-        {
-          printf( "ERROR : Option -o or --organism : missing argument.\n" );
-          exit( EXIT_FAILURE );
-        }
-        
-        initial_organism_file_name = new char[strlen(optarg) + 1];
-        sprintf( initial_organism_file_name, "%s", optarg );
-        
-        break;      
-      }
-      case 's' :
-      {
-        if ( strcmp( optarg, "" ) == 0 )
-        {
-          printf( "ERROR : Option -s or --seed : missing argument.\n" );
-          exit( EXIT_FAILURE );
-        }
-        
-        char* tmp = new char[50];
-        sprintf( tmp, "SEED %s", optarg );
-        param_overloader->store_overload( tmp );
-        delete tmp;
-        
-        break;
-      }
-      case 'p' :
-      {
-        if( strcmp( optarg, "") == 0)
-        {
-          printf( "ERROR : Option -p or --param : missing agument.\n" );
-          exit( EXIT_FAILURE );
-        }
-        
-        param_overloader->store_overload( optarg );
-        // NOTE that the actual overloading of the parameters is done after loading the parameter file
-        
-        break;
       }
       case 'n' :
       {
@@ -202,100 +175,42 @@ int main( int argc, char* argv[] )
         
         char* tmp = new char[50];
         sprintf( tmp, "NB_GENER %s", optarg );
-        param_overloader->store_overload( tmp );
+        //~ param_overloader->store_overload( tmp );
         // NOTE that the actual overloading of the parameters is done after loading the parameter file
         delete [] tmp;
         
         break;
       }
-      case 'd' :
-      {
-        ae_common::init_params->set_delete_old_stats( true );
-        break;
-      }
     }
   }
   
   
   // =================================================================
-  //                       Create the simulation
+  //                          Load the simulation
   // =================================================================
-#ifdef __NO_X
-  if ( initial_backup_file_name == NULL  && initial_organism_file_name == NULL)
-  {    
-    // Create a new simulation
-    ae_common::sim = new ae_simulation();
-    ae_param_loader* param_loader = new ae_param_loader( "param.in" );
-    ae_common::sim->load_params( param_loader, param_overloader );
-    delete param_loader;
-  }
-  else
-  {
-    if ( initial_organism_file_name == NULL ) 
-    {
-      printf( "Loading simulation from backup file <%s>...\n", initial_backup_file_name );
-    
-      // Load simulation from backup
-      ae_common::sim = new ae_simulation();
-      ae_common::sim->load_backup( initial_backup_file_name, true, param_overloader );
-    }
-    else
-    {
-      //~ printf( "Loading simulation from organism file <%s>...\n", initial_organism_file_name );
-    
-      //~ // Load simulation from backup
-      //~ ae_common::sim = new ae_simulation( initial_organism_file_name, param_overloader );    
-    }
-  }
-#elif defined __X11
-  if ( initial_organism_file_name != NULL )
-  {
-    printf( "Loading of single organism under X11 not implemented yet.... \n"); 
-  } 
+  ae_exp_manager* exp_manager = new ae_exp_manager();
   
-  if ( initial_backup_file_name == NULL )
-  {
-    // Create a new simulation
-    ae_common::sim = ae_common::sim_display = new ae_simulation_X11();
-    ae_param_loader* param_loader = new ae_param_loader( "param.in" );
-    ae_common::sim->load_params( param_loader, param_overloader );
-    delete param_loader;
-  }
-  else
-  {
-    printf( "Loading simulation from backup file <%s>...\n", initial_backup_file_name );
-    
-    // Load simulation from backup
-    ae_common::sim = ae_common::sim_display = new ae_simulation_X11();
-    ae_common::sim->load_backup( initial_backup_file_name, true, param_overloader );
-  }
-#else
-#error You must specify a graphic option
-#endif
+  exp_manager->load_experiment( exp_setup_file_name, pop_file_name, out_man_file_name, true );
   
-  delete [] initial_backup_file_name;
-  delete [] initial_organism_file_name;
-  delete param_overloader;
-  ae_common::print_to_file();
+  delete [] pop_file_name;
+  delete [] exp_setup_file_name;
+  //~ delete param_overloader;
 
     
 #ifndef __NO_X
-  if ( show_display_on_startup )
-  {
-    ae_common::sim_display->toggle_display_on_off();
-  }
+  //~ if ( show_display_on_startup )
+  //~ {
+    //~ ae_common::sim_display->toggle_display_on_off();
+  //~ }
 #endif
   
   // =================================================================
   //                         Run the simulation
   // =================================================================
-  if ( ae_common::nb_generations > 0 )
-  {
-    ae_common::sim->run();
-  }
-  
-
-  ae_common::clean(); // deletes the param overloader (among other things) 
+  //~ if ( ae_common::nb_generations > 0 )
+  //~ {
+    //~ exp_manager->run_evolution();
+  //~ }
 }
 
 
@@ -305,7 +220,7 @@ void catch_usr1( int sig_num )
   signal( SIGUSR1, catch_usr1 );
   
   printf( "display on/off\n" );
-  ae_common::sim_display->toggle_display_on_off();
+  //~ exp_manager->toggle_display_on_off();
 }
 #endif
 

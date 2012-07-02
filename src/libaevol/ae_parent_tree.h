@@ -24,12 +24,12 @@
 //*****************************************************************************
 
 
-/** \class
- *  \brief
- */
+/*! \class ae_parent_tree
+  \brief
+*/
  
  
-#ifndef __AE_PARENT_TREE_H__
+#ifndef  __AE_PARENT_TREE_H__
 #define  __AE_PARENT_TREE_H__
  
  
@@ -45,7 +45,6 @@
 //                            Project Files
 // =================================================================
 #include <ae_object.h>
-#include <ae_common.h>
 #include <ae_individual.h>
 #include <ae_replication_report.h>
 

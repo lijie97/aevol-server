@@ -53,7 +53,7 @@
 #include <ae_protein.h>
 #include <ae_rna.h>
 #include <ae_list.h>
-#include <ae_simulation.h>
+#include <ae_experiment.h>
 #include <ae_align.h>
 
 
@@ -155,10 +155,10 @@ int main( int argc, char* argv[] )
       fflush(stdout);
 
       // Load simulation from backup
-      ae_common::sim = new ae_simulation();
+      ae_common::sim = new ae_experiment();
       ae_common::sim->load_backup( backup_file_name, false, NULL );
       
-      best_indiv      = ae_common::sim->get_pop()->get_best();
+      best_indiv      = ae_common::pop->get_best();
       env             = ae_common::sim->get_env();
       num_gener       = ae_common::sim->get_num_gener();
       printf("done\n");
@@ -169,7 +169,7 @@ int main( int argc, char* argv[] )
   
   
   
-  // The constructor of the ae_simulation has read the genomes of the individuals
+  // The constructor of the ae_experiment has read the genomes of the individuals
   // and located their promoters, but has not performed the translation nor the
   // phenotype computation. We must do it now.
   // However, as the individuals in the backups are sorted, we don't need to evaluate

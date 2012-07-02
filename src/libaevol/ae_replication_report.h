@@ -82,14 +82,14 @@ class ae_replication_report : public ae_object
     //                              Accessors
     // =================================================================
     inline ae_individual * get_indiv( void ) const;
-    int32_t         get_index( void ) const;
-    void            set_index( int32_t index );
+    int32_t         get_id( void ) const;
+    void            set_id( int32_t id );
     int32_t         get_rank( void ) const;
     void            set_rank( int32_t rank );
-    inline void     set_parent_index( int32_t parent_index );
-    inline int32_t  get_parent_index( void ) const;
-    inline void     set_donor_index( int32_t donor_index );
-    inline int32_t  get_donor_index( void ) const;
+    inline void     set_parent_id( int32_t parent_id );
+    inline int32_t  get_parent_id( void ) const;
+    inline void     set_donor_id( int32_t donor_id );
+    inline int32_t  get_donor_id( void ) const;
     inline void     set_parent_metabolic_error( double parent_metabolic_error );
     inline double   get_parent_metabolic_error( void ) const;
     inline void     set_parent_secretion_error( double parent_secretion_error );
@@ -146,10 +146,10 @@ class ae_replication_report : public ae_object
     ae_individual*  _indiv;
     
     // ********** Data recorded in the tree **********
-    int32_t         _index;
+    int32_t         _id;
     int32_t         _rank;
-    int32_t         _parent_index;
-    int32_t         _donor_index; // Horizontal transfer donor
+    int32_t         _parent_id;
+    int32_t         _donor_id; // Horizontal transfer donor
     
     int32_t         _genome_size;
     double          _metabolic_error;
@@ -189,14 +189,14 @@ inline ae_individual * ae_replication_report::get_indiv( void ) const
   return _indiv;
 }
 
-inline int32_t ae_replication_report::get_index( void ) const
+inline int32_t ae_replication_report::get_id( void ) const
 {
-  return _index;
+  return _id;
 }
 
-inline void ae_replication_report::set_index( int32_t index )
+inline void ae_replication_report::set_id( int32_t id )
 {
-  _index = index;
+  _id = id;
 }
 
 inline int32_t ae_replication_report::get_rank( void ) const
@@ -210,24 +210,24 @@ inline void ae_replication_report::set_rank( int32_t rank )
 }
 
 
-int32_t ae_replication_report::get_parent_index( void ) const
+int32_t ae_replication_report::get_parent_id( void ) const
 {
-  return _parent_index;
+  return _parent_id;
 }
 
-void ae_replication_report::set_parent_index( int32_t parent_index )
+void ae_replication_report::set_parent_id( int32_t parent_id )
 {
-  _parent_index = parent_index;
+  _parent_id = parent_id;
 }
 
-int32_t ae_replication_report::get_donor_index( void ) const
+int32_t ae_replication_report::get_donor_id( void ) const
 {
-  return _donor_index;
+  return _donor_id;
 }
 
-void ae_replication_report::set_donor_index( int32_t donor_index )
+void ae_replication_report::set_donor_id( int32_t donor_id )
 {
-  _donor_index = donor_index;
+  _donor_id = donor_id;
 }
 
 void ae_replication_report::set_parent_metabolic_error( double parent_metabolic_error )

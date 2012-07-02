@@ -30,7 +30,7 @@
 #include <ae_common.h>
 #include <ae_population.h>
 #include <ae_individual.h>
-#include <ae_simulation.h>
+#include <ae_experiment.h>
 
 
 
@@ -93,14 +93,14 @@ int main( int argc, char* argv[] )
 
   // Load simulation from backup
   gzFile* indiv_file = (gzFile*) gzopen( indiv_file_name, "w" );
-  ae_common::sim = new ae_simulation();
+  ae_common::sim = new ae_experiment();
   ae_common::sim->load_backup( backup_file_name, false, NULL );
   
   // Evaluate the individuals
-  (ae_common::sim->get_pop())->evaluate_individuals(ae_common::sim->get_env());
+  ae_common::pop->evaluate_individuals(ae_common::sim->get_env());
   
   // Saving the best one
-  ae_common::sim->get_pop()->get_best()->write_to_backup(indiv_file);
+  ae_common::pop->get_best()->write_to_backup(indiv_file);
   
   // Close the file
   gzclose(indiv_file);

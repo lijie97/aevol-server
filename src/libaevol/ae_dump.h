@@ -45,7 +45,6 @@
 //                            Project Files
 // =================================================================
 #include <ae_object.h>
-#include <ae_common.h>
 
 
 
@@ -53,6 +52,7 @@
 // =================================================================
 //                          Class declarations
 // =================================================================
+class ae_exp_manager;
 
 
 
@@ -69,7 +69,6 @@ class ae_dump : public ae_object
   ae_dump( void )
   {
   }
-  // ae_dump( int32_t num_gener );
   
   // =================================================================
   //                             Destructors
@@ -85,8 +84,6 @@ class ae_dump : public ae_object
   // =================================================================
   //                            Public Methods
   // =================================================================
-  
-
   void write_current_generation_dump( void );
   void write_fitness_total( void );
   void write_secretion_present( void );
@@ -99,18 +96,28 @@ class ae_dump : public ae_object
   
   
   
- protected :
-  FILE* current_file;
-  char  filename_buffer[_AE_DUMP_FILENAME_BUFSIZE];
-  
-  // =================================================================
-  //                         Forbidden Constructors
-  // =================================================================
-  ae_dump( const ae_dump &model )
-  {
-    printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-    exit( EXIT_FAILURE );
-  };
+  protected :
+    FILE* current_file;
+    char  filename_buffer[_AE_DUMP_FILENAME_BUFSIZE];
+    
+    // =================================================================
+    //                         Forbidden Constructors
+    // =================================================================
+    ae_dump( const ae_dump &model )
+    {
+      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
+      exit( EXIT_FAILURE );
+    };
+
+
+    // =================================================================
+    //                           Protected Methods
+    // =================================================================
+
+    // =================================================================
+    //                          Protected Attributes
+    // =================================================================
+    ae_exp_manager* _exp_m;
 };
 
 

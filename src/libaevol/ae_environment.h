@@ -88,7 +88,7 @@ class ae_environment : public ae_fuzzy_set_X11
     virtual ~ae_environment( void );
 
     // =================================================================
-    //                              Accessors
+    //                         Accessors: getters
     // =================================================================
     inline ae_list*             get_gaussians( void ) const;
     inline double               get_total_area( void ) const;
@@ -102,25 +102,35 @@ class ae_environment : public ae_fuzzy_set_X11
     inline double               get_var_sigma( void )        const;
     inline int32_t              get_var_tau( void )          const;
     
+    // =================================================================
+    //                         Accessors: setters
+    // =================================================================
+    inline void   set_gaussians( ae_list* gaussians );
+    inline void   set_custom_points( ae_list* custom_points );
     inline void   set_sampling( int16_t val );
     inline void   set_segmentation( int16_t nb_segments, double* boundaries, ae_env_axis_feature* features, bool separate_segments = false );
     inline void   set_variation_method( ae_env_var var_method );
+    inline void   set_alea_var( ae_rand_mt* alea_var );
     inline void   set_var_sigma( double sigma );
     inline void   set_var_tau( int32_t tau );
     inline void   set_var_sigma_tau( double sigma, int32_t tau );
 
+
     // =================================================================
     //                            Public Methods
     // =================================================================
+    void read_from_backup( gzFile* backup_file );
+    void write_to_backup( gzFile* backup_file ) const;
+
     void add_custom_point( double x, double y );
     void add_gaussian( double a, double b, double c );
     void build( void );
     
     inline void apply_variation( void );
+    inline void apply_noise( void );
     
-    bool fitness_is_composite( void );
+    bool fitness_is_composite( void ) const;
 
-    void write_to_backup( gzFile* backup_file );
 
     // =================================================================
     //                           Public Attributes
@@ -156,10 +166,11 @@ class ae_environment : public ae_fuzzy_set_X11
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ae_list*  _gaussians;       // List containing all the gaussians of the environment
-    int16_t   _sampling;        // Number of points to be generated from the gaussians.
-    ae_list*  _custom_points;   // List containing all the custom points of the environment.
-                                // This can not be used in conjunction with gaussians.
+    ae_list*  _initial_gaussians; // List containing all the gaussians of the environment in their initial state
+    ae_list*  _gaussians;         // List containing all the gaussians of the environment
+    int16_t   _sampling;          // Number of points to be generated from the gaussians.
+    ae_list*  _custom_points;     // List containing all the custom points of the environment.
+                                  // This can not be used in conjunction with gaussians.
     
     bool              _is_segmented;
     int16_t           _nb_segments;
@@ -172,10 +183,14 @@ class ae_environment : public ae_fuzzy_set_X11
     double* _area_by_feature; // Geometric area of each feature
     
     // Variation management
-    ae_rand_mt* _alea;              // An environment has its own random generator
-    ae_env_var  _variation_method;  
+    ae_rand_mt* _alea_var;
+    ae_env_var  _variation_method;
     double      _var_sigma;         // Autoregressive mean variation sigma parameter
     int32_t     _var_tau;           // Autoregressive mean variation tau parameter
+    
+    // Noise management
+    ae_rand_mt* _alea_noise;
+    
 };
 
 
@@ -242,6 +257,15 @@ inline int32_t ae_environment::get_var_tau( void ) const
   return _var_tau;
 }
 
+inline void ae_environment::set_gaussians( ae_list* gaussians )
+{
+  _gaussians = gaussians;
+}
+
+inline void ae_environment::set_custom_points( ae_list* custom_points )
+{
+  _custom_points = custom_points;
+}
 
 inline void ae_environment::set_sampling( int16_t val )
 {
@@ -258,9 +282,7 @@ inline void ae_environment::set_segmentation( int16_t nb_segments, double* bound
   
   for ( int16_t i = 0 ; i < _nb_segments; i++ )
   {
-    _segments[i] = new ae_env_segment(  boundaries[i], 
-                                        boundaries[i+1], 
-                                        features[i] );
+    _segments[i] = new ae_env_segment( boundaries[i], boundaries[i+1], features[i] );
   }
   
   // TODO : Manage separate_segments
@@ -271,6 +293,11 @@ inline void ae_environment::set_segmentation( int16_t nb_segments, double* bound
 inline void ae_environment::set_variation_method( ae_env_var var_method )
 {
   _variation_method = var_method;
+}
+
+inline void ae_environment::set_alea_var( ae_rand_mt* alea_var )
+{
+  _alea_var = alea_var;
 }
 
 inline void ae_environment::set_var_sigma( double sigma )
@@ -309,6 +336,12 @@ inline void ae_environment::apply_variation( void )
       exit( EXIT_FAILURE );
   }
   
+  _compute_area();
+}
+
+inline void ae_environment::apply_noise( void )
+{
+  #warning environmental noise not yet implemented
   _compute_area();
 }
 

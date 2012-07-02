@@ -24,13 +24,13 @@
 //*****************************************************************************
 
 
-/** \class
- *  \brief
- */
+/*! \class ae_env_segment
+  \brief
+*/
  
  
-#ifndef  __AE_ENV_SEGMENT_H__
-#define  __AE_ENV_SEGMENT_H__
+#ifndef __AE_ENV_SEGMENT_H__
+#define __AE_ENV_SEGMENT_H__
  
  
 // =================================================================
@@ -43,7 +43,8 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_common.h>
+#include <ae_macros.h>
+#include <ae_enums.h>
 
 
 
@@ -67,7 +68,6 @@ class ae_env_segment : public ae_object
     inline ae_env_segment( void );
     inline ae_env_segment( double start, double stop, ae_env_axis_feature feature );
     inline ae_env_segment( const ae_env_segment& source );
-    inline ae_env_segment( gzFile* backup_file );
   
     // =================================================================
     //                             Destructors
@@ -81,7 +81,8 @@ class ae_env_segment : public ae_object
     // =================================================================
     //                            Public Methods
     // =================================================================
-    inline void write_to_backup( gzFile* backup_file );
+    inline void write_to_backup( gzFile* backup_file ) const;
+    inline void read_from_backup( gzFile* backup_file );
   
     // =================================================================
     //                           Public Attributes
@@ -138,8 +139,8 @@ class ae_env_segment : public ae_object
 // =================================================================
 inline ae_env_segment::ae_env_segment( void )
 {
-  start   = MIN_X;
-  stop    = MAX_X;
+  start   = X_MIN;
+  stop    = X_MAX;
   feature = NEUTRAL;
 }
 
@@ -157,15 +158,6 @@ inline ae_env_segment::ae_env_segment( const ae_env_segment& source )
   this->feature = source.feature;
 }
 
-inline ae_env_segment::ae_env_segment( gzFile* backup_file )
-{
-  gzread( backup_file, &start,        sizeof(start) );
-  gzread( backup_file, &stop,         sizeof(stop) );
-  int8_t tmp_feature;
-  gzread( backup_file, &tmp_feature,  sizeof(tmp_feature) );
-  feature = (ae_env_axis_feature) tmp_feature;
-}
-
 // =================================================================
 //                             Destructors
 // =================================================================
@@ -180,12 +172,21 @@ inline ae_env_segment::~ae_env_segment( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-inline void ae_env_segment::write_to_backup( gzFile* backup_file )
+inline void ae_env_segment::write_to_backup( gzFile* backup_file ) const
 {
   gzwrite( backup_file, &start,   sizeof(start) );
   gzwrite( backup_file, &stop,    sizeof(stop) );
   int8_t tmp_feature = feature;
   gzread( backup_file, &tmp_feature,  sizeof(tmp_feature) );
+}
+
+inline void ae_env_segment::read_from_backup( gzFile* backup_file )
+{
+  gzread( backup_file, &start,        sizeof(start) );
+  gzread( backup_file, &stop,         sizeof(stop) );
+  int8_t tmp_feature;
+  gzread( backup_file, &tmp_feature,  sizeof(tmp_feature) );
+  feature = (ae_env_axis_feature) tmp_feature;
 }
 
 // =================================================================

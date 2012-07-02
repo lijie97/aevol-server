@@ -32,16 +32,26 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@bin_PROGRAMS = aevol$(EXEEXT)
-@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@bin_PROGRAMS = raevol$(EXEEXT)
-@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@bin_PROGRAMS = aevol_IN2P3$(EXEEXT)
-@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@bin_PROGRAMS = raevol_IN2P3$(EXEEXT)
-@WITH_DEBUG_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@bin_PROGRAMS = aevol_X11$(EXEEXT)
-@WITH_DEBUG_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@bin_PROGRAMS = raevol_X11$(EXEEXT)
-@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@bin_PROGRAMS = aevol_debug$(EXEEXT)
-@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@bin_PROGRAMS = aevol_X11_debug$(EXEEXT)
-@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@bin_PROGRAMS = raevol_debug$(EXEEXT)
-@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@bin_PROGRAMS = raevol_X11_debug$(EXEEXT)
+@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@bin_PROGRAMS = aevol$(EXEEXT) \
+@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	create_exp$(EXEEXT)
+@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@bin_PROGRAMS = raevol$(EXEEXT) \
+@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	create_exp$(EXEEXT)
+@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@bin_PROGRAMS = aevol_IN2P3$(EXEEXT) \
+@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	create_exp$(EXEEXT)
+@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@bin_PROGRAMS = raevol_IN2P3$(EXEEXT) \
+@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	create_exp$(EXEEXT)
+@WITH_DEBUG_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@bin_PROGRAMS = aevol_X11$(EXEEXT) \
+@WITH_DEBUG_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	create_exp$(EXEEXT)
+@WITH_DEBUG_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@bin_PROGRAMS = raevol_X11$(EXEEXT) \
+@WITH_DEBUG_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	create_exp$(EXEEXT)
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@bin_PROGRAMS = aevol_debug$(EXEEXT) \
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	create_exp$(EXEEXT)
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@bin_PROGRAMS = aevol_X11_debug$(EXEEXT) \
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	create_exp$(EXEEXT)
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@bin_PROGRAMS = raevol_debug$(EXEEXT) \
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	create_exp$(EXEEXT)
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@bin_PROGRAMS = raevol_X11_debug$(EXEEXT) \
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	create_exp$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -56,43 +66,80 @@ PROGRAMS = $(bin_PROGRAMS)
 am_aevol_OBJECTS = aevol-aevol.$(OBJEXT)
 aevol_OBJECTS = $(am_aevol_OBJECTS)
 aevol_LDADD = $(LDADD)
-aevol_DEPENDENCIES =
+@WITH_RAEVOL_FALSE@aevol_DEPENDENCIES =  \
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a
+@WITH_RAEVOL_TRUE@aevol_DEPENDENCIES =  \
+@WITH_RAEVOL_TRUE@	$(top_srcdir)/src/libaevol/libraevol.a
 am_aevol_IN2P3_OBJECTS = aevol_IN2P3-aevol.$(OBJEXT)
 aevol_IN2P3_OBJECTS = $(am_aevol_IN2P3_OBJECTS)
 aevol_IN2P3_LDADD = $(LDADD)
-aevol_IN2P3_DEPENDENCIES =
+@WITH_RAEVOL_FALSE@aevol_IN2P3_DEPENDENCIES =  \
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a
+@WITH_RAEVOL_TRUE@aevol_IN2P3_DEPENDENCIES =  \
+@WITH_RAEVOL_TRUE@	$(top_srcdir)/src/libaevol/libraevol.a
 am_aevol_X11_OBJECTS = aevol_X11-aevol.$(OBJEXT)
 aevol_X11_OBJECTS = $(am_aevol_X11_OBJECTS)
 aevol_X11_LDADD = $(LDADD)
-aevol_X11_DEPENDENCIES =
+@WITH_RAEVOL_FALSE@aevol_X11_DEPENDENCIES =  \
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a
+@WITH_RAEVOL_TRUE@aevol_X11_DEPENDENCIES =  \
+@WITH_RAEVOL_TRUE@	$(top_srcdir)/src/libaevol/libraevol.a
 am_aevol_X11_debug_OBJECTS = aevol_X11_debug-aevol.$(OBJEXT)
 aevol_X11_debug_OBJECTS = $(am_aevol_X11_debug_OBJECTS)
 aevol_X11_debug_LDADD = $(LDADD)
-aevol_X11_debug_DEPENDENCIES =
+@WITH_RAEVOL_FALSE@aevol_X11_debug_DEPENDENCIES =  \
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a
+@WITH_RAEVOL_TRUE@aevol_X11_debug_DEPENDENCIES =  \
+@WITH_RAEVOL_TRUE@	$(top_srcdir)/src/libaevol/libraevol.a
 am_aevol_debug_OBJECTS = aevol_debug-aevol.$(OBJEXT)
 aevol_debug_OBJECTS = $(am_aevol_debug_OBJECTS)
 aevol_debug_LDADD = $(LDADD)
-aevol_debug_DEPENDENCIES =
+@WITH_RAEVOL_FALSE@aevol_debug_DEPENDENCIES =  \
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a
+@WITH_RAEVOL_TRUE@aevol_debug_DEPENDENCIES =  \
+@WITH_RAEVOL_TRUE@	$(top_srcdir)/src/libaevol/libraevol.a
+am_create_exp_OBJECTS = create_exp-create_exp.$(OBJEXT)
+create_exp_OBJECTS = $(am_create_exp_OBJECTS)
+create_exp_LDADD = $(LDADD)
+@WITH_RAEVOL_FALSE@create_exp_DEPENDENCIES =  \
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a
+@WITH_RAEVOL_TRUE@create_exp_DEPENDENCIES =  \
+@WITH_RAEVOL_TRUE@	$(top_srcdir)/src/libaevol/libraevol.a
 am_raevol_OBJECTS = raevol-aevol.$(OBJEXT)
 raevol_OBJECTS = $(am_raevol_OBJECTS)
 raevol_LDADD = $(LDADD)
-raevol_DEPENDENCIES =
+@WITH_RAEVOL_FALSE@raevol_DEPENDENCIES =  \
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a
+@WITH_RAEVOL_TRUE@raevol_DEPENDENCIES =  \
+@WITH_RAEVOL_TRUE@	$(top_srcdir)/src/libaevol/libraevol.a
 am_raevol_IN2P3_OBJECTS = raevol_IN2P3-aevol.$(OBJEXT)
 raevol_IN2P3_OBJECTS = $(am_raevol_IN2P3_OBJECTS)
 raevol_IN2P3_LDADD = $(LDADD)
-raevol_IN2P3_DEPENDENCIES =
+@WITH_RAEVOL_FALSE@raevol_IN2P3_DEPENDENCIES =  \
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a
+@WITH_RAEVOL_TRUE@raevol_IN2P3_DEPENDENCIES =  \
+@WITH_RAEVOL_TRUE@	$(top_srcdir)/src/libaevol/libraevol.a
 am_raevol_X11_OBJECTS = raevol_X11-aevol.$(OBJEXT)
 raevol_X11_OBJECTS = $(am_raevol_X11_OBJECTS)
 raevol_X11_LDADD = $(LDADD)
-raevol_X11_DEPENDENCIES =
+@WITH_RAEVOL_FALSE@raevol_X11_DEPENDENCIES =  \
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a
+@WITH_RAEVOL_TRUE@raevol_X11_DEPENDENCIES =  \
+@WITH_RAEVOL_TRUE@	$(top_srcdir)/src/libaevol/libraevol.a
 am_raevol_X11_debug_OBJECTS = raevol_X11_debug-aevol.$(OBJEXT)
 raevol_X11_debug_OBJECTS = $(am_raevol_X11_debug_OBJECTS)
 raevol_X11_debug_LDADD = $(LDADD)
-raevol_X11_debug_DEPENDENCIES =
+@WITH_RAEVOL_FALSE@raevol_X11_debug_DEPENDENCIES =  \
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a
+@WITH_RAEVOL_TRUE@raevol_X11_debug_DEPENDENCIES =  \
+@WITH_RAEVOL_TRUE@	$(top_srcdir)/src/libaevol/libraevol.a
 am_raevol_debug_OBJECTS = raevol_debug-aevol.$(OBJEXT)
 raevol_debug_OBJECTS = $(am_raevol_debug_OBJECTS)
 raevol_debug_LDADD = $(LDADD)
-raevol_debug_DEPENDENCIES =
+@WITH_RAEVOL_FALSE@raevol_debug_DEPENDENCIES =  \
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a
+@WITH_RAEVOL_TRUE@raevol_debug_DEPENDENCIES =  \
+@WITH_RAEVOL_TRUE@	$(top_srcdir)/src/libaevol/libraevol.a
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -104,12 +151,12 @@ CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
 	-o $@
 SOURCES = $(aevol_SOURCES) $(aevol_IN2P3_SOURCES) $(aevol_X11_SOURCES) \
 	$(aevol_X11_debug_SOURCES) $(aevol_debug_SOURCES) \
-	$(raevol_SOURCES) $(raevol_IN2P3_SOURCES) \
-	$(raevol_X11_SOURCES) $(raevol_X11_debug_SOURCES) \
-	$(raevol_debug_SOURCES)
+	$(create_exp_SOURCES) $(raevol_SOURCES) \
+	$(raevol_IN2P3_SOURCES) $(raevol_X11_SOURCES) \
+	$(raevol_X11_debug_SOURCES) $(raevol_debug_SOURCES)
 DIST_SOURCES = $(aevol_SOURCES) $(aevol_IN2P3_SOURCES) \
 	$(aevol_X11_SOURCES) $(aevol_X11_debug_SOURCES) \
-	$(aevol_debug_SOURCES) $(raevol_SOURCES) \
+	$(aevol_debug_SOURCES) $(create_exp_SOURCES) $(raevol_SOURCES) \
 	$(raevol_IN2P3_SOURCES) $(raevol_X11_SOURCES) \
 	$(raevol_X11_debug_SOURCES) $(raevol_debug_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
@@ -251,7 +298,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 
 ######################    variables    ########################
-SUBDIRS = libaevol post_treatments
+SUBDIRS = libaevol #post_treatments
 
 ############################################
 # C99 exact-width integer specific support #
@@ -261,14 +308,24 @@ SUBDIRS = libaevol post_treatments
 # __STDC_LIMIT_MACROS allows us to use exact-width integer limit macros with e.g. INT32_MAX
 AM_CPPFLAGS = -I./ -I$(top_srcdir)/src/libaevol -D__STDC_FORMAT_MACROS \
 	-D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS
+@WITH_RAEVOL_FALSE@LDADD = $(top_srcdir)/src/libaevol/libaevol.a
 
 ############################################
 # Set programs to build and library to use #
 ############################################
-AM_LDFLAGS = -L$(top_srcdir)/src/libaevol
-@WITH_RAEVOL_FALSE@LDADD = -laevol
-@WITH_RAEVOL_TRUE@LDADD = -lraevol
-CLEANFILES = aevol aevol_IN2P3 raevol raevol_IN2P3 aevol_debug raevol_debug aevol_X11 raevol_X11 aevol_X11_debug raevol_X11_debug
+
+##### The below solution is no longer used since it generates a dependency problem #####
+#AM_LDFLAGS = -L$(top_srcdir)/src/libaevol
+#if WITH_RAEVOL
+#  LDADD = -lraevol
+#else # WITHOUT_RAEVOL
+#  LDADD = -laevol
+#endif # RAEVOL
+#####  #####
+@WITH_RAEVOL_TRUE@LDADD = $(top_srcdir)/src/libaevol/libraevol.a
+CLEANFILES = aevol aevol_IN2P3 raevol raevol_IN2P3 aevol_debug \
+	raevol_debug aevol_X11 raevol_X11 aevol_X11_debug \
+	raevol_X11_debug create_exp
 
 # The target_CPPFLAGS for each target may look useless, it is here to force automake to create
 # prefixed object files so that we don't use an object file built for another set of macrodefinitions
@@ -303,6 +360,9 @@ raevol_X11_CPPFLAGS = $(AM_CPPFLAGS)
 raevol_X11_debugdir = $(bindir)
 raevol_X11_debug_SOURCES = aevol.cpp
 raevol_X11_debug_CPPFLAGS = $(AM_CPPFLAGS)
+create_exp_dir = $(bindir)
+create_exp_SOURCES = create_exp.cpp
+create_exp_CPPFLAGS = $(AM_CPPFLAGS)
 all: all-recursive
 
 .SUFFIXES:
@@ -389,6 +449,9 @@ aevol_X11_debug$(EXEEXT): $(aevol_X11_debug_OBJECTS) $(aevol_X11_debug_DEPENDENC
 aevol_debug$(EXEEXT): $(aevol_debug_OBJECTS) $(aevol_debug_DEPENDENCIES) 
 	@rm -f aevol_debug$(EXEEXT)
 	$(CXXLINK) $(aevol_debug_OBJECTS) $(aevol_debug_LDADD) $(LIBS)
+create_exp$(EXEEXT): $(create_exp_OBJECTS) $(create_exp_DEPENDENCIES) 
+	@rm -f create_exp$(EXEEXT)
+	$(CXXLINK) $(create_exp_OBJECTS) $(create_exp_LDADD) $(LIBS)
 raevol$(EXEEXT): $(raevol_OBJECTS) $(raevol_DEPENDENCIES) 
 	@rm -f raevol$(EXEEXT)
 	$(CXXLINK) $(raevol_OBJECTS) $(raevol_LDADD) $(LIBS)
@@ -416,6 +479,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/aevol_X11-aevol.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/aevol_X11_debug-aevol.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/aevol_debug-aevol.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/create_exp-create_exp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/raevol-aevol.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/raevol_IN2P3-aevol.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/raevol_X11-aevol.Po@am__quote@
@@ -505,6 +569,20 @@ aevol_debug-aevol.obj: aevol.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='aevol.cpp' object='aevol_debug-aevol.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(aevol_debug_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o aevol_debug-aevol.obj `if test -f 'aevol.cpp'; then $(CYGPATH_W) 'aevol.cpp'; else $(CYGPATH_W) '$(srcdir)/aevol.cpp'; fi`
+
+create_exp-create_exp.o: create_exp.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(create_exp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT create_exp-create_exp.o -MD -MP -MF $(DEPDIR)/create_exp-create_exp.Tpo -c -o create_exp-create_exp.o `test -f 'create_exp.cpp' || echo '$(srcdir)/'`create_exp.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/create_exp-create_exp.Tpo $(DEPDIR)/create_exp-create_exp.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='create_exp.cpp' object='create_exp-create_exp.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(create_exp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o create_exp-create_exp.o `test -f 'create_exp.cpp' || echo '$(srcdir)/'`create_exp.cpp
+
+create_exp-create_exp.obj: create_exp.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(create_exp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT create_exp-create_exp.obj -MD -MP -MF $(DEPDIR)/create_exp-create_exp.Tpo -c -o create_exp-create_exp.obj `if test -f 'create_exp.cpp'; then $(CYGPATH_W) 'create_exp.cpp'; else $(CYGPATH_W) '$(srcdir)/create_exp.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/create_exp-create_exp.Tpo $(DEPDIR)/create_exp-create_exp.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='create_exp.cpp' object='create_exp-create_exp.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(create_exp_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o create_exp-create_exp.obj `if test -f 'create_exp.cpp'; then $(CYGPATH_W) 'create_exp.cpp'; else $(CYGPATH_W) '$(srcdir)/create_exp.cpp'; fi`
 
 raevol-aevol.o: aevol.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(raevol_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT raevol-aevol.o -MD -MP -MF $(DEPDIR)/raevol-aevol.Tpo -c -o raevol-aevol.o `test -f 'aevol.cpp' || echo '$(srcdir)/'`aevol.cpp

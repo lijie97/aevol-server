@@ -25,7 +25,7 @@
 
 
 #ifndef __AE_ENUMS_H__
-#define  __AE_ENUMS_H__
+#define __AE_ENUMS_H__
 
 enum ae_align_fun_shape
 {

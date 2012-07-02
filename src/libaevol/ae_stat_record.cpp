@@ -39,8 +39,10 @@
 //                            Project Files
 // =================================================================
 #include <ae_stat_record.h>
+
 #include <ae_list.h>
-#include <ae_simulation.h>
+#include <ae_exp_manager.h>
+#include <ae_exp_setup.h>
 #include <ae_population.h>
 #include <ae_individual.h>
 #include <ae_genetic_unit.h>
@@ -78,7 +80,7 @@ ae_stat_record::ae_stat_record( ae_individual const * indiv, chrom_or_gen_unit c
   // ---------------
   // Simulation data
   // ---------------
-  _num_gener = ( num_gener == -1 ) ? ae_common::sim->get_num_gener() : num_gener;
+  _num_gener = ( num_gener == -1 ) ? _exp_m->get_num_gener() : num_gener;
   _pop_size = 0; // The pop_size value is irrelevent when dealing with a single individual. It is present for column alignment.
   
   #ifdef __REGUL
@@ -95,11 +97,8 @@ ae_stat_record::ae_stat_record( ae_individual const * indiv, chrom_or_gen_unit c
     // -------------------------------------------------
     // Compute statistical data for the given individual
     // -------------------------------------------------
-    ae_replication_report* replic_report = NULL;
-    if ( _num_gener > 0 && ae_common::rec_params->get_record_tree() )
-    {
-      replic_report = indiv->get_replic_report();
-    }
+    ae_replication_report* replic_report = indiv->get_replic_report(); // can be NULL under certain conditions
+    
     gen_unit = (ae_genetic_unit*) indiv->get_genetic_unit_list()->get_first()->get_obj();
     
     // Metabolic error stats
@@ -111,7 +110,7 @@ ae_stat_record::ae_stat_record( ae_individual const * indiv, chrom_or_gen_unit c
     _fitness = indiv->get_fitness();
   
     // Secretion stats
-    if ( ae_common::params->get_use_secretion() )
+    if ( _exp_m->get_use_secretion() )
     {
        _secretion_error   = (double) indiv->get_dist_to_target_by_feature( SECRETION );
        _secretion_fitness = (double) indiv->get_fitness_by_feature( SECRETION );
@@ -198,11 +197,7 @@ ae_stat_record::ae_stat_record( ae_individual const * indiv, chrom_or_gen_unit c
     // -------------------------------------------------
     // Compute statistical data for the given individual
     // -------------------------------------------------
-    ae_replication_report* replic_report = NULL;
-    if ( _num_gener > 0 && ae_common::rec_params->get_record_tree() )
-    {
-      replic_report = indiv->get_replic_report();
-    }
+    ae_replication_report* replic_report = indiv->get_replic_report(); // can be NULL under certain conditions
     
     // Metabolic error stats
     _metabolic_error = (double) indiv->get_dist_to_target_by_feature( METABOLISM );
@@ -213,14 +208,14 @@ ae_stat_record::ae_stat_record( ae_individual const * indiv, chrom_or_gen_unit c
     _fitness = indiv->get_fitness();
   
     // Secretion stats
-    if ( ae_common::params->get_use_secretion() )
+    if ( _exp_m->get_use_secretion() )
     {
        _secretion_error = (double) indiv->get_dist_to_target_by_feature( SECRETION );
        _secretion_fitness = (double) indiv->get_fitness_by_feature(SECRETION);
        _compound_amount   = (double) indiv->get_grid_cell()->get_compound_amount();
        _parent_secretion_error = 0.0;
   
-      if ( _num_gener > 0 && ae_common::rec_params->get_record_tree() )
+      if ( replic_report != NULL )
       {
         _parent_secretion_error = replic_report->get_parent_secretion_error();
       }
@@ -299,7 +294,7 @@ ae_stat_record::ae_stat_record( ae_individual const * indiv, chrom_or_gen_unit c
     {
       gen_unit_node = indiv->get_genetic_unit_list()->get_first()->get_next();
     }
-    if ( chrom_or_gu == CHROM) 
+    if ( chrom_or_gu == CHROM ) 
     {
       gen_unit_node = indiv->get_genetic_unit_list()->get_first();
     }
@@ -309,11 +304,7 @@ ae_stat_record::ae_stat_record( ae_individual const * indiv, chrom_or_gen_unit c
     // -------------------------------------------------
     // Compute statistical data for the given individual
     // -------------------------------------------------
-    ae_replication_report*  replic_report = NULL;
-    if ( _num_gener > 0 && ae_common::rec_params->get_record_tree() )
-    {
-      replic_report = indiv->get_replic_report();
-    }
+    ae_replication_report* replic_report = indiv->get_replic_report(); // can be NULL under certain conditions
     
     // Metabolic error stats
     _metabolic_error = (double) indiv->get_dist_to_target_by_feature( METABOLISM );
@@ -324,14 +315,14 @@ ae_stat_record::ae_stat_record( ae_individual const * indiv, chrom_or_gen_unit c
     _fitness = indiv->get_fitness();
   
     // Secretion stats
-    if ( ae_common::params->get_use_secretion() )
+    if ( _exp_m->get_use_secretion() )
     {
        _secretion_error = (double) gen_unit->get_dist_to_target_by_feature( SECRETION );
        _secretion_fitness = (double) gen_unit->get_fitness_by_feature( SECRETION );
        _compound_amount   = (double) indiv->get_grid_cell()->get_compound_amount();
        _parent_secretion_error = 0.0;
   
-      if ( _num_gener > 0 && ae_common::rec_params->get_record_tree() )
+      if ( replic_report != NULL )
       {
         _parent_secretion_error = replic_report->get_parent_secretion_error();
       }
@@ -370,7 +361,7 @@ ae_stat_record::ae_stat_record( ae_individual const * indiv, chrom_or_gen_unit c
     }
     
     // Mutation stats
-    if ( _num_gener > 0 && ae_common::rec_params->get_record_tree() )
+    if ( gen_unit->get_dna()->get_replic_report() != NULL )
     {
       _nb_mut    = gen_unit->get_dna()->get_replic_report()->get_nb_small_mutations();
       _nb_rear   = gen_unit->get_dna()->get_replic_report()->get_nb_rearrangements();
@@ -405,7 +396,7 @@ ae_stat_record::ae_stat_record( ae_population const * pop, chrom_or_gen_unit chr
   // ---------------
   // Simulation data
   // ---------------
-  _num_gener = (double) ae_common::sim->get_num_gener();
+  _num_gener = (double) _exp_m->get_num_gener();
   _pop_size  = (double) pop->get_nb_indivs();
 
   // ------------------------------------------------------------------
@@ -441,7 +432,7 @@ ae_stat_record::ae_stat_record( ae_population const * pop, ae_stat_record const 
   // ---------------
   // Simulation data
   // ---------------
-  _num_gener = (double) ae_common::sim->get_num_gener();
+  _num_gener = (double) _exp_m->get_num_gener();
   _pop_size  = (double) pop->get_nb_indivs();
 
   // ------------------------------------------------------------------
@@ -476,7 +467,7 @@ ae_stat_record::ae_stat_record( ae_population const * pop, ae_stat_record const 
   // ---------------
   // Simulation data
   // ---------------
-  _num_gener = (double) ae_common::sim->get_num_gener();
+  _num_gener = (double) _exp_m->get_num_gener();
   _pop_size  = (double) pop->get_nb_indivs();
 
   // ------------------------------------------------------------------

@@ -45,7 +45,6 @@
 // =================================================================
 #include <ae_object.h>
 #include <ae_vis_a_vis.h>
-#include <ae_dna.h>
 
 
 
@@ -53,7 +52,7 @@
 // =================================================================
 //                          Class declarations
 // =================================================================
-
+class ae_dna;
 
 
 
@@ -87,6 +86,24 @@ class ae_align : public ae_object
     // =================================================================
     //                           Public Attributes
     // =================================================================
+
+    static bool with_alignments;
+
+    static ae_align_fun_shape align_fun_shape;
+    
+    static double  align_sigm_lambda;
+    static int16_t align_sigm_mean;
+    static int16_t align_lin_min;
+    static int16_t align_lin_max;
+    
+    // Maximum shift of one seq on the other
+    static int16_t align_max_shift;
+    // Work zone half length
+    static int16_t align_w_zone_h_len;
+    // Corresponding residues match bonus
+    static int16_t align_match_bonus;
+    // Corresponding residues mismatch cost
+    static int16_t align_mismatch_cost;
 
 
 

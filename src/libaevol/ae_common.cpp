@@ -39,7 +39,8 @@
 //                            Project Files
 // =================================================================
 #include <ae_common.h>
-#include <ae_simulation.h>
+#include <ae_exp_setup.h>
+#include <ae_population.h>
 #include <ae_list.h>
 #include <ae_gaussian.h>
 #include <ae_point_2d.h>
@@ -54,14 +55,16 @@
 //                    Definition of static attributes
 // =================================================================
 
-ae_simulation*    ae_common::sim          = NULL;
+ae_exp_setup*     ae_common::sim          = NULL;
+ae_population*    ae_common::pop          = NULL;
 ae_params_init*   ae_common::init_params  = NULL;
 ae_params*        ae_common::params       = NULL;
 ae_params_record* ae_common::rec_params   = NULL;
 
 
 #ifdef __X11
-ae_simulation_X11* ae_common::sim_display = NULL;
+  ae_exp_setup_X11*  ae_common::sim_display = NULL;
+  ae_population_X11* ae_common::pop_display = NULL;
 #endif
 
 
@@ -77,25 +80,25 @@ int32_t ae_common::migration_number  = 0;
 
 
 #ifdef __REGUL
-// Regulation factors
-double ae_common::hill_shape_n      = 4;
-double ae_common::hill_shape_theta  = 0.5;
-double ae_common::hill_shape        = pow( hill_shape_theta, hill_shape_n );
+  // Regulation factors
+  double ae_common::hill_shape_n      = 4;
+  double ae_common::hill_shape_theta  = 0.5;
+  double ae_common::hill_shape        = pow( hill_shape_theta, hill_shape_n );
 
-// Degradation equation
-double ae_common::degradation_rate  = 1;
-double ae_common::degradation_step  = 0.1;
+  // Degradation equation
+  double ae_common::degradation_rate  = 1;
+  double ae_common::degradation_step  = 0.1;
 
-// Individual life
-int16_t         ae_common::individual_evaluation_nbr   = 1;
-ae_array_short* ae_common::individual_evaluation_dates = NULL;
+  // Individual life
+  int16_t         ae_common::individual_evaluation_nbr   = 1;
+  ae_array_short* ae_common::individual_evaluation_dates = NULL;
 
-// Binding matrix
-ae_matrix_double* ae_common::_binding_matrix = NULL;
+  // Binding matrix
+  ae_matrix_double* ae_common::_binding_matrix = NULL;
 
-// Heredity
-bool    ae_common::with_heredity          = false;
-double  ae_common::protein_presence_limit = 1e-5;
+  // Heredity
+  bool    ae_common::with_heredity          = false;
+  double  ae_common::protein_presence_limit = 1e-5;
 #endif
 
 // =================================================================
@@ -123,7 +126,7 @@ void ae_common::write_to_backup( gzFile* backup_file )
   init_params->write_to_backup( backup_file ); // TODO : get rid of !
   
   // Permanent parameters
-  params->write_to_backup( backup_file );
+  //~ params->write_to_backup( backup_file );
   
   // Recording parameters
   rec_params->write_to_backup( backup_file );
@@ -184,7 +187,7 @@ void ae_common::read_from_backup( gzFile* backup_file, bool verbose )
   
   // Permanent parameters
   params = new ae_params();
-  params->read_from_backup( backup_file );
+  //~ params->read_from_backup( backup_file );
   
   // Recording parameters
   rec_params = new ae_params_record();

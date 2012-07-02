@@ -40,7 +40,7 @@
 //                            Project Files
 // =================================================================
 #include <ae_dump.h>
-#include <ae_simulation.h>
+#include <ae_exp_manager.h>
 #include <ae_population.h>
 #include <ae_individual.h>
 #include <ae_genetic_unit.h>
@@ -75,9 +75,9 @@
 //                            Public Methods
 // =================================================================
 
-#define DUMP_FORMAT "\t%d\t%d\t%f\n"
+const char* DUMP_FORMAT = "\t%d\t%d\t%f\n";
 
-void ae_dump :: write_current_generation_dump( void )
+void ae_dump::write_current_generation_dump( void )
 {
   //  printf("Begin dump\n");
   write_fitness_total();
@@ -87,18 +87,19 @@ void ae_dump :: write_current_generation_dump( void )
   //  printf("End dump\n");
 }
 
-void ae_dump :: write_fitness_total ( void )
+void ae_dump::write_fitness_total( void )
 {
-  if( ae_common :: pop_structure )
+  if ( _exp_m->is_spatially_structured() )
   {
-    sprintf( filename_buffer, "dump/fitness_total_%04"PRId32".dat", ae_common :: sim -> get_num_gener() ) ;
-    current_file = fopen(filename_buffer, "w+");
-    ae_population* pop = ae_common :: sim ->get_pop() ;
-    double** map = pop->get_fitness_total();
+    sprintf( filename_buffer, "dump/fitness_total_%04"PRId32".dat", _exp_m->get_num_gener() ) ;
+    current_file = fopen( filename_buffer, "w+" );
+    
+    double** map = _exp_m->get_spatial_structure()->get_total_fitness_grid();
     fprintf( current_file, "#\tX\tY\tfitness_total(X, Y)\n" );
-    for( int16_t x = 0 ; x < ae_common::grid_x ; x++ )
+    
+    for( int16_t x = 0 ; x < _exp_m->get_grid_width() ; x++ )
     {
-      for( int16_t y = 0 ; y < ae_common::grid_y ; y++ )
+      for( int16_t y = 0 ; y < _exp_m->get_grid_height() ; y++ )
       {
         fprintf( current_file, DUMP_FORMAT, x, y, map [x][y] );
       }
@@ -112,16 +113,16 @@ void ae_dump :: write_fitness_total ( void )
 
 void ae_dump :: write_secreted_amount ( void )
 {
-  if( ae_common :: pop_structure )
+  if ( _exp_m->is_spatially_structured() )
   {
-    sprintf( filename_buffer, "dump/secreted_amount_%04"PRId32".dat", ae_common :: sim -> get_num_gener() ) ;
+    sprintf( filename_buffer, "dump/secreted_amount_%04"PRId32".dat", _exp_m->get_num_gener() ) ;
     current_file = fopen( filename_buffer, "w+" );
-    ae_population* pop = ae_common :: sim ->get_pop() ;
-    double** map = pop -> get_secreted_amount();
+    
+    double** map = _exp_m->get_spatial_structure()->get_secreted_amount_grid();
     fprintf( current_file, "#\tX\tY\tsecreted_amount(X, Y)\n" );
-    for( int16_t x = 0 ; x < ae_common::grid_x ; x++ )
+    for( int16_t x = 0 ; x < _exp_m->get_grid_width() ; x++ )
     {
-      for( int16_t y = 0 ; y < ae_common::grid_y ; y++ )
+      for( int16_t y = 0 ; y < _exp_m->get_grid_height() ; y++ )
       {
         fprintf( current_file, DUMP_FORMAT, x, y, map [x][y] );
       }
@@ -135,16 +136,16 @@ void ae_dump :: write_secreted_amount ( void )
 
 void ae_dump :: write_fitness_metabolic ( void )
 {
-  if( ae_common :: pop_structure )
+  if ( _exp_m->is_spatially_structured() )
   {
-    sprintf( filename_buffer, "dump/fitness_metabolic_%04"PRId32".dat", ae_common :: sim -> get_num_gener() ) ;
+    sprintf( filename_buffer, "dump/fitness_metabolic_%04"PRId32".dat", _exp_m->get_num_gener() ) ;
     current_file = fopen( filename_buffer, "w+" );
-    ae_population* pop = ae_common :: sim ->get_pop() ;
-    double** map = pop -> get_fitness_metabolic();
+    
+    double** map = _exp_m->get_spatial_structure()->get_metabolic_fitness_grid();
     fprintf( current_file, "#\tX\tY\tfitness_metabolic(X, Y)\n" );
-    for( int16_t x = 0 ; x < ae_common::grid_x ; x++ )
+    for( int16_t x = 0 ; x < _exp_m->get_grid_width() ; x++ )
     {
-      for( int16_t y = 0 ; y < ae_common::grid_y ; y++ )
+      for( int16_t y = 0 ; y < _exp_m->get_grid_height() ; y++ )
       {
         fprintf( current_file, DUMP_FORMAT, x, y, map [x][y] );
       }
@@ -157,16 +158,16 @@ void ae_dump :: write_fitness_metabolic ( void )
 
 void ae_dump :: write_secretion_present ( void )
 {
-  if( ae_common :: pop_structure )
+  if ( _exp_m->is_spatially_structured() )
   {
-    sprintf( filename_buffer, "dump/secretion_present_%04"PRId32".dat", ae_common :: sim -> get_num_gener() ) ;
+    sprintf( filename_buffer, "dump/secretion_present_%04"PRId32".dat", _exp_m->get_num_gener() ) ;
     current_file = fopen( filename_buffer, "w+" );
-    ae_population* pop = ae_common :: sim ->get_pop() ;
-    double** map = pop -> get_secretion_present();
+    
+    double** map = _exp_m->get_spatial_structure()->get_secretion_present_grid();
     fprintf( current_file, "#\tX\tY\tsecretion_present(X, Y)\n" );
-    for( int16_t x = 0 ; x < ae_common::grid_x ; x++ )
+    for( int16_t x = 0 ; x < _exp_m->get_grid_width() ; x++ )
     {
-      for( int16_t y = 0 ; y < ae_common::grid_y ; y++ )
+      for( int16_t y = 0 ; y < _exp_m->get_grid_height() ; y++ )
         fprintf( current_file, DUMP_FORMAT, x, y, map [x][y] );
       fprintf( current_file, "\n" );
     }

@@ -40,8 +40,9 @@
 //                            Project Files
 // =================================================================
 #include <ae_population_X11.h>
+#include <ae_exp_manager.h>
 #include <ae_individual_X11.h>
-#include <ae_simulation_X11.h>
+#include <ae_exp_setup_X11.h>
 
 
 
@@ -64,10 +65,10 @@ ae_population_X11::ae_population_X11( void ) : ae_population()
   compute_colormap();
 }
 
-ae_population_X11::ae_population_X11( gzFile* backup_file ) : ae_population( backup_file )
-{
-  compute_colormap();
-}
+//~ ae_population_X11::ae_population_X11( gzFile* backup_file ) : ae_population( backup_file )
+//~ {
+  //~ compute_colormap();
+//~ }
 
 // =================================================================
 //                             Destructors
@@ -85,27 +86,29 @@ ae_population_X11::~ae_population_X11( void )
 void ae_population_X11::display( ae_X11_window* win )
 {
   char generation[40];
-  sprintf( generation, "Generation = %"PRId32, ae_common::sim->get_num_gener() );
+  sprintf( generation, "Generation = %"PRId32, _exp_m->get_num_gener() );
   win->draw_string( 15, 15, generation );
 }
 
 // Display a grid of values
 void ae_population_X11::display_grid( ae_X11_window* win, double** cell_grid )
 {
-  assert( ae_common::pop_structure );
+  assert( _exp_m->is_spatially_structured() );
+  
+  ae_spatial_structure* spatial_struct = _exp_m->get_spatial_structure();
   
   // printf("display grid\n");
   char gener[40];
   int num_colors = 50; 
   
-  sprintf( gener, "Generation = %"PRId32, ae_common::sim->get_num_gener() );
+  sprintf( gener, "Generation = %"PRId32, _exp_m->get_num_gener() );
   win->draw_string( 15, 15, gener );
   
   
-  const int grid_x = ae_common::grid_x;
-  const int grid_y = ae_common::grid_y;
+  const int grid_width  = _exp_m->get_grid_width();
+  const int grid_height = _exp_m->get_grid_height();
 
-  int nb_slots_in_a_row = (int) grid_y;
+  int nb_slots_in_a_row = (int) grid_height;
   int slot_width = 200/nb_slots_in_a_row;
   int x1 = 50 + 50 + slot_width/2;
   int y1 = 75 + 50 + slot_width/2;
@@ -114,7 +117,7 @@ void ae_population_X11::display_grid( ae_X11_window* win, double** cell_grid )
   int cell_size = 5;
 
   // draw the color scale for fitness
-  int y_step_size = grid_y*cell_size/num_colors;
+  int y_step_size = grid_height*cell_size/num_colors;
   for ( int i = 0; i  < num_colors; i++ )
   {
     win->fill_rectangle( x1 - 30, y1 - 80 + y_step_size * i,
@@ -125,11 +128,13 @@ void ae_population_X11::display_grid( ae_X11_window* win, double** cell_grid )
   // find min/max of the matrix
   double grid_max = 0;
   double grid_min = 1000000;
-  for (int x = 0; x < grid_x; x++) {
-  for (int y = 0; y < grid_y; y++) {
-     if (cell_grid[x][y] > grid_max) {grid_max = cell_grid[x][y];}
-     if (cell_grid[x][y] < grid_min) {grid_min = cell_grid[x][y];}
-   }
+  for ( int x = 0 ; x < grid_width ; x++ )
+  {
+    for ( int y = 0 ; y < grid_height ; y++ )
+    {
+       if (cell_grid[x][y] > grid_max) {grid_max = cell_grid[x][y];}
+       if (cell_grid[x][y] < grid_min) {grid_min = cell_grid[x][y];}
+     }
   }
   double col_sec_interval = (grid_max - grid_min)/49;
 
@@ -137,11 +142,11 @@ void ae_population_X11::display_grid( ae_X11_window* win, double** cell_grid )
   sprintf(scale_txt,"%f", grid_max);
   win->draw_string(x1-80, y1-80,scale_txt);
   sprintf(scale_txt,"%f", grid_min);
-  win->draw_string(x1-80, y1-80+grid_y*cell_size,scale_txt);
+  win->draw_string(x1-80, y1-80+grid_height*cell_size,scale_txt);
 
-  for (int x = 0; x < grid_x; x++)
+  for (int x = 0; x < grid_width; x++)
   {
-    for (int y = 0; y < grid_y; y++)
+    for (int y = 0; y < grid_height; y++)
     {
       char * col_string;
       // calculate the color

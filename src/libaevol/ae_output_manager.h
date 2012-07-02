@@ -24,162 +24,93 @@
 //*****************************************************************************
 
 
-/** \class
- *  \brief
- */
+/*! \class ae_output_manager
+    \brief
+*/
 
 
-#ifndef __AE_PARAM_LOADER_H__
-#define  __AE_PARAM_LOADER_H__
+#ifndef __AE_OUPUT_MANAGER_H__
+#define __AE_OUPUT_MANAGER_H__
 
 
 // =================================================================
 //                              Libraries
 // =================================================================
 #include <inttypes.h>
-#include <stdio.h>
+
 
 
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_common.h>
+#include <ae_object.h>
+#include <ae_enums.h>
+#include <ae_stats.h>
+#include <ae_tree.h>
+#include <ae_dump.h>
+#include <ae_logs.h>
+
+
 
 
 // =================================================================
 //                          Class declarations
 // =================================================================
-class ae_simulation;
-
-typedef enum
-{
-  MIN_TRIANGLE_WIDTH,
-  MAX_TRIANGLE_WIDTH,
-  ENV_AXIS_SEGMENTS,
-  ENV_AXIS_FEATURES,
-  ENV_SEPARATE_SEGMENTS,
-  BACKUP_STEP,
-  BIG_BACKUP_STEP,
-  RECORD_TREE,
-  TREE_MODE,
-  TREE_STEP,
-  MORE_STATS,
-  DUMP_PERIOD,
-  INITIAL_GENOME_LENGTH,
-  MIN_GENOME_LENGTH,
-  MAX_GENOME_LENGTH,
-  INIT_POP_SIZE,
-  NB_GENER,
-  POP_STRUCTURE,
-  MIGRATION_NUMBER, 
-  GRID_X,
-  GRID_Y,
-  INIT_METHOD,
-  POINT_MUTATION_RATE,
-  SMALL_INSERTION_RATE,
-  SMALL_DELETION_RATE,
-  MAX_INDEL_SIZE,
-  WITH_4PTS_TRANS,
-  WITH_ALIGNMENTS,
-  DUPLICATION_RATE,
-  DELETION_RATE,
-  TRANSLOCATION_RATE,
-  INVERSION_RATE,
-  WITH_TRANSFER,
-  SWAP_GUS,
-  TRANSFER_INS_RATE,
-  TRANSFER_REPL_RATE,
-  NEIGHBOURHOOD_RATE,
-  DUPLICATION_PROPORTION,
-  DELETION_PROPORTION,
-  TRANSLOCATION_PROPORTION,
-  INVERSION_PROPORTION,
-  ALIGN_FUNCTION,
-  ALIGN_MAX_SHIFT,
-  ALIGN_W_ZONE_H_LEN,
-  ALIGN_MATCH_BONUS,
-  ALIGN_MISMATCH_COST,
-  SELECTION_SCHEME,
-  SELECTION_PRESSURE,
-  SEED,
-  TRANSLATION_COST,
-  ENV_ADD_POINT,
-  ENV_ADD_GAUSSIAN,
-  ENV_SAMPLING,
-  ENV_VARIATION,
-  ENV_SEED,
-  SECRETION_FITNESS_CONTRIB,
-  SECRETION_DIFFUSION_PROP,
-  SECRETION_DEGRADATION_PROP, 
-  SECRETION_INITIAL,
-  SECRETION_COST,
-  ALLOW_PLASMIDS,
-  PLASMID_INITIAL_LENGTH,
-  PLASMID_INITIAL_GENE,
-  PLASMID_MINIMAL_LENGTH,
-  PROB_HORIZONTAL_TRANS,
-  NB_HORIZONTAL_TRANS,
-  COMPUTE_PHEN_CONTRIB_BY_GU,
-  LOG,
-  GENERATION_OVERLOAD,
-
-#ifdef __REGUL
-  HILL_SHAPE_N,
-  HILL_SHAPE_THETA,
-  DEGRADATION_RATE,
-  DEGRADATION_STEP,
-  INDIVIDUAL_EVALUATION_DATES,
-  INDIVIDUAL_LIFE_TIME,
-  BINDING_ZEROS_PERCENTAGE,
-  WITH_HEREDITY,
-  PROTEIN_PRESENCE_LIMIT,
-#endif
-
-  UNDEFINED
-} ae_keywd;
+class ae_exp_manager;
 
 
-class f_line
+
+
+
+
+class ae_output_manager : public ae_object
 {
   public :
-    f_line( void );
-
-    ae_keywd get_keywd( void );
-
-    int16_t nb_words;
-    char    words[50][255];
-};
-
-
-
-
-class ae_param_loader
-{
-  public :
-
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_param_loader( void );
-    ae_param_loader( const char* file_name );
+    ae_output_manager( ae_exp_manager* exp_m );
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_param_loader( void );
+    virtual ~ae_output_manager( void );
 
     // =================================================================
-    //                              Accessors
+    //                        Accessors: getters
+    // =================================================================
+    
+    // Tree
+    inline bool         get_record_tree( void ) const;
+    inline int32_t      get_tree_step( void ) const;
+    inline ae_tree_mode get_tree_mode( void ) const;
+    inline ae_tree*     get_tree( void ) const;
+  
+    // Logs
+    inline FILE* get_log( ae_log_type log_type )   const;
+    inline bool  is_logged( ae_log_type log_type ) const;
+
+    // =================================================================
+    //                        Accessors: setters
+    // =================================================================
+
+    // =================================================================
+    //                              Operators
     // =================================================================
 
     // =================================================================
     //                            Public Methods
     // =================================================================
-    static void format_line( f_line*, char*, bool* );
-    static void interpret_line( f_line* line, int32_t cur_line );
-    void load( void );
-    
-    f_line* get_line( void ); 
+    void save_experiment( void ) const;
+    void load_experiment( char* exp_setup_file_name = NULL,
+                          char* pop_file_name = NULL,
+                          char* out_man_file_name = NULL,
+                          bool verbose = true );
+    void write_to_backup( gzFile* file ) const;
+    void read_from_backup( gzFile* file, bool verbose );
+    void write_current_generation_outputs( void ) const;
+    inline void flush( void );
+
     // =================================================================
     //                           Public Attributes
     // =================================================================
@@ -193,38 +124,99 @@ class ae_param_loader
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    //~ ae_param_loader( void )
-    //~ {
-      //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      //~ exit( EXIT_FAILURE );
-    //~ };
-    ae_param_loader( const ae_param_loader &model )
+    ae_output_manager( void )
     {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
+      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
     };
+    ae_output_manager( const ae_output_manager &model )
+    {
+      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
+      exit( EXIT_FAILURE );
+    };
+
 
     // =================================================================
     //                           Protected Methods
     // =================================================================
-    //f_line* get_line( void );
-    
-    
+    void write_tree( void ) const;
 
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    FILE*   param_in;
-    int32_t cur_line;
+    ae_exp_manager* _exp_m;
+    
+    // Backups
+    int32_t _backup_step;
+    int32_t _big_backup_step;
+    
+    // Stats
+    ae_stats* _stats;
+    
+    // Tree
+    bool      _record_tree;
+    ae_tree*  _tree;
+    
+    // Dumps
+    bool      _make_dumps;
+    int32_t   _dump_period;
+    ae_dump*  _dump;
+    
+    // Logs
+    ae_logs*  _logs;
 };
 
 
 // =====================================================================
-//                          Accessors definitions
+//                           Getters' definitions
+// =====================================================================
+
+// Tree
+inline bool ae_output_manager::get_record_tree( void ) const
+{
+  return _record_tree;
+}
+
+inline int32_t ae_output_manager::get_tree_step( void ) const
+{
+  return _tree->get_tree_step();
+}
+
+inline ae_tree_mode ae_output_manager::get_tree_mode( void ) const
+{
+  return _tree->get_tree_mode();
+}
+
+inline ae_tree* ae_output_manager::get_tree( void ) const
+{
+  return _tree;
+}
+
+// Logs
+inline FILE* ae_output_manager::get_log( ae_log_type log_type )   const
+{
+  return _logs->get_log( log_type );
+}
+
+inline bool  ae_output_manager::is_logged( ae_log_type log_type ) const
+{
+  return _logs->is_logged( log_type );
+}
+
+// =====================================================================
+//                           Setters' definitions
+// =====================================================================
+
+// =====================================================================
+//                          Operators' definitions
 // =====================================================================
 
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
+inline void ae_output_manager::flush( void )
+{
+  _stats->flush();
+}
 
-#endif // __AE_PARAM_LOADER_H__
+#endif // __AE_OUPUT_MANAGER_H__

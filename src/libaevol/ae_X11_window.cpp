@@ -45,8 +45,8 @@
 //                            Project Files
 // =================================================================
 #include <ae_X11_window.h>
-#include <ae_common.h>
-#include <ae_simulation.h>
+
+#include <ae_exp_setup.h>
 
 
 
@@ -488,11 +488,11 @@ char* ae_X11_window::get_color( double mean )
 {
   int16_t red, green, blue;
 
-  double  mean_range     = MAX_X - MIN_X;
-  double  mean_range_5   = MIN_X + mean_range / 5;
-  double  mean_range_2_5 = MIN_X + 2 * mean_range / 5;
-  double  mean_range_3_5 = MIN_X + 3 * mean_range / 5;
-  double  mean_range_4_5 = MIN_X + 4 * mean_range / 5;
+  double  mean_range     = X_MAX - X_MIN;
+  double  mean_range_5   = X_MIN + mean_range / 5;
+  double  mean_range_2_5 = X_MIN + 2 * mean_range / 5;
+  double  mean_range_3_5 = X_MIN + 3 * mean_range / 5;
+  double  mean_range_4_5 = X_MIN + 4 * mean_range / 5;
 
   if ( mean < mean_range_5 )
   {

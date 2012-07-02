@@ -68,11 +68,11 @@ class ae_individual_X11 : public virtual ae_individual
     // =================================================================
     //                             Constructors
     // =================================================================
+    ae_individual_X11( ae_exp_manager* exp_manager, ae_rand_mt* alea, ae_params_mut* param_mut, int32_t id, int32_t age );
+    ae_individual_X11( ae_exp_manager* exp_manager, gzFile* backup_file );
     ae_individual_X11( const ae_individual_X11 &model );
-    ae_individual_X11( void );
-    ae_individual_X11( ae_individual_X11* const parent, int32_t index );
-    ae_individual_X11( gzFile* backup_file );
-    ae_individual_X11( char* genome, int32_t genome_size );
+    //~ ae_individual_X11( ae_individual_X11* const parent, int32_t index );
+    //~ ae_individual_X11( char* genome, int32_t genome_size );
   
     // =================================================================
     //                             Destructors
@@ -103,11 +103,11 @@ class ae_individual_X11 : public virtual ae_individual
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    //~ ae_individual_X11( void )
-    //~ {
-      //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      //~ exit( EXIT_FAILURE );
-    //~ };
+    ae_individual_X11( void )
+    {
+      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
+      exit( EXIT_FAILURE );
+    };
   
     // =================================================================
     //                           Protected Methods
