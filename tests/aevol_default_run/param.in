@@ -5,7 +5,7 @@
 ##### 1. Initial setup ############
 SEED                    7250909
 INITIAL_GENOME_LENGTH   5000
-INIT_POP_SIZE           1000
+INIT_POP_SIZE           5000
 INIT_METHOD             ONE_GOOD_GENE CLONE
 NB_GENER                500
 
