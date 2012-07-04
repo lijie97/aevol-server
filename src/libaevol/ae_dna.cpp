@@ -539,7 +539,7 @@ void ae_dna::do_rearrangements_with_align( void )
           {
             // Report the insertion
             mut = new ae_mutation();
-            mut->report_duplication( alignment->get_i_1(), alignment->get_i_2(), alignment->get_i_2(), needed_score );
+            mut->report_duplication( alignment->get_i_1(), alignment->get_i_2(), alignment->get_i_2(), segment_length, needed_score );
           }
           
           // Write a line in rearrangement logfile
@@ -584,7 +584,7 @@ void ae_dna::do_rearrangements_with_align( void )
           {
             // Report the insertion
             mut = new ae_mutation();
-            mut->report_deletion( alignment->get_i_1(), alignment->get_i_2(), needed_score );
+            mut->report_deletion( alignment->get_i_1(), alignment->get_i_2(), segment_length, needed_score );
           }
           
           // Write a line in rearrangement logfile
