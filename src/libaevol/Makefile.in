@@ -60,7 +60,7 @@ am__libaevol_a_SOURCES_DIST = ae_align.cpp ae_codon.cpp ae_dna.cpp \
 	ae_stat_record.cpp ae_string.cpp ae_tree.cpp ae_vis_a_vis.cpp \
 	ae_selection.cpp ae_spatial_structure.cpp params.cpp \
 	param_loader.cpp ae_fuzzy_set_X11.cpp ae_individual_X11.cpp \
-	ae_population_X11.cpp ae_exp_setup_X11.cpp ae_X11_window.cpp
+	ae_population_X11.cpp ae_exp_manager_X11.cpp ae_X11_window.cpp
 am__objects_1 = libaevol_a-ae_align.$(OBJEXT) \
 	libaevol_a-ae_codon.$(OBJEXT) libaevol_a-ae_dna.$(OBJEXT) \
 	libaevol_a-ae_dump.$(OBJEXT) \
@@ -92,7 +92,7 @@ am__objects_1 = libaevol_a-ae_align.$(OBJEXT) \
 am__objects_2 = libaevol_a-ae_fuzzy_set_X11.$(OBJEXT) \
 	libaevol_a-ae_individual_X11.$(OBJEXT) \
 	libaevol_a-ae_population_X11.$(OBJEXT) \
-	libaevol_a-ae_exp_setup_X11.$(OBJEXT) \
+	libaevol_a-ae_exp_manager_X11.$(OBJEXT) \
 	libaevol_a-ae_X11_window.$(OBJEXT)
 @WITH_RAEVOL_FALSE@@WITH_X_FALSE@am_libaevol_a_OBJECTS =  \
 @WITH_RAEVOL_FALSE@@WITH_X_FALSE@	$(am__objects_1)
@@ -115,7 +115,8 @@ am__libraevol_a_SOURCES_DIST = ae_align.cpp ae_codon.cpp ae_dna.cpp \
 	param_loader.cpp ae_individual_R.cpp ae_influence_R.cpp \
 	ae_protein_R.cpp ae_rna_R.cpp ae_fuzzy_set_X11.cpp \
 	ae_individual_X11.cpp ae_population_X11.cpp \
-	ae_exp_setup_X11.cpp ae_X11_window.cpp ae_individual_R_X11.cpp
+	ae_exp_manager_X11.cpp ae_X11_window.cpp \
+	ae_individual_R_X11.cpp
 am__objects_3 = libraevol_a-ae_align.$(OBJEXT) \
 	libraevol_a-ae_codon.$(OBJEXT) libraevol_a-ae_dna.$(OBJEXT) \
 	libraevol_a-ae_dump.$(OBJEXT) \
@@ -153,7 +154,7 @@ am__objects_4 = libraevol_a-ae_individual_R.$(OBJEXT) \
 am__objects_5 = libraevol_a-ae_fuzzy_set_X11.$(OBJEXT) \
 	libraevol_a-ae_individual_X11.$(OBJEXT) \
 	libraevol_a-ae_population_X11.$(OBJEXT) \
-	libraevol_a-ae_exp_setup_X11.$(OBJEXT) \
+	libraevol_a-ae_exp_manager_X11.$(OBJEXT) \
 	libraevol_a-ae_X11_window.$(OBJEXT)
 am__objects_6 = $(am__objects_5) $(am__objects_4) \
 	libraevol_a-ae_individual_R_X11.$(OBJEXT)
@@ -188,7 +189,7 @@ am__libaevol_a_HEADERS_DIST = ae_align.h ae_codon.h ae_dna.h ae_dump.h \
 	ae_utils.h ae_vis_a_vis.h ae_selection.h \
 	ae_spatial_structure.h params.h param_loader.h \
 	ae_fuzzy_set_X11.h ae_individual_X11.h ae_population_X11.h \
-	ae_exp_setup_X11.h ae_X11_window.h
+	ae_exp_manager_X11.h ae_X11_window.h
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -226,7 +227,7 @@ am__libraevol_a_HEADERS_DIST = ae_align.h ae_codon.h ae_dna.h \
 	param_loader.h ae_array_short.h ae_individual_R.h \
 	ae_influence_R.h ae_matrix_double.h ae_protein_R.h ae_rna_R.h \
 	ae_fuzzy_set_X11.h ae_individual_X11.h ae_population_X11.h \
-	ae_exp_setup_X11.h ae_X11_window.h ae_individual_R_X11.h
+	ae_exp_manager_X11.h ae_X11_window.h ae_individual_R_X11.h
 HEADERS = $(libaevol_a_HEADERS) $(libraevol_a_HEADERS)
 ETAGS = etags
 CTAGS = ctags
@@ -364,8 +365,8 @@ common_sources = ae_align.cpp ae_codon.cpp ae_dna.cpp ae_dump.cpp \
 	ae_stat_record.cpp ae_string.cpp ae_tree.cpp ae_vis_a_vis.cpp \
 	ae_selection.cpp ae_spatial_structure.cpp params.cpp \
 	param_loader.cpp
-X11_headers = ae_fuzzy_set_X11.h ae_individual_X11.h ae_population_X11.h ae_exp_setup_X11.h ae_X11_window.h
-X11_sources = ae_fuzzy_set_X11.cpp ae_individual_X11.cpp ae_population_X11.cpp ae_exp_setup_X11.cpp ae_X11_window.cpp
+X11_headers = ae_fuzzy_set_X11.h ae_individual_X11.h ae_population_X11.h ae_exp_manager_X11.h ae_X11_window.h
+X11_sources = ae_fuzzy_set_X11.cpp ae_individual_X11.cpp ae_population_X11.cpp ae_exp_manager_X11.cpp ae_X11_window.cpp
 raevol_headers = ae_array_short.h ae_individual_R.h ae_influence_R.h ae_matrix_double.h ae_protein_R.h ae_rna_R.h
 raevol_sources = ae_individual_R.cpp ae_influence_R.cpp ae_protein_R.cpp ae_rna_R.cpp
 raevol_X11_headers = $(X11_headers) $(raevol_headers) ae_individual_R_X11.h
@@ -446,8 +447,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libaevol_a-ae_dump.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libaevol_a-ae_environment.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libaevol_a-ae_exp_manager.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libaevol_a-ae_exp_manager_X11.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libaevol_a-ae_exp_setup.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libaevol_a-ae_exp_setup_X11.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libaevol_a-ae_fuzzy_set.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libaevol_a-ae_fuzzy_set_X11.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libaevol_a-ae_genetic_unit.Po@am__quote@
@@ -484,8 +485,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libraevol_a-ae_dump.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libraevol_a-ae_environment.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libraevol_a-ae_exp_manager.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libraevol_a-ae_exp_manager_X11.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libraevol_a-ae_exp_setup.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libraevol_a-ae_exp_setup_X11.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libraevol_a-ae_fuzzy_set.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libraevol_a-ae_fuzzy_set_X11.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libraevol_a-ae_genetic_unit.Po@am__quote@
@@ -1038,19 +1039,19 @@ libaevol_a-ae_population_X11.obj: ae_population_X11.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libaevol_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libaevol_a-ae_population_X11.obj `if test -f 'ae_population_X11.cpp'; then $(CYGPATH_W) 'ae_population_X11.cpp'; else $(CYGPATH_W) '$(srcdir)/ae_population_X11.cpp'; fi`
 
-libaevol_a-ae_exp_setup_X11.o: ae_exp_setup_X11.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libaevol_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libaevol_a-ae_exp_setup_X11.o -MD -MP -MF $(DEPDIR)/libaevol_a-ae_exp_setup_X11.Tpo -c -o libaevol_a-ae_exp_setup_X11.o `test -f 'ae_exp_setup_X11.cpp' || echo '$(srcdir)/'`ae_exp_setup_X11.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libaevol_a-ae_exp_setup_X11.Tpo $(DEPDIR)/libaevol_a-ae_exp_setup_X11.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ae_exp_setup_X11.cpp' object='libaevol_a-ae_exp_setup_X11.o' libtool=no @AMDEPBACKSLASH@
+libaevol_a-ae_exp_manager_X11.o: ae_exp_manager_X11.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libaevol_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libaevol_a-ae_exp_manager_X11.o -MD -MP -MF $(DEPDIR)/libaevol_a-ae_exp_manager_X11.Tpo -c -o libaevol_a-ae_exp_manager_X11.o `test -f 'ae_exp_manager_X11.cpp' || echo '$(srcdir)/'`ae_exp_manager_X11.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libaevol_a-ae_exp_manager_X11.Tpo $(DEPDIR)/libaevol_a-ae_exp_manager_X11.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ae_exp_manager_X11.cpp' object='libaevol_a-ae_exp_manager_X11.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libaevol_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libaevol_a-ae_exp_setup_X11.o `test -f 'ae_exp_setup_X11.cpp' || echo '$(srcdir)/'`ae_exp_setup_X11.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libaevol_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libaevol_a-ae_exp_manager_X11.o `test -f 'ae_exp_manager_X11.cpp' || echo '$(srcdir)/'`ae_exp_manager_X11.cpp
 
-libaevol_a-ae_exp_setup_X11.obj: ae_exp_setup_X11.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libaevol_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libaevol_a-ae_exp_setup_X11.obj -MD -MP -MF $(DEPDIR)/libaevol_a-ae_exp_setup_X11.Tpo -c -o libaevol_a-ae_exp_setup_X11.obj `if test -f 'ae_exp_setup_X11.cpp'; then $(CYGPATH_W) 'ae_exp_setup_X11.cpp'; else $(CYGPATH_W) '$(srcdir)/ae_exp_setup_X11.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libaevol_a-ae_exp_setup_X11.Tpo $(DEPDIR)/libaevol_a-ae_exp_setup_X11.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ae_exp_setup_X11.cpp' object='libaevol_a-ae_exp_setup_X11.obj' libtool=no @AMDEPBACKSLASH@
+libaevol_a-ae_exp_manager_X11.obj: ae_exp_manager_X11.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libaevol_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libaevol_a-ae_exp_manager_X11.obj -MD -MP -MF $(DEPDIR)/libaevol_a-ae_exp_manager_X11.Tpo -c -o libaevol_a-ae_exp_manager_X11.obj `if test -f 'ae_exp_manager_X11.cpp'; then $(CYGPATH_W) 'ae_exp_manager_X11.cpp'; else $(CYGPATH_W) '$(srcdir)/ae_exp_manager_X11.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libaevol_a-ae_exp_manager_X11.Tpo $(DEPDIR)/libaevol_a-ae_exp_manager_X11.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ae_exp_manager_X11.cpp' object='libaevol_a-ae_exp_manager_X11.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libaevol_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libaevol_a-ae_exp_setup_X11.obj `if test -f 'ae_exp_setup_X11.cpp'; then $(CYGPATH_W) 'ae_exp_setup_X11.cpp'; else $(CYGPATH_W) '$(srcdir)/ae_exp_setup_X11.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libaevol_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libaevol_a-ae_exp_manager_X11.obj `if test -f 'ae_exp_manager_X11.cpp'; then $(CYGPATH_W) 'ae_exp_manager_X11.cpp'; else $(CYGPATH_W) '$(srcdir)/ae_exp_manager_X11.cpp'; fi`
 
 libaevol_a-ae_X11_window.o: ae_X11_window.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libaevol_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libaevol_a-ae_X11_window.o -MD -MP -MF $(DEPDIR)/libaevol_a-ae_X11_window.Tpo -c -o libaevol_a-ae_X11_window.o `test -f 'ae_X11_window.cpp' || echo '$(srcdir)/'`ae_X11_window.cpp
@@ -1626,19 +1627,19 @@ libraevol_a-ae_population_X11.obj: ae_population_X11.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libraevol_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libraevol_a-ae_population_X11.obj `if test -f 'ae_population_X11.cpp'; then $(CYGPATH_W) 'ae_population_X11.cpp'; else $(CYGPATH_W) '$(srcdir)/ae_population_X11.cpp'; fi`
 
-libraevol_a-ae_exp_setup_X11.o: ae_exp_setup_X11.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libraevol_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libraevol_a-ae_exp_setup_X11.o -MD -MP -MF $(DEPDIR)/libraevol_a-ae_exp_setup_X11.Tpo -c -o libraevol_a-ae_exp_setup_X11.o `test -f 'ae_exp_setup_X11.cpp' || echo '$(srcdir)/'`ae_exp_setup_X11.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libraevol_a-ae_exp_setup_X11.Tpo $(DEPDIR)/libraevol_a-ae_exp_setup_X11.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ae_exp_setup_X11.cpp' object='libraevol_a-ae_exp_setup_X11.o' libtool=no @AMDEPBACKSLASH@
+libraevol_a-ae_exp_manager_X11.o: ae_exp_manager_X11.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libraevol_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libraevol_a-ae_exp_manager_X11.o -MD -MP -MF $(DEPDIR)/libraevol_a-ae_exp_manager_X11.Tpo -c -o libraevol_a-ae_exp_manager_X11.o `test -f 'ae_exp_manager_X11.cpp' || echo '$(srcdir)/'`ae_exp_manager_X11.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libraevol_a-ae_exp_manager_X11.Tpo $(DEPDIR)/libraevol_a-ae_exp_manager_X11.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ae_exp_manager_X11.cpp' object='libraevol_a-ae_exp_manager_X11.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libraevol_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libraevol_a-ae_exp_setup_X11.o `test -f 'ae_exp_setup_X11.cpp' || echo '$(srcdir)/'`ae_exp_setup_X11.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libraevol_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libraevol_a-ae_exp_manager_X11.o `test -f 'ae_exp_manager_X11.cpp' || echo '$(srcdir)/'`ae_exp_manager_X11.cpp
 
-libraevol_a-ae_exp_setup_X11.obj: ae_exp_setup_X11.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libraevol_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libraevol_a-ae_exp_setup_X11.obj -MD -MP -MF $(DEPDIR)/libraevol_a-ae_exp_setup_X11.Tpo -c -o libraevol_a-ae_exp_setup_X11.obj `if test -f 'ae_exp_setup_X11.cpp'; then $(CYGPATH_W) 'ae_exp_setup_X11.cpp'; else $(CYGPATH_W) '$(srcdir)/ae_exp_setup_X11.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libraevol_a-ae_exp_setup_X11.Tpo $(DEPDIR)/libraevol_a-ae_exp_setup_X11.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ae_exp_setup_X11.cpp' object='libraevol_a-ae_exp_setup_X11.obj' libtool=no @AMDEPBACKSLASH@
+libraevol_a-ae_exp_manager_X11.obj: ae_exp_manager_X11.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libraevol_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libraevol_a-ae_exp_manager_X11.obj -MD -MP -MF $(DEPDIR)/libraevol_a-ae_exp_manager_X11.Tpo -c -o libraevol_a-ae_exp_manager_X11.obj `if test -f 'ae_exp_manager_X11.cpp'; then $(CYGPATH_W) 'ae_exp_manager_X11.cpp'; else $(CYGPATH_W) '$(srcdir)/ae_exp_manager_X11.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libraevol_a-ae_exp_manager_X11.Tpo $(DEPDIR)/libraevol_a-ae_exp_manager_X11.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ae_exp_manager_X11.cpp' object='libraevol_a-ae_exp_manager_X11.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libraevol_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libraevol_a-ae_exp_setup_X11.obj `if test -f 'ae_exp_setup_X11.cpp'; then $(CYGPATH_W) 'ae_exp_setup_X11.cpp'; else $(CYGPATH_W) '$(srcdir)/ae_exp_setup_X11.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libraevol_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libraevol_a-ae_exp_manager_X11.obj `if test -f 'ae_exp_manager_X11.cpp'; then $(CYGPATH_W) 'ae_exp_manager_X11.cpp'; else $(CYGPATH_W) '$(srcdir)/ae_exp_manager_X11.cpp'; fi`
 
 libraevol_a-ae_X11_window.o: ae_X11_window.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libraevol_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libraevol_a-ae_X11_window.o -MD -MP -MF $(DEPDIR)/libraevol_a-ae_X11_window.Tpo -c -o libraevol_a-ae_X11_window.o `test -f 'ae_X11_window.cpp' || echo '$(srcdir)/'`ae_X11_window.cpp

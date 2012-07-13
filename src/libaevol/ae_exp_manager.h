@@ -91,7 +91,6 @@ class ae_exp_manager : public ae_object
     
     inline ae_environment* get_env( void ) const;
     
-    inline bool     env_is_segmented( void ) const;
     inline int16_t  get_nb_env_segments( void ) const;
     
     inline ae_selection_scheme get_selection_scheme( void ) const;
@@ -128,6 +127,10 @@ class ae_exp_manager : public ae_object
     // =================================================================
     //                        Accessors: setters
     // =================================================================
+    inline void set_first_gener( int32_t first_gener );
+    inline void set_nb_gener( int32_t nb_gener );
+    //~ inline void set_min_genome_length( int32_t min_genome_length );
+    //~ inline void set_max_genome_length( int32_t max_genome_length );
 
     // =================================================================
     //                              Operators
@@ -139,7 +142,7 @@ class ae_exp_manager : public ae_object
     void save_experiment( void ) const;
     void load_experiment( char* exp_setup_file_name, char* pop_file_name, char* out_man_file_name, bool to_be_run /*= true*/ );
     void run_evolution( void );
-    void display( void ) {};
+    virtual void display( void ) {};
 
     // =================================================================
     //                           Public Attributes
@@ -184,10 +187,6 @@ class ae_exp_manager : public ae_object
     int32_t _first_gener;
     int32_t _last_gener;
     
-    // Probability of reproduction of each organism
-    double* _prob_reprod;
-    double  _prob_reprod_previous_best;
-    
     bool _quit_signal_received;
 };
 
@@ -228,11 +227,6 @@ inline bool ae_exp_manager::quit_signal_received( void ) const
 inline ae_environment* ae_exp_manager::get_env( void ) const
 {
   return _exp_s->get_env();
-}
-
-inline bool ae_exp_manager::env_is_segmented( void ) const
-{
-  return _exp_s->env_is_segmented();
 }
 
 inline int16_t ae_exp_manager::get_nb_env_segments( void ) const
@@ -347,6 +341,26 @@ inline ae_list* ae_exp_manager::get_indivs( void ) const
 // =====================================================================
 //                           Setters' definitions
 // =====================================================================
+inline void ae_exp_manager::set_first_gener( int32_t first_gener )
+{
+  _first_gener = first_gener;
+}
+
+inline void ae_exp_manager::set_nb_gener( int32_t nb_gener )
+{
+  _last_gener = _first_gener + nb_gener;
+}
+
+// Global constraints
+//~ inline void ae_exp_manager::set_min_genome_length( int32_t min_genome_length )
+//~ {
+  //~ _exp_s->set_min_genome_length( min_genome_length );
+//~ }
+
+//~ inline void ae_exp_manager::set_max_genome_length( int32_t max_genome_length )
+//~ {
+  //~ _exp_s->set_max_genome_length( max_genome_length );
+//~ }
 
 // =====================================================================
 //                          Operators' definitions

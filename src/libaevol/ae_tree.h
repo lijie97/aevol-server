@@ -151,8 +151,8 @@ class ae_tree : public ae_object
     //    dimension 2 (columns) : individual
     //
     // !!!!! WARNING !!!!!
-    // The report at line 0, column 5 is for the
-    // replication that created the indiv with index 5 of generation 1 (not generation 0)
+    // The report at line l, column c is for the
+    // replication that created the indiv with index c of generation l+1
     
     // light tree representation
     int32_t** _parent;

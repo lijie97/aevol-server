@@ -62,8 +62,8 @@
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_individual_X11::ae_individual_X11( ae_exp_manager* exp_manager, ae_rand_mt* alea, ae_params_mut* param_mut, int32_t id, int32_t age )
-        : ae_individual( exp_manager, alea, param_mut, id, age )
+ae_individual_X11::ae_individual_X11( ae_exp_manager* exp_manager, ae_rand_mt* alea, ae_params_mut* param_mut, double w_max, int32_t id, int32_t age )
+        : ae_individual( exp_manager, alea, param_mut, w_max, id, age )
 {
   init_occupied_sectors();
 }
@@ -80,11 +80,10 @@ ae_individual_X11::ae_individual_X11( const ae_individual_X11 &model )
   init_occupied_sectors();
 }
 
-
-/*ae_individual_X11::ae_individual_X11( ae_individual_X11* const parent, int32_t index ) : ae_individual( parent, index )
+ae_individual_X11::ae_individual_X11( ae_individual_X11* const parent, int32_t id ) : ae_individual( parent, id )
 {
   init_occupied_sectors();
-}*/
+}
 
 /*ae_individual_X11::ae_individual_X11( char* genome, int32_t genome_size ) : ae_individual( genome, genome_size )
 {

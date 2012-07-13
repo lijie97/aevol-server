@@ -77,10 +77,10 @@ ae_environment::ae_environment( void ) :
   _total_area = 0.0;
   
   // Environment segmentation
-  _is_segmented     = false;
-  _nb_segments      = 0;
-  _segments         = NULL;
-  _area_by_feature  = NULL; // TODO: replace by an "area" attribute in ae_segment
+  _nb_segments      = 1;
+  _segments         = new ae_env_segment* [1];
+  _segments[0]      = new ae_env_segment( X_MIN, X_MAX, METABOLISM );
+  _area_by_feature  = new double [NB_FEATURES];
   
   // Variation management
   _alea_var         = NULL;
@@ -106,17 +106,13 @@ ae_environment::~ae_environment( void )
   delete _alea_var;
   delete _alea_noise;
   
-  
-  if ( _is_segmented )
+  for ( int16_t i = 0 ; i < _nb_segments; i++ )
   {
-    for ( int16_t i = 0 ; i < _nb_segments; i++ )
-    {
-      delete _segments[i];
-    }
-    delete [] _segments;
-    
-    delete [] _area_by_feature;
+    delete _segments[i];
   }
+  delete [] _segments;
+    
+  delete [] _area_by_feature;
 }
 
 // =================================================================
@@ -258,11 +254,22 @@ void ae_environment::write_to_backup( gzFile* backup_file ) const
       
       custom_point_node = custom_point_node->get_next();
     }
-  }
+  }  
   
-  // ---------------------
-  //  Write variation data
-  // ---------------------
+  // -------------------------------
+  //  Write x-axis segmentation
+  // -------------------------------
+  gzwrite( backup_file, &_nb_segments, sizeof(_nb_segments) );
+  
+  for ( int16_t i = 0 ; i < _nb_segments; i++ )
+  {
+    _segments[i]->write_to_backup( backup_file );
+  }
+
+  
+  // -----------------------------------
+  //  Write environmental variation data
+  // -----------------------------------
   int8_t tmp_variation_method = _variation_method;
   gzwrite( backup_file, &tmp_variation_method,  sizeof(tmp_variation_method) );
   
@@ -313,39 +320,38 @@ void ae_environment::read_from_backup( gzFile* backup_file )
   // -------------------------------
   //  Retrieve x-axis segmentation
   // -------------------------------
-  int8_t tmp_is_segmented;
-  gzread( backup_file, &tmp_is_segmented, sizeof(tmp_is_segmented) );
-  _is_segmented = (tmp_is_segmented != 0);
-  
-  if ( _is_segmented )
+  // Delete old data
+  for ( int16_t i = 0 ; i < _nb_segments ; i++ )
   {
-    gzread( backup_file, &_nb_segments, sizeof(_nb_segments) );
-    
-    _segments = new ae_env_segment* [_nb_segments];
-    
-    for ( int16_t i = 0 ; i < _nb_segments; i++ )
-    {
-      _segments[i] = new ae_env_segment();
-      _segments[i]->read_from_backup( backup_file );
-      //~ _segments[i] = new ae_env_segment(  ae_common::init_params->get_env_axis_segment_boundaries()[i], 
-                                          //~ ae_common::init_params->get_env_axis_segment_boundaries()[i+1], 
-                                          //~ ae_common::init_params->get_env_axis_features()[i] );
-    }
+    delete _segments[i];
+  }
+  delete [] _segments;
   
-    _area_by_feature = new double [NB_FEATURES];
+  
+  // Replace by data from the backup
+  gzread( backup_file, &_nb_segments, sizeof(_nb_segments) );
+  
+  _segments = new ae_env_segment* [_nb_segments];
+  
+  for ( int16_t i = 0 ; i < _nb_segments; i++ )
+  {
+    _segments[i] = new ae_env_segment( backup_file );
+    //~ _segments[i] = new ae_env_segment(  ae_common::init_params->get_env_axis_segment_boundaries()[i], 
+                                        //~ ae_common::init_params->get_env_axis_segment_boundaries()[i+1], 
+                                        //~ ae_common::init_params->get_env_axis_features()[i] );
   }
   
   
   // ----------------------------------------
   //  Retrieve environmental variation data
   // ----------------------------------------
-  _alea_var = new ae_rand_mt( backup_file );
   int8_t tmp_variation_method;
   gzread( backup_file, &tmp_variation_method, sizeof(tmp_variation_method) );
   _variation_method = (ae_env_var) tmp_variation_method;
   
   if ( _variation_method != NONE )
   {
+    _alea_var = new ae_rand_mt( backup_file );
     gzread( backup_file, &_var_sigma, sizeof(_var_sigma) );  
     gzread( backup_file, &_var_tau, sizeof(_var_tau) );
   }
@@ -425,8 +431,6 @@ void ae_environment::build( void )
 
 bool ae_environment::fitness_is_composite( void ) const
 {
-  if ( ! _is_segmented ) return false;
-  
   int features = 0;
   for ( int16_t i = 0 ; i < _nb_segments ; i++ )
   {
@@ -438,26 +442,20 @@ bool ae_environment::fitness_is_composite( void ) const
 
 void ae_environment::_compute_area( void )
 {
-  if ( _is_segmented )
-  {
-    _total_area = 0.0;
-    for ( int8_t i = 0 ; i < NB_FEATURES ; i++ )
-    {
-      _area_by_feature[i] = 0.0;
-    }
+  _total_area = 0.0;
 
-    // TODO : We should take into account that we compute the areas in a specific order (from the leftmost segment, rightwards)
-    //   => We shouldn't parse the whole list of points on the left of the segment we are considering (we have 
-    //      already been through them!)
-    for ( int16_t i = 0 ; i < _nb_segments ; i++ )
-    {
-      _area_by_feature[_segments[i]->feature] += get_geometric_area( _segments[i]->start, _segments[i]->stop );
-      _total_area += _area_by_feature[_segments[i]->feature];
-    }
-  }
-  else
+  for ( int8_t i = 0 ; i < NB_FEATURES ; i++ )
   {
-    _total_area = get_geometric_area();
+    _area_by_feature[i] = 0.0;
+  }
+
+  // TODO : We should take into account that we compute the areas in a specific order (from the leftmost segment, rightwards)
+  //   => We shouldn't parse the whole list of points on the left of the segment we are considering (we have 
+  //      already been through them!)
+  for ( int16_t i = 0 ; i < _nb_segments ; i++ )
+  {
+    _area_by_feature[_segments[i]->feature] += get_geometric_area( _segments[i]->start, _segments[i]->stop );
+    _total_area += _area_by_feature[_segments[i]->feature];
   }
 }
 

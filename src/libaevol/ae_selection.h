@@ -66,6 +66,7 @@ class ae_selection : public ae_object
     //                             Constructors
     // =================================================================
     ae_selection( ae_exp_manager* exp_m );
+    ae_selection( ae_exp_manager* exp_m, gzFile* backup_file );
 
     // =================================================================
     //                             Destructors
@@ -135,6 +136,8 @@ class ae_selection : public ae_object
     // =================================================================
     void step_to_next_generation( void );
     void step_to_next_generation_grid( void );
+    void write_to_backup( gzFile* backup_file ) const;
+    void read_from_backup( gzFile* backup_file );
 
     // =================================================================
     //                           Public Attributes

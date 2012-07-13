@@ -46,7 +46,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_exp_setup.h>
+#include <ae_exp_manager.h>
 
 
 
@@ -113,7 +113,7 @@ enum key_map
 
 
  
-class ae_exp_setup_X11 : public ae_exp_setup
+class ae_exp_manager_X11 : public ae_exp_manager
 {
   friend class ae_exp_setup;
   
@@ -122,14 +122,14 @@ class ae_exp_setup_X11 : public ae_exp_setup
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_exp_setup_X11( void );
-    //~ ae_exp_setup_X11( ae_param_overloader* param_overloader = NULL );
-    //~ ae_exp_setup_X11( char* backup_file_name, bool to_be_run = true, ae_param_overloader* param_overloader = NULL );
+    ae_exp_manager_X11( void );
+    //~ ae_exp_manager_X11( ae_param_overloader* param_overloader = NULL );
+    //~ ae_exp_manager_X11( char* backup_file_name, bool to_be_run = true, ae_param_overloader* param_overloader = NULL );
   
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_exp_setup_X11( void );
+    virtual ~ae_exp_manager_X11( void );
   
     // =================================================================
     //                              Accessors
@@ -164,12 +164,12 @@ class ae_exp_setup_X11 : public ae_exp_setup
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    //~ ae_exp_setup_X11( void )
+    //~ ae_exp_manager_X11( void )
     //~ {
       //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       //~ exit( EXIT_FAILURE );
     //~ };
-    ae_exp_setup_X11( const ae_exp_setup_X11 &model )
+    ae_exp_manager_X11( const ae_exp_manager_X11 &model )
     {
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
@@ -198,51 +198,51 @@ class ae_exp_setup_X11 : public ae_exp_setup
   Atom*     _atoms;
   KeyCode*  _key_codes;
   
-  ae_X11_window** _win;         // Table containing the <nb_windows> windows
-  char **         _window_name; // display window names
-  unsigned int**  _win_size;    // window sizes
-  int**           _win_pos;     // window positions
+  ae_X11_window** _win;       // Table containing the <nb_windows> windows
+  char **         _win_name;  // window names
+  unsigned int**  _win_size;  // window sizes
+  int**           _win_pos;   // window positions
 };
 
 
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-bool ae_exp_setup_X11::get_display_on( void )
+bool ae_exp_manager_X11::get_display_on( void )
 {
   return _display_on;
 }
 
-Display * ae_exp_setup_X11::get_display( void )
+Display * ae_exp_manager_X11::get_display( void )
 {
   return _display;
 }
 
 
-bool ae_exp_setup_X11::get_show_window( int8_t win )
+bool ae_exp_manager_X11::get_show_window( int8_t win )
 {
   return ( (_show_window >> win) & 1 );
 }
 
-bool ae_exp_setup_X11::get_new_show_window( int8_t win )
+bool ae_exp_manager_X11::get_new_show_window( int8_t win )
 {
   return ( (_new_show_window >> win) & 1 );
 }
 
 
-int8_t ae_exp_setup_X11::get_screen( void )
+int8_t ae_exp_manager_X11::get_screen( void )
 {
   return _screen;
 }
 
 
-Atom* ae_exp_setup_X11::get_atoms( void )
+Atom* ae_exp_manager_X11::get_atoms( void )
 {
   return _atoms;
 }
 
 
-ae_X11_window* ae_exp_setup_X11::get_window( int8_t win )
+ae_X11_window* ae_exp_manager_X11::get_window( int8_t win )
 {
   return _win[win];
 }

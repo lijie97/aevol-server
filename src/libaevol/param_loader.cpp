@@ -52,6 +52,10 @@
 #include <ae_env_segment.h>
 #include <ae_point_2d.h>
 
+//~ #ifdef __X11
+  //~ #include <ae_individual_X11.h>
+//~ #endif
+
 #ifdef __REGUL
   #include <ae_array_short.h>
 #endif
@@ -67,7 +71,7 @@ class ae_environment;
 
 //##############################################################################
 //                                                                             #
-//                           Class param_loader                             #
+//                             Class param_loader                              #
 //                                                                             #
 //##############################################################################
 
@@ -275,9 +279,9 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
       }        
       break;
     }
-    case DUMP_PERIOD :
+    case DUMP_STEP :
     {
-      _param_values->set_dump_period( atol( line->words[1] ) );
+      _param_values->set_dump_step( atol( line->words[1] ) );
       break;
     }
     case BACKUP_STEP :
@@ -949,12 +953,16 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   
   // 1) ------------------------------------- Initialize the experimental setup
   sel->set_alea( new ae_rand_mt(*_alea) );
+  
+  // ------------------------------------------------------- Global constraints
+  exp_s->set_min_genome_length( _param_values->get_min_genome_length() );
+  exp_s->set_max_genome_length( _param_values->get_max_genome_length() );
 
-  // -------------------------------------------------------------- Selection
+  // ---------------------------------------------------------------- Selection
   sel->set_selection_scheme( _param_values->_selection_scheme );
   sel->set_selection_pressure( _param_values->_selection_pressure );
   
-  // --------------------------------------------------------------- Transfer
+  // ----------------------------------------------------------------- Transfer
   sel->set_with_HT( _param_values->_with_HT );
   sel->set_HT_ins_rate( _param_values->_HT_ins_rate );
   sel->set_HT_repl_rate( _param_values->_HT_repl_rate );
@@ -963,7 +971,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   sel->set_prob_plasmid_HT( _param_values->_prob_plasmid_HT );
   sel->set_swap_GUs( _param_values->_swap_GUs );
   
-  // ------------------------------------------------------ Spatial structure
+  // -------------------------------------------------------- Spatial structure
   sel->set_spatially_structured( _param_values->_spatially_structured );
   if ( _param_values->_spatially_structured )
   {
@@ -971,7 +979,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
     sel->set_migration_number( _param_values->_migration_number );
   }
   
-  // -------------------------------------------------------------- Secretion
+  // ---------------------------------------------------------------- Secretion
   sel->set_use_secretion( _param_values->_use_secretion );
   if ( _param_values->_use_secretion )
   {
@@ -982,7 +990,8 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   
   
   // 2) ------------------------------------------------ Create the environment
-  // Move the gaussian list and the list of custom points from the parameters to the environment
+  // Move the gaussian list and the list of custom points from the parameters
+  // to the environment
   env->set_gaussians( _param_values->get_env_gaussians() );
   _param_values->set_env_gaussians( NULL );
   env->set_custom_points( _param_values->get_env_custom_points() );
@@ -994,10 +1003,10 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   // Set the environment segmentation
   if ( _param_values->get_env_axis_is_segmented() )
   {
-    env->set_segmentation(  _param_values->get_env_axis_nb_segments(),
-                            _param_values->get_env_axis_segment_boundaries(),
-                            _param_values->get_env_axis_features(),
-                            _param_values->get_env_axis_separate_segments() );
+    env->set_segmentation( _param_values->get_env_axis_nb_segments(),
+                           _param_values->get_env_axis_segment_boundaries(),
+                           _param_values->get_env_axis_features(),
+                           _param_values->get_env_axis_separate_segments() );
   }
   
   // Set environmental variation
@@ -1015,6 +1024,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   {
     printf( "Entire geometric area of the environment : %f\n", env->get_geometric_area() );
   }
+  
   
   // 3) --------------------------------------------- Create the new population
   // Generate a template ae_mut_param object
@@ -1115,10 +1125,24 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
     }
   }
   
-  // 4) ------------------------------------------ Set the recording parameters
-  
   // NB: Since we are only creating (initial) backup files, we need not
   // establish a link between the individuals and the spatial structure (if any)
+  
+  
+  
+  // 4) ------------------------------------------ Set the recording parameters
+  output_m->set_backup_step( _param_values->get_backup_step() );
+  output_m->set_big_backup_step( _param_values->get_big_backup_step() );
+  
+  if ( _param_values->get_record_tree() )
+  {
+    output_m->init_tree( _param_values->get_tree_mode(), _param_values->get_tree_step() );
+  }
+  
+  if ( _param_values->get_make_dumps() )
+  {
+    output_m->set_dump_step( _param_values->get_dump_step() );
+  }
 }
 
 
@@ -1214,7 +1238,7 @@ ae_keywd f_line::get_keywd( void )
   if ( !strcmp( words[0], "RECORD_TREE" ) )                 return RECORD_TREE;
   if ( !strcmp( words[0], "TREE_MODE") )                    return TREE_MODE;
   if ( !strcmp( words[0], "MORE_STATS") )                   return MORE_STATS;
-  if ( !strcmp( words[0], "DUMP_PERIOD" ) )                 return DUMP_PERIOD;
+  if ( !strcmp( words[0], "DUMP_STEP" ) )                   return DUMP_STEP;
   if ( !strcmp( words[0], "INIT_POP_SIZE" ) )               return INIT_POP_SIZE;
   if ( !strcmp( words[0], "NB_GENER" ) )                    return NB_GENER;
   if ( !strcmp( words[0], "POP_STRUCTURE" ) )               return POP_STRUCTURE;
@@ -1295,8 +1319,15 @@ ae_individual* param_loader::create_random_individual( ae_exp_manager* exp_m, ae
   random_genome[_param_values->_initial_genome_length] = 0;
   
   // Create an individual with this genome and set its id
-  ae_individual* indiv = new ae_individual( exp_m, new ae_rand_mt(*_alea), param_mut, id, 0 );
-  indiv->set_id( id );
+  ae_individual* indiv = new ae_individual( exp_m, new ae_rand_mt(*_alea), param_mut, _param_values->_w_max, id, 0 );
+  // <Graphical debug>
+  //~ #ifdef __X11
+    //~ indiv = new ae_individual_X11( exp_m, new ae_rand_mt(*_alea), param_mut, _param_values->_w_max, id, 0 );
+  //~ #else
+    //~ indiv = new ae_individual( exp_m, new ae_rand_mt(*_alea), param_mut, _param_values->_w_max, id, 0 );
+  //~ #endif
+  // </Graphical debug>
+  indiv->add_GU( random_genome, _param_values->_initial_genome_length );
   
   
   // Insert a few IS in the sequence
@@ -1357,14 +1388,7 @@ ae_individual* param_loader::create_random_individual_with_good_gene( ae_exp_man
   // we delete it and replace it by another random individual
   double env_metabolic_area;
   
-  if ( _param_values->get_env_axis_is_segmented() )
-  {
-    env_metabolic_area = exp_m->get_env()->get_area_by_feature( METABOLISM );
-  }
-  else
-  {
-    env_metabolic_area = exp_m->get_env()->get_total_area();
-  }
+  env_metabolic_area = exp_m->get_env()->get_area_by_feature( METABOLISM );
 
   // If there are plasmids, make sure there is at least one metabolic gene on each genetic units
   if ( _param_values->get_allow_plasmids() ) 
@@ -1401,6 +1425,9 @@ ae_individual* param_loader::create_random_individual_with_good_gene( ae_exp_man
   // Compute the "good" individual's statistics
   indiv->compute_statistical_data();
   
+  printf( "metabolic error of the generated individual : %f (%"PRId32" gene(s))\n",
+          indiv->get_dist_to_target_by_feature(METABOLISM), indiv->get_protein_list()->get_nb_elts() );
+  
   return indiv;
 }
 
@@ -1409,6 +1436,12 @@ ae_individual* param_loader::create_clone( ae_individual* dolly, int32_t id ) co
   ae_individual* indiv;
   
   indiv = new ae_individual( *dolly );
+  
+  //~ #ifdef __X11
+    //~ indiv = new ae_individual_X11( *(dynamic_cast<ae_individual_X11*>(dolly)) );
+  //~ #else
+    //~ indiv = new ae_individual( *dolly );
+  //~ #endif
   
   indiv->set_id( id );
   

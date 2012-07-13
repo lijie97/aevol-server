@@ -66,6 +66,7 @@ class ae_spatial_structure : public ae_object
     //                             Constructors
     // =================================================================
     ae_spatial_structure( void );
+    ae_spatial_structure( gzFile* backup_file );
 
     // =================================================================
     //                             Destructors
@@ -102,6 +103,7 @@ class ae_spatial_structure : public ae_object
     // =================================================================
     void update_secretion_grid( void ); 
     void do_random_migrations ( void );
+    void write_to_backup( gzFile* backup_file ) const;
 
     // =================================================================
     //                           Public Attributes
@@ -137,10 +139,10 @@ class ae_spatial_structure : public ae_object
     // =================================================================
     ae_rand_mt* _alea;
     
-    ae_grid_cell*** _pop_grid;
-    
     int16_t _grid_width; 
     int16_t _grid_height;
+    
+    ae_grid_cell*** _pop_grid;
     
     int32_t _migration_number;
     double  _secretion_diffusion_prop;

@@ -75,12 +75,94 @@
 ae_selection::ae_selection( ae_exp_manager* exp_m )
 {
   _exp_m = exp_m;
+
+  // ----------------------------------------- Pseudo-random number generator
+  _alea = NULL;
+
+  // -------------------------------------------------------------- Selection
+  _selection_scheme   = RANK_EXPONENTIAL;
+  _selection_pressure = 0.998;
+
+  // --------------------------- Probability of reproduction of each organism
+  _prob_reprod = NULL;
+  _prob_reprod_previous_best = 0.0;
   
-  _prob_reprod                = NULL;
-  _prob_reprod_previous_best  = 0.0;
+  // --------------------------------------------------------------- Transfer
+  _with_HT = false;
+  _HT_ins_rate  = 0.0;
+  _HT_repl_rate = 0.0;
+  _with_plasmid_HT  = false;
+  _nb_plasmid_HT    = 0;
+  _prob_plasmid_HT  = 0.0;
+  _swap_GUs = false;
   
-  _spatial_structure = NULL;
+  // ------------------------------------------------------ Spatial structure
+  _spatially_structured = false;
+  _spatial_structure    = NULL;
+  
+  // -------------------------------------------------------------- Secretion
+  _use_secretion = false;
+  _secretion_contrib_to_fitness = 0.0;
+  _secretion_cost               = 0.0;
 }
+
+
+/*ae_selection::ae_selection( ae_exp_manager* exp_m, gzFile* backup_file )
+{
+  _exp_m = exp_m;
+
+  // ----------------------------------------- Pseudo-random number generator
+  _alea = new ae_rand_mt( backup_file );
+
+  // -------------------------------------------------------------- Selection
+  int8_t tmp_sel_scheme;
+  gzread( backup_file, &tmp_sel_scheme, sizeof(tmp_sel_scheme) );
+  _selection_scheme = (ae_selection_scheme) tmp_sel_scheme;
+  gzread( backup_file, &_selection_pressure, sizeof(_selection_pressure) );
+
+  // --------------------------- Probability of reproduction of each organism
+  gzread( backup_file, &_prob_reprod_previous_best, sizeof(_prob_reprod_previous_best) );
+  
+  // --------------------------------------------------------------- Transfer
+  int8_t tmp_with_HT;
+  gzread( backup_file, &tmp_with_HT, sizeof(tmp_with_HT) );
+  _with_HT = tmp_with_HT ? 1 : 0;
+  if ( _with_HT )
+  {
+    gzread( backup_file, &_HT_ins_rate,  sizeof(_HT_ins_rate) );
+    gzread( backup_file, &_HT_repl_rate, sizeof(_HT_repl_rate) );
+  }
+  int8_t tmp_with_plasmid_HT;
+  gzread( backup_file, &tmp_with_plasmid_HT, sizeof(tmp_with_plasmid_HT) );
+  _with_plasmid_HT = tmp_with_plasmid_HT ? 1 : 0;
+  if ( _with_plasmid_HT )
+  {
+    gzread( backup_file, &_nb_plasmid_HT,    sizeof(_nb_plasmid_HT) );
+    gzread( backup_file, &_prob_plasmid_HT,  sizeof(_prob_plasmid_HT) );
+    int8_t tmp_swap_GUs;
+    gzread( backup_file, &tmp_swap_GUs, sizeof(tmp_swap_GUs) );
+    _swap_GUs = tmp_swap_GUs ? 1 : 0;
+  }
+  
+  // ------------------------------------------------------ Spatial structure
+  int8_t tmp_spatially_structured;
+  gzread( backup_file, &tmp_spatially_structured, sizeof(tmp_spatially_structured) );
+  _spatially_structured = tmp_spatially_structured ? 1 : 0;
+  if ( _spatially_structured )
+  {
+    _spatial_structure = new ae_spatial_structure( backup_file );
+  }
+  
+  // -------------------------------------------------------------- Secretion
+  int8_t tmp_use_secretion;
+  gzread( backup_file, &tmp_use_secretion, sizeof(tmp_use_secretion) );
+  _use_secretion = tmp_use_secretion ? 1 : 0;
+  if ( _use_secretion )
+  {
+    gzread( backup_file, &_secretion_contrib_to_fitness, sizeof(_secretion_contrib_to_fitness) );
+    gzread( backup_file, &_secretion_cost, sizeof(_secretion_cost) );
+  }
+}*/
 
 // =================================================================
 //                             Destructors
@@ -112,6 +194,13 @@ void ae_selection::step_to_next_generation( void )
   // 4) Replace the current generation by the newly created one.
   // 5) Sort the newly created population*
   
+  if ( _alea == NULL )
+  {
+    printf( "%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__ );
+    assert( false );
+    exit( EXIT_FAILURE );
+  }
+  
   if ( _selection_scheme == FITTEST )
   {
     step_to_next_generation_grid();
@@ -126,7 +215,7 @@ void ae_selection::step_to_next_generation( void )
     #error this method is not ready for variable population size
     compute_prob_reprod();
   #else
-    if ( _selection_scheme == FITNESS_PROPORTIONATE )
+    if ( _selection_scheme == FITNESS_PROPORTIONATE || _prob_reprod == NULL )
     {
       compute_prob_reprod();
     }
@@ -200,8 +289,16 @@ void ae_selection::step_to_next_generation_grid( void )
 {
   #ifndef FIXED_POPULATION_SIZE
     printf( "ERROR, not implemented %s:%d\n", __FILE__, __LINE__ );
+    assert( false );
     exit( EXIT_FAILURE );
   #endif
+  
+  if ( _alea == NULL )
+  {
+    printf( "%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__ );
+    assert( false );
+    exit( EXIT_FAILURE );
+  }
   
   int16_t grid_width  = _spatial_structure->get_grid_width();
   int16_t grid_height = _spatial_structure->get_grid_height();
@@ -414,6 +511,117 @@ void ae_selection::step_to_next_generation_grid( void )
   /*update_best();*/
 }
 
+void ae_selection::write_to_backup( gzFile* backup_file ) const
+{
+  if ( _alea == NULL )
+  {
+    printf( "%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__ );
+    assert( false );
+    exit( EXIT_FAILURE );
+  }
+  
+  // ----------------------------------------- Pseudo-random number generator
+  _alea->write_to_backup( backup_file );
+
+  // -------------------------------------------------------------- Selection
+  int8_t tmp_sel_scheme = _selection_scheme;
+  gzwrite( backup_file, &tmp_sel_scheme,      sizeof(tmp_sel_scheme) );
+  gzwrite( backup_file, &_selection_pressure, sizeof(_selection_pressure) );
+
+  // --------------------------- Probability of reproduction of each organism
+  gzwrite( backup_file, &_prob_reprod_previous_best, sizeof(_prob_reprod_previous_best) );
+  
+  // --------------------------------------------------------------- Transfer
+  int8_t tmp_with_HT = _with_HT;
+  gzwrite( backup_file, &tmp_with_HT, sizeof(tmp_with_HT) );
+  if ( _with_HT )
+  {
+    gzwrite( backup_file, &_HT_ins_rate,  sizeof(_HT_ins_rate) );
+    gzwrite( backup_file, &_HT_repl_rate, sizeof(_HT_repl_rate) );
+  }
+  int8_t tmp_with_plasmid_HT = _with_plasmid_HT;
+  gzwrite( backup_file, &tmp_with_plasmid_HT, sizeof(tmp_with_plasmid_HT) );
+  if ( _with_plasmid_HT )
+  {
+    gzwrite( backup_file, &_nb_plasmid_HT,    sizeof(_nb_plasmid_HT) );
+    gzwrite( backup_file, &_prob_plasmid_HT,  sizeof(_prob_plasmid_HT) );
+    int8_t tmp_swap_GUs = _swap_GUs;
+    gzwrite( backup_file, &tmp_swap_GUs, sizeof(tmp_swap_GUs) );
+  }
+  
+  // ------------------------------------------------------ Spatial structure
+  int8_t tmp_spatially_structured = _spatially_structured;
+  gzwrite( backup_file, &tmp_spatially_structured, sizeof(tmp_spatially_structured) );
+  if ( _spatially_structured )
+  {
+    _spatial_structure->write_to_backup( backup_file );
+  }
+  
+  // -------------------------------------------------------------- Secretion
+  int8_t tmp_use_secretion = _use_secretion;
+  gzwrite( backup_file, &tmp_use_secretion, sizeof(tmp_use_secretion) );
+  if ( _use_secretion )
+  {
+    gzwrite( backup_file, &_secretion_contrib_to_fitness, sizeof(_secretion_contrib_to_fitness) );
+    gzwrite( backup_file, &_secretion_cost, sizeof(_secretion_cost) );
+  }
+}
+
+void ae_selection::read_from_backup( gzFile* backup_file )
+{
+  // ----------------------------------------- Pseudo-random number generator
+  _alea = new ae_rand_mt( backup_file );
+
+  // -------------------------------------------------------------- Selection
+  int8_t tmp_sel_scheme;
+  gzread( backup_file, &tmp_sel_scheme, sizeof(tmp_sel_scheme) );
+  _selection_scheme = (ae_selection_scheme) tmp_sel_scheme;
+  gzread( backup_file, &_selection_pressure, sizeof(_selection_pressure) );
+
+  // --------------------------- Probability of reproduction of each organism
+  gzread( backup_file, &_prob_reprod_previous_best, sizeof(_prob_reprod_previous_best) );
+  
+  // --------------------------------------------------------------- Transfer
+  int8_t tmp_with_HT;
+  gzread( backup_file, &tmp_with_HT, sizeof(tmp_with_HT) );
+  _with_HT = tmp_with_HT ? 1 : 0;
+  if ( _with_HT )
+  {
+    gzread( backup_file, &_HT_ins_rate,  sizeof(_HT_ins_rate) );
+    gzread( backup_file, &_HT_repl_rate, sizeof(_HT_repl_rate) );
+  }
+  int8_t tmp_with_plasmid_HT;
+  gzread( backup_file, &tmp_with_plasmid_HT, sizeof(tmp_with_plasmid_HT) );
+  _with_plasmid_HT = tmp_with_plasmid_HT ? 1 : 0;
+  if ( _with_plasmid_HT )
+  {
+    gzread( backup_file, &_nb_plasmid_HT,    sizeof(_nb_plasmid_HT) );
+    gzread( backup_file, &_prob_plasmid_HT,  sizeof(_prob_plasmid_HT) );
+    int8_t tmp_swap_GUs;
+    gzread( backup_file, &tmp_swap_GUs, sizeof(tmp_swap_GUs) );
+    _swap_GUs = tmp_swap_GUs ? 1 : 0;
+  }
+  
+  // ------------------------------------------------------ Spatial structure
+  int8_t tmp_spatially_structured;
+  gzread( backup_file, &tmp_spatially_structured, sizeof(tmp_spatially_structured) );
+  _spatially_structured = tmp_spatially_structured ? 1 : 0;
+  if ( _spatially_structured )
+  {
+    _spatial_structure = new ae_spatial_structure( backup_file );
+  }
+  
+  // -------------------------------------------------------------- Secretion
+  int8_t tmp_use_secretion;
+  gzread( backup_file, &tmp_use_secretion, sizeof(tmp_use_secretion) );
+  _use_secretion = tmp_use_secretion ? 1 : 0;
+  if ( _use_secretion )
+  {
+    gzread( backup_file, &_secretion_contrib_to_fitness, sizeof(_secretion_contrib_to_fitness) );
+    gzread( backup_file, &_secretion_cost, sizeof(_secretion_cost) );
+  }
+}
+
 
 // =================================================================
 //                           Protected Methods
@@ -516,11 +724,13 @@ void ae_selection::compute_prob_reprod( void )
   else if ( _selection_scheme == FITTEST) //  Fittest individual
   {
     printf( "ERROR, fittest selection scheme is meant to be used for spatially structured populations %s:%d\n", __FILE__, __LINE__ );
+    assert( false );
     exit( EXIT_FAILURE );
   }
   else
   {
     printf( "ERROR, invalid selection scheme in file %s:%d\n", __FILE__, __LINE__ );
+    assert( false );
     exit( EXIT_FAILURE );
   }
 }
@@ -569,11 +779,13 @@ void ae_selection::compute_local_prob_reprod( void )
   else if ( _selection_scheme == FITNESS_PROPORTIONATE ) // Fitness Proportionate
   {
     printf( "ERROR, this function is not intented to be use with this selection scheme %s:%d\n", __FILE__, __LINE__ );
+    assert( false );
     exit( EXIT_FAILURE );
   }
   else
   {
     printf( "ERROR, invalid selection scheme in file %s:%d\n", __FILE__, __LINE__ );
+    assert( false );
     exit( EXIT_FAILURE );
   }
 }
@@ -585,19 +797,19 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
   // ===========================================================================
   //  1) Copy parent
   // ===========================================================================
-  //~ #ifdef __NO_X
-    //~ #ifndef __REGUL
-      //~ new_indiv = new ae_individual( parent, index );
-    //~ #else
-      //~ new_indiv = new ae_individual_R( dynamic_cast<ae_individual_R*>(parent), index );
-    //~ #endif
-  //~ #elif defined __X11
-    //~ #ifndef __REGUL
-      //~ new_indiv = new ae_individual_X11( dynamic_cast<ae_individual_X11*>(parent), index );
-    //~ #else
-      //~ new_indiv = new ae_individual_R_X11( dynamic_cast<ae_individual_R_X11*>(parent), index );
-    //~ #endif
-  //~ #endif
+  #ifdef __NO_X
+    #ifndef __REGUL
+      new_indiv = new ae_individual( parent, index );
+    #else
+      new_indiv = new ae_individual_R( dynamic_cast<ae_individual_R*>(parent), index );
+    #endif
+  #elif defined __X11
+    #ifndef __REGUL
+      new_indiv = new ae_individual_X11( dynamic_cast<ae_individual_X11*>(parent), index );
+    #else
+      new_indiv = new ae_individual_R_X11( dynamic_cast<ae_individual_R_X11*>(parent), index );
+    #endif
+  #endif
   
   
   // ===========================================================================
@@ -1029,6 +1241,7 @@ ae_individual* ae_selection::calculate_local_competition ( int16_t x, int16_t y 
     default :
     {
       printf( "ERROR, invalid selection scheme in file %s:%d\n", __FILE__, __LINE__ );
+      assert( false );
       exit( EXIT_FAILURE );
     }
   }

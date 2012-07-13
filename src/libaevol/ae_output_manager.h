@@ -93,6 +93,10 @@ class ae_output_manager : public ae_object
     // =================================================================
     //                        Accessors: setters
     // =================================================================
+    inline void set_backup_step( int32_t backup_step );
+    inline void set_big_backup_step( int32_t big_backup_step );
+    inline void init_tree( ae_tree_mode _tree_mode, int32_t _tree_step );
+    inline void set_dump_step( int32_t dump_step );
 
     // =================================================================
     //                              Operators
@@ -159,7 +163,7 @@ class ae_output_manager : public ae_object
     
     // Dumps
     bool      _make_dumps;
-    int32_t   _dump_period;
+    int32_t   _dump_step;
     ae_dump*  _dump;
     
     // Logs
@@ -206,6 +210,28 @@ inline bool  ae_output_manager::is_logged( ae_log_type log_type ) const
 // =====================================================================
 //                           Setters' definitions
 // =====================================================================
+inline void ae_output_manager::set_backup_step( int32_t backup_step )
+{
+  _backup_step = backup_step;
+}
+
+inline void ae_output_manager::set_big_backup_step( int32_t big_backup_step )
+{
+  _big_backup_step = big_backup_step;
+}
+
+inline void ae_output_manager::init_tree( ae_tree_mode _tree_mode, int32_t _tree_step )
+{
+  _record_tree = true;
+  _tree = new ae_tree( _tree_mode, _tree_step );
+}
+
+inline void ae_output_manager::set_dump_step( int32_t dump_step )
+{
+  _make_dumps = true;
+  _dump_step  = dump_step;
+}
+
 
 // =====================================================================
 //                          Operators' definitions

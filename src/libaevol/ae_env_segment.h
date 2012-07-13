@@ -65,9 +65,9 @@ class ae_env_segment : public ae_object
     // =================================================================
     //                             Constructors
     // =================================================================
-    inline ae_env_segment( void );
     inline ae_env_segment( double start, double stop, ae_env_axis_feature feature );
     inline ae_env_segment( const ae_env_segment& source );
+    inline ae_env_segment( gzFile* backup_file );
   
     // =================================================================
     //                             Destructors
@@ -100,16 +100,16 @@ class ae_env_segment : public ae_object
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    //~ ae_env_segment( void )
+    ae_env_segment( void )
+    {
+      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
+      exit( EXIT_FAILURE );
+    };
+    //~ ae_env_segment( const ae_env_segment &model )
     //~ {
-      //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
+      //~ printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
       //~ exit( EXIT_FAILURE );
     //~ };
-    /*    ae_env_segment( const ae_env_segment &model )
-    {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-      };*/
 
   
     // =================================================================
@@ -137,12 +137,12 @@ class ae_env_segment : public ae_object
 // =================================================================
 //                             Constructors
 // =================================================================
-inline ae_env_segment::ae_env_segment( void )
-{
-  start   = X_MIN;
-  stop    = X_MAX;
-  feature = NEUTRAL;
-}
+//~ inline ae_env_segment::ae_env_segment( void )
+//~ {
+  //~ start   = X_MIN;
+  //~ stop    = X_MAX;
+  //~ feature = NEUTRAL;
+//~ }
 
 inline ae_env_segment::ae_env_segment( double start, double stop, ae_env_axis_feature feature )
 {
@@ -156,6 +156,11 @@ inline ae_env_segment::ae_env_segment( const ae_env_segment& source )
   this->start   = source.start;
   this->stop    = source.stop;
   this->feature = source.feature;
+}
+
+inline ae_env_segment::ae_env_segment( gzFile* backup_file )
+{
+  read_from_backup( backup_file );
 }
 
 // =================================================================
@@ -174,18 +179,18 @@ inline ae_env_segment::~ae_env_segment( void )
 // =================================================================
 inline void ae_env_segment::write_to_backup( gzFile* backup_file ) const
 {
-  gzwrite( backup_file, &start,   sizeof(start) );
-  gzwrite( backup_file, &stop,    sizeof(stop) );
+  gzwrite( backup_file, &start, sizeof(start) );
+  gzwrite( backup_file, &stop,  sizeof(stop) );
   int8_t tmp_feature = feature;
-  gzread( backup_file, &tmp_feature,  sizeof(tmp_feature) );
+  gzwrite( backup_file, &tmp_feature, sizeof(tmp_feature) );
 }
 
 inline void ae_env_segment::read_from_backup( gzFile* backup_file )
 {
-  gzread( backup_file, &start,        sizeof(start) );
-  gzread( backup_file, &stop,         sizeof(stop) );
+  gzread( backup_file, &start,  sizeof(start) );
+  gzread( backup_file, &stop,   sizeof(stop) );
   int8_t tmp_feature;
-  gzread( backup_file, &tmp_feature,  sizeof(tmp_feature) );
+  gzread( backup_file, &tmp_feature, sizeof(tmp_feature) );
   feature = (ae_env_axis_feature) tmp_feature;
 }
 

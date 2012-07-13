@@ -64,8 +64,8 @@ class ae_grid_cell : public ae_object
     // =================================================================
     //                             Constructors
     // =================================================================
-    //~ ae_grid_cell( int16_t x, int16_t y );
     ae_grid_cell( int16_t x, int16_t y, ae_individual* indiv );
+    ae_grid_cell( gzFile* backup_file );
 
     // =================================================================
     //                             Destructors
@@ -95,7 +95,6 @@ class ae_grid_cell : public ae_object
     //                            Public Methods
     // =================================================================
     void write_to_backup( gzFile* backup_file ) const;
-    void read_from_backup( gzFile* backup_file );
 
     // =================================================================
     //                           Public Attributes
@@ -129,12 +128,11 @@ class ae_grid_cell : public ae_object
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    
-    // grid size
+    // Position on the grid
     int16_t _x;
     int16_t _y;
 
-    // the amount of secreted compound currently present in the grid cell 
+    // Amount of secreted compound currently present in the grid cell 
     double _compound_amount; 
     
     // pointer to the individual in this cell 

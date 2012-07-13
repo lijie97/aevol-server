@@ -46,7 +46,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_exp_manager.h>
+#include <ae_exp_manager_X11.h>
 #include <param_loader.h>
 
 
@@ -103,10 +103,14 @@ int main( int argc, char* argv[] )
   param_loader* my_param_loader = new param_loader( param_file_name );
   
   // 6) Initialize the experiment manager
-  ae_exp_manager* exp_manager = new ae_exp_manager();
+  ae_exp_manager* exp_manager = new ae_exp_manager_X11();
   
   // 7) Load the parameter file
   my_param_loader->load( exp_manager, true );
+  
+  //~ ((ae_exp_manager_X11*)exp_manager)->toggle_display_on_off();
+  //~ exp_manager->display();
+  //~ getchar();
   
   // 8) Create the initial backups
   exp_manager->save_experiment();

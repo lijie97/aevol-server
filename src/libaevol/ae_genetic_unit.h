@@ -86,14 +86,15 @@ class ae_genetic_unit : public ae_object
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline ae_individual* get_indiv( void )                   const;
-    inline ae_dna*        get_dna( void )                     const;
-    inline ae_list**      get_rna_list( void )                const;
-    inline void           set_rna_list( ae_list** new_list )       ;
-    inline ae_list**      get_protein_list( void )            const;
-    inline ae_fuzzy_set*  get_activ_contribution( void )      const;
-    inline ae_fuzzy_set*  get_inhib_contribution( void )      const;
-    inline ae_fuzzy_set*  get_phenotypic_contribution( void ) const;
+    inline ae_exp_manager*  get_exp_m( void ) const;
+    inline ae_individual*   get_indiv( void )                   const;
+    inline ae_dna*          get_dna( void )                     const;
+    inline ae_list**        get_rna_list( void )                const;
+    inline void             set_rna_list( ae_list** new_list )       ;
+    inline ae_list**        get_protein_list( void )            const;
+    inline ae_fuzzy_set*    get_activ_contribution( void )      const;
+    inline ae_fuzzy_set*    get_inhib_contribution( void )      const;
+    inline ae_fuzzy_set*    get_phenotypic_contribution( void ) const;
     
     
     // Direct DNA access
@@ -353,6 +354,11 @@ class ae_genetic_unit : public ae_object
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
+inline ae_exp_manager* ae_genetic_unit::get_exp_m( void ) const
+{
+  return _exp_m;
+}
+
 inline ae_individual* ae_genetic_unit::get_indiv( void ) const
 {
   return _indiv;

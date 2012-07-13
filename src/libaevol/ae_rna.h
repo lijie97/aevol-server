@@ -85,7 +85,7 @@ class ae_rna : public ae_object
   
     // <DEBUG>
     void check( ae_genetic_unit* gen_unit ) { assert( gen_unit == _gen_unit ); };
-    //~ DEBUG void* get_indiv( void ) const { return (void*)_indiv; };
+    //~ void* get_indiv( void ) const { return (void*)_indiv; };
     // </DEBUG>
 
     inline ae_genetic_unit * get_genetic_unit( void ) const;

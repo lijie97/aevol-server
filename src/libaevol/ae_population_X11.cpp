@@ -40,9 +40,8 @@
 //                            Project Files
 // =================================================================
 #include <ae_population_X11.h>
-#include <ae_exp_manager.h>
 #include <ae_individual_X11.h>
-#include <ae_exp_setup_X11.h>
+#include <ae_exp_manager_X11.h>
 
 
 
@@ -60,7 +59,7 @@
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_population_X11::ae_population_X11( void ) : ae_population()
+ae_population_X11::ae_population_X11( ae_exp_manager* exp_m ) : ae_population( exp_m )
 {
   compute_colormap();
 }

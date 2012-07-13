@@ -42,13 +42,12 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_exp_setup_X11.h>
-
-#include <ae_exp_manager.h>
+#include <ae_exp_manager_X11.h>
+#include <ae_spatial_structure.h>
+#include <ae_point_2d.h>
 #include <ae_population_X11.h>
 #include <ae_individual_X11.h>
 #include <ae_X11_window.h>
-#include <ae_point_2d.h>
 
 
 
@@ -61,7 +60,7 @@ static Bool AlwaysTruePredicate (Display*, XEvent*, char*) { return True; }
 
 //##############################################################################
 //                                                                             #
-//                           Class ae_exp_setup_X11                           #
+//                          Class ae_exp_manager_X11                           #
 //                                                                             #
 //##############################################################################
 
@@ -73,7 +72,7 @@ static Bool AlwaysTruePredicate (Display*, XEvent*, char*) { return True; }
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_exp_setup_X11::ae_exp_setup_X11( void ) : ae_exp_setup()
+ae_exp_manager_X11::ae_exp_manager_X11( void ) : ae_exp_manager()
 {
   // Basic initializations
   _win      = NULL;
@@ -93,13 +92,13 @@ ae_exp_setup_X11::ae_exp_setup_X11( void ) : ae_exp_setup()
   set_codes();
 }
 
-//ae_exp_setup_X11::ae_exp_setup_X11( ae_param_overloader* param_overloader /* = NULL */ ) : ae_experiment( param_overloader )
+//ae_exp_manager_X11::ae_exp_manager_X11( ae_param_overloader* param_overloader /* = NULL */ ) : ae_exp_manager( param_overloader )
 /*{
   initialize();
 }*/
 
-//ae_exp_setup_X11::ae_exp_setup_X11( char* backup_file_name, bool to_be_run /* = true */, ae_param_overloader* param_overloader /* = NULL */ ) :
-/*                   ae_experiment( backup_file_name, to_be_run, param_overloader  )
+//ae_exp_manager_X11::ae_exp_manager_X11( char* backup_file_name, bool to_be_run /* = true */, ae_param_overloader* param_overloader /* = NULL */ ) :
+/*                   ae_exp_manager( backup_file_name, to_be_run, param_overloader  )
 {
   initialize();
 }*/
@@ -107,7 +106,7 @@ ae_exp_setup_X11::ae_exp_setup_X11( void ) : ae_exp_setup()
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_exp_setup_X11::~ae_exp_setup_X11( void )
+ae_exp_manager_X11::~ae_exp_manager_X11( void )
 {
   delete [] _key_codes;
   delete [] _atoms;
@@ -120,7 +119,7 @@ ae_exp_setup_X11::~ae_exp_setup_X11( void )
   
   XCloseDisplay( _display );
   
-  delete [] _window_name;
+  delete [] _win_name;
 }
 
 // =================================================================
@@ -128,12 +127,12 @@ ae_exp_setup_X11::~ae_exp_setup_X11( void )
 // =================================================================
 
 
-bool ae_exp_setup_X11::quit_signal_received( void )
+bool ae_exp_manager_X11::quit_signal_received( void )
 {
   return _quit_signal;
 }
 
-void ae_exp_setup_X11::display( void )
+void ae_exp_manager_X11::display( void )
 {
   // --------------------------------------------------
   // 1) Handle signal that toggle the display on or off
@@ -164,6 +163,9 @@ void ae_exp_setup_X11::display( void )
           delete _win[num_win];
           _win[num_win] = NULL;
         }
+        
+        delete _win;
+        _win = NULL;
       }
       
       _display_on = false;
@@ -173,11 +175,14 @@ void ae_exp_setup_X11::display( void )
       _show_window |= 1;
       _new_show_window = _show_window;
       
+      // If it's the first time the display is switched on, initialize it.
+      if ( _win == NULL ) initialize();
+      
       for ( int8_t i = 0 ; i < NB_WIN ; i++ )
       {
         if ( get_show_window(i) )
         {
-          _win[i] = new ae_X11_window( _display, _screen, _atoms, _win_pos[i][0], _win_pos[i][1], _win_size[i][0], _win_size[i][1], _window_name[i] );
+          _win[i] = new ae_X11_window( _display, _screen, _atoms, _win_pos[i][0], _win_pos[i][1], _win_size[i][0], _win_size[i][1], _win_name[i] );
         }
       }
       
@@ -217,7 +222,7 @@ void ae_exp_setup_X11::display( void )
   }
 }
 
-void ae_exp_setup_X11::handle_events( void )
+void ae_exp_manager_X11::handle_events( void )
 {
   XEvent event;
   int8_t win_number;
@@ -334,7 +339,7 @@ void ae_exp_setup_X11::handle_events( void )
           else
           {
             _win[num_win] = new ae_X11_window(  _display, _screen, _atoms, _win_pos[num_win][0], _win_pos[num_win][1],
-                                                _win_size[num_win][0], _win_size[num_win][1], _window_name[num_win] );
+                                                _win_size[num_win][0], _win_size[num_win][1], _win_name[num_win] );
             _new_show_window |= 1 << num_win;
             _show_window |= _new_show_window;
             draw_window( num_win );
@@ -375,7 +380,7 @@ void ae_exp_setup_X11::handle_events( void )
   }
 }
 
-void ae_exp_setup_X11::toggle_display_on_off( void )
+void ae_exp_manager_X11::toggle_display_on_off( void )
 {
   // Mark action to be done
   _handle_display_on_off = true;
@@ -386,7 +391,7 @@ void ae_exp_setup_X11::toggle_display_on_off( void )
 // =================================================================
 //                           Protected Methods
 // =================================================================
-void ae_exp_setup_X11::initialize( bool with_grid /*= false*/, bool with_plasmids /*= false*/ )
+void ae_exp_manager_X11::initialize( bool with_grid /*= false*/, bool with_plasmids /*= false*/ )
 {
   // Initialize window structures
   _win      = new ae_X11_window* [NB_WIN];
@@ -487,19 +492,19 @@ void ae_exp_setup_X11::initialize( bool with_grid /*= false*/, bool with_plasmid
   _new_show_window = _show_window;
   
   
-  _window_name = new char*[NB_WIN];
-  if ( with_grid )  _window_name[0] = (char*) "Population grid";
-  else              _window_name[0] = (char*) "Population";
+  _win_name = new char*[NB_WIN];
+  if ( with_grid )  _win_name[0] = (char*) "Population grid";
+  else              _win_name[0] = (char*) "Population";
   
-  _window_name[1] = (char*) "Phenotypic profile";
-  _window_name[2] = (char*) "Genes";
-  _window_name[3] = (char*) "RNAs";
-  _window_name[4] = (char*) "Secreted compound present";
-  _window_name[5] = (char*) "Metabolic fitness";
-  _window_name[6] = (char*) "Current secretion";
+  _win_name[1] = (char*) "Phenotypic profile";
+  _win_name[2] = (char*) "Genes";
+  _win_name[3] = (char*) "RNAs";
+  _win_name[4] = (char*) "Secreted compound present";
+  _win_name[5] = (char*) "Metabolic fitness";
+  _win_name[6] = (char*) "Current secretion";
 }
 
-int8_t ae_exp_setup_X11::identify_window( Window winID )
+int8_t ae_exp_manager_X11::identify_window( Window winID )
 {
   for ( int8_t i = 0 ; i < NB_WIN ; i++ )
   {
@@ -512,7 +517,7 @@ int8_t ae_exp_setup_X11::identify_window( Window winID )
   return -1;
 }
 
-void ae_exp_setup_X11::draw_window( int8_t win_number )
+void ae_exp_manager_X11::draw_window( int8_t win_number )
 {
   if ( _win[win_number] == NULL)
   {
@@ -581,7 +586,7 @@ void ae_exp_setup_X11::draw_window( int8_t win_number )
   XFlush(_display);
 }
 
-void ae_exp_setup_X11::refresh_window( int8_t win_number )
+void ae_exp_manager_X11::refresh_window( int8_t win_number )
 {
   if ( _win[win_number] == NULL)
   {
@@ -600,11 +605,11 @@ void ae_exp_setup_X11::refresh_window( int8_t win_number )
       
       if ( is_spatially_structured() )
       {
-        ((ae_population_X11*) _exp_m->get_pop())->display_grid( cur_win, get_spatial_structure()->get_total_fitness_grid() );
+        ((ae_population_X11*)_pop)->display_grid( cur_win, get_spatial_structure()->get_total_fitness_grid() );
       }
       else
       {
-        ((ae_population_X11*) _exp_m->get_pop())->display( cur_win );
+        ((ae_population_X11*)_pop)->display( cur_win );
       }
       break;
     }
@@ -616,11 +621,11 @@ void ae_exp_setup_X11::refresh_window( int8_t win_number )
       cur_win->fill_rectangle( 0, 0, cur_win->get_width(), cur_win->get_height() * 19 / 20, BLACK );
       
       // Mark all the non-metabolic segments (paint them in grey)
-      if ( env_is_segmented() )
+      if ( get_env()->get_nb_segments() > 1 )
       {
-        ae_env_segment** segments = _env->get_segments();
+        ae_env_segment** segments = get_env()->get_segments();
      
-        for ( int16_t i = 0 ; i < get_nb_env_segments() ; i++ )
+        for ( int16_t i = 0 ; i < get_env()->get_nb_segments() ; i++ )
         {
           if ( segments[i]->feature != METABOLISM )
           {
@@ -641,7 +646,7 @@ void ae_exp_setup_X11::refresh_window( int8_t win_number )
       }    
 
       // Display all the phenotypes (blue)
-      ae_list_node*   indiv_node = _exp_m->get_indivs()->get_first();
+      ae_list_node*   indiv_node = _pop->get_indivs()->get_first();
       ae_individual*  indiv;
       
       while ( indiv_node != NULL )
@@ -650,7 +655,7 @@ void ae_exp_setup_X11::refresh_window( int8_t win_number )
         
         ((ae_fuzzy_set_X11*)indiv->get_phenotype())->display( cur_win, BLUE );
         
-        if ( _exp_m->get_allow_plasmids() )
+        if ( get_allow_plasmids() )
         {
           ((ae_fuzzy_set_X11*)indiv->get_genetic_unit( 0 )->get_phenotypic_contribution())->display( cur_win, YELLOW );
           ((ae_fuzzy_set_X11*)indiv->get_genetic_unit( 1 )->get_phenotypic_contribution())->display( cur_win, GREEN );
@@ -660,10 +665,11 @@ void ae_exp_setup_X11::refresh_window( int8_t win_number )
       }
         
       // Display best indiv's phenotype (white)
-      ((ae_fuzzy_set_X11*)_exp_m->get_best_indiv()->get_phenotype())->display( cur_win, WHITE, true );
+      ((ae_fuzzy_set_X11*)get_best_indiv()->get_phenotype())->display( cur_win, WHITE, true );
       
       // Display environment (red)
-      _env->display( cur_win, RED, false, true );
+      // ((ae_fuzzy_set_X11*)get_env())->display( cur_win, RED ); // TODO : line replaced by next line
+      get_env()->display( cur_win, RED, false, true );
     }
     break;
 
@@ -672,7 +678,8 @@ void ae_exp_setup_X11::refresh_window( int8_t win_number )
     {
       cur_win->blacken();
       
-      dynamic_cast<ae_individual_X11*>(_exp_m->get_best_indiv())->display_cdss( cur_win );
+      ae_individual_X11* indiv = dynamic_cast<ae_individual_X11*>( get_best_indiv() );
+      indiv->display_cdss( cur_win );
     }
     break;
 
@@ -681,9 +688,8 @@ void ae_exp_setup_X11::refresh_window( int8_t win_number )
     {
       cur_win->blacken();
       
-      ae_individual* indiv1     = _exp_m->get_best_indiv();
-      ae_individual_X11* indiv2 = dynamic_cast<ae_individual_X11*>(indiv1);
-      indiv2->display_rnas( cur_win );
+      ae_individual_X11* indiv = dynamic_cast<ae_individual_X11*>( get_best_indiv() );
+      indiv->display_rnas( cur_win );
     }
     break;
 
@@ -694,7 +700,7 @@ void ae_exp_setup_X11::refresh_window( int8_t win_number )
       
       if ( is_spatially_structured() )
       {
-        ((ae_population_X11*) _exp_m->get_pop())->display_grid( cur_win, get_spatial_structure()->get_secretion_present_grid() );
+        ((ae_population_X11*)_pop)->display_grid( cur_win, get_spatial_structure()->get_secretion_present_grid());
       }
     }
     break;
@@ -704,7 +710,7 @@ void ae_exp_setup_X11::refresh_window( int8_t win_number )
     {
       cur_win->blacken();
       
-      ((ae_population_X11*) _exp_m->get_pop())->display_grid( cur_win, get_spatial_structure()->get_metabolic_fitness_grid() );
+      ((ae_population_X11*)_pop)->display_grid( cur_win, get_spatial_structure()->get_metabolic_fitness_grid());
     }
     break;
 
@@ -713,7 +719,7 @@ void ae_exp_setup_X11::refresh_window( int8_t win_number )
     {
       cur_win->blacken();
       
-      ((ae_population_X11*) _exp_m->get_pop())->display_grid( cur_win, get_spatial_structure()->get_secreted_amount_grid() );
+      ((ae_population_X11*)_pop)->display_grid( cur_win, get_spatial_structure()->get_secreted_amount_grid());
     }
     break;
   }
@@ -725,7 +731,7 @@ void ae_exp_setup_X11::refresh_window( int8_t win_number )
 
 
 
-void ae_exp_setup_X11::set_codes( void )
+void ae_exp_manager_X11::set_codes( void )
 {
   _key_codes = new KeyCode[50];
   assert( _key_codes );

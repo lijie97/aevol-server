@@ -67,6 +67,7 @@ ae_replication_report::ae_replication_report( ae_individual * indiv, ae_individu
   _rank = indiv->get_rank();
   
   _parent_id = parent->get_id();
+  // _donor_id is set further down
     
   _genome_size        = 0;
   _metabolic_error    = 0.0;

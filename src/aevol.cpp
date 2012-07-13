@@ -45,18 +45,12 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-//~ #ifdef __X11
-  //~ #include <ae_exp_setup_X11.h>
-  //~ #include <ae_population_X11.h>
-//~ #elif defined __NO_X
-  //~ #include <ae_exp_setup.h>
-  //~ #include <ae_population.h>
-//~ #else
-  //~ #error You must specify a graphic option
-//~ #endif
+#ifdef __X11
+  #include <ae_exp_manager_X11.h>
+#else
+  #include <ae_exp_manager.h>
+#endif
 
-#include <ae_exp_manager.h>
-//~ #include <ae_param_overloader.h>
 #include <ae_macros.h>
 
 
@@ -103,6 +97,7 @@ int main( int argc, char* argv[] )
   char* pop_file_name       = NULL;
   char* out_man_file_name   = NULL;
   int32_t num_gener = 0;
+  int32_t nb_gener  = 0;
   
   //~ ae_param_overloader* param_overloader = new ae_param_overloader();
   
@@ -173,11 +168,7 @@ int main( int argc, char* argv[] )
           exit( EXIT_FAILURE );
         }
         
-        char* tmp = new char[50];
-        sprintf( tmp, "NB_GENER %s", optarg );
-        //~ param_overloader->store_overload( tmp );
-        // NOTE that the actual overloading of the parameters is done after loading the parameter file
-        delete [] tmp;
+        nb_gener = atoi( optarg );
         
         break;
       }
@@ -188,29 +179,39 @@ int main( int argc, char* argv[] )
   // =================================================================
   //                          Load the simulation
   // =================================================================
-  ae_exp_manager* exp_manager = new ae_exp_manager();
+  #ifndef __NO_X
+    ae_exp_manager* exp_manager = new ae_exp_manager_X11();
+  #else
+    ae_exp_manager* exp_manager = new ae_exp_manager();
+  #endif
   
   exp_manager->load_experiment( exp_setup_file_name, pop_file_name, out_man_file_name, true );
   
+  if ( num_gener > 0 )
+  {
+    exp_manager->set_first_gener( num_gener );
+  }
+  if ( nb_gener > 0 )
+  {
+    exp_manager->set_nb_gener( nb_gener );
+  }
+  
   delete [] pop_file_name;
   delete [] exp_setup_file_name;
-  //~ delete param_overloader;
+  delete [] out_man_file_name;
 
     
 #ifndef __NO_X
-  //~ if ( show_display_on_startup )
-  //~ {
-    //~ ae_common::sim_display->toggle_display_on_off();
-  //~ }
+  if ( show_display_on_startup )
+  {
+    ((ae_exp_manager_X11*)exp_manager)->toggle_display_on_off();
+  }
 #endif
   
   // =================================================================
   //                         Run the simulation
   // =================================================================
-  //~ if ( ae_common::nb_generations > 0 )
-  //~ {
-    //~ exp_manager->run_evolution();
-  //~ }
+  exp_manager->run_evolution();
 }
 
 

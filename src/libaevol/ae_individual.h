@@ -40,6 +40,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <zlib.h>
+#include <assert.h>
 
 
 
@@ -79,10 +80,10 @@ class ae_individual : public ae_object
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_individual( ae_exp_manager* exp_m, ae_rand_mt* alea, ae_params_mut* param_mut, int32_t id, int32_t age );
+    ae_individual( ae_exp_manager* exp_m, ae_rand_mt* alea, ae_params_mut* param_mut, double w_max, int32_t id, int32_t age );
     ae_individual( ae_exp_manager* exp_m, gzFile* backup_file );
     ae_individual( const ae_individual &model );
-    //~ ae_individual( ae_individual* const parent, int32_t index );
+    ae_individual( ae_individual* const parent, int32_t id );
     //~ ae_individual( char* organism_file_name );
     //~ ae_individual( char* genome, int32_t genome_size, int32_t age = 0 );
 
@@ -94,6 +95,7 @@ class ae_individual : public ae_object
     // =================================================================
     //                        Accessors: Getters
     // =================================================================
+    inline ae_exp_manager*  get_exp_m( void ) const;
     inline int16_t          get_nb_genetic_units( void )                                  const;
     inline int32_t          get_amount_of_dna( void )                                     const;
     inline ae_list*         get_genetic_unit_list( void )                                 const;
@@ -187,6 +189,8 @@ class ae_individual : public ae_object
     
     inline void set_w_max( double w_max );
     
+    inline void add_GU( char * &sequence, int32_t length );
+    
     // =================================================================
     //                            Public Methods
     // =================================================================
@@ -199,9 +203,9 @@ class ae_individual : public ae_object
     virtual void evaluate( ae_environment* envir = NULL );
     virtual void reevaluate( ae_environment* envir = NULL );
     inline void do_transcription_translation_folding( void );
-    inline void do_transcription( void );
-    inline void do_translation( void );
-    inline void do_folding( void );
+    void do_transcription( void );
+    void do_translation( void );
+    void do_folding( void );
     void compute_phenotype( void );
     void compute_distance_to_target( ae_environment* envir );
     
@@ -219,6 +223,7 @@ class ae_individual : public ae_object
     int32_t get_nb_terminators( void );
     
     #ifdef DEBUG
+      inline void print_rna_list( void );
       inline void print_protein_list( void );
     
       inline void assert_promoters( void );
@@ -291,9 +296,6 @@ class ae_individual : public ae_object
     
     // The phenotype, roughly corresponding to the sum of activ and inhib
     ae_phenotype* _phenotype;
-    
-    // Number of segments the phenotype is to be split into (corresponding to the number of segments in the environment
-    int16_t _nb_segments;
     
     // Table containing the partial area of the "gap" (difference between the phenotype and the environment)
     // for each environmental segment.
@@ -467,6 +469,11 @@ inline void ae_individual::set_replication_report( ae_replication_report * rep )
   _replic_report = rep;
 }
 
+inline ae_exp_manager* ae_individual::get_exp_m( void ) const
+{
+  return _exp_m;
+}
+
 /*!
   Returns the number of genetic units
 */
@@ -507,6 +514,8 @@ inline ae_list* ae_individual::get_genetic_unit_list( void ) const
 */
 inline ae_genetic_unit* ae_individual::get_genetic_unit( int16_t num_unit ) const
 {
+  assert( num_unit < _genetic_unit_list->get_nb_elts() );
+  
   ae_list_node* gen_unit_node = _genetic_unit_list->get_first();
   
   for ( int16_t i = 0 ; i < num_unit ; i++ )
@@ -856,6 +865,13 @@ inline void ae_individual::set_w_max( double w_max )
   _w_max = w_max;
 }
 
+inline void ae_individual::add_GU( char * &sequence, int32_t length )
+{
+  _genetic_unit_list->add( new ae_genetic_unit( this, sequence, length ) );
+  
+  sequence = NULL;
+}
+
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
@@ -872,62 +888,6 @@ inline void ae_individual::renew_fitness_by_feature( void )
   _fitness_by_feature = new double [NB_FEATURES];
 }
 
-inline void ae_individual::do_transcription( void )
-{
-  if ( _transcribed == true ) return; // Transcription has already been performed, nothing to do.
-  _transcribed = true;
-  
-  ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
-  ae_genetic_unit*  gen_unit;
-  
-  while ( gen_unit_node != NULL )
-  {
-    gen_unit = (ae_genetic_unit*)gen_unit_node->get_obj();
-    
-    gen_unit->do_transcription();
-     
-    gen_unit_node = gen_unit_node->get_next();
-  }
-}
-
-inline void ae_individual::do_translation( void )
-{
-  if ( _translated == true ) return; // ARNs have already been translated, nothing to do.
-  _translated = true;
-  if ( _transcribed == false ) do_transcription();
-  
-  ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
-  ae_genetic_unit*  gen_unit;
-  
-  while ( gen_unit_node != NULL )
-  {
-    gen_unit = (ae_genetic_unit*)gen_unit_node->get_obj();
-    
-    gen_unit->do_translation();
-     
-    gen_unit_node = gen_unit_node->get_next();
-  }
-}
-
-inline void ae_individual::do_folding( void )
-{
-  if ( _folded == true ) return; // Proteins have already been folded, nothing to do.
-  _folded = true;
-  if ( _translated == false ) do_translation();
-  
-  ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
-  ae_genetic_unit*  gen_unit;
-  
-  while ( gen_unit_node != NULL )
-  {
-    gen_unit = (ae_genetic_unit*)gen_unit_node->get_obj();
-    
-    gen_unit->compute_phenotypic_contribution();
-     
-    gen_unit_node = gen_unit_node->get_next();
-  }
-}
-
 void ae_individual::do_transcription_translation_folding( void )
 {
   if ( _transcribed == true && _translated == true && _folded == true ) return;
@@ -940,6 +900,22 @@ void ae_individual::do_transcription_translation_folding( void )
 }
 
 #ifdef DEBUG
+  inline void ae_individual::print_rna_list( void )
+  {
+    ae_list_node* rna_node  = _rna_list->get_first();
+    ae_rna*       rna       = NULL;
+    
+    while ( rna_node != NULL )
+    {
+      rna = (ae_rna*) rna_node->get_obj();
+      
+      printf( "RNA at pos : %"PRId32"      length : %"PRId32" bp\n", rna->get_promoter_pos(), rna->get_transcript_length() );
+      printf( "  strand : %s    basal level : %f\n", (rna->get_strand() == LEADING)?"LEADING":"LAGGING", rna->get_basal_level() );
+      
+      rna_node = rna_node->get_next();
+    }
+  }
+  
   inline void ae_individual::print_protein_list( void )
   {
     ae_list_node* prot_node = _protein_list->get_first();
@@ -953,6 +929,7 @@ void ae_individual::do_transcription_translation_folding( void )
       printf( "prot at pos : %"PRId32"      length : %"PRId32" AAs\n", prot->get_first_translated_pos(), prot->get_length() );
       printf( "  strand : %s    concentration : %f\n", (prot->get_strand() == LEADING)?"LEADING":"LAGGING", prot->get_concentration() );
       printf( "  sequence : %s\n", prot_sequence );
+      printf( "  mean : %f      width : %f      height : %f\n", prot->get_mean(), prot->get_width(), prot->get_height() );
       delete prot_sequence;
       
       prot_node = prot_node->get_next();

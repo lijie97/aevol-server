@@ -87,6 +87,7 @@ int compare_prot_pos( const void * pos, const void * prot ) // This one has to b
 ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, int32_t length )
 {
   _indiv = indiv;
+  _exp_m = indiv->get_exp_m();
   
   _transcribed                        = false;
   _translated                         = false;
@@ -113,21 +114,9 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, int32_t length )
   // NB : _phenotypic_contribution is only an indicative value,
   //      it is not used for the whole phenotype computation
   
-  // Initialize all the fitness-related stuff
-  if ( _exp_m->env_is_segmented() )
-  {
-    int16_t nb_segments = _exp_m->get_nb_env_segments();
-    _dist_to_target_per_segment = new double [nb_segments];
-    
-    for ( int16_t i = 0 ; i < nb_segments ; i++ )
-    {
-      _dist_to_target_per_segment[i] = 0;
-    }
-  }
-  else
-  {
-    _dist_to_target_per_segment = NULL;
-  }
+  // _dist_to_target_per_segment depends on the segmentation of the environment
+  // and will hence be newed at evaluation time
+  _dist_to_target_per_segment = NULL;
   
   _dist_to_target_by_feature  = new double [NB_FEATURES];
   _fitness_by_feature         = new double [NB_FEATURES];
@@ -155,6 +144,7 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, int32_t length )
 */
 ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, char* seq, int32_t length, ae_list** prom_list /*= NULL*/ )
 {
+  _exp_m = indiv->get_exp_m();
   _indiv = indiv;
   
   _transcribed                        = false;
@@ -196,20 +186,7 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, char* seq, int32_t lengt
   //      it is not used for the whole phenotype computation
   
   // Initialize all the fitness-related stuff
-  if ( _exp_m->env_is_segmented() )
-  {
-    int16_t nb_segments = _exp_m->get_nb_env_segments();
-    _dist_to_target_per_segment = new double [nb_segments];
-    
-    for ( int16_t i = 0 ; i < nb_segments ; i++ )
-    {
-      _dist_to_target_per_segment[i] = 0;
-    }
-  }
-  else
-  {
-    _dist_to_target_per_segment = NULL;
-  }
+  _dist_to_target_per_segment = NULL;
   
   _dist_to_target_by_feature  = new double [NB_FEATURES];
   _fitness_by_feature         = new double [NB_FEATURES];
@@ -231,6 +208,7 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, char* seq, int32_t lengt
 */
 ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, const ae_genetic_unit &model )
 {
+  _exp_m = indiv->get_exp_m();
   _indiv = indiv;
   
   _transcribed                        = false;
@@ -259,32 +237,8 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, const ae_genetic_unit &m
   _phenotypic_contribution = NULL;
   // NB : _phenotypic_contribution is only an indicative value, not used for the whole phenotype computation
   
-    // Copy fitness-related stuff
-  if ( _exp_m->env_is_segmented() )
-  {
-    int16_t nb_segments = _exp_m->get_nb_env_segments();
-    _dist_to_target_per_segment = new double [nb_segments];
-    
-    for ( int16_t i = 0 ; i < nb_segments ; i++ )
-    {
-      _dist_to_target_per_segment[i] = model._dist_to_target_per_segment[i];
-    }
-  }
-  else
-  {
-    _dist_to_target_per_segment = model._dist_to_target_per_segment;
-  }
-  
   _dist_to_target_by_feature  = new double [NB_FEATURES];
   _fitness_by_feature         = new double [NB_FEATURES];
-  
-  for ( int8_t i = 0 ; i < NB_FEATURES ; i++ )
-  {
-    _dist_to_target_by_feature[i] = model._dist_to_target_by_feature[i];
-    _fitness_by_feature[i] = model._fitness_by_feature[i];
-  }
-  
-  _fitness            = model._fitness;
   
   // Compute everything
   init_statistical_data();
@@ -296,6 +250,7 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, const ae_genetic_unit &m
 
 ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, ae_genetic_unit* const parent )
 {
+  _exp_m = indiv->get_exp_m();
   _indiv = indiv;
   
   _transcribed                        = false;
@@ -345,20 +300,7 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, ae_genetic_unit* const p
   // NB : _phenotypic_contribution is only an indicative value, not used for the whole phenotype computation
 
   // Initialize all the fitness-related stuff
-  if ( _exp_m->env_is_segmented() )
-  {
-    int16_t nb_segments = _exp_m->get_nb_env_segments();
-    _dist_to_target_per_segment = new double [nb_segments];
-    
-    for ( int16_t i = 0 ; i < nb_segments ; i++ )
-    {
-      _dist_to_target_per_segment[i] = 0;
-    }
-  }
-  else
-  {
-    _dist_to_target_per_segment = NULL;
-  }
+  _dist_to_target_per_segment = NULL;
   
   _dist_to_target_by_feature  = new double [NB_FEATURES];
   _fitness_by_feature         = new double [NB_FEATURES];
@@ -374,6 +316,7 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, ae_genetic_unit* const p
 
 ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, gzFile* backup_file )
 {
+  _exp_m = indiv->get_exp_m();
   _indiv = indiv;
   
   _transcribed                        = false;
@@ -400,20 +343,7 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, gzFile* backup_file )
   // NB : _phenotypic_contribution is only an indicative value, not used for the whole phenotype computation
 
   // Initialize all the fitness-related stuff
-  if ( _exp_m->env_is_segmented() )
-  {
-    int16_t nb_segments = _exp_m->get_nb_env_segments();
-    _dist_to_target_per_segment = new double [nb_segments];
-    
-    for ( int16_t i = 0 ; i < nb_segments ; i++ )
-    {
-      _dist_to_target_per_segment[i] = 0;
-    }
-  }
-  else
-  {
-    _dist_to_target_per_segment = NULL;
-  }
+  _dist_to_target_per_segment = NULL;
   
   _dist_to_target_by_feature  = new double [NB_FEATURES];
   _fitness_by_feature         = new double [NB_FEATURES];
@@ -439,6 +369,7 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, gzFile* backup_file )
 */
 ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, char* organism_file_name )
 {
+  _exp_m = indiv->get_exp_m();
   _indiv = indiv;
   
   _transcribed                        = false;
@@ -467,20 +398,7 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, char* organism_file_name
   //      it is not used for the whole phenotype computation
   
   // Initialize all the fitness-related stuff
-  if ( _exp_m->env_is_segmented() )
-  {
-    int16_t nb_segments = _exp_m->get_nb_env_segments();
-    _dist_to_target_per_segment = new double [nb_segments];
-    
-    for ( int16_t i = 0 ; i < nb_segments ; i++ )
-    {
-      _dist_to_target_per_segment[i] = 0;
-    }
-  }
-  else
-  {
-    _dist_to_target_per_segment = NULL;
-  }
+  _dist_to_target_per_segment = NULL;
   
   _dist_to_target_by_feature  = new double [NB_FEATURES];
   _fitness_by_feature         = new double [NB_FEATURES];
@@ -520,23 +438,20 @@ ae_genetic_unit::~ae_genetic_unit( void )
   delete _rna_list[LAGGING];
   delete [] _rna_list;
   
-  assert( _dna != NULL );
   delete _dna;
-  assert( _activ_contribution != NULL );
   delete _activ_contribution;
-  assert( _inhib_contribution != NULL );
   delete _inhib_contribution;
-  if ( _phenotypic_contribution != NULL ) delete _phenotypic_contribution;
+  delete _phenotypic_contribution;
     
-  if ( _dist_to_target_per_segment != NULL )    delete [] _dist_to_target_per_segment;
+  delete [] _dist_to_target_per_segment;
   
   assert( _dist_to_target_by_feature != NULL );
   delete [] _dist_to_target_by_feature;
   assert( _fitness_by_feature != NULL );
   delete [] _fitness_by_feature;
 
-  if ( _beginning_neutral_regions != NULL ) { delete [] _beginning_neutral_regions; }
-  if ( _end_neutral_regions != NULL )       { delete [] _end_neutral_regions; }
+  delete [] _beginning_neutral_regions;
+  delete [] _end_neutral_regions;
 }
 
 // =================================================================
@@ -1108,7 +1023,7 @@ void ae_genetic_unit::compute_distance_to_target( ae_environment* env )
   ae_fuzzy_set* delta = new ae_fuzzy_set( *_phenotypic_contribution );
   delta->sub( env );
   
-  if ( ! env->is_segmented() )
+  if ( env->get_nb_segments() == 1 )
   {
     _dist_to_target_by_feature[METABOLISM] = delta->get_geometric_area();
   }

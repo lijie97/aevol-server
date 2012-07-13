@@ -72,7 +72,8 @@
 ae_dna::ae_dna( ae_genetic_unit* gen_unit, int32_t length ) : ae_string( length )
 {
   _gen_unit = gen_unit;
-  _indiv    = _indiv;
+  _exp_m    = gen_unit->get_exp_m();
+  _indiv    = gen_unit->get_indiv();
   
   _replic_report  = NULL;
 }
@@ -84,7 +85,8 @@ ae_dna::ae_dna( ae_genetic_unit* gen_unit, int32_t length ) : ae_string( length 
 ae_dna::ae_dna( ae_genetic_unit* gen_unit, const ae_dna &model ) : ae_string( model )
 {
   _gen_unit = gen_unit;
-  _indiv    = _indiv;
+  _exp_m    = gen_unit->get_exp_m();
+  _indiv    = gen_unit->get_indiv();
   
   if ( _exp_m->get_num_gener() > 0 && _exp_m->get_output_m()->get_record_tree() )
   {
@@ -107,7 +109,8 @@ ae_dna::ae_dna( ae_genetic_unit* gen_unit, ae_dna* const parent_dna ) :
     ae_string( parent_dna->_data, parent_dna->_length )
 {
   _gen_unit = gen_unit;
-  _indiv    = _indiv;
+  _exp_m    = gen_unit->get_exp_m();
+  _indiv    = gen_unit->get_indiv();
   
   _replic_report = NULL;
 }
@@ -122,7 +125,8 @@ ae_dna::ae_dna( ae_genetic_unit* gen_unit, char* seq, int32_t length ) :
     ae_string( seq, length, true )
 {
   _gen_unit = gen_unit;
-  _indiv    = _indiv;
+  _exp_m    = gen_unit->get_exp_m();
+  _indiv    = gen_unit->get_indiv();
   
   _replic_report = NULL;
 }
@@ -134,7 +138,8 @@ ae_dna::ae_dna( ae_genetic_unit* gen_unit, char* seq, int32_t length ) :
 ae_dna::ae_dna( ae_genetic_unit* gen_unit, gzFile* backup_file ) : ae_string( backup_file )
 {
   _gen_unit = gen_unit;
-  _indiv    = _indiv;
+  _exp_m    = gen_unit->get_exp_m();
+  _indiv    = gen_unit->get_indiv();
   
   _replic_report = NULL;
 }
@@ -146,8 +151,9 @@ ae_dna::ae_dna( ae_genetic_unit* gen_unit, gzFile* backup_file ) : ae_string( ba
 ae_dna::ae_dna( ae_genetic_unit* gen_unit, char* organism_file_name ) : ae_string( organism_file_name )
 {
   _gen_unit = gen_unit;
-  _indiv    = _indiv;
-  
+  _exp_m    = gen_unit->get_exp_m();
+  _indiv    = gen_unit->get_indiv();
+
   _replic_report  = NULL;
 }
 

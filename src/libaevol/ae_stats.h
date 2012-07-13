@@ -67,8 +67,8 @@ class ae_stats : public ae_object
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_stats( const char * prefix = "stat", bool best_indiv_only = false );
-    ae_stats( int32_t num_gener, const char * prefix = "stat", bool best_indiv_only = false, bool delete_old_stats = false );
+    ae_stats( ae_exp_manager* exp_m, const char * prefix = "stat", bool best_indiv_only = false );
+    ae_stats( ae_exp_manager* exp_m, int32_t num_gener, const char * prefix = "stat", bool best_indiv_only = false, bool delete_old_stats = false );
 
  
     // =================================================================
@@ -110,14 +110,14 @@ class ae_stats : public ae_object
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    //~ ae_stats( void )
-    //~ {
-      //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      //~ exit( EXIT_FAILURE );
-    //~ };
+    ae_stats( void )
+    {
+      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
+      exit( EXIT_FAILURE );
+    };
     ae_stats( const ae_stats &model )
     {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
+      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
     };
   

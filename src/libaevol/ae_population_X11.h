@@ -68,7 +68,7 @@ class ae_population_X11 : public ae_population
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_population_X11( void );
+    ae_population_X11( ae_exp_manager* exp_m );
     //~ ae_population_X11( gzFile* backup_file );
   
     // =================================================================
@@ -99,14 +99,14 @@ class ae_population_X11 : public ae_population
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    //~ ae_population_X11( void )
-    //~ {
-      //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      //~ exit( EXIT_FAILURE );
-    //~ };
+    ae_population_X11( void )
+    {
+      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
+      exit( EXIT_FAILURE );
+    };
     ae_population_X11( const ae_population &model )
     {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
+      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
     };
   

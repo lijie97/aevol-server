@@ -209,7 +209,8 @@ void ae_rand_mt::multinomial_drawing( int32_t* destination, double* source, int3
   
   if ( nb_drawings < 0 || nb_colors < 0 ) 
   {
-    printf( "Negative parameter in multinomial function\n" ); 
+    printf( "%s:%d: error: Negative parameter in multinomial function.\n", __FILE__, __LINE__ );
+    assert( false );
     exit( EXIT_FAILURE );
   }
   if ( nb_colors == 0 ) return;
@@ -220,9 +221,10 @@ void ae_rand_mt::multinomial_drawing( int32_t* destination, double* source, int3
   for ( int32_t i = 0 ; i < nb_colors ; i++ ) 
   { 
     p = source[i];
-    if ( p < 0 ) 
+    if ( p < 0 )
     {
-      printf( "Negative parameter in multinomial function\n" );
+      printf( "%s:%d: error: Negative parameter in multinomial function.\n", __FILE__, __LINE__ );
+      assert( false );
       exit( EXIT_FAILURE );
     }
     sum += p;
@@ -230,6 +232,7 @@ void ae_rand_mt::multinomial_drawing( int32_t* destination, double* source, int3
   if ( sum == 0 && nb_drawings > 0 ) 
   {
     printf( "Zero sum in multinomial function\n" );
+    assert( false );
     exit( EXIT_FAILURE );
   }
 

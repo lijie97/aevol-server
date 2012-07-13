@@ -57,20 +57,24 @@
 // =================================================================
 //                             Constructors
 // =================================================================
-//~ ae_grid_cell::ae_grid_cell( int16_t x, int16_t y )
-//~ {
-  //~ _x = x;
-  //~ _y = y;
-  //~ _compound_amount  = 0.0;
-  //~ _individual       = NULL;
-//~ }
-
 ae_grid_cell::ae_grid_cell( int16_t x, int16_t y, ae_individual* indiv )
 {
   _x = x;
   _y = y;
+  
   _compound_amount  = 0.0;
+  
   _individual       = indiv;
+}
+
+ae_grid_cell::ae_grid_cell( gzFile* backup_file )
+{
+  gzread( backup_file, &_x, sizeof(_x) );
+  gzread( backup_file, &_y, sizeof(_y) );
+  
+  gzread( backup_file, &_compound_amount, sizeof(_compound_amount) );
+  
+  _individual = NULL;
 }
 
 // =================================================================
@@ -83,6 +87,13 @@ ae_grid_cell::~ae_grid_cell( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
+void ae_grid_cell::write_to_backup( gzFile* backup_file ) const
+{
+  gzwrite( backup_file, &_x, sizeof(_x) );
+  gzwrite( backup_file, &_y, sizeof(_y) );
+  
+  gzwrite( backup_file, &_compound_amount, sizeof(_compound_amount) );
+}
 
 // =================================================================
 //                           Protected Methods

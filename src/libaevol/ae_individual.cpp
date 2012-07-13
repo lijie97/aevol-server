@@ -83,7 +83,7 @@
 /*!
 
 */
-ae_individual::ae_individual( ae_exp_manager* exp_m, ae_rand_mt* alea, ae_params_mut* param_mut, int32_t id, int32_t age )
+ae_individual::ae_individual( ae_exp_manager* exp_m, ae_rand_mt* alea, ae_params_mut* param_mut, double w_max, int32_t id, int32_t age )
 {
   // Experiment manager
   _exp_m = exp_m;
@@ -92,7 +92,7 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, ae_rand_mt* alea, ae_params
   _alea = alea;
   
   // ID and rank of the indiv ; "age" of the strain
-  _id   = id;
+  set_id( id );
   _rank = -1;
   _age = age;
   
@@ -127,7 +127,7 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, ae_rand_mt* alea, ae_params
   _mut_params = new ae_params_mut( *param_mut );
   
   // Artificial chemistry
-  _w_max = 0.0;
+  _w_max = w_max;
   
   
   
@@ -181,13 +181,13 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, ae_rand_mt* alea, ae_params
   _modularity = 0.0;
 }
 
-/**
- * Creates a new individual with a random genome.
- *
- * Promoters will be looked for on the whole genome but no further process
- * will be performed.
- * The phenotype and the fitness are not set, neither is the statistical data.
- */
+/*!
+  Creates a new individual with a random genome.
+
+  Promoters will be looked for on the whole genome but no further process
+  will be performed.
+  The phenotype and the fitness are not set, neither is the statistical data.
+*/
 /*ae_individual::ae_individual( void )
 {
   _alea = NULL;
@@ -302,12 +302,12 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, ae_rand_mt* alea, ae_params
   _modularity = -1;
 }*/
 
-/**
- * This constructor retreives an individual from a backup file.
- *
- * Since this generation has already been processed, no unnecessary calculation (e.g. fitness) will be done.
- * No transcription, translation or other process of that kind is performed.
- */
+/*!
+  This constructor retreives an individual from a backup file.
+
+  Since this generation has already been processed, no unnecessary calculation (e.g. fitness) will be done.
+  No transcription, translation or other process of that kind is performed.
+*/
 ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile* backup_file )
 {
   _exp_m = exp_m;
@@ -353,8 +353,6 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile* backup_file )
     _genetic_unit_list->add( new ae_genetic_unit( this, backup_file ) );
   }
   
-  gzread( backup_file, &_nb_segments, sizeof(_nb_segments) );
-  
   // --------------------------------------------------------------------------------------------
   // No more data to retreive, the following are only structural initializations (no data is set)
   // --------------------------------------------------------------------------------------------
@@ -363,11 +361,6 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile* backup_file )
   _phenotype_activ = new ae_fuzzy_set();
   _phenotype_inhib = new ae_fuzzy_set();
   _phenotype = new ae_phenotype();
-  
-  
-  // Initialize all the fitness-related stuff
-  _dist_to_target_by_segment = new double [_nb_segments];
-  memset( _dist_to_target_by_segment, 0, _nb_segments);
   
   _dist_to_target_by_feature  = new double [NB_FEATURES];
   _fitness_by_feature         = new double [NB_FEATURES];
@@ -445,9 +438,13 @@ ae_individual::ae_individual( const ae_individual &model )
   _translated                   = model._translated;
   _folded                       = model._folded;
   _phenotype_computed           = model._phenotype_computed;
-  _distance_to_target_computed  = model._distance_to_target_computed;
-  _fitness_computed             = model._fitness_computed;
-  _statistical_data_computed    = model._statistical_data_computed;
+  
+  // The distance to target and what results from it depend on the environment
+  // and must hence be recomputed with the (possibly different) environment.
+  _distance_to_target_computed  = false;
+  _fitness_computed             = false;
+  _statistical_data_computed    = false;
+  
   _non_coding_computed          = model._non_coding_computed;
   _modularity_computed          = model._modularity_computed;
   
@@ -484,14 +481,6 @@ ae_individual::ae_individual( const ae_individual &model )
   
   
   // Copy fitness-related stuff
-  _nb_segments = model._nb_segments;
-  _dist_to_target_by_segment = new double [_nb_segments];
-  
-  for ( int16_t i = 0 ; i < _nb_segments ; i++ )
-  {
-    _dist_to_target_by_segment[i] = model._dist_to_target_by_segment[i];
-  }
-  
   _dist_to_target_by_feature  = new double [NB_FEATURES];
   _fitness_by_feature         = new double [NB_FEATURES];
   
@@ -529,9 +518,8 @@ ae_individual::ae_individual( const ae_individual &model )
   _modularity = model._modularity;
   
   
-  // We don't copy the generation report
-  // One of the reasons is that we use this at generation 0 and _replic_report of the model is NULL
-  // NOTE : This is not a good reason!
+  // We don't copy the generation report since we are creating a clone
+  // We could create a new (empty) replic report but for now, it is not needed
   _replic_report = NULL;
   
   _protein_list = new ae_list();
@@ -548,21 +536,30 @@ ae_individual::ae_individual( const ae_individual &model )
   
   // Mutation rates etc...
   _mut_params = new ae_params_mut( *(model._mut_params) );
+  
+  // Artificial chemistry parameters
+  _w_max = model._w_max;
 }
 
-/**
- * This constructor creates a new individual with the same genome as it's parent.
- * The location of promoters will be copied but no further process will be performed.
- *
- * The phenotype and the fitness are not set, neither is the statistical data.
- */
-/*ae_individual::ae_individual( ae_individual* const parent, int32_t index )
+/*!
+  This constructor creates a new individual with the same genome as it's parent.
+  The location of promoters will be copied but no further process will be performed.
+
+  The phenotype and the fitness are not set, neither is the statistical data.
+*/
+ae_individual::ae_individual( ae_individual* const parent, int32_t id )
 {
+  _exp_m = parent->_exp_m;
+  
   _alea = new ae_rand_mt( *(parent->_alea) );
+  // <tmp>
+  int tmp = rand() % 100;
+  for ( int i = 0 ; i < tmp ; i++ ) _alea->rand_next();
+  // </tmp>
   _age  = parent->_age + 1;
   
-  _index_in_population  = index;
-  _rank_in_population   = -1;
+  _id   = id;
+  _rank = -1;
   
   _evaluated                    = false;
   _transcribed                  = false;
@@ -594,21 +591,23 @@ ae_individual::ae_individual( const ae_individual &model )
   _phenotype_inhib = new ae_fuzzy_set();
   _phenotype = NULL;
   
-  // Initialize all the fitness-related stuff
-  if ( ae_common::sim->get_env()->is_segmented() )
-  {
-    int16_t nb_segments = ae_common::sim->get_env()->get_nb_segments();
-    _dist_to_target_by_segment = new double [nb_segments];
+  //~ // Initialize all the fitness-related stuff
+  //~ if ( _exp_m->is_segmented() )
+  //~ {
+    //~ int16_t nb_segments = ae_common::sim->get_env()->get_nb_segments();
+    //~ _dist_to_target_by_segment = new double [nb_segments];
     
-    for ( int16_t i = 0 ; i < nb_segments ; i++ )
-    {
-      _dist_to_target_by_segment[i] = 0;
-    }
-  }
-  else
-  {
-    _dist_to_target_by_segment = NULL;
-  }
+    //~ for ( int16_t i = 0 ; i < nb_segments ; i++ )
+    //~ {
+      //~ _dist_to_target_by_segment[i] = 0;
+    //~ }
+  //~ }
+  //~ else
+  //~ {
+    //~ _dist_to_target_by_segment = NULL;
+  //~ }
+  
+  _dist_to_target_by_segment = NULL;
   
   _dist_to_target_by_feature  = new double [NB_FEATURES];
   _fitness_by_feature         = new double [NB_FEATURES];
@@ -619,8 +618,8 @@ ae_individual::ae_individual( const ae_individual &model )
     _fitness_by_feature[i]        = 0.0;
   }
 
-  
-  if ( ae_common::rec_params->get_record_tree() && ae_common::rec_params->get_tree_mode() == NORMAL )
+  // Create a new replication report to store mutational events
+  if ( _exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL )
   {
     _replic_report = new ae_replication_report( this, parent );
   }
@@ -629,17 +628,19 @@ ae_individual::ae_individual( const ae_individual &model )
     _replic_report = NULL;
   }
   
+  // Create protein and RNA access lists
   _protein_list = new ae_list();
   _rna_list     = new ae_list();
   
   // Generic probes
   _int_probes     = new int32_t[5];
   _double_probes  = new double[5];
-  for ( int8_t i = 0 ; i < 5 ; i++ )
-  {
-    _int_probes[i]    = 0;
-    _double_probes[i] = 0;
-  }
+  
+  // Mutation rates etc...
+  _mut_params = new ae_params_mut( *(parent->_mut_params) );
+  
+  // Artificial chemistry parameters
+  _w_max = parent->_w_max;
   
   // Initialize statistical data
   _total_genome_size                  = 0;
@@ -664,7 +665,7 @@ ae_individual::ae_individual( const ae_individual &model )
   _nb_neutral_regions                 = -1;
 
   _modularity = -1;
-}*/
+}
 
 /*!
   Creates a new individual with a genome read in from a file.
@@ -979,19 +980,19 @@ void ae_individual::compute_distance_to_target( ae_environment* envir )
   ae_fuzzy_set* delta = new ae_fuzzy_set( *_phenotype );
   delta->sub( envir );
   
-  if ( _nb_segments == 1 )
+  if ( envir->get_nb_segments() == 1 )
   {
     _dist_to_target_by_feature[METABOLISM] = delta->get_geometric_area();
   }
   else // Environment is segmented
   {
-    ae_env_segment** segments  = envir->get_segments();
+    ae_env_segment** segments = envir->get_segments();
     
     // TODO : We should take into account that we compute the areas in order (from the leftmost segment, rightwards)
     //   => We shouldn't parse the whole list of points on the left of the segment we are considering (we have 
     //      already been through them!)
     
-    for ( int16_t i = 0 ; i < _nb_segments ; i++ )
+    for ( int16_t i = 0 ; i < envir->get_nb_segments() ; i++ )
     {
       _dist_to_target_by_segment[i] = delta->get_geometric_area( segments[i]->start, segments[i]->stop );
       _dist_to_target_by_feature[segments[i]->feature] += _dist_to_target_by_segment[i];
@@ -1110,7 +1111,7 @@ void ae_individual::reevaluate( ae_environment* envir /*= NULL*/ )
   }
 
   // Initialize all the fitness-related stuff
-  for ( int16_t i = 0 ; i < _nb_segments ; i++ )
+  for ( int16_t i = 0 ; i < envir->get_nb_segments() ; i++ )
   {
     _dist_to_target_by_segment[i] = 0.0;
   }
@@ -1184,6 +1185,65 @@ void ae_individual::reevaluate( ae_environment* envir /*= NULL*/ )
   evaluate( envir );
 }
 
+void ae_individual::do_transcription( void )
+{
+  if ( _transcribed == true ) return; // Transcription has already been performed, nothing to do.
+  _transcribed = true;
+  
+  ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
+  ae_genetic_unit*  gen_unit;
+  
+  while ( gen_unit_node != NULL )
+  {
+    gen_unit = (ae_genetic_unit*)gen_unit_node->get_obj();
+    
+    gen_unit->do_transcription();
+    _rna_list->add_list( gen_unit->get_rna_list()[LEADING] );
+    _rna_list->add_list( gen_unit->get_rna_list()[LAGGING] );
+     
+    gen_unit_node = gen_unit_node->get_next();
+  }
+}
+
+void ae_individual::do_translation( void )
+{
+  if ( _translated == true ) return; // ARNs have already been translated, nothing to do.
+  _translated = true;
+  if ( _transcribed == false ) do_transcription();
+  
+  ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
+  ae_genetic_unit*  gen_unit;
+  
+  while ( gen_unit_node != NULL )
+  {
+    gen_unit = (ae_genetic_unit*)gen_unit_node->get_obj();
+    
+    gen_unit->do_translation();
+    _protein_list->add_list( gen_unit->get_protein_list()[LEADING] );
+    _protein_list->add_list( gen_unit->get_protein_list()[LAGGING] );
+     
+    gen_unit_node = gen_unit_node->get_next();
+  }
+}
+
+void ae_individual::do_folding( void )
+{
+  if ( _folded == true ) return; // Proteins have already been folded, nothing to do.
+  _folded = true;
+  if ( _translated == false ) do_translation();
+  
+  ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
+  ae_genetic_unit*  gen_unit;
+  
+  while ( gen_unit_node != NULL )
+  {
+    gen_unit = (ae_genetic_unit*)gen_unit_node->get_obj();
+    
+    gen_unit->compute_phenotypic_contribution();
+     
+    gen_unit_node = gen_unit_node->get_next();
+  }
+}
 
 void ae_individual::evaluate( ae_environment* envir /*= NULL*/ )
 {
@@ -1196,6 +1256,7 @@ void ae_individual::evaluate( ae_environment* envir /*= NULL*/ )
   // 1) Transcription - Translation - Folding
   // ----------------------------------------------------------------------
   do_transcription_translation_folding();
+  //~ print_rna_list();
   //~ print_protein_list();
   
   // ----------------------------------------------------------------------
@@ -1574,8 +1635,6 @@ void ae_individual::write_to_backup( gzFile* backup_file ) const
     
     gen_unit_node = gen_unit_node->get_next();
   }
-  
-  gzwrite( backup_file, &_nb_segments, sizeof(_nb_segments) );
 }
 
 int32_t ae_individual::get_nb_terminators( void )

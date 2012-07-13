@@ -43,8 +43,9 @@
 // =================================================================
 #include <ae_exp_manager.h>
 
-
-
+#ifdef __X11
+  #include <ae_population_X11.h>
+#endif
 
 //##############################################################################
 //                                                                             #
@@ -65,7 +66,12 @@ ae_exp_manager::ae_exp_manager( void )
   _first_gener  = 0;
   _last_gener   = 0;
   
-  _pop      = new ae_population( this );
+  #ifdef __X11
+    _pop = new ae_population_X11( this );
+  #else
+    _pop = new ae_population( this );
+  #endif
+  
   _exp_s    = new ae_exp_setup( this );
   _output_m = new ae_output_manager( this );
   

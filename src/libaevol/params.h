@@ -212,9 +212,12 @@ class params : public ae_object
     // Logs
     inline int8_t get_logs( void ) const;
     
+    // Dumps
+    inline bool    get_make_dumps( void ) const;
+    inline int32_t get_dump_step( void ) const;
+    
     // Other
     inline bool    get_more_stats( void ) const;
-    inline int32_t get_dump_period( void ) const;
     
 
     #ifdef __REGUL
@@ -348,12 +351,14 @@ class params : public ae_object
     inline void set_tree_step( int32_t tree_step );
     inline void set_tree_mode( ae_tree_mode tree_mode );
     
+    // Dumps
+    inline void set_dump_step( int32_t dump_step );
+    
     // Logs
     inline void set_logs( int8_t logs );
     
     // Other
     inline void set_more_stats( bool more_stats );
-    inline void set_dump_period( int32_t dump_period );
 
     #ifdef __REGUL
       // ------------------------------------------------------- Binding matrix
@@ -541,12 +546,15 @@ class params : public ae_object
     int32_t      _tree_step;
     ae_tree_mode _tree_mode;
     
+    // Dumps // TODO : explain
+    bool    _make_dumps;
+    int32_t _dump_step;
+    
     // Logs
     int8_t _logs;
     
     // Other
-    bool    _more_stats;   // TODO : explain
-    int32_t _dump_period;  // TODO : explain
+    bool _more_stats;  // TODO : explain
 
     #ifdef __REGUL
       // ------------------------------------------------------- Binding matrix
@@ -962,9 +970,14 @@ inline bool params::get_more_stats( void ) const
   return _more_stats;
 }
 
-inline int32_t params::get_dump_period( void ) const
+inline bool params::get_make_dumps( void ) const
 {
-  return _dump_period;
+  return _make_dumps;
+}
+
+inline int32_t params::get_dump_step( void ) const
+{
+  return _dump_step;
 }
 
 inline int8_t params::get_stats( void ) const
@@ -1396,9 +1409,14 @@ inline void params::set_more_stats( bool more_stats )
   _more_stats = more_stats;
 }
 
-inline void params::set_dump_period( int32_t dump_period )
+inline void params::set_dump_step( int32_t dump_step )
 {
-  _dump_period = dump_period;
+  if ( dump_step > 0 )
+  {
+    _make_dumps = true;
+  }
+  
+  _dump_step = dump_step;
 }
 
 inline void params::set_stats( int8_t stats )

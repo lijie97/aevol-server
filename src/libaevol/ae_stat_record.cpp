@@ -66,14 +66,74 @@
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_stat_record::ae_stat_record( void )
+ae_stat_record::ae_stat_record( ae_exp_manager* exp_m )
 {
+  _exp_m = exp_m;
   initialize_data();
 }
 
-/* If used for post-treatments, num_gener is mandatory */
-ae_stat_record::ae_stat_record( ae_individual const * indiv, chrom_or_gen_unit chrom_or_gu, bool compute_non_coding, int32_t num_gener )
+ae_stat_record::ae_stat_record( const ae_stat_record &model )
 {
+  _exp_m = model._exp_m;
+  
+  _num_gener = model._num_gener;
+  _pop_size  = model._pop_size;
+  
+  _metabolic_error         = model._metabolic_error;
+  _metabolic_fitness       = model._metabolic_fitness;
+  _parent_metabolic_error  = model._parent_metabolic_error;
+  
+  _secretion_error         = model._secretion_error;
+  _secretion_fitness       = model._secretion_fitness;
+  _parent_secretion_error  = model._parent_secretion_error;
+  
+  _compound_amount   = model._compound_amount;
+  
+  _fitness = model._fitness;
+  
+  _amount_of_dna                = model._amount_of_dna;
+  _nb_coding_rnas               = model._nb_coding_rnas;
+  _nb_non_coding_rnas           = model._nb_non_coding_rnas;
+  _av_size_coding_rnas          = model._av_size_coding_rnas;
+  _av_size_non_coding_rnas      = model._av_size_non_coding_rnas;
+  _nb_functional_genes          = model._nb_functional_genes;
+  _nb_non_functional_genes      = model._nb_non_functional_genes;
+  _av_size_functional_gene      = model._av_size_functional_gene;
+  _av_size_non_functional_gene  = model._av_size_non_functional_gene;
+
+  _nb_mut    = model._nb_mut;
+  _nb_rear   = model._nb_rear;
+  _nb_switch = model._nb_switch;
+  _nb_indels = model._nb_indels;
+  _nb_dupl   = model._nb_dupl;
+  _nb_del    = model._nb_del;
+  _nb_trans  = model._nb_trans;
+  _nb_inv    = model._nb_inv;
+  
+  _nb_bases_in_0_CDS                = model._nb_bases_in_0_CDS;
+  _nb_bases_in_0_functional_CDS     = model._nb_bases_in_0_functional_CDS;
+  _nb_bases_in_0_non_functional_CDS = model._nb_bases_in_0_non_functional_CDS;
+  _nb_bases_in_0_RNA                = model._nb_bases_in_0_RNA;
+  _nb_bases_in_0_coding_RNA         = model._nb_bases_in_0_coding_RNA;
+  _nb_bases_in_0_non_coding_RNA     = model._nb_bases_in_0_non_coding_RNA;
+      
+  _nb_bases_non_essential                     = model._nb_bases_non_essential;
+  _nb_bases_non_essential_including_nf_genes  = model._nb_bases_non_essential_including_nf_genes;
+    
+  #ifdef __REGUL
+    _nb_influences                 = model._nb_influences;
+    _nb_enhancing_influences       = model._nb_enhancing_influences;
+    _nb_operating_influences       = model._nb_operating_influences;
+    _av_value_influences           = model._av_value_influences;
+    _av_value_enhancing_influences = model._av_value_enhancing_influences;
+    _av_value_operating_influences = model._av_value_operating_influences;
+  #endif
+}
+
+/* If used for post-treatments, num_gener is mandatory */
+ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_individual const * indiv, chrom_or_gen_unit chrom_or_gu, bool compute_non_coding, int32_t num_gener )
+{
+  _exp_m = exp_m;
   initialize_data();
   _record_type = INDIV;
     
@@ -387,8 +447,9 @@ ae_stat_record::ae_stat_record( ae_individual const * indiv, chrom_or_gen_unit c
 }
 
 // Calculate average statistics for all the recorded values 
-ae_stat_record::ae_stat_record( ae_population const * pop, chrom_or_gen_unit chrom_or_gu )
+ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_population const * pop, chrom_or_gen_unit chrom_or_gu )
 {
+  _exp_m = exp_m;
   initialize_data();
   
   _record_type = POP;
@@ -408,7 +469,7 @@ ae_stat_record::ae_stat_record( ae_population const * pop, chrom_or_gen_unit chr
   while ( indiv_node != NULL )
   {
     indiv = (ae_individual*) indiv_node->get_obj();
-    ae_stat_record* indiv_stat_record = new ae_stat_record( indiv, chrom_or_gu, false );
+    ae_stat_record* indiv_stat_record = new ae_stat_record( _exp_m, indiv, chrom_or_gu, false );
     this->add( indiv_stat_record );
     delete indiv_stat_record;
     
@@ -423,8 +484,9 @@ ae_stat_record::ae_stat_record( ae_population const * pop, chrom_or_gen_unit chr
 }
 
 // Calculate standard deviation for all the recorded values 
-ae_stat_record::ae_stat_record( ae_population const * pop, ae_stat_record const * means, chrom_or_gen_unit chrom_or_gu )
+ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_population const * pop, ae_stat_record const * means, chrom_or_gen_unit chrom_or_gu )
 {
+  _exp_m = exp_m;
   initialize_data();
   
   _record_type = STDEVS;
@@ -444,7 +506,7 @@ ae_stat_record::ae_stat_record( ae_population const * pop, ae_stat_record const 
   while ( indiv_node != NULL )
   {
     indiv = (ae_individual*) indiv_node->get_obj();
-    ae_stat_record* indiv_stat_record = new ae_stat_record( indiv, chrom_or_gu, false );
+    ae_stat_record* indiv_stat_record = new ae_stat_record( _exp_m, indiv, chrom_or_gu, false );
     this->substract_power( means, indiv_stat_record, 2 );
     delete indiv_stat_record;
     
@@ -458,8 +520,9 @@ ae_stat_record::ae_stat_record( ae_population const * pop, ae_stat_record const 
 }
 
  // Calculate skewness for all the recorded values 
-ae_stat_record::ae_stat_record( ae_population const * pop, ae_stat_record const * means, ae_stat_record const * stdevs, chrom_or_gen_unit chrom_or_gu )
+ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_population const * pop, ae_stat_record const * means, ae_stat_record const * stdevs, chrom_or_gen_unit chrom_or_gu )
 {
+  _exp_m = exp_m;
   initialize_data();
   
   _record_type = SKEWNESS;
@@ -479,7 +542,7 @@ ae_stat_record::ae_stat_record( ae_population const * pop, ae_stat_record const 
   while ( indiv_node != NULL )
   {
     indiv = (ae_individual*) indiv_node->get_obj();
-    ae_stat_record* indiv_stat_record = new ae_stat_record( indiv, chrom_or_gu, false );
+    ae_stat_record* indiv_stat_record = new ae_stat_record( _exp_m, indiv, chrom_or_gu, false );
     this->substract_power( means, indiv_stat_record, 3 );    
     delete indiv_stat_record;
     indiv_node = indiv_node->get_next();
@@ -488,63 +551,6 @@ ae_stat_record::ae_stat_record( ae_population const * pop, ae_stat_record const 
   this->divide( - _pop_size );
   
   this->divide_record( stdevs, 3/2 );
-}
-
-
-ae_stat_record::ae_stat_record( const ae_stat_record &model )
-{
-  _num_gener = model._num_gener;
-  _pop_size  = model._pop_size;
-  
-  _metabolic_error         = model._metabolic_error;
-  _metabolic_fitness       = model._metabolic_fitness;
-  _parent_metabolic_error  = model._parent_metabolic_error;
-  
-  _secretion_error         = model._secretion_error;
-  _secretion_fitness       = model._secretion_fitness;
-  _parent_secretion_error  = model._parent_secretion_error;
-  
-  _compound_amount   = model._compound_amount;
-  
-  _fitness = model._fitness;
-  
-  _amount_of_dna                = model._amount_of_dna;
-  _nb_coding_rnas               = model._nb_coding_rnas;
-  _nb_non_coding_rnas           = model._nb_non_coding_rnas;
-  _av_size_coding_rnas          = model._av_size_coding_rnas;
-  _av_size_non_coding_rnas      = model._av_size_non_coding_rnas;
-  _nb_functional_genes          = model._nb_functional_genes;
-  _nb_non_functional_genes      = model._nb_non_functional_genes;
-  _av_size_functional_gene      = model._av_size_functional_gene;
-  _av_size_non_functional_gene  = model._av_size_non_functional_gene;
-
-  _nb_mut    = model._nb_mut;
-  _nb_rear   = model._nb_rear;
-  _nb_switch = model._nb_switch;
-  _nb_indels = model._nb_indels;
-  _nb_dupl   = model._nb_dupl;
-  _nb_del    = model._nb_del;
-  _nb_trans  = model._nb_trans;
-  _nb_inv    = model._nb_inv;
-  
-  _nb_bases_in_0_CDS                = model._nb_bases_in_0_CDS;
-  _nb_bases_in_0_functional_CDS     = model._nb_bases_in_0_functional_CDS;
-  _nb_bases_in_0_non_functional_CDS = model._nb_bases_in_0_non_functional_CDS;
-  _nb_bases_in_0_RNA                = model._nb_bases_in_0_RNA;
-  _nb_bases_in_0_coding_RNA         = model._nb_bases_in_0_coding_RNA;
-  _nb_bases_in_0_non_coding_RNA     = model._nb_bases_in_0_non_coding_RNA;
-      
-  _nb_bases_non_essential                     = model._nb_bases_non_essential;
-  _nb_bases_non_essential_including_nf_genes  = model._nb_bases_non_essential_including_nf_genes;
-    
-  #ifdef __REGUL
-    _nb_influences                 = model._nb_influences;
-    _nb_enhancing_influences       = model._nb_enhancing_influences;
-    _nb_operating_influences       = model._nb_operating_influences;
-    _av_value_influences           = model._av_value_influences;
-    _av_value_enhancing_influences = model._av_value_enhancing_influences;
-    _av_value_operating_influences = model._av_value_operating_influences;
-  #endif
 }
 
 // =================================================================

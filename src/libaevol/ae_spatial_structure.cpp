@@ -62,6 +62,26 @@ ae_spatial_structure::ae_spatial_structure( void )
   _pop_grid = NULL;
 }
 
+ae_spatial_structure::ae_spatial_structure( gzFile* backup_file )
+{
+  _alea = new ae_rand_mt( backup_file );
+  
+  gzread( backup_file, &_grid_width,  sizeof(_grid_width) );
+  gzread( backup_file, &_grid_height, sizeof(_grid_height) );
+  
+  for ( int16_t x = 0 ; x < _grid_width ; x++ )
+  {
+    for ( int16_t y = 0 ; y < _grid_height ; y++ )
+    {
+      _pop_grid[x][y] = new ae_grid_cell( backup_file );
+    }
+  }
+  
+  gzread( backup_file, &_migration_number,           sizeof(_migration_number) );
+  gzread( backup_file, &_secretion_diffusion_prop,   sizeof(_secretion_diffusion_prop) );
+  gzread( backup_file, &_secretion_degradation_prop, sizeof(_secretion_degradation_prop) );
+}
+
 // =================================================================
 //                             Destructors
 // =================================================================
@@ -155,6 +175,37 @@ void ae_spatial_structure::do_random_migrations ( void )
     _pop_grid[old_x][old_y]->set_individual( _pop_grid[new_x][new_y]->get_individual() );
     _pop_grid[new_x][new_y]->set_individual( tmp_swap );
   }
+}
+
+void ae_spatial_structure::write_to_backup( gzFile* backup_file ) const
+{
+  if ( _alea == NULL )
+  {
+    printf( "%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__ );
+    exit( EXIT_FAILURE );
+  }
+  if ( _pop_grid == NULL )
+  {
+    printf( "%s:%d: error: grid not initialized.\n", __FILE__, __LINE__ );
+    exit( EXIT_FAILURE );
+  }
+  
+  _alea->write_to_backup( backup_file );
+  
+  gzwrite( backup_file, &_grid_width,   sizeof(_grid_width) );
+  gzwrite( backup_file, &_grid_height,  sizeof(_grid_height) );
+  
+  for ( int16_t x = 0 ; x < _grid_width ; x++ )
+  {
+    for ( int16_t y = 0 ; y < _grid_height ; y++ )
+    {
+      _pop_grid[x][y]->write_to_backup( backup_file );
+    }
+  }
+  
+  gzwrite( backup_file, &_migration_number,           sizeof(_migration_number) );
+  gzwrite( backup_file, &_secretion_diffusion_prop,   sizeof(_secretion_diffusion_prop) );
+  gzwrite( backup_file, &_secretion_degradation_prop, sizeof(_secretion_degradation_prop) );
 }
 
 // =================================================================

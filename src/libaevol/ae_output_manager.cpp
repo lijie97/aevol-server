@@ -149,37 +149,6 @@ void ae_output_manager::load_experiment(  char* exp_setup_file_name /*= NULL*/,
                                           char* out_man_file_name /*= NULL*/,
                                           bool verbose /*= true*/ )
 {
-  //~ int32_t num_gener = _exp_m->get_num_gener();
-  
-  //~ // Generate default backup file names where needed
-  //~ if ( exp_setup_file_name == NULL )
-  //~ {
-    //~ exp_setup_file_name = new char[50];
-    //~ #ifdef __REGUL
-      //~ sprintf( exp_setup_file_name, "backup/exp_setup_%06"PRId32".rae", num_gener );
-    //~ #else
-      //~ sprintf( exp_setup_file_name, "backup/exp_setup_%06"PRId32".ae", num_gener );
-    //~ #endif
-  //~ }
-  //~ if ( exp_setup_file_name == NULL )
-  //~ {
-    //~ exp_setup_file_name = new char[50];
-    //~ #ifdef __REGUL
-      //~ sprintf( pop_file_name, "backup/pop_%06"PRId32".rae", num_gener );
-    //~ #else
-      //~ sprintf( pop_file_name, "backup/pop_%06"PRId32".ae", num_gener );
-    //~ #endif
-  //~ }
-  //~ if ( exp_setup_file_name == NULL )
-  //~ {
-    //~ exp_setup_file_name = new char[50];
-    //~ #ifdef __REGUL
-      //~ sprintf( out_man_file_name, "backup/out_man_%06"PRId32".rae", num_gener );
-    //~ #else
-      //~ sprintf( out_man_file_name, "backup/out_man_%06"PRId32".ae", num_gener );
-    //~ #endif
-  //~ }
-  
   // Open backup files (population, exp_setup and output_man)
   gzFile* exp_setup_file  = (gzFile*) gzopen( exp_setup_file_name, "r" );
   gzFile* pop_file        = (gzFile*) gzopen( pop_file_name, "r" );
@@ -225,8 +194,8 @@ void ae_output_manager::write_to_backup( gzFile* backup_file ) const
   
   // Dumps
   int8_t make_dumps = _make_dumps;
-  gzwrite( backup_file, &make_dumps,    sizeof(make_dumps) );
-  gzwrite( backup_file, &_dump_period,  sizeof(_dump_period) );
+  gzwrite( backup_file, &make_dumps,  sizeof(make_dumps) );
+  gzwrite( backup_file, &_dump_step,  sizeof(_dump_step) );
 }
 
 void ae_output_manager::read_from_backup( gzFile* backup_file, bool verbose )
@@ -236,6 +205,7 @@ void ae_output_manager::read_from_backup( gzFile* backup_file, bool verbose )
   gzread( backup_file, &_big_backup_step,  sizeof(_big_backup_step) );
   
   // Stats
+  _stats = new ae_stats( _exp_m );
   
   // Tree
   int8_t record_tree;
@@ -246,7 +216,7 @@ void ae_output_manager::read_from_backup( gzFile* backup_file, bool verbose )
   int8_t make_dumps;
   gzread( backup_file, &make_dumps, sizeof(make_dumps) );
   _make_dumps = make_dumps;
-  gzread( backup_file, &_dump_period,  sizeof(_dump_period) );
+  gzread( backup_file, &_dump_step,  sizeof(_dump_step) );
 }
 
 void ae_output_manager::write_current_generation_outputs( void ) const
@@ -254,7 +224,11 @@ void ae_output_manager::write_current_generation_outputs( void ) const
   int32_t num_gener = _exp_m->get_num_gener();
   
   _stats->write_current_generation_statistics();
-  _dump->write_current_generation_dump();
+  
+  if ( _make_dumps )
+  {
+    _dump->write_current_generation_dump();
+  }
   
   if ( _record_tree )
   { 
@@ -262,9 +236,9 @@ void ae_output_manager::write_current_generation_outputs( void ) const
   }
 
   // Write backup and tree
-  if ( num_gener % _tree->get_tree_step() == 0 )    
+  if ( _record_tree && (num_gener % _tree->get_tree_step() == 0) )    
   {
-    if ( _record_tree  && _tree->get_tree_mode() == NORMAL ) 
+    if ( _tree->get_tree_mode() == NORMAL ) 
     { 
       write_tree();
     }
@@ -297,7 +271,7 @@ void ae_output_manager::write_current_generation_outputs( void ) const
 
   if ( _make_dumps ) 
   {
-    if( num_gener % _dump_period == 0 )
+    if( num_gener % _dump_step == 0 )
     {
       _dump->write_current_generation_dump();
     }

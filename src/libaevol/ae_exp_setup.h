@@ -90,7 +90,6 @@ class ae_exp_setup : public ae_object
     inline ae_environment*  get_env( void ) const;
     
     inline bool     fitness_is_composite( void ) const;
-    inline bool     env_is_segmented( void ) const;
     inline int16_t  get_nb_env_segments( void ) const;
     
     inline ae_selection*        get_sel( void ) const;
@@ -122,6 +121,8 @@ class ae_exp_setup : public ae_object
     //                         Accessors: setters
     // =================================================================
     inline void set_env( ae_environment* env );
+    inline void set_min_genome_length( int32_t min_genome_length );
+    inline void set_max_genome_length( int32_t max_genome_length );
   
     // =================================================================
     //                            Public Methods
@@ -200,11 +201,6 @@ inline ae_environment* ae_exp_setup::get_env( void ) const
 inline bool ae_exp_setup::fitness_is_composite( void ) const
 {
   return _env->fitness_is_composite();
-}
-
-inline bool ae_exp_setup::env_is_segmented( void ) const
-{
-  return _env->is_segmented();
 }
 
 inline int16_t ae_exp_setup::get_nb_env_segments( void ) const
@@ -305,6 +301,17 @@ inline double ae_exp_setup::get_secretion_cost( void ) const
 inline void ae_exp_setup::set_env( ae_environment* env )
 {
   _env = env;
+}
+
+// Global constraints
+inline void ae_exp_setup::set_min_genome_length( int32_t min_genome_length )
+{
+  _min_genome_length = min_genome_length;
+}
+
+inline void ae_exp_setup::set_max_genome_length( int32_t max_genome_length )
+{
+  _max_genome_length = max_genome_length;
 }
 
 

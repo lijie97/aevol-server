@@ -67,22 +67,30 @@
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_stats::ae_stats( const char * prefix /* = "stat" */, bool best_indiv_only /* = false */ )
+ae_stats::ae_stats( ae_exp_manager* exp_m,
+                    const char * prefix /* = "stat" */,
+                    bool best_indiv_only /* = false */ )
 {
+  _exp_m = exp_m;
   init_data();
   set_file_names( prefix, best_indiv_only );
   open_files();
 }
 
 
-ae_stats::ae_stats( int32_t num_gener, const char * prefix /* = "stat" */, bool best_indiv_only /* = false */, bool delete_old_stats /* = false */ )
+ae_stats::ae_stats( ae_exp_manager* exp_m,
+                    int32_t num_gener,
+                    const char * prefix /* = "stat" */,
+                    bool best_indiv_only /* = false */,
+                    bool delete_old_stats /* = false */ )
 {
+  _exp_m = exp_m;
   init_data();
   set_file_names( prefix, best_indiv_only );
   
   // ---------------------------------------------------------------------------
   //  Make a backup copy (named <original_name>.old) of each file
-  //  and copy its content into the new stat file untill <num_gener > is reached
+  //  and copy its content into the new stat file untill <num_gener> is reached
   // ---------------------------------------------------------------------------
   char* old_file_name = new char[100];
   FILE* old_file;
@@ -470,10 +478,10 @@ void ae_stats::write_current_generation_statistics( void )
     
     stat_records = new ae_stat_record* [NB_BEST_OR_GLOB];
     
-    stat_records[BEST] = new ae_stat_record( _exp_m->get_best_indiv(), (chrom_or_gen_unit) chrom_or_GU );
-    stat_records[GLOB] = new ae_stat_record( _exp_m->get_pop(), (chrom_or_gen_unit) chrom_or_GU );
-    stat_records[SDEV] = new ae_stat_record( _exp_m->get_pop(), stat_records[GLOB], (chrom_or_gen_unit) chrom_or_GU );
-    stat_records[SKEW] = new ae_stat_record( _exp_m->get_pop(), stat_records[GLOB], stat_records[SDEV], (chrom_or_gen_unit) chrom_or_GU );
+    stat_records[BEST] = new ae_stat_record( _exp_m, _exp_m->get_best_indiv(), (chrom_or_gen_unit) chrom_or_GU );
+    stat_records[GLOB] = new ae_stat_record( _exp_m, _exp_m->get_pop(), (chrom_or_gen_unit) chrom_or_GU );
+    stat_records[SDEV] = new ae_stat_record( _exp_m, _exp_m->get_pop(), stat_records[GLOB], (chrom_or_gen_unit) chrom_or_GU );
+    stat_records[SKEW] = new ae_stat_record( _exp_m, _exp_m->get_pop(), stat_records[GLOB], stat_records[SDEV], (chrom_or_gen_unit) chrom_or_GU );
     
     for ( int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++ )
     {
@@ -502,7 +510,7 @@ void ae_stats::write_statistics_of_this_indiv( ae_individual * indiv, int32_t nu
     // Still, it avoids doing stuff for nothing
     if ( chrom_or_GU != ALL_GU && ! _exp_m->get_allow_plasmids() ) continue;
     
-    stat_record = new ae_stat_record( indiv, (chrom_or_gen_unit) chrom_or_GU, true, num_gener );
+    stat_record = new ae_stat_record( _exp_m, indiv, (chrom_or_gen_unit) chrom_or_GU, true, num_gener );
     
     for ( int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++ )
     {

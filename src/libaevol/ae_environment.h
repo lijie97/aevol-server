@@ -92,12 +92,11 @@ class ae_environment : public ae_fuzzy_set_X11
     // =================================================================
     inline ae_list*             get_gaussians( void ) const;
     inline double               get_total_area( void ) const;
-    inline bool                 is_segmented( void ) const;
     inline int16_t              get_nb_segments( void ) const;
     inline ae_env_segment**     get_segments( void ) const;
     inline double               get_segment_boundaries( int16_t i ) const;
     inline ae_env_axis_feature  get_axis_feature( int16_t i ) const;
-    inline double               get_area_by_feature( int feature ) const;
+    inline double               get_area_by_feature( ae_env_axis_feature feature ) const;
     inline ae_env_var           get_variation_method( void ) const;  
     inline double               get_var_sigma( void )        const;
     inline int32_t              get_var_tau( void )          const;
@@ -147,12 +146,12 @@ class ae_environment : public ae_fuzzy_set_X11
     // =================================================================
     //~ ae_environment( void )
     //~ {
-      //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
+      //~ printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
       //~ exit( EXIT_FAILURE );
     //~ };
     ae_environment( const ae_environment &model )
     {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
+      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
     };
 
@@ -172,12 +171,11 @@ class ae_environment : public ae_fuzzy_set_X11
     ae_list*  _custom_points;     // List containing all the custom points of the environment.
                                   // This can not be used in conjunction with gaussians.
     
-    bool              _is_segmented;
     int16_t           _nb_segments;
-    
-    ae_env_segment**  _segments; // When the environment is segmented, this is the (ordered) table of segments.
+    ae_env_segment**  _segments; // Ordered table of segments.
                                  // Each ae_env_segment knows its boundaries and corresponding feature.
-                                 // NULL when the environment is not segmented
+                                 // When the environment is not segmented, this table contains a single
+                                 // segment with feature METABOLIC and boundaries MIN_X and MAX_X
 
     double  _total_area;      // Geometric area of the whole function
     double* _area_by_feature; // Geometric area of each feature
@@ -197,11 +195,6 @@ class ae_environment : public ae_fuzzy_set_X11
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-inline bool ae_environment::is_segmented( void ) const
-{
-  return _is_segmented;
-}
-
 inline int16_t ae_environment::get_nb_segments( void ) const
 {
   return _nb_segments;
@@ -232,7 +225,7 @@ inline ae_env_axis_feature ae_environment::get_axis_feature( int16_t i ) const
   return _segments[i]->feature;
 }
 
-inline double ae_environment::get_area_by_feature( int feature ) const
+inline double ae_environment::get_area_by_feature( ae_env_axis_feature feature ) const
 {
   return _area_by_feature[ feature ];
 }
@@ -275,10 +268,17 @@ inline void ae_environment::set_sampling( int16_t val )
 
 inline void ae_environment::set_segmentation( int16_t nb_segments, double* boundaries, ae_env_axis_feature* features, bool separate_segments /*= false*/ )
 {
-  _is_segmented = true;
-  _nb_segments  = nb_segments;
+  // Delete the data to be replaced
+  for ( int16_t i = 0 ; i < _nb_segments ; i++ )
+  {
+    delete _segments[i];
+  }
+  delete _segments;
   
-  _segments = new ae_env_segment* [_nb_segments];
+  
+  // Now replace with the new data
+  _nb_segments  = nb_segments;
+  _segments     = new ae_env_segment* [_nb_segments];
   
   for ( int16_t i = 0 ; i < _nb_segments; i++ )
   {
@@ -286,8 +286,6 @@ inline void ae_environment::set_segmentation( int16_t nb_segments, double* bound
   }
   
   // TODO : Manage separate_segments
-
-  _area_by_feature = new double [NB_FEATURES];
 }
 
 inline void ae_environment::set_variation_method( ae_env_var var_method )

@@ -43,12 +43,11 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#ifdef __NO_X
 #include <ae_exp_setup.h>
-#include <ae_population.h>
-#elif defined __X11
-#include <ae_exp_setup_X11.h>
-#include <ae_population_X11.h>
+  #include <ae_population.h>
+
+#ifdef __X11
+  #include <ae_population_X11.h>
 #endif
 
 
@@ -407,6 +406,7 @@ ae_exp_setup::ae_exp_setup( ae_exp_manager* exp_m )
 ae_exp_setup::~ae_exp_setup( void )
 {
   delete _env;
+  delete _sel;
 }
 
 // =================================================================
@@ -497,8 +497,15 @@ ae_exp_setup::~ae_exp_setup( void )
 // =================================================================
 void ae_exp_setup::write_to_backup( gzFile* backup_file ) const
 {
+  // Write global constraints data
+  gzwrite( backup_file, &_min_genome_length, sizeof(_min_genome_length) );
+  gzwrite( backup_file, &_max_genome_length, sizeof(_max_genome_length) );
+  
   // Write environmental data
   _env->write_to_backup( backup_file );
+
+  // Retrieve selection data
+  _sel->write_to_backup( backup_file );
 }
 
 void ae_exp_setup::read_from_backup( gzFile* backup_file, bool verbose )
@@ -515,11 +522,25 @@ void ae_exp_setup::read_from_backup( gzFile* backup_file, bool verbose )
   //~ gzread( backup_file, &_num_gener, sizeof(_num_gener) );
   //~ _first_gener = _num_gener;
   //~ printf( "OK\n" );
+  
+  // Retrieve global constraints data
+  gzread( backup_file, &_min_genome_length, sizeof(_min_genome_length) );
+  gzread( backup_file, &_max_genome_length, sizeof(_max_genome_length) );
+  
 
   // Retrieve environmental data
   printf( "  Loading environment..." );
   fflush( stdout );
-  _env = new ae_environment();
+  //~ delete _env;
+  //~ _env = new ae_environment();
   _env->read_from_backup( backup_file );
+  printf( "OK\n" );
+
+  // Retrieve selection data
+  printf( "  Loading selection context..." );
+  fflush( stdout );
+  //~ delete _sel;
+  //~ _sel = new ae_selection();
+  _sel->read_from_backup( backup_file );
   printf( "OK\n" );
 }
