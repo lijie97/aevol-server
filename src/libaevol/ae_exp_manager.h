@@ -97,10 +97,6 @@ class ae_exp_manager : public ae_object
     inline double get_selection_pressure( void ) const;
   
     // -------------------------------------------------------- Global settings
-    // Genome size
-    inline int32_t get_min_genome_length( void ) const;
-    inline int32_t get_max_genome_length( void ) const;
-    
     // Global settings accessors
     inline bool                   is_spatially_structured( void ) const;
     inline ae_spatial_structure*  get_spatial_structure( void ) const;
@@ -108,8 +104,6 @@ class ae_exp_manager : public ae_object
     inline int16_t                get_grid_width( void ) const;
     inline int16_t                get_grid_height( void ) const;
     
-    inline bool     get_allow_plasmids( void ) const;
-    inline int32_t  get_plasmid_minimal_length( void ) const;
     inline bool     get_with_plasmid_HT( void ) const;
     
     inline bool   fitness_is_composite( void ) const;
@@ -139,8 +133,14 @@ class ae_exp_manager : public ae_object
     // =================================================================
     //                            Public Methods
     // =================================================================
+    void write_setup_files( void );
     void save_experiment( void ) const;
-    void load_experiment( char* exp_setup_file_name, char* pop_file_name, char* out_man_file_name, bool to_be_run /*= true*/ );
+    void load_experiment( char* exp_setup_file_name,
+                          char* out_prof_file_name,
+                          char* env_file_name,
+                          char* pop_file_name,
+                          char* sp_struct_file_name,
+                          bool verbose );
     void run_evolution( void );
     virtual void display( void ) {};
 
@@ -244,17 +244,6 @@ inline double ae_exp_manager::get_selection_pressure( void ) const
   return _exp_s->get_selection_pressure();
 }
 
-// Global constraints
-inline int32_t ae_exp_manager::get_min_genome_length( void ) const
-{
-  return _exp_s->get_min_genome_length();
-}
-
-inline int32_t ae_exp_manager::get_max_genome_length( void ) const
-{
-  return _exp_s->get_max_genome_length();
-}
-
 // Global settings
 inline bool ae_exp_manager::is_spatially_structured( void ) const
 {
@@ -279,16 +268,6 @@ inline int16_t ae_exp_manager::get_grid_width( void ) const
 inline int16_t ae_exp_manager::get_grid_height( void ) const
 {
   return _exp_s->get_grid_height();
-}
-
-inline bool ae_exp_manager::get_allow_plasmids( void ) const
-{
-  return _exp_s->get_allow_plasmids();
-}
-
-inline int32_t ae_exp_manager::get_plasmid_minimal_length( void ) const
-{
-  return _exp_s->get_plasmid_minimal_length();
 }
 
 inline bool ae_exp_manager::get_with_plasmid_HT( void ) const

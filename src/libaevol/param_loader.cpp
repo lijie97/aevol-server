@@ -953,10 +953,6 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   
   // 1) ------------------------------------- Initialize the experimental setup
   sel->set_alea( new ae_rand_mt(*_alea) );
-  
-  // ------------------------------------------------------- Global constraints
-  exp_s->set_min_genome_length( _param_values->get_min_genome_length() );
-  exp_s->set_max_genome_length( _param_values->get_max_genome_length() );
 
   // ---------------------------------------------------------------- Selection
   sel->set_selection_scheme( _param_values->_selection_scheme );
@@ -1318,8 +1314,18 @@ ae_individual* param_loader::create_random_individual( ae_exp_manager* exp_m, ae
   }
   random_genome[_param_values->_initial_genome_length] = 0;
   
+  
+  // ------------------------------------------------------- Global constraints
   // Create an individual with this genome and set its id
-  ae_individual* indiv = new ae_individual( exp_m, new ae_rand_mt(*_alea), param_mut, _param_values->_w_max, id, 0 );
+  ae_individual* indiv = new ae_individual( exp_m,
+                                            new ae_rand_mt(*_alea),
+                                            param_mut,
+                                            _param_values->_w_max,
+                                            _param_values->_min_genome_length,
+                                            _param_values->_max_genome_length,
+                                            _param_values->_allow_plasmids,
+                                            _param_values->_plasmid_minimal_length,
+                                            id, 0 );
   // <Graphical debug>
   //~ #ifdef __X11
     //~ indiv = new ae_individual_X11( exp_m, new ae_rand_mt(*_alea), param_mut, _param_values->_w_max, id, 0 );

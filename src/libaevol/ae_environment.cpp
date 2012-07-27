@@ -209,7 +209,7 @@ ae_environment::~ae_environment( void )
   //~ _custom_points->add( new ae_point_2d( x, y ) );
 //~ }
 
-void ae_environment::write_to_backup( gzFile* backup_file ) const
+void ae_environment::save( gzFile* backup_file ) const
 {
   // ---------------------
   //  Write gaussians
@@ -225,7 +225,7 @@ void ae_environment::write_to_backup( gzFile* backup_file ) const
     {
       gaussian = ( ae_gaussian* ) gaussian_node->get_obj();
       
-      gaussian->write_to_backup( backup_file );
+      gaussian->save( backup_file );
       
       gaussian_node = gaussian_node->get_next();
     }
@@ -250,7 +250,7 @@ void ae_environment::write_to_backup( gzFile* backup_file ) const
     {
       custom_point = ( ae_point_2d* ) custom_point_node->get_obj();
       
-      custom_point->write_to_backup( backup_file );
+      custom_point->save( backup_file );
       
       custom_point_node = custom_point_node->get_next();
     }
@@ -263,7 +263,7 @@ void ae_environment::write_to_backup( gzFile* backup_file ) const
   
   for ( int16_t i = 0 ; i < _nb_segments; i++ )
   {
-    _segments[i]->write_to_backup( backup_file );
+    _segments[i]->save( backup_file );
   }
 
   
@@ -275,7 +275,7 @@ void ae_environment::write_to_backup( gzFile* backup_file ) const
   
   if ( _variation_method != NONE )
   {
-    _alea_var->write_to_backup( backup_file );
+    _alea_var->save( backup_file );
     gzwrite( backup_file, &_var_sigma, sizeof(_var_sigma) );
     gzwrite( backup_file, &_var_tau,   sizeof(_var_tau)   );
   }
@@ -285,7 +285,7 @@ void ae_environment::write_to_backup( gzFile* backup_file ) const
   // ---------------------
 }
 
-void ae_environment::read_from_backup( gzFile* backup_file )
+void ae_environment::load( gzFile* backup_file )
 {
   // ---------------------
   //  Retreive gaussians

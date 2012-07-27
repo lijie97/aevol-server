@@ -103,7 +103,7 @@ class ae_spatial_structure : public ae_object
     // =================================================================
     void update_secretion_grid( void ); 
     void do_random_migrations ( void );
-    void write_to_backup( gzFile* backup_file ) const;
+    void save( gzFile* backup_file ) const;
 
     // =================================================================
     //                           Public Attributes

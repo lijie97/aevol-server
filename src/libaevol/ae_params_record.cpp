@@ -86,7 +86,7 @@ ae_params_record::~ae_params_record( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_params_record::write_to_backup( gzFile* backup_file ) const
+void ae_params_record::save( gzFile* backup_file ) const
 {
   // Backups
   gzwrite( backup_file, &_backup_step,     sizeof(_backup_step)     );
@@ -100,7 +100,7 @@ void ae_params_record::write_to_backup( gzFile* backup_file ) const
   gzwrite( backup_file, &tmp_tree_mode, sizeof(tmp_tree_mode) );
   
   // Logs
-  _logs->write_to_backup( backup_file );
+  _logs->save( backup_file );
   
   // Other
   int8_t tmp_more_stats = _more_stats? 1 : 0;
@@ -108,7 +108,7 @@ void ae_params_record::write_to_backup( gzFile* backup_file ) const
   gzwrite( backup_file, &_dump_period,   sizeof(_dump_period)   );
 }
 
-void ae_params_record::read_from_backup( gzFile* backup_file, bool verbose )
+void ae_params_record::load( gzFile* backup_file, bool verbose )
 {
   // Backups
   gzread( backup_file, &_backup_step,     sizeof(_backup_step)     );
@@ -124,7 +124,7 @@ void ae_params_record::read_from_backup( gzFile* backup_file, bool verbose )
   _tree_mode = (ae_tree_mode) tmp_tree_mode;
   
   // Logs
-  _logs->read_from_backup( backup_file );
+  _logs->load( backup_file );
   
   // Other
   int8_t tmp_more_stats;

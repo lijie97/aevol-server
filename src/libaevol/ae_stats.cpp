@@ -472,10 +472,6 @@ void ae_stats::write_current_generation_statistics( void )
   
   for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
   {
-    // This is not mandatory as everything should work fine without it
-    // Still, it avoids looping around in the following, never fulfilling the necessary conditions
-    if ( chrom_or_GU != ALL_GU && ! _exp_m->get_allow_plasmids() ) continue;
-    
     stat_records = new ae_stat_record* [NB_BEST_OR_GLOB];
     
     stat_records[BEST] = new ae_stat_record( _exp_m, _exp_m->get_best_indiv(), (chrom_or_gen_unit) chrom_or_GU );
@@ -506,10 +502,6 @@ void ae_stats::write_statistics_of_this_indiv( ae_individual * indiv, int32_t nu
   
   for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
   {
-    // This is not mandatory as everything should work fine without it
-    // Still, it avoids doing stuff for nothing
-    if ( chrom_or_GU != ALL_GU && ! _exp_m->get_allow_plasmids() ) continue;
-    
     stat_record = new ae_stat_record( _exp_m, indiv, (chrom_or_gen_unit) chrom_or_GU, true, num_gener );
     
     for ( int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++ )
@@ -591,7 +583,7 @@ void ae_stats::set_file_names( const char * prefix, bool one_lambda_indiv_only )
   for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
   {
     // We want only "ALL_GU" stats when ae_common::allow_plasmids is false
-    if ( chrom_or_GU != ALL_GU && ! _exp_m->get_allow_plasmids() ) continue;
+    //~ if ( chrom_or_GU != ALL_GU && ! _exp_m->get_allow_plasmids() ) continue;
     
     for ( int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++ )
     {

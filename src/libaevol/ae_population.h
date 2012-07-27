@@ -114,8 +114,8 @@ class ae_population : public ae_object
     void            sort_individuals( void );
     void            update_best( void );
 
-    void    read_from_backup( gzFile* backup_file, bool verbose );
-    void    write_to_backup( gzFile* backup_file ) const;
+    void save( gzFile* backup_file ) const;
+    void load( gzFile* backup_file, bool verbose );
 
     // =================================================================
     //                           Public Attributes

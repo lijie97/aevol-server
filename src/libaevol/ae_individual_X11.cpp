@@ -62,8 +62,19 @@
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_individual_X11::ae_individual_X11( ae_exp_manager* exp_manager, ae_rand_mt* alea, ae_params_mut* param_mut, double w_max, int32_t id, int32_t age )
-        : ae_individual( exp_manager, alea, param_mut, w_max, id, age )
+ae_individual_X11::ae_individual_X11( ae_exp_manager* exp_m,
+                                      ae_rand_mt* alea,
+                                      ae_params_mut* param_mut,
+                                      double w_max,
+                                      int32_t min_genome_length,
+                                      int32_t max_genome_length,
+                                      bool allow_plasmids,
+                                      int32_t plasmid_minimal_length,
+                                      int32_t id,
+                                      int32_t age )
+        : ae_individual( exp_m, alea, param_mut, w_max, min_genome_length,
+                         max_genome_length, allow_plasmids,
+                         plasmid_minimal_length, id, age )
 {
   init_occupied_sectors();
 }
@@ -126,7 +137,7 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
 
   // Compute display diameter according to genome length and window size
   int16_t canvas_width;
-  if ( _exp_m->get_allow_plasmids() ) canvas_width = win->get_width() / 2;
+  if ( _allow_plasmids ) canvas_width = win->get_width() / 2;
   else canvas_width = win->get_width();
   int16_t canvas_height = win->get_height();
   
@@ -344,7 +355,7 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
   
   
   // --------------------------------------------------------------------------This is temporary, it is a big copy-paste of what's above.
-  if ( _exp_m->get_allow_plasmids() )
+  if ( _allow_plasmids )
   {
     // Retreive the genetic unit corresponding to the plasmid
     ae_genetic_unit* gen_unit = get_genetic_unit(1);
@@ -357,7 +368,7 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
     int16_t canvas_width;
     int16_t canvas_height;
     int16_t canvas_size ;
-    if ( _exp_m->get_allow_plasmids() )
+    if ( _allow_plasmids )
     {
       canvas_width  = win->get_width() / 2;
       canvas_size   = canvas_width;

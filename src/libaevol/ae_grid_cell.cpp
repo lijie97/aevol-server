@@ -87,7 +87,7 @@ ae_grid_cell::~ae_grid_cell( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_grid_cell::write_to_backup( gzFile* backup_file ) const
+void ae_grid_cell::save( gzFile* backup_file ) const
 {
   gzwrite( backup_file, &_x, sizeof(_x) );
   gzwrite( backup_file, &_y, sizeof(_y) );

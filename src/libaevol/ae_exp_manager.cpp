@@ -35,6 +35,10 @@
 // =================================================================
 //                              Libraries
 // =================================================================
+#include <sys/stat.h>
+#include <err.h>
+#include <errno.h>
+#include <zlib.h>
 
 
 
@@ -91,19 +95,238 @@ ae_exp_manager::~ae_exp_manager( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_exp_manager::save_experiment( void ) const
+void ae_exp_manager::write_setup_files( void )
 {
-  _output_m->save_experiment();
+  // 1) Generate file names
+  char* exp_s_gzfile_name = new char[63];
+  char* out_m_gzfile_name  = new char[63];
+  char* exp_s_txtfile_name = new char[63];
+  char* out_m_txtfile_name  = new char[63];
+  strcpy( exp_s_gzfile_name,  "exp_setup.ae" );
+  strcpy( out_m_gzfile_name,  "output_profile.ae" );
+  strcpy( exp_s_txtfile_name,  "exp_setup.in" );
+  strcpy( out_m_txtfile_name,  "output_profile.in" );
+  
+  // 2) Open files
+  gzFile* exp_s_gzfile  = (gzFile*) gzopen( exp_s_gzfile_name, "w" );
+  gzFile* out_m_gzfile  = (gzFile*) gzopen( out_m_gzfile_name, "w" );
+  FILE*   exp_s_txtfile = fopen( exp_s_txtfile_name, "w" );
+  FILE*   out_m_txtfile = fopen( out_m_txtfile_name, "w" );
+  
+  // 4) Write data
+  _exp_s->write_setup_file( exp_s_gzfile );
+  _output_m->write_setup_file( out_m_gzfile );
+  
+  _exp_s->write_setup_file( exp_s_txtfile );
+  _output_m->write_setup_file( out_m_txtfile );
+  
+  // 4) Close files
+  gzclose( exp_s_gzfile );
+  gzclose( out_m_gzfile );
+  fclose( exp_s_txtfile );
+  fclose( out_m_txtfile );
+  
+  // 5) Clean up
+  delete [] exp_s_gzfile_name;
+  delete [] out_m_gzfile_name;
+  delete [] exp_s_txtfile_name;
+  delete [] out_m_txtfile_name;
 }
 
-void ae_exp_manager::load_experiment( char* pop_file_name, char* exp_setup_file_name, char* out_man_file_name, bool verbose )
+void ae_exp_manager::save_experiment( void ) const
 {
-  _output_m->load_experiment( pop_file_name, exp_setup_file_name, out_man_file_name, verbose );
+  // 1) Generate backup file names
+  char env_file_name[50];
+  char pop_file_name[50];
+  char sp_struct_file_name[50];
+  
+  sprintf( env_file_name,       ENV_FNAME_FORMAT,       _num_gener );
+  sprintf( pop_file_name,       POP_FNAME_FORMAT,       _num_gener );
+  if ( is_spatially_structured() )
+  {
+    sprintf( sp_struct_file_name, SP_STRUCT_FNAME_FORMAT, _num_gener );
+  }
+  
+  
+  // 2) Create missing backup directories
+  int status;
+  status = mkdir( ENV_DIR, 0755 );
+  if ( (status == -1) && (errno != EEXIST) )
+  {
+    err( EXIT_FAILURE, ENV_DIR, errno );
+  }
+  status = mkdir( POP_DIR, 0755 );
+  if ( (status == -1) && (errno != EEXIST) )
+  {
+    err( EXIT_FAILURE, POP_DIR, errno );
+  }
+  if ( is_spatially_structured() )
+  {
+    status = mkdir( SP_STRUCT_DIR, 0755 );
+    if ( status == -1 && errno != EEXIST )
+    {
+      err( EXIT_FAILURE, SP_STRUCT_DIR, errno );
+    }
+  }
+  
+  
+  // 3) Open backup files (population, exp_setup and output_man)
+  gzFile* env_file        = (gzFile*) gzopen( env_file_name, "w" );
+  gzFile* pop_file        = (gzFile*) gzopen( pop_file_name, "w" );
+  gzFile* sp_struct_file;
+  if ( is_spatially_structured() )
+  {
+    sp_struct_file  = (gzFile*) gzopen( sp_struct_file_name, "w" );
+  }
+  
+  if ( env_file == Z_NULL )
+  {
+    printf( "%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, env_file_name );
+    exit( EXIT_FAILURE );
+  }
+  if ( pop_file == Z_NULL )
+  {
+    printf( "%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, pop_file_name );
+    exit( EXIT_FAILURE );
+  }
+  if ( is_spatially_structured() )
+  {
+    if ( sp_struct_file == Z_NULL )
+    {
+      printf( "%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, sp_struct_file_name );
+      exit( EXIT_FAILURE );
+    }
+  }
+  
+  // 4) Write the state of the environment, population and spatial structure into the backups
+  get_env()->save( env_file );
+  get_pop()->save( pop_file );
+  if ( is_spatially_structured() )
+  {
+    get_spatial_structure()->save( sp_struct_file );
+  }
+  
+  // 5) Close backup files
+  gzclose( env_file );
+  gzclose( pop_file );
+  if ( is_spatially_structured() )
+  {
+    gzclose( sp_struct_file );
+  }
+}
 
+void ae_exp_manager::load_experiment( char* exp_setup_file_name,
+                                      char* out_prof_file_name,
+                                      char* env_file_name,
+                                      char* pop_file_name,
+                                      char* sp_struct_file_name,
+                                      bool verbose )
+{
+  // ---------------------------------------------------------------------------
+  // 1) Determine whether the parameter files are plain text and open in the 
+  //    corresponding "mode"
+  // ---------------------------------------------------------------------------
+  gzFile* exp_setup_gzfile = NULL;
+  gzFile* out_prof_gzfile = NULL;
+  FILE* exp_setup_txtfile = NULL;
+  FILE* out_prof_txtfile = NULL;
+  
+  exp_setup_gzfile = (gzFile*) gzopen( exp_setup_file_name, "r" );
+  out_prof_gzfile = (gzFile*) gzopen( out_prof_file_name, "r" );
+  
+  if ( exp_setup_gzfile == Z_NULL )
+  {
+    printf( "%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, exp_setup_file_name );
+    exit( EXIT_FAILURE );
+  }
+  if ( out_prof_gzfile == Z_NULL )
+  {
+    printf( "%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, out_prof_file_name );
+    exit( EXIT_FAILURE );
+  }
+  
+  if ( gzdirect( exp_setup_gzfile ) )
+  {
+    // The provided output profile file is not zipped, it is a plain text setup file
+    // => Close gzfile and open as plain file instead
+    gzclose( exp_setup_gzfile );
+    exp_setup_gzfile = NULL;
+    exp_setup_txtfile = fopen( exp_setup_file_name, "r" );
+  }
+  
+  if ( gzdirect( out_prof_gzfile ) )
+  {
+    // The provided output profile file is not zipped, it is a plain text setup file
+    // => Close gzfile and open as plain file instead
+    gzclose( out_prof_gzfile );
+    out_prof_gzfile = NULL;
+    out_prof_txtfile = fopen( out_prof_file_name, "r" );
+  }
+  
+  
+  // ---------------------------------------------------------------------------
+  // 2) Load data from backup and parameter files
+  // ---------------------------------------------------------------------------
+  // Open backup files
+  gzFile* env_file = (gzFile*) gzopen( env_file_name, "r" );
+  gzFile* pop_file = (gzFile*) gzopen( pop_file_name, "r" );
+  gzFile* sp_struct_file  = NULL;
+  
+  if ( env_file == Z_NULL )
+  {
+    printf( "%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, env_file_name );
+    exit( EXIT_FAILURE );
+  }
+  if ( pop_file == Z_NULL )
+  {
+    printf( "%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, pop_file_name );
+    exit( EXIT_FAILURE );
+  }
+  if ( sp_struct_file_name != NULL )
+  {
+    sp_struct_file = (gzFile*) gzopen( sp_struct_file_name, "r" );
+    if ( sp_struct_file == Z_NULL )
+    {
+      printf( "%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, sp_struct_file_name );
+      exit( EXIT_FAILURE );
+    }
+  }
+  
+  // Load experimental setup, population data and output profile from the backups
+  if ( exp_setup_gzfile != NULL )
+  {
+    _exp_s->load( exp_setup_gzfile, env_file, sp_struct_file, verbose );
+  }
+  else
+  {
+    _exp_s->load( exp_setup_txtfile, env_file, sp_struct_file, verbose );
+  }
+  
+  _pop->load( pop_file, verbose );
+  
+  if ( out_prof_gzfile != NULL )
+  {
+    _output_m->load( out_prof_gzfile, verbose );
+  }
+  else
+  {
+    _output_m->load( out_prof_txtfile, verbose );
+  }
+  
+  // Close backup files
+  gzclose( env_file );
+  gzclose( pop_file );
+  gzclose( sp_struct_file );
+  
+
+  // ---------------------------------------------------------------------------
+  // 3) Recompute unsaved data
+  // ---------------------------------------------------------------------------
   // Evaluate individuals
   _pop->evaluate_individuals( _exp_s->get_env() );
 
-  // If the population is spatially structured, then the individuals are saved and loaded in the order of the grid and not in increasing order of fitness
+  // If the population is spatially structured, then the individuals are saved
+  // and loaded in the order of the grid and not in increasing order of fitness
   // so we have to sort the individuals
   if ( is_spatially_structured() )
   {
@@ -111,7 +334,8 @@ void ae_exp_manager::load_experiment( char* pop_file_name, char* exp_setup_file_
   }
 
 
-  // If the simulation is being continued (not just post-processed), prepare output data accordingly
+  // If the simulation is being continued (not just post-processed),
+  // prepare output data accordingly
   //~ if ( to_be_run )
   //~ {
     //~ // Prepare stat files

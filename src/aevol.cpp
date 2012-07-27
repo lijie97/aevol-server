@@ -93,29 +93,37 @@ int main( int argc, char* argv[] )
   // =================================================================
   //
   // 1) Initialize command-line option variables with default values
-  char* exp_setup_file_name = NULL;
+  char* exp_setup_file_name = new char[63];
+  char* out_prof_file_name  = new char[63];
+  strcpy( exp_setup_file_name,  "exp_setup.ae" );
+  strcpy( out_prof_file_name,   "output_profile.ae" );
+  char* env_file_name       = NULL;
   char* pop_file_name       = NULL;
-  char* out_man_file_name   = NULL;
+  char* sp_struct_file_name = NULL;
+  
+  bool  pause_on_startup = false;
+  
   int32_t num_gener = 0;
   int32_t nb_gener  = 0;
   
-  //~ ae_param_overloader* param_overloader = new ae_param_overloader();
-  
   
   #ifndef __NO_X
-    bool show_display_on_startup   = true;
+    bool show_display_on_startup = true;
   #endif
   
   // 2) Define allowed options
-  const char * options_list = "hr:e:p:o:xn:";
+  const char * options_list = "hr:s:o:e:p:g:n:wx";
   static struct option long_options_list[] = {
     { "help",     no_argument,        NULL, 'h' },
-    { "restart",  required_argument,  NULL, 'r' },
-    { "exp",      required_argument,  NULL, 'e' },
-    { "pop",      required_argument,  NULL, 'p' },
-    { "out",      required_argument,  NULL, 'o' },
-    { "noX",      no_argument,        NULL, 'x' },
-    { "nbgener",  required_argument,  NULL, 'n' },
+    { "resume",   required_argument,  NULL, 'r' }, // Resume from generation X
+    { "setup",    required_argument,  NULL, 's' }, // Provide exp setup file
+    { "out_prof", required_argument,  NULL, 'o' }, // Provide output profile file
+    { "envir",    required_argument,  NULL, 'e' }, // Provide environment file
+    { "pop",      required_argument,  NULL, 'p' }, // Provide population file
+    { "grid",     required_argument,  NULL, 'g' }, // Provide spatial structure file
+    { "nbgener",  required_argument,  NULL, 'n' }, // Number of generations to be run
+    { "wait",     no_argument,        NULL, 'w' }, // Pause after loading
+    { "noX",      no_argument,        NULL, 'x' }, // Don't display X outputs on start
     { 0, 0, 0, 0 }
   };
       
@@ -130,41 +138,98 @@ int main( int argc, char* argv[] )
         print_help( argv[0] );
         exit( EXIT_SUCCESS );
       }
-      case 'x' :
-      {
-        #ifdef __NO_X
-          printf( "Program was compiled with __NO_X option, no visualisation available.\n" );
-        #else
-          show_display_on_startup = false;
-        #endif
-        
-        break;
-      }
       case 'r' :
       {
         if ( strcmp( optarg, "" ) == 0 )
         {
-          printf( "ERROR : Option -r or --restart : missing argument.\n" );
+          printf( "%s: error: Option -r or --resume : missing argument.\n", argv[0] );
           exit( EXIT_FAILURE );
         }
         
         num_gener = atol( optarg );
         
-        exp_setup_file_name = new char[255];
+        env_file_name       = new char[255];
         pop_file_name       = new char[255];
-        out_man_file_name   = new char[255];
+        sp_struct_file_name = new char[255];
         
-        sprintf( exp_setup_file_name, EXP_SETUP_BACKUP_FNAME_FORMAT,  num_gener );
-        sprintf( pop_file_name,       POP_BACKUP_FNAME_FORMAT,        num_gener );
-        sprintf( out_man_file_name,   OUT_PROF_BACKUP_FNAME_FORMAT,   num_gener );
+        sprintf( env_file_name,       ENV_FNAME_FORMAT,       num_gener );
+        sprintf( pop_file_name,       POP_FNAME_FORMAT,       num_gener );
+        sprintf( sp_struct_file_name, SP_STRUCT_FNAME_FORMAT, num_gener );
         
         break;      
+      }
+      case 's' :
+      {
+        if ( strcmp( optarg, "" ) == 0 )
+        {
+          printf( "%s: error: Option -s or --setup : missing argument.\n", argv[0] );
+          exit( EXIT_FAILURE );
+        }
+        
+        delete [] exp_setup_file_name;
+        exp_setup_file_name = new char[strlen(optarg)+1];
+        memcpy( exp_setup_file_name, optarg, strlen(optarg)+1 );
+        
+        break;
+      }
+      case 'o' :
+      {
+        if ( strcmp( optarg, "" ) == 0 )
+        {
+          printf( "%s: error: Option -o or --out_prof : missing argument.\n", argv[0] );
+          exit( EXIT_FAILURE );
+        }
+        
+        delete [] out_prof_file_name;
+        out_prof_file_name = new char[strlen(optarg)+1];
+        memcpy( out_prof_file_name, optarg, strlen(optarg)+1 );
+        
+        break;
+      }
+      case 'e' :
+      {
+        if ( strcmp( optarg, "" ) == 0 )
+        {
+          printf( "%s: error: Option -e or --envir : missing argument.\n", argv[0] );
+          exit( EXIT_FAILURE );
+        }
+        
+        env_file_name = new char[strlen(optarg)+1];
+        memcpy( env_file_name, optarg, strlen(optarg)+1 );
+        
+        break;
+      }
+      case 'p' :
+      {
+        if ( strcmp( optarg, "" ) == 0 )
+        {
+          printf( "%s: error: Option -p or --pop : missing argument.\n", argv[0] );
+          exit( EXIT_FAILURE );
+        }
+        
+        pop_file_name = new char[strlen(optarg)+1];
+        memcpy( pop_file_name, optarg, strlen(optarg)+1 );
+        
+        break;
+      }
+      case 'g' :
+      {
+        if ( strcmp( optarg, "" ) == 0 )
+        {
+          printf( "%s: error: Option -g or --grid : missing argument.\n", argv[0] );
+          exit( EXIT_FAILURE );
+        }
+        
+        sp_struct_file_name = new char[strlen(optarg)+1];
+        memcpy( sp_struct_file_name, optarg, strlen(optarg)+1 );
+        
+        break;
       }
       case 'n' :
       {
         if ( strcmp( optarg, "" ) == 0 )
         {
-          printf( "ERROR : Option -n or --nbgener : missing argument.\n" );
+          printf( "%s: error: Option -n or --nbgener : missing argument.\n", argv[0] );
           exit( EXIT_FAILURE );
         }
         
@@ -172,7 +237,26 @@ int main( int argc, char* argv[] )
         
         break;
       }
+      case 'x' :
+      {
+        #ifdef __NO_X
+          printf( "%s: error: Program was compiled with __NO_X option, no visualisation available.\n", argv[0] );
+          exit( EXIT_FAILURE );
+        #else
+          show_display_on_startup = false;
+        #endif
+        
+        break;
+      }
     }
+  }
+  
+  // 3) Check the consistancy of the command-line options
+  if ( env_file_name == NULL || pop_file_name == NULL )
+  {
+    printf( "%s: error: You must either resume a simulation of provide both an environment backup and a population backup.\n", argv[0] );
+    // NB : spatial structure is tested later, when we know if the population is structured or not
+    exit( EXIT_FAILURE );
   }
   
   
@@ -185,7 +269,7 @@ int main( int argc, char* argv[] )
     ae_exp_manager* exp_manager = new ae_exp_manager();
   #endif
   
-  exp_manager->load_experiment( exp_setup_file_name, pop_file_name, out_man_file_name, true );
+  exp_manager->load_experiment( exp_setup_file_name, out_prof_file_name, env_file_name, pop_file_name, sp_struct_file_name, true );
   
   if ( num_gener > 0 )
   {
@@ -196,9 +280,11 @@ int main( int argc, char* argv[] )
     exp_manager->set_nb_gener( nb_gener );
   }
   
-  delete [] pop_file_name;
   delete [] exp_setup_file_name;
-  delete [] out_man_file_name;
+  delete [] out_prof_file_name;
+  delete [] env_file_name;
+  delete [] pop_file_name;
+  delete [] sp_struct_file_name;
 
     
 #ifndef __NO_X

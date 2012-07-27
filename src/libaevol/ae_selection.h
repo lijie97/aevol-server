@@ -136,8 +136,11 @@ class ae_selection : public ae_object
     // =================================================================
     void step_to_next_generation( void );
     void step_to_next_generation_grid( void );
-    void write_to_backup( gzFile* backup_file ) const;
-    void read_from_backup( gzFile* backup_file );
+    void write_setup_file( gzFile* setup_file ) const;
+    void write_setup_file( FILE* setup_file ) const;
+    void save( gzFile* sp_struct_file ) const;
+    void load( gzFile* exp_setup_file, gzFile* sp_struct_file );
+    void load( FILE* exp_setup_file, gzFile* sp_struct_file );
 
     // =================================================================
     //                           Public Attributes

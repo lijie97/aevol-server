@@ -88,7 +88,7 @@ class ae_gaussian : public ae_object
     // =================================================================
     inline double compute_y( double x );
     
-    inline void write_to_backup( gzFile* backup_file );
+    inline void save( gzFile* backup_file );
   
     // =================================================================
     //                           Public Attributes
@@ -194,7 +194,7 @@ double ae_gaussian::compute_y( double x )
   return _height * exp( -(x-_mean)*(x-_mean) / (2*_width*_width) );
 }
 
-void ae_gaussian::write_to_backup( gzFile* backup_file )
+void ae_gaussian::save( gzFile* backup_file )
 {
   gzwrite( backup_file, &_height, sizeof(_height) );
   gzwrite( backup_file, &_mean, sizeof(_mean) );

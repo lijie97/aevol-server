@@ -97,7 +97,7 @@ class ae_string : public ae_object
     void insert( int32_t pos, const char* seq, int32_t seq_length = -1 );
     void replace( int32_t pos, char* seq, int32_t seq_length = -1 );
     
-    void write_to_backup( gzFile* backup_file );
+    void save( gzFile* backup_file );
   
     // =================================================================
     //                           Public Attributes

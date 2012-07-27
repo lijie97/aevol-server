@@ -95,10 +95,6 @@ class ae_exp_setup : public ae_object
     inline ae_selection*        get_sel( void ) const;
     inline ae_selection_scheme  get_selection_scheme( void ) const;
     inline double               get_selection_pressure( void ) const;
-      
-    // Global constraints
-    inline int32_t get_min_genome_length( void ) const;
-    inline int32_t get_max_genome_length( void ) const;
     
     // Global settings
     //~ inline bool get_with_alignments( void ) const;
@@ -109,8 +105,6 @@ class ae_exp_setup : public ae_object
     inline int16_t                get_grid_width( void ) const;
     inline int16_t                get_grid_height( void ) const;
     
-    inline bool     get_allow_plasmids( void ) const;
-    inline int32_t  get_plasmid_minimal_length( void ) const;
     inline bool     get_with_plasmid_HT( void ) const;
     
     inline bool   get_use_secretion( void ) const;
@@ -121,8 +115,6 @@ class ae_exp_setup : public ae_object
     //                         Accessors: setters
     // =================================================================
     inline void set_env( ae_environment* env );
-    inline void set_min_genome_length( int32_t min_genome_length );
-    inline void set_max_genome_length( int32_t max_genome_length );
   
     // =================================================================
     //                            Public Methods
@@ -132,8 +124,11 @@ class ae_exp_setup : public ae_object
     void create_from_param_file( ae_param_loader* param_loader, ae_param_overloader* param_overloader = NULL );
     
     // Backups
-    void write_to_backup( gzFile* backup_file ) const;
-    void read_from_backup( gzFile* backup_file, bool verbose );
+    inline void write_setup_file( gzFile* setup_file ) const;
+    inline void write_setup_file( FILE* setup_file ) const;
+    void save( gzFile* env_file, gzFile* sp_struct_file ) const;
+    void load( gzFile* exp_setup_file, gzFile* env_file, gzFile* sp_struct_file, bool verbose );
+    void load( FILE* exp_setup_file, gzFile* env_file, gzFile* sp_struct_file, bool verbose );
     
     inline void step_to_next_generation( void );
     
@@ -179,14 +174,6 @@ class ae_exp_setup : public ae_object
       
     // Selection context
     ae_selection*   _sel;
-      
-    // Global constraints
-    int32_t _min_genome_length;
-    int32_t _max_genome_length;
-    
-    // Global settings
-    bool _allow_plasmids;
-    int32_t _plasmid_minimal_length;
 };
 
 
@@ -221,17 +208,6 @@ inline ae_selection_scheme ae_exp_setup::get_selection_scheme( void ) const
 inline double ae_exp_setup::get_selection_pressure( void ) const
 {
   return _sel->get_selection_pressure();
-}
-
-// Global constraints
-inline int32_t ae_exp_setup::get_min_genome_length( void ) const
-{
-  return _min_genome_length;
-}
-
-inline int32_t ae_exp_setup::get_max_genome_length( void ) const
-{
-  return _max_genome_length;
 }
 
 // Global settings    
@@ -270,16 +246,6 @@ inline int16_t ae_exp_setup::get_grid_height( void ) const
   return _sel->get_grid_height();
 }
 
-inline bool ae_exp_setup::get_allow_plasmids( void ) const
-{
-  return _allow_plasmids;
-}
-
-inline int32_t ae_exp_setup::get_plasmid_minimal_length( void ) const
-{
-  return _plasmid_minimal_length;
-}
-
 inline bool ae_exp_setup::get_use_secretion( void ) const
 {
   return _sel->get_use_secretion();
@@ -303,21 +269,20 @@ inline void ae_exp_setup::set_env( ae_environment* env )
   _env = env;
 }
 
-// Global constraints
-inline void ae_exp_setup::set_min_genome_length( int32_t min_genome_length )
-{
-  _min_genome_length = min_genome_length;
-}
-
-inline void ae_exp_setup::set_max_genome_length( int32_t max_genome_length )
-{
-  _max_genome_length = max_genome_length;
-}
-
 
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
+void ae_exp_setup::write_setup_file( gzFile* setup_file ) const
+{
+  _sel->write_setup_file( setup_file );
+}
+
+void ae_exp_setup::write_setup_file( FILE* setup_file ) const
+{
+  _sel->write_setup_file( setup_file );
+}
+
 inline void ae_exp_setup::step_to_next_generation( void )
 {
   // Apply environmental variation

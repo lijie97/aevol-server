@@ -1,25 +1,25 @@
 #include <inttypes.h>
 
-#define NB_BASE INT8_C(2)  // WARNING :  A lot of stuff has been optimized for binary genomes
-                            //            Changing the value of NB_BASE implies verifying the existing code
-                            //            and make changes where they are necessary
+#define NB_BASE INT8_C(2) // WARNING :  A lot of stuff has been optimized for binary genomes
+                          //            Changing the value of NB_BASE implies verifying the existing code
+                          //            and make changes where necessary
 
 // Backup directories and file name formats
-#define EXP_SETUP_BACKUP_DIR  "experimental_setup"
-#define POP_BACKUP_DIR        "populations"
-#define OUT_PROF_BACKUP_DIR   "output_profile"
-#define EXP_SETUP_BACKUP_FNAME_BASE "exp_setup_%06"PRId32
-#define POP_BACKUP_FNAME_BASE       "pop_%06"PRId32
-#define OUT_PROF_BACKUP_FNAME_BASE  "output_prof_%06"PRId32
+#define ENV_DIR               "environment"
+#define POP_DIR               "populations"
+#define SP_STRUCT_DIR         "spatial_structure"
+#define ENV_FNAME_BASE        "env_%06"PRId32
+#define POP_FNAME_BASE        "pop_%06"PRId32
+#define SP_STRUCT_FNAME_BASE  "sp_struct_%06"PRId32
 
 #ifdef __REGUL
-  #define EXP_SETUP_BACKUP_FNAME_FORMAT EXP_SETUP_BACKUP_DIR"/"EXP_SETUP_BACKUP_FNAME_BASE".rae"
-  #define POP_BACKUP_FNAME_FORMAT       POP_BACKUP_DIR"/"POP_BACKUP_FNAME_BASE".rae"
-  #define OUT_PROF_BACKUP_FNAME_FORMAT  OUT_PROF_BACKUP_DIR"/"OUT_PROF_BACKUP_FNAME_BASE".rae"
+  #define ENV_FNAME_FORMAT        ENV_DIR"/"ENV_FNAME_BASE".rae"
+  #define POP_FNAME_FORMAT        POP_DIR"/"POP_FNAME_BASE".rae"
+  #define SP_STRUCT_FNAME_FORMAT  SP_STRUCT_DIR"/"SP_STRUCT_FNAME_BASE".rae"
 #else
-  #define EXP_SETUP_BACKUP_FNAME_FORMAT EXP_SETUP_BACKUP_DIR"/"EXP_SETUP_BACKUP_FNAME_BASE".ae"
-  #define POP_BACKUP_FNAME_FORMAT       POP_BACKUP_DIR"/"POP_BACKUP_FNAME_BASE".ae"
-  #define OUT_PROF_BACKUP_FNAME_FORMAT  OUT_PROF_BACKUP_DIR"/"OUT_PROF_BACKUP_FNAME_BASE".ae"
+  #define ENV_FNAME_FORMAT        ENV_DIR"/"ENV_FNAME_BASE".ae"
+  #define POP_FNAME_FORMAT        POP_DIR"/"POP_FNAME_BASE".ae"
+  #define SP_STRUCT_FNAME_FORMAT  SP_STRUCT_DIR"/"SP_STRUCT_FNAME_BASE".ae"
 #endif
 
 #define FIXED_POPULATION_SIZE // Some calculation can be spared if we know that the size of the population is fixed

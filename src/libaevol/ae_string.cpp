@@ -242,7 +242,7 @@ void ae_string::replace( int32_t pos, char* seq, int32_t seq_length )
   memcpy( &_data[pos], seq, seq_length * sizeof(char) );
 }
 
-void ae_string::write_to_backup( gzFile* backup_file )
+void ae_string::save( gzFile* backup_file )
 {
   gzwrite( backup_file, &_nb_blocks,  sizeof(_nb_blocks) );
   //~ printf( "write %d bytes (_nb_blocks : %ld)\n", sizeof(_nb_blocks), _nb_blocks );

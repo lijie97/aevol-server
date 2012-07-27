@@ -655,7 +655,7 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
         
         ((ae_fuzzy_set_X11*)indiv->get_phenotype())->display( cur_win, BLUE );
         
-        if ( get_allow_plasmids() )
+        if ( indiv->get_allow_plasmids() )
         {
           ((ae_fuzzy_set_X11*)indiv->get_genetic_unit( 0 )->get_phenotypic_contribution())->display( cur_win, YELLOW );
           ((ae_fuzzy_set_X11*)indiv->get_genetic_unit( 1 )->get_phenotypic_contribution())->display( cur_win, GREEN );

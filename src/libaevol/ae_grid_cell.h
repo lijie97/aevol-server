@@ -94,7 +94,7 @@ class ae_grid_cell : public ae_object
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void write_to_backup( gzFile* backup_file ) const;
+    void save( gzFile* backup_file ) const;
 
     // =================================================================
     //                           Public Attributes

@@ -521,7 +521,7 @@ void ae_dna::do_rearrangements_with_align( void )
         int32_t genome_size_before  = _length;
         int32_t genome_size_after   = _length + segment_length;
         
-        if ( genome_size_after > _exp_m->get_max_genome_length() )
+        if ( genome_size_after > _indiv->get_max_genome_length() )
         {
           #warning LOG
           //~ if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
@@ -569,7 +569,7 @@ void ae_dna::do_rearrangements_with_align( void )
         int32_t genome_size_before  = _length;
         int32_t genome_size_after   = _length - segment_length;
         
-        if ( genome_size_after < _exp_m->get_min_genome_length() )
+        if ( genome_size_after < _indiv->get_min_genome_length() )
         {
           #warning LOG
           //~ if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
@@ -838,7 +838,7 @@ ae_mutation* ae_dna::do_small_insertion( void )
   }
   
   // Check that the insertion won't throw the genome size over the limit
-  if ( _length + nb_insert > _exp_m->get_max_genome_length() )
+  if ( _length + nb_insert > _indiv->get_max_genome_length() )
   {
     #warning LOG
     //~ if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
@@ -900,7 +900,7 @@ ae_mutation* ae_dna::do_small_deletion( void )
   }
   
   // Check that the insertion won't shrink the genome size under the limit nor to nothing
-  if ( _length - nb_del < _exp_m->get_min_genome_length() )
+  if ( _length - nb_del < _indiv->get_min_genome_length() )
   {
     #warning LOG
     //~ if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
@@ -951,7 +951,7 @@ bool ae_dna::do_switch( int32_t pos )
 bool ae_dna::do_small_insertion( int32_t pos, int16_t nb_insert, char * seq )
 {
   // Check genome size limit
-  assert( _length + nb_insert <= _exp_m->get_max_genome_length() );
+  assert( _length + nb_insert <= _indiv->get_max_genome_length() );
   
   // Remove the promoters that will be broken
   _gen_unit->remove_promoters_around( pos );
@@ -981,7 +981,7 @@ bool ae_dna::do_small_insertion( int32_t pos, int16_t nb_insert, char * seq )
 bool ae_dna::do_small_deletion( int32_t pos, int16_t nb_del )
 {
   // Check genome size limit
-  assert( _length - nb_del >= _exp_m->get_min_genome_length() );
+  assert( _length - nb_del >= _indiv->get_min_genome_length() );
   
   // Remove promoters containing at least one nucleotide from the sequence to delete
   _gen_unit->remove_promoters_around( pos, ae_utils::mod(pos + nb_del, _length) );
@@ -1032,7 +1032,7 @@ ae_mutation* ae_dna::do_duplication( void )
   int32_t genome_size_before  = _length;
   int32_t genome_size_after   = _length + segment_length;
   
-  if ( genome_size_after > _exp_m->get_max_genome_length() )
+  if ( genome_size_after > _indiv->get_max_genome_length() )
   {
     #warning LOG
     //~ if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
@@ -1088,7 +1088,7 @@ ae_mutation* ae_dna::do_deletion( void )
   int32_t genome_size_after   = _length - segment_length;
   
         
-  if ( genome_size_after < _exp_m->get_min_genome_length() )
+  if ( genome_size_after < _indiv->get_min_genome_length() )
   {
     #warning LOG
     //~ if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
@@ -1135,7 +1135,7 @@ ae_mutation* ae_dna::do_translocation( void )
   int32_t segment_length;
   bool invert;
   
-  if ( _exp_m->get_exp_s()->get_allow_plasmids() )
+  if ( _indiv->get_allow_plasmids() )
   {
     // -----------------------------------------------------------------
     // WARNING : This is only valid when there is only 1 plasmid allowed
@@ -1431,7 +1431,7 @@ bool ae_dna::do_duplication( int32_t pos_1, int32_t pos_2, int32_t pos_3 )
     
     seg_length = pos_2 - pos_1;
     
-    if ( _length + seg_length > _exp_m->get_max_genome_length() )
+    if ( _length + seg_length > _indiv->get_max_genome_length() )
     {
       #warning LOG
       //~ if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
@@ -1470,7 +1470,7 @@ bool ae_dna::do_duplication( int32_t pos_1, int32_t pos_2, int32_t pos_3 )
     int32_t tmp2_len = pos_2;
     seg_length = tmp1_len + tmp2_len;
     
-    if ( _length + seg_length > _exp_m->get_max_genome_length() )
+    if ( _length + seg_length > _indiv->get_max_genome_length() )
     {
       #warning LOG
       //~ if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
@@ -1735,14 +1735,14 @@ bool ae_dna::do_inter_GU_translocation( int32_t pos_1_rel, int32_t pos_2_rel, in
   // Do not allow translocation if it would decrease the size of the GU below a threshold
   if ( pos_1_rel < pos_2_rel) 
   { 
-    if ( (_length - (pos_2_rel - pos_1_rel) ) < _exp_m->get_plasmid_minimal_length() ) 
+    if ( (_length - (pos_2_rel - pos_1_rel) ) < _indiv->get_plasmid_minimal_length() ) 
     { 
       return false; 
     }  
   }
   else 
   {
-    if ( ( pos_1_rel - pos_2_rel ) < _exp_m->get_plasmid_minimal_length() )
+    if ( ( pos_1_rel - pos_2_rel ) < _indiv->get_plasmid_minimal_length() )
     {
       return false; 
     }

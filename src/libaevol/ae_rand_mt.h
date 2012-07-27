@@ -77,7 +77,6 @@
 #include <time.h>
 #include <math.h>
 #include <zlib.h>
-#include <ae_macros.h>
 
 class ae_rand_mt
 {
@@ -126,9 +125,9 @@ class ae_rand_mt
     inline void seed( const uint32_t oneSeed );
     
     // Saving and loading generator state
+    inline void save( gzFile* backup_file ) const;
     inline void save( uint32_t* saveArray ) const;  // to array of size SAVE
     inline void load( uint32_t *const loadArray );  // from such array
-    inline void write_to_backup( gzFile* backup_file ) const;
 
   protected:
     ae_rand_mt( void )
@@ -268,7 +267,7 @@ void ae_rand_mt::load( uint32_t *const loadArray )
   pNext = &state[N-left];
 }
 
-void ae_rand_mt::write_to_backup( gzFile* backup_file ) const
+void ae_rand_mt::save( gzFile* backup_file ) const
 {
   uint32_t saveArray[SAVE];
   save( saveArray );

@@ -80,7 +80,7 @@ class ae_point_1d : public ae_object
     // =================================================================
     //                            Public Methods
     // =================================================================
-    inline void write_to_backup( gzFile* backup_file );
+    inline void save( gzFile* backup_file );
   
     // =================================================================
     //                           Public Attributes
@@ -167,7 +167,7 @@ inline ae_point_1d::~ae_point_1d( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-inline void ae_point_1d::write_to_backup( gzFile* backup_file )
+inline void ae_point_1d::save( gzFile* backup_file )
 {
   gzwrite( backup_file, &x, sizeof(x) );
 }

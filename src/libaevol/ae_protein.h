@@ -101,7 +101,7 @@ class ae_protein : public ae_object
     // =================================================================
             void  add_RNA( ae_rna* rna );
             char* get_AA_sequence( void ) const; // WARNING : creates a new char[...] (up to you to delete it!)
-    virtual void  write_to_backup( gzFile* backup_file );
+    virtual void  save( gzFile* backup_file );
 
     // =================================================================
     //                           Public Attributes

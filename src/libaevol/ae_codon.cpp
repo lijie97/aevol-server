@@ -119,7 +119,7 @@ ae_codon::~ae_codon( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_codon::write_to_backup( gzFile* backup_file )
+void ae_codon::save( gzFile* backup_file )
 {
   gzwrite( backup_file, &_value,   			sizeof(_value) );
 }

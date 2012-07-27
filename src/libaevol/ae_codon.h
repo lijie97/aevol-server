@@ -90,7 +90,7 @@ class ae_codon : public ae_object
     inline bool is_start( void );
     inline bool is_stop( void );
     inline ae_codon* copy( void );
-    void   write_to_backup( gzFile* backup_file );
+    void   save( gzFile* backup_file );
 
     // =================================================================
     //                           Public Attributes

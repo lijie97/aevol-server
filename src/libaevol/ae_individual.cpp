@@ -83,7 +83,16 @@
 /*!
 
 */
-ae_individual::ae_individual( ae_exp_manager* exp_m, ae_rand_mt* alea, ae_params_mut* param_mut, double w_max, int32_t id, int32_t age )
+ae_individual::ae_individual( ae_exp_manager* exp_m,
+                              ae_rand_mt* alea,
+                              ae_params_mut* param_mut,
+                              double w_max,
+                              int32_t min_genome_length,
+                              int32_t max_genome_length,
+                              bool allow_plasmids,
+                              int32_t plasmid_minimal_length,
+                              int32_t id,
+                              int32_t age )
 {
   // Experiment manager
   _exp_m = exp_m;
@@ -128,6 +137,14 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, ae_rand_mt* alea, ae_params
   
   // Artificial chemistry
   _w_max = w_max;
+      
+  // Genome size constraints
+  _min_genome_length = min_genome_length;
+  _max_genome_length = max_genome_length;
+  
+  // Plasmids settings
+  _allow_plasmids         = allow_plasmids;
+  _plasmid_minimal_length = plasmid_minimal_length;
   
   
   
@@ -343,6 +360,19 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile* backup_file )
   
   // Retrieve artificial chemistry parameters
   gzread( backup_file, &_w_max, sizeof(_w_max) );
+      
+  // Retrieve genome size constraints
+  gzread( backup_file, &_min_genome_length, sizeof(_min_genome_length) );
+  gzread( backup_file, &_max_genome_length, sizeof(_max_genome_length) );
+  
+  // Retrieve plasmids settings
+  int8_t tmp_allow_plasmids;
+  gzread( backup_file, &tmp_allow_plasmids, sizeof(tmp_allow_plasmids) );
+  _allow_plasmids = tmp_allow_plasmids ? 1 : 0;
+  if ( _allow_plasmids )
+  {
+    gzread( backup_file, &_plasmid_minimal_length, sizeof(_plasmid_minimal_length) );
+  }
   
   // Retreive genetic units
   _genetic_unit_list = new ae_list();
@@ -539,6 +569,14 @@ ae_individual::ae_individual( const ae_individual &model )
   
   // Artificial chemistry parameters
   _w_max = model._w_max;
+      
+  // Genome size constraints
+  _min_genome_length = model._min_genome_length;
+  _max_genome_length = model._max_genome_length;
+  
+  // Plasmids settings
+  _allow_plasmids         = model._allow_plasmids;
+  _plasmid_minimal_length = model._plasmid_minimal_length;
 }
 
 /*!
@@ -641,6 +679,14 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id )
   
   // Artificial chemistry parameters
   _w_max = parent->_w_max;
+      
+  // Genome size constraints
+  _min_genome_length = parent->_min_genome_length;
+  _max_genome_length = parent->_max_genome_length;
+  
+  // Plasmids settings
+  _allow_plasmids         = parent->_allow_plasmids;
+  _plasmid_minimal_length = parent->_plasmid_minimal_length;
   
   // Initialize statistical data
   _total_genome_size                  = 0;
@@ -1589,13 +1635,13 @@ void ae_individual::compute_non_coding( void )
   _modularity = av_dist_between_interacting_genes / av_dist_between_genes;
 }*/
 
-void ae_individual::write_to_backup( gzFile* backup_file ) const
+void ae_individual::save( gzFile* backup_file ) const
 {
   // Write the "age" of the strain
   gzwrite( backup_file, &_age, sizeof(_age) );
   
   // Write the PRNG's state
-  _alea->write_to_backup( backup_file );
+  _alea->save( backup_file );
   
   // Write id and rank
   gzwrite( backup_file, &_id,   sizeof(_id) );
@@ -1616,10 +1662,22 @@ void ae_individual::write_to_backup( gzFile* backup_file ) const
   gzwrite( backup_file, _int_probes,    5 * sizeof(*_int_probes) );
   gzwrite( backup_file, _double_probes, 5 * sizeof(*_double_probes) );
   // Write mutational parameters
-  _mut_params->write_to_backup( backup_file );
+  _mut_params->save( backup_file );
   
   // Write artificial chemistry parameters
   gzwrite( backup_file, &_w_max, sizeof(_w_max) );
+      
+  // Write genome size constraints
+  gzwrite( backup_file, &_min_genome_length, sizeof(_min_genome_length) );
+  gzwrite( backup_file, &_max_genome_length, sizeof(_max_genome_length) );
+  
+  // Write plasmids settings
+  int8_t tmp_allow_plasmids = _allow_plasmids;
+  gzwrite( backup_file, &tmp_allow_plasmids, sizeof(tmp_allow_plasmids) );
+  if ( _allow_plasmids )
+  {
+    gzwrite( backup_file, &_plasmid_minimal_length, sizeof(_plasmid_minimal_length) );
+  }
   
   // Write genetic units
   int16_t nb_gen_units = _genetic_unit_list->get_nb_elts();
@@ -1631,7 +1689,7 @@ void ae_individual::write_to_backup( gzFile* backup_file ) const
   {
     gen_unit = (ae_genetic_unit*)gen_unit_node->get_obj();
     
-    gen_unit->write_to_backup( backup_file );
+    gen_unit->save( backup_file );
     
     gen_unit_node = gen_unit_node->get_next();
   }

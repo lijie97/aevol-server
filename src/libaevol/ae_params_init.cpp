@@ -121,7 +121,7 @@ ae_params_init::~ae_params_init( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_params_init::write_to_backup( gzFile* backup_file ) // Usefull?
+void ae_params_init::save( gzFile* backup_file ) // Usefull?
 {
   // PseudoRandom Number Generator
   gzwrite( backup_file, &_seed,                       sizeof(_seed)                     );
@@ -146,7 +146,7 @@ void ae_params_init::write_to_backup( gzFile* backup_file ) // Usefull?
   {
     gaussian = ( ae_gaussian* ) gaussian_node->get_obj();
 
-    gaussian->write_to_backup( backup_file );
+    gaussian->save( backup_file );
 
     gaussian_node = gaussian_node->get_next();
   }
@@ -160,7 +160,7 @@ void ae_params_init::write_to_backup( gzFile* backup_file ) // Usefull?
   {
     point = ( ae_point_2d* ) point_node->get_obj();
 
-    point->write_to_backup( backup_file );
+    point->save( backup_file );
 
     point_node = point_node->get_next();
   }
@@ -218,7 +218,7 @@ void ae_params_init::write_to_backup( gzFile* backup_file ) // Usefull?
   #endif
 }
 
-void ae_params_init::read_from_backup( gzFile* backup_file, bool verbose ) // Usefull?
+void ae_params_init::load( gzFile* backup_file, bool verbose ) // Usefull?
 {
   // PseudoRandom Number Generator
   gzread( backup_file, &_seed,                      sizeof(_seed)                     );

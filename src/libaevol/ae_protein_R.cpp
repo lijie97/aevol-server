@@ -136,9 +136,9 @@ void ae_protein_R::add_influence( ae_influence_R *influence )
   _influence_list->add( influence );
 }
 
-void ae_protein_R::write_to_backup( gzFile* backup_file ) 
+void ae_protein_R::save( gzFile* backup_file ) 
 {
-  ae_protein::write_to_backup( backup_file );
+  ae_protein::save( backup_file );
 
   // the Influence list is re-calculate afterward, and then is not saved.
   gzwrite( backup_file, &_delta_concentration,   	sizeof(_delta_concentration) );

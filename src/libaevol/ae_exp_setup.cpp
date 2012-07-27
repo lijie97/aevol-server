@@ -495,45 +495,26 @@ ae_exp_setup::~ae_exp_setup( void )
 // =================================================================
 //                           Protected Methods
 // =================================================================
-void ae_exp_setup::write_to_backup( gzFile* backup_file ) const
+void ae_exp_setup::save( gzFile* env_file, gzFile* sp_struct_file ) const
 {
-  // Write global constraints data
-  gzwrite( backup_file, &_min_genome_length, sizeof(_min_genome_length) );
-  gzwrite( backup_file, &_max_genome_length, sizeof(_max_genome_length) );
-  
-  // Write environmental data
-  _env->write_to_backup( backup_file );
+  // Save environment state
+  _env->save( env_file );
 
-  // Retrieve selection data
-  _sel->write_to_backup( backup_file );
+  // Save spatial structure state
+  if ( is_spatially_structured() )
+  {
+    _sel->get_spatial_structure()->save( sp_struct_file );
+  }
 }
 
-void ae_exp_setup::read_from_backup( gzFile* backup_file, bool verbose )
+void ae_exp_setup::load( gzFile* exp_setup_file, gzFile* env_file, gzFile* sp_struct_file, bool verbose )
 {
-  //~ // Retreive common data
-  //~ printf( "  Loading common data..." );
-  //~ fflush( stdout );
-  //~ ae_common::read_from_backup( backup_file );
-  //~ printf( "OK\n" );
-
-  //~ // Retrieve current generation number
-  //~ printf( "  Loading simulation data..." );
-  //~ fflush( stdout );
-  //~ gzread( backup_file, &_num_gener, sizeof(_num_gener) );
-  //~ _first_gener = _num_gener;
-  //~ printf( "OK\n" );
-  
-  // Retrieve global constraints data
-  gzread( backup_file, &_min_genome_length, sizeof(_min_genome_length) );
-  gzread( backup_file, &_max_genome_length, sizeof(_max_genome_length) );
-  
-
   // Retrieve environmental data
   printf( "  Loading environment..." );
   fflush( stdout );
   //~ delete _env;
   //~ _env = new ae_environment();
-  _env->read_from_backup( backup_file );
+  _env->load( env_file );
   printf( "OK\n" );
 
   // Retrieve selection data
@@ -541,6 +522,25 @@ void ae_exp_setup::read_from_backup( gzFile* backup_file, bool verbose )
   fflush( stdout );
   //~ delete _sel;
   //~ _sel = new ae_selection();
-  _sel->read_from_backup( backup_file );
+  _sel->load( exp_setup_file, sp_struct_file );
+  printf( "OK\n" );
+}
+
+void ae_exp_setup::load( FILE* exp_setup_file, gzFile* env_file, gzFile* sp_struct_file, bool verbose )
+{
+  // Retrieve environmental data
+  printf( "  Loading environment..." );
+  fflush( stdout );
+  //~ delete _env;
+  //~ _env = new ae_environment();
+  _env->load( env_file );
+  printf( "OK\n" );
+
+  // Retrieve selection data
+  printf( "  Loading selection context..." );
+  fflush( stdout );
+  //~ delete _sel;
+  //~ _sel = new ae_selection();
+  _sel->load( exp_setup_file, sp_struct_file );
   printf( "OK\n" );
 }

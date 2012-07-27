@@ -475,7 +475,7 @@ char* ae_protein::get_AA_sequence( void ) const
   return seq;
 }
 
-void ae_protein::write_to_backup( gzFile* backup_file )
+void ae_protein::save( gzFile* backup_file )
 {
   // The rna_list is not write because there is no need to, it is an empty list.
   int8_t tmp_strand = _strand;
@@ -501,7 +501,7 @@ void ae_protein::write_to_backup( gzFile* backup_file )
   {
   AA = (ae_codon*)AA_node->get_obj();
    
-  AA->write_to_backup( backup_file );
+  AA->save( backup_file );
     
   AA_node = AA_node->get_next();
   }

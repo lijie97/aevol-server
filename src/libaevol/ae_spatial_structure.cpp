@@ -177,7 +177,7 @@ void ae_spatial_structure::do_random_migrations ( void )
   }
 }
 
-void ae_spatial_structure::write_to_backup( gzFile* backup_file ) const
+void ae_spatial_structure::save( gzFile* backup_file ) const
 {
   if ( _alea == NULL )
   {
@@ -190,7 +190,7 @@ void ae_spatial_structure::write_to_backup( gzFile* backup_file ) const
     exit( EXIT_FAILURE );
   }
   
-  _alea->write_to_backup( backup_file );
+  _alea->save( backup_file );
   
   gzwrite( backup_file, &_grid_width,   sizeof(_grid_width) );
   gzwrite( backup_file, &_grid_height,  sizeof(_grid_height) );
@@ -199,7 +199,7 @@ void ae_spatial_structure::write_to_backup( gzFile* backup_file ) const
   {
     for ( int16_t y = 0 ; y < _grid_height ; y++ )
     {
-      _pop_grid[x][y]->write_to_backup( backup_file );
+      _pop_grid[x][y]->save( backup_file );
     }
   }
   

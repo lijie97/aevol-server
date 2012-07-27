@@ -372,8 +372,8 @@ class params : public ae_object
     // =================================================================
     //                            Public Methods
     // =================================================================
-    //~ void write_to_backup( gzFile* backup_file );
-    //~ void read_from_backup( gzFile* backup_file, bool verbose = false );
+    //~ void save( gzFile* backup_file );
+    //~ void load( gzFile* backup_file, bool verbose = false );
     void print_to_file( FILE* file );
 
     // =================================================================

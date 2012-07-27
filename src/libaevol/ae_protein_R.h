@@ -77,12 +77,12 @@ class ae_protein_R : public ae_protein
     //                            Public Methods
     // =================================================================
     //inline ae_protein_R* copy( void );
-    inline void    multiply_concentration( double factor );
-    inline void    update_concentration( void );
-           void    compute_delta_concentration( void );
-           int8_t  get_codon( int32_t index );
-           void    add_influence( ae_influence_R* influence );
-		   void    write_to_backup( gzFile* backup_file );
+    inline void multiply_concentration( double factor );
+    inline void update_concentration( void );
+    void        compute_delta_concentration( void );
+    int8_t      get_codon( int32_t index );
+    void        add_influence( ae_influence_R* influence );
+    void        save( gzFile* backup_file );
 
     // =================================================================
     //                           Public Attributes

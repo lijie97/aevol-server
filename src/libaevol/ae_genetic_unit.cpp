@@ -3237,9 +3237,9 @@ void ae_genetic_unit::copy_lagging_promoters_starting_between( int32_t pos_1, in
   }
 }
 
-void ae_genetic_unit::write_to_backup( gzFile* backup_file )
+void ae_genetic_unit::save( gzFile* backup_file )
 {
-  _dna->write_to_backup( backup_file );
+  _dna->save( backup_file );
 }
 
 int32_t ae_genetic_unit::get_nb_terminators( void )

@@ -112,7 +112,10 @@ int main( int argc, char* argv[] )
   //~ exp_manager->display();
   //~ getchar();
   
-  // 8) Create the initial backups
+  // 8) Create the static setup files (experimental setup and output profile)
+  exp_manager->write_setup_files();
+  
+  // 9) Create the initial backups
   exp_manager->save_experiment();
 }
 

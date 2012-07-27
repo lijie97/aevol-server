@@ -313,7 +313,59 @@ void ae_population::replace_population( ae_list* new_pop )
   _indivs = new_pop;
 }
 
-void ae_population::read_from_backup( gzFile* backup_file, bool verbose )
+void ae_population::save( gzFile* backup_file ) const
+{
+  // Write population intrinsic data
+  gzwrite( backup_file, &_nb_indivs,                  sizeof(_nb_indivs) );
+  /*gzwrite( backup_file, &_prob_reprod_previous_best,  sizeof(_prob_reprod_previous_best) );*/
+  
+  // Write individuals
+  ae_list_node*   indiv_node = _indivs->get_first();
+  ae_individual*  indiv;
+  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
+  {
+    indiv = ( ae_individual* ) indiv_node->get_obj();
+    indiv->save( backup_file );
+    indiv_node = indiv_node->get_next();
+  }
+  
+  /*if ( ae_common::pop_structure == true )
+  {
+    for ( int16_t x = 0 ; x < _grid_x ; x++ )
+    {
+      for ( int16_t y = 0 ; y < _grid_y ; y++ )
+      {
+        _pop_grid[x][y]->get_individual()->save( backup_file );
+      }  
+    }
+    
+    if ( ae_common::params->get_use_secretion() ) 
+    {
+      double tmp_comp;
+      for ( int16_t x = 0 ; x < _grid_x ; x++ )
+      {
+        for ( int16_t y = 0 ; y < _grid_y ; y++ )
+        {
+          tmp_comp = _pop_grid[x][y]->get_compound_amount(); 
+          gzwrite( backup_file, &tmp_comp, sizeof(tmp_comp) );
+        }
+      }
+    }
+  }   
+  else 
+  {
+    ae_list_node*   indiv_node = _indivs->get_first();
+    ae_individual*  indiv;
+    for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
+    {
+      indiv = ( ae_individual* ) indiv_node->get_obj();
+      indiv->save( backup_file );
+      indiv_node = indiv_node->get_next();
+    }
+  }*/
+}
+
+void ae_population::load( gzFile* backup_file, bool verbose )
 {
   // --------------------------------------- Retreive population intrinsic data
   gzread( backup_file, &_nb_indivs, sizeof(_nb_indivs) );
@@ -675,58 +727,6 @@ void ae_population::read_from_backup( gzFile* backup_file, bool verbose )
       }
     }
   #endif*/
-}
-
-void ae_population::write_to_backup( gzFile* backup_file ) const
-{
-  // Write population intrinsic data
-  gzwrite( backup_file, &_nb_indivs,                  sizeof(_nb_indivs) );
-  /*gzwrite( backup_file, &_prob_reprod_previous_best,  sizeof(_prob_reprod_previous_best) );*/
-  
-  // Write individuals
-  ae_list_node*   indiv_node = _indivs->get_first();
-  ae_individual*  indiv;
-  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
-  {
-    indiv = ( ae_individual* ) indiv_node->get_obj();
-    indiv->write_to_backup( backup_file );
-    indiv_node = indiv_node->get_next();
-  }
-  
-  /*if ( ae_common::pop_structure == true )
-  {
-    for ( int16_t x = 0 ; x < _grid_x ; x++ )
-    {
-      for ( int16_t y = 0 ; y < _grid_y ; y++ )
-      {
-        _pop_grid[x][y]->get_individual()->write_to_backup( backup_file );
-      }  
-    }
-    
-    if ( ae_common::params->get_use_secretion() ) 
-    {
-      double tmp_comp;
-      for ( int16_t x = 0 ; x < _grid_x ; x++ )
-      {
-        for ( int16_t y = 0 ; y < _grid_y ; y++ )
-        {
-          tmp_comp = _pop_grid[x][y]->get_compound_amount(); 
-          gzwrite( backup_file, &tmp_comp, sizeof(tmp_comp) );
-        }
-      }
-    }
-  }   
-  else 
-  {
-    ae_list_node*   indiv_node = _indivs->get_first();
-    ae_individual*  indiv;
-    for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
-    {
-      indiv = ( ae_individual* ) indiv_node->get_obj();
-      indiv->write_to_backup( backup_file );
-      indiv_node = indiv_node->get_next();
-    }
-  }*/
 }
 
 /*void ae_population::step_to_next_generation( void )

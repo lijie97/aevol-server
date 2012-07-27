@@ -79,8 +79,8 @@ class ae_matrix_double
     inline double get_value( const int16_t row, const int16_t column ) const;
 
     // backup functions
-    inline void write_to_backup( gzFile* backup_file );
-    inline void read_from_backup( gzFile* backup_file );
+    inline void save( gzFile* backup_file );
+    inline void load( gzFile* backup_file );
     inline void print_to_file( FILE* file );
 
     // =================================================================
@@ -138,14 +138,14 @@ double ae_matrix_double::get_value( const int16_t row, const int16_t column ) co
   return _data[ ( row * _column_size ) + column ];
 }
 
-void ae_matrix_double::write_to_backup( gzFile* backup_file )
+void ae_matrix_double::save( gzFile* backup_file )
 {
   gzwrite( backup_file, _data, _data_size );
   //printf( "write %d bytes (matrix_double) :\n", _data_size );
   //print_to_file( stdout );
 }
 
-void ae_matrix_double::read_from_backup( gzFile* backup_file )
+void ae_matrix_double::load( gzFile* backup_file )
 {
   gzread( backup_file, _data, _data_size );
   //print_to_file( stdout );

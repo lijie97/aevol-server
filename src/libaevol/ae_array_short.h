@@ -86,8 +86,8 @@ class ae_array_short
     inline int16_t get_value( const int32_t index );
 
     // backup functions
-    inline void write_to_backup( gzFile* backup_file );
-    inline void read_from_backup( gzFile* backup_file );
+    inline void save( gzFile* backup_file );
+    inline void load( gzFile* backup_file );
     inline void print_to_file( FILE* file );
 
     // search
@@ -174,13 +174,13 @@ int16_t ae_array_short::get_value( const int32_t index )
   return _data[ index ];
 }
 
-void ae_array_short::write_to_backup( gzFile* backup_file )
+void ae_array_short::save( gzFile* backup_file )
 {
   gzwrite( backup_file, &_data[0], _size * sizeof(_data[0]) );
   //print_to_file( stdout );
 }
 
-void ae_array_short::read_from_backup( gzFile* backup_file )
+void ae_array_short::load( gzFile* backup_file )
 {
   gzread( backup_file, _data, _size * sizeof(_data[0]) );
   //print_to_file( stdout );

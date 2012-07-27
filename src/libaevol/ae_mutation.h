@@ -123,7 +123,7 @@ class ae_mutation : public ae_object
     /* DEPRECATED, use get_length instead */
     int32_t segment_length( int32_t gen_unit_len );
 
-    void write_to_backup( gzFile* backup_file );
+    void save( gzFile* backup_file );
   
     // =================================================================
     //                           Public Attributes

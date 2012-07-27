@@ -105,13 +105,10 @@ class ae_output_manager : public ae_object
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void save_experiment( void ) const;
-    void load_experiment( char* exp_setup_file_name = NULL,
-                          char* pop_file_name = NULL,
-                          char* out_man_file_name = NULL,
-                          bool verbose = true );
-    void write_to_backup( gzFile* file ) const;
-    void read_from_backup( gzFile* file, bool verbose );
+    void write_setup_file( gzFile* setup_file ) const;
+    void write_setup_file( FILE* setup_file ) const;
+    void load( gzFile* file, bool verbose );
+    void load( FILE* file, bool verbose );
     void write_current_generation_outputs( void ) const;
     inline void flush( void );
 

@@ -390,7 +390,7 @@ void ae_mutation::report_insertion( int32_t pos, int32_t length, const char* seq
   _seq[length] = '\0';
 }
 
-void ae_mutation::write_to_backup( gzFile* backup_file ) // Usually <backup_file> is the tree file (?)
+void ae_mutation::save( gzFile* backup_file ) // Usually <backup_file> is the tree file (?)
 {
   int8_t tmp_mut_type = _mut_type;
   gzwrite( backup_file, &tmp_mut_type,  sizeof(tmp_mut_type) );

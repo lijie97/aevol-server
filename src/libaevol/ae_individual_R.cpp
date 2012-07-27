@@ -376,9 +376,9 @@ int8_t ae_individual_R::get_quadon( ae_genetic_unit* gen_unit, ae_strand strand,
   return quadon;
 }
 
-void ae_individual_R::write_to_backup( gzFile* backup_file )
+void ae_individual_R::save( gzFile* backup_file )
 {
-  ae_individual::write_to_backup( backup_file );
+  ae_individual::save( backup_file );
   // Test if there is heredity, and if the generation is the first one (no inherited protein list).
   if (ae_common::with_heredity && _inherited_protein_list != NULL )
   {
@@ -393,7 +393,7 @@ void ae_individual_R::write_to_backup( gzFile* backup_file )
     {
     inherited_protein = (ae_protein_R*)inherited_protein_node->get_obj();
     
-    inherited_protein->write_to_backup( backup_file );
+    inherited_protein->save( backup_file );
     
     inherited_protein_node = inherited_protein_node->get_next();
     }

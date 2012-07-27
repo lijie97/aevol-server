@@ -347,7 +347,7 @@ void ae_replication_report::write_to_tree_file( gzFile* tree_file ) const
     ae_list_node* rear_node  = report->get_rearrangements()->get_first();
     while ( rear_node != NULL )
     {
-      ((ae_mutation*)rear_node->get_obj())->write_to_backup( tree_file );
+      ((ae_mutation*)rear_node->get_obj())->save( tree_file );
       rear_node = rear_node->get_next();
     }
     
@@ -359,7 +359,7 @@ void ae_replication_report::write_to_tree_file( gzFile* tree_file ) const
     ae_list_node* mut_node  = report->get_mutations()->get_first();
     while ( mut_node != NULL )
     {
-      ((ae_mutation*)mut_node->get_obj())->write_to_backup( tree_file );
+      ((ae_mutation*)mut_node->get_obj())->save( tree_file );
       mut_node = mut_node->get_next();
     }
     
