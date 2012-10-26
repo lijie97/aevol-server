@@ -142,6 +142,7 @@ void ae_exp_manager::save_experiment( void ) const
   
   sprintf( env_file_name,       ENV_FNAME_FORMAT,       _num_gener );
   sprintf( pop_file_name,       POP_FNAME_FORMAT,       _num_gener );
+	
   if ( is_spatially_structured() )
   {
     sprintf( sp_struct_file_name, SP_STRUCT_FNAME_FORMAT, _num_gener );

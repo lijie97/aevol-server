@@ -30,8 +30,8 @@ common_sources += params.cpp param_loader.cpp
 X11_headers = ae_fuzzy_set_X11.h ae_individual_X11.h ae_population_X11.h ae_exp_manager_X11.h ae_X11_window.h
 X11_sources = ae_fuzzy_set_X11.cpp ae_individual_X11.cpp ae_population_X11.cpp ae_exp_manager_X11.cpp ae_X11_window.cpp
 
-raevol_headers = ae_array_short.h ae_individual_R.h ae_influence_R.h ae_matrix_double.h ae_protein_R.h ae_rna_R.h
-raevol_sources = ae_individual_R.cpp ae_influence_R.cpp ae_protein_R.cpp ae_rna_R.cpp
+raevol_headers = ae_array_short.h ae_individual_R.h ae_influence_R.h ae_matrix_double.h ae_protein_R.h ae_rna_R.h ae_selection_R.h
+raevol_sources = ae_individual_R.cpp ae_influence_R.cpp ae_protein_R.cpp ae_rna_R.cpp ae_selection_R.cpp
 
 
 raevol_X11_headers = $(X11_headers) $(raevol_headers) ae_individual_R_X11.h

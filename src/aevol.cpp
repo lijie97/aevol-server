@@ -34,11 +34,13 @@
 // =================================================================
 //                              Libraries
 // =================================================================
+#include <errno.h>
 #include <inttypes.h>
 #include <getopt.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
+#include <sys/stat.h>
 
 
 
@@ -155,7 +157,19 @@ int main( int argc, char* argv[] )
         sprintf( env_file_name,       ENV_FNAME_FORMAT,       num_gener );
         sprintf( pop_file_name,       POP_FNAME_FORMAT,       num_gener );
         sprintf( sp_struct_file_name, SP_STRUCT_FNAME_FORMAT, num_gener );
-        
+		  
+		// Check existence of optional files.
+		// Missing files will cause the corresponding file_name variabel to be nullified
+		struct stat stat_buf;
+		if ( stat( sp_struct_file_name, &stat_buf ) == -1 )
+		{
+			if ( errno == ENOENT )
+			{
+				delete [] sp_struct_file_name;
+				sp_struct_file_name = NULL;
+			}
+		}
+		  
         break;      
       }
       case 's' :
