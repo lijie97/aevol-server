@@ -132,8 +132,8 @@ void print_help( char* prog_name )
 	printf( "******************************************************************************\n" );
 	printf( "Usage : create_exp -h\n" );
 	printf( "   or : create_exp [-f param_file]\n" );
-	printf( "  -h or --help : Display this screen\n" );
-	printf( "  -f or --file : Specify parameter file\n" );
+	printf( "  -h, --help  Display this screen\n" );
+	printf( "  -f, --file  Specify parameter file\n" );
 	printf( "Create an experiment with setup as specified in the parameter file.\n" );
-    printf( "(default: param.in)\n" );
+    printf( "(default: param.in)\n\n" );
 }

@@ -158,17 +158,17 @@ int main( int argc, char* argv[] )
         sprintf( pop_file_name,       POP_FNAME_FORMAT,       num_gener );
         sprintf( sp_struct_file_name, SP_STRUCT_FNAME_FORMAT, num_gener );
 		  
-		// Check existence of optional files.
-		// Missing files will cause the corresponding file_name variabel to be nullified
-		struct stat stat_buf;
-		if ( stat( sp_struct_file_name, &stat_buf ) == -1 )
-		{
-			if ( errno == ENOENT )
-			{
-				delete [] sp_struct_file_name;
-				sp_struct_file_name = NULL;
-			}
-		}
+        // Check existence of optional files in file system.
+        // Missing files will cause the corresponding file_name variable to be nullified
+        struct stat stat_buf;
+        if ( stat( sp_struct_file_name, &stat_buf ) == -1 )
+        {
+          if ( errno == ENOENT )
+          {
+            delete [] sp_struct_file_name;
+            sp_struct_file_name = NULL;
+          }
+        }
 		  
         break;      
       }
@@ -341,32 +341,21 @@ void catch_xcpu( int sig_num )
 
 void print_help( char* prog_name ) 
 {
-  printf( "\n************* aevol - Artificial Evolution ************* \n\n" );
-  printf( "This program is Free Software. No Warranty.\n\
-Copyright (C) 2009  LIRIS.\n\n\
-Usage : %s -h\n\
-   or : %s [options]\n\n\
-\t-h or --help : Display this screen\n\
-\t-x or --noX  : Disable X display\n\n\
-Options (i : integer, d : double, s : string) :\n\n\
-\t-f or --file  s   : Begin with the backup file s\n\
-\t-n or --nbgen i   : Set the number of generation to do to i \n\
-\t-s or --seed  i   : Set the random number seed to i \n\
-\t-p or --param \"s\" : Override parameters as specified in s.\n\
-\t                    s must follow the syntax of a parameter file \n\n\
-If an option is not set, the programm use the default value for this parameter.\n\n\
-<press enter to display examples>",
-   prog_name+2, prog_name+2 );
-  
-  getchar();
-  
-  printf( "\n\nExamples :\n\
-\t%s -h : \n\
-\t  Print this screen\n\n\
-\t%s -f file.ae -n 1000 : \n\
-\t  Read the file file.ae and do 1000 new generations\n\n\
-\t%s --noX -f file.ae -p \"BACKUP_STEP 50\" : \n\
-\t  Read file.ae and continue, writing a backup every 50 generations.\n\
-\t  Graphical display is disabled (send SIGUSR1 to process to re-enable).\n\n",
-   prog_name+2, prog_name+2, prog_name+2 );
+	printf( "******************************************************************************\n" );
+	printf( "*                        aevol - Artificial Evolution                        *\n" );
+	printf( "******************************************************************************\n" );
+	printf( "Usage : aevol -h\n" );
+  printf( "   or : aevol [options]\n" );
+  printf( "  -h, --help               Display this screen\n" );
+  printf( "  -r, --resume GENERATION  Resume simulation at given generation\n" );
+  printf( "  -s, --setup FILE         Provide experimental setup file\n" );
+  printf( "  -o, --out_prof FILE      Provide output profile file\n" );
+  printf( "  -e, --envir FILE         Provide environment file\n" );
+  printf( "  -p, --pop FILE           Provide population file\n" );
+  printf( "  -g, --grid FILE          Provide spatial structure file\n" );
+  printf( "  -n, --nbgener NB_GENER   Number of generations to be run\n" );
+  printf( "  -w, --wait               Pause after loading\n" );
+  printf( "  -x, --noX                Don't display X outputs upon start\n" );
+  printf( "                           send SIGUSR1 to switch X output on/off\n" );
+  printf( "Run an aevol simulation\n\n" );
 }
