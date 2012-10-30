@@ -32,7 +32,11 @@
 // =================================================================
 //                              Libraries
 // =================================================================
+#include <err.h>
+#include <errno.h>
 #include <stdio.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 
 
@@ -67,6 +71,9 @@
 // =================================================================
 //                             Constructors
 // =================================================================
+/*!
+  Create a NEW stat manager
+ */
 ae_stats::ae_stats( ae_exp_manager* exp_m,
                     const char * prefix /* = "stat" */,
                     bool best_indiv_only /* = false */ )
@@ -77,7 +84,9 @@ ae_stats::ae_stats( ae_exp_manager* exp_m,
   open_files();
 }
 
-
+/*!
+  Create a stat manager to append existing stats
+ */
 ae_stats::ae_stats( ae_exp_manager* exp_m,
                     int32_t num_gener,
                     const char * prefix /* = "stat" */,
@@ -576,15 +585,20 @@ void ae_stats::init_data( void )
  */
 void ae_stats::set_file_names( const char * prefix, bool one_lambda_indiv_only )
 {
+  // 1) Create stats directory
+  int status;
+  status = mkdir( STATS_DIR, 0755 );
+  if ( (status == -1) && (errno != EEXIST) )
+  {
+    err( EXIT_FAILURE, STATS_DIR, errno );
+  }
+  
   const char* chrom_or_gu_name[NB_CHROM_OR_GU]    = { "", "_chromosome", "_plasmids" };
   const char* best_or_glob_name[NB_BEST_OR_GLOB]  = { "_best", "_glob", "_sdev", "_skew" };
   const char* stat_type_name[NB_STATS_TYPES]      = { "_fitness", "_mutation", "_genes", "_bp", "_rear" };
   
   for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
   {
-    // We want only "ALL_GU" stats when ae_common::allow_plasmids is false
-    //~ if ( chrom_or_GU != ALL_GU && ! _exp_m->get_allow_plasmids() ) continue;
-    
     for ( int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++ )
     {
       if ( one_lambda_indiv_only && best_or_glob == GLOB ) continue;
@@ -597,13 +611,13 @@ void ae_stats::set_file_names( const char * prefix, bool one_lambda_indiv_only )
         // For now, we only want sdev and skew for fitness data
         if ( best_or_glob > GLOB && stat_type > FITNESS_STATS) continue; 
         
-        _stat_files_names[chrom_or_GU][best_or_glob][stat_type] = new char[80];
+        _stat_files_names[chrom_or_GU][best_or_glob][stat_type] = new char[255];
         
         // Construct the correct name
         if ( one_lambda_indiv_only )
         {
           sprintf(  _stat_files_names[chrom_or_GU][best_or_glob][stat_type],
-                    "%s%s%s.out",
+                    STATS_DIR"/%s%s%s.out",
                     prefix,
                     stat_type_name[stat_type],
                     chrom_or_gu_name[chrom_or_GU] );
@@ -611,7 +625,7 @@ void ae_stats::set_file_names( const char * prefix, bool one_lambda_indiv_only )
         else
         {
           sprintf(  _stat_files_names[chrom_or_GU][best_or_glob][stat_type],
-                    "%s%s%s%s.out",
+                    STATS_DIR"/%s%s%s%s.out",
                     prefix,
                     stat_type_name[stat_type],
                     chrom_or_gu_name[chrom_or_GU],

@@ -104,7 +104,9 @@ class ae_exp_setup : public ae_object
     inline ae_grid_cell*          get_grid_cell( int16_t x, int16_t y ) const;
     inline int16_t                get_grid_width( void ) const;
     inline int16_t                get_grid_height( void ) const;
-    
+
+    // The ability to own a plasmid is a property of the individuals    
+    //~ inline bool     get_allow_plasmids( void ) const;
     inline bool     get_with_plasmid_HT( void ) const;
     
     inline bool   get_use_secretion( void ) const;
@@ -214,6 +216,12 @@ inline double ae_exp_setup::get_selection_pressure( void ) const
 //~ inline bool ae_exp_setup::get_with_alignments( void ) const
 //~ {
   //~ return ;
+//~ }
+
+// The ability to own a plasmid is a property of the individuals
+//~ inline bool ae_exp_manager::get_allow_plasmids( void ) const
+//~ {
+  //~ return _sel->get_allow_plasmids();
 //~ }
 
 inline bool ae_exp_setup::get_with_plasmid_HT( void ) const

@@ -35,9 +35,10 @@
 // =================================================================
 //                              Libraries
 // =================================================================
-#include <sys/stat.h>
 #include <err.h>
 #include <errno.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <zlib.h>
 
 
@@ -97,40 +98,63 @@ ae_exp_manager::~ae_exp_manager( void )
 // =================================================================
 void ae_exp_manager::write_setup_files( void )
 {
-  // 1) Generate file names
-  char* exp_s_gzfile_name = new char[63];
-  char* out_m_gzfile_name  = new char[63];
-  char* exp_s_txtfile_name = new char[63];
-  char* out_m_txtfile_name  = new char[63];
-  strcpy( exp_s_gzfile_name,  "exp_setup.ae" );
-  strcpy( out_m_gzfile_name,  "output_profile.ae" );
-  strcpy( exp_s_txtfile_name,  "exp_setup.in" );
-  strcpy( out_m_txtfile_name,  "output_profile.in" );
+  // 1) Create missing directories
+  int status;
+  status = mkdir( EXP_S_DIR, 0755 );
+  if ( (status == -1) && (errno != EEXIST) )
+  {
+    err( EXIT_FAILURE, EXP_S_DIR, errno );
+  }
+  status = mkdir( OUT_P_DIR, 0755 );
+  if ( (status == -1) && (errno != EEXIST) )
+  {
+    err( EXIT_FAILURE, OUT_P_DIR, errno );
+  }
   
-  // 2) Open files
+  // 2) Generate file names
+  char* exp_s_gzfile_name = new char[255];
+  char* out_p_gzfile_name  = new char[255];
+  char* exp_s_txtfile_name = new char[255];
+  char* out_p_txtfile_name  = new char[255];
+  sprintf( exp_s_gzfile_name,  EXP_S_FNAME_FORMAT, _num_gener );
+  sprintf( out_p_gzfile_name,  OUT_P_FNAME_FORMAT, _num_gener );
+  sprintf( exp_s_txtfile_name,  EXP_S_TXT_FNAME_FORMAT, _num_gener );
+  sprintf( out_p_txtfile_name,  OUT_P_TXT_FNAME_FORMAT, _num_gener );
+  
+  // 3) Open files
   gzFile* exp_s_gzfile  = (gzFile*) gzopen( exp_s_gzfile_name, "w" );
-  gzFile* out_m_gzfile  = (gzFile*) gzopen( out_m_gzfile_name, "w" );
+  gzFile* out_p_gzfile  = (gzFile*) gzopen( out_p_gzfile_name, "w" );
   FILE*   exp_s_txtfile = fopen( exp_s_txtfile_name, "w" );
-  FILE*   out_m_txtfile = fopen( out_m_txtfile_name, "w" );
+  FILE*   out_p_txtfile = fopen( out_p_txtfile_name, "w" );
   
   // 4) Write data
   _exp_s->write_setup_file( exp_s_gzfile );
-  _output_m->write_setup_file( out_m_gzfile );
+  _output_m->write_setup_file( out_p_gzfile );
   
   _exp_s->write_setup_file( exp_s_txtfile );
-  _output_m->write_setup_file( out_m_txtfile );
+  _output_m->write_setup_file( out_p_txtfile );
   
-  // 4) Close files
+  // 5) Close files
   gzclose( exp_s_gzfile );
-  gzclose( out_m_gzfile );
+  gzclose( out_p_gzfile );
   fclose( exp_s_txtfile );
-  fclose( out_m_txtfile );
+  fclose( out_p_txtfile );
   
-  // 5) Clean up
+  // 6) Link current setup files to those just written
+  unlink( EXP_S_CUR_FNAME );
+  unlink( OUT_P_CUR_FNAME );
+  unlink( EXP_S_TXT_CUR_FNAME );
+  unlink( OUT_P_TXT_CUR_FNAME );
+  symlink( exp_s_gzfile_name, EXP_S_CUR_FNAME );
+  symlink( out_p_gzfile_name, OUT_P_CUR_FNAME );
+  symlink( exp_s_txtfile_name, EXP_S_TXT_CUR_FNAME );
+  symlink( out_p_txtfile_name, OUT_P_TXT_CUR_FNAME );
+  
+  // 7) Clean up
   delete [] exp_s_gzfile_name;
-  delete [] out_m_gzfile_name;
+  delete [] out_p_gzfile_name;
   delete [] exp_s_txtfile_name;
-  delete [] out_m_txtfile_name;
+  delete [] out_p_txtfile_name;
 }
 
 void ae_exp_manager::save_experiment( void ) const
@@ -149,7 +173,7 @@ void ae_exp_manager::save_experiment( void ) const
   }
   
   
-  // 2) Create missing backup directories
+  // 2) Create missing directories
   int status;
   status = mkdir( ENV_DIR, 0755 );
   if ( (status == -1) && (errno != EEXIST) )
@@ -216,6 +240,10 @@ void ae_exp_manager::save_experiment( void ) const
   }
 }
 
+
+/*!
+  Load an experiment with the provided parameter files
+ */
 void ae_exp_manager::load_experiment( char* exp_setup_file_name,
                                       char* out_prof_file_name,
                                       char* env_file_name,
@@ -394,9 +422,16 @@ void ae_exp_manager::load_experiment( char* exp_setup_file_name,
   #endif // def __X11
 }
 
+/*!
+  Run the simulation
+ */
 void ae_exp_manager::run_evolution( void )
 {
-  // dump the initial state of the population; useful for restarts
+  // We are ,running a simulation.
+  // Save the setup files to keep track of the setup history
+  write_setup_files();
+  
+  // Dump the initial state of the population; useful for restarts
   _output_m->write_current_generation_outputs();
   
   while ( _num_gener < _last_gener )

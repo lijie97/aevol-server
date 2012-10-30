@@ -104,6 +104,9 @@ class ae_exp_manager : public ae_object
     inline int16_t                get_grid_width( void ) const;
     inline int16_t                get_grid_height( void ) const;
     
+    
+    // The ability to own a plasmid is a property of the individuals
+    //~ inline bool     get_allow_plasmids( void ) const;
     inline bool     get_with_plasmid_HT( void ) const;
     
     inline bool   fitness_is_composite( void ) const;
@@ -177,16 +180,21 @@ class ae_exp_manager : public ae_object
     // =================================================================
     //                          Protected Attributes
     // =================================================================
+    // Pseudo-Random Number Generator
     ae_rand_mt* _alea;
     
+    // Population, Experimental setup and output manager
     ae_population*      _pop;
     ae_exp_setup*       _exp_s;
     ae_output_manager*  _output_m;
     
-    int32_t _num_gener;
+    // Generation numbers (first, last and current)
     int32_t _first_gener;
     int32_t _last_gener;
+    int32_t _num_gener;
     
+    // Set to true when ctrl-Q is received. Will cause the simulation
+    // to be ended after current generation is completed
     bool _quit_signal_received;
 };
 
@@ -270,6 +278,12 @@ inline int16_t ae_exp_manager::get_grid_height( void ) const
   return _exp_s->get_grid_height();
 }
 
+// The ability to own a plasmid is a property of the individuals
+//~ inline bool ae_exp_manager::get_allow_plasmids( void ) const
+//~ {
+  //~ return _exp_s->get_with_plasmid_HT();
+//~ }
+
 inline bool ae_exp_manager::get_with_plasmid_HT( void ) const
 {
   return _exp_s->get_with_plasmid_HT();
@@ -322,7 +336,7 @@ inline ae_list* ae_exp_manager::get_indivs( void ) const
 // =====================================================================
 inline void ae_exp_manager::set_first_gener( int32_t first_gener )
 {
-  _first_gener = first_gener;
+  _num_gener = _first_gener = first_gener;
 }
 
 inline void ae_exp_manager::set_nb_gener( int32_t nb_gener )

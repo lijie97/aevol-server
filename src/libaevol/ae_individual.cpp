@@ -102,7 +102,7 @@ ae_individual::ae_individual( ae_exp_manager* exp_m,
   
   // ID and rank of the indiv ; "age" of the strain
   set_id( id );
-  _rank = -1;
+  _rank = -1; // TODO: UNRANKED
   _age = age;
   
   _phenotype_activ = new ae_fuzzy_set();

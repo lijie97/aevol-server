@@ -103,7 +103,11 @@ int main( int argc, char* argv[] )
   param_loader* my_param_loader = new param_loader( param_file_name );
   
   // 6) Initialize the experiment manager
-  ae_exp_manager* exp_manager = new ae_exp_manager_X11();
+  #ifndef __NO_X
+    ae_exp_manager* exp_manager = new ae_exp_manager_X11();
+  #else
+    ae_exp_manager* exp_manager = new ae_exp_manager();
+  #endif
   
   // 7) Load the parameter file
   my_param_loader->load( exp_manager, true );

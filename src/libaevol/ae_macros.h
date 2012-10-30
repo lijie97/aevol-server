@@ -5,21 +5,46 @@
                           //            and make changes where necessary
 
 // Backup directories and file name formats
+// Environment
 #define ENV_DIR               "environment"
-#define POP_DIR               "populations"
-#define SP_STRUCT_DIR         "spatial_structure"
 #define ENV_FNAME_BASE        "env_%06"PRId32
+// Population
+#define POP_DIR               "populations"
 #define POP_FNAME_BASE        "pop_%06"PRId32
+// Spatial Structure
+#define SP_STRUCT_DIR         "spatial_structure"
 #define SP_STRUCT_FNAME_BASE  "sp_struct_%06"PRId32
+// Experimental Setup
+#define EXP_S_DIR             "exp_setup"
+#define EXP_S_FNAME_BASE      "exp_setup_%06"PRId32
+// Output Profile
+#define OUT_P_DIR             "output_profile"
+#define OUT_P_FNAME_BASE      "output_profile_%06"PRId32
+// Stats
+#define STATS_DIR             "stats"
 
 #ifdef __REGUL
-  #define ENV_FNAME_FORMAT        ENV_DIR"/"ENV_FNAME_BASE".rae"
-  #define POP_FNAME_FORMAT        POP_DIR"/"POP_FNAME_BASE".rae"
-  #define SP_STRUCT_FNAME_FORMAT  SP_STRUCT_DIR"/"SP_STRUCT_FNAME_BASE".rae"
+  #define ENV_FNAME_FORMAT          ENV_DIR"/"ENV_FNAME_BASE".rae"
+  #define POP_FNAME_FORMAT          POP_DIR"/"POP_FNAME_BASE".rae"
+  #define SP_STRUCT_FNAME_FORMAT    SP_STRUCT_DIR"/"SP_STRUCT_FNAME_BASE".rae"
+  #define EXP_S_FNAME_FORMAT        EXP_S_DIR"/"EXP_S_FNAME_BASE".rae"
+  #define EXP_S_TXT_FNAME_FORMAT    EXP_S_DIR"/"EXP_S_FNAME_BASE".in"
+  #define EXP_S_CUR_FNAME           "exp_setup.rae"
+  #define EXP_S_TXT_CUR_FNAME       "exp_setup.in"
+  #define OUT_P_FNAME_FORMAT        OUT_P_DIR"/"OUT_P_FNAME_BASE".rae"
+  #define OUT_P_TXT_FNAME_FORMAT    OUT_P_DIR"/"OUT_P_FNAME_BASE".in"
 #else
-  #define ENV_FNAME_FORMAT        ENV_DIR"/"ENV_FNAME_BASE".ae"
-  #define POP_FNAME_FORMAT        POP_DIR"/"POP_FNAME_BASE".ae"
-  #define SP_STRUCT_FNAME_FORMAT  SP_STRUCT_DIR"/"SP_STRUCT_FNAME_BASE".ae"
+  #define ENV_FNAME_FORMAT          ENV_DIR"/"ENV_FNAME_BASE".ae"
+  #define POP_FNAME_FORMAT          POP_DIR"/"POP_FNAME_BASE".ae"
+  #define SP_STRUCT_FNAME_FORMAT    SP_STRUCT_DIR"/"SP_STRUCT_FNAME_BASE".ae"
+  #define EXP_S_FNAME_FORMAT        EXP_S_DIR"/"EXP_S_FNAME_BASE".ae"
+  #define EXP_S_TXT_FNAME_FORMAT    EXP_S_DIR"/"EXP_S_FNAME_BASE".in"
+  #define EXP_S_CUR_FNAME           "exp_setup.ae"
+  #define EXP_S_TXT_CUR_FNAME       "exp_setup.in"
+  #define OUT_P_FNAME_FORMAT        OUT_P_DIR"/"OUT_P_FNAME_BASE".ae"
+  #define OUT_P_TXT_FNAME_FORMAT    OUT_P_DIR"/"OUT_P_FNAME_BASE".in"
+  #define OUT_P_CUR_FNAME           "output_profile.ae"
+  #define OUT_P_TXT_CUR_FNAME       "output_profile.in"
 #endif
 
 #define FIXED_POPULATION_SIZE // Some calculation can be spared if we know that the size of the population is fixed
@@ -63,3 +88,4 @@
 
 #define SC_MATCH_BONUS    INT8_C(1)
 #define SC_MISMATCH_COST  INT8_C(2)
+

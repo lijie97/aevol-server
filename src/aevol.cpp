@@ -294,6 +294,10 @@ int main( int argc, char* argv[] )
     exp_manager->set_nb_gener( nb_gener );
   }
   
+  // Make a numbered copy of each static input file (dynamic files are saved elsewhere)
+  
+  
+  
   delete [] exp_setup_file_name;
   delete [] out_prof_file_name;
   delete [] env_file_name;
