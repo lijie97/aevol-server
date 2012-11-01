@@ -137,7 +137,7 @@ class ae_spatial_structure : public ae_object
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ae_rand_mt* _alea;
+    ae_jumping_mt* _alea;
     
     int16_t _grid_width; 
     int16_t _grid_height;

@@ -137,7 +137,7 @@ ae_tree::ae_tree( char* backup_file_name, char* tree_file_name )
   //~ }
 
   //~ // Retreive random generator state and get rid of it
-  //~ ae_rand_mt* alea = new ae_rand_mt( backup_file );
+  //~ ae_jumping_mt* alea = new ae_jumping_mt( backup_file );
   //~ delete alea;
 
   //~ // Retreive common data

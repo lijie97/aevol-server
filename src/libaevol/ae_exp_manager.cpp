@@ -437,7 +437,10 @@ void ae_exp_manager::run_evolution( void )
   while ( _num_gener < _last_gener )
   {
     printf( "============================== %"PRId32" ==============================\n", _num_gener );
-    printf( "  distance to target (metabolic) : %f\n", ((ae_individual *) _pop->get_indivs()->get_last()->get_obj())->get_dist_to_target_by_feature( METABOLISM ) );
+    printf( "  distance to target (metabolic) : %f\n",
+            ((ae_individual *) _pop->get_indivs()->get_last()->get_obj())->get_dist_to_target_by_feature( METABOLISM ) );
+    printf( "  number of jumps : %"PRId32"\ntotal time : %f ms\t time per jump : %f µs\n",
+            ae_jumping_mt::nb_jumps, ae_jumping_mt::jump_time, 1000*ae_jumping_mt::jump_time/ae_jumping_mt::nb_jumps );
 
     if ( quit_signal_received() ) break;
     

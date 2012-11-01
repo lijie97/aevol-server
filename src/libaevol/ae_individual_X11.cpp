@@ -63,7 +63,7 @@
 //                             Constructors
 // =================================================================
 ae_individual_X11::ae_individual_X11( ae_exp_manager* exp_m,
-                                      ae_rand_mt* alea,
+                                      ae_jumping_mt* alea,
                                       ae_params_mut* param_mut,
                                       double w_max,
                                       int32_t min_genome_length,

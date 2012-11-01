@@ -46,7 +46,7 @@
 // =================================================================
 #include <ae_object.h>
 #include <ae_env_segment.h>
-#include <ae_rand_mt.h>
+#include <ae_jumping_mt.h>
 #include <ae_fuzzy_set.h>
 
 #ifdef __X11
@@ -109,7 +109,7 @@ class ae_environment : public ae_fuzzy_set_X11
     inline void   set_sampling( int16_t val );
     inline void   set_segmentation( int16_t nb_segments, double* boundaries, ae_env_axis_feature* features, bool separate_segments = false );
     inline void   set_variation_method( ae_env_var var_method );
-    inline void   set_alea_var( ae_rand_mt* alea_var );
+    inline void   set_prng_var( ae_jumping_mt* prng_var );
     inline void   set_var_sigma( double sigma );
     inline void   set_var_tau( int32_t tau );
     inline void   set_var_sigma_tau( double sigma, int32_t tau );
@@ -181,13 +181,13 @@ class ae_environment : public ae_fuzzy_set_X11
     double* _area_by_feature; // Geometric area of each feature
     
     // Variation management
-    ae_rand_mt* _alea_var;
-    ae_env_var  _variation_method;
-    double      _var_sigma;         // Autoregressive mean variation sigma parameter
-    int32_t     _var_tau;           // Autoregressive mean variation tau parameter
+    ae_jumping_mt*  _prng_var;
+    ae_env_var      _variation_method;
+    double          _var_sigma;         // Autoregressive mean variation sigma parameter
+    int32_t         _var_tau;           // Autoregressive mean variation tau parameter
     
     // Noise management
-    ae_rand_mt* _alea_noise;
+    ae_jumping_mt*  _prng_noise;
     
 };
 
@@ -293,9 +293,9 @@ inline void ae_environment::set_variation_method( ae_env_var var_method )
   _variation_method = var_method;
 }
 
-inline void ae_environment::set_alea_var( ae_rand_mt* alea_var )
+inline void ae_environment::set_prng_var( ae_jumping_mt* prng_var )
 {
-  _alea_var = alea_var;
+  _prng_var = prng_var;
 }
 
 inline void ae_environment::set_var_sigma( double sigma )

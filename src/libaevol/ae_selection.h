@@ -102,7 +102,7 @@ class ae_selection : public ae_object
     //                        Accessors: setters
     // =================================================================
     // ----------------------------------------- Pseudo-random number generator
-    inline void set_alea( ae_rand_mt* alea );
+    inline void set_prng( ae_jumping_mt* prng );
 
     // -------------------------------------------------------------- Selection
     inline void set_selection_scheme( ae_selection_scheme sel_scheme );
@@ -181,7 +181,7 @@ class ae_selection : public ae_object
     ae_exp_manager* _exp_m;
     
     // ----------------------------------------- Pseudo-random number generator
-    ae_rand_mt* _alea;
+    ae_jumping_mt* _prng;
 
     // -------------------------------------------------------------- Selection
     ae_selection_scheme  _selection_scheme;
@@ -288,9 +288,9 @@ inline double ae_selection::get_secretion_cost( void ) const
 //                           Setters' definitions
 // =====================================================================
 // ----------------------------------------- Pseudo-random number generator
-inline void ae_selection::set_alea( ae_rand_mt* alea )
+inline void ae_selection::set_prng( ae_jumping_mt* prng )
 {
-  _alea = alea;
+  _prng = prng;
 }
 
 // -------------------------------------------------------------- Selection

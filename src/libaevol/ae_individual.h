@@ -81,7 +81,7 @@ class ae_individual : public ae_object
     //                             Constructors
     // =================================================================
     ae_individual(  ae_exp_manager* exp_m,
-                    ae_rand_mt* alea, 
+                    ae_jumping_mt* prng, 
                     ae_params_mut* param_mut,
                     double w_max,
                     int32_t min_genome_length,
@@ -239,6 +239,8 @@ class ae_individual : public ae_object
     void compute_statistical_data();
     void compute_non_coding( void );
     /*void compute_modularity( void );*/
+    
+    inline void do_prng_jump( void );
 
     virtual void save( gzFile* backup_file ) const;
     
@@ -302,7 +304,7 @@ class ae_individual : public ae_object
     int32_t _age;
     
     // Random number generator
-    ae_rand_mt* _alea;
+    ae_jumping_mt* _prng;
   
     // Individual ID and rank of the individual in the population
     // WARNING : The ID is no longer corresponding to the rank of the individual.
@@ -1163,6 +1165,11 @@ void ae_individual::do_transcription_translation_folding( void )
   do_folding();
   
   make_protein_list();
+}
+
+inline void ae_individual::do_prng_jump( void )
+{
+  _prng->jump();
 }
 
 #ifdef DEBUG

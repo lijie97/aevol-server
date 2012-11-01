@@ -67,77 +67,88 @@ am_aevol_OBJECTS = aevol-aevol.$(OBJEXT)
 aevol_OBJECTS = $(am_aevol_OBJECTS)
 aevol_LDADD = $(LDADD)
 @WITH_RAEVOL_FALSE@aevol_DEPENDENCIES =  \
-@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a \
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
 @WITH_RAEVOL_TRUE@aevol_DEPENDENCIES =  \
 @WITH_RAEVOL_TRUE@	$(top_srcdir)/src/libaevol/libraevol.a
 am_aevol_IN2P3_OBJECTS = aevol_IN2P3-aevol.$(OBJEXT)
 aevol_IN2P3_OBJECTS = $(am_aevol_IN2P3_OBJECTS)
 aevol_IN2P3_LDADD = $(LDADD)
 @WITH_RAEVOL_FALSE@aevol_IN2P3_DEPENDENCIES =  \
-@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a \
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
 @WITH_RAEVOL_TRUE@aevol_IN2P3_DEPENDENCIES =  \
 @WITH_RAEVOL_TRUE@	$(top_srcdir)/src/libaevol/libraevol.a
 am_aevol_X11_OBJECTS = aevol_X11-aevol.$(OBJEXT)
 aevol_X11_OBJECTS = $(am_aevol_X11_OBJECTS)
 aevol_X11_LDADD = $(LDADD)
 @WITH_RAEVOL_FALSE@aevol_X11_DEPENDENCIES =  \
-@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a \
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
 @WITH_RAEVOL_TRUE@aevol_X11_DEPENDENCIES =  \
 @WITH_RAEVOL_TRUE@	$(top_srcdir)/src/libaevol/libraevol.a
 am_aevol_X11_debug_OBJECTS = aevol_X11_debug-aevol.$(OBJEXT)
 aevol_X11_debug_OBJECTS = $(am_aevol_X11_debug_OBJECTS)
 aevol_X11_debug_LDADD = $(LDADD)
 @WITH_RAEVOL_FALSE@aevol_X11_debug_DEPENDENCIES =  \
-@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a \
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
 @WITH_RAEVOL_TRUE@aevol_X11_debug_DEPENDENCIES =  \
 @WITH_RAEVOL_TRUE@	$(top_srcdir)/src/libaevol/libraevol.a
 am_aevol_debug_OBJECTS = aevol_debug-aevol.$(OBJEXT)
 aevol_debug_OBJECTS = $(am_aevol_debug_OBJECTS)
 aevol_debug_LDADD = $(LDADD)
 @WITH_RAEVOL_FALSE@aevol_debug_DEPENDENCIES =  \
-@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a \
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
 @WITH_RAEVOL_TRUE@aevol_debug_DEPENDENCIES =  \
 @WITH_RAEVOL_TRUE@	$(top_srcdir)/src/libaevol/libraevol.a
 am_create_exp_OBJECTS = create_exp-create_exp.$(OBJEXT)
 create_exp_OBJECTS = $(am_create_exp_OBJECTS)
 create_exp_LDADD = $(LDADD)
 @WITH_RAEVOL_FALSE@create_exp_DEPENDENCIES =  \
-@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a \
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
 @WITH_RAEVOL_TRUE@create_exp_DEPENDENCIES =  \
 @WITH_RAEVOL_TRUE@	$(top_srcdir)/src/libaevol/libraevol.a
 am_raevol_OBJECTS = raevol-aevol.$(OBJEXT)
 raevol_OBJECTS = $(am_raevol_OBJECTS)
 raevol_LDADD = $(LDADD)
 @WITH_RAEVOL_FALSE@raevol_DEPENDENCIES =  \
-@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a \
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
 @WITH_RAEVOL_TRUE@raevol_DEPENDENCIES =  \
 @WITH_RAEVOL_TRUE@	$(top_srcdir)/src/libaevol/libraevol.a
 am_raevol_IN2P3_OBJECTS = raevol_IN2P3-aevol.$(OBJEXT)
 raevol_IN2P3_OBJECTS = $(am_raevol_IN2P3_OBJECTS)
 raevol_IN2P3_LDADD = $(LDADD)
 @WITH_RAEVOL_FALSE@raevol_IN2P3_DEPENDENCIES =  \
-@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a \
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
 @WITH_RAEVOL_TRUE@raevol_IN2P3_DEPENDENCIES =  \
 @WITH_RAEVOL_TRUE@	$(top_srcdir)/src/libaevol/libraevol.a
 am_raevol_X11_OBJECTS = raevol_X11-aevol.$(OBJEXT)
 raevol_X11_OBJECTS = $(am_raevol_X11_OBJECTS)
 raevol_X11_LDADD = $(LDADD)
 @WITH_RAEVOL_FALSE@raevol_X11_DEPENDENCIES =  \
-@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a \
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
 @WITH_RAEVOL_TRUE@raevol_X11_DEPENDENCIES =  \
 @WITH_RAEVOL_TRUE@	$(top_srcdir)/src/libaevol/libraevol.a
 am_raevol_X11_debug_OBJECTS = raevol_X11_debug-aevol.$(OBJEXT)
 raevol_X11_debug_OBJECTS = $(am_raevol_X11_debug_OBJECTS)
 raevol_X11_debug_LDADD = $(LDADD)
 @WITH_RAEVOL_FALSE@raevol_X11_debug_DEPENDENCIES =  \
-@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a \
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
 @WITH_RAEVOL_TRUE@raevol_X11_debug_DEPENDENCIES =  \
 @WITH_RAEVOL_TRUE@	$(top_srcdir)/src/libaevol/libraevol.a
 am_raevol_debug_OBJECTS = raevol_debug-aevol.$(OBJEXT)
 raevol_debug_OBJECTS = $(am_raevol_debug_OBJECTS)
 raevol_debug_LDADD = $(LDADD)
 @WITH_RAEVOL_FALSE@raevol_debug_DEPENDENCIES =  \
-@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a \
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
 @WITH_RAEVOL_TRUE@raevol_debug_DEPENDENCIES =  \
 @WITH_RAEVOL_TRUE@	$(top_srcdir)/src/libaevol/libraevol.a
 DEFAULT_INCLUDES = -I.@am__isrc@
@@ -297,7 +308,9 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 
-######################    variables    ########################
+############################################
+#                 Variables                #
+############################################
 SUBDIRS = libaevol #post_treatments
 
 ############################################
@@ -308,7 +321,7 @@ SUBDIRS = libaevol #post_treatments
 # __STDC_LIMIT_MACROS allows us to use exact-width integer limit macros with e.g. INT32_MAX
 AM_CPPFLAGS = -I./ -I$(top_srcdir)/src/libaevol -D__STDC_FORMAT_MACROS \
 	-D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS
-@WITH_RAEVOL_FALSE@LDADD = $(top_srcdir)/src/libaevol/libaevol.a
+@WITH_RAEVOL_FALSE@LDADD = $(top_srcdir)/src/libaevol/libaevol.a $(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
 
 ############################################
 # Set programs to build and library to use #

@@ -98,7 +98,7 @@ ae_exp_setup::ae_exp_setup( ae_exp_manager* exp_m )
   }
   
   // Create a pseudo-random number generator
-  alea = new ae_rand_mt( ae_common::init_params->get_seed() );
+  prng = new ae_jumping_mt( ae_common::init_params->get_seed() );
   
   #ifdef __REGUL
     // Initialisation of the evaluation dates
@@ -187,7 +187,7 @@ ae_exp_setup::ae_exp_setup( ae_exp_manager* exp_m )
   }
   
   // Create a pseudo-random number generator
-  alea = new ae_rand_mt( ae_common::init_params->get_seed() );
+  prng = new ae_jumping_mt( ae_common::init_params->get_seed() );
   
   #ifdef __REGUL
   // Initialisation of the evaluation dates
@@ -294,7 +294,7 @@ ae_exp_setup::ae_exp_setup( ae_exp_manager* exp_m )
 
   // Retrieve random generator state
   printf( "  Loading random generator\n" );
-  alea = new ae_rand_mt( backup_file );
+  prng = new ae_jumping_mt( backup_file );
 
   // Retreive common data
   printf( "  Loading common data\n" );
@@ -306,8 +306,8 @@ ae_exp_setup::ae_exp_setup( ae_exp_manager* exp_m )
     if ( ae_common::init_params->get_seed() != seed_from_backup )
     {
       // We need to reseed
-      delete alea;
-      alea = new ae_rand_mt( ae_common::init_params->get_seed() );
+      delete prng;
+      prng = new ae_jumping_mt( ae_common::init_params->get_seed() );
     }
   }
 
@@ -418,7 +418,7 @@ ae_exp_setup::~ae_exp_setup( void )
 //void ae_exp_setup::create_from_param_file( ae_param_loader* param_loader, ae_param_overloader* param_overloader /*= NULL*/ )
 /*{ 
   // Create a pseudo-random number generator
-  alea = new ae_rand_mt( ae_common::init_params->get_seed() );
+  prng = new ae_jumping_mt( ae_common::init_params->get_seed() );
   
   #ifdef __REGUL
     // Initialisation of the evaluation dates

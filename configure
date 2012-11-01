@@ -602,6 +602,8 @@ WITH_IN2P3_FALSE
 WITH_IN2P3_TRUE
 WITH_RAEVOL_FALSE
 WITH_RAEVOL_TRUE
+ENABLE_FORCEPJ_FALSE
+ENABLE_FORCEPJ_TRUE
 X_EXTRA_LIBS
 X_LIBS
 X_PRE_LIBS
@@ -704,6 +706,8 @@ enable_option_checking
 enable_dependency_tracking
 with_x
 with_debug
+enable_mtperiod
+enable_trivialjumps
 with_raevol
 with_in2p3
 '
@@ -1341,6 +1345,30 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --disable-dependency-tracking  speeds up one-time build
   --enable-dependency-tracking   do not reject slow dependency extractors
+  --enable-mtperiod=period
+        Set the Mersenne Twister period to 2^period (default is 2^607).
+
+        Possible values are 607, 1279, 2281, 4253, 11213, 19937, 44497,
+          86243, 132049 and 216091
+
+        Consider using in conjunction with --enable-trivialjumps for
+          large periods
+
+  --enable-trivialjumps=jumpsize
+        When this option is set, a trivial jump algorithm will be used instead
+        of the polynomial-based method.
+
+        This is recommended for large Mersenne Twister periods when huge jumps
+        are not needed since the polynomial-based method takes more time in that
+        case.
+
+        For the standard MT (period 2^19937), it takes approx. the same time to
+        draw a few million numbers than it does to make the same jump using the
+        polynomial-based method.
+
+        The jumpsize argument allows to set the desired jump size. The default
+        value is 1000 which is enough to avoid overlaps in most cases.
+
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -5424,12 +5452,16 @@ ac_config_commands="$ac_config_commands make"
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking checking parameter consistency" >&5
 $as_echo_n "checking checking parameter consistency... " >&6; }
 if test "x$with_in2p3" = "xyes" ; then
-if test "x$with_debug" = "xyes" ; then
-   as_fn_error "debug and in2p3 are not compatible" "$LINENO" 5
-fi
-if test "x$with_x" != xno ; then
-   as_fn_error "x and in2p3 are not compatible" "$LINENO" 5
-fi
+  if test "x$with_debug" = "xyes" ; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: FAIL" >&5
+$as_echo "FAIL" >&6; }
+    as_fn_error "debug and in2p3 are not compatible" "$LINENO" 5
+  fi
+  if test "x$with_x" != xno ; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: FAIL" >&5
+$as_echo "FAIL" >&6; }
+    as_fn_error "x and in2p3 are not compatible" "$LINENO" 5
+  fi
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: OK" >&5
 $as_echo "OK" >&6; }
@@ -5468,8 +5500,6 @@ else
 
    CXXFLAGS="-O3 -ffast-math -pipe -fexpensive-optimizations"
 fi
-
-
 
 
 
@@ -6147,6 +6177,70 @@ fi
 
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to use a particular period for the Mersenne Twister" >&5
+$as_echo_n "checking whether to use a particular period for the Mersenne Twister... " >&6; }
+
+# Check whether --enable-mtperiod was given.
+if test "${enable_mtperiod+set}" = set; then :
+  enableval=$enable_mtperiod; period=$enableval
+else
+  period=607
+fi
+
+
+if  test $period != 607 && test $period != 1279 && test $period != 2281 && test $period != 4253 && test $period != 11213 && test $period != 19937 &&
+    test $period != 44497 && test $period != 86243 && test $period != 132049 && test $period != 216091 ; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: FAIL" >&5
+$as_echo "FAIL" >&6; }
+  as_fn_error "$period is not a valid Mersenne Twister period" "$LINENO" 5
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $period" >&5
+$as_echo "$period" >&6; }
+cat >>confdefs.h <<_ACEOF
+#define SFMT_MEXP $period
+_ACEOF
+
+
+
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to use trivial Mersenne Twister jumps" >&5
+$as_echo_n "checking whether to use trivial Mersenne Twister jumps... " >&6; }
+# Check whether --enable-trivialjumps was given.
+if test "${enable_trivialjumps+set}" = set; then :
+  enableval=$enable_trivialjumps; trivialjumps=$enableval
+else
+  trivialjumps=no
+fi
+
+if test "x$trivialjumps" != "xyes" && test "x$trivialjumps" != "xno" ; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes ($trivialjumps)" >&5
+$as_echo "yes ($trivialjumps)" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $trivialjumps" >&5
+$as_echo "$trivialjumps" >&6; }
+fi
+ if test x"$trivialjumps" != xno; then
+  ENABLE_FORCEPJ_TRUE=
+  ENABLE_FORCEPJ_FALSE='#'
+else
+  ENABLE_FORCEPJ_TRUE='#'
+  ENABLE_FORCEPJ_FALSE=
+fi
+
+if test "x$trivialjumps" = "xyes" ; then
+  $as_echo "#define TRIVIAL_METHOD_JUMP_SIZE 1000" >>confdefs.h
+
+elif test "x$trivialjumps" != "xno" ; then
+  cat >>confdefs.h <<_ACEOF
+#define TRIVIAL_METHOD_JUMP_SIZE $trivialjumps
+_ACEOF
+
+fi
+
+
+
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to use raevol" >&5
 $as_echo_n "checking whether to use raevol... " >&6; }
@@ -6172,7 +6266,6 @@ if test "x$raevol" = "xyes" ; then
    $as_echo "#define __REGUL 1" >>confdefs.h
 
 fi
-
 
 
 
@@ -6207,7 +6300,7 @@ fi
 
 
 
-ac_config_files="$ac_config_files Makefile src/Makefile src/libaevol/Makefile src/post_treatments/Makefile"
+ac_config_files="$ac_config_files Makefile src/Makefile src/libaevol/Makefile src/libaevol/SFMT-src-1.4/Makefile src/post_treatments/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -6368,6 +6461,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${WITH_X_TRUE}" && test -z "${WITH_X_FALSE}"; then
   as_fn_error "conditional \"WITH_X\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${ENABLE_FORCEPJ_TRUE}" && test -z "${ENABLE_FORCEPJ_FALSE}"; then
+  as_fn_error "conditional \"ENABLE_FORCEPJ\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${WITH_RAEVOL_TRUE}" && test -z "${WITH_RAEVOL_FALSE}"; then
@@ -6961,6 +7058,7 @@ do
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
     "src/libaevol/Makefile") CONFIG_FILES="$CONFIG_FILES src/libaevol/Makefile" ;;
+    "src/libaevol/SFMT-src-1.4/Makefile") CONFIG_FILES="$CONFIG_FILES src/libaevol/SFMT-src-1.4/Makefile" ;;
     "src/post_treatments/Makefile") CONFIG_FILES="$CONFIG_FILES src/post_treatments/Makefile" ;;
 
   *) as_fn_error "invalid argument: \`$ac_config_target'" "$LINENO" 5;;

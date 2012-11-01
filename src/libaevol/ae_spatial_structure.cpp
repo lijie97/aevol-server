@@ -64,7 +64,7 @@ ae_spatial_structure::ae_spatial_structure( void )
 
 ae_spatial_structure::ae_spatial_structure( gzFile* backup_file )
 {
-  _alea = new ae_rand_mt( backup_file );
+  _alea = new ae_jumping_mt( backup_file );
   
   gzread( backup_file, &_grid_width,  sizeof(_grid_width) );
   gzread( backup_file, &_grid_height, sizeof(_grid_height) );

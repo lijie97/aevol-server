@@ -47,7 +47,7 @@
 //                            Project Files
 // =================================================================
 #include <ae_object.h>
-#include <ae_rand_mt.h>
+#include <ae_jumping_mt.h>
 #include <ae_exp_setup.h>
 #include <ae_output_manager.h>
 #include <ae_population.h>
@@ -181,7 +181,7 @@ class ae_exp_manager : public ae_object
     //                          Protected Attributes
     // =================================================================
     // Pseudo-Random Number Generator
-    ae_rand_mt* _alea;
+    ae_jumping_mt* _prng;
     
     // Population, Experimental setup and output manager
     ae_population*      _pop;

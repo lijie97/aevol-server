@@ -24,222 +24,186 @@
 //*****************************************************************************
 
 
-/** \class
- *  \brief
- */
+/*! \class
+    \brief
+*/
 
 
-#ifndef __param_loader_H__
-#define  __param_loader_H__
+#ifndef __AE_JUMPING_MT_H__
+#define __AE_JUMPING_MT_H__
 
 
 // =================================================================
 //                              Libraries
 // =================================================================
 #include <inttypes.h>
-#include <stdio.h>
+#include <zlib.h>
+#include <math.h>
+#include <SFMT-src-1.4/SFMT.h>
+#include <SFMT-src-1.4/jump/SFMT-jump.h>
+
 
 
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <params.h>
-#include <ae_params_mut.h>
-#include <ae_jumping_mt.h>
+#include <ae_object.h>
+
+
 
 
 // =================================================================
 //                          Class declarations
 // =================================================================
-class ae_exp_manager;
-class ae_environment;
-class ae_individual;
-
-typedef enum
-{
-  MIN_TRIANGLE_WIDTH,
-  MAX_TRIANGLE_WIDTH,
-  ENV_AXIS_SEGMENTS,
-  ENV_AXIS_FEATURES,
-  ENV_SEPARATE_SEGMENTS,
-  BACKUP_STEP,
-  BIG_BACKUP_STEP,
-  RECORD_TREE,
-  TREE_MODE,
-  TREE_STEP,
-  MORE_STATS,
-  DUMP_STEP,
-  INITIAL_GENOME_LENGTH,
-  MIN_GENOME_LENGTH,
-  MAX_GENOME_LENGTH,
-  INIT_POP_SIZE,
-  NB_GENER,
-  POP_STRUCTURE,
-  MIGRATION_NUMBER, 
-  GRID_WIDTH,
-  GRID_HEIGHT,
-  INIT_METHOD,
-  POINT_MUTATION_RATE,
-  SMALL_INSERTION_RATE,
-  SMALL_DELETION_RATE,
-  MAX_INDEL_SIZE,
-  WITH_4PTS_TRANS,
-  WITH_ALIGNMENTS,
-  DUPLICATION_RATE,
-  DELETION_RATE,
-  TRANSLOCATION_RATE,
-  INVERSION_RATE,
-  WITH_TRANSFER,
-  SWAP_GUS,
-  TRANSFER_INS_RATE,
-  TRANSFER_REPL_RATE,
-  NEIGHBOURHOOD_RATE,
-  DUPLICATION_PROPORTION,
-  DELETION_PROPORTION,
-  TRANSLOCATION_PROPORTION,
-  INVERSION_PROPORTION,
-  ALIGN_FUNCTION,
-  ALIGN_MAX_SHIFT,
-  ALIGN_W_ZONE_H_LEN,
-  ALIGN_MATCH_BONUS,
-  ALIGN_MISMATCH_COST,
-  SELECTION_SCHEME,
-  SELECTION_PRESSURE,
-  SEED,
-  TRANSLATION_COST,
-  ENV_ADD_POINT,
-  ENV_ADD_GAUSSIAN,
-  ENV_SAMPLING,
-  ENV_VARIATION,
-  ENV_SEED,
-  SECRETION_CONTRIB_TO_FITNESS,
-  SECRETION_DIFFUSION_PROP,
-  SECRETION_DEGRADATION_PROP, 
-  SECRETION_INITIAL,
-  SECRETION_COST,
-  ALLOW_PLASMIDS,
-  PLASMID_INITIAL_LENGTH,
-  PLASMID_INITIAL_GENE,
-  PLASMID_MINIMAL_LENGTH,
-  PROB_PLASMID_HT,
-  NB_PLASMID_HT,
-  COMPUTE_PHEN_CONTRIB_BY_GU,
-  LOG,
-  GENERATION_OVERLOAD,
-
-#ifdef __REGUL
-  HILL_SHAPE_N,
-  HILL_SHAPE_THETA,
-  DEGRADATION_RATE,
-  DEGRADATION_STEP,
-  INDIVIDUAL_EVALUATION_DATES,
-  INDIVIDUAL_LIFE_TIME,
-  BINDING_ZEROS_PERCENTAGE,
-  WITH_HEREDITY,
-  PROTEIN_PRESENCE_LIMIT,
-#endif
-
-  UNDEFINED
-} ae_keywd;
 
 
-class f_line
+
+
+// MT_RAND_MAX = 2^32-1
+#define MT_RAND_MAX         4294967295.0
+#define MT_RAND_MAX_PLUS_1  4294967296.0
+
+
+
+
+
+class ae_jumping_mt : public ae_object
 {
   public :
-    f_line( void );
-
-    ae_keywd get_keywd( void );
-
-    int16_t nb_words;
-    char    words[50][255];
-};
-
-
-
-
-class param_loader
-{
-  public :
-
     // =================================================================
     //                             Constructors
     // =================================================================
-    param_loader( const char* file_name );
+    ae_jumping_mt( const uint32_t& simple_seed );   // Initialize with a simple uint32_t
+    ae_jumping_mt( const ae_jumping_mt &model );    // Create a copy of an existing generator
+    ae_jumping_mt( gzFile* backup_file );           // Load from a gz backup file
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~param_loader( void );
+    virtual ~ae_jumping_mt( void );
 
     // =================================================================
-    //                              Accessors
+    //                        Accessors: getters
+    // =================================================================
+
+    // =================================================================
+    //                        Accessors: setters
+    // =================================================================
+
+    // =================================================================
+    //                              Operators
     // =================================================================
 
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void read_file( void );
-    void load( ae_exp_manager* exp_m, bool verbose = false );
+    inline double   random( void );         // Double in [0, 1[ (uniform distribution)
+    inline int8_t   random( int8_t max );   // ~
+    inline int16_t  random( int16_t max );  // ~
+    inline int32_t  random( int32_t max );  // ~ > Integer in [0, max[ (uniform distribution)
+    inline int64_t  random( int64_t max );  // ~
+    int32_t         binomial_random( int32_t nb, double prob ); // Binomial drawing of parameters (nb, prob)
+    double          gaussian_random( void );                    // Double following a Standard Normal distribution
+    void            multinomial_drawing ( int32_t* destination, double* source, int32_t nb_drawings, int32_t colors );
+    // Multinomial drawing of parameters ( nb, {source[0], source[1], ... source[colors-1]} )
     
-    f_line* get_line( void ); 
+    void jump( void );
     
+    void save( gzFile* backup_file ) const;
+
     // =================================================================
     //                           Public Attributes
     // =================================================================
+    static int32_t nb_jumps;
+    static double  jump_time;
 
 
 
 
 
   protected :
-
+    
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    param_loader( void )
+    ae_jumping_mt( void )
     {
       printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
     };
-    param_loader( const param_loader &model )
+    /*ae_jumping_mt( const ae_jumping_mt &model )
     {
       printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
-    };
+    };*/
+
 
     // =================================================================
     //                           Protected Methods
     // =================================================================
-    static void format_line( f_line*, char*, bool* );
-    void interpret_line( f_line* line, int32_t cur_line );
-    ae_individual* create_random_individual( ae_exp_manager* exp_m, ae_params_mut* param_mut, int32_t id ) const;
-    ae_individual* create_random_individual_with_good_gene( ae_exp_manager* exp_m, ae_params_mut* param_mut, int32_t id ) const;
-    ae_individual* create_clone( ae_individual* dolly, int32_t id ) const;
-    
-    
+    static double gammln( double X );
 
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    //~ ae_exp_manager* _exp_m;
-    
-    ae_jumping_mt* _prng;
-    
-    char*   _param_file_name;
-    FILE*   _param_file;
-    
-    params* _param_values;
-    
-    int32_t _cur_line;
+    sfmt_t* _sfmt;
 };
 
 
 // =====================================================================
-//                          Accessors definitions
+//                           Getters' definitions
+// =====================================================================
+
+// =====================================================================
+//                           Setters' definitions
+// =====================================================================
+
+// =====================================================================
+//                          Operators' definitions
 // =====================================================================
 
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
+/*!
+  Draw a double precision real-number in [0, 1) with a uniform distribution
+ */
+inline double ae_jumping_mt::random( void )
+{
+  return sfmt_genrand_real2( _sfmt );
+}
 
-#endif // __param_loader_H__
+/*!
+  Draw an 8-bit integer in [0, max[ with a uniform distribution
+ */
+inline int8_t ae_jumping_mt::random( int8_t max )
+{
+  return (int8_t) floor( ((double)max) * sfmt_genrand_real2(_sfmt) );
+}
+
+/*!
+  Draw an 16-bit integer in [0, max[ with a uniform distribution
+ */
+inline int16_t ae_jumping_mt::random( int16_t max )
+{
+  return (int16_t) floor( ((double)max) * sfmt_genrand_real2(_sfmt) );
+}
+
+/*!
+  Draw an 32-bit integer in [0, max[ with a uniform distribution
+ */
+inline int32_t ae_jumping_mt::random( int32_t max )
+{
+  return (int32_t) floor( ((double)max) * sfmt_genrand_real2(_sfmt) );
+}
+
+/*!
+  Draw an 64-bit integer in [0, max[ with a uniform distribution
+ */
+inline int64_t ae_jumping_mt::random( int64_t max )
+{
+  return (int64_t) floor( ((double)max) * sfmt_genrand_real2(_sfmt) );
+}
+
+
+#endif // __AE_JUMPING_MT_H__

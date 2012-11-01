@@ -47,7 +47,7 @@
 #include <ae_population.h>
 #include <ae_individual.h>
 
-#include <ae_rand_mt.h>
+#include <ae_jumping_mt.h>
 #include <ae_gaussian.h>
 #include <ae_env_segment.h>
 #include <ae_point_2d.h>
@@ -86,7 +86,8 @@ class ae_environment;
 
 param_loader::param_loader( const char* file_name )
 {
-  _param_file  = fopen( file_name,  "r" );
+  _param_file_name = strdup( file_name );
+  _param_file  = fopen( _param_file_name,  "r" );
   
   if ( _param_file == NULL )
   {
@@ -105,6 +106,7 @@ param_loader::param_loader( const char* file_name )
 // =================================================================
 param_loader::~param_loader( void )
 {
+  free( _param_file_name );
   fclose( _param_file );
   
   delete _param_values;
@@ -727,7 +729,8 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
       _param_values->set_secretion_degradation_prop( atof( line->words[1] ) );
       if ( _param_values->get_secretion_degradation_prop() > 1 || _param_values->get_secretion_degradation_prop() < 0 ) 
       {
-        printf( "ERROR in param file \"%s\" on line %"PRId32" : degradation must be in (0,1).\n", _param_file_name, _cur_line );
+        printf( "ERROR in param file \"%s\" on line %"PRId32" : degradation must be in (0,1).\n",
+                _param_file_name, _cur_line );
         exit( EXIT_FAILURE );
       }
       break; 
@@ -861,7 +864,8 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
         // Check that 1/degradation_step is an integer
         if( 1/_param_values->get_degradation_step() != ((int) 1/_param_values->get_degradation_step()) )
         {
-          printf( "ERROR in param file \"%s\" on line %"PRId32" : DEGRADATION STEP\n", _param_file_name, _cur_line );
+          printf( "ERROR in param file \"%s\" on line %"PRId32" : DEGRADATION STEP\n",
+                  _param_file_name, _cur_line );
           printf( "This step has to divide 1.\n");
           exit( EXIT_FAILURE );
         }
@@ -872,7 +876,8 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
         _param_values->set_individual_evaluation_nbr( line->nb_words - 1 );
         if( _param_values->get_individual_evaluation_nbr() == 0 )
         {
-          printf( "ERROR in param file \"%s\" on line %"PRId32" : no evaluation dates provided\n", _param_file_name, _cur_line );
+          printf( "ERROR in param file \"%s\" on line %"PRId32" : no evaluation dates provided\n",
+                  _param_file_name, _cur_line );
           exit( EXIT_FAILURE );
         }
         ae_array_short* individual_evaluation_dates  = new ae_array_short( _param_values->get_individual_evaluation_nbr() );
@@ -901,7 +906,8 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
         }
         else
         {
-          printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown with_heredity option (use true/false).\n", _param_file_name, _cur_line );
+          printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown with_heredity option (use true/false).\n",
+                  _param_file_name, _cur_line );
           exit( EXIT_FAILURE ); 
         }
         
@@ -916,7 +922,8 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
     
     
     default :
-      printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown error\n", _param_file_name, _cur_line );
+      printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown error\n",
+              _param_file_name, _cur_line );
       exit( EXIT_FAILURE );
       break;
   }
@@ -942,7 +949,7 @@ void param_loader::read_file( void )
 
 void param_loader::load( ae_exp_manager* exp_m, bool verbose )
 {
-  _alea = new ae_rand_mt( _param_values->_seed );
+  _prng = new ae_jumping_mt( _param_values->_seed );
   
   // Create aliases (syntaxic sugars)
   ae_population*      pop       = exp_m->get_pop();
@@ -952,7 +959,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   ae_selection*       sel       = exp_s->get_sel();
   
   // 1) ------------------------------------- Initialize the experimental setup
-  sel->set_alea( new ae_rand_mt(*_alea) );
+  sel->set_prng( new ae_jumping_mt(*_prng) );
 
   // ---------------------------------------------------------------- Selection
   sel->set_selection_scheme( _param_values->_selection_scheme );
@@ -1009,7 +1016,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   if ( _param_values->get_env_var_method() != NONE )
   {
     env->set_variation_method( _param_values->get_env_var_method() );
-    env->set_alea_var( new ae_rand_mt( _param_values->get_env_seed() ) );
+    env->set_prng_var( new ae_jumping_mt( _param_values->get_env_seed() ) );
     env->set_var_sigma_tau( _param_values->get_env_var_sigma(), _param_values->get_env_var_tau() );
   }
   
@@ -1310,7 +1317,7 @@ ae_individual* param_loader::create_random_individual( ae_exp_manager* exp_m, ae
   char * random_genome = new char [_param_values->_initial_genome_length + 1];
   for ( int32_t i = 0 ; i < _param_values->_initial_genome_length ; i++ )
   {
-    random_genome[i] = '0' + _alea->random( NB_BASE );
+    random_genome[i] = '0' + _prng->random( NB_BASE );
   }
   random_genome[_param_values->_initial_genome_length] = 0;
   
@@ -1318,7 +1325,7 @@ ae_individual* param_loader::create_random_individual( ae_exp_manager* exp_m, ae
   // ------------------------------------------------------- Global constraints
   // Create an individual with this genome and set its id
   ae_individual* indiv = new ae_individual( exp_m,
-                                            new ae_rand_mt(*_alea),
+                                            new ae_jumping_mt(*_prng),
                                             param_mut,
                                             _param_values->_w_max,
                                             _param_values->_min_genome_length,
@@ -1328,9 +1335,9 @@ ae_individual* param_loader::create_random_individual( ae_exp_manager* exp_m, ae
                                             id, 0 );
   // <Graphical debug>
   //~ #ifdef __X11
-    //~ indiv = new ae_individual_X11( exp_m, new ae_rand_mt(*_alea), param_mut, _param_values->_w_max, id, 0 );
+    //~ indiv = new ae_individual_X11( exp_m, new ae_jumping_mt(*_prng), param_mut, _param_values->_w_max, id, 0 );
   //~ #else
-    //~ indiv = new ae_individual( exp_m, new ae_rand_mt(*_alea), param_mut, _param_values->_w_max, id, 0 );
+    //~ indiv = new ae_individual( exp_m, new ae_jumping_mt(*_prng), param_mut, _param_values->_w_max, id, 0 );
   //~ #endif
   // </Graphical debug>
   indiv->add_GU( random_genome, _param_values->_initial_genome_length );
@@ -1347,7 +1354,7 @@ ae_individual* param_loader::create_random_individual( ae_exp_manager* exp_m, ae
     
     for ( int32_t i = 0 ; i < seq_len ; i++ )
     {
-      ins_seq[i] = '0' + ae_common::sim->alea->random( NB_BASE );
+      ins_seq[i] = '0' + ae_common::sim->prng->random( NB_BASE );
     }
     ins_seq[seq_len] = '\0';
     

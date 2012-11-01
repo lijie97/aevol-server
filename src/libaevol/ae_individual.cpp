@@ -84,7 +84,7 @@
 
 */
 ae_individual::ae_individual( ae_exp_manager* exp_m,
-                              ae_rand_mt* alea,
+                              ae_jumping_mt* prng,
                               ae_params_mut* param_mut,
                               double w_max,
                               int32_t min_genome_length,
@@ -98,7 +98,10 @@ ae_individual::ae_individual( ae_exp_manager* exp_m,
   _exp_m = exp_m;
   
   // PRNG
-  _alea = alea;
+  _prng = prng;
+  
+  // Replication Report
+  _replic_report = NULL;
   
   // ID and rank of the indiv ; "age" of the strain
   set_id( id );
@@ -116,14 +119,11 @@ ae_individual::ae_individual( ae_exp_manager* exp_m,
   _fitness_by_feature         = new double [NB_FEATURES];
   
   _fitness = 0.0;
-  
   // When using structured population, this is the cell the individual is in
   _grid_cell = NULL;
   
   // The chromosome and plasmids (if allowed)
   _genetic_unit_list = new ae_list();
-  
-  _replic_report = NULL;
   
   _protein_list = new ae_list();
   _rna_list     = new ae_list();
@@ -207,7 +207,7 @@ ae_individual::ae_individual( ae_exp_manager* exp_m,
 */
 /*ae_individual::ae_individual( void )
 {
-  _alea = NULL;
+  _prng = NULL;
   _age  = 0;
   
   _index_in_population  = -1;
@@ -333,7 +333,7 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile* backup_file )
   gzread( backup_file, &_age, sizeof(_age) );
   
   // Retrieve the PRNG
-  _alea = new ae_rand_mt( backup_file );
+  _prng = new ae_jumping_mt( backup_file );
   
   // Retreive id and rank
   gzread( backup_file, &_id,    sizeof(_id) );
@@ -378,6 +378,7 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile* backup_file )
   _genetic_unit_list = new ae_list();
   int16_t nb_gen_units;
   gzread( backup_file, &nb_gen_units,  sizeof(nb_gen_units) );
+  
   for ( int16_t i = 0 ; i < nb_gen_units ; i++ )
   {
     _genetic_unit_list->add( new ae_genetic_unit( this, backup_file ) );
@@ -457,7 +458,7 @@ ae_individual::ae_individual( const ae_individual &model )
 {
   _exp_m = model._exp_m;
   
-  _alea = new ae_rand_mt( *(model._alea) );
+  _prng = new ae_jumping_mt( *(model._prng) );
   _age  = model._age;
   
   _id   = model._id;
@@ -589,11 +590,8 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id )
 {
   _exp_m = parent->_exp_m;
   
-  _alea = new ae_rand_mt( *(parent->_alea) );
-  // <tmp>
-  int tmp = rand() % 100;
-  for ( int i = 0 ; i < tmp ; i++ ) _alea->rand_next();
-  // </tmp>
+  _prng = new ae_jumping_mt( *(parent->_prng) );
+  
   _age  = parent->_age + 1;
   
   _id   = id;
@@ -722,7 +720,7 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id )
 */
 /*ae_individual::ae_individual( char* organism_file_name )
 {
-  _alea = NULL;
+  _prng = NULL;
   
   _index_in_population  = -1;
   _rank_in_population   = -1;
@@ -833,7 +831,7 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id )
 //ae_individual::ae_individual( char* genome, int32_t genome_size, int32_t age /*= 0*/ )
 /*{
   _age  = age;
-  _alea = NULL;
+  _prng = NULL;
   
   _index_in_population  = -1;
   _rank_in_population   = -1;
@@ -940,7 +938,7 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id )
 // =================================================================
 ae_individual::~ae_individual( void )
 {
-  delete _alea;
+  delete _prng;
   
   // The _replic_report pointer is destroyed, but not the report itself,
   // it will be deleted later, when the tree is written on disk and emptied.
@@ -1641,7 +1639,7 @@ void ae_individual::save( gzFile* backup_file ) const
   gzwrite( backup_file, &_age, sizeof(_age) );
   
   // Write the PRNG's state
-  _alea->save( backup_file );
+  _prng->save( backup_file );
   
   // Write id and rank
   gzwrite( backup_file, &_id,   sizeof(_id) );

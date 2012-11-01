@@ -1,4 +1,6 @@
-######################    variables    ########################
+############################################
+#                 Variables                #
+############################################
 SUBDIRS = libaevol #post_treatments
 
 AM_CPPFLAGS = -I./
@@ -32,7 +34,7 @@ AM_CPPFLAGS += -D__STDC_FORMAT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MA
 if WITH_RAEVOL
   LDADD = $(top_srcdir)/src/libaevol/libraevol.a
 else # WITHOUT_RAEVOL
-  LDADD = $(top_srcdir)/src/libaevol/libaevol.a
+  LDADD = $(top_srcdir)/src/libaevol/libaevol.a $(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
 endif # RAEVOL
 
 

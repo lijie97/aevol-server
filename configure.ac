@@ -69,12 +69,14 @@ dnl ****************************************************************************
 dnl  ******************* check option consistency ***************************
 AC_MSG_CHECKING([checking parameter consistency])
 if test "x$with_in2p3" = "xyes" ; then
-if test "x$with_debug" = "xyes" ; then
-   AC_ERROR([debug and in2p3 are not compatible])
-fi
-if test "x$with_x" != xno ; then
-   AC_ERROR([x and in2p3 are not compatible])
-fi
+  if test "x$with_debug" = "xyes" ; then
+    AC_MSG_RESULT([FAIL])
+    AC_MSG_ERROR([debug and in2p3 are not compatible])
+  fi
+  if test "x$with_x" != xno ; then
+    AC_MSG_RESULT([FAIL])
+    AC_MSG_ERROR([x and in2p3 are not compatible])
+  fi
 fi
 AC_MSG_RESULT([OK])
 
@@ -115,8 +117,6 @@ dnl   without this option, then typing make will produce aevol_X11,
 dnl   raevol_X11 and view_generation_X11 (and the other post-treatments 
 dnl   programs).
 
-
-
 AC_MSG_CHECKING([whether to enable graphical outputs])
 AC_ARG_WITH(x, [  --without-x to disable graphical output], , with_x=yes)
 AC_MSG_RESULT($with_x)
@@ -135,11 +135,89 @@ fi
 
 
 
+dnl  ************************* --enable-mtperiod=period option *******************************
+dnl
+dnl  This option sets a particular period for the Mersenne Twister.
+dnl  Default is --enable-mtperiod=607 corresponding to a period of 2^607.
+dnl  Possible values are 607, 1279, 2281, 4253, 11213, 19937, 44497, 86243, 132049 and 216091
+dnl
+
+AC_MSG_CHECKING([whether to use a particular period for the Mersenne Twister])
+
+AC_ARG_ENABLE(mtperiod,
+[  --enable-mtperiod=period
+        Set the Mersenne Twister period to 2^period (default is 2^607).
+        
+        Possible values are 607, 1279, 2281, 4253, 11213, 19937, 44497,
+          86243, 132049 and 216091
+          
+        Consider using in conjunction with --enable-trivialjumps for
+          large periods
+],
+period=$enableval,
+period=607)
+
+if  test $period != 607 && test $period != 1279 && test $period != 2281 && test $period != 4253 && test $period != 11213 && test $period != 19937 && 
+    test $period != 44497 && test $period != 86243 && test $period != 132049 && test $period != 216091 ; then
+  AC_MSG_RESULT([FAIL])
+  AC_MSG_ERROR([$period is not a valid Mersenne Twister period])
+fi
+
+AC_MSG_RESULT($period)
+AC_DEFINE_UNQUOTED([SFMT_MEXP], [$period])
+
+
+
+dnl  ************************* --enable-trivialjumps=jumpsize option *******************************
+dnl
+dnl  When this option is set, a trivial jump algorithm will be used instead of the polynomial-based method.
+dnl  This is recommended for large Mersenne Twister periods when huge jumps are not needed since
+dnl  the polynomial-based method takes more time in that case.
+dnl  
+dnl  For the standard MT (period 2^19937), it takes approx. the same time to draw a few million numbers
+dnl  than it does to make the same jump using the polynomial-based method.
+dnl
+dnl  The jumpsize argument allows to set the desired jump size. The default value is 1000 which is enough to
+dnl  avoid overlaps in most cases.
+dnl
+
+AC_MSG_CHECKING([whether to use trivial Mersenne Twister jumps])
+AC_ARG_ENABLE(trivialjumps,
+[  --enable-trivialjumps=jumpsize
+        When this option is set, a trivial jump algorithm will be used instead
+        of the polynomial-based method.
+        
+        This is recommended for large Mersenne Twister periods when huge jumps
+        are not needed since the polynomial-based method takes more time in that
+        case.
+        
+        For the standard MT (period 2^19937), it takes approx. the same time to
+        draw a few million numbers than it does to make the same jump using the
+        polynomial-based method.
+
+        The jumpsize argument allows to set the desired jump size. The default
+        value is 1000 which is enough to avoid overlaps in most cases.
+],
+trivialjumps=$enableval,
+trivialjumps=no)
+if test "x$trivialjumps" != "xyes" && test "x$trivialjumps" != "xno" ; then
+  AC_MSG_RESULT([yes ($trivialjumps)])
+else
+  AC_MSG_RESULT([$trivialjumps])
+fi
+AM_CONDITIONAL(ENABLE_FORCEPJ, test x"$trivialjumps" != xno)
+if test "x$trivialjumps" = "xyes" ; then
+  AC_DEFINE([TRIVIAL_METHOD_JUMP_SIZE], [1000])
+elif test "x$trivialjumps" != "xno" ; then
+  AC_DEFINE_UNQUOTED([TRIVIAL_METHOD_JUMP_SIZE], [$trivialjumps])
+fi
+
+
+
 dnl  ************************* --with-raevol option *******************************
 dnl
 dnl  With this option, regulation is enabled (RAevol) and the __REGUL flag is defined
 dnl
-
 
 AC_MSG_CHECKING([whether to use raevol])
 AC_ARG_WITH(raevol, [  --with-raevol to enable regulation], raevol=$withval, raevol=no)
@@ -155,7 +233,6 @@ fi
 dnl  ******************* --with-in2p3 option ***************************
 dnl
 dnl  With this option, the IN2P3 flag is defined
-
 
 AC_MSG_CHECKING([whether to use IN2P3 specific features])
 AC_ARG_WITH(in2p3, [  --with-in2p3 to enable IN2P3 specific features], , with_in2p3=no)
@@ -173,5 +250,6 @@ dnl  ************************* back to GENERAL stuff ***************************
 AC_CONFIG_FILES([Makefile
                  src/Makefile
                  src/libaevol/Makefile
+                 src/libaevol/SFMT-src-1.4/Makefile
                  src/post_treatments/Makefile])
 AC_OUTPUT

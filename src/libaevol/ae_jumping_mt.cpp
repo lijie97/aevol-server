@@ -33,70 +33,108 @@
 //                              Libraries
 // =================================================================
 #include <string.h>
-#include <assert.h>
+#include <time.h>
 
 
 
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_rand_mt.h>
+#include <ae_jumping_mt.h>
+#include <ae_jump_poly.h>
 
 
 
 
 //##############################################################################
 //                                                                             #
-//                               Class ae_rand_mt                              #
+//                             Class ae_jumping_mt                             #
 //                                                                             #
 //##############################################################################
 
 // =================================================================
 //                    Definition of static attributes
 // =================================================================
+int32_t ae_jumping_mt::nb_jumps   = 0;
+double  ae_jumping_mt::jump_time  = 0;
 
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_rand_mt::ae_rand_mt( const uint32_t simple_seed )
+/*!
+  Create a generator initialized with a simple uint32_t
+ */
+ae_jumping_mt::ae_jumping_mt( const uint32_t& simple_seed )
 {
-  seed( simple_seed );
+  _sfmt = new sfmt_t();
+  sfmt_init_gen_rand( _sfmt, simple_seed );
 }
 
-ae_rand_mt::ae_rand_mt( const ae_rand_mt& model )
+/*!
+  Create a copy of an existing generator
+ */
+ae_jumping_mt::ae_jumping_mt( const ae_jumping_mt& model )
 {
-  memcpy( state, model.state, N * sizeof(state[0]) );
-  left  = model.left;
-  pNext = &state[N-left];
+  _sfmt = new sfmt_t();
+  memcpy( _sfmt->state, model._sfmt->state, SFMT_N );
+  _sfmt->idx = model._sfmt->idx;
 }
 
-ae_rand_mt::ae_rand_mt( gzFile* backup_file )
+/*!
+  Load a generator from a gz backup file
+ */
+ae_jumping_mt::ae_jumping_mt( gzFile* backup_file )
 {
-  uint32_t loadArray[SAVE];
-  gzread( backup_file, loadArray, SAVE * sizeof( loadArray[0] ) );
-  load( loadArray );
+  _sfmt = new sfmt_t();
+  gzread( backup_file, _sfmt->state, SFMT_N * sizeof( _sfmt->state[0] ) );
+  gzread( backup_file, &(_sfmt->idx), sizeof( _sfmt->idx ) );
 }
 
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_rand_mt::~ae_rand_mt( void )
+ae_jumping_mt::~ae_jumping_mt( void )
 {
+  delete _sfmt;
 }
 
 // =================================================================
 //                            Public Methods
 // =================================================================
-int32_t ae_rand_mt::binomial_random( int32_t nb_drawings, double prob )
+/*!
+  Jump Ahead by a predefined jump length
+ */
+void ae_jumping_mt::jump( void )
 {
-  // Returns an integer value that is a random deviate drawn from 
-  // a binomial distribution of <nb> trials each of probability <prob>.
+  clock_t start, end;
+  start = clock();
+  
+  #ifdef TRIVIAL_METHOD_JUMP_SIZE
+    for ( int i = 0 ; i < TRIVIAL_METHOD_JUMP_SIZE ; i++ )
+    {
+      sfmt_genrand_real2( _sfmt );
+    }
+  #else
+    SFMT_jump( _sfmt, jump_poly );
+  #endif
+    
+  end = clock();
+  jump_time += (end - start) * 1000 / CLOCKS_PER_SEC;
+  nb_jumps++;
+}
 
+/*!
+  Binomial drawing of parameter (nb_drawings, prob).
+
+  Number of successes out of nb_drawings trials each of probability prob.
+ */
+int32_t ae_jumping_mt::binomial_random( int32_t nb_drawings, double prob )
+{
   int32_t nb_success;
 
   // The binomial distribution is invariant under changing 
   // ProbSuccess to 1-ProbSuccess, if we also change the answer to 
-  // NbTrials minus itself; we ll remember to do this below. // TODO : is it done?
+  // NbTrials minus itself; we ll remember to do this below.
   double p;
   if ( prob <= 0.5 ) p = prob;
   else p = 1.0 - prob;
@@ -105,21 +143,20 @@ int32_t ae_rand_mt::binomial_random( int32_t nb_drawings, double prob )
   double mean = nb_drawings * p; 
 
   
-  if ( nb_drawings < 25 ) 
+  if ( nb_drawings < 25 )
+  // Use the direct method while NbTrials is not too large. 
+  // This can require up to 25 calls to the uniform random. 
   {
-    // Use the direct method while NbTrials is not too large. 
-    // This can require up to 25 calls to the uniform random. 
     nb_success = 0; 
     for ( int32_t j = 1 ; j <= nb_drawings ; j++ ) 
     {
       if ( random() < p ) nb_success++; 
     }
   }
-  else if ( mean < 1.0 ) 
+  else if ( mean < 1.0 )
+  // If fewer than one event is expected out of 25 or more trials, 
+  // then the distribution is quite accurately Poisson. Use direct Poisson method. 
   {
-    // If fewer than one event is expected out of 25 or more trials, 
-    // then the distribution is quite accurately Poisson. Use direct Poisson method. 
-    
     double g = exp( -mean ); 
     double t = 1.0; 
     int32_t j;
@@ -134,9 +171,8 @@ int32_t ae_rand_mt::binomial_random( int32_t nb_drawings, double prob )
   }
 
   else
+  // Use the rejection method.
   {
-    // Use the rejection method.
-
     double en     = nb_drawings; 
     double oldg   = gammln( en + 1.0 ); 
     double pc     = 1.0 - p; 
@@ -171,7 +207,7 @@ int32_t ae_rand_mt::binomial_random( int32_t nb_drawings, double prob )
   return nb_success;
 }
 
-double ae_rand_mt::gaussian_random( void )
+double ae_jumping_mt::gaussian_random( void )
 {
   double x1, x2;
   double r = 0;
@@ -189,7 +225,7 @@ double ae_rand_mt::gaussian_random( void )
   return x1 * r;
 }
 
-void ae_rand_mt::multinomial_drawing( int32_t* destination, double* source, int32_t nb_drawings, int32_t nb_colors )
+void ae_jumping_mt::multinomial_drawing( int32_t* destination, double* source, int32_t nb_drawings, int32_t nb_colors )
 {
   //    This function generates a vector of random variates, each with the
   //    binomial distribution (source code from http://www.agner.org/random/).
@@ -262,47 +298,17 @@ void ae_rand_mt::multinomial_drawing( int32_t* destination, double* source, int3
   destination[nb_colors-1] = n;
 }
 
-void ae_rand_mt::multinomial_roulette( int32_t* destination, double* source, int32_t nb_drawings, int32_t nb_colors )
+void ae_jumping_mt::save( gzFile* backup_file ) const
 {
-  double rand_value;
-  
-  // Initialize output
-  memset( destination, 0, nb_colors * sizeof( *destination ) );
-  
-  // Make a table of accumulative probabilities
-  // Example : if source was { 0.25, 0.6, 0.15 }
-  //           accumulative_probs will be { 0.25, 0.85, 1.0 }
-  double* accumulative_probs = new double[nb_colors];
-  accumulative_probs[0] = source[0];
-  for ( int32_t i = 1 ; i < nb_colors ; i++ )
-  {
-    accumulative_probs[i] = accumulative_probs[i-1] + source[i];
-  }
-  
-  if ( accumulative_probs[nb_colors-1] - 1 > 0.0000000001 )
-  {
-    accumulative_probs[nb_colors-1] = 1.0;
-  }
-  
-  // Do the actual drawing
-  for ( int32_t i = 0 ; i < nb_drawings ; i++ )
-  {
-    rand_value = random();
-    
-    int32_t j = 0;
-    while ( rand_value >= accumulative_probs[j] ) j++;
-    
-    //~ printf( "rand_value = %f   accumulative_probs[j] = %f\n", rand_value, accumulative_probs[j] );
-    
-    destination[j]++;
-  }
+  gzwrite( backup_file, _sfmt->state, SFMT_N * sizeof( _sfmt->state[0] ) );
+  gzwrite( backup_file, &(_sfmt->idx), sizeof( _sfmt->idx ) );
 }
 
 
 // =================================================================
 //                           Protected Methods
 // =================================================================
-double ae_rand_mt::gammln( double X )
+double ae_jumping_mt::gammln( double X )
 // Returns the value ln[gamma(X)] for X.
 // The gamma function is defined by the integral  gamma(z) = int(0, +inf, t^(z-1).e^(-t)dt). 
 // When the argument z is an integer, the gamma function is just the familiar factorial 
@@ -328,3 +334,7 @@ double ae_rand_mt::gammln( double X )
 
   return -tmp + log(2.5066282746310005 * ser / x); 
 }
+
+// =================================================================
+//                          Non inline accessors
+// =================================================================

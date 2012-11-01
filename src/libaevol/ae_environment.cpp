@@ -83,13 +83,13 @@ ae_environment::ae_environment( void ) :
   _area_by_feature  = new double [NB_FEATURES];
   
   // Variation management
-  _alea_var         = NULL;
+  _prng_var         = NULL;
   _variation_method = NONE;  
   _var_sigma        = 0.0;
   _var_tau          = 0;
   
   // Noise management
-  _alea_noise = NULL;
+  _prng_noise = NULL;
 }
 
 // =================================================================
@@ -103,8 +103,8 @@ ae_environment::~ae_environment( void )
   _custom_points->erase( DELETE_OBJ );
   delete _custom_points;
   
-  delete _alea_var;
-  delete _alea_noise;
+  delete _prng_var;
+  delete _prng_noise;
   
   for ( int16_t i = 0 ; i < _nb_segments; i++ )
   {
@@ -194,7 +194,7 @@ ae_environment::~ae_environment( void )
   _variation_method = ae_common::init_params->get_env_var_method();
   _var_sigma        = ae_common::init_params->get_env_var_sigma();
   _var_tau          = ae_common::init_params->get_env_var_tau();
-  _alea_var         = new ae_rand_mt( ae_common::init_params->get_env_seed() );
+  _prng_var         = new ae_jumping_mt( ae_common::init_params->get_env_seed() );
   
   
   // -------------------------
@@ -275,7 +275,7 @@ void ae_environment::save( gzFile* backup_file ) const
   
   if ( _variation_method != NONE )
   {
-    _alea_var->save( backup_file );
+    _prng_var->save( backup_file );
     gzwrite( backup_file, &_var_sigma, sizeof(_var_sigma) );
     gzwrite( backup_file, &_var_tau,   sizeof(_var_tau)   );
   }
@@ -351,7 +351,7 @@ void ae_environment::load( gzFile* backup_file )
   
   if ( _variation_method != NONE )
   {
-    _alea_var = new ae_rand_mt( backup_file );
+    _prng_var = new ae_jumping_mt( backup_file );
     gzread( backup_file, &_var_sigma, sizeof(_var_sigma) );  
     gzread( backup_file, &_var_tau, sizeof(_var_tau) );
   }
@@ -485,7 +485,7 @@ void ae_environment::_apply_autoregressive_mean_variation( void )
 
     // compute the next value :
     // Dm(t+1) = Dm(t)*(1-1/tau) + ssd/tau*sqrt(2*tau-1)*normal_random()
-    delta_mean =  delta_mean * (1.0 - 1.0/_var_tau) + (_var_sigma/_var_tau) * sqrt(2*_var_tau- 1.0) * _alea_var->gaussian_random();
+    delta_mean =  delta_mean * (1.0 - 1.0/_var_tau) + (_var_sigma/_var_tau) * sqrt(2*_var_tau- 1.0) * _prng_var->gaussian_random();
 
     // deduce the new value of the mean : ref_mean + delta_m
     gaussian->set_mean( ref_gaussian->get_mean() + delta_mean );

@@ -77,7 +77,7 @@ ae_selection::ae_selection( ae_exp_manager* exp_m )
   _exp_m = exp_m;
 
   // ----------------------------------------- Pseudo-random number generator
-  _alea = NULL;
+  _prng = NULL;
 
   // -------------------------------------------------------------- Selection
   _selection_scheme   = RANK_EXPONENTIAL;
@@ -112,7 +112,7 @@ ae_selection::ae_selection( ae_exp_manager* exp_m )
   _exp_m = exp_m;
 
   // ----------------------------------------- Pseudo-random number generator
-  _alea = new ae_rand_mt( backup_file );
+  _prng = new ae_jumping_mt( backup_file );
 
   // -------------------------------------------------------------- Selection
   int8_t tmp_sel_scheme;
@@ -194,7 +194,7 @@ void ae_selection::step_to_next_generation( void )
   // 4) Replace the current generation by the newly created one.
   // 5) Sort the newly created population*
   
-  if ( _alea == NULL )
+  if ( _prng == NULL )
   {
     printf( "%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__ );
     assert( false );
@@ -226,7 +226,7 @@ void ae_selection::step_to_next_generation( void )
   // --------------------------------------------------------------------------------------------------------
   int32_t   nb_indivs = _exp_m->get_pop()->get_nb_indivs();
   int32_t*  nb_offsprings = new int32_t[nb_indivs];
-  _alea->multinomial_drawing( nb_offsprings, _prob_reprod, nb_indivs, nb_indivs );
+  _prng->multinomial_drawing( nb_offsprings, _prob_reprod, nb_indivs, nb_indivs );
 
   // ------------------------------------------------------------------------------
   // 3) Make the selected individuals "reproduce", thus creating the new generation
@@ -247,6 +247,9 @@ void ae_selection::step_to_next_generation( void )
     
     for ( int32_t j = 0 ; j < nb_offsprings[i] ; j++ )
     {
+      // For all but the first time, Take a jump in the PRNG
+      if ( j > 0 ) indiv->do_prng_jump();
+      
       // Create a new individual (evaluated at the end of do_replication)
       new_generation->add( do_replication( indiv, index_new_indiv++ ) );
     }
@@ -293,7 +296,7 @@ void ae_selection::step_to_next_generation_grid( void )
     exit( EXIT_FAILURE );
   #endif
   
-  if ( _alea == NULL )
+  if ( _prng == NULL )
   {
     printf( "%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__ );
     assert( false );
@@ -390,7 +393,7 @@ void ae_selection::step_to_next_generation_grid( void )
       
       for ( int16_t z = 0 ;z < total_size - 1 ; z++ )
       {
-        int16_t rand_nb = _alea->random((int16_t) (total_size-z));
+        int16_t rand_nb = _prng->random((int16_t) (total_size-z));
         int16_t* tmp=shuffled_table[z+rand_nb];
         shuffled_table[z+rand_nb]=shuffled_table[z];
         shuffled_table[z]=tmp;		
@@ -407,14 +410,14 @@ void ae_selection::step_to_next_generation_grid( void )
         // 1 minus the probability that none send it, so (1-(1-pht)^8)
         // where pht is the probability that an individual plasmid transfers
         
-	      if ( _alea->random() < (1.0 - pow( (1.0 - _prob_plasmid_HT), 9)) ) 
+	      if ( _prng->random() < (1.0 - pow( (1.0 - _prob_plasmid_HT), 9)) ) 
 	      {
 	        int16_t x=shuffled_table[z][0];
 	        int16_t y=shuffled_table[z][1];
           
 	        // 2. pick which neighbour will donate the plasmid
 	        pick_one = 0.0;
-	        while ( pick_one == 0 ) { pick_one = _alea->random(); }
+	        while ( pick_one == 0 ) { pick_one = _prng->random(); }
 	        found_org = 0;
 	        pick_one -= probs[0];
 	        while ( pick_one > 0 ) { pick_one -= probs[++found_org]; }
@@ -456,11 +459,11 @@ void ae_selection::step_to_next_generation_grid( void )
         // // The probability that at least one of 8 neighbours sends a plasmid is  
         // // 1 minus the probability that none send it, so (1-(1-pht)^8)
         // // where pht is the probability that an individual plasmid transfers
-        // if (_alea->random() < (1.0 - pow( (1.0 - ae_common::params->get_prob_horiz_trans()), 9)) ) 
+        // if (_prng->random() < (1.0 - pow( (1.0 - ae_common::params->get_prob_horiz_trans()), 9)) ) 
         // {
           // // 2. pick which neighbor that will donate the plasmid
           // pick_one = 0.0;
-          // while ( pick_one == 0 ) { pick_one = _alea->random(); }
+          // while ( pick_one == 0 ) { pick_one = _prng->random(); }
           // found_org = 0;
           // pick_one -= probs[0];
           // while ( pick_one > 0 ) { pick_one -= probs[++found_org]; }
@@ -515,7 +518,7 @@ void ae_selection::step_to_next_generation_grid( void )
 */
 void ae_selection::write_setup_file( gzFile* exp_setup_file ) const
 {
-  if ( _alea == NULL )
+  if ( _prng == NULL )
   {
     printf( "%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__ );
     assert( false );
@@ -523,7 +526,7 @@ void ae_selection::write_setup_file( gzFile* exp_setup_file ) const
   }
   
   // ----------------------------------------- Pseudo-random number generator
-  _alea->save( exp_setup_file );
+  _prng->save( exp_setup_file );
 
   // -------------------------------------------------------------- Selection
   int8_t tmp_sel_scheme = _selection_scheme;
@@ -570,7 +573,7 @@ void ae_selection::write_setup_file( gzFile* exp_setup_file ) const
 */
 void ae_selection::write_setup_file( FILE* exp_setup_file ) const
 {
-  /*if ( _alea == NULL )
+  /*if ( _prng == NULL )
   {
     printf( "%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__ );
     assert( false );
@@ -578,7 +581,7 @@ void ae_selection::write_setup_file( FILE* exp_setup_file ) const
   }
   
   // ----------------------------------------- Pseudo-random number generator
-  _alea->save( exp_setup_file );
+  _prng->save( exp_setup_file );
 
   // -------------------------------------------------------------- Selection
   int8_t tmp_sel_scheme = _selection_scheme;
@@ -624,7 +627,7 @@ void ae_selection::write_setup_file( FILE* exp_setup_file ) const
 void ae_selection::load( gzFile* exp_setup_file, gzFile* sp_struct_file )
 {
   // ----------------------------------------- Pseudo-random number generator
-  _alea = new ae_rand_mt( exp_setup_file );
+  _prng = new ae_jumping_mt( exp_setup_file );
 
   // -------------------------------------------------------------- Selection
   int8_t tmp_sel_scheme;
@@ -684,7 +687,7 @@ void ae_selection::load( gzFile* exp_setup_file, gzFile* sp_struct_file )
 void ae_selection::load( FILE* exp_setup_file, gzFile* sp_struct_file )
 {/*
   // ----------------------------------------- Pseudo-random number generator
-  _alea = new ae_rand_mt( exp_setup_file );
+  _prng = new ae_jumping_mt( exp_setup_file );
 
   // -------------------------------------------------------------- Selection
   int8_t tmp_sel_scheme;
@@ -950,7 +953,7 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
   // -----------------------------------
   //  a) Insertion transfer
   // -----------------------------------
-  if ( _alea->random() < _HT_ins_rate )
+  if ( _prng->random() < _HT_ins_rate )
   {
     // Insertion transfer
     // Requirements:
@@ -960,7 +963,7 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
     // 1) Draw a random donor (uniform drawing).
     // We use the rank because indivs are sorted by rank (1 for the worst, POP_SIZE for the best).
     ae_individual * donor = NULL;
-    do donor = _exp_m->get_pop()->get_indiv_by_rank( _alea->random( nb_indivs ) + 1 );
+    do donor = _exp_m->get_pop()->get_indiv_by_rank( _prng->random( nb_indivs ) + 1 );
     while ( donor == parent );
     
     // 2) Look for an alignment within the donor genome
@@ -1067,7 +1070,7 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
   // -----------------------------------
   //  b) Replacement transfer
   // -----------------------------------
-  if ( _alea->random() < _HT_repl_rate )
+  if ( _prng->random() < _HT_repl_rate )
   {
     // Replacement transfer
     // Requirements:
@@ -1076,7 +1079,7 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
     // 1) Draw a random donor (uniform drawing).
     // We use the rank because indivs are sorted by rank (1 for the worst, POP_SIZE for the best).
     ae_individual * donor = NULL;
-    do donor = _exp_m->get_pop()->get_indiv_by_rank( _alea->random( nb_indivs ) + 1 );
+    do donor = _exp_m->get_pop()->get_indiv_by_rank( _prng->random( nb_indivs ) + 1 );
     while ( donor == parent );
     
     // 2) Look for an alignment between the parent genome and the donor genome
@@ -1085,7 +1088,7 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
     ae_dna*       parent_dna    = parent->get_genetic_unit( 0 )->get_dna();
     ae_dna*       donor_dna     = donor->get_genetic_unit( 0 )->get_dna();
     ae_dna*       new_indiv_dna = new_indiv->get_genetic_unit( 0 )->get_dna();
-    ae_sense      sense         = (_alea->random() < 0.5) ? DIRECT : INDIRECT;
+    ae_sense      sense         = (_prng->random() < 0.5) ? DIRECT : INDIRECT;
     int32_t       nb_pairs_1    = (int32_t)( ceil( new_indiv_dna->get_length() * parent->get_neighbourhood_rate() ) );
     int32_t       nb_pairs_2    = (int32_t)( ceil( new_indiv_dna->get_length() * parent->get_neighbourhood_rate() ) );
     
@@ -1192,7 +1195,7 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
   //  4) Perform rearrangements and mutations for each genetic unit
   // ===========================================================================
   // Perform mutations for each genetic unit
-  int32_t number_GU = _alea->random((int32_t) 2);// It draws a number between 0 and 1.
+  int32_t number_GU = _prng->random((int32_t) 2);// It draws a number between 0 and 1.
   
   
   ae_list_node*     gen_unit_node = new_indiv->get_genetic_unit_list()->get_first();
@@ -1370,7 +1373,7 @@ ae_individual* ae_selection::calculate_local_competition ( int16_t x, int16_t y 
   double pick_one = 0.0;
   while ( pick_one == 0 )
   {
-    pick_one = _alea->random();
+    pick_one = _prng->random();
   }
 
   int16_t found_org = 0;
