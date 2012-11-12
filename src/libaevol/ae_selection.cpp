@@ -88,13 +88,12 @@ ae_selection::ae_selection( ae_exp_manager* exp_m )
   _prob_reprod_previous_best = 0.0;
   
   // --------------------------------------------------------------- Transfer
-  _with_HT = false;
-  _HT_ins_rate  = 0.0;
-  _HT_repl_rate = 0.0;
-  _with_plasmid_HT  = false;
+  _with_HT          = false;
+  _HT_ins_rate      = 0.0;
+  _HT_repl_rate     = 0.0;
   _nb_plasmid_HT    = 0;
   _prob_plasmid_HT  = 0.0;
-  _swap_GUs = false;
+  _swap_GUs         = false;
   
   // ------------------------------------------------------ Spatial structure
   _spatially_structured = false;
@@ -134,8 +133,7 @@ ae_selection::ae_selection( ae_exp_manager* exp_m )
   }
   int8_t tmp_with_plasmid_HT;
   gzread( backup_file, &tmp_with_plasmid_HT, sizeof(tmp_with_plasmid_HT) );
-  _with_plasmid_HT = tmp_with_plasmid_HT ? 1 : 0;
-  if ( _with_plasmid_HT )
+  if ( tmp_with_plasmid_HT )
   {
     gzread( backup_file, &_nb_plasmid_HT,    sizeof(_nb_plasmid_HT) );
     gzread( backup_file, &_prob_plasmid_HT,  sizeof(_prob_plasmid_HT) );
@@ -201,7 +199,7 @@ void ae_selection::step_to_next_generation( void )
     exit( EXIT_FAILURE );
   }
   
-  if ( _selection_scheme == FITTEST )
+  if ( is_spatially_structured() )
   {
     step_to_next_generation_grid();
     return;
@@ -256,7 +254,7 @@ void ae_selection::step_to_next_generation( void )
     
     // All the offsprings of this individual have been generated, if there is no transfer,
     // the indiv will not be used any more and can hence be deleted
-    if ( (! _with_HT) && (! _with_plasmid_HT) )
+    if ( (! _with_HT) && (! get_with_plasmid_HT()) )
     {
       old_generation->remove( indiv_node, DELETE_OBJ, DELETE_OBJ );
     }
@@ -264,7 +262,7 @@ void ae_selection::step_to_next_generation( void )
     indiv_node = next_indiv_node;
   }
   
-  if ( _with_HT || _with_plasmid_HT )
+  if ( _with_HT || get_with_plasmid_HT() )
   {
     // The individuals have not yet been deleted, do it now.
     old_generation->erase( DELETE_OBJ );
@@ -290,10 +288,17 @@ void ae_selection::step_to_next_generation( void )
 
 void ae_selection::step_to_next_generation_grid( void )
 {
+  // -------------------------------------------------------------------------------
+  // 1) Compute the probability of reproduction of each individual in the population
+  // -------------------------------------------------------------------------------
   #ifndef FIXED_POPULATION_SIZE
-    printf( "ERROR, not implemented %s:%d\n", __FILE__, __LINE__ );
-    assert( false );
-    exit( EXIT_FAILURE );
+    #error this method is not ready for variable population size
+    compute_prob_reprod();
+  #else
+    if ( _selection_scheme == FITNESS_PROPORTIONATE || _prob_reprod == NULL )
+    {
+      compute_prob_reprod();
+    }
   #endif
   
   if ( _prng == NULL )
@@ -321,26 +326,29 @@ void ae_selection::step_to_next_generation_grid( void )
   {
     for ( int16_t y = 0 ; y < grid_height ; y++ )
     {   
-      new_indiv_grid[x][y] = calculate_local_competition(x,y);
-      new_indiv_grid[x][y]->set_grid_cell(pop_grid[x][y]);
-      new_indiv_grid[x][y]->set_placed_in_population(true);
+      new_indiv_grid[x][y] = calculate_local_competition( x, y );
+      new_indiv_grid[x][y]->set_grid_cell( pop_grid[x][y] );
     }
   }  
   
   
   // Add the compound secreted by the individuals
-  double tmp_secretion; 
-  for ( int16_t x = 0 ; x < grid_width ; x++ )
+  if ( get_use_secretion() )
   {
-    for ( int16_t y = 0 ; y < grid_height ; y++ )
+    double tmp_secretion; 
+    for ( int16_t x = 0 ; x < grid_width ; x++ )
     {
-      tmp_secretion = pop_grid[x][y]->get_compound_amount() + pop_grid[x][y]->get_individual()->get_fitness_by_feature(SECRETION);        
-      pop_grid[x][y]->set_compound_amount( tmp_secretion );
+      for ( int16_t y = 0 ; y < grid_height ; y++ )
+      {
+        tmp_secretion = pop_grid[x][y]->get_compound_amount() + pop_grid[x][y]->get_individual()->get_fitness_by_feature(SECRETION);        
+        pop_grid[x][y]->set_compound_amount( tmp_secretion );
+      }
     }
+    
+    // Diffusion and degradation of compound in the environment
+    _spatial_structure->update_secretion_grid();
   }
   
-  // Diffusion and degradation of compound in the environment
-  _spatial_structure->update_secretion_grid();
   
   // Create the new generation
   ae_list * new_generation = new ae_list(); 
@@ -348,11 +356,13 @@ void ae_selection::step_to_next_generation_grid( void )
   {
     for ( int16_t y = 0 ; y < grid_height ; y++ )
     {
-      pop_grid[x][y]->set_individual( do_replication( new_indiv_grid[x][y], -1, x, y ) );       
+      pop_grid[x][y]->set_individual( do_replication( new_indiv_grid[x][y], -1, x, y ) );
+      new_indiv_grid[x][y]->do_prng_jump();
       new_generation->add( pop_grid[x][y]->get_individual() );
     }
   }
   
+  // Replace the old population by the newly created one
   _exp_m->get_pop()->replace_population( new_generation );
 
   // delete the temporary grid
@@ -368,10 +378,9 @@ void ae_selection::step_to_next_generation_grid( void )
     _spatial_structure->do_random_migrations();
   }
   
-  // Perform transfer
-  if ( _with_plasmid_HT )
+  // Perform plasmid transfer
+  if ( get_with_plasmid_HT() )
   {
-    
     double *  probs = new double[9];
     for ( int8_t i = 0 ; i < 9 ; i++ ) { probs[i] = ((double) 1) / 9; } 
     double pick_one;
@@ -544,9 +553,9 @@ void ae_selection::write_setup_file( gzFile* exp_setup_file ) const
     gzwrite( exp_setup_file, &_HT_ins_rate,  sizeof(_HT_ins_rate) );
     gzwrite( exp_setup_file, &_HT_repl_rate, sizeof(_HT_repl_rate) );
   }
-  int8_t tmp_with_plasmid_HT = _with_plasmid_HT;
+  int8_t tmp_with_plasmid_HT = get_with_plasmid_HT();
   gzwrite( exp_setup_file, &tmp_with_plasmid_HT, sizeof(tmp_with_plasmid_HT) );
-  if ( _with_plasmid_HT )
+  if ( tmp_with_plasmid_HT )
   {
     gzwrite( exp_setup_file, &_nb_plasmid_HT,    sizeof(_nb_plasmid_HT) );
     gzwrite( exp_setup_file, &_prob_plasmid_HT,  sizeof(_prob_plasmid_HT) );
@@ -599,9 +608,9 @@ void ae_selection::write_setup_file( FILE* exp_setup_file ) const
     gzwrite( exp_setup_file, &_HT_ins_rate,  sizeof(_HT_ins_rate) );
     gzwrite( exp_setup_file, &_HT_repl_rate, sizeof(_HT_repl_rate) );
   }
-  int8_t tmp_with_plasmid_HT = _with_plasmid_HT;
+  int8_t tmp_with_plasmid_HT = get_with_plasmid_HT();
   gzwrite( exp_setup_file, &tmp_with_plasmid_HT, sizeof(tmp_with_plasmid_HT) );
-  if ( _with_plasmid_HT )
+  if ( tmp_with_plasmid_HT )
   {
     gzwrite( exp_setup_file, &_nb_plasmid_HT,    sizeof(_nb_plasmid_HT) );
     gzwrite( exp_setup_file, &_prob_plasmid_HT,  sizeof(_prob_plasmid_HT) );
@@ -649,8 +658,7 @@ void ae_selection::load( gzFile* exp_setup_file, gzFile* sp_struct_file )
   }
   int8_t tmp_with_plasmid_HT;
   gzread( exp_setup_file, &tmp_with_plasmid_HT, sizeof(tmp_with_plasmid_HT) );
-  _with_plasmid_HT = tmp_with_plasmid_HT ? 1 : 0;
-  if ( _with_plasmid_HT )
+  if ( tmp_with_plasmid_HT )
   {
     gzread( exp_setup_file, &_nb_plasmid_HT,    sizeof(_nb_plasmid_HT) );
     gzread( exp_setup_file, &_prob_plasmid_HT,  sizeof(_prob_plasmid_HT) );
@@ -709,8 +717,7 @@ void ae_selection::load( FILE* exp_setup_file, gzFile* sp_struct_file )
   }
   int8_t tmp_with_plasmid_HT;
   gzread( exp_setup_file, &tmp_with_plasmid_HT, sizeof(tmp_with_plasmid_HT) );
-  _with_plasmid_HT = tmp_with_plasmid_HT ? 1 : 0;
-  if ( _with_plasmid_HT )
+  if ( tmp_with_plasmid_HT )
   {
     gzread( exp_setup_file, &_nb_plasmid_HT,    sizeof(_nb_plasmid_HT) );
     gzread( exp_setup_file, &_prob_plasmid_HT,  sizeof(_prob_plasmid_HT) );
@@ -941,7 +948,6 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
   if ( _spatially_structured && (x != -1) )
   {
     new_indiv->set_grid_cell( _spatial_structure->get_grid_cell( x, y ) );
-    _spatial_structure->get_grid_cell( x, y )->set_individual( new_indiv );
   }
   
   
@@ -1192,61 +1198,67 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
   
   
   // ===========================================================================
-  //  4) Perform rearrangements and mutations for each genetic unit
+  //  4) Perform rearrangements and mutations
   // ===========================================================================
-  // Perform mutations for each genetic unit
-  int32_t number_GU = _prng->random((int32_t) 2);// It draws a number between 0 and 1.
-  
-  
-  ae_list_node*     gen_unit_node = new_indiv->get_genetic_unit_list()->get_first();
-  ae_genetic_unit*  gen_unit      = NULL;
-  if ( number_GU < 1 ) // if the number is 0 : we begin with the chromosome
-	{
-		while ( gen_unit_node != NULL )
-		{
-			gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
-			
-			gen_unit->get_dna()->perform_mutations();
-			
-			if ( new_indiv->get_replic_report() != NULL )
-			{
-				new_indiv->get_replic_report()->get_dna_replic_reports()->add( gen_unit->get_dna()->get_replic_report() );
-			}
+  if ( ! new_indiv->get_allow_plasmids() )
+  {
+    ae_genetic_unit* chromosome = (ae_genetic_unit*) new_indiv->get_genetic_unit_list()->get_first()->get_obj();
+    
+    chromosome->get_dna()->perform_mutations();
+    
+    if ( new_indiv->get_replic_report() != NULL )
+    {
+      new_indiv->get_replic_report()->get_dna_replic_reports()->add( chromosome->get_dna()->get_replic_report() );
+    }
+  }
+  else
+  {
+    // For each GU, apply mutations
+    ae_list_node*     gen_unit_node = NULL;
+    ae_genetic_unit*  gen_unit      = NULL;
+    
+    // Randomly determine the order in which the GUs will undergo mutations
+    bool inverse_order = (_prng->random((int32_t) 2) < 0.5);
+    
+    if ( ! inverse_order )
+    // Apply mutations in normal GU order
+    {
+      gen_unit_node = new_indiv->get_genetic_unit_list()->get_first();
+      
+      while ( gen_unit_node != NULL )
+      {
+        gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
+        
+        gen_unit->get_dna()->perform_mutations();
+        
+        if ( new_indiv->get_replic_report() != NULL )
+        {
+          new_indiv->get_replic_report()->get_dna_replic_reports()->add( gen_unit->get_dna()->get_replic_report() );
+        }
 
-			gen_unit_node = gen_unit_node->get_next();
-		}
+        gen_unit_node = gen_unit_node->get_next();
+      }
+    }
+    else
+    // Apply mutations in inverse GU order
+    {
+      gen_unit_node = new_indiv->get_genetic_unit_list()->get_last();
+      
+      while ( gen_unit_node != NULL )
+      {
+        gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
+        
+        gen_unit->get_dna()->perform_mutations();
+        
+        if ( new_indiv->get_replic_report() != NULL )
+        {
+          new_indiv->get_replic_report()->get_dna_replic_reports()->add( gen_unit->get_dna()->get_replic_report() );
+        }
 
-	}  
-  else  // if the number is 1 : we begin with the plasmid
-	{
-		gen_unit_node = gen_unit_node->get_next();  // we take the second GU
-		while ( gen_unit_node != NULL )
-		{
-			gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
-			
-			gen_unit->get_dna()->perform_mutations();
-			
-			if ( new_indiv->get_replic_report() != NULL )
-			{
-				new_indiv->get_replic_report()->get_dna_replic_reports()->add( gen_unit->get_dna()->get_replic_report() );
-			}
-
-			gen_unit_node = gen_unit_node->get_next();
-		}
-		
-		gen_unit_node = new_indiv->get_genetic_unit_list()->get_first(); // We make the operation on the first GU
-		gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
-		
-		gen_unit->get_dna()->perform_mutations();
-		
-		if ( new_indiv->get_replic_report() != NULL )
-		{
-			new_indiv->get_replic_report()->get_dna_replic_reports()->add( gen_unit->get_dna()->get_replic_report() );
-		}
-
-		gen_unit_node = gen_unit_node->get_next();
-		
-	}
+        gen_unit_node = gen_unit_node->get_prev();
+      }
+    }
+  }
 
 
   
@@ -1342,6 +1354,8 @@ ae_individual* ae_selection::calculate_local_competition ( int16_t x, int16_t y 
         
         loop_length = loop_length - 1;
       }
+      
+      
       // Then we use the already computed probabilities
       for ( int16_t i = 0 ; i < neighborhood_size ; i++ )
       {
@@ -1369,7 +1383,7 @@ ae_individual* ae_selection::calculate_local_competition ( int16_t x, int16_t y 
   }
   
   
-  // pick one organism to reproduce, based on probs[] calculated above,  using roulette selection
+  // pick one organism to reproduce, based on probs[] calculated above, using roulette selection
   double pick_one = 0.0;
   while ( pick_one == 0 )
   {

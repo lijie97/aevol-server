@@ -64,13 +64,15 @@ ae_spatial_structure::ae_spatial_structure( void )
 
 ae_spatial_structure::ae_spatial_structure( gzFile* backup_file )
 {
-  _alea = new ae_jumping_mt( backup_file );
+  _prng = new ae_jumping_mt( backup_file );
   
   gzread( backup_file, &_grid_width,  sizeof(_grid_width) );
   gzread( backup_file, &_grid_height, sizeof(_grid_height) );
   
+  _pop_grid = new ae_grid_cell** [_grid_width];
   for ( int16_t x = 0 ; x < _grid_width ; x++ )
   {
+    _pop_grid[x] = new ae_grid_cell* [_grid_height];
     for ( int16_t y = 0 ; y < _grid_height ; y++ )
     {
       _pop_grid[x][y] = new ae_grid_cell( backup_file );
@@ -164,10 +166,10 @@ void ae_spatial_structure::do_random_migrations ( void )
   int16_t old_x; int16_t old_y; int16_t new_x; int16_t new_y;
   for ( int16_t i = 0 ; i < _migration_number ; i++ )
   {
-    old_x = (int16_t) (_alea->random() * _grid_width);
-    old_y = (int16_t) (_alea->random() * _grid_height);
-    new_x = (int16_t) (_alea->random() * _grid_width);
-    new_y = (int16_t) (_alea->random() * _grid_height);
+    old_x = (int16_t) (_prng->random() * _grid_width);
+    old_y = (int16_t) (_prng->random() * _grid_height);
+    new_x = (int16_t) (_prng->random() * _grid_width);
+    new_y = (int16_t) (_prng->random() * _grid_height);
 
 
     // swap the individuals in these grid cells...
@@ -179,7 +181,7 @@ void ae_spatial_structure::do_random_migrations ( void )
 
 void ae_spatial_structure::save( gzFile* backup_file ) const
 {
-  if ( _alea == NULL )
+  if ( _prng == NULL )
   {
     printf( "%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__ );
     exit( EXIT_FAILURE );
@@ -190,7 +192,7 @@ void ae_spatial_structure::save( gzFile* backup_file ) const
     exit( EXIT_FAILURE );
   }
   
-  _alea->save( backup_file );
+  _prng->save( backup_file );
   
   gzwrite( backup_file, &_grid_width,   sizeof(_grid_width) );
   gzwrite( backup_file, &_grid_height,  sizeof(_grid_height) );

@@ -252,8 +252,8 @@ void ae_exp_manager::load_experiment( char* exp_setup_file_name,
                                       bool verbose )
 {
   // ---------------------------------------------------------------------------
-  // 1) Determine whether the parameter files are plain text and open in the 
-  //    corresponding "mode"
+  // 1) Determine whether the parameter files are in binary or plain text format
+  //    and open in the corresponding "mode"
   // ---------------------------------------------------------------------------
   gzFile* exp_setup_gzfile = NULL;
   gzFile* out_prof_gzfile = NULL;
@@ -439,8 +439,8 @@ void ae_exp_manager::run_evolution( void )
     printf( "============================== %"PRId32" ==============================\n", _num_gener );
     printf( "  distance to target (metabolic) : %f\n",
             ((ae_individual *) _pop->get_indivs()->get_last()->get_obj())->get_dist_to_target_by_feature( METABOLISM ) );
-    printf( "  number of jumps : %"PRId32"\ntotal time : %f ms\t time per jump : %f µs\n",
-            ae_jumping_mt::nb_jumps, ae_jumping_mt::jump_time, 1000*ae_jumping_mt::jump_time/ae_jumping_mt::nb_jumps );
+    //~ printf( "  number of jumps : %"PRId32"\ntotal time : %f ms\t time per jump : %f µs\n",
+            //~ ae_jumping_mt::nb_jumps, ae_jumping_mt::jump_time, 1000*ae_jumping_mt::jump_time/ae_jumping_mt::nb_jumps );
 
     if ( quit_signal_received() ) break;
     

@@ -89,6 +89,11 @@ int main( int argc, char* argv[] )
         param_file_name = optarg;
         break;
       }
+      default :
+      {
+        // An error message is printed in getopt_long, we just need to exit
+        exit( EXIT_FAILURE );
+      }
     }
   }
   

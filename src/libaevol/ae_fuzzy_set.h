@@ -73,6 +73,7 @@ class ae_fuzzy_set : public ae_object
     // =================================================================
     ae_fuzzy_set( void );
     ae_fuzzy_set( const ae_fuzzy_set &model );
+    ae_fuzzy_set( gzFile* backup_file );
   
     // =================================================================
     //                             Destructors
@@ -103,6 +104,9 @@ class ae_fuzzy_set : public ae_object
     void add_lower_bound( double lower_bound );
 
     bool is_identical_to( const ae_fuzzy_set * other) const;
+    
+    void save( gzFile* backup_file ) const;
+    void load( gzFile* backup_file );
   
     // =================================================================
     //                           Public Attributes

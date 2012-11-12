@@ -86,8 +86,9 @@ class params : public ae_object
     inline int32_t get_nb_gener( void ) const;
   
     // ----------------------------------------- PseudoRandom Number Generators
-    inline int32_t  get_seed( void )                    const;
-    inline int32_t  get_env_seed( void )                const;
+    inline int32_t  get_seed( void )            const;
+    inline int32_t  get_env_var_seed( void )    const;
+    inline int32_t  get_env_noise_seed( void )  const;
   
     // ------------------------------------------------------------ Constraints
     inline int32_t  get_min_genome_length( void ) const;
@@ -117,6 +118,10 @@ class params : public ae_object
     inline int32_t    get_env_var_tau( void )     const;
     
     // ------------------------------------------------------ Environment noise
+    inline double   get_env_noise_prob( void )  const;
+    inline double   get_env_noise_alpha( void ) const;
+    inline double   get_env_noise_sigma( void ) const;
+    inline int8_t   get_env_noise_sampling_log( void ) const;
 
     // --------------------------------------------------------- Mutation rates
     inline double   get_point_mutation_rate( void ) const;
@@ -234,7 +239,8 @@ class params : public ae_object
     
     // ----------------------------------------- PseudoRandom Number Generators
     inline void set_seed( int32_t seed );
-    inline void set_env_seed( int32_t env_seed );
+    inline void set_env_var_seed( int32_t env_var_seed );
+    inline void set_env_noise_seed( int32_t env_noise_seed );
     
     // ------------------------------------------------------------ Constraints
     inline void set_min_genome_length( int32_t min_genome_length );
@@ -266,6 +272,10 @@ class params : public ae_object
     inline void set_env_var_tau( int32_t env_var_tau );
     
     // ------------------------------------------------------ Environment noise
+    inline void set_env_noise_prob( double env_noise_prob );
+    inline void set_env_noise_alpha( double env_noise_alpha );
+    inline void set_env_noise_sigma( double env_noise_sigma );
+    inline void set_env_noise_sampling_log( int32_t env_noise_sampling_log );
 
     // --------------------------------------------------------- Mutation rates
     inline void set_point_mutation_rate( double point_mutation_rate );
@@ -329,7 +339,6 @@ class params : public ae_object
     inline void set_plasmid_initial_length( int32_t plasmid_init_len );
     inline void set_plasmid_initial_gene( int32_t plasmid_init_gene );
     inline void set_plasmid_minimal_length( int32_t plasmid_minimal_length );
-    inline void set_with_plasmid_HT( bool with_plasmid_HT );
     inline void set_prob_plasmid_HT( double prob_plasmid_HT );
     inline void set_nb_plasmid_HT( int16_t nb_plasmid_HT );
     inline void set_compute_phen_contrib_by_GU( bool compute_phen_contrib_by_GU );
@@ -415,8 +424,10 @@ class params : public ae_object
     // ----------------------------------------- PseudoRandom Number Generators
     // Seed for the individuals' random generators
     int32_t _seed;
-    // Seed for the environment's random generator (environmental variation)
-    int32_t _env_seed;
+    // Seed for the environmental variation random generator
+    int32_t _env_var_seed;
+    // Seed for the environmental noise random generator
+    int32_t _env_noise_seed;
     
     // ------------------------------------------------------------ Constraints
     int32_t _min_genome_length;
@@ -450,7 +461,11 @@ class params : public ae_object
     double      _env_var_sigma;
     int32_t     _env_var_tau;
     
-    // ------------------------------------------------------ Environment noise // TODO
+    // ------------------------------------------------------ Environment noise
+    double  _env_noise_prob;          // Probability of variation.
+    double  _env_noise_alpha;         // Alpha value (variance coefficient)
+    double  _env_noise_sigma;         // Variance of the noise
+    int32_t _env_noise_sampling_log;  // Log2 of the number of points in the noise fuzzy_set
 
     // --------------------------------------------------------- Mutation rates
     double  _point_mutation_rate;
@@ -521,7 +536,6 @@ class params : public ae_object
     int32_t   _plasmid_initial_length;
     int32_t   _plasmid_initial_gene;
     int32_t   _plasmid_minimal_length;
-    bool      _with_plasmid_HT;
     double    _prob_plasmid_HT;
     // Max number of plasmids a cell can send in its neighbourhood per generation
     int16_t   _nb_plasmid_HT;
@@ -576,9 +590,14 @@ inline int32_t params::get_seed( void ) const
   return _seed;
 }
 
-inline int32_t params::get_env_seed( void ) const
+inline int32_t params::get_env_var_seed( void ) const
 {
-  return _env_seed;
+  return _env_var_seed;
+}
+
+inline int32_t params::get_env_noise_seed( void ) const
+{
+  return _env_noise_seed;
 }
 
 // ---------------------------------------------------------------- Constraints
@@ -673,6 +692,26 @@ inline int32_t params::get_env_var_tau( void ) const
 }
 
 // ---------------------------------------------------------- Environment noise
+inline double params::get_env_noise_prob( void )  const
+{
+  return _env_noise_prob;
+}
+
+inline double params::get_env_noise_alpha( void ) const
+{
+  return _env_noise_alpha;
+}
+
+inline double params::get_env_noise_sigma( void ) const
+{
+  return _env_noise_sigma;
+}
+
+inline int8_t params::get_env_noise_sampling_log( void ) const
+{
+  return _env_noise_sampling_log;
+}
+
 
 // ------------------------------------------------------------- Mutation rates
 inline double params::get_point_mutation_rate( void ) const
@@ -906,7 +945,7 @@ inline int32_t params::get_plasmid_minimal_length( void ) const
 
 inline bool params::get_with_plasmid_HT( void ) const
 {
-  return _with_plasmid_HT;
+  return (_prob_plasmid_HT > 0);
 }
 
 inline double params::get_prob_plasmid_HT( void ) const
@@ -1006,9 +1045,14 @@ inline void params::set_seed( int32_t seed )
   _seed = seed;
 }
 
-inline void params::set_env_seed( int32_t env_seed )
+inline void params::set_env_var_seed( int32_t env_var_seed )
 {
-  _env_seed = env_seed;
+  _env_var_seed = env_var_seed;
+}
+
+inline void params::set_env_noise_seed( int32_t env_noise_seed )
+{
+  _env_noise_seed = env_noise_seed;
 }
     
 // ------------------------------------------------------------ Constraints
@@ -1112,6 +1156,26 @@ inline void params::set_env_var_tau( int32_t env_var_tau )
 }
 
 // ---------------------------------------------------------- Environment noise
+inline void params::set_env_noise_prob( double env_noise_prob )
+{
+  _env_noise_prob = env_noise_prob;
+}
+
+inline void params::set_env_noise_alpha( double env_noise_alpha )
+{
+  _env_noise_alpha = env_noise_alpha;
+}
+
+inline void params::set_env_noise_sigma( double env_noise_sigma )
+{
+  _env_noise_sigma = env_noise_sigma;
+}
+
+inline void params::set_env_noise_sampling_log( int32_t env_noise_sampling_log )
+{
+  _env_noise_sampling_log = env_noise_sampling_log;
+}
+
 
 // ------------------------------------------------------------- Mutation rates
 inline void params::set_point_mutation_rate( double point_mutation_rate )
@@ -1341,11 +1405,6 @@ inline void params::set_plasmid_initial_gene( int32_t plasmid_init_gene )
 inline void params::set_plasmid_minimal_length( int32_t plasmid_minimal_length )
 {
   _plasmid_minimal_length = plasmid_minimal_length;
-}
-
-inline void params::set_with_plasmid_HT( bool with_plasmid_HT )
-{
-  _with_plasmid_HT = with_plasmid_HT;
 }
 
 inline void params::set_prob_plasmid_HT( double prob_plasmid_HT )

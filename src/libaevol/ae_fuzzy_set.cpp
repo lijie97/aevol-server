@@ -81,6 +81,13 @@ ae_fuzzy_set::ae_fuzzy_set( const ae_fuzzy_set &model )
   }
 }
 
+ae_fuzzy_set::ae_fuzzy_set( gzFile* backup_file )
+{
+  _points = new ae_list();
+  
+  load( backup_file );
+}
+
 // =================================================================
 //                             Destructors
 // =================================================================
@@ -865,9 +872,9 @@ void ae_fuzzy_set::add_lower_bound( double lower_bound )
 bool ae_fuzzy_set::is_identical_to( const ae_fuzzy_set * other) const
 {
   if ( _points->get_nb_elts() != other->_points->get_nb_elts())
-    {
-      return false;
-    }
+  {
+    return false;
+  }
 
   ae_list_node* point_node = _points->get_first();
   ae_point_2d*  point = NULL;
@@ -890,7 +897,41 @@ bool ae_fuzzy_set::is_identical_to( const ae_fuzzy_set * other) const
   }
   
   return ok;
+}
 
+
+void ae_fuzzy_set::save( gzFile* backup_file ) const
+{
+  int16_t nb_points = (_points == NULL) ? 0 : _points->get_nb_elts();
+  gzwrite( backup_file, &nb_points, sizeof(nb_points) );
+  
+  if ( _points != NULL )
+  {
+    ae_list_node* point_node = _points->get_first();
+    ae_point_2d*  point;
+    for ( int16_t i = 0 ; i < nb_points ; i++ )
+    {
+      point = ( ae_point_2d* ) point_node->get_obj();
+      
+      point->save( backup_file );
+      
+      point_node = point_node->get_next();
+    }
+  }
+}
+
+
+void ae_fuzzy_set::load( gzFile* backup_file )
+{
+  int16_t nb_points;
+  gzread( backup_file, &nb_points, sizeof(nb_points) );
+  
+  if ( nb_points > 0 ) _points = new ae_list();
+  
+  for ( int16_t i = 0 ; i < nb_points ; i++ )
+  {
+    _points->add( new ae_point_2d( backup_file ) );
+  }
 }
 
 

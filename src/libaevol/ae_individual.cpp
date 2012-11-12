@@ -51,6 +51,7 @@
 #include <ae_exp_manager.h>
 #include <ae_population.h>
 #include <ae_vis_a_vis.h>
+#include <ae_grid_cell.h>
 #include <ae_utils.h>
 
 #ifdef __NO_X
@@ -112,9 +113,8 @@ ae_individual::ae_individual( ae_exp_manager* exp_m,
   _phenotype_inhib = new ae_fuzzy_set();
   
   _phenotype = new ae_phenotype();
-
-  _dist_to_target_by_segment = NULL;
   
+  _dist_to_target_by_segment  = NULL;
   _dist_to_target_by_feature  = new double [NB_FEATURES];
   _fitness_by_feature         = new double [NB_FEATURES];
   
@@ -346,7 +346,7 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile* backup_file )
   gzread( backup_file, &y, sizeof(y) );
   if ( _exp_m->is_spatially_structured() )
   {
-    _grid_cell = _exp_m->get_grid_cell( x, y );
+    set_grid_cell( _exp_m->get_grid_cell( x, y ) );
   }
   
   // Retreive generic probes
@@ -392,7 +392,8 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile* backup_file )
   _phenotype_activ = new ae_fuzzy_set();
   _phenotype_inhib = new ae_fuzzy_set();
   _phenotype = new ae_phenotype();
-  
+
+  _dist_to_target_by_segment  = NULL;
   _dist_to_target_by_feature  = new double [NB_FEATURES];
   _fitness_by_feature         = new double [NB_FEATURES];
   
@@ -512,6 +513,7 @@ ae_individual::ae_individual( const ae_individual &model )
   
   
   // Copy fitness-related stuff
+  _dist_to_target_by_segment  = NULL;
   _dist_to_target_by_feature  = new double [NB_FEATURES];
   _fitness_by_feature         = new double [NB_FEATURES];
   
@@ -627,24 +629,8 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id )
   _phenotype_inhib = new ae_fuzzy_set();
   _phenotype = NULL;
   
-  //~ // Initialize all the fitness-related stuff
-  //~ if ( _exp_m->is_segmented() )
-  //~ {
-    //~ int16_t nb_segments = ae_common::sim->get_env()->get_nb_segments();
-    //~ _dist_to_target_by_segment = new double [nb_segments];
-    
-    //~ for ( int16_t i = 0 ; i < nb_segments ; i++ )
-    //~ {
-      //~ _dist_to_target_by_segment[i] = 0;
-    //~ }
-  //~ }
-  //~ else
-  //~ {
-    //~ _dist_to_target_by_segment = NULL;
-  //~ }
-  
-  _dist_to_target_by_segment = NULL;
-  
+  // Initialize all the fitness-related stuff
+  _dist_to_target_by_segment  = NULL;
   _dist_to_target_by_feature  = new double [NB_FEATURES];
   _fitness_by_feature         = new double [NB_FEATURES];
   
@@ -973,6 +959,22 @@ ae_individual::~ae_individual( void )
 }
 
 // =================================================================
+//                        Non-inline Accessors
+// =================================================================
+/*!
+  TODO
+*/
+void ae_individual::set_grid_cell( ae_grid_cell* grid_cell )
+{
+  _placed_in_population = true;
+  _grid_cell = grid_cell;
+  if ( _grid_cell->get_individual() != this )
+  {
+    _grid_cell->set_individual( this );
+  }
+}
+
+// =================================================================
 //                            Public Methods
 // =================================================================
 void ae_individual::compute_phenotype( void )
@@ -1031,6 +1033,11 @@ void ae_individual::compute_distance_to_target( ae_environment* envir )
   else // Environment is segmented
   {
     ae_env_segment** segments = envir->get_segments();
+    _dist_to_target_by_segment = new double [envir->get_nb_segments()];
+    for ( int8_t i = 0 ; i < envir->get_nb_segments() ; i++ )
+    {
+      _dist_to_target_by_segment[i] = 0;
+    }
     
     // TODO : We should take into account that we compute the areas in order (from the leftmost segment, rightwards)
     //   => We shouldn't parse the whole list of points on the left of the segment we are considering (we have 
@@ -1310,7 +1317,7 @@ void ae_individual::evaluate( ae_environment* envir /*= NULL*/ )
   compute_distance_to_target( envir );
   compute_fitness( envir );
   
-  #warning put this in stats if we want the phenotypic contribution of each GU
+  // TODO: put this in stats if we want the phenotypic contribution of each GU
   /*if ( ae_common::params->get_compute_phen_contrib_by_GU() ) 
   { 
     ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();

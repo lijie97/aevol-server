@@ -137,7 +137,7 @@ class ae_spatial_structure : public ae_object
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ae_jumping_mt* _alea;
+    ae_jumping_mt* _prng;
     
     int16_t _grid_width; 
     int16_t _grid_height;
@@ -251,6 +251,16 @@ inline void ae_spatial_structure::set_grid_size( int16_t grid_width, int16_t gri
 {
   _grid_width   = grid_width;
   _grid_height  = grid_height;
+  
+  _pop_grid = new ae_grid_cell** [_grid_width];
+  for ( int16_t x = 0 ; x < _grid_width ; x++ )
+  {
+    _pop_grid[x] = new ae_grid_cell* [_grid_height];
+    for ( int16_t y = 0 ; y < _grid_height ; y++ )
+    {
+      _pop_grid[x][y] = new ae_grid_cell( x, y, NULL );
+    }
+  }
 }
 
 inline void ae_spatial_structure::set_migration_number( int32_t migration_number )

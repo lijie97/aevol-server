@@ -83,13 +83,18 @@ ae_environment::ae_environment( void ) :
   _area_by_feature  = new double [NB_FEATURES];
   
   // Variation management
-  _prng_var         = NULL;
-  _variation_method = NONE;  
-  _var_sigma        = 0.0;
-  _var_tau          = 0;
+  _var_prng   = NULL;
+  _var_method = NONE;  
+  _var_sigma  = 0.0;
+  _var_tau    = 0;
   
   // Noise management
-  _prng_noise = NULL;
+  _cur_noise          = NULL;
+  _noise_prng         = NULL;
+  _noise_prob         = 0.0;
+  _noise_alpha        = 0.0;
+  _noise_sigma        = 0.0;
+  _noise_sampling_log = 8;
 }
 
 // =================================================================
@@ -103,8 +108,8 @@ ae_environment::~ae_environment( void )
   _custom_points->erase( DELETE_OBJ );
   delete _custom_points;
   
-  delete _prng_var;
-  delete _prng_noise;
+  delete _var_prng;
+  delete _noise_prng;
   
   for ( int16_t i = 0 ; i < _nb_segments; i++ )
   {
@@ -113,6 +118,8 @@ ae_environment::~ae_environment( void )
   delete [] _segments;
     
   delete [] _area_by_feature;
+  
+  delete _cur_noise;
 }
 
 // =================================================================
@@ -191,10 +198,10 @@ ae_environment::~ae_environment( void )
   // ---------------------------------
   // 4) Manage environmental variation
   // ---------------------------------
-  _variation_method = ae_common::init_params->get_env_var_method();
+  _var_method = ae_common::init_params->get_env_var_method();
   _var_sigma        = ae_common::init_params->get_env_var_sigma();
   _var_tau          = ae_common::init_params->get_env_var_tau();
-  _prng_var         = new ae_jumping_mt( ae_common::init_params->get_env_seed() );
+  _var_prng         = new ae_jumping_mt( ae_common::init_params->get_env_seed() );
   
   
   // -------------------------
@@ -254,7 +261,7 @@ void ae_environment::save( gzFile* backup_file ) const
       
       custom_point_node = custom_point_node->get_next();
     }
-  }  
+  }
   
   // -------------------------------
   //  Write x-axis segmentation
@@ -270,19 +277,42 @@ void ae_environment::save( gzFile* backup_file ) const
   // -----------------------------------
   //  Write environmental variation data
   // -----------------------------------
-  int8_t tmp_variation_method = _variation_method;
-  gzwrite( backup_file, &tmp_variation_method,  sizeof(tmp_variation_method) );
+  int8_t tmp_var_method = _var_method;
+  gzwrite( backup_file, &tmp_var_method,  sizeof(tmp_var_method) );
   
-  if ( _variation_method != NONE )
+  if ( _var_method != NONE )
   {
-    _prng_var->save( backup_file );
+    _var_prng->save( backup_file );
     gzwrite( backup_file, &_var_sigma, sizeof(_var_sigma) );
     gzwrite( backup_file, &_var_tau,   sizeof(_var_tau)   );
   }
   
   // ---------------------
   //  Write noise data
-  // ---------------------
+  // -------------------
+  int8_t tmp_is_noise_allowed = is_noise_allowed();
+  gzwrite( backup_file, &tmp_is_noise_allowed,  sizeof(tmp_is_noise_allowed) );
+  
+  if ( tmp_is_noise_allowed )
+  {
+    int8_t tmp_save_cur_noise = ( _cur_noise != NULL );
+    gzwrite( backup_file, &tmp_save_cur_noise,  sizeof(tmp_save_cur_noise) );
+    if ( tmp_save_cur_noise ) _cur_noise->save( backup_file );
+    
+    _noise_prng->save( backup_file );
+    gzwrite( backup_file, &_noise_prob,  sizeof(_noise_prob)  );
+    gzwrite( backup_file, &_noise_alpha, sizeof(_noise_alpha) );
+    gzwrite( backup_file, &_noise_sigma, sizeof(_noise_sigma) );
+    gzwrite( backup_file, &_noise_sampling_log, sizeof(_noise_sampling_log) );
+  }
+  
+  // ---------------------------------------------------------------
+  //  If needed, keep a copy of the initial state of the gaussians
+  // ---------------------------------------------------------------
+  if ( 1/*NOISE OR VAR*/ )
+  #warning TODO
+  {
+  }
 }
 
 void ae_environment::load( gzFile* backup_file )
@@ -345,22 +375,39 @@ void ae_environment::load( gzFile* backup_file )
   // ----------------------------------------
   //  Retrieve environmental variation data
   // ----------------------------------------
-  int8_t tmp_variation_method;
-  gzread( backup_file, &tmp_variation_method, sizeof(tmp_variation_method) );
-  _variation_method = (ae_env_var) tmp_variation_method;
+  int8_t tmp_var_method;
+  gzread( backup_file, &tmp_var_method, sizeof(tmp_var_method) );
+  _var_method = (ae_env_var) tmp_var_method;
   
-  if ( _variation_method != NONE )
+  if ( _var_method != NONE )
   {
-    _prng_var = new ae_jumping_mt( backup_file );
+    _var_prng = new ae_jumping_mt( backup_file );
     gzread( backup_file, &_var_sigma, sizeof(_var_sigma) );  
-    gzread( backup_file, &_var_tau, sizeof(_var_tau) );
+    gzread( backup_file, &_var_tau,   sizeof(_var_tau) );
   }
   
   
   // ------------------------------------
   //  Retrieve environmental noise data
   // ------------------------------------
-  #warning TODO
+  int8_t tmp_is_noise_allowed;
+  gzread( backup_file, &tmp_is_noise_allowed,  sizeof(tmp_is_noise_allowed) );
+  
+  if ( tmp_is_noise_allowed )
+  {
+    int8_t tmp_cur_noise_saved;
+    gzread( backup_file, &tmp_cur_noise_saved,  sizeof(tmp_cur_noise_saved) );
+    if ( tmp_cur_noise_saved )
+    {
+      _cur_noise  = new ae_fuzzy_set( backup_file );
+    }
+    
+    _noise_prng = new ae_jumping_mt( backup_file );
+    gzread( backup_file, &_noise_prob,  sizeof(_noise_prob)  );
+    gzread( backup_file, &_noise_alpha, sizeof(_noise_alpha) );
+    gzread( backup_file, &_noise_sigma, sizeof(_noise_sigma) );
+    gzread( backup_file, &_noise_sampling_log, sizeof(_noise_sampling_log) );
+  }
   
   
   // ---------------------------------------------------------------
@@ -429,6 +476,144 @@ void ae_environment::build( void )
   _compute_area();
 }
 
+/*!
+  Apply a gaussian noise to the set of points with a variance sigma and a coefficient alpha :
+ 
+    alpha = [ -1.0 ------------------ 0.0 -------------------- 1.0 ]
+           white noise          uniform fractal             unique draw
+                                     noise
+ */
+void ae_environment::apply_noise( void )
+{
+  if ( _noise_prob > 0 && _noise_prng->random() < _noise_prob )
+  {
+    // =====================================================================================
+    // Compute a fractal noise in a new fuzzy set and apply it to the (unnoised) environment
+    // =====================================================================================
+    
+    
+    // Clear previous noise (get an unnoised state of th ecurrent environment)
+    build();
+    
+    // Initialize the cur_noise (current noise) fuzzy set to a set of points with y=0
+    // The number of points is determined by _noise_sampling_log (2^_noise_sampling_log)
+    if ( _cur_noise == NULL )
+    {
+      _cur_noise = new ae_fuzzy_set();
+      
+      // Add points to reflect the sampling
+      int32_t nb_points = 1 << (_noise_sampling_log - 1);
+      double interval = (X_MAX - X_MIN) / (nb_points - 1);
+      double half_interval = interval / 2;
+      double cur_x = interval;
+      while ( cur_x - X_MAX < -half_interval ) // while (cur_x < X_MAX) but precision-problems-proof
+      {
+        _cur_noise->create_interpolated_point( cur_x );
+        cur_x += interval;
+      }
+    }
+    else // _cur_noise has already been created -> reinitialize all its points to 0
+    {
+      ae_list_node* point_node  = _cur_noise->get_points()->get_first();
+      while ( point_node != NULL )
+      {
+        ((ae_point_2d*) point_node->get_obj())->y = 0;
+        
+        point_node = point_node->get_next();
+      }
+    }
+    
+    
+    // Compute a fractal noise:
+    // Add a random noise to the whole fuzzy set, then cut it in 2 and add 
+    // another noise to each half and so on (apply noise to the 4 quarters...)
+    // until each zone contains only one single point.
+    int8_t fractal_step = 0;
+    while ( fractal_step < _noise_sampling_log )
+    {
+      int32_t num_zone;
+      int32_t nb_zones = 1 << fractal_step;
+      int32_t nb_points_in_each_zone = _cur_noise->get_points()->get_nb_elts() / nb_zones;
+      
+      // Compute current noise intensity
+      // We first test the trivial (most common) cases, then the general (positive or negative) cases
+      double noise_intensity;
+      if (_noise_alpha == 0.0)
+      {
+        noise_intensity = _noise_sigma;
+      }
+      //~ else if (_noise_alpha == 1.0)
+      //~ {
+        //~ noise_intensity = _noise_sigma * ( 1 << (fractal_step - 1) );
+      //~ }
+      //~ else if (_noise_alpha == -1.0)
+      //~ {
+        //~ noise_intensity = _noise_sigma * ( 1 << (_noise_sampling_log - fractal_step - 1) );
+      //~ }
+      else if ( _noise_alpha > 0.0 )
+      {
+        noise_intensity = _noise_sigma * pow( 1.0 - _noise_alpha, fractal_step );
+      }
+      else // ( _noise_alpha < 0.0 )
+      {
+        noise_intensity = _noise_sigma * pow( 1.0 + _noise_alpha, _noise_sampling_log - fractal_step );
+      }
+      //~ printf( "_noise_sigma %e\tfractal_step : %"PRId8"\tnoise_intensity : %e\n", _noise_sigma, fractal_step, noise_intensity );
+      
+      // For each zone in the current fractal step, compute a random noise to
+      // be applied to all the points in the zone
+      double* noise_component = new double[nb_zones];
+      for ( num_zone = 0 ; num_zone < nb_zones ; num_zone++ )
+      {
+        // Compute noise component for the current region
+        noise_component[num_zone] = _noise_prng->gaussian_random() * noise_intensity;
+      }
+      
+      // For each point in the noise fuzzy set, apply the noise computed for the corresponding zone
+      ae_list_node* point_node  = _cur_noise->get_points()->get_first();
+      ae_point_2d*  point       = NULL;
+      int32_t       point_index = 0;
+      while ( point_node != NULL )
+      {
+        point = (ae_point_2d*) point_node->get_obj();
+        
+        num_zone = floor( point_index++ / nb_points_in_each_zone );
+        point->y += noise_component[num_zone];
+        
+        point_node = point_node->get_next();
+      }
+      delete noise_component;
+      
+      fractal_step++;
+    }
+    
+    
+    // <DEBUG>
+    //~ ae_list_node* point_node  = _cur_noise->get_points()->get_first();
+    //~ ae_point_2d*  point       = NULL;
+    //~ while ( point_node != NULL )
+    //~ {
+      //~ point = (ae_point_2d*) point_node->get_obj();
+      
+      //~ printf( "  x: %f\ty: %e\n", point->x, point->y );
+      
+      //~ point_node = point_node->get_next();
+    //~ }
+    // </DEBUG>
+    
+    
+    // Apply the fractal noise to the environment
+    this->add( _cur_noise );
+    
+    // Bind Y values in [Y_MIN, Y_MAX]
+    add_lower_bound( Y_MIN );
+    add_upper_bound( Y_MAX );
+  
+    // Environment has changed, recompute its area
+    _compute_area();
+  }
+}
+
 bool ae_environment::fitness_is_composite( void ) const
 {
   int features = 0;
@@ -438,6 +623,50 @@ bool ae_environment::fitness_is_composite( void ) const
   }
   
   return ( (features & METABOLISM) && (features & SECRETION) );
+}
+
+// =================================================================
+//                           Protected Methods
+// =================================================================
+void ae_environment::_apply_autoregressive_mean_variation( void )
+{
+  // For each gaussian : 
+  // current_mean = ref_mean + delta_m, where
+  // delta_m follows an autoregressive stochastic process
+  // with the parameters _var_sigma and _var_tau
+  
+  int16_t nb_gaussians = _gaussians->get_nb_elts();
+  
+  ae_list_node* gaussian_node = _gaussians->get_first();
+  ae_gaussian*  gaussian;
+  ae_list_node* ref_gaussian_node = _initial_gaussians->get_first();
+  ae_gaussian*  ref_gaussian;
+  for ( int16_t i = 0 ; i < nb_gaussians ; i++ )
+  {
+    gaussian      = ( ae_gaussian* ) gaussian_node->get_obj();
+    ref_gaussian  = ( ae_gaussian* ) ref_gaussian_node->get_obj();
+    
+    // Find the current delta_mean = current_mean - ref_mean
+    double delta_mean = gaussian->get_mean() - ref_gaussian->get_mean();
+
+    // Compute the next value :
+    // Dm(t+1) = Dm(t)*(1-1/tau) + ssd/tau*sqrt(2*tau-1)*normal_random()
+    delta_mean =  delta_mean * (1.0 - 1.0/_var_tau) + (_var_sigma/_var_tau) * sqrt(2*_var_tau- 1.0) * _var_prng->gaussian_random();
+
+    // Deduce the new value of the mean : ref_mean + delta_m
+    gaussian->set_mean( ref_gaussian->get_mean() + delta_mean );
+    
+    gaussian_node = gaussian_node->get_next();
+    ref_gaussian_node = ref_gaussian_node->get_next();
+  }
+
+  build();
+}
+
+void ae_environment::_apply_local_gaussian_variation( void )
+{
+  printf( "ERROR, _apply_local_gaussian_variation has not yet been implemented. in file %s:%d\n", __FILE__, __LINE__ );
+  exit( EXIT_FAILURE );
 }
 
 void ae_environment::_compute_area( void )
@@ -459,46 +688,3 @@ void ae_environment::_compute_area( void )
   }
 }
 
-// =================================================================
-//                           Protected Methods
-// =================================================================
-void ae_environment::_apply_autoregressive_mean_variation( void )
-{
-  // For each gaussian : 
-  // current_mean = ref_mean + delta_m, where
-  // delta_m follows an autoregressive stochastic process
-  // with the parameters ssd and tau
-  
-  int16_t nb_gaussians = _gaussians->get_nb_elts();
-  
-  ae_list_node* gaussian_node = _gaussians->get_first();
-  ae_gaussian*  gaussian;
-  ae_list_node* ref_gaussian_node = _initial_gaussians->get_first();
-  ae_gaussian*  ref_gaussian;
-  for ( int16_t i = 0 ; i < nb_gaussians ; i++ )
-  {
-    gaussian      = ( ae_gaussian* ) gaussian_node->get_obj();
-    ref_gaussian  = ( ae_gaussian* ) ref_gaussian_node->get_obj();
-    
-    // find the current delta_mean = current_mean - ref_mean
-    double delta_mean = gaussian->get_mean() - ref_gaussian->get_mean();
-
-    // compute the next value :
-    // Dm(t+1) = Dm(t)*(1-1/tau) + ssd/tau*sqrt(2*tau-1)*normal_random()
-    delta_mean =  delta_mean * (1.0 - 1.0/_var_tau) + (_var_sigma/_var_tau) * sqrt(2*_var_tau- 1.0) * _prng_var->gaussian_random();
-
-    // deduce the new value of the mean : ref_mean + delta_m
-    gaussian->set_mean( ref_gaussian->get_mean() + delta_mean );
-    
-    gaussian_node = gaussian_node->get_next();
-    ref_gaussian_node = ref_gaussian_node->get_next();
-  }
-
-  build();
-}
-
-void ae_environment::_apply_local_gaussian_variation( void )
-{
-  printf( "ERROR, _apply_local_gaussian_variation has not yet been implemented. in file %s:%d\n", __FILE__, __LINE__ );
-  exit( EXIT_FAILURE );
-}

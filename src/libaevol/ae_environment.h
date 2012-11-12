@@ -97,9 +97,10 @@ class ae_environment : public ae_fuzzy_set_X11
     inline double               get_segment_boundaries( int16_t i ) const;
     inline ae_env_axis_feature  get_axis_feature( int16_t i ) const;
     inline double               get_area_by_feature( ae_env_axis_feature feature ) const;
-    inline ae_env_var           get_variation_method( void ) const;  
-    inline double               get_var_sigma( void )        const;
-    inline int32_t              get_var_tau( void )          const;
+    inline ae_env_var           get_var_method( void ) const;  
+    inline double               get_var_sigma( void )  const;
+    inline int32_t              get_var_tau( void )    const;
+    inline bool                 is_noise_allowed( void ) const;
     
     // =================================================================
     //                         Accessors: setters
@@ -108,25 +109,30 @@ class ae_environment : public ae_fuzzy_set_X11
     inline void   set_custom_points( ae_list* custom_points );
     inline void   set_sampling( int16_t val );
     inline void   set_segmentation( int16_t nb_segments, double* boundaries, ae_env_axis_feature* features, bool separate_segments = false );
-    inline void   set_variation_method( ae_env_var var_method );
-    inline void   set_prng_var( ae_jumping_mt* prng_var );
+    inline void   set_var_method( ae_env_var var_method );
+    inline void   set_var_prng( ae_jumping_mt* prng );
     inline void   set_var_sigma( double sigma );
     inline void   set_var_tau( int32_t tau );
     inline void   set_var_sigma_tau( double sigma, int32_t tau );
+    inline void   set_noise_prng( ae_jumping_mt* prng );
+    inline void   set_noise_prob( double prob );
+    inline void   set_noise_alpha( double alpha );
+    inline void   set_noise_sigma( double sigma );
+    inline void   set_noise_sampling_log( int32_t sampling_log );
 
 
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void load( gzFile* backup_file );
     void save( gzFile* backup_file ) const;
+    void load( gzFile* backup_file );
 
     void add_custom_point( double x, double y );
     void add_gaussian( double a, double b, double c );
     void build( void );
     
     inline void apply_variation( void );
-    inline void apply_noise( void );
+    void apply_noise( void );
     
     bool fitness_is_composite( void ) const;
 
@@ -181,19 +187,23 @@ class ae_environment : public ae_fuzzy_set_X11
     double* _area_by_feature; // Geometric area of each feature
     
     // Variation management
-    ae_jumping_mt*  _prng_var;
-    ae_env_var      _variation_method;
-    double          _var_sigma;         // Autoregressive mean variation sigma parameter
-    int32_t         _var_tau;           // Autoregressive mean variation tau parameter
+    ae_env_var      _var_method;  // Variation method
+    ae_jumping_mt*  _var_prng;    // PRNG used for variation
+    double          _var_sigma;   // Autoregressive mean variation sigma parameter
+    int32_t         _var_tau;     // Autoregressive mean variation tau parameter
     
     // Noise management
-    ae_jumping_mt*  _prng_noise;
-    
+    ae_fuzzy_set*   _cur_noise;           // Current noise (pure noise that is added to the environment fuzzy set)
+    ae_jumping_mt*  _noise_prng;          // PRNG used for noise
+    double          _noise_prob;          // Probability of variation.
+    double          _noise_alpha;         // Alpha value (variance coefficient)
+    double          _noise_sigma;         // Variance of the noise
+    int32_t         _noise_sampling_log;  // Log2 of the number of points in the noise fuzzy_set
 };
 
 
 // =====================================================================
-//                          Accessors' definitions
+//                          Getters' definitions
 // =====================================================================
 inline int16_t ae_environment::get_nb_segments( void ) const
 {
@@ -235,9 +245,9 @@ inline double ae_environment::get_total_area( void ) const
   return _total_area;
 }
 
-inline ae_env_var ae_environment::get_variation_method( void ) const
+inline ae_env_var ae_environment::get_var_method( void ) const
 {
-  return _variation_method;
+  return _var_method;
 }
 
 inline double ae_environment::get_var_sigma( void ) const
@@ -250,6 +260,15 @@ inline int32_t ae_environment::get_var_tau( void ) const
   return _var_tau;
 }
 
+inline bool ae_environment::is_noise_allowed( void ) const
+{
+  return ( _noise_prob > 0.0 );
+}
+
+
+// =====================================================================
+//                          Setters' definitions
+// =====================================================================
 inline void ae_environment::set_gaussians( ae_list* gaussians )
 {
   _gaussians = gaussians;
@@ -285,17 +304,18 @@ inline void ae_environment::set_segmentation( int16_t nb_segments, double* bound
     _segments[i] = new ae_env_segment( boundaries[i], boundaries[i+1], features[i] );
   }
   
+  
   // TODO : Manage separate_segments
 }
 
-inline void ae_environment::set_variation_method( ae_env_var var_method )
+inline void ae_environment::set_var_method( ae_env_var var_method )
 {
-  _variation_method = var_method;
+  _var_method = var_method;
 }
 
-inline void ae_environment::set_prng_var( ae_jumping_mt* prng_var )
+inline void ae_environment::set_var_prng( ae_jumping_mt* prng )
 {
-  _prng_var = prng_var;
+  _var_prng = prng;
 }
 
 inline void ae_environment::set_var_sigma( double sigma )
@@ -314,12 +334,38 @@ inline void ae_environment::set_var_sigma_tau( double sigma, int32_t tau )
   _var_tau    = tau;
 }
 
+inline void ae_environment::set_noise_prng( ae_jumping_mt* prng )
+{
+  _noise_prng = prng;
+}
+
+inline void ae_environment::set_noise_prob( double prob )
+{
+  _noise_prob = prob;
+}
+
+inline void ae_environment::set_noise_alpha( double alpha )
+{
+  _noise_alpha = alpha;
+}
+
+inline void ae_environment::set_noise_sigma( double sigma )
+{
+  _noise_sigma = sigma;
+}
+
+inline void ae_environment::set_noise_sampling_log( int32_t sampling_log )
+{
+  _noise_sampling_log = sampling_log;
+}
+
+
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
 inline void ae_environment::apply_variation( void )
 {
-  switch ( _variation_method )
+  switch ( _var_method )
   {
     case NONE :
       return;
@@ -334,12 +380,7 @@ inline void ae_environment::apply_variation( void )
       exit( EXIT_FAILURE );
   }
   
-  _compute_area();
-}
-
-inline void ae_environment::apply_noise( void )
-{
-  #warning environmental noise not yet implemented
+  // Environment has changed, recompute its area
   _compute_area();
 }
 

@@ -198,7 +198,7 @@ class ae_individual : public ae_object
     inline void set_id( int32_t id );
     inline void set_rank( int32_t rank );
     
-    inline void set_grid_cell( ae_grid_cell* grid_cell );
+    void set_grid_cell( ae_grid_cell* grid_cell );
     inline void set_placed_in_population( bool placed_in_population );
     
     inline void set_replication_report( ae_replication_report * rep );
@@ -1070,15 +1070,6 @@ inline void ae_individual::set_rank( int32_t rank )
   {
     _replic_report->set_rank( rank );
   }
-}
-
-/*!
-  TODO
-*/
-inline void ae_individual::set_grid_cell( ae_grid_cell* grid_cell )
-{
-  _grid_cell = grid_cell;
-  _placed_in_population = true;
 }
 
 /*!

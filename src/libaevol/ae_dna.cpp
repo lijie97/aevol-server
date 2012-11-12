@@ -350,8 +350,7 @@ void ae_dna::do_rearrangements( void )
   int32_t nb_trans = _indiv->_prng->binomial_random( _length, _indiv->get_translocation_rate() );
   int32_t nb_inv   = _indiv->_prng->binomial_random( _length, _indiv->get_inversion_rate() );
   int32_t nb_rear  = nb_dupl + nb_del + nb_trans + nb_inv;
-
-
+  
 
   // ===================================================
   //  2. Perform those rearrangements in a random order

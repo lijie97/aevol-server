@@ -520,8 +520,6 @@ void ae_exp_setup::load( gzFile* exp_setup_file, gzFile* env_file, gzFile* sp_st
   // Retrieve selection data
   printf( "  Loading selection context..." );
   fflush( stdout );
-  //~ delete _sel;
-  //~ _sel = new ae_selection();
   _sel->load( exp_setup_file, sp_struct_file );
   printf( "OK\n" );
 }

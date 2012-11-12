@@ -190,6 +190,10 @@ inline void ae_grid_cell::set_compound_amount(double compound_amount)
 inline void ae_grid_cell::set_individual( ae_individual * indiv )
 {
   _individual = indiv;
+  if ( _individual->get_grid_cell() != this )
+  {
+    _individual->set_grid_cell( this );
+  }
 }
 
 

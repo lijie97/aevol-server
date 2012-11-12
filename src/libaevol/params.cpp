@@ -58,16 +58,52 @@
 // =================================================================
 params::params( void )
 {
+  // ---------------------------------- Number of generations to be simulated
+  _nb_gener = 0;
+  
+  // ----------------------------------------- PseudoRandom Number Generators
+  _seed           = 0;
+  _env_var_seed   = 0;
+  _env_noise_seed = 0;
+  
   // ------------------------------------------------------------ Constraints
-  _min_genome_length = 10;
-  _max_genome_length = 10000000;
-  _w_max = 0.033333333;
+  _min_genome_length  = 10;
+  _max_genome_length  = 10000000;
+  _w_max              = 0.033333333;
+    
+  // ----------------------------------------------------- Initial conditions
+  _initial_genome_length  = 5000;
+  _init_method            = ONE_GOOD_GENE & CLONE;
+  _init_pop_size          = 1000;
+    
+  // ------------------------------------------------------------ Environment
+  _env_gaussians      = NULL;
+  _env_custom_points  = NULL;
+  _env_sampling       = 300;
+    
+  // ---------------------------------------- Environment x-axis segmentation
+  _env_axis_is_segmented        = false;
+  _env_axis_nb_segments         = 1;
+  _env_axis_segment_boundaries  = NULL;
+  _env_axis_features            = NULL;
+  _env_axis_separate_segments   = false;
+  
+  // -------------------------------------------------- Environment variation
+  _env_var_method = NONE;
+  _env_var_sigma  = 0;
+  _env_var_tau    = 0;
+  
+  // ------------------------------------------------------ Environment noise
+  _env_noise_prob         = 0;
+  _env_noise_alpha        = 0;
+  _env_noise_sigma        = 0;
+  _env_noise_sampling_log = 0;
 
   // --------------------------------------------------------- Mutation rates
   _point_mutation_rate  = 1e-5;
   _small_insertion_rate = 1e-5;
   _small_deletion_rate  = 1e-5;
-  _max_indel_size = 6;
+  _max_indel_size       = 6;
 
   // -------------------------------------------- Rearrangements and Transfer
   _with_4pts_trans  = true;
@@ -105,6 +141,12 @@ params::params( void )
   // -------------------------------------------------------------- Selection
   _selection_scheme   = RANK_EXPONENTIAL;
   _selection_pressure = 0.998;
+    
+  // ------------------------------------------------------ Spatial structure
+  _spatially_structured       = false;
+  int16_t  _grid_width        = 0;
+  int16_t  _grid_height       = 0;
+  int32_t  _migration_number  = 0;
   
   // -------------------------------------------------------------- Secretion
   _use_secretion                = false;
@@ -112,9 +154,12 @@ params::params( void )
   _secretion_diffusion_prop     = 0;
   _secretion_degradation_prop   = 0;
   _secretion_cost               = 0;
+  _secretion_init               = 0;
   
   // --------------------------------------------------------------- Plasmids
   _allow_plasmids             = false;
+  _plasmid_initial_length     = 1000;
+  _plasmid_initial_gene       = 0;
   _plasmid_minimal_length     = 40;
   _prob_plasmid_HT            = 0;
   _nb_plasmid_HT              = 1;
@@ -122,6 +167,34 @@ params::params( void )
   
   // ------------------------------------------------------- Translation cost
   _translation_cost = 0;
+    
+  // ---------------------------------------------------------------- Outputs
+  _stats            = 0;
+  _delete_old_stats = false;
+  
+  // Backups
+  _backup_step      = 500;
+  _big_backup_step  = 10000;
+  
+  // Tree
+  _record_tree  = false;
+  _tree_step    = 100;
+  _tree_mode    = NORMAL;
+  
+  // Dumps
+  _make_dumps = false;
+  _dump_step  = 1000;
+  
+  // Logs
+  _logs = 0;
+  
+  // Other
+  _more_stats = false;
+
+  #ifdef __REGUL
+    // ------------------------------------------------------- Binding matrix
+    _binding_zeros_percentage = 75;
+  #endif
 }
 
 // =================================================================

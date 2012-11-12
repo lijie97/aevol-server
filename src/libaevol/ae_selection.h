@@ -81,10 +81,10 @@ class ae_selection : public ae_object
     inline double               get_selection_pressure( void ) const;
     
     // --------------------------------------------------------------- Transfer
-    inline bool   get_with_HT( void ) const;
+    inline bool get_with_HT( void ) const;
     //~ inline double get_HT_ins_rate( void ) const;
     //~ inline double get_HT_repl_rate( void ) const;
-    inline bool   get_with_plasmid_HT( void ) const;
+    inline bool get_with_plasmid_HT( void ) const;
   
     // ------------------------------------------------------ Spatial structure
     inline bool                   is_spatially_structured( void ) const;
@@ -195,9 +195,8 @@ class ae_selection : public ae_object
     bool    _with_HT;
     double  _HT_ins_rate;
     double  _HT_repl_rate;
-    bool    _with_plasmid_HT; // Whether inter-individual plasmid transfer is allowed
-    int16_t _nb_plasmid_HT;   // TODO: ?
-    double  _prob_plasmid_HT; // TODO: ?
+    int16_t _nb_plasmid_HT;   // TODO: explain
+    double  _prob_plasmid_HT; // TODO: explain
     bool    _swap_GUs; // Whether plasmid HT is uni- or bidirectional
     
     // ------------------------------------------------------ Spatial structure
@@ -241,7 +240,7 @@ inline bool ae_selection::get_with_HT( void ) const
 
 inline bool ae_selection::get_with_plasmid_HT( void ) const
 {
-  return _with_plasmid_HT;
+  return (_prob_plasmid_HT > 0);
 }
 
 inline bool ae_selection::is_spatially_structured( void ) const
@@ -321,11 +320,6 @@ inline void ae_selection::set_HT_repl_rate( double HT_repl_rate )
   _HT_repl_rate = HT_repl_rate;
 }
 
-inline void ae_selection::set_with_plasmid_HT( bool with_p_HT )
-{
-  _with_plasmid_HT = with_p_HT;
-}
-
 inline void ae_selection::set_nb_plasmid_HT( int16_t nb_p_HT )
 {
   _nb_plasmid_HT = nb_p_HT;
@@ -346,6 +340,7 @@ inline void ae_selection::set_swap_GUs( bool swap_GUs )
 inline void ae_selection::set_spatially_structured( bool structured )
 {
   _spatially_structured = structured;
+  _spatial_structure    = new ae_spatial_structure();
 }
 
 inline void ae_selection::set_grid_size( int16_t grid_width, int16_t grid_height )

@@ -111,21 +111,21 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, ae_list* codon_list, ae_stran
   _shine_dal_pos  = shine_dal_pos;
   _length         = codon_list->get_nb_elts();
   
-  // In Aevol the concentration of a new protein is set at the basal level
   #ifndef __REGUL
-  _concentration  = rna->get_basal_level();
-  // In Raevol, there is two case, depending on the heredity
+    // In Aevol the concentration of a new protein is set at the basal level
+    _concentration  = rna->get_basal_level();
   #else
-  if ( ae_common::with_heredity )
-  {
-    // With heredity the new protein has a concentration set at 0, because there are inherited proteins which allow the regulation
-    _concentration = 0;
-  }
-  else
-  {
-    // Without heredity, we use the same concentration as in Aevol (No inherited proteins)
-    _concentration = rna->get_basal_level();
-  }
+    // In Raevol, there is two case, depending on the heredity
+    if ( ae_common::with_heredity )
+    {
+      // With heredity the new protein has a concentration set at 0, because there are inherited proteins which allow the regulation
+      _concentration = 0;
+    }
+    else
+    {
+      // Without heredity, we use the same concentration as in Aevol (No inherited proteins)
+      _concentration = rna->get_basal_level();
+    }
   #endif
   
   // TODO : make this cleaner...

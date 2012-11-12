@@ -138,6 +138,7 @@ class ae_list : public ae_object
     inline bool     is_empty( void ) const;
 
     inline int32_t    get_position( ae_object* obj ) const;
+    inline ae_list_node*     get_node( int32_t pos ) const;
     inline ae_object* get_object( int32_t pos ) const;
 
     // Accessors
@@ -677,11 +678,11 @@ int32_t ae_list::get_nb_elts( void ) const
 }
 
 
+/*!
+  Returns the position of the object provided or -1 if not found
+ */
 int32_t ae_list::get_position( ae_object* obj ) const
 {
-  // returns 0 for the first item, and so forth...
-  // returns -1 if the object was not found
-
   int32_t i = 0;
 
   ae_list_node * node = _first;
@@ -694,6 +695,39 @@ int32_t ae_list::get_position( ae_object* obj ) const
 
   return -1;
 }
+
+
+/*!
+  Returns the node at position <pos> or NULL if pos is invalid
+ */
+ae_list_node* ae_list::get_node( int32_t pos ) const
+{
+  if ( pos >= _nb_elts ) return NULL;
+
+  ae_list_node * node = _first;
+  for ( int32_t i = 0 ; i < pos ; i++ )
+  {
+    node = node->_next;
+  }
+  return node;
+}
+
+
+/*!
+  Returns the object at position <pos> or NULL if pos is invalid
+ */
+ae_object* ae_list::get_object( int32_t pos ) const
+{
+  if ( pos >= _nb_elts ) return NULL;
+
+  ae_list_node * node = _first;
+  for ( int32_t i = 0 ; i < pos ; i++ )
+  {
+    node = node->_next;
+  }
+  return node->_obj;
+}
+
 
 ae_list_node* ae_list::bsearch( void* needle, int ( * comparator ) ( const void * value, const void * object ) ) const
 // Returns a pointer to the first object in the list where needle was found
@@ -710,18 +744,6 @@ ae_list_node* ae_list::bsearch( void* needle, int ( * comparator ) ( const void 
   }
 
   return NULL;
-}
-
-ae_object* ae_list::get_object( int32_t pos ) const
-{
-  if ( pos >= _nb_elts ) return NULL;
-
-  ae_list_node * node = _first;
-  for ( int32_t i = 0 ; i < pos ; i++ )
-  {
-    node = node->_next;
-  }
-  return node->_obj;
 }
 
 

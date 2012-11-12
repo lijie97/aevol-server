@@ -118,6 +118,15 @@ void ae_jumping_mt::jump( void )
     SFMT_jump( _sfmt, jump_poly );
   #endif
     
+    
+  //~ int nb_sup_steps = 100 * (double)rand() / ((double)RAND_MAX + 1);
+  //~ for ( int i = 0 ; i < nb_sup_steps ; i++ )
+  //~ {
+    //~ sfmt_genrand_real2( _sfmt );
+  //~ }
+    
+  
+  
   end = clock();
   jump_time += (end - start) * 1000 / CLOCKS_PER_SEC;
   nb_jumps++;
