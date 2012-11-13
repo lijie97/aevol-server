@@ -152,7 +152,7 @@ class ae_population : public ae_object
     ae_individual* create_individual_from_file( char* organism_file_name, int32_t id );
     
     //~ void compute_prob_reprod( void );
-    void compute_local_prob_reprod( void );
+    //~ void compute_local_prob_reprod( void );
 
     // =================================================================
     //                          Protected Attributes

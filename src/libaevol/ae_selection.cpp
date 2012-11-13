@@ -293,11 +293,11 @@ void ae_selection::step_to_next_generation_grid( void )
   // -------------------------------------------------------------------------------
   #ifndef FIXED_POPULATION_SIZE
     #error this method is not ready for variable population size
-    compute_prob_reprod();
+    compute_local_prob_reprod();
   #else
     if ( _selection_scheme == FITNESS_PROPORTIONATE || _prob_reprod == NULL )
     {
-      compute_prob_reprod();
+      compute_local_prob_reprod();
     }
   #endif
   
