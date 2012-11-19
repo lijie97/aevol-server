@@ -98,6 +98,22 @@ class ae_population : public ae_object
     //~ inline void set_nb_indivs( int32_t nb_indivs );
     
     inline void add_indiv( ae_individual* indiv );
+    
+    // Mutation rates etc...
+    inline void set_overall_point_mutation_rate( double point_mutation_rate);
+    inline void set_overall_small_insertion_rate( double small_insertion_rate);
+    inline void set_overall_small_deletion_rate( double small_deletion_rate);
+    inline void set_overall_max_indel_size( int16_t max_indel_size);
+    
+    inline void set_overall_duplication_rate( double duplication_rate);
+    inline void set_overall_deletion_rate( double deletion_rate);
+    inline void set_overall_translocation_rate( double translocation_rate);
+    inline void set_overall_inversion_rate( double inversion_rate);
+    inline void set_overall_neighbourhood_rate( double neighbourhood_rate);
+    inline void set_overall_duplication_proportion( double duplication_proportion);
+    inline void set_overall_deletion_proportion( double deletion_proportion);
+    inline void set_overall_translocation_proportion( double translocation_proportion);
+    inline void set_overall_inversion_proportion( double inversion_proportion);
 
     // =================================================================
     //                            Public Methods
@@ -227,6 +243,164 @@ inline void ae_population::add_indiv( ae_individual* indiv )
 {
   _indivs->add( indiv );
   _nb_indivs++;
+}
+
+
+// Mutation rates etc...
+inline void ae_population::set_overall_point_mutation_rate( double point_mutation_rate)
+{
+  ae_list_node*   indiv_node = _indivs->get_first();
+  ae_individual*  indiv;
+  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
+  {
+    indiv = ( ae_individual* ) indiv_node->get_obj();
+    indiv->set_point_mutation_rate( point_mutation_rate );
+    indiv_node = indiv_node->get_next();
+  }
+}
+
+inline void ae_population::set_overall_small_insertion_rate( double small_insertion_rate)
+{
+  ae_list_node*   indiv_node = _indivs->get_first();
+  ae_individual*  indiv;
+  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
+  {
+    indiv = ( ae_individual* ) indiv_node->get_obj();
+    indiv->set_small_insertion_rate( small_insertion_rate );
+    indiv_node = indiv_node->get_next();
+  }
+}
+
+inline void ae_population::set_overall_small_deletion_rate( double small_deletion_rate)
+{
+  ae_list_node*   indiv_node = _indivs->get_first();
+  ae_individual*  indiv;
+  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
+  {
+    indiv = ( ae_individual* ) indiv_node->get_obj();
+    indiv->set_small_deletion_rate( small_deletion_rate );
+    indiv_node = indiv_node->get_next();
+  }
+}
+
+inline void ae_population::set_overall_max_indel_size( int16_t max_indel_size)
+{
+  ae_list_node*   indiv_node = _indivs->get_first();
+  ae_individual*  indiv;
+  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
+  {
+    indiv = ( ae_individual* ) indiv_node->get_obj();
+    indiv->set_max_indel_size( max_indel_size );
+    indiv_node = indiv_node->get_next();
+  }
+}
+
+inline void ae_population::set_overall_duplication_rate( double duplication_rate)
+{
+  ae_list_node*   indiv_node = _indivs->get_first();
+  ae_individual*  indiv;
+  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
+  {
+    indiv = ( ae_individual* ) indiv_node->get_obj();
+    indiv->set_duplication_rate( duplication_rate );
+    indiv_node = indiv_node->get_next();
+  }
+}
+
+inline void ae_population::set_overall_deletion_rate( double deletion_rate)
+{
+  ae_list_node*   indiv_node = _indivs->get_first();
+  ae_individual*  indiv;
+  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
+  {
+    indiv = ( ae_individual* ) indiv_node->get_obj();
+    indiv->set_deletion_rate( deletion_rate );
+    indiv_node = indiv_node->get_next();
+  }
+}
+
+inline void ae_population::set_overall_translocation_rate( double translocation_rate)
+{
+  ae_list_node*   indiv_node = _indivs->get_first();
+  ae_individual*  indiv;
+  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
+  {
+    indiv = ( ae_individual* ) indiv_node->get_obj();
+    indiv->set_translocation_rate( translocation_rate );
+    indiv_node = indiv_node->get_next();
+  }
+}
+
+inline void ae_population::set_overall_inversion_rate( double inversion_rate)
+{
+  ae_list_node*   indiv_node = _indivs->get_first();
+  ae_individual*  indiv;
+  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
+  {
+    indiv = ( ae_individual* ) indiv_node->get_obj();
+    indiv->set_inversion_rate( inversion_rate );
+    indiv_node = indiv_node->get_next();
+  }
+}
+
+inline void ae_population::set_overall_neighbourhood_rate( double neighbourhood_rate)
+{
+  ae_list_node*   indiv_node = _indivs->get_first();
+  ae_individual*  indiv;
+  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
+  {
+    indiv = ( ae_individual* ) indiv_node->get_obj();
+    indiv->set_neighbourhood_rate( neighbourhood_rate );
+    indiv_node = indiv_node->get_next();
+  }
+}
+
+inline void ae_population::set_overall_duplication_proportion( double duplication_proportion)
+{
+  ae_list_node*   indiv_node = _indivs->get_first();
+  ae_individual*  indiv;
+  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
+  {
+    indiv = ( ae_individual* ) indiv_node->get_obj();
+    indiv->set_duplication_proportion( duplication_proportion );
+    indiv_node = indiv_node->get_next();
+  }
+}
+
+inline void ae_population::set_overall_deletion_proportion( double deletion_proportion)
+{
+  ae_list_node*   indiv_node = _indivs->get_first();
+  ae_individual*  indiv;
+  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
+  {
+    indiv = ( ae_individual* ) indiv_node->get_obj();
+    indiv->set_deletion_proportion( deletion_proportion );
+    indiv_node = indiv_node->get_next();
+  }
+}
+
+inline void ae_population::set_overall_translocation_proportion( double translocation_proportion)
+{
+  ae_list_node*   indiv_node = _indivs->get_first();
+  ae_individual*  indiv;
+  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
+  {
+    indiv = ( ae_individual* ) indiv_node->get_obj();
+    indiv->set_translocation_proportion( translocation_proportion );
+    indiv_node = indiv_node->get_next();
+  }
+}
+
+inline void ae_population::set_overall_inversion_proportion( double inversion_proportion)
+{
+  ae_list_node*   indiv_node = _indivs->get_first();
+  ae_individual*  indiv;
+  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
+  {
+    indiv = ( ae_individual* ) indiv_node->get_obj();
+    indiv->set_inversion_proportion( inversion_proportion );
+    indiv_node = indiv_node->get_next();
+  }
 }
 
 // =====================================================================

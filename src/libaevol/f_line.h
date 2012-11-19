@@ -27,11 +27,9 @@
 /** \class
  *  \brief
  */
-
-
-#ifndef __param_loader_H__
-#define  __param_loader_H__
-
+ 
+#ifndef __f_line_H__
+#define  __f_line_H__
 
 // =================================================================
 //                              Libraries
@@ -39,38 +37,28 @@
 #include <inttypes.h>
 #include <stdio.h>
 
-
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <params.h>
-#include <f_line.h>
-#include <ae_params_mut.h>
-#include <ae_jumping_mt.h>
 
 
 // =================================================================
 //                          Class declarations
 // =================================================================
-class ae_exp_manager;
-class ae_environment;
-class ae_individual;
 
-
-class param_loader
+class f_line
 {
   public :
-
+  
     // =================================================================
     //                             Constructors
     // =================================================================
-    param_loader( const char* file_name );
-
+    f_line( void );
+    
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~param_loader( void );
-
+    
     // =================================================================
     //                              Accessors
     // =================================================================
@@ -78,59 +66,27 @@ class param_loader
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void read_file( void );
-    void load( ae_exp_manager* exp_m, bool verbose = false );
-    
-    f_line* get_line( void ); 
     
     // =================================================================
     //                           Public Attributes
     // =================================================================
-
-
-
-
+    
+    int16_t nb_words;
+    char    words[50][255];
 
   protected :
 
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    param_loader( void )
-    {
-      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-    param_loader( const param_loader &model )
-    {
-      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-
+    
     // =================================================================
     //                           Protected Methods
     // =================================================================
-    static void format_line( f_line*, char*, bool* );
-    void interpret_line( f_line* line, int32_t cur_line );
-    ae_individual* create_random_individual( ae_exp_manager* exp_m, ae_params_mut* param_mut, int32_t id ) const;
-    ae_individual* create_random_individual_with_good_gene( ae_exp_manager* exp_m, ae_params_mut* param_mut, int32_t id ) const;
-    ae_individual* create_clone( ae_individual* dolly, int32_t id ) const;
     
-    
-
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    //~ ae_exp_manager* _exp_m;
-    
-    ae_jumping_mt* _prng;
-    
-    char*   _param_file_name;
-    FILE*   _param_file;
-    
-    params* _param_values;
-    
-    int32_t _cur_line;
 };
 
 
@@ -142,4 +98,4 @@ class param_loader
 //                       Inline functions' definition
 // =====================================================================
 
-#endif // __param_loader_H__
+#endif // __f_line_H__

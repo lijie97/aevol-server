@@ -1,3 +1,4 @@
+
 //*****************************************************************************
 //
 //                         aevol - Artificial Evolution
@@ -63,9 +64,9 @@ class ae_tree : public ae_object
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_tree( ae_tree_mode tree_mode, int32_t tree_step );
+    ae_tree( ae_exp_manager* exp_m, ae_tree_mode tree_mode, int32_t tree_step );
     // To be used when we want to run a simulation.
-    ae_tree( char* backup_file_name, char* tree_file_name ); 
+    ae_tree( ae_exp_manager* exp_m, char* backup_file_name, char* tree_file_name ); 
     // To be used when we want to INSPECT a tree, 
     // not when we want to run a simulation.
     
@@ -79,26 +80,28 @@ class ae_tree : public ae_object
     // =================================================================
     inline int32_t       get_tree_step( void ) const;
     inline ae_tree_mode  get_tree_mode( void ) const;
+    
+    // Precondition for the following 3 methods: 
+    // the tree was emptied every TREE_STEP generations ==> it contains
+    // only the last generations since the last emptying ==> do not ask
+    // something about an older generation 
+    int32_t get_nb_indivs( int32_t generation ) const;
+    ae_replication_report * get_report_by_index( int32_t generation, int32_t index ) const;
+    ae_replication_report * get_report_by_rank( int32_t generation, int32_t rank ) const;
   
 
     // =================================================================
     //                        Accessors: setters
     // =================================================================
+    void set_replic_report( int32_t id, ae_replication_report* replic_report );
+    
+    
     
     
     
     // =================================================================
     //                            Public Methods
     // =================================================================
-    
-    // Precondition for both methods: 
-    // the tree was emptied every TREE_STEP generations ==> it contains
-    // only the last generations since the last emptying ==> do not ask
-    // something about an older generation 
-    int32_t get_nb_indivs( int32_t generation ) const; 
-    ae_replication_report * get_report_by_index( int32_t generation, int32_t index ) const;
-    ae_replication_report * get_report_by_rank( int32_t generation, int32_t rank ) const;
-    
     void fill_tree_with_cur_gener( void );
     void write_to_tree_file( gzFile* tree_file );
     
@@ -175,6 +178,8 @@ inline ae_tree_mode ae_tree::get_tree_mode( void ) const
 // =====================================================================
 //                           Setters' definitions
 // =====================================================================
+
+
 
 // =====================================================================
 //                       Inline functions' definition

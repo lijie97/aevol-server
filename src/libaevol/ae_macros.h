@@ -22,6 +22,8 @@
 #define OUT_P_FNAME_BASE      "output_profile_%06"PRId32
 // Stats
 #define STATS_DIR             "stats"
+// Stats
+#define TREE_DIR              "tree"
 
 #ifdef __REGUL
   #define ENV_FNAME_FORMAT          ENV_DIR"/"ENV_FNAME_BASE".rae"

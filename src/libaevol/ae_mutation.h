@@ -89,7 +89,7 @@ class ae_mutation : public ae_object
     virtual ~ae_mutation( void );
   
     // =================================================================
-    //                              Accessors
+    //                        Accessors: Getters
     // =================================================================
     inline ae_mutation_type get_mut_type( void );
     inline int32_t          get_length( void );
@@ -104,6 +104,11 @@ class ae_mutation : public ae_object
                                   int16_t* align_score_1 = NULL, int16_t* align_score_2 = NULL );
     void get_infos_inversion( int32_t* pos1, int32_t* pos2, int16_t* align_score = NULL );
     void get_infos_insertion( int32_t* pos, int32_t* length );
+    
+    // =================================================================
+    //                        Accessors: Setters
+    // =================================================================
+
   
     // =================================================================
     //                            Public Methods

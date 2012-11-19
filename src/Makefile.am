@@ -76,10 +76,10 @@ endif # DEBUG
 endif # X
 endif # RAEVOL
 
-bin_PROGRAMS += create_exp
+bin_PROGRAMS += create_exp change_pop change_env
 
 CLEANFILES = aevol aevol_IN2P3 raevol raevol_IN2P3 aevol_debug raevol_debug aevol_X11 raevol_X11 aevol_X11_debug raevol_X11_debug
-CLEANFILES += create_exp
+CLEANFILES += create_exp change_pop change_env
 
 
 
@@ -132,3 +132,11 @@ raevol_X11_debug_CPPFLAGS = $(AM_CPPFLAGS)
 create_exp_dir = $(bindir)
 create_exp_SOURCES = create_exp.cpp
 create_exp_CPPFLAGS = $(AM_CPPFLAGS)
+
+change_pop_dir = $(bindir)
+change_pop_SOURCES = change_pop.cpp
+change_pop_CPPFLAGS = $(AM_CPPFLAGS)
+
+change_env_dir = $(bindir)
+change_env_SOURCES = change_env.cpp
+change_env_CPPFLAGS = $(AM_CPPFLAGS)

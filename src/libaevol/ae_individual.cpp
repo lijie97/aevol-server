@@ -644,6 +644,7 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id )
   if ( _exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL )
   {
     _replic_report = new ae_replication_report( this, parent );
+    _exp_m->get_output_m()->get_tree()->set_replic_report( _id, _replic_report );
   }
   else
   {

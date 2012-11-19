@@ -64,8 +64,10 @@ const int32_t ae_tree::NO_PARENT = -1;
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_tree::ae_tree( ae_tree_mode tree_mode, int32_t tree_step )
+ae_tree::ae_tree( ae_exp_manager* exp_m, ae_tree_mode tree_mode, int32_t tree_step )
 {
+  _exp_m = exp_m;
+    
   _tree_mode = tree_mode;
   _tree_step = tree_step;
 
@@ -110,8 +112,10 @@ ae_tree::ae_tree( ae_tree_mode tree_mode, int32_t tree_step )
 
 
 
-ae_tree::ae_tree( char* backup_file_name, char* tree_file_name )
+ae_tree::ae_tree( ae_exp_manager* exp_m, char* backup_file_name, char* tree_file_name )
 {
+  //~ _exp_m = exp_m;
+    
   //~ // Retrieve the ae_common's informations in backup_file
   //~ int16_t bfn_len = strlen( backup_file_name );
   //~ #ifdef __REGUL
@@ -377,10 +381,18 @@ void ae_tree::write_to_tree_file( gzFile* tree_file )
 
 
 
-
-
-
-
+// =================================================================
+//                  Non-inline accessors' definition
+// =================================================================
+void ae_tree::set_replic_report( int32_t id, ae_replication_report* replic_report )
+{
+  if ( _replics[_exp_m->get_num_gener() % _tree_step] == NULL )
+  {
+    _replics[_exp_m->get_num_gener() % _tree_step] = new ae_replication_report* [_exp_m->get_nb_indivs()];
+  }
+  
+  _replics[_exp_m->get_num_gener() % _tree_step][id] = replic_report;
+}
 
 
 

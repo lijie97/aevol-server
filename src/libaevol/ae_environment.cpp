@@ -309,9 +309,24 @@ void ae_environment::save( gzFile* backup_file ) const
   // ---------------------------------------------------------------
   //  If needed, keep a copy of the initial state of the gaussians
   // ---------------------------------------------------------------
-  if ( 1/*NOISE OR VAR*/ )
-  #warning TODO
+  if ( _var_method != NONE || is_noise_allowed() )
   {
+    int16_t nb_gaussians = ( _initial_gaussians == NULL ) ? 0 : _initial_gaussians->get_nb_elts();
+    gzwrite( backup_file, &nb_gaussians, sizeof(nb_gaussians) );
+    
+    if ( _initial_gaussians != NULL )
+    {
+      ae_list_node* gaussian_node = _initial_gaussians->get_first();
+      ae_gaussian*  gaussian;
+      for ( int16_t i = 0 ; i < nb_gaussians ; i++ )
+      {
+        gaussian = ( ae_gaussian* ) gaussian_node->get_obj();
+        
+        gaussian->save( backup_file );
+        
+        gaussian_node = gaussian_node->get_next();
+      }
+    }
   }
 }
 
@@ -410,12 +425,18 @@ void ae_environment::load( gzFile* backup_file )
   }
   
   
-  // ---------------------------------------------------------------
-  //  If needed, keep a copy of the initial state of the gaussians
-  // ---------------------------------------------------------------
-  if ( 1/*NOISE OR VAR*/ )
-  #warning TODO
+  // --------------------------------------------------------------------
+  //  If needed, retreive the copy of the initial state of the gaussians
+  // --------------------------------------------------------------------
+  if ( _var_method != NONE || is_noise_allowed() )
   {
+    int16_t nb_gaussians;
+    gzread( backup_file, &nb_gaussians, sizeof(nb_gaussians) );
+    if ( nb_gaussians > 0 ) _initial_gaussians = new ae_list();
+    for ( int16_t i = 0 ; i < nb_gaussians ; i++ )
+    {
+      _initial_gaussians->add( new ae_gaussian( backup_file ) );
+    }
   }
   
   // ------------------------------
@@ -427,6 +448,11 @@ void ae_environment::load( gzFile* backup_file )
 void ae_environment::add_gaussian( double a, double b, double c )
 {
   _gaussians->add( new ae_gaussian( a, b, c ) );
+}
+
+void ae_environment::add_initial_gaussian( double a, double b, double c )
+{
+  _initial_gaussians->add( new ae_gaussian( a, b, c ) );
 }
 
 void ae_environment::build( void )
@@ -474,6 +500,27 @@ void ae_environment::build( void )
   // 4) Compute areas (total and by feature)
   // ---------------------------------------
   _compute_area();
+  
+  
+  // -------------------------------------------------------------------
+  //  5) If needed, create a copy of the initial state of the gaussians
+  // -------------------------------------------------------------------
+  if ( _initial_gaussians == NULL && (_var_method != NONE || is_noise_allowed()) )
+  {
+    _initial_gaussians = new ae_list();
+    
+    int32_t nb_gaussians = _gaussians->get_nb_elts();
+    ae_list_node* gaussian_node = _gaussians->get_first();
+    ae_gaussian*  gaussian      = NULL;
+    for ( int16_t i = 0 ; i < nb_gaussians ; i++ )
+    {
+      gaussian = ( ae_gaussian* ) gaussian_node->get_obj();
+      
+      _initial_gaussians->add( new ae_gaussian( *gaussian ) );
+      
+      gaussian_node = gaussian_node->get_next();
+    }
+  }
 }
 
 /*!

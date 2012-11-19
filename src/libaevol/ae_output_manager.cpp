@@ -32,6 +32,9 @@
 // =================================================================
 //                              Libraries
 // =================================================================
+#include <err.h>
+#include <errno.h>
+#include <sys/stat.h>
 
 
 
@@ -89,6 +92,13 @@ void ae_output_manager::write_setup_file( gzFile* setup_file ) const
   // Tree
   int8_t record_tree = _record_tree;
   gzwrite( setup_file, &record_tree, sizeof(record_tree) );
+  if ( _record_tree )
+  {
+    int32_t tmp_tree_step = _tree->get_tree_step();
+    gzwrite( setup_file, &tmp_tree_step, sizeof(tmp_tree_step) );
+    int8_t tmp_tree_mode = (int8_t) _tree->get_tree_mode();
+    gzwrite( setup_file, &tmp_tree_mode, sizeof(tmp_tree_mode) );
+  }
   
   // Dumps
   int8_t make_dumps = _make_dumps;
@@ -106,6 +116,23 @@ void ae_output_manager::write_setup_file( FILE* setup_file ) const
   
   // Tree
   fprintf( setup_file, "RECORD_TREE %s\n", _record_tree ? "true" : "false" );
+  if ( _record_tree )
+  {
+    fprintf( setup_file, "TREE_STEP %"PRId32"\n", _tree->get_tree_step() );
+    
+    if ( _tree->get_tree_mode() == LIGHT )
+    {
+      fprintf( setup_file, "TREE_MODE LIGHT\n" );
+    }
+    else if ( _tree->get_tree_mode() == NORMAL )
+    {
+      fprintf( setup_file, "TREE_MODE NORMAL\n" );
+    }
+    else
+    {
+      fprintf( setup_file, "TREE_MODE UNKNOWN\n" );
+    }
+  }
   
   // Dumps
   fprintf( setup_file, "MAKE_DUMPS %s\n", _make_dumps ? "true" : "false" );
@@ -125,6 +152,20 @@ void ae_output_manager::load( gzFile* setup_file, bool verbose )
   int8_t record_tree;
   gzread( setup_file, &record_tree, sizeof(record_tree) );
   _record_tree = record_tree;
+  if ( _record_tree )
+  {
+    int32_t tmp_tree_step;
+    gzread( setup_file, &tmp_tree_step, sizeof(tmp_tree_step) );
+    int8_t tmp_tree_mode;
+    gzread( setup_file, &tmp_tree_mode, sizeof(tmp_tree_mode) );
+    if ( (ae_tree_mode)tmp_tree_mode != LIGHT && (ae_tree_mode)tmp_tree_mode != NORMAL)
+    {
+        printf( "%s:%d: error: invalid tree mode\n", __FILE__, __LINE__ );
+        exit( EXIT_FAILURE );
+    }
+    
+    _tree = new ae_tree( _exp_m, (ae_tree_mode) tmp_tree_mode, tmp_tree_step );
+  }
   
   // Dumps
   int8_t make_dumps;
@@ -147,6 +188,21 @@ void ae_output_manager::load( FILE* setup_file, bool verbose )
   // Tree
   fscanf( setup_file, "RECORD_TREE %s\n", tmp );
   _record_tree = ! strcmp( tmp, "true" );
+  if ( _record_tree )
+  {
+    int32_t tmp_tree_step;
+    fscanf( setup_file, "TREE_STEP %"PRId32"\n", &tmp_tree_step );
+    int8_t tmp_tree_mode;
+    fscanf( setup_file, "TREE_MODE %"PRId8"\n", &tmp_tree_mode );
+    if ( (ae_tree_mode)tmp_tree_mode != LIGHT && (ae_tree_mode)tmp_tree_mode != NORMAL)
+    {
+        printf( "%s:%d: error: invalid tree mode\n", __FILE__, __LINE__ );
+        assert( false );
+        exit( EXIT_FAILURE );
+    }
+    
+    _tree = new ae_tree( _exp_m, (ae_tree_mode) tmp_tree_mode, tmp_tree_step );
+  }
   
   // Dumps
   fscanf( setup_file, "MAKE_DUMPS %s\n", tmp );
@@ -171,7 +227,7 @@ void ae_output_manager::write_current_generation_outputs( void ) const
   }
 
   // Write backup and tree
-  if ( _record_tree && (num_gener % _tree->get_tree_step() == 0) )    
+  if ( _record_tree && (num_gener != _exp_m->get_first_gener()) && (num_gener % _tree->get_tree_step() == 0) )    
   {
     if ( _tree->get_tree_mode() == NORMAL ) 
     { 
@@ -218,6 +274,14 @@ void ae_output_manager::write_current_generation_outputs( void ) const
 // =================================================================
 void ae_output_manager::write_tree( void ) const
 {
+  // Create the tree directory if it doesn't exist
+  int status;
+  status = mkdir( TREE_DIR, 0755 );
+  if ( (status == -1) && (errno != EEXIST) )
+  {
+    err( EXIT_FAILURE, TREE_DIR, errno );
+  }
+  
   char tree_file_name[50];
   
 #ifdef __REGUL

@@ -213,6 +213,23 @@ class ae_individual : public ae_object
     
     inline void add_GU( char * &sequence, int32_t length );
     
+    // Mutation rates etc...
+    inline void set_point_mutation_rate( double point_mutation_rate);
+    inline void set_small_insertion_rate( double small_insertion_rate);
+    inline void set_small_deletion_rate( double small_deletion_rate);
+    inline void set_max_indel_size( int16_t max_indel_size);
+    
+    inline void set_duplication_rate( double duplication_rate);
+    inline void set_deletion_rate( double deletion_rate);
+    inline void set_translocation_rate( double translocation_rate);
+    inline void set_inversion_rate( double inversion_rate);
+    inline void set_neighbourhood_rate( double neighbourhood_rate);
+    inline void set_duplication_proportion( double duplication_proportion);
+    inline void set_deletion_proportion( double deletion_proportion);
+    inline void set_translocation_proportion( double translocation_proportion);
+    inline void set_inversion_proportion( double inversion_proportion);
+
+    
     // =================================================================
     //                            Public Methods
     // =================================================================
@@ -1122,6 +1139,72 @@ inline void ae_individual::set_min_genome_length( int32_t min_genome_length )
 inline void ae_individual::set_max_genome_length( int32_t max_genome_length )
 {
   _max_genome_length = max_genome_length;
+}
+
+
+inline void ae_individual::set_point_mutation_rate( double point_mutation_rate)
+{
+  _mut_params->set_point_mutation_rate(point_mutation_rate);
+}
+
+inline void ae_individual::set_small_insertion_rate( double small_insertion_rate)
+{
+  _mut_params->set_small_insertion_rate(small_insertion_rate);
+}
+
+inline void ae_individual::set_small_deletion_rate( double small_deletion_rate)
+{
+  _mut_params->set_small_deletion_rate(small_deletion_rate);
+}
+
+inline void ae_individual::set_max_indel_size( int16_t max_indel_size)
+{
+  _mut_params->set_max_indel_size(max_indel_size);
+}
+
+inline void ae_individual::set_duplication_rate( double duplication_rate)
+{
+  _mut_params->set_duplication_rate(duplication_rate);
+}
+
+inline void ae_individual::set_deletion_rate( double deletion_rate)
+{
+  _mut_params->set_deletion_rate(deletion_rate);
+}
+
+inline void ae_individual::set_translocation_rate( double translocation_rate)
+{
+  _mut_params->set_translocation_rate(translocation_rate);
+}
+
+inline void ae_individual::set_inversion_rate( double inversion_rate)
+{
+  _mut_params->set_inversion_rate(inversion_rate);
+}
+
+inline void ae_individual::set_neighbourhood_rate( double neighbourhood_rate)
+{
+  _mut_params->set_neighbourhood_rate(neighbourhood_rate);
+}
+
+inline void ae_individual::set_duplication_proportion( double duplication_proportion)
+{
+  _mut_params->set_duplication_proportion(duplication_proportion);
+}
+
+inline void ae_individual::set_deletion_proportion( double deletion_proportion)
+{
+  _mut_params->set_deletion_proportion(deletion_proportion);
+}
+
+inline void ae_individual::set_translocation_proportion( double translocation_proportion)
+{
+  _mut_params->set_translocation_proportion(translocation_proportion);
+}
+
+inline void ae_individual::set_inversion_proportion( double inversion_proportion)
+{
+  _mut_params->set_inversion_proportion(inversion_proportion);
 }
 
 // =====================================================================

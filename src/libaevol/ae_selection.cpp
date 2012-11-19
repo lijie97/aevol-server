@@ -195,7 +195,6 @@ void ae_selection::step_to_next_generation( void )
   if ( _prng == NULL )
   {
     printf( "%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__ );
-    assert( false );
     exit( EXIT_FAILURE );
   }
   
@@ -304,7 +303,6 @@ void ae_selection::step_to_next_generation_grid( void )
   if ( _prng == NULL )
   {
     printf( "%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__ );
-    assert( false );
     exit( EXIT_FAILURE );
   }
   
@@ -530,7 +528,6 @@ void ae_selection::write_setup_file( gzFile* exp_setup_file ) const
   if ( _prng == NULL )
   {
     printf( "%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__ );
-    assert( false );
     exit( EXIT_FAILURE );
   }
   
@@ -585,7 +582,6 @@ void ae_selection::write_setup_file( FILE* exp_setup_file ) const
   /*if ( _prng == NULL )
   {
     printf( "%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__ );
-    assert( false );
     exit( EXIT_FAILURE );
   }
   
@@ -853,13 +849,11 @@ void ae_selection::compute_prob_reprod( void )
   else if ( _selection_scheme == FITTEST) //  Fittest individual
   {
     printf( "ERROR, fittest selection scheme is meant to be used for spatially structured populations %s:%d\n", __FILE__, __LINE__ );
-    assert( false );
     exit( EXIT_FAILURE );
   }
   else
   {
     printf( "ERROR, invalid selection scheme in file %s:%d\n", __FILE__, __LINE__ );
-    assert( false );
     exit( EXIT_FAILURE );
   }
 }
@@ -908,13 +902,11 @@ void ae_selection::compute_local_prob_reprod( void )
   else if ( _selection_scheme == FITNESS_PROPORTIONATE ) // Fitness Proportionate
   {
     printf( "ERROR, this function is not intented to be use with this selection scheme %s:%d\n", __FILE__, __LINE__ );
-    assert( false );
     exit( EXIT_FAILURE );
   }
   else
   {
     printf( "ERROR, invalid selection scheme in file %s:%d\n", __FILE__, __LINE__ );
-    assert( false );
     exit( EXIT_FAILURE );
   }
 }
@@ -1377,7 +1369,6 @@ ae_individual* ae_selection::calculate_local_competition ( int16_t x, int16_t y 
     default :
     {
       printf( "ERROR, invalid selection scheme in file %s:%d\n", __FILE__, __LINE__ );
-      assert( false );
       exit( EXIT_FAILURE );
     }
   }

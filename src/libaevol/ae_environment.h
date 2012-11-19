@@ -129,6 +129,7 @@ class ae_environment : public ae_fuzzy_set_X11
 
     void add_custom_point( double x, double y );
     void add_gaussian( double a, double b, double c );
+    void add_initial_gaussian( double a, double b, double c );
     void build( void );
     
     inline void apply_variation( void );

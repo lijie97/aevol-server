@@ -589,10 +589,12 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
     
     if ( strcmp( line->words[1], "none" ) == 0 )
     {
+      assert( line->nb_words == 2 );
       _param_values->set_env_var_method( NONE );
     }
     else if ( strcmp( line->words[1], "autoregressive_mean_variation" ) == 0 )
     {
+      assert( line->nb_words == 5 );
       _param_values->set_env_var_method( AUTOREGRESSIVE_MEAN_VAR );
       _param_values->set_env_var_sigma( atof( line->words[2] ) );
       _param_values->set_env_var_tau( atol( line->words[3] ) );
@@ -600,6 +602,7 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
     }
     else if ( strcmp( line->words[1], "add_local_gaussians" ) == 0 )
     {
+      assert( line->nb_words == 3 );
       _param_values->set_env_var_method( LOCAL_GAUSSIANS_VAR );
       _param_values->set_env_var_seed( atoi( line->words[2] ) );
     }
@@ -1074,7 +1077,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   
   if ( _param_values->get_record_tree() )
   {
-    output_m->init_tree( _param_values->get_tree_mode(), _param_values->get_tree_step() );
+    output_m->init_tree( exp_m, _param_values->get_tree_mode(), _param_values->get_tree_step() );
   }
   
   if ( _param_values->get_make_dumps() )
@@ -1149,14 +1152,6 @@ f_line* param_loader::get_line( void )
     delete formated_line;
     return NULL;
   }
-}
-
-
-
-
-f_line::f_line( void )
-{
-  nb_words = 0;
 }
 
 ae_individual* param_loader::create_random_individual( ae_exp_manager* exp_m, ae_params_mut* param_mut, int32_t id ) const
