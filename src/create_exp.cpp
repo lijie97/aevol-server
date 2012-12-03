@@ -46,7 +46,11 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_exp_manager_X11.h>
+#ifdef __X11
+  #include <ae_exp_manager_X11.h>
+#else
+  #include <ae_exp_manager.h>
+#endif
 #include <param_loader.h>
 
 
