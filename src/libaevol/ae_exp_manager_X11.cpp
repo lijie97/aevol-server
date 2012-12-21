@@ -114,12 +114,17 @@ ae_exp_manager_X11::~ae_exp_manager_X11( void )
   for ( int8_t i = 0 ; i < NB_WIN ; i++ )
   {
     if ( _win[i] != NULL ) delete _win[i];
+    if ( _win_size[i] != NULL ) delete [] _win_size[i];
+    if ( _win_pos[i] != NULL ) delete [] _win_pos[i];
   }
   delete [] _win;
   
   XCloseDisplay( _display );
   
   delete [] _win_name;
+  delete [] _win_size;
+  delete [] _win_pos;
+  
 }
 
 // =================================================================

@@ -106,7 +106,7 @@ void ae_fuzzy_set_X11::display( ae_X11_window* win, color_map color, bool fill /
         fill_color = ae_X11_window::get_color( ((double)i / win->get_width()) * (X_MAX - X_MIN) );
         win->draw_line( i, ( 1 - ((0 -  y_min) / delta_y) ) * win->get_height(),
                         i, cur_y + (((i - cur_x) * (next_y - cur_y)) / (next_x - cur_x)) , fill_color );
-        delete fill_color;
+        delete [] fill_color;
       }
     }
     

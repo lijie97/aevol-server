@@ -70,9 +70,10 @@ ae_environment::ae_environment( void ) :
 #endif
 {
   // Environment "shape"
-  _gaussians      = NULL;
-  _sampling       = 0;
-  _custom_points  = NULL;
+  _initial_gaussians  = NULL;
+  _gaussians          = NULL;
+  _sampling           = 0;
+  _custom_points      = NULL;
   
   _total_area = 0.0;
   
@@ -102,21 +103,31 @@ ae_environment::ae_environment( void ) :
 // =================================================================
 ae_environment::~ae_environment( void )
 {
-  _gaussians->erase( DELETE_OBJ );
-  delete _gaussians;
+  if ( _gaussians != NULL )
+  {
+    _gaussians->erase( DELETE_OBJ );
+    delete _gaussians;
+  }
   
-  _custom_points->erase( DELETE_OBJ );
-  delete _custom_points;
+  if ( _custom_points != NULL )
+  {
+    _custom_points->erase( DELETE_OBJ );
+    delete _custom_points;
+  }
   
   delete _var_prng;
   delete _noise_prng;
   
-  for ( int16_t i = 0 ; i < _nb_segments; i++ )
+  if ( _segments != NULL )
   {
-    delete _segments[i];
-  }
-  delete [] _segments;
+    for ( int16_t i = 0 ; i < _nb_segments; i++ )
+    {
+      delete _segments[i];
+    }
     
+    delete [] _segments;
+  }
+  
   delete [] _area_by_feature;
   
   delete _cur_noise;

@@ -346,6 +346,8 @@ void ae_exp_manager::load_experiment( char* exp_setup_file_name,
   gzclose( env_file );
   gzclose( pop_file );
   gzclose( sp_struct_file );
+  gzclose( exp_setup_gzfile );
+  gzclose( out_prof_gzfile );
   
 
   // ---------------------------------------------------------------------------

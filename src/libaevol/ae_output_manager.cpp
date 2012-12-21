@@ -222,8 +222,11 @@ void ae_output_manager::write_current_generation_outputs( void ) const
   }
   
   if ( _record_tree )
-  { 
-    _tree->fill_tree_with_cur_gener(); 
+  {
+    if ( num_gener > 0 )
+    {
+      _tree->fill_tree_with_cur_gener(); 
+    }
   }
 
   // Write backup and tree

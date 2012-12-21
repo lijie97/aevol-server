@@ -93,8 +93,11 @@ ae_fuzzy_set::ae_fuzzy_set( gzFile* backup_file )
 // =================================================================
 ae_fuzzy_set::~ae_fuzzy_set( void )
 {
-  _points->erase( DELETE_OBJ );
-  delete _points;
+  if ( _points != NULL )
+  {
+    _points->erase( DELETE_OBJ );
+    delete _points;
+  }
 }
 
 // =================================================================

@@ -167,6 +167,7 @@ ae_selection::ae_selection( ae_exp_manager* exp_m )
 // =================================================================
 ae_selection::~ae_selection( void )
 {
+  delete _prng;
   delete [] _prob_reprod;
   delete _spatial_structure;
 }

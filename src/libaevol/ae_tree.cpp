@@ -200,7 +200,6 @@ ae_tree::ae_tree( ae_exp_manager* exp_m, char* backup_file_name, char* tree_file
 // =================================================================
 ae_tree::~ae_tree( void )
 {
-
   switch ( _tree_mode )
   {
     case NORMAL :
@@ -283,6 +282,8 @@ ae_replication_report * ae_tree::get_report_by_rank( int32_t generation, int32_t
 
 void ae_tree::fill_tree_with_cur_gener( void )
 {
+  assert( _exp_m != NULL && _exp_m->get_num_gener() > 0 );
+  
   switch ( _tree_mode )
   {
     case NORMAL :
@@ -386,12 +387,19 @@ void ae_tree::write_to_tree_file( gzFile* tree_file )
 // =================================================================
 void ae_tree::set_replic_report( int32_t id, ae_replication_report* replic_report )
 {
-  if ( _replics[_exp_m->get_num_gener() % _tree_step] == NULL )
-  {
-    _replics[_exp_m->get_num_gener() % _tree_step] = new ae_replication_report* [_exp_m->get_nb_indivs()];
-  }
+  assert( _tree_mode == NORMAL );
   
-  _replics[_exp_m->get_num_gener() % _tree_step][id] = replic_report;
+  int32_t gener_i = _exp_m->get_num_gener() % _tree_step;
+  
+  if ( _replics[gener_i] == NULL )
+  {
+    _replics[gener_i] = new ae_replication_report* [_exp_m->get_nb_indivs()];
+    
+    memset( _replics[gener_i], 0, _exp_m->get_nb_indivs() * sizeof( *_replics ) );  
+  }
+
+  assert( _replics[gener_i][id] == NULL );
+  _replics[gener_i][id] = new ae_replication_report(*replic_report);
 }
 
 

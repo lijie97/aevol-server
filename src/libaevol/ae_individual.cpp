@@ -109,10 +109,9 @@ ae_individual::ae_individual( ae_exp_manager* exp_m,
   _rank = -1; // TODO: UNRANKED
   _age = age;
   
-  _phenotype_activ = new ae_fuzzy_set();
-  _phenotype_inhib = new ae_fuzzy_set();
-  
-  _phenotype = new ae_phenotype();
+  _phenotype_activ  = NULL;
+  _phenotype_inhib  = NULL;
+  _phenotype        = NULL;
   
   _dist_to_target_by_segment  = NULL;
   _dist_to_target_by_feature  = new double [NB_FEATURES];
@@ -251,9 +250,9 @@ ae_individual::ae_individual( ae_exp_manager* exp_m,
   }
   
   // Create empty fuzzy sets for activation and inhibition
-  _phenotype_activ = new ae_fuzzy_set();
-  _phenotype_inhib = new ae_fuzzy_set();
-  _phenotype = NULL;
+  _phenotype_activ  = NULL;
+  _phenotype_inhib  = NULL;
+  _phenotype        = NULL;
   
   // Initialize all the fitness-related stuff
   if ( ae_common::sim->get_env()->is_segmented() )
@@ -389,9 +388,9 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile* backup_file )
   // --------------------------------------------------------------------------------------------
   
   // Create empty fuzzy sets for activation and inhibition
-  _phenotype_activ = new ae_fuzzy_set();
-  _phenotype_inhib = new ae_fuzzy_set();
-  _phenotype = new ae_phenotype();
+  _phenotype_activ  = NULL;
+  _phenotype_inhib  = NULL;
+  _phenotype        = NULL;
 
   _dist_to_target_by_segment  = NULL;
   _dist_to_target_by_feature  = new double [NB_FEATURES];
@@ -506,8 +505,8 @@ ae_individual::ae_individual( const ae_individual &model )
   }
   else
   {
-    _phenotype_activ  = new ae_fuzzy_set();
-    _phenotype_inhib  = new ae_fuzzy_set();
+    _phenotype_activ  = NULL;
+    _phenotype_inhib  = NULL;
     _phenotype        = NULL;
   }
   
@@ -624,10 +623,10 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id )
     gen_unit_node = gen_unit_node->get_next();
   }
   
-  // Create empty fuzzy sets for activation and inhibition
-  _phenotype_activ = new ae_fuzzy_set();
-  _phenotype_inhib = new ae_fuzzy_set();
-  _phenotype = NULL;
+  
+  _phenotype_activ  = NULL;
+  _phenotype_inhib  = NULL;
+  _phenotype        = NULL;
   
   // Initialize all the fitness-related stuff
   _dist_to_target_by_segment  = NULL;
@@ -644,7 +643,9 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id )
   if ( _exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL )
   {
     _replic_report = new ae_replication_report( this, parent );
-    _exp_m->get_output_m()->get_tree()->set_replic_report( _id, _replic_report );
+    
+    // TODO: remove this after checking it is the old way
+    //_exp_m->get_output_m()->get_tree()->set_replic_report( _id, _replic_report );
   }
   else
   {
@@ -738,9 +739,9 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id )
   }
   
   // Create empty fuzzy sets for activation and inhibition
-  _phenotype_activ = new ae_fuzzy_set();
-  _phenotype_inhib = new ae_fuzzy_set();
-  _phenotype = NULL;
+  _phenotype_activ  = NULL;
+  _phenotype_inhib  = NULL;
+  _phenotype        = NULL;
   
   // Initialize all the fitness-related stuff
   if ( ae_common::sim->get_env()->is_segmented() )
@@ -850,9 +851,9 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id )
   }
   
   // Create empty fuzzy sets for activation and inhibition
-  _phenotype_activ = new ae_fuzzy_set();
-  _phenotype_inhib = new ae_fuzzy_set();
-  _phenotype = NULL;
+  _phenotype_activ  = NULL;
+  _phenotype_inhib  = NULL;
+  _phenotype        = NULL;
   
   // Initialize all the fitness-related stuff
   if ( ae_common::sim->get_env()->is_segmented() )
@@ -957,6 +958,8 @@ ae_individual::~ae_individual( void )
   // Generic probes
   delete [] _int_probes;
   delete [] _double_probes;
+  
+  delete _mut_params;
 }
 
 // =================================================================
@@ -991,6 +994,8 @@ void ae_individual::compute_phenotype( void )
   //   * _phenotype_activ for the proteins realising a set of functions
   //   * _phenotype_inhib for the proteins inhibitting a set of functions
   // The phenotype will then be given by the sum of these 2 fuzzy sets
+  _phenotype_activ = new ae_fuzzy_set();
+  _phenotype_inhib = new ae_fuzzy_set();
   
   ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
   ae_genetic_unit*  gen_unit;
@@ -1144,16 +1149,16 @@ void ae_individual::reevaluate( ae_environment* envir /*= NULL*/ )
     unit_node = unit_node->get_next();
   }
 
-  if (_phenotype_activ != NULL)
+  if ( _phenotype_activ != NULL )
   {
     delete _phenotype_activ;
-    _phenotype_activ = new ae_fuzzy_set();
+    _phenotype_activ = NULL;
   }
 
   if (_phenotype_inhib != NULL)
   {
     delete _phenotype_inhib;
-    _phenotype_inhib = new ae_fuzzy_set();
+    _phenotype_inhib = NULL;
   }
 
   if (_phenotype != NULL)
@@ -1361,9 +1366,7 @@ void ae_individual::compute_statistical_data( void )
   if ( _statistical_data_computed ) return; // Statistical data has already been computed, nothing to do.
   _statistical_data_computed = true;
   
-  //~ assert(_phenotype_computed );
-  
-  if ( ! _phenotype_computed )
+  if ( not _phenotype_computed )
   {
     compute_phenotype();
   }

@@ -316,6 +316,8 @@ int main( int argc, char* argv[] )
   //                         Run the simulation
   // =================================================================
   exp_manager->run_evolution();
+  
+  delete exp_manager;
 }
 
 

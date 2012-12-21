@@ -310,6 +310,7 @@ void ae_population::replace_population( ae_list* new_pop )
 {
   _indivs->erase( DELETE_OBJ );
   delete _indivs;
+  
   _indivs = new_pop;
 }
 
@@ -371,10 +372,8 @@ void ae_population::load( gzFile* backup_file, bool verbose )
   gzread( backup_file, &_nb_indivs, sizeof(_nb_indivs) );
 
   // ----------------------------------------------------- Retreive individuals
-  _indivs = new ae_list();
-  ae_individual* indiv = NULL;
-  
   if ( verbose ) printf( "  Loading individuals " );
+  ae_individual* indiv = NULL;
   for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
   {
     if ( verbose && i && i % 100 == 0 )

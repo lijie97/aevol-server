@@ -501,7 +501,7 @@ void ae_stats::write_current_generation_statistics( void )
       delete stat_records[best_or_glob];
     }
     
-    delete stat_records;
+    delete [] stat_records;
   }
 }
 
