@@ -470,6 +470,9 @@ ae_individual::ae_individual( const ae_individual &model )
   _folded                       = model._folded;
   _phenotype_computed           = model._phenotype_computed;
   
+  // Artificial chemistry parameters
+  _w_max = model._w_max;
+  
   // The distance to target and what results from it depend on the environment
   // and must hence be recomputed with the (possibly different) environment.
   _distance_to_target_computed  = false;
@@ -569,8 +572,6 @@ ae_individual::ae_individual( const ae_individual &model )
   // Mutation rates etc...
   _mut_params = new ae_params_mut( *(model._mut_params) );
   
-  // Artificial chemistry parameters
-  _w_max = model._w_max;
       
   // Genome size constraints
   _min_genome_length = model._min_genome_length;
@@ -611,6 +612,9 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id )
   
   _placed_in_population = false;
 
+  // Artificial chemistry parameters
+  _w_max = parent->_w_max;
+  
   // Create new genetic units with their DNA copied from here
   // NOTE : The RNA lists (one per genetic unit) will also be copied so that we don't
   // need to look for promoters on the whole genome
@@ -662,9 +666,6 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id )
   
   // Mutation rates etc...
   _mut_params = new ae_params_mut( *(parent->_mut_params) );
-  
-  // Artificial chemistry parameters
-  _w_max = parent->_w_max;
       
   // Genome size constraints
   _min_genome_length = parent->_min_genome_length;
