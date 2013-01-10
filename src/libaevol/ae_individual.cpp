@@ -115,7 +115,15 @@ ae_individual::ae_individual( ae_exp_manager* exp_m,
   
   _dist_to_target_by_segment  = NULL;
   _dist_to_target_by_feature  = new double [NB_FEATURES];
+  for (int i=0; i<=NB_FEATURES; i++)
+  {
+    _dist_to_target_by_feature[i]=0;
+  }
   _fitness_by_feature         = new double [NB_FEATURES];
+  for (int i=0; i<=NB_FEATURES; i++)
+  {
+    _fitness_by_feature[i]=0;
+  }
   
   _fitness = 0.0;
   // When using structured population, this is the cell the individual is in
