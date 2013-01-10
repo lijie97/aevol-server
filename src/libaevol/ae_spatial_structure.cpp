@@ -103,6 +103,7 @@ ae_spatial_structure::~ae_spatial_structure( void )
     
     delete [] _pop_grid;
   }
+  delete _prng;
 }
 
 // =================================================================

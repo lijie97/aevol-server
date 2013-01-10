@@ -93,7 +93,7 @@ class ae_spatial_structure : public ae_object
     // =================================================================
     inline void set_grid_size( int16_t grid_x, int16_t grid_y );
     inline void set_migration_number( int32_t migration_number );
-
+    inline void set_prng( ae_jumping_mt* prng );
     // =================================================================
     //                              Operators
     // =================================================================
@@ -247,6 +247,11 @@ inline double** ae_spatial_structure::get_total_fitness_grid( void ) const
 // =====================================================================
 //                           Setters' definitions
 // =====================================================================
+inline void ae_spatial_structure::set_prng( ae_jumping_mt* prng )
+{
+  _prng = prng;
+}
+
 inline void ae_spatial_structure::set_grid_size( int16_t grid_width, int16_t grid_height )
 {
   _grid_width   = grid_width;

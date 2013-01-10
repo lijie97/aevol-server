@@ -96,7 +96,7 @@ class ae_environment : public ae_fuzzy_set_X11
     inline ae_env_segment**     get_segments( void ) const;
     inline double               get_segment_boundaries( int16_t i ) const;
     inline ae_env_axis_feature  get_axis_feature( int16_t i ) const;
-    inline double               get_area_by_feature( ae_env_axis_feature feature ) const;
+    inline double               get_area_by_feature( int8_t feature ) const;
     inline ae_env_var           get_var_method( void ) const;  
     inline double               get_var_sigma( void )  const;
     inline int32_t              get_var_tau( void )    const;
@@ -236,7 +236,7 @@ inline ae_env_axis_feature ae_environment::get_axis_feature( int16_t i ) const
   return _segments[i]->feature;
 }
 
-inline double ae_environment::get_area_by_feature( ae_env_axis_feature feature ) const
+inline double ae_environment::get_area_by_feature( int8_t feature ) const
 {
   return _area_by_feature[ feature ];
 }

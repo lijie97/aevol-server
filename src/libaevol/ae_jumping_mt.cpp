@@ -234,6 +234,25 @@ double ae_jumping_mt::gaussian_random( void )
   return x1 * r;
 }
 
+int8_t ae_jumping_mt::roulette_random( double* probs, int8_t nb_elts )
+{
+  double pick_one = 0.0;
+  while ( pick_one == 0 )
+  {
+    pick_one = random();
+  }
+  
+  int8_t found_org = 0;
+  
+  pick_one -= probs[0];
+  while ( pick_one > 0 )
+  {
+    assert(found_org<nb_elts-1);
+    pick_one -= probs[++found_org];
+  }
+  return found_org;
+}
+
 void ae_jumping_mt::multinomial_drawing( int32_t* destination, double* source, int32_t nb_drawings, int32_t nb_colors )
 {
   //    This function generates a vector of random variates, each with the

@@ -1071,7 +1071,38 @@ void ae_individual::compute_fitness( ae_environment* envir )
 {
   if ( _fitness_computed ) return; // Fitness has already been computed, nothing to do.
   _fitness_computed = true;
+#ifdef NORMALIZED_FITNESS
+
+  for ( int8_t i = 0 ; i < NB_FEATURES ; i++ )
+  {
+    if (envir->get_area_by_feature(i)==0.)
+    {
+      _fitness_by_feature[i] = 0.;
+    }
+    else
+    {
+      _fitness_by_feature[i] =  ( envir->get_area_by_feature(i) - _dist_to_target_by_feature[i] ) / envir->get_area_by_feature(i);
+      if ( (_fitness_by_feature[i] < 0.) && (i != METABOLISM) ) // non-metabolic fitness can NOT be lower than zero (we do not want individual to secrete a negative quantity of public good)
+      {
+        _fitness_by_feature[i] = 0.;
+      }
+    }
+  }
   
+  if ( (! _exp_m->fitness_is_composite()) || (! _placed_in_population) ) // Without secretion
+  {
+    _fitness = _fitness_by_feature[METABOLISM];
+  }
+  else // With secretion
+  {
+    _fitness =  _fitness_by_feature[METABOLISM] * ( 1 + _exp_m->get_secretion_contrib_to_fitness() * ( _grid_cell->get_compound_amount() - _exp_m->get_secretion_cost() * _fitness_by_feature[SECRETION] ) );
+  }
+  
+  if ( _exp_m->get_selection_scheme() == FITNESS_PROPORTIONATE ) // Then the exponential selection is integrated inside the fitness value
+  {
+    _fitness = exp( -_exp_m->get_selection_pressure() * (1 - _fitness) );
+  }  
+#else
   if ( ! _exp_m->fitness_is_composite() )
   {
     if ( _exp_m->get_selection_scheme() == FITNESS_PROPORTIONATE )
@@ -1119,6 +1150,7 @@ void ae_individual::compute_fitness( ae_environment* envir )
                          - _exp_m->get_secretion_cost() * _fitness_by_feature[SECRETION] ); 
     }
   }
+#endif
 }
 
 void ae_individual::reevaluate( ae_environment* envir /*= NULL*/ )

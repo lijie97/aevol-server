@@ -519,7 +519,7 @@ void ae_selection::step_to_next_generation_grid( void )
   }
   
   // Update the best individual
-  /*update_best();*/
+  _exp_m->get_pop()->update_best();
 }
 
 /*!
@@ -1376,20 +1376,8 @@ ae_individual* ae_selection::calculate_local_competition ( int16_t x, int16_t y 
   
   
   // pick one organism to reproduce, based on probs[] calculated above, using roulette selection
-  double pick_one = 0.0;
-  while ( pick_one == 0 )
-  {
-    pick_one = _prng->random();
-  }
-
-  int16_t found_org = 0;
-
-  pick_one -= probs[0];
-  while ( pick_one > 0 )
-  {
-    pick_one -= probs[++found_org];
-  }
-
+  int8_t found_org = _prng->roulette_random(probs,9);
+  
   int16_t x_offset = ( found_org / 3 ) - 1;
   int16_t y_offset = ( found_org % 3 ) - 1;
   

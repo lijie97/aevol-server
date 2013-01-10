@@ -881,6 +881,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   sel->set_spatially_structured( _param_values->_spatially_structured );
   if ( _param_values->_spatially_structured )
   {
+    sel->get_spatial_structure()->set_prng( new ae_jumping_mt(*_prng) );
     sel->set_grid_size( _param_values->_grid_width, _param_values->_grid_height );
     sel->set_migration_number( _param_values->_migration_number );
   }

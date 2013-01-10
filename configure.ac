@@ -82,7 +82,6 @@ AC_MSG_RESULT([OK])
 
 
 
-
 dnl  ******************* --with-debug option ***************************
 dnl
 dnl  With this option, the DEBUG flag is defined, and the programs are 
@@ -102,6 +101,7 @@ else
    AC_DEFINE(NDEBUG)
    CXXFLAGS="-O3 -ffast-math -pipe -fexpensive-optimizations"
 fi
+
 
 
 
@@ -131,6 +131,19 @@ if test "x$with_x" != xno ; then
    AC_CHECK_HEADERS([X11/Xlib.h X11/Xutil.h X11/keysym.h X11/Xatom.h X11/cursorfont.h])
 else
    AC_DEFINE(__NO_X)
+fi
+
+dnl  ******************* --with-normalized-fitness option ***************************
+dnl
+dnl  With this option, the NORMALIZED_FITNESS flag is defined, 
+dnl  allowing a different fitness calculation 
+
+AC_MSG_CHECKING([whether to use normalized fitness])
+AC_ARG_WITH(normalized-fitness, [  --with-normalized-fitness to enable fitness normalization], , with_normalized_fitness=no)
+AC_MSG_RESULT($with_normalized_fitness)
+AM_CONDITIONAL(WITH_NORMALIZED_FITNESS, test x"$with_normalized_fitness" != xno)
+if test "x$with_normalized_fitness" = "xyes" ; then
+   AC_DEFINE(NORMALIZED_FITNESS)
 fi
 
 
