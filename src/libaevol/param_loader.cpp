@@ -883,6 +883,8 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   {
     sel->get_spatial_structure()->set_prng( new ae_jumping_mt(*_prng) );
     sel->set_grid_size( _param_values->_grid_width, _param_values->_grid_height );
+    sel->set_secretion_degradation_prop(_param_values->_secretion_degradation_prop);
+    sel->set_secretion_diffusion_prop(_param_values->_secretion_diffusion_prop);
     sel->set_migration_number( _param_values->_migration_number );
   }
   

@@ -94,6 +94,9 @@ class ae_spatial_structure : public ae_object
     inline void set_grid_size( int16_t grid_x, int16_t grid_y );
     inline void set_migration_number( int32_t migration_number );
     inline void set_prng( ae_jumping_mt* prng );
+    inline void set_secretion_degradation_prop( double degradation_prop );
+    inline void set_secretion_diffusion_prop( double diffusion_prop );
+
     // =================================================================
     //                              Operators
     // =================================================================
@@ -272,6 +275,16 @@ inline void ae_spatial_structure::set_migration_number( int32_t migration_number
 {
   _migration_number = migration_number;
 }
+
+inline void ae_spatial_structure::set_secretion_degradation_prop( double degradation_prop )
+{
+  _secretion_degradation_prop=degradation_prop;
+}
+inline void ae_spatial_structure::set_secretion_diffusion_prop( double diffusion_prop )
+{
+  _secretion_diffusion_prop=diffusion_prop;
+}
+
 
 // =====================================================================
 //                          Operators' definitions

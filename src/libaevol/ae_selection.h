@@ -126,6 +126,8 @@ class ae_selection : public ae_object
     inline void set_use_secretion( bool use_secretion );
     inline void set_secretion_contrib_to_fitness( double secretion_contrib );
     inline void set_secretion_cost( double secretion_cost );
+    inline void set_secretion_degradation_prop( double degradation_prop );
+    inline void set_secretion_diffusion_prop( double diffusion_prop );
 
     // =================================================================
     //                              Operators
@@ -370,7 +372,16 @@ inline void ae_selection::set_secretion_cost( double secretion_cost )
 {
   _secretion_cost = secretion_cost;
 }
-
+inline void ae_selection::set_secretion_degradation_prop( double degradation_prop )
+{
+  assert( _spatially_structured );
+  _spatial_structure->set_secretion_degradation_prop(degradation_prop);
+}
+inline void ae_selection::set_secretion_diffusion_prop( double diffusion_prop )
+{
+  assert( _spatially_structured );
+  _spatial_structure->set_secretion_diffusion_prop(diffusion_prop);
+}
 
 
 // =====================================================================
