@@ -38,10 +38,11 @@ enum ae_env_axis_feature
   NEUTRAL     = 0,
   METABOLISM  = 1,
   SECRETION   = 2,
-  TRANSFER    = 3
+  DONOR    = 3,
+  RECIPIENT = 4
 };
 
-#define NB_FEATURES 4 // This is used to know how many possible features exist to make them easy to parse.
+#define NB_FEATURES 5 // This is used to know how many possible features exist to make them easy to parse.
 
 enum ae_env_var
 {

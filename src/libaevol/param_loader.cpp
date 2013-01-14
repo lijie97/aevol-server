@@ -167,9 +167,13 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
         _param_values->set_use_secretion( true );
         env_axis_features[i] = SECRETION;
       }
-      else if ( strcmp( line->words[2*i+1], "TRANSFER" ) == 0 )
+      else if ( strcmp( line->words[2*i+1], "DONOR" ) == 0 )
       {
-        env_axis_features[i] = TRANSFER;
+        env_axis_features[i] = DONOR;
+      }
+      else if ( strcmp( line->words[2*i+1], "RECIPIENT" ) == 0 )
+      {
+        env_axis_features[i] = RECIPIENT;
       }
       else
       {
@@ -689,9 +693,13 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
   {
     _param_values->set_prob_plasmid_HT( atof( line->words[1] ) );
   }
-  else if ( strcmp( line->words[0], "NB_PLASMID_HT" ) == 0 )
+  else if ( strcmp( line->words[0], "TUNE_DONOR_ABILITY" ) == 0 )
   {
-    _param_values->set_nb_plasmid_HT( atoi( line->words[1] ) );
+    _param_values->set_tune_donor_ability( atof( line->words[1] ) );
+  }
+  else if ( strcmp( line->words[0], "TUNE_RECIPIENT_ABILITY" ) == 0 )
+  {
+    _param_values->set_tune_recipient_ability( atof( line->words[1] ) );
   }
   else if ( strcmp( line->words[0], "COMPUTE_PHEN_CONTRIB_BY_GU" ) == 0 )
   {
@@ -873,8 +881,9 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   sel->set_with_HT( _param_values->_with_HT );
   sel->set_HT_ins_rate( _param_values->_HT_ins_rate );
   sel->set_HT_repl_rate( _param_values->_HT_repl_rate );
-  sel->set_nb_plasmid_HT( _param_values->_nb_plasmid_HT );
   sel->set_prob_plasmid_HT( _param_values->_prob_plasmid_HT );
+  sel->set_tune_donor_ability( _param_values->_tune_donor_ability );
+  sel->set_tune_recipient_ability( _param_values->_tune_recipient_ability );
   sel->set_swap_GUs( _param_values->_swap_GUs );
   
   // -------------------------------------------------------- Spatial structure

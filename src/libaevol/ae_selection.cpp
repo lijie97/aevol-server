@@ -91,8 +91,9 @@ ae_selection::ae_selection( ae_exp_manager* exp_m )
   _with_HT          = false;
   _HT_ins_rate      = 0.0;
   _HT_repl_rate     = 0.0;
-  _nb_plasmid_HT    = 0;
   _prob_plasmid_HT  = 0.0;
+  _tune_donor_ability  = 0.0;
+  _tune_recipient_ability  = 0.0;
   _swap_GUs         = false;
   
   // ------------------------------------------------------ Spatial structure
@@ -380,114 +381,67 @@ void ae_selection::step_to_next_generation_grid( void )
   // Perform plasmid transfer
   if ( get_with_plasmid_HT() )
   {
-    double *  probs = new double[9];
-    for ( int8_t i = 0 ; i < 9 ; i++ ) { probs[i] = ((double) 1) / 9; } 
-    double pick_one;
-    int16_t found_org, x_offset, y_offset, new_x, new_y; 
+    int16_t x_offset, y_offset, new_x, new_y;
+
     
-    for ( int16_t i = 0 ; i < _nb_plasmid_HT ; i++ )
+    // Shuffle the grid:
+    int16_t total_size = ((grid_width)*(grid_height));
+    int16_t** shuffled_table = new int16_t* [total_size];
+    for ( int16_t z = 0 ; z < total_size ; z++ )
     {
-      // Shuffle the grid:
-      int16_t total_size = ((grid_width)*(grid_height));
-      int16_t** shuffled_table = new int16_t* [total_size];
-      for ( int16_t z = 0 ; z < total_size ; z++ )
-      {
-        shuffled_table[z] = new int16_t[2];
-        int16_t quotient = z / grid_width;
-        int16_t remainder = z % grid_width;
-        shuffled_table[z][0] = (int16_t) remainder;
-        shuffled_table[z][1] = (int16_t) quotient;
-      }
-      
-      for ( int16_t z = 0 ;z < total_size - 1 ; z++ )
-      {
-        int16_t rand_nb = _prng->random((int16_t) (total_size-z));
-        int16_t* tmp=shuffled_table[z+rand_nb];
-        shuffled_table[z+rand_nb]=shuffled_table[z];
-        shuffled_table[z]=tmp;		
-      }
-      
-      
-      
-	    
-      // First transfer all the plasmids, but just add them at the end of the list of the GUs
-      for ( int16_t z = 0 ; z < total_size ; z++ )
-      {
-        // 1. Determine whether there will be a plasmid transfer this time
-        // The probability that at least one of 8 neighbours sends a plasmid is  
-        // 1 minus the probability that none send it, so (1-(1-pht)^8)
-        // where pht is the probability that an individual plasmid transfers
-        
-	      if ( _prng->random() < (1.0 - pow( (1.0 - _prob_plasmid_HT), 9)) ) 
-	      {
-	        int16_t x=shuffled_table[z][0];
-	        int16_t y=shuffled_table[z][1];
-          
-	        // 2. pick which neighbour will donate the plasmid
-	        pick_one = 0.0;
-	        while ( pick_one == 0 ) { pick_one = _prng->random(); }
-	        found_org = 0;
-	        pick_one -= probs[0];
-	        while ( pick_one > 0 ) { pick_one -= probs[++found_org]; }
-  	      
-	        // for simplicity of calculations, assume that plasmid may "transfer" to the same cell
-	        x_offset = ( found_org / 3 ) - 1;
-	        y_offset = ( found_org % 3 ) - 1;
-  	      
-	        // For now, assume that it is the last genetic unit that is being transfered
-	        new_x = (x+x_offset+grid_width)  % grid_width;
-	        new_y = (y+y_offset+grid_height) % grid_height;
-	        
-	        // Check if the transfer is uni or bi directional
-	        if ( _swap_GUs )
-	        {
-	          _spatial_structure->get_indiv_at(x, y)->inject_2GUs( _spatial_structure->get_indiv_at(new_x, new_y) ); 
-	        }
-	        else
-	        {
-	          _spatial_structure->get_indiv_at(x, y)->inject_GU( _spatial_structure->get_indiv_at(new_x, new_y) ); 
-	        } 
-  	      
-	      }	
-	    }
-      delete [] shuffled_table;
+      shuffled_table[z] = new int16_t[2];
+      int16_t quotient = z / grid_width;
+      int16_t remainder = z % grid_width;
+      shuffled_table[z][0] = (int16_t) remainder;
+      shuffled_table[z][1] = (int16_t) quotient;
     }
-
-
-  	
-	
-	
-	
-    // // First transfer all the plasmids, but just add them at the end of the list of the GUs
-    // for ( int16_t x = 0 ; x < grid_width ; x++ )
-    // {
-      // for ( int16_t y = 0 ; y < grid_height ; y++ )
-      // { 
-        // // 1. Will there be any plasmid transfer? 
-        // // The probability that at least one of 8 neighbours sends a plasmid is  
-        // // 1 minus the probability that none send it, so (1-(1-pht)^8)
-        // // where pht is the probability that an individual plasmid transfers
-        // if (_prng->random() < (1.0 - pow( (1.0 - ae_common::params->get_prob_horiz_trans()), 9)) ) 
-        // {
-          // // 2. pick which neighbor that will donate the plasmid
-          // pick_one = 0.0;
-          // while ( pick_one == 0 ) { pick_one = _prng->random(); }
-          // found_org = 0;
-          // pick_one -= probs[0];
-          // while ( pick_one > 0 ) { pick_one -= probs[++found_org]; }
-          
-          // // for simplicity of calculations, assume that plasmid may "transfer" to the same cell
-          // x_offset = ( found_org / 3 ) - 1;
-          // y_offset = ( found_org % 3 ) - 1;
-          
-          // //For now, assume that it is the second genetic unit that is being transfered
-          // new_x = (x+x_offset+grid_width) % grid_width;
-          // new_y = (y+y_offset+grid_height) % grid_height;
-          // _pop_grid[x][y]->get_individual()->inject_GU(_pop_grid[new_x][new_y]->get_individual()); 
-          
-        // }
-      // }      
-    // }
+    
+    for ( int16_t z = 0 ;z < total_size - 1 ; z++ )
+    {
+      int16_t rand_nb = _prng->random((int16_t) (total_size-z));
+      int16_t* tmp=shuffled_table[z+rand_nb];
+      shuffled_table[z+rand_nb]=shuffled_table[z];
+      shuffled_table[z]=tmp;		
+    }
+    
+    
+    // First transfer all the plasmids, but just add them at the end of the list of the GUs
+    for ( int16_t z = 0 ; z < total_size ; z++ ) // for each individual x
+    {      
+      int16_t x=shuffled_table[z][0];
+      int16_t y=shuffled_table[z][1];
+      
+      for ( int16_t n = 0 ; n < 9 ; n++ ) // for each neighbour n of x
+      {
+        x_offset = ( n / 3 ) - 1;
+        y_offset = ( n % 3 ) - 1;
+        
+        new_x = (x+x_offset+grid_width) % grid_width;
+        new_y = (y+y_offset+grid_height) % grid_height;
+        
+        if ((new_x != x)||(new_y != y))
+        {
+          double ptransfer = _prob_plasmid_HT + _tune_donor_ability * _spatial_structure->get_indiv_at(x, y)->get_fitness_by_feature(DONOR) +  _tune_recipient_ability * _spatial_structure->get_indiv_at(new_x, new_y)->get_fitness_by_feature(RECIPIENT) ;
+          if (_prng->random() < ptransfer) // will x give a plasmid to n ?
+          {
+            if ( _swap_GUs )
+            {
+              _spatial_structure->get_indiv_at(new_x, new_y)->inject_2GUs(_spatial_structure->get_indiv_at(x, y));
+            }
+            else
+            {
+              _spatial_structure->get_indiv_at(new_x, new_y)->inject_GU(_spatial_structure->get_indiv_at(x, y));
+            }
+          }
+        }
+      }
+    }
+    
+    for(int16_t z=0;z <total_size;z++)
+    {
+      delete [] shuffled_table[z];
+    }
+    delete [] shuffled_table;
     
 	
 	
@@ -498,24 +452,19 @@ void ae_selection::step_to_next_generation_grid( void )
       for ( int16_t y = 0 ; y < grid_height ; y++ )
       { 
         bool reevaluate = false;
-        
-        ae_list* cur_indiv_GU_list = _spatial_structure->get_indiv_at(x, y)->get_genetic_unit_list();
-        
-        while ( cur_indiv_GU_list->get_nb_elts() > 2 ) 
+        while ( _spatial_structure->get_indiv_at(x, y)->get_genetic_unit_list()->get_nb_elts() > 2 ) 
         {
           reevaluate = true;
-          
-          cur_indiv_GU_list->remove( cur_indiv_GU_list->get_first()->get_next(), DELETE_OBJ, DELETE_OBJ);
+          _spatial_structure->get_indiv_at(x, y)->get_genetic_unit_list()->remove( _spatial_structure->get_indiv_at(x, y)->get_genetic_unit_list()->get_first()->get_next(), DELETE_OBJ, DELETE_OBJ);
         }
-		
         if (reevaluate)
         {
           _spatial_structure->get_indiv_at(x, y)->reevaluate();
+          //previous code avoided full re-evaluation, just updated the "full" proteins list:
+          //_pop_grid[x][y]->get_individual()->reevaluate_after_GU_transfer(ae_common::sim->get_env());
         }
-        
       }
     }
-    delete [] probs;
   }
   
   // Update the best individual
@@ -555,8 +504,9 @@ void ae_selection::write_setup_file( gzFile* exp_setup_file ) const
   gzwrite( exp_setup_file, &tmp_with_plasmid_HT, sizeof(tmp_with_plasmid_HT) );
   if ( tmp_with_plasmid_HT )
   {
-    gzwrite( exp_setup_file, &_nb_plasmid_HT,    sizeof(_nb_plasmid_HT) );
     gzwrite( exp_setup_file, &_prob_plasmid_HT,  sizeof(_prob_plasmid_HT) );
+    gzwrite( exp_setup_file, &_tune_donor_ability,  sizeof(_tune_donor_ability) );
+    gzwrite( exp_setup_file, &_tune_recipient_ability,  sizeof(_tune_recipient_ability) );
     int8_t tmp_swap_GUs = _swap_GUs;
     gzwrite( exp_setup_file, &tmp_swap_GUs, sizeof(tmp_swap_GUs) );
   }
@@ -657,8 +607,9 @@ void ae_selection::load( gzFile* exp_setup_file, gzFile* sp_struct_file )
   gzread( exp_setup_file, &tmp_with_plasmid_HT, sizeof(tmp_with_plasmid_HT) );
   if ( tmp_with_plasmid_HT )
   {
-    gzread( exp_setup_file, &_nb_plasmid_HT,    sizeof(_nb_plasmid_HT) );
     gzread( exp_setup_file, &_prob_plasmid_HT,  sizeof(_prob_plasmid_HT) );
+    gzread( exp_setup_file, &_tune_donor_ability,  sizeof(_tune_donor_ability) );
+    gzread( exp_setup_file, &_tune_recipient_ability,  sizeof(_tune_recipient_ability) );
     int8_t tmp_swap_GUs;
     gzread( exp_setup_file, &tmp_swap_GUs, sizeof(tmp_swap_GUs) );
     _swap_GUs = tmp_swap_GUs ? 1 : 0;

@@ -194,7 +194,8 @@ class params : public ae_object
     inline int32_t  get_plasmid_minimal_length( void ) const;
     inline bool     get_with_plasmid_HT( void ) const;
     inline double   get_prob_plasmid_HT( void ) const;
-    inline int16_t  get_nb_plasmid_HT( void ) const;
+    inline double   get_tune_donor_ability( void ) const;
+    inline double   get_tune_recipient_ability( void ) const;
     inline bool     get_compute_phen_contrib_by_GU( void ) const;
     
     // ------------------------------------------------------- Translation cost
@@ -340,7 +341,8 @@ class params : public ae_object
     inline void set_plasmid_initial_gene( int32_t plasmid_init_gene );
     inline void set_plasmid_minimal_length( int32_t plasmid_minimal_length );
     inline void set_prob_plasmid_HT( double prob_plasmid_HT );
-    inline void set_nb_plasmid_HT( int16_t nb_plasmid_HT );
+    inline void set_tune_donor_ability( double tune_donor_ability );
+    inline void set_tune_recipient_ability( double tune_recipient_ability );
     inline void set_compute_phen_contrib_by_GU( bool compute_phen_contrib_by_GU );
     
     // ------------------------------------------------------- Translation cost
@@ -537,8 +539,8 @@ class params : public ae_object
     int32_t   _plasmid_initial_gene;
     int32_t   _plasmid_minimal_length;
     double    _prob_plasmid_HT;
-    // Max number of plasmids a cell can send in its neighbourhood per generation
-    int16_t   _nb_plasmid_HT;
+    double    _tune_donor_ability;
+    double    _tune_recipient_ability;
     bool      _compute_phen_contrib_by_GU;
     
     // ------------------------------------------------------- Translation cost
@@ -953,9 +955,14 @@ inline double params::get_prob_plasmid_HT( void ) const
   return _prob_plasmid_HT;
 }
 
-inline int16_t params::get_nb_plasmid_HT( void ) const
+inline double params::get_tune_donor_ability( void ) const
 {
-  return _nb_plasmid_HT;
+  return _tune_donor_ability;
+}
+
+inline double params::get_tune_recipient_ability( void ) const
+{
+  return _tune_recipient_ability;
 }
 
 inline bool params::get_compute_phen_contrib_by_GU( void ) const
@@ -1412,9 +1419,14 @@ inline void params::set_prob_plasmid_HT( double prob_plasmid_HT )
   _prob_plasmid_HT = prob_plasmid_HT;
 }
 
-inline void params::set_nb_plasmid_HT( int16_t nb_plasmid_HT )
+inline void params::set_tune_donor_ability( double tune_donor_ability )
 {
-  _nb_plasmid_HT = nb_plasmid_HT;
+  _tune_donor_ability = tune_donor_ability;
+}
+
+inline void params::set_tune_recipient_ability( double tune_recipient_ability )
+{
+  _tune_recipient_ability = tune_recipient_ability;
 }
 
 inline void params::set_compute_phen_contrib_by_GU( bool compute_phen_contrib_by_GU )

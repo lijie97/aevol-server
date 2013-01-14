@@ -162,7 +162,8 @@ params::params( void )
   _plasmid_initial_gene       = 0;
   _plasmid_minimal_length     = 40;
   _prob_plasmid_HT            = 0;
-  _nb_plasmid_HT              = 1;
+  _tune_donor_ability         = 0;
+  _tune_recipient_ability     = 0;
   _compute_phen_contrib_by_GU = false;
   
   // ------------------------------------------------------- Translation cost
@@ -308,7 +309,8 @@ void params::print_to_file( FILE* file )
   fprintf( file, "allow_plasmids :             %s\n", _allow_plasmids? "true" : "false"              );
   fprintf( file, "plasmid_minimal_length :     %"PRId32"\n", _plasmid_minimal_length                 );
   fprintf( file, "prob_plasmid_HT :            %e\n", _prob_plasmid_HT                               );
-  fprintf( file, "nb_plasmid_HT :              %d\n", _nb_plasmid_HT                                 );
+  fprintf( file, "tune_donor_ability :         %e\n", _tune_donor_ability                            );
+  fprintf( file, "tune_recipient_ability :     %e\n", _tune_recipient_ability                        );
   fprintf( file, "compute_phen_contrib_by_GU : %s\n", _compute_phen_contrib_by_GU? "true" : "false"  );
 
   // ------------------------------------------------------- Translation cost

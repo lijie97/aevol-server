@@ -505,9 +505,13 @@ int main(int argc, char** argv)
                   ae_common::params->set_use_secretion( true );
                   env_axis_features[i] = SECRETION;
                 }
-                else if ( strcmp( line->words[(i+1)], "TRANSFER" ) == 0 )
+                else if ( strcmp( line->words[(i+1)], "DONOR" ) == 0 )
                 {
-                  env_axis_features[i] = TRANSFER;
+                  env_axis_features[i] = DONOR;
+                }
+                else if ( strcmp( line->words[(i+1)], "RECIPIENT" ) == 0 )
+                {
+                  env_axis_features[i] = RECIPIENT;
                 }
                 else
                 {

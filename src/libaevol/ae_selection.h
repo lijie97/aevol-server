@@ -115,6 +115,8 @@ class ae_selection : public ae_object
     inline void set_with_plasmid_HT( bool with_p_HT );
     inline void set_nb_plasmid_HT( int16_t nb_p_HT );
     inline void set_prob_plasmid_HT( double prob_p_HT );
+    inline void set_tune_donor_ability( double tune_donor_ability );
+    inline void set_tune_recipient_ability( double tune_recipient_ability );
     inline void set_swap_GUs( bool swap_GUs );
     
     // ------------------------------------------------------ Spatial structure
@@ -197,8 +199,9 @@ class ae_selection : public ae_object
     bool    _with_HT;
     double  _HT_ins_rate;
     double  _HT_repl_rate;
-    int16_t _nb_plasmid_HT;   // TODO: explain
     double  _prob_plasmid_HT; // TODO: explain
+    double  _tune_donor_ability;
+    double  _tune_recipient_ability;
     bool    _swap_GUs; // Whether plasmid HT is uni- or bidirectional
     
     // ------------------------------------------------------ Spatial structure
@@ -322,14 +325,19 @@ inline void ae_selection::set_HT_repl_rate( double HT_repl_rate )
   _HT_repl_rate = HT_repl_rate;
 }
 
-inline void ae_selection::set_nb_plasmid_HT( int16_t nb_p_HT )
-{
-  _nb_plasmid_HT = nb_p_HT;
-}
-
 inline void ae_selection::set_prob_plasmid_HT( double prob_p_HT )
 {
   _prob_plasmid_HT = prob_p_HT;
+}
+
+inline void ae_selection::set_tune_donor_ability( double tune_donor_ability )
+{
+  _tune_donor_ability = tune_donor_ability;
+}
+
+inline void ae_selection::set_tune_recipient_ability( double tune_recipient_ability )
+{
+  _tune_recipient_ability = tune_recipient_ability;
 }
 
 inline void ae_selection::set_swap_GUs( bool swap_GUs )
