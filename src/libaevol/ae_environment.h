@@ -134,8 +134,6 @@ class ae_environment : public ae_fuzzy_set_X11
     
     inline void apply_variation( void );
     void apply_noise( void );
-    
-    bool fitness_is_composite( void ) const;
 
 
     // =================================================================

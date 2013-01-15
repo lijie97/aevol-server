@@ -89,7 +89,6 @@ class ae_exp_setup : public ae_object
     // =================================================================
     inline ae_environment*  get_env( void ) const;
     
-    inline bool     fitness_is_composite( void ) const;
     inline int16_t  get_nb_env_segments( void ) const;
     
     inline ae_selection*        get_sel( void ) const;
@@ -185,11 +184,6 @@ class ae_exp_setup : public ae_object
 inline ae_environment* ae_exp_setup::get_env( void ) const
 {
   return _env;
-}
-
-inline bool ae_exp_setup::fitness_is_composite( void ) const
-{
-  return _env->fitness_is_composite();
 }
 
 inline int16_t ae_exp_setup::get_nb_env_segments( void ) const

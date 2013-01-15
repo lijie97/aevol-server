@@ -109,7 +109,6 @@ class ae_exp_manager : public ae_object
     //~ inline bool     get_allow_plasmids( void ) const;
     inline bool     get_with_plasmid_HT( void ) const;
     
-    inline bool   fitness_is_composite( void ) const;
     inline bool   get_use_secretion( void ) const;
     inline double get_secretion_contrib_to_fitness( void ) const;
     inline double get_secretion_cost( void ) const;
@@ -287,11 +286,6 @@ inline int16_t ae_exp_manager::get_grid_height( void ) const
 inline bool ae_exp_manager::get_with_plasmid_HT( void ) const
 {
   return _exp_s->get_with_plasmid_HT();
-}
-
-inline bool ae_exp_manager::fitness_is_composite( void ) const
-{
-  return _exp_s->fitness_is_composite();
 }
 
 inline bool ae_exp_manager::get_use_secretion( void ) const

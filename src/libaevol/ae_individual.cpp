@@ -1097,11 +1097,11 @@ void ae_individual::compute_fitness( ae_environment* envir )
     }
   }
   
-  if ( (! _exp_m->fitness_is_composite()) || (! _placed_in_population) ) // Without secretion
+  if (! _placed_in_population)
   {
     _fitness = _fitness_by_feature[METABOLISM];
   }
-  else // With secretion
+  else
   {
     _fitness =  _fitness_by_feature[METABOLISM] * ( 1 + _exp_m->get_secretion_contrib_to_fitness() * ( _grid_cell->get_compound_amount() - _exp_m->get_secretion_cost() * _fitness_by_feature[SECRETION] ) );
   }
@@ -1111,53 +1111,38 @@ void ae_individual::compute_fitness( ae_environment* envir )
     _fitness = exp( -_exp_m->get_selection_pressure() * (1 - _fitness) );
   }  
 #else
-  if ( ! _exp_m->fitness_is_composite() )
+
+  for ( int8_t i = 0 ; i < NB_FEATURES ; i++ )
   {
-    if ( _exp_m->get_selection_scheme() == FITNESS_PROPORTIONATE )
+    if ( i == SECRETION )
     {
-      _fitness_by_feature[METABOLISM] = exp( - _exp_m->get_selection_pressure() * _dist_to_target_by_feature[METABOLISM] );
-    }
-    else // selection_scheme is a RANKING selection scheme
-    {
-      // For ranking schemes, we use a faster measure, without exponential computation 
-      _fitness_by_feature[METABOLISM] = ((X_MAX - X_MIN) * (Y_MAX - Y_MIN)) - _dist_to_target_by_feature[METABOLISM];
-    }
-    
-    _fitness = _fitness_by_feature[METABOLISM];
-  }
-  else // Fitness is composite (e.g. metabolism + secretion)
-  {
-    for ( int8_t i = 0 ; i < NB_FEATURES ; i++ )
-    {
-      if ( i == SECRETION )
+      _fitness_by_feature[SECRETION] =  exp( - _exp_m->get_selection_pressure() * _dist_to_target_by_feature[SECRETION] )
+                                      - exp( - _exp_m->get_selection_pressure() * envir->get_area_by_feature(SECRETION) );
+      
+      if ( _fitness_by_feature[i] < 0 )
       {
-        _fitness_by_feature[SECRETION] =  exp( - _exp_m->get_selection_pressure() * _dist_to_target_by_feature[SECRETION] )
-                                        - exp( - _exp_m->get_selection_pressure() * envir->get_area_by_feature(SECRETION) );
-        
-        if ( _fitness_by_feature[i] < 0 )
-        {
-          _fitness_by_feature[i] = 0;
-        }         
-      }
-      else
-      {
-        _fitness_by_feature[i] = exp( - _exp_m->get_selection_pressure() * _dist_to_target_by_feature[i] );
-      }  
-    }
-    
-    // Calculate combined, total fitness here!
-    // Multiply the contribution of metabolism and the amount of compound in the environment 
-    if ( ! _placed_in_population )
-    { 
-      _fitness =  _fitness_by_feature[METABOLISM] ; 
+        _fitness_by_feature[i] = 0;
+      }         
     }
     else
-    {   
-      _fitness =  _fitness_by_feature[METABOLISM]
-                  *  ( 1 + _exp_m->get_secretion_contrib_to_fitness() * _grid_cell->get_compound_amount()
-                         - _exp_m->get_secretion_cost() * _fitness_by_feature[SECRETION] ); 
-    }
+    {
+      _fitness_by_feature[i] = exp( - _exp_m->get_selection_pressure() * _dist_to_target_by_feature[i] );
+    }  
   }
+  
+  // Calculate combined, total fitness here!
+  // Multiply the contribution of metabolism and the amount of compound in the environment 
+  if ( ! _placed_in_population )
+  { 
+    _fitness =  _fitness_by_feature[METABOLISM] ; 
+  }
+  else
+  {   
+    _fitness =  _fitness_by_feature[METABOLISM]
+                *  ( 1 + _exp_m->get_secretion_contrib_to_fitness() * _grid_cell->get_compound_amount()
+                       - _exp_m->get_secretion_cost() * _fitness_by_feature[SECRETION] ); 
+  }
+
 #endif
 }
 

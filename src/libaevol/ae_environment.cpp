@@ -672,17 +672,6 @@ void ae_environment::apply_noise( void )
   }
 }
 
-bool ae_environment::fitness_is_composite( void ) const
-{
-  int features = 0;
-  for ( int16_t i = 0 ; i < _nb_segments ; i++ )
-  {
-    features |= _segments[i]->feature;
-  }
-  
-  return ( (features & METABOLISM) && (features & SECRETION) );
-}
-
 // =================================================================
 //                           Protected Methods
 // =================================================================
