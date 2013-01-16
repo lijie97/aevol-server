@@ -1197,6 +1197,27 @@ ae_individual* param_loader::create_random_individual( ae_exp_manager* exp_m, ae
   // </Graphical debug>
   indiv->add_GU( random_genome, _param_values->_initial_genome_length );
   
+  if (_param_values->_allow_plasmids) // We create a plasmid
+  {
+    char * plasmid_genome = new char [_param_values->_initial_genome_length + 1]; // As ae_dna constructor do not allocate memory but directly use the provided string, we allocate the memory here.
+    if ( _param_values->get_plasmid_initial_gene() == 1 ) // Then the plasmid is generated independently from the chromosome
+    {
+      for ( int32_t i = 0 ; i < _param_values->_initial_genome_length ; i++ )
+      {
+        plasmid_genome[i] = '0' + _prng->random( NB_BASE );
+      }
+      plasmid_genome[_param_values->_initial_genome_length] = 0;
+    }
+    else // The plasmid has the same genome than the chromosome
+    {
+      strlcpy(plasmid_genome,random_genome,_param_values->_initial_genome_length);
+      plasmid_genome[_param_values->_initial_genome_length] = 0;
+    }
+    indiv->add_GU( plasmid_genome, _param_values->_initial_genome_length );
+    plasmid_genome = NULL; // should not be deleted since it is now the plasmid dna
+  }
+  
+  random_genome = NULL; // should not be deleted since it is now the chromosomal dna
   
   // Insert a few IS in the sequence
   /*if ( ae_common::init_params->get_init_method() & WITH_INS_SEQ )
