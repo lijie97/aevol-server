@@ -1350,8 +1350,7 @@ void ae_individual::evaluate( ae_environment* envir /*= NULL*/ )
   compute_distance_to_target( envir );
   compute_fitness( envir );
   
-  // TODO: put this in stats if we want the phenotypic contribution of each GU
-  /*if ( ae_common::params->get_compute_phen_contrib_by_GU() ) 
+  if ( _exp_m->get_output_m()->get_compute_phen_contrib_by_GU() )
   { 
     ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
     ae_genetic_unit*  gen_unit      = NULL;
@@ -1363,7 +1362,7 @@ void ae_individual::evaluate( ae_environment* envir /*= NULL*/ )
       gen_unit->compute_fitness( envir );
       gen_unit_node = gen_unit_node->get_next();
     }
-  }*/
+  }
 }
 
 

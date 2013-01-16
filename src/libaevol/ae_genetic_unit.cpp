@@ -1034,6 +1034,10 @@ void ae_genetic_unit::compute_distance_to_target( ae_environment* env )
     //   => We shouldn't parse the whole list of points on the left of the segment we are considering (we have 
     //      already been through them!)
     
+    if ( _dist_to_target_per_segment == NULL )
+    {
+      _dist_to_target_per_segment = new double [env->get_nb_segments()]; // Can not be allocated in constructor because number of segments is then unknow
+    }
     for ( int16_t i = 0 ; i < env->get_nb_segments() ; i++ )
     {
       _dist_to_target_per_segment[i] = delta->get_geometric_area( segments[i]->start, segments[i]->stop );

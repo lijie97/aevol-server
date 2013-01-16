@@ -429,7 +429,7 @@ void ae_exp_manager::load_experiment( char* exp_setup_file_name,
  */
 void ae_exp_manager::run_evolution( void )
 {
-  // We are ,running a simulation.
+  // We are running a simulation.
   // Save the setup files to keep track of the setup history
   write_setup_files();
   
