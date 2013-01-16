@@ -1120,8 +1120,6 @@ inline void ae_individual::set_w_max( double w_max )
 inline void ae_individual::add_GU( char * &sequence, int32_t length )
 {
   _genetic_unit_list->add( new ae_genetic_unit( this, sequence, length ) );
-  
-  sequence = NULL;
 }
 
 // Genome size constraints
