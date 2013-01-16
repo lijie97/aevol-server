@@ -491,7 +491,7 @@ ae_individual::ae_individual( const ae_individual &model )
   _modularity_computed          = model._modularity_computed;
   
   _placed_in_population         = false;
-  
+  _grid_cell = NULL;
   
   // Create an empty list of genetic units
   _genetic_unit_list = new ae_list();
@@ -619,7 +619,8 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id )
   _modularity_computed          = false;
   
   _placed_in_population = false;
-
+  _grid_cell = NULL;
+  
   // Artificial chemistry parameters
   _w_max = parent->_w_max;
   

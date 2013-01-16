@@ -67,6 +67,9 @@ ae_output_manager::ae_output_manager( ae_exp_manager* exp_m )
   _tree   = NULL;
   _dump   = NULL;
   _compute_phen_contrib_by_GU = false;
+  _record_tree = false;
+  _make_dumps = false;
+  _dump_step = 0;
 }
 
 // =================================================================
