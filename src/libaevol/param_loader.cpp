@@ -701,6 +701,14 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
   {
     _param_values->set_tune_recipient_ability( atof( line->words[1] ) );
   }
+  else if ( strcmp( line->words[0], "DONOR_COST" ) == 0 )
+  {
+    _param_values->set_donor_cost( atof( line->words[1] ) );
+  }
+  else if ( strcmp( line->words[0], "RECIPIENT_COST" ) == 0 )
+  {
+    _param_values->set_recipient_cost( atof( line->words[1] ) );
+  }
   else if ( strcmp( line->words[0], "COMPUTE_PHEN_CONTRIB_BY_GU" ) == 0 )
   {
     if ( strncmp( line->words[1], "true", 4 ) == 0 )
@@ -833,7 +841,6 @@ void param_loader::read_file( void )
   _cur_line = 0;
   f_line* line;
   
-  delete _param_values;
   _param_values = new params();
 
   while ( ( line = get_line() ) != NULL ) // TODO : write line = new f_line( _param_file ) => f_line::f_line( char* )
@@ -884,6 +891,8 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   sel->set_prob_plasmid_HT( _param_values->_prob_plasmid_HT );
   sel->set_tune_donor_ability( _param_values->_tune_donor_ability );
   sel->set_tune_recipient_ability( _param_values->_tune_recipient_ability );
+  sel->set_donor_cost( _param_values->_donor_cost );
+  sel->set_recipient_cost( _param_values->_recipient_cost );
   sel->set_swap_GUs( _param_values->_swap_GUs );
   output_m->set_compute_phen_contrib_by_GU ( _param_values->_compute_phen_contrib_by_GU );
   

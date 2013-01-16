@@ -164,6 +164,8 @@ params::params( void )
   _prob_plasmid_HT            = 0;
   _tune_donor_ability         = 0;
   _tune_recipient_ability     = 0;
+  _donor_cost                 = 0;
+  _recipient_cost             = 0;
   _compute_phen_contrib_by_GU = false;
   
   // ------------------------------------------------------- Translation cost
@@ -311,6 +313,8 @@ void params::print_to_file( FILE* file )
   fprintf( file, "prob_plasmid_HT :            %e\n", _prob_plasmid_HT                               );
   fprintf( file, "tune_donor_ability :         %e\n", _tune_donor_ability                            );
   fprintf( file, "tune_recipient_ability :     %e\n", _tune_recipient_ability                        );
+  fprintf( file, "donor_cost :                 %e\n", _donor_cost                                    );
+  fprintf( file, "recipient_cost :             %e\n", _recipient_cost                                );
   fprintf( file, "compute_phen_contrib_by_GU : %s\n", _compute_phen_contrib_by_GU? "true" : "false"  );
 
   // ------------------------------------------------------- Translation cost

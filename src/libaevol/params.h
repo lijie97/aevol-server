@@ -343,6 +343,8 @@ class params : public ae_object
     inline void set_prob_plasmid_HT( double prob_plasmid_HT );
     inline void set_tune_donor_ability( double tune_donor_ability );
     inline void set_tune_recipient_ability( double tune_recipient_ability );
+    inline void set_donor_cost( double donor_cost );
+    inline void set_recipient_cost( double recipient_cost );
     inline void set_compute_phen_contrib_by_GU( bool compute_phen_contrib_by_GU );
     
     // ------------------------------------------------------- Translation cost
@@ -541,6 +543,8 @@ class params : public ae_object
     double    _prob_plasmid_HT;
     double    _tune_donor_ability;
     double    _tune_recipient_ability;
+    double    _donor_cost;
+    double    _recipient_cost;
     bool      _compute_phen_contrib_by_GU;
     
     // ------------------------------------------------------- Translation cost
@@ -1427,6 +1431,16 @@ inline void params::set_tune_donor_ability( double tune_donor_ability )
 inline void params::set_tune_recipient_ability( double tune_recipient_ability )
 {
   _tune_recipient_ability = tune_recipient_ability;
+}
+
+inline void params::set_donor_cost( double donor_cost )
+{
+  _donor_cost = donor_cost;
+}
+
+inline void params::set_recipient_cost( double recipient_cost )
+{
+  _recipient_cost = recipient_cost;
 }
 
 inline void params::set_compute_phen_contrib_by_GU( bool compute_phen_contrib_by_GU )

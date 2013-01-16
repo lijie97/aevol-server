@@ -94,6 +94,8 @@ ae_selection::ae_selection( ae_exp_manager* exp_m )
   _prob_plasmid_HT  = 0.0;
   _tune_donor_ability  = 0.0;
   _tune_recipient_ability  = 0.0;
+  _donor_cost       =0.0;
+  _recipient_cost   =0.0;
   _swap_GUs         = false;
   
   // ------------------------------------------------------ Spatial structure
@@ -507,6 +509,8 @@ void ae_selection::write_setup_file( gzFile* exp_setup_file ) const
     gzwrite( exp_setup_file, &_prob_plasmid_HT,  sizeof(_prob_plasmid_HT) );
     gzwrite( exp_setup_file, &_tune_donor_ability,  sizeof(_tune_donor_ability) );
     gzwrite( exp_setup_file, &_tune_recipient_ability,  sizeof(_tune_recipient_ability) );
+    gzwrite( exp_setup_file, &_donor_cost,  sizeof(_donor_cost) );
+    gzwrite( exp_setup_file, &_recipient_cost,  sizeof(_recipient_cost) );
     int8_t tmp_swap_GUs = _swap_GUs;
     gzwrite( exp_setup_file, &tmp_swap_GUs, sizeof(tmp_swap_GUs) );
   }
@@ -610,6 +614,8 @@ void ae_selection::load( gzFile* exp_setup_file, gzFile* sp_struct_file )
     gzread( exp_setup_file, &_prob_plasmid_HT,  sizeof(_prob_plasmid_HT) );
     gzread( exp_setup_file, &_tune_donor_ability,  sizeof(_tune_donor_ability) );
     gzread( exp_setup_file, &_tune_recipient_ability,  sizeof(_tune_recipient_ability) );
+    gzread( exp_setup_file, &_donor_cost,  sizeof(_donor_cost) );
+    gzread( exp_setup_file, &_recipient_cost,  sizeof(_recipient_cost) );
     int8_t tmp_swap_GUs;
     gzread( exp_setup_file, &tmp_swap_GUs, sizeof(tmp_swap_GUs) );
     _swap_GUs = tmp_swap_GUs ? 1 : 0;
