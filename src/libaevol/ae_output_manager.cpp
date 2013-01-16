@@ -66,6 +66,7 @@ ae_output_manager::ae_output_manager( ae_exp_manager* exp_m )
   _stats  = NULL;
   _tree   = NULL;
   _dump   = NULL;
+  _compute_phen_contrib_by_GU = false;
 }
 
 // =================================================================
@@ -88,6 +89,7 @@ void ae_output_manager::write_setup_file( gzFile* setup_file ) const
   gzwrite( setup_file, &_big_backup_step,  sizeof(_big_backup_step) );
   
   // Stats
+  gzwrite( setup_file, &_compute_phen_contrib_by_GU,  sizeof(_compute_phen_contrib_by_GU) );
   
   // Tree
   int8_t record_tree = _record_tree;
@@ -113,6 +115,7 @@ void ae_output_manager::write_setup_file( FILE* setup_file ) const
   fprintf( setup_file, "BIG_BACKUP_STEP %"PRId32"\n", _big_backup_step );
   
   // Stats
+  fprintf( setup_file, "COMPUTE_PHENOTYPIC_CONTRIBUTION_BY_GU %"PRId8"\n", _compute_phen_contrib_by_GU );
   
   // Tree
   fprintf( setup_file, "RECORD_TREE %s\n", _record_tree ? "true" : "false" );
@@ -147,6 +150,7 @@ void ae_output_manager::load( gzFile* setup_file, bool verbose )
   
   // Stats
   _stats = new ae_stats( _exp_m );
+  gzread( setup_file, &_compute_phen_contrib_by_GU,  sizeof(_compute_phen_contrib_by_GU) );
   
   // Tree
   int8_t record_tree;
@@ -182,6 +186,7 @@ void ae_output_manager::load( FILE* setup_file, bool verbose )
   
   // Stats
   _stats = new ae_stats( _exp_m );
+  fscanf( setup_file, "COMPUTE_PHENOTYPIC_CONTRIBUTION_BY_GU %"PRId8"\n", &_compute_phen_contrib_by_GU );
   
   char tmp[10];
   

@@ -89,6 +89,9 @@ class ae_output_manager : public ae_object
     // Logs
     inline FILE* get_log( ae_log_type log_type )   const;
     inline bool  is_logged( ae_log_type log_type ) const;
+  
+    // Stats
+    inline bool get_compute_phen_contrib_by_GU( void ) const;
 
     // =================================================================
     //                        Accessors: setters
@@ -97,7 +100,8 @@ class ae_output_manager : public ae_object
     inline void set_big_backup_step( int32_t big_backup_step );
     inline void init_tree( ae_exp_manager* exp_m, ae_tree_mode _tree_mode, int32_t _tree_step );
     inline void set_dump_step( int32_t dump_step );
-
+    inline void set_compute_phen_contrib_by_GU( bool compute_phen_contrib_by_GU );
+  
     // =================================================================
     //                              Operators
     // =================================================================
@@ -153,7 +157,8 @@ class ae_output_manager : public ae_object
     
     // Stats
     ae_stats* _stats;
-    
+    bool      _compute_phen_contrib_by_GU;
+  
     // Tree
     bool      _record_tree;
     ae_tree*  _tree;
@@ -204,6 +209,12 @@ inline bool  ae_output_manager::is_logged( ae_log_type log_type ) const
   return _logs->is_logged( log_type );
 }
 
+// Stats
+inline bool ae_output_manager::get_compute_phen_contrib_by_GU( void ) const
+{
+  return _compute_phen_contrib_by_GU;
+}
+
 // =====================================================================
 //                           Setters' definitions
 // =====================================================================
@@ -229,6 +240,10 @@ inline void ae_output_manager::set_dump_step( int32_t dump_step )
   _dump_step  = dump_step;
 }
 
+inline void ae_output_manager::set_compute_phen_contrib_by_GU( bool compute_phen_contrib_by_GU )
+{
+  _compute_phen_contrib_by_GU = compute_phen_contrib_by_GU;
+}
 
 // =====================================================================
 //                          Operators' definitions

@@ -885,6 +885,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   sel->set_tune_donor_ability( _param_values->_tune_donor_ability );
   sel->set_tune_recipient_ability( _param_values->_tune_recipient_ability );
   sel->set_swap_GUs( _param_values->_swap_GUs );
+  output_m->set_compute_phen_contrib_by_GU ( _param_values->_compute_phen_contrib_by_GU );
   
   // -------------------------------------------------------- Spatial structure
   sel->set_spatially_structured( _param_values->_spatially_structured );

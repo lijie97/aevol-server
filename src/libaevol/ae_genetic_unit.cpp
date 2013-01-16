@@ -441,7 +441,7 @@ ae_genetic_unit::~ae_genetic_unit( void )
   delete _dna;
   delete _activ_contribution;
   delete _inhib_contribution;
-  delete _phenotypic_contribution;
+  if ( _phenotypic_contribution != NULL ) delete _phenotypic_contribution;
     
   delete [] _dist_to_target_per_segment;
   
@@ -997,14 +997,13 @@ void ae_genetic_unit::compute_phenotypic_contribution( void )
   _activ_contribution->simplify();
   _inhib_contribution->simplify();
 
-  #warning do this in stats if ...
-  //~ if ( ae_common::params->get_compute_phen_contrib_by_GU() )
-  //~ {
-    //~ _phenotypic_contribution = new ae_phenotype();
-    //~ _phenotypic_contribution->add( _activ_contribution );
-    //~ _phenotypic_contribution->add( _inhib_contribution );
-    //~ _phenotypic_contribution->simplify();
-  //~ }
+  if ( _exp_m->get_output_m()->get_compute_phen_contrib_by_GU() )
+  {
+    _phenotypic_contribution = new ae_phenotype();
+    _phenotypic_contribution->add( _activ_contribution );
+    _phenotypic_contribution->add( _inhib_contribution );
+    _phenotypic_contribution->simplify();
+  }
 }
 
 /*!

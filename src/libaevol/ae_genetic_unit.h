@@ -400,6 +400,7 @@ inline ae_fuzzy_set* ae_genetic_unit::get_inhib_contribution( void ) const
 
 inline ae_fuzzy_set* ae_genetic_unit::get_phenotypic_contribution( void ) const
 {
+  assert(_phenotypic_contribution != NULL);
   return _phenotypic_contribution;
 }
 
