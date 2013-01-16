@@ -110,6 +110,12 @@ ae_stat_record::ae_stat_record( const ae_stat_record &model )
   _nb_trans  = model._nb_trans;
   _nb_inv    = model._nb_inv;
   
+  _dupl_rate        = model._dupl_rate;
+  _del_rate         = model._del_rate;
+  _trans_rate       = model._trans_rate;
+  _inv_rate         = model._inv_rate;
+  _mean_align_score = model._mean_align_score;
+  
   _nb_bases_in_0_CDS                = model._nb_bases_in_0_CDS;
   _nb_bases_in_0_functional_CDS     = model._nb_bases_in_0_functional_CDS;
   _nb_bases_in_0_non_functional_CDS = model._nb_bases_in_0_non_functional_CDS;
