@@ -108,6 +108,13 @@ void ae_dump::write_fitness_total( void )
     
     fflush( current_file );
     fclose( current_file );
+    
+    // Has been allocated in ae_spatial_structure::get_total_fitness_grid()
+    for ( int16_t x = 0 ; x < _exp_m->get_grid_width() ; x++ )
+    {
+      delete [] map[x];
+    }
+    delete [] map; 
   }
 }
 

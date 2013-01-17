@@ -78,6 +78,7 @@ ae_exp_manager_X11::ae_exp_manager_X11( void ) : ae_exp_manager()
   _win      = NULL;
   _win_size = NULL;
   _win_pos  = NULL;
+  _win_name = NULL;
   
   _display_on             = false;
   _handle_display_on_off  = false;
@@ -113,17 +114,26 @@ ae_exp_manager_X11::~ae_exp_manager_X11( void )
   
   for ( int8_t i = 0 ; i < NB_WIN ; i++ )
   {
-    if ( _win[i] != NULL ) delete _win[i];
-    if ( _win_size[i] != NULL ) delete [] _win_size[i];
-    if ( _win_pos[i] != NULL ) delete [] _win_pos[i];
+    if ( _win != NULL )
+    {
+      if ( _win[i] != NULL ) delete _win[i];
+    }
+    if ( _win_size != NULL )
+    {
+      if ( _win_size[i] != NULL ) delete [] _win_size[i];
+    }
+    if ( _win_pos != NULL )
+    {
+      if ( _win_pos[i] != NULL ) delete [] _win_pos[i];
+    }
   }
-  delete [] _win;
+  if ( _win != NULL ) delete [] _win;
   
   XCloseDisplay( _display );
   
-  delete [] _win_name;
-  delete [] _win_size;
-  delete [] _win_pos;
+  if ( _win_name != NULL ) delete [] _win_name;
+  if ( _win_size != NULL ) delete [] _win_size;
+  if ( _win_pos != NULL ) delete [] _win_pos;
   
 }
 
@@ -610,7 +620,15 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
       
       if ( is_spatially_structured() )
       {
-        ((ae_population_X11*)_pop)->display_grid( cur_win, get_spatial_structure()->get_total_fitness_grid() );
+        double** grid = get_spatial_structure()->get_total_fitness_grid();
+        ((ae_population_X11*)_pop)->display_grid( cur_win, grid );
+        
+        // Has been allocated in ae_spatial_structure::get_total_fitness_grid()
+        for ( int16_t x = 0 ; x < get_grid_width() ; x++ )
+        {
+          delete [] grid[x];
+        }
+        delete [] grid;
       }
       else
       {

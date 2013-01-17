@@ -89,16 +89,13 @@ ae_dna::ae_dna( ae_genetic_unit* gen_unit, const ae_dna &model ) : ae_string( mo
   _exp_m    = gen_unit->get_exp_m();
   _indiv    = gen_unit->get_indiv();
   
-  if ( _exp_m->get_num_gener() > 0 && _exp_m->get_output_m()->get_record_tree() )
+  if ( ( _exp_m->get_num_gener() > 0 && _exp_m->get_output_m()->get_record_tree() ) && ( model._replic_report != NULL ) )
   {
-    if ( model._replic_report != NULL )
-    {
-      _replic_report = new ae_dna_replic_report( *(model._replic_report) );
-    }
-    else
-    {
-      _replic_report = NULL;
-    }
+    _replic_report = new ae_dna_replic_report( *(model._replic_report) );
+  }
+  else
+  {
+    _replic_report = NULL;
   }
 }
 

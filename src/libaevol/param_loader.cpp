@@ -148,7 +148,7 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
     }
     env_axis_segment_boundaries[_param_values->get_env_axis_nb_segments()] = X_MAX;
     _param_values->set_env_axis_segment_boundaries( env_axis_segment_boundaries );
-    // do not delete env_axis_segment_boundaries, no in-depth copy !
+    // do not delete env_axis_segment_boundaries, no in-depth copy, will be deleted with _param_values
     
     // Set segment features
     ae_env_axis_feature* env_axis_features = new ae_env_axis_feature[_param_values->get_env_axis_nb_segments()];
@@ -183,7 +183,7 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
       }
     }
     _param_values->set_env_axis_features( env_axis_features );
-    // do not delete env_axis_features, no in-depth copy !
+    // do not delete env_axis_features, no in-depth copy, will be deleted with _param_values 
   }
   else if ( strcmp( line->words[0], "ENV_SEPARATE_SEGMENTS" ) == 0 )
   {
@@ -1106,6 +1106,9 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   {
     output_m->set_dump_step( _param_values->get_dump_step() );
   }
+  
+  delete param_mut;
+  delete _prng; // Each class needed it has now its own
 }
 
 

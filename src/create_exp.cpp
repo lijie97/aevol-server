@@ -110,6 +110,7 @@ int main( int argc, char* argv[] )
   
   // 5) Create a param loader for the parameter file
   param_loader* my_param_loader = new param_loader( param_file_name );
+  delete param_file_name;
   
   // 6) Initialize the experiment manager
   #ifndef __NO_X
@@ -120,6 +121,7 @@ int main( int argc, char* argv[] )
   
   // 7) Load the parameter file
   my_param_loader->load( exp_manager, true );
+  delete my_param_loader;
   
   //~ ((ae_exp_manager_X11*)exp_manager)->toggle_display_on_off();
   //~ exp_manager->display();
@@ -130,6 +132,8 @@ int main( int argc, char* argv[] )
   
   // 9) Create the initial backups
   exp_manager->save_experiment();
+  
+  delete exp_manager;
 }
 
 

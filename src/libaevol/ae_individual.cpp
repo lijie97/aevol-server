@@ -960,7 +960,7 @@ ae_individual::~ae_individual( void )
   delete _phenotype_inhib;
   delete _phenotype;
   
-  delete [] _dist_to_target_by_segment;
+  if ( _dist_to_target_by_segment != NULL ) delete [] _dist_to_target_by_segment;
   delete [] _dist_to_target_by_feature;
   
   delete [] _fitness_by_feature;
@@ -1195,11 +1195,8 @@ void ae_individual::reevaluate( ae_environment* envir /*= NULL*/ )
   }
 
   // Initialize all the fitness-related stuff
-  for ( int16_t i = 0 ; i < envir->get_nb_segments() ; i++ )
-  {
-    _dist_to_target_by_segment[i] = 0.0;
-  }
-  
+  delete [] _dist_to_target_by_segment;
+
   for ( int8_t i = 0 ; i < NB_FEATURES ; i++ )
   {
     _dist_to_target_by_feature[i] = 0.0;

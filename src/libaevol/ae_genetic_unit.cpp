@@ -236,9 +236,15 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, const ae_genetic_unit &m
   _inhib_contribution = new ae_fuzzy_set();
   _phenotypic_contribution = NULL;
   // NB : _phenotypic_contribution is only an indicative value, not used for the whole phenotype computation
-  
+  _dist_to_target_per_segment = NULL;
   _dist_to_target_by_feature  = new double [NB_FEATURES];
   _fitness_by_feature         = new double [NB_FEATURES];
+  
+  for ( int8_t i = 0 ; i < NB_FEATURES ; i++ )
+  {
+    _dist_to_target_by_feature[i] = 0.0;
+    _fitness_by_feature[i]        = 0.0;
+  }
   
   // Compute everything
   init_statistical_data();
@@ -1161,8 +1167,7 @@ void ae_genetic_unit::reset_expression( void )
 
   if ( _phenotypic_contribution != NULL )
   {
-    delete _phenotypic_contribution;
-    _phenotypic_contribution = new ae_environment();
+    delete _phenotypic_contribution; // Not re-created now, will be conditionally allocated in compute_phenotypic_contribution
   }
 
   init_statistical_data();

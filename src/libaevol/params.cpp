@@ -205,6 +205,9 @@ params::params( void )
 // =================================================================
 params::~params( void )
 {
+  // these are allocated during reading of the parameter file
+  if ( _env_axis_segment_boundaries != NULL ) delete [] _env_axis_segment_boundaries;
+  if ( _env_axis_features != NULL ) delete [] _env_axis_features;
 }
 
 // =================================================================
