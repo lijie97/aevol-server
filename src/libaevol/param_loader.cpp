@@ -1223,8 +1223,7 @@ ae_individual* param_loader::create_random_individual( ae_exp_manager* exp_m, ae
     }
     else // The plasmid has the same genome than the chromosome
     {
-      strlcpy(plasmid_genome,random_genome,_param_values->_initial_genome_length);
-      plasmid_genome[_param_values->_initial_genome_length] = 0;
+      strncpy(plasmid_genome,random_genome,_param_values->_initial_genome_length+1);
     }
     indiv->add_GU( plasmid_genome, _param_values->_initial_genome_length );
     plasmid_genome = NULL; // should not be deleted since it is now the plasmid dna
