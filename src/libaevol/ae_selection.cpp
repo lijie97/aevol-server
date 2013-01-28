@@ -172,7 +172,9 @@ ae_selection::~ae_selection( void )
 {
   delete _prng;
   delete [] _prob_reprod;
-  delete _spatial_structure;
+  if ( _spatially_structured ) {
+    delete _spatial_structure;
+  }
 }
 
 // =================================================================

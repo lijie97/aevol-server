@@ -349,7 +349,7 @@ top_srcdir = @top_srcdir@
 ############################################
 #                 Variables                #
 ############################################
-SUBDIRS = libaevol #post_treatments
+SUBDIRS = libaevol post_treatments
 
 ############################################
 # C99 exact-width integer specific support #

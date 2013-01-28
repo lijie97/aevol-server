@@ -40,6 +40,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <zlib.h>
+#include <err.h>
+#include <errno.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 
 
@@ -48,7 +52,7 @@
 //                            Project Files
 // =================================================================
 #include <ae_utils.h>
-#include <ae_experiment.h>
+#include <ae_exp_manager.h>
 #include <ae_individual.h>
 #include <ae_genetic_unit.h>
 #include <ae_list.h>
@@ -56,10 +60,10 @@
 #include <ae_replication_report.h>
 #include <ae_dna_replic_report.h>
 #include <ae_mutation.h>
-#include <ae_param_loader.h>
+//#include <ae_param_loader.h>
 #include <ae_environment.h>
 #include <ae_enums.h>
-#include <ae_common.h>
+//#include <ae_common.h>
 
 //debug
 #include <ae_gaussian.h>
@@ -137,7 +141,11 @@ int main(int argc, char** argv)
   check_type  check               = LIGHT_CHECK;   // TODO : Check what?
   bool        log                 = false;
   
-  
+  char* exp_setup_file_name   = new char[63];
+  char* out_prof_file_name    = new char[63];
+  strcpy( exp_setup_file_name,  "exp_setup.ae" );
+  strcpy( out_prof_file_name,   "output_profile.ae" );
+  char* sp_struct_file_name   = NULL;
   
   const char * short_options = "hvncf:l"; 
   static struct option long_options[] =
@@ -189,11 +197,11 @@ int main(int argc, char** argv)
     exit( EXIT_FAILURE );
   }
   
-  
+  // TO DO
   // =================================
   //  Open the log file for overloads
   // =================================
-  ae_param_loader* log_overload = NULL;
+  /*ae_param_loader* log_overload = NULL;
   int32_t num_generation_overload = -10;
   
   fflush(stdout);
@@ -225,8 +233,10 @@ int main(int argc, char** argv)
     printf("\n");
     printf( "WARNING : Parameter change during simulation is not managed (consider -l option)\n" );
     printf("\n");
-  }
-
+  }*/
+  printf("\n");
+  printf( "WARNING : Parameter change during simulation is not managed (consider -l option)\n" );
+  printf("\n");
 
   // =======================
   //  Open the lineage file
@@ -237,7 +247,7 @@ int main(int argc, char** argv)
     fprintf( stderr, "ERROR : Could not read the lineage file %s\n", lineage_file_name );
     exit( EXIT_FAILURE );
   }
-  
+  /*
   // Read common data from lineage file
   if ( verbose )
   {
@@ -254,7 +264,7 @@ int main(int argc, char** argv)
     fflush( stdout );
   }
   ae_environment* env = new ae_environment( lineage_file );
-  if ( verbose ) printf("OK\n");
+  if ( verbose ) printf("OK\n");*/
 
   gzread( lineage_file, &begin_gener,       sizeof(begin_gener)       );
   gzread( lineage_file, &end_gener,         sizeof(end_gener)         );
@@ -272,21 +282,35 @@ int main(int argc, char** argv)
 
 
   // =========================
-  //  Open the output file(s)
+  //  Open the experience manager
   // =========================
-  char output_file_name[60];
-  snprintf( output_file_name, 60, "ancstats-b%06"PRId32"-e%06"PRId32, begin_gener, end_gener );
-  ae_stats * mystats = new ae_stats( output_file_name, true );
-  mystats->write_headers();
   
-  // Optional outputs
-  open_environment_stat_file();
-  //~ open_terminators_stat_file();
-  //~ open_zones_stat_file();
-  open_operons_stat_file();
+  char environment_file_name[50];
+  #ifdef __REGUL
+  	sprintf( environment_file_name,"environment/env_%06"PRId32".rae", begin_gener );
+  #else
+  	sprintf( environment_file_name,"environment/env_%06"PRId32".ae",  begin_gener );
+  #endif
   
-
-  ae_common::sim = new ae_experiment();
+  char genomes_file_name[50];
+  #ifdef __REGUL
+  	sprintf( genomes_file_name,"populations/pop_%06"PRId32".rae", begin_gener );
+  #else
+  	sprintf( genomes_file_name,"populations/pop_%06"PRId32".ae",  begin_gener );
+  #endif
+  
+  // Load the simulation
+  #ifndef __NO_X
+    ae_exp_manager* exp_manager = new ae_exp_manager_X11();
+  #else
+    ae_exp_manager* exp_manager = new ae_exp_manager();
+  #endif
+  exp_manager->load_experiment( exp_setup_file_name, out_prof_file_name, environment_file_name, genomes_file_name, sp_struct_file_name, true );
+  ae_environment* env = exp_manager->get_env();
+  
+  int32_t backup_step = exp_manager->get_backup_step();
+   
+  /*ae_common::sim = new ae_experiment();
   ae_common::sim->set_env( env );  
   
 
@@ -321,15 +345,35 @@ int main(int argc, char** argv)
     
     if ( verbose ) printf("OK\n");
     delete sim_backup; 
+  }*/
+  
+  // =========================
+  //  Open the output file(s)
+  // =========================
+  // Create missing directories
+  int status;
+  status = mkdir( "stats/ancstats/", 0755 );
+  if ( (status == -1) && (errno != EEXIST) )
+  {
+    err( EXIT_FAILURE, "stats/ancstats/", errno );
   }
-
- 
+  
+  char output_file_name[60];
+  snprintf( output_file_name, 60, "stats/ancstats/ancstats-b%06"PRId32"-e%06"PRId32, begin_gener, end_gener );
+  ae_stats * mystats = new ae_stats(exp_manager, begin_gener);
+  mystats->write_headers();
+  
+  // Optional outputs
+  open_environment_stat_file();
+  //~ open_terminators_stat_file();
+  //~ open_zones_stat_file();
+  open_operons_stat_file();
 
 
   // ==================================================
   //  Prepare the initial ancestor and write its stats
   // ==================================================
-  ae_individual * indiv = new ae_individual( lineage_file );
+  ae_individual * indiv = new ae_individual(exp_manager, lineage_file );
   indiv->evaluate( env );
   indiv->compute_statistical_data();
   indiv->compute_non_coding();
@@ -338,10 +382,10 @@ int main(int argc, char** argv)
   
   
   // Optional outputs
-  write_environment_stats( 0, env );
-  //~ write_terminators_stats( 0, indiv );
-  //~ write_zones_stats( 0, indiv, env );
-  write_operons_stats( 0, indiv );
+  write_environment_stats( begin_gener, env );
+  //~ write_terminators_stats( begin_gener, indiv );
+  //~ write_zones_stats( begin_gener, indiv, env );
+  write_operons_stats( begin_gener, indiv );
   
   
   if ( verbose )
@@ -350,7 +394,7 @@ int main(int argc, char** argv)
     printf("Initial genome size = %"PRId32"\n", indiv->get_total_genome_size());
   }
 
-
+  delete exp_manager;
 
   // ===============================================================================
   //  Replay the mutations to get the successive ancestors and analyze them
@@ -384,7 +428,7 @@ int main(int argc, char** argv)
     num_gener = begin_gener + i + 1;  // where we are in time..
     
     // overload of environment variations
-    if ( log == true )
+    /*if ( log == true )
     {
       while ( num_gener == num_generation_overload )
       {
@@ -580,16 +624,15 @@ int main(int argc, char** argv)
         
         delete line; 
       }
-    }
-    
+    }*/
     
     env->build();
     rep = new ae_replication_report( lineage_file, indiv );
-    index = rep->get_index(); // who we are building...
+    index = rep->get_id(); // who we are building...
     indiv->set_replication_report( rep );
     
     // Check now?
-    check_now = ( ( check == FULL_CHECK && ae_utils::mod( num_gener, ae_common::rec_params->get_backup_step() ) == 0 ) ||
+    check_now = ( ( check == FULL_CHECK && ae_utils::mod( num_gener, backup_step ) == 0 ) ||
                   ( check == LIGHT_CHECK && num_gener == end_gener ) );
 
     if ( verbose ) printf("Rebuilding ancestor at generation %"PRId32" (index %"PRId32")...", num_gener, index); 
@@ -602,36 +645,45 @@ int main(int argc, char** argv)
       // check that the environment is now identical to the one stored
       // in the backup file of generation begin_gener
       
+      char environment_file_name[50];
       #ifdef __REGUL
-        sprintf( backup_file_name,"backup/gen_%06"PRId32".rae", num_gener );
+  		sprintf( environment_file_name,"environment/env_%06"PRId32".rae", num_gener );
       #else
-        sprintf( backup_file_name,"backup/gen_%06"PRId32".ae",  num_gener );
+  	  	sprintf( environment_file_name,"environment/env_%06"PRId32".ae",  num_gener );
       #endif
       
+      char genomes_file_name[50];
+      #ifdef __REGUL
+  		sprintf( genomes_file_name,"populations/pop_%06"PRId32".rae", num_gener );
+  	  #else
+  		sprintf( genomes_file_name,"populations/pop_%06"PRId32".ae",  num_gener );
+      #endif
+      
+      // Load the simulation
+      #ifndef __NO_X
+      	exp_manager = new ae_exp_manager_X11();
+      #else
+      	exp_manager = new ae_exp_manager();
+      #endif
+      exp_manager->load_experiment( exp_setup_file_name, out_prof_file_name, environment_file_name, genomes_file_name, sp_struct_file_name, true );
+      ae_environment* backup_env = exp_manager->get_env();
+      stored_indiv = new ae_individual( * (ae_individual *)exp_manager->get_indiv_by_id( index ) );
+      delete exp_manager;
+  
       if ( verbose )
       {
-        printf("Comparing the environment with the one in %s... ", backup_file_name);  
+        printf("Comparing the environment with the one in %s... ", environment_file_name);  
         fflush(NULL);
       }
-      
-      ae_experiment * sim_backup = new ae_experiment();
-      sim_backup->load_backup( backup_file_name, false, NULL );
-      
-      stored_indiv = NULL;//new ae_individual( * (ae_individual *)sim_backup->get_pop()->get_indiv_by_index( index ) );
-      
 
-      ae_environment * env_backup = sim_backup->get_env();
-
-
-      if ( ! env->is_identical_to(env_backup) )
+      if ( ! env->is_identical_to(backup_env) )
       {
         fprintf(stderr, "ERROR: The replayed environment is not the same\n");
-        fprintf(stderr, "       as the one in %s\n", backup_file_name);
+        fprintf(stderr, "       as the one in %s\n", environment_file_name);
         exit(EXIT_FAILURE);
       }
       
       if ( verbose ) printf("OK\n");
-      delete sim_backup;
     }
 
     // Warning: this portion of code won't work if the number of units changes
@@ -700,7 +752,7 @@ int main(int argc, char** argv)
         {
           if ( verbose ) printf( " ERROR !\n" );
           fprintf( stderr, "Error: the rebuilt unit is not the same as \n");
-          fprintf( stderr, "the one stored in backup file %s\n", backup_file_name);
+          fprintf( stderr, "the one stored in backup file %s\n", genomes_file_name);
           fprintf( stderr, "Rebuilt unit : %"PRId32" bp\n %s\n", (int32_t)strlen(str1), str1 );
           fprintf( stderr, "Stored unit  : %"PRId32" bp\n %s\n", (int32_t)strlen(str2), str2 );
           delete [] str1;
@@ -709,7 +761,7 @@ int main(int argc, char** argv)
           delete indiv;
           delete stored_indiv;
           delete env;
-          ae_common::clean();
+          //ae_common::clean();
           exit(EXIT_FAILURE);
         }
         
@@ -752,14 +804,17 @@ int main(int argc, char** argv)
   }
 
   
-  ae_common::clean();
+  //ae_common::clean();
 
   gzclose(lineage_file);
   delete mystats;
   delete indiv;
   delete env;
   
-  delete log_overload;
+  delete [] exp_setup_file_name;
+  delete [] out_prof_file_name;
+  
+  //delete log_overload;
 
   // Optional outputs
   fclose( env_output_file );
@@ -777,7 +832,7 @@ void open_environment_stat_file( void )
 {
   // Open file
   char env_output_file_name[60];
-  snprintf( env_output_file_name, 60, "ancstats-b%06"PRId32"-e%06"PRId32"_envir.out", begin_gener, end_gener );
+  snprintf( env_output_file_name, 60, "stats/ancstats/ancstats-b%06"PRId32"-e%06"PRId32"_envir.out", begin_gener, end_gener );
   env_output_file = fopen( env_output_file_name, "w" );
   
   // Write headers
@@ -808,7 +863,7 @@ void write_environment_stats( int32_t num_gener, ae_environment * env )
 void open_terminators_stat_file( void )
 {
   char term_output_file_name[60];
-  snprintf( term_output_file_name, 60, "ancstats-b%06"PRId32"-e%06"PRId32"_nb_term.out", begin_gener, end_gener );
+  snprintf( term_output_file_name, 60, "stats/ancstats/ancstats-b%06"PRId32"-e%06"PRId32"_nb_term.out", begin_gener, end_gener );
   term_output_file = fopen( term_output_file_name, "w" );
 }
 
@@ -826,7 +881,7 @@ void open_zones_stat_file( void )
 {
   // Open file
   char zones_output_file_name[60];
-  snprintf( zones_output_file_name, 60, "ancstats-b%06"PRId32"-e%06"PRId32"_zones.out", begin_gener, end_gener );
+  snprintf( zones_output_file_name, 60, "stats/ancstats/ancstats-b%06"PRId32"-e%06"PRId32"_zones.out", begin_gener, end_gener );
   zones_output_file = fopen( zones_output_file_name, "w" );
   
   // Write headers
@@ -841,7 +896,7 @@ void open_zones_stat_file( void )
 
 void write_zones_stats( int32_t num_gener, ae_individual * indiv, ae_environment * env )
 {
-  assert( env->is_segmented() );
+  assert( env->get_nb_segments() > 1 );
   
   int16_t           nb_segments = env->get_nb_segments();
   int16_t           num_segment = 0;
@@ -953,7 +1008,7 @@ void write_zones_stats( int32_t num_gener, ae_individual * indiv, ae_environment
 void open_operons_stat_file( void )
 {
   char operons_output_file_name[60];
-  snprintf( operons_output_file_name, 60, "ancstats-b%06"PRId32"-e%06"PRId32"_operons.out", begin_gener, end_gener );
+  snprintf( operons_output_file_name, 60, "stats/ancstats/ancstats-b%06"PRId32"-e%06"PRId32"_operons.out", begin_gener, end_gener );
   operons_output_file = fopen( operons_output_file_name, "w" );
 }
 
@@ -1029,11 +1084,7 @@ void print_help( void )
   printf( "or :    ancstats [-vn] -f lineage_file \n" );
 #endif
   printf( "\n" ); 
-#ifdef __REGUL
-  printf( "This program does -TODO-.\n" );
-#else
-  printf( "This program does -TODO-.\n" );
-#endif
+  printf( "This program compute some statistics for the individuals within lineage_file.\n" );
   printf( "\n" ); 
   printf( "WARNING: This program should not be used for simulations run with lateral\n" ); 
   printf( "transfer. When an individual has more than one parent, the notion of lineage\n" ); 
@@ -1057,7 +1108,7 @@ void print_help( void )
   printf( "\t                       ending generation.\n" );
   printf( "\n" ); 
   printf( "\t-f lineage_file or --file lineage_file : \n" );
-  printf( "\t                     -TODO-.\n" );
+  printf( "\t                     	Compute the statistics for the individuals within lineage_file.\n" );
   printf( "\n" );
   printf( "\t-l or --log        : Will take on account the parameter change during\n");
   printf( "\t                       the simulation (rerun from backup) by loading the \n" );

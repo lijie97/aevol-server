@@ -119,7 +119,17 @@ class ae_exp_manager : public ae_object
     inline int32_t        get_nb_indivs( void ) const;
     inline ae_individual* get_best_indiv( void ) const;
     inline ae_list*       get_indivs( void ) const;
-
+    inline ae_individual *	get_indiv_by_id( int32_t id ) const;
+    inline ae_individual *  get_indiv_by_rank( int32_t rank ) const;
+    
+    // Accessors to output manager stuff
+    inline int32_t	get_backup_step(void) const;
+    inline int32_t	get_big_backup_step(void) const;
+    inline bool         get_record_tree( void ) const;
+    inline int32_t      get_tree_step( void ) const;
+    inline ae_tree_mode get_tree_mode( void ) const;
+    inline ae_tree*     get_tree( void ) const;
+    
     // =================================================================
     //                        Accessors: setters
     // =================================================================
@@ -323,6 +333,47 @@ inline ae_individual* ae_exp_manager::get_best_indiv( void ) const
 inline ae_list* ae_exp_manager::get_indivs( void ) const
 {
   return _pop->get_indivs();
+}
+
+inline ae_individual * ae_exp_manager::get_indiv_by_id( int32_t id ) const
+{
+  return _pop->get_indiv_by_id( id );
+}
+
+inline ae_individual * ae_exp_manager::get_indiv_by_rank( int32_t rank ) const
+{
+  return _pop->get_indiv_by_rank( rank );
+}
+
+
+// Accessors to output manager stuff
+inline int32_t ae_exp_manager::get_backup_step(void) const
+{
+	return _output_m->get_backup_step();
+}
+
+inline int32_t ae_exp_manager::get_big_backup_step(void) const
+{
+	return _output_m->get_big_backup_step();
+}
+inline bool ae_exp_manager::get_record_tree( void ) const
+{
+	return _output_m->get_record_tree();
+}
+
+inline int32_t ae_exp_manager::get_tree_step( void ) const
+{
+	return _output_m->get_tree_step();
+}
+
+inline ae_tree_mode ae_exp_manager::get_tree_mode( void ) const
+{
+	return _output_m->get_tree_mode();
+}
+
+inline ae_tree* ae_exp_manager::get_tree( void ) const
+{
+	return _output_m->get_tree();
 }
 
 // =====================================================================

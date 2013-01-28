@@ -21,35 +21,29 @@
 #include <math.h>
 #include <sys/stat.h>
 
-
 // =======================================================================
 //                        Project Libraries
 // =======================================================================
 
+#include <ae_macros.h>
+#include <ae_utils.h>
 #include <population_statistics.h>
+//#include <ae_common.h>
 #include <ae_exp_manager.h>
-
+//#include <ae_param_loader.h>
 
 
 // =======================================================================
 //                       Secondary Functions
 // =======================================================================
 
-void print_help( void );
-
-// function copied from ae_individual's computation of experimental fv.
-// In addition, it provides and prints information about replications
-/*double compute_experimental_fv( ae_individual* indiv, int nb_children, double* neutral_or_better, FILE* replication_file );
-
-// count how many proteins were modified after replication
-int count_affected_genes( ae_individual* parent, ae_individual* child );*/
 
 
 // TODO: update this function...
 // reconstruct final individual from backup and lineage
 // ae_individual * get_final_individual_using_dstory();     
 
-
+void print_help( void );
 
 // =====================================================================
 //                         Main Function
@@ -64,14 +58,12 @@ int main( int argc, char* argv[] )
   // ----------------------------------------
   //     command-line option parsing
   // ----------------------------------------
-  char* env_file_name = NULL;
-  char* pop_file_name = NULL;
-  char* output_dir    = NULL;
-  int nb_children     = 1000;
-  int wanted_rank     = -1;
-  int wanted_index    = -1;
-  bool details        = false;
-  int32_t num_gener   = 100;  
+  char*   env_file_name       = NULL;
+  char*   pop_file_name       = NULL;
+  char*   output_dir = NULL;
+  int     nb_children = 1000;
+  int     backup_step = 0;
+  int     generation_number = 0;
   
   char* exp_setup_file_name = new char[63];
   char* out_prof_file_name  = new char[63];
@@ -79,15 +71,12 @@ int main( int argc, char* argv[] )
   strcpy( out_prof_file_name,   "output_profile.ae" );
   char* sp_struct_file_name = NULL;
 
-  const char * options_list = "h:e:o:n:r:i:d"; 
+  const char * options_list = "he:o:n:"; 
   static struct option long_options_list[] = {
-    {"help",          no_argument,        NULL, 'h'},
-    {"end",           required_argument,  NULL, 'e' }, 
-    {"output",        1,                  NULL, 'o'},
-    {"nb-children",   1,                  NULL, 'n'},
-    {"rank",          1,                  NULL, 'r'},
-    {"index",         1,                  NULL, 'i'},
-    {"with-details",  0,                  NULL, 'd'},
+  	{"help",      no_argument,        NULL, 'h'},
+    {"end",       required_argument,  NULL, 'e' },
+    {"output", 1, NULL, 'o'},
+    {"nb-children", 1, NULL, 'n'},
     {0, 0, 0, 0}
   };
 
@@ -105,15 +94,15 @@ int main( int argc, char* argv[] )
           exit( EXIT_FAILURE );
         }
         
-        num_gener = atol( optarg );
+        generation_number = atol( optarg );
         
         env_file_name       = new char[255];
         pop_file_name       = new char[255];
         sp_struct_file_name = new char[255];
         
-        sprintf( env_file_name,       ENV_FNAME_FORMAT,       num_gener );
-        sprintf( pop_file_name,       POP_FNAME_FORMAT,       num_gener );
-        sprintf( sp_struct_file_name, SP_STRUCT_FNAME_FORMAT, num_gener );
+        sprintf( env_file_name,       ENV_FNAME_FORMAT,       generation_number );
+        sprintf( pop_file_name,       POP_FNAME_FORMAT,       generation_number );
+        sprintf( sp_struct_file_name, SP_STRUCT_FNAME_FORMAT, generation_number );
 		  
         // Check existence of optional files in file system.
         // Missing files will cause the corresponding file_name variable to be nullified
@@ -141,17 +130,6 @@ int main( int argc, char* argv[] )
     case 'n' :
       nb_children = atoi(optarg);
       break;  
-    case 'r' :
-      wanted_rank = atoi(optarg);
-      wanted_index = -1;
-      break;  
-    case 'i' :
-      wanted_index = atoi(optarg);
-      wanted_rank = -1;
-      break;  
-    case 'd' :
-      details=true;
-      break;  
     }
   }
   
@@ -161,9 +139,10 @@ int main( int argc, char* argv[] )
     exit( EXIT_FAILURE );
   }
   
-  analysis_type type = ROBUSTNESS;
+  analysis_type type = EVOLVABILITY;
 
-  population_statistics* population_statistics_compute = new population_statistics(type, nb_children, output_dir, wanted_rank, wanted_index, details);
+  population_statistics* population_statistics_compute = new population_statistics(type, nb_children, output_dir);
+  
   
   // Load simulation  
   #ifndef __NO_X
@@ -173,15 +152,41 @@ int main( int argc, char* argv[] )
   #endif
   exp_manager->load_experiment( exp_setup_file_name, out_prof_file_name, env_file_name, pop_file_name, sp_struct_file_name, true );
   
-  population_statistics_compute->compute_population_f_nu(exp_manager);
+  backup_step = exp_manager->get_backup_step();
 
-  delete exp_manager;
-  delete population_statistics_compute;
-  delete [] output_dir;
   delete [] pop_file_name;
   delete [] env_file_name;
-  delete [] exp_setup_file_name;
-  delete [] out_prof_file_name;
+  
+  for (int i = 0; i<= generation_number; i+=backup_step)
+  {
+  	printf("\n\n Generation : %d\n\n", i);
+  	
+    env_file_name       = new char[255];
+    pop_file_name       = new char[255];
+        
+    sprintf( env_file_name,       ENV_FNAME_FORMAT,       generation_number );
+    sprintf( pop_file_name,       POP_FNAME_FORMAT,       generation_number );
+    
+    delete exp_manager;
+    #ifndef __NO_X
+    	exp_manager = new ae_exp_manager_X11();
+  	#else
+    	exp_manager = new ae_exp_manager();
+  	#endif
+    exp_manager->load_experiment( exp_setup_file_name, out_prof_file_name, env_file_name, pop_file_name, sp_struct_file_name, true );
+    
+    population_statistics_compute->compute_population_f_nu(exp_manager);
+    population_statistics_compute->compute_evolvability_stats(i);
+    delete [] pop_file_name;
+  	delete [] env_file_name;
+  }
+
+  delete exp_manager;
+  //delete [] pop_file_name;
+  //delete [] env_file_name;
+  delete population_statistics_compute;
+  delete [] output_dir;
+  
   
   // TODO: update
   // rename dstory.bak.gz
@@ -191,12 +196,13 @@ int main( int argc, char* argv[] )
   return EXIT_SUCCESS;
 }
 
+
 void print_help( void )
 {
   printf( "\n" ); 
   printf( "*********************** aevol - Artificial Evolution ******************* \n" );
   printf( "*                                                                      * \n" );
-  printf( "*                     Robustness post-treatment program                * \n" );
+  printf( "*    Population statistics computation post-treatment program          * \n" );
   printf( "*                                                                      * \n" );
   printf( "************************************************************************ \n" );
   printf( "\n\n" ); 
@@ -204,14 +210,16 @@ void print_help( void )
   printf( "Copyright (C) 2009  LIRIS.\n" );
   printf( "\n" ); 
 #ifdef __REGUL
-  printf( "Usage : rrobustness -h\n");
-  printf( "or :    rrobustness -e end_gener [-o output_dir] [-n children_nb] [-r rank | -i index] [-d boolean]\n");
+  printf( "Usage : rcomputate_pop_stats -h\n");
+  printf( "or :    rcomputate_pop_stats -e end_gener [-o output_dir] [-n children_nb]\n" );
 #else
-  printf( "Usage : robustness -h\n");
-  printf( "or :    robustness -e end_gener [-o output_dir] [-n children_nb] [-r rank | -i index] [-d boolean]\n" );
+  printf( "Usage : computate_pop_stats -h\n");
+  printf( "or :    computate_pop_stats -e end_gener [-o output_dir] [-n children_nb]\n" );
 #endif
   printf( "\n" ); 
-  printf( "This program takes individuals and computes f_nu\n" );
+  printf( "This program computes some population statistics at each available backup until end_gener\n" );
+  printf( "and save this statistics in files inside output_dir. The children_nb is used to compute Fv.\n");
+  printf( "The population backup files and environment backup file are required.\n" );
   printf( "\n" ); 
   printf( "WARNING: This program should not be used for simulations run with lateral\n" ); 
   printf( "transfer. When an individual has more than one parent, the notion of lineage\n" ); 
@@ -225,69 +233,9 @@ void print_help( void )
   printf( "\t-n children_nb or --nb-children children_nb : \n" );
   printf( "\t                  Use children_nb to compute Fv.\n" );
   printf( "\n" ); 
-  printf( "\t-i index or --index index : \n" );
-  printf( "\t                  Get individual with index index (default -1 -> all individuals).\n" );
-  printf( "\n" ); 
-  printf( "\t-r rank or --rank rank : \n" );
-  printf( "\t                  Get individual with rank rank (default -1 -> all individuals).\n" );
-  printf( "\n" );
   printf( "\t-e end_gener or --end end_gener : \n" );
-  printf( "\t                  Compute f_nu at end_gener\n" );
+  printf( "\t                  Retrieve the lineage of the individual of end_gener \n" );
   printf( "\n" );
 
 }
-
-//
-// Data concerning individuals wanted is printed in one or two files.
-//
-// The first file (output_dir/fv.out) contains information about Fv:
-//
-//       "r_i_fit_pr_fvexp_fvexpnob_fvth_N\n"
-//
-// where:
-//     * _ is a blank space
-//     * r:        Rank of individual in population
-//     * i:        Index of individual in population
-//     * fit:      FITness of the individual
-//     * pr:       Probability of Reproduction
-//     * fvexp:    EXPerimental estimation of Fv
-//     * fvexpnob: EXPerimental estimation of Fv counting children Neutral Or Better
-//     * fvth:     THeoritical estimation of Fv
-//     * N:        Number of individuals in population
-//      
-// The second file (output_dir/replications.out), if activated (-d option),
-// contains information about children obtained when experimentally estimating Fv:
-//
-//       "#i_gl_nfg_cl_f_afc_sdfc_psp_pbp_pnga_anga\n"
-//
-// where:
-//     * # is # and _ is a blank space
-//     * i:     Index of individual in population
-//     * gl:    total Genome Length
-//     * nfg:   Number of Functional Genes
-//     * cl:    total Coding Length
-//     * f:     Fitness of individual
-//     * afc:   Average Fitness of the Children
-//     * sdfc:  Standard Deviation of Fitness values of the Children
-//     * psp:   Proportion of children with Same fitness as Parent
-//     * pbp:   Proportion of children Better than Parent
-//     * pnga:  Proportion of children with No Gene Affected
-//     * anga:  Average Number of Gene Affected by replication
-//
-// One additional line per child is printed with its fitness and the number of affected 
-// genes ("fc_nga\n").
-//
-//
-// Examples :
-//
-// For generation 20000, compute statistics for all the
-// individuals and print them in directory out_020000 :
-//
-//    robustness -f backup/gen_020000.ae -o out_020000
-//
-// For generation 20000, write the best individual's statistics in
-// out_020000_best with details about replications :
-//
-//    robustness -d -r 1 -f backup/gen_020000.ae -o out_020000_best
-//
 

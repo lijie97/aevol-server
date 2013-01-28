@@ -695,13 +695,16 @@ void ae_environment::_apply_autoregressive_mean_variation( void )
     
     // Find the current delta_mean = current_mean - ref_mean
     double delta_mean = gaussian->get_mean() - ref_gaussian->get_mean();
+    //double delta_height = gaussian->get_height() - ref_gaussian->get_height();
 
     // Compute the next value :
     // Dm(t+1) = Dm(t)*(1-1/tau) + ssd/tau*sqrt(2*tau-1)*normal_random()
     delta_mean =  delta_mean * (1.0 - 1.0/_var_tau) + (_var_sigma/_var_tau) * sqrt(2*_var_tau- 1.0) * _var_prng->gaussian_random();
+    //delta_height =  delta_height * (1.0 - 1.0/_var_tau) + (_var_sigma/_var_tau) * sqrt(2*_var_tau- 1.0) * _var_prng->gaussian_random();
 
     // Deduce the new value of the mean : ref_mean + delta_m
     gaussian->set_mean( ref_gaussian->get_mean() + delta_mean );
+    //gaussian->set_height( ref_gaussian->get_height() + delta_height );
     
     gaussian_node = gaussian_node->get_next();
     ref_gaussian_node = ref_gaussian_node->get_next();

@@ -1,7 +1,7 @@
 ############################################
 #                 Variables                #
 ############################################
-SUBDIRS = libaevol #post_treatments
+SUBDIRS = libaevol post_treatments
 
 AM_CPPFLAGS = -I./
 AM_CPPFLAGS += -I$(top_srcdir)/src/libaevol

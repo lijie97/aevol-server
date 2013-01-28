@@ -80,6 +80,10 @@ class ae_output_manager : public ae_object
     //                        Accessors: getters
     // =================================================================
     
+    // Backup
+    inline int32_t	get_backup_step(void) const;
+    inline int32_t	get_big_backup_step(void) const;
+    
     // Tree
     inline bool         get_record_tree( void ) const;
     inline int32_t      get_tree_step( void ) const;
@@ -176,6 +180,17 @@ class ae_output_manager : public ae_object
 // =====================================================================
 //                           Getters' definitions
 // =====================================================================
+
+// Backup
+inline int32_t ae_output_manager::get_backup_step(void) const
+{
+  return _backup_step;
+}
+
+inline int32_t ae_output_manager::get_big_backup_step(void) const
+{
+  return _big_backup_step;
+}
 
 // Tree
 inline bool ae_output_manager::get_record_tree( void ) const

@@ -79,6 +79,7 @@ class ae_selection : public ae_object
     // -------------------------------------------------------------- Selection
     inline ae_selection_scheme  get_selection_scheme( void ) const;
     inline double               get_selection_pressure( void ) const;
+    inline double* get_prob_reprod(void) const;
     
     // --------------------------------------------------------------- Transfer
     inline bool get_with_HT( void ) const;
@@ -147,7 +148,9 @@ class ae_selection : public ae_object
     void save( gzFile* sp_struct_file ) const;
     void load( gzFile* exp_setup_file, gzFile* sp_struct_file );
     void load( FILE* exp_setup_file, gzFile* sp_struct_file );
-
+    
+    ae_individual* do_replication( ae_individual* parent, int32_t index, int16_t x = -1, int16_t y = -1 );
+    void compute_prob_reprod( void );
     // =================================================================
     //                           Public Attributes
     // =================================================================
@@ -176,9 +179,9 @@ class ae_selection : public ae_object
     // =================================================================
     //                           Protected Methods
     // =================================================================
-    void compute_prob_reprod( void );
+    //void compute_prob_reprod( void );
     void compute_local_prob_reprod( void );
-    ae_individual* do_replication( ae_individual* parent, int32_t index, int16_t x = -1, int16_t y = -1 );
+    //ae_individual* do_replication( ae_individual* parent, int32_t index, int16_t x = -1, int16_t y = -1 );
     ae_individual* calculate_local_competition ( int16_t x, int16_t y );
 
     // =================================================================
@@ -230,6 +233,16 @@ inline ae_selection_scheme ae_selection::get_selection_scheme( void ) const
 inline double ae_selection::get_selection_pressure( void ) const
 {
   return _selection_pressure;
+}
+
+inline double* ae_selection::get_prob_reprod(void) const
+{
+  if ( _prob_reprod == NULL )
+  {
+    printf( "ERROR, _prob_reprod has not been computed %s:%d\n", __FILE__, __LINE__ );
+    exit( EXIT_FAILURE );
+  }
+  return _prob_reprod;
 }
 
 inline bool ae_selection::get_with_HT( void ) const

@@ -168,6 +168,11 @@ int main( int argc, char* argv[] )
             delete [] sp_struct_file_name;
             sp_struct_file_name = NULL;
           }
+          else
+          {
+            printf( "%s:%d: error: unknown error.\n", __FILE__, __LINE__ );
+            exit( EXIT_FAILURE );
+          }
         }
 		  
         break;      

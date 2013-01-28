@@ -472,10 +472,10 @@ ae_individual::ae_individual( const ae_individual &model )
   _id   = model._id;
   _rank = model._rank;
   
-  _evaluated                    = model._evaluated;
-  _transcribed                  = model._transcribed;
-  _translated                   = model._translated;
-  _folded                       = model._folded;
+  _evaluated                    = false;//model._evaluated;
+  _transcribed                  = false;//model._transcribed;
+  _translated                   = false;//model._translated;
+  _folded                       = false;//model._folded;
   _phenotype_computed           = model._phenotype_computed;
   
   // Artificial chemistry parameters
@@ -485,7 +485,7 @@ ae_individual::ae_individual( const ae_individual &model )
   // and must hence be recomputed with the (possibly different) environment.
   _distance_to_target_computed  = false;
   _fitness_computed             = false;
-  _statistical_data_computed    = false;
+  _statistical_data_computed    = model._statistical_data_computed;
   
   _non_coding_computed          = model._non_coding_computed;
   _modularity_computed          = model._modularity_computed;
@@ -588,6 +588,8 @@ ae_individual::ae_individual( const ae_individual &model )
   // Plasmids settings
   _allow_plasmids         = model._allow_plasmids;
   _plasmid_minimal_length = model._plasmid_minimal_length;
+  
+  evaluate();
 }
 
 /*!
@@ -1746,8 +1748,8 @@ int32_t ae_individual::get_nb_terminators( void )
   return nb_term;
 }
 
-//double ae_individual::compute_experimental_f_nu( int32_t nb_children, double* neutral_or_better /*=NULL*/ )
-/*{
+double ae_individual::compute_experimental_f_nu( int32_t nb_children, double* neutral_or_better /*=NULL*/ )
+{
   double initial_fitness = get_fitness();
   double Fv = 0;
   if ( neutral_or_better != NULL ) { *neutral_or_better = 0; }
@@ -1762,17 +1764,17 @@ int32_t ae_individual::get_nb_terminators( void )
   ae_individual * child = NULL;
   for (int i = 0; i < nb_children; i++)
     {
-      child = ae_common::pop->do_replication( this, _index_in_population );
+      child = _exp_m->get_exp_s()->get_sel()->do_replication( this, _id );
       fitness_child = child->get_fitness(); // child is automatically evaluated
       //count neutral offspring
       if ( fabs(initial_fitness - fitness_child) < 1e-15 )
       { 
-	Fv += 1; 
-	if ( neutral_or_better != NULL ) { *neutral_or_better += 1; }
+        Fv += 1; 
+        if ( neutral_or_better != NULL ) { *neutral_or_better += 1; }
       }
       else if ( (neutral_or_better != NULL) && (fitness_child > initial_fitness) )
       {
-	*neutral_or_better += 1;
+        *neutral_or_better += 1;
       }
       delete child;
     }
@@ -1780,9 +1782,9 @@ int32_t ae_individual::get_nb_terminators( void )
   Fv /= nb_children;
   if ( neutral_or_better != NULL ) { *neutral_or_better /= nb_children; }
   return Fv;
-}*/
+}
 
-/*double ae_individual::compute_theoritical_f_nu( void )
+double ae_individual::compute_theoritical_f_nu( void )
 {
   // We first have to collect information about genome structure.
   // Abbreviations are chosen according to Carole's formula.
@@ -1821,30 +1823,30 @@ int32_t ae_individual::get_nb_terminators( void )
 
   // mutation + insertion + deletion
   double nu_local_mutation = 1 - ((double) l)/L;
-  Fv  = pow( 1 - ae_common::params->get_point_mutation_rate()  * ( 1 - nu_local_mutation ), L);
-  Fv *= pow( 1 - ae_common::params->get_small_insertion_rate() * ( 1 - nu_local_mutation ), L);
-  Fv *= pow( 1 - ae_common::params->get_small_deletion_rate()  * ( 1 - nu_local_mutation ), L);
+  Fv  = pow( 1 - get_point_mutation_rate()  * ( 1 - nu_local_mutation ), L);
+  Fv *= pow( 1 - get_small_insertion_rate() * ( 1 - nu_local_mutation ), L);
+  Fv *= pow( 1 - get_small_deletion_rate()  * ( 1 - nu_local_mutation ), L);
 
   // inversion ~ two local mutations
   double nu_inversion = nu_local_mutation * nu_local_mutation;
-  Fv *= pow( 1 - ae_common::params->get_inversion_rate()       * ( 1 - nu_inversion )     , L);
+  Fv *= pow( 1 - get_inversion_rate()       * ( 1 - nu_inversion )     , L);
 
   // translocation ~ inversion + insertion (mathematically)
-  Fv *= pow( 1 - ae_common::params->get_translocation_rate()   * ( 1 - nu_inversion * nu_local_mutation ), L);
+  Fv *= pow( 1 - get_translocation_rate()   * ( 1 - nu_inversion * nu_local_mutation ), L);
 
   // long deletion
   double nu_deletion = 0; // if N_G == 0, a deletion is always not neutral
   for ( int32_t i = 0; i < N_G; i++) { nu_deletion += lambda_i[i] * (lambda_i[i] + 1); }
   nu_deletion /= ((double) 2*L*L);
-  Fv *= pow( 1 - ae_common::params->get_deletion_rate()        * ( 1 - nu_deletion )      , L);
+  Fv *= pow( 1 - get_deletion_rate()        * ( 1 - nu_deletion )      , L);
 
   // duplication ~ big deletion + insertion
-  Fv *= pow( 1 - ae_common::params->get_duplication_rate()     * ( 1 - nu_deletion * nu_local_mutation ), L);
+  Fv *= pow( 1 - get_duplication_rate()     * ( 1 - nu_deletion * nu_local_mutation ), L);
   
   if ( lambda_i != NULL ) delete [] lambda_i;
 
   return Fv;
-}*/
+}
 
 
 // =================================================================

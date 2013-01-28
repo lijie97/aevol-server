@@ -114,82 +114,83 @@ ae_tree::ae_tree( ae_exp_manager* exp_m, ae_tree_mode tree_mode, int32_t tree_st
 
 ae_tree::ae_tree( ae_exp_manager* exp_m, char* backup_file_name, char* tree_file_name )
 {
-  //~ _exp_m = exp_m;
+  _exp_m = exp_m;
     
-  //~ // Retrieve the ae_common's informations in backup_file
-  //~ int16_t bfn_len = strlen( backup_file_name );
-  //~ #ifdef __REGUL
-    //~ if ( strcmp( &backup_file_name[bfn_len-4], ".rae" ) != 0 )
-    //~ {
-      //~ printf( "ERROR : %s is not valid RAEVOL backup file.\n", backup_file_name );
-      //~ exit( EXIT_FAILURE );
-    //~ }
-  //~ #else
-    //~ if ( strcmp( &backup_file_name[bfn_len-3], ".ae" ) != 0 )
-    //~ {
-      //~ printf( "ERROR : %s is not valid AEVOL backup file.\n", backup_file_name );
-      //~ exit( EXIT_FAILURE );
-    //~ }
-  //~ #endif
+  // Retrieve the ae_common's informations in backup_file
+  int16_t bfn_len = strlen( backup_file_name );
+  #ifdef __REGUL
+    if ( strcmp( &backup_file_name[bfn_len-4], ".rae" ) != 0 )
+    {
+      printf( "ERROR : %s is not valid RAEVOL backup file.\n", backup_file_name );
+      exit( EXIT_FAILURE );
+    }
+  #else
+    if ( strcmp( &backup_file_name[bfn_len-3], ".ae" ) != 0 )
+    {
+      printf( "ERROR : %s is not valid AEVOL backup file.\n", backup_file_name );
+      exit( EXIT_FAILURE );
+    }
+  #endif
   
-  //~ gzFile* backup_file = (gzFile*) gzopen( backup_file_name, "r" );
+  //gzFile* backup_file = (gzFile*) gzopen( backup_file_name, "r" );
 
-  //~ if ( backup_file == Z_NULL )
-  //~ {
-    //~ printf( "ERROR : Could not read backup file %s\n", backup_file_name );
-    //~ exit( EXIT_FAILURE );
-  //~ }
+  //if ( backup_file == Z_NULL )
+  //{
+  //  printf( "ERROR : Could not read backup file %s\n", backup_file_name );
+  //  exit( EXIT_FAILURE );
+  //}
 
-  //~ // Retreive random generator state and get rid of it
-  //~ ae_jumping_mt* alea = new ae_jumping_mt( backup_file );
-  //~ delete alea;
+  // Retreive random generator state and get rid of it
+  //ae_jumping_mt* alea = new ae_jumping_mt( backup_file );
+  //delete alea;
 
   //~ // Retreive common data
   //~ ae_common::read_from_backup( backup_file );
 
-  //~ _tree_mode = ae_common::rec_params->get_tree_mode();
-  //~ switch ( _tree_mode )
-  //~ {
-    //~ case NORMAL :
-    //~ {
-      //~ gzFile* tree_file = (gzFile*) gzopen( tree_file_name, "r" );
-      //~ if ( tree_file == Z_NULL )
-      //~ {
-        //~ printf( "ERROR : Could not read tree file %s\n", tree_file_name );
-        //~ exit( EXIT_FAILURE );
-      //~ }
+  _tree_mode = _exp_m->get_tree_mode();
+  _tree_step = _exp_m->get_tree_step();
+  switch ( _tree_mode )
+  {
+    case NORMAL :
+    {
+      gzFile* tree_file = (gzFile*) gzopen( tree_file_name, "r" );
+      if ( tree_file == Z_NULL )
+      {
+        printf( "ERROR : Could not read tree file %s\n", tree_file_name );
+        exit( EXIT_FAILURE );
+      }
       
-      //~ ae_replication_report * replic_report = NULL;
+      ae_replication_report * replic_report = NULL;
             
-      //~ _nb_indivs    = new int32_t[_tree_step];
-      //~ _replics      = new ae_replication_report**[_tree_step];      
+      _nb_indivs    = new int32_t[_tree_step];
+      _replics      = new ae_replication_report**[_tree_step];      
       
-      //~ gzread( tree_file, _nb_indivs, _tree_step * sizeof(_nb_indivs[0]) );
+      gzread( tree_file, _nb_indivs, _tree_step * sizeof(_nb_indivs[0]) );
 
-      //~ for ( int32_t gener_i = 0 ; gener_i < _tree_step ; gener_i++ )
-      //~ {
-        //~ _replics[gener_i] = new ae_replication_report*[_nb_indivs[gener_i]];
-        //~ for ( int32_t indiv_i = 0 ; indiv_i < _nb_indivs[gener_i] ; indiv_i++ )
-        //~ {
-          //~ // Retreive a replication report
-          //~ replic_report = new ae_replication_report( tree_file, NULL );
+      for ( int32_t gener_i = 0 ; gener_i < _tree_step ; gener_i++ )
+      {
+        _replics[gener_i] = new ae_replication_report*[_nb_indivs[gener_i]];
+        for ( int32_t indiv_i = 0 ; indiv_i < _nb_indivs[gener_i] ; indiv_i++ )
+        {
+          // Retreive a replication report
+          replic_report = new ae_replication_report( tree_file, NULL );
           
-          //~ // Put it at its rightful position
-          //~ _replics[gener_i][replic_report->get_index()] = replic_report;
-        //~ }
-      //~ }      
+          // Put it at its rightful position
+          _replics[gener_i][replic_report->get_id()] = replic_report;
+        }
+      }      
       //~ gzclose( backup_file );
       //~ gzclose( tree_file );
 
         
-      //~ break;
-    //~ }
-    //~ case LIGHT :
-    //~ {
-      //~ // TODO
-      //~ break;
-    //~ }
-  //~ }
+      break;
+    }
+    case LIGHT :
+    {
+      // TODO
+      break;
+    }
+  }
 }
 
 

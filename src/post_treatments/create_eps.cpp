@@ -40,20 +40,20 @@
 #include <getopt.h>
 #include <math.h>
 #include <sys/stat.h>  // for the permission symbols used with mkdir
-
+#include <errno.h>
 
 
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_common.h>
+//#include <ae_common.h>
 #include <ae_population.h>
 #include <ae_individual.h>
 #include <ae_environment.h>
 #include <ae_protein.h>
 #include <ae_rna.h>
 #include <ae_list.h>
-#include <ae_experiment.h>
+#include <ae_exp_manager.h>
 #include <ae_utils.h>
 
 
@@ -116,14 +116,28 @@ int main( int argc, char* argv[] )
   //
   // 1) Initialize command-line option variables with default values
 
-  bool  verbose               = false;
-  bool  use_single_indiv_file = false;
-  char* backup_file_name      = NULL;
+  bool  verbose           = false;
+  char* backup_file_name  = NULL;
+  int32_t num_gener       = 100;  
+  int32_t indiv_index     = -1; 
+  int32_t indiv_rank      = -1;
+  
+  char* exp_setup_file_name = new char[63];
+  char* out_prof_file_name  = new char[63];
+  strcpy( exp_setup_file_name,  "exp_setup.ae" );
+  strcpy( out_prof_file_name,   "output_profile.ae" );
+  char* env_file_name       = NULL;
+  char* pop_file_name       = NULL;
+  char* sp_struct_file_name = NULL;
   
   // 2) Define allowed options
-  const char * options_list = "hvf:";
+  const char * options_list = "hvi:r:e:";
   static struct option long_options_list[] = {
-    { "file", 1, NULL, 'f' },
+  	{"help",      no_argument,       NULL, 'h'},
+    {"verbose",   no_argument,       NULL, 'v'},
+    {"index",     required_argument, NULL, 'i'},
+    {"rank",      required_argument, NULL, 'r'},
+    {"end",       required_argument,  NULL, 'e' }, 
     { 0, 0, 0, 0 }
   };
 
@@ -140,19 +154,63 @@ int main( int argc, char* argv[] )
       case 'v' :
         verbose = true;
         break;
-      case 'f' :
-        if ( strstr( optarg, "best" ) != NULL )
-        {
-          use_single_indiv_file = true;
-        }
-        else
-        {
-          printf( "%s|\n", optarg );
-        }
-        backup_file_name = new char[strlen(optarg) + 1];
-        sprintf( backup_file_name, "%s", optarg );
+      case 'i' : 
+        indiv_index  = atol(optarg); 
         break;
+      case 'r' : 
+        indiv_rank  = atol(optarg); 
+        break;
+      case 'e' :
+      {
+        if ( strcmp( optarg, "" ) == 0 )
+        {
+          printf( "%s: error: Option -e or --end : missing argument.\n", argv[0] );
+          exit( EXIT_FAILURE );
+        }
+        
+        num_gener = atol( optarg );
+        
+        env_file_name       = new char[255];
+        pop_file_name       = new char[255];
+        sp_struct_file_name = new char[255];
+        
+        sprintf( env_file_name,       ENV_FNAME_FORMAT,       num_gener );
+        sprintf( pop_file_name,       POP_FNAME_FORMAT,       num_gener );
+        sprintf( sp_struct_file_name, SP_STRUCT_FNAME_FORMAT, num_gener );
+		  
+        // Check existence of optional files in file system.
+        // Missing files will cause the corresponding file_name variable to be nullified
+        struct stat stat_buf;
+        if ( stat( sp_struct_file_name, &stat_buf ) == -1 )
+        {
+          if ( errno == ENOENT )
+          {
+            delete [] sp_struct_file_name;
+            sp_struct_file_name = NULL;
+          }
+          else
+          {
+            printf( "%s:%d: error: unknown error.\n", __FILE__, __LINE__ );
+            exit( EXIT_FAILURE );
+          }
+        }
+        
+        break;
+      }
     }
+  }
+
+  // Check mandatory arguments
+  if ( env_file_name == NULL || pop_file_name == NULL )
+  {
+    printf( "%s: error: You must provide a generation number.\n", argv[0] );
+    exit( EXIT_FAILURE );
+  }
+  
+  if (indiv_index != -1 && indiv_rank != -1)
+  {
+    printf( "%s: error: You must provide either the index or the rank of the individual to plot.\n", argv[0] );
+    exit( EXIT_FAILURE );
   }
   
   
@@ -160,18 +218,37 @@ int main( int argc, char* argv[] )
   //                       Read the backup file
   // =================================================================
   
-  ae_individual*  best_indiv;
+  ae_individual*  indiv;
   ae_environment* env;
-  int32_t         num_gener;
   
-  if ( backup_file_name == NULL )
+  // Load the simulation
+  #ifndef __NO_X
+    ae_exp_manager* exp_manager = new ae_exp_manager_X11();
+  #else
+    ae_exp_manager* exp_manager = new ae_exp_manager();
+  #endif
+  exp_manager->load_experiment( exp_setup_file_name, out_prof_file_name, env_file_name, pop_file_name, sp_struct_file_name, true );
+  
+  env = exp_manager->get_env();
+  
+  
+  if (indiv_index == -1 && indiv_rank == -1)
   {
-    printf("You must specify a backup file. Please use the option -f or --file.\n" );
-    exit(EXIT_FAILURE);
+  	indiv = new ae_individual(*exp_manager->get_best_indiv());
   }
   else
   {
-    if ( use_single_indiv_file )
+  	if (indiv_rank != -1)
+  	{
+  		indiv = new ae_individual(*exp_manager->get_indiv_by_rank(indiv_rank));
+  	}
+  	else
+  	{
+  		indiv = new ae_individual(*exp_manager->get_indiv_by_id(indiv_index));
+  	}
+  }
+  
+  /*  if ( use_single_indiv_file )
     {
       // TODO : best* backups don't look right...
       printf( "Reading single individual backup file <%s>... ", backup_file_name );
@@ -197,7 +274,7 @@ int main( int argc, char* argv[] )
       num_gener       = ae_common::sim->get_num_gener();
       printf("done\n" );
     }
-  }
+  }*/
   
   
   // The constructor of the ae_experiment has read the genomes of the individuals
@@ -206,10 +283,7 @@ int main( int argc, char* argv[] )
   // However, as the individuals in the backups are sorted, we don't need to evaluate
   // all the individuals, only those we are interested in (here only the best one)
     
-  
-  best_indiv->evaluate( env );
-
-
+  indiv->evaluate( env );
     
   // =================================================================
   //                      Create the EPS files 
@@ -248,36 +322,44 @@ int main( int argc, char* argv[] )
   //                  Write the data in the EPS files 
   // =================================================================
 
-  ae_genetic_unit*  best_indiv_main_genome = best_indiv->get_genetic_unit( 0 );
+  ae_genetic_unit*  indiv_main_genome = indiv->get_genetic_unit( 0 );
     
-  printf( "Creating the EPS file with the triangles of the best individual... " );
+  printf( "Creating the EPS file with the triangles of the chosen individual... " );
   fflush(stdout);
-  draw_triangles( best_indiv, env, directory_name );
+  draw_triangles( indiv, env, directory_name );
   printf( "OK\n" );
 
-  printf( "Creating the EPS file with the positive and negatives profiles of the best individual... " );
+  printf( "Creating the EPS file with the positive and negatives profiles of the chosen individual... " );
   fflush(stdout);
-  draw_pos_neg_profiles( best_indiv, env, directory_name );
+  draw_pos_neg_profiles( indiv, env, directory_name );
   printf( "OK\n" );
 
     
-  printf( "Creating the EPS file with the phenotype of the best individual... " );
+  printf( "Creating the EPS file with the phenotype of the chosen individual... " );
   fflush(stdout);  
-  draw_phenotype( best_indiv, env, directory_name );
+  draw_phenotype( indiv, env, directory_name );
   printf( "OK\n" );
 
-  printf( "Creating the EPS file with the CDS of the best individual... " );
+  printf( "Creating the EPS file with the CDS of the chosen individual... " );
   fflush(stdout);  
-  draw_genetic_unit_with_CDS( best_indiv_main_genome, directory_name );
+  draw_genetic_unit_with_CDS( indiv_main_genome, directory_name );
   printf( "OK\n" );
 
-  printf( "Creating the EPS file with the mRNAs of the best individual... " );
+  printf( "Creating the EPS file with the mRNAs of the chosen individual... " );
   fflush(stdout);  
-  draw_genetic_unit_with_mRNAs( best_indiv_main_genome, directory_name );
+  draw_genetic_unit_with_mRNAs( indiv_main_genome, directory_name );
   printf( "OK\n" );
 
 
-  delete [] backup_file_name;
+  delete env;
+  delete indiv;
+  delete exp_manager;
+  
+  delete env_file_name;
+  delete pop_file_name;
+  delete [] exp_setup_file_name;
+  delete [] out_prof_file_name;
+  /*delete [] backup_file_name;
   
   if ( use_single_indiv_file )
   {
@@ -287,7 +369,7 @@ int main( int argc, char* argv[] )
   else
   {
     delete ae_common::sim;
-  }
+  }*/
 
   return EXIT_SUCCESS;
 }
@@ -297,6 +379,54 @@ int main( int argc, char* argv[] )
 
 void print_help( void ) 
 {
+  printf( "\n" ); 
+  printf( "*********************** aevol - Artificial Evolution ******************* \n" );
+  printf( "*                                                                      * \n" );
+  printf( "*                      EPS creation post-treatment program             * \n" );
+  printf( "*                                                                      * \n" );
+  printf( "************************************************************************ \n" );
+  printf( "\n\n" ); 
+  printf( "This program is Free Software. No Warranty.\n" );
+  printf( "Copyright (C) 2009  LIRIS.\n" );
+  printf( "\n" ); 
+#ifdef __REGUL
+  printf( "Usage : rcreate_eps -h\n");
+  printf( "or :    rcreate_eps [-v] [-i index | -r rank] -e end_gener \n" );
+#else
+  printf( "Usage : create_eps -h\n");
+  printf( "or :    create_eps [-v] [-i index | -r rank] -e end_gener \n" );
+#endif
+  printf( "\n" );  
+  printf( "This program creates 5 EPS files with the triangles, the positive and negatives \n" );
+  printf( "profiles, the phenotype, the CDS, the mRNAs of the chosen individual or the best\n");
+  printf( "individual. This program requires at least one population backup file and one \n" );
+  printf( "environment backup file of end_gener\n" );
+  printf( "\n" ); 
+  printf( "\n" );  
+  printf( "\t-h or --help    : Display this help.\n" );
+  printf( "\n" ); 
+  printf( "\t-v or --verbose : Be verbose, listing generations as they are \n" );
+  printf( "\t                  treated.\n" );
+  printf( "\n" );
+  printf( "\t-i index or --index index : \n" );
+  printf( "\t                  Creates the EPS files for the individual whose\n" );
+  printf( "\t                  index is index. The index must be comprised \n" );
+  printf( "\t                  between 0 and N-1, with N the size of the \n" );
+  printf( "\t                  population at the ending generation. If neither\n" );
+  printf( "\t                  index nor rank are specified, the program creates \n" );
+  printf( "\t                  the EPS files of the best individual\n" );
+  printf( "\n" ); 
+  printf( "\t-r rank or --rank rank : \n" );
+  printf( "\t                  Creates the EPS files for the individual whose\n" );
+  printf( "\t                  rank is rank. The rank must be comprised \n" );
+  printf( "\t                  between 0 and N-1, with N the size of the \n" );
+  printf( "\t                  population at the ending generation. If neither\n" );
+  printf( "\t                  index nor rank are specified, the program creates \n" );
+  printf( "\t                  the EPS files of the best individual\n" );
+  printf( "\n" ); 
+  printf( "\t-e end_gener or --end end_gener : \n" );
+  printf( "\t                  Create the EPS files for the chosen individual of end_gener\n" );
+  printf( "\n" );
 }
 
 
@@ -324,7 +454,7 @@ void draw_triangles( ae_individual* indiv, ae_environment* env, char * directory
   // -----------------------------
   //  paint neutral zones in grey
   // -----------------------------
-  if ( env->is_segmented() )
+  if ( env->get_nb_segments() > 1 )
   {
     int16_t nb_segments = env->get_nb_segments();
     ae_env_segment** segments = env->get_segments();
@@ -459,7 +589,7 @@ void draw_pos_neg_profiles( ae_individual * indiv, ae_environment* env, char * d
   // -----------------------------
   //  paint neutral zones in grey
   // -----------------------------
-  if ( env->is_segmented() )
+  if ( env->get_nb_segments() > 1 )
   {
     int16_t nb_segments = env->get_nb_segments();
     ae_env_segment** segments = env->get_segments();
@@ -587,7 +717,7 @@ void draw_phenotype( ae_individual* indiv, ae_environment* env, char* directoryN
   // -----------------------------
   //  paint neutral zones in grey
   // -----------------------------
-  if ( env->is_segmented() )
+  if ( env->get_nb_segments() > 1 )
   {
     int16_t nb_segments = env->get_nb_segments();
     ae_env_segment** segments = env->get_segments();

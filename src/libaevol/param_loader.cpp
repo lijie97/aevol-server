@@ -1337,6 +1337,7 @@ ae_individual* param_loader::create_clone( ae_individual* dolly, int32_t id ) co
   ae_individual* indiv;
   
   indiv = new ae_individual( *dolly );
+
   
   //~ #ifdef __X11
     //~ indiv = new ae_individual_X11( *(dynamic_cast<ae_individual_X11*>(dolly)) );
@@ -1345,7 +1346,8 @@ ae_individual* param_loader::create_clone( ae_individual* dolly, int32_t id ) co
   //~ #endif
   
   indiv->set_id( id );
-  
+  printf( "metabolic error of the clonal individual : %f (%"PRId32" gene(s))\n",
+          indiv->get_dist_to_target_by_feature(METABOLISM), indiv->get_protein_list()->get_nb_elts() );
   return indiv;
 }
 
