@@ -168,24 +168,24 @@ static void period_certification(sfmt_t * sfmt) {
 				SFMT_PARITY3, SFMT_PARITY4};
 
     for (i = 0; i < 4; i++)
-	inner ^= psfmt32[idxof(i)] & parity[i];
+      inner ^= psfmt32[idxof(i)] & parity[i];
     for (i = 16; i > 0; i >>= 1)
-	inner ^= inner >> i;
+      inner ^= inner >> i;
     inner &= 1;
     /* check OK */
     if (inner == 1) {
-	return;
+      return;
     }
     /* check NG, and modification */
     for (i = 0; i < 4; i++) {
-	work = 1;
-	for (j = 0; j < 32; j++) {
-	    if ((work & parity[i]) != 0) {
-		psfmt32[idxof(i)] ^= work;
-		return;
-	    }
-	    work = work << 1;
-	}
+      work = 1;
+      for (j = 0; j < 32; j++) {
+        if ((work & parity[i]) != 0) {
+          psfmt32[idxof(i)] ^= work;
+          return;
+        }
+        work = work << 1;
+      }
     }
 }
 
@@ -336,16 +336,16 @@ void sfmt_fill_array64(sfmt_t * sfmt, uint64_t *array, int size) {
  * @param sfmt SFMT internal state
  * @param seed a 32-bit integer used as the seed.
  */
-void sfmt_init_gen_rand(sfmt_t * sfmt, uint32_t seed) {
+void sfmt_init_gen_rand( sfmt_t * sfmt, uint32_t seed )
+{
     int i;
 
     uint32_t *psfmt32 = &sfmt->state[0].u[0];
 
     psfmt32[idxof(0)] = seed;
-    for (i = 1; i < SFMT_N32; i++) {
-	psfmt32[idxof(i)] = 1812433253UL * (psfmt32[idxof(i - 1)]
-					    ^ (psfmt32[idxof(i - 1)] >> 30))
-	    + i;
+    for (i = 1; i < SFMT_N32; i++)
+    {
+      psfmt32[idxof(i)] = 1812433253UL * (psfmt32[idxof(i - 1)] ^ (psfmt32[idxof(i - 1)] >> 30)) + i;
     }
     sfmt->idx = SFMT_N32;
     period_certification(sfmt);

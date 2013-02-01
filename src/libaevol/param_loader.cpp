@@ -1000,7 +1000,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
       indiv = create_random_individual_with_good_gene( exp_m, param_mut, id_new_indiv++ );
       
       // Add it to the list
-      pop->add_indiv( indiv );      
+      pop->add_indiv( indiv );
     
       // Make the clones and add them to the list of individuals
       ae_individual* clone = NULL;
@@ -1008,6 +1008,8 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
       {
         // Create a clone, setting its id
         clone = create_clone( indiv, id_new_indiv++ );
+        
+        indiv->do_prng_jump();
         
         // Add it to the list
         pop->add_indiv( clone );
@@ -1043,6 +1045,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
       {
         // Create a clone, setting its id
         clone = create_clone( indiv, id_new_indiv++ );
+        indiv->do_prng_jump();
         
         // Add it to the list
         pop->add_indiv( clone );
@@ -1201,6 +1204,7 @@ ae_individual* param_loader::create_random_individual( ae_exp_manager* exp_m, ae
                                             _param_values->_allow_plasmids,
                                             _param_values->_plasmid_minimal_length,
                                             id, 0 );
+                                            
   // <Graphical debug>
   //~ #ifdef __X11
     //~ indiv = new ae_individual_X11( exp_m, new ae_jumping_mt(*_prng), param_mut, _param_values->_w_max, id, 0 );
@@ -1347,7 +1351,7 @@ ae_individual* param_loader::create_clone( ae_individual* dolly, int32_t id ) co
   
   indiv->set_id( id );
   printf( "metabolic error of the clonal individual : %f (%"PRId32" gene(s))\n",
-          indiv->get_dist_to_target_by_feature(METABOLISM), indiv->get_protein_list()->get_nb_elts() );
+          indiv->get_dist_to_target_by_feature(METABOLISM), indiv->get_protein_list()->get_nb_elts());
   return indiv;
 }
 

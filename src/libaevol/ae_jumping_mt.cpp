@@ -76,7 +76,7 @@ ae_jumping_mt::ae_jumping_mt( const uint32_t& simple_seed )
 ae_jumping_mt::ae_jumping_mt( const ae_jumping_mt& model )
 {
   _sfmt = new sfmt_t();
-  memcpy( _sfmt->state, model._sfmt->state, SFMT_N );
+  memcpy(_sfmt->state, model._sfmt->state, SFMT_N*sizeof(_sfmt->state[0]));
   _sfmt->idx = model._sfmt->idx;
 }
 
