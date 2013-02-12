@@ -80,7 +80,7 @@ class ae_environment : public ae_fuzzy_set_X11
     //                             Constructors
     // =================================================================
     ae_environment( void );
-    ae_environment( gzFile* backup_file );
+    ae_environment( gzFile backup_file );
 
     // =================================================================
     //                             Destructors
@@ -124,8 +124,8 @@ class ae_environment : public ae_fuzzy_set_X11
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void save( gzFile* backup_file ) const;
-    void load( gzFile* backup_file );
+    void save( gzFile backup_file ) const;
+    void load( gzFile backup_file );
 
     void add_custom_point( double x, double y );
     void add_gaussian( double a, double b, double c );

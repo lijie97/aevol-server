@@ -227,7 +227,7 @@ ae_environment::~ae_environment( void )
   //~ _custom_points->add( new ae_point_2d( x, y ) );
 //~ }
 
-void ae_environment::save( gzFile* backup_file ) const
+void ae_environment::save( gzFile backup_file ) const
 {
   // ---------------------
   //  Write gaussians
@@ -341,7 +341,7 @@ void ae_environment::save( gzFile* backup_file ) const
   }
 }
 
-void ae_environment::load( gzFile* backup_file )
+void ae_environment::load( gzFile backup_file )
 {
   // ---------------------
   //  Retreive gaussians

@@ -79,7 +79,7 @@ ae_individual_X11::ae_individual_X11( ae_exp_manager* exp_m,
   init_occupied_sectors();
 }
 
-ae_individual_X11::ae_individual_X11( ae_exp_manager* exp_manager, gzFile* backup_file )
+ae_individual_X11::ae_individual_X11( ae_exp_manager* exp_manager, gzFile backup_file )
         : ae_individual( exp_manager, backup_file )
 {
   init_occupied_sectors();

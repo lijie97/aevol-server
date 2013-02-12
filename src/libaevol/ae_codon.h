@@ -72,7 +72,7 @@ class ae_codon : public ae_object
     ae_codon( const ae_codon &model );
     ae_codon( int8_t value );
     ae_codon( ae_dna* genome, ae_strand strand, int32_t index );
-    ae_codon( gzFile* backup_file );
+    ae_codon( gzFile backup_file );
 
     // =================================================================
     //                             Destructors
@@ -90,7 +90,7 @@ class ae_codon : public ae_object
     inline bool is_start( void );
     inline bool is_stop( void );
     inline ae_codon* copy( void );
-    void   save( gzFile* backup_file );
+    void   save( gzFile backup_file );
 
     // =================================================================
     //                           Public Attributes

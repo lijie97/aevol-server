@@ -127,7 +127,7 @@ int main( int argc, char* argv[] )
   // 5) Initialize an empty environment then load the backup environment
   printf("Loading the backup environment\t");
   ae_environment* env = new ae_environment();
-  gzFile* env_file = (gzFile*) gzopen( env_file_name, "r" );
+  gzFile env_file = gzopen( env_file_name, "r" );
   if ( env_file == Z_NULL )
   {
     printf( "%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, env_file_name );
@@ -203,7 +203,7 @@ int main( int argc, char* argv[] )
   char* new_env_file_name   = NULL;
   new_env_file_name = new char[strlen(env_file_name)-3+strlen("_changed.ae")+1];
   sprintf(new_env_file_name, "%s_changed.ae",strtok(env_file_name, "."));
-  gzFile* new_env_file = (gzFile*) gzopen( new_env_file_name, "w" );
+  gzFile new_env_file = gzopen( new_env_file_name, "w" );
   if ( new_env_file == Z_NULL )
   {
     printf( "%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, env_file_name );

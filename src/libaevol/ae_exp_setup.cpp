@@ -284,7 +284,7 @@ ae_exp_setup::ae_exp_setup( ae_exp_manager* exp_m )
   #endif
   
 
-  gzFile* backup_file = (gzFile*) gzopen( backup_file_name, "r" );
+  gzFile backup_file = gzopen( backup_file_name, "r" );
   
   if ( backup_file == Z_NULL )
   {
@@ -495,7 +495,7 @@ ae_exp_setup::~ae_exp_setup( void )
 // =================================================================
 //                           Protected Methods
 // =================================================================
-void ae_exp_setup::save( gzFile* env_file, gzFile* sp_struct_file ) const
+void ae_exp_setup::save( gzFile env_file, gzFile sp_struct_file ) const
 {
   // Save environment state
   _env->save( env_file );
@@ -507,7 +507,7 @@ void ae_exp_setup::save( gzFile* env_file, gzFile* sp_struct_file ) const
   }
 }
 
-void ae_exp_setup::load( gzFile* exp_setup_file, gzFile* env_file, gzFile* sp_struct_file, bool verbose )
+void ae_exp_setup::load( gzFile exp_setup_file, gzFile env_file, gzFile sp_struct_file, bool verbose )
 {
   // Retrieve environmental data
   printf( "  Loading environment..." );
@@ -524,7 +524,7 @@ void ae_exp_setup::load( gzFile* exp_setup_file, gzFile* env_file, gzFile* sp_st
   printf( "OK\n" );
 }
 
-void ae_exp_setup::load( FILE* exp_setup_file, gzFile* env_file, gzFile* sp_struct_file, bool verbose )
+void ae_exp_setup::load( FILE* exp_setup_file, gzFile env_file, gzFile sp_struct_file, bool verbose )
 {
   // Retrieve environmental data
   printf( "  Loading environment..." );

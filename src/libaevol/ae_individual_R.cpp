@@ -137,7 +137,7 @@ ae_individual_R::ae_individual_R( ae_individual_R* parent ) : ae_individual( par
   }
 }
 
-ae_individual_R::ae_individual_R( gzFile* backup_file ) : ae_individual( backup_file )
+ae_individual_R::ae_individual_R( gzFile backup_file ) : ae_individual( backup_file )
 {
   _rna_list_coding = new ae_list();
   
@@ -376,7 +376,7 @@ int8_t ae_individual_R::get_quadon( ae_genetic_unit* gen_unit, ae_strand strand,
   return quadon;
 }
 
-void ae_individual_R::save( gzFile* backup_file )
+void ae_individual_R::save( gzFile backup_file )
 {
   ae_individual::save( backup_file );
   // Test if there is heredity, and if the generation is the first one (no inherited protein list).

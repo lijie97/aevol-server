@@ -346,7 +346,7 @@ ae_protein::ae_protein( ae_protein* parent )
 }
 */
 
-ae_protein::ae_protein( gzFile* backup_file )
+ae_protein::ae_protein( gzFile backup_file )
 {
   _gen_unit = NULL;
   int8_t tmp_strand;
@@ -475,7 +475,7 @@ char* ae_protein::get_AA_sequence( void ) const
   return seq;
 }
 
-void ae_protein::save( gzFile* backup_file )
+void ae_protein::save( gzFile backup_file )
 {
   // The rna_list is not write because there is no need to, it is an empty list.
   int8_t tmp_strand = _strand;

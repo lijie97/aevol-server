@@ -91,7 +91,7 @@ class ae_individual : public ae_object
                     int32_t id,
                     int32_t age );
   
-    ae_individual( ae_exp_manager* exp_m, gzFile* backup_file );
+    ae_individual( ae_exp_manager* exp_m, gzFile backup_file );
     ae_individual( const ae_individual &model );
     ae_individual( ae_individual* const parent, int32_t id );
     //~ ae_individual( char* organism_file_name );
@@ -259,7 +259,7 @@ class ae_individual : public ae_object
     
     inline void do_prng_jump( void );
 
-    virtual void save( gzFile* backup_file ) const;
+    virtual void save( gzFile backup_file ) const;
     
     int32_t get_nb_terminators( void );
     

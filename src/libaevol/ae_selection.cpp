@@ -109,7 +109,7 @@ ae_selection::ae_selection( ae_exp_manager* exp_m )
 }
 
 
-/*ae_selection::ae_selection( ae_exp_manager* exp_m, gzFile* backup_file )
+/*ae_selection::ae_selection( ae_exp_manager* exp_m, gzFile backup_file )
 {
   _exp_m = exp_m;
 
@@ -477,7 +477,7 @@ void ae_selection::step_to_next_generation_grid( void )
 
 /*!
 */
-void ae_selection::write_setup_file( gzFile* exp_setup_file ) const
+void ae_selection::write_setup_file( gzFile exp_setup_file ) const
 {
   if ( _prng == NULL )
   {
@@ -586,7 +586,7 @@ void ae_selection::write_setup_file( FILE* exp_setup_file ) const
   }*/
 }
 
-void ae_selection::load( gzFile* exp_setup_file, gzFile* sp_struct_file )
+void ae_selection::load( gzFile exp_setup_file, gzFile sp_struct_file )
 {
   // ----------------------------------------- Pseudo-random number generator
   _prng = new ae_jumping_mt( exp_setup_file );
@@ -648,7 +648,7 @@ void ae_selection::load( gzFile* exp_setup_file, gzFile* sp_struct_file )
   }
 }
 
-void ae_selection::load( FILE* exp_setup_file, gzFile* sp_struct_file )
+void ae_selection::load( FILE* exp_setup_file, gzFile sp_struct_file )
 {/*
   // ----------------------------------------- Pseudo-random number generator
   _prng = new ae_jumping_mt( exp_setup_file );

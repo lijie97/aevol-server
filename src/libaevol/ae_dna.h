@@ -77,7 +77,7 @@ class ae_dna : public ae_string
     ae_dna( ae_genetic_unit* gen_unit, const ae_dna &model );
     ae_dna( ae_genetic_unit* gen_unit, ae_dna* const parent_dna );
     ae_dna( ae_genetic_unit* gen_unit, char* seq, int32_t length );
-    ae_dna( ae_genetic_unit* gen_unit, gzFile* backup_file );
+    ae_dna( ae_genetic_unit* gen_unit, gzFile backup_file );
     ae_dna( ae_genetic_unit* gen_unit, char* organism_file_name );
   
     // =================================================================

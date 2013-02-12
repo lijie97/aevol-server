@@ -66,7 +66,7 @@ class ae_gaussian : public ae_object
     // =================================================================
     inline ae_gaussian( double heigth, double mean, double width );
     inline ae_gaussian( const ae_gaussian &model );
-    inline ae_gaussian( gzFile* backup_file );
+    inline ae_gaussian( gzFile backup_file );
   
     // =================================================================
     //                             Destructor
@@ -88,7 +88,7 @@ class ae_gaussian : public ae_object
     // =================================================================
     inline double compute_y( double x );
     
-    inline void save( gzFile* backup_file );
+    inline void save( gzFile backup_file );
   
     // =================================================================
     //                           Public Attributes
@@ -139,7 +139,7 @@ inline ae_gaussian::ae_gaussian( const ae_gaussian &model )
   _width  = model._width;
 }
 
-inline ae_gaussian::ae_gaussian( gzFile* backup_file )
+inline ae_gaussian::ae_gaussian( gzFile backup_file )
 {
   gzread( backup_file, &_height,  sizeof(_height) );
   gzread( backup_file, &_mean,    sizeof(_mean) );
@@ -194,7 +194,7 @@ double ae_gaussian::compute_y( double x )
   return _height * exp( -(x-_mean)*(x-_mean) / (2*_width*_width) );
 }
 
-void ae_gaussian::save( gzFile* backup_file )
+void ae_gaussian::save( gzFile backup_file )
 {
   gzwrite( backup_file, &_height, sizeof(_height) );
   gzwrite( backup_file, &_mean, sizeof(_mean) );

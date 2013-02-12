@@ -62,7 +62,7 @@ ae_spatial_structure::ae_spatial_structure( void )
   _pop_grid = NULL;
 }
 
-ae_spatial_structure::ae_spatial_structure( gzFile* backup_file )
+ae_spatial_structure::ae_spatial_structure( gzFile backup_file )
 {
   _prng = new ae_jumping_mt( backup_file );
   
@@ -180,7 +180,7 @@ void ae_spatial_structure::do_random_migrations ( void )
   }
 }
 
-void ae_spatial_structure::save( gzFile* backup_file ) const
+void ae_spatial_structure::save( gzFile backup_file ) const
 {
   if ( _prng == NULL )
   {

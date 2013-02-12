@@ -119,8 +119,8 @@ class ae_params_record : public ae_object
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void save( gzFile* backup_file ) const;
-    void load( gzFile* backup_file, bool verbose = false );
+    void save( gzFile backup_file ) const;
+    void load( gzFile backup_file, bool verbose = false );
     void print_to_file( FILE* file ) const;
 
     // =================================================================

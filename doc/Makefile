@@ -1,6 +1,6 @@
 all: doxygen
 
-doxygen: ../src/*.cpp ../src/lib-aevol/*.h ../src/lib-aevol/*.cpp ../src/post_treatments/*.cpp
+doxygen: ../src/*.cpp ../src/libaevol/*.h ../src/libaevol/*.cpp ../src/post_treatments/*.cpp
 	doxygen aevol.conf ; echo "document generated\n" > doxygen
 
 latex: doxygen

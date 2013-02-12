@@ -118,7 +118,7 @@ ae_params_mut::ae_params_mut( const ae_params_mut& model )
   _inversion_proportion     = model._inversion_proportion;
 }
 
-ae_params_mut::ae_params_mut( gzFile* backup_file )
+ae_params_mut::ae_params_mut( gzFile backup_file )
 {
   // --------------------------------------------------------- Mutation rates
   gzread( backup_file, &_point_mutation_rate,  sizeof(_point_mutation_rate) );
@@ -163,7 +163,7 @@ ae_params_mut::~ae_params_mut( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_params_mut::save( gzFile* backup_file ) const
+void ae_params_mut::save( gzFile backup_file ) const
 {
   // --------------------------------------------------------- Mutation rates
   gzwrite( backup_file, &_point_mutation_rate,  sizeof(_point_mutation_rate) );

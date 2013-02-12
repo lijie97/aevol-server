@@ -314,7 +314,7 @@ void ae_population::replace_population( ae_list* new_pop )
   _indivs = new_pop;
 }
 
-void ae_population::save( gzFile* backup_file ) const
+void ae_population::save( gzFile backup_file ) const
 {
   // Write population intrinsic data
   gzwrite( backup_file, &_nb_indivs,                  sizeof(_nb_indivs) );
@@ -366,7 +366,7 @@ void ae_population::save( gzFile* backup_file ) const
   }*/
 }
 
-void ae_population::load( gzFile* backup_file, bool verbose )
+void ae_population::load( gzFile backup_file, bool verbose )
 {
   // --------------------------------------- Retreive population intrinsic data
   gzread( backup_file, &_nb_indivs, sizeof(_nb_indivs) );

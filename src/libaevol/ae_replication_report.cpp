@@ -136,7 +136,7 @@ ae_replication_report::ae_replication_report( const ae_replication_report &model
 }
 
 
-ae_replication_report::ae_replication_report( gzFile * tree_file, ae_individual * indiv )
+ae_replication_report::ae_replication_report( gzFile tree_file, ae_individual * indiv )
 {
   _indiv = indiv;
     
@@ -310,7 +310,7 @@ void ae_replication_report::signal_end_of_replication( void )
   delete [] align_scores;
 }
 
-void ae_replication_report::write_to_tree_file( gzFile* tree_file ) const
+void ae_replication_report::write_to_tree_file( gzFile tree_file ) const
 {
   // Store individual identifiers and rank
   gzwrite( tree_file, &_id,         sizeof(_id)         );

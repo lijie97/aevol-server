@@ -75,7 +75,7 @@ class ae_string : public ae_object
     ae_string( int32_t length );
     ae_string( const char* seq, int32_t length );
     ae_string( char* seq, int32_t length, bool use_seq );
-    ae_string( gzFile* backup_file );
+    ae_string( gzFile backup_file );
     ae_string( char* organism_file_name );
   
     // =================================================================
@@ -97,7 +97,7 @@ class ae_string : public ae_object
     void insert( int32_t pos, const char* seq, int32_t seq_length = -1 );
     void replace( int32_t pos, char* seq, int32_t seq_length = -1 );
     
-    void save( gzFile* backup_file );
+    void save( gzFile backup_file );
   
     // =================================================================
     //                           Public Attributes

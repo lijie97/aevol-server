@@ -112,7 +112,7 @@ int32_t ae_common::migration_number  = 0;
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_common::write_to_backup( gzFile* backup_file )
+void ae_common::write_to_backup( gzFile backup_file )
 {
   // Version info
   int8_t aevol_version_len = strlen(PACKAGE_VERSION);
@@ -164,7 +164,7 @@ void ae_common::write_to_backup( gzFile* backup_file )
   #endif
 }
 
-void ae_common::read_from_backup( gzFile* backup_file, bool verbose )
+void ae_common::read_from_backup( gzFile backup_file, bool verbose )
 {
   // Version info
   int8_t aevol_version_len;

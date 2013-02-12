@@ -72,7 +72,7 @@ class ae_protein : public ae_object
     ae_protein( ae_genetic_unit* gen_unit, const ae_protein &model );
     ae_protein( ae_genetic_unit* gen_unit, ae_list* codon_list, ae_strand strand, int32_t shine_dal, ae_rna* rna );
     //ae_protein( ae_protein* parent );
-    ae_protein( gzFile* backup_file );
+    ae_protein( gzFile backup_file );
     // =================================================================
     //                             Destructors
     // =================================================================
@@ -101,7 +101,7 @@ class ae_protein : public ae_object
     // =================================================================
             void  add_RNA( ae_rna* rna );
             char* get_AA_sequence( void ) const; // WARNING : creates a new char[...] (up to you to delete it!)
-    virtual void  save( gzFile* backup_file );
+    virtual void  save( gzFile backup_file );
 
     // =================================================================
     //                           Public Attributes

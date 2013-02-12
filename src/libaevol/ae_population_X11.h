@@ -69,7 +69,7 @@ class ae_population_X11 : public ae_population
     //                             Constructors
     // =================================================================
     ae_population_X11( ae_exp_manager* exp_m );
-    //~ ae_population_X11( gzFile* backup_file );
+    //~ ae_population_X11( gzFile backup_file );
   
     // =================================================================
     //                             Destructors

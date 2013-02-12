@@ -133,7 +133,7 @@ int main( int argc, char* argv[] )
   // 6) Initialize an empty population then load the backup population
   printf("Loading the backup population\t");
   ae_population* pop = new ae_population(exp_manager);
-  gzFile* pop_file = (gzFile*) gzopen( pop_file_name, "r" );
+  gzFile pop_file = gzopen( pop_file_name, "r" );
   if ( pop_file == Z_NULL )
   {
     printf( "%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, pop_file_name );
@@ -205,7 +205,7 @@ int main( int argc, char* argv[] )
   char* new_pop_file_name   = NULL;
   new_pop_file_name = new char[strlen(pop_file_name)-3+strlen("_changed.ae")+1];
   sprintf(new_pop_file_name, "%s_changed.ae",strtok(pop_file_name, "."));
-  gzFile* new_pop_file = (gzFile*) gzopen( new_pop_file_name, "w" );
+  gzFile new_pop_file = gzopen( new_pop_file_name, "w" );
   if ( new_pop_file == Z_NULL )
   {
     printf( "%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, new_pop_file_name );

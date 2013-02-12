@@ -68,7 +68,7 @@ class ae_point_2d : public ae_object
     inline ae_point_2d( void );
     inline ae_point_2d( double x, double y );
     inline ae_point_2d( const ae_point_2d& source );
-    inline ae_point_2d( gzFile* backup_file );
+    inline ae_point_2d( gzFile backup_file );
   
     // =================================================================
     //                             Destructors
@@ -82,7 +82,7 @@ class ae_point_2d : public ae_object
     // =================================================================
     //                            Public Methods
     // =================================================================
-    inline void save( gzFile* backup_file );
+    inline void save( gzFile backup_file );
   
     // =================================================================
     //                           Public Attributes
@@ -154,7 +154,7 @@ inline ae_point_2d::ae_point_2d( const ae_point_2d& source )
   this->y = source.y;
 }
 
-inline ae_point_2d::ae_point_2d( gzFile* backup_file )
+inline ae_point_2d::ae_point_2d( gzFile backup_file )
 {
   gzread( backup_file, &x, sizeof(x) );
   gzread( backup_file, &y, sizeof(y) );
@@ -174,7 +174,7 @@ inline ae_point_2d::~ae_point_2d( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-inline void ae_point_2d::save( gzFile* backup_file )
+inline void ae_point_2d::save( gzFile backup_file )
 {
   gzwrite( backup_file, &x, sizeof(x) );
   gzwrite( backup_file, &y, sizeof(y) );

@@ -51,7 +51,11 @@
 // =================================================================
 #include <ae_macros.h>
 #include <ae_utils.h>
-#include <ae_exp_manager.h>
+#ifndef __NO_X
+  #include <ae_exp_manager_X11.h>
+#else
+  #include <ae_exp_manager.h>
+#endif
 #include <ae_individual.h>
 #include <ae_genetic_unit.h>
 #include <ae_list.h>
@@ -327,7 +331,7 @@ int main(int argc, char** argv)
   snprintf( output_file_name, 100, "lineage-b%06"PRId32"-e%06"PRId32".ae",  begin_gener, end_gener );
 #endif
 
-  gzFile * lineage_file = (gzFile*) gzopen(output_file_name, "w");
+  gzFile lineage_file = gzopen(output_file_name, "w");
   if ( lineage_file == NULL )
   {
     fprintf(stderr, "File %s could not be created, exiting.\n", output_file_name);

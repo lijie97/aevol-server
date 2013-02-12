@@ -92,7 +92,7 @@ int main( int argc, char* argv[] )
   
 
   // Load simulation from backup
-  gzFile* indiv_file = (gzFile*) gzopen( indiv_file_name, "w" );
+  gzFile indiv_file = gzopen( indiv_file_name, "w" );
   ae_common::sim = new ae_experiment();
   ae_common::sim->load_backup( backup_file_name, false, NULL );
   

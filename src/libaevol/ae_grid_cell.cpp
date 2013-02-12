@@ -67,7 +67,7 @@ ae_grid_cell::ae_grid_cell( int16_t x, int16_t y, ae_individual* indiv )
   _individual       = indiv;
 }
 
-ae_grid_cell::ae_grid_cell( gzFile* backup_file )
+ae_grid_cell::ae_grid_cell( gzFile backup_file )
 {
   gzread( backup_file, &_x, sizeof(_x) );
   gzread( backup_file, &_y, sizeof(_y) );
@@ -87,7 +87,7 @@ ae_grid_cell::~ae_grid_cell( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_grid_cell::save( gzFile* backup_file ) const
+void ae_grid_cell::save( gzFile backup_file ) const
 {
   gzwrite( backup_file, &_x, sizeof(_x) );
   gzwrite( backup_file, &_y, sizeof(_y) );

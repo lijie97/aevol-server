@@ -42,10 +42,10 @@ AC_TYPE_UINT32_T
 AC_TYPE_UINT8_T
 
 # Checks for library functions.
-AC_CHECK_FUNCS([floor memset mkdir pow rint sqrt])
+AC_CHECK_FUNCS([floor memset mkdir pow rint sqrt gzread])
 
 # Make clean at the end of the configuration process
-# (usefull when several configurations will be done, typically during development)
+# (usefull when several configurations are done consecutively, typically during development)
 AC_CONFIG_COMMANDS(make, [make clean])
 
 

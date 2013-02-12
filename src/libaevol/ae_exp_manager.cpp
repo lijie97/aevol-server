@@ -122,8 +122,8 @@ void ae_exp_manager::write_setup_files( void )
   sprintf( out_p_txtfile_name,  OUT_P_TXT_FNAME_FORMAT, _num_gener );
   
   // 3) Open files
-  gzFile* exp_s_gzfile  = (gzFile*) gzopen( exp_s_gzfile_name, "w" );
-  gzFile* out_p_gzfile  = (gzFile*) gzopen( out_p_gzfile_name, "w" );
+  gzFile exp_s_gzfile  = gzopen( exp_s_gzfile_name, "w" );
+  gzFile out_p_gzfile  = gzopen( out_p_gzfile_name, "w" );
   FILE*   exp_s_txtfile = fopen( exp_s_txtfile_name, "w" );
   FILE*   out_p_txtfile = fopen( out_p_txtfile_name, "w" );
   
@@ -196,12 +196,12 @@ void ae_exp_manager::save_experiment( void ) const
   
   
   // 3) Open backup files (population, exp_setup and output_man)
-  gzFile* env_file        = (gzFile*) gzopen( env_file_name, "w" );
-  gzFile* pop_file        = (gzFile*) gzopen( pop_file_name, "w" );
-  gzFile* sp_struct_file;
+  gzFile env_file        = gzopen( env_file_name, "w" );
+  gzFile pop_file        = gzopen( pop_file_name, "w" );
+  gzFile sp_struct_file;
   if ( is_spatially_structured() )
   {
-    sp_struct_file  = (gzFile*) gzopen( sp_struct_file_name, "w" );
+    sp_struct_file  = gzopen( sp_struct_file_name, "w" );
   }
   
   if ( env_file == Z_NULL )
@@ -255,13 +255,13 @@ void ae_exp_manager::load_experiment( char* exp_setup_file_name,
   // 1) Determine whether the parameter files are in binary or plain text format
   //    and open in the corresponding "mode"
   // ---------------------------------------------------------------------------
-  gzFile* exp_setup_gzfile = NULL;
-  gzFile* out_prof_gzfile = NULL;
+  gzFile exp_setup_gzfile = NULL;
+  gzFile out_prof_gzfile = NULL;
   FILE* exp_setup_txtfile = NULL;
   FILE* out_prof_txtfile = NULL;
   
-  exp_setup_gzfile = (gzFile*) gzopen( exp_setup_file_name, "r" );
-  out_prof_gzfile = (gzFile*) gzopen( out_prof_file_name, "r" );
+  exp_setup_gzfile = gzopen( exp_setup_file_name, "r" );
+  out_prof_gzfile = gzopen( out_prof_file_name, "r" );
   
   if ( exp_setup_gzfile == Z_NULL )
   {
@@ -297,9 +297,9 @@ void ae_exp_manager::load_experiment( char* exp_setup_file_name,
   // 2) Load data from backup and parameter files
   // ---------------------------------------------------------------------------
   // Open backup files
-  gzFile* env_file = (gzFile*) gzopen( env_file_name, "r" );
-  gzFile* pop_file = (gzFile*) gzopen( pop_file_name, "r" );
-  gzFile* sp_struct_file  = NULL;
+  gzFile env_file = gzopen( env_file_name, "r" );
+  gzFile pop_file = gzopen( pop_file_name, "r" );
+  gzFile sp_struct_file  = NULL;
   
   if ( env_file == Z_NULL )
   {
@@ -313,7 +313,7 @@ void ae_exp_manager::load_experiment( char* exp_setup_file_name,
   }
   if ( sp_struct_file_name != NULL )
   {
-    sp_struct_file = (gzFile*) gzopen( sp_struct_file_name, "r" );
+    sp_struct_file = gzopen( sp_struct_file_name, "r" );
     if ( sp_struct_file == Z_NULL )
     {
       printf( "%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, sp_struct_file_name );

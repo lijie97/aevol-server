@@ -58,7 +58,7 @@ class ae_individual_R : public virtual ae_individual
     ae_individual_R( const ae_individual_R &model );
     ae_individual_R( void );
     ae_individual_R( ae_individual_R* parent );
-    ae_individual_R( gzFile* backup_file );
+    ae_individual_R( gzFile backup_file );
 
     // =================================================================
     //                             Destructors
@@ -77,7 +77,7 @@ class ae_individual_R : public virtual ae_individual
     void    update_concentrations( void );
     void    multiply_concentrations( double factor );
     int8_t  get_quadon( ae_genetic_unit* gen_unit, ae_strand strand, int32_t pos );
-    void    save( gzFile* backup_file );
+    void    save( gzFile backup_file );
     // =================================================================
     //                           Public Attributes
     // =================================================================

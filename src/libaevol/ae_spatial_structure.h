@@ -66,7 +66,7 @@ class ae_spatial_structure : public ae_object
     //                             Constructors
     // =================================================================
     ae_spatial_structure( void );
-    ae_spatial_structure( gzFile* backup_file );
+    ae_spatial_structure( gzFile backup_file );
 
     // =================================================================
     //                             Destructors
@@ -106,7 +106,7 @@ class ae_spatial_structure : public ae_object
     // =================================================================
     void update_secretion_grid( void ); 
     void do_random_migrations ( void );
-    void save( gzFile* backup_file ) const;
+    void save( gzFile backup_file ) const;
 
     // =================================================================
     //                           Public Attributes

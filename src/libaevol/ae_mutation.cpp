@@ -143,7 +143,7 @@ ae_mutation::ae_mutation( const ae_mutation &model )
 
 
 
-ae_mutation::ae_mutation( gzFile* backup_file )
+ae_mutation::ae_mutation( gzFile backup_file )
 {
   int8_t tmp_mut_type;
   gzread( backup_file, &tmp_mut_type,  sizeof(tmp_mut_type) );
@@ -390,7 +390,7 @@ void ae_mutation::report_insertion( int32_t pos, int32_t length, const char* seq
   _seq[length] = '\0';
 }
 
-void ae_mutation::save( gzFile* backup_file ) // Usually <backup_file> is the tree file (?)
+void ae_mutation::save( gzFile backup_file ) // Usually <backup_file> is the tree file (?)
 {
   int8_t tmp_mut_type = _mut_type;
   gzwrite( backup_file, &tmp_mut_type,  sizeof(tmp_mut_type) );

@@ -53,7 +53,11 @@
 #include <ae_protein.h>
 #include <ae_rna.h>
 #include <ae_list.h>
-#include <ae_exp_manager.h>
+#ifndef __NO_X
+  #include <ae_exp_manager_X11.h>
+#else
+  #include <ae_exp_manager.h>
+#endif
 #include <ae_utils.h>
 
 
@@ -252,7 +256,7 @@ int main( int argc, char* argv[] )
     {
       // TODO : best* backups don't look right...
       printf( "Reading single individual backup file <%s>... ", backup_file_name );
-      gzFile* backup_file = (gzFile*) gzopen( backup_file_name, "r" );
+      gzFile backup_file = gzopen( backup_file_name, "r" );
       ae_common::read_from_backup( backup_file, verbose );
       env = new ae_environment(); // Uses the ae_common data
       best_indiv = new ae_individual( backup_file );

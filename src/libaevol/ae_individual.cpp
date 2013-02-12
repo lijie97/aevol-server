@@ -332,7 +332,7 @@ ae_individual::ae_individual( ae_exp_manager* exp_m,
   Since this generation has already been processed, no unnecessary calculation (e.g. fitness) will be done.
   No transcription, translation or other process of that kind is performed.
 */
-ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile* backup_file )
+ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile backup_file )
 {
   _exp_m = exp_m;
   
@@ -1669,7 +1669,7 @@ void ae_individual::compute_non_coding( void )
   _modularity = av_dist_between_interacting_genes / av_dist_between_genes;
 }*/
 
-void ae_individual::save( gzFile* backup_file ) const
+void ae_individual::save( gzFile backup_file ) const
 {
   // Write the "age" of the strain
   gzwrite( backup_file, &_age, sizeof(_age) );

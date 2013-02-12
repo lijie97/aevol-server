@@ -132,7 +132,7 @@ ae_tree::ae_tree( ae_exp_manager* exp_m, char* backup_file_name, char* tree_file
     }
   #endif
   
-  //gzFile* backup_file = (gzFile*) gzopen( backup_file_name, "r" );
+  //gzFile backup_file = gzopen( backup_file_name, "r" );
 
   //if ( backup_file == Z_NULL )
   //{
@@ -153,7 +153,7 @@ ae_tree::ae_tree( ae_exp_manager* exp_m, char* backup_file_name, char* tree_file
   {
     case NORMAL :
     {
-      gzFile* tree_file = (gzFile*) gzopen( tree_file_name, "r" );
+      gzFile tree_file = gzopen( tree_file_name, "r" );
       if ( tree_file == Z_NULL )
       {
         printf( "ERROR : Could not read tree file %s\n", tree_file_name );
@@ -341,7 +341,7 @@ void ae_tree::fill_tree_with_cur_gener( void )
   }
 }
 
-void ae_tree::write_to_tree_file( gzFile* tree_file )
+void ae_tree::write_to_tree_file( gzFile tree_file )
 {
   switch ( _tree_mode )
   {

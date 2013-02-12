@@ -552,7 +552,7 @@ void population_statistics::print_replication_stats( ae_individual* initial_indi
   {
   // warning: delete the genome when you don't need it anymore
 
-  gzFile * dstory_file = (gzFile *) gzopen("dstory.bak.gz","r");
+  gzFile dstory_file = gzopen("dstory.bak.gz","r");
 
   int begin_gener, end_gener, final_index;
   gzread(dstory_file, &begin_gener, sizeof(int));

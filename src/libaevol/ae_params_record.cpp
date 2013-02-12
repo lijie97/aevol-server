@@ -86,7 +86,7 @@ ae_params_record::~ae_params_record( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_params_record::save( gzFile* backup_file ) const
+void ae_params_record::save( gzFile backup_file ) const
 {
   // Backups
   gzwrite( backup_file, &_backup_step,     sizeof(_backup_step)     );
@@ -108,7 +108,7 @@ void ae_params_record::save( gzFile* backup_file ) const
   gzwrite( backup_file, &_dump_period,   sizeof(_dump_period)   );
 }
 
-void ae_params_record::load( gzFile* backup_file, bool verbose )
+void ae_params_record::load( gzFile backup_file, bool verbose )
 {
   // Backups
   gzread( backup_file, &_backup_step,     sizeof(_backup_step)     );

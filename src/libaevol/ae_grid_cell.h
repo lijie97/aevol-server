@@ -65,7 +65,7 @@ class ae_grid_cell : public ae_object
     //                             Constructors
     // =================================================================
     ae_grid_cell( int16_t x, int16_t y, ae_individual* indiv );
-    ae_grid_cell( gzFile* backup_file );
+    ae_grid_cell( gzFile backup_file );
 
     // =================================================================
     //                             Destructors
@@ -94,7 +94,7 @@ class ae_grid_cell : public ae_object
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void save( gzFile* backup_file ) const;
+    void save( gzFile backup_file ) const;
 
     // =================================================================
     //                           Public Attributes

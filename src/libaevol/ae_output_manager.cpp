@@ -85,7 +85,7 @@ ae_output_manager::~ae_output_manager( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_output_manager::write_setup_file( gzFile* setup_file ) const
+void ae_output_manager::write_setup_file( gzFile setup_file ) const
 {
   // Write the backup steps
   gzwrite( setup_file, &_backup_step,      sizeof(_backup_step) );
@@ -145,7 +145,7 @@ void ae_output_manager::write_setup_file( FILE* setup_file ) const
   fprintf( setup_file, "DUMP_STEP %"PRId32"\n", _dump_step );
 }
 
-void ae_output_manager::load( gzFile* setup_file, bool verbose )
+void ae_output_manager::load( gzFile setup_file, bool verbose )
 {
   // Write the backup steps
   gzread( setup_file, &_backup_step,      sizeof(_backup_step) );
@@ -301,7 +301,7 @@ void ae_output_manager::write_tree( void ) const
   sprintf( tree_file_name, "tree/tree_%06"PRId32".ae", _exp_m->get_num_gener() );
 #endif
   
-  gzFile* tree_file = (gzFile*) gzopen( tree_file_name, "w" );
+  gzFile tree_file = gzopen( tree_file_name, "w" );
   
   // Write phylogenetic data (tree)
   _tree->write_to_tree_file( tree_file );

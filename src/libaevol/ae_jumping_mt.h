@@ -75,7 +75,7 @@ class ae_jumping_mt : public ae_object
     // =================================================================
     ae_jumping_mt( const uint32_t& simple_seed );   // Initialize with a simple uint32_t
     ae_jumping_mt( const ae_jumping_mt &model );    // Create a copy of an existing generator
-    ae_jumping_mt( gzFile* backup_file );           // Load from a gz backup file
+    ae_jumping_mt( gzFile backup_file );           // Load from a gz backup file
 
     // =================================================================
     //                             Destructors
@@ -110,7 +110,7 @@ class ae_jumping_mt : public ae_object
     
     void jump( void );
     
-    void save( gzFile* backup_file ) const;
+    void save( gzFile backup_file ) const;
 
     // =================================================================
     //                           Public Attributes

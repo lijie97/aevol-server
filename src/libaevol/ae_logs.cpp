@@ -94,12 +94,12 @@ ae_logs::~ae_logs( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_logs::save( gzFile* backup_file ) const
+void ae_logs::save( gzFile backup_file ) const
 {
   gzwrite( backup_file, &_logs, sizeof(_logs) );
 }
 
-void ae_logs::load( gzFile* backup_file )
+void ae_logs::load( gzFile backup_file )
 {
   char* line = new char[500];
   char* ret;

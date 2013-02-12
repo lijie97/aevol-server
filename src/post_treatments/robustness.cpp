@@ -27,7 +27,11 @@
 // =======================================================================
 
 #include <population_statistics.h>
-#include <ae_exp_manager.h>
+#ifndef __NO_X
+  #include <ae_exp_manager_X11.h>
+#else
+  #include <ae_exp_manager.h>
+#endif
 
 
 

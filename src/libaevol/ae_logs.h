@@ -83,8 +83,8 @@ class ae_logs : public ae_object
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void save( gzFile* backup_file ) const;
-    void load( gzFile* backup_file );
+    void save( gzFile backup_file ) const;
+    void load( gzFile backup_file );
     void print_to_file( FILE* file ) const;
     
     void set_logs( int8_t logs );

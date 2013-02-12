@@ -67,7 +67,7 @@ class ae_params_mut : public ae_object
     // =================================================================
     ae_params_mut( void );
     ae_params_mut( const ae_params_mut& model );
-    ae_params_mut( gzFile* backup_file );
+    ae_params_mut( gzFile backup_file );
 
 
     // =================================================================
@@ -172,7 +172,7 @@ class ae_params_mut : public ae_object
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void save( gzFile* backup_file ) const;
+    void save( gzFile backup_file ) const;
 
     // =================================================================
     //                           Public Attributes

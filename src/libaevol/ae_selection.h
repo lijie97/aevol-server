@@ -66,7 +66,7 @@ class ae_selection : public ae_object
     //                             Constructors
     // =================================================================
     ae_selection( ae_exp_manager* exp_m );
-    ae_selection( ae_exp_manager* exp_m, gzFile* backup_file );
+    ae_selection( ae_exp_manager* exp_m, gzFile backup_file );
 
     // =================================================================
     //                             Destructors
@@ -143,11 +143,11 @@ class ae_selection : public ae_object
     // =================================================================
     void step_to_next_generation( void );
     void step_to_next_generation_grid( void );
-    void write_setup_file( gzFile* setup_file ) const;
+    void write_setup_file( gzFile setup_file ) const;
     void write_setup_file( FILE* setup_file ) const;
-    void save( gzFile* sp_struct_file ) const;
-    void load( gzFile* exp_setup_file, gzFile* sp_struct_file );
-    void load( FILE* exp_setup_file, gzFile* sp_struct_file );
+    void save( gzFile sp_struct_file ) const;
+    void load( gzFile exp_setup_file, gzFile sp_struct_file );
+    void load( FILE* exp_setup_file, gzFile sp_struct_file );
     
     ae_individual* do_replication( ae_individual* parent, int32_t index, int16_t x = -1, int16_t y = -1 );
     void compute_prob_reprod( void );

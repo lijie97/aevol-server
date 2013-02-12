@@ -125,11 +125,11 @@ class ae_exp_setup : public ae_object
     void create_from_param_file( ae_param_loader* param_loader, ae_param_overloader* param_overloader = NULL );
     
     // Backups
-    inline void write_setup_file( gzFile* setup_file ) const;
+    inline void write_setup_file( gzFile setup_file ) const;
     inline void write_setup_file( FILE* setup_file ) const;
-    void save( gzFile* env_file, gzFile* sp_struct_file ) const;
-    void load( gzFile* exp_setup_file, gzFile* env_file, gzFile* sp_struct_file, bool verbose );
-    void load( FILE* exp_setup_file, gzFile* env_file, gzFile* sp_struct_file, bool verbose );
+    void save( gzFile env_file, gzFile sp_struct_file ) const;
+    void load( gzFile exp_setup_file, gzFile env_file, gzFile sp_struct_file, bool verbose );
+    void load( FILE* exp_setup_file, gzFile env_file, gzFile sp_struct_file, bool verbose );
     
     inline void step_to_next_generation( void );
     
@@ -275,7 +275,7 @@ inline void ae_exp_setup::set_env( ae_environment* env )
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-void ae_exp_setup::write_setup_file( gzFile* setup_file ) const
+void ae_exp_setup::write_setup_file( gzFile setup_file ) const
 {
   _sel->write_setup_file( setup_file );
 }

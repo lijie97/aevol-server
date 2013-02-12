@@ -83,7 +83,7 @@ ae_jumping_mt::ae_jumping_mt( const ae_jumping_mt& model )
 /*!
   Load a generator from a gz backup file
  */
-ae_jumping_mt::ae_jumping_mt( gzFile* backup_file )
+ae_jumping_mt::ae_jumping_mt( gzFile backup_file )
 {
   _sfmt = new sfmt_t();
   gzread( backup_file, _sfmt->state, SFMT_N * sizeof( _sfmt->state[0] ) );
@@ -326,7 +326,7 @@ void ae_jumping_mt::multinomial_drawing( int32_t* destination, double* source, i
   destination[nb_colors-1] = n;
 }
 
-void ae_jumping_mt::save( gzFile* backup_file ) const
+void ae_jumping_mt::save( gzFile backup_file ) const
 {
   gzwrite( backup_file, _sfmt->state, SFMT_N * sizeof( _sfmt->state[0] ) );
   gzwrite( backup_file, &(_sfmt->idx), sizeof( _sfmt->idx ) );

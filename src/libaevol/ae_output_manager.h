@@ -113,9 +113,9 @@ class ae_output_manager : public ae_object
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void write_setup_file( gzFile* setup_file ) const;
+    void write_setup_file( gzFile setup_file ) const;
     void write_setup_file( FILE* setup_file ) const;
-    void load( gzFile* file, bool verbose );
+    void load( gzFile file, bool verbose );
     void load( FILE* file, bool verbose );
     void write_current_generation_outputs( void ) const;
     inline void flush( void );

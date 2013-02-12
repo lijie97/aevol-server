@@ -148,8 +148,8 @@ class ae_params_init : public ae_object
     //                            Public Methods
     // =================================================================
     // Backup functions
-    void save( gzFile* backup_file );
-    void load( gzFile* backup_file, bool verbose = false );
+    void save( gzFile backup_file );
+    void load( gzFile backup_file, bool verbose = false );
     void print_to_file( FILE* file );
     
     void clean( void );

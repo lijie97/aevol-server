@@ -81,7 +81,7 @@ ae_fuzzy_set::ae_fuzzy_set( const ae_fuzzy_set &model )
   }
 }
 
-ae_fuzzy_set::ae_fuzzy_set( gzFile* backup_file )
+ae_fuzzy_set::ae_fuzzy_set( gzFile backup_file )
 {
   _points = new ae_list();
   
@@ -903,7 +903,7 @@ bool ae_fuzzy_set::is_identical_to( const ae_fuzzy_set * other) const
 }
 
 
-void ae_fuzzy_set::save( gzFile* backup_file ) const
+void ae_fuzzy_set::save( gzFile backup_file ) const
 {
   int16_t nb_points = (_points == NULL) ? 0 : _points->get_nb_elts();
   gzwrite( backup_file, &nb_points, sizeof(nb_points) );
@@ -924,7 +924,7 @@ void ae_fuzzy_set::save( gzFile* backup_file ) const
 }
 
 
-void ae_fuzzy_set::load( gzFile* backup_file )
+void ae_fuzzy_set::load( gzFile backup_file )
 {
   int16_t nb_points;
   gzread( backup_file, &nb_points, sizeof(nb_points) );

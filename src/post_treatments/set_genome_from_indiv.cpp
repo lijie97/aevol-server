@@ -110,7 +110,7 @@ int main( int argc, char* argv[] )
   
   // We modify its individuals
   printf("Loading the individual.\n");  
-  gzFile* init_file = (gzFile*) gzopen( init_file_name, "r" );
+  gzFile init_file = gzopen( init_file_name, "r" );
   ae_individual* indiv = new ae_individual( init_file );
   printf("Closing the file.\n");
   gzclose(init_file);

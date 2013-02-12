@@ -57,7 +57,7 @@ class ae_individual_R_X11 : public ae_individual_R, ae_individual_X11
     ae_individual_R_X11( const ae_individual_R_X11 &model );
     ae_individual_R_X11( void );
     ae_individual_R_X11( ae_individual_R_X11* parent );
-    ae_individual_R_X11( gzFile* backup_file );
+    ae_individual_R_X11( gzFile backup_file );
 
     // =================================================================
     //                             Destructors

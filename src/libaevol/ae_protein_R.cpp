@@ -82,7 +82,7 @@ ae_protein( parent )
 }
 */
 
-ae_protein_R::ae_protein_R( gzFile* backup_file ) : ae_protein::ae_protein( backup_file )
+ae_protein_R::ae_protein_R( gzFile backup_file ) : ae_protein::ae_protein( backup_file )
 {
   // the Influence list is re-calculate afterward, and then is not saved, nor use in this consctructor.
   gzread( backup_file, &_delta_concentration,   			sizeof(_delta_concentration) );
@@ -136,7 +136,7 @@ void ae_protein_R::add_influence( ae_influence_R *influence )
   _influence_list->add( influence );
 }
 
-void ae_protein_R::save( gzFile* backup_file ) 
+void ae_protein_R::save( gzFile backup_file ) 
 {
   ae_protein::save( backup_file );
 
