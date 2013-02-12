@@ -71,7 +71,7 @@ class ae_replication_report : public ae_object
     // Creates a completely independent copy of the original report
     ae_replication_report( const ae_replication_report &model );
 
-    ae_replication_report( gzFile * tree_file, ae_individual * indiv );
+    ae_replication_report( gzFile tree_file, ae_individual * indiv );
 
     // =================================================================
     //                             Destructors
@@ -112,7 +112,7 @@ class ae_replication_report : public ae_object
     //~ inline void add_rearrangement_list( ae_list* rear_list );
     
     void signal_end_of_replication( void );
-    void write_to_tree_file( gzFile* tree_file ) const;
+    void write_to_tree_file( gzFile tree_file ) const;
 
 
     // =================================================================

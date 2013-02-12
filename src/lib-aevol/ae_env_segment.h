@@ -67,7 +67,7 @@ class ae_env_segment : public ae_object
     inline ae_env_segment( void );
     inline ae_env_segment( double start, double stop, ae_env_axis_feature feature );
     inline ae_env_segment( const ae_env_segment& source );
-    inline ae_env_segment( gzFile* backup_file );
+    inline ae_env_segment( gzFile backup_file );
   
     // =================================================================
     //                             Destructors
@@ -81,7 +81,7 @@ class ae_env_segment : public ae_object
     // =================================================================
     //                            Public Methods
     // =================================================================
-    inline void write_to_backup( gzFile* backup_file );
+    inline void write_to_backup( gzFile backup_file );
   
     // =================================================================
     //                           Public Attributes
@@ -157,7 +157,7 @@ inline ae_env_segment::ae_env_segment( const ae_env_segment& source )
   this->feature = source.feature;
 }
 
-inline ae_env_segment::ae_env_segment( gzFile* backup_file )
+inline ae_env_segment::ae_env_segment( gzFile backup_file )
 {
   gzread( backup_file, &start,        sizeof(start) );
   gzread( backup_file, &stop,         sizeof(stop) );
@@ -180,7 +180,7 @@ inline ae_env_segment::~ae_env_segment( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-inline void ae_env_segment::write_to_backup( gzFile* backup_file )
+inline void ae_env_segment::write_to_backup( gzFile backup_file )
 {
   gzwrite( backup_file, &start,   sizeof(start) );
   gzwrite( backup_file, &stop,    sizeof(stop) );

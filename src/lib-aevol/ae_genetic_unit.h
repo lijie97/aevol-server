@@ -74,7 +74,7 @@ class ae_genetic_unit : public ae_object
     ae_genetic_unit( ae_individual* indiv, char* seq, int32_t length, ae_list** prom_list = NULL );
     ae_genetic_unit( ae_individual* indiv, const ae_genetic_unit &model );
     ae_genetic_unit( ae_individual* indiv, ae_genetic_unit* const parent );
-    ae_genetic_unit( ae_individual* indiv, gzFile* backup_file );
+    ae_genetic_unit( ae_individual* indiv, gzFile backup_file );
     ae_genetic_unit( ae_individual* indiv, char* organism_file_name );
 
 
@@ -218,7 +218,7 @@ class ae_genetic_unit : public ae_object
     void copy_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list* new_promoter_list );
     //~ inline void copy_all_promoters( ae_list** new_promoter_lists );
 
-    void write_to_backup( gzFile* backup_file );
+    void write_to_backup( gzFile backup_file );
     
     int32_t get_nb_terminators( void );
     

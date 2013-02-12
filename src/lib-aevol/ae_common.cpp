@@ -212,7 +212,7 @@ double  ae_common::protein_presence_limit = 1e-5;
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_common::write_to_backup( gzFile* backup_file )
+void ae_common::write_to_backup( gzFile backup_file )
 {
   // PseudoRandom Number Generator
   gzwrite( backup_file, &seed,                        sizeof(seed)                      );
@@ -419,7 +419,7 @@ void ae_common::write_to_backup( gzFile* backup_file )
   #endif
 }
 
-void ae_common::read_from_backup( gzFile* backup_file, bool verbose )
+void ae_common::read_from_backup( gzFile backup_file, bool verbose )
 {
   // PseudoRandom Number Generator
   gzread( backup_file, &seed,                         sizeof(seed)                      );

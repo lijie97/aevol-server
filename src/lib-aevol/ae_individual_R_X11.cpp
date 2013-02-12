@@ -68,7 +68,7 @@ ae_individual( parent ), ae_individual_R( parent ), ae_individual_X11( parent )
   //printf("ae_individual_R_X11( parent )");
 }
 
-ae_individual_R_X11::ae_individual_R_X11( gzFile* backup_file ) :
+ae_individual_R_X11::ae_individual_R_X11( gzFile backup_file ) :
 ae_individual( backup_file ), ae_individual_R( backup_file ), ae_individual_X11( backup_file )
 {
 }

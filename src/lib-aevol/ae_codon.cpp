@@ -104,7 +104,7 @@ ae_codon::ae_codon( ae_dna* dna, ae_strand strand, int32_t index )
   }
 }
 
-ae_codon::ae_codon( gzFile* backup_file )
+ae_codon::ae_codon( gzFile backup_file )
 {
   gzread( backup_file, &_value,   			sizeof(_value) );
 }
@@ -119,7 +119,7 @@ ae_codon::~ae_codon( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_codon::write_to_backup( gzFile* backup_file )
+void ae_codon::write_to_backup( gzFile backup_file )
 {
   gzwrite( backup_file, &_value,   			sizeof(_value) );
 }

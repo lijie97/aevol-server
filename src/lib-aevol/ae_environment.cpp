@@ -108,7 +108,7 @@ ae_environment::ae_environment( void ) :
 }
 
 
-ae_environment::ae_environment( gzFile* backup_file ) :
+ae_environment::ae_environment( gzFile backup_file ) :
 #ifdef __NO_X
   ae_fuzzy_set()
 #elif defined __X11
@@ -390,7 +390,7 @@ void ae_environment::_compute_area( void )
   }
 }
 
-void ae_environment::write_to_backup( gzFile* backup_file )
+void ae_environment::write_to_backup( gzFile backup_file )
 {
   // Write gaussians
   int16_t nb_gaussians = _gaussians->get_nb_elts();

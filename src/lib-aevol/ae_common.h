@@ -83,8 +83,8 @@ class ae_common
     //                            Public Methods
     // =================================================================
     // Backup functions
-    static void write_to_backup( gzFile* backup_file );
-    static void read_from_backup( gzFile* backup_file, bool verbose = false );
+    static void write_to_backup( gzFile backup_file );
+    static void read_from_backup( gzFile backup_file, bool verbose = false );
     static void print_to_file( void );
 
     // Binding functions

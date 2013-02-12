@@ -69,7 +69,7 @@ class ae_population : public ae_object
     // =================================================================
     ae_population( void );
     ae_population( char* organism_file_name );
-    ae_population( gzFile* backup_file );
+    ae_population( gzFile backup_file );
 
     // =================================================================
     //                             Destructors
@@ -107,7 +107,7 @@ class ae_population : public ae_object
     void            sort_individuals( void );
     void            update_best( void );
 
-    void    write_to_backup( gzFile* backup_file );
+    void    write_to_backup( gzFile backup_file );
 
     // =================================================================
     //                           Public Attributes

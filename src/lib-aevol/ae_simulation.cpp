@@ -292,7 +292,7 @@ ae_simulation::ae_simulation( char* backup_file_name, bool to_be_run /* = TRUE *
   #endif
   
 
-  gzFile* backup_file = (gzFile*) gzopen( backup_file_name, "r" );
+  gzFile backup_file = gzopen( backup_file_name, "r" );
   
   if ( backup_file == Z_NULL )
   {
@@ -521,7 +521,8 @@ void ae_simulation::run( void )
   printf( "===================================================================\n");
   printf ("  The run is finished. \n"); 
   printf ("  Printing the final best individual into best_last_org.txt \n"); 
-  char* out_file_name = "best_last_org.txt"; 
+  char out_file_name[255];
+  strcpy( out_file_name, "best_last_org.txt" ); 
   FILE* org_file = fopen( out_file_name, "w" );
   fputs( ((ae_individual *) _pop->get_indivs()->get_last()->get_obj())->get_genetic_unit(0)->get_dna()->get_data(), org_file); 
   fclose ( org_file ); 
@@ -546,8 +547,8 @@ void ae_simulation::write_backup( void )
   sprintf( best_indiv_file_name, "backup/best_%06"PRId32".ae", _num_gener );
 #endif
   
-  gzFile* backup_file     = (gzFile*) gzopen( backup_file_name, "w" );
-  gzFile* best_indiv_file = (gzFile*) gzopen( best_indiv_file_name, "w" );
+  gzFile backup_file     = gzopen( backup_file_name, "w" );
+  gzFile best_indiv_file = gzopen( best_indiv_file_name, "w" );
 
   // Write random generator state
   alea->write_to_backup( backup_file );
@@ -582,7 +583,7 @@ void ae_simulation::write_tree( void )
   sprintf( tree_file_name, "tree/tree_%06"PRId32".ae", _num_gener );
 #endif
   
-  gzFile* tree_file = (gzFile*) gzopen( tree_file_name, "w" );
+  gzFile tree_file = gzopen( tree_file_name, "w" );
   
   // Write phylogenetic data (tree)
   _tree->write_to_tree_file( tree_file );

@@ -63,11 +63,19 @@ ae_rand_mt::ae_rand_mt( const uint32_t& oneSeed )
   seed( oneSeed );
 }
 
-ae_rand_mt::ae_rand_mt( gzFile* backup_file )
+ae_rand_mt::ae_rand_mt( gzFile backup_file )
 {
   uint32_t loadArray[SAVE];
   gzread( backup_file, loadArray, SAVE * sizeof( loadArray[0] ) );
   load( loadArray );
+}
+
+ae_rand_mt::ae_rand_mt( const ae_rand_mt& model )
+{
+  memcpy( state, model.state, N * sizeof(*state) );
+  pNext = state + (model.pNext - model.state);
+  left = model.left;
+  assert( (pNext - state) / sizeof(*state) + left == N );
 }
 
 // =================================================================

@@ -283,7 +283,7 @@ ae_population::ae_population( char* organism_file_name )
   sort_individuals();
 }
 
-ae_population::ae_population( gzFile* backup_file )
+ae_population::ae_population( gzFile backup_file )
 {
   // Retreive population intrinsic data
   gzread( backup_file, &_nb_indivs,                  sizeof(_nb_indivs) );
@@ -1605,7 +1605,7 @@ void ae_population::secretion_grid_update ( void )
 }
 
 
-void ae_population::write_to_backup( gzFile* backup_file )
+void ae_population::write_to_backup( gzFile backup_file )
 {
   // Save population intrinsic data
   gzwrite( backup_file, &_nb_indivs,                  sizeof(_nb_indivs) );

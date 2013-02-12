@@ -76,7 +76,7 @@ ae_individual_X11::ae_individual_X11( ae_individual_X11* const parent, int32_t i
   init_occupied_sectors();
 }
 
-ae_individual_X11::ae_individual_X11( gzFile* backup_file ) : ae_individual( backup_file )
+ae_individual_X11::ae_individual_X11( gzFile backup_file ) : ae_individual( backup_file )
 {
   init_occupied_sectors();
 }

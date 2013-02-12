@@ -232,7 +232,7 @@ int main(int argc, char** argv)
   //  Open the lineage file
   // =======================
 
-  gzFile * lineage_file = (gzFile*) gzopen( lineage_file_name, "r" );
+  gzFile lineage_file = gzopen( lineage_file_name, "r" );
   if ( lineage_file == Z_NULL )
   {
     fprintf( stderr, "ERROR : Could not read the lineage file %s\n", lineage_file_name );

@@ -59,7 +59,7 @@ class ae_protein_R : public ae_protein
     // =================================================================
     ae_protein_R( ae_genetic_unit* gen_unit, const ae_protein_R &model );
     ae_protein_R( ae_genetic_unit* gen_unit, ae_list* codon_list, ae_strand strand, int32_t shine_dal_pos, ae_rna* rna ); // TODO ae_rna_R?
-	ae_protein_R( gzFile* backup_file );
+	ae_protein_R( gzFile backup_file );
 	
     // =================================================================
     //                             Destructors
@@ -82,7 +82,7 @@ class ae_protein_R : public ae_protein
            void    compute_delta_concentration( void );
            int8_t  get_codon( int32_t index );
            void    add_influence( ae_influence_R* influence );
-		   void    write_to_backup( gzFile* backup_file );
+		   void    write_to_backup( gzFile backup_file );
 
     // =================================================================
     //                           Public Attributes

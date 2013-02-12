@@ -80,7 +80,7 @@ class ae_environment : public ae_fuzzy_set_X11
     //                             Constructors
     // =================================================================
     ae_environment( void );
-    ae_environment( gzFile* backup_file );
+    ae_environment( gzFile backup_file );
 
     // =================================================================
     //                             Destructors
@@ -110,7 +110,7 @@ class ae_environment : public ae_fuzzy_set_X11
     void build( void );
     inline void apply_variation( void );
 
-    void write_to_backup( gzFile* backup_file );
+    void write_to_backup( gzFile backup_file );
 
     // =================================================================
     //                           Public Attributes

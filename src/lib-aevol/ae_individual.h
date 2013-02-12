@@ -78,7 +78,7 @@ class ae_individual : public ae_object
     ae_individual( void );
     ae_individual( const ae_individual &model );
     ae_individual( ae_individual* const parent, int32_t index );
-    ae_individual( gzFile* backup_file );
+    ae_individual( gzFile backup_file );
     ae_individual( char* organism_file_name );
     ae_individual( char* genome, int32_t genome_size );
 
@@ -182,7 +182,7 @@ class ae_individual : public ae_object
     void compute_non_coding( void );
     /*void compute_modularity( void );*/
 
-    virtual void write_to_backup( gzFile* backup_file );
+    virtual void write_to_backup( gzFile backup_file );
     
     int32_t get_nb_terminators( void );
     

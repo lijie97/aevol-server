@@ -66,7 +66,7 @@ class ae_point_1d : public ae_object
     inline ae_point_1d( void );
     inline ae_point_1d( double x );
     inline ae_point_1d( const ae_point_1d& source );
-    inline ae_point_1d( gzFile* backup_file );
+    inline ae_point_1d( gzFile backup_file );
   
     // =================================================================
     //                             Destructors
@@ -80,7 +80,7 @@ class ae_point_1d : public ae_object
     // =================================================================
     //                            Public Methods
     // =================================================================
-    inline void write_to_backup( gzFile* backup_file );
+    inline void write_to_backup( gzFile backup_file );
   
     // =================================================================
     //                           Public Attributes
@@ -148,7 +148,7 @@ inline ae_point_1d::ae_point_1d( const ae_point_1d& source )
   this->x = source.x;
 }
 
-inline ae_point_1d::ae_point_1d( gzFile* backup_file )
+inline ae_point_1d::ae_point_1d( gzFile backup_file )
 {
   gzread( backup_file, &x, sizeof(x) );
 }
@@ -167,7 +167,7 @@ inline ae_point_1d::~ae_point_1d( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-inline void ae_point_1d::write_to_backup( gzFile* backup_file )
+inline void ae_point_1d::write_to_backup( gzFile backup_file )
 {
   gzwrite( backup_file, &x, sizeof(x) );
 }

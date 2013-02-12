@@ -81,7 +81,7 @@ class ae_mutation : public ae_object
     // =================================================================
     ae_mutation( void );
     ae_mutation( const ae_mutation &model );
-    ae_mutation( gzFile* backup_file );
+    ae_mutation( gzFile backup_file );
   
     // =================================================================
     //                             Destructors
@@ -123,7 +123,7 @@ class ae_mutation : public ae_object
     /* DEPRECATED, use get_length instead */
     int32_t segment_length( int32_t gen_unit_len );
 
-    void write_to_backup( gzFile* backup_file );
+    void write_to_backup( gzFile backup_file );
   
     // =================================================================
     //                           Public Attributes

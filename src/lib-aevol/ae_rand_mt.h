@@ -97,7 +97,8 @@ class ae_rand_mt
   public:
     // Constructors
     ae_rand_mt( const uint32_t& oneSeed );  // initialize with a simple uint32_t
-    ae_rand_mt( gzFile* backup_file );      // Load from a gz backup file
+    ae_rand_mt( gzFile backup_file );      // Load from a gz backup file
+    ae_rand_mt( const ae_rand_mt& model );
   
     // Destructors
     virtual ~ae_rand_mt( void );
@@ -126,7 +127,7 @@ class ae_rand_mt
     // Saving and loading generator state
     inline void save( uint32_t* saveArray ) const;  // to array of size SAVE
     inline void load( uint32_t *const loadArray );  // from such array
-    inline void write_to_backup( gzFile* backup_file ) const;
+    inline void write_to_backup( gzFile backup_file ) const;
 
   protected:
     ae_rand_mt( void )
@@ -272,11 +273,11 @@ void ae_rand_mt::load( uint32_t *const loadArray )
   pNext = &state[N-left];
 }
 
-void ae_rand_mt::write_to_backup( gzFile* backup_file ) const
+void ae_rand_mt::write_to_backup( gzFile backup_file ) const
 {
   uint32_t saveArray[SAVE];
   save( saveArray );
   gzwrite( backup_file, saveArray, SAVE * sizeof( saveArray[0] ) );
 }
-
+  
 #endif

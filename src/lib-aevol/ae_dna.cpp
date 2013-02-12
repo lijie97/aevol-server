@@ -123,7 +123,7 @@ ae_dna::ae_dna( ae_genetic_unit* gen_unit, char* seq, int32_t length ) :
  * Loads a piece of dna from <backup_file>
  * The replication report is set to NULL
  */
-ae_dna::ae_dna( ae_genetic_unit* gen_unit, gzFile* backup_file ) : ae_string( backup_file )
+ae_dna::ae_dna( ae_genetic_unit* gen_unit, gzFile backup_file ) : ae_string( backup_file )
 {
   _gen_unit = gen_unit;
   _replic_report = NULL;

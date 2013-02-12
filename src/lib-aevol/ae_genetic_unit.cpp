@@ -366,7 +366,7 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, ae_genetic_unit* const p
   init_statistical_data();
 }
 
-ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, gzFile* backup_file )
+ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, gzFile backup_file )
 {
   _indiv = indiv;
   
@@ -3315,7 +3315,7 @@ void ae_genetic_unit::copy_lagging_promoters_starting_between( int32_t pos_1, in
   }
 }
 
-void ae_genetic_unit::write_to_backup( gzFile* backup_file )
+void ae_genetic_unit::write_to_backup( gzFile backup_file )
 {
   _dna->write_to_backup( backup_file );
 }

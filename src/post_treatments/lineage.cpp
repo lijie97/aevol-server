@@ -269,7 +269,7 @@ int main(int argc, char** argv)
   snprintf( output_file_name, 100, "lineage-b%06"PRId32"-e%06"PRId32".ae",  begin_gener, end_gener );
 #endif
 
-  gzFile * lineage_file = (gzFile*) gzopen(output_file_name, "w");
+  gzFile lineage_file = gzopen(output_file_name, "w");
   if ( lineage_file == NULL )
   {
     fprintf(stderr, "File %s could not be created, exiting.\n", output_file_name);

@@ -71,7 +71,7 @@ class ae_individual_X11 : public virtual ae_individual
     ae_individual_X11( const ae_individual_X11 &model );
     ae_individual_X11( void );
     ae_individual_X11( ae_individual_X11* const parent, int32_t index );
-    ae_individual_X11( gzFile* backup_file );
+    ae_individual_X11( gzFile backup_file );
     ae_individual_X11( char* genome, int32_t genome_size );
   
     // =================================================================

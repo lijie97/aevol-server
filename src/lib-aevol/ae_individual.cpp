@@ -429,7 +429,7 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t index )
  *
  * No transcription, translation or other process of that kind is performed.
  */
-ae_individual::ae_individual( gzFile* backup_file )
+ae_individual::ae_individual( gzFile backup_file )
 {
   _evaluated                    = false;
   _transcribed                  = false;
@@ -1393,7 +1393,7 @@ void ae_individual::compute_non_coding( void )
   _modularity = av_dist_between_interacting_genes / av_dist_between_genes;
 }*/
 
-void ae_individual::write_to_backup( gzFile* backup_file )
+void ae_individual::write_to_backup( gzFile backup_file )
 {
   // Write index in population
   gzwrite( backup_file, &_index_in_population, sizeof(_index_in_population) );

@@ -64,7 +64,7 @@ ae_population_X11::ae_population_X11( void ) : ae_population()
   compute_colormap();
 }
 
-ae_population_X11::ae_population_X11( gzFile* backup_file ) : ae_population( backup_file )
+ae_population_X11::ae_population_X11( gzFile backup_file ) : ae_population( backup_file )
 {
   compute_colormap();
 }
