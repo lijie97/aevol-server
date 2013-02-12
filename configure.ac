@@ -5,7 +5,7 @@
 AC_PREREQ([2.65])
 
 # Provide FULL-PACKAGE-NAME, VERSION and BUG-REPORT-ADDRESS
-AC_INIT([AEVOL], [3.0.2.0], aevol-bug-report@lists.gforge.liris.cnrs.fr)
+AC_INIT([AEVOL], [3.0.3.0], aevol-bug-report@lists.gforge.liris.cnrs.fr)
 
 # We want to use automake
 AM_INIT_AUTOMAKE

@@ -5,3 +5,4 @@
 #endif # IN2P3
 
 EXTRA_DIST = src/misc
+EXTRA_DIST = examples
