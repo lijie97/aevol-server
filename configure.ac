@@ -264,5 +264,6 @@ AC_CONFIG_FILES([Makefile
                  src/Makefile
                  src/libaevol/Makefile
                  src/libaevol/SFMT-src-1.4/Makefile
+                 src/libaevol/tests/Makefile
                  src/post_treatments/Makefile])
 AC_OUTPUT

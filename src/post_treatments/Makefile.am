@@ -1,10 +1,17 @@
 ############################################
-# Set programs to build and library to use #
+#         Set aevol library to use         #
 ############################################
 AM_LDFLAGS = -L$(top_srcdir)/src/libaevol
 
 AM_CPPFLAGS = -I./
 AM_CPPFLAGS += -I$(top_srcdir)/src/libaevol
+
+if WITH_RAEVOL
+  LDADD = $(top_srcdir)/src/libaevol/libraevol.a
+else # WITHOUT_RAEVOL
+  LDADD = $(top_srcdir)/src/libaevol/libaevol.a $(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
+endif # RAEVOL
+
 
 ############################################
 # C99 exact-width integer specific support #
@@ -14,58 +21,10 @@ AM_CPPFLAGS += -I$(top_srcdir)/src/libaevol
 # __STDC_LIMIT_MACROS allows us to use exact-width integer limit macros with e.g. INT32_MAX
 AM_CPPFLAGS += -D__STDC_FORMAT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS
 
+
 ############################################
-# Set programs to build and library to use #
+#           Set programs to build          #
 ############################################
-
-if WITH_RAEVOL
-  LDADD = $(top_srcdir)/src/libaevol/libraevol.a
-else # WITHOUT_RAEVOL
-  LDADD = $(top_srcdir)/src/libaevol/libaevol.a $(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
-endif # RAEVOL
-
-#if WITH_RAEVOL
-#if WITH_X
-#if WITH_DEBUG
-#  bin_PROGRAMS =  rancstats_debug rcreate_eps_debug rextract_debug rfixed_mutations_debug rgenome_stats_debug rget_best_indiv_debug
-#  bin_PROGRAMS += rlineage_debug rmutagenesis_debug rrobustness_debug rset_genome_from_indiv_debug rview_generation_debug rcompute_pop_stats_debug
-#else # WITHOUT_DEBUG
-#  bin_PROGRAMS = rancstats rcreate_eps rextract rfixed_mutations rgenome_stats rget_best_indiv rlineage rmutagenesis rrobustness rset_genome_from_indiv rview_generation rcompute_pop_stats
-#endif # DEBUG
-#else # WITHOUT_X
-#if WITH_DEBUG
-#  bin_PROGRAMS =  rancstats_debug rcreate_eps_debug rextract_debug rfixed_mutations_debug rgenome_stats_debug rget_best_indiv_debug
-#  bin_PROGRAMS += rlineage_debug rmutagenesis_debug rrobustness_debug rset_genome_from_indiv_debug rcompute_pop_stats_debug
-#else # WITHOUT_DEBUG
-#if WITH_IN2P3
-#  bin_PROGRAMS = rancstats rcreate_eps rextract rfixed_mutations rgenome_stats rget_best_indiv rlineage rmutagenesis rrobustness rset_genome_from_indiv rcompute_pop_stats
-#else # WITHOUT_IN2P3
-#  bin_PROGRAMS = rancstats rcreate_eps rextract rfixed_mutations rgenome_stats rget_best_indiv rlineage rmutagenesis rrobustness rset_genome_from_indiv rcompute_pop_stats
-#endif # IN2P3
-#endif # DEBUG
-#endif # X
-#else # WITHOUT_RAEVOL
-#if WITH_X
-#if WITH_DEBUG
-#  bin_PROGRAMS =  ancstats_debug create_eps_debug extract_debug fixed_mutations_debug genome_stats_debug get_best_indiv_debug
-#  bin_PROGRAMS += lineage_debug mutagenesis_debug mutationalrobustness_debug robustness_debug set_genome_from_indiv_debug view_generation_debug compute_pop_stats_debug
-#else # WITHOUT_DEBUG
-#  bin_PROGRAMS = ancstats create_eps extract fixed_mutations genome_stats get_best_indiv lineage mutagenesis mutationalrobustness robustness set_genome_from_indiv view_generation compute_pop_stats
-#endif # DEBUG
-#else # WITHOUT_X
-#if WITH_DEBUG
-#  bin_PROGRAMS =  ancstats_debug create_eps_debug extract_debug fixed_mutations_debug genome_stats_debug get_best_indiv_debug
-#  bin_PROGRAMS += lineage_debug mutagenesis_debug mutationalrobustness_debug robustness_debug set_genome_from_indiv_debug compute_pop_stats_debug
-#else # WITHOUT_DEBUG
-#if WITH_IN2P3
-#  bin_PROGRAMS = ancstats create_eps extract fixed_mutations genome_stats get_best_indiv lineage mutagenesis mutationalrobustness robustness set_genome_from_indiv compute_pop_stats
-#else # WITHOUT_IN2P3
-#  bin_PROGRAMS = ancstats create_eps extract fixed_mutations genome_stats get_best_indiv lineage mutagenesis mutationalrobustness robustness set_genome_from_indiv compute_pop_stats
-#endif # IN2P3
-#endif # DEBUG
-#endif # X
-#endif # RAEVOL
-
 if WITH_RAEVOL
 if WITH_X
 if WITH_DEBUG
