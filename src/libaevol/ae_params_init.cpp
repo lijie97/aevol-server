@@ -74,8 +74,8 @@ ae_params_init::ae_params_init( void )
   _delete_old_stats       = false;
   
   // Environment
-  _env_gaussians      = new ae_list();
-  _env_custom_points  = new ae_list();
+  _env_gaussians      = new ae_list<ae_gaussian*>();
+  _env_custom_points  = new ae_list<ae_point_2d*>();
   _env_sampling           = 300;
   
   // Environment x-axis segmentation
@@ -111,10 +111,10 @@ ae_params_init::ae_params_init( void )
 // =================================================================
 ae_params_init::~ae_params_init( void )
 {
-  _env_gaussians->erase( DELETE_OBJ );
+  _env_gaussians->erase( true );
   delete _env_gaussians;
   
-  _env_custom_points->erase( DELETE_OBJ );
+  _env_custom_points->erase( true );
   delete _env_custom_points;
 }
 
@@ -140,11 +140,11 @@ void ae_params_init::save( gzFile backup_file ) // Usefull?
   int16_t nb_gaussians = _env_gaussians->get_nb_elts();
   gzwrite( backup_file, &nb_gaussians, sizeof(nb_gaussians) );
   
-  ae_list_node* gaussian_node = _env_gaussians->get_first();
+  ae_list_node<ae_gaussian*>* gaussian_node = _env_gaussians->get_first();
   ae_gaussian*  gaussian;
   for ( int16_t i = 0 ; i < nb_gaussians ; i++ )
   {
-    gaussian = ( ae_gaussian* ) gaussian_node->get_obj();
+    gaussian = gaussian_node->get_obj();
 
     gaussian->save( backup_file );
 
@@ -154,11 +154,11 @@ void ae_params_init::save( gzFile backup_file ) // Usefull?
   // Environment custom points
   int16_t nb_points = _env_custom_points->get_nb_elts();
   gzwrite( backup_file, &nb_points, sizeof(nb_points) );
-  ae_list_node* point_node = _env_custom_points->get_first();
+  ae_list_node<ae_point_2d*>* point_node = _env_custom_points->get_first();
   ae_point_2d*  point;
   for ( int16_t i = 0 ; i < nb_points ; i++ )
   {
-    point = ( ae_point_2d* ) point_node->get_obj();
+    point = point_node->get_obj();
 
     point->save( backup_file );
 
@@ -244,7 +244,7 @@ void ae_params_init::load( gzFile backup_file, bool verbose ) // Usefull?
   
   if ( _env_gaussians->is_empty() == false )
   {
-    _env_gaussians->erase( DELETE_OBJ );
+    _env_gaussians->erase( true );
   }
   
   for ( int16_t i = 0 ; i < nb_gaussians ; i++ )
@@ -258,7 +258,7 @@ void ae_params_init::load( gzFile backup_file, bool verbose ) // Usefull?
 
   if ( _env_custom_points->is_empty() == false )
   {
-    _env_custom_points->erase( DELETE_OBJ );
+    _env_custom_points->erase( true );
   }
 
   for ( int16_t i = 0 ; i < nb_points ; i++ )
@@ -353,22 +353,22 @@ void ae_params_init::print_to_file( FILE* file )
   
   // Environment gaussians
   fprintf( file, "\nEnvironment gaussians -----------------------------------\n" );
-  ae_list_node * node = _env_gaussians->get_first();
-  while ( node != NULL )
+  ae_list_node<ae_gaussian*>* gaussian_node = _env_gaussians->get_first();
+  while ( gaussian_node != NULL )
   {
-    ae_gaussian * gauss = (ae_gaussian *) node->get_obj();
+    ae_gaussian * gauss = gaussian_node->get_obj();
     fprintf( file, "env_add_gaussian :           %f %f %f \n",gauss->get_height(),gauss->get_mean(),gauss->get_width());
-    node = node->get_next();
+    gaussian_node = gaussian_node->get_next();
   }
   
   // Environment custom_points
   fprintf( file, "\nEnvironment custom_points -------------------------------\n" );
-  node = _env_custom_points->get_first();
-  while ( node != NULL )
+  ae_list_node<ae_point_2d*>* point_node = _env_custom_points->get_first();
+  while ( point_node != NULL )
   {
-    ae_point_2d * point = (ae_point_2d *)node->get_obj();
-    fprintf( file, "env_add_point:    %f %f \n",point->x,point->y);
-    node = node->get_next();	
+    ae_point_2d* point = point_node->get_obj();
+    fprintf( file, "env_add_point:    %f %f \n", point->x, point->y );
+    point_node = point_node->get_next();	
   }
   
   // Environment sampling
@@ -470,10 +470,10 @@ void ae_params_init::print_to_file( FILE* file )
 
 void ae_params_init::clean( void )
 {
-  _env_gaussians->erase( DELETE_OBJ );
+  _env_gaussians->erase( true );
   delete _env_gaussians;
   _env_gaussians = NULL;
-  _env_custom_points->erase( DELETE_OBJ );
+  _env_custom_points->erase( true );
   delete _env_custom_points;
   _env_custom_points = NULL;
   

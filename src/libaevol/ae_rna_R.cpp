@@ -102,13 +102,13 @@ void ae_rna_R::set_influences( ae_list* protein_list )
   int32_t enhancer_position = get_enhancer_position();
   int32_t operator_position = get_operator_position();
 
-  ae_list_node* prot_node;
-  ae_protein*   prot;
+  ae_list_node<ae_protein*>* prot_node;
+  ae_protein* prot;
 
   prot_node = protein_list->get_first();
   while ( prot_node != NULL )
   {
-    prot = (ae_protein*)prot_node->get_obj();
+    prot = prot_node->get_obj();
     
     double activation = affinity_with_protein( enhancer_position, prot );
     double inhibition = affinity_with_protein( operator_position, prot );
@@ -127,13 +127,13 @@ double ae_rna_R::get_synthesis_rate( void )
   double enhancer_activity  = 0;
   double operator_activity  = 0;
 
-  ae_list_node*   influence_node;
+  ae_list_node<ae_influence_R*>*   influence_node;
   ae_influence_R* influence;
 
   influence_node = _influence_list->get_first();
   while ( influence_node != NULL )
   {
-    influence = (ae_influence_R*)influence_node->get_obj();
+    influence = influence_node->get_obj();
 
     enhancer_activity  += influence->get_enhancer_activity();
     operator_activity  += influence->get_operator_activity();

@@ -116,16 +116,15 @@ ae_tree::ae_tree( ae_exp_manager* exp_m, char* backup_file_name, char* tree_file
 {
   _exp_m = exp_m;
     
-  // Retrieve the ae_common's informations in backup_file
-  int16_t bfn_len = strlen( backup_file_name );
+  // Check Aevol / R-Aevol
   #ifdef __REGUL
-    if ( strcmp( &backup_file_name[bfn_len-4], ".rae" ) != 0 )
+    if ( strcmp( &backup_file_name[strlen( backup_file_name )-4], ".rae" ) != 0 )
     {
       printf( "ERROR : %s is not valid RAEVOL backup file.\n", backup_file_name );
       exit( EXIT_FAILURE );
     }
   #else
-    if ( strcmp( &backup_file_name[bfn_len-3], ".ae" ) != 0 )
+    if ( strcmp( &backup_file_name[strlen( backup_file_name )-3], ".ae" ) != 0 )
     {
       printf( "ERROR : %s is not valid AEVOL backup file.\n", backup_file_name );
       exit( EXIT_FAILURE );
@@ -298,13 +297,13 @@ void ae_tree::fill_tree_with_cur_gener( void )
       _replics[gener_i]   = new ae_replication_report* [_nb_indivs[gener_i]];
       
       
-      ae_list_node*   indiv_node  = _exp_m->get_indivs()->get_first();
+      ae_list_node<ae_individual*>* indiv_node = _exp_m->get_indivs()->get_first();
       ae_individual*  indiv       = NULL;
       int32_t         num_indiv   = 0;
       
       while ( indiv_node != NULL )
       {
-        indiv = (ae_individual*) indiv_node->get_obj();
+        indiv = indiv_node->get_obj();
         
         _replics[gener_i][num_indiv++] = indiv->get_replic_report();
 
@@ -323,13 +322,13 @@ void ae_tree::fill_tree_with_cur_gener( void )
       _nb_indivs[gener_i] = _exp_m->get_nb_indivs();
       _parent[gener_i] = new int32_t [_nb_indivs[gener_i]];
       
-      ae_list_node*   indiv_node  = _exp_m->get_indivs()->get_first();
+      ae_list_node<ae_individual*>* indiv_node = _exp_m->get_indivs()->get_first();
       ae_individual*  indiv       = NULL;
       int32_t         num_indiv   = 0;
       
       while( indiv_node != NULL )
       {
-        indiv = (ae_individual*) indiv_node->get_obj();
+        indiv = indiv_node->get_obj();
         
         _parent[gener_i][num_indiv++] = indiv->get_replic_report()->get_parent_id();
         

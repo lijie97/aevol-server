@@ -95,7 +95,7 @@ ae_replication_report::ae_replication_report( ae_individual * indiv, ae_individu
     _donor_genome_size     = donor->get_total_genome_size();
   }
   
-  _dna_replic_reports = new ae_list();
+  _dna_replic_reports = new ae_list<ae_dna_replic_report*>();
 }
 
 
@@ -123,13 +123,13 @@ ae_replication_report::ae_replication_report( const ae_replication_report &model
   _donor_genome_size      = model._donor_genome_size;
   _mean_align_score       = model._mean_align_score;
   
-  _dna_replic_reports = new ae_list();
+  _dna_replic_reports = new ae_list<ae_dna_replic_report*>();
 
-  ae_list_node * node = (model._dna_replic_reports)->get_first();
+  ae_list_node<ae_dna_replic_report*>* node = (model._dna_replic_reports)->get_first();
   ae_dna_replic_report * dnarep = NULL;
   while ( node != NULL )
   {
-    dnarep = (ae_dna_replic_report *) node->get_obj();
+    dnarep = node->get_obj();
     _dna_replic_reports->add( new ae_dna_replic_report(*dnarep) );
     node = node->get_next();
   }
@@ -158,7 +158,7 @@ ae_replication_report::ae_replication_report( gzFile tree_file, ae_individual * 
   gzread( tree_file, &nb_dna_replic_reports, sizeof(nb_dna_replic_reports) );
   //~ printf( "  nb_dna_replic_reports : %"PRId32"\n", nb_dna_replic_reports );
   
-  _dna_replic_reports = new ae_list();
+  _dna_replic_reports = new ae_list<ae_dna_replic_report*>();
 
   int32_t mydnareport, myevent;
   int32_t nb_rears, nb_muts;
@@ -209,7 +209,7 @@ ae_replication_report::ae_replication_report( gzFile tree_file, ae_individual * 
 // =================================================================
 ae_replication_report::~ae_replication_report( void )
 {
-  _dna_replic_reports->erase( DELETE_OBJ );
+  _dna_replic_reports->erase( true );
   delete _dna_replic_reports;
 }
 
@@ -233,17 +233,17 @@ void ae_replication_report::signal_end_of_replication( void )
   
   // Compute the mean alignment score
   int32_t nb_align = 0;
-  ae_list_node *          dna_rep_node  = _dna_replic_reports->get_first();
-  ae_dna_replic_report *  dna_rep       = NULL;
-  ae_list_node *          rear_node     = NULL;
-  ae_mutation *           rear          = NULL;
+  ae_list_node<ae_dna_replic_report*>* dna_rep_node  = _dna_replic_reports->get_first();
+  ae_dna_replic_report* dna_rep = NULL;
+  ae_list_node<ae_mutation*>* rear_node     = NULL;
+  ae_mutation* rear = NULL;
   ae_mutation_type        mut_type;
-  int32_t * int32_trash = new int32_t;
-  bool *    bool_trash  = new bool;
-  int16_t * align_scores = new int16_t[2];
+  int32_t*  int32_trash = new int32_t;
+  bool*     bool_trash  = new bool;
+  int16_t*  align_scores = new int16_t[2];
   while ( dna_rep_node != NULL )
   {
-    dna_rep = (ae_dna_replic_report*) dna_rep_node->get_obj();
+    dna_rep = dna_rep_node->get_obj();
     
     nb_align += dna_rep->get_nb_duplications();
     nb_align += dna_rep->get_nb_deletions();
@@ -253,7 +253,7 @@ void ae_replication_report::signal_end_of_replication( void )
     rear_node = dna_rep->get_rearrangements()->get_first();
     while ( rear_node != NULL )
     {
-      rear = (ae_mutation*) rear_node->get_obj();
+      rear = rear_node->get_obj();
       
       mut_type = rear->get_mut_type();
       
@@ -332,22 +332,22 @@ void ae_replication_report::write_to_tree_file( gzFile tree_file ) const
   gzwrite( tree_file, &nb_dna_replic_reports, sizeof(nb_dna_replic_reports) );
   //~ printf( "  nb_dna_replic_reports : %"PRId32"\n", nb_dna_replic_reports );
 
-  ae_list_node*         report_node = _dna_replic_reports->get_first();
-  ae_dna_replic_report* report      = NULL;
+  ae_list_node<ae_dna_replic_report*>* report_node = _dna_replic_reports->get_first();
+  ae_dna_replic_report* report = NULL;
   
   while ( report_node != NULL )
   {
-    report = (ae_dna_replic_report*) report_node->get_obj();
+    report = report_node->get_obj();
     
     // Store rearrangements
     int32_t nb_rears = report->get_nb_rearrangements();
     gzwrite( tree_file, &nb_rears, sizeof(nb_rears) );
     //~ printf( "  nb_rears : %"PRId32"\n", nb_rears );
 
-    ae_list_node* rear_node  = report->get_rearrangements()->get_first();
+    ae_list_node<ae_mutation*>* rear_node = report->get_rearrangements()->get_first();
     while ( rear_node != NULL )
     {
-      ((ae_mutation*)rear_node->get_obj())->save( tree_file );
+      rear_node->get_obj()->save( tree_file );
       rear_node = rear_node->get_next();
     }
     
@@ -356,10 +356,10 @@ void ae_replication_report::write_to_tree_file( gzFile tree_file ) const
     gzwrite( tree_file, &nb_muts, sizeof(nb_muts) );
     //~ printf( "  nb_muts : %"PRId32"\n", nb_muts );
 
-    ae_list_node* mut_node  = report->get_mutations()->get_first();
+    ae_list_node<ae_mutation*>* mut_node = report->get_mutations()->get_first();
     while ( mut_node != NULL )
     {
-      ((ae_mutation*)mut_node->get_obj())->save( tree_file );
+      mut_node->get_obj()->save( tree_file );
       mut_node = mut_node->get_next();
     }
     

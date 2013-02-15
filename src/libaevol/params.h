@@ -101,9 +101,9 @@ class params : public ae_object
     inline int32_t  get_init_pop_size( void )           const;
     
     // ------------------------------------------------------------ Environment
-    inline ae_list* get_env_gaussians( void )           const;
-    inline ae_list* get_env_custom_points( void )       const;
-    inline int16_t  get_env_sampling( void )            const;
+    inline ae_list<ae_gaussian*>* get_env_gaussians( void )           const;
+    inline ae_list<ae_point_2d*>* get_env_custom_points( void )       const;
+    inline int16_t                get_env_sampling( void )            const;
     
     // ---------------------------------------- Environment x-axis segmentation
     inline bool                 get_env_axis_is_segmented( void )       const;
@@ -254,8 +254,8 @@ class params : public ae_object
     inline void set_init_pop_size( int32_t init_pop_size );
     
     // ------------------------------------------------------------ Environment
-    inline void set_env_gaussians( ae_list* env_gaussians );
-    inline void set_env_custom_points( ae_list* env_custom_points );
+    inline void set_env_gaussians( ae_list<ae_gaussian*>* env_gaussians );
+    inline void set_env_custom_points( ae_list<ae_point_2d*>* env_custom_points );
     inline void add_env_gaussian( ae_gaussian* new_gaussian );
     inline void add_env_custom_point( ae_point_2d* new_point );
     inline void set_env_sampling( int16_t env_sampling );
@@ -444,8 +444,8 @@ class params : public ae_object
     int32_t  _init_pop_size;
     
     // ------------------------------------------------------------ Environment
-    ae_list* _env_gaussians;
-    ae_list* _env_custom_points;
+    ae_list<ae_gaussian*>* _env_gaussians;
+    ae_list<ae_point_2d*>* _env_custom_points;
     int16_t  _env_sampling;
     
     // ---------------------------------------- Environment x-axis segmentation
@@ -639,12 +639,12 @@ inline int32_t params::get_init_pop_size( void ) const
 }
 
 // ---------------------------------------------------------------- Environment
-inline ae_list* params::get_env_gaussians( void ) const
+inline ae_list<ae_gaussian*>* params::get_env_gaussians( void ) const
 {
   return _env_gaussians;
 }
 
-inline ae_list* params::get_env_custom_points( void ) const
+inline ae_list<ae_point_2d*>* params::get_env_custom_points( void ) const
 {
   return _env_custom_points;
 }
@@ -1099,12 +1099,12 @@ inline void params::set_init_pop_size( int32_t init_pop_size )
 }
 
 // ---------------------------------------------------------------- Environment
-inline void params::set_env_gaussians( ae_list* env_gaussians )
+inline void params::set_env_gaussians( ae_list<ae_gaussian*>* env_gaussians )
 {
   _env_gaussians = env_gaussians;
 }
 
-inline void params::set_env_custom_points( ae_list* env_custom_points )
+inline void params::set_env_custom_points( ae_list<ae_point_2d*>* env_custom_points )
 {
   _env_custom_points = env_custom_points;
 }

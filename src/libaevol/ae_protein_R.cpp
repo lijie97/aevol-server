@@ -108,13 +108,13 @@ void ae_protein_R::compute_delta_concentration( void )
 {
   _delta_concentration = 0;
 
-  ae_list_node* rna_node  = _rna_list->get_first();
-  ae_rna_R*     rna       = NULL;
+  ae_list_node<ae_rna_R*>* rna_node = _rna_list->get_first();
+  ae_rna_R* rna = NULL;
 
   while ( rna_node != NULL )
   {
     assert( _inherited == false );
-    rna = (ae_rna_R*)rna_node->get_obj();
+    rna = rna_node->get_obj();
 
     _delta_concentration += rna->get_synthesis_rate();
 
@@ -149,15 +149,15 @@ void ae_protein_R::save( gzFile backup_file )
 // =================================================================
 void ae_protein_R::remove_influences( void )
 {
-  ae_list_node*   influence_node;
+  ae_list_node<ae_influence_R*>* influence_node;
   ae_influence_R* influence;
   ae_rna_R*       rna;
 
   influence_node = _influence_list->get_first();
   while ( influence_node != NULL )
   {
-    influence = (ae_influence_R*)influence_node->get_obj();
-    rna       = (ae_rna_R*)influence->get_rna();
+    influence = influence_node->get_obj();
+    rna       = influence->get_rna();
     rna->remove_influence( influence );
 
     influence_node = influence_node->get_next();

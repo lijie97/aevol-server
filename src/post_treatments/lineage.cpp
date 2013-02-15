@@ -479,16 +479,16 @@ int main(int argc, char** argv)
   }
 
 
-  ae_list_node * report_node = NULL;
-  ae_dna_replic_report * rep = NULL;
-  ae_list_node * mut_node = NULL;
-  ae_mutation *  mut = NULL;
-  ae_list_node*   gen_unit_node = NULL;
-  ae_genetic_unit *  unit = NULL;
+  ae_list_node<ae_dna_replic_report*>*  report_node = NULL;
+  ae_list_node<ae_mutation*>*           mut_node = NULL;
+  ae_list_node<ae_genetic_unit*>*       gen_unit_node = NULL;
+  ae_dna_replic_report* rep   = NULL;
+  ae_mutation*          mut   = NULL;
+  ae_genetic_unit*      unit  = NULL;
 
-  ae_individual *   stored_indiv          = NULL;
-  ae_list_node *    stored_gen_unit_node  = NULL;
-  ae_genetic_unit * stored_gen_unit       = NULL;
+  ae_individual*   stored_indiv          = NULL;
+  ae_list_node<ae_genetic_unit*>*    stored_gen_unit_node  = NULL;
+  ae_genetic_unit* stored_gen_unit       = NULL;
 
   
 

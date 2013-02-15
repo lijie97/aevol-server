@@ -54,7 +54,7 @@
 // XCheckMaskEvent() doesn't get ClientMessage Events so use XCheckIfEvent()
 // with this Predicate function as a work-around ( ClientMessage events
 // are needed in order to catch "WM_DELETE_WINDOW")
-static Bool AlwaysTruePredicate (Display*, XEvent*, char*) { return True; }
+static Bool AlwaysTruePredicate ( Display*, XEvent*, char* ) { return True; }
 
 
 
@@ -669,14 +669,14 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
       }    
 
       // Display all the phenotypes (blue)
-      ae_list_node*   indiv_node = _pop->get_indivs()->get_first();
+      ae_list_node<ae_individual*>* indiv_node = _pop->get_indivs()->get_first();
       ae_individual*  indiv;
       
       while ( indiv_node != NULL )
       {
-        indiv = (ae_individual*) indiv_node->get_obj();
+        indiv = indiv_node->get_obj();
         
-        ((ae_fuzzy_set_X11*)indiv->get_phenotype())->display( cur_win, BLUE );
+        indiv->get_phenotype()->display( cur_win, BLUE );
         
         if ( indiv->get_allow_plasmids() )
         {
@@ -688,10 +688,9 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
       }
         
       // Display best indiv's phenotype (white)
-      ((ae_fuzzy_set_X11*)get_best_indiv()->get_phenotype())->display( cur_win, WHITE, true );
+      get_best_indiv()->get_phenotype()->display( cur_win, WHITE, true );
       
       // Display environment (red)
-      // ((ae_fuzzy_set_X11*)get_env())->display( cur_win, RED ); // TODO : line replaced by next line
       get_env()->display( cur_win, RED, false, true );
     }
     break;

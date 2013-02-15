@@ -116,9 +116,10 @@ class ae_exp_manager : public ae_object
     //~ inline bool   get_with_alignments( void ) const;
     
     // Accessors to population stuff
-    inline int32_t        get_nb_indivs( void ) const;
+    inline ae_list<ae_individual*>* get_indivs( void ) const;
+    inline int32_t                  get_nb_indivs( void ) const;
+    
     inline ae_individual* get_best_indiv( void ) const;
-    inline ae_list*       get_indivs( void ) const;
     inline ae_individual *	get_indiv_by_id( int32_t id ) const;
     inline ae_individual *  get_indiv_by_rank( int32_t rank ) const;
     
@@ -330,7 +331,7 @@ inline ae_individual* ae_exp_manager::get_best_indiv( void ) const
   return _pop->get_best();
 }
 
-inline ae_list* ae_exp_manager::get_indivs( void ) const
+inline ae_list<ae_individual*>* ae_exp_manager::get_indivs( void ) const
 {
   return _pop->get_indivs();
 }

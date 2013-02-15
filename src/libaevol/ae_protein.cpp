@@ -80,18 +80,18 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, const ae_protein &model )
   _concentration          = model._concentration;
   _is_functional          = model._is_functional;
   
-  _rna_list = new ae_list();
+  _rna_list = new ae_list<ae_rna*>();
   
   // Copy the list of amino-acids
-  _AA_list  = new ae_list();
+  _AA_list  = new ae_list<ae_codon*>();
   
-  ae_list_node* AA_node = model._AA_list->get_first();
-  ae_codon*     AA      = NULL;
+  ae_list_node<ae_codon*>* AA_node = model._AA_list->get_first();
+  ae_codon* AA = NULL;
 
   
   while ( AA_node != NULL )
   {
-    AA = (ae_codon*) AA_node->get_obj();
+    AA = AA_node->get_obj();
     
     _AA_list->add( new ae_codon( *AA ) );
     
@@ -104,7 +104,7 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, const ae_protein &model )
   _height = model._height;
 }
 
-ae_protein::ae_protein( ae_genetic_unit* gen_unit, ae_list* codon_list, ae_strand strand, int32_t shine_dal_pos, ae_rna* rna )
+ae_protein::ae_protein( ae_genetic_unit* gen_unit, ae_list<ae_codon*>* codon_list, ae_strand strand, int32_t shine_dal_pos, ae_rna* rna )
 {
   _gen_unit       = gen_unit;
   _strand         = strand;
@@ -131,7 +131,7 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, ae_list* codon_list, ae_stran
   // TODO : make this cleaner...
   _AA_list = codon_list;
   
-  _rna_list = new ae_list();
+  _rna_list = new ae_list<ae_rna*>();
   _rna_list->add( rna );
 
   if ( _strand == LEADING )
@@ -170,13 +170,13 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, ae_list* codon_list, ae_stran
   bool bin_w = false; // when applying the XOR operator for the Gray to standard conversion
   bool bin_h = false;
 
-  ae_list_node* node = codon_list->get_first();
+  ae_list_node<ae_codon*>* node = codon_list->get_first();
   ae_codon* codon = NULL;
 
 
   while ( node != NULL )
   {
-    codon = (ae_codon*) node->get_obj();
+    codon = node->get_obj();
 
     switch ( codon->get_value() )
     {
@@ -362,10 +362,10 @@ ae_protein::ae_protein( gzFile backup_file )
   gzread( backup_file, &_width,    			        sizeof(_width)                );
   gzread( backup_file, &_height,                sizeof(_height)               );
   
-  _rna_list = new ae_list();
+  _rna_list = new ae_list<ae_rna*>();
 
   // Retreive the AA
-  _AA_list = new ae_list();
+  _AA_list = new ae_list<ae_codon*>();
   int16_t nb_AA = 0;
   gzread( backup_file, &nb_AA,  sizeof(nb_AA) );
   
@@ -381,10 +381,10 @@ ae_protein::ae_protein( gzFile backup_file )
 // =================================================================
 ae_protein::~ae_protein( void )
 {
-  _rna_list->erase( NO_DELETE );
+  _rna_list->erase( false );
   delete _rna_list;
   
-  _AA_list->erase( DELETE_OBJ );
+  _AA_list->erase( true );
   delete _AA_list;
 }
 
@@ -413,12 +413,12 @@ char* ae_protein::get_AA_sequence( void ) const
 {
   char* seq = new char[3*_length]; // + 1 (for the '\0')  - 1 (_length - 1 spaces)
   
-  ae_list_node* codon_node = _AA_list->get_first();
+  ae_list_node<ae_codon*>* codon_node = _AA_list->get_first();
   
   int32_t i = 0;
   while ( codon_node != NULL )
   {
-    ae_codon* codon = (ae_codon*) codon_node->get_obj();
+    ae_codon* codon = codon_node->get_obj();
     
     if ( i != 0 ) seq[i++] = ' ';
     
@@ -494,12 +494,12 @@ void ae_protein::save( gzFile backup_file )
   int16_t nb_AA = _AA_list->get_nb_elts();
   gzwrite( backup_file, &nb_AA,  sizeof(nb_AA) );
 
-  ae_list_node*     AA_node = _AA_list->get_first();
-  ae_codon*  AA;
+  ae_list_node<ae_codon*>* AA_node = _AA_list->get_first();
+  ae_codon* AA;
 
   for ( int16_t i = 0 ; i < nb_AA ; i++ )
   {
-  AA = (ae_codon*)AA_node->get_obj();
+  AA = AA_node->get_obj();
    
   AA->save( backup_file );
     

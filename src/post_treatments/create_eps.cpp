@@ -120,8 +120,8 @@ int main( int argc, char* argv[] )
   //
   // 1) Initialize command-line option variables with default values
 
-  bool  verbose           = false;
-  char* backup_file_name  = NULL;
+  //~ bool  verbose           = false;
+  //~ char* backup_file_name  = NULL;
   int32_t num_gener       = 100;  
   int32_t indiv_index     = -1; 
   int32_t indiv_rank      = -1;
@@ -138,7 +138,7 @@ int main( int argc, char* argv[] )
   const char * options_list = "hvi:r:e:";
   static struct option long_options_list[] = {
   	{"help",      no_argument,       NULL, 'h'},
-    {"verbose",   no_argument,       NULL, 'v'},
+    //~ {"verbose",   no_argument,       NULL, 'v'},
     {"index",     required_argument, NULL, 'i'},
     {"rank",      required_argument, NULL, 'r'},
     {"end",       required_argument,  NULL, 'e' }, 
@@ -155,9 +155,9 @@ int main( int argc, char* argv[] )
         print_help();
         exit( EXIT_SUCCESS );
         break;
-      case 'v' :
-        verbose = true;
-        break;
+      //~ case 'v' :
+        //~ verbose = true;
+        //~ break;
       case 'i' : 
         indiv_index  = atol(optarg); 
         break;
@@ -519,15 +519,15 @@ void draw_triangles( ae_individual* indiv, ae_environment* env, char * directory
   fprintf( drawingfile,"[ ] 0 setdash\n" );
 
   double h;
-  ae_list_node*     gen_unit_node = indiv->get_genetic_unit_list()->get_first();
-  ae_genetic_unit*  gen_unit      = NULL;
+  ae_list_node<ae_genetic_unit*>* gen_unit_node = indiv->get_genetic_unit_list()->get_first();
+  ae_genetic_unit*  gen_unit = NULL;
   
   while ( gen_unit_node != NULL )
   {
     gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
     
-    ae_list_node* prot_node  = NULL;
-    ae_protein*   prot       = NULL;
+    ae_list_node<ae_protein*>* prot_node = NULL;
+    ae_protein* prot = NULL;
     
     prot_node = (gen_unit->get_protein_list())[LEADING]->get_first();
     while ( prot_node != NULL )
@@ -655,11 +655,11 @@ void draw_pos_neg_profiles( ae_individual * indiv, ae_environment* env, char * d
   fprintf( drawingfile, "0.002 setlinewidth\n" );
   fprintf( drawingfile, "%lf %lf moveto\n", margin, 0.5);
 
-  ae_list_node * node = ((indiv->get_phenotype_activ())->get_points())->get_first();
-  ae_point_2d * pt = NULL;
+  ae_list_node<ae_point_2d*>* node = indiv->get_phenotype_activ()->get_points()->get_first();
+  ae_point_2d* pt = NULL;
   while (node != NULL)
   {
-    pt = (ae_point_2d *) node->get_obj();
+    pt = node->get_obj();
     fprintf( drawingfile, "%lf %lf lineto\n", margin + scale*pt->x, 0.5 + scale*pt->y);
     node = node->get_next();
   }
@@ -787,8 +787,8 @@ void draw_phenotype( ae_individual* indiv, ae_environment* env, char* directoryN
   fprintf( drawingfile,"[ ] 0 setdash\n" );
   fprintf( drawingfile, "0.002 setlinewidth\n" );
   fprintf( drawingfile, "%lf %lf moveto\n", margin, margin);
-  ae_list_node * node = ((indiv->get_phenotype())->get_points())->get_first();
-  ae_point_2d * pt = NULL;
+  ae_list_node<ae_point_2d*>* node = indiv->get_phenotype()->get_points()->get_first();
+  ae_point_2d* pt = NULL;
   while (node != NULL)
     {
       pt = (ae_point_2d *) node->get_obj();
@@ -873,8 +873,8 @@ void draw_genetic_unit_with_CDS( ae_genetic_unit* gen_unit, char * directoryName
   //  genes
   // -----------
 
-  ae_list_node* node  = NULL;
-  ae_protein*   prot  = NULL;
+  ae_list_node<ae_protein*>* node = NULL;
+  ae_protein* prot = NULL;
 
   int32_t first;
   int32_t last;
@@ -1169,8 +1169,8 @@ void draw_genetic_unit_with_mRNAs( ae_genetic_unit* gen_unit, char * directoryNa
   //  mRNAs
   // -----------
 
-  ae_list_node * node  = NULL;
-  ae_rna *  rna  = NULL;
+  ae_list_node<ae_rna*>* node  = NULL;
+  ae_rna* rna = NULL;
 
   int32_t first;
   int32_t last;

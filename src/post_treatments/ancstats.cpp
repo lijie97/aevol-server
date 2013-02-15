@@ -143,7 +143,7 @@ int main(int argc, char** argv)
   char*       lineage_file_name   = NULL;
   bool        verbose             = false;
   check_type  check               = LIGHT_CHECK;   // TODO : Check what?
-  bool        log                 = false;
+  //~ bool        log                 = false;
   
   char* exp_setup_file_name   = new char[63];
   char* out_prof_file_name    = new char[63];
@@ -183,7 +183,7 @@ int main(int argc, char** argv)
         sprintf( lineage_file_name, "%s", optarg );
         break;      
       }
-      case 'l' : log = true;                        break;
+      //~ case 'l' : log = true;                        break;
       default :
       {
         fprintf( stderr, "ERROR : Unknown option, check your syntax.\n" );
@@ -359,7 +359,7 @@ int main(int argc, char** argv)
   status = mkdir( "stats/ancstats/", 0755 );
   if ( (status == -1) && (errno != EEXIST) )
   {
-    err( EXIT_FAILURE, "stats/ancstats/", errno );
+    err( EXIT_FAILURE, "stats/ancstats/" );
   }
   
   char output_file_name[60];
@@ -408,19 +408,19 @@ int main(int argc, char** argv)
 
   int32_t num_gener = 0;
   
-  ae_replication_report * rep         = NULL;
-  ae_list_node *          dnarepnode  = NULL;
-  ae_dna_replic_report *  dnarep      = NULL;
+  ae_replication_report* rep = NULL;
+  ae_list_node<ae_dna_replic_report*>* dnarepnode  = NULL;
+  ae_dna_replic_report* dnarep = NULL;
 
-  ae_list_node * mnode  = NULL;
-  ae_mutation *  mut    = NULL;
+  ae_list_node<ae_mutation*>* mnode  = NULL;
+  ae_mutation* mut = NULL;
 
-  ae_list_node*     unitnode  = NULL;
-  ae_genetic_unit * unit      = NULL;
+  ae_list_node<ae_genetic_unit*>* unitnode  = NULL;
+  ae_genetic_unit* unit = NULL;
 
-  ae_individual *     stored_indiv    = NULL;
-  ae_list_node*       storedunitnode  = NULL;
-  ae_genetic_unit *   storedunit      = NULL;
+  ae_individual* stored_indiv = NULL;
+  ae_list_node<ae_genetic_unit*>* storedunitnode  = NULL;
+  ae_genetic_unit* storedunit = NULL;
 
   int32_t index;
   int32_t nb_gener = end_gener - begin_gener;
@@ -850,11 +850,11 @@ void write_environment_stats( int32_t num_gener, ae_environment * env )
   fprintf( env_output_file, "%"PRId32, num_gener );
 
   // For each gaussian : M W H
-  ae_list_node * gaussnode  = env->get_gaussians()->get_first();
-  ae_gaussian *  gauss      = NULL;
+  ae_list_node<ae_gaussian*>* gaussnode  = env->get_gaussians()->get_first();
+  ae_gaussian*  gauss      = NULL;
   while ( gaussnode != NULL )
   {
-    gauss = (ae_gaussian *) gaussnode->get_obj();
+    gauss = gaussnode->get_obj();
     fprintf( env_output_file, "     %.16f %.16f %.16f", gauss->get_mean(), gauss->get_width(), gauss->get_height() );
     gaussnode = gaussnode->get_next();
   }
@@ -902,13 +902,13 @@ void write_zones_stats( int32_t num_gener, ae_individual * indiv, ae_environment
 {
   assert( env->get_nb_segments() > 1 );
   
-  int16_t           nb_segments = env->get_nb_segments();
-  int16_t           num_segment = 0;
-  ae_env_segment ** segments    = env->get_segments();
+  int16_t nb_segments = env->get_nb_segments();
+  int16_t num_segment = 0;
+  ae_env_segment** segments = env->get_segments();
   
-  ae_list*          prot_list = indiv->get_protein_list();
-  ae_list_node*     prot_node = NULL;
-  ae_protein*       prot      = NULL;
+  ae_list<ae_protein*>* prot_list = indiv->get_protein_list();
+  ae_list_node<ae_protein*>* prot_node = NULL;
+  ae_protein* prot = NULL;
     
   // Tables : index 0 for the 0 segment
   //                1 for the neutral segment
@@ -940,7 +940,7 @@ void write_zones_stats( int32_t num_gener, ae_individual * indiv, ae_environment
   
   while ( prot_node != NULL )
   {
-    prot = (ae_protein*) prot_node->get_obj();
+    prot = prot_node->get_obj();
     
     // Go to the corresponding segment
     num_segment = 0;
@@ -1024,12 +1024,12 @@ void write_operons_stats( int32_t num_gener, ae_individual * indiv )
     nb_genes_per_rna[i] = 0;
   }
   
-  ae_list_node* rna_node = indiv->get_rna_list()->get_first();
-  ae_rna*       rna      = NULL;
+  ae_list_node<ae_rna*>* rna_node = indiv->get_rna_list()->get_first();
+  ae_rna* rna = NULL;
   
   while ( rna_node != NULL )
   {
-    rna = (ae_rna*) rna_node->get_obj();
+    rna = rna_node->get_obj();
     
     if ( rna->get_transcribed_proteins()->get_nb_elts() >= 20 )
     {

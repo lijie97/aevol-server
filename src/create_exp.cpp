@@ -28,7 +28,7 @@
  *  \brief
  */
  
- const char* DEFAULT_PARAM_FILE_NAME = "param.in";
+const char* DEFAULT_PARAM_FILE_NAME = "param.in";
  
  
  

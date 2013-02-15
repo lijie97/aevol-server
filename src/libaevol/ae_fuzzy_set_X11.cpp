@@ -78,7 +78,7 @@ void ae_fuzzy_set_X11::display( ae_X11_window* win, color_map color, bool fill /
   double delta_x = X_MAX - X_MIN;
   double delta_y = y_max - y_min;
   
-  ae_list_node* node        = _points->get_first();
+  ae_list_node<ae_point_2d*>* node = _points->get_first();
   ae_point_2d*  cur_point   = NULL;
   ae_point_2d*  next_point  = NULL;
   int16_t cur_x;
@@ -89,8 +89,8 @@ void ae_fuzzy_set_X11::display( ae_X11_window* win, color_map color, bool fill /
   
   while ( (node != NULL) && (node->get_next() != NULL) )
   {
-    cur_point   = (ae_point_2d*)node->get_obj();
-    next_point  = (ae_point_2d*)node->get_next()->get_obj();
+    cur_point   = node->get_obj();
+    next_point  = node->get_next()->get_obj();
     
     // Display segment [cur_point, next_point]
     cur_x   = (      (cur_point->x -  X_MIN) / delta_x  ) * win->get_width();

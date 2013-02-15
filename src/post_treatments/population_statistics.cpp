@@ -178,7 +178,7 @@ void population_statistics::compute_population_f_nu(ae_exp_manager* exp_manager)
   _pop_size = exp_manager->get_nb_indivs();
   
   ae_individual* initial_indiv = NULL;
-  ae_list_node* node = exp_manager->get_pop()->get_indivs()->get_last();
+  ae_list_node<ae_individual*>* node = exp_manager->get_pop()->get_indivs()->get_last();
   int current_rank = 1;
   int current_index = -1;
   
@@ -414,20 +414,20 @@ int population_statistics::count_affected_genes( ae_individual* parent, ae_indiv
   //       list all functional proteins of the child
   // ------------------------------------------------------------
   
-  //copy protein list
-  ae_list* child_protein_list = new ae_list(*(child->get_protein_list()));
-  //delete all nodes containing degenerated proteins
-  ae_list_node* current_prot_node = child_protein_list->get_first();
-  ae_list_node* next_prot_node = NULL;
+  // Copy protein list
+  ae_list<ae_protein*>* child_protein_list = new ae_list<ae_protein*>( *(child->get_protein_list()) );
+  // Delete all nodes containing degenerated proteins
+  ae_list_node<ae_protein*>* current_prot_node = child_protein_list->get_first();
+  ae_list_node<ae_protein*>* next_prot_node = NULL;
   ae_protein* current_prot = NULL;
   while ( current_prot_node != NULL )
   {
-    current_prot = (ae_protein*) current_prot_node->get_obj();
+    current_prot = current_prot_node->get_obj();
     next_prot_node = current_prot_node->get_next();
     if ( current_prot->get_is_functional() == false ) 
     {
       //delete the node but not the protein
-      child_protein_list->remove(current_prot_node, DELETE_OBJ, NO_DELETE);
+      child_protein_list->remove( current_prot_node, true, false );
     }
     current_prot_node = next_prot_node;
   }
@@ -437,9 +437,9 @@ int population_statistics::count_affected_genes( ae_individual* parent, ae_indiv
   //    the same one in the child's proteins and pop it out of the  
   //    list if found
   // ----------------------------------------------------------------
-  ae_list_node* parent_prot_node = parent->get_protein_list()->get_first();
+  ae_list_node<ae_protein*>* parent_prot_node = parent->get_protein_list()->get_first();
   ae_protein* parent_prot = NULL;
-  ae_list_node* child_prot_node = NULL;
+  ae_list_node<ae_protein*>* child_prot_node = NULL;
   ae_protein* child_prot = NULL;
   bool found = false;
 
@@ -448,7 +448,7 @@ int population_statistics::count_affected_genes( ae_individual* parent, ae_indiv
   // parse parent protein list
   while ( parent_prot_node != NULL )
   {
-    parent_prot = (ae_protein*) parent_prot_node->get_obj();
+    parent_prot = parent_prot_node->get_obj();
     if ( parent_prot->get_is_functional() == true )
     {
       found = false;
@@ -464,7 +464,7 @@ int population_statistics::count_affected_genes( ae_individual* parent, ae_indiv
 	{
 	  found = true;
 	  // delete the node but not the protein
-	  child_protein_list->remove(child_prot_node, DELETE_OBJ, NO_DELETE);
+	  child_protein_list->remove( child_prot_node, true, false);
 	  child_prot_node=NULL;
 	}
 	else
@@ -626,7 +626,7 @@ void population_statistics::print_replication_stats( ae_individual* initial_indi
 
   // prepare next time step
 
-  mut_list.erase(DELETE_OBJ);
+  mut_list.erase(true);
   } 
 
   gzclose(dstory_file);

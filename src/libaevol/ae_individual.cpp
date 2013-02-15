@@ -49,9 +49,10 @@
 #include <ae_codon.h>
 #include <ae_exp_setup.h>
 #include <ae_exp_manager.h>
+#include <ae_grid_cell.h>
+#include <ae_genetic_unit.h>
 #include <ae_population.h>
 #include <ae_vis_a_vis.h>
-#include <ae_grid_cell.h>
 #include <ae_utils.h>
 
 #ifdef __NO_X
@@ -130,10 +131,10 @@ ae_individual::ae_individual( ae_exp_manager* exp_m,
   _grid_cell = NULL;
   
   // The chromosome and plasmids (if allowed)
-  _genetic_unit_list = new ae_list();
+  _genetic_unit_list = new ae_list<ae_genetic_unit*>();
   
-  _protein_list = new ae_list();
-  _rna_list     = new ae_list();
+  _protein_list = new ae_list<ae_protein*>();
+  _rna_list     = new ae_list<ae_rna*>();
   
   // Generic probes
   _int_probes     = new int32_t[5];
@@ -234,7 +235,7 @@ ae_individual::ae_individual( ae_exp_manager* exp_m,
   _placed_in_population = false;
   
   // Create a list of genetic units with only the main chromosome
-  _genetic_unit_list = new ae_list();
+  _genetic_unit_list = new ae_list<ae_genetic_unit*>();
   
   if ( _exp_m->get_allow_plasmids() )
   {
@@ -248,7 +249,7 @@ ae_individual::ae_individual( ae_exp_manager* exp_m,
     else // _exp_m->get_plasmid_initial_gene() == 2
     {
       _genetic_unit_list->add( new ae_genetic_unit( this, _exp_m->get_initial_genome_length() ) );
-      _genetic_unit_list->add( new ae_genetic_unit( this, *((ae_genetic_unit*)_genetic_unit_list->get_first()->get_obj()) ) );
+      _genetic_unit_list->add( new ae_genetic_unit( this, *(_genetic_unit_list->get_first()->get_obj()) ) );
     }
   
   }
@@ -290,8 +291,8 @@ ae_individual::ae_individual( ae_exp_manager* exp_m,
   // We are at generation 0, individual has no replication to report
   _replic_report = NULL;
   
-  _protein_list = new ae_list();
-  _rna_list     = new ae_list();
+  _protein_list = new ae_list<ae_protein*>();
+  _rna_list     = new ae_list<ae_rna*>();
   
   _int_probes     = new int32_t[5];
   _double_probes  = new double[5];
@@ -382,7 +383,7 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile backup_file )
   }
   
   // Retreive genetic units
-  _genetic_unit_list = new ae_list();
+  _genetic_unit_list = new ae_list<ae_genetic_unit*>();
   int16_t nb_gen_units;
   gzread( backup_file, &nb_gen_units,  sizeof(nb_gen_units) );
   
@@ -417,8 +418,8 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile backup_file )
                           // NB : If the replication report is needed in future development, it will have to be
                           // loaded from the tree file.
   
-  _protein_list = new ae_list();
-  _rna_list     = new ae_list();
+  _protein_list = new ae_list<ae_protein*>();
+  _rna_list     = new ae_list<ae_rna*>();
   
   
   // Initialize the computational state of the individual
@@ -494,14 +495,14 @@ ae_individual::ae_individual( const ae_individual &model )
   _grid_cell = NULL;
   
   // Create an empty list of genetic units
-  _genetic_unit_list = new ae_list();
+  _genetic_unit_list = new ae_list<ae_genetic_unit*>();
   
   
   // Copy model's genetic units
-  ae_list_node* gen_unit_node = model._genetic_unit_list->get_first();
+  ae_list_node<ae_genetic_unit*>* gen_unit_node = model._genetic_unit_list->get_first();
   while ( gen_unit_node != NULL )
   {
-    _genetic_unit_list->add( new ae_genetic_unit( this, *((ae_genetic_unit*)gen_unit_node->get_obj()) ) );
+    _genetic_unit_list->add( new ae_genetic_unit( this, *(gen_unit_node->get_obj()) ) );
     
     gen_unit_node = gen_unit_node->get_next();
   }
@@ -565,8 +566,8 @@ ae_individual::ae_individual( const ae_individual &model )
   // We could create a new (empty) replic report but for now, it is not needed
   _replic_report = NULL;
   
-  _protein_list = new ae_list();
-  _rna_list     = new ae_list();
+  _protein_list = new ae_list<ae_protein*>();
+  _rna_list     = new ae_list<ae_rna*>();
   
   // Generic probes
   _int_probes     = new int32_t[5];
@@ -629,11 +630,11 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id )
   // Create new genetic units with their DNA copied from here
   // NOTE : The RNA lists (one per genetic unit) will also be copied so that we don't
   // need to look for promoters on the whole genome
-  _genetic_unit_list = new ae_list();
-  ae_list_node* gen_unit_node = parent->_genetic_unit_list->get_first();
+  _genetic_unit_list = new ae_list<ae_genetic_unit*>();
+  ae_list_node<ae_genetic_unit*>* gen_unit_node = parent->_genetic_unit_list->get_first();
   while ( gen_unit_node != NULL )
   {
-    _genetic_unit_list->add( new ae_genetic_unit( this, (ae_genetic_unit*)gen_unit_node->get_obj() ) );
+    _genetic_unit_list->add( new ae_genetic_unit( this, gen_unit_node->get_obj() ) );
     
     gen_unit_node = gen_unit_node->get_next();
   }
@@ -668,8 +669,8 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id )
   }
   
   // Create protein and RNA access lists
-  _protein_list = new ae_list();
-  _rna_list     = new ae_list();
+  _protein_list = new ae_list<ae_protein*>();
+  _rna_list     = new ae_list<ae_rna*>();
   
   // Generic probes
   _int_probes     = new int32_t[5];
@@ -739,7 +740,7 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id )
   _placed_in_population = false;
   
   // Create a list of genetic units with only the main chromosome
-  _genetic_unit_list = new ae_list();
+  _genetic_unit_list = new ae_list<ae_genetic_unit*>();
   
   if ( ae_common::params->get_allow_plasmids() )
   {
@@ -783,8 +784,8 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id )
   // We are at generation 0, individual has no replication to report
   _replic_report = NULL;
   
-  _protein_list = new ae_list();
-  _rna_list     = new ae_list();
+  _protein_list = new ae_list<ae_protein*>();
+  _rna_list     = new ae_list<ae_rna*>();
   
   _int_probes     = new int32_t[5];
   _double_probes  = new double[5];
@@ -850,7 +851,7 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id )
   _placed_in_population = false;
   
   // Create a list of genetic units with only the main chromosome
-  _genetic_unit_list = new ae_list();
+  _genetic_unit_list = new ae_list<ae_genetic_unit*>();
   
   if ( ae_common::params->get_allow_plasmids() )
   {
@@ -895,8 +896,8 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id )
   // Individual has no replication to report
   _replic_report = NULL;
   
-  _protein_list = new ae_list();
-  _rna_list     = new ae_list();
+  _protein_list = new ae_list<ae_protein*>();
+  _rna_list     = new ae_list<ae_rna*>();
   
   _int_probes     = new int32_t[5];
   _double_probes  = new double[5];
@@ -944,14 +945,14 @@ ae_individual::~ae_individual( void )
   // it will be deleted later, when the tree is written on disk and emptied.
   
   assert( _protein_list != NULL );
-  _protein_list->erase( NO_DELETE );
+  _protein_list->erase( false );
   delete _protein_list;
 
   assert( _rna_list != NULL );
-  _rna_list->erase( NO_DELETE );
+  _rna_list->erase( false );
   delete _rna_list;
 
-  _genetic_unit_list->erase( DELETE_OBJ );
+  _genetic_unit_list->erase( true );
   // When the unit is destoyed, its dna is destroyed too, thus the pointer 
   // to the ae_dna_replication_report is destroyed. But the 
   // dna_replic_report object itself is not deleted, its address is 
@@ -1009,11 +1010,11 @@ void ae_individual::compute_phenotype( void )
   _phenotype_activ = new ae_fuzzy_set();
   _phenotype_inhib = new ae_fuzzy_set();
   
-  ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
+  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
   ae_genetic_unit*  gen_unit;
   while ( gen_unit_node != NULL )
   {
-    gen_unit = (ae_genetic_unit*)gen_unit_node->get_obj();
+    gen_unit = gen_unit_node->get_obj();
     
     _phenotype_activ->add( gen_unit->get_activ_contribution() );
     _phenotype_inhib->add( gen_unit->get_inhib_contribution() );
@@ -1169,11 +1170,11 @@ void ae_individual::reevaluate( ae_environment* envir /*= NULL*/ )
   if ( envir == NULL ) envir = _exp_m->get_env();
 
   
-  ae_list_node * unit_node = _genetic_unit_list->get_first();
+  ae_list_node<ae_genetic_unit*>* unit_node = _genetic_unit_list->get_first();
   ae_genetic_unit * unit = NULL;
   while (unit_node != NULL)
   {
-    unit = (ae_genetic_unit *) unit_node->get_obj();
+    unit = unit_node->get_obj();
     unit->reset_expression();
     unit_node = unit_node->get_next();
   }
@@ -1208,35 +1209,35 @@ void ae_individual::reevaluate( ae_environment* envir /*= NULL*/ )
   //For each RNA / individual / genetic_unit delete proteins it knows
   //Deleting the protein it self is made only once
   
-  _rna_list->erase( NO_DELETE );
-  _protein_list->erase( NO_DELETE ); 
+  _rna_list->erase( false );
+  _protein_list->erase( false ); 
   
-  ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
-  ae_genetic_unit*  gen_unit      = NULL;
-  ae_list_node *    rna_node = NULL;
+  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
+  ae_list_node<ae_rna*>* rna_node = NULL;
   ae_rna*           rna = NULL;
+  ae_genetic_unit*  gen_unit = NULL;
   
   while ( gen_unit_node != NULL )
     {
-      gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
+      gen_unit = gen_unit_node->get_obj();
 
       rna_node = (gen_unit->get_rna_list()[LEADING])->get_first();
       while(rna_node !=NULL)
       {
-        rna = (ae_rna *) rna_node->get_obj();
-        rna->get_transcribed_proteins()->erase( NO_DELETE );
+        rna = rna_node->get_obj();
+        rna->get_transcribed_proteins()->erase( false );
         rna_node = rna_node->get_next();
       }
       rna_node = (gen_unit->get_rna_list()[LAGGING])->get_first();
       while(rna_node !=NULL)
       {
-        rna = (ae_rna *) rna_node->get_obj();
-        rna->get_transcribed_proteins()->erase( NO_DELETE );
+        rna = rna_node->get_obj();
+        rna->get_transcribed_proteins()->erase( false );
         rna_node = rna_node->get_next();
       }
       
-      (gen_unit->get_protein_list()[LEADING])->erase( DELETE_OBJ );
-      (gen_unit->get_protein_list()[LAGGING])->erase( DELETE_OBJ );
+      (gen_unit->get_protein_list()[LEADING])->erase( true );
+      (gen_unit->get_protein_list()[LAGGING])->erase( true );
       
       gen_unit_node = gen_unit_node->get_next();
     }
@@ -1273,12 +1274,12 @@ void ae_individual::do_transcription( void )
   if ( _transcribed == true ) return; // Transcription has already been performed, nothing to do.
   _transcribed = true;
   
-  ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
+  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
   ae_genetic_unit*  gen_unit;
   
   while ( gen_unit_node != NULL )
   {
-    gen_unit = (ae_genetic_unit*)gen_unit_node->get_obj();
+    gen_unit = gen_unit_node->get_obj();
     
     gen_unit->do_transcription();
     _rna_list->add_list( gen_unit->get_rna_list()[LEADING] );
@@ -1294,12 +1295,12 @@ void ae_individual::do_translation( void )
   _translated = true;
   if ( _transcribed == false ) do_transcription();
   
-  ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
+  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
   ae_genetic_unit*  gen_unit;
   
   while ( gen_unit_node != NULL )
   {
-    gen_unit = (ae_genetic_unit*)gen_unit_node->get_obj();
+    gen_unit = gen_unit_node->get_obj();
     
     gen_unit->do_translation();
     _protein_list->add_list( gen_unit->get_protein_list()[LEADING] );
@@ -1315,12 +1316,12 @@ void ae_individual::do_folding( void )
   _folded = true;
   if ( _translated == false ) do_translation();
   
-  ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
+  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
   ae_genetic_unit*  gen_unit;
   
   while ( gen_unit_node != NULL )
   {
-    gen_unit = (ae_genetic_unit*)gen_unit_node->get_obj();
+    gen_unit = gen_unit_node->get_obj();
     
     gen_unit->compute_phenotypic_contribution();
      
@@ -1351,12 +1352,12 @@ void ae_individual::evaluate( ae_environment* envir /*= NULL*/ )
   
   if ( _exp_m->get_output_m()->get_compute_phen_contrib_by_GU() )
   { 
-    ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
-    ae_genetic_unit*  gen_unit      = NULL;
+    ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
+    ae_genetic_unit*  gen_unit = NULL;
     
     while ( gen_unit_node != NULL )
     {
-      gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
+      gen_unit = gen_unit_node->get_obj();
       gen_unit->compute_distance_to_target( envir );
       gen_unit->compute_fitness( envir );
       gen_unit_node = gen_unit_node->get_next();
@@ -1367,20 +1368,20 @@ void ae_individual::evaluate( ae_environment* envir /*= NULL*/ )
 
 void ae_individual::inject_GU( ae_individual* donor )
 {  
-  //We Add the GU at the end of the list
-  ae_list_node* gen_unit_node = donor->get_genetic_unit_list()->get_last();
-  ae_genetic_unit* temp_GU = new ae_genetic_unit( this, *((ae_genetic_unit*)gen_unit_node->get_obj()) );  
+  // Add the GU at the end of the list
+  ae_list_node<ae_genetic_unit*>* gen_unit_node = donor->get_genetic_unit_list()->get_last();
+  ae_genetic_unit* temp_GU = new ae_genetic_unit( this, *(gen_unit_node->get_obj()) );  
   _genetic_unit_list->add( temp_GU );
 }
 
 void ae_individual::inject_2GUs( ae_individual* partner )
 {  
   //We swap GUs from the end of the list
-  ae_list_node* gen_unit_node_1 = partner->get_genetic_unit_list()->get_last();
-  ae_list_node* gen_unit_node_2 = _genetic_unit_list->get_last();
+  ae_list_node<ae_genetic_unit*>* gen_unit_node_1 = partner->get_genetic_unit_list()->get_last();
+  ae_list_node<ae_genetic_unit*>* gen_unit_node_2 = _genetic_unit_list->get_last();
   
-  ae_genetic_unit* temp_GU_1 = new ae_genetic_unit( this, *((ae_genetic_unit*)gen_unit_node_1->get_obj()) );  
-  ae_genetic_unit* temp_GU_2 = new ae_genetic_unit( this, *((ae_genetic_unit*)gen_unit_node_2->get_obj()) );  
+  ae_genetic_unit* temp_GU_1 = new ae_genetic_unit( this, *(gen_unit_node_1->get_obj()) );  
+  ae_genetic_unit* temp_GU_2 = new ae_genetic_unit( this, *(gen_unit_node_2->get_obj()) );  
   
   _genetic_unit_list->add( temp_GU_1 );
   partner->get_genetic_unit_list()->add( temp_GU_2 );
@@ -1396,12 +1397,12 @@ void ae_individual::compute_statistical_data( void )
     compute_phenotype();
   }
   
-  ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
+  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
   ae_genetic_unit*  gen_unit      = NULL;
   
   while ( gen_unit_node != NULL )
   {
-    gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
+    gen_unit = gen_unit_node->get_obj();
 
     _total_genome_size                 += gen_unit->get_dna()->get_length();
     _nb_coding_RNAs                    += gen_unit->get_nb_coding_RNAs();
@@ -1439,12 +1440,12 @@ void ae_individual::compute_non_coding( void )
   _nb_bases_in_neutral_regions        = 0;
   _nb_neutral_regions                 = 0;
 
-  ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
+  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
   ae_genetic_unit*  gen_unit;
   
   while ( gen_unit_node != NULL )
   {
-    gen_unit = (ae_genetic_unit*)gen_unit_node->get_obj();
+    gen_unit = gen_unit_node->get_obj();
     
     _nb_bases_in_0_CDS                  += gen_unit->get_nb_bases_in_0_CDS();
     _nb_bases_in_0_functional_CDS       += gen_unit->get_nb_bases_in_0_functional_CDS();
@@ -1468,8 +1469,8 @@ void ae_individual::compute_non_coding( void )
   int32_t nb_gene_pairs                     = 0;
   int32_t nb_interacting_gene_pairs         = 0;
   
-  ae_list_node* gene_node_1 = NULL;
-  ae_list_node* gene_node_2 = NULL;
+  ae_list_node<ae_protein*>* gene_node_1 = NULL;
+  ae_list_node<ae_protein*>* gene_node_2 = NULL;
   ae_protein*   gene_1 = NULL;
   ae_protein*   gene_2 = NULL;
   
@@ -1484,7 +1485,7 @@ void ae_individual::compute_non_coding( void )
   gene_node_1 = _protein_list[LEADING]->get_first();
   while ( gene_node_1 != NULL )
   {
-    gene_1 = (ae_protein*)gene_node_1->get_obj();
+    gene_1 = gene_node_1->get_obj();
     
     if ( gene_1->is_degenerated() )
     {
@@ -1497,7 +1498,7 @@ void ae_individual::compute_non_coding( void )
     
     while ( gene_node_2 != NULL )
     {
-      gene_2 = (ae_protein*)gene_node_2->get_obj();
+      gene_2 = gene_node_2->get_obj();
       
       if ( gene_2->is_degenerated() )
       {
@@ -1541,7 +1542,7 @@ void ae_individual::compute_non_coding( void )
     
     while ( gene_node_2 != NULL )
     {
-      gene_2 = (ae_protein*)gene_node_2->get_obj();
+      gene_2 = gene_node_2->get_obj();
       
       if ( gene_2->is_degenerated() )
       {
@@ -1600,7 +1601,7 @@ void ae_individual::compute_non_coding( void )
   gene_node_1 = _protein_list[LAGGING]->get_first();
   while ( gene_node_1 != NULL )
   {
-    gene_1 = (ae_protein*)gene_node_1->get_obj();
+    gene_1 = gene_node_1->get_obj();
     
     if ( gene_1->is_degenerated() )
     {
@@ -1611,7 +1612,7 @@ void ae_individual::compute_non_coding( void )
     gene_node_2 = gene_node_1->get_next();
     while ( gene_node_2 != NULL )
     {
-      gene_2 = (ae_protein*)gene_node_2->get_obj();
+      gene_2 = gene_node_2->get_obj();
       
       if ( gene_2->is_degenerated() )
       {
@@ -1717,11 +1718,11 @@ void ae_individual::save( gzFile backup_file ) const
   int16_t nb_gen_units = _genetic_unit_list->get_nb_elts();
   gzwrite( backup_file, &nb_gen_units,  sizeof(nb_gen_units) );
   
-  ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
+  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
   ae_genetic_unit*  gen_unit;
   for ( int16_t i = 0 ; i < nb_gen_units ; i++ )
   {
-    gen_unit = (ae_genetic_unit*)gen_unit_node->get_obj();
+    gen_unit = gen_unit_node->get_obj();
     
     gen_unit->save( backup_file );
     
@@ -1733,12 +1734,12 @@ int32_t ae_individual::get_nb_terminators( void )
 {
   int32_t nb_term = 0;
   
-  ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
+  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
   ae_genetic_unit*  gen_unit      = NULL;
   
   while ( gen_unit_node != NULL )
   {
-    gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
+    gen_unit = gen_unit_node->get_obj();
     
     nb_term += gen_unit->get_nb_terminators();
     
@@ -1790,13 +1791,13 @@ double ae_individual::compute_theoritical_f_nu( void )
   // Abbreviations are chosen according to Carole's formula.
   // Please notice that compared to the formula we have the beginning
   // and ends of neutral regions instead of 'functional regions'
-  ae_genetic_unit* chromosome = (ae_genetic_unit*) get_genetic_unit_list()->get_first()->get_obj();
-  int32_t L         = chromosome->get_dna()->get_length();
-  int32_t N_G       = chromosome->get_nb_neutral_regions(); // which is not exactly Carole's original definition
-  int32_t* b_i      = chromosome->get_beginning_neutral_regions();
-  int32_t* e_i      = chromosome->get_end_neutral_regions();
-  int32_t lambda    = chromosome->get_nb_bases_in_neutral_regions();
-  int32_t l         = L - lambda; // nb bases in 'functional regions'
+  ae_genetic_unit* chromosome = get_genetic_unit_list()->get_first()->get_obj();
+  int32_t L       = chromosome->get_dna()->get_length();
+  int32_t N_G     = chromosome->get_nb_neutral_regions(); // which is not exactly Carole's original definition
+  int32_t* b_i    = chromosome->get_beginning_neutral_regions();
+  int32_t* e_i    = chromosome->get_end_neutral_regions();
+  int32_t lambda  = chromosome->get_nb_bases_in_neutral_regions();
+  int32_t l       = L - lambda; // nb bases in 'functional regions'
   
   int32_t* lambda_i = NULL;  // nb bases in ith neutral region
   if ( N_G > 0 ) // all the chromosome may be functional
@@ -1857,15 +1858,15 @@ void ae_individual::make_protein_list( void )
   assert( _protein_list != NULL );
   
   // Clean list
-  _protein_list->erase( NO_DELETE );
+  _protein_list->erase( false );
   
   // Make a copy of each genetic unit's protein list
-  ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
+  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
   ae_genetic_unit*  gen_unit      = NULL;
   
   while ( gen_unit_node != NULL )
   {
-    gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
+    gen_unit = gen_unit_node->get_obj();
     
     _protein_list->add_list( gen_unit->get_protein_list()[LEADING] );
     _protein_list->add_list( gen_unit->get_protein_list()[LAGGING] );
@@ -1879,15 +1880,15 @@ void ae_individual::make_rna_list( void )
   assert( _rna_list != NULL );
   
   // Clean list
-  _rna_list->erase( NO_DELETE );
+  _rna_list->erase( false );
   
   // Make a copy of each genetic unit's rna list
-  ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
-  ae_genetic_unit*  gen_unit      = NULL;
+  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
+  ae_genetic_unit*  gen_unit = NULL;
   
   while ( gen_unit_node != NULL )
   {
-    gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
+    gen_unit = gen_unit_node->get_obj();
     
     _rna_list->add_list( gen_unit->get_rna_list()[LEADING] );
     _rna_list->add_list( gen_unit->get_rna_list()[LAGGING] );

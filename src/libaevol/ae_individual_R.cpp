@@ -63,12 +63,12 @@ ae_individual_R::ae_individual_R( const ae_individual_R &model ) : ae_individual
     // We copy all the proteins from model
     for ( int8_t strand = LEADING ; strand <= LAGGING ; strand++ )
     {
-      ae_list_node* prot_node = model._protein_list->get_first();
+      ae_list_node<ae_protein_R*>* prot_node = model._protein_list->get_first();
       ae_protein_R* prot;
       
       while ( prot_node != NULL )
       {
-        prot = (ae_protein_R*) prot_node->get_obj();
+        prot = prot_node->get_obj();
         
         ae_protein_R* inherited_prot = new ae_protein_R( NULL, *prot );
         inherited_prot->set_inherited( true );
@@ -115,12 +115,12 @@ ae_individual_R::ae_individual_R( ae_individual_R* parent ) : ae_individual( par
     // We copy all the proteins from parent
     for ( int8_t strand = LEADING ; strand <= LAGGING ; strand++ )
     {
-      ae_list_node* prot_node = parent->_protein_list->get_first();
+      ae_list_node<ae_protein_R*>* prot_node = parent->_protein_list->get_first();
       ae_protein_R* prot;
       
       while ( prot_node != NULL )
       {
-        prot = (ae_protein_R*) prot_node->get_obj();
+        prot = prot_node->get_obj();
         
         ae_protein_R* inherited_prot = new ae_protein_R( NULL, *prot );
         inherited_prot->set_inherited( true );
@@ -186,12 +186,12 @@ void ae_individual_R::evaluate( ae_environment* envir )
   // ---------------------------------------------------------------------------
   // 1) Transcription - Translation - Folding
   // ---------------------------------------------------------------------------
-  ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
+  ae_list_node<ae_genetic_unit*>*     gen_unit_node = _genetic_unit_list->get_first();
   ae_genetic_unit*  gen_unit = NULL;
   
   while ( gen_unit_node != NULL )
   {
-    gen_unit = (ae_genetic_unit*)gen_unit_node->get_obj();
+    gen_unit = gen_unit_node->get_obj();
     
     gen_unit->do_transcription();
     gen_unit->do_translation();
@@ -216,8 +216,8 @@ void ae_individual_R::evaluate( ae_environment* envir )
 
 /*
   printf("number of protein : inherited : %d \n",_inherited_protein_list->get_nb_elts());
-  printf("number of protein : leading : %d \n",((ae_genetic_unit*)_genetic_unit_list->get_first()->get_obj())->get_protein_list()[LEADING]->get_nb_elts());
-  printf("number of protein : lagging : %d \n",((ae_genetic_unit*)_genetic_unit_list->get_first()->get_obj())->get_protein_list()[LAGGING]->get_nb_elts());
+  printf("number of protein : leading : %d \n",_genetic_unit_list->get_first()->get_obj()->get_protein_list()[LEADING]->get_nb_elts());
+  printf("number of protein : lagging : %d \n",_genetic_unit_list->get_first()->get_obj()->get_protein_list()[LAGGING]->get_nb_elts());
   printf("number of protein : total : %d \n",_protein_list->get_nb_elts());
 */
 
@@ -268,14 +268,14 @@ void ae_individual_R::set_influences( void )
 // As non-coding RNAs are completely inert, we don't care about their concentration
 // so we don't care if proteins activate or inhibit their transcription.
 {
-  ae_list_node* rna_node  = NULL;
+  ae_list_node<ae_rna_R*>* rna_node  = NULL;
   ae_rna_R*     rna       = NULL;
   
   //
   rna_node = _rna_list_coding->get_first();
   while ( rna_node != NULL )
   {
-    rna = (ae_rna_R*)rna_node->get_obj();
+    rna = rna_node->get_obj();
 
     //~ printf( "%d proteins\n", _protein_list->get_nb_elts() );
     rna->set_influences( _protein_list );
@@ -288,8 +288,8 @@ void ae_individual_R::update_concentrations( void )
 {
   //_phenotype->print_points();
 
-  ae_list_node* prot_node       = NULL;
-  ae_list_node* next_prot_node  = NULL;
+  ae_list_node<ae_protein_R*>* prot_node       = NULL;
+  ae_list_node>ae_protein_R*>* next_prot_node  = NULL;
   ae_protein_R* prot            = NULL;
 
   // Compute all the changes that will be applied to the concentrations
@@ -297,7 +297,7 @@ void ae_individual_R::update_concentrations( void )
   prot_node = _protein_list->get_first();
   while ( prot_node != NULL )
   {
-    prot = (ae_protein_R*)prot_node->get_obj();
+    prot = prot_node->get_obj();
 
     prot->compute_delta_concentration();
 
@@ -308,7 +308,7 @@ void ae_individual_R::update_concentrations( void )
   prot_node = _protein_list->get_first();
   while ( prot_node != NULL )
   {
-    prot = (ae_protein_R*)prot_node->get_obj();
+    prot = prot_node->get_obj();
 
     prot->update_concentration();
 
@@ -333,12 +333,12 @@ void ae_individual_R::update_concentrations( void )
 // Multiply the concentration of each protein by <factor>
 void ae_individual_R::multiply_concentrations( double factor )
 {
-  ae_list_node* prot_node = _protein_list->get_first();
+  ae_list_node<ae_protein_R*>* prot_node = _protein_list->get_first();
   ae_protein_R* prot      = NULL;
   
   while ( prot_node != NULL )
   {
-    prot = (ae_protein_R*) prot_node->get_obj();
+    prot = prot_node->get_obj();
 
     prot->multiply_concentration( factor );
 
@@ -386,12 +386,12 @@ void ae_individual_R::save( gzFile backup_file )
     int16_t nb_inherited_proteins = _inherited_protein_list->get_nb_elts();
     gzwrite( backup_file, &nb_inherited_proteins,  sizeof(nb_inherited_proteins) );
 
-    ae_list_node*  inherited_protein_node = _inherited_protein_list->get_first();
+    ae_list_node<ae_protein_R*>*  inherited_protein_node = _inherited_protein_list->get_first();
     ae_protein_R*  inherited_protein;
 
     for ( int16_t i = 0 ; i < nb_inherited_proteins ; i++ )
     {
-    inherited_protein = (ae_protein_R*)inherited_protein_node->get_obj();
+    inherited_protein = inherited_protein_node->get_obj();
     
     inherited_protein->save( backup_file );
     
@@ -413,12 +413,12 @@ void ae_individual_R::make_rna_list( void )
   ae_individual::make_rna_list();
   
   // Parse the newly created RNA list and copy the coding RNAs in _rna_list_coding.
-  ae_list_node* rna_node  = _rna_list->get_first();
+  ae_list_node<ae_rna*>* rna_node  = _rna_list->get_first();
   ae_rna*       rna       = NULL;
   
   while ( rna_node != NULL )
   {
-    rna = (ae_rna*) rna_node->get_obj();
+    rna = rna_node->get_obj();
     
     if ( rna->is_coding() == true )
     {

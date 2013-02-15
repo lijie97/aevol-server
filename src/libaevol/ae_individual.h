@@ -108,7 +108,6 @@ class ae_individual : public ae_object
     inline ae_exp_manager*  get_exp_m( void ) const;
     inline int16_t          get_nb_genetic_units( void )                                  const;
     inline int32_t          get_amount_of_dna( void )                                     const;
-    inline ae_list*         get_genetic_unit_list( void )                                 const;
     inline ae_genetic_unit* get_genetic_unit( int16_t num_unit )                          const;
     inline double           get_dist_to_target_by_feature( ae_env_axis_feature feature )  const;
     inline double           get_fitness( void )                                           const;
@@ -116,6 +115,7 @@ class ae_individual : public ae_object
     inline ae_grid_cell*    get_grid_cell( void )                                         const;
     inline bool             get_placed_in_population()                                    const;
     
+    inline ae_list<ae_genetic_unit*>* get_genetic_unit_list( void )     const;
     inline const char* get_genetic_unit_sequence   ( int16_t num_unit ) const;
     inline int32_t     get_genetic_unit_seq_length ( int16_t num_unit ) const;
     
@@ -131,8 +131,8 @@ class ae_individual : public ae_object
     
     inline ae_replication_report* get_replic_report( void ) const;
     
-    inline ae_list* get_protein_list( void )  const;
-    inline ae_list* get_rna_list( void )      const;
+    inline ae_list<ae_protein*>*  get_protein_list( void )  const;
+    inline ae_list<ae_rna*>*      get_rna_list( void )      const;
     
     inline int32_t get_nb_plasmids( void )  const;
     inline int32_t get_nb_gen_units( void ) const;
@@ -361,7 +361,7 @@ class ae_individual : public ae_object
     ae_grid_cell* _grid_cell;
     
     // The chromosome and plasmids (if allowed)
-    ae_list* _genetic_unit_list;
+    ae_list<ae_genetic_unit*>* _genetic_unit_list;
     
     // Report of all the mutational events undergone during the individuals creation,
     // i.e. during the replication that gave birth to this individual
@@ -369,8 +369,8 @@ class ae_individual : public ae_object
     
     // Access lists to all the proteins/RNAs of the individual.
     // Please note that these proteins/RNAs are actually managed (i.e. newed and deleted) via genetic units.
-    ae_list*      _protein_list;
-    ae_list*      _rna_list;
+    ae_list<ae_protein*>* _protein_list;
+    ae_list<ae_rna*>*     _rna_list;
     
     // Generic probes
     int32_t*  _int_probes;        // Table of 5 int32_t values to be used as one wishes
@@ -500,12 +500,12 @@ inline int32_t ae_individual::get_amount_of_dna( void ) const
 {
   int32_t amount = 0;
   
-  ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
-  ae_genetic_unit*  gen_unit      = NULL;
+  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
+  ae_genetic_unit* gen_unit = NULL;
   
   while ( gen_unit_node != NULL )
   {
-    gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
+    gen_unit = gen_unit_node->get_obj();
     
     amount += gen_unit->get_dna()->get_length();
     
@@ -518,7 +518,7 @@ inline int32_t ae_individual::get_amount_of_dna( void ) const
 /*!
   Returns the list of genetic units
 */
-inline ae_list* ae_individual::get_genetic_unit_list( void ) const
+inline ae_list<ae_genetic_unit*>* ae_individual::get_genetic_unit_list( void ) const
 {
   return _genetic_unit_list;
 }
@@ -530,14 +530,14 @@ inline ae_genetic_unit* ae_individual::get_genetic_unit( int16_t num_unit ) cons
 {
   assert( num_unit < _genetic_unit_list->get_nb_elts() );
   
-  ae_list_node* gen_unit_node = _genetic_unit_list->get_first();
+  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
   
   for ( int16_t i = 0 ; i < num_unit ; i++ )
   {
     gen_unit_node = gen_unit_node->get_next();
   }
   
-  return (ae_genetic_unit*) gen_unit_node->get_obj();
+  return gen_unit_node->get_obj();
 }
 
 /*!
@@ -637,7 +637,7 @@ ae_replication_report* ae_individual::get_replic_report( void ) const
 /*!
   TODO
 */
-inline ae_list* ae_individual::get_protein_list( void ) const
+inline ae_list<ae_protein*>* ae_individual::get_protein_list( void ) const
 {
   assert( _protein_list );
   
@@ -647,7 +647,7 @@ inline ae_list* ae_individual::get_protein_list( void ) const
 /*!
   TODO
 */
-inline ae_list* ae_individual::get_rna_list( void ) const
+inline ae_list<ae_rna*>* ae_individual::get_rna_list( void ) const
 {
   return _rna_list;
 }
@@ -1247,12 +1247,12 @@ inline void ae_individual::do_prng_jump( void )
 #ifdef DEBUG
   inline void ae_individual::print_rna_list( void )
   {
-    ae_list_node* rna_node  = _rna_list->get_first();
+    ae_list_node<ae_rna*>* rna_node  = _rna_list->get_first();
     ae_rna*       rna       = NULL;
     
     while ( rna_node != NULL )
     {
-      rna = (ae_rna*) rna_node->get_obj();
+      rna = rna_node->get_obj();
       
       printf( "RNA at pos : %"PRId32"      length : %"PRId32" bp\n", rna->get_promoter_pos(), rna->get_transcript_length() );
       printf( "  strand : %s    basal level : %f\n", (rna->get_strand() == LEADING)?"LEADING":"LAGGING", rna->get_basal_level() );
@@ -1263,12 +1263,12 @@ inline void ae_individual::do_prng_jump( void )
   
   inline void ae_individual::print_protein_list( void )
   {
-    ae_list_node* prot_node = _protein_list->get_first();
+    ae_list_node<ae_protein*>* prot_node = _protein_list->get_first();
     ae_protein*   prot = NULL;
     
     while ( prot_node != NULL )
     {
-      prot = (ae_protein*) prot_node->get_obj();
+      prot = prot_node->get_obj();
       
       char* prot_sequence = prot->get_AA_sequence();
       printf( "prot at pos : %"PRId32"      length : %"PRId32" AAs\n", prot->get_first_translated_pos(), prot->get_length() );
@@ -1284,12 +1284,12 @@ inline void ae_individual::do_prng_jump( void )
   inline void ae_individual::assert_promoters( void )
   {
     // Perform assertion for each genetic unit
-    ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
+    ae_list_node<ae_genetic_unit*>*     gen_unit_node = _genetic_unit_list->get_first();
     ae_genetic_unit*  gen_unit      = NULL;
     
     while ( gen_unit_node != NULL )
     {
-      gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
+      gen_unit = gen_unit_node->get_obj();
       
       gen_unit->assert_promoters();
 
@@ -1300,12 +1300,12 @@ inline void ae_individual::do_prng_jump( void )
   inline void ae_individual::assert_promoters_order( void )
   {
     // Perform assertion for each genetic unit
-    ae_list_node*     gen_unit_node = _genetic_unit_list->get_first();
+    ae_list_node<ae_genetic_unit*>*     gen_unit_node = _genetic_unit_list->get_first();
     ae_genetic_unit*  gen_unit      = NULL;
     
     while ( gen_unit_node != NULL )
     {
-      gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
+      gen_unit = gen_unit_node->get_obj();
       
       gen_unit->assert_promoters_order();
 

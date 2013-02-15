@@ -105,13 +105,13 @@ ae_environment::~ae_environment( void )
 {
   if ( _gaussians != NULL )
   {
-    _gaussians->erase( DELETE_OBJ );
+    _gaussians->erase( true );
     delete _gaussians;
   }
   
   if ( _custom_points != NULL )
   {
-    _custom_points->erase( DELETE_OBJ );
+    _custom_points->erase( true );
     delete _custom_points;
   }
   
@@ -237,11 +237,11 @@ void ae_environment::save( gzFile backup_file ) const
   
   if ( _gaussians != NULL )
   {
-    ae_list_node* gaussian_node = _gaussians->get_first();
+    ae_list_node<ae_gaussian*>* gaussian_node = _gaussians->get_first();
     ae_gaussian*  gaussian;
     for ( int16_t i = 0 ; i < nb_gaussians ; i++ )
     {
-      gaussian = ( ae_gaussian* ) gaussian_node->get_obj();
+      gaussian = gaussian_node->get_obj();
       
       gaussian->save( backup_file );
       
@@ -262,11 +262,11 @@ void ae_environment::save( gzFile backup_file ) const
   
   if ( _custom_points != NULL )
   {
-    ae_list_node* custom_point_node = _custom_points->get_first();
+    ae_list_node<ae_point_2d*>* custom_point_node = _custom_points->get_first();
     ae_point_2d*  custom_point;
     for ( int16_t i = 0 ; i < nb_custom_points ; i++ )
     {
-      custom_point = ( ae_point_2d* ) custom_point_node->get_obj();
+      custom_point = custom_point_node->get_obj();
       
       custom_point->save( backup_file );
       
@@ -327,11 +327,11 @@ void ae_environment::save( gzFile backup_file ) const
     
     if ( _initial_gaussians != NULL )
     {
-      ae_list_node* gaussian_node = _initial_gaussians->get_first();
+      ae_list_node<ae_gaussian*>* gaussian_node = _initial_gaussians->get_first();
       ae_gaussian*  gaussian;
       for ( int16_t i = 0 ; i < nb_gaussians ; i++ )
       {
-        gaussian = ( ae_gaussian* ) gaussian_node->get_obj();
+        gaussian = gaussian_node->get_obj();
         
         gaussian->save( backup_file );
         
@@ -348,7 +348,7 @@ void ae_environment::load( gzFile backup_file )
   // ---------------------
   int16_t nb_gaussians;
   gzread( backup_file, &nb_gaussians, sizeof(nb_gaussians) );
-  if ( nb_gaussians > 0 ) _gaussians = new ae_list();
+  if ( nb_gaussians > 0 ) _gaussians = new ae_list<ae_gaussian*>();
   for ( int16_t i = 0 ; i < nb_gaussians ; i++ )
   {
     _gaussians->add( new ae_gaussian( backup_file ) );
@@ -366,7 +366,7 @@ void ae_environment::load( gzFile backup_file )
   // -------------------------
   int16_t nb_custom_points;
   gzread( backup_file, &nb_custom_points, sizeof(nb_custom_points) );
-  if ( nb_custom_points > 0 ) _custom_points = new ae_list();
+  if ( nb_custom_points > 0 ) _custom_points = new ae_list<ae_point_2d*>();
   for ( int16_t i = 0 ; i < nb_custom_points ; i++ )
   {
     _custom_points->add( new ae_point_2d( backup_file ) );
@@ -443,7 +443,7 @@ void ae_environment::load( gzFile backup_file )
   {
     int16_t nb_gaussians;
     gzread( backup_file, &nb_gaussians, sizeof(nb_gaussians) );
-    if ( nb_gaussians > 0 ) _initial_gaussians = new ae_list();
+    if ( nb_gaussians > 0 ) _initial_gaussians = new ae_list<ae_gaussian*>();
     for ( int16_t i = 0 ; i < nb_gaussians ; i++ )
     {
       _initial_gaussians->add( new ae_gaussian( backup_file ) );
@@ -472,9 +472,9 @@ void ae_environment::build( void )
   // 1) Generate sample points from gaussians
   // ----------------------------------------
   // NB : Extreme points (at abscissa MIN_X and MAX_X) will be generated, we need to erase the list first
-  _points->erase( DELETE_OBJ );
+  _points->erase( true );
   
-  ae_list_node* node = NULL;
+  ae_list_node<ae_gaussian*>* node = NULL;
   
   for ( int16_t i = 0 ; i <= _sampling ; i++ )
   {
@@ -483,7 +483,7 @@ void ae_environment::build( void )
     
     while ( node )
     {
-      new_point->y += ((ae_gaussian*)node->get_obj())->compute_y( new_point->x );
+      new_point->y += node->get_obj()->compute_y( new_point->x );
       
       node = node->get_next();
     }
@@ -518,14 +518,14 @@ void ae_environment::build( void )
   // -------------------------------------------------------------------
   if ( _initial_gaussians == NULL && (_var_method != NONE || is_noise_allowed()) )
   {
-    _initial_gaussians = new ae_list();
+    _initial_gaussians = new ae_list<ae_gaussian*>();
     
     int32_t nb_gaussians = _gaussians->get_nb_elts();
-    ae_list_node* gaussian_node = _gaussians->get_first();
+    ae_list_node<ae_gaussian*>* gaussian_node = _gaussians->get_first();
     ae_gaussian*  gaussian      = NULL;
     for ( int16_t i = 0 ; i < nb_gaussians ; i++ )
     {
-      gaussian = ( ae_gaussian* ) gaussian_node->get_obj();
+      gaussian = gaussian_node->get_obj();
       
       _initial_gaussians->add( new ae_gaussian( *gaussian ) );
       
@@ -572,10 +572,10 @@ void ae_environment::apply_noise( void )
     }
     else // _cur_noise has already been created -> reinitialize all its points to 0
     {
-      ae_list_node* point_node  = _cur_noise->get_points()->get_first();
+      ae_list_node<ae_point_2d*>* point_node  = _cur_noise->get_points()->get_first();
       while ( point_node != NULL )
       {
-        ((ae_point_2d*) point_node->get_obj())->y = 0;
+        point_node->get_obj()->y = 0;
         
         point_node = point_node->get_next();
       }
@@ -628,12 +628,12 @@ void ae_environment::apply_noise( void )
       }
       
       // For each point in the noise fuzzy set, apply the noise computed for the corresponding zone
-      ae_list_node* point_node  = _cur_noise->get_points()->get_first();
+      ae_list_node<ae_point_2d*>* point_node  = _cur_noise->get_points()->get_first();
       ae_point_2d*  point       = NULL;
       int32_t       point_index = 0;
       while ( point_node != NULL )
       {
-        point = (ae_point_2d*) point_node->get_obj();
+        point = point_node->get_obj();
         
         num_zone = floor( point_index++ / nb_points_in_each_zone );
         point->y += noise_component[num_zone];
@@ -651,7 +651,7 @@ void ae_environment::apply_noise( void )
     //~ ae_point_2d*  point       = NULL;
     //~ while ( point_node != NULL )
     //~ {
-      //~ point = (ae_point_2d*) point_node->get_obj();
+      //~ point = point_node->get_obj();
       
       //~ printf( "  x: %f\ty: %e\n", point->x, point->y );
       
@@ -684,14 +684,14 @@ void ae_environment::_apply_autoregressive_mean_variation( void )
   
   int16_t nb_gaussians = _gaussians->get_nb_elts();
   
-  ae_list_node* gaussian_node = _gaussians->get_first();
-  ae_gaussian*  gaussian;
-  ae_list_node* ref_gaussian_node = _initial_gaussians->get_first();
-  ae_gaussian*  ref_gaussian;
+  ae_list_node<ae_gaussian*>* gaussian_node = _gaussians->get_first();
+  ae_gaussian* gaussian;
+  ae_list_node<ae_gaussian*>* ref_gaussian_node = _initial_gaussians->get_first();
+  ae_gaussian* ref_gaussian;
   for ( int16_t i = 0 ; i < nb_gaussians ; i++ )
   {
-    gaussian      = ( ae_gaussian* ) gaussian_node->get_obj();
-    ref_gaussian  = ( ae_gaussian* ) ref_gaussian_node->get_obj();
+    gaussian      = gaussian_node->get_obj();
+    ref_gaussian  = ref_gaussian_node->get_obj();
     
     // Find the current delta_mean = current_mean - ref_mean
     double delta_mean = gaussian->get_mean() - ref_gaussian->get_mean();

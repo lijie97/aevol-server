@@ -573,7 +573,8 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
   }
   else if ( strcmp( line->words[0], "ENV_ADD_GAUSSIAN" ) == 0 )
   {
-    if ( _param_values->_env_gaussians == NULL ) _param_values->_env_gaussians = new ae_list();
+    if ( _param_values->_env_gaussians == NULL ) _param_values->_env_gaussians = new ae_list<ae_gaussian*>();
+    
     _param_values->add_env_gaussian( new ae_gaussian( atof( line->words[1] ), atof( line->words[2] ), atof( line->words[3] ) ) );
   }
   else if ( strcmp( line->words[0], "ENV_SAMPLING" ) == 0 )
@@ -1074,12 +1075,12 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
     int16_t y_max = sel->get_grid_height();
     ae_grid_cell* grid_cell = NULL;
     
-    ae_list_node*   indiv_node = pop->get_indivs()->get_first();
+    ae_list_node<ae_individual*>* indiv_node = pop->get_indivs()->get_first();
     ae_individual*  indiv = NULL;
     
     while ( indiv_node != NULL )
     {
-      indiv = (ae_individual*) indiv_node->get_obj();
+      indiv = indiv_node->get_obj();
       
       do
       {
@@ -1111,7 +1112,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   }
   
   delete param_mut;
-  delete _prng; // Each class needed it has now its own
+  delete _prng; // Each class that needed it has now its own copy
 }
 
 
@@ -1330,8 +1331,8 @@ ae_individual* param_loader::create_random_individual_with_good_gene( ae_exp_man
   // Compute the "good" individual's statistics
   indiv->compute_statistical_data();
   
-  printf( "metabolic error of the generated individual : %f (%"PRId32" gene(s))\n",
-          indiv->get_dist_to_target_by_feature(METABOLISM), indiv->get_protein_list()->get_nb_elts() );
+  //~ printf( "metabolic error of the generated individual : %f (%"PRId32" gene(s))\n",
+          //~ indiv->get_dist_to_target_by_feature(METABOLISM), indiv->get_protein_list()->get_nb_elts() );
   
   return indiv;
 }
@@ -1350,8 +1351,8 @@ ae_individual* param_loader::create_clone( ae_individual* dolly, int32_t id ) co
   //~ #endif
   
   indiv->set_id( id );
-  printf( "metabolic error of the clonal individual : %f (%"PRId32" gene(s))\n",
-          indiv->get_dist_to_target_by_feature(METABOLISM), indiv->get_protein_list()->get_nb_elts());
+  //~ printf( "metabolic error of the clonal individual : %f (%"PRId32" gene(s))\n",
+          //~ indiv->get_dist_to_target_by_feature(METABOLISM), indiv->get_protein_list()->get_nb_elts());
   return indiv;
 }
 

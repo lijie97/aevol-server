@@ -379,19 +379,19 @@ int main(int argc, char** argv)
   //  (and, optionally, check that the rebuilt envir and genome are correct each 
   //   time a backup is available)
   // ===============================================================================
-  ae_replication_report * rep   = NULL;
-  ae_list_node * dnarepnode     = NULL;
-  ae_dna_replic_report * dnarep = NULL;
+  ae_replication_report* rep = NULL;
+  ae_list_node<ae_dna_replic_report*>* dnarepnode = NULL;
+  ae_dna_replic_report* dnarep = NULL;
 
-  ae_list_node * mnode  = NULL;
-  ae_mutation *  mut    = NULL;
+  ae_list_node<ae_mutation*>* mnode = NULL;
+  ae_mutation* mut = NULL;
 
-  ae_list_node*   unitnode  = NULL;
-  ae_genetic_unit *  unit   = NULL;
+  ae_list_node<ae_genetic_unit*>* unitnode = NULL;
+  ae_genetic_unit* unit = NULL;
 
-  ae_individual *     stored_indiv    = NULL;
-  ae_list_node*       stored_unit_node  = NULL;
-  ae_genetic_unit *   stored_unit      = NULL;
+  ae_individual* stored_indiv = NULL;
+  ae_list_node<ae_genetic_unit*>* stored_unit_node = NULL;
+  ae_genetic_unit*  stored_unit = NULL;
 
   int32_t i, index, genetic_unit_number, unitlen_before, seglen;
   double metabolic_error_before, metabolic_error_after, impact_on_metabolic_error;

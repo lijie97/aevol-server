@@ -61,6 +61,7 @@ class ae_exp_manager;
 class ae_individual;
 class ae_genetic_unit;
 class ae_vis_a_vis;
+class ae_rna;
 
 
 
@@ -152,7 +153,7 @@ class ae_dna : public ae_string
     void compute_statistical_data( void );
     
     
-    static void set_GU( ae_list** rna_list, ae_genetic_unit* GU );
+    static void set_GU( ae_list<ae_rna*>** rna_list, ae_genetic_unit* GU );
   
   
     // =================================================================

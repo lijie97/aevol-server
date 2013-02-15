@@ -164,7 +164,7 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
   // ---------------
   //  Draw each CDS
   // ---------------
-  ae_list_node* cds_node  = NULL;
+  ae_list_node<ae_protein*>* cds_node  = NULL;
   ae_protein*   cds       = NULL;
 
   // NB : As we want OriC to be at the "top" of the circle and the orientation
@@ -185,7 +185,7 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
 
   while ( cds_node != NULL )
   {
-    cds = (ae_protein*)cds_node->get_obj();
+    cds = cds_node->get_obj();
 
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)
@@ -269,7 +269,7 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
 
   while ( cds_node != NULL )
   {
-    cds = (ae_protein*)cds_node->get_obj();
+    cds = cds_node->get_obj();
 
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)
@@ -403,7 +403,7 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
     // ---------------
     //  Draw each CDS
     // ---------------
-    ae_list_node* cds_node  = NULL;
+    ae_list_node<ae_protein*>* cds_node  = NULL;
     ae_protein*   cds       = NULL;
 
     // NB : As we want OriC to be at the "top" of the circle and the orientation
@@ -424,7 +424,7 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
 
     while ( cds_node != NULL )
     {
-      cds = (ae_protein*)cds_node->get_obj();
+      cds = cds_node->get_obj();
 
       // Alpha : angles from OriC (in degrees)
       // Theta : angles on the trigonometric circle (in degrees)
@@ -508,7 +508,7 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
 
     while ( cds_node != NULL )
     {
-      cds = (ae_protein*)cds_node->get_obj();
+      cds = cds_node->get_obj();
 
       // Alpha : angles from OriC (in degrees)
       // Theta : angles on the trigonometric circle (in degrees)
@@ -590,7 +590,7 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
 void ae_individual_X11::display_rnas( ae_X11_window* win )
 {
   // Retreive the genetic unit corresponding to the main chromosome
-  ae_genetic_unit* gen_unit = (ae_genetic_unit*) _genetic_unit_list->get_first()->get_obj();
+  ae_genetic_unit* gen_unit = _genetic_unit_list->get_first()->get_obj();
   int32_t genome_length = gen_unit->get_dna()->get_length();
   
   // Display the number of RNAs
@@ -624,7 +624,7 @@ void ae_individual_X11::display_rnas( ae_X11_window* win )
   // ---------------
   //  Draw each RNA
   // ---------------
-  ae_list_node* rna_node  = NULL;
+  ae_list_node<ae_rna*>* rna_node  = NULL;
   ae_rna*       rna       = NULL;
 
   // NB : As we want OriC to be at the "top" of the circle and the orientation
@@ -645,7 +645,7 @@ void ae_individual_X11::display_rnas( ae_X11_window* win )
 
   while ( rna_node != NULL )
   {
-    rna = (ae_rna*)rna_node->get_obj();
+    rna = rna_node->get_obj();
 
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)
@@ -750,7 +750,7 @@ void ae_individual_X11::display_rnas( ae_X11_window* win )
 
   while ( rna_node != NULL )
   {
-    rna = (ae_rna*)rna_node->get_obj();
+    rna = rna_node->get_obj();
 
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)

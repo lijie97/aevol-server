@@ -79,8 +79,8 @@ class ae_dna_replic_report : public ae_object
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline ae_list* get_mutations( void )      const;
-    inline ae_list* get_rearrangements( void ) const;
+    inline ae_list<ae_mutation*>* get_mutations( void )      const;
+    inline ae_list<ae_mutation*>* get_rearrangements( void ) const;
 
     inline int32_t get_nb_small_mutations( void )  const;
     inline int32_t get_nb_rearrangements( void )   const;
@@ -132,8 +132,8 @@ class ae_dna_replic_report : public ae_object
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ae_list* _mutations;       // Lists of mutations and rearrangements undergone
-    ae_list* _rearrangements;  // by the genetic unit at last replication
+    ae_list<ae_mutation*>* _mutations;       // Lists of mutations and rearrangements undergone
+    ae_list<ae_mutation*>* _rearrangements;  // by the genetic unit at last replication
 
     int32_t _nb_mut[7]; // Number of mutations/rearrangements of each type undergone
 };
@@ -142,12 +142,12 @@ class ae_dna_replic_report : public ae_object
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-inline ae_list* ae_dna_replic_report::get_mutations( void ) const
+inline ae_list<ae_mutation*>* ae_dna_replic_report::get_mutations( void ) const
 {
   return _mutations;
 }
 
-inline ae_list* ae_dna_replic_report::get_rearrangements( void ) const
+inline ae_list<ae_mutation*>* ae_dna_replic_report::get_rearrangements( void ) const
 {
   return _rearrangements;
 }

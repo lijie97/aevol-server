@@ -37,6 +37,7 @@
 //                              Libraries
 // =================================================================
 #include <inttypes.h>
+#include <zlib.h>
 
 
 
@@ -45,7 +46,7 @@
 // =================================================================
 #include <ae_object.h>
 #include <ae_list.h>
-#include <zlib.h>
+#include <ae_dna_replic_report.h>
 
 
 
@@ -102,7 +103,7 @@ class ae_replication_report : public ae_object
     inline int32_t  get_donor_genome_size( void ) const;
     inline double   get_mean_align_score( void ) const;
     
-    inline ae_list* get_dna_replic_reports( void ) const;
+    inline ae_list<ae_dna_replic_report*>* get_dna_replic_reports( void ) const;
 
 
     // =================================================================
@@ -159,7 +160,7 @@ class ae_replication_report : public ae_object
     int16_t         _nb_coding_RNAs;
     int16_t         _nb_non_coding_RNAs;
     
-    ae_list*  _dna_replic_reports; // List of each genetic unit's replication report
+    ae_list<ae_dna_replic_report*>*  _dna_replic_reports; // List of each genetic unit's replication report
     // ********** END Data recorded in the tree **********
     
     double          _parent_metabolic_error;
@@ -286,7 +287,7 @@ inline double ae_replication_report::get_mean_align_score( void ) const
   return _mean_align_score;
 }
 
-inline ae_list* ae_replication_report::get_dna_replic_reports( void ) const
+inline ae_list<ae_dna_replic_report*>* ae_replication_report::get_dna_replic_reports( void ) const
 {
   return _dna_replic_reports;
 }

@@ -153,7 +153,7 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_individual const * ind
     // TODO
   #endif  
     
-  ae_list_node*     gen_unit_node;
+  ae_list_node<ae_genetic_unit*>* gen_unit_node;
   ae_genetic_unit*  gen_unit;
   
   
@@ -165,7 +165,7 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_individual const * ind
     // -------------------------------------------------
     ae_replication_report* replic_report = indiv->get_replic_report(); // can be NULL under certain conditions
     
-    gen_unit = (ae_genetic_unit*) indiv->get_genetic_unit_list()->get_first()->get_obj();
+    gen_unit = indiv->get_genetic_unit_list()->get_first()->get_obj();
     
     // Metabolic error stats
     _metabolic_error = (double) indiv->get_dist_to_target_by_feature( METABOLISM );
@@ -299,7 +299,7 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_individual const * ind
     gen_unit_node = indiv->get_genetic_unit_list()->get_first();
     while ( gen_unit_node != NULL )
     {
-      gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
+      gen_unit = gen_unit_node->get_obj();
 
       // Genes and RNA stats
       _amount_of_dna               += gen_unit->get_dna()->get_length();
@@ -365,7 +365,7 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_individual const * ind
       gen_unit_node = indiv->get_genetic_unit_list()->get_first();
     }
 
-    gen_unit = (ae_genetic_unit*)gen_unit_node->get_obj();
+    gen_unit = gen_unit_node->get_obj();
     
     // -------------------------------------------------
     // Compute statistical data for the given individual
@@ -469,12 +469,12 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_population const * pop
   // ------------------------------------------------------------------
   // Compute statistical data for the each individual in the population
   // ------------------------------------------------------------------
-  ae_list_node*   indiv_node  = pop->get_indivs()->get_first();
+  ae_list_node<ae_individual*>* indiv_node  = pop->get_indivs()->get_first();
   ae_individual*  indiv       = NULL;
 
   while ( indiv_node != NULL )
   {
-    indiv = (ae_individual*) indiv_node->get_obj();
+    indiv = indiv_node->get_obj();
     ae_stat_record* indiv_stat_record = new ae_stat_record( _exp_m, indiv, chrom_or_gu, false );
     this->add( indiv_stat_record );
     delete indiv_stat_record;
@@ -506,12 +506,12 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_population const * pop
   // ------------------------------------------------------------------
   // Compute statistical data for the each individual in the population
   // ------------------------------------------------------------------
-  ae_list_node*   indiv_node  = pop->get_indivs()->get_first();
+  ae_list_node<ae_individual*>*   indiv_node  = pop->get_indivs()->get_first();
   ae_individual*  indiv       = NULL;
 
   while ( indiv_node != NULL )
   {
-    indiv = (ae_individual*) indiv_node->get_obj();
+    indiv = indiv_node->get_obj();
     ae_stat_record* indiv_stat_record = new ae_stat_record( _exp_m, indiv, chrom_or_gu, false );
     this->substract_power( means, indiv_stat_record, 2 );
     delete indiv_stat_record;
@@ -542,12 +542,12 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_population const * pop
   // ------------------------------------------------------------------
   // Compute statistical data for the each individual in the population
   // ------------------------------------------------------------------
-  ae_list_node*   indiv_node  = pop->get_indivs()->get_first();
+  ae_list_node<ae_individual*>* indiv_node  = pop->get_indivs()->get_first();
   ae_individual*  indiv       = NULL;
 
   while ( indiv_node != NULL )
   {
-    indiv = (ae_individual*) indiv_node->get_obj();
+    indiv = indiv_node->get_obj();
     ae_stat_record* indiv_stat_record = new ae_stat_record( _exp_m, indiv, chrom_or_gu, false );
     this->substract_power( means, indiv_stat_record, 3 );    
     delete indiv_stat_record;

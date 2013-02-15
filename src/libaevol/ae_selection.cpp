@@ -234,17 +234,17 @@ void ae_selection::step_to_next_generation( void )
   // ------------------------------------------------------------------------------
   // 3) Make the selected individuals "reproduce", thus creating the new generation
   // ------------------------------------------------------------------------------
-  ae_list*        new_generation  = new ae_list();
-  ae_list*        old_generation  = _exp_m->get_indivs();
-  ae_list_node*   indiv_node      = old_generation->get_first();
-  ae_list_node*   next_indiv_node = NULL;
+  ae_list<ae_individual*>*      new_generation  = new ae_list<ae_individual*>();
+  ae_list<ae_individual*>*      old_generation  = _exp_m->get_indivs();
+  ae_list_node<ae_individual*>* indiv_node      = old_generation->get_first();
+  ae_list_node<ae_individual*>* next_indiv_node = NULL;
   ae_individual*  indiv           = NULL;
   int32_t         index_new_indiv = 0;
 
   for ( int32_t i = 0 ; i < nb_indivs ; i++ )
   {
     // Make indiv i reproduce (nb_offsprings[i] offsprings)
-    indiv = (ae_individual*) indiv_node->get_obj();
+    indiv = indiv_node->get_obj();
     
     next_indiv_node = indiv_node->get_next();
     
@@ -261,7 +261,7 @@ void ae_selection::step_to_next_generation( void )
     // the indiv will not be used any more and can hence be deleted
     if ( (! _with_HT) && (! get_with_plasmid_HT()) )
     {
-      old_generation->remove( indiv_node, DELETE_OBJ, DELETE_OBJ );
+      old_generation->remove( indiv_node, true, true );
     }
         
     indiv_node = next_indiv_node;
@@ -270,7 +270,7 @@ void ae_selection::step_to_next_generation( void )
   if ( _with_HT || get_with_plasmid_HT() )
   {
     // The individuals have not yet been deleted, do it now.
-    old_generation->erase( DELETE_OBJ );
+    old_generation->erase( true );
   }
   
 
@@ -355,7 +355,7 @@ void ae_selection::step_to_next_generation_grid( void )
   
   
   // Create the new generation
-  ae_list * new_generation = new ae_list(); 
+  ae_list<ae_individual*>* new_generation = new ae_list<ae_individual*>(); 
   for ( int16_t x = 0 ; x < grid_width ; x++ )
   {
     for ( int16_t y = 0 ; y < grid_height ; y++ )
@@ -459,7 +459,7 @@ void ae_selection::step_to_next_generation_grid( void )
         while ( _spatial_structure->get_indiv_at(x, y)->get_genetic_unit_list()->get_nb_elts() > 2 ) 
         {
           reevaluate = true;
-          _spatial_structure->get_indiv_at(x, y)->get_genetic_unit_list()->remove( _spatial_structure->get_indiv_at(x, y)->get_genetic_unit_list()->get_first()->get_next(), DELETE_OBJ, DELETE_OBJ);
+          _spatial_structure->get_indiv_at(x, y)->get_genetic_unit_list()->remove( _spatial_structure->get_indiv_at(x, y)->get_genetic_unit_list()->get_first()->get_next(), true, true);
         }
         if (reevaluate)
         {
@@ -784,12 +784,12 @@ void ae_selection::compute_prob_reprod( void )
     double* fitnesses = new double[nb_indivs];
     double  sum       = 0;
     
-    ae_list_node*   indiv_node  = _exp_m->get_pop()->get_indivs()->get_first();
+    ae_list_node<ae_individual*>* indiv_node = _exp_m->get_pop()->get_indivs()->get_first();
     ae_individual*  indiv       = NULL;
    
     for ( int32_t i = 0 ; i < nb_indivs ; i++ )
     {
-      indiv = (ae_individual *) indiv_node->get_obj();
+      indiv = indiv_node->get_obj();
       fitnesses[i] = indiv->get_fitness();
       sum += fitnesses[i];
       indiv_node = indiv_node->get_next();
@@ -1154,7 +1154,7 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
   // ===========================================================================
   if ( ! new_indiv->get_allow_plasmids() )
   {
-    ae_genetic_unit* chromosome = (ae_genetic_unit*) new_indiv->get_genetic_unit_list()->get_first()->get_obj();
+    ae_genetic_unit* chromosome = new_indiv->get_genetic_unit_list()->get_first()->get_obj();
     
     chromosome->get_dna()->perform_mutations();
     
@@ -1166,8 +1166,8 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
   else
   {
     // For each GU, apply mutations
-    ae_list_node*     gen_unit_node = NULL;
-    ae_genetic_unit*  gen_unit      = NULL;
+    ae_list_node<ae_genetic_unit*>* gen_unit_node = NULL;
+    ae_genetic_unit* gen_unit = NULL;
     
     // Randomly determine the order in which the GUs will undergo mutations
     bool inverse_order = (_prng->random((int32_t) 2) < 0.5);
@@ -1179,7 +1179,7 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
       
       while ( gen_unit_node != NULL )
       {
-        gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
+        gen_unit = gen_unit_node->get_obj();
         
         gen_unit->get_dna()->perform_mutations();
         
@@ -1198,7 +1198,7 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
       
       while ( gen_unit_node != NULL )
       {
-        gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
+        gen_unit = gen_unit_node->get_obj();
         
         gen_unit->get_dna()->perform_mutations();
         

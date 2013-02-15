@@ -48,7 +48,7 @@
 #include <ae_env_segment.h>
 #include <ae_jumping_mt.h>
 #include <ae_fuzzy_set.h>
-
+#include <ae_gaussian.h>
 #ifdef __X11
   #include <ae_fuzzy_set_X11.h>
 #endif
@@ -90,7 +90,7 @@ class ae_environment : public ae_fuzzy_set_X11
     // =================================================================
     //                         Accessors: getters
     // =================================================================
-    inline ae_list*             get_gaussians( void ) const;
+    inline ae_list<ae_gaussian*>* get_gaussians( void ) const;
     inline double               get_total_area( void ) const;
     inline int16_t              get_nb_segments( void ) const;
     inline ae_env_segment**     get_segments( void ) const;
@@ -105,8 +105,8 @@ class ae_environment : public ae_fuzzy_set_X11
     // =================================================================
     //                         Accessors: setters
     // =================================================================
-    inline void   set_gaussians( ae_list* gaussians );
-    inline void   set_custom_points( ae_list* custom_points );
+    inline void   set_gaussians( ae_list<ae_gaussian*>* gaussians );
+    inline void   set_custom_points( ae_list<ae_point_2d*>* custom_points );
     inline void   set_sampling( int16_t val );
     inline void   set_segmentation( int16_t nb_segments, double* boundaries, ae_env_axis_feature* features, bool separate_segments = false );
     inline void   set_var_method( ae_env_var var_method );
@@ -170,11 +170,11 @@ class ae_environment : public ae_fuzzy_set_X11
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ae_list*  _initial_gaussians; // List containing all the gaussians of the environment in their initial state
-    ae_list*  _gaussians;         // List containing all the gaussians of the environment
-    int16_t   _sampling;          // Number of points to be generated from the gaussians.
-    ae_list*  _custom_points;     // List containing all the custom points of the environment.
-                                  // This can not be used in conjunction with gaussians.
+    ae_list<ae_gaussian*>*  _initial_gaussians; // List containing all the gaussians of the environment in their initial state
+    ae_list<ae_gaussian*>*  _gaussians;         // List containing all the gaussians of the environment
+    int16_t   _sampling;                        // Number of points to be generated from the gaussians.
+    ae_list<ae_point_2d*>*  _custom_points;     // List containing all the custom points of the environment.
+                                                // This can not be used in conjunction with gaussians.
     
     int16_t           _nb_segments;
     ae_env_segment**  _segments; // Ordered table of segments.
@@ -209,7 +209,7 @@ inline int16_t ae_environment::get_nb_segments( void ) const
   return _nb_segments;
 }
 
-inline ae_list* ae_environment::get_gaussians( void ) const
+inline ae_list<ae_gaussian*>* ae_environment::get_gaussians( void ) const
 {
   return _gaussians;
 }
@@ -268,12 +268,12 @@ inline bool ae_environment::is_noise_allowed( void ) const
 // =====================================================================
 //                          Setters' definitions
 // =====================================================================
-inline void ae_environment::set_gaussians( ae_list* gaussians )
+inline void ae_environment::set_gaussians( ae_list<ae_gaussian*>* gaussians )
 {
   _gaussians = gaussians;
 }
 
-inline void ae_environment::set_custom_points( ae_list* custom_points )
+inline void ae_environment::set_custom_points( ae_list<ae_point_2d*>* custom_points )
 {
   _custom_points = custom_points;
 }

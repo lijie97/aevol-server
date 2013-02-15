@@ -71,7 +71,7 @@ class ae_genetic_unit : public ae_object
     //                             Constructors
     // =================================================================
     ae_genetic_unit( ae_individual* indiv, int32_t length );
-    ae_genetic_unit( ae_individual* indiv, char* seq, int32_t length, ae_list** prom_list = NULL );
+    ae_genetic_unit( ae_individual* indiv, char* seq, int32_t length, ae_list<ae_rna*>** prom_list = NULL );
     ae_genetic_unit( ae_individual* indiv, const ae_genetic_unit &model );
     ae_genetic_unit( ae_individual* indiv, ae_genetic_unit* const parent );
     ae_genetic_unit( ae_individual* indiv, gzFile backup_file );
@@ -89,12 +89,12 @@ class ae_genetic_unit : public ae_object
     inline ae_exp_manager*  get_exp_m( void ) const;
     inline ae_individual*   get_indiv( void )                   const;
     inline ae_dna*          get_dna( void )                     const;
-    inline ae_list**        get_rna_list( void )                const;
-    inline void             set_rna_list( ae_list** new_list )       ;
-    inline ae_list**        get_protein_list( void )            const;
     inline ae_fuzzy_set*    get_activ_contribution( void )      const;
     inline ae_fuzzy_set*    get_inhib_contribution( void )      const;
     inline ae_fuzzy_set*    get_phenotypic_contribution( void ) const;
+    
+    inline ae_list<ae_rna*>** get_rna_list( void )                const;
+    inline ae_list<ae_protein*>** get_protein_list( void ) const;
     
     
     // Direct DNA access
@@ -140,6 +140,8 @@ class ae_genetic_unit : public ae_object
     inline double   get_fitness_by_feature( ae_env_axis_feature feature )         const;
     
     
+    inline void  set_rna_list( ae_list<ae_rna*>** new_list );
+    
     
     // =================================================================
     //                            Public Methods
@@ -156,8 +158,8 @@ class ae_genetic_unit : public ae_object
     void reset_expression( void ); // useful for post-treatment programs
     
     inline void print_rnas( void ) const;
-    inline static void print_rnas( ae_list ** rnas );
-    static void print_rnas( ae_list * rnas, ae_strand strand );
+    inline static void print_rnas( ae_list<ae_rna*>** rnas );
+    static void print_rnas( ae_list<ae_rna*>* rnas, ae_strand strand );
     void print_proteins( void ) const;
 
     bool        is_promoter( ae_strand strand, int32_t pos, int8_t& dist ) const;
@@ -170,32 +172,32 @@ class ae_genetic_unit : public ae_object
     void compute_non_coding( void );
   
     
-    void duplicate_promoters_included_in( int32_t pos_1, int32_t pos_2, ae_list** duplicated_promoters );
+    void duplicate_promoters_included_in( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>** duplicated_promoters );
 
-    void get_promoters_included_in( int32_t pos_1, int32_t pos_2, ae_list** promoters );
-    void get_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list* leading_promoters );
-    void get_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list* lagging_promoters );
-    void get_leading_promoters_starting_after( int32_t pos, ae_list* leading_promoters );
-    void get_leading_promoters_starting_before( int32_t pos, ae_list* leading_promoters );
-    void get_lagging_promoters_starting_before( int32_t pos, ae_list* lagging_promoters );
-    void get_lagging_promoters_starting_after( int32_t pos, ae_list* lagging_promoters );
+    void get_promoters_included_in( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>** promoters );
+    void get_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>* leading_promoters );
+    void get_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>* lagging_promoters );
+    void get_leading_promoters_starting_after( int32_t pos, ae_list<ae_rna*>* leading_promoters );
+    void get_leading_promoters_starting_before( int32_t pos, ae_list<ae_rna*>* leading_promoters );
+    void get_lagging_promoters_starting_before( int32_t pos, ae_list<ae_rna*>* lagging_promoters );
+    void get_lagging_promoters_starting_after( int32_t pos, ae_list<ae_rna*>* lagging_promoters );
     
     void invert_promoters_included_in( int32_t pos_1, int32_t pos_2 );
-    static void invert_promoters( ae_list** promoter_lists, int32_t seq_length );
-    static void invert_promoters( ae_list** promoter_lists, int32_t pos_1, int32_t pos_2 ); // See WARNING
+    static void invert_promoters( ae_list<ae_rna*>** promoter_lists, int32_t seq_length );
+    static void invert_promoters( ae_list<ae_rna*>** promoter_lists, int32_t pos_1, int32_t pos_2 ); // See WARNING
     
-    inline void extract_promoters_included_in( int32_t pos_1, int32_t pos_2, ae_list** extracted_promoters );
-    inline void extract_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list** extracted_promoters );
-    void extract_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list* extracted_promoters );
-    void extract_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list* extracted_promoters );
-    void extract_leading_promoters_starting_after( int32_t pos, ae_list* extracted_promoters );
-    void extract_leading_promoters_starting_before( int32_t pos, ae_list* extracted_promoters );
-    void extract_lagging_promoters_starting_before( int32_t pos, ae_list* extracted_promoters );
-    void extract_lagging_promoters_starting_after( int32_t pos, ae_list* extracted_promoters );
+    inline void extract_promoters_included_in( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>** extracted_promoters );
+    inline void extract_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>** extracted_promoters );
+    void extract_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>* extracted_promoters );
+    void extract_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>* extracted_promoters );
+    void extract_leading_promoters_starting_after( int32_t pos, ae_list<ae_rna*>* extracted_promoters );
+    void extract_leading_promoters_starting_before( int32_t pos, ae_list<ae_rna*>* extracted_promoters );
+    void extract_lagging_promoters_starting_before( int32_t pos, ae_list<ae_rna*>* extracted_promoters );
+    void extract_lagging_promoters_starting_after( int32_t pos, ae_list<ae_rna*>* extracted_promoters );
     
-    static void shift_promoters( ae_list** promoters_to_shift, int32_t delta_pos, int32_t seq_length );
-    void insert_promoters( ae_list** promoters_to_insert );
-    void insert_promoters_at( ae_list** promoters_to_insert, int32_t pos );
+    static void shift_promoters( ae_list<ae_rna*>** promoters_to_shift, int32_t delta_pos, int32_t seq_length );
+    void insert_promoters( ae_list<ae_rna*>** promoters_to_insert );
+    void insert_promoters_at( ae_list<ae_rna*>** promoters_to_insert, int32_t pos );
     
     inline void remove_promoters_around( int32_t pos );
     inline void remove_promoters_around( int32_t pos_1, int32_t pos_2 );
@@ -213,10 +215,10 @@ class ae_genetic_unit : public ae_object
     //~ void duplicate_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2, int32_t delta_pos );
     //~ void duplicate_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2, int32_t delta_pos );
     
-    inline void copy_promoters_included_in( int32_t pos_1, int32_t pos_2, ae_list** new_promoter_lists );
-    inline void copy_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list** new_promoter_lists );
-    void copy_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list* new_promoter_list );
-    void copy_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list* new_promoter_list );
+    inline void copy_promoters_included_in( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>** new_promoter_lists );
+    inline void copy_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>** new_promoter_lists );
+    void copy_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>* new_promoter_list );
+    void copy_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>* new_promoter_list );
     //~ inline void copy_all_promoters( ae_list** new_promoter_lists );
 
     void save( gzFile backup_file );
@@ -283,12 +285,13 @@ class ae_genetic_unit : public ae_object
     
     ae_individual*  _indiv;
     ae_dna*         _dna;
-    ae_list**       _rna_list;
-    ae_list**       _protein_list;
     ae_fuzzy_set*   _activ_contribution;
     ae_fuzzy_set*   _inhib_contribution;
     ae_fuzzy_set*   _phenotypic_contribution;
     // NB : _phenotypic_contribution is only an indicative value, not used for the whole phenotype computation
+    
+    ae_list<ae_rna*>**     _rna_list;
+    ae_list<ae_protein*>** _protein_list;
 
     // DM: For plasmid work, we sometimes *need* all the data (e.g. fitness, secretion) calculated for each GU
     double* _dist_to_target_per_segment;
@@ -369,17 +372,17 @@ inline ae_dna* ae_genetic_unit::get_dna( void ) const
   return _dna;
 }
 
-inline ae_list** ae_genetic_unit::get_rna_list( void ) const
+inline ae_list<ae_rna*>** ae_genetic_unit::get_rna_list( void ) const
 {
   return _rna_list;
 }
 
-inline void ae_genetic_unit::set_rna_list( ae_list** new_list )
+inline void ae_genetic_unit::set_rna_list( ae_list<ae_rna*>** new_list )
 {
   _rna_list = new_list;
 } // TODO : erase that! // NOTE : Why?
 
-inline ae_list** ae_genetic_unit::get_protein_list( void ) const
+inline ae_list<ae_protein*>** ae_genetic_unit::get_protein_list( void ) const
 {
   assert( _protein_list );
   assert( _protein_list[LEADING] );
@@ -613,7 +616,7 @@ inline void ae_genetic_unit::print_rnas( void ) const
   print_rnas( _rna_list );
 }
 
-inline /* static */ void ae_genetic_unit::print_rnas( ae_list ** rnas )
+inline /* static */ void ae_genetic_unit::print_rnas( ae_list<ae_rna*>** rnas )
 {
   print_rnas( rnas[LEADING], LEADING );
   print_rnas( rnas[LAGGING], LAGGING );
@@ -631,8 +634,8 @@ inline bool ae_genetic_unit::is_stop( ae_strand strand, int32_t index ) const
 
 inline void ae_genetic_unit::remove_all_promoters( void )
 {
-  _rna_list[LEADING]->erase( DELETE_OBJ );
-  _rna_list[LAGGING]->erase( DELETE_OBJ );
+  _rna_list[LEADING]->erase( true );
+  _rna_list[LAGGING]->erase( true );
 }
 
 inline void ae_genetic_unit::move_all_promoters_after( int32_t pos, int32_t delta_pos )
@@ -641,7 +644,7 @@ inline void ae_genetic_unit::move_all_promoters_after( int32_t pos, int32_t delt
   move_all_lagging_promoters_after( pos, delta_pos );
 }
 
-inline void ae_genetic_unit::extract_promoters_included_in( int32_t pos_1, int32_t pos_2, ae_list** extracted_promoters )
+inline void ae_genetic_unit::extract_promoters_included_in( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>** extracted_promoters )
 {
   assert( pos_1 >= 0 && pos_1 < pos_2 && pos_2 <= _dna->get_length() );
   if ( pos_2 - pos_1 >= PROM_SIZE )
@@ -651,7 +654,7 @@ inline void ae_genetic_unit::extract_promoters_included_in( int32_t pos_1, int32
   }
 }
 
-inline void ae_genetic_unit::extract_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list** extracted_promoters )
+inline void ae_genetic_unit::extract_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>** extracted_promoters )
 {
   extract_leading_promoters_starting_between( pos_1, pos_2, extracted_promoters[LEADING] );
   extract_lagging_promoters_starting_between( pos_1, pos_2, extracted_promoters[LAGGING] );
@@ -780,7 +783,7 @@ inline void ae_genetic_unit::look_for_new_promoters_around( int32_t pos_1, int32
   //~ duplicate_lagging_promoters_starting_between( pos_1, pos_2, delta_pos );
 //~ }
 
-inline void ae_genetic_unit::copy_promoters_included_in( int32_t pos_1, int32_t pos_2, ae_list** new_promoter_lists )
+inline void ae_genetic_unit::copy_promoters_included_in( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>** new_promoter_lists )
 {
   if ( ae_utils::mod( pos_2 - pos_1 - 1, _dna->get_length() ) + 1 >= PROM_SIZE )
   {
@@ -789,15 +792,15 @@ inline void ae_genetic_unit::copy_promoters_included_in( int32_t pos_1, int32_t 
   }
 }
 
-inline void ae_genetic_unit::copy_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list** new_promoter_lists )
+inline void ae_genetic_unit::copy_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>** new_promoter_lists )
 {
   copy_leading_promoters_starting_between( pos_1, pos_2, new_promoter_lists[LEADING] );
   copy_lagging_promoters_starting_between( pos_1, pos_2, new_promoter_lists[LAGGING] );
 }
 
-//~ inline void ae_genetic_unit::copy_all_promoters( ae_list** new_promoter_lists )
+//~ inline void ae_genetic_unit::copy_all_promoters( ae_list<ae_rna*>** new_promoter_lists )
 //~ {
-  //~ ae_list_node* rna_node = NULL;
+  //~ ae_list_node<ae_rna*>* rna_node = NULL;
   
   //~ for ( int8_t strand = LEADING ; strand <= LAGGING ; strand++ )
   //~ {
@@ -805,7 +808,7 @@ inline void ae_genetic_unit::copy_promoters_starting_between( int32_t pos_1, int
     
     //~ while ( rna_node != NULL )
     //~ {
-      //~ new_promoter_lists[strand]->add( new ae_rna( this, *((ae_rna*)rna_node->get_obj()) ) );
+      //~ new_promoter_lists[strand]->add( new ae_rna( this, *(rna_node->get_obj()) ) );
       
       //~ rna_node = rna_node->get_next();
     //~ }

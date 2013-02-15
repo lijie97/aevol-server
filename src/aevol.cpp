@@ -106,7 +106,7 @@ int main( int argc, char* argv[] )
   bool  pause_on_startup = false;
   
   int32_t num_gener = 0;
-  int32_t nb_gener  = 0;
+  int32_t nb_gener  = 1000;
   
   
   #ifndef __NO_X

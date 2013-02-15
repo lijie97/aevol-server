@@ -47,6 +47,7 @@
 //                            Project Files
 // =================================================================
 #include <ae_exp_manager.h>
+#include <ae_population.h>
 
 #ifdef __X11
   #include <ae_population_X11.h>
@@ -439,10 +440,8 @@ void ae_exp_manager::run_evolution( void )
   while ( _num_gener < _last_gener )
   {
     printf( "============================== %"PRId32" ==============================\n", _num_gener );
-    printf( "  distance to target (metabolic) : %f\n",
-            ((ae_individual *) _pop->get_indivs()->get_last()->get_obj())->get_dist_to_target_by_feature( METABOLISM ) );
-    //~ printf( "  number of jumps : %"PRId32"\ntotal time : %f ms\t time per jump : %f µs\n",
-            //~ ae_jumping_mt::nb_jumps, ae_jumping_mt::jump_time, 1000*ae_jumping_mt::jump_time/ae_jumping_mt::nb_jumps );
+    printf( "  Best individual's distance to target (metabolic) : %f\n",
+            _pop->get_best()->get_dist_to_target_by_feature( METABOLISM ) );
 
     if ( quit_signal_received() ) break;
     
@@ -461,13 +460,13 @@ void ae_exp_manager::run_evolution( void )
   _output_m->flush();
   
   printf( "============================== %"PRId32" ==============================\n", _num_gener );
-  printf( "  distance to target (metabolic) : %f\n", ((ae_individual *) _pop->get_indivs()->get_last()->get_obj())->get_dist_to_target_by_feature( METABOLISM ) );
+  printf( "  distance to target (metabolic) : %f\n", _pop->get_best()->get_dist_to_target_by_feature( METABOLISM ) );
   printf( "===================================================================\n");
   printf ("  The run is finished. \n"); 
   printf ("  Printing the final best individual into best_last_org.txt \n"); 
   const char* out_file_name = "best_last_org.txt"; 
   FILE* org_file = fopen( out_file_name, "w" );
-  fputs( ((ae_individual *) _pop->get_indivs()->get_last()->get_obj())->get_genetic_unit(0)->get_dna()->get_data(), org_file); 
+  fputs( _pop->get_best()->get_genetic_unit(0)->get_dna()->get_data(), org_file ); 
   fclose ( org_file ); 
 }
 

@@ -97,8 +97,9 @@ class ae_rna : public ae_object
     inline double     get_basal_level( void ) const;
     inline int32_t    get_transcript_length( void ) const; // The promoter is NOT transcribed.
     inline void       set_transcript_length( int32_t length );
-    inline ae_list*   get_transcribed_proteins( void ) const;
     inline bool       is_coding( void ) const;
+    
+    inline ae_list<ae_protein*>* get_transcribed_proteins( void ) const;
 
     // =================================================================
     //                            Public Methods
@@ -148,7 +149,7 @@ class ae_rna : public ae_object
     int32_t           _transcript_length;
     double            _basal_level;
 
-    ae_list*          _transcribed_proteins;
+    ae_list<ae_protein*>* _transcribed_proteins;
 };
 
 
@@ -200,7 +201,7 @@ inline void ae_rna::set_transcript_length( int32_t transcript_length )
   _transcript_length = transcript_length;
 }
 
-inline ae_list* ae_rna::get_transcribed_proteins( void ) const
+inline ae_list<ae_protein*>* ae_rna::get_transcribed_proteins( void ) const
 {
   return _transcribed_proteins;
 }
