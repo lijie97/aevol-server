@@ -213,17 +213,17 @@ void population_statistics::compute_population_f_nu(ae_exp_manager* exp_manager)
 	//         Get initial individual
 	// ------------------------------------
 	      
-      #ifdef __NO_X
+  #ifdef __NO_X
 	#ifndef __REGUL
-	initial_indiv = new ae_individual(tmpind, current_index);
+	initial_indiv = new ae_individual(tmpind, current_index, 0);
 	#else
-	initial_indiv = new ae_individual_R( (dynamic_cast<ae_individual_R*>(tmpind)), current_index );
+	initial_indiv = new ae_individual_R( (dynamic_cast<ae_individual_R*>(tmpind)), current_index, 0 );
 	#endif
       #elif defined __X11
 	#ifndef __REGUL
-	initial_indiv = new ae_individual_X11( (dynamic_cast<ae_individual_X11*>(tmpind)), current_index );
+	initial_indiv = new ae_individual_X11( (dynamic_cast<ae_individual_X11*>(tmpind)), current_index, 0 );
 	#else
-	initial_indiv = new ae_individual_R_X11( (dynamic_cast<ae_individual_R_X11*>(tmpind)), current_index );
+	initial_indiv = new ae_individual_R_X11( (dynamic_cast<ae_individual_R_X11*>(tmpind)), current_index,0 );
 	#endif
       #endif
 

@@ -91,7 +91,7 @@ ae_individual_X11::ae_individual_X11( const ae_individual_X11 &model )
   init_occupied_sectors();
 }
 
-ae_individual_X11::ae_individual_X11( ae_individual_X11* const parent, int32_t id ) : ae_individual( parent, id )
+ae_individual_X11::ae_individual_X11( ae_individual_X11* const parent, int32_t id , ae_jumping_mt* prng ) : ae_individual( parent, id, prng)
 {
   init_occupied_sectors();
 }

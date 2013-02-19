@@ -93,7 +93,7 @@ class ae_individual : public ae_object
   
     ae_individual( ae_exp_manager* exp_m, gzFile backup_file );
     ae_individual( const ae_individual &model );
-    ae_individual( ae_individual* const parent, int32_t id );
+    ae_individual( ae_individual* const parent, int32_t id , ae_jumping_mt* prng );
     //~ ae_individual( char* organism_file_name );
     //~ ae_individual( char* genome, int32_t genome_size, int32_t age = 0 );
 
@@ -114,6 +114,7 @@ class ae_individual : public ae_object
     inline double           get_fitness_by_feature( ae_env_axis_feature feature )         const;
     inline ae_grid_cell*    get_grid_cell( void )                                         const;
     inline bool             get_placed_in_population()                                    const;
+    inline ae_jumping_mt*   get_prng( void)                                               const;
     
     inline ae_list<ae_genetic_unit*>* get_genetic_unit_list( void )     const;
     inline const char* get_genetic_unit_sequence   ( int16_t num_unit ) const;
@@ -229,6 +230,8 @@ class ae_individual : public ae_object
     inline void set_translocation_proportion( double translocation_proportion);
     inline void set_inversion_proportion( double inversion_proportion);
 
+    inline void set_prng( ae_jumping_mt* prng );
+    
     
     // =================================================================
     //                            Public Methods
@@ -483,6 +486,11 @@ inline int32_t ae_individual::get_rank( void ) const
 inline ae_exp_manager* ae_individual::get_exp_m( void ) const
 {
   return _exp_m;
+}
+
+inline ae_jumping_mt* ae_individual::get_prng( void ) const
+{
+  return _prng;
 }
 
 /*!
@@ -1203,6 +1211,11 @@ inline void ae_individual::set_translocation_proportion( double translocation_pr
 inline void ae_individual::set_inversion_proportion( double inversion_proportion)
 {
   _mut_params->set_inversion_proportion(inversion_proportion);
+}
+
+inline void ae_individual::set_prng( ae_jumping_mt* prng )
+{
+  _prng = prng;
 }
 
 // =====================================================================

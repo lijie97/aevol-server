@@ -91,7 +91,7 @@ ae_stats::ae_stats( ae_exp_manager* exp_m,
                     int32_t num_gener,
                     const char * prefix /* = "stat" */,
                     bool best_indiv_only /* = false */,
-                    bool delete_old_stats /* = false */ )
+                    bool delete_old_stats /* = true */ )
 {
   _exp_m = exp_m;
   init_data();

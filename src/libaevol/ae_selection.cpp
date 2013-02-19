@@ -32,7 +32,7 @@
 // =================================================================
 //                              Libraries
 // =================================================================
-
+#include <math.h>
 
 
 // =================================================================
@@ -106,6 +106,7 @@ ae_selection::ae_selection( ae_exp_manager* exp_m )
   _use_secretion = false;
   _secretion_contrib_to_fitness = 0.0;
   _secretion_cost               = 0.0;
+  
 }
 
 
@@ -534,8 +535,8 @@ void ae_selection::write_setup_file( gzFile exp_setup_file ) const
 
 /*!
 */
-void ae_selection::write_setup_file( FILE* exp_setup_file ) const
-{
+//void ae_selection::write_setup_file( FILE* exp_setup_file ) const
+//{
   /*if ( _prng == NULL )
   {
     printf( "%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__ );
@@ -584,7 +585,7 @@ void ae_selection::write_setup_file( FILE* exp_setup_file ) const
     gzwrite( exp_setup_file, &_secretion_contrib_to_fitness, sizeof(_secretion_contrib_to_fitness) );
     gzwrite( exp_setup_file, &_secretion_cost, sizeof(_secretion_cost) );
   }*/
-}
+//}
 
 void ae_selection::load( gzFile exp_setup_file, gzFile sp_struct_file )
 {
@@ -874,21 +875,31 @@ void ae_selection::compute_local_prob_reprod( void )
 ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t index, int16_t x /*= 0*/, int16_t y /*= 0*/ )
 {
   ae_individual* new_indiv = NULL;
+  
+  // Get a new seed for the new individual
+  int32_t limit = (int32_t)2*pow(10,9);
+  int size = 624;
+  uint32_t seed[size];
+  for(int j=0;j<size;j++){
+    seed[j] = _prng->random(limit);
+  }
+  ae_jumping_mt* indiv_prng = new ae_jumping_mt(seed,size);
+  indiv_prng->jump();
 
   // ===========================================================================
   //  1) Copy parent
   // ===========================================================================
   #ifdef __NO_X
     #ifndef __REGUL
-      new_indiv = new ae_individual( parent, index );
+      new_indiv = new ae_individual( parent, index, indiv_prng);
     #else
-      new_indiv = new ae_individual_R( dynamic_cast<ae_individual_R*>(parent), index );
+      new_indiv = new ae_individual_R( dynamic_cast<ae_individual_R*>(parent), index, indiv_prng );
     #endif
   #elif defined __X11
     #ifndef __REGUL
-      new_indiv = new ae_individual_X11( dynamic_cast<ae_individual_X11*>(parent), index );
+      new_indiv = new ae_individual_X11( dynamic_cast<ae_individual_X11*>(parent), index, indiv_prng );
     #else
-      new_indiv = new ae_individual_R_X11( dynamic_cast<ae_individual_R_X11*>(parent), index );
+      new_indiv = new ae_individual_R_X11( dynamic_cast<ae_individual_R_X11*>(parent), index, indiv_prng );
     #endif
   #endif
   

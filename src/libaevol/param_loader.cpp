@@ -1193,7 +1193,6 @@ ae_individual* param_loader::create_random_individual( ae_exp_manager* exp_m, ae
   }
   random_genome[_param_values->_initial_genome_length] = 0;
   
-  
   // ------------------------------------------------------- Global constraints
   // Create an individual with this genome and set its id
   ae_individual* indiv = new ae_individual( exp_m,

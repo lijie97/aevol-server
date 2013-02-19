@@ -35,43 +35,53 @@ POST_UNINSTALL = :
 @WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@bin_PROGRAMS = aevol$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	create_exp$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	change_pop$(EXEEXT) \
-@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	change_env$(EXEEXT)
+@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	change_env$(EXEEXT) \
+@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	change_exp_setup$(EXEEXT)
 @WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@bin_PROGRAMS = raevol$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	create_exp$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	change_pop$(EXEEXT) \
-@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	change_env$(EXEEXT)
+@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	change_env$(EXEEXT) \
+@WITH_DEBUG_FALSE@@WITH_IN2P3_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	change_exp_setup$(EXEEXT)
 @WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@bin_PROGRAMS = aevol_IN2P3$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	create_exp$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	change_pop$(EXEEXT) \
-@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	change_env$(EXEEXT)
+@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	change_env$(EXEEXT) \
+@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	change_exp_setup$(EXEEXT)
 @WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@bin_PROGRAMS = raevol_IN2P3$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	create_exp$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	change_pop$(EXEEXT) \
-@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	change_env$(EXEEXT)
+@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	change_env$(EXEEXT) \
+@WITH_DEBUG_FALSE@@WITH_IN2P3_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	change_exp_setup$(EXEEXT)
 @WITH_DEBUG_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@bin_PROGRAMS = aevol_X11$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	create_exp$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	change_pop$(EXEEXT) \
-@WITH_DEBUG_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	change_env$(EXEEXT)
+@WITH_DEBUG_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	change_env$(EXEEXT) \
+@WITH_DEBUG_FALSE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	change_exp_setup$(EXEEXT)
 @WITH_DEBUG_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@bin_PROGRAMS = raevol_X11$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	create_exp$(EXEEXT) \
 @WITH_DEBUG_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	change_pop$(EXEEXT) \
-@WITH_DEBUG_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	change_env$(EXEEXT)
+@WITH_DEBUG_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	change_env$(EXEEXT) \
+@WITH_DEBUG_FALSE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	change_exp_setup$(EXEEXT)
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@bin_PROGRAMS = aevol_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	create_exp$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	change_pop$(EXEEXT) \
-@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	change_env$(EXEEXT)
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	change_env$(EXEEXT) \
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	change_exp_setup$(EXEEXT)
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@bin_PROGRAMS = aevol_X11_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	create_exp$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	change_pop$(EXEEXT) \
-@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	change_env$(EXEEXT)
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	change_env$(EXEEXT) \
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	change_exp_setup$(EXEEXT)
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@bin_PROGRAMS = raevol_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	create_exp$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	change_pop$(EXEEXT) \
-@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	change_env$(EXEEXT)
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	change_env$(EXEEXT) \
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	change_exp_setup$(EXEEXT)
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@bin_PROGRAMS = raevol_X11_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	create_exp$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	change_pop$(EXEEXT) \
-@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	change_env$(EXEEXT)
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	change_env$(EXEEXT) \
+@WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	change_exp_setup$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -130,6 +140,15 @@ change_env_LDADD = $(LDADD)
 @WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a \
 @WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
 @WITH_RAEVOL_TRUE@change_env_DEPENDENCIES =  \
+@WITH_RAEVOL_TRUE@	$(top_srcdir)/src/libaevol/libraevol.a
+am_change_exp_setup_OBJECTS =  \
+	change_exp_setup-change_exp_setup.$(OBJEXT)
+change_exp_setup_OBJECTS = $(am_change_exp_setup_OBJECTS)
+change_exp_setup_LDADD = $(LDADD)
+@WITH_RAEVOL_FALSE@change_exp_setup_DEPENDENCIES =  \
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/libaevol.a \
+@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
+@WITH_RAEVOL_TRUE@change_exp_setup_DEPENDENCIES =  \
 @WITH_RAEVOL_TRUE@	$(top_srcdir)/src/libaevol/libraevol.a
 am_change_pop_OBJECTS = change_pop-change_pop.$(OBJEXT)
 change_pop_OBJECTS = $(am_change_pop_OBJECTS)
@@ -198,14 +217,15 @@ CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
 	-o $@
 SOURCES = $(aevol_SOURCES) $(aevol_IN2P3_SOURCES) $(aevol_X11_SOURCES) \
 	$(aevol_X11_debug_SOURCES) $(aevol_debug_SOURCES) \
-	$(change_env_SOURCES) $(change_pop_SOURCES) \
-	$(create_exp_SOURCES) $(raevol_SOURCES) \
+	$(change_env_SOURCES) $(change_exp_setup_SOURCES) \
+	$(change_pop_SOURCES) $(create_exp_SOURCES) $(raevol_SOURCES) \
 	$(raevol_IN2P3_SOURCES) $(raevol_X11_SOURCES) \
 	$(raevol_X11_debug_SOURCES) $(raevol_debug_SOURCES)
 DIST_SOURCES = $(aevol_SOURCES) $(aevol_IN2P3_SOURCES) \
 	$(aevol_X11_SOURCES) $(aevol_X11_debug_SOURCES) \
 	$(aevol_debug_SOURCES) $(change_env_SOURCES) \
-	$(change_pop_SOURCES) $(create_exp_SOURCES) $(raevol_SOURCES) \
+	$(change_exp_setup_SOURCES) $(change_pop_SOURCES) \
+	$(create_exp_SOURCES) $(raevol_SOURCES) \
 	$(raevol_IN2P3_SOURCES) $(raevol_X11_SOURCES) \
 	$(raevol_X11_debug_SOURCES) $(raevol_debug_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
@@ -376,7 +396,8 @@ AM_CPPFLAGS = -I./ -I$(top_srcdir)/src/libaevol -D__STDC_FORMAT_MACROS \
 @WITH_RAEVOL_TRUE@LDADD = $(top_srcdir)/src/libaevol/libraevol.a
 CLEANFILES = aevol aevol_IN2P3 raevol raevol_IN2P3 aevol_debug \
 	raevol_debug aevol_X11 raevol_X11 aevol_X11_debug \
-	raevol_X11_debug create_exp change_pop change_env
+	raevol_X11_debug create_exp change_pop change_env \
+	change_exp_setup
 
 # The target_CPPFLAGS for each target may look useless, it is here to force automake to create
 # prefixed object files so that we don't use an object file built for another set of macrodefinitions
@@ -420,6 +441,9 @@ change_pop_CPPFLAGS = $(AM_CPPFLAGS)
 change_env_dir = $(bindir)
 change_env_SOURCES = change_env.cpp
 change_env_CPPFLAGS = $(AM_CPPFLAGS)
+change_exp_setup_dir = $(bindir)
+change_exp_setup_SOURCES = change_exp_setup.cpp
+change_exp_setup_CPPFLAGS = $(AM_CPPFLAGS)
 all: all-recursive
 
 .SUFFIXES:
@@ -509,6 +533,9 @@ aevol_debug$(EXEEXT): $(aevol_debug_OBJECTS) $(aevol_debug_DEPENDENCIES) $(EXTRA
 change_env$(EXEEXT): $(change_env_OBJECTS) $(change_env_DEPENDENCIES) $(EXTRA_change_env_DEPENDENCIES) 
 	@rm -f change_env$(EXEEXT)
 	$(CXXLINK) $(change_env_OBJECTS) $(change_env_LDADD) $(LIBS)
+change_exp_setup$(EXEEXT): $(change_exp_setup_OBJECTS) $(change_exp_setup_DEPENDENCIES) $(EXTRA_change_exp_setup_DEPENDENCIES) 
+	@rm -f change_exp_setup$(EXEEXT)
+	$(CXXLINK) $(change_exp_setup_OBJECTS) $(change_exp_setup_LDADD) $(LIBS)
 change_pop$(EXEEXT): $(change_pop_OBJECTS) $(change_pop_DEPENDENCIES) $(EXTRA_change_pop_DEPENDENCIES) 
 	@rm -f change_pop$(EXEEXT)
 	$(CXXLINK) $(change_pop_OBJECTS) $(change_pop_LDADD) $(LIBS)
@@ -543,6 +570,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/aevol_X11_debug-aevol.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/aevol_debug-aevol.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/change_env-change_env.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/change_exp_setup-change_exp_setup.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/change_pop-change_pop.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/create_exp-create_exp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/raevol-aevol.Po@am__quote@
@@ -648,6 +676,20 @@ change_env-change_env.obj: change_env.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='change_env.cpp' object='change_env-change_env.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(change_env_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o change_env-change_env.obj `if test -f 'change_env.cpp'; then $(CYGPATH_W) 'change_env.cpp'; else $(CYGPATH_W) '$(srcdir)/change_env.cpp'; fi`
+
+change_exp_setup-change_exp_setup.o: change_exp_setup.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(change_exp_setup_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT change_exp_setup-change_exp_setup.o -MD -MP -MF $(DEPDIR)/change_exp_setup-change_exp_setup.Tpo -c -o change_exp_setup-change_exp_setup.o `test -f 'change_exp_setup.cpp' || echo '$(srcdir)/'`change_exp_setup.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/change_exp_setup-change_exp_setup.Tpo $(DEPDIR)/change_exp_setup-change_exp_setup.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='change_exp_setup.cpp' object='change_exp_setup-change_exp_setup.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(change_exp_setup_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o change_exp_setup-change_exp_setup.o `test -f 'change_exp_setup.cpp' || echo '$(srcdir)/'`change_exp_setup.cpp
+
+change_exp_setup-change_exp_setup.obj: change_exp_setup.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(change_exp_setup_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT change_exp_setup-change_exp_setup.obj -MD -MP -MF $(DEPDIR)/change_exp_setup-change_exp_setup.Tpo -c -o change_exp_setup-change_exp_setup.obj `if test -f 'change_exp_setup.cpp'; then $(CYGPATH_W) 'change_exp_setup.cpp'; else $(CYGPATH_W) '$(srcdir)/change_exp_setup.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/change_exp_setup-change_exp_setup.Tpo $(DEPDIR)/change_exp_setup-change_exp_setup.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='change_exp_setup.cpp' object='change_exp_setup-change_exp_setup.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(change_exp_setup_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o change_exp_setup-change_exp_setup.obj `if test -f 'change_exp_setup.cpp'; then $(CYGPATH_W) 'change_exp_setup.cpp'; else $(CYGPATH_W) '$(srcdir)/change_exp_setup.cpp'; fi`
 
 change_pop-change_pop.o: change_pop.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(change_pop_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT change_pop-change_pop.o -MD -MP -MF $(DEPDIR)/change_pop-change_pop.Tpo -c -o change_pop-change_pop.o `test -f 'change_pop.cpp' || echo '$(srcdir)/'`change_pop.cpp

@@ -70,6 +70,12 @@ ae_jumping_mt::ae_jumping_mt( const uint32_t& simple_seed )
   sfmt_init_gen_rand( _sfmt, simple_seed );
 }
 
+ae_jumping_mt::ae_jumping_mt( uint32_t* seed_table, int& table_size )
+{
+  _sfmt = new sfmt_t();
+  sfmt_init_by_array(_sfmt, seed_table, table_size);
+}
+
 /*!
   Create a copy of an existing generator
  */

@@ -543,6 +543,7 @@ void ae_environment::build( void )
  */
 void ae_environment::apply_noise( void )
 {
+  
   if ( _noise_prob > 0 && _noise_prng->random() < _noise_prob )
   {
     // =====================================================================================

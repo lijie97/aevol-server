@@ -152,7 +152,16 @@ void ae_output_manager::load( gzFile setup_file, bool verbose )
   gzread( setup_file, &_big_backup_step,  sizeof(_big_backup_step) );
   
   // Stats
-  _stats = new ae_stats( _exp_m );
+  //_stats = new ae_stats( _exp_m );
+  int32_t num_gener = _exp_m->get_num_gener();
+  if (num_gener > 0)
+  {
+    _stats = new ae_stats( _exp_m, num_gener);
+  }
+  else
+  {
+    _stats = new ae_stats( _exp_m );
+  }
   gzread( setup_file, &_compute_phen_contrib_by_GU,  sizeof(_compute_phen_contrib_by_GU) );
   
   // Tree
@@ -189,6 +198,15 @@ void ae_output_manager::load( FILE* setup_file, bool verbose )
   
   // Stats
   _stats = new ae_stats( _exp_m );
+  int32_t num_gener = _exp_m->get_num_gener();
+  if (num_gener > 0)
+  {
+    _stats = new ae_stats( _exp_m, num_gener);
+  }
+  else
+  {
+    _stats = new ae_stats( _exp_m );
+  }
   fscanf( setup_file, "COMPUTE_PHENOTYPIC_CONTRIBUTION_BY_GU %"PRId8"\n", &_compute_phen_contrib_by_GU );
   
   char tmp[10];
@@ -245,11 +263,12 @@ void ae_output_manager::write_current_generation_outputs( void ) const
       write_tree();
     }
   }
-    
+  
   if ( num_gener % _backup_step == 0 )
   {
     _stats->flush();
     _exp_m->save_experiment();
+    _exp_m->write_setup_files();
     
     // Update the last_gener.txt file
     FILE* last_gener_file = fopen( "last_gener.txt", "w" );

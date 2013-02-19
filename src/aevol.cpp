@@ -153,10 +153,15 @@ int main( int argc, char* argv[] )
         env_file_name       = new char[255];
         pop_file_name       = new char[255];
         sp_struct_file_name = new char[255];
+        exp_setup_file_name = new char[255];
+        out_prof_file_name  = new char[255];
         
         sprintf( env_file_name,       ENV_FNAME_FORMAT,       num_gener );
         sprintf( pop_file_name,       POP_FNAME_FORMAT,       num_gener );
         sprintf( sp_struct_file_name, SP_STRUCT_FNAME_FORMAT, num_gener );
+        sprintf( exp_setup_file_name, EXP_S_FNAME_FORMAT,     num_gener );
+        sprintf( out_prof_file_name,  OUT_P_FNAME_FORMAT,     num_gener );
+        
 		  
         // Check existence of optional files in file system.
         // Missing files will cause the corresponding file_name variable to be nullified
@@ -288,8 +293,6 @@ int main( int argc, char* argv[] )
     ae_exp_manager* exp_manager = new ae_exp_manager();
   #endif
   
-  exp_manager->load_experiment( exp_setup_file_name, out_prof_file_name, env_file_name, pop_file_name, sp_struct_file_name, true );
-  
   if ( num_gener > 0 )
   {
     exp_manager->set_first_gener( num_gener );
@@ -298,6 +301,10 @@ int main( int argc, char* argv[] )
   {
     exp_manager->set_nb_gener( nb_gener );
   }
+  
+  exp_manager->load_experiment( exp_setup_file_name, out_prof_file_name, env_file_name, pop_file_name, sp_struct_file_name, true );
+  
+  
   
   // Make a numbered copy of each static input file (dynamic files are saved elsewhere)
   

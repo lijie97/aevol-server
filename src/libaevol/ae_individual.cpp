@@ -599,11 +599,12 @@ ae_individual::ae_individual( const ae_individual &model )
 
   The phenotype and the fitness are not set, neither is the statistical data.
 */
-ae_individual::ae_individual( ae_individual* const parent, int32_t id )
+ae_individual::ae_individual( ae_individual* const parent, int32_t id, ae_jumping_mt* prng )
 {
   _exp_m = parent->_exp_m;
   
-  _prng = new ae_jumping_mt( *(parent->_prng) );
+  //_prng = new ae_jumping_mt( *(parent->_prng) );
+  _prng = prng;
   
   _age  = parent->_age + 1;
   
@@ -1115,7 +1116,6 @@ void ae_individual::compute_fitness( ae_environment* envir )
     _fitness = exp( -_exp_m->get_selection_pressure() * (1 - _fitness) );
   }  
 #else
-
   for ( int8_t i = 0 ; i < NB_FEATURES ; i++ )
   {
     if ( i == SECRETION )

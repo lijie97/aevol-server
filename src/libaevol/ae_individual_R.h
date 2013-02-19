@@ -57,7 +57,7 @@ class ae_individual_R : public virtual ae_individual
     // =================================================================
     ae_individual_R( const ae_individual_R &model );
     ae_individual_R( void );
-    ae_individual_R( ae_individual_R* parent );
+    ae_individual_R( ae_individual_R* parent, int32_t id , ae_jumping_mt* prng  );
     ae_individual_R( gzFile backup_file );
 
     // =================================================================

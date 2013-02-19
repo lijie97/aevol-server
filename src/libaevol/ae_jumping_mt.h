@@ -74,6 +74,7 @@ class ae_jumping_mt : public ae_object
     //                             Constructors
     // =================================================================
     ae_jumping_mt( const uint32_t& simple_seed );   // Initialize with a simple uint32_t
+    ae_jumping_mt( uint32_t* seed_table,int& table_size );   // Initialize with a table of seed
     ae_jumping_mt( const ae_jumping_mt &model );    // Create a copy of an existing generator
     ae_jumping_mt( gzFile backup_file );           // Load from a gz backup file
 

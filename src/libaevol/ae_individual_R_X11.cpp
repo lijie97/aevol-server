@@ -62,8 +62,8 @@ ae_individual(), ae_individual_R(), ae_individual_X11()
   //printf("ae_individual_R_X11( void )");
 }
 
-ae_individual_R_X11::ae_individual_R_X11( ae_individual_R_X11* parent ) :
-ae_individual( parent ), ae_individual_R( parent ), ae_individual_X11( parent )
+ae_individual_R_X11::ae_individual_R_X11( ae_individual_R_X11* parent, int32_t id , ae_jumping_mt* prng  ) :
+ae_individual( parent, id , seed ), ae_individual_R( parent, id , prng  ), ae_individual_X11( parent, id , prng  )
 {
   //printf("ae_individual_R_X11( parent )");
 }

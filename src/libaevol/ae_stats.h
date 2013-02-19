@@ -68,7 +68,7 @@ class ae_stats : public ae_object
     //                             Constructors
     // =================================================================
     ae_stats( ae_exp_manager* exp_m, const char * prefix = "stat", bool best_indiv_only = false );
-    ae_stats( ae_exp_manager* exp_m, int32_t num_gener, const char * prefix = "stat", bool best_indiv_only = false, bool delete_old_stats = false );
+    ae_stats( ae_exp_manager* exp_m, int32_t num_gener, const char * prefix = "stat", bool best_indiv_only = false, bool delete_old_stats = true );
 
  
     // =================================================================

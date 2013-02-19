@@ -381,7 +381,8 @@ top_srcdir = @top_srcdir@
 ############################################
 #                 Variables                #
 ############################################
-SUBDIRS = SFMT-src-1.4 . tests
+#SUBDIRS = SFMT-src-1.4 . tests
+SUBDIRS = SFMT-src-1.4
 @WITH_RAEVOL_FALSE@noinst_LIBRARIES = libaevol.a
 
 ########################

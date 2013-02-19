@@ -102,7 +102,7 @@ ae_individual_R::ae_individual_R( void ) : ae_individual()
   }
 }
 
-ae_individual_R::ae_individual_R( ae_individual_R* parent ) : ae_individual( parent )
+ae_individual_R::ae_individual_R( ae_individual_R* parent, int32_t id , ae_jumping_mt* prng  ) : ae_individual( parent, id , prng )
 {
   //~ printf( "ae_individual_R( parent ) : I have %d inherited proteins\n", parent->get_protein_list()->get_nb_elts() );
   
