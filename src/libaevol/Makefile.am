@@ -1,8 +1,7 @@
 ############################################
 #                 Variables                #
 ############################################
-#SUBDIRS = SFMT-src-1.4 . tests
-SUBDIRS = SFMT-src-1.4
+SUBDIRS = SFMT-src-1.4 . tests
 
 ########################
 # Set library to build #
