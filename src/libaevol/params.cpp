@@ -89,15 +89,16 @@ params::params( void )
   _env_axis_separate_segments   = false;
   
   // -------------------------------------------------- Environment variation
-  _env_var_method = NONE;
+  _env_var_method = NO_VAR;
   _env_var_sigma  = 0;
   _env_var_tau    = 0;
   
   // ------------------------------------------------------ Environment noise
-  _env_noise_prob         = 0;
+  _env_noise_method       = NO_NOISE;
   _env_noise_alpha        = 0;
   _env_noise_sigma        = 0;
-  _env_noise_sampling_log = 0;
+  _env_noise_prob         = 0;
+  _env_noise_sampling_log = 0; // TODO: Check default value
 
   // --------------------------------------------------------- Mutation rates
   _point_mutation_rate  = 1e-5;
@@ -137,6 +138,9 @@ params::params( void )
   _align_w_zone_h_len   = 50;
   _align_match_bonus    = 1;
   _align_mismatch_cost  = 2;
+
+  // ----------------------------------------------- Phenotypic Stochasticity
+  _with_stochasticity = false;
 
   // -------------------------------------------------------------- Selection
   _selection_scheme   = RANK_EXPONENTIAL;

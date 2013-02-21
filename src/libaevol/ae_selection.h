@@ -80,7 +80,7 @@ class ae_selection : public ae_object
     inline ae_selection_scheme  get_selection_scheme( void ) const;
     inline double               get_selection_pressure( void ) const;
     inline double* get_prob_reprod(void) const;
-    inline ae_jumping_mt*       get_prng(void) const;
+    //~ inline ae_jumping_mt*       get_prng(void) const;
     
     // --------------------------------------------------------------- Transfer
     inline bool get_with_HT( void ) const;
@@ -226,10 +226,10 @@ class ae_selection : public ae_object
 // =====================================================================
 //                           Getters' definitions
 // =====================================================================
-inline ae_jumping_mt* ae_selection::get_prng(void) const
-{
-  return _prng;
-}
+//~ inline ae_jumping_mt* ae_selection::get_prng(void) const
+//~ {
+//~   return _prng;
+//~ }
 
 inline ae_selection_scheme ae_selection::get_selection_scheme( void ) const
 {

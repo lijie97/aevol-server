@@ -204,7 +204,6 @@ int main( int argc, char* argv[] )
       
       // Change prng in ae_exp_manager, ae_selection and ae_spatial_structure
       printf("Change of the seed in ae_exp_nanager, ae_selection and ae_spatial_structure\t");
-      exp_manager->set_prng( new ae_jumping_mt(*prng) );
       ae_selection* sel = exp_manager->get_exp_s()->get_sel();
       //printf("\n%.5f ", sel->get_prng()->random());
       sel->set_prng( new ae_jumping_mt(*prng) );
@@ -232,29 +231,30 @@ int main( int argc, char* argv[] )
       pop->load( pop_file, verbose );
       printf("Ok\n");
       
-      printf("Change of the prng in each individual\t");
-      int32_t limit = (int32_t)2*pow(10,9);
-      int size = 624;
-      uint32_t indiv_seed[size];
+      #warning PRNG change disabled
+      //~ printf("Change of the prng in each individual\t");
+      //~ int32_t limit = (int32_t)2*pow(10,9);
+      //~ int size = 624;
+      //~ uint32_t indiv_seed[size];
       
-      int32_t   nb_indivs = pop->get_nb_indivs();
-      ae_list_node<ae_individual*>*   indiv_node  = pop->get_indivs()->get_first();
-      ae_individual*  indiv       = NULL;
-      ae_jumping_mt* indiv_prng   = NULL;
-      printf("\n");
-      for ( int32_t i = 0 ; i < nb_indivs ; i++ )
-      {
-        for(int j=0;j<size;j++){
-          indiv_seed[j] = prng->random(limit);
-        }
-        indiv_prng = new ae_jumping_mt(indiv_seed,size);
-        indiv_prng->jump();
+      //~ int32_t   nb_indivs = pop->get_nb_indivs();
+      //~ ae_list_node<ae_individual*>*   indiv_node  = pop->get_indivs()->get_first();
+      //~ ae_individual*  indiv       = NULL;
+      //~ ae_jumping_mt* indiv_prng   = NULL;
+      //~ printf("\n");
+      //~ for ( int32_t i = 0 ; i < nb_indivs ; i++ )
+      //~ {
+        //~ for(int j=0;j<size;j++){
+          //~ indiv_seed[j] = prng->random(limit);
+        //~ }
+        //~ indiv_prng = new ae_jumping_mt(indiv_seed,size);
+        //~ indiv_prng->jump();
         
-        indiv = indiv_node->get_obj();
-        indiv->set_prng(indiv_prng);
-        indiv_node = indiv_node->get_next();
-      }
-      printf("Ok\n");
+        //~ indiv = indiv_node->get_obj();
+        //~ indiv->set_prng(indiv_prng);
+        //~ indiv_node = indiv_node->get_next();
+      //~ }
+      //~ printf("Ok\n");
       
       /*printf("Change of the backup\t");
       char* new_pop_file_name   = NULL;
@@ -372,6 +372,6 @@ void print_help( char* prog_name )
 	printf( "  -p, --pop  Specify population to change\n" );
 	printf( "  -f, --file  Specify file with parameters to change\n" );
 	printf( "Change a population file as specified in the parameter file.\n" );
-    printf( "(default: param_to_change.in)\n\n" );
+  printf( "(default: param_to_change.in)\n\n" );
 }
 

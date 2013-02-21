@@ -152,11 +152,10 @@ void ae_output_manager::load( gzFile setup_file, bool verbose )
   gzread( setup_file, &_big_backup_step,  sizeof(_big_backup_step) );
   
   // Stats
-  //_stats = new ae_stats( _exp_m );
   int32_t num_gener = _exp_m->get_num_gener();
-  if (num_gener > 0)
+  if ( num_gener > 0 )
   {
-    _stats = new ae_stats( _exp_m, num_gener);
+    _stats = new ae_stats( _exp_m, num_gener );
   }
   else
   {
@@ -197,11 +196,10 @@ void ae_output_manager::load( FILE* setup_file, bool verbose )
   fscanf( setup_file, "BIG_BACKUP_STEP %"PRId32"\n", &_big_backup_step );
   
   // Stats
-  _stats = new ae_stats( _exp_m );
   int32_t num_gener = _exp_m->get_num_gener();
-  if (num_gener > 0)
+  if ( num_gener > 0 )
   {
-    _stats = new ae_stats( _exp_m, num_gener);
+    _stats = new ae_stats( _exp_m, num_gener );
   }
   else
   {

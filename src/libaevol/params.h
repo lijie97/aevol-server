@@ -118,9 +118,10 @@ class params : public ae_object
     inline int32_t    get_env_var_tau( void )     const;
     
     // ------------------------------------------------------ Environment noise
-    inline double   get_env_noise_prob( void )  const;
+    inline ae_env_noise get_env_noise_method( void ) const;
     inline double   get_env_noise_alpha( void ) const;
     inline double   get_env_noise_sigma( void ) const;
+    inline double   get_env_noise_prob( void )  const;
     inline int8_t   get_env_noise_sampling_log( void ) const;
 
     // --------------------------------------------------------- Mutation rates
@@ -165,6 +166,9 @@ class params : public ae_object
     inline int16_t get_align_match_bonus( void ) const;
     // Corresponding residues mismatch cost
     inline int16_t get_align_mismatch_cost( void ) const;
+
+    // ----------------------------------------------- Phenotypic Stochasticity
+    inline bool get_with_stochasticity( void ) const;
 
     // -------------------------------------------------------------- Selection
     inline ae_selection_scheme  get_selection_scheme( void ) const;
@@ -273,9 +277,10 @@ class params : public ae_object
     inline void set_env_var_tau( int32_t env_var_tau );
     
     // ------------------------------------------------------ Environment noise
-    inline void set_env_noise_prob( double env_noise_prob );
+    inline void set_env_noise_method( ae_env_noise env_noise_method );
     inline void set_env_noise_alpha( double env_noise_alpha );
     inline void set_env_noise_sigma( double env_noise_sigma );
+    inline void set_env_noise_prob( double env_noise_prob );
     inline void set_env_noise_sampling_log( int32_t env_noise_sampling_log );
 
     // --------------------------------------------------------- Mutation rates
@@ -316,6 +321,9 @@ class params : public ae_object
     inline void set_align_w_zone_h_len( int16_t align_w_zone_h_len );
     inline void set_align_match_bonus( int16_t align_match_bonus );
     inline void set_align_mismatch_cost( int16_t align_mismatch_cost );
+
+    // ----------------------------------------------- Phenotypic Stochasticity
+    inline void set_with_stochasticity( bool with_stoch );
 
     // -------------------------------------------------------------- Selection
     inline void set_selection_scheme( ae_selection_scheme selection_scheme );
@@ -466,9 +474,10 @@ class params : public ae_object
     int32_t     _env_var_tau;
     
     // ------------------------------------------------------ Environment noise
-    double  _env_noise_prob;          // Probability of variation.
+    ae_env_noise _env_noise_method;   // Method... TODO
     double  _env_noise_alpha;         // Alpha value (variance coefficient)
     double  _env_noise_sigma;         // Variance of the noise
+    double  _env_noise_prob;          // Probability of variation.
     int32_t _env_noise_sampling_log;  // Log2 of the number of points in the noise fuzzy_set
 
     // --------------------------------------------------------- Mutation rates
@@ -509,6 +518,9 @@ class params : public ae_object
     int16_t _align_w_zone_h_len;  // Work zone half length
     int16_t _align_match_bonus;   // Corresponding residues match bonus
     int16_t _align_mismatch_cost; // Corresponding residues mismatch cost
+
+    // ----------------------------------------------- Phenotypic Stochasticity
+    bool _with_stochasticity;
 
     // -------------------------------------------------------------- Selection
     ae_selection_scheme  _selection_scheme;
@@ -698,9 +710,9 @@ inline int32_t params::get_env_var_tau( void ) const
 }
 
 // ---------------------------------------------------------- Environment noise
-inline double params::get_env_noise_prob( void )  const
+inline ae_env_noise params::get_env_noise_method( void ) const
 {
-  return _env_noise_prob;
+  return _env_noise_method;
 }
 
 inline double params::get_env_noise_alpha( void ) const
@@ -711,6 +723,11 @@ inline double params::get_env_noise_alpha( void ) const
 inline double params::get_env_noise_sigma( void ) const
 {
   return _env_noise_sigma;
+}
+
+inline double params::get_env_noise_prob( void )  const
+{
+  return _env_noise_prob;
 }
 
 inline int8_t params::get_env_noise_sampling_log( void ) const
@@ -862,6 +879,12 @@ inline int16_t params::get_align_match_bonus( void ) const
 inline int16_t params::get_align_mismatch_cost( void ) const
 {
   return _align_mismatch_cost;
+}
+
+// --------------------------------------------------- Phenotypic Stochasticity
+inline bool params::get_with_stochasticity( void ) const
+{
+  return _with_stochasticity;
 }
 
 // ------------------------------------------------------------------ Selection
@@ -1167,9 +1190,9 @@ inline void params::set_env_var_tau( int32_t env_var_tau )
 }
 
 // ---------------------------------------------------------- Environment noise
-inline void params::set_env_noise_prob( double env_noise_prob )
+inline void params::set_env_noise_method( ae_env_noise env_noise_method )
 {
-  _env_noise_prob = env_noise_prob;
+  _env_noise_method = env_noise_method;
 }
 
 inline void params::set_env_noise_alpha( double env_noise_alpha )
@@ -1180,6 +1203,11 @@ inline void params::set_env_noise_alpha( double env_noise_alpha )
 inline void params::set_env_noise_sigma( double env_noise_sigma )
 {
   _env_noise_sigma = env_noise_sigma;
+}
+
+inline void params::set_env_noise_prob( double env_noise_prob )
+{
+  _env_noise_prob = env_noise_prob;
 }
 
 inline void params::set_env_noise_sampling_log( int32_t env_noise_sampling_log )
@@ -1331,6 +1359,12 @@ inline void params::set_align_match_bonus( int16_t align_match_bonus )
 inline void params::set_align_mismatch_cost( int16_t align_mismatch_cost )
 {
   _align_mismatch_cost = align_mismatch_cost;
+}
+
+// --------------------------------------------------- Phenotypic Stochasticity
+inline void params::set_with_stochasticity( bool with_stoch )
+{
+  _with_stochasticity = with_stoch;
 }
 
 // ------------------------------------------------------------------ Selection

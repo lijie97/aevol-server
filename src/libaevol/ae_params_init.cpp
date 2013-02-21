@@ -86,7 +86,7 @@ ae_params_init::ae_params_init( void )
   _env_axis_separate_segments   = false;
 
   // Environment variation
-  _env_var_method = NONE;
+  _env_var_method = NO_VAR;
   _env_var_sigma  = 0.01;
   _env_var_tau    = 1000;
   
@@ -427,9 +427,9 @@ void ae_params_init::print_to_file( FILE* file )
   fprintf( file, "\nEnvironment variation -----------------------------------\n" );
   switch ( _env_var_method )
   {
-    case NONE :
+    case NO_VAR :
     {
-      fprintf( file, "env_var_method :             NONE\n" );
+      fprintf( file, "env_var_method :             NO_VAR\n" );
       break;
     }
     case AUTOREGRESSIVE_MEAN_VAR :

@@ -77,6 +77,11 @@ ae_population::ae_population( ae_exp_manager* exp_m )
 {
   _exp_m = exp_m;
   
+  #ifndef DISTRIBUTED_PRNG
+    _mut_prng   = NULL;
+    _stoch_prng = NULL;
+  #endif
+  
   // Individuals
   _nb_indivs  = 0;
   _indivs     = new ae_list<ae_individual*>();
@@ -107,7 +112,16 @@ void ae_population::replace_population( ae_list<ae_individual*>* new_indivs )
 void ae_population::save( gzFile backup_file ) const
 {
   // Write population intrinsic data
-  gzwrite( backup_file, &_nb_indivs,                  sizeof(_nb_indivs) );
+  #ifndef DISTRIBUTED_PRNG
+    _mut_prng->save( backup_file );
+    int8_t tmp_with_stoch = _stoch_prng == NULL ? 0 : 1;
+    gzwrite( backup_file, &tmp_with_stoch, sizeof(tmp_with_stoch) );
+    if ( tmp_with_stoch )
+    {
+      _stoch_prng->save( backup_file );
+    }
+  #endif
+  gzwrite( backup_file, &_nb_indivs, sizeof(_nb_indivs) );
   
   // Write individuals
   ae_list_node<ae_individual*>*   indiv_node = _indivs->get_first();
@@ -123,6 +137,15 @@ void ae_population::save( gzFile backup_file ) const
 void ae_population::load( gzFile backup_file, bool verbose )
 {
   // --------------------------------------- Retreive population intrinsic data
+  #ifndef DISTRIBUTED_PRNG
+    _mut_prng   = new ae_jumping_mt( backup_file );
+    int8_t tmp_with_stoch;
+    gzread( backup_file, &tmp_with_stoch, sizeof(tmp_with_stoch) );
+    if ( tmp_with_stoch )
+    {
+      _stoch_prng = new ae_jumping_mt( backup_file );
+    }
+  #endif
   gzread( backup_file, &_nb_indivs, sizeof(_nb_indivs) );
 
   // ----------------------------------------------------- Retreive individuals
@@ -154,6 +177,14 @@ void ae_population::load( gzFile backup_file, bool verbose )
   }
   if ( verbose ) putchar( '\n' );
 }
+  
+#ifndef DISTRIBUTED_PRNG
+  void ae_population::backup_stoch_prng( void )
+  {
+    delete _stoch_prng_bak;
+    _stoch_prng_bak = new ae_jumping_mt( *_stoch_prng );
+  }
+#endif
 
 
 // =================================================================
@@ -279,7 +310,7 @@ ae_individual* ae_population::create_clone( ae_individual* dolly, int32_t id )
 // =================================================================
 ae_individual* ae_population::get_indiv_by_id( int32_t id ) const
 {
-  ae_list_node<ae_individual*>*   indiv_node = _indivs->get_first();
+  ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
   ae_individual*  indiv;
   while ( indiv_node != NULL )
   {

@@ -132,8 +132,8 @@ void ae_exp_manager::write_setup_files( void )
   _exp_s->write_setup_file( exp_s_gzfile );
   _output_m->write_setup_file( out_p_gzfile );
   
-  //_exp_s->write_setup_file( exp_s_txtfile );
-  //_output_m->write_setup_file( out_p_txtfile );
+  _exp_s->write_setup_file( exp_s_txtfile );
+  _output_m->write_setup_file( out_p_txtfile );
   
   // 5) Close files
   gzclose( exp_s_gzfile );
@@ -355,7 +355,6 @@ void ae_exp_manager::load_experiment( char* exp_setup_file_name,
   // 3) Recompute unsaved data
   // ---------------------------------------------------------------------------
   // Evaluate individuals
-  
   _pop->evaluate_individuals( _exp_s->get_env() );
 
   // If the population is spatially structured, then the individuals are saved

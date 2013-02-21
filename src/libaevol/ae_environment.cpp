@@ -85,7 +85,7 @@ ae_environment::ae_environment( void ) :
   
   // Variation management
   _var_prng   = NULL;
-  _var_method = NONE;  
+  _var_method = NO_VAR;  
   _var_sigma  = 0.0;
   _var_tau    = 0;
   
@@ -291,7 +291,7 @@ void ae_environment::save( gzFile backup_file ) const
   int8_t tmp_var_method = _var_method;
   gzwrite( backup_file, &tmp_var_method,  sizeof(tmp_var_method) );
   
-  if ( _var_method != NONE )
+  if ( _var_method != NO_VAR )
   {
     _var_prng->save( backup_file );
     gzwrite( backup_file, &_var_sigma, sizeof(_var_sigma) );
@@ -300,27 +300,27 @@ void ae_environment::save( gzFile backup_file ) const
   
   // ---------------------
   //  Write noise data
-  // -------------------
-  int8_t tmp_is_noise_allowed = is_noise_allowed();
-  gzwrite( backup_file, &tmp_is_noise_allowed,  sizeof(tmp_is_noise_allowed) );
+  // ---------------------
+  int8_t tmp_noise_method = _noise_method;
+  gzwrite( backup_file, &tmp_noise_method, sizeof(tmp_noise_method) );
   
-  if ( tmp_is_noise_allowed )
+  if ( _noise_method != NO_NOISE )
   {
     int8_t tmp_save_cur_noise = ( _cur_noise != NULL );
     gzwrite( backup_file, &tmp_save_cur_noise,  sizeof(tmp_save_cur_noise) );
     if ( tmp_save_cur_noise ) _cur_noise->save( backup_file );
     
     _noise_prng->save( backup_file );
-    gzwrite( backup_file, &_noise_prob,  sizeof(_noise_prob)  );
-    gzwrite( backup_file, &_noise_alpha, sizeof(_noise_alpha) );
-    gzwrite( backup_file, &_noise_sigma, sizeof(_noise_sigma) );
+    gzwrite( backup_file, &_noise_alpha,  sizeof(_noise_alpha) );
+    gzwrite( backup_file, &_noise_sigma,  sizeof(_noise_sigma) );
+    gzwrite( backup_file, &_noise_prob,   sizeof(_noise_prob) );
     gzwrite( backup_file, &_noise_sampling_log, sizeof(_noise_sampling_log) );
   }
   
   // ---------------------------------------------------------------
   //  If needed, keep a copy of the initial state of the gaussians
   // ---------------------------------------------------------------
-  if ( _var_method != NONE || is_noise_allowed() )
+  if ( _var_method != NO_VAR || is_noise_allowed() )
   {
     int16_t nb_gaussians = ( _initial_gaussians == NULL ) ? 0 : _initial_gaussians->get_nb_elts();
     gzwrite( backup_file, &nb_gaussians, sizeof(nb_gaussians) );
@@ -405,7 +405,7 @@ void ae_environment::load( gzFile backup_file )
   gzread( backup_file, &tmp_var_method, sizeof(tmp_var_method) );
   _var_method = (ae_env_var) tmp_var_method;
   
-  if ( _var_method != NONE )
+  if ( _var_method != NO_VAR )
   {
     _var_prng = new ae_jumping_mt( backup_file );
     gzread( backup_file, &_var_sigma, sizeof(_var_sigma) );  
@@ -415,11 +415,12 @@ void ae_environment::load( gzFile backup_file )
   
   // ------------------------------------
   //  Retrieve environmental noise data
-  // ------------------------------------
-  int8_t tmp_is_noise_allowed;
-  gzread( backup_file, &tmp_is_noise_allowed,  sizeof(tmp_is_noise_allowed) );
+  // ------------------------------------);
+  int8_t tmp_noise_method;
+  gzread( backup_file, &tmp_noise_method, sizeof(tmp_noise_method) );
+  _noise_method = (ae_env_noise) tmp_noise_method;
   
-  if ( tmp_is_noise_allowed )
+  if ( _noise_method != NO_NOISE )
   {
     int8_t tmp_cur_noise_saved;
     gzread( backup_file, &tmp_cur_noise_saved,  sizeof(tmp_cur_noise_saved) );
@@ -429,9 +430,9 @@ void ae_environment::load( gzFile backup_file )
     }
     
     _noise_prng = new ae_jumping_mt( backup_file );
-    gzread( backup_file, &_noise_prob,  sizeof(_noise_prob)  );
     gzread( backup_file, &_noise_alpha, sizeof(_noise_alpha) );
     gzread( backup_file, &_noise_sigma, sizeof(_noise_sigma) );
+    gzread( backup_file, &_noise_prob,  sizeof(_noise_prob)  );
     gzread( backup_file, &_noise_sampling_log, sizeof(_noise_sampling_log) );
   }
   
@@ -439,7 +440,7 @@ void ae_environment::load( gzFile backup_file )
   // --------------------------------------------------------------------
   //  If needed, retreive the copy of the initial state of the gaussians
   // --------------------------------------------------------------------
-  if ( _var_method != NONE || is_noise_allowed() )
+  if ( _var_method != NO_VAR || is_noise_allowed() )
   {
     int16_t nb_gaussians;
     gzread( backup_file, &nb_gaussians, sizeof(nb_gaussians) );
@@ -516,7 +517,7 @@ void ae_environment::build( void )
   // -------------------------------------------------------------------
   //  5) If needed, create a copy of the initial state of the gaussians
   // -------------------------------------------------------------------
-  if ( _initial_gaussians == NULL && (_var_method != NONE || is_noise_allowed()) )
+  if ( _initial_gaussians == NULL && (_var_method != NO_VAR || is_noise_allowed()) )
   {
     _initial_gaussians = new ae_list<ae_gaussian*>();
     
@@ -543,8 +544,7 @@ void ae_environment::build( void )
  */
 void ae_environment::apply_noise( void )
 {
-  
-  if ( _noise_prob > 0 && _noise_prng->random() < _noise_prob )
+  if ( _noise_method != NO_NOISE && _noise_prng->random() < _noise_prob )
   {
     // =====================================================================================
     // Compute a fractal noise in a new fuzzy set and apply it to the (unnoised) environment

@@ -259,9 +259,9 @@ void ae_dna::do_small_mutations( void )
   // insertions we perform on the genome follows a binomial law B(n, p), with 
   // n = genome length.
   
-  int32_t nb_swi = _indiv->_prng->binomial_random( _length, _indiv->get_point_mutation_rate()  );
-  int32_t nb_ins = _indiv->_prng->binomial_random( _length, _indiv->get_small_insertion_rate() );
-  int32_t nb_del = _indiv->_prng->binomial_random( _length, _indiv->get_small_deletion_rate()  );
+  int32_t nb_swi = _indiv->_mut_prng->binomial_random( _length, _indiv->get_point_mutation_rate()  );
+  int32_t nb_ins = _indiv->_mut_prng->binomial_random( _length, _indiv->get_small_insertion_rate() );
+  int32_t nb_del = _indiv->_mut_prng->binomial_random( _length, _indiv->get_small_deletion_rate()  );
   int32_t nb_mut = nb_swi + nb_ins + nb_del;
 
 
@@ -291,7 +291,7 @@ void ae_dna::do_small_mutations( void )
 
   for ( int32_t i = nb_mut ; i >= 1 ; i-- ) 
   {
-    random_value = _indiv->_prng->random( i );
+    random_value = _indiv->_mut_prng->random( i );
     
     if ( random_value < nb_swi )
     {
@@ -342,10 +342,10 @@ void ae_dna::do_rearrangements( void )
   // duplications we perform on the genome follows a binomial law B(n, p), with 
   // n = genome length.
   
-  int32_t nb_dupl  = _indiv->_prng->binomial_random( _length, _indiv->get_duplication_rate() );
-  int32_t nb_del   = _indiv->_prng->binomial_random( _length, _indiv->get_deletion_rate() );
-  int32_t nb_trans = _indiv->_prng->binomial_random( _length, _indiv->get_translocation_rate() );
-  int32_t nb_inv   = _indiv->_prng->binomial_random( _length, _indiv->get_inversion_rate() );
+  int32_t nb_dupl  = _indiv->_mut_prng->binomial_random( _length, _indiv->get_duplication_rate() );
+  int32_t nb_del   = _indiv->_mut_prng->binomial_random( _length, _indiv->get_deletion_rate() );
+  int32_t nb_trans = _indiv->_mut_prng->binomial_random( _length, _indiv->get_translocation_rate() );
+  int32_t nb_inv   = _indiv->_mut_prng->binomial_random( _length, _indiv->get_inversion_rate() );
   int32_t nb_rear  = nb_dupl + nb_del + nb_trans + nb_inv;
   
 
@@ -374,7 +374,7 @@ void ae_dna::do_rearrangements( void )
 
   for ( int32_t i = nb_rear ; i >= 1 ; i-- )
   {
-    random_value = _indiv->_prng->random( i );
+    random_value = _indiv->_mut_prng->random( i );
     
     if ( random_value < nb_dupl ) 
     {
@@ -453,8 +453,8 @@ void ae_dna::do_rearrangements_with_align( void )
     /////////////////////////////////////////////////
     // 1) Draw a random sense (direct or indirect) //
     /////////////////////////////////////////////////
-    direct_sense  = (_indiv->_prng->random() < 0.5); // Determine whether we look for a direct or indirect alignment
-    rand1         = _indiv->_prng->random();         // Determine the type of rearrangement to be done. This is an 
+    direct_sense  = (_indiv->_mut_prng->random() < 0.5); // Determine whether we look for a direct or indirect alignment
+    rand1         = _indiv->_mut_prng->random();         // Determine the type of rearrangement to be done. This is an 
                                                             // anticipation on 4) for optimization purpose (save computation
                                                             // time if the type of rear is "none"
     
@@ -464,7 +464,7 @@ void ae_dna::do_rearrangements_with_align( void )
     //////////////////////////////////////////////////////////////////////////////////
     if ( ae_align::align_fun_shape == LINEAR )
     {
-      needed_score = (int16_t) ceil( ae_align::align_lin_min + _indiv->_prng->random() * ( ae_align::align_lin_max - ae_align::align_lin_min ) );
+      needed_score = (int16_t) ceil( ae_align::align_lin_min + _indiv->_mut_prng->random() * ( ae_align::align_lin_max - ae_align::align_lin_min ) );
     }
     else
     {
@@ -472,7 +472,7 @@ void ae_dna::do_rearrangements_with_align( void )
       // prob = 1 / ( 1 + exp( -(score-mean)/lambda ) )
       // The score needed for a rearrangement to take place with a given random drawing is hence
       // needed_score = ceil( -lambda * log( 1/rand - 1 ) + mean )
-      needed_score = (int16_t) ceil( - ae_align::align_sigm_lambda * log( 1/_indiv->_prng->random() - 1 ) + ae_align::align_sigm_mean );
+      needed_score = (int16_t) ceil( - ae_align::align_sigm_lambda * log( 1/_indiv->_mut_prng->random() - 1 ) + ae_align::align_sigm_mean );
       if ( needed_score < 0 ) needed_score = 0;
       
       //~ <DEBUG>
@@ -483,8 +483,8 @@ void ae_dna::do_rearrangements_with_align( void )
     }
     
     // Determine where to look for an alignment (draw seeds)
-    seed1 = _indiv->_prng->random( _length );
-    seed2 = _indiv->_prng->random( _length );
+    seed1 = _indiv->_mut_prng->random( _length );
+    seed2 = _indiv->_mut_prng->random( _length );
     
     
     if ( direct_sense )
@@ -632,20 +632,20 @@ void ae_dna::do_rearrangements_with_align( void )
             ; nb_pairs > 0
             ; nb_pairs-- )
         {
-          direct_sense = (_indiv->_prng->random() < 0.5);
+          direct_sense = (_indiv->_mut_prng->random() < 0.5);
           
           if ( ae_align::align_fun_shape == LINEAR )
           {
-            needed_score_2  = (int16_t) ceil(  ae_align::align_lin_min + _indiv->_prng->random() * ( ae_align::align_lin_max - ae_align::align_lin_min ) );
+            needed_score_2  = (int16_t) ceil(  ae_align::align_lin_min + _indiv->_mut_prng->random() * ( ae_align::align_lin_max - ae_align::align_lin_min ) );
           }
           else
           {
-            needed_score_2 = (int16_t) ceil( - ae_align::align_sigm_lambda * log( 1/_indiv->_prng->random() - 1 ) + ae_align::align_sigm_mean );
+            needed_score_2 = (int16_t) ceil( - ae_align::align_sigm_lambda * log( 1/_indiv->_mut_prng->random() - 1 ) + ae_align::align_sigm_mean );
             if ( needed_score_2 < 0 ) needed_score_2 = 0;
           }
 
-          seed1 = _indiv->_prng->random( _length );
-          seed2 = _indiv->_prng->random( segment_length );
+          seed1 = _indiv->_mut_prng->random( _length );
+          seed2 = _indiv->_mut_prng->random( segment_length );
           
           if ( direct_sense )
           {
@@ -802,7 +802,7 @@ ae_mutation* ae_dna::do_switch( void )
 {
   ae_mutation* mut = NULL;
   
-  int32_t pos = _indiv->_prng->random( _length );
+  int32_t pos = _indiv->_mut_prng->random( _length );
 
   if ( do_switch( pos ) )
   {
@@ -822,7 +822,7 @@ ae_mutation* ae_dna::do_small_insertion( void )
   ae_mutation* mut = NULL;
   
   // Determine the position and size of the small insertion
-  int32_t pos = _indiv->_prng->random( _length );
+  int32_t pos = _indiv->_mut_prng->random( _length );
   int16_t nb_insert;
   if ( _indiv->get_max_indel_size() == 1 )
   {
@@ -830,7 +830,7 @@ ae_mutation* ae_dna::do_small_insertion( void )
   }
   else
   {
-    nb_insert = 1 + _indiv->_prng->random( _indiv->get_max_indel_size() ); 
+    nb_insert = 1 + _indiv->_mut_prng->random( _indiv->get_max_indel_size() ); 
     // <nb_insert> must be in [1 ; max_indel_size]
   }
   
@@ -857,7 +857,7 @@ ae_mutation* ae_dna::do_small_insertion( void )
   char  inserted_char;
   for ( int16_t j = 0 ; j < nb_insert ; j++ )
   {
-    inserted_char = (char) '0' + _indiv->_prng->random( NB_BASE );
+    inserted_char = (char) '0' + _indiv->_mut_prng->random( NB_BASE );
     inserted_seq[j] = inserted_char;
   }
   inserted_seq[nb_insert] = '\0';
@@ -884,7 +884,7 @@ ae_mutation* ae_dna::do_small_deletion( void )
   ae_mutation* mut = NULL;
   
   // Determine the position and size of the small deletion
-  int32_t pos = _indiv->_prng->random( _length );
+  int32_t pos = _indiv->_mut_prng->random( _length );
   int16_t nb_del;
   if ( _indiv->get_max_indel_size() == 1 )
   {
@@ -892,7 +892,7 @@ ae_mutation* ae_dna::do_small_deletion( void )
   }
   else
   {
-    nb_del = 1 + _indiv->_prng->random( _indiv->get_max_indel_size() );
+    nb_del = 1 + _indiv->_mut_prng->random( _indiv->get_max_indel_size() );
     // <nb_del> must be in [1 ; max_indel_size]
   }
   
@@ -1020,9 +1020,9 @@ ae_mutation* ae_dna::do_duplication( void )
   ae_mutation* mut = NULL;
   
   int32_t pos_1, pos_2, pos_3;
-  pos_1 = _indiv->_prng->random( _length );
-  pos_2 = _indiv->_prng->random( _length );
-  pos_3 = _indiv->_prng->random( _length );
+  pos_1 = _indiv->_mut_prng->random( _length );
+  pos_2 = _indiv->_mut_prng->random( _length );
+  pos_3 = _indiv->_mut_prng->random( _length );
   
   // Remember the length of the segment to be duplicated and of the former genome
   int32_t segment_length      = ae_utils::mod( pos_2 - pos_1 - 1, _length ) + 1;
@@ -1076,8 +1076,8 @@ ae_mutation* ae_dna::do_deletion( void )
   ae_mutation* mut = NULL;
   
   int32_t pos_1, pos_2;
-  pos_1 = _indiv->_prng->random( _length );
-  pos_2 = _indiv->_prng->random( _length );
+  pos_1 = _indiv->_mut_prng->random( _length );
+  pos_2 = _indiv->_mut_prng->random( _length );
   
   // Remember the length of the segment to be duplicated and of the genome before the deletion
   int32_t segment_length      = ae_utils::mod( pos_2 - pos_1 - 1, _length ) + 1;
@@ -1146,12 +1146,12 @@ ae_mutation* ae_dna::do_translocation( void )
     int32_t total_amount_of_dna = indiv->get_amount_of_dna();
     
     // 1) What sequence are we translocating?
-    pos_1_rel = _indiv->_prng->random( _length );
-    pos_2_rel = _indiv->_prng->random( _length );
+    pos_1_rel = _indiv->_mut_prng->random( _length );
+    pos_2_rel = _indiv->_mut_prng->random( _length );
     
     int32_t segment_length = ae_utils::mod( pos_2_rel - pos_1_rel, _length );
     
-    pos_3_rel = ae_utils::mod( pos_1_rel + _indiv->_prng->random( segment_length ), _length );
+    pos_3_rel = ae_utils::mod( pos_1_rel + _indiv->_mut_prng->random( segment_length ), _length );
     
     if ( _gen_unit == chromosome )
     {
@@ -1168,7 +1168,7 @@ ae_mutation* ae_dna::do_translocation( void )
     
     
     // 2) Where are we translocating it?
-    pos_4 = _indiv->_prng->random( total_amount_of_dna - segment_length );
+    pos_4 = _indiv->_mut_prng->random( total_amount_of_dna - segment_length );
     
     if ( _gen_unit == chromosome )
     {
@@ -1226,7 +1226,7 @@ ae_mutation* ae_dna::do_translocation( void )
       }      
     }
     
-    invert = ( _indiv->_prng->random( 2 ) == 0 );
+    invert = ( _indiv->_mut_prng->random( 2 ) == 0 );
     
     if ( ( _gen_unit == chromosome && pos_4 >= chrom_length ) || // If inter GU translocation
          ( _gen_unit == plasmid && pos_4 < chrom_length ) )
@@ -1296,8 +1296,8 @@ ae_mutation* ae_dna::do_translocation( void )
   }
   else // ( ! ae_common::params->get_allow_plasmids() )
   {
-    pos_1 = _indiv->_prng->random( _length );
-    pos_2 = _indiv->_prng->random( _length );
+    pos_1 = _indiv->_mut_prng->random( _length );
+    pos_2 = _indiv->_mut_prng->random( _length );
     if ( pos_1 == pos_2 ) return NULL;
     
     // As it will be seen in do_translocation( int32_t pos_1, int32_t pos_2, int32_t pos_3, int32_t pos_4, bool invert ),
@@ -1308,13 +1308,13 @@ ae_mutation* ae_dna::do_translocation( void )
     segment_length = pos_2 - pos_1;
     
     // Generate a position between pos_1 and pos_2
-    pos_3 = pos_1 + _indiv->_prng->random( segment_length );
+    pos_3 = pos_1 + _indiv->_mut_prng->random( segment_length );
     
     // Generate a position that is NOT between pos_1 and pos_2
-    pos_4 = _indiv->_prng->random( _length - segment_length );
+    pos_4 = _indiv->_mut_prng->random( _length - segment_length );
     if ( pos_4 >= pos_1 ) pos_4 += segment_length;
     
-    invert = ( _indiv->_prng->random( 2 ) == 0 );
+    invert = ( _indiv->_mut_prng->random( 2 ) == 0 );
     
     if ( do_translocation( pos_1, pos_2, pos_3, pos_4, invert ) )
     {
@@ -1348,8 +1348,8 @@ ae_mutation* ae_dna::do_inversion( void )
   
   int32_t pos_1, pos_2;
   int32_t segment_length;
-  pos_1 = _indiv->_prng->random( _length );
-  pos_2 = _indiv->_prng->random( _length );
+  pos_1 = _indiv->_mut_prng->random( _length );
+  pos_2 = _indiv->_mut_prng->random( _length );
   
   if ( pos_1 == pos_2 ) return NULL; // Invert everything <=> Invert nothing!
   if ( pos_1 >  pos_2 ) ae_utils::exchange( pos_1, pos_2 ); // Invert the segment that don't contain OriC
@@ -1392,7 +1392,7 @@ ae_mutation* ae_dna::do_insertion( const char* seq_to_insert, int32_t seq_length
   }
   
   // Where to insert the sequence
-  int32_t pos = _indiv->_prng->random( _length );
+  int32_t pos = _indiv->_mut_prng->random( _length );
   
   if ( do_insertion( pos, seq_to_insert, seq_length ) )
   {
@@ -2330,7 +2330,7 @@ ae_vis_a_vis* ae_dna::search_alignment( ae_dna* chrom2, int32_t& nb_pairs, ae_se
     ///////////////////////////////////////
     if ( sense == BOTH_SENSES )
     {
-      cur_sense = (_indiv->_prng->random() < 0.5) ? DIRECT : INDIRECT;
+      cur_sense = (_indiv->_mut_prng->random() < 0.5) ? DIRECT : INDIRECT;
     }
     
     /////////////////////////////////////////////////////
@@ -2338,7 +2338,7 @@ ae_vis_a_vis* ae_dna::search_alignment( ae_dna* chrom2, int32_t& nb_pairs, ae_se
     /////////////////////////////////////////////////////
     if ( ae_align::align_fun_shape == LINEAR )
     {
-      needed_score = (int16_t) ceil( ae_align::align_lin_min + _indiv->_prng->random() * ( ae_align::align_lin_max - ae_align::align_lin_min ) );
+      needed_score = (int16_t) ceil( ae_align::align_lin_min + _indiv->_mut_prng->random() * ( ae_align::align_lin_max - ae_align::align_lin_min ) );
     }
     else
     {
@@ -2346,15 +2346,15 @@ ae_vis_a_vis* ae_dna::search_alignment( ae_dna* chrom2, int32_t& nb_pairs, ae_se
       // prob = 1 / ( 1 + exp( -(score-mean_score)/lambda ) )
       // The score needed for a rearrangement to take place with a given random drawing is hence
       // needed_score = ceil( -lambda * log( 1/rand - 1 ) + mean )
-      needed_score = (int16_t) ceil( - ae_align::align_sigm_lambda * log( 1/_indiv->_prng->random() - 1 ) + ae_align::align_sigm_mean );
+      needed_score = (int16_t) ceil( - ae_align::align_sigm_lambda * log( 1/_indiv->_mut_prng->random() - 1 ) + ae_align::align_sigm_mean );
       if ( needed_score < 0 ) needed_score = 0;
     }
     
     ///////////////////////////////////////////////////////////////
     // 3) Determine where to look for an alignement (draw seeds) //
     ///////////////////////////////////////////////////////////////
-    int32_t seed1 = _indiv->_prng->random( _length );
-    int32_t seed2 = _indiv->_prng->random( chrom2->get_length() );
+    int32_t seed1 = _indiv->_mut_prng->random( _length );
+    int32_t seed2 = _indiv->_mut_prng->random( chrom2->get_length() );
     
     ////////////////////////////////////////////////////////////////////
     // 3) Test the existence of an alignment with a high enough score //

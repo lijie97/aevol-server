@@ -81,7 +81,8 @@ class ae_individual : public ae_object
     //                             Constructors
     // =================================================================
     ae_individual(  ae_exp_manager* exp_m,
-                    ae_jumping_mt* prng, 
+                    ae_jumping_mt* mut_prng,
+                    ae_jumping_mt* stoch_prng,
                     ae_params_mut* param_mut,
                     double w_max,
                     int32_t min_genome_length,
@@ -93,7 +94,8 @@ class ae_individual : public ae_object
   
     ae_individual( ae_exp_manager* exp_m, gzFile backup_file );
     ae_individual( const ae_individual &model );
-    ae_individual( ae_individual* const parent, int32_t id , ae_jumping_mt* prng );
+    ae_individual(  ae_individual* const parent, int32_t id,
+                    ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng );
     //~ ae_individual( char* organism_file_name );
     //~ ae_individual( char* genome, int32_t genome_size, int32_t age = 0 );
 
@@ -106,15 +108,16 @@ class ae_individual : public ae_object
     //                        Accessors: Getters
     // =================================================================
     inline ae_exp_manager*  get_exp_m( void ) const;
-    inline int16_t          get_nb_genetic_units( void )                                  const;
-    inline int32_t          get_amount_of_dna( void )                                     const;
-    inline ae_genetic_unit* get_genetic_unit( int16_t num_unit )                          const;
-    inline double           get_dist_to_target_by_feature( ae_env_axis_feature feature )  const;
-    inline double           get_fitness( void )                                           const;
-    inline double           get_fitness_by_feature( ae_env_axis_feature feature )         const;
-    inline ae_grid_cell*    get_grid_cell( void )                                         const;
-    inline bool             get_placed_in_population()                                    const;
-    inline ae_jumping_mt*   get_prng( void)                                               const;
+    inline int16_t          get_nb_genetic_units( void ) const;
+    inline int32_t          get_amount_of_dna( void ) const;
+    inline ae_genetic_unit* get_genetic_unit( int16_t num_unit ) const;
+    inline double           get_dist_to_target_by_feature( ae_env_axis_feature feature ) const;
+    inline double           get_fitness( void ) const;
+    inline double           get_fitness_by_feature( ae_env_axis_feature feature ) const;
+    inline ae_grid_cell*    get_grid_cell( void ) const;
+    inline bool             get_placed_in_population( void ) const;
+    inline ae_jumping_mt*   get_mut_prng( void ) const;
+    inline ae_jumping_mt*   get_stoch_prng( void ) const;
     
     inline ae_list<ae_genetic_unit*>* get_genetic_unit_list( void )     const;
     inline const char* get_genetic_unit_sequence   ( int16_t num_unit ) const;
@@ -163,6 +166,10 @@ class ae_individual : public ae_object
     inline double get_deletion_proportion( void ) const;
     inline double get_translocation_proportion( void ) const;
     inline double get_inversion_proportion( void ) const;
+    
+    
+    // ----------------------------------------------- Phenotypic stochasticity
+    inline bool get_with_stochasticity( void ) const;
     
     // Statistical data
     inline int32_t  get_total_genome_size( void ); // TODO: duplicate with get_amount_of_dna?
@@ -229,8 +236,11 @@ class ae_individual : public ae_object
     inline void set_deletion_proportion( double deletion_proportion);
     inline void set_translocation_proportion( double translocation_proportion);
     inline void set_inversion_proportion( double inversion_proportion);
+    
+    // ----------------------------------------------- Phenotypic stochasticity
+    inline void set_with_stochasticity( bool with_stoch );
 
-    inline void set_prng( ae_jumping_mt* prng );
+    //~ inline void set_prng( ae_jumping_mt* prng );
     
     
     // =================================================================
@@ -259,8 +269,6 @@ class ae_individual : public ae_object
     void compute_statistical_data();
     void compute_non_coding( void );
     /*void compute_modularity( void );*/
-    
-    inline void do_prng_jump( void );
 
     virtual void save( gzFile backup_file ) const;
     
@@ -324,7 +332,8 @@ class ae_individual : public ae_object
     int32_t _age;
     
     // Random number generator
-    ae_jumping_mt* _prng;
+    ae_jumping_mt* _mut_prng;
+    ae_jumping_mt* _stoch_prng;
   
     // Individual ID and rank of the individual in the population
     // WARNING : The ID is no longer corresponding to the rank of the individual.
@@ -381,6 +390,9 @@ class ae_individual : public ae_object
     
     // Mutation rates etc...
     ae_params_mut* _mut_params;
+    
+    // ----------------------------------------------- Phenotypic stochasticity
+    bool _with_stochasticity;
     
     // Artificial chemistry
     double _w_max;
@@ -488,9 +500,20 @@ inline ae_exp_manager* ae_individual::get_exp_m( void ) const
   return _exp_m;
 }
 
-inline ae_jumping_mt* ae_individual::get_prng( void ) const
+/*!
+  TODO
+*/
+inline ae_jumping_mt* ae_individual::get_mut_prng( void ) const
 {
-  return _prng;
+  return _mut_prng;
+}
+
+/*!
+  TODO
+*/
+inline ae_jumping_mt* ae_individual::get_stoch_prng( void ) const
+{
+  return _stoch_prng;
 }
 
 /*!
@@ -1033,6 +1056,14 @@ inline double ae_individual::get_inversion_proportion( void ) const
   return _mut_params->get_inversion_proportion();
 }
 
+/*!
+  TODO
+*/
+inline bool ae_individual::get_with_stochasticity( void ) const
+{
+  return _with_stochasticity;
+}
+
 // Genome size constraints
 /*!
   TODO
@@ -1213,10 +1244,15 @@ inline void ae_individual::set_inversion_proportion( double inversion_proportion
   _mut_params->set_inversion_proportion(inversion_proportion);
 }
 
-inline void ae_individual::set_prng( ae_jumping_mt* prng )
+inline void ae_individual::set_with_stochasticity( bool with_stoch )
 {
-  _prng = prng;
+  _with_stochasticity = with_stoch;
 }
+
+//~ inline void ae_individual::set_prng( ae_jumping_mt* prng )
+//~ {
+//~   _prng = prng;
+//~ }
 
 // =====================================================================
 //                       Inline functions' definition
@@ -1250,11 +1286,6 @@ void ae_individual::do_transcription_translation_folding( void )
   do_folding();
   
   make_protein_list();
-}
-
-inline void ae_individual::do_prng_jump( void )
-{
-  _prng->jump();
 }
 
 #ifdef DEBUG

@@ -46,9 +46,15 @@ enum ae_env_axis_feature
 
 enum ae_env_var
 {
-  NONE                    = 0,
+  NO_VAR                  = 0,
   AUTOREGRESSIVE_MEAN_VAR = 1,
   LOCAL_GAUSSIANS_VAR     = 2
+};
+
+enum ae_env_noise
+{
+  NO_NOISE  = 0,
+  FRACTAL   = 1
 };
 
 enum ae_init_method

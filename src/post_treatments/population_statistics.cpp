@@ -214,18 +214,18 @@ void population_statistics::compute_population_f_nu(ae_exp_manager* exp_manager)
 	// ------------------------------------
 	      
   #ifdef __NO_X
-	#ifndef __REGUL
-	initial_indiv = new ae_individual(tmpind, current_index, 0);
-	#else
-	initial_indiv = new ae_individual_R( (dynamic_cast<ae_individual_R*>(tmpind)), current_index, 0 );
-	#endif
-      #elif defined __X11
-	#ifndef __REGUL
-	initial_indiv = new ae_individual_X11( (dynamic_cast<ae_individual_X11*>(tmpind)), current_index, 0 );
-	#else
-	initial_indiv = new ae_individual_R_X11( (dynamic_cast<ae_individual_R_X11*>(tmpind)), current_index,0 );
-	#endif
-      #endif
+    #ifndef __REGUL
+      initial_indiv = new ae_individual( tmpind, current_index, NULL, NULL );
+    #else
+      initial_indiv = new ae_individual_R( (dynamic_cast<ae_individual_R*>(tmpind)), current_index, NULL, NULL );
+    #endif
+  #elif defined __X11
+    #ifndef __REGUL
+      initial_indiv = new ae_individual_X11( (dynamic_cast<ae_individual_X11*>(tmpind)), current_index, NULL, NULL );
+    #else
+      initial_indiv = new ae_individual_R_X11( (dynamic_cast<ae_individual_R_X11*>(tmpind)), current_index, NULL, NULL );
+    #endif
+  #endif
 
 	initial_indiv->evaluate(exp_manager->get_env());
 	//printf("found indiv %"PRId32" with fitness %le (rank %d)\n", tmpind->get_index_in_population(), tmpind->get_fitness(), current_rank);

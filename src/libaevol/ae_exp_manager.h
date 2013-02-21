@@ -136,7 +136,6 @@ class ae_exp_manager : public ae_object
     // =================================================================
     inline void set_first_gener( int32_t first_gener );
     inline void set_nb_gener( int32_t nb_gener );
-    inline void set_prng( ae_jumping_mt* prng );
     //~ inline void set_min_genome_length( int32_t min_genome_length );
     //~ inline void set_max_genome_length( int32_t max_genome_length );
 
@@ -191,9 +190,6 @@ class ae_exp_manager : public ae_object
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    // Pseudo-Random Number Generator
-    ae_jumping_mt* _prng;
-    
     // Population, Experimental setup and output manager
     ae_population*      _pop;
     ae_exp_setup*       _exp_s;
@@ -389,11 +385,6 @@ inline void ae_exp_manager::set_first_gener( int32_t first_gener )
 inline void ae_exp_manager::set_nb_gener( int32_t nb_gener )
 {
   _last_gener = _first_gener + nb_gener;
-}
-
-inline void ae_exp_manager::set_prng( ae_jumping_mt* prng )
-{
-  _prng = prng;
 }
 
 // Global constraints

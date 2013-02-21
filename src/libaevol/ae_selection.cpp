@@ -106,7 +106,6 @@ ae_selection::ae_selection( ae_exp_manager* exp_m )
   _use_secretion = false;
   _secretion_contrib_to_fitness = 0.0;
   _secretion_cost               = 0.0;
-  
 }
 
 
@@ -210,6 +209,12 @@ void ae_selection::step_to_next_generation( void )
     step_to_next_generation_grid();
     return;
   }
+  
+  
+  if ( _exp_m->get_pop()->get_indiv_by_id( 0 )->get_with_stochasticity() )
+  {
+    _exp_m->get_pop()->backup_stoch_prng();
+  }
 
 
   // -------------------------------------------------------------------------------
@@ -228,8 +233,8 @@ void ae_selection::step_to_next_generation( void )
   // --------------------------------------------------------------------------------------------------------
   // 2) Simulate the stochastic process by a multinomial drawing (based upon the probabilities computed in 1)
   // --------------------------------------------------------------------------------------------------------
-  int32_t   nb_indivs = _exp_m->get_pop()->get_nb_indivs();
-  int32_t*  nb_offsprings = new int32_t[nb_indivs];
+  int32_t  nb_indivs = _exp_m->get_pop()->get_nb_indivs();
+  int32_t* nb_offsprings = new int32_t[nb_indivs];
   _prng->multinomial_drawing( nb_offsprings, _prob_reprod, nb_indivs, nb_indivs );
 
   // ------------------------------------------------------------------------------
@@ -251,8 +256,11 @@ void ae_selection::step_to_next_generation( void )
     
     for ( int32_t j = 0 ; j < nb_offsprings[i] ; j++ )
     {
-      // For all but the first time, Take a jump in the PRNG
-      if ( j > 0 ) indiv->do_prng_jump();
+      #ifdef DISTRIBUTED_PRNG
+        #error Not implemented yet !
+        // For all but the first time, Take a jump in the PRNG
+        if ( j > 0 ) indiv->do_prng_jump();
+      #endif
       
       // Create a new individual (evaluated at the end of do_replication)
       new_generation->add( do_replication( indiv, index_new_indiv++ ) );
@@ -362,7 +370,10 @@ void ae_selection::step_to_next_generation_grid( void )
     for ( int16_t y = 0 ; y < grid_height ; y++ )
     {
       pop_grid[x][y]->set_individual( do_replication( new_indiv_grid[x][y], -1, x, y ) );
-      new_indiv_grid[x][y]->do_prng_jump();
+      #ifdef DISTRIBUTED_PRNG
+        #error Not implemented yet !
+        new_indiv_grid[x][y]->do_prng_jump();
+      #endif
       new_generation->add( pop_grid[x][y]->get_individual() );
     }
   }
@@ -426,7 +437,9 @@ void ae_selection::step_to_next_generation_grid( void )
         
         if ((new_x != x)||(new_y != y))
         {
-          double ptransfer = _prob_plasmid_HT + _tune_donor_ability * _spatial_structure->get_indiv_at(x, y)->get_fitness_by_feature(DONOR) +  _tune_recipient_ability * _spatial_structure->get_indiv_at(new_x, new_y)->get_fitness_by_feature(RECIPIENT) ;
+          double ptransfer = _prob_plasmid_HT + _tune_donor_ability
+                            * _spatial_structure->get_indiv_at(x, y)->get_fitness_by_feature(DONOR)
+                            + _tune_recipient_ability * _spatial_structure->get_indiv_at(new_x, new_y)->get_fitness_by_feature(RECIPIENT) ;
           if (_prng->random() < ptransfer) // will x give a plasmid to n ?
           {
             if ( _swap_GUs )
@@ -535,8 +548,8 @@ void ae_selection::write_setup_file( gzFile exp_setup_file ) const
 
 /*!
 */
-//void ae_selection::write_setup_file( FILE* exp_setup_file ) const
-//{
+void ae_selection::write_setup_file( FILE* exp_setup_file ) const
+{
   /*if ( _prng == NULL )
   {
     printf( "%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__ );
@@ -553,6 +566,9 @@ void ae_selection::write_setup_file( gzFile exp_setup_file ) const
 
   // --------------------------- Probability of reproduction of each organism
   gzwrite( exp_setup_file, &_prob_reprod_previous_best, sizeof(_prob_reprod_previous_best) );
+  
+  // ------------------------------------------------- Phenotypic stochasticity
+  gzwrite( exp_setup_file, &_with_stochasticity, sizeof(_with_stochasticity) );
   
   // --------------------------------------------------------------- Transfer
   int8_t tmp_with_HT = _with_HT;
@@ -585,7 +601,7 @@ void ae_selection::write_setup_file( gzFile exp_setup_file ) const
     gzwrite( exp_setup_file, &_secretion_contrib_to_fitness, sizeof(_secretion_contrib_to_fitness) );
     gzwrite( exp_setup_file, &_secretion_cost, sizeof(_secretion_cost) );
   }*/
-//}
+}
 
 void ae_selection::load( gzFile exp_setup_file, gzFile sp_struct_file )
 {
@@ -662,6 +678,9 @@ void ae_selection::load( FILE* exp_setup_file, gzFile sp_struct_file )
 
   // --------------------------- Probability of reproduction of each organism
   gzread( exp_setup_file, &_prob_reprod_previous_best, sizeof(_prob_reprod_previous_best) );
+  
+  // ------------------------------------------------- Phenotypic stochasticity
+  gzwrite( exp_setup_file, &_with_stochasticity, sizeof(_with_stochasticity) );
   
   // --------------------------------------------------------------- Transfer
   int8_t tmp_with_HT;
@@ -875,31 +894,21 @@ void ae_selection::compute_local_prob_reprod( void )
 ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t index, int16_t x /*= 0*/, int16_t y /*= 0*/ )
 {
   ae_individual* new_indiv = NULL;
-  
-  // Get a new seed for the new individual
-  int32_t limit = (int32_t)2*pow(10,9);
-  int size = 624;
-  uint32_t seed[size];
-  for(int j=0;j<size;j++){
-    seed[j] = _prng->random(limit);
-  }
-  ae_jumping_mt* indiv_prng = new ae_jumping_mt(seed,size);
-  indiv_prng->jump();
 
   // ===========================================================================
   //  1) Copy parent
   // ===========================================================================
   #ifdef __NO_X
     #ifndef __REGUL
-      new_indiv = new ae_individual( parent, index, indiv_prng);
+      new_indiv = new ae_individual( parent, index, parent->get_mut_prng(), parent->get_stoch_prng() );
     #else
-      new_indiv = new ae_individual_R( dynamic_cast<ae_individual_R*>(parent), index, indiv_prng );
+      new_indiv = new ae_individual_R( dynamic_cast<ae_individual_R*>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
     #endif
   #elif defined __X11
     #ifndef __REGUL
-      new_indiv = new ae_individual_X11( dynamic_cast<ae_individual_X11*>(parent), index, indiv_prng );
+      new_indiv = new ae_individual_X11( dynamic_cast<ae_individual_X11*>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
     #else
-      new_indiv = new ae_individual_R_X11( dynamic_cast<ae_individual_R_X11*>(parent), index, indiv_prng );
+      new_indiv = new ae_individual_R_X11( dynamic_cast<ae_individual_R_X11*>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
     #endif
   #endif
   

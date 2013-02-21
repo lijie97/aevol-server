@@ -167,7 +167,7 @@ int main( int argc, char* argv[] )
       if ( strcmp( line->words[1], "none" ) == 0 )
       {
         assert( line->nb_words == 2 );
-        env->set_var_method( NONE );
+        env->set_var_method( NO_VAR );
         printf("\tNo more environmental variation\n");
       }
       else if ( strcmp( line->words[1], "autoregressive_mean_variation" ) == 0 )

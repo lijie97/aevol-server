@@ -97,9 +97,10 @@ class ae_environment : public ae_fuzzy_set_X11
     inline double               get_segment_boundaries( int16_t i ) const;
     inline ae_env_axis_feature  get_axis_feature( int16_t i ) const;
     inline double               get_area_by_feature( int8_t feature ) const;
-    inline ae_env_var           get_var_method( void ) const;  
+    inline ae_env_var           get_var_method( void ) const;
     inline double               get_var_sigma( void )  const;
     inline int32_t              get_var_tau( void )    const;
+    inline ae_env_noise         get_noise_method( void ) const;
     inline bool                 is_noise_allowed( void ) const;
     
     // =================================================================
@@ -114,10 +115,11 @@ class ae_environment : public ae_fuzzy_set_X11
     inline void   set_var_sigma( double sigma );
     inline void   set_var_tau( int32_t tau );
     inline void   set_var_sigma_tau( double sigma, int32_t tau );
+    inline void   set_noise_method( ae_env_noise noise_method );
     inline void   set_noise_prng( ae_jumping_mt* prng );
-    inline void   set_noise_prob( double prob );
-    inline void   set_noise_alpha( double alpha );
     inline void   set_noise_sigma( double sigma );
+    inline void   set_noise_alpha( double alpha );
+    inline void   set_noise_prob( double prob );
     inline void   set_noise_sampling_log( int32_t sampling_log );
 
 
@@ -194,9 +196,10 @@ class ae_environment : public ae_fuzzy_set_X11
     // Noise management
     ae_fuzzy_set*   _cur_noise;           // Current noise (pure noise that is added to the environment fuzzy set)
     ae_jumping_mt*  _noise_prng;          // PRNG used for noise
-    double          _noise_prob;          // Probability of variation.
+    ae_env_noise    _noise_method;        // Probability of variation.
     double          _noise_alpha;         // Alpha value (variance coefficient)
     double          _noise_sigma;         // Variance of the noise
+    double          _noise_prob;          // Probability of variation.
     int32_t         _noise_sampling_log;  // Log2 of the number of points in the noise fuzzy_set
 };
 
@@ -259,9 +262,14 @@ inline int32_t ae_environment::get_var_tau( void ) const
   return _var_tau;
 }
 
+inline ae_env_noise ae_environment::get_noise_method( void ) const
+{
+  return _noise_method;
+}
+
 inline bool ae_environment::is_noise_allowed( void ) const
 {
-  return ( _noise_prob > 0.0 );
+  return ( _noise_method != NO_NOISE );
 }
 
 
@@ -333,6 +341,11 @@ inline void ae_environment::set_var_sigma_tau( double sigma, int32_t tau )
   _var_tau    = tau;
 }
 
+inline void ae_environment::set_noise_method( ae_env_noise noise_method )
+{
+  _noise_method = noise_method;
+}
+
 inline void ae_environment::set_noise_prng( ae_jumping_mt* prng )
 {
   _noise_prng = prng;
@@ -366,7 +379,7 @@ inline void ae_environment::apply_variation( void )
 {
   switch ( _var_method )
   {
-    case NONE :
+    case NO_VAR :
       return;
     case AUTOREGRESSIVE_MEAN_VAR :
       _apply_autoregressive_mean_variation();

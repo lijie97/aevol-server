@@ -441,6 +441,13 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
   {
     _param_values->set_align_mismatch_cost( atol( line->words[1] ) );
   }
+  else if ( strcmp( line->words[0], "STOCHASTICITY" ) == 0 )
+  {
+    if ( strncmp( line->words[1], "true", 4 ) == 0 )
+    {
+      _param_values->set_with_stochasticity( true );
+    }
+  }
   else if ( strcmp( line->words[0], "SELECTION_SCHEME" ) == 0 )
   {
     if ( strncmp( line->words[1], "lin", 3 ) == 0 )
@@ -595,7 +602,7 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
     if ( strcmp( line->words[1], "none" ) == 0 )
     {
       assert( line->nb_words == 2 );
-      _param_values->set_env_var_method( NONE );
+      _param_values->set_env_var_method( NO_VAR );
     }
     else if ( strcmp( line->words[1], "autoregressive_mean_variation" ) == 0 )
     {
@@ -629,11 +636,26 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
     }
     env_noise_already_set = true;
     
-    _param_values->set_env_noise_prob( AUTOREGRESSIVE_MEAN_VAR );
-    _param_values->set_env_noise_alpha( atof( line->words[2] ) );
-    _param_values->set_env_noise_sigma( atof( line->words[3] ) );
-    _param_values->set_env_noise_sampling_log( atoi( line->words[4] ) );
-    _param_values->set_env_noise_seed( atoi( line->words[4] ) );
+    if ( strcmp( line->words[1], "none" ) == 0 )
+    {
+      assert( line->nb_words == 2 );
+      _param_values->set_env_noise_method( NO_NOISE );
+    }
+    else if ( strcmp( line->words[1], "FRACTAL" ) == 0 )
+    {
+      _param_values->set_env_noise_method( FRACTAL );
+      _param_values->set_env_noise_sampling_log( atoi( line->words[2] ) );
+      _param_values->set_env_noise_sigma( atof( line->words[3] ) );
+      _param_values->set_env_noise_alpha( atof( line->words[4] ) );
+      _param_values->set_env_noise_prob( atof( line->words[5] ) );
+      _param_values->set_env_noise_seed( atoi( line->words[6] ) );
+    }
+    else
+    {
+      printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown environment noise method.\n",
+              _param_file_name, _cur_line );
+      exit( EXIT_FAILURE );
+    }
   }
   else if ( strcmp( line->words[0], "SECRETION_CONTRIB_TO_FITNESS" ) == 0 )
   {
@@ -939,7 +961,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   }
   
   // Set environmental variation
-  if ( _param_values->get_env_var_method() != NONE )
+  if ( _param_values->get_env_var_method() != NO_VAR )
   {
     env->set_var_method( _param_values->get_env_var_method() );
     env->set_var_prng( new ae_jumping_mt( _param_values->get_env_var_seed() ) );
@@ -947,13 +969,14 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   }
   
   // Set environmental noise
-  if ( _param_values->get_env_noise_prob() > 0 )
+  if ( _param_values->get_env_noise_method() != NO_NOISE )
   {
+    env->set_noise_method( _param_values->get_env_noise_method() );
+    env->set_noise_sampling_log( _param_values->get_env_noise_sampling_log() );
     env->set_noise_prng( new ae_jumping_mt( _param_values->get_env_noise_seed() ) );
-    env->set_noise_prob( _param_values->get_env_noise_prob()  );
     env->set_noise_alpha( _param_values->get_env_noise_alpha() );
     env->set_noise_sigma( _param_values->get_env_noise_sigma() );
-    env->set_noise_sampling_log( _param_values->get_env_noise_sampling_log() );
+    env->set_noise_prob( _param_values->get_env_noise_prob()  );
   }
   
   // Build the environment
@@ -966,7 +989,10 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   
   
   // 3) --------------------------------------------- Create the new population
-  // Generate a template ae_mut_param object
+  pop->set_mut_prng( new ae_jumping_mt(*_prng) );
+  pop->set_stoch_prng( new ae_jumping_mt(*_prng) );
+  
+  // Generate a model ae_mut_param object
   ae_params_mut* param_mut = new ae_params_mut();
   param_mut->set_point_mutation_rate( _param_values->get_point_mutation_rate() );
   param_mut->set_small_insertion_rate( _param_values->get_small_insertion_rate() );
@@ -1000,6 +1026,8 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
       // and set its id
       indiv = create_random_individual_with_good_gene( exp_m, param_mut, id_new_indiv++ );
       
+      indiv->set_with_stochasticity( _param_values->get_with_stochasticity() );
+      
       // Add it to the list
       pop->add_indiv( indiv );
     
@@ -1010,7 +1038,10 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
         // Create a clone, setting its id
         clone = create_clone( indiv, id_new_indiv++ );
         
-        indiv->do_prng_jump();
+        #ifdef DISTRIBUTED_PRNG
+          #error Not implemented yet !
+          indiv->do_prng_jump();
+        #endif
         
         // Add it to the list
         pop->add_indiv( clone );
@@ -1046,7 +1077,11 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
       {
         // Create a clone, setting its id
         clone = create_clone( indiv, id_new_indiv++ );
-        indiv->do_prng_jump();
+
+        #ifdef DISTRIBUTED_PRNG
+          #error Not implemented yet !
+          indiv->do_prng_jump();
+        #endif
         
         // Add it to the list
         pop->add_indiv( clone );
@@ -1193,10 +1228,15 @@ ae_individual* param_loader::create_random_individual( ae_exp_manager* exp_m, ae
   }
   random_genome[_param_values->_initial_genome_length] = 0;
   
+  
   // ------------------------------------------------------- Global constraints
   // Create an individual with this genome and set its id
+  #ifdef DISTRIBUTED_PRNG
+    #error Not implemented yet !
+  #endif
   ae_individual* indiv = new ae_individual( exp_m,
-                                            new ae_jumping_mt(*_prng),
+                                            _prng,
+                                            _prng,
                                             param_mut,
                                             _param_values->_w_max,
                                             _param_values->_min_genome_length,

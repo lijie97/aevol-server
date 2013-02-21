@@ -86,7 +86,8 @@
 
 */
 ae_individual::ae_individual( ae_exp_manager* exp_m,
-                              ae_jumping_mt* prng,
+                              ae_jumping_mt* mut_prng,
+                              ae_jumping_mt* stoch_prng,
                               ae_params_mut* param_mut,
                               double w_max,
                               int32_t min_genome_length,
@@ -99,8 +100,9 @@ ae_individual::ae_individual( ae_exp_manager* exp_m,
   // Experiment manager
   _exp_m = exp_m;
   
-  // PRNG
-  _prng = prng;
+  // PRNGs
+  _mut_prng   = mut_prng;
+  _stoch_prng = stoch_prng;
   
   // Replication Report
   _replic_report = NULL;
@@ -340,8 +342,14 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile backup_file )
   // Retrieve the "age" of the strain
   gzread( backup_file, &_age, sizeof(_age) );
   
-  // Retrieve the PRNG
-  _prng = new ae_jumping_mt( backup_file );
+  // Retrieve the PRNGs
+  #ifdef DISTRIBUTED_PRNG
+    _mut_prng   = new ae_jumping_mt( backup_file );
+    _stoch_prng = new ae_jumping_mt( backup_file );
+  #else
+    _mut_prng   = exp_m->get_pop()->get_mut_prng();
+    _stoch_prng = exp_m->get_pop()->get_stoch_prng();
+  #endif
   
   // Retreive id and rank
   gzread( backup_file, &_id,    sizeof(_id) );
@@ -365,6 +373,9 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile backup_file )
   
   // Retrieve mutational parameters
   _mut_params = new ae_params_mut( backup_file );
+  
+  // ------------------------------------------------- Phenotypic stochasticity
+  gzread( backup_file, &_with_stochasticity, sizeof(_with_stochasticity) );
   
   // Retrieve artificial chemistry parameters
   gzread( backup_file, &_w_max, sizeof(_w_max) );
@@ -467,7 +478,15 @@ ae_individual::ae_individual( const ae_individual &model )
 {
   _exp_m = model._exp_m;
   
-  _prng = new ae_jumping_mt( *(model._prng) );
+  // PRNGs
+  #ifdef DISTRIBUTED_PRNG
+    _mut_prng   = new ae_jumping_mt( *(model._mut_prng) );
+    _stoch_prng = new ae_jumping_mt( *(model._stoch_prng) );
+  #else
+    _mut_prng   = model._mut_prng;
+    _stoch_prng = model._stoch_prng;
+  #endif
+  
   _age  = model._age;
   
   _id   = model._id;
@@ -599,12 +618,13 @@ ae_individual::ae_individual( const ae_individual &model )
 
   The phenotype and the fitness are not set, neither is the statistical data.
 */
-ae_individual::ae_individual( ae_individual* const parent, int32_t id, ae_jumping_mt* prng )
+ae_individual::ae_individual( ae_individual* const parent, int32_t id, ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng )
 {
   _exp_m = parent->_exp_m;
   
-  //_prng = new ae_jumping_mt( *(parent->_prng) );
-  _prng = prng;
+  // PRNGs
+  _mut_prng   = mut_prng;
+  _stoch_prng = stoch_prng;
   
   _age  = parent->_age + 1;
   
@@ -940,7 +960,10 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id, ae_jumpin
 // =================================================================
 ae_individual::~ae_individual( void )
 {
-  delete _prng;
+  #ifdef DISTRIBUTED_PRNG
+    delete _mut_prng;
+    delete _stoch_prng;
+  #endif
   
   // The _replic_report pointer is destroyed, but not the report itself,
   // it will be deleted later, when the tree is written on disk and emptied.
@@ -1084,70 +1107,69 @@ void ae_individual::compute_fitness( ae_environment* envir )
 {
   if ( _fitness_computed ) return; // Fitness has already been computed, nothing to do.
   _fitness_computed = true;
-#ifdef NORMALIZED_FITNESS
 
-  for ( int8_t i = 0 ; i < NB_FEATURES ; i++ )
-  {
-    if (envir->get_area_by_feature(i)==0.)
+  #ifdef NORMALIZED_FITNESS
+    for ( int8_t i = 0 ; i < NB_FEATURES ; i++ )
     {
-      _fitness_by_feature[i] = 0.;
-    }
-    else
-    {
-      _fitness_by_feature[i] =  ( envir->get_area_by_feature(i) - _dist_to_target_by_feature[i] ) / envir->get_area_by_feature(i);
-      if ( (_fitness_by_feature[i] < 0.) && (i != METABOLISM) ) // non-metabolic fitness can NOT be lower than zero (we do not want individual to secrete a negative quantity of public good)
+      if (envir->get_area_by_feature(i)==0.)
       {
         _fitness_by_feature[i] = 0.;
       }
-    }
-  }
-  
-  if (! _placed_in_population)
-  {
-    _fitness = _fitness_by_feature[METABOLISM];
-  }
-  else
-  {
-    _fitness =  _fitness_by_feature[METABOLISM] * ( 1 + _exp_m->get_secretion_contrib_to_fitness() * ( _grid_cell->get_compound_amount() - _exp_m->get_secretion_cost() * _fitness_by_feature[SECRETION] ) );
-  }
-  
-  if ( _exp_m->get_selection_scheme() == FITNESS_PROPORTIONATE ) // Then the exponential selection is integrated inside the fitness value
-  {
-    _fitness = exp( -_exp_m->get_selection_pressure() * (1 - _fitness) );
-  }  
-#else
-  for ( int8_t i = 0 ; i < NB_FEATURES ; i++ )
-  {
-    if ( i == SECRETION )
-    {
-      _fitness_by_feature[SECRETION] =  exp( - _exp_m->get_selection_pressure() * _dist_to_target_by_feature[SECRETION] )
-                                      - exp( - _exp_m->get_selection_pressure() * envir->get_area_by_feature(SECRETION) );
-      
-      if ( _fitness_by_feature[i] < 0 )
+      else
       {
-        _fitness_by_feature[i] = 0;
-      }         
+        _fitness_by_feature[i] =  ( envir->get_area_by_feature(i) - _dist_to_target_by_feature[i] ) / envir->get_area_by_feature(i);
+        if ( (_fitness_by_feature[i] < 0.) && (i != METABOLISM) ) // non-metabolic fitness can NOT be lower than zero (we do not want individual to secrete a negative quantity of public good)
+        {
+          _fitness_by_feature[i] = 0.;
+        }
+      }
+    }
+    
+    if (! _placed_in_population)
+    {
+      _fitness = _fitness_by_feature[METABOLISM];
     }
     else
     {
-      _fitness_by_feature[i] = exp( - _exp_m->get_selection_pressure() * _dist_to_target_by_feature[i] );
+      _fitness =  _fitness_by_feature[METABOLISM] * ( 1 + _exp_m->get_secretion_contrib_to_fitness() * ( _grid_cell->get_compound_amount() - _exp_m->get_secretion_cost() * _fitness_by_feature[SECRETION] ) );
+    }
+    
+    if ( _exp_m->get_selection_scheme() == FITNESS_PROPORTIONATE ) // Then the exponential selection is integrated inside the fitness value
+    {
+      _fitness = exp( -_exp_m->get_selection_pressure() * (1 - _fitness) );
     }  
-  }
-  
-  // Calculate combined, total fitness here!
-  // Multiply the contribution of metabolism and the amount of compound in the environment 
-  if ( ! _placed_in_population )
-  { 
-    _fitness =  _fitness_by_feature[METABOLISM] ; 
-  }
-  else
-  {   
-    _fitness =  _fitness_by_feature[METABOLISM]
-                *  ( 1 + _exp_m->get_secretion_contrib_to_fitness() * _grid_cell->get_compound_amount()
-                       - _exp_m->get_secretion_cost() * _fitness_by_feature[SECRETION] ); 
-  }
-
-#endif
+  #else
+    for ( int8_t i = 0 ; i < NB_FEATURES ; i++ )
+    {
+      if ( i == SECRETION )
+      {
+        _fitness_by_feature[SECRETION] =  exp( - _exp_m->get_selection_pressure() * _dist_to_target_by_feature[SECRETION] )
+                                        - exp( - _exp_m->get_selection_pressure() * envir->get_area_by_feature(SECRETION) );
+        
+        if ( _fitness_by_feature[i] < 0 )
+        {
+          _fitness_by_feature[i] = 0;
+        }         
+      }
+      else
+      {
+        _fitness_by_feature[i] = exp( - _exp_m->get_selection_pressure() * _dist_to_target_by_feature[i] );
+      }  
+    }
+    
+    // Calculate combined, total fitness here!
+    // Multiply the contribution of metabolism and the amount of compound in the environment 
+    if ( ! _placed_in_population )
+    { 
+      _fitness =  _fitness_by_feature[METABOLISM] ; 
+    }
+    else
+    {   
+      _fitness =  _fitness_by_feature[METABOLISM]
+                  *  ( 1 + _exp_m->get_secretion_contrib_to_fitness() * _grid_cell->get_compound_amount()
+                         - _exp_m->get_secretion_cost() * _fitness_by_feature[SECRETION] ); 
+    }
+  #endif
 }
 
 void ae_individual::reevaluate( ae_environment* envir /*= NULL*/ )
@@ -1675,8 +1697,11 @@ void ae_individual::save( gzFile backup_file ) const
   // Write the "age" of the strain
   gzwrite( backup_file, &_age, sizeof(_age) );
   
-  // Write the PRNG's state
-  _prng->save( backup_file );
+  #ifdef DISTRIBUTED_PRNG
+    // Write the PRNG's state
+    _mut_prng->save( backup_file );
+    _stoch_prng->save( backup_file );
+  #endif
   
   // Write id and rank
   gzwrite( backup_file, &_id,   sizeof(_id) );
@@ -1696,8 +1721,12 @@ void ae_individual::save( gzFile backup_file ) const
   // Write generic probes
   gzwrite( backup_file, _int_probes,    5 * sizeof(*_int_probes) );
   gzwrite( backup_file, _double_probes, 5 * sizeof(*_double_probes) );
+  
   // Write mutational parameters
   _mut_params->save( backup_file );
+  
+  // ------------------------------------------------- Phenotypic stochasticity
+  gzwrite( backup_file, &_with_stochasticity, sizeof(_with_stochasticity) );
   
   // Write artificial chemistry parameters
   gzwrite( backup_file, &_w_max, sizeof(_w_max) );

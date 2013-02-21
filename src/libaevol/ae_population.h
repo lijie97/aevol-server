@@ -47,6 +47,7 @@
 // =================================================================
 #include <ae_list.h>
 #include <ae_individual.h>
+#include <ae_jumping_mt.h>
 
 
 
@@ -83,6 +84,10 @@ class ae_population : public ae_object
     inline ae_individual*           get_best( void ) const;
     ae_individual*                  get_indiv_by_id( int32_t id ) const;
     inline ae_individual*           get_indiv_by_rank( int32_t rank ) const;
+    
+    // PRNGs
+    inline ae_jumping_mt* get_mut_prng( void ) const;
+    inline ae_jumping_mt* get_stoch_prng( void ) const;
   
     //~ inline double*          get_prob_reprod( void ) const;
 
@@ -98,6 +103,10 @@ class ae_population : public ae_object
     //~ inline void set_nb_indivs( int32_t nb_indivs );
     
     inline void add_indiv( ae_individual* indiv );
+    
+    // PRNGs
+    inline void set_mut_prng( ae_jumping_mt* prng );
+    inline void set_stoch_prng( ae_jumping_mt* prng );
     
     // Mutation rates etc...
     inline void set_overall_point_mutation_rate( double point_mutation_rate);
@@ -132,6 +141,10 @@ class ae_population : public ae_object
 
     void save( gzFile backup_file ) const;
     void load( gzFile backup_file, bool verbose );
+    
+    #ifndef DISTRIBUTED_PRNG
+      void backup_stoch_prng( void );
+    #endif
 
     // =================================================================
     //                           Public Attributes
@@ -175,6 +188,12 @@ class ae_population : public ae_object
     // =================================================================
     ae_exp_manager* _exp_m;
     
+    #ifndef DISTRIBUTED_PRNG
+      ae_jumping_mt* _mut_prng;
+      ae_jumping_mt* _stoch_prng;
+      ae_jumping_mt* _stoch_prng_bak;
+    #endif
+    
     // Individuals
     int32_t                   _nb_indivs;
     ae_list<ae_individual*>*  _indivs;
@@ -204,7 +223,7 @@ inline ae_individual* ae_population::get_best( void ) const
 
   Warning, be sure you call sort_individuals() before using get_indiv_by_rank
 */
-inline ae_individual * ae_population::get_indiv_by_rank( int32_t rank ) const
+inline ae_individual* ae_population::get_indiv_by_rank( int32_t rank ) const
 {
   ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
   
@@ -216,6 +235,16 @@ inline ae_individual * ae_population::get_indiv_by_rank( int32_t rank ) const
   assert( indiv_node->get_obj()->get_rank() == rank );
   
   return indiv_node->get_obj();
+}
+
+inline ae_jumping_mt* ae_population::get_mut_prng( void ) const
+{
+  return _mut_prng;
+}
+
+inline ae_jumping_mt* ae_population::get_stoch_prng( void ) const
+{
+  return _stoch_prng;
 }
 
 /*inline double* ae_population::get_prob_reprod( void ) const
@@ -241,6 +270,17 @@ inline void ae_population::add_indiv( ae_individual* indiv )
 {
   _indivs->add( indiv );
   _nb_indivs++;
+}
+
+
+inline void ae_population::set_mut_prng( ae_jumping_mt* prng )
+{
+  _mut_prng = prng;
+}
+
+inline void ae_population::set_stoch_prng( ae_jumping_mt* prng )
+{
+  _stoch_prng = prng;
 }
 
 

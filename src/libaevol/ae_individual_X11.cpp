@@ -63,7 +63,8 @@
 //                             Constructors
 // =================================================================
 ae_individual_X11::ae_individual_X11( ae_exp_manager* exp_m,
-                                      ae_jumping_mt* alea,
+                                      ae_jumping_mt* mut_prng,
+                                      ae_jumping_mt* stoch_prng,
                                       ae_params_mut* param_mut,
                                       double w_max,
                                       int32_t min_genome_length,
@@ -72,9 +73,9 @@ ae_individual_X11::ae_individual_X11( ae_exp_manager* exp_m,
                                       int32_t plasmid_minimal_length,
                                       int32_t id,
                                       int32_t age )
-        : ae_individual( exp_m, alea, param_mut, w_max, min_genome_length,
-                         max_genome_length, allow_plasmids,
-                         plasmid_minimal_length, id, age )
+        : ae_individual(  exp_m, mut_prng, stoch_prng, param_mut, w_max,
+                          min_genome_length, max_genome_length, allow_plasmids,
+                          plasmid_minimal_length, id, age )
 {
   init_occupied_sectors();
 }
@@ -91,7 +92,8 @@ ae_individual_X11::ae_individual_X11( const ae_individual_X11 &model )
   init_occupied_sectors();
 }
 
-ae_individual_X11::ae_individual_X11( ae_individual_X11* const parent, int32_t id , ae_jumping_mt* prng ) : ae_individual( parent, id, prng)
+ae_individual_X11::ae_individual_X11( ae_individual_X11* const parent, int32_t id, ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng )
+        : ae_individual( parent, id, mut_prng, stoch_prng )
 {
   init_occupied_sectors();
 }

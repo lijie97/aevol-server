@@ -68,12 +68,9 @@ ae_jumping_mt::ae_jumping_mt( const uint32_t& simple_seed )
 {
   _sfmt = new sfmt_t();
   sfmt_init_gen_rand( _sfmt, simple_seed );
-}
-
-ae_jumping_mt::ae_jumping_mt( uint32_t* seed_table, int& table_size )
-{
-  _sfmt = new sfmt_t();
-  sfmt_init_by_array(_sfmt, seed_table, table_size);
+  
+  // Jump to get rid of the initializatino skew
+  jump();
 }
 
 /*!
@@ -112,8 +109,8 @@ ae_jumping_mt::~ae_jumping_mt( void )
  */
 void ae_jumping_mt::jump( void )
 {
-  clock_t start, end;
-  start = clock();
+  //~ clock_t start, end;
+  //~ start = clock();
   
   #ifdef TRIVIAL_METHOD_JUMP_SIZE
     for ( int i = 0 ; i < TRIVIAL_METHOD_JUMP_SIZE ; i++ )
@@ -133,9 +130,9 @@ void ae_jumping_mt::jump( void )
     
   
   
-  end = clock();
-  jump_time += (end - start) * 1000 / CLOCKS_PER_SEC;
-  nb_jumps++;
+  //~ end = clock();
+  //~ jump_time += (end - start) * 1000 / CLOCKS_PER_SEC;
+  //~ nb_jumps++;
 }
 
 /*!
