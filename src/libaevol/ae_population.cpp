@@ -94,6 +94,12 @@ ae_population::ae_population( ae_exp_manager* exp_m )
 // =================================================================
 ae_population::~ae_population( void )
 {
+  #ifndef DISTRIBUTED_PRNG
+    delete _mut_prng;
+    delete _stoch_prng;
+    delete _stoch_prng_bak;
+  #endif
+  
   _indivs->erase( true );
   delete _indivs;
 }

@@ -148,14 +148,15 @@ int main( int argc, char* argv[] )
           exit( EXIT_FAILURE );
         }
         
-        num_gener = atol( optarg );
-        
+        delete [] exp_setup_file_name;
+        delete [] out_prof_file_name;
         env_file_name       = new char[255];
         pop_file_name       = new char[255];
         sp_struct_file_name = new char[255];
         exp_setup_file_name = new char[255];
         out_prof_file_name  = new char[255];
         
+        num_gener = atol( optarg );
         sprintf( env_file_name,       ENV_FNAME_FORMAT,       num_gener );
         sprintf( pop_file_name,       POP_FNAME_FORMAT,       num_gener );
         sprintf( sp_struct_file_name, SP_STRUCT_FNAME_FORMAT, num_gener );
@@ -307,7 +308,6 @@ int main( int argc, char* argv[] )
   
   
   // Make a numbered copy of each static input file (dynamic files are saved elsewhere)
-  
   
   
   delete [] exp_setup_file_name;

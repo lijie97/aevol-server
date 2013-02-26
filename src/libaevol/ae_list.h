@@ -27,8 +27,8 @@
 
 
 
-#ifndef AE_LIST_HPP
-#define AE_LIST_HPP
+#ifndef AE_LIST_H
+#define AE_LIST_H
 
 
 #include <inttypes.h>
@@ -57,7 +57,7 @@ class ae_list_node
     // The created node is unlinked
     inline ae_list_node( const ae_list_node &model );
     
-    virtual inline ~ae_list_node();
+    virtual inline ~ae_list_node( void );
 
     inline T&             get_obj( void );
     inline ae_list_node*  get_prev( void );
@@ -186,7 +186,7 @@ ae_list<T>::ae_list()
 template <typename T>
 ae_list<T>::~ae_list()
 {
-  /* erase( false );*/
+  erase( false );
 }
 
 // Add obj in a newly created node at the end of the list
@@ -617,15 +617,9 @@ void ae_list<T>::erase( bool delete_obj )
 
     if( delete_obj )
     {
-      if ( node->_obj != NULL )
-      {
-        delete node->_obj;
-        node->_obj = NULL;
-      }
-      else
-      {
-        printf( "%s:%d: Warning: Possible attempt to delete something twice\n", __FILE__, __LINE__ );
-      }
+      assert( node->_obj != NULL );
+      delete node->_obj;
+      node->_obj = NULL;
     }
     
     delete node;
@@ -798,7 +792,7 @@ ae_list_node<T>::ae_list_node( const ae_list_node<T> &model )
 };
 
 template<typename T>
-ae_list_node<T>::~ae_list_node()
+ae_list_node<T>::~ae_list_node( void )
 {
 }
 
@@ -826,4 +820,4 @@ inline void ae_list_node<T>::set_obj( T obj )
   _obj = obj;
 }
 
-#endif // __LIST_H__
+#endif // AE_LIST_H

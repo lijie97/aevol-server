@@ -976,6 +976,7 @@ ae_individual::~ae_individual( void )
   _rna_list->erase( false );
   delete _rna_list;
 
+  assert( _genetic_unit_list != NULL );
   _genetic_unit_list->erase( true );
   // When the unit is destoyed, its dna is destroyed too, thus the pointer 
   // to the ae_dna_replication_report is destroyed. But the 
