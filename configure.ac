@@ -11,7 +11,7 @@ AC_INIT([AEVOL], [4.0.0.0], [aevol-bug-report@lists.gforge.liris.cnrs.fr], , [ww
 AM_INIT_AUTOMAKE
 
 # Check the existance of an arbitrary source file
-AC_CONFIG_SRCDIR([src/aevol.cpp])
+AC_CONFIG_SRCDIR([src/aevol_run.cpp])
 
 # Build config.h using config.h.in as a template
 #AC_CONFIG_HEADERS([config.h:config.h.in])

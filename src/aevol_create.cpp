@@ -58,7 +58,7 @@ const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 // =================================================================
 //                         Function declarations
 // =================================================================
-void print_help( char* prog_name );
+void print_help( char* prog_path );
 
 
 
@@ -69,6 +69,7 @@ int main( int argc, char* argv[] )
   // 1) Initialize command-line option variables with default values
   char* param_file_name = NULL;
   
+  
   // 2) Define allowed options
   const char * options_list = "hf:";
   static struct option long_options_list[] = {
@@ -76,7 +77,8 @@ int main( int argc, char* argv[] )
     { "file", required_argument,  NULL, 'f' },
     { 0, 0, 0, 0 }
   };
-      
+  
+  
   // 3) Get actual values of the command-line options
   int option;
   while ( ( option = getopt_long(argc, argv, options_list, long_options_list, NULL) ) != -1 ) 
@@ -90,7 +92,8 @@ int main( int argc, char* argv[] )
       }
       case 'f' :
       {
-        param_file_name = optarg;
+        param_file_name = new char[strlen(optarg)+1];
+        strcpy( param_file_name, optarg );
         break;
       }
       default :
@@ -101,6 +104,7 @@ int main( int argc, char* argv[] )
     }
   }
   
+  
   // 4) Set undefined command line parameters to default values
   if ( param_file_name == NULL )
   {
@@ -108,9 +112,11 @@ int main( int argc, char* argv[] )
     sprintf( param_file_name, "%s", DEFAULT_PARAM_FILE_NAME );
   }
   
+  
   // 5) Create a param loader for the parameter file
   param_loader* my_param_loader = new param_loader( param_file_name );
   delete param_file_name;
+  
   
   // 6) Initialize the experiment manager
   #ifndef __NO_X
@@ -131,7 +137,7 @@ int main( int argc, char* argv[] )
   exp_manager->write_setup_files();
   
   // 9) Create the initial backups
-  exp_manager->save_experiment();
+  exp_manager->save();
   
   delete exp_manager;
 }
@@ -142,15 +148,19 @@ int main( int argc, char* argv[] )
 
 
 
-void print_help( char* prog_name ) 
+void print_help( char* prog_path ) 
 {
+  // Get the program file-name in prog_name (strip prog_path of the path)
+  char* prog_name; // No new, it will point to somewhere inside prog_path
+  if ( prog_name = strrchr( prog_path, '/' ) ) prog_name++;
+  else prog_name = prog_path;
+  
 	printf( "******************************************************************************\n" );
 	printf( "*                        aevol - Artificial Evolution                        *\n" );
 	printf( "******************************************************************************\n" );
-	printf( "Usage : create_exp -h\n" );
-	printf( "   or : create_exp [-f param_file]\n" );
+	printf( "Usage : %s -h\n", prog_name );
+	printf( "   or : %s [-f param_file]\n", prog_name );
 	printf( "  -h, --help  Display this screen\n" );
-	printf( "  -f, --file  Specify parameter file\n" );
-	printf( "Create an experiment with setup as specified in the parameter file.\n" );
-    printf( "(default: param.in)\n\n" );
+	printf( "  -f, --file  Specify parameter file (default: param.in)\n" );
+	printf( "Create an experiment with setup as specified in the parameter file.\n\n" );
 }

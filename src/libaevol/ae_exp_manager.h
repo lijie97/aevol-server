@@ -24,11 +24,15 @@
 //*****************************************************************************
 
 
-/*! \class ae_exp_manager
-    \brief This class allows to manage an experiment.
-    
-    An experiment manager allows to... manage an experiment.
-    It owns a population and an experimental_setup that can be loaded from a pair of aevol binary files (pop and exp_setup)
+/*!
+  \class ae_exp_manager
+  
+  \brief This is aevol's top-level class. It allows for
+  high-level experiment management
+  
+  An experiment manager allows to... manage an experiment.
+  It owns a population and an experimental_setup that can be loaded from a
+  pair of aevol binary files (pop and exp_setup)
 */
 
 
@@ -147,13 +151,15 @@ class ae_exp_manager : public ae_object
     //                            Public Methods
     // =================================================================
     void write_setup_files( void );
-    void save_experiment( void ) const;
-    void load_experiment( char* exp_setup_file_name,
-                          char* out_prof_file_name,
-                          char* env_file_name,
-                          char* pop_file_name,
-                          char* sp_struct_file_name,
-                          bool verbose );
+    void save( void ) const;
+    void save_copy( char* dir, int32_t num_gener = 0 ) const;
+    void load( int32_t first_gener,
+               char* exp_setup_file_name,
+               char* out_prof_file_name,
+               char* env_file_name,
+               char* pop_file_name,
+               char* sp_struct_file_name,
+               bool verbose );
     void run_evolution( void );
     virtual void display( void ) {};
 
@@ -186,6 +192,22 @@ class ae_exp_manager : public ae_object
     // =================================================================
     //                           Protected Methods
     // =================================================================
+    void create_missing_directories( const char* dir = "." ) const;
+    void open_backup_files( gzFile& env_file,
+                            gzFile& pop_file,
+                            gzFile& sp_struct_file,
+                            int32_t num_gener,
+                            const char* dir = "." ) const;
+    void close_backup_files(  gzFile& env_file,
+                              gzFile& pop_file,
+                              gzFile& sp_struct_file ) const;
+    void open_setup_files(  gzFile& exp_s_gzfile, FILE*& exp_s_txtfile,
+                            gzFile& out_p_gzfile, FILE*& out_p_txtfile,
+                            int32_t num_gener,
+                            const char* dir = "." ) const;
+    void close_setup_files(
+            gzFile& exp_s_gzfile, FILE* exp_s_txtfile,
+            gzFile& out_p_gzfile, FILE* out_p_txtfile ) const;
 
     // =================================================================
     //                          Protected Attributes

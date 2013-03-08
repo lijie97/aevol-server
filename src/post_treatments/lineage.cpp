@@ -216,11 +216,11 @@ int main(int argc, char** argv)
   #else
     ae_exp_manager* exp_manager = new ae_exp_manager();
   #endif
-  exp_manager->load_experiment( exp_setup_file_name, out_prof_file_name, env_file_name, pop_file_name, sp_struct_file_name, true );
+  exp_manager->load( end_gener, exp_setup_file_name, out_prof_file_name, env_file_name, pop_file_name, sp_struct_file_name, true );
   
   if ( exp_manager->get_tree_mode() == LIGHT )
   {
-    printf( "The light tree mode is not managed", argv[0] );
+    printf( "%s: error: The light tree mode is not managed", argv[0] );
     exit( EXIT_FAILURE );
   }
   
@@ -439,7 +439,7 @@ int main(int argc, char** argv)
   #else
     exp_manager = new ae_exp_manager();
   #endif
-  exp_manager->load_experiment( exp_setup_file_name, out_prof_file_name, environment_file_name, genomes_file_name, sp_struct_file_name, true );
+  exp_manager->load( begin_gener, exp_setup_file_name, out_prof_file_name, environment_file_name, genomes_file_name, sp_struct_file_name, true );
   //ae_common::write_to_backup( lineage_file );
   
   // Copy the initial ancestor
@@ -525,7 +525,7 @@ int main(int argc, char** argv)
       #endif
       if ( verbose )
       {
-        printf( "Loading the data stored in backup file %s\n",genomes_file_name );
+        printf( "Loading the data stored in backup file %s\n", genomes_file_name );
       }
       
       // Load the simulation
@@ -534,7 +534,7 @@ int main(int argc, char** argv)
   	  #else
     	exp_manager = new ae_exp_manager();
       #endif
-      exp_manager->load_experiment( exp_setup_file_name, out_prof_file_name, environment_file_name, genomes_file_name, sp_struct_file_name, true );
+      exp_manager->load( num_gener, exp_setup_file_name, out_prof_file_name, environment_file_name, genomes_file_name, sp_struct_file_name, true );
   
       // Copy the ancestor from the backup
       // NB : The list of individuals is sorted according to the index

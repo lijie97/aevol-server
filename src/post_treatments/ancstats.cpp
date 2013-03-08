@@ -309,7 +309,7 @@ int main(int argc, char** argv)
   #else
     ae_exp_manager* exp_manager = new ae_exp_manager();
   #endif
-  exp_manager->load_experiment( exp_setup_file_name, out_prof_file_name, environment_file_name, genomes_file_name, sp_struct_file_name, true );
+  exp_manager->load( begin_gener, exp_setup_file_name, out_prof_file_name, environment_file_name, genomes_file_name, sp_struct_file_name, true );
   ae_environment* env = exp_manager->get_env();
   
   int32_t backup_step = exp_manager->get_backup_step();
@@ -669,7 +669,7 @@ int main(int argc, char** argv)
       #else
       	exp_manager = new ae_exp_manager();
       #endif
-      exp_manager->load_experiment( exp_setup_file_name, out_prof_file_name, environment_file_name, genomes_file_name, sp_struct_file_name, true );
+      exp_manager->load( num_gener, exp_setup_file_name, out_prof_file_name, environment_file_name, genomes_file_name, sp_struct_file_name, true );
       ae_environment* backup_env = exp_manager->get_env();
       stored_indiv = new ae_individual( * (ae_individual *)exp_manager->get_indiv_by_id( index ) );
       delete exp_manager;

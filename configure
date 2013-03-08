@@ -565,7 +565,7 @@ PACKAGE_STRING='AEVOL 4.0.0.0'
 PACKAGE_BUGREPORT='aevol-bug-report@lists.gforge.liris.cnrs.fr'
 PACKAGE_URL='www.aevol.fr'
 
-ac_unique_file="src/aevol.cpp"
+ac_unique_file="src/aevol_run.cpp"
 # Factoring default headers for most tests.
 ac_includes_default="\
 #include <stdio.h>

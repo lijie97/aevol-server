@@ -154,14 +154,14 @@ int main( int argc, char* argv[] )
   #else
     ae_exp_manager* exp_manager = new ae_exp_manager();
   #endif
-  exp_manager->load_experiment( exp_setup_file_name, out_prof_file_name, env_file_name, pop_file_name, sp_struct_file_name, true );
+  exp_manager->load( generation_number, exp_setup_file_name, out_prof_file_name, env_file_name, pop_file_name, sp_struct_file_name, true );
   
   backup_step = exp_manager->get_backup_step();
 
   delete [] pop_file_name;
   delete [] env_file_name;
   
-  for (int i = 0; i<= generation_number; i+=backup_step)
+  for ( int32_t i = 0 ; i <= generation_number ; i += backup_step )
   {
   	printf("\n\n Generation : %d\n\n", i);
   	
@@ -177,7 +177,7 @@ int main( int argc, char* argv[] )
   	#else
     	exp_manager = new ae_exp_manager();
   	#endif
-    exp_manager->load_experiment( exp_setup_file_name, out_prof_file_name, env_file_name, pop_file_name, sp_struct_file_name, true );
+    exp_manager->load( generation_number, exp_setup_file_name, out_prof_file_name, env_file_name, pop_file_name, sp_struct_file_name, true );
     
     population_statistics_compute->compute_population_f_nu(exp_manager);
     population_statistics_compute->compute_evolvability_stats(i);

@@ -265,11 +265,11 @@ void ae_output_manager::write_current_generation_outputs( void ) const
   if ( num_gener % _backup_step == 0 )
   {
     _stats->flush();
-    _exp_m->save_experiment();
+    _exp_m->save();
     _exp_m->write_setup_files();
     
-    // Update the last_gener.txt file
-    FILE* last_gener_file = fopen( "last_gener.txt", "w" );
+    // Update the LAST_GENER file
+    FILE* last_gener_file = fopen( LAST_GENER_FNAME, "w" );
     if ( last_gener_file != NULL )
     {
       fprintf( last_gener_file, "%"PRId32"\n", num_gener );
@@ -277,7 +277,7 @@ void ae_output_manager::write_current_generation_outputs( void ) const
     }
     else
     {
-      printf( "Error : could not open file last_gener.txt\n" );
+      printf( "Error : could not open file "LAST_GENER_FNAME"\n" );
     }
     
     #ifdef __IN2P3

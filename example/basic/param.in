@@ -5,9 +5,9 @@
 ##### 1. Initial setup ############
 SEED                    7250909
 INITIAL_GENOME_LENGTH   5000
-INIT_POP_SIZE           1
+INIT_POP_SIZE           1000
 INIT_METHOD             ONE_GOOD_GENE CLONE
-NB_GENER                500
+#NB_GENER                500
 
 ##### 2. Selection ################
 SELECTION_SCHEME        exponential_ranking
@@ -38,13 +38,13 @@ RECORD_TREE             false
 TREE_MODE               normal
 MORE_STATS              false
 DUMP_STEP               0
-BACKUP_STEP             1
+BACKUP_STEP             100
 
 ##### 8. Environment variation ####
 ENV_VARIATION           none
 
 ##### 9. Phenotypic axis ##########
-ENV_AXIS_FEATURES METABOLISM 0.80 NEUTRAL
+ENV_AXIS_FEATURES METABOLISM
 
 ##### 10. Secretion ###############
 
