@@ -122,17 +122,9 @@ int main( int argc, char* argv[] )
 
   //~ bool  verbose           = false;
   //~ char* backup_file_name  = NULL;
-  int32_t num_gener       = 100;  
+  int32_t num_gener       = -1;
   int32_t indiv_index     = -1; 
   int32_t indiv_rank      = -1;
-  
-  char* exp_setup_file_name = new char[63];
-  char* out_prof_file_name  = new char[63];
-  strcpy( exp_setup_file_name,  "exp_setup.ae" );
-  strcpy( out_prof_file_name,   "output_profile.ae" );
-  char* env_file_name       = NULL;
-  char* pop_file_name       = NULL;
-  char* sp_struct_file_name = NULL;
   
   // 2) Define allowed options
   const char * options_list = "hvi:r:e:";
@@ -174,38 +166,13 @@ int main( int argc, char* argv[] )
         
         num_gener = atol( optarg );
         
-        env_file_name       = new char[255];
-        pop_file_name       = new char[255];
-        sp_struct_file_name = new char[255];
-        
-        sprintf( env_file_name,       ENV_FNAME_FORMAT,       num_gener );
-        sprintf( pop_file_name,       POP_FNAME_FORMAT,       num_gener );
-        sprintf( sp_struct_file_name, SP_STRUCT_FNAME_FORMAT, num_gener );
-		  
-        // Check existence of optional files in file system.
-        // Missing files will cause the corresponding file_name variable to be nullified
-        struct stat stat_buf;
-        if ( stat( sp_struct_file_name, &stat_buf ) == -1 )
-        {
-          if ( errno == ENOENT )
-          {
-            delete [] sp_struct_file_name;
-            sp_struct_file_name = NULL;
-          }
-          else
-          {
-            printf( "%s:%d: error: unknown error.\n", __FILE__, __LINE__ );
-            exit( EXIT_FAILURE );
-          }
-        }
-        
         break;
       }
     }
   }
 
   // Check mandatory arguments
-  if ( env_file_name == NULL || pop_file_name == NULL )
+  if ( num_gener == -1 )
   {
     printf( "%s: error: You must provide a generation number.\n", argv[0] );
     exit( EXIT_FAILURE );
@@ -231,7 +198,7 @@ int main( int argc, char* argv[] )
   #else
     ae_exp_manager* exp_manager = new ae_exp_manager();
   #endif
-  exp_manager->load( num_gener, exp_setup_file_name, out_prof_file_name, env_file_name, pop_file_name, sp_struct_file_name, true );
+  exp_manager->load( num_gener, false, true );
   
   env = exp_manager->get_env();
   
@@ -359,10 +326,6 @@ int main( int argc, char* argv[] )
   delete indiv;
   delete exp_manager;
   
-  delete env_file_name;
-  delete pop_file_name;
-  delete [] exp_setup_file_name;
-  delete [] out_prof_file_name;
   /*delete [] backup_file_name;
   
   if ( use_single_indiv_file )

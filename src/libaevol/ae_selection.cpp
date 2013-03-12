@@ -86,26 +86,6 @@ ae_selection::ae_selection( ae_exp_manager* exp_m )
   // --------------------------- Probability of reproduction of each organism
   _prob_reprod = NULL;
   _prob_reprod_previous_best = 0.0;
-  
-  // --------------------------------------------------------------- Transfer
-  _with_HT          = false;
-  _HT_ins_rate      = 0.0;
-  _HT_repl_rate     = 0.0;
-  _prob_plasmid_HT  = 0.0;
-  _tune_donor_ability  = 0.0;
-  _tune_recipient_ability  = 0.0;
-  _donor_cost       =0.0;
-  _recipient_cost   =0.0;
-  _swap_GUs         = false;
-  
-  // ------------------------------------------------------ Spatial structure
-  _spatially_structured = false;
-  _spatial_structure    = NULL;
-  
-  // -------------------------------------------------------------- Secretion
-  _use_secretion = false;
-  _secretion_contrib_to_fitness = 0.0;
-  _secretion_cost               = 0.0;
 }
 
 
@@ -155,10 +135,10 @@ ae_selection::ae_selection( ae_exp_manager* exp_m )
   }
   
   // -------------------------------------------------------------- Secretion
-  int8_t tmp_use_secretion;
-  gzread( backup_file, &tmp_use_secretion, sizeof(tmp_use_secretion) );
-  _use_secretion = tmp_use_secretion ? 1 : 0;
-  if ( _use_secretion )
+  int8_t tmp_with_secretion;
+  gzread( backup_file, &tmp_with_secretion, sizeof(tmp_with_secretion) );
+  _with_secretion = tmp_with_secretion ? 1 : 0;
+  if ( _with_secretion )
   {
     gzread( backup_file, &_secretion_contrib_to_fitness, sizeof(_secretion_contrib_to_fitness) );
     gzread( backup_file, &_secretion_cost, sizeof(_secretion_cost) );
@@ -172,9 +152,6 @@ ae_selection::~ae_selection( void )
 {
   delete _prng;
   delete [] _prob_reprod;
-  if ( _spatially_structured ) {
-    delete _spatial_structure;
-  }
 }
 
 // =================================================================
@@ -204,7 +181,7 @@ void ae_selection::step_to_next_generation( void )
     exit( EXIT_FAILURE );
   }
   
-  if ( is_spatially_structured() )
+  if ( _exp_m->is_spatially_structured() )
   {
     step_to_next_generation_grid();
     return;
@@ -268,7 +245,7 @@ void ae_selection::step_to_next_generation( void )
     
     // All the offsprings of this individual have been generated, if there is no transfer,
     // the indiv will not be used any more and can hence be deleted
-    if ( (! _with_HT) && (! get_with_plasmid_HT()) )
+    if ( (not _exp_m->get_with_HT()) and (not _exp_m->get_with_plasmid_HT()) )
     {
       old_generation->remove( indiv_node, true, true );
     }
@@ -276,7 +253,7 @@ void ae_selection::step_to_next_generation( void )
     indiv_node = next_indiv_node;
   }
   
-  if ( _with_HT || get_with_plasmid_HT() )
+  if ( _exp_m->get_with_HT() or _exp_m->get_with_plasmid_HT() )
   {
     // The individuals have not yet been deleted, do it now.
     old_generation->erase( true );
@@ -321,10 +298,12 @@ void ae_selection::step_to_next_generation_grid( void )
     exit( EXIT_FAILURE );
   }
   
-  int16_t grid_width  = _spatial_structure->get_grid_width();
-  int16_t grid_height = _spatial_structure->get_grid_height();
+  ae_spatial_structure* sp_struct = _exp_m->get_spatial_structure();
   
-  ae_grid_cell*** pop_grid = _spatial_structure->get_pop_grid();
+  int16_t grid_width  = _exp_m->get_grid_width();
+  int16_t grid_height = _exp_m->get_grid_height();
+  
+  ae_grid_cell*** pop_grid = _exp_m->get_pop_grid();
   
   // create a temporary grid to store new individuals
   ae_individual*** new_indiv_grid = new ae_individual** [grid_width];
@@ -346,7 +325,7 @@ void ae_selection::step_to_next_generation_grid( void )
   
   
   // Add the compound secreted by the individuals
-  if ( get_use_secretion() )
+  if ( _exp_m->get_with_secretion() )
   {
     double tmp_secretion; 
     for ( int16_t x = 0 ; x < grid_width ; x++ )
@@ -359,7 +338,7 @@ void ae_selection::step_to_next_generation_grid( void )
     }
     
     // Diffusion and degradation of compound in the environment
-    _spatial_structure->update_secretion_grid();
+    sp_struct->update_secretion_grid();
   }
   
   
@@ -389,13 +368,13 @@ void ae_selection::step_to_next_generation_grid( void )
   delete [] new_indiv_grid;
   
   // randomly migrate some organisms, if necessary 
-  if ( _spatial_structure->get_migration_number() > 0 )
+  if ( sp_struct->get_migration_number() > 0 )
   {
-    _spatial_structure->do_random_migrations();
+    sp_struct->do_random_migrations();
   }
   
   // Perform plasmid transfer
-  if ( get_with_plasmid_HT() )
+  if ( _exp_m->get_with_plasmid_HT() )
   {
     int16_t x_offset, y_offset, new_x, new_y;
 
@@ -437,18 +416,18 @@ void ae_selection::step_to_next_generation_grid( void )
         
         if ((new_x != x)||(new_y != y))
         {
-          double ptransfer = _prob_plasmid_HT + _tune_donor_ability
-                            * _spatial_structure->get_indiv_at(x, y)->get_fitness_by_feature(DONOR)
-                            + _tune_recipient_ability * _spatial_structure->get_indiv_at(new_x, new_y)->get_fitness_by_feature(RECIPIENT) ;
-          if (_prng->random() < ptransfer) // will x give a plasmid to n ?
+          double ptransfer = _exp_m->get_prob_plasmid_HT() + _exp_m->get_tune_donor_ability()
+                            * sp_struct->get_indiv_at(x, y)->get_fitness_by_feature(DONOR)
+                            + _exp_m->get_tune_recipient_ability() * sp_struct->get_indiv_at(new_x, new_y)->get_fitness_by_feature(RECIPIENT) ;
+          if ( _prng->random() < ptransfer ) // will x give a plasmid to n ?
           {
-            if ( _swap_GUs )
+            if ( _exp_m->get_swap_GUs() )
             {
-              _spatial_structure->get_indiv_at(new_x, new_y)->inject_2GUs(_spatial_structure->get_indiv_at(x, y));
+              sp_struct->get_indiv_at(new_x, new_y)->inject_2GUs( sp_struct->get_indiv_at(x, y) );
             }
             else
             {
-              _spatial_structure->get_indiv_at(new_x, new_y)->inject_GU(_spatial_structure->get_indiv_at(x, y));
+              sp_struct->get_indiv_at(new_x, new_y)->inject_GU( sp_struct->get_indiv_at(x, y) );
             }
           }
         }
@@ -470,14 +449,15 @@ void ae_selection::step_to_next_generation_grid( void )
       for ( int16_t y = 0 ; y < grid_height ; y++ )
       { 
         bool reevaluate = false;
-        while ( _spatial_structure->get_indiv_at(x, y)->get_genetic_unit_list()->get_nb_elts() > 2 ) 
+        while ( sp_struct->get_indiv_at(x, y)->get_genetic_unit_list()->get_nb_elts() > 2 ) 
         {
           reevaluate = true;
-          _spatial_structure->get_indiv_at(x, y)->get_genetic_unit_list()->remove( _spatial_structure->get_indiv_at(x, y)->get_genetic_unit_list()->get_first()->get_next(), true, true);
+          sp_struct->get_indiv_at(x, y)->get_genetic_unit_list()->remove(
+                  sp_struct->get_indiv_at(x, y)->get_genetic_unit_list()->get_first()->get_next(), true, true);
         }
         if (reevaluate)
         {
-          _spatial_structure->get_indiv_at(x, y)->reevaluate();
+          sp_struct->get_indiv_at(x, y)->reevaluate();
           //previous code avoided full re-evaluation, just updated the "full" proteins list:
           //_pop_grid[x][y]->get_individual()->reevaluate_after_GU_transfer(ae_common::sim->get_env());
         }
@@ -493,72 +473,16 @@ void ae_selection::step_to_next_generation_grid( void )
 */
 void ae_selection::write_setup_file( gzFile exp_setup_file ) const
 {
-  if ( _prng == NULL )
-  {
-    printf( "%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__ );
-    exit( EXIT_FAILURE );
-  }
-  
-  // ----------------------------------------- Pseudo-random number generator
-  _prng->save( exp_setup_file );
-
-  // -------------------------------------------------------------- Selection
+  // ---------------------------------------------------- Selection Parameters
   int8_t tmp_sel_scheme = _selection_scheme;
   gzwrite( exp_setup_file, &tmp_sel_scheme,      sizeof(tmp_sel_scheme) );
   gzwrite( exp_setup_file, &_selection_pressure, sizeof(_selection_pressure) );
-
-  // --------------------------- Probability of reproduction of each organism
-  gzwrite( exp_setup_file, &_prob_reprod_previous_best, sizeof(_prob_reprod_previous_best) );
-  
-  // --------------------------------------------------------------- Transfer
-  int8_t tmp_with_HT = _with_HT;
-  gzwrite( exp_setup_file, &tmp_with_HT, sizeof(tmp_with_HT) );
-  if ( _with_HT )
-  {
-    gzwrite( exp_setup_file, &_HT_ins_rate,  sizeof(_HT_ins_rate) );
-    gzwrite( exp_setup_file, &_HT_repl_rate, sizeof(_HT_repl_rate) );
-  }
-  int8_t tmp_with_plasmid_HT = get_with_plasmid_HT();
-  gzwrite( exp_setup_file, &tmp_with_plasmid_HT, sizeof(tmp_with_plasmid_HT) );
-  if ( tmp_with_plasmid_HT )
-  {
-    gzwrite( exp_setup_file, &_prob_plasmid_HT,  sizeof(_prob_plasmid_HT) );
-    gzwrite( exp_setup_file, &_tune_donor_ability,  sizeof(_tune_donor_ability) );
-    gzwrite( exp_setup_file, &_tune_recipient_ability,  sizeof(_tune_recipient_ability) );
-    gzwrite( exp_setup_file, &_donor_cost,  sizeof(_donor_cost) );
-    gzwrite( exp_setup_file, &_recipient_cost,  sizeof(_recipient_cost) );
-    int8_t tmp_swap_GUs = _swap_GUs;
-    gzwrite( exp_setup_file, &tmp_swap_GUs, sizeof(tmp_swap_GUs) );
-  }
-  
-  // ------------------------------------------------------ Spatial structure
-  int8_t tmp_spatially_structured = _spatially_structured;
-  gzwrite( exp_setup_file, &tmp_spatially_structured, sizeof(tmp_spatially_structured) );
-  // NB: Spatial structure itself is not written
-  
-  // -------------------------------------------------------------- Secretion
-  int8_t tmp_use_secretion = _use_secretion;
-  gzwrite( exp_setup_file, &tmp_use_secretion, sizeof(tmp_use_secretion) );
-  if ( _use_secretion )
-  {
-    gzwrite( exp_setup_file, &_secretion_contrib_to_fitness, sizeof(_secretion_contrib_to_fitness) );
-    gzwrite( exp_setup_file, &_secretion_cost, sizeof(_secretion_cost) );
-  }
 }
 
 /*!
 */
 void ae_selection::write_setup_file( FILE* exp_setup_file ) const
-{
-  /*if ( _prng == NULL )
-  {
-    printf( "%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__ );
-    exit( EXIT_FAILURE );
-  }
-  
-  // ----------------------------------------- Pseudo-random number generator
-  _prng->save( exp_setup_file );
-
+{/*
   // -------------------------------------------------------------- Selection
   int8_t tmp_sel_scheme = _selection_scheme;
   gzwrite( exp_setup_file, &tmp_sel_scheme,      sizeof(tmp_sel_scheme) );
@@ -594,81 +518,60 @@ void ae_selection::write_setup_file( FILE* exp_setup_file ) const
   // NB: Spatial structure itself is not written
   
   // -------------------------------------------------------------- Secretion
-  int8_t tmp_use_secretion = _use_secretion;
-  gzwrite( exp_setup_file, &tmp_use_secretion, sizeof(tmp_use_secretion) );
-  if ( _use_secretion )
+  int8_t tmp_with_secretion = _with_secretion;
+  gzwrite( exp_setup_file, &tmp_with_secretion, sizeof(tmp_with_secretion) );
+  if ( _with_secretion )
   {
     gzwrite( exp_setup_file, &_secretion_contrib_to_fitness, sizeof(_secretion_contrib_to_fitness) );
     gzwrite( exp_setup_file, &_secretion_cost, sizeof(_secretion_cost) );
   }*/
 }
 
-void ae_selection::load( gzFile exp_setup_file, gzFile sp_struct_file )
-{
-  // ----------------------------------------- Pseudo-random number generator
-  _prng = new ae_jumping_mt( exp_setup_file );
 
-  // -------------------------------------------------------------- Selection
+/*!
+*/
+void ae_selection::save( gzFile& backup_file ) const
+{
+  if ( _prng == NULL )
+  {
+    printf( "%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__ );
+    exit( EXIT_FAILURE );
+  }
+  
+  // ----------------------------------------- Pseudo-random number generator
+  _prng->save( backup_file );
+
+  // --------------- Probability of reproduction of the previous best organism
+  gzwrite( backup_file,
+           &_prob_reprod_previous_best,
+           sizeof(_prob_reprod_previous_best) );
+}
+
+void ae_selection::load( gzFile& exp_setup_file,
+                         gzFile& backup_file,
+                         bool verbose )
+{
+  // ---------------------------------------------------- Selection parameters
   int8_t tmp_sel_scheme;
   gzread( exp_setup_file, &tmp_sel_scheme, sizeof(tmp_sel_scheme) );
   _selection_scheme = (ae_selection_scheme) tmp_sel_scheme;
   gzread( exp_setup_file, &_selection_pressure, sizeof(_selection_pressure) );
 
+  // ----------------------------------------- Pseudo-random number generator
+  _prng = new ae_jumping_mt( backup_file );
+
   // --------------------------- Probability of reproduction of each organism
-  gzread( exp_setup_file, &_prob_reprod_previous_best, sizeof(_prob_reprod_previous_best) );
-  
-  // --------------------------------------------------------------- Transfer
-  int8_t tmp_with_HT;
-  gzread( exp_setup_file, &tmp_with_HT, sizeof(tmp_with_HT) );
-  _with_HT = tmp_with_HT ? 1 : 0;
-  if ( _with_HT )
-  {
-    gzread( exp_setup_file, &_HT_ins_rate,  sizeof(_HT_ins_rate) );
-    gzread( exp_setup_file, &_HT_repl_rate, sizeof(_HT_repl_rate) );
-  }
-  int8_t tmp_with_plasmid_HT;
-  gzread( exp_setup_file, &tmp_with_plasmid_HT, sizeof(tmp_with_plasmid_HT) );
-  if ( tmp_with_plasmid_HT )
-  {
-    gzread( exp_setup_file, &_prob_plasmid_HT,  sizeof(_prob_plasmid_HT) );
-    gzread( exp_setup_file, &_tune_donor_ability,  sizeof(_tune_donor_ability) );
-    gzread( exp_setup_file, &_tune_recipient_ability,  sizeof(_tune_recipient_ability) );
-    gzread( exp_setup_file, &_donor_cost,  sizeof(_donor_cost) );
-    gzread( exp_setup_file, &_recipient_cost,  sizeof(_recipient_cost) );
-    int8_t tmp_swap_GUs;
-    gzread( exp_setup_file, &tmp_swap_GUs, sizeof(tmp_swap_GUs) );
-    _swap_GUs = tmp_swap_GUs ? 1 : 0;
-  }
-  
-  // ------------------------------------------------------ Spatial structure
-  int8_t tmp_spatially_structured;
-  gzread( exp_setup_file, &tmp_spatially_structured, sizeof(tmp_spatially_structured) );
-  _spatially_structured = tmp_spatially_structured ? 1 : 0;
-  if ( _spatially_structured )
-  {
-    if ( sp_struct_file == NULL )
-    {
-      printf( "%s:%d: error: Your experimental setup requires a spatial structure but none was provided.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    }
-    _spatial_structure = new ae_spatial_structure( sp_struct_file );
-  }
-  
-  // -------------------------------------------------------------- Secretion
-  int8_t tmp_use_secretion;
-  gzread( exp_setup_file, &tmp_use_secretion, sizeof(tmp_use_secretion) );
-  _use_secretion = tmp_use_secretion ? 1 : 0;
-  if ( _use_secretion )
-  {
-    gzread( exp_setup_file, &_secretion_contrib_to_fitness, sizeof(_secretion_contrib_to_fitness) );
-    gzread( exp_setup_file, &_secretion_cost, sizeof(_secretion_cost) );
-  }
+  gzread( backup_file,
+          &_prob_reprod_previous_best,
+          sizeof(_prob_reprod_previous_best) );
 }
 
-void ae_selection::load( FILE* exp_setup_file, gzFile sp_struct_file )
+void ae_selection::load( FILE*& exp_setup_file,
+                         gzFile& backup_file,
+                         bool verbose )
 {/*
   // ----------------------------------------- Pseudo-random number generator
-  _prng = new ae_jumping_mt( exp_setup_file );
+  _prng = new ae_jumping_mt( sel_file );
 
   // -------------------------------------------------------------- Selection
   int8_t tmp_sel_scheme;
@@ -717,10 +620,10 @@ void ae_selection::load( FILE* exp_setup_file, gzFile sp_struct_file )
   }
   
   // -------------------------------------------------------------- Secretion
-  int8_t tmp_use_secretion;
-  gzread( exp_setup_file, &tmp_use_secretion, sizeof(tmp_use_secretion) );
-  _use_secretion = tmp_use_secretion ? 1 : 0;
-  if ( _use_secretion )
+  int8_t tmp_with_secretion;
+  gzread( exp_setup_file, &tmp_with_secretion, sizeof(tmp_with_secretion) );
+  _with_secretion = tmp_with_secretion ? 1 : 0;
+  if ( _with_secretion )
   {
     gzread( exp_setup_file, &_secretion_contrib_to_fitness, sizeof(_secretion_contrib_to_fitness) );
     gzread( exp_setup_file, &_secretion_cost, sizeof(_secretion_cost) );
@@ -917,9 +820,9 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
   //  2) Set the new individual's location on the grid
   //     (needed if the population is structured)
   // ===========================================================================
-  if ( _spatially_structured && (x != -1) )
+  if ( _exp_m->is_spatially_structured() && (x != -1) )
   {
-    new_indiv->set_grid_cell( _spatial_structure->get_grid_cell( x, y ) );
+    new_indiv->set_grid_cell( _exp_m->get_spatial_structure()->get_grid_cell( x, y ) );
   }
   
   
@@ -931,7 +834,7 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
   // -----------------------------------
   //  a) Insertion transfer
   // -----------------------------------
-  if ( _prng->random() < _HT_ins_rate )
+  if ( _prng->random() < _exp_m->get_HT_ins_rate() )
   {
     // Insertion transfer
     // Requirements:
@@ -1048,7 +951,7 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
   // -----------------------------------
   //  b) Replacement transfer
   // -----------------------------------
-  if ( _prng->random() < _HT_repl_rate )
+  if ( _prng->random() < _exp_m->get_HT_repl_rate() )
   {
     // Replacement transfer
     // Requirements:
@@ -1257,9 +1160,11 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
 
 ae_individual* ae_selection::calculate_local_competition ( int16_t x, int16_t y )
 {
+  ae_spatial_structure* sp_struct = _exp_m->get_spatial_structure();
+  
   int16_t neighborhood_size = 9;
-  int16_t grid_width = _spatial_structure->get_grid_width();
-  int16_t grid_height = _spatial_structure->get_grid_height();
+  int16_t grid_width  = sp_struct->get_grid_width();
+  int16_t grid_height = sp_struct->get_grid_height();
   int16_t cur_x;
   int16_t cur_y;
 
@@ -1277,7 +1182,7 @@ ae_individual* ae_selection::calculate_local_competition ( int16_t x, int16_t y 
     {
       cur_x = ( x + i + grid_width )  % grid_width;
       cur_y = ( y + j + grid_height ) % grid_height;
-      local_fit_array[count]  = _spatial_structure->get_indiv_at( cur_x, cur_y )->get_fitness();
+      local_fit_array[count]  = sp_struct->get_indiv_at( cur_x, cur_y )->get_fitness();
       sort_fit_array[count]   = local_fit_array[count];
       initial_location[count] = count;
       sum_local_fit += local_fit_array[count];
@@ -1355,7 +1260,7 @@ ae_individual* ae_selection::calculate_local_competition ( int16_t x, int16_t y 
   
   
   // pick one organism to reproduce, based on probs[] calculated above, using roulette selection
-  int8_t found_org = _prng->roulette_random(probs,9);
+  int8_t found_org = _prng->roulette_random( probs, 9 );
   
   int16_t x_offset = ( found_org / 3 ) - 1;
   int16_t y_offset = ( found_org % 3 ) - 1;
@@ -1365,7 +1270,8 @@ ae_individual* ae_selection::calculate_local_competition ( int16_t x, int16_t y 
   delete [] initial_location;
   delete [] probs; 
   
-  return _spatial_structure->get_indiv_at( (x+x_offset+grid_width) % grid_width, (y+y_offset+grid_height) % grid_height );
+  return sp_struct->get_indiv_at( (x+x_offset+grid_width)  % grid_width,
+                                  (y+y_offset+grid_height) % grid_height );
 }
 
 // =================================================================

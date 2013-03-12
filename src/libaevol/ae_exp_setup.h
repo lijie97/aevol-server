@@ -86,28 +86,24 @@ class ae_exp_setup : public ae_object
     // =======================================================================
     //                         Accessors: getters
     // =======================================================================
-    inline ae_environment*  get_env( void ) const;
+    // ----------------------------------------------------- Selection context
+    inline ae_selection* get_sel( void ) const;
+  
+    // --------------------------------------------------------------- Transfer
+    inline bool get_with_HT( void ) const;
+    inline double get_HT_ins_rate( void ) const;
+    inline double get_HT_repl_rate( void ) const;
     
-    inline int16_t  get_nb_env_segments( void ) const;
-    
-    inline ae_selection*        get_sel( void ) const;
-    inline ae_selection_scheme  get_selection_scheme( void ) const;
-    inline double               get_selection_pressure( void ) const;
-    
-    // Global settings
-    //~ inline bool get_with_alignments( void ) const;
-    
-    inline bool                   is_spatially_structured( void ) const;
-    inline ae_spatial_structure*  get_spatial_structure( void ) const;
-    inline ae_grid_cell*          get_grid_cell( int16_t x, int16_t y ) const;
-    inline int16_t                get_grid_width( void ) const;
-    inline int16_t                get_grid_height( void ) const;
-
-    // The ability to own a plasmid is a property of the individuals    
-    //~ inline bool     get_allow_plasmids( void ) const;
-    inline bool     get_with_plasmid_HT( void ) const;
-    
-    inline bool   get_use_secretion( void ) const;
+    inline bool get_with_plasmid_HT( void ) const;
+    inline double get_prob_plasmid_HT( void ) const;
+    inline double get_tune_donor_ability( void ) const;
+    inline double get_tune_recipient_ability( void ) const;
+    inline double get_donor_cost( void ) const;
+    inline double get_recipient_cost( void ) const;
+    inline bool   get_swap_GUs( void ) const;
+  
+    // -------------------------------------------------------------- Secretion
+    inline bool   get_with_secretion( void ) const;
     inline double get_secretion_contrib_to_fitness( void ) const;
     inline double get_secretion_cost( void ) const;
   
@@ -115,19 +111,35 @@ class ae_exp_setup : public ae_object
     // =======================================================================
     //                         Accessors: setters
     // =======================================================================
-    inline void set_env( ae_environment* env );
+    // --------------------------------------------------------------- Transfer
+    inline void set_with_HT( bool with_HT );
+    inline void set_HT_ins_rate( double HT_ins_rate );
+    inline void set_HT_repl_rate( double HT_repl_rate );
+    //~ inline void set_with_plasmid_HT( bool with_p_HT );
+    //~ inline void set_nb_plasmid_HT( int16_t nb_p_HT );
+    inline void set_prob_plasmid_HT( double prob_p_HT );
+    inline void set_tune_donor_ability( double tune_donor_ability );
+    inline void set_tune_recipient_ability( double tune_recipient_ability );
+    inline void set_donor_cost( double donor_cost );
+    inline void set_recipient_cost( double recipient_cost );
+    inline void set_swap_GUs( bool swap_GUs );
+    
+    // -------------------------------------------------------------- Secretion
+    inline void set_with_secretion( bool with_secretion );
+    inline void set_secretion_contrib_to_fitness( double secretion_contrib );
+    inline void set_secretion_cost( double secretion_cost );
   
   
     // =======================================================================
     //                            Public Methods
     // =======================================================================
-    inline void write_setup_file( gzFile setup_file ) const;
-    inline void write_setup_file( FILE* setup_file ) const;
-    inline void step_to_next_generation( void );
+    void write_setup_file( gzFile exp_setup_file ) const;
+    void write_setup_file( FILE* exp_setup_file ) const;
+    void save( gzFile backup_file ) const;
+    void load( gzFile setup_file, gzFile backup_file, bool verbose );
+    void load( FILE*  setup_file, gzFile backup_file, bool verbose );
     
-    void save( gzFile env_file, gzFile sp_struct_file ) const;
-    void load( gzFile exp_setup_file, gzFile env_file, gzFile sp_struct_file, bool verbose );
-    void load( FILE* exp_setup_file, gzFile env_file, gzFile sp_struct_file, bool verbose );
+    inline void step_to_next_generation( void );
     
     
     // =======================================================================
@@ -163,129 +175,171 @@ class ae_exp_setup : public ae_object
     // =======================================================================
     ae_exp_manager* _exp_m;
       
-    // Environment
-    ae_environment* _env;
-      
-    // Selection context
-    ae_selection*   _sel;
+    // ----------------------------------------------------- Selection context
+    ae_selection* _sel;
+    
+    // --------------------------------------------------- Transfer parameters
+    bool    _with_HT;
+    double  _HT_ins_rate;
+    double  _HT_repl_rate;
+    double  _prob_plasmid_HT; // TODO: explain
+    double  _tune_donor_ability;
+    double  _tune_recipient_ability;
+    double  _donor_cost;
+    double  _recipient_cost;
+    bool    _swap_GUs; // Whether plasmid HT is uni- or bidirectional
+    
+    // -------------------------------------------------- Secretion parameters
+    bool    _with_secretion;
+    double  _secretion_contrib_to_fitness;
+    double  _secretion_cost;
 };
 
 
 // =====================================================================
 //                           Getters' definitions
 // =====================================================================
-inline ae_environment* ae_exp_setup::get_env( void ) const
-{
-  return _env;
-}
-
-inline int16_t ae_exp_setup::get_nb_env_segments( void ) const
-{
-  return _env->get_nb_segments();
-}
-
 inline ae_selection* ae_exp_setup::get_sel( void ) const
 {
   return _sel;
 }
 
-inline ae_selection_scheme ae_exp_setup::get_selection_scheme( void ) const
+inline bool ae_exp_setup::get_with_HT( void ) const
 {
-  return _sel->get_selection_scheme();
+  return _with_HT;
 }
 
-inline double ae_exp_setup::get_selection_pressure( void ) const
+inline double ae_exp_setup::get_HT_ins_rate( void ) const
 {
-  return _sel->get_selection_pressure();
+  return _HT_ins_rate;
 }
 
-// Global settings    
-//~ inline bool ae_exp_setup::get_with_alignments( void ) const
-//~ {
-  //~ return ;
-//~ }
-
-// The ability to own a plasmid is a property of the individuals
-//~ inline bool ae_exp_manager::get_allow_plasmids( void ) const
-//~ {
-  //~ return _sel->get_allow_plasmids();
-//~ }
+inline double ae_exp_setup::get_HT_repl_rate( void ) const
+{
+  return _HT_repl_rate;
+}
 
 inline bool ae_exp_setup::get_with_plasmid_HT( void ) const
 {
-  return _sel->get_with_plasmid_HT();
+  return ( _prob_plasmid_HT > 0 );
 }
 
-inline bool ae_exp_setup::is_spatially_structured( void ) const
+inline double ae_exp_setup::get_prob_plasmid_HT( void ) const
 {
-  return _sel->is_spatially_structured();
+  return _prob_plasmid_HT;
 }
 
-inline ae_spatial_structure* ae_exp_setup::get_spatial_structure( void ) const
+inline double ae_exp_setup::get_tune_donor_ability( void ) const
 {
-  return _sel->get_spatial_structure();
+  return _tune_donor_ability;
 }
 
-inline ae_grid_cell* ae_exp_setup::get_grid_cell( int16_t x, int16_t y ) const
+inline double ae_exp_setup::get_tune_recipient_ability( void ) const
 {
-  return _sel->get_grid_cell( x, y );
+  return _tune_recipient_ability;
 }
 
-inline int16_t ae_exp_setup::get_grid_width( void ) const
+inline double ae_exp_setup::get_donor_cost( void ) const
 {
-  return _sel->get_grid_width();
+  return _donor_cost;
 }
 
-inline int16_t ae_exp_setup::get_grid_height( void ) const
+inline double ae_exp_setup::get_recipient_cost( void ) const
 {
-  return _sel->get_grid_height();
+  return _recipient_cost;
 }
 
-inline bool ae_exp_setup::get_use_secretion( void ) const
+inline bool   ae_exp_setup::get_swap_GUs( void ) const
 {
-  return _sel->get_use_secretion();
+  return _swap_GUs;
+}
+
+inline bool ae_exp_setup::get_with_secretion( void ) const
+{
+  return _with_secretion;
 }
 
 inline double ae_exp_setup::get_secretion_contrib_to_fitness( void ) const
 {
-  return _sel->get_secretion_contrib_to_fitness();
+  return _secretion_contrib_to_fitness;
 }
 
 inline double ae_exp_setup::get_secretion_cost( void ) const
 {
-  return _sel->get_secretion_cost();
+  return _secretion_cost;
 }
 
 // =====================================================================
 //                           Setters' definitions
 // =====================================================================
-inline void ae_exp_setup::set_env( ae_environment* env )
+// --------------------------------------------------------------- Transfer
+inline void ae_exp_setup::set_with_HT( bool with_HT )
 {
-  _env = env;
+  _with_HT = with_HT;
+}
+
+inline void ae_exp_setup::set_HT_ins_rate( double HT_ins_rate )
+{
+  _HT_ins_rate = HT_ins_rate;
+}
+
+inline void ae_exp_setup::set_HT_repl_rate( double HT_repl_rate )
+{
+  _HT_repl_rate = HT_repl_rate;
+}
+
+inline void ae_exp_setup::set_prob_plasmid_HT( double prob_p_HT )
+{
+  _prob_plasmid_HT = prob_p_HT;
+}
+
+inline void ae_exp_setup::set_tune_donor_ability( double tune_donor_ability )
+{
+  _tune_donor_ability = tune_donor_ability;
+}
+
+inline void ae_exp_setup::set_tune_recipient_ability( double tune_recipient_ability )
+{
+  _tune_recipient_ability = tune_recipient_ability;
+}
+
+inline void ae_exp_setup::set_donor_cost( double donor_cost )
+{
+  _donor_cost = donor_cost;
+}
+
+inline void ae_exp_setup::set_recipient_cost( double recipient_cost )
+{
+  _recipient_cost = recipient_cost;
+}
+
+inline void ae_exp_setup::set_swap_GUs( bool swap_GUs )
+{
+  _swap_GUs = swap_GUs;
+}
+
+// -------------------------------------------------------------- Secretion
+inline void ae_exp_setup::set_with_secretion( bool with_secretion )
+{
+  _with_secretion = with_secretion;
+}
+
+inline void ae_exp_setup::set_secretion_contrib_to_fitness( double secretion_contrib )
+{
+  _secretion_contrib_to_fitness = secretion_contrib;
+}
+
+inline void ae_exp_setup::set_secretion_cost( double secretion_cost )
+{
+  _secretion_cost = secretion_cost;
 }
 
 
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-void ae_exp_setup::write_setup_file( gzFile setup_file ) const
-{
-  _sel->write_setup_file( setup_file );
-}
-
-void ae_exp_setup::write_setup_file( FILE* setup_file ) const
-{
-  _sel->write_setup_file( setup_file );
-}
-
 inline void ae_exp_setup::step_to_next_generation( void )
-{
-  // Apply environmental variation
-  _env->apply_variation();
-  
-  // Apply environmental noise
-  _env->apply_noise();
-  
+{ 
   // Make the individuals reproduce
   _sel->step_to_next_generation();
 }

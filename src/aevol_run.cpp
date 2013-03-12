@@ -106,9 +106,9 @@ int main( int argc, char* argv[] )
   // -------------------------------------------------------------------------
   // 1) Initialize command-line option variables with default values
   // -------------------------------------------------------------------------
-  bool use_text_files = false;
+  bool use_text_files   = false;
   bool pause_on_startup = false;
-  bool verbose = false;
+  bool verbose          = false;
   
   int32_t num_gener = 0;
   int32_t nb_gener  = 1000;
@@ -171,6 +171,14 @@ int main( int argc, char* argv[] )
 		  
         break;      
       }
+      case 't' :
+      {
+        use_text_files = true;
+        printf( "%s: error: Option -t or --text not yet implemented.\n", argv[0] );
+        exit( EXIT_FAILURE );
+        
+        break;
+      }
       case 'v' :
       {
         verbose = true;
@@ -194,6 +202,11 @@ int main( int argc, char* argv[] )
         
         break;
       }
+      default :
+      {
+        // An error message is printed in getopt_long, we just need to exit
+        exit( EXIT_FAILURE );
+      }
     }
   }
   
@@ -211,39 +224,6 @@ int main( int argc, char* argv[] )
   //~ }
   
   
-  // -------------------------------------------------------------------------
-  // 5) Set file names according to options
-  // -------------------------------------------------------------------------  
-  char* env_file_name       = new char[255];
-  char* pop_file_name       = new char[255];
-  char* exp_setup_file_name = new char[255];
-  char* out_prof_file_name  = new char[255];
-  char* sp_struct_file_name = new char[255];
-  
-  sprintf( env_file_name,       ENV_FNAME_FORMAT,       num_gener );
-  sprintf( pop_file_name,       POP_FNAME_FORMAT,       num_gener );
-  sprintf( exp_setup_file_name, EXP_S_FNAME_FORMAT,     num_gener );
-  sprintf( out_prof_file_name,  OUT_P_FNAME_FORMAT,     num_gener );
-  sprintf( sp_struct_file_name, SP_STRUCT_FNAME_FORMAT, num_gener );
-
-  // Check existence of optional files in file system.
-  // Missing files will cause the corresponding file_name variable to be nullified
-  struct stat stat_buf;
-  if ( stat( sp_struct_file_name, &stat_buf ) == -1 )
-  {
-    if ( errno == ENOENT )
-    {
-      delete [] sp_struct_file_name;
-      sp_struct_file_name = NULL;
-    }
-    else
-    {
-      printf( "%s:%d: error: unknown error.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    }
-  }
-  
-  
   // =================================================================
   //                          Load the simulation
   // =================================================================
@@ -253,24 +233,18 @@ int main( int argc, char* argv[] )
     ae_exp_manager* exp_manager = new ae_exp_manager();
   #endif
   
-  exp_manager->load( num_gener, exp_setup_file_name, out_prof_file_name, env_file_name, pop_file_name, sp_struct_file_name, verbose );
+  exp_manager->load( num_gener, false, verbose );
   exp_manager->set_nb_gener( nb_gener );
   
   // Make a numbered copy of each static input file (dynamic files are saved elsewhere)
   // TODO (?)
-  
-  delete [] exp_setup_file_name;
-  delete [] out_prof_file_name;
-  delete [] env_file_name;
-  delete [] pop_file_name;
-  delete [] sp_struct_file_name;
 
-#ifndef __NO_X
-  if ( show_display_on_startup )
-  {
-    ((ae_exp_manager_X11*) exp_manager)->toggle_display_on_off();
-  }
-#endif
+  #ifndef __NO_X
+    if ( show_display_on_startup )
+    {
+      ((ae_exp_manager_X11*) exp_manager)->toggle_display_on_off();
+    }
+  #endif
   
   
   // =================================================================

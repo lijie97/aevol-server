@@ -68,20 +68,12 @@ int main( int argc, char* argv[] )
   // ----------------------------------------
   //     command-line option parsing
   // ----------------------------------------
-  char* env_file_name = NULL;
-  char* pop_file_name = NULL;
   char* output_dir    = NULL;
   int nb_children     = 1000;
   int wanted_rank     = -1;
   int wanted_index    = -1;
   bool details        = false;
-  int32_t num_gener   = 100;  
-  
-  char* exp_setup_file_name = new char[63];
-  char* out_prof_file_name  = new char[63];
-  strcpy( exp_setup_file_name,  "exp_setup.ae" );
-  strcpy( out_prof_file_name,   "output_profile.ae" );
-  char* sp_struct_file_name = NULL;
+  int32_t num_gener   = 100;
 
   const char * options_list = "h:e:o:n:r:i:d"; 
   static struct option long_options_list[] = {
@@ -109,33 +101,7 @@ int main( int argc, char* argv[] )
           exit( EXIT_FAILURE );
         }
         
-        num_gener = atol( optarg );
-        
-        env_file_name       = new char[255];
-        pop_file_name       = new char[255];
-        sp_struct_file_name = new char[255];
-        
-        sprintf( env_file_name,       ENV_FNAME_FORMAT,       num_gener );
-        sprintf( pop_file_name,       POP_FNAME_FORMAT,       num_gener );
-        sprintf( sp_struct_file_name, SP_STRUCT_FNAME_FORMAT, num_gener );
-		  
-        // Check existence of optional files in file system.
-        // Missing files will cause the corresponding file_name variable to be nullified
-        struct stat stat_buf;
-        if ( stat( sp_struct_file_name, &stat_buf ) == -1 )
-        {
-          if ( errno == ENOENT )
-          {
-            delete [] sp_struct_file_name;
-            sp_struct_file_name = NULL;
-          }
-          else
-          {
-            printf( "%s:%d: error: unknown error.\n", __FILE__, __LINE__ );
-            exit( EXIT_FAILURE );
-          }
-        }
-        
+        num_gener = atol( optarg );        
         break;
       }
     case 'o' : 
@@ -159,12 +125,6 @@ int main( int argc, char* argv[] )
     }
   }
   
-  if ( env_file_name == NULL || pop_file_name == NULL )
-  {
-    printf( "%s: error: You must provide a generation number.\n", argv[0] );
-    exit( EXIT_FAILURE );
-  }
-  
   analysis_type type = ROBUSTNESS;
 
   population_statistics* population_statistics_compute = new population_statistics(type, nb_children, output_dir, wanted_rank, wanted_index, details);
@@ -175,17 +135,13 @@ int main( int argc, char* argv[] )
   #else
     ae_exp_manager* exp_manager = new ae_exp_manager();
   #endif
-  exp_manager->load( num_gener, exp_setup_file_name, out_prof_file_name, env_file_name, pop_file_name, sp_struct_file_name, true );
+  exp_manager->load( num_gener, false, true );
   
   population_statistics_compute->compute_population_f_nu(exp_manager);
 
   delete exp_manager;
   delete population_statistics_compute;
   delete [] output_dir;
-  delete [] pop_file_name;
-  delete [] env_file_name;
-  delete [] exp_setup_file_name;
-  delete [] out_prof_file_name;
   
   // TODO: update
   // rename dstory.bak.gz

@@ -153,7 +153,7 @@ params::params( void )
   int32_t  _migration_number  = 0;
   
   // -------------------------------------------------------------- Secretion
-  _use_secretion                = false;
+  _with_secretion               = false;
   _secretion_contrib_to_fitness = 0;
   _secretion_diffusion_prop     = 0;
   _secretion_degradation_prop   = 0;
@@ -307,7 +307,7 @@ void params::print_to_file( FILE* file )
   
   // -------------------------------------------------------------- Secretion
   fprintf( file, "\nSecretion -----------------------------------------------\n" );
-  fprintf( file, "use_secretion :                 %s\n", _use_secretion? "true" : "false" );
+  fprintf( file, "with_secretion :                %s\n", _with_secretion? "true" : "false" );
   fprintf( file, "secretion_contrib_to_fitness :  %e\n", _secretion_contrib_to_fitness    );
   fprintf( file, "secretion_diffusion_prop :      %e\n", _secretion_diffusion_prop        );
   fprintf( file, "secretion_degradation_prop :    %e\n", _secretion_degradation_prop      );

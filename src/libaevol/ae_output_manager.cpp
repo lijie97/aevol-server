@@ -266,7 +266,6 @@ void ae_output_manager::write_current_generation_outputs( void ) const
   {
     _stats->flush();
     _exp_m->save();
-    _exp_m->write_setup_files();
     
     // Update the LAST_GENER file
     FILE* last_gener_file = fopen( LAST_GENER_FNAME, "w" );

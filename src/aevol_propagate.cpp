@@ -184,38 +184,6 @@ int main( int argc, char* argv[] )
   }
   
   
-  // -------------------------------------------------------------------------
-  // 5) Set file names according to options
-  // -------------------------------------------------------------------------  
-  char* env_file_name       = new char[255];
-  char* pop_file_name       = new char[255];
-  char* exp_setup_file_name = new char[255];
-  char* out_prof_file_name  = new char[255];
-  char* sp_struct_file_name = new char[255];
-  
-  sprintf( env_file_name,       ENV_FNAME_FORMAT,       num_gener );
-  sprintf( pop_file_name,       POP_FNAME_FORMAT,       num_gener );
-  sprintf( exp_setup_file_name, EXP_S_FNAME_FORMAT,     num_gener );
-  sprintf( out_prof_file_name,  OUT_P_FNAME_FORMAT,     num_gener );
-  sprintf( sp_struct_file_name, SP_STRUCT_FNAME_FORMAT, num_gener );
-
-  // Check existence of optional files in file system.
-  // Missing files will cause the corresponding file_name variable to be nullified
-  if ( stat( sp_struct_file_name, &stat_buf ) == -1 )
-  {
-    if ( errno == ENOENT )
-    {
-      delete [] sp_struct_file_name;
-      sp_struct_file_name = NULL;
-    }
-    else
-    {
-      printf( "%s:%d: error: unknown error.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    }
-  }
-  
-  
   
   // =================================================================
   //                    Load the model experiment
@@ -226,7 +194,7 @@ int main( int argc, char* argv[] )
     ae_exp_manager* exp_manager = new ae_exp_manager();
   #endif
   
-  exp_manager->load( num_gener, exp_setup_file_name, out_prof_file_name, env_file_name, pop_file_name, sp_struct_file_name, verbose );
+  exp_manager->load( num_gener, false, verbose );
   
   exp_manager->save_copy( output_dir );
 }

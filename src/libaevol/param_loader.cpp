@@ -164,7 +164,7 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
       }
       else if ( strcmp( line->words[2*i+1], "SECRETION" ) == 0 )
       {
-        _param_values->set_use_secretion( true );
+        _param_values->set_with_secretion( true );
         env_axis_features[i] = SECRETION;
       }
       else if ( strcmp( line->words[2*i+1], "DONOR" ) == 0 )
@@ -878,11 +878,11 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   _prng = new ae_jumping_mt( _param_values->_seed );
   
   // Create aliases (syntaxic sugars)
-  ae_population*      pop       = exp_m->get_pop();
   ae_exp_setup*       exp_s     = exp_m->get_exp_s();
+  ae_population*      pop       = exp_m->get_pop();
+  ae_environment*     env       = exp_m->get_env();
+  ae_selection*       sel       = exp_m->get_sel();
   ae_output_manager*  output_m  = exp_m->get_output_m();
-  ae_environment*     env       = exp_s->get_env();
-  ae_selection*       sel       = exp_s->get_sel();
   
   // If the population is spatially structured,
   // check that the population fits in the spatial structure
@@ -908,34 +908,36 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   sel->set_selection_pressure( _param_values->_selection_pressure );
   
   // ----------------------------------------------------------------- Transfer
-  sel->set_with_HT( _param_values->_with_HT );
-  sel->set_HT_ins_rate( _param_values->_HT_ins_rate );
-  sel->set_HT_repl_rate( _param_values->_HT_repl_rate );
-  sel->set_prob_plasmid_HT( _param_values->_prob_plasmid_HT );
-  sel->set_tune_donor_ability( _param_values->_tune_donor_ability );
-  sel->set_tune_recipient_ability( _param_values->_tune_recipient_ability );
-  sel->set_donor_cost( _param_values->_donor_cost );
-  sel->set_recipient_cost( _param_values->_recipient_cost );
-  sel->set_swap_GUs( _param_values->_swap_GUs );
-  output_m->set_compute_phen_contrib_by_GU ( _param_values->_compute_phen_contrib_by_GU );
+  exp_s->set_with_HT( _param_values->_with_HT );
+  exp_s->set_HT_ins_rate( _param_values->_HT_ins_rate );
+  exp_s->set_HT_repl_rate( _param_values->_HT_repl_rate );
+  exp_s->set_prob_plasmid_HT( _param_values->_prob_plasmid_HT );
+  exp_s->set_tune_donor_ability( _param_values->_tune_donor_ability );
+  exp_s->set_tune_recipient_ability( _param_values->_tune_recipient_ability );
+  exp_s->set_donor_cost( _param_values->_donor_cost );
+  exp_s->set_recipient_cost( _param_values->_recipient_cost );
+  exp_s->set_swap_GUs( _param_values->_swap_GUs );
+  output_m->set_compute_phen_contrib_by_GU( _param_values->_compute_phen_contrib_by_GU );
   
   // -------------------------------------------------------- Spatial structure
-  sel->set_spatially_structured( _param_values->_spatially_structured );
   if ( _param_values->_spatially_structured )
   {
-    sel->get_spatial_structure()->set_prng( new ae_jumping_mt(*_prng) );
-    sel->set_grid_size( _param_values->_grid_width, _param_values->_grid_height );
-    sel->set_secretion_degradation_prop(_param_values->_secretion_degradation_prop);
-    sel->set_secretion_diffusion_prop(_param_values->_secretion_diffusion_prop);
-    sel->set_migration_number( _param_values->_migration_number );
+    ae_jumping_mt* sp_struct_prng = new ae_jumping_mt(*_prng);
+    exp_m->set_spatial_structure( _param_values->_grid_width,
+                                  _param_values->_grid_height,
+                                  sp_struct_prng );
+    ae_spatial_structure* sp_struct = exp_m->get_spatial_structure();
+    sp_struct->set_secretion_degradation_prop( _param_values->_secretion_degradation_prop );
+    sp_struct->set_secretion_diffusion_prop( _param_values->_secretion_diffusion_prop );
+    sp_struct->set_migration_number( _param_values->_migration_number );
   }
   
   // ---------------------------------------------------------------- Secretion
-  sel->set_use_secretion( _param_values->_use_secretion );
-  if ( _param_values->_use_secretion )
+  exp_s->set_with_secretion( _param_values->_with_secretion );
+  if ( _param_values->_with_secretion )
   {
-    sel->set_secretion_contrib_to_fitness( _param_values->_secretion_contrib_to_fitness );
-    sel->set_secretion_cost( _param_values->_secretion_cost );
+    exp_s->set_secretion_contrib_to_fitness( _param_values->_secretion_contrib_to_fitness );
+    exp_s->set_secretion_cost( _param_values->_secretion_cost );
   }
   
   
@@ -1103,11 +1105,11 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   }
   
   // If the population is spatially structured, set each individual's position
-  if ( sel->is_spatially_structured() )
+  if ( exp_m->is_spatially_structured() )
   {
     int16_t x, y;
-    int16_t x_max = sel->get_grid_width();
-    int16_t y_max = sel->get_grid_height();
+    int16_t x_max = exp_m->get_grid_width();
+    int16_t y_max = exp_m->get_grid_height();
     ae_grid_cell* grid_cell = NULL;
     
     ae_list_node<ae_individual*>* indiv_node = pop->get_indivs()->get_first();
@@ -1121,7 +1123,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
       {
         x = _prng->random( x_max );
         y = _prng->random( y_max );
-        grid_cell = sel->get_grid_cell( x, y );
+        grid_cell = exp_m->get_grid_cell( x, y );
       } while ( grid_cell->get_individual() != NULL );
       
       grid_cell->set_individual( indiv );

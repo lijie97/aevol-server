@@ -181,7 +181,7 @@ class params : public ae_object
     inline int32_t  get_migration_number( void ) const;
     
     // -------------------------------------------------------------- Secretion
-    inline bool   get_use_secretion( void ) const;
+    inline bool   get_with_secretion( void ) const;
     inline double get_secretion_contrib_to_fitness( void ) const;      // (0,1)
     // proportion that diffuses into each cell, every generation, 0 for no diffusion
     inline double get_secretion_diffusion_prop( void ) const;
@@ -336,7 +336,7 @@ class params : public ae_object
     inline void set_migration_number( int32_t migration_number );
     
     // -------------------------------------------------------------- Secretion
-    inline void set_use_secretion( bool use_secretion );
+    inline void set_with_secretion( bool with_secretion );
     inline void set_secretion_contrib_to_fitness( double secretion_contrib_to_fitness );
     inline void set_secretion_diffusion_prop( double secretion_diffusion_prop );
     inline void set_secretion_degradation_prop( double secretion_degradation_prop );
@@ -533,7 +533,7 @@ class params : public ae_object
     int32_t  _migration_number; // TODO : explain
     
     // -------------------------------------------------------------- Secretion
-    bool   _use_secretion;
+    bool   _with_secretion;
     // Proportion of the fitness contributed by secretion
     double _secretion_contrib_to_fitness;      // (0,1)
     // Proportion that diffuses into each cell, every generation
@@ -921,9 +921,9 @@ inline int32_t params::get_migration_number( void ) const
 
 
 // ------------------------------------------------------------------ Secretion
-inline bool params::get_use_secretion( void ) const
+inline bool params::get_with_secretion( void ) const
 {
-  return _use_secretion;
+  return _with_secretion;
 }
 
 inline double params::get_secretion_contrib_to_fitness( void ) const
@@ -1401,9 +1401,9 @@ inline void params::set_migration_number( int32_t migration_number )
 
 
 // ------------------------------------------------------------------ Secretion
-inline void params::set_use_secretion( bool use_secretion )
+inline void params::set_with_secretion( bool with_secretion )
 {
-  _use_secretion = use_secretion;
+  _with_secretion = with_secretion;
 }
 
 inline void params::set_secretion_contrib_to_fitness( double secretion_contrib_to_fitness )

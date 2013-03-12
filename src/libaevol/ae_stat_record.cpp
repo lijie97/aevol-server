@@ -176,7 +176,7 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_individual const * ind
     _fitness = indiv->get_fitness();
   
     // Secretion stats
-    if ( _exp_m->get_use_secretion() )
+    if ( _exp_m->get_with_secretion() )
     {
        _secretion_error   = (double) indiv->get_dist_to_target_by_feature( SECRETION );
        _secretion_fitness = (double) indiv->get_fitness_by_feature( SECRETION );
@@ -274,7 +274,7 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_individual const * ind
     _fitness = indiv->get_fitness();
   
     // Secretion stats
-    if ( _exp_m->get_use_secretion() )
+    if ( _exp_m->get_with_secretion() )
     {
        _secretion_error = (double) indiv->get_dist_to_target_by_feature( SECRETION );
        _secretion_fitness = (double) indiv->get_fitness_by_feature(SECRETION);
@@ -381,7 +381,7 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_individual const * ind
     _fitness = indiv->get_fitness();
   
     // Secretion stats
-    if ( _exp_m->get_use_secretion() )
+    if ( _exp_m->get_with_secretion() )
     {
        _secretion_error = (double) gen_unit->get_dist_to_target_by_feature( SECRETION );
        _secretion_fitness = (double) gen_unit->get_fitness_by_feature( SECRETION );

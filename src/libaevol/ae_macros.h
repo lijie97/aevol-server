@@ -5,6 +5,21 @@
                           //            and make changes where necessary
 
 // Backup directories and file name formats
+// Experimental Setup
+#define EXP_S_DIR                 "exp_setup"
+#define EXP_S_FNAME_BASE          "exp_setup_%06"PRId32
+#define EXP_S_FNAME_FORMAT        EXP_S_DIR"/"EXP_S_FNAME_BASE".ae"
+//~ #define EXP_S_TXT_FNAME_FORMAT    EXP_S_DIR"/"EXP_S_FNAME_BASE".in"
+#define EXP_S_CONST_FNAME_BASE        "exp_setup_const"
+#define EXP_S_CONST_FNAME_FORMAT      EXP_S_DIR"/"EXP_S_CONST_FNAME_BASE".ae"
+#define EXP_S_TXT_CONST_FNAME_FORMAT  EXP_S_DIR"/"EXP_S_CONST_FNAME_BASE".in"
+// Output Profile
+#define OUT_P_DIR                 "output_profile"
+#define OUT_P_FNAME_BASE          "output_profile"
+#define OUT_P_FNAME_FORMAT        OUT_P_DIR"/"OUT_P_FNAME_BASE".ae"
+#define OUT_P_TXT_FNAME_FORMAT    OUT_P_DIR"/"OUT_P_FNAME_BASE".in"
+#define OUT_P_CUR_FNAME           "output_profile.ae"
+#define OUT_P_TXT_CUR_FNAME       "output_profile.in"
 // Environment
 #define ENV_DIR                   "environment"
 #define ENV_FNAME_BASE            "env_%06"PRId32
@@ -17,20 +32,6 @@
 #define SP_STRUCT_DIR             "spatial_structure"
 #define SP_STRUCT_FNAME_BASE      "sp_struct_%06"PRId32
 #define SP_STRUCT_FNAME_FORMAT    SP_STRUCT_DIR"/"SP_STRUCT_FNAME_BASE".ae"
-// Experimental Setup
-#define EXP_S_DIR                 "exp_setup"
-#define EXP_S_FNAME_BASE          "exp_setup"
-#define EXP_S_FNAME_FORMAT        EXP_S_DIR"/"EXP_S_FNAME_BASE".ae"
-#define EXP_S_TXT_FNAME_FORMAT    EXP_S_DIR"/"EXP_S_FNAME_BASE".in"
-#define EXP_S_CUR_FNAME           "exp_setup.ae"
-#define EXP_S_TXT_CUR_FNAME       "exp_setup.in"
-// Output Profile
-#define OUT_P_DIR                 "output_profile"
-#define OUT_P_FNAME_BASE          "output_profile"
-#define OUT_P_FNAME_FORMAT        OUT_P_DIR"/"OUT_P_FNAME_BASE".ae"
-#define OUT_P_TXT_FNAME_FORMAT    OUT_P_DIR"/"OUT_P_FNAME_BASE".in"
-#define OUT_P_CUR_FNAME           "output_profile.ae"
-#define OUT_P_TXT_CUR_FNAME       "output_profile.in"
 // Stats
 #define STATS_DIR   "stats"
 // Tree

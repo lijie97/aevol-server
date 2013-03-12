@@ -145,12 +145,6 @@ int main(int argc, char** argv)
   check_type  check               = LIGHT_CHECK;   // TODO : Check what?
   //~ bool        log                 = false;
   
-  char* exp_setup_file_name   = new char[63];
-  char* out_prof_file_name    = new char[63];
-  strcpy( exp_setup_file_name,  "exp_setup.ae" );
-  strcpy( out_prof_file_name,   "output_profile.ae" );
-  char* sp_struct_file_name   = NULL;
-  
   const char * short_options = "hvncf:l"; 
   static struct option long_options[] =
   {
@@ -285,31 +279,17 @@ int main(int argc, char** argv)
   }
 
 
-  // =========================
-  //  Open the experience manager
-  // =========================
-  
-  char environment_file_name[50];
-  #ifdef __REGUL
-  	sprintf( environment_file_name,"environment/env_%06"PRId32".rae", begin_gener );
-  #else
-  	sprintf( environment_file_name,"environment/env_%06"PRId32".ae",  begin_gener );
-  #endif
-  
-  char genomes_file_name[50];
-  #ifdef __REGUL
-  	sprintf( genomes_file_name,"populations/pop_%06"PRId32".rae", begin_gener );
-  #else
-  	sprintf( genomes_file_name,"populations/pop_%06"PRId32".ae",  begin_gener );
-  #endif
-  
-  // Load the simulation
+  // =============================
+  //  Open the experiment manager
+  // =============================
   #ifndef __NO_X
     ae_exp_manager* exp_manager = new ae_exp_manager_X11();
   #else
     ae_exp_manager* exp_manager = new ae_exp_manager();
   #endif
-  exp_manager->load( begin_gener, exp_setup_file_name, out_prof_file_name, environment_file_name, genomes_file_name, sp_struct_file_name, true );
+  exp_manager->load( begin_gener, false, true );
+  
+  
   ae_environment* env = exp_manager->get_env();
   
   int32_t backup_step = exp_manager->get_backup_step();
@@ -645,46 +625,31 @@ int main(int argc, char** argv)
     env->apply_variation();
     
     if ( check_now )
-    {
       // check that the environment is now identical to the one stored
       // in the backup file of generation begin_gener
-      
-      char environment_file_name[50];
-      #ifdef __REGUL
-  		sprintf( environment_file_name,"environment/env_%06"PRId32".rae", num_gener );
-      #else
-  	  	sprintf( environment_file_name,"environment/env_%06"PRId32".ae",  num_gener );
-      #endif
-      
-      char genomes_file_name[50];
-      #ifdef __REGUL
-  		sprintf( genomes_file_name,"populations/pop_%06"PRId32".rae", num_gener );
-  	  #else
-  		sprintf( genomes_file_name,"populations/pop_%06"PRId32".ae",  num_gener );
-      #endif
-      
+    {
       // Load the simulation
       #ifndef __NO_X
       	exp_manager = new ae_exp_manager_X11();
       #else
       	exp_manager = new ae_exp_manager();
       #endif
-      exp_manager->load( num_gener, exp_setup_file_name, out_prof_file_name, environment_file_name, genomes_file_name, sp_struct_file_name, true );
+      exp_manager->load( num_gener, false, true );
       ae_environment* backup_env = exp_manager->get_env();
       stored_indiv = new ae_individual( * (ae_individual *)exp_manager->get_indiv_by_id( index ) );
       delete exp_manager;
   
       if ( verbose )
       {
-        printf("Comparing the environment with the one in %s... ", environment_file_name);  
+        printf( "Comparing the environment with the one saved at generaion %"PRId32"... ", num_gener );  
         fflush(NULL);
       }
 
       if ( ! env->is_identical_to(backup_env) )
       {
         fprintf(stderr, "ERROR: The replayed environment is not the same\n");
-        fprintf(stderr, "       as the one in %s\n", environment_file_name);
-        exit(EXIT_FAILURE);
+        fprintf(stderr, "       as the one saved at generaion %"PRId32"... ", num_gener );  
+        exit( EXIT_FAILURE );
       }
       
       if ( verbose ) printf("OK\n");
@@ -756,7 +721,7 @@ int main(int argc, char** argv)
         {
           if ( verbose ) printf( " ERROR !\n" );
           fprintf( stderr, "Error: the rebuilt unit is not the same as \n");
-          fprintf( stderr, "the one stored in backup file %s\n", genomes_file_name);
+          fprintf( stderr, "the one saved at generaion %"PRId32"... ", num_gener );
           fprintf( stderr, "Rebuilt unit : %"PRId32" bp\n %s\n", (int32_t)strlen(str1), str1 );
           fprintf( stderr, "Stored unit  : %"PRId32" bp\n %s\n", (int32_t)strlen(str2), str2 );
           delete [] str1;
@@ -814,9 +779,6 @@ int main(int argc, char** argv)
   delete mystats;
   delete indiv;
   delete env;
-  
-  delete [] exp_setup_file_name;
-  delete [] out_prof_file_name;
   
   //delete log_overload;
 

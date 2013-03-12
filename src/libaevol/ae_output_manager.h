@@ -63,7 +63,7 @@ class ae_exp_manager;
 
 
 
-class ae_output_manager : public ae_object
+class ae_output_manager
 {
   public :
     // =================================================================

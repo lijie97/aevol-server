@@ -109,17 +109,9 @@ int main(int argc, char** argv)
   check_type  check_genome      = LIGHT_CHECK;
   bool        verbose           = false;
   int32_t     begin_gener       = 0;  
-  int32_t     end_gener         = 100;
+  int32_t     end_gener         = -1;
   int32_t     final_indiv_index = -1; 
   int32_t     final_indiv_rank  = -1;  
-  
-  char* exp_setup_file_name = new char[63];
-  char* out_prof_file_name  = new char[63];
-  strcpy( exp_setup_file_name,  "exp_setup.ae" );
-  strcpy( out_prof_file_name,   "output_profile.ae" );
-  char* env_file_name       = NULL;
-  char* pop_file_name       = NULL;
-  char* sp_struct_file_name = NULL;
   char tree_file_name[50];
 
   const char * short_options = "hvncb:i:e:"; 
@@ -157,31 +149,6 @@ int main(int argc, char** argv)
         
         end_gener = atol( optarg );
         
-        env_file_name       = new char[255];
-        pop_file_name       = new char[255];
-        sp_struct_file_name = new char[255];
-        
-        sprintf( env_file_name,       ENV_FNAME_FORMAT,       end_gener );
-        sprintf( pop_file_name,       POP_FNAME_FORMAT,       end_gener );
-        sprintf( sp_struct_file_name, SP_STRUCT_FNAME_FORMAT, end_gener );
-		  
-        // Check existence of optional files in file system.
-        // Missing files will cause the corresponding file_name variable to be nullified
-        struct stat stat_buf;
-        if ( stat( sp_struct_file_name, &stat_buf ) == -1 )
-        {
-          if ( errno == ENOENT )
-          {
-            delete [] sp_struct_file_name;
-            sp_struct_file_name = NULL;
-          }
-          else
-          {
-            printf( "%s:%d: error: unknown error.\n", __FILE__, __LINE__ );
-            exit( EXIT_FAILURE );
-          }
-        }
-        
         break;
       }
       /*case 'p' :
@@ -204,7 +171,7 @@ int main(int argc, char** argv)
     }
   }
   
-  if ( env_file_name == NULL || pop_file_name == NULL )
+  if ( end_gener == -1 )
   {
     printf( "%s: error: You must provide a generation number.\n", argv[0] );
     exit( EXIT_FAILURE );
@@ -216,7 +183,7 @@ int main(int argc, char** argv)
   #else
     ae_exp_manager* exp_manager = new ae_exp_manager();
   #endif
-  exp_manager->load( end_gener, exp_setup_file_name, out_prof_file_name, env_file_name, pop_file_name, sp_struct_file_name, true );
+  exp_manager->load( end_gener, false, true );
   
   if ( exp_manager->get_tree_mode() == LIGHT )
   {
@@ -279,6 +246,8 @@ int main(int argc, char** argv)
   #else
     sprintf( tree_file_name,"tree/tree_%06"PRId32".ae", end_gener ); 
   #endif
+  char pop_file_name[255];
+  sprintf( pop_file_name, POP_FNAME_FORMAT, end_gener );
 
   tree = new ae_tree( exp_manager, pop_file_name, tree_file_name );
 
@@ -419,18 +388,18 @@ int main(int argc, char** argv)
   }
 
   char genomes_file_name[50];
-#ifdef __REGUL
-  sprintf( genomes_file_name,"populations/pop_%06"PRId32".rae", begin_gener );
-#else
-  sprintf( genomes_file_name,"populations/pop_%06"PRId32".ae",  begin_gener );
-#endif
+  #ifdef __REGUL
+    sprintf( genomes_file_name,"populations/pop_%06"PRId32".rae", begin_gener );
+  #else
+    sprintf( genomes_file_name,"populations/pop_%06"PRId32".ae",  begin_gener );
+  #endif
 
   char environment_file_name[50];
-#ifdef __REGUL
-  sprintf( environment_file_name,"environment/env_%06"PRId32".rae", begin_gener );
-#else
-  sprintf( environment_file_name,"environment/env_%06"PRId32".ae",  begin_gener );
-#endif
+  #ifdef __REGUL
+    sprintf( environment_file_name,"environment/env_%06"PRId32".rae", begin_gener );
+  #else
+    sprintf( environment_file_name,"environment/env_%06"PRId32".ae",  begin_gener );
+  #endif
 
 
   // Load the simulation
@@ -439,7 +408,7 @@ int main(int argc, char** argv)
   #else
     exp_manager = new ae_exp_manager();
   #endif
-  exp_manager->load( begin_gener, exp_setup_file_name, out_prof_file_name, environment_file_name, genomes_file_name, sp_struct_file_name, true );
+  exp_manager->load( begin_gener, false, true );
   //ae_common::write_to_backup( lineage_file );
   
   // Copy the initial ancestor
@@ -534,7 +503,7 @@ int main(int argc, char** argv)
   	  #else
     	exp_manager = new ae_exp_manager();
       #endif
-      exp_manager->load( num_gener, exp_setup_file_name, out_prof_file_name, environment_file_name, genomes_file_name, sp_struct_file_name, true );
+      exp_manager->load( num_gener, false, true );
   
       // Copy the ancestor from the backup
       // NB : The list of individuals is sorted according to the index
@@ -640,12 +609,6 @@ int main(int argc, char** argv)
   gzclose(lineage_file);
   delete initial_ancestor;
   delete [] reports;
-  
-  delete env_file_name;
-  delete pop_file_name;
-  delete [] exp_setup_file_name;
-  delete [] out_prof_file_name;
-
 
   exit(EXIT_SUCCESS);
   
