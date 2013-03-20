@@ -69,7 +69,8 @@ enum check_type
 {
   FULL_CHECK  = 0,
   LIGHT_CHECK = 1,
-  NO_CHECK    = 2
+  ENV_CHECK   = 2,
+  NO_CHECK    = 3
 };
 
 
@@ -107,8 +108,10 @@ int main(int argc, char** argv)
   char*       lineage_file_name   = NULL;
   bool        verbose             = false;
   bool        log                 = false;
+  double      tolerance           = 0;
 
-  const char * short_options = "hvncf:l"; 
+
+  const char * short_options = "hvncf:lt:"; 
   static struct option long_options[] =
   {
     {"help",      no_argument,       NULL, 'h'},
@@ -117,6 +120,7 @@ int main(int argc, char** argv)
     {"fullcheck", no_argument,       NULL, 'c'},
     {"file",      required_argument, NULL, 'f'},
     {"log",         no_argument,       NULL, 'l'},
+    {"tolerance",   required_argument, NULL, 't'},
     {0, 0, 0, 0}
   };
 
@@ -142,6 +146,17 @@ int main(int argc, char** argv)
         break;      
       }
       case 'l' : log = true;                        break;
+      case 't' :
+      {
+        if ( strcmp( optarg, "" ) == 0 )
+        {
+          fprintf( stderr, "ERROR : Option -t or --tolerance : missing argument.\n" );
+          exit( EXIT_FAILURE );
+        }
+        check = ENV_CHECK;
+        tolerance = atof(optarg);
+        break;      
+      }
       default :
       {
         fprintf( stderr, "ERROR : Unknown option, check your syntax.\n" );
@@ -277,7 +292,7 @@ int main(int argc, char** argv)
     fflush(NULL);
   }
 
-  // Open the experiment manager
+ // Open the experiment manager
   #ifndef __NO_X
     ae_exp_manager* exp_manager = new ae_exp_manager_X11();
   #else
@@ -288,11 +303,7 @@ int main(int argc, char** argv)
   
   int32_t backup_step = exp_manager->get_backup_step();
 
-  /*// Initialize the environment according the ae_common::... values
-  // This instruction also creates the random generator and sets its
-  // seed, according to the ae_common::env_seed value.
-
-  ae_environment * env = new ae_environment();
+  /*ae_environment * env = new ae_environment();
   
   for ( num_gener = 0 ; num_gener < begin_gener ; num_gener++ )
   {
@@ -352,7 +363,6 @@ int main(int argc, char** argv)
     printf("Initial genome size = %"PRId32"\n", indiv->get_total_genome_size());
   }
 
-  delete exp_manager;
 
 
   // ===============================================================================
@@ -377,6 +387,9 @@ int main(int argc, char** argv)
   int32_t i, index, genetic_unit_number, unitlen_before, seglen;
   double metabolic_error_before, metabolic_error_after, impact_on_metabolic_error;
   char mut_descr_string[80];
+  
+  ae_exp_manager* exp_manager_backup = NULL;
+  ae_environment* backup_env = NULL;
   
   bool check_now = false;
 
@@ -575,7 +588,8 @@ int main(int argc, char** argv)
     indiv->set_replication_report(rep);
     
     // Check now?
-    check_now = ( ( check == FULL_CHECK && ae_utils::mod( num_gener, backup_step ) == 0 ) ||
+    check_now = ( ( check == FULL_CHECK && ae_utils::mod( num_gener, backup_step ) == 0 ) || 
+                  ( check == ENV_CHECK && ae_utils::mod( num_gener, backup_step ) == 0 ) ||
                   ( check == LIGHT_CHECK && num_gener == end_gener ) );
 
 
@@ -590,25 +604,25 @@ int main(int argc, char** argv)
       
       // Load the simulation
       #ifndef __NO_X
-      	exp_manager = new ae_exp_manager_X11();
+      	exp_manager_backup = new ae_exp_manager_X11();
       #else
-      	exp_manager = new ae_exp_manager();
+      	exp_manager_backup = new ae_exp_manager();
       #endif
-      exp_manager->load( begin_gener, false, true );
-      ae_environment* backup_env = exp_manager->get_env();
-      stored_indiv = new ae_individual( * (ae_individual *)exp_manager->get_indiv_by_id( index ) );
-      delete exp_manager;
-      
+      exp_manager_backup->load( num_gener, false, true );
+      backup_env = exp_manager_backup->get_env();
+      stored_indiv = new ae_individual( * (ae_individual *)exp_manager_backup->get_indiv_by_id( index ) );
+
       if ( verbose )
       {
-        printf("Comparing the environment with the one saved at generaion %"PRId32"... ", begin_gener );
+        printf("Comparing the environment with the one saved at generation %"PRId32"... ", num_gener );
         fflush(NULL);
       }
       
-      if ( ! env->is_identical_to(backup_env) )
+      if ( ! env->is_identical_to(backup_env, tolerance) )
       {
         fprintf(stderr, "ERROR: The replayed environment is not the same\n");
-        fprintf(stderr, "       as the one saved at generaion %"PRId32"... ", begin_gener );
+        fprintf(stderr, "       as the one saved at generation %"PRId32"...\n", num_gener );
+        fprintf(stderr, "       with tolerance of %lg\n", tolerance);
         exit(EXIT_FAILURE);
       }
       
@@ -717,7 +731,7 @@ int main(int argc, char** argv)
         {
           if ( verbose ) printf( " ERROR !\n" );
           fprintf( stderr, "Error: the rebuilt unit is not the same as \n");
-          fprintf( stderr, "the one saved at generaion %"PRId32"... ", begin_gener );
+          fprintf( stderr, "the one saved at generation %"PRId32"... ", begin_gener );
           fprintf( stderr, "Rebuilt unit : %zu bp\n %s\n", strlen(str1), str1 );
           fprintf( stderr, "Stored unit  : %zu bp\n %s\n", strlen(str2), str2 );
           delete [] str1;
@@ -725,8 +739,8 @@ int main(int argc, char** argv)
           gzclose(lineage_file);
           delete indiv;
           delete stored_indiv;
-          delete env;
-          //ae_common::clean();
+          delete exp_manager_backup;
+          delete exp_manager; 
           exit(EXIT_FAILURE);
         }
         
@@ -749,20 +763,19 @@ int main(int argc, char** argv)
 
     delete rep;
     
-    if ( ae_utils::mod(num_gener, backup_step) == 0 )
+    if ( check_now && ae_utils::mod(num_gener, backup_step) == 0 )
     {
       assert(stored_unit_node == NULL);
       delete stored_indiv;
+      delete exp_manager_backup;
     }
   }
 
-  
-  //ae_common::clean();
-
   gzclose(lineage_file);
   fclose(output);
+  delete exp_manager;
   delete indiv;
-  delete env;
+  //delete env; // already done in ae_exp_setup destructor called by exp_manager destructor
 
   exit(EXIT_SUCCESS);
   

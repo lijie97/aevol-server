@@ -21,7 +21,6 @@
 #include <getopt.h>
 #include <math.h>
 
-
 // =================================================================
 //                            Project Files
 // =================================================================
@@ -54,8 +53,8 @@
 
 enum analysis_type
 {
-  ROBUSTNESS = 0,
-  EVOLVABILITY = 1
+  ONE_GENERATION = 0,
+  MULTIPLE_GENERATIONS = 1
 };
 
 
@@ -68,7 +67,7 @@ class population_statistics
     //                             Constructors
     // =================================================================
     population_statistics( void );
-    population_statistics( analysis_type type, int nb_children, char* output_dir = NULL, int wanted_rank = -1, int wanted_index = -1,  bool details = false);
+    population_statistics( analysis_type type, int32_t nb_children = 1000, int32_t wanted_rank = 1, int32_t wanted_index = -1);
 
     // =================================================================
     //                             Destructors
@@ -84,8 +83,8 @@ class population_statistics
     //                            Public Methods
     // =================================================================
     
-    void compute_population_f_nu(ae_exp_manager* exp_manager);
-    void compute_evolvability_stats(int32_t num_gener);
+    void compute_reproduction_stats(ae_exp_manager* exp_manager, int32_t num_gener);
+    void compute_population_stats(int32_t num_gener);
 
 
     // =================================================================
@@ -108,23 +107,22 @@ class population_statistics
     //                           Protected Methods
     // =================================================================
     
-    double compute_experimental_fv( ae_individual* indiv, double* neutral_or_better);
-    int count_affected_genes( ae_individual* parent, ae_individual* child );
-    void print_replication_stats( ae_individual* initial_indiv, double* fitnesses, int* nb_aff_genes );
+    //int count_affected_genes( ae_individual* parent, ae_individual* child );
+    //void print_replication_stats( ae_individual* initial_indiv, double* fitnesses, int* nb_aff_genes );
     
     
     // =================================================================
     //                          Protected Attributes
     // =================================================================
     
-    FILE* 	_output_file;
-    FILE*	_replication_output;
+    FILE* _output_file;
+    FILE*	_robustness_file;
+    FILE*	_replication_file;
     
     int 	_nb_children;
     int 	_wanted_rank;
     int 	_wanted_index;
     int32_t	_pop_size;
-    bool	_details;
 
     double*	_f_nu_pop;
     double*	_reprod_proba;

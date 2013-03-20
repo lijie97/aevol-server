@@ -103,7 +103,7 @@ class ae_fuzzy_set : public ae_object
     void add_upper_bound( double upper_bound );
     void add_lower_bound( double lower_bound );
 
-    bool is_identical_to( const ae_fuzzy_set * other) const;
+    bool is_identical_to( const ae_fuzzy_set * other, double tolerance) const;
     
     void save( gzFile backup_file ) const;
     void load( gzFile backup_file );

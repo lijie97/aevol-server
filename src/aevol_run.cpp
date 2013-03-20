@@ -211,19 +211,6 @@ int main( int argc, char* argv[] )
   }
   
   
-  // -------------------------------------------------------------------------
-  // 4) Check the consistancy of the command-line options
-  // -------------------------------------------------------------------------
-  // NOTA: nothing to be checked for (for now)
-  //
-  //~ if ( env_file_name == NULL || pop_file_name == NULL )
-  //~ {
-    //~ printf( "%s: error: You must either resume a simulation of provide both an environment backup and a population backup.\n", argv[0] );
-    //~ // NB : spatial structure is tested later, when we know if the population is structured or not
-    //~ exit( EXIT_FAILURE );
-  //~ }
-  
-  
   // =================================================================
   //                          Load the simulation
   // =================================================================

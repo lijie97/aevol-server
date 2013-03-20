@@ -42,6 +42,9 @@
 // =================================================================
 #include <stdio.h>
 #include <math.h>
+#include <sys/stat.h>
+#include <algorithm>
+
 
 // =================================================================
 //                            Project Files
@@ -209,127 +212,6 @@ ae_individual::ae_individual( ae_exp_manager* exp_m,
 }
 
 /*!
-  Creates a new individual with a random genome.
-
-  Promoters will be looked for on the whole genome but no further process
-  will be performed.
-  The phenotype and the fitness are not set, neither is the statistical data.
-*/
-/*ae_individual::ae_individual( void )
-{
-  _prng = NULL;
-  _age  = 0;
-  
-  _index_in_population  = -1;
-  _rank_in_population   = -1;
-  
-  _evaluated                    = false;
-  _transcribed                  = false;
-  _translated                   = false;
-  _folded                       = false;
-  _phenotype_computed           = false;
-  _distance_to_target_computed  = false;
-  _fitness_computed             = false;
-  _statistical_data_computed    = false;
-  _non_coding_computed          = false;
-  _modularity_computed          = false;
-  
-  _placed_in_population = false;
-  
-  // Create a list of genetic units with only the main chromosome
-  _genetic_unit_list = new ae_list<ae_genetic_unit*>();
-  
-  if ( _exp_m->get_allow_plasmids() )
-  {
-    // Create both a chromosome and a plasmid, separately 
-    if ( _exp_m->get_plasmid_initial_gene() == 1 ) 
-    {
-      _genetic_unit_list->add( new ae_genetic_unit( this, _exp_m->get_initial_genome_length() ) );
-      _genetic_unit_list->add( new ae_genetic_unit( this, _exp_m->get_plasmid_initial_length() ) );
-    }
-    // create a plasmid that is identical to the chromosome
-    else // _exp_m->get_plasmid_initial_gene() == 2
-    {
-      _genetic_unit_list->add( new ae_genetic_unit( this, _exp_m->get_initial_genome_length() ) );
-      _genetic_unit_list->add( new ae_genetic_unit( this, *(_genetic_unit_list->get_first()->get_obj()) ) );
-    }
-  
-  }
-  else
-  {
-    _genetic_unit_list->add( new ae_genetic_unit( this, _exp_m->get_initial_genome_length() ) );
-  }
-  
-  // Create empty fuzzy sets for activation and inhibition
-  _phenotype_activ  = NULL;
-  _phenotype_inhib  = NULL;
-  _phenotype        = NULL;
-  
-  // Initialize all the fitness-related stuff
-  if ( ae_common::sim->get_env()->is_segmented() )
-  {
-    int16_t nb_segments = ae_common::sim->get_env()->get_nb_segments();
-    _dist_to_target_by_segment = new double [nb_segments];
-    
-    for ( int16_t i = 0 ; i < nb_segments ; i++ )
-    {
-      _dist_to_target_by_segment[i] = 0;
-    }
-  }
-  else
-  {
-    _dist_to_target_by_segment = NULL;
-  }
-  
-  _dist_to_target_by_feature  = new double [NB_FEATURES];
-  _fitness_by_feature         = new double [NB_FEATURES];
-  
-  for ( int8_t i = 0 ; i < NB_FEATURES ; i++ )
-  {
-    _dist_to_target_by_feature[i] = 0.0;
-    _fitness_by_feature[i]        = 0.0;
-  }
-  
-  // We are at generation 0, individual has no replication to report
-  _replic_report = NULL;
-  
-  _protein_list = new ae_list<ae_protein*>();
-  _rna_list     = new ae_list<ae_rna*>();
-  
-  _int_probes     = new int32_t[5];
-  _double_probes  = new double[5];
-  for ( int8_t i = 0 ; i < 5 ; i++ )
-  {
-    _int_probes[i]    = 0;
-    _double_probes[i] = 0;
-  }
-  
-  // Initialize statistical data // TODO : => function
-  _total_genome_size                  = 0;
-  _nb_coding_RNAs                     = 0;
-  _nb_non_coding_RNAs                 = 0;
-  _overall_size_coding_RNAs           = 0;
-  _overall_size_non_coding_RNAs       = 0;
-  _nb_genes_activ                     = 0;
-  _nb_genes_inhib                     = 0;
-  _nb_functional_genes                = 0;
-  _nb_non_functional_genes            = 0;
-  _overall_size_functional_genes      = 0;
-  _overall_size_non_functional_genes  = 0;
-  
-  _nb_bases_in_0_CDS                  = -1;
-  _nb_bases_in_0_functional_CDS       = -1;
-  _nb_bases_in_0_non_functional_CDS   = -1;
-  _nb_bases_in_0_RNA                  = -1;
-  _nb_bases_in_0_coding_RNA           = -1;
-  _nb_bases_in_0_non_coding_RNA       = -1;
-  _nb_bases_in_neutral_regions        = -1;
-  _nb_neutral_regions                 = -1;
-  
-  _modularity = -1;
-}*/
-
-/*!
   This constructor retreives an individual from a backup file.
 
   Since this generation has already been processed, no unnecessary calculation (e.g. fitness) will be done.
@@ -471,6 +353,8 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile backup_file )
   _nb_neutral_regions                 = -1;
   
   _modularity = -1;
+  
+  //evaluate();
 }
 
 // Copy constructor
@@ -660,7 +544,6 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id, ae_jumpin
     gen_unit_node = gen_unit_node->get_next();
   }
   
-  
   _phenotype_activ  = NULL;
   _phenotype_inhib  = NULL;
   _phenotype        = NULL;
@@ -731,228 +614,9 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id, ae_jumpin
   _nb_neutral_regions                 = -1;
 
   _modularity = -1;
+  
+  //evaluate();
 }
-
-/*!
-  Creates a new individual with a genome read in from a file.
- 
-  Promoters will be looked for on the whole genome but no further process
-  will be performed.
-  The phenotype and the fitness are not set, neither is the statistical data.
-*/
-/*ae_individual::ae_individual( char* organism_file_name )
-{
-  _prng = NULL;
-  
-  _index_in_population  = -1;
-  _rank_in_population   = -1;
-  
-  _evaluated                    = false;
-  _transcribed                  = false;
-  _translated                   = false;
-  _folded                       = false;
-  _phenotype_computed           = false;
-  _distance_to_target_computed  = false;
-  _fitness_computed             = false;
-  _statistical_data_computed    = false;
-  _non_coding_computed          = false;
-  _modularity_computed          = false;
-  
-  _placed_in_population = false;
-  
-  // Create a list of genetic units with only the main chromosome
-  _genetic_unit_list = new ae_list<ae_genetic_unit*>();
-  
-  if ( ae_common::params->get_allow_plasmids() )
-  {
-    printf( "ERROR, not implemented for plasmids yet %s:%d\n", __FILE__, __LINE__ );
-  }
-  else
-  {
-    _genetic_unit_list->add( new ae_genetic_unit( this, organism_file_name ) );
-  }
-  
-  // Create empty fuzzy sets for activation and inhibition
-  _phenotype_activ  = NULL;
-  _phenotype_inhib  = NULL;
-  _phenotype        = NULL;
-  
-  // Initialize all the fitness-related stuff
-  if ( ae_common::sim->get_env()->is_segmented() )
-  {
-    int16_t nb_segments = ae_common::sim->get_env()->get_nb_segments();
-    _dist_to_target_by_segment = new double [nb_segments];
-    
-    for ( int16_t i = 0 ; i < nb_segments ; i++ )
-    {
-      _dist_to_target_by_segment[i] = 0;
-    }
-  }
-  else
-  {
-    _dist_to_target_by_segment = NULL;
-  }
-  
-  _dist_to_target_by_feature  = new double [NB_FEATURES];
-  _fitness_by_feature         = new double [NB_FEATURES];
-  
-  for ( int8_t i = 0 ; i < NB_FEATURES ; i++ )
-  {
-    _dist_to_target_by_feature[i] = 0.0;
-    _fitness_by_feature[i]        = 0.0;
-  }
-  
-  // We are at generation 0, individual has no replication to report
-  _replic_report = NULL;
-  
-  _protein_list = new ae_list<ae_protein*>();
-  _rna_list     = new ae_list<ae_rna*>();
-  
-  _int_probes     = new int32_t[5];
-  _double_probes  = new double[5];
-  for ( int8_t i = 0 ; i < 5 ; i++ )
-  {
-    _int_probes[i]    = 0;
-    _double_probes[i] = 0;
-  }
-  
-  // Initialize statistical data // TODO : => function
-  _total_genome_size                  = 0;
-  _nb_coding_RNAs                     = 0;
-  _nb_non_coding_RNAs                 = 0;
-  _overall_size_coding_RNAs           = 0;
-  _overall_size_non_coding_RNAs       = 0;
-  _nb_genes_activ                     = 0;
-  _nb_genes_inhib                     = 0;
-  _nb_functional_genes                = 0;
-  _nb_non_functional_genes            = 0;
-  _overall_size_functional_genes      = 0;
-  _overall_size_non_functional_genes  = 0;
-  
-  _nb_bases_in_0_CDS                  = -1;
-  _nb_bases_in_0_functional_CDS       = -1;
-  _nb_bases_in_0_non_functional_CDS   = -1;
-  _nb_bases_in_0_RNA                  = -1;
-  _nb_bases_in_0_coding_RNA           = -1;
-  _nb_bases_in_0_non_coding_RNA       = -1;
-  
-  _modularity = -1;
-}*/
-
-
-/*!
-  Creates a new individual with the given genome.
- 
-  Promoters will be looked for on the whole genome but no further process
-  will be performed.
-  The phenotype and the fitness are not set, neither is the statistical data.
- 
-  WARNING : 
-    genome will be used directly which means the caller must not delete it
-*/
-//ae_individual::ae_individual( char* genome, int32_t genome_size, int32_t age /*= 0*/ )
-/*{
-  _age  = age;
-  _prng = NULL;
-  
-  _index_in_population  = -1;
-  _rank_in_population   = -1;
-  
-  _evaluated                    = false;
-  _transcribed                  = false;
-  _translated                   = false;
-  _folded                       = false;
-  _phenotype_computed           = false;
-  _distance_to_target_computed  = false;
-  _fitness_computed             = false;
-  _statistical_data_computed    = false;
-  _non_coding_computed          = false;
-  _modularity_computed          = false;
-  
-  _placed_in_population = false;
-  
-  // Create a list of genetic units with only the main chromosome
-  _genetic_unit_list = new ae_list<ae_genetic_unit*>();
-  
-  if ( ae_common::params->get_allow_plasmids() )
-  {
-    printf( "ERROR, functionality not implemented %s:%d\n", __FILE__, __LINE__ );
-    exit( EXIT_FAILURE );
-  }
-  else
-  {
-    _genetic_unit_list->add( new ae_genetic_unit( this, genome, genome_size ) );
-  }
-  
-  // Create empty fuzzy sets for activation and inhibition
-  _phenotype_activ  = NULL;
-  _phenotype_inhib  = NULL;
-  _phenotype        = NULL;
-  
-  // Initialize all the fitness-related stuff
-  if ( ae_common::sim->get_env()->is_segmented() )
-  {
-    int16_t nb_segments = ae_common::sim->get_env()->get_nb_segments();
-    _dist_to_target_by_segment = new double [nb_segments];
-    
-    for ( int16_t i = 0 ; i < nb_segments ; i++ )
-    {
-      _dist_to_target_by_segment[i] = 0;
-    }
-  }
-  else
-  {
-    _dist_to_target_by_segment = NULL;
-  }
-  
-  _dist_to_target_by_feature  = new double [NB_FEATURES];
-  _fitness_by_feature         = new double [NB_FEATURES];
-  
-  for ( int8_t i = 0 ; i < NB_FEATURES ; i++ )
-  {
-    _dist_to_target_by_feature[i] = 0.0;
-    _fitness_by_feature[i]        = 0.0;
-  }
-  
-  // Individual has no replication to report
-  _replic_report = NULL;
-  
-  _protein_list = new ae_list<ae_protein*>();
-  _rna_list     = new ae_list<ae_rna*>();
-  
-  _int_probes     = new int32_t[5];
-  _double_probes  = new double[5];
-  for ( int8_t i = 0 ; i < 5 ; i++ )
-  {
-    _int_probes[i]    = 0;
-    _double_probes[i] = 0;
-  }
-  
-  // Initialize statistical data // TODO : => function
-  _total_genome_size                  = 0;
-  _nb_coding_RNAs                     = 0;
-  _nb_non_coding_RNAs                 = 0;
-  _overall_size_coding_RNAs           = 0;
-  _overall_size_non_coding_RNAs       = 0;
-  _nb_genes_activ                     = 0;
-  _nb_genes_inhib                     = 0;
-  _nb_functional_genes                = 0;
-  _nb_non_functional_genes            = 0;
-  _overall_size_functional_genes      = 0;
-  _overall_size_non_functional_genes  = 0;
-  
-  _nb_bases_in_0_CDS                  = -1;
-  _nb_bases_in_0_functional_CDS       = -1;
-  _nb_bases_in_0_non_functional_CDS   = -1;
-  _nb_bases_in_0_RNA                  = -1;
-  _nb_bases_in_0_coding_RNA           = -1;
-  _nb_bases_in_0_non_coding_RNA       = -1;
-  _nb_bases_in_neutral_regions        = -1;
-  _nb_neutral_regions                 = -1;
-  
-  _modularity = -1;
-}*/
-
 
 
 // =================================================================
@@ -998,6 +662,11 @@ ae_individual::~ae_individual( void )
   delete [] _double_probes;
   
   delete _mut_params;
+  
+  /*if(_replic_report!= NULL)
+  {
+    delete _replic_report;
+  }*/
 }
 
 // =================================================================
@@ -1464,7 +1133,7 @@ void ae_individual::compute_non_coding( void )
   _nb_neutral_regions                 = 0;
 
   ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
-  ae_genetic_unit*  gen_unit;
+  ae_genetic_unit*  gen_unit = NULL;
   
   while ( gen_unit_node != NULL )
   {
@@ -1481,217 +1150,6 @@ void ae_individual::compute_non_coding( void )
     gen_unit_node = gen_unit_node->get_next();
   }
 }
-
-/*void ae_individual::compute_modularity( void )
-{
-  if ( _modularity_computed ) return; // _modularity has already been computed, nothing to do.
-  _modularity_computed = true;
-  
-  double av_dist_between_genes              = 0.0;
-  double av_dist_between_interacting_genes  = 0.0; // Genes which corresponding phenotypic triangles overlap
-  int32_t nb_gene_pairs                     = 0;
-  int32_t nb_interacting_gene_pairs         = 0;
-  
-  ae_list_node<ae_protein*>* gene_node_1 = NULL;
-  ae_list_node<ae_protein*>* gene_node_2 = NULL;
-  ae_protein*   gene_1 = NULL;
-  ae_protein*   gene_2 = NULL;
-  
-  bool overlap;
-  int32_t dist;
-  
-  // ------------------------------------------------
-  // Compute the distances between each pair of genes
-  // ------------------------------------------------
-  
-  // 1) LEADING genes with X (LEADING or LAGGING)
-  gene_node_1 = _protein_list[LEADING]->get_first();
-  while ( gene_node_1 != NULL )
-  {
-    gene_1 = gene_node_1->get_obj();
-    
-    if ( gene_1->is_degenerated() )
-    {
-      gene_node_1 = gene_node_1->get_next();
-      continue;
-    }
-    
-    // A) Distance with the other LEADING genes
-    gene_node_2 = gene_node_1->get_next();
-    
-    while ( gene_node_2 != NULL )
-    {
-      gene_2 = gene_node_2->get_obj();
-      
-      if ( gene_2->is_degenerated() )
-      {
-        gene_node_2 = gene_node_2->get_next();
-        continue;
-      }
-      
-      int32_t f1 = gene_1->get_first_translated_pos();
-      int32_t l1 = gene_1->get_last_translated_pos();
-      int32_t f2 = gene_2->get_first_translated_pos();
-      int32_t l2 = gene_2->get_last_translated_pos();
-      
-      // Check overlapping of the 2 genes
-      overlap = ( f1 > l1 || l1 >= f2 || ( f2 > l2 && l2 >= f1 ) );
-      
-      // Compute distance between genes
-      if ( overlap )
-      {
-        dist = 0;
-      }
-      else
-      {
-        dist = utils::min( f2 - l1 - 1, utils::mod( f1 - l2 - 1, _genome->get_length() ) );
-      }
-      
-      // Check whether the phenotypic triangles of the genes overlap
-      if ( fabs( gene_1->get_mean() - gene_2->get_mean() ) < gene_1->get_width() + gene_2->get_width() )
-      {
-        nb_interacting_gene_pairs++;
-        av_dist_between_interacting_genes += dist;
-      }
-      nb_gene_pairs++;
-      av_dist_between_genes += dist;
-      
-      
-      gene_node_2 = gene_node_2->get_next();
-    }
-    
-    // B) Distance with the LAGGING genes
-    gene_node_2 = _protein_list[LAGGING]->get_first();
-    
-    while ( gene_node_2 != NULL )
-    {
-      gene_2 = gene_node_2->get_obj();
-      
-      if ( gene_2->is_degenerated() )
-      {
-        gene_node_2 = gene_node_2->get_next();
-        continue;
-      }
-      
-      int32_t f1 = gene_1->get_first_translated_pos();
-      int32_t l1 = gene_1->get_last_translated_pos();
-      int32_t f2 = gene_1->get_first_translated_pos();
-      int32_t l2 = gene_1->get_last_translated_pos();
-      
-      // Check overlapping of the 2 genes
-      // As gene_1 is on the leading strand and gene_2 on the lagging strand,
-      // they will overlap unless the 4 points f1, l1, f2, l2 are ordered as follows :
-      // f1, l1, l2, f2. Because the genome is circular, there are 4 possible cases : 
-      // f1, l1, l2, f2  ;  f2, f1, l1, l2  ;  l2, f2, f1, l1  ;  l1, l2, f2, f1
-      // We can express this as "genes will overlap unless they admit 3 of the following conditions :
-      // (f1 < l1), (l1 < l2), (l2 < f2), (f2 < f1)"
-      // We will hence test all 4 conditions and count how many are true
-      int8_t trues = 0;
-      if ( f1 < l1 ) trues++;
-      if ( l1 < l2 ) trues++;
-      if ( l2 < f2 ) trues++;
-      if ( f2 < f1 ) trues++;
-      overlap = ( trues != 3 );
-      
-      // Compute distance between genes
-      if ( overlap )
-      {
-        dist = 0;
-      }
-      else
-      {
-        dist = utils::min( utils::mod( l2 - l1 - 1, _genome->get_length() ),
-                           utils::mod( f1 - f2 - 1, _genome->get_length() ) );
-      }
-      
-      // Check whether the phenotypic triangles of the genes overlap
-      if ( fabs( gene_1->get_mean() - gene_2->get_mean() ) < gene_1->get_width() + gene_2->get_width() )
-      {
-        nb_interacting_gene_pairs++;
-        av_dist_between_interacting_genes += dist;
-      }
-      nb_gene_pairs++;
-      av_dist_between_genes += dist;
-      
-      
-      gene_node_2 = gene_node_2->get_next();
-    }
-    
-    gene_node_1 = gene_node_1->get_next();
-  }
-  
-  // 2) LAGGING genes with X (LAGGING)
-  gene_node_1 = _protein_list[LAGGING]->get_first();
-  while ( gene_node_1 != NULL )
-  {
-    gene_1 = gene_node_1->get_obj();
-    
-    if ( gene_1->is_degenerated() )
-    {
-      gene_node_1 = gene_node_1->get_next();
-      continue;
-    }
-    
-    gene_node_2 = gene_node_1->get_next();
-    while ( gene_node_2 != NULL )
-    {
-      gene_2 = gene_node_2->get_obj();
-      
-      if ( gene_2->is_degenerated() )
-      {
-        gene_node_2 = gene_node_2->get_next();
-        continue;
-      }
-      
-      int32_t f1 = gene_1->get_first_translated_pos();
-      int32_t l1 = gene_1->get_last_translated_pos();
-      int32_t f2 = gene_2->get_first_translated_pos();
-      int32_t l2 = gene_2->get_last_translated_pos();
-      
-      // Check overlapping of the 2 genes
-      overlap = ( f2 >= l1 || l1 > f1 || ( l2 <= f1 && l2 > f2 ) );
-      
-      // Compute distance between genes
-      if ( overlap )
-      {
-        dist = 0;
-      }
-      else
-      {
-        dist = utils::min( utils::mod( l1 - f2 - 1, _genome->get_length() ),
-                           utils::mod( l2 - f1 - 1, _genome->get_length() ) );
-      }
-      
-      // Check whether the phenotypic triangles of the genes overlap
-      if ( fabs( gene_1->get_mean() - gene_2->get_mean() ) < gene_1->get_width() + gene_2->get_width() )
-      {
-        nb_interacting_gene_pairs++;
-        av_dist_between_interacting_genes += dist;
-      }
-      nb_gene_pairs++;
-      av_dist_between_genes += dist;
-      
-      
-      gene_node_2 = gene_node_2->get_next();
-    }
-    
-    gene_node_1 = gene_node_1->get_next();
-  }
-  
-  
-  if ( nb_interacting_gene_pairs > 0 && av_dist_between_interacting_genes > 0 )
-  {
-    av_dist_between_genes /= (double)nb_gene_pairs;
-    av_dist_between_interacting_genes /= (double)nb_interacting_gene_pairs;
-  }
-  else
-  {
-    // If the value is irrelevant, replace it with the neutral value (1)
-    av_dist_between_interacting_genes = av_dist_between_genes = 1;
-  }
-  
-  _modularity = av_dist_between_interacting_genes / av_dist_between_genes;
-}*/
 
 void ae_individual::save( gzFile backup_file ) const
 {
@@ -1779,11 +1237,48 @@ int32_t ae_individual::get_nb_terminators( void )
   return nb_term;
 }
 
-double ae_individual::compute_experimental_f_nu( int32_t nb_children, double* neutral_or_better /*=NULL*/ )
+
+/*!
+  \brief Compute reproduction statistics and statistics about the offsprings of the current individual
+
+  * Make nb_children replications of the current individual.
+  * For each replication, determine if the offsprings is neutral, beneficial or deleterious by comparison of fitness with the current individual (the parent)
+  * If statistics about offsprings are required (offsprings_statistics != NULL), fitness mean, fitness variance, size mean, size variance, functional gene number mean, 
+  functional gene number variance fo the nb_children offsprings are computed
+  * If informations about each children are required ( replication_file != NULL), fitness, genome_size, nb of functional genes, number of coding bases, number of transcribed 
+  but not translated bases, number of non transcribed bases of each offsprings are written in replication_file
+  
+  \param nb_children              number of replications made to have the statistics
+  \param reproduction_statistics  statistics about the replications (proportion of neutral offsprings, proportion of beneficial offsprings, proportion of deleterious offsprings)
+  \param offsprings_statistics    statistics about the nb_children offsprings (fitness mean, fitness variance, size mean, size variance, functional gene number mean,
+                                    functional gene number variance) compute if not null
+  \param replication_file         file with informations about each children of the current individual (fitness, genome_size, nb of functional genes, number of coding bases, 
+                                    number of transcribed but not translated bases, number of non transcribed bases) if not null
+*/
+void ae_individual::compute_experimental_f_nu( int32_t nb_children, double* reproduction_statistics, double* offsprings_statistics, FILE* replication_file)
 {
   double initial_fitness = get_fitness();
-  double Fv = 0;
-  if ( neutral_or_better != NULL ) { *neutral_or_better = 0; }
+ 
+  if(reproduction_statistics != NULL) 
+  {
+    reproduction_statistics[0] = 0; // proportion of neutral offsprings
+    reproduction_statistics[1] = 0; // proportion of beneficial offsprings
+    reproduction_statistics[2] = 0; // proportion of deleterious offsprings
+  }
+  else
+  {
+    printf( "%s:%d: error: reproduction_statistics was not initialized\n", __FILE__, __LINE__);
+    exit( EXIT_FAILURE );
+  }
+  if(offsprings_statistics != NULL) 
+  {
+    offsprings_statistics[0] = 0; // offspring fitness mean
+    offsprings_statistics[1] = 0; // offspring fitness variance
+    offsprings_statistics[2] = 0; // offspring size mean
+    offsprings_statistics[3] = 0; // offspring size variance
+    offsprings_statistics[4] = 0; // offspring functional gene number mean
+    offsprings_statistics[5] = 0; // offspring functional gene number variance
+  }
 
   // ------------------------------------------
   //      Simulate fitness degradation
@@ -1793,28 +1288,82 @@ double ae_individual::compute_experimental_f_nu( int32_t nb_children, double* ne
 		
   // replicate this individual to create 'nb_children' children 
   ae_individual * child = NULL;
+  
+  int32_t genome_size = 0;
+  int32_t nb_functional_genes = 0;
+  int32_t nb_bases_in_0_functional_CDS = 0;
+  int32_t nb_bases_in_0_coding_RNA = 0;
+
   for (int i = 0; i < nb_children; i++)
-    {
-      child = _exp_m->get_exp_s()->get_sel()->do_replication( this, _id );
-      fitness_child = child->get_fitness(); // child is automatically evaluated
-      //count neutral offspring
-      if ( fabs(initial_fitness - fitness_child) < 1e-15 )
-      { 
-        Fv += 1; 
-        if ( neutral_or_better != NULL ) { *neutral_or_better += 1; }
-      }
-      else if ( (neutral_or_better != NULL) && (fitness_child > initial_fitness) )
-      {
-        *neutral_or_better += 1;
-      }
-      delete child;
+  {
+    child = _exp_m->get_exp_s()->get_sel()->do_replication( this, _id );
+    fitness_child = child->get_fitness(); 
+
+    if ( fabs(initial_fitness - fitness_child) < 1e-10*std::max(initial_fitness, fitness_child) )
+    { 
+      reproduction_statistics[0] += 1; 
     }
+    else if ( fitness_child > initial_fitness )
+    {
+      reproduction_statistics[1] += 1;
+    }
+    else
+    {
+      reproduction_statistics[2] += 1;
+    }
+    
+    genome_size = child->get_total_genome_size();
+    nb_functional_genes = child->get_nb_functional_genes();
+    nb_bases_in_0_functional_CDS = child->get_nb_bases_in_0_functional_CDS();
+    nb_bases_in_0_coding_RNA = child->get_nb_bases_in_0_coding_RNA();
+    
+    if(offsprings_statistics != NULL) 
+    {
+      offsprings_statistics[0] += fitness_child; 
+      offsprings_statistics[1] += pow(fitness_child,2); 
+      offsprings_statistics[2] += (double)genome_size; 
+      offsprings_statistics[3] += pow((double)genome_size,2); 
+      offsprings_statistics[4] += (double)nb_functional_genes; 
+      offsprings_statistics[5] += pow((double)nb_functional_genes,2); 
+    }
+    
+    if(replication_file != NULL)
+    {
+      fprintf(replication_file, "%le %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n", fitness_child, genome_size, nb_functional_genes, genome_size-nb_bases_in_0_functional_CDS, 
+                                nb_bases_in_0_functional_CDS-nb_bases_in_0_coding_RNA, nb_bases_in_0_coding_RNA);
+    }
+    
+    delete child;
+  }
+  
   //compute Fv
-  Fv /= nb_children;
-  if ( neutral_or_better != NULL ) { *neutral_or_better /= nb_children; }
-  return Fv;
+  reproduction_statistics[0] /= (double) nb_children;
+  reproduction_statistics[1] /= (double) nb_children;
+  reproduction_statistics[2] /= (double) nb_children;
+  
+  if(offsprings_statistics != NULL) 
+  {
+    offsprings_statistics[0] /= (double) nb_children; 
+    offsprings_statistics[1] /= (double) nb_children; 
+    offsprings_statistics[2] /= (double) nb_children; 
+    offsprings_statistics[3] /= (double) nb_children; 
+    offsprings_statistics[4] /= (double) nb_children; 
+    offsprings_statistics[5] /= (double) nb_children; 
+    
+    offsprings_statistics[1] -= pow(offsprings_statistics[0],2);
+    offsprings_statistics[3] -= pow(offsprings_statistics[2],2); 
+    offsprings_statistics[5] -= pow(offsprings_statistics[4],2);
+  }
 }
 
+
+/*!
+  \brief Compute reproduction theoretical proportion of neutral offsprings
+
+  Compute the theoretical proportion of neutral offsprings given the Carole's formula, based on the mutations and rearrangement rates and not on multiple replications
+  
+  \return theoretical proportion of neutral offsprings
+*/
 double ae_individual::compute_theoritical_f_nu( void )
 {
   // We first have to collect information about genome structure.

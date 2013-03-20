@@ -83,7 +83,8 @@ class ae_stats : public ae_object
     // =================================================================
     //                        Accessors: setters
     // =================================================================
-  
+    inline void set_exp_m( ae_exp_manager* exp_m);
+    
     // =================================================================
     //                            Public Methods
     // =================================================================
@@ -155,7 +156,10 @@ class ae_stats : public ae_object
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-
+inline void ae_stats::set_exp_m( ae_exp_manager* exp_m)
+{
+  _exp_m = exp_m;
+}
 
 inline void ae_stats::write_header( FILE* file_name, const char* header )
 {

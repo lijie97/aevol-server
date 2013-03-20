@@ -260,6 +260,8 @@ void ae_exp_manager::save_copy( char* dir, int32_t num_gener /*= 0*/ ) const
  */
 void ae_exp_manager::load( int32_t first_gener, bool use_text_files, bool verbose )
 {
+  _first_gener = first_gener;
+  
   // -------------------------------------------------------------------------
   // 1) Open setup files (experimental setup and output profile)
   //    and backup files (environment, population, selection and sp structure)

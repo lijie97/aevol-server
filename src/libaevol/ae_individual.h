@@ -96,8 +96,6 @@ class ae_individual : public ae_object
     ae_individual( const ae_individual &model );
     ae_individual(  ae_individual* const parent, int32_t id,
                     ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng );
-    //~ ae_individual( char* organism_file_name );
-    //~ ae_individual( char* genome, int32_t genome_size, int32_t age = 0 );
 
     // =================================================================
     //                             Destructors
@@ -203,6 +201,7 @@ class ae_individual : public ae_object
     // =================================================================
     //                        Accessors: Setters
     // =================================================================
+    inline void set_exp_m( ae_exp_manager* exp_m );
     inline void set_id( int32_t id );
     inline void set_rank( int32_t rank );
     
@@ -268,7 +267,6 @@ class ae_individual : public ae_object
     
     void compute_statistical_data();
     void compute_non_coding( void );
-    /*void compute_modularity( void );*/
 
     virtual void save( gzFile backup_file ) const;
     
@@ -282,7 +280,7 @@ class ae_individual : public ae_object
       inline void assert_promoters_order( void );
     #endif
 
-    double compute_experimental_f_nu( int32_t nb_children, double* neutral_or_better = NULL );
+    void compute_experimental_f_nu( int32_t nb_children, double* reproduction_statistics, double* offsprings_statistics = NULL, FILE* replication_file = NULL);
     double compute_theoritical_f_nu( void );
     // These functions compute the probability of neutral reproduction (F_nu).
     // The first method replicates the individual "nb_children" times and counts how often
@@ -1101,7 +1099,10 @@ inline int32_t ae_individual::get_plasmid_minimal_length( void ) const
 // =====================================================================
 //                           Setters' definitions
 // =====================================================================
-
+inline void ae_individual::set_exp_m( ae_exp_manager* exp_m )
+{
+  _exp_m = exp_m;
+}
 /*!
   TODO
 */

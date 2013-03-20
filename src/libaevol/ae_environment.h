@@ -166,6 +166,7 @@ class ae_environment : public ae_fuzzy_set_X11
     //                           Protected Methods
     // =================================================================
     void _apply_autoregressive_mean_variation( void );
+    void _apply_autoregressive_height_variation( void );
     void _apply_local_gaussian_variation( void );
     void _compute_area( void );
 
@@ -383,6 +384,9 @@ inline void ae_environment::apply_variation( void )
       return;
     case AUTOREGRESSIVE_MEAN_VAR :
       _apply_autoregressive_mean_variation();
+      break;
+    case AUTOREGRESSIVE_HEIGHT_VAR :
+      _apply_autoregressive_height_variation();
       break;
     case LOCAL_GAUSSIANS_VAR :
       _apply_local_gaussian_variation();

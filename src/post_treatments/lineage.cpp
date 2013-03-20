@@ -151,23 +151,6 @@ int main(int argc, char** argv)
         
         break;
       }
-      /*case 'p' :
-      {
-        if ( strcmp( optarg, "" ) == 0 )
-        {
-          printf( "%s: error: Option -p or --pop : missing argument.\n", argv[0] );
-          exit( EXIT_FAILURE );
-        }
-        
-        pop_file_name = new char[strlen(optarg)+1];
-        memcpy( pop_file_name, optarg, strlen(optarg)+1);
-        
-        char str[255] ;
-        memcpy( str, pop_file_name, strlen(pop_file_name)+1);
-        sscanf( str, "populations/pop_%d.ae", &pop_end_gener );
-        
-        break;
-      }*/
     }
   }
   
@@ -193,7 +176,7 @@ int main(int argc, char** argv)
   
   int32_t tree_step = exp_manager->get_tree_step();
   
-  delete exp_manager;
+  //delete exp_manager;
 
 
   // The tree
@@ -324,7 +307,6 @@ int main(int argc, char** argv)
   }
 
   
-  
   // Retreive the index of the first ancestor from the last replicatino report
   indices[end_gener - begin_gener -1] = reports[end_gener - begin_gener -1]->get_parent_id();
  
@@ -349,6 +331,8 @@ int main(int argc, char** argv)
         sprintf( tree_file_name,"tree/tree_%06"PRId32".ae",  num_gener ); 
       #endif
       
+      sprintf( pop_file_name,       POP_FNAME_FORMAT,       num_gener );
+      
       tree = new ae_tree( exp_manager, pop_file_name, tree_file_name );
     }
     
@@ -359,17 +343,7 @@ int main(int argc, char** argv)
     // Retreive the index and rank of the next ancestor from the report
     indices[i] = reports[i]->get_parent_id();
   }
-  
-  // <DEBUG>
-  //~ for ( i = 0 ; i <= end_gener - begin_gener ; i++ )
-  //~ {
-    //~ printf( "  indices[%"PRId32"] : %"PRId32"\n", i, indices[i] );
-  //~ }
-  //~ for ( i = 0 ; i < end_gener - begin_gener ; i++ )
-  //~ {
-    //~ printf( "  reports[%"PRId32"]->index : %"PRId32"\n", i, reports[i]->get_index() );
-  //~ }
-  // </DEBUG>
+  delete exp_manager;
   
 
   if ( verbose )  printf("OK\n");
@@ -387,21 +361,6 @@ int main(int argc, char** argv)
     fflush(NULL);
   }
 
-  char genomes_file_name[50];
-  #ifdef __REGUL
-    sprintf( genomes_file_name,"populations/pop_%06"PRId32".rae", begin_gener );
-  #else
-    sprintf( genomes_file_name,"populations/pop_%06"PRId32".ae",  begin_gener );
-  #endif
-
-  char environment_file_name[50];
-  #ifdef __REGUL
-    sprintf( environment_file_name,"environment/env_%06"PRId32".rae", begin_gener );
-  #else
-    sprintf( environment_file_name,"environment/env_%06"PRId32".ae",  begin_gener );
-  #endif
-
-
   // Load the simulation
   #ifndef __NO_X
     exp_manager = new ae_exp_manager_X11();
@@ -409,14 +368,12 @@ int main(int argc, char** argv)
     exp_manager = new ae_exp_manager();
   #endif
   exp_manager->load( begin_gener, false, true );
-  //ae_common::write_to_backup( lineage_file );
   
   // Copy the initial ancestor
   // NB : The list of individuals is sorted according to the index
   ae_individual * initial_ancestor_tmp  = exp_manager->get_indiv_by_id( indices[0] );
   ae_individual * initial_ancestor      = new ae_individual( *initial_ancestor_tmp );
   
-  delete exp_manager;    
     
   gzwrite( lineage_file, &begin_gener,        sizeof(begin_gener) );
   gzwrite( lineage_file, &end_gener,          sizeof(end_gener)   );
@@ -459,7 +416,7 @@ int main(int argc, char** argv)
   ae_list_node<ae_genetic_unit*>*    stored_gen_unit_node  = NULL;
   ae_genetic_unit* stored_gen_unit       = NULL;
 
-  
+  ae_exp_manager* exp_manager_backup = NULL;
 
   // NB: I must keep the genome encapsulated inside an ae_individual, because
   // replaying the mutations has side effects on the list of promoters,
@@ -487,31 +444,19 @@ int main(int argc, char** argv)
     
     if ( check_genome_now )
     {
-      #ifdef __REGUL
-        sprintf( genomes_file_name,"populations/pop_%06"PRId32".rae", num_gener );
-      #else
-        sprintf( genomes_file_name,"populations/pop_%06"PRId32".ae", num_gener );
-      #endif
-      if ( verbose )
-      {
-        printf( "Loading the data stored in backup file %s\n", genomes_file_name );
-      }
-      
       // Load the simulation
   	  #ifndef __NO_X
-    	exp_manager = new ae_exp_manager_X11();
+    	exp_manager_backup = new ae_exp_manager_X11();
   	  #else
-    	exp_manager = new ae_exp_manager();
+    	exp_manager_backup = new ae_exp_manager();
       #endif
-      exp_manager->load( num_gener, false, true );
+      exp_manager_backup->load( num_gener, false, true );
   
       // Copy the ancestor from the backup
       // NB : The list of individuals is sorted according to the index
-      ae_individual * stored_indiv_tmp  = exp_manager->get_indiv_by_id( indices[i+1] );
+      ae_individual * stored_indiv_tmp  = exp_manager_backup->get_indiv_by_id( indices[i+1] );
       stored_indiv = new ae_individual( *stored_indiv_tmp );
       stored_gen_unit_node = stored_indiv->get_genetic_unit_list()->get_first();
-  
-  	  delete exp_manager;     
     }
           
   
@@ -571,7 +516,7 @@ int main(int argc, char** argv)
         {
           if ( verbose ) printf( " ERROR !\n" );
           fprintf( stderr, "Error: the rebuilt unit is not the same as \n");
-          fprintf( stderr, "the one stored in backup file %s\n", genomes_file_name);
+          fprintf( stderr, "the one stored in backup file at %"PRId32"\n", num_gener);
           //fprintf( stderr, "Rebuilt unit : %"PRId32" bp\n %s\n", (int32_t)strlen(str1), str1 );
           //fprintf( stderr, "Stored unit  : %"PRId32" bp\n %s\n", (int32_t)strlen(str2), str2 );
           delete [] str1;
@@ -579,6 +524,8 @@ int main(int argc, char** argv)
           gzclose( lineage_file );
           delete initial_ancestor;
           delete stored_indiv;
+          delete exp_manager_backup;
+          delete exp_manager;   
           delete [] reports;
           fflush( stdout );
           exit(EXIT_FAILURE);
@@ -599,16 +546,15 @@ int main(int argc, char** argv)
     {
       assert( stored_gen_unit_node == NULL );
       delete stored_indiv;
+      delete exp_manager_backup;
     }
   }
-  //      initial_ancestor->evaluate();
   
-
-  //  ae_common::clean();
 
   gzclose(lineage_file);
   delete initial_ancestor;
   delete [] reports;
+  delete exp_manager;    
 
   exit(EXIT_SUCCESS);
   

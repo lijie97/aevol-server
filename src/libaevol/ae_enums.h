@@ -46,9 +46,10 @@ enum ae_env_axis_feature
 
 enum ae_env_var
 {
-  NO_VAR                  = 0,
-  AUTOREGRESSIVE_MEAN_VAR = 1,
-  LOCAL_GAUSSIANS_VAR     = 2
+  NO_VAR                    = 0,
+  AUTOREGRESSIVE_MEAN_VAR   = 1,
+  AUTOREGRESSIVE_HEIGHT_VAR = 2,
+  LOCAL_GAUSSIANS_VAR       = 3
 };
 
 enum ae_env_noise

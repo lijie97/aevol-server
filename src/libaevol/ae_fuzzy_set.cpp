@@ -872,7 +872,7 @@ void ae_fuzzy_set::add_lower_bound( double lower_bound )
 }
 
 
-bool ae_fuzzy_set::is_identical_to( const ae_fuzzy_set * other ) const
+bool ae_fuzzy_set::is_identical_to( const ae_fuzzy_set * other, double tolerance  ) const
 {
   if ( _points->get_nb_elts() != other->_points->get_nb_elts())
   {
@@ -892,7 +892,7 @@ bool ae_fuzzy_set::is_identical_to( const ae_fuzzy_set * other ) const
     point = point_node->get_obj();
     other_point = other_node->get_obj();
 
-    if ((point->x != other_point->x) || (point->y != other_point->y))
+    if (fabs(point->x - other_point->x)> tolerance*(fabs(point->x) + fabs(other_point->x)) || fabs(point->y - other_point->y)>tolerance*(fabs(point->y) + fabs(other_point->y)))
       {ok = false;}
 
     point_node = point_node->get_next();

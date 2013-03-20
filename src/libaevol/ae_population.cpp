@@ -78,8 +78,9 @@ ae_population::ae_population( ae_exp_manager* exp_m )
   _exp_m = exp_m;
   
   #ifndef DISTRIBUTED_PRNG
-    _mut_prng   = NULL;
-    _stoch_prng = NULL;
+    _mut_prng       = NULL;
+    _stoch_prng     = NULL;
+    _stoch_prng_bak = NULL;
   #endif
   
   // Individuals

@@ -8,11 +8,25 @@
 #include <stdlib.h>
 #include <math.h>
 #include <algorithm>
+#include <err.h>
+#include <errno.h>
+#include <sys/stat.h>
 
 // =================================================================
 //                            Project Files
 // =================================================================
 #include "population_statistics.h"
+
+#define STATS_DIR                   "stats"
+#define ROBUSTNESS_FILE             STATS_DIR"/robustness_%06"PRId32".out"
+#define REPLICATION_FILE            STATS_DIR"/replication_%06"PRId32".out"
+#define POP_STAT_FILE               STATS_DIR"/global_pop_stats.out"
+#define POP_STAT_DIR                STATS_DIR"/pop_stats/"
+#define POP_STATE_BASE              "gen_%06"PRId32
+#define POP_STATE_ROBUSTNESS_FILE   POP_STAT_DIR"/robustness_%06"PRId32".out"
+#define POP_STATE_REPLICATION_FILE  POP_STAT_DIR"/replication_%06"PRId32".out"
+
+
 
 
 //##############################################################################
@@ -29,31 +43,45 @@
 //                             Constructors
 // =================================================================
 
+/*!
+  \brief Default constructor of population_statitistics class
 
+  Initialisation of default values _nb_children (number of replications to compute proportion of neutral offsrpings), _wanted_rank and _wanted_index (indications of 
+  individual of whom we want more replication informations), and anaylsis type
+  By default, the number of replications is 1,000 and the wanted individual is the best one (rank = 1) and the analysis is only one generation).
+*/
 population_statistics::population_statistics( void )
 {
-    _output_file = fopen("robustness.out","w");
-    _replication_output = NULL;
+    _output_file = NULL;
+    _replication_file = NULL;
+    _robustness_file = NULL;
     
     _nb_children = 1000;
-    _wanted_rank = -1;
+    _wanted_rank = 1;
     _wanted_index = -1;
-    _details = false;
 
     _f_nu_pop = NULL;
     _reprod_proba = NULL;
     _fitness = NULL;
     
-    _type = ROBUSTNESS;	
+    _type = ONE_GENERATION;	
 }
 
+/*!
+  \brief Constructor of population_statitistics class with non-default values
 
-population_statistics::population_statistics( analysis_type type, int nb_children, char* output_dir, int wanted_rank, int wanted_index,  bool details)
+  Initialisation of _nb_children, _wanted_rank and _wanted_index and _type with the given values
+  
+  \param type analysis type: ONE_GENERATION or MULTIPLE_GENERATIONS
+  \param nb_children  number of replications needed to compute the proportion of neutral offsprings of each individual
+  \param wanted_rank rank of the individual of whom we want more replication informations
+  \param wanted_index index of the individual of whom we want more replication informations
+*/
+population_statistics::population_statistics( analysis_type type, int32_t nb_children, int32_t wanted_rank, int32_t wanted_index)
 {   
     _nb_children = nb_children;
     _wanted_rank = wanted_rank;
     _wanted_index = wanted_index;
-    _details = details;
     _type = type;
     
     _f_nu_pop = NULL;
@@ -61,60 +89,23 @@ population_statistics::population_statistics( analysis_type type, int nb_childre
     _fitness = NULL;
     
     _output_file = NULL;
-    _replication_output = NULL;
+    _replication_file = NULL;
+    _robustness_file = NULL;
      
-    char* file_name = NULL;
-     
-    if (output_dir==NULL) // default = .
+    
+    if (_type != ONE_GENERATION) 
     {
-       if (_type == ROBUSTNESS) 
-       {
-        file_name = new char[ strlen("robustness.out") + 1 ];
-        sprintf(file_name,"%s","robustness.out");
-       }
-       else 
-       {
-        file_name = new char[ strlen("evolvability.out") + 1];
-        sprintf(file_name,"%s","evolvability.out");
-       }
-       
-       _output_file = fopen(file_name,"w");
-       if (_output_file==NULL) { fprintf(stderr, "Warning: could not open file %s.\n", file_name); }
-       if (_details == true )
-       {
-        _replication_output=fopen("replications.out","w");
-        if (_replication_output==NULL) { fprintf(stderr, "Warning: could not open file replications.out.\n"); }
-       }
-     }
-     else
-     {       
-       if (_type == ROBUSTNESS) 
-       {
-        file_name = new char[ strlen(output_dir) + strlen("robustness.out") + 2];
-        sprintf(file_name,"%s/%s",output_dir,"robustness.out");
-       }
-       else 
-       {
-        file_name = new char[ strlen(output_dir) + strlen("evolvability.out") + 2];
-        sprintf(file_name,"%s/%s",output_dir,"evolvability.out");
-       }
-       
-       char* replication_file_name = NULL;
-       replication_file_name = new char[ strlen(output_dir) + strlen("replication.out") + 2];
-       sprintf(replication_file_name,"%s/%s",output_dir,"replication.out");
-       
-       _output_file = fopen(file_name,"w");
-       if ( _output_file == NULL ) { fprintf(stderr, "Warning: could not open file %s.\n", file_name); }
-       if ( details == true )
-       { 
-        _replication_output=fopen(replication_file_name,"w");
-        if (_replication_output==NULL) { fprintf(stderr, "Warning: could not open file %s.\n", replication_file_name); }
-       }
-       
-       delete [] replication_file_name;
-     }
-     delete [] file_name;
-     fflush( stderr );    
+      _output_file = fopen(POP_STAT_FILE,"w");
+      int status = mkdir( POP_STAT_DIR, 0755 );
+      if ( (status == -1) && (errno != EEXIST) )
+      {
+        err( EXIT_FAILURE, POP_STAT_DIR );
+      }
+      assert(_output_file!=NULL);
+    }
+    
+    
+    fflush( stderr );    
 }
 
 
@@ -122,16 +113,16 @@ population_statistics::population_statistics( analysis_type type, int nb_childre
 //                             Destructors
 // =================================================================
 
+/*!
+  \brief Destructor of population_statistics class
+*/
 population_statistics::~population_statistics( void )
 {
   if (_output_file != NULL) { fclose(_output_file); }
-  if (_replication_output != NULL) { fclose(_replication_output); }
   
   delete [] _f_nu_pop;
   delete [] _reprod_proba;
   delete [] _fitness;
-  
-  //ae_common::clean();
 }
 
 
@@ -139,38 +130,106 @@ population_statistics::~population_statistics( void )
 //                            Public Methods
 // =================================================================
 
-void population_statistics::compute_population_f_nu(ae_exp_manager* exp_manager)
+/*!
+  \brief Compute statistics of reproduction at population level at generation num_gener
+
+  Compute at generation num_gener for each individual:
+  * Fitness
+  * Metabolic error
+  * Genome size
+  * Functional gene number
+  * Reproduction probability
+  * Proportion of neutral offsprings
+  * Proportion of beneficial offsprings
+  * Proportion of deleterious offsprings
+  * Theoretical proportion of deleterious offsprings
+  * Fitness mean of offsprings
+  * Fitness variance of offsprings
+  * Genome size mean of offsprings
+  * Genome size variance of offsprings
+  * Functional gene number mean of offsprings;
+  * 17. Functional gene number variance of offsprings
+  Write this informations in a file robustness_numgener.out 
+  
+  Compute for each offspring of a choosen individual (by index or rank):
+  * Fitness
+  * Metabolic error
+  * Genome size
+  * Functional gene number
+  * Number of coding bases
+  * Number of transcribed but not translated bases
+  * Number of non transcribed bases
+  Write this informations in a file replication_numgener.out 
+  
+  Complete _f_nu_pop, _reprod_proba, _fitness with proportion of neutral offspring, reproduction probability and fitness of each individual at num_gener
+  
+  \param exp_manager  current exp_manager
+  \param num_gener    current generation number
+*/
+void population_statistics::compute_reproduction_stats(ae_exp_manager* exp_manager, int32_t num_gener)
 {
   // ----------------------------------------
-  //              Initializing....
+  //              Open output files
   // ----------------------------------------
-  
-  // Load the simulation
-  /*#ifndef __NO_X
-    ae_exp_manager* exp_manager = new ae_exp_manager_X11();
-  #else
-    ae_exp_manager* exp_manager = new ae_exp_manager();
-  #endif
-  exp_manager->load_experiment( _exp_setup_file_name, _out_prof_file_name, environment_file_name, genomes_file_name, _sp_struct_file_name, true );*/
 
+  char* robustness_file_name  = new char[255];
+  char* replication_file_name = new char[255];
+  if (_type == ONE_GENERATION) 
+  {
+    sprintf( robustness_file_name,  ROBUSTNESS_FILE,  num_gener );
+    sprintf( replication_file_name, REPLICATION_FILE, num_gener );
+  }
+  else
+  {
+    sprintf( robustness_file_name,  POP_STATE_ROBUSTNESS_FILE,  num_gener );
+    sprintf( replication_file_name, POP_STATE_REPLICATION_FILE, num_gener );
+  }
+  _robustness_file = fopen(robustness_file_name,"w");
+  _replication_file = fopen(replication_file_name,"w");  
   
-  // TODO: update this
-  // load from lineage
-  /* int last_backup_time = (generation / param::back_step) * param::back_step;
-     char * command = new char[100];
-     sprintf(command, "./lineage --begin %d --end %d --ind %d > /dev/null",last_backup_time,generation,indiv_id);
-     printf("running %s...",command);
-     fflush(NULL);
-     system(command);
-     printf(" done\n");
-     delete [] command;
-      
-     ae_individual * initial_indiv = get_final_individual_using_dstory();
-      
-     // remove dstory output
-     remove("dstory.bak.gz"); */
-
- 
+  assert(_replication_file!=NULL);
+  assert(_robustness_file!=NULL);
+  delete [] robustness_file_name;
+  delete [] replication_file_name;
+  
+  
+  // -------------------------------------
+  //            Write header
+  // -------------------------------------
+  fprintf(_robustness_file, "# ######################################################################\n" );
+  fprintf(_robustness_file, "# Robustness data of individuals at generation %"PRId32"\n",num_gener );
+  fprintf(_robustness_file, "# ######################################################################\n" );
+  fprintf(_robustness_file,"#  1.  Rank\n");
+  fprintf(_robustness_file,"#  2.  Index\n");
+  fprintf(_robustness_file,"#  3.  Fitness\n");
+  fprintf(_robustness_file,"#  4.  Metabolic error\n");
+  fprintf(_robustness_file,"#  5.  Genome size\n");
+  fprintf(_robustness_file,"#  6.  Functional gene number\n");
+  fprintf(_robustness_file,"#  7.  Reproduction probability\n");
+  fprintf(_robustness_file,"#  8.  Proportion of neutral offsprings\n");
+  fprintf(_robustness_file,"#  9. Proportion of beneficial offsprings\n");
+  fprintf(_robustness_file,"#  10. Proportion of deleterious offsprings\n");
+  fprintf(_robustness_file,"#  11. Theoretical proportion of netural offsprings\n");
+  fprintf(_robustness_file,"#  12. Fitness mean of offsprings\n");
+  fprintf(_robustness_file,"#  13. Fitness variance of offsprings\n");
+  fprintf(_robustness_file,"#  14. Genome size mean of offsprings\n");
+  fprintf(_robustness_file,"#  15. Genome size variance of offsprings\n");
+  fprintf(_robustness_file,"#  16. Functional gene number mean of offsprings\n");
+  fprintf(_robustness_file,"#  17. Functional gene number variance of offsprings\n");
+  fprintf(_robustness_file, "# ######################################################################\n" );
+  
+  fprintf(_replication_file, "# #######################################################################################################\n" );
+  fprintf(_replication_file,"#  Offspring details of individual with rank %"PRId32" and index %"PRId32" at generation %"PRId32" \n",_wanted_rank, _wanted_index, num_gener );
+  fprintf(_replication_file, "# #######################################################################################################\n" );
+  fprintf(_replication_file,"#  1.  Fitness\n");
+  fprintf(_replication_file,"#  2.  Metabolic error\n");
+  fprintf(_replication_file,"#  3.  Genome size\n");
+  fprintf(_replication_file,"#  4.  Functional gene number\n");
+  fprintf(_replication_file,"#  5.  Number of coding bases\n");
+  fprintf(_replication_file,"#  6.  Number of transcribed but not translated bases\n");
+  fprintf(_replication_file,"#  7.  Number of non transcribed bases\n");
+  fprintf(_replication_file, "# #######################################################################################################\n" );
+  
   // --------------------------------------------------------------
   //       Get genome(s) of interest and compute Fv
   // --------------------------------------------------------------
@@ -179,11 +238,11 @@ void population_statistics::compute_population_f_nu(ae_exp_manager* exp_manager)
   
   ae_individual* initial_indiv = NULL;
   ae_list_node<ae_individual*>* node = exp_manager->get_pop()->get_indivs()->get_last();
-  int current_rank = 1;
-  int current_index = -1;
+  int32_t current_rank = 1;
+  int32_t current_index = -1;
   
-  double neutral_or_better = -1;
-  double exp_fv = -1;
+  double* reproduction_statistics =  new double[3];
+  double* offsprings_statistics =  new double[6];
   double th_fv;
   
   if (_f_nu_pop != NULL) { delete [] _f_nu_pop;}
@@ -202,90 +261,83 @@ void population_statistics::compute_population_f_nu(ae_exp_manager* exp_manager)
   {
     ae_individual* tmpind = (ae_individual*) node->get_obj();
     node = node->get_prev();
-
-    if ( (_wanted_rank==-1) || (_wanted_rank == current_rank) )
+    
+    // ------------------------------------
+    //         Get initial individual
+    // ------------------------------------
+    #ifdef __NO_X
+      #ifndef __REGUL
+        initial_indiv = new ae_individual( tmpind, current_index, exp_manager->get_exp_s()->get_sel()->get_prng(), exp_manager->get_exp_s()->get_sel()->get_prng());
+      #else
+        initial_indiv = new ae_individual_R( (dynamic_cast<ae_individual_R*>(tmpind)), current_index, exp_manager->get_exp_s()->get_sel()->get_prng(), exp_manager->get_exp_s()->get_sel()->get_prng());
+          #endif
+    #elif defined __X11
+      #ifndef __REGUL
+        initial_indiv = new ae_individual_X11( (dynamic_cast<ae_individual_X11*>(tmpind)), current_index, exp_manager->get_exp_s()->get_sel()->get_prng(), exp_manager->get_exp_s()->get_sel()->get_prng() );
+      #else
+        initial_indiv = new ae_individual_R_X11( (dynamic_cast<ae_individual_R_X11*>(tmpind)), current_index, exp_manager->get_exp_s()->get_sel()->get_prng(), exp_manager->get_exp_s()->get_sel()->get_prng() );
+      #endif
+    #endif
+    
+    current_index = tmpind->get_id();
+    
+    initial_indiv->evaluate(exp_manager->get_env());
+    _fitness[current_rank-1] = initial_indiv->get_fitness();
+    _reprod_proba[current_rank-1] = tmp_reprod[_pop_size-current_rank];
+    
+    // ------------------------------------
+    //              Compute Fv
+    // ------------------------------------	
+    th_fv = initial_indiv->compute_theoritical_f_nu();
+    
+    if ( (_wanted_rank == current_rank) || (_wanted_index == current_index))
     {
-      current_index = tmpind->get_id();
-      if ( (_wanted_index == -1) || (_wanted_index == current_index) )
-      {
-	
-	// ------------------------------------
-	//         Get initial individual
-	// ------------------------------------
-	      
-  #ifdef __NO_X
-    #ifndef __REGUL
-      initial_indiv = new ae_individual( tmpind, current_index, NULL, NULL );
-    #else
-      initial_indiv = new ae_individual_R( (dynamic_cast<ae_individual_R*>(tmpind)), current_index, NULL, NULL );
-    #endif
-  #elif defined __X11
-    #ifndef __REGUL
-      initial_indiv = new ae_individual_X11( (dynamic_cast<ae_individual_X11*>(tmpind)), current_index, NULL, NULL );
-    #else
-      initial_indiv = new ae_individual_R_X11( (dynamic_cast<ae_individual_R_X11*>(tmpind)), current_index, NULL, NULL );
-    #endif
-  #endif
-
-	initial_indiv->evaluate(exp_manager->get_env());
-	//printf("found indiv %"PRId32" with fitness %le (rank %d)\n", tmpind->get_index_in_population(), tmpind->get_fitness(), current_rank);
-	//printf("%d ", current_rank);
-	fflush( stdout);
-	
-	_fitness[current_rank-1] = initial_indiv->get_fitness();
-	_reprod_proba[current_rank-1] = tmp_reprod[_pop_size-current_rank];
-	
-	// ------------------------------------
-	//              Compute Fv
-	// ------------------------------------
-	
-	
-		
-	if ( _details == true && _type == ROBUSTNESS)
-	{ 
-	  // 'overloaded' function
-	  //exp_fv = compute_experimental_fv( initial_indiv, &neutral_or_better );// TO DO
-	  exp_fv = initial_indiv->compute_experimental_f_nu( _nb_children, &neutral_or_better );
-	}
-	else
-	{
-	  // aevol function
-	  exp_fv = initial_indiv->compute_experimental_f_nu( _nb_children, &neutral_or_better );
-	}
-	
-	_f_nu_pop[current_rank-1] = exp_fv;
-	  
-	if ( _type == ROBUSTNESS)
-	{
-	  th_fv = initial_indiv->compute_theoritical_f_nu();
-	
-	  // ------------------------------------
-	  //            Write to file
-	  // ------------------------------------ 
-	  if ( _output_file != NULL )
-	  {
-	    fprintf( _output_file, "%d %d %le %le %le %le %le %"PRId32"\n",
-		   current_rank, current_index, initial_indiv->get_fitness(),
-		   _reprod_proba[current_rank-1],
-		   exp_fv, neutral_or_better, th_fv, _pop_size );
-	  // fflush(fv_output);
-	  
-	  }
-	}
-	      
-	delete initial_indiv;
-      }
+      initial_indiv->compute_experimental_f_nu( _nb_children, reproduction_statistics, offsprings_statistics, _replication_file);
     }
+    else
+    {
+      initial_indiv->compute_experimental_f_nu( _nb_children, reproduction_statistics, offsprings_statistics);
+    }
+    _f_nu_pop[current_rank-1] = reproduction_statistics[0];
+    
+    // ------------------------------------
+    //            Write to file
+    // ------------------------------------ 
+    fprintf( _robustness_file, "%"PRId32" %"PRId32" %le %le %"PRId32" %"PRId32" %le %le %le %le %le %le %le %le %le %le %le\n",
+                              current_rank, current_index, initial_indiv->get_fitness(),initial_indiv->get_dist_to_target_by_feature(METABOLISM ),initial_indiv->get_total_genome_size(),
+                              initial_indiv->get_nb_functional_genes(), _reprod_proba[current_rank-1], reproduction_statistics[0], reproduction_statistics[1], reproduction_statistics[2], th_fv,
+                              offsprings_statistics[0], offsprings_statistics[1], offsprings_statistics[2], offsprings_statistics[3],offsprings_statistics[4],offsprings_statistics[5]);
+    delete initial_indiv;
     current_rank++;
   }
-  //ae_common::clean();
-  //sdelete exp_manager;
+  //delete exp_manager;
+  delete [] reproduction_statistics;
+  delete [] offsprings_statistics;
+  
+  fclose(_replication_file); 
+  fclose(_robustness_file);
 }
 
+/*!
+  \brief Compute statistics at population level at generation num_gener
 
-void population_statistics::compute_evolvability_stats(int32_t num_gener)
+  Compute at generation num_gener for each individual:
+  * Variation
+  * Population_variability
+  * Proportion of neutral offspring of the best individual
+  * Variability of the best individual
+  * Size of the first quasi species
+  * Number of different fitness
+  Write this informations in _output_file
+  
+  Before this function, compute_reproduction_stats have to be called
+  \see compute_reproduction_stats(ae_exp_manager* exp_manager, int32_t num_gener)
+  
+  \param num_gener    current generation number  
+*/
+void population_statistics::compute_population_stats(int32_t num_gener)
 {
-  printf("\n\nCompute evolvability stats\n");
+  printf("\n\nCompute population stats\n");
   double variation = 0;
   double population_variability = 0; 
   
@@ -294,16 +346,7 @@ void population_statistics::compute_evolvability_stats(int32_t num_gener)
   int fitness_number = 1;
   int quasi_species_size = 1;
   
-  char* file_name = NULL;
-  FILE* f_nu_file;
-  file_name = new char[ strlen("F_nu/gen_.out") + 10];
-  sprintf(file_name,"%s%d%s","F_nu/gen_",num_gener,".out");
-  
-  f_nu_file = fopen(file_name,"w");
-  delete [] file_name;
-  
   population_variability = _f_nu_pop[0] * _reprod_proba[0];
-  fprintf( f_nu_file, "%le %le %le\n",_f_nu_pop[0],_reprod_proba[0]*_pop_size,_fitness[0]);
   for (int i = 1; i < _pop_size; i++)
   {
     if ( fabs(_fitness[i] - _fitness[i-1]) > 1e-10*std::max(_fitness[i],_fitness[i-1]))
@@ -314,22 +357,17 @@ void population_statistics::compute_evolvability_stats(int32_t num_gener)
     {
       quasi_species_size += 1;
     }
-    
-    fprintf( f_nu_file, "%le %le %le\n",_f_nu_pop[i],_reprod_proba[i]*_pop_size,_fitness[i]);
     population_variability += _f_nu_pop[i] * _reprod_proba[i];
   }
-  fflush( f_nu_file );
   
   population_variability = 1. - population_variability;
   variation = (static_cast<double>(fitness_number)) / (static_cast<double>(_pop_size));
   
-  printf("\n Evolvability stats : \n \tgeneration : %"PRId32"\n \tpopulation size : %"PRId32"\n \tvariation : %le\n \tpopulation variability : %le\n \tbest f nu : %le\n \tbest variability : %le\n \tbest quasi species size : %d\n \tfitness number : %d\n", num_gener, 
+  printf("\n Global population stats : \n \tgeneration : %"PRId32"\n \tpopulation size : %"PRId32"\n \tvariation : %le\n \tpopulation variability : %le\n \tbest f nu : %le\n \tbest variability : %le\n \tbest quasi species size : %d\n \tfitness number : %d\n", num_gener, 
 	   _pop_size, variation, population_variability, _f_nu_pop[0], best_variability, 
 	   quasi_species_size, fitness_number);
   
-  fprintf( _output_file, "%"PRId32" %"PRId32" %le %le %le %d\n", num_gener, 
-	   _pop_size, variation, population_variability, best_variability, 
-	   quasi_species_size);
+  fprintf( _output_file, "%"PRId32" %"PRId32" %le %le %le %le %d %d\n", num_gener, _pop_size, variation, population_variability, _f_nu_pop[0], best_variability, quasi_species_size, fitness_number);
   fflush( _output_file );
 }
 
@@ -337,78 +375,8 @@ void population_statistics::compute_evolvability_stats(int32_t num_gener)
 //                            Protected Methods
 // =================================================================
 
-// function copied from ae_individual's computation of experimental fv.
-// In addition, it provides and prints information about replications
-// TO DO : Change this function for adaptation to the new version
-double population_statistics::compute_experimental_fv( ae_individual* indiv, double* neutral_or_better)
-{
-  double initial_fitness = indiv->get_fitness();
-  int32_t index = indiv->get_id();
-  double Fv = 0;
-  if ( neutral_or_better != NULL) *neutral_or_better = 0;
-  
-  // ------------------------------------------
-  //      Simulate fitness degradation
-  // ------------------------------------------
-  double childfit = 0;
-  double * fitnesses = new double [_nb_children];
-  int * nb_aff_genes = new int [_nb_children];
-	      
-  // reproduce this individual to create 'nb_children' children 
-  ae_individual * child = NULL;
-  for (int i = 0; i < _nb_children; i++)
-  {
-    //child = ae_common::sim->get_pop()->do_replication(indiv, index); 
-    childfit = child->get_fitness(); // child is automatically evaluated
-    
-    if (_replication_output != NULL) // only interesting if we put that into a file...
-    {
-      fitnesses[i]    = childfit;
-      nb_aff_genes[i] = count_affected_genes(indiv, child);
-    }
-    
-    //count neutral offspring
-    if ( fabs(initial_fitness - childfit) < 1e-10*std::max(initial_fitness,childfit) )
-    { 
-      Fv += 1;
-      if ( neutral_or_better != NULL ) *neutral_or_better += 1;
-    }
-    else if ( (neutral_or_better != NULL) && (childfit > initial_fitness) )
-    {
-       *neutral_or_better += 1;
-    }
-    delete child;
-  }
-  
-  //compute Fv
-  Fv /= _nb_children;
-  if ( neutral_or_better != NULL ) *neutral_or_better /= _nb_children;
-  	      
-  // ------------------------------------------
-  //      print statistics to file
-  // ------------------------------------------
-  if ( _replication_output != NULL )
-  {
-    //general statistics of the individual
-    fprintf( _replication_output, "#%"PRId32" %"PRId32" %"PRId32" %d %le",
-	    indiv->get_id(),
-	    indiv->get_total_genome_size(),
-	    indiv->get_nb_functional_genes(),
-	    (int) indiv->get_overall_size_coding_RNAs(),
-	    indiv->get_fitness());
-    //statistics of replication
-    print_replication_stats( indiv, fitnesses, nb_aff_genes );    
-  }  
-
-  if ( fitnesses != NULL ) delete [] fitnesses;
-  if ( nb_aff_genes != NULL ) delete [] nb_aff_genes;
-
-  return Fv;
-}
-
-
 // count how many proteins were modified after replication
-int population_statistics::count_affected_genes( ae_individual* parent, ae_individual* child )
+/*int population_statistics::count_affected_genes( ae_individual* parent, ae_individual* child )
 {
   // ------------------------------------------------------------
   //       list all functional proteins of the child
@@ -493,11 +461,11 @@ int population_statistics::count_affected_genes( ae_individual* parent, ae_indiv
   delete child_protein_list;
 
   return result;
-}
+}*/
 
 
 // print stats about replications of the individual
-void population_statistics::print_replication_stats( ae_individual* initial_indiv, double* fitnesses, int* nb_aff_genes )
+/*void population_statistics::print_replication_stats( ae_individual* initial_indiv, double* fitnesses, int* nb_aff_genes )
 {
   if ( _replication_output == NULL ) return;
   
@@ -544,7 +512,7 @@ void population_statistics::print_replication_stats( ae_individual* initial_indi
   {
     fprintf(_replication_output, "%le %d \n", fitnesses[i], nb_aff_genes[i]);
   }
-}
+}*/
 
 
 /*

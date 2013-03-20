@@ -714,6 +714,42 @@ void ae_environment::_apply_autoregressive_mean_variation( void )
   build();
 }
 
+
+void ae_environment::_apply_autoregressive_height_variation( void )
+{
+  // For each gaussian : 
+  // current_height = ref_height + delta_h, where
+  // delta_m follows an autoregressive stochastic process
+  // with the parameters _var_sigma and _var_tau
+  
+  int16_t nb_gaussians = _gaussians->get_nb_elts();
+  
+  ae_list_node<ae_gaussian*>* gaussian_node = _gaussians->get_first();
+  ae_gaussian* gaussian;
+  ae_list_node<ae_gaussian*>* ref_gaussian_node = _initial_gaussians->get_first();
+  ae_gaussian* ref_gaussian;
+  for ( int16_t i = 0 ; i < nb_gaussians ; i++ )
+  {
+    gaussian      = gaussian_node->get_obj();
+    ref_gaussian  = ref_gaussian_node->get_obj();
+    
+    // Find the current delta_height = current_height - ref_height
+    double delta_height = gaussian->get_height() - ref_gaussian->get_height();
+
+    // Compute the next value :
+    // Dh(t+1) = Dh(t)*(1-1/tau) + ssd/tau*sqrt(2*tau-1)*normal_random()
+    delta_height =  delta_height * (1.0 - 1.0/_var_tau) + (_var_sigma/_var_tau) * sqrt(2*_var_tau- 1.0) * _var_prng->gaussian_random();
+
+    // Deduce the new value of the height : ref_height + delta_h
+    gaussian->set_height( ref_gaussian->get_height() + delta_height );
+    
+    gaussian_node = gaussian_node->get_next();
+    ref_gaussian_node = ref_gaussian_node->get_next();
+  }
+
+  build();
+}
+
 void ae_environment::_apply_local_gaussian_variation( void )
 {
   printf( "ERROR, _apply_local_gaussian_variation has not yet been implemented. in file %s:%d\n", __FILE__, __LINE__ );

@@ -612,6 +612,14 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
       _param_values->set_env_var_tau( atol( line->words[3] ) );
       _param_values->set_env_var_seed( atoi( line->words[4] ) );
     }
+    else if ( strcmp( line->words[1], "autoregressive_height_variation" ) == 0 )
+    {
+      assert( line->nb_words == 5 );
+      _param_values->set_env_var_method( AUTOREGRESSIVE_HEIGHT_VAR );
+      _param_values->set_env_var_sigma( atof( line->words[2] ) );
+      _param_values->set_env_var_tau( atol( line->words[3] ) );
+      _param_values->set_env_var_seed( atoi( line->words[4] ) );
+    }
     else if ( strcmp( line->words[1], "add_local_gaussians" ) == 0 )
     {
       assert( line->nb_words == 3 );

@@ -1472,7 +1472,7 @@ void ae_genetic_unit::compute_non_coding( void )
         int32_t term_first;
         int32_t term_last;
         int32_t rna_first;
-	int32_t rna_last;
+        int32_t rna_last;
         
         if ( strand == LEADING )
         {
@@ -1480,8 +1480,8 @@ void ae_genetic_unit::compute_non_coding( void )
           prom_last   = ae_utils::mod( prom_first + PROM_SIZE - 1, _dna->get_length() );
           term_last   = rna->get_last_transcribed_pos();
           term_first  = ae_utils::mod( term_last - TERM_SIZE + 1, _dna->get_length() );
-	  rna_first   = prom_first;
-	  rna_last    = term_last;
+          rna_first   = prom_first;
+          rna_last    = term_last;
         }
         else
         {
@@ -1489,8 +1489,8 @@ void ae_genetic_unit::compute_non_coding( void )
           prom_first  = ae_utils::mod( prom_last - PROM_SIZE + 1, _dna->get_length() );
           term_first  = rna->get_last_transcribed_pos();
           term_last   = ae_utils::mod( term_first + TERM_SIZE - 1, _dna->get_length() );
-	  rna_first   = term_first;
-	  rna_last    = prom_last;
+          rna_first   = term_first;
+          rna_last    = prom_last;
         }
         //~ printf( "\n" );
         //~ if ( strand == LEADING ) printf( "LEADING\n" );

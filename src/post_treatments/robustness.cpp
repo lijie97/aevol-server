@@ -60,30 +60,23 @@ int count_affected_genes( ae_individual* parent, ae_individual* child );*/
 // =====================================================================
 
 
-//#define FV_FILE "fv.out"
-//#define REP_FILE "replications.out"
-
 int main( int argc, char* argv[] ) 
 {
   // ----------------------------------------
   //     command-line option parsing
   // ----------------------------------------
-  char* output_dir    = NULL;
-  int nb_children     = 1000;
-  int wanted_rank     = -1;
-  int wanted_index    = -1;
-  bool details        = false;
-  int32_t num_gener   = 100;
+  int32_t nb_children     = 1000;
+  int32_t wanted_rank     = -1;
+  int32_t wanted_index    = -1;
+  int32_t num_gener       = 100;
 
-  const char * options_list = "h:e:o:n:r:i:d"; 
+  const char * options_list = "he:n:r:i:"; 
   static struct option long_options_list[] = {
     {"help",          no_argument,        NULL, 'h'},
     {"end",           required_argument,  NULL, 'e' }, 
-    {"output",        1,                  NULL, 'o'},
-    {"nb-children",   1,                  NULL, 'n'},
-    {"rank",          1,                  NULL, 'r'},
-    {"index",         1,                  NULL, 'i'},
-    {"with-details",  0,                  NULL, 'd'},
+    {"nb-children",   required_argument,  NULL, 'n'},
+    {"rank",          required_argument,  NULL, 'r'},
+    {"index",         required_argument,  NULL, 'i'},
     {0, 0, 0, 0}
   };
 
@@ -92,8 +85,8 @@ int main( int argc, char* argv[] )
   {
     switch(option) 
     {
-    case 'h' : print_help(); exit(EXIT_SUCCESS);  break;
-    case 'e' :
+      case 'h' : print_help(); exit(EXIT_SUCCESS);  break;
+      case 'e' :
       {
         if ( strcmp( optarg, "" ) == 0 )
         {
@@ -104,30 +97,27 @@ int main( int argc, char* argv[] )
         num_gener = atol( optarg );        
         break;
       }
-    case 'o' : 
-      output_dir = new char[strlen(optarg) + 1];
-      sprintf( output_dir, "%s", optarg );
-      break;
-    case 'n' :
-      nb_children = atoi(optarg);
-      break;  
-    case 'r' :
-      wanted_rank = atoi(optarg);
-      wanted_index = -1;
-      break;  
-    case 'i' :
-      wanted_index = atoi(optarg);
-      wanted_rank = -1;
-      break;  
-    case 'd' :
-      details=true;
-      break;  
+      case 'n' :
+        nb_children = atol(optarg);
+        break;  
+      case 'r' :
+        wanted_rank = atol(optarg);
+        wanted_index = -1;
+        break;  
+      case 'i' :
+        wanted_index = atol(optarg);
+        wanted_rank = -1;
+        break;
     }
   }
   
-  analysis_type type = ROBUSTNESS;
+  if(wanted_rank == -1 && wanted_index ==-1){
+    wanted_rank = 1;
+  }
+  
+  analysis_type type = ONE_GENERATION;
 
-  population_statistics* population_statistics_compute = new population_statistics(type, nb_children, output_dir, wanted_rank, wanted_index, details);
+  population_statistics* population_statistics_compute = new population_statistics(type, nb_children, wanted_rank, wanted_index);
   
   // Load simulation  
   #ifndef __NO_X
@@ -137,16 +127,10 @@ int main( int argc, char* argv[] )
   #endif
   exp_manager->load( num_gener, false, true );
   
-  population_statistics_compute->compute_population_f_nu(exp_manager);
+  population_statistics_compute->compute_reproduction_stats(exp_manager, num_gener);
 
   delete exp_manager;
   delete population_statistics_compute;
-  delete [] output_dir;
-  
-  // TODO: update
-  // rename dstory.bak.gz
-  //rename("kept_dstory.bak.gz","dstory.bak.gz");
-  //if(generation%param::back_step == 0) delete po
 
   return EXIT_SUCCESS;
 }
@@ -163,15 +147,12 @@ void print_help( void )
   printf( "This program is Free Software. No Warranty.\n" );
   printf( "Copyright (C) 2009  LIRIS.\n" );
   printf( "\n" ); 
-#ifdef __REGUL
-  printf( "Usage : rrobustness -h\n");
-  printf( "or :    rrobustness -e end_gener [-o output_dir] [-n children_nb] [-r rank | -i index] [-d boolean]\n");
-#else
   printf( "Usage : robustness -h\n");
-  printf( "or :    robustness -e end_gener [-o output_dir] [-n children_nb] [-r rank | -i index] [-d boolean]\n" );
-#endif
+  printf( "or :    robustness -e end_gener [-n children_nb] [-r rank | -i index]\n");
   printf( "\n" ); 
-  printf( "This program takes individuals and computes f_nu\n" );
+  printf( "This program computes replication statistics at backup at end_gener like proportion of neutral, beneficial, deleterious offsprings\n" );
+  printf( "and statistics about the offsprings, written in robustness_end_gener.out.\n");
+  printf( "The replication statistics (informations about the children_nb offsprings) of the individual of rank or index are written in replication_end_gener.out.\n");
   printf( "\n" ); 
   printf( "WARNING: This program should not be used for simulations run with lateral\n" ); 
   printf( "transfer. When an individual has more than one parent, the notion of lineage\n" ); 
@@ -179,20 +160,17 @@ void print_help( void )
   printf( "\n" );  
   printf( "\t-h or --help    : Display this help.\n" );
   printf( "\n" ); 
-  printf( "\t-o output_dir or --output output_dir : \n" );
-  printf( "\t                  Save the statistics inside output_dir.\n" );
-  printf( "\n" ); 
   printf( "\t-n children_nb or --nb-children children_nb : \n" );
   printf( "\t                  Use children_nb to compute Fv.\n" );
   printf( "\n" ); 
   printf( "\t-i index or --index index : \n" );
-  printf( "\t                  Get individual with index index (default -1 -> all individuals).\n" );
+  printf( "\t                  Index of individual of whom we want informations about the offsprings at each backup\n" );
   printf( "\n" ); 
   printf( "\t-r rank or --rank rank : \n" );
-  printf( "\t                  Get individual with rank rank (default -1 -> all individuals).\n" );
+  printf( "\t                  Rank of individual of whom we want informations about the offsprings at each backup\n" );
   printf( "\n" );
   printf( "\t-e end_gener or --end end_gener : \n" );
-  printf( "\t                  Compute f_nu at end_gener\n" );
+  printf( "\t                  Generation at which the statistics are computed\n" );
   printf( "\n" );
 
 }
