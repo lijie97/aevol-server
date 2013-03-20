@@ -276,11 +276,27 @@ inline void ae_population::add_indiv( ae_individual* indiv )
 inline void ae_population::set_mut_prng( ae_jumping_mt* prng )
 {
   _mut_prng = prng;
+  ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
+  ae_individual*  indiv;
+  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
+  {
+    indiv = indiv_node->get_obj();
+    indiv->set_mut_prng( _mut_prng );
+    indiv_node = indiv_node->get_next();
+  }
 }
 
 inline void ae_population::set_stoch_prng( ae_jumping_mt* prng )
 {
   _stoch_prng = prng;
+  ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
+  ae_individual*  indiv;
+  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
+  {
+    indiv = indiv_node->get_obj();
+    indiv->set_stoch_prng( _stoch_prng );
+    indiv_node = indiv_node->get_next();
+  }
 }
 
 

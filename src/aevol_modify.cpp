@@ -63,18 +63,14 @@ int main( int argc, char* argv[] )
   char* param_file_name = NULL;
   char* pop_file_name   = NULL;
   bool verbose          = false;
-  
-  char* exp_setup_file_name = new char[63];
-  char* out_prof_file_name  = new char[63];
-  strcpy( exp_setup_file_name,  "exp_setup.ae" );
-  strcpy( out_prof_file_name,   "output_profile.ae" );
-  
+  int32_t num_gener = -1;  
   
   // 2) Define allowed options
-  const char * options_list = "hf:";
+  const char * options_list = "hf:g:";
   static struct option long_options_list[] = {
     { "help",     no_argument,        NULL, 'h' },
     { "file",     required_argument,  NULL, 'f' }, // Provide file with parameters to change
+    { "gener",    required_argument,  NULL, 'g' },
     { 0, 0, 0, 0 }
   };
       
@@ -100,6 +96,11 @@ int main( int argc, char* argv[] )
         param_file_name = optarg;
         break;
       }
+      case 'g' :
+      {
+        num_gener = atoi( optarg );
+        break;
+      }
       default :
       {
         // An error message is printed in getopt_long, we just need to exit
@@ -109,30 +110,24 @@ int main( int argc, char* argv[] )
   }
   
   // 4) Check the consistancy of the command-line options
-  if ( param_file_name == NULL || pop_file_name == NULL )
+  if ( num_gener == -1 )
   {
-    printf( "%s: error: You must provide both a parameter file and a population backup.\n", argv[0] );
+    printf( "%s: error: You must provide a generation number.\n", argv[0] );
     exit( EXIT_FAILURE );
   }
   
-  // 5) Initialize an empty experiment manager
+  // 5) Initialize the experiment manager
   #ifndef __NO_X
     ae_exp_manager* exp_manager = new ae_exp_manager_X11();
   #else
     ae_exp_manager* exp_manager = new ae_exp_manager();
   #endif
+  exp_manager->load( num_gener, false, verbose );
 
-  // 6) Initialize an empty population then load the backup population
-  printf("Loading the backup population\t");
-  ae_population* pop = new ae_population(exp_manager);
-  gzFile pop_file = gzopen( pop_file_name, "r" );
-  if ( pop_file == Z_NULL )
-  {
-    printf( "%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, pop_file_name );
-    exit( EXIT_FAILURE );
-  }
-  pop->load( pop_file, verbose );
-  printf("Ok\n");
+  // 6) Retrieve the population, the environment, the selection,...
+  ae_population* pop = exp_manager->get_pop();
+  ae_environment* env = exp_manager->get_env();
+  ae_selection* sel = exp_manager->get_sel();
     
   // 7) Interpret and apply changes
   printf("Interpret and apply changes\n");
@@ -186,25 +181,90 @@ int main( int argc, char* argv[] )
       pop->set_overall_inversion_rate( atof( line->words[1] ) );
       printf("\tChange of overall inversion to %f\n",atof( line->words[1] ));
     }
+    else if ( strcmp( line->words[0], "ENV_ADD_GAUSSIAN" ) == 0 )
+    {
+      env->add_gaussian( atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
+      env->add_initial_gaussian( atof(line->words[1]), atof(line->words[2]), atof(line->words[3])); //usefull in case of autoregressive mean variation to compute delta_m
+      printf("\tAddition of a gaussian with %f, %f, %f \n",atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
+    }
+    else if ( strcmp( line->words[0], "ENV_VARIATION" ) == 0 )
+    {
+      static bool env_var_already_set = false;
+      if ( env_var_already_set )
+      {
+        printf( "%s:%d: ERROR in param file : duplicate entry for %s.\n", __FILE__, __LINE__, line->words[0] );
+        exit( EXIT_FAILURE );
+      }
+      env_var_already_set = true;
+      
+      if ( strcmp( line->words[1], "none" ) == 0 )
+      {
+        assert( line->nb_words == 2 );
+        env->set_var_method( NO_VAR );
+        printf("\tNo more environmental variation\n");
+      }
+      else if ( strcmp( line->words[1], "autoregressive_mean_variation" ) == 0 )
+      {
+        assert( line->nb_words == 5 );
+        env->set_var_method( AUTOREGRESSIVE_MEAN_VAR );
+        env->set_var_sigma( atof( line->words[2] ) );
+        env->set_var_tau( atol( line->words[3] ) );
+        env->set_var_prng( new ae_jumping_mt(atoi( line->words[4])));
+        printf("\tChange of environmental variation to a autoregressive mean variation with sigma=%f, tau=%ld and seed=%d\n", atof( line->words[2] ),atol( line->words[3] ),atoi( line->words[4]));
+      }
+      else if ( strcmp( line->words[1], "autoregressive_height_variation" ) == 0 )
+      {
+        assert( line->nb_words == 5 );
+        env->set_var_method( AUTOREGRESSIVE_HEIGHT_VAR );
+        env->set_var_sigma( atof( line->words[2] ) );
+        env->set_var_tau( atol( line->words[3] ) );
+        env->set_var_prng( new ae_jumping_mt(atoi( line->words[4])));
+        printf("\tChange of environmental variation to a autoregressive height variation with sigma=%f, tau=%ld and seed=%d\n", atof( line->words[2] ),atol( line->words[3] ),atoi( line->words[4]));
+      }
+      else if ( strcmp( line->words[1], "add_local_gaussians" ) == 0 )
+      {
+        assert( line->nb_words == 3 );
+        env->set_var_method( LOCAL_GAUSSIANS_VAR );
+        env->set_var_prng( new ae_jumping_mt(atoi(line->words[2])));
+        printf("\tChange of environmental variation to a local gaussians variation with seed=%d\n", atoi( line->words[2]));
+      }
+      else
+      {
+        printf( "%s:%d: ERROR in param file : unknown environment variation method.\n", __FILE__, __LINE__ );
+        exit( EXIT_FAILURE );
+      }
+    }
+    else if ( strcmp( line->words[0], "SEED" ) == 0 )
+    {
+      int32_t seed = atoi( line->words[1] ) ;
+      
+      ae_jumping_mt* prng = new ae_jumping_mt( seed );
+      
+      // Change prng in ae_selection 
+      sel->set_prng( new ae_jumping_mt(*prng) );
+      
+      if( exp_manager->is_spatially_structured())
+      {
+        ae_spatial_structure* sp_struct = exp_manager->get_spatial_structure();
+        sp_struct->set_prng(new ae_jumping_mt(*prng) );
+      }
+      
+      // Change prng of the population
+      pop->set_mut_prng( new ae_jumping_mt(*prng) );
+      pop->set_stoch_prng( new ae_jumping_mt(*prng) );
+      printf("\tChange of the seed to %d in selection, mutations and individuals' stochasticity \n",atoi( line->words[1] ));
+    }
+    
   
     delete line;
   }
   fclose( param_file );
   printf("Ok\n");
   
-  // 8) Save the changed population in a new population file (similar name with _changed)
-  printf("Save the changed population\t");
-  char* new_pop_file_name   = NULL;
-  new_pop_file_name = new char[strlen(pop_file_name)-3+strlen("_changed.ae")+1];
-  sprintf(new_pop_file_name, "%s_changed.ae",strtok(pop_file_name, "."));
-  gzFile new_pop_file = gzopen( new_pop_file_name, "w" );
-  if ( new_pop_file == Z_NULL )
-  {
-    printf( "%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, new_pop_file_name );
-    exit( EXIT_FAILURE );
-  }
-  pop->save( new_pop_file );
-  gzclose( new_pop_file );
+  // 8) Save the changements
+  printf("Save the changements into backup\t");
+  exp_manager->write_setup_files();
+  exp_manager->save();
   printf("Ok\n");
 }
 
@@ -247,10 +307,10 @@ void format_line( f_line* formated_line, char* line, bool* line_is_interpretable
   while ( line[i] != '\n' && line[i] != '\0' && line[i] != '\r' )
   {
     j = 0;
-
+    
     // Flush white spaces and tabs
     while ( line[i] == ' ' || line[i] == 0x09 ) i++; // 0x09 is the ASCII code for TAB
-
+    
     // Check comments
     if ( line[i] == '#' ) break;
 
@@ -279,10 +339,10 @@ void print_help( char* prog_name )
 	printf( "******************************************************************************\n" );
 	printf( "Usage : change_pop -h\n" );
 	printf( "   or : change_pop [-f param_file -p pop_file]\n" );
-	printf( "  -h, --help  Display this screen\n" );
-	printf( "  -p, --pop  Specify population to change\n" );
-	printf( "  -f, --file  Specify file with parameters to change\n" );
-	printf( "Change a population file as specified in the parameter file.\n" );
+	printf( "  -h, --help       Display this screen\n" );
+  printf( "  -g, --gener      Specify generation number (input)\n" );
+  printf( "  -f, --file       File with parameter to change\n");
+	printf( "Change a simulation as specified in the parameter file.\n" );
     printf( "(default: param_to_change.in)\n\n" );
 }
 

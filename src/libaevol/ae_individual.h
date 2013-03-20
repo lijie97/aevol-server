@@ -239,7 +239,8 @@ class ae_individual : public ae_object
     // ----------------------------------------------- Phenotypic stochasticity
     inline void set_with_stochasticity( bool with_stoch );
 
-    //~ inline void set_prng( ae_jumping_mt* prng );
+    inline void set_mut_prng( ae_jumping_mt* prng );
+    inline void set_stoch_prng( ae_jumping_mt* prng );
     
     
     // =================================================================
@@ -1250,10 +1251,15 @@ inline void ae_individual::set_with_stochasticity( bool with_stoch )
   _with_stochasticity = with_stoch;
 }
 
-//~ inline void ae_individual::set_prng( ae_jumping_mt* prng )
-//~ {
-//~   _prng = prng;
-//~ }
+inline void ae_individual::set_stoch_prng( ae_jumping_mt* prng )
+{
+  _stoch_prng = prng;
+}
+
+inline void ae_individual::set_mut_prng( ae_jumping_mt* prng )
+{
+  _mut_prng = prng;
+}
 
 // =====================================================================
 //                       Inline functions' definition
