@@ -1,7 +1,12 @@
 ############################################
 #                 Variables                #
 ############################################
-SUBDIRS = SFMT-src-1.4 . tests
+if WITH_CPPUNIT
+  SUBDIRS = SFMT-src-1.4 . tests
+else # WITHOUT_CPPUNIT
+  SUBDIRS = SFMT-src-1.4 . 
+endif 
+
 
 ########################
 # Set library to build #

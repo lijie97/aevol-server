@@ -21,14 +21,21 @@ AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_RANLIB
 AM_PROG_CC_C_O
-#AC_PROG_DOXYGEN
+AC_CHECK_PROGS([DOXYGEN], [doxygen])
+if test -z "$DOXYGEN";
+   then AC_MSG_WARN([Doxygen not found - continuing without Doxygen support])
+fi
+AM_CONDITIONAL([HAVE_DOXYGEN], [test -n "$DOXYGEN"])  
+
+
+
 
 # Checks for libraries.
 AC_CHECK_LIB([m], [cos])
 AC_CHECK_LIB([z], [gzread])
 
+
 # Checks for header files.
-AC_PATH_X
 AC_CHECK_HEADERS([inttypes.h limits.h stdint.h stdlib.h string.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
@@ -59,6 +66,7 @@ dnl ****************************************************************************
 dnl                                  OPTIONS
 dnl
 dnl             Default : without debug (with optimizations)
+dnl                       with    cppunit (requires cppunit)
 dnl                       with    x
 dnl                       without regulation
 dnl                       with    in2p3
@@ -97,11 +105,41 @@ AM_CONDITIONAL(WITH_DEBUG, test x"$with_debug" != xno)
 if test "x$with_debug" = "xyes" ; then
    AC_DEFINE(DEBUG)
    CXXFLAGS="-g -Wall"
+   CPPFLAGS="-g -Wall"
 else
    AC_DEFINE(NDEBUG)
    CXXFLAGS="-O3 -ffast-math -pipe -fexpensive-optimizations"
+   CPPFLAGS="-O3 -ffast-math -pipe -fexpensive-optimizations"
 fi
 
+
+dnl  **************** --without-cppunit option *************************
+dnl
+dnl  When this option is set, the test library will not be built.
+dnl  This is useful if cppunit was not installed. However, developers
+dnl  should install cppunit, configure with cppunit and run make check
+dnl  to perform unit testing.
+
+AC_MSG_CHECKING([whether to build the test library (requires cppunit)])
+AC_ARG_WITH(cppunit, [  --without-cppunit to disable unit testing], , with_cppunit=yes)
+AC_MSG_RESULT($with_cppunit)
+AM_CONDITIONAL(WITH_CPPUNIT, test x"$with_cppunit" != xno)
+if test "x$with_cppunit" != xno ; then
+   cppunit_missing=no
+   AM_PATH_CPPUNIT(1.10.2, , cppunit_missing=yes)
+   if test "x$cppunit_missing" != xno ; then
+      AC_MSG_ERROR([cppunit not found, make will fail - please install cppunit, or run ./configure --without-cppunit]) 
+   fi 
+   # AC_CHECK_LIB does not work with C++ libraries, this is why we use AM_PATH_CPPUNIT
+   # This macro will check whether a Cppunit version >= 1.10.2 is installed
+   # and, if, yes, will define CPPUNIT_CFLAGS and CPPUNIT_LIBS.
+   # This macro is defined in the cppunit.m4 file provided by the cppunit package
+   # when it is installed. Hence aclocal must be run before autoconf to have the
+   # macro known by autoconf.  If cppunit is installed in a non-standard
+   # directory, you need to specify where to find cppunit.m4. For example, if
+   # cppunit is installed under /usr/local, run:
+   #   ACLOCAL="aclocal -I /usr/local/share/aclocal" autoreconf -if
+fi
 
 
 
@@ -124,7 +162,9 @@ AM_CONDITIONAL(WITH_X, test x"$with_x" != xno)
 if test "x$with_x" != xno ; then
    AC_DEFINE(__X11)
    AC_PATH_XTRA
-   LDFLAGS=($X_LIBS)
+   CXXFLAGS="$CXXFLAGS $X_CFLAGS"
+   CPPFLAGS="$CPPFLAGS $X_CFLAGS"
+   LDFLAGS="$LDFLAGS $X_LIBS"
    AC_CHECK_LIB(X11, XOpenDisplay, , ,$X_LIBS)
    AC_CHECK_LIB(Xi, XGetExtensionVersion, , ,$X_LIBS)
    AC_CHECK_LIB(Xmu, XmuLookupStandardColormap, , ,$X_LIBS)
@@ -264,6 +304,7 @@ AC_CONFIG_FILES([Makefile
                  src/Makefile
                  src/libaevol/Makefile
                  src/libaevol/SFMT-src-1.4/Makefile
-                 src/libaevol/tests/Makefile
                  src/post_treatments/Makefile])
+AM_COND_IF([HAVE_DOXYGEN], [AC_CONFIG_FILES([doc/Makefile])])
+AM_COND_IF([WITH_CPPUNIT], [AC_CONFIG_FILES([src/libaevol/tests/Makefile])])
 AC_OUTPUT

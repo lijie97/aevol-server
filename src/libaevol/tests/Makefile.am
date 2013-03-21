@@ -1,10 +1,15 @@
+if WITH_CPPUNIT
+
 ############################################
 #         Set aevol library to use         #
 ############################################
-AM_LDFLAGS = -L$(top_srcdir)/src/libaevol
+
 
 AM_CPPFLAGS = -I./
-AM_CPPFLAGS += -I$(top_srcdir)/src/libaevol
+AM_CPPFLAGS += -I$(top_srcdir)/src/libaevol $(CPPUNIT_CFLAGS)
+
+
+AM_LDFLAGS = -L$(top_srcdir)/src/libaevol $(CPPUNIT_LIBS)
 
 if WITH_RAEVOL
   LDADD = $(top_srcdir)/src/libaevol/libraevol.a
@@ -12,7 +17,7 @@ else # WITHOUT_RAEVOL
   LDADD = $(top_srcdir)/src/libaevol/libaevol.a $(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
 endif # RAEVOL
 
-LDADD += $(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a -lcppunit
+LDADD += $(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a 
 
 
 ############################################
@@ -40,3 +45,6 @@ TESTS = $(bin_PROGRAMS)
 run_testsdir = $(bindir)
 run_tests_SOURCES = run_tests.cpp
 run_tests_CPPFLAGS = $(AM_CPPFLAGS)
+
+
+endif
