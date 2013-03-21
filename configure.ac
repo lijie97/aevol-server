@@ -22,13 +22,16 @@ AC_PROG_CC
 AC_PROG_RANLIB
 AM_PROG_CC_C_O
 #AC_PROG_DOXYGEN
+AC_CHECK_PROGS([DOXYGEN], [doxygen])
+if test -z "$DOXYGEN";
+   then AC_MSG_WARN([Doxygen not found - continuing without Doxygen support])
+fi
 
 # Checks for libraries.
 AC_CHECK_LIB([m], [cos])
 AC_CHECK_LIB([z], [gzread])
 
 # Checks for header files.
-AC_PATH_X
 AC_CHECK_HEADERS([inttypes.h limits.h stdint.h stdlib.h string.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
@@ -94,9 +97,11 @@ AM_CONDITIONAL(WITH_DEBUG, test x"$with_debug" != xno)
 if test "x$with_debug" = "xyes" ; then
    AC_DEFINE(DEBUG)
    CXXFLAGS="-g -Wall"
+   CPPFLAGS="-g -Wall"
 else
    AC_DEFINE(NDEBUG)
    CXXFLAGS="-O3 -ffast-math -pipe -fexpensive-optimizations"
+   CPPFLAGS="-O3 -ffast-math -pipe -fexpensive-optimizations"
 fi
 
 
@@ -124,7 +129,9 @@ AM_CONDITIONAL(WITH_X, test x"$with_xlib" != xno)
 if test "x$with_xlib" != xno ; then
    AC_DEFINE(__X11)
    AC_PATH_XTRA
-   LDFLAGS=($X_LIBS)
+   CXXFLAGS="$CXXFLAGS $X_CFLAGS"
+   CPPFLAGS="$CPPFLAGS $X_CFLAGS"
+   LDFLAGS="$LDFLAGS $X_LIBS"
    AC_CHECK_LIB(X11, XOpenDisplay, , ,$X_LIBS)
    AC_CHECK_LIB(Xi, XGetExtensionVersion, , ,$X_LIBS)
    AC_CHECK_LIB(Xmu, XmuLookupStandardColormap, , ,$X_LIBS)
@@ -176,4 +183,6 @@ AC_CONFIG_FILES([Makefile
                  src/Makefile
                  src/lib-aevol/Makefile
                  src/post_treatments/Makefile])
+AM_CONDITIONAL([HAVE_DOXYGEN],
+[test -n "$DOXYGEN"])AM_COND_IF([HAVE_DOXYGEN], [AC_CONFIG_FILES([doc/Makefile])])
 AC_OUTPUT
