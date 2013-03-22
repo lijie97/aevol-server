@@ -124,6 +124,8 @@ class param_loader
     //~ ae_exp_manager* _exp_m;
     
     ae_jumping_mt* _prng;
+    ae_jumping_mt* _mut_prng;
+    ae_jumping_mt* _stoch_prng;
     
     char*   _param_file_name;
     FILE*   _param_file;

@@ -87,6 +87,8 @@ class params : public ae_object
   
     // ----------------------------------------- PseudoRandom Number Generators
     inline int32_t  get_seed( void )            const;
+    inline int32_t  get_mut_seed( void )        const;
+    inline int32_t  get_stoch_seed( void )      const;
     inline int32_t  get_env_var_seed( void )    const;
     inline int32_t  get_env_noise_seed( void )  const;
   
@@ -244,6 +246,8 @@ class params : public ae_object
     
     // ----------------------------------------- PseudoRandom Number Generators
     inline void set_seed( int32_t seed );
+    inline void set_mut_seed( int32_t seed );
+    inline void set_stoch_seed( int32_t seed );
     inline void set_env_var_seed( int32_t env_var_seed );
     inline void set_env_noise_seed( int32_t env_noise_seed );
     
@@ -434,8 +438,12 @@ class params : public ae_object
     int32_t _nb_gener;
     
     // ----------------------------------------- PseudoRandom Number Generators
-    // Seed for the individuals' random generators
+    // Seed for the selection random generator
     int32_t _seed;
+    // Seed for the mutations random generator
+    int32_t _mut_seed;
+    // Seed for the stochasticity random generator
+    int32_t _stoch_seed;
     // Seed for the environmental variation random generator
     int32_t _env_var_seed;
     // Seed for the environmental noise random generator
@@ -606,6 +614,16 @@ class params : public ae_object
 inline int32_t params::get_seed( void ) const
 {
   return _seed;
+}
+
+inline int32_t params::get_mut_seed( void ) const
+{
+  return _mut_seed;
+}
+
+inline int32_t params::get_stoch_seed( void ) const
+{
+  return _stoch_seed;
 }
 
 inline int32_t params::get_env_var_seed( void ) const
@@ -1077,6 +1095,16 @@ inline void params::set_nb_gener( int32_t nb_gener )
 inline void params::set_seed( int32_t seed )
 {
   _seed = seed;
+}
+
+inline void params::set_mut_seed( int32_t mut_seed )
+{
+  _mut_seed = mut_seed;
+}
+
+inline void params::set_stoch_seed( int32_t stoch_seed )
+{
+  _stoch_seed = stoch_seed;
 }
 
 inline void params::set_env_var_seed( int32_t env_var_seed )

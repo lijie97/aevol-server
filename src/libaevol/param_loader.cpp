@@ -489,6 +489,30 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
     _param_values->set_seed( atol( line->words[1] ) );
     seed_already_set = true;
   }
+  else if ( strcmp( line->words[0], "MUT_SEED" ) == 0 )
+  {
+    static bool mut_seed_already_set = false;
+    if ( mut_seed_already_set )
+    {
+      printf( "ERROR in param file \"%s\" on line %"PRId32" : duplicate entry for MUT_SEED.\n",
+              _param_file_name, _cur_line );
+      exit( EXIT_FAILURE );
+    }
+    _param_values->set_mut_seed( atol( line->words[1] ) );
+    mut_seed_already_set = true;
+  }
+  else if ( strcmp( line->words[0], "STOCH_SEED" ) == 0 )
+  {
+    static bool stoch_seed_already_set = false;
+    if ( stoch_seed_already_set )
+    {
+      printf( "ERROR in param file \"%s\" on line %"PRId32" : duplicate entry for STOCH_SEED.\n",
+              _param_file_name, _cur_line );
+      exit( EXIT_FAILURE );
+    }
+    _param_values->set_stoch_seed( atol( line->words[1] ) );
+    stoch_seed_already_set = true;
+  }
   else if ( strcmp( line->words[0], "NB_GENER" ) == 0 )
   {
     _param_values->set_nb_gener( atol( line->words[1] ) );
@@ -883,7 +907,19 @@ void param_loader::read_file( void )
 
 void param_loader::load( ae_exp_manager* exp_m, bool verbose )
 {
+	// Initialize _prng
   _prng = new ae_jumping_mt( _param_values->_seed );
+  
+  // Initialize _mut_prng and _stoch_prng :
+  // if mut_seed (respectively stoch_seed) not given in param.in, choose it at random
+  if ( _param_values->_mut_seed == 0 ) {
+		_param_values->set_mut_seed( _prng->random( 1000000 ) );
+	}
+	if ( _param_values->_stoch_seed == 0 ) {
+		_param_values->set_stoch_seed( _prng->random( 1000000 ) );
+	}
+	_mut_prng = new ae_jumping_mt( _param_values->_mut_seed );
+	_stoch_prng = new ae_jumping_mt( _param_values->_stoch_seed );
   
   // Create aliases (syntaxic sugars)
   ae_exp_setup*       exp_s     = exp_m->get_exp_s();
@@ -999,8 +1035,8 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   
   
   // 3) --------------------------------------------- Create the new population
-  pop->set_mut_prng( new ae_jumping_mt(*_prng) );
-  pop->set_stoch_prng( new ae_jumping_mt(*_prng) );
+  pop->set_mut_prng( new ae_jumping_mt(*_mut_prng) );
+  pop->set_stoch_prng( new ae_jumping_mt(*_stoch_prng) );
   
   // Generate a model ae_mut_param object
   ae_params_mut* param_mut = new ae_params_mut();

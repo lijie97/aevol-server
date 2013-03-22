@@ -249,12 +249,28 @@ int main( int argc, char* argv[] )
         sp_struct->set_prng(new ae_jumping_mt(*prng) );
       }
       
-      // Change prng of the population
-      pop->set_mut_prng( new ae_jumping_mt(*prng) );
-      pop->set_stoch_prng( new ae_jumping_mt(*prng) );
-      printf("\tChange of the seed to %d in selection, mutations and individuals' stochasticity \n",atoi( line->words[1] ));
+      printf("\tChange of the seed to %d in selection \n",atoi( line->words[1] ));
     }
-    
+    else if ( strcmp( line->words[0], "MUT_SEED" ) == 0 )
+    {
+      int32_t mut_seed = atoi( line->words[1] ) ;
+      
+      ae_jumping_mt* mut_prng = new ae_jumping_mt( mut_seed );
+      
+      // Change prng of the population
+      pop->set_mut_prng( new ae_jumping_mt(*mut_prng) );
+      printf("\tChange of the seed to %d in mutations \n",atoi( line->words[1] ));
+    }
+    else if ( strcmp( line->words[0], "STOCH_SEED" ) == 0 )
+    {
+      int32_t stoch_seed = atoi( line->words[1] ) ;
+      
+      ae_jumping_mt* stoch_prng = new ae_jumping_mt( stoch_seed );
+      
+      // Change prng of the population
+      pop->set_stoch_prng( new ae_jumping_mt(*stoch_prng) );
+      printf("\tChange of the seed to %d in individuals' stochasticity \n",atoi( line->words[1] ));
+    }
   
     delete line;
   }

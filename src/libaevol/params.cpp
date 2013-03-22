@@ -63,6 +63,8 @@ params::params( void )
   
   // ----------------------------------------- PseudoRandom Number Generators
   _seed           = 0;
+  _mut_seed       = 0;
+  _stoch_seed     = 0;
   _env_var_seed   = 0;
   _env_noise_seed = 0;
   
