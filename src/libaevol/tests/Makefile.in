@@ -48,7 +48,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-@WITH_CPPUNIT_TRUE@am__append_1 = $(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a 
+@WITH_CPPUNIT_TRUE@am__append_1 = $(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a $(CPPUNIT_LIBS)
 @WITH_CPPUNIT_TRUE@bin_PROGRAMS = run_tests$(EXEEXT)
 subdir = src/libaevol/tests
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
@@ -67,11 +67,14 @@ am__run_tests_SOURCES_DIST = run_tests.cpp
 @WITH_CPPUNIT_TRUE@	run_tests-run_tests.$(OBJEXT)
 run_tests_OBJECTS = $(am_run_tests_OBJECTS)
 run_tests_LDADD = $(LDADD)
+am__DEPENDENCIES_1 =
+@WITH_CPPUNIT_TRUE@am__DEPENDENCIES_2 = $(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a \
+@WITH_CPPUNIT_TRUE@	$(am__DEPENDENCIES_1)
 @WITH_CPPUNIT_TRUE@@WITH_RAEVOL_FALSE@run_tests_DEPENDENCIES = $(top_srcdir)/src/libaevol/libaevol.a \
 @WITH_CPPUNIT_TRUE@@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a \
-@WITH_CPPUNIT_TRUE@@WITH_RAEVOL_FALSE@	$(am__append_1)
+@WITH_CPPUNIT_TRUE@@WITH_RAEVOL_FALSE@	$(am__DEPENDENCIES_2)
 @WITH_CPPUNIT_TRUE@@WITH_RAEVOL_TRUE@run_tests_DEPENDENCIES = $(top_srcdir)/src/libaevol/libraevol.a \
-@WITH_CPPUNIT_TRUE@@WITH_RAEVOL_TRUE@	$(am__append_1)
+@WITH_CPPUNIT_TRUE@@WITH_RAEVOL_TRUE@	$(am__DEPENDENCIES_2)
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -210,7 +213,7 @@ top_srcdir = @top_srcdir@
 @WITH_CPPUNIT_TRUE@	$(CPPUNIT_CFLAGS) -D__STDC_FORMAT_MACROS \
 @WITH_CPPUNIT_TRUE@	-D__STDC_CONSTANT_MACROS \
 @WITH_CPPUNIT_TRUE@	-D__STDC_LIMIT_MACROS
-@WITH_CPPUNIT_TRUE@AM_LDFLAGS = -L$(top_srcdir)/src/libaevol $(CPPUNIT_LIBS)
+@WITH_CPPUNIT_TRUE@AM_LDFLAGS = -L$(top_srcdir)/src/libaevol 
 @WITH_CPPUNIT_TRUE@@WITH_RAEVOL_FALSE@LDADD = $(top_srcdir)/src/libaevol/libaevol.a \
 @WITH_CPPUNIT_TRUE@@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a \
 @WITH_CPPUNIT_TRUE@@WITH_RAEVOL_FALSE@	$(am__append_1)

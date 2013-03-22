@@ -9,7 +9,7 @@ AM_CPPFLAGS = -I./
 AM_CPPFLAGS += -I$(top_srcdir)/src/libaevol $(CPPUNIT_CFLAGS)
 
 
-AM_LDFLAGS = -L$(top_srcdir)/src/libaevol $(CPPUNIT_LIBS)
+AM_LDFLAGS = -L$(top_srcdir)/src/libaevol 
 
 if WITH_RAEVOL
   LDADD = $(top_srcdir)/src/libaevol/libraevol.a
@@ -17,7 +17,7 @@ else # WITHOUT_RAEVOL
   LDADD = $(top_srcdir)/src/libaevol/libaevol.a $(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
 endif # RAEVOL
 
-LDADD += $(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a 
+LDADD += $(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a $(CPPUNIT_LIBS)
 
 
 ############################################
