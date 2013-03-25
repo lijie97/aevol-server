@@ -100,7 +100,7 @@ class ae_population : public ae_object
     // =================================================================
     //                        Accessors: Setters
     // =================================================================
-    //~ inline void set_nb_indivs( int32_t nb_indivs );
+    inline void set_nb_indivs( int32_t nb_indivs );
     
     inline void add_indiv( ae_individual* indiv );
     
@@ -261,10 +261,10 @@ inline ae_jumping_mt* ae_population::get_stoch_prng( void ) const
 // =====================================================================
 //                           Setters' definitions
 // =====================================================================
-//~ inline void ae_population::set_nb_indivs( int32_t nb_indivs )
-//~ {
-  //~ _nb_indivs = nb_indivs;
-//~ }
+inline void ae_population::set_nb_indivs( int32_t nb_indivs )
+{
+  _nb_indivs = nb_indivs;
+}
 
 inline void ae_population::add_indiv( ae_individual* indiv )
 {

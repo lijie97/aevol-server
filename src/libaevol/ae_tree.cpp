@@ -278,6 +278,10 @@ ae_replication_report * ae_tree::get_report_by_rank( int32_t generation, int32_t
 }
 
 
+void ae_tree::set_nb_indivs (int32_t nb_indivs, int32_t generation)
+{
+  _nb_indivs[ae_utils::mod(generation - 1, _tree_step)] = nb_indivs;
+}
 
 
 void ae_tree::fill_tree_with_cur_gener( void )

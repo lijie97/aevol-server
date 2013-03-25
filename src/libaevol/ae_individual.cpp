@@ -144,6 +144,11 @@ ae_individual::ae_individual( ae_exp_manager* exp_m,
   // Generic probes
   _int_probes     = new int32_t[5];
   _double_probes  = new double[5];
+  for ( int8_t i = 0 ; i < 5 ; i++ )
+  {
+    _int_probes[i]    = 0;
+    _double_probes[i] = 0;
+  }
   
   // Mutation rates etc...
   _mut_params = new ae_params_mut( *param_mut );
@@ -579,6 +584,11 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id, ae_jumpin
   // Generic probes
   _int_probes     = new int32_t[5];
   _double_probes  = new double[5];
+  for ( int8_t i = 0 ; i < 5 ; i++ )
+  {
+    _int_probes[i]    = parent->_int_probes[i];
+    _double_probes[i] = parent->_double_probes[i];
+  }
   
   // Mutation rates etc...
   _mut_params = new ae_params_mut( *(parent->_mut_params) );
@@ -1428,7 +1438,58 @@ double ae_individual::compute_theoritical_f_nu( void )
   return Fv;
 }
 
+/*!
+  \brief Remove the bases that are not in coding RNA
 
+  Remove the bases that are not in coding RNA and test at each loss that fitness is not changed
+*/
+void ae_individual::remove_non_coding_bases( void)
+{
+  //reevaluate(_exp_m->get_env());
+  //double initial_fitness = get_fitness();
+  
+  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
+  ae_genetic_unit*  gen_unit = NULL;
+  
+  while ( gen_unit_node != NULL )
+  {
+    gen_unit = gen_unit_node->get_obj();
+    gen_unit->remove_non_coding_bases(); 
+    
+    //reevaluate(_exp_m->get_env()); 
+    //assert(get_fitness()==initial_fitness);
+    gen_unit_node = gen_unit_node->get_next();
+  }
+  _non_coding_computed = false;
+  assert(get_nb_bases_in_0_coding_RNA()==0);
+}
+
+/*!
+  \brief Double the bases that are not in coding RNA
+
+  Double the bases that are not in coding RNA by addition of random bases and test at each addition that fitness is not changed
+*/
+void ae_individual::double_non_coding_bases(void)
+{
+  //reevaluate(_exp_m->get_env());
+  //double initial_fitness = get_fitness();
+  int32_t initial_non_coding_base_nb = get_nb_bases_in_0_coding_RNA();
+  
+  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
+  ae_genetic_unit*  gen_unit = NULL;
+  
+  while ( gen_unit_node != NULL )
+  {
+    gen_unit = gen_unit_node->get_obj();
+    gen_unit->double_non_coding_bases(); 
+    
+    //reevaluate(_exp_m->get_env()); 
+    //assert(get_fitness()==initial_fitness);
+    gen_unit_node = gen_unit_node->get_next();
+  }
+  _non_coding_computed = false;
+  assert(get_nb_bases_in_0_coding_RNA()==2*initial_non_coding_base_nb);
+}
 // =================================================================
 //                           Protected Methods
 // =================================================================

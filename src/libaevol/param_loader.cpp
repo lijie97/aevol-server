@@ -905,6 +905,7 @@ void param_loader::read_file( void )
   }
 }
 
+
 void param_loader::load( ae_exp_manager* exp_m, bool verbose )
 {
 	// Initialize _prng
@@ -1201,7 +1202,13 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
 // =================================================================
 //                           Protected Methods
 // =================================================================
-
+/*!
+  \brief Format a line by parsing it and the words inside
+  
+  \param formated_line the resulted formated line
+  \param line original line in char*
+  \param line_is_interpretable boolean with about the possible intrepretation of the line
+*/
 void param_loader::format_line( f_line* formated_line, char* line, bool* line_is_interpretable )
 {
   int16_t i = 0;
@@ -1235,6 +1242,13 @@ void param_loader::format_line( f_line* formated_line, char* line, bool* line_is
   }
 }
 
+/*!
+  \brief Get a line in a file and format it
+  
+  \return line (pointer)
+  
+  \see format_line(f_line* formated_line, char* line, bool* line_is_interpretable )
+*/
 f_line* param_loader::get_line( void )
 {
   char line[255];
@@ -1264,6 +1278,14 @@ f_line* param_loader::get_line( void )
   }
 }
 
+/*!
+  \brief Create an individual with random sequences
+  
+  \param exp_m global exp_manager
+  \param param_mut mutation parameter of the newly created individual
+  \param id index of newly created individual in the population
+  \return clone of dolly
+*/
 ae_individual* param_loader::create_random_individual( ae_exp_manager* exp_m, ae_params_mut* param_mut, int32_t id ) const
 {
   // Generate a random genome
@@ -1370,6 +1392,14 @@ ae_individual* param_loader::create_random_individual( ae_exp_manager* exp_m, ae
   return indiv;
 }
 
+/*!
+  \brief Create an individual with random sequences. The individual have to have at least one good functional gene
+  
+  \param exp_m global exp_manager
+  \param param_mut mutation parameter of the newly created individual
+  \param id index of newly created individual in the population
+  \return clone of dolly
+*/
 ae_individual* param_loader::create_random_individual_with_good_gene( ae_exp_manager* exp_m, ae_params_mut* param_mut, int32_t id ) const
 {
   // Create a random individual and evaluate it
@@ -1422,6 +1452,13 @@ ae_individual* param_loader::create_random_individual_with_good_gene( ae_exp_man
   return indiv;
 }
 
+/*!
+  \brief Create of clone of an ae_individual 
+  
+  \param dolly original individual that would be cloned
+  \param id index of the clone in the population
+  \return clone of dolly
+*/
 ae_individual* param_loader::create_clone( ae_individual* dolly, int32_t id ) const
 {
   ae_individual* indiv;

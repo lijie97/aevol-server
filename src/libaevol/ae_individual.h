@@ -197,6 +197,9 @@ class ae_individual : public ae_object
     
     inline double get_modularity( void ); // Not const
     
+    inline int32_t* get_int_probes ( void ) const;
+    inline double* get_double_probes ( void) const;
+    
 
     // =================================================================
     //                        Accessors: Setters
@@ -241,6 +244,10 @@ class ae_individual : public ae_object
 
     inline void set_mut_prng( ae_jumping_mt* prng );
     inline void set_stoch_prng( ae_jumping_mt* prng );
+    
+    //------------------------------------------------ Generic probes
+    inline void set_int_probes ( int32_t* int_probes);
+    inline void set_double_probes ( double* double_probes);
     
     
     // =================================================================
@@ -290,6 +297,9 @@ class ae_individual : public ae_object
     // pointer). Results are proportions.
     // The second is an estimate based on genome structure as defined by Carole.
     // They have been implemented on the chromosome only !
+    
+    void remove_non_coding_bases( void);
+    void double_non_coding_bases(void);
     
 
     // =================================================================
@@ -1097,6 +1107,27 @@ inline int32_t ae_individual::get_plasmid_minimal_length( void ) const
   return _plasmid_minimal_length;
 }
 
+/*!
+  \brief Return the _int_probes
+  
+  \return _int_probes
+*/
+inline int32_t* ae_individual::get_int_probes ( void ) const
+{
+  return _int_probes;
+}
+
+/*!
+  \brief Return the _double_probes
+  
+  \return _double_probes
+*/
+inline double* ae_individual::get_double_probes ( void) const
+{
+  return _double_probes;
+}
+    
+    
 // =====================================================================
 //                           Setters' definitions
 // =====================================================================
@@ -1259,6 +1290,26 @@ inline void ae_individual::set_stoch_prng( ae_jumping_mt* prng )
 inline void ae_individual::set_mut_prng( ae_jumping_mt* prng )
 {
   _mut_prng = prng;
+}
+
+/*!
+  \brief Change the _int_probes
+  
+  \param int_probes 5 int32_t* that constitute a probe
+*/
+inline void ae_individual::set_int_probes ( int32_t* int_probes)
+{
+  _int_probes = int_probes;
+}
+
+/*!
+  \brief Change the _double_probes
+  
+  \param double_probes 5 double* that constitute a probe
+*/
+inline void ae_individual::set_double_probes ( double* double_probes)
+{
+  _double_probes = double_probes;
 }
 
 // =====================================================================

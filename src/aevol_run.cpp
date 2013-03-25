@@ -223,6 +223,15 @@ int main( int argc, char* argv[] )
   exp_manager->load( num_gener, false, verbose );
   exp_manager->set_nb_gener( nb_gener );
   
+  /*ae_list_node<ae_individual*>*   indiv_node_tmp = exp_manager->get_pop()->get_indivs()->get_first();
+  ae_individual*  indiv_tmp;
+  /*for ( int32_t i = 0 ; i < exp_manager->get_pop()->get_nb_indivs() ; i++ )
+  {
+    indiv_tmp = indiv_node_tmp->get_obj();
+    printf("%le %"PRId32" %"PRId32"\n", indiv_tmp->get_fitness(), indiv_tmp->get_nb_bases_in_0_coding_RNA(), indiv_tmp->get_int_probes()[0]);
+    indiv_node_tmp = indiv_node_tmp->get_next();
+  }*/
+  
   // Make a numbered copy of each static input file (dynamic files are saved elsewhere)
   // TODO (?)
 

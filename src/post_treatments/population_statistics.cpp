@@ -280,17 +280,18 @@ void population_statistics::compute_reproduction_stats(ae_exp_manager* exp_manag
     #endif
     
     current_index = tmpind->get_id();
+    current_rank = _pop_size - tmpind->get_rank();
     
     initial_indiv->evaluate(exp_manager->get_env());
-    _fitness[current_rank-1] = initial_indiv->get_fitness();
-    _reprod_proba[current_rank-1] = tmp_reprod[_pop_size-current_rank];
+    _fitness[current_rank] = initial_indiv->get_fitness();
+    _reprod_proba[current_rank] = tmp_reprod[_pop_size-current_rank];
     
     // ------------------------------------
     //              Compute Fv
     // ------------------------------------	
     th_fv = initial_indiv->compute_theoritical_f_nu();
     
-    if ( (_wanted_rank == current_rank) || (_wanted_index == current_index))
+    if ( (_wanted_rank+1 == current_rank) || (_wanted_index+1 == current_index))
     {
       initial_indiv->compute_experimental_f_nu( _nb_children, reproduction_statistics, offsprings_statistics, _replication_file);
     }
@@ -298,7 +299,7 @@ void population_statistics::compute_reproduction_stats(ae_exp_manager* exp_manag
     {
       initial_indiv->compute_experimental_f_nu( _nb_children, reproduction_statistics, offsprings_statistics);
     }
-    _f_nu_pop[current_rank-1] = reproduction_statistics[0];
+    _f_nu_pop[current_rank] = reproduction_statistics[0];
     
     // ------------------------------------
     //            Write to file
@@ -308,7 +309,7 @@ void population_statistics::compute_reproduction_stats(ae_exp_manager* exp_manag
                               initial_indiv->get_nb_functional_genes(), _reprod_proba[current_rank-1], reproduction_statistics[0], reproduction_statistics[1], reproduction_statistics[2], th_fv,
                               offsprings_statistics[0], offsprings_statistics[1], offsprings_statistics[2], offsprings_statistics[3],offsprings_statistics[4],offsprings_statistics[5]);
     delete initial_indiv;
-    current_rank++;
+    
   }
   //delete exp_manager;
   delete [] reproduction_statistics;

@@ -249,7 +249,6 @@ class ae_exp_manager : public ae_object
     // -------------------------------------------------------- Output manager
     ae_output_manager* _output_m;
     
-    
     // -------------------------- Generation numbers (first, last and current)
     int32_t _first_gener;
     int32_t _last_gener;

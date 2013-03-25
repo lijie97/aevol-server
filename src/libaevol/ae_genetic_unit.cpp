@@ -1775,15 +1775,15 @@ void ae_genetic_unit::compute_non_coding( void )
     {
       if ( is_not_neutral[i] != is_not_neutral[i-1] )
       {
-	if ( is_not_neutral[i-1] == true ) // beginning of a neutral region
-	{
-	  tmp_beginning_neutral_regions [ _nb_neutral_regions ] = i;
-	}
-	else // end of a neutral region
-	{
-	  tmp_end_neutral_regions [ _nb_neutral_regions ] = i-1;
-	  _nb_neutral_regions++;
-	}
+        if ( is_not_neutral[i-1] == true ) // beginning of a neutral region
+        {
+          tmp_beginning_neutral_regions [ _nb_neutral_regions ] = i;
+        }
+        else // end of a neutral region
+        {
+          tmp_end_neutral_regions [ _nb_neutral_regions ] = i-1;
+          _nb_neutral_regions++;
+        }
       }
     }
     else // i = 0
@@ -1808,18 +1808,18 @@ void ae_genetic_unit::compute_non_coding( void )
     {
       if ( _nb_neutral_regions != 0 )
       {
-	tmp_end_neutral_regions[ _nb_neutral_regions ] = tmp_end_neutral_regions[ 0 ];
-	// the first neutral region is only a subpart of the last one, it should not be
-	// taken into account. When we transfer values to the final array, we introduce a shift
-	shift = 1;
-	// we do not ++ _nb_neutral_regions as it was already counted
+        tmp_end_neutral_regions[ _nb_neutral_regions ] = tmp_end_neutral_regions[ 0 ];
+        // the first neutral region is only a subpart of the last one, it should not be
+        // taken into account. When we transfer values to the final array, we introduce a shift
+        shift = 1;
+        // we do not ++ _nb_neutral_regions as it was already counted
       }
       else // no neutral region detected until now -> all the genetic unit is neutral
       {
-	// as all the chromosome is neutral, we indicate 0 as the beginning of the region
-	// and genome_length - 1 as its end
-	tmp_end_neutral_regions[ 0 ] = genome_length - 1;
-	_nb_neutral_regions++;
+        // as all the chromosome is neutral, we indicate 0 as the beginning of the region
+        // and genome_length - 1 as its end
+        tmp_end_neutral_regions[ 0 ] = genome_length - 1;
+        _nb_neutral_regions++;
       }
     }
   }
@@ -3434,6 +3434,237 @@ int32_t ae_genetic_unit::get_nb_terminators( void )
   }
 #endif
 
+/*!
+  \brief Retrieve for each base if it belongs or not to coding RNA
+  
+  \return Boolean table of sequence length size with for each base if it belongs or not to coding RNA
+*/
+bool* ae_genetic_unit::is_belonging_to_coding_RNA( void )
+{
+  int32_t genome_length = _dna->get_length();
+  bool* belongs_to_coding_RNA = new bool[genome_length];
+  memset( belongs_to_coding_RNA,0, genome_length );
+  
+  // Parse RNA lists and mark the corresponding bases as coding (only for the coding RNAs)
+  for ( int8_t strand = LEADING ; strand <= LAGGING ; strand++ )
+  {
+    ae_list_node<ae_rna*>* rna_node  = _rna_list[strand]->get_first();
+    ae_rna* rna = NULL;
+    while ( rna_node != NULL )
+    {
+      rna = rna_node->get_obj();
+      
+      int32_t first;
+      int32_t last;
+     
+      if ( strand == LEADING )
+      {
+        first = rna->get_promoter_pos();
+        last  = rna->get_last_transcribed_pos();
+      }
+      else // ( strand == LAGGING )
+      {
+        last  = rna->get_promoter_pos();
+        first = rna->get_last_transcribed_pos();
+      }
+              
+      if ( ! rna->get_transcribed_proteins()->is_empty() ) // coding RNA
+      {
+        if ( first <= last )
+        {
+          for ( int32_t i = first ; i <= last ; i++ )
+          {
+            belongs_to_coding_RNA[i] = true;
+          }
+        }
+        else
+        {
+          for ( int32_t i = first ; i < genome_length ; i++ )
+          {
+            belongs_to_coding_RNA[i] = true;
+          }
+          for ( int32_t i = 0 ; i <= last ; i++ )
+          {
+            belongs_to_coding_RNA[i] = true;
+          }
+        }
+      }      
+      rna_node = rna_node->get_next();
+    }
+  }
+  return(belongs_to_coding_RNA);
+}
+
+/*!
+  \brief Remove the bases that are not in coding RNA
+
+  Remove the bases that are not in coding RNA and test at each loss that fitness is not changed
+*/
+void ae_genetic_unit::remove_non_coding_bases( void)
+{
+  ae_environment* env = _exp_m->get_env() ;
+
+  reset_expression();
+  locate_promoters();
+  _distance_to_target_computed        = false;
+  _fitness_computed                   = false;
+  compute_phenotypic_contribution();
+  if(_exp_m->get_output_m()->get_compute_phen_contrib_by_GU())
+  {
+    compute_distance_to_target(env);
+  }
+  compute_fitness(env);
+  double initial_fitness = get_fitness();
+  
+  int32_t genome_length = _dna->get_length();
+  bool* belongs_to_coding_RNA = is_belonging_to_coding_RNA();
+  
+  int32_t non_coding_bases_nb = get_nb_bases_in_0_coding_RNA();
+  int32_t start = 0;
+  int32_t end = 0;
+  
+  
+  for ( int32_t i = genome_length-1 ; i >= 0 ; i-- )
+  {
+    if ( belongs_to_coding_RNA[i] == false )
+    {
+      end = i+1;
+      while((i-1) >=0 && belongs_to_coding_RNA[(i-1)] == false )
+      {
+        i--;
+      }
+      start = i;
+      _dna->remove(start,end);
+      
+      locate_promoters();
+      reset_expression();
+      _distance_to_target_computed        = false;
+      _fitness_computed                   = false;
+      compute_phenotypic_contribution();
+      if(_exp_m->get_output_m()->get_compute_phen_contrib_by_GU())
+      {
+        compute_distance_to_target(env);
+      }
+      compute_fitness(env);
+      assert(get_fitness()==initial_fitness);
+      
+      _non_coding_computed = false;
+      non_coding_bases_nb = get_nb_bases_in_0_coding_RNA();
+    }
+  }
+  
+  locate_promoters();
+  reset_expression();
+  _distance_to_target_computed        = false;
+  _fitness_computed                   = false;
+  compute_phenotypic_contribution();
+  if(_exp_m->get_output_m()->get_compute_phen_contrib_by_GU())
+  {
+    compute_distance_to_target(env);
+  }
+  compute_fitness(env);
+  assert(get_fitness()==initial_fitness);
+  
+  _non_coding_computed = false;
+  non_coding_bases_nb = get_nb_bases_in_0_coding_RNA();
+  assert(non_coding_bases_nb==0);  
+  
+  delete [] belongs_to_coding_RNA;
+}
+
+/*!
+  \brief Double the bases that are not in coding RNA
+
+  Double the bases that are not in coding RNA by addition of random bases and test at each addition that fitness is not changed
+*/
+void ae_genetic_unit::double_non_coding_bases(void)
+{
+  ae_environment* env = _exp_m->get_env() ;
+
+  reset_expression();
+  locate_promoters();
+  _distance_to_target_computed        = false;
+  _fitness_computed                   = false;
+  compute_phenotypic_contribution();
+  if(_exp_m->get_output_m()->get_compute_phen_contrib_by_GU())
+  {
+    compute_distance_to_target(env);
+  }
+  compute_fitness(env);
+  double initial_fitness = get_fitness();
+  
+  int32_t genome_length = _dna->get_length();
+  bool* belongs_to_coding_RNA = is_belonging_to_coding_RNA();
+  
+  int32_t inital_non_coding_bases_nb = get_nb_bases_in_0_coding_RNA();
+  int32_t start = 0;
+  int32_t end = 0;
+  int32_t length = 0;
+  int32_t pos = 0;
+  char * random_portion = NULL;
+  
+  int32_t non_coding_bases_nb = get_nb_bases_in_0_coding_RNA();
+  
+  for ( int32_t i = genome_length-1 ; i >= 0 ; i-- )
+  {
+    if ( belongs_to_coding_RNA[i] == false )
+    {
+      end = i+1;
+      while((i-1) >=0 && belongs_to_coding_RNA[(i-1)] == false )
+      {
+        i--;
+      }
+      start = i;
+      length = end-start;
+      
+      random_portion = new char [length+1];
+      for ( int32_t j = 0 ; j < length ; j++ )
+      {
+        random_portion[j] = '0' + _indiv->get_mut_prng()->random( NB_BASE );
+      }
+      random_portion[length] = 0;
+      
+      pos = _indiv->get_mut_prng()->random(length)+start;
+      
+      _dna->insert(pos, random_portion);
+      
+      locate_promoters();
+      reset_expression();
+      _distance_to_target_computed        = false;
+      _fitness_computed                   = false;
+      compute_phenotypic_contribution();
+      if(_exp_m->get_output_m()->get_compute_phen_contrib_by_GU())
+      {
+        compute_distance_to_target(env);
+      }
+      compute_fitness(env);
+      assert(get_fitness()==initial_fitness);
+      
+      _non_coding_computed = false;
+      
+      delete [] random_portion;
+      random_portion = NULL;
+    }
+  }
+  
+  locate_promoters();
+  reset_expression();
+  _distance_to_target_computed        = false;
+  _fitness_computed                   = false;
+  compute_phenotypic_contribution();
+  if(_exp_m->get_output_m()->get_compute_phen_contrib_by_GU())
+  {
+    compute_distance_to_target(env);
+  }
+  compute_fitness(env);
+  assert(get_fitness()==initial_fitness);
+  
+  _non_coding_computed = false;
+  non_coding_bases_nb = get_nb_bases_in_0_coding_RNA();
+  assert(non_coding_bases_nb== 2*inital_non_coding_bases_nb);  
+  
+  delete [] belongs_to_coding_RNA;
+}
 
 // =================================================================
 //                           Protected Methods
