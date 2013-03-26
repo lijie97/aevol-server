@@ -147,7 +147,7 @@ ae_individual::ae_individual( ae_exp_manager* exp_m,
   for ( int8_t i = 0 ; i < 5 ; i++ )
   {
     _int_probes[i]    = 0;
-    _double_probes[i] = 0;
+    _double_probes[i] = 0.0;
   }
   
   // Mutation rates etc...

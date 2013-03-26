@@ -284,6 +284,8 @@ void ae_stats::write_headers( void )
         write_header( _stat_files[chrom_or_GU][best_or_glob][FITNESS_STATS], "Parent's secretion error", key++ );
         write_header( _stat_files[chrom_or_GU][best_or_glob][FITNESS_STATS], "Secretion fitness", key++ );
         write_header( _stat_files[chrom_or_GU][best_or_glob][FITNESS_STATS], "Amount of compound present in the grid-cell", key++ );
+        write_header( _stat_files[chrom_or_GU][best_or_glob][FITNESS_STATS], "Int probe", key++ );
+        write_header( _stat_files[chrom_or_GU][best_or_glob][FITNESS_STATS], "Double probe", key++ );
 
         #ifdef __REGUL
           write_header( _stat_files[chrom_or_GU][best_or_glob][FITNESS_STATS], "Number of links in the regulation graph", key++ );
@@ -472,6 +474,34 @@ void ae_stats::write_headers( void )
     }
   }
   
+  // ---------------------------------------
+  //  Write headers in INT_PROBES files
+  // ---------------------------------------
+  for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
+  {
+    if ( _stat_files_names[chrom_or_GU][GLOB][INT_PROBES] != NULL )
+    {
+      write_header( _stat_files[chrom_or_GU][GLOB][INT_PROBES], "----------------------------------------------------" );
+      write_header( _stat_files[chrom_or_GU][GLOB][INT_PROBES], " Int probe of each individual within the population " );
+      write_header( _stat_files[chrom_or_GU][GLOB][INT_PROBES], "----------------------------------------------------" );
+      write_header( _stat_files[chrom_or_GU][GLOB][INT_PROBES], "" );
+    }
+  }
+  
+  // ---------------------------------------
+  //  Write headers in DOUBLE_PROBES files
+  // ---------------------------------------
+  for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
+  {
+    if ( _stat_files_names[chrom_or_GU][GLOB][DOUBLE_PROBES] != NULL )
+    {
+      write_header( _stat_files[chrom_or_GU][GLOB][DOUBLE_PROBES], "-------------------------------------------------------" );
+      write_header( _stat_files[chrom_or_GU][GLOB][DOUBLE_PROBES], " Double probe of each individual within the population " );
+      write_header( _stat_files[chrom_or_GU][GLOB][DOUBLE_PROBES], "-------------------------------------------------------" );
+      write_header( _stat_files[chrom_or_GU][GLOB][DOUBLE_PROBES], "" );
+    }
+  }
+  
   flush();
 }
 
@@ -595,7 +625,7 @@ void ae_stats::set_file_names( const char * prefix, bool one_lambda_indiv_only )
   
   const char* chrom_or_gu_name[NB_CHROM_OR_GU]    = { "", "_chromosome", "_plasmids" };
   const char* best_or_glob_name[NB_BEST_OR_GLOB]  = { "_best", "_glob", "_sdev", "_skew" };
-  const char* stat_type_name[NB_STATS_TYPES]      = { "_fitness", "_mutation", "_genes", "_bp", "_rear" };
+  const char* stat_type_name[NB_STATS_TYPES]      = { "_fitness", "_mutation", "_genes", "_bp", "_rear", "_int_probes","_double_probes" };
   
   for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
   {
@@ -610,6 +640,7 @@ void ae_stats::set_file_names( const char * prefix, bool one_lambda_indiv_only )
         
         // For now, we only want sdev and skew for fitness data
         if ( best_or_glob > GLOB && stat_type > FITNESS_STATS) continue; 
+        if ( (chrom_or_GU != ALL_GU || best_or_glob != GLOB) && stat_type > REAR_STATS) continue;
         
         _stat_files_names[chrom_or_GU][best_or_glob][stat_type] = new char[255];
         

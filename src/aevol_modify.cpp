@@ -420,7 +420,6 @@ void create_3_subpopulations_based_on_non_coding_bases(ae_population* pop, ae_ex
   tree = new ae_tree( exp_m, pop_file_name, tree_file_name );
   ae_replication_report * reports = new ae_replication_report( *(tree->get_report_by_rank(num_gener, tree->get_nb_indivs( num_gener )) ));
   ancestor_index = reports->get_id();
-  printf("%"PRId32"\n", ancestor_index);
   for (int32_t i = 1; i <= backup_step ; i++ )
   {
     //printf( "Getting the replication report for the ancestor at generation %"PRId32"\n", num_gener-i );
