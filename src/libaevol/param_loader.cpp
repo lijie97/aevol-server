@@ -675,6 +675,7 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
     }
     else if ( strcmp( line->words[1], "FRACTAL" ) == 0 )
     {
+			assert( line->nb_words == 6 );
       _param_values->set_env_noise_method( FRACTAL );
       _param_values->set_env_noise_sampling_log( atoi( line->words[2] ) );
       _param_values->set_env_noise_sigma( atof( line->words[3] ) );

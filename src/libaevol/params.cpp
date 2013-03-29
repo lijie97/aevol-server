@@ -100,7 +100,7 @@ params::params( void )
   _env_noise_alpha        = 0;
   _env_noise_sigma        = 0;
   _env_noise_prob         = 0;
-  _env_noise_sampling_log = 0; // TODO: Check default value
+  _env_noise_sampling_log = 0;
 
   // --------------------------------------------------------- Mutation rates
   _point_mutation_rate  = 1e-5;

@@ -544,7 +544,7 @@ void ae_environment::build( void )
  */
 void ae_environment::apply_noise( void )
 {
-  if ( _noise_method != NO_NOISE && _noise_prng->random() < _noise_prob )
+  if ( _noise_method != NO_NOISE && _noise_prng->random() < _noise_prob && _noise_sampling_log > 0 )
   {
     // =====================================================================================
     // Compute a fractal noise in a new fuzzy set and apply it to the (unnoised) environment
@@ -567,6 +567,7 @@ void ae_environment::apply_noise( void )
       double cur_x = interval;
       while ( cur_x - X_MAX < -half_interval ) // while (cur_x < X_MAX) but precision-problems-proof
       {
+				printf("infinite loop\n");
         _cur_noise->create_interpolated_point( cur_x );
         cur_x += interval;
       }
