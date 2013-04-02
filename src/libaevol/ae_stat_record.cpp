@@ -456,6 +456,7 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_individual const * ind
     }
   }
 
+  // Sum: arbitrary choice
   int32_t* ind_int_probe    = indiv->get_int_probes();
   double* ind_double_probe  = indiv->get_double_probes();
   for ( int8_t i = 0 ; i < 5 ; i++ )

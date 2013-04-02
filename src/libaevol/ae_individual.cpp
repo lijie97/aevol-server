@@ -44,6 +44,7 @@
 #include <math.h>
 #include <sys/stat.h>
 #include <algorithm>
+#include <assert.h>
 
 
 // =================================================================
@@ -1473,6 +1474,9 @@ void ae_individual::double_non_coding_bases(void)
 {
   //reevaluate(_exp_m->get_env());
   //double initial_fitness = get_fitness();
+  _statistical_data_computed = false;
+  _non_coding_computed = false;
+  _total_genome_size                  = 0;
   int32_t initial_non_coding_base_nb = get_nb_bases_in_0_coding_RNA();
   
   ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
@@ -1487,7 +1491,10 @@ void ae_individual::double_non_coding_bases(void)
     //assert(get_fitness()==initial_fitness);
     gen_unit_node = gen_unit_node->get_next();
   }
+  _statistical_data_computed = false;
   _non_coding_computed = false;
+  _total_genome_size                  = 0;
+  
   assert(get_nb_bases_in_0_coding_RNA()==2*initial_non_coding_base_nb);
 }
 // =================================================================

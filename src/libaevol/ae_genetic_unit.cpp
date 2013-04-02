@@ -32,7 +32,7 @@
 // =================================================================
 //                              Libraries
 // =================================================================
-
+#include <assert.h>
 
 
 // =================================================================
@@ -3596,12 +3596,16 @@ void ae_genetic_unit::double_non_coding_bases(void)
   int32_t genome_length = _dna->get_length();
   bool* belongs_to_coding_RNA = is_belonging_to_coding_RNA();
   
+  _non_coding_computed = false;
   int32_t inital_non_coding_bases_nb = get_nb_bases_in_0_coding_RNA();
   int32_t start = 0;
   int32_t end = 0;
   int32_t length = 0;
   int32_t pos = 0;
   char * random_portion = NULL;
+  bool insertion_ok = false;
+  int32_t non_coding_bases_nb_before_fitness = get_nb_bases_in_0_coding_RNA();
+  int32_t non_coding_bases_nb_after_fitness = get_nb_bases_in_0_coding_RNA();
   
   int32_t non_coding_bases_nb = get_nb_bases_in_0_coding_RNA();
   
@@ -3617,29 +3621,46 @@ void ae_genetic_unit::double_non_coding_bases(void)
       start = i;
       length = end-start;
       
-      random_portion = new char [length+1];
-      for ( int32_t j = 0 ; j < length ; j++ )
+      insertion_ok = false;
+      while(not insertion_ok)
       {
-        random_portion[j] = '0' + _indiv->get_mut_prng()->random( NB_BASE );
+        random_portion = new char [length+1];
+        for ( int32_t j = 0 ; j < length ; j++ )
+        {
+          random_portion[j] = '0' + _indiv->get_mut_prng()->random( NB_BASE );
+        }
+        random_portion[length] = 0;
+        pos = _indiv->get_mut_prng()->random( length )+start;
+        _dna->insert(pos, random_portion);
+        
+        _non_coding_computed = false;
+        non_coding_bases_nb_before_fitness = get_nb_bases_in_0_coding_RNA();
+      
+        locate_promoters();
+        reset_expression();
+        _distance_to_target_computed        = false;
+        _fitness_computed                   = false;
+        compute_phenotypic_contribution();
+        if(_exp_m->get_output_m()->get_compute_phen_contrib_by_GU())
+        {
+          compute_distance_to_target(env);
+        }
+        compute_fitness(env);
+        assert(get_fitness()==initial_fitness);
+        
+        _non_coding_computed = false;
+        non_coding_bases_nb_after_fitness = get_nb_bases_in_0_coding_RNA();
+        
+        if (non_coding_bases_nb_before_fitness != non_coding_bases_nb_after_fitness)
+        {
+          _dna->remove(pos, pos + length);
+        }
+        else
+        {
+          insertion_ok = true;
+        }
+        
       }
-      random_portion[length] = 0;
-      
-      pos = _indiv->get_mut_prng()->random(length)+start;
-      
-      _dna->insert(pos, random_portion);
-      
-      locate_promoters();
-      reset_expression();
-      _distance_to_target_computed        = false;
-      _fitness_computed                   = false;
-      compute_phenotypic_contribution();
-      if(_exp_m->get_output_m()->get_compute_phen_contrib_by_GU())
-      {
-        compute_distance_to_target(env);
-      }
-      compute_fitness(env);
-      assert(get_fitness()==initial_fitness);
-      
       _non_coding_computed = false;
       
       delete [] random_portion;
@@ -3661,7 +3682,7 @@ void ae_genetic_unit::double_non_coding_bases(void)
   
   _non_coding_computed = false;
   non_coding_bases_nb = get_nb_bases_in_0_coding_RNA();
-  assert(non_coding_bases_nb== 2*inital_non_coding_bases_nb);  
+  assert(non_coding_bases_nb == 2*inital_non_coding_bases_nb);  
   
   delete [] belongs_to_coding_RNA;
 }
