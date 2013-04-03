@@ -800,10 +800,10 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
       {
         tmp_to_be_logged |= LOG_BARRIER;
       }
-      else if ( strcmp( line->words[i], "LOADS" ) == 0 )
+      /*else if ( strcmp( line->words[i], "LOADS" ) == 0 )
       {
         tmp_to_be_logged |= LOG_LOADS;
-      }   
+      }   */
       else
       {
         printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown log option %s.\n",
@@ -1193,6 +1193,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   {
     output_m->set_dump_step( _param_values->get_dump_step() );
   }
+  output_m->set_logs( _param_values->get_logs() );
   
   delete param_mut;
   delete _prng; // Each class that needed it has now its own copy

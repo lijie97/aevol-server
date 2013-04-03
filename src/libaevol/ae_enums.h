@@ -97,7 +97,7 @@ enum ae_log_type
   LOG_TRANSFER  = 0x01,
   LOG_REAR      = 0x02,
   LOG_BARRIER   = 0x04,
-  LOG_LOADS     = 0x08
+  //LOG_LOADS     = 0x08
 };
 
 

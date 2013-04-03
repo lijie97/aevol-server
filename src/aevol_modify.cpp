@@ -136,7 +136,6 @@ int main( int argc, char* argv[] )
     ae_exp_manager* exp_manager = new ae_exp_manager();
   #endif
   exp_manager->load( num_gener, false, verbose );
-  //exp_manager->set_first_gener( num_gener );
 
   // 6) Retrieve the population, the environment, the selection,...
   ae_population* pop = exp_manager->get_pop();
@@ -152,7 +151,7 @@ int main( int argc, char* argv[] )
     exit( EXIT_FAILURE );
   }
   
-  f_line* line;
+  f_line* line;  
   while ( ( line = get_line(param_file) ) != NULL ) 
   {
     if ( strcmp( line->words[0], "POINT_MUTATION_RATE" ) == 0 )
@@ -585,7 +584,7 @@ void change_based_on_non_coding_bases_of_best_individual_ancestor(ae_population*
   }
   else
   {
-    printf( "%s:%d: error: wrong population_change_type %s\n", __FILE__, __LINE__, type );
+    printf( "%s:%d: error: wrong population_change_type %d\n", __FILE__, __LINE__, type );
     exit( EXIT_FAILURE );
   }
 }
@@ -625,7 +624,7 @@ void change_based_on_non_coding_bases_in_population(ae_population* pop, ae_exp_m
   }
   else
   {
-    printf( "%s:%d: error: wrong population_change_type %s\n", __FILE__, __LINE__, type );
+    printf( "%s:%d: error: wrong population_change_type %d\n", __FILE__, __LINE__, type );
     exit( EXIT_FAILURE );
   }
 }

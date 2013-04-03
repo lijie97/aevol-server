@@ -100,7 +100,8 @@ void ae_params_record::save( gzFile backup_file ) const
   gzwrite( backup_file, &tmp_tree_mode, sizeof(tmp_tree_mode) );
   
   // Logs
-  _logs->save( backup_file );
+  int8_t logs = _logs->get_logs();
+  gzwrite( backup_file, &logs,  sizeof(logs) );
   
   // Other
   int8_t tmp_more_stats = _more_stats? 1 : 0;
@@ -124,7 +125,9 @@ void ae_params_record::load( gzFile backup_file, bool verbose )
   _tree_mode = (ae_tree_mode) tmp_tree_mode;
   
   // Logs
-  _logs->load( backup_file );
+  int8_t logs;
+  gzread( backup_file, &logs, sizeof(logs) );
+  _logs->load(logs, 0);
   
   // Other
   int8_t tmp_more_stats;

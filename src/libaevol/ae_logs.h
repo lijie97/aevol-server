@@ -74,6 +74,7 @@ class ae_logs : public ae_object
     //                              Accessors
     // =================================================================
     inline FILE* get_log( ae_log_type log_type )   const;
+    inline int8_t get_logs() const;
     inline bool  is_logged( ae_log_type log_type ) const;
 
     // =================================================================
@@ -83,8 +84,8 @@ class ae_logs : public ae_object
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void save( gzFile backup_file ) const;
-    void load( gzFile backup_file );
+    //void save( gzFile backup_file ) const;
+    void load( int8_t logs, int32_t num_gener  );
     void print_to_file( FILE* file ) const;
     
     void set_logs( int8_t logs );
@@ -127,7 +128,7 @@ class ae_logs : public ae_object
     FILE*   _transfer_log;
     FILE*   _rear_log;
     FILE*   _barrier_log;
-    FILE*   _load_from_backup_log;
+    //FILE*   _param_modification_log;
 };
 
 
@@ -150,16 +151,21 @@ inline FILE* ae_logs::get_log( ae_log_type log_type ) const
     {
       return _barrier_log;
     }
-    case LOG_LOADS :
+    /*case LOG_LOADS :
     {
-      return _load_from_backup_log;
-    }
+      return _param_modification_log;
+    }*/
     default:
     {
       printf( "ERROR: unknown log_type in file %s : l%d\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
     }
   }
+}
+
+inline int8_t ae_logs::get_logs() const
+{
+  return _logs;
 }
 
 inline bool ae_logs::is_logged( ae_log_type log_type ) const
@@ -178,10 +184,10 @@ inline bool ae_logs::is_logged( ae_log_type log_type ) const
     {
       return ( _logs & LOG_BARRIER );
     }
-    case LOG_LOADS :
+    /*case LOG_LOADS :
     {
       return ( _logs & LOG_LOADS );
-    }
+    }*/
     default:
     {
       printf( "ERROR: unknown log_type in file %s : l%d\n", __FILE__, __LINE__ );

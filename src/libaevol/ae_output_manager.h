@@ -105,6 +105,7 @@ class ae_output_manager
     inline void init_tree( ae_exp_manager* exp_m, ae_tree_mode _tree_mode, int32_t _tree_step );
     inline void set_dump_step( int32_t dump_step );
     inline void set_compute_phen_contrib_by_GU( bool compute_phen_contrib_by_GU );
+    inline void set_logs (int8_t logs);
   
     // =================================================================
     //                              Operators
@@ -258,6 +259,11 @@ inline void ae_output_manager::set_dump_step( int32_t dump_step )
 inline void ae_output_manager::set_compute_phen_contrib_by_GU( bool compute_phen_contrib_by_GU )
 {
   _compute_phen_contrib_by_GU = compute_phen_contrib_by_GU;
+}
+
+inline void ae_output_manager::set_logs (int8_t logs)
+{
+  _logs->set_logs(logs);
 }
 
 // =====================================================================

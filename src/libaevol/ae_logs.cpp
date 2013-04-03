@@ -65,7 +65,7 @@ ae_logs::ae_logs( void )
   _transfer_log         = NULL;
   _rear_log             = NULL;
   _barrier_log          = NULL;
-  _load_from_backup_log = NULL;
+  //_param_modification_log = NULL;
 }
 
 // =================================================================
@@ -85,30 +85,26 @@ ae_logs::~ae_logs( void )
   {
     fclose( _barrier_log );
   }
-  if ( _logs & LOG_LOADS )
+  /*if ( _logs & LOG_LOADS )
   {
-    fclose( _load_from_backup_log );
-  }
+    fclose( _param_modification_log );
+  }*/
 }
 
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_logs::save( gzFile backup_file ) const
+/*void ae_logs::save( gzFile setup_file ) const
 {
   gzwrite( backup_file, &_logs, sizeof(_logs) );
-}
+}*/
 
-void ae_logs::load( gzFile backup_file )
+void ae_logs::load( int8_t logs, int32_t num_gener )
 {
   char* line = new char[500];
   char* ret;
   
-  // TODO Temporary save, should be gotten rid of to use the value in ae_common::sim
-  int32_t num_gener;
-  gzread( backup_file, &num_gener, sizeof(num_gener) );
-  
-  gzread( backup_file, &_logs, sizeof(_logs) );
+  _logs = logs;
   
   // Prepare required log files
   if ( _logs & LOG_TRANSFER )
@@ -136,7 +132,7 @@ void ae_logs::load( gzFile backup_file )
       ret = fgets( line, 500, old_transfer_log );
     }
     // This is the empty line between the header and the values
-    fputs( line, _transfer_log );
+    //fputs( line, _transfer_log );
     
     // Copy log entries until num_gener (included)
     ret = fgets( line, 500, old_transfer_log );
@@ -147,6 +143,7 @@ void ae_logs::load( gzFile backup_file )
     }
     
     fclose( old_transfer_log );
+    remove( "log_transfer.out.old" );
   }
   if ( _logs & LOG_REAR )
   {
@@ -173,7 +170,7 @@ void ae_logs::load( gzFile backup_file )
       ret = fgets( line, 500, old_rear_log );
     }
     // This is the empty line between the header and the values
-    fputs( line, _rear_log );
+    //fputs( line, _rear_log );
     
     // Copy log entries until num_gener (included)
     ret = fgets( line, 500, old_rear_log );
@@ -184,6 +181,7 @@ void ae_logs::load( gzFile backup_file )
     }
     
     fclose( old_rear_log );
+    remove( "log_rear.out.old" );
   }
   if ( _logs & LOG_BARRIER )
   {
@@ -210,7 +208,7 @@ void ae_logs::load( gzFile backup_file )
       ret = fgets( line, 500, old_barrier_log );
     }
     // This is the empty line between the header and the values
-    fputs( line, _barrier_log );
+    //fputs( line, _barrier_log );
     
     // Copy log entries until num_gener (included)
     ret = fgets( line, 500, old_barrier_log );
@@ -221,44 +219,46 @@ void ae_logs::load( gzFile backup_file )
     }
     
     fclose( old_barrier_log );
+    remove( "log_barrier.out.old" );
   }
-  if ( _logs & LOG_LOADS )
+  /*if ( _logs & LOG_LOADS )
   {
-    rename ( "log_load_from_backup.out", "log_load_from_backup.out.old" );
-    FILE* old_load_from_backup_log = fopen( "log_load_from_backup.out.old", "r" );
-    if ( old_load_from_backup_log == NULL )
+    rename ( "log_param_modification.out", "log_param_modification.out.old" );
+    FILE* old_param_modification_log = fopen( "log_param_modification.out.old", "r" );
+    if ( old_param_modification_log == NULL )
     {
-      printf( "Error: Failed to open file \"log_load_from_backup.out.old\"\n" );
+      printf( "Error: Failed to open file \"log_param_modification.out.old\"\n" );
       exit( EXIT_FAILURE );
     }
     
-    _load_from_backup_log = fopen( "log_load_from_backup.out", "w" );
-    if ( _load_from_backup_log == NULL )
+    _param_modification_log = fopen( "log_param_modification.out", "w" );
+    if ( _param_modification_log == NULL )
     {
-      printf( "Error: Failed to open file \"log_load_from_backup.out\"\n" );
+      printf( "Error: Failed to open file \"log_param_modification.out\"\n" );
       exit( EXIT_FAILURE );
     }
     
-    // Copy file headers
-    //ret = fgets( line, 500, old_load_from_backup_log );
-    //while ( !feof( old_load_from_backup_log ) && line[0] == '#' )
-    //{
-    //  fputs( line, _load_from_backup_log );
-    //  ret = fgets( line, 500, old_load_from_backup_log );
-    //}
+    //Copy file headers
+    ret = fgets( line, 500, old_param_modification_log );
+    while ( !feof( old_param_modification_log ) && line[0] == '#' )
+    {
+      fputs( line, _param_modification_log );
+      ret = fgets( line, 500, old_param_modification_log );
+    }
     // This is the empty line between the header and the values
-    //fputs( line, _load_from_backup_log );
+    //fputs( line, _param_modification_log );
     
     // Copy log entries until num_gener (included)
-    ret = fgets( line, 500, old_load_from_backup_log );
-    while ( (int32_t)atol(line) <= num_gener && !feof(old_load_from_backup_log) )
+    ret = fgets( line, 500, old_param_modification_log );
+    while ( (int32_t)atol(line) <= num_gener && !feof(old_param_modification_log) )
     {
-      fputs( line, _load_from_backup_log );
-      ret = fgets( line, 500, old_load_from_backup_log );
+      fputs( line, _param_modification_log );
+      ret = fgets( line, 500, old_param_modification_log );
     }
     
-    fclose( old_load_from_backup_log );
-  }
+    fclose( old_param_modification_log );
+    remove( "log_param_modification.out.old" );
+  }*/
   
   delete [] line;
 }
@@ -301,16 +301,16 @@ void ae_logs::set_logs( int8_t logs )
       exit( EXIT_FAILURE );
     }
   }
-  if ( _logs & LOG_LOADS )
+  /*if ( _logs & LOG_LOADS )
   {
-    _load_from_backup_log = fopen( "log_load_from_backup.out", "w" );
+    _param_modification_log = fopen( "log_param_modification.out", "w" );
     
-    if ( _load_from_backup_log == NULL )
+    if ( _param_modification_log == NULL )
     {
-      printf( "Error: Failed to open file \"log_load_from_backup.out\"\n" );
+      printf( "Error: Failed to open file \"log_param_modification.out\"\n" );
       exit( EXIT_FAILURE );
     }
-  }
+  }*/
   
   this->write_headers();
 }
@@ -329,10 +329,10 @@ void ae_logs::flush( void )
   {
     fflush( _barrier_log );
   }
-  if ( _logs & LOG_LOADS )
+  /*if ( _logs & LOG_LOADS )
   {
-    fflush( _load_from_backup_log );
-  }
+    fflush( _param_modification_log );
+  }*/
 }
 
 // =================================================================
@@ -416,13 +416,12 @@ void ae_logs::write_headers( void ) const
   }
   
   // ========== LOADS LOG ==========     
-  //No header because this file is used by post-treatment like ancstat, it's not meant to be human readable but has to be program readable.
   /*if ( _logs & LOG_LOADS )
   {
-    fprintf( _load_from_backup_log, "######################################################################\n" );
-    fprintf( _load_from_backup_log, "#                     Load from backup log\n" );
-    fprintf( _load_from_backup_log, "#\n" );
-    fprintf( _load_from_backup_log, "# An entry is written whenever the simulation is reloaded from a backup.\n" );
-    fprintf( _load_from_backup_log, "######################################################################\n" );
+    fprintf( _param_modification_log, "######################################################################\n" );
+    fprintf( _param_modification_log, "#                     Parameter modification log\n" );
+    fprintf( _param_modification_log, "#\n" );
+    fprintf( _param_modification_log, "# An entry is written whenever a parameter is modified by aevol_modify.\n" );
+    fprintf( _param_modification_log, "######################################################################\n" );
   }*/
 }

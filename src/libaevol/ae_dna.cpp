@@ -521,16 +521,12 @@ void ae_dna::do_rearrangements_with_align( void )
         if ( genome_size_after > _indiv->get_max_genome_length() )
         {
           #warning LOG
-          //~ if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
-          //~ {
-            //~ // Write an entry in the barrier log file
-            //~ fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32" %"PRId32"\n",
-                      //~ _exp_m->get_num_gener(),
-                      //~ _indiv->get_id(),
-                      //~ segment_length,
-                      //~ 0,
-                      //~ genome_size_before );
-          //~ }
+          if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
+          {
+            // Write an entry in the barrier log file
+            fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32" %"PRId32"\n",
+                      _exp_m->get_num_gener(), _indiv->get_id(), segment_length, 0, genome_size_before );
+          }
         }
         else
         {
@@ -547,16 +543,11 @@ void ae_dna::do_rearrangements_with_align( void )
           
           // Write a line in rearrangement logfile
           #warning LOG
-          //~ if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
-          //~ {
-            //~ fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
-                      //~ _exp_m->get_num_gener(),
-                      //~ _indiv->get_index_in_population(),
-                      //~ DUPL,
-                      //~ segment_length,
-                      //~ genome_size_before,
-                      //~ needed_score );
-          //~ }
+          if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
+          {
+            fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
+                      _exp_m->get_num_gener(), _indiv->get_id(), DUPL, segment_length, genome_size_before, needed_score );
+          }
         }
       }
       else if ( rand1 < _indiv->get_duplication_proportion() + _indiv->get_deletion_proportion() )
@@ -569,13 +560,12 @@ void ae_dna::do_rearrangements_with_align( void )
         if ( genome_size_after < _indiv->get_min_genome_length() )
         {
           #warning LOG
-          //~ if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
-          //~ {
-            //~ // Write an entry in the barrier log file
-            //~ fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32" %"PRId32"\n",
-                      //~ _exp_m->get_num_gener(), _indiv->get_index_in_population(),
-                      //~ segment_length, 0, genome_size_before );
-          //~ }
+          if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
+          {
+            // Write an entry in the barrier log file
+            fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32" %"PRId32"\n",
+                      _exp_m->get_num_gener(), _indiv->get_id(), segment_length, 0, genome_size_before );
+          }
         }
         else
         {
@@ -592,16 +582,11 @@ void ae_dna::do_rearrangements_with_align( void )
           
           // Write a line in rearrangement logfile
           #warning LOG
-          //~ if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
-          //~ {
-            //~ fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
-                      //~ _exp_m->get_num_gener(),
-                      //~ _indiv->get_index_in_population(),
-                      //~ DEL,
-                      //~ segment_length,
-                      //~ genome_size_before,
-                      //~ needed_score );
-          //~ }
+          if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
+          {
+            fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
+                      _exp_m->get_num_gener(), _indiv->get_id(),DEL, segment_length, genome_size_before, needed_score );
+          }
         }
       }
       else
@@ -682,20 +667,13 @@ void ae_dna::do_rearrangements_with_align( void )
         
           // Write a line in rearrangement logfile
           #warning LOG
-          //~ if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
-          //~ {
-            //~ fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16" %"PRId16"\n", 
-                      //~ _exp_m->get_num_gener(),
-                      //~ _indiv->get_index_in_population(),
-                      //~ TRANS,
-                      //~ segment_length,
-                      //~ _length,
-                      //~ needed_score,
-                      //~ needed_score_2 );
-          //~ }
-          
+          if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
+          {
+            fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId16"\n", 
+                      _exp_m->get_num_gener(), _indiv->get_id(), TRANS, segment_length, _length, needed_score_2 );
+          }      
           delete alignment_2;
-        }
+        } 
         else
         {
           // Cancel the translocation (replace the extracted segment at its former position)
@@ -752,16 +730,11 @@ void ae_dna::do_rearrangements_with_align( void )
         
       // Write a line in rearrangement logfile
       #warning LOG
-      //~ if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
-      //~ {
-        //~ fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
-                  //~ _exp_m->get_num_gener(),
-                  //~ _indiv->get_index_in_population(),
-                  //~ INV,
-                  //~ segment_length,
-                  //~ _length,
-                  //~ needed_score );
-      //~ }
+      if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
+      {
+        fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
+                  _exp_m->get_num_gener(), _indiv->get_id(), INV, segment_length, _length, needed_score );
+      }
       
       delete alignment;
     }
@@ -838,16 +811,12 @@ ae_mutation* ae_dna::do_small_insertion( void )
   if ( _length + nb_insert > _indiv->get_max_genome_length() )
   {
     #warning LOG
-    //~ if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
-    //~ {
-      //~ // Write an entry in the barrier log file
-      //~ fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" S_INS %"PRId32" %"PRId32" %"PRId32"\n",
-                //~ _exp_m->get_num_gener(),
-                //~ _indiv->get_index_in_population(),
-                //~ nb_insert,
-                //~ 0,
-                //~ _length );
-    //~ }
+    if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
+    {
+      // Write an entry in the barrier log file
+      fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" S_INS %"PRId32" %"PRId32" %"PRId32"\n",
+                _exp_m->get_num_gener(), _indiv->get_id(), nb_insert, 0, _length );
+    }
     
     return NULL;
   }
@@ -900,16 +869,12 @@ ae_mutation* ae_dna::do_small_deletion( void )
   if ( _length - nb_del < _indiv->get_min_genome_length() )
   {
     #warning LOG
-    //~ if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
-    //~ {
-      //~ // Write an entry in the barrier log file
-      //~ fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" S_DEL %"PRId32" %"PRId32" %"PRId32"\n",
-                //~ _exp_m->get_num_gener(),
-                //~ _indiv->get_index_in_population(),
-                //~ nb_del,
-                //~ 0,
-                //~ _length );
-    //~ }
+    if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
+    {
+      // Write an entry in the barrier log file
+      fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" S_DEL %"PRId32" %"PRId32" %"PRId32"\n",
+                _exp_m->get_num_gener(), _indiv->get_id(), nb_del, 0, _length );
+    }
     
     return NULL;
   }
@@ -1032,16 +997,12 @@ ae_mutation* ae_dna::do_duplication( void )
   if ( genome_size_after > _indiv->get_max_genome_length() )
   {
     #warning LOG
-    //~ if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
-    //~ {
-      //~ // Write an entry in the barrier log file
-      //~ fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32" %"PRId32"\n",
-                //~ _exp_m->get_num_gener(),
-                //~ _indiv->get_index_in_population(),
-                //~ segment_length,
-                //~ 0,
-                //~ genome_size_before );
-    //~ }
+    if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
+    {
+      // Write an entry in the barrier log file
+      fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32" %"PRId32"\n",
+                _exp_m->get_num_gener(), _indiv->get_id(), segment_length, 0, genome_size_before );
+    }
   }
   else
   {
@@ -1057,15 +1018,11 @@ ae_mutation* ae_dna::do_duplication( void )
 
     // Write a line in rearrangement logfile
     #warning LOG
-    //~ if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
-    //~ {
-      //~ fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
-                //~ _exp_m->get_num_gener(),
-                //~ _indiv->get_index_in_population(),
-                //~ DUPL,
-                //~ segment_length,
-                //~ genome_size_before );
-    //~ }
+    if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
+    {
+      fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
+                _exp_m->get_num_gener(), _indiv->get_id(), DUPL, segment_length, genome_size_before );
+    }
   }
   
   return mut;
@@ -1088,13 +1045,12 @@ ae_mutation* ae_dna::do_deletion( void )
   if ( genome_size_after < _indiv->get_min_genome_length() )
   {
     #warning LOG
-    //~ if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
-    //~ {
-      //~ // Write an entry in the barrier log file
-      //~ fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32" %"PRId32"\n",
-                //~ _exp_m->get_num_gener(), _indiv->get_index_in_population(),
-                //~ segment_length, 0, genome_size_before );
-    //~ }
+    if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
+    {
+      // Write an entry in the barrier log file
+      fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32" %"PRId32"\n",
+                _exp_m->get_num_gener(), _indiv->get_id(), segment_length, 0, genome_size_before );
+    }
   }
   else
   {
@@ -1110,15 +1066,11 @@ ae_mutation* ae_dna::do_deletion( void )
         
     // Write a line in rearrangement logfile
     #warning LOG
-    //~ if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
-    //~ {
-      //~ fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
-                //~ _exp_m->get_num_gener(),
-                //~ _indiv->get_index_in_population(),
-                //~ DEL,
-                //~ segment_length,
-                //~ genome_size_before );
-    //~ }
+    if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
+    {
+      fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
+                _exp_m->get_num_gener(), _indiv->get_id(), DEL, segment_length, genome_size_before );
+    }
   }
   
   return mut;
@@ -1249,15 +1201,11 @@ ae_mutation* ae_dna::do_translocation( void )
         
         // Write a line in rearrangement logfile
         #warning LOG
-        //~ if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
-        //~ {
-          //~ fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
-                    //~ _exp_m->get_num_gener(),
-                    //~ _indiv->get_index_in_population(),
-                    //~ TRANS,
-                    //~ segment_length,
-                    //~ _length );
-        //~ }
+        if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
+        {
+          fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
+                    _exp_m->get_num_gener(), _indiv->get_id(), TRANS, segment_length, _length );
+        }
       }
     }
     else
@@ -1282,15 +1230,11 @@ ae_mutation* ae_dna::do_translocation( void )
         
         // Write a line in rearrangement logfile
         #warning LOG
-        //~ if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
-        //~ {
-          //~ fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
-                    //~ _exp_m->get_num_gener(),
-                    //~ _indiv->get_index_in_population(),
-                    //~ TRANS,
-                    //~ segment_length,
-                    //~ _length );
-        //~ }
+        if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
+        {
+          fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
+                    _exp_m->get_num_gener(), _indiv->get_id(), TRANS, segment_length, _length );
+        }
       }
     }
   }
@@ -1327,15 +1271,11 @@ ae_mutation* ae_dna::do_translocation( void )
         
       // Write a line in rearrangement logfile
       #warning LOG
-      //~ if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
-      //~ {
-        //~ fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
-                  //~ _exp_m->get_num_gener(),
-                  //~ _indiv->get_index_in_population(),
-                  //~ TRANS,
-                  //~ segment_length,
-                  //~ _length );
-      //~ }
+      if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
+      {
+        fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
+                  _exp_m->get_num_gener(), _indiv->get_id(), TRANS, segment_length, _length );
+      }
     }
   }
   
@@ -1367,15 +1307,11 @@ ae_mutation* ae_dna::do_inversion( void )
         
     // Write a line in rearrangement logfile
     #warning LOG
-    //~ if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
-    //~ {
-      //~ fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
-                //~ _exp_m->get_num_gener(),
-                //~ _indiv->get_index_in_population(),
-                //~ INV,
-                //~ segment_length,
-                //~ _length );
-    //~ }
+    if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
+    {
+      fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
+                _exp_m->get_num_gener(), _indiv->get_id(), INV, segment_length, _length );
+    }
   }
   
   return mut;
@@ -1431,15 +1367,12 @@ bool ae_dna::do_duplication( int32_t pos_1, int32_t pos_2, int32_t pos_3 )
     if ( _length + seg_length > _indiv->get_max_genome_length() )
     {
       #warning LOG
-      //~ if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
-      //~ {
-        //~ // Write an entry in the barrier log file
-        //~ fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32"\n",
-                  //~ _exp_m->get_num_gener(),
-                  //~ _indiv->get_index_in_population(),
-                  //~ seg_length,
-                  //~ _length );
-      //~ }
+      if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
+      {
+        // Write an entry in the barrier log file
+        fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32"\n",
+                  _exp_m->get_num_gener(), _indiv->get_id(), seg_length, _length );
+      }
       
       return false;
     }
@@ -1470,15 +1403,12 @@ bool ae_dna::do_duplication( int32_t pos_1, int32_t pos_2, int32_t pos_3 )
     if ( _length + seg_length > _indiv->get_max_genome_length() )
     {
       #warning LOG
-      //~ if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
-      //~ {
-        //~ // Write an entry in the barrier log file
-        //~ fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32"\n",
-                  //~ _exp_m->get_num_gener(),
-                  //~ _indiv->get_index_in_population(),
-                  //~ seg_length,
-                  //~ _length );
-      //~ }
+      if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
+      {
+        // Write an entry in the barrier log file
+        fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32"\n",
+                  _exp_m->get_num_gener(), _indiv->get_id(), seg_length, _length );
+      }
       
       return false;
     }
@@ -1562,13 +1492,12 @@ bool ae_dna::do_deletion( int32_t pos_1, int32_t pos_2 )
     else
     {
       #warning LOG
-      //~ if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
-      //~ {
-        //~ // Write an entry in the barrier log file
-        //~ fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32"\n",
-                  //~ _exp_m->get_num_gener(), _indiv->get_index_in_population(),
-                  //~ segment_length, _length );
-      //~ }
+      if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
+      {
+        // Write an entry in the barrier log file
+        fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32"\n",
+                  _exp_m->get_num_gener(), _indiv->get_id(), segment_length, _length );
+      }
       
       return false;
     }
@@ -1607,13 +1536,12 @@ bool ae_dna::do_deletion( int32_t pos_1, int32_t pos_2 )
     else
     {
       #warning LOG
-      //~ if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
-      //~ {
-        //~ // Write an entry in the barrier log file
-        //~ fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32"\n",
-                  //~ _exp_m->get_num_gener(), _indiv->get_index_in_population(),
-                  //~ segment_length, _length );
-      //~ }
+      if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
+      {
+        // Write an entry in the barrier log file
+        fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32"\n",
+                  _exp_m->get_num_gener(), _indiv->get_id(), segment_length, _length );
+      }
       
       return false;
     }

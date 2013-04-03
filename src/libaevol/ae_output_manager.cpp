@@ -70,6 +70,7 @@ ae_output_manager::ae_output_manager( ae_exp_manager* exp_m )
   _record_tree = false;
   _make_dumps = false;
   _dump_step = 0;
+  _logs  = new ae_logs();
 }
 
 // =================================================================
@@ -80,6 +81,7 @@ ae_output_manager::~ae_output_manager( void )
   delete _stats;
   delete _tree;
   delete _dump;
+  delete _logs;
 }
 
 // =================================================================
@@ -109,6 +111,10 @@ void ae_output_manager::write_setup_file( gzFile setup_file ) const
   int8_t make_dumps = _make_dumps;
   gzwrite( setup_file, &make_dumps,  sizeof(make_dumps) );
   gzwrite( setup_file, &_dump_step,  sizeof(_dump_step) );
+  
+  // Logs
+  int8_t logs = _logs->get_logs();
+  gzwrite( setup_file, &logs,  sizeof(logs) );
 }
 
 void ae_output_manager::write_setup_file( FILE* setup_file ) const
@@ -143,6 +149,10 @@ void ae_output_manager::write_setup_file( FILE* setup_file ) const
   // Dumps
   fprintf( setup_file, "MAKE_DUMPS %s\n", _make_dumps ? "true" : "false" );
   fprintf( setup_file, "DUMP_STEP %"PRId32"\n", _dump_step );
+  
+  // Logs
+  int8_t logs = _logs->get_logs();
+  fprintf( setup_file, "LOGS %"PRId8"\n", logs );
 }
 
 void ae_output_manager::load( gzFile setup_file, bool verbose )
@@ -187,6 +197,11 @@ void ae_output_manager::load( gzFile setup_file, bool verbose )
   gzread( setup_file, &make_dumps, sizeof(make_dumps) );
   _make_dumps = make_dumps;
   gzread( setup_file, &_dump_step,  sizeof(_dump_step) );
+  
+  // Logs
+  int8_t logs;
+  gzread( setup_file, &logs, sizeof(logs) );
+  _logs->load(logs, num_gener);
 }
 
 void ae_output_manager::load( FILE* setup_file, bool verbose )
@@ -232,6 +247,11 @@ void ae_output_manager::load( FILE* setup_file, bool verbose )
   fscanf( setup_file, "MAKE_DUMPS %s\n", tmp );
   _make_dumps = ! strcmp( tmp, "true" );
   fscanf( setup_file, "DUMP_STEP %"PRId32"\n", &_dump_step );
+  
+  // Logs
+  int8_t logs;
+  fscanf( setup_file, "LOGS %"PRId8"\n", &logs );
+  _logs->load(logs, num_gener);
 }
 
 void ae_output_manager::write_current_generation_outputs( void ) const
