@@ -608,6 +608,12 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
     
     _param_values->add_env_gaussian( new ae_gaussian( atof( line->words[1] ), atof( line->words[2] ), atof( line->words[3] ) ) );
   }
+  else if ( strcmp( line->words[0], "ENV_GAUSSIAN" ) == 0 )
+  {
+    if ( _param_values->_env_gaussians == NULL ) _param_values->_env_gaussians = new ae_list<ae_gaussian*>();
+    
+    _param_values->add_env_gaussian( new ae_gaussian( atof( line->words[1] ), atof( line->words[2] ), atof( line->words[3] ) ) );
+  }
   else if ( strcmp( line->words[0], "ENV_SAMPLING" ) == 0 )
   {
     _param_values->set_env_sampling( atoi( line->words[1] ) );
