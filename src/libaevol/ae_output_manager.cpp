@@ -155,7 +155,7 @@ void ae_output_manager::write_setup_file( FILE* setup_file ) const
   fprintf( setup_file, "LOGS %"PRId8"\n", logs );
 }
 
-void ae_output_manager::load( gzFile setup_file, bool verbose )
+void ae_output_manager::load( gzFile setup_file, bool verbose, bool to_be_run  )
 {
   // Write the backup steps
   gzread( setup_file, &_backup_step,      sizeof(_backup_step) );
@@ -163,13 +163,16 @@ void ae_output_manager::load( gzFile setup_file, bool verbose )
   
   // Stats
   int32_t num_gener = _exp_m->get_num_gener();
-  if ( num_gener > 0 )
+  if( to_be_run)
   {
-    _stats = new ae_stats( _exp_m, num_gener );
-  }
-  else
-  {
-    _stats = new ae_stats( _exp_m );
+    if ( num_gener > 0 )
+    {
+      _stats = new ae_stats( _exp_m, num_gener );
+    }
+    else
+    {
+      _stats = new ae_stats( _exp_m );
+    }
   }
   gzread( setup_file, &_compute_phen_contrib_by_GU,  sizeof(_compute_phen_contrib_by_GU) );
   
@@ -204,7 +207,7 @@ void ae_output_manager::load( gzFile setup_file, bool verbose )
   _logs->load(logs, num_gener);
 }
 
-void ae_output_manager::load( FILE* setup_file, bool verbose )
+void ae_output_manager::load( FILE* setup_file, bool verbose, bool to_be_run  )
 {
   // Write the backup steps
   fscanf( setup_file, "BACKUP_STEP %"PRId32"\n", &_backup_step );
@@ -212,13 +215,16 @@ void ae_output_manager::load( FILE* setup_file, bool verbose )
   
   // Stats
   int32_t num_gener = _exp_m->get_num_gener();
-  if ( num_gener > 0 )
+  if( to_be_run)
   {
-    _stats = new ae_stats( _exp_m, num_gener );
-  }
-  else
-  {
-    _stats = new ae_stats( _exp_m );
+    if ( num_gener > 0 )
+    {
+      _stats = new ae_stats( _exp_m, num_gener );
+    }
+    else
+    {
+      _stats = new ae_stats( _exp_m );
+    }
   }
   fscanf( setup_file, "COMPUTE_PHENOTYPIC_CONTRIBUTION_BY_GU %"PRId8"\n", &_compute_phen_contrib_by_GU );
   

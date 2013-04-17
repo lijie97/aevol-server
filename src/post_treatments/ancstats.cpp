@@ -85,16 +85,16 @@ enum check_type
 
 
 
-void open_environment_stat_file( void );
+void open_environment_stat_file( int32_t final_indiv_index, int32_t final_indiv_rank );
 void write_environment_stats( int32_t num_gener, ae_environment * env );
 
-void open_terminators_stat_file( void );
+void open_terminators_stat_file( int32_t final_indiv_index, int32_t final_indiv_rank );
 void write_terminators_stats( int32_t num_gener, ae_individual * indiv );
 
-void open_zones_stat_file( void );
+void open_zones_stat_file( int32_t final_indiv_index, int32_t final_indiv_rank );
 void write_zones_stats( int32_t num_gener, ae_individual * indiv, ae_environment * env );
 
-void open_operons_stat_file( void );
+void open_operons_stat_file( int32_t final_indiv_index, int32_t final_indiv_rank );
 void write_operons_stats( int32_t num_gener, ae_individual * indiv );
 
 void print_help( void );
@@ -143,8 +143,7 @@ int main(int argc, char** argv)
   // Default values
   char*       lineage_file_name   = NULL;
   bool        verbose             = false;
-  check_type  check               = LIGHT_CHECK;   // TODO : Check what?
-  //~ bool        log                 = false;
+  check_type  check               = LIGHT_CHECK;   
   double      tolerance           = 0;
   
   const char * short_options = "hvncf:lt:"; 
@@ -155,7 +154,6 @@ int main(int argc, char** argv)
     {"nocheck",     no_argument,       NULL, 'n'},
     {"fullcheck",   no_argument,       NULL, 'c'},
     {"file",        required_argument, NULL, 'f'},
-    {"log",         no_argument,       NULL, 'l'},
     {"tolerance",   required_argument, NULL, 't'},
     {0, 0, 0, 0}
   };
@@ -191,7 +189,6 @@ int main(int argc, char** argv)
         tolerance = atof(optarg);
         break;      
       }
-      //~ case 'l' : log = true;                        break;
       default :
       {
         fprintf( stderr, "ERROR : Unknown option, check your syntax.\n" );
@@ -209,43 +206,7 @@ int main(int argc, char** argv)
     exit( EXIT_FAILURE );
   }
   
-  // TO DO
-  // =================================
-  //  Open the log file for overloads
-  // =================================
-  /*ae_param_loader* log_overload = NULL;
-  int32_t num_generation_overload = -10;
   
-  fflush(stdout);
-  
-  if (log == true) 
-  {
-    if ( verbose)
-    {
-      printf( "Loading the log file from backup \n" );
-    }
-    
-    log_overload = new ae_param_loader("log_load_from_backup.out");
-    
-    f_line* line;
-
-    line = log_overload->get_line();
-  
-    while ( (line != NULL) && (strcmp( line->words[0], "GENERATION_OVERLOAD") != 0) ) 
-    {
-      line = log_overload->get_line();
-    }
-      
-    if( line != NULL ) num_generation_overload =  atol(line->words[1]) ;
-    
-    delete line;
-  }
-  else
-  {
-    printf("\n");
-    printf( "WARNING : Parameter change during simulation is not managed (consider -l option)\n" );
-    printf("\n");
-  }*/
   printf("\n");
   printf( "WARNING : Parameter change during simulation is not managed (consider -l option)\n" );
   printf("\n");
@@ -259,24 +220,7 @@ int main(int argc, char** argv)
     fprintf( stderr, "ERROR : Could not read the lineage file %s\n", lineage_file_name );
     exit( EXIT_FAILURE );
   }
-  /*
-  // Read common data from lineage file
-  if ( verbose )
-  {
-    printf( "Retrieving common data from the lineage file... " );  
-    fflush( stdout );
-  }
-  ae_common::read_from_backup( lineage_file );
-  if ( verbose ) printf("OK\n");
   
-  // Retrieve the environment from the lineage file
-  if ( verbose )
-  {
-    printf( "Retrieving the environment from the lineage file... " );  
-    fflush( stdout );
-  }
-  ae_environment* env = new ae_environment( lineage_file );
-  if ( verbose ) printf("OK\n");*/
 
   gzread( lineage_file, &begin_gener,       sizeof(begin_gener)       );
   gzread( lineage_file, &end_gener,         sizeof(end_gener)         );
@@ -304,47 +248,10 @@ int main(int argc, char** argv)
     ae_exp_manager* exp_manager = new ae_exp_manager();
   #endif
 
-  exp_manager->load( begin_gener, false, true );
+  exp_manager->load( begin_gener, false, true, false);
   ae_environment* env = exp_manager->get_env();
   
   int32_t backup_step = exp_manager->get_backup_step();
-   
-  /*ae_common::sim = new ae_experiment();
-  ae_common::sim->set_env( env );  
-  
-
-  char backup_file_name[50];
-  if ( check != NO_CHECK )
-  {
-    // check that the environment is now identical to the one stored
-    // in the backup file of generation begin_gener
-    
-    #ifdef __REGUL
-      sprintf( backup_file_name,"backup/gen_%06"PRId32".rae", begin_gener );
-    #else
-      sprintf( backup_file_name,"backup/gen_%06"PRId32".ae",  begin_gener );
-    #endif
-    
-    if ( verbose )
-    {
-      printf("Comparing the environment with the one in %s... ", backup_file_name);  
-      fflush(NULL);
-    }
-    ae_experiment* sim_backup = new ae_experiment();
-    sim_backup->load_backup( backup_file_name, false, NULL );
-    
-    ae_environment* env_backup = sim_backup->get_env();
-
-    if ( ! ( env->is_identical_to( env_backup ) ) )
-    {
-      fprintf( stderr, "ERROR: The replayed environment is not the same\n" );
-      fprintf( stderr, "       as the one in %s\n", backup_file_name );
-      exit( EXIT_FAILURE );
-    }
-    
-    if ( verbose ) printf("OK\n");
-    delete sim_backup; 
-  }*/
   
   // =========================
   //  Open the output file(s)
@@ -357,16 +264,19 @@ int main(int argc, char** argv)
     err( EXIT_FAILURE, "stats/ancstats/" );
   }
   
-  char output_file_name[60];
-  snprintf( output_file_name, 60, "stats/ancstats/ancstats-b%06"PRId32"-e%06"PRId32, begin_gener, end_gener );
-  ae_stats * mystats = new ae_stats(exp_manager, begin_gener);
-  mystats->write_headers();
+  char prefix[50];
+  snprintf( prefix, 50, "ancstats/ancstats-b%06"PRId32"-e%06"PRId32"-i%"PRId32"-r%"PRId32".out",begin_gener, end_gener, final_indiv_index , final_indiv_rank);
+  bool best_indiv_only = true;
+  bool addition_old_stats = false;
+  bool delete_old_stats = true;
+  ae_stats * mystats = new ae_stats(exp_manager, begin_gener, prefix, best_indiv_only, addition_old_stats, delete_old_stats);
+  //mystats->write_headers();
   
   // Optional outputs
-  open_environment_stat_file();
-  //~ open_terminators_stat_file();
-  //~ open_zones_stat_file();
-  open_operons_stat_file();
+  open_environment_stat_file(final_indiv_index, final_indiv_rank);
+  open_terminators_stat_file(final_indiv_index, final_indiv_rank);
+  open_zones_stat_file(final_indiv_index, final_indiv_rank);
+  open_operons_stat_file(final_indiv_index, final_indiv_rank);
 
 
   // ==================================================
@@ -382,8 +292,8 @@ int main(int argc, char** argv)
   
   // Optional outputs
   write_environment_stats( begin_gener, env );
-  //~ write_terminators_stats( begin_gener, indiv );
-  //~ write_zones_stats( begin_gener, indiv, env );
+  write_terminators_stats( begin_gener, indiv );
+  write_zones_stats( begin_gener, indiv, env );
   write_operons_stats( begin_gener, indiv );
   
   
@@ -429,205 +339,6 @@ int main(int argc, char** argv)
   {
     num_gener = begin_gener + i + 1;  // where we are in time..
     
-    // overload of environment variations
-    /*if ( log == true )
-    {
-      while ( num_gener == num_generation_overload )
-      {
-        f_line* line;
-        int16_t nb_param_overloaded;
-        
-        line = log_overload->get_line();
-        if ( strcmp( line->words[0], "NB_PARAM_OVERLOADED") == 0 )
-        {
-          nb_param_overloaded = atol( line->words[1] );
-        }
-        else
-        {
-          printf( "ERROR in log file for overload : unknown number of parameters overloaded\n");
-          exit( EXIT_FAILURE );
-        }
-	
-	
-        for ( int16_t i = 0 ; i < nb_param_overloaded ; i++ )
-        {
-          line = log_overload->get_line();
-          if ( strcmp( line->words[0], "ENV_VARIATION") == 0 )
-          {
-            if ( strcmp( line->words[1], "none" ) == 0 )
-            {
-              env->set_variation_method( NONE );
-            }
-            else if ( strcmp( line->words[1], "autoregressive_mean_variation" ) == 0 )
-            {
-              env->set_variation_method( AUTOREGRESSIVE_MEAN_VAR );
-              env->set_var_sigma_tau( atof( line->words[2] ), atol( line->words[3] ) );
-            }
-            else if ( strcmp( line->words[1], "add_local_gaussians" ) == 0 )
-            {
-              env->set_variation_method( LOCAL_GAUSSIANS_VAR );
-            }
-            else
-            {
-              printf( "ERROR in log file for overload : unknown environment variation method\n" );
-              exit( EXIT_FAILURE );
-            }
-          }
-          //
-          //  Attention au reload sur les ENV_AXIS-SEGMENTS ou ENV_AXIS_FEATURES
-          //  L'un dépend de l'autre ce qui peut entraîner des problèmes de cohérence.
-          //  Faut-il permettre de modifier l'un sans modifier l'autre?
-          //  Probablement mais il faut tous les garde-fous qui vont avec.
-          //
-          //  Pour les gaussiennes, ajouter un mot-clé RESET_GAUSSIANS
-          //
-          //
-          else if ( strcmp( line->words[0], "ENV_AXIS_SEGMENTS") == 0 || strcmp( line ->words[0], "ENV_AXIS_FEATURES") == 0 )
-          {
-            // Static variables for env axis segmentation
-            static int16_t              env_axis_nb_segments        = -1;
-            static double*              env_axis_segment_boundaries = NULL;
-            static ae_env_axis_feature* env_axis_features           = NULL;
-            static bool                 env_axis_separate_segments  = false;
-            
-            // Initialize static variables for env axis segmentation
-            if ( env_axis_segment_boundaries == NULL && strcmp( line->words[0], "ENV_AXIS_SEGMENTS") == 0 )
-            {
-              if ( env_axis_features != NULL )
-              {
-                if ( line->nb_words != env_axis_nb_segments + 1 )
-                {
-                  printf( "ERROR : Number of segments defined by ENV_AXIS_SEGMENTS and ENV_AXIS_FEATURES do not match. \"%s\".\n", line->words[i] );
-                }
-              }
-              else
-              {
-                env_axis_nb_segments = line->nb_words - 1;
-              }
-              
-              env_axis_segment_boundaries = new double[env_axis_nb_segments + 1];
-            }
-            else if ( env_axis_features == NULL && strcmp( line ->words[0], "ENV_AXIS_FEATURES") == 0 )
-            {
-              if ( env_axis_segment_boundaries != NULL )
-              {
-                if ( line->nb_words != env_axis_nb_segments )
-                {
-                  printf( "ERROR : Number of segments defined by ENV_AXIS_SEGMENTS and ENV_AXIS_FEATURES do not match. \"%s\".\n", line->words[i] );
-                }
-              }
-              else
-              {
-                env_axis_nb_segments = line->nb_words;
-              }
-              
-              env_axis_features = new ae_env_axis_feature[env_axis_nb_segments];
-            }
-            
-            // Set temp data (static variables) according to values in param file
-            if ( strcmp( line->words[0], "ENV_AXIS_SEGMENTS") == 0 )
-            {
-              env_axis_segment_boundaries[0] = MIN_X;
-              for ( int16_t i = 1 ; i < env_axis_nb_segments ; i++ )
-              {
-                env_axis_segment_boundaries[i] = atof( line->words[i] );
-              }
-              env_axis_segment_boundaries[env_axis_nb_segments] = MAX_X;
-            }
-            else // ( strcmp( line ->words[0], "ENV_AXIS_FEATURES") == 0 )
-            {
-              for ( int16_t i = 0 ; i < env_axis_nb_segments ; i++ )
-              {
-                if ( strcmp( line->words[(i+1)], "NEUTRAL" ) == 0 )
-                {
-                  env_axis_features[i] = NEUTRAL;
-                }
-                else if ( strcmp( line->words[(i+1)], "METABOLISM" ) == 0 )
-                {
-                  env_axis_features[i] = METABOLISM;
-                }
-                else if ( strcmp( line->words[(i+1)], "SECRETION" ) == 0 )
-                {
-                  ae_common::params->set_use_secretion( true );
-                  env_axis_features[i] = SECRETION;
-                }
-                else if ( strcmp( line->words[(i+1)], "DONOR" ) == 0 )
-                {
-                  env_axis_features[i] = DONOR;
-                }
-                else if ( strcmp( line->words[(i+1)], "RECIPIENT" ) == 0 )
-                {
-                  env_axis_features[i] = RECIPIENT;
-                }
-                else
-                {
-                  printf( "ERROR : unknown axis feature \"%s\".\n",line->words[i] );
-                  exit( EXIT_FAILURE );
-                }
-              }
-            }
-            
-            // If both boundaries and features have been defined, flush into environment
-            if ( env_axis_segment_boundaries != NULL && env_axis_features != NULL )
-            {
-              env->set_segmentation( env_axis_nb_segments, env_axis_segment_boundaries, env_axis_features, env_axis_separate_segments );
-              // do not delete env_axis_segment_boundaries and env_axis_features, no in-depth copy !
-              
-              env_axis_segment_boundaries = NULL;
-              env_axis_features = NULL;
-            }
-          }
-          else if ( strcmp(line ->words[0], "ENV_ADD_GAUSSIAN") == 0 )
-          {
-            env->add_gaussian( atof( line->words[1] ),
-                               atof( line->words[2] ),
-                               atof( line->words[3] ) );
-             
-            ae_common::init_params->add_env_gaussian( new ae_gaussian( atof( line->words[1] ), atof( line->words[2] ), atof( line->words[3] ) ) );
-          }
-        }
-	
-        while ( (line != NULL) && (strcmp( line->words[0], "GENERATION_OVERLOAD") != 0) ) 
-        {
-          line = log_overload->get_line();
-        }
-    
-   
-        if( line != NULL )
-        {
-          num_generation_overload =  atol(line->words[1]) ;
-          if( num_generation_overload < num_gener)
-          {
-            printf( "ERROR in log file for overload : overload of an anterior generation\n" );
-            printf( "num_gen_overload : %d, num_gen : %d \n",num_generation_overload, num_gener);
-            exit( EXIT_FAILURE );
-          }
-        }
-        else
-        {
-          num_generation_overload =  -10 ;
-        }
-	
-        // If there was a modification in the segmentation of the environment
-        // TODO : Check that (it wasn't correctly tested and might not be functional
-        //~ if ( ae_common::env_axis_is_segmented )
-        //~ {
-          //~ dist_to_target_segment = new double [ae_common::init_params->get_env_axis_nb_segments()];
-          
-          //~ for ( int16_t i = 0 ; i < ae_common::init_params->get_env_axis_nb_segments() ; i++ )
-          //~ {
-            //~ dist_to_target_segment[i] = 0;
-          //~ }
-          //~ indiv->reset_dist_to_target_segment( dist_to_target_segment );
-          
-          //~ indiv->renew_dist_to_target_by_feature();
-          //~ indiv->renew_fitness_by_feature();
-        //~ }
-        
-        delete line; 
-      }
-    }*/
-    
     env->build();
     rep = new ae_replication_report( lineage_file, indiv );
     index = rep->get_id(); // who we are building...
@@ -655,7 +366,7 @@ int main(int argc, char** argv)
       	exp_manager_backup = new ae_exp_manager();
       #endif
 
-      exp_manager_backup->load( num_gener, false, true );
+      exp_manager_backup->load( num_gener, false, true, false );
       backup_env = exp_manager_backup->get_env();
       stored_indiv = new ae_individual( * (ae_individual *)exp_manager_backup->get_indiv_by_id( index ) );
       //delete exp_manager;
@@ -780,8 +491,8 @@ int main(int argc, char** argv)
 
     // Optional outputs
     write_environment_stats( num_gener, env );
-    //~ write_terminators_stats( num_gener, indiv );
-    //~ write_zones_stats( num_gener, indiv, env );
+    write_terminators_stats( num_gener, indiv );
+    write_zones_stats( num_gener, indiv, env );
     write_operons_stats( num_gener, indiv );
     
 
@@ -801,13 +512,11 @@ int main(int argc, char** argv)
   delete mystats;
   delete indiv;
   //delete env; // already done in ae_exp_setup destructor called by exp_manager destructor
-  
-  //delete log_overload;
 
   // Optional outputs
   fclose( env_output_file );
-  //~ fclose( term_output_file );
-  //~ fclose( zones_output_file );
+  fclose( term_output_file );
+  fclose( zones_output_file );
   fclose( operons_output_file );
 
   exit(EXIT_SUCCESS);
@@ -816,11 +525,11 @@ int main(int argc, char** argv)
 
 
 
-void open_environment_stat_file( void )
+void open_environment_stat_file( int32_t final_indiv_index, int32_t final_indiv_rank  )
 {
   // Open file
   char env_output_file_name[60];
-  snprintf( env_output_file_name, 60, "stats/ancstats/ancstats-b%06"PRId32"-e%06"PRId32"_envir.out", begin_gener, end_gener );
+  snprintf( env_output_file_name, 60, "stats/ancstats/ancstats-b%06"PRId32"-e%06"PRId32"-i%"PRId32"-r%"PRId32"_envir.out",begin_gener, end_gener, final_indiv_index, final_indiv_rank );
   env_output_file = fopen( env_output_file_name, "w" );
   
   // Write headers
@@ -848,11 +557,18 @@ void write_environment_stats( int32_t num_gener, ae_environment * env )
 
 
 
-void open_terminators_stat_file( void )
+void open_terminators_stat_file( int32_t final_indiv_index, int32_t final_indiv_rank  )
 {
   char term_output_file_name[60];
-  snprintf( term_output_file_name, 60, "stats/ancstats/ancstats-b%06"PRId32"-e%06"PRId32"_nb_term.out", begin_gener, end_gener );
+  snprintf( term_output_file_name, 60, "stats/ancstats/ancstats-b%06"PRId32"-e%06"PRId32"-i%"PRId32"-r%"PRId32"_nb_term.out",begin_gener, end_gener, final_indiv_index, final_indiv_rank );
   term_output_file = fopen( term_output_file_name, "w" );
+  
+  // Write headers
+  fprintf( term_output_file, "# Each line contains : \n" );
+  fprintf( term_output_file, "#   * Generation\n" );
+  fprintf( term_output_file, "#   * Genome size\n" );
+  fprintf( term_output_file, "#   * Terminator number\n");
+  fprintf( term_output_file, "#\n" );
 }
 
 void write_terminators_stats( int32_t num_gener, ae_individual * indiv )
@@ -865,11 +581,11 @@ void write_terminators_stats( int32_t num_gener, ae_individual * indiv )
 
 
 
-void open_zones_stat_file( void )
+void open_zones_stat_file( int32_t final_indiv_index, int32_t final_indiv_rank  )
 {
   // Open file
   char zones_output_file_name[60];
-  snprintf( zones_output_file_name, 60, "stats/ancstats/ancstats-b%06"PRId32"-e%06"PRId32"_zones.out", begin_gener, end_gener );
+  snprintf( zones_output_file_name, 60, "stats/ancstats/ancstats-b%06"PRId32"-e%06"PRId32"-i%"PRId32"-r%"PRId32"_zones.out",begin_gener, end_gener, final_indiv_index, final_indiv_rank );
   zones_output_file = fopen( zones_output_file_name, "w" );
   
   // Write headers
@@ -993,11 +709,14 @@ void write_zones_stats( int32_t num_gener, ae_individual * indiv, ae_environment
 
 
 
-void open_operons_stat_file( void )
+void open_operons_stat_file( int32_t final_indiv_index, int32_t final_indiv_rank  )
 {
   char operons_output_file_name[60];
-  snprintf( operons_output_file_name, 60, "stats/ancstats/ancstats-b%06"PRId32"-e%06"PRId32"_operons.out", begin_gener, end_gener );
+  snprintf( operons_output_file_name, 60, "stats/ancstats/ancstats-b%06"PRId32"-e%06"PRId32"-i%"PRId32"-r%"PRId32"_operons.out",begin_gener, end_gener, final_indiv_index, final_indiv_rank );
   operons_output_file = fopen( operons_output_file_name, "w" );
+  
+  // Write headers
+  fprintf( operons_output_file, "# Each line contains : Generation, and then, for 20 RNA, the number of genes inside the RNA\n" );
 }
 
 void write_operons_stats( int32_t num_gener, ae_individual * indiv )
@@ -1097,10 +816,7 @@ void print_help( void )
   printf( "\n" ); 
   printf( "\t-f lineage_file or --file lineage_file : \n" );
   printf( "\t                     	Compute the statistics for the individuals within lineage_file.\n" );
-  printf( "\n" );
-  printf( "\t-l or --log        : Will take on account the parameter change during\n");
-  printf( "\t                       the simulation (rerun from backup) by loading the \n" );
-  printf( "\t                       file log_load_from_backup.out, generated with the option \n" );
-  printf( "\t                       log = load in param.in\n" );
+  printf( "\t-t tolerance or --tolerance tolerance : \n");
+  printf( "\t                       Tolerance used to compare the replayed environment to environment in backup\n");
   printf( "\n" );
 }

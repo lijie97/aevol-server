@@ -142,7 +142,7 @@ int main( int argc, char* argv[] )
   #else
     ae_exp_manager* exp_manager = new ae_exp_manager();
   #endif
-  exp_manager->load( begin_generation, false, true );
+  exp_manager->load( begin_generation, false, true, false );
   backup_step = exp_manager->get_backup_step();
   
   printf("\n\n Generation : %d\n\n", begin_generation);
@@ -158,7 +158,7 @@ int main( int argc, char* argv[] )
   	#else
     	exp_manager = new ae_exp_manager();
   	#endif
-    exp_manager->load( i, false, true );
+    exp_manager->load( i, false, true, false );
     
     population_statistics_compute->compute_reproduction_stats(exp_manager,i);
     population_statistics_compute->compute_population_stats(i);

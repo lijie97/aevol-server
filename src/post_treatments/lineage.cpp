@@ -114,7 +114,7 @@ int main(int argc, char** argv)
   int32_t     final_indiv_rank  = -1;  
   char tree_file_name[50];
 
-  const char * short_options = "hvncb:i:e:"; 
+  const char * short_options = "hvncb:i:r:e:"; 
   static struct option long_options[] = {
     {"help",      no_argument,       NULL,  'h'},
     {"verbose",   no_argument,       NULL,  'v'},
@@ -166,7 +166,7 @@ int main(int argc, char** argv)
   #else
     ae_exp_manager* exp_manager = new ae_exp_manager();
   #endif
-  exp_manager->load( end_gener, false, true );
+  exp_manager->load( end_gener, false, true, false );
   
   if ( exp_manager->get_tree_mode() == LIGHT )
   {
@@ -277,11 +277,12 @@ int main(int argc, char** argv)
   //  Open the output file
   // =======================
   char output_file_name[101];
-#ifdef __REGUL
-  snprintf( output_file_name, 100, "lineage-b%06"PRId32"-e%06"PRId32".rae", begin_gener, end_gener );
-#else 
-  snprintf( output_file_name, 100, "lineage-b%06"PRId32"-e%06"PRId32".ae",  begin_gener, end_gener );
-#endif
+
+  #ifdef __REGUL
+    snprintf( output_file_name, 100, "lineage-b%06"PRId32"-e%06"PRId32"-i%"PRId32"-r%"PRId32".rae", begin_gener, end_gener, final_indiv_index, final_indiv_rank);
+  #else 
+    snprintf( output_file_name, 100, "lineage-b%06"PRId32"-e%06"PRId32"-i%"PRId32"-r%"PRId32".ae",  begin_gener, end_gener, final_indiv_index, final_indiv_rank);
+  #endif
 
   gzFile lineage_file = gzopen(output_file_name, "w");
   if ( lineage_file == NULL )
@@ -367,7 +368,7 @@ int main(int argc, char** argv)
   #else
     exp_manager = new ae_exp_manager();
   #endif
-  exp_manager->load( begin_gener, false, true );
+  exp_manager->load( begin_gener, false, true, false );
   
   // Copy the initial ancestor
   // NB : The list of individuals is sorted according to the index

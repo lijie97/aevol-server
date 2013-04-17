@@ -125,7 +125,7 @@ int main( int argc, char* argv[] )
   #else
     ae_exp_manager* exp_manager = new ae_exp_manager();
   #endif
-  exp_manager->load( num_gener, false, true );
+  exp_manager->load( num_gener, false, true, false );
   
   population_statistics_compute->compute_reproduction_stats(exp_manager, num_gener);
 

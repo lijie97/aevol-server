@@ -258,7 +258,7 @@ void ae_exp_manager::save_copy( char* dir, int32_t num_gener /*= 0*/ ) const
 /*!
   \brief Load an experiment with default files
  */
-void ae_exp_manager::load( int32_t first_gener, bool use_text_files, bool verbose )
+void ae_exp_manager::load( int32_t first_gener, bool use_text_files, bool verbose, bool to_be_run /*  = true */)
 {
   _first_gener = first_gener;
   _num_gener = first_gener;
@@ -318,11 +318,11 @@ void ae_exp_manager::load( int32_t first_gener, bool use_text_files, bool verbos
   fflush( stdout );
   if ( out_p_gzfile != NULL )
   {
-    _output_m->load( out_p_gzfile, verbose );
+    _output_m->load( out_p_gzfile, verbose, to_be_run );
   }
   else
   {
-    _output_m->load( out_p_txtfile, verbose );
+    _output_m->load( out_p_txtfile, verbose, to_be_run );
   }
   printf( "OK\n" );
   
@@ -360,7 +360,8 @@ void ae_exp_manager::load( int32_t first_gener,
                            char* exp_backup_file_name,
                            char* sp_struct_file_name,
                            char* out_prof_file_name,
-                           bool verbose )
+                           bool verbose ,
+                           bool to_be_run /* = true */)
 {
   _first_gener = first_gener;
   _num_gener = first_gener;
@@ -483,11 +484,11 @@ void ae_exp_manager::load( int32_t first_gener,
   // --------------------------------------------- Retrieve ouput profile data
   if ( out_prof_gzfile != NULL )
   {
-    _output_m->load( out_prof_gzfile, verbose );
+    _output_m->load( out_prof_gzfile, verbose, to_be_run );
   }
   else
   {
-    _output_m->load( out_prof_txtfile, verbose );
+    _output_m->load( out_prof_txtfile, verbose, to_be_run );
   }
   
   

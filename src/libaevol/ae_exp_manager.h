@@ -167,7 +167,7 @@ class ae_exp_manager : public ae_object
     void write_setup_files( void );
     void save( void ) const;
     void save_copy( char* dir, int32_t num_gener = 0 ) const;
-    void load( int32_t first_gener, bool use_text_files, bool verbose );
+    void load( int32_t first_gener, bool use_text_files, bool verbose, bool to_be_run = true);
     void load( int32_t first_gener,
                char* exp_setup_file_name,
                char* out_prof_file_name,
@@ -175,7 +175,8 @@ class ae_exp_manager : public ae_object
                char* pop_file_name,
                char* sel_file_name,
                char* sp_struct_file_name,
-               bool verbose );
+               bool verbose , 
+               bool to_be_run = true);
     void run_evolution( void );
     virtual void display( void ) {};
 

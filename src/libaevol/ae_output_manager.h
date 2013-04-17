@@ -116,8 +116,8 @@ class ae_output_manager
     // =================================================================
     void write_setup_file( gzFile setup_file ) const;
     void write_setup_file( FILE* setup_file ) const;
-    void load( gzFile file, bool verbose );
-    void load( FILE* file, bool verbose );
+    void load( gzFile file, bool verbose, bool to_be_run  );
+    void load( FILE* file, bool verbose, bool to_be_run );
     void write_current_generation_outputs( void ) const;
     inline void flush( void );
 

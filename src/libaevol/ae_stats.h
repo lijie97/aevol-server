@@ -68,7 +68,7 @@ class ae_stats : public ae_object
     //                             Constructors
     // =================================================================
     ae_stats( ae_exp_manager* exp_m, const char * prefix = "stat", bool best_indiv_only = false );
-    ae_stats( ae_exp_manager* exp_m, int32_t num_gener, const char * prefix = "stat", bool best_indiv_only = false, bool delete_old_stats = true );
+    ae_stats( ae_exp_manager* exp_m, int32_t num_gener, const char * prefix = "stat", bool best_indiv_only = false, bool addition_old_stats = true, bool delete_old_stats = true );
 
  
     // =================================================================
@@ -94,7 +94,7 @@ class ae_stats : public ae_object
     
     void flush( void );
 
-    void write_headers( void );
+    void write_headers( bool ancstats_stats = false );
 
 
 

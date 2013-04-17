@@ -82,6 +82,7 @@ ae_stats::ae_stats( ae_exp_manager* exp_m,
   init_data();
   set_file_names( prefix, best_indiv_only );
   open_files();
+  write_headers();
 }
 
 /*!
@@ -91,7 +92,8 @@ ae_stats::ae_stats( ae_exp_manager* exp_m,
                     int32_t num_gener,
                     const char * prefix /* = "stat" */,
                     bool best_indiv_only /* = false */,
-                    bool delete_old_stats /* = true */ )
+                    bool addition_old_stats /* = true */,
+                    bool delete_old_stats /* = true */)
 {
   _exp_m = exp_m;
   init_data();
@@ -101,63 +103,71 @@ ae_stats::ae_stats( ae_exp_manager* exp_m,
   //  Make a backup copy (named <original_name>.old) of each file
   //  and copy its content into the new stat file untill <num_gener> is reached
   // ---------------------------------------------------------------------------
-  char* old_file_name = new char[100];
-  FILE* old_file;
-  char* cur_file_name;  // Syntaxic sugar for _stat_files_names[][][]
-  FILE* cur_file;       // Syntaxic sugar for _stat_files[][][]
-  char  line[500];
-  char* trash;
-  
-  for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
-  { 
-    for ( int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++ )
-    {
-      for ( int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++ )
+  if(addition_old_stats)
+  {
+    char* old_file_name = new char[100];
+    FILE* old_file;
+    char* cur_file_name;  // Syntaxic sugar for _stat_files_names[][][]
+    FILE* cur_file;       // Syntaxic sugar for _stat_files[][][]
+    char  line[500];
+    char* trash;
+    
+    for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
+    { 
+      for ( int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++ )
       {
-        cur_file_name = _stat_files_names[chrom_or_GU][best_or_glob][stat_type];
-        if ( cur_file_name != NULL )
+        for ( int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++ )
         {
-          sprintf( old_file_name, "%s.old", cur_file_name );
-          int8_t exist_file = rename( cur_file_name, old_file_name );
-          if ( exist_file != 0 )
+          cur_file_name = _stat_files_names[chrom_or_GU][best_or_glob][stat_type];
+          if ( cur_file_name != NULL )
           {
-            printf( "ERROR : Could not rename %s as %s.\n", cur_file_name, old_file_name );
-            exit( EXIT_FAILURE );
-          }
-          
-          old_file = fopen( old_file_name, "r" );
-          cur_file = fopen( cur_file_name, "w" );
-          
-          // Copy file header
-          trash = fgets( line, 500, old_file );
-          while ( !feof( old_file ) && line[0] == '#' )
-          {
-            fputs( line, cur_file );
+            sprintf( old_file_name, "%s.old", cur_file_name );
+            int8_t exist_file = rename( cur_file_name, old_file_name );
+            if ( exist_file != 0 )
+            {
+              printf( "ERROR : Could not rename %s as %s.\n", cur_file_name, old_file_name );
+              exit( EXIT_FAILURE );
+            }
+            
+            old_file = fopen( old_file_name, "r" );
+            cur_file = fopen( cur_file_name, "w" );
+            
+            // Copy file header
             trash = fgets( line, 500, old_file );
-          }
-          
-          // Copy the empty line between the header and the values
-          fputs( line, cur_file );
-          
-          // Copy stats until num_gener (included)
-          trash = fgets( line, 500, old_file );
-          while ( (int32_t)atol(line) <= _exp_m->get_first_gener() && !feof(old_file) )
-          {
+            while ( !feof( old_file ) && line[0] == '#' )
+            {
+              fputs( line, cur_file );
+              trash = fgets( line, 500, old_file );
+            }
+            
+            // Copy the empty line between the header and the values
             fputs( line, cur_file );
+            
+            // Copy stats until num_gener (included)
             trash = fgets( line, 500, old_file );
-          }
-          
-          fclose( old_file );
-          
-          _stat_files[chrom_or_GU][best_or_glob][stat_type] = cur_file;
-          
-          if ( delete_old_stats )
-          {
-            remove( old_file_name );
+            while ( (int32_t)atol(line) <= _exp_m->get_first_gener() && !feof(old_file) )
+            {
+              fputs( line, cur_file );
+              trash = fgets( line, 500, old_file );
+            }
+            
+            fclose( old_file );
+            
+            _stat_files[chrom_or_GU][best_or_glob][stat_type] = cur_file;
+            
+            if ( delete_old_stats )
+            {
+              remove( old_file_name );
+            }
           }
         }
       }
     }
+  }
+  else // ancstat case
+  {
+    open_files();
+    write_headers(true);
   }
 
   // Flush the new stat files
@@ -224,7 +234,7 @@ inline double rsqr( double x )
 }
 
 
-void ae_stats::write_headers( void )
+void ae_stats::write_headers( bool ancstats_stats /* = false */ )
 {
   // Column key in the stat files
   int8_t key;
@@ -234,35 +244,45 @@ void ae_stats::write_headers( void )
   // --------------------------------------
   for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
   {
-    if ( _stat_files_names[chrom_or_GU][BEST][FITNESS_STATS] != NULL )
+    if( ancstats_stats)
     {
-      write_header( _stat_files[chrom_or_GU][BEST][FITNESS_STATS], "---------------------------------------" );
-      write_header( _stat_files[chrom_or_GU][BEST][FITNESS_STATS], " Fittest individual fitness statistics " );
-      write_header( _stat_files[chrom_or_GU][BEST][FITNESS_STATS], "---------------------------------------" );
+      write_header( _stat_files[chrom_or_GU][BEST][FITNESS_STATS], "----------------------------------------" );
+      write_header( _stat_files[chrom_or_GU][BEST][FITNESS_STATS], " Lineage individuals fitness statistics " );
+      write_header( _stat_files[chrom_or_GU][BEST][FITNESS_STATS], "----------------------------------------" );
       write_header( _stat_files[chrom_or_GU][BEST][FITNESS_STATS], "" );
     }
-    if ( _stat_files_names[chrom_or_GU][GLOB][FITNESS_STATS] != NULL )
+    else
     {
-      write_header( _stat_files[chrom_or_GU][GLOB][FITNESS_STATS], "------------------------------------------------" );
-      write_header( _stat_files[chrom_or_GU][GLOB][FITNESS_STATS], " Average fitness statistics over the population " );
-      write_header( _stat_files[chrom_or_GU][GLOB][FITNESS_STATS], "------------------------------------------------" );
-      write_header( _stat_files[chrom_or_GU][GLOB][FITNESS_STATS], "" );
-    }
-    
-    if ( _stat_files_names[chrom_or_GU][SDEV][FITNESS_STATS] != NULL )
-    {
-      write_header( _stat_files[chrom_or_GU][SDEV][FITNESS_STATS], "------------------------------------------------------------" );
-      write_header( _stat_files[chrom_or_GU][SDEV][FITNESS_STATS], " Standard deviation, fitness statistics over the population " );
-      write_header( _stat_files[chrom_or_GU][SDEV][FITNESS_STATS], "------------------------------------------------------------" );
-      write_header( _stat_files[chrom_or_GU][SDEV][FITNESS_STATS], "" );
-    }
-    
-    if ( _stat_files_names[chrom_or_GU][SKEW][FITNESS_STATS] != NULL )
-    {
-      write_header( _stat_files[chrom_or_GU][SKEW][FITNESS_STATS], "--------------------------------------------------" );
-      write_header( _stat_files[chrom_or_GU][SKEW][FITNESS_STATS], " Skewness statistics, fitness over the population " );
-      write_header( _stat_files[chrom_or_GU][SKEW][FITNESS_STATS], "--------------------------------------------------" );
-      write_header( _stat_files[chrom_or_GU][SKEW][FITNESS_STATS], "" );
+      if ( _stat_files_names[chrom_or_GU][BEST][FITNESS_STATS] != NULL )
+      {
+        write_header( _stat_files[chrom_or_GU][BEST][FITNESS_STATS], "---------------------------------------" );
+        write_header( _stat_files[chrom_or_GU][BEST][FITNESS_STATS], " Fittest individual fitness statistics " );
+        write_header( _stat_files[chrom_or_GU][BEST][FITNESS_STATS], "---------------------------------------" );
+        write_header( _stat_files[chrom_or_GU][BEST][FITNESS_STATS], "" );
+      }
+      if ( _stat_files_names[chrom_or_GU][GLOB][FITNESS_STATS] != NULL )
+      {
+        write_header( _stat_files[chrom_or_GU][GLOB][FITNESS_STATS], "------------------------------------------------" );
+        write_header( _stat_files[chrom_or_GU][GLOB][FITNESS_STATS], " Average fitness statistics over the population " );
+        write_header( _stat_files[chrom_or_GU][GLOB][FITNESS_STATS], "------------------------------------------------" );
+        write_header( _stat_files[chrom_or_GU][GLOB][FITNESS_STATS], "" );
+      }
+      
+      if ( _stat_files_names[chrom_or_GU][SDEV][FITNESS_STATS] != NULL )
+      {
+        write_header( _stat_files[chrom_or_GU][SDEV][FITNESS_STATS], "------------------------------------------------------------" );
+        write_header( _stat_files[chrom_or_GU][SDEV][FITNESS_STATS], " Standard deviation, fitness statistics over the population " );
+        write_header( _stat_files[chrom_or_GU][SDEV][FITNESS_STATS], "------------------------------------------------------------" );
+        write_header( _stat_files[chrom_or_GU][SDEV][FITNESS_STATS], "" );
+      }
+      
+      if ( _stat_files_names[chrom_or_GU][SKEW][FITNESS_STATS] != NULL )
+      {
+        write_header( _stat_files[chrom_or_GU][SKEW][FITNESS_STATS], "--------------------------------------------------" );
+        write_header( _stat_files[chrom_or_GU][SKEW][FITNESS_STATS], " Skewness statistics, fitness over the population " );
+        write_header( _stat_files[chrom_or_GU][SKEW][FITNESS_STATS], "--------------------------------------------------" );
+        write_header( _stat_files[chrom_or_GU][SKEW][FITNESS_STATS], "" );
+      }
     }
     
     
@@ -306,19 +326,29 @@ void ae_stats::write_headers( void )
   // ---------------------------------------
   for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
   {
-    if ( _stat_files_names[chrom_or_GU][BEST][MUTATION_STATS] != NULL )
+    if( ancstats_stats)
     {
-      write_header( _stat_files[chrom_or_GU][BEST][MUTATION_STATS], "----------------------------------------" );
-      write_header( _stat_files[chrom_or_GU][BEST][MUTATION_STATS], " Fittest individual mutation statistics " );
-      write_header( _stat_files[chrom_or_GU][BEST][MUTATION_STATS], "----------------------------------------" );
+      write_header( _stat_files[chrom_or_GU][BEST][MUTATION_STATS], "-----------------------------------------" );
+      write_header( _stat_files[chrom_or_GU][BEST][MUTATION_STATS], " Lineage individuals mutation statistics " );
+      write_header( _stat_files[chrom_or_GU][BEST][MUTATION_STATS], "-----------------------------------------" );
       write_header( _stat_files[chrom_or_GU][BEST][MUTATION_STATS], "" );
     }
-    if ( _stat_files_names[chrom_or_GU][GLOB][MUTATION_STATS] != NULL )
+    else
     {
-      write_header( _stat_files[chrom_or_GU][GLOB][MUTATION_STATS], "-------------------------------------------------" );
-      write_header( _stat_files[chrom_or_GU][GLOB][MUTATION_STATS], " Average mutation statistics over the population " );
-      write_header( _stat_files[chrom_or_GU][GLOB][MUTATION_STATS], "-------------------------------------------------" );
-      write_header( _stat_files[chrom_or_GU][GLOB][MUTATION_STATS], "" );
+      if ( _stat_files_names[chrom_or_GU][BEST][MUTATION_STATS] != NULL )
+      {
+        write_header( _stat_files[chrom_or_GU][BEST][MUTATION_STATS], "----------------------------------------" );
+        write_header( _stat_files[chrom_or_GU][BEST][MUTATION_STATS], " Fittest individual mutation statistics " );
+        write_header( _stat_files[chrom_or_GU][BEST][MUTATION_STATS], "----------------------------------------" );
+        write_header( _stat_files[chrom_or_GU][BEST][MUTATION_STATS], "" );
+      }
+      if ( _stat_files_names[chrom_or_GU][GLOB][MUTATION_STATS] != NULL )
+      {
+        write_header( _stat_files[chrom_or_GU][GLOB][MUTATION_STATS], "-------------------------------------------------" );
+        write_header( _stat_files[chrom_or_GU][GLOB][MUTATION_STATS], " Average mutation statistics over the population " );
+        write_header( _stat_files[chrom_or_GU][GLOB][MUTATION_STATS], "-------------------------------------------------" );
+        write_header( _stat_files[chrom_or_GU][GLOB][MUTATION_STATS], "" );
+      }
     }
     
     for ( int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++ )
@@ -348,19 +378,29 @@ void ae_stats::write_headers( void )
   // ---------------------------------------
   for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
   {
-    if ( _stat_files_names[chrom_or_GU][BEST][GENES_STATS] != NULL )
+    if( ancstats_stats)
     {
-      write_header( _stat_files[chrom_or_GU][BEST][GENES_STATS], "------------------------------------" );
-      write_header( _stat_files[chrom_or_GU][BEST][GENES_STATS], " Fittest individual gene statistics " );
-      write_header( _stat_files[chrom_or_GU][BEST][GENES_STATS], "------------------------------------" );
+      write_header( _stat_files[chrom_or_GU][BEST][GENES_STATS], "-------------------------------------" );
+      write_header( _stat_files[chrom_or_GU][BEST][GENES_STATS], " Lineage individuals gene statistics " );
+      write_header( _stat_files[chrom_or_GU][BEST][GENES_STATS], "-------------------------------------" );
       write_header( _stat_files[chrom_or_GU][BEST][GENES_STATS], "" );
     }
-    if ( _stat_files_names[chrom_or_GU][GLOB][GENES_STATS] != NULL )
+    else
     {
-      write_header( _stat_files[chrom_or_GU][GLOB][GENES_STATS], "---------------------------------------------" );
-      write_header( _stat_files[chrom_or_GU][GLOB][GENES_STATS], " Average gene statistics over the population " );
-      write_header( _stat_files[chrom_or_GU][GLOB][GENES_STATS], "---------------------------------------------" );
-      write_header( _stat_files[chrom_or_GU][GLOB][GENES_STATS], "" );
+      if ( _stat_files_names[chrom_or_GU][BEST][GENES_STATS] != NULL )
+      {
+        write_header( _stat_files[chrom_or_GU][BEST][GENES_STATS], "------------------------------------" );
+        write_header( _stat_files[chrom_or_GU][BEST][GENES_STATS], " Fittest individual gene statistics " );
+        write_header( _stat_files[chrom_or_GU][BEST][GENES_STATS], "------------------------------------" );
+        write_header( _stat_files[chrom_or_GU][BEST][GENES_STATS], "" );
+      }
+      if ( _stat_files_names[chrom_or_GU][GLOB][GENES_STATS] != NULL )
+      {
+        write_header( _stat_files[chrom_or_GU][GLOB][GENES_STATS], "---------------------------------------------" );
+        write_header( _stat_files[chrom_or_GU][GLOB][GENES_STATS], " Average gene statistics over the population " );
+        write_header( _stat_files[chrom_or_GU][GLOB][GENES_STATS], "---------------------------------------------" );
+        write_header( _stat_files[chrom_or_GU][GLOB][GENES_STATS], "" );
+      }
     }
     
     for ( int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++ )
@@ -391,28 +431,38 @@ void ae_stats::write_headers( void )
   // ---------------------------------------
   for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
   {
-    if ( _stat_files_names[chrom_or_GU][BEST][BP_STATS] != NULL )
+    if( ancstats_stats)
     {
-      write_header( _stat_files[chrom_or_GU][BEST][BP_STATS], "------------------------------------------" );
-      write_header( _stat_files[chrom_or_GU][BEST][BP_STATS], " Fittest individual non-coding statistics " );
-      write_header( _stat_files[chrom_or_GU][BEST][BP_STATS], "------------------------------------------" );
+      write_header( _stat_files[chrom_or_GU][BEST][BP_STATS], "-------------------------------------------" );
+      write_header( _stat_files[chrom_or_GU][BEST][BP_STATS], " Lineage individuals non-coding statistics " );
+      write_header( _stat_files[chrom_or_GU][BEST][BP_STATS], "-------------------------------------------" );
       write_header( _stat_files[chrom_or_GU][BEST][BP_STATS], "" );
     }
-    if ( _stat_files_names[chrom_or_GU][GLOB][BP_STATS] != NULL )
+    else
     {
-      write_header( _stat_files[chrom_or_GU][GLOB][BP_STATS], "---------------------------------------------------" );
-      write_header( _stat_files[chrom_or_GU][GLOB][BP_STATS], " Average non-coding statistics over the population " );
-      write_header( _stat_files[chrom_or_GU][GLOB][BP_STATS], "---------------------------------------------------" );
-      write_header( _stat_files[chrom_or_GU][GLOB][BP_STATS], "" );
-      write_header( _stat_files[chrom_or_GU][GLOB][BP_STATS], " This data is not available"); 
-      write_header( _stat_files[chrom_or_GU][GLOB][BP_STATS], " Computing bp stats for all individuals is extremely costly computationaly" );
-      write_header( _stat_files[chrom_or_GU][GLOB][BP_STATS], "" );
-      
-      // Mark file as "not to be written into" and close it
-      delete [] _stat_files_names[chrom_or_GU][GLOB][BP_STATS];
-      _stat_files_names[chrom_or_GU][GLOB][BP_STATS] = NULL;
-      fclose( _stat_files[chrom_or_GU][GLOB][BP_STATS] );
-      _stat_files[chrom_or_GU][GLOB][BP_STATS] = NULL;
+      if ( _stat_files_names[chrom_or_GU][BEST][BP_STATS] != NULL )
+      {
+        write_header( _stat_files[chrom_or_GU][BEST][BP_STATS], "------------------------------------------" );
+        write_header( _stat_files[chrom_or_GU][BEST][BP_STATS], " Fittest individual non-coding statistics " );
+        write_header( _stat_files[chrom_or_GU][BEST][BP_STATS], "------------------------------------------" );
+        write_header( _stat_files[chrom_or_GU][BEST][BP_STATS], "" );
+      }
+      if ( _stat_files_names[chrom_or_GU][GLOB][BP_STATS] != NULL )
+      {
+        write_header( _stat_files[chrom_or_GU][GLOB][BP_STATS], "---------------------------------------------------" );
+        write_header( _stat_files[chrom_or_GU][GLOB][BP_STATS], " Average non-coding statistics over the population " );
+        write_header( _stat_files[chrom_or_GU][GLOB][BP_STATS], "---------------------------------------------------" );
+        write_header( _stat_files[chrom_or_GU][GLOB][BP_STATS], "" );
+        write_header( _stat_files[chrom_or_GU][GLOB][BP_STATS], " This data is not available"); 
+        write_header( _stat_files[chrom_or_GU][GLOB][BP_STATS], " Computing bp stats for all individuals is extremely costly computationaly" );
+        write_header( _stat_files[chrom_or_GU][GLOB][BP_STATS], "" );
+        
+        // Mark file as "not to be written into" and close it
+        delete [] _stat_files_names[chrom_or_GU][GLOB][BP_STATS];
+        _stat_files_names[chrom_or_GU][GLOB][BP_STATS] = NULL;
+        fclose( _stat_files[chrom_or_GU][GLOB][BP_STATS] );
+        _stat_files[chrom_or_GU][GLOB][BP_STATS] = NULL;
+      }
     }
     
     for ( int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++ )
@@ -440,19 +490,29 @@ void ae_stats::write_headers( void )
   // ---------------------------------------
   for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
   {
-    if ( _stat_files_names[chrom_or_GU][BEST][REAR_STATS] != NULL )
+    if( ancstats_stats)
     {
-      write_header( _stat_files[chrom_or_GU][BEST][REAR_STATS], "---------------------------------------------" );
-      write_header( _stat_files[chrom_or_GU][BEST][REAR_STATS], " Fittest individual rearrangement statistics " );
-      write_header( _stat_files[chrom_or_GU][BEST][REAR_STATS], "---------------------------------------------" );
+      write_header( _stat_files[chrom_or_GU][BEST][REAR_STATS], "----------------------------------------------" );
+      write_header( _stat_files[chrom_or_GU][BEST][REAR_STATS], " Lineage individuals rearrangement statistics " );
+      write_header( _stat_files[chrom_or_GU][BEST][REAR_STATS], "----------------------------------------------" );
       write_header( _stat_files[chrom_or_GU][BEST][REAR_STATS], "" );
     }
-    if ( _stat_files_names[chrom_or_GU][GLOB][REAR_STATS] != NULL )
+    else
     {
-      write_header( _stat_files[chrom_or_GU][GLOB][REAR_STATS], "------------------------------------------------------" );
-      write_header( _stat_files[chrom_or_GU][GLOB][REAR_STATS], " Average rearrangement statistics over the population " );
-      write_header( _stat_files[chrom_or_GU][GLOB][REAR_STATS], "------------------------------------------------------" );
-      write_header( _stat_files[chrom_or_GU][GLOB][REAR_STATS], "" );
+      if ( _stat_files_names[chrom_or_GU][BEST][REAR_STATS] != NULL )
+      {
+        write_header( _stat_files[chrom_or_GU][BEST][REAR_STATS], "---------------------------------------------" );
+        write_header( _stat_files[chrom_or_GU][BEST][REAR_STATS], " Fittest individual rearrangement statistics " );
+        write_header( _stat_files[chrom_or_GU][BEST][REAR_STATS], "---------------------------------------------" );
+        write_header( _stat_files[chrom_or_GU][BEST][REAR_STATS], "" );
+      }
+      if ( _stat_files_names[chrom_or_GU][GLOB][REAR_STATS] != NULL )
+      {
+        write_header( _stat_files[chrom_or_GU][GLOB][REAR_STATS], "------------------------------------------------------" );
+        write_header( _stat_files[chrom_or_GU][GLOB][REAR_STATS], " Average rearrangement statistics over the population " );
+        write_header( _stat_files[chrom_or_GU][GLOB][REAR_STATS], "------------------------------------------------------" );
+        write_header( _stat_files[chrom_or_GU][GLOB][REAR_STATS], "" );
+      }
     }
     
     for ( int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++ )
@@ -631,7 +691,7 @@ void ae_stats::set_file_names( const char * prefix, bool one_lambda_indiv_only )
   {
     for ( int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++ )
     {
-      if ( one_lambda_indiv_only && best_or_glob == GLOB ) continue;
+      if ( one_lambda_indiv_only && best_or_glob != BEST ) continue;
       
       for ( int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++ )
       {
