@@ -145,7 +145,7 @@ ae_stats::ae_stats( ae_exp_manager* exp_m,
             
             // Copy stats until num_gener (included)
             trash = fgets( line, 500, old_file );
-            while ( (int32_t)atol(line) <= _exp_m->get_first_gener() && !feof(old_file) )
+            while ( (int32_t)atol(line) < _exp_m->get_first_gener() && !feof(old_file) )
             {
               fputs( line, cur_file );
               trash = fgets( line, 500, old_file );
