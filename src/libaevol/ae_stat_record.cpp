@@ -584,6 +584,10 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_population const * pop
 // =================================================================
 ae_stat_record::~ae_stat_record( void )
 {
+  if (_int_probes != NULL)
+    delete _int_probes;
+  if (_double_probes != NULL)
+    delete _double_probes;
 }
 
 // =================================================================

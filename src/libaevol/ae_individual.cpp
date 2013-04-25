@@ -388,6 +388,8 @@ ae_individual::ae_individual( const ae_individual &model )
   _folded                       = false;//model._folded;
   _phenotype_computed           = model._phenotype_computed;
   
+  _with_stochasticity = model._with_stochasticity;
+  
   // Artificial chemistry parameters
   _w_max = model._w_max;
   
@@ -534,6 +536,8 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id, ae_jumpin
   
   _placed_in_population = false;
   _grid_cell = NULL;
+  
+  _with_stochasticity = parent->_with_stochasticity;
   
   // Artificial chemistry parameters
   _w_max = parent->_w_max;
