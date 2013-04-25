@@ -290,6 +290,15 @@ void ae_exp_manager::load( int32_t first_gener, bool use_text_files, bool verbos
   }
   printf( "OK\n" );
   
+  // ----------------------------------------- Retrieve spatial structure data
+  if ( sp_struct_file != NULL )
+  {
+    printf( "  Loading spatial structure..." );
+    fflush( stdout );
+    _spatial_structure = new ae_spatial_structure( sp_struct_file );
+    printf( "OK\n" );
+  }
+  
   // ------------------------------------------------ Retrieve population data
   printf( "  Loading population..." );
   fflush( stdout );
@@ -303,15 +312,6 @@ void ae_exp_manager::load( int32_t first_gener, bool use_text_files, bool verbos
   //~ _env = new ae_environment();
   _env->load( env_file );
   printf( "OK\n" );
-
-  // ----------------------------------------- Retrieve spatial structure data
-  if ( sp_struct_file != NULL )
-  {
-    printf( "  Loading spatial structure..." );
-    fflush( stdout );
-    _spatial_structure = new ae_spatial_structure( sp_struct_file );
-    printf( "OK\n" );
-  }
   
   // --------------------------------------------- Retrieve ouput profile data
   printf( "  Loading ouput profile..." );

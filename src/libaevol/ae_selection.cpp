@@ -343,12 +343,13 @@ void ae_selection::step_to_next_generation_grid( void )
   
   
   // Create the new generation
-  ae_list<ae_individual*>* new_generation = new ae_list<ae_individual*>(); 
+  ae_list<ae_individual*>* new_generation = new ae_list<ae_individual*>();
+  int32_t index_new_indiv = 0;
   for ( int16_t x = 0 ; x < grid_width ; x++ )
   {
     for ( int16_t y = 0 ; y < grid_height ; y++ )
     {
-      pop_grid[x][y]->set_individual( do_replication( new_indiv_grid[x][y], -1, x, y ) );
+      pop_grid[x][y]->set_individual( do_replication( new_indiv_grid[x][y], index_new_indiv++, x, y ) );
       #ifdef DISTRIBUTED_PRNG
         #error Not implemented yet !
         new_indiv_grid[x][y]->do_prng_jump();
