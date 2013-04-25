@@ -98,6 +98,7 @@ ae_exp_manager::~ae_exp_manager( void )
   delete _pop;
   delete _exp_s;
   delete _output_m;
+  delete _env;
 }
 
 // ===========================================================================
