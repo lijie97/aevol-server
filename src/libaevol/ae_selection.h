@@ -158,7 +158,6 @@ class ae_selection : public ae_object
 
     // --------------------------- Probability of reproduction of each organism
     double* _prob_reprod;
-    double  _prob_reprod_previous_best;
 };
 
 

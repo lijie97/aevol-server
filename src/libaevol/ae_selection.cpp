@@ -85,65 +85,7 @@ ae_selection::ae_selection( ae_exp_manager* exp_m )
 
   // --------------------------- Probability of reproduction of each organism
   _prob_reprod = NULL;
-  _prob_reprod_previous_best = 0.0;
 }
-
-
-/*ae_selection::ae_selection( ae_exp_manager* exp_m, gzFile backup_file )
-{
-  _exp_m = exp_m;
-
-  // ----------------------------------------- Pseudo-random number generator
-  _prng = new ae_jumping_mt( backup_file );
-
-  // -------------------------------------------------------------- Selection
-  int8_t tmp_sel_scheme;
-  gzread( backup_file, &tmp_sel_scheme, sizeof(tmp_sel_scheme) );
-  _selection_scheme = (ae_selection_scheme) tmp_sel_scheme;
-  gzread( backup_file, &_selection_pressure, sizeof(_selection_pressure) );
-
-  // --------------------------- Probability of reproduction of each organism
-  gzread( backup_file, &_prob_reprod_previous_best, sizeof(_prob_reprod_previous_best) );
-  
-  // --------------------------------------------------------------- Transfer
-  int8_t tmp_with_HT;
-  gzread( backup_file, &tmp_with_HT, sizeof(tmp_with_HT) );
-  _with_HT = tmp_with_HT ? 1 : 0;
-  if ( _with_HT )
-  {
-    gzread( backup_file, &_HT_ins_rate,  sizeof(_HT_ins_rate) );
-    gzread( backup_file, &_HT_repl_rate, sizeof(_HT_repl_rate) );
-  }
-  int8_t tmp_with_plasmid_HT;
-  gzread( backup_file, &tmp_with_plasmid_HT, sizeof(tmp_with_plasmid_HT) );
-  if ( tmp_with_plasmid_HT )
-  {
-    gzread( backup_file, &_nb_plasmid_HT,    sizeof(_nb_plasmid_HT) );
-    gzread( backup_file, &_prob_plasmid_HT,  sizeof(_prob_plasmid_HT) );
-    int8_t tmp_swap_GUs;
-    gzread( backup_file, &tmp_swap_GUs, sizeof(tmp_swap_GUs) );
-    _swap_GUs = tmp_swap_GUs ? 1 : 0;
-  }
-  
-  // ------------------------------------------------------ Spatial structure
-  int8_t tmp_spatially_structured;
-  gzread( backup_file, &tmp_spatially_structured, sizeof(tmp_spatially_structured) );
-  _spatially_structured = tmp_spatially_structured ? 1 : 0;
-  if ( _spatially_structured )
-  {
-    _spatial_structure = new ae_spatial_structure( backup_file );
-  }
-  
-  // -------------------------------------------------------------- Secretion
-  int8_t tmp_with_secretion;
-  gzread( backup_file, &tmp_with_secretion, sizeof(tmp_with_secretion) );
-  _with_secretion = tmp_with_secretion ? 1 : 0;
-  if ( _with_secretion )
-  {
-    gzread( backup_file, &_secretion_contrib_to_fitness, sizeof(_secretion_contrib_to_fitness) );
-    gzread( backup_file, &_secretion_cost, sizeof(_secretion_cost) );
-  }
-}*/
 
 // =================================================================
 //                             Destructors
@@ -483,49 +425,8 @@ void ae_selection::write_setup_file( gzFile exp_setup_file ) const
 /*!
 */
 void ae_selection::write_setup_file( FILE* exp_setup_file ) const
-{/*
-  // -------------------------------------------------------------- Selection
-  int8_t tmp_sel_scheme = _selection_scheme;
-  gzwrite( exp_setup_file, &tmp_sel_scheme,      sizeof(tmp_sel_scheme) );
-  gzwrite( exp_setup_file, &_selection_pressure, sizeof(_selection_pressure) );
-
-  // --------------------------- Probability of reproduction of each organism
-  gzwrite( exp_setup_file, &_prob_reprod_previous_best, sizeof(_prob_reprod_previous_best) );
-  
-  // ------------------------------------------------- Phenotypic stochasticity
-  gzwrite( exp_setup_file, &_with_stochasticity, sizeof(_with_stochasticity) );
-  
-  // --------------------------------------------------------------- Transfer
-  int8_t tmp_with_HT = _with_HT;
-  gzwrite( exp_setup_file, &tmp_with_HT, sizeof(tmp_with_HT) );
-  if ( _with_HT )
-  {
-    gzwrite( exp_setup_file, &_HT_ins_rate,  sizeof(_HT_ins_rate) );
-    gzwrite( exp_setup_file, &_HT_repl_rate, sizeof(_HT_repl_rate) );
-  }
-  int8_t tmp_with_plasmid_HT = get_with_plasmid_HT();
-  gzwrite( exp_setup_file, &tmp_with_plasmid_HT, sizeof(tmp_with_plasmid_HT) );
-  if ( tmp_with_plasmid_HT )
-  {
-    gzwrite( exp_setup_file, &_nb_plasmid_HT,    sizeof(_nb_plasmid_HT) );
-    gzwrite( exp_setup_file, &_prob_plasmid_HT,  sizeof(_prob_plasmid_HT) );
-    int8_t tmp_swap_GUs = _swap_GUs;
-    gzwrite( exp_setup_file, &tmp_swap_GUs, sizeof(tmp_swap_GUs) );
-  }
-  
-  // ------------------------------------------------------ Spatial structure
-  int8_t tmp_spatially_structured = _spatially_structured;
-  gzwrite( exp_setup_file, &tmp_spatially_structured, sizeof(tmp_spatially_structured) );
-  // NB: Spatial structure itself is not written
-  
-  // -------------------------------------------------------------- Secretion
-  int8_t tmp_with_secretion = _with_secretion;
-  gzwrite( exp_setup_file, &tmp_with_secretion, sizeof(tmp_with_secretion) );
-  if ( _with_secretion )
-  {
-    gzwrite( exp_setup_file, &_secretion_contrib_to_fitness, sizeof(_secretion_contrib_to_fitness) );
-    gzwrite( exp_setup_file, &_secretion_cost, sizeof(_secretion_cost) );
-  }*/
+{
+  // TODO
 }
 
 
@@ -541,11 +442,6 @@ void ae_selection::save( gzFile& backup_file ) const
   
   // ----------------------------------------- Pseudo-random number generator
   _prng->save( backup_file );
-
-  // --------------- Probability of reproduction of the previous best organism
-  gzwrite( backup_file,
-           &_prob_reprod_previous_best,
-           sizeof(_prob_reprod_previous_best) );
 }
 
 void ae_selection::load( gzFile& exp_setup_file,
@@ -560,75 +456,13 @@ void ae_selection::load( gzFile& exp_setup_file,
 
   // ----------------------------------------- Pseudo-random number generator
   _prng = new ae_jumping_mt( backup_file );
-
-  // --------------------------- Probability of reproduction of each organism
-  gzread( backup_file,
-          &_prob_reprod_previous_best,
-          sizeof(_prob_reprod_previous_best) );
 }
 
 void ae_selection::load( FILE*& exp_setup_file,
                          gzFile& backup_file,
                          bool verbose )
-{/*
-  // ----------------------------------------- Pseudo-random number generator
-  _prng = new ae_jumping_mt( sel_file );
-
-  // -------------------------------------------------------------- Selection
-  int8_t tmp_sel_scheme;
-  gzread( exp_setup_file, &tmp_sel_scheme, sizeof(tmp_sel_scheme) );
-  _selection_scheme = (ae_selection_scheme) tmp_sel_scheme;
-  gzread( exp_setup_file, &_selection_pressure, sizeof(_selection_pressure) );
-
-  // --------------------------- Probability of reproduction of each organism
-  gzread( exp_setup_file, &_prob_reprod_previous_best, sizeof(_prob_reprod_previous_best) );
-  
-  // ------------------------------------------------- Phenotypic stochasticity
-  gzwrite( exp_setup_file, &_with_stochasticity, sizeof(_with_stochasticity) );
-  
-  // --------------------------------------------------------------- Transfer
-  int8_t tmp_with_HT;
-  gzread( exp_setup_file, &tmp_with_HT, sizeof(tmp_with_HT) );
-  _with_HT = tmp_with_HT ? 1 : 0;
-  if ( _with_HT )
-  {
-    gzread( exp_setup_file, &_HT_ins_rate,  sizeof(_HT_ins_rate) );
-    gzread( exp_setup_file, &_HT_repl_rate, sizeof(_HT_repl_rate) );
-  }
-  int8_t tmp_with_plasmid_HT;
-  gzread( exp_setup_file, &tmp_with_plasmid_HT, sizeof(tmp_with_plasmid_HT) );
-  if ( tmp_with_plasmid_HT )
-  {
-    gzread( exp_setup_file, &_nb_plasmid_HT,    sizeof(_nb_plasmid_HT) );
-    gzread( exp_setup_file, &_prob_plasmid_HT,  sizeof(_prob_plasmid_HT) );
-    int8_t tmp_swap_GUs;
-    gzread( exp_setup_file, &tmp_swap_GUs, sizeof(tmp_swap_GUs) );
-    _swap_GUs = tmp_swap_GUs ? 1 : 0;
-  }
-  
-  // ------------------------------------------------------ Spatial structure
-  int8_t tmp_spatially_structured;
-  gzread( exp_setup_file, &tmp_spatially_structured, sizeof(tmp_spatially_structured) );
-  _spatially_structured = tmp_spatially_structured ? 1 : 0;
-  if ( _spatially_structured )
-  {
-    if ( sp_struct_file == NULL )
-    {
-      printf( "%s:%d: error: Your experimental setup requires a spatial structure but none was provided.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    }
-    _spatial_structure = new ae_spatial_structure( sp_struct_file );
-  }
-  
-  // -------------------------------------------------------------- Secretion
-  int8_t tmp_with_secretion;
-  gzread( exp_setup_file, &tmp_with_secretion, sizeof(tmp_with_secretion) );
-  _with_secretion = tmp_with_secretion ? 1 : 0;
-  if ( _with_secretion )
-  {
-    gzread( exp_setup_file, &_secretion_contrib_to_fitness, sizeof(_secretion_contrib_to_fitness) );
-    gzread( exp_setup_file, &_secretion_cost, sizeof(_secretion_cost) );
-  }*/
+{
+  // TODO
 }
 
 
@@ -725,10 +559,6 @@ void ae_selection::compute_prob_reprod( void )
     }
 
     delete [] fitnesses;
-
-    // Remember the probability of reproduction of the best individual
-    // so it can be printed in stat.out
-    _prob_reprod_previous_best = _prob_reprod[nb_indivs-1];
   }
   else if ( _selection_scheme == FITTEST) //  Fittest individual
   {

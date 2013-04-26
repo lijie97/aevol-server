@@ -669,7 +669,7 @@ void ae_dna::do_rearrangements_with_align( void )
           #warning LOG
           if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
           {
-            fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId16"\n", 
+            fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
                       _exp_m->get_num_gener(), _indiv->get_id(), TRANS, segment_length, _length, needed_score_2 );
           }      
           delete alignment_2;
