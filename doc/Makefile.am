@@ -10,8 +10,8 @@ latex: doxygen
 html: doxygen
 
 clean-local:
-	rm -rf html latex doxygen
+	rm -rf html doxygen
   
-EXTRA_DIST = aevol.conf index.html html latex param.in.example
+EXTRA_DIST = param.in.example README.txt
 
 endif
