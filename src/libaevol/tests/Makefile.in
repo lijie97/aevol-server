@@ -45,9 +45,10 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am__run_tests_SOURCES_DIST = run_tests.cpp
+am__run_tests_SOURCES_DIST = run_tests.cpp Test_ae_jumping_mt.cpp
 @WITH_CPPUNIT_TRUE@am_run_tests_OBJECTS =  \
-@WITH_CPPUNIT_TRUE@	run_tests-run_tests.$(OBJEXT)
+@WITH_CPPUNIT_TRUE@	run_tests-run_tests.$(OBJEXT) \
+@WITH_CPPUNIT_TRUE@	run_tests-Test_ae_jumping_mt.$(OBJEXT)
 run_tests_OBJECTS = $(am_run_tests_OBJECTS)
 run_tests_LDADD = $(LDADD)
 am__DEPENDENCIES_1 =
@@ -202,7 +203,7 @@ top_srcdir = @top_srcdir@
 # prefixed object files so that we don't use an object file built for another set of macrodefinitions
 # e.g. We don't want to use an object file created with NO_X when building the X11 lib
 @WITH_CPPUNIT_TRUE@run_testsdir = $(bindir)
-@WITH_CPPUNIT_TRUE@run_tests_SOURCES = run_tests.cpp
+@WITH_CPPUNIT_TRUE@run_tests_SOURCES = run_tests.cpp Test_ae_jumping_mt.cpp
 @WITH_CPPUNIT_TRUE@run_tests_CPPFLAGS = $(AM_CPPFLAGS)
 all: all-am
 
@@ -285,6 +286,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_tests-Test_ae_jumping_mt.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/run_tests-run_tests.Po@am__quote@
 
 .cpp.o:
@@ -314,6 +316,20 @@ run_tests-run_tests.obj: run_tests.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='run_tests.cpp' object='run_tests-run_tests.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o run_tests-run_tests.obj `if test -f 'run_tests.cpp'; then $(CYGPATH_W) 'run_tests.cpp'; else $(CYGPATH_W) '$(srcdir)/run_tests.cpp'; fi`
+
+run_tests-Test_ae_jumping_mt.o: Test_ae_jumping_mt.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT run_tests-Test_ae_jumping_mt.o -MD -MP -MF $(DEPDIR)/run_tests-Test_ae_jumping_mt.Tpo -c -o run_tests-Test_ae_jumping_mt.o `test -f 'Test_ae_jumping_mt.cpp' || echo '$(srcdir)/'`Test_ae_jumping_mt.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/run_tests-Test_ae_jumping_mt.Tpo $(DEPDIR)/run_tests-Test_ae_jumping_mt.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Test_ae_jumping_mt.cpp' object='run_tests-Test_ae_jumping_mt.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o run_tests-Test_ae_jumping_mt.o `test -f 'Test_ae_jumping_mt.cpp' || echo '$(srcdir)/'`Test_ae_jumping_mt.cpp
+
+run_tests-Test_ae_jumping_mt.obj: Test_ae_jumping_mt.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT run_tests-Test_ae_jumping_mt.obj -MD -MP -MF $(DEPDIR)/run_tests-Test_ae_jumping_mt.Tpo -c -o run_tests-Test_ae_jumping_mt.obj `if test -f 'Test_ae_jumping_mt.cpp'; then $(CYGPATH_W) 'Test_ae_jumping_mt.cpp'; else $(CYGPATH_W) '$(srcdir)/Test_ae_jumping_mt.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/run_tests-Test_ae_jumping_mt.Tpo $(DEPDIR)/run_tests-Test_ae_jumping_mt.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Test_ae_jumping_mt.cpp' object='run_tests-Test_ae_jumping_mt.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(run_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o run_tests-Test_ae_jumping_mt.obj `if test -f 'Test_ae_jumping_mt.cpp'; then $(CYGPATH_W) 'Test_ae_jumping_mt.cpp'; else $(CYGPATH_W) '$(srcdir)/Test_ae_jumping_mt.cpp'; fi`
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \

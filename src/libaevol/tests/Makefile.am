@@ -43,7 +43,7 @@ TESTS = $(bin_PROGRAMS)
 # e.g. We don't want to use an object file created with NO_X when building the X11 lib
 
 run_testsdir = $(bindir)
-run_tests_SOURCES = run_tests.cpp
+run_tests_SOURCES = run_tests.cpp Test_ae_jumping_mt.cpp
 run_tests_CPPFLAGS = $(AM_CPPFLAGS)
 
 
