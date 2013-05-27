@@ -1205,6 +1205,8 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   
   delete param_mut;
   delete _prng; // Each class that needed it has now its own copy
+  delete _mut_prng;
+  delete _stoch_prng;
 }
 
 
