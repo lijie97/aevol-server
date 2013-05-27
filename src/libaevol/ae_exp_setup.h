@@ -90,18 +90,20 @@ class ae_exp_setup : public ae_object
     inline ae_selection* get_sel( void ) const;
   
     // --------------------------------------------------------------- Transfer
-    inline bool get_with_HT( void ) const;
+    inline bool   get_with_HT( void ) const;
     inline double get_HT_ins_rate( void ) const;
     inline double get_HT_repl_rate( void ) const;
     
-    inline bool get_with_plasmid_HT( void ) const;
+    // --------------------------------------------------------------- Plasmids
+    // See comments in ae_exp_manager.h on how plasmids are handled
+    inline bool   get_with_plasmids( void ) const;
     inline double get_prob_plasmid_HT( void ) const;
     inline double get_tune_donor_ability( void ) const;
     inline double get_tune_recipient_ability( void ) const;
     inline double get_donor_cost( void ) const;
     inline double get_recipient_cost( void ) const;
     inline bool   get_swap_GUs( void ) const;
-  
+    
     // -------------------------------------------------------------- Secretion
     inline bool   get_with_secretion( void ) const;
     inline double get_secretion_contrib_to_fitness( void ) const;
@@ -115,7 +117,9 @@ class ae_exp_setup : public ae_object
     inline void set_with_HT( bool with_HT );
     inline void set_HT_ins_rate( double HT_ins_rate );
     inline void set_HT_repl_rate( double HT_repl_rate );
-    //~ inline void set_with_plasmid_HT( bool with_p_HT );
+  
+    // --------------------------------------------------------------- Plasmids
+    inline void set_with_plasmids( bool with_p );
     //~ inline void set_nb_plasmid_HT( int16_t nb_p_HT );
     inline void set_prob_plasmid_HT( double prob_p_HT );
     inline void set_tune_donor_ability( double tune_donor_ability );
@@ -182,9 +186,12 @@ class ae_exp_setup : public ae_object
     bool    _with_HT;
     double  _HT_ins_rate;
     double  _HT_repl_rate;
-    double  _prob_plasmid_HT; // TODO: explain
-    double  _tune_donor_ability;
-    double  _tune_recipient_ability;
+  
+    // --------------------------------------------------- Plasmids parameters
+    bool    _with_plasmids;
+    double  _prob_plasmid_HT; // Base transfer ability independent of evolvable donor and recipient ability
+    double  _tune_donor_ability; // How much the individuals can tune their ability to send plasmids
+    double  _tune_recipient_ability; // How much the individuals can tune their ability to receive plasmids
     double  _donor_cost;
     double  _recipient_cost;
     bool    _swap_GUs; // Whether plasmid HT is uni- or bidirectional
@@ -219,9 +226,9 @@ inline double ae_exp_setup::get_HT_repl_rate( void ) const
   return _HT_repl_rate;
 }
 
-inline bool ae_exp_setup::get_with_plasmid_HT( void ) const
+inline bool ae_exp_setup::get_with_plasmids( void ) const
 {
-  return ( _prob_plasmid_HT > 0 );
+  return _with_plasmids;
 }
 
 inline double ae_exp_setup::get_prob_plasmid_HT( void ) const
@@ -286,6 +293,11 @@ inline void ae_exp_setup::set_HT_ins_rate( double HT_ins_rate )
 inline void ae_exp_setup::set_HT_repl_rate( double HT_repl_rate )
 {
   _HT_repl_rate = HT_repl_rate;
+}
+
+inline void ae_exp_setup::set_with_plasmids( bool with_p )
+{
+  _with_plasmids = with_p;
 }
 
 inline void ae_exp_setup::set_prob_plasmid_HT( double prob_p_HT )

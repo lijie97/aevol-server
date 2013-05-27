@@ -963,6 +963,9 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   exp_s->set_with_HT( _param_values->_with_HT );
   exp_s->set_HT_ins_rate( _param_values->_HT_ins_rate );
   exp_s->set_HT_repl_rate( _param_values->_HT_repl_rate );
+  
+  // ----------------------------------------------------------------- Plasmids
+  exp_s->set_with_plasmids( _param_values->_allow_plasmids );
   exp_s->set_prob_plasmid_HT( _param_values->_prob_plasmid_HT );
   exp_s->set_tune_donor_ability( _param_values->_tune_donor_ability );
   exp_s->set_tune_recipient_ability( _param_values->_tune_recipient_ability );
@@ -1055,7 +1058,6 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   param_mut->set_with_4pts_trans( _param_values->get_with_4pts_trans() );
   param_mut->set_with_alignments( _param_values->get_with_alignments() );
   param_mut->set_with_HT( _param_values->get_with_HT() );
-  param_mut->set_swap_GUs( _param_values->get_swap_GUs() );
   param_mut->set_HT_ins_rate( _param_values->get_HT_ins_rate() );
   param_mut->set_HT_repl_rate( _param_values->get_HT_repl_rate() );
   param_mut->set_duplication_rate( _param_values->get_duplication_rate() );

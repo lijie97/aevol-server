@@ -187,7 +187,7 @@ void ae_selection::step_to_next_generation( void )
     
     // All the offsprings of this individual have been generated, if there is no transfer,
     // the indiv will not be used any more and can hence be deleted
-    if ( (not _exp_m->get_with_HT()) and (not _exp_m->get_with_plasmid_HT()) )
+    if ( (not _exp_m->get_with_HT()) and (not _exp_m->get_with_plasmids()) )
     {
       old_generation->remove( indiv_node, true, true );
     }
@@ -195,7 +195,7 @@ void ae_selection::step_to_next_generation( void )
     indiv_node = next_indiv_node;
   }
   
-  if ( _exp_m->get_with_HT() or _exp_m->get_with_plasmid_HT() )
+  if ( _exp_m->get_with_HT() or _exp_m->get_with_plasmids() )
   {
     // The individuals have not yet been deleted, do it now.
     old_generation->erase( true );
@@ -317,7 +317,7 @@ void ae_selection::step_to_next_generation_grid( void )
   }
   
   // Perform plasmid transfer
-  if ( _exp_m->get_with_plasmid_HT() )
+  if ( _exp_m->get_with_plasmids() && ( (_exp_m->get_prob_plasmid_HT() != 0.0) || (_exp_m->get_tune_donor_ability() != 0.0) || (_exp_m->get_tune_recipient_ability() != 0.0) ) )
   {
     int16_t x_offset, y_offset, new_x, new_y;
 

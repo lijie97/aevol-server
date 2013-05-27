@@ -77,6 +77,9 @@ ae_exp_setup::ae_exp_setup( ae_exp_manager* exp_m )
   _with_HT          = false;
   _HT_ins_rate      = 0.0;
   _HT_repl_rate     = 0.0;
+  
+  // --------------------------------------------------------------- Plasmids
+  _with_plasmids    = false;
   _prob_plasmid_HT  = 0.0;
   _tune_donor_ability     = 0.0;
   _tune_recipient_ability = 0.0;
@@ -114,9 +117,11 @@ void ae_exp_setup::write_setup_file( gzFile exp_setup_file ) const
     gzwrite( exp_setup_file, &_HT_ins_rate,  sizeof(_HT_ins_rate) );
     gzwrite( exp_setup_file, &_HT_repl_rate, sizeof(_HT_repl_rate) );
   }
-  int8_t tmp_with_plasmid_HT = get_with_plasmid_HT();
-  gzwrite( exp_setup_file, &tmp_with_plasmid_HT, sizeof(tmp_with_plasmid_HT) );
-  if ( tmp_with_plasmid_HT )
+  
+  // --------------------------------------------------------------- Plasmids
+  int8_t tmp_with_plasmids = get_with_plasmids();
+  gzwrite( exp_setup_file, &tmp_with_plasmids, sizeof(tmp_with_plasmids) );
+  if ( tmp_with_plasmids )
   {
     gzwrite( exp_setup_file, &_prob_plasmid_HT,  sizeof(_prob_plasmid_HT) );
     gzwrite( exp_setup_file, &_tune_donor_ability,  sizeof(_tune_donor_ability) );
@@ -161,9 +166,12 @@ void ae_exp_setup::load( gzFile setup_file, gzFile backup_file, bool verbose )
     gzread( setup_file, &_HT_ins_rate,  sizeof(_HT_ins_rate) );
     gzread( setup_file, &_HT_repl_rate, sizeof(_HT_repl_rate) );
   }
-  int8_t tmp_with_plasmid_HT;
-  gzread( setup_file, &tmp_with_plasmid_HT, sizeof(tmp_with_plasmid_HT) );
-  if ( tmp_with_plasmid_HT )
+  
+  // -------------------------------------------- Retrieve plasmid parameters
+  int8_t tmp_with_plasmids;
+  gzread( setup_file, &tmp_with_plasmids, sizeof(tmp_with_plasmids) );
+  _with_plasmids = tmp_with_plasmids ? 1 : 0;
+  if ( _with_plasmids )
   {
     gzread( setup_file, &_prob_plasmid_HT,  sizeof(_prob_plasmid_HT) );
     gzread( setup_file, &_tune_donor_ability,  sizeof(_tune_donor_ability) );
@@ -203,9 +211,10 @@ void ae_exp_setup::load( FILE* setup_file, gzFile backup_file, bool verbose )
     gzread( setup_file, &_HT_ins_rate,  sizeof(_HT_ins_rate) );
     gzread( setup_file, &_HT_repl_rate, sizeof(_HT_repl_rate) );
   }
-  int8_t tmp_with_plasmid_HT;
-  gzread( setup_file, &tmp_with_plasmid_HT, sizeof(tmp_with_plasmid_HT) );
-  if ( tmp_with_plasmid_HT )
+  int8_t tmp_with_plasmids;
+  gzread( setup_file, &tmp_with_plasmids, sizeof(tmp_with_plasmids) );
+  _with_plasmids = tmp_with_plasmids ? 1 : 0;
+  if ( tmp_with_plasmids )
   {
     gzread( setup_file, &_prob_plasmid_HT,  sizeof(_prob_plasmid_HT) );
     gzread( setup_file, &_tune_donor_ability,  sizeof(_tune_donor_ability) );

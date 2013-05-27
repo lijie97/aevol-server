@@ -68,7 +68,6 @@ ae_params_mut::ae_params_mut( void )
   _with_4pts_trans  = false;
   _with_alignments  = false;
   _with_HT          = false;
-  _swap_GUs         = false;
   _HT_ins_rate      = 0.0;
   _HT_repl_rate     = 0.0;
 
@@ -99,7 +98,6 @@ ae_params_mut::ae_params_mut( const ae_params_mut& model )
   _with_4pts_trans  = model._with_4pts_trans;
   _with_alignments  = model._with_alignments;
   _with_HT          = model._with_HT;
-  _swap_GUs         = model._swap_GUs;
   _HT_ins_rate      = model._HT_ins_rate;
   _HT_repl_rate     = model._HT_repl_rate;
 
@@ -134,8 +132,6 @@ ae_params_mut::ae_params_mut( gzFile backup_file )
   _with_alignments = (tmp != 0);
   gzread( backup_file, &tmp, sizeof(tmp) );
   _with_HT = (tmp != 0);
-  gzread( backup_file, &tmp, sizeof(tmp) );
-  _swap_GUs = (tmp != 0);
   gzread( backup_file, &_HT_ins_rate,  sizeof(_HT_ins_rate) );
   gzread( backup_file, &_HT_repl_rate, sizeof(_HT_repl_rate) );
 
@@ -177,8 +173,6 @@ void ae_params_mut::save( gzFile backup_file ) const
   tmp = _with_alignments ? 1 : 0;
   gzwrite( backup_file, &tmp,  sizeof(tmp) );
   tmp = _with_HT ? 1 : 0;
-  gzwrite( backup_file, &tmp,  sizeof(tmp) );
-  tmp = _swap_GUs ? 1 : 0;
   gzwrite( backup_file, &tmp,  sizeof(tmp) );
   gzwrite( backup_file, &_HT_ins_rate,  sizeof(_HT_ins_rate) );
   gzwrite( backup_file, &_HT_repl_rate, sizeof(_HT_repl_rate) );

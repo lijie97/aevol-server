@@ -587,7 +587,7 @@ void change_based_on_non_coding_bases_of_best_individual_ancestor(ae_population*
     //  4) Replace the current population by the new one
     ae_list<ae_individual*>*      old_generation  = pop->get_indivs();
     ae_list_node<ae_individual*>* indiv_node      = old_generation->get_first();
-    if ( (not exp_m->get_with_HT()) and (not exp_m->get_with_plasmid_HT()) )
+    if ( (not exp_m->get_with_HT()) and (not exp_m->get_with_plasmids()) )
     {
       for ( int32_t i = 0 ; i < pop->get_nb_indivs() ; i++ )
       {

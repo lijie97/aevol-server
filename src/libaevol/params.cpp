@@ -112,7 +112,6 @@ params::params( void )
   _with_4pts_trans  = true;
   _with_alignments  = false;
   _with_HT          = false;
-  _swap_GUs         = false;
   _HT_ins_rate      = 0.0;
   _HT_repl_rate     = 0.0;
 
@@ -173,6 +172,7 @@ params::params( void )
   _donor_cost                 = 0;
   _recipient_cost             = 0;
   _compute_phen_contrib_by_GU = false;
+  _swap_GUs         = false;
   
   // ------------------------------------------------------- Translation cost
   _translation_cost = 0;
@@ -239,7 +239,6 @@ void params::print_to_file( FILE* file )
   fprintf( file, "with_4pts_trans :            %s\n",  _with_4pts_trans? "true" : "false" );
   fprintf( file, "with_alignments :            %s\n",  _with_alignments? "true" : "false" );
   fprintf( file, "with_HT :                    %s\n",  _with_HT? "true" : "false"   );
-  fprintf( file, "swap_GUs :                   %s\n",  _swap_GUs? "true" : "false"   );
   fprintf( file, "HT_ins_rate :                %e\n",  _HT_ins_rate );
   fprintf( file, "HT_repl_rate :               %e\n",  _HT_repl_rate );
 
@@ -325,6 +324,7 @@ void params::print_to_file( FILE* file )
   fprintf( file, "donor_cost :                 %e\n", _donor_cost                                    );
   fprintf( file, "recipient_cost :             %e\n", _recipient_cost                                );
   fprintf( file, "compute_phen_contrib_by_GU : %s\n", _compute_phen_contrib_by_GU? "true" : "false"  );
+  fprintf( file, "swap_GUs :                   %s\n",  _swap_GUs? "true" : "false"   );
 
   // ------------------------------------------------------- Translation cost
   fprintf( file, "\nTranslation cost ----------------------------------------\n" );

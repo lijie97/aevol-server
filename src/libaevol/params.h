@@ -136,7 +136,6 @@ class params : public ae_object
     inline bool   get_with_4pts_trans( void ) const;
     inline bool   get_with_alignments( void ) const;
     inline bool   get_with_HT( void ) const;
-    inline bool   get_swap_GUs( void ) const;
     inline double get_HT_ins_rate( void ) const;
     inline double get_HT_repl_rate( void ) const;
 
@@ -198,12 +197,12 @@ class params : public ae_object
     inline int32_t  get_plasmid_initial_length( void ) const;
     inline int32_t  get_plasmid_initial_gene( void ) const;
     inline int32_t  get_plasmid_minimal_length( void ) const;
-    inline bool     get_with_plasmid_HT( void ) const;
     inline double   get_prob_plasmid_HT( void ) const;
     inline double   get_tune_donor_ability( void ) const;
     inline double   get_tune_recipient_ability( void ) const;
     inline bool     get_compute_phen_contrib_by_GU( void ) const;
-    
+    inline bool     get_swap_GUs( void ) const;
+  
     // ------------------------------------------------------- Translation cost
     inline double get_translation_cost( void ) const;
     
@@ -297,7 +296,6 @@ class params : public ae_object
     inline void set_with_4pts_trans( bool with_4pts_trans );
     inline void set_with_alignments( bool with_alignments );
     inline void set_with_HT( bool with_HT );
-    inline void set_swap_GUs( bool swap_GUs );
     inline void set_HT_ins_rate( double HT_ins_rate );
     inline void set_HT_repl_rate( double HT_repl_rate );
 
@@ -358,6 +356,7 @@ class params : public ae_object
     inline void set_donor_cost( double donor_cost );
     inline void set_recipient_cost( double recipient_cost );
     inline void set_compute_phen_contrib_by_GU( bool compute_phen_contrib_by_GU );
+    inline void set_swap_GUs( bool swap_GUs );
     
     // ------------------------------------------------------- Translation cost
     inline void set_translation_cost( double translation_cost );
@@ -498,7 +497,6 @@ class params : public ae_object
     bool    _with_4pts_trans;
     bool    _with_alignments;
     bool    _with_HT;
-    bool    _swap_GUs;
     double  _HT_ins_rate;
     double  _HT_repl_rate;
 
@@ -566,6 +564,7 @@ class params : public ae_object
     double    _donor_cost;
     double    _recipient_cost;
     bool      _compute_phen_contrib_by_GU;
+    bool      _swap_GUs;
     
     // ------------------------------------------------------- Translation cost
     double _translation_cost;
@@ -791,11 +790,6 @@ inline bool params::get_with_HT( void ) const
   return _with_HT;
 }
 
-inline bool params::get_swap_GUs( void ) const
-{
-  return _swap_GUs;
-}
-
 inline double params::get_HT_ins_rate( void ) const
 {
   return _HT_ins_rate;
@@ -990,11 +984,6 @@ inline int32_t params::get_plasmid_minimal_length( void ) const
   return _plasmid_minimal_length;
 }
 
-inline bool params::get_with_plasmid_HT( void ) const
-{
-  return (_prob_plasmid_HT > 0);
-}
-
 inline double params::get_prob_plasmid_HT( void ) const
 {
   return _prob_plasmid_HT;
@@ -1013,6 +1002,11 @@ inline double params::get_tune_recipient_ability( void ) const
 inline bool params::get_compute_phen_contrib_by_GU( void ) const
 {
   return _compute_phen_contrib_by_GU;
+}
+
+inline bool params::get_swap_GUs( void ) const
+{
+  return _swap_GUs;
 }
 
 // ----------------------------------------------------------- Translation cost
@@ -1281,11 +1275,6 @@ inline void params::set_with_HT( bool with_HT )
   _with_HT = with_HT;
 }
 
-inline void params::set_swap_GUs( bool swap_GUs )
-{
-  _swap_GUs = swap_GUs;
-}
-
 inline void params::set_HT_ins_rate( double HT_ins_rate )
 {
   _HT_ins_rate = HT_ins_rate;
@@ -1508,6 +1497,11 @@ inline void params::set_recipient_cost( double recipient_cost )
 inline void params::set_compute_phen_contrib_by_GU( bool compute_phen_contrib_by_GU )
 {
   _compute_phen_contrib_by_GU = compute_phen_contrib_by_GU;
+}
+
+inline void params::set_swap_GUs( bool swap_GUs )
+{
+  _swap_GUs = swap_GUs;
 }
 
 // ----------------------------------------------------------- Translation cost

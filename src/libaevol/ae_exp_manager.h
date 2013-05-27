@@ -114,9 +114,12 @@ class ae_exp_manager : public ae_object
     inline double get_HT_ins_rate( void ) const;
     inline double get_HT_repl_rate( void ) const;
     
-    // The ability to own a plasmid is a property of the individuals
-    //~ inline bool     get_allow_plasmids( void ) const;
-    inline bool   get_with_plasmid_HT( void ) const;
+    // The ability to own a plasmid is a property of the individuals (_allow_plasmids) because it is used during mutations
+    // However there is also a property of the experimental setup (_with_plasmids) that indicates whether plasmids are used because we need this during replication and during loading/writting
+    // For now when plasmids are used each individual has one and only one plasmid (so these variables should always be equals), however this may change in the future
+    // There is no longer property _with_plasmids_HT because the ability to transfer is evolvable and thus may depend on the plasmid itself
+  
+    inline bool   get_with_plasmids( void ) const;
     inline double get_prob_plasmid_HT( void ) const;
     inline double get_tune_donor_ability( void ) const;
     inline double get_tune_recipient_ability( void ) const;
@@ -365,11 +368,9 @@ inline double ae_exp_manager::get_HT_repl_rate( void ) const
   return get_exp_s()->get_HT_repl_rate();
 }
 
-// NOTA: The ability to own a plasmid is a property of the individuals
-
-inline bool ae_exp_manager::get_with_plasmid_HT( void ) const
+inline bool ae_exp_manager::get_with_plasmids( void ) const
 {
-  return get_exp_s()->get_with_plasmid_HT();
+  return get_exp_s()->get_with_plasmids();
 }
 
 inline double ae_exp_manager::get_prob_plasmid_HT( void ) const

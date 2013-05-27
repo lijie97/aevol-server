@@ -89,7 +89,6 @@ class ae_params_mut : public ae_object
     inline bool   get_with_4pts_trans( void ) const;
     inline bool   get_with_alignments( void ) const;
     inline bool   get_with_HT( void ) const;
-    inline bool   get_swap_GUs( void ) const;
     inline double get_HT_ins_rate( void ) const;
     inline double get_HT_repl_rate( void ) const;
 
@@ -136,7 +135,6 @@ class ae_params_mut : public ae_object
     inline void set_with_4pts_trans( bool with_4pts_trans );
     inline void set_with_alignments( bool with_alignments );
     inline void set_with_HT( bool with_HT );
-    inline void set_swap_GUs( bool swap_GUs );
     inline void set_HT_ins_rate( double HT_ins_rate );
     inline void set_HT_repl_rate( double HT_repl_rate );
 
@@ -217,7 +215,6 @@ class ae_params_mut : public ae_object
     bool    _with_4pts_trans;
     bool    _with_alignments;
     bool    _with_HT;
-    bool    _swap_GUs;
     double  _HT_ins_rate;
     double  _HT_repl_rate;
 
@@ -287,11 +284,6 @@ inline bool ae_params_mut::get_with_alignments( void ) const
 inline bool ae_params_mut::get_with_HT( void ) const
 {
   return _with_HT;
-}
-
-inline bool ae_params_mut::get_swap_GUs( void ) const
-{
-  return _swap_GUs;
 }
 
 inline double ae_params_mut::get_HT_ins_rate( void ) const
@@ -436,11 +428,6 @@ inline void ae_params_mut::set_with_alignments( bool with_alignments )
 inline void ae_params_mut::set_with_HT( bool with_HT )
 {
   _with_HT = with_HT;
-}
-
-inline void ae_params_mut::set_swap_GUs( bool swap_GUs )
-{
-  _swap_GUs = swap_GUs;
 }
 
 inline void ae_params_mut::set_HT_ins_rate( double HT_ins_rate )
