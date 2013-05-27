@@ -9,6 +9,8 @@ latex: doxygen
 
 html: doxygen
 
+clean: clean-local
+
 clean-local:
 	rm -rf html doxygen
   

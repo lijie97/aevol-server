@@ -5,3 +5,7 @@ else # WITHOUT_IN2P3
 endif # IN2P3
 
 EXTRA_DIST = src/misc
+
+TESTS = tests/basic.in tests/space.in
+TEST_EXTENSIONS = .in
+IN_LOG_COMPILER = tests/simple.sh
