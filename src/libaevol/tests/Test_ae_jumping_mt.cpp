@@ -91,7 +91,7 @@ void Test_ae_jumping_mt::tearDown( void )
   delete obj2;
 }
 
-void Test_ae_jumping_mt::test_copy_constr( void )
+void Test_ae_jumping_mt::test1( void )
 {
   for ( int i = 0 ; i < 10 ; i++ )
   {
