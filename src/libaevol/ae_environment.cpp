@@ -91,6 +91,7 @@ ae_environment::ae_environment( void ) :
   
   // Noise management
   _cur_noise          = NULL;
+  _noise_method       = NO_NOISE;
   _noise_prng         = NULL;
   _noise_prob         = 0.0;
   _noise_alpha        = 0.0;
