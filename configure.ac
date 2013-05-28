@@ -304,7 +304,8 @@ AC_CONFIG_FILES([Makefile
                  src/Makefile
                  src/libaevol/Makefile
                  src/libaevol/SFMT-src-1.4/Makefile
-                 src/post_treatments/Makefile])
+                 src/post_treatments/Makefile
+                 tests/Makefile])
 AM_COND_IF([HAVE_DOXYGEN], [AC_CONFIG_FILES([doc/Makefile])])
 AM_COND_IF([WITH_CPPUNIT], [AC_CONFIG_FILES([src/libaevol/tests/Makefile])])
 AC_OUTPUT

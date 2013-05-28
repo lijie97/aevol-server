@@ -1,17 +1,14 @@
 #!/bin/bash
 
-DEST=tests/`basename ${1} .in`
+DEST=`basename ${1} .simple`
 PARAM=${1}
 mkdir -p ${DEST}
 cp ${PARAM} ${DEST}/param.in
 cd ${DEST}
 
 # Chech that aevol has been compiled correctly
-if [ -x "../../src/aevol_run" ]; then
-  RUN="../../src/aevol_run"
-elif [ -x "../../src/aevol_run_debug" ]; then
-  RUN="../../src/aevol_run_debug"
-else
+RUN=`find ../../src -iname "aevol_run*" -executable -print -quit`
+if [ "x$RUN" = "x" ]; then
   echo "aevol_run not found"
   exit -1
 fi

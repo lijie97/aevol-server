@@ -944,7 +944,7 @@ inline int32_t ae_individual::get_nb_neutral_regions( void )
 */
 inline double ae_individual::get_modularity( void )
 {
-  #warning modularity measure not yet implemented
+  printf("\n  WARNING : modularity measure not yet implemented.\n"); 
   //~ if ( _modularity < 0 ) compute_modularity();
   //~ return _modularity;
   return 0;

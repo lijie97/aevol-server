@@ -11,7 +11,7 @@ NB_GENER                100
 
 #####  Selection ################
 SELECTION_SCHEME        exp
-SELECTION_PRESSURE      0.7
+SELECTION_PRESSURE      0.998
 
 #####  Mutation rates ###########
 POINT_MUTATION_RATE     5e-5

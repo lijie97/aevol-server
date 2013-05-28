@@ -6665,7 +6665,7 @@ fi
 
 
 
-ac_config_files="$ac_config_files Makefile src/Makefile src/libaevol/Makefile src/libaevol/SFMT-src-1.4/Makefile src/post_treatments/Makefile"
+ac_config_files="$ac_config_files Makefile src/Makefile src/libaevol/Makefile src/libaevol/SFMT-src-1.4/Makefile src/post_treatments/Makefile tests/Makefile"
 
 if test -z "$HAVE_DOXYGEN_TRUE"; then :
   ac_config_files="$ac_config_files doc/Makefile"
@@ -7460,6 +7460,7 @@ do
     "src/libaevol/Makefile") CONFIG_FILES="$CONFIG_FILES src/libaevol/Makefile" ;;
     "src/libaevol/SFMT-src-1.4/Makefile") CONFIG_FILES="$CONFIG_FILES src/libaevol/SFMT-src-1.4/Makefile" ;;
     "src/post_treatments/Makefile") CONFIG_FILES="$CONFIG_FILES src/post_treatments/Makefile" ;;
+    "tests/Makefile") CONFIG_FILES="$CONFIG_FILES tests/Makefile" ;;
     "doc/Makefile") CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
     "src/libaevol/tests/Makefile") CONFIG_FILES="$CONFIG_FILES src/libaevol/tests/Makefile" ;;
 
