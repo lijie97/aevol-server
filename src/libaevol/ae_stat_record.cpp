@@ -134,11 +134,6 @@ ae_stat_record::ae_stat_record( const ae_stat_record &model )
     _av_value_enhancing_influences = model._av_value_enhancing_influences;
     _av_value_operating_influences = model._av_value_operating_influences;
   #endif
-  
-  _int_probe      = model._int_probe;
-  _int_probes     = model._int_probes;
-  _double_probe   = model._double_probe;
-  _double_probes  = model._double_probes;
 }
 
 /* If used for post-treatments, num_gener is mandatory */
@@ -456,15 +451,6 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_individual const * ind
     }
   }
 
-  // Sum: arbitrary choice
-  int32_t* ind_int_probe    = indiv->get_int_probes();
-  double* ind_double_probe  = indiv->get_double_probes();
-  for ( int8_t i = 0 ; i < 5 ; i++ )
-  {
-    _int_probe    += ind_int_probe[i];
-    _double_probe += ind_double_probe[i];
-    
-  } 
 }
 
 // Calculate average statistics for all the recorded values 
@@ -487,8 +473,6 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_population const * pop
   ae_list_node<ae_individual*>* indiv_node  = pop->get_indivs()->get_first();
   ae_individual*  indiv       = NULL;
   
-  _int_probes     = new int32_t[(int32_t)_pop_size];
-  _double_probes  = new double[(int32_t)_pop_size];
   int32_t index;
 
   while ( indiv_node != NULL )
@@ -584,10 +568,6 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_population const * pop
 // =================================================================
 ae_stat_record::~ae_stat_record( void )
 {
-  if (_int_probes != NULL)
-    delete _int_probes;
-  if (_double_probes != NULL)
-    delete _double_probes;
 }
 
 // =================================================================
@@ -653,11 +633,6 @@ void ae_stat_record::initialize_data( void )
     _av_value_enhancing_influences = 0.0;
     _av_value_operating_influences = 0.0;
   #endif
-  
-  _int_probe     = 0;
-  _int_probes    = NULL;
-  _double_probe  = 0.0;
-  _double_probes = NULL;
 }
 
 void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_print) const
@@ -677,9 +652,7 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
               _secretion_error,
               _parent_secretion_error,
               _secretion_fitness,
-              _compound_amount,
-              _int_probe,
-              _double_probe );
+              _compound_amount);
 
       #ifdef __REGUL
         fprintf(  stat_file, " %"PRId32" %"PRId32" %"PRId32" %f %f %f",
@@ -820,22 +793,6 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
               _trans_rate,
               _inv_rate,
               _mean_align_score );
-    }
-    if ( stat_type_to_print == INT_PROBES )
-    {
-      fprintf(  stat_file, "%"PRId32" ", (int32_t)_num_gener);
-      for(int32_t i = 0; i <(int32_t)_pop_size; i++)
-      {
-        fprintf(stat_file, "%"PRId32" ", _int_probes[i]);
-      }
-    }
-    if ( stat_type_to_print == DOUBLE_PROBES )
-    {
-      fprintf(  stat_file, "%"PRId32" ", (int32_t)_num_gener);
-      for(int32_t i = 0; i <(int32_t)_pop_size; i++)
-      {
-        fprintf(stat_file, "%e ", _double_probes[i]);
-      }
     }
   }
   
@@ -1028,9 +985,6 @@ void ae_stat_record::add( ae_stat_record* to_add, int32_t index )
     _av_value_enhancing_influences += to_add->_av_value_enhancing_influences;
     _av_value_operating_influences += to_add->_av_value_operating_influences;
   #endif
-  
-  _int_probes[index]    = to_add->_int_probe;
-  _double_probes[index] = to_add->_double_probe;
 }
 
 void ae_stat_record::substract_power( ae_stat_record const * means, ae_stat_record const * to_substract, double power )

@@ -89,9 +89,7 @@ enum stats_type
   GENES_STATS     = 2,
   BP_STATS        = 3,
   REAR_STATS      = 4,
-  INT_PROBES      = 5,
-  DOUBLE_PROBES   = 6,
-  NB_STATS_TYPES  = 7
+  NB_STATS_TYPES  = 5
 };
 
 
@@ -231,11 +229,6 @@ class ae_stat_record : public ae_object
       double  _av_value_enhancing_influences;
       double  _av_value_operating_influences;
     #endif
-    
-    int32_t   _int_probe;
-    int32_t*  _int_probes;
-    double    _double_probe;
-    double*   _double_probes;
 };
 
 

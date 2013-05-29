@@ -66,9 +66,7 @@ class ae_dump : public ae_object
   // =================================================================
   //                             Constructors
   // =================================================================
-  ae_dump( void )
-  {
-  }
+  ae_dump( ae_exp_manager* exp_m );
   
   // =================================================================
   //                             Destructors
@@ -89,6 +87,7 @@ class ae_dump : public ae_object
   void write_secretion_present( void );
   void write_fitness_metabolic( void );
   void write_secreted_amount( void );
+  void write_individual_probes( void );
   
   // =================================================================
   //                           Public Attributes

@@ -200,6 +200,10 @@ void ae_output_manager::load( gzFile setup_file, bool verbose, bool to_be_run  )
   gzread( setup_file, &make_dumps, sizeof(make_dumps) );
   _make_dumps = make_dumps;
   gzread( setup_file, &_dump_step,  sizeof(_dump_step) );
+  if( _make_dumps == true)
+  {
+    _dump = new ae_dump(_exp_m);
+  }
   
   // Logs
   int8_t logs;
@@ -253,6 +257,10 @@ void ae_output_manager::load( FILE* setup_file, bool verbose, bool to_be_run  )
   fscanf( setup_file, "MAKE_DUMPS %s\n", tmp );
   _make_dumps = ! strcmp( tmp, "true" );
   fscanf( setup_file, "DUMP_STEP %"PRId32"\n", &_dump_step );
+  if( _make_dumps == true)
+  {
+    _dump = new ae_dump(_exp_m);
+  }
   
   // Logs
   int8_t logs;
@@ -265,11 +273,6 @@ void ae_output_manager::write_current_generation_outputs( void ) const
   int32_t num_gener = _exp_m->get_num_gener();
   
   _stats->write_current_generation_statistics();
-  
-  if ( _make_dumps )
-  {
-    _dump->write_current_generation_dump();
-  }
   
   if ( _record_tree )
   {

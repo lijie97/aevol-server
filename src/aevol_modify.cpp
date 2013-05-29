@@ -552,10 +552,23 @@ void change_based_on_non_coding_bases_of_best_individual_ancestor(ae_population*
       probe_B[i] = 10;
       probe_C[i] = 100;
     }
-    
     indiv->set_int_probes(probe_A);
     only_coding_indiv->set_int_probes(probe_B);
     twice_non_coding_indiv->set_int_probes(probe_C);
+    
+    double* probe_double_A = new double[5];
+    double* probe_double_B = new double[5];
+    double* probe_double_C = new double[5];
+    for( int32_t i = 0 ; i<5; i++)
+    {
+      probe_double_A[i] = 1;
+      probe_double_B[i] = 10;
+      probe_double_C[i] = 100;
+    }
+    indiv->set_double_probes(probe_double_A);
+    only_coding_indiv->set_double_probes(probe_double_B);
+    twice_non_coding_indiv->set_double_probes(probe_double_C);
+    
     
     if(type == SUBPOPULATIONS_BASED_ON_NON_CODING_BASES)
     {
