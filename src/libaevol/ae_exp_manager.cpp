@@ -99,6 +99,7 @@ ae_exp_manager::~ae_exp_manager( void )
   delete _exp_s;
   delete _output_m;
   delete _env;
+  if ( _spatial_structure != NULL ){delete _spatial_structure;}
 }
 
 // ===========================================================================
@@ -446,6 +447,16 @@ void ae_exp_manager::load( int32_t first_gener,
   // ---------------------------------------------------------------------------
   // 2) Load data from backup and parameter files
   // ---------------------------------------------------------------------------
+  
+  // ----------------------------------------- Retrieve spatial structure data
+  if ( sp_struct_file != NULL )
+  {
+    printf( "  Loading spatial structure..." );
+    fflush( stdout );
+    _spatial_structure = new ae_spatial_structure( sp_struct_file );
+    printf( "OK\n" );
+  }
+  
   // ------------------------------------------------ Retrieve population data
   printf( "  Loading population..." );
   fflush( stdout );
@@ -472,15 +483,6 @@ void ae_exp_manager::load( int32_t first_gener,
     _exp_s->load( exp_setup_txtfile, exp_backup_file, verbose );
   }
   printf( "OK\n" );
-  
-  // ----------------------------------------- Retrieve spatial structure data
-  if ( sp_struct_file != NULL )
-  {
-    printf( "  Loading spatial structure..." );
-    fflush( stdout );
-    _spatial_structure = new ae_spatial_structure( sp_struct_file );
-    printf( "OK\n" );
-  }
   
   // --------------------------------------------- Retrieve ouput profile data
   if ( out_prof_gzfile != NULL )
