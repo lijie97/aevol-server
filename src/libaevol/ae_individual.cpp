@@ -810,7 +810,7 @@ void ae_individual::compute_fitness( ae_environment* envir )
       }
     }
     
-    if (! _placed_in_population)
+    if ( ( ! _placed_in_population ) || (! _exp_m->get_with_secretion() ))
     {
       _fitness = _fitness_by_feature[METABOLISM];
     }
@@ -844,7 +844,7 @@ void ae_individual::compute_fitness( ae_environment* envir )
     
     // Calculate combined, total fitness here!
     // Multiply the contribution of metabolism and the amount of compound in the environment 
-    if ( ! _placed_in_population )
+    if ( ( ! _placed_in_population ) || (! _exp_m->get_with_secretion() ))
     { 
       _fitness =  _fitness_by_feature[METABOLISM] ; 
     }

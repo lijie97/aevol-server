@@ -989,12 +989,8 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   
   // ---------------------------------------------------------------- Secretion
   exp_s->set_with_secretion( _param_values->_with_secretion );
-  if ( _param_values->_with_secretion )
-  {
-    exp_s->set_secretion_contrib_to_fitness( _param_values->_secretion_contrib_to_fitness );
-    exp_s->set_secretion_cost( _param_values->_secretion_cost );
-  }
-  
+  exp_s->set_secretion_contrib_to_fitness( _param_values->_secretion_contrib_to_fitness );
+  exp_s->set_secretion_cost( _param_values->_secretion_cost );
   
   
   // 2) ------------------------------------------------ Create the environment

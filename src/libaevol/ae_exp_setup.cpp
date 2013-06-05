@@ -135,11 +135,8 @@ void ae_exp_setup::write_setup_file( gzFile exp_setup_file ) const
   // -------------------------------------------------------------- Secretion
   int8_t tmp_with_secretion = _with_secretion;
   gzwrite( exp_setup_file, &tmp_with_secretion, sizeof(tmp_with_secretion) );
-  if ( _with_secretion )
-  {
-    gzwrite( exp_setup_file, &_secretion_contrib_to_fitness, sizeof(_secretion_contrib_to_fitness) );
-    gzwrite( exp_setup_file, &_secretion_cost, sizeof(_secretion_cost) );
-  }
+  gzwrite( exp_setup_file, &_secretion_contrib_to_fitness, sizeof(_secretion_contrib_to_fitness) );
+  gzwrite( exp_setup_file, &_secretion_cost, sizeof(_secretion_cost) );
   
   get_sel()->write_setup_file( exp_setup_file );
 }
@@ -187,11 +184,8 @@ void ae_exp_setup::load( gzFile setup_file, gzFile backup_file, bool verbose )
   int8_t tmp_with_secretion;
   gzread( setup_file, &tmp_with_secretion, sizeof(tmp_with_secretion) );
   _with_secretion = tmp_with_secretion ? true : false;
-  if ( _with_secretion )
-  {
-    gzread( setup_file, &_secretion_contrib_to_fitness, sizeof(_secretion_contrib_to_fitness) );
-    gzread( setup_file, &_secretion_cost, sizeof(_secretion_cost) );
-  }
+  gzread( setup_file, &_secretion_contrib_to_fitness, sizeof(_secretion_contrib_to_fitness) );
+  gzread( setup_file, &_secretion_cost, sizeof(_secretion_cost) );
   
   // ---------------------------------------------- Retrieve selection context
   get_sel()->load( setup_file, backup_file, verbose );
@@ -230,11 +224,8 @@ void ae_exp_setup::load( FILE* setup_file, gzFile backup_file, bool verbose )
   int8_t tmp_with_secretion;
   gzread( setup_file, &tmp_with_secretion, sizeof(tmp_with_secretion) );
   _with_secretion = tmp_with_secretion ? true : false;
-  if ( _with_secretion )
-  {
-    gzread( setup_file, &_secretion_contrib_to_fitness, sizeof(_secretion_contrib_to_fitness) );
-    gzread( setup_file, &_secretion_cost, sizeof(_secretion_cost) );
-  }
+  gzread( setup_file, &_secretion_contrib_to_fitness, sizeof(_secretion_contrib_to_fitness) );
+  gzread( setup_file, &_secretion_cost, sizeof(_secretion_cost) );
   
   // ---------------------------------------------- Retrieve selection context
   printf( "  Loading selection context..." );
