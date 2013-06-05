@@ -108,7 +108,6 @@ class params : public ae_object
     inline int16_t                get_env_sampling( void )            const;
     
     // ---------------------------------------- Environment x-axis segmentation
-    inline bool                 get_env_axis_is_segmented( void )       const;
     inline int16_t              get_env_axis_nb_segments( void )        const;
     inline double*              get_env_axis_segment_boundaries( void ) const;
     inline ae_env_axis_feature* get_env_axis_features( void )           const;
@@ -268,7 +267,6 @@ class params : public ae_object
     inline void set_env_sampling( int16_t env_sampling );
     
     // ---------------------------------------- Environment x-axis segmentation
-    inline void set_env_axis_is_segmented( bool env_axis_is_segmented );
     inline void set_env_axis_nb_segments( int16_t env_axis_nb_segments );
     inline void set_env_axis_segment_boundaries( double* env_axis_segment_boundaries ); // set_env_axis_nb_segments first
     inline void set_env_axis_features( ae_env_axis_feature* env_axis_features );        // set_env_axis_nb_segments first
@@ -464,8 +462,6 @@ class params : public ae_object
     int16_t  _env_sampling;
     
     // ---------------------------------------- Environment x-axis segmentation
-    // Whether the environment is segmented
-    bool _env_axis_is_segmented;
     // Number of x-axis segments
     int16_t _env_axis_nb_segments;
     // x-axis segment boundaries (sorted -- including MIN_X and MAX_X)
@@ -684,12 +680,6 @@ inline int16_t params::get_env_sampling( void ) const
 }
 
 // -------------------------------------------- Environment x-axis segmentation
-    
-inline bool params::get_env_axis_is_segmented( void ) const
-{
-  return _env_axis_is_segmented;
-}
-
 inline int16_t params::get_env_axis_nb_segments( void ) const
 {
   return _env_axis_nb_segments;
@@ -1170,11 +1160,6 @@ inline void params::set_env_sampling( int16_t env_sampling )
 }
 
 // -------------------------------------------- Environment x-axis segmentation
-inline void params::set_env_axis_is_segmented( bool env_axis_is_segmented )
-{
-  _env_axis_is_segmented = env_axis_is_segmented;
-}
-
 inline void params::set_env_axis_nb_segments( int16_t env_axis_nb_segments )
 {
   _env_axis_nb_segments = env_axis_nb_segments;

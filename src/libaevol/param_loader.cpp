@@ -136,7 +136,6 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
   else if ( strcmp( line->words[0], "ENV_AXIS_FEATURES" ) == 0 )
   {
     // Set general segmentation data
-    _param_values->set_env_axis_is_segmented( true );
     _param_values->set_env_axis_nb_segments( line->nb_words / 2 );
     
     // Set segmentation boundaries
@@ -989,8 +988,12 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   
   // ---------------------------------------------------------------- Secretion
   exp_s->set_with_secretion( _param_values->_with_secretion );
-  exp_s->set_secretion_contrib_to_fitness( _param_values->_secretion_contrib_to_fitness );
-  exp_s->set_secretion_cost( _param_values->_secretion_cost );
+  if ( _param_values->_with_secretion )
+  {
+    exp_s->set_secretion_contrib_to_fitness( _param_values->_secretion_contrib_to_fitness );
+    exp_s->set_secretion_cost( _param_values->_secretion_cost );
+  }
+  
   
   
   // 2) ------------------------------------------------ Create the environment
@@ -1005,13 +1008,10 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   env->set_sampling( _param_values->get_env_sampling() );
   
   // Set the environment segmentation
-  if ( _param_values->get_env_axis_is_segmented() )
-  {
-    env->set_segmentation( _param_values->get_env_axis_nb_segments(),
-                           _param_values->get_env_axis_segment_boundaries(),
-                           _param_values->get_env_axis_features(),
-                           _param_values->get_env_axis_separate_segments() );
-  }
+  env->set_segmentation( _param_values->get_env_axis_nb_segments(),
+                         _param_values->get_env_axis_segment_boundaries(),
+                         _param_values->get_env_axis_features(),
+                         _param_values->get_env_axis_separate_segments() );
   
   // Set environmental variation
   if ( _param_values->get_env_var_method() != NO_VAR )

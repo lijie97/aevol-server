@@ -152,10 +152,62 @@ int main( int argc, char* argv[] )
   }
   
   bool env_change = false;
-  f_line* line;  
+  f_line* line;
+  int32_t cur_line = 0;
   while ( ( line = get_line(param_file) ) != NULL ) 
   {
-    if ( strcmp( line->words[0], "POINT_MUTATION_RATE" ) == 0 )
+    cur_line++;
+    if ( strcmp( line->words[0], "ENV_AXIS_FEATURES" ) == 0 )
+    {
+      int16_t env_axis_nb_segments = line->nb_words / 2;
+      double* env_axis_segment_boundaries = new double [env_axis_nb_segments + 1];
+      env_axis_segment_boundaries[0] = X_MIN;
+      for ( int16_t i = 1 ; i < env_axis_nb_segments ; i++ )
+      {
+        env_axis_segment_boundaries[i] = atof( line->words[2*i] );
+      }
+      env_axis_segment_boundaries[env_axis_nb_segments] = X_MAX;
+      
+      // Set segment features
+      ae_env_axis_feature* env_axis_features = new ae_env_axis_feature[env_axis_nb_segments];
+      for ( int16_t i = 0 ; i < env_axis_nb_segments ; i++ )
+      {
+        if ( strcmp( line->words[2*i+1], "NEUTRAL" ) == 0 )
+        {
+          env_axis_features[i] = NEUTRAL;
+        }
+        else if ( strcmp( line->words[2*i+1], "METABOLISM" ) == 0 )
+        {
+          env_axis_features[i] = METABOLISM;
+        }
+        else if ( strcmp( line->words[2*i+1], "SECRETION" ) == 0 )
+        {
+          exp_manager->get_exp_s()->set_with_secretion( true );
+          env_axis_features[i] = SECRETION;
+        }
+        else if ( strcmp( line->words[2*i+1], "DONOR" ) == 0 )
+        {
+          env_axis_features[i] = DONOR;
+        }
+        else if ( strcmp( line->words[2*i+1], "RECIPIENT" ) == 0 )
+        {
+          env_axis_features[i] = RECIPIENT;
+        }
+        else
+        {
+          printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown axis feature \"%s\".\n",
+                  param_file_name, cur_line, line->words[2*i+1] );
+          exit( EXIT_FAILURE );
+        }
+      }
+      env->set_segmentation( env_axis_nb_segments,
+                             env_axis_segment_boundaries,
+                             env_axis_features );
+      env->build();
+      delete env_axis_segment_boundaries;
+      delete env_axis_features;
+    }
+    else if ( strcmp( line->words[0], "POINT_MUTATION_RATE" ) == 0 )
     {
       pop->set_overall_point_mutation_rate( atof( line->words[1] ) );
       printf("\tChange of overall point mutation rate to %f\n",atof( line->words[1] ));

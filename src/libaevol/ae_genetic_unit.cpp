@@ -1026,27 +1026,20 @@ void ae_genetic_unit::compute_distance_to_target( ae_environment* env )
   ae_fuzzy_set* delta = new ae_fuzzy_set( *_phenotypic_contribution );
   delta->sub( env );
   
-  if ( env->get_nb_segments() == 1 )
+  ae_env_segment** segments = env->get_segments();
+  
+  // TODO : We should take into account that we compute the areas in order (from the leftmost segment, rightwards)
+  //   => We shouldn't parse the whole list of points on the left of the segment we are considering (we have 
+  //      already been through them!)
+  
+  if ( _dist_to_target_per_segment == NULL )
   {
-    _dist_to_target_by_feature[METABOLISM] = delta->get_geometric_area();
+    _dist_to_target_per_segment = new double [env->get_nb_segments()]; // Can not be allocated in constructor because number of segments is then unknow
   }
-  else // Environment is segmented
+  for ( int16_t i = 0 ; i < env->get_nb_segments() ; i++ )
   {
-    ae_env_segment** segments = env->get_segments();
-    
-    // TODO : We should take into account that we compute the areas in order (from the leftmost segment, rightwards)
-    //   => We shouldn't parse the whole list of points on the left of the segment we are considering (we have 
-    //      already been through them!)
-    
-    if ( _dist_to_target_per_segment == NULL )
-    {
-      _dist_to_target_per_segment = new double [env->get_nb_segments()]; // Can not be allocated in constructor because number of segments is then unknow
-    }
-    for ( int16_t i = 0 ; i < env->get_nb_segments() ; i++ )
-    {
-      _dist_to_target_per_segment[i] = delta->get_geometric_area( segments[i]->start, segments[i]->stop );
-      _dist_to_target_by_feature[segments[i]->feature] += _dist_to_target_per_segment[i];
-    }
+    _dist_to_target_per_segment[i] = delta->get_geometric_area( segments[i]->start, segments[i]->stop );
+    _dist_to_target_by_feature[segments[i]->feature] += _dist_to_target_per_segment[i];
   }
   
   delete delta;

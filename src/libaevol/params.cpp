@@ -84,7 +84,6 @@ params::params( void )
   _env_sampling       = 300;
     
   // ---------------------------------------- Environment x-axis segmentation
-  _env_axis_is_segmented        = false;
   _env_axis_nb_segments         = 1;
   _env_axis_segment_boundaries  = NULL;
   _env_axis_features            = NULL;

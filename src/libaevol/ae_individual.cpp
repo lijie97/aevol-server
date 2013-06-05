@@ -754,28 +754,21 @@ void ae_individual::compute_distance_to_target( ae_environment* envir )
   ae_fuzzy_set* delta = new ae_fuzzy_set( *_phenotype );
   delta->sub( envir );
   
-  if ( envir->get_nb_segments() == 1 )
+  ae_env_segment** segments = envir->get_segments();
+  _dist_to_target_by_segment = new double [envir->get_nb_segments()];
+  for ( int8_t i = 0 ; i < envir->get_nb_segments() ; i++ )
   {
-    _dist_to_target_by_feature[METABOLISM] = delta->get_geometric_area();
+    _dist_to_target_by_segment[i] = 0;
   }
-  else // Environment is segmented
+  
+  // TODO : We should take into account that we compute the areas in order (from the leftmost segment, rightwards)
+  //   => We shouldn't parse the whole list of points on the left of the segment we are considering (we have 
+  //      already been through them!)
+  
+  for ( int16_t i = 0 ; i < envir->get_nb_segments() ; i++ )
   {
-    ae_env_segment** segments = envir->get_segments();
-    _dist_to_target_by_segment = new double [envir->get_nb_segments()];
-    for ( int8_t i = 0 ; i < envir->get_nb_segments() ; i++ )
-    {
-      _dist_to_target_by_segment[i] = 0;
-    }
-    
-    // TODO : We should take into account that we compute the areas in order (from the leftmost segment, rightwards)
-    //   => We shouldn't parse the whole list of points on the left of the segment we are considering (we have 
-    //      already been through them!)
-    
-    for ( int16_t i = 0 ; i < envir->get_nb_segments() ; i++ )
-    {
-      _dist_to_target_by_segment[i] = delta->get_geometric_area( segments[i]->start, segments[i]->stop );
-      _dist_to_target_by_feature[segments[i]->feature] += _dist_to_target_by_segment[i];
-    }
+    _dist_to_target_by_segment[i] = delta->get_geometric_area( segments[i]->start, segments[i]->stop );
+    _dist_to_target_by_feature[segments[i]->feature] += _dist_to_target_by_segment[i];
   }
   
   delete delta;

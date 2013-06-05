@@ -28,22 +28,22 @@ AM_CPPFLAGS += -D__STDC_FORMAT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MA
 if WITH_RAEVOL
 if WITH_X
 if WITH_DEBUG
-  bin_PROGRAMS = rrobustness_debug rancstats_debug rcreate_eps_debug rfixed_mutations_debug rlineage_debug rcompute_pop_stats_debug
+  bin_PROGRAMS = rrobustness_debug rancstats_debug rcreate_eps_debug rfixed_mutations_debug rlineage_debug rcompute_pop_stats_debug rextract_debug
 #	LDADD = $(top_srcdir)/src/lib-aevol/lib-raevol-X11-debug.a
 else # WITHOUT_DEBUG
-  bin_PROGRAMS = rrobustness rancstats rcreate_eps rfixed_mutations rlineage rcompute_pop_stats
+  bin_PROGRAMS = rrobustness rancstats rcreate_eps rfixed_mutations rlineage rcompute_pop_stats rextract
 #	LDADD = $(top_srcdir)/src/lib-aevol/lib-raevol-X11.a
 endif # DEBUG
 else # WITHOUT_X
 if WITH_DEBUG
-  bin_PROGRAMS = rrobustness_debug rancstats_debug rcreate_eps_debug rfixed_mutations_debug rlineage_debug rcompute_pop_stats_debug
+  bin_PROGRAMS = rrobustness_debug rancstats_debug rcreate_eps_debug rfixed_mutations_debug rlineage_debug rcompute_pop_stats_debug rextract_debug
 #	LDADD = $(top_srcdir)/src/lib-aevol/lib-raevol-debug.a
 else # WITHOUT_DEBUG
 if WITH_IN2P3
-  bin_PROGRAMS = rrobustness rancstats rcreate_eps rfixed_mutations rlineage rcompute_pop_stats
+  bin_PROGRAMS = rrobustness rancstats rcreate_eps rfixed_mutations rlineage rcompute_pop_stats rextract
 #	LDADD = $(top_srcdir)/src/lib-aevol/lib-raevol-IN2P3.a
 else # WITHOUT_IN2P3
-  bin_PROGRAMS = rrobustness rancstats rcreate_eps rfixed_mutations rlineage rcompute_pop_stats
+  bin_PROGRAMS = rrobustness rancstats rcreate_eps rfixed_mutations rlineage rcompute_pop_stats rextract
 #	LDADD = $(top_srcdir)/src/lib-aevol/lib-raevol.a
 endif # IN2P3
 endif # DEBUG
@@ -51,22 +51,22 @@ endif # X
 else # WITHOUT_RAEVOL
 if WITH_X
 if WITH_DEBUG
-  bin_PROGRAMS = robustness_debug ancstats_debug create_eps_debug fixed_mutations_debug lineage_debug compute_pop_stats_debug
+  bin_PROGRAMS = robustness_debug ancstats_debug create_eps_debug fixed_mutations_debug lineage_debug compute_pop_stats_debug extract_debug
 #	LDADD = $(top_srcdir)/src/lib-aevol/lib-aevol-X11-debug.a
 else # WITHOUT_DEBUG
-  bin_PROGRAMS = robustness ancstats create_eps fixed_mutations lineage compute_pop_stats
+  bin_PROGRAMS = robustness ancstats create_eps fixed_mutations lineage compute_pop_stats extract
 #	LDADD = $(top_srcdir)/src/lib-aevol/lib-aevol-X11.a
 endif # DEBUG
 else # WITHOUT_X
 if WITH_DEBUG
-  bin_PROGRAMS = robustness_debug ancstats_debug create_eps_debug fixed_mutations_debug lineage_debug compute_pop_stats_debug
+  bin_PROGRAMS = robustness_debug ancstats_debug create_eps_debug fixed_mutations_debug lineage_debug compute_pop_stats_debug extract_debug
 #	LDADD = $(top_srcdir)/src/lib-aevol/lib-aevol-debug.a
 else # WITHOUT_DEBUG
 if WITH_IN2P3
-  bin_PROGRAMS = robustness ancstats create_eps fixed_mutations lineage compute_pop_stats
+  bin_PROGRAMS = robustness ancstats create_eps fixed_mutations lineage compute_pop_stats extract
 #	LDADD = $(top_srcdir)/src/lib-aevol/lib-aevol-IN2P3.a
 else # WITHOUT_IN2P3
-  bin_PROGRAMS = robustness ancstats create_eps fixed_mutations lineage compute_pop_stats
+  bin_PROGRAMS = robustness ancstats create_eps fixed_mutations lineage compute_pop_stats extract
 #	LDADD = $(top_srcdir)/src/lib-aevol/lib-aevol.a
 endif # IN2P3
 endif # DEBUG
@@ -75,8 +75,8 @@ endif # RAEVOL
 
 CLEANFILES = rrobustness_debug rancstats_debug rcreate_eps_debug rfixed_mutations_debug rlineage_debug rcompute_pop_stats_debug
 CLEANFILES += rrobustness rancstats rcreate_eps rfixed_mutations rlineage rcompute_pop_stats
-CLEANFILES += robustness_debug ancstats_debug create_eps_debug fixed_mutations_debug lineage_debug compute_pop_stats_debug
-CLEANFILES += robustness ancstats create_eps fixed_mutations lineage compute_pop_stats
+CLEANFILES += robustness_debug ancstats_debug create_eps_debug fixed_mutations_debug lineage_debug compute_pop_stats_debug extract_debug
+CLEANFILES += robustness ancstats create_eps fixed_mutations lineage compute_pop_stats extract
 
 
 
@@ -119,21 +119,21 @@ rcreate_eps_debug_SOURCES = create_eps.cpp
 rcreate_eps_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
 
-#extractdir = $(bindir)
-#extract_SOURCES = extract.cpp
-#extract_CPPFLAGS = $(AM_CPPFLAGS)
+extractdir = $(bindir)
+extract_SOURCES = extract.cpp
+extract_CPPFLAGS = $(AM_CPPFLAGS)
 
-#extract_debugdir = $(bindir)
-#extract_debug_SOURCES = extract.cpp
-#extract_debug_CPPFLAGS = $(AM_CPPFLAGS)
+extract_debugdir = $(bindir)
+extract_debug_SOURCES = extract.cpp
+extract_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
-#rextractdir = $(bindir)
-#rextract_SOURCES = extract.cpp
-#rextract_CPPFLAGS = $(AM_CPPFLAGS)
+rextractdir = $(bindir)
+rextract_SOURCES = extract.cpp
+rextract_CPPFLAGS = $(AM_CPPFLAGS)
 
-#rextract_debugdir = $(bindir)
-#rextract_debug_SOURCES = extract.cpp
-#rextract_debug_CPPFLAGS = $(AM_CPPFLAGS)
+rextract_debugdir = $(bindir)
+rextract_debug_SOURCES = extract.cpp
+rextract_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
 
 fixed_mutationsdir = $(bindir)
@@ -168,25 +168,6 @@ rfixed_mutations_debug_CPPFLAGS = $(AM_CPPFLAGS)
 #rgenome_stats_debugdir = $(bindir)
 #rgenome_stats_debug_SOURCES = genome_stats.cpp
 #rgenome_stats_debug_CPPFLAGS = $(AM_CPPFLAGS)
-
-
-
-#get_best_indivdir = $(bindir)
-#get_best_indiv_SOURCES = get_best_indiv.cpp
-#get_best_indiv_CPPFLAGS = $(AM_CPPFLAGS)
-
-#get_best_indiv_debugdir = $(bindir)
-#get_best_indiv_debug_SOURCES = get_best_indiv.cpp
-#get_best_indiv_debug_CPPFLAGS = $(AM_CPPFLAGS)
-
-#rget_best_indivdir = $(bindir)
-#rget_best_indiv_SOURCES = get_best_indiv.cpp
-#rget_best_indiv_CPPFLAGS = $(AM_CPPFLAGS)
-
-#rget_best_indiv_debugdir = $(bindir)
-#rget_best_indiv_debug_SOURCES = get_best_indiv.cpp
-#rget_best_indiv_debug_CPPFLAGS = $(AM_CPPFLAGS)
-
 
 lineagedir = $(bindir)
 lineage_SOURCES = lineage.cpp
