@@ -982,18 +982,14 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
                                   sp_struct_prng );
     ae_spatial_structure* sp_struct = exp_m->get_spatial_structure();
     sp_struct->set_secretion_degradation_prop( _param_values->_secretion_degradation_prop );
-    sp_struct->set_secretion_diffusion_prop( _param_values->_secretion_diffusion_prop );
+      ( _param_values->_secretion_diffusion_prop );
     sp_struct->set_migration_number( _param_values->_migration_number );
   }
   
   // ---------------------------------------------------------------- Secretion
   exp_s->set_with_secretion( _param_values->_with_secretion );
-  if ( _param_values->_with_secretion )
-  {
-    exp_s->set_secretion_contrib_to_fitness( _param_values->_secretion_contrib_to_fitness );
-    exp_s->set_secretion_cost( _param_values->_secretion_cost );
-  }
-  
+  exp_s->set_secretion_contrib_to_fitness( _param_values->_secretion_contrib_to_fitness );
+  exp_s->set_secretion_cost( _param_values->_secretion_cost );
   
   
   // 2) ------------------------------------------------ Create the environment
