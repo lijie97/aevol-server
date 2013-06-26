@@ -219,7 +219,7 @@ void ae_selection::step_to_next_generation( void )
   _exp_m->get_pop()->sort_individuals();
 }
 
-void ae_selection::step_to_next_generation_grid( void )
+void ae_selection:: ( void )
 {
   // -------------------------------------------------------------------------------
   // 1) Compute the probability of reproduction of each individual in the population
@@ -253,17 +253,16 @@ void ae_selection::step_to_next_generation_grid( void )
   {
     new_indiv_grid[i] = new ae_individual* [grid_height];
   }
-
-        
+  
+  
   // Do local competitions
   for ( int16_t x = 0 ; x < grid_width ; x++ )
   {
     for ( int16_t y = 0 ; y < grid_height ; y++ )
-    {   
+    {
       new_indiv_grid[x][y] = calculate_local_competition( x, y );
-      new_indiv_grid[x][y]->set_grid_cell( pop_grid[x][y] );
     }
-  }  
+  }
   
   
   // Add the compound secreted by the individuals
@@ -625,7 +624,7 @@ void ae_selection::compute_local_prob_reprod( void )
   }
 }
 
-ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t index, int16_t x /*= 0*/, int16_t y /*= 0*/ )
+ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t index, int16_t x /*= -1 */, int16_t y /*= -1 */ )
 {
   ae_individual* new_indiv = NULL;
 
