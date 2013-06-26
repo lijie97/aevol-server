@@ -219,7 +219,7 @@ void ae_selection::step_to_next_generation( void )
   _exp_m->get_pop()->sort_individuals();
 }
 
-void ae_selection:: ( void )
+void ae_selection::step_to_next_generation_grid( void )
 {
   // -------------------------------------------------------------------------------
   // 1) Compute the probability of reproduction of each individual in the population
