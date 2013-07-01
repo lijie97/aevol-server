@@ -133,6 +133,8 @@ class ae_environment : public ae_fuzzy_set_X11
     void add_gaussian( double a, double b, double c );
     void add_initial_gaussian( double a, double b, double c );
     void build( void );
+    inline void clear_initial_gaussians( void );
+    inline void clear_gaussians( void );
     
     inline void apply_variation( void );
     void apply_noise( void );
@@ -376,6 +378,26 @@ inline void ae_environment::set_noise_sampling_log( int32_t sampling_log )
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
+inline void ae_environment::clear_initial_gaussians( void )
+{
+  if (_initial_gaussians != NULL)
+  {
+    _initial_gaussians->erase(true);
+    delete _initial_gaussians;
+  }
+  _initial_gaussians=NULL;
+}
+
+inline void ae_environment::clear_gaussians( void )
+{
+  if (_gaussians != NULL)
+    {
+    _gaussians->erase(true);
+    delete _gaussians;
+    }
+  _gaussians=NULL;
+}
+
 inline void ae_environment::apply_variation( void )
 {
   switch ( _var_method )

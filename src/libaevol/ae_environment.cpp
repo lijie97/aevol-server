@@ -110,6 +110,12 @@ ae_environment::~ae_environment( void )
     delete _gaussians;
   }
   
+  if ( _initial_gaussians != NULL )
+  {
+    _initial_gaussians->erase( true );
+    delete _initial_gaussians;
+  }
+  
   if ( _custom_points != NULL )
   {
     _custom_points->erase( true );

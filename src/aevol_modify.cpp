@@ -152,6 +152,8 @@ int main( int argc, char* argv[] )
   }
   
   bool env_change = false;
+  bool env_hasbeenmodified = false;
+  
   f_line* line;
   int32_t cur_line = 0;
   while ( ( line = get_line(param_file) ) != NULL ) 
@@ -203,7 +205,7 @@ int main( int argc, char* argv[] )
       env->set_segmentation( env_axis_nb_segments,
                              env_axis_segment_boundaries,
                              env_axis_features );
-      env->build();
+      env_hasbeenmodified = true;
       delete env_axis_segment_boundaries;
       delete env_axis_features;
     }
@@ -252,34 +254,36 @@ int main( int argc, char* argv[] )
       if ( env_change)
       {
         env->add_gaussian( atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
-        env->add_initial_gaussian( atof(line->words[1]), atof(line->words[2]), atof(line->words[3])); //usefull in case of autoregressive mean variation to compute delta_m
         printf("\tAddition of a gaussian with %f, %f, %f \n",atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
       }
       else
       {
+        env->clear_gaussians();
+        env->clear_initial_gaussians();
         env->set_gaussians(new ae_list<ae_gaussian*>());
         env->add_gaussian( atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
-        env->add_initial_gaussian( atof(line->words[1]), atof(line->words[2]), atof(line->words[3])); //usefull in case of autoregressive mean variation to compute delta_m
         printf("\tChange of the environment: first gaussian with %f, %f, %f \n",atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
         env_change = true;
       }
+      env_hasbeenmodified = true;
     }
     else if ( strcmp( line->words[0], "ENV_GAUSSIAN" ) == 0 )
     {
       if ( env_change)
       {
         env->add_gaussian( atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
-        env->add_initial_gaussian( atof(line->words[1]), atof(line->words[2]), atof(line->words[3])); //usefull in case of autoregressive mean variation to compute delta_m
         printf("\tAddition of a gaussian with %f, %f, %f \n",atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
       }
       else
       {
+        env->clear_gaussians();
+        env->clear_initial_gaussians();
         env->set_gaussians(new ae_list<ae_gaussian*>());
         env->add_gaussian( atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
-        env->add_initial_gaussian( atof(line->words[1]), atof(line->words[2]), atof(line->words[3])); //usefull in case of autoregressive mean variation to compute delta_m
         printf("\tChange of the environment: first gaussian with %f, %f, %f \n",atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
         env_change = true;
       }
+      env_hasbeenmodified = true;
     }
     else if ( strcmp( line->words[0], "ENV_VARIATION" ) == 0 )
     {
@@ -404,6 +408,10 @@ int main( int argc, char* argv[] )
   }
   fclose( param_file );
   printf("Ok\n");
+  if (env_hasbeenmodified)
+  {
+    env->build();
+  }
   //printf("%e\n", pop->get_best()->get_point_mutation_rate());
   
   // 8) Save the changements
