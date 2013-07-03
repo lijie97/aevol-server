@@ -300,7 +300,7 @@ inline void analyse_gu( ae_genetic_unit* gen_unit, int32_t gen_unit_number, FILE
       double height = prot->get_height();
       double width = prot->get_width();
       double mean = prot->get_mean();
-      double concentration=prot->get_concentration();
+      double concentration=rna->get_basal_level();
       int32_t fpos = prot->get_first_translated_pos();
       int32_t lpos = prot->get_last_translated_pos();
       
