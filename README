@@ -1,1 +1,5 @@
+Aevol - An in silico experimental evolution platform
+A simulation platform that allows to let populations of digital organisms evolve in different conditions and study experimentally the mechanisms responsible for the structuration of the genome and the transcriptome.
 
+The documentation being quite heavy, it is not included in basic distributions.
+Please visit www.aevol.fr
