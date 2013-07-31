@@ -65,18 +65,18 @@ endif # RAEVOL
 
 if WITH_RAEVOL
 if WITH_X
-  libraevol_a_HEADERS = $(common_headers) $(raevol_X11_headers)
+#libraevol_a_HEADERS = $(common_headers) $(raevol_X11_headers)
   libraevol_a_SOURCES = $(common_sources) $(raevol_X11_sources)
 else # WITHOUT_X
-  libraevol_a_HEADERS = $(common_headers) $(raevol_headers)
+#libraevol_a_HEADERS = $(common_headers) $(raevol_headers)
   libraevol_a_SOURCES = $(common_sources) $(raevol_sources)
 endif # X
 else # WITHOUT_RAEVOL
 if WITH_X
-  libaevol_a_HEADERS = $(common_headers) $(X11_headers)
+#libaevol_a_HEADERS = $(common_headers) $(X11_headers)
   libaevol_a_SOURCES = $(common_sources) $(X11_sources)
 else # WITHOUT_X
-  libaevol_a_HEADERS = $(common_headers)
+#libaevol_a_HEADERS = $(common_headers)
   libaevol_a_SOURCES = $(common_sources)
 endif # X
 endif # RAEVOL

@@ -19,6 +19,7 @@ AC_CONFIG_SRCDIR([src/aevol_run.cpp])
 # Checks for programs (c anc c++ compilers)
 AC_PROG_CXX
 AC_PROG_CC
+AC_PROG_INSTALL
 AC_PROG_RANLIB
 AM_PROG_CC_C_O
 AC_CHECK_PROGS([DOXYGEN], [doxygen])

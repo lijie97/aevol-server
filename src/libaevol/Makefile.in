@@ -15,7 +15,6 @@
 
 @SET_MAKE@
 
-
 VPATH = @srcdir@
 am__make_dryrun = \
   { \
@@ -51,9 +50,7 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 subdir = src/libaevol
-DIST_COMMON = $(am__libaevol_a_HEADERS_DIST) \
-	$(am__libraevol_a_HEADERS_DIST) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in
+DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -208,65 +205,6 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-am__libaevol_a_HEADERS_DIST = ae_align.h ae_codon.h ae_dna.h ae_dump.h \
-	ae_enums.h ae_environment.h ae_env_segment.h ae_exp_manager.h \
-	ae_exp_setup.h ae_fuzzy_set.h ae_gaussian.h ae_genetic_unit.h \
-	ae_grid_cell.h ae_individual.h ae_list.h ae_logs.h ae_macros.h \
-	ae_mutation.h ae_object.h ae_output_manager.h ae_params_mut.h \
-	ae_params_record.h ae_phenotype.h ae_population.h \
-	ae_point_1d.h ae_point_2d.h ae_protein.h ae_jumping_mt.h \
-	ae_jump_poly.h ae_replication_report.h ae_dna_replic_report.h \
-	ae_rna.h ae_stats.h ae_stat_record.h ae_string.h ae_tree.h \
-	ae_utils.h ae_vis_a_vis.h ae_selection.h \
-	ae_spatial_structure.h params.h param_loader.h f_line.h \
-	ae_fuzzy_set_X11.h ae_individual_X11.h ae_population_X11.h \
-	ae_exp_manager_X11.h ae_X11_window.h
-am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
-am__vpath_adj = case $$p in \
-    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
-    *) f=$$p;; \
-  esac;
-am__strip_dir = f=`echo $$p | sed -e 's|^.*/||'`;
-am__install_max = 40
-am__nobase_strip_setup = \
-  srcdirstrip=`echo "$(srcdir)" | sed 's/[].[^$$\\*|]/\\\\&/g'`
-am__nobase_strip = \
-  for p in $$list; do echo "$$p"; done | sed -e "s|$$srcdirstrip/||"
-am__nobase_list = $(am__nobase_strip_setup); \
-  for p in $$list; do echo "$$p $$p"; done | \
-  sed "s| $$srcdirstrip/| |;"' / .*\//!s/ .*/ ./; s,\( .*\)/[^/]*$$,\1,' | \
-  $(AWK) 'BEGIN { files["."] = "" } { files[$$2] = files[$$2] " " $$1; \
-    if (++n[$$2] == $(am__install_max)) \
-      { print $$2, files[$$2]; n[$$2] = 0; files[$$2] = "" } } \
-    END { for (dir in files) print dir, files[dir] }'
-am__base_list = \
-  sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
-  sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__uninstall_files_from_dir = { \
-  test -z "$$files" \
-    || { test ! -d "$$dir" && test ! -f "$$dir" && test ! -r "$$dir"; } \
-    || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
-         $(am__cd) "$$dir" && rm -f $$files; }; \
-  }
-am__installdirs = "$(DESTDIR)$(libaevol_adir)" \
-	"$(DESTDIR)$(libraevol_adir)"
-am__libraevol_a_HEADERS_DIST = ae_align.h ae_codon.h ae_dna.h \
-	ae_dump.h ae_enums.h ae_environment.h ae_env_segment.h \
-	ae_exp_manager.h ae_exp_setup.h ae_fuzzy_set.h ae_gaussian.h \
-	ae_genetic_unit.h ae_grid_cell.h ae_individual.h ae_list.h \
-	ae_logs.h ae_macros.h ae_mutation.h ae_object.h \
-	ae_output_manager.h ae_params_mut.h ae_params_record.h \
-	ae_phenotype.h ae_population.h ae_point_1d.h ae_point_2d.h \
-	ae_protein.h ae_jumping_mt.h ae_jump_poly.h \
-	ae_replication_report.h ae_dna_replic_report.h ae_rna.h \
-	ae_stats.h ae_stat_record.h ae_string.h ae_tree.h ae_utils.h \
-	ae_vis_a_vis.h ae_selection.h ae_spatial_structure.h params.h \
-	param_loader.h f_line.h ae_array_short.h ae_individual_R.h \
-	ae_influence_R.h ae_matrix_double.h ae_protein_R.h ae_rna_R.h \
-	ae_selection_R.h ae_fuzzy_set_X11.h ae_individual_X11.h \
-	ae_population_X11.h ae_exp_manager_X11.h ae_X11_window.h \
-	ae_individual_R_X11.h
-HEADERS = $(libaevol_a_HEADERS) $(libraevol_a_HEADERS)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 AM_RECURSIVE_TARGETS = $(RECURSIVE_TARGETS:-recursive=) \
@@ -458,13 +396,14 @@ raevol_X11_sources = $(X11_sources) $(raevol_sources) ae_individual_R_X11.cpp
 @WITH_RAEVOL_TRUE@libraevol_a_CPPFLAGS = $(AM_CPPFLAGS)
 @WITH_RAEVOL_FALSE@libaevol_adir = ./
 @WITH_RAEVOL_FALSE@libaevol_a_CPPFLAGS = $(AM_CPPFLAGS)
-@WITH_RAEVOL_TRUE@@WITH_X_FALSE@libraevol_a_HEADERS = $(common_headers) $(raevol_headers)
-@WITH_RAEVOL_TRUE@@WITH_X_TRUE@libraevol_a_HEADERS = $(common_headers) $(raevol_X11_headers)
+#libraevol_a_HEADERS = $(common_headers) $(raevol_headers)
 @WITH_RAEVOL_TRUE@@WITH_X_FALSE@libraevol_a_SOURCES = $(common_sources) $(raevol_sources)
+
+#libraevol_a_HEADERS = $(common_headers) $(raevol_X11_headers)
 @WITH_RAEVOL_TRUE@@WITH_X_TRUE@libraevol_a_SOURCES = $(common_sources) $(raevol_X11_sources)
-@WITH_RAEVOL_FALSE@@WITH_X_FALSE@libaevol_a_HEADERS = $(common_headers)
-@WITH_RAEVOL_FALSE@@WITH_X_TRUE@libaevol_a_HEADERS = $(common_headers) $(X11_headers)
+#libaevol_a_HEADERS = $(common_headers)
 @WITH_RAEVOL_FALSE@@WITH_X_FALSE@libaevol_a_SOURCES = $(common_sources)
+#libaevol_a_HEADERS = $(common_headers) $(X11_headers)
 @WITH_RAEVOL_FALSE@@WITH_X_TRUE@libaevol_a_SOURCES = $(common_sources) $(X11_sources)
 all: all-recursive
 
@@ -1762,48 +1701,6 @@ libraevol_a-ae_individual_R_X11.obj: ae_individual_R_X11.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='ae_individual_R_X11.cpp' object='libraevol_a-ae_individual_R_X11.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libraevol_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libraevol_a-ae_individual_R_X11.obj `if test -f 'ae_individual_R_X11.cpp'; then $(CYGPATH_W) 'ae_individual_R_X11.cpp'; else $(CYGPATH_W) '$(srcdir)/ae_individual_R_X11.cpp'; fi`
-install-libaevol_aHEADERS: $(libaevol_a_HEADERS)
-	@$(NORMAL_INSTALL)
-	@list='$(libaevol_a_HEADERS)'; test -n "$(libaevol_adir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(libaevol_adir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(libaevol_adir)" || exit 1; \
-	fi; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(libaevol_adir)'"; \
-	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(libaevol_adir)" || exit $$?; \
-	done
-
-uninstall-libaevol_aHEADERS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(libaevol_a_HEADERS)'; test -n "$(libaevol_adir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(libaevol_adir)'; $(am__uninstall_files_from_dir)
-install-libraevol_aHEADERS: $(libraevol_a_HEADERS)
-	@$(NORMAL_INSTALL)
-	@list='$(libraevol_a_HEADERS)'; test -n "$(libraevol_adir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(libraevol_adir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(libraevol_adir)" || exit 1; \
-	fi; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(libraevol_adir)'"; \
-	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(libraevol_adir)" || exit $$?; \
-	done
-
-uninstall-libraevol_aHEADERS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(libraevol_a_HEADERS)'; test -n "$(libraevol_adir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(libraevol_adir)'; $(am__uninstall_files_from_dir)
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run `make' without going through this Makefile.
@@ -1997,12 +1894,9 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-recursive
-all-am: Makefile $(LIBRARIES) $(HEADERS)
+all-am: Makefile $(LIBRARIES)
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(libaevol_adir)" "$(DESTDIR)$(libraevol_adir)"; do \
-	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
-	done
 install: install-recursive
 install-exec: install-exec-recursive
 install-data: install-data-recursive
@@ -2055,7 +1949,7 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-libaevol_aHEADERS install-libraevol_aHEADERS
+install-data-am:
 
 install-dvi: install-dvi-recursive
 
@@ -2100,7 +1994,7 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-libaevol_aHEADERS uninstall-libraevol_aHEADERS
+uninstall-am:
 
 .MAKE: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) ctags-recursive \
 	install-am install-strip tags-recursive
@@ -2112,14 +2006,12 @@ uninstall-am: uninstall-libaevol_aHEADERS uninstall-libraevol_aHEADERS
 	dvi-am html html-am info info-am install install-am \
 	install-data install-data-am install-dvi install-dvi-am \
 	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-libaevol_aHEADERS \
-	install-libraevol_aHEADERS install-man install-pdf \
+	install-info install-info-am install-man install-pdf \
 	install-pdf-am install-ps install-ps-am install-strip \
 	installcheck installcheck-am installdirs installdirs-am \
 	maintainer-clean maintainer-clean-generic mostlyclean \
 	mostlyclean-compile mostlyclean-generic pdf pdf-am ps ps-am \
-	tags tags-recursive uninstall uninstall-am \
-	uninstall-libaevol_aHEADERS uninstall-libraevol_aHEADERS
+	tags tags-recursive uninstall uninstall-am
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
