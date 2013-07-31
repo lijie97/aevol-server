@@ -195,43 +195,6 @@ void ae_exp_setup::load( FILE* setup_file, gzFile backup_file, bool verbose )
 {
   printf( "Plain text setup file support not implemented yet (sorry)\n" );
   exit( EXIT_FAILURE );
-  
-  // -------------------------------------------- Retrieve transfer parameters
-  int8_t tmp_with_HT;
-  gzread( setup_file, &tmp_with_HT, sizeof(tmp_with_HT) );
-  _with_HT = tmp_with_HT ? 1 : 0;
-  if ( _with_HT )
-  {
-    gzread( setup_file, &_HT_ins_rate,  sizeof(_HT_ins_rate) );
-    gzread( setup_file, &_HT_repl_rate, sizeof(_HT_repl_rate) );
-  }
-  int8_t tmp_with_plasmids;
-  gzread( setup_file, &tmp_with_plasmids, sizeof(tmp_with_plasmids) );
-  _with_plasmids = tmp_with_plasmids ? 1 : 0;
-  if ( tmp_with_plasmids )
-  {
-    gzread( setup_file, &_prob_plasmid_HT,  sizeof(_prob_plasmid_HT) );
-    gzread( setup_file, &_tune_donor_ability,  sizeof(_tune_donor_ability) );
-    gzread( setup_file, &_tune_recipient_ability,  sizeof(_tune_recipient_ability) );
-    gzread( setup_file, &_donor_cost,  sizeof(_donor_cost) );
-    gzread( setup_file, &_recipient_cost,  sizeof(_recipient_cost) );
-    int8_t tmp_swap_GUs;
-    gzread( setup_file, &tmp_swap_GUs, sizeof(tmp_swap_GUs) );
-    _swap_GUs = tmp_swap_GUs ? 1 : 0;
-  }
-  
-  // ------------------------------------------ Retrieve secretion parameters
-  int8_t tmp_with_secretion;
-  gzread( setup_file, &tmp_with_secretion, sizeof(tmp_with_secretion) );
-  _with_secretion = tmp_with_secretion ? true : false;
-  gzread( setup_file, &_secretion_contrib_to_fitness, sizeof(_secretion_contrib_to_fitness) );
-  gzread( setup_file, &_secretion_cost, sizeof(_secretion_cost) );
-  
-  // ---------------------------------------------- Retrieve selection context
-  printf( "  Loading selection context..." );
-  fflush( stdout );
-  get_sel()->load( setup_file, backup_file, verbose );
-  printf( "OK\n" );
 }
 
 

@@ -431,7 +431,7 @@ class ae_individual : public ae_object
     bool _non_coding_computed;
     bool _modularity_computed;
     
-    bool _placed_in_population;
+    bool _placed_in_population; // TODO: spatial ?
     
     
     
