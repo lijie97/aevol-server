@@ -73,9 +73,22 @@ am__libaevol_a_SOURCES_DIST = ae_align.cpp ae_codon.cpp ae_dna.cpp \
 	ae_dna_replic_report.cpp ae_rna.cpp ae_stats.cpp \
 	ae_stat_record.cpp ae_string.cpp ae_tree.cpp ae_vis_a_vis.cpp \
 	ae_selection.cpp ae_spatial_structure.cpp params.cpp \
-	param_loader.cpp f_line.cpp ae_fuzzy_set_X11.cpp \
+	param_loader.cpp f_line.cpp ae_align.h ae_codon.h ae_dna.h \
+	ae_dump.h ae_enums.h ae_environment.h ae_env_segment.h \
+	ae_exp_manager.h ae_exp_setup.h ae_fuzzy_set.h ae_gaussian.h \
+	ae_genetic_unit.h ae_grid_cell.h ae_individual.h ae_list.h \
+	ae_logs.h ae_macros.h ae_mutation.h ae_object.h \
+	ae_output_manager.h ae_params_mut.h ae_params_record.h \
+	ae_phenotype.h ae_population.h ae_point_1d.h ae_point_2d.h \
+	ae_protein.h ae_jumping_mt.h ae_jump_poly.h \
+	ae_replication_report.h ae_dna_replic_report.h ae_rna.h \
+	ae_stats.h ae_stat_record.h ae_string.h ae_tree.h ae_utils.h \
+	ae_vis_a_vis.h ae_selection.h ae_spatial_structure.h params.h \
+	param_loader.h f_line.h ae_fuzzy_set_X11.cpp \
 	ae_individual_X11.cpp ae_population_X11.cpp \
-	ae_exp_manager_X11.cpp ae_X11_window.cpp
+	ae_exp_manager_X11.cpp ae_X11_window.cpp ae_fuzzy_set_X11.h \
+	ae_individual_X11.h ae_population_X11.h ae_exp_manager_X11.h \
+	ae_X11_window.h
 am__objects_1 = libaevol_a-ae_align.$(OBJEXT) \
 	libaevol_a-ae_codon.$(OBJEXT) libaevol_a-ae_dna.$(OBJEXT) \
 	libaevol_a-ae_dump.$(OBJEXT) \
@@ -104,15 +117,19 @@ am__objects_1 = libaevol_a-ae_align.$(OBJEXT) \
 	libaevol_a-ae_spatial_structure.$(OBJEXT) \
 	libaevol_a-params.$(OBJEXT) libaevol_a-param_loader.$(OBJEXT) \
 	libaevol_a-f_line.$(OBJEXT)
-am__objects_2 = libaevol_a-ae_fuzzy_set_X11.$(OBJEXT) \
+am__objects_2 =
+am__objects_3 = libaevol_a-ae_fuzzy_set_X11.$(OBJEXT) \
 	libaevol_a-ae_individual_X11.$(OBJEXT) \
 	libaevol_a-ae_population_X11.$(OBJEXT) \
 	libaevol_a-ae_exp_manager_X11.$(OBJEXT) \
 	libaevol_a-ae_X11_window.$(OBJEXT)
 @WITH_RAEVOL_FALSE@@WITH_X_FALSE@am_libaevol_a_OBJECTS =  \
-@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	$(am__objects_1)
+@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	$(am__objects_1) \
+@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	$(am__objects_2)
 @WITH_RAEVOL_FALSE@@WITH_X_TRUE@am_libaevol_a_OBJECTS =  \
 @WITH_RAEVOL_FALSE@@WITH_X_TRUE@	$(am__objects_1) \
+@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	$(am__objects_3) \
+@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	$(am__objects_2) \
 @WITH_RAEVOL_FALSE@@WITH_X_TRUE@	$(am__objects_2)
 libaevol_a_OBJECTS = $(am_libaevol_a_OBJECTS)
 libraevol_a_AR = $(AR) $(ARFLAGS)
@@ -129,10 +146,25 @@ am__libraevol_a_SOURCES_DIST = ae_align.cpp ae_codon.cpp ae_dna.cpp \
 	ae_selection.cpp ae_spatial_structure.cpp params.cpp \
 	param_loader.cpp f_line.cpp ae_individual_R.cpp \
 	ae_influence_R.cpp ae_protein_R.cpp ae_rna_R.cpp \
-	ae_selection_R.cpp ae_fuzzy_set_X11.cpp ae_individual_X11.cpp \
+	ae_selection_R.cpp ae_align.h ae_codon.h ae_dna.h ae_dump.h \
+	ae_enums.h ae_environment.h ae_env_segment.h ae_exp_manager.h \
+	ae_exp_setup.h ae_fuzzy_set.h ae_gaussian.h ae_genetic_unit.h \
+	ae_grid_cell.h ae_individual.h ae_list.h ae_logs.h ae_macros.h \
+	ae_mutation.h ae_object.h ae_output_manager.h ae_params_mut.h \
+	ae_params_record.h ae_phenotype.h ae_population.h \
+	ae_point_1d.h ae_point_2d.h ae_protein.h ae_jumping_mt.h \
+	ae_jump_poly.h ae_replication_report.h ae_dna_replic_report.h \
+	ae_rna.h ae_stats.h ae_stat_record.h ae_string.h ae_tree.h \
+	ae_utils.h ae_vis_a_vis.h ae_selection.h \
+	ae_spatial_structure.h params.h param_loader.h f_line.h \
+	ae_array_short.h ae_individual_R.h ae_influence_R.h \
+	ae_matrix_double.h ae_protein_R.h ae_rna_R.h ae_selection_R.h \
+	ae_fuzzy_set_X11.cpp ae_individual_X11.cpp \
 	ae_population_X11.cpp ae_exp_manager_X11.cpp ae_X11_window.cpp \
-	ae_individual_R_X11.cpp
-am__objects_3 = libraevol_a-ae_align.$(OBJEXT) \
+	ae_individual_R_X11.cpp ae_fuzzy_set_X11.h ae_individual_X11.h \
+	ae_population_X11.h ae_exp_manager_X11.h ae_X11_window.h \
+	ae_individual_R_X11.h
+am__objects_4 = libraevol_a-ae_align.$(OBJEXT) \
 	libraevol_a-ae_codon.$(OBJEXT) libraevol_a-ae_dna.$(OBJEXT) \
 	libraevol_a-ae_dump.$(OBJEXT) \
 	libraevol_a-ae_environment.$(OBJEXT) \
@@ -162,24 +194,29 @@ am__objects_3 = libraevol_a-ae_align.$(OBJEXT) \
 	libraevol_a-params.$(OBJEXT) \
 	libraevol_a-param_loader.$(OBJEXT) \
 	libraevol_a-f_line.$(OBJEXT)
-am__objects_4 = libraevol_a-ae_individual_R.$(OBJEXT) \
+am__objects_5 = libraevol_a-ae_individual_R.$(OBJEXT) \
 	libraevol_a-ae_influence_R.$(OBJEXT) \
 	libraevol_a-ae_protein_R.$(OBJEXT) \
 	libraevol_a-ae_rna_R.$(OBJEXT) \
 	libraevol_a-ae_selection_R.$(OBJEXT)
-am__objects_5 = libraevol_a-ae_fuzzy_set_X11.$(OBJEXT) \
+am__objects_6 = libraevol_a-ae_fuzzy_set_X11.$(OBJEXT) \
 	libraevol_a-ae_individual_X11.$(OBJEXT) \
 	libraevol_a-ae_population_X11.$(OBJEXT) \
 	libraevol_a-ae_exp_manager_X11.$(OBJEXT) \
 	libraevol_a-ae_X11_window.$(OBJEXT)
-am__objects_6 = $(am__objects_5) $(am__objects_4) \
+am__objects_7 = $(am__objects_6) $(am__objects_5) \
 	libraevol_a-ae_individual_R_X11.$(OBJEXT)
+am__objects_8 = $(am__objects_2) $(am__objects_2)
 @WITH_RAEVOL_TRUE@@WITH_X_FALSE@am_libraevol_a_OBJECTS =  \
-@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	$(am__objects_3) \
-@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	$(am__objects_4)
+@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	$(am__objects_4) \
+@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	$(am__objects_5) \
+@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	$(am__objects_2) \
+@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	$(am__objects_2)
 @WITH_RAEVOL_TRUE@@WITH_X_TRUE@am_libraevol_a_OBJECTS =  \
-@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	$(am__objects_3) \
-@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	$(am__objects_6)
+@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	$(am__objects_4) \
+@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	$(am__objects_7) \
+@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	$(am__objects_2) \
+@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	$(am__objects_8)
 libraevol_a_OBJECTS = $(am_libraevol_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -190,6 +227,10 @@ CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 CXXLD = $(CXX)
 CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
 	-o $@
+COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 SOURCES = $(libaevol_a_SOURCES) $(libraevol_a_SOURCES)
 DIST_SOURCES = $(am__libaevol_a_SOURCES_DIST) \
 	$(am__libraevol_a_SOURCES_DIST)
@@ -397,14 +438,28 @@ raevol_X11_sources = $(X11_sources) $(raevol_sources) ae_individual_R_X11.cpp
 @WITH_RAEVOL_FALSE@libaevol_adir = ./
 @WITH_RAEVOL_FALSE@libaevol_a_CPPFLAGS = $(AM_CPPFLAGS)
 #libraevol_a_HEADERS = $(common_headers) $(raevol_headers)
-@WITH_RAEVOL_TRUE@@WITH_X_FALSE@libraevol_a_SOURCES = $(common_sources) $(raevol_sources)
+@WITH_RAEVOL_TRUE@@WITH_X_FALSE@libraevol_a_SOURCES =  \
+@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	$(common_sources) \
+@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	$(raevol_sources) \
+@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	$(common_headers) \
+@WITH_RAEVOL_TRUE@@WITH_X_FALSE@	$(raevol_headers)
 
 #libraevol_a_HEADERS = $(common_headers) $(raevol_X11_headers)
-@WITH_RAEVOL_TRUE@@WITH_X_TRUE@libraevol_a_SOURCES = $(common_sources) $(raevol_X11_sources)
+@WITH_RAEVOL_TRUE@@WITH_X_TRUE@libraevol_a_SOURCES =  \
+@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	$(common_sources) \
+@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	$(raevol_X11_sources) \
+@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	$(common_headers) \
+@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	$(raevol_X11_headers)
 #libaevol_a_HEADERS = $(common_headers)
-@WITH_RAEVOL_FALSE@@WITH_X_FALSE@libaevol_a_SOURCES = $(common_sources)
+@WITH_RAEVOL_FALSE@@WITH_X_FALSE@libaevol_a_SOURCES =  \
+@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	$(common_sources) \
+@WITH_RAEVOL_FALSE@@WITH_X_FALSE@	$(common_headers)
 #libaevol_a_HEADERS = $(common_headers) $(X11_headers)
-@WITH_RAEVOL_FALSE@@WITH_X_TRUE@libaevol_a_SOURCES = $(common_sources) $(X11_sources)
+@WITH_RAEVOL_FALSE@@WITH_X_TRUE@libaevol_a_SOURCES =  \
+@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	$(common_sources) \
+@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	$(X11_sources) \
+@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	$(common_headers) \
+@WITH_RAEVOL_FALSE@@WITH_X_TRUE@	$(X11_headers)
 all: all-recursive
 
 .SUFFIXES:

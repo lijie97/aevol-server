@@ -26,3 +26,4 @@ libsfmt_adir = ./
 libsfmt_a_CPPFLAGS = $(AM_CPPFLAGS)
 #libsfmt_a_HEADERS = SFMT.h SFMT-common.h $(SFMT_params) jump/SFMT-jump.h
 libsfmt_a_SOURCES = SFMT.c jump/SFMT-jump.cpp
+libsfmt_a_SOURCES += SFMT.h SFMT-common.h $(SFMT_params) jump/SFMT-jump.h
