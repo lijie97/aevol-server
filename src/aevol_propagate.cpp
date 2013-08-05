@@ -63,6 +63,7 @@ const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 //                         Function declarations
 // =================================================================
 void print_help( char* prog_path );
+void print_version( void );
 
 
 
@@ -77,13 +78,14 @@ int main( int argc, char* argv[] )
   bool  verbose     = false;
   
   // 2) Define allowed options
-  const char * options_list = "g:hi:o:v";
+  const char * options_list = "g:hi:o:vV";
   static struct option long_options_list[] = {
     { "gener",    required_argument,  NULL, 'g' },
     { "help",     no_argument,        NULL, 'h' },
     { "in",       required_argument,  NULL, 'i' },
     { "out",      required_argument,  NULL, 'o' },
     { "verbose",  no_argument,        NULL, 'v' },
+    { "version",  no_argument,        NULL, 'V' },
     { 0, 0, 0, 0 }
   };
       
@@ -96,6 +98,11 @@ int main( int argc, char* argv[] )
       case 'h' :
       {
         print_help( argv[0] );
+        exit( EXIT_SUCCESS );
+      }
+      case 'V' :
+      {
+        print_version();
         exit( EXIT_SUCCESS );
       }
       case 'g' :
@@ -205,6 +212,10 @@ int main( int argc, char* argv[] )
 
 
 
+/*!
+  \brief 
+  
+*/
 void print_help( char* prog_path ) 
 {
   // Get the program file-name in prog_name (strip prog_path of the path)
@@ -215,12 +226,24 @@ void print_help( char* prog_path )
 	printf( "******************************************************************************\n" );
 	printf( "*                        aevol - Artificial Evolution                        *\n" );
 	printf( "******************************************************************************\n" );
-	printf( "Usage : %s -h\n", prog_name );
-	printf( "   or : %s [-f param_file]\n", prog_name );
-	printf( "  -h, --help       Display this screen\n" );
-	printf( "  -g, --gener      Specify generation number (input)\n" );
-	printf( "  -i, --in         Specify input directory (default \".\")\n" );
-	printf( "  -o, --out        Specify output directory (default \"./output\")\n" );
-	printf( "  -v, --verbose    Be verbose\n" );
-	printf( "Create a fresh copy of the provided experiment.\n" );
+	printf( "Usage : %s -h or --help\n", prog_name );
+	printf( "   or : %s -V or --version\n", prog_name );
+	printf( "   or : %s [OPTIONS]\n", prog_name );
+	printf( "\nOptions\n" );
+	printf( "  -h, --help       print this help, then exit\n" );
+	printf( "  -V, --version    print version number, then exit\n" );
+	printf( "  -g, --gener      specify generation number (input)\n" );
+	printf( "  -i, --in         specify input directory (default \".\")\n" );
+	printf( "  -o, --out        specify output directory (default \"./output\")\n" );
+	printf( "  -v, --verbose    be verbose\n" );
+	printf( "\nCreate a fresh copy of the provided experiment.\n" );
+}
+
+/*!
+  \brief 
+  
+*/
+void print_version( void ) 
+{
+	printf( "aevol %s\n", VERSION );
 }

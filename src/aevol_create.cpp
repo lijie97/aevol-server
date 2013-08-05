@@ -59,6 +59,7 @@ const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 //                         Function declarations
 // =================================================================
 void print_help( char* prog_path );
+void print_version( void );
 
 
 
@@ -71,10 +72,11 @@ int main( int argc, char* argv[] )
   
   
   // 2) Define allowed options
-  const char * options_list = "hf:";
+  const char * options_list = "hf:V";
   static struct option long_options_list[] = {
-    { "help", no_argument,        NULL, 'h' },
-    { "file", required_argument,  NULL, 'f' },
+    { "help",     no_argument,        NULL, 'h' },
+    { "file",     required_argument,  NULL, 'f' },
+    { "version",  no_argument,        NULL, 'V' },
     { 0, 0, 0, 0 }
   };
   
@@ -88,6 +90,11 @@ int main( int argc, char* argv[] )
       case 'h' :
       {
         print_help( argv[0] );
+        exit( EXIT_SUCCESS );
+      }
+      case 'V' :
+      {
+        print_version();
         exit( EXIT_SUCCESS );
       }
       case 'f' :
@@ -148,7 +155,11 @@ int main( int argc, char* argv[] )
 
 
 
-void print_help( char* prog_path ) 
+/*!
+  \brief 
+  
+*/
+void print_help( char* prog_path )
 {
   // Get the program file-name in prog_name (strip prog_path of the path)
   char* prog_name; // No new, it will point to somewhere inside prog_path
@@ -158,9 +169,21 @@ void print_help( char* prog_path )
 	printf( "******************************************************************************\n" );
 	printf( "*                        aevol - Artificial Evolution                        *\n" );
 	printf( "******************************************************************************\n" );
-	printf( "Usage : %s -h\n", prog_name );
+	printf( "Usage : %s -h or --help\n", prog_name );
+	printf( "   or : %s -V or --version\n", prog_name );
 	printf( "   or : %s [-f param_file]\n", prog_name );
-	printf( "  -h, --help  Display this screen\n" );
-	printf( "  -f, --file  Specify parameter file (default: param.in)\n" );
-	printf( "Create an experiment with setup as specified in the parameter file.\n\n" );
+	printf( "\nOptions\n" );
+	printf( "  -h, --help     print this help, then exit\n" );
+	printf( "  -V, --version  print version number, then exit\n" );
+	printf( "  -f, --file     specify parameter file (default: param.in)\n" );
+	printf( "\nCreate an experiment with setup as specified in the parameter file.\n" );
+}
+
+/*!
+  \brief 
+  
+*/
+void print_version( void ) 
+{
+	printf( "aevol %s\n", VERSION );
 }

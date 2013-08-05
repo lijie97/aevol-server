@@ -62,7 +62,9 @@ enum population_change_type
   DOUBLE_NON_CODING_BASES_POPULATION = 4
 };
 
-void print_help( char* prog_name );
+void print_help( char* prog_path );
+void print_version( void );
+
 f_line* get_line( FILE* param_file );
 void format_line( f_line* formated_line, char* line, bool* line_is_interpretable );
 void change_based_on_non_coding_bases_of_best_individual_ancestor(ae_population* pop, ae_exp_manager* exp_m, population_change_type type);
@@ -79,11 +81,12 @@ int main( int argc, char* argv[] )
   int32_t num_gener = -1;  
   
   // 2) Define allowed options
-  const char * options_list = "hf:g:";
+  const char * options_list = "hf:g:V";
   static struct option long_options_list[] = {
     { "help",     no_argument,        NULL, 'h' },
     { "file",     required_argument,  NULL, 'f' }, // Provide file with parameters to change
     { "gener",    required_argument,  NULL, 'g' },
+    { "version",  no_argument,        NULL, 'V' },
     { 0, 0, 0, 0 }
   };
       
@@ -96,6 +99,11 @@ int main( int argc, char* argv[] )
       case 'h' :
       {
         print_help( argv[0] );
+        exit( EXIT_SUCCESS );
+      }
+      case 'V' :
+      {
+        print_version();
         exit( EXIT_SUCCESS );
       }
       case 'f' :
@@ -756,21 +764,41 @@ ae_individual* create_clone( ae_individual* dolly, int32_t id )
 
 
 
+
+
+
+
 /*!
   \brief 
   
 */
-void print_help( char* prog_name ) 
+void print_help( char* prog_path ) 
 {
+  // Get the program file-name in prog_name (strip prog_path of the path)
+  char* prog_name; // No new, it will point to somewhere inside prog_path
+  if ( prog_name = strrchr( prog_path, '/' ) ) prog_name++;
+  else prog_name = prog_path;
+  
 	printf( "******************************************************************************\n" );
 	printf( "*                        aevol - Artificial Evolution                        *\n" );
 	printf( "******************************************************************************\n" );
-	printf( "Usage : change_pop -h\n" );
-	printf( "   or : change_pop [-f param_file -p pop_file]\n" );
-	printf( "  -h, --help       Display this screen\n" );
-  printf( "  -g, --gener      Specify generation number (input)\n" );
-  printf( "  -f, --file       File with parameter to change\n");
-	printf( "Change a simulation as specified in the parameter file.\n" );
-    printf( "(default: param_to_change.in)\n\n" );
+	printf( "Usage : %s -h or --help\n", prog_name );
+	printf( "   or : %s -V or --version\n", prog_name );
+	printf( "   or : %s [OPTIONS]\n", prog_name );
+	printf( "\nOptions\n" );
+	printf( "  -h, --help       print this help, then exit\n" );
+	printf( "  -V, --version    print version number, then exit\n" );
+  printf( "  -g, --gener      specify generation number (input)\n" );
+  printf( "  -f, --file       file with parameter to change\n");
+	printf( "\nChange a simulation as specified in the parameter file.\n" );
+  printf( "(default: param_to_change.in)\n" );
 }
 
+/*!
+  \brief 
+  
+*/
+void print_version( void ) 
+{
+	printf( "aevol %s\n", VERSION );
+}

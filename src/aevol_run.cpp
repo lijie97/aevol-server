@@ -69,6 +69,7 @@ void catch_xcpu( int sig_num );
 #endif
 
 void print_help( char* prog_path );
+void print_version( void );
 
 
 
@@ -121,13 +122,14 @@ int main( int argc, char* argv[] )
   // -------------------------------------------------------------------------
   // 2) Define allowed options
   // -------------------------------------------------------------------------
-  const char * options_list = "hn:r:tvwx";
+  const char * options_list = "hn:r:tvVwx";
   static struct option long_options_list[] = {
     { "help",     no_argument,        NULL, 'h' },
     { "nbgener",  required_argument,  NULL, 'n' }, // Number of generations to be run
     { "resume",   required_argument,  NULL, 'r' }, // Resume from generation X
     { "text",     no_argument,        NULL, 't' }, // Use text files instead of gzipped binary files
     { "verbose",  no_argument,        NULL, 'v' }, // Be verbose
+    { "version",  no_argument,        NULL, 'V' },
     { "wait",     no_argument,        NULL, 'w' }, // Pause after loading
     { "noX",      no_argument,        NULL, 'x' }, // Don't display X outputs on start
     { 0, 0, 0, 0 }
@@ -145,6 +147,11 @@ int main( int argc, char* argv[] )
       case 'h' :
       {
         print_help( argv[0] );
+        exit( EXIT_SUCCESS );
+      }
+      case 'V' :
+      {
+        print_version();
         exit( EXIT_SUCCESS );
       }
       case 'n' :
@@ -278,6 +285,16 @@ void catch_xcpu( int sig_num )
 }
 #endif
 
+
+
+
+
+
+
+/*!
+  \brief 
+  
+*/
 void print_help( char* prog_path ) 
 {
   // Get the program file-name in prog_name (strip prog_path of the path)
@@ -288,41 +305,27 @@ void print_help( char* prog_path )
 	printf( "******************************************************************************\n" );
 	printf( "*                        aevol - Artificial Evolution                        *\n" );
 	printf( "******************************************************************************\n" );
-	printf( "Usage : %s -h\n", prog_name );
-  printf( "   or : %s [options]\n", prog_name );
-  printf( "  -h, --help               Display this screen\n" );
-  printf( "  -n, --nbgener NB_GENER   Number of generations to be run\n" );
-  printf( "  -r, --resume GENERATION  Resume simulation at given generation\n" );
-  printf( "  -t, --text               Use text files instead of binary files when possible\n" );
-  printf( "  -v, --verbose            Be verbose\n" );
-  printf( "  -w, --wait               Pause after loading\n" );
-  printf( "  -x, --noX                Don't display X outputs upon start\n" );
+	printf( "Usage : %s -h or --help\n", prog_name );
+	printf( "   or : %s -V or --version\n", prog_name );
+	printf( "   or : %s [OPTIONS]\n", prog_name );
+	printf( "\nOptions\n" );
+	printf( "  -h, --help               print this help, then exit\n" );
+	printf( "  -V, --version            print version number, then exit\n" );
+  printf( "  -n, --nbgener NB_GENER   number of generations to be run\n" );
+  printf( "  -r, --resume GENERATION  resume simulation at given generation\n" );
+  printf( "  -t, --text               use text files instead of binary files when possible\n" );
+  printf( "  -v, --verbose            be verbose\n" );
+  printf( "  -w, --wait               pause after loading\n" );
+  printf( "  -x, --noX                don't display X outputs upon start\n" );
   printf( "                           send SIGUSR1 to switch X output on/off\n" );
-  printf( "Run an aevol simulation\n\n" );
+  printf( "\nRun an aevol simulation\n" );
 }
 
-
-
-    //~ { "setup",    required_argument,  NULL, 's' }, // Provide exp setup file
-    //~ { "out_prof", required_argument,  NULL, 'o' }, // Provide output profile file
-    //~ { "envir",    required_argument,  NULL, 'e' }, // Provide environment file
-    //~ { "pop",      required_argument,  NULL, 'p' }, // Provide population file
-    //~ { "grid",     required_argument,  NULL, 'g' }, // Provide spatial structure file
-
-	//~ printf( "******************************************************************************\n" );
-	//~ printf( "*                        aevol - Artificial Evolution                        *\n" );
-	//~ printf( "******************************************************************************\n" );
-	//~ printf( "Usage : aevol -h\n" );
-  //~ printf( "   or : aevol [options]\n" );
-  //~ printf( "  -h, --help               Display this screen\n" );
-  //~ printf( "  -r, --resume GENERATION  Resume simulation at given generation\n" );
-  //~ printf( "  -s, --setup FILE         Provide experimental setup file\n" );
-  //~ printf( "  -o, --out_prof FILE      Provide output profile file\n" );
-  //~ printf( "  -e, --envir FILE         Provide environment file\n" );
-  //~ printf( "  -p, --pop FILE           Provide population file\n" );
-  //~ printf( "  -g, --grid FILE          Provide spatial structure file\n" );
-  //~ printf( "  -n, --nbgener NB_GENER   Number of generations to be run\n" );
-  //~ printf( "  -w, --wait               Pause after loading\n" );
-  //~ printf( "  -x, --noX                Don't display X outputs upon start\n" );
-  //~ printf( "                           send SIGUSR1 to switch X output on/off\n" );
-  //~ printf( "Run an aevol simulation\n\n" );
+/*!
+  \brief 
+  
+*/
+void print_version( void ) 
+{
+	printf( "aevol %s\n", VERSION );
+}
