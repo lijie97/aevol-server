@@ -14,6 +14,6 @@ clean: clean-local
 clean-local:
 	rm -rf html doxygen
   
-EXTRA_DIST = param.in.example README.txt aevol.conf
+EXTRA_DIST = param_example.in README.txt aevol.conf
 
 endif
