@@ -1,0 +1,46 @@
+.TH AEVOL "1" "August 2013" "aevol 4.1" "User Manual"
+.SH NAME
+aevol \- an in silico experimental evolution platform
+.SH SYNOPSIS
+.B aevol_propagate \-h
+or
+.B \-\-help
+.br
+.B aevol_propagate \-V
+or
+.B \-\-version
+.br
+.B aevol_propagate \fR[\fB\-g\fI GENERATION\fR] \fR[\fB\-i\fI in_dir\fR] \fR[\fB\-o\fI out_dir\fR] \fR[\fB\-v\fR]
+.SH DESCRIPTION
+.B Aevol
+is a simulation platform that allows to let populations of digital organisms evolve in different conditions and study experimentally the mechanisms responsible for the structuration of the genome and the transcriptome.
+.TP
+.B aevol_propagate
+create a fresh copy of the experiment
+.SH OPTIONS
+.TP
+.B \-h, \-\-help
+print this help, then exit
+.TP
+.B \-V, \-\-version
+print version number, then exit
+.HP
+.B \-g, \-\-gener
+.I GENERATION
+.br
+specify generation number
+.HP
+.B \-i, \-\-in
+.I in_dir
+.br
+specify input directory (default ".")
+.HP
+.B \-o, \-\-out
+.I in_dir
+.br
+specify output directory (default "./output")
+.TP
+.B \-v, \-\-verbose
+be verbose
+.SH "SEE ALSO"
+.B aevol_create, aevol_run, aevol_modify
