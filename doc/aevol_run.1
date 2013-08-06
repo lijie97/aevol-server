@@ -10,7 +10,7 @@ aevol \- an in silico experimental evolution platform
 |
 .B \-\-version
 .br
-.B aevol_run_X11 \fR[\fB\-r\fI GENERATION\fR] \fR[\fB\-n\fI NB_GENER\fR] \fR[\fB\-tvwx\fR]
+.B aevol_run_X11 \fR[\fB\-r\fI GENER\fR] \fR[\fB\-n\fI NB_GENER\fR] \fR[\fB\-tvwx\fR]
 .SH DESCRIPTION
 .B Aevol
 is a simulation platform that allows to let populations of digital organisms evolve in different conditions and study experimentally the mechanisms responsible for the structuration of the genome and the transcriptome.
@@ -25,15 +25,15 @@ print this help, then exit
 .B \-V, \-\-version
 print version number, then exit
 .HP
+.B \-r, \-\-resume
+.I  GENER
+.br
+specify generation to resume simulation at (default 0)
+.HP
 .B \-n, \-\-nbgener
 .I NB_GENER
 .br
-number of generations to be run
-.HP
-.B \-r, \-\-resume
-.I  GENERATION
-.br
-resume simulation at given generation
+specify number of generations to be run (default 1000)
 .TP
 .B \-t, \-\-text
 use text files instead of binary files when possible

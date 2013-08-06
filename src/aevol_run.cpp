@@ -303,22 +303,30 @@ void print_help( char* prog_path )
   else prog_name = prog_path;
   
 	printf( "******************************************************************************\n" );
+	printf( "*                                                                            *\n" );
 	printf( "*                        aevol - Artificial Evolution                        *\n" );
+	printf( "*                                                                            *\n" );
+	printf( "* Aevol is a simulation platform that allows to let populations of digital   *\n" );
+  printf( "* organisms evolve in different conditions and study  experimentally the     *\n" );
+  printf( "* mechanisms responsible for the structuration of the genome and the         *\n" );
+  printf( "* transcriptome.                                                             *\n" );
+	printf( "*                                                                            *\n" );
 	printf( "******************************************************************************\n" );
+  printf( "\n" );
+	printf( "%s: run an aevol simulation.\n", prog_name );
+  printf( "\n" );
 	printf( "Usage : %s -h or --help\n", prog_name );
 	printf( "   or : %s -V or --version\n", prog_name );
-	printf( "   or : %s [OPTIONS]\n", prog_name );
+	printf( "   or : aevol_run_X11 [-r GENER] [-n NB_GENER] [-tvwx]\n", prog_name );
 	printf( "\nOptions\n" );
-	printf( "  -h, --help               print this help, then exit\n" );
-	printf( "  -V, --version            print version number, then exit\n" );
-  printf( "  -n, --nbgener NB_GENER   number of generations to be run\n" );
-  printf( "  -r, --resume GENERATION  resume simulation at given generation\n" );
-  printf( "  -t, --text               use text files instead of binary files when possible\n" );
-  printf( "  -v, --verbose            be verbose\n" );
-  printf( "  -w, --wait               pause after loading\n" );
-  printf( "  -x, --noX                don't display X outputs upon start\n" );
-  printf( "                           send SIGUSR1 to switch X output on/off\n" );
-  printf( "\nRun an aevol simulation\n" );
+	printf( "  -h, --help\n\tprint this help, then exit\n\n" );
+	printf( "  -V, --version\n\tprint version number, then exit\n\n" );
+  printf( "  -r, --resume GENER\n\tspecify generation to resume simulation at (default 0)\n\n" );
+  printf( "  -n, --nbgener NB_GENER\n\tspecify number of generations to be run (default 1000)\n\n" );
+  printf( "  -t, --text\n\tuse text files instead of binary files when possible\n\n" );
+	printf( "  -v, --verbose\n\tbe verbose\n\n" );
+  printf( "  -w, --wait\n\tpause after loading\n\n" );
+  printf( "  -x, --noX\n\tdon't display X outputs upon start\n\tsend SIGUSR1 to switch X output on/off\n" );
 }
 
 /*!

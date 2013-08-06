@@ -224,19 +224,28 @@ void print_help( char* prog_path )
   else prog_name = prog_path;
   
 	printf( "******************************************************************************\n" );
+	printf( "*                                                                            *\n" );
 	printf( "*                        aevol - Artificial Evolution                        *\n" );
+	printf( "*                                                                            *\n" );
+	printf( "* Aevol is a simulation platform that allows to let populations of digital   *\n" );
+  printf( "* organisms evolve in different conditions and study  experimentally the     *\n" );
+  printf( "* mechanisms responsible for the structuration of the genome and the         *\n" );
+  printf( "* transcriptome.                                                             *\n" );
+	printf( "*                                                                            *\n" );
 	printf( "******************************************************************************\n" );
+  printf( "\n" );
+	printf( "%s: create a fresh copy of the experiment.\n", prog_name );
+  printf( "\n" );
 	printf( "Usage : %s -h or --help\n", prog_name );
 	printf( "   or : %s -V or --version\n", prog_name );
-	printf( "   or : %s [OPTIONS]\n", prog_name );
+	printf( "   or : %s -g GENER [-i in_dir] [-o out_dir] [-v]\n", prog_name );
 	printf( "\nOptions\n" );
-	printf( "  -h, --help       print this help, then exit\n" );
-	printf( "  -V, --version    print version number, then exit\n" );
-	printf( "  -g, --gener      specify generation number (input)\n" );
-	printf( "  -i, --in         specify input directory (default \".\")\n" );
-	printf( "  -o, --out        specify output directory (default \"./output\")\n" );
-	printf( "  -v, --verbose    be verbose\n" );
-	printf( "\nCreate a fresh copy of the provided experiment.\n" );
+	printf( "  -h, --help\n\tprint this help, then exit\n\n" );
+	printf( "  -V, --version\n\tprint version number, then exit\n\n" );
+  printf( "  -g, --gener GENER\n\tspecify generation number\n\n" );
+	printf( "  -i, --in in_dir\n\tspecify input directory (default \".\")\n\n" );
+	printf( "  -o, --out out_dir\n\tspecify output directory (default \"./output\")\n\n" );
+	printf( "  -v, --verbose\n\tbe verbose\n" );
 }
 
 /*!

@@ -28,6 +28,8 @@
  *  \brief
  */
  
+const char* DEFAULT_PARAM_FILE_NAME = "param.in";
+ 
  
 // =================================================================
 //                              Libraries
@@ -128,16 +130,23 @@ int main( int argc, char* argv[] )
         exit( EXIT_FAILURE );
       }
     }
+  }  
+  
+  // 4) Set undefined command line parameters to default values
+  if ( param_file_name == NULL )
+  {
+    param_file_name = new char[strlen(DEFAULT_PARAM_FILE_NAME)+1];
+    sprintf( param_file_name, "%s", DEFAULT_PARAM_FILE_NAME );
   }
   
-  // 4) Check the consistancy of the command-line options
+  // 5) Check the consistancy of the command-line options
   if ( num_gener == -1 )
   {
     printf( "%s: error: You must provide a generation number.\n", argv[0] );
     exit( EXIT_FAILURE );
   }
   
-  // 5) Initialize the experiment manager
+  // 6) Initialize the experiment manager
   #ifndef __NO_X
     ae_exp_manager* exp_manager = new ae_exp_manager_X11();
   #else
@@ -145,12 +154,12 @@ int main( int argc, char* argv[] )
   #endif
   exp_manager->load( num_gener, false, verbose );
 
-  // 6) Retrieve the population, the environment, the selection,...
+  // 7) Retrieve the population, the environment, the selection,...
   ae_population* pop = exp_manager->get_pop();
   ae_environment* env = exp_manager->get_env();
   ae_selection* sel = exp_manager->get_sel();
-    
-  // 7) Interpret and apply changes
+  
+  // 8) Interpret and apply changes
   printf("Interpret and apply changes\n");
   FILE* param_file  = fopen( param_file_name,  "r" );
   if ( param_file == NULL )
@@ -422,11 +431,11 @@ int main( int argc, char* argv[] )
   }
   //printf("%e\n", pop->get_best()->get_point_mutation_rate());
   
-  // 8) Save the changements
-  printf("Save the changements into backup\t");
+  // 9) Save the modified experiment
+  printf("Save the modified experiment into backup...\t");
   exp_manager->write_setup_files();
   exp_manager->save();
-  printf("Ok\n");
+  printf("OK\n");
   
   delete exp_manager;
 }
@@ -780,18 +789,26 @@ void print_help( char* prog_path )
   else prog_name = prog_path;
   
 	printf( "******************************************************************************\n" );
+	printf( "*                                                                            *\n" );
 	printf( "*                        aevol - Artificial Evolution                        *\n" );
+	printf( "*                                                                            *\n" );
+	printf( "* Aevol is a simulation platform that allows to let populations of digital   *\n" );
+  printf( "* organisms evolve in different conditions and study  experimentally the     *\n" );
+  printf( "* mechanisms responsible for the structuration of the genome and the         *\n" );
+  printf( "* transcriptome.                                                             *\n" );
+	printf( "*                                                                            *\n" );
 	printf( "******************************************************************************\n" );
+  printf( "\n" );
+	printf( "%s: modify an experiment as specified in param_file.\n", prog_name );
+  printf( "\n" );
 	printf( "Usage : %s -h or --help\n", prog_name );
 	printf( "   or : %s -V or --version\n", prog_name );
-	printf( "   or : %s [OPTIONS]\n", prog_name );
+	printf( "   or : %s -g GENER [-f param_file]\n", prog_name );
 	printf( "\nOptions\n" );
-	printf( "  -h, --help       print this help, then exit\n" );
-	printf( "  -V, --version    print version number, then exit\n" );
-  printf( "  -g, --gener      specify generation number (input)\n" );
-  printf( "  -f, --file       file with parameter to change\n");
-	printf( "\nChange a simulation as specified in the parameter file.\n" );
-  printf( "(default: param_to_change.in)\n" );
+	printf( "  -h, --help\n\tprint this help, then exit\n\n" );
+	printf( "  -V, --version\n\tprint version number, then exit\n\n" );
+  printf( "  -g, --gener GENER\n\tspecify generation number\n\n" );
+  printf( "  -f, --file param_file\n\tspecify parameter file (default: param.in)\n");
 }
 
 /*!

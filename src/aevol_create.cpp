@@ -167,16 +167,25 @@ void print_help( char* prog_path )
   else prog_name = prog_path;
   
 	printf( "******************************************************************************\n" );
+	printf( "*                                                                            *\n" );
 	printf( "*                        aevol - Artificial Evolution                        *\n" );
+	printf( "*                                                                            *\n" );
+	printf( "* Aevol is a simulation platform that allows to let populations of digital   *\n" );
+  printf( "* organisms evolve in different conditions and study  experimentally the     *\n" );
+  printf( "* mechanisms responsible for the structuration of the genome and the         *\n" );
+  printf( "* transcriptome.                                                             *\n" );
+	printf( "*                                                                            *\n" );
 	printf( "******************************************************************************\n" );
+  printf( "\n" );
+	printf( "%s: create an experiment with setup as specified in param_file.\n", prog_name );
+  printf( "\n" );
 	printf( "Usage : %s -h or --help\n", prog_name );
 	printf( "   or : %s -V or --version\n", prog_name );
 	printf( "   or : %s [-f param_file]\n", prog_name );
 	printf( "\nOptions\n" );
-	printf( "  -h, --help     print this help, then exit\n" );
-	printf( "  -V, --version  print version number, then exit\n" );
-	printf( "  -f, --file     specify parameter file (default: param.in)\n" );
-	printf( "\nCreate an experiment with setup as specified in the parameter file.\n" );
+	printf( "  -h, --help\n\tprint this help, then exit\n\n" );
+	printf( "  -V, --version\n\tprint version number, then exit\n\n" );
+	printf( "  -f, --file param_file\n\tspecify parameter file (default: param.in)\n" );
 }
 
 /*!
