@@ -73,7 +73,6 @@ am__DEPENDENCIES_1 =
 @WITH_CPPUNIT_TRUE@am__DEPENDENCIES_2 = $(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a \
 @WITH_CPPUNIT_TRUE@	$(am__DEPENDENCIES_1)
 @WITH_CPPUNIT_TRUE@@WITH_RAEVOL_FALSE@run_tests_DEPENDENCIES = $(top_srcdir)/src/libaevol/libaevol.a \
-@WITH_CPPUNIT_TRUE@@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a \
 @WITH_CPPUNIT_TRUE@@WITH_RAEVOL_FALSE@	$(am__DEPENDENCIES_2)
 @WITH_CPPUNIT_TRUE@@WITH_RAEVOL_TRUE@run_tests_DEPENDENCIES = $(top_srcdir)/src/libaevol/libraevol.a \
 @WITH_CPPUNIT_TRUE@@WITH_RAEVOL_TRUE@	$(am__DEPENDENCIES_2)
@@ -219,7 +218,6 @@ top_srcdir = @top_srcdir@
 @WITH_CPPUNIT_TRUE@	-D__STDC_LIMIT_MACROS
 @WITH_CPPUNIT_TRUE@AM_LDFLAGS = -L$(top_srcdir)/src/libaevol 
 @WITH_CPPUNIT_TRUE@@WITH_RAEVOL_FALSE@LDADD = $(top_srcdir)/src/libaevol/libaevol.a \
-@WITH_CPPUNIT_TRUE@@WITH_RAEVOL_FALSE@	$(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a \
 @WITH_CPPUNIT_TRUE@@WITH_RAEVOL_FALSE@	$(am__append_1)
 @WITH_CPPUNIT_TRUE@@WITH_RAEVOL_TRUE@LDADD = $(top_srcdir)/src/libaevol/libraevol.a \
 @WITH_CPPUNIT_TRUE@@WITH_RAEVOL_TRUE@	$(am__append_1)
