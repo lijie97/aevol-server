@@ -225,7 +225,6 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 @WITH_IN2P3_FALSE@SUBDIRS = src doc tests
 @WITH_IN2P3_TRUE@SUBDIRS = src tests
-EXTRA_DIST = src/misc
 all: all-recursive
 
 .SUFFIXES:
