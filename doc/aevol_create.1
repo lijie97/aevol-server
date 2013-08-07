@@ -1,0 +1,35 @@
+.TH AEVOL "1" "August 2013" "aevol 4.1" "User Manual"
+.SH NAME
+aevol \- an in silico experimental evolution platform
+.SH SYNOPSIS
+.B aevol_create \-h
+or
+.B \-\-help
+.br
+.B aevol_create \-V
+or
+.B \-\-version
+.br
+.B aevol_create [\-f
+.I param_file]
+.SH DESCRIPTION
+.B Aevol
+is a simulation platform that allows to let populations of digital organisms evolve in different conditions and study experimentally the mechanisms responsible for the structuration of the genome and the transcriptome.
+.TP
+.B aevol_create
+create an experiment with setup as specified in 
+.I param_file
+.SH OPTIONS
+.TP
+.B \-h, \-\-help
+print this help, then exit
+.TP
+.B \-V, \-\-version
+print version number, then exit
+.HP
+.B \-f, \-\-file
+.I param_file
+.br
+specify parameter file (default: param.in)
+.SH "SEE ALSO"
+.B aevol_run, aevol_modify, aevol_propagate

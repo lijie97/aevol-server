@@ -48,7 +48,11 @@
 //                            Project Files
 // =================================================================
 #include <ae_utils.h>
-#include <ae_simulation.h>
+#ifndef __NO_X
+  #include <ae_exp_manager_X11.h>
+#else
+  #include <ae_exp_manager.h>
+#endif
 #include <ae_individual.h>
 #include <ae_genetic_unit.h>
 #include <ae_list.h>
@@ -56,7 +60,7 @@
 #include <ae_replication_report.h>
 #include <ae_dna_replic_report.h>
 #include <ae_mutation.h>
-#include <ae_param_loader.h>
+//#include <ae_param_loader.h>
 
 
 
@@ -65,7 +69,8 @@ enum check_type
 {
   FULL_CHECK  = 0,
   LIGHT_CHECK = 1,
-  NO_CHECK    = 2
+  ENV_CHECK   = 2,
+  NO_CHECK    = 3
 };
 
 
@@ -102,9 +107,10 @@ int main(int argc, char** argv)
   check_type  check               = LIGHT_CHECK;
   char*       lineage_file_name   = NULL;
   bool        verbose             = false;
-  bool        log                 = false;
+  double      tolerance           = 0;
 
-  const char * short_options = "hvncf:l"; 
+
+  const char * short_options = "hvncf:t:"; 
   static struct option long_options[] =
   {
     {"help",      no_argument,       NULL, 'h'},
@@ -112,7 +118,7 @@ int main(int argc, char** argv)
     {"nocheck",   no_argument,       NULL, 'n'},
     {"fullcheck", no_argument,       NULL, 'c'},
     {"file",      required_argument, NULL, 'f'},
-    {"log",         no_argument,       NULL, 'l'},
+    {"tolerance",   required_argument, NULL, 't'},
     {0, 0, 0, 0}
   };
 
@@ -137,7 +143,17 @@ int main(int argc, char** argv)
         sprintf( lineage_file_name, "%s", optarg );
         break;      
       }
-      case 'l' : log = true;                        break;
+      case 't' :
+      {
+        if ( strcmp( optarg, "" ) == 0 )
+        {
+          fprintf( stderr, "ERROR : Option -t or --tolerance : missing argument.\n" );
+          exit( EXIT_FAILURE );
+        }
+        check = ENV_CHECK;
+        tolerance = atof(optarg);
+        break;      
+      }
       default :
       {
         fprintf( stderr, "ERROR : Unknown option, check your syntax.\n" );
@@ -147,74 +163,39 @@ int main(int argc, char** argv)
     }
   }
   
-  if (lineage_file_name == NULL )
+  if ( lineage_file_name == NULL )
   {
     fprintf( stderr, "ERROR : Option -f or --file missing. \n" );
     exit( EXIT_FAILURE );
   }
-
-  // ================================
-  //  Open the log file for overload
-  // ================================
   
-ae_param_loader* log_overload = NULL;
-  int32_t num_generation_overload = -10;
-  
-  fflush(stdout);
-  
-  if (log == true) 
-  {
-    if ( verbose)
-    {
-      printf( "Loading the log file from backup \n" );
-    }
-    
-    log_overload = new ae_param_loader("log_load_from_backup.out");
-    
-    f_line* line;
-
-    line = log_overload->get_line();
-  
-    while ( (line != NULL) && (strcmp( line->words[0], "GENERATION_OVERLOAD") != 0) ) 
-    {
-      line = log_overload->get_line();
-    }
-      
-    if( line != NULL ) num_generation_overload =  atol(line->words[1]) ;
-    
-    delete line;
-  }
-  else
-  {
-    printf("\n");
-    printf( "WARNING : Parameter change during simulation is not managed (consider -l option)\n" );
-    printf("\n");
-  }
+  printf("\n");
+  printf( "WARNING : Parameter change during simulation is not managed (consider -l option)\n" );
+  printf("\n");
   
   // =======================
   //  Open the lineage file
   // =======================
 
-  gzFile lineage_file = gzopen(lineage_file_name, "r");
+  gzFile lineage_file = gzopen( lineage_file_name, "r" );
   if (lineage_file == Z_NULL)
   {
     fprintf( stderr, "ERROR : Could not read the lineage file %s\n", lineage_file_name );
     exit( EXIT_FAILURE );
   }
 
-  ae_common::read_from_backup( lineage_file );
-
   int32_t begin_gener, end_gener, final_index, num_gener, final_indiv_rank;
   gzread(lineage_file, &begin_gener, sizeof(begin_gener));
   gzread(lineage_file, &end_gener, sizeof(end_gener));
   gzread(lineage_file, &final_index, sizeof(final_index) );
-  gzread( lineage_file, &final_indiv_rank,   sizeof(final_indiv_rank) );
+  gzread(lineage_file, &final_indiv_rank,   sizeof(final_indiv_rank) );
 
   if ( verbose )
   {
     printf("\n\n");
     printf("================================================================================\n");
-    printf(" Statistics of the ancestors of indiv. #%"PRId32" (t=%"PRId32" to %"PRId32")\n", final_index, begin_gener, end_gener);
+    printf(" Statistics of the ancestors of indiv. #%"PRId32" (t=%"PRId32" to %"PRId32")\n",
+            final_index, begin_gener, end_gener);
     printf("================================================================================\n");
   }
 
@@ -224,9 +205,9 @@ ae_param_loader* log_overload = NULL;
   // =========================
 
   char output_file_name[60];
-  snprintf(output_file_name, 60, "fixedmut-b%06"PRId32"-e%06"PRId32"-i%"PRId32".out", begin_gener, end_gener, final_index);
-
-  FILE * output = fopen(output_file_name, "w");
+  snprintf( output_file_name, 60, "stats/fixedmut-b%06"PRId32"-e%06"PRId32"-i%"PRId32"-r%"PRId32".out",begin_gener, end_gener, final_index, final_indiv_rank );
+  
+  FILE * output = fopen( output_file_name, "w" );
   if ( output == NULL )
   {
     fprintf( stderr, "ERROR : Could not create the output file %s\n", output_file_name );
@@ -267,81 +248,23 @@ ae_param_loader* log_overload = NULL;
     fflush(NULL);
   }
 
-
-  // Initialize the environment according the ae_common::... values
-  // This instruction also creates the random generator and sets its
-  // seed, according to the ae_common::env_seed value.
-
-  ae_environment * env = new ae_environment();
+ // Open the experiment manager
+  #ifndef __NO_X
+    ae_exp_manager* exp_manager = new ae_exp_manager_X11();
+  #else
+    ae_exp_manager* exp_manager = new ae_exp_manager();
+  #endif
+  exp_manager->load( begin_gener, false, true, false );
+  ae_environment* env = exp_manager->get_env();
   
-  for ( num_gener = 0 ; num_gener < begin_gener ; num_gener++ )
-  {
-    env->apply_variation();
-  }
-
-
-  if ( verbose ) printf("OK\n");
-
-  char backup_file_name[50];
-  if ( check != NO_CHECK )
-  {
-    // check that the environment is now identical to the one stored
-    // in the backup file of generation begin_gener
-    
-#ifdef __REGUL
-    sprintf(backup_file_name,"backup/gen_%06"PRId32".rae", begin_gener);
-#else
-    sprintf(backup_file_name,"backup/gen_%06"PRId32".ae",  begin_gener);
-#endif
-    if ( verbose )
-    {
-      printf( "Comparing the environment with the one in %s... ", backup_file_name );
-      fflush( stdout );
-    }
-    
-    ae_simulation * sim = new ae_simulation ( backup_file_name, false );
-    
-    ae_environment * stored_env = sim->get_env();
-    
-    // debug
-    //       ae_list_node * gaussnode = env->get_gaussians()->get_first();
-    //       ae_list_node * storedgaussnode = stored_env->get_gaussians()->get_first();
-    //       ae_gaussian * gauss = NULL;
-    //       ae_gaussian * storedgauss = NULL;
-    //       while(gaussnode != NULL)
-    //       {
-    //         assert(storedgaussnode != NULL);
-    //         gauss = (ae_gaussian *) gaussnode->get_obj();
-    //         storedgauss = (ae_gaussian *) storedgaussnode->get_obj();
-            
-    //         printf("gaussianA : m %f, w %f, h %f\n", gauss->get_mean(), gauss->get_width(), gauss->get_height());
-    //         printf("gaussianB : m %f, w %f, h %f\n", storedgauss->get_mean(), storedgauss->get_width(), storedgauss->get_height());
-            
-    //         gaussnode = gaussnode->get_next();
-    //         storedgaussnode = storedgaussnode->get_next();
-    //       }
-    //       assert(storedgaussnode == NULL);
-    // end debug
-
-    if ( ! (env->is_identical_to(stored_env)) )
-    {
-      fprintf(stderr, "ERROR: The replayed environment is not the same\n");
-      fprintf(stderr, "       as the one in %s\n", backup_file_name);
-      exit(EXIT_FAILURE);
-    }
-    
-    if ( verbose ) printf("OK\n");
-    delete sim; 
-  }
-
- 
+  int32_t backup_step = exp_manager->get_backup_step(); 
 
 
   // ==============================
   //  Prepare the initial ancestor
   // ==============================
 
-  ae_individual * indiv = new ae_individual( lineage_file );
+  ae_individual * indiv = new ae_individual(exp_manager, lineage_file );
   indiv->evaluate( env );
   indiv->compute_statistical_data();
   
@@ -358,25 +281,26 @@ ae_param_loader* log_overload = NULL;
   //  (and, optionally, check that the rebuilt envir and genome are correct each 
   //   time a backup is available)
   // ===============================================================================
+  ae_replication_report* rep = NULL;
+  ae_list_node<ae_dna_replic_report*>* dnarepnode = NULL;
+  ae_dna_replic_report* dnarep = NULL;
 
+  ae_list_node<ae_mutation*>* mnode = NULL;
+  ae_mutation* mut = NULL;
 
-  ae_replication_report * rep   = NULL;
-  ae_list_node * dnarepnode     = NULL;
-  ae_dna_replic_report * dnarep = NULL;
+  ae_list_node<ae_genetic_unit*>* unitnode = NULL;
+  ae_genetic_unit* unit = NULL;
 
-  ae_list_node * mnode  = NULL;
-  ae_mutation *  mut    = NULL;
-
-  ae_list_node*   unitnode  = NULL;
-  ae_genetic_unit *  unit   = NULL;
-
-  ae_individual * stored_indiv    = NULL;
-  ae_list_node*   storedunitnode  = NULL;
-  ae_genetic_unit *  storedunit   = NULL;
+  ae_individual* stored_indiv = NULL;
+  ae_list_node<ae_genetic_unit*>* stored_unit_node = NULL;
+  ae_genetic_unit*  stored_unit = NULL;
 
   int32_t i, index, genetic_unit_number, unitlen_before, seglen;
   double metabolic_error_before, metabolic_error_after, impact_on_metabolic_error;
   char mut_descr_string[80];
+  
+  ae_exp_manager* exp_manager_backup = NULL;
+  ae_environment* backup_env = NULL;
   
   bool check_now = false;
 
@@ -384,156 +308,17 @@ ae_param_loader* log_overload = NULL;
   {
     num_gener = begin_gener + i + 1;  // where are we in time...
        
-    if (log == true)
-    {
-      // overload of environment variations
-      while (num_gener == num_generation_overload)
-      {
-	f_line* line;
-	int16_t nb_param_overloaded;
-	
-	line = log_overload->get_line();
-	if (strcmp( line->words[0], "NB_PARAM_OVERLOADED") == 0)
-	{
-	  nb_param_overloaded = atol( line->words[1] );
-	}
-	else
-	{
-	  printf( "ERROR in log file for overload : unknown number of parameters overloaded\n");
-	  exit( EXIT_FAILURE );
-	}
-	
-	
-	for ( int16_t i = 0 ; i < nb_param_overloaded ; i++ )
-	{
-	  line = log_overload->get_line();
-	  if (strcmp( line->words[0], "ENV_VARIATION") == 0)
-	  {
-	    if ( strcmp( line->words[1], "none" ) == 0 )
-	    {
-	      ae_common::env_var_method = NONE;
-	      env->set_variation_method( NONE );
-	    }
-	    else if ( strcmp( line->words[1], "autoregressive_mean_variation" ) == 0 )
-	    {
-	      ae_common::env_var_method = AUTOREGRESSIVE_MEAN_VAR;
-	      env->set_variation_method( AUTOREGRESSIVE_MEAN_VAR );
-	      ae_common::env_sigma      = atof( line->words[2] );
-	      ae_common::env_tau        = atol( line->words[3] );
-	      env->set_sigma_tau( ae_common::env_sigma, ae_common::env_tau );
-	    }
-	    else if ( strcmp( line->words[1], "add_local_gaussians" ) == 0 )
-	    {
-	      ae_common::env_var_method = LOCAL_GAUSSIANS_VAR;
-	      env->set_variation_method( LOCAL_GAUSSIANS_VAR );
-	    }
-	    else
-	    {
-	      printf( "ERROR in log file for overload : unknown environment variation method\n" );
-	      exit( EXIT_FAILURE );
-	    }
-	  }
-	  
-	  else if (strcmp( line->words[0], "ENV_AXIS_SEGMENTS") == 0)
-	  {
-	    ae_common::env_axis_is_segmented = true;
-	    ae_common::env_axis_nb_segments = line->nb_words;
-	    ae_common::env_axis_segment_boundaries = new double[(ae_common::env_axis_nb_segments + 1)];
-	    
-	    ae_common::env_axis_segment_boundaries[0] = MIN_X;
-	    ae_common::env_axis_segment_boundaries[ae_common::env_axis_nb_segments] = MAX_X;
-	    for ( int16_t i = 1 ; i < ae_common::env_axis_nb_segments ; i++ )
-	    {
-	      ae_common::env_axis_segment_boundaries[i] = atof( line->words[i] );
-	    }
-	  }
-	  else if (strcmp( line ->words[0], "ENV_AXIS_FEATURES") == 0)
-	  {
-	    ae_common::env_axis_is_segmented = true;
-	    ae_common::env_axis_nb_segments = line->nb_words - 1;
-	    ae_common::env_axis_features = new ae_env_axis_feature[(ae_common::env_axis_nb_segments)];
-	    for ( int16_t i = 0 ; i < ae_common::env_axis_nb_segments ; i++ )
-	    {
-	      if ( strcmp( line->words[(i+1)], "NEUTRAL" ) == 0 )
-	      {
-		ae_common::env_axis_features[i] = NEUTRAL;
-	      }
-	      else if ( strcmp( line->words[(i+1)], "METABOLISM" ) == 0 )
-	      {
-		ae_common::env_axis_features[i] = METABOLISM;
-	      }
-	      else if ( strcmp( line->words[(i+1)], "SECRETION" ) == 0 )
-	      {
-		ae_common::use_secretion      = true;
-		ae_common::composite_fitness  = true;
-		ae_common::env_axis_features[i] = SECRETION;
-	      }
-	      else if ( strcmp( line->words[(i+1)], "TRANSFER" ) == 0 )
-	      {
-		ae_common::env_axis_features[i] = TRANSFER;
-	      }
-	      else
-	      {
-		printf( "ERROR : unknown axis feature \"%s\".\n",line->words[i] );
-		exit( EXIT_FAILURE );
-	      }
-	    }
-      
-	  }
-	  else if (strcmp(line ->words[0], "ENV_ADD_GAUSSIAN") == 0)
-	  {
-	     env->add_gaussian( atof( line->words[1] ),
-                               atof( line->words[2] ),
-                               atof( line->words[3] ) );
-	  }
-	  
-	}
-	
-	while ( (line != NULL) && (strcmp( line->words[0], "GENERATION_OVERLOAD") != 0) ) 
-	{
-	  line = log_overload->get_line();
-	}
-    
    
-	if( line != NULL )
-	{
-	  num_generation_overload =  atol(line->words[1]) ;
-	  if( num_generation_overload < num_gener)
-	  {
-	      printf( "ERROR in log file for overload : overload of an anterior generation\n" );
-	      exit( EXIT_FAILURE );
-	  }
-	}
-	else
-	{
-	  num_generation_overload =  -10 ;
-	}
-	
-	//if there is a modification in the segmentation of the environment
-	if ( ae_common::env_axis_is_segmented )
-	{
-	  indiv->new_dist_to_target_segment();
-	  dist_to_target_segment = new double [ae_common::env_axis_nb_segments];
     
-	  for ( int16_t i = 0 ; i < ae_common::env_axis_nb_segments ; i++ )
-	  {
-	    fflush(stdout);
-	    dist_to_target_segment[i] = 0;
-	  }
-	  indiv->set_dist_to_target_segment(dist_to_target_segment);
-	  delete dist_to_target_segment;
-	}
-	delete line; 
-      }
-    }
     env->build();
 
     rep = new ae_replication_report( lineage_file, indiv );
-    index = rep->get_index(); // who are we building...
+    index = rep->get_id(); // who are we building...
     indiv->set_replication_report(rep);
     
     // Check now?
-    check_now = ( ( check == FULL_CHECK && ae_utils::mod( num_gener, ae_common::backup_step ) == 0 ) ||
+    check_now = ( ( check == FULL_CHECK && ae_utils::mod( num_gener, backup_step ) == 0 ) || 
+                  ( check == ENV_CHECK && ae_utils::mod( num_gener, backup_step ) == 0 ) ||
                   ( check == LIGHT_CHECK && num_gener == end_gener ) );
 
 
@@ -541,59 +326,36 @@ ae_param_loader* log_overload = NULL;
 
     env->apply_variation();
     
-    if ( check_now && ae_utils::mod(num_gener, ae_common::backup_step) == 0 )
+    if ( check_now && ae_utils::mod(num_gener, backup_step) == 0 )
     {
       // check that the environment is now identical to the one stored
       // in the backup file of generation begin_gener
       
-      #ifdef __REGUL
-        sprintf( backup_file_name,"backup/gen_%06"PRId32".rae", num_gener );
+      // Load the simulation
+      #ifndef __NO_X
+      	exp_manager_backup = new ae_exp_manager_X11();
       #else
-        sprintf( backup_file_name,"backup/gen_%06"PRId32".ae",  num_gener );
+      	exp_manager_backup = new ae_exp_manager();
       #endif
-      
+      exp_manager_backup->load( num_gener, false, true, false );
+      backup_env = exp_manager_backup->get_env();
+      stored_indiv = new ae_individual( * (ae_individual *)exp_manager_backup->get_indiv_by_id( index ) );
+
       if ( verbose )
       {
-        printf("Comparing the environment with the one in %s... \n", backup_file_name);  
+        printf("Comparing the environment with the one saved at generation %"PRId32"... ", num_gener );
         fflush(NULL);
       }
       
-      ae_simulation * sim = new ae_simulation ( backup_file_name, false );
-      stored_indiv = new ae_individual( * (ae_individual *)sim->get_pop()->get_indiv_by_index( index ) ); // copy
-      
-
-      ae_environment * stored_env = sim->get_env();
-      
-      // debug
-//               ae_list_node * gaussnode = env->get_gaussians()->get_first();
-//               ae_list_node * storedgaussnode = stored_env->get_gaussians()->get_first();
-//               ae_gaussian * gauss = NULL;
-//               ae_gaussian * storedgauss = NULL;
-//               while(gaussnode != NULL)
-//                 {
-//                   assert(storedgaussnode != NULL);
-//                   gauss = (ae_gaussian *) gaussnode->get_obj();
-//                   storedgauss = (ae_gaussian *) storedgaussnode->get_obj();
-          
-//                   printf("gaussianA : m %f, w %f, h %f\n", gauss->get_mean(), gauss->get_width(), gauss->get_height());
-//                   printf("gaussianB : m %f, w %f, h %f\n", storedgauss->get_mean(), storedgauss->get_width(), storedgauss->get_height());
-          
-//                   gaussnode = gaussnode->get_next();
-//                   storedgaussnode = storedgaussnode->get_next();
-//                 }
-//               assert(storedgaussnode == NULL);
-      // end debug
-
-
-      if ( ! (env->is_identical_to(stored_env)) )
-        {
-          fprintf(stderr, "ERROR: The replayed environment is not the same\n");
-          fprintf(stderr, "       as the one in %s\n", backup_file_name);
-          exit(EXIT_FAILURE);
-        }
+      if ( ! env->is_identical_to(backup_env, tolerance) )
+      {
+        fprintf(stderr, "ERROR: The replayed environment is not the same\n");
+        fprintf(stderr, "       as the one saved at generation %"PRId32"...\n", num_gener );
+        fprintf(stderr, "       with tolerance of %lg\n", tolerance);
+        exit(EXIT_FAILURE);
+      }
       
       if ( verbose ) printf("OK\n");
-      delete sim;
     }
 
     // Warning: this portion of code won't work if the number of units changes
@@ -603,9 +365,9 @@ ae_param_loader* log_overload = NULL;
     dnarepnode = (rep->get_dna_replic_reports())->get_first();
     unitnode   = (indiv->get_genetic_unit_list())->get_first();
     
-    if ( check_now && ae_utils::mod(num_gener, ae_common::backup_step) == 0)
+    if ( check_now && ae_utils::mod(num_gener, backup_step) == 0)
     {
-      storedunitnode = stored_indiv->get_genetic_unit_list()->get_first();
+      stored_unit_node = stored_indiv->get_genetic_unit_list()->get_first();
     }
     
     while ( dnarepnode != NULL )
@@ -617,7 +379,7 @@ ae_param_loader* log_overload = NULL;
       
       unit->get_dna()->set_replic_report( dnarep );
 
-      mnode = dnarep->get_rearrangements()->get_first();              
+      mnode = dnarep->get_rearrangements()->get_first();
       while ( mnode != NULL )
       {
         mut = (ae_mutation *) mnode->get_obj();
@@ -670,7 +432,7 @@ ae_param_loader* log_overload = NULL;
         mnode = mnode->get_next();
       }
 
-      if ( check_now && ae_utils::mod(num_gener, ae_common::backup_step) == 0)
+      if ( check_now && ae_utils::mod(num_gener, backup_step) == 0)
       {
         if ( verbose )
         {
@@ -678,19 +440,19 @@ ae_param_loader* log_overload = NULL;
           fflush(NULL);
         }
         
-        assert( storedunitnode != NULL );
-        storedunit = (ae_genetic_unit *) storedunitnode->get_obj();
+        assert( stored_unit_node != NULL );
+        stored_unit = (ae_genetic_unit *) stored_unit_node->get_obj();
         
         char * str1 = new char[unit->get_dna()->get_length() + 1];
         memcpy(str1, unit->get_dna()->get_data(), \
                unit->get_dna()->get_length()*sizeof(char));
         str1[unit->get_dna()->get_length()] = '\0';
         
-        char * str2 = new char[(storedunit->get_dna())->get_length() + 1];
-        memcpy(str2, (storedunit->get_dna())->get_data(), (storedunit->get_dna())->get_length()*sizeof(char));
-        str2[(storedunit->get_dna())->get_length()] = '\0';
+        char * str2 = new char[(stored_unit->get_dna())->get_length() + 1];
+        memcpy(str2, (stored_unit->get_dna())->get_data(), (stored_unit->get_dna())->get_length()*sizeof(char));
+        str2[(stored_unit->get_dna())->get_length()] = '\0';
         
-        if(strncmp(str1,str2, (storedunit->get_dna())->get_length())==0)
+        if(strncmp(str1,str2, (stored_unit->get_dna())->get_length())==0)
         {
           if ( verbose ) printf(" OK\n");
         }
@@ -698,7 +460,7 @@ ae_param_loader* log_overload = NULL;
         {
           if ( verbose ) printf( " ERROR !\n" );
           fprintf( stderr, "Error: the rebuilt unit is not the same as \n");
-          fprintf( stderr, "the one stored in backup file %s\n", backup_file_name);
+          fprintf( stderr, "the one saved at generation %"PRId32"... ", begin_gener );
           fprintf( stderr, "Rebuilt unit : %zu bp\n %s\n", strlen(str1), str1 );
           fprintf( stderr, "Stored unit  : %zu bp\n %s\n", strlen(str2), str2 );
           delete [] str1;
@@ -706,15 +468,15 @@ ae_param_loader* log_overload = NULL;
           gzclose(lineage_file);
           delete indiv;
           delete stored_indiv;
-          delete env;
-          ae_common::clean();
+          delete exp_manager_backup;
+          delete exp_manager; 
           exit(EXIT_FAILURE);
         }
         
         delete [] str1;
         delete [] str2;
         
-        storedunitnode = storedunitnode->get_next();
+        stored_unit_node = stored_unit_node->get_next();
       }
       
       
@@ -730,21 +492,19 @@ ae_param_loader* log_overload = NULL;
 
     delete rep;
     
-    if ( ae_utils::mod(num_gener, ae_common::backup_step) == 0 )
+    if ( check_now && ae_utils::mod(num_gener, backup_step) == 0 )
     {
-      assert(storedunitnode == NULL);
+      assert(stored_unit_node == NULL);
       delete stored_indiv;
+      delete exp_manager_backup;
     }
   }
 
-  
-  ae_common::clean();
-
   gzclose(lineage_file);
   fclose(output);
+  delete exp_manager;
   delete indiv;
-  delete env;
-
+  //delete env; // already done in ae_exp_setup destructor called by exp_manager destructor
 
   exit(EXIT_SUCCESS);
   
@@ -754,5 +514,52 @@ ae_param_loader* log_overload = NULL;
 
 void print_help( void )
 {
-  // TODO
+  printf( "\n" ); 
+  printf( "*********************** aevol - Artificial Evolution ******************* \n" );
+  printf( "*                                                                      * \n" );
+  printf( "*               Fixed mutations post-treatment program                 * \n" );
+  printf( "*                                                                      * \n" );
+  printf( "************************************************************************ \n" );
+  printf( "\n\n" ); 
+  printf( "This program is Free Software. No Warranty.\n" );
+  printf( "Copyright (C) 2009  LIRIS.\n" );
+  printf( "\n" ); 
+#ifdef __REGUL
+  printf( "Usage : rfixed_mutations -h\n");
+  printf( "or :    rfixed_mutations [-vn] -f lineage_file \n" );
+#else
+  printf( "Usage : fixed_mutations -h\n");
+  printf( "or :    fixed_mutations [-vn] -f lineage_file \n" );
+#endif
+  printf( "\n" ); 
+  printf( "This program computes the fixed mutations of the individuals within the lineage\n" );
+  printf( "of lineage_file\n" );
+  printf( "\n" ); 
+  printf( "WARNING: This program should not be used for simulations run with lateral\n" ); 
+  printf( "transfer. When an individual has more than one parent, the notion of lineage\n" ); 
+  printf( "used here is not relevant.\n" );
+  printf( "\n" );  
+  printf( "\t-h or --help       : Display this help.\n" );
+  printf( "\n" ); 
+  printf( "\t-v or --verbose    : Be verbose, listing generations as they are \n" );
+  printf( "\t                       treated.\n" );
+  printf( "\n" );
+  printf( "\t-n or --nocheck    : Disable genome sequence checking. Makes the \n"); 
+  printf( "\t                       program faster, but it is not recommended. \n");
+  printf( "\t                       It is better to let the program check that \n");
+  printf( "\t                       when we rebuild the genomes of the ancestors\n");
+  printf( "\t                       from the lineage file, we get the same sequences\n");
+  printf( "\t                       as those stored in the backup files.\n" );
+  printf( "\n" );
+  printf( "\t-c or --fullcheck  : Will perform the genome and environment checks every\n" );
+  printf( "\t                       <BACKUP_STEP> generations. Default behaviour is\n" );
+  printf( "\t                       lighter as it only perform sthese checks at the\n" );
+  printf( "\t                       ending generation.\n" );
+  printf( "\n" ); 
+  printf( "\t-f lineage_file or --file lineage_file : \n" );
+  printf( "\t                       Compute the fixed mutations of the individuals within lineage_file.\n" );
+  printf( "\n" );
+  printf( "\t-t tolerance or --tolerance tolerance : \n");
+  printf( "\t                       Tolerance used to compare the replayed environment to environment in backup\n");
+  printf( "\n" );
 }

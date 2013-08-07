@@ -51,7 +51,7 @@
 #include <ae_individual.h>
 #include <ae_environment.h>
 #include <ae_list.h>
-#include <ae_simulation.h>
+#include <ae_experiment.h>
 #include <ae_param_overloader.h>
 
 
@@ -155,8 +155,9 @@ int main( int argc, char* argv[] )
     fflush(stdout);
 
     // Load simulation from backup
-    ae_common::sim  = new ae_simulation ( backup_file_name, false, param_overloader );
-    best_indiv      = ae_common::sim->get_pop()->get_best();
+    ae_common::sim = new ae_experiment();
+    ae_common::sim->load_backup( backup_file_name, false, param_overloader );
+    best_indiv      = ae_common::pop->get_best();
     env             = ae_common::sim->get_env();
     num_gener       = ae_common::sim->get_num_gener();
     printf("done\n");
@@ -167,7 +168,7 @@ int main( int argc, char* argv[] )
   
   
   
-  // The constructor of the ae_simulation has read the genomes of the individuals
+  // The constructor of the ae_experiment has read the genomes of the individuals
   // and located their promoters, but has not performed the translation nor the
   // phenotype computation. We must do it now.
   // However, as the individuals in the backups are sorted, we don't need to evaluate
@@ -206,7 +207,7 @@ int main( int argc, char* argv[] )
     for ( int16_t y = 0 ; y < ae_common::grid_y ; y++ )
     {
       
-      ae_individual*  initial_indiv = ((ae_common::sim->get_pop())->get_pop_grid())[x][y]->get_individual();       
+      ae_individual*  initial_indiv = ae_common::pop->get_pop_grid()[x][y]->get_individual();       
 
       // =================================================================
       //                      Proceed to mutagenesis
@@ -238,7 +239,7 @@ int main( int argc, char* argv[] )
           fflush(stdout);
         }
         
-        indiv = ae_common::sim->get_pop()->do_replication( initial_indiv, -1 );
+        indiv = ae_common::pop->do_replication( initial_indiv, -1 );
         
         indiv->reevaluate(env);
         final_metabolic_error     = indiv->get_dist_to_target_by_feature( METABOLISM );

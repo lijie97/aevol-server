@@ -40,20 +40,24 @@
 #include <getopt.h>
 #include <math.h>
 #include <sys/stat.h>  // for the permission symbols used with mkdir
-
+#include <errno.h>
 
 
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_common.h>
+//#include <ae_common.h>
 #include <ae_population.h>
 #include <ae_individual.h>
 #include <ae_environment.h>
 #include <ae_protein.h>
 #include <ae_rna.h>
 #include <ae_list.h>
-#include <ae_simulation.h>
+#ifndef __NO_X
+  #include <ae_exp_manager_X11.h>
+#else
+  #include <ae_exp_manager.h>
+#endif
 #include <ae_utils.h>
 
 
@@ -116,14 +120,20 @@ int main( int argc, char* argv[] )
   //
   // 1) Initialize command-line option variables with default values
 
-  bool  verbose               = false;
-  bool  use_single_indiv_file = false;
-  char* backup_file_name      = NULL;
+  //~ bool  verbose           = false;
+  //~ char* backup_file_name  = NULL;
+  int32_t num_gener       = -1;
+  int32_t indiv_index     = -1; 
+  int32_t indiv_rank      = -1;
   
   // 2) Define allowed options
-  const char * options_list = "hvf:";
+  const char * options_list = "hvi:r:e:";
   static struct option long_options_list[] = {
-    { "file", 1, NULL, 'f' },
+  	{"help",      no_argument,       NULL, 'h'},
+    //~ {"verbose",   no_argument,       NULL, 'v'},
+    {"index",     required_argument, NULL, 'i'},
+    {"rank",      required_argument, NULL, 'r'},
+    {"end",       required_argument,  NULL, 'e' }, 
     { 0, 0, 0, 0 }
   };
 
@@ -137,22 +147,41 @@ int main( int argc, char* argv[] )
         print_help();
         exit( EXIT_SUCCESS );
         break;
-      case 'v' :
-        verbose = true;
+      //~ case 'v' :
+        //~ verbose = true;
+        //~ break;
+      case 'i' : 
+        indiv_index  = atol(optarg); 
         break;
-      case 'f' :
-        if ( strstr( optarg, "best" ) != NULL )
-        {
-          use_single_indiv_file = true;
-        }
-        else
-        {
-          printf( "%s|\n", optarg );
-        }
-        backup_file_name = new char[strlen(optarg) + 1];
-        sprintf( backup_file_name, "%s", optarg );
+      case 'r' : 
+        indiv_rank  = atol(optarg); 
         break;
+      case 'e' :
+      {
+        if ( strcmp( optarg, "" ) == 0 )
+        {
+          printf( "%s: error: Option -e or --end : missing argument.\n", argv[0] );
+          exit( EXIT_FAILURE );
+        }
+        
+        num_gener = atol( optarg );
+        
+        break;
+      }
     }
+  }
+
+  // Check mandatory arguments
+  if ( num_gener == -1 )
+  {
+    printf( "%s: error: You must provide a generation number.\n", argv[0] );
+    exit( EXIT_FAILURE );
+  }
+  
+  if (indiv_index != -1 && indiv_rank != -1)
+  {
+    printf( "%s: error: You must provide either the index or the rank of the individual to plot.\n", argv[0] );
+    exit( EXIT_FAILURE );
   }
   
   
@@ -160,18 +189,37 @@ int main( int argc, char* argv[] )
   //                       Read the backup file
   // =================================================================
   
-  ae_individual*  best_indiv;
+  ae_individual*  indiv;
   ae_environment* env;
-  int32_t         num_gener;
   
-  if ( backup_file_name == NULL )
+  // Load the simulation
+  #ifndef __NO_X
+    ae_exp_manager* exp_manager = new ae_exp_manager_X11();
+  #else
+    ae_exp_manager* exp_manager = new ae_exp_manager();
+  #endif
+  exp_manager->load( num_gener, false, true, false );
+  
+  env = exp_manager->get_env();
+  
+  
+  if (indiv_index == -1 && indiv_rank == -1)
   {
-    printf("You must specify a backup file. Please use the option -f or --file.\n");
-    exit(EXIT_FAILURE);
+  	indiv = new ae_individual(*exp_manager->get_best_indiv());
   }
   else
   {
-    if ( use_single_indiv_file )
+  	if (indiv_rank != -1)
+  	{
+  		indiv = new ae_individual(*exp_manager->get_indiv_by_rank(indiv_rank));
+  	}
+  	else
+  	{
+  		indiv = new ae_individual(*exp_manager->get_indiv_by_id(indiv_index));
+  	}
+  }
+  
+  /*  if ( use_single_indiv_file )
     {
       // TODO : best* backups don't look right...
       printf( "Reading single individual backup file <%s>... ", backup_file_name );
@@ -181,7 +229,7 @@ int main( int argc, char* argv[] )
       best_indiv = new ae_individual( backup_file );
       
       num_gener = -1; // TODO!!!
-      printf("done\n");
+      printf("done\n" );
     }
     else
     {
@@ -189,25 +237,24 @@ int main( int argc, char* argv[] )
       fflush(stdout);
 
       // Load simulation from backup
-      ae_common::sim  = new ae_simulation ( backup_file_name, false );
-      best_indiv      = ae_common::sim->get_pop()->get_best();
+      ae_common::sim = new ae_experiment();
+      ae_common::sim->load_backup( backup_file_name, false, NULL );
+      
+      best_indiv      = ae_common::pop->get_best();
       env             = ae_common::sim->get_env();
       num_gener       = ae_common::sim->get_num_gener();
-      printf("done\n");
+      printf("done\n" );
     }
-  }
+  }*/
   
   
-  // The constructor of the ae_simulation has read the genomes of the individuals
+  // The constructor of the ae_experiment has read the genomes of the individuals
   // and located their promoters, but has not performed the translation nor the
   // phenotype computation. We must do it now.
   // However, as the individuals in the backups are sorted, we don't need to evaluate
   // all the individuals, only those we are interested in (here only the best one)
     
-  
-  best_indiv->evaluate( env );
-
-
+  indiv->evaluate( env );
     
   // =================================================================
   //                      Create the EPS files 
@@ -246,36 +293,40 @@ int main( int argc, char* argv[] )
   //                  Write the data in the EPS files 
   // =================================================================
 
-  ae_genetic_unit*  best_indiv_main_genome = best_indiv->get_genetic_unit( 0 );
+  ae_genetic_unit*  indiv_main_genome = indiv->get_genetic_unit( 0 );
     
-  printf( "Creating the EPS file with the triangles of the best individual... " );
+  printf( "Creating the EPS file with the triangles of the chosen individual... " );
   fflush(stdout);
-  draw_triangles( best_indiv, env, directory_name );
+  draw_triangles( indiv, env, directory_name );
   printf( "OK\n" );
 
-  printf( "Creating the EPS file with the positive and negatives profiles of the best individual... " );
+  printf( "Creating the EPS file with the positive and negatives profiles of the chosen individual... " );
   fflush(stdout);
-  draw_pos_neg_profiles( best_indiv, env, directory_name );
+  draw_pos_neg_profiles( indiv, env, directory_name );
   printf( "OK\n" );
 
     
-  printf( "Creating the EPS file with the phenotype of the best individual... " );
+  printf( "Creating the EPS file with the phenotype of the chosen individual... " );
   fflush(stdout);  
-  draw_phenotype( best_indiv, env, directory_name );
+  draw_phenotype( indiv, env, directory_name );
   printf( "OK\n" );
 
-  printf( "Creating the EPS file with the CDS of the best individual... " );
+  printf( "Creating the EPS file with the CDS of the chosen individual... " );
   fflush(stdout);  
-  draw_genetic_unit_with_CDS( best_indiv_main_genome, directory_name );
+  draw_genetic_unit_with_CDS( indiv_main_genome, directory_name );
   printf( "OK\n" );
 
-  printf( "Creating the EPS file with the mRNAs of the best individual... " );
+  printf( "Creating the EPS file with the mRNAs of the chosen individual... " );
   fflush(stdout);  
-  draw_genetic_unit_with_mRNAs( best_indiv_main_genome, directory_name );
+  draw_genetic_unit_with_mRNAs( indiv_main_genome, directory_name );
   printf( "OK\n" );
 
 
-  delete [] backup_file_name;
+  delete env;
+  delete indiv;
+  delete exp_manager;
+  
+  /*delete [] backup_file_name;
   
   if ( use_single_indiv_file )
   {
@@ -285,7 +336,7 @@ int main( int argc, char* argv[] )
   else
   {
     delete ae_common::sim;
-  }
+  }*/
 
   return EXIT_SUCCESS;
 }
@@ -295,6 +346,54 @@ int main( int argc, char* argv[] )
 
 void print_help( void ) 
 {
+  printf( "\n" ); 
+  printf( "*********************** aevol - Artificial Evolution ******************* \n" );
+  printf( "*                                                                      * \n" );
+  printf( "*                      EPS creation post-treatment program             * \n" );
+  printf( "*                                                                      * \n" );
+  printf( "************************************************************************ \n" );
+  printf( "\n\n" ); 
+  printf( "This program is Free Software. No Warranty.\n" );
+  printf( "Copyright (C) 2009  LIRIS.\n" );
+  printf( "\n" ); 
+#ifdef __REGUL
+  printf( "Usage : rcreate_eps -h\n");
+  printf( "or :    rcreate_eps [-v] [-i index | -r rank] -e end_gener \n" );
+#else
+  printf( "Usage : create_eps -h\n");
+  printf( "or :    create_eps [-v] [-i index | -r rank] -e end_gener \n" );
+#endif
+  printf( "\n" );  
+  printf( "This program creates 5 EPS files with the triangles, the positive and negatives \n" );
+  printf( "profiles, the phenotype, the CDS, the mRNAs of the chosen individual or the best\n");
+  printf( "individual. This program requires at least one population backup file and one \n" );
+  printf( "environment backup file of end_gener\n" );
+  printf( "\n" ); 
+  printf( "\n" );  
+  printf( "\t-h or --help    : Display this help.\n" );
+  printf( "\n" ); 
+  printf( "\t-v or --verbose : Be verbose, listing generations as they are \n" );
+  printf( "\t                  treated.\n" );
+  printf( "\n" );
+  printf( "\t-i index or --index index : \n" );
+  printf( "\t                  Creates the EPS files for the individual whose\n" );
+  printf( "\t                  index is index. The index must be comprised \n" );
+  printf( "\t                  between 0 and N-1, with N the size of the \n" );
+  printf( "\t                  population at the ending generation. If neither\n" );
+  printf( "\t                  index nor rank are specified, the program creates \n" );
+  printf( "\t                  the EPS files of the best individual\n" );
+  printf( "\n" ); 
+  printf( "\t-r rank or --rank rank : \n" );
+  printf( "\t                  Creates the EPS files for the individual whose\n" );
+  printf( "\t                  rank is rank. The rank must be comprised \n" );
+  printf( "\t                  between 0 and N-1, with N the size of the \n" );
+  printf( "\t                  population at the ending generation. If neither\n" );
+  printf( "\t                  index nor rank are specified, the program creates \n" );
+  printf( "\t                  the EPS files of the best individual\n" );
+  printf( "\n" ); 
+  printf( "\t-e end_gener or --end end_gener : \n" );
+  printf( "\t                  Create the EPS files for the chosen individual of end_gener\n" );
+  printf( "\n" );
 }
 
 
@@ -312,17 +411,17 @@ void draw_triangles( ae_individual* indiv, ae_environment* env, char * directory
   FILE * drawingfile = fopen( filename, "w" );
 
 
-  fprintf(drawingfile, "%%!PS-Adobe-3.0 EPSF-3.0\n");
-  fprintf(drawingfile, "%%%%BoundingBox: 0 0 %d %d\n", bbsize, bbsize);
-  fprintf(drawingfile, "%d %d scale\n", bbsize, bbsize);
-  fprintf(drawingfile, "%d %d 8 [100 0 0 -100 0 100]\n",bbsize, bbsize);
-  fprintf(drawingfile, "{currentfile 3 100 mul string readhexstring pop} bind\n");
+  fprintf( drawingfile, "%%!PS-Adobe-3.0 EPSF-3.0\n" );
+  fprintf( drawingfile, "%%%%BoundingBox: 0 0 %d %d\n", bbsize, bbsize );
+  fprintf( drawingfile, "%d %d scale\n", bbsize, bbsize );
+  fprintf( drawingfile, "%d %d 8 [100 0 0 -100 0 100]\n",bbsize, bbsize );
+  fprintf( drawingfile, "{currentfile 3 100 mul string readhexstring pop} bind\n" );
 
 
   // -----------------------------
   //  paint neutral zones in grey
   // -----------------------------
-  if ( ae_common::env_axis_is_segmented )
+  if ( env->get_nb_segments() > 1 )
   {
     int16_t nb_segments = env->get_nb_segments();
     ae_env_segment** segments = env->get_segments();
@@ -350,29 +449,29 @@ void draw_triangles( ae_individual* indiv, ae_environment* env, char * directory
   double arrowsize = 0.03;
   double arrowangle = 3.14/6;
 
-  fprintf(drawingfile, "0.001 setlinewidth\n");
-  fprintf(drawingfile, "0 0 0 setrgbcolor\n");
+  fprintf( drawingfile, "0.001 setlinewidth\n" );
+  fprintf( drawingfile, "0 0 0 setrgbcolor\n" );
 
   // axis X + arrow
-  fprintf(drawingfile, "%lf %lf moveto\n", margin/2, 0.5);
-  fprintf(drawingfile, "%lf %lf lineto\n", 1-margin, 0.5);
-  fprintf(drawingfile, "stroke\n");
-  fprintf(drawingfile, "%lf %lf moveto\n", 1-margin, 0.5);
-  fprintf(drawingfile, "%lf %lf lineto\n", 1-margin-arrowsize*cos(arrowangle), 0.5 + arrowsize*sin(arrowangle) );
-  fprintf(drawingfile, "stroke\n");
-  fprintf(drawingfile, "%lf %lf moveto\n", 1-margin, 0.5);
-  fprintf(drawingfile, "%lf %lf lineto\n", 1-margin-arrowsize*cos(arrowangle), 0.5 - arrowsize*sin(arrowangle) );
-  fprintf(drawingfile, "stroke\n");
+  fprintf( drawingfile, "%lf %lf moveto\n", margin/2, 0.5);
+  fprintf( drawingfile, "%lf %lf lineto\n", 1-margin, 0.5);
+  fprintf( drawingfile, "stroke\n" );
+  fprintf( drawingfile, "%lf %lf moveto\n", 1-margin, 0.5);
+  fprintf( drawingfile, "%lf %lf lineto\n", 1-margin-arrowsize*cos(arrowangle), 0.5 + arrowsize*sin(arrowangle) );
+  fprintf( drawingfile, "stroke\n" );
+  fprintf( drawingfile, "%lf %lf moveto\n", 1-margin, 0.5);
+  fprintf( drawingfile, "%lf %lf lineto\n", 1-margin-arrowsize*cos(arrowangle), 0.5 - arrowsize*sin(arrowangle) );
+  fprintf( drawingfile, "stroke\n" );
 
   // axis Y + arrow
   fprintf( drawingfile, "%lf %lf moveto\n", margin, margin/2);
   fprintf( drawingfile, "%lf %lf lineto\n", margin, 1-margin);
   fprintf( drawingfile, "%lf %lf moveto\n", margin, 1-margin);
   fprintf( drawingfile, "%lf %lf lineto\n", margin-arrowsize*sin(arrowangle), 1 - margin - arrowsize*cos(arrowangle) );
-  fprintf( drawingfile, "stroke\n");
+  fprintf( drawingfile, "stroke\n" );
   fprintf( drawingfile, "%lf %lf moveto\n", margin, 1-margin);
   fprintf( drawingfile, "%lf %lf lineto\n", margin+arrowsize*sin(arrowangle), 1 - margin - arrowsize*cos(arrowangle) );
-  fprintf( drawingfile, "stroke\n");
+  fprintf( drawingfile, "stroke\n" );
 
 
 
@@ -380,30 +479,30 @@ void draw_triangles( ae_individual* indiv, ae_environment* env, char * directory
   //  draw triangles
   // ----------------
 
-  fprintf(drawingfile,"[ ] 0 setdash\n");
+  fprintf( drawingfile,"[ ] 0 setdash\n" );
 
   double h;
-  ae_list_node*     gen_unit_node = indiv->get_genetic_unit_list()->get_first();
-  ae_genetic_unit*  gen_unit      = NULL;
+  ae_list_node<ae_genetic_unit*>* gen_unit_node = indiv->get_genetic_unit_list()->get_first();
+  ae_genetic_unit*  gen_unit = NULL;
   
   while ( gen_unit_node != NULL )
   {
     gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
     
-    ae_list_node* prot_node  = NULL;
-    ae_protein*   prot       = NULL;
+    ae_list_node<ae_protein*>* prot_node = NULL;
+    ae_protein* prot = NULL;
     
     prot_node = (gen_unit->get_protein_list())[LEADING]->get_first();
     while ( prot_node != NULL )
     {
       prot = (ae_protein*) prot_node->get_obj();
       h = prot->get_height() * prot->get_concentration();
-      fprintf(drawingfile, "%lf %lf moveto\n", margin, 0.5);
-      fprintf(drawingfile, "%lf %lf lineto\n", margin + scale*(prot->get_mean() - prot->get_width()), 0.5);
-      fprintf(drawingfile, "%lf %lf lineto\n", margin + scale*(prot->get_mean()), 0.5 + scale*(h));
-      fprintf(drawingfile, "%lf %lf lineto\n", margin + scale*(prot->get_mean() + prot->get_width()), 0.5);
-      fprintf(drawingfile, "%lf %lf moveto\n", margin + scale*(1), 0.5);
-      fprintf(drawingfile, "stroke\n");
+      fprintf( drawingfile, "%lf %lf moveto\n", margin, 0.5);
+      fprintf( drawingfile, "%lf %lf lineto\n", margin + scale*(prot->get_mean() - prot->get_width()), 0.5);
+      fprintf( drawingfile, "%lf %lf lineto\n", margin + scale*(prot->get_mean()), 0.5 + scale*(h));
+      fprintf( drawingfile, "%lf %lf lineto\n", margin + scale*(prot->get_mean() + prot->get_width()), 0.5);
+      fprintf( drawingfile, "%lf %lf moveto\n", margin + scale*(1), 0.5);
+      fprintf( drawingfile, "stroke\n" );
       prot_node = prot_node->get_next();
     }
 
@@ -413,12 +512,12 @@ void draw_triangles( ae_individual* indiv, ae_environment* env, char * directory
     {
       prot = (ae_protein*) prot_node->get_obj();
       h = prot->get_height() * prot->get_concentration();
-      fprintf(drawingfile, "%lf %lf moveto\n", margin, 0.5);
-      fprintf(drawingfile, "%lf %lf lineto\n", margin + scale*(prot->get_mean() - prot->get_width()), 0.5);
-      fprintf(drawingfile, "%lf %lf lineto\n", margin + scale*(prot->get_mean()), 0.5 + scale*(h));
-      fprintf(drawingfile, "%lf %lf lineto\n", margin + scale*(prot->get_mean() + prot->get_width()), 0.5);
-      fprintf(drawingfile, "%lf %lf moveto\n", margin + scale*(1), 0.5);
-      fprintf(drawingfile, "stroke\n");
+      fprintf( drawingfile, "%lf %lf moveto\n", margin, 0.5);
+      fprintf( drawingfile, "%lf %lf lineto\n", margin + scale*(prot->get_mean() - prot->get_width()), 0.5);
+      fprintf( drawingfile, "%lf %lf lineto\n", margin + scale*(prot->get_mean()), 0.5 + scale*(h));
+      fprintf( drawingfile, "%lf %lf lineto\n", margin + scale*(prot->get_mean() + prot->get_width()), 0.5);
+      fprintf( drawingfile, "%lf %lf moveto\n", margin + scale*(1), 0.5);
+      fprintf( drawingfile, "stroke\n" );
       
       prot_node = prot_node->get_next();
     }
@@ -428,7 +527,7 @@ void draw_triangles( ae_individual* indiv, ae_environment* env, char * directory
 
 
 
-  fprintf(drawingfile,"%%%%EOF\n");
+  fprintf( drawingfile,"%%%%EOF\n" );
   fclose(drawingfile);
 
 }
@@ -447,17 +546,17 @@ void draw_pos_neg_profiles( ae_individual * indiv, ae_environment* env, char * d
   FILE * drawingfile = fopen( filename, "w" );
 
 
-  fprintf(drawingfile, "%%!PS-Adobe-3.0 EPSF-3.0\n");
-  fprintf(drawingfile, "%%%%BoundingBox: 0 0 %d %d\n", bbsize, bbsize);
-  fprintf(drawingfile, "%d %d scale\n", bbsize, bbsize);
-  fprintf(drawingfile, "%d %d 8 [100 0 0 -100 0 100]\n",bbsize, bbsize);
-  fprintf(drawingfile, "{currentfile 3 100 mul string readhexstring pop} bind\n");
+  fprintf( drawingfile, "%%!PS-Adobe-3.0 EPSF-3.0\n" );
+  fprintf( drawingfile, "%%%%BoundingBox: 0 0 %d %d\n", bbsize, bbsize);
+  fprintf( drawingfile, "%d %d scale\n", bbsize, bbsize);
+  fprintf( drawingfile, "%d %d 8 [100 0 0 -100 0 100]\n",bbsize, bbsize);
+  fprintf( drawingfile, "{currentfile 3 100 mul string readhexstring pop} bind\n" );
 
 
   // -----------------------------
   //  paint neutral zones in grey
   // -----------------------------
-  if ( ae_common::env_axis_is_segmented )
+  if ( env->get_nb_segments() > 1 )
   {
     int16_t nb_segments = env->get_nb_segments();
     ae_env_segment** segments = env->get_segments();
@@ -486,69 +585,69 @@ void draw_pos_neg_profiles( ae_individual * indiv, ae_environment* env, char * d
   double arrowsize = 0.03;
   double arrowangle = 3.14/6;
 
-  fprintf(drawingfile, "0.001 setlinewidth\n");
-  fprintf(drawingfile, "0 0 0 setrgbcolor\n");
+  fprintf( drawingfile, "0.001 setlinewidth\n" );
+  fprintf( drawingfile, "0 0 0 setrgbcolor\n" );
 
   // axis X + arrow
-  fprintf(drawingfile, "%lf %lf moveto\n", margin/2, 0.5);
-  fprintf(drawingfile, "%lf %lf lineto\n", 1-margin, 0.5);
-  fprintf(drawingfile, "stroke\n");
-  fprintf(drawingfile, "%lf %lf moveto\n", 1-margin, 0.5);
-  fprintf(drawingfile, "%lf %lf lineto\n", 1-margin-arrowsize*cos(arrowangle), 0.5 + arrowsize*sin(arrowangle) );
-  fprintf(drawingfile, "stroke\n");
-  fprintf(drawingfile, "%lf %lf moveto\n", 1-margin, 0.5);
-  fprintf(drawingfile, "%lf %lf lineto\n", 1-margin-arrowsize*cos(arrowangle), 0.5 - arrowsize*sin(arrowangle) );
-  fprintf(drawingfile, "stroke\n");
+  fprintf( drawingfile, "%lf %lf moveto\n", margin/2, 0.5);
+  fprintf( drawingfile, "%lf %lf lineto\n", 1-margin, 0.5);
+  fprintf( drawingfile, "stroke\n" );
+  fprintf( drawingfile, "%lf %lf moveto\n", 1-margin, 0.5);
+  fprintf( drawingfile, "%lf %lf lineto\n", 1-margin-arrowsize*cos(arrowangle), 0.5 + arrowsize*sin(arrowangle) );
+  fprintf( drawingfile, "stroke\n" );
+  fprintf( drawingfile, "%lf %lf moveto\n", 1-margin, 0.5);
+  fprintf( drawingfile, "%lf %lf lineto\n", 1-margin-arrowsize*cos(arrowangle), 0.5 - arrowsize*sin(arrowangle) );
+  fprintf( drawingfile, "stroke\n" );
 
   // axis Y + arrow
-  fprintf(drawingfile, "%lf %lf moveto\n", margin, margin/2);
-  fprintf(drawingfile, "%lf %lf lineto\n", margin, 1-margin);
-  fprintf(drawingfile, "%lf %lf moveto\n", margin, 1-margin);
-  fprintf(drawingfile, "%lf %lf lineto\n", margin-arrowsize*sin(arrowangle), 1 - margin - arrowsize*cos(arrowangle) );
-  fprintf(drawingfile, "stroke\n");
-  fprintf(drawingfile, "%lf %lf moveto\n", margin, 1-margin);
-  fprintf(drawingfile, "%lf %lf lineto\n", margin+arrowsize*sin(arrowangle), 1 - margin - arrowsize*cos(arrowangle) );
-  fprintf(drawingfile, "stroke\n");
+  fprintf( drawingfile, "%lf %lf moveto\n", margin, margin/2);
+  fprintf( drawingfile, "%lf %lf lineto\n", margin, 1-margin);
+  fprintf( drawingfile, "%lf %lf moveto\n", margin, 1-margin);
+  fprintf( drawingfile, "%lf %lf lineto\n", margin-arrowsize*sin(arrowangle), 1 - margin - arrowsize*cos(arrowangle) );
+  fprintf( drawingfile, "stroke\n" );
+  fprintf( drawingfile, "%lf %lf moveto\n", margin, 1-margin);
+  fprintf( drawingfile, "%lf %lf lineto\n", margin+arrowsize*sin(arrowangle), 1 - margin - arrowsize*cos(arrowangle) );
+  fprintf( drawingfile, "stroke\n" );
 
 
   // -----------------------
   //  draw positive profile
   // -----------------------
 
-  fprintf(drawingfile,"[ ] 0 setdash\n");
-  fprintf(drawingfile, "0.002 setlinewidth\n");
-  fprintf(drawingfile, "%lf %lf moveto\n", margin, 0.5);
+  fprintf( drawingfile,"[ ] 0 setdash\n" );
+  fprintf( drawingfile, "0.002 setlinewidth\n" );
+  fprintf( drawingfile, "%lf %lf moveto\n", margin, 0.5);
 
-  ae_list_node * node = ((indiv->get_phenotype_activ())->get_points())->get_first();
-  ae_point_2d * pt = NULL;
+  ae_list_node<ae_point_2d*>* node = indiv->get_phenotype_activ()->get_points()->get_first();
+  ae_point_2d* pt = NULL;
   while (node != NULL)
   {
-    pt = (ae_point_2d *) node->get_obj();
-    fprintf(drawingfile, "%lf %lf lineto\n", margin + scale*pt->x, 0.5 + scale*pt->y);
+    pt = node->get_obj();
+    fprintf( drawingfile, "%lf %lf lineto\n", margin + scale*pt->x, 0.5 + scale*pt->y);
     node = node->get_next();
   }
-  fprintf(drawingfile, "stroke\n");
+  fprintf( drawingfile, "stroke\n" );
     
 
   // -----------------------
   //  draw negative profile
   // -----------------------
 
-  fprintf(drawingfile,"[ ] 0 setdash\n");
-  fprintf(drawingfile, "0.002 setlinewidth\n");
-  fprintf(drawingfile, "%lf %lf moveto\n", margin, 0.5);
+  fprintf( drawingfile,"[ ] 0 setdash\n" );
+  fprintf( drawingfile, "0.002 setlinewidth\n" );
+  fprintf( drawingfile, "%lf %lf moveto\n", margin, 0.5);
     
   node = ((indiv->get_phenotype_inhib())->get_points())->get_first();
   pt = NULL;
   while (node != NULL)
   {
     pt = (ae_point_2d *) node->get_obj();
-    fprintf(drawingfile, "%lf %lf lineto\n", margin + scale*pt->x, 0.5 + scale*pt->y);
+    fprintf( drawingfile, "%lf %lf lineto\n", margin + scale*pt->x, 0.5 + scale*pt->y);
     node = node->get_next();
   }
-  fprintf(drawingfile, "stroke\n");
+  fprintf( drawingfile, "stroke\n" );
 
-  fprintf(drawingfile,"%%%%EOF\n");
+  fprintf( drawingfile,"%%%%EOF\n" );
   fclose(drawingfile);
 
 }
@@ -556,7 +655,7 @@ void draw_pos_neg_profiles( ae_individual * indiv, ae_environment* env, char * d
 
 
 
-void draw_phenotype( ae_individual * indiv, ae_environment * envir, char * directoryName )
+void draw_phenotype( ae_individual* indiv, ae_environment* env, char* directoryName )
 {
   const uint8_t bbsize = 200;  // a4 paper: 595*842 
   double margin = 0.1;
@@ -575,20 +674,20 @@ void draw_phenotype( ae_individual * indiv, ae_environment * envir, char * direc
     }
   
 
-  fprintf(drawingfile, "%%!PS-Adobe-3.0 EPSF-3.0\n");
-  fprintf(drawingfile, "%%%%BoundingBox: 0 0 %d %d\n", bbsize, bbsize);
-  fprintf(drawingfile, "%d %d scale\n", bbsize, bbsize);
-  fprintf(drawingfile, "%d %d 8 [100 0 0 -100 0 100]\n",bbsize, bbsize);
-  fprintf(drawingfile, "{currentfile 3 100 mul string readhexstring pop} bind\n");
+  fprintf( drawingfile, "%%!PS-Adobe-3.0 EPSF-3.0\n" );
+  fprintf( drawingfile, "%%%%BoundingBox: 0 0 %d %d\n", bbsize, bbsize);
+  fprintf( drawingfile, "%d %d scale\n", bbsize, bbsize);
+  fprintf( drawingfile, "%d %d 8 [100 0 0 -100 0 100]\n",bbsize, bbsize);
+  fprintf( drawingfile, "{currentfile 3 100 mul string readhexstring pop} bind\n" );
 
 
   // -----------------------------
   //  paint neutral zones in grey
   // -----------------------------
-  if ( ae_common::env_axis_is_segmented )
+  if ( env->get_nb_segments() > 1 )
   {
-    int16_t nb_segments = envir->get_nb_segments();
-    ae_env_segment** segments = envir->get_segments();
+    int16_t nb_segments = env->get_nb_segments();
+    ae_env_segment** segments = env->get_segments();
     
     for ( int16_t i = 0 ; i < nb_segments ; i++ )
     {
@@ -614,73 +713,73 @@ void draw_phenotype( ae_individual * indiv, ae_environment * envir, char * direc
   double arrowsize = 0.03;
   double arrowangle = 3.14/6;
 
-  fprintf(drawingfile, "0.001 setlinewidth\n");
-  fprintf(drawingfile, "0 0 0 setrgbcolor\n");
+  fprintf( drawingfile, "0.001 setlinewidth\n" );
+  fprintf( drawingfile, "0 0 0 setrgbcolor\n" );
 
   // axis X + arrow
-  fprintf(drawingfile, "%lf %lf moveto\n", margin/2, margin);
-  fprintf(drawingfile, "%lf %lf lineto\n", 1-margin, margin);
-  fprintf(drawingfile, "stroke\n");
-  fprintf(drawingfile, "%lf %lf moveto\n", 1-margin, margin);
-  fprintf(drawingfile, "%lf %lf lineto\n", 1-margin-arrowsize*cos(arrowangle), margin + arrowsize*sin(arrowangle) );
-  fprintf(drawingfile, "stroke\n");
-  fprintf(drawingfile, "%lf %lf moveto\n", 1-margin, margin);
-  fprintf(drawingfile, "%lf %lf lineto\n", 1-margin-arrowsize*cos(arrowangle), margin - arrowsize*sin(arrowangle) );
-  fprintf(drawingfile, "stroke\n");
+  fprintf( drawingfile, "%lf %lf moveto\n", margin/2, margin);
+  fprintf( drawingfile, "%lf %lf lineto\n", 1-margin, margin);
+  fprintf( drawingfile, "stroke\n" );
+  fprintf( drawingfile, "%lf %lf moveto\n", 1-margin, margin);
+  fprintf( drawingfile, "%lf %lf lineto\n", 1-margin-arrowsize*cos(arrowangle), margin + arrowsize*sin(arrowangle) );
+  fprintf( drawingfile, "stroke\n" );
+  fprintf( drawingfile, "%lf %lf moveto\n", 1-margin, margin);
+  fprintf( drawingfile, "%lf %lf lineto\n", 1-margin-arrowsize*cos(arrowangle), margin - arrowsize*sin(arrowangle) );
+  fprintf( drawingfile, "stroke\n" );
 
   // axis Y + arrow
-  fprintf(drawingfile, "%lf %lf moveto\n", margin, margin/2);
-  fprintf(drawingfile, "%lf %lf lineto\n", margin, 1-margin);
-  fprintf(drawingfile, "%lf %lf moveto\n", margin, 1-margin);
-  fprintf(drawingfile, "%lf %lf lineto\n", margin-arrowsize*sin(arrowangle), 1 - margin - arrowsize*cos(arrowangle) );
-  fprintf(drawingfile, "stroke\n");
-  fprintf(drawingfile, "%lf %lf moveto\n", margin, 1-margin);
-  fprintf(drawingfile, "%lf %lf lineto\n", margin+arrowsize*sin(arrowangle), 1 - margin - arrowsize*cos(arrowangle) );
-  fprintf(drawingfile, "stroke\n");
+  fprintf( drawingfile, "%lf %lf moveto\n", margin, margin/2);
+  fprintf( drawingfile, "%lf %lf lineto\n", margin, 1-margin);
+  fprintf( drawingfile, "%lf %lf moveto\n", margin, 1-margin);
+  fprintf( drawingfile, "%lf %lf lineto\n", margin-arrowsize*sin(arrowangle), 1 - margin - arrowsize*cos(arrowangle) );
+  fprintf( drawingfile, "stroke\n" );
+  fprintf( drawingfile, "%lf %lf moveto\n", margin, 1-margin);
+  fprintf( drawingfile, "%lf %lf lineto\n", margin+arrowsize*sin(arrowangle), 1 - margin - arrowsize*cos(arrowangle) );
+  fprintf( drawingfile, "stroke\n" );
 
   // max degree = 1
-  fprintf(drawingfile, "[0.02 0.02] 0 setdash\n");
-  fprintf(drawingfile, "%lf %lf moveto\n", margin, margin + 1*scale);
-  fprintf(drawingfile, "%lf %lf lineto\n", 1-margin, margin + 1*scale);
-  fprintf(drawingfile, "stroke\n");
+  fprintf( drawingfile, "[0.02 0.02] 0 setdash\n" );
+  fprintf( drawingfile, "%lf %lf moveto\n", margin, margin + 1*scale);
+  fprintf( drawingfile, "%lf %lf lineto\n", 1-margin, margin + 1*scale);
+  fprintf( drawingfile, "stroke\n" );
 
 
   // ----------------
   //  draw phenotype
   // ----------------
-  fprintf(drawingfile,"[ ] 0 setdash\n");
-  fprintf(drawingfile, "0.002 setlinewidth\n");
-  fprintf(drawingfile, "%lf %lf moveto\n", margin, margin);
-  ae_list_node * node = ((indiv->get_phenotype())->get_points())->get_first();
-  ae_point_2d * pt = NULL;
+  fprintf( drawingfile,"[ ] 0 setdash\n" );
+  fprintf( drawingfile, "0.002 setlinewidth\n" );
+  fprintf( drawingfile, "%lf %lf moveto\n", margin, margin);
+  ae_list_node<ae_point_2d*>* node = indiv->get_phenotype()->get_points()->get_first();
+  ae_point_2d* pt = NULL;
   while (node != NULL)
     {
       pt = (ae_point_2d *) node->get_obj();
-      fprintf(drawingfile, "%lf %lf lineto\n", margin + scale*pt->x, margin + scale*pt->y);
+      fprintf( drawingfile, "%lf %lf lineto\n", margin + scale*pt->x, margin + scale*pt->y);
       node = node->get_next();
     }
-  fprintf(drawingfile, "stroke\n");
+  fprintf( drawingfile, "stroke\n" );
 
 
   // ------------------
   //  draw environment
   // ------------------
-  fprintf(drawingfile,"[ ] 0 setdash\n");
-  fprintf(drawingfile, "0.001 setlinewidth\n");
-  fprintf(drawingfile, "%lf %lf moveto\n", margin, margin);
-  node = (envir->get_points())->get_first();
+  fprintf( drawingfile,"[ ] 0 setdash\n" );
+  fprintf( drawingfile, "0.001 setlinewidth\n" );
+  fprintf( drawingfile, "%lf %lf moveto\n", margin, margin);
+  node = (env->get_points())->get_first();
   pt = NULL;
   while (node != NULL)
     {
       pt = (ae_point_2d *) node->get_obj();
-      fprintf(drawingfile, "%lf %lf lineto\n", margin + scale*pt->x, margin + scale*pt->y);
+      fprintf( drawingfile, "%lf %lf lineto\n", margin + scale*pt->x, margin + scale*pt->y);
       node = node->get_next();
     }
-  fprintf(drawingfile, "stroke\n");
+  fprintf( drawingfile, "stroke\n" );
 
 
 
-  fprintf(drawingfile,"%%%%EOF\n");
+  fprintf( drawingfile,"%%%%EOF\n" );
   fclose(drawingfile);
  
 }
@@ -703,42 +802,42 @@ void draw_genetic_unit_with_CDS( ae_genetic_unit* gen_unit, char * directoryName
   strcat(  filename, "/best_genome_with_CDS.eps" );
   FILE * drawingfile = fopen( filename, "w" );
 
-  fprintf(drawingfile, "%%!PS-Adobe-3.0 EPSF-3.0\n");
-  fprintf(drawingfile, "%%%%BoundingBox: 0 0 %d %d\n", bbsize, bbsize);
-  fprintf(drawingfile, "%d %d scale\n", bbsize, bbsize);
-  fprintf(drawingfile, "%d %d 8 [100 0 0 -100 0 100]\n",bbsize, bbsize);
-  fprintf(drawingfile, "{currentfile 3 100 mul string readhexstring pop} bind\n");
+  fprintf( drawingfile, "%%!PS-Adobe-3.0 EPSF-3.0\n" );
+  fprintf( drawingfile, "%%%%BoundingBox: 0 0 %d %d\n", bbsize, bbsize);
+  fprintf( drawingfile, "%d %d scale\n", bbsize, bbsize);
+  fprintf( drawingfile, "%d %d 8 [100 0 0 -100 0 100]\n",bbsize, bbsize);
+  fprintf( drawingfile, "{currentfile 3 100 mul string readhexstring pop} bind\n" );
  
   // -----------
   //  chromosome
   // -----------
   
-  fprintf(drawingfile, "0.001 setlinewidth\n");
-  fprintf(drawingfile, "0 0 0 setrgbcolor\n");
-  fprintf(drawingfile, "%lf %lf %lf 0 360 arc\n", 0.5, 0.5, r); // arcn = clockwise arc
-  fprintf(drawingfile, "stroke\n");
+  fprintf( drawingfile, "0.001 setlinewidth\n" );
+  fprintf( drawingfile, "0 0 0 setrgbcolor\n" );
+  fprintf( drawingfile, "%lf %lf %lf 0 360 arc\n", 0.5, 0.5, r); // arcn = clockwise arc
+  fprintf( drawingfile, "stroke\n" );
 
   // -----------
   //  scale
   // -----------
 
   double scalesize = 0.15;
-  fprintf(drawingfile, "%lf %lf moveto\n", 0.5-scalesize/2, 0.5);
-  fprintf(drawingfile, "%lf %lf lineto\n", 0.5+scalesize/2, 0.5);
-  fprintf(drawingfile, "stroke\n");
-  fprintf(drawingfile, "/Helvetica findfont\n");   
-  fprintf(drawingfile, "0.035 scalefont\n");           
-  fprintf(drawingfile, "setfont\n"); 
-  fprintf(drawingfile, "newpath\n"); 
-  fprintf(drawingfile, "%lf %lf moveto\n", 0.5-scalesize/3, 0.52);
-  fprintf(drawingfile, "(scale : %.0lf bp) show\n", scalesize/scale); 
+  fprintf( drawingfile, "%lf %lf moveto\n", 0.5-scalesize/2, 0.5);
+  fprintf( drawingfile, "%lf %lf lineto\n", 0.5+scalesize/2, 0.5);
+  fprintf( drawingfile, "stroke\n" );
+  fprintf( drawingfile, "/Helvetica findfont\n" );   
+  fprintf( drawingfile, "0.035 scalefont\n" );           
+  fprintf( drawingfile, "setfont\n" ); 
+  fprintf( drawingfile, "newpath\n" ); 
+  fprintf( drawingfile, "%lf %lf moveto\n", 0.5-scalesize/3, 0.52);
+  fprintf( drawingfile, "(scale : %.0lf bp) show\n", scalesize/scale); 
 
   // -----------
   //  genes
   // -----------
 
-  ae_list_node* node  = NULL;
-  ae_protein*   prot  = NULL;
+  ae_list_node<ae_protein*>* node = NULL;
+  ae_protein* prot = NULL;
 
   int32_t first;
   int32_t last;
@@ -770,7 +869,7 @@ void draw_genetic_unit_with_CDS( ae_genetic_unit* gen_unit, char * directoryName
   }
 
 
-  printf("LEADING\n");
+  printf("LEADING\n" );
   node = (gen_unit->get_protein_list())[LEADING]->get_first();
   while (node != NULL)
   {
@@ -848,30 +947,30 @@ void draw_genetic_unit_with_CDS( ae_genetic_unit* gen_unit, char * directoryName
     
     
     // draw !
-    fprintf(drawingfile, "0.018 setlinewidth\n");
-    // fprintf(drawingfile, "%lf %lf %lf setrgbcolor\n",  1-(0.8*h/max_height + 0.2), 1-(0.8*h/max_height + 0.2),1-(0.8*h/max_height + 0.2));
+    fprintf( drawingfile, "0.018 setlinewidth\n" );
+    // fprintf( drawingfile, "%lf %lf %lf setrgbcolor\n",  1-(0.8*h/max_height + 0.2), 1-(0.8*h/max_height + 0.2),1-(0.8*h/max_height + 0.2));
     layer++; // index starting at 0 but needed to start at 1
     
     if (theta_last > theta_first) 
     {
-      fprintf(drawingfile, "newpath\n");
-      fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r + layer*0.02, theta_last, 360);
-      fprintf(drawingfile, "stroke\n");
-      fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r + layer*0.02, 0, theta_first);
-      fprintf(drawingfile, "stroke\n");
+      fprintf( drawingfile, "newpath\n" );
+      fprintf( drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r + layer*0.02, theta_last, 360);
+      fprintf( drawingfile, "stroke\n" );
+      fprintf( drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r + layer*0.02, 0, theta_first);
+      fprintf( drawingfile, "stroke\n" );
     }
     else
     {
-      fprintf(drawingfile, "newpath\n");
-      fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r + layer*0.02, theta_last, theta_first);
-      fprintf(drawingfile, "stroke\n");
+      fprintf( drawingfile, "newpath\n" );
+      fprintf( drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r + layer*0.02, theta_last, theta_first);
+      fprintf( drawingfile, "stroke\n" );
     }
     
     node = node->get_next();
   }
   
 
-  printf("LAGGING\n");
+  printf("LAGGING\n" );
   node = (gen_unit->get_protein_list())[LAGGING]->get_first();
   while (node != NULL)
   {
@@ -949,31 +1048,31 @@ void draw_genetic_unit_with_CDS( ae_genetic_unit* gen_unit, char * directoryName
 
   
     // draw !
-    fprintf(drawingfile, "0.018 setlinewidth\n");
-    // fprintf(drawingfile, "%lf %lf %lf setrgbcolor\n",  1-(0.8*h/max_height + 0.2), 1-(0.8*h/max_height + 0.2),1-(0.8*h/max_height + 0.2));
+    fprintf( drawingfile, "0.018 setlinewidth\n" );
+    // fprintf( drawingfile, "%lf %lf %lf setrgbcolor\n",  1-(0.8*h/max_height + 0.2), 1-(0.8*h/max_height + 0.2),1-(0.8*h/max_height + 0.2));
     layer++; // index starting at 0 but needed to start at 1
 
     if (theta_first > theta_last) 
     {
-      fprintf(drawingfile, "newpath\n");
-      fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r - layer*0.02, theta_first, 360);
-      fprintf(drawingfile, "stroke\n");
-      fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r - layer*0.02, 0, theta_last);
-      fprintf(drawingfile, "stroke\n");
+      fprintf( drawingfile, "newpath\n" );
+      fprintf( drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r - layer*0.02, theta_first, 360);
+      fprintf( drawingfile, "stroke\n" );
+      fprintf( drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r - layer*0.02, 0, theta_last);
+      fprintf( drawingfile, "stroke\n" );
     }
     else
     {
-      fprintf(drawingfile, "newpath\n");
-      fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r - layer*0.02, theta_first, theta_last);
-      fprintf(drawingfile, "stroke\n");
+      fprintf( drawingfile, "newpath\n" );
+      fprintf( drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r - layer*0.02, theta_first, theta_last);
+      fprintf( drawingfile, "stroke\n" );
     }
       
     node = node->get_next();
   }
 
 
-  fprintf(drawingfile,"showpage\n");
-  fprintf(drawingfile,"%%%%EOF\n");
+  fprintf( drawingfile,"showpage\n" );
+  fprintf( drawingfile,"%%%%EOF\n" );
   fclose(drawingfile);
 
   for ( layer = 0 ; layer < outmost_layer ; layer++ )
@@ -999,42 +1098,42 @@ void draw_genetic_unit_with_mRNAs( ae_genetic_unit* gen_unit, char * directoryNa
   strcat(  filename, "/best_genome_with_mRNAs.eps" );
   FILE * drawingfile = fopen( filename, "w" );
 
-  fprintf(drawingfile, "%%!PS-Adobe-3.0 EPSF-3.0\n");
-  fprintf(drawingfile, "%%%%BoundingBox: 0 0 %d %d\n", bbsize, bbsize);
-  fprintf(drawingfile, "%d %d scale\n", bbsize, bbsize);
-  fprintf(drawingfile, "%d %d 8 [100 0 0 -100 0 100]\n",bbsize, bbsize);
-  fprintf(drawingfile, "{currentfile 3 100 mul string readhexstring pop} bind\n");
+  fprintf( drawingfile, "%%!PS-Adobe-3.0 EPSF-3.0\n" );
+  fprintf( drawingfile, "%%%%BoundingBox: 0 0 %d %d\n", bbsize, bbsize);
+  fprintf( drawingfile, "%d %d scale\n", bbsize, bbsize);
+  fprintf( drawingfile, "%d %d 8 [100 0 0 -100 0 100]\n",bbsize, bbsize);
+  fprintf( drawingfile, "{currentfile 3 100 mul string readhexstring pop} bind\n" );
  
   // -----------
   //  chromosome
   // -----------
   
-  fprintf(drawingfile, "0.001 setlinewidth\n");
-  fprintf(drawingfile, "0 0 0 setrgbcolor\n");
-  fprintf(drawingfile, "%lf %lf %lf 0 360 arc\n", 0.5, 0.5, r); // arcn = clockwise arc
-  fprintf(drawingfile, "stroke\n");
+  fprintf( drawingfile, "0.001 setlinewidth\n" );
+  fprintf( drawingfile, "0 0 0 setrgbcolor\n" );
+  fprintf( drawingfile, "%lf %lf %lf 0 360 arc\n", 0.5, 0.5, r); // arcn = clockwise arc
+  fprintf( drawingfile, "stroke\n" );
 
   // -----------
   //  scale
   // -----------
 
   double scalesize = 0.15;
-  fprintf(drawingfile, "%lf %lf moveto\n", 0.5-scalesize/2, 0.5);
-  fprintf(drawingfile, "%lf %lf lineto\n", 0.5+scalesize/2, 0.5);
-  fprintf(drawingfile, "stroke\n");
-  fprintf(drawingfile, "/Helvetica findfont\n");   
-  fprintf(drawingfile, "0.035 scalefont\n");           
-  fprintf(drawingfile, "setfont\n"); 
-  fprintf(drawingfile, "newpath\n"); 
-  fprintf(drawingfile, "%lf %lf moveto\n", 0.5-scalesize/3, 0.52);
-  fprintf(drawingfile, "(scale : %.0lf bp) show\n", scalesize/scale); 
+  fprintf( drawingfile, "%lf %lf moveto\n", 0.5-scalesize/2, 0.5);
+  fprintf( drawingfile, "%lf %lf lineto\n", 0.5+scalesize/2, 0.5);
+  fprintf( drawingfile, "stroke\n" );
+  fprintf( drawingfile, "/Helvetica findfont\n" );   
+  fprintf( drawingfile, "0.035 scalefont\n" );           
+  fprintf( drawingfile, "setfont\n" ); 
+  fprintf( drawingfile, "newpath\n" ); 
+  fprintf( drawingfile, "%lf %lf moveto\n", 0.5-scalesize/3, 0.52);
+  fprintf( drawingfile, "(scale : %.0lf bp) show\n", scalesize/scale); 
 
   // -----------
   //  mRNAs
   // -----------
 
-  ae_list_node * node  = NULL;
-  ae_rna *  rna  = NULL;
+  ae_list_node<ae_rna*>* node  = NULL;
+  ae_rna* rna = NULL;
 
   int32_t first;
   int32_t last;
@@ -1143,24 +1242,24 @@ void draw_genetic_unit_with_mRNAs( ae_genetic_unit* gen_unit, char * directoryNa
 
     
     // draw !
-    fprintf(drawingfile, "0.018 setlinewidth\n");
-    if ( rna->is_coding() ) fprintf(drawingfile, "0 0 0 setrgbcolor\n");
-    else fprintf(drawingfile, "0.7 0.7 0.7 setrgbcolor\n");
+    fprintf( drawingfile, "0.018 setlinewidth\n" );
+    if ( rna->is_coding() ) fprintf( drawingfile, "0 0 0 setrgbcolor\n" );
+    else fprintf( drawingfile, "0.7 0.7 0.7 setrgbcolor\n" );
     layer++; // index starting at 0 but needed to start at 1
 
     if (theta_last > theta_first) 
     {
-      fprintf(drawingfile, "newpath\n");
-      fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r + layer*0.02, theta_last, 360);
-      fprintf(drawingfile, "stroke\n");
-      fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r + layer*0.02, 0, theta_first);
-      fprintf(drawingfile, "stroke\n");
+      fprintf( drawingfile, "newpath\n" );
+      fprintf( drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r + layer*0.02, theta_last, 360);
+      fprintf( drawingfile, "stroke\n" );
+      fprintf( drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r + layer*0.02, 0, theta_first);
+      fprintf( drawingfile, "stroke\n" );
     }
     else
     {
-      fprintf(drawingfile, "newpath\n");
-      fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r + layer*0.02, theta_last, theta_first);
-      fprintf(drawingfile, "stroke\n");
+      fprintf( drawingfile, "newpath\n" );
+      fprintf( drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r + layer*0.02, theta_last, theta_first);
+      fprintf( drawingfile, "stroke\n" );
     }
         
     node = node->get_next();
@@ -1242,32 +1341,32 @@ void draw_genetic_unit_with_mRNAs( ae_genetic_unit* gen_unit, char * directoryNa
 
     
     // draw !
-    fprintf(drawingfile, "0.018 setlinewidth\n");
-    if ( rna->is_coding() ) fprintf(drawingfile, "0 0 0 setrgbcolor\n");
-    else fprintf(drawingfile, "0.7 0.7 0.7 setrgbcolor\n");
+    fprintf( drawingfile, "0.018 setlinewidth\n" );
+    if ( rna->is_coding() ) fprintf( drawingfile, "0 0 0 setrgbcolor\n" );
+    else fprintf( drawingfile, "0.7 0.7 0.7 setrgbcolor\n" );
     layer++; // index starting at 0 but needed to start at 1
 
     if (theta_first > theta_last) 
     {
-      fprintf(drawingfile, "newpath\n");
-      fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r - layer*0.02, theta_first, 360);
-      fprintf(drawingfile, "stroke\n");
-      fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r - layer*0.02, 0, theta_last);
-      fprintf(drawingfile, "stroke\n");
+      fprintf( drawingfile, "newpath\n" );
+      fprintf( drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r - layer*0.02, theta_first, 360);
+      fprintf( drawingfile, "stroke\n" );
+      fprintf( drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r - layer*0.02, 0, theta_last);
+      fprintf( drawingfile, "stroke\n" );
     }
     else
     {
-      fprintf(drawingfile, "newpath\n");
-      fprintf(drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r - layer*0.02, theta_first, theta_last);
-      fprintf(drawingfile, "stroke\n");
+      fprintf( drawingfile, "newpath\n" );
+      fprintf( drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r - layer*0.02, theta_first, theta_last);
+      fprintf( drawingfile, "stroke\n" );
     }
         
     node = node->get_next();
   }
 
 
-  fprintf(drawingfile,"showpage\n");
-  fprintf(drawingfile,"%%%%EOF\n");
+  fprintf( drawingfile,"showpage\n" );
+  fprintf( drawingfile,"%%%%EOF\n" );
   fclose(drawingfile);
 
   for ( layer = 0 ; layer < outmost_layer ; layer++ )

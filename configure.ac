@@ -5,13 +5,13 @@
 AC_PREREQ([2.65])
 
 # Provide FULL-PACKAGE-NAME, VERSION and BUG-REPORT-ADDRESS
-AC_INIT([AEVOL], [3.0.3.0], aevol-bug-report@lists.gforge.liris.cnrs.fr)
+AC_INIT([AEVOL], [4.1], [aevol-bug-report@lists.gforge.liris.cnrs.fr], , [www.aevol.fr])
 
 # We want to use automake
 AM_INIT_AUTOMAKE
 
 # Check the existance of an arbitrary source file
-AC_CONFIG_SRCDIR([src/aevol.cpp])
+AC_CONFIG_SRCDIR([src/aevol_run.cpp])
 
 # Build config.h using config.h.in as a template
 #AC_CONFIG_HEADERS([config.h:config.h.in])
@@ -19,17 +19,22 @@ AC_CONFIG_SRCDIR([src/aevol.cpp])
 # Checks for programs (c anc c++ compilers)
 AC_PROG_CXX
 AC_PROG_CC
+AC_PROG_INSTALL
 AC_PROG_RANLIB
 AM_PROG_CC_C_O
-#AC_PROG_DOXYGEN
 AC_CHECK_PROGS([DOXYGEN], [doxygen])
 if test -z "$DOXYGEN";
    then AC_MSG_WARN([Doxygen not found - continuing without Doxygen support])
 fi
+AM_CONDITIONAL([HAVE_DOXYGEN], [test -n "$DOXYGEN"])  
+
+
+
 
 # Checks for libraries.
 AC_CHECK_LIB([m], [cos])
 AC_CHECK_LIB([z], [gzread])
+
 
 # Checks for header files.
 AC_CHECK_HEADERS([inttypes.h limits.h stdint.h stdlib.h string.h unistd.h])
@@ -45,7 +50,11 @@ AC_TYPE_UINT32_T
 AC_TYPE_UINT8_T
 
 # Checks for library functions.
-AC_CHECK_FUNCS([floor memset mkdir pow rint sqrt])
+AC_CHECK_FUNCS([floor memset mkdir pow rint sqrt gzread])
+
+# Make clean at the end of the configuration process
+# (usefull when several configurations are done consecutively, typically during development)
+AC_CONFIG_COMMANDS(make, [make clean])
 
 
 
@@ -58,9 +67,10 @@ dnl ****************************************************************************
 dnl                                  OPTIONS
 dnl
 dnl             Default : without debug (with optimizations)
-dnl                       with xlib
+dnl                       with    cppunit (requires cppunit)
+dnl                       with    x
 dnl                       without regulation
-dnl                       with in2p3
+dnl                       with    in2p3
 dnl ****************************************************************************
 
 
@@ -68,15 +78,16 @@ dnl ****************************************************************************
 dnl  ******************* check option consistency ***************************
 AC_MSG_CHECKING([checking parameter consistency])
 if test "x$with_in2p3" = "xyes" ; then
-if test "x$with_debug" = "xyes" ; then
-   AC_ERROR([debug and in2p3 are not compatible])
-fi
-if test "x$with_xlib" != xno ; then
-   AC_ERROR([xlib and in2p3 are not compatible])
-fi
+  if test "x$with_debug" = "xyes" ; then
+    AC_MSG_RESULT([FAIL])
+    AC_MSG_ERROR([debug and in2p3 are not compatible])
+  fi
+  if test "x$with_x" != xno ; then
+    AC_MSG_RESULT([FAIL])
+    AC_MSG_ERROR([x and in2p3 are not compatible])
+  fi
 fi
 AC_MSG_RESULT([OK])
-
 
 
 
@@ -89,9 +100,7 @@ dnl  optimization options (-O3 - fexpensive-optimizations...).
 
 
 AC_MSG_CHECKING([whether to use debugging features])
-AC_ARG_WITH(debug, [--with-debug to enable degugging features],
-		 with_debug=$withval,
-		 with_debug=no)
+AC_ARG_WITH(debug, [  --with-debug to enable degugging features], , with_debug=no)
 AC_MSG_RESULT($with_debug)
 AM_CONDITIONAL(WITH_DEBUG, test x"$with_debug" != xno)
 if test "x$with_debug" = "xyes" ; then
@@ -105,10 +114,39 @@ else
 fi
 
 
+dnl  **************** --without-cppunit option *************************
+dnl
+dnl  When this option is set, the test library will not be built.
+dnl  This is useful if cppunit was not installed. However, developers
+dnl  should install cppunit, configure with cppunit and run make check
+dnl  to perform unit testing.
+
+AC_MSG_CHECKING([whether to build the test library (requires cppunit)])
+AC_ARG_WITH(cppunit, [  --without-cppunit to disable unit testing], , with_cppunit=yes)
+AC_MSG_RESULT($with_cppunit)
+AM_CONDITIONAL(WITH_CPPUNIT, test x"$with_cppunit" != xno)
+if test "x$with_cppunit" != xno ; then
+   cppunit_missing=no
+   AM_PATH_CPPUNIT(1.10.2, , cppunit_missing=yes)
+   if test "x$cppunit_missing" != xno ; then
+      AC_MSG_ERROR([cppunit not found, make will fail - please install cppunit, or run ./configure --without-cppunit]) 
+   fi 
+   # AC_CHECK_LIB does not work with C++ libraries, this is why we use AM_PATH_CPPUNIT
+   # This macro will check whether a Cppunit version >= 1.10.2 is installed
+   # and, if, yes, will define CPPUNIT_CFLAGS and CPPUNIT_LIBS.
+   # This macro is defined in the cppunit.m4 file provided by the cppunit package
+   # when it is installed. Hence aclocal must be run before autoconf to have the
+   # macro known by autoconf.  If cppunit is installed in a non-standard
+   # directory, you need to specify where to find cppunit.m4. For example, if
+   # cppunit is installed under /usr/local, run:
+   #   ACLOCAL="aclocal -I /usr/local/share/aclocal" autoreconf -if
+fi
 
 
 
-dnl   ************************ --without-xlib option *********************
+
+
+dnl   ************************ --without-x option *********************
 dnl
 dnl   When this option is set, typing make will produce aevol, raevol and
 dnl   the post-treatment programs, but not aevol_X11 or raevol_X11. 
@@ -118,15 +156,11 @@ dnl   without this option, then typing make will produce aevol_X11,
 dnl   raevol_X11 and view_generation_X11 (and the other post-treatments 
 dnl   programs).
 
-
-
 AC_MSG_CHECKING([whether to enable graphical outputs])
-AC_ARG_WITH(xlib, [--without-xlib to disable xlib usage completely],
-		 with_xlib=$withval,
-		 with_xlib=yes)
-AC_MSG_RESULT($with_xlib)
-AM_CONDITIONAL(WITH_X, test x"$with_xlib" != xno)
-if test "x$with_xlib" != xno ; then
+AC_ARG_WITH(x, [  --without-x to disable graphical output], , with_x=yes)
+AC_MSG_RESULT($with_x)
+AM_CONDITIONAL(WITH_X, test x"$with_x" != xno)
+if test "x$with_x" != xno ; then
    AC_DEFINE(__X11)
    AC_PATH_XTRA
    CXXFLAGS="$CXXFLAGS $X_CFLAGS"
@@ -140,6 +174,98 @@ else
    AC_DEFINE(__NO_X)
 fi
 
+dnl  ******************* --with-normalized-fitness option ***************************
+dnl
+dnl  With this option, the NORMALIZED_FITNESS flag is defined, 
+dnl  allowing a different fitness calculation 
+
+AC_MSG_CHECKING([whether to use normalized fitness])
+AC_ARG_WITH(normalized-fitness, [  --with-normalized-fitness to enable fitness normalization], , with_normalized_fitness=no)
+AC_MSG_RESULT($with_normalized_fitness)
+AM_CONDITIONAL(WITH_NORMALIZED_FITNESS, test x"$with_normalized_fitness" != xno)
+if test "x$with_normalized_fitness" = "xyes" ; then
+   AC_DEFINE(NORMALIZED_FITNESS)
+fi
+
+
+
+dnl  ************************* --enable-mtperiod=period option *******************************
+dnl
+dnl  This option sets a particular period for the Mersenne Twister.
+dnl  Default is --enable-mtperiod=607 corresponding to a period of 2^607.
+dnl  Possible values are 607, 1279, 2281, 4253, 11213, 19937, 44497, 86243, 132049 and 216091
+dnl
+
+AC_MSG_CHECKING([whether to use a particular period for the Mersenne Twister])
+
+AC_ARG_ENABLE(mtperiod,
+[  --enable-mtperiod=period
+        Set the Mersenne Twister period to 2^period (default is 2^607).
+        
+        Possible values are 607, 1279, 2281, 4253, 11213, 19937, 44497,
+          86243, 132049 and 216091
+          
+        Consider using in conjunction with --enable-trivialjumps for
+          large periods
+],
+period=$enableval,
+period=607)
+
+if  test $period != 607 && test $period != 1279 && test $period != 2281 && test $period != 4253 && test $period != 11213 && test $period != 19937 && 
+    test $period != 44497 && test $period != 86243 && test $period != 132049 && test $period != 216091 ; then
+  AC_MSG_RESULT([FAIL])
+  AC_MSG_ERROR([$period is not a valid Mersenne Twister period])
+fi
+
+AC_MSG_RESULT($period)
+AC_DEFINE_UNQUOTED([SFMT_MEXP], [$period])
+
+
+
+dnl  ************************* --enable-trivialjumps=jumpsize option *******************************
+dnl
+dnl  When this option is set, a trivial jump algorithm will be used instead of the polynomial-based method.
+dnl  This is recommended for large Mersenne Twister periods when huge jumps are not needed since
+dnl  the polynomial-based method takes more time in that case.
+dnl  
+dnl  For the standard MT (period 2^19937), it takes approx. the same time to draw a few million numbers
+dnl  than it does to make the same jump using the polynomial-based method.
+dnl
+dnl  The jumpsize argument allows to set the desired jump size. The default value is 1000 which is enough to
+dnl  avoid overlaps in most cases.
+dnl
+
+AC_MSG_CHECKING([whether to use trivial Mersenne Twister jumps])
+AC_ARG_ENABLE(trivialjumps,
+[  --enable-trivialjumps=jumpsize
+        When this option is set, a trivial jump algorithm will be used instead
+        of the polynomial-based method.
+        
+        This is recommended for large Mersenne Twister periods when huge jumps
+        are not needed since the polynomial-based method takes more time in that
+        case.
+        
+        For the standard MT (period 2^19937), it takes approx. the same time to
+        draw a few million numbers than it does to make the same jump using the
+        polynomial-based method.
+
+        The jumpsize argument allows to set the desired jump size. The default
+        value is 1000 which is enough to avoid overlaps in most cases.
+],
+trivialjumps=$enableval,
+trivialjumps=no)
+if test "x$trivialjumps" != "xyes" && test "x$trivialjumps" != "xno" ; then
+  AC_MSG_RESULT([yes ($trivialjumps)])
+else
+  AC_MSG_RESULT([$trivialjumps])
+fi
+AM_CONDITIONAL(ENABLE_FORCEPJ, test x"$trivialjumps" != xno)
+if test "x$trivialjumps" = "xyes" ; then
+  AC_DEFINE([TRIVIAL_METHOD_JUMP_SIZE], [1000])
+elif test "x$trivialjumps" != "xno" ; then
+  AC_DEFINE_UNQUOTED([TRIVIAL_METHOD_JUMP_SIZE], [$trivialjumps])
+fi
+
 
 
 dnl  ************************* --with-raevol option *******************************
@@ -147,9 +273,8 @@ dnl
 dnl  With this option, regulation is enabled (RAevol) and the __REGUL flag is defined
 dnl
 
-
 AC_MSG_CHECKING([whether to use raevol])
-AC_ARG_WITH(raevol, [--with-raevol to enable regulation], raevol=$withval, raevol=no)
+AC_ARG_WITH(raevol, [  --with-raevol to enable regulation], raevol=$withval, raevol=no)
 AC_MSG_RESULT($raevol)
 AM_CONDITIONAL(WITH_RAEVOL, test x"$raevol" != xno)
 if test "x$raevol" = "xyes" ; then
@@ -163,11 +288,8 @@ dnl  ******************* --with-in2p3 option ***************************
 dnl
 dnl  With this option, the IN2P3 flag is defined
 
-
 AC_MSG_CHECKING([whether to use IN2P3 specific features])
-AC_ARG_WITH(in2p3, [--with-in2p3 to enable IN2P3 specific features],
-		 with_in2p3=$withval,
-		 with_in2p3=no)
+AC_ARG_WITH(in2p3, [  --with-in2p3 to enable IN2P3 specific features], , with_in2p3=no)
 AC_MSG_RESULT($with_in2p3)
 AM_CONDITIONAL(WITH_IN2P3, test x"$with_in2p3" != xno)
 if test "x$with_in2p3" = "xyes" ; then
@@ -181,8 +303,10 @@ dnl  ************************* back to GENERAL stuff ***************************
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile
-                 src/lib-aevol/Makefile
-                 src/post_treatments/Makefile])
-AM_CONDITIONAL([HAVE_DOXYGEN],
-[test -n "$DOXYGEN"])AM_COND_IF([HAVE_DOXYGEN], [AC_CONFIG_FILES([doc/Makefile])])
+                 src/libaevol/Makefile
+                 src/libaevol/SFMT-src-1.4/Makefile
+                 src/libaevol/tests/Makefile
+                 src/post_treatments/Makefile
+                 tests/Makefile
+                 doc/Makefile])
 AC_OUTPUT

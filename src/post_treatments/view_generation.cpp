@@ -52,7 +52,7 @@
 #include <ae_population.h>
 #include <ae_individual.h>
 #include <ae_list.h>
-#include <ae_simulation_X11.h>
+#include <ae_experiment_X11.h>
 
 
 
@@ -117,7 +117,8 @@ int main( int argc, char* argv[] )
       fflush(stdout);
 
       // Load simulation from backup
-      ae_common::sim = ae_common::sim_display = new ae_simulation_X11( backup_file_name, false );
+      ae_common::sim = ae_common::sim_display = new ae_experiment_X11();
+      ae_common::sim->load_backup( backup_file_name, false, NULL );
       printf("done\n");
     }
 
@@ -128,16 +129,16 @@ int main( int argc, char* argv[] )
   // =================================================================
 
 
-  // The constructor of the ae_simulation has read the genomes of the individuals
+  // The constructor of the ae_experiment has read the genomes of the individuals
   // and located their promoters, but has not performed the translation nor the
   // phenotype computation. We must do it now.
   
   printf( "Computing phenotypes... " );
   fflush( stdout );
 
-  ae_list_node  * indiv_node = ((ae_common::sim->get_pop())->get_indivs())->get_first();
+  ae_list_node  * indiv_node = ae_common::pop->get_indivs()->get_first();
   ae_individual * indiv      = NULL;
-  ae_population * pop = ae_common::sim->get_pop();
+  ae_population * pop = ae_common::pop;
   
   end_gener = 100;
   int32_t size = 100;
