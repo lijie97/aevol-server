@@ -30,7 +30,7 @@
   \brief This is aevol's top-level class. It allows for
   high-level experiment management
   
-  An experiment manager allows to... manage an experiment.
+  An experiment manager allows one to... manage an experiment.
   It owns a population and an experimental_setup that can be loaded from a
   pair of aevol binary files (pop and exp_setup)
 */

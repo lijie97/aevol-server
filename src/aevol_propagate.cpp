@@ -227,9 +227,9 @@ void print_help( char* prog_path )
 	printf( "*                                                                            *\n" );
 	printf( "*                        aevol - Artificial Evolution                        *\n" );
 	printf( "*                                                                            *\n" );
-	printf( "* Aevol is a simulation platform that allows to let populations of digital   *\n" );
-  printf( "* organisms evolve in different conditions and study  experimentally the     *\n" );
-  printf( "* mechanisms responsible for the structuration of the genome and the         *\n" );
+	printf( "* Aevol is a simulation platform that allows one to let populations of       *\n" );
+  printf( "* digital organisms evolve in different conditions and study experimentally  *\n" );
+  printf( "* the mechanisms responsible for the structuration of the genome and the     *\n" );
   printf( "* transcriptome.                                                             *\n" );
 	printf( "*                                                                            *\n" );
 	printf( "******************************************************************************\n" );

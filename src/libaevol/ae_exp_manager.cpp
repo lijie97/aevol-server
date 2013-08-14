@@ -315,8 +315,8 @@ void ae_exp_manager::load( int32_t first_gener, bool use_text_files, bool verbos
   _env->load( env_file );
   printf( "OK\n" );
   
-  // --------------------------------------------- Retrieve ouput profile data
-  printf( "  Loading ouput profile..." );
+  // --------------------------------------------- Retrieve output profile data
+  printf( "  Loading output profile..." );
   fflush( stdout );
   if ( out_p_gzfile != NULL )
   {
@@ -484,7 +484,7 @@ void ae_exp_manager::load( int32_t first_gener,
   }
   printf( "OK\n" );
   
-  // --------------------------------------------- Retrieve ouput profile data
+  // --------------------------------------------- Retrieve output profile data
   if ( out_prof_gzfile != NULL )
   {
     _output_m->load( out_prof_gzfile, verbose, to_be_run );
