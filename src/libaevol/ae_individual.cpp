@@ -1253,14 +1253,14 @@ int32_t ae_individual::get_nb_terminators( void )
   * For each replication, determine if the offsprings is neutral, beneficial or deleterious by comparison of fitness with the current individual (the parent)
   * If statistics about offsprings are required (offsprings_statistics != NULL), fitness mean, fitness variance, size mean, size variance, functional gene number mean, 
   functional gene number variance fo the nb_children offsprings are computed
-  * If informations about each children are required ( replication_file != NULL), fitness, genome_size, nb of functional genes, number of coding bases, number of transcribed 
+  * If information about each children are required ( replication_file != NULL), fitness, genome_size, nb of functional genes, number of coding bases, number of transcribed 
   but not translated bases, number of non transcribed bases of each offsprings are written in replication_file
   
   \param nb_children              number of replications made to have the statistics
   \param reproduction_statistics  statistics about the replications (proportion of neutral offsprings, proportion of beneficial offsprings, proportion of deleterious offsprings)
   \param offsprings_statistics    statistics about the nb_children offsprings (fitness mean, fitness variance, size mean, size variance, functional gene number mean,
                                     functional gene number variance) compute if not null
-  \param replication_file         file with informations about each children of the current individual (fitness, genome_size, nb of functional genes, number of coding bases, 
+  \param replication_file         file with information about each children of the current individual (fitness, genome_size, nb of functional genes, number of coding bases, 
                                     number of transcribed but not translated bases, number of non transcribed bases) if not null
 */
 void ae_individual::compute_experimental_f_nu( int32_t nb_children, double* reproduction_statistics, double* offsprings_statistics, FILE* replication_file)

@@ -82,7 +82,7 @@ double* dist_to_target_segment;
 
 int main(int argc, char** argv) 
 {
-  // The input file (lineage.ae or lineage.rae) must contain the following informations:
+  // The input file (lineage.ae or lineage.rae) must contain the following information:
   //
   // - common data                                                (ae_common::write_to_backup) 
   // - begin gener                                                (int32_t)

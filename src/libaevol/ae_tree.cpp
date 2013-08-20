@@ -292,9 +292,9 @@ void ae_tree::fill_tree_with_cur_gener( void )
   {
     case NORMAL :
     {
-      //  -1 because the tree's arrays contain informations on 
+      //  -1 because the tree's arrays contain information on 
       // generations n*TREE_STEP+1 --> (n+1)*_tree_step
-      // (for _tree_step == 100, informations on generations
+      // (for _tree_step == 100, information on generations
       // 1 to 100, or 101 to 200, or 201 to 300, etc)
       int32_t gener_i     = ae_utils::mod( _exp_m->get_num_gener() - 1, _tree_step );
       _nb_indivs[gener_i] = _exp_m->get_pop()->get_nb_indivs();

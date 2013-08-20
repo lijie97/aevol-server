@@ -47,7 +47,7 @@
   \brief Default constructor of population_statitistics class
 
   Initialisation of default values _nb_children (number of replications to compute proportion of neutral offsrpings), _wanted_rank and _wanted_index (indications of 
-  individual of whom we want more replication informations), and anaylsis type
+  individual of whom we want more replication information), and anaylsis type
   By default, the number of replications is 1,000 and the wanted individual is the best one (rank = 1) and the analysis is only one generation).
 */
 population_statistics::population_statistics( void )
@@ -74,8 +74,8 @@ population_statistics::population_statistics( void )
   
   \param type analysis type: ONE_GENERATION or MULTIPLE_GENERATIONS
   \param nb_children  number of replications needed to compute the proportion of neutral offsprings of each individual
-  \param wanted_rank rank of the individual of whom we want more replication informations
-  \param wanted_index index of the individual of whom we want more replication informations
+  \param wanted_rank rank of the individual of whom we want more replication information
+  \param wanted_index index of the individual of whom we want more replication information
 */
 population_statistics::population_statistics( analysis_type type, int32_t nb_children, int32_t wanted_rank, int32_t wanted_index)
 {   
@@ -149,7 +149,7 @@ population_statistics::~population_statistics( void )
   * Genome size variance of offsprings
   * Functional gene number mean of offsprings;
   * 17. Functional gene number variance of offsprings
-  Write this informations in a file robustness_numgener.out 
+  Write this information in a file robustness_numgener.out 
   
   Compute for each offspring of a choosen individual (by index or rank):
   * Fitness
@@ -159,7 +159,7 @@ population_statistics::~population_statistics( void )
   * Number of coding bases
   * Number of transcribed but not translated bases
   * Number of non transcribed bases
-  Write this informations in a file replication_numgener.out 
+  Write this information in a file replication_numgener.out 
   
   Complete _f_nu_pop, _reprod_proba, _fitness with proportion of neutral offspring, reproduction probability and fitness of each individual at num_gener
   
@@ -329,7 +329,7 @@ void population_statistics::compute_reproduction_stats(ae_exp_manager* exp_manag
   * Variability of the best individual
   * Size of the first quasi species
   * Number of different fitness
-  Write this informations in _output_file
+  Write this information in _output_file
   
   Before this function, compute_reproduction_stats have to be called
   \see compute_reproduction_stats(ae_exp_manager* exp_manager, int32_t num_gener)

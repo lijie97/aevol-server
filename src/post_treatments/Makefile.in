@@ -15,7 +15,6 @@
 
 @SET_MAKE@
 
-
 VPATH = @srcdir@
 am__make_dryrun = \
   { \
@@ -121,13 +120,7 @@ POST_UNINSTALL = :
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	rcompute_pop_stats_debug$(EXEEXT) \
 @WITH_DEBUG_TRUE@@WITH_RAEVOL_TRUE@@WITH_X_TRUE@	rextract_debug$(EXEEXT)
 subdir = src/post_treatments
-DIST_COMMON = $(compute_pop_stats_HEADERS) \
-	$(compute_pop_stats_debug_HEADERS) \
-	$(rcompute_pop_stats_HEADERS) \
-	$(rcompute_pop_stats_debug_HEADERS) $(robustness_HEADERS) \
-	$(robustness_debug_HEADERS) $(rrobustness_HEADERS) \
-	$(rrobustness_debug_HEADERS) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in
+DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -135,15 +128,7 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am__installdirs = "$(DESTDIR)$(bindir)" \
-	"$(DESTDIR)$(compute_pop_statsdir)" \
-	"$(DESTDIR)$(compute_pop_stats_debugdir)" \
-	"$(DESTDIR)$(rcompute_pop_statsdir)" \
-	"$(DESTDIR)$(rcompute_pop_stats_debugdir)" \
-	"$(DESTDIR)$(robustnessdir)" \
-	"$(DESTDIR)$(robustness_debugdir)" \
-	"$(DESTDIR)$(rrobustnessdir)" \
-	"$(DESTDIR)$(rrobustness_debugdir)"
+am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_ancstats_OBJECTS = ancstats-ancstats.$(OBJEXT)
 ancstats_OBJECTS = $(am_ancstats_OBJECTS)
@@ -398,6 +383,10 @@ CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 CXXLD = $(CXX)
 CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
 	-o $@
+COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 SOURCES = $(ancstats_SOURCES) $(ancstats_debug_SOURCES) \
 	$(compute_pop_stats_SOURCES) \
 	$(compute_pop_stats_debug_SOURCES) $(create_eps_SOURCES) \
@@ -433,39 +422,6 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
-am__vpath_adj = case $$p in \
-    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
-    *) f=$$p;; \
-  esac;
-am__strip_dir = f=`echo $$p | sed -e 's|^.*/||'`;
-am__install_max = 40
-am__nobase_strip_setup = \
-  srcdirstrip=`echo "$(srcdir)" | sed 's/[].[^$$\\*|]/\\\\&/g'`
-am__nobase_strip = \
-  for p in $$list; do echo "$$p"; done | sed -e "s|$$srcdirstrip/||"
-am__nobase_list = $(am__nobase_strip_setup); \
-  for p in $$list; do echo "$$p $$p"; done | \
-  sed "s| $$srcdirstrip/| |;"' / .*\//!s/ .*/ ./; s,\( .*\)/[^/]*$$,\1,' | \
-  $(AWK) 'BEGIN { files["."] = "" } { files[$$2] = files[$$2] " " $$1; \
-    if (++n[$$2] == $(am__install_max)) \
-      { print $$2, files[$$2]; n[$$2] = 0; files[$$2] = "" } } \
-    END { for (dir in files) print dir, files[dir] }'
-am__base_list = \
-  sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
-  sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__uninstall_files_from_dir = { \
-  test -z "$$files" \
-    || { test ! -d "$$dir" && test ! -f "$$dir" && test ! -r "$$dir"; } \
-    || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
-         $(am__cd) "$$dir" && rm -f $$files; }; \
-  }
-HEADERS = $(compute_pop_stats_HEADERS) \
-	$(compute_pop_stats_debug_HEADERS) \
-	$(rcompute_pop_stats_HEADERS) \
-	$(rcompute_pop_stats_debug_HEADERS) $(robustness_HEADERS) \
-	$(robustness_debug_HEADERS) $(rrobustness_HEADERS) \
-	$(rrobustness_debug_HEADERS)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -746,36 +702,44 @@ rlineage_debug_CPPFLAGS = $(AM_CPPFLAGS)
 #rview_generation_debug_SOURCES = view_generation.cpp
 #rview_generation_debug_CPPFLAGS = $(AM_CPPFLAGS)
 compute_pop_statsdir = $(bindir)
-compute_pop_stats_HEADERS = population_statistics.h
-compute_pop_stats_SOURCES = population_statistics.cpp compute_pop_stats.cpp
+#compute_pop_stats_HEADERS = population_statistics.h
+compute_pop_stats_SOURCES = population_statistics.cpp \
+	compute_pop_stats.cpp population_statistics.h
 compute_pop_stats_CPPFLAGS = $(AM_CPPFLAGS)
 compute_pop_stats_debugdir = $(bindir)
-compute_pop_stats_debug_HEADERS = population_statistics.h
-compute_pop_stats_debug_SOURCES = population_statistics.cpp compute_pop_stats.cpp
+#compute_pop_stats_debug_HEADERS = population_statistics.h
+compute_pop_stats_debug_SOURCES = population_statistics.cpp \
+	compute_pop_stats.cpp population_statistics.h
 compute_pop_stats_debug_CPPFLAGS = $(AM_CPPFLAGS)
 rcompute_pop_statsdir = $(bindir)
-rcompute_pop_stats_HEADERS = population_statistics.h
-rcompute_pop_stats_SOURCES = population_statistics.cpp compute_pop_stats.cpp
+#rcompute_pop_stats_HEADERS = population_statistics.h
+rcompute_pop_stats_SOURCES = population_statistics.cpp \
+	compute_pop_stats.cpp population_statistics.h
 rcompute_pop_stats_CPPFLAGS = $(AM_CPPFLAGS)
 rcompute_pop_stats_debugdir = $(bindir)
-rcompute_pop_stats_debug_HEADERS = population_statistics.h
-rcompute_pop_stats_debug_SOURCES = population_statistics.cpp compute_pop_stats.cpp
+#rcompute_pop_stats_debug_HEADERS = population_statistics.h
+rcompute_pop_stats_debug_SOURCES = population_statistics.cpp \
+	compute_pop_stats.cpp population_statistics.h
 rcompute_pop_stats_debug_CPPFLAGS = $(AM_CPPFLAGS)
 robustnessdir = $(bindir)
-robustness_HEADERS = population_statistics.h
-robustness_SOURCES = population_statistics.cpp robustness.cpp
+#robustness_HEADERS = population_statistics.h
+robustness_SOURCES = population_statistics.cpp robustness.cpp \
+	population_statistics.h
 robustness_CPPFLAGS = $(AM_CPPFLAGS)
 robustness_debugdir = $(bindir)
-robustness_debug_HEADERS = population_statistics.h
-robustness_debug_SOURCES = population_statistics.cpp robustness.cpp
+#robustness_debug_HEADERS = population_statistics.h
+robustness_debug_SOURCES = population_statistics.cpp robustness.cpp \
+	population_statistics.h
 robustness_debug_CPPFLAGS = $(AM_CPPFLAGS)
 rrobustnessdir = $(bindir)
-rrobustness_HEADERS = population_statistics.h
-rrobustness_SOURCES = population_statistics.cpp robustness.cpp
+#rrobustness_HEADERS = population_statistics.h
+rrobustness_SOURCES = population_statistics.cpp robustness.cpp \
+	population_statistics.h
 rrobustness_CPPFLAGS = $(AM_CPPFLAGS)
 rrobustness_debugdir = $(bindir)
-rrobustness_debug_HEADERS = population_statistics.h
-rrobustness_debug_SOURCES = population_statistics.cpp robustness.cpp
+#rrobustness_debug_HEADERS = population_statistics.h
+rrobustness_debug_SOURCES = population_statistics.cpp robustness.cpp \
+	population_statistics.h
 rrobustness_debug_CPPFLAGS = $(AM_CPPFLAGS)
 all: all-am
 
@@ -1496,174 +1460,6 @@ rrobustness_debug-robustness.obj: robustness.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='robustness.cpp' object='rrobustness_debug-robustness.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(rrobustness_debug_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o rrobustness_debug-robustness.obj `if test -f 'robustness.cpp'; then $(CYGPATH_W) 'robustness.cpp'; else $(CYGPATH_W) '$(srcdir)/robustness.cpp'; fi`
-install-compute_pop_statsHEADERS: $(compute_pop_stats_HEADERS)
-	@$(NORMAL_INSTALL)
-	@list='$(compute_pop_stats_HEADERS)'; test -n "$(compute_pop_statsdir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(compute_pop_statsdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(compute_pop_statsdir)" || exit 1; \
-	fi; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(compute_pop_statsdir)'"; \
-	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(compute_pop_statsdir)" || exit $$?; \
-	done
-
-uninstall-compute_pop_statsHEADERS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(compute_pop_stats_HEADERS)'; test -n "$(compute_pop_statsdir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(compute_pop_statsdir)'; $(am__uninstall_files_from_dir)
-install-compute_pop_stats_debugHEADERS: $(compute_pop_stats_debug_HEADERS)
-	@$(NORMAL_INSTALL)
-	@list='$(compute_pop_stats_debug_HEADERS)'; test -n "$(compute_pop_stats_debugdir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(compute_pop_stats_debugdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(compute_pop_stats_debugdir)" || exit 1; \
-	fi; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(compute_pop_stats_debugdir)'"; \
-	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(compute_pop_stats_debugdir)" || exit $$?; \
-	done
-
-uninstall-compute_pop_stats_debugHEADERS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(compute_pop_stats_debug_HEADERS)'; test -n "$(compute_pop_stats_debugdir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(compute_pop_stats_debugdir)'; $(am__uninstall_files_from_dir)
-install-rcompute_pop_statsHEADERS: $(rcompute_pop_stats_HEADERS)
-	@$(NORMAL_INSTALL)
-	@list='$(rcompute_pop_stats_HEADERS)'; test -n "$(rcompute_pop_statsdir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(rcompute_pop_statsdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(rcompute_pop_statsdir)" || exit 1; \
-	fi; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(rcompute_pop_statsdir)'"; \
-	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(rcompute_pop_statsdir)" || exit $$?; \
-	done
-
-uninstall-rcompute_pop_statsHEADERS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(rcompute_pop_stats_HEADERS)'; test -n "$(rcompute_pop_statsdir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(rcompute_pop_statsdir)'; $(am__uninstall_files_from_dir)
-install-rcompute_pop_stats_debugHEADERS: $(rcompute_pop_stats_debug_HEADERS)
-	@$(NORMAL_INSTALL)
-	@list='$(rcompute_pop_stats_debug_HEADERS)'; test -n "$(rcompute_pop_stats_debugdir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(rcompute_pop_stats_debugdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(rcompute_pop_stats_debugdir)" || exit 1; \
-	fi; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(rcompute_pop_stats_debugdir)'"; \
-	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(rcompute_pop_stats_debugdir)" || exit $$?; \
-	done
-
-uninstall-rcompute_pop_stats_debugHEADERS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(rcompute_pop_stats_debug_HEADERS)'; test -n "$(rcompute_pop_stats_debugdir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(rcompute_pop_stats_debugdir)'; $(am__uninstall_files_from_dir)
-install-robustnessHEADERS: $(robustness_HEADERS)
-	@$(NORMAL_INSTALL)
-	@list='$(robustness_HEADERS)'; test -n "$(robustnessdir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(robustnessdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(robustnessdir)" || exit 1; \
-	fi; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(robustnessdir)'"; \
-	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(robustnessdir)" || exit $$?; \
-	done
-
-uninstall-robustnessHEADERS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(robustness_HEADERS)'; test -n "$(robustnessdir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(robustnessdir)'; $(am__uninstall_files_from_dir)
-install-robustness_debugHEADERS: $(robustness_debug_HEADERS)
-	@$(NORMAL_INSTALL)
-	@list='$(robustness_debug_HEADERS)'; test -n "$(robustness_debugdir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(robustness_debugdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(robustness_debugdir)" || exit 1; \
-	fi; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(robustness_debugdir)'"; \
-	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(robustness_debugdir)" || exit $$?; \
-	done
-
-uninstall-robustness_debugHEADERS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(robustness_debug_HEADERS)'; test -n "$(robustness_debugdir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(robustness_debugdir)'; $(am__uninstall_files_from_dir)
-install-rrobustnessHEADERS: $(rrobustness_HEADERS)
-	@$(NORMAL_INSTALL)
-	@list='$(rrobustness_HEADERS)'; test -n "$(rrobustnessdir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(rrobustnessdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(rrobustnessdir)" || exit 1; \
-	fi; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(rrobustnessdir)'"; \
-	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(rrobustnessdir)" || exit $$?; \
-	done
-
-uninstall-rrobustnessHEADERS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(rrobustness_HEADERS)'; test -n "$(rrobustnessdir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(rrobustnessdir)'; $(am__uninstall_files_from_dir)
-install-rrobustness_debugHEADERS: $(rrobustness_debug_HEADERS)
-	@$(NORMAL_INSTALL)
-	@list='$(rrobustness_debug_HEADERS)'; test -n "$(rrobustness_debugdir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(rrobustness_debugdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(rrobustness_debugdir)" || exit 1; \
-	fi; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(rrobustness_debugdir)'"; \
-	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(rrobustness_debugdir)" || exit $$?; \
-	done
-
-uninstall-rrobustness_debugHEADERS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(rrobustness_debug_HEADERS)'; test -n "$(rrobustness_debugdir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(rrobustness_debugdir)'; $(am__uninstall_files_from_dir)
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
@@ -1749,9 +1545,9 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(PROGRAMS) $(HEADERS)
+all-am: Makefile $(PROGRAMS)
 installdirs:
-	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(compute_pop_statsdir)" "$(DESTDIR)$(compute_pop_stats_debugdir)" "$(DESTDIR)$(rcompute_pop_statsdir)" "$(DESTDIR)$(rcompute_pop_stats_debugdir)" "$(DESTDIR)$(robustnessdir)" "$(DESTDIR)$(robustness_debugdir)" "$(DESTDIR)$(rrobustnessdir)" "$(DESTDIR)$(rrobustness_debugdir)"; do \
+	for dir in "$(DESTDIR)$(bindir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -1807,12 +1603,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-compute_pop_statsHEADERS \
-	install-compute_pop_stats_debugHEADERS \
-	install-rcompute_pop_statsHEADERS \
-	install-rcompute_pop_stats_debugHEADERS \
-	install-robustnessHEADERS install-robustness_debugHEADERS \
-	install-rrobustnessHEADERS install-rrobustness_debugHEADERS
+install-data-am:
 
 install-dvi: install-dvi-am
 
@@ -1857,13 +1648,7 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS uninstall-compute_pop_statsHEADERS \
-	uninstall-compute_pop_stats_debugHEADERS \
-	uninstall-rcompute_pop_statsHEADERS \
-	uninstall-rcompute_pop_stats_debugHEADERS \
-	uninstall-robustnessHEADERS uninstall-robustness_debugHEADERS \
-	uninstall-rrobustnessHEADERS \
-	uninstall-rrobustness_debugHEADERS
+uninstall-am: uninstall-binPROGRAMS
 
 .MAKE: install-am install-strip
 
@@ -1871,26 +1656,14 @@ uninstall-am: uninstall-binPROGRAMS uninstall-compute_pop_statsHEADERS \
 	clean-generic ctags distclean distclean-compile \
 	distclean-generic distclean-tags distdir dvi dvi-am html \
 	html-am info info-am install install-am install-binPROGRAMS \
-	install-compute_pop_statsHEADERS \
-	install-compute_pop_stats_debugHEADERS install-data \
-	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
-	install-info-am install-man install-pdf install-pdf-am \
-	install-ps install-ps-am install-rcompute_pop_statsHEADERS \
-	install-rcompute_pop_stats_debugHEADERS \
-	install-robustnessHEADERS install-robustness_debugHEADERS \
-	install-rrobustnessHEADERS install-rrobustness_debugHEADERS \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic pdf pdf-am ps ps-am \
-	tags uninstall uninstall-am uninstall-binPROGRAMS \
-	uninstall-compute_pop_statsHEADERS \
-	uninstall-compute_pop_stats_debugHEADERS \
-	uninstall-rcompute_pop_statsHEADERS \
-	uninstall-rcompute_pop_stats_debugHEADERS \
-	uninstall-robustnessHEADERS uninstall-robustness_debugHEADERS \
-	uninstall-rrobustnessHEADERS \
-	uninstall-rrobustness_debugHEADERS
+	install-data install-data-am install-dvi install-dvi-am \
+	install-exec install-exec-am install-html install-html-am \
+	install-info install-info-am install-man install-pdf \
+	install-pdf-am install-ps install-ps-am install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic pdf pdf-am ps ps-am tags uninstall \
+	uninstall-am uninstall-binPROGRAMS
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

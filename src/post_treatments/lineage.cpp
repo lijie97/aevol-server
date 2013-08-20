@@ -83,7 +83,7 @@ void print_help( void );
 
 int main(int argc, char** argv) 
 {
-  // The output file (lineage.ae or lineage.rae) contains the following informations:
+  // The output file (lineage.ae or lineage.rae) contains the following information:
   //
   // - common data                                                (ae_common::write_to_backup) 
   // - begin gener                                                (int32_t)
@@ -220,7 +220,7 @@ int main(int argc, char** argv)
   // tree_000300.ae ==>  generations 201 to 300.
   // etc.
   // 
-  // Thus, the informations for generation end_gener are located 
+  // Thus, the information for generation end_gener are located 
   // in the file called (end_gener/ae_common::rec_params->get_tree_step() + 1) * ae_common::rec_params->get_tree_step(),
   // except if end_gener%ae_common::rec_params->get_tree_step()==0.
 
@@ -596,14 +596,14 @@ void print_help( void )
   printf( "it in an output file called lineage.rae. Specifically, it retrieves the \n");
   printf( "lineage of the individual of end_gener whose index is index, going \n" );
   printf( "back in time up to gener1. This program requires at least one population backup\n" );
-  printf( "file (for the generation gener1), one environement backup file (for the generation gener1)\n" );
+  printf( "file (for the generation gener1), one environment backup file (for the generation gener1)\n" );
   printf( "and all tree files for generations gener1 to end_gener.\n" );
 #else
   printf( "This program retrieves the ancestral lineage of an individual and writes \n" );
   printf( "it in an output file called lineage.ae. Specifically, it retrieves the \n");
   printf( "lineage of the individual of end_gener whose index is index, going \n" );
   printf( "back in time up to gener1. This program requires at least one population backup\n" );
-  printf( "file (for the generation gener1), one environement backup file (for the generation gener1)\n" );
+  printf( "file (for the generation gener1), one environment backup file (for the generation gener1)\n" );
   printf( "and all tree files for generations gener1 to end_gener.\n" );
 #endif
   printf( "\n" ); 

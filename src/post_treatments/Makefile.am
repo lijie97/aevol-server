@@ -264,42 +264,50 @@ rlineage_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
 
 compute_pop_statsdir = $(bindir)
-compute_pop_stats_HEADERS = population_statistics.h
+#compute_pop_stats_HEADERS = population_statistics.h
 compute_pop_stats_SOURCES = population_statistics.cpp compute_pop_stats.cpp
+compute_pop_stats_SOURCES += population_statistics.h
 compute_pop_stats_CPPFLAGS = $(AM_CPPFLAGS)
 
 compute_pop_stats_debugdir = $(bindir)
-compute_pop_stats_debug_HEADERS = population_statistics.h
+#compute_pop_stats_debug_HEADERS = population_statistics.h
 compute_pop_stats_debug_SOURCES = population_statistics.cpp compute_pop_stats.cpp
+compute_pop_stats_debug_SOURCES += population_statistics.h
 compute_pop_stats_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
 rcompute_pop_statsdir = $(bindir)
-rcompute_pop_stats_HEADERS = population_statistics.h
+#rcompute_pop_stats_HEADERS = population_statistics.h
 rcompute_pop_stats_SOURCES = population_statistics.cpp compute_pop_stats.cpp
+rcompute_pop_stats_SOURCES += population_statistics.h
 rcompute_pop_stats_CPPFLAGS = $(AM_CPPFLAGS)
 
 rcompute_pop_stats_debugdir = $(bindir)
-rcompute_pop_stats_debug_HEADERS = population_statistics.h
+#rcompute_pop_stats_debug_HEADERS = population_statistics.h
 rcompute_pop_stats_debug_SOURCES = population_statistics.cpp compute_pop_stats.cpp
+rcompute_pop_stats_debug_SOURCES += population_statistics.h
 rcompute_pop_stats_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
 
 robustnessdir = $(bindir)
-robustness_HEADERS = population_statistics.h
+#robustness_HEADERS = population_statistics.h
 robustness_SOURCES = population_statistics.cpp robustness.cpp
+robustness_SOURCES +=population_statistics.h
 robustness_CPPFLAGS = $(AM_CPPFLAGS)
 
 robustness_debugdir = $(bindir)
-robustness_debug_HEADERS = population_statistics.h
+#robustness_debug_HEADERS = population_statistics.h
 robustness_debug_SOURCES = population_statistics.cpp robustness.cpp
+robustness_debug_SOURCES += population_statistics.h
 robustness_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
 rrobustnessdir = $(bindir)
-rrobustness_HEADERS = population_statistics.h
+#rrobustness_HEADERS = population_statistics.h
 rrobustness_SOURCES = population_statistics.cpp robustness.cpp
+rrobustness_SOURCES += population_statistics.h
 rrobustness_CPPFLAGS = $(AM_CPPFLAGS)
 
 rrobustness_debugdir = $(bindir)
-rrobustness_debug_HEADERS = population_statistics.h
+#rrobustness_debug_HEADERS = population_statistics.h
 rrobustness_debug_SOURCES = population_statistics.cpp robustness.cpp
+rrobustness_debug_SOURCES += population_statistics.h
 rrobustness_debug_CPPFLAGS = $(AM_CPPFLAGS)

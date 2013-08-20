@@ -188,7 +188,7 @@ void print_help( void )
   printf( "\n" ); 
   printf( "This program computes some population and replication statistics at each available backup from begin_gener until end_gener\n" );
   printf( "and save this statistics in global_pop_stats.out and in files inside stats/pop_stats. The children_nb is used to compute Fv.\n");
-  printf( "The replication statistics (informations about the children_nb offsprings) of the individual of rank or index .\n");
+  printf( "The replication statistics (information about the children_nb offsprings) of the individual of rank or index .\n");
   printf( "are written at each backup.\n" );
   printf( "\n" ); 
   printf( "WARNING: This program should not be used for simulations run with lateral\n" ); 
@@ -206,10 +206,10 @@ void print_help( void )
   printf( "\t-e end_gener or --end end_gener : \n" );
   printf( "\t                  Last backup used to compute the statistics\n" );
   printf( "\t-i index or --index index : \n" );
-  printf( "\t                  Index of individual of whom we want informations about the offsprings at each backup\n" );
+  printf( "\t                  Index of individual of whom we want information about the offsprings at each backup\n" );
   printf( "\n" ); 
   printf( "\t-r rank or --rank rank : \n" );
-  printf( "\t                  Rank of individual of whom we want informations about the offsprings at each backup\n" );
+  printf( "\t                  Rank of individual of whom we want information about the offsprings at each backup\n" );
   printf( "\n");
   
   printf( "\n" );

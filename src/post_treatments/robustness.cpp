@@ -152,7 +152,7 @@ void print_help( void )
   printf( "\n" ); 
   printf( "This program computes replication statistics at backup at end_gener like proportion of neutral, beneficial, deleterious offsprings\n" );
   printf( "and statistics about the offsprings, written in robustness_end_gener.out.\n");
-  printf( "The replication statistics (informations about the children_nb offsprings) of the individual of rank or index are written in replication_end_gener.out.\n");
+  printf( "The replication statistics (information about the children_nb offsprings) of the individual of rank or index are written in replication_end_gener.out.\n");
   printf( "\n" ); 
   printf( "WARNING: This program should not be used for simulations run with lateral\n" ); 
   printf( "transfer. When an individual has more than one parent, the notion of lineage\n" ); 
@@ -164,10 +164,10 @@ void print_help( void )
   printf( "\t                  Use children_nb to compute Fv.\n" );
   printf( "\n" ); 
   printf( "\t-i index or --index index : \n" );
-  printf( "\t                  Index of individual of whom we want informations about the offsprings at each backup\n" );
+  printf( "\t                  Index of individual of whom we want information about the offsprings at each backup\n" );
   printf( "\n" ); 
   printf( "\t-r rank or --rank rank : \n" );
-  printf( "\t                  Rank of individual of whom we want informations about the offsprings at each backup\n" );
+  printf( "\t                  Rank of individual of whom we want information about the offsprings at each backup\n" );
   printf( "\n" );
   printf( "\t-e end_gener or --end end_gener : \n" );
   printf( "\t                  Generation at which the statistics are computed\n" );
