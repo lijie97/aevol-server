@@ -32,7 +32,7 @@ AM_CPPFLAGS += -D__STDC_FORMAT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MA
 ############################################
 #           Set programs to build          #
 ############################################
-bin_PROGRAMS = run_tests
+check_PROGRAMS = run_tests
 CLEANFILES = $(bin_PROGRAMS)
 TESTS = $(bin_PROGRAMS)
 
