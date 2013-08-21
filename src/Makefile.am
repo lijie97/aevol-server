@@ -88,57 +88,44 @@ CLEANFILES += aevol_create aevol_modify aevol_propagate
 # prefixed object files so that we don't use an object file built for another set of macrodefinitions
 # e.g. We don't want to use an object file created with NO_X when building the X11 lib
 
-aevol_rundir = $(bindir)
 aevol_run_SOURCES = aevol_run.cpp
 aevol_run_CPPFLAGS = $(AM_CPPFLAGS)
 
-aevol_run_IN2P3dir = $(bindir)
 aevol_run_IN2P3_SOURCES = aevol_run.cpp
 aevol_run_IN2P3_CPPFLAGS = $(AM_CPPFLAGS)
 
-aevol_run_debugdir = $(bindir)
 aevol_run_debug_SOURCES = aevol_run.cpp
 aevol_run_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
-aevol_run_X11dir = $(bindir)
 aevol_run_X11_SOURCES = aevol_run.cpp
 aevol_run_X11_CPPFLAGS = $(AM_CPPFLAGS)
 
-aevol_run_X11_debugdir = $(bindir)
 aevol_run_X11_debug_SOURCES = aevol_run.cpp
 aevol_run_X11_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
-raevol_rundir = $(bindir)
 raevol_run_SOURCES = aevol_run.cpp
 raevol_run_CPPFLAGS = $(AM_CPPFLAGS)
 
-raevol_run_IN2P3dir = $(bindir)
 raevol_run_IN2P3_SOURCES = aevol_run.cpp
 raevol_run_IN2P3_CPPFLAGS = $(AM_CPPFLAGS)
 
-raevol_run_debugdir = $(bindir)
 raevol_run_debug_SOURCES = aevol_run.cpp
 raevol_run_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
-raevol_run_X11dir = $(bindir)
 raevol_run_X11_SOURCES = aevol_run.cpp
 raevol_run_X11_CPPFLAGS = $(AM_CPPFLAGS)
 
-raevol_run_X11_debugdir = $(bindir)
 raevol_run_X11_debug_SOURCES = aevol_run.cpp
 raevol_run_X11_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
 
-aevol_create_dir = $(bindir)
 aevol_create_SOURCES = aevol_create.cpp
 aevol_create_CPPFLAGS = $(AM_CPPFLAGS)
 
 
-aevol_modify_dir = $(bindir)
 aevol_modify_SOURCES = aevol_modify.cpp
 aevol_modify_CPPFLAGS = $(AM_CPPFLAGS)
 
 
-aevol_propagate_dir = $(bindir)
 aevol_propagate_SOURCES = aevol_propagate.cpp
 aevol_propagate_CPPFLAGS = $(AM_CPPFLAGS)

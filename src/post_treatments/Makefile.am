@@ -85,228 +85,106 @@ CLEANFILES += robustness ancstats create_eps fixed_mutations lineage compute_pop
 # prefixed object files so that we don't use an object file built for another set of macrodefinitions
 # e.g. We don't want to use an object file created with NO_X when building the X11 lib
 
-ancstatsdir = $(bindir)
 ancstats_SOURCES = ancstats.cpp
 ancstats_CPPFLAGS = $(AM_CPPFLAGS)
 
-ancstats_debugdir = $(bindir)
 ancstats_debug_SOURCES = ancstats.cpp
 ancstats_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
-rancstatsdir = $(bindir)
 rancstats_SOURCES = ancstats.cpp
 rancstats_CPPFLAGS = $(AM_CPPFLAGS)
 
-rancstats_debugdir = $(bindir)
 rancstats_debug_SOURCES = ancstats.cpp
 rancstats_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
 
-create_epsdir = $(bindir)
 create_eps_SOURCES = create_eps.cpp
 create_eps_CPPFLAGS = $(AM_CPPFLAGS)
 
-create_eps_debugdir = $(bindir)
 create_eps_debug_SOURCES = create_eps.cpp
 create_eps_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
-rcreate_epsdir = $(bindir)
 rcreate_eps_SOURCES = create_eps.cpp
 rcreate_eps_CPPFLAGS = $(AM_CPPFLAGS)
 
-rcreate_eps_debugdir = $(bindir)
 rcreate_eps_debug_SOURCES = create_eps.cpp
 rcreate_eps_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
 
-extractdir = $(bindir)
 extract_SOURCES = extract.cpp
 extract_CPPFLAGS = $(AM_CPPFLAGS)
 
-extract_debugdir = $(bindir)
 extract_debug_SOURCES = extract.cpp
 extract_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
-rextractdir = $(bindir)
 rextract_SOURCES = extract.cpp
 rextract_CPPFLAGS = $(AM_CPPFLAGS)
 
-rextract_debugdir = $(bindir)
 rextract_debug_SOURCES = extract.cpp
 rextract_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
 
-fixed_mutationsdir = $(bindir)
 fixed_mutations_SOURCES = fixed_mutations.cpp
 fixed_mutations_CPPFLAGS = $(AM_CPPFLAGS)
 
-fixed_mutations_debugdir = $(bindir)
 fixed_mutations_debug_SOURCES = fixed_mutations.cpp
 fixed_mutations_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
-rfixed_mutationsdir = $(bindir)
 rfixed_mutations_SOURCES = fixed_mutations.cpp
 rfixed_mutations_CPPFLAGS = $(AM_CPPFLAGS)
 
-rfixed_mutations_debugdir = $(bindir)
 rfixed_mutations_debug_SOURCES = fixed_mutations.cpp
 rfixed_mutations_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
-
-#genome_statsdir = $(bindir)
-#genome_stats_SOURCES = genome_stats.cpp
-#genome_stats_CPPFLAGS = $(AM_CPPFLAGS)
-
-#genome_stats_debugdir = $(bindir)
-#genome_stats_debug_SOURCES = genome_stats.cpp
-#genome_stats_debug_CPPFLAGS = $(AM_CPPFLAGS)
-
-#rgenome_statsdir = $(bindir)
-#rgenome_stats_SOURCES = genome_stats.cpp
-#rgenome_stats_CPPFLAGS = $(AM_CPPFLAGS)
-
-#rgenome_stats_debugdir = $(bindir)
-#rgenome_stats_debug_SOURCES = genome_stats.cpp
-#rgenome_stats_debug_CPPFLAGS = $(AM_CPPFLAGS)
-
-lineagedir = $(bindir)
 lineage_SOURCES = lineage.cpp
 lineage_CPPFLAGS = $(AM_CPPFLAGS)
 
-lineage_debugdir = $(bindir)
 lineage_debug_SOURCES = lineage.cpp
 lineage_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
-rlineagedir = $(bindir)
 rlineage_SOURCES = lineage.cpp
 rlineage_CPPFLAGS = $(AM_CPPFLAGS)
 
-rlineage_debugdir = $(bindir)
 rlineage_debug_SOURCES = lineage.cpp
 rlineage_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
 
-#mutagenesisdir = $(bindir)
-#mutagenesis_SOURCES = mutagenesis.cpp
-#mutagenesis_CPPFLAGS = $(AM_CPPFLAGS)
-
-#mutagenesis_debugdir = $(bindir)
-#mutagenesis_debug_SOURCES = mutagenesis.cpp
-#mutagenesis_debug_CPPFLAGS = $(AM_CPPFLAGS)
-
-#rmutagenesisdir = $(bindir)
-#rmutagenesis_SOURCES = mutagenesis.cpp
-#rmutagenesis_CPPFLAGS = $(AM_CPPFLAGS)
-
-#rmutagenesis_debugdir = $(bindir)
-#rmutagenesis_debug_SOURCES = mutagenesis.cpp
-#rmutagenesis_debug_CPPFLAGS = $(AM_CPPFLAGS)
-
-
-#mutationalrobustnessdir = $(bindir)
-#mutationalrobustness_SOURCES = mutationalrobustness.cpp
-#mutationalrobustness_CPPFLAGS = $(AM_CPPFLAGS)
-
-#mutationalrobustness_debugdir = $(bindir)
-#mutationalrobustness_debug_SOURCES = mutationalrobustness.cpp
-#mutationalrobustness_debug_CPPFLAGS = $(AM_CPPFLAGS)
-
-
-#robustnessdir = $(bindir)
-#robustness_SOURCES = robustness.cpp
-#robustness_CPPFLAGS = $(AM_CPPFLAGS)
-
-#robustness_debugdir = $(bindir)
-#robustness_debug_SOURCES = robustness.cpp
-#robustness_debug_CPPFLAGS = $(AM_CPPFLAGS)
-
-#rrobustnessdir = $(bindir)
-#rrobustness_SOURCES = robustness.cpp
-#rrobustness_CPPFLAGS = $(AM_CPPFLAGS)
-
-#rrobustness_debugdir = $(bindir)
-#rrobustness_debug_SOURCES = robustness.cpp
-#rrobustness_debug_CPPFLAGS = $(AM_CPPFLAGS)
-
-
-#set_genome_from_indivdir = $(bindir)
-#set_genome_from_indiv_SOURCES = set_genome_from_indiv.cpp
-#set_genome_from_indiv_CPPFLAGS = $(AM_CPPFLAGS)
-
-#set_genome_from_indiv_debugdir = $(bindir)
-#set_genome_from_indiv_debug_SOURCES = set_genome_from_indiv.cpp
-#set_genome_from_indiv_debug_CPPFLAGS = $(AM_CPPFLAGS)
-
-#rset_genome_from_indivdir = $(bindir)
-#rset_genome_from_indiv_SOURCES = set_genome_from_indiv.cpp
-#rset_genome_from_indiv_CPPFLAGS = $(AM_CPPFLAGS)
-
-#rset_genome_from_indiv_debugdir = $(bindir)
-#rset_genome_from_indiv_debug_SOURCES = set_genome_from_indiv.cpp
-#rset_genome_from_indiv_debug_CPPFLAGS = $(AM_CPPFLAGS)
-
-
-#view_generationdir = $(bindir)
-#view_generation_SOURCES = view_generation.cpp
-#view_generation_CPPFLAGS = $(AM_CPPFLAGS)
-
-#view_generation_debugdir = $(bindir)
-#view_generation_debug_SOURCES = view_generation.cpp
-#view_generation_debug_CPPFLAGS = $(AM_CPPFLAGS)
-
-#rview_generationdir = $(bindir)
-#rview_generation_SOURCES = view_generation.cpp
-#rview_generation_CPPFLAGS = $(AM_CPPFLAGS)
-
-#rview_generation_debugdir = $(bindir)
-#rview_generation_debug_SOURCES = view_generation.cpp
-#rview_generation_debug_CPPFLAGS = $(AM_CPPFLAGS)
-
-
-compute_pop_statsdir = $(bindir)
 #compute_pop_stats_HEADERS = population_statistics.h
 compute_pop_stats_SOURCES = population_statistics.cpp compute_pop_stats.cpp
 compute_pop_stats_SOURCES += population_statistics.h
 compute_pop_stats_CPPFLAGS = $(AM_CPPFLAGS)
 
-compute_pop_stats_debugdir = $(bindir)
 #compute_pop_stats_debug_HEADERS = population_statistics.h
 compute_pop_stats_debug_SOURCES = population_statistics.cpp compute_pop_stats.cpp
 compute_pop_stats_debug_SOURCES += population_statistics.h
 compute_pop_stats_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
-rcompute_pop_statsdir = $(bindir)
 #rcompute_pop_stats_HEADERS = population_statistics.h
 rcompute_pop_stats_SOURCES = population_statistics.cpp compute_pop_stats.cpp
 rcompute_pop_stats_SOURCES += population_statistics.h
 rcompute_pop_stats_CPPFLAGS = $(AM_CPPFLAGS)
 
-rcompute_pop_stats_debugdir = $(bindir)
 #rcompute_pop_stats_debug_HEADERS = population_statistics.h
 rcompute_pop_stats_debug_SOURCES = population_statistics.cpp compute_pop_stats.cpp
 rcompute_pop_stats_debug_SOURCES += population_statistics.h
 rcompute_pop_stats_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
 
-robustnessdir = $(bindir)
 #robustness_HEADERS = population_statistics.h
 robustness_SOURCES = population_statistics.cpp robustness.cpp
 robustness_SOURCES +=population_statistics.h
 robustness_CPPFLAGS = $(AM_CPPFLAGS)
 
-robustness_debugdir = $(bindir)
 #robustness_debug_HEADERS = population_statistics.h
 robustness_debug_SOURCES = population_statistics.cpp robustness.cpp
 robustness_debug_SOURCES += population_statistics.h
 robustness_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
-rrobustnessdir = $(bindir)
 #rrobustness_HEADERS = population_statistics.h
 rrobustness_SOURCES = population_statistics.cpp robustness.cpp
 rrobustness_SOURCES += population_statistics.h
 rrobustness_CPPFLAGS = $(AM_CPPFLAGS)
 
-rrobustness_debugdir = $(bindir)
 #rrobustness_debug_HEADERS = population_statistics.h
 rrobustness_debug_SOURCES = population_statistics.cpp robustness.cpp
 rrobustness_debug_SOURCES += population_statistics.h

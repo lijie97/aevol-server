@@ -56,10 +56,8 @@ raevol_X11_sources = $(X11_sources) $(raevol_sources) ae_individual_R_X11.cpp
 
 
 if WITH_RAEVOL
-  libraevol_adir = ./
   libraevol_a_CPPFLAGS = $(AM_CPPFLAGS)
 else # WITHOUT_RAEVOL
-  libaevol_adir = ./
   libaevol_a_CPPFLAGS = $(AM_CPPFLAGS)
 endif # RAEVOL
 

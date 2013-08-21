@@ -42,7 +42,6 @@ TESTS = $(bin_PROGRAMS)
 # prefixed object files so that we don't use an object file built for another set of macrodefinitions
 # e.g. We don't want to use an object file created with NO_X when building the X11 lib
 
-run_testsdir = $(bindir)
 run_tests_SOURCES = run_tests.cpp Test_ae_jumping_mt.cpp Test_ae_jumping_mt.h
 run_tests_CPPFLAGS = $(AM_CPPFLAGS)
 
