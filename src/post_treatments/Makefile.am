@@ -22,6 +22,14 @@ endif # RAEVOL
 AM_CPPFLAGS += -D__STDC_FORMAT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS
 
 
+####################################
+# Add hardening option to compiler #
+####################################
+# This replaces insecure unlimited length buffer function calls with
+# length-limited ones (required for debian and not a bad idea anyway).
+AM_CPPFLAGS += -D_FORTIFY_SOURCE=2
+
+
 ############################################
 #           Set programs to build          #
 ############################################
