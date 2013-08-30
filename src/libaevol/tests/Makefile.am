@@ -33,8 +33,8 @@ AM_CPPFLAGS += -D__STDC_FORMAT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MA
 #           Set programs to build          #
 ############################################
 check_PROGRAMS = run_tests
-CLEANFILES = $(bin_PROGRAMS)
-TESTS = $(bin_PROGRAMS)
+CLEANFILES = $(check_PROGRAMS)
+TESTS = $(check_PROGRAMS)
 
 
 
@@ -42,7 +42,7 @@ TESTS = $(bin_PROGRAMS)
 # prefixed object files so that we don't use an object file built for another set of macrodefinitions
 # e.g. We don't want to use an object file created with NO_X when building the X11 lib
 
-run_tests_SOURCES = run_tests.cpp Test_ae_jumping_mt.cpp Test_ae_jumping_mt.h
+run_tests_SOURCES = run_tests.cpp Test_ae_jumping_mt.cpp Test_ae_jumping_mt.h Test_ae_individual.cpp Test_ae_individual.h
 run_tests_CPPFLAGS = $(AM_CPPFLAGS)
 
 
