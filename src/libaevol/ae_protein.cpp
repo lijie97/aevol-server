@@ -106,6 +106,9 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, const ae_protein &model )
 
 ae_protein::ae_protein( ae_genetic_unit* gen_unit, ae_list<ae_codon*>* codon_list, ae_strand strand, int32_t shine_dal_pos, ae_rna* rna )
 {
+  assert( shine_dal_pos >= 0 );
+  assert( shine_dal_pos < gen_unit->get_seq_length() );
+
   _gen_unit       = gen_unit;
   _strand         = strand;
   _shine_dal_pos  = shine_dal_pos;
