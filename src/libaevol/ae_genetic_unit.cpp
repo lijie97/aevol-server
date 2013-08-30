@@ -717,7 +717,7 @@ void ae_genetic_unit::do_translation( void )
         // First of all, we will check whether this CDS has already been translated (because it is present on another RNA
         // In that case, we don't need to tranlate it again, we only need to increase the protein's concentration according to
         // the promoter transcription level
-        int32_t shine_dal_pos = transcript_start + i;
+        int32_t shine_dal_pos = ae_utils::mod(transcript_start + i, genome_length);
         ae_list_node<ae_protein*>* protein_node = _protein_list[LEADING]->bsearch( &shine_dal_pos, compare_prot_pos );
 
         if ( protein_node != NULL )
@@ -746,9 +746,9 @@ void ae_genetic_unit::do_translation( void )
                 // The protein is valid, create the corresponding object
                 ae_protein* protein;
                 #ifndef __REGUL
-                  protein = new ae_protein( this, codon_list, LEADING, transcript_start + i, rna );
+                  protein = new ae_protein( this, codon_list, LEADING, shine_dal_pos, rna );
                 #else
-                  protein = new ae_protein_R( this, codon_list, LEADING, transcript_start + i, rna );
+                  protein = new ae_protein_R( this, codon_list, LEADING, shine_dal_pos, rna );
                 #endif
                 
                 // The codon list will be kept in the protein
@@ -838,7 +838,7 @@ void ae_genetic_unit::do_translation( void )
         // First of all, we will check whether this CDS has already been translated (because it is present on another RNA
         // In that case, we don't need to tranlate it again, we only need to increase the protein's concentration according to
         // the promoter strength
-        int32_t shine_dal_pos = transcript_start - i;
+        int32_t shine_dal_pos = ae_utils::mod(transcript_start - i, genome_length);
         ae_list_node<ae_protein*>* protein_node = _protein_list[LAGGING]->bsearch( &shine_dal_pos, compare_prot_pos );
 
         if ( protein_node != NULL )
@@ -867,9 +867,9 @@ void ae_genetic_unit::do_translation( void )
                 // The protein is valid, create the corresponding object
                 ae_protein* protein;
                 #ifndef __REGUL
-                  protein = new ae_protein( this, codon_list, LAGGING, transcript_start - i, rna );
+                  protein = new ae_protein( this, codon_list, LAGGING, shine_dal_pos, rna );
                 #else
-                  protein = new ae_protein_R( this, codon_list, LAGGING, transcript_start - i, rna );
+                  protein = new ae_protein_R( this, codon_list, LAGGING, shine_dal_pos, rna );
                 #endif
                 
                 // The codon list will be kept in the protein
