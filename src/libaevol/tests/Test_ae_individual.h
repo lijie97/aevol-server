@@ -65,6 +65,8 @@ class Test_ae_individual : public TestFixture
   CPPUNIT_TEST_SUITE( Test_ae_individual );
   CPPUNIT_TEST( test1 );
   CPPUNIT_TEST( test2 );
+  CPPUNIT_TEST( test3 );
+  CPPUNIT_TEST( test4 );
   CPPUNIT_TEST_SUITE_END();
   
   
@@ -103,6 +105,8 @@ class Test_ae_individual : public TestFixture
     void tearDown( void );
     void test1( void );
     void test2( void );
+    void test3( void );
+    void test4( void );
 
     // =======================================================================
     //                             Public Attributes
@@ -136,6 +140,8 @@ class Test_ae_individual : public TestFixture
     // =======================================================================
     ae_individual* indiv1;
     ae_individual* indiv2;
+    ae_individual* indiv3;
+    ae_individual* indiv4;
 };
 
 
