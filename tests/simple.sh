@@ -7,7 +7,7 @@ cp ${PARAM} ${DEST}/param.in
 cd ${DEST}
 
 # Chech that aevol has been compiled correctly
-RUN=`find ../../src -iname "aevol_run*" -executable -type f -print -quit`
+RUN=`find ../../src -iname "aevol_run*" -perm -u+x -type f -print -quit`
 if [ "x$RUN" = "x" ]; then
   echo "aevol_run not found"
   exit -1

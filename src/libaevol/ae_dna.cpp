@@ -1050,7 +1050,8 @@ ae_mutation* ae_dna::do_deletion( void )
       // Write an entry in the barrier log file
       fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32" %"PRId32"\n",
                 _exp_m->get_num_gener(), _indiv->get_id(), segment_length, 0, genome_size_before );
-    }
+
+     }
   }
   else
   {
@@ -1363,20 +1364,6 @@ bool ae_dna::do_duplication( int32_t pos_1, int32_t pos_2, int32_t pos_3 )
     //
     
     seg_length = pos_2 - pos_1;
-    
-    if ( _length + seg_length > _indiv->get_max_genome_length() )
-    {
-      #warning LOG
-      if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
-      {
-        // Write an entry in the barrier log file
-        fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32"\n",
-                  _exp_m->get_num_gener(), _indiv->get_id(), seg_length, _length );
-      }
-      
-      return false;
-    }
-    
     duplicate_segment = new char[seg_length+1];
     memcpy( duplicate_segment, &_data[pos_1], seg_length );
     duplicate_segment[seg_length] = '\0';
@@ -1399,20 +1386,6 @@ bool ae_dna::do_duplication( int32_t pos_1, int32_t pos_2, int32_t pos_3 )
     int32_t tmp1_len = _length - pos_1;
     int32_t tmp2_len = pos_2;
     seg_length = tmp1_len + tmp2_len;
-    
-    if ( _length + seg_length > _indiv->get_max_genome_length() )
-    {
-      #warning LOG
-      if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
-      {
-        // Write an entry in the barrier log file
-        fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32"\n",
-                  _exp_m->get_num_gener(), _indiv->get_id(), seg_length, _length );
-      }
-      
-      return false;
-    }
-    
     duplicate_segment = new char[seg_length+1];
     memcpy( duplicate_segment, &_data[pos_1], tmp1_len );     // Copy tmp1
     memcpy( &duplicate_segment[tmp1_len], _data, tmp2_len );  // Copy tmp2
@@ -1489,18 +1462,6 @@ bool ae_dna::do_deletion( int32_t pos_1, int32_t pos_2 )
       
       _gen_unit->look_for_new_promoters_around( pos_1 );
     }
-    else
-    {
-      #warning LOG
-      if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
-      {
-        // Write an entry in the barrier log file
-        fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32"\n",
-                  _exp_m->get_num_gener(), _indiv->get_id(), segment_length, _length );
-      }
-      
-      return false;
-    }
   }
   else // if ( pos_1 >= pos_2 ) 
   {
@@ -1532,18 +1493,6 @@ bool ae_dna::do_deletion( int32_t pos_1, int32_t pos_2 )
       _gen_unit->move_all_promoters_after( 0, -pos_2 );
       
       _gen_unit->look_for_new_promoters_around( 0 );
-    }
-    else
-    {
-      #warning LOG
-      if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
-      {
-        // Write an entry in the barrier log file
-        fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32"\n",
-                  _exp_m->get_num_gener(), _indiv->get_id(), segment_length, _length );
-      }
-      
-      return false;
     }
   }
   

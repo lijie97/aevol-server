@@ -229,7 +229,7 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, ae_list<ae_codon*>* codon_lis
         //~ W <<= 1;
         W *= 2;
 
-        // Add this nucleotide's contribution to M
+        // Add this nucleotide's contribution to W
         if ( bin_w ) W += 1;
 
         break;
@@ -246,7 +246,7 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, ae_list<ae_codon*>* codon_lis
         //~ W <<= 1;
         W *= 2;
 
-        // Add this nucleotide's contribution to M
+        // Add this nucleotide's contribution to W
         if ( bin_w ) W += 1;
 
         break;
@@ -264,7 +264,7 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, ae_list<ae_codon*>* codon_lis
         //~ H <<= 1;
         H *= 2;
 
-        // Add this nucleotide's contribution to M
+        // Add this nucleotide's contribution to H
         if ( bin_h ) H += 1;
 
         break;
@@ -281,7 +281,7 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, ae_list<ae_codon*>* codon_lis
         //~ H <<= 1;
         H *= 2;
 
-        // Add this nucleotide's contribution to M
+        // Add this nucleotide's contribution to H
         if ( bin_h ) H += 1;
 
         break;

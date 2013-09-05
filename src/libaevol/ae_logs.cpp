@@ -134,9 +134,8 @@ void ae_logs::load( int8_t logs, int32_t num_gener )
     // This is the empty line between the header and the values
     //fputs( line, _transfer_log );
     
-    // Copy log entries until num_gener (included)
-    ret = fgets( line, 500, old_transfer_log );
-    while ( (int32_t)atol(line) <= num_gener && !feof(old_transfer_log) )
+    // Copy log entries until num_gener (excluded)
+    while ( (int32_t)atol(line) < num_gener && !feof(old_transfer_log) )
     {
       fputs( line, _transfer_log );
       ret = fgets( line, 500, old_transfer_log );
@@ -172,9 +171,8 @@ void ae_logs::load( int8_t logs, int32_t num_gener )
     // This is the empty line between the header and the values
     //fputs( line, _rear_log );
     
-    // Copy log entries until num_gener (included)
-    ret = fgets( line, 500, old_rear_log );
-    while ( (int32_t)atol(line) <= num_gener && !feof(old_rear_log) )
+    // Copy log entries until num_gener (excluded)
+    while ( (int32_t)atol(line) < num_gener && !feof(old_rear_log) )
     {
       fputs( line, _rear_log );
       ret = fgets( line, 500, old_rear_log );
@@ -210,9 +208,8 @@ void ae_logs::load( int8_t logs, int32_t num_gener )
     // This is the empty line between the header and the values
     //fputs( line, _barrier_log );
     
-    // Copy log entries until num_gener (included)
-    ret = fgets( line, 500, old_barrier_log );
-    while ( (int32_t)atol(line) <= num_gener && !feof(old_barrier_log) )
+    // Copy log entries until num_gener (excluded)
+    while ( (int32_t)atol(line) < num_gener && !feof(old_barrier_log) )
     {
       fputs( line, _barrier_log );
       ret = fgets( line, 500, old_barrier_log );
@@ -248,9 +245,8 @@ void ae_logs::load( int8_t logs, int32_t num_gener )
     // This is the empty line between the header and the values
     //fputs( line, _param_modification_log );
     
-    // Copy log entries until num_gener (included)
-    ret = fgets( line, 500, old_param_modification_log );
-    while ( (int32_t)atol(line) <= num_gener && !feof(old_param_modification_log) )
+    // Copy log entries until num_gener (excluded)
+    while ( (int32_t)atol(line) < num_gener && !feof(old_param_modification_log) )
     {
       fputs( line, _param_modification_log );
       ret = fgets( line, 500, old_param_modification_log );

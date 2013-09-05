@@ -537,7 +537,8 @@ void ae_genetic_unit::do_transcription( void )
     transcript_start = rna->get_first_transcribed_pos();
     rna->set_transcript_length( -1 );
 
-    for ( int32_t i = 0 ; i < genome_length ; i++ )
+    int32_t i;
+    for ( i = 0 ; i < genome_length ; i++ )
     {
       if ( is_terminator( LEADING, transcript_start + i ) )
       {
@@ -578,6 +579,16 @@ void ae_genetic_unit::do_transcription( void )
       }
     }
 
+    if (i == genome_length)
+      {
+        // We have searched the whole genome and found no terminator for this promoter.
+        // We consider that no RNA can actually be produced, hence we set the transcript 
+        // length to -1. This will prevent the search for coding sequences downstream of this promoter.
+        // However, we do not destroy the ae_rna object, it must still be kept in memory and 
+        // transmitted to the offspring in case a mutation recreates a terminator.
+        rna->set_transcript_length( -1 );
+      }
+
     rna_node = rna_node->get_next();
   }
 
@@ -592,7 +603,8 @@ void ae_genetic_unit::do_transcription( void )
     transcript_start = rna->get_first_transcribed_pos();
     rna->set_transcript_length( -1 );
 
-    for ( int32_t i = 0 ; i < genome_length ; i++ )
+    int32_t i;
+    for ( i = 0 ; i < genome_length ; i++ )
     {
       if ( is_terminator( LAGGING, transcript_start - i ) )
       {
@@ -632,13 +644,16 @@ void ae_genetic_unit::do_transcription( void )
         break;
       }
     }
-    if ( rna->get_transcript_length() == -1 )
-    {
-      // TODO : How to manage this case?
-      //~ printf( "No terminator found on the whole genome!\n" );
-      //~ getchar();
-      rna->set_transcript_length( genome_length );
-    }
+
+    if (i == genome_length)
+      {
+        // We have searched the whole genome and found no terminator for this promoter.
+        // We consider that no RNA can actually be produced, hence we set the transcript 
+        // length to -1. This will prevent the search for coding sequences downstream of this promoter.
+        // However, we do not destroy the ae_rna object, it must still be kept in memory and 
+        // transmitted to the offspring in case a mutation recreates a terminator.
+        rna->set_transcript_length( -1 );
+      }
 
     rna_node = rna_node->get_next();
   }
