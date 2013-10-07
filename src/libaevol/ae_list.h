@@ -761,7 +761,7 @@ ae_list_node<T>* ae_list<T>::bsearch( void* needle, int ( * comparator ) ( const
 
   while ( node != NULL )
   {
-    if ( (*comparator)( needle, (void*)node->get_obj() ) == 0 ) return node;
+    if ( comparator( needle, (void*)node->get_obj() ) == 0 ) return node;
 
     node = node->_next;
   }
