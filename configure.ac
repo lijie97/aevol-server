@@ -66,10 +66,13 @@ AC_CONFIG_COMMANDS(make, [make clean])
 dnl ****************************************************************************
 dnl                                  OPTIONS
 dnl
-dnl             Default : without debug (with optimizations)
-dnl                       with    cppunit (requires cppunit)
+dnl             Default : without regulation
+dnl                       without debug (with optimizations)
 dnl                       with    x
-dnl                       without regulation
+dnl                       with    cppunit (requires cppunit)
+dnl                       without normalized fitness
+dnl                       Mersenne Twister (MT) period of 2^607.
+dnl                       MT jumps done through polynomial-based method
 dnl                       with    in2p3
 dnl ****************************************************************************
 
@@ -174,6 +177,10 @@ else
    AC_DEFINE(__NO_X)
 fi
 
+
+
+
+
 dnl  ******************* --with-normalized-fitness option ***************************
 dnl
 dnl  With this option, the NORMALIZED_FITNESS flag is defined, 
@@ -186,6 +193,8 @@ AM_CONDITIONAL(WITH_NORMALIZED_FITNESS, test x"$with_normalized_fitness" != xno)
 if test "x$with_normalized_fitness" = "xyes" ; then
    AC_DEFINE(NORMALIZED_FITNESS)
 fi
+
+
 
 
 
@@ -219,6 +228,8 @@ fi
 
 AC_MSG_RESULT($period)
 AC_DEFINE_UNQUOTED([SFMT_MEXP], [$period])
+
+
 
 
 
