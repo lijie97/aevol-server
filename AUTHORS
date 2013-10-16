@@ -2,12 +2,22 @@ Original authors:
   Guillaume Beslon
   Carole Knibbe
   David P. Parsons
-  Virginie Mathivet
   
 Major Contributors:
-  Dusan Misevic
-  Antoine Frénoy
   Bérénice Batut
+  Antoine Frénoy
+  Dusan Misevic
+  Virginie Mathivet
+  Yolanda Sanchez-Dehesa
+
+Other Contributors:
+  Guillaume Debras
+  Renaud Dessales
+  Stephan Fischer
+  Yann Hourdel
+  Charles Rocabert
+  Elie Rotenberg
+  Florian Thoni
   
   
 Note: Aevol is distributed with SFMT (SIMD oriented Fast Mersenne Twister) but they are considered a separate package, not part of Aevol proper.
