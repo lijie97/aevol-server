@@ -1,23 +1,27 @@
 
+# Set default behaviour depending on configure options
+if WANT_DOXYGEN
+all: doxygen
+else
 all:
+endif
 
-if HAVE_DOXYGEN
 
+# Man pages
+dist_man1_MANS = aevol_create.1 aevol_run.1 aevol_run_X11.1 aevol_modify.1 aevol_propagate.1
+
+
+# How to build the devel doc
 doxygen: ../src/*.cpp ../src/libaevol/*.h ../src/libaevol/*.cpp ../src/post_treatments/*.cpp
 	doxygen aevol.conf ; echo "document generated\n" > doxygen
 
-latex: doxygen
 
-html: doxygen
-
-doc: doxygen
-
-clean: clean-local
+# Cleaning rules
+CLEANFILES = index.html
 
 clean-local:
 	rm -rf html doxygen
 
-endif
 
-dist_man1_MANS = aevol_create.1 aevol_run.1 aevol_run_X11.1 aevol_modify.1 aevol_propagate.1
+# Extra files to include in releases (dist)
 EXTRA_DIST = README.txt aevol.conf

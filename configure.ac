@@ -22,11 +22,7 @@ AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_RANLIB
 AM_PROG_CC_C_O
-AC_CHECK_PROGS([DOXYGEN], [doxygen])
-if test -z "$DOXYGEN";
-   then AC_MSG_WARN([Doxygen not found - continuing without Doxygen support])
-fi
-AM_CONDITIONAL([HAVE_DOXYGEN], [test -n "$DOXYGEN"])  
+
 
 
 
@@ -128,7 +124,15 @@ if test "x$enable_devel" = "xyes" ; then
   # Make clean at the end of the configuration process
   # (usefull when several configurations are done consecutively, typically during development)
   AC_CONFIG_COMMANDS(make, [make clean])
+
+  AC_CHECK_PROGS([HAVE_DOXYGEN], [doxygen])
+  if test -z "$HAVE_DOXYGEN";
+     then AC_MSG_WARN([Doxygen not found - continuing without Doxygen support])
+  fi
 fi
+
+AM_CONDITIONAL([WANT_DOXYGEN], [test -n "$HAVE_DOXYGEN"])
+
 
 
 #  **************** --without-cppunit option *************************
