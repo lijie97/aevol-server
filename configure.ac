@@ -80,8 +80,8 @@ AC_CONFIG_COMMANDS(make, [make clean])
 
 #  ******************* check option consistency ***************************
 AC_MSG_CHECKING([checking parameter consistency])
-if test "x$with_in2p3" = "xyes" ; then
-  if test "x$with_debug" = "xyes" ; then
+if test "x$enable_in2p3" = "xyes" ; then
+  if test "x$enable_debug" = "xyes" ; then
     AC_MSG_RESULT([FAIL])
     AC_MSG_ERROR([debug and in2p3 are not compatible])
   fi
@@ -94,7 +94,7 @@ AC_MSG_RESULT([OK])
 
 
 
-#  ******************* --with-debug option ***************************
+#  ******************* --enable-debug option ***************************
 #
 #  With this option, the DEBUG flag is defined, and the programs are 
 #  compiled with debugging options (-g -Wall). Without this option, the 
@@ -103,10 +103,10 @@ AC_MSG_RESULT([OK])
 
 
 AC_MSG_CHECKING([whether to use debugging features])
-AC_ARG_WITH(debug, [  --with-debug to enable degugging features], , with_debug=no)
-AC_MSG_RESULT($with_debug)
-AM_CONDITIONAL(WITH_DEBUG, test x"$with_debug" != xno)
-if test "x$with_debug" = "xyes" ; then
+AC_ARG_ENABLE(debug, [  --enable-debug to enable degugging features], , enable_debug=no)
+AC_MSG_RESULT($enable_debug)
+AM_CONDITIONAL(WITH_DEBUG, test x"$enable_debug" != xno)
+if test "x$enable_debug" = "xyes" ; then
    AC_DEFINE(DEBUG)
    CXXFLAGS="-g -Wall"
    CPPFLAGS="-g -Wall"
@@ -181,16 +181,16 @@ fi
 
 
 
-#  ******************* --with-normalized-fitness option ***************************
+#  ******************* --enable-normalized-fitness option ***************************
 #
 #  With this option, the NORMALIZED_FITNESS flag is defined, 
 #  allowing a different fitness calculation 
 
 AC_MSG_CHECKING([whether to use normalized fitness])
-AC_ARG_WITH(normalized-fitness, [  --with-normalized-fitness to enable fitness normalization], , with_normalized_fitness=no)
-AC_MSG_RESULT($with_normalized_fitness)
-AM_CONDITIONAL(WITH_NORMALIZED_FITNESS, test x"$with_normalized_fitness" != xno)
-if test "x$with_normalized_fitness" = "xyes" ; then
+AC_ARG_ENABLE(normalized-fitness, [  --enable-normalized-fitness to enable fitness normalization], , enable_normalized_fitness=no)
+AC_MSG_RESULT($enable_normalized_fitness)
+AM_CONDITIONAL(WITH_NORMALIZED_FITNESS, test x"$enable_normalized_fitness" != xno)
+if test "x$enable_normalized_fitness" = "xyes" ; then
    AC_DEFINE(NORMALIZED_FITNESS)
 fi
 
@@ -279,13 +279,13 @@ fi
 
 
 
-#  ************************* --with-raevol option *******************************
+#  ************************* --enable-raevol option *******************************
 #
 #  With this option, regulation is enabled (RAevol) and the __REGUL flag is defined
 #
 
 AC_MSG_CHECKING([whether to use raevol])
-AC_ARG_WITH(raevol, [  --with-raevol to enable regulation], raevol=$withval, raevol=no)
+AC_ARG_ENABLE(raevol, [  --enable-raevol to enable regulation], raevol=$enableval, raevol=no)
 AC_MSG_RESULT($raevol)
 AM_CONDITIONAL(WITH_RAEVOL, test x"$raevol" != xno)
 if test "x$raevol" = "xyes" ; then
@@ -295,15 +295,15 @@ fi
 
 
 
-#  ******************* --with-in2p3 option ***************************
+#  ******************* --enable-in2p3 option ***************************
 #
 #  With this option, the IN2P3 flag is defined
 
 AC_MSG_CHECKING([whether to use IN2P3 specific features])
-AC_ARG_WITH(in2p3, [  --with-in2p3 to enable IN2P3 specific features], , with_in2p3=no)
-AC_MSG_RESULT($with_in2p3)
-AM_CONDITIONAL(WITH_IN2P3, test x"$with_in2p3" != xno)
-if test "x$with_in2p3" = "xyes" ; then
+AC_ARG_ENABLE(in2p3, [  --enable-in2p3 to enable IN2P3 specific features], , enable_in2p3=no)
+AC_MSG_RESULT($enable_in2p3)
+AM_CONDITIONAL(WITH_IN2P3, test x"$enable_in2p3" != xno)
+if test "x$enable_in2p3" = "xyes" ; then
    AC_DEFINE(__IN2P3)
 fi
 
