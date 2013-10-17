@@ -646,6 +646,8 @@ CPPUNIT_CFLAGS
 CPPUNIT_CONFIG
 WITH_CPPUNIT_FALSE
 WITH_CPPUNIT_TRUE
+ENABLE_DEVEL_FALSE
+ENABLE_DEVEL_TRUE
 WITH_DEBUG_FALSE
 WITH_DEBUG_TRUE
 EGREP
@@ -744,6 +746,7 @@ ac_user_opts='
 enable_option_checking
 enable_dependency_tracking
 enable_debug
+enable_devel
 with_cppunit
 with_cppunit_prefix
 with_cppunit_exec_prefix
@@ -1388,6 +1391,7 @@ Optional Features:
   --disable-dependency-tracking  speeds up one-time build
   --enable-dependency-tracking   do not reject slow dependency extractors
   --enable-debug to enable degugging features
+  --enable-devel
   --enable-normalized-fitness to enable fitness normalization
   --enable-mtperiod=period
         Set the Mersenne Twister period to 2^period (default is 2^607).
@@ -5332,11 +5336,6 @@ fi
 done
 
 
-# Make clean at the end of the configuration process
-# (usefull when several configurations are done consecutively, typically during development)
-ac_config_commands="$ac_config_commands make"
-
-
 
 
 
@@ -5385,7 +5384,7 @@ $as_echo "OK" >&6; }
 #  compiled with debugging options (-g -Wall). Without this option, the
 #  NDEBUG flag is defined, and the programs are compiled with the
 #  optimization options (-O3 - fexpensive-optimizations...).
-
+#
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to use debugging features" >&5
 $as_echo_n "checking whether to use debugging features... " >&6; }
@@ -5416,6 +5415,40 @@ else
 
    CXXFLAGS="-O3 -ffast-math -pipe -fexpensive-optimizations"
    CPPFLAGS="-O3 -ffast-math -pipe -fexpensive-optimizations"
+fi
+
+
+
+#  ******************* --enable-devel option ***************************
+#
+#  This enables developers' features. For now it only adds a call to
+#  make clean at the end of the configure script.
+#
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to use devel features" >&5
+$as_echo_n "checking whether to use devel features... " >&6; }
+# Check whether --enable-devel was given.
+if test "${enable_devel+set}" = set; then :
+  enableval=$enable_devel;
+else
+  enable_devel=no
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $enable_devel" >&5
+$as_echo "$enable_devel" >&6; }
+ if test x"$enable_devel" != xno; then
+  ENABLE_DEVEL_TRUE=
+  ENABLE_DEVEL_FALSE='#'
+else
+  ENABLE_DEVEL_TRUE='#'
+  ENABLE_DEVEL_FALSE=
+fi
+
+if test "x$enable_devel" = "xyes" ; then
+  # Make clean at the end of the configuration process
+  # (usefull when several configurations are done consecutively, typically during development)
+  ac_config_commands="$ac_config_commands make"
+
 fi
 
 
@@ -6839,6 +6872,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${WITH_DEBUG_TRUE}" && test -z "${WITH_DEBUG_FALSE}"; then
   as_fn_error $? "conditional \"WITH_DEBUG\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${ENABLE_DEVEL_TRUE}" && test -z "${ENABLE_DEVEL_FALSE}"; then
+  as_fn_error $? "conditional \"ENABLE_DEVEL\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${WITH_CPPUNIT_TRUE}" && test -z "${WITH_CPPUNIT_FALSE}"; then

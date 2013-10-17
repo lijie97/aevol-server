@@ -52,10 +52,6 @@ AC_TYPE_UINT8_T
 # Checks for library functions.
 AC_CHECK_FUNCS([floor memset mkdir pow rint sqrt gzread])
 
-# Make clean at the end of the configuration process
-# (usefull when several configurations are done consecutively, typically during development)
-AC_CONFIG_COMMANDS(make, [make clean])
-
 
 
 
@@ -99,8 +95,8 @@ AC_MSG_RESULT([OK])
 #  With this option, the DEBUG flag is defined, and the programs are 
 #  compiled with debugging options (-g -Wall). Without this option, the 
 #  NDEBUG flag is defined, and the programs are compiled with the
-#  optimization options (-O3 - fexpensive-optimizations...). 
-
+#  optimization options (-O3 - fexpensive-optimizations...).
+#
 
 AC_MSG_CHECKING([whether to use debugging features])
 AC_ARG_ENABLE(debug, [  --enable-debug to enable degugging features], , enable_debug=no)
@@ -114,6 +110,24 @@ else
    AC_DEFINE(NDEBUG)
    CXXFLAGS="-O3 -ffast-math -pipe -fexpensive-optimizations"
    CPPFLAGS="-O3 -ffast-math -pipe -fexpensive-optimizations"
+fi
+
+
+
+#  ******************* --enable-devel option ***************************
+#
+#  This enables developers' features. For now it only adds a call to
+#  make clean at the end of the configure script.
+#
+
+AC_MSG_CHECKING([whether to use devel features])
+AC_ARG_ENABLE(devel, [  --enable-devel], , enable_devel=no)
+AC_MSG_RESULT($enable_devel)
+AM_CONDITIONAL(ENABLE_DEVEL, test x"$enable_devel" != xno)
+if test "x$enable_devel" = "xyes" ; then
+  # Make clean at the end of the configuration process
+  # (usefull when several configurations are done consecutively, typically during development)
+  AC_CONFIG_COMMANDS(make, [make clean])
 fi
 
 
