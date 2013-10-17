@@ -1,5 +1,57 @@
-Aevol - An in silico experimental evolution platform
-A simulation platform that allows to let populations of digital organisms evolve in different conditions and study experimentally the mechanisms responsible for the structuration of the genome and the transcriptome.
+###############################################################################
+#
+#  Aevol - An in silico experimental evolution platform
+#
+###############################################################################
+# 
+#  Aevol is a digital genetics model: populations of digital organisms are
+#  subjected to a process of selection and variation, which creates a
+#  Darwinian dynamics.
+#  .
+#  By modifying the characteristics of selection (e.g. population size,
+#  type of environment, environmental variations) or variation (e.g.
+#  mutation rates, chromosomal rearrangement rates, types of
+#  rearrangements, horizontal transfer), one can study experimentally the
+#  impact of these parameters on the structure of the evolved organisms.
+#  In particular, since Aevol integrates a precise and realistic model of
+#  the genome, it allows for the study of structural variations of the
+#  genome (e.g. number of genes, synteny, proportion of coding sequences).
+#  .
+#  The simulation platform comes along with a set of tools for analysing
+#  phylogenies and measuring many characteristics of the organisms and
+#  populations along evolution.
+#
+###############################################################################
 
-The documentation being quite heavy, it is not included in basic distributions.
-Please visit www.aevol.fr
+
+The complete documentation being quite heavy, it is not included in basic
+distributions. Please visit www.aevol.fr
+
+
+To take a quick tour, please take the following steps:
+
+1) install aevol
+  cd into the main dir
+  ./configure
+  make
+  sudo make install
+
+  (see INSTALL in the main dir or run ./configure --help for more information)
+
+  NOTE: If you don't have sudo rights or simply don't want to install aevol
+  just yet, skip the "sudo make install" step and run the executables "locally"
+  with ../../src/aevol_create and ../../src/aevol_run_X11
+
+
+2) To run an example, cd into it then run:
+   aevol_create
+   aevol_run_X11
+   
+The first command will create an experiment with the parameters contained
+in the "param.in" file
+The second command will launch the simulation for 1000 generations
+(use --nbgener XXX or -n XXX to run for XXX generations)
+
+For more information, please see the manpages (e.g. man aevol_create), run any
+executable with the -h option (e.g. aevol_create -h) and ultimately visit 
+www.aevol.fr
