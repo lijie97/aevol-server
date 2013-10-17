@@ -1394,8 +1394,8 @@ Optional Features:
   --disable-dependency-tracking  speeds up one-time build
   --enable-dependency-tracking   do not reject slow dependency extractors
   --enable-debug to enable degugging features
-  --enable-optim to enable compile time optimization
-  --enable-devel
+  --disable-optim turn off compile time optimization
+  --enable-devel turn on development features
   --disable-cppunit to disable unit testing
   --enable-normalized-fitness to enable fitness normalization
   --enable-mtperiod=period
@@ -5296,19 +5296,25 @@ done
 
 
 
-
 # ****************************************************************************
 #                                  OPTIONS
 #
-#             Default : without regulation
-#                       without debug (with optimizations)
-#                       with    x
-#                       with    cppunit (requires cppunit)
-#                       without normalized fitness
-#                       Mersenne Twister (MT) period of 2^607.
-#                       MT jumps done through polynomial-based method
-#                       with    in2p3
+#   Supported options [default]:
+#     --with-x                          [yes]
+#     --enable-optim                    [enabled]
+#     --enable-raevol                   [disabled]
+#     --enable-normalized-fitness       [disabled]
+#     --enable-mtperiod=period          [disabled]
+#     --enable-trivialjumps=jumpsize    [disabled]
+#     --enable-in2p3                    [disabled]
+#     --enable-devel                    [disabled]
+#     --enable-cppunit                  [disabled]
+#     --enable-debug                    [disabled]
+#
 # ****************************************************************************
+
+
+
 
 
 

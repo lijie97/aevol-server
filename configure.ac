@@ -120,7 +120,7 @@ fi
 #
 
 AC_MSG_CHECKING([whether to use compile time optimization])
-AC_ARG_ENABLE(optim, [  --enable-optim to enable compile time optimization], , enable_optim=yes)
+AC_ARG_ENABLE(optim, [  --disable-optim turn off compile time optimization], , enable_optim=yes)
 AC_MSG_RESULT($enable_optim)
 AM_CONDITIONAL(WITH_OPTIM, test x"$enable_optim" != xno)
 if test "x$enable_optim" = "xyes" ; then
@@ -137,7 +137,7 @@ fi
 #
 
 AC_MSG_CHECKING([whether to use devel features])
-AC_ARG_ENABLE(devel, [  --enable-devel], , enable_devel=no)
+AC_ARG_ENABLE(devel, [  --enable-devel turn on development features], , enable_devel=no)
 AC_MSG_RESULT($enable_devel)
 AM_CONDITIONAL(ENABLE_DEVEL, test x"$enable_devel" != xno)
 if test "x$enable_devel" = "xyes" ; then
