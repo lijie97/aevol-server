@@ -57,19 +57,25 @@ AC_CHECK_FUNCS([floor memset mkdir pow rint sqrt gzread])
 
 
 
-
 # ****************************************************************************
 #                                  OPTIONS
 #
-#             Default : without regulation
-#                       without debug (with optimizations)
-#                       with    x
-#                       with    cppunit (requires cppunit)
-#                       without normalized fitness
-#                       Mersenne Twister (MT) period of 2^607.
-#                       MT jumps done through polynomial-based method
-#                       with    in2p3
+#   Supported options [default]:
+#     --with-x                          [yes]
+#     --enable-optim                    [enabled]
+#     --enable-raevol                   [disabled]
+#     --enable-normalized-fitness       [disabled]
+#     --enable-mtperiod=period          [disabled]
+#     --enable-trivialjumps=jumpsize    [disabled]
+#     --enable-in2p3                    [disabled]
+#     --enable-devel                    [disabled]
+#     --enable-cppunit                  [disabled]
+#     --enable-debug                    [disabled]
+#
 # ****************************************************************************
+
+
+
 
 
 
