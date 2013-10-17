@@ -20,4 +20,4 @@ clean-local:
 endif
 
 dist_man1_MANS = aevol_create.1 aevol_run.1 aevol_run_X11.1 aevol_modify.1 aevol_propagate.1
-EXTRA_DIST = param_example.in README.txt aevol.conf
+EXTRA_DIST = README.txt aevol.conf

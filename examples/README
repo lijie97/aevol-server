@@ -1,0 +1,20 @@
+1) install aevol
+  cd into the main dir
+  ./configure
+  make
+  sudo make install
+
+  (see INSTALL in the main dir for more information)
+
+
+2) To run an example, cd into it then run:
+   aevol_create
+   aevol_run_X11
+   
+The first command will create an experiment with the parameters contained
+in the "param.in" file
+The second command will launch the simulation for 1000 generations
+(use --nbgener XXX or -n XXX to run for XXX generations)
+
+For more information, please see the manpages (e.g. man aevol_create) or run
+any executable with the -h option (e.g. aevol_create -h)

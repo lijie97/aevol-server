@@ -1,8 +1,0 @@
-To run an example, cd into it then run:
-   ../../src/create_exp
-   ../../src/aevol_X11 --resume 0
-   
-The first command will create an experiment with the parameters contained in the "param.in" file
-The second command will launsh the simulation for 1000 generations (use --nbgener XXX or -n XXX to run for XXX generations)
-
-For more information, please run ../../src/aevol_X11 --help
