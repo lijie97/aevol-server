@@ -67,10 +67,10 @@ AC_CHECK_FUNCS([floor memset mkdir pow rint sqrt gzread])
 #     --enable-normalized-fitness       [disabled]
 #     --enable-mtperiod=period          [disabled]
 #     --enable-trivialjumps=jumpsize    [disabled]
-#     --enable-in2p3                    [disabled]
 #     --enable-devel                    [disabled]
-#     --enable-cppunit                  [disabled]
 #     --enable-debug                    [disabled]
+#     --enable-cppunit                  [disabled]
+#     --enable-in2p3                    [disabled]
 #
 # ****************************************************************************
 
@@ -95,99 +95,9 @@ AC_MSG_RESULT([OK])
 
 
 
-#  ******************* --enable-debug option ***************************
-#
-#  With this option, the DEBUG flag is defined, and the programs are 
-#  compiled with debugging options (-g -Wall). 
-#
-
-AC_MSG_CHECKING([whether to use debugging features])
-AC_ARG_ENABLE(debug, [  --enable-debug to enable degugging features], , enable_debug=no)
-AC_MSG_RESULT($enable_debug)
-AM_CONDITIONAL(WITH_DEBUG, test x"$enable_debug" != xno)
-if test "x$enable_debug" = "xyes" ; then
-   AC_DEFINE(DEBUG)
-   CXXFLAGS+=" -g -Wall"
-   CPPFLAGS+=" -g -Wall"
-fi
 
 
-
-#  ******************* --enable-optim option ***************************
-#
-#  With this option, the programs are compiled with the
-#  optimization options (-O3 - fexpensive-optimizations...).
-#
-
-AC_MSG_CHECKING([whether to use compile time optimization])
-AC_ARG_ENABLE(optim, [  --disable-optim turn off compile time optimization], , enable_optim=yes)
-AC_MSG_RESULT($enable_optim)
-AM_CONDITIONAL(WITH_OPTIM, test x"$enable_optim" != xno)
-if test "x$enable_optim" = "xyes" ; then
-   CXXFLAGS+=" -O3 -ffast-math -pipe -fexpensive-optimizations"
-   CPPFLAGS+=" -O3 -ffast-math -pipe -fexpensive-optimizations"
-fi
-
-
-
-#  ******************* --enable-devel option ***************************
-#
-#  This enables developers' features. For now it only adds a call to
-#  make clean at the end of the configure script.
-#
-
-AC_MSG_CHECKING([whether to use devel features])
-AC_ARG_ENABLE(devel, [  --enable-devel turn on development features], , enable_devel=no)
-AC_MSG_RESULT($enable_devel)
-AM_CONDITIONAL(ENABLE_DEVEL, test x"$enable_devel" != xno)
-if test "x$enable_devel" = "xyes" ; then
-  # Make clean at the end of the configuration process
-  # (usefull when several configurations are done consecutively, typically during development)
-  AC_CONFIG_COMMANDS(make, [make clean])
-
-  AC_CHECK_PROGS([HAVE_DOXYGEN], [doxygen])
-  if test -z "$HAVE_DOXYGEN";
-     then AC_MSG_WARN([Doxygen not found - continuing without Doxygen support])
-  fi
-fi
-
-AM_CONDITIONAL([WANT_DOXYGEN], [test -n "$HAVE_DOXYGEN"])
-
-
-
-#  **************** --enable-cppunit option *************************
-#
-#  When this option is set, the test library will not be built.
-#  This is useful if cppunit was not installed. However, developers
-#  should install cppunit, configure with cppunit and run make check
-#  to perform unit testing.
-
-AC_MSG_CHECKING([whether to build the test library (requires cppunit)])
-AC_ARG_ENABLE(cppunit, [  --disable-cppunit to disable unit testing], , enable_cppunit=yes)
-AC_MSG_RESULT($enable_cppunit)
-AM_CONDITIONAL(WITH_CPPUNIT, test x"$enable_cppunit" != xno)
-if test "x$enable_cppunit" != xno ; then
-   cppunit_missing=no
-   AM_PATH_CPPUNIT(1.10.2, , cppunit_missing=yes)
-   if test "x$cppunit_missing" != xno ; then
-      AC_MSG_ERROR([cppunit not found, make will fail - please install cppunit, or run ./configure --without-cppunit]) 
-   fi 
-   # AC_CHECK_LIB does not work with C++ libraries, this is why we use AM_PATH_CPPUNIT
-   # This macro will check whether a Cppunit version >= 1.10.2 is installed
-   # and, if, yes, will define CPPUNIT_CFLAGS and CPPUNIT_LIBS.
-   # This macro is defined in the cppunit.m4 file provided by the cppunit package
-   # when it is installed. Hence aclocal must be run before autoconf to have the
-   # macro known by autoconf.  If cppunit is installed in a non-standard
-   # directory, you need to specify where to find cppunit.m4. For example, if
-   # cppunit is installed under /usr/local, run:
-   #   ACLOCAL="aclocal -I /usr/local/share/aclocal" autoreconf -if
-fi
-
-
-
-
-
-#   ************************ --without-x option *********************
+#   ************************ --with-x option *********************
 #
 #   When this option is set, typing make will produce aevol, raevol and
 #   the post-treatment programs, but not aevol_X11 or raevol_X11. 
@@ -216,6 +126,36 @@ else
 fi
 
 
+
+#  ******************* --enable-optim option ***************************
+#
+#  With this option, the programs are compiled with the
+#  optimization options (-O3 - fexpensive-optimizations...).
+#
+
+AC_MSG_CHECKING([whether to use compile time optimization])
+AC_ARG_ENABLE(optim, [  --disable-optim turn off compile time optimization], , enable_optim=yes)
+AC_MSG_RESULT($enable_optim)
+AM_CONDITIONAL(WITH_OPTIM, test x"$enable_optim" != xno)
+if test "x$enable_optim" = "xyes" ; then
+   CXXFLAGS+=" -O3 -ffast-math -pipe -fexpensive-optimizations"
+   CPPFLAGS+=" -O3 -ffast-math -pipe -fexpensive-optimizations"
+fi
+
+
+
+#  ************************* --enable-raevol option *******************************
+#
+#  With this option, regulation is enabled (RAevol) and the __REGUL flag is defined
+#
+
+AC_MSG_CHECKING([whether to use raevol])
+AC_ARG_ENABLE(raevol, [  --enable-raevol to enable regulation], raevol=$enableval, raevol=no)
+AC_MSG_RESULT($raevol)
+AM_CONDITIONAL(WITH_RAEVOL, test x"$raevol" != xno)
+if test "x$raevol" = "xyes" ; then
+   AC_DEFINE(__REGUL)
+fi
 
 
 
@@ -317,19 +257,75 @@ fi
 
 
 
-#  ************************* --enable-raevol option *******************************
+#  ******************* --enable-devel option ***************************
 #
-#  With this option, regulation is enabled (RAevol) and the __REGUL flag is defined
+#  This enables developers' features. For now it only adds a call to
+#  make clean at the end of the configure script.
 #
 
-AC_MSG_CHECKING([whether to use raevol])
-AC_ARG_ENABLE(raevol, [  --enable-raevol to enable regulation], raevol=$enableval, raevol=no)
-AC_MSG_RESULT($raevol)
-AM_CONDITIONAL(WITH_RAEVOL, test x"$raevol" != xno)
-if test "x$raevol" = "xyes" ; then
-   AC_DEFINE(__REGUL)
+AC_MSG_CHECKING([whether to use devel features])
+AC_ARG_ENABLE(devel, [  --enable-devel turn on development features], , enable_devel=no)
+AC_MSG_RESULT($enable_devel)
+AM_CONDITIONAL(ENABLE_DEVEL, test x"$enable_devel" != xno)
+if test "x$enable_devel" = "xyes" ; then
+  # Make clean at the end of the configuration process
+  # (usefull when several configurations are done consecutively, typically during development)
+  AC_CONFIG_COMMANDS(make, [make clean])
+
+  AC_CHECK_PROGS([HAVE_DOXYGEN], [doxygen])
+  if test -z "$HAVE_DOXYGEN";
+     then AC_MSG_WARN([Doxygen not found - continuing without Doxygen support])
+  fi
+fi
+AM_CONDITIONAL([WANT_DOXYGEN], [test -n "$HAVE_DOXYGEN"])
+
+
+
+#  ******************* --enable-debug option ***************************
+#
+#  With this option, the DEBUG flag is defined, and the programs are 
+#  compiled with debugging options (-g -Wall). 
+#
+
+AC_MSG_CHECKING([whether to use debugging features])
+AC_ARG_ENABLE(debug, [  --enable-debug to enable degugging features], , enable_debug=no)
+AC_MSG_RESULT($enable_debug)
+AM_CONDITIONAL(WITH_DEBUG, test x"$enable_debug" != xno)
+if test "x$enable_debug" = "xyes" ; then
+   AC_DEFINE(DEBUG)
+   CXXFLAGS+=" -g -Wall"
+   CPPFLAGS+=" -g -Wall"
 fi
 
+
+
+#  **************** --enable-cppunit option *************************
+#
+#  When this option is set, the test library will not be built.
+#  This is useful if cppunit was not installed. However, developers
+#  should install cppunit, configure with cppunit and run make check
+#  to perform unit testing.
+
+AC_MSG_CHECKING([whether to build the test library (requires cppunit)])
+AC_ARG_ENABLE(cppunit, [  --disable-cppunit to disable unit testing], , enable_cppunit=yes)
+AC_MSG_RESULT($enable_cppunit)
+AM_CONDITIONAL(WITH_CPPUNIT, test x"$enable_cppunit" != xno)
+if test "x$enable_cppunit" != xno ; then
+   cppunit_missing=no
+   AM_PATH_CPPUNIT(1.10.2, , cppunit_missing=yes)
+   if test "x$cppunit_missing" != xno ; then
+      AC_MSG_ERROR([cppunit not found, make will fail - please install cppunit, or run ./configure --without-cppunit]) 
+   fi 
+   # AC_CHECK_LIB does not work with C++ libraries, this is why we use AM_PATH_CPPUNIT
+   # This macro will check whether a Cppunit version >= 1.10.2 is installed
+   # and, if, yes, will define CPPUNIT_CFLAGS and CPPUNIT_LIBS.
+   # This macro is defined in the cppunit.m4 file provided by the cppunit package
+   # when it is installed. Hence aclocal must be run before autoconf to have the
+   # macro known by autoconf.  If cppunit is installed in a non-standard
+   # directory, you need to specify where to find cppunit.m4. For example, if
+   # cppunit is installed under /usr/local, run:
+   #   ACLOCAL="aclocal -I /usr/local/share/aclocal" autoreconf -if
+fi
 
 
 
