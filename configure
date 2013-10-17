@@ -747,7 +747,7 @@ enable_option_checking
 enable_dependency_tracking
 enable_debug
 enable_devel
-with_cppunit
+enable_cppunit
 with_cppunit_prefix
 with_cppunit_exec_prefix
 with_x
@@ -1392,6 +1392,7 @@ Optional Features:
   --enable-dependency-tracking   do not reject slow dependency extractors
   --enable-debug to enable degugging features
   --enable-devel
+  --disable-cppunit to disable unit testing
   --enable-normalized-fitness to enable fitness normalization
   --enable-mtperiod=period
         Set the Mersenne Twister period to 2^period (default is 2^607).
@@ -1423,7 +1424,6 @@ Optional Features:
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --without-cppunit to disable unit testing
   --with-cppunit-prefix=PFX   Prefix where CppUnit is installed (optional)
   --with-cppunit-exec-prefix=PFX  Exec prefix where CppUnit is installed (optional)
   --without-x to disable graphical output
@@ -5456,7 +5456,7 @@ fi
 
 
 
-#  **************** --without-cppunit option *************************
+#  **************** --enable-cppunit option *************************
 #
 #  When this option is set, the test library will not be built.
 #  This is useful if cppunit was not installed. However, developers
@@ -5465,17 +5465,16 @@ fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build the test library (requires cppunit)" >&5
 $as_echo_n "checking whether to build the test library (requires cppunit)... " >&6; }
-
-# Check whether --with-cppunit was given.
-if test "${with_cppunit+set}" = set; then :
-  withval=$with_cppunit;
+# Check whether --enable-cppunit was given.
+if test "${enable_cppunit+set}" = set; then :
+  enableval=$enable_cppunit;
 else
-  with_cppunit=yes
+  enable_cppunit=yes
 fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $with_cppunit" >&5
-$as_echo "$with_cppunit" >&6; }
- if test x"$with_cppunit" != xno; then
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $enable_cppunit" >&5
+$as_echo "$enable_cppunit" >&6; }
+ if test x"$enable_cppunit" != xno; then
   WITH_CPPUNIT_TRUE=
   WITH_CPPUNIT_FALSE='#'
 else
@@ -5483,7 +5482,7 @@ else
   WITH_CPPUNIT_FALSE=
 fi
 
-if test "x$with_cppunit" != xno ; then
+if test "x$enable_cppunit" != xno ; then
    cppunit_missing=no
 
 

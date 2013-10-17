@@ -135,7 +135,7 @@ AM_CONDITIONAL([WANT_DOXYGEN], [test -n "$HAVE_DOXYGEN"])
 
 
 
-#  **************** --without-cppunit option *************************
+#  **************** --enable-cppunit option *************************
 #
 #  When this option is set, the test library will not be built.
 #  This is useful if cppunit was not installed. However, developers
@@ -143,10 +143,10 @@ AM_CONDITIONAL([WANT_DOXYGEN], [test -n "$HAVE_DOXYGEN"])
 #  to perform unit testing.
 
 AC_MSG_CHECKING([whether to build the test library (requires cppunit)])
-AC_ARG_WITH(cppunit, [  --without-cppunit to disable unit testing], , with_cppunit=yes)
-AC_MSG_RESULT($with_cppunit)
-AM_CONDITIONAL(WITH_CPPUNIT, test x"$with_cppunit" != xno)
-if test "x$with_cppunit" != xno ; then
+AC_ARG_ENABLE(cppunit, [  --disable-cppunit to disable unit testing], , enable_cppunit=yes)
+AC_MSG_RESULT($enable_cppunit)
+AM_CONDITIONAL(WITH_CPPUNIT, test x"$enable_cppunit" != xno)
+if test "x$enable_cppunit" != xno ; then
    cppunit_missing=no
    AM_PATH_CPPUNIT(1.10.2, , cppunit_missing=yes)
    if test "x$cppunit_missing" != xno ; then
