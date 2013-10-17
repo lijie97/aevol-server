@@ -23,6 +23,9 @@ AC_PROG_INSTALL
 AC_PROG_RANLIB
 AM_PROG_CC_C_O
 
+CXXFLAGS=""
+CPPFLAGS=""
+
 
 
 
@@ -89,9 +92,7 @@ AC_MSG_RESULT([OK])
 #  ******************* --enable-debug option ***************************
 #
 #  With this option, the DEBUG flag is defined, and the programs are 
-#  compiled with debugging options (-g -Wall). Without this option, the 
-#  NDEBUG flag is defined, and the programs are compiled with the
-#  optimization options (-O3 - fexpensive-optimizations...).
+#  compiled with debugging options (-g -Wall). 
 #
 
 AC_MSG_CHECKING([whether to use debugging features])
@@ -100,12 +101,25 @@ AC_MSG_RESULT($enable_debug)
 AM_CONDITIONAL(WITH_DEBUG, test x"$enable_debug" != xno)
 if test "x$enable_debug" = "xyes" ; then
    AC_DEFINE(DEBUG)
-   CXXFLAGS="-g -Wall"
-   CPPFLAGS="-g -Wall"
-else
-   AC_DEFINE(NDEBUG)
-   CXXFLAGS="-O3 -ffast-math -pipe -fexpensive-optimizations"
-   CPPFLAGS="-O3 -ffast-math -pipe -fexpensive-optimizations"
+   CXXFLAGS+=" -g -Wall"
+   CPPFLAGS+=" -g -Wall"
+fi
+
+
+
+#  ******************* --enable-optim option ***************************
+#
+#  With this option, the programs are compiled with the
+#  optimization options (-O3 - fexpensive-optimizations...).
+#
+
+AC_MSG_CHECKING([whether to use compile time optimization])
+AC_ARG_ENABLE(optim, [  --enable-optim to enable compile time optimization], , enable_optim=yes)
+AC_MSG_RESULT($enable_optim)
+AM_CONDITIONAL(WITH_OPTIM, test x"$enable_optim" != xno)
+if test "x$enable_optim" = "xyes" ; then
+   CXXFLAGS+=" -O3 -ffast-math -pipe -fexpensive-optimizations"
+   CPPFLAGS+=" -O3 -ffast-math -pipe -fexpensive-optimizations"
 fi
 
 

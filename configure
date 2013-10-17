@@ -651,6 +651,8 @@ WANT_DOXYGEN_TRUE
 HAVE_DOXYGEN
 ENABLE_DEVEL_FALSE
 ENABLE_DEVEL_TRUE
+WITH_OPTIM_FALSE
+WITH_OPTIM_TRUE
 WITH_DEBUG_FALSE
 WITH_DEBUG_TRUE
 EGREP
@@ -746,6 +748,7 @@ ac_user_opts='
 enable_option_checking
 enable_dependency_tracking
 enable_debug
+enable_optim
 enable_devel
 enable_cppunit
 with_cppunit_prefix
@@ -1391,6 +1394,7 @@ Optional Features:
   --disable-dependency-tracking  speeds up one-time build
   --enable-dependency-tracking   do not reject slow dependency extractors
   --enable-debug to enable degugging features
+  --enable-optim to enable compile time optimization
   --enable-devel
   --disable-cppunit to disable unit testing
   --enable-normalized-fitness to enable fitness normalization
@@ -4550,6 +4554,9 @@ fi
 
 
 
+CXXFLAGS=""
+CPPFLAGS=""
+
 
 
 
@@ -5328,9 +5335,7 @@ $as_echo "OK" >&6; }
 #  ******************* --enable-debug option ***************************
 #
 #  With this option, the DEBUG flag is defined, and the programs are
-#  compiled with debugging options (-g -Wall). Without this option, the
-#  NDEBUG flag is defined, and the programs are compiled with the
-#  optimization options (-O3 - fexpensive-optimizations...).
+#  compiled with debugging options (-g -Wall).
 #
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to use debugging features" >&5
@@ -5355,13 +5360,40 @@ fi
 if test "x$enable_debug" = "xyes" ; then
    $as_echo "#define DEBUG 1" >>confdefs.h
 
-   CXXFLAGS="-g -Wall"
-   CPPFLAGS="-g -Wall"
-else
-   $as_echo "#define NDEBUG 1" >>confdefs.h
+   CXXFLAGS+=" -g -Wall"
+   CPPFLAGS+=" -g -Wall"
+fi
 
-   CXXFLAGS="-O3 -ffast-math -pipe -fexpensive-optimizations"
-   CPPFLAGS="-O3 -ffast-math -pipe -fexpensive-optimizations"
+
+
+#  ******************* --enable-optim option ***************************
+#
+#  With this option, the programs are compiled with the
+#  optimization options (-O3 - fexpensive-optimizations...).
+#
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to use compile time optimization" >&5
+$as_echo_n "checking whether to use compile time optimization... " >&6; }
+# Check whether --enable-optim was given.
+if test "${enable_optim+set}" = set; then :
+  enableval=$enable_optim;
+else
+  enable_optim=yes
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $enable_optim" >&5
+$as_echo "$enable_optim" >&6; }
+ if test x"$enable_optim" != xno; then
+  WITH_OPTIM_TRUE=
+  WITH_OPTIM_FALSE='#'
+else
+  WITH_OPTIM_TRUE='#'
+  WITH_OPTIM_FALSE=
+fi
+
+if test "x$enable_optim" = "xyes" ; then
+   CXXFLAGS+=" -O3 -ffast-math -pipe -fexpensive-optimizations"
+   CPPFLAGS+=" -O3 -ffast-math -pipe -fexpensive-optimizations"
 fi
 
 
@@ -6871,6 +6903,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${WITH_DEBUG_TRUE}" && test -z "${WITH_DEBUG_FALSE}"; then
   as_fn_error $? "conditional \"WITH_DEBUG\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${WITH_OPTIM_TRUE}" && test -z "${WITH_OPTIM_FALSE}"; then
+  as_fn_error $? "conditional \"WITH_OPTIM\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${ENABLE_DEVEL_TRUE}" && test -z "${ENABLE_DEVEL_FALSE}"; then
