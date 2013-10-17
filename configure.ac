@@ -63,22 +63,22 @@ AC_CONFIG_COMMANDS(make, [make clean])
 
 
 
-dnl ****************************************************************************
-dnl                                  OPTIONS
-dnl
-dnl             Default : without regulation
-dnl                       without debug (with optimizations)
-dnl                       with    x
-dnl                       with    cppunit (requires cppunit)
-dnl                       without normalized fitness
-dnl                       Mersenne Twister (MT) period of 2^607.
-dnl                       MT jumps done through polynomial-based method
-dnl                       with    in2p3
-dnl ****************************************************************************
+# ****************************************************************************
+#                                  OPTIONS
+#
+#             Default : without regulation
+#                       without debug (with optimizations)
+#                       with    x
+#                       with    cppunit (requires cppunit)
+#                       without normalized fitness
+#                       Mersenne Twister (MT) period of 2^607.
+#                       MT jumps done through polynomial-based method
+#                       with    in2p3
+# ****************************************************************************
 
 
 
-dnl  ******************* check option consistency ***************************
+#  ******************* check option consistency ***************************
 AC_MSG_CHECKING([checking parameter consistency])
 if test "x$with_in2p3" = "xyes" ; then
   if test "x$with_debug" = "xyes" ; then
@@ -94,12 +94,12 @@ AC_MSG_RESULT([OK])
 
 
 
-dnl  ******************* --with-debug option ***************************
-dnl
-dnl  With this option, the DEBUG flag is defined, and the programs are 
-dnl  compiled with debugging options (-g -Wall). Without this option, the 
-dnl  NDEBUG flag is defined, and the programs are compiled with the
-dnl  optimization options (-O3 - fexpensive-optimizations...). 
+#  ******************* --with-debug option ***************************
+#
+#  With this option, the DEBUG flag is defined, and the programs are 
+#  compiled with debugging options (-g -Wall). Without this option, the 
+#  NDEBUG flag is defined, and the programs are compiled with the
+#  optimization options (-O3 - fexpensive-optimizations...). 
 
 
 AC_MSG_CHECKING([whether to use debugging features])
@@ -117,12 +117,12 @@ else
 fi
 
 
-dnl  **************** --without-cppunit option *************************
-dnl
-dnl  When this option is set, the test library will not be built.
-dnl  This is useful if cppunit was not installed. However, developers
-dnl  should install cppunit, configure with cppunit and run make check
-dnl  to perform unit testing.
+#  **************** --without-cppunit option *************************
+#
+#  When this option is set, the test library will not be built.
+#  This is useful if cppunit was not installed. However, developers
+#  should install cppunit, configure with cppunit and run make check
+#  to perform unit testing.
 
 AC_MSG_CHECKING([whether to build the test library (requires cppunit)])
 AC_ARG_WITH(cppunit, [  --without-cppunit to disable unit testing], , with_cppunit=yes)
@@ -149,15 +149,15 @@ fi
 
 
 
-dnl   ************************ --without-x option *********************
-dnl
-dnl   When this option is set, typing make will produce aevol, raevol and
-dnl   the post-treatment programs, but not aevol_X11 or raevol_X11. 
-dnl   This is useful if we want to run computations on a cluster where the 
-dnl   X libraries are not present. If, on the contrary, we type ./configure 
-dnl   without this option, then typing make will produce aevol_X11, 
-dnl   raevol_X11 and view_generation_X11 (and the other post-treatments 
-dnl   programs).
+#   ************************ --without-x option *********************
+#
+#   When this option is set, typing make will produce aevol, raevol and
+#   the post-treatment programs, but not aevol_X11 or raevol_X11. 
+#   This is useful if we want to run computations on a cluster where the 
+#   X libraries are not present. If, on the contrary, we type ./configure 
+#   without this option, then typing make will produce aevol_X11, 
+#   raevol_X11 and view_generation_X11 (and the other post-treatments 
+#   programs).
 
 AC_MSG_CHECKING([whether to enable graphical outputs])
 AC_ARG_WITH(x, [  --without-x to disable graphical output], , with_x=yes)
@@ -181,10 +181,10 @@ fi
 
 
 
-dnl  ******************* --with-normalized-fitness option ***************************
-dnl
-dnl  With this option, the NORMALIZED_FITNESS flag is defined, 
-dnl  allowing a different fitness calculation 
+#  ******************* --with-normalized-fitness option ***************************
+#
+#  With this option, the NORMALIZED_FITNESS flag is defined, 
+#  allowing a different fitness calculation 
 
 AC_MSG_CHECKING([whether to use normalized fitness])
 AC_ARG_WITH(normalized-fitness, [  --with-normalized-fitness to enable fitness normalization], , with_normalized_fitness=no)
@@ -198,12 +198,12 @@ fi
 
 
 
-dnl  ************************* --enable-mtperiod=period option *******************************
-dnl
-dnl  This option sets a particular period for the Mersenne Twister.
-dnl  Default is --enable-mtperiod=607 corresponding to a period of 2^607.
-dnl  Possible values are 607, 1279, 2281, 4253, 11213, 19937, 44497, 86243, 132049 and 216091
-dnl
+#  ************************* --enable-mtperiod=period option *******************************
+#
+#  This option sets a particular period for the Mersenne Twister.
+#  Default is --enable-mtperiod=607 corresponding to a period of 2^607.
+#  Possible values are 607, 1279, 2281, 4253, 11213, 19937, 44497, 86243, 132049 and 216091
+#
 
 AC_MSG_CHECKING([whether to use a particular period for the Mersenne Twister])
 
@@ -233,18 +233,18 @@ AC_DEFINE_UNQUOTED([SFMT_MEXP], [$period])
 
 
 
-dnl  ************************* --enable-trivialjumps=jumpsize option *******************************
-dnl
-dnl  When this option is set, a trivial jump algorithm will be used instead of the polynomial-based method.
-dnl  This is recommended for large Mersenne Twister periods when huge jumps are not needed since
-dnl  the polynomial-based method takes more time in that case.
-dnl  
-dnl  For the standard MT (period 2^19937), it takes approx. the same time to draw a few million numbers
-dnl  than it does to make the same jump using the polynomial-based method.
-dnl
-dnl  The jumpsize argument allows to set the desired jump size. The default value is 1000 which is enough to
-dnl  avoid overlaps in most cases.
-dnl
+#  ************************* --enable-trivialjumps=jumpsize option *******************************
+#
+#  When this option is set, a trivial jump algorithm will be used instead of the polynomial-based method.
+#  This is recommended for large Mersenne Twister periods when huge jumps are not needed since
+#  the polynomial-based method takes more time in that case.
+#  
+#  For the standard MT (period 2^19937), it takes approx. the same time to draw a few million numbers
+#  than it does to make the same jump using the polynomial-based method.
+#
+#  The jumpsize argument allows to set the desired jump size. The default value is 1000 which is enough to
+#  avoid overlaps in most cases.
+#
 
 AC_MSG_CHECKING([whether to use trivial Mersenne Twister jumps])
 AC_ARG_ENABLE(trivialjumps,
@@ -279,10 +279,10 @@ fi
 
 
 
-dnl  ************************* --with-raevol option *******************************
-dnl
-dnl  With this option, regulation is enabled (RAevol) and the __REGUL flag is defined
-dnl
+#  ************************* --with-raevol option *******************************
+#
+#  With this option, regulation is enabled (RAevol) and the __REGUL flag is defined
+#
 
 AC_MSG_CHECKING([whether to use raevol])
 AC_ARG_WITH(raevol, [  --with-raevol to enable regulation], raevol=$withval, raevol=no)
@@ -295,9 +295,9 @@ fi
 
 
 
-dnl  ******************* --with-in2p3 option ***************************
-dnl
-dnl  With this option, the IN2P3 flag is defined
+#  ******************* --with-in2p3 option ***************************
+#
+#  With this option, the IN2P3 flag is defined
 
 AC_MSG_CHECKING([whether to use IN2P3 specific features])
 AC_ARG_WITH(in2p3, [  --with-in2p3 to enable IN2P3 specific features], , with_in2p3=no)
@@ -310,7 +310,7 @@ fi
 
 
 
-dnl  ************************* back to GENERAL stuff *******************************
+#  ************************* back to GENERAL stuff *******************************
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile
