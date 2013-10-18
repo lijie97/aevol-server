@@ -432,7 +432,7 @@ void ae_stats::write_headers( bool ancstats_stats /* = false */ )
   // ---------------------------------------
   for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
   {
-    if( ancstats_stats)
+    if( ancstats_stats )
     {
       write_header( _stat_files[chrom_or_GU][BEST][BP_STATS], "-------------------------------------------" );
       write_header( _stat_files[chrom_or_GU][BEST][BP_STATS], " Lineage individuals non-coding statistics " );
@@ -480,8 +480,13 @@ void ae_stats::write_headers( bool ancstats_stats /* = false */ )
         write_header( _stat_files[chrom_or_GU][best_or_glob][BP_STATS], "Number of bp not included in any RNA", key++ );
         write_header( _stat_files[chrom_or_GU][best_or_glob][BP_STATS], "Number of bp not included in any coding RNA", key++ );
         write_header( _stat_files[chrom_or_GU][best_or_glob][BP_STATS], "Number of bp not included in any non coding RNA", key++ );
-        
-        write_header( _stat_files[chrom_or_GU][best_or_glob][BP_STATS], ""); 
+        write_header( _stat_files[chrom_or_GU][best_or_glob][BP_STATS], "Number of non essential bp", key++ );
+        write_header( _stat_files[chrom_or_GU][best_or_glob][BP_STATS], "Number of non essential bp including non fonctional genes", key++ );
+
+        write_header( _stat_files[chrom_or_GU][best_or_glob][BP_STATS], "");
+        write_header( _stat_files[chrom_or_GU][best_or_glob][BP_STATS], "NOTE: a bp is considered \"essential\" when it is part of any [functional] CDS");
+        write_header( _stat_files[chrom_or_GU][best_or_glob][BP_STATS], "  or any promoter or terminator corresponding to an RNA transcribing a [functional] CDS.");
+        write_header( _stat_files[chrom_or_GU][best_or_glob][BP_STATS], "");
       }
     }
   }
@@ -653,7 +658,7 @@ void ae_stats::set_file_names( const char * prefix, bool one_lambda_indiv_only )
   status = mkdir( STATS_DIR, 0755 );
   if ( (status == -1) && (errno != EEXIST) )
   {
-    err( EXIT_FAILURE, STATS_DIR, errno );
+    err( EXIT_FAILURE, STATS_DIR );
   }
   
   const char* chrom_or_gu_name[NB_CHROM_OR_GU]    = { "", "_chromosome", "_plasmids" };
