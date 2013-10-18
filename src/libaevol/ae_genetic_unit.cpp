@@ -1507,18 +1507,18 @@ void ae_genetic_unit::compute_non_coding( void )
         //~ printf( "term_first : %ld    term_last %ld   (size %ld)\n", term_first, term_last, _dna->get_length() );
         //~ getchar();
         
-        // Let us begin with "non-neutral" regions
-	if ( rna_first <= rna_last )
-	{
-	  for ( int32_t i = rna_first ; i <= rna_last ; i++ ) { is_not_neutral[i] = true; }
-	}
-	else
-	{
-	  for ( int32_t i = rna_first ; i < genome_length ; i++ ) { is_not_neutral[i] = true; }
-	  for ( int32_t i = 0 ; i <= rna_last ; i++ ) { is_not_neutral[i] = true; }
-	}
-	
-	// and go on with essential DNA
+        // Let us begin with "non-neutral" regions...
+      	if ( rna_first <= rna_last )
+      	{
+      	  for ( int32_t i = rna_first ; i <= rna_last ; i++ ) { is_not_neutral[i] = true; }
+      	}
+      	else
+      	{
+      	  for ( int32_t i = rna_first ; i < genome_length ; i++ ) { is_not_neutral[i] = true; }
+      	  for ( int32_t i = 0 ; i <= rna_last ; i++ ) { is_not_neutral[i] = true; }
+      	}
+      	
+      	// ...and go on with essential DNA
         //~ printf( "prom " );
         if ( prom_first <= prom_last )
         {
