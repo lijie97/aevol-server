@@ -1,35 +1,30 @@
-// This programs loads an individual previously saved in a bin file
-// by get_best_indiv, create a new simulation in the current
-// directory (which has to contain a param.in file), and initialize
-// the population of this simulation with clones of this individual.
+// ****************************************************************************
 //
-// This allow us to start a new simulation from a population formed
-// by clones a choosen individual instead of clones of a random and 
-// almost-flat individual.
+//          Aevol - An in silico experimental evolution platform
 //
-// Example :
-//
-// mkdir next_run
-// cd previous_run
-// get_best_indiv -f backup/gen_020000.ae -t ../next_run/best.i
-// cd ../next_run
-// (create a param.in file)
-// set_genome_from_indiv -f best.i
-// aevol -f backup/gen_000000.ae -n 20000
-//
-// This example with extract the best individual from previous_run
-// at generation 20000, create a new simulation new_run from clones
-// of this individual and run this new simulation for 20000 gen.
-//
-// Nothing else is kept from previous_run, all the parameters are
-// read from next_run/param.in. The number of clone is read from
-// INIT_POP_SIZE in this file.
-//
+// ****************************************************************************
+// 
+// Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
+// Web: http://www.aevol.fr/
+// E-mail: See <http://www.aevol.fr/contact/>
+// Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// 
+//*****************************************************************************
 
 
-/** \class
- *  \brief
- */
 
 
 // =================================================================
