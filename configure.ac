@@ -295,6 +295,8 @@ if test "x$enable_debug" = "xyes" ; then
    AC_DEFINE(DEBUG)
    CXXFLAGS+=" -g -Wall"
    CPPFLAGS+=" -g -Wall"
+else
+   AC_DEFINE(NDEBUG)
 fi
 
 
