@@ -84,14 +84,35 @@ ae_replication_report::ae_replication_report( ae_individual * indiv, ae_individu
   {
     _donor_id               = -1;
     _donor_metabolic_error  = 0.0;
+    _donor_secretion_error	= 0.0;
     _donor_genome_size      = 0;
   }
   else
   {
     _donor_id              = donor->get_id();
     _donor_metabolic_error = donor->get_dist_to_target_by_feature( METABOLISM );
+    _donor_secretion_error = donor->get_dist_to_target_by_feature( SECRETION );
     _donor_genome_size     = donor->get_total_genome_size();
   }
+    
+  _HT_ins 							            = false;
+  _HT_ins_sense 					          = DIRECT;
+  _HT_ins_donor_id 					        = 0;
+  _HT_ins_alignment_1_donor_pos_1 	= 0;
+  _HT_ins_alignment_1_donor_pos_2 	= 0; 
+  _HT_ins_alignment_1_score 		    = 0;
+  _HT_ins_alignment_2_ind_pos 		  = 0;
+  _HT_ins_alignment_2_donor_pos 	  = 0; 
+  _HT_ins_alignment_2_score 		    = 0;   
+  _HT_repl 							            = false;
+  _HT_repl_sense 					          = DIRECT;
+  _HT_repl_donor_id 				        = 0;
+  _HT_repl_alignment_1_ind_pos 		  = 0;
+  _HT_repl_alignment_1_donor_pos 	= 0; 
+  _HT_repl_alignment_1_score 		    = 0;
+  _HT_repl_alignment_2_ind_pos 		  = 0;
+  _HT_repl_alignment_2_donor_pos 	= 0; 
+  _HT_repl_alignment_2_score 		    = 0;  
   
   _dna_replic_reports = new ae_list<ae_dna_replic_report*>();
 }
@@ -117,9 +138,29 @@ ae_replication_report::ae_replication_report( const ae_replication_report &model
   _parent_metabolic_error = model._parent_metabolic_error;
   _parent_secretion_error = model._parent_secretion_error;
   _donor_metabolic_error  = model._donor_metabolic_error;
+  _donor_secretion_error  = model._donor_secretion_error;
   _parent_genome_size     = model._parent_genome_size;
   _donor_genome_size      = model._donor_genome_size;
   _mean_align_score       = model._mean_align_score;
+  
+  _HT_ins 							            = model._HT_ins;
+  _HT_ins_sense 					          = model._HT_ins_sense;
+  _HT_ins_donor_id 					        = model._HT_ins_donor_id;
+  _HT_ins_alignment_1_donor_pos_1 	= model._HT_ins_alignment_1_donor_pos_1;
+  _HT_ins_alignment_1_donor_pos_2 	= model._HT_ins_alignment_1_donor_pos_2; 
+  _HT_ins_alignment_1_score 	    	= model._HT_ins_alignment_1_score;
+  _HT_ins_alignment_2_ind_pos 	  	= model._HT_ins_alignment_2_ind_pos;
+  _HT_ins_alignment_2_donor_pos  	  = model._HT_ins_alignment_2_donor_pos; 
+  _HT_ins_alignment_2_score 		    = model._HT_ins_alignment_2_score;   
+  _HT_repl 						            	= model._HT_repl;
+  _HT_repl_sense 				          	= model._HT_repl_sense;
+  _HT_repl_donor_id 	        			= model._HT_repl_donor_id;
+  _HT_repl_alignment_1_ind_pos 		  = model._HT_repl_alignment_1_ind_pos;
+  _HT_repl_alignment_1_donor_pos 	  = model._HT_repl_alignment_1_donor_pos; 
+  _HT_repl_alignment_1_score 		    = model._HT_repl_alignment_1_score;
+  _HT_repl_alignment_2_ind_pos 	  	= model._HT_repl_alignment_2_ind_pos;
+  _HT_repl_alignment_2_donor_pos 	  = model._HT_repl_alignment_2_donor_pos; 
+  _HT_repl_alignment_2_score 	    	= model._HT_repl_alignment_2_score;  
   
   _dna_replic_reports = new ae_list<ae_dna_replic_report*>();
 
@@ -151,6 +192,24 @@ ae_replication_report::ae_replication_report( gzFile tree_file, ae_individual * 
   gzread( tree_file, &_nb_coding_RNAs,      sizeof(_nb_coding_RNAs) );
   gzread( tree_file, &_nb_non_coding_RNAs,  sizeof(_nb_non_coding_RNAs) );
   
+  gzread( tree_file, &_HT_ins,         					        sizeof(_HT_ins) );
+  gzread( tree_file, &_HT_ins_sense,         			      sizeof(_HT_ins_sense) );
+  gzread( tree_file, &_HT_ins_donor_id,         		    sizeof(_HT_ins_donor_id) );
+  gzread( tree_file, &_HT_ins_alignment_1_donor_pos_1,  sizeof(_HT_ins_alignment_1_donor_pos_1) );
+  gzread( tree_file, &_HT_ins_alignment_1_donor_pos_2,  sizeof(_HT_ins_alignment_1_donor_pos_2) ); 
+  gzread( tree_file, &_HT_ins_alignment_1_score,        sizeof(_HT_ins_alignment_1_score) );
+  gzread( tree_file, &_HT_ins_alignment_2_ind_pos,      sizeof(_HT_ins_alignment_2_ind_pos) );
+  gzread( tree_file, &_HT_ins_alignment_2_donor_pos,    sizeof(_HT_ins_alignment_2_donor_pos) ); 
+  gzread( tree_file, &_HT_ins_alignment_2_score,        sizeof(_HT_ins_alignment_2_score) );   
+  gzread( tree_file, &_HT_repl,         				        sizeof(_HT_repl) );
+  gzread( tree_file, &_HT_repl_sense,         			    sizeof(_HT_repl_sense) );
+  gzread( tree_file, &_HT_repl_donor_id,         		    sizeof(_HT_repl_donor_id) );
+  gzread( tree_file, &_HT_repl_alignment_1_ind_pos,     sizeof(_HT_repl_alignment_1_ind_pos) );
+  gzread( tree_file, &_HT_repl_alignment_1_donor_pos,   sizeof(_HT_repl_alignment_1_donor_pos) ); 
+  gzread( tree_file, &_HT_repl_alignment_1_score,       sizeof(_HT_repl_alignment_1_score) );
+  gzread( tree_file, &_HT_repl_alignment_2_ind_pos,     sizeof(_HT_repl_alignment_2_ind_pos) );
+  gzread( tree_file, &_HT_repl_alignment_2_donor_pos,   sizeof(_HT_repl_alignment_2_donor_pos) ); 
+  gzread( tree_file, &_HT_repl_alignment_2_score,       sizeof(_HT_repl_alignment_2_score) );    
   
   int32_t nb_dna_replic_reports;
   gzread( tree_file, &nb_dna_replic_reports, sizeof(nb_dna_replic_reports) );
@@ -194,12 +253,6 @@ ae_replication_report::ae_replication_report( gzFile tree_file, ae_individual * 
   _donor_genome_size      = -1;
   _mean_align_score       = 0.0;
 }
-
-
-
-
-
-
 
 
 // =================================================================
@@ -324,6 +377,25 @@ void ae_replication_report::write_to_tree_file( gzFile tree_file ) const
   gzwrite( tree_file, &_nb_coding_RNAs,      sizeof(_nb_coding_RNAs) );
   gzwrite( tree_file, &_nb_non_coding_RNAs,  sizeof(_nb_non_coding_RNAs) );
   
+  gzwrite( tree_file, &_HT_ins,         					        sizeof(_HT_ins) );
+  gzwrite( tree_file, &_HT_ins_sense,         				    sizeof(_HT_ins_sense) );
+  gzwrite( tree_file, &_HT_ins_donor_id,         			    sizeof(_HT_ins_donor_id) );
+  gzwrite( tree_file, &_HT_ins_alignment_1_donor_pos_1,	  sizeof(_HT_ins_alignment_1_donor_pos_1) );
+  gzwrite( tree_file, &_HT_ins_alignment_1_donor_pos_2, 	sizeof(_HT_ins_alignment_1_donor_pos_2) ); 
+  gzwrite( tree_file, &_HT_ins_alignment_1_score,        	sizeof(_HT_ins_alignment_1_score) );
+  gzwrite( tree_file, &_HT_ins_alignment_2_ind_pos,      	sizeof(_HT_ins_alignment_2_ind_pos) );
+  gzwrite( tree_file, &_HT_ins_alignment_2_donor_pos,   	sizeof(_HT_ins_alignment_2_donor_pos) ); 
+  gzwrite( tree_file, &_HT_ins_alignment_2_score,        	sizeof(_HT_ins_alignment_2_score) );   
+  gzwrite( tree_file, &_HT_repl,         					        sizeof(_HT_repl) );
+  gzwrite( tree_file, &_HT_repl_sense,         				    sizeof(_HT_repl_sense) );
+  gzwrite( tree_file, &_HT_repl_donor_id,         			  sizeof(_HT_repl_donor_id) );
+  gzwrite( tree_file, &_HT_repl_alignment_1_ind_pos,     	sizeof(_HT_repl_alignment_1_ind_pos) );
+  gzwrite( tree_file, &_HT_repl_alignment_1_donor_pos,  	sizeof(_HT_repl_alignment_1_donor_pos) ); 
+  gzwrite( tree_file, &_HT_repl_alignment_1_score,       	sizeof(_HT_repl_alignment_1_score) );
+  gzwrite( tree_file, &_HT_repl_alignment_2_ind_pos,     	sizeof(_HT_repl_alignment_2_ind_pos) );
+  gzwrite( tree_file, &_HT_repl_alignment_2_donor_pos,  	sizeof(_HT_repl_alignment_2_donor_pos) ); 
+  gzwrite( tree_file, &_HT_repl_alignment_2_score,       	sizeof(_HT_repl_alignment_2_score) );    
+  
   
   // For each genetic unit, write the mutations and rearrangements undergone during replication
   int32_t nb_dna_replic_reports = _dna_replic_reports->get_nb_elts();
@@ -364,10 +436,6 @@ void ae_replication_report::write_to_tree_file( gzFile tree_file ) const
     report_node = report_node->get_next();
   }
 }
-
-
-
-
 
 
 // =================================================================

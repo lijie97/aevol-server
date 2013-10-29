@@ -349,7 +349,7 @@ void ae_logs::write_headers( void ) const
     fprintf( _transfer_log, "# 5.  Length of the transferred segment\n" );
     fprintf( _transfer_log, "# 6.  Length of the replaced segment (if any)\n" );
     fprintf( _transfer_log, "# 7.  Size of the genome before the transfer\n" );
-    fprintf( _transfer_log, "# 8.  Size of the genome afetr the transfer\n" );
+    fprintf( _transfer_log, "# 8.  Size of the genome after the transfer\n" );
     fprintf( _transfer_log, "# 9.  Alignment 1 point 1\n" );
     fprintf( _transfer_log, "# 10. Alignment 1 point 2\n" );
     fprintf( _transfer_log, "# 11. Alignment 1 score\n" );

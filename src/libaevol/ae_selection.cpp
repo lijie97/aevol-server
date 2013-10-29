@@ -721,45 +721,44 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
         if ( genome_length_after > new_indiv->get_max_genome_length() )
         {
           #warning LOG
-          //~ if ( _exp_m->is_logged( LOG_BARRIER ) == true )
-          //~ {
-            //~ // Write an entry in the barrier log file
-            //~ fprintf(  ae_common::rec_params->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" INS_TRANSFER %"PRId32" %"PRId32" %"PRId32"\n",
-                      //~ _exp_m->get_num_gener(),
-                      //~ new_indiv->get_index_in_population(),
-                      //~ exogenote->get_dna()->get_length(),
-                      //~ 0,
-                      //~ genome_length_before );
-          //~ }
+          if ( _exp_m->get_output_m()->is_logged(LOG_BARRIER) == true )
+          {
+            // Write an entry in the barrier log file
+            fprintf(  _exp_m->get_output_m()->get_log(LOG_BARRIER), "%"PRId32" %"PRId32" INS_TRANSFER %"PRId32" %"PRId32" %"PRId32"\n",
+                      _exp_m->get_num_gener(),
+                      new_indiv->get_id(),
+                      exogenote->get_dna()->get_length(),
+                      0,
+                      genome_length_before );
+          }
         }
         else
         {
           new_indiv_dna->insert_GU( exogenote, alignment_2->get_i_2(), alignment_2->get_i_1(), (alignment_2->get_sense() == INDIRECT) );
           //~ fprintf( logfile, "RESULT:\n%s\n\n\n", new_indiv_dna->get_data() );
           //~ fflush( logfile );
-          
 
           // Write a line in transfer logfile
           #warning LOG
-          //~ if ( ae_common::rec_params->is_logged( LOG_TRANSFER ) == true )
-          //~ {
-            //~ fprintf(  ae_common::rec_params->get_log( LOG_TRANSFER ),
-                      //~ "%"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId16" %"PRId32" %"PRId32" %"PRId16"\n",
-                      //~ _exp_m->get_num_gener(),
-                      //~ new_indiv->get_index_in_population(),
-                      //~ donor->get_index_in_population(),
-                      //~ 0, // Transfer type
-                      //~ exogenote->get_dna()->get_length(),
-                      //~ 0,
-                      //~ genome_length_before,
-                      //~ new_indiv_dna->get_length(),
-                      //~ alignment_1->get_i_1(),
-                      //~ alignment_1->get_i_2(),
-                      //~ alignment_1->get_score(),
-                      //~ alignment_2->get_i_1(),
-                      //~ alignment_2->get_i_2(),
-                      //~ alignment_2->get_score() );
-          //~ }
+          if ( _exp_m->get_output_m()->is_logged(LOG_TRANSFER) == true )
+          {
+            fprintf(  _exp_m->get_output_m()->get_log(LOG_TRANSFER),
+                      "%"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId16" %"PRId32" %"PRId32" %"PRId16"\n",
+                      _exp_m->get_num_gener(),
+                      new_indiv->get_id(),
+                      donor->get_id(),
+                      0, // Transfer type
+                      exogenote->get_dna()->get_length(),
+                      0,
+                      genome_length_before,
+                      new_indiv_dna->get_length(),
+                      alignment_1->get_i_1(),
+                      alignment_1->get_i_2(),
+                      alignment_1->get_score(),
+                      alignment_2->get_i_1(),
+                      alignment_2->get_i_2(),
+                      alignment_2->get_score() );
+          }
     
           #ifdef BIG_DEBUG
             ae_common::sim->get_logs()->flush();
@@ -767,6 +766,16 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
             new_indiv->assert_promoters_order();
           #endif
         }
+        
+        new_indiv->get_replic_report()->set_HT_ins(true);
+        new_indiv->get_replic_report()->set_HT_ins_sense(alignment_2->get_sense());
+        new_indiv->get_replic_report()->set_HT_ins_donor_id(donor->get_id());
+        new_indiv->get_replic_report()->set_HT_ins_alignment_1_donor_pos_1(alignment_1->get_i_1());
+        new_indiv->get_replic_report()->set_HT_ins_alignment_1_donor_pos_2(alignment_1->get_i_2()); 
+        new_indiv->get_replic_report()->set_HT_ins_alignment_1_score(alignment_1->get_score());
+        new_indiv->get_replic_report()->set_HT_ins_alignment_2_ind_pos(alignment_1->get_i_2());
+        new_indiv->get_replic_report()->set_HT_ins_alignment_2_donor_pos(alignment_1->get_i_1()); 
+        new_indiv->get_replic_report()->set_HT_ins_alignment_2_score(alignment_1->get_score());   
         
         delete alignment_2;
       }
@@ -823,23 +832,23 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
       if ( alignment_2 != NULL )
       {
         int32_t genome_length_before  = new_indiv_dna->get_length();
-        int32_t genome_length_after   = new_indiv_dna->get_length();
         int32_t exogenote_length      = ae_utils::mod( alignment_2->get_i_2() - alignment_1->get_i_2() - 1, donor_dna->get_length() ) + 1;
         int32_t replaced_seq_length   = ae_utils::mod( alignment_2->get_i_1() - alignment_1->get_i_1() - 1, genome_length_before ) + 1;
+        int32_t genome_length_after   = new_indiv_dna->get_length() - replaced_seq_length + exogenote_length;
         
         if ( genome_length_after < new_indiv->get_min_genome_length() || genome_length_after > new_indiv->get_max_genome_length() )
         {
           #warning LOG
-          //~ if ( ae_common::rec_params->is_logged( LOG_BARRIER ) == true )
-          //~ {
-            //~ // Write an entry in the barrier log file
-            //~ fprintf(  ae_common::rec_params->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" REPL_TRANSFER %"PRId32" %"PRId32" %"PRId32"\n",
-                      //~ _exp_m->get_num_gener(),
-                      //~ new_indiv->get_index_in_population(),
-                      //~ exogenote_length,
-                      //~ replaced_seq_length,
-                      //~ genome_length_before );
-          //~ }
+          if ( _exp_m->get_output_m()->is_logged(LOG_BARRIER) == true )
+          {
+            // Write an entry in the barrier log file
+            fprintf(  _exp_m->get_output_m()->get_log(LOG_BARRIER), "%"PRId32" %"PRId32" REPL_TRANSFER %"PRId32" %"PRId32" %"PRId32"\n",
+                      _exp_m->get_num_gener(),
+                      new_indiv->get_id(),
+                      exogenote_length,
+                      replaced_seq_length,
+                      genome_length_before );
+          }
         }
         
         // 3) Make a copy of the sequence to be transferred (the exogenote)
@@ -866,30 +875,29 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
         else
         {
           new_indiv_dna->insert_GU( exogenote, 0, 0, sense == INDIRECT );
-        }
-        
+        }       
 
         // Write a line in transfer logfile
         #warning LOG
-        //~ if ( ae_common::rec_params->is_logged( LOG_TRANSFER ) == true )
-        //~ {
-          //~ fprintf(  ae_common::rec_params->get_log( LOG_TRANSFER ),
-                    //~ "%"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId16" %"PRId32" %"PRId32" %"PRId16"\n",
-                    //~ _exp_m->get_num_gener(),
-                    //~ new_indiv->get_index_in_population(),
-                    //~ donor->get_index_in_population(),
-                    //~ 1, // Transfer type
-                    //~ exogenote->get_dna()->get_length(),
-                    //~ replaced_seq_length,
-                    //~ genome_length_before,
-                    //~ new_indiv_dna->get_length(),
-                    //~ alignment_1->get_i_1(),
-                    //~ alignment_1->get_i_2(),
-                    //~ alignment_1->get_score(),
-                    //~ alignment_2->get_i_1(),
-                    //~ alignment_2->get_i_2(),
-                    //~ alignment_2->get_score() );
-        //~ }
+        if ( _exp_m->get_output_m()->is_logged(LOG_TRANSFER) == true )
+        {
+            fprintf(  _exp_m->get_output_m()->get_log(LOG_TRANSFER),
+                    "%"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId16" %"PRId32" %"PRId32" %"PRId16"\n",
+                    _exp_m->get_num_gener(),
+                    new_indiv->get_id(),
+                    donor->get_id(),
+                    1, // Transfer type
+                    exogenote->get_dna()->get_length(),
+                    replaced_seq_length,
+                    genome_length_before,
+                    new_indiv_dna->get_length(),
+                    alignment_1->get_i_1(),
+                    alignment_1->get_i_2(),
+                    alignment_1->get_score(),
+                    alignment_2->get_i_1(),
+                    alignment_2->get_i_2(),
+                    alignment_2->get_score() );
+        }
         
         delete exogenote;
         delete alignment_2;
