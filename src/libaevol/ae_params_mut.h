@@ -85,8 +85,10 @@ class ae_params_mut : public ae_object
     inline bool   get_with_4pts_trans( void ) const;
     inline bool   get_with_alignments( void ) const;
     inline bool   get_with_HT( void ) const;
+    inline bool   get_repl_HT_with_close_points( void ) const;
     inline double get_HT_ins_rate( void ) const;
     inline double get_HT_repl_rate( void ) const;
+    inline double get_repl_HT_detach_rate( void ) const;
 
     // ------------------------------ Rearrangement rates (without alignements)
     inline double get_duplication_rate( void ) const;
@@ -101,21 +103,21 @@ class ae_params_mut : public ae_object
     inline double get_translocation_proportion( void ) const;
     inline double get_inversion_proportion( void ) const;
 
-    //~ // ------------------------------------------------------------ Alignements
-    //~ inline ae_align_fun_shape get_align_fun_shape( void ) const;
-    //~ inline double  get_align_sigm_lambda( void ) const;
-    //~ inline int16_t get_align_sigm_mean( void ) const;
-    //~ inline int16_t get_align_lin_min( void ) const;
-    //~ inline int16_t get_align_lin_max( void ) const;
+    // ------------------------------------------------------------ Alignements
+    inline ae_align_fun_shape get_align_fun_shape( void ) const;
+    inline double  get_align_sigm_lambda( void ) const;
+    inline int16_t get_align_sigm_mean( void ) const;
+    inline int16_t get_align_lin_min( void ) const;
+    inline int16_t get_align_lin_max( void ) const;
     
-    //~ // Maximum shift of one seq on the other
-    //~ inline int16_t get_align_max_shift( void ) const;
-    //~ // Work zone half length
-    //~ inline int16_t get_align_w_zone_h_len( void ) const;
-    //~ // Corresponding residues match bonus
-    //~ inline int16_t get_align_match_bonus( void ) const;
-    //~ // Corresponding residues mismatch cost
-    //~ inline int16_t get_align_mismatch_cost( void ) const;
+    // Maximum shift of one seq on the other
+    inline int16_t get_align_max_shift( void ) const;
+    // Work zone half length
+    inline int16_t get_align_w_zone_h_len( void ) const;
+    // Corresponding residues match bonus
+    inline int16_t get_align_match_bonus( void ) const;
+    // Corresponding residues mismatch cost
+    inline int16_t get_align_mismatch_cost( void ) const;
 
     // =================================================================
     //                        Accessors: setters
@@ -131,8 +133,10 @@ class ae_params_mut : public ae_object
     inline void set_with_4pts_trans( bool with_4pts_trans );
     inline void set_with_alignments( bool with_alignments );
     inline void set_with_HT( bool with_HT );
+    inline void set_repl_HT_with_close_points( bool repl_HT_with_close_points);
     inline void set_HT_ins_rate( double HT_ins_rate );
     inline void set_HT_repl_rate( double HT_repl_rate );
+    inline void set_repl_HT_detach_rate( double repl_HT_detach_rate );
 
     // ------------------------------ Rearrangement rates (without alignements)
     inline void set_duplication_rate( double duplication_rate );
@@ -147,17 +151,17 @@ class ae_params_mut : public ae_object
     inline void set_translocation_proportion( double translocation_proportion );
     inline void set_inversion_proportion( double inversion_proportion );
 
-    //~ // ------------------------------------------------------------ Alignements
-    //~ inline void set_align_fun_shape( ae_align_fun_shape align_fun_shape );
-    //~ inline void set_align_sigm_lambda( double align_sigm_lambda );
-    //~ inline void set_align_sigm_mean( int16_t align_sigm_mean );
-    //~ inline void set_align_lin_min( int16_t align_lin_min );
-    //~ inline void set_align_lin_max( int16_t align_lin_max );
+    // ------------------------------------------------------------ Alignements
+    inline void set_align_fun_shape( ae_align_fun_shape align_fun_shape );
+    inline void set_align_sigm_lambda( double align_sigm_lambda );
+    inline void set_align_sigm_mean( int16_t align_sigm_mean );
+    inline void set_align_lin_min( int16_t align_lin_min );
+    inline void set_align_lin_max( int16_t align_lin_max );
     
-    //~ inline void set_align_max_shift( int16_t align_max_shift );
-    //~ inline void set_align_w_zone_h_len( int16_t align_w_zone_h_len );
-    //~ inline void set_align_match_bonus( int16_t align_match_bonus );
-    //~ inline void set_align_mismatch_cost( int16_t align_mismatch_cost );
+    inline void set_align_max_shift( int16_t align_max_shift );
+    inline void set_align_w_zone_h_len( int16_t align_w_zone_h_len );
+    inline void set_align_match_bonus( int16_t align_match_bonus );
+    inline void set_align_mismatch_cost( int16_t align_mismatch_cost );
 
     // =================================================================
     //                              Operators
@@ -211,8 +215,10 @@ class ae_params_mut : public ae_object
     bool    _with_4pts_trans;
     bool    _with_alignments;
     bool    _with_HT;
+    bool    _repl_HT_with_close_points;
     double  _HT_ins_rate;
     double  _HT_repl_rate;
+    double  _repl_HT_detach_rate;
 
     // ------------------------------ Rearrangement rates (without alignements)
     double _duplication_rate;
@@ -227,17 +233,17 @@ class ae_params_mut : public ae_object
     double _translocation_proportion;
     double _inversion_proportion;
 
-    //~ // ------------------------------------------------------------ Alignements
-    //~ ae_align_fun_shape _align_fun_shape;
-    //~ double  _align_sigm_lambda;
-    //~ int16_t _align_sigm_mean;
-    //~ int16_t _align_lin_min;
-    //~ int16_t _align_lin_max;
+    // ------------------------------------------------------------ Alignements
+    ae_align_fun_shape _align_fun_shape;
+    double  _align_sigm_lambda;
+    int16_t _align_sigm_mean;
+    int16_t _align_lin_min;
+    int16_t _align_lin_max;
     
-    //~ int16_t _align_max_shift;     // Maximum shift of one seq on the other
-    //~ int16_t _align_w_zone_h_len;  // Work zone half length
-    //~ int16_t _align_match_bonus;   // Corresponding residues match bonus
-    //~ int16_t _align_mismatch_cost; // Corresponding residues mismatch cost
+    int16_t _align_max_shift;     // Maximum shift of one seq on the other
+    int16_t _align_w_zone_h_len;  // Work zone half length
+    int16_t _align_match_bonus;   // Corresponding residues match bonus
+    int16_t _align_mismatch_cost; // Corresponding residues mismatch cost
 };
 
 
@@ -282,6 +288,11 @@ inline bool ae_params_mut::get_with_HT( void ) const
   return _with_HT;
 }
 
+inline bool ae_params_mut::get_repl_HT_with_close_points( void ) const
+{
+  return _repl_HT_with_close_points;
+}
+
 inline double ae_params_mut::get_HT_ins_rate( void ) const
 {
   return _HT_ins_rate;
@@ -290,6 +301,11 @@ inline double ae_params_mut::get_HT_ins_rate( void ) const
 inline double ae_params_mut::get_HT_repl_rate( void ) const
 {
   return _HT_repl_rate;
+}
+
+inline double ae_params_mut::get_repl_HT_detach_rate( void ) const
+{
+  return _repl_HT_detach_rate;
 }
 
 // ---------------------------------- Rearrangement rates (without alignements)
@@ -340,50 +356,50 @@ inline double ae_params_mut::get_inversion_proportion( void ) const
 }
 
 // ---------------------------------------------------------------- Alignements
-//~ inline ae_align_fun_shape ae_params_mut::get_align_fun_shape( void ) const
-//~ {
-  //~ return _align_fun_shape;
-//~ }
+inline ae_align_fun_shape ae_params_mut::get_align_fun_shape( void ) const
+{
+ return _align_fun_shape;
+}
 
-//~ inline double ae_params_mut::get_align_sigm_lambda( void ) const
-//~ {
-  //~ return _align_sigm_lambda;
-//~ }
+inline double ae_params_mut::get_align_sigm_lambda( void ) const
+{
+ return _align_sigm_lambda;
+}
 
-//~ inline int16_t ae_params_mut::get_align_sigm_mean( void ) const
-//~ {
-  //~ return _align_sigm_mean;
-//~ }
+inline int16_t ae_params_mut::get_align_sigm_mean( void ) const
+{
+ return _align_sigm_mean;
+}
 
-//~ inline int16_t ae_params_mut::get_align_lin_min( void ) const
-//~ {
-  //~ return _align_lin_min;
-//~ }
+inline int16_t ae_params_mut::get_align_lin_min( void ) const
+{
+ return _align_lin_min;
+}
 
-//~ inline int16_t ae_params_mut::get_align_lin_max( void ) const
-//~ {
-  //~ return _align_lin_max;
-//~ }
+inline int16_t ae_params_mut::get_align_lin_max( void ) const
+{
+ return _align_lin_max;
+}
 
-//~ inline int16_t ae_params_mut::get_align_max_shift( void ) const
-//~ {
-  //~ return _align_max_shift;
-//~ }
+inline int16_t ae_params_mut::get_align_max_shift( void ) const
+{
+ return _align_max_shift;
+}
 
-//~ inline int16_t ae_params_mut::get_align_w_zone_h_len( void ) const
-//~ {
-  //~ return _align_w_zone_h_len;
-//~ }
+inline int16_t ae_params_mut::get_align_w_zone_h_len( void ) const
+{
+ return _align_w_zone_h_len;
+}
 
-//~ inline int16_t ae_params_mut::get_align_match_bonus( void ) const
-//~ {
-  //~ return _align_match_bonus;
-//~ }
+inline int16_t ae_params_mut::get_align_match_bonus( void ) const
+{
+ return _align_match_bonus;
+}
 
-//~ inline int16_t ae_params_mut::get_align_mismatch_cost( void ) const
-//~ {
-  //~ return _align_mismatch_cost;
-//~ }
+inline int16_t ae_params_mut::get_align_mismatch_cost( void ) const
+{
+ return _align_mismatch_cost;
+}
 
 // =====================================================================
 //                           Setters' definitions
@@ -426,6 +442,11 @@ inline void ae_params_mut::set_with_HT( bool with_HT )
   _with_HT = with_HT;
 }
 
+inline void ae_params_mut::set_repl_HT_with_close_points( bool repl_HT_with_close_points)
+{
+  _repl_HT_with_close_points = repl_HT_with_close_points;
+}
+
 inline void ae_params_mut::set_HT_ins_rate( double HT_ins_rate )
 {
   _HT_ins_rate = HT_ins_rate;
@@ -434,6 +455,11 @@ inline void ae_params_mut::set_HT_ins_rate( double HT_ins_rate )
 inline void ae_params_mut::set_HT_repl_rate( double HT_repl_rate )
 {
   _HT_repl_rate = HT_repl_rate;
+}
+
+inline void ae_params_mut::set_repl_HT_detach_rate( double repl_HT_detach_rate )
+{
+  _repl_HT_detach_rate = repl_HT_detach_rate;
 }
 
 // ---------------------------------- Rearrangement rates (without alignements)
@@ -484,50 +510,50 @@ inline void ae_params_mut::set_inversion_proportion( double inversion_proportion
 }
 
 // ---------------------------------------------------------------- Alignements
-//~ inline void ae_params_mut::set_align_fun_shape( ae_align_fun_shape align_fun_shape )
-//~ {
-  //~ _align_fun_shape = align_fun_shape;
-//~ }
+inline void ae_params_mut::set_align_fun_shape( ae_align_fun_shape align_fun_shape )
+{
+  _align_fun_shape = align_fun_shape;
+}
 
-//~ inline void ae_params_mut::set_align_sigm_lambda( double align_sigm_lambda )
-//~ {
-  //~ _align_sigm_lambda = align_sigm_lambda;
-//~ }
+inline void ae_params_mut::set_align_sigm_lambda( double align_sigm_lambda )
+{
+  _align_sigm_lambda = align_sigm_lambda;
+}
 
-//~ inline void ae_params_mut::set_align_sigm_mean( int16_t align_sigm_mean )
-//~ {
-  //~ _align_sigm_mean = align_sigm_mean;
-//~ }
+inline void ae_params_mut::set_align_sigm_mean( int16_t align_sigm_mean )
+{
+  _align_sigm_mean = align_sigm_mean;
+}
 
-//~ inline void ae_params_mut::set_align_lin_min( int16_t align_lin_min )
-//~ {
-  //~ _align_lin_min = align_lin_min;
-//~ }
+inline void ae_params_mut::set_align_lin_min( int16_t align_lin_min )
+{
+  _align_lin_min = align_lin_min;
+}
 
-//~ inline void ae_params_mut::set_align_lin_max( int16_t align_lin_max )
-//~ {
-  //~ _align_lin_max = align_lin_max;
-//~ }
+inline void ae_params_mut::set_align_lin_max( int16_t align_lin_max )
+{
+  _align_lin_max = align_lin_max;
+}
 
-//~ inline void ae_params_mut::set_align_max_shift( int16_t align_max_shift )
-//~ {
-  //~ _align_max_shift = align_max_shift;
-//~ }
+inline void ae_params_mut::set_align_max_shift( int16_t align_max_shift )
+{
+  _align_max_shift = align_max_shift;
+}
 
-//~ inline void ae_params_mut::set_align_w_zone_h_len( int16_t align_w_zone_h_len )
-//~ {
-  //~ _align_w_zone_h_len = align_w_zone_h_len;
-//~ }
+inline void ae_params_mut::set_align_w_zone_h_len( int16_t align_w_zone_h_len )
+{
+  _align_w_zone_h_len = align_w_zone_h_len;
+}
 
-//~ inline void ae_params_mut::set_align_match_bonus( int16_t align_match_bonus )
-//~ {
-  //~ _align_match_bonus = align_match_bonus;
-//~ }
+inline void ae_params_mut::set_align_match_bonus( int16_t align_match_bonus )
+{
+  _align_match_bonus = align_match_bonus;
+}
 
-//~ inline void ae_params_mut::set_align_mismatch_cost( int16_t align_mismatch_cost )
-//~ {
-  //~ _align_mismatch_cost = align_mismatch_cost;
-//~ }
+inline void ae_params_mut::set_align_mismatch_cost( int16_t align_mismatch_cost )
+{
+  _align_mismatch_cost = align_mismatch_cost;
+}
 
 // =====================================================================
 //                          Operators' definitions

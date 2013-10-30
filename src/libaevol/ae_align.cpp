@@ -38,7 +38,7 @@
 // =================================================================
 #include <ae_align.h>
 #include <ae_utils.h>
-
+#include <ae_individual.h>
 
 
 
@@ -51,19 +51,19 @@
 // =================================================================
 //                    Definition of static attributes
 // =================================================================
-bool ae_align::with_alignments;
+//bool ae_align::with_alignments;
 
-ae_align_fun_shape ae_align::align_fun_shape;
+//ae_align_fun_shape ae_align::align_fun_shape;
 
-double  ae_align::align_sigm_lambda;
-int16_t ae_align::align_sigm_mean;
-int16_t ae_align::align_lin_min;
-int16_t ae_align::align_lin_max;
+//double  ae_align::align_sigm_lambda;
+//int16_t ae_align::align_sigm_mean;
+//int16_t ae_align::align_lin_min;
+//int16_t ae_align::align_lin_max;
 
-int16_t ae_align::align_max_shift;
-int16_t ae_align::align_w_zone_h_len;
-int16_t ae_align::align_match_bonus;
-int16_t ae_align::align_mismatch_cost;
+//int16_t ae_align::align_max_shift;
+//int16_t ae_align::align_w_zone_h_len;
+//int16_t ae_align::align_match_bonus;
+//int16_t ae_align::align_mismatch_cost;
 
 // =================================================================
 //                             Constructors
@@ -81,7 +81,7 @@ ae_vis_a_vis* ae_align::search_alignment_direct( const ae_dna* chrom_1, const in
 {
   ae_vis_a_vis * best_alignment = NULL;
   
-  int16_t nb_diags = 2 * align_max_shift + 1;
+  int16_t nb_diags = 2 * chrom_1->get_indiv()->get_align_max_shift() + 1;
   ae_vis_a_vis * cur_vav = NULL;
   
   // TODO : As ae_vis_a_vis now contains its score, we should adapt the code to make it more integrated
@@ -89,18 +89,18 @@ ae_vis_a_vis* ae_align::search_alignment_direct( const ae_dna* chrom_1, const in
   
   
   // Zone 1 (Indice on the chromosome)
-  int32_t w_zone_1_first  = seed_1 - align_w_zone_h_len;       // First base in working zone 1
-  int32_t w_zone_1_last   = seed_1 + align_w_zone_h_len;       // Last  base in working zone 1
-  int32_t x_zone_1_first  = w_zone_1_first - align_max_shift;  // First base in extended zone 1
+  int32_t w_zone_1_first  = seed_1 - chrom_1->get_indiv()->get_align_w_zone_h_len();       // First base in working zone 1
+  int32_t w_zone_1_last   = seed_1 + chrom_1->get_indiv()->get_align_w_zone_h_len();       // Last  base in working zone 1
+  int32_t x_zone_1_first  = w_zone_1_first - chrom_1->get_indiv()->get_align_max_shift();  // First base in extended zone 1
   //~ int32_t x_zone_1_last   = w_zone_1_last  + align_max_shift;  // Last  base in extended zone 1
   
   // Zone 2 (Indice on the chromosome)
-  int32_t w_zone_2_first  = seed_2 - align_w_zone_h_len;       // First base in working zone 2
-  int32_t w_zone_2_last   = seed_2 + align_w_zone_h_len;       // Last  base in working zone 2
+  int32_t w_zone_2_first  = seed_2 - chrom_2->get_indiv()->get_align_w_zone_h_len();       // First base in working zone 2
+  int32_t w_zone_2_last   = seed_2 + chrom_2->get_indiv()->get_align_w_zone_h_len();       // Last  base in working zone 2
   //~ int32_t x_zone_2_first  = w_zone_2_first - align_max_shift;  // First base in extended zone 2
   //~ int32_t x_zone_2_last   = w_zone_2_last  + align_max_shift;  // Last base in extended zone 2
   
-  int32_t w_zone_2_shifted_first = w_zone_2_first + align_max_shift; // This doesn't represent any point of interest
+  int32_t w_zone_2_shifted_first = w_zone_2_first + chrom_2->get_indiv()->get_align_max_shift(); // This doesn't represent any point of interest
                                                                                               // in the sequence but will spare some calculation
   
   
@@ -108,11 +108,11 @@ ae_vis_a_vis* ae_align::search_alignment_direct( const ae_dna* chrom_1, const in
   for ( int16_t cur_diag = 0 ; cur_diag < nb_diags ; cur_diag++ )
   {
     // Initialize cur_vav according to the diagonal we are on
-    if ( cur_diag < align_max_shift )
+    if ( cur_diag < chrom_1->get_indiv()->get_align_max_shift() )
     {
       cur_vav = new ae_vis_a_vis( chrom_1, chrom_2, x_zone_1_first + cur_diag, w_zone_2_first, DIRECT );
     }
-    else if ( cur_diag > align_max_shift )
+    else if ( cur_diag > chrom_1->get_indiv()->get_align_max_shift() )
     {
       cur_vav = new ae_vis_a_vis( chrom_1, chrom_2, w_zone_1_first, w_zone_2_shifted_first - cur_diag, DIRECT );
     }
@@ -128,9 +128,7 @@ ae_vis_a_vis* ae_align::search_alignment_direct( const ae_dna* chrom_1, const in
       continue;
     }
     
-    
     cur_score = 0;
-    
     
     // Parse current diagonal
     while ( cur_vav->_i_1 <= w_zone_1_last && cur_vav->_i_2 <= w_zone_2_last )
@@ -152,7 +150,7 @@ ae_vis_a_vis* ae_align::search_alignment_direct( const ae_dna* chrom_1, const in
       // Update Score
       if ( cur_vav->match() )
       {
-        cur_score += align_match_bonus;
+        cur_score += chrom_1->get_indiv()->get_align_match_bonus();
         
         // Check whether score is high enough to rearrange
         if ( cur_score >= needed_score )
@@ -166,7 +164,7 @@ ae_vis_a_vis* ae_align::search_alignment_direct( const ae_dna* chrom_1, const in
       }
       else
       {
-        cur_score -= align_mismatch_cost;
+        cur_score -= chrom_1->get_indiv()->get_align_mismatch_cost();
       }
       
       // Step forward
@@ -191,14 +189,14 @@ ae_vis_a_vis* ae_align::search_alignment_indirect( const ae_dna* chrom_1, const 
 {
   ae_vis_a_vis * best_alignment = NULL;
   
-  int16_t nb_diags = 2 * align_max_shift + 1;
+  int16_t nb_diags = 2 * chrom_1->get_indiv()->get_align_max_shift() + 1;
   int16_t cur_score;
   ae_vis_a_vis * cur_vav = NULL;
   
   // Zone 1 (Indice on the chromosome)
-  int32_t w_zone_1_first  = seed_1 - align_w_zone_h_len;       // First base in working zone 1
-  int32_t w_zone_1_last   = seed_1 + align_w_zone_h_len;       // Last  base in working zone 1
-  int32_t x_zone_1_first  = w_zone_1_first - align_max_shift;  // First base in extended zone 1
+  int32_t w_zone_1_first  = seed_1 - chrom_1->get_indiv()->get_align_w_zone_h_len();       // First base in working zone 1
+  int32_t w_zone_1_last   = seed_1 + chrom_1->get_indiv()->get_align_w_zone_h_len();       // Last  base in working zone 1
+  int32_t x_zone_1_first  = w_zone_1_first - chrom_1->get_indiv()->get_align_max_shift();  // First base in extended zone 1
   //~ int32_t x_zone_1_last   = w_zone_1_last  + align_max_shift;  // Last  base in extended zone 1
   
   // Zone 2 (Indice on the chromosome)
@@ -231,12 +229,12 @@ ae_vis_a_vis* ae_align::search_alignment_indirect( const ae_dna* chrom_1, const 
   //    | | | | | |     I should have coded the limits (i.e. 'd' and 'i' + '7' and '2') in the first place...
   //      6 5 4 3 2
   //
-  int32_t w_zone_2_first  = seed_2 + align_w_zone_h_len;       // First base in working zone 2
-  int32_t w_zone_2_last   = seed_2 - align_w_zone_h_len;       // Last  base in working zone 2
+  int32_t w_zone_2_first  = seed_2 + chrom_2->get_indiv()->get_align_w_zone_h_len();       // First base in working zone 2
+  int32_t w_zone_2_last   = seed_2 - chrom_2->get_indiv()->get_align_w_zone_h_len();       // Last  base in working zone 2
   //~ int32_t x_zone_2_first  = w_zone_2_first + align_max_shift;  // First base in extended zone 2
   //~ int32_t x_zone_2_last   = w_zone_2_last  - align_max_shift;  // Last  base in extended zone 2
   
-  int32_t w_zone_2_shifted_first = w_zone_2_first - align_max_shift; // This doesn't represent any interesting point
+  int32_t w_zone_2_shifted_first = w_zone_2_first - chrom_2->get_indiv()->get_align_max_shift(); // This doesn't represent any interesting point
                                                                                               // in the sequence but will spare some calculation
   
   
@@ -244,11 +242,11 @@ ae_vis_a_vis* ae_align::search_alignment_indirect( const ae_dna* chrom_1, const 
   for ( int16_t cur_diag = 0 ; cur_diag < nb_diags ; cur_diag++ )
   {
     // Initialize cur_vav according to the diagonal we are on
-    if ( cur_diag < align_max_shift )
+    if ( cur_diag < chrom_1->get_indiv()->get_align_max_shift() )
     {
       cur_vav = new ae_vis_a_vis( chrom_1, chrom_2, x_zone_1_first + cur_diag, w_zone_2_first, INDIRECT );
     }
-    else if ( cur_diag > align_max_shift )
+    else if ( cur_diag > chrom_1->get_indiv()->get_align_max_shift() )
     {
       cur_vav = new ae_vis_a_vis( chrom_1, chrom_2, w_zone_1_first, w_zone_2_shifted_first + cur_diag, INDIRECT );
     }
@@ -280,7 +278,7 @@ ae_vis_a_vis* ae_align::search_alignment_indirect( const ae_dna* chrom_1, const 
       // Update Score
       if ( cur_vav->match() )
       {
-        cur_score += align_match_bonus;
+        cur_score += chrom_1->get_indiv()->get_align_match_bonus();
         
         // Check whether score is high enough to rearrange
         if ( cur_score >= needed_score )
@@ -294,7 +292,7 @@ ae_vis_a_vis* ae_align::search_alignment_indirect( const ae_dna* chrom_1, const 
       }
       else
       {
-        cur_score -= align_mismatch_cost;
+        cur_score -= chrom_1->get_indiv()->get_align_mismatch_cost();
       }
       
       // Step forward

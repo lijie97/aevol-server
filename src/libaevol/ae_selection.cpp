@@ -814,19 +814,31 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
     
     if ( alignment_1 != NULL )
     {
-      // Look for a second alignement between the parent and the donor (must be different from alignment_1)
-      while ( alignment_2 == NULL && nb_pairs_2 > 0 )
+      if( _exp_m->get_repl_HT_with_close_points())
       {
-        alignment_2 = parent_dna->search_alignment( donor_dna, nb_pairs_2, sense );
-        
-        // Forbid the replacement of the whole genome of the parent
+        //printf("Id: %d\n",new_indiv->get_id());
+        alignment_2 = parent_dna->search_alignment_around_positions( donor_dna, alignment_1->get_i_1(), alignment_1->get_i_2(), alignment_1->get_sense(), nb_pairs_2);
         if ( alignment_2 != NULL && alignment_2->get_i_1() == alignment_1->get_i_1() )
         {
           delete alignment_2;
           alignment_2 = NULL;
         }
       }
-    
+      else
+      {
+        // Look for a second alignement between the parent and the donor (must be different from alignment_1)
+        while ( alignment_2 == NULL && nb_pairs_2 > 0 )
+        {
+          alignment_2 = parent_dna->search_alignment( donor_dna, nb_pairs_2, sense );
+        
+          // Forbid the replacement of the whole genome of the parent
+          if ( alignment_2 != NULL && alignment_2->get_i_1() == alignment_1->get_i_1() )
+          {
+            delete alignment_2;
+            alignment_2 = NULL;
+          }
+        }
+      }
     
       // If both alignments were found, proceed to the transfer
       if ( alignment_2 != NULL )
@@ -877,6 +889,21 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
           new_indiv_dna->insert_GU( exogenote, 0, 0, sense == INDIRECT );
         }       
 
+        //printf("\tTransfert: %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId16" %"PRId32" %"PRId32" %"PRId16"\n",
+        //            _exp_m->get_num_gener(),
+        //            new_indiv->get_id(),
+        //            donor->get_id(),
+        //            1, // Transfer type
+        //            exogenote->get_dna()->get_length(),
+        //            replaced_seq_length,
+        //            genome_length_before,
+        //            new_indiv_dna->get_length(),
+        //            alignment_1->get_i_1(),
+        //            alignment_1->get_i_2(),
+        //            alignment_1->get_score(),
+        //            alignment_2->get_i_1(),
+        //            alignment_2->get_i_2(),
+        //            alignment_2->get_score() );
         // Write a line in transfer logfile
         #warning LOG
         if ( _exp_m->get_output_m()->is_logged(LOG_TRANSFER) == true )

@@ -49,6 +49,7 @@
 #include <ae_gaussian.h>
 #include <ae_env_segment.h>
 #include <ae_point_2d.h>
+#include <ae_align.h>
 
 //~ #ifdef __X11
   //~ #include <ae_individual_X11.h>
@@ -566,6 +567,23 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
       exit( EXIT_FAILURE ); 
     }
   }
+  else if ( strcmp( line->words[0], "REPL_TRANSFER_WITH_CLOSE_POINTS" ) == 0 )
+  {
+    if ( strncmp( line->words[1], "true", 4 ) == 0 )
+    {
+      _param_values->set_repl_HT_with_close_points( true );
+    }
+    else if ( strncmp( line->words[1], "false", 5 ) == 0 )
+    {
+      _param_values->set_repl_HT_with_close_points( false );
+    }
+    else
+    {
+      printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown transfer option (use true/false).\n",
+              _param_file_name, _cur_line );
+      exit( EXIT_FAILURE ); 
+    }
+  }
   else if ( strcmp( line->words[0], "SWAP_GUS" ) == 0 )
   {
     if ( strncmp( line->words[1], "true", 4 ) == 0 )
@@ -590,6 +608,10 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
   else if ( strcmp( line->words[0], "TRANSFER_REPL_RATE" ) == 0 )
   {
     _param_values->set_HT_repl_rate( atof( line->words[1] ) );
+  }
+  else if ( strcmp( line->words[0], "REPL_TRANSFER_DETACH_RATE" ) == 0 )
+  {
+    _param_values->set_repl_HT_detach_rate( atof( line->words[1] ) );
   }
   else if ( strcmp( line->words[0], "TRANSLATION_COST" ) == 0 )
   {
@@ -958,8 +980,10 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   
   // ----------------------------------------------------------------- Transfer
   exp_s->set_with_HT( _param_values->_with_HT );
+  exp_s->set_repl_HT_with_close_points( _param_values->get_repl_HT_with_close_points() );
   exp_s->set_HT_ins_rate( _param_values->_HT_ins_rate );
   exp_s->set_HT_repl_rate( _param_values->_HT_repl_rate );
+  exp_s->set_repl_HT_detach_rate( _param_values->_repl_HT_detach_rate );
   
   // ----------------------------------------------------------------- Plasmids
   exp_s->set_with_plasmids( _param_values->_allow_plasmids );
@@ -1048,8 +1072,10 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   param_mut->set_with_4pts_trans( _param_values->get_with_4pts_trans() );
   param_mut->set_with_alignments( _param_values->get_with_alignments() );
   param_mut->set_with_HT( _param_values->get_with_HT() );
+  param_mut->set_repl_HT_with_close_points( _param_values->get_repl_HT_with_close_points() );
   param_mut->set_HT_ins_rate( _param_values->get_HT_ins_rate() );
   param_mut->set_HT_repl_rate( _param_values->get_HT_repl_rate() );
+  param_mut->set_repl_HT_detach_rate( _param_values->get_repl_HT_detach_rate() );
   param_mut->set_duplication_rate( _param_values->get_duplication_rate() );
   param_mut->set_deletion_rate( _param_values->get_deletion_rate() );
   param_mut->set_translocation_rate( _param_values->get_translocation_rate() );

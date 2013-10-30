@@ -227,7 +227,7 @@ void ae_dna::perform_mutations( void )
     _replic_report = new ae_dna_replic_report();
   }
   
-  if ( ae_align::with_alignments )
+  if ( _indiv->get_with_alignments() )
   {
     do_rearrangements_with_align();
   }
@@ -460,9 +460,9 @@ void ae_dna::do_rearrangements_with_align( void )
     //////////////////////////////////////////////////////////////////////////////////
     // 2) Determine the minimum alignment score needed for a rearrangement to occur //
     //////////////////////////////////////////////////////////////////////////////////
-    if ( ae_align::align_fun_shape == LINEAR )
+    if ( _indiv->get_align_fun_shape() == LINEAR )
     {
-      needed_score = (int16_t) ceil( ae_align::align_lin_min + _indiv->_mut_prng->random() * ( ae_align::align_lin_max - ae_align::align_lin_min ) );
+      needed_score = (int16_t) ceil( _indiv->get_align_lin_min() + _indiv->_mut_prng->random() * ( _indiv->get_align_lin_max() - _indiv->get_align_lin_min() ) );
     }
     else
     {
@@ -470,7 +470,7 @@ void ae_dna::do_rearrangements_with_align( void )
       // prob = 1 / ( 1 + exp( -(score-mean)/lambda ) )
       // The score needed for a rearrangement to take place with a given random drawing is hence
       // needed_score = ceil( -lambda * log( 1/rand - 1 ) + mean )
-      needed_score = (int16_t) ceil( - ae_align::align_sigm_lambda * log( 1/_indiv->_mut_prng->random() - 1 ) + ae_align::align_sigm_mean );
+      needed_score = (int16_t) ceil( - _indiv->get_align_sigm_lambda() * log( 1/_indiv->_mut_prng->random() - 1 ) + _indiv->get_align_sigm_mean() );
       if ( needed_score < 0 ) needed_score = 0;
       
       //~ <DEBUG>
@@ -617,13 +617,13 @@ void ae_dna::do_rearrangements_with_align( void )
         {
           direct_sense = (_indiv->_mut_prng->random() < 0.5);
           
-          if ( ae_align::align_fun_shape == LINEAR )
+          if ( _indiv->get_align_fun_shape() == LINEAR )
           {
-            needed_score_2  = (int16_t) ceil(  ae_align::align_lin_min + _indiv->_mut_prng->random() * ( ae_align::align_lin_max - ae_align::align_lin_min ) );
+            needed_score_2  = (int16_t) ceil(  _indiv->get_align_lin_min() + _indiv->_mut_prng->random() * ( _indiv->get_align_lin_max() - _indiv->get_align_lin_min() ) );
           }
           else
           {
-            needed_score_2 = (int16_t) ceil( - ae_align::align_sigm_lambda * log( 1/_indiv->_mut_prng->random() - 1 ) + ae_align::align_sigm_mean );
+            needed_score_2 = (int16_t) ceil( - _indiv->get_align_sigm_lambda() * log( 1/_indiv->_mut_prng->random() - 1 ) + _indiv->get_align_sigm_mean() );
             if ( needed_score_2 < 0 ) needed_score_2 = 0;
           }
 
@@ -1828,7 +1828,7 @@ void ae_dna::undergo_this_mutation( ae_mutation * mut )
       break;
     case TRANS:
       mut->get_infos_translocation( &pos1, &pos2, &pos3, &pos4, &invert );
-      if ( ae_align::with_alignments )
+      if ( _indiv->get_with_alignments() )
       {
         // Extract the segment to be translocated
         ae_genetic_unit* translocated_segment = extract_into_new_GU( pos1, pos2 );
@@ -2193,7 +2193,7 @@ void ae_dna::insert_GU( ae_genetic_unit* GU_to_insert, int32_t pos_B, int32_t po
   In the latter case, the sense will be randomly drawn (uniformly between DIRECT and INDIRECT) for each pair of points.
 */
 ae_vis_a_vis* ae_dna::search_alignment( ae_dna* chrom2, int32_t& nb_pairs, ae_sense sense )
-{
+{  
   ae_vis_a_vis* alignment = NULL;
   ae_sense cur_sense = sense; // Which sense (direct or indirect)
   int16_t needed_score;       // Minimum alignement score needed to recombine (stochastic)
@@ -2211,9 +2211,9 @@ ae_vis_a_vis* ae_dna::search_alignment( ae_dna* chrom2, int32_t& nb_pairs, ae_se
     /////////////////////////////////////////////////////
     // 2) Determine the minimum alignment score needed //
     /////////////////////////////////////////////////////
-    if ( ae_align::align_fun_shape == LINEAR )
+    if ( _indiv->get_align_fun_shape() == LINEAR )
     {
-      needed_score = (int16_t) ceil( ae_align::align_lin_min + _indiv->_mut_prng->random() * ( ae_align::align_lin_max - ae_align::align_lin_min ) );
+      needed_score = (int16_t) ceil( _indiv->get_align_lin_min() + _indiv->_mut_prng->random() * ( _indiv->get_align_lin_max() - _indiv->get_align_lin_min() ) );
     }
     else
     {
@@ -2221,7 +2221,7 @@ ae_vis_a_vis* ae_dna::search_alignment( ae_dna* chrom2, int32_t& nb_pairs, ae_se
       // prob = 1 / ( 1 + exp( -(score-mean_score)/lambda ) )
       // The score needed for a rearrangement to take place with a given random drawing is hence
       // needed_score = ceil( -lambda * log( 1/rand - 1 ) + mean )
-      needed_score = (int16_t) ceil( - ae_align::align_sigm_lambda * log( 1/_indiv->_mut_prng->random() - 1 ) + ae_align::align_sigm_mean );
+      needed_score = (int16_t) ceil( - _indiv->get_align_sigm_lambda() * log( 1/_indiv->_mut_prng->random() - 1 ) + _indiv->get_align_sigm_mean() );
       if ( needed_score < 0 ) needed_score = 0;
     }
     
@@ -2255,8 +2255,164 @@ ae_vis_a_vis* ae_dna::search_alignment( ae_dna* chrom2, int32_t& nb_pairs, ae_se
   return NULL;
 }
 
+/*!
+  \brief Looks for an alignment between this and chrom2 in the given sense around the given positions
+ 
+  Performs local alignment searches between this and chrom2 around the given positions
+  The minimum score will be generated according to align_fun_shape and associated parameters for each pair of points.
+  The parameter nb_pairs will be updated according to how many trials were necessary for an alignment to be found.
 
-
+  The sense of the searched alignment can be either DIRECT, INDIRECT or BOTH_SENSE. \
+  In the latter case, the sense will be randomly drawn (uniformly between DIRECT and INDIRECT) for each pair of points.
+*/
+ae_vis_a_vis* ae_dna::search_alignment_around_positions( ae_dna* chrom2, int32_t chrom1_pos_1, int32_t chrom2_pos_1, ae_sense sense, int32_t& nb_pairs)
+{
+  ae_vis_a_vis* alignment = NULL;
+  ae_vis_a_vis* tmp_alignment = NULL;
+  ae_sense cur_sense = sense; // Which sense (direct or indirect)
+  int16_t needed_score;       // Minimum alignement score needed to recombine (stochastic)
+  int32_t chrom1_pos_for_research; 
+  int32_t chrom2_pos_for_research;
+  
+  ///////////////////////////////////////
+  //  1) Draw random sense (if needed) //
+  ///////////////////////////////////////
+  if ( sense == BOTH_SENSES )
+  {
+    cur_sense = (_indiv->_mut_prng->random() < 0.5) ? DIRECT : INDIRECT;
+  }
+  
+  /////////////////////////////////////////////////////
+  // 2) Determine the minimum alignment score needed //
+  /////////////////////////////////////////////////////
+  if ( _indiv->get_align_fun_shape() == LINEAR )
+  {
+    needed_score = (int16_t) ceil( _indiv->get_align_lin_min() + _indiv->_mut_prng->random() * ( _indiv->get_align_lin_max() - _indiv->get_align_lin_min() ) );
+  }
+  else
+  {
+    // I want the probability of rearrangement for an alignment of score <score> to be
+    // prob = 1 / ( 1 + exp( -(score-mean_score)/lambda ) )
+    // The score needed for a rearrangement to take place with a given random drawing is hence
+    // needed_score = ceil( -lambda * log( 1/rand - 1 ) + mean )
+    needed_score = (int16_t) ceil( - _indiv->get_align_sigm_lambda() * log( 1/_indiv->_mut_prng->random() - 1 ) + _indiv->get_align_sigm_mean() );
+    if ( needed_score < 0 ) needed_score = 0;
+  }
+  
+  /////////////////////////////////////////////////////////
+  // 3) Determine the sense by which the research begins //
+  /////////////////////////////////////////////////////////
+  int16_t first_research_sense = (_indiv->_mut_prng->random() < 0.5) ? 1 : -1;
+  int16_t second_research_sense = -1*first_research_sense;
+  
+  ////////////////////////////////////////////////////////////////////////////////////////
+  // 4) Test the first sense for the existence of an alignment with a high enough score //
+  ////////////////////////////////////////////////////////////////////////////////////////
+  chrom1_pos_for_research = chrom1_pos_1;
+  chrom2_pos_for_research = chrom2_pos_1;
+  int16_t i = 0;
+  while( _indiv->_mut_prng->random() < _exp_m->get_repl_HT_detach_rate() )
+  {
+    chrom1_pos_for_research = chrom1_pos_for_research + 2 * first_research_sense * _indiv->get_align_w_zone_h_len();
+    if ( cur_sense == DIRECT )
+    {
+      chrom2_pos_for_research = chrom2_pos_for_research + 2 * first_research_sense * _indiv->get_align_w_zone_h_len();
+      tmp_alignment = ae_align::search_alignment_direct( this, chrom1_pos_for_research, chrom2, chrom2_pos_for_research, needed_score );
+    }
+    else // if ( cur_sense = INDIRECT )
+    {
+      chrom2_pos_for_research = chrom2_pos_for_research - 2 * first_research_sense * _indiv->get_align_w_zone_h_len();
+      tmp_alignment = ae_align::search_alignment_indirect( this, chrom1_pos_for_research, chrom2, chrom2_pos_for_research, needed_score );
+    }
+    
+    if(tmp_alignment == NULL)
+    {
+      if(alignment != NULL)
+      {
+        return alignment;
+      }
+      else
+      {
+        break;
+      }
+    }
+    else
+    {
+      if(alignment != NULL)
+      {
+        alignment->copy( tmp_alignment );
+      }
+      else
+      {
+        alignment = new ae_vis_a_vis( *tmp_alignment );
+      }
+      
+      chrom1_pos_for_research = alignment->get_i_1();
+      chrom2_pos_for_research = alignment->get_i_2();
+    }
+    i++;
+  }
+  
+  if(alignment != NULL)
+  {
+    return alignment;
+  }
+  
+  /////////////////////////////////////////////////////////////////////////////////////////
+  // 5) Test the second sense for the existence of an alignment with a high enough score //
+  /////////////////////////////////////////////////////////////////////////////////////////
+  alignment = NULL;
+  chrom1_pos_for_research = chrom1_pos_1;
+  chrom2_pos_for_research = chrom2_pos_1;
+  i = 0 ;
+  while( _indiv->_mut_prng->random() < _exp_m->get_repl_HT_detach_rate() )
+  {
+    chrom1_pos_for_research = chrom1_pos_for_research + 2 * second_research_sense * _indiv->get_align_w_zone_h_len();
+    if ( cur_sense == DIRECT )
+    {
+      chrom2_pos_for_research = chrom2_pos_for_research + 2 * second_research_sense * _indiv->get_align_w_zone_h_len();
+      tmp_alignment = ae_align::search_alignment_direct( this, chrom1_pos_for_research, chrom2, chrom2_pos_for_research, needed_score );
+    }
+    else // if ( cur_sense = INDIRECT )
+    {
+      chrom2_pos_for_research = chrom2_pos_for_research - 2 * second_research_sense * _indiv->get_align_w_zone_h_len();
+      tmp_alignment = ae_align::search_alignment_indirect( this, chrom1_pos_for_research, chrom2, chrom2_pos_for_research, needed_score );
+    }
+    
+    if(tmp_alignment == NULL)
+    {
+      if(alignment != NULL)
+      {
+        return alignment;
+      }
+      else
+      {
+        break;
+      }
+    }
+    else
+    {
+      if(alignment != NULL)
+      {
+        alignment->copy( tmp_alignment );
+      }
+      else
+      {
+        alignment = new ae_vis_a_vis( *tmp_alignment );
+      }
+      
+      chrom1_pos_for_research = alignment->get_i_1();
+      chrom2_pos_for_research = alignment->get_i_2();
+    }
+    i++;
+  }
+  if(alignment != NULL)
+  {
+    return alignment;
+  }
+  
+  return NULL;
+}
 
 // =================================================================
 //                           Protected Methods

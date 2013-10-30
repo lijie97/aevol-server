@@ -112,8 +112,10 @@ class ae_exp_manager : public ae_object
   
     // -------------------------------------------------------- Global settings
     inline bool   get_with_HT( void ) const;
+    inline bool   get_repl_HT_with_close_points ( void ) const;
     inline double get_HT_ins_rate( void ) const;
     inline double get_HT_repl_rate( void ) const;
+    inline double get_repl_HT_detach_rate( void ) const;
     
     // The ability to own a plasmid is a property of the individuals (_allow_plasmids) because it is used during mutations
     // However there is also a property of the experimental setup (_with_plasmids) that indicates whether plasmids are used because we need this during replication and during loading/writting
@@ -359,6 +361,11 @@ inline bool ae_exp_manager::get_with_HT( void ) const
   return get_exp_s()->get_with_HT();
 }
 
+inline bool ae_exp_manager::get_repl_HT_with_close_points ( void ) const
+{
+  return get_exp_s()->get_repl_HT_with_close_points();
+}
+
 inline double ae_exp_manager::get_HT_ins_rate( void ) const
 {
   return get_exp_s()->get_HT_ins_rate();
@@ -367,6 +374,11 @@ inline double ae_exp_manager::get_HT_ins_rate( void ) const
 inline double ae_exp_manager::get_HT_repl_rate( void ) const
 {
   return get_exp_s()->get_HT_repl_rate();
+}
+
+inline double ae_exp_manager::get_repl_HT_detach_rate( void ) const
+{
+  return get_exp_s()->get_repl_HT_detach_rate();
 }
 
 inline bool ae_exp_manager::get_with_plasmids( void ) const

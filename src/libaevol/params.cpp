@@ -106,11 +106,13 @@ params::params( void )
   _max_indel_size       = 6;
 
   // -------------------------------------------- Rearrangements and Transfer
-  _with_4pts_trans  = true;
-  _with_alignments  = false;
-  _with_HT          = false;
-  _HT_ins_rate      = 0.0;
-  _HT_repl_rate     = 0.0;
+  _with_4pts_trans            = true;
+  _with_alignments            = false;
+  _with_HT                    = false;
+  _repl_HT_with_close_points  = false;
+  _HT_ins_rate                = 0.0;
+  _HT_repl_rate               = 0.0;
+  _repl_HT_detach_rate        = 0.0;
 
   // ------------------------------ Rearrangement rates (without alignements)
   _duplication_rate   = 5e-5;
@@ -236,6 +238,7 @@ void params::print_to_file( FILE* file )
   fprintf( file, "with_4pts_trans :            %s\n",  _with_4pts_trans? "true" : "false" );
   fprintf( file, "with_alignments :            %s\n",  _with_alignments? "true" : "false" );
   fprintf( file, "with_HT :                    %s\n",  _with_HT? "true" : "false"   );
+  fprintf( file, "repl_HT_with_close_points :  %s\n",  _repl_HT_with_close_points? "true" : "false"   );
   fprintf( file, "HT_ins_rate :                %e\n",  _HT_ins_rate );
   fprintf( file, "HT_repl_rate :               %e\n",  _HT_repl_rate );
 

@@ -136,8 +136,10 @@ class params : public ae_object
     inline bool   get_with_4pts_trans( void ) const;
     inline bool   get_with_alignments( void ) const;
     inline bool   get_with_HT( void ) const;
+    inline bool   get_repl_HT_with_close_points( void ) const;
     inline double get_HT_ins_rate( void ) const;
     inline double get_HT_repl_rate( void ) const;
+    inline double get_repl_HT_detach_rate( void ) const;
 
     // ------------------------------ Rearrangement rates (without alignements)
     inline double get_duplication_rate( void ) const;
@@ -295,8 +297,10 @@ class params : public ae_object
     inline void set_with_4pts_trans( bool with_4pts_trans );
     inline void set_with_alignments( bool with_alignments );
     inline void set_with_HT( bool with_HT );
+    inline void set_repl_HT_with_close_points( bool repl_HT_with_close_points);
     inline void set_HT_ins_rate( double HT_ins_rate );
     inline void set_HT_repl_rate( double HT_repl_rate );
+    inline void set_repl_HT_detach_rate( double repl_HT_detach_rate );
 
     // ------------------------------ Rearrangement rates (without alignements)
     inline void set_duplication_rate( double duplication_rate );
@@ -494,8 +498,10 @@ class params : public ae_object
     bool    _with_4pts_trans;
     bool    _with_alignments;
     bool    _with_HT;
+    bool    _repl_HT_with_close_points;
     double  _HT_ins_rate;
     double  _HT_repl_rate;
+    double  _repl_HT_detach_rate;
 
     // ------------------------------ Rearrangement rates (without alignements)
     double _duplication_rate;
@@ -781,6 +787,11 @@ inline bool params::get_with_HT( void ) const
   return _with_HT;
 }
 
+inline bool params::get_repl_HT_with_close_points( void ) const
+{
+  return _repl_HT_with_close_points;
+}
+
 inline double params::get_HT_ins_rate( void ) const
 {
   return _HT_ins_rate;
@@ -789,6 +800,11 @@ inline double params::get_HT_ins_rate( void ) const
 inline double params::get_HT_repl_rate( void ) const
 {
   return _HT_repl_rate;
+}
+
+inline double params::get_repl_HT_detach_rate( void ) const
+{
+  return _repl_HT_detach_rate;
 }
 
 // ---------------------------------- Rearrangement rates (without alignements)
@@ -1261,6 +1277,11 @@ inline void params::set_with_HT( bool with_HT )
   _with_HT = with_HT;
 }
 
+inline void params::set_repl_HT_with_close_points( bool repl_HT_with_close_points)
+{
+  _repl_HT_with_close_points = repl_HT_with_close_points;
+}
+
 inline void params::set_HT_ins_rate( double HT_ins_rate )
 {
   _HT_ins_rate = HT_ins_rate;
@@ -1269,6 +1290,11 @@ inline void params::set_HT_ins_rate( double HT_ins_rate )
 inline void params::set_HT_repl_rate( double HT_repl_rate )
 {
   _HT_repl_rate = HT_repl_rate;
+}
+
+inline void params::set_repl_HT_detach_rate( double repl_HT_detach_rate )
+{
+  _repl_HT_detach_rate = repl_HT_detach_rate;
 }
 
 // ---------------------------------- Rearrangement rates (without alignements)

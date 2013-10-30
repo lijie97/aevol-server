@@ -72,9 +72,11 @@ ae_exp_setup::ae_exp_setup( ae_exp_manager* exp_m )
   _sel = new ae_selection( exp_m );
   
   // --------------------------------------------------------------- Transfer
-  _with_HT          = false;
-  _HT_ins_rate      = 0.0;
-  _HT_repl_rate     = 0.0;
+  _with_HT                    = false;
+  _repl_HT_with_close_points  = false;
+  _HT_ins_rate                = 0.0;
+  _HT_repl_rate               = 0.0;
+  _repl_HT_detach_rate         = 0.0;
   
   // --------------------------------------------------------------- Plasmids
   _with_plasmids    = false;
@@ -110,10 +112,16 @@ void ae_exp_setup::write_setup_file( gzFile exp_setup_file ) const
   // --------------------------------------------------------------- Transfer
   int8_t tmp_with_HT = _with_HT;
   gzwrite( exp_setup_file, &tmp_with_HT, sizeof(tmp_with_HT) );
+  int8_t tmp_repl_HT_with_close_points = _repl_HT_with_close_points;
+  gzwrite( exp_setup_file, &tmp_repl_HT_with_close_points, sizeof(tmp_repl_HT_with_close_points) );
   if ( _with_HT )
   {
     gzwrite( exp_setup_file, &_HT_ins_rate,  sizeof(_HT_ins_rate) );
     gzwrite( exp_setup_file, &_HT_repl_rate, sizeof(_HT_repl_rate) );
+  }
+  if(_repl_HT_with_close_points)
+  {
+    gzwrite( exp_setup_file, &_repl_HT_detach_rate,  sizeof(_repl_HT_detach_rate) );
   }
   
   // --------------------------------------------------------------- Plasmids
@@ -156,11 +164,19 @@ void ae_exp_setup::load( gzFile setup_file, gzFile backup_file, bool verbose )
   int8_t tmp_with_HT;
   gzread( setup_file, &tmp_with_HT, sizeof(tmp_with_HT) );
   _with_HT = tmp_with_HT ? 1 : 0;
+  int8_t tmp_repl_HT_with_close_points;
+  gzread( setup_file, &tmp_repl_HT_with_close_points, sizeof(tmp_repl_HT_with_close_points) );
+  _repl_HT_with_close_points = tmp_repl_HT_with_close_points ? 1 : 0;
   if ( _with_HT )
   {
     gzread( setup_file, &_HT_ins_rate,  sizeof(_HT_ins_rate) );
     gzread( setup_file, &_HT_repl_rate, sizeof(_HT_repl_rate) );
   }
+   if(_repl_HT_with_close_points)
+  {
+    gzread( setup_file, &_repl_HT_detach_rate,  sizeof(_repl_HT_detach_rate) );
+  }
+  
   
   // -------------------------------------------- Retrieve plasmid parameters
   int8_t tmp_with_plasmids;

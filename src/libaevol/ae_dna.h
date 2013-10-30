@@ -93,6 +93,7 @@ class ae_dna : public ae_string
     inline void                   set_replic_report( ae_dna_replic_report * rep ); // for post-treatment only
     
     inline ae_genetic_unit *      get_genetic_unit( void ) const;
+    inline ae_individual*         get_indiv(void) const;
     
     char* get_subsequence( int32_t from, int32_t to, ae_strand strand ) const; // WARNING : creates a new char[...] (up to you to delete it!)
 
@@ -143,6 +144,7 @@ class ae_dna : public ae_string
     void insert_GU( ae_genetic_unit* GU_to_insert, int32_t pos_B, int32_t pos_D, bool invert );
     
     ae_vis_a_vis* search_alignment( ae_dna* chrom2, int32_t& nb_pairs, ae_sense sense );
+    ae_vis_a_vis* search_alignment_around_positions( ae_dna* chrom2, int32_t chrom1_pos_1, int32_t chrom1_pos_2, ae_sense sense, int32_t& nb_pairs);
     
     void undergo_this_mutation( ae_mutation * mut ); // useful when we replay the evolution
 
@@ -207,6 +209,11 @@ class ae_dna : public ae_string
 inline ae_dna_replic_report* ae_dna::get_replic_report( void ) const
 {
   return _replic_report;
+}
+
+inline ae_individual* ae_dna::get_indiv(void) const
+{
+  return _indiv;
 }
 
  // for post-treatment only

@@ -161,6 +161,23 @@ class ae_individual : public ae_object
     inline double get_translocation_proportion( void ) const;
     inline double get_inversion_proportion( void ) const;
     
+    // ------------------------------------------------------------ Alignements
+    inline bool  get_with_alignments(void) const;
+    inline ae_align_fun_shape get_align_fun_shape( void ) const;
+    inline double  get_align_sigm_lambda( void ) const;
+    inline int16_t get_align_sigm_mean( void ) const;
+    inline int16_t get_align_lin_min( void ) const;
+    inline int16_t get_align_lin_max( void ) const;
+    
+    // Maximum shift of one seq on the other
+    inline int16_t get_align_max_shift( void ) const;
+    // Work zone half length
+    inline int16_t get_align_w_zone_h_len( void ) const;
+    // Corresponding residues match bonus
+    inline int16_t get_align_match_bonus( void ) const;
+    // Corresponding residues mismatch cost
+    inline int16_t get_align_mismatch_cost( void ) const;
+    
     
     // ----------------------------------------------- Phenotypic stochasticity
     inline bool get_with_stochasticity( void ) const;
@@ -1059,6 +1076,57 @@ inline double ae_individual::get_translocation_proportion( void ) const
 inline double ae_individual::get_inversion_proportion( void ) const
 {
   return _mut_params->get_inversion_proportion();
+}
+
+// ---------------------------------------------------------------- Alignements
+inline bool ae_individual::get_with_alignments(void) const
+{
+ return _mut_params->get_with_alignments();
+}
+
+inline ae_align_fun_shape ae_individual::get_align_fun_shape( void ) const
+{
+ return _mut_params->get_align_fun_shape();
+}
+
+inline double ae_individual::get_align_sigm_lambda( void ) const
+{
+ return _mut_params->get_align_sigm_lambda();
+}
+
+inline int16_t ae_individual::get_align_sigm_mean( void ) const
+{
+ return _mut_params->get_align_sigm_mean();
+}
+
+inline int16_t ae_individual::get_align_lin_min( void ) const
+{
+ return _mut_params->get_align_lin_min();
+}
+
+inline int16_t ae_individual::get_align_lin_max( void ) const
+{
+ return _mut_params->get_align_lin_max();
+}
+
+inline int16_t ae_individual::get_align_max_shift( void ) const
+{
+ return _mut_params->get_align_max_shift();
+}
+
+inline int16_t ae_individual::get_align_w_zone_h_len( void ) const
+{
+ return _mut_params->get_align_w_zone_h_len();
+}
+
+inline int16_t ae_individual::get_align_match_bonus( void ) const
+{
+ return _mut_params->get_align_match_bonus();
+}
+
+inline int16_t ae_individual::get_align_mismatch_cost( void ) const
+{
+ return _mut_params->get_align_mismatch_cost();
 }
 
 /*!
