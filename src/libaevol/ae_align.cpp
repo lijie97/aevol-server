@@ -131,7 +131,7 @@ ae_vis_a_vis* ae_align::search_alignment_direct( const ae_dna* chrom_1, const in
     cur_score = 0;
     
     // Parse current diagonal
-    while ( cur_vav->_i_1 <= w_zone_1_last && cur_vav->_i_2 <= w_zone_2_last )
+    while ( cur_vav->_i_1 <= w_zone_1_last || cur_vav->_i_2 <= w_zone_2_last )
     {
       // Re-initialize score and potential alignment starting point if score <= 0
       if ( cur_score <= 0 )
@@ -259,7 +259,7 @@ ae_vis_a_vis* ae_align::search_alignment_indirect( const ae_dna* chrom_1, const 
     
     
     // Parse diagonal
-    while ( cur_vav->_i_1 <= w_zone_1_last && cur_vav->_i_2 >= w_zone_2_last )
+    while ( cur_vav->_i_1 <= w_zone_1_last || cur_vav->_i_2 >= w_zone_2_last )
     {
       // Re-initialize score and potential alignment starting point if score <= 0
       if ( cur_score <= 0 )
