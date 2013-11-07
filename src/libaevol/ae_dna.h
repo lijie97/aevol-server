@@ -144,7 +144,7 @@ class ae_dna : public ae_string
     void insert_GU( ae_genetic_unit* GU_to_insert, int32_t pos_B, int32_t pos_D, bool invert );
     
     ae_vis_a_vis* search_alignment( ae_dna* chrom2, int32_t& nb_pairs, ae_sense sense );
-    ae_vis_a_vis* search_alignment_around_positions( ae_dna* chrom2, int32_t chrom1_pos_1, int32_t chrom1_pos_2, ae_sense sense, int32_t& nb_pairs);
+    ae_vis_a_vis* search_alignment_around_positions( ae_dna* chrom2, int32_t chrom1_pos_1, int32_t chrom1_pos_2, ae_sense sense, int8_t& research_sense);
     
     void undergo_this_mutation( ae_mutation * mut ); // useful when we replay the evolution
 

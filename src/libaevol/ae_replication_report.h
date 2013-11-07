@@ -181,7 +181,6 @@ class ae_replication_report : public ae_object
     // =================================================================
     ae_individual*  _indiv;
     
-    // ********** Data recorded in the tree **********
     int32_t         _id;
     int32_t         _rank;
     int32_t         _parent_id;
@@ -195,7 +194,6 @@ class ae_replication_report : public ae_object
     int16_t         _nb_non_coding_RNAs;
     
     ae_list<ae_dna_replic_report*>*  _dna_replic_reports; // List of each genetic unit's replication report
-    // ********** END Data recorded in the tree **********
     
     double          _parent_metabolic_error;
     double          _parent_secretion_error;

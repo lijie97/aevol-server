@@ -2265,7 +2265,7 @@ ae_vis_a_vis* ae_dna::search_alignment( ae_dna* chrom2, int32_t& nb_pairs, ae_se
   The sense of the searched alignment can be either DIRECT, INDIRECT or BOTH_SENSE. \
   In the latter case, the sense will be randomly drawn (uniformly between DIRECT and INDIRECT) for each pair of points.
 */
-ae_vis_a_vis* ae_dna::search_alignment_around_positions( ae_dna* chrom2, int32_t chrom1_pos_1, int32_t chrom2_pos_1, ae_sense sense, int32_t& nb_pairs)
+ae_vis_a_vis* ae_dna::search_alignment_around_positions( ae_dna* chrom2, int32_t chrom1_pos_1, int32_t chrom2_pos_1, ae_sense sense, int8_t& research_sense)
 {
   ae_vis_a_vis* alignment = NULL;
   ae_vis_a_vis* tmp_alignment = NULL;
@@ -2279,7 +2279,8 @@ ae_vis_a_vis* ae_dna::search_alignment_around_positions( ae_dna* chrom2, int32_t
   ///////////////////////////////////////
   if ( sense == BOTH_SENSES )
   {
-    cur_sense = (_indiv->_mut_prng->random() < 0.5) ? DIRECT : INDIRECT;
+    printf( "WARNING : Alignment could not be searched in both senses in %s:%d\n", __FILE__, __LINE__ );
+    return(NULL);
   }
   
   /////////////////////////////////////////////////////
@@ -2311,28 +2312,35 @@ ae_vis_a_vis* ae_dna::search_alignment_around_positions( ae_dna* chrom2, int32_t
   chrom1_pos_for_research = chrom1_pos_1;
   chrom2_pos_for_research = chrom2_pos_1;
   int16_t i = 0;
-  while( _indiv->_mut_prng->random() < _exp_m->get_repl_HT_detach_rate() )
+  
+  while( _indiv->_mut_prng->random() < 1-_exp_m->get_repl_HT_detach_rate() )
   {
-    chrom1_pos_for_research = chrom1_pos_for_research + 2 * first_research_sense * _indiv->get_align_w_zone_h_len();
+    //printf("%d longueur genome %d\n",i, this->get_length());
+    //printf("chrom1_pos_for_research : %d, chrom2_pos_for_research : %d\n", chrom1_pos_for_research, chrom1_pos_for_research);
+    chrom1_pos_for_research = ae_utils::mod(chrom1_pos_for_research + 2 * first_research_sense * _indiv->get_align_w_zone_h_len(), this->get_length()) ;
     if ( cur_sense == DIRECT )
     {
-      chrom2_pos_for_research = chrom2_pos_for_research + 2 * first_research_sense * _indiv->get_align_w_zone_h_len();
+      chrom2_pos_for_research = ae_utils::mod(chrom2_pos_for_research + 2 * first_research_sense * _indiv->get_align_w_zone_h_len(), chrom2->get_length());
       tmp_alignment = ae_align::search_alignment_direct( this, chrom1_pos_for_research, chrom2, chrom2_pos_for_research, needed_score );
     }
     else // if ( cur_sense = INDIRECT )
     {
-      chrom2_pos_for_research = chrom2_pos_for_research - 2 * first_research_sense * _indiv->get_align_w_zone_h_len();
+      chrom1_pos_for_research = ae_utils::mod(chrom2_pos_for_research - 2 * first_research_sense * _indiv->get_align_w_zone_h_len(), chrom2->get_length());
       tmp_alignment = ae_align::search_alignment_indirect( this, chrom1_pos_for_research, chrom2, chrom2_pos_for_research, needed_score );
     }
+    //printf("chrom1_pos_for_research : %d, chrom2_pos_for_research : %d\n", chrom1_pos_for_research, chrom1_pos_for_research);
     
     if(tmp_alignment == NULL)
     {
       if(alignment != NULL)
       {
+        //printf("tmp_alignment == NULL alignment != NULL\n",i);
+        research_sense = first_research_sense;
         return alignment;
       }
       else
       {
+        //printf("tmp_alignment == NULL alignment == NULL\n",i);
         break;
       }
     }
@@ -2340,13 +2348,15 @@ ae_vis_a_vis* ae_dna::search_alignment_around_positions( ae_dna* chrom2, int32_t
     {
       if(alignment != NULL)
       {
+        //printf("tmp_alignment != NULL alignment != NULL\n",i);
         alignment->copy( tmp_alignment );
       }
       else
       {
+        //printf("tmp_alignment != NULL alignment == NULL\n",i);
         alignment = new ae_vis_a_vis( *tmp_alignment );
       }
-      
+      delete tmp_alignment;
       chrom1_pos_for_research = alignment->get_i_1();
       chrom2_pos_for_research = alignment->get_i_2();
     }
@@ -2355,6 +2365,8 @@ ae_vis_a_vis* ae_dna::search_alignment_around_positions( ae_dna* chrom2, int32_t
   
   if(alignment != NULL)
   {
+    
+    research_sense = first_research_sense;
     return alignment;
   }
   
@@ -2365,17 +2377,17 @@ ae_vis_a_vis* ae_dna::search_alignment_around_positions( ae_dna* chrom2, int32_t
   chrom1_pos_for_research = chrom1_pos_1;
   chrom2_pos_for_research = chrom2_pos_1;
   i = 0 ;
-  while( _indiv->_mut_prng->random() < _exp_m->get_repl_HT_detach_rate() )
+  while( _indiv->_mut_prng->random() < 1-_exp_m->get_repl_HT_detach_rate() )
   {
-    chrom1_pos_for_research = chrom1_pos_for_research + 2 * second_research_sense * _indiv->get_align_w_zone_h_len();
+    chrom1_pos_for_research = ae_utils::mod(chrom1_pos_for_research + 2 * second_research_sense * _indiv->get_align_w_zone_h_len(), this->get_length() );
     if ( cur_sense == DIRECT )
     {
-      chrom2_pos_for_research = chrom2_pos_for_research + 2 * second_research_sense * _indiv->get_align_w_zone_h_len();
+      chrom2_pos_for_research = ae_utils::mod(chrom2_pos_for_research + 2 * second_research_sense * _indiv->get_align_w_zone_h_len(), chrom2->get_length() );
       tmp_alignment = ae_align::search_alignment_direct( this, chrom1_pos_for_research, chrom2, chrom2_pos_for_research, needed_score );
     }
     else // if ( cur_sense = INDIRECT )
     {
-      chrom2_pos_for_research = chrom2_pos_for_research - 2 * second_research_sense * _indiv->get_align_w_zone_h_len();
+      chrom2_pos_for_research = ae_utils::mod(chrom2_pos_for_research - 2 * second_research_sense * _indiv->get_align_w_zone_h_len(), chrom2->get_length() );
       tmp_alignment = ae_align::search_alignment_indirect( this, chrom1_pos_for_research, chrom2, chrom2_pos_for_research, needed_score );
     }
     
@@ -2383,6 +2395,7 @@ ae_vis_a_vis* ae_dna::search_alignment_around_positions( ae_dna* chrom2, int32_t
     {
       if(alignment != NULL)
       {
+        research_sense = second_research_sense;
         return alignment;
       }
       else
@@ -2400,7 +2413,7 @@ ae_vis_a_vis* ae_dna::search_alignment_around_positions( ae_dna* chrom2, int32_t
       {
         alignment = new ae_vis_a_vis( *tmp_alignment );
       }
-      
+      delete tmp_alignment;
       chrom1_pos_for_research = alignment->get_i_1();
       chrom2_pos_for_research = alignment->get_i_2();
     }
@@ -2408,6 +2421,7 @@ ae_vis_a_vis* ae_dna::search_alignment_around_positions( ae_dna* chrom2, int32_t
   }
   if(alignment != NULL)
   {
+    research_sense = second_research_sense;
     return alignment;
   }
   

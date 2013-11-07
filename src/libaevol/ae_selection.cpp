@@ -765,17 +765,18 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
             new_indiv->assert_promoters();
             new_indiv->assert_promoters_order();
           #endif
+          
+          new_indiv->get_replic_report()->set_HT_ins(true);
+          new_indiv->get_replic_report()->set_HT_ins_sense(alignment_2->get_sense());
+          new_indiv->get_replic_report()->set_HT_ins_donor_id(donor->get_id());
+          new_indiv->get_replic_report()->set_HT_ins_alignment_1_donor_pos_1(alignment_1->get_i_1());
+          new_indiv->get_replic_report()->set_HT_ins_alignment_1_donor_pos_2(alignment_1->get_i_2()); 
+          new_indiv->get_replic_report()->set_HT_ins_alignment_1_score(alignment_1->get_score());
+          new_indiv->get_replic_report()->set_HT_ins_alignment_2_ind_pos(alignment_1->get_i_2());
+          new_indiv->get_replic_report()->set_HT_ins_alignment_2_donor_pos(alignment_1->get_i_1()); 
+          new_indiv->get_replic_report()->set_HT_ins_alignment_2_score(alignment_1->get_score());   
+          
         }
-        
-        new_indiv->get_replic_report()->set_HT_ins(true);
-        new_indiv->get_replic_report()->set_HT_ins_sense(alignment_2->get_sense());
-        new_indiv->get_replic_report()->set_HT_ins_donor_id(donor->get_id());
-        new_indiv->get_replic_report()->set_HT_ins_alignment_1_donor_pos_1(alignment_1->get_i_1());
-        new_indiv->get_replic_report()->set_HT_ins_alignment_1_donor_pos_2(alignment_1->get_i_2()); 
-        new_indiv->get_replic_report()->set_HT_ins_alignment_1_score(alignment_1->get_score());
-        new_indiv->get_replic_report()->set_HT_ins_alignment_2_ind_pos(alignment_1->get_i_2());
-        new_indiv->get_replic_report()->set_HT_ins_alignment_2_donor_pos(alignment_1->get_i_1()); 
-        new_indiv->get_replic_report()->set_HT_ins_alignment_2_score(alignment_1->get_score());   
         
         delete alignment_2;
       }
@@ -794,9 +795,11 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
     // Requirements:
     //    * 2 distinct alignments between the (linear) exogenote and the endogenote
     
+    //printf("Indiv: %d\n",new_indiv->get_id());
     // 1) Draw a random donor (uniform drawing).
     // We use the rank because indivs are sorted by rank (1 for the worst, POP_SIZE for the best).
     ae_individual * donor = NULL;
+    int32_t rank ;
     do donor = _exp_m->get_pop()->get_indiv_by_rank( _prng->random( nb_indivs ) + 1 );
     while ( donor == parent );
     
@@ -811,13 +814,14 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
     int32_t       nb_pairs_2    = (int32_t)( ceil( new_indiv_dna->get_length() * parent->get_neighbourhood_rate() ) );
     
     alignment_1 = parent_dna->search_alignment( donor_dna, nb_pairs_1, sense );
-    
     if ( alignment_1 != NULL )
     {
+      //printf("\talignement 1: %d %d\n", alignment_1->get_i_1(), alignment_1->get_i_2());
       if( _exp_m->get_repl_HT_with_close_points())
       {
         //printf("Id: %d\n",new_indiv->get_id());
-        alignment_2 = parent_dna->search_alignment_around_positions( donor_dna, alignment_1->get_i_1(), alignment_1->get_i_2(), alignment_1->get_sense(), nb_pairs_2);
+        int8_t research_sense = 0;
+        alignment_2 = parent_dna->search_alignment_around_positions( donor_dna, alignment_1->get_i_1(), alignment_1->get_i_2(), alignment_1->get_sense(), research_sense);
         if ( alignment_2 != NULL && alignment_2->get_i_1() == alignment_1->get_i_1() )
         {
           delete alignment_2;
@@ -827,6 +831,17 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
         // If both alignments were found, proceed to the transfer
         if ( alignment_2 != NULL )
         {
+          //printf("\talignement 2: %d %d\n", alignment_2->get_i_1(), alignment_2->get_i_2());
+          // If the second alignment is found upstream of the first alignment, they are inverse to facilitate
+          if(research_sense == -1) 
+          {
+            ae_vis_a_vis* tmp_alignment = new ae_vis_a_vis( *alignment_1 );
+            alignment_1->copy( alignment_2 );
+            alignment_2->copy( tmp_alignment );
+            delete tmp_alignment;
+            //printf("\tInversion des 2 alignements\n");
+          }
+          
           int32_t genome_length_before  = new_indiv_dna->get_length();
           int32_t exogenote_length      = ae_utils::mod( abs(alignment_2->get_i_2() - alignment_1->get_i_2()) - 1, donor_dna->get_length() ) + 1;
           int32_t replaced_seq_length   = ae_utils::mod( abs(alignment_2->get_i_1() - alignment_1->get_i_1()) - 1, genome_length_before ) + 1;
@@ -846,82 +861,88 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
                         genome_length_before );
             }
           }
-          
-          // 3) Make a copy of the sequence to be transferred (the exogenote)
-          ae_genetic_unit* exogenote = NULL;
-          if(alignment_1->get_i_2() < alignment_2->get_i_2())
-          {
-            exogenote = donor_dna->copy_into_new_GU( alignment_1->get_i_2(), alignment_2->get_i_2() );
-          }
           else
           {
-            exogenote = donor_dna->copy_into_new_GU( alignment_2->get_i_2(), alignment_1->get_i_2() );
-          }
-          
-          // Delete the sequence to be replaced
-          if(alignment_1->get_i_1() < alignment_2->get_i_1())
-          {
+            // 3) Make a copy of the sequence to be transferred (the exogenote)
+            ae_genetic_unit* exogenote = NULL;
+            if ( sense == DIRECT )
+            {
+              exogenote = donor_dna->copy_into_new_GU( alignment_1->get_i_2(), alignment_2->get_i_2() );
+            }
+            else
+            {
+              exogenote = donor_dna->copy_into_new_GU( alignment_2->get_i_2(), alignment_1->get_i_2() );
+            }
+            //printf("\tlg ADN donneur: %d\n", exogenote->get_seq_length());
+            //printf("\tlg avant: %d\n\talignment_1_i_1: %d alignment_2_i_1: %d research_sense: %d sense: %d\n", new_indiv_dna->get_length(), alignment_1->get_i_1(), alignment_2->get_i_1(), research_sense, sense);
+            // Delete the sequence to be replaced
             new_indiv_dna->do_deletion( alignment_1->get_i_1(), alignment_2->get_i_1() );
+            //printf("\tlg apres deletion: %d\n", new_indiv_dna->get_length());
+            if ( alignment_1->get_i_1() < alignment_2->get_i_1() )
+            {
+              new_indiv_dna->insert_GU( exogenote, alignment_1->get_i_1(), 0, sense == INDIRECT );
+            }
+            else
+            {
+              new_indiv_dna->insert_GU( exogenote, 0, 0, sense == INDIRECT );
+            }       
+            //printf("\tlg apres HT: %d\n", new_indiv_dna->get_length());
+            
+            // Write a line in transfer logfile
+            #warning LOG
+            if ( _exp_m->get_output_m()->is_logged(LOG_TRANSFER) == true )
+            {
+                fprintf(  _exp_m->get_output_m()->get_log(LOG_TRANSFER),
+                        "%"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId16" %"PRId32" %"PRId32" %"PRId16" %"PRId32" %"PRId32" %"PRId16"\n",
+                        _exp_m->get_num_gener(),
+                        new_indiv->get_id(),
+                        donor->get_id(),
+                        1, // Transfer type
+                        exogenote->get_dna()->get_length(),
+                        replaced_seq_length,
+                        genome_length_before,
+                        new_indiv_dna->get_length(),
+                        alignment_1->get_sense(),
+                        alignment_1->get_i_1(),
+                        alignment_1->get_i_2(),
+                        alignment_1->get_score(),
+                        alignment_2->get_i_1(),
+                        alignment_2->get_i_2(),
+                        alignment_2->get_score() );
+                if( sense  == DIRECT)
+                {
+                  fprintf(_exp_m->get_output_m()->get_log(LOG_TRANSFER),
+                        "\tAlignment 1:\n \t\t%s\n \t\t%s\n \tAlignment 2:\n \t\t%s\n \t\t%s\n",
+                        parent_dna->get_subsequence( alignment_1->get_i_1() - 2*new_indiv->get_align_w_zone_h_len()- new_indiv->get_align_max_shift(), alignment_1->get_i_1(), LEADING),
+                        donor_dna->get_subsequence( alignment_1->get_i_2() - 2*new_indiv->get_align_w_zone_h_len()- new_indiv->get_align_max_shift(), alignment_1->get_i_2(), LEADING),
+                        parent_dna->get_subsequence( alignment_2->get_i_1() - 2*new_indiv->get_align_w_zone_h_len()- new_indiv->get_align_max_shift(), alignment_2->get_i_1(), LEADING),
+                        donor_dna->get_subsequence( alignment_2->get_i_2() - 2*new_indiv->get_align_w_zone_h_len()- new_indiv->get_align_max_shift(), alignment_2->get_i_2(), LEADING));
+                }
+                else
+                {
+                  fprintf(_exp_m->get_output_m()->get_log(LOG_TRANSFER),
+                        "\tAlignment 1:\n \t\t%s\n \t\t%s\n \tAlignment 2:\n \t\t%s\n \t\t%s\n",
+                        parent_dna->get_subsequence( alignment_1->get_i_1() - 2*new_indiv->get_align_w_zone_h_len()- new_indiv->get_align_max_shift(), alignment_1->get_i_1(), LEADING),
+                        donor_dna->get_subsequence( alignment_1->get_i_2() + 2*new_indiv->get_align_w_zone_h_len()+ new_indiv->get_align_max_shift(), alignment_1->get_i_2(), LAGGING),
+                        parent_dna->get_subsequence( alignment_2->get_i_1() - 2*new_indiv->get_align_w_zone_h_len()- new_indiv->get_align_max_shift(), alignment_2->get_i_1(), LEADING),
+                        donor_dna->get_subsequence( alignment_2->get_i_2() + 2*new_indiv->get_align_w_zone_h_len()+ new_indiv->get_align_max_shift(), alignment_2->get_i_2(), LAGGING));
+                }
+            }
+            
+            new_indiv->get_replic_report()->set_HT_repl( true);
+            new_indiv->get_replic_report()->set_HT_repl_sense( alignment_1->get_sense() );
+            new_indiv->get_replic_report()->set_HT_repl_donor_id( donor->get_id() );
+            new_indiv->get_replic_report()->set_HT_repl_alignment_1_ind_pos( alignment_1->get_i_1());
+            new_indiv->get_replic_report()->set_HT_repl_alignment_1_donor_pos( alignment_1->get_i_2()); 
+            new_indiv->get_replic_report()->set_HT_repl_alignment_1_score( alignment_1->get_score());
+            new_indiv->get_replic_report()->set_HT_repl_alignment_2_ind_pos( alignment_2->get_i_1());
+            new_indiv->get_replic_report()->set_HT_repl_alignment_2_donor_pos( alignment_2->get_i_2()); 
+            new_indiv->get_replic_report()->set_HT_repl_alignment_2_score( alignment_2->get_score());   
+             
+            delete exogenote;
           }
-          else
-          {
-            new_indiv_dna->do_deletion( alignment_2->get_i_1(), alignment_1->get_i_1() );
-          }
-          
-          // Insert the transfered sequence
-          if ( alignment_1->get_i_1() < alignment_2->get_i_1() )
-          {
-            new_indiv_dna->insert_GU( exogenote, alignment_1->get_i_1(), 0, sense == INDIRECT );
-          }
-          else
-          {
-            new_indiv_dna->insert_GU( exogenote, alignment_2->get_i_1(), 0, sense == INDIRECT );
-          }       
-
-          // Write a line in transfer logfile
-          #warning LOG
-          if ( _exp_m->get_output_m()->is_logged(LOG_TRANSFER) == true )
-          {
-              fprintf(  _exp_m->get_output_m()->get_log(LOG_TRANSFER),
-                      "%"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId16" %"PRId32" %"PRId32" %"PRId16" %"PRId32" %"PRId32" %"PRId16"\n",
-                      _exp_m->get_num_gener(),
-                      new_indiv->get_id(),
-                      donor->get_id(),
-                      1, // Transfer type
-                      exogenote->get_dna()->get_length(),
-                      replaced_seq_length,
-                      genome_length_before,
-                      new_indiv_dna->get_length(),
-                      alignment_1->get_sense(),
-                      alignment_1->get_i_1(),
-                      alignment_1->get_i_2(),
-                      alignment_1->get_score(),
-                      alignment_2->get_i_1(),
-                      alignment_2->get_i_2(),
-                      alignment_2->get_score() );
-              if( sense  == DIRECT)
-              {
-                fprintf(_exp_m->get_output_m()->get_log(LOG_TRANSFER),
-                      "\tAlignment 1:\n \t\t%s\n \t\t%s\n \tAlignment 2:\n \t\t%s\n \t\t%s\n",
-                      parent_dna->get_subsequence( alignment_1->get_i_1() - 2*new_indiv->get_align_w_zone_h_len()- new_indiv->get_align_max_shift(), alignment_1->get_i_1(), LEADING),
-                      donor_dna->get_subsequence( alignment_1->get_i_2() - 2*new_indiv->get_align_w_zone_h_len()- new_indiv->get_align_max_shift(), alignment_1->get_i_2(), LEADING),
-                      parent_dna->get_subsequence( alignment_2->get_i_1() - 2*new_indiv->get_align_w_zone_h_len()- new_indiv->get_align_max_shift(), alignment_2->get_i_1(), LEADING),
-                      donor_dna->get_subsequence( alignment_2->get_i_2() - 2*new_indiv->get_align_w_zone_h_len()- new_indiv->get_align_max_shift(), alignment_2->get_i_2(), LEADING));
-              }
-              else
-              {
-                fprintf(_exp_m->get_output_m()->get_log(LOG_TRANSFER),
-                      "\tAlignment 1:\n \t\t%s\n \t\t%s\n \tAlignment 2:\n \t\t%s\n \t\t%s\n",
-                      parent_dna->get_subsequence( alignment_1->get_i_1() - 2*new_indiv->get_align_w_zone_h_len()- new_indiv->get_align_max_shift(), alignment_1->get_i_1(), LEADING),
-                      donor_dna->get_subsequence( alignment_1->get_i_2(), alignment_1->get_i_2()+ 2*new_indiv->get_align_w_zone_h_len() + new_indiv->get_align_max_shift(), LEADING),
-                      parent_dna->get_subsequence( alignment_2->get_i_1() - 2*new_indiv->get_align_w_zone_h_len()- new_indiv->get_align_max_shift(), alignment_2->get_i_1(), LEADING),
-                      donor_dna->get_subsequence( alignment_2->get_i_2(), alignment_2->get_i_2()+ 2*new_indiv->get_align_w_zone_h_len() + new_indiv->get_align_max_shift(), LEADING));
-              }
-          }
-          
-          delete exogenote;
           delete alignment_2;
-      }
+        }
       
       }
       else
@@ -961,71 +982,66 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
                         genome_length_before );
             }
           }
-          
-          // 3) Make a copy of the sequence to be transferred (the exogenote)
-          ae_genetic_unit* exogenote = NULL;
-          if ( sense == DIRECT )
-          {
-            exogenote = donor_dna->copy_into_new_GU( alignment_1->get_i_2(), alignment_2->get_i_2() );
-          }
           else
           {
-            exogenote = donor_dna->copy_into_new_GU( alignment_2->get_i_2(), alignment_1->get_i_2() );
-          }
-          
-          // Delete the sequence to be replaced
-          new_indiv_dna->do_deletion( alignment_1->get_i_1(), alignment_2->get_i_1() );
-          
-          //~ printf( "intermediate genome length : %"PRId32"\n", new_indiv_dna->get_length() );
-          
-          // Insert the transfered sequence
-          if ( alignment_1->get_i_1() < alignment_2->get_i_1() )
-          {
-            new_indiv_dna->insert_GU( exogenote, alignment_1->get_i_1(), 0, sense == INDIRECT );
-          }
-          else
-          {
-            new_indiv_dna->insert_GU( exogenote, 0, 0, sense == INDIRECT );
-          }       
+            // 3) Make a copy of the sequence to be transferred (the exogenote)
+            ae_genetic_unit* exogenote = NULL;
+            if ( sense == DIRECT )
+            {
+              exogenote = donor_dna->copy_into_new_GU( alignment_1->get_i_2(), alignment_2->get_i_2() );
+            }
+            else
+            {
+              exogenote = donor_dna->copy_into_new_GU( alignment_2->get_i_2(), alignment_1->get_i_2() );
+            }
+            
+            // Delete the sequence to be replaced
+            new_indiv_dna->do_deletion( alignment_1->get_i_1(), alignment_2->get_i_1() );
+            
+            //~ printf( "intermediate genome length : %"PRId32"\n", new_indiv_dna->get_length() );
+            
+            // Insert the transfered sequence
+            if ( alignment_1->get_i_1() < alignment_2->get_i_1() )
+            {
+              new_indiv_dna->insert_GU( exogenote, alignment_1->get_i_1(), 0, sense == INDIRECT );
+            }
+            else
+            {
+              new_indiv_dna->insert_GU( exogenote, 0, 0, sense == INDIRECT );
+            }       
 
-          //printf("\tTransfert: %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId16" %"PRId32" %"PRId32" %"PRId16"\n",
-          //            _exp_m->get_num_gener(),
-          //            new_indiv->get_id(),
-          //            donor->get_id(),
-          //            1, // Transfer type
-          //            exogenote->get_dna()->get_length(),
-          //            replaced_seq_length,
-          //            genome_length_before,
-          //            new_indiv_dna->get_length(),
-          //            alignment_1->get_i_1(),
-          //            alignment_1->get_i_2(),
-          //            alignment_1->get_score(),
-          //            alignment_2->get_i_1(),
-          //            alignment_2->get_i_2(),
-          //            alignment_2->get_score() );
-          // Write a line in transfer logfile
-          #warning LOG
-          if ( _exp_m->get_output_m()->is_logged(LOG_TRANSFER) == true )
-          {
-              fprintf(  _exp_m->get_output_m()->get_log(LOG_TRANSFER),
-                      "%"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId16" %"PRId32" %"PRId32" %"PRId16"\n",
-                      _exp_m->get_num_gener(),
-                      new_indiv->get_id(),
-                      donor->get_id(),
-                      1, // Transfer type
-                      exogenote->get_dna()->get_length(),
-                      replaced_seq_length,
-                      genome_length_before,
-                      new_indiv_dna->get_length(),
-                      alignment_1->get_i_1(),
-                      alignment_1->get_i_2(),
-                      alignment_1->get_score(),
-                      alignment_2->get_i_1(),
-                      alignment_2->get_i_2(),
-                      alignment_2->get_score() );
+            // Write a line in transfer logfile
+            #warning LOG
+            if ( _exp_m->get_output_m()->is_logged(LOG_TRANSFER) == true )
+            {
+                fprintf(  _exp_m->get_output_m()->get_log(LOG_TRANSFER),
+                        "%"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId16" %"PRId32" %"PRId32" %"PRId16"\n",
+                        _exp_m->get_num_gener(),
+                        new_indiv->get_id(),
+                        donor->get_id(),
+                        1, // Transfer type
+                        exogenote->get_dna()->get_length(),
+                        replaced_seq_length,
+                        genome_length_before,
+                        new_indiv_dna->get_length(),
+                        alignment_1->get_i_1(),
+                        alignment_1->get_i_2(),
+                        alignment_1->get_score(),
+                        alignment_2->get_i_1(),
+                        alignment_2->get_i_2(),
+                        alignment_2->get_score() );
+            }
+            new_indiv->get_replic_report()->set_HT_repl( true);
+            new_indiv->get_replic_report()->set_HT_repl_sense( alignment_1->get_sense() );
+            new_indiv->get_replic_report()->set_HT_repl_donor_id( donor->get_id() );
+            new_indiv->get_replic_report()->set_HT_repl_alignment_1_ind_pos( alignment_1->get_i_1());
+            new_indiv->get_replic_report()->set_HT_repl_alignment_1_donor_pos( alignment_1->get_i_2()); 
+            new_indiv->get_replic_report()->set_HT_repl_alignment_1_score( alignment_1->get_score());
+            new_indiv->get_replic_report()->set_HT_repl_alignment_2_ind_pos( alignment_2->get_i_1());
+            new_indiv->get_replic_report()->set_HT_repl_alignment_2_donor_pos( alignment_2->get_i_2()); 
+            new_indiv->get_replic_report()->set_HT_repl_alignment_2_score( alignment_2->get_score());  
+            delete exogenote;
           }
-          
-          delete exogenote;
           delete alignment_2;
         }
         
@@ -1035,7 +1051,6 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
       delete alignment_1;
     }
   }
-  
   
   // ===========================================================================
   //  4) Perform rearrangements and mutations

@@ -192,24 +192,31 @@ ae_replication_report::ae_replication_report( gzFile tree_file, ae_individual * 
   gzread( tree_file, &_nb_coding_RNAs,      sizeof(_nb_coding_RNAs) );
   gzread( tree_file, &_nb_non_coding_RNAs,  sizeof(_nb_non_coding_RNAs) );
   
+  
   gzread( tree_file, &_HT_ins,         					        sizeof(_HT_ins) );
-  gzread( tree_file, &_HT_ins_sense,         			      sizeof(_HT_ins_sense) );
-  gzread( tree_file, &_HT_ins_donor_id,         		    sizeof(_HT_ins_donor_id) );
-  gzread( tree_file, &_HT_ins_alignment_1_donor_pos_1,  sizeof(_HT_ins_alignment_1_donor_pos_1) );
-  gzread( tree_file, &_HT_ins_alignment_1_donor_pos_2,  sizeof(_HT_ins_alignment_1_donor_pos_2) ); 
-  gzread( tree_file, &_HT_ins_alignment_1_score,        sizeof(_HT_ins_alignment_1_score) );
-  gzread( tree_file, &_HT_ins_alignment_2_ind_pos,      sizeof(_HT_ins_alignment_2_ind_pos) );
-  gzread( tree_file, &_HT_ins_alignment_2_donor_pos,    sizeof(_HT_ins_alignment_2_donor_pos) ); 
-  gzread( tree_file, &_HT_ins_alignment_2_score,        sizeof(_HT_ins_alignment_2_score) );   
-  gzread( tree_file, &_HT_repl,         				        sizeof(_HT_repl) );
-  gzread( tree_file, &_HT_repl_sense,         			    sizeof(_HT_repl_sense) );
-  gzread( tree_file, &_HT_repl_donor_id,         		    sizeof(_HT_repl_donor_id) );
-  gzread( tree_file, &_HT_repl_alignment_1_ind_pos,     sizeof(_HT_repl_alignment_1_ind_pos) );
-  gzread( tree_file, &_HT_repl_alignment_1_donor_pos,   sizeof(_HT_repl_alignment_1_donor_pos) ); 
-  gzread( tree_file, &_HT_repl_alignment_1_score,       sizeof(_HT_repl_alignment_1_score) );
-  gzread( tree_file, &_HT_repl_alignment_2_ind_pos,     sizeof(_HT_repl_alignment_2_ind_pos) );
-  gzread( tree_file, &_HT_repl_alignment_2_donor_pos,   sizeof(_HT_repl_alignment_2_donor_pos) ); 
-  gzread( tree_file, &_HT_repl_alignment_2_score,       sizeof(_HT_repl_alignment_2_score) );    
+  if(_HT_ins)
+  {
+    gzread( tree_file, &_HT_ins_sense,         				    sizeof(_HT_ins_sense) );
+    gzread( tree_file, &_HT_ins_donor_id,         			    sizeof(_HT_ins_donor_id) );
+    gzread( tree_file, &_HT_ins_alignment_1_donor_pos_1,	  sizeof(_HT_ins_alignment_1_donor_pos_1) );
+    gzread( tree_file, &_HT_ins_alignment_1_donor_pos_2, 	sizeof(_HT_ins_alignment_1_donor_pos_2) ); 
+    gzread( tree_file, &_HT_ins_alignment_1_score,        	sizeof(_HT_ins_alignment_1_score) );
+    gzread( tree_file, &_HT_ins_alignment_2_ind_pos,      	sizeof(_HT_ins_alignment_2_ind_pos) );
+    gzread( tree_file, &_HT_ins_alignment_2_donor_pos,   	sizeof(_HT_ins_alignment_2_donor_pos) ); 
+    gzread( tree_file, &_HT_ins_alignment_2_score,        	sizeof(_HT_ins_alignment_2_score) );   
+  }
+  gzread( tree_file, &_HT_repl,         					        sizeof(_HT_repl) );
+  if(_HT_repl)
+  {
+    gzread( tree_file, &_HT_repl_sense,         				    sizeof(_HT_repl_sense) );
+    gzread( tree_file, &_HT_repl_donor_id,         			  sizeof(_HT_repl_donor_id) );
+    gzread( tree_file, &_HT_repl_alignment_1_ind_pos,     	sizeof(_HT_repl_alignment_1_ind_pos) );
+    gzread( tree_file, &_HT_repl_alignment_1_donor_pos,  	sizeof(_HT_repl_alignment_1_donor_pos) ); 
+    gzread( tree_file, &_HT_repl_alignment_1_score,       	sizeof(_HT_repl_alignment_1_score) );
+    gzread( tree_file, &_HT_repl_alignment_2_ind_pos,     	sizeof(_HT_repl_alignment_2_ind_pos) );
+    gzread( tree_file, &_HT_repl_alignment_2_donor_pos,  	sizeof(_HT_repl_alignment_2_donor_pos) ); 
+    gzread( tree_file, &_HT_repl_alignment_2_score,       	sizeof(_HT_repl_alignment_2_score) );    
+  }
   
   int32_t nb_dna_replic_reports;
   gzread( tree_file, &nb_dna_replic_reports, sizeof(nb_dna_replic_reports) );
@@ -378,23 +385,29 @@ void ae_replication_report::write_to_tree_file( gzFile tree_file ) const
   gzwrite( tree_file, &_nb_non_coding_RNAs,  sizeof(_nb_non_coding_RNAs) );
   
   gzwrite( tree_file, &_HT_ins,         					        sizeof(_HT_ins) );
-  gzwrite( tree_file, &_HT_ins_sense,         				    sizeof(_HT_ins_sense) );
-  gzwrite( tree_file, &_HT_ins_donor_id,         			    sizeof(_HT_ins_donor_id) );
-  gzwrite( tree_file, &_HT_ins_alignment_1_donor_pos_1,	  sizeof(_HT_ins_alignment_1_donor_pos_1) );
-  gzwrite( tree_file, &_HT_ins_alignment_1_donor_pos_2, 	sizeof(_HT_ins_alignment_1_donor_pos_2) ); 
-  gzwrite( tree_file, &_HT_ins_alignment_1_score,        	sizeof(_HT_ins_alignment_1_score) );
-  gzwrite( tree_file, &_HT_ins_alignment_2_ind_pos,      	sizeof(_HT_ins_alignment_2_ind_pos) );
-  gzwrite( tree_file, &_HT_ins_alignment_2_donor_pos,   	sizeof(_HT_ins_alignment_2_donor_pos) ); 
-  gzwrite( tree_file, &_HT_ins_alignment_2_score,        	sizeof(_HT_ins_alignment_2_score) );   
+  if(_HT_ins)
+  {
+    gzwrite( tree_file, &_HT_ins_sense,         				    sizeof(_HT_ins_sense) );
+    gzwrite( tree_file, &_HT_ins_donor_id,         			    sizeof(_HT_ins_donor_id) );
+    gzwrite( tree_file, &_HT_ins_alignment_1_donor_pos_1,	  sizeof(_HT_ins_alignment_1_donor_pos_1) );
+    gzwrite( tree_file, &_HT_ins_alignment_1_donor_pos_2, 	sizeof(_HT_ins_alignment_1_donor_pos_2) ); 
+    gzwrite( tree_file, &_HT_ins_alignment_1_score,        	sizeof(_HT_ins_alignment_1_score) );
+    gzwrite( tree_file, &_HT_ins_alignment_2_ind_pos,      	sizeof(_HT_ins_alignment_2_ind_pos) );
+    gzwrite( tree_file, &_HT_ins_alignment_2_donor_pos,   	sizeof(_HT_ins_alignment_2_donor_pos) ); 
+    gzwrite( tree_file, &_HT_ins_alignment_2_score,        	sizeof(_HT_ins_alignment_2_score) );   
+  }
   gzwrite( tree_file, &_HT_repl,         					        sizeof(_HT_repl) );
-  gzwrite( tree_file, &_HT_repl_sense,         				    sizeof(_HT_repl_sense) );
-  gzwrite( tree_file, &_HT_repl_donor_id,         			  sizeof(_HT_repl_donor_id) );
-  gzwrite( tree_file, &_HT_repl_alignment_1_ind_pos,     	sizeof(_HT_repl_alignment_1_ind_pos) );
-  gzwrite( tree_file, &_HT_repl_alignment_1_donor_pos,  	sizeof(_HT_repl_alignment_1_donor_pos) ); 
-  gzwrite( tree_file, &_HT_repl_alignment_1_score,       	sizeof(_HT_repl_alignment_1_score) );
-  gzwrite( tree_file, &_HT_repl_alignment_2_ind_pos,     	sizeof(_HT_repl_alignment_2_ind_pos) );
-  gzwrite( tree_file, &_HT_repl_alignment_2_donor_pos,  	sizeof(_HT_repl_alignment_2_donor_pos) ); 
-  gzwrite( tree_file, &_HT_repl_alignment_2_score,       	sizeof(_HT_repl_alignment_2_score) );    
+  if(_HT_repl)
+  {
+    gzwrite( tree_file, &_HT_repl_sense,         				    sizeof(_HT_repl_sense) );
+    gzwrite( tree_file, &_HT_repl_donor_id,         			  sizeof(_HT_repl_donor_id) );
+    gzwrite( tree_file, &_HT_repl_alignment_1_ind_pos,     	sizeof(_HT_repl_alignment_1_ind_pos) );
+    gzwrite( tree_file, &_HT_repl_alignment_1_donor_pos,  	sizeof(_HT_repl_alignment_1_donor_pos) ); 
+    gzwrite( tree_file, &_HT_repl_alignment_1_score,       	sizeof(_HT_repl_alignment_1_score) );
+    gzwrite( tree_file, &_HT_repl_alignment_2_ind_pos,     	sizeof(_HT_repl_alignment_2_ind_pos) );
+    gzwrite( tree_file, &_HT_repl_alignment_2_donor_pos,  	sizeof(_HT_repl_alignment_2_donor_pos) ); 
+    gzwrite( tree_file, &_HT_repl_alignment_2_score,       	sizeof(_HT_repl_alignment_2_score) );    
+  }
   
   
   // For each genetic unit, write the mutations and rearrangements undergone during replication
