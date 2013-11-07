@@ -1118,6 +1118,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
         // Add it to the list
         pop->add_indiv( clone );
       }
+      pop->sort_individuals();
     }
     else // if ( ! CLONE )
     {
@@ -1158,6 +1159,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
         // Add it to the list
         pop->add_indiv( clone );
       }
+      pop->sort_individuals();
     }
     else // if ( ! CLONE )
     {
