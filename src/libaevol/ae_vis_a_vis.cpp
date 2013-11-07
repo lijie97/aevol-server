@@ -61,6 +61,7 @@ ae_vis_a_vis::ae_vis_a_vis( const ae_dna* chrom_1, const ae_dna* chrom_2, int32_
   _i_1      = i_1;
   _i_2      = i_2;
   _sense    = sense;
+  _score    = 0;
 }
 
 ae_vis_a_vis::ae_vis_a_vis( const ae_vis_a_vis & orig )
@@ -70,6 +71,7 @@ ae_vis_a_vis::ae_vis_a_vis( const ae_vis_a_vis & orig )
   _i_1      = orig._i_1;
   _i_2      = orig._i_2;
   _sense    = orig._sense;
+  _score    = orig._score;
 }
 
 //~ ae_vis_a_vis::ae_vis_a_vis( const ae_vis_a_vis * orig )

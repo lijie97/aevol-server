@@ -345,6 +345,7 @@ inline void ae_vis_a_vis::copy( ae_vis_a_vis * source )
   _chrom_1 = source->_chrom_1;
   _chrom_2 = source->_chrom_2;
   _sense = source->_sense;
+  _score = source->_score;
 }
 
 inline void ae_vis_a_vis::check_indices( void )
