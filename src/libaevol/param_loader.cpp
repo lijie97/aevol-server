@@ -934,19 +934,19 @@ void param_loader::read_file( void )
 
 void param_loader::load( ae_exp_manager* exp_m, bool verbose )
 {
-	// Initialize _prng
+  // Initialize _prng
   _prng = new ae_jumping_mt( _param_values->_seed );
   
   // Initialize _mut_prng and _stoch_prng :
   // if mut_seed (respectively stoch_seed) not given in param.in, choose it at random
   if ( _param_values->_mut_seed == 0 ) {
-		_param_values->set_mut_seed( _prng->random( 1000000 ) );
-	}
-	if ( _param_values->_stoch_seed == 0 ) {
-		_param_values->set_stoch_seed( _prng->random( 1000000 ) );
-	}
-	_mut_prng = new ae_jumping_mt( _param_values->_mut_seed );
-	_stoch_prng = new ae_jumping_mt( _param_values->_stoch_seed );
+    _param_values->set_mut_seed( _prng->random( 1000000 ) );
+  }
+  if ( _param_values->_stoch_seed == 0 ) {
+    _param_values->set_stoch_seed( _prng->random( 1000000 ) );
+  }
+  _mut_prng = new ae_jumping_mt( _param_values->_mut_seed );
+  _stoch_prng = new ae_jumping_mt( _param_values->_stoch_seed );
   
   // Create aliases (syntaxic sugars)
   ae_exp_setup*       exp_s     = exp_m->get_exp_s();
@@ -1026,11 +1026,17 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   env->set_sampling( _param_values->get_env_sampling() );
   
   // Set the environment segmentation
-  env->set_segmentation( _param_values->get_env_axis_nb_segments(),
+  if( (_param_values->get_env_axis_features() != NULL) && (_param_values->get_env_axis_segment_boundaries() != NULL)  )
+    {
+      // if param.in contained a line starting with ENV_AXIS_FEATURES,
+      // we use the values indicated on this line
+      env->set_segmentation( _param_values->get_env_axis_nb_segments(),
                          _param_values->get_env_axis_segment_boundaries(),
                          _param_values->get_env_axis_features(),
                          _param_values->get_env_axis_separate_segments() );
-  
+    } // else we leave the ae_environment as it is by default (one "metabolic" segment from X_MIN to XMAX)
+
+
   // Set environmental variation
   if ( _param_values->get_env_var_method() != NO_VAR )
   {
