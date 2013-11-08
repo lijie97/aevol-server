@@ -25,8 +25,8 @@
 //*****************************************************************************
 
 
-#ifndef TEST_AE_JUMPING_MT
-#define TEST_AE_JUMPING_MT
+#ifndef TEST_AE_INDIVIDUAL
+#define TEST_AE_INDIVIDUAL
 
 
 // =================================================================
@@ -159,4 +159,4 @@ class Test_ae_individual : public TestFixture
 // ===========================================================================
 
 
-#endif // TEST_AE_JUMPING_MT
+#endif // TEST_AE_INDIVIDUAL
