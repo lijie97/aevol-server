@@ -161,7 +161,7 @@ ae_stats::ae_stats( ae_exp_manager* exp_m,
         }
       }
     }
-    delete old_file_name;
+    delete [] old_file_name;
   }
   else // ancstat case
   {
