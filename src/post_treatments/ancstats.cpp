@@ -405,6 +405,14 @@ int main(int argc, char** argv)
       unit    = (ae_genetic_unit *)       unitnode->get_obj();
       
       unit->get_dna()->set_replic_report( dnarep );
+      
+      mnode = dnarep->get_HT()->get_first();              
+      while ( mnode != NULL )
+      {
+        mut = (ae_mutation *) mnode->get_obj();
+        unit->get_dna()->undergo_this_mutation(mut); 
+        mnode = mnode->get_next();
+      }
 
       mnode = dnarep->get_rearrangements()->get_first();              
       while ( mnode != NULL )

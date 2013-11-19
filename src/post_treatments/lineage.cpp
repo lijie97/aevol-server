@@ -333,10 +333,9 @@ int main(int argc, char** argv)
       tree = new ae_tree( exp_manager, pop_file_name, tree_file_name );
     }
     
-
     // Copy the replication report of the ancestor
     reports[i] = new ae_replication_report( *(tree->get_report_by_index(num_gener, indices[i + 1])) );
-
+    
     // Retreive the index and rank of the next ancestor from the report
     indices[i] = reports[i]->get_parent_id();
   }
@@ -447,7 +446,7 @@ int main(int argc, char** argv)
   	  #else
     	exp_manager_backup = new ae_exp_manager();
       #endif
-      exp_manager_backup->load( num_gener, false, true );
+      exp_manager_backup->load( num_gener, false, true, false );
   
       // Copy the ancestor from the backup
       // NB : The list of individuals is sorted according to the index
@@ -469,6 +468,14 @@ int main(int argc, char** argv)
       
       rep = (ae_dna_replic_report *) report_node->get_obj();
       unit = (ae_genetic_unit *) gen_unit_node->get_obj();
+      
+      mut_node = rep->get_HT()->get_first(); 
+      while ( mut_node != NULL )
+      {
+        mut = (ae_mutation *) mut_node->get_obj();
+        (unit->get_dna())->undergo_this_mutation( mut );
+        mut_node = mut_node->get_next();
+      }
       
       mut_node = rep->get_rearrangements()->get_first(); 
       while ( mut_node != NULL )

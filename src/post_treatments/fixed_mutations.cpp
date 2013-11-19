@@ -217,17 +217,18 @@ int main(int argc, char** argv)
   fprintf( output, "# #################################################################\n" );
   fprintf( output, "#  1.  Generation       (mut. occurred when producing the indiv. of this generation)\n" );
   fprintf( output, "#  2.  Genetic unit     (which underwent the mutation, 0 = chromosome) \n" );
-  fprintf( output, "#  3.  Mutation type    (0: switch, 1: smallins, 2: smalldel, 3:dupl, 4: del, 5:trans, 6:inv) \n" );
-  fprintf( output, "#  4.  pos_0            (position for the small events, begin_segment for the rearrangements) \n" );
-  fprintf( output, "#  5.  pos_1            (-1 for the small events, end_segment for the rearrangements) \n" );
-  fprintf( output, "#  6.  pos_2            (reinsertion point for duplic., cutting point in segment for transloc., -1 for other events)\n" );
-  fprintf( output, "#  7.  pos_3            (reinsertion point for transloc., -1 for other events)\n" );
-  fprintf( output, "#  8.  invert           (transloc only, was the segment inverted (0/1)? (-1 for other events))\n" );
-  fprintf( output, "#  9.  align_score      (score that was needed for this rearrangement to occur)\n" );
-  fprintf( output, "#  10. align_score2     (transloc only, score for the reinsertion)\n" );
-  fprintf( output, "#  11. segment_length   \n" );
-  fprintf( output, "#  12. GU_length        (before the event)\n" );
-  fprintf( output, "#  13. Impact of the mutation on the metabolic error (negative value = smaller gap after = beneficial mutation) \n" );
+  fprintf( output, "#  3.  Mutation type    (0: switch, 1: smallins, 2: smalldel, 3:dupl, 4: del, 5:trans, 6:inv, 7:insert, 8:ins_HT, 9:repl_HT) \n" );
+  fprintf( output, "#  4.  pos_0            (position for the small events, begin_segment for the rearrangements, begin_segment of the inserted segment for ins_HT, begin_segment of replaced segment for repl_HT) \n" );
+  fprintf( output, "#  5.  pos_1            (-1 for the small events, end_segment for the rearrangements, end_segment of the inserted segment for ins_HT, begin_segment of donor segment for repl_HT) \n" );
+  fprintf( output, "#  6.  pos_2            (reinsertion point for duplic., cutting point in segment for transloc., insertion point in the receiver for ins_HT, end_segment of the replaced segment for repl_HT, -1 for other events)\n" );
+  fprintf( output, "#  7.  pos_3            (reinsertion point for transloc., breakpoint in the donor for ins_HT, end_segment of the donor segment for repl_HT, -1 for other events)\n" );
+  fprintf( output, "#  8.  invert           (transloc, was the segment inverted (0/1)?, sense of insertion for ins_HT (0=DIRECT, 1=INDIRECT), sense of the donor segment for repl_HT (0=DIRECT, 1=INDIRECT),-1 for other events)\n" );
+  fprintf( output, "#  9.  align_score      (score that was needed for the rearrangement to occur, score of the first alignment for ins_HT and repl_HT)\n" );
+  fprintf( output, "#  10. align_score2     (score for the reinsertion for transloc, score of the second alignment for ins_HT and repl_HT)\n" );
+  fprintf( output, "#  11. seg_len          (segment length for rearrangement, donor segment length for ins_HT and repl_HT)\n" );
+  fprintf( output, "#  12. repl_seg_len     (replaced segment length for repl_HT, -1 for the others)\n" );
+  fprintf( output, "#  13. GU_length        (before the event)\n" );
+  fprintf( output, "#  14. Impact of the mutation on the metabolic error (negative value = smaller gap after = beneficial mutation) \n" );
   fprintf( output, "####################################################################################################################\n" );
   fprintf( output, "#\n" );
   fprintf( output, "# Header for R\n" );
@@ -291,7 +292,7 @@ int main(int argc, char** argv)
   ae_list_node<ae_genetic_unit*>* stored_unit_node = NULL;
   ae_genetic_unit*  stored_unit = NULL;
 
-  int32_t i, index, genetic_unit_number, unitlen_before, seglen;
+  int32_t i, index, genetic_unit_number, unitlen_before;
   double metabolic_error_before, metabolic_error_after, impact_on_metabolic_error;
   char mut_descr_string[80];
   
@@ -374,15 +375,14 @@ int main(int argc, char** argv)
       unit   = (ae_genetic_unit *) unitnode->get_obj();
       
       unit->get_dna()->set_replic_report( dnarep );
-
-      mnode = dnarep->get_rearrangements()->get_first();
+      
+      mnode = dnarep->get_HT()->get_first();
       while ( mnode != NULL )
       {
         mut = (ae_mutation *) mnode->get_obj();
         
         metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
         unitlen_before = unit->get_dna()->get_length();
-        seglen = mut->segment_length( unitlen_before );
         // TODO : number of affected genes
 
         unit->get_dna()->undergo_this_mutation( mut );
@@ -392,10 +392,34 @@ int main(int argc, char** argv)
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
         mut->get_generic_description_string( mut_descr_string );
-        fprintf( output, "%"PRId32" %"PRId32" %s %"PRId32" %"PRId32" %.15f \n",\
+        fprintf( output, "%"PRId32" %"PRId32" %s %"PRId32" %.15f \n",\
                  num_gener, genetic_unit_number, \
-                 mut_descr_string, seglen, \
-                 unitlen_before, \
+                 mut_descr_string, unitlen_before, \
+                 impact_on_metabolic_error );
+
+
+        mnode = mnode->get_next();
+      }
+
+      mnode = dnarep->get_rearrangements()->get_first();
+      while ( mnode != NULL )
+      {
+        mut = (ae_mutation *) mnode->get_obj();
+        
+        metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
+        unitlen_before = unit->get_dna()->get_length();
+        // TODO : number of affected genes
+
+        unit->get_dna()->undergo_this_mutation( mut );
+
+        indiv->reevaluate(env);
+        metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
+        impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
+
+        mut->get_generic_description_string( mut_descr_string );
+        fprintf( output, "%"PRId32" %"PRId32" %s %"PRId32" %.15f \n",\
+                 num_gener, genetic_unit_number, \
+                 mut_descr_string, unitlen_before, \
                  impact_on_metabolic_error );
 
 
@@ -409,7 +433,6 @@ int main(int argc, char** argv)
 
         metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
         unitlen_before = unit->get_dna()->get_length();
-        seglen = mut->segment_length( unitlen_before );
         // TODO : number of affected genes
 
         unit->get_dna()->undergo_this_mutation( mut ); 
@@ -419,10 +442,9 @@ int main(int argc, char** argv)
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
         mut->get_generic_description_string( mut_descr_string );
-        fprintf( output, "%"PRId32" %"PRId32" %s %"PRId32" %"PRId32" %.15f \n",\
+        fprintf( output, "%"PRId32" %"PRId32" %s %"PRId32" %.15f \n",\
                  num_gener, genetic_unit_number, \
-                 mut_descr_string, seglen, \
-                 unitlen_before, \
+                 mut_descr_string, unitlen_before, \
                  impact_on_metabolic_error );
 
         mnode = mnode->get_next();
