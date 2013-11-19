@@ -137,6 +137,11 @@ void ae_logs::load( int8_t logs, int32_t num_gener )
     {
       fputs( line, _transfer_log );
       ret = fgets( line, 500, old_transfer_log );
+      while(!feof(old_transfer_log) & (line[0] == '\t' || line[0] == ' '))
+      {
+        fputs( line, _transfer_log );
+        ret = fgets( line, 500, old_transfer_log );
+      }
     }
     
     fclose( old_transfer_log );

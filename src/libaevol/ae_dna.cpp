@@ -2111,7 +2111,7 @@ ae_mutation* ae_dna::do_repl_HT( int32_t parent_id )
                   alignment_2->get_score() ,
                   research_sense);
             fprintf(_exp_m->get_output_m()->get_log(LOG_TRANSFER),
-                  "\tAlignment 1:\n \t\t%s\n \t\t%s\n \tAlignment 2:\n \t\t%s\n \t\t%s\n",alignment1_parent_dna, alignment1_donor_dna, alignment2_parent_dna, alignment2_donor_dna);
+                  "\tAlignment 1:\n\t\t%s\n\t\t%s\n\tAlignment 2:\n\t\t%s\n\t\t%s\n",alignment1_parent_dna, alignment1_donor_dna, alignment2_parent_dna, alignment2_donor_dna);
           
             delete [] alignment1_parent_dna;
             delete [] alignment2_parent_dna;
