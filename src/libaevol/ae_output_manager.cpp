@@ -206,7 +206,10 @@ void ae_output_manager::load( gzFile setup_file, bool verbose, bool to_be_run  )
   // Logs
   int8_t logs;
   gzread( setup_file, &logs, sizeof(logs) );
-  _logs->load(logs, num_gener);
+  if( to_be_run)
+  {
+    _logs->load(logs, num_gener);
+  }
 }
 
 void ae_output_manager::load( FILE* setup_file, bool verbose, bool to_be_run  )

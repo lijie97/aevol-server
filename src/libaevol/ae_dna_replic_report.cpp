@@ -59,6 +59,7 @@ ae_dna_replic_report::ae_dna_replic_report( void )
 {
   _mutations        = new ae_list<ae_mutation*>();
   _rearrangements   = new ae_list<ae_mutation*>();
+  _HT               = new ae_list<ae_mutation*>();
 
   _nb_mut[SWITCH] = 0;
   _nb_mut[S_INS]  = 0;
@@ -67,6 +68,8 @@ ae_dna_replic_report::ae_dna_replic_report( void )
   _nb_mut[DEL]    = 0;
   _nb_mut[TRANS]  = 0;
   _nb_mut[INV]    = 0;
+  _nb_mut[INS_HT] = 0;
+  _nb_mut[REPL_HT]= 0;
 }
 
 ae_dna_replic_report::ae_dna_replic_report( const ae_dna_replic_report &model )
@@ -79,7 +82,8 @@ ae_dna_replic_report::ae_dna_replic_report( const ae_dna_replic_report &model )
   _nb_mut[DEL]    = model._nb_mut[DEL];
   _nb_mut[TRANS]  = model._nb_mut[TRANS];
   _nb_mut[INV]    = model._nb_mut[INV];
-  
+  _nb_mut[INS_HT] = model._nb_mut[INS_HT];
+  _nb_mut[REPL_HT]= model._nb_mut[REPL_HT];
   
   // Copy _mutations and _rearrangements
   _mutations = new ae_list<ae_mutation*>();
@@ -101,6 +105,16 @@ ae_dna_replic_report::ae_dna_replic_report( const ae_dna_replic_report &model )
     _rearrangements->add( new ae_mutation( *rear ) );
     rear_node = rear_node->get_next();
   }
+  
+  _HT = new ae_list<ae_mutation*>();
+  ae_list_node<ae_mutation*>* HT_node = (model._HT)->get_first();
+  ae_mutation* HT = NULL;
+  while ( HT_node != NULL )
+  {
+    HT = HT_node->get_obj();
+    _HT->add( new ae_mutation( *HT ) );
+    HT_node = HT_node->get_next();
+  }
 }
 
 // =================================================================
@@ -110,9 +124,11 @@ ae_dna_replic_report::~ae_dna_replic_report( void )
 {
   _mutations->erase( true );
   _rearrangements->erase( true );
+  _HT->erase( true );
   
   delete _mutations;
   delete _rearrangements;
+  delete _HT;
 }
 
 
@@ -132,10 +148,23 @@ void ae_dna_replic_report::compute_stats( void )
   _nb_mut[DEL]    = 0;
   _nb_mut[TRANS]  = 0;
   _nb_mut[INV]    = 0;
+  _nb_mut[INS_HT] = 0;
+  _nb_mut[REPL_HT]= 0;
   
-  ae_list_node<ae_mutation*>* event_node = _rearrangements->get_first();
-  ae_mutation* event = NULL;
+  ae_list_node<ae_mutation*>* event_node  = _HT->get_first();
+  ae_mutation* event       = NULL;
+  while ( event_node != NULL )
+  {
+    event = event_node->get_obj();
+    assert( event->get_mut_type() == INS_HT || event->get_mut_type() == REPL_HT );
+    
+    _nb_mut[ event->get_mut_type() ]++;
+    
+    event_node = event_node->get_next();
+  }
   
+  event_node = _rearrangements->get_first();
+  event = NULL;
   while ( event_node != NULL )
   {
     event = event_node->get_obj();
@@ -146,11 +175,9 @@ void ae_dna_replic_report::compute_stats( void )
     
     event_node = event_node->get_next();
   }
-
   
   event_node  = _mutations->get_first();
   event       = NULL;
-  
   while ( event_node != NULL )
   {
     event = event_node->get_obj();
@@ -161,6 +188,9 @@ void ae_dna_replic_report::compute_stats( void )
     
     event_node = event_node->get_next();
   }
+  
+  
+  
 }
 
 

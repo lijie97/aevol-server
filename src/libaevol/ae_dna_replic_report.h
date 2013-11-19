@@ -77,9 +77,11 @@ class ae_dna_replic_report : public ae_object
     // =================================================================
     inline ae_list<ae_mutation*>* get_mutations( void )      const;
     inline ae_list<ae_mutation*>* get_rearrangements( void ) const;
+    inline ae_list<ae_mutation*>* get_HT( void ) const;
 
     inline int32_t get_nb_small_mutations( void )  const;
     inline int32_t get_nb_rearrangements( void )   const;
+    inline int32_t get_nb_HT( void )   const;
     inline int32_t get_nb_switch( void )           const;
     inline int32_t get_nb_small_insertions( void ) const;
     inline int32_t get_nb_small_deletions( void )  const;
@@ -88,6 +90,8 @@ class ae_dna_replic_report : public ae_object
     inline int32_t get_nb_deletions( void )        const;
     inline int32_t get_nb_translocations( void )   const;
     inline int32_t get_nb_inversions( void )       const;
+    inline int32_t get_nb_ins_HT( void )           const;
+    inline int32_t get_nb_repl_HT( void )          const;
 
     // =================================================================
     //                            Public Methods
@@ -95,6 +99,7 @@ class ae_dna_replic_report : public ae_object
     void compute_stats( void );  // useful when we inspect a tree file
     inline void add_rear( ae_mutation* rear );
     inline void add_mut( ae_mutation* mut );
+    inline void add_HT( ae_mutation* HT);
 
     // =================================================================
     //                           Public Attributes
@@ -128,10 +133,11 @@ class ae_dna_replic_report : public ae_object
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ae_list<ae_mutation*>* _mutations;       // Lists of mutations and rearrangements undergone
+    ae_list<ae_mutation*>* _mutations;       // Lists of mutations, rearrangements and undergone
     ae_list<ae_mutation*>* _rearrangements;  // by the genetic unit at last replication
+    ae_list<ae_mutation*>* _HT;              
 
-    int32_t _nb_mut[7]; // Number of mutations/rearrangements of each type undergone
+    int32_t _nb_mut[10]; // Number of mutations/rearrangements/HT of each type undergone
 };
 
 
@@ -148,6 +154,11 @@ inline ae_list<ae_mutation*>* ae_dna_replic_report::get_rearrangements( void ) c
   return _rearrangements;
 }
 
+inline ae_list<ae_mutation*>* ae_dna_replic_report::get_HT( void ) const
+{
+  return _HT;
+}
+
 inline int32_t ae_dna_replic_report::get_nb_small_mutations( void ) const
 {
   assert( _mutations->get_nb_elts() == _nb_mut[SWITCH] + _nb_mut[S_INS] + _nb_mut[S_DEL] );
@@ -158,6 +169,12 @@ inline int32_t ae_dna_replic_report::get_nb_rearrangements( void ) const
 {
   assert( _rearrangements->get_nb_elts() == _nb_mut[DUPL] + _nb_mut[DEL] + _nb_mut[TRANS] + _nb_mut[INV] );
   return _rearrangements->get_nb_elts();
+}
+
+inline int32_t ae_dna_replic_report::get_nb_HT( void ) const
+{
+  assert( _HT->get_nb_elts() == _nb_mut[INS_HT] + _nb_mut[REPL_HT] );
+  return _HT->get_nb_elts();
 }
 
 inline int32_t ae_dna_replic_report::get_nb_switch( void ) const
@@ -200,6 +217,16 @@ inline int32_t ae_dna_replic_report::get_nb_inversions( void ) const
   return _nb_mut[INV];
 }
 
+inline int32_t ae_dna_replic_report::get_nb_ins_HT( void ) const
+{
+  return _nb_mut[INS_HT];
+}
+
+inline int32_t ae_dna_replic_report::get_nb_repl_HT( void ) const
+{
+  return _nb_mut[REPL_HT];
+}
+
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
@@ -217,6 +244,13 @@ inline void ae_dna_replic_report::add_rear( ae_mutation* rear )
   
   _rearrangements->add( rear );
   _nb_mut[ rear->get_mut_type() ]++;
+}
+
+inline void ae_dna_replic_report::add_HT( ae_mutation* HT )
+{
+  assert( HT != NULL );
+  _HT->add( HT );
+  _nb_mut[ HT->get_mut_type() ]++;
 }
 
 

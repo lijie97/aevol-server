@@ -100,9 +100,9 @@ class ae_dna : public ae_string
 
     // =================================================================
     //                            Public Methods
-    // =================================================================
-    // Perform all the mutations (local mutations and rearrangements)
-    void perform_mutations( void );
+    // =================================================================    
+    // Perform all the mutations (local mutations, rearrangements and transfer)
+    void perform_mutations( int32_t parent_id );
     
     // Perform all the local mutations (point mutations and indels) of the replication
     void do_small_mutations( void );
@@ -111,6 +111,9 @@ class ae_dna : public ae_string
     // of the replication
     void do_rearrangements( void );
     void do_rearrangements_with_align( void );
+    
+    // Perform all transfer (with insertion and with replacement)
+    void do_transfer( int32_t parent_id );
     
     // Perform a single local mutation at a random position
     ae_mutation* do_switch( void );
@@ -138,6 +141,13 @@ class ae_dna : public ae_string
     bool do_inversion( int32_t pos_1, int32_t pos_2 );
     bool do_insertion( int32_t pos, const char* seq_to_insert, int32_t seq_length );
     
+    // Perform transfer with the search of alignments
+    ae_mutation* do_ins_HT( int32_t parent_id );
+    ae_mutation* do_repl_HT( int32_t parent_id );
+    
+    // Perform a single transfer at specified positions
+    bool do_ins_HT( int32_t pos, const char* seq_to_insert, int32_t seq_length );
+    bool do_repl_HT( int32_t pos1, int32_t pos2, const char* seq_to_insert, int32_t seq_length );
     
     ae_genetic_unit*  extract_into_new_GU( int32_t pos_1, int32_t pos_2 );
     ae_genetic_unit*  copy_into_new_GU   ( int32_t pos_1, int32_t pos_2 ) const;

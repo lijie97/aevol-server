@@ -41,9 +41,8 @@
 //                            Project Files
 // =================================================================
 #include <ae_object.h>
+#include <ae_enums.h>
 #include <zlib.h>
-
-
 
 
 // =================================================================
@@ -60,7 +59,9 @@ enum ae_mutation_type
   DEL     = 4,
   TRANS   = 5,
   INV     = 6,
-  INSERT  = 7
+  INSERT  = 7,
+  INS_HT  = 8,
+  REPL_HT = 9
 };
 
 
@@ -100,6 +101,11 @@ class ae_mutation : public ae_object
                                   int16_t* align_score_1 = NULL, int16_t* align_score_2 = NULL );
     void get_infos_inversion( int32_t* pos1, int32_t* pos2, int16_t* align_score = NULL );
     void get_infos_insertion( int32_t* pos, int32_t* length );
+    void get_sequence_insertion( char* seq );
+    void get_infos_ins_HT( int32_t* pos1, int32_t* pos2, int32_t* pos3, int32_t* pos4, ae_sense* sense, int32_t* length );
+    void get_sequence_ins_HT( char* seq ); 
+    void get_infos_repl_HT( int32_t* pos1, int32_t* pos2, int32_t* pos3, int32_t* pos4, ae_sense* sense, int32_t* length );
+    void get_sequence_repl_HT( char* seq ); 
     
     // =================================================================
     //                        Accessors: Setters
@@ -118,6 +124,8 @@ class ae_mutation : public ae_object
                                 bool invert, int16_t align_score_1 = -1, int16_t align_score_2 = -1 );
     void report_inversion( int32_t pos_1, int32_t pos_2, int32_t length, int16_t align_score = -1 );
     void report_insertion( int32_t pos, int32_t length, const char* seq );
+    void report_ins_HT(int32_t alignment_1_donor_pos_1, int32_t alignment_1_donor_pos_2, int32_t alignment_2_ind_pos, int32_t alignment_2_donor_pos, int32_t length, int16_t alignment_1_score, int16_t alignment_2_score, int32_t donor_id, ae_sense sense, const char* seq);
+    void report_repl_HT(int32_t alignment_1_donor_pos_1, int32_t alignment_1_donor_pos_2, int32_t alignment_2_ind_pos, int32_t alignment_2_donor_pos, int32_t repl_seq_length, int32_t donor_seq_length, int16_t alignment_1_score, int16_t alignment_2_score, int32_t donor_id, ae_sense sense, const char* seq);
 
     void get_generic_description_string( char * str );
     
@@ -155,10 +163,12 @@ class ae_mutation : public ae_object
     // =================================================================
     ae_mutation_type  _mut_type;
     int32_t*          _pos;
-    int32_t           _length;
+    int32_t*           _length;
     char*             _seq;
     bool              _invert;
     int16_t*          _align_score;
+    int32_t           _donor_id;
+    ae_sense          _sense;
 };
 
 
@@ -172,7 +182,7 @@ ae_mutation_type ae_mutation::get_mut_type( void )
 
 inline int32_t ae_mutation::get_length( void )
 {
-  return _length;
+  return _length[0];
 }
 
 
