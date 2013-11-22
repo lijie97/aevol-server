@@ -2172,13 +2172,22 @@ bool ae_dna::do_repl_HT( int32_t pos1, int32_t pos2, const char* seq_to_insert, 
   do_deletion( pos1, pos2 );
   
   // Insert the sequence
-  insert( pos1, seq_to_insert, seq_length );
+  int32_t insertion_position;
+  if(pos1 < pos2)
+  {
+  	insertion_position = pos1;
+  }
+  else
+  {
+  	insertion_position = 0;
+  }
+  insert(insertion_position, seq_to_insert, seq_length );
   
   // Look for new promoters
   if ( _length >= PROM_SIZE )
   {
-    _gen_unit->move_all_promoters_after( pos1, seq_length );
-    _gen_unit->look_for_new_promoters_around( pos1, pos1 + seq_length );
+    _gen_unit->move_all_promoters_after( insertion_position, seq_length );
+    _gen_unit->look_for_new_promoters_around( insertion_position, insertion_position + seq_length );
   }
   
   return true;
