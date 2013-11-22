@@ -331,7 +331,6 @@ ae_mutation::~ae_mutation( void )
   {
     case SWITCH :
       delete _pos;
-      delete _length;
       break;
     case S_INS :
       delete _pos;
@@ -344,22 +343,18 @@ ae_mutation::~ae_mutation( void )
       break;
     case DUPL :
       delete [] _pos;
-      delete _length;
       delete _align_score;
       break;
     case DEL :
       delete [] _pos;
-      delete _length;
       delete _align_score;
       break;
     case TRANS :
       delete [] _pos;
-      delete _length;
       delete [] _align_score;
       break;
     case INV :
       delete [] _pos;
-      delete _length;
       delete _align_score;
       break;
     case INSERT :
