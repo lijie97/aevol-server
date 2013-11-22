@@ -94,7 +94,7 @@ ae_exp_manager::ae_exp_manager( void )
 }
 
 // ===========================================================================
-//                                  Destructors
+//                                  Destructor
 // ===========================================================================
 ae_exp_manager::~ae_exp_manager( void )
 {
@@ -448,7 +448,7 @@ void ae_exp_manager::load( int32_t first_gener,
   
   
   // ---------------------------------------------------------------------------
-  // 2) Load data from backup and parameter files
+  // 3) Load data from backup and parameter files
   // ---------------------------------------------------------------------------
   
   // ----------------------------------------- Retrieve spatial structure data
@@ -499,7 +499,7 @@ void ae_exp_manager::load( int32_t first_gener,
   
   
   // ---------------------------------------------------------------------------
-  // 2) Close setup and backup files
+  // 4) Close setup and backup files
   // ---------------------------------------------------------------------------
   gzclose( pop_file );
   gzclose( env_file );
@@ -510,7 +510,7 @@ void ae_exp_manager::load( int32_t first_gener,
   
 
   // ---------------------------------------------------------------------------
-  // 3) Recompute unsaved data
+  // 5) Recompute unsaved data
   // ---------------------------------------------------------------------------
   // Evaluate individuals
   _pop->evaluate_individuals( get_env() );
@@ -522,65 +522,6 @@ void ae_exp_manager::load( int32_t first_gener,
   {
     _pop->sort_individuals();
   }
-
-
-  // If the simulation is being continued (not just post-processed),
-  // prepare output data accordingly
-  //~ if ( to_be_run )
-  //~ {
-    //~ // Prepare stat files
-    //~ _stats  = new ae_stats( _first_gener );
-    
-    //~ // Prepare tree
-    //~ if ( ae_common::rec_params->get_record_tree() == true )
-    //~ { 
-      //~ mkdir( "tree", 0755 );
-      //~ _tree  = new ae_tree(); 
-    //~ }
-    //~ else
-    //~ {
-      //~ _tree = NULL;
-    //~ }
-    
-    //~ // Prepare dump
-    //~ if ( ae_common::rec_params->get_dump_period() > 0 )
-    //~ {
-      //~ mkdir( "dump", 0755 );
-      //~ _dump = new ae_dump();
-    //~ }
-    //~ else
-    //~ {
-      //~ _dump = NULL;
-    //~ }
-    
-    //~ mkdir( "backup", 0755 );
-    
-    //~ if ( ae_common::rec_params->is_logged( LOG_LOADS ) == true )
-    //~ {
-      //~ // Write an entry in the LOADS log file
-      //~ fprintf( ae_common::rec_params->get_log( LOG_LOADS ), "GENERATION_OVERLOAD %"PRId32"\n", _num_gener );
-      //~ if ( param_overloader->get_nb_overloaded() > 0 )
-      //~ {
-        //~ //fprintf( _logs->get_log( LOG_LOADS ), "  Overloaded parameters:\n" );
-        //~ param_overloader->write_log( ae_common::rec_params->get_log( LOG_LOADS ) );
-        //~ fprintf( ae_common::rec_params->get_log( LOG_LOADS ), "\n" );
-      //~ }
-      //~ else
-      //~ {
-        //~ fprintf( ae_common::rec_params->get_log( LOG_LOADS ), "  No overloaded parameters\n\n" );
-      //~ }
-    //~ }
-  //~ }
-  //~ else
-  //~ {
-    //~ // We just want to inspect the state of the simulation at this moment
-    //~ ae_common::rec_params->init_logs( 0 );
-  //~ }
-  
-  // Initialize display
-  #ifdef __X11
-    //~ ((ae_exp_setup_X11*) this)->initialize( ae_common::pop_structure, ae_common::params->get_allow_plasmids() );
-  #endif // def __X11
 }
 
 /*!

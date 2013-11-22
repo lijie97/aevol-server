@@ -128,7 +128,7 @@ void ae_dump::write_fitness_total( void )
   } 
 }
 
-void ae_dump :: write_secreted_amount ( void )
+void ae_dump::write_secreted_amount ( void )
 {
   if ( _exp_m->is_spatially_structured() )
   {
@@ -150,7 +150,7 @@ void ae_dump :: write_secreted_amount ( void )
   }
 }
 
-void ae_dump :: write_fitness_metabolic ( void )
+void ae_dump::write_fitness_metabolic ( void )
 {
   if ( _exp_m->is_spatially_structured() )
   {
@@ -172,7 +172,7 @@ void ae_dump :: write_fitness_metabolic ( void )
   }
 }
 
-void ae_dump :: write_secretion_present ( void )
+void ae_dump::write_secretion_present ( void )
 {
   if ( _exp_m->is_spatially_structured() )
   {
