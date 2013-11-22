@@ -65,18 +65,3 @@ DUPLICATION_PROPORTION   5e-5
 DELETION_PROPORTION      5e-5
 TRANSLOCATION_PROPORTION 5e-5
 INVERSION_PROPORTION     5e-5
-
-##### 14. Regulation ##############
-# HILL_SHAPE_N                   4 
-# HILL_SHAPE_THETA               0.5
-# DEGRADATION_RATE               1 
-# DEGRADATION_STEP               0.1
-# INDIVIDUAL_EVALUATION_DATES    NULL
-# INDIVIDUAL_LIFE_TIME           0
-# BINDING_ZEROS_PERCENTAGE       0.75
-# WITH_HEREDITY                  false
-# PROTEIN_PRESENCE_LIMIT         1e-5
-
-##### 15. Random, to be (fully) implemented
-TRANSLATION_COST                0
-
