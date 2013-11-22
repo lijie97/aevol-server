@@ -81,31 +81,20 @@ enum check_type
 
 
 
-void open_environment_stat_file( int32_t final_indiv_index, int32_t final_indiv_rank );
-void write_environment_stats( int32_t num_gener, ae_environment * env );
+FILE* open_environment_stat_file( const char * prefix );
+void write_environment_stats( int32_t num_gener, ae_environment * env, FILE* env_file);
 
-void open_terminators_stat_file( int32_t final_indiv_index, int32_t final_indiv_rank );
-void write_terminators_stats( int32_t num_gener, ae_individual * indiv );
+FILE* open_terminators_stat_file( const char * prefix );
+void write_terminators_stats( int32_t num_gener, ae_individual * indiv, FILE* terminator_file );
 
-void open_zones_stat_file( int32_t final_indiv_index, int32_t final_indiv_rank );
-void write_zones_stats( int32_t num_gener, ae_individual * indiv, ae_environment * env );
+FILE* open_zones_stat_file( const char * prefix );
+void write_zones_stats( int32_t num_gener, ae_individual * indiv, ae_environment * env, FILE* zone_file );
 
-void open_operons_stat_file( int32_t final_indiv_index, int32_t final_indiv_rank );
-void write_operons_stats( int32_t num_gener, ae_individual * indiv );
+FILE* open_operons_stat_file( const char * prefix );
+void write_operons_stats( int32_t num_gener, ae_individual * indiv, FILE* operon_file );
 
 void print_help( void );
 
-
-
-FILE* env_output_file     = NULL;
-FILE* term_output_file    = NULL;
-FILE* zones_output_file   = NULL;
-FILE* operons_output_file = NULL;
-
-int32_t begin_gener       = 0;
-int32_t end_gener         = 0;
-int32_t final_indiv_index = 0;
-int32_t final_indiv_rank  = 0;
 
 double* dist_to_target_segment;
 
@@ -216,6 +205,11 @@ int main(int argc, char** argv)
     fprintf( stderr, "ERROR : Could not read the lineage file %s\n", lineage_file_name );
     exit( EXIT_FAILURE );
   }
+
+	int32_t begin_gener       = 0;
+	int32_t end_gener         = 0;
+	int32_t final_indiv_index = 0;
+	int32_t final_indiv_rank  = 0;
   
 
   gzread( lineage_file, &begin_gener,       sizeof(begin_gener)       );
@@ -261,7 +255,7 @@ int main(int argc, char** argv)
   }
   
   char prefix[50];
-  snprintf( prefix, 50, "ancstats/ancstats-b%06"PRId32"-e%06"PRId32"-i%"PRId32"-r%"PRId32".out",begin_gener, end_gener, final_indiv_index , final_indiv_rank);
+  snprintf( prefix, 50, "ancstats/ancstats-b%06"PRId32"-e%06"PRId32"-i%"PRId32"-r%"PRId32,begin_gener, end_gener, final_indiv_index , final_indiv_rank);
   bool best_indiv_only = true;
   bool addition_old_stats = false;
   bool delete_old_stats = true;
@@ -269,10 +263,14 @@ int main(int argc, char** argv)
   //mystats->write_headers();
   
   // Optional outputs
-  open_environment_stat_file(final_indiv_index, final_indiv_rank);
-  open_terminators_stat_file(final_indiv_index, final_indiv_rank);
-  open_zones_stat_file(final_indiv_index, final_indiv_rank);
-  open_operons_stat_file(final_indiv_index, final_indiv_rank);
+  FILE* env_output_file = open_environment_stat_file(prefix);
+  FILE* term_output_file = open_terminators_stat_file(prefix);
+  FILE* zones_output_file = NULL;
+  if(env->get_nb_segments() > 1)
+  {
+  	zones_output_file = open_zones_stat_file(prefix);
+  }
+  FILE* operons_output_file = open_operons_stat_file(prefix);
 
 
   // ==================================================
@@ -287,10 +285,13 @@ int main(int argc, char** argv)
   
   
   // Optional outputs
-  write_environment_stats( begin_gener, env );
-  write_terminators_stats( begin_gener, indiv );
-  write_zones_stats( begin_gener, indiv, env );
-  write_operons_stats( begin_gener, indiv );
+  write_environment_stats( begin_gener, env, env_output_file );
+  write_terminators_stats( begin_gener, indiv, term_output_file );
+  if(env->get_nb_segments() > 1)
+  {
+  	write_zones_stats( begin_gener, indiv, env, zones_output_file );
+  }
+  write_operons_stats( begin_gener, indiv, operons_output_file );
   
   
   if ( verbose )
@@ -492,13 +493,14 @@ int main(int argc, char** argv)
 
     mystats->write_statistics_of_this_indiv( indiv, num_gener );
 
-
     // Optional outputs
-    write_environment_stats( num_gener, env );
-    write_terminators_stats( num_gener, indiv );
-    write_zones_stats( num_gener, indiv, env );
-    write_operons_stats( num_gener, indiv );
-    
+    write_environment_stats( num_gener, env, env_output_file );
+  	write_terminators_stats( num_gener, indiv, term_output_file );
+  	if(env->get_nb_segments() > 1)
+  	{
+  		write_zones_stats( num_gener, indiv, env, zones_output_file );
+  	}
+  	write_operons_stats( num_gener, indiv, operons_output_file );  
 
     if ( verbose ) printf(" OK\n");
 
@@ -520,7 +522,10 @@ int main(int argc, char** argv)
   // Optional outputs
   fclose( env_output_file );
   fclose( term_output_file );
-  fclose( zones_output_file );
+  if(env->get_nb_segments() > 1)
+  {
+  	fclose( zones_output_file );
+  }
   fclose( operons_output_file );
 
   exit(EXIT_SUCCESS);
@@ -529,19 +534,22 @@ int main(int argc, char** argv)
 
 
 
-void open_environment_stat_file( int32_t final_indiv_index, int32_t final_indiv_rank  )
+FILE* open_environment_stat_file( const char * prefix  )
 {
   // Open file
-  char env_output_file_name[60];
-  snprintf( env_output_file_name, 60, "stats/ancstats/ancstats-b%06"PRId32"-e%06"PRId32"-i%"PRId32"-r%"PRId32"_envir.out",begin_gener, end_gener, final_indiv_index, final_indiv_rank );
-  env_output_file = fopen( env_output_file_name, "w" );
+  char* env_output_file_name = new char[80];
+  sprintf( env_output_file_name, "stats/%s_envir.out",prefix );
+  FILE* env_output_file = fopen( env_output_file_name, "w" );
+  delete env_output_file_name;
   
   // Write headers
   fprintf( env_output_file, "# Each line contains : Generation, and then, for each gaussian: M W H.\n" );
   fprintf( env_output_file, "#\n" );
+  
+  return env_output_file;
 }
 
-void write_environment_stats( int32_t num_gener, ae_environment * env )
+void write_environment_stats( int32_t num_gener, ae_environment * env, FILE*  env_output_file)
 {
   // Num gener
   fprintf( env_output_file, "%"PRId32, num_gener );
@@ -561,11 +569,12 @@ void write_environment_stats( int32_t num_gener, ae_environment * env )
 
 
 
-void open_terminators_stat_file( int32_t final_indiv_index, int32_t final_indiv_rank  )
+FILE* open_terminators_stat_file( const char * prefix )
 {
-  char term_output_file_name[60];
-  snprintf( term_output_file_name, 60, "stats/ancstats/ancstats-b%06"PRId32"-e%06"PRId32"-i%"PRId32"-r%"PRId32"_nb_term.out",begin_gener, end_gener, final_indiv_index, final_indiv_rank );
-  term_output_file = fopen( term_output_file_name, "w" );
+  char* term_output_file_name = new char[80];
+  sprintf( term_output_file_name, "stats/%s_nb_term.out",prefix );
+  FILE* term_output_file = fopen( term_output_file_name, "w" );
+  delete [] term_output_file_name;
   
   // Write headers
   fprintf( term_output_file, "# Each line contains : \n" );
@@ -573,9 +582,11 @@ void open_terminators_stat_file( int32_t final_indiv_index, int32_t final_indiv_
   fprintf( term_output_file, "#   * Genome size\n" );
   fprintf( term_output_file, "#   * Terminator number\n");
   fprintf( term_output_file, "#\n" );
+  
+  return term_output_file;
 }
 
-void write_terminators_stats( int32_t num_gener, ae_individual * indiv )
+void write_terminators_stats( int32_t num_gener, ae_individual * indiv, FILE* term_output_file  )
 {
   fprintf(  term_output_file, "%"PRId32" %"PRId32" %"PRId32"\n",
             num_gener,
@@ -585,12 +596,13 @@ void write_terminators_stats( int32_t num_gener, ae_individual * indiv )
 
 
 
-void open_zones_stat_file( int32_t final_indiv_index, int32_t final_indiv_rank  )
+FILE* open_zones_stat_file( const char * prefix  )
 {
   // Open file
-  char zones_output_file_name[60];
-  snprintf( zones_output_file_name, 60, "stats/ancstats/ancstats-b%06"PRId32"-e%06"PRId32"-i%"PRId32"-r%"PRId32"_zones.out",begin_gener, end_gener, final_indiv_index, final_indiv_rank );
-  zones_output_file = fopen( zones_output_file_name, "w" );
+  char* zones_output_file_name = new char[80];
+  sprintf( zones_output_file_name, "stats/%s_zones.out",prefix );
+  FILE* zones_output_file = fopen( zones_output_file_name, "w" );
+  delete [] zones_output_file_name;
   
   // Write headers
   fprintf( zones_output_file, "# Each line contains : Generation, and then, for each zone:\n" );
@@ -600,9 +612,11 @@ void open_zones_stat_file( int32_t final_indiv_index, int32_t final_indiv_rank  
   fprintf( zones_output_file, "#   * Geometric area of the inhibition genes\n" );
   fprintf( zones_output_file, "#   * Geometric area of the resulting phenotype\n" );
   fprintf( zones_output_file, "#\n" );
+  
+  return zones_output_file;
 }
 
-void write_zones_stats( int32_t num_gener, ae_individual * indiv, ae_environment * env )
+void write_zones_stats( int32_t num_gener, ae_individual * indiv, ae_environment * env, FILE* zones_output_file )
 {
   assert( env->get_nb_segments() > 1 );
   
@@ -713,17 +727,19 @@ void write_zones_stats( int32_t num_gener, ae_individual * indiv, ae_environment
 
 
 
-void open_operons_stat_file( int32_t final_indiv_index, int32_t final_indiv_rank  )
+FILE* open_operons_stat_file( const char * prefix  )
 {
-  char operons_output_file_name[60];
-  snprintf( operons_output_file_name, 60, "stats/ancstats/ancstats-b%06"PRId32"-e%06"PRId32"-i%"PRId32"-r%"PRId32"_operons.out",begin_gener, end_gener, final_indiv_index, final_indiv_rank );
-  operons_output_file = fopen( operons_output_file_name, "w" );
+  char* operons_output_file_name = new char[80];
+  sprintf( operons_output_file_name, "stats/%s_operons.out",prefix);
+  FILE* operons_output_file = fopen( operons_output_file_name, "w" );
+  delete [] operons_output_file_name,
   
   // Write headers
   fprintf( operons_output_file, "# Each line contains : Generation, and then, for 20 RNA, the number of genes inside the RNA\n" );
+  return operons_output_file;
 }
 
-void write_operons_stats( int32_t num_gener, ae_individual * indiv )
+void write_operons_stats( int32_t num_gener, ae_individual * indiv, FILE*  operons_output_file)
 {
   int32_t nb_genes_per_rna[20];
   for ( int i = 0 ; i < 20 ; i++ )
