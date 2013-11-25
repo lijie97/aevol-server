@@ -227,7 +227,11 @@ void ae_dna::perform_mutations( int32_t parent_id )
     _replic_report = new ae_dna_replic_report();
   }
   
-  do_transfer(parent_id);
+  if(_indiv->get_with_HT())
+  {
+  	printf("Transfer\n");
+  	do_transfer(parent_id);
+  }
   
   if ( _indiv->get_with_alignments() )
   {

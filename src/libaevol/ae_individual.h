@@ -161,6 +161,14 @@ class ae_individual : public ae_object
     inline double get_translocation_proportion( void ) const;
     inline double get_inversion_proportion( void ) const;
     
+    // Transfer
+    inline bool   get_with_4pts_trans( void ) const;
+    inline bool   get_with_HT( void ) const;
+    inline bool   get_repl_HT_with_close_points( void ) const;
+    inline double get_HT_ins_rate( void ) const;
+    inline double get_HT_repl_rate( void ) const;
+    inline double get_repl_HT_detach_rate( void ) const;
+    
     // ------------------------------------------------------------ Alignements
     inline bool  get_with_alignments(void) const;
     inline ae_align_fun_shape get_align_fun_shape( void ) const;
@@ -251,6 +259,15 @@ class ae_individual : public ae_object
     inline void set_deletion_proportion( double deletion_proportion);
     inline void set_translocation_proportion( double translocation_proportion);
     inline void set_inversion_proportion( double inversion_proportion);
+    
+    // Transfer
+    inline void set_with_4pts_trans( bool with_4pts_trans );
+    inline void set_with_alignments( bool with_alignments );
+    inline void set_with_HT( bool with_HT );
+    inline void set_repl_HT_with_close_points( bool repl_HT_with_close_points);
+    inline void set_HT_ins_rate( double HT_ins_rate );
+    inline void set_HT_repl_rate( double HT_repl_rate );
+    inline void set_repl_HT_detach_rate( double repl_HT_detach_rate );
     
     // ----------------------------------------------- Phenotypic stochasticity
     inline void set_with_stochasticity( bool with_stoch );
@@ -1078,6 +1095,38 @@ inline double ae_individual::get_inversion_proportion( void ) const
   return _mut_params->get_inversion_proportion();
 }
 
+// ---------------------------------------------------------------- Transfer
+inline bool ae_individual::get_with_4pts_trans( void ) const
+{
+  return _mut_params->get_with_4pts_trans();
+}  
+
+inline bool ae_individual::get_with_HT( void ) const
+{
+  return _mut_params->get_with_HT();
+}  
+
+inline bool ae_individual::get_repl_HT_with_close_points( void ) const
+{
+  return _mut_params->get_repl_HT_with_close_points();
+}  
+
+inline double ae_individual::get_HT_ins_rate( void ) const
+{
+  return _mut_params->get_HT_ins_rate();
+}  
+
+inline double ae_individual::get_HT_repl_rate( void ) const
+{
+  return _mut_params->get_HT_repl_rate();
+}  
+
+inline double ae_individual::get_repl_HT_detach_rate( void ) const
+{
+  return _mut_params->get_repl_HT_detach_rate();
+}  
+
+    
 // ---------------------------------------------------------------- Alignements
 inline bool ae_individual::get_with_alignments(void) const
 {
@@ -1340,6 +1389,42 @@ inline void ae_individual::set_inversion_proportion( double inversion_proportion
 {
   _mut_params->set_inversion_proportion(inversion_proportion);
 }
+
+inline void ae_individual::set_with_4pts_trans( bool with_4pts_trans )
+{
+	_mut_params->set_with_4pts_trans(with_4pts_trans);
+}
+
+inline void ae_individual::set_with_alignments( bool with_alignments )
+{
+	_mut_params->set_with_alignments(with_alignments);
+}
+
+inline void ae_individual::set_with_HT( bool with_HT )
+{
+	_mut_params->set_with_HT(with_HT);
+}
+
+inline void ae_individual::set_repl_HT_with_close_points( bool repl_HT_with_close_points)
+{
+	_mut_params->set_repl_HT_with_close_points(repl_HT_with_close_points);
+}
+
+inline void ae_individual::set_HT_ins_rate( double HT_ins_rate )
+{
+	_mut_params->set_HT_ins_rate(HT_ins_rate);
+}
+
+inline void ae_individual::set_HT_repl_rate( double HT_repl_rate )
+{
+	_mut_params->set_HT_repl_rate(HT_repl_rate);
+}
+
+inline void ae_individual::set_repl_HT_detach_rate( double repl_HT_detach_rate )
+{
+	_mut_params->set_repl_HT_detach_rate(repl_HT_detach_rate);
+}
+
 
 inline void ae_individual::set_with_stochasticity( bool with_stoch )
 {
