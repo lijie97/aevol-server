@@ -229,7 +229,6 @@ void ae_dna::perform_mutations( int32_t parent_id )
   
   if(_indiv->get_with_HT())
   {
-  	printf("Transfer\n");
   	do_transfer(parent_id);
   }
   
