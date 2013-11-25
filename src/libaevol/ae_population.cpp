@@ -108,12 +108,43 @@ ae_population::~ae_population( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
+void ae_population::set_nb_indivs(int32_t nb_indivs)
+{
+	int32_t index_to_duplicate;
+	ae_individual* indiv = NULL;
+	if(nb_indivs > _nb_indivs)
+	{
+		int32_t initial_pop_size = _nb_indivs;
+		for(int32_t i = initial_pop_size; i < nb_indivs; i++)
+		{
+			index_to_duplicate = _exp_m->get_sel()->get_prng()->random( initial_pop_size ) + 1;
+			indiv = new ae_individual(*get_indiv_by_id(index_to_duplicate));
+			indiv->set_id(i);
+			add_indiv(indiv);
+		}
+	}
+	else if(nb_indivs < _nb_indivs)
+	{
+		ae_list<ae_individual*>* new_population = new ae_list<ae_individual*>();
+		for(int32_t i = 0; i < nb_indivs; i++)
+		{
+			index_to_duplicate = _exp_m->get_sel()->get_prng()->random( _nb_indivs ) + 1;
+			indiv = new ae_individual(*get_indiv_by_id(index_to_duplicate));
+			indiv->set_id(i);
+			new_population->add(indiv);
+		}
+		replace_population(new_population);
+	}
+	sort_individuals();
+}
+
 void ae_population::replace_population( ae_list<ae_individual*>* new_indivs )
 {
   _indivs->erase( true );
   delete _indivs;
   
   _indivs = new_indivs;
+  _nb_indivs = _indivs->get_nb_elts();
 }
 
 void ae_population::save( gzFile backup_file ) const

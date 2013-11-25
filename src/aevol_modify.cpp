@@ -223,6 +223,16 @@ int main( int argc, char* argv[] )
       delete env_axis_segment_boundaries;
       delete env_axis_features;
     }
+    else if ( strcmp( line->words[0], "POPULATION_SIZE") == 0 )
+    {
+    	pop->set_nb_indivs(atol( line->words[1] ) );
+      printf("\tChange of population size to %d\n",atol( line->words[1] ));
+    }
+    else if ( strcmp( line->words[0], "SELECTION_PRESSURE") == 0 )
+    {
+    	sel->set_selection_pressure(atof( line->words[1] ) );
+      printf("\tChange of selection pressure to %f\n",atof( line->words[1] ));
+    }
     else if ( strcmp( line->words[0], "POINT_MUTATION_RATE" ) == 0 )
     {
       pop->set_overall_point_mutation_rate( atof( line->words[1] ) );
@@ -262,6 +272,16 @@ int main( int argc, char* argv[] )
     {
       pop->set_overall_inversion_rate( atof( line->words[1] ) );
       printf("\tChange of overall inversion to %f\n",atof( line->words[1] ));
+    }
+    else if ( strcmp( line->words[0], "TRANSFER_INS_RATE" ) == 0 )
+    {
+      pop->set_overall_transfer_ins_rate( atof( line->words[1] ) );
+      printf("\tChange of overall transfer insertion rate to %f\n",atof( line->words[1] ));
+    }
+    else if ( strcmp( line->words[0], "TRANSFER_REPL_RATE" ) == 0 )
+    {
+      pop->set_overall_transfer_repl_rate( atof( line->words[1] ) );
+      printf("\tChange of overall transfer replacement rate to %f\n",atof( line->words[1] ));
     }
     else if ( strcmp( line->words[0], "ENV_ADD_GAUSSIAN" ) == 0 )
     {
@@ -426,7 +446,6 @@ int main( int argc, char* argv[] )
   {
     env->build();
   }
-  //printf("%e\n", pop->get_best()->get_point_mutation_rate());
   
   // 9) Save the modified experiment
   printf("Save the modified experiment into backup...\t");

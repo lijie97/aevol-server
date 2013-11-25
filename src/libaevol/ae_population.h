@@ -96,7 +96,7 @@ class ae_population : public ae_object
     // =================================================================
     //                        Accessors: Setters
     // =================================================================
-    inline void set_nb_indivs( int32_t nb_indivs );
+    void set_nb_indivs( int32_t nb_indivs );
     
     inline void add_indiv( ae_individual* indiv );
     
@@ -119,7 +119,9 @@ class ae_population : public ae_object
     inline void set_overall_deletion_proportion( double deletion_proportion);
     inline void set_overall_translocation_proportion( double translocation_proportion);
     inline void set_overall_inversion_proportion( double inversion_proportion);
-
+    inline void set_overall_transfer_ins_rate (double transfer_ins_rate);
+    inline void set_overall_transfer_repl_rate (double transfer_repl_rate);
+    
     // =================================================================
     //                            Public Methods
     // =================================================================
@@ -257,10 +259,10 @@ inline ae_jumping_mt* ae_population::get_stoch_prng( void ) const
 // =====================================================================
 //                           Setters' definitions
 // =====================================================================
-inline void ae_population::set_nb_indivs( int32_t nb_indivs )
+/*inline void ae_population::set_nb_indivs( int32_t nb_indivs )
 {
   _nb_indivs = nb_indivs;
-}
+}*/
 
 inline void ae_population::add_indiv( ae_individual* indiv )
 {
@@ -389,6 +391,30 @@ inline void ae_population::set_overall_inversion_rate( double inversion_rate)
   {
     indiv = indiv_node->get_obj();
     indiv->set_inversion_rate( inversion_rate );
+    indiv_node = indiv_node->get_next();
+  }
+}
+
+inline void ae_population::set_overall_transfer_ins_rate (double transfer_ins_rate)
+{
+	ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
+  ae_individual*  indiv;
+  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
+  {
+    indiv = indiv_node->get_obj();
+    indiv->set_HT_ins_rate( transfer_ins_rate );
+    indiv_node = indiv_node->get_next();
+  }
+}
+
+inline void ae_population::set_overall_transfer_repl_rate (double transfer_repl_rate)
+{
+	ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
+  ae_individual*  indiv;
+  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
+  {
+    indiv = indiv_node->get_obj();
+    indiv->set_HT_repl_rate( transfer_repl_rate );
     indiv_node = indiv_node->get_next();
   }
 }
