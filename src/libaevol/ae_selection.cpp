@@ -100,7 +100,7 @@ ae_selection::~ae_selection( void )
 void ae_selection::step_to_next_generation( void )
 {
   // To create the new generation, we must create nb_indivs new individuals
-  // (offsprings) and "kill" the existing ones.
+  // (offspring) and "kill" the existing ones.
   // The number of offspring on a given individual will be given by a stochastic
   // process biased on it's fitness value (the selection process).
   // There are 3 possible selection schemes :
