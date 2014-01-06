@@ -110,39 +110,9 @@ ae_tree::ae_tree( ae_exp_manager* exp_m, ae_tree_mode tree_mode, int32_t tree_st
 
 
 
-ae_tree::ae_tree( ae_exp_manager* exp_m, char* backup_file_name, char* tree_file_name )
+ae_tree::ae_tree( ae_exp_manager* exp_m, char* tree_file_name )
 {
   _exp_m = exp_m;
-    
-  // Check Aevol / R-Aevol
-  #ifdef __REGUL
-    if ( strcmp( &backup_file_name[strlen( backup_file_name )-4], ".rae" ) != 0 )
-    {
-      printf( "ERROR : %s is not valid RAEVOL backup file.\n", backup_file_name );
-      exit( EXIT_FAILURE );
-    }
-  #else
-    if ( strcmp( &backup_file_name[strlen( backup_file_name )-3], ".ae" ) != 0 )
-    {
-      printf( "ERROR : %s is not valid AEVOL backup file.\n", backup_file_name );
-      exit( EXIT_FAILURE );
-    }
-  #endif
-  
-  //gzFile backup_file = gzopen( backup_file_name, "r" );
-
-  //if ( backup_file == Z_NULL )
-  //{
-  //  printf( "ERROR : Could not read backup file %s\n", backup_file_name );
-  //  exit( EXIT_FAILURE );
-  //}
-
-  // Retreive random generator state and get rid of it
-  //ae_jumping_mt* alea = new ae_jumping_mt( backup_file );
-  //delete alea;
-
-  //~ // Retreive common data
-  //~ ae_common::read_from_backup( backup_file );
 
   _tree_mode = _exp_m->get_tree_mode();
   _tree_step = _exp_m->get_tree_step();
@@ -175,11 +145,9 @@ ae_tree::ae_tree( ae_exp_manager* exp_m, char* backup_file_name, char* tree_file
           // Put it at its rightful position
           _replics[gener_i][replic_report->get_id()] = replic_report;
         }
-      }      
-      //~ gzclose( backup_file );
-      //~ gzclose( tree_file );
-
-        
+      }
+      gzclose( tree_file );
+       
       break;
     }
     case LIGHT :

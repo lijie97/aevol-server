@@ -228,7 +228,7 @@ int main(int argc, char** argv)
   char pop_file_name[255];
   sprintf( pop_file_name, POP_FNAME_FORMAT, end_gener );
 
-  tree = new ae_tree( exp_manager, pop_file_name, tree_file_name );
+  tree = new ae_tree( exp_manager, tree_file_name );
 
   if ( verbose )
   {
@@ -330,7 +330,7 @@ int main(int argc, char** argv)
       
       sprintf( pop_file_name,       POP_FNAME_FORMAT,       num_gener );
       
-      tree = new ae_tree( exp_manager, pop_file_name, tree_file_name );
+      tree = new ae_tree( exp_manager, tree_file_name );
     }
     
     // Copy the replication report of the ancestor

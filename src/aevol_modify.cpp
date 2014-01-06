@@ -587,7 +587,7 @@ void change_based_on_non_coding_bases_of_best_individual_ancestor(ae_population*
     #endif
     char pop_file_name[255];
     sprintf( pop_file_name, POP_FNAME_FORMAT, num_gener  );
-    tree = new ae_tree( exp_m, pop_file_name, tree_file_name );
+    tree = new ae_tree( exp_m, tree_file_name );
     ae_replication_report * reports = new ae_replication_report( *(tree->get_report_by_rank(num_gener, tree->get_nb_indivs( num_gener )) ));
     ancestor_index = reports->get_id();
     for (int32_t i = 1; i <= backup_step ; i++ )
@@ -608,7 +608,7 @@ void change_based_on_non_coding_bases_of_best_individual_ancestor(ae_population*
         }
         
         delete tree;
-        tree = new ae_tree( exp_m, pop_file_name, tree_file_name );
+        tree = new ae_tree( exp_m, tree_file_name );
       }
 
       reports = new ae_replication_report( *(tree->get_report_by_index(num_gener-i, ancestor_index)) );
