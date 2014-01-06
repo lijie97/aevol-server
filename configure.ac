@@ -69,7 +69,6 @@ AC_CHECK_FUNCS([floor memset mkdir pow rint sqrt gzread])
 #     --enable-trivialjumps=jumpsize    [disabled]
 #     --enable-devel                    [disabled]
 #     --enable-debug                    [disabled]
-#     --enable-cppunit                  [disabled]
 #     --enable-in2p3                    [disabled]
 #
 # ****************************************************************************
@@ -272,12 +271,31 @@ if test "x$enable_devel" = "xyes" ; then
   # (usefull when several configurations are done consecutively, typically during development)
   AC_CONFIG_COMMANDS(make, [make clean])
 
+  # Check for Doxygen
   AC_CHECK_PROGS([HAVE_DOXYGEN], [doxygen])
   if test -z "$HAVE_DOXYGEN";
      then AC_MSG_WARN([Doxygen not found - continuing without Doxygen support])
   fi
+
+  # Check for CppUnit
+    # AC_CHECK_LIB does not work with C++ libraries, this is why we use AM_PATH_CPPUNIT
+    # This macro will check whether a Cppunit version >= 1.10.2 is installed
+    # and, if, yes, will define CPPUNIT_CFLAGS and CPPUNIT_LIBS.
+    # This macro is defined in the cppunit.m4 file provided by the cppunit package
+    # when it is installed. Hence aclocal must be run before autoconf to have the
+    # macro known by autoconf.  If cppunit is installed in a non-standard
+    # directory, you need to specify where to find cppunit.m4. For example, if
+    # cppunit is installed under /usr/local, run:
+    #   ACLOCAL="aclocal -I /usr/local/share/aclocal" autoreconf -if
+  cppunit_missing=no
+  AM_PATH_CPPUNIT(1.10.2, , cppunit_missing=yes)
+  if test "x$cppunit_missing" != xno ; then
+    AC_MSG_ERROR([cppunit not found, make will fail - please install cppunit.])
+  fi
+    
 fi
 AM_CONDITIONAL([WANT_DOXYGEN], [test -n "$HAVE_DOXYGEN"])
+AM_CONDITIONAL([WITH_CPPUNIT], [test -n "$cppunit_missing"])
 
 
 
@@ -297,36 +315,6 @@ if test "x$enable_debug" = "xyes" ; then
    CPPFLAGS+=" -g -Wall"
 else
    AC_DEFINE(NDEBUG)
-fi
-
-
-
-#  **************** --enable-cppunit option *************************
-#
-#  When this option is set, the test library will not be built.
-#  This is useful if cppunit was not installed. However, developers
-#  should install cppunit, configure with cppunit and run make check
-#  to perform unit testing.
-
-AC_MSG_CHECKING([whether to build the test library (requires cppunit)])
-AC_ARG_ENABLE(cppunit, [  --disable-cppunit to disable unit testing], , enable_cppunit=yes)
-AC_MSG_RESULT($enable_cppunit)
-AM_CONDITIONAL(WITH_CPPUNIT, test x"$enable_cppunit" != xno)
-if test "x$enable_cppunit" != xno ; then
-   cppunit_missing=no
-   AM_PATH_CPPUNIT(1.10.2, , cppunit_missing=yes)
-   if test "x$cppunit_missing" != xno ; then
-      AC_MSG_ERROR([cppunit not found, make will fail - please install cppunit, or run ./configure --without-cppunit]) 
-   fi 
-   # AC_CHECK_LIB does not work with C++ libraries, this is why we use AM_PATH_CPPUNIT
-   # This macro will check whether a Cppunit version >= 1.10.2 is installed
-   # and, if, yes, will define CPPUNIT_CFLAGS and CPPUNIT_LIBS.
-   # This macro is defined in the cppunit.m4 file provided by the cppunit package
-   # when it is installed. Hence aclocal must be run before autoconf to have the
-   # macro known by autoconf.  If cppunit is installed in a non-standard
-   # directory, you need to specify where to find cppunit.m4. For example, if
-   # cppunit is installed under /usr/local, run:
-   #   ACLOCAL="aclocal -I /usr/local/share/aclocal" autoreconf -if
 fi
 
 
