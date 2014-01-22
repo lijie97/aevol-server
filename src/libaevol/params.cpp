@@ -73,7 +73,7 @@ params::params( void )
     
   // ----------------------------------------------------- Initial conditions
   _initial_genome_length  = 5000;
-  _init_method            = ONE_GOOD_GENE & CLONE;
+  _init_method            = ONE_GOOD_GENE | CLONE;
   _init_pop_size          = 1000;
     
   // ------------------------------------------------------------ Environment
