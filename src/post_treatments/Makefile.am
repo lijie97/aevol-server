@@ -36,22 +36,22 @@ AM_CPPFLAGS += -D_FORTIFY_SOURCE=2
 if WITH_RAEVOL
 if WITH_X
 if WITH_DEBUG
-  libexec_PROGRAMS = aevol_misc_rrobustness_debug aevol_misc_rancstats_debug aevol_misc_rcreate_eps_debug aevol_misc_rfixed_mutations_debug aevol_misc_rlineage_debug aevol_misc_rcompute_pop_stats_debug aevol_misc_rextract_debug
+  bin_PROGRAMS = aevol_misc_rrobustness_debug aevol_misc_rancstats_debug aevol_misc_rcreate_eps_debug aevol_misc_rfixed_mutations_debug aevol_misc_rlineage_debug aevol_misc_rcompute_pop_stats_debug aevol_misc_rextract_debug
 #	LDADD = $(top_srcdir)/src/lib-aevol/lib-raevol-X11-debug.a
 else # WITHOUT_DEBUG
-  libexec_PROGRAMS = aevol_misc_rrobustness aevol_misc_rancstats aevol_misc_rcreate_eps aevol_misc_rfixed_mutations aevol_misc_rlineage aevol_misc_rcompute_pop_stats aevol_misc_rextract
+  bin_PROGRAMS = aevol_misc_rrobustness aevol_misc_rancstats aevol_misc_rcreate_eps aevol_misc_rfixed_mutations aevol_misc_rlineage aevol_misc_rcompute_pop_stats aevol_misc_rextract
 #	LDADD = $(top_srcdir)/src/lib-aevol/lib-raevol-X11.a
 endif # DEBUG
 else # WITHOUT_X
 if WITH_DEBUG
-  libexec_PROGRAMS = aevol_misc_rrobustness_debug aevol_misc_rancstats_debug aevol_misc_rcreate_eps_debug aevol_misc_rfixed_mutations_debug aevol_misc_rlineage_debug aevol_misc_rcompute_pop_stats_debug aevol_misc_rextract_debug
+  bin_PROGRAMS = aevol_misc_rrobustness_debug aevol_misc_rancstats_debug aevol_misc_rcreate_eps_debug aevol_misc_rfixed_mutations_debug aevol_misc_rlineage_debug aevol_misc_rcompute_pop_stats_debug aevol_misc_rextract_debug
 #	LDADD = $(top_srcdir)/src/lib-aevol/lib-raevol-debug.a
 else # WITHOUT_DEBUG
 if WITH_IN2P3
-  libexec_PROGRAMS = aevol_misc_rrobustness aevol_misc_rancstats aevol_misc_rcreate_eps aevol_misc_rfixed_mutations aevol_misc_rlineage aevol_misc_rcompute_pop_stats aevol_misc_rextract
+  bin_PROGRAMS = aevol_misc_rrobustness aevol_misc_rancstats aevol_misc_rcreate_eps aevol_misc_rfixed_mutations aevol_misc_rlineage aevol_misc_rcompute_pop_stats aevol_misc_rextract
 #	LDADD = $(top_srcdir)/src/lib-aevol/lib-raevol-IN2P3.a
 else # WITHOUT_IN2P3
-  libexec_PROGRAMS = aevol_misc_rrobustness aevol_misc_rancstats aevol_misc_rcreate_eps aevol_misc_rfixed_mutations aevol_misc_rlineage aevol_misc_rcompute_pop_stats aevol_misc_rextract
+  bin_PROGRAMS = aevol_misc_rrobustness aevol_misc_rancstats aevol_misc_rcreate_eps aevol_misc_rfixed_mutations aevol_misc_rlineage aevol_misc_rcompute_pop_stats aevol_misc_rextract
 #	LDADD = $(top_srcdir)/src/lib-aevol/lib-raevol.a
 endif # IN2P3
 endif # DEBUG
@@ -59,22 +59,22 @@ endif # X
 else # WITHOUT_RAEVOL
 if WITH_X
 if WITH_DEBUG
-  libexec_PROGRAMS = aevol_misc_robustness_debug aevol_misc_ancstats_debug aevol_misc_create_eps_debug aevol_misc_fixed_mutations_debug aevol_misc_lineage_debug aevol_misc_compute_pop_stats_debug aevol_misc_extract_debug aevol_misc_view_generation_debug
+  bin_PROGRAMS = aevol_misc_robustness_debug aevol_misc_ancstats_debug aevol_misc_create_eps_debug aevol_misc_fixed_mutations_debug aevol_misc_lineage_debug aevol_misc_compute_pop_stats_debug aevol_misc_extract_debug aevol_misc_view_generation_debug
 #	LDADD = $(top_srcdir)/src/lib-aevol/lib-aevol-X11-debug.a
 else # WITHOUT_DEBUG
-  libexec_PROGRAMS = aevol_misc_robustness aevol_misc_ancstats aevol_misc_create_eps aevol_misc_fixed_mutations aevol_misc_lineage aevol_misc_compute_pop_stats aevol_misc_extract aevol_misc_view_generation
+  bin_PROGRAMS = aevol_misc_robustness aevol_misc_ancstats aevol_misc_create_eps aevol_misc_fixed_mutations aevol_misc_lineage aevol_misc_compute_pop_stats aevol_misc_extract aevol_misc_view_generation
 #	LDADD = $(top_srcdir)/src/lib-aevol/lib-aevol-X11.a
 endif # DEBUG
 else # WITHOUT_X
 if WITH_DEBUG
-  libexec_PROGRAMS = aevol_misc_robustness_debug aevol_misc_ancstats_debug aevol_misc_create_eps_debug aevol_misc_fixed_mutations_debug aevol_misc_lineage_debug aevol_misc_compute_pop_stats_debug aevol_misc_extract_debug
+  bin_PROGRAMS = aevol_misc_robustness_debug aevol_misc_ancstats_debug aevol_misc_create_eps_debug aevol_misc_fixed_mutations_debug aevol_misc_lineage_debug aevol_misc_compute_pop_stats_debug aevol_misc_extract_debug
 #	LDADD = $(top_srcdir)/src/lib-aevol/lib-aevol-debug.a
 else # WITHOUT_DEBUG
 if WITH_IN2P3
-  libexec_PROGRAMS = aevol_misc_robustness aevol_misc_ancstats aevol_misc_create_eps aevol_misc_fixed_mutations aevol_misc_lineage aevol_misc_compute_pop_stats aevol_misc_extract
+  bin_PROGRAMS = aevol_misc_robustness aevol_misc_ancstats aevol_misc_create_eps aevol_misc_fixed_mutations aevol_misc_lineage aevol_misc_compute_pop_stats aevol_misc_extract
 #	LDADD = $(top_srcdir)/src/lib-aevol/lib-aevol-IN2P3.a
 else # WITHOUT_IN2P3
-  libexec_PROGRAMS = aevol_misc_robustness aevol_misc_ancstats aevol_misc_create_eps aevol_misc_fixed_mutations aevol_misc_lineage aevol_misc_compute_pop_stats aevol_misc_extract
+  bin_PROGRAMS = aevol_misc_robustness aevol_misc_ancstats aevol_misc_create_eps aevol_misc_fixed_mutations aevol_misc_lineage aevol_misc_compute_pop_stats aevol_misc_extract
 #	LDADD = $(top_srcdir)/src/lib-aevol/lib-aevol.a
 endif # IN2P3
 endif # DEBUG
