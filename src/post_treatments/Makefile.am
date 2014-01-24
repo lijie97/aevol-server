@@ -59,10 +59,10 @@ endif # X
 else # WITHOUT_RAEVOL
 if WITH_X
 if WITH_DEBUG
-  libexec_PROGRAMS = aevol_misc_robustness_debug aevol_misc_ancstats_debug aevol_misc_create_eps_debug aevol_misc_fixed_mutations_debug aevol_misc_lineage_debug aevol_misc_compute_pop_stats_debug aevol_misc_extract_debug
+  libexec_PROGRAMS = aevol_misc_robustness_debug aevol_misc_ancstats_debug aevol_misc_create_eps_debug aevol_misc_fixed_mutations_debug aevol_misc_lineage_debug aevol_misc_compute_pop_stats_debug aevol_misc_extract_debug aevol_misc_view_generation_debug
 #	LDADD = $(top_srcdir)/src/lib-aevol/lib-aevol-X11-debug.a
 else # WITHOUT_DEBUG
-  libexec_PROGRAMS = aevol_misc_robustness aevol_misc_ancstats aevol_misc_create_eps aevol_misc_fixed_mutations aevol_misc_lineage aevol_misc_compute_pop_stats aevol_misc_extract
+  libexec_PROGRAMS = aevol_misc_robustness aevol_misc_ancstats aevol_misc_create_eps aevol_misc_fixed_mutations aevol_misc_lineage aevol_misc_compute_pop_stats aevol_misc_extract aevol_misc_view_generation
 #	LDADD = $(top_srcdir)/src/lib-aevol/lib-aevol-X11.a
 endif # DEBUG
 else # WITHOUT_X
@@ -83,8 +83,8 @@ endif # RAEVOL
 
 CLEANFILES = aevol_misc_rrobustness_debug aevol_misc_rancstats_debug aevol_misc_rcreate_eps_debug aevol_misc_rfixed_mutations_debug aevol_misc_rlineage_debug aevol_misc_rcompute_pop_stats_debug
 CLEANFILES += aevol_misc_rrobustness aevol_misc_rancstats aevol_misc_rcreate_eps aevol_misc_rfixed_mutations aevol_misc_rlineage aevol_misc_rcompute_pop_stats
-CLEANFILES += aevol_misc_robustness_debug aevol_misc_ancstats_debug aevol_misc_create_eps_debug aevol_misc_fixed_mutations_debug aevol_misc_lineage_debug compute_pop_stats_debug extract_debug
-CLEANFILES += aevol_misc_robustness aevol_misc_ancstats aevol_misc_create_eps aevol_misc_fixed_mutations aevol_misc_lineage aevol_misc_compute_pop_stats aevol_misc_extract
+CLEANFILES += aevol_misc_robustness_debug aevol_misc_ancstats_debug aevol_misc_create_eps_debug aevol_misc_fixed_mutations_debug  aevol_misc_lineage_debug compute_pop_stats_debug extract_debug aevol_misc_view_generation_debug
+CLEANFILES += aevol_misc_robustness aevol_misc_ancstats aevol_misc_create_eps aevol_misc_fixed_mutations aevol_misc_lineage aevol_misc_compute_pop_stats aevol_misc_extract aevol_misc_view_generation
 
 
 
@@ -155,6 +155,12 @@ aevol_misc_rlineage_CPPFLAGS = $(AM_CPPFLAGS)
 
 aevol_misc_rlineage_debug_SOURCES = lineage.cpp
 aevol_misc_rlineage_debug_CPPFLAGS = $(AM_CPPFLAGS)
+
+aevol_misc_view_generation_SOURCES = view_generation.cpp
+aevol_misc_view_generation_CPPFLAGS = $(AM_CPPFLAGS)
+
+aevol_misc_view_generation_debug_SOURCES = view_generation.cpp
+aevol_misc_view_generation_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
 
 #aevol_misc_compute_pop_stats_HEADERS = population_statistics.h
