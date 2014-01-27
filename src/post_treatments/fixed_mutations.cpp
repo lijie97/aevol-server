@@ -391,7 +391,7 @@ int main(int argc, char** argv)
         metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
-	if (mut->get_mut_type())
+      
         mut->get_generic_description_string( mut_descr_string );
         fprintf( output, "%"PRId32" %"PRId32" %s %"PRId32" %.15f \n",\
                  num_gener, genetic_unit_number, \
