@@ -1082,7 +1082,7 @@ ae_mutation* ae_dna::do_deletion( void )
   pos_1 = _indiv->_mut_prng->random( _length );
   pos_2 = _indiv->_mut_prng->random( _length );
   
-  // Remember the length of the segment to be duplicated and of the genome before the deletion
+  // Remember the length of the segment to be deleted and of the genome before the deletion
   int32_t segment_length      = ae_utils::mod( pos_2 - pos_1 - 1, _length ) + 1;
   int32_t genome_size_before  = _length;
   int32_t genome_size_after   = _length - segment_length;
@@ -1293,7 +1293,7 @@ ae_mutation* ae_dna::do_translocation( void )
     
     // As it will be seen in do_translocation( int32_t pos_1, int32_t pos_2, int32_t pos_3, int32_t pos_4, bool invert ),
     // translocating segment [pos_1, pos_2] is the same as translocating segment  [pos_2, pos_1]
-    // Since OriC must be at position 0, we will always traslocate segment [pos_1, pos_2] with pos_1 < pos_2
+    // Since OriC must be at position 0, we will always translocate segment [pos_1, pos_2] with pos_1 < pos_2
     if ( pos_1 > pos_2 ) ae_utils::exchange( pos_1, pos_2 );
     
     segment_length = pos_2 - pos_1;

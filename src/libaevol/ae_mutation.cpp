@@ -634,13 +634,13 @@ void ae_mutation::get_generic_description_string( char * str )
     case S_INS :
     {
       sprintf( str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" %"PRId32" %"PRId32"", \
-              (int8_t) _mut_type, _pos[0], -1, -1, -1, (int8_t) -1, (int16_t) -1, (int16_t) -1, (int32_t) -1, (int32_t) -1 );
+              (int8_t) _mut_type, _pos[0], -1, -1, -1, (int8_t) -1, (int16_t) -1, (int16_t) -1, _length[0], (int32_t) -1 );
       break;
     }
     case S_DEL :
     {
       sprintf( str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" %"PRId32" %"PRId32"", \
-              (int8_t) _mut_type, _pos[0], -1, -1, -1, (int8_t) -1, (int16_t) -1, (int16_t) -1, (int32_t) -1, (int32_t) -1 );
+              (int8_t) _mut_type, _pos[0], -1, -1, -1, (int8_t) -1, (int16_t) -1, (int16_t) -1, _length[0], (int32_t) -1 );
       break;
     }
     case DUPL :
