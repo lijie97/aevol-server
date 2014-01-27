@@ -60,6 +60,10 @@
 // =================================================================
 ae_mutation::ae_mutation( void )
 {
+  _pos = NULL;
+  _length = NULL;
+  _seq = NULL;
+  _align_score = NULL;
 }
 
 
@@ -67,6 +71,11 @@ ae_mutation::ae_mutation( void )
 
 ae_mutation::ae_mutation( const ae_mutation &model )
 {
+  _pos = NULL;
+  _length = NULL;
+  _seq = NULL;
+  _align_score = NULL;
+
   _mut_type = model._mut_type;
   
   switch( _mut_type )
@@ -97,6 +106,7 @@ ae_mutation::ae_mutation( const ae_mutation &model )
       _pos[0] = model._pos[0];
       _pos[1] = model._pos[1];
       _pos[2] = model._pos[2];
+      _length = new int32_t( *(model._length) );
       _align_score = new int16_t( *(model._align_score) );
       break;
     }
@@ -105,6 +115,7 @@ ae_mutation::ae_mutation( const ae_mutation &model )
       _pos = new int32_t[2];
       _pos[0] = model._pos[0];
       _pos[1] = model._pos[1];
+      _length = new int32_t( *(model._length) );
       _align_score = new int16_t( *(model._align_score) );
       break;
     }
@@ -116,6 +127,7 @@ ae_mutation::ae_mutation( const ae_mutation &model )
       _pos[2] = model._pos[2];
       _pos[3] = model._pos[3];
       _invert = model._invert;
+      _length = new int32_t( *(model._length) );
       _align_score = new int16_t[2];
       _align_score[0] = model._align_score[0];
       _align_score[1] = model._align_score[1];
@@ -126,6 +138,7 @@ ae_mutation::ae_mutation( const ae_mutation &model )
       _pos = new int32_t[2];
       _pos[0] = model._pos[0];
       _pos[1] = model._pos[1];
+      _length = new int32_t( *(model._length) );
       _align_score = new int16_t( *(model._align_score) );
       break;
     }
@@ -190,6 +203,11 @@ ae_mutation::ae_mutation( const ae_mutation &model )
 
 ae_mutation::ae_mutation( gzFile backup_file )
 {
+  _pos = NULL;
+  _length = NULL;
+  _seq = NULL;
+  _align_score = NULL;
+
   int8_t tmp_mut_type;
   gzread( backup_file, &tmp_mut_type,  sizeof(tmp_mut_type) );
   _mut_type = (ae_mutation_type) tmp_mut_type;
@@ -227,7 +245,8 @@ ae_mutation::ae_mutation( gzFile backup_file )
     {
       _pos = new int32_t[3];
       gzread( backup_file, _pos,  3 * sizeof(_pos[0]) );
-      
+      _length = new int32_t;
+      gzread( backup_file, _length,  sizeof(*_length) );
       _align_score = new int16_t;
       gzread( backup_file, _align_score, sizeof(*_align_score) );
       
@@ -237,7 +256,8 @@ ae_mutation::ae_mutation( gzFile backup_file )
     {
       _pos = new int32_t[2];
       gzread( backup_file, _pos,  2 * sizeof(_pos[0]) );
-      
+      _length = new int32_t;
+      gzread( backup_file, _length,  sizeof(*_length) );
       _align_score = new int16_t;
       gzread( backup_file, _align_score, sizeof(*_align_score) );
       
@@ -247,11 +267,11 @@ ae_mutation::ae_mutation( gzFile backup_file )
     {
       _pos = new int32_t[4];
       gzread( backup_file, _pos,  4 * sizeof(_pos[0]) );
-      
       int8_t tmp_invert;
       gzread( backup_file, &tmp_invert,  sizeof(tmp_invert) );
       _invert = (tmp_invert != 0);
-      
+      _length = new int32_t;
+      gzread( backup_file, _length,  sizeof(*_length) );
       _align_score = new int16_t[2];
       gzread( backup_file, _align_score, 2 * sizeof(_align_score[0]) );
       
@@ -261,7 +281,8 @@ ae_mutation::ae_mutation( gzFile backup_file )
     {
       _pos = new int32_t[2];
       gzread( backup_file, _pos,  2 * sizeof(_pos[0]) );
-      
+      _length = new int32_t;
+      gzread( backup_file, _length,  sizeof(*_length) );
       _align_score = new int16_t;
       gzread( backup_file, _align_score, sizeof(*_align_score) );
       
@@ -343,18 +364,22 @@ ae_mutation::~ae_mutation( void )
       break;
     case DUPL :
       delete [] _pos;
+      delete _length;
       delete _align_score;
       break;
     case DEL :
       delete [] _pos;
+      delete _length;
       delete _align_score;
       break;
     case TRANS :
       delete [] _pos;
+      delete _length;
       delete [] _align_score;
       break;
     case INV :
       delete [] _pos;
+      delete _length;
       delete _align_score;
       break;
     case INSERT :
@@ -566,12 +591,14 @@ void ae_mutation::save( gzFile backup_file ) // Usually <backup_file> is the tre
     case DUPL :
     {
       gzwrite( backup_file, _pos,         3 * sizeof(_pos[0]) );
+      gzwrite( backup_file, _length,   sizeof(*_length) );
       gzwrite( backup_file, _align_score, sizeof(*_align_score) );
       break;
     }
     case DEL :
     {
       gzwrite( backup_file, _pos,         2 * sizeof(_pos[0]) );
+      gzwrite( backup_file, _length,  sizeof(*_length) );
       gzwrite( backup_file, _align_score, sizeof(*_align_score) );
       break;
     }
@@ -580,12 +607,14 @@ void ae_mutation::save( gzFile backup_file ) // Usually <backup_file> is the tre
       gzwrite( backup_file, _pos,         4 * sizeof(_pos[0]) );
       int8_t tmp_invert = _invert? 1 : 0;
       gzwrite( backup_file, &tmp_invert,  sizeof(tmp_invert) );
+      gzwrite( backup_file, _length,  sizeof(*_length) );
       gzwrite( backup_file, _align_score, 2 * sizeof(_align_score[0]) );
       break;
     }
     case INV :
     {
       gzwrite( backup_file, _pos,         2 * sizeof(_pos[0]) );
+      gzwrite( backup_file, _length,  sizeof(*_length) );
       gzwrite( backup_file, _align_score, sizeof(*_align_score) );
       break;
     }
@@ -640,38 +669,38 @@ void ae_mutation::get_generic_description_string( char * str )
     case S_DEL :
     {
       sprintf( str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" %"PRId32" %"PRId32"", \
-              (int8_t) _mut_type, _pos[0], -1, -1, -1, (int8_t) -1, (int16_t) -1, (int16_t) -1, _length[0], (int32_t) -1 );
+	       (int8_t) _mut_type, _pos[0], -1, -1, -1, (int8_t) -1, (int16_t) -1, (int16_t) -1, _length[0], (int32_t) -1 );
       break;
     }
     case DUPL :
     {
       sprintf( str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" %"PRId32" %"PRId32"", \
-              (int8_t) _mut_type, _pos[0], _pos[1], _pos[2], -1, (int8_t) -1, *_align_score, (int16_t) -1, (int32_t) -1, (int32_t) -1 );
+              (int8_t) _mut_type, _pos[0], _pos[1], _pos[2], -1, (int8_t) -1, *_align_score, (int16_t) -1, _length[0], (int32_t) -1 );
       break;
     }
     case DEL :
     {
       sprintf( str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" %"PRId32" %"PRId32"", \
-              (int8_t) _mut_type, _pos[0], _pos[1], -1, -1, (int8_t) -1, *_align_score, (int16_t) -1, (int32_t) -1, (int32_t) -1 );
+	       (int8_t) _mut_type, _pos[0], _pos[1], -1, -1, (int8_t) -1, *_align_score, (int16_t) -1, _length[0], (int32_t) -1 );
       break;
     }
     case TRANS :
     {
       int8_t tmp_invert = _invert? 1 : 0;
       sprintf( str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" %"PRId32" %"PRId32"", \
-              (int8_t) _mut_type, _pos[0], _pos[1], _pos[2], _pos[3], tmp_invert, _align_score[0], _align_score[1], (int32_t) -1, (int32_t) -1 );
+              (int8_t) _mut_type, _pos[0], _pos[1], _pos[2], _pos[3], tmp_invert, _align_score[0], _align_score[1], _length[0], (int32_t) -1 );
       break;
     }
     case INV :
     {
       sprintf( str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" %"PRId32" %"PRId32"", \
-              (int8_t) _mut_type, _pos[0], _pos[1], -1, -1, (int8_t) -1, *_align_score, (int16_t) -1, (int32_t) -1, (int32_t) -1 );
+	       (int8_t) _mut_type, _pos[0], _pos[1], -1, -1, (int8_t) -1, *_align_score, (int16_t) -1, _length[0], (int32_t) -1 );
       break;
     }
     case INSERT :
     {
       sprintf( str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" %"PRId32" %"PRId32"", \
-              (int8_t) _mut_type, _pos[0], (int32_t)-1, (int32_t)-1, (int32_t)-1, (int8_t) -1, (int16_t) -1, (int16_t) -1, _length[0], (int32_t) -1 );
+              (int8_t) _mut_type, _pos[0], (int32_t)-1, (int32_t)-1, (int32_t)-1, (int8_t) -1, (int16_t) -1, (int32_t) -1, _length[0], (int32_t) -1 );
       break;
     }
     case INS_HT :

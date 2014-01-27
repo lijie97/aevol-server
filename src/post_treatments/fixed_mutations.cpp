@@ -246,11 +246,11 @@ int main(int argc, char** argv)
   }
 
  // Open the experiment manager
-  #ifndef __NO_X
-    ae_exp_manager* exp_manager = new ae_exp_manager_X11();
-  #else
-    ae_exp_manager* exp_manager = new ae_exp_manager();
-  #endif
+#ifndef __NO_X
+  ae_exp_manager* exp_manager = new ae_exp_manager_X11();
+#else
+  ae_exp_manager* exp_manager = new ae_exp_manager();
+#endif
   exp_manager->load( begin_gener, false, true, false );
   ae_environment* env = exp_manager->get_env();
   
@@ -376,11 +376,15 @@ int main(int argc, char** argv)
       
       unit->get_dna()->set_replic_report( dnarep );
       
+      // ***************************************
+      //             Transfer events
+      // ***************************************
+
       mnode = dnarep->get_HT()->get_first();
       while ( mnode != NULL )
       {
         mut = (ae_mutation *) mnode->get_obj();
-        
+
         metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
         unitlen_before = unit->get_dna()->get_length();
         // TODO : number of affected genes
@@ -402,6 +406,11 @@ int main(int argc, char** argv)
         mnode = mnode->get_next();
       }
 
+
+      // ***************************************
+      //           Rearrangement events
+      // ***************************************
+
       mnode = dnarep->get_rearrangements()->get_first();
       while ( mnode != NULL )
       {
@@ -417,58 +426,7 @@ int main(int argc, char** argv)
         metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
-	// ***************** PATCH **************************
-	// Patch to work around the missing 'length' data for the rearrangements
-	// in the tree files.  
-	// For the rearrangements, instead of calling 
-	// mut->get_generic_description_string() 
-	// (which would print -1 for the length), 
-	// we recompute the seglen and build the string manually
-	// **************************************************
-	int32_t seglen;
-	ae_mutation_type type;
-	int32_t pos1 = -1, pos2 = -1, pos3 = -1, pos4 = -1;
-	bool invert = false; int8_t tmp_invert = -1;
-	int16_t align_score = -1, align_score2 = -1;
-	type = mut->get_mut_type();
-	switch(type)
-	  {
-	  case DEL:
-	    {
-	      mut->get_infos_deletion(&pos1, &pos2, &align_score);
-	      seglen = ae_utils::mod( pos2 - pos1 - 1, unitlen_before ) + 1;
-	      break;
-	    }
-	  case DUPL:
-	    {
-	      mut->get_infos_duplication(&pos1, &pos2, &pos3, &align_score);
-	      seglen = ae_utils::mod( pos2 - pos1 - 1, unitlen_before ) + 1;
-	      break;
-	    }
-	  case INV:
-	    {
-	       mut->get_infos_inversion(&pos1, &pos2, &align_score);
-	       seglen = ae_utils::mod( pos2 - pos1 - 1, unitlen_before ) + 1;
-	       break;
-	    }
-	  case TRANS:
-	      {
-		mut->get_infos_translocation(&pos1, &pos2, &pos3, &pos4, &invert, &align_score, &align_score2);	
-		tmp_invert = invert? 1 : 0;
-		seglen = pos2 - pos1;
-		break;
-	      }
-	  default:
-	    {
-	      fprintf(stderr, "The list of rearrangements contains a mutation which is not a rearrangement: type %"PRId8".\n", (int8_t) type);
-	      exit(EXIT_FAILURE);
-	    }
-	  }
-
-	sprintf( mut_descr_string, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" %"PRId32" %"PRId32"", \
-		 type, pos1, pos2, pos3, pos4, tmp_invert, align_score, align_score2, seglen, (int32_t) -1 );
-	// **************** END PATCH ********************************
-
+        mut->get_generic_description_string( mut_descr_string );
         fprintf( output, "%"PRId32" %"PRId32" %s %"PRId32" %.15f \n",\
                  num_gener, genetic_unit_number, \
                  mut_descr_string, unitlen_before, \
@@ -477,6 +435,11 @@ int main(int argc, char** argv)
 
         mnode = mnode->get_next();
       }
+      
+
+      // ***************************************
+      // Local events (point mutations & small indels)
+      // ***************************************
       
       mnode = dnarep->get_mutations()->get_first();              
       while ( mnode != NULL )
