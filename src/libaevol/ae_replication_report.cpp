@@ -95,24 +95,6 @@ ae_replication_report::ae_replication_report( ae_individual * indiv, ae_individu
     _donor_genome_size     = donor->get_total_genome_size();
   }
     
-  /*_HT_ins 							            = false;
-  _HT_ins_sense 					          = DIRECT;
-  _HT_ins_donor_id 					        = 0;
-  _HT_ins_alignment_1_donor_pos_1 	= 0;
-  _HT_ins_alignment_1_donor_pos_2 	= 0; 
-  _HT_ins_alignment_1_score 		    = 0;
-  _HT_ins_alignment_2_ind_pos 		  = 0;
-  _HT_ins_alignment_2_donor_pos 	  = 0; 
-  _HT_ins_alignment_2_score 		    = 0;   
-  _HT_repl 							            = false;
-  _HT_repl_sense 					          = DIRECT;
-  _HT_repl_donor_id 				        = 0;
-  _HT_repl_alignment_1_ind_pos 		  = 0;
-  _HT_repl_alignment_1_donor_pos 	= 0; 
-  _HT_repl_alignment_1_score 		    = 0;
-  _HT_repl_alignment_2_ind_pos 		  = 0;
-  _HT_repl_alignment_2_donor_pos 	= 0; 
-  _HT_repl_alignment_2_score 		    = 0;  */
   
   _dna_replic_reports = new ae_list<ae_dna_replic_report*>();
 }

@@ -731,8 +731,8 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
   
   
   #ifdef BIG_DEBUG
-  ae_common::sim->get_logs()->flush();
-  new_indiv->assert_promoters();
+  // ae_common::sim->get_logs()->flush();   // ae_common::sim is obsolete in version 4
+  //  new_indiv->assert_promoters();
   #endif
   
   

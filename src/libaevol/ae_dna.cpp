@@ -995,7 +995,7 @@ bool ae_dna::do_small_deletion( int32_t pos, int16_t nb_del )
   _gen_unit->remove_promoters_around( pos, ae_utils::mod(pos + nb_del, _length) );
 
   // Do the deletion and update promoter list
-  if ( pos + nb_del <= _length ) // if deletion contains OriC
+  if ( pos + nb_del <= _length ) // the deletion does not contain the replication origin 
   {
     // Do the deletion
     remove( pos, pos + nb_del );
@@ -1007,7 +1007,7 @@ bool ae_dna::do_small_deletion( int32_t pos, int16_t nb_del )
       _gen_unit->look_for_new_promoters_around( ae_utils::mod(pos, _length) );
     }
   }
-  else
+  else // the deletion contains the replication origin
   {
     // Do the deletion
     int32_t nb_del_at_pos_0 = nb_del - _length + pos;
@@ -1479,7 +1479,7 @@ bool ae_dna::do_duplication( int32_t pos_1, int32_t pos_2, int32_t pos_3 )
 }
 
 bool ae_dna::do_deletion( int32_t pos_1, int32_t pos_2 )
-// Delete segment going from pos_1 to pos_2
+// Delete segment going from pos_1 (included) to pos_2 (excluded)
 {
   if ( pos_1 < pos_2 ) 
   {
@@ -1511,14 +1511,14 @@ bool ae_dna::do_deletion( int32_t pos_1, int32_t pos_2 )
   }
   else // if ( pos_1 >= pos_2 ) 
   {
-    // The segment to duplicate includes the replication origin.
-    // The copying process will be done in two steps.
+    // The segment to delete includes the replication origin.
+    // The deletion process will be done in two steps.
     //
     //                                            ,->   
     //    pos_2                 pos_1            |      -> 0-          
     //      |                     |                   -       - pos_2
     // 0--------------------------------->     pos_1 -         -
-    // ======                     =======            -         -
+    // =====                      =======            -         -
     //  tmp2                        tmp1              -       -
     //                                                  -----
     //
@@ -1774,7 +1774,7 @@ bool ae_dna::do_inter_GU_translocation( int32_t pos_1_rel, int32_t pos_2_rel, in
 }
 
 bool ae_dna::do_inversion( int32_t pos_1, int32_t pos_2 )
-// Invert segment going from pos_1 to pos_2
+// Invert segment going from pos_1 (included) to pos_2 (excluded)
 // Exemple : sequence 011101001100 => 110011010001
 {
   if ( pos_1 == pos_2 ) return false; // Invert everything <=> Invert nothing!
