@@ -167,7 +167,7 @@ class ae_mutation : public ae_object
     char*             _seq;
     bool              _invert;
     int16_t*          _align_score;
-    int32_t           _donor_id;
+    int32_t           _donor_id;   // CK: There should also be another int to indicate which genetic unit in the donor 
     ae_sense          _sense;
 };
 

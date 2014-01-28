@@ -81,34 +81,19 @@ class ae_replication_report : public ae_object
     inline ae_individual * get_indiv( void ) const;
     int32_t         get_id( void ) const;
     int32_t         get_rank( void ) const;
+    inline int32_t  get_genome_size( void ) const;
+
     inline int32_t  get_parent_id( void ) const;
     inline double   get_parent_metabolic_error( void ) const;
     inline double   get_parent_secretion_error( void ) const;
     inline int32_t  get_parent_genome_size( void ) const;
+
     inline double   get_mean_align_score( void ) const;
     inline int32_t	get_donor_id( void ) const;
     inline double   get_donor_metabolic_error( void ) const;
     inline double   get_donor_secretion_error( void ) const;
     inline int32_t  get_donor_genome_size( void ) const;
-    inline bool			    get_HT_ins( void ) const;
-    inline ae_sense     get_HT_ins_sense( void ) const;
-    inline int32_t      get_HT_ins_donor_id( void ) const;
-    inline int32_t      get_HT_ins_alignment_1_donor_pos_1( void ) const;
-    inline int32_t      get_HT_ins_alignment_1_donor_pos_2( void ) const;
-    inline int16_t      get_HT_ins_alignment_1_score( void ) const;
-    inline int32_t      get_HT_ins_alignment_2_ind_pos( void ) const;
-    inline int32_t      get_HT_ins_alignment_2_donor_pos( void ) const;
-    inline int16_t      get_HT_ins_alignment_2_score( void ) const;
-    inline bool			    get_HT_repl( void ) const;
-    inline ae_sense     get_HT_repl_sense( void ) const;
-    inline int32_t      get_HT_repl_donor_id( void ) const;
-    inline int32_t      get_HT_repl_alignment_1_ind_pos( void ) const;
-    inline int32_t      get_HT_repl_alignment_1_donor_pos( void ) const;
-    inline int16_t      get_HT_repl_alignment_1_score( void ) const;
-    inline int32_t      get_HT_repl_alignment_2_ind_pos( void ) const;
-    inline int32_t      get_HT_repl_alignment_2_donor_pos( void ) const;
-    inline int16_t      get_HT_repl_alignment_2_score( void ) const;
-    
+     
     void            set_id( int32_t id );
     void            set_rank( int32_t rank );
     inline void     set_parent_id( int32_t parent_id );
@@ -119,24 +104,7 @@ class ae_replication_report : public ae_object
     inline void     set_donor_metabolic_error( double donor_metabolic_error );
     inline void     set_donor_secretion_error( double donor_secretion_error );
     inline void     set_donor_genome_size( int32_t donor_genome_size );
-    inline void     set_HT_ins(bool HT_ins );
-    inline void     set_HT_ins_sense(ae_sense HT_ins_sense );
-    inline void     set_HT_ins_donor_id(int32_t HT_ins_donor_id );
-    inline void     set_HT_ins_alignment_1_donor_pos_1(int32_t  HT_ins_alignment_1_donor_pos_1);
-    inline void     set_HT_ins_alignment_1_donor_pos_2(int32_t HT_ins_alignment_1_donor_pos_2 ); 
-    inline void     set_HT_ins_alignment_1_score( int16_t HT_ins_alignment_1_score);
-    inline void     set_HT_ins_alignment_2_ind_pos(int32_t HT_ins_alignment_2_ind_pos );
-    inline void     set_HT_ins_alignment_2_donor_pos(int32_t HT_ins_alignment_2_donor_pos ); 
-    inline void     set_HT_ins_alignment_2_score( int16_t HT_ins_alignment_2_score);   
-    inline void     set_HT_repl( bool HT_repl  );
-    inline void     set_HT_repl_sense( ae_sense HT_repl_sense );
-    inline void     set_HT_repl_donor_id( int32_t HT_repl_donor_id);
-    inline void     set_HT_repl_alignment_1_ind_pos( int32_t HT_repl_alignment_1_ind_pos);
-    inline void     set_HT_repl_alignment_1_donor_pos( int32_t HT_repl_alignment_1_donor_pos); 
-    inline void     set_HT_repl_alignment_1_score( int16_t HT_repl_alignment_1_score);
-    inline void     set_HT_repl_alignment_2_ind_pos( int32_t HT_repl_alignment_2_ind_pos);
-    inline void     set_HT_repl_alignment_2_donor_pos( int32_t HT_repl_alignment_2_donor_pos); 
-    inline void     set_HT_repl_alignment_2_score( int16_t HT_repl_alignment_2_score);    
+  
     
     inline ae_list<ae_dna_replic_report*>* get_dna_replic_reports( void ) const;
 
@@ -204,36 +172,11 @@ class ae_replication_report : public ae_object
     double          _donor_secretion_error;
     int32_t         _donor_genome_size;
     
-    bool			      _HT_ins;
-    ae_sense      	_HT_ins_sense;
-    int32_t         _HT_ins_donor_id;
-    int32_t         _HT_ins_alignment_1_donor_pos_1;
-    int32_t         _HT_ins_alignment_1_donor_pos_2; 
-    int16_t         _HT_ins_alignment_1_score;
-    int32_t         _HT_ins_alignment_2_ind_pos;
-    int32_t         _HT_ins_alignment_2_donor_pos; 
-    int16_t         _HT_ins_alignment_2_score;   
-    
-    bool			      _HT_repl;
-    ae_sense      	_HT_repl_sense;
-    int32_t         _HT_repl_donor_id;
-    int32_t         _HT_repl_alignment_1_ind_pos;
-    int32_t         _HT_repl_alignment_1_donor_pos; 
-    int16_t         _HT_repl_alignment_1_score;
-    int32_t         _HT_repl_alignment_2_ind_pos;
-    int32_t         _HT_repl_alignment_2_donor_pos; 
-    int16_t         _HT_repl_alignment_2_score;    
+    // CK: I think that the attributes below are obsolete 
+    // (HT events are now stored in the ae_dna_replic_reports)
     
     double          _mean_align_score;
     
-    //~ ae_list*  _mutations;       // These are lists of lists of mutations (resp rearrangements)
-    //~ ae_list*  _rearrangements;  // undergone during the replication.
-                                //~ //  The first node of the list will correspond to the list of mutations
-                                //~ // (resp rears) of the first genetic unit of the individual and so forth.
-                                //~ // Example : to access the first rearrangement that occured on the first plasmid
-                                //~ // (i.e the second genetic unit), one will have to type : 
-                                //~ //    ae_list* rear_list = (ae_list*) _rearrangements->get_first()->get_next()->get_obj();
-                                //~ //    ae_mutation* my_mut = (ae_mutation*) rear_list->get_first()->get_obj();
 };
 
 
@@ -253,6 +196,11 @@ inline int32_t ae_replication_report::get_id( void ) const
 inline int32_t ae_replication_report::get_rank( void ) const
 {
   return _rank;
+}
+
+inline int32_t ae_replication_report::get_genome_size( void ) const
+{
+  return _genome_size;
 }
 
 int32_t ae_replication_report::get_parent_id( void ) const
@@ -303,95 +251,8 @@ inline ae_list<ae_dna_replic_report*>* ae_replication_report::get_dna_replic_rep
 }
 
 
-inline bool ae_replication_report::get_HT_ins( void ) const
-{
-  return _HT_ins;
-}
 
-inline ae_sense ae_replication_report::get_HT_ins_sense( void ) const
-{
-  return _HT_ins_sense;
-}
 
-inline int32_t ae_replication_report::get_HT_ins_donor_id( void ) const
-{
-  return _HT_ins_donor_id;
-}
-
-inline int32_t ae_replication_report::get_HT_ins_alignment_1_donor_pos_1( void ) const
-{
-  return _HT_ins_alignment_1_donor_pos_1;
-}
-
-inline int32_t ae_replication_report::get_HT_ins_alignment_1_donor_pos_2( void ) const
-{
-  return _HT_ins_alignment_1_donor_pos_2;
-}
-
-inline int16_t ae_replication_report::get_HT_ins_alignment_1_score( void ) const
-{
-  return _HT_ins_alignment_1_score;
-}
-
-inline int32_t ae_replication_report::get_HT_ins_alignment_2_ind_pos( void ) const
-{
-  return _HT_ins_alignment_2_ind_pos;
-}
-
-inline int32_t ae_replication_report::get_HT_ins_alignment_2_donor_pos( void ) const
-{
-  return _HT_ins_alignment_2_donor_pos;
-}
-
-inline int16_t ae_replication_report::get_HT_ins_alignment_2_score( void ) const
-{
-  return _HT_ins_alignment_2_score;
-}
-
-inline bool ae_replication_report::get_HT_repl( void ) const
-{
-  return _HT_repl;
-}
-
-inline ae_sense ae_replication_report::get_HT_repl_sense( void ) const
-{
-  return _HT_repl_sense;
-}
-
-inline int32_t ae_replication_report::get_HT_repl_donor_id( void ) const
-{
-  return _HT_repl_donor_id;
-}
-
-inline int32_t ae_replication_report::get_HT_repl_alignment_1_ind_pos( void ) const
-{
-  return _HT_repl_alignment_1_ind_pos;
-}
-
-inline int32_t ae_replication_report::get_HT_repl_alignment_1_donor_pos( void ) const
-{
-  return _HT_repl_alignment_1_donor_pos;
-}
-
-inline int16_t ae_replication_report::get_HT_repl_alignment_1_score( void ) const
-{
-  return _HT_repl_alignment_1_score;
-}
-
-inline int32_t ae_replication_report::get_HT_repl_alignment_2_ind_pos( void ) const
-{
-  return _HT_repl_alignment_2_ind_pos;
-}
-
-inline int32_t ae_replication_report::get_HT_repl_alignment_2_donor_pos( void ) const
-{
-  return _HT_repl_alignment_2_donor_pos;
-}
-
-inline int16_t ae_replication_report::get_HT_repl_alignment_2_score( void ) const
-{
-  return _HT_repl_alignment_2_score;
-}
 
 
 
@@ -445,96 +306,6 @@ inline void ae_replication_report::set_donor_genome_size( int32_t donor_genome_s
   _donor_genome_size = donor_genome_size;
 }
 
-
-inline void ae_replication_report::set_HT_ins(bool HT_ins )
-{
-  _HT_ins = HT_ins;
-}
-
-inline void ae_replication_report::set_HT_ins_sense(ae_sense HT_ins_sense )
-{
-  _HT_ins_sense = HT_ins_sense;
-}
-
-inline void ae_replication_report::set_HT_ins_donor_id(int32_t HT_ins_donor_id )
-{
-  _HT_ins_donor_id = HT_ins_donor_id;
-}
-
-inline void ae_replication_report::set_HT_ins_alignment_1_donor_pos_1(int32_t  HT_ins_alignment_1_donor_pos_1)
-{
-  _HT_ins_alignment_1_donor_pos_1 = HT_ins_alignment_1_donor_pos_1;
-}
-
-inline void ae_replication_report::set_HT_ins_alignment_1_donor_pos_2(int32_t HT_ins_alignment_1_donor_pos_2 )
-{
-  _HT_ins_alignment_1_donor_pos_2 = HT_ins_alignment_1_donor_pos_2;
-}
- 
-inline void ae_replication_report::set_HT_ins_alignment_1_score( int16_t HT_ins_alignment_1_score)
-{
-  _HT_ins_alignment_1_score = HT_ins_alignment_1_score;
-}
-
-inline void ae_replication_report::set_HT_ins_alignment_2_ind_pos(int32_t HT_ins_alignment_2_ind_pos )
-{
-  _HT_ins_alignment_2_ind_pos = HT_ins_alignment_2_ind_pos;
-}
-
-inline void ae_replication_report::set_HT_ins_alignment_2_donor_pos(int32_t HT_ins_alignment_2_donor_pos )
-{
-  _HT_ins_alignment_2_donor_pos = HT_ins_alignment_2_donor_pos;
-}
- 
-inline void ae_replication_report::set_HT_ins_alignment_2_score( int16_t HT_ins_alignment_2_score)
-{
-  _HT_ins_alignment_2_score = HT_ins_alignment_2_score;
-}
-   
-inline void ae_replication_report::set_HT_repl( bool HT_repl  )
-{
-  _HT_repl = HT_repl;
-}
-
-inline void ae_replication_report::set_HT_repl_sense( ae_sense HT_repl_sense )
-{
-  _HT_repl_sense = HT_repl_sense;
-}
-
-inline void ae_replication_report::set_HT_repl_donor_id( int32_t HT_repl_donor_id)
-{
-  _HT_repl_donor_id = HT_repl_donor_id;
-}
-
-inline void ae_replication_report::set_HT_repl_alignment_1_ind_pos( int32_t HT_repl_alignment_1_ind_pos)
-{
-  _HT_repl_alignment_1_ind_pos = HT_repl_alignment_1_ind_pos;
-}
-
-inline void ae_replication_report::set_HT_repl_alignment_1_donor_pos( int32_t HT_repl_alignment_1_donor_pos)
-{
-  _HT_repl_alignment_1_donor_pos = HT_repl_alignment_1_donor_pos;
-}
- 
-inline void ae_replication_report::set_HT_repl_alignment_1_score( int16_t HT_repl_alignment_1_score)
-{
-  _HT_repl_alignment_1_score = HT_repl_alignment_1_score;
-}
-
-inline void ae_replication_report::set_HT_repl_alignment_2_ind_pos( int32_t HT_repl_alignment_2_ind_pos)
-{
-  _HT_repl_alignment_2_ind_pos = HT_repl_alignment_2_ind_pos;
-}
-
-inline void ae_replication_report::set_HT_repl_alignment_2_donor_pos( int32_t HT_repl_alignment_2_donor_pos)
-{
-  _HT_repl_alignment_2_donor_pos = HT_repl_alignment_2_donor_pos;
-}
- 
-inline void ae_replication_report::set_HT_repl_alignment_2_score( int16_t HT_repl_alignment_2_score)
-{
-  _HT_repl_alignment_2_score = HT_repl_alignment_2_score;
-}
   
 
 
