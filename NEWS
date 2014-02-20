@@ -1,6 +1,104 @@
+New in 4.3
+
+* The post-treatment view_generation is now functional for aevol (with or 
+  without space), but not for R-aevol yet. This post-treatment is available
+  if X was enabled at the "configure" step, which is the case by default.
+
+* Lateral transfer by replacement can now be constrained to replace a segment
+  of roughly the same size and sequence as the one given by the donor, to
+  simulate allelic recombination. To use this kind of transfer by replacement
+  rather than the usual one (where the donor and replaced segments only have
+  similar sequences at their extremities), add the line
+  "REPL_TRANSFER_WITH_CLOSE_POINTS true" in the param.in file. Specifically, a
+  small region of high similarity is searched for between the donor chromosome
+  and the receiving chromosome. Then this initial alignment is extended until
+  there is no sequence similarity anymore or until a random event stops the
+  extension -- at each extension step, there is a probability called
+  REPL_TRANSFER_DETACH_RATE to stop the extension even if there is some
+  sequence similarity. Below is an example of how to write the param.in file
+  to try for a lateral transfer by replacement in 50% of the reproductions,
+  with the constraint that the replaced segment must have roughly the same
+  size and sequence as the donor segment (the last six parameters are for the
+  alignment search):
+
+    WITH_TRANSFER                     true
+    TRANSFER_REPL_RATE                0.5
+    REPL_TRANSFER_WITH_CLOSE_POINTS   true
+    REPL_TRANSFER_DETACH_RATE         0.3
+    NEIGHBOURHOOD_RATE                1e-1
+    ALIGN_FUNCTION                    SIGMOID 0 40 
+    ALIGN_W_ZONE_H_LEN                50
+    ALIGN_MAX_SHIFT                   20
+    ALIGN_MATCH_BONUS                 1
+    ALIGN_MISMATCH_COST               2
+
+* Lateral transfer events by insertion or replacement can be logged during the
+  main evolutionary run by adding the line "LOG TRANSFER" in the param.in file.
+  They will be written in an output file called log_transfer.out.
+
+
+* Post-treatments lineage and ancstats can replay lateral transfer events.
+  To simplify the post-treatments, lateral transfer events are treated as
+  mutations and rearrangements. They are managed in ae_dna and ae_mutation
+  and no more in ae_selection. If RECORD_TREE is set to true and if
+  TREE_MODE is set to normal in param.in, the transfer events will be saved
+  in the tree files with the transferred sequence. 
+
+* Examples are now provided in the "examples" dir.
+
+
+Changes in 4.3
+
+* Replaced most of the --with-xxxxx configure script options with
+  --enable-xxxxx. Supported options for the configure script are now [default
+  value in brackets]:
+
+     --with-x                          [yes]
+     --enable-optim                    [enabled]
+     --enable-raevol                   [disabled]
+     --enable-normalized-fitness       [disabled]
+     --enable-mtperiod=period          [disabled]
+     --enable-trivialjumps=jumpsize    [disabled]
+     --enable-devel                    [disabled]
+     --enable-debug                    [disabled]
+     --enable-in2p3                    [disabled]
+
+* Post-treatment executables are installed into ${prefix}/bin rather than
+  ${prefix}/libexec (we realized it wasn't a good idea after all...).
+
+
+Bugs fixed in 4.3:
+
+* Bug #289: Missing lines in the header of stats_bp_best.out
+
+* Bug #293: Initialisation with a clonal population:
+  Individuals in the first generation had a rank equal to -1.
+
+* Bug #294: Problems in constructor and copy method of ae_vis_a_vis 
+
+* Bug #300: Missing length data in the tree files for the rearrangements
+  (NORMAL tree mode).
+
+* aevol_create produced a segmentation fault if param.in did 
+  not contain a line specifying ENV_AXIS_FEATURES. Now this parameter can be
+  omitted, in which case the default value would be METABOLISM for the whole
+  x-axis.
+
+* Correction of the default value for the initialisation method, which was 0
+  instead of "ONE_GOOD_GENE | CLONE".
+
+* Correction of memory leaks in the constructor of ae_stats and in the
+  destructor of ae_mutation for some mutations.
+
+* Correction of a bug in the lineage post-treatment, which would fail after
+  ~1.000 tree files were loaded because the files were never closed.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 New in 4.2
 
-* Post-treatment executables are now prefixed with aevol_misc_ and are installed into ${prefix}/libexec rather than ${prefix}/bin
+* Post-treatment executables are now prefixed with aevol_misc_ and are installed
+  into ${prefix}/libexec rather than ${prefix}/bin
 
 
 Bugs fixed in 4.2 
