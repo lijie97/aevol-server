@@ -137,7 +137,7 @@ class ae_list
 
     inline int32_t        get_position( T* obj ) const;
     inline ae_list_node<T> * get_node( int32_t pos ) const;
-    inline T*             get_object( int32_t pos ) const;
+    inline T&             get_object( int32_t pos ) const;
 
     // Accessors
     inline ae_list_node<T>* get_first( void ) { return _first; };
@@ -734,7 +734,7 @@ ae_list_node<T> * ae_list<T>::get_node( int32_t pos ) const
   Returns the object at position <pos> or NULL if pos is invalid
  */
 template <typename T>
-T* ae_list<T>::get_object( int32_t pos ) const
+T& ae_list<T>::get_object( int32_t pos ) const
 {
   if ( pos >= _nb_elts ) return NULL;
 
