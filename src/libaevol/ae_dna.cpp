@@ -776,7 +776,7 @@ void ae_dna::do_rearrangements_with_align( void )
 void ae_dna::do_transfer( int32_t parent_id )
 {
   ae_mutation* mut = NULL;
-  if ( _exp_m->get_sel()->get_prng()->random() < _exp_m->get_HT_ins_rate() )
+  if ( _indiv->get_mut_prng()->random() < _indiv->get_HT_ins_rate() )
   {
     mut = do_ins_HT(parent_id);
     if ( _exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL )
@@ -796,7 +796,7 @@ void ae_dna::do_transfer( int32_t parent_id )
     }
   }
   
-  if ( _exp_m->get_sel()->get_prng()->random() < _exp_m->get_HT_repl_rate() )
+  if ( _indiv->get_mut_prng()->random() < _indiv->get_HT_repl_rate() )
   {
     mut = do_repl_HT(parent_id);
     if ( _exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL )

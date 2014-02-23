@@ -163,6 +163,12 @@ class ae_exp_manager : public ae_object
                                         int16_t grid_height,
                                         ae_jumping_mt* prng );
 
+    inline void set_with_HT( bool with_HT ) ;
+    inline void set_repl_HT_with_close_points ( bool repl_HT_with_close_points) ;
+    inline void set_HT_ins_rate( double HT_ins_rate) ;
+    inline void set_HT_repl_rate( double HT_repl_rate) ;
+    inline void set_repl_HT_detach_rate( double repl_HT_detach_rate) ;
+
     // =======================================================================
     //                                 Operators
     // =======================================================================
@@ -526,6 +532,32 @@ inline void ae_exp_manager::set_spatial_structure( int16_t grid_width,
   _spatial_structure = new ae_spatial_structure();
   _spatial_structure->set_grid_size( grid_width, grid_height );
   _spatial_structure->set_prng( prng );
+}
+
+
+inline void ae_exp_manager::set_with_HT( bool with_HT )
+{
+  _exp_s->set_with_HT( with_HT );  
+}
+
+inline void ae_exp_manager::set_repl_HT_with_close_points ( bool repl_HT_with_close_points)
+{
+  _exp_s->set_repl_HT_with_close_points( repl_HT_with_close_points );
+}
+
+inline void ae_exp_manager::set_HT_ins_rate( double HT_ins_rate)
+{
+  _exp_s->set_HT_ins_rate( HT_ins_rate );
+}
+
+inline void ae_exp_manager::set_HT_repl_rate( double HT_repl_rate)
+{
+  _exp_s->set_HT_repl_rate( HT_repl_rate );
+}
+
+inline void ae_exp_manager::set_repl_HT_detach_rate( double repl_HT_detach_rate)
+{
+  _exp_s->set_repl_HT_detach_rate( repl_HT_detach_rate );
 }
 
 // ===========================================================================

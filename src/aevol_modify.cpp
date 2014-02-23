@@ -276,11 +276,13 @@ int main( int argc, char* argv[] )
     else if ( strcmp( line->words[0], "TRANSFER_INS_RATE" ) == 0 )
     {
       pop->set_overall_transfer_ins_rate( atof( line->words[1] ) );
+      exp_manager->set_HT_ins_rate(atof( line->words[1] ));
       printf("\tChange of overall transfer insertion rate to %f\n",atof( line->words[1] ));
     }
     else if ( strcmp( line->words[0], "TRANSFER_REPL_RATE" ) == 0 )
     {
       pop->set_overall_transfer_repl_rate( atof( line->words[1] ) );
+      exp_manager->set_HT_repl_rate(atof( line->words[1] ));
       printf("\tChange of overall transfer replacement rate to %f\n",atof( line->words[1] ));
     }
     else if ( strcmp( line->words[0], "ENV_ADD_GAUSSIAN" ) == 0 )
