@@ -261,27 +261,19 @@ void ae_exp_manager::save_copy( char* dir, int32_t num_gener /*= 0*/ ) const
 
 
 /*!
-  \brief Load an experiment with default files
+  \brief Load an experiment with the provided files
  */
-void ae_exp_manager::load( int32_t first_gener, bool use_text_files, bool verbose, bool to_be_run /*  = true */)
+void ae_exp_manager::load( gzFile& pop_file,
+                           gzFile& env_file,
+                           gzFile& exp_s_gzfile,
+                           FILE*&  exp_s_txtfile,
+                           gzFile& exp_backup_file,
+                           gzFile& sp_struct_file,
+                           gzFile& out_p_gzfile,
+                           FILE*& out_p_txtfile,
+                           bool verbose,
+                           bool to_be_run /*  = true */ )
 {
-  _first_gener = first_gener;
-  _num_gener = first_gener;
-  
-  // -------------------------------------------------------------------------
-  // 1) Open setup files (experimental setup and output profile)
-  //    and backup files (environment, population, selection and sp structure)
-  // -------------------------------------------------------------------------
-  gzFile exp_s_gzfile, out_p_gzfile;
-  FILE*  exp_s_txtfile, * out_p_txtfile;
-  open_setup_files( exp_s_gzfile, exp_s_txtfile, out_p_gzfile, out_p_txtfile, first_gener, "r" );
-  gzFile env_file, pop_file, exp_backup_file, sp_struct_file;
-  open_backup_files( env_file, pop_file, exp_backup_file, sp_struct_file, first_gener, "r" );
-  
-  
-  // -------------------------------------------------------------------------
-  // 2) Load data from backup and parameter files
-  // -------------------------------------------------------------------------
   // ---------------------------------------- Retrieve experimental setup data
   printf( "  Loading experimental setup..." );
   fflush( stdout );
@@ -330,7 +322,36 @@ void ae_exp_manager::load( int32_t first_gener, bool use_text_files, bool verbos
     _output_m->load( out_p_txtfile, verbose, to_be_run );
   }
   printf( "OK\n" );
+}
+
+
+/*!
+  \brief Load an experiment with default files from a given distant directory
+ */
+void ae_exp_manager::load( const char* dir,
+    int32_t first_gener, bool use_text_files,
+    bool verbose, bool to_be_run /*  = true */ )
+{
+  _first_gener = first_gener;
+  _num_gener = first_gener;
   
+  // -------------------------------------------------------------------------
+  // 1) Open setup files (experimental setup and output profile)
+  //    and backup files (environment, population, selection and sp structure)
+  // -------------------------------------------------------------------------
+  gzFile exp_s_gzfile, out_p_gzfile;
+  FILE*  exp_s_txtfile, * out_p_txtfile;
+  open_setup_files( exp_s_gzfile, exp_s_txtfile, out_p_gzfile, out_p_txtfile, first_gener, "r", dir );
+  gzFile env_file, pop_file, exp_backup_file, sp_struct_file;
+  open_backup_files( env_file, pop_file, exp_backup_file, sp_struct_file, first_gener, "r", dir );
+  
+  
+  // -------------------------------------------------------------------------
+  // 2) Load data from backup and parameter files
+  // -------------------------------------------------------------------------load( gzFile pop_file,
+  load( pop_file, env_file, exp_s_gzfile, exp_s_txtfile, exp_backup_file,
+        sp_struct_file, out_p_gzfile, out_p_txtfile, verbose, to_be_run );
+
   
   // -------------------------------------------------------------------------
   // 3) Close setup and backup files
