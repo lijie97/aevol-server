@@ -1,0 +1,131 @@
+\chapternonum{Appendix 1: Man Pages}
+\label{app:manpages}
+\addcontentsline{toc}{chapter}{Appendix 1: Man Pages}
+
+
+\section{aevol\_create}
+\label{sec:aevol-create}
+
+\subsection*{Synopsis}
+\begin{verbatim}
+    aevol_create -h or --help
+   	aevol_create -V or --version
+   	aevol_create [-f param_file]
+\end{verbatim}
+
+\subsection*{Description}
+Create an experiment with setup as specified in param\_file.
+
+\subsection*{Options}
+\begin{verbatim}
+    -h, --help
+        print this help, then exit
+
+   	-V, --version
+        print version number, then exit
+
+   	-f, --file param_file
+        specify parameter file (default: param.in)
+\end{verbatim}
+
+
+\section{aevol\_run}
+\label{sec:aevol-run}
+
+\subsection*{Synopsis}
+\begin{verbatim}
+    aevol_run -h | --help
+    aevol_run -V | --version
+    aevol_run [-r GENER] [-n NB_GENER] [-tvwx]
+\end{verbatim}
+
+\subsection*{Description}
+Run an \aevol{} simulation.
+
+\subsection*{Options}
+\begin{verbatim}
+	-h, --help
+    	print this help, then exit
+
+	-V, --version
+	    print version number, then exit
+
+	-r, --resume GENER
+	    specify generation to resume simulation at (default 0)
+
+	-n, --nbgener NB_GENER
+	    specify number of generations to be run (default 1000)
+
+	-t, --text
+	    use text files instead of binary files when possible
+
+	-v, --verbose
+      	be verbose
+\end{verbatim}
+
+
+\section{aevol\_propagate}
+\label{sec:aevol-propagate}
+
+\subsection*{Synopsis}
+\begin{verbatim}
+    aevol_propagate -h or --help
+	aevol_propagate -V or --version
+    aevol_propagate -g GENER [-i in_dir] [-o out_dir] [-v]
+\end{verbatim}
+
+\subsection*{Description}
+Create a fresh copy of the experiment (with current generation = 0).
+
+\subsection*{Options}
+\begin{verbatim}
+	-h, --help
+	  	print this help, then exit
+
+	-V, --version
+	    print version number, then exit
+
+	-g, --gener GENER
+	    specify generation number
+
+	-i, --in in_dir
+	    specify input directory (default ".")
+
+	-o, --out in_dir
+	    specify output directory (default "./output")
+
+	-v, --verbose
+	    be verbose
+\end{verbatim}
+
+
+\section{aevol\_modify}
+\label{sec:aevol-modify}
+
+\subsection*{Synopsis}
+\begin{verbatim}
+	aevol_modify -h or --help
+    aevol_modify -V or --version
+    aevol_modify -g GENER [-f param_file]
+\end{verbatim}
+
+\subsection*{Description}
+Modify an experiment as specified in param\_file.
+
+\subsection*{Options}
+\begin{verbatim}
+	-h, --help
+	    print this help, then exit
+
+	-V, --version
+	    print version number, then exit
+
+	-g, --gener GENER
+	    specify generation number
+
+	-f, --file param_file
+	    specify parameter file (default: param.in)
+\end{verbatim}
+
+
+\clearemptydoublepage

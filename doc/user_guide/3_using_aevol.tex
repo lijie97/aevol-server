@@ -1,0 +1,50 @@
+\chapter{Using Aevol}
+\label{chap:using-aevol}
+
+
+\vspace{5mm}
+
+\aevol{} is made up of 4 main tools (\verb?aevol_create?, \verb?aevol_run?, \verb?aevol_propagate? and \verb?aevol_modify? -- man pages provided in appendix 1) and a set of post-treatment tools (prefixed by \verb?aevol_misc_?).
+
+If you have tried one of the examples provided (see \ref{chap:first-runs}), you may have noticed that a call to \verb?aevol_create? produces a whole set of files organized in different directories. Everything in \aevol{} relies on this file organization where all the data for your experiment is stored: organisms in the \verb?population? directory, the task they are selected for in \verb?environment?, the experimental setup in \verb?exp_setup? and so on. It is not recommended to manually modify these files since this may cause some inconsistency leading to undefined behaviour. Besides, most of these files are compressed.
+
+Once created, an experiment can either be run, propagated or modified.
+Propagating an experiment means creating a fresh copy of it (setting the current generation number to 0). It can be though of as a bacterial colony picking save that you can make as many strictly identical copies of the whole original population as you wish.
+
+The \verb?aevol_modify? tool virtually allows for the modification of any parameter of the experiment, including manipulations of the population or of individual organisms (\emph{e.g.} ``I want the population to be filled with clones of the organism having the longest genome'' or ``I want a random subset of organisms to be switched to super mutators''). To date, only the most common experiment modifications have been implemented but feel free to ask for more (\verb?aevol-feat-request@lists.gforge.liris.cnrs.fr?).
+
+The typical workflow of a campain of experiments using aevol is the following:
+
+\begin{enumerate}
+\item Create a Wild Type strain
+\begin{verbatim}
+	aevol_create
+	aevol_run
+\end{verbatim}
+
+\item Create many replicates of the wild type thus created
+\begin{verbatim}
+	aevol_propagate
+\end{verbatim}
+
+\item Modify some parameter(s) of your choice in your different replicates
+\begin{verbatim}
+	aevol_modify
+\end{verbatim}
+
+\item Let the colonies evolve for some time
+\begin{verbatim}
+	aevol_run
+\end{verbatim}
+
+\item Analyse the outcome
+\end{enumerate}
+
+
+\clearemptydoublepage
+
+
+
+
+
+

@@ -1,0 +1,61 @@
+\chapter{Your first \aevol{} runs}
+\label{chap:first-runs}
+
+
+\vspace{5mm}
+
+Aevol comes along with a set of simple but representative examples. The \verb?workflow? example proposes a typical \emph{``experiments on a previously generated wild-type''} workflow. The other examples are showcases for different features of the model such as spatially structured populations, plasmids and horizontal transfer.
+
+
+\section{Basic examples}
+
+To run all but the \verb?workflow? examples, simply follow the following steps:
+
+\begin{enumerate}
+\item Install Aevol, preferentially with graphics enabled (see chapter \ref{chap:install})
+\item cd into the directory of the example (\emph{e.g.} \verb?examples/basic?)
+\item
+run \verb?aevol_create?
+\item
+run \verb?aevol_run_X11?
+\item Have a look at the graphical outputs (Ctrl+Q to quit)
+% \item [Optional] Explore the different stats created (in the \verb?stats? directory)
+\end{enumerate}
+
+
+\section{The \emph{workflow} example}
+
+The workflow example provides an example of the workflow that can be used for experiments with \aevol{}.
+
+The main idea underlying this workflow is to parallel wet lab experiments, which are conducted on evolved organisms.
+To use already evolved organisms for your experiments in Aevol, one can either use an evolved genome provided by the community or evolve its own. The following describes the latter (more complete) case.
+
+
+\subsection{\emph{Wild-Type generation}}
+Generating a Wild-Type in \aevol{} is very easy, all you need is a parameter file describing the conditions in which it (the Wild-Type) should be created (population size, mutation rates, task to perform, ...). Once your parameter file is ready, simply run the following commands (it is recommended you do that in a dedicated directory):
+
+\begin{verbatim}
+	aevol_create -f <your_param_file>
+	aevol_run -n <number_of_generations>
+\end{verbatim}
+
+$number\_of\_generations$ should be on the order of a few thousand...
+
+
+\subsection{Experimental setup}
+Setup the experiment proper.
+
+
+\subsection{Run the simulations}
+
+
+\subsection{Analyse the outcome}
+
+
+\clearemptydoublepage
+
+
+
+
+
+
