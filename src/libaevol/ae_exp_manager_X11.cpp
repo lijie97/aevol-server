@@ -80,7 +80,6 @@ ae_exp_manager_X11::ae_exp_manager_X11( void ) : ae_exp_manager()
   
   _display_on             = false;
   _handle_display_on_off  = false;
-  _quit_signal            = false;
   
   // Initialize XLib stuff
   _display  = XOpenDisplay( NULL );
@@ -142,7 +141,7 @@ ae_exp_manager_X11::~ae_exp_manager_X11( void )
 
 bool ae_exp_manager_X11::quit_signal_received( void )
 {
-  return _quit_signal;
+  return _quit_signal_received;
 }
 
 void ae_exp_manager_X11::display( void )
@@ -375,13 +374,15 @@ void ae_exp_manager_X11::handle_events( void )
         }
         else if ( (event.xkey.state & ControlMask) && (event.xkey.keycode == _key_codes[KEY_Q]))
         {
-          _quit_signal = true;
+          printf(" Q U I T   R E Q U E S T E D\n");
+          _quit_signal_received = true;
           // We do not exit here, because it is cleaner to let the main program
           // interpret the signal and call the destructor of the simulation.
           // This ensures that the connection to the X server will be closed 
           // in a clean way, which is much better if we want to run other
           // X applications afterwards!
         }
+        
         break;
       }
       default :

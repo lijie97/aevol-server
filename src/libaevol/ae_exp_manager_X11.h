@@ -186,7 +186,6 @@ class ae_exp_manager_X11 : public ae_exp_manager
   // =================================================================
   bool      _display_on;
   bool      _handle_display_on_off;
-  bool      _quit_signal;
   uint32_t  _show_window;     // (bitmap) windows that have to be displayed (user switches value pressing F1, F2, ...)
   uint32_t  _new_show_window; // (bitmap) windows that have to be displayed but were not displayed at the last refresh
   Display*  _display;

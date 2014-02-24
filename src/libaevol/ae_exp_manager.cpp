@@ -538,12 +538,12 @@ void ae_exp_manager::run_evolution( void )
   
   while ( _num_gener < _last_gener )
   {
+    if ( quit_signal_received() ) break;
+    
     printf( "============================== %"PRId32" ==============================\n", _num_gener );
     printf( "  Best individual's distance to target (metabolic) : %f\n",
             _pop->get_best()->get_dist_to_target_by_feature( METABOLISM ) );
 
-    if ( quit_signal_received() ) break;
-    
     #ifdef __X11
       display();
     #endif
@@ -558,7 +558,8 @@ void ae_exp_manager::run_evolution( void )
   _output_m->flush();
   
   printf( "============================== %"PRId32" ==============================\n", _num_gener );
-  printf( "  distance to target (metabolic) : %f\n", _pop->get_best()->get_dist_to_target_by_feature( METABOLISM ) );
+  printf( "  Best individual's distance to target (metabolic) : %f\n",
+          _pop->get_best()->get_dist_to_target_by_feature( METABOLISM ) );
   printf( "===================================================================\n");
   printf ("  The run is finished. \n"); 
   printf ("  Printing the final best individual into "BEST_LAST_ORG_FNAME"\n"); 
