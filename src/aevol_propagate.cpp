@@ -229,7 +229,9 @@ void print_help( char* prog_path )
 	printf( "*                                                                            *\n" );
 	printf( "******************************************************************************\n" );
   printf( "\n" );
-	printf( "%s: create a fresh copy of the experiment.\n", prog_name );
+	printf( "%s:\n", prog_name );
+  printf( "\tCreate a fresh copy of the experiment as it was at the given generation.\n" );
+  printf( "\tThe generation number of the copy will be reset to 0.\n" );
   printf( "\n" );
 	printf( "Usage : %s -h or --help\n", prog_name );
 	printf( "   or : %s -V or --version\n", prog_name );
