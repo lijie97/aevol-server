@@ -233,11 +233,12 @@ void print_help( char* prog_path )
   printf( "\n" );
 	printf( "Usage : %s -h or --help\n", prog_name );
 	printf( "   or : %s -V or --version\n", prog_name );
-	printf( "   or : %s -g GENER [-i in_dir] [-o out_dir] [-v]\n", prog_name );
+	printf( "   or : %s [-g GENER] [-i in_dir] [-o out_dir] [-v]\n", prog_name );
 	printf( "\nOptions\n" );
 	printf( "  -h, --help\n\tprint this help, then exit\n\n" );
 	printf( "  -V, --version\n\tprint version number, then exit\n\n" );
-  printf( "  -g, --gener GENER\n\tspecify generation number\n\n" );
+  printf( "  -g, --gener GENER\n\tspecify generation number\n" );
+  printf( "\t(default: that contained in file last_gener.txt, if any)\n\n" );
 	printf( "  -i, --in in_dir\n\tspecify input directory (default \".\")\n\n" );
 	printf( "  -o, --out out_dir\n\tspecify output directory (default \"./output\")\n\n" );
 	printf( "  -v, --verbose\n\tbe verbose\n" );
