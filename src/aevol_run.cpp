@@ -67,6 +67,8 @@ void catch_xcpu( int sig_num );
 void print_help( char* prog_path );
 void print_version( void );
 
+static ae_exp_manager* exp_manager = NULL;
+
 
 
 
@@ -218,9 +220,9 @@ int main( int argc, char* argv[] )
   //                          Load the simulation
   // =================================================================
   #ifndef __NO_X
-    ae_exp_manager* exp_manager = new ae_exp_manager_X11();
+    exp_manager = new ae_exp_manager_X11();
   #else
-    ae_exp_manager* exp_manager = new ae_exp_manager();
+    exp_manager = new ae_exp_manager();
   #endif
   
   exp_manager->load( num_gener, false, verbose );
@@ -263,7 +265,10 @@ void catch_usr1( int sig_num )
   signal( SIGUSR1, catch_usr1 );
   
   printf( "display on/off\n" );
-  //~ exp_manager->toggle_display_on_off();
+  if ( exp_manager != NULL )
+  {
+    ((ae_exp_manager_X11*) exp_manager)->toggle_display_on_off();
+  }
 }
 #endif
 

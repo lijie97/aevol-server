@@ -146,8 +146,14 @@ bool ae_exp_manager_X11::quit_signal_received( void )
 
 void ae_exp_manager_X11::display( void )
 {
+  // ---------------------
+  // 1) Handle user events
+  // ---------------------
+  if ( _display_on ) handle_events();
+
+
   // --------------------------------------------------
-  // 1) Handle signal that toggle the display on or off
+  // 2) Handle signal that toggle the display on or off
   // --------------------------------------------------
   if ( _handle_display_on_off )
   {
@@ -175,10 +181,11 @@ void ae_exp_manager_X11::display( void )
           delete _win[num_win];
           _win[num_win] = NULL;
         }
-        
-        delete _win;
-        _win = NULL;
       }
+
+      XFlush( _display );
+      delete _win;
+      _win = NULL;
       
       _display_on = false;
     }
@@ -201,12 +208,6 @@ void ae_exp_manager_X11::display( void )
       _display_on = true;
     }
   }
-
-
-  // ---------------------
-  // 2) Handle user events
-  // ---------------------
-  handle_events();
 
   
   // ----------
