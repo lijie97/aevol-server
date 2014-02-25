@@ -196,7 +196,7 @@ int main( int argc, char* argv[] )
     ae_exp_manager* exp_manager = new ae_exp_manager();
   #endif
   
-  exp_manager->load( input_dir, num_gener, false, verbose );
+  exp_manager->load( input_dir, num_gener, false, verbose, false );
   
   exp_manager->save_copy( output_dir );
 }
