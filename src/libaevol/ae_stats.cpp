@@ -73,8 +73,8 @@
   Create a NEW stat manager
  */
 ae_stats::ae_stats( ae_exp_manager* exp_m,
-                    const char * prefix /* = "stat" */,
-                    bool best_indiv_only /* = false */ )
+                    bool best_indiv_only,
+                    const char * prefix /* = "stat" */ )
 {
   _exp_m = exp_m;
   init_data();
@@ -88,8 +88,8 @@ ae_stats::ae_stats( ae_exp_manager* exp_m,
  */
 ae_stats::ae_stats( ae_exp_manager* exp_m,
                     int32_t num_gener,
+                    bool best_indiv_only,
                     const char * prefix /* = "stat" */,
-                    bool best_indiv_only /* = false */,
                     bool addition_old_stats /* = true */,
                     bool delete_old_stats /* = true */)
 {
@@ -665,6 +665,9 @@ void ae_stats::set_file_names( const char * prefix, bool one_lambda_indiv_only )
   
   for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
   {
+    // If plasmids are not allowed, don't issue "chromosome" and "plasmids" files
+    if ( not _exp_m->get_with_plasmids() && chrom_or_GU > 0 ) continue;
+
     for ( int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++ )
     {
       if ( one_lambda_indiv_only && best_or_glob != BEST ) continue;

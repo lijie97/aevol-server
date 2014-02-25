@@ -161,7 +161,7 @@ void ae_output_manager::load( gzFile setup_file, bool verbose, bool to_be_run  )
   
   // Stats
   int32_t num_gener = _exp_m->get_num_gener();
-  if( to_be_run)
+  if( to_be_run )
   {
     if ( num_gener > 0 )
     {
