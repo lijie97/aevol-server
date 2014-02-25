@@ -259,7 +259,7 @@ int main(int argc, char** argv)
   bool best_indiv_only = true;
   bool addition_old_stats = false;
   bool delete_old_stats = true;
-  ae_stats * mystats = new ae_stats(exp_manager, begin_gener, prefix, best_indiv_only, addition_old_stats, delete_old_stats);
+  ae_stats * mystats = new ae_stats(exp_manager, begin_gener, best_indiv_only, prefix, addition_old_stats, delete_old_stats);
   //mystats->write_headers();
   
   // Optional outputs
