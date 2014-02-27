@@ -18,12 +18,18 @@
 \subsection{Installation from Source}
 \subsubsection{Required Dependencies}
 \begin{myList} 
-\item \textbf{Build Tools}. apt-get install build-essential. yum ...
-\item \textbf{Compression library}. \aevol{} compresses most of the data it uses using the zlib1g library. apt-get install zlib1g, yum ...
+\item \textbf{Build Tools}.
+\\\verb?apt-get install build-essential? or \verb?yum install gcc-c++?.
+\item \textbf{Compression library}.
+\aevol{} compresses most of the data it uses.\\\verb?apt-get install zlib1g-dev? or \verb?yum install zlib-devel?.
 \end{myList}
+
 \subsubsection{Optional Dependencies}
 \begin{myList} 
-\item \textbf{X libraries}. For the graphical outputs, ... Note, however, that \aevol{} can be compiled without graphical outputs, and hence no need for X libraries, by typing  \verb?./configure --without-x?  instead of  \verb?./configure? (see installation instructions below). This option is useful if you want to run \aevol{} on a computer cluster, for example.
+\item \textbf{X libraries}.
+\aevol{} uses the X11 library for the graphical outputs.\\\verb?apt-get install libx11-dev? or \verb?yum install libX11-devel?.
+
+Note, however, that \aevol{} can be compiled without graphical outputs, and hence no need for X libraries, by typing  \verb?./configure --without-x?  instead of  \verb?./configure? (see installation instructions below for more information). This option is useful if you want to run \aevol{} on a computer cluster, for example.
 \end{myList}
 
 \subsubsection{Installation Instructions}

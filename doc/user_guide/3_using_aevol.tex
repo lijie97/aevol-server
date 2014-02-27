@@ -55,14 +55,14 @@ The main idea underlying this workflow is to parallel wet lab experiments, which
 To use already evolved organisms for your experiments in Aevol, one can either use an evolved genome provided by the community or evolve its own. The following describes the latter (more complete) case.
 
 
-\subsection{\emph{Wild-Type generation}}
+\subsection{\emph{Wild-Type} generation}
 Generating a Wild-Type in \aevol{} is very easy, all you need is a parameter file describing the conditions in which it (the Wild-Type) should be created (population size, mutation rates, task to perform, ...).
 However, have in mind that founding effects can influence the course of evolution, especially in the case of overconstrained evolution. It is recommended to use mild mutation and rearrangement rates and a to let the environment vary over time to avoid overconstrained or overspecialized genomes.
 Once your parameter file is ready, simply run the following commands (it is recommended you do that in a dedicated directory):
 
 \begin{verbatim}
-	aevol_create -f <your_param_file>
-	aevol_run -n <number_of_generations>
+	aevol_create -f your_param_file
+	aevol_run -n number_of_generations
 \end{verbatim}
 
 %$number\_of\_generations$ should be on the order of a few thousand...
@@ -77,7 +77,7 @@ The \verb?aevol_propagate? tool provided in \aevol{} allows for an exact copy of
 %\begin{enumerate}
 
 \subsubsection{Propagate the experiment}
-The \verb?aevol_propagate? tool allows for the creation of fresh copies of an experiment (as it was at a given time). The -i option sets the input directory and the -o option, the output directory. You must provide a distinct output directory for each of the experiments you wish to run.
+The \verb?aevol_propagate? tool allows for the creation of fresh copies of an experiment (as it was at a given time). The \verb?-i? option sets the input directory and the \verb?-o? option, the output directory. You must provide a distinct output directory for each of the experiments you wish to run.
 \begin{verbatim}
 	aevol_propagate -i wild_type -o mu_1e-6
 	aevol_propagate -i wild_type -o mu_2e-6
@@ -112,6 +112,37 @@ Of course, all the runs being completely independent, you can submit these tasks
 
 
 \subsection{Analyse the outcome}
+
+In addition to the set a statistics files that are recorded in the \verb?stats? directory, \aevol{} includes a set of post-treatment tools to further analyse the outcome of your experiments, please refer to section \ref{sect:post-treatments}.
+
+
+\section{Post-treatment Tools}
+\label{sect:post-treatments}
+
+In addition to the set a statistics files that are recorded in the \verb?stats? directory, \aevol{} includes a set of post-treatment tools to further analyse the outcome of your experiments.
+
+Please note that these tools have only been tested on simple experimental setups and will fail with exotic ones.
+However, in most cases, these problems can easily be remedied. Please do not hesitate to send us your request (aevol-feat-request@lists.gforge.liris.cnrs.fr).
+
+\subsection{ae\_misc\_view\_generation}
+The \verb?view_generation? tool is probably the easiest and most straightforward tool provided with \aevol{}.
+It allows one to visualize a generation using the exact same graphical outputs used in \verb?aevol_run?.
+However, since it relies on graphics, it is only available when \aevol{} is compiled with x enabled, which is the default.
+
+Usage: \verb?ae_misc_view_generation -g generation_number?
+
+\subsection{ae\_misc\_lineage}
+\label{sect:lineage}
+The \verb?lineage? tool allows for the reconstruction of the lineage of a given individual.
+Using the complete phylogenetic tree that is saved during simulation, it will produce a file containing the whole evolutionary history of any given individual, \emph{i.e.} for each of its ancestors, which organism in the previous generation it is an offspring of, and the list of mutations that occured during replication. This file will be named \emph{e.g.} \\\verb?lineage-b000000-e050000-i999-r1000.ae? which means we retraced the evolutionary history of the organism with rank $1,000$ (that had the index $999$) at generation $50,000$ and that its history was retraced all the way down to generation $0$.
+
+Usage: \verb?ae_misc_lineage [-i index | -r rank] [-b gener1] -e gener2?
+
+\subsection{ae\_misc\_ancstats}
+The \verb?ancstats? tool issues the ``statistics'' for the lineage of a given individual (providing its lineage file, see section \ref{sect:lineage}). It will produce a set of files similar to those created in the \verb?stats? directory during the simulation but regarding the provided lineage instead of the best organism of each generation. These files are placed in the \verb?stats/ancstats? directory.
+
+Usage: \verb?ae_misc_lineage -f lineage_file?
+
 
 \clearemptydoublepage
 
