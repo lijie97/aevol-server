@@ -115,10 +115,10 @@ params::params( void )
   _repl_HT_detach_rate        = 0.0;
 
   // ------------------------------ Rearrangement rates (without alignements)
-  _duplication_rate   = 5e-5;
-  _deletion_rate      = 5e-5;
-  _translocation_rate = 5e-5;
-  _inversion_rate     = 5e-5;
+  _duplication_rate   = 1e-5;
+  _deletion_rate      = 1e-5;
+  _translocation_rate = 1e-5;
+  _inversion_rate     = 1e-5;
 
   // --------------------------------- Rearrangement rates (with alignements)
   _neighbourhood_rate       = 5e-5;
