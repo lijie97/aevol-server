@@ -9,8 +9,7 @@ INIT_POP_SIZE           500
 INIT_METHOD             ONE_GOOD_GENE CLONE
 
 ##### 2. Selection ################
-SELECTION_SCHEME        fitness
-SELECTION_PRESSURE      750
+SELECTION_SCHEME        fitness   750
 
 ##### 3. Mutation rates ###########
 POINT_MUTATION_RATE     5e-6

@@ -450,15 +450,39 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
   {
     if ( strncmp( line->words[1], "lin", 3 ) == 0 )
     {
+      if ( line->nb_words != 3 )
+      {
+        printf( "ERROR in param file \"%s\" on line %"PRId32" : selection pressure is missing.\n",
+                _param_file_name, _cur_line );
+        exit( EXIT_FAILURE );
+      }
+
       _param_values->set_selection_scheme( RANK_LINEAR );
+      _param_values->set_selection_pressure( atof( line->words[2] ) );
     }
     else if ( strncmp( line->words[1], "exp", 3 ) == 0 )
     {
+      if ( line->nb_words != 3 )
+      {
+        printf( "ERROR in param file \"%s\" on line %"PRId32" : selection pressure is missing.\n",
+                _param_file_name, _cur_line );
+        exit( EXIT_FAILURE );
+      }
+
       _param_values->set_selection_scheme( RANK_EXPONENTIAL );
+      _param_values->set_selection_pressure( atof( line->words[2] ) );
     }
     else if ( strncmp( line->words[1], "fitness", 7 ) == 0 )
     {
+      if ( line->nb_words != 3 )
+      {
+        printf( "ERROR in param file \"%s\" on line %"PRId32" : selection pressure is missing.\n",
+                _param_file_name, _cur_line );
+        exit( EXIT_FAILURE );
+      }
+
       _param_values->set_selection_scheme( FITNESS_PROPORTIONATE );
+      _param_values->set_selection_pressure( atof( line->words[2] ) );
     }
     else if ( strcmp( line->words[1], "fittest" ) == 0 )
     {
@@ -473,7 +497,9 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
   }
   else if ( strcmp( line->words[0], "SELECTION_PRESSURE" ) == 0 )
   {
-    _param_values->set_selection_pressure( atof( line->words[1] ) );
+    printf( "ERROR in param file \"%s\" on line %"PRId32" : deprecated keyword \"%s\", see SELECTION_SCHEME.\n",
+            _param_file_name, _cur_line, line->words[0] );
+    exit( EXIT_FAILURE );
   }
   else if ( strcmp( line->words[0], "SEED" ) == 0 )
   {

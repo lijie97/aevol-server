@@ -822,7 +822,7 @@ void ae_individual::compute_fitness( ae_environment* envir )
       else
       {
         _fitness_by_feature[i] = exp( - _exp_m->get_selection_pressure() * _dist_to_target_by_feature[i] );
-      }  
+      }
     }
     
     // Calculate combined, total fitness here!
