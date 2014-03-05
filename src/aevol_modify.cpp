@@ -443,7 +443,7 @@ int main( int argc, char* argv[] )
     delete line;
   }
   fclose( param_file );
-  printf("Ok\n");
+  printf("OK\n");
   if (env_hasbeenmodified)
   {
     env->build();

@@ -94,7 +94,7 @@ int main(int argc, char** argv)
   // - replication report of ancestor at generation end_gener     (ae_replic_report::write_to_backup)    
 
 
-  printf("\n  WARNING : Parameters' change in the middle of a generation is not managed.\n");
+  printf("\n  WARNING : Parameters' change in the middle of a simulation is not managed.\n");
  
 
   // =====================
