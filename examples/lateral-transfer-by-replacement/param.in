@@ -53,7 +53,7 @@ ENV_AXIS_FEATURES METABOLISM
 ##### 11. Plasmids ################
 ALLOW_PLASMIDS                  false
 WITH_TRANSFER                   true
-TRANSFER_REPL_RATE              0.5
+TRANSFER_REPL_RATE              0.1
 REPL_TRANSFER_WITH_CLOSE_POINTS true
 REPL_TRANSFER_DETACH_RATE       0.3
 
