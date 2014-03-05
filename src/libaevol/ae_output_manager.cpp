@@ -186,8 +186,8 @@ void ae_output_manager::load( gzFile setup_file, bool verbose, bool to_be_run  )
     gzread( setup_file, &tmp_tree_mode, sizeof(tmp_tree_mode) );
     if ( (ae_tree_mode)tmp_tree_mode != LIGHT && (ae_tree_mode)tmp_tree_mode != NORMAL)
     {
-        printf( "%s:%d: error: invalid tree mode\n", __FILE__, __LINE__ );
-        exit( EXIT_FAILURE );
+      printf( "%s:%d: error: invalid tree mode\n", __FILE__, __LINE__ );
+      exit( EXIT_FAILURE );
     }
     
     _tree = new ae_tree( _exp_m, (ae_tree_mode) tmp_tree_mode, tmp_tree_step );
