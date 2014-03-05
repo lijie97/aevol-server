@@ -50,7 +50,7 @@ $0.033333333$
 \subsubsection{Meaning}
 Selection scheme to use (\verb?fitness_proportionate?, \verb?linear_ranking? or \verb?exponential_ranking?)
 
-In the \verb?fitness_proportionate? scheme, the probability of reproduction of each organism is proportional to its fitness. The probability of reproduction is proportional to $exp(-k\times{}g)$, where $k$ determines the intensity of selection (it can be set using the SELECTION\_PRESSURE keyword) and $g$ is the ``metabolic error'' (see Model description).
+In the \verb?fitness_proportionate? scheme, the probability of reproduction of each organism is proportional to its fitness. The probability of reproduction is proportional to $exp(-k\times{}g)$, where $k$ determines the intensity of selection (it can be set using the SELECTION\_PRESSURE keyword) and $g$ is the ``metabolic error'' (see the model description).
 
 The other two selection schemes are based on the rank of the organisms in the population, which allows one to maintain a constant selective pressure throughout the entire evolutionary process. Organisms are thus first sorted by increasing fitness (the worst individual in the population having rank 1). Then, their probability of reproduction can be computed depending on their rank $r$ and according to whether the linear or exponential scheme is used.
 
@@ -64,7 +64,7 @@ exponential\_ranking
 \subsubsection{Meaning}
 Intensity of selection.
 
-This value is interpretted differently accordong to the selection scheme being used (see the SELECTION\_SCHEME parameter).
+This value is interpreted differently according to the selection scheme being used (see the SELECTION\_SCHEME parameter).
 \subsubsection{Default Value}
 $0.998$ (fit for the \verb?exponential_ranking? scheme)
 
