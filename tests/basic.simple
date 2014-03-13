@@ -10,8 +10,7 @@ INIT_METHOD             ONE_GOOD_GENE CLONE
 NB_GENER                100
 
 #####  Selection ################
-SELECTION_SCHEME        exp
-SELECTION_PRESSURE      0.998
+SELECTION_SCHEME        exp 0.998
 
 #####  Mutation rates ###########
 POINT_MUTATION_RATE     5e-5
