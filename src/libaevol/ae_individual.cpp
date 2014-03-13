@@ -392,8 +392,8 @@ ae_individual::ae_individual( const ae_individual &model )
   _non_coding_computed          = model._non_coding_computed;
   _modularity_computed          = model._modularity_computed;
   
-  _placed_in_population         = false;
-  _grid_cell = NULL;
+  _placed_in_population         = model._placed_in_population;
+  _grid_cell = model._grid_cell;
   
   // Create an empty list of genetic units
   _genetic_unit_list = new ae_list<ae_genetic_unit*>();
