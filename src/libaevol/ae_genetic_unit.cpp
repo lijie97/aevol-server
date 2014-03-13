@@ -38,9 +38,12 @@
 // =================================================================
 #include <ae_genetic_unit.h>
 
+
 #include <ae_exp_manager.h>
 #include <ae_exp_setup.h>
 #include <ae_codon.h>
+#include <ae_mutation.h>
+#include <ae_enums.h>
 
 #ifdef __REGUL
   #include <ae_individual_R.h>
@@ -195,6 +198,10 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, char* seq, int32_t lengt
   
   init_statistical_data();
 }
+
+
+
+
 
 /*!
   \brief Copy constructor.
@@ -1178,6 +1185,31 @@ void ae_genetic_unit::reset_expression( void )
 }
 
 
+
+void ae_genetic_unit::print_coding_rnas()
+{
+  printf( "  LEADING \n" );
+  ae_list_node<ae_rna*>* a_node = _rna_list[LEADING]->get_first();
+  ae_rna * rna = NULL;
+  while (a_node != NULL)
+    {
+      rna = (ae_rna *) a_node->get_obj();
+      a_node = a_node->get_next();
+      if (rna->is_coding() == false) continue; 
+      printf("Promoter at %"PRId32", last transcribed position at %"PRId32"\n", rna->get_promoter_pos(), rna->get_last_transcribed_pos());
+    }
+
+  printf( "  LAGGING \n" );
+  a_node = _rna_list[LAGGING]->get_first();
+  rna = NULL;
+  while (a_node != NULL)
+    {
+      rna = (ae_rna *) a_node->get_obj();
+      a_node = a_node->get_next();
+      if (rna->is_coding() == false) continue; 
+      printf("Promoter at %"PRId32", last transcribed position at %"PRId32"\n", rna->get_promoter_pos(), rna->get_last_transcribed_pos());
+    }
+}
 
 
 void ae_genetic_unit::print_rnas( ae_list<ae_rna*>* rnas, ae_strand strand )
@@ -3692,6 +3724,390 @@ void ae_genetic_unit::double_non_coding_bases(void)
   
   delete [] belongs_to_coding_RNA;
 }
+
+
+// This is an auxiliary function for the method ae_genetic_unit::compute_nb_of_affected_genes.
+// The gene should go from 'first' to 'last' in the clockwise sense, implying that 'first' should be:
+//  - the beginning of the promoter if the gene is on the leading strand
+//  - or the end of the terminator if the gene is on the lagging strand.
+static bool breakpoint_inside_gene(int32_t pos_brkpt, int32_t first, int32_t last)
+{
+  if (first < last) // most frequent case 
+    {
+      if( (first <= pos_brkpt) && (pos_brkpt <= last)) {return true;}
+      else {return false;}
+    }
+  else // special case where the RNA overlaps ori
+    {
+      if( (first <= pos_brkpt) || (pos_brkpt <= last) ) {return true;}
+      else {return false;}
+    }
+} 
+
+
+// This is an auxiliary function for the method ae_genetic_unit::compute_nb_of_affected_genes.
+// It return true if the gene is totally included in the segment [pos1, pos2].
+// The gene should go from 'first' to 'last' in the clockwise sense, implying that 'first' should be:
+//  - the beginning of the promoter if the gene is on the leading strand
+//  - or the end of the terminator if the gene is on the lagging strand.
+static bool gene_totally_in_segment(int32_t pos1, int32_t pos2, int32_t first, int32_t last)
+{
+  if ( (first < last)  && (pos1 <= pos2) ) 
+    {
+      if ( ((first >= pos1) && (first <= pos2)) && ((last >= pos1) && (last <= pos2)) ) {return true; }
+      else {return false;}
+    }
+  else if ( (first < last) && (pos1 > pos2) )  // mut seg in 2 pieces but not the gene
+    {
+      if ( (first >= pos1) || (last <= pos2) )  // the gene is either completely in [pos1, genlen-1] or completely in [0, pos2]
+        {
+          return true;
+        }
+      else return false;
+    }
+  else if ( (first > last) && (pos1 <= pos2) )  // gene in two pieces but not mut seg, the gene cannot be totally included
+    {
+      return false;
+    }
+  else // both mut seg and the gene are in 2 pieces
+    {
+      if ((first >= pos1) && (last <= pos2)) {return true;}
+      else {return false;}
+    }
+}
+
+
+
+// WARNING: This method works properly only in the case of a single genetic unit (no plasmid).
+// Translocations between different genetic units is not managed.
+void ae_genetic_unit::compute_nb_of_affected_genes(ae_mutation * mut, int & nb_genes_at_breakpoints, int & nb_genes_in_segment, int & nb_genes_in_replaced_segment)
+{
+  nb_genes_at_breakpoints = 0;
+  nb_genes_in_segment = 0;
+  nb_genes_in_replaced_segment = 0;
+  int32_t genlen = get_seq_length(); // length of the genetic unit, in bp
+
+  int32_t pos0 = -1, pos1 = -1, pos2 = -1, pos3 = -1, mutlength = -1;
+  int32_t pos1donor = -1, pos2donor = -1, pos3donor = -1;
+  char * seq = NULL;
+  int32_t first, last;
+  bool invert = false;
+  ae_sense sense = DIRECT;
+  ae_mutation_type type = mut->get_mut_type();
+  switch(type)
+    {
+    case SWITCH:
+      {
+        mut->get_infos_point_mutation(&pos0);
+        mutlength = 1;
+        break;
+      }
+    case S_INS:
+      {
+        mut->get_infos_small_insertion(&pos0, &mutlength);
+        break;
+      }
+    case S_DEL:
+      {
+        mut->get_infos_small_deletion(&pos0, &mutlength);
+        break;
+      }
+    case DUPL:
+      {
+        mut->get_infos_duplication(&pos1, &pos2, &pos0); 
+        // pos2 is actually not included in the segment, the real end of the segment is pos2 - 1
+        pos2 = ae_utils::mod(pos2 - 1, genlen);
+        mutlength = mut->get_length();
+        break;
+      }
+    case DEL:
+      {
+        mut->get_infos_deletion(&pos1, &pos2); 
+        pos2 = ae_utils::mod(pos2 - 1, genlen);
+        mutlength = mut->get_length();
+        break;
+      }
+    case TRANS:
+      {
+        mut->get_infos_translocation(&pos1, &pos2, &pos3, &pos0, &invert); 
+        pos2 = ae_utils::mod(pos2 - 1, genlen);
+        mutlength = mut->get_length();
+        break;
+      }
+    case INV:
+      {
+        mut->get_infos_inversion(&pos1, &pos2);
+        pos2 = ae_utils::mod(pos2 - 1, genlen); 
+        mutlength = mut->get_length();
+        break;
+      }
+    case INSERT:
+      {
+        mut->get_infos_insertion(&pos0, &mutlength);
+        seq = new char[mutlength+1];
+        mut->get_sequence_insertion(seq);
+        // Make a temporary genetic unit and translate it to count how many genes are on the inserted segment
+        ae_genetic_unit * tmpunit = new ae_genetic_unit( _indiv, seq, mutlength);
+        tmpunit->do_transcription();
+        tmpunit->do_translation();
+        nb_genes_in_segment = tmpunit->get_nb_coding_RNAs();
+        delete tmpunit;
+        seq = NULL;
+        break;
+      }
+    case INS_HT:
+      {
+        mut->get_infos_ins_HT(&pos1donor, &pos2donor, &pos0, &pos3donor, &sense, &mutlength );
+        seq = new char[mutlength+1];
+        mut->get_sequence_ins_HT(seq);
+
+        // Make a temporary genetic unit and translate it to count how many genes were on the exogenote
+        ae_genetic_unit * tmpunit = new ae_genetic_unit( _indiv, seq, mutlength);
+        tmpunit->do_transcription();
+        tmpunit->do_translation();
+        nb_genes_in_segment = tmpunit->get_nb_coding_RNAs();
+
+        // Check whether the pos3donor breakpoint killed one or several of those genes, in that case decrement nb_genes_in_segment 
+        ae_list_node<ae_rna*>* a_node = tmpunit->_rna_list[LEADING]->get_first();
+        ae_rna * rna = NULL;
+        while (a_node != NULL)
+          {
+            rna = (ae_rna *) a_node->get_obj();
+            a_node = a_node->get_next();
+            if (rna->is_coding() == false) continue; 
+            
+            first = rna->get_promoter_pos();
+            last = rna->get_last_transcribed_pos();
+            
+            if (breakpoint_inside_gene(pos3donor, first, last)) nb_genes_in_segment --;
+          }
+        a_node = tmpunit->_rna_list[LAGGING]->get_first();
+        rna = NULL;
+        while (a_node != NULL)
+          {
+            rna = (ae_rna *) a_node->get_obj();
+            a_node = a_node->get_next();
+            if (rna->is_coding() == false) continue; 
+            
+            last = rna->get_promoter_pos();
+            first = rna->get_last_transcribed_pos();
+            
+            if (breakpoint_inside_gene(pos3donor, first, last)) nb_genes_in_segment --;
+          }
+        delete tmpunit;
+        seq = NULL;
+        break;
+      }
+    case REPL_HT:
+      {
+        mut->get_infos_repl_HT(&pos1, &pos1donor, &pos2, &pos2donor, &sense, &mutlength );
+        pos2 = ae_utils::mod(pos2 - 1, genlen); 
+        seq = new char[mutlength+1];  // seq in the sequence in the donor
+        mut->get_sequence_repl_HT(seq);
+
+        // Make a temporary genetic unit and translate it to count how many genes were on the donor segment
+        ae_genetic_unit * tmpunit = new ae_genetic_unit( _indiv, seq, mutlength);
+        tmpunit->do_transcription();
+        tmpunit->do_translation();
+        nb_genes_in_segment = tmpunit->get_nb_coding_RNAs();
+        
+        // Remove the genes that overlap ori in this temporary unit, as the transferred segment was actually linear
+        ae_list_node<ae_rna*>* a_node = tmpunit->_rna_list[LEADING]->get_first();
+        ae_rna * rna = NULL;
+        while (a_node != NULL)
+          {
+            rna = (ae_rna *) a_node->get_obj();
+            a_node = a_node->get_next();
+            if (rna->is_coding() == false) continue; 
+            
+            first = rna->get_promoter_pos();
+            last = rna->get_last_transcribed_pos();
+            if (first > last) nb_genes_in_segment --;
+          }
+        a_node = tmpunit->_rna_list[LAGGING]->get_first();
+        rna = NULL;
+        while (a_node != NULL)
+          {
+            rna = (ae_rna *) a_node->get_obj();
+            a_node = a_node->get_next();
+            if (rna->is_coding() == false) continue; 
+
+            first = rna->get_last_transcribed_pos();            
+            last = rna->get_promoter_pos();
+            if (first > last) nb_genes_in_segment --;
+          }
+
+        delete tmpunit;
+        seq = NULL;
+        break;
+      }
+    default:
+      {
+        fprintf(stderr, "Error: unknown mutation type in ae_genetic_unit::compute_nb_of_affected_genes.\n");
+      }
+    }
+
+  ae_list_node<ae_rna*>* a_node = _rna_list[LEADING]->get_first();
+  ae_rna * rna = NULL;
+  while (a_node != NULL)
+    {
+      rna = (ae_rna *) a_node->get_obj();
+      a_node = a_node->get_next();
+      if (rna->is_coding() == false) continue; 
+
+      first = rna->get_promoter_pos();
+      last = rna->get_last_transcribed_pos();
+
+      switch(type)
+        {
+        case SWITCH:
+          {
+            if (breakpoint_inside_gene(pos0, first, last)) nb_genes_at_breakpoints ++;
+            break;
+          }
+        case S_INS:
+          {
+            if (breakpoint_inside_gene(pos0, first, last)) nb_genes_at_breakpoints ++;
+            break;
+          }
+        case S_DEL:
+          {
+            if (breakpoint_inside_gene(pos0, first, last)) nb_genes_at_breakpoints ++;
+            break;
+          }
+        case DUPL:
+          {
+            if (gene_totally_in_segment(pos1, pos2, first, last)) nb_genes_in_segment ++;
+            if (breakpoint_inside_gene(pos0, first, last)) nb_genes_at_breakpoints ++;  
+            break;
+          }
+        case DEL:
+          {
+            if (gene_totally_in_segment(pos1, pos2, first, last)) nb_genes_in_segment ++;
+            if (breakpoint_inside_gene(pos1, first, last)) nb_genes_at_breakpoints ++;     
+            else if (breakpoint_inside_gene(pos2, first, last)) nb_genes_at_breakpoints ++;     // else because the gene must not be counted twice if both p1 and p2 are in the same gene
+            break;
+          }
+        case TRANS:
+          {
+            if (gene_totally_in_segment(pos1, pos2, first, last)) nb_genes_in_segment ++;
+            if (breakpoint_inside_gene(pos1, first, last)) nb_genes_at_breakpoints ++;   // beginning of the excised segment   
+            else if (breakpoint_inside_gene(pos2, first, last)) nb_genes_at_breakpoints ++;   // end of the excised segment    
+            else if (breakpoint_inside_gene(pos3, first, last)) nb_genes_at_breakpoints ++;   // breakpoint inside the segment for the reinsertion  
+            else if (breakpoint_inside_gene(pos0, first, last)) nb_genes_at_breakpoints ++;   // reinsertion point in the genetic unit
+            break;
+          }
+        case INV:
+          {
+            if (gene_totally_in_segment(pos1, pos2, first, last)) nb_genes_in_segment ++;
+            if (breakpoint_inside_gene(pos1, first, last)) nb_genes_at_breakpoints ++;     
+            else if (breakpoint_inside_gene(pos2, first, last)) nb_genes_at_breakpoints ++;     
+            break;
+          }
+        case INSERT:
+          {
+            if (breakpoint_inside_gene(pos0, first, last)) nb_genes_at_breakpoints ++;  
+            break;
+          }
+        case INS_HT:
+          {
+            if (breakpoint_inside_gene(pos0, first, last)) nb_genes_at_breakpoints ++;  
+            break;
+          }
+        case REPL_HT:
+          {
+            if (gene_totally_in_segment(pos1, pos2, first, last)) nb_genes_in_replaced_segment ++; // the whole gene sequence was replaced by the donor DNA
+            if (breakpoint_inside_gene(pos1, first, last)) nb_genes_at_breakpoints ++;  // the gene was disrupted by the breakpoint p1
+            else if (breakpoint_inside_gene(pos2, first, last)) nb_genes_at_breakpoints ++;  // the gene was disrupted by the breakpoint p2
+            break;
+          }
+        }
+
+    }
+
+
+  a_node = _rna_list[LAGGING]->get_first();
+  while (a_node != NULL)
+    {
+      rna = (ae_rna *) a_node->get_obj();
+      a_node = a_node->get_next();
+      if (rna->is_coding() == false) continue; 
+
+      first = rna->get_last_transcribed_pos();
+      last = rna->get_promoter_pos();
+    
+     switch(type)
+        {
+        case SWITCH:
+          {
+            if (breakpoint_inside_gene(pos0, first, last)) nb_genes_at_breakpoints ++;
+            break;
+          }
+        case S_INS:
+          {
+            if (breakpoint_inside_gene(pos0, first, last)) nb_genes_at_breakpoints ++;
+            break;
+          }
+        case S_DEL:
+          {
+            if (breakpoint_inside_gene(pos0, first, last)) nb_genes_at_breakpoints ++;
+            break;
+          }
+        case DUPL:
+          {
+            if (gene_totally_in_segment(pos1, pos2, first, last)) nb_genes_in_segment ++;
+            if (breakpoint_inside_gene(pos0, first, last)) nb_genes_at_breakpoints ++;  
+            break;
+          }
+        case DEL:
+          {
+            if (gene_totally_in_segment(pos1, pos2, first, last)) nb_genes_in_segment ++;
+            if (breakpoint_inside_gene(pos1, first, last)) nb_genes_at_breakpoints ++;     
+            else if (breakpoint_inside_gene(pos2, first, last)) nb_genes_at_breakpoints ++;     
+            break;
+          }
+        case TRANS:
+          {
+            if (gene_totally_in_segment(pos1, pos2, first, last)) nb_genes_in_segment ++;
+            if (breakpoint_inside_gene(pos1, first, last)) nb_genes_at_breakpoints ++;   // beginning of the excised segment   
+            else if (breakpoint_inside_gene(pos2, first, last)) nb_genes_at_breakpoints ++;   // end of the excised segment    
+            else if (breakpoint_inside_gene(pos3, first, last)) nb_genes_at_breakpoints ++;   // breakpoint inside the segment for the reinsertion  
+            else if (breakpoint_inside_gene(pos0, first, last)) nb_genes_at_breakpoints ++;   // reinsertion point in the genetic unit
+            break;
+          }
+        case INV:
+          {
+            if (gene_totally_in_segment(pos1, pos2, first, last)) nb_genes_in_segment ++;
+            if (breakpoint_inside_gene(pos1, first, last)) nb_genes_at_breakpoints ++;     
+            else if (breakpoint_inside_gene(pos2, first, last)) nb_genes_at_breakpoints ++;     
+            break;
+          }
+        case INSERT:
+          {
+            if (breakpoint_inside_gene(pos0, first, last)) nb_genes_at_breakpoints ++;  
+            break;
+          }
+        case INS_HT:
+          {
+            if (breakpoint_inside_gene(pos0, first, last)) nb_genes_at_breakpoints ++;  
+            break;
+          }
+        case REPL_HT:
+          {
+            if (gene_totally_in_segment(pos1, pos2, first, last)) nb_genes_in_replaced_segment ++; // the whole gene sequence was replaced by the donor DNA
+            if (breakpoint_inside_gene(pos1, first, last)) nb_genes_at_breakpoints ++;  // the gene was disrupted by the breakpoint p1
+            else if (breakpoint_inside_gene(pos2, first, last)) nb_genes_at_breakpoints ++;  // the gene was disrupted by the breakpoint p2
+            break;
+          }
+        }
+    }
+  
+  //  if (type == REPL_HT) printf("%d genes in the replaced segment, %d in the donor\n", nb_genes_in_replaced_segment, nb_genes_in_segment);
+
+  if (seq != NULL) delete [] seq;
+}
+
+
 
 // =================================================================
 //                           Protected Methods

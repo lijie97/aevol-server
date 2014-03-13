@@ -165,9 +165,9 @@ int main(int argc, char** argv)
     exit( EXIT_FAILURE );
   }
   
-  printf("\n"); 
-  printf( "WARNING : Parameter change during simulation is not managed (consider -l option)\n" );
-  printf("\n");
+  // printf("\n"); 
+  // printf( "WARNING : Parameter change during simulation is not managed (consider -l option)\n" );
+  // printf("\n");
   
   // =======================
   //  Open the lineage file
@@ -229,10 +229,13 @@ int main(int argc, char** argv)
   fprintf( output, "#  12. repl_seg_len     (replaced segment length for repl_HT, -1 for the others)\n" );
   fprintf( output, "#  13. GU_length        (before the event)\n" );
   fprintf( output, "#  14. Impact of the mutation on the metabolic error (negative value = smaller gap after = beneficial mutation) \n" );
+  fprintf( output, "#  15. Number of coding RNAs possibly disrupted by the breakpoints \n" );
+  fprintf( output, "#  16. Number of coding RNAs completely included in the segment (donor segment in the case of a transfer) \n" );
+  fprintf( output, "#  17. Number of coding RNAs that were completely included in the replaced segment (meaningful only for repl_HT) \n" );
   fprintf( output, "####################################################################################################################\n" );
   fprintf( output, "#\n" );
   fprintf( output, "# Header for R\n" );
-  fprintf( output, "gener gen_unit mut_type pos_0 pos_1 pos_2 pos_3 invert align_score align_score_2 seg_len repl_seg_len GU_len impact\n" );
+  fprintf( output, "gener gen_unit mut_type pos_0 pos_1 pos_2 pos_3 invert align_score align_score_2 seg_len repl_seg_len GU_len impact nbgenesatbreak nbgenesinseg nbgenesinreplseg\n" );
 
 
   // =========================
@@ -293,6 +296,7 @@ int main(int argc, char** argv)
   ae_genetic_unit*  stored_unit = NULL;
 
   int32_t i, index, genetic_unit_number, unitlen_before;
+  int32_t nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment;
   double metabolic_error_before, metabolic_error_after, impact_on_metabolic_error;
   char mut_descr_string[80];
   
@@ -322,7 +326,9 @@ int main(int argc, char** argv)
     if ( verbose ) printf("Rebuilding ancestor at generation %"PRId32" (index %"PRId32")...", num_gener, index); 
 
     env->apply_variation();
-    
+    indiv->reevaluate(env);
+
+
     if ( check_now && ae_utils::mod(num_gener, backup_step) == 0 )
     {
       // check that the environment is now identical to the one stored
@@ -356,7 +362,7 @@ int main(int argc, char** argv)
     }
 
     // Warning: this portion of code won't work if the number of units changes
-    // during the evolution
+    // during the evolution, or if some translocations occurred between different genetic units
     
     genetic_unit_number = 0;
     dnarepnode = (rep->get_dna_replic_reports())->get_first();
@@ -387,21 +393,24 @@ int main(int argc, char** argv)
 
         metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
         unitlen_before = unit->get_dna()->get_length();
-        // TODO : number of affected genes
+        unit->compute_nb_of_affected_genes(mut, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);          
+
 
         unit->get_dna()->undergo_this_mutation( mut );
-
         indiv->reevaluate(env);
+
+
         metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
       
         mut->get_generic_description_string( mut_descr_string );
-        fprintf( output, "%"PRId32" %"PRId32" %s %"PRId32" %.15f \n",\
+        fprintf( output, "%"PRId32" %"PRId32" %s %"PRId32" %.15f  %"PRId32" %"PRId32" %"PRId32" \n",\
                  num_gener, genetic_unit_number, \
                  mut_descr_string, unitlen_before, \
-                 impact_on_metabolic_error );
+                 impact_on_metabolic_error, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment );
 
+      
 
         mnode = mnode->get_next();
       }
@@ -418,7 +427,7 @@ int main(int argc, char** argv)
         
         metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
         unitlen_before = unit->get_dna()->get_length();
-        // TODO : number of affected genes
+        unit->compute_nb_of_affected_genes(mut, nb_genes_at_breakpoints, nb_genes_in_segment,  nb_genes_in_replaced_segment);
 
         unit->get_dna()->undergo_this_mutation( mut );
 
@@ -427,10 +436,10 @@ int main(int argc, char** argv)
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
         mut->get_generic_description_string( mut_descr_string );
-        fprintf( output, "%"PRId32" %"PRId32" %s %"PRId32" %.15f \n",\
+        fprintf( output, "%"PRId32" %"PRId32" %s %"PRId32" %.15f %"PRId32" %"PRId32" %"PRId32" \n",\
                  num_gener, genetic_unit_number, \
                  mut_descr_string, unitlen_before, \
-                 impact_on_metabolic_error );
+                 impact_on_metabolic_error, nb_genes_at_breakpoints, nb_genes_in_segment,  nb_genes_in_replaced_segment );
 
 
         mnode = mnode->get_next();
@@ -448,7 +457,7 @@ int main(int argc, char** argv)
 
         metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
         unitlen_before = unit->get_dna()->get_length();
-        // TODO : number of affected genes
+        unit->compute_nb_of_affected_genes(mut, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
 
         unit->get_dna()->undergo_this_mutation( mut ); 
 
@@ -457,10 +466,10 @@ int main(int argc, char** argv)
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
         mut->get_generic_description_string( mut_descr_string );
-        fprintf( output, "%"PRId32" %"PRId32" %s %"PRId32" %.15f \n",\
+        fprintf( output, "%"PRId32" %"PRId32" %s %"PRId32" %.15f %"PRId32" %"PRId32" %"PRId32" \n",\
                  num_gener, genetic_unit_number, \
                  mut_descr_string, unitlen_before, \
-                 impact_on_metabolic_error );
+                 impact_on_metabolic_error, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment );
 
         mnode = mnode->get_next();
       }
@@ -573,9 +582,8 @@ void print_help( void )
   printf( "This program computes the fixed mutations of the individuals within the lineage\n" );
   printf( "of lineage_file\n" );
   printf( "\n" ); 
-  printf( "WARNING: This program should not be used for simulations run with lateral\n" ); 
-  printf( "transfer. When an individual has more than one parent, the notion of lineage\n" ); 
-  printf( "used here is not relevant.\n" );
+  printf( "WARNING: This program should not be used for simulations run with several genetic units\n" ); 
+  printf( "(eg chromosome + plasmids). It works only for simulations with only a single chromosome.\n" ); 
   printf( "\n" );  
   printf( "\t-h or --help       : Display this help.\n" );
   printf( "\n" ); 

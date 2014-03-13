@@ -154,6 +154,7 @@ class ae_genetic_unit : public ae_object
     void reset_expression( void ); // useful for post-treatment programs
     
     inline void print_rnas( void ) const;
+    void print_coding_rnas( void );
     inline static void print_rnas( ae_list<ae_rna*>** rnas );
     static void print_rnas( ae_list<ae_rna*>* rnas, ae_strand strand );
     void print_proteins( void ) const;
@@ -232,6 +233,10 @@ class ae_genetic_unit : public ae_object
     bool* is_belonging_to_coding_RNA(void);
     void remove_non_coding_bases( void);
     void double_non_coding_bases(void);
+
+    // WARNING: The method below works properly only in the case of a single genetic unit (no plasmid).
+    // Translocations between different genetic units is not managed.
+    void compute_nb_of_affected_genes(ae_mutation * mut, int & nb_genes_at_breakpoints, int & nb_genes_in_segment, int & nb_genes_in_replaced_segment);
 
     // =================================================================
     //                           Public Attributes

@@ -523,8 +523,8 @@ void ae_mutation::report_ins_HT(int32_t alignment_1_donor_pos_1, int32_t alignme
   _pos = new int32_t[4];
   _pos[0] = alignment_1_donor_pos_1; //donor
   _pos[1] = alignment_1_donor_pos_2; //donor
-  _pos[2] = alignment_2_ind_pos; //exogenote
-  _pos[3] = alignment_2_donor_pos; //receiver
+  _pos[2] = alignment_2_ind_pos; //exogenote   // NOTE: wrong comment? I think it's receiver
+  _pos[3] = alignment_2_donor_pos; //receiver  // NOTE: wrong comment? I think it's exogenote
   
   _length = new int32_t( length );
   _seq = new char[length + 1];
