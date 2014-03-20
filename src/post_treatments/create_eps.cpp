@@ -125,8 +125,7 @@ int main( int argc, char* argv[] )
   // 2) Define allowed options
   const char * options_list = "hvi:r:e:";
   static struct option long_options_list[] = {
-  	{"help",      no_argument,       NULL, 'h'},
-    //~ {"verbose",   no_argument,       NULL, 'v'},
+    {"help",      no_argument,       NULL, 'h'},
     {"index",     required_argument, NULL, 'i'},
     {"rank",      required_argument, NULL, 'r'},
     {"end",       required_argument,  NULL, 'e' }, 
@@ -143,9 +142,6 @@ int main( int argc, char* argv[] )
         print_help();
         exit( EXIT_SUCCESS );
         break;
-      //~ case 'v' :
-        //~ verbose = true;
-        //~ break;
       case 'i' : 
         indiv_index  = atol(optarg); 
         break;
@@ -215,36 +211,8 @@ int main( int argc, char* argv[] )
   	}
   }
   
-  /*  if ( use_single_indiv_file )
-    {
-      // TODO : best* backups don't look right...
-      printf( "Reading single individual backup file <%s>... ", backup_file_name );
-      gzFile backup_file = gzopen( backup_file_name, "r" );
-      ae_common::read_from_backup( backup_file, verbose );
-      env = new ae_environment(); // Uses the ae_common data
-      best_indiv = new ae_individual( backup_file );
-      
-      num_gener = -1; // TODO!!!
-      printf("done\n" );
-    }
-    else
-    {
-      printf( "Reading backup file <%s>... ", backup_file_name );
-      fflush(stdout);
-
-      // Load simulation from backup
-      ae_common::sim = new ae_experiment();
-      ae_common::sim->load_backup( backup_file_name, false, NULL );
-      
-      best_indiv      = ae_common::pop->get_best();
-      env             = ae_common::sim->get_env();
-      num_gener       = ae_common::sim->get_num_gener();
-      printf("done\n" );
-    }
-  }*/
   
-  
-  // The constructor of the ae_experiment has read the genomes of the individuals
+  // The constructor of the exp_manager has read the genomes of the individuals
   // and located their promoters, but has not performed the translation nor the
   // phenotype computation. We must do it now.
   // However, as the individuals in the backups are sorted, we don't need to evaluate
@@ -318,21 +286,10 @@ int main( int argc, char* argv[] )
   printf( "OK\n" );
 
 
-  delete env;
+
   delete indiv;
   delete exp_manager;
-  
-  /*delete [] backup_file_name;
-  
-  if ( use_single_indiv_file )
-  {
-    delete best_indiv;
-    delete env;
-  }
-  else
-  {
-    delete ae_common::sim;
-  }*/
+  //   delete env;  // already done by the destructor of the exp_manager
 
   return EXIT_SUCCESS;
 }
@@ -354,10 +311,10 @@ void print_help( void )
   printf( "\n" ); 
 #ifdef __REGUL
   printf( "Usage : rcreate_eps -h\n");
-  printf( "or :    rcreate_eps [-v] [-i index | -r rank] -e end_gener \n" );
+  printf( "or :    rcreate_eps [-i index | -r rank] -e end_gener \n" );
 #else
   printf( "Usage : create_eps -h\n");
-  printf( "or :    create_eps [-v] [-i index | -r rank] -e end_gener \n" );
+  printf( "or :    create_eps  [-i index | -r rank] -e end_gener \n" );
 #endif
   printf( "\n" );  
   printf( "This program creates 5 EPS files with the triangles, the positive and negatives \n" );
@@ -368,9 +325,6 @@ void print_help( void )
   printf( "\n" );  
   printf( "\t-h or --help    : Display this help.\n" );
   printf( "\n" ); 
-  printf( "\t-v or --verbose : Be verbose, listing generations as they are \n" );
-  printf( "\t                  treated.\n" );
-  printf( "\n" );
   printf( "\t-i index or --index index : \n" );
   printf( "\t                  Creates the EPS files for the individual whose\n" );
   printf( "\t                  index is index. The index must be comprised \n" );
@@ -865,7 +819,7 @@ void draw_genetic_unit_with_CDS( ae_genetic_unit* gen_unit, char * directoryName
   }
 
 
-  printf("LEADING\n" );
+  // printf("LEADING\n" );
   node = (gen_unit->get_protein_list())[LEADING]->get_first();
   while (node != NULL)
   {
@@ -930,7 +884,7 @@ void draw_genetic_unit_with_CDS( ae_genetic_unit* gen_unit, char * directoryName
       }
     }
     
-    printf("f %d, l %d, af %d, al %d, tf %d, tl %d, nbsect %d, layer %d\n", first, last, alpha_first, alpha_last, theta_first, theta_last, nb_sect, layer);
+    // printf("f %d, l %d, af %d, al %d, tf %d, tl %d, nbsect %d, layer %d\n", first, last, alpha_first, alpha_last, theta_first, theta_last, nb_sect, layer);
 
     // Mark sectors to be drawn as occupied
     for ( rho = 0 ; rho < nb_sect ; rho++ )
@@ -966,7 +920,7 @@ void draw_genetic_unit_with_CDS( ae_genetic_unit* gen_unit, char * directoryName
   }
   
 
-  printf("LAGGING\n" );
+  // printf("LAGGING\n" );
   node = (gen_unit->get_protein_list())[LAGGING]->get_first();
   while (node != NULL)
   {
@@ -1031,7 +985,7 @@ void draw_genetic_unit_with_CDS( ae_genetic_unit* gen_unit, char * directoryName
       }
     }
 
-    printf("f %d, l %d, af %d, al %d, tf %d, tl %d, nbsect %d, layer %d\n", first, last, alpha_first, alpha_last, theta_first, theta_last, nb_sect, layer);
+    // printf("f %d, l %d, af %d, al %d, tf %d, tl %d, nbsect %d, layer %d\n", first, last, alpha_first, alpha_last, theta_first, theta_last, nb_sect, layer);
 
     // Mark sectors to be drawn as occupied
     for ( rho = 0 ; rho < nb_sect ; rho++ )
