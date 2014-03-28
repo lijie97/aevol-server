@@ -353,8 +353,9 @@ void draw_triangles( ae_individual* indiv, ae_environment* env, char * directory
 {
   const uint8_t bbsize = 200;  // a4 paper: 595*842 
   double margin = 0.1;
-  double scale = 0.8*(1 - 2*margin);
-  
+  double scalex = 0.8*(1 - 2*margin);
+  double scaley = 0.4*(1 - 2*margin);
+
   char filename[50];
   strncpy( filename, directoryName, 29 );
   strcat(  filename, "/best_triangles.eps" );
@@ -380,10 +381,10 @@ void draw_triangles( ae_individual* indiv, ae_environment* env, char * directory
     {
       if ( segments[i]->feature == NEUTRAL )
       {    
-        fprintf( drawingfile, "%lf 0 moveto\n", margin + scale * segments[i]->start );
-        fprintf( drawingfile, "%lf 1 lineto\n", margin + scale * segments[i]->start );
-        fprintf( drawingfile, "%lf 1 lineto\n", margin + scale * segments[i]->stop );
-        fprintf( drawingfile, "%lf 0 lineto\n", margin + scale * segments[i]->stop );
+        fprintf( drawingfile, "%lf 0 moveto\n", margin + scalex * segments[i]->start );
+        fprintf( drawingfile, "%lf 1 lineto\n", margin + scalex * segments[i]->start );
+        fprintf( drawingfile, "%lf 1 lineto\n", margin + scalex * segments[i]->stop );
+        fprintf( drawingfile, "%lf 0 lineto\n", margin + scalex * segments[i]->stop );
         fprintf( drawingfile, "closepath\n" );
         fprintf( drawingfile, "0.8 setgray\n" );
         fprintf( drawingfile, "fill\n" );
@@ -423,7 +424,11 @@ void draw_triangles( ae_individual* indiv, ae_environment* env, char * directory
   fprintf( drawingfile, "%lf %lf lineto\n", margin+arrowsize*sin(arrowangle), 1 - margin - arrowsize*cos(arrowangle) );
   fprintf( drawingfile, "stroke\n" );
 
-
+  // max degree = 1
+  fprintf( drawingfile, "[0.02 0.02] 0 setdash\n" );
+  fprintf( drawingfile, "%lf %lf moveto\n", margin, 0.5 + 1.0*scaley);
+  fprintf( drawingfile, "%lf %lf lineto\n", 1-margin, 0.5 + 1.0*scaley);
+  fprintf( drawingfile, "stroke\n" );
 
   // ----------------
   //  draw triangles
@@ -448,10 +453,10 @@ void draw_triangles( ae_individual* indiv, ae_environment* env, char * directory
       prot = (ae_protein*) prot_node->get_obj();
       h = prot->get_height() * prot->get_concentration();
       fprintf( drawingfile, "%lf %lf moveto\n", margin, 0.5);
-      fprintf( drawingfile, "%lf %lf lineto\n", margin + scale*(prot->get_mean() - prot->get_width()), 0.5);
-      fprintf( drawingfile, "%lf %lf lineto\n", margin + scale*(prot->get_mean()), 0.5 + scale*(h));
-      fprintf( drawingfile, "%lf %lf lineto\n", margin + scale*(prot->get_mean() + prot->get_width()), 0.5);
-      fprintf( drawingfile, "%lf %lf moveto\n", margin + scale*(1), 0.5);
+      fprintf( drawingfile, "%lf %lf lineto\n", margin + scalex*(prot->get_mean() - prot->get_width()), 0.5);
+      fprintf( drawingfile, "%lf %lf lineto\n", margin + scalex*(prot->get_mean()), 0.5 + scaley*(h));
+      fprintf( drawingfile, "%lf %lf lineto\n", margin + scalex*(prot->get_mean() + prot->get_width()), 0.5);
+      fprintf( drawingfile, "%lf %lf moveto\n", margin + scalex*(1), 0.5);
       fprintf( drawingfile, "stroke\n" );
       prot_node = prot_node->get_next();
     }
@@ -463,10 +468,10 @@ void draw_triangles( ae_individual* indiv, ae_environment* env, char * directory
       prot = (ae_protein*) prot_node->get_obj();
       h = prot->get_height() * prot->get_concentration();
       fprintf( drawingfile, "%lf %lf moveto\n", margin, 0.5);
-      fprintf( drawingfile, "%lf %lf lineto\n", margin + scale*(prot->get_mean() - prot->get_width()), 0.5);
-      fprintf( drawingfile, "%lf %lf lineto\n", margin + scale*(prot->get_mean()), 0.5 + scale*(h));
-      fprintf( drawingfile, "%lf %lf lineto\n", margin + scale*(prot->get_mean() + prot->get_width()), 0.5);
-      fprintf( drawingfile, "%lf %lf moveto\n", margin + scale*(1), 0.5);
+      fprintf( drawingfile, "%lf %lf lineto\n", margin + scalex*(prot->get_mean() - prot->get_width()), 0.5);
+      fprintf( drawingfile, "%lf %lf lineto\n", margin + scalex*(prot->get_mean()), 0.5 + scaley*(h));
+      fprintf( drawingfile, "%lf %lf lineto\n", margin + scalex*(prot->get_mean() + prot->get_width()), 0.5);
+      fprintf( drawingfile, "%lf %lf moveto\n", margin + scalex*(1), 0.5);
       fprintf( drawingfile, "stroke\n" );
       
       prot_node = prot_node->get_next();
