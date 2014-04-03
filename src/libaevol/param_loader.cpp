@@ -452,7 +452,7 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
     {
       if ( line->nb_words != 3 )
       {
-        printf( "ERROR in param file \"%s\" on line %"PRId32" : selection pressure is missing.\n",
+        printf( "ERROR in param file \"%s\" on line %"PRId32" : selection pressure parameter is missing.\n",
                 _param_file_name, _cur_line );
         exit( EXIT_FAILURE );
       }
@@ -464,7 +464,7 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
     {
       if ( line->nb_words != 3 )
       {
-        printf( "ERROR in param file \"%s\" on line %"PRId32" : selection pressure is missing.\n",
+        printf( "ERROR in param file \"%s\" on line %"PRId32" : selection pressure parameter is missing.\n",
                 _param_file_name, _cur_line );
         exit( EXIT_FAILURE );
       }
@@ -476,7 +476,7 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
     {
       if ( line->nb_words != 3 )
       {
-        printf( "ERROR in param file \"%s\" on line %"PRId32" : selection pressure is missing.\n",
+        printf( "ERROR in param file \"%s\" on line %"PRId32" : selection pressure parameter is missing.\n",
                 _param_file_name, _cur_line );
         exit( EXIT_FAILURE );
       }
