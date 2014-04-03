@@ -3,8 +3,7 @@
 ############################################
 SUBDIRS = libaevol post_treatments
 
-AM_CPPFLAGS = -I./
-AM_CPPFLAGS += -I$(top_srcdir)/src/libaevol
+AM_CPPFLAGS = -I$(top_srcdir)/src/libaevol
 
 ############################################
 # C99 exact-width integer specific support #
@@ -89,7 +88,8 @@ bin_PROGRAMS += aevol_create aevol_modify aevol_propagate
 CLEANFILES = aevol_run aevol_run_IN2P3 raevol_run raevol_run_IN2P3 aevol_run_debug raevol_run_debug aevol_run_X11 raevol_run_X11 aevol_run_X11_debug raevol_run_X11_debug
 CLEANFILES += aevol_create aevol_modify aevol_propagate
 
-
+print:
+	echo $(AM_CPPFLAGS)
 
 
 # The target_CPPFLAGS for each target may look useless, it is here to force automake to create

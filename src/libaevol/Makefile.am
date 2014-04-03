@@ -18,15 +18,13 @@ else # WITHOUT_RAEVOL
 endif # RAEVOL
 
 
-AM_CPPFLAGS = -I./
-
 ############################################
 # C99 exact-width integer specific support #
 ############################################
 # __STDC_FORMAT_MACROS allows us to use exact-width integer format specifiers e.g. PRId32 (for printf etc)
 # __STDC_CONSTANT_MACROS allows us to define exact-width integer macros with e.g. INT32_C( <value> )
 # __STDC_LIMIT_MACROS allows us to use exact-width integer limit macros with e.g. INT32_MAX
-AM_CPPFLAGS += -D__STDC_FORMAT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS
+AM_CPPFLAGS = -D__STDC_FORMAT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS
 
 
 

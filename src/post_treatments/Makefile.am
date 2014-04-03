@@ -3,8 +3,7 @@
 ############################################
 AM_LDFLAGS = -L$(top_srcdir)/src/libaevol
 
-AM_CPPFLAGS = -I./
-AM_CPPFLAGS += -I$(top_srcdir)/src/libaevol
+AM_CPPFLAGS = -I$(top_srcdir)/src/libaevol
 
 if WITH_RAEVOL
   LDADD = $(top_srcdir)/src/libaevol/libraevol.a
