@@ -123,12 +123,12 @@ int main( int argc, char* argv[] )
   int32_t indiv_rank      = -1;
   
   // 2) Define allowed options
-  const char * options_list = "hvi:r:e:";
+  const char * options_list = "hvi:r:g:";
   static struct option long_options_list[] = {
     {"help",      no_argument,       NULL, 'h'},
     {"index",     required_argument, NULL, 'i'},
     {"rank",      required_argument, NULL, 'r'},
-    {"end",       required_argument,  NULL, 'e' }, 
+    {"gener",     required_argument,  NULL, 'g' }, 
     { 0, 0, 0, 0 }
   };
 
@@ -148,11 +148,11 @@ int main( int argc, char* argv[] )
       case 'r' : 
         indiv_rank  = atol(optarg); 
         break;
-      case 'e' :
+      case 'g' :
       {
         if ( strcmp( optarg, "" ) == 0 )
         {
-          printf( "%s: error: Option -e or --end : missing argument.\n", argv[0] );
+          printf( "%s: error: Option -g or --gener : missing argument.\n", argv[0] );
           exit( EXIT_FAILURE );
         }
         
@@ -311,10 +311,10 @@ void print_help( void )
   printf( "\n" ); 
 #ifdef __REGUL
   printf( "Usage : rcreate_eps -h\n");
-  printf( "or :    rcreate_eps [-i index | -r rank] -e end_gener \n" );
+  printf( "or :    rcreate_eps [-i index | -r rank] -g generation \n" );
 #else
   printf( "Usage : create_eps -h\n");
-  printf( "or :    create_eps  [-i index | -r rank] -e end_gener \n" );
+  printf( "or :    create_eps  [-i index | -r rank] -g generation \n" );
 #endif
   printf( "\n" );  
   printf( "This program creates 5 EPS files with the triangles, the positive and negatives \n" );
@@ -341,7 +341,7 @@ void print_help( void )
   printf( "\t                  index nor rank are specified, the program creates \n" );
   printf( "\t                  the EPS files of the best individual\n" );
   printf( "\n" ); 
-  printf( "\t-e end_gener or --end end_gener : \n" );
+  printf( "\t-g generation or --gener generation : \n" );
   printf( "\t                  Create the EPS files for the chosen individual of end_gener\n" );
   printf( "\n" );
 }
