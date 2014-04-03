@@ -16,18 +16,26 @@ AC_CONFIG_SRCDIR([src/aevol_run.cpp])
 # Build config.h using config.h.in as a template
 #AC_CONFIG_HEADERS([config.h:config.h.in])
 
-# Checks for programs (c anc c++ compilers)
+
+# Change default value for CXXFLAGS
+test_CXXFLAGS=${CXXFLAGS+set}
+if test "$test_CXXFLAGS" != set; then
+  CXXFLAGS=""
+fi 
+
+
+# Checks for programs
 AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_RANLIB
 AM_PROG_CC_C_O
 
-CXXFLAGS=""
-CPPFLAGS=""
 
-
-
+# Initialize configure-time defined flags
+AC_SUBST(AEVOLCPPFLAGS, "") # C PreProcessor flags
+AC_SUBST(AEVOLCXXFLAGS, "") # C++ Compile flags
+AC_SUBST(AEVOLLDFLAGS, "")  # Linker flags
 
 
 # Checks for libraries.
@@ -113,9 +121,7 @@ AM_CONDITIONAL(WITH_X, test x"$with_x" != xno)
 if test "x$with_x" != xno ; then
    AC_DEFINE(__X11)
    AC_PATH_XTRA
-   CXXFLAGS="$CXXFLAGS $X_CFLAGS"
-   CPPFLAGS="$CPPFLAGS $X_CFLAGS"
-   LDFLAGS="$LDFLAGS $X_LIBS"
+   AEVOLLDFLAGS+=" $X_LIBS"
    AC_CHECK_LIB(X11, XOpenDisplay, , ,$X_LIBS)
    AC_CHECK_LIB(Xi, XGetExtensionVersion, , ,$X_LIBS)
    AC_CHECK_LIB(Xmu, XmuLookupStandardColormap, , ,$X_LIBS)
@@ -137,8 +143,9 @@ AC_ARG_ENABLE(optim, [  --disable-optim turn off compile time optimization], , e
 AC_MSG_RESULT($enable_optim)
 AM_CONDITIONAL(WITH_OPTIM, test x"$enable_optim" != xno)
 if test "x$enable_optim" = "xyes" ; then
-   CXXFLAGS+=" -O3 -ffast-math -pipe -fexpensive-optimizations"
-   CPPFLAGS+=" -O3 -ffast-math -pipe -fexpensive-optimizations"
+  AEVOLCXXFLAGS+=" -O3 -ffast-math -pipe -fexpensive-optimizations"
+else
+  AEVOLCXXFLAGS+=" -O0"
 fi
 
 
@@ -311,8 +318,7 @@ AC_MSG_RESULT($enable_debug)
 AM_CONDITIONAL(WITH_DEBUG, test x"$enable_debug" != xno)
 if test "x$enable_debug" = "xyes" ; then
    AC_DEFINE(DEBUG)
-   CXXFLAGS+=" -g -Wall"
-   CPPFLAGS+=" -g -Wall"
+   AEVOLCXXFLAGS+=" -g -Wall"
 else
    AC_DEFINE(NDEBUG)
 fi

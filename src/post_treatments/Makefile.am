@@ -1,10 +1,16 @@
 ############################################
+#           Set a few variables            #
+############################################
+AM_CPPFLAGS = $(AEVOLCPPFLAGS)
+AM_CXXFLAGS = $(AEVOLCXXFLAGS)
+AM_LDFLAGS = $(AEVOLLDFLAGS)
+
+AM_CPPFLAGS += -I$(top_srcdir)/src/libaevol
+AM_LDFLAGS  += -L$(top_srcdir)/src/libaevol
+
+############################################
 #         Set aevol library to use         #
 ############################################
-AM_LDFLAGS = -L$(top_srcdir)/src/libaevol
-
-AM_CPPFLAGS = -I$(top_srcdir)/src/libaevol
-
 if WITH_RAEVOL
   LDADD = $(top_srcdir)/src/libaevol/libraevol.a
 else # WITHOUT_RAEVOL
