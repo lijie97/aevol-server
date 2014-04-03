@@ -121,10 +121,7 @@ AM_CONDITIONAL(WITH_X, test x"$with_x" != xno)
 if test "x$with_x" != xno ; then
    AC_DEFINE(__X11)
    AC_PATH_XTRA
-   AEVOLLDFLAGS+=" $X_LIBS"
    AC_CHECK_LIB(X11, XOpenDisplay, , ,$X_LIBS)
-   AC_CHECK_LIB(Xi, XGetExtensionVersion, , ,$X_LIBS)
-   AC_CHECK_LIB(Xmu, XmuLookupStandardColormap, , ,$X_LIBS)
    AC_CHECK_HEADERS([X11/Xlib.h X11/Xutil.h X11/keysym.h X11/Xatom.h X11/cursorfont.h])
 else
    AC_DEFINE(__NO_X)
