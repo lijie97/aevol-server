@@ -25,7 +25,7 @@
 // ****************************************************************************
  
  
- #ifndef __AE_INDIVIDUAL_X11_H__
+#ifndef  __AE_INDIVIDUAL_X11_H__
 #define  __AE_INDIVIDUAL_X11_H__
  
  
