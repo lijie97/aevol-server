@@ -165,19 +165,19 @@ int main( int argc, char* argv[] )
   struct stat stat_buf;
   if ( (stat( output_dir, &stat_buf ) == -1) && (errno == ENOENT) )
   {
-    printf( "Directory \"%s\" does not exist. Create it ? [Y/n]\n", output_dir );
-    char answer = getchar();
-    while ( answer != 'y' and answer != 'n' and answer != '\n' )
-    {
-      printf( "Please answer by 'y' or 'n'. Create output directory ? [Y/n]\n" );
-      while( answer != '\n' && answer != EOF) answer = getchar(); // "flush" stdin
-      answer = getchar();
-    }
-    char flush = answer;
-    while( flush != '\n' && flush != EOF) flush = getchar(); // "flush" stdin
-    if ( answer == '\n' ) answer = 'y';
+    // printf( "Directory \"%s\" does not exist. Create it ? [Y/n]\n", output_dir );
+    // char answer = getchar();
+    // while ( answer != 'y' and answer != 'n' and answer != '\n' )
+    // {
+    //   printf( "Please answer by 'y' or 'n'. Create output directory ? [Y/n]\n" );
+    //   while( answer != '\n' && answer != EOF) answer = getchar(); // "flush" stdin
+    //   answer = getchar();
+    // }
+    // char flush = answer;
+    // while( flush != '\n' && flush != EOF) flush = getchar(); // "flush" stdin
+    // if ( answer == '\n' ) answer = 'y';
     
-    if ( answer == 'n' ) exit( EXIT_SUCCESS );
+    // if ( answer == 'n' ) exit( EXIT_SUCCESS );
     
     if ( mkdir( output_dir, 0755 ) )
     {
