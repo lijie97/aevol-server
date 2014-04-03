@@ -48,11 +48,10 @@ run \verb?aevol_run_X11?
 
 
 \section{The \emph{workflow} example}
-
-The workflow example provides an example of the workflow that can be used for experiments with \aevol{}.
+The workflow example provides an example of one of the many different workflows that can be used for experiments with \aevol{}.
 
 The main idea underlying this workflow is to parallel wet lab experiments, which are conducted on evolved organisms.
-To use already evolved organisms for your experiments in \aevol{}, one can either use an evolved genome provided by the community or evolve its own. The following describes the latter (more complete) case.
+To use already evolved organisms for \aevol{} experiments, one can either use an evolved genome provided by the community or evolve his own. This example describes the latter (more complete) case.
 
 
 \subsection{\emph{Wild-Type} generation}
@@ -140,7 +139,7 @@ Usage: \verb?ae_misc_lineage [-i index | -r rank] [-b gener1] -e gener2?
 \subsection{ae\_misc\_ancstats}
 The \verb?ancstats? tool issues the ``statistics'' for the lineage of a given individual (providing its lineage file, see section \ref{sect:lineage}). It will produce a set of files similar to those created in the \verb?stats? directory during the simulation but regarding the provided lineage instead of the best organism of each generation. These files are placed in the \verb?stats/ancstats? directory.
 
-Usage: \verb?ae_misc_lineage -f lineage_file?
+Usage: \verb?ae_misc_ancstats -f lineage_file?
 
 
 \clearemptydoublepage
