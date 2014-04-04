@@ -123,20 +123,25 @@ In addition to the set a statistics files that are recorded in the \verb?stats? 
 Please note that these tools have only been tested on simple experimental setups and will fail with exotic ones.
 However, in most cases, these problems can easily be remedied. Please do not hesitate to send us your request (aevol-feat-request@lists.gforge.liris.cnrs.fr).
 
-\subsection{ae\_misc\_view\_generation}
+\subsection{aevol\_misc\_view\_generation}
+\label{sect:view-gener}
 The \verb?view_generation? tool is probably the easiest and most straightforward tool provided with \aevol{}.
 It allows one to visualize a generation using the exact same graphical outputs used in \verb?aevol_run?.
-However, since it relies on graphics, it is only available when \aevol{} is compiled with x enabled, which is the default.
+However, since it relies on graphics, it is only available when \aevol{} is compiled with x enabled (which is the default).
 
-Usage: \verb?ae_misc_view_generation -g generation_number?
+Usage: \verb?aevol_misc_view_generation -g generation_number?
 
-\subsection{ae\_misc\_lineage}
+\subsection{aevol\_misc\_create\_eps}
+\label{sect:create-eps}
+
+\subsection{aevol\_misc\_lineage}
 \label{sect:lineage}
 The \verb?lineage? tool allows for the reconstruction of the lineage of a given individual. It requires the phylogenetic tree to be issued during the evolutionnary run (see the \verb?TREE_MODE? parameter). Using this phylogenetic tree, it will produce a file containing the whole evolutionary history of any given individual, \emph{i.e.} for each of its ancestors, which organism in the previous generation it is an offspring of, and the list of mutations that occured during replication. This file will be named \emph{e.g.} \\\verb?lineage-b000000-e050000-i999-r1000.ae? which means we retraced the evolutionary history of the organism with rank $1,000$ (that had the index $999$) at generation $50,000$ and that its history was retraced all the way down to generation $0$.
 
-Usage: \verb?ae_misc_lineage [-i index | -r rank] [-b gener1] -e gener2?
+Usage: \verb?aevol_misc_lineage [-i index | -r rank] [-b gener1] -e gener2?
 
-\subsection{ae\_misc\_ancstats}
+\subsection{aevol\_misc\_ancstats}
+\label{sect:ancstats}
 The \verb?ancstats? tool issues the ``statistics'' for the lineage of a given individual (providing its lineage file, see section \ref{sect:lineage}). It will produce a set of files similar to those created in the \verb?stats? directory during the simulation but regarding the provided lineage instead of the best organism of each generation. These files are placed in the \verb?stats/ancstats? directory.
 
 Usage: \verb?ae_misc_ancstats -f lineage_file?
