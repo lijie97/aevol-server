@@ -102,13 +102,12 @@ int main( int argc, char* argv[] )
   //                       Read the backup file
   // =================================================================
 
-  printf( "Displaying generation %"PRId32"... ", gener );
-  fflush(stdout);
+  printf( "Displaying generation %"PRId32"...\n", gener );
 
   // Load simulation from backup
   ae_exp_manager_X11* exp_manager = new ae_exp_manager_X11();
   exp_manager->load( gener, false, true, false );
-  printf("done\n");
+  printf("Done\n");
   
 
 
