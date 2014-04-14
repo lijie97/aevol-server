@@ -176,11 +176,13 @@ int main( int argc, char* argv[] )
     exit( EXIT_FAILURE );
   }
   
+
+
+  printf( "Creating eps files for generation %"PRId32"...\n", num_gener );
   
   // =================================================================
   //                       Read the backup file
   // =================================================================
-  
   ae_individual*  indiv;
   ae_environment* env;
   
