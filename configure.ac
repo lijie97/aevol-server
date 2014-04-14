@@ -121,8 +121,17 @@ AM_CONDITIONAL(WITH_X, test x"$with_x" != xno)
 if test "x$with_x" != xno ; then
    AC_DEFINE(__X11)
    AC_PATH_XTRA
+   # AC_PATH_XTRA updates X_LIBS and X_CFLAGS but not CPPFLAGS, CXXFLAGS or LDFLAGS.
+   # Thus we need to add X_CFLAGS to AEVOLCPPFLAGS, and X_LIBS to AEVOLLDFLAGS.
+   # Moreover, on MacOS, AC_CHECK_LIB needs correct CPPFLAGS to find X11. But CPPFLAGS is normally a user 
+   # variable, which we should not change. Thus we save its previous value to restore it after AC_CHECK_LIB.
+   ac_cppflags_save="$CPPFLAGS"  
+   CPPFLAGS+=" $X_CFLAGS"
+   AEVOLCPPFLAGS+=" $X_CFLAGS"
+   AEVOLLDFLAGS+=" $X_LIBS"    
    AC_CHECK_LIB(X11, XOpenDisplay, , ,$X_LIBS)
    AC_CHECK_HEADERS([X11/Xlib.h X11/Xutil.h X11/keysym.h X11/Xatom.h X11/cursorfont.h])
+   CPPFLAGS="$ac_cppflags_save"
 else
    AC_DEFINE(__NO_X)
 fi
