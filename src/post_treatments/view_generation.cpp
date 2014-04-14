@@ -107,7 +107,6 @@ int main( int argc, char* argv[] )
   // Load simulation from backup
   ae_exp_manager_X11* exp_manager = new ae_exp_manager_X11();
   exp_manager->load( gener, false, true, false );
-  printf("Done\n");
   
 
 
