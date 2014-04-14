@@ -111,7 +111,7 @@ class ae_list
     inline void invert( ae_list_node<T>* n1, ae_list_node<T>* n2 );
 
     // Remove object from list and delete it if delete_obj is true
-    inline void remove( T* obj, bool delete_node, bool delete_obj );
+    inline void remove( T obj, bool delete_node, bool delete_obj );
     inline void remove( ae_list_node<T>* node, bool delete_node, bool delete_obj );
     
     // Remove all the nodes between node_1 and node_2 (included) from the list and return
@@ -135,7 +135,7 @@ class ae_list
     inline int32_t  get_nb_elts( void ) const;
     inline bool     is_empty( void ) const;
 
-    inline int32_t        get_position( T* obj ) const;
+    inline int32_t        get_position( T obj ) const;
     inline ae_list_node<T> * get_node( int32_t pos ) const;
     inline T             get_object( int32_t pos ) const;
 
@@ -359,7 +359,7 @@ void ae_list<T>::invert( ae_list_node<T> * n1, ae_list_node<T> * n2 )
 
 // Remove object from list and delete it if delete_obj is true
 template <typename T>
-void ae_list<T>::remove( T* obj, bool delete_node, bool delete_obj )
+void ae_list<T>::remove( T obj, bool delete_node, bool delete_obj )
 {
   //printf("trying to remove an object, nb_el = %ld\n", _nb_elts);
   for ( ae_list_node<T> * node = _first ; node != NULL ; node = node->_next )
@@ -697,7 +697,7 @@ int32_t ae_list<T>::get_nb_elts( void ) const
   Returns the position of the object provided or -1 if not found
  */
 template <typename T>
-int32_t ae_list<T>::get_position( T* obj ) const
+int32_t ae_list<T>::get_position( T obj ) const
 {
   int32_t i = 0;
 

@@ -328,7 +328,7 @@ void ae_exp_manager_X11::handle_events( void )
           else if ( event.xkey.keycode == _key_codes[KEY_F3] ) num_win = 3;
           else if ( event.xkey.keycode == _key_codes[KEY_F4] ) num_win = 4;
           else if ( event.xkey.keycode == _key_codes[KEY_F5] ) num_win = 5;
-          else if ( event.xkey.keycode == _key_codes[KEY_F6] ) num_win = 6;
+          else  num_win = 6; // case where ( event.xkey.keycode == _key_codes[KEY_F6] ) 
           
           if ( get_show_window( num_win ) )
           {

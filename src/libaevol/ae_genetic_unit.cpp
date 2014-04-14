@@ -1246,7 +1246,7 @@ void ae_genetic_unit::print_proteins( void ) const
     prot = prot_node->get_obj();
 
     printf( "    Gene on LEADING at %"PRId32" (%"PRId32") (%f %f %f) (%f) %s\n",
-            prot->get_first_translated_pos(), prot->get_length(),
+            prot->get_shine_dal_pos(), prot->get_length(),
             prot->get_mean(), prot->get_width(), prot->get_height(), prot->get_concentration(),
             prot->get_is_functional() ? "functional" : "non functional" );
 
@@ -1262,7 +1262,7 @@ void ae_genetic_unit::print_proteins( void ) const
     prot = prot_node->get_obj();
 
     printf( "    Gene on LAGGING at %"PRId32" (%"PRId32") (%f %f %f) (%f) %s\n",
-            prot->get_first_translated_pos(), prot->get_length(),
+            prot->get_shine_dal_pos(), prot->get_length(),
             prot->get_mean(), prot->get_width(), prot->get_height(), prot->get_concentration(),
             prot->get_is_functional() ? "functional" : "non functional" );
 

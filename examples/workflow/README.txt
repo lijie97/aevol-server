@@ -37,10 +37,11 @@
 # ========== Wild-Type generation ==========
 #
 
-mkdir wild_type
+#mkdir wild_type 
 cd wild_type
 aevol_create
-aevol_run -n 5000
+aevol_run -n 5000   
+# or aevol_run_X11 -n 5000   depending on whether you compiled with graphical output enabled
 
 
 
@@ -48,10 +49,13 @@ aevol_run -n 5000
 #
 
 cd ..
-# Propagate the experiment
-aevol_propagate -g 5000 -i wild_type -o mu_2.5e-6
-aevol_propagate -g 5000 -i wild_type -o mu_5e-6
-aevol_propagate -g 5000 -i wild_type -o mu_1e-5
+# Propagate the experiment, meaning prepare directories for different
+# runs starting from the wild type 
+mydirnames = "mu_2.5e-6 mu_5e-6 mu_1e-5"
+for mydir in $mydirnames
+do
+   aevol_propagate -g 5000 -i wild_type -o $mydir
+done  
 
 # For each experiment, create a file with the parameters to change
 echo "DUPLICATION_RATE   2.5e-6
@@ -138,4 +142,22 @@ aevol_misc_ancstats -f lineage-b000000-e010000-i999-r1000.ae
 
 
 
+# ---------- aevol_misc_fixed_mutations ----------
+#
+# This tool outputs the list of mutational events that occurred
+# on the lineage given as input.
+# The generated list is outputted in stats/
+#
+aevol_misc_fixed_mutations -f lineage-b000000-e010000-i999-r1000.ae
 
+
+# ---------- aevol_misc_gene_families ----------
+#
+# This tool outputs the history of each gene family in the lineage 
+# given as input. 
+# The generated gene trees are outputted in gene_trees/
+# This analysis can be longer than ancstats or fixed_mutations,
+# it can take from a few minutes to a few hours depending on
+# gene number evolution in the lineage.
+
+aevol_misc_gene_families -f lineage-b000000-e010000-i999-r1000.ae

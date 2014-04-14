@@ -730,7 +730,7 @@ void ae_mutation::get_generic_description_string( char * str )
 /* DEPRECATED, use get_length instead */
 int32_t ae_mutation::segment_length( int32_t gen_unit_len )
 {
-  int32_t res;
+  int32_t res = 0;
   switch ( _mut_type )
   {
     case SWITCH :
