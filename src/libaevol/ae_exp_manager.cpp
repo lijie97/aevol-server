@@ -285,7 +285,7 @@ void ae_exp_manager::load( gzFile& pop_file,
   {
     _exp_s->load( exp_s_txtfile, exp_backup_file, verbose );
   }
-  printf( "OK\n" );
+  printf( " OK\n" );
   
   // ----------------------------------------- Retrieve spatial structure data
   if ( sp_struct_file != NULL )
@@ -293,14 +293,14 @@ void ae_exp_manager::load( gzFile& pop_file,
     printf( "  Loading spatial structure..." );
     fflush( stdout );
     _spatial_structure = new ae_spatial_structure( sp_struct_file );
-    printf( "OK\n" );
+    printf( " OK\n" );
   }
   
   // ------------------------------------------------ Retrieve population data
   printf( "  Loading population..." );
   fflush( stdout );
   _pop->load( pop_file, verbose );
-  printf( "OK\n" );
+  printf( " OK\n" );
   
   // --------------------------------------------- Retrieve environmental data
   printf( "  Loading environment..." );
@@ -308,7 +308,7 @@ void ae_exp_manager::load( gzFile& pop_file,
   //~ delete _env;
   //~ _env = new ae_environment();
   _env->load( env_file );
-  printf( "OK\n" );
+  printf( " OK\n" );
   
   // --------------------------------------------- Retrieve output profile data
   printf( "  Loading output profile..." );
@@ -321,7 +321,7 @@ void ae_exp_manager::load( gzFile& pop_file,
   {
     _output_m->load( out_p_txtfile, verbose, to_be_run );
   }
-  printf( "OK\n" );
+  printf( " OK\n" );
 }
 
 

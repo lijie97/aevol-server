@@ -189,9 +189,10 @@ void ae_population::load( gzFile backup_file, bool verbose )
   // ----------------------------------------------------- Retreive individuals
   if ( verbose ) printf( "  Loading individuals " );
   ae_individual* indiv = NULL;
+  int32_t nb_ind_div_10 = _nb_indivs / 10;
   for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
   {
-    if ( verbose && i && i % 100 == 0 )
+    if ( verbose && i && i % nb_ind_div_10 == 0 )
     {
       putchar( '*' );
       fflush( stdout );
@@ -213,7 +214,6 @@ void ae_population::load( gzFile backup_file, bool verbose )
     
     _indivs->add( indiv );
   }
-  if ( verbose ) putchar( '\n' );
 }
   
 #ifndef DISTRIBUTED_PRNG
