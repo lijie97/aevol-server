@@ -310,7 +310,7 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
   }
   else if ( strcmp( line->words[0], "INIT_METHOD" ) == 0 )
   {
-    int8_t init_method = _param_values->get_init_method();
+    int8_t init_method = 0;
     
     for ( int8_t i = 1 ; i < line->nb_words ; i++ )
     {
@@ -333,6 +333,7 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
         exit( EXIT_FAILURE ); 
       }
     }
+    
     _param_values->set_init_method( init_method );
   }
   else if ( strcmp( line->words[0], "POINT_MUTATION_RATE" ) == 0 )
