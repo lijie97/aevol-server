@@ -348,7 +348,7 @@ void ae_exp_manager::load( const char* dir,
   
   // -------------------------------------------------------------------------
   // 2) Load data from backup and parameter files
-  // -------------------------------------------------------------------------load( gzFile pop_file,
+  // -------------------------------------------------------------------------
   load( pop_file, env_file, exp_s_gzfile, exp_s_txtfile, exp_backup_file,
         sp_struct_file, out_p_gzfile, out_p_txtfile, verbose, to_be_run );
 
@@ -649,7 +649,7 @@ void ae_exp_manager::open_backup_files( gzFile& env_file,
   
   // -------------------------------------------------------------------------
   // 1) Generate backup file names for mandatory files.
-  //    Optyional files (e.g. spatial structure) will be handled separately
+  //    Optional files (e.g. spatial structure) will be handled separately
   // -------------------------------------------------------------------------
   char env_file_name[255];
   char pop_file_name[255];

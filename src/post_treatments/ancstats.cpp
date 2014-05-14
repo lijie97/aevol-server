@@ -117,9 +117,6 @@ int main(int argc, char** argv)
 
 
   
-  // ***** The parameters are now loaded from the lineage file *****
-   
-
  
   // =====================
   //  Parse command line
@@ -193,7 +190,8 @@ int main(int argc, char** argv)
   
   
   printf("\n");
-  printf( "WARNING : Parameter change during simulation is not managed (consider -l option)\n" );
+  printf( "WARNING : Parameter change during simulation is not managed in general.\n" );
+  printf( "          Only changes in environmental target done with aevol_modified are handled.\n" );
   printf("\n");
 
   // =======================
@@ -206,10 +204,10 @@ int main(int argc, char** argv)
     exit( EXIT_FAILURE );
   }
 
-	int32_t begin_gener       = 0;
-	int32_t end_gener         = 0;
-	int32_t final_indiv_index = 0;
-	int32_t final_indiv_rank  = 0;
+  int32_t begin_gener       = 0;
+  int32_t end_gener         = 0;
+  int32_t final_indiv_index = 0;
+  int32_t final_indiv_rank  = 0;
   
 
   gzread( lineage_file, &begin_gener,       sizeof(begin_gener)       );
@@ -239,7 +237,7 @@ int main(int argc, char** argv)
   #endif
 
   exp_manager->load( begin_gener, false, true, false);
-  ae_environment* env = exp_manager->get_env();
+  ae_environment* env = new ae_environment( *(exp_manager->get_env()) ); // independent copy
   
   int32_t backup_step = exp_manager->get_backup_step();
   
@@ -336,7 +334,7 @@ int main(int argc, char** argv)
   {
     num_gener = begin_gener + i + 1;  // where we are in time..
     
-    env->build();
+
     rep = new ae_replication_report( lineage_file, indiv );
     index = rep->get_id(); // who we are building...
     indiv->set_replication_report( rep );
@@ -349,41 +347,31 @@ int main(int argc, char** argv)
     if ( verbose ) printf("Rebuilding ancestor at generation %"PRId32" (index %"PRId32")...", num_gener, index); 
 
     // 1) Rebuild environment
+    env->build();
     env->apply_variation();
+    indiv->reevaluate(env);
     
-    if ( check_now )
-    {
-      // check that the environment is now identical to the one stored
-      // in the backup file of generation begin_gener
-      
-      // Load the simulation
-      #ifndef __NO_X
-      	exp_manager_backup = new ae_exp_manager_X11();
-      #else
-      	exp_manager_backup = new ae_exp_manager();
-      #endif
-
-      exp_manager_backup->load( num_gener, false, true, false );
-      backup_env = exp_manager_backup->get_env();
-      stored_indiv = new ae_individual( * (ae_individual *)exp_manager_backup->get_indiv_by_id( index ) );
-      //delete exp_manager;
-  
-      if ( verbose )
+    // Check, and possibly update, the environment according to the backup files (update necessary if the env. was modified by aevol_modify at some point)
+    if (ae_utils::mod( num_gener, backup_step ) == 0)
       {
-        printf( "Comparing the environment with the one saved at generation %"PRId32"... ", num_gener );  
-        fflush(NULL);
+        char env_file_name[255];
+        sprintf( env_file_name, "./"ENV_FNAME_FORMAT, num_gener );
+        gzFile env_file = gzopen( env_file_name, "r" );
+        backup_env = new ae_environment();
+        backup_env->load( env_file );
+
+        if ( ! env->is_identical_to(backup_env, tolerance) )
+          {
+            printf("Warning: At t=%"PRId32", the replayed environment is not the same\n", num_gener);
+            printf("         as the one saved at generation %"PRId32"... \n", num_gener );  
+            printf("         with tolerance of %lg\n", tolerance);
+            printf("Replacing the replayed environment by the one stored in the backup.\n");
+            delete env;
+            env = new ae_environment(*backup_env);
+          }
+        delete backup_env;
       }
 
-      if ( ! env->is_identical_to(backup_env, tolerance) )
-      {
-        fprintf(stderr, "ERROR: The replayed environment is not the same\n");
-        fprintf(stderr, "       as the one saved at generation %"PRId32"... \n", num_gener );  
-        fprintf(stderr, "       with tolerance of %lg\n", tolerance);
-        exit( EXIT_FAILURE );
-      }
-      
-      if ( verbose ) printf("OK\n");
-    }
 
     // Warning: this portion of code won't work if the number of units changes
     // during the evolution
@@ -394,6 +382,13 @@ int main(int argc, char** argv)
     
     if ( check_now )
     {
+#ifndef __NO_X
+      exp_manager_backup = new ae_exp_manager_X11();
+#else
+      exp_manager_backup = new ae_exp_manager();
+#endif
+      exp_manager_backup->load( num_gener, false, true, false );
+      stored_indiv = new ae_individual( * (ae_individual *)exp_manager_backup->get_indiv_by_id( index ) );
       storedunitnode = stored_indiv->get_genetic_unit_list()->get_first();
     }
     
@@ -458,7 +453,7 @@ int main(int argc, char** argv)
         else
         {
           if ( verbose ) printf( " ERROR !\n" );
-          fprintf( stderr, "Error: the rebuilt unit is not the same as \n");
+          fprintf( stderr, "Error: the rebuilt genetic unit is not the same as \n");
           fprintf( stderr, "the one saved at generation %"PRId32"... ", num_gener );
           fprintf( stderr, "Rebuilt unit : %"PRId32" bp\n %s\n", (int32_t)strlen(str1), str1 );
           fprintf( stderr, "Stored unit  : %"PRId32" bp\n %s\n", (int32_t)strlen(str2), str2 );
@@ -505,6 +500,7 @@ int main(int argc, char** argv)
     if ( verbose ) printf(" OK\n");
 
     delete rep;
+
     if ( check_now )
     {
       assert( storedunitnode == NULL );
@@ -517,7 +513,7 @@ int main(int argc, char** argv)
   delete exp_manager;
   delete mystats;
   delete indiv;
-  //delete env; // already done in ae_exp_setup destructor called by exp_manager destructor
+  delete env; 
 
   // Optional outputs
   fclose( env_output_file );
@@ -813,9 +809,6 @@ void print_help( void )
   printf( "\n" ); 
   printf( "This program compute some statistics for the individuals within lineage_file.\n" );
   printf( "\n" ); 
-  printf( "WARNING: This program should not be used for simulations run with lateral\n" ); 
-  printf( "transfer. When an individual has more than one parent, the notion of lineage\n" ); 
-  printf( "used here is not relevant.\n" );
   printf( "\n" );  
   printf( "\t-h or --help       : Display this help.\n" );
   printf( "\n" ); 

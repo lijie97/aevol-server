@@ -64,7 +64,8 @@ class ae_fuzzy_set_X11 : public ae_fuzzy_set
     //                             Constructors
     // =================================================================
     ae_fuzzy_set_X11( void );
-  
+    ae_fuzzy_set_X11( const ae_fuzzy_set &model );
+
     // =================================================================
     //                             Destructors
     // =================================================================
@@ -92,17 +93,7 @@ class ae_fuzzy_set_X11 : public ae_fuzzy_set
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    //~ ae_fuzzy_set_X11( void )
-    //~ {
-      //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      //~ exit( EXIT_FAILURE );
-    //~ };
-    ae_fuzzy_set_X11( const ae_fuzzy_set &model )
-    {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-  
+   
     // =================================================================
     //                           Protected Methods
     // =================================================================

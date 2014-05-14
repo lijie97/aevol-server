@@ -97,6 +97,108 @@ ae_environment::ae_environment( void ) :
   _noise_sampling_log = 8;
 }
 
+
+
+ae_environment::ae_environment( const ae_environment &model ) :
+#ifdef __NO_X
+  ae_fuzzy_set(model)
+#elif defined __X11
+  ae_fuzzy_set_X11(model)
+#else
+#error You must specify a graphic option
+#endif
+{
+   // Environment "shape"
+  _sampling           = model._sampling;
+
+  if (model._initial_gaussians == NULL) { _initial_gaussians  = NULL; }
+  else
+    {
+      _initial_gaussians = new ae_list<ae_gaussian *>;
+      ae_list_node<ae_gaussian *> * node = model._initial_gaussians->get_first();
+      ae_gaussian * gaussian = NULL;
+      while (node != NULL)
+        {
+          gaussian = node->get_obj();
+          _initial_gaussians->add( new ae_gaussian(*gaussian));
+          node = node->get_next();
+        }
+    }
+
+  if (model._gaussians == NULL) { _gaussians  = NULL; }
+  else
+    {
+      _gaussians = new ae_list<ae_gaussian *>;
+      ae_list_node<ae_gaussian *> * node = model._gaussians->get_first();
+      ae_gaussian * gaussian = NULL;
+      while (node != NULL)
+        {
+          gaussian = node->get_obj();
+          _gaussians->add( new ae_gaussian(*gaussian));
+          node = node->get_next();
+        }
+    }
+
+
+  if (model._custom_points == NULL) { _custom_points  = NULL; }
+  else
+    {
+      _custom_points = new ae_list<ae_point_2d *>;
+      ae_list_node<ae_point_2d *> * node = model._custom_points->get_first();
+      ae_point_2d * point = NULL;
+      while (node != NULL)
+        {
+          point = node->get_obj();
+          _custom_points->add( new ae_point_2d(*point));
+          node = node->get_next();
+        }
+    }
+  
+  _total_area = model._total_area;
+  
+  // Environment segmentation
+  _nb_segments      = model._nb_segments;
+
+  if (_nb_segments == 0) { _segments = NULL; }
+  else 
+    {
+      _segments = new ae_env_segment* [_nb_segments];
+      for(int32_t i = 0; i < _nb_segments; i++)
+        {
+          _segments[i] = new ae_env_segment( *(model._segments[i]) );
+        }
+    }
+
+  _area_by_feature  = new double [NB_FEATURES];
+  for (int32_t i = 0; i < NB_FEATURES; i++)
+    {
+      _area_by_feature[i] = model._area_by_feature[i];
+    }
+
+
+  // Variation management
+  _var_method = model._var_method; 
+  if (model._var_prng == NULL) { _var_prng = NULL; }
+  else  { _var_prng   = new ae_jumping_mt( *(model._var_prng) ); }
+  _var_sigma  = model._var_sigma;
+  _var_tau    = model._var_tau;
+  
+  // Noise management
+  _noise_method       = model._noise_method;
+  if (model._cur_noise == NULL) { _cur_noise = NULL; }
+  else { _cur_noise = new ae_fuzzy_set( *(model._cur_noise) ); }
+  if (model._noise_prng == NULL) { _noise_prng = NULL; }
+  else  { _noise_prng   = new ae_jumping_mt( *(model._noise_prng) ); }
+  _noise_prob         = model._noise_prob;
+  _noise_alpha        = model._noise_alpha;
+  _noise_sigma        = model._noise_sigma;
+  _noise_sampling_log = model._noise_sampling_log;
+
+
+};
+
+
+
 // =================================================================
 //                             Destructors
 // =================================================================

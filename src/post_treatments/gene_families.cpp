@@ -36,7 +36,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <zlib.h>
-
+#include <sys/stat.h>  // for the permission symbols used with mkdir
 
 
 
@@ -56,9 +56,17 @@
 #include <ae_replication_report.h>
 #include <ae_dna_replic_report.h>
 #include <ae_mutation.h>
-//#include <ae_param_loader.h>
+#include <ae_gene_tree.h>
+#include <ae_enums.h>
 
 
+// TODO : predire la position de tous les genes apres la mutation
+// puis verifier dans la liste des genes de l'indiv apres evaluation
+// s'il y a bien toujours un gene a cet endroit
+
+
+// TODO : transfers
+// TODO : in gene tree file, print gene sequence, final position, list of proteins and M, W, H
 
 
 enum check_type
@@ -73,8 +81,15 @@ enum check_type
 
 
 void print_help( void );
+void update_pointers_in_trees(ae_list<ae_gene_tree*> * gene_trees, ae_genetic_unit * unit);
+void anticipate_mutation_effect_on_genes_in_trees(ae_list<ae_gene_tree*> * gene_trees, ae_mutation * mut, int32_t unitlen_before);
+void register_actual_mutation_effect_on_genes_in_trees(ae_list<ae_gene_tree*> * gene_trees, ae_mutation * mut, ae_genetic_unit * unit, int32_t gener, double impact_on_metabolic_error);
+void search_protein_in_gene_trees(ae_list<ae_gene_tree*> * gene_trees, ae_protein * prot, ae_gene_tree ** resultTree, ae_gene_tree_node ** resultNode);
+void set_end_gener_if_active_leaves_in_trees(ae_list<ae_gene_tree*> * gene_trees, int32_t gener);
+void write_gene_trees_to_files(ae_list<ae_gene_tree*> * gene_trees, int32_t end_gener);
+void print_gene_trees_to_screen(ae_list<ae_gene_tree*> * gene_trees); // For debug purposes
 
-double* dist_to_target_segment;
+
 
 int main(int argc, char** argv) 
 {
@@ -165,6 +180,7 @@ int main(int argc, char** argv)
     exit( EXIT_FAILURE );
   }
   
+
   printf("\n");
   printf( "WARNING : Parameter change during simulation is not managed in general.\n" );
   printf( "          Only changes in environmental target done with aevol_modified are handled.\n" );
@@ -192,17 +208,19 @@ int main(int argc, char** argv)
   {
     printf("\n\n");
     printf("================================================================================\n");
-    printf(" Statistics of the ancestors of indiv. #%"PRId32" (t=%"PRId32" to %"PRId32")\n",
+    printf(" Gene families of the ancestors of indiv. #%"PRId32" (t=%"PRId32" to %"PRId32")\n",
             final_index, begin_gener, end_gener);
     printf("================================================================================\n");
   }
 
 
+
+ 
   // =========================
   //  Open the experience manager
   // =========================
   
-  // Open the experiment manager
+
 #ifndef __NO_X
   ae_exp_manager* exp_manager = new ae_exp_manager_X11();
 #else
@@ -214,49 +232,6 @@ int main(int argc, char** argv)
   int32_t backup_step = exp_manager->get_backup_step(); 
 
 
-  // =========================
-  //  Open the output file(s)
-  // =========================
-
-  char output_file_name[60];
-  snprintf( output_file_name, 60, "stats/fixedmut-b%06"PRId32"-e%06"PRId32"-i%"PRId32"-r%"PRId32".out",begin_gener, end_gener, final_index, final_indiv_rank );
-  
-  FILE * output = fopen( output_file_name, "w" );
-  if ( output == NULL )
-  {
-    fprintf( stderr, "ERROR : Could not create the output file %s\n", output_file_name );
-    exit( EXIT_FAILURE );
-  }
-
-
-  // Write the header
-  fprintf( output, "# #################################################################\n" );
-  fprintf( output, "#  Mutations in the lineage of the best indiv at generation %"PRId32"\n", end_gener );
-  fprintf( output, "# #################################################################\n" );
-  fprintf( output, "#  1.  Generation       (mut. occurred when producing the indiv. of this generation)\n" );
-  fprintf( output, "#  2.  Genetic unit     (which underwent the mutation, 0 = chromosome) \n" );
-  fprintf( output, "#  3.  Mutation type    (0: switch, 1: smallins, 2: smalldel, 3:dupl, 4: del, 5:trans, 6:inv, 7:insert, 8:ins_HT, 9:repl_HT) \n" );
-  fprintf( output, "#  4.  pos_0            (position for the small events, begin_segment for the rearrangements, begin_segment of the inserted segment for ins_HT, begin_segment of replaced segment for repl_HT) \n" );
-  fprintf( output, "#  5.  pos_1            (-1 for the small events, end_segment for the rearrangements, end_segment of the inserted segment for ins_HT, begin_segment of donor segment for repl_HT) \n" );
-  fprintf( output, "#  6.  pos_2            (reinsertion point for duplic., cutting point in segment for transloc., insertion point in the receiver for ins_HT, end_segment of the replaced segment for repl_HT, -1 for other events)\n" );
-  fprintf( output, "#  7.  pos_3            (reinsertion point for transloc., breakpoint in the donor for ins_HT, end_segment of the donor segment for repl_HT, -1 for other events)\n" );
-  fprintf( output, "#  8.  invert           (transloc, was the segment inverted (0/1)?, sense of insertion for ins_HT (0=DIRECT, 1=INDIRECT), sense of the donor segment for repl_HT (0=DIRECT, 1=INDIRECT),-1 for other events)\n" );
-  fprintf( output, "#  9.  align_score      (score that was needed for the rearrangement to occur, score of the first alignment for ins_HT and repl_HT)\n" );
-  fprintf( output, "#  10. align_score2     (score for the reinsertion for transloc, score of the second alignment for ins_HT and repl_HT)\n" );
-  fprintf( output, "#  11. seg_len          (segment length for rearrangement, donor segment length for ins_HT and repl_HT)\n" );
-  fprintf( output, "#  12. repl_seg_len     (replaced segment length for repl_HT, -1 for the others)\n" );
-  fprintf( output, "#  13. GU_length        (before the event)\n" );
-  fprintf( output, "#  14. Impact of the mutation on the metabolic error (negative value = smaller gap after = beneficial mutation) \n" );
-  fprintf( output, "#  15. Number of coding RNAs possibly disrupted by the breakpoints \n" );
-  fprintf( output, "#  16. Number of coding RNAs completely included in the segment (donor segment in the case of a transfer) \n" );
-  fprintf( output, "#  17. Number of coding RNAs that were completely included in the replaced segment (meaningful only for repl_HT) \n" );
-  fprintf( output, "####################################################################################################################\n" );
-  fprintf( output, "#\n" );
-  fprintf( output, "# Header for R\n" );
-  fprintf( output, "gener gen_unit mut_type pos_0 pos_1 pos_2 pos_3 invert align_score align_score_2 seg_len repl_seg_len GU_len impact nbgenesatbreak nbgenesinseg nbgenesinreplseg\n" );
-
-
- 
   // ==============================
   //  Prepare the initial ancestor
   // ==============================
@@ -272,6 +247,43 @@ int main(int argc, char** argv)
   }
 
 
+  // ===========================================================================
+  //  Prepare the initial gene trees (one for each coding RNA in the ancestor)
+  // ===========================================================================
+
+  // Each initial gene in this ancestral genome will be the root of a gene tree,
+  // where the paralogs (gene copies created by duplication) will be monitored
+  
+  ae_list<ae_gene_tree*> * gene_trees = new ae_list<ae_gene_tree*>();
+  ae_list_node<ae_genetic_unit*>*   unitnode = NULL;
+  ae_genetic_unit *  unit = NULL;
+  ae_list_node<ae_protein*> *prot_node = NULL;
+  ae_protein *prot = NULL;
+
+  unitnode = indiv->get_genetic_unit_list()->get_first();
+  while (unitnode != NULL)
+    {
+      unit = unitnode->get_obj();
+      prot_node = (unit->get_protein_list()[LEADING])->get_first();  
+      while(prot_node != NULL)
+        {
+          prot = prot_node->get_obj();
+          gene_trees->add(new ae_gene_tree(begin_gener, prot));
+          prot_node = prot_node->get_next();
+        }
+      prot_node = (unit->get_protein_list()[LAGGING])->get_first();  
+      while(prot_node != NULL)
+        {
+          prot = prot_node->get_obj();
+          gene_trees->add(new ae_gene_tree(begin_gener, prot));
+          prot_node = prot_node->get_next();
+        }
+      unitnode = unitnode->get_next();
+    }
+  
+  
+
+
 
   // ===============================================================================
   //  Replay the mutation to get the successive ancestors and analyze them
@@ -285,18 +297,20 @@ int main(int argc, char** argv)
   ae_list_node<ae_mutation*>* mnode = NULL;
   ae_mutation* mut = NULL;
 
-  ae_list_node<ae_genetic_unit*>* unitnode = NULL;
-  ae_genetic_unit* unit = NULL;
+  unitnode = NULL;
+  unit = NULL;
 
   ae_individual* stored_indiv = NULL;
   ae_list_node<ae_genetic_unit*>* stored_unit_node = NULL;
   ae_genetic_unit*  stored_unit = NULL;
 
   int32_t i, index, genetic_unit_number, unitlen_before;
-  int32_t nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment;
   double metabolic_error_before, metabolic_error_after, impact_on_metabolic_error;
-  char mut_descr_string[80];
-  
+
+
+  ae_gene_tree * genetree = NULL;
+  ae_gene_tree_node * genetreenode = NULL;
+ 
   ae_exp_manager* exp_manager_backup = NULL;
   ae_environment* backup_env = NULL;
   
@@ -305,7 +319,9 @@ int main(int argc, char** argv)
   for ( i = 0; i < end_gener - begin_gener; i++ )
   {
     num_gener = begin_gener + i + 1;  // where are we in time...
-       
+     
+    env->build();
+
     rep = new ae_replication_report( lineage_file, indiv );
     index = rep->get_id(); // who are we building...
     indiv->set_replication_report(rep);
@@ -351,7 +367,8 @@ int main(int argc, char** argv)
     dnarepnode = (rep->get_dna_replic_reports())->get_first();
     unitnode   = (indiv->get_genetic_unit_list())->get_first();
     
-    if ( check_now && ae_utils::mod(num_gener, backup_step) == 0)
+   
+    if ( check_now )
     {
 #ifndef __NO_X
       exp_manager_backup = new ae_exp_manager_X11();
@@ -362,20 +379,25 @@ int main(int argc, char** argv)
       stored_indiv = new ae_individual( * (ae_individual *)exp_manager_backup->get_indiv_by_id( index ) );
       stored_unit_node = stored_indiv->get_genetic_unit_list()->get_first();
     }
+
     
     while ( dnarepnode != NULL )
     {
       assert( unitnode != NULL );
 
-      dnarep = (ae_dna_replic_report *) dnarepnode->get_obj();
-      unit   = (ae_genetic_unit *) unitnode->get_obj();
+      dnarep = dnarepnode->get_obj();
+      unit   = unitnode->get_obj();
       
       unit->get_dna()->set_replic_report( dnarep );
       
+      update_pointers_in_trees(gene_trees, unit); // because of the reevaluate at each new generation (envir. variation possible)
+
       // ***************************************
       //             Transfer events
       // ***************************************
-
+ 
+      // TO DO
+     /*
       mnode = dnarep->get_HT()->get_first();
       while ( mnode != NULL )
       {
@@ -403,7 +425,7 @@ int main(int argc, char** argv)
       
 
         mnode = mnode->get_next();
-      }
+      } */
 
 
       // ***************************************
@@ -417,7 +439,7 @@ int main(int argc, char** argv)
         
         metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
         unitlen_before = unit->get_dna()->get_length();
-        unit->compute_nb_of_affected_genes(mut, nb_genes_at_breakpoints, nb_genes_in_segment,  nb_genes_in_replaced_segment);
+        anticipate_mutation_effect_on_genes_in_trees(gene_trees, mut, unitlen_before);
 
         unit->get_dna()->undergo_this_mutation( mut );
 
@@ -425,14 +447,33 @@ int main(int argc, char** argv)
         metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
-        mut->get_generic_description_string( mut_descr_string );
-        fprintf( output, "%"PRId32" %"PRId32" %s %"PRId32" %.15f %"PRId32" %"PRId32" %"PRId32" \n",\
-                 num_gener, genetic_unit_number, \
-                 mut_descr_string, unitlen_before, \
-                 impact_on_metabolic_error, nb_genes_at_breakpoints, nb_genes_in_segment,  nb_genes_in_replaced_segment );
-
-
-        mnode = mnode->get_next();
+        register_actual_mutation_effect_on_genes_in_trees(gene_trees, mut, unit, num_gener, impact_on_metabolic_error);    
+        
+        /* New genes that have been created "from scratch", i.e. not by duplication => new gene tree */
+        prot_node = (unit->get_protein_list()[LEADING])->get_first();
+        while (prot_node != NULL)
+          {
+            prot = prot_node->get_obj();
+            search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
+            if (genetreenode == NULL)
+              {
+                gene_trees->add(new ae_gene_tree(num_gener, prot, mut));
+              }
+            prot_node = prot_node->get_next();
+          }
+         prot_node = (unit->get_protein_list()[LAGGING])->get_first();
+         while (prot_node != NULL)
+          {
+            prot = prot_node->get_obj();
+            search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
+            if (genetreenode == NULL)
+              {
+                gene_trees->add(new ae_gene_tree(num_gener, prot, mut));
+              }
+            prot_node = prot_node->get_next();
+          }
+         // print_gene_trees_to_screen(gene_trees);// DEBUG
+         mnode = mnode->get_next();
       }
       
 
@@ -447,21 +488,41 @@ int main(int argc, char** argv)
 
         metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
         unitlen_before = unit->get_dna()->get_length();
-        unit->compute_nb_of_affected_genes(mut, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
-
+        anticipate_mutation_effect_on_genes_in_trees(gene_trees, mut, unitlen_before);
         unit->get_dna()->undergo_this_mutation( mut ); 
 
         indiv->reevaluate(env);
         metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
-        mut->get_generic_description_string( mut_descr_string );
-        fprintf( output, "%"PRId32" %"PRId32" %s %"PRId32" %.15f %"PRId32" %"PRId32" %"PRId32" \n",\
-                 num_gener, genetic_unit_number, \
-                 mut_descr_string, unitlen_before, \
-                 impact_on_metabolic_error, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment );
+        register_actual_mutation_effect_on_genes_in_trees(gene_trees, mut, unit, num_gener, impact_on_metabolic_error);    
+        
+        /* New genes that have been created "from scratch", i.e. not by duplication => new gene tree */
+        prot_node = (unit->get_protein_list()[LEADING])->get_first();
+        while (prot_node != NULL)
+          {
+            prot = prot_node->get_obj();
+            search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
+            if (genetreenode == NULL)
+              {
+                gene_trees->add(new ae_gene_tree(num_gener, prot, mut));
+              }
+            prot_node = prot_node->get_next();
+          }
+         prot_node = (unit->get_protein_list()[LAGGING])->get_first();
+         while (prot_node != NULL)
+          {
+            prot = prot_node->get_obj();
+            search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
+            if (genetreenode == NULL)
+              {
+                gene_trees->add(new ae_gene_tree(num_gener, prot,  mut));
+              }
+            prot_node = prot_node->get_next();
+          }
 
-        mnode = mnode->get_next();
+         // print_gene_trees_to_screen(gene_trees);// DEBUG
+         mnode = mnode->get_next();
       }
 
       if ( check_now && ae_utils::mod(num_gener, backup_step) == 0)
@@ -532,8 +593,12 @@ int main(int argc, char** argv)
     }
   }
 
+  set_end_gener_if_active_leaves_in_trees(gene_trees, end_gener);
+  write_gene_trees_to_files(gene_trees, end_gener);
+  gene_trees->erase(true);
+  delete gene_trees;
+
   gzclose(lineage_file);
-  fclose(output);
   delete exp_manager;
   delete indiv;
   delete env; 
@@ -547,6 +612,182 @@ int main(int argc, char** argv)
 
 
 
+void search_protein_in_gene_trees(ae_list<ae_gene_tree*> * gene_trees, ae_protein * prot, ae_gene_tree ** resultTree, ae_gene_tree_node ** resultNode)
+{
+  fflush(stdout);
+  ae_list_node<ae_gene_tree*> * n = gene_trees->get_first();
+  ae_gene_tree * tree = NULL;
+  ae_gene_tree_node * result = NULL;
+  int32_t tree_number = 0;
+  while ((n!= NULL) && (result==NULL))
+    {
+      tree = n->get_obj();
+      result = tree->search_in_leaves(prot);
+      n = n->get_next();
+      tree_number++;
+    }
+
+  if(result != NULL)
+    {
+      *resultTree = tree;
+      *resultNode = result;
+    }
+  else
+    {
+      *resultTree = NULL;
+      *resultNode = NULL;
+    }
+}
+
+
+
+void update_pointers_in_trees(ae_list<ae_gene_tree*> * gene_trees, ae_genetic_unit * unit)
+{
+  ae_list_node<ae_gene_tree*> * n = gene_trees->get_first();
+  ae_gene_tree * tree = NULL;
+  while (n!= NULL)
+    {
+      tree = n->get_obj();
+      tree->update_pointers_in_tree_leaves(unit);
+      n = n->get_next();
+    }
+}
+
+
+void anticipate_mutation_effect_on_genes_in_trees(ae_list<ae_gene_tree*> * gene_trees, ae_mutation * mut, int32_t unitlen_before)
+{
+  ae_list_node<ae_gene_tree*> * n = gene_trees->get_first();
+  ae_gene_tree * tree = NULL;
+  while (n!= NULL)
+    {
+      tree = n->get_obj();
+      tree->anticipate_mutation_effect_on_genes_in_tree_leaves(mut, unitlen_before);
+      n = n->get_next();
+    }
+}
+
+void register_actual_mutation_effect_on_genes_in_trees(ae_list<ae_gene_tree*> * gene_trees, ae_mutation * mut, ae_genetic_unit * unit, int32_t gener, double impact_on_metabolic_error)
+{
+  ae_list_node<ae_gene_tree*> * n = gene_trees->get_first();
+  ae_gene_tree * tree = NULL;
+  while (n!= NULL)
+    {
+      tree = n->get_obj();
+      tree->register_actual_mutation_effect_on_genes_in_tree_leaves(mut, unit, gener, impact_on_metabolic_error);
+      n = n->get_next();
+    }
+
+}
+
+
+
+void set_end_gener_if_active_leaves_in_trees(ae_list<ae_gene_tree*> * gene_trees, int32_t gener)
+{
+  ae_list_node<ae_gene_tree*> * n = gene_trees->get_first();
+  ae_gene_tree * tree = NULL;
+  while (n!= NULL)
+    {
+      tree = n->get_obj();
+      tree->set_end_gener_if_active_leaves(gener);
+      n = n->get_next();
+    }
+}
+
+
+void print_gene_trees_to_screen(ae_list<ae_gene_tree*> * gene_trees)
+{
+  ae_list_node<ae_gene_tree*> * n = gene_trees->get_first();
+  ae_gene_tree* tree = NULL;
+  int32_t tree_number = 0;
+  while (n!= NULL)
+    {
+      tree = n->get_obj();
+      printf("Content of tree %d :\n", tree_number);
+      tree->print_to_screen();
+      n = n->get_next();
+      tree_number++;
+    }
+}
+
+
+void write_gene_trees_to_files(ae_list<ae_gene_tree*> * gene_trees, int32_t end_gener)
+{
+  // Prepare the directory for the outputs files related to the gene trees
+  char directory_name[] = "gene_trees";
+  
+  // Check whether the directory already exists and is writable
+  if ( access( directory_name, F_OK ) == 0 )
+    {
+      //       struct stat status;
+      //       stat( directory_name, &status );
+      //       if ( status.st_mode & S_IFDIR ) cout << "The directory exists." << endl;
+      //       else cout << "This path is a file." << endl;
+      
+      if ( access( directory_name, X_OK | W_OK) != 0 )
+        {
+          fprintf(stderr, "Error: cannot enter or write in directory %s.\n", directory_name);
+          exit( EXIT_FAILURE );
+        }
+    }
+  else
+    {
+      // Create the directory with permissions : rwx r-x r-x
+      if ( mkdir( directory_name, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) != 0 )
+        {
+          fprintf(stderr, "Error: cannot create directory %s.\n", directory_name);
+          exit( EXIT_FAILURE );
+        }
+    }
+
+
+  FILE * tree_statistics_file = fopen("gene_trees/gene_tree_statistics.txt", "w");
+  if (tree_statistics_file == NULL)
+    {
+      fprintf(stderr, "Error: cannot create file gene_trees/gene_tree_statistics.txt.\n");
+      exit(EXIT_FAILURE);
+    }
+  fprintf(tree_statistics_file, "treeID creationType beginGener endGener nbNodes nbInternalNodes nbLeaves nbActiveLeaves\n");
+
+
+  FILE * nodeattr_tabular_file = fopen("gene_trees/nodeattr_tabular.txt", "w");
+  if (nodeattr_tabular_file == NULL)
+    {
+      fprintf(stderr, "Error: cannot create file gene_trees/nodeattr_tabular.txt.\n");
+      exit(EXIT_FAILURE);
+    }
+  fprintf(nodeattr_tabular_file, "treeID nodeID parentID leftchildID rightchildID nodeCreationDate dnaCreationDate nodeStatus geneLossOrDupDate strand shineDalPos nbProm meanTriangle widthTriangle heightTriangle concentration nbMutTot nbLocalmutUpstreamNeutral nbLocalmutUpstreamBenef nbLocalmutUpstreamDelet nbLocalmutCdsNeutral nbLocalmutCdsBenef nbLocalmutCdsDelet nbRearUpstreamNeutral nbRearUpstreamBenef nbRearUpstreamDelet nbRearCdsNeutral nbRearCdsBenef nbRearCdsDelet\n");
+
+  char topol_file_name[128];
+  char node_attr_file_name[128];
+  ae_list_node<ae_gene_tree*> * n = gene_trees->get_first();
+  ae_gene_tree * tree = NULL;
+  int32_t tree_number = 0;
+
+  while (n!= NULL)
+    {
+      tree = n->get_obj();
+      fprintf(tree_statistics_file, "%"PRId32" ", tree_number);
+      if (tree->get_creation_type() == INITIALIZATION)  fprintf(tree_statistics_file, "INITIALIZATION ");
+      else if (tree->get_creation_type() == LOCAL_MUTATION)  fprintf(tree_statistics_file, "LOCAL_MUTATION ");
+      else if (tree->get_creation_type() == REARRANGEMENT)  fprintf(tree_statistics_file, "REARRANGEMENT ");
+      else fprintf(tree_statistics_file, "TRANSFER ");
+      fprintf(tree_statistics_file, "%"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n", tree->get_begin_gener(), tree->get_end_gener(), tree->get_total_nb_nodes(), tree->get_nb_internal_nodes(), tree->get_nb_leaves(), tree->get_nb_active_leaves()); 
+      sprintf(topol_file_name, "gene_trees/genetree%06"PRId32"-topology.tre", tree_number);
+      sprintf(node_attr_file_name, "gene_trees/genetree%06"PRId32"-nodeattr.txt", tree_number);
+      tree->write_to_files(topol_file_name, node_attr_file_name, end_gener);
+      tree->write_nodes_in_tabular_file(tree_number, nodeattr_tabular_file);
+      n = n->get_next();
+      tree_number ++;
+    }
+
+  fclose(tree_statistics_file);
+  fclose(nodeattr_tabular_file);
+}
+
+
+
+
+
 
 
 void print_help( void )
@@ -554,7 +795,7 @@ void print_help( void )
   printf( "\n" ); 
   printf( "*********************** aevol - Artificial Evolution ******************* \n" );
   printf( "*                                                                      * \n" );
-  printf( "*               Fixed mutations post-treatment program                 * \n" );
+  printf( "*                 Gene families post-treatment program                 * \n" );
   printf( "*                                                                      * \n" );
   printf( "************************************************************************ \n" );
   printf( "\n\n" ); 
@@ -562,14 +803,14 @@ void print_help( void )
   printf( "Copyright (C) 2009  LIRIS.\n" );
   printf( "\n" ); 
 #ifdef __REGUL
-  printf( "Usage : rfixed_mutations -h\n");
-  printf( "or :    rfixed_mutations [-vn] -f lineage_file \n" );
+  printf( "Usage : rgene_families -h\n");
+  printf( "or :    rgene_families [-vn] -f lineage_file \n" );
 #else
-  printf( "Usage : fixed_mutations -h\n");
-  printf( "or :    fixed_mutations [-vn] -f lineage_file \n" );
+  printf( "Usage : gene_families -h\n");
+  printf( "or :    gene_families [-vn] -f lineage_file \n" );
 #endif
   printf( "\n" ); 
-  printf( "This program computes the fixed mutations of the individuals within the lineage\n" );
+  printf( "This program traces the evolution of gene families on a lineage.\n" );
   printf( "of lineage_file\n" );
   printf( "\n" ); 
   printf( "WARNING: This program should not be used for simulations run with several genetic units\n" ); 

@@ -359,7 +359,7 @@ void ae_tree::set_replic_report( int32_t id, ae_replication_report* replic_repor
 {
   assert( _tree_mode == NORMAL );
   
-  int32_t gener_i = _exp_m->get_num_gener() % _tree_step;
+  int32_t gener_i = ae_utils::mod(_exp_m->get_num_gener() - 1, _tree_step); // CK: BUGFIX. Previous expression was: _exp_m->get_num_gener() % _tree_step;
   
   if ( _replics[gener_i] == NULL )
   {
@@ -373,6 +373,38 @@ void ae_tree::set_replic_report( int32_t id, ae_replication_report* replic_repor
 }
 
 
+
+
+// CK: Added for aevol_modify
+void ae_tree::set_replic_report( int32_t generation, int32_t id, ae_replication_report* replic_report )
+{
+  assert( _tree_mode == NORMAL );
+
+  int32_t g = ae_utils::mod(generation - 1, _tree_step);
+
+  if ( _replics[g] == NULL )
+  {
+    _replics[g] = new ae_replication_report* [_exp_m->get_nb_indivs()];
+    memset( _replics[g], 0, _exp_m->get_nb_indivs() * sizeof( *_replics ) );  
+  }
+
+  if ( _replics[g][id] != NULL )
+    {
+      printf("Erased previous replication report for indiv %d of generation %d (%d)\n", id, generation, g);
+      delete _replics[g][id];
+    }
+  _replics[g][id] = new ae_replication_report(*replic_report);
+  _replics[g][id]->set_id(id);
+
+  // debug
+  printf("Added replication report for indiv %d of generation %d (%d) :\n", id, generation, g);
+  printf("  ID            %d \n", _replics[g][id]->get_id() );
+  printf("  Rank          %d \n", _replics[g][id]->get_rank() );
+  printf("  Genome size   %d \n", _replics[g][id]->get_genome_size() );
+  printf("  P. ID         %d \n", _replics[g][id]->get_parent_id() );
+  printf("  P. met.err.   %f \n", _replics[g][id]->get_parent_metabolic_error() );
+  printf("  P. size       %d \n", _replics[g][id]->get_parent_genome_size() );
+}
 
 
 

@@ -89,6 +89,7 @@ class ae_tree : public ae_object
     //                        Accessors: setters
     // =================================================================
     void set_replic_report( int32_t id, ae_replication_report* replic_report );
+    void set_replic_report( int32_t generation, int32_t id, ae_replication_report* replic_report );
     void set_nb_indivs (int32_t nb_indivs, int32_t generation);
     
     

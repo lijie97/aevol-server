@@ -59,6 +59,11 @@ ae_fuzzy_set_X11::ae_fuzzy_set_X11( void ) : ae_fuzzy_set()
 {
 }
 
+ae_fuzzy_set_X11::ae_fuzzy_set_X11( const ae_fuzzy_set &model ) : ae_fuzzy_set(model)
+{
+};
+
+
 // =================================================================
 //                             Destructors
 // =================================================================

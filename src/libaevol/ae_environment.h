@@ -76,6 +76,7 @@ class ae_environment : public ae_fuzzy_set_X11
     //                             Constructors
     // =================================================================
     ae_environment( void );
+    ae_environment( const ae_environment &model );
     ae_environment( gzFile backup_file );
 
     // =================================================================
@@ -154,11 +155,7 @@ class ae_environment : public ae_fuzzy_set_X11
       //~ printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
       //~ exit( EXIT_FAILURE );
     //~ };
-    ae_environment( const ae_environment &model )
-    {
-      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
+  
 
     // =================================================================
     //                           Protected Methods
