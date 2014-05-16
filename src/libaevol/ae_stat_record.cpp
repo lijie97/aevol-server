@@ -371,8 +371,8 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_individual const * ind
     ae_replication_report* replic_report = indiv->get_replic_report(); // can be NULL under certain conditions
     
     // Metabolic error stats
-    _metabolic_error = (double) indiv->get_dist_to_target_by_feature( METABOLISM );
-    _metabolic_fitness = (double) indiv->get_fitness_by_feature( METABOLISM );
+    _metabolic_error = (double) gen_unit->get_dist_to_target_by_feature( METABOLISM );
+    _metabolic_fitness = (double) gen_unit->get_fitness_by_feature( METABOLISM );
     _parent_metabolic_error = ( replic_report != NULL ) ? replic_report->get_parent_metabolic_error() : 0.0;
     
     // Fitness
