@@ -1669,7 +1669,6 @@ bool ae_dna::do_inter_GU_translocation( int32_t pos_1_rel, int32_t pos_2_rel, in
   }
     
   
-  ae_mutation* mut = NULL;
   
   //~ // Provided that OriC must be at position 0
   //~ //
@@ -1763,14 +1762,7 @@ bool ae_dna::do_inter_GU_translocation( int32_t pos_1_rel, int32_t pos_2_rel, in
     }
   }
   
-  // Report rearrangement and return it
-  if ( _exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL )
-  {
-    mut = new ae_mutation();
-    mut->report_translocation( pos_1_rel, pos_2_rel, pos_3_rel, pos_4_rel, segment_length, invert );
-  }
-  
-  return mut;
+  return true;
 }
 
 bool ae_dna::do_inversion( int32_t pos_1, int32_t pos_2 )
