@@ -549,7 +549,7 @@ void ae_dna::do_rearrangements_with_align( void )
           if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
           {
             fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
-                      _exp_m->get_num_gener(), _indiv->get_id(), DUPL, segment_length, genome_size_before, needed_score );
+                      _exp_m->get_num_gener(), _indiv->get_id(), int8_t(DUPL), segment_length, genome_size_before, needed_score );
           }
         }
       }
@@ -588,7 +588,7 @@ void ae_dna::do_rearrangements_with_align( void )
           if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
           {
             fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
-                      _exp_m->get_num_gener(), _indiv->get_id(),DEL, segment_length, genome_size_before, needed_score );
+                      _exp_m->get_num_gener(), _indiv->get_id(), int8_t(DEL), segment_length, genome_size_before, needed_score );
           }
         }
       }
@@ -673,7 +673,7 @@ void ae_dna::do_rearrangements_with_align( void )
           if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
           {
             fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
-                      _exp_m->get_num_gener(), _indiv->get_id(), TRANS, segment_length, _length, needed_score_2 );
+                      _exp_m->get_num_gener(), _indiv->get_id(), int8_t(TRANS), segment_length, _length, needed_score_2 );
           }      
           delete alignment_2;
         } 
@@ -736,7 +736,7 @@ void ae_dna::do_rearrangements_with_align( void )
       if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
       {
         fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
-                  _exp_m->get_num_gener(), _indiv->get_id(), INV, segment_length, _length, needed_score );
+                  _exp_m->get_num_gener(), _indiv->get_id(), int8_t(INV), segment_length, _length, needed_score );
       }
       
       delete alignment;
@@ -1067,7 +1067,7 @@ ae_mutation* ae_dna::do_duplication( void )
     if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
     {
       fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
-                _exp_m->get_num_gener(), _indiv->get_id(), DUPL, segment_length, genome_size_before );
+                _exp_m->get_num_gener(), _indiv->get_id(), int8_t(DUPL), segment_length, genome_size_before );
     }
   }
   
@@ -1116,7 +1116,7 @@ ae_mutation* ae_dna::do_deletion( void )
     if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
     {
       fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
-                _exp_m->get_num_gener(), _indiv->get_id(), DEL, segment_length, genome_size_before );
+                _exp_m->get_num_gener(), _indiv->get_id(), int8_t(DEL), segment_length, genome_size_before );
     }
   }
   
@@ -1251,7 +1251,7 @@ ae_mutation* ae_dna::do_translocation( void )
         if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
         {
           fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
-                    _exp_m->get_num_gener(), _indiv->get_id(), TRANS, segment_length, _length );
+                    _exp_m->get_num_gener(), _indiv->get_id(), int8_t(TRANS), segment_length, _length );
         }
       }
     }
@@ -1280,7 +1280,7 @@ ae_mutation* ae_dna::do_translocation( void )
         if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
         {
           fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
-                    _exp_m->get_num_gener(), _indiv->get_id(), TRANS, segment_length, _length );
+                    _exp_m->get_num_gener(), _indiv->get_id(), int8_t(TRANS), segment_length, _length );
         }
       }
     }
@@ -1321,7 +1321,7 @@ ae_mutation* ae_dna::do_translocation( void )
       if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
       {
         fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
-                  _exp_m->get_num_gener(), _indiv->get_id(), TRANS, segment_length, _length );
+                  _exp_m->get_num_gener(), _indiv->get_id(), int8_t(TRANS), segment_length, _length );
       }
     }
   }
@@ -1357,7 +1357,7 @@ ae_mutation* ae_dna::do_inversion( void )
     if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
     {
       fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
-                _exp_m->get_num_gener(), _indiv->get_id(), INV, segment_length, _length );
+                _exp_m->get_num_gener(), _indiv->get_id(), int8_t(INV), segment_length, _length );
     }
   }
   
@@ -1524,7 +1524,7 @@ bool ae_dna::do_deletion( int32_t pos_1, int32_t pos_2 )
     //
     //
     
-    int32_t segment_length = _length + pos_2 - pos_1;
+    //int32_t segment_length = _length + pos_2 - pos_1; //useless variable
     
     // Remove promoters containing at least one nucleotide from the sequence to delete
     _gen_unit->remove_promoters_around( pos_1, pos_2 );
@@ -1899,11 +1899,10 @@ ae_mutation* ae_dna::do_ins_HT( int32_t parent_id )
           if ( _exp_m->get_output_m()->is_logged(LOG_TRANSFER) == true )
           {
             fprintf(  _exp_m->get_output_m()->get_log(LOG_TRANSFER),
-                      "%"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId16" %"PRId32" %"PRId32" %"PRId16"\n",
+                      "%"PRId32" %"PRId32" %"PRId32" 0 %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId16" %"PRId32" %"PRId32" %"PRId16"\n",
                       _exp_m->get_num_gener(),
                       _indiv->get_id(),
                       donor->get_id(),
-                      0, // Transfer type
                       exogenote->get_dna()->get_length(),
                       0,
                       genome_length_before,
@@ -2088,23 +2087,22 @@ ae_mutation* ae_dna::do_repl_HT( int32_t parent_id )
         if ( _exp_m->get_output_m()->is_logged(LOG_TRANSFER) == true )
         {
           fprintf(  _exp_m->get_output_m()->get_log(LOG_TRANSFER),
-                  "%"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId16" %"PRId32" %"PRId32" %"PRId16" %"PRId32" %"PRId32" %"PRId16" %"PRId16"\n",
+                  "%"PRId32" %"PRId32" %"PRId32" 1 %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId16" %"PRId32" %"PRId32" %"PRId16" %"PRId32" %"PRId32" %"PRId16" %"PRId16"\n",
                   _exp_m->get_num_gener(),
                   _indiv->get_id(),
                   donor->get_id(),
-                  1, // Transfer type
                   exogenote->get_dna()->get_length(),
                   replaced_seq_length,
                   genome_length_before,
                   get_length(),
-                  alignment_1->get_sense(),
+                  (int16_t) alignment_1->get_sense(),
                   alignment_1->get_i_1(),
                   alignment_1->get_i_2(),
                   alignment_1->get_score(),
                   alignment_2->get_i_1(),
                   alignment_2->get_i_2(),
                   alignment_2->get_score() ,
-                  research_sense);
+                  (int16_t) research_sense);
             fprintf(_exp_m->get_output_m()->get_log(LOG_TRANSFER),
                   "\tAlignment 1:\n\t\t%s\n\t\t%s\n\tAlignment 2:\n\t\t%s\n\t\t%s\n",alignment1_parent_dna, alignment1_donor_dna, alignment2_parent_dna, alignment2_donor_dna);
           
@@ -3279,7 +3277,7 @@ void ae_dna::inter_GU_ABCDE_to_ACDBE( int32_t pos_B, int32_t pos_C, int32_t pos_
     
     memcpy( new_sequence_this,           _data,          len_A * sizeof(char) );
     memcpy( &new_sequence_this[len_A],   &_data[pos_C],  len_C * sizeof(char) );
-    
+    new_sequence_this[len_AC]='\0';
     
     // Create the new sequence of the destination genetic unit
     tmp = ae_string::nb_blocks(len_DBE) * BLOCK_SIZE;
@@ -3289,7 +3287,8 @@ void ae_dna::inter_GU_ABCDE_to_ACDBE( int32_t pos_B, int32_t pos_C, int32_t pos_
     memcpy( new_sequence_dest,           dest_GU_former_seq,          len_D * sizeof(char) );
     memcpy( &new_sequence_dest[len_D],   &_data[pos_B],               len_B * sizeof(char) );
     memcpy( &new_sequence_dest[len_DB],  &dest_GU_former_seq[pos_E],  len_E * sizeof(char) );
-    
+    new_sequence_dest[len_DBE]='\0';
+
     
     
     // ========== Update promoter list ==========

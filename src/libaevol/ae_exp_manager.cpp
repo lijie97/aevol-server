@@ -768,8 +768,8 @@ void ae_exp_manager::open_setup_files(
   char out_p_gzfile_name[255];
   char out_p_txtfile_name[255];
 
-  sprintf( exp_s_gzfile_name,  "%s/"EXP_S_CONST_FNAME_FORMAT,     dir, num_gener );
-  sprintf( exp_s_txtfile_name, "%s/"EXP_S_TXT_CONST_FNAME_FORMAT, dir, num_gener );
+  sprintf( exp_s_gzfile_name,  "%s/"EXP_S_CONST_FNAME_FORMAT,     dir );
+  sprintf( exp_s_txtfile_name, "%s/"EXP_S_TXT_CONST_FNAME_FORMAT, dir );
   sprintf( out_p_gzfile_name,  "%s/"OUT_P_FNAME_FORMAT,     dir );
   sprintf( out_p_txtfile_name, "%s/"OUT_P_TXT_FNAME_FORMAT, dir );
   

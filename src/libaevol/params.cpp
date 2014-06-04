@@ -148,9 +148,9 @@ params::params( void )
     
   // ------------------------------------------------------ Spatial structure
   _spatially_structured       = false;
-  int16_t  _grid_width        = 0;
-  int16_t  _grid_height       = 0;
-  int32_t  _migration_number  = 0;
+  _grid_width                 = 0;
+  _grid_height                = 0;
+  _migration_number           = 0;
   
   // -------------------------------------------------------------- Secretion
   _with_secretion               = false;
@@ -263,7 +263,7 @@ void params::print_to_file( FILE* file )
 
   // ------------------------------------------------------------ Alignements
   fprintf( file, "\nAlignements ---------------------------------------------\n" );
-  fprintf( file, "align_fun_shape :            %"PRId16"\n", _align_fun_shape       );
+  fprintf( file, "align_fun_shape :            %"PRId16"\n", (int16_t) _align_fun_shape       );
   fprintf( file, "align_sigm_lambda :          %f\n",        _align_sigm_lambda     );
   fprintf( file, "align_sigm_mean :            %"PRId16"\n", _align_sigm_mean       );
   fprintf( file, "align_lin_min :              %"PRId16"\n", _align_lin_min         );

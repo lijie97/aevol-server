@@ -318,7 +318,7 @@ void print_help( char* prog_path )
   printf( "\n" );
 	printf( "Usage : %s -h or --help\n", prog_name );
 	printf( "   or : %s -V or --version\n", prog_name );
-	printf( "   or : aevol_run_X11 [-r GENER] [-n NB_GENER] [-tvwx]\n", prog_name );
+	printf( "   or : %s [-r GENER] [-n NB_GENER] [-tvwx]\n", prog_name );
 	printf( "\nOptions\n" );
 	printf( "  -h, --help\n\tprint this help, then exit\n\n" );
 	printf( "  -V, --version\n\tprint version number, then exit\n\n" );
