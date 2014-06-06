@@ -241,14 +241,14 @@ void ae_gene_tree_node::write_subtree_to_files(FILE * topologyFile, FILE * nodeA
   // Newick format for the topology file (postorder tree traversal with parentheses and branch lengths)
 
 
-  if ((_left_child != NULL) && (_right_child != NULL))
+  if ((_left_child != NULL) || (_right_child != NULL))
     {
       fprintf(topologyFile, "(");
       /* Left subtree */
-      _left_child->write_subtree_to_files(topologyFile, nodeAttributesFile, end_gener);
+      if (_left_child != NULL) _left_child->write_subtree_to_files(topologyFile, nodeAttributesFile, end_gener);
      fprintf(topologyFile, ", ");
      /* Right subtree */
-     _right_child->write_subtree_to_files(topologyFile, nodeAttributesFile, end_gener);
+     if (_right_child != NULL) _right_child->write_subtree_to_files(topologyFile, nodeAttributesFile, end_gener);
      fprintf(topologyFile, ")");
     }
 
@@ -312,13 +312,11 @@ void ae_gene_tree_node::write_subtree_to_files(FILE * topologyFile, FILE * nodeA
 // all attributes on a single line
 void ae_gene_tree_node::write_subtree_nodes_in_tabular_file(int32_t treeID, FILE * f)
 {
-  if ((_left_child != NULL) && (_right_child != NULL))
-    {
-      /* Left subtree */
-      _left_child->write_subtree_nodes_in_tabular_file(treeID, f);
-     /* Right subtree */
-      _right_child->write_subtree_nodes_in_tabular_file(treeID, f);
-    }
+  /* Left subtree */
+  if (_left_child != NULL) _left_child->write_subtree_nodes_in_tabular_file(treeID, f);
+  /* Right subtree */
+  if (_right_child != NULL)  _right_child->write_subtree_nodes_in_tabular_file(treeID, f);
+  
 
   fprintf(f, "%"PRId32" ", treeID);
   fprintf(f, "%"PRId32" ", _ID);
