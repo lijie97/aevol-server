@@ -118,7 +118,7 @@ void Test_ae_individual::setUp( void )
 
   // Build indiv1
   ae_params_mut params_mut;
-  indiv1 = new ae_individual(NULL, NULL, NULL, &params_mut, 1.0, 10, 1000, false, 0, 1, 0);
+  indiv1 = new ae_individual(NULL, NULL, NULL, &params_mut, 1.0, 10, 1000, false, 1, 0);
   indiv1->add_GU(genome, strlen(genome));
   genome = NULL;
 
@@ -130,7 +130,7 @@ void Test_ae_individual::setUp( void )
 
   // Build indiv2
   genome = indiv1->get_genetic_unit(0)->get_dna()->get_subsequence(0,0,LAGGING);
-  indiv2 = new ae_individual(NULL, NULL, NULL, &params_mut, 1.0, 10, 1000, false, 0, 1, 0);
+  indiv2 = new ae_individual(NULL, NULL, NULL, &params_mut, 1.0, 10, 1000, false, 1, 0);
   indiv2->add_GU(genome, strlen(genome));
   genome = NULL;
 
@@ -144,7 +144,7 @@ void Test_ae_individual::setUp( void )
   // Build indiv3
   genome = new char[1024];
   sprintf( genome, "%s%s%s%s%s%s%s", as[0], gene, as[1], term, as[2], prom[1], as[3]);
-  indiv3 = new ae_individual(NULL, NULL, NULL, &params_mut, 1.0, 10, 1000, false, 0, 1, 0);
+  indiv3 = new ae_individual(NULL, NULL, NULL, &params_mut, 1.0, 10, 1000, false, 1, 0);
   indiv3->add_GU(genome, strlen(genome));
   genome = NULL;
 
@@ -157,7 +157,7 @@ void Test_ae_individual::setUp( void )
 
   // Build indiv4
   genome = indiv3->get_genetic_unit(0)->get_dna()->get_subsequence(0,0,LAGGING);
-  indiv4 = new ae_individual(NULL, NULL, NULL, &params_mut, 1.0, 10, 1000, false, 0, 1, 0);
+  indiv4 = new ae_individual(NULL, NULL, NULL, &params_mut, 1.0, 10, 1000, false, 1, 0);
   indiv4->add_GU(genome, strlen(genome));
   genome = NULL;
 

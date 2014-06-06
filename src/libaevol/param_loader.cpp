@@ -254,9 +254,9 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
   {
     _param_values->set_tree_step( atol( line->words[1] ) );
   }
-  else if ( strcmp( line->words[0], "INITIAL_GENOME_LENGTH" ) == 0 )
+  else if ( strcmp( line->words[0], "CHROMOSOME_INITIAL_LENGTH" ) == 0 )
   {
-    _param_values->set_initial_genome_length( atol( line->words[1] ) );
+    _param_values->set_chromosome_initial_length( atol( line->words[1] ) );
   }
   else if ( strcmp( line->words[0], "MIN_GENOME_LENGTH" ) == 0 )
   {
@@ -797,6 +797,18 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
   {
     _param_values->set_plasmid_minimal_length( atoi( line->words[1] ) );
   }
+  else if ( strcmp( line->words[0], "PLASMID_MAXIMAL_LENGTH" ) == 0 )
+  {
+    _param_values->set_plasmid_maximal_length( atoi( line->words[1] ) );
+  }
+  else if ( strcmp( line->words[0], "CHROMOSOME_MINIMAL_LENGTH" ) == 0 )
+  {
+    _param_values->set_chromosome_minimal_length( atoi( line->words[1] ) );
+  }
+  else if ( strcmp( line->words[0], "CHROMOSOME_MAXIMAL_LENGTH" ) == 0 )
+  {
+    _param_values->set_chromosome_maximal_length( atoi( line->words[1] ) );
+  }
   else if ( strcmp( line->words[0], "PROB_PLASMID_HT" ) == 0 )
   {
     _param_values->set_prob_plasmid_HT( atof( line->words[1] ) );
@@ -961,6 +973,50 @@ void param_loader::read_file( void )
 
 void param_loader::load( ae_exp_manager* exp_m, bool verbose )
 {
+  // Check consistency of min, max and initial length of chromosome and plasmid
+  // Default for by GU minimal or maximal size is -1.
+  // If equal to -1, maximal sizes of each GU will be replaced by total maximal size for the whole genome
+  
+  if (_param_values->_allow_plasmids)
+  {
+    if (_param_values->get_plasmid_initial_gene()!=1) // the plasmid will be copied from the chromosome
+    {
+      if (_param_values->_plasmid_initial_length != -1)
+      {
+        printf("WARNING: PLASMID_INITIAL_LENGTH is not taken into account because PLASMID_INITIAL_GENE is set to 0 (copy from chromosome)\n");
+        _param_values->set_plasmid_initial_length(_param_values->_chromosome_initial_length);
+      }
+    }
+    if (_param_values->_plasmid_maximal_length == -1)
+    {
+      _param_values->set_plasmid_maximal_length(_param_values->_max_genome_length);
+    }
+    if(_param_values->_plasmid_minimal_length > _param_values->_plasmid_initial_length)
+    {
+      printf("ERROR: PLASMID_INITIAL_LENGTH is lower than PLASMID_MINIMAL_LENGTH\n");
+      exit( EXIT_FAILURE );
+    }
+    if (_param_values->_plasmid_maximal_length < _param_values->_plasmid_initial_length)
+    {
+      printf("ERROR: PLASMID_INITIAL_LENGTH is higher than PLASMID_MAXIMAL_LENGTH\n");
+      exit( EXIT_FAILURE );
+    }
+  }
+  if (_param_values->_chromosome_maximal_length == -1)
+  {
+    _param_values->set_chromosome_maximal_length(_param_values->_max_genome_length);
+  }
+  if(_param_values->_chromosome_minimal_length > _param_values->_chromosome_initial_length)
+  {
+    printf("ERROR: CHROMOSOME_INITIAL_LENGTH is lower than CHROMOSOME_MINIMAL_LENGTH\n");
+    exit( EXIT_FAILURE );
+  }
+  if (_param_values->_chromosome_maximal_length < _param_values->_chromosome_initial_length)
+  {
+    printf("ERROR: CHROMOSOME_INITIAL_LENGTH is higher than PLASMID_MAXIMAL_LENGTH\n");
+    exit( EXIT_FAILURE );
+  }
+  
   // Initialize _prng
   _prng = new ae_jumping_mt( _param_values->_seed );
   
@@ -1130,7 +1186,14 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
       // fitness is better than that corresponding to a flat phenotype)
       // and set its id
       indiv = create_random_individual_with_good_gene( exp_m, param_mut, id_new_indiv++ );
-      
+      indiv->get_genetic_unit(0)->set_min_gu_length(_param_values->_chromosome_minimal_length);
+      indiv->get_genetic_unit(0)->set_max_gu_length(_param_values->_chromosome_maximal_length);
+      if (_param_values->_allow_plasmids)
+      {
+        indiv->get_genetic_unit(1)->set_min_gu_length(_param_values->_plasmid_minimal_length);
+        indiv->get_genetic_unit(1)->set_max_gu_length(_param_values->_plasmid_maximal_length);
+      }
+
       indiv->set_with_stochasticity( _param_values->get_with_stochasticity() );
       
       // Add it to the list
@@ -1159,7 +1222,14 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
       {
         // Create an individual and set its id
         indiv = create_random_individual_with_good_gene( exp_m, param_mut, id_new_indiv++ );
-        
+        indiv->get_genetic_unit(0)->set_min_gu_length(_param_values->_chromosome_minimal_length);
+        indiv->get_genetic_unit(0)->set_max_gu_length(_param_values->_chromosome_maximal_length);
+        if (_param_values->_allow_plasmids)
+        {
+          indiv->get_genetic_unit(1)->set_min_gu_length(_param_values->_plasmid_minimal_length);
+          indiv->get_genetic_unit(1)->set_max_gu_length(_param_values->_plasmid_maximal_length);
+        }
+
         // Add it to the list
         pop->add_indiv( indiv );
       }
@@ -1173,7 +1243,14 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
     {
       // Create a random individual and set its id
       indiv = create_random_individual( exp_m, param_mut, id_new_indiv++ );
-      
+      indiv->get_genetic_unit(0)->set_min_gu_length(_param_values->_chromosome_minimal_length);
+      indiv->get_genetic_unit(0)->set_max_gu_length(_param_values->_chromosome_maximal_length);
+      if (_param_values->_allow_plasmids)
+      {
+        indiv->get_genetic_unit(1)->set_min_gu_length(_param_values->_plasmid_minimal_length);
+        indiv->get_genetic_unit(1)->set_max_gu_length(_param_values->_plasmid_maximal_length);
+      }
+
       // Add it to the list
       pop->add_indiv( indiv );
       
@@ -1200,7 +1277,14 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
       {
         // Create a random individual and set its id
         indiv = create_random_individual( exp_m, param_mut, id_new_indiv++ );
-        
+        indiv->get_genetic_unit(0)->set_min_gu_length(_param_values->_chromosome_minimal_length);
+        indiv->get_genetic_unit(0)->set_max_gu_length(_param_values->_chromosome_maximal_length);
+        if (_param_values->_allow_plasmids)
+        {
+          indiv->get_genetic_unit(1)->set_min_gu_length(_param_values->_plasmid_minimal_length);
+          indiv->get_genetic_unit(1)->set_max_gu_length(_param_values->_plasmid_maximal_length);
+        }
+
         // Add it to the list
         pop->add_indiv( indiv );
       }
@@ -1352,12 +1436,12 @@ f_line* param_loader::get_line( void )
 ae_individual* param_loader::create_random_individual( ae_exp_manager* exp_m, ae_params_mut* param_mut, int32_t id ) const
 {
   // Generate a random genome
-  char * random_genome = new char [_param_values->_initial_genome_length + 1];
-  for ( int32_t i = 0 ; i < _param_values->_initial_genome_length ; i++ )
+  char * random_genome = new char [_param_values->_chromosome_initial_length + 1];
+  for ( int32_t i = 0 ; i < _param_values->_chromosome_initial_length ; i++ )
   {
     random_genome[i] = '0' + _prng->random( NB_BASE );
   }
-  random_genome[_param_values->_initial_genome_length] = 0;
+  random_genome[_param_values->_chromosome_initial_length] = 0;
   
   
   // ------------------------------------------------------- Global constraints
@@ -1373,7 +1457,6 @@ ae_individual* param_loader::create_random_individual( ae_exp_manager* exp_m, ae
                                             _param_values->_min_genome_length,
                                             _param_values->_max_genome_length,
                                             _param_values->_allow_plasmids,
-                                            _param_values->_plasmid_minimal_length,
                                             id, 0 );
                                             
   // <Graphical debug>
@@ -1383,24 +1466,27 @@ ae_individual* param_loader::create_random_individual( ae_exp_manager* exp_m, ae
     //~ indiv = new ae_individual( exp_m, new ae_jumping_mt(*_prng), param_mut, _param_values->_w_max, id, 0 );
   //~ #endif
   // </Graphical debug>
-  indiv->add_GU( random_genome, _param_values->_initial_genome_length );
+  indiv->add_GU( random_genome, _param_values->_chromosome_initial_length );
   
   if (_param_values->_allow_plasmids) // We create a plasmid
   {
-    char * plasmid_genome = new char [_param_values->_initial_genome_length + 1]; // As ae_dna constructor do not allocate memory but directly use the provided string, we allocate the memory here.
+    char * plasmid_genome;
     if ( _param_values->get_plasmid_initial_gene() == 1 ) // Then the plasmid is generated independently from the chromosome
     {
-      for ( int32_t i = 0 ; i < _param_values->_initial_genome_length ; i++ )
+      plasmid_genome = new char [_param_values->_plasmid_initial_length + 1]; // As ae_dna constructor do not allocate memory but directly use the provided string, we allocate the memory here.
+      for ( int32_t i = 0 ; i < _param_values->_plasmid_initial_length ; i++ )
       {
         plasmid_genome[i] = '0' + _prng->random( NB_BASE );
       }
-      plasmid_genome[_param_values->_initial_genome_length] = 0;
+      plasmid_genome[_param_values->_plasmid_initial_length] = 0;
+      indiv->add_GU( plasmid_genome, _param_values->_plasmid_initial_length );
     }
     else // The plasmid has the same genome than the chromosome
     {
-      strncpy(plasmid_genome,random_genome,_param_values->_initial_genome_length+1);
+      plasmid_genome = new char [_param_values->_chromosome_initial_length + 1]; // As ae_dna constructor do not allocate memory but directly use the provided string, we allocate the memory here.
+      strncpy(plasmid_genome,random_genome,_param_values->_chromosome_initial_length+1);
+      indiv->add_GU( plasmid_genome, _param_values->_chromosome_initial_length );
     }
-    indiv->add_GU( plasmid_genome, _param_values->_initial_genome_length );
     plasmid_genome = NULL; // should not be deleted since it is now the plasmid dna
   }
   
@@ -1486,7 +1572,7 @@ ae_individual* param_loader::create_random_individual_with_good_gene( ae_exp_man
         indiv = create_random_individual( exp_m, param_mut, id );
       }
     }
-    else // if  ( ae_common::init_params->get_plasmid_initial_gene() == 2 )
+    else
     {
       // here things work the same as before, but in the constructor of the individual, 
       // a single genetic unit is created and then copied from the chromosome to the plasmid

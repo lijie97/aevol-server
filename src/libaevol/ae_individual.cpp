@@ -87,7 +87,6 @@ ae_individual::ae_individual( ae_exp_manager* exp_m,
                               int32_t min_genome_length,
                               int32_t max_genome_length,
                               bool allow_plasmids,
-                              int32_t plasmid_minimal_length,
                               int32_t id,
                               int32_t age )
 {
@@ -153,8 +152,6 @@ ae_individual::ae_individual( ae_exp_manager* exp_m,
   
   // Plasmids settings
   _allow_plasmids         = allow_plasmids;
-  _plasmid_minimal_length = plasmid_minimal_length;
-  
   
   
   // --------------------------------------------------
@@ -266,10 +263,6 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile backup_file )
   int8_t tmp_allow_plasmids;
   gzread( backup_file, &tmp_allow_plasmids, sizeof(tmp_allow_plasmids) );
   _allow_plasmids = tmp_allow_plasmids ? 1 : 0;
-  if ( _allow_plasmids )
-  {
-    gzread( backup_file, &_plasmid_minimal_length, sizeof(_plasmid_minimal_length) );
-  }
   
   // Retreive genetic units
   _genetic_unit_list = new ae_list<ae_genetic_unit*>();
@@ -489,7 +482,6 @@ ae_individual::ae_individual( const ae_individual &model )
   
   // Plasmids settings
   _allow_plasmids         = model._allow_plasmids;
-  _plasmid_minimal_length = model._plasmid_minimal_length;
   
   evaluate();
 }
@@ -594,7 +586,6 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id, ae_jumpin
   
   // Plasmids settings
   _allow_plasmids         = parent->_allow_plasmids;
-  _plasmid_minimal_length = parent->_plasmid_minimal_length;
   
   // Initialize statistical data
   _total_genome_size                  = 0;
@@ -1195,10 +1186,6 @@ void ae_individual::save( gzFile backup_file ) const
   // Write plasmids settings
   int8_t tmp_allow_plasmids = _allow_plasmids;
   gzwrite( backup_file, &tmp_allow_plasmids, sizeof(tmp_allow_plasmids) );
-  if ( _allow_plasmids )
-  {
-    gzwrite( backup_file, &_plasmid_minimal_length, sizeof(_plasmid_minimal_length) );
-  }
   
   // Write genetic units
   int16_t nb_gen_units = _genetic_unit_list->get_nb_elts();

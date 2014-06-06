@@ -84,7 +84,6 @@ class ae_individual : public ae_object
                     int32_t min_genome_length,
                     int32_t max_genome_length,
                     bool allow_plasmids,
-                    int32_t plasmid_minimal_length,
                     int32_t id,
                     int32_t age );
   
@@ -143,7 +142,6 @@ class ae_individual : public ae_object
     
     // Plasmids settings
     inline bool     get_allow_plasmids( void ) const;
-    inline int32_t  get_plasmid_minimal_length( void ) const;
     
     // Mutation rates etc...
     inline double   get_point_mutation_rate( void ) const;
@@ -442,8 +440,7 @@ class ae_individual : public ae_object
     
     // Plasmids settings
     bool _allow_plasmids;
-    int32_t _plasmid_minimal_length;
-    
+  
     
     
     // --------------------------------------------------
@@ -1210,14 +1207,6 @@ inline int32_t ae_individual::get_max_genome_length( void ) const
 inline bool ae_individual::get_allow_plasmids( void ) const
 {
   return _allow_plasmids;
-}
-
-/*!
-  TODO
-*/
-inline int32_t ae_individual::get_plasmid_minimal_length( void ) const
-{
-  return _plasmid_minimal_length;
 }
 
 /*!

@@ -99,7 +99,7 @@ class params : public ae_object
     inline double   get_w_max( void ) const;
     
     // ----------------------------------------------------- Initial conditions
-    inline int32_t  get_initial_genome_length( void )   const;
+    inline int32_t  get_chromosome_initial_length( void )   const;
     inline int8_t   get_init_method( void )             const;
     inline int32_t  get_init_pop_size( void )           const;
     
@@ -258,7 +258,7 @@ class params : public ae_object
     inline void set_w_max( double w_max );
     
     // ----------------------------------------------------- Initial conditions
-    inline void set_initial_genome_length( int32_t init_g_len );
+    inline void set_chromosome_initial_length( int32_t init_c_len );
     inline void set_init_method( int8_t init_meth );
     inline void set_init_pop_size( int32_t init_pop_size );
     
@@ -353,6 +353,9 @@ class params : public ae_object
     inline void set_plasmid_initial_length( int32_t plasmid_init_len );
     inline void set_plasmid_initial_gene( int32_t plasmid_init_gene );
     inline void set_plasmid_minimal_length( int32_t plasmid_minimal_length );
+    inline void set_plasmid_maximal_length( int32_t plasmid_maximal_length );
+    inline void set_chromosome_minimal_length( int32_t chromosome_minimal_length );
+    inline void set_chromosome_maximal_length( int32_t chromosome_maximal_length );
     inline void set_prob_plasmid_HT( double prob_plasmid_HT );
     inline void set_tune_donor_ability( double tune_donor_ability );
     inline void set_tune_recipient_ability( double tune_recipient_ability );
@@ -457,7 +460,7 @@ class params : public ae_object
     double  _w_max;
     
     // ----------------------------------------------------- Initial conditions
-    int32_t  _initial_genome_length;
+    int32_t  _chromosome_initial_length;
     int8_t   _init_method;
     int32_t  _init_pop_size;
     
@@ -561,6 +564,9 @@ class params : public ae_object
     int32_t   _plasmid_initial_length;
     int32_t   _plasmid_initial_gene;
     int32_t   _plasmid_minimal_length;
+    int32_t   _plasmid_maximal_length;
+    int32_t   _chromosome_minimal_length;
+    int32_t   _chromosome_maximal_length;
     double    _prob_plasmid_HT;
     double    _tune_donor_ability;
     double    _tune_recipient_ability;
@@ -655,9 +661,9 @@ inline double params::get_w_max( void ) const
 }
 
 // --------------------------------------------------------- Initial conditions
-inline int32_t params::get_initial_genome_length( void ) const
+inline int32_t params::get_chromosome_initial_length( void ) const
 {
-  return _initial_genome_length;
+  return _chromosome_initial_length;
 }
 
 inline int8_t params::get_init_method( void ) const
@@ -1135,9 +1141,9 @@ inline void params::set_w_max( double w_max )
 }
 
 // --------------------------------------------------------- Initial conditions
-inline void params::set_initial_genome_length( int32_t init_g_len )
+inline void params::set_chromosome_initial_length( int32_t init_c_len )
 {
-  _initial_genome_length = init_g_len;
+  _chromosome_initial_length = init_c_len;
 }
 
 inline void params::set_init_method( int8_t init_meth )
@@ -1479,6 +1485,21 @@ inline void params::set_plasmid_initial_gene( int32_t plasmid_init_gene )
 inline void params::set_plasmid_minimal_length( int32_t plasmid_minimal_length )
 {
   _plasmid_minimal_length = plasmid_minimal_length;
+}
+
+inline void params::set_plasmid_maximal_length( int32_t plasmid_maximal_length )
+{
+  _plasmid_maximal_length = plasmid_maximal_length;
+}
+
+inline void params::set_chromosome_minimal_length( int32_t chromosome_minimal_length )
+{
+  _chromosome_minimal_length = chromosome_minimal_length;
+}
+
+inline void params::set_chromosome_maximal_length( int32_t chromosome_maximal_length )
+{
+  _chromosome_maximal_length = chromosome_maximal_length;
 }
 
 inline void params::set_prob_plasmid_HT( double prob_plasmid_HT )

@@ -4,10 +4,10 @@
 
 ##### 1. Initial setup ############
 SEED                    486343
-INITIAL_GENOME_LENGTH   5000
 INIT_POP_SIZE           1000
 INIT_METHOD             ONE_GOOD_GENE CLONE
 MAX_TRIANGLE_WIDTH  	0.01
+CHROMOSOME_INITIAL_LENGTH   5000
 
 ##### 2. Selection ################
 SELECTION_SCHEME        exponential_ranking    0.998

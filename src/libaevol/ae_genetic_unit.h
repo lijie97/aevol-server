@@ -137,8 +137,14 @@ class ae_genetic_unit : public ae_object
     
     
     inline void  set_rna_list( ae_list<ae_rna*>** new_list );
-    
-    
+
+    inline int32_t  get_min_gu_length( void ) const;
+    inline int32_t  get_max_gu_length( void ) const;
+  
+    inline void     set_min_gu_length( int32_t min_gu_length );
+    inline void     set_max_gu_length( int32_t max_gu_length );
+
+  
     // =================================================================
     //                            Public Methods
     // =================================================================
@@ -339,7 +345,9 @@ class ae_genetic_unit : public ae_object
                           // phenotypic triangles overlap and the average intergenic distance 
                           // (ignoring non-functional genes)
     
-    
+    int32_t _min_gu_length;
+    int32_t _max_gu_length;
+  
     // TODO : check and comment what it is for
     //~ int32_t _nb_promoters[2];
     //~ int32_t _nb_genes[2];
@@ -612,6 +620,25 @@ inline double ae_genetic_unit::get_fitness_by_feature( ae_env_axis_feature featu
   return _fitness_by_feature[feature];
 }
 
+inline int32_t ae_genetic_unit::get_min_gu_length( void ) const
+{
+  return _min_gu_length;
+}
+
+inline int32_t ae_genetic_unit::get_max_gu_length( void ) const
+{
+  return _max_gu_length;
+}
+
+inline void ae_genetic_unit::set_min_gu_length( int32_t min_gu_length )
+{
+  _min_gu_length = min_gu_length;
+}
+
+inline void ae_genetic_unit::set_max_gu_length( int32_t max_gu_length )
+{
+  _max_gu_length = max_gu_length;
+}
 
 // =====================================================================
 //                       Inline functions' definition

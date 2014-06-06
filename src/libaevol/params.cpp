@@ -72,7 +72,7 @@ params::params( void )
   _w_max              = 0.033333333;
     
   // ----------------------------------------------------- Initial conditions
-  _initial_genome_length  = 5000;
+  _chromosome_initial_length  = 5000;
   _init_method            = ONE_GOOD_GENE | CLONE;
   _init_pop_size          = 1000;
     
@@ -162,9 +162,12 @@ params::params( void )
   
   // --------------------------------------------------------------- Plasmids
   _allow_plasmids             = false;
-  _plasmid_initial_length     = 1000;
+  _plasmid_initial_length     = -1;
   _plasmid_initial_gene       = 0;
-  _plasmid_minimal_length     = 40;
+  _plasmid_minimal_length     = -1;
+  _plasmid_maximal_length     = -1;
+  _chromosome_minimal_length  = -1;
+  _chromosome_maximal_length  = -1;
   _prob_plasmid_HT            = 0;
   _tune_donor_ability         = 0;
   _tune_recipient_ability     = 0;
@@ -318,6 +321,9 @@ void params::print_to_file( FILE* file )
   fprintf( file, "\nPlasmids ------------------------------------------------\n" );
   fprintf( file, "allow_plasmids :             %s\n", _allow_plasmids? "true" : "false"              );
   fprintf( file, "plasmid_minimal_length :     %"PRId32"\n", _plasmid_minimal_length                 );
+  fprintf( file, "plasmid_maximal_length :     %"PRId32"\n", _plasmid_maximal_length                 );
+  fprintf( file, "chromosome_minimal_length :  %"PRId32"\n", _chromosome_minimal_length              );
+  fprintf( file, "chromosome_maximal_length :  %"PRId32"\n", _chromosome_maximal_length              );
   fprintf( file, "prob_plasmid_HT :            %e\n", _prob_plasmid_HT                               );
   fprintf( file, "tune_donor_ability :         %e\n", _tune_donor_ability                            );
   fprintf( file, "tune_recipient_ability :     %e\n", _tune_recipient_ability                        );

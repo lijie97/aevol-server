@@ -518,17 +518,19 @@ void ae_dna::do_rearrangements_with_align( void )
       {
         // Remember the length of the segment to be duplicated and of the genome before the duplication
         int32_t segment_length      = ae_utils::mod( alignment->get_i_2() - alignment->get_i_1(), _length );
-        int32_t genome_size_before  = _length;
-        int32_t genome_size_after   = _length + segment_length;
+        int32_t gu_size_before  = _length;
+        int32_t gu_size_after   = gu_size_before + segment_length;
+        int32_t genome_size_before = _indiv->get_amount_of_dna();
+        int32_t genome_size_after = genome_size_before + segment_length;
         
-        if ( genome_size_after > _indiv->get_max_genome_length() )
+        if ( ( genome_size_after > _indiv->get_max_genome_length() ) || ( gu_size_after > _gen_unit->get_max_gu_length() ) )
         {
           #warning LOG
           if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
           {
             // Write an entry in the barrier log file
-            fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32" %"PRId32"\n",
-                      _exp_m->get_num_gener(), _indiv->get_id(), segment_length, 0, genome_size_before );
+            fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n",
+                      _exp_m->get_num_gener(), _indiv->get_id(), segment_length, 0, gu_size_before, genome_size_before );
           }
         }
         else
@@ -557,17 +559,19 @@ void ae_dna::do_rearrangements_with_align( void )
       {
         // Remember the length of the segment to be duplicated and of the genome before the deletion
         int32_t segment_length      = ae_utils::mod( alignment->get_i_2() - alignment->get_i_1() - 1, _length ) + 1;
-        int32_t genome_size_before  = _length;
-        int32_t genome_size_after   = _length - segment_length;
+        int32_t gu_size_before  = _length;
+        int32_t gu_size_after   = gu_size_before - segment_length;
+        int32_t genome_size_before = _indiv->get_amount_of_dna();
+        int32_t genome_size_after = genome_size_before - _length;
         
-        if ( genome_size_after < _indiv->get_min_genome_length() )
+        if ( ( genome_size_after < _indiv->get_min_genome_length() ) || ( gu_size_after < _gen_unit->get_min_gu_length() ) )
         {
           #warning LOG
           if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
           {
             // Write an entry in the barrier log file
-            fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32" %"PRId32"\n",
-                      _exp_m->get_num_gener(), _indiv->get_id(), segment_length, 0, genome_size_before );
+            fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n",
+                      _exp_m->get_num_gener(), _indiv->get_id(), segment_length, 0, gu_size_before, genome_size_before );
           }
         }
         else
@@ -854,14 +858,14 @@ ae_mutation* ae_dna::do_small_insertion( void )
   }
   
   // Check that the insertion won't throw the genome size over the limit
-  if ( _length + nb_insert > _indiv->get_max_genome_length() )
+  if ( ( _indiv->get_amount_of_dna() + nb_insert > _indiv->get_max_genome_length() ) || (_length + nb_insert > _gen_unit->get_max_gu_length()) )
   {
     #warning LOG
     if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
     {
       // Write an entry in the barrier log file
-      fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" S_INS %"PRId32" %"PRId32" %"PRId32"\n",
-                _exp_m->get_num_gener(), _indiv->get_id(), nb_insert, 0, _length );
+      fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" S_INS %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n",
+                _exp_m->get_num_gener(), _indiv->get_id(), nb_insert, 0, _length, _indiv->get_amount_of_dna() );
     }
     
     return NULL;
@@ -912,14 +916,14 @@ ae_mutation* ae_dna::do_small_deletion( void )
   }
   
   // Check that the insertion won't shrink the genome size under the limit nor to nothing
-  if ( _length - nb_del < _indiv->get_min_genome_length() )
+  if ( ( _indiv->get_amount_of_dna() - nb_del < _indiv->get_min_genome_length() ) || (_length - nb_del < _gen_unit->get_min_gu_length()) )
   {
     #warning LOG
     if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
     {
       // Write an entry in the barrier log file
-      fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" S_DEL %"PRId32" %"PRId32" %"PRId32"\n",
-                _exp_m->get_num_gener(), _indiv->get_id(), nb_del, 0, _length );
+      fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" S_DEL %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n",
+                _exp_m->get_num_gener(), _indiv->get_id(), nb_del, 0, _length, _indiv->get_amount_of_dna() );
     }
     
     return NULL;
@@ -959,8 +963,9 @@ bool ae_dna::do_switch( int32_t pos )
 bool ae_dna::do_small_insertion( int32_t pos, int16_t nb_insert, char * seq )
 {
   // Check genome size limit
-  assert( _length + nb_insert <= _indiv->get_max_genome_length() );
-  
+  assert(_length + nb_insert <= _gen_unit->get_max_gu_length());
+  assert(_indiv->get_amount_of_dna() + nb_insert <= _indiv->get_max_genome_length());
+
   // Remove the promoters that will be broken
   _gen_unit->remove_promoters_around( pos );
   
@@ -989,7 +994,8 @@ bool ae_dna::do_small_insertion( int32_t pos, int16_t nb_insert, char * seq )
 bool ae_dna::do_small_deletion( int32_t pos, int16_t nb_del )
 {
   // Check genome size limit
-  assert( _length - nb_del >= _indiv->get_min_genome_length() );
+  assert( _length - nb_del >= _gen_unit->get_min_gu_length());
+  assert( _indiv->get_amount_of_dna() - nb_del >= _indiv->get_min_genome_length() );
   
   // Remove promoters containing at least one nucleotide from the sequence to delete
   _gen_unit->remove_promoters_around( pos, ae_utils::mod(pos + nb_del, _length) );
@@ -1037,17 +1043,18 @@ ae_mutation* ae_dna::do_duplication( void )
   
   // Remember the length of the segment to be duplicated and of the former genome
   int32_t segment_length      = ae_utils::mod( pos_2 - pos_1 - 1, _length ) + 1;
-  int32_t genome_size_before  = _length;
-  int32_t genome_size_after   = _length + segment_length;
-  
-  if ( genome_size_after > _indiv->get_max_genome_length() )
+  int32_t gu_size_before  = _length;
+  int32_t gu_size_after   = gu_size_before + segment_length;
+  int32_t genome_size_before = _indiv->get_amount_of_dna();
+  int32_t genome_size_after = genome_size_before + segment_length;
+  if ( (gu_size_after > _gen_unit->get_max_gu_length()) || (genome_size_after > _indiv->get_max_genome_length()) )
   {
     #warning LOG
     if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
     {
       // Write an entry in the barrier log file
-      fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32" %"PRId32"\n",
-                _exp_m->get_num_gener(), _indiv->get_id(), segment_length, 0, genome_size_before );
+      fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n",
+                _exp_m->get_num_gener(), _indiv->get_id(), segment_length, 0, gu_size_before, genome_size_before );
     }
   }
   else
@@ -1084,19 +1091,18 @@ ae_mutation* ae_dna::do_deletion( void )
   
   // Remember the length of the segment to be deleted and of the genome before the deletion
   int32_t segment_length      = ae_utils::mod( pos_2 - pos_1 - 1, _length ) + 1;
-  int32_t genome_size_before  = _length;
-  int32_t genome_size_after   = _length - segment_length;
-  
-        
-  if ( genome_size_after < _indiv->get_min_genome_length() )
+  int32_t gu_size_before  = _length;
+  int32_t gu_size_after   = gu_size_before - segment_length;
+  int32_t genome_size_before = _indiv->get_amount_of_dna();
+  int32_t genome_size_after = genome_size_before - segment_length;
+  if ( ( gu_size_after < _gen_unit->get_min_gu_length() ) || ( genome_size_after < _indiv->get_min_genome_length() ) )
   {
     #warning LOG
     if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
     {
       // Write an entry in the barrier log file
-      fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32" %"PRId32"\n",
-                _exp_m->get_num_gener(), _indiv->get_id(), segment_length, 0, genome_size_before );
-
+      fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n",
+                _exp_m->get_num_gener(), _indiv->get_id(), segment_length, 0, gu_size_before, genome_size_before );
      }
   }
   else
@@ -1645,30 +1651,45 @@ bool ae_dna::do_translocation( int32_t pos_1, int32_t pos_2, int32_t pos_3, int3
 bool ae_dna::do_inter_GU_translocation( int32_t pos_1_rel, int32_t pos_2_rel, int32_t pos_3_rel, int32_t pos_4_rel, bool invert )
 {
   // TODO check GU lengths according to positions and size limit
-  int32_t segment_length;
+  int32_t segment_length = ae_utils::mod( pos_2_rel - pos_1_rel, _length );
 
   if (  pos_1_rel == pos_2_rel ) // TODO : should'nt that raise an error?
   {
     return false; 
   }
   
-  // Do not allow translocation if it would decrease the size of the GU below a threshold
-  if ( pos_1_rel < pos_2_rel) 
-  { 
-    if ( (_length - (pos_2_rel - pos_1_rel) ) < _indiv->get_plasmid_minimal_length() ) 
-    { 
-      return false; 
-    }  
-  }
-  else 
+  // Do not allow translocation if it would decrease the size of the origin GU below a threshold
+  if ( (_length - segment_length ) < _gen_unit->get_min_gu_length() )
   {
-    if ( ( pos_1_rel - pos_2_rel ) < _indiv->get_plasmid_minimal_length() )
+    #warning LOG
+    if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
     {
-      return false; 
+      // Write an entry in the barrier log file
+      fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" TRANS %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n",
+              _exp_m->get_num_gener(), _indiv->get_id(), segment_length, 0, _length, _indiv->get_amount_of_dna() );
     }
+    return false;
   }
-    
   
+  //
+  ae_genetic_unit* chromosome     = _indiv->get_genetic_unit( 0 );
+  ae_genetic_unit* plasmid        = _indiv->get_genetic_unit( 1 );
+  ae_genetic_unit* destination_GU = ( _gen_unit == chromosome )? plasmid : chromosome;
+
+  int32_t dest_gu_size_before = destination_GU->get_seq_length();
+  
+  // Do not allow translocation if it would increase the size of the receiving GU below a threshold
+  if (dest_gu_size_before + segment_length > destination_GU->get_max_gu_length())
+  {
+    #warning LOG
+    if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
+    {
+      // Write an entry in the barrier log file
+      fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" TRANS %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n",
+              _exp_m->get_num_gener(), _indiv->get_id(), segment_length, 0, dest_gu_size_before, _indiv->get_amount_of_dna() );
+    }
+    return false;
+  }
   
   //~ // Provided that OriC must be at position 0
   //~ //
@@ -1871,20 +1892,23 @@ ae_mutation* ae_dna::do_ins_HT( int32_t parent_id )
       
       if ( alignment_2 != NULL )
       {      
-        int32_t genome_length_before  = get_length();
-        int32_t genome_length_after   = get_length() + exogenote->get_dna()->get_length();
+        int32_t gu_length_before  = _length;
+        int32_t gu_length_after   = gu_length_before + exogenote->get_dna()->get_length();
+        int32_t genome_length_before = _indiv->get_amount_of_dna();
+        int32_t genome_length_after = genome_length_before + exogenote->get_dna()->get_length();
         
-        if ( genome_length_after > _indiv->get_max_genome_length() )
+        if ( ( genome_length_after > _indiv->get_max_genome_length() ) || ( gu_length_after > _gen_unit->get_max_gu_length() ) )
         {
           #warning LOG
           if ( _exp_m->get_output_m()->is_logged(LOG_BARRIER) == true )
           {
             // Write an entry in the barrier log file
-            fprintf(  _exp_m->get_output_m()->get_log(LOG_BARRIER), "%"PRId32" %"PRId32" INS_TRANSFER %"PRId32" %"PRId32" %"PRId32"\n",
+            fprintf(  _exp_m->get_output_m()->get_log(LOG_BARRIER), "%"PRId32" %"PRId32" INS_TRANSFER %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n",
                       _exp_m->get_num_gener(),
                       _indiv->get_id(),
                       exogenote->get_dna()->get_length(),
                       0,
+                      gu_length_before,
                       genome_length_before );
           }
         }
@@ -2020,22 +2044,26 @@ ae_mutation* ae_dna::do_repl_HT( int32_t parent_id )
     // If both alignments were found, proceed to the transfer
     if ( alignment_2 != NULL )
     {      
-      int32_t genome_length_before  = get_length();
+      int32_t gu_length_before  = _length;
       int32_t exogenote_length      = ae_utils::mod( alignment_2->get_i_2() - alignment_1->get_i_2() - 1, donor_dna->get_length() ) + 1;
-      int32_t replaced_seq_length   = ae_utils::mod( alignment_2->get_i_1() - alignment_1->get_i_1() - 1, genome_length_before ) + 1;
-      int32_t genome_length_after   = get_length() - replaced_seq_length + exogenote_length;
+      int32_t replaced_seq_length   = ae_utils::mod( alignment_2->get_i_1() - alignment_1->get_i_1() - 1, gu_length_before ) + 1;
+      int32_t gu_length_after   = gu_length_before - replaced_seq_length + exogenote_length;
       
-      if ( genome_length_after < _indiv->get_min_genome_length() || genome_length_after > _indiv->get_max_genome_length() )
+      int32_t genome_length_before = _indiv->get_amount_of_dna();
+      int32_t genome_length_after = genome_length_before - replaced_seq_length + exogenote_length;
+      
+      if ( genome_length_after < _indiv->get_min_genome_length() || genome_length_after > _indiv->get_max_genome_length() || gu_length_after < _gen_unit->get_min_gu_length() || gu_length_after > _gen_unit->get_max_gu_length() )
       {
         #warning LOG
         if ( _exp_m->get_output_m()->is_logged(LOG_BARRIER) == true )
         {
           // Write an entry in the barrier log file
-          fprintf(  _exp_m->get_output_m()->get_log(LOG_BARRIER), "%"PRId32" %"PRId32" REPL_TRANSFER %"PRId32" %"PRId32" %"PRId32"\n",
+          fprintf(  _exp_m->get_output_m()->get_log(LOG_BARRIER), "%"PRId32" %"PRId32" REPL_TRANSFER %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n",
                     _exp_m->get_num_gener(),
                     _indiv->get_id(),
                     exogenote_length,
                     replaced_seq_length,
+                    gu_length_before,
                     genome_length_before );
         }
       }

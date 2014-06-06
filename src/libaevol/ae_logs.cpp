@@ -408,7 +408,8 @@ void ae_logs::write_headers( void ) const
     fprintf( _barrier_log, "# 3. Type of event\n" );
     fprintf( _barrier_log, "# 4. Segment length\n" );
     fprintf( _barrier_log, "# 5. Replaced segment length\n" );
-    fprintf( _barrier_log, "# 6. Genome size (before the event)\n" );
+    fprintf( _barrier_log, "# 6. GU size (before the event)\n" );
+    fprintf( _barrier_log, "# 7. Genome size (before the event)\n" );
     fprintf( _barrier_log, "#\n" );
     fprintf( _barrier_log, "######################################################################\n" );
   

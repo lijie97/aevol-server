@@ -95,6 +95,9 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, int32_t length )
   _distance_to_target_computed        = false;
   _fitness_computed                   = false;
   
+  _min_gu_length = -1;
+  _max_gu_length = -1;
+
   _dna = new ae_dna( this, length );
   
   // Create empty rna and protein lists
@@ -153,6 +156,9 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, char* seq, int32_t lengt
   _distance_to_target_computed        = false;
   _fitness_computed                   = false;
   
+  _min_gu_length = -1;
+  _max_gu_length = -1;
+
   _dna = new ae_dna( this, seq, length );
   
   if ( prom_list != NULL )
@@ -222,6 +228,9 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, const ae_genetic_unit &m
   _distance_to_target_computed  = model._distance_to_target_computed;
   _fitness_computed             = model._fitness_computed;
   
+  _min_gu_length = model._min_gu_length;
+  _max_gu_length = model._max_gu_length;
+  
   // Copy DNA
   _dna = new ae_dna( this, *(model._dna) );
   
@@ -269,6 +278,9 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, ae_genetic_unit* const p
   _distance_to_target_computed        = false;
   _fitness_computed                   = false;
   
+  _min_gu_length = parent->_min_gu_length;
+  _max_gu_length = parent->_max_gu_length;
+
   // Copy DNA
   _dna = new ae_dna( this, parent->_dna );
   
@@ -337,6 +349,9 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, gzFile backup_file )
   
   _dna = new ae_dna( this, backup_file );
 
+  gzread( backup_file, &_min_gu_length, sizeof(_min_gu_length) );
+  gzread( backup_file, &_max_gu_length, sizeof(_max_gu_length) );
+  
   _rna_list           = new ae_list<ae_rna*>*[2];
   _rna_list[LEADING]  = new ae_list<ae_rna*>();
   _rna_list[LAGGING]  = new ae_list<ae_rna*>();
@@ -3301,6 +3316,8 @@ void ae_genetic_unit::copy_lagging_promoters_starting_between( int32_t pos_1, in
 void ae_genetic_unit::save( gzFile backup_file )
 {
   _dna->save( backup_file );
+  gzwrite( backup_file, &_min_gu_length, sizeof(_min_gu_length) );
+  gzwrite( backup_file, &_max_gu_length, sizeof(_max_gu_length) );
 }
 
 int32_t ae_genetic_unit::get_nb_terminators( void )
