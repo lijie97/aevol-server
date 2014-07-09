@@ -397,35 +397,49 @@ int main(int argc, char** argv)
       // ***************************************
  
       // TO DO
-     /*
+     
       mnode = dnarep->get_HT()->get_first();
       while ( mnode != NULL )
       {
         mut = (ae_mutation *) mnode->get_obj();
-
+        
         metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
         unitlen_before = unit->get_dna()->get_length();
-        unit->compute_nb_of_affected_genes(mut, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);          
-
-
+        anticipate_mutation_effect_on_genes_in_trees(gene_trees, mut, unitlen_before);
         unit->get_dna()->undergo_this_mutation( mut );
+
         indiv->reevaluate(env);
-
-
         metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
-      
-        mut->get_generic_description_string( mut_descr_string );
-        fprintf( output, "%"PRId32" %"PRId32" %s %"PRId32" %.15f  %"PRId32" %"PRId32" %"PRId32" \n",\
-                 num_gener, genetic_unit_number, \
-                 mut_descr_string, unitlen_before, \
-                 impact_on_metabolic_error, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment );
-
-      
-
-        mnode = mnode->get_next();
-      } */
+        register_actual_mutation_effect_on_genes_in_trees(gene_trees, mut, unit, num_gener, impact_on_metabolic_error);    
+        
+        /* New genes that have been created "from scratch", i.e. not by duplication => new gene tree */
+        prot_node = (unit->get_protein_list()[LEADING])->get_first();
+        while (prot_node != NULL)
+          {
+            prot = prot_node->get_obj();
+            search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
+            if (genetreenode == NULL)
+              {
+                gene_trees->add(new ae_gene_tree(num_gener, prot, mut));
+              }
+            prot_node = prot_node->get_next();
+          }
+         prot_node = (unit->get_protein_list()[LAGGING])->get_first();
+         while (prot_node != NULL)
+          {
+            prot = prot_node->get_obj();
+            search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
+            if (genetreenode == NULL)
+              {
+                gene_trees->add(new ae_gene_tree(num_gener, prot, mut));
+              }
+            prot_node = prot_node->get_next();
+          }
+         // print_gene_trees_to_screen(gene_trees);// DEBUG
+         mnode = mnode->get_next();
+      }
 
 
       // ***************************************
