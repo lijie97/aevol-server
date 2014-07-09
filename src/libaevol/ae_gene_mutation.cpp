@@ -162,19 +162,6 @@ ae_gene_mutation::ae_gene_mutation(ae_mutation const & mut, int32_t gener, int32
       if ( strandBefore == LEADING  ) _position_relative_to_shine_dal[0] = _pos[0] - cdsPosBefore;
       else                                 _position_relative_to_shine_dal[0] = cdsPosBefore - _pos[0];
       break;
-    case REPL_HT:
-      _position_relative_to_shine_dal = new int32_t[2];
-      if ( strandBefore == LEADING  )
-        {
-          _position_relative_to_shine_dal[0] = _pos[0] - cdsPosBefore;
-          _position_relative_to_shine_dal[1] = _pos[2] - cdsPosBefore;
-        }
-      else    
-        {
-          _position_relative_to_shine_dal[0] = cdsPosBefore - _pos[0];
-          _position_relative_to_shine_dal[1] = cdsPosBefore - _pos[2];
-        }
-      break;
     default :
       fprintf( stderr, "ERROR, invalid mutation type \"%d\" in file %s:%d.\n", _mut_type, __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
@@ -216,9 +203,6 @@ ae_gene_mutation::~ae_gene_mutation()
   case INSERT :
     delete _position_relative_to_shine_dal;
       break;
-  case REPL_HT:
-    delete [] _position_relative_to_shine_dal;
-    break;
   default :
     fprintf( stderr, "ERROR, invalid mutation type \"%d\" in file %s:%d.\n", _mut_type, __FILE__, __LINE__ );
     exit( EXIT_FAILURE );
@@ -289,10 +273,6 @@ void ae_gene_mutation::get_description_string_for_gene_mut(char * str)
    case INSERT :
     {
       sprintf( str, "%"PRId32" INSERTION_OF_FOREIGN_DNA %"PRId32" %"PRId32" %.10f ", _generation, _position_relative_to_shine_dal[0], _length[0], _impact_on_metabolic_error );
-    }
-    case REPL_HT :
-    {
-      sprintf( str, "%"PRId32" REPLACEMENT_TRANSFER %"PRId32" %"PRId32" %.10f ", _generation, _position_relative_to_shine_dal[0],_position_relative_to_shine_dal[1],  _length[0], _impact_on_metabolic_error );
       break;
     }
     default :

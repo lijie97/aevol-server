@@ -66,8 +66,7 @@ enum ae_gene_loss_type
   LOST_BY_LOCAL_MUTATION  = 1,
   DELETED = 2,
   BROKEN_BY_REAR = 3,
-  DUPLICATED = 4,
-  BROKEN_BY_TRANSFER = 5
+  DUPLICATED = 4
 };
 
 

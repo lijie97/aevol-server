@@ -141,7 +141,7 @@ class ae_gene_tree_node : public ae_object
     int32_t             _dna_creation_date;   // generation when the DNA of this gene copy was created. For left nodes, equals the creation date of the parent node. 
     int32_t             _node_creation_date;  // generation when this node was created. For right nodes, equals the dna creation date. 
     int32_t             _gene_loss_date;      // generation when the gene was lost: became a pseudogene, or was deleted, or was broken by a rearrangement
-    ae_gene_loss_type   _gene_loss_type;      // NOT_LOST_YET or LOST_BY_LOCAL_MUTATION or DELETED or BROKEN_BY_REAR or BROKEN_BY_TRANSFER
+    ae_gene_loss_type   _gene_loss_type;      // NOT_LOST_YET or LOST_BY_LOCAL_MUTATION or DELETED or BROKEN_BY_REAR
     ae_strand           _strand;
     int32_t             _shine_dal_position;
     int32_t             _nb_promoters;

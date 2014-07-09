@@ -212,7 +212,6 @@ void ae_gene_tree_node::print_subtree_to_screen(void)
     case DELETED :                printf("Gene loss type: DELETED\n");  printf("Gene loss date: %"PRId32"\n", _gene_loss_date); break;
     case BROKEN_BY_REAR:          printf("Gene loss type: BROKEN_BY_REAR\n");  printf("Gene loss date: %"PRId32"\n", _gene_loss_date); break;
     case DUPLICATED:              printf("Node status: DUPLICATED\n");  printf("Duplication date: %"PRId32"\n", _gene_loss_date);break;
-    case BROKEN_BY_TRANSFER:      printf("Gene loss type: BROKEN_BY_TRANSFER\n");  printf("Gene loss date: %"PRId32"\n", _gene_loss_date); break;
     default: break;
     }
   printf("Protein pointer: %p, Shine-Dalgarno position: %"PRId32"\n", _protein_pointer, _shine_dal_position);
@@ -275,7 +274,6 @@ void ae_gene_tree_node::write_subtree_to_files(FILE * topologyFile, FILE * nodeA
     case DELETED :                fprintf(nodeAttributesFile, "Gene loss type: DELETED\n"); fprintf(nodeAttributesFile, "Gene loss date: %"PRId32"\n", _gene_loss_date); break;
     case BROKEN_BY_REAR:          fprintf(nodeAttributesFile, "Gene loss type: BROKEN_BY_REAR\n"); fprintf(nodeAttributesFile, "Gene loss date: %"PRId32"\n", _gene_loss_date); break;
     case DUPLICATED:              fprintf(nodeAttributesFile, "Node status:    DUPLICATED\n"); fprintf(nodeAttributesFile, "Duplication date: %"PRId32"\n", _gene_loss_date); break;
-    case BROKEN_BY_TRANSFER:          fprintf(nodeAttributesFile, "Gene loss type: BROKEN_BY_TRANSFER\n"); fprintf(nodeAttributesFile, "Gene loss date: %"PRId32"\n", _gene_loss_date); break;
     default: break;
     }
   if( _strand == LEADING) fprintf(nodeAttributesFile, "Strand: LEADING\n");
@@ -337,7 +335,6 @@ void ae_gene_tree_node::write_subtree_nodes_in_tabular_file(int32_t treeID, FILE
     case DELETED :                fprintf(f, "DELETED "); break;
     case BROKEN_BY_REAR:          fprintf(f, "BROKEN_BY_REAR "); break;
     case DUPLICATED:              fprintf(f, "DUPLICATED ");  break;
-    case BROKEN_BY_TRANSFER:      fprintf(f, "BROKEN_BY_TRANSFER "); break;
     default: break;
     }
   fprintf(f, "%"PRId32" ", _gene_loss_date); 
@@ -361,7 +358,7 @@ void ae_gene_tree_node::write_subtree_nodes_in_tabular_file(int32_t treeID, FILE
   int32_t nb_rear_cds_neutral = 0, nb_rear_cds_benef = 0, nb_rear_cds_delet = 0;
   ae_list_node<ae_gene_mutation*> * mnode = _mutation_list->get_first();
   ae_gene_mutation * mut = NULL;
-  if ((_gene_loss_type == DELETED) || (_gene_loss_type == LOST_BY_LOCAL_MUTATION) || (_gene_loss_type == BROKEN_BY_REAR) || (_gene_loss_type == BROKEN_BY_TRANSFER))
+  if ((_gene_loss_type == DELETED) || (_gene_loss_type == LOST_BY_LOCAL_MUTATION) || (_gene_loss_type == BROKEN_BY_REAR))
     {
       // do not count the last event, it was disruptive
       while(mnode->get_next() != NULL)  // TO DO protect against seg fault if no mutation in the list (should not happen if the gene was disrupted however)
@@ -534,7 +531,6 @@ void ae_gene_tree_node::anticipate_mutation_effect_on_genes_in_subtree_leaves(ae
 
       int32_t genlen = lengthOfGeneticUnit; // in bp
       int32_t pos0 = -1, pos1 = -1, pos2 = -1, pos2bis = -1, pos3 = -1, mutlength = -1;
-      ae_sense sense;
       // int32_t pos1donor = -1, pos2donor = -1, pos3donor = -1;  ae_sense sense = DIRECT;  // related to transfer (TO DO)
       bool invert = false;
       ae_mutation_type type = mut->get_mut_type();
@@ -601,8 +597,7 @@ void ae_gene_tree_node::anticipate_mutation_effect_on_genes_in_subtree_leaves(ae
           }
         case REPL_HT:
           {
-            mut->get_infos_repl_HT( &pos1, &pos0, &pos2, &pos3, &sense, &mutlength );
-            mutlength = mutlength - ae_utils::mod(pos2 - pos1, genlen );
+            // TO DO
             break;
           }
         default:
@@ -983,22 +978,7 @@ void ae_gene_tree_node::anticipate_mutation_effect_on_genes_in_subtree_leaves(ae
           }
         case REPL_HT:
           {
-            if (breakpoint_inside_segment(pos1, first_cds, last_cds)) _cds_possibly_modified = true;   
-            if (breakpoint_inside_segment(pos2, first_cds, last_cds)) _cds_possibly_modified = true; 
-            if (breakpoint_inside_segment(first_cds, pos1, pos2)) _cds_possibly_modified = true;  
-            if (breakpoint_inside_segment(last_cds, pos1, pos2)) _cds_possibly_modified = true;    
-
-            if (breakpoint_inside_segment(pos1, first_upstream, last_upstream)) _proms_possibly_modified = true;   // beginning of the excised segment   
-            if (breakpoint_inside_segment(pos2, first_upstream, last_upstream)) _proms_possibly_modified = true;  // end of the excised segment
-            if (breakpoint_inside_segment(first_upstream, pos1, pos2)) _proms_possibly_modified = true;  
-            if (breakpoint_inside_segment(last_upstream, pos1, pos2)) _proms_possibly_modified = true;    
-
-            if (_shine_dal_position >= pos1 ) _shine_dal_position = ae_utils::mod(_shine_dal_position + mutlength, genlen + mutlength);
-            for (i = 0; i <_nb_promoters; i++) 
-              {
-                if (_promoter_positions[i] >= pos1){ _promoter_positions[i] = ae_utils::mod(_promoter_positions[i] + mutlength, genlen + mutlength);}
-              }
-   
+            // TO DO
             break;
           }
         }
@@ -1138,7 +1118,6 @@ void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leav
               _gene_loss_date = gener;
               if ((mut->get_mut_type() == SWITCH) || (mut->get_mut_type() == S_INS) || (mut->get_mut_type() == S_DEL)) _gene_loss_type = LOST_BY_LOCAL_MUTATION;
               else if ((mut->get_mut_type() == DUPL) || (mut->get_mut_type() == DEL) || (mut->get_mut_type() == TRANS) || (mut->get_mut_type() == INV)) _gene_loss_type = BROKEN_BY_REAR;
-              else if ( mut->get_mut_type() == REPL_HT ) _gene_loss_type = BROKEN_BY_TRANSFER;
               _protein_pointer = NULL;
               for (int32_t i = 0; i < _nb_promoters; i++) {_rna_pointers[i] = NULL;}
               if (gener > tree->_end_gener) (tree->_end_gener) = gener;
