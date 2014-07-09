@@ -368,7 +368,7 @@ int main(int argc, char** argv)
   // Copy the initial ancestor
   // NB : The list of individuals is sorted according to the index
   ae_individual * initial_ancestor_tmp  = exp_manager->get_indiv_by_id( indices[0] );
-  ae_individual * initial_ancestor      = new ae_individual( *initial_ancestor_tmp );
+  ae_individual * initial_ancestor      = new ae_individual( *initial_ancestor_tmp, false );
   
     
   gzwrite( lineage_file, &begin_gener,        sizeof(begin_gener) );
@@ -451,7 +451,7 @@ int main(int argc, char** argv)
       // Copy the ancestor from the backup
       // NB : The list of individuals is sorted according to the index
       ae_individual * stored_indiv_tmp  = exp_manager_backup->get_indiv_by_id( indices[i+1] );
-      stored_indiv = new ae_individual( *stored_indiv_tmp );
+      stored_indiv = new ae_individual( *stored_indiv_tmp, false );
       stored_gen_unit_node = stored_indiv->get_genetic_unit_list()->get_first();
     }
           

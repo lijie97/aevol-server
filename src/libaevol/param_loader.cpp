@@ -1612,13 +1612,13 @@ ae_individual* param_loader::create_clone( ae_individual* dolly, int32_t id ) co
 {
   ae_individual* indiv;
   
-  indiv = new ae_individual( *dolly );
+  indiv = new ae_individual( *dolly, false );
 
   
   //~ #ifdef __X11
-    //~ indiv = new ae_individual_X11( *(dynamic_cast<ae_individual_X11*>(dolly)) );
+    //~ indiv = new ae_individual_X11( *(dynamic_cast<ae_individual_X11*>(dolly)), false );
   //~ #else
-    //~ indiv = new ae_individual( *dolly );
+    //~ indiv = new ae_individual( *dolly, false );
   //~ #endif
   
   indiv->set_id( id );

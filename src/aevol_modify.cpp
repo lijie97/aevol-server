@@ -147,7 +147,7 @@ int main( int argc, char* argv[] )
       exit( EXIT_FAILURE );
     }
   
-  // 6) Initialize the experiment manager
+  // 6) Initialize the experiment manager, load the tree file
 #ifndef __NO_X
   ae_exp_manager* exp_manager = new ae_exp_manager_X11();
 #else
@@ -155,10 +155,20 @@ int main( int argc, char* argv[] )
 #endif
   exp_manager->load( num_gener, false, verbose );
 
-  // 7) Retrieve the population, the environment, the selection,...
+  char tree_file_name[50];
+  #ifdef __REGUL
+    sprintf( tree_file_name,"tree/tree_%06"PRId32".rae", num_gener ); 
+  #else
+    sprintf( tree_file_name,"tree/tree_%06"PRId32".ae", num_gener ); 
+  #endif
+  ae_tree * tree = new ae_tree( exp_manager, tree_file_name );
+
+  // 7) Retrieve the population, the environment, the selection,...  and assign the replication reports to each individual
   ae_population* pop = exp_manager->get_pop();
   ae_environment* env = exp_manager->get_env();
   ae_selection* sel = exp_manager->get_sel();
+
+  pop->set_replication_reports(tree, num_gener);
   
   // 8) Interpret and apply changes
   printf("Interpret and apply changes\n");
@@ -171,6 +181,7 @@ int main( int argc, char* argv[] )
   
   bool env_change = false;
   bool env_hasbeenmodified = false;
+  bool pop_structure_hasbeenmodified = false;
   
   f_line* line;
   int32_t cur_line = 0;
@@ -230,6 +241,7 @@ int main( int argc, char* argv[] )
       else if ( strcmp( line->words[0], "POPULATION_SIZE") == 0 )
         {
           pop->set_nb_indivs(atol( line->words[1] ) );
+          pop_structure_hasbeenmodified = true;
           printf("\tChange of population size to %ld\n",atol( line->words[1] ));
         }
       else if ( strcmp( line->words[0], "SELECTION_PRESSURE") == 0 )
@@ -470,6 +482,16 @@ int main( int argc, char* argv[] )
   exp_manager->write_setup_files();
   exp_manager->save();
   printf("OK\n");
+
+  if(pop_structure_hasbeenmodified)
+  {
+    printf("Save the modified replication reports into tree...\t");
+    tree->fill_tree_with_cur_gener();
+    gzFile tree_file = gzopen( tree_file_name, "w" );
+    tree->write_to_tree_file(tree_file);
+    gzclose( tree_file );
+    printf("OK\n");
+  }
   
   delete exp_manager;
 }

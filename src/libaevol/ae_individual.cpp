@@ -347,7 +347,7 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile backup_file )
 }
 
 // Copy constructor
-ae_individual::ae_individual( const ae_individual &model )
+ae_individual::ae_individual( const ae_individual &model, bool replication_report_copy )
 {
   _exp_m = model._exp_m;
   
@@ -458,7 +458,20 @@ ae_individual::ae_individual( const ae_individual &model )
   
   // We don't copy the generation report since we are creating a clone
   // We could create a new (empty) replic report but for now, it is not needed
-  _replic_report = NULL;
+  //_replic_report = NULL;
+
+  // Create a new replication report to store mutational events
+  if ( replication_report_copy && _exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL )
+  {
+    _replic_report = new ae_replication_report( *model._replic_report );
+    
+    // TODO: remove this after checking it is the old way
+    //_exp_m->get_output_m()->get_tree()->set_replic_report( _id, _replic_report );
+  }
+  else
+  {
+    _replic_report = NULL;
+  }
   
   _protein_list = new ae_list<ae_protein*>();
   _rna_list     = new ae_list<ae_rna*>();

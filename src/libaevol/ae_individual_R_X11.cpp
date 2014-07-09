@@ -49,8 +49,8 @@
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_individual_R_X11::ae_individual_R_X11( const ae_individual_R_X11 &model ) :
-  ae_individual( model ), ae_individual_R( model ), ae_individual_X11( model )
+ae_individual_R_X11::ae_individual_R_X11( const ae_individual_R_X11 &model, bool replication_report_copy  ) :
+  ae_individual( model, replication_report_copy  ), ae_individual_R( model, replication_report_copy  ), ae_individual_X11( model, replication_report_copy  )
 {
   //printf("ae_individual_R_X11( model )");
 }

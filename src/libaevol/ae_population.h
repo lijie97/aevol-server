@@ -44,6 +44,7 @@
 #include <ae_list.h>
 #include <ae_individual.h>
 #include <ae_jumping_mt.h>
+#include <ae_tree.h>
 
 
 
@@ -121,6 +122,8 @@ class ae_population : public ae_object
     inline void set_overall_inversion_proportion( double inversion_proportion);
     inline void set_overall_transfer_ins_rate (double transfer_ins_rate);
     inline void set_overall_transfer_repl_rate (double transfer_repl_rate);
+
+    inline void set_replication_reports( ae_tree* tree, int32_t num_gener);
     
     // =================================================================
     //                            Public Methods
@@ -475,6 +478,18 @@ inline void ae_population::set_overall_inversion_proportion( double inversion_pr
   {
     indiv = indiv_node->get_obj();
     indiv->set_inversion_proportion( inversion_proportion );
+    indiv_node = indiv_node->get_next();
+  }
+}
+
+inline void ae_population::set_replication_reports( ae_tree* tree, int32_t num_gener)
+{
+  ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
+  ae_individual*  indiv;
+  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
+  {
+    indiv = indiv_node->get_obj();
+    indiv->set_replication_report( tree->get_report_by_index( num_gener, indiv->get_id()));
     indiv_node = indiv_node->get_next();
   }
 }

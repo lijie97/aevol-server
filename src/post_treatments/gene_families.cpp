@@ -376,7 +376,7 @@ int main(int argc, char** argv)
       exp_manager_backup = new ae_exp_manager();
 #endif
       exp_manager_backup->load( num_gener, false, true, false );
-      stored_indiv = new ae_individual( * (ae_individual *)exp_manager_backup->get_indiv_by_id( index ) );
+      stored_indiv = new ae_individual( * (ae_individual *)exp_manager_backup->get_indiv_by_id( index ), false );
       stored_unit_node = stored_indiv->get_genetic_unit_list()->get_first();
     }
 

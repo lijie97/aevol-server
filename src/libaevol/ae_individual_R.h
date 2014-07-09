@@ -51,7 +51,7 @@ class ae_individual_R : public virtual ae_individual
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_individual_R( const ae_individual_R &model );
+    ae_individual_R( const ae_individual_R &model, replication_report_copy  );
     ae_individual_R( void );
     ae_individual_R(  ae_individual_R* parent, int32_t id,
                       ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng  );

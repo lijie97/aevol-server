@@ -118,7 +118,7 @@ void ae_population::set_nb_indivs(int32_t nb_indivs)
 		for(int32_t i = initial_pop_size; i < nb_indivs; i++)
 		{
 			index_to_duplicate = _exp_m->get_sel()->get_prng()->random( initial_pop_size );
-			indiv = new ae_individual(*get_indiv_by_id(index_to_duplicate));
+			indiv = new ae_individual(*get_indiv_by_id(index_to_duplicate), true);
 			indiv->set_id(i);
 			add_indiv(indiv);
 		}
@@ -129,7 +129,7 @@ void ae_population::set_nb_indivs(int32_t nb_indivs)
 		for(int32_t i = 0; i < nb_indivs; i++)
 		{
 			index_to_duplicate = _exp_m->get_sel()->get_prng()->random( _nb_indivs );
-			indiv = new ae_individual(*get_indiv_by_id(index_to_duplicate));
+			indiv = new ae_individual(*get_indiv_by_id(index_to_duplicate), true);
 			indiv->set_id(i);
 			new_population->add(indiv);
 		}
@@ -322,15 +322,15 @@ ae_individual* ae_population::create_clone( ae_individual* dolly, int32_t id )
   
   #ifdef __NO_X
     #ifndef __REGUL
-      indiv = new ae_individual( *dolly );
+      indiv = new ae_individual( *dolly, false );
     #else
-      indiv = new ae_individual_R( *(dynamic_cast<ae_individual_R*>(dolly)) );
+      indiv = new ae_individual_R( *(dynamic_cast<ae_individual_R*>(dolly)) , false);
     #endif
   #elif defined __X11
     #ifndef __REGUL
-      indiv = new ae_individual_X11( *(dynamic_cast<ae_individual_X11*>(dolly)) );
+      indiv = new ae_individual_X11( *(dynamic_cast<ae_individual_X11*>(dolly)), false );
     #else
-      indiv = new ae_individual_R_X11( *(dynamic_cast<ae_individual_R_X11*>(dolly)) );
+      indiv = new ae_individual_R_X11( *(dynamic_cast<ae_individual_R_X11*>(dolly)), false );
     #endif
   #endif
   

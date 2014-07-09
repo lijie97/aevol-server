@@ -88,7 +88,7 @@ class ae_individual : public ae_object
                     int32_t age );
   
     ae_individual( ae_exp_manager* exp_m, gzFile backup_file );
-    ae_individual( const ae_individual &model );
+    ae_individual( const ae_individual &model, bool replication_report_copy );
     ae_individual(  ae_individual* const parent, int32_t id,
                     ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng );
 

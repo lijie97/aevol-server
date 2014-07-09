@@ -49,7 +49,7 @@
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_individual_R::ae_individual_R( const ae_individual_R &model ) : ae_individual( model ) // TODO : When is this used?
+ae_individual_R::ae_individual_R( const ae_individual_R &model, bool replication_report_copy  ) : ae_individual( model, replication_report_copy  ) // TODO : When is this used?
 {
   //printf("ae_individual_R( model )");
   
