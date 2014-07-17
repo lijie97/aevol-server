@@ -128,7 +128,7 @@ However, since it relies on graphics, it is only available when \aevol{} is comp
 
 Usage: \verb?aevol_misc_view_generation -g generation_number?
 
-There must have been a backup of the population at this generation. For example, if the program is called with the option 
+There must have been a backup of the population at this generation. For example, if the program is called with the option
 \verb?-g 4000?, there must be a file called \verb?pop_004000.ae? in the \verb?populations? directory.
 
 
@@ -136,16 +136,16 @@ There must have been a backup of the population at this generation. For example,
 \label{sect:create-eps}
 The \verb?create_eps? tool takes a generation number as an input, and produces several EPS files describing an individual of this population (the best one by default) at this generation:
 \begin{itemize}
-\item \verb?best_genome_with_CDS.eps?, where the chromosome is represented by a circle, and coding sequences on the leading (resp. lagging) strand are drawn as arcs outside (resp. inside) the circle. 
-\item \verb?best_genome_with_mRNAs.eps?, where the chromosome is represented by a circle, and transcribed sequences on the leading (resp. lagging) strand are drawn as arcs outside (resp. inside) the circle. Gray arcs correspond to non-coding RNAs and black arcs correspond to coding RNAs.  
+\item \verb?best_genome_with_CDS.eps?, where the chromosome is represented by a circle, and coding sequences on the leading (resp. lagging) strand are drawn as arcs outside (resp. inside) the circle.
+\item \verb?best_genome_with_mRNAs.eps?, where the chromosome is represented by a circle, and transcribed sequences on the leading (resp. lagging) strand are drawn as arcs outside (resp. inside) the circle. Gray arcs correspond to non-coding RNAs and black arcs correspond to coding RNAs.
 \item \verb?best_phenotype.eps?, where the phenotype resulting from the interaction of all genes is superimposed to the environmental target.
 \item \verb?best_triangles.eps?, where all triangles resulting from the translation of a coding sequence are superimposed.
 \end{itemize}
 
 Usage: \verb?aevol_misc_create_eps [-i index | -r rank] -g generation_number?
 
-There must have been a backup of the population at this generation. For example, if the program is called with the option 
-\verb?-g 4000?, there must be a file called \verb?pop_004000.ae? in the \verb?populations? directory. The program will then create a directory called \\\verb?files-generation005000? and write the EPS files therein. If neither index nor rank are specified, the program creates the EPS files of the best individual.
+There must have been a backup of the population at this generation. For example, if the program is called with the option
+\verb?-g 4000?, there must be a file called \verb?pop_004000.ae? in the \verb?populations? directory. The program will then create a directory called \\\verb?files-generation004000? and write the EPS files therein. If neither index nor rank are specified, the program creates the EPS files of the best individual.
 
 
 
@@ -155,7 +155,7 @@ The \verb?lineage? tool allows for the reconstruction of the lineage of a given 
 
 Usage: \verb?aevol_misc_lineage [-i index | -r rank] [-b gener1] -e gener2?
 
-If neither index nor rank are specified, the program creates the EPS files of the best individual of generation \verb?gener2?. 
+If neither index nor rank are specified, the program creates the EPS files of the best individual of generation \verb?gener2?.
 
 
 \subsection{aevol\_misc\_ancstats}
@@ -181,9 +181,9 @@ With the option \verb?-c? or \verb?--fullcheck? enabled, the program will check 
 
 \subsection{aevol\_misc\_gene\_families}
 \label{sect:ancstats}
-The \verb?gene_families? tool issues the detailed history of each gene family on the lineage of a given individual (providing its lineage file, see section \ref{sect:lineage}). A gene family is defined here as a set of coding sequences that arised by duplications of a single original gene. The original gene, called the root of the family, can either be one of the genes in the initial ancestor, or a new gene created from scratch (for example by a local mutation that transformed a non-coding RNA into a coding RNA). The history of gene duplications, gene losses and gene mutations in each gene family is represented by a binary tree. The program starts by loading the initial genome at the beginning of the lineage and by tagging each gene in this initial genome. Each of these initial genes is marked as the root of a gene family. Then, each mutation recorded in the lineage file is replayed and the fate of all tagged genes is followed and recorded in their respective families. When a gene is duplicated, the corresponding node in one of the gene trees becomes an internal node, and two children nodes are added to it, representing the two gene copies. When a gene sequence is modified, the mutation is recorded in its corresponding node in one of the gene trees. When a gene is lost, the corresponding node in one of the gene trees is labelled as lost. When a new gene appears from scratch, i.e. not by gene duplication, it becomes the root of a new gene tree. Environmental variations are also replayed exactly as they occured during the main run. 
+The \verb?gene_families? tool issues the detailed history of each gene family on the lineage of a given individual (providing its lineage file, see section \ref{sect:lineage}). A gene family is defined here as a set of coding sequences that arised by duplications of a single original gene. The original gene, called the root of the family, can either be one of the genes in the initial ancestor, or a new gene created from scratch (for example by a local mutation that transformed a non-coding RNA into a coding RNA). The history of gene duplications, gene losses and gene mutations in each gene family is represented by a binary tree. The program starts by loading the initial genome at the beginning of the lineage and by tagging each gene in this initial genome. Each of these initial genes is marked as the root of a gene family. Then, each mutation recorded in the lineage file is replayed and the fate of all tagged genes is followed and recorded in their respective families. When a gene is duplicated, the corresponding node in one of the gene trees becomes an internal node, and two children nodes are added to it, representing the two gene copies. When a gene sequence is modified, the mutation is recorded in its corresponding node in one of the gene trees. When a gene is lost, the corresponding node in one of the gene trees is labelled as lost. When a new gene appears from scratch, i.e. not by gene duplication, it becomes the root of a new gene tree. Environmental variations are also replayed exactly as they occured during the main run.
 
-When all mutations have been replayed, several output files are written in a directory called \verb?gene_trees?. Two general text files are produced. The file called \verb?gene_tree_statistics.txt? contains general data on each gene family, like its creation date, its extinction date, or how many nodes it contained. The file called \verb?nodeattr_tabular.txt? contains information about each node of each gene tree, like when it was duplicated or lost or how many mutations occurred on its branch. In addition, for each gene tree, two text files are generated: a file called \verb?genetree******-topology.tre? contains the topology of the gene tree in the Newick format, and a file called \verb?genetree******-nodeattr.txt? that contains the list of events that happened to each node in the tree file, before it was either duplicated or lost. 
+When all mutations have been replayed, several output files are written in a directory called \verb?gene_trees?. Two general text files are produced. The file called \verb?gene_tree_statistics.txt? contains general data on each gene family, like its creation date, its extinction date, or how many nodes it contained. The file called \verb?nodeattr_tabular.txt? contains information about each node of each gene tree, like when it was duplicated or lost or how many mutations occurred on its branch. In addition, for each gene tree, two text files are generated: a file called \verb?genetree******-topology.tre? contains the topology of the gene tree in the Newick format, and a file called \verb?genetree******-nodeattr.txt? that contains the list of events that happened to each node in the tree file, before it was either duplicated or lost.
 
 Usage: \verb?ae_misc_gene_families [-c | -n] [-t tolerance] -f lineage_file?
 
