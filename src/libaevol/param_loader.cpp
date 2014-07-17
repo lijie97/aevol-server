@@ -646,22 +646,20 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
   }
   else if ( strcmp( line->words[0], "ENV_ADD_POINT" ) == 0 )
   {
+    if ( _param_values->_env_custom_points == NULL ) _param_values->_env_custom_points = new ae_list<ae_point_2d*>();
+
     _param_values->add_env_custom_point( new ae_point_2d(  atof( line->words[1] ), atof( line->words[2] ) ) );
   }
-  else if ( strcmp( line->words[0], "ENV_ADD_GAUSSIAN" ) == 0 )
+  else if ( (strcmp( line->words[0], "ENV_ADD_GAUSSIAN" ) == 0 ) || ( strcmp( line->words[0], "ENV_GAUSSIAN" ) == 0 ))
   {
-    if ( _param_values->_env_gaussians == NULL ) _param_values->_env_gaussians = new ae_list<ae_gaussian*>();
-    
-    _param_values->add_env_gaussian( new ae_gaussian( atof( line->words[1] ), atof( line->words[2] ), atof( line->words[3] ) ) );
-  }
-  else if ( strcmp( line->words[0], "ENV_GAUSSIAN" ) == 0 )
-  {
+ 
     if ( _param_values->_env_gaussians == NULL ) _param_values->_env_gaussians = new ae_list<ae_gaussian*>();
     
     _param_values->add_env_gaussian( new ae_gaussian( atof( line->words[1] ), atof( line->words[2] ), atof( line->words[3] ) ) );
   }
   else if ( strcmp( line->words[0], "ENV_SAMPLING" ) == 0 )
   {
+
     _param_values->set_env_sampling( atoi( line->words[1] ) );
   }
   else if ( strcmp( line->words[0], "ENV_VARIATION" ) == 0 )
@@ -951,6 +949,25 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
     printf( "ERROR in param file \"%s\" on line %"PRId32" : undefined key word \"%s\"\n", _param_file_name, _cur_line, line->words[0] );
     exit( EXIT_FAILURE );
   }
+
+  // Check for incompatible options
+  if ( ( _param_values->_env_custom_points != NULL) && ( _param_values->_env_gaussians != NULL))
+    {
+        printf( "ERROR in param file \"%s\" : ENV_ADD_POINT is incompatible with ENV_ADD_GAUSSIAN (or ENV_GAUSSIAN).\n",
+                _param_file_name );
+        exit( EXIT_FAILURE ); 
+
+    }
+
+  if ( ( _param_values->_env_custom_points != NULL) && ( _param_values->get_env_var_method() != NO_VAR))
+    {
+      printf( "ERROR in param file \"%s\" : ENV_ADD_POINT is incompatible with environmental variation.\n", 
+              _param_file_name );
+      exit( EXIT_FAILURE ); 
+    }
+
+
+
 }
 
 void param_loader::read_file( void )

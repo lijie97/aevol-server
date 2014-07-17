@@ -81,17 +81,17 @@ enum check_type
 
 
 
-FILE* open_environment_stat_file( const char * prefix );
-void write_environment_stats( int32_t num_gener, ae_environment * env, FILE* env_file);
+FILE* open_environment_stat_file( const char * prefix, const ae_environment * env );
+void write_environment_stats( int32_t num_gener, const ae_environment * env, FILE* env_file);
 
 FILE* open_terminators_stat_file( const char * prefix );
-void write_terminators_stats( int32_t num_gener, ae_individual * indiv, FILE* terminator_file );
+void write_terminators_stats( int32_t num_gener,  ae_individual * indiv, FILE* terminator_file );
 
 FILE* open_zones_stat_file( const char * prefix );
-void write_zones_stats( int32_t num_gener, ae_individual * indiv, ae_environment * env, FILE* zone_file );
+void write_zones_stats( int32_t num_gener,  ae_individual * indiv, ae_environment * env, FILE* zone_file );
 
 FILE* open_operons_stat_file( const char * prefix );
-void write_operons_stats( int32_t num_gener, ae_individual * indiv, FILE* operon_file );
+void write_operons_stats( int32_t num_gener,  ae_individual * indiv, FILE* operon_file );
 
 void print_help( void );
 
@@ -261,7 +261,7 @@ int main(int argc, char** argv)
   //mystats->write_headers();
   
   // Optional outputs
-  FILE* env_output_file = open_environment_stat_file(prefix);
+  FILE* env_output_file = open_environment_stat_file(prefix, env);
   FILE* term_output_file = open_terminators_stat_file(prefix);
   FILE* zones_output_file = NULL;
   if(env->get_nb_segments() > 1)
@@ -530,7 +530,7 @@ int main(int argc, char** argv)
 
 
 
-FILE* open_environment_stat_file( const char * prefix  )
+FILE* open_environment_stat_file( const char * prefix, const ae_environment * env )
 {
   // Open file
   char* env_output_file_name = new char[80];
@@ -539,27 +539,52 @@ FILE* open_environment_stat_file( const char * prefix  )
   delete env_output_file_name;
   
   // Write headers
-  fprintf( env_output_file, "# Each line contains : Generation, and then, for each gaussian: M W H.\n" );
+  if ( env->get_gaussians() != NULL)
+    {
+      fprintf( env_output_file, "# Each line contains : Generation, and then, for each gaussian: M W H.\n" );
+    }
+  else if ( env->get_custom_points() != NULL )
+    {
+      fprintf( env_output_file, "# Each line contains : Generation, and then, for each point: x y.\n" );
+    }
   fprintf( env_output_file, "#\n" );
-  
+
   return env_output_file;
 }
 
-void write_environment_stats( int32_t num_gener, ae_environment * env, FILE*  env_output_file)
+
+void write_environment_stats( int32_t num_gener, const ae_environment * env, FILE*  env_output_file)
 {
   // Num gener
   fprintf( env_output_file, "%"PRId32, num_gener );
 
-  // For each gaussian : M W H
-  ae_list_node<ae_gaussian*>* gaussnode  = env->get_gaussians()->get_first();
-  ae_gaussian*  gauss      = NULL;
-  while ( gaussnode != NULL )
-  {
-    gauss = gaussnode->get_obj();
-    fprintf( env_output_file, "     %.16f %.16f %.16f", gauss->get_mean(), gauss->get_width(), gauss->get_height() );
-    gaussnode = gaussnode->get_next();
-  }
-  
+  if ( env->get_gaussians() != NULL)
+    {
+      // For each gaussian : M W H
+      ae_list_node<ae_gaussian*>* gaussnode  = env->get_gaussians()->get_first();
+      ae_gaussian*  gauss      = NULL;
+      while ( gaussnode != NULL )
+        {
+          gauss = gaussnode->get_obj();
+          fprintf( env_output_file, "     %.16f %.16f %.16f", gauss->get_mean(), gauss->get_width(), gauss->get_height() );
+          gaussnode = gaussnode->get_next();
+        }
+    }
+  else if ( env->get_custom_points() != NULL )
+    {
+      // For each point : x y 
+      ae_list_node<ae_point_2d*>* ptnode  = env->get_custom_points()->get_first();
+      ae_point_2d*  pt      = NULL;
+      while ( ptnode != NULL )
+        {
+          pt = ptnode->get_obj();
+          fprintf( env_output_file, "  %.16f %.16f", pt->x, pt->y );
+          ptnode = ptnode->get_next();
+        }
+
+    }
+
+
   fprintf( env_output_file, "\n" );
 }
 
@@ -582,7 +607,7 @@ FILE* open_terminators_stat_file( const char * prefix )
   return term_output_file;
 }
 
-void write_terminators_stats( int32_t num_gener, ae_individual * indiv, FILE* term_output_file  )
+void write_terminators_stats( int32_t num_gener,  ae_individual * indiv, FILE* term_output_file  )
 {
   fprintf(  term_output_file, "%"PRId32" %"PRId32" %"PRId32"\n",
             num_gener,
@@ -752,7 +777,7 @@ void write_operons_stats( int32_t num_gener, ae_individual * indiv, FILE*  opero
     
     if ( rna->get_transcribed_proteins()->get_nb_elts() >= 20 )
     {
-      printf( "Found operon with 20 genes or more : %"PRId16"\n", rna->get_transcribed_proteins()->get_nb_elts() );
+      printf( "Found operon with 20 genes or more : %"PRId32"\n", rna->get_transcribed_proteins()->get_nb_elts() );
       getchar();
     }
     

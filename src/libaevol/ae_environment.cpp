@@ -483,39 +483,80 @@ void ae_environment::add_initial_gaussian( double a, double b, double c )
   _initial_gaussians->add( new ae_gaussian( a, b, c ) );
 }
 
+
+void ae_environment::add_custom_point( double x, double y )
+{
+  _custom_points->add(new ae_point_2d(x, y));
+}
+
 void ae_environment::build( void )
 {
+
+  // NB : Extreme points (at abscissa MIN_X and MAX_X) will be generated, we need to erase the list first
+  _points->erase( true );
+      
+
   // ----------------------------------------
   // 1) Generate sample points from gaussians
   // ----------------------------------------
-  // NB : Extreme points (at abscissa MIN_X and MAX_X) will be generated, we need to erase the list first
-  _points->erase( true );
-  
-  ae_list_node<ae_gaussian*>* node = NULL;
-  
-  for ( int16_t i = 0 ; i <= _sampling ; i++ )
-  {
-    ae_point_2d* new_point = new ae_point_2d( X_MIN + (double)i * (X_MAX - X_MIN) / (double)_sampling, 0.0 );
-    node = _gaussians->get_first();
-    
-    while ( node )
+
+  if ( _gaussians != NULL)
     {
-      new_point->y += node->get_obj()->compute_y( new_point->x );
-      
-      node = node->get_next();
-    }
+   
+  
+      ae_list_node<ae_gaussian*>* node = NULL;
+  
+      for ( int16_t i = 0 ; i <= _sampling ; i++ )
+        {
+          ae_point_2d* new_point = new ae_point_2d( X_MIN + (double)i * (X_MAX - X_MIN) / (double)_sampling, 0.0 );
+          node = _gaussians->get_first();
     
-    _points->add( new_point );
-  }
+          while ( node )
+            {
+              new_point->y += node->get_obj()->compute_y( new_point->x );
+      
+              node = node->get_next();
+            }
+    
+          _points->add( new_point );
+        }
+    }
   
-  
+
   // --------------------
   // 2) Add custom points
   // --------------------
-  #warning Environment custom points not yet implemented
+ 
+  if ( _custom_points != NULL)
+    {
+      ae_list_node<ae_point_2d*>* pt_node = _custom_points->get_first();
+      ae_point_2d *custom_point = pt_node->get_obj();
+      ae_point_2d *new_point;
+      
+      if ( custom_point->x > X_MIN)
+        {
+          // Add the point (X_MIN, Y_MIN) in front of the list of points
+          new_point = new ae_point_2d( X_MIN, Y_MIN );
+          _points->add_front( new_point );
+        }
+              
+      while ( pt_node != NULL )
+        {
+          custom_point = pt_node->get_obj();
+          new_point = new ae_point_2d( *custom_point );
+          _points->add( new_point );
+          pt_node = pt_node->get_next();
+        }
+      
+      if ( custom_point->x < X_MAX )
+        {
+          // Add the point (X_MAX, Y_MIN) at the end of the list of points
+          new_point = new ae_point_2d( X_MAX, Y_MIN );
+          _points->add( new_point );  
+        }
+    }
   
-  
-  
+
   // ---------------------------------------
   // 3) Simplify (get rid of useless points)
   // ---------------------------------------

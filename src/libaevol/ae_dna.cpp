@@ -525,7 +525,6 @@ void ae_dna::do_rearrangements_with_align( void )
         
         if ( ( genome_size_after > _indiv->get_max_genome_length() ) || ( gu_size_after > _gen_unit->get_max_gu_length() ) )
         {
-          #warning LOG
           if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
           {
             // Write an entry in the barrier log file
@@ -547,7 +546,6 @@ void ae_dna::do_rearrangements_with_align( void )
           }
           
           // Write a line in rearrangement logfile
-          #warning LOG
           if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
           {
             fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
@@ -566,7 +564,6 @@ void ae_dna::do_rearrangements_with_align( void )
         
         if ( ( genome_size_after < _indiv->get_min_genome_length() ) || ( gu_size_after < _gen_unit->get_min_gu_length() ) )
         {
-          #warning LOG
           if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
           {
             // Write an entry in the barrier log file
@@ -588,7 +585,6 @@ void ae_dna::do_rearrangements_with_align( void )
           }
           
           // Write a line in rearrangement logfile
-          #warning LOG
           if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
           {
             fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
@@ -673,7 +669,6 @@ void ae_dna::do_rearrangements_with_align( void )
           }
         
           // Write a line in rearrangement logfile
-          #warning LOG
           if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
           {
             fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
@@ -736,7 +731,6 @@ void ae_dna::do_rearrangements_with_align( void )
       }
         
       // Write a line in rearrangement logfile
-      #warning LOG
       if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
       {
         fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
@@ -860,7 +854,6 @@ ae_mutation* ae_dna::do_small_insertion( void )
   // Check that the insertion won't throw the genome size over the limit
   if ( ( _indiv->get_amount_of_dna() + nb_insert > _indiv->get_max_genome_length() ) || (_length + nb_insert > _gen_unit->get_max_gu_length()) )
   {
-    #warning LOG
     if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
     {
       // Write an entry in the barrier log file
@@ -918,7 +911,6 @@ ae_mutation* ae_dna::do_small_deletion( void )
   // Check that the insertion won't shrink the genome size under the limit nor to nothing
   if ( ( _indiv->get_amount_of_dna() - nb_del < _indiv->get_min_genome_length() ) || (_length - nb_del < _gen_unit->get_min_gu_length()) )
   {
-    #warning LOG
     if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
     {
       // Write an entry in the barrier log file
@@ -1049,7 +1041,6 @@ ae_mutation* ae_dna::do_duplication( void )
   int32_t genome_size_after = genome_size_before + segment_length;
   if ( (gu_size_after > _gen_unit->get_max_gu_length()) || (genome_size_after > _indiv->get_max_genome_length()) )
   {
-    #warning LOG
     if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
     {
       // Write an entry in the barrier log file
@@ -1070,7 +1061,6 @@ ae_mutation* ae_dna::do_duplication( void )
     }
 
     // Write a line in rearrangement logfile
-    #warning LOG
     if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
     {
       fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
@@ -1097,7 +1087,6 @@ ae_mutation* ae_dna::do_deletion( void )
   int32_t genome_size_after = genome_size_before - segment_length;
   if ( ( gu_size_after < _gen_unit->get_min_gu_length() ) || ( genome_size_after < _indiv->get_min_genome_length() ) )
   {
-    #warning LOG
     if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
     {
       // Write an entry in the barrier log file
@@ -1118,7 +1107,6 @@ ae_mutation* ae_dna::do_deletion( void )
     }
         
     // Write a line in rearrangement logfile
-    #warning LOG
     if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
     {
       fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
@@ -1253,7 +1241,6 @@ ae_mutation* ae_dna::do_translocation( void )
         }
         
         // Write a line in rearrangement logfile
-        #warning LOG
         if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
         {
           fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
@@ -1282,7 +1269,6 @@ ae_mutation* ae_dna::do_translocation( void )
         }
         
         // Write a line in rearrangement logfile
-        #warning LOG
         if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
         {
           fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
@@ -1323,7 +1309,6 @@ ae_mutation* ae_dna::do_translocation( void )
       }
         
       // Write a line in rearrangement logfile
-      #warning LOG
       if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
       {
         fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
@@ -1359,7 +1344,6 @@ ae_mutation* ae_dna::do_inversion( void )
     }
         
     // Write a line in rearrangement logfile
-    #warning LOG
     if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
     {
       fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
@@ -1661,7 +1645,6 @@ bool ae_dna::do_inter_GU_translocation( int32_t pos_1_rel, int32_t pos_2_rel, in
   // Do not allow translocation if it would decrease the size of the origin GU below a threshold
   if ( (_length - segment_length ) < _gen_unit->get_min_gu_length() )
   {
-    #warning LOG
     if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
     {
       // Write an entry in the barrier log file
@@ -1681,7 +1664,6 @@ bool ae_dna::do_inter_GU_translocation( int32_t pos_1_rel, int32_t pos_2_rel, in
   // Do not allow translocation if it would increase the size of the receiving GU below a threshold
   if (dest_gu_size_before + segment_length > destination_GU->get_max_gu_length())
   {
-    #warning LOG
     if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
     {
       // Write an entry in the barrier log file
@@ -1899,7 +1881,6 @@ ae_mutation* ae_dna::do_ins_HT( int32_t parent_id )
         
         if ( ( genome_length_after > _indiv->get_max_genome_length() ) || ( gu_length_after > _gen_unit->get_max_gu_length() ) )
         {
-          #warning LOG
           if ( _exp_m->get_output_m()->is_logged(LOG_BARRIER) == true )
           {
             // Write an entry in the barrier log file
@@ -1919,7 +1900,6 @@ ae_mutation* ae_dna::do_ins_HT( int32_t parent_id )
           //~ fflush( logfile );
 
           // Write a line in transfer logfile
-          #warning LOG
           if ( _exp_m->get_output_m()->is_logged(LOG_TRANSFER) == true )
           {
             fprintf(  _exp_m->get_output_m()->get_log(LOG_TRANSFER),
@@ -2054,7 +2034,6 @@ ae_mutation* ae_dna::do_repl_HT( int32_t parent_id )
       
       if ( genome_length_after < _indiv->get_min_genome_length() || genome_length_after > _indiv->get_max_genome_length() || gu_length_after < _gen_unit->get_min_gu_length() || gu_length_after > _gen_unit->get_max_gu_length() )
       {
-        #warning LOG
         if ( _exp_m->get_output_m()->is_logged(LOG_BARRIER) == true )
         {
           // Write an entry in the barrier log file
@@ -2111,7 +2090,6 @@ ae_mutation* ae_dna::do_repl_HT( int32_t parent_id )
         }       
         
         // Write a line in transfer logfile
-        #warning LOG
         if ( _exp_m->get_output_m()->is_logged(LOG_TRANSFER) == true )
         {
           fprintf(  _exp_m->get_output_m()->get_log(LOG_TRANSFER),

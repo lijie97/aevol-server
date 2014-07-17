@@ -301,15 +301,16 @@ int main( int argc, char* argv[] )
           exp_manager->set_HT_repl_rate(atof( line->words[1] ));
           printf("\tChange of overall transfer replacement rate to %f\n",atof( line->words[1] ));
         }
-      else if ( strcmp( line->words[0], "ENV_ADD_GAUSSIAN" ) == 0 )
+      else if ( ( strcmp( line->words[0], "ENV_ADD_GAUSSIAN" ) == 0 ) || ( strcmp( line->words[0], "ENV_GAUSSIAN" ) == 0 ) )
         {
-          if ( env_change)
+          if ( env_change )
             {
               env->add_gaussian( atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
               printf("\tAddition of a gaussian with %f, %f, %f \n",atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
             }
           else
             {
+              env->clear_custom_points();
               env->clear_gaussians();
               env->clear_initial_gaussians();
               env->set_gaussians(new ae_list<ae_gaussian*>());
@@ -319,20 +320,21 @@ int main( int argc, char* argv[] )
             }
           env_hasbeenmodified = true;
         }
-      else if ( strcmp( line->words[0], "ENV_GAUSSIAN" ) == 0 )
+      else if ( strcmp( line->words[0], "ENV_ADD_POINT" ) == 0 ) 
         {
-          if ( env_change)
+          if ( env_change )
             {
-              env->add_gaussian( atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
-              printf("\tAddition of a gaussian with %f, %f, %f \n",atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
+              env->add_custom_point( atof(line->words[1]), atof(line->words[2]) );
+              printf("\tAddition of a custom point with x=%f, y=%f\n",atof(line->words[1]), atof(line->words[2]));
             }
           else
             {
+              env->clear_custom_points();
               env->clear_gaussians();
               env->clear_initial_gaussians();
-              env->set_gaussians(new ae_list<ae_gaussian*>());
-              env->add_gaussian( atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
-              printf("\tChange of the environment: first gaussian with %f, %f, %f \n",atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
+              env->set_custom_points(new ae_list<ae_point_2d*>());
+              env->add_custom_point( atof(line->words[1]), atof(line->words[2]));
+              printf("\tChange of the environment: first custom point with x=%f, y=%f \n",atof(line->words[1]), atof(line->words[2]));
               env_change = true;
             }
           env_hasbeenmodified = true;
@@ -469,9 +471,27 @@ int main( int argc, char* argv[] )
       delete line;
     }
   fclose( param_file );
+
+
+  // Check for incompatible options
+  if ( ( env->get_gaussians() != NULL ) && (env->get_custom_points() != NULL)) 
+    {
+      printf( "ERROR in param file \"%s\" : parameters ENV_ADD_POINT and ENV_ADD_GAUSSIAN are incompatible.\n",
+              param_file_name );
+      exit( EXIT_FAILURE ); 
+    }
+
+  if ( ( env->get_custom_points() != NULL) && ( env->get_var_method() != NO_VAR ))
+    {
+      printf( "ERROR in param file \"%s\" : environmental variation is incompatible with ENV_ADD_POINT, please use ENV_ADD_GAUSSIAN instead. \n", param_file_name );
+      exit( EXIT_FAILURE ); 
+    }
+
+
   printf("OK\n");
   if (env_hasbeenmodified)
     {
+ 
       env->build();
       pop->evaluate_individuals(env);
       pop->sort_individuals();

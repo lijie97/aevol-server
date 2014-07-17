@@ -88,6 +88,7 @@ class ae_environment : public ae_fuzzy_set_X11
     //                         Accessors: getters
     // =================================================================
     inline ae_list<ae_gaussian*>* get_gaussians( void ) const;
+    inline ae_list<ae_point_2d*>* get_custom_points( void ) const;
     inline double               get_total_area( void ) const;
     inline int16_t              get_nb_segments( void ) const;
     inline ae_env_segment**     get_segments( void ) const;
@@ -132,6 +133,7 @@ class ae_environment : public ae_fuzzy_set_X11
     void build( void );
     inline void clear_initial_gaussians( void );
     inline void clear_gaussians( void );
+    inline void clear_custom_points( void );
     
     inline void apply_variation( void );
     void apply_noise( void );
@@ -183,7 +185,7 @@ class ae_environment : public ae_fuzzy_set_X11
     double  _total_area;      // Geometric area of the whole function
     double* _area_by_feature; // Geometric area of each feature
     
-    // Variation management
+    // Variation management (compatible only with gaussians, not with custom points)
     ae_env_var      _var_method;  // Variation method
     ae_jumping_mt*  _var_prng;    // PRNG used for variation
     double          _var_sigma;   // Autoregressive mean variation sigma parameter
@@ -212,6 +214,12 @@ inline ae_list<ae_gaussian*>* ae_environment::get_gaussians( void ) const
 {
   return _gaussians;
 }
+
+inline ae_list<ae_point_2d*>* ae_environment::get_custom_points( void ) const
+{
+  return _custom_points;
+}
+
 
 inline ae_env_segment** ae_environment::get_segments( void ) const
 {
@@ -388,8 +396,19 @@ inline void ae_environment::clear_gaussians( void )
     _gaussians->erase(true);
     delete _gaussians;
     }
-  _gaussians=NULL;
+  _gaussians = NULL;
 }
+
+inline void ae_environment::clear_custom_points( void )
+{
+  if (_custom_points != NULL)
+    {
+    _custom_points->erase(true);
+    delete _custom_points;
+    }
+  _custom_points = NULL;
+}
+
 
 inline void ae_environment::apply_variation( void )
 {
