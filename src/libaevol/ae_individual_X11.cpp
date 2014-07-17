@@ -68,7 +68,6 @@ ae_individual_X11::ae_individual_X11( ae_exp_manager* exp_m,
                                       int32_t min_genome_length,
                                       int32_t max_genome_length,
                                       bool allow_plasmids,
-                                      int32_t plasmid_minimal_length,
                                       int32_t id,
                                       int32_t age )
         : ae_individual(  exp_m, mut_prng, stoch_prng, param_mut, w_max,
