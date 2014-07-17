@@ -92,7 +92,6 @@ void ae_population_X11::display_grid( ae_X11_window* win, double** cell_grid )
 {
   assert( _exp_m->is_spatially_structured() );
   
-  ae_spatial_structure* spatial_struct = _exp_m->get_spatial_structure();
   
   // printf("display grid\n");
   char gener[40];

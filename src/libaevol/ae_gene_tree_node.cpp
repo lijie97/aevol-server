@@ -57,23 +57,6 @@
 
 int32_t     ae_gene_tree_node::_nextID = 0;
 
-// To search for a protein address in an ae_list of proteins
-// This one has to be a plain int, to comply with the definition of bsearch()
-static int compare_protein_memaddress( const void * searchedProtein, const void * candidateProteinInList )  
-{
-  if ( searchedProtein == candidateProteinInList ) return 0;
-  else return 1;
-}
-
-
-// To search for an RNA with a specific promoter position in an ae_list of RNAs
-// This one has to be a plain int, to comply with the definition of bsearch()
-static int compare_rna_position( const void * searchedPromoterPos, const void * candidateRnaInList ) 
-{
-  if ( *((int32_t *)searchedPromoterPos) == ((ae_rna * )candidateRnaInList)->get_promoter_pos() ) return 0;
-  else return 1;
-}
- 
 
 // To search for a protein with a specific Shine-Dalgarno position and strand in an ae_list of proteins
 // This one has to be a plain int, to comply with the definition of bsearch()
