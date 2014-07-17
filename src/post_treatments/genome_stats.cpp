@@ -3,25 +3,25 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //*****************************************************************************
 
 
@@ -39,9 +39,9 @@
 //            print position of neutral regions in 'ouput_file'
 //     * -b / --best
 //            process only the best individual
-// 
+//
 // Data concerning genomes is printed in 'main_output_file'. A space delimits two pieces
-// of information, a new line two individuals. Format is 
+// of information, a new line two individuals. Format is
 //       "nc1 nc2 nc3 nc4 nc5 nc6 nc7 total\n"
 // where:
 //     * nc1: number of bases in neutral regions
@@ -106,11 +106,12 @@
 
 
 
-// =================================================================
-//                        Secondary Functions
-// =================================================================
 
-void print_help( char* prog_name );
+// =================================================================
+//                         Function declarations
+// =================================================================
+void print_help(char* prog_path);
+void print_version( void );
 
 // print information about the indivdual's genome to file
 void print_genome_info( ae_individual* indiv, FILE* output_file );
@@ -133,53 +134,60 @@ int main( int argc, char* argv[] )
   char* main_output_name           = NULL;
   char* neutral_region_output_name = NULL;
   bool best_only = false;
-  
+
   // Define allowed options
-  const char * options_list = "hf:o:bn:";
+  const char * options_list = "hVf:o:bn:";
   static struct option long_options_list[] =
   {
-    { "help", 0, NULL, 'h' },
-    { "file", 1, NULL, 'f' },
-    { "output", 1, NULL, 'o' },
-    { "best", 0, NULL, 'b' },
-    { "neutral", 0, NULL, 'n' },
+    {"help",    no_argument,        NULL, 'h'},
+    {"version", no_argument,        NULL, 'V'},
+    {"file",    required_argument,  NULL, 'f' },
+    {"output",  required_argument,  NULL, 'o' },
+    {"best",    no_argument,        NULL, 'b' },
+    {"neutral", no_argument,        NULL, 'n' },
     { 0, 0, 0, 0 }
   };
 
   // Get actual values of the command-line options
   int option;
-  while ( ( option = getopt_long(argc, argv, options_list, long_options_list, NULL) ) != -1 ) 
+  while ( ( option = getopt_long(argc, argv, options_list, long_options_list, NULL) ) != -1 )
   {
-    switch ( option ) 
+    switch ( option )
     {
-    case 'h' :
-      print_help( argv[0] );
-      exit( EXIT_SUCCESS );
-      break;
-    case 'f' :
-      backup_file_name = new char[strlen(optarg) + 1];
-      sprintf( backup_file_name, "%s", optarg );
-      break;
-    case 'o' :
-      main_output_name = new char[strlen(optarg) + 1];
-      sprintf( main_output_name, "%s", optarg );
-      break;
-    case 'n' :
-      neutral_region_output_name = new char[strlen(optarg) + 1];
-      sprintf( neutral_region_output_name, "%s", optarg );
-      break;
-    case 'b' :
-      best_only = true;
-      break;
+      case 'h' :
+      {
+        print_help(argv[0]);
+        exit( EXIT_SUCCESS );
+      }
+      case 'V' :
+      {
+        print_version();
+        exit( EXIT_SUCCESS );
+      }
+      case 'f' :
+        backup_file_name = new char[strlen(optarg) + 1];
+        sprintf( backup_file_name, "%s", optarg );
+        break;
+      case 'o' :
+        main_output_name = new char[strlen(optarg) + 1];
+        sprintf( main_output_name, "%s", optarg );
+        break;
+      case 'n' :
+        neutral_region_output_name = new char[strlen(optarg) + 1];
+        sprintf( neutral_region_output_name, "%s", optarg );
+        break;
+      case 'b' :
+        best_only = true;
+        break;
     }
   }
-  
+
   // -------------------------------
   //          Initialize
   // -------------------------------
   FILE* main_output           = NULL;
   FILE* neutral_region_output = NULL;
-  
+
   if ( backup_file_name == NULL )
   {
     printf("You must specify a backup file. Please use the option -f or --file.\n");
@@ -217,7 +225,7 @@ int main( int argc, char* argv[] )
 
   // Evaluate the individuals
   ae_common::pop->evaluate_individuals(ae_common::sim->get_env());
-  
+
   int i = 0;
   int nb_indiv = ae_common::pop->get_nb_indivs();
 
@@ -243,7 +251,7 @@ int main( int argc, char* argv[] )
 	  if ( main_output != NULL)           { print_genome_info(indiv, main_output); }
 	  if ( neutral_region_output != NULL) { print_neutral_regions(indiv, neutral_region_output); }
           i++;
-        }  
+        }
       }
     }
     else
@@ -261,15 +269,15 @@ int main( int argc, char* argv[] )
       }
     }
   }
-  
+
   if ( main_output != NULL ) { fclose(main_output); }
   if ( neutral_region_output != NULL ) { fclose(neutral_region_output); }
 
   if ( main_output_name != NULL )           { delete [] main_output_name; }
   if ( neutral_region_output_name != NULL ) { delete [] neutral_region_output_name; }
-  
+
   ae_common::clean();
-  
+
   return EXIT_SUCCESS;
 }
 
@@ -302,28 +310,28 @@ inline void print_genome_info( ae_individual* indiv, FILE* output_file )
 inline void print_neutral_regions( ae_individual* indiv, FILE* output_file )
 {
   if ( output_file == NULL ) return;
-    
+
   //header
   ae_genetic_unit* chromosome = (ae_genetic_unit*) indiv->get_genetic_unit_list()->get_first()->get_obj();
   int32_t nb_neutral_regions  = chromosome->get_nb_neutral_regions();
   fprintf( output_file, "# chromosome length: %"PRId32", %"PRId32" neutral bases, %"PRId32" neutral regions\n",
 	   chromosome->get_dna()->get_length(), chromosome->get_nb_bases_in_neutral_regions(), nb_neutral_regions);
-  
+
   //neutral regions
   if ( nb_neutral_regions > 0)
   {
     int32_t* beginning_nr = chromosome->get_beginning_neutral_regions();
     int32_t* end_nr = chromosome->get_end_neutral_regions();
-    
+
     for (int32_t i=0; i<nb_neutral_regions; i++) fprintf(output_file, "%"PRId32"\t", beginning_nr[i]);
     fprintf(output_file, "\n");
     for (int32_t i=0; i<nb_neutral_regions; i++) fprintf(output_file, "%"PRId32"\t", end_nr[i]);
     fprintf(output_file, "\n");
-  }   
+  }
 }
 
 // TODO: update
-void print_help( char* prog_name ) 
+void print_help(char* prog_name)
 {
   printf( "\n\
 Usage : genome_stats -h\n\
@@ -332,4 +340,14 @@ Usage : genome_stats -h\n\
 \t--file source : read from the backup file source\n\
 \t--output of : extract and save some infos about the genomes of the individuals to file of\
 \t--best : only treat the best individual\n");
-}  
+}
+
+
+/*!
+  \brief Print aevol version number
+
+*/
+void print_version( void )
+{
+  printf( "aevol %s\n", VERSION );
+}

@@ -3,25 +3,25 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //*****************************************************************************
 
 
@@ -55,17 +55,20 @@
 
 
 // ========
-//  TO DO 
+//  TO DO
 // ========
-// 
+//
 //  * option --color ?
 //  * Raevol-specific output (EPS file with the network) ?
 
 
 
 
-
-void print_help( void );
+// =================================================================
+//                         Function declarations
+// =================================================================
+void print_help(char* prog_path);
+void print_version( void );
 
 
 
@@ -81,24 +84,32 @@ int main( int argc, char* argv[] )
   bool  verbose               = false;
   bool  use_single_indiv_file = false;
   char* backup_file_name      = NULL;
-  
+
   // 2) Define allowed options
-  const char * options_list = "hvf:";
+  const char * options_list = "hVf:";
   static struct option long_options_list[] = {
-    { "file", 1, NULL, 'f' },
+    {"help",    no_argument,        NULL, 'h'},
+    {"version", no_argument,        NULL, 'V'},
+    {"file",    required_argument,  NULL, 'f'},
     { 0, 0, 0, 0 }
   };
 
   // 3) Get actual values of the command-line options
   int option;
-  while ( ( option = getopt_long(argc, argv, options_list, long_options_list, NULL) ) != -1 ) 
+  while ( ( option = getopt_long(argc, argv, options_list, long_options_list, NULL) ) != -1 )
   {
-    switch ( option ) 
+    switch ( option )
     {
       case 'h' :
-        print_help();
+      {
+        print_help(argv[0]);
         exit( EXIT_SUCCESS );
-        break;
+      }
+      case 'V' :
+      {
+        print_version();
+        exit( EXIT_SUCCESS );
+      }
       case 'v' :
         verbose = true;
         break;
@@ -116,16 +127,16 @@ int main( int argc, char* argv[] )
         break;
     }
   }
-  
-  
+
+
   // =================================================================
   //                       Read the backup file
   // =================================================================
-  
+
   ae_individual*  best_indiv;
   ae_environment* env;
   int32_t         num_gener;
-  
+
   if ( backup_file_name == NULL )
   {
     printf("You must specify a backup file. Please use the option -f or --file.\n");
@@ -141,7 +152,7 @@ int main( int argc, char* argv[] )
       ae_common::read_from_backup( backup_file, verbose );
       env = new ae_environment(); // Uses the ae_common data
       best_indiv = new ae_individual( backup_file );
-      
+
       num_gener = -1; // TODO!!!
       printf("done\n");
     }
@@ -153,29 +164,29 @@ int main( int argc, char* argv[] )
       // Load simulation from backup
       ae_common::sim = new ae_experiment();
       ae_common::sim->load_backup( backup_file_name, false, NULL );
-      
+
       best_indiv      = ae_common::pop->get_best();
       env             = ae_common::sim->get_env();
       num_gener       = ae_common::sim->get_num_gener();
       printf("done\n");
     }
   }
-  
+
   delete [] backup_file_name;
-  
-  
-  
+
+
+
   // The constructor of the ae_experiment has read the genomes of the individuals
   // and located their promoters, but has not performed the translation nor the
   // phenotype computation. We must do it now.
   // However, as the individuals in the backups are sorted, we don't need to evaluate
   // all the individuals, only those we are interested in (here only the best one)
-      
+
   best_indiv->evaluate( env );
-  
-  
-  
-  
+
+
+
+
   // =================================================================
   //                     Open output file
   // =================================================================
@@ -213,10 +224,10 @@ int main( int argc, char* argv[] )
   fprintf( output, "# Header for R\n" );
   fprintf( output, "gener gen_unit mut_type pos_0 pos_1 pos_2 pos_3 invert align_score align_score_2 seg_len GU_len impact\n" );
   fprintf( output, "#\n" );
-  
 
 
-  
+
+
   // =================================================================
   //                     Proceed to mutagenesis
   // =================================================================
@@ -225,22 +236,22 @@ int main( int argc, char* argv[] )
   ae_dna*         initial_dna   = initial_indiv->get_genetic_unit(0)->get_dna();
   int32_t         initial_len   = initial_dna->get_length();
   double          initial_metabolic_error = initial_indiv->get_dist_to_target_by_feature( METABOLISM );
-  
+
   ae_mutation* mut = NULL;
   char mut_descr_string[80];
-  
+
   double final_metabolic_error      = 0.0;
   double impact_on_metabolic_error  = 0.0;
-  
+
   ae_individual*  indiv       = NULL;
   ae_vis_a_vis*   alignment_1 = NULL;
   ae_vis_a_vis*   alignment_2 = NULL;
   int32_t         nb_pairs;
-  
+
   int16_t i;
   bool    rear_done;
-  
-  
+
+
   // Perform 100 duplications (reinitializing the genome after each of them)
   for ( i = 0 ; i < 1000 ; i++ )
   {
@@ -250,30 +261,30 @@ int main( int argc, char* argv[] )
       fflush(stdout);
     }
     rear_done   = false;
-    
+
     indiv = new ae_individual( *best_indiv );
     assert( indiv->get_dist_to_target_by_feature( METABOLISM ) == best_indiv->get_dist_to_target_by_feature( METABOLISM ) );
-    
+
     do
     {
       nb_pairs = initial_len;
       alignment_1 = ae_dna::search_alignment( initial_dna, initial_dna, nb_pairs, DIRECT );
     }
     while ( alignment_1 == NULL );
-    
-    
+
+
     // Remember the length of the segment to be duplicated and of the former genome
     int32_t segment_length = ae_utils::mod( alignment_1->get_i_2() - alignment_1->get_i_1(), initial_len );
-    
+
     // Perform in situ (tandem) DUPLICATION
     rear_done = indiv->get_genetic_unit(0)->get_dna()->do_duplication( alignment_1->get_i_1(), alignment_1->get_i_2(), alignment_1->get_i_2() );
-    
+
     if ( rear_done )
     {
       // Create a temporary report for the duplication
       mut = new ae_mutation();
       mut->report_duplication( alignment_1->get_i_1(), alignment_1->get_i_2(), alignment_1->get_i_2(), segment_length, alignment_1->get_score() );
-      
+
       // Evaluate the mutated individual and write a line in the output file
       indiv->reevaluate(env);
       final_metabolic_error     = indiv->get_dist_to_target_by_feature( METABOLISM );
@@ -284,11 +295,11 @@ int main( int argc, char* argv[] )
                -1, 0, mut_descr_string, segment_length, \
                initial_len, impact_on_metabolic_error );
     }
-    
+
     delete indiv;
   }
   printf( "\n" );
-  
+
   // Perform 100 deletions (reinitializing the genome after each of them)
   for ( i = 0 ; i < 1000 ; i++ )
   {
@@ -298,30 +309,30 @@ int main( int argc, char* argv[] )
       fflush(stdout);
     }
     rear_done = false;
-    
+
     indiv = new ae_individual( *best_indiv );
     assert( indiv->get_dist_to_target_by_feature( METABOLISM ) == best_indiv->get_dist_to_target_by_feature( METABOLISM ) );
-    
+
     do
     {
       nb_pairs = initial_len;
       alignment_1 = ae_dna::search_alignment( initial_dna, initial_dna, nb_pairs, DIRECT );
     }
     while ( alignment_1 == NULL );
-    
-    
+
+
     // Remember the length of the segment to be duplicated and of the former genome
     int32_t segment_length = ae_utils::mod( alignment_1->get_i_2() - alignment_1->get_i_1(), initial_len );
-    
+
     // Perform DELETION
     rear_done = indiv->get_genetic_unit(0)->get_dna()->do_deletion( alignment_1->get_i_1(), alignment_1->get_i_2() );
-    
+
     if ( rear_done )
     {
       // Create a temporary report for the duplication
       mut = new ae_mutation();
       mut->report_deletion( alignment_1->get_i_1(), alignment_1->get_i_2(), segment_length, alignment_1->get_score() );
-      
+
       // Evaluate the mutated individual and write a line in the output file
       indiv->reevaluate(env);
       final_metabolic_error     = indiv->get_dist_to_target_by_feature( METABOLISM );
@@ -331,15 +342,15 @@ int main( int argc, char* argv[] )
       fprintf( output, "%"PRId32" %"PRId32" %s %"PRId32" %"PRId32" %.15f \n",\
                -1, 0, mut_descr_string, segment_length, \
                initial_len, impact_on_metabolic_error );
-      
+
       delete mut;
     }
-    
+
     delete indiv;
   }
   printf( "\n" );
-  
-  
+
+
   // Perform 100 inversions (reinitializing the genome after each of them)
   for ( i = 0 ; i < 1000 ; i++ )
   {
@@ -349,34 +360,34 @@ int main( int argc, char* argv[] )
       fflush(stdout);
     }
     rear_done = false;
-    
+
     indiv = new ae_individual( *best_indiv );
     assert( indiv->get_dist_to_target_by_feature( METABOLISM ) == best_indiv->get_dist_to_target_by_feature( METABOLISM ) );
-    
+
     do
     {
       nb_pairs = initial_len;
       alignment_1 = ae_dna::search_alignment( initial_dna, initial_dna, nb_pairs, INDIRECT );
     } while ( alignment_1 == NULL );
-    
+
     // Make sure the segment to be inverted doesn't contain OriC
     if ( alignment_1->get_i_1() > alignment_1->get_i_2() )
     {
       alignment_1->swap();
     }
-    
+
     // Remember the length of the segment to be duplicated and of the former genome
     int32_t segment_length = ae_utils::mod( alignment_1->get_i_2() - alignment_1->get_i_1(), initial_len );
-    
+
     // Perform INVERSION
     rear_done = indiv->get_genetic_unit(0)->get_dna()->do_inversion( alignment_1->get_i_1(), alignment_1->get_i_2() );
-    
+
     if ( rear_done )
     {
       // Create a temporary report for the duplication
       mut = new ae_mutation();
       mut->report_inversion( alignment_1->get_i_1(), alignment_1->get_i_2(), segment_length, alignment_1->get_score() );
-      
+
       // Evaluate the mutated individual and write a line in the output file
       indiv->reevaluate(env);
       final_metabolic_error     = indiv->get_dist_to_target_by_feature( METABOLISM );
@@ -386,15 +397,15 @@ int main( int argc, char* argv[] )
       fprintf( output, "%"PRId32" %"PRId32" %s %"PRId32" %"PRId32" %.15f \n",\
                -1, 0, mut_descr_string, segment_length, \
                initial_len, impact_on_metabolic_error );
-      
+
       delete mut;
     }
-    
+
     delete indiv;
   }
   printf( "\n" );
-  
-  
+
+
   // Perform 100 translocations (reinitializing the genome after each of them)
   for ( i = 0 ; i < 1000 ; i++ )
   {
@@ -404,11 +415,11 @@ int main( int argc, char* argv[] )
       fflush(stdout);
     }
     rear_done   = false;
-    
+
     // Make a working copy of the initial individual
     indiv = new ae_individual( *best_indiv );
     assert( indiv->get_dist_to_target_by_feature( METABOLISM ) == best_indiv->get_dist_to_target_by_feature( METABOLISM ) );
-    
+
     // Look for an alignment
     do
     {
@@ -416,13 +427,13 @@ int main( int argc, char* argv[] )
       alignment_1 = ae_dna::search_alignment( initial_dna, initial_dna, nb_pairs, DIRECT );
     }
     while ( alignment_1 == NULL );
-    
+
     // Remember the length of the segment to be duplicated and of the former genome
     int32_t segment_length = ae_utils::mod( alignment_1->get_i_2() - alignment_1->get_i_1(), initial_len );
-    
+
     // Extract the segment to be translocated
     ae_genetic_unit* tmp_segment = indiv->get_genetic_unit(0)->get_dna()->extract_into_new_GU( alignment_1->get_i_1(), alignment_1->get_i_2() );
-    
+
     // Look for a "new" alignments between this segment and the remaining of the chromosome
     do
     {
@@ -430,18 +441,18 @@ int main( int argc, char* argv[] )
       alignment_2 = ae_dna::search_alignment( tmp_segment->get_dna(), indiv->get_genetic_unit(0)->get_dna(), nb_pairs, BOTH_SENSES );
     }
     while ( alignment_2 == NULL );
-    
+
     // Reinsert the segment into the chromosome
     indiv->get_genetic_unit(0)->get_dna()->insert_GU( tmp_segment, alignment_2->get_i_2(), alignment_2->get_i_1(), (alignment_2->get_sense() == INDIRECT) );
     rear_done = true;
-    
+
     if ( rear_done )
     {
       // Create a temporary report for the duplication
       mut = new ae_mutation();
       mut->report_translocation( alignment_1->get_i_1(), alignment_1->get_i_2(), alignment_2->get_i_1(), alignment_2->get_i_2(),
                                  segment_length, alignment_1->get_score(), alignment_2->get_score() );
-      
+
       // Evaluate the mutated individual and write a line in the output file
       indiv->reevaluate(env);
       final_metabolic_error     = indiv->get_dist_to_target_by_feature( METABOLISM );
@@ -451,16 +462,16 @@ int main( int argc, char* argv[] )
       fprintf( output, "%"PRId32" %"PRId32" %s %"PRId32" %"PRId32" %.15f \n",\
                -1, 0, mut_descr_string, segment_length, \
                initial_len, impact_on_metabolic_error );
-      
+
       delete mut;
     }
-    
+
     delete indiv;
   }
   printf( "\n" );
 
 
-  
+
   if ( use_single_indiv_file )
   {
     delete best_indiv;
@@ -477,8 +488,18 @@ int main( int argc, char* argv[] )
 
 
 
-void print_help( void ) 
+void print_help(char* prog_path)
 {
+}
+
+
+/*!
+  \brief Print aevol version number
+
+*/
+void print_version( void )
+{
+  printf( "aevol %s\n", VERSION );
 }
 
 

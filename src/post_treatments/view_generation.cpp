@@ -3,25 +3,25 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //*****************************************************************************
 
 
@@ -53,36 +53,37 @@
 
 
 
-void print_help( char* prog_name );
+void print_help(char* prog_name);
 
 
 int main( int argc, char* argv[] )
 {
 
-  
+
 
   // =================================================================
   //                      Get command-line options
   // =================================================================
   //
   // 1) Initialize command-line option variables with default values
-  int32_t     gener         = 0;
-  
+  int32_t gener = 0;
+
   // 2) Define allowed options
-  const char * options_list = "hg:";
+  const char * options_list = "hVg:";
   static struct option long_options_list[] = {
+    {"version",   no_argument,       NULL, 'V' },
     { "gener", 1, NULL, 'g' },
     { 0, 0, 0, 0 }
   };
 
   // 3) Get actual values of the command-line options
   int option;
-  while ( ( option = getopt_long(argc, argv, options_list, long_options_list, NULL) ) != -1 ) 
+  while ( ( option = getopt_long(argc, argv, options_list, long_options_list, NULL) ) != -1 )
   {
-          switch ( option ) 
+          switch ( option )
             {
             case 'h' :
-              print_help( argv[0] );
+              print_help(argv[0]);
               exit( EXIT_SUCCESS );
               break;
             case 'g' :
@@ -91,23 +92,23 @@ int main( int argc, char* argv[] )
 		  printf( "%s: error: Option -g or --gener : missing argument.\n", argv[0] );
 		  exit( EXIT_FAILURE );
 		}
-        
+
 	      gener = atol( optarg );
               break;
             }
   }
-  
+
 
 
   printf( "Displaying generation %"PRId32"...\n", gener );
-  
+
   // =================================================================
   //                       Read the backup file
   // =================================================================
   // Load simulation from backup
   ae_exp_manager_X11* exp_manager = new ae_exp_manager_X11();
   exp_manager->load( gener, false, true, false );
-  
+
 
 
   // =================================================================
@@ -121,7 +122,7 @@ int main( int argc, char* argv[] )
   {
     exp_manager->handle_events();
   }
-  
+
 
 
   delete exp_manager;
@@ -130,7 +131,7 @@ int main( int argc, char* argv[] )
 }
 
 
-void print_help( char* prog_name ) 
+void print_help(char* prog_name)
 {
   printf( "\n************* aevol - Artificial Evolution ************* \n\n" );
   printf( "This program is Free Software. No Warranty.\n" );
@@ -139,4 +140,14 @@ void print_help( char* prog_name )
   printf( "   or : %s -f file.ae\n", prog_name );
   printf( "\t-h : Display this screen\n" );
   printf( "\t-g or --gener n    : Display the population at generation n\n" );
+}
+
+
+/*!
+  \brief Print aevol version number
+
+*/
+void print_version( void )
+{
+  printf( "aevol %s\n", VERSION );
 }
