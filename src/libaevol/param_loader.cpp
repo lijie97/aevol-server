@@ -208,7 +208,10 @@ void param_loader::interpret_line( f_line* line, int32_t _cur_line )
   {
     if ( strcmp( line->words[1], "light" ) == 0 )
     {
-      _param_values->set_tree_mode( LIGHT );
+      printf( "ERROR in param file \"%s\" on line %"PRId32" : the \"light\" tree recording option is not implemented yet.\n",
+              _param_file_name, _cur_line );
+      exit( EXIT_FAILURE ); 
+      // _param_values->set_tree_mode( LIGHT );
     }
     else if ( strcmp( line->words[1], "normal" ) == 0 )
     {

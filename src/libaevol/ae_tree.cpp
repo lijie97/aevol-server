@@ -88,7 +88,8 @@ ae_tree::ae_tree( ae_exp_manager* exp_m, ae_tree_mode tree_mode, int32_t tree_st
     }
     case LIGHT :
     {
-      #warning LIGHT tree mode: constructor and destructor commented
+      // TO DO
+
       //~ // Creates the big arrays to store number of individuals and child->parent relations
       //~ _nb_indivs  = new int32_t[ae_common::nb_generations];
       //~ _parent     = new int32_t*[ae_common::nb_generations];
@@ -284,26 +285,27 @@ void ae_tree::fill_tree_with_cur_gener( void )
     }
     case LIGHT :
     {
+      // TO DO
 
       // TO CHECK !!
       // not sure that gener_i should be used in this block...
 
-      int32_t gener_i     = ae_utils::mod( _exp_m->get_num_gener() - 1, _tree_step );
-      _nb_indivs[gener_i] = _exp_m->get_nb_indivs();
-      _parent[gener_i] = new int32_t [_nb_indivs[gener_i]];
+      // int32_t gener_i     = ae_utils::mod( _exp_m->get_num_gener() - 1, _tree_step );
+      // _nb_indivs[gener_i] = _exp_m->get_nb_indivs();
+      // _parent[gener_i] = new int32_t [_nb_indivs[gener_i]];
       
-      ae_list_node<ae_individual*>* indiv_node = _exp_m->get_indivs()->get_first();
-      ae_individual*  indiv       = NULL;
-      int32_t         num_indiv   = 0;
+      // ae_list_node<ae_individual*>* indiv_node = _exp_m->get_indivs()->get_first();
+      // ae_individual*  indiv       = NULL;
+      // int32_t         num_indiv   = 0;
       
-      while( indiv_node != NULL )
-      {
-        indiv = indiv_node->get_obj();
+      // while( indiv_node != NULL )
+      // {
+      //   indiv = indiv_node->get_obj();
         
-        _parent[gener_i][num_indiv++] = indiv->get_replic_report()->get_parent_id();
+      //   _parent[gener_i][num_indiv++] = indiv->get_replic_report()->get_parent_id();
         
-        indiv_node = indiv_node->get_next();
-      }
+      //   indiv_node = indiv_node->get_next();
+      // }
       
       break;
     }
