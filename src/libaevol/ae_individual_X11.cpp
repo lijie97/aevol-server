@@ -72,8 +72,7 @@ ae_individual_X11::ae_individual_X11( ae_exp_manager* exp_m,
                                       int32_t id,
                                       int32_t age )
         : ae_individual(  exp_m, mut_prng, stoch_prng, param_mut, w_max,
-                          min_genome_length, max_genome_length, allow_plasmids,
-                          plasmid_minimal_length, id, age )
+                          min_genome_length, max_genome_length, allow_plasmids, id, age )
 {
   init_occupied_sectors();
 }
