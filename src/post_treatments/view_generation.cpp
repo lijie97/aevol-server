@@ -52,8 +52,14 @@
 
 
 
+// =================================================================
+//                         Function declarations
+// =================================================================
+void print_help(char* prog_path);
+void print_version( void );
 
-void print_help(char* prog_name);
+
+
 
 
 int main( int argc, char* argv[] )
@@ -80,22 +86,30 @@ int main( int argc, char* argv[] )
   int option;
   while ( ( option = getopt_long(argc, argv, options_list, long_options_list, NULL) ) != -1 )
   {
-          switch ( option )
-            {
-            case 'h' :
-              print_help(argv[0]);
-              exit( EXIT_SUCCESS );
-              break;
-            case 'g' :
+  switch ( option )
+    {
+      case 'h' :
+      {
+        print_help(argv[0]);
+        exit( EXIT_SUCCESS );
+      }
+      case 'V' :
+      {
+        print_version();
+        exit( EXIT_SUCCESS );
+      }
+      case 'g' :
+      {
 	      if ( strcmp( optarg, "" ) == 0 )
-		{
-		  printf( "%s: error: Option -g or --gener : missing argument.\n", argv[0] );
-		  exit( EXIT_FAILURE );
-		}
+    		{
+    		  printf( "%s: error: Option -g or --gener : missing argument.\n", argv[0] );
+    		  exit( EXIT_FAILURE );
+    		}
 
 	      gener = atol( optarg );
-              break;
-            }
+        break;
+      }
+    }
   }
 
 
