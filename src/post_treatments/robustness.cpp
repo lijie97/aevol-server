@@ -45,7 +45,9 @@
 // =================================================================
 //                            Project Files
 // =================================================================
+#include <ae_macros.h>
 #include <population_statistics.h>
+
 #ifndef __NO_X
   #include <ae_exp_manager_X11.h>
 #else
@@ -60,17 +62,7 @@
 void print_help(char* prog_path);
 void print_version( void );
 
-// function copied from ae_individual's computation of experimental fv.
-// In addition, it provides and prints information about replications
-/*double compute_experimental_fv( ae_individual* indiv, int nb_children, double* neutral_or_better, FILE* replication_file );
 
-// count how many proteins were modified after replication
-int count_affected_genes( ae_individual* parent, ae_individual* child );*/
-
-
-// TODO: update this function...
-// reconstruct final individual from backup and lineage
-// ae_individual * get_final_individual_using_dstory();
 
 
 
@@ -87,13 +79,13 @@ int main( int argc, char* argv[] )
   int32_t nb_children     = 1000;
   int32_t wanted_rank     = -1;
   int32_t wanted_index    = -1;
-  int32_t num_gener       = 100;
+  int32_t num_gener       = 0;
 
-  const char * options_list = "hVe:n:r:i:";
+  const char * options_list = "hVg:n:r:i:";
   static struct option long_options_list[] = {
     {"help",          no_argument,        NULL, 'h'},
     {"version",       no_argument,        NULL, 'V'},
-    {"end",           required_argument,  NULL, 'e'},
+    {"gener",           required_argument,  NULL, 'g'},
     {"nb-children",   required_argument,  NULL, 'n'},
     {"rank",          required_argument,  NULL, 'r'},
     {"index",         required_argument,  NULL, 'i'},
@@ -115,11 +107,11 @@ int main( int argc, char* argv[] )
         print_version();
         exit( EXIT_SUCCESS );
       }
-      case 'e' :
+      case 'g' :
       {
         if ( strcmp( optarg, "" ) == 0 )
         {
-          printf( "%s: error: Option -e or --end : missing argument.\n", argv[0] );
+          printf( "%s: error: Option -g or --gener : missing argument.\n", argv[0] );
           exit( EXIT_FAILURE );
         }
 
@@ -173,6 +165,11 @@ int main( int argc, char* argv[] )
 */
 void print_help(char* prog_path)
 {
+  // Get the program file-name in prog_name (strip prog_path of the path)
+  char* prog_name; // No new, it will point to somewhere inside prog_path
+  if ( ( prog_name = strrchr( prog_path, '/' )) ) prog_name++;
+  else prog_name = prog_path;
+
   printf( "\n" );
   printf( "*********************** aevol - Artificial Evolution ******************* \n" );
   printf( "*                                                                      * \n" );
@@ -181,32 +178,39 @@ void print_help(char* prog_path)
   printf( "************************************************************************ \n" );
   printf( "\n\n" );
   printf( "This program is Free Software. No Warranty.\n" );
-  printf( "Copyright (C) 2009  LIRIS.\n" );
   printf( "\n" );
-  printf( "Usage : robustness -h\n");
-  printf( "or :    robustness -e end_gener [-n children_nb] [-r rank | -i index]\n");
+  printf( "Usage : %s -h\n", prog_name);
+  printf( "   or : %s -V or --version\n", prog_name );
+  printf( "   or : %s -g numgener [-n nbchildren] [-r rank | -i index]\n", prog_name);
   printf( "\n" );
-  printf( "This program computes replication statistics at backup at end_gener like proportion of neutral, beneficial, deleterious offsprings\n" );
-  printf( "and statistics about the offsprings, written in robustness_end_gener.out.\n");
-  printf( "The replication statistics (information about the children_nb offsprings) of the individual of rank or index are written in replication_end_gener.out.\n");
+  printf( "This program computes the replication statistics of all the individuals of a given generation,\n");
+  printf( "like the proportion of neutral, beneficial, deleterious offsprings. This is done by simulating\n");
+  printf( "\'nbchildren\' replications for each individual, with its mutation and rearrangement rates.\n" );
+  printf( "Depending on those rates and genome size, there can be several mutations per replication.\n" );
+  printf( "Those global statistics are written in %s/robustness_numgener.out, one line per individual\n", STATS_DIR );
+  printf( "in the specified generation.\n\n" );
+  printf( "The program also outputs detailed statistics for one of the individuals (the best one by default). \n");
+  printf( "The detailed statistics for this individual are written in %s/replication_numgener.out,\n", STATS_DIR);
+  printf( "with one line per simulated child of this particular individual.\n");
   printf( "\n" );
-  printf( "WARNING: This program should not be used for simulations run with lateral\n" );
-  printf( "transfer. When an individual has more than one parent, the notion of lineage\n" );
-  printf( "used here is not relevant.\n" );
   printf( "\n" );
-  printf( "\t-h or --help    : Display this help.\n" );
+  printf( "\t-h or --help    : Display this help, then exit\n" );
   printf( "\n" );
-  printf( "\t-n children_nb or --nb-children children_nb : \n" );
-  printf( "\t                  Use children_nb to compute Fv.\n" );
+  printf( "\t-V or --version : Print version number, then exit\n" );
+  printf( "\n" );
+  printf( "\t-g numgener or --gener numgener : \n" );
+  printf( "\t                  Generation at which the statistics are computed\n" );
+  printf( "\n" );
+  printf( "\t-n nbchildren or --nb-children nbchildren : \n" );
+  printf( "\t                  Use nbchildren replications per individual to compute its statistics. Default = 1000.\n" );
   printf( "\n" );
   printf( "\t-i index or --index index : \n" );
-  printf( "\t                  Index of individual of whom we want information about the offsprings at each backup\n" );
+  printf( "\t                  Index of individual for whom we want detailed information about the simulated offsprings\n" );
   printf( "\n" );
   printf( "\t-r rank or --rank rank : \n" );
-  printf( "\t                  Rank of individual of whom we want information about the offsprings at each backup\n" );
-  printf( "\n" );
-  printf( "\t-e end_gener or --end end_gener : \n" );
-  printf( "\t                  Generation at which the statistics are computed\n" );
+  printf( "\t                  Rank of individual for whom we want detailed information about the simulated offsprings\n" );
+
+
   printf( "\n" );
 }
 
@@ -219,58 +223,3 @@ void print_version( void )
 {
   printf( "aevol %s\n", VERSION );
 }
-
-//
-// Data concerning individuals wanted is printed in one or two files.
-//
-// The first file (output_dir/fv.out) contains information about Fv:
-//
-//       "r_i_fit_pr_fvexp_fvexpnob_fvth_N\n"
-//
-// where:
-//     * _ is a blank space
-//     * r:        Rank of individual in population
-//     * i:        Index of individual in population
-//     * fit:      FITness of the individual
-//     * pr:       Probability of Reproduction
-//     * fvexp:    EXPerimental estimation of Fv
-//     * fvexpnob: EXPerimental estimation of Fv counting children Neutral Or Better
-//     * fvth:     THeoritical estimation of Fv
-//     * N:        Number of individuals in population
-//
-// The second file (output_dir/replications.out), if activated (-d option),
-// contains information about children obtained when experimentally estimating Fv:
-//
-//       "#i_gl_nfg_cl_f_afc_sdfc_psp_pbp_pnga_anga\n"
-//
-// where:
-//     * # is # and _ is a blank space
-//     * i:     Index of individual in population
-//     * gl:    total Genome Length
-//     * nfg:   Number of Functional Genes
-//     * cl:    total Coding Length
-//     * f:     Fitness of individual
-//     * afc:   Average Fitness of the Children
-//     * sdfc:  Standard Deviation of Fitness values of the Children
-//     * psp:   Proportion of children with Same fitness as Parent
-//     * pbp:   Proportion of children Better than Parent
-//     * pnga:  Proportion of children with No Gene Affected
-//     * anga:  Average Number of Gene Affected by replication
-//
-// One additional line per child is printed with its fitness and the number of affected
-// genes ("fc_nga\n").
-//
-//
-// Examples :
-//
-// For generation 20000, compute statistics for all the
-// individuals and print them in directory out_020000 :
-//
-//    robustness -f backup/gen_020000.ae -o out_020000
-//
-// For generation 20000, write the best individual's statistics in
-// out_020000_best with details about replications :
-//
-//    robustness -d -r 1 -f backup/gen_020000.ae -o out_020000_best
-//
-
