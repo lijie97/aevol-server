@@ -4,9 +4,9 @@
 
 ##### 1. Initial setup ############
 SEED                    7250909
-INITIAL_GENOME_LENGTH   5000
 INIT_POP_SIZE           500
 INIT_METHOD             ONE_GOOD_GENE CLONE
+CHROMOSOME_INITIAL_LENGTH  5000
 
 ##### 2. Selection ################
 SELECTION_SCHEME        fitness   750

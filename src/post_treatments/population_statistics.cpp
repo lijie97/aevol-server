@@ -305,8 +305,8 @@ void population_statistics::compute_reproduction_stats(ae_exp_manager* exp_manag
     #endif
     
     current_index = tmpind->get_id();
-    current_rank = _pop_size - tmpind->get_rank();
-    
+    current_rank = _pop_size - tmpind->get_rank() + 1;
+
     initial_indiv->evaluate(exp_manager->get_env());
     _fitness[current_rank] = initial_indiv->get_fitness();
     _reprod_proba[current_rank] = tmp_reprod[_pop_size-current_rank];
@@ -316,7 +316,7 @@ void population_statistics::compute_reproduction_stats(ae_exp_manager* exp_manag
     // ------------------------------------	
     th_fv = initial_indiv->compute_theoritical_f_nu();
     
-    if ( (_wanted_rank+1 == current_rank) || (_wanted_index+1 == current_index))
+    if ( (_wanted_rank == current_rank) || (_wanted_index == current_index))
     {
       initial_indiv->compute_experimental_f_nu( _nb_children, reproduction_statistics, offsprings_statistics, _replication_file);
     }
@@ -540,92 +540,3 @@ void population_statistics::compute_population_stats(int32_t num_gener)
   }
 }*/
 
-
-/*
-  ae_individual * get_final_individual_using_dstory()
-  {
-  // warning: delete the genome when you don't need it anymore
-
-  gzFile dstory_file = gzopen("dstory.bak.gz","r");
-
-  int begin_gener, end_gener, final_index;
-  gzread(dstory_file, &begin_gener, sizeof(int));
-  gzread(dstory_file, &end_gener, sizeof(int));
-  gzread(dstory_file, &final_index, sizeof(int));
-
-  // ----------------------
-  // getting initial genome
-  // ----------------------
-
-  int size;
-  gzread(dstory_file, &size, sizeof(int));
-  char * gen_str = new char[size+1];
-  gzread(dstory_file, gen_str, sizeof(char)*(size+1));
-  ae_individual * indiv = new ae_individual(gen_str, -1, -1, -1); // phenotype computed
-  delete [] gen_str;
-  
-
-  // ----------------------------------------------------
-  //  rebuild successive genomes and write in 
-  //  stat_file at each time step
-  // ----------------------------------------------------
-
-  int nb_muts;
-  f_list mut_list;
-  f_list_node * m_node;
-  int type = -1;
-  int at = -1;
-  int begin_seg = -1;
-  int end_seg = -1;
-  int seq_length = 0;
-  char * seq = NULL;
-  ae_mutation * mut = NULL;
-
-  for(int t = begin_gener + 1; t <= end_gener; t++) // t = generation to be done
-  {
-
-  // get mutation information
-
-  gzread(dstory_file, &nb_muts, sizeof(int));
-  for (int m = 0; m < nb_muts; m++)
-  {
-  gzread(dstory_file, &type, sizeof(int));
-  gzread(dstory_file, &at, sizeof(int));
-  gzread(dstory_file, &begin_seg, sizeof(int));
-  gzread(dstory_file, &end_seg, sizeof(int));
-  gzread(dstory_file, &seq_length, sizeof(int));
-  if (seq_length != 0)
-  {
-  seq = new char[seq_length + 1];
-  gzread(dstory_file, seq, sizeof(char)*(seq_length+1));
-  }
-  else
-  {
-  seq = NULL;
-  }
-  mut = new ae_mutation(type, at, begin_seg, end_seg, seq);
-  if (seq!=NULL) delete[] seq;
-  mut_list.add(mut);
-  }  
-
-  // execute mutations
-
-  m_node = mut_list._first;
-  while(m_node != NULL)
-  {
-  mut = (ae_mutation *) m_node->_obj;
-  mut->execute(indiv->get_genome());  
-  m_node = m_node->_next;
-  }
-
-  // prepare next time step
-
-  mut_list.erase(true);
-  } 
-
-  gzclose(dstory_file);
-  
-  indiv->compute_phenotype(true);
-  return indiv;
-  }
-*/

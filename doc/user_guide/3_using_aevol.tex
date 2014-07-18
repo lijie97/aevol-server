@@ -150,7 +150,7 @@ There must have been a backup of the population at this generation. For example,
 \subsection{aevol\_misc\_robustness}
 \label{sect:robustness}
 
-The \verb?robustness? tool computes the replication statistics of all the individuals of a given generation, like the proportion of neutral, beneficial, deleterious offsprings. This is done by simulating $nbchildren$ replications for each individual (1000 replications by default), with its mutation and rearrangement rates. Depending on those rates and genome size, there can be several mutations per replication. Those global statistics are written in \verb?stat/robustness_numgener.out?, with one line per individual in the specified generation.
+The \verb?robustness? tool computes the replication statistics of all the individuals of a given generation, like the proportion of neutral, beneficial, deleterious offsprings. This is done by simulating $nbchildren$ replications for each individual (1000 replications by default), with its mutation, rearrangement and transfer rates. Depending on those rates and genome size, there can be several mutations per replication. Those global statistics are written in \verb?stat/robustness_numgener.out?, with one line per individual in the specified generation.
 
 The program also outputs detailed statistics for one of the individuals (the best one by default). The detailed statistics for this individual are written in \verb?stats/replication_numgener.out?, with one line per simulated child of this particular individual.
 

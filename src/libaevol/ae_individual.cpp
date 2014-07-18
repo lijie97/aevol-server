@@ -1297,7 +1297,8 @@ void ae_individual::compute_experimental_f_nu( int32_t nb_children, double* repr
   //      Simulate fitness degradation
   // ------------------------------------------
 
-  double fitness_child = 0;
+  double fitness_child = 0.0;
+  double metabolic_error_child = 0.0;
 
   // replicate this individual to create 'nb_children' children
   ae_individual * child = NULL;
@@ -1311,6 +1312,7 @@ void ae_individual::compute_experimental_f_nu( int32_t nb_children, double* repr
   {
     child = _exp_m->get_exp_s()->get_sel()->do_replication( this, _id );
     fitness_child = child->get_fitness();
+    metabolic_error_child = child->get_dist_to_target_by_feature( METABOLISM );
 
     if ( fabs(initial_fitness - fitness_child) < 1e-10*std::max(initial_fitness, fitness_child) )
     {
@@ -1342,8 +1344,7 @@ void ae_individual::compute_experimental_f_nu( int32_t nb_children, double* repr
 
     if(replication_file != NULL)
     {
-      fprintf(replication_file, "%le %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n", fitness_child, genome_size, nb_functional_genes, genome_size-nb_bases_in_0_functional_CDS,
-                                nb_bases_in_0_functional_CDS-nb_bases_in_0_coding_RNA, nb_bases_in_0_coding_RNA);
+      fprintf(replication_file, "%le %le %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n", fitness_child, metabolic_error_child, genome_size, nb_functional_genes, genome_size-nb_bases_in_0_functional_CDS, nb_bases_in_0_functional_CDS-nb_bases_in_0_coding_RNA, nb_bases_in_0_coding_RNA);
     }
 
     delete child;

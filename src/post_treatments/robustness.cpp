@@ -185,8 +185,8 @@ void print_help(char* prog_path)
   printf( "\n" );
   printf( "This program computes the replication statistics of all the individuals of a given generation,\n");
   printf( "like the proportion of neutral, beneficial, deleterious offsprings. This is done by simulating\n");
-  printf( "\'nbchildren\' replications for each individual, with its mutation and rearrangement rates.\n" );
-  printf( "Depending on those rates and genome size, there can be several mutations per replication.\n" );
+  printf( "\'nbchildren\' replications for each individual, with its mutation, rearrangement and transfer rates.\n" );
+  printf( "Depending on those rates and genome size, there can be several events per replication.\n" );
   printf( "Those global statistics are written in %s/robustness_numgener.out, one line per individual\n", STATS_DIR );
   printf( "in the specified generation.\n\n" );
   printf( "The program also outputs detailed statistics for one of the individuals (the best one by default). \n");
