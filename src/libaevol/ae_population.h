@@ -86,8 +86,6 @@ class ae_population : public ae_object
     inline ae_jumping_mt* get_mut_prng( void ) const;
     inline ae_jumping_mt* get_stoch_prng( void ) const;
   
-    //~ inline double*          get_prob_reprod( void ) const;
-
     // Spatial structure
     //~ inline double** get_secretion_present( void ) const;
     //~ inline double** get_secreted_amount( void ) const;
@@ -180,10 +178,7 @@ class ae_population : public ae_object
     ae_individual* create_random_individual_with_good_gene( int32_t id );
     ae_individual* create_clone( ae_individual* dolly, int32_t id );
     ae_individual* create_individual_from_file( char* organism_file_name, int32_t id );
-    
-    //~ void compute_prob_reprod( void );
-    //~ void compute_local_prob_reprod( void );
-
+  
     // =================================================================
     //                          Protected Attributes
     // =================================================================
@@ -247,17 +242,6 @@ inline ae_jumping_mt* ae_population::get_stoch_prng( void ) const
 {
   return _stoch_prng;
 }
-
-/*inline double* ae_population::get_prob_reprod( void ) const
-{
-  if ( _prob_reprod == NULL )
-  {
-    printf( "ERROR, _prob_reprod has not been computed %s:%d\n", __FILE__, __LINE__ );
-    exit( EXIT_FAILURE );
-  }
-  return _prob_reprod;
-}*/
-
 
 // =====================================================================
 //                           Setters' definitions

@@ -91,7 +91,10 @@ ae_selection::ae_selection( ae_exp_manager* exp_m )
 ae_selection::~ae_selection( void )
 {
   delete _prng;
-  delete [] _prob_reprod;
+  if (_prob_reprod!=NULL)
+  {
+    delete [] _prob_reprod;
+  }
 }
 
 // =================================================================
@@ -226,7 +229,10 @@ void ae_selection::step_to_next_generation_grid( void )
     #error this method is not ready for variable population size
     compute_local_prob_reprod();
   #else
-    if ( _selection_scheme == FITNESS_PROPORTIONATE || _prob_reprod == NULL )
+    // The function compute_local_prob_reprod creates and fills the array _prob_reprod, which is telling us the probability of being picked for reproduction according to the rank of an individual in its neighboorhood.
+    // It is only usefull when selection is rank based. When selection scheme is FITNESS_PROPORTIONATE, we do not need to call it.
+    // It shoud only be called once in the simulation and not at each generation. So if _prob_reprod already exists we do not need to call it.
+    if ( (_selection_scheme != FITNESS_PROPORTIONATE) && (_prob_reprod == NULL) )
     {
       compute_local_prob_reprod();
     }
@@ -741,6 +747,9 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
 
 ae_individual* ae_selection::calculate_local_competition ( int16_t x, int16_t y )
 {
+  // This function uses the array _prob_reprod when selection scheme is RANK_LINEAR, RANK_EXPONENTIAL, or FITTEST. For these selection schemes, the function compute_local_prob_reprod (creating the array _prob_reprod) must have been called before.
+  // When selection scheme is FITNESS_PROPORTIONATE, this function only uses the fitness values
+  
   ae_spatial_structure* sp_struct = _exp_m->get_spatial_structure();
   
   int16_t neighborhood_size = 9;
@@ -784,6 +793,7 @@ ae_individual* ae_selection::calculate_local_competition ( int16_t x, int16_t y 
     case RANK_EXPONENTIAL :
     case FITTEST :
     {
+      assert(_prob_reprod);
       // First we sort the local fitness values using bubble sort :
       // we sort by increasing order, so the first element will have the worst fitness.
       bool swaped = true;
