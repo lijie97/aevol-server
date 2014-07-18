@@ -220,7 +220,7 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile backup_file )
   int8_t strain_string_len;
   gzread(backup_file, &strain_string_len, sizeof(strain_string_len));
   _strain_name = new char[strain_string_len+1];
-  gzread(backup_file, &_strain_name, strain_string_len+1);
+  int tmp = gzread(backup_file, _strain_name, strain_string_len+1);
   gzread( backup_file, &_age, sizeof(_age) );
 
   // Retrieve the PRNGs
@@ -1172,7 +1172,7 @@ void ae_individual::save( gzFile backup_file ) const
   // Write the name and "age" of the strain
   int8_t strain_string_len = strlen(_strain_name);
   gzwrite(backup_file, &strain_string_len, sizeof(strain_string_len));
-  gzwrite(backup_file, &_strain_name, strain_string_len+1);
+  gzwrite(backup_file, _strain_name, strain_string_len+1);
   gzwrite(backup_file, &_age, sizeof(_age));
 
   #ifdef DISTRIBUTED_PRNG
@@ -1258,10 +1258,8 @@ int32_t ae_individual::get_nb_terminators( void )
 
   * Make nb_children replications of the current individual.
   * For each replication, determine if the offsprings is neutral, beneficial or deleterious by comparison of fitness with the current individual (the parent)
-  * If statistics about offsprings are required (offsprings_statistics != NULL), fitness mean, fitness variance, size mean, size variance, functional gene number mean,
-  functional gene number variance fo the nb_children offsprings are computed
-  * If information about each children are required ( replication_file != NULL), fitness, genome_size, nb of functional genes, number of coding bases, number of transcribed
-  but not translated bases, number of non transcribed bases of each offsprings are written in replication_file
+  * If statistics about offsprings are required (offsprings_statistics != NULL), fitness mean, fitness variance, size mean, size variance, functional gene number mean, functional gene number variance fo the nb_children offsprings are computed
+  * If information about each children are required ( replication_file != NULL), fitness, genome_size, nb of functional genes, number of coding bases, number of transcribed but not translated bases, number of non transcribed bases of each offsprings are written in replication_file
 
   \param nb_children              number of replications made to have the statistics
   \param reproduction_statistics  statistics about the replications (proportion of neutral offsprings, proportion of beneficial offsprings, proportion of deleterious offsprings)
