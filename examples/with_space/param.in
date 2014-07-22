@@ -6,7 +6,6 @@
 SEED                    7250909
 INIT_POP_SIZE           1000
 INIT_METHOD             ONE_GOOD_GENE CLONE
-NB_GENER                500
 CHROMOSOME_INITIAL_LENGTH   5000
 
 ##### 2. Selection ################

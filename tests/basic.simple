@@ -6,7 +6,6 @@
 SEED                    12622
 INIT_POP_SIZE           100
 INIT_METHOD             ONE_GOOD_GENE CLONE
-NB_GENER                100
 CHROMOSOME_INITIAL_LENGTH   5000
 
 
