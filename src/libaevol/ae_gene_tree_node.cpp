@@ -162,7 +162,7 @@ ae_gene_tree_node * ae_gene_tree_node::search_in_subtree_leaves(const ae_protein
           while (n!=NULL) {root = n; n = n->_parent_node; }
           // here, n==NULL and root points on the root of the tree
           root->print_subtree_to_screen();
-          assert(0);
+          // assert(0);
         }
     }
 }
@@ -397,7 +397,8 @@ void ae_gene_tree_node::write_subtree_nodes_in_tabular_file(int32_t treeID, FILE
 
 
 // This is an auxiliary function for the method anticipate_mutation_effect_on_genes_in_subtree.
-// The segment should go from 'first' to 'last' in the clockwise sense.
+// The segment should go from 'first' to 'last' (included) in the clockwise sense.
+// 'first' and 'last' should not be equal.
 static bool breakpoint_inside_segment(int32_t pos_brkpt, int32_t first, int32_t last)
 {
   if (first < last) // most frequent case 
@@ -405,7 +406,7 @@ static bool breakpoint_inside_segment(int32_t pos_brkpt, int32_t first, int32_t 
       if( (first <= pos_brkpt) && (pos_brkpt <= last)) {return true;}
       else {return false;}
     }
-  else // special case where the RNA overlaps ori
+  else // special case where the segment overlaps ori
     {
       if( (first <= pos_brkpt) || (pos_brkpt <= last) ) {return true;}
       else {return false;}
@@ -668,24 +669,39 @@ void ae_gene_tree_node::anticipate_mutation_effect_on_genes_in_subtree_leaves(ae
           }
         case S_DEL:
           {
-            if (breakpoint_inside_segment(pos0, ae_utils::mod(first_cds - mutlength, genlen), last_cds)) _cds_possibly_modified = true;
-            if (breakpoint_inside_segment(pos0, ae_utils::mod(first_upstream - mutlength, genlen), last_upstream)) _proms_possibly_modified = true;
-
-            if ( pos0 + mutlength <= genlen ) // the deletion does not contain the replication origin 
+            // If the Shine-Dalgarno position is in the small deleted segment, mark the cds as deleted
+            // (our gene tracking is based on the tracking of the Shine-Dalgarno position,
+            // and we cannot predict the position of a bp that was deleted: we lose track of the gene) 
+            if (mutlength == 1)
               {
-                if (_shine_dal_position >= pos0) _shine_dal_position = ae_utils::mod(_shine_dal_position - mutlength, genlen - mutlength);
-                for (i = 0; i <_nb_promoters; i++) 
-                  {
-                    if (_promoter_positions[i] >= pos0){ _promoter_positions[i] = ae_utils::mod(_promoter_positions[i] - mutlength, genlen - mutlength);}
-                  }
+                if (_protein_pointer->get_shine_dal_pos() == pos0)  _cds_completely_deleted = true;
               }
-            else // the deletion contains the replication origin
+            else // mutlength > 1
               {
-                int32_t nb_del_after_ori = mutlength - genlen + pos0;
-                if (_shine_dal_position >= 0) _shine_dal_position = ae_utils::mod(_shine_dal_position - nb_del_after_ori, genlen - mutlength);
-                for (i = 0; i <_nb_promoters; i++) 
+                if (breakpoint_inside_segment(_protein_pointer->get_shine_dal_pos(), pos0, ae_utils::mod(pos0 + mutlength - 1, genlen))) _cds_completely_deleted = true;   
+              }
+            
+            if (!(_cds_completely_deleted))
+              {
+                if (breakpoint_inside_segment(pos0, ae_utils::mod(first_cds - mutlength, genlen), last_cds)) _cds_possibly_modified = true;
+                if (breakpoint_inside_segment(pos0, ae_utils::mod(first_upstream - mutlength, genlen), last_upstream)) _proms_possibly_modified = true;
+                
+                if ( pos0 + mutlength <= genlen ) // the deletion does not contain the replication origin 
                   {
-                    if (_promoter_positions[i] >= 0){ _promoter_positions[i] = ae_utils::mod(_promoter_positions[i] - nb_del_after_ori, genlen - mutlength);}
+                    if (_shine_dal_position >= pos0) _shine_dal_position = ae_utils::mod(_shine_dal_position - mutlength, genlen - mutlength);
+                    for (i = 0; i <_nb_promoters; i++) 
+                      {
+                        if (_promoter_positions[i] >= pos0){ _promoter_positions[i] = ae_utils::mod(_promoter_positions[i] - mutlength, genlen - mutlength);}
+                      }
+                  }
+                else // the deletion contains the replication origin
+                  {
+                    int32_t nb_del_after_ori = mutlength - genlen + pos0;
+                    if (_shine_dal_position >= 0) _shine_dal_position = ae_utils::mod(_shine_dal_position - nb_del_after_ori, genlen - mutlength);
+                    for (i = 0; i <_nb_promoters; i++) 
+                      {
+                        if (_promoter_positions[i] >= 0){ _promoter_positions[i] = ae_utils::mod(_promoter_positions[i] - nb_del_after_ori, genlen - mutlength);}
+                      }
                   }
               }
             break;
@@ -710,8 +726,19 @@ void ae_gene_tree_node::anticipate_mutation_effect_on_genes_in_subtree_leaves(ae
           }
         case DEL:
           {
-            if (subsegment_totally_in_segment(pos1, pos2, first_cds, last_cds)) _cds_completely_deleted = true;
-            else
+            // If the Shine-Dalgarno is in the deleted segment, mark the cds as deleted
+            // (our gene tracking is based on the tracking of the Shine-Dalgarno position,
+            // and we cannot predict the position of a bp that was deleted: we lose track of the gene)
+           if (mutlength == 1)
+              {
+                if (_protein_pointer->get_shine_dal_pos() == pos1)  _cds_completely_deleted = true;
+              }
+            else // mutlength > 1
+              {
+                if (breakpoint_inside_segment(_protein_pointer->get_shine_dal_pos(), pos1, pos2)) _cds_completely_deleted = true;   
+              }
+            
+            if (!(_cds_completely_deleted))
               {
                 if (breakpoint_inside_segment(pos1, first_cds, last_cds) || breakpoint_inside_segment(pos2, first_cds, last_cds)) _cds_possibly_modified = true;     
                 if (breakpoint_inside_segment(pos1, first_upstream, last_upstream) || breakpoint_inside_segment(pos2, first_upstream, last_upstream)) _proms_possibly_modified = true;   
@@ -1150,9 +1177,19 @@ void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leav
               _gene_loss_date = gener;
           
               // Update tree statistics
-              (tree->_total_nb_nodes) += 2;
-              (tree->_nb_internal_nodes) ++;
-              (tree->_nb_leaves) ++;  // - 1 + 2 (the ex-leaf becomes an internal node, 2 leaves are created)
+              if (_left_child != NULL)
+                {
+                  (tree->_total_nb_nodes) += 2;
+                  (tree->_nb_internal_nodes) ++;
+                  (tree->_nb_leaves) ++;  // - 1 + 2 (the ex-leaf becomes an internal node, 2 leaves are created)
+
+                }
+              else
+                {
+                  (tree->_total_nb_nodes) += 1;
+                  (tree->_nb_internal_nodes) ++;
+                  // (tree->_nb_leaves) remains unchanged  <==  - 1 + 1 (the ex-leaf becomes an internal node, 1 leave is created)
+                }
               if (tmpprot != NULL) (tree->_nb_active_leaves) ++;
               if (gener > tree->_end_gener) (tree->_end_gener) = gener;
             }

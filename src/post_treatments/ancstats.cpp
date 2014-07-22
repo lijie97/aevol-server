@@ -205,7 +205,7 @@ int main(int argc, char** argv)
 
   printf("\n");
   printf( "WARNING : Parameter change during simulation is not managed in general.\n" );
-  printf( "          Only changes in environmental target done with aevol_modified are handled.\n" );
+  printf( "          Only changes in environmental target done with aevol_modify are handled.\n" );
   printf("\n");
 
   // =======================

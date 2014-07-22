@@ -259,7 +259,7 @@ int main(int argc, char** argv)
 
   if ( verbose )
   {
-    printf("Initial fitness     = %f\n", indiv->get_fitness());
+    printf("Initial fitness     = %e\n", indiv->get_fitness());
     printf("Initial genome size = %"PRId32"\n", indiv->get_total_genome_size());
   }
 
@@ -490,6 +490,7 @@ int main(int argc, char** argv)
             prot_node = prot_node->get_next();
           }
          // print_gene_trees_to_screen(gene_trees);// DEBUG
+         // indiv->print_protein_list(); // DEBUG
          mnode = mnode->get_next();
       }
 
@@ -539,6 +540,7 @@ int main(int argc, char** argv)
           }
 
          // print_gene_trees_to_screen(gene_trees);// DEBUG
+         // indiv->print_protein_list(); // DEBUG
          mnode = mnode->get_next();
       }
 
