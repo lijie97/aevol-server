@@ -206,46 +206,45 @@ int main( int argc, char* argv[] )
 */
 void print_help(char* prog_path)
 {
+  // Get the program file-name in prog_name (strip prog_path of the path)
+  char* prog_name; // No new, it will point to somewhere inside prog_path
+  if ( ( prog_name = strrchr( prog_path, '/' ) ) ) prog_name++;
+  else prog_name = prog_path;
+
+  printf( "******************************************************************************\n" );
+  printf( "*                                                                            *\n" );
+  printf( "*                        aevol - Artificial Evolution                        *\n" );
+  printf( "*                                                                            *\n" );
+  printf( "* Aevol is a simulation platform that allows one to let populations of       *\n" );
+  printf( "* digital organisms evolve in different conditions and study experimentally  *\n" );
+  printf( "* the mechanisms responsible for the structuration of the genome and the     *\n" );
+  printf( "* transcriptome.                                                             *\n" );
+  printf( "*                                                                            *\n" );
+  printf( "******************************************************************************\n" );
   printf( "\n" );
-  printf( "*********************** aevol - Artificial Evolution ******************* \n" );
-  printf( "*                                                                      * \n" );
-  printf( "*    Population statistics computation post-treatment program          * \n" );
-  printf( "*                                                                      * \n" );
-  printf( "************************************************************************ \n" );
-  printf( "\n\n" );
-  printf( "This program is Free Software. No Warranty.\n" );
-  printf( "Copyright (C) 2009  LIRIS.\n" );
-  printf( "\n" );
-  printf( "Usage : computate_pop_stats -h\n");
-  printf( "or :    computate_pop_stats -e end_gener [-b begin_gener] [-r rank | -i index] [-n children_nb]\n" );
-  printf( "\n" );
-  printf( "This program computes some population and replication statistics at each available backup from begin_gener until end_gener\n" );
-  printf( "and save this statistics in global_pop_stats.out and in files inside stats/pop_stats. The children_nb is used to compute Fv.\n");
-  printf( "The replication statistics (information about the children_nb offsprings) of the individual of rank or index .\n");
-  printf( "are written at each backup.\n" );
+  printf( "%s: computes some population and replication statistics at each available backup from begin_gener until end_gener.\n", prog_name );
+  printf( "These statistics are saved in global_pop_stats.out and in files inside stats/pop_stats.\n");
+  printf( "The replication statistics (information about the children_nb offsprings) of the individual of given rank or index are written at each backup.\n" );
   printf( "\n" );
   printf( "WARNING: This program should not be used for simulations run with lateral\n" );
   printf( "transfer. When an individual has more than one parent, the notion of lineage\n" );
   printf( "used here is not relevant.\n" );
   printf( "\n" );
-  printf( "\t-h or --help    : Display this help.\n" );
+  printf( "Usage : %s -h\n", prog_name);
+  printf( "   or : %s -V or --version\n", prog_name );
+  printf( "   or : %s -e GENER2 [-b GENER1] [-r RANK | -i INDEX]\n", prog_name );
+  printf( "\nOptions\n" );
+  printf( "  -h, --help\n\tprint this help, then exit\n\n" );
+  printf( "  -V, --version\n\tprint version number, then exit\n\n" );
+  printf( "  -b GENER1 or --begin GENER1 :\n" );
+  printf( "\tFirst backup used to compute the statistics\n" );
+  printf( "\t-e GENER2 or --end GENER2 :\n" );
+  printf( "\tLast backup used to compute the statistics\n" );
+  printf( "\t-i INDEX or --index INDEX :\n" );
+  printf( "\tIndex of individual of whom we want information about the offsprings at each backup\n" );
   printf( "\n" );
-  printf( "\t-n children_nb or --nb-children children_nb : \n" );
-  printf( "\t                  Use children_nb to compute replication statistics.\n" );
-  printf( "\n" );
-  printf( "\t-b begin_gener or --begin begin_gener : \n" );
-  printf( "\t                  First backup used to compute the statistics\n" );
-  printf( "\n");
-  printf( "\t-e end_gener or --end end_gener : \n" );
-  printf( "\t                  Last backup used to compute the statistics\n" );
-  printf( "\t-i index or --index index : \n" );
-  printf( "\t                  Index of individual of whom we want information about the offsprings at each backup\n" );
-  printf( "\n" );
-  printf( "\t-r rank or --rank rank : \n" );
-  printf( "\t                  Rank of individual of whom we want information about the offsprings at each backup\n" );
-  printf( "\n");
-
-  printf( "\n" );
+  printf( "\t-r RANK or --rank RANK :\n" );
+  printf( "\tRank of individual of whom we want information about the offsprings at each backup\n" );
 }
 
 

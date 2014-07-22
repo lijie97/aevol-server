@@ -28,7 +28,7 @@
 
 //
 // This program extracts some data about the individuals and write
-// them into text files easy to parse with matlab.
+// them into text files easy to parse with e.g. matlab.
 //
 // Two kinds of data can be extracted :
 //
@@ -372,16 +372,87 @@ inline void analyse_gu( ae_genetic_unit* gen_unit, int32_t gen_unit_number, FILE
 
 void print_help(char* prog_name)
 {
-  printf( "\n\
-Usage : extract -h\n\
-or :    extract [-r num_generation | -p pop_file ] [-t triangles_file] [-s sequence_file] [-b] [-g num_gu] \n\
-\t-h : display this screen\n\
-\t-r num_generation  : read the generation num_generation from a full aevol backup\n\
-\t-p pop_file : read the generation saved in population file pop_file\n\
-\t-t tf : extract and save some infos about the phenotypes of the individuals to file tf\n\
-\t-s sf : extract and save the sequences of the individuals to file sf\n\
-\t-g num_gu : only treat this genetic unit (by default: treat all genetic units)\n\
-\t-b : only treat the best individual\n");
+  // Get the program file-name in prog_name (strip prog_path of the path)
+  char* prog_name; // No new, it will point to somewhere inside prog_path
+  if ( ( prog_name = strrchr( prog_path, '/' ) ) ) prog_name++;
+  else prog_name = prog_path;
+
+  printf("******************************************************************************\n");
+  printf("*                                                                            *\n");
+  printf("*                        aevol - Artificial Evolution                        *\n");
+  printf("*                                                                            *\n");
+  printf("* Aevol is a simulation platform that allows one to let populations of       *\n");
+  printf("* digital organisms evolve in different conditions and study experimentally  *\n");
+  printf("* the mechanisms responsible for the structuration of the genome and the     *\n");
+  printf("* transcriptome.                                                             *\n");
+  printf("*                                                                            *\n");
+  printf("******************************************************************************\n");
+  printf("\n");
+  printf("%s: extracts the genotype and/or data about the phenotype of individuals in the provided population and write them into text files easy to parse with e.g. matlab.\n", prog_name);
+  printf("\n");
+  printf("Usage : %s -h\n", prog_name);
+  printf("   or : %s -V or --version\n", prog_name);
+  printf("   or :    %s [-r GENER | -p POP_FILE] [-t PHEN_FILE] [-s SEQ_FILE] [-g NUM_GU] [-b]\n", prog_name);
+  printf("\nOptions\n");
+  printf("  -h, --help\n\tprint this help, then exit\n\n");
+  printf("  -V, --version\n\tprint version number, then exit\n\n");
+  printf("  -r GENER  :\n");
+  printf("\tread generation GENER from a full aevol backup\n");
+  printf("  -p POP_FILE:\n");
+  printf("\tread the population saved in population file POP_FILE\n");
+  printf("  -t PHEN_FILE:\n");
+  printf("\textract and save some infos about the phenotypes of the individuals to file PHEN_FILE\n");
+  printf("  -s SEQ_FILE:\n");
+  printf("\textract and save the sequences of the individuals to file SEQ_FILE\n");
+  printf("  -g NUM_GU:\n");
+  printf("\tonly treat this genetic unit (by default: treat all genetic units)\n");
+  printf("  -b:\n");
+  printf("\tonly treat the best individual\n");
+  printf("\n\n");
+
+  printf("\n\
+This program extracts some data about the individuals and write\n\
+them into text files easy to parse with e.g. matlab.\n\
+\n\
+Two kinds of data can be extracted :\n\
+\n\
+ * data about the phenotype (option -t) : write information about\n\
+   the proteins in a text file. A space delimits two proteins, a\n\
+   new line delimits two individuals. For each protein, the output\n\
+   is "m_h_w_c_r_s_f_l_z_g" where :\n\
+       * m, h, w and c are the mean, height, width and concentration of the protein\n\
+       * r is an identifier of the rna it belongs (usefull to\n\
+           know if several proteins are on the same rna)\n\
+       * s indicates the strand (LEADING/LAGGING)\n\
+       * f and l are the first and last translated base\n\
+       * z indicates the feature (at the center of the protein)\n\
+       * g indicates the genetic unit to which the protein belongs (0=chromosome, 1=plasmid)\n\
+\n\
+ * sequences of the individuals (option -s) : write the sequences\n\
+   in a text file. A new line delimits two individuals. In case\n\
+   there are several GU, they are separated by whitespaces.\n\
+\n\
+With option -b, only the best individual is treated.\n\
+\n\
+The input can be either a generation number, in which case we\n\
+will attempt to load a full backup tree, or a population file,\n\
+in which case features of the proteins won't be outputed as we\n\
+need to know the environment to infer them.\n\
+\n\
+Examples :\n\
+\n\
+For generation 20000, write infos about the phenotypes of all the\n\
+individuals in phe_020000 and the sequences of all the\n\
+individuals in seq_020000 :\n\
+\n\
+   extract -r 20000 -t phe_020000 -s seq_020000\n\
+\n\
+For generation 20000, write the best individual's sequence in\n\
+seq_020000_best :\n\
+\n\
+   extract -b -r 20000 -s seq_020000_best\n\
+or extract -b -p populations/pop_020000.ae -s seq_020000_best\n");
+
 }
 
 
