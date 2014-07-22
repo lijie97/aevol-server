@@ -370,11 +370,11 @@ inline void analyse_gu( ae_genetic_unit* gen_unit, int32_t gen_unit_number, FILE
 }
 
 
-void print_help(char* prog_name)
+void print_help(char* prog_path)
 {
   // Get the program file-name in prog_name (strip prog_path of the path)
   char* prog_name; // No new, it will point to somewhere inside prog_path
-  if ( ( prog_name = strrchr( prog_path, '/' ) ) ) prog_name++;
+  if ((prog_name = strrchr(prog_path, '/'))) prog_name++;
   else prog_name = prog_path;
 
   printf("******************************************************************************\n");
@@ -419,7 +419,7 @@ Two kinds of data can be extracted :\n\
  * data about the phenotype (option -t) : write information about\n\
    the proteins in a text file. A space delimits two proteins, a\n\
    new line delimits two individuals. For each protein, the output\n\
-   is "m_h_w_c_r_s_f_l_z_g" where :\n\
+   is \"m_h_w_c_r_s_f_l_z_g\" where :\n\
        * m, h, w and c are the mean, height, width and concentration of the protein\n\
        * r is an identifier of the rna it belongs (usefull to\n\
            know if several proteins are on the same rna)\n\
