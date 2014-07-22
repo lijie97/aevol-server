@@ -1087,7 +1087,7 @@ void param_loader::read_file( void )
 }
 
 
-void param_loader::load( ae_exp_manager* exp_m, bool verbose )
+void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, int32_t lchromosome, char* plasmid, int32_t lplasmid )
 {
   // Check consistency of min, max and initial length of chromosome and plasmid
   // Default for by GU minimal or maximal size is -1.
@@ -1306,7 +1306,62 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose )
   ae_individual* indiv        = NULL;
   int32_t        id_new_indiv = 0;
   
-  if ( _init_method & ONE_GOOD_GENE )
+  if (chromosome != NULL)
+  {
+    printf("Option -c is used: chromosome will be loaded from a text file\n");
+    ae_individual* indiv = new ae_individual( exp_m,
+                                             _prng,
+                                             _prng,
+                                             param_mut,
+                                             _w_max,
+                                             _min_genome_length,
+                                             _max_genome_length,
+                                             _allow_plasmids,
+                                             id_new_indiv++, 0 );
+    
+    indiv->add_GU( chromosome, lchromosome );
+    indiv->get_genetic_unit(0)->set_min_gu_length(_chromosome_minimal_length);
+    indiv->get_genetic_unit(0)->set_max_gu_length(_chromosome_maximal_length);
+    
+    if (plasmid != NULL)
+    {
+      printf("Option -p is used: plasmid will be loaded from a text file\n");
+      if (! _allow_plasmids)
+      {
+        printf( "ERROR: option -p requires ALLOW_PLASMIDS set to true\n" );
+        exit( EXIT_FAILURE );
+      }
+      indiv->add_GU( plasmid, lplasmid );
+      indiv->get_genetic_unit(1)->set_min_gu_length(_plasmid_minimal_length);
+      indiv->get_genetic_unit(1)->set_max_gu_length(_plasmid_maximal_length);
+    }
+    else if (_allow_plasmids)
+    {
+      printf( "ERROR: if you use option -c and ALLOW_PLASMIDS is set to true, you must also use option -p. \n For now loading a genetic unit from text file and generating the other is not supported.\n" );
+      exit( EXIT_FAILURE );
+    }
+    
+    indiv->set_with_stochasticity( _with_stochasticity );
+    indiv->compute_statistical_data();
+    indiv->evaluate( exp_m->get_env() );
+    printf("Starting with a clonal population of individual with metabolic error %f and secretion error %f \n",indiv->get_dist_to_target_by_feature(METABOLISM),indiv->get_dist_to_target_by_feature(SECRETION));
+    pop->add_indiv( indiv );
+    
+    // Make the clones and add them to the list of individuals
+    ae_individual* clone = NULL;
+    for ( int32_t i = 1 ; i < _init_pop_size ; i++ )
+    {
+      clone = create_clone( indiv, id_new_indiv++ );
+      pop->add_indiv( clone );
+    }
+    pop->sort_individuals();
+  }
+  else if (plasmid != NULL)
+  {
+    printf( "ERROR: option -p can only be used in combination with option -c for now\n" );
+    exit( EXIT_FAILURE );
+  }
+  else if ( _init_method & ONE_GOOD_GENE )
   {
     if ( _init_method & CLONE )
     {

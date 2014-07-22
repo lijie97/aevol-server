@@ -82,7 +82,8 @@ class param_loader
     //                            Public Methods
     // =================================================================
     void read_file( void );
-    void load( ae_exp_manager* exp_m, bool verbose = false );
+    void load( ae_exp_manager* exp_m, bool verbose = false, char* chromosome = NULL, int32_t lchromosome = 0, char* plasmid = NULL, int32_t lplasmid = 0 );
+
     
     f_line* get_line( int32_t* );
     

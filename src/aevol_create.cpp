@@ -69,14 +69,17 @@ int main( int argc, char* argv[] )
 {
   // 1) Initialize command-line option variables with default values
   char* param_file_name = NULL;
-
+  char* chromosome_file_name = NULL;
+  char* plasmid_file_name = NULL;
 
   // 2) Define allowed options
-  const char * options_list = "hf:V";
+  const char * options_list = "hf:Vc:p:";
   static struct option long_options_list[] = {
     { "help",     no_argument,        NULL, 'h' },
     { "file",     required_argument,  NULL, 'f' },
     { "version",  no_argument,        NULL, 'V' },
+    { "chromosome",   required_argument,  NULL, 'c' },
+    { "plasmid",   required_argument,  NULL, 'p' },
     { 0, 0, 0, 0 }
   };
 
@@ -101,6 +104,18 @@ int main( int argc, char* argv[] )
       {
         param_file_name = new char[strlen(optarg)+1];
         strcpy( param_file_name, optarg );
+        break;
+      }
+      case 'c':
+      {
+        chromosome_file_name = new char [strlen(optarg)+1];
+        strcpy( chromosome_file_name, optarg );
+        break;
+      }
+      case 'p':
+      {
+        plasmid_file_name = new char [strlen(optarg)+1];
+        strcpy( plasmid_file_name, optarg );
         break;
       }
       default :
@@ -132,9 +147,65 @@ int main( int argc, char* argv[] )
     ae_exp_manager* exp_manager = new ae_exp_manager();
   #endif
 
-  // 7) Load the parameter file
-  my_param_loader->load( exp_manager, true );
+  // 7) Initialize the simulation from the parameter file
+  
+  int32_t lchromosome=-1;
+  char* chromosome;
+  
+  if ( chromosome_file_name != NULL )
+  {
+    char rawchromosome[1000000];
+    FILE* chromosome_file = fopen(chromosome_file_name,"r");
+    if (chromosome_file==NULL)
+    {
+      printf("ERROR: failed to open source chromosome file %s\n",chromosome_file_name);
+      exit( EXIT_FAILURE );
+    }
+    fgets(rawchromosome, 1000000, chromosome_file);
+    lchromosome = strlen(rawchromosome)-1;
+    chromosome = new char[lchromosome]; // Warning: will become the DNA of the first individual created -> no not delete, will be freed in ~ae_dna.
+    strncpy(chromosome, rawchromosome, lchromosome);
+    printf("Loading chromosome from text file %s (%"PRId32" base pairs) \n",chromosome_file_name,lchromosome);
+    fclose(chromosome_file);
+  }
+  
+  int32_t lplasmid=-1;
+  char* plasmid;
+  
+  if ( plasmid_file_name != NULL )
+  {
+    char rawplasmid[1000000];
+    FILE* plasmid_file = fopen(plasmid_file_name,"r");
+    if (plasmid_file==NULL)
+    {
+      printf("ERROR: failed to open source chromosome file %s\n",plasmid_file_name);
+      exit( EXIT_FAILURE );
+    }
+    fgets(rawplasmid, 1000000, plasmid_file);
+    lplasmid = strlen(rawplasmid)-1;
+    plasmid = new char[lplasmid]; // Warning: will become the DNA of the first individual created -> no not delete, will be freed in ~ae_dna.
+    strncpy(plasmid, rawplasmid, lplasmid);
+    printf("Loading plasmid from text file %s (%"PRId32" base pairs) \n",plasmid_file_name,lplasmid);
+    fclose(plasmid_file);
+  }
+
+  if (lchromosome > -1)
+  {
+    if (lplasmid > -1)
+    {
+      my_param_loader->load( exp_manager, true, chromosome, lchromosome, plasmid, lplasmid );
+    }
+    else
+    {
+      my_param_loader->load( exp_manager, true, chromosome, lchromosome );
+    }
+  }
+  else
+  {
+    my_param_loader->load( exp_manager, true );
+  }
   delete my_param_loader;
+
 
   //~ ((ae_exp_manager_X11*)exp_manager)->toggle_display_on_off();
   //~ exp_manager->display();
@@ -186,6 +257,8 @@ void print_help(char* prog_path)
 	printf( "  -h, --help\n\tprint this help, then exit\n\n" );
 	printf( "  -V, --version\n\tprint version number, then exit\n\n" );
 	printf( "  -f, --file param_file\n\tspecify parameter file (default: param.in)\n" );
+  printf( "  -c, --chromosome cfile\n\tload chromosome from given text file instead of generating it\n");
+  printf( "  -p, --plasmid pfile\n\tload plasmid from given text file instead of generating it\n");
 }
 
 
