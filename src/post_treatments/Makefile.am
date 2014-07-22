@@ -39,57 +39,34 @@ AM_CPPFLAGS += -D_FORTIFY_SOURCE=2
 #           Set programs to build          #
 ############################################
 if WITH_RAEVOL
-if WITH_X
-if WITH_DEBUG
-  bin_PROGRAMS = aevol_misc_rrobustness_debug aevol_misc_rancstats_debug aevol_misc_rcreate_eps_debug aevol_misc_rfixed_mutations_debug aevol_misc_rgene_families_debug aevol_misc_rlineage_debug aevol_misc_rcompute_pop_stats_debug aevol_misc_rextract_debug
-#	LDADD = $(top_srcdir)/src/lib-aevol/lib-raevol-X11-debug.a
-else # WITHOUT_DEBUG
-  bin_PROGRAMS = aevol_misc_rrobustness aevol_misc_rancstats aevol_misc_rcreate_eps aevol_misc_rfixed_mutations aevol_misc_rgene_families aevol_misc_rlineage aevol_misc_rcompute_pop_stats aevol_misc_rextract
-#	LDADD = $(top_srcdir)/src/lib-aevol/lib-raevol-X11.a
-endif # DEBUG
-else # WITHOUT_X
-if WITH_DEBUG
-  bin_PROGRAMS = aevol_misc_rrobustness_debug aevol_misc_rancstats_debug aevol_misc_rcreate_eps_debug aevol_misc_rfixed_mutations_debug aevol_misc_rgene_families_debug aevol_misc_rlineage_debug aevol_misc_rcompute_pop_stats_debug aevol_misc_rextract_debug
-#	LDADD = $(top_srcdir)/src/lib-aevol/lib-raevol-debug.a
-else # WITHOUT_DEBUG
-if WITH_IN2P3
-  bin_PROGRAMS = aevol_misc_rrobustness aevol_misc_rancstats aevol_misc_rcreate_eps aevol_misc_rfixed_mutations aevol_misc_rgene_families aevol_misc_rlineage aevol_misc_rcompute_pop_stats aevol_misc_rextract
-#	LDADD = $(top_srcdir)/src/lib-aevol/lib-raevol-IN2P3.a
-else # WITHOUT_IN2P3
-  bin_PROGRAMS = aevol_misc_rrobustness aevol_misc_rancstats aevol_misc_rcreate_eps aevol_misc_rfixed_mutations aevol_misc_rgene_families aevol_misc_rlineage aevol_misc_rcompute_pop_stats aevol_misc_rextract
-#	LDADD = $(top_srcdir)/src/lib-aevol/lib-raevol.a
-endif # IN2P3
-endif # DEBUG
-endif # X
+# Removed all post-treatments from raevol. Add here and in CLEANFILES when ready
 else # WITHOUT_RAEVOL
 if WITH_X
 if WITH_DEBUG
-  bin_PROGRAMS = aevol_misc_robustness_debug aevol_misc_ancstats_debug aevol_misc_create_eps_debug aevol_misc_fixed_mutations_debug aevol_misc_gene_families_debug aevol_misc_lineage_debug aevol_misc_compute_pop_stats_debug aevol_misc_extract_debug aevol_misc_view_generation_debug
+  bin_PROGRAMS = aevol_misc_robustness_debug aevol_misc_ancstats_debug aevol_misc_compute_pop_stats_debug aevol_misc_create_eps_debug aevol_misc_fixed_mutations_debug aevol_misc_gene_families_debug aevol_misc_lineage_debug aevol_misc_template_debug aevol_misc_extract_debug aevol_misc_view_generation_debug
 #	LDADD = $(top_srcdir)/src/lib-aevol/lib-aevol-X11-debug.a
 else # WITHOUT_DEBUG
-  bin_PROGRAMS = aevol_misc_robustness aevol_misc_ancstats aevol_misc_create_eps aevol_misc_fixed_mutations aevol_misc_gene_families aevol_misc_lineage aevol_misc_compute_pop_stats aevol_misc_extract aevol_misc_view_generation
+  bin_PROGRAMS = aevol_misc_robustness aevol_misc_ancstats aevol_misc_create_eps aevol_misc_fixed_mutations aevol_misc_gene_families aevol_misc_lineage aevol_misc_compute_pop_stats aevol_misc_template aevol_misc_extract aevol_misc_view_generation
 #	LDADD = $(top_srcdir)/src/lib-aevol/lib-aevol-X11.a
 endif # DEBUG
 else # WITHOUT_X
 if WITH_DEBUG
-  bin_PROGRAMS = aevol_misc_robustness_debug aevol_misc_ancstats_debug aevol_misc_create_eps_debug aevol_misc_fixed_mutations_debug aevol_misc_gene_families_debug aevol_misc_lineage_debug aevol_misc_compute_pop_stats_debug aevol_misc_extract_debug
+  bin_PROGRAMS = aevol_misc_robustness_debug aevol_misc_ancstats_debug aevol_misc_create_eps_debug aevol_misc_fixed_mutations_debug aevol_misc_gene_families_debug aevol_misc_lineage_debug aevol_misc_compute_pop_stats_debug aevol_misc_template_debug aevol_misc_extract_debug
 #	LDADD = $(top_srcdir)/src/lib-aevol/lib-aevol-debug.a
 else # WITHOUT_DEBUG
 if WITH_IN2P3
-  bin_PROGRAMS = aevol_misc_robustness aevol_misc_ancstats aevol_misc_create_eps aevol_misc_fixed_mutations aevol_misc_gene_families aevol_misc_lineage aevol_misc_compute_pop_stats aevol_misc_extract
+  bin_PROGRAMS = aevol_misc_robustness aevol_misc_ancstats aevol_misc_create_eps aevol_misc_fixed_mutations aevol_misc_gene_families aevol_misc_lineage aevol_misc_compute_pop_stats aevol_misc_template aevol_misc_extract
 #	LDADD = $(top_srcdir)/src/lib-aevol/lib-aevol-IN2P3.a
 else # WITHOUT_IN2P3
-  bin_PROGRAMS = aevol_misc_robustness aevol_misc_ancstats aevol_misc_create_eps aevol_misc_fixed_mutations aevol_misc_gene_families aevol_misc_lineage aevol_misc_compute_pop_stats aevol_misc_extract
+  bin_PROGRAMS = aevol_misc_robustness aevol_misc_ancstats aevol_misc_create_eps aevol_misc_fixed_mutations aevol_misc_gene_families aevol_misc_lineage aevol_misc_compute_pop_stats aevol_misc_template aevol_misc_extract
 #	LDADD = $(top_srcdir)/src/lib-aevol/lib-aevol.a
 endif # IN2P3
 endif # DEBUG
 endif # X
 endif # RAEVOL
 
-CLEANFILES = aevol_misc_rrobustness_debug aevol_misc_rancstats_debug aevol_misc_rcreate_eps_debug aevol_misc_rfixed_mutations_debug aevol_misc_rgene_families_debug aevol_misc_rlineage_debug aevol_misc_rcompute_pop_stats_debug
-CLEANFILES += aevol_misc_rrobustness aevol_misc_rancstats aevol_misc_rcreate_eps aevol_misc_rfixed_mutations aevol_misc_rgene_families aevol_misc_rlineage aevol_misc_rcompute_pop_stats
-CLEANFILES += aevol_misc_robustness_debug aevol_misc_ancstats_debug aevol_misc_create_eps_debug aevol_misc_fixed_mutations_debug aevol_misc_gene_families_debug aevol_misc_lineage_debug compute_pop_stats_debug extract_debug aevol_misc_view_generation_debug
-CLEANFILES += aevol_misc_robustness aevol_misc_ancstats aevol_misc_create_eps aevol_misc_fixed_mutations aevol_misc_gene_families aevol_misc_lineage aevol_misc_compute_pop_stats aevol_misc_extract aevol_misc_view_generation
+CLEANFILES = aevol_misc_ancstats_debug aevol_misc_compute_pop_stats_debug aevol_misc_create_eps_debug aevol_misc_extract_debug aevol_misc_fixed_mutations_debug aevol_misc_gene_families_debug aevol_misc_lineage_debug aevol_misc_robustness_debug aevol_misc_template_debug aevol_misc_view_generation_debug
+CLEANFILES += aevol_misc_ancstats aevol_misc_compute_pop_stats aevol_misc_create_eps aevol_misc_extract aevol_misc_fixed_mutations aevol_misc_gene_families aevol_misc_lineage aevol_misc_robustness aevol_misc_template aevol_misc_view_generation
 
 
 
@@ -104,82 +81,6 @@ aevol_misc_ancstats_CPPFLAGS = $(AM_CPPFLAGS)
 aevol_misc_ancstats_debug_SOURCES = ancstats.cpp
 aevol_misc_ancstats_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
-aevol_misc_rancstats_SOURCES = ancstats.cpp
-aevol_misc_rancstats_CPPFLAGS = $(AM_CPPFLAGS)
-
-aevol_misc_rancstats_debug_SOURCES = ancstats.cpp
-aevol_misc_rancstats_debug_CPPFLAGS = $(AM_CPPFLAGS)
-
-
-aevol_misc_create_eps_SOURCES = create_eps.cpp
-aevol_misc_create_eps_CPPFLAGS = $(AM_CPPFLAGS)
-
-aevol_misc_create_eps_debug_SOURCES = create_eps.cpp
-aevol_misc_create_eps_debug_CPPFLAGS = $(AM_CPPFLAGS)
-
-aevol_misc_rcreate_eps_SOURCES = create_eps.cpp
-aevol_misc_rcreate_eps_CPPFLAGS = $(AM_CPPFLAGS)
-
-aevol_misc_rcreate_eps_debug_SOURCES = create_eps.cpp
-aevol_misc_rcreate_eps_debug_CPPFLAGS = $(AM_CPPFLAGS)
-
-
-aevol_misc_extract_SOURCES = extract.cpp
-aevol_misc_extract_CPPFLAGS = $(AM_CPPFLAGS)
-
-aevol_misc_extract_debug_SOURCES = extract.cpp
-aevol_misc_extract_debug_CPPFLAGS = $(AM_CPPFLAGS)
-
-aevol_misc_rextract_SOURCES = extract.cpp
-aevol_misc_rextract_CPPFLAGS = $(AM_CPPFLAGS)
-
-aevol_misc_rextract_debug_SOURCES = extract.cpp
-aevol_misc_rextract_debug_CPPFLAGS = $(AM_CPPFLAGS)
-
-
-aevol_misc_fixed_mutations_SOURCES = fixed_mutations.cpp
-aevol_misc_fixed_mutations_CPPFLAGS = $(AM_CPPFLAGS)
-
-aevol_misc_fixed_mutations_debug_SOURCES = fixed_mutations.cpp
-aevol_misc_fixed_mutations_debug_CPPFLAGS = $(AM_CPPFLAGS)
-
-aevol_misc_rfixed_mutations_SOURCES = fixed_mutations.cpp
-aevol_misc_rfixed_mutations_CPPFLAGS = $(AM_CPPFLAGS)
-
-aevol_misc_rfixed_mutations_debug_SOURCES = fixed_mutations.cpp
-aevol_misc_rfixed_mutations_debug_CPPFLAGS = $(AM_CPPFLAGS)
-
-aevol_misc_gene_families_SOURCES = gene_families.cpp
-aevol_misc_gene_families_CPPFLAGS = $(AM_CPPFLAGS)
-
-aevol_misc_gene_families_debug_SOURCES = gene_families.cpp
-aevol_misc_gene_families_debug_CPPFLAGS = $(AM_CPPFLAGS)
-
-aevol_misc_rgene_families_SOURCES = gene_families.cpp
-aevol_misc_rgene_families_CPPFLAGS = $(AM_CPPFLAGS)
-
-aevol_misc_rgene_families_debug_SOURCES = gene_families.cpp
-aevol_misc_rgene_families_debug_CPPFLAGS = $(AM_CPPFLAGS)
-
-
-aevol_misc_lineage_SOURCES = lineage.cpp
-aevol_misc_lineage_CPPFLAGS = $(AM_CPPFLAGS)
-
-aevol_misc_lineage_debug_SOURCES = lineage.cpp
-aevol_misc_lineage_debug_CPPFLAGS = $(AM_CPPFLAGS)
-
-aevol_misc_rlineage_SOURCES = lineage.cpp
-aevol_misc_rlineage_CPPFLAGS = $(AM_CPPFLAGS)
-
-aevol_misc_rlineage_debug_SOURCES = lineage.cpp
-aevol_misc_rlineage_debug_CPPFLAGS = $(AM_CPPFLAGS)
-
-aevol_misc_view_generation_SOURCES = view_generation.cpp
-aevol_misc_view_generation_CPPFLAGS = $(AM_CPPFLAGS)
-
-aevol_misc_view_generation_debug_SOURCES = view_generation.cpp
-aevol_misc_view_generation_debug_CPPFLAGS = $(AM_CPPFLAGS)
-
 
 #aevol_misc_compute_pop_stats_HEADERS = population_statistics.h
 aevol_misc_compute_pop_stats_SOURCES = population_statistics.cpp compute_pop_stats.cpp
@@ -191,15 +92,40 @@ aevol_misc_compute_pop_stats_debug_SOURCES = population_statistics.cpp compute_p
 aevol_misc_compute_pop_stats_debug_SOURCES += population_statistics.h
 aevol_misc_compute_pop_stats_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
-#aevol_misc_rcompute_pop_stats_HEADERS = population_statistics.h
-aevol_misc_rcompute_pop_stats_SOURCES = population_statistics.cpp compute_pop_stats.cpp
-aevol_misc_rcompute_pop_stats_SOURCES += population_statistics.h
-aevol_misc_rcompute_pop_stats_CPPFLAGS = $(AM_CPPFLAGS)
 
-#aevol_misc_rcompute_pop_stats_debug_HEADERS = population_statistics.h
-aevol_misc_rcompute_pop_stats_debug_SOURCES = population_statistics.cpp compute_pop_stats.cpp
-aevol_misc_rcompute_pop_stats_debug_SOURCES += population_statistics.h
-aevol_misc_rcompute_pop_stats_debug_CPPFLAGS = $(AM_CPPFLAGS)
+aevol_misc_create_eps_SOURCES = create_eps.cpp
+aevol_misc_create_eps_CPPFLAGS = $(AM_CPPFLAGS)
+
+aevol_misc_create_eps_debug_SOURCES = create_eps.cpp
+aevol_misc_create_eps_debug_CPPFLAGS = $(AM_CPPFLAGS)
+
+
+aevol_misc_extract_SOURCES = extract.cpp
+aevol_misc_extract_CPPFLAGS = $(AM_CPPFLAGS)
+
+aevol_misc_extract_debug_SOURCES = extract.cpp
+aevol_misc_extract_debug_CPPFLAGS = $(AM_CPPFLAGS)
+
+
+aevol_misc_fixed_mutations_SOURCES = fixed_mutations.cpp
+aevol_misc_fixed_mutations_CPPFLAGS = $(AM_CPPFLAGS)
+
+aevol_misc_fixed_mutations_debug_SOURCES = fixed_mutations.cpp
+aevol_misc_fixed_mutations_debug_CPPFLAGS = $(AM_CPPFLAGS)
+
+
+aevol_misc_gene_families_SOURCES = gene_families.cpp
+aevol_misc_gene_families_CPPFLAGS = $(AM_CPPFLAGS)
+
+aevol_misc_gene_families_debug_SOURCES = gene_families.cpp
+aevol_misc_gene_families_debug_CPPFLAGS = $(AM_CPPFLAGS)
+
+
+aevol_misc_lineage_SOURCES = lineage.cpp
+aevol_misc_lineage_CPPFLAGS = $(AM_CPPFLAGS)
+
+aevol_misc_lineage_debug_SOURCES = lineage.cpp
+aevol_misc_lineage_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
 
 #aevol_misc_robustness_HEADERS = population_statistics.h
@@ -212,12 +138,16 @@ aevol_misc_robustness_debug_SOURCES = population_statistics.cpp robustness.cpp
 aevol_misc_robustness_debug_SOURCES += population_statistics.h
 aevol_misc_robustness_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
-#aevol_misc_rrobustness_HEADERS = population_statistics.h
-aevol_misc_rrobustness_SOURCES = population_statistics.cpp robustness.cpp
-aevol_misc_rrobustness_SOURCES += population_statistics.h
-aevol_misc_rrobustness_CPPFLAGS = $(AM_CPPFLAGS)
 
-#aevol_misc_rrobustness_debug_HEADERS = population_statistics.h
-aevol_misc_rrobustness_debug_SOURCES = population_statistics.cpp robustness.cpp
-aevol_misc_rrobustness_debug_SOURCES += population_statistics.h
-aevol_misc_rrobustness_debug_CPPFLAGS = $(AM_CPPFLAGS)
+aevol_misc_template_SOURCES = template.cpp
+aevol_misc_template_CPPFLAGS = $(AM_CPPFLAGS)
+
+aevol_misc_template_debug_SOURCES = template.cpp
+aevol_misc_template_debug_CPPFLAGS = $(AM_CPPFLAGS)
+
+
+aevol_misc_view_generation_SOURCES = view_generation.cpp
+aevol_misc_view_generation_CPPFLAGS = $(AM_CPPFLAGS)
+
+aevol_misc_view_generation_debug_SOURCES = view_generation.cpp
+aevol_misc_view_generation_debug_CPPFLAGS = $(AM_CPPFLAGS)

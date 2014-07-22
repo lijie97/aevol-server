@@ -30,6 +30,10 @@
 // =================================================================
 //                              Libraries
 // =================================================================
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <getopt.h>
 
 
 
@@ -112,7 +116,7 @@ void print_help(char* prog_path)
 {
   // Get the program file-name in prog_name (strip prog_path of the path)
   char* prog_name; // No new, it will point to somewhere inside prog_path
-  if ( prog_name = strrchr( prog_path, '/' ) ) prog_name++;
+  if ((prog_name = strrchr(prog_path, '/'))) prog_name++;
   else prog_name = prog_path;
 
   printf( "******************************************************************************\n" );
