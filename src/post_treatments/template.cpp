@@ -40,6 +40,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
+#include <ae_exp_manager.h>
 
 
 
@@ -57,16 +58,18 @@ int main( int argc, char* argv[] )
 {
   // 1) Initialize command-line option variables with default values
   bool  opt = false;
-  char* arg = NULL;
+  char* input_dir = NULL;
+  int32_t num_gener = -1;
 
 
   // 2) Define allowed options
-  const char * options_list = "hVoa:";
+  const char * options_list = "hVoi:g:";
   static struct option long_options_list[] = {
     { "help",     no_argument,        NULL, 'h' },
     { "version",  no_argument,        NULL, 'V' },
     { "opt",      no_argument,        NULL, 'o' },
-    { "arg",      required_argument,  NULL, 'a' },
+    { "in",       required_argument,  NULL, 'i' },
+    { "gener",    required_argument,  NULL, 'g' },
     { 0, 0, 0, 0 }
   };
 
@@ -92,10 +95,15 @@ int main( int argc, char* argv[] )
         opt = true;
         break;
       }
-      case 'a' :
+      case 'i' :
       {
-        arg = new char[strlen(optarg)+1];
-        strcpy( arg, optarg );
+        input_dir = new char[strlen(optarg)+1];
+        strcpy( input_dir, optarg );
+        break;
+      }
+      case 'g' :
+      {
+        num_gener = atol(optarg);
         break;
       }
       default :
@@ -105,6 +113,30 @@ int main( int argc, char* argv[] )
       }
     }
   }
+
+  // 4) Check for missing mandatory arguments
+  if (input_dir == NULL)
+  {
+    printf( "%s: error: You must provide an input directory.\n", argv[0] );
+    exit( EXIT_FAILURE );
+  }
+  if ( num_gener == -1 )
+  {
+    printf( "%s: error: You must provide a generation number.\n", argv[0] );
+    exit( EXIT_FAILURE );
+  }
+
+
+  // Load the experiment
+  ae_exp_manager* exp = new ae_exp_manager();
+  exp->load(input_dir, num_gener, false, false, false);
+
+
+  // *********************************************************************** //
+  // Do something here
+  // *********************************************************************** //
+
+  delete exp;
 }
 
 
@@ -134,11 +166,11 @@ void print_help(char* prog_path)
   printf( "\n" );
   printf( "Usage : %s -h or --help\n", prog_name );
   printf( "   or : %s -V or --version\n", prog_name );
-  printf( "   or : %s [-o] [-a arg]\n", prog_name );
+  printf( "   or : %s [-o] -a arg\n", prog_name );
   printf( "\nOptions\n" );
   printf( "  -h, --help\n\tprint this help, then exit\n\n" );
   printf( "  -V, --version\n\tprint version number, then exit\n\n" );
-  printf( "  -o, --opt\n\toption with no argument)\n" );
+  printf( "  -o, --opt\n\toption with no argument\n" );
   printf( "  -a, --arg argument\n\toption with an argument\n" );
 }
 
