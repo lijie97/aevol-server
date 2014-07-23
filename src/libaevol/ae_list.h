@@ -3,25 +3,25 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 // ****************************************************************************
 
 
@@ -47,20 +47,20 @@ template <typename T>
 class ae_list_node
 {
   friend class ae_list<T>;
-  
+
   public :
     inline ae_list_node( T obj, ae_list_node* prev = NULL, ae_list_node* next = NULL );
-  
+
     // Make a new node sharing the same object as 'model'
     // The created node is unlinked
     inline ae_list_node( const ae_list_node &model );
-    
+
     virtual inline ~ae_list_node( void );
 
     inline T&             get_obj( void );
     inline ae_list_node*  get_prev( void );
     inline ae_list_node*  get_next( void );
-    
+
     inline void set_obj( T obj );
 
   protected :
@@ -69,7 +69,7 @@ class ae_list_node
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
     };
-    
+
     T _obj;
     ae_list_node* _prev;
     ae_list_node* _next;
@@ -113,12 +113,15 @@ class ae_list
     // Remove object from list and delete it if delete_obj is true
     inline void remove( T obj, bool delete_node, bool delete_obj );
     inline void remove( ae_list_node<T>* node, bool delete_node, bool delete_obj );
-    
+
     // Remove all the nodes between node_1 and node_2 (included) from the list and return
     // a new list containing the removed nodes (order is conserved)
-    inline ae_list<T> * extract_sublist( ae_list_node<T> * first_node, ae_list_node<T> * last_node );
-    inline ae_list<T> * extract_starting_sublist( ae_list_node<T> * last_node );
-    inline ae_list<T> * extract_ending_sublist( ae_list_node<T> * first_node );
+    inline ae_list<T>* extract_sublist(ae_list_node<T>* first_node, ae_list_node<T>* last_node );
+    inline ae_list<T>* extract_sublist(int32_t first, int32_t last );
+    inline ae_list<T>* extract_starting_sublist( ae_list_node<T>* last_node );
+    inline ae_list<T>* extract_starting_sublist( int32_t last );
+    inline ae_list<T>* extract_ending_sublist( ae_list_node<T>* first_node );
+    inline ae_list<T>* extract_ending_sublist( int32_t first );
 
     // Erase the list (nodes are deleted). Objects are deleted if delete_obj == DELETE_OBJ
     inline void erase( bool delete_obj );
@@ -126,7 +129,7 @@ class ae_list
     // Add the elements of 'append' at the end of the list.
     // 'append' is emptied.
     inline void merge( ae_list<T> * append );
-    
+
     // Add the elements of 'to_add' as new nodes at the end of the list.
     // 'to_add' is untouched.
     inline void add_list( ae_list<T> * const to_add );
@@ -135,9 +138,9 @@ class ae_list
     inline int32_t  get_nb_elts( void ) const;
     inline bool     is_empty( void ) const;
 
-    inline int32_t        get_position( T obj ) const;
-    inline ae_list_node<T> * get_node( int32_t pos ) const;
-    inline T             get_object( int32_t pos ) const;
+    inline int32_t get_position( T obj ) const;
+    inline ae_list_node<T>* get_node( int32_t pos ) const;
+    inline T get_object( int32_t pos ) const;
 
     // Accessors
     inline ae_list_node<T>* get_first( void ) { return _first; };
@@ -193,7 +196,7 @@ ae_list_node<T>* ae_list<T>::add( T obj )
 {
   ae_list_node<T>* node = new ae_list_node<T>( obj, _last, NULL );
   assert( node );
-  
+
   if ( _last != NULL ) _last->_next = node;
   _last = node;
   if ( _first == NULL ) _first = node;
@@ -207,7 +210,7 @@ ae_list_node<T>* ae_list<T>::add_front( T obj )
 {
   ae_list_node<T>* node = new ae_list_node<T>( obj, NULL, _first );
   assert( node );
-  
+
   if ( _first != NULL ) _first->_prev = node;
   _first = node;
   if ( _last == NULL ) _last = node;
@@ -248,9 +251,9 @@ ae_list_node<T>* ae_list<T>::add_before( T obj, ae_list_node<T>* n )
 {
   ae_list_node<T>* node = new ae_list_node<T>( obj, NULL, NULL );
   assert( node );
-  
+
   insert_before( node, n );
-  
+
   return node;
 }
 
@@ -261,9 +264,9 @@ ae_list_node<T>* ae_list<T>::add_after( T obj, ae_list_node<T>* n )
 {
   ae_list_node<T>* node = new ae_list_node<T>( obj, NULL, NULL );
   assert( node );
-  
+
   insert_after( node, n );
-  
+
   return node;
 }
 
@@ -300,7 +303,7 @@ template <typename T>
 void ae_list<T>::insert_after( ae_list_node<T> * n1, ae_list_node<T> * n2 )
 {
   assert( n1 != NULL && n2 != NULL );
-  
+
   // save node after n2
   ae_list_node<T> * n2_next = n2->_next;
 
@@ -361,10 +364,8 @@ void ae_list<T>::invert( ae_list_node<T> * n1, ae_list_node<T> * n2 )
 template <typename T>
 void ae_list<T>::remove( T obj, bool delete_node, bool delete_obj )
 {
-  //printf("trying to remove an object, nb_el = %ld\n", _nb_elts);
   for ( ae_list_node<T> * node = _first ; node != NULL ; node = node->_next )
   {
-    //printf("scanning obj %p for obj %p\n",node->_obj, obj);
     if ( node->_obj == obj )
     {
       // unlink node
@@ -469,20 +470,117 @@ void ae_list<T>::remove( ae_list_node<T> * node, bool delete_node, bool delete_o
   _nb_elts--;
 }
 
+
+/*!
+  @brief Remove elements from the list and returns them in a new list
+
+  Remove <n> elements from the list starting with that of index <first>
+  (included -- index start at 0) and return a new list containing the removed elements
+  (order is conserved)
+
+  @param first the index of the first element to be extracted
+  @param n the number of elements to be extracted
+  @return a new list containing all the extracted elements (in the same order)
+ */
 template <typename T>
-ae_list<T> * ae_list<T>::extract_sublist( ae_list_node<T> * first_node, ae_list_node<T> * last_node )
+ae_list<T> * ae_list<T>::extract_sublist(int32_t first, int32_t n)
 {
-  assert( first_node != NULL && last_node != NULL );
-  
+  assert(first >= 0 && n > 0 && first + n < _nb_elts);
+
+  // Get first node to extract
+  ae_list_node<T>* first_node = _first;
+  for (int32_t i = 0 ; i < first ; i++)
+  {
+    first_node = first_node->_next;
+  }
+
+  // Get last node to extract
+  ae_list_node<T>* last_node = first_node;
+  for (int32_t i = 1 ; i < n ; i++)
+  {
+    last_node = last_node->_next;
+  }
+
+  extract_sublist(first_node, last_node);
+}
+
+
+/*!
+  @brief Remove elements from the list and returns them in a new list
+
+  Remove the first <n> elements from the list and return a new list containing
+  the removed elements (order is conserved)
+
+  @param n the number of elements to be extracted
+  @return a new list containing all the extracted elements (in the same order)
+ */
+template <typename T>
+ae_list<T> * ae_list<T>::extract_starting_sublist(int32_t n)
+{
+  assert(n > 0 && n <= _nb_elts);
+
+  // Get last node to extract
+  ae_list_node<T>* last_node = _first;
+  for ( int32_t i = 1 ; i < n ; i++)
+  {
+    last_node = last_node->_next;
+  }
+
+  extract_starting_sublist(last_node);
+}
+
+
+/*!
+  @brief Remove elements from the list and returns them in a new list
+
+  Remove the last <n> elements from the list and return a new list containing
+  the removed elements (order is conserved).
+
+  @param n the number of elements to be extracted
+  @return a new list containing all the extracted elements (in the same order)
+ */
+template <typename T>
+ae_list<T> * ae_list<T>::extract_ending_sublist(int32_t n)
+{
+  assert(n > 0 && n <= _nb_elts);
+
+  // Get first node to extract
+  ae_list_node<T>* first_node = _last;
+  for (int32_t i = 1 ; i < n ; i++)
+  {
+    first_node = first_node->_prev;
+  }
+
+  extract_ending_sublist(first_node);
+}
+
+
+/*!
+  @brief Remove elements from the list and returns them in a new list
+
+  Remove all the elements between first_node and last_node (included) from the
+  list and return a new list containing the removed elements
+  (order is conserved)
+
+  @param first_node the first node to be extracted
+  @param last_node the last node to be extracted
+  @return a new list containing all the extracted elements (in the same order)
+ */
+template <typename T>
+ae_list<T> * ae_list<T>::extract_sublist(ae_list_node<T>* first_node,
+                                         ae_list_node<T>* last_node)
+{
+  assert(first_node != NULL && last_node != NULL);
+
   ae_list<T> * new_list = new ae_list<T>();
-  
+
   new_list->_first  = first_node;
   new_list->_last   = last_node;
-  
+
   if ( first_node == _first && last_node == _last )
   {
     new_list->_nb_elts  = _nb_elts;
-    
+
     _first    = NULL;
     _last     = NULL;
     _nb_elts  = 0;
@@ -508,37 +606,47 @@ ae_list<T> * ae_list<T>::extract_sublist( ae_list_node<T> * first_node, ae_list_
       first_node->_prev = NULL;
       last_node->_next = NULL;
     }
-    
-    
+
+
     // Update number of elements of both lists
     ae_list_node<T> * node = first_node;
     new_list->_nb_elts++;
     _nb_elts--;
-    
+
     while ( node != last_node )
     {
       new_list->_nb_elts++;
       _nb_elts--;
-      
+
       node = node->_next;
-    } 
+    }
   }
-  
+
   return new_list;
 }
 
+
+/*!
+  @brief Remove elements from the list and returns them in a new list
+
+  Remove all the elements before last_node (included) from the list
+  and return a new list containing the removed elements (order is conserved)
+
+  @param last_node the last node to be extracted
+  @return a new list containing all the extracted elements (in the same order)
+ */
 template <typename T>
-ae_list<T> * ae_list<T>::extract_starting_sublist( ae_list_node<T> * last_node )
+ae_list<T> * ae_list<T>::extract_starting_sublist(ae_list_node<T> * last_node)
 {
   ae_list<T> * new_list = new ae_list<T>();
-  
+
   new_list->_first  = _first;
   new_list->_last   = last_node;
-  
+
   if ( last_node == _last )
   {
     new_list->_nb_elts  = _nb_elts;
-    
+
     _first    = NULL;
     _last     = NULL;
     _nb_elts  = 0;
@@ -546,36 +654,46 @@ ae_list<T> * ae_list<T>::extract_starting_sublist( ae_list_node<T> * last_node )
   else
   {
     _first = last_node->_next;
-    
+
     // Update number of elements of both lists
     ae_list_node<T> * node = _first;
     new_list->_nb_elts++;
     _nb_elts--;
-    
+
     while ( node != last_node )
     {
       new_list->_nb_elts++;
       _nb_elts--;
-      
+
       node = node->_next;
-    } 
+    }
   }
-  
+
   return new_list;
 }
 
+
+/*!
+  @brief Remove elements from the list and returns them in a new list
+
+  Remove all the elements after first_node (included) from the list
+  and return a new list containing the removed elements (order is conserved)
+
+  @param first_node the first node to be extracted
+  @return a new list containing all the extracted elements (in the same order)
+ */
 template <typename T>
-ae_list<T> * ae_list<T>::extract_ending_sublist( ae_list_node<T> * first_node )
+ae_list<T> * ae_list<T>::extract_ending_sublist(ae_list_node<T> * first_node)
 {
   ae_list<T> * new_list = new ae_list<T>();
-  
+
   new_list->_first  = first_node;
   new_list->_last   = _last;
-  
+
   if ( first_node == _first )
   {
     new_list->_nb_elts  = _nb_elts;
-    
+
     _first    = NULL;
     _last     = NULL;
     _nb_elts  = 0;
@@ -583,21 +701,21 @@ ae_list<T> * ae_list<T>::extract_ending_sublist( ae_list_node<T> * first_node )
   else
   {
     _last = first_node->_prev;
-    
+    _last->_next = NULL;
+    first_node->_prev = NULL;
+
     // Update number of elements of both lists
     ae_list_node<T> * node = first_node;
-    new_list->_nb_elts++;
-    _nb_elts--;
-    
+
     while ( node != NULL )
     {
       new_list->_nb_elts++;
       _nb_elts--;
-      
+
       node = node->_next;
-    } 
+    }
   }
-  
+
   return new_list;
 }
 
@@ -605,8 +723,6 @@ ae_list<T> * ae_list<T>::extract_ending_sublist( ae_list_node<T> * first_node )
 template <typename T>
 void ae_list<T>::erase( bool delete_obj )
 {
-  //  printf("nb elts in list %d\n", _nb_elts);
-
   ae_list_node<T>* node = _first;
 
   while ( node != NULL )
@@ -619,7 +735,7 @@ void ae_list<T>::erase( bool delete_obj )
       delete node->_obj;
       node->_obj = NULL;
     }
-    
+
     delete node;
     node = next;
   }
@@ -628,8 +744,14 @@ void ae_list<T>::erase( bool delete_obj )
   _nb_elts = 0;
 }
 
+
+/*!
+  Adds all the elements of list <append> to the list and empty <append>
+
+  @param append the list of objects to add
+ */
 template <typename T>
-void ae_list<T>::merge( ae_list<T> * append )
+void ae_list<T>::merge(ae_list<T>* append)
 {
   if ( append == NULL || append->is_empty() ) return; // Nothing to do
 
@@ -664,21 +786,32 @@ void ae_list<T>::merge( ae_list<T> * append )
   }
 }
 
+
+/*!
+  Adds all the elements of list <to_add> to the list
+
+  @param to_add the list of objects to add
+ */
 template <typename T>
-inline void ae_list<T>::add_list( ae_list<T> * const to_add )
+inline void ae_list<T>::add_list(ae_list<T>* const to_add)
 {
   if ( to_add == NULL ) return; // Nothing to do
-  
+
   ae_list_node<T> * to_add_node = to_add->get_first();
-  
+
   while ( to_add_node != NULL )
   {
     add( new ae_list_node<T>( *to_add_node ) );
-    
+
     to_add_node = to_add_node->get_next();
   }
 }
 
+/*!
+  Returns true if the list is empty, false otherwise
+
+  @return true if the list is empty, false otherwise
+ */
 template <typename T>
 bool ae_list<T>::is_empty( void ) const
 {
@@ -686,6 +819,12 @@ bool ae_list<T>::is_empty( void ) const
 }
 
 
+
+/*!
+  Returns the number of elements in the list
+
+  @return the number of elements in the list
+ */
 template <typename T>
 int32_t ae_list<T>::get_nb_elts( void ) const
 {
@@ -695,6 +834,9 @@ int32_t ae_list<T>::get_nb_elts( void ) const
 
 /*!
   Returns the position of the object provided or -1 if not found
+
+  @param obj the object to find
+  @return the position (0 for the head) of the object or -1 if not found
  */
 template <typename T>
 int32_t ae_list<T>::get_position( T obj ) const
@@ -715,9 +857,12 @@ int32_t ae_list<T>::get_position( T obj ) const
 
 /*!
   Returns the node at position <pos> or NULL if pos is invalid
+
+  @param pos the position of the node of interest (0 for head)
+  @return the node at position <pos> or NULL if pos is invalid
  */
 template <typename T>
-ae_list_node<T> * ae_list<T>::get_node( int32_t pos ) const
+ae_list_node<T> * ae_list<T>::get_node(int32_t pos) const
 {
   if ( pos >= _nb_elts ) return NULL;
 
@@ -732,6 +877,9 @@ ae_list_node<T> * ae_list<T>::get_node( int32_t pos ) const
 
 /*!
   Returns the object at position <pos> or NULL if pos is invalid
+
+  @param pos the position of the node of interest (0 for head)
+  @return the object at position <pos> or NULL if pos is invalid
  */
 template <typename T>
 T ae_list<T>::get_object( int32_t pos ) const
@@ -781,6 +929,14 @@ inline ae_list_node<T>::ae_list_node( T obj, ae_list_node* prev, ae_list_node* n
   _next = next;
 };
 
+
+/*!
+  Constructs a new (unlinked) node containing the same object as the model.
+
+  The object is shallow-copied.
+
+  @param model the model to copy the object from
+ */
 template<typename T>
 ae_list_node<T>::ae_list_node( const ae_list_node<T> &model )
 {

@@ -9,7 +9,7 @@ AM_CPPFLAGS = -I./
 AM_CPPFLAGS += -I$(top_srcdir)/src/libaevol $(CPPUNIT_CFLAGS)
 
 
-AM_LDFLAGS = -L$(top_srcdir)/src/libaevol 
+AM_LDFLAGS = -L$(top_srcdir)/src/libaevol
 
 if WITH_RAEVOL
   LDADD = $(top_srcdir)/src/libaevol/libraevol.a
@@ -42,7 +42,7 @@ TESTS = $(check_PROGRAMS)
 # prefixed object files so that we don't use an object file built for another set of macrodefinitions
 # e.g. We don't want to use an object file created with NO_X when building the X11 lib
 
-run_tests_SOURCES = run_tests.cpp Test_ae_jumping_mt.cpp Test_ae_jumping_mt.h Test_ae_individual.cpp Test_ae_individual.h
+run_tests_SOURCES = run_tests.cpp Test_ae_jumping_mt.cpp Test_ae_jumping_mt.h Test_ae_list.cpp Test_ae_list.h Test_ae_individual.cpp Test_ae_individual.h
 run_tests_CPPFLAGS = $(AM_CPPFLAGS)
 
 
