@@ -176,7 +176,7 @@ void ae_dump::write_secretion_present ( void )
 {
   if ( _exp_m->is_spatially_structured() )
   {
-    sprintf( filename_buffer, "stats/dump/secretion_present_%04"PRId32".dat", _exp_m->get_num_gener() ) ;
+    sprintf( filename_buffer, "stats/dump/secretion_present_%04"PRId32".out", _exp_m->get_num_gener() ) ;
     current_file = fopen( filename_buffer, "w+" );
     
     double** map = _exp_m->get_spatial_structure()->get_secretion_present_grid();
