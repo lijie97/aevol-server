@@ -1572,22 +1572,6 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
   output_m->set_logs( _logs );
 
   delete param_mut;
-
-  if (true)
-  {
-    ae_list_node<ae_individual*>* indiv_node = pop->get_indivs()->get_first();
-    ae_individual*  indiv = NULL;
-
-    while ( indiv_node != NULL )
-    {
-      indiv = indiv_node->get_obj();
-
-      printf("strain name indiv %d: %s\n", indiv->get_id(), indiv->get_strain_name());
-
-      indiv_node = indiv_node->get_next();
-    }
-    exit(-1);
-  }
 }
 
 
