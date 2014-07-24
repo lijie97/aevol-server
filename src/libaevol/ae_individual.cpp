@@ -88,6 +88,7 @@ ae_individual::ae_individual( ae_exp_manager* exp_m,
                               int32_t max_genome_length,
                               bool allow_plasmids,
                               int32_t id,
+                              char* strain_name,
                               int32_t age )
 {
   // Experiment manager
@@ -104,8 +105,8 @@ ae_individual::ae_individual( ae_exp_manager* exp_m,
   set_id( id );
   _rank = -1; // TODO: UNRANKED
   _age = age;
-  _strain_name = new char[1];
-  _strain_name[0] = 0;
+  _strain_name = new char[strlen(strain_name)+1];
+  strcpy(_strain_name, strain_name);
 
   _phenotype_activ  = NULL;
   _phenotype_inhib  = NULL;

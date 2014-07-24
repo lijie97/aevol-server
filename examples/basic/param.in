@@ -3,6 +3,7 @@
 ###################################
 
 ##### 1. Initial setup ############
+STRAIN_NAME             basic_example
 SEED                    7250909
 INIT_POP_SIZE           1000
 INIT_METHOD             ONE_GOOD_GENE CLONE

@@ -3,25 +3,25 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //*****************************************************************************
 
 
@@ -69,9 +69,11 @@ ae_individual_X11::ae_individual_X11( ae_exp_manager* exp_m,
                                       int32_t max_genome_length,
                                       bool allow_plasmids,
                                       int32_t id,
+                                      char* strain_name,
                                       int32_t age )
         : ae_individual(  exp_m, mut_prng, stoch_prng, param_mut, w_max,
-                          min_genome_length, max_genome_length, allow_plasmids, id, age )
+                          min_genome_length, max_genome_length, allow_plasmids,
+                          id, strain_name, age )
 {
   init_occupied_sectors();
 }
@@ -123,7 +125,7 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
   // Retreive the genetic unit corresponding to the main chromosome
   ae_genetic_unit* gen_unit = get_genetic_unit(0);
   int32_t genome_length = gen_unit->get_dna()->get_length();
-  
+
   // Display the number of CDSs
   char display_string[40];
   sprintf( display_string, "Main chromosome size : %"PRId32"bp", genome_length );
@@ -138,7 +140,7 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
   if ( _allow_plasmids ) canvas_width = win->get_width() / 2;
   else canvas_width = win->get_width();
   int16_t canvas_height = win->get_height();
-  
+
   int16_t canvas_size = ae_utils::min( canvas_width, canvas_width );
   int16_t diam        = round( canvas_size * log( (double)genome_length ) / 16 );
 
@@ -196,7 +198,7 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
 
     // These are the same as above but with a higher precision (1/64 degrees)
     alpha_first_64   = (int16_t) round(64 * 360 * ((double)cds->get_first_translated_pos() / (double)genome_length ));
-    alpha_last_64    = (int16_t) round(64 * 360 * ((double)cds->get_last_translated_pos() / (double)genome_length ));    
+    alpha_last_64    = (int16_t) round(64 * 360 * ((double)cds->get_last_translated_pos() / (double)genome_length ));
     theta_first_64   = ae_utils::mod( 64 * 90 - alpha_first_64, 64 * 360 );
     theta_last_64    = ae_utils::mod( 64 * 90 - alpha_last_64, 64 * 360 );
     nb_sect_64       = ae_utils::mod( alpha_last_64 - alpha_first_64 + 1,  64 * 360 );
@@ -343,24 +345,24 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
 
     cds_node = cds_node->get_next();
   }
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
   // --------------------------------------------------------------------------This is temporary, it is a big copy-paste of what's above.
   if ( _allow_plasmids )
   {
     // Retreive the genetic unit corresponding to the plasmid
     ae_genetic_unit* gen_unit = get_genetic_unit(1);
     if ( gen_unit == NULL ) return;
-    
+
     int32_t genome_length = gen_unit->get_dna()->get_length();
-    
+
 
     // Compute display diameter according to genome length and window size
     int16_t canvas_width;
@@ -377,7 +379,7 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
       canvas_size   = ae_utils::min( canvas_width, canvas_width );
     }
     canvas_height = win->get_height();
-    
+
     int16_t diam  = round( canvas_size * log( (double)genome_length ) / 16 );
 
     // Prevent diameter from getting greater than 2/3 of the window size
@@ -389,8 +391,8 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
     // Compute coordinates of the upper-left corner of the containing square
     int16_t pos_x = canvas_width + (canvas_width - diam) / 2;
     int16_t pos_y = (canvas_height - diam) / 2;
-    
-    
+
+
     // Draw main circle
     win->draw_circle( pos_x, pos_y, diam );
 
@@ -435,7 +437,7 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
 
       // These are the same as above but with a higher precision (1/64 degrees)
       alpha_first_64   = (int16_t) round(64 * 360 * ((double)cds->get_first_translated_pos() / (double)genome_length ));
-      alpha_last_64    = (int16_t) round(64 * 360 * ((double)cds->get_last_translated_pos() / (double)genome_length ));    
+      alpha_last_64    = (int16_t) round(64 * 360 * ((double)cds->get_last_translated_pos() / (double)genome_length ));
       theta_first_64   = ae_utils::mod( 64 * 90 - alpha_first_64, 64 * 360 );
       theta_last_64    = ae_utils::mod( 64 * 90 - alpha_last_64, 64 * 360 );
       nb_sect_64       = ae_utils::mod( alpha_last_64 - alpha_first_64 + 1,  64 * 360 );
@@ -590,7 +592,7 @@ void ae_individual_X11::display_rnas( ae_X11_window* win )
   // Retreive the genetic unit corresponding to the main chromosome
   ae_genetic_unit* gen_unit = _genetic_unit_list->get_first()->get_obj();
   int32_t genome_length = gen_unit->get_dna()->get_length();
-  
+
   // Display the number of RNAs
   char nb_rna[40];
   sprintf( nb_rna, "Leading : %"PRId32" RNAs", gen_unit->get_rna_list()[LEADING]->get_nb_elts() );
@@ -706,7 +708,7 @@ void ae_individual_X11::display_rnas( ae_X11_window* win )
     _occupied_sectors[LEADING][layer][ae_utils::mod(theta_first+1, 360)] = true;
     _occupied_sectors[LEADING][layer][ae_utils::mod(theta_first-nb_sect, 360)] = true;
 
-    
+
     // Determine drawing color
     char* color;
     if ( rna->is_coding() )
@@ -735,7 +737,7 @@ void ae_individual_X11::display_rnas( ae_X11_window* win )
     pos_y = (win->get_height() / 2.0) - (sin((theta_first_64 - nb_sect_64)/(64*180.0)*M_PI) * diam2 / 2.0) - (arrow_thick / 2.0);
 
     win->fill_arc( pos_x, pos_y, arrow_thick, ae_utils::mod(180+theta_last, 360), 180, color );
-    
+
     delete [] color;
 
     rna_node = rna_node->get_next();
@@ -811,7 +813,7 @@ void ae_individual_X11::display_rnas( ae_X11_window* win )
     _occupied_sectors[LAGGING][layer][ae_utils::mod(theta_first-1, 360)] = true;
     _occupied_sectors[LAGGING][layer][ae_utils::mod(theta_first+nb_sect, 360)] = true;
 
-    
+
     // Determine drawing color
     char* color;
     if ( rna->is_coding() )
@@ -840,7 +842,7 @@ void ae_individual_X11::display_rnas( ae_X11_window* win )
     pos_y = (win->get_height() / 2.0) - (sin((theta_last_64+1)/(64*180.0)*M_PI) * diam2 / 2.0) - (arrow_thick / 2.0);
 
     win->fill_arc( pos_x, pos_y, arrow_thick, theta_last, 180, color );
-    
+
     delete [] color;
 
     rna_node = rna_node->get_next();

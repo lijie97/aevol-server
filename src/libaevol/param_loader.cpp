@@ -3,25 +3,25 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //*****************************************************************************
 
 
@@ -33,6 +33,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <errno.h>
+#include <limits.h>
+#include <time.h>
 
 // =================================================================
 //                            Project Files
@@ -77,7 +80,11 @@ class ae_environment;
 // =================================================================
 //                    Definition of static attributes
 // =================================================================
-
+static const int8_t STRAIN_NAME_DEFAULT_SIZE  = 20;
+static const int8_t STRAIN_NAME_LOGIN_SIZE    = 10;
+#ifndef LOGIN_NAME_MAX
+  #define LOGIN_NAME_MAX 256
+#endif
 // =================================================================
 //                             Constructors
 // =================================================================
@@ -86,53 +93,77 @@ class ae_environment;
 param_loader::param_loader( const char* file_name )
 {
   // Give default values to parameters
-  
+
   // ----------------------------------------- PseudoRandom Number Generators
   _seed           = 0;
   _mut_seed       = 0;
   _stoch_seed     = 0;
   _env_var_seed   = 0;
   _env_noise_seed = 0;
-  
+
   // ------------------------------------------------------------ Constraints
   _min_genome_length  = 10;
   _max_genome_length  = 10000000;
   _w_max              = 0.033333333;
-  
+
   // ----------------------------------------------------- Initial conditions
   _chromosome_initial_length  = 5000;
   _init_method            = ONE_GOOD_GENE | CLONE;
   _init_pop_size          = 1000;
-  
+  _strain_name = new char[STRAIN_NAME_DEFAULT_SIZE+1];
+
+  char* login_name = new char[LOGIN_NAME_MAX+1];
+  // Try get user login. If fail, replace by default value
+  if(getlogin_r(login_name, LOGIN_NAME_MAX) != 0)
+    strcpy(login_name, "anon");
+
+  // Copy login into strain name with at most STRAIN_NAME_LOGIN_SIZE characters
+  strncpy(_strain_name, login_name, STRAIN_NAME_LOGIN_SIZE);
+  delete [] login_name;
+
+  // Null-terminate the c-string if the max number of characters were copied
+  if (_strain_name[STRAIN_NAME_LOGIN_SIZE] != 0)
+    _strain_name[STRAIN_NAME_LOGIN_SIZE + 1] = 0;
+
+  // Append with a hyphen and a series of random digits
+  int strain_name_len = strlen(_strain_name);
+  _strain_name[strain_name_len++] = '-';
+  srand(time(NULL));
+  while (strain_name_len < STRAIN_NAME_DEFAULT_SIZE)
+  {
+    // Don't care for uniform distrib, using simple and ugly rand() % X
+    _strain_name[strain_name_len++] = '0' + rand() % 10;
+  }
+
   // ------------------------------------------------------------ Environment
   _env_gaussians      = NULL;
   _env_custom_points  = NULL;
   _env_sampling       = 300;
-  
+
   // ---------------------------------------- Environment x-axis segmentation
   _env_axis_nb_segments         = 1;
   _env_axis_segment_boundaries  = NULL;
   _env_axis_features            = NULL;
   _env_axis_separate_segments   = false;
-  
+
   // -------------------------------------------------- Environment variation
   _env_var_method = NO_VAR;
   _env_var_sigma  = 0;
   _env_var_tau    = 0;
-  
+
   // ------------------------------------------------------ Environment noise
   _env_noise_method       = NO_NOISE;
   _env_noise_alpha        = 0;
   _env_noise_sigma        = 0;
   _env_noise_prob         = 0;
   _env_noise_sampling_log = 0;
-  
+
   // --------------------------------------------------------- Mutation rates
   _point_mutation_rate  = 1e-5;
   _small_insertion_rate = 1e-5;
   _small_deletion_rate  = 1e-5;
   _max_indel_size       = 6;
-  
+
   // -------------------------------------------- Rearrangements and Transfer
   _with_4pts_trans            = true;
   _with_alignments            = false;
@@ -141,45 +172,45 @@ param_loader::param_loader( const char* file_name )
   _HT_ins_rate                = 0.0;
   _HT_repl_rate               = 0.0;
   _repl_HT_detach_rate        = 0.0;
-  
+
   // ------------------------------ Rearrangement rates (without alignements)
   _duplication_rate   = 1e-5;
   _deletion_rate      = 1e-5;
   _translocation_rate = 1e-5;
   _inversion_rate     = 1e-5;
-  
+
   // --------------------------------- Rearrangement rates (with alignements)
   _neighbourhood_rate       = 5e-5;
   _duplication_proportion   = 0.3;
   _deletion_proportion      = 0.3;
   _translocation_proportion = 0.3;
   _inversion_proportion     = 0.3;
-  
+
   // ------------------------------------------------------------ Alignements
   _align_fun_shape    = SIGMOID;
   _align_sigm_lambda  = 4;
   _align_sigm_mean    = 50;
   _align_lin_min      = 0;
   _align_lin_max      = 100;
-  
+
   _align_max_shift      = 20;
   _align_w_zone_h_len   = 50;
   _align_match_bonus    = 1;
   _align_mismatch_cost  = 2;
-  
+
   // ----------------------------------------------- Phenotypic Stochasticity
   _with_stochasticity = false;
-  
+
   // -------------------------------------------------------------- Selection
   _selection_scheme   = RANK_EXPONENTIAL;
   _selection_pressure = 0.998;
-  
+
   // ------------------------------------------------------ Spatial structure
   _spatially_structured       = false;
   _grid_width                 = 0;
   _grid_height                = 0;
   _migration_number           = 0;
-  
+
   // -------------------------------------------------------------- Secretion
   _with_secretion               = false;
   _secretion_contrib_to_fitness = 0;
@@ -187,7 +218,7 @@ param_loader::param_loader( const char* file_name )
   _secretion_degradation_prop   = 0;
   _secretion_cost               = 0;
   _secretion_init               = 0;
-  
+
   // --------------------------------------------------------------- Plasmids
   _allow_plasmids             = false;
   _plasmid_initial_length     = -1;
@@ -230,10 +261,10 @@ param_loader::param_loader( const char* file_name )
   // Other
   _more_stats = false;
 
-#ifdef __REGUL
-  // ------------------------------------------------------- Binding matrix
-  _binding_zeros_percentage = 75;
-#endif
+  #ifdef __REGUL
+    // ------------------------------------------------------- Binding matrix
+    _binding_zeros_percentage = 75;
+  #endif
 
   // Read parameter file
   _param_file_name = strdup( file_name );
@@ -260,6 +291,7 @@ param_loader::~param_loader( void )
    if ( _env_axis_segment_boundaries != NULL ) delete [] _env_axis_segment_boundaries;
    if ( _env_axis_features != NULL ) delete [] _env_axis_features;
    if ( _prng != NULL) delete _prng;
+   delete [] _strain_name;
 }
 
 // =================================================================
@@ -268,7 +300,13 @@ param_loader::~param_loader( void )
 
 void param_loader::interpret_line( f_line* line, int32_t cur_line )
 {
-  if ( strcmp( line->words[0], "MAX_TRIANGLE_WIDTH" ) == 0 )
+  if ( strcmp( line->words[0], "STRAIN_NAME" ) == 0 )
+  {
+    delete [] _strain_name;
+    _strain_name = new char[strlen(line->words[1])+1];
+    strcpy(_strain_name, line->words[1]);
+  }
+  else if ( strcmp( line->words[0], "MAX_TRIANGLE_WIDTH" ) == 0 )
   {
    _w_max = atof( line->words[1] );
   }
@@ -276,7 +314,7 @@ void param_loader::interpret_line( f_line* line, int32_t cur_line )
   {
     // Set general segmentation data
     _env_axis_nb_segments = line->nb_words / 2;
-    
+
     // Set segmentation boundaries
     _env_axis_segment_boundaries = new double [_env_axis_nb_segments + 1];
     _env_axis_segment_boundaries[0] = X_MIN;
@@ -285,7 +323,7 @@ void param_loader::interpret_line( f_line* line, int32_t cur_line )
       _env_axis_segment_boundaries[i] = atof( line->words[2*i] );
     }
     _env_axis_segment_boundaries[_env_axis_nb_segments] = X_MAX;
-    
+
     // Set segment features
     _env_axis_features = new ae_env_axis_feature[_env_axis_nb_segments];
     for ( int16_t i = 0 ; i < _env_axis_nb_segments ; i++ )
@@ -337,7 +375,7 @@ void param_loader::interpret_line( f_line* line, int32_t cur_line )
     {
       printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown tree recording option (use true/false).\n",
               _param_file_name, cur_line );
-      exit( EXIT_FAILURE ); 
+      exit( EXIT_FAILURE );
     }
   }
   else if ( strcmp( line->words[0], "TREE_MODE" ) == 0 )
@@ -346,13 +384,13 @@ void param_loader::interpret_line( f_line* line, int32_t cur_line )
     {
       printf( "ERROR in param file \"%s\" on line %"PRId32" : the \"light\" tree recording option is not implemented yet.\n",
               _param_file_name, cur_line );
-      exit( EXIT_FAILURE ); 
+      exit( EXIT_FAILURE );
       // _tree_mode = LIGHT;
     }
     else if ( strcmp( line->words[1], "normal" ) == 0 )
     {
       _tree_mode = NORMAL;
-    }       
+    }
     else
     {
       printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown tree mode option (use normal/light).\n",
@@ -369,12 +407,12 @@ void param_loader::interpret_line( f_line* line, int32_t cur_line )
     else if ( strncmp( line->words[1], "false", 5 ) == 0 )
     {
       _more_stats = false;
-    }       
+    }
     else
     {
       printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown more stats option (use true/false).\n",
               _param_file_name, cur_line );
-      exit( EXIT_FAILURE ); 
+      exit( EXIT_FAILURE );
     }
   }
   else if ( strcmp( line->words[0], "DUMP_STEP" ) == 0 )
@@ -411,7 +449,7 @@ void param_loader::interpret_line( f_line* line, int32_t cur_line )
       {
         printf( "ERROR in param file \"%s\" on line %"PRId32" : MIN_GENOME_LENGTH must be > 0.\n",
                 _param_file_name, cur_line );
-        exit( EXIT_FAILURE ); 
+        exit( EXIT_FAILURE );
       }
     }
   }
@@ -441,7 +479,7 @@ void param_loader::interpret_line( f_line* line, int32_t cur_line )
     else
     {
       printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown population structure.\n", _param_file_name, cur_line );
-      exit( EXIT_FAILURE ); 
+      exit( EXIT_FAILURE );
     }
   }
   else if ( strcmp( line->words[0], "MIGRATION_NUMBER" ) == 0 )
@@ -463,12 +501,12 @@ void param_loader::interpret_line( f_line* line, int32_t cur_line )
       else if ( strcmp( line->words[i], "WITH_INS_SEQ" ) == 0 )
       {
         _init_method |= WITH_INS_SEQ;
-      }   
+      }
       else
       {
         printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown initialization method %s.\n",
                 _param_file_name, cur_line, line->words[1] );
-        exit( EXIT_FAILURE ); 
+        exit( EXIT_FAILURE );
       }
     }
   }
@@ -532,11 +570,11 @@ void param_loader::interpret_line( f_line* line, int32_t cur_line )
               _param_file_name, cur_line, line->words[0] );
       exit( EXIT_FAILURE );
     }
-    
+
     if ( strcmp( line->words[1], "LINEAR" ) == 0 )
     {
       _align_fun_shape = LINEAR;
-      
+
       if ( line->nb_words == 4 )
       {
         _align_lin_min = atol( line->words[2] );
@@ -546,7 +584,7 @@ void param_loader::interpret_line( f_line* line, int32_t cur_line )
     else if ( strcmp( line->words[1], "SIGMOID" ) == 0 )
     {
       _align_fun_shape = SIGMOID;
-      
+
       if ( line->nb_words == 4 )
       {
         _align_sigm_lambda = atol( line->words[2] );
@@ -683,7 +721,7 @@ void param_loader::interpret_line( f_line* line, int32_t cur_line )
     {
       printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown 4pts_trans option (use true/false).\n",
               _param_file_name, cur_line );
-      exit( EXIT_FAILURE ); 
+      exit( EXIT_FAILURE );
     }
   }
   else if ( strcmp( line->words[0], "WITH_ALIGNMENTS" ) == 0 )
@@ -700,7 +738,7 @@ void param_loader::interpret_line( f_line* line, int32_t cur_line )
     {
       printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown alignement option (use true/false).\n",
               _param_file_name, cur_line );
-      exit( EXIT_FAILURE ); 
+      exit( EXIT_FAILURE );
     }
   }
   else if ( strcmp( line->words[0], "WITH_TRANSFER" ) == 0 )
@@ -717,7 +755,7 @@ void param_loader::interpret_line( f_line* line, int32_t cur_line )
     {
       printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown transfer option (use true/false).\n",
               _param_file_name, cur_line );
-      exit( EXIT_FAILURE ); 
+      exit( EXIT_FAILURE );
     }
   }
   else if ( strcmp( line->words[0], "REPL_TRANSFER_WITH_CLOSE_POINTS" ) == 0 )
@@ -734,7 +772,7 @@ void param_loader::interpret_line( f_line* line, int32_t cur_line )
     {
       printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown transfer option (use true/false).\n",
               _param_file_name, cur_line );
-      exit( EXIT_FAILURE ); 
+      exit( EXIT_FAILURE );
     }
   }
   else if ( strcmp( line->words[0], "SWAP_GUS" ) == 0 )
@@ -751,7 +789,7 @@ void param_loader::interpret_line( f_line* line, int32_t cur_line )
     {
       printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown swap option (use true/false).\n",
               _param_file_name, cur_line );
-      exit( EXIT_FAILURE ); 
+      exit( EXIT_FAILURE );
     }
   }
   else if ( strcmp( line->words[0], "TRANSFER_INS_RATE" ) == 0 )
@@ -794,7 +832,7 @@ void param_loader::interpret_line( f_line* line, int32_t cur_line )
       exit( EXIT_FAILURE );
     }
     env_var_already_set = true;
-    
+
     if ( strcmp( line->words[1], "none" ) == 0 )
     {
       assert( line->nb_words == 2 );
@@ -839,7 +877,7 @@ void param_loader::interpret_line( f_line* line, int32_t cur_line )
       exit( EXIT_FAILURE );
     }
     env_noise_already_set = true;
-    
+
     if ( strcmp( line->words[1], "none" ) == 0 )
     {
       assert( line->nb_words == 2 );
@@ -902,7 +940,7 @@ void param_loader::interpret_line( f_line* line, int32_t cur_line )
     {
       printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown allow_plasmids option (use true/false).\n",
               _param_file_name, cur_line );
-      exit( EXIT_FAILURE ); 
+      exit( EXIT_FAILURE );
     }
   }
   else if ( strcmp( line->words[0], "PLASMID_INITIAL_LENGTH" ) == 0 )
@@ -963,7 +1001,7 @@ void param_loader::interpret_line( f_line* line, int32_t cur_line )
     {
       printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown compute_phen_contrib_by_GU option (use true/false).\n",
               _param_file_name, cur_line );
-      exit( EXIT_FAILURE ); 
+      exit( EXIT_FAILURE );
     }
   }
   else if ( strcmp( line->words[0], "LOG" ) == 0 )
@@ -990,80 +1028,80 @@ void param_loader::interpret_line( f_line* line, int32_t cur_line )
       {
         printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown log option %s.\n",
                 _param_file_name, cur_line, line->words[1] );
-        exit( EXIT_FAILURE ); 
+        exit( EXIT_FAILURE );
       }
     }
   }
-  
-#ifdef __REGUL
-  else if ( strcmp( line->words[0], "HILL_SHAPE_N" ) == 0 )
-  {
-    _hill_shape_n = atof( line->words[1] );
-  }
-  else if ( strcmp( line->words[0], "HILL_SHAPE_THETA" ) == 0 )
-  {
-    _hill_shape_theta = atof( line->words[1] );
-  }
-  else if ( strcmp( line->words[0], "DEGRADATION_RATE" ) == 0 )
-  {
-    _degradation_rate = atof( line->words[1] );
-  }
-  else if ( strcmp( line->words[0], "DEGRADATION_STEP" ) == 0 )
-  {
-    _degradation_step = atof( line->words[1] );
-    // Check that 1/degradation_step is an integer
-    if( 1/_degradation_step != ((int) 1/_degradation_step) )
+
+  #ifdef __REGUL
+    else if ( strcmp( line->words[0], "HILL_SHAPE_N" ) == 0 )
     {
-      printf( "ERROR in param file \"%s\" on line %"PRId32" : DEGRADATION STEP\n",
-             _param_file_name, cur_line );
-      printf( "This step has to divide 1.\n");
-      exit( EXIT_FAILURE );
+      _hill_shape_n = atof( line->words[1] );
     }
-  }
-  else if ( strcmp( line->words[0], "INDIVIDUAL_EVALUATION_DATES" ) == 0 )
-  {
-    _individual_evaluation_nbr = line->nb_words - 1;
-    if( _individual_evaluation_nbr == 0 )
+    else if ( strcmp( line->words[0], "HILL_SHAPE_THETA" ) == 0 )
     {
-      printf( "ERROR in param file \"%s\" on line %"PRId32" : no evaluation dates provided\n",
-             _param_file_name, cur_line );
-      exit( EXIT_FAILURE );
+      _hill_shape_theta = atof( line->words[1] );
     }
-    ae_array_short* individual_evaluation_dates  = new ae_array_short( _individual_evaluation_nbr );
-    for( int16_t i = 0 ; i < _individual_evaluation_nbr ; i++ )
+    else if ( strcmp( line->words[0], "DEGRADATION_RATE" ) == 0 )
     {
-      individual_evaluation_dates->set_value( i, atoi( line->words[1 + i] ) );
+      _degradation_rate = atof( line->words[1] );
     }
-    individual_evaluation_dates->sort();
-    _individual_evaluation_dates = individual_evaluation_dates;
-  }
-  else if ( strcmp( line->words[0], "BINDING_ZEROS_PERCENTAGE" ) == 0 )
-  {
-    _binding_zeros_percentage = atof( line->words[1] );
-  }
-  else if ( strcmp( line->words[0], "WITH_HEREDITY" ) == 0 )
-  {
-    if ( strncmp( line->words[1], "true", 4 ) == 0 )
+    else if ( strcmp( line->words[0], "DEGRADATION_STEP" ) == 0 )
     {
-      _with_heredity = true;
+      _degradation_step = atof( line->words[1] );
+      // Check that 1/degradation_step is an integer
+      if( 1/_degradation_step != ((int) 1/_degradation_step) )
+      {
+        printf( "ERROR in param file \"%s\" on line %"PRId32" : DEGRADATION STEP\n",
+               _param_file_name, cur_line );
+        printf( "This step has to divide 1.\n");
+        exit( EXIT_FAILURE );
+      }
     }
-    else if ( strncmp( line->words[1], "false", 5 ) == 0 )
+    else if ( strcmp( line->words[0], "INDIVIDUAL_EVALUATION_DATES" ) == 0 )
     {
-      _with_heredity = false;
+      _individual_evaluation_nbr = line->nb_words - 1;
+      if( _individual_evaluation_nbr == 0 )
+      {
+        printf( "ERROR in param file \"%s\" on line %"PRId32" : no evaluation dates provided\n",
+               _param_file_name, cur_line );
+        exit( EXIT_FAILURE );
+      }
+      ae_array_short* individual_evaluation_dates  = new ae_array_short( _individual_evaluation_nbr );
+      for( int16_t i = 0 ; i < _individual_evaluation_nbr ; i++ )
+      {
+        individual_evaluation_dates->set_value( i, atoi( line->words[1 + i] ) );
+      }
+      individual_evaluation_dates->sort();
+      _individual_evaluation_dates = individual_evaluation_dates;
     }
-    else
+    else if ( strcmp( line->words[0], "BINDING_ZEROS_PERCENTAGE" ) == 0 )
     {
-      printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown with_heredity option (use true/false).\n",
-             _param_file_name, cur_line );
-      exit( EXIT_FAILURE );
+      _binding_zeros_percentage = atof( line->words[1] );
     }
-  }
-  else if ( strcmp( line->words[0], "PROTEIN_PRESENCE_LIMIT" ) == 0 )
-  {
-    _protein_presence_limit = atof( line->words[1] );
-  }
-#endif
-  
+    else if ( strcmp( line->words[0], "WITH_HEREDITY" ) == 0 )
+    {
+      if ( strncmp( line->words[1], "true", 4 ) == 0 )
+      {
+        _with_heredity = true;
+      }
+      else if ( strncmp( line->words[1], "false", 5 ) == 0 )
+      {
+        _with_heredity = false;
+      }
+      else
+      {
+        printf( "ERROR in param file \"%s\" on line %"PRId32" : unknown with_heredity option (use true/false).\n",
+               _param_file_name, cur_line );
+        exit( EXIT_FAILURE );
+      }
+    }
+    else if ( strcmp( line->words[0], "PROTEIN_PRESENCE_LIMIT" ) == 0 )
+    {
+      _protein_presence_limit = atof( line->words[1] );
+    }
+  #endif
+
   else
   {
     printf( "ERROR in param file \"%s\" on line %"PRId32" : undefined key word \"%s\"\n", _param_file_name, cur_line, line->words[0] );
@@ -1078,7 +1116,7 @@ void param_loader::read_file( void )
 
   int32_t cur_line = 0;
   f_line* line;
-  
+
 
   while ( ( line = get_line(&cur_line) ) != NULL ) // TODO : write line = new f_line( _param_file ) => f_line::f_line( char* )
   {
@@ -1093,7 +1131,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
   // Check consistency of min, max and initial length of chromosome and plasmid
   // Default for by GU minimal or maximal size is -1.
   // If equal to -1, maximal sizes of each GU will be replaced by total maximal size for the whole genome
-  
+
   if (_allow_plasmids)
   {
     if (_plasmid_initial_gene!=1) // the plasmid will be copied from the chromosome
@@ -1133,28 +1171,28 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
     printf("ERROR: CHROMOSOME_INITIAL_LENGTH is higher than PLASMID_MAXIMAL_LENGTH\n");
     exit( EXIT_FAILURE );
   }
-  
+
   // Check for incompatible environment options
   if ( ( _env_custom_points != NULL) && ( _env_gaussians != NULL))
   {
     printf( "ERROR in param file \"%s\" : ENV_ADD_POINT is incompatible with ENV_ADD_GAUSSIAN (or ENV_GAUSSIAN).\n",
            _param_file_name );
     exit( EXIT_FAILURE );
-    
+
   }
-  
+
   if ( ( _env_custom_points != NULL) && ( _env_var_method != NO_VAR))
   {
     printf( "ERROR in param file \"%s\" : ENV_ADD_POINT is incompatible with environmental variation.\n",
            _param_file_name );
     exit( EXIT_FAILURE );
   }
-  
-  
-  // Initialize _prng 
+
+
+  // Initialize _prng
   // This one will be used to create the initial genome(s) and to generate seeds for other prng
   _prng = new ae_jumping_mt( _seed );
-  
+
   // Initialize mut_prng, stoch_prng, spatial_struct_prng :
   // if mut_seed (respectively stoch_seed) not given in param.in, choose it at random
   int32_t selection_seed = _prng->random( 1000000 );
@@ -1174,14 +1212,14 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
       spatial_struct_prng = new ae_jumping_mt( spatial_struct_seed );
     }
 
-  
+
   // Create aliases (syntaxic sugars)
   ae_exp_setup*       exp_s     = exp_m->get_exp_s();
   ae_population*      pop       = exp_m->get_pop();
   ae_environment*     env       = exp_m->get_env();
   ae_selection*       sel       = exp_m->get_sel();
   ae_output_manager*  output_m  = exp_m->get_output_m();
-  
+
   // If the population is spatially structured,
   // check that the population fits in the spatial structure
   if ( _spatially_structured )
@@ -1192,21 +1230,21 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
       exit( EXIT_FAILURE );
     }
   }
-  
+
   // 1) ------------------------------------- Initialize the experimental setup
-  sel->set_prng( selection_prng );  
+  sel->set_prng( selection_prng );
 
   // ---------------------------------------------------------------- Selection
   sel->set_selection_scheme( _selection_scheme );
   sel->set_selection_pressure( _selection_pressure );
-  
+
   // ----------------------------------------------------------------- Transfer
   exp_s->set_with_HT( _with_HT );
   exp_s->set_repl_HT_with_close_points( _repl_HT_with_close_points );
   exp_s->set_HT_ins_rate( _HT_ins_rate );
   exp_s->set_HT_repl_rate( _HT_repl_rate );
   exp_s->set_repl_HT_detach_rate( _repl_HT_detach_rate );
-  
+
   // ----------------------------------------------------------------- Plasmids
   exp_s->set_with_plasmids( _allow_plasmids );
   exp_s->set_prob_plasmid_HT( _prob_plasmid_HT );
@@ -1216,7 +1254,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
   exp_s->set_recipient_cost( _recipient_cost );
   exp_s->set_swap_GUs( _swap_GUs );
   output_m->set_compute_phen_contrib_by_GU( _compute_phen_contrib_by_GU );
-  
+
   // -------------------------------------------------------- Spatial structure
   if ( _spatially_structured )
   {
@@ -1228,13 +1266,13 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
     sp_struct->set_secretion_diffusion_prop( _secretion_diffusion_prop );
     sp_struct->set_migration_number( _migration_number );
   }
-  
+
   // ---------------------------------------------------------------- Secretion
   exp_s->set_with_secretion( _with_secretion );
   exp_s->set_secretion_contrib_to_fitness( _secretion_contrib_to_fitness );
   exp_s->set_secretion_cost( _secretion_cost );
-  
-  
+
+
   // 2) ------------------------------------------------ Create the environment
   // Move the gaussian list and the list of custom points from the parameters
   // to the environment
@@ -1242,10 +1280,10 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
   _env_gaussians = NULL;
   env->set_custom_points( _env_custom_points );
   _env_custom_points = NULL;
-  
+
   // Copy the sampling
   env->set_sampling( _env_sampling );
-  
+
   // Set the environment segmentation
   if( (_env_axis_features != NULL) && (_env_axis_segment_boundaries != NULL)  )
     {
@@ -1265,7 +1303,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
     env->set_var_prng( new ae_jumping_mt( _env_var_seed ) );
     env->set_var_sigma_tau( _env_var_sigma, _env_var_tau );
   }
-  
+
   // Set environmental noise
   if ( _env_noise_method != NO_NOISE )
   {
@@ -1276,20 +1314,20 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
     env->set_noise_sigma( _env_noise_sigma );
     env->set_noise_prob( _env_noise_prob  );
   }
-  
+
   // Build the environment
   env->build();
-  
+
   if ( verbose )
   {
     printf( "Entire geometric area of the environment : %f\n", env->get_geometric_area() );
   }
-  
-  
+
+
   // 3) --------------------------------------------- Create the new population
-  pop->set_mut_prng( mut_prng );  
-  pop->set_stoch_prng( stoch_prng ); 
-  
+  pop->set_mut_prng( mut_prng );
+  pop->set_stoch_prng( stoch_prng );
+
   // Generate a model ae_mut_param object
   ae_params_mut* param_mut = new ae_params_mut();
   param_mut->set_point_mutation_rate( _point_mutation_rate );
@@ -1312,27 +1350,29 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
   param_mut->set_deletion_proportion( _deletion_proportion );
   param_mut->set_translocation_proportion( _translocation_proportion );
   param_mut->set_inversion_proportion( _inversion_proportion );
-  
+
   ae_individual* indiv        = NULL;
   int32_t        id_new_indiv = 0;
-  
+
   if (chromosome != NULL)
   {
     printf("Option -c is used: chromosome will be loaded from a text file\n");
     ae_individual* indiv = new ae_individual( exp_m,
-                                              pop->get_mut_prng(), 
-                                              pop->get_stoch_prng(), 
+                                              pop->get_mut_prng(),
+                                              pop->get_stoch_prng(),
                                               param_mut,
                                               _w_max,
                                               _min_genome_length,
                                               _max_genome_length,
                                               _allow_plasmids,
-                                              id_new_indiv++, 0 );
-    
+                                              id_new_indiv++,
+                                              _strain_name,
+                                              0 );
+
     indiv->add_GU( chromosome, lchromosome );
     indiv->get_genetic_unit(0)->set_min_gu_length(_chromosome_minimal_length);
     indiv->get_genetic_unit(0)->set_max_gu_length(_chromosome_maximal_length);
-    
+
     if (plasmid != NULL)
     {
       printf("Option -p is used: plasmid will be loaded from a text file\n");
@@ -1350,13 +1390,13 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
       printf( "ERROR: if you use option -c and ALLOW_PLASMIDS is set to true, you must also use option -p. \n For now loading a genetic unit from text file and generating the other is not supported.\n" );
       exit( EXIT_FAILURE );
     }
-    
+
     indiv->set_with_stochasticity( _with_stochasticity );
     indiv->compute_statistical_data();
     indiv->evaluate( exp_m->get_env() );
     printf("Starting with a clonal population of individual with metabolic error %f and secretion error %f \n",indiv->get_dist_to_target_by_feature(METABOLISM),indiv->get_dist_to_target_by_feature(SECRETION));
     pop->add_indiv( indiv );
-    
+
     // Make the clones and add them to the list of individuals
     ae_individual* clone = NULL;
     for ( int32_t i = 1 ; i < _init_pop_size ; i++ )
@@ -1388,22 +1428,22 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
       }
 
       indiv->set_with_stochasticity( _with_stochasticity );
-      
+
       // Add it to the list
       pop->add_indiv( indiv );
-    
+
       // Make the clones and add them to the list of individuals
       ae_individual* clone = NULL;
       for ( int32_t i = 1 ; i < _init_pop_size ; i++ )
       {
         // Create a clone, setting its id
         clone = create_clone( indiv, id_new_indiv++ );
-        
+
         #ifdef DISTRIBUTED_PRNG
           #error Not implemented yet !
           indiv->do_prng_jump();
         #endif
-        
+
         // Add it to the list
         pop->add_indiv( clone );
       }
@@ -1426,12 +1466,12 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
         // Add it to the list
         pop->add_indiv( indiv );
       }
-      
+
       pop->sort_individuals();
     }
   }
   else // if ( ! ONE_GOOD_GENE )
-  {    
+  {
     if ( _init_method & CLONE )
     {
       // Create a random individual and set its id
@@ -1446,7 +1486,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
 
       // Add it to the list
       pop->add_indiv( indiv );
-      
+
       // Make the clones and add them to the list of individuals
       ae_individual* clone = NULL;
       for ( int32_t i = 1 ; i < _init_pop_size ; i++ )
@@ -1458,7 +1498,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
           #error Not implemented yet !
           indiv->do_prng_jump();
         #endif
-        
+
         // Add it to the list
         pop->add_indiv( clone );
       }
@@ -1481,11 +1521,11 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
         // Add it to the list
         pop->add_indiv( indiv );
       }
-      
+
       pop->sort_individuals();
     }
   }
-  
+
   // If the population is spatially structured, set each individual's position
   if ( exp_m->is_spatially_structured() )
   {
@@ -1493,45 +1533,61 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
     int16_t x_max = exp_m->get_grid_width();
     int16_t y_max = exp_m->get_grid_height();
     ae_grid_cell* grid_cell = NULL;
-    
+
     ae_list_node<ae_individual*>* indiv_node = pop->get_indivs()->get_first();
     ae_individual*  indiv = NULL;
-    
+
     while ( indiv_node != NULL )
     {
       indiv = indiv_node->get_obj();
-      
+
       do
       {
-        x = exp_m->get_spatial_structure()->get_prng()->random( x_max ); 
-        y = exp_m->get_spatial_structure()->get_prng()->random( y_max );  
+        x = exp_m->get_spatial_structure()->get_prng()->random( x_max );
+        y = exp_m->get_spatial_structure()->get_prng()->random( y_max );
         grid_cell = exp_m->get_grid_cell( x, y );
       } while ( grid_cell->get_individual() != NULL );
-      
+
       grid_cell->set_individual( indiv );
-      
+
       indiv_node = indiv_node->get_next();
     }
   }
-  
-  
-  
+
+
+
   // 4) ------------------------------------------ Set the recording parameters
   output_m->set_backup_step( _backup_step );
   output_m->set_big_backup_step( _big_backup_step );
-  
+
   if ( _record_tree )
   {
     output_m->init_tree( exp_m, _tree_mode, _tree_step );
   }
-  
+
   if ( _make_dumps )
   {
     output_m->set_dump_step( _dump_step );
   }
   output_m->set_logs( _logs );
-  
+
   delete param_mut;
+
+  if (true)
+  {
+    ae_list_node<ae_individual*>* indiv_node = pop->get_indivs()->get_first();
+    ae_individual*  indiv = NULL;
+
+    while ( indiv_node != NULL )
+    {
+      indiv = indiv_node->get_obj();
+
+      printf("strain name indiv %d: %s\n", indiv->get_id(), indiv->get_strain_name());
+
+      indiv_node = indiv_node->get_next();
+    }
+    exit(-1);
+  }
 }
 
 
@@ -1541,7 +1597,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
 // =================================================================
 /*!
   \brief Format a line by parsing it and the words inside
-  
+
   \param formated_line the resulted formated line
   \param line original line in char*
   \param line_is_interpretable boolean with about the possible intrepretation of the line
@@ -1581,9 +1637,9 @@ void param_loader::format_line( f_line* formated_line, char* line, bool* line_is
 
 /*!
   \brief Get a line in a file and format it
-  
+
   \return line (pointer)
-  
+
   \see format_line(f_line* formated_line, char* line, bool* line_is_interpretable )
 */
 f_line* param_loader::get_line( int32_t* cur_line_ptr ) // void
@@ -1617,7 +1673,7 @@ f_line* param_loader::get_line( int32_t* cur_line_ptr ) // void
 
 /*!
   \brief Create an individual with random sequences
-  
+
   \param exp_m global exp_manager
   \param param_mut mutation parameter of the newly created individual
   \param id index of newly created individual in the population
@@ -1632,26 +1688,28 @@ ae_individual* param_loader::create_random_individual( ae_exp_manager* exp_m, ae
     random_genome[i] = '0' + _prng->random( NB_BASE );
   }
   random_genome[_chromosome_initial_length] = 0;
-  
-  
+
+
   // ------------------------------------------------------- Global constraints
   // Create an individual with this genome and set its id
   #ifdef DISTRIBUTED_PRNG
     #error Not implemented yet !
   #endif
   ae_individual* indiv = new ae_individual( exp_m,
-                                            exp_m->get_pop()->get_mut_prng(), 
+                                            exp_m->get_pop()->get_mut_prng(),
                                             exp_m->get_pop()->get_stoch_prng(),
                                             param_mut,
                                             _w_max,
                                             _min_genome_length,
                                             _max_genome_length,
                                             _allow_plasmids,
-                                            id, 0 );
-                                            
+                                            id,
+                                            _strain_name,
+                                            0 );
+
 
   indiv->add_GU( random_genome, _chromosome_initial_length );
-  
+
   if (_allow_plasmids) // We create a plasmid
   {
     char * plasmid_genome;
@@ -1673,9 +1731,9 @@ ae_individual* param_loader::create_random_individual( ae_exp_manager* exp_m, ae
     }
     plasmid_genome = NULL; // should not be deleted since it is now the plasmid dna
   }
-  
+
   random_genome = NULL; // should not be deleted since it is now the chromosomal dna
-  
+
   // Insert a few IS in the sequence
   /*if ( ae_common::init_params->get_init_method() & WITH_INS_SEQ )
   {
@@ -1684,14 +1742,14 @@ ae_individual* param_loader::create_random_individual( ae_exp_manager* exp_m, ae
     char* ins_seq = new char[seq_len+1];
     int16_t nb_insert = 50;
     int16_t nb_invert = 50;
-    
+
     for ( int32_t i = 0 ; i < seq_len ; i++ )
     {
       ins_seq[i] = '0' + ae_common::sim->prng->random( NB_BASE );
     }
     ins_seq[seq_len] = '\0';
-    
-    
+
+
     // Insert the sequence at random positions
     ae_mutation* mut1 = NULL;
     for ( int16_t i = 0 ; i < nb_insert ; i++ )
@@ -1699,8 +1757,8 @@ ae_individual* param_loader::create_random_individual( ae_exp_manager* exp_m, ae
       mut1 = indiv->get_genetic_unit(0)->get_dna()->do_insertion( ins_seq, seq_len );
       delete mut1;
     }
-    
-    
+
+
     // Invert the sequence and insert it at random positions
     char* inverted_seq = new char[seq_len+1];
     for ( int32_t i = 0 ; i < seq_len ; i++ )
@@ -1708,26 +1766,26 @@ ae_individual* param_loader::create_random_individual( ae_exp_manager* exp_m, ae
       inverted_seq[i] = (ins_seq[seq_len-1-i] == '1') ? '0' : '1';
     }
     inverted_seq[seq_len] = '\0';
-    
+
     for ( int16_t i = 0 ; i < nb_invert ; i++ )
     {
       mut1 = indiv->get_genetic_unit(0)->get_dna()->do_insertion( inverted_seq, seq_len );
       delete mut1;
     }
-    
+
     delete [] ins_seq;
     delete [] inverted_seq;
   }*/
-  
+
   // Evaluate the newly created individual
   indiv->evaluate( exp_m->get_env() );
-  
+
   return indiv;
 }
 
 /*!
   \brief Create an individual with random sequences. The individual have to have at least one good functional gene
-  
+
   \param exp_m global exp_manager
   \param param_mut mutation parameter of the newly created individual
   \param id index of newly created individual in the population
@@ -1737,11 +1795,11 @@ ae_individual* param_loader::create_random_individual_with_good_gene( ae_exp_man
 {
   // Create a random individual and evaluate it
   ae_individual* indiv = create_random_individual( exp_m, param_mut, id );
-  
+
   // While the created individual is not better than the flat individual (indiv whith no metabolic gene),
   // we delete it and replace it by another random individual
   double env_metabolic_area;
-  
+
   env_metabolic_area = exp_m->get_env()->get_area_by_feature( METABOLISM );
 
   // If there are plasmids, make sure there is at least one metabolic gene on each genetic units
@@ -1758,7 +1816,7 @@ ae_individual* param_loader::create_random_individual_with_good_gene( ae_exp_man
     }
     else
     {
-      // here things work the same as before, but in the constructor of the individual, 
+      // here things work the same as before, but in the constructor of the individual,
       // a single genetic unit is created and then copied from the chromosome to the plasmid
       while ( indiv->get_dist_to_target_by_feature( METABOLISM ) >= env_metabolic_area )
       {
@@ -1775,19 +1833,19 @@ ae_individual* param_loader::create_random_individual_with_good_gene( ae_exp_man
       indiv = create_random_individual( exp_m, param_mut, id );
     }
   }
-  
+
   // Compute the "good" individual's statistics
   indiv->compute_statistical_data();
-  
+
   //~ printf( "metabolic error of the generated individual : %f (%"PRId32" gene(s))\n",
           //~ indiv->get_dist_to_target_by_feature(METABOLISM), indiv->get_protein_list()->get_nb_elts() );
-  
+
   return indiv;
 }
 
 /*!
-  \brief Create of clone of an ae_individual 
-  
+  \brief Create of clone of an ae_individual
+
   \param dolly original individual that would be cloned
   \param id index of the clone in the population
   \return clone of dolly
@@ -1795,16 +1853,16 @@ ae_individual* param_loader::create_random_individual_with_good_gene( ae_exp_man
 ae_individual* param_loader::create_clone( ae_individual* dolly, int32_t id ) const
 {
   ae_individual* indiv;
-  
+
   indiv = new ae_individual( *dolly, false );
 
-  
+
   //~ #ifdef __X11
     //~ indiv = new ae_individual_X11( *(dynamic_cast<ae_individual_X11*>(dolly)), false );
   //~ #else
     //~ indiv = new ae_individual( *dolly, false );
   //~ #endif
-  
+
   indiv->set_id( id );
   //~ printf( "metabolic error of the clonal individual : %f (%"PRId32" gene(s))\n",
           //~ indiv->get_dist_to_target_by_feature(METABOLISM), indiv->get_protein_list()->get_nb_elts());
@@ -1818,14 +1876,14 @@ void param_loader::print_to_file( FILE* file )
   fprintf( file, "min_genome_length :          %"PRId32"\n", _min_genome_length       );
   fprintf( file, "max_genome_length :          %"PRId32"\n", _max_genome_length       );
   fprintf( file, "W_MAX :                      %f\n",        _w_max                   );
-  
+
   // --------------------------------------------------------- Mutation rates
   fprintf( file, "\nMutation rates ------------------------------------------\n" );
   fprintf( file, "point_mutation_rate :        %e\n",  _point_mutation_rate        );
   fprintf( file, "small_insertion_rate :       %e\n",  _small_insertion_rate       );
   fprintf( file, "small_deletion_rate :        %e\n",  _small_deletion_rate        );
   fprintf( file, "max_indel_size :             %"PRId16"\n", _max_indel_size       );
-  
+
   // -------------------------------------------- Rearrangements and Transfer
   fprintf( file, "\nRearrangements and Transfer -----------------------------\n" );
   fprintf( file, "with_4pts_trans :            %s\n",  _with_4pts_trans? "true" : "false" );
@@ -1834,7 +1892,7 @@ void param_loader::print_to_file( FILE* file )
   fprintf( file, "repl_HT_with_close_points :  %s\n",  _repl_HT_with_close_points? "true" : "false"   );
   fprintf( file, "HT_ins_rate :                %e\n",  _HT_ins_rate );
   fprintf( file, "HT_repl_rate :               %e\n",  _HT_repl_rate );
-  
+
   // ---------------------------------------------------- Rearrangement rates
   if ( _with_alignments )
   {
@@ -1853,7 +1911,7 @@ void param_loader::print_to_file( FILE* file )
     fprintf( file, "translocation_rate :         %e\n",  _translocation_rate         );
     fprintf( file, "inversion_rate :             %e\n",  _inversion_rate             );
   }
-  
+
   // ------------------------------------------------------------ Alignements
   fprintf( file, "\nAlignements ---------------------------------------------\n" );
   fprintf( file, "align_fun_shape :            %"PRId16"\n", (int16_t) _align_fun_shape       );
@@ -1865,7 +1923,7 @@ void param_loader::print_to_file( FILE* file )
   fprintf( file, "align_w_zone_h_len :         %"PRId16"\n", _align_w_zone_h_len    );
   fprintf( file, "align_match_bonus :          %"PRId16"\n", _align_match_bonus     );
   fprintf( file, "align_mismatch_cost :        %"PRId16"\n", _align_mismatch_cost   );
-  
+
   // -------------------------------------------------------------- Selection
   fprintf( file, "\nSelection -----------------------------------------------\n" );
   switch ( _selection_scheme )
@@ -1897,8 +1955,8 @@ void param_loader::print_to_file( FILE* file )
     }
   }
   fprintf( file, "selection_pressure :         %e\n",  _selection_pressure );
-  
-  
+
+
   // -------------------------------------------------------------- Secretion
   fprintf( file, "\nSecretion -----------------------------------------------\n" );
   fprintf( file, "with_secretion :                %s\n", _with_secretion? "true" : "false" );
@@ -1906,7 +1964,7 @@ void param_loader::print_to_file( FILE* file )
   fprintf( file, "secretion_diffusion_prop :      %e\n", _secretion_diffusion_prop        );
   fprintf( file, "secretion_degradation_prop :    %e\n", _secretion_degradation_prop      );
   fprintf( file, "secretion_cost :                %e\n", _secretion_cost                  );
-  
+
   // --------------------------------------------------------------- Plasmids
   fprintf( file, "\nPlasmids ------------------------------------------------\n" );
   fprintf( file, "allow_plasmids :             %s\n", _allow_plasmids? "true" : "false"              );
@@ -1921,7 +1979,7 @@ void param_loader::print_to_file( FILE* file )
   fprintf( file, "recipient_cost :             %e\n", _recipient_cost                                );
   fprintf( file, "compute_phen_contrib_by_GU : %s\n", _compute_phen_contrib_by_GU? "true" : "false"  );
   fprintf( file, "swap_GUs :                   %s\n",  _swap_GUs? "true" : "false"   );
-  
+
   // ------------------------------------------------------- Translation cost
   fprintf( file, "\nTranslation cost ----------------------------------------\n" );
   fprintf( file, "translation_cost :           %e\n",  _translation_cost           );
