@@ -88,7 +88,7 @@ class ae_individual : public ae_object
                     int32_t age );
 
     ae_individual( ae_exp_manager* exp_m, gzFile backup_file );
-    ae_individual( const ae_individual &model, bool replication_report_copy );
+    ae_individual( const ae_individual &model, bool replication_report_copy = false );
     ae_individual(  ae_individual* const parent, int32_t id,
                     ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng );
 
@@ -353,11 +353,6 @@ class ae_individual : public ae_object
       printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
     };
-    /*ae_individual( const ae_individual &model )
-    {
-      printf( "%s:%d: error: Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };*/
 
     // =================================================================
     //                           Protected Methods

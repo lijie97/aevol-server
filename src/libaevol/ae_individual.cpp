@@ -220,7 +220,7 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile backup_file )
   int8_t strain_string_len;
   gzread(backup_file, &strain_string_len, sizeof(strain_string_len));
   _strain_name = new char[strain_string_len+1];
-  int tmp = gzread(backup_file, _strain_name, strain_string_len+1);
+  gzread(backup_file, _strain_name, strain_string_len+1);
   gzread( backup_file, &_age, sizeof(_age) );
 
   // Retrieve the PRNGs
@@ -353,7 +353,7 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile backup_file )
 }
 
 // Copy constructor
-ae_individual::ae_individual( const ae_individual &model, bool replication_report_copy )
+ae_individual::ae_individual( const ae_individual &model, bool replication_report_copy /* = FALSE */ )
 {
   _exp_m = model._exp_m;
 
@@ -465,15 +465,11 @@ ae_individual::ae_individual( const ae_individual &model, bool replication_repor
   _modularity = model._modularity;
 
 
-  // We don't copy the generation report since we are creating a clone
-  // We could create a new (empty) replic report but for now, it is not needed
-  //_replic_report = NULL;
-
   // Create a new replication report to store mutational events
-  if ( replication_report_copy && _exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL )
+  if ( replication_report_copy && _exp_m->get_output_m()->get_record_tree() && (_exp_m->get_output_m()->get_tree_mode() == NORMAL) && (model._replic_report != NULL))
   {
     _replic_report = new ae_replication_report( *model._replic_report );
-
+    _replic_report->set_indiv(this);
     // TODO: remove this after checking it is the old way
     //_exp_m->get_output_m()->get_tree()->set_replic_report( _id, _replic_report );
   }
@@ -722,7 +718,7 @@ void ae_individual::compute_phenotype( void )
 
   // We will use two fuzzy sets :
   //   * _phenotype_activ for the proteins realising a set of functions
-  //   * _phenotype_inhib for the proteins inhibitting a set of functions
+  //   * _phenotype_inhib for the proteins inhibiting a set of functions
   // The phenotype will then be given by the sum of these 2 fuzzy sets
   _phenotype_activ = new ae_fuzzy_set();
   _phenotype_inhib = new ae_fuzzy_set();

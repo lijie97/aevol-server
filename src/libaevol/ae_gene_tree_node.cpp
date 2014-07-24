@@ -162,7 +162,7 @@ ae_gene_tree_node * ae_gene_tree_node::search_in_subtree_leaves(const ae_protein
           while (n!=NULL) {root = n; n = n->_parent_node; }
           // here, n==NULL and root points on the root of the tree
           root->print_subtree_to_screen();
-          // assert(0);
+          exit(EXIT_FAILURE);
         }
     }
 }

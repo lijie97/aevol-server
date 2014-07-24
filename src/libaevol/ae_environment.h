@@ -326,6 +326,7 @@ inline void ae_environment::set_var_method( ae_env_var var_method )
 
 inline void ae_environment::set_var_prng( ae_jumping_mt* prng )
 {
+  if (_var_prng != NULL) delete _var_prng;
   _var_prng = prng;
 }
 
@@ -352,6 +353,7 @@ inline void ae_environment::set_noise_method( ae_env_noise noise_method )
 
 inline void ae_environment::set_noise_prng( ae_jumping_mt* prng )
 {
+  if( _noise_prng != NULL) delete _noise_prng;
   _noise_prng = prng;
 }
 

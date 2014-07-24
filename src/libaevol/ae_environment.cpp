@@ -222,8 +222,8 @@ ae_environment::~ae_environment( void )
     delete _custom_points;
   }
   
-  delete _var_prng;
-  delete _noise_prng;
+  if (_var_prng != NULL)   delete _var_prng;
+  if (_noise_prng != NULL) delete _noise_prng;
   
   if ( _segments != NULL )
   {

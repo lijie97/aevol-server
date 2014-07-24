@@ -28,16 +28,17 @@ INVERSION_RATE          5e-6
 
 ##### 6. Target function ##########
 ENV_SAMPLING      300
-ENV_ADD_GAUSSIAN  1.2   0.52  0.12
-ENV_ADD_GAUSSIAN -1.4   0.5   0.07
-ENV_ADD_GAUSSIAN  0.3   0.8   0.03
+ENV_GAUSSIAN  0.5   0.2   0.05
+ENV_GAUSSIAN  0.5   0.6   0.05
+ENV_GAUSSIAN  0.5   0.8   0.05
 
 ##### 7. Recording ################
 RECORD_TREE             true
 TREE_MODE               normal
+TREE_STEP               100
 MORE_STATS              false
 DUMP_STEP               0
-BACKUP_STEP             1000
+BACKUP_STEP             500
 
 ##### 8. Environment variation ####
 ENV_VARIATION           autoregressive_height_variation 0.05 5000 7687534

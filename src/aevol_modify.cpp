@@ -54,13 +54,11 @@ const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 // =================================================================
 enum population_change_type
   {
-    CLONE_BEST_AND_CHANGE_TREE = 0,
-    CLONE_BEST_NO_TREE = 1,
-    SUBPOPULATIONS_BASED_ON_NON_CODING_BASES = 2,
-    REMOVE_NON_CODING_BASES_BEST_IND = 3,
-    REMOVE_NON_CODING_BASES_POPULATION = 4,
-    DOUBLE_NON_CODING_BASES_BEST_IND = 5,
-    DOUBLE_NON_CODING_BASES_POPULATION = 6
+    SUBPOPULATIONS_BASED_ON_NON_CODING_BASES = 3,
+    REMOVE_NON_CODING_BASES_BEST_IND = 4,
+    REMOVE_NON_CODING_BASES_POPULATION = 5,
+    DOUBLE_NON_CODING_BASES_BEST_IND = 6,
+    DOUBLE_NON_CODING_BASES_POPULATION = 7
   };
 
 void print_help( char* prog_path );
@@ -68,9 +66,8 @@ void print_version( void );
 
 f_line* get_line( FILE* param_file );
 void format_line( f_line* formated_line, char* line, bool* line_is_interpretable );
-void change_population(ae_population* pop, ae_exp_manager* exp_m, population_change_type type);
-void change_by_cloning_best(ae_population* pop, ae_exp_manager* exp_m, bool change_tree);
-void change_based_on_non_coding_bases_of_best_individual_ancestor(ae_population* pop, ae_exp_manager* exp_m, population_change_type type);
+void change_by_cloning_best(ae_population* pop, ae_exp_manager* exp_m);
+void change_based_on_non_coding_bases_of_best_individual(ae_population* pop, ae_exp_manager* exp_m, population_change_type type);
 void change_based_on_non_coding_bases_in_population(ae_population* pop, ae_exp_manager* exp_m, population_change_type type);
 ae_individual* create_clone( ae_individual* dolly, int32_t id );
 
@@ -147,7 +144,7 @@ int main( int argc, char* argv[] )
       exit( EXIT_FAILURE );
     }
   
-  // 6) Initialize the experiment manager, load the tree file
+  // 6) Initialize the experiment manager
 #ifndef __NO_X
   ae_exp_manager* exp_manager = new ae_exp_manager_X11();
 #else
@@ -155,21 +152,35 @@ int main( int argc, char* argv[] )
 #endif
   exp_manager->load( num_gener, false, verbose );
 
-  char tree_file_name[50];
-  #ifdef __REGUL
-    sprintf( tree_file_name,"tree/tree_%06"PRId32".rae", num_gener ); 
-  #else
-    sprintf( tree_file_name,"tree/tree_%06"PRId32".ae", num_gener ); 
-  #endif
-  ae_tree * tree = new ae_tree( exp_manager, tree_file_name );
-
-  // 7) Retrieve the population, the environment, the selection,...  and assign the replication reports to each individual
+  // 7) Define syntaxic sugars for the population, the environment, the selection...  
   ae_population* pop = exp_manager->get_pop();
   ae_environment* env = exp_manager->get_env();
   ae_selection* sel = exp_manager->get_sel();
 
-  pop->set_replication_reports(tree, num_gener);
-  
+
+  // If relevant, load the tree information 
+  char tree_file_name[50];
+  ae_tree * tree = NULL;
+  bool take_care_of_the_tree = exp_manager->get_record_tree() && (exp_manager->get_tree_mode() == NORMAL) && (exp_manager->get_num_gener() > 0);
+
+  if ( take_care_of_the_tree )
+    {
+      // If a tree is available, assign the replication reports to the individuals
+#ifdef __REGUL
+      sprintf( tree_file_name,"tree/tree_%06"PRId32".rae", num_gener ); 
+#else
+      sprintf( tree_file_name,"tree/tree_%06"PRId32".ae", num_gener ); 
+#endif
+      
+      tree = new ae_tree( exp_manager, tree_file_name );
+      pop->set_replication_reports(tree, num_gener);
+    }
+
+ 
+
+
+
+
   // 8) Interpret and apply changes
   printf("Interpret and apply changes\n");
   FILE* param_file  = fopen( param_file_name,  "r" );
@@ -181,7 +192,6 @@ int main( int argc, char* argv[] )
   
   bool env_change = false;
   bool env_hasbeenmodified = false;
-  bool pop_structure_hasbeenmodified = false;
   
   f_line* line;
   int32_t cur_line = 0;
@@ -240,8 +250,13 @@ int main( int argc, char* argv[] )
         }
       else if ( strcmp( line->words[0], "POPULATION_SIZE") == 0 )
         {
-          pop->set_nb_indivs(atol( line->words[1] ) );
-          pop_structure_hasbeenmodified = true;
+          if (exp_manager->is_spatially_structured())
+            {
+              printf( "ERROR in param file \"%s\" on line %"PRId32": the change of population size is not implemented yet\n for spatially structured populations",
+                      param_file_name, cur_line );
+              exit( EXIT_FAILURE );
+            }
+          pop->set_nb_indivs(atol( line->words[1] ));
           printf("\tChange of population size to %ld\n",atol( line->words[1] ));
         }
       else if ( strcmp( line->words[0], "SELECTION_PRESSURE") == 0 )
@@ -427,40 +442,45 @@ int main( int argc, char* argv[] )
           pop->set_stoch_prng( new ae_jumping_mt(*stoch_prng) );
           printf("\tChange of the seed to %d in individuals' stochasticity \n",atoi( line->words[1] ));
         }
-      else if ( strcmp( line->words[0], "CLONE_BEST_AND_CHANGE_TREE" ) == 0 )
+      else if ( strcmp( line->words[0], "CLONE_BEST" ) == 0 )
         {
-          change_population(pop, exp_manager, CLONE_BEST_AND_CHANGE_TREE);
-          printf("\tChange of the population for a population with %"PRId32" individuals, all clones of the best one\n",pop->get_nb_indivs());
-        }
-      else if ( strcmp( line->words[0], "CLONE_BEST_NO_TREE" ) == 0 )
-        {
-          change_population(pop, exp_manager, CLONE_BEST_NO_TREE);
+          change_by_cloning_best(pop, exp_manager);
           printf("\tChange of the population for a population with %"PRId32" individuals, all clones of the best one\n",pop->get_nb_indivs());
         }
       else if ( strcmp( line->words[0], "CREATE_3_SUBPOPULATIONS_BASED_ON_NON_CODING_BASES" ) == 0 )
         {
-          change_population(pop, exp_manager, SUBPOPULATIONS_BASED_ON_NON_CODING_BASES);
+          change_based_on_non_coding_bases_of_best_individual(pop, exp_manager, SUBPOPULATIONS_BASED_ON_NON_CODING_BASES);
           printf("\tChange of the population for a population with %"PRId32" individuals in 3 equal subpopulations (A: clones of the previous best individual, B: clones of the previous best individual without any non coding bases, C: clones of the previous best individual with twice non bases\n",pop->get_nb_indivs());
+          printf("WARNING: lineage will not work properly if called with \n");
+          printf("         a begin generation anterior to this modification \n");
         }
       else if ( strcmp( line->words[0], "REMOVE_NON_CODING_BASES_BEST" ) == 0 )
         {
-          change_population(pop, exp_manager, REMOVE_NON_CODING_BASES_BEST_IND);
+          change_based_on_non_coding_bases_of_best_individual(pop, exp_manager, REMOVE_NON_CODING_BASES_BEST_IND);
           printf("\tChange of the population for a population with %"PRId32" clones of the best individual ancestor without any non coding bases\n",pop->get_nb_indivs());
+          printf("WARNING: lineage will not work properly if called with \n");
+          printf("         a begin generation anterior to this modification \n");
         }
       else if ( strcmp( line->words[0], "REMOVE_NON_CODING_BASES_POP" ) == 0 )
         {
-          change_population(pop, exp_manager, REMOVE_NON_CODING_BASES_POPULATION);
+          change_based_on_non_coding_bases_in_population(pop, exp_manager,  REMOVE_NON_CODING_BASES_POPULATION);
           printf("\tChange of the population for a population with %"PRId32" individuals without any non coding bases\n",pop->get_nb_indivs());
+          printf("WARNING: lineage will not work properly if called with \n");
+          printf("         a begin generation anterior to this modification \n");
         }
       else if ( strcmp( line->words[0], "DOUBLE_NON_CODING_BASES_BEST" ) == 0 )
         {
-          change_population(pop, exp_manager, DOUBLE_NON_CODING_BASES_BEST_IND);
+          change_based_on_non_coding_bases_of_best_individual(pop, exp_manager,  DOUBLE_NON_CODING_BASES_BEST_IND);
           printf("\tChange of the population for a population with %"PRId32" clones of the best individual ancestor with twice the non coding bases number \n",pop->get_nb_indivs());
+          printf("WARNING: lineage will not work properly if called with \n");
+          printf("         a begin generation anterior to this modification \n");
         }
       else if ( strcmp( line->words[0], "DOUBLE_NON_CODING_BASES_POP" ) == 0 )
         {
-          change_population(pop, exp_manager, DOUBLE_NON_CODING_BASES_POPULATION);
+          change_based_on_non_coding_bases_in_population(pop, exp_manager, DOUBLE_NON_CODING_BASES_POPULATION);
           printf("\tChange of the population for a population with %"PRId32" individuals with twice the non coding bases number\n",pop->get_nb_indivs());
+          printf("WARNING: lineage will not work properly if called with \n");
+          printf("         a begin generation anterior to this modification \n");
         }
       else
         {
@@ -489,30 +509,41 @@ int main( int argc, char* argv[] )
 
 
   printf("OK\n");
+
+
+ 
   if (env_hasbeenmodified)
     {
- 
       env->build();
       pop->evaluate_individuals(env);
       pop->sort_individuals();
     }
-  
+
+ 
   // 9) Save the modified experiment
+  
+ 
+  if (take_care_of_the_tree)
+    {
+      printf("Save the modified replication reports into tree...\t");
+      tree->fill_tree_with_cur_gener();
+
+#ifdef __REGUL
+      sprintf( tree_file_name,"tree/tree_%06"PRId32".rae", num_gener ); 
+#else
+      sprintf( tree_file_name,"tree/tree_%06"PRId32".ae", num_gener ); 
+#endif
+      gzFile tree_file = gzopen( tree_file_name, "w" );
+      tree->write_to_tree_file(tree_file);
+      gzclose( tree_file );
+      printf("OK\n");
+    }
   printf("Save the modified experiment into backup...\t");
   exp_manager->write_setup_files();
   exp_manager->save();
   printf("OK\n");
+   
 
-  if(pop_structure_hasbeenmodified)
-  {
-    printf("Save the modified replication reports into tree...\t");
-    tree->fill_tree_with_cur_gener();
-    gzFile tree_file = gzopen( tree_file_name, "w" );
-    tree->write_to_tree_file(tree_file);
-    gzclose( tree_file );
-    printf("OK\n");
-  }
-  
   delete exp_manager;
 }
 
@@ -595,62 +626,14 @@ void format_line( f_line* formated_line, char* line, bool* line_is_interpretable
 
 
 
-void change_population(ae_population* pop, ae_exp_manager* exp_m, population_change_type type)
+
+
+
+
+void change_by_cloning_best(ae_population* pop, ae_exp_manager* exp_m)
 {
-  switch(type)
-    {
-    case CLONE_BEST_AND_CHANGE_TREE:
-      {
-        change_by_cloning_best(pop, exp_m, true);
-        break;
-      }
-    case CLONE_BEST_NO_TREE:
-      {
-        change_by_cloning_best(pop, exp_m, false);
-        break;
-      }
-    case SUBPOPULATIONS_BASED_ON_NON_CODING_BASES:
-      {
-        change_based_on_non_coding_bases_of_best_individual_ancestor(pop, exp_m, type);
-        break;
-      }
-    case REMOVE_NON_CODING_BASES_BEST_IND:
-      {
-        change_based_on_non_coding_bases_of_best_individual_ancestor(pop, exp_m, type);
-        break;
-      }
-    case DOUBLE_NON_CODING_BASES_BEST_IND:
-      {
-        change_based_on_non_coding_bases_of_best_individual_ancestor(pop, exp_m, type);
-        break;
-      }
-    case REMOVE_NON_CODING_BASES_POPULATION:
-      {
-        change_based_on_non_coding_bases_in_population(pop, exp_m, type);
-        break;
-      }
-    case DOUBLE_NON_CODING_BASES_POPULATION:
-      {
-        change_based_on_non_coding_bases_in_population(pop, exp_m, type);
-        break;
-      }
-    default:
-      {
-        fprintf(stderr, "%s:%d: error: wrong population_change_type %d\n", __FILE__, __LINE__, type );
-        exit( EXIT_FAILURE );
-        break;
-      }
-    }
-}
-
-
-
-void change_by_cloning_best(ae_population* pop, ae_exp_manager* exp_m, bool change_tree)
-{
-  int32_t num_gener = exp_m->get_num_gener();
   int32_t population_size = pop->get_nb_indivs();
-  ae_individual* best_indiv = new ae_individual(*(exp_m->get_indiv_by_rank( population_size )));
-  int32_t index_of_best_indiv = best_indiv->get_id();
+  ae_individual* best_indiv = exp_m->get_indiv_by_rank( population_size );
 
   ae_list<ae_individual*>*  new_population  = new ae_list<ae_individual*>();
   for ( int32_t i = 0 ; i < population_size ; i++ )
@@ -659,148 +642,87 @@ void change_by_cloning_best(ae_population* pop, ae_exp_manager* exp_m, bool chan
     }
   
   pop->replace_population( new_population );
+
+  // If the population is spatially structured, set each individual's position
+  if ( exp_m->is_spatially_structured() )
+    {
+      int16_t x = 0, y = 0;
+      int16_t x_max = exp_m->get_grid_width();
+      int16_t y_max = exp_m->get_grid_height();
+      ae_grid_cell* grid_cell = NULL;
+      
+      ae_list_node<ae_individual*>* indiv_node = pop->get_indivs()->get_first();
+      ae_individual*  indiv = NULL;
+    
+      while ( indiv_node != NULL )
+        {
+          indiv = indiv_node->get_obj();  
+          grid_cell = exp_m->get_grid_cell( x, y );
+          grid_cell->set_individual( indiv );
+          x++;
+          if (x == x_max) 
+            {
+              x = 0;
+              y++;
+            }
+          indiv_node = indiv_node->get_next();
+        }
+    }
+
   pop->evaluate_individuals( exp_m->get_env() );
   pop->sort_individuals();
 
-  
-  if (change_tree)
-    {
-      // Update the tree to make sure it reflects the change we have just done in the population.
-      // This means that all individuals of the current generation will have the same replication
-      // report as the best one, as if they all descended from the same parent with the same
-      // mutational events.
-
-      ae_tree * tree = NULL;
-      char tree_file_name[50];
-      
-#ifdef __REGUL
-      sprintf( tree_file_name,"tree/tree_%06"PRId32".rae", num_gener ); 
-#else
-      sprintf( tree_file_name,"tree/tree_%06"PRId32".ae", num_gener ); 
-#endif
-      tree = new ae_tree( exp_m, tree_file_name );
-      ae_replication_report * report_best = tree->get_report_by_index( num_gener, index_of_best_indiv );
-      // debug :
-      printf("best id = %d, parent id = %d\n", index_of_best_indiv, report_best->get_parent_id());
-
-      for ( int32_t i = 0 ; i < population_size ; i++ )
-        {
-          if (i != index_of_best_indiv) tree->set_replic_report( num_gener, i, report_best );
-        }
-
-      gzFile tree_file = gzopen( tree_file_name, "w" );
-      tree->write_to_tree_file( tree_file );
-      gzclose( tree_file );
-    }
 }
 
 
 
 /*!
-  \brief Change in the population based on non coding bases on the best individual ancestor. 3 types of changes
+  \brief Change in the population based on non coding bases on the best individual. 3 types of changes
   
   SUBPOPULATIONS_BASED_ON_NON_CODING_BASES:
   Create the 3 subpopulations in the population. The definition of 3 subpopulations is based on non coding bases.
     
   The subpopulation are clonal and based on the ancestor of best individual of pop at begin.
-  The individuals in first subpopulation are clone of the best individual ancestor. 
-  The individuals in second subpopulation are clone of the best individual ancestor without any bases that are not in coding RNA.  
-  The individuals in third subpopulation are clone of the best individual ancestor with addition of bases that are not in coding RNA to double them.
+  The individuals in first subpopulation are clones of the best individual. 
+  The individuals in second subpopulation are clones of the best individual without any bases that are not in coding RNA.  
+  The individuals in third subpopulation are clones of the best individual with addition of bases that are not in coding RNA to double them.
     
   pop is changed into the new population with the 3 subpopulations
     
   REMOVE_NON_CODING_BASES_BEST_IND: 
-  The individual of the new population are clone of the best individual ancestor without any bases that are not in coding RNA.  
+  The individuals of the new population are clones of the best individual but without any bases that are not in coding RNA.  
     
   DOUBLE_NON_CODING_BASES_BEST_IND:
-  The individual of the new population are clone of the best individual ancestor with addition of bases that are not in coding RNA to double them.
+  The individuals of the new population are clones of the best individual but with addition of bases that are not in coding RNA to double them.
     
   \param pop population to change
   \param exp_m global exp_manager
   \param type type of change in the population
 */
-void change_based_on_non_coding_bases_of_best_individual_ancestor(ae_population* pop, ae_exp_manager* exp_m, population_change_type type)
+void change_based_on_non_coding_bases_of_best_individual(ae_population* pop, ae_exp_manager* exp_m, population_change_type type)
 {
   if(type == SUBPOPULATIONS_BASED_ON_NON_CODING_BASES || type == REMOVE_NON_CODING_BASES_BEST_IND || type == DOUBLE_NON_CODING_BASES_BEST_IND)
     {
       // 1) Compute the population size
       int32_t subpopulation_size = (int)floor(pop->get_nb_indivs()/3);
-      int32_t population_size = subpopulation_size*3;
-    
-      // 2) Retrieve the ancestor (at last backup) of the best individual
-      int32_t tree_step = exp_m->get_tree_step();
-      int32_t backup_step = exp_m->get_backup_step();
-      int32_t num_gener = exp_m->get_num_gener();
-      if(num_gener-backup_step <= 0)
-        {
-          printf( "Error: You must provide a larger generation number, in order to have at least one backup file before.\n");
-          exit( EXIT_FAILURE );
-        }
+  
+      // 2) Get the best individual
+      ae_individual* best_indiv = exp_m->get_indiv_by_rank( pop->get_nb_indivs() );
 
-      ae_tree * tree = NULL;
-      int32_t ancestor_index = 0 ;
-      char tree_file_name[50];
     
-    
-#ifdef __REGUL
-      sprintf( tree_file_name,"tree/tree_%06"PRId32".rae", num_gener ); 
-#else
-      sprintf( tree_file_name,"tree/tree_%06"PRId32".ae", num_gener ); 
-#endif
-      char pop_file_name[255];
-      sprintf( pop_file_name, POP_FNAME_FORMAT, num_gener  );
-      tree = new ae_tree( exp_m, tree_file_name );
-      ae_replication_report * reports = new ae_replication_report( *(tree->get_report_by_rank(num_gener, tree->get_nb_indivs( num_gener )) ));
-      ancestor_index = reports->get_id();
-      for (int32_t i = 1; i <= backup_step ; i++ )
-        {
-          //printf( "Getting the replication report for the ancestor at generation %"PRId32"\n", num_gener-i );
+      // 3) Create the new population 
 
-          if ( ae_utils::mod( i, tree_step ) == 0 ) 
-            {
-              //printf(" New tree file\n");
-#ifdef __REGUL
-              sprintf( tree_file_name,"tree/tree_%06"PRId32".rae", num_gener-i ); 
-#else
-              sprintf( tree_file_name,"tree/tree_%06"PRId32".ae",  num_gener-i ); 
-#endif
-              if ( ae_utils::mod( i, backup_step ) == 0 ) 
-                {
-                  sprintf( pop_file_name,       POP_FNAME_FORMAT,       num_gener-i );
-                }
-        
-              delete tree;
-              tree = new ae_tree( exp_m, tree_file_name );
-            }
+   
+      ae_list<ae_individual*>*  new_generation  = new ae_list<ae_individual*>();
 
-          reports = new ae_replication_report( *(tree->get_report_by_index(num_gener-i, ancestor_index)) );
-
-          ancestor_index = reports->get_parent_id();
-          //printf("%"PRId32"\n", ancestor_index);
-        }
-    
-      ae_exp_manager* exp_m_tmp = NULL;
-#ifndef __NO_X
-      exp_m_tmp = new ae_exp_manager_X11();
-#else
-      exp_m_tmp = new ae_exp_manager();
-#endif
-      exp_m_tmp->load( num_gener-backup_step, false, true );
-    
-      ae_individual* indiv = new ae_individual(*exp_m_tmp->get_indiv_by_id( ancestor_index ));
+      ae_individual* indiv = create_clone(best_indiv, -1);
             
-      // 3) Create the new population with 1/3 being clones of the choosen individual, 1/3 being clones of the choosen individual without non coding bases and 
-      // 1/3 being clones of the choosen individual with twice coding bases          
-      ae_list<ae_individual*>*      new_generation  = new ae_list<ae_individual*>();
-      int32_t         index_new_indiv = 0;
-
-      ae_individual* only_coding_indiv = create_clone( indiv, index_new_indiv++ ); //one individual being the clone of the choosen individual but without any non coding bases
+      ae_individual* only_coding_indiv = create_clone( best_indiv, -1 ); //one individual being the clone of the chosen individual but without any non coding bases
       only_coding_indiv->remove_non_coding_bases();
     
-      ae_individual* twice_non_coding_indiv = create_clone( indiv, index_new_indiv++ ); //one individual being the clone of the choosen individual but without any non coding bases
+      ae_individual* twice_non_coding_indiv = create_clone( best_indiv, -1 ); //one individual being the clone of the chosen individual but without any non coding bases
       twice_non_coding_indiv->double_non_coding_bases();
     
-      //printf("%"PRId32" %"PRId32"\n", indiv->get_total_genome_size(), twice_non_coding_indiv->get_total_genome_size());
     
       int32_t* probe_A = new int32_t[5];
       int32_t* probe_B = new int32_t[5];
@@ -827,15 +749,14 @@ void change_based_on_non_coding_bases_of_best_individual_ancestor(ae_population*
       indiv->set_double_probes(probe_double_A);
       only_coding_indiv->set_double_probes(probe_double_B);
       twice_non_coding_indiv->set_double_probes(probe_double_C);
-    
+      
+
       switch(type)
         {
         case SUBPOPULATIONS_BASED_ON_NON_CODING_BASES:
           {
-            new_generation->add(indiv);
-            new_generation->add(only_coding_indiv);
-            new_generation->add(twice_non_coding_indiv);
-            for ( int32_t i = 0 ; i < subpopulation_size-1 ; i++ ) // clones of the 3 individuals
+            int32_t  index_new_indiv = 0;
+            for ( int32_t i = 0 ; i < subpopulation_size ; i++ ) // clones of the 3 individuals
               {
                 new_generation->add(create_clone( indiv, index_new_indiv++ ));
                 new_generation->add(create_clone( only_coding_indiv, index_new_indiv++ ));
@@ -868,30 +789,19 @@ void change_based_on_non_coding_bases_of_best_individual_ancestor(ae_population*
         }
       
       //  4) Replace the current population by the new one
-      ae_list<ae_individual*>*      old_generation  = pop->get_indivs();
-      ae_list_node<ae_individual*>* indiv_node      = old_generation->get_first();
-      if ( (not exp_m->get_with_HT()) and (not exp_m->get_with_plasmids()) )
-        {
-          for ( int32_t i = 0 ; i < pop->get_nb_indivs() ; i++ )
-            {
-              old_generation->remove( indiv_node, true, true );
-              indiv_node = indiv_node->get_next();
-            }
-        }
-      else
-        {
-          old_generation->erase( true );
-        }
-
+      pop->get_indivs()->erase( true );
       assert( pop->get_indivs()->is_empty() );
       pop->replace_population( new_generation );
     
-      if(type == SUBPOPULATIONS_BASED_ON_NON_CODING_BASES)
-        {
-          pop->set_nb_indivs( population_size );
-          exp_m->get_output_m()->get_tree()->set_nb_indivs(population_size, num_gener);
-        }
     
+
+      // TODO
+      // If the population is spatially structured, set each individual's position
+      // There will be a problem however for the "3 subpopulations" type of change,
+      // if the population size has changed (which is likely given that we do not 
+      // generally used population size that are multiple of 3)
+
+      pop->evaluate_individuals( exp_m->get_env() );
       pop->sort_individuals();
     }
   else
@@ -952,7 +862,7 @@ ae_individual* create_clone( ae_individual* dolly, int32_t id )
 {
   ae_individual* indiv;
   
-  indiv = new ae_individual( *dolly );
+  indiv = new ae_individual( *dolly, true );
   
   indiv->set_id( id );
   //printf( "metabolic error of the clonal individual : %f (%"PRId32" gene(s), %"PRId32" non coding bases)\n",

@@ -53,10 +53,11 @@ The workflow example provides an example of one of the many different workflows 
 
 \subsection{\emph{Wild-Type} generation}
 Generating a Wild-Type in \aevol{} is very easy, all you need is a parameter file describing the conditions in which it (the Wild-Type) should be created (population size, mutation rates, task to perform, ...).
-However, have in mind that founding effects can influence the course of evolution, especially in the case of overconstrained evolution. It is recommended to use mild mutation and rearrangement rates and to let the environment vary over time to avoid overconstrained or overspecialized genomes.
-Once your parameter file is ready, simply run the following commands (it is recommended you do that in a dedicated directory):
+However, have in mind that founding effects can influence the course of evolution, especially in the case of overconstrained evolution. It is recommended to use mild mutation and rearrangement rates and to let the environment vary over time to avoid overconstrained or overspecialized genomes. A sample parameter file is provided in \verb?examples/workflow/wild_type?.
+Once your parameter file is ready, simply run the following commands (it is recommended you do that in a dedicated directory, called \verb?wild_type? for example):
 
 \begin{verbatim}
+	cd wild_type
 	aevol_create -f your_param_file
 	aevol_run -n number_of_generations
 \end{verbatim}
@@ -65,35 +66,64 @@ Once your parameter file is ready, simply run the following commands (it is reco
 
 
 \subsection{Experimental setup}
-This is where the setup of the campain of experiments is done.
-As it would be done in a wet lab experiment, different populations will be allowed to evolve in different conditions to compare the different outcomes. In this example we will let 6 populations evolve independently for 20,000 generations in conditions differing only by the spontaneous rates of chromosomal rearrangements. A ``real'' experiment would of course require several repetitions for each set of parameters, this is \emph{only} an example.
+This is where the setup of the campaign of experiments is done.
+As it would be done in a wet lab experiment, different populations will be allowed to evolve in different conditions to compare the different outcomes. In this example, we will start from an evolved population called the ``wild type'', created as above. We will use this wild type to start 10 evolutionary lines that will have to adapt to a new environment. Five of them will evolve under the same rates of chromosomal rearrangements as the wild type, whereas the other five will be ``mutators'' evolving under higher rates of chromosomal rearrangements. Both groups will evolve during 10,000 generations.
 
-The \verb?aevol_propagate? tool provided in \aevol{} allows for an exact copy of the whole data structure required by \aevol{} with a reset of the current generation number to 0. Followed by a call to \verb?aevol_modify?, it allows us to set up very simply our example in the 2 following steps:
+First, the wild type population should have been created with \verb?aevol_create? and \\ \verb?aevol_run_X11 -n 5000? (for example). Then, the \verb?aevol_propagate? tool allows for an exact copy of the whole data structure required by \aevol{} with a reset of the current generation number to 0. Followed by a call to \verb?aevol_modify?, it allows us to set up our example in the 2 following steps:
 
 %\begin{enumerate}
 
 \subsubsection{Propagate the experiment}
-The \verb?aevol_propagate? tool allows for the creation of fresh copies of an experiment (as it was at a given time). The \verb?-i? option sets the input directory and the \verb?-o? option, the output directory. You must provide a distinct output directory for each of the experiments you wish to run. If the output directory does not exist, you will be prompted for it to be created.
+The \verb?aevol_propagate? tool allows for the creation of fresh copies of an experiment (as it was at a given time). The \verb?-i? option sets the input directory and the \verb?-o? option, the output directory. You must provide a distinct output directory for each of the experiments you wish to run. If the output directory does not exist, it will be created.  If, as we do here, you use \verb?aevol_propagate? repeatedly to initialize several simulations, you should specify a different seed for each simulation, otherwise all simulations will yield exactly the same results. You can use the option -S to do so. In this case, the random drawings will be different for all random processes enabled in your simulations (mutations, stochastic gene expression, selection, migration, environmental variation, environmental noise). Alternatively, to change the random drawings for specific random processes only, do not use -S but the options -m, -s, -t, -e, -n (see \verb?aevol_propagate -h? for more information on those options).
 \begin{verbatim}
-	aevol_propagate -i wild_type -o mu_1e-6
-	aevol_propagate -i wild_type -o mu_2e-6
-	aevol_propagate -i wild_type -o mu_5e-6
-	aevol_propagate -i wild_type -o mu_1e-5
-	aevol_propagate -i wild_type -o mu_2e-5
-	aevol_propagate -i wild_type -o mu_5e-5
+	cd ..
+	aevol_propagate -g 5000 -i wild_type -o line01 -S 97558
+	aevol_propagate -g 5000 -i wild_type -o line02 -S 535241
+	aevol_propagate -g 5000 -i wild_type -o line03 -S 1499
+	aevol_propagate -g 5000 -i wild_type -o line04 -S 916189
+	aevol_propagate -g 5000 -i wild_type -o line05 -S 677
+	aevol_propagate -g 5000 -i wild_type -o line06 -S 43743
+	aevol_propagate -g 5000 -i wild_type -o line07 -S 7265
+	aevol_propagate -g 5000 -i wild_type -o line08 -S 11942
+	aevol_propagate -g 5000 -i wild_type -o line09 -S 29734
+	aevol_propagate -g 5000 -i wild_type -o line10 -S 43155
 \end{verbatim}
 
 \subsubsection{Modify parameters to meet the experiment requirements}
-For each of the propagated experiments, create a plain text file (\emph{e.g.} ``foo.in'') containing the parameters to be modified. Parameters that do not appear in this file will remain unchanged. The syntax is the same as for the parameter file used for \verb?aevol_create?. For example, to set all the rearrangement rates to $1\times10^{-6}$ for all individuals of the population, the file ``foo.in'' will consist in the following 4 lines:
+For each of the propagated experiments, create a plain text file (\emph{e.g.} ``newparam.in'') containing the parameters to be modified. Parameters that do not appear in this file will remain unchanged. The syntax is the same as for the parameter file used for \verb?aevol_create?. For example, for the lines 1 to 5, we will create a text file called ``newparam-groupA.in'' will consist in the following lines:
 \begin{verbatim}
-    DUPLICATION_RATE        1e-6
-    DELETION_RATE           1e-6
-    TRANSLOCATION_RATE      1e-6
-    INVERSION_RATE          1e-6
+   # New environment
+    ENV_GAUSSIAN  0.5   0.2   0.05
+    ENV_GAUSSIAN  0.5   0.4   0.05
+    ENV_GAUSSIAN  0.5   0.8   0.05
+    ENV_VARIATION none
 \end{verbatim}
-Then run the following:
+ For the lines 6 to 10, we also want to modify the rearrangement rates, hence the file ``newparam-groupB.in'' will consist in the following lines:
 \begin{verbatim}
-	aevol_modify --gener 0 --file foo.in
+   # New environment
+    ENV_GAUSSIAN  0.5   0.2   0.05
+    ENV_GAUSSIAN  0.5   0.4   0.05
+    ENV_GAUSSIAN  0.5   0.8   0.05
+    ENV_VARIATION none
+   # New rearrangement rates
+    DUPLICATION_RATE        1e-5
+    DELETION_RATE           1e-5
+    TRANSLOCATION_RATE      1e-5
+    INVERSION_RATE          1e-5
+\end{verbatim}
+Then we will run the following commands:
+\begin{verbatim}
+cd line01; aevol_modify --gener 0 --file ../newparam-groupA.in; cd ..
+cd line02; aevol_modify --gener 0 --file ../newparam-groupA.in; cd ..
+cd line03; aevol_modify --gener 0 --file ../newparam-groupA.in; cd ..
+cd line04; aevol_modify --gener 0 --file ../newparam-groupA.in; cd ..
+cd line05; aevol_modify --gener 0 --file ../newparam-groupA.in; cd ..
+
+cd line06; aevol_modify --gener 0 --file ../newparam-groupB.in; cd ..
+cd line07; aevol_modify --gener 0 --file ../newparam-groupB.in; cd ..
+cd line08; aevol_modify --gener 0 --file ../newparam-groupB.in; cd ..
+cd line09; aevol_modify --gener 0 --file ../newparam-groupB.in; cd ..
+cd line10; aevol_modify --gener 0 --file ../newparam-groupB.in; cd ..
 \end{verbatim}
 
 %\end{enumerate}

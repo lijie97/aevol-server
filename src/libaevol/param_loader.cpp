@@ -259,6 +259,7 @@ param_loader::~param_loader( void )
    fclose( _param_file );
    if ( _env_axis_segment_boundaries != NULL ) delete [] _env_axis_segment_boundaries;
    if ( _env_axis_features != NULL ) delete [] _env_axis_features;
+   if ( _prng != NULL) delete _prng;
 }
 
 // =================================================================
@@ -1150,19 +1151,29 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
   }
   
   
-  // Initialize _prng
+  // Initialize _prng 
+  // This one will be used to create the initial genome(s) and to generate seeds for other prng
   _prng = new ae_jumping_mt( _seed );
   
-  // Initialize _mut_prng and _stoch_prng :
+  // Initialize mut_prng, stoch_prng, spatial_struct_prng :
   // if mut_seed (respectively stoch_seed) not given in param.in, choose it at random
+  int32_t selection_seed = _prng->random( 1000000 );
   if ( _mut_seed == 0 ) {
-    _mut_seed=_prng->random( 1000000 );
+    _mut_seed = _prng->random( 1000000 );
   }
   if ( _stoch_seed == 0 ) {
-    _stoch_seed=_prng->random( 1000000 );
+    _stoch_seed = _prng->random( 1000000 );
   }
-  _mut_prng = new ae_jumping_mt( _mut_seed );
-  _stoch_prng = new ae_jumping_mt( _stoch_seed );
+  ae_jumping_mt * mut_prng    = new ae_jumping_mt( _mut_seed );
+  ae_jumping_mt * stoch_prng  = new ae_jumping_mt( _stoch_seed );
+  ae_jumping_mt * selection_prng = new ae_jumping_mt( selection_seed );
+  ae_jumping_mt * spatial_struct_prng = NULL;
+  if ( _spatially_structured )
+    {
+      int32_t spatial_struct_seed = _prng->random( 1000000 );
+      spatial_struct_prng = new ae_jumping_mt( spatial_struct_seed );
+    }
+
   
   // Create aliases (syntaxic sugars)
   ae_exp_setup*       exp_s     = exp_m->get_exp_s();
@@ -1183,7 +1194,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
   }
   
   // 1) ------------------------------------- Initialize the experimental setup
-  sel->set_prng( new ae_jumping_mt(*_prng) );
+  sel->set_prng( selection_prng );  
 
   // ---------------------------------------------------------------- Selection
   sel->set_selection_scheme( _selection_scheme );
@@ -1209,10 +1220,9 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
   // -------------------------------------------------------- Spatial structure
   if ( _spatially_structured )
   {
-    ae_jumping_mt* sp_struct_prng = new ae_jumping_mt(*_prng);
     exp_m->set_spatial_structure( _grid_width,
                                   _grid_height,
-                                  sp_struct_prng );
+                                  spatial_struct_prng );
     ae_spatial_structure* sp_struct = exp_m->get_spatial_structure();
     sp_struct->set_secretion_degradation_prop( _secretion_degradation_prop );
     sp_struct->set_secretion_diffusion_prop( _secretion_diffusion_prop );
@@ -1277,8 +1287,8 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
   
   
   // 3) --------------------------------------------- Create the new population
-  pop->set_mut_prng( new ae_jumping_mt(*_mut_prng) );
-  pop->set_stoch_prng( new ae_jumping_mt(*_stoch_prng) );
+  pop->set_mut_prng( mut_prng );  
+  pop->set_stoch_prng( stoch_prng ); 
   
   // Generate a model ae_mut_param object
   ae_params_mut* param_mut = new ae_params_mut();
@@ -1310,14 +1320,14 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
   {
     printf("Option -c is used: chromosome will be loaded from a text file\n");
     ae_individual* indiv = new ae_individual( exp_m,
-                                             _prng,
-                                             _prng,
-                                             param_mut,
-                                             _w_max,
-                                             _min_genome_length,
-                                             _max_genome_length,
-                                             _allow_plasmids,
-                                             id_new_indiv++, 0 );
+                                              pop->get_mut_prng(), 
+                                              pop->get_stoch_prng(), 
+                                              param_mut,
+                                              _w_max,
+                                              _min_genome_length,
+                                              _max_genome_length,
+                                              _allow_plasmids,
+                                              id_new_indiv++, 0 );
     
     indiv->add_GU( chromosome, lchromosome );
     indiv->get_genetic_unit(0)->set_min_gu_length(_chromosome_minimal_length);
@@ -1493,8 +1503,8 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
       
       do
       {
-        x = _prng->random( x_max );
-        y = _prng->random( y_max );
+        x = exp_m->get_spatial_structure()->get_prng()->random( x_max ); 
+        y = exp_m->get_spatial_structure()->get_prng()->random( y_max );  
         grid_cell = exp_m->get_grid_cell( x, y );
       } while ( grid_cell->get_individual() != NULL );
       
@@ -1522,9 +1532,6 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
   output_m->set_logs( _logs );
   
   delete param_mut;
-  delete _prng; // Each class that needed it has now its own copy
-  delete _mut_prng;
-  delete _stoch_prng;
 }
 
 
@@ -1633,8 +1640,8 @@ ae_individual* param_loader::create_random_individual( ae_exp_manager* exp_m, ae
     #error Not implemented yet !
   #endif
   ae_individual* indiv = new ae_individual( exp_m,
-                                            _prng,
-                                            _prng,
+                                            exp_m->get_pop()->get_mut_prng(), 
+                                            exp_m->get_pop()->get_stoch_prng(),
                                             param_mut,
                                             _w_max,
                                             _min_genome_length,
@@ -1642,13 +1649,7 @@ ae_individual* param_loader::create_random_individual( ae_exp_manager* exp_m, ae
                                             _allow_plasmids,
                                             id, 0 );
                                             
-  // <Graphical debug>
-  //~ #ifdef __X11
-    //~ indiv = new ae_individual_X11( exp_m, new ae_jumping_mt(*_prng), param_mut, _w_max, id, 0 );
-  //~ #else
-    //~ indiv = new ae_individual( exp_m, new ae_jumping_mt(*_prng), param_mut, _w_max, id, 0 );
-  //~ #endif
-  // </Graphical debug>
+
   indiv->add_GU( random_genome, _chromosome_initial_length );
   
   if (_allow_plasmids) // We create a plasmid

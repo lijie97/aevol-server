@@ -191,6 +191,7 @@ inline double* ae_selection::get_prob_reprod(void) const
 // ----------------------------------------- Pseudo-random number generator
 inline void ae_selection::set_prng( ae_jumping_mt* prng )
 {
+  if (_prng != NULL) delete _prng;
   _prng = prng;
 }
 

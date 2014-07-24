@@ -325,6 +325,7 @@ void ae_tree::write_to_tree_file( gzFile tree_file )
       {
         for ( int32_t indiv_i = 0 ; indiv_i < _nb_indivs[gener_i] ; indiv_i++ )
         {
+          assert(_replics[gener_i][indiv_i] != NULL);
           _replics[gener_i][indiv_i]->write_to_tree_file( tree_file );
         }
       }

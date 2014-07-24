@@ -94,6 +94,7 @@ class ae_replication_report : public ae_object
     inline double   get_donor_secretion_error( void ) const;
     inline int32_t  get_donor_genome_size( void ) const;
      
+    void            set_indiv( ae_individual * indiv);
     void            set_id( int32_t id );
     void            set_rank( int32_t rank );
     inline void     set_parent_id( int32_t parent_id );
@@ -255,6 +256,10 @@ inline ae_list<ae_dna_replic_report*>* ae_replication_report::get_dna_replic_rep
 
 
 
+inline void ae_replication_report::set_indiv( ae_individual * indiv )
+{
+  _indiv = indiv;
+}
 
 inline void ae_replication_report::set_id( int32_t id )
 {

@@ -19,14 +19,14 @@
 # manual while following this example since it contains an explanation for
 # each step of the example.
 #
-# The following set of commands should work as is if you have installed aevol,
-# which is recommended.
+# The following set of commands should work as is if you have installed aevol
+# with make install, which is recommended.
 #
 # If you haven't installed aevol, you will need to specify where to find the
 # executables, which should be in <aevol_dir>/src for the 4 main executables
 # and in <aevol_dir>/src/post_treatments for the rest, <aevol_dir> being the
 # main aevol directory you have downloaded.
-# E.g. if your <aevol_dir> is /home/login/aevol the command
+# E.g. if your <aevol_dir> is /home/login/aevol, then the command
 # aevol_run -n 5000 will become /home/login/aevol/src/aevol_run -n 5000
 # and ae_misc_lineage -e 10000 will become
 # /home/login/aevol/src/post_treatments/ae_misc_lineage -e 10000
@@ -40,8 +40,8 @@
 #mkdir wild_type 
 cd wild_type
 aevol_create
-aevol_run -n 5000   
-# or aevol_run_X11 -n 5000   depending on whether you compiled with graphical output enabled
+aevol_run_X11 -n 5000   
+# or aevol_run -n 5000   depending on whether you compiled with graphical output enabled or not
 
 
 
@@ -51,48 +51,62 @@ aevol_run -n 5000
 cd ..
 # Propagate the experiment, meaning prepare directories for different
 # runs starting from the wild type 
-mydirnames = "mu_2.5e-6 mu_5e-6 mu_1e-5"
-for mydir in $mydirnames
+mydirnamesA="line01 line02 line03 line04 line05"
+mydirnamesB="line06 line07 line08 line09 line10"
+for mydir in "$mydirnamesA $mydirnamesB"
 do
-   aevol_propagate -g 5000 -i wild_type -o $mydir
+   echo $mydir
+   aevol_propagate -g 5000 -i wild_type -o $mydir -S $RANDOM
 done  
 
 # For each experiment, create a file with the parameters to change
-echo "DUPLICATION_RATE   2.5e-6
-DELETION_RATE      2.5e-6
-TRANSLOCATION_RATE 2.5e-6
-INVERSION_RATE     2.5e-6" > mu_2.5e-6/modified_params
+echo "# New environment 
+    ENV_GAUSSIAN  0.5   0.2   0.05
+    ENV_GAUSSIAN  0.5   0.4   0.05
+    ENV_GAUSSIAN  0.5   0.8   0.05
+    ENV_VARIATION none" > newparam-groupA.in
 
-echo "DUPLICATION_RATE   5e-6
-DELETION_RATE      5e-6
-TRANSLOCATION_RATE 5e-6
-INVERSION_RATE     5e-6" > mu_5e-6/modified_params
+echo "# New environment
+    ENV_GAUSSIAN  0.5   0.2   0.05
+    ENV_GAUSSIAN  0.5   0.4   0.05
+    ENV_GAUSSIAN  0.5   0.8   0.05
+    ENV_VARIATION none
+   # New rearrangement rates
+    DUPLICATION_RATE          1e-5
+    DELETION_RATE                1e-5
+    TRANSLOCATION_RATE    1e-5
+    INVERSION_RATE              1e-5" > newparam-groupB.in
 
-echo "DUPLICATION_RATE   1e-5
-DELETION_RATE      1e-5
-TRANSLOCATION_RATE 1e-5
-INVERSION_RATE     1e-5" > mu_1e-5/modified_params
 
 # Apply these modifications
 #
-cd mu_2.5e-6
-aevol_modify --gener 0 --file modified_params
-cd ../mu_5e-6
-aevol_modify --gener 0 --file modified_params
-cd ../mu_1e-5
-aevol_modify --gener 0 --file modified_params
-cd ..
+for mydir in $mydirnamesA 
+do
+   cd $mydir
+   echo $mydir
+   aevol_modify  --gener 0 --file ../newparam-groupA.in
+   cd ..
+done 
+
+for mydir in $mydirnamesB 
+do
+   cd $mydir
+   echo $mydir
+   aevol_modify  --gener 0 --file ../newparam-groupB.in
+   cd ..
+done 
+
 
 
 
 # ========== Run the simulations ==========
 #
-cd mu_2.5e-6
-aevol_run_X11 -n 10000
-cd ../mu_5e-6
-aevol_run_X11 -n 10000
-cd ../mu_1e-5
-aevol_run_X11 -n 10000
+for mydir in $mydirnamesA $mydirnamesB
+do
+   cd mydir
+   aevol_run_X11 -n 20000
+   cd ..
+done 
 
 
 
@@ -121,6 +135,25 @@ aevol_misc_view_generation -g 10000
 aevol_misc_create_eps -g 10000
 
 
+# ---------- aevol_misc_robustness ----------
+#
+# The robustness tool computes the replication statistics of all the 
+# individuals of a given generation, like the proportion of neutral, beneficial, 
+# deleterious offsprings. This is done by simulating nbchildren replications 
+# for each individual (1000 replications by default), with its mutation, 
+# rearrangement and transfer rates. Depending on those rates and genome 
+# size, there can be several mutations per replication. Those global statistics 
+# are written in stat/robustness_numgener.out, with one line per individual
+# in the specified generation.
+# The program also outputs detailed statistics for one of the individuals (the 
+# best one by default). The detailed statistics for this individual are written in
+# stats/replication_numgener.out, with one line per simulated child of this 
+# particular individual.
+#
+aevol_misc_robustness -g 10000 
+
+
+
 # ---------- aevol_misc_lineage ----------
 #
 # One can reconstruct the lineage of an evolved individual.
@@ -137,7 +170,7 @@ aevol_misc_lineage -e 10000
 # Statistics of a lineage can be obtained with this tool.
 # The generated stats are outputted in stats/ancstats/
 #
-aevol_misc_ancstats -f lineage-b000000-e010000-i999-r1000.ae
+aevol_misc_ancstats -f lineage-b000000-e010000-i*-r1000.ae
 
 
 
@@ -148,7 +181,7 @@ aevol_misc_ancstats -f lineage-b000000-e010000-i999-r1000.ae
 # on the lineage given as input.
 # The generated list is outputted in stats/
 #
-aevol_misc_fixed_mutations -f lineage-b000000-e010000-i999-r1000.ae
+aevol_misc_fixed_mutations -f lineage-b000000-e010000-i*-r1000.ae
 
 
 # ---------- aevol_misc_gene_families ----------
@@ -160,4 +193,4 @@ aevol_misc_fixed_mutations -f lineage-b000000-e010000-i999-r1000.ae
 # it can take from a few minutes to a few hours depending on
 # gene number evolution in the lineage.
 
-aevol_misc_gene_families -f lineage-b000000-e010000-i999-r1000.ae
+aevol_misc_gene_families -f lineage-b000000-e010000-i*-r1000.ae

@@ -135,9 +135,9 @@ void ae_population_X11::display_grid( ae_X11_window* win, double** cell_grid )
   double col_sec_interval = (grid_max - grid_min)/49;
 
   char scale_txt[40];
-  sprintf(scale_txt,"%f", grid_max);
+  sprintf(scale_txt,"%.2e", grid_max);
   win->draw_string(x1-80, y1-80,scale_txt);
-  sprintf(scale_txt,"%f", grid_min);
+  sprintf(scale_txt,"%.2e", grid_min);
   win->draw_string(x1-80, y1-80+grid_height*cell_size,scale_txt);
 
   for (int x = 0; x < grid_width; x++)

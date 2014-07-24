@@ -261,6 +261,7 @@ inline void ae_population::add_indiv( ae_individual* indiv )
 
 inline void ae_population::set_mut_prng( ae_jumping_mt* prng )
 {
+  if (_mut_prng != NULL) delete _mut_prng;
   _mut_prng = prng;
   ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
   ae_individual*  indiv;
@@ -274,6 +275,7 @@ inline void ae_population::set_mut_prng( ae_jumping_mt* prng )
 
 inline void ae_population::set_stoch_prng( ae_jumping_mt* prng )
 {
+  if (_stoch_prng != NULL) delete _stoch_prng; 
   _stoch_prng = prng;
   ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
   ae_individual*  indiv;

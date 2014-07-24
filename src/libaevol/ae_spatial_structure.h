@@ -72,6 +72,7 @@ class ae_spatial_structure : public ae_object
     // =================================================================
     //                        Accessors: getters
     // =================================================================
+    inline ae_jumping_mt *  get_prng( void ) const;
     inline int16_t          get_grid_width( void ) const;
     inline int16_t          get_grid_height( void ) const;
     inline int32_t          get_migration_number( void ) const;
@@ -152,6 +153,11 @@ class ae_spatial_structure : public ae_object
 // =====================================================================
 //                           Getters' definitions
 // =====================================================================
+inline ae_jumping_mt * ae_spatial_structure::get_prng( void ) const
+{
+  return _prng;
+}
+
 inline int16_t ae_spatial_structure::get_grid_width( void ) const
 {
   return _grid_width;
@@ -248,6 +254,7 @@ inline double** ae_spatial_structure::get_total_fitness_grid( void ) const
 // =====================================================================
 inline void ae_spatial_structure::set_prng( ae_jumping_mt* prng )
 {
+  if (_prng != NULL) delete _prng;
   _prng = prng;
 }
 

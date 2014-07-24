@@ -336,7 +336,7 @@ void ae_output_manager::write_tree( void ) const
   status = mkdir( TREE_DIR, 0755 );
   if ( (status == -1) && (errno != EEXIST) )
   {
-    err( EXIT_FAILURE, TREE_DIR, errno );
+    err( EXIT_FAILURE, "Impossible to create the directory %s", TREE_DIR );
   }
   
   char tree_file_name[50];
