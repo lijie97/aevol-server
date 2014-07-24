@@ -53,7 +53,7 @@ cd ..
 # runs starting from the wild type 
 mydirnamesA="line01 line02 line03 line04 line05"
 mydirnamesB="line06 line07 line08 line09 line10"
-for mydir in "$mydirnamesA $mydirnamesB"
+for mydir in $mydirnamesA $mydirnamesB
 do
    echo $mydir
    aevol_propagate -g 5000 -i wild_type -o $mydir -S $RANDOM
