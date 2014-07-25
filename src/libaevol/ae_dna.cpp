@@ -2213,6 +2213,7 @@ void ae_dna::undergo_this_mutation( ae_mutation * mut )
       seq = new char[length + 1];
       mut->get_sequence_small_insertion( seq );
       do_small_insertion( pos1, length, seq );
+      delete [] seq; 
       break;
     case S_DEL:
       mut->get_infos_small_deletion( &pos1, &length );
@@ -2250,12 +2251,14 @@ void ae_dna::undergo_this_mutation( ae_mutation * mut )
       seq = new char[length + 1];
       mut->get_sequence_ins_HT( seq );
       do_ins_HT( pos4, seq, length );
+      delete [] seq; 
       break;
     case REPL_HT:
       mut->get_infos_repl_HT( &pos1, &pos2, &pos3, &pos4, &sense, &length );
       seq = new char[length + 1];
       mut->get_sequence_repl_HT( seq );
       do_repl_HT( pos1, pos3, seq, length );
+      delete [] seq; 
       break;
     default :
       fprintf( stderr, "ERROR, invalid mutation type in file %s:%d\n", __FILE__, __LINE__ );
