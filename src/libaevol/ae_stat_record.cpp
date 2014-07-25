@@ -639,11 +639,11 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
   {
     if ( stat_type_to_print == FITNESS_STATS )
     {
-      fprintf( stat_file, "%"PRId32" %"PRId32" %e %f %e %e %e %e %e %e %e", 
+      fprintf( stat_file, "%"PRId32" %"PRId32" %e %"PRId32" %e %e %e %e %e %e %e",
               (int32_t) _num_gener,
               (int32_t) _pop_size,
               _fitness,              
-              _amount_of_dna, 
+              (int32_t) _amount_of_dna,
               _metabolic_error,
               _parent_metabolic_error,
               _metabolic_fitness,

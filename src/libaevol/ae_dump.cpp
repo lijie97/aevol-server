@@ -147,6 +147,11 @@ void ae_dump::write_secreted_amount ( void )
     }
     fflush( current_file );
     fclose( current_file );
+    for ( int16_t x = 0; x < _exp_m->get_grid_width() ; x++ )
+    {
+      delete [] map[x];
+    }
+    delete [] map;
   }
 }
 
@@ -169,6 +174,11 @@ void ae_dump::write_fitness_metabolic ( void )
     }
     fflush( current_file );
     fclose( current_file );
+    for ( int16_t x = 0; x < _exp_m->get_grid_width() ; x++ )
+    {
+      delete [] map[x];
+    }
+    delete [] map;
   }
 }
 
@@ -189,6 +199,11 @@ void ae_dump::write_secretion_present ( void )
     }
     fflush( current_file );
     fclose( current_file );
+    for ( int16_t x = 0; x < _exp_m->get_grid_width() ; x++ )
+    {
+      delete [] map[x];
+    }
+    delete [] map;
   }
 }
 

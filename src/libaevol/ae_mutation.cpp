@@ -352,6 +352,7 @@ ae_mutation::~ae_mutation( void )
   {
     case SWITCH :
       delete _pos;
+      delete _length;
       break;
     case S_INS :
       delete _pos;
