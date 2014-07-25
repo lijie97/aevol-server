@@ -423,16 +423,19 @@ void ae_list<T>::remove( T obj, bool delete_node, bool delete_obj )
 
 
 // Remove node from list and delete the corrresponding object if delete_obj is true
+// Assumes node is in the list
 template <typename T>
 void ae_list<T>::remove( ae_list_node<T> * node, bool delete_node, bool delete_obj )
 {
-  // unlink node
+  // Unlink node
   if( node == _first )
   {
     _first = node->_next;
   }
-  else if(node->_prev) node->_prev->_next = node->_next;
-
+  else if(node->_prev != NULL)
+  {
+    node->_prev->_next = node->_next;
+  }
   if(node == _last)
   {
     _last = node->_prev;
@@ -654,18 +657,18 @@ ae_list<T> * ae_list<T>::extract_starting_sublist(ae_list_node<T> * last_node)
   else
   {
     _first = last_node->_next;
+    _first->_prev = NULL;
+    last_node->_next = NULL;
 
     // Update number of elements of both lists
-    ae_list_node<T> * node = _first;
-    new_list->_nb_elts++;
-    _nb_elts--;
+    ae_list_node<T> * node = last_node;
 
-    while ( node != last_node )
+    while ( node != NULL )
     {
       new_list->_nb_elts++;
       _nb_elts--;
 
-      node = node->_next;
+      node = node->_prev;
     }
   }
 
@@ -864,7 +867,7 @@ int32_t ae_list<T>::get_position( T obj ) const
 template <typename T>
 ae_list_node<T> * ae_list<T>::get_node(int32_t pos) const
 {
-  if ( pos >= _nb_elts ) return NULL;
+  if ( pos < 0 || pos >= _nb_elts ) return NULL;
 
   ae_list_node<T> * node = _first;
   for ( int32_t i = 0 ; i < pos ; i++ )
@@ -884,7 +887,7 @@ ae_list_node<T> * ae_list<T>::get_node(int32_t pos) const
 template <typename T>
 T ae_list<T>::get_object( int32_t pos ) const
 {
-  if ( pos >= _nb_elts ) return NULL;
+  if ( pos < 0 || pos >= _nb_elts ) return NULL;
 
   ae_list_node<T> * node = _first;
   for ( int32_t i = 0 ; i < pos ; i++ )

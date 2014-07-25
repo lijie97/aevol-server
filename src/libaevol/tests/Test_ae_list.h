@@ -61,8 +61,9 @@ using namespace std;
 class Test_ae_list : public TestFixture
 {
   CPPUNIT_TEST_SUITE( Test_ae_list );
+  CPPUNIT_TEST( basic_tests1 );
+  CPPUNIT_TEST( basic_tests2 );
   CPPUNIT_TEST( test_extract_sublist );
-  CPPUNIT_TEST( test2 );
   CPPUNIT_TEST_SUITE_END();
 
 
@@ -99,8 +100,10 @@ class Test_ae_list : public TestFixture
     // =======================================================================
     void setUp( void );
     void tearDown( void );
+
+    void basic_tests1( void );
+    void basic_tests2( void );
     void test_extract_sublist( void );
-    void test2( void );
 
     // =======================================================================
     //                             Public Attributes
@@ -128,12 +131,16 @@ class Test_ae_list : public TestFixture
     // =======================================================================
     //                              Protected Methods
     // =======================================================================
+    template <typename T> void assert_equal(ae_list<T>* expected,
+                                            ae_list<T>* actual,
+                                            SourceLine SL);
+    //void assert_equal(ae_list<int*>* int_list1, ae_list<int*>* int_list2);
 
     // =======================================================================
     //                             Protected Attributes
     // =======================================================================
     ae_list<int*>* int_list;
-    static const int INT_LIST_SIZE = 20;
+    static const int INT_LIST_SIZE;
 };
 
 
