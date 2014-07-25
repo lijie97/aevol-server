@@ -113,38 +113,52 @@ void ae_population::set_nb_indivs(int32_t nb_indivs)
   int32_t index_to_duplicate;
   ae_individual* indiv = NULL;
   if(nb_indivs > _nb_indivs)
+  {
+    int32_t initial_pop_size = _nb_indivs;
+    for(int32_t i = initial_pop_size; i < nb_indivs; i++)
     {
-      int32_t initial_pop_size = _nb_indivs;
-      for(int32_t i = initial_pop_size; i < nb_indivs; i++)
-        {
-          index_to_duplicate = _exp_m->get_sel()->get_prng()->random( initial_pop_size );
-          indiv = new ae_individual(*get_indiv_by_id(index_to_duplicate), true);
-          indiv->set_id(i);
-          add_indiv(indiv);
-        }
+      index_to_duplicate = _exp_m->get_sel()->get_prng()->random( initial_pop_size );
+      indiv = new ae_individual(*get_indiv_by_id(index_to_duplicate), true);
+      indiv->set_id(i);
+      add_indiv(indiv);
     }
+  }
   else if(nb_indivs < _nb_indivs)
+  {
+    ae_list<ae_individual*>* new_population = new ae_list<ae_individual*>();
+    for(int32_t i = 0; i < nb_indivs; i++)
     {
-      ae_list<ae_individual*>* new_population = new ae_list<ae_individual*>();
-      for(int32_t i = 0; i < nb_indivs; i++)
-        {
-          index_to_duplicate = _exp_m->get_sel()->get_prng()->random( _nb_indivs );
-          indiv = new ae_individual(*get_indiv_by_id(index_to_duplicate), true);
-          indiv->set_id(i);
-          new_population->add(indiv);
-        }
-      replace_population(new_population);
+      index_to_duplicate = _exp_m->get_sel()->get_prng()->random( _nb_indivs );
+      indiv = new ae_individual(*get_indiv_by_id(index_to_duplicate), true);
+      indiv->set_id(i);
+      new_population->add(indiv);
     }
+    update_population(new_population);
+  }
   sort_individuals();
 }
 
-void ae_population::replace_population( ae_list<ae_individual*>* new_indivs )
+void ae_population::replace_population(ae_list<ae_individual*>* new_indivs)
 {
-  _indivs->erase( true );
-  delete _indivs;
+  // First replace the former indivs by the new ones
+  update_population(new_indivs);
 
-  _indivs = new_indivs;
-  _nb_indivs = _indivs->get_nb_elts();
+  // Then reconciliate any possible inconsistency...
+
+  // Update pointer to exp_manager in each individual
+  // Replace indivs id by a new one
+  ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
+  ae_individual* indiv = NULL;
+  int32_t  id = 0;
+  while ( indiv_node != NULL )
+  {
+    indiv = indiv_node->get_obj();
+
+    indiv->set_exp_m(_exp_m);
+    indiv->set_id(id++);
+
+    indiv_node = indiv_node->get_next();
+  }
 }
 
 void ae_population::save( gzFile backup_file ) const
@@ -326,6 +340,19 @@ void ae_population::update_best( void )
   _indivs->add( current_best );
 
   current_best->get_obj()->set_rank( _nb_indivs );
+}
+
+// The new pop must be consistent and belong to the same experiment as the one
+// it replaces, otherwise use replace_population
+void ae_population::update_population(ae_list<ae_individual*>* new_indivs)
+{
+  // Delete the former indivs
+  _indivs->erase( true );
+  delete _indivs;
+
+  // Replace with new indivs
+  _indivs = new_indivs;
+  _nb_indivs = _indivs->get_nb_elts();
 }
 
 ae_individual* ae_population::create_clone( ae_individual* dolly, int32_t id )

@@ -229,8 +229,17 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile backup_file )
     _mut_prng   = new ae_jumping_mt( backup_file );
     _stoch_prng = new ae_jumping_mt( backup_file );
   #else
-    _mut_prng   = exp_m->get_pop()->get_mut_prng();
-    _stoch_prng = exp_m->get_pop()->get_stoch_prng();
+    if (exp_m == NULL)
+    {
+      // Detached mode
+      _mut_prng   = NULL;
+      _stoch_prng = NULL;
+    }
+    else
+    {
+      _mut_prng   = exp_m->get_pop()->get_mut_prng();
+      _stoch_prng = exp_m->get_pop()->get_stoch_prng();
+    }
   #endif
 
   // Retreive id and rank
@@ -242,7 +251,7 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile backup_file )
   int16_t y;
   gzread( backup_file, &x, sizeof(x) );
   gzread( backup_file, &y, sizeof(y) );
-  if ( _exp_m->is_spatially_structured() )
+  if ( _exp_m != NULL && _exp_m->is_spatially_structured() )
   {
     set_grid_cell( _exp_m->get_grid_cell( x, y ) );
   }
@@ -1444,7 +1453,7 @@ double ae_individual::compute_theoritical_f_nu( void )
 
   Remove the bases that are not in coding RNA and test at each loss that fitness is not changed
 */
-void ae_individual::remove_non_coding_bases( void)
+void ae_individual::remove_non_coding_bases(void)
 {
   //reevaluate(_exp_m->get_env());
   //double initial_fitness = get_fitness();

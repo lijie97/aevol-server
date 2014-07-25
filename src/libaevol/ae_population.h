@@ -60,6 +60,8 @@ class ae_exp_manager;
 
 class ae_population : public ae_object
 {
+  friend class ae_selection;
+
   public :
     // =================================================================
     //                             Constructors
@@ -174,7 +176,7 @@ class ae_population : public ae_object
     // =================================================================
     //                           Protected Methods
     // =================================================================
-
+    void update_population(ae_list<ae_individual*>* new_indivs);
     ae_individual* create_random_individual( int32_t id );
     ae_individual* create_random_individual_with_good_gene( int32_t id );
     ae_individual* create_clone( ae_individual* dolly, int32_t id );
@@ -275,7 +277,7 @@ inline void ae_population::set_mut_prng( ae_jumping_mt* prng )
 
 inline void ae_population::set_stoch_prng( ae_jumping_mt* prng )
 {
-  if (_stoch_prng != NULL) delete _stoch_prng; 
+  if (_stoch_prng != NULL) delete _stoch_prng;
   _stoch_prng = prng;
   ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
   ae_individual*  indiv;
