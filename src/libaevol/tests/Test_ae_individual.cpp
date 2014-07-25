@@ -3,25 +3,25 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //*****************************************************************************
 
 
@@ -109,7 +109,7 @@ void Test_ae_individual::setUp( void )
   sprintf(gene, "%s0011000100110110010001", SHINE_DAL_SEQ);
   char term[TERM_SIZE+1] = "01000001101";
   char prom[2][23] = {
-    "0101010001110110010110", // dist from consensus: 2 => basal level: 0.6 
+    "0101010001110110010110", // dist from consensus: 2 => basal level: 0.6
     "0101011001110010010010"  // dist from consensus: 1 => basal level: 0.8
   };
   char* genome = new char[1024];
@@ -118,7 +118,7 @@ void Test_ae_individual::setUp( void )
 
   // Build indiv1
   ae_params_mut params_mut;
-  indiv1 = new ae_individual(NULL, NULL, NULL, &params_mut, 1.0, 10, 1000, false, 1, 0);
+  indiv1 = new ae_individual(NULL, NULL, NULL, &params_mut, 1.0, 10, 1000, false, 1, "anon-strain-1", 0);
   indiv1->add_GU(genome, strlen(genome));
   genome = NULL;
 
@@ -130,7 +130,7 @@ void Test_ae_individual::setUp( void )
 
   // Build indiv2
   genome = indiv1->get_genetic_unit(0)->get_dna()->get_subsequence(0,0,LAGGING);
-  indiv2 = new ae_individual(NULL, NULL, NULL, &params_mut, 1.0, 10, 1000, false, 1, 0);
+  indiv2 = new ae_individual(NULL, NULL, NULL, &params_mut, 1.0, 10, 1000, false, 1, "anon-strain-2", 0);
   indiv2->add_GU(genome, strlen(genome));
   genome = NULL;
 
@@ -138,13 +138,13 @@ void Test_ae_individual::setUp( void )
   indiv2->do_transcription();
   indiv2->do_translation();
 
-  
+
 
 
   // Build indiv3
   genome = new char[1024];
   sprintf( genome, "%s%s%s%s%s%s%s", as[0], gene, as[1], term, as[2], prom[1], as[3]);
-  indiv3 = new ae_individual(NULL, NULL, NULL, &params_mut, 1.0, 10, 1000, false, 1, 0);
+  indiv3 = new ae_individual(NULL, NULL, NULL, &params_mut, 1.0, 10, 1000, false, 1, "anon-strain-3", 0);
   indiv3->add_GU(genome, strlen(genome));
   genome = NULL;
 
@@ -157,7 +157,7 @@ void Test_ae_individual::setUp( void )
 
   // Build indiv4
   genome = indiv3->get_genetic_unit(0)->get_dna()->get_subsequence(0,0,LAGGING);
-  indiv4 = new ae_individual(NULL, NULL, NULL, &params_mut, 1.0, 10, 1000, false, 1, 0);
+  indiv4 = new ae_individual(NULL, NULL, NULL, &params_mut, 1.0, 10, 1000, false, 1, "anon-strain-4", 0);
   indiv4->add_GU(genome, strlen(genome));
   genome = NULL;
 
