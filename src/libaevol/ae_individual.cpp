@@ -701,6 +701,19 @@ ae_individual::~ae_individual( void )
 // =================================================================
 //                        Non-inline Accessors
 // =================================================================
+void ae_individual::set_exp_m( ae_exp_manager* exp_m )
+{
+  _exp_m = exp_m;
+
+  // Update pointer to exp_manager in each GU
+  ae_list_node<ae_genetic_unit*>* GU_node = _genetic_unit_list->get_first();
+  while ( GU_node != NULL )
+  {
+    GU_node->get_obj()->set_exp_m(_exp_m);
+    GU_node = GU_node->get_next();
+  }
+}
+
 /*!
   TODO
 */

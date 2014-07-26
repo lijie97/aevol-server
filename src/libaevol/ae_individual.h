@@ -229,7 +229,7 @@ class ae_individual : public ae_object
     // =================================================================
     inline void set_strain_name(char* name);
 
-    inline void set_exp_m( ae_exp_manager* exp_m );
+    void set_exp_m( ae_exp_manager* exp_m );
     inline void set_id( int32_t id );
     inline void set_rank( int32_t rank );
 
@@ -1258,19 +1258,6 @@ inline void ae_individual::set_strain_name(char* name)
   delete [] _strain_name;
   _strain_name = new char[name_len+1];
   memcpy(_strain_name, name, name_len+1);
-}
-
-inline void ae_individual::set_exp_m( ae_exp_manager* exp_m )
-{
-  _exp_m = exp_m;
-
-  // Update pointer to exp_manager in each GU
-  ae_list_node<ae_genetic_unit*>* GU_node = _genetic_unit_list->get_first();
-  while ( GU_node != NULL )
-  {
-    GU_node->get_obj()->set_exp_m(_exp_m);
-    GU_node = GU_node->get_next();
-  }
 }
 
 /*!
