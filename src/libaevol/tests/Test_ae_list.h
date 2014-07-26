@@ -131,8 +131,8 @@ class Test_ae_list : public TestFixture
     // =======================================================================
     //                              Protected Methods
     // =======================================================================
-    template <typename T> void assert_equal(ae_list<T>* expected,
-                                            ae_list<T>* actual,
+    template <typename T> void assert_equal(const ae_list<T>* expected,
+                                            const ae_list<T>* actual,
                                             SourceLine SL);
     //void assert_equal(ae_list<int*>* int_list1, ae_list<int*>* int_list2);
 
