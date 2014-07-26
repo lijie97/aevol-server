@@ -2,6 +2,8 @@
 #                 Variables                #
 ############################################
 
+AUTOMAKE_OPTIONS = subdir-objects
+
 ########################
 # Set library to build #
 ########################
