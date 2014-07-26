@@ -123,7 +123,8 @@ class ae_list
     inline ae_list<T>* extract_ending_sublist( ae_list_node<T>* first_node );
     inline ae_list<T>* extract_ending_sublist( int32_t first );
 
-    // Erase the list (nodes are deleted). Objects are deleted if delete_obj == DELETE_OBJ
+    // Erase the list (nodes are deleted).
+    // Objects are deleted if delete_obj is true
     inline void erase( bool delete_obj );
 
     // Add the elements of 'append' at the end of the list.
@@ -143,8 +144,8 @@ class ae_list
     inline T get_object( int32_t pos ) const;
 
     // Accessors
-    inline ae_list_node<T>* get_first( void ) { return _first; };
-    inline ae_list_node<T>* get_last( void )  { return _last; };
+    inline ae_list_node<T>* get_first( void ) const { return _first; };
+    inline ae_list_node<T>* get_last( void )  const { return _last; };
 
     // Search for a value WITHIN the object.
     inline ae_list_node<T>* bsearch( void* needle, int ( * comparator ) ( const void * value, const void * object ) ) const;
@@ -504,7 +505,7 @@ ae_list<T> * ae_list<T>::extract_sublist(int32_t first, int32_t n)
     last_node = last_node->_next;
   }
 
-  extract_sublist(first_node, last_node);
+  return extract_sublist(first_node, last_node);
 }
 
 
@@ -529,7 +530,7 @@ ae_list<T> * ae_list<T>::extract_starting_sublist(int32_t n)
     last_node = last_node->_next;
   }
 
-  extract_starting_sublist(last_node);
+  return extract_starting_sublist(last_node);
 }
 
 
@@ -554,7 +555,7 @@ ae_list<T> * ae_list<T>::extract_ending_sublist(int32_t n)
     first_node = first_node->_prev;
   }
 
-  extract_ending_sublist(first_node);
+  return extract_ending_sublist(first_node);
 }
 
 
