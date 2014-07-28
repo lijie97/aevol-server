@@ -40,8 +40,8 @@
 #mkdir wild_type 
 cd wild_type
 aevol_create
-aevol_run_X11 -n 5000   
-# or aevol_run -n 5000   depending on whether you compiled with graphical output enabled or not
+aevol_run -n 5000   
+
 
 
 
@@ -104,7 +104,7 @@ done
 for mydir in $mydirnamesA $mydirnamesB
 do
    cd mydir
-   aevol_run_X11 -n 20000
+   aevol_run -n 20000
    cd ..
 done 
 

@@ -1,4 +1,4 @@
-In this example, when an individual reproduces, there is a 50% probability
+In this example, when an individual reproduces, there is a 10% probability
 that a lateral transfer is attempted. If yes, a donor individual is randomly chosen
 in the population. A segment of its chromosome is copied and transferred in the
 recipient individual (the one which was reproducing). This foreign DNA then replaces
@@ -7,7 +7,7 @@ recombination.
 
 To run this example for 200 generations, type the following commands:
 aevol_create
-aevol_run_X11 -n 200
+aevol_run -n 200
 
 Then you can look at all the transfer events that took place by typing:
 more log_transfer.out

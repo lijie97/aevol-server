@@ -40,12 +40,12 @@ To take a quick tour, please take the following steps:
 
   NOTE: If you don't have sudo rights or simply don't want to install aevol
   just yet, skip the "sudo make install" step and run the executables "locally"
-  with ../../src/aevol_create and ../../src/aevol_run_X11
+  with ../../src/aevol_create and ../../src/aevol_run
 
 
 2) To run an example, cd into it then run:
    aevol_create
-   aevol_run_X11
+   aevol_run
    
 The first command will create an experiment with the parameters contained
 in the "param.in" file
