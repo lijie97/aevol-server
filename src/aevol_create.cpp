@@ -69,15 +69,18 @@ int main( int argc, char* argv[] )
 {
   // 1) Initialize command-line option variables with default values
   char* param_file_name = NULL;
+  char* output_dir = NULL;
   char* chromosome_file_name = NULL;
   char* plasmid_file_name = NULL;
 
+
   // 2) Define allowed options
-  const char * options_list = "hf:Vc:p:";
+  const char * options_list = "hVf:o:c:p:";
   static struct option long_options_list[] = {
     { "help",     no_argument,        NULL, 'h' },
-    { "file",     required_argument,  NULL, 'f' },
     { "version",  no_argument,        NULL, 'V' },
+    { "file",     required_argument,  NULL, 'f' },
+    { "out",      required_argument,  NULL, 'o' },
     { "chromosome",   required_argument,  NULL, 'c' },
     { "plasmid",   required_argument,  NULL, 'p' },
     { 0, 0, 0, 0 }
@@ -104,6 +107,12 @@ int main( int argc, char* argv[] )
       {
         param_file_name = new char[strlen(optarg)+1];
         strcpy( param_file_name, optarg );
+        break;
+      }
+      case 'o' :
+      {
+        output_dir = new char[strlen(optarg)+1];
+        strcpy( output_dir, optarg );
         break;
       }
       case 'c':
@@ -141,17 +150,13 @@ int main( int argc, char* argv[] )
 
 
   // 6) Initialize the experiment manager
-  #ifndef __NO_X
-    ae_exp_manager* exp_manager = new ae_exp_manager_X11();
-  #else
-    ae_exp_manager* exp_manager = new ae_exp_manager();
-  #endif
+  ae_exp_manager* exp_manager = new ae_exp_manager();
+
 
   // 7) Initialize the simulation from the parameter file
-  
   int32_t lchromosome=-1;
   char* chromosome;
-  
+
   if ( chromosome_file_name != NULL )
   {
     char rawchromosome[1000000];
@@ -168,10 +173,10 @@ int main( int argc, char* argv[] )
     printf("Loading chromosome from text file %s (%"PRId32" base pairs) \n",chromosome_file_name,lchromosome);
     fclose(chromosome_file);
   }
-  
+
   int32_t lplasmid=-1;
   char* plasmid;
-  
+
   if ( plasmid_file_name != NULL )
   {
     char rawplasmid[1000000];
@@ -211,11 +216,22 @@ int main( int argc, char* argv[] )
   //~ exp_manager->display();
   //~ getchar();
 
-  // 8) Create the static setup files (experimental setup and output profile)
-  exp_manager->write_setup_files();
+  // 8) Save the experiment
+  if (output_dir == NULL)
+  {
+    // Create the static setup files (experimental setup and output profile)
+    exp_manager->write_setup_files();
 
-  // 9) Create the initial backups
-  exp_manager->save();
+    // Create the initial backups
+    exp_manager->save();
+  }
+  else
+  {
+    // Save everything in the provided directory
+    exp_manager->save_copy(output_dir);
+
+    delete output_dir;
+  }
 
   delete exp_manager;
 }
@@ -252,13 +268,14 @@ void print_help(char* prog_path)
   printf( "\n" );
 	printf( "Usage : %s -h or --help\n", prog_name );
 	printf( "   or : %s -V or --version\n", prog_name );
-	printf( "   or : %s [-f param_file]\n", prog_name );
+	printf( "   or : %s [-f PARAM_FILE] [-o OUTDIR] [-c CFILE] [-p PFILE]\n", prog_name );
 	printf( "\nOptions\n" );
 	printf( "  -h, --help\n\tprint this help, then exit\n\n" );
 	printf( "  -V, --version\n\tprint version number, then exit\n\n" );
-	printf( "  -f, --file param_file\n\tspecify parameter file (default: param.in)\n" );
-  printf( "  -c, --chromosome cfile\n\tload chromosome from given text file instead of generating it\n");
-  printf( "  -p, --plasmid pfile\n\tload plasmid from given text file instead of generating it\n");
+	printf( "  -f, --file PARAM_FILE\n\tspecify parameter file (default: param.in)\n" );
+  printf( "  -o, --out OUTDIR\n\tspecify output directory (default \"./\")\n\n" );
+  printf( "  -c, --chromosome CFILE\n\tload chromosome from given text file instead of generating it\n");
+  printf( "  -p, --plasmid PFILE\n\tload plasmid from given text file instead of generating it\n");
 }
 
 
