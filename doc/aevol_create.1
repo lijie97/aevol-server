@@ -11,8 +11,7 @@ or
 or
 .B \-\-version
 .br
-.B aevol_create [\-f
-.I param_file]
+.B aevol_create \fR[\fB\-v\fR] \fR[\fB\-f\fI PARAM_FILE\fR] \fR[\fB\-o\fI OUTDIR\fR] \fR[\fB\-c\fI CFILE\fR] \fR[\fB\-p\fI PFILE\fR]
 .SH DESCRIPTION
 .B Aevol
 is a simulation platform that allows one to let populations of digital organisms evolve in different conditions and study experimentally the mechanisms responsible for the structuration of the genome and the transcriptome.
@@ -29,8 +28,23 @@ print help, then exit
 print version number, then exit
 .HP
 .B \-f, \-\-file
-.I param_file
+.I PARAM_FILE
 .br
 specify parameter file (default: param.in)
+.HP
+.B \-o, \-\-out
+.I OUTDIR
+.br
+specify output directory (default "./")
+.HP
+.B \-c, \-\-chromosome
+.I CFILE
+.br
+load chromosome from given text file instead of generating it
+.HP
+.B \-p, \-\-plasmid
+.I PFILE
+.br
+load plasmid from given text file instead of generating it (params must allow plasmids)
 .SH "SEE ALSO"
 .B aevol_run, aevol_modify, aevol_propagate

@@ -133,7 +133,7 @@ ae_exp_manager::~ae_exp_manager( void )
   \see save( void )
   \see save_copy( char* dir, int32_t num_gener )
 */
-void ae_exp_manager::write_setup_files( void )
+void ae_exp_manager::write_setup_files(void)
 {
   // 1) Create missing directories
   create_missing_directories();
@@ -179,7 +179,7 @@ void ae_exp_manager::write_setup_files( void )
   \see write_setup_files( void )
   \see save_copy( char* dir, int32_t num_gener )
 */
-void ae_exp_manager::save( void ) const
+void ae_exp_manager::save(void) const
 {
   // 1) Create missing directories
   create_missing_directories();
@@ -231,7 +231,7 @@ void ae_exp_manager::save( void ) const
 void ae_exp_manager::save_copy( char* dir, int32_t num_gener /*= 0*/ ) const
 {
   // 1) Create missing directories
-  create_missing_directories( dir );
+  create_missing_directories(dir);
 
   // 2) Open setup files (experimental setup and output profile)
   //    and backup files (environment, population, selection and spacial structure)
@@ -596,6 +596,13 @@ void ae_exp_manager::create_missing_directories( const char* dir /*= "."*/ ) con
 {
   char cur_dir_name[255];
   int status;
+
+  // Base directory
+  status = mkdir( dir, 0755 );
+  if ( (status == -1) && (errno != EEXIST) )
+  {
+    err( EXIT_FAILURE, cur_dir_name, errno );
+  }
 
   // Experimental setup
   sprintf( cur_dir_name, "%s/"EXP_S_DIR, dir );
