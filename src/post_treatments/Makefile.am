@@ -11,11 +11,7 @@ AM_LDFLAGS  += -L$(top_srcdir)/src/libaevol
 ############################################
 #         Set aevol library to use         #
 ############################################
-if WITH_RAEVOL
-  LDADD = $(top_srcdir)/src/libaevol/libraevol.a
-else # WITHOUT_RAEVOL
-  LDADD = $(top_srcdir)/src/libaevol/libaevol.a $(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
-endif # RAEVOL
+LDADD = $(top_srcdir)/src/libaevol/libaevol.a $(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
 
 
 ############################################
@@ -38,9 +34,6 @@ AM_CPPFLAGS += -D_FORTIFY_SOURCE=2
 ############################################
 #           Set programs to build          #
 ############################################
-if WITH_RAEVOL
-# Removed all post-treatments from raevol. Add here and in CLEANFILES when ready
-else # WITHOUT_RAEVOL
 if WITH_X
 if WITH_DEBUG
   bin_PROGRAMS = aevol_misc_robustness_debug aevol_misc_ancstats_debug aevol_misc_compute_pop_stats_debug aevol_misc_create_eps_debug aevol_misc_fixed_mutations_debug aevol_misc_gene_families_debug aevol_misc_lineage_debug aevol_misc_template_debug aevol_misc_extract_debug aevol_misc_view_generation_debug
@@ -63,7 +56,6 @@ else # WITHOUT_IN2P3
 endif # IN2P3
 endif # DEBUG
 endif # X
-endif # RAEVOL
 
 CLEANFILES = aevol_misc_ancstats_debug aevol_misc_compute_pop_stats_debug aevol_misc_create_eps_debug aevol_misc_extract_debug aevol_misc_fixed_mutations_debug aevol_misc_gene_families_debug aevol_misc_lineage_debug aevol_misc_robustness_debug aevol_misc_template_debug aevol_misc_view_generation_debug
 CLEANFILES += aevol_misc_ancstats aevol_misc_compute_pop_stats aevol_misc_create_eps aevol_misc_extract aevol_misc_fixed_mutations aevol_misc_gene_families aevol_misc_lineage aevol_misc_robustness aevol_misc_template aevol_misc_view_generation

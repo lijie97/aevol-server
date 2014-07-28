@@ -5,7 +5,7 @@
 AC_PREREQ([2.65])
 
 # Provide FULL-PACKAGE-NAME, VERSION and BUG-REPORT-ADDRESS
-AC_INIT([AEVOL], [4.3], [aevol-bug-report@lists.gforge.liris.cnrs.fr], , [www.aevol.fr])
+AC_INIT([AEVOL], [4.4], [aevol-bug-report@lists.gforge.liris.cnrs.fr], , [www.aevol.fr])
 
 # We want to use automake
 AM_INIT_AUTOMAKE
@@ -21,7 +21,7 @@ AC_CONFIG_SRCDIR([src/aevol_run.cpp])
 test_CXXFLAGS=${CXXFLAGS+set}
 if test "$test_CXXFLAGS" != set; then
   CXXFLAGS=""
-fi 
+fi
 
 
 # Checks for programs
@@ -71,7 +71,6 @@ AC_CHECK_FUNCS([floor memset mkdir pow rint sqrt gzread])
 #   Supported options [default]:
 #     --with-x                          [yes]
 #     --enable-optim                    [enabled]
-#     --enable-raevol                   [disabled]
 #     --enable-normalized-fitness       [disabled]
 #     --enable-mtperiod=period          [disabled]
 #     --enable-trivialjumps=jumpsize    [disabled]
@@ -104,15 +103,14 @@ AC_MSG_RESULT([OK])
 
 
 
-#   ************************ --with-x option *********************
+#   ************************ --without-x option *********************
 #
-#   When this option is set, typing make will produce aevol, raevol and
-#   the post-treatment programs, but not aevol_X11 or raevol_X11. 
-#   This is useful if we want to run computations on a cluster where the 
-#   X libraries are not present. If, on the contrary, we type ./configure 
-#   without this option, then typing make will produce aevol_X11, 
-#   raevol_X11 and view_generation_X11 (and the other post-treatments 
-#   programs).
+#   When this option is set, typing make will produce aevol and
+#   most post-treatment programs, but not aevol_X11.
+#   This is useful if we want to run computations on a cluster where the
+#   X libraries are not present. If, on the contrary, we type ./configure
+#   without this option, then typing make will produce aevol_X11 and
+#   view_generation_X11 (and the other post-treatment programs).
 
 AC_MSG_CHECKING([whether to enable graphical outputs])
 AC_ARG_WITH(x, [  --without-x to disable graphical output], , with_x=yes)
@@ -123,12 +121,12 @@ if test "x$with_x" != xno ; then
    AC_PATH_XTRA
    # AC_PATH_XTRA updates X_LIBS and X_CFLAGS but not CPPFLAGS, CXXFLAGS or LDFLAGS.
    # Thus we need to add X_CFLAGS to AEVOLCPPFLAGS, and X_LIBS to AEVOLLDFLAGS.
-   # Moreover, on MacOS, AC_CHECK_LIB needs correct CPPFLAGS to find X11. But CPPFLAGS is normally a user 
+   # Moreover, on MacOS, AC_CHECK_LIB needs correct CPPFLAGS to find X11. But CPPFLAGS is normally a user
    # variable, which we should not change. Thus we save its previous value to restore it after AC_CHECK_LIB.
-   ac_cppflags_save="$CPPFLAGS"  
+   ac_cppflags_save="$CPPFLAGS"
    CPPFLAGS+=" $X_CFLAGS"
    AEVOLCPPFLAGS+=" $X_CFLAGS"
-   AEVOLLDFLAGS+=" $X_LIBS"    
+   AEVOLLDFLAGS+=" $X_LIBS"
    AC_CHECK_LIB(X11, XOpenDisplay, , ,$X_LIBS)
    AC_CHECK_HEADERS([X11/Xlib.h X11/Xutil.h X11/keysym.h X11/Xatom.h X11/cursorfont.h])
    CPPFLAGS="$ac_cppflags_save"
@@ -156,25 +154,10 @@ fi
 
 
 
-#  ************************* --enable-raevol option *******************************
-#
-#  With this option, regulation is enabled (RAevol) and the __REGUL flag is defined
-#
-
-AC_MSG_CHECKING([whether to use raevol])
-AC_ARG_ENABLE(raevol, [  --enable-raevol to enable regulation], raevol=$enableval, raevol=no)
-AC_MSG_RESULT($raevol)
-AM_CONDITIONAL(WITH_RAEVOL, test x"$raevol" != xno)
-if test "x$raevol" = "xyes" ; then
-   AC_DEFINE(__REGUL)
-fi
-
-
-
 #  ******************* --enable-normalized-fitness option ***************************
 #
-#  With this option, the NORMALIZED_FITNESS flag is defined, 
-#  allowing a different fitness calculation 
+#  With this option, the NORMALIZED_FITNESS flag is defined,
+#  allowing a different fitness calculation
 
 AC_MSG_CHECKING([whether to use normalized fitness])
 AC_ARG_ENABLE(normalized-fitness, [  --enable-normalized-fitness to enable fitness normalization], , enable_normalized_fitness=no)
@@ -200,17 +183,17 @@ AC_MSG_CHECKING([whether to use a particular period for the Mersenne Twister])
 AC_ARG_ENABLE(mtperiod,
 [  --enable-mtperiod=period
         Set the Mersenne Twister period to 2^period (default is 2^607).
-        
+
         Possible values are 607, 1279, 2281, 4253, 11213, 19937, 44497,
           86243, 132049 and 216091
-          
+
         Consider using in conjunction with --enable-trivialjumps for
           large periods
 ],
 period=$enableval,
 period=607)
 
-if  test $period != 607 && test $period != 1279 && test $period != 2281 && test $period != 4253 && test $period != 11213 && test $period != 19937 && 
+if  test $period != 607 && test $period != 1279 && test $period != 2281 && test $period != 4253 && test $period != 11213 && test $period != 19937 &&
     test $period != 44497 && test $period != 86243 && test $period != 132049 && test $period != 216091 ; then
   AC_MSG_RESULT([FAIL])
   AC_MSG_ERROR([$period is not a valid Mersenne Twister period])
@@ -228,7 +211,7 @@ AC_DEFINE_UNQUOTED([SFMT_MEXP], [$period])
 #  When this option is set, a trivial jump algorithm will be used instead of the polynomial-based method.
 #  This is recommended for large Mersenne Twister periods when huge jumps are not needed since
 #  the polynomial-based method takes more time in that case.
-#  
+#
 #  For the standard MT (period 2^19937), it takes approx. the same time to draw a few million numbers
 #  than it does to make the same jump using the polynomial-based method.
 #
@@ -241,11 +224,11 @@ AC_ARG_ENABLE(trivialjumps,
 [  --enable-trivialjumps=jumpsize
         When this option is set, a trivial jump algorithm will be used instead
         of the polynomial-based method.
-        
+
         This is recommended for large Mersenne Twister periods when huge jumps
         are not needed since the polynomial-based method takes more time in that
         case.
-        
+
         For the standard MT (period 2^19937), it takes approx. the same time to
         draw a few million numbers than it does to make the same jump using the
         polynomial-based method.
@@ -305,7 +288,7 @@ if test "x$enable_devel" = "xyes" ; then
   if test "x$cppunit_missing" != xno ; then
     AC_MSG_ERROR([cppunit not found, make will fail - please install cppunit.])
   fi
-    
+
 fi
 AM_CONDITIONAL([WANT_DOXYGEN], [test -n "$HAVE_DOXYGEN"])
 AM_CONDITIONAL([WITH_CPPUNIT], [test -n "$cppunit_missing"])
@@ -314,8 +297,8 @@ AM_CONDITIONAL([WITH_CPPUNIT], [test -n "$cppunit_missing"])
 
 #  ******************* --enable-debug option ***************************
 #
-#  With this option, the DEBUG flag is defined, and the programs are 
-#  compiled with debugging options (-g -Wall). 
+#  With this option, the DEBUG flag is defined, and the programs are
+#  compiled with debugging options (-g -Wall).
 #
 
 AC_MSG_CHECKING([whether to use debugging features])

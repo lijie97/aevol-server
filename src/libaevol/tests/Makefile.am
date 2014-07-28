@@ -14,12 +14,7 @@ AM_LDFLAGS  += -L$(top_srcdir)/src/libaevol
 ############################################
 #         Set aevol library to use         #
 ############################################
-if WITH_RAEVOL
-  LDADD = $(top_srcdir)/src/libaevol/libraevol.a
-else # WITHOUT_RAEVOL
-  LDADD = $(top_srcdir)/src/libaevol/libaevol.a
-endif # RAEVOL
-
+LDADD = $(top_srcdir)/src/libaevol/libaevol.a
 LDADD += $(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a $(CPPUNIT_LIBS)
 
 

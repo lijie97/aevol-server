@@ -33,41 +33,16 @@ AM_CPPFLAGS += -D_FORTIFY_SOURCE=2
 ############################################
 
 
-##### The below solution is no longer used since it generates a dependency problem #####
+##### The solution below is no longer used since it generates a dependency problem #####
 #AM_LDFLAGS = -L$(top_srcdir)/src/libaevol
-#if WITH_RAEVOL
-#  LDADD = -lraevol
-#else # WITHOUT_RAEVOL
 #  LDADD = -laevol
-#endif # RAEVOL
 #####  #####
 
-if WITH_RAEVOL
-  LDADD = $(top_srcdir)/src/libaevol/libraevol.a $(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
-else # WITHOUT_RAEVOL
-  LDADD = $(top_srcdir)/src/libaevol/libaevol.a $(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
-endif # RAEVOL
+
+LDADD = $(top_srcdir)/src/libaevol/libaevol.a $(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
 
 
-if WITH_RAEVOL
-if WITH_X
-if WITH_DEBUG
-  bin_PROGRAMS = raevol_run_X11_debug
-else # WITHOUT_DEBUG
-  bin_PROGRAMS = raevol_run_X11
-endif # DEBUG
-else # WITHOUT_X
-if WITH_DEBUG
-  bin_PROGRAMS = raevol_run_debug
-else # WITHOUT_DEBUG
-if WITH_IN2P3
-  bin_PROGRAMS = raevol_run_IN2P3
-else # WITHOUT_IN2P3
-  bin_PROGRAMS = raevol_run
-endif # IN2P3
-endif # DEBUG
-endif # X
-else # WITHOUT_RAEVOL
+
 if WITH_X
 if WITH_DEBUG
   bin_PROGRAMS = aevol_run_X11_debug
@@ -85,11 +60,10 @@ else # WITHOUT_IN2P3
 endif # IN2P3
 endif # DEBUG
 endif # X
-endif # RAEVOL
 
 bin_PROGRAMS += aevol_create aevol_modify aevol_propagate
 
-CLEANFILES = aevol_run aevol_run_IN2P3 raevol_run raevol_run_IN2P3 aevol_run_debug raevol_run_debug aevol_run_X11 raevol_run_X11 aevol_run_X11_debug raevol_run_X11_debug
+CLEANFILES = aevol_run aevol_run_IN2P3 aevol_run_debug aevol_run_X11 aevol_run_X11_debug
 CLEANFILES += aevol_create aevol_modify aevol_propagate
 
 
@@ -112,21 +86,6 @@ aevol_run_X11_CPPFLAGS = $(AM_CPPFLAGS)
 
 aevol_run_X11_debug_SOURCES = aevol_run.cpp
 aevol_run_X11_debug_CPPFLAGS = $(AM_CPPFLAGS)
-
-raevol_run_SOURCES = aevol_run.cpp
-raevol_run_CPPFLAGS = $(AM_CPPFLAGS)
-
-raevol_run_IN2P3_SOURCES = aevol_run.cpp
-raevol_run_IN2P3_CPPFLAGS = $(AM_CPPFLAGS)
-
-raevol_run_debug_SOURCES = aevol_run.cpp
-raevol_run_debug_CPPFLAGS = $(AM_CPPFLAGS)
-
-raevol_run_X11_SOURCES = aevol_run.cpp
-raevol_run_X11_CPPFLAGS = $(AM_CPPFLAGS)
-
-raevol_run_X11_debug_SOURCES = aevol_run.cpp
-raevol_run_X11_debug_CPPFLAGS = $(AM_CPPFLAGS)
 
 
 aevol_create_SOURCES = aevol_create.cpp

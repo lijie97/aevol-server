@@ -8,18 +8,14 @@ AM_LDFLAGS = $(AEVOLLDFLAGS)
 if WITH_CPPUNIT
   SUBDIRS = SFMT-src-1.4 . tests
 else # WITHOUT_CPPUNIT
-  SUBDIRS = SFMT-src-1.4 . 
+  SUBDIRS = SFMT-src-1.4 .
 endif
 
 
 ########################
 # Set library to build #
 ########################
-if WITH_RAEVOL
-  noinst_LIBRARIES = libraevol.a
-else # WITHOUT_RAEVOL
-  noinst_LIBRARIES = libaevol.a
-endif # RAEVOL
+noinst_LIBRARIES = libaevol.a
 
 
 ############################################
@@ -36,18 +32,11 @@ common_headers = ae_align.h ae_codon.h ae_dna.h ae_dump.h ae_enums.h ae_environm
 common_headers += param_loader.h f_line.h
 
 common_sources = ae_align.cpp ae_codon.cpp ae_dna.cpp ae_dump.cpp ae_environment.cpp ae_exp_manager.cpp ae_exp_setup.cpp ae_fuzzy_set.cpp ae_genetic_unit.cpp ae_grid_cell.cpp ae_individual.cpp ae_logs.cpp ae_mutation.cpp ae_output_manager.cpp ae_params_mut.cpp ae_phenotype.cpp ae_population.cpp ae_protein.cpp ae_jumping_mt.cpp ae_replication_report.cpp ae_dna_replic_report.cpp ae_rna.cpp ae_stats.cpp ae_stat_record.cpp ae_string.cpp ae_tree.cpp ae_vis_a_vis.cpp ae_selection.cpp ae_spatial_structure.cpp ae_gene_tree.cpp ae_gene_tree_node.cpp ae_gene_mutation.cpp
-common_sources += param_loader.cpp f_line.cpp 
+common_sources += param_loader.cpp f_line.cpp
 
 
 X11_headers = ae_fuzzy_set_X11.h ae_individual_X11.h ae_population_X11.h ae_exp_manager_X11.h ae_X11_window.h
 X11_sources = ae_fuzzy_set_X11.cpp ae_individual_X11.cpp ae_population_X11.cpp ae_exp_manager_X11.cpp ae_X11_window.cpp
-
-raevol_headers = ae_array_short.h ae_individual_R.h ae_influence_R.h ae_matrix_double.h ae_protein_R.h ae_rna_R.h ae_selection_R.h
-raevol_sources = ae_individual_R.cpp ae_influence_R.cpp ae_protein_R.cpp ae_rna_R.cpp ae_selection_R.cpp
-
-
-raevol_X11_headers = $(X11_headers) $(raevol_headers) ae_individual_R_X11.h
-raevol_X11_sources = $(X11_sources) $(raevol_sources) ae_individual_R_X11.cpp
 
 
 
@@ -56,24 +45,9 @@ raevol_X11_sources = $(X11_sources) $(raevol_sources) ae_individual_R_X11.cpp
 # prefixed object files so that we don't use an object file built for another set of macrodefinitions
 # e.g. We don't want to use an object file created with NO_X when building the X11 lib
 
+libaevol_a_CPPFLAGS = $(AM_CPPFLAGS)
 
-if WITH_RAEVOL
-  libraevol_a_CPPFLAGS = $(AM_CPPFLAGS)
-else # WITHOUT_RAEVOL
-  libaevol_a_CPPFLAGS = $(AM_CPPFLAGS)
-endif # RAEVOL
 
-if WITH_RAEVOL
-if WITH_X
-#libraevol_a_HEADERS = $(common_headers) $(raevol_X11_headers)
-  libraevol_a_SOURCES = $(common_sources) $(raevol_X11_sources)
-  libraevol_a_SOURCES += $(common_headers) $(raevol_X11_headers)
-else # WITHOUT_X
-#libraevol_a_HEADERS = $(common_headers) $(raevol_headers)
-  libraevol_a_SOURCES = $(common_sources) $(raevol_sources)
-  libraevol_a_SOURCES += $(common_headers) $(raevol_headers)
-endif # X
-else # WITHOUT_RAEVOL
 if WITH_X
 #libaevol_a_HEADERS = $(common_headers) $(X11_headers)
   libaevol_a_SOURCES = $(common_sources) $(X11_sources)
@@ -83,4 +57,3 @@ else # WITHOUT_X
   libaevol_a_SOURCES = $(common_sources)
   libaevol_a_SOURCES += $(common_headers)
 endif # X
-endif # RAEVOL
