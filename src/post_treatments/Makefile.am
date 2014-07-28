@@ -34,10 +34,11 @@ AM_CPPFLAGS += -D_FORTIFY_SOURCE=2
 ############################################
 #           Set programs to build          #
 ############################################
-bin_PROGRAMS = aevol_misc_robustness aevol_misc_ancstats aevol_misc_create_eps aevol_misc_fixed_mutations aevol_misc_gene_families aevol_misc_lineage aevol_misc_compute_pop_stats aevol_misc_template aevol_misc_extract
+bin_PROGRAMS = aevol_misc_robustness aevol_misc_ancstats aevol_misc_create_eps aevol_misc_fixed_mutations aevol_misc_gene_families aevol_misc_lineage aevol_misc_compute_pop_stats aevol_misc_extract
 if WITH_X
   bin_PROGRAMS += aevol_misc_view_generation
 endif # X
+noinst_PROGRAMS = aevol_misc_template
 
 CLEANFILES = aevol_misc_ancstats aevol_misc_compute_pop_stats aevol_misc_create_eps aevol_misc_extract aevol_misc_fixed_mutations aevol_misc_gene_families aevol_misc_lineage aevol_misc_robustness aevol_misc_template aevol_misc_view_generation
 
