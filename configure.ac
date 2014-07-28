@@ -254,8 +254,10 @@ fi
 
 #  ******************* --enable-devel option ***************************
 #
-#  This enables developers' features. For now it only adds a call to
-#  make clean at the end of the configure script.
+#  This enables developers' features:
+#    adds a call to make clean at the end of the configure script.
+#    enables doxygen if available
+#    enforces use of cppunit
 #
 
 AC_MSG_CHECKING([whether to use devel features])
@@ -288,7 +290,9 @@ if test "x$enable_devel" = "xyes" ; then
   if test "x$cppunit_missing" != xno ; then
     AC_MSG_ERROR([cppunit not found, make will fail - please install cppunit.])
   fi
-
+else
+  # Output a warning message about multi-configuration and make clean
+  AC_CONFIG_COMMANDS([user_warning], [AC_MSG_NOTICE([Consider using make clean if you are re-configuring.])])
 fi
 AM_CONDITIONAL([WANT_DOXYGEN], [test -n "$HAVE_DOXYGEN"])
 AM_CONDITIONAL([WITH_CPPUNIT], [test -n "$cppunit_missing"])
