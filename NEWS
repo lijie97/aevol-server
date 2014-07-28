@@ -105,6 +105,11 @@ Changes in 4.4:
 * The default value of duplication_rate, deletion_rate, translocation_rate and
   inversion_rate is now 1e-5 (instead of 5e-5 before).
 
+* The name of binaries no longer depend on configure-time options.
+  e.g. aevol_run is no longer called aevol_run_X11 when x output is enabled.
+  WARNING: If you build several times with different options enabled, you will
+  need to make clean after reconfiguring.
+
 * Changed the way the min/max total genome size and the min/max genetic unit
   size are handled. If you do not use plasmids (ALLOW_PLASMIDS not set, or equal
   to false), replace INITIAL_GENOME_LENGTH by CHROMOSOME_INITIAL_LENGTH in
