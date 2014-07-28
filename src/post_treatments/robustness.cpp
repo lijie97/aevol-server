@@ -47,12 +47,7 @@
 // =================================================================
 #include <ae_macros.h>
 #include <population_statistics.h>
-
-#ifndef __NO_X
-  #include <ae_exp_manager_X11.h>
-#else
-  #include <ae_exp_manager.h>
-#endif
+#include <ae_exp_manager.h>
 
 
 
@@ -141,11 +136,7 @@ int main( int argc, char* argv[] )
   population_statistics* population_statistics_compute = new population_statistics(type, nb_children, wanted_rank, wanted_index);
 
   // Load simulation
-  #ifndef __NO_X
-    ae_exp_manager* exp_manager = new ae_exp_manager_X11();
-  #else
-    ae_exp_manager* exp_manager = new ae_exp_manager();
-  #endif
+  ae_exp_manager* exp_manager = new ae_exp_manager();
   exp_manager->load( num_gener, false, true, false );
 
   population_statistics_compute->compute_reproduction_stats(exp_manager, num_gener);

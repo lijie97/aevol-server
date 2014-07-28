@@ -49,13 +49,9 @@
 #include <ae_macros.h>
 #include <ae_utils.h>
 #include <population_statistics.h>
-//#include <ae_common.h>
-#ifndef __NO_X
-  #include <ae_exp_manager_X11.h>
-#else
-  #include <ae_exp_manager.h>
-#endif
-//#include <ae_param_loader.h>
+#include <ae_exp_manager.h>
+
+
 
 
 
@@ -164,11 +160,7 @@ int main( int argc, char* argv[] )
   population_statistics* population_statistics_compute = new population_statistics(type, nb_children, wanted_rank, wanted_index);
 
   // Load simulation
-  #ifndef __NO_X
-    ae_exp_manager* exp_manager = new ae_exp_manager_X11();
-  #else
-    ae_exp_manager* exp_manager = new ae_exp_manager();
-  #endif
+  ae_exp_manager* exp_manager = new ae_exp_manager();
   exp_manager->load( begin_generation, false, true, false );
   backup_step = exp_manager->get_backup_step();
 
@@ -178,20 +170,16 @@ int main( int argc, char* argv[] )
   delete exp_manager;
 
   for ( int32_t i = begin_generation + backup_step  ; i <= generation_number ; i += backup_step )
-  {
-  	printf("\n\n Generation : %d\n\n", i);
-    #ifndef __NO_X
-    	exp_manager = new ae_exp_manager_X11();
-  	#else
-    	exp_manager = new ae_exp_manager();
-  	#endif
-    exp_manager->load( i, false, true, false );
-
-    population_statistics_compute->compute_reproduction_stats(exp_manager,i);
-    population_statistics_compute->compute_population_stats(i);
-    delete exp_manager;
-  }
-
+    {
+      printf("\n\n Generation : %d\n\n", i);
+      exp_manager = new ae_exp_manager();
+      exp_manager->load( i, false, true, false );
+      
+      population_statistics_compute->compute_reproduction_stats(exp_manager,i);
+      population_statistics_compute->compute_population_stats(i);
+      delete exp_manager;
+    }
+  
   delete population_statistics_compute;
 
   return EXIT_SUCCESS;

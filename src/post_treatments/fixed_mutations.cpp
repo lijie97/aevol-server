@@ -44,11 +44,7 @@
 //                            Project Files
 // =================================================================
 #include <ae_utils.h>
-#ifndef __NO_X
-  #include <ae_exp_manager_X11.h>
-#else
-  #include <ae_exp_manager.h>
-#endif
+#include <ae_exp_manager.h>
 #include <ae_individual.h>
 #include <ae_genetic_unit.h>
 #include <ae_list.h>
@@ -56,7 +52,7 @@
 #include <ae_replication_report.h>
 #include <ae_dna_replic_report.h>
 #include <ae_mutation.h>
-//#include <ae_param_loader.h>
+
 
 
 
@@ -185,7 +181,7 @@ int main(int argc, char** argv)
 
   printf("\n");
   printf( "WARNING : Parameter change during simulation is not managed in general.\n" );
-  printf( "          Only changes in environmental target done with aevol_modified are handled.\n" );
+  printf( "          Only changes in environmental target done with aevol_modify are handled.\n" );
   printf("\n");
 
 
@@ -221,11 +217,7 @@ int main(int argc, char** argv)
   // =========================
 
   // Open the experiment manager
-#ifndef __NO_X
-  ae_exp_manager* exp_manager = new ae_exp_manager_X11();
-#else
   ae_exp_manager* exp_manager = new ae_exp_manager();
-#endif
   exp_manager->load( begin_gener, false, true, false );
   ae_environment* env = new ae_environment( *(exp_manager->get_env()) ); // independent copy
 
@@ -371,11 +363,8 @@ int main(int argc, char** argv)
 
     if ( check_now && ae_utils::mod(num_gener, backup_step) == 0)
     {
-#ifndef __NO_X
-      exp_manager_backup = new ae_exp_manager_X11();
-#else
+
       exp_manager_backup = new ae_exp_manager();
-#endif
       exp_manager_backup->load( num_gener, false, true, false );
       stored_indiv = new ae_individual( * (ae_individual *)exp_manager_backup->get_indiv_by_id( index ), false );
       stored_unit_node = stored_indiv->get_genetic_unit_list()->get_first();

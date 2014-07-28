@@ -47,11 +47,7 @@
 // =================================================================
 #include <ae_macros.h>
 #include <ae_utils.h>
-#ifndef __NO_X
-  #include <ae_exp_manager_X11.h>
-#else
-  #include <ae_exp_manager.h>
-#endif
+#include <ae_exp_manager.h>
 #include <ae_individual.h>
 #include <ae_genetic_unit.h>
 #include <ae_list.h>
@@ -173,11 +169,7 @@ int main(int argc, char** argv)
   }
 
   // Load the simulation
-  #ifndef __NO_X
-    ae_exp_manager* exp_manager = new ae_exp_manager_X11();
-  #else
-    ae_exp_manager* exp_manager = new ae_exp_manager();
-  #endif
+  ae_exp_manager* exp_manager = new ae_exp_manager();
   exp_manager->load( end_gener, false, true, false );
 
   if ( exp_manager->get_tree_mode() == LIGHT )
@@ -374,11 +366,7 @@ int main(int argc, char** argv)
   }
 
   // Load the simulation
-  #ifndef __NO_X
-    exp_manager = new ae_exp_manager_X11();
-  #else
-    exp_manager = new ae_exp_manager();
-  #endif
+  exp_manager = new ae_exp_manager();
   exp_manager->load( begin_gener, false, true, false );
 
   // Copy the initial ancestor
@@ -457,11 +445,7 @@ int main(int argc, char** argv)
     if ( check_genome_now )
     {
       // Load the simulation
-  	  #ifndef __NO_X
-    	exp_manager_backup = new ae_exp_manager_X11();
-  	  #else
-    	exp_manager_backup = new ae_exp_manager();
-      #endif
+      exp_manager_backup = new ae_exp_manager();
       exp_manager_backup->load( num_gener, false, true, false );
 
       // Copy the ancestor from the backup

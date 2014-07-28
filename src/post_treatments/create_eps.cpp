@@ -49,11 +49,7 @@
 #include <ae_protein.h>
 #include <ae_rna.h>
 #include <ae_list.h>
-#ifndef __NO_X
-  #include <ae_exp_manager_X11.h>
-#else
-  #include <ae_exp_manager.h>
-#endif
+#include <ae_exp_manager.h>
 #include <ae_utils.h>
 
 
@@ -196,11 +192,7 @@ int main( int argc, char* argv[] )
   ae_environment* env;
 
   // Load the simulation
-  #ifndef __NO_X
-    ae_exp_manager* exp_manager = new ae_exp_manager_X11();
-  #else
-    ae_exp_manager* exp_manager = new ae_exp_manager();
-  #endif
+  ae_exp_manager* exp_manager = new ae_exp_manager();
   exp_manager->load( num_gener, false, true, false );
 
   env = exp_manager->get_env();
