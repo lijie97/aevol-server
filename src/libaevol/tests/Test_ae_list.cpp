@@ -172,17 +172,12 @@ void Test_ae_list::basic_tests2( void )
 
 void Test_ae_list::test_extract_sublist( void )
 {
-  printf("\n");
-  printf("hello\n");
-    
   // Construct the same list as int_list
   ae_list<int*>* expected = new ae_list<int*>();
   for (int i = 0 ; i < INT_LIST_SIZE ; i++)
   {
     expected->add(new int(i + 1));
   }
-
-  printf("HERE %d %d\n", expected->get_nb_elts(), int_list->get_nb_elts());
 
   // Initial check
   assert_equal(expected, int_list, CPPUNIT_SOURCELINE());
