@@ -39,8 +39,8 @@ AC_SUBST(AEVOLLDFLAGS, "")  # Linker flags
 
 
 # Checks for libraries.
-AC_CHECK_LIB([m], [cos])
-AC_CHECK_LIB([z], [gzread])
+AC_CHECK_LIB([m], [cos], , [AC_MSG_ERROR([PACKAGE_NAME requires the math library, please install it.])])
+AC_CHECK_LIB([z], [gzread], , [AC_MSG_ERROR([PACKAGE_NAME requires the zlib development library, please install it.])])
 
 
 # Checks for header files.
@@ -127,7 +127,7 @@ if test "x$with_x" != xno ; then
    CPPFLAGS+=" $X_CFLAGS"
    AEVOLCPPFLAGS+=" $X_CFLAGS"
    AEVOLLDFLAGS+=" $X_LIBS"
-   AC_CHECK_LIB(X11, XOpenDisplay, , ,$X_LIBS)
+   AC_CHECK_LIB(X11, XOpenDisplay, , [AC_MSG_ERROR([the X11 library could not be found on your system. Please install it or re-run with the --without-x option])],$X_LIBS)
    AC_CHECK_HEADERS([X11/Xlib.h X11/Xutil.h X11/keysym.h X11/Xatom.h X11/cursorfont.h])
    CPPFLAGS="$ac_cppflags_save"
 else
