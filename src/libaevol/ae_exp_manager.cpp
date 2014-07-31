@@ -106,6 +106,23 @@ ae_exp_manager::~ae_exp_manager( void )
 }
 
 // ===========================================================================
+//                                   Algorithms
+// ===========================================================================
+void ae_exp_manager::foreach_indiv(void (*processor)(ae_individual& indiv)) const
+{
+  ae_list_node<ae_individual*>* indiv_node = get_indivs()->get_first();
+  ae_individual* indiv = NULL;
+  while ( indiv_node != NULL )
+  {
+    indiv = indiv_node->get_obj();
+
+    processor(*indiv);
+
+    indiv_node = indiv_node->get_next();
+  }
+}
+
+// ===========================================================================
 //                                 Public Methods
 // ===========================================================================
 /*!

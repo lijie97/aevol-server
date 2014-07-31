@@ -3,34 +3,34 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 // ****************************************************************************
 
 
 /*!
   \class ae_exp_manager
-  
+
   \brief This is aevol's top-level class. It allows for
   high-level experiment management
-  
+
   An experiment manager allows one to... manage an experiment.
   It owns a population and an experimental_setup that can be loaded from a
   pair of aevol binary files (pop and exp_setup)
@@ -83,6 +83,11 @@ class ae_exp_manager : public ae_object
     virtual ~ae_exp_manager( void );
 
     // =======================================================================
+    //                                 Algorithms
+    // =======================================================================
+    void foreach_indiv(void (*processor)(ae_individual& indiv)) const;
+
+    // =======================================================================
     //                           Accessors: getters
     // =======================================================================
     inline ae_exp_setup*        get_exp_s( void ) const;
@@ -90,18 +95,18 @@ class ae_exp_manager : public ae_object
     inline ae_environment*      get_env( void ) const;
     inline ae_selection*        get_sel( void ) const;
     inline ae_output_manager*   get_output_m( void ) const;
-  
+
     inline int32_t  get_first_gener( void ) const;
     inline int32_t  get_num_gener( void ) const;
-  
+
     inline bool quit_signal_received( void ) const;
-    
-    
+
+
     inline int16_t  get_nb_env_segments( void ) const;
-    
+
     inline ae_selection_scheme get_selection_scheme( void ) const;
     inline double get_selection_pressure( void ) const;
-  
+
     // ------------------------------------------------------ Spatial structure
     inline bool                   is_spatially_structured( void ) const;
     inline ae_spatial_structure*  get_spatial_structure( void ) const;
@@ -109,19 +114,19 @@ class ae_exp_manager : public ae_object
     inline int16_t                get_grid_width( void ) const;
     inline int16_t                get_grid_height( void ) const;
     inline ae_grid_cell***        get_pop_grid( void ) const;
-  
+
     // -------------------------------------------------------- Global settings
     inline bool   get_with_HT( void ) const;
     inline bool   get_repl_HT_with_close_points ( void ) const;
     inline double get_HT_ins_rate( void ) const;
     inline double get_HT_repl_rate( void ) const;
     inline double get_repl_HT_detach_rate( void ) const;
-    
+
     // The ability to own a plasmid is a property of the individuals (_allow_plasmids) because it is used during mutations
     // However there is also a property of the experimental setup (_with_plasmids) that indicates whether plasmids are used because we need this during replication and during loading/writting
     // For now when plasmids are used each individual has one and only one plasmid (so these variables should always be equals), however this may change in the future
     // There is no longer property _with_plasmids_HT because the ability to transfer is evolvable and thus may depend on the plasmid itself
-  
+
     inline bool   get_with_plasmids( void ) const;
     inline double get_prob_plasmid_HT( void ) const;
     inline double get_tune_donor_ability( void ) const;
@@ -129,21 +134,21 @@ class ae_exp_manager : public ae_object
     inline double get_donor_cost( void ) const;
     inline double get_recipient_cost( void ) const;
     inline bool   get_swap_GUs( void ) const;
-    
+
     inline bool   get_with_secretion( void ) const;
     inline double get_secretion_contrib_to_fitness( void ) const;
     inline double get_secretion_cost( void ) const;
-    
+
     //~ inline bool   get_with_alignments( void ) const;
-    
+
     // Accessors to population stuff
     inline ae_list<ae_individual*>* get_indivs( void ) const;
     inline int32_t                  get_nb_indivs( void ) const;
-    
+
     inline ae_individual* get_best_indiv( void ) const;
     inline ae_individual*	get_indiv_by_id( int32_t id ) const;
     inline ae_individual* get_indiv_by_rank( int32_t rank ) const;
-    
+
     // Accessors to output manager stuff
     inline int32_t	get_backup_step(void) const;
     inline int32_t	get_big_backup_step(void) const;
@@ -151,7 +156,7 @@ class ae_exp_manager : public ae_object
     inline int32_t      get_tree_step( void ) const;
     inline ae_tree_mode get_tree_mode( void ) const;
     inline ae_tree*     get_tree( void ) const;
-    
+
     // =======================================================================
     //                          Accessors: setters
     // =======================================================================
@@ -188,7 +193,7 @@ class ae_exp_manager : public ae_object
                char* pop_file_name,
                char* sel_file_name,
                char* sp_struct_file_name,
-               bool verbose, 
+               bool verbose,
                bool to_be_run = true);
     void run_evolution( void );
     virtual void display( void ) {};
@@ -196,7 +201,7 @@ class ae_exp_manager : public ae_object
     // =======================================================================
     //                              Public Attributes
     // =======================================================================
-    
+
 
 
 
@@ -234,7 +239,7 @@ class ae_exp_manager : public ae_object
                FILE*& out_p_txtfile,
                bool verbose,
                bool to_be_run = true );
-  
+
     void create_missing_directories( const char* dir = "." ) const;
     void open_backup_files( gzFile& env_file,
                             gzFile& pop_file,
@@ -261,24 +266,24 @@ class ae_exp_manager : public ae_object
     // =======================================================================
     // ---------------------------------------------------- Experimental setup
     ae_exp_setup* _exp_s;
-    
+
     // ------------------------------------------------------------ Population
     ae_population* _pop;
-      
+
     // ----------------------------------------------------------- Environment
     ae_environment* _env;
-    
+
     // ----------------------------------------------------- Spatial structure
     ae_spatial_structure* _spatial_structure;
-    
+
     // -------------------------------------------------------- Output manager
     ae_output_manager* _output_m;
-    
+
     // -------------------------- Generation numbers (first, last and current)
     int32_t _first_gener;
     int32_t _last_gener;
     int32_t _num_gener;
-    
+
     // Set to true when ctrl-Q is received. Will cause the simulation
     // to be ended after current generation is completed
     bool _quit_signal_received;
@@ -549,7 +554,7 @@ inline void ae_exp_manager::set_spatial_structure( int16_t grid_width,
 
 inline void ae_exp_manager::set_with_HT( bool with_HT )
 {
-  _exp_s->set_with_HT( with_HT );  
+  _exp_s->set_with_HT( with_HT );
 }
 
 inline void ae_exp_manager::set_repl_HT_with_close_points ( bool repl_HT_with_close_points)
@@ -583,10 +588,10 @@ inline void ae_exp_manager::step_to_next_generation( void )
 {
   // Apply environmental variation
   _env->apply_variation();
-  
+
   // Apply environmental noise
   _env->apply_noise();
-  
+
   _exp_s->step_to_next_generation();
   _num_gener++;
 }
