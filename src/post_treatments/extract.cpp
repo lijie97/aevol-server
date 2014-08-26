@@ -36,13 +36,15 @@
 //    the proteins in a text file. A space delimits two proteins, a
 //    new line delimits two individuals. For each protein, the output
 //    is "m_h_w_c_r_s_f_l_z_g" where :
-//        * m, h, w and c are the mean, height, width and concentration of the protein
+//        * m, h, w and c are the mean, height, width and concentration of the
+//            protein
 //        * r is an identifier of the rna it belongs (usefull to
 //            know if several proteins are on the same rna)
 //        * s indicates the strand (LEADING/LAGGING)
 //        * f and l are the first and last translated base
 //        * z indicates the feature (at the center of the protein)
-//        * g indicates the genetic unit to which the protein belongs (0=chromosome, 1=plasmid)
+//        * g indicates the genetic unit to which the protein belongs
+//            (0=chromosome, 1=plasmid)
 //
 //  * sequences of the individuals (option -s) : write the sequences
 //    in a text file. A new line delimits two individuals. In case
@@ -421,7 +423,7 @@ Two kinds of data can be extracted :\n\
    new line delimits two individuals. For each protein, the output\n\
    is \"m_h_w_c_r_s_f_l_z_g\" where :\n\
        * m, h, w and c are the mean, height, width and concentration of the protein\n\
-       * r is an identifier of the rna it belongs (usefull to\n\
+       * r is an identifier of the rna it belongs (useful to\n\
            know if several proteins are on the same rna)\n\
        * s indicates the strand (LEADING/LAGGING)\n\
        * f and l are the first and last translated base\n\
