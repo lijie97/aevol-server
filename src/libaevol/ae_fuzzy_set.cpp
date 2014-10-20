@@ -3,25 +3,25 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //*****************************************************************************
 
 
@@ -58,7 +58,7 @@
 ae_fuzzy_set::ae_fuzzy_set( void )
 {
   _points = new ae_list<ae_point_2d*>();
-  
+
   initialize();
 }
 
@@ -82,7 +82,7 @@ ae_fuzzy_set::ae_fuzzy_set( const ae_fuzzy_set &model )
 ae_fuzzy_set::ae_fuzzy_set( gzFile backup_file )
 {
   _points = new ae_list<ae_point_2d*>();
-  
+
   load( backup_file );
 }
 
@@ -201,7 +201,7 @@ void ae_fuzzy_set::simplify( void )
     }
     node = next_node;
   }
-  
+
   #ifdef DEBUG
     _assert_order();
   #endif
@@ -227,9 +227,9 @@ void ae_fuzzy_set::add_triangle( double mean, double width, double height )
   assert( X_MIN <= mean   && mean <= X_MAX );
   assert( W_MIN <= width ); // the maximum width depends on each individual
   // assert( MIN_H <= height && height <= MAX_H ); Not necessarily because the concentration can be > 1
-  
+
   if ( fabs(width) < 1e-15 || fabs(height) < 1e-15 ) return;
-  
+
   // Compute triangle points' coordinates
   double x0 = mean - width;
   double x1 = mean;
@@ -277,7 +277,7 @@ void ae_fuzzy_set::add_triangle( double mean, double width, double height )
 
     point_node = point_node->get_next();
   }
-  
+
   #ifdef DEBUG
     _assert_order();
   #endif
@@ -315,7 +315,7 @@ void ae_fuzzy_set::add( ae_fuzzy_set* to_add )
 
     point_node = point_node->get_next();
   }
-  
+
   #ifdef DEBUG
     _assert_order();
   #endif
@@ -627,7 +627,7 @@ void ae_fuzzy_set::sub( ae_fuzzy_set* to_sub )
   _points->erase( true );
   delete _points;
   _points = result;
-  
+
   #ifdef DEBUG
     _assert_order();
   #endif
@@ -637,7 +637,7 @@ double ae_fuzzy_set::get_geometric_area( void ) const
 {
   double area = 0;
   double tmp, tmp2;
-  
+
   ae_point_2d*  point =  _points->get_first()->get_obj();
   ae_list_node<ae_point_2d*>* next_point_node = _points->get_first()->get_next();
   ae_point_2d*  next_point = NULL;
@@ -683,41 +683,41 @@ double ae_fuzzy_set::get_geometric_area( double start_segment, double end_segmen
   assert( _points->get_first() != _points->get_last() );
   assert( _points->get_first()->get_obj()->x == X_MIN );
   assert( _points->get_last()->get_obj()->x == X_MAX );
-  
+
   // We must have ( X_MIN <= start_segment < end_segment <= X_MAX )
   assert( start_segment >= X_MIN && start_segment < end_segment && end_segment <= X_MAX );
-  
+
   double area = 0;
   double tmp, tmp2;
-  
+
   ae_list_node<ae_point_2d*>* point_node      = _points->get_first();
   ae_list_node<ae_point_2d*>* next_point_node = point_node->get_next();
-  
+
   ae_point_2d*  point       = point_node->get_obj();
   ae_point_2d*  next_point  = NULL;
 
   while ( next_point_node != NULL )
   {
     next_point = next_point_node->get_obj();
-    
+
     // If there are no points at x = start_segment and x = end_segment, we must interpolate them
     if ( point->x < start_segment && next_point->x > start_segment )
     {
       next_point      = new ae_point_2d( start_segment, get_y( start_segment, point_node ) );
       next_point_node = _points->add_after( next_point, point_node );
-      
+
       continue;
     }
     if ( point->x < end_segment && next_point->x > end_segment )
     {
       next_point      = new ae_point_2d( end_segment, get_y( end_segment, point_node ) );
       next_point_node = _points->add_after( next_point, point_node );
-      
+
       continue;
     }
 
     // If we are within the segment, compute the area
-    if ( point->x >= start_segment && next_point->x <= end_segment ) 
+    if ( point->x >= start_segment && next_point->x <= end_segment )
     {
       if ( point->x != next_point->x )
       {
@@ -743,12 +743,12 @@ double ae_fuzzy_set::get_geometric_area( double start_segment, double end_segmen
         }
       }
     }
-    
+
     point       = next_point;
     point_node  = next_point_node;
     next_point_node = next_point_node->get_next();
   }
-  
+
   return area;
 }
 
@@ -800,7 +800,7 @@ void ae_fuzzy_set::add_upper_bound( double upper_bound )
 
     point_node = point_node->get_next();
   }
-  
+
   #ifdef DEBUG
     _assert_order();
   #endif
@@ -833,7 +833,7 @@ void ae_fuzzy_set::add_lower_bound( double lower_bound )
         {
           // Create a point at the intersection of the segment and the floor defined by the lower bound
           _points->add_after( new ae_point_2d( get_x( lower_bound, prev_point, point ), lower_bound ), prev_node );
-            
+
           #ifdef DEBUG
             _assert_order();
           #endif
@@ -849,7 +849,7 @@ void ae_fuzzy_set::add_lower_bound( double lower_bound )
         {
           // Create a point at the intersection of the segment and the floor defined by the lower bound
           _points->add_after( new ae_point_2d( get_x( lower_bound, point, next_point ), lower_bound ), point_node );
-            
+
           #ifdef DEBUG
             _assert_order();
           #endif
@@ -863,7 +863,7 @@ void ae_fuzzy_set::add_lower_bound( double lower_bound )
 
     point_node = point_node->get_next();
   }
-  
+
   #ifdef DEBUG
     _assert_order();
   #endif
@@ -896,7 +896,7 @@ bool ae_fuzzy_set::is_identical_to( const ae_fuzzy_set * other, double tolerance
     point_node = point_node->get_next();
     other_node = other_node->get_next();
   }
-  
+
   return ok;
 }
 
@@ -905,7 +905,7 @@ void ae_fuzzy_set::save( gzFile backup_file ) const
 {
   int16_t nb_points = (_points == NULL) ? 0 : _points->get_nb_elts();
   gzwrite( backup_file, &nb_points, sizeof(nb_points) );
-  
+
   if ( _points != NULL )
   {
     ae_list_node<ae_point_2d*>* point_node = _points->get_first();
@@ -913,9 +913,9 @@ void ae_fuzzy_set::save( gzFile backup_file ) const
     for ( int16_t i = 0 ; i < nb_points ; i++ )
     {
       point = point_node->get_obj();
-      
+
       point->save( backup_file );
-      
+
       point_node = point_node->get_next();
     }
   }
@@ -926,9 +926,9 @@ void ae_fuzzy_set::load( gzFile backup_file )
 {
   int16_t nb_points;
   gzread( backup_file, &nb_points, sizeof(nb_points) );
-  
+
   if ( nb_points > 0 ) _points = new ae_list<ae_point_2d*>();
-  
+
   for ( int16_t i = 0 ; i < nb_points ; i++ )
   {
     _points->add( new ae_point_2d( backup_file ) );
@@ -996,7 +996,7 @@ ae_list_node<ae_point_2d*>* ae_fuzzy_set::create_interpolated_point( double x, a
     point_node = _points->add_before( new ae_point_2d( x, get_y( x ) ), point_node );
     return point_node;
   }
-  
+
   #ifdef DEBUG
     _assert_order();
   #endif
@@ -1006,7 +1006,7 @@ void ae_fuzzy_set::_assert_order( void )
 {
   assert( (_points->get_first()->get_obj())->x == X_MIN );
   assert( (_points->get_last()->get_obj())->x == X_MAX );
-  
+
   ae_list_node<ae_point_2d*>* point_node  = _points->get_first();
   ae_list_node<ae_point_2d*>* next_point_node = point_node->get_next();
   ae_point_2d*  point;
@@ -1016,9 +1016,9 @@ void ae_fuzzy_set::_assert_order( void )
   {
     point = point_node->get_obj();
     next_point = next_point_node->get_obj();
-    
+
     assert( point->x <= next_point->x );
-    
+
     point_node = point_node->get_next();
     next_point_node = next_point_node->get_next();
   }

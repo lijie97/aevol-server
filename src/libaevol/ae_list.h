@@ -133,13 +133,13 @@ class ae_list
 
     // Add the elements of 'to_add' as new nodes at the end of the list.
     // 'to_add' is untouched.
-    inline void add_list( ae_list<T> * const to_add );
+    inline void add_list( const ae_list<T>* to_add );
 
 
-    inline int32_t  get_nb_elts( void ) const;
-    inline bool     is_empty( void ) const;
+    inline const int32_t get_nb_elts( void ) const;
+    inline const bool is_empty( void ) const;
 
-    inline int32_t get_position( T obj ) const;
+    inline const int32_t get_position( T obj ) const;
     inline ae_list_node<T>* get_node( int32_t pos ) const;
     inline T get_object( int32_t pos ) const;
 
@@ -797,7 +797,7 @@ void ae_list<T>::merge(ae_list<T>* append)
   @param to_add the list of objects to add
  */
 template <typename T>
-inline void ae_list<T>::add_list(ae_list<T>* const to_add)
+inline void ae_list<T>::add_list(const ae_list<T>* to_add)
 {
   if ( to_add == NULL ) return; // Nothing to do
 
@@ -817,7 +817,7 @@ inline void ae_list<T>::add_list(ae_list<T>* const to_add)
   @return true if the list is empty, false otherwise
  */
 template <typename T>
-bool ae_list<T>::is_empty( void ) const
+const bool ae_list<T>::is_empty( void ) const
 {
   return ( _first == NULL );
 }
@@ -830,7 +830,7 @@ bool ae_list<T>::is_empty( void ) const
   @return the number of elements in the list
  */
 template <typename T>
-int32_t ae_list<T>::get_nb_elts( void ) const
+const int32_t ae_list<T>::get_nb_elts( void ) const
 {
   return _nb_elts;
 }
@@ -843,7 +843,7 @@ int32_t ae_list<T>::get_nb_elts( void ) const
   @return the position (0 for the head) of the object or -1 if not found
  */
 template <typename T>
-int32_t ae_list<T>::get_position( T obj ) const
+const int32_t ae_list<T>::get_position( T obj ) const
 {
   int32_t i = 0;
 
