@@ -40,7 +40,10 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_object.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 #include <ae_env_segment.h>
 #include <ae_jumping_mt.h>
 #include <ae_fuzzy_set.h>

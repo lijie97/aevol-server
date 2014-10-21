@@ -40,7 +40,10 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_object.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 #include <ae_enums.h>
 
 
@@ -55,7 +58,7 @@
 
 
 
-class ae_params_mut : public ae_object
+class ae_params_mut
 {
   public :
     // =================================================================

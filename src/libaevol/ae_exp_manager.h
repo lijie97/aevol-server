@@ -51,7 +51,10 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_object.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 #include <ae_jumping_mt.h>
 #include <ae_exp_setup.h>
 #include <ae_output_manager.h>
@@ -69,7 +72,7 @@
 
 
 
-class ae_exp_manager : public ae_object
+class ae_exp_manager
 {
   public :
     // =======================================================================

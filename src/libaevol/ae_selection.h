@@ -39,7 +39,10 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_object.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 #include <ae_spatial_structure.h>
 
 
@@ -55,7 +58,7 @@ class ae_exp_manager;
 
 
 
-class ae_selection : public ae_object
+class ae_selection
 {
   public :
     // =================================================================

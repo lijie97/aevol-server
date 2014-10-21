@@ -53,7 +53,7 @@
 
 
  
-class ae_gaussian : public ae_object
+class ae_gaussian
 {  
   public :
   

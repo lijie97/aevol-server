@@ -48,7 +48,10 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_object.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 #include <ae_rna.h>
 
 
@@ -75,7 +78,7 @@ enum ae_gene_creation_type
 class ae_gene_tree_node;
 
  
-class ae_gene_tree : public ae_object
+class ae_gene_tree
 {  
   friend class ae_gene_tree_node;
 

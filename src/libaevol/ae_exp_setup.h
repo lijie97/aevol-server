@@ -61,7 +61,7 @@ class ae_param_overloader;
 
 
  
-class ae_exp_setup : public ae_object
+class ae_exp_setup
 {
   friend class ae_exp_manager;
   

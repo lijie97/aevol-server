@@ -45,7 +45,10 @@
 #include <ae_params_mut.h>
 #include <ae_jumping_mt.h>
 
-#include <ae_object.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 #include <ae_macros.h>
 #include <ae_enums.h>
 #include <ae_list.h>

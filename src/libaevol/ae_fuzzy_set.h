@@ -47,7 +47,10 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_object.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 #include <ae_list.h>
 #include <ae_point_2d.h>
 #include <ae_macros.h>
@@ -65,7 +68,7 @@ class exp_manager;
 
 
 
-class ae_fuzzy_set : public ae_object
+class ae_fuzzy_set
 {
   public :
 

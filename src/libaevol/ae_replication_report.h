@@ -40,7 +40,10 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_object.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 #include <ae_list.h>
 #include <ae_dna_replic_report.h>
 #include <ae_enums.h>
@@ -56,7 +59,7 @@ class ae_individual;
 
 
 
-class ae_replication_report : public ae_object
+class ae_replication_report
 {
   public :
 

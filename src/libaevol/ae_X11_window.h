@@ -40,7 +40,10 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_object.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 
 
 
@@ -69,7 +72,7 @@ enum color_map
 
 
  
-class ae_X11_window : public ae_object
+class ae_X11_window
 {  
   public :
   

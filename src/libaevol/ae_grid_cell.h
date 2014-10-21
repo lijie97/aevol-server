@@ -39,7 +39,10 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_object.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 #include <ae_individual.h>
 
 
@@ -54,7 +57,7 @@
 
 
 
-class ae_grid_cell : public ae_object
+class ae_grid_cell
 {
   public :
     // =================================================================

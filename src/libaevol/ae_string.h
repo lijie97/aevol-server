@@ -41,7 +41,10 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_object.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 #include <ae_utils.h>
 
 
@@ -59,7 +62,7 @@
 
 #define BLOCK_SIZE INT32_C(1024)
  
-class ae_string : public ae_object
+class ae_string
 {  
   public :
   

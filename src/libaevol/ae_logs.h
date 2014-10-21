@@ -40,7 +40,10 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_object.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 #include <ae_enums.h>
 
 
@@ -52,7 +55,7 @@
 
 
 
-class ae_logs : public ae_object
+class ae_logs
 {
   public :
 

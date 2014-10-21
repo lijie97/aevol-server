@@ -54,7 +54,7 @@
 
 
  
-class ae_env_segment : public ae_object
+class ae_env_segment
 {  
   public :
   

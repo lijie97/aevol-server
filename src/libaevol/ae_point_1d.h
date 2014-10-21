@@ -52,7 +52,7 @@
 
 
  
-class ae_point_1d : public ae_object
+class ae_point_1d
 {  
   public :
   

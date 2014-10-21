@@ -67,7 +67,7 @@ class ae_grid_cell;
 
 
 
-class ae_individual : public ae_object
+class ae_individual
 {
   friend class ae_dna;
 

@@ -41,7 +41,10 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_object.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 #include <ae_dna.h>
 #include <ae_macros.h>
 
@@ -57,7 +60,7 @@
 
 
 
-class ae_codon : public ae_object
+class ae_codon
 {
   public :
 

@@ -40,7 +40,10 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_object.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 
 
 
@@ -54,7 +57,7 @@
 
 
  
-class ae_point_2d : public ae_object
+class ae_point_2d
 {  
   public :
   

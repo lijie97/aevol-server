@@ -59,7 +59,7 @@ class ae_exp_manager;
 
 
 
-class ae_genetic_unit : public ae_object
+class ae_genetic_unit
 {
   public :
 

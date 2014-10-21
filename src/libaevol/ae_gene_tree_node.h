@@ -49,7 +49,10 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_object.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 #include <ae_rna.h>
 #include <ae_list.h>
 #include <ae_gene_mutation.h>
@@ -67,7 +70,7 @@
 
 
  
-class ae_gene_tree_node : public ae_object
+class ae_gene_tree_node
 {  
   friend class ae_gene_tree;
 

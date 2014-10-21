@@ -40,7 +40,10 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_object.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 #include <ae_enums.h>
 #include <zlib.h>
 
@@ -69,7 +72,7 @@ enum ae_mutation_type
 
 
  
-class ae_mutation : public ae_object
+class ae_mutation
 {  
   public :
   

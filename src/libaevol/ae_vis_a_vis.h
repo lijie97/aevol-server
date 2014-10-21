@@ -39,7 +39,10 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_object.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 #include <ae_dna.h>
 #include <ae_utils.h>
 
@@ -56,7 +59,7 @@
 
 
 
-class ae_vis_a_vis : public ae_object
+class ae_vis_a_vis
 {
   friend class ae_align;
   

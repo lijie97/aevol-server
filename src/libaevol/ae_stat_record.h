@@ -39,7 +39,10 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_object.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 
 
 
@@ -93,7 +96,7 @@ enum stats_type
 
 
 
-class ae_stat_record : public ae_object
+class ae_stat_record
 {
   friend class ae_stats;
   public :

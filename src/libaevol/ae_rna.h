@@ -40,7 +40,10 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_object.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 #include <ae_dna.h>
 #include <ae_utils.h>
 #include <ae_protein.h>
@@ -58,7 +61,7 @@ class ae_genetic_unit;
 
 
 
-class ae_rna : public ae_object
+class ae_rna
 {
   public :
 

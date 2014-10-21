@@ -58,7 +58,7 @@ class ae_exp_manager;
 
 
 
-class ae_population : public ae_object
+class ae_population
 {
   friend class ae_selection;
 

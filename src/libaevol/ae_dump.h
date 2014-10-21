@@ -40,7 +40,10 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_object.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 
 
 
@@ -55,7 +58,7 @@ class ae_exp_manager;
 #define _AE_DUMP_FILENAME_BUFSIZE INT32_C(256)
 
 
-class ae_dump : public ae_object
+class ae_dump
 {  
  public :
   

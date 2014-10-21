@@ -39,7 +39,10 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_object.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 #include <ae_grid_cell.h>
 
 
@@ -55,7 +58,7 @@
 
 
 
-class ae_spatial_structure : public ae_object
+class ae_spatial_structure
 {
   public :
     // =================================================================

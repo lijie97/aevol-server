@@ -39,7 +39,10 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_object.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 #include <ae_vis_a_vis.h>
 
 
@@ -55,7 +58,7 @@ class ae_dna;
 
 
 
-class ae_align : public ae_object
+class ae_align
 {
   public :
 
