@@ -229,9 +229,9 @@ int main(int argc, char** argv)
   // except if end_gener%ae_common::rec_params->get_tree_step()==0.
 
   #ifdef __REGUL
-    sprintf( tree_file_name,"tree/tree_%06"PRId32".rae", end_gener );
+    sprintf( tree_file_name,"tree/tree_%06" PRId32 ".rae", end_gener );
   #else
-    sprintf( tree_file_name,"tree/tree_%06"PRId32".ae", end_gener );
+    sprintf( tree_file_name,"tree/tree_%06" PRId32 ".ae", end_gener );
   #endif
   char pop_file_name[255];
   sprintf( pop_file_name, POP_FNAME_FORMAT, end_gener );
@@ -274,7 +274,7 @@ int main(int argc, char** argv)
     //~ ranks[end_gener - begin_gener]    = final_indiv_rank;
   }
 
-  if ( verbose ) printf( "The final individual has the index %"PRId32" (rank %"PRId32")\n", final_indiv_index, final_indiv_rank );
+  if ( verbose ) printf( "The final individual has the index %" PRId32 " (rank %" PRId32 ")\n", final_indiv_index, final_indiv_rank );
 
 
   // =======================
@@ -283,9 +283,9 @@ int main(int argc, char** argv)
   char output_file_name[101];
 
   #ifdef __REGUL
-    snprintf( output_file_name, 100, "lineage-b%06"PRId32"-e%06"PRId32"-i%"PRId32"-r%"PRId32".rae", begin_gener, end_gener, final_indiv_index, final_indiv_rank);
+    snprintf( output_file_name, 100, "lineage-b%06" PRId32 "-e%06" PRId32 "-i%" PRId32 "-r%" PRId32 ".rae", begin_gener, end_gener, final_indiv_index, final_indiv_rank);
   #else
-    snprintf( output_file_name, 100, "lineage-b%06"PRId32"-e%06"PRId32"-i%"PRId32"-r%"PRId32".ae",  begin_gener, end_gener, final_indiv_index, final_indiv_rank);
+    snprintf( output_file_name, 100, "lineage-b%06" PRId32 "-e%06" PRId32 "-i%" PRId32 "-r%" PRId32 ".ae",  begin_gener, end_gener, final_indiv_index, final_indiv_rank);
   #endif
 
   gzFile lineage_file = gzopen(output_file_name, "w");
@@ -322,7 +322,7 @@ int main(int argc, char** argv)
     // at generation begin_gener + i + 1  was created
 
     num_gener = begin_gener + i + 1;
-    if ( verbose ) printf( "Getting the replication report for the ancestor at generation %"PRId32"\n", num_gener );
+    if ( verbose ) printf( "Getting the replication report for the ancestor at generation %" PRId32 "\n", num_gener );
 
 
     if ( ae_utils::mod( num_gener, tree_step ) == 0 )
@@ -331,9 +331,9 @@ int main(int argc, char** argv)
       delete tree;
 
       #ifdef __REGUL
-        sprintf( tree_file_name,"tree/tree_%06"PRId32".rae", num_gener );
+        sprintf( tree_file_name,"tree/tree_%06" PRId32 ".rae", num_gener );
       #else
-        sprintf( tree_file_name,"tree/tree_%06"PRId32".ae",  num_gener );
+        sprintf( tree_file_name,"tree/tree_%06" PRId32 ".ae",  num_gener );
       #endif
 
       sprintf( pop_file_name,       POP_FNAME_FORMAT,       num_gener );
@@ -435,7 +435,7 @@ int main(int argc, char** argv)
     // Write the replication report of the ancestor for current generation
     if ( verbose )
     {
-      printf( "Writing the replication report for generation %"PRId32" (built from indiv %"PRId32" at generation %"PRId32")\n",
+      printf( "Writing the replication report for generation %" PRId32 " (built from indiv %" PRId32 " at generation %" PRId32 ")\n",
               num_gener, indices[i], num_gener-1 );
     }
     reports[i]->write_to_tree_file( lineage_file );
@@ -520,7 +520,7 @@ int main(int argc, char** argv)
         {
           if ( verbose ) printf( " ERROR !\n" );
           fprintf( stderr, "Error: the rebuilt unit is not the same as \n");
-          fprintf( stderr, "the one stored in backup file at %"PRId32"\n", num_gener);
+          fprintf( stderr, "the one stored in backup file at %" PRId32 "\n", num_gener);
           //fprintf( stderr, "Rebuilt unit : %"PRId32" bp\n %s\n", (int32_t)strlen(str1), str1 );
           //fprintf( stderr, "Stored unit  : %"PRId32" bp\n %s\n", (int32_t)strlen(str2), str2 );
           delete [] str1;

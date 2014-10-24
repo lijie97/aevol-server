@@ -578,7 +578,7 @@ void ae_exp_manager::run_evolution( void )
   {
     if ( quit_signal_received() ) break;
 
-    printf( "============================== %"PRId32" ==============================\n", _num_gener );
+    printf( "============================== %" PRId32 " ==============================\n", _num_gener );
     printf( "  Best individual's distance to target (metabolic) : %f\n",
             _pop->get_best()->get_dist_to_target_by_feature( METABOLISM ) );
 
@@ -595,12 +595,12 @@ void ae_exp_manager::run_evolution( void )
 
   _output_m->flush();
 
-  printf( "============================== %"PRId32" ==============================\n", _num_gener );
+  printf( "============================== %" PRId32 " ==============================\n", _num_gener );
   printf( "  Best individual's distance to target (metabolic) : %f\n",
           _pop->get_best()->get_dist_to_target_by_feature( METABOLISM ) );
   printf( "===================================================================\n");
   printf ("  The run is finished. \n");
-  printf ("  Printing the final best individual into "BEST_LAST_ORG_FNAME"\n");
+  printf ("  Printing the final best individual into " BEST_LAST_ORG_FNAME "\n");
   FILE* org_file = fopen( BEST_LAST_ORG_FNAME, "w" );
   fputs( _pop->get_best()->get_genetic_unit(0)->get_dna()->get_data(), org_file );
   fclose ( org_file );
@@ -622,28 +622,28 @@ void ae_exp_manager::create_missing_directories( const char* dir /*= "."*/ ) con
   }
 
   // Experimental setup
-  sprintf( cur_dir_name, "%s/"EXP_S_DIR, dir );
+  sprintf( cur_dir_name, "%s/" EXP_S_DIR, dir );
   status = mkdir( cur_dir_name, 0755 );
   if ( (status == -1) && (errno != EEXIST) )
   {
     err( EXIT_FAILURE, cur_dir_name, errno );
   }
   // Output profile
-  sprintf( cur_dir_name, "%s/"OUT_P_DIR, dir );
+  sprintf( cur_dir_name, "%s/" OUT_P_DIR, dir );
   status = mkdir( cur_dir_name, 0755 );
   if ( (status == -1) && (errno != EEXIST) )
   {
     err( EXIT_FAILURE, cur_dir_name, errno );
   }
   // Environment
-  sprintf( cur_dir_name, "%s/"ENV_DIR, dir );
+  sprintf( cur_dir_name, "%s/" ENV_DIR, dir );
   status = mkdir( cur_dir_name, 0755 );
   if ( (status == -1) && (errno != EEXIST) )
   {
     err( EXIT_FAILURE, cur_dir_name, errno );
   }
   // Population
-  sprintf( cur_dir_name, "%s/"POP_DIR, dir );
+  sprintf( cur_dir_name, "%s/" POP_DIR, dir );
   status = mkdir( cur_dir_name, 0755 );
   if ( (status == -1) && (errno != EEXIST) )
   {
@@ -652,7 +652,7 @@ void ae_exp_manager::create_missing_directories( const char* dir /*= "."*/ ) con
   // Spatial structure
   if ( is_spatially_structured() )
   {
-    sprintf( cur_dir_name, "%s/"SP_STRUCT_DIR, dir );
+    sprintf( cur_dir_name, "%s/" SP_STRUCT_DIR, dir );
     status = mkdir( cur_dir_name, 0755 );
     if ( status == -1 && errno != EEXIST )
     {
@@ -679,9 +679,9 @@ void ae_exp_manager::open_backup_files( gzFile& env_file,
   char pop_file_name[255];
   char exp_backup_file_name[255];
 
-  sprintf( env_file_name, "%s/"ENV_FNAME_FORMAT, dir, num_gener );
-  sprintf( pop_file_name, "%s/"POP_FNAME_FORMAT, dir, num_gener );
-  sprintf( exp_backup_file_name, "%s/"EXP_S_FNAME_FORMAT, dir, num_gener );
+  sprintf( env_file_name, "%s/" ENV_FNAME_FORMAT, dir, num_gener );
+  sprintf( pop_file_name, "%s/" POP_FNAME_FORMAT, dir, num_gener );
+  sprintf( exp_backup_file_name, "%s/" EXP_S_FNAME_FORMAT, dir, num_gener );
 
 
   // -------------------------------------------------------------------------
@@ -719,7 +719,7 @@ void ae_exp_manager::open_backup_files( gzFile& env_file,
   // 4) Handle optional files
   // -------------------------------------------------------------------------
   char sp_struct_file_name[255];
-  sprintf( sp_struct_file_name, "%s/"SP_STRUCT_FNAME_FORMAT, dir, num_gener );
+  sprintf( sp_struct_file_name, "%s/" SP_STRUCT_FNAME_FORMAT, dir, num_gener );
 
   // Check whether there should be spatial structure
   bool spatially_structured = false;
@@ -792,10 +792,10 @@ void ae_exp_manager::open_setup_files(
   char out_p_gzfile_name[255];
   char out_p_txtfile_name[255];
 
-  sprintf( exp_s_gzfile_name,  "%s/"EXP_S_CONST_FNAME_FORMAT,     dir );
-  sprintf( exp_s_txtfile_name, "%s/"EXP_S_TXT_CONST_FNAME_FORMAT, dir );
-  sprintf( out_p_gzfile_name,  "%s/"OUT_P_FNAME_FORMAT,     dir );
-  sprintf( out_p_txtfile_name, "%s/"OUT_P_TXT_FNAME_FORMAT, dir );
+  sprintf( exp_s_gzfile_name,  "%s/" EXP_S_CONST_FNAME_FORMAT,     dir );
+  sprintf( exp_s_txtfile_name, "%s/" EXP_S_TXT_CONST_FNAME_FORMAT, dir );
+  sprintf( out_p_gzfile_name,  "%s/" OUT_P_FNAME_FORMAT,     dir );
+  sprintf( out_p_txtfile_name, "%s/" OUT_P_TXT_FNAME_FORMAT, dir );
 
   // 2) Open backup files (environment, population and spacial structure)
   exp_s_gzfile  = gzopen( exp_s_gzfile_name, mode );

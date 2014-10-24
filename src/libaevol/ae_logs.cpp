@@ -264,7 +264,7 @@ void ae_logs::load( int8_t logs, int32_t num_gener )
 
 void ae_logs::print_to_file( FILE* file ) const
 {
-  fprintf( file, "logs        :                %"PRId8"\n", _logs );
+  fprintf( file, "logs        :                %" PRId8 "\n", _logs );
 }
 
 void ae_logs::set_logs( int8_t logs )

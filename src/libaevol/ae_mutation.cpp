@@ -657,62 +657,62 @@ void ae_mutation::get_generic_description_string( char * str )
   {
     case SWITCH :
     {
-      sprintf( str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" %"PRId32" %"PRId32"", \
+      sprintf( str, "%" PRId8 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId8 " %" PRId16 " %" PRId16 " %" PRId32 " %" PRId32 "" , \
               (int8_t) _mut_type, _pos[0], -1, -1, -1, (int8_t) -1, (int16_t) -1, (int16_t) -1, (int32_t) -1, (int32_t) -1 );
       break;
     }
     case S_INS :
     {
-      sprintf( str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" %"PRId32" %"PRId32"", \
+      sprintf( str, "%" PRId8 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId8 " %" PRId16 " %" PRId16 " %" PRId32 " %" PRId32 "" , \
               (int8_t) _mut_type, _pos[0], -1, -1, -1, (int8_t) -1, (int16_t) -1, (int16_t) -1, _length[0], (int32_t) -1 );
       break;
     }
     case S_DEL :
     {
-      sprintf( str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" %"PRId32" %"PRId32"", \
+      sprintf( str, "%" PRId8 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId8 " %" PRId16 " %" PRId16 " %" PRId32 " %" PRId32 "" , \
 	       (int8_t) _mut_type, _pos[0], -1, -1, -1, (int8_t) -1, (int16_t) -1, (int16_t) -1, _length[0], (int32_t) -1 );
       break;
     }
     case DUPL :
     {
-      sprintf( str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" %"PRId32" %"PRId32"", \
+      sprintf( str, "%" PRId8 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId8 " %" PRId16 " %" PRId16 " %" PRId32 " %" PRId32 "" , \
               (int8_t) _mut_type, _pos[0], _pos[1], _pos[2], -1, (int8_t) -1, *_align_score, (int16_t) -1, _length[0], (int32_t) -1 );
       break;
     }
     case DEL :
     {
-      sprintf( str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" %"PRId32" %"PRId32"", \
+      sprintf( str, "%" PRId8 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId8 " %" PRId16 " %" PRId16 " %" PRId32 " %" PRId32 "" , \
 	       (int8_t) _mut_type, _pos[0], _pos[1], -1, -1, (int8_t) -1, *_align_score, (int16_t) -1, _length[0], (int32_t) -1 );
       break;
     }
     case TRANS :
     {
       int8_t tmp_invert = _invert? 1 : 0;
-      sprintf( str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" %"PRId32" %"PRId32"", \
+      sprintf( str, "%" PRId8 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId8 " %" PRId16 " %" PRId16 " %" PRId32 " %" PRId32 "" , \
               (int8_t) _mut_type, _pos[0], _pos[1], _pos[2], _pos[3], tmp_invert, _align_score[0], _align_score[1], _length[0], (int32_t) -1 );
       break;
     }
     case INV :
     {
-      sprintf( str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" %"PRId32" %"PRId32"", \
+      sprintf( str, "%" PRId8 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId8 " %" PRId16 " %" PRId16 " %" PRId32 " %" PRId32 "" , \
 	       (int8_t) _mut_type, _pos[0], _pos[1], -1, -1, (int8_t) -1, *_align_score, (int16_t) -1, _length[0], (int32_t) -1 );
       break;
     }
     case INSERT :
     {
-      sprintf( str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" %"PRId32" %"PRId32"", \
+      sprintf( str, "%" PRId8 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId8 " %" PRId16 " %" PRId16 " %" PRId32 " %" PRId32 "" , \
               (int8_t) _mut_type, _pos[0], (int32_t)-1, (int32_t)-1, (int32_t)-1, (int8_t) -1, (int16_t) -1, (int16_t) -1, _length[0], (int32_t) -1 );
       break;
     }
     case INS_HT :
     {
-      sprintf( str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" %"PRId32" %"PRId32"", \
+      sprintf( str, "%" PRId8 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId8 " %" PRId16 " %" PRId16 " %" PRId32 " %" PRId32 "" , \
               (int8_t) _mut_type, _pos[0], _pos[1], _pos[2], _pos[3], (int8_t) _sense, _align_score[0], _align_score[1], _length[0], (int32_t) -1 );
       break;
     }
     case REPL_HT :
     {
-      sprintf( str, "%"PRId8" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId8" %"PRId16" %"PRId16" %"PRId32" %"PRId32" ", \
+      sprintf( str, "%" PRId8 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId8 " %" PRId16 " %" PRId16 " %" PRId32 " %" PRId32 " " , \
               (int8_t) _mut_type, _pos[0], _pos[1], _pos[2], _pos[3], (int8_t) _sense, _align_score[0], _align_score[1], _length[1], _length[0] );
       break;
     }

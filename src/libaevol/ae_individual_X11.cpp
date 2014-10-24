@@ -128,11 +128,11 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
 
   // Display the number of CDSs
   char display_string[40];
-  sprintf( display_string, "Main chromosome size : %"PRId32"bp", genome_length );
+  sprintf( display_string, "Main chromosome size : %" PRId32 "bp", genome_length );
   win->draw_string( 15, 25, display_string );
-  sprintf( display_string, "Leading : %"PRId32" CDSs", gen_unit->get_protein_list()[LEADING]->get_nb_elts() );
+  sprintf( display_string, "Leading : %" PRId32 " CDSs", gen_unit->get_protein_list()[LEADING]->get_nb_elts() );
   win->draw_string( 15, 40, display_string );
-  sprintf( display_string, "Lagging : %"PRId32" CDSs", gen_unit->get_protein_list()[LAGGING]->get_nb_elts() );
+  sprintf( display_string, "Lagging : %" PRId32 " CDSs", gen_unit->get_protein_list()[LAGGING]->get_nb_elts() );
   win->draw_string( 15, 55, display_string );
 
   // Compute display diameter according to genome length and window size
@@ -595,9 +595,9 @@ void ae_individual_X11::display_rnas( ae_X11_window* win )
 
   // Display the number of RNAs
   char nb_rna[40];
-  sprintf( nb_rna, "Leading : %"PRId32" RNAs", gen_unit->get_rna_list()[LEADING]->get_nb_elts() );
+  sprintf( nb_rna, "Leading : %" PRId32 " RNAs", gen_unit->get_rna_list()[LEADING]->get_nb_elts() );
   win->draw_string( 15, 15, nb_rna );
-  sprintf( nb_rna, "Lagging : %"PRId32" RNAs", gen_unit->get_rna_list()[LAGGING]->get_nb_elts() );
+  sprintf( nb_rna, "Lagging : %" PRId32 " RNAs", gen_unit->get_rna_list()[LAGGING]->get_nb_elts() );
   win->draw_string( 15, 30, nb_rna );
 
   // Compute display diameter according to genome length and window size

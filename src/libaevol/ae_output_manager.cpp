@@ -118,17 +118,17 @@ void ae_output_manager::write_setup_file( gzFile setup_file ) const
 void ae_output_manager::write_setup_file( FILE* setup_file ) const
 {
   // Write the backup steps
-  fprintf( setup_file, "BACKUP_STEP %"PRId32"\n", _backup_step );
-  fprintf( setup_file, "BIG_BACKUP_STEP %"PRId32"\n", _big_backup_step );
+  fprintf( setup_file, "BACKUP_STEP %" PRId32 "\n", _backup_step );
+  fprintf( setup_file, "BIG_BACKUP_STEP %" PRId32 "\n", _big_backup_step );
   
   // Stats
-  fprintf( setup_file, "COMPUTE_PHENOTYPIC_CONTRIBUTION_BY_GU %"PRId8"\n", (int8_t) _compute_phen_contrib_by_GU );
+  fprintf( setup_file, "COMPUTE_PHENOTYPIC_CONTRIBUTION_BY_GU %" PRId8 "\n", (int8_t) _compute_phen_contrib_by_GU );
   
   // Tree
   fprintf( setup_file, "RECORD_TREE %s\n", _record_tree ? "true" : "false" );
   if ( _record_tree )
   {
-    fprintf( setup_file, "TREE_STEP %"PRId32"\n", _tree->get_tree_step() );
+    fprintf( setup_file, "TREE_STEP %" PRId32 "\n", _tree->get_tree_step() );
     
     if ( _tree->get_tree_mode() == LIGHT )
     {
@@ -146,11 +146,11 @@ void ae_output_manager::write_setup_file( FILE* setup_file ) const
   
   // Dumps
   fprintf( setup_file, "MAKE_DUMPS %s\n", _make_dumps ? "true" : "false" );
-  fprintf( setup_file, "DUMP_STEP %"PRId32"\n", _dump_step );
+  fprintf( setup_file, "DUMP_STEP %" PRId32 "\n", _dump_step );
   
   // Logs
   int8_t logs = _logs->get_logs();
-  fprintf( setup_file, "LOGS %"PRId8"\n", logs );
+  fprintf( setup_file, "LOGS %" PRId8 "\n", logs );
 }
 
 void ae_output_manager::load( gzFile setup_file, bool verbose, bool to_be_run  )
@@ -215,8 +215,8 @@ void ae_output_manager::load( gzFile setup_file, bool verbose, bool to_be_run  )
 void ae_output_manager::load( FILE* setup_file, bool verbose, bool to_be_run  )
 {
   // Write the backup steps
-  fscanf( setup_file, "BACKUP_STEP %"PRId32"\n", &_backup_step );
-  fscanf( setup_file, "BIG_BACKUP_STEP %"PRId32"\n", &_big_backup_step );
+  fscanf( setup_file, "BACKUP_STEP %" PRId32 "\n", &_backup_step );
+  fscanf( setup_file, "BIG_BACKUP_STEP %" PRId32 "\n", &_big_backup_step );
   
   // Stats
   int32_t num_gener = _exp_m->get_num_gener();
@@ -231,7 +231,7 @@ void ae_output_manager::load( FILE* setup_file, bool verbose, bool to_be_run  )
       _stats = new ae_stats( _exp_m );
     }
   }
-  fscanf( setup_file, "COMPUTE_PHENOTYPIC_CONTRIBUTION_BY_GU %"PRId8"\n", (int8_t*) &_compute_phen_contrib_by_GU );
+  fscanf( setup_file, "COMPUTE_PHENOTYPIC_CONTRIBUTION_BY_GU %" PRId8 "\n", (int8_t*) &_compute_phen_contrib_by_GU );
   
   char tmp[10];
   
@@ -241,9 +241,9 @@ void ae_output_manager::load( FILE* setup_file, bool verbose, bool to_be_run  )
   if ( _record_tree )
   {
     int32_t tmp_tree_step;
-    fscanf( setup_file, "TREE_STEP %"PRId32"\n", &tmp_tree_step );
+    fscanf( setup_file, "TREE_STEP %" PRId32 "\n", &tmp_tree_step );
     int8_t tmp_tree_mode;
-    fscanf( setup_file, "TREE_MODE %"PRId8"\n", &tmp_tree_mode );
+    fscanf( setup_file, "TREE_MODE %" PRId8 "\n", &tmp_tree_mode );
     if ( (ae_tree_mode)tmp_tree_mode != LIGHT && (ae_tree_mode)tmp_tree_mode != NORMAL)
     {
         printf( "%s:%d: error: invalid tree mode\n", __FILE__, __LINE__ );
@@ -257,7 +257,7 @@ void ae_output_manager::load( FILE* setup_file, bool verbose, bool to_be_run  )
   // Dumps
   fscanf( setup_file, "MAKE_DUMPS %s\n", tmp );
   _make_dumps = ! strcmp( tmp, "true" );
-  fscanf( setup_file, "DUMP_STEP %"PRId32"\n", &_dump_step );
+  fscanf( setup_file, "DUMP_STEP %" PRId32 "\n", &_dump_step );
   if( _make_dumps == true)
   {
     _dump = new ae_dump(_exp_m);
@@ -265,7 +265,7 @@ void ae_output_manager::load( FILE* setup_file, bool verbose, bool to_be_run  )
   
   // Logs
   int8_t logs;
-  fscanf( setup_file, "LOGS %"PRId8"\n", &logs );
+  fscanf( setup_file, "LOGS %" PRId8 "\n", &logs );
   _logs->load(logs, num_gener);
 }
 
@@ -301,12 +301,12 @@ void ae_output_manager::write_current_generation_outputs( void ) const
     FILE* last_gener_file = fopen( LAST_GENER_FNAME, "w" );
     if ( last_gener_file != NULL )
     {
-      fprintf( last_gener_file, "%"PRId32"\n", num_gener );
+      fprintf( last_gener_file, "%" PRId32 "\n", num_gener );
       fclose( last_gener_file );
     }
     else
     {
-      printf( "Error : could not open file "LAST_GENER_FNAME"\n" );
+      printf( "Error : could not open file " LAST_GENER_FNAME "\n" );
     }
     
     #ifdef __IN2P3
@@ -342,9 +342,9 @@ void ae_output_manager::write_tree( void ) const
   char tree_file_name[50];
   
 #ifdef __REGUL
-  sprintf( tree_file_name, "tree/tree_%06"PRId32".rae", _exp_m->get_num_gener() );
+  sprintf( tree_file_name, "tree/tree_%06" PRId32 ".rae", _exp_m->get_num_gener() );
 #else
-  sprintf( tree_file_name, "tree/tree_%06"PRId32".ae", _exp_m->get_num_gener() );
+  sprintf( tree_file_name, "tree/tree_%06" PRId32 ".ae", _exp_m->get_num_gener() );
 #endif
   
   gzFile tree_file = gzopen( tree_file_name, "w" );

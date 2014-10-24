@@ -528,7 +528,7 @@ void ae_dna::do_rearrangements_with_align( void )
           if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
           {
             // Write an entry in the barrier log file
-            fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n",
+            fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%" PRId32 " %" PRId32 " DUPLICATION %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n",
                       _exp_m->get_num_gener(), _indiv->get_id(), segment_length, 0, gu_size_before, genome_size_before );
           }
         }
@@ -548,7 +548,7 @@ void ae_dna::do_rearrangements_with_align( void )
           // Write a line in rearrangement logfile
           if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
           {
-            fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
+            fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%" PRId32 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32 " %" PRId16 "\n",
                       _exp_m->get_num_gener(), _indiv->get_id(), int8_t(DUPL), segment_length, genome_size_before, needed_score );
           }
         }
@@ -567,7 +567,7 @@ void ae_dna::do_rearrangements_with_align( void )
           if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
           {
             // Write an entry in the barrier log file
-            fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n",
+            fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%" PRId32 " %" PRId32 " DELETION %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n",
                       _exp_m->get_num_gener(), _indiv->get_id(), segment_length, 0, gu_size_before, genome_size_before );
           }
         }
@@ -587,7 +587,7 @@ void ae_dna::do_rearrangements_with_align( void )
           // Write a line in rearrangement logfile
           if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
           {
-            fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
+            fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%" PRId32 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32 " %" PRId16 "\n",
                       _exp_m->get_num_gener(), _indiv->get_id(), int8_t(DEL), segment_length, genome_size_before, needed_score );
           }
         }
@@ -671,7 +671,7 @@ void ae_dna::do_rearrangements_with_align( void )
           // Write a line in rearrangement logfile
           if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
           {
-            fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
+            fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%" PRId32 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32 " %" PRId16 "\n",
                       _exp_m->get_num_gener(), _indiv->get_id(), int8_t(TRANS), segment_length, _length, needed_score_2 );
           }      
           delete alignment_2;
@@ -733,7 +733,7 @@ void ae_dna::do_rearrangements_with_align( void )
       // Write a line in rearrangement logfile
       if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
       {
-        fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32" %"PRId16"\n", 
+        fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%" PRId32 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32 " %" PRId16 "\n",
                   _exp_m->get_num_gener(), _indiv->get_id(), int8_t(INV), segment_length, _length, needed_score );
       }
       
@@ -857,7 +857,7 @@ ae_mutation* ae_dna::do_small_insertion( void )
     if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
     {
       // Write an entry in the barrier log file
-      fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" S_INS %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n",
+      fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%" PRId32 " %" PRId32 " S_INS %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n",
                 _exp_m->get_num_gener(), _indiv->get_id(), nb_insert, 0, _length, _indiv->get_amount_of_dna() );
     }
     
@@ -914,7 +914,7 @@ ae_mutation* ae_dna::do_small_deletion( void )
     if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
     {
       // Write an entry in the barrier log file
-      fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" S_DEL %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n",
+      fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%" PRId32 " %" PRId32 " S_DEL %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n",
                 _exp_m->get_num_gener(), _indiv->get_id(), nb_del, 0, _length, _indiv->get_amount_of_dna() );
     }
     
@@ -1044,7 +1044,7 @@ ae_mutation* ae_dna::do_duplication( void )
     if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
     {
       // Write an entry in the barrier log file
-      fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DUPLICATION %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n",
+      fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%" PRId32 " %" PRId32 " DUPLICATION %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n",
                 _exp_m->get_num_gener(), _indiv->get_id(), segment_length, 0, gu_size_before, genome_size_before );
     }
   }
@@ -1063,7 +1063,7 @@ ae_mutation* ae_dna::do_duplication( void )
     // Write a line in rearrangement logfile
     if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
     {
-      fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
+      fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%" PRId32 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32 "\n",
                 _exp_m->get_num_gener(), _indiv->get_id(), int8_t(DUPL), segment_length, genome_size_before );
     }
   }
@@ -1090,7 +1090,7 @@ ae_mutation* ae_dna::do_deletion( void )
     if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
     {
       // Write an entry in the barrier log file
-      fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" DELETION %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n",
+      fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%" PRId32 " %" PRId32 " DELETION %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n",
                 _exp_m->get_num_gener(), _indiv->get_id(), segment_length, 0, gu_size_before, genome_size_before );
      }
   }
@@ -1109,7 +1109,7 @@ ae_mutation* ae_dna::do_deletion( void )
     // Write a line in rearrangement logfile
     if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
     {
-      fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
+      fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%" PRId32 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32 "\n",
                 _exp_m->get_num_gener(), _indiv->get_id(), int8_t(DEL), segment_length, genome_size_before );
     }
   }
@@ -1243,7 +1243,7 @@ ae_mutation* ae_dna::do_translocation( void )
         // Write a line in rearrangement logfile
         if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
         {
-          fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
+          fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%" PRId32 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32 "\n",
                     _exp_m->get_num_gener(), _indiv->get_id(), int8_t(TRANS), segment_length, _length );
         }
       }
@@ -1271,7 +1271,7 @@ ae_mutation* ae_dna::do_translocation( void )
         // Write a line in rearrangement logfile
         if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
         {
-          fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
+          fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%" PRId32 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32 "\n",
                     _exp_m->get_num_gener(), _indiv->get_id(), int8_t(TRANS), segment_length, _length );
         }
       }
@@ -1311,7 +1311,7 @@ ae_mutation* ae_dna::do_translocation( void )
       // Write a line in rearrangement logfile
       if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
       {
-        fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
+        fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%" PRId32 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32 "\n",
                   _exp_m->get_num_gener(), _indiv->get_id(), int8_t(TRANS), segment_length, _length );
       }
     }
@@ -1346,7 +1346,7 @@ ae_mutation* ae_dna::do_inversion( void )
     // Write a line in rearrangement logfile
     if ( _exp_m->get_output_m()->is_logged( LOG_REAR ) == true )
     {
-      fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%"PRId32" %"PRId32" %"PRId8" %"PRId32" %"PRId32"\n", 
+      fprintf(  _exp_m->get_output_m()->get_log( LOG_REAR ), "%" PRId32 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32 "\n",
                 _exp_m->get_num_gener(), _indiv->get_id(), int8_t(INV), segment_length, _length );
     }
   }
@@ -1648,7 +1648,7 @@ bool ae_dna::do_inter_GU_translocation( int32_t pos_1_rel, int32_t pos_2_rel, in
     if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
     {
       // Write an entry in the barrier log file
-      fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" TRANS %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n",
+      fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%" PRId32 " %" PRId32 " TRANS %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n",
               _exp_m->get_num_gener(), _indiv->get_id(), segment_length, 0, _length, _indiv->get_amount_of_dna() );
     }
     return false;
@@ -1667,7 +1667,7 @@ bool ae_dna::do_inter_GU_translocation( int32_t pos_1_rel, int32_t pos_2_rel, in
     if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
     {
       // Write an entry in the barrier log file
-      fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%"PRId32" %"PRId32" TRANS %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n",
+      fprintf(  _exp_m->get_output_m()->get_log( LOG_BARRIER ), "%" PRId32 " %" PRId32 " TRANS %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n",
               _exp_m->get_num_gener(), _indiv->get_id(), segment_length, 0, dest_gu_size_before, _indiv->get_amount_of_dna() );
     }
     return false;
@@ -1884,7 +1884,7 @@ ae_mutation* ae_dna::do_ins_HT( int32_t parent_id )
           if ( _exp_m->get_output_m()->is_logged(LOG_BARRIER) == true )
           {
             // Write an entry in the barrier log file
-            fprintf(  _exp_m->get_output_m()->get_log(LOG_BARRIER), "%"PRId32" %"PRId32" INS_TRANSFER %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n",
+            fprintf(  _exp_m->get_output_m()->get_log(LOG_BARRIER), "%" PRId32 " %" PRId32 " INS_TRANSFER %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n",
                       _exp_m->get_num_gener(),
                       _indiv->get_id(),
                       exogenote->get_dna()->get_length(),
@@ -1903,7 +1903,7 @@ ae_mutation* ae_dna::do_ins_HT( int32_t parent_id )
           if ( _exp_m->get_output_m()->is_logged(LOG_TRANSFER) == true )
           {
             fprintf(  _exp_m->get_output_m()->get_log(LOG_TRANSFER),
-                      "%"PRId32" %"PRId32" %"PRId32" 0 %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId16" %"PRId32" %"PRId32" %"PRId16"\n",
+                      "%" PRId32 " %" PRId32 " %" PRId32 " 0 %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId16 " %" PRId32 " %" PRId32 " %" PRId16 "\n",
                       _exp_m->get_num_gener(),
                       _indiv->get_id(),
                       donor->get_id(),
@@ -2037,7 +2037,7 @@ ae_mutation* ae_dna::do_repl_HT( int32_t parent_id )
         if ( _exp_m->get_output_m()->is_logged(LOG_BARRIER) == true )
         {
           // Write an entry in the barrier log file
-          fprintf(  _exp_m->get_output_m()->get_log(LOG_BARRIER), "%"PRId32" %"PRId32" REPL_TRANSFER %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n",
+          fprintf(  _exp_m->get_output_m()->get_log(LOG_BARRIER), "%" PRId32 " %" PRId32 " REPL_TRANSFER %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n",
                     _exp_m->get_num_gener(),
                     _indiv->get_id(),
                     exogenote_length,
@@ -2093,7 +2093,7 @@ ae_mutation* ae_dna::do_repl_HT( int32_t parent_id )
         if ( _exp_m->get_output_m()->is_logged(LOG_TRANSFER) == true )
         {
           fprintf(  _exp_m->get_output_m()->get_log(LOG_TRANSFER),
-                  "%"PRId32" %"PRId32" %"PRId32" 1 %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId16" %"PRId32" %"PRId32" %"PRId16" %"PRId32" %"PRId32" %"PRId16" %"PRId16"\n",
+                  "%" PRId32 " %" PRId32 " %" PRId32 " 1 %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId16 " %" PRId32 " %" PRId32 " %" PRId16 " %" PRId32 " %" PRId32 " %" PRId16 " %" PRId16 "\n",
                   _exp_m->get_num_gener(),
                   _indiv->get_id(),
                   donor->get_id(),

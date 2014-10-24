@@ -71,7 +71,7 @@ int main( int argc, char* argv[] )
   fprintf( output, "# #################################################################\n" );
   fprintf( output, "#              Mutations produced by mutationalrobustness\n" );
   fprintf( output, "# #################################################################\n" );
-  fprintf( output, "# Number of replicate per individual : %"PRId32" \n",ndiv );
+  fprintf( output, "# Number of replicate per individual : %" PRId32 " \n",ndiv );
   fprintf( output, "# Impact on metabolism SPACE impact on secretion\n" );
   fprintf( output, "#\n" );
 

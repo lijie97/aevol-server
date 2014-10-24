@@ -639,7 +639,7 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
   {
     if ( stat_type_to_print == FITNESS_STATS )
     {
-      fprintf( stat_file, "%"PRId32" %"PRId32" %e %"PRId32" %e %e %e %e %e %e %e",
+      fprintf( stat_file, "%" PRId32 " %" PRId32 " %e %" PRId32 " %e %e %e %e %e %e %e",
               (int32_t) _num_gener,
               (int32_t) _pop_size,
               _fitness,              
@@ -653,7 +653,7 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
               _compound_amount);
 
       #ifdef __REGUL
-        fprintf(  stat_file, " %"PRId32" %"PRId32" %"PRId32" %f %f %f",
+        fprintf(  stat_file, " %" PRId32 " %" PRId32 " %" PRId32 " %f %f %f",
               (int32_t) _nb_influences,
               (int32_t) _nb_enhancing_influences,
               (int32_t) _nb_operating_influences,
@@ -664,7 +664,7 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
     }
     if ( stat_type_to_print == MUTATION_STATS )
     {
-      fprintf(  stat_file, "%"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32"", 
+      fprintf(  stat_file, "%" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "",
               (int32_t) _num_gener,
               (int32_t) _nb_mut,
               (int32_t) _nb_rear,
@@ -678,7 +678,7 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
     }
     if ( stat_type_to_print == GENES_STATS )
     {
-      fprintf(  stat_file, "%"PRId32" %"PRId32" %"PRId32" %f %f %"PRId32" %"PRId32" %f %f ",
+      fprintf(  stat_file, "%" PRId32 " %" PRId32 " %" PRId32 " %f %f %" PRId32 " %" PRId32 " %f %f ",
               (int32_t) _num_gener,
               (int32_t) _nb_coding_rnas,
               (int32_t) _nb_non_coding_rnas,
@@ -691,7 +691,7 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
     }
     if ( stat_type_to_print == BP_STATS )
     {
-      fprintf(  stat_file, "%"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32"",
+      fprintf(  stat_file, "%" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "",
               (int32_t) _num_gener,
               (int32_t) _nb_bases_in_0_CDS,
               (int32_t) _nb_bases_in_0_functional_CDS,
@@ -704,7 +704,7 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
     }
     if ( stat_type_to_print == REAR_STATS )
     {
-      fprintf(  stat_file, "%"PRId32" %e %e %e %e %f",
+      fprintf(  stat_file, "%" PRId32 " %e %e %e %e %f",
               (int32_t) _num_gener,
               _dupl_rate,
               _del_rate,
@@ -717,7 +717,7 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
   {
    if ( stat_type_to_print == FITNESS_STATS )
     {
-      fprintf(  stat_file, "%"PRId32" %"PRId32" %e %f %e %e %e %e %e %e %e", 
+      fprintf(  stat_file, "%" PRId32 " %" PRId32 " %e %f %e %e %e %e %e %e %e",
               (int32_t) _num_gener,
               (int32_t) _pop_size,
               _fitness,              
@@ -731,7 +731,7 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
               _compound_amount);
 
       #ifdef __REGUL
-        fprintf(  stat_file, " %"PRId32" %"PRId32" %"PRId32" %f %f %f",
+        fprintf(  stat_file, " %" PRId32 " %" PRId32 " %" PRId32 " %f %f %f",
               (int32_t) _nb_influences,
               (int32_t) _nb_enhancing_influences,
               (int32_t) _nb_operating_influences,
@@ -742,7 +742,7 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
     }
     if ( stat_type_to_print == MUTATION_STATS )
     {        
-      fprintf(  stat_file, "%"PRId32" %f %f %f %f %f %f %f %f",
+      fprintf(  stat_file, "%" PRId32 " %f %f %f %f %f %f %f %f",
               (int32_t) _num_gener,
               _nb_mut,
               _nb_rear,
@@ -756,7 +756,7 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
     }
     if ( stat_type_to_print == GENES_STATS )
     {
-      fprintf(  stat_file, "%"PRId32" %f %f %f %f %f %f %f %f",
+      fprintf(  stat_file, "%" PRId32 " %f %f %f %f %f %f %f %f",
               (int32_t) _num_gener,
               _nb_coding_rnas,
               _nb_non_coding_rnas,
@@ -771,7 +771,7 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
     {
      // TO DO (if needed) : base-pair stats for all individuals, not just for the best one. 
      //
-     // fprintf(  stat_file, "%"PRId32" %f %f %f %f %f %f %f %f",
+     // fprintf(  stat_file, "%" PRId32 " %f %f %f %f %f %f %f %f",
      //         (int32_t)_num_gener,
      //         _nb_bases_in_0_CDS,
      //         _nb_bases_in_0_functional_CDS,
@@ -784,7 +784,7 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
     }
     if ( stat_type_to_print == REAR_STATS )
     {
-      fprintf(  stat_file, "%"PRId32" %e %e %e %e %f",
+      fprintf(  stat_file, "%" PRId32 " %e %e %e %e %f",
               (int32_t) _num_gener,
               _dupl_rate,
               _del_rate,

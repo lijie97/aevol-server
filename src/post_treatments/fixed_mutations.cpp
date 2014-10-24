@@ -206,7 +206,7 @@ int main(int argc, char** argv)
   {
     printf("\n\n");
     printf("================================================================================\n");
-    printf(" Statistics of the ancestors of indiv. #%"PRId32" (t=%"PRId32" to %"PRId32")\n",
+    printf(" Statistics of the ancestors of indiv. #%" PRId32 " (t=%" PRId32 " to %" PRId32 ")\n",
             final_index, begin_gener, end_gener);
     printf("================================================================================\n");
   }
@@ -229,7 +229,7 @@ int main(int argc, char** argv)
   // =========================
 
   char output_file_name[60];
-  snprintf( output_file_name, 60, "stats/fixedmut-b%06"PRId32"-e%06"PRId32"-i%"PRId32"-r%"PRId32".out",begin_gener, end_gener, final_index, final_indiv_rank );
+  snprintf( output_file_name, 60, "stats/fixedmut-b%06" PRId32 "-e%06" PRId32 "-i%" PRId32 "-r%" PRId32 ".out",begin_gener, end_gener, final_index, final_indiv_rank );
 
   FILE * output = fopen( output_file_name, "w" );
   if ( output == NULL )
@@ -241,7 +241,7 @@ int main(int argc, char** argv)
 
   // Write the header
   fprintf( output, "# #################################################################\n" );
-  fprintf( output, "#  Mutations in the lineage of the best indiv at generation %"PRId32"\n", end_gener );
+  fprintf( output, "#  Mutations in the lineage of the best indiv at generation %" PRId32 "\n", end_gener );
   fprintf( output, "# #################################################################\n" );
   fprintf( output, "#  1.  Generation       (mut. occurred when producing the indiv. of this generation)\n" );
   fprintf( output, "#  2.  Genetic unit     (which underwent the mutation, 0 = chromosome) \n" );
@@ -278,7 +278,7 @@ int main(int argc, char** argv)
   if ( verbose )
   {
     printf("Initial fitness     = %f\n", indiv->get_fitness());
-    printf("Initial genome size = %"PRId32"\n", indiv->get_total_genome_size());
+    printf("Initial genome size = %" PRId32 "\n", indiv->get_total_genome_size());
   }
 
 
@@ -326,7 +326,7 @@ int main(int argc, char** argv)
                   ( check == LIGHT_CHECK && num_gener == end_gener ) );
 
 
-    if ( verbose ) printf("Rebuilding ancestor at generation %"PRId32" (index %"PRId32")...", num_gener, index);
+    if ( verbose ) printf("Rebuilding ancestor at generation %" PRId32 " (index %" PRId32 ")...", num_gener, index);
 
     env->build();
     env->apply_variation();
@@ -336,15 +336,15 @@ int main(int argc, char** argv)
     if (ae_utils::mod( num_gener, backup_step ) == 0)
       {
         char env_file_name[255];
-        sprintf( env_file_name, "./"ENV_FNAME_FORMAT, num_gener );
+        sprintf( env_file_name, "./" ENV_FNAME_FORMAT, num_gener );
         gzFile env_file = gzopen( env_file_name, "r" );
         backup_env = new ae_environment();
         backup_env->load( env_file );
 
         if ( ! env->is_identical_to(backup_env, tolerance) )
           {
-            printf("Warning: At t=%"PRId32", the replayed environment is not the same\n", num_gener);
-            printf("         as the one saved at generation %"PRId32"... \n", num_gener );
+            printf("Warning: At t=%" PRId32 ", the replayed environment is not the same\n", num_gener);
+            printf("         as the one saved at generation %" PRId32 "... \n", num_gener );
             printf("         with tolerance of %lg\n", tolerance);
             printf("Replacing the replayed environment by the one stored in the backup.\n");
             delete env;
@@ -402,7 +402,7 @@ int main(int argc, char** argv)
 
 
         mut->get_generic_description_string( mut_descr_string );
-        fprintf( output, "%"PRId32" %"PRId32" %s %"PRId32" %.15f  %"PRId32" %"PRId32" %"PRId32" \n",\
+        fprintf( output, "%" PRId32 " %" PRId32 " %s %" PRId32 " %.15f  %" PRId32 " %" PRId32 " %" PRId32 " \n",\
                  num_gener, genetic_unit_number, \
                  mut_descr_string, unitlen_before, \
                  impact_on_metabolic_error, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment );
@@ -433,7 +433,7 @@ int main(int argc, char** argv)
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
         mut->get_generic_description_string( mut_descr_string );
-        fprintf( output, "%"PRId32" %"PRId32" %s %"PRId32" %.15f %"PRId32" %"PRId32" %"PRId32" \n",\
+        fprintf( output, "%" PRId32 " %" PRId32 " %s %" PRId32 " %.15f %" PRId32 " %" PRId32 " %" PRId32 " \n",\
                  num_gener, genetic_unit_number, \
                  mut_descr_string, unitlen_before, \
                  impact_on_metabolic_error, nb_genes_at_breakpoints, nb_genes_in_segment,  nb_genes_in_replaced_segment );
@@ -463,7 +463,7 @@ int main(int argc, char** argv)
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
         mut->get_generic_description_string( mut_descr_string );
-        fprintf( output, "%"PRId32" %"PRId32" %s %"PRId32" %.15f %"PRId32" %"PRId32" %"PRId32" \n",\
+        fprintf( output, "%" PRId32 " %" PRId32 " %s %" PRId32 " %.15f %" PRId32 " %" PRId32 " %" PRId32 " \n",\
                  num_gener, genetic_unit_number, \
                  mut_descr_string, unitlen_before, \
                  impact_on_metabolic_error, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment );
@@ -499,7 +499,7 @@ int main(int argc, char** argv)
         {
           if ( verbose ) printf( " ERROR !\n" );
           fprintf( stderr, "Error: the rebuilt unit is not the same as \n");
-          fprintf( stderr, "the one saved at generation %"PRId32"... ", begin_gener );
+          fprintf( stderr, "the one saved at generation %" PRId32 "... ", begin_gener );
           fprintf( stderr, "Rebuilt unit : %zu bp\n %s\n", strlen(str1), str1 );
           fprintf( stderr, "Stored unit  : %zu bp\n %s\n", strlen(str2), str2 );
           delete [] str1;

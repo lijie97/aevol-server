@@ -221,7 +221,7 @@ int main(int argc, char** argv)
   {
     printf("\n\n");
     printf("================================================================================\n");
-    printf(" Gene families of the ancestors of indiv. #%"PRId32" (t=%"PRId32" to %"PRId32")\n",
+    printf(" Gene families of the ancestors of indiv. #%" PRId32 " (t=%" PRId32 " to %" PRId32 ")\n",
             final_index, begin_gener, end_gener);
     printf("================================================================================\n");
   }
@@ -252,7 +252,7 @@ int main(int argc, char** argv)
   if ( verbose )
   {
     printf("Initial fitness     = %e\n", indiv->get_fitness());
-    printf("Initial genome size = %"PRId32"\n", indiv->get_total_genome_size());
+    printf("Initial genome size = %" PRId32 "\n", indiv->get_total_genome_size());
   }
 
 
@@ -341,7 +341,7 @@ int main(int argc, char** argv)
                   ( check == LIGHT_CHECK && num_gener == end_gener ) );
 
 
-    if ( verbose ) printf("Rebuilding ancestor at generation %"PRId32" (index %"PRId32")...", num_gener, index);
+    if ( verbose ) printf("Rebuilding ancestor at generation %" PRId32 " (index %" PRId32 ")...", num_gener, index);
 
     env->build();
     env->apply_variation();
@@ -351,15 +351,15 @@ int main(int argc, char** argv)
     if (ae_utils::mod( num_gener, backup_step ) == 0)
       {
         char env_file_name[255];
-        sprintf( env_file_name, "./"ENV_FNAME_FORMAT, num_gener );
+        sprintf( env_file_name, "./" ENV_FNAME_FORMAT, num_gener );
         gzFile env_file = gzopen( env_file_name, "r" );
         backup_env = new ae_environment();
         backup_env->load( env_file );
 
         if ( ! env->is_identical_to(backup_env, tolerance) )
           {
-            printf("Warning: At t=%"PRId32", the replayed environment is not the same\n", num_gener);
-            printf("         as the one saved at generation %"PRId32"... \n", num_gener );
+            printf("Warning: At t=%" PRId32 ", the replayed environment is not the same\n", num_gener);
+            printf("         as the one saved at generation %" PRId32 "... \n", num_gener );
             printf("         with tolerance of %lg\n", tolerance);
             printf("Replacing the replayed environment by the one stored in the backup.\n");
             delete env;
@@ -422,7 +422,7 @@ int main(int argc, char** argv)
 
 
         mut->get_generic_description_string( mut_descr_string );
-        fprintf( output, "%"PRId32" %"PRId32" %s %"PRId32" %.15f  %"PRId32" %"PRId32" %"PRId32" \n",\
+        fprintf( output, "%"PRId32 " %"PRId32 " %s %"PRId32 " %.15f  %"PRId32 " %"PRId32 " %"PRId32 " \n",\
                  num_gener, genetic_unit_number, \
                  mut_descr_string, unitlen_before, \
                  impact_on_metabolic_error, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment );
@@ -560,7 +560,7 @@ int main(int argc, char** argv)
         {
           if ( verbose ) printf( " ERROR !\n" );
           fprintf( stderr, "Error: the rebuilt unit is not the same as \n");
-          fprintf( stderr, "the one saved at generation %"PRId32"... ", begin_gener );
+          fprintf( stderr, "the one saved at generation %" PRId32 "... ", begin_gener );
           fprintf( stderr, "Rebuilt unit : %zu bp\n %s\n", strlen(str1), str1 );
           fprintf( stderr, "Stored unit  : %zu bp\n %s\n", strlen(str2), str2 );
           delete [] str1;
@@ -773,14 +773,14 @@ void write_gene_trees_to_files(ae_list<ae_gene_tree*> * gene_trees, int32_t end_
   while (n!= NULL)
     {
       tree = n->get_obj();
-      fprintf(tree_statistics_file, "%"PRId32" ", tree_number);
+      fprintf(tree_statistics_file, "%" PRId32 " ", tree_number);
       if (tree->get_creation_type() == INITIALIZATION)  fprintf(tree_statistics_file, "INITIALIZATION ");
       else if (tree->get_creation_type() == LOCAL_MUTATION)  fprintf(tree_statistics_file, "LOCAL_MUTATION ");
       else if (tree->get_creation_type() == REARRANGEMENT)  fprintf(tree_statistics_file, "REARRANGEMENT ");
       else fprintf(tree_statistics_file, "TRANSFER ");
-      fprintf(tree_statistics_file, "%"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n", tree->get_begin_gener(), tree->get_end_gener(), tree->get_total_nb_nodes(), tree->get_nb_internal_nodes(), tree->get_nb_leaves(), tree->get_nb_active_leaves());
-      sprintf(topol_file_name, "gene_trees/genetree%06"PRId32"-topology.tre", tree_number);
-      sprintf(node_attr_file_name, "gene_trees/genetree%06"PRId32"-nodeattr.txt", tree_number);
+      fprintf(tree_statistics_file, "%" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n", tree->get_begin_gener(), tree->get_end_gener(), tree->get_total_nb_nodes(), tree->get_nb_internal_nodes(), tree->get_nb_leaves(), tree->get_nb_active_leaves());
+      sprintf(topol_file_name, "gene_trees/genetree%06" PRId32 "-topology.tre", tree_number);
+      sprintf(node_attr_file_name, "gene_trees/genetree%06" PRId32 "-nodeattr.txt", tree_number);
       tree->write_to_files(topol_file_name, node_attr_file_name, end_gener);
       tree->write_nodes_in_tabular_file(tree_number, nodeattr_tabular_file);
       n = n->get_next();

@@ -200,7 +200,7 @@ int main( int argc, char* argv[] )
     FILE* lg_file = fopen( lg_filename, "r" );
     if ( lg_file != NULL )
     {
-      fscanf( lg_file, "%"PRId32"\n", &num_gener );
+      fscanf( lg_file, "%" PRId32 "\n", &num_gener );
       fclose( lg_file );
     }
     else

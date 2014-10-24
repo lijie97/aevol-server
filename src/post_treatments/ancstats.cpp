@@ -228,7 +228,7 @@ int main(int argc, char** argv)
   {
     printf("\n\n");
     printf( "===============================================================================\n" );
-    printf( " Statistics of the ancestors of indiv. %"PRId32" (rank %"PRId32") from generation %"PRId32" to %"PRId32"\n",
+    printf( " Statistics of the ancestors of indiv. %" PRId32 " (rank %" PRId32 ") from generation %" PRId32 " to %" PRId32 "\n",
             final_indiv_index, final_indiv_rank, begin_gener, end_gener );
     printf("================================================================================\n");
   }
@@ -259,7 +259,7 @@ int main(int argc, char** argv)
   }
 
   char prefix[50];
-  snprintf( prefix, 50, "ancstats/ancstats-b%06"PRId32"-e%06"PRId32"-i%"PRId32"-r%"PRId32,begin_gener, end_gener, final_indiv_index , final_indiv_rank);
+  snprintf( prefix, 50, "ancstats/ancstats-b%06" PRId32 "-e%06" PRId32 "-i%" PRId32 "-r%" PRId32,begin_gener, end_gener, final_indiv_index , final_indiv_rank);
   bool best_indiv_only = true;
   bool addition_old_stats = false;
   bool delete_old_stats = true;
@@ -301,7 +301,7 @@ int main(int argc, char** argv)
   if ( verbose )
   {
     printf("Initial fitness     = %f\n", indiv->get_fitness());
-    printf("Initial genome size = %"PRId32"\n", indiv->get_total_genome_size());
+    printf("Initial genome size = %" PRId32 "\n", indiv->get_total_genome_size());
   }
 
   //delete exp_manager;
@@ -350,7 +350,7 @@ int main(int argc, char** argv)
                   ( check == ENV_CHECK && ae_utils::mod( num_gener, backup_step ) == 0 ) ||
                   ( check == LIGHT_CHECK && num_gener == end_gener ) );
 
-    if ( verbose ) printf("Rebuilding ancestor at generation %"PRId32" (index %"PRId32")...", num_gener, index);
+    if ( verbose ) printf("Rebuilding ancestor at generation %" PRId32 " (index %" PRId32 ")...", num_gener, index);
 
     // 1) Rebuild environment
     env->build();
@@ -361,15 +361,15 @@ int main(int argc, char** argv)
     if (ae_utils::mod( num_gener, backup_step ) == 0)
       {
         char env_file_name[255];
-        sprintf( env_file_name, "./"ENV_FNAME_FORMAT, num_gener );
+        sprintf( env_file_name, "./" ENV_FNAME_FORMAT, num_gener );
         gzFile env_file = gzopen( env_file_name, "r" );
         backup_env = new ae_environment();
         backup_env->load( env_file );
 
         if ( ! env->is_identical_to(backup_env, tolerance) )
           {
-            printf("Warning: At t=%"PRId32", the replayed environment is not the same\n", num_gener);
-            printf("         as the one saved at generation %"PRId32"... \n", num_gener );
+            printf("Warning: At t=%" PRId32 ", the replayed environment is not the same\n", num_gener);
+            printf("         as the one saved at generation %" PRId32 "... \n", num_gener );
             printf("         with tolerance of %lg\n", tolerance);
             printf("Replacing the replayed environment by the one stored in the backup.\n");
             delete env;
@@ -456,9 +456,9 @@ int main(int argc, char** argv)
         {
           if ( verbose ) printf( " ERROR !\n" );
           fprintf( stderr, "Error: the rebuilt genetic unit is not the same as \n");
-          fprintf( stderr, "the one saved at generation %"PRId32"... ", num_gener );
-          fprintf( stderr, "Rebuilt unit : %"PRId32" bp\n %s\n", (int32_t)strlen(str1), str1 );
-          fprintf( stderr, "Stored unit  : %"PRId32" bp\n %s\n", (int32_t)strlen(str2), str2 );
+          fprintf( stderr, "the one saved at generation %" PRId32 "... ", num_gener );
+          fprintf( stderr, "Rebuilt unit : %" PRId32 " bp\n %s\n", (int32_t)strlen(str1), str1 );
+          fprintf( stderr, "Stored unit  : %" PRId32 " bp\n %s\n", (int32_t)strlen(str2), str2 );
 
           delete [] str1;
           delete [] str2;
@@ -558,7 +558,7 @@ FILE* open_environment_stat_file( const char * prefix, const ae_environment * en
 void write_environment_stats( int32_t num_gener, const ae_environment * env, FILE*  env_output_file)
 {
   // Num gener
-  fprintf( env_output_file, "%"PRId32, num_gener );
+  fprintf( env_output_file, "%" PRId32, num_gener );
 
   if ( env->get_gaussians() != NULL)
     {
@@ -611,7 +611,7 @@ FILE* open_terminators_stat_file( const char * prefix )
 
 void write_terminators_stats( int32_t num_gener,  ae_individual * indiv, FILE* term_output_file  )
 {
-  fprintf(  term_output_file, "%"PRId32" %"PRId32" %"PRId32"\n",
+  fprintf(  term_output_file, "%" PRId32 " %" PRId32 " %" PRId32 "\n",
             num_gener,
             indiv->get_total_genome_size(),
             indiv->get_nb_terminators() );
@@ -733,11 +733,11 @@ void write_zones_stats( int32_t num_gener, ae_individual * indiv, ae_environment
 
 
   // Print stats to file
-  fprintf(  zones_output_file, "%"PRId32, num_gener );
+  fprintf(  zones_output_file, "%" PRId32, num_gener );
 
   for ( num_segment = 0 ; num_segment < nb_segments ; num_segment++ )
   {
-    fprintf(  zones_output_file, "     %"PRId32" %"PRId32" %lf %lf %lf",
+    fprintf(  zones_output_file, "     %" PRId32 " %" PRId32 " %lf %lf %lf",
               nb_genes_activ[num_segment],
               nb_genes_inhib[num_segment],
               geom_area_activ[num_segment],
@@ -779,7 +779,7 @@ void write_operons_stats( int32_t num_gener, ae_individual * indiv, FILE*  opero
 
     if ( rna->get_transcribed_proteins()->get_nb_elts() >= 20 )
     {
-      printf( "Found operon with 20 genes or more : %"PRId32"\n", rna->get_transcribed_proteins()->get_nb_elts() );
+      printf( "Found operon with 20 genes or more : %" PRId32 "\n", rna->get_transcribed_proteins()->get_nb_elts() );
       getchar();
     }
 
@@ -788,7 +788,7 @@ void write_operons_stats( int32_t num_gener, ae_individual * indiv, FILE*  opero
     rna_node = rna_node->get_next();
   }
 
-  fprintf(  operons_output_file, "%"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n",
+  fprintf(  operons_output_file, "%" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n",
             num_gener,
             nb_genes_per_rna[0],
             nb_genes_per_rna[1],

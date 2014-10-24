@@ -83,7 +83,7 @@ ae_population_X11::~ae_population_X11( void )
 void ae_population_X11::display( ae_X11_window* win )
 {
   char generation[40];
-  sprintf( generation, "Generation = %"PRId32, _exp_m->get_num_gener() );
+  sprintf( generation, "Generation = %" PRId32, _exp_m->get_num_gener() );
   win->draw_string( 15, 15, generation );
 }
 
@@ -97,7 +97,7 @@ void ae_population_X11::display_grid( ae_X11_window* win, double** cell_grid )
   char gener[40];
   int num_colors = 50; 
   
-  sprintf( gener, "Generation = %"PRId32, _exp_m->get_num_gener() );
+  sprintf( gener, "Generation = %" PRId32, _exp_m->get_num_gener() );
   win->draw_string( 15, 15, gener );
   
   

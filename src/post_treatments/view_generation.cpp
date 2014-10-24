@@ -114,7 +114,7 @@ int main( int argc, char* argv[] )
 
 
 
-  printf( "Displaying generation %"PRId32"...\n", gener );
+  printf( "Displaying generation %" PRId32 "...\n", gener );
 
   // =================================================================
   //                       Read the backup file

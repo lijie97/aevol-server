@@ -204,7 +204,7 @@ ae_gene_mutation::~ae_gene_mutation()
     delete _position_relative_to_shine_dal;
       break;
   default :
-    fprintf( stderr, "ERROR, invalid mutation type \"%d\" in file %s:%d.\n", _mut_type, __FILE__, __LINE__ );
+    fprintf( stderr, "ERROR, invalid mutation type \"%d\" in file %s:%d.\n" , _mut_type, __FILE__, __LINE__ );
     exit( EXIT_FAILURE );
     break;
   }
@@ -237,47 +237,47 @@ void ae_gene_mutation::get_description_string_for_gene_mut(char * str)
   {
     case SWITCH :
     {
-      sprintf( str, "%"PRId32" SWITCH %"PRId32" %.10f ", _generation, _position_relative_to_shine_dal[0], _impact_on_metabolic_error );
+      sprintf( str, "%" PRId32 " SWITCH %" PRId32 " %.10f " , _generation, _position_relative_to_shine_dal[0], _impact_on_metabolic_error );
       break;
     }
     case S_INS :
     {
-      sprintf( str, "%"PRId32" SMALL_INS %"PRId32" %"PRId32" %s %.10f ", _generation, _position_relative_to_shine_dal[0], _length[0], _seq, _impact_on_metabolic_error );
+      sprintf( str, "%" PRId32 " SMALL_INS %" PRId32 " %" PRId32 " %s %.10f " , _generation, _position_relative_to_shine_dal[0], _length[0], _seq, _impact_on_metabolic_error );
       break;
     }
     case S_DEL :
     {
-      sprintf( str, "%"PRId32" SMALL_DEL %"PRId32" %"PRId32" %.10f ", _generation, _position_relative_to_shine_dal[0], _length[0], _impact_on_metabolic_error );
+      sprintf( str, "%" PRId32 " SMALL_DEL %" PRId32 " %" PRId32 " %.10f " , _generation, _position_relative_to_shine_dal[0], _length[0], _impact_on_metabolic_error );
       break;
     }
     case DUPL :
     {
-      sprintf( str, "%"PRId32" INSERTION_OF_DUPLICATED_DNA %"PRId32" %"PRId32" %"PRId32" %"PRId32" %.10f ", _generation, _position_relative_to_shine_dal[0], _position_relative_to_shine_dal[1], _position_relative_to_shine_dal[2], _length[0], _impact_on_metabolic_error);
+      sprintf( str, "%" PRId32 " INSERTION_OF_DUPLICATED_DNA %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %.10f " , _generation, _position_relative_to_shine_dal[0], _position_relative_to_shine_dal[1], _position_relative_to_shine_dal[2], _length[0], _impact_on_metabolic_error);
       break;
     }
     case DEL :
     {
-      sprintf( str, "%"PRId32" LARGE_DEL %"PRId32" %"PRId32" %"PRId32" %.10f ", _generation, _position_relative_to_shine_dal[0], _position_relative_to_shine_dal[1], _length[0], _impact_on_metabolic_error );
+      sprintf( str, "%" PRId32 " LARGE_DEL %" PRId32 " %" PRId32 " %" PRId32 " %.10f " , _generation, _position_relative_to_shine_dal[0], _position_relative_to_shine_dal[1], _length[0], _impact_on_metabolic_error );
       break;
     }
     case TRANS :
     {
-      sprintf( str, "%"PRId32" TRANSLOC %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %.10f ", _generation, _position_relative_to_shine_dal[0], _position_relative_to_shine_dal[1],  _position_relative_to_shine_dal[2],  _position_relative_to_shine_dal[3], _length[0], _impact_on_metabolic_error );    
+      sprintf( str, "%" PRId32 " TRANSLOC %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %.10f " , _generation, _position_relative_to_shine_dal[0], _position_relative_to_shine_dal[1],  _position_relative_to_shine_dal[2],  _position_relative_to_shine_dal[3], _length[0], _impact_on_metabolic_error );    
       break;
     }
     case INV :
     {
-      sprintf( str, "%"PRId32" INV %"PRId32" %"PRId32" %"PRId32" %.10f ", _generation, _position_relative_to_shine_dal[0], _position_relative_to_shine_dal[1], _length[0], _impact_on_metabolic_error );
+      sprintf( str, "%" PRId32 " INV %" PRId32 " %" PRId32 " %" PRId32 " %.10f " , _generation, _position_relative_to_shine_dal[0], _position_relative_to_shine_dal[1], _length[0], _impact_on_metabolic_error );
       break;
     }
    case INSERT :
     {
-      sprintf( str, "%"PRId32" INSERTION_OF_FOREIGN_DNA %"PRId32" %"PRId32" %.10f ", _generation, _position_relative_to_shine_dal[0], _length[0], _impact_on_metabolic_error );
+      sprintf( str, "%" PRId32 " INSERTION_OF_FOREIGN_DNA %" PRId32 " %" PRId32 " %.10f " , _generation, _position_relative_to_shine_dal[0], _length[0], _impact_on_metabolic_error );
       break;
     }
     default :
     {
-      fprintf( stderr, "ERROR, invalid mutation type \"%d\" in file %s:%d.\n", _mut_type, __FILE__, __LINE__ );
+      fprintf( stderr, "ERROR, invalid mutation type \"%d\" in file %s:%d.\n" , _mut_type, __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
       break;
     }

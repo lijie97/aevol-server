@@ -1211,7 +1211,7 @@ void ae_genetic_unit::print_coding_rnas()
       rna = (ae_rna *) a_node->get_obj();
       a_node = a_node->get_next();
       if (rna->is_coding() == false) continue;
-      printf("Promoter at %"PRId32", last transcribed position at %"PRId32"\n", rna->get_promoter_pos(), rna->get_last_transcribed_pos());
+      printf("Promoter at %" PRId32 ", last transcribed position at %" PRId32 "\n", rna->get_promoter_pos(), rna->get_last_transcribed_pos());
     }
 
   printf( "  LAGGING \n" );
@@ -1222,7 +1222,7 @@ void ae_genetic_unit::print_coding_rnas()
       rna = (ae_rna *) a_node->get_obj();
       a_node = a_node->get_next();
       if (rna->is_coding() == false) continue;
-      printf("Promoter at %"PRId32", last transcribed position at %"PRId32"\n", rna->get_promoter_pos(), rna->get_last_transcribed_pos());
+      printf("Promoter at %" PRId32 ", last transcribed position at %" PRId32 "\n", rna->get_promoter_pos(), rna->get_last_transcribed_pos());
     }
 }
 
@@ -1232,7 +1232,7 @@ void ae_genetic_unit::print_rnas( ae_list<ae_rna*>* rnas, ae_strand strand )
   ae_list_node<ae_rna*>* rna_node = NULL;
   ae_rna* rna = NULL;
 
-  printf( "  %s ( %"PRId32" )\n", strand == LEADING ? "LEADING" : "LAGGING", rnas->get_nb_elts() );
+  printf( "  %s ( %" PRId32 " )\n", strand == LEADING ? " LEADING " : "LAGGING", rnas->get_nb_elts() );
   rna_node = rnas->get_first();
 
   while ( rna_node != NULL )
@@ -1241,8 +1241,8 @@ void ae_genetic_unit::print_rnas( ae_list<ae_rna*>* rnas, ae_strand strand )
 
     assert( rna->get_strand() == strand );
 
-    printf( "    Promoter on %s at %"PRId32"\n", strand == LEADING ? "LEADING" : "LAGGING", rna->get_promoter_pos() );
-    //~ printf( "      length %"PRId32"  basal_level %f\n", rna->get_transcript_length(), rna->get_basal_level() );
+    printf( "    Promoter on %s at %" PRId32 "\n", strand == LEADING ? " LEADING " : "LAGGING", rna->get_promoter_pos() );
+    //~ printf( "      length %" PRId32 "  basal_level %f\n", rna->get_transcript_length(), rna->get_basal_level() );
 
     rna_node = rna_node->get_next();
   }
@@ -1253,14 +1253,14 @@ void ae_genetic_unit::print_proteins( void ) const
   ae_list_node<ae_protein*>* prot_node = NULL;
   ae_protein*   prot      = NULL;
 
-  printf( "  LEADING ( %"PRId32" )\n", _protein_list[LEADING]->get_nb_elts() );
+  printf( "  LEADING ( %" PRId32 " )\n", _protein_list[LEADING]->get_nb_elts() );
   prot_node = _protein_list[LEADING]->get_first();
 
   while ( prot_node != NULL )
   {
     prot = prot_node->get_obj();
 
-    printf( "    Gene on LEADING at %"PRId32" (%"PRId32") (%f %f %f) (%f) %s\n",
+    printf( "    Gene on LEADING at %" PRId32 " (%" PRId32 ") (%f %f %f) (%f) %s\n",
             prot->get_shine_dal_pos(), prot->get_length(),
             prot->get_mean(), prot->get_width(), prot->get_height(), prot->get_concentration(),
             prot->get_is_functional() ? "functional" : "non functional" );
@@ -1269,14 +1269,14 @@ void ae_genetic_unit::print_proteins( void ) const
   }
 
 
-  printf( "  LAGGING ( %"PRId32" )\n", _protein_list[LAGGING]->get_nb_elts() );
+  printf( "  LAGGING ( %" PRId32 " )\n", _protein_list[LAGGING]->get_nb_elts() );
   prot_node = _protein_list[LAGGING]->get_first();
 
   while ( prot_node != NULL )
   {
     prot = prot_node->get_obj();
 
-    printf( "    Gene on LAGGING at %"PRId32" (%"PRId32") (%f %f %f) (%f) %s\n",
+    printf( "    Gene on LAGGING at %" PRId32 " (%" PRId32 ") (%f %f %f) (%f) %s\n",
             prot->get_shine_dal_pos(), prot->get_length(),
             prot->get_mean(), prot->get_width(), prot->get_height(), prot->get_concentration(),
             prot->get_is_functional() ? "functional" : "non functional" );
@@ -1288,7 +1288,7 @@ void ae_genetic_unit::print_proteins( void ) const
 bool ae_genetic_unit::is_promoter( ae_strand strand, int32_t pos, int8_t& dist ) const
 {
   //~ printf( "=============================================== is_promoter\n" );
-  //~ printf( "pos : %"PRId32"\n", pos );
+  //~ printf( "pos : %" PRId32 "\n", pos );
 
   const char* genome  = _dna->get_data();
   int32_t  len        = _dna->get_length();
@@ -1300,7 +1300,7 @@ bool ae_genetic_unit::is_promoter( ae_strand strand, int32_t pos, int8_t& dist )
     //~ printf( "LEADING\n" );
     for ( int16_t i = 0 ; i < PROM_SIZE ; i++ )
     {
-      //~ printf( "  i : %"PRId32" dist : %"PRId8"\n", i, dist );
+      //~ printf( "  i : %" PRId32 " dist : %"PRId8"\n", i, dist );
       if ( genome[(pos+i)%len] != PROM_SEQ[i] )
       {
         dist++;
@@ -3375,7 +3375,7 @@ int32_t ae_genetic_unit::get_nb_terminators( void )
           printf( "is : \n" );
           print_rnas( old_rna_list );
           printf( "****************************************************************************\n" );
-          printf( "  genome length : %"PRId32"\n", _dna->get_length() );
+          printf( "  genome length : %" PRId32 "\n", _dna->get_length() );
           assert( node_old != NULL && node_new != NULL );
         }
 
@@ -3390,10 +3390,10 @@ int32_t ae_genetic_unit::get_nb_terminators( void )
           printf( "is : \n" );
           print_rnas( old_rna_list );
           printf( "****************************************************************************\n" );
-          printf( "  %"PRId32" (%s) : %f    vs    %"PRId32" (%s) : %f\n",
+          printf( "  %" PRId32 " (%s) : %f    vs    %" PRId32 " (%s) : %f\n",
                   rna_old->get_promoter_pos(), rna_old->get_strand() == LEADING ? "LEADING" : "LAGGING", rna_old->get_basal_level(),
                   rna_new->get_promoter_pos(), rna_new->get_strand() == LEADING ? "LEADING" : "LAGGING", rna_new->get_basal_level() );
-          printf( "  genome length : %"PRId32"\n", _dna->get_length() );
+          printf( "  genome length : %" PRId32 "\n", _dna->get_length() );
           assert( rna_old->get_strand() == rna_new->get_strand() );
         }
 
@@ -3405,10 +3405,10 @@ int32_t ae_genetic_unit::get_nb_terminators( void )
           printf( "is : \n" );
           print_rnas( old_rna_list );
           printf( "****************************************************************************\n" );
-          printf( "  %"PRId32" (%s) : %f    vs    %"PRId32" (%s) : %f\n",
+          printf( "  %" PRId32 " (%s) : %f    vs    %" PRId32 " (%s) : %f\n",
                   rna_old->get_promoter_pos(), rna_old->get_strand() == LEADING ? "LEADING" : "LAGGING", rna_old->get_basal_level(),
                   rna_new->get_promoter_pos(), rna_new->get_strand() == LEADING ? "LEADING" : "LAGGING", rna_new->get_basal_level() );
-          printf( "  genome length : %"PRId32"\n", _dna->get_length() );
+          printf( "  genome length : %" PRId32 "\n", _dna->get_length() );
           assert( rna_old->get_promoter_pos() == rna_new->get_promoter_pos()  );
         }
 
@@ -3420,10 +3420,10 @@ int32_t ae_genetic_unit::get_nb_terminators( void )
           printf( "is : \n" );
           print_rnas( old_rna_list );
           printf( "****************************************************************************\n" );
-          printf( "  %"PRId32" (%s) : %f    vs    %"PRId32" (%s) : %f\n",
+          printf( "  %" PRId32 " (%s) : %f    vs    %" PRId32 " (%s) : %f\n",
                   rna_old->get_promoter_pos(), rna_old->get_strand() == LEADING ? "LEADING" : "LAGGING", rna_old->get_basal_level(),
                   rna_new->get_promoter_pos(), rna_new->get_strand() == LEADING ? "LEADING" : "LAGGING", rna_new->get_basal_level() );
-          printf( "  genome length : %"PRId32"\n", _dna->get_length() );
+          printf( "  genome length : %" PRId32 "\n", _dna->get_length() );
           assert( rna_old->get_basal_level() == rna_new->get_basal_level() );
         }
 

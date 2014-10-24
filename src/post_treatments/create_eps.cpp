@@ -183,7 +183,7 @@ int main( int argc, char* argv[] )
 
 
 
-  printf( "Creating eps files for generation %"PRId32"...\n", num_gener );
+  printf( "Creating eps files for generation %" PRId32 "...\n", num_gener );
 
   // =================================================================
   //                       Read the backup file
@@ -228,7 +228,7 @@ int main( int argc, char* argv[] )
   // =================================================================
 
   char directory_name[30];
-  sprintf( directory_name, "files-generation%06"PRId32, num_gener );
+  sprintf( directory_name, "files-generation%06" PRId32, num_gener );
 
   // Check whether the directory already exists and is writable
   if ( access( directory_name, F_OK ) == 0 )

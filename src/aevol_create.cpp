@@ -170,7 +170,7 @@ int main( int argc, char* argv[] )
     lchromosome = strlen(rawchromosome)-1;
     chromosome = new char[lchromosome]; // Warning: will become the DNA of the first individual created -> no not delete, will be freed in ~ae_dna.
     strncpy(chromosome, rawchromosome, lchromosome);
-    printf("Loading chromosome from text file %s (%"PRId32" base pairs) \n",chromosome_file_name,lchromosome);
+    printf("Loading chromosome from text file %s (%" PRId32 " base pairs) \n",chromosome_file_name,lchromosome);
     fclose(chromosome_file);
   }
 
@@ -190,7 +190,7 @@ int main( int argc, char* argv[] )
     lplasmid = strlen(rawplasmid)-1;
     plasmid = new char[lplasmid]; // Warning: will become the DNA of the first individual created -> no not delete, will be freed in ~ae_dna.
     strncpy(plasmid, rawplasmid, lplasmid);
-    printf("Loading plasmid from text file %s (%"PRId32" base pairs) \n",plasmid_file_name,lplasmid);
+    printf("Loading plasmid from text file %s (%" PRId32 " base pairs) \n",plasmid_file_name,lplasmid);
     fclose(plasmid_file);
   }
 

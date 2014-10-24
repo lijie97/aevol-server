@@ -43,13 +43,13 @@
 #include "population_statistics.h"
 
 #define STATS_DIR                   "stats"
-#define ROBUSTNESS_FILE             STATS_DIR"/robustness_%06"PRId32".out"
-#define REPLICATION_FILE            STATS_DIR"/replication_%06"PRId32".out"
-#define POP_STAT_FILE               STATS_DIR"/global_pop_stats.out"
-#define POP_STAT_DIR                STATS_DIR"/pop_stats/"
-#define POP_STATE_BASE              "gen_%06"PRId32
-#define POP_STATE_ROBUSTNESS_FILE   POP_STAT_DIR"/robustness_%06"PRId32".out"
-#define POP_STATE_REPLICATION_FILE  POP_STAT_DIR"/replication_%06"PRId32".out"
+#define ROBUSTNESS_FILE             STATS_DIR "/robustness_%06" PRId32 ".out"
+#define REPLICATION_FILE            STATS_DIR "/replication_%06" PRId32 ".out"
+#define POP_STAT_FILE               STATS_DIR "/global_pop_stats.out"
+#define POP_STAT_DIR                STATS_DIR "/pop_stats/"
+#define POP_STATE_BASE              "gen_%06" PRId32
+#define POP_STATE_ROBUSTNESS_FILE   POP_STAT_DIR "/robustness_%06" PRId32 ".out"
+#define POP_STATE_REPLICATION_FILE  POP_STAT_DIR "/replication_%06" PRId32 ".out"
 
 
 
@@ -222,7 +222,7 @@ void population_statistics::compute_reproduction_stats(ae_exp_manager* exp_manag
   //            Write header
   // -------------------------------------
   fprintf(_robustness_file, "# ######################################################################\n" );
-  fprintf(_robustness_file, "# Robustness data of individuals at generation %"PRId32"\n",num_gener );
+  fprintf(_robustness_file, "# Robustness data of individuals at generation %" PRId32 "\n",num_gener );
   fprintf(_robustness_file, "# ######################################################################\n" );
   fprintf(_robustness_file,"#  1.  Rank\n");
   fprintf(_robustness_file,"#  2.  Index\n");
@@ -244,7 +244,7 @@ void population_statistics::compute_reproduction_stats(ae_exp_manager* exp_manag
   fprintf(_robustness_file, "# ######################################################################\n" );
   
   fprintf(_replication_file, "# #######################################################################################################\n" );
-  fprintf(_replication_file,"#  Offspring details of individual with rank %"PRId32" and index %"PRId32" at generation %"PRId32" \n",_wanted_rank, _wanted_index, num_gener );
+  fprintf(_replication_file,"#  Offspring details of individual with rank %" PRId32 " and index %" PRId32 " at generation %" PRId32 " \n",_wanted_rank, _wanted_index, num_gener );
   fprintf(_replication_file, "# #######################################################################################################\n" );
   fprintf(_replication_file,"#  1.  Fitness\n");
   fprintf(_replication_file,"#  2.  Metabolic error\n");
@@ -329,7 +329,7 @@ void population_statistics::compute_reproduction_stats(ae_exp_manager* exp_manag
     // ------------------------------------
     //            Write to file
     // ------------------------------------ 
-    fprintf( _robustness_file, "%"PRId32" %"PRId32" %le %le %"PRId32" %"PRId32" %le %le %le %le %le %le %le %le %le %le %le\n",
+    fprintf( _robustness_file, "%" PRId32 " %" PRId32 " %le %le %" PRId32 " %" PRId32 " %le %le %le %le %le %le %le %le %le %le %le\n",
                               current_rank, current_index, initial_indiv->get_fitness(),initial_indiv->get_dist_to_target_by_feature(METABOLISM ),initial_indiv->get_total_genome_size(),
                               initial_indiv->get_nb_functional_genes(), _reprod_proba[current_rank-1], reproduction_statistics[0], reproduction_statistics[1], reproduction_statistics[2], th_fv,
                               offsprings_statistics[0], offsprings_statistics[1], offsprings_statistics[2], offsprings_statistics[3],offsprings_statistics[4],offsprings_statistics[5]);
@@ -389,11 +389,11 @@ void population_statistics::compute_population_stats(int32_t num_gener)
   population_variability = 1. - population_variability;
   variation = (static_cast<double>(fitness_number)) / (static_cast<double>(_pop_size));
   
-  printf("\n Global population stats : \n \tgeneration : %"PRId32"\n \tpopulation size : %"PRId32"\n \tvariation : %le\n \tpopulation variability : %le\n \tbest f nu : %le\n \tbest variability : %le\n \tbest quasi species size : %d\n \tfitness number : %d\n", num_gener, 
+  printf("\n Global population stats : \n \tgeneration : %" PRId32 "\n \tpopulation size : %" PRId32 "\n \tvariation : %le\n \tpopulation variability : %le\n \tbest f nu : %le\n \tbest variability : %le\n \tbest quasi species size : %d\n \tfitness number : %d\n", num_gener, 
 	   _pop_size, variation, population_variability, _f_nu_pop[0], best_variability, 
 	   quasi_species_size, fitness_number);
   
-  fprintf( _output_file, "%"PRId32" %"PRId32" %le %le %le %le %d %d\n", num_gener, _pop_size, variation, population_variability, _f_nu_pop[0], best_variability, quasi_species_size, fitness_number);
+  fprintf( _output_file, "%" PRId32 " %" PRId32 " %le %le %le %le %d %d\n", num_gener, _pop_size, variation, population_variability, _f_nu_pop[0], best_variability, quasi_species_size, fitness_number);
   fflush( _output_file );
 }
 

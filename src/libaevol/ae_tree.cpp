@@ -240,7 +240,7 @@ ae_replication_report * ae_tree::get_report_by_rank( int32_t generation, int32_t
     }
   }
   
-  fprintf( stderr, "ERROR: Couldn't find indiv with rank %"PRId32" in file %s:%d\n", rank, __FILE__, __LINE__ );
+  fprintf( stderr, "ERROR: Couldn't find indiv with rank %" PRId32 " in file %s:%d\n", rank, __FILE__, __LINE__ );
   return NULL;
 }
 

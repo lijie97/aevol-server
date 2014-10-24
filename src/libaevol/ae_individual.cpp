@@ -1363,7 +1363,7 @@ void ae_individual::compute_experimental_f_nu( int32_t nb_children, double* repr
 
     if(replication_file != NULL)
     {
-      fprintf(replication_file, "%le %le %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n", fitness_child, metabolic_error_child, genome_size, nb_functional_genes, genome_size-nb_bases_in_0_functional_CDS, nb_bases_in_0_functional_CDS-nb_bases_in_0_coding_RNA, nb_bases_in_0_coding_RNA);
+      fprintf(replication_file, "%le %le %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n", fitness_child, metabolic_error_child, genome_size, nb_functional_genes, genome_size-nb_bases_in_0_functional_CDS, nb_bases_in_0_functional_CDS-nb_bases_in_0_coding_RNA, nb_bases_in_0_coding_RNA);
     }
 
     delete child;

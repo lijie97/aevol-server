@@ -179,32 +179,32 @@ void ae_gene_tree_node::print_subtree_to_screen(void)
   if (_right_child != NULL) _right_child->print_subtree_to_screen();
 
   /* Current tree node */
-  printf("Node ID: %"PRId32"\n", _ID);
-  if (_parent_node != NULL)   printf("Parent ID: %"PRId32"\n", _parent_node->_ID);
+  printf("Node ID: %" PRId32 "\n", _ID);
+  if (_parent_node != NULL)   printf("Parent ID: %" PRId32 "\n", _parent_node->_ID);
   else                        printf("Parent ID: none\n");
-  if (_left_child != NULL)    printf("Left child ID: %"PRId32"\n", _left_child->_ID);
+  if (_left_child != NULL)    printf("Left child ID: %" PRId32 "\n", _left_child->_ID);
   else                        printf("Left child ID: none\n");
-  if (_right_child != NULL)   printf("Right child ID: %"PRId32"\n", _right_child->_ID);
+  if (_right_child != NULL)   printf("Right child ID: %" PRId32 "\n", _right_child->_ID);
   else                        printf("Right child ID: none\n");
-  printf("Node creation date: %"PRId32"\n", _node_creation_date);
-  printf("DNA creation date: %"PRId32"\n", _dna_creation_date);
+  printf("Node creation date: %" PRId32 "\n", _node_creation_date);
+  printf("DNA creation date: %" PRId32 "\n", _dna_creation_date);
   switch(_gene_loss_type)
     {
     case NOT_LOST_YET:            printf("Node status: NOT_LOST_YET\n"); break;
-    case LOST_BY_LOCAL_MUTATION:  printf("Gene loss type: LOST_BY_LOCAL_MUTATION\n");  printf("Gene loss date: %"PRId32"\n", _gene_loss_date); break;
-    case DELETED :                printf("Gene loss type: DELETED\n");  printf("Gene loss date: %"PRId32"\n", _gene_loss_date); break;
-    case BROKEN_BY_REAR:          printf("Gene loss type: BROKEN_BY_REAR\n");  printf("Gene loss date: %"PRId32"\n", _gene_loss_date); break;
-    case DUPLICATED:              printf("Node status: DUPLICATED\n");  printf("Duplication date: %"PRId32"\n", _gene_loss_date);break;
+    case LOST_BY_LOCAL_MUTATION:  printf("Gene loss type: LOST_BY_LOCAL_MUTATION\n");  printf("Gene loss date: %" PRId32 "\n", _gene_loss_date); break;
+    case DELETED :                printf("Gene loss type: DELETED\n");  printf("Gene loss date: %" PRId32 "\n", _gene_loss_date); break;
+    case BROKEN_BY_REAR:          printf("Gene loss type: BROKEN_BY_REAR\n");  printf("Gene loss date: %" PRId32 "\n", _gene_loss_date); break;
+    case DUPLICATED:              printf("Node status: DUPLICATED\n");  printf("Duplication date: %" PRId32 "\n", _gene_loss_date);break;
     default: break;
     }
-  printf("Protein pointer: %p, Shine-Dalgarno position: %"PRId32"\n", _protein_pointer, _shine_dal_position);
+  printf("Protein pointer: %p, Shine-Dalgarno position: %" PRId32 "\n", _protein_pointer, _shine_dal_position);
   if( _strand == LEADING) printf("Strand: LEADING\n");
   else                    printf("Strand: LAGGING\n");
   for(int32_t i = 0; i < _nb_promoters; i++)
     {
-      printf("Promoter at %"PRId32", rna pointer %p\n", _promoter_positions[i], _rna_pointers[i]);
+      printf("Promoter at %" PRId32 ", rna pointer %p\n", _promoter_positions[i], _rna_pointers[i]);
     }
-  printf("Number of mutations: %"PRId32"\n", _mutation_list->get_nb_elts());
+  printf("Number of mutations: %" PRId32 "\n", _mutation_list->get_nb_elts());
   ae_list_node<ae_gene_mutation*> * mnode = _mutation_list->get_first();
   ae_gene_mutation * mut = NULL;
   char str[128];
@@ -236,37 +236,37 @@ void ae_gene_tree_node::write_subtree_to_files(FILE * topologyFile, FILE * nodeA
     }
 
   /* Current tree node */
-  fprintf(topologyFile, "%"PRId32"", _ID);
-  if (_gene_loss_type == NOT_LOST_YET)  fprintf(topologyFile, ":%"PRId32"", end_gener - _node_creation_date);
-  else fprintf(topologyFile, ":%"PRId32"", _gene_loss_date - _node_creation_date);
+  fprintf(topologyFile, "%" PRId32 "", _ID);
+  if (_gene_loss_type == NOT_LOST_YET)  fprintf(topologyFile, ":%" PRId32 "", end_gener - _node_creation_date);
+  else fprintf(topologyFile, ":%" PRId32 "", _gene_loss_date - _node_creation_date);
   
 
-  fprintf(nodeAttributesFile, "Node ID: %"PRId32"\n", _ID);
-  if (_parent_node != NULL)   fprintf(nodeAttributesFile, "Parent ID: %"PRId32"\n", _parent_node->_ID);
+  fprintf(nodeAttributesFile, "Node ID: %" PRId32 "\n", _ID);
+  if (_parent_node != NULL)   fprintf(nodeAttributesFile, "Parent ID: %" PRId32 "\n", _parent_node->_ID);
   else                        fprintf(nodeAttributesFile, "Parent ID: none\n");
-  if (_left_child != NULL)    fprintf(nodeAttributesFile, "Left child ID: %"PRId32"\n", _left_child->_ID);
+  if (_left_child != NULL)    fprintf(nodeAttributesFile, "Left child ID: %" PRId32 "\n", _left_child->_ID);
   else                        fprintf(nodeAttributesFile, "Left child ID: none\n");
-  if (_right_child != NULL)   fprintf(nodeAttributesFile, "Right child ID: %"PRId32"\n", _right_child->_ID);
+  if (_right_child != NULL)   fprintf(nodeAttributesFile, "Right child ID: %" PRId32 "\n", _right_child->_ID);
   else                        fprintf(nodeAttributesFile, "Right child ID: none\n");
-  fprintf(nodeAttributesFile, "Node creation date: %"PRId32"\n", _node_creation_date);
-  fprintf(nodeAttributesFile, "DNA creation date: %"PRId32"\n", _dna_creation_date);
+  fprintf(nodeAttributesFile, "Node creation date: %" PRId32 "\n", _node_creation_date);
+  fprintf(nodeAttributesFile, "DNA creation date: %" PRId32 "\n", _dna_creation_date);
   switch(_gene_loss_type)
     {
     case NOT_LOST_YET:            fprintf(nodeAttributesFile, "Node status: NOT_LOST_YET\n"); break;
-    case LOST_BY_LOCAL_MUTATION:  fprintf(nodeAttributesFile, "Gene loss type: LOST_BY_LOCAL_MUTATION\n"); fprintf(nodeAttributesFile, "Gene loss date: %"PRId32"\n", _gene_loss_date); break;
-    case DELETED :                fprintf(nodeAttributesFile, "Gene loss type: DELETED\n"); fprintf(nodeAttributesFile, "Gene loss date: %"PRId32"\n", _gene_loss_date); break;
-    case BROKEN_BY_REAR:          fprintf(nodeAttributesFile, "Gene loss type: BROKEN_BY_REAR\n"); fprintf(nodeAttributesFile, "Gene loss date: %"PRId32"\n", _gene_loss_date); break;
-    case DUPLICATED:              fprintf(nodeAttributesFile, "Node status:    DUPLICATED\n"); fprintf(nodeAttributesFile, "Duplication date: %"PRId32"\n", _gene_loss_date); break;
+    case LOST_BY_LOCAL_MUTATION:  fprintf(nodeAttributesFile, "Gene loss type: LOST_BY_LOCAL_MUTATION\n"); fprintf(nodeAttributesFile, "Gene loss date: %" PRId32 "\n", _gene_loss_date); break;
+    case DELETED :                fprintf(nodeAttributesFile, "Gene loss type: DELETED\n"); fprintf(nodeAttributesFile, "Gene loss date: %" PRId32 "\n", _gene_loss_date); break;
+    case BROKEN_BY_REAR:          fprintf(nodeAttributesFile, "Gene loss type: BROKEN_BY_REAR\n"); fprintf(nodeAttributesFile, "Gene loss date: %" PRId32 "\n", _gene_loss_date); break;
+    case DUPLICATED:              fprintf(nodeAttributesFile, "Node status:    DUPLICATED\n"); fprintf(nodeAttributesFile, "Duplication date: %" PRId32 "\n", _gene_loss_date); break;
     default: break;
     }
   if( _strand == LEADING) fprintf(nodeAttributesFile, "Strand: LEADING\n");
   else                    fprintf(nodeAttributesFile, "Strand: LAGGING\n");
-  fprintf(nodeAttributesFile, "Shine-Dalgarno position: %"PRId32"\n", _shine_dal_position);
+  fprintf(nodeAttributesFile, "Shine-Dalgarno position: %" PRId32 "\n", _shine_dal_position);
   for (int32_t i= 0; i < _nb_promoters; i++)
     {
-      fprintf(nodeAttributesFile, "Position of promoter %"PRId32": %"PRId32"\n", i+1, _promoter_positions[i]);
+      fprintf(nodeAttributesFile, "Position of promoter %" PRId32 ": %" PRId32 "\n", i+1, _promoter_positions[i]);
     }
-  fprintf(nodeAttributesFile, "Number of mutations: %"PRId32"\n", _mutation_list->get_nb_elts());
+  fprintf(nodeAttributesFile, "Number of mutations: %" PRId32 "\n", _mutation_list->get_nb_elts());
   ae_list_node<ae_gene_mutation*> * mnode = _mutation_list->get_first();
   ae_gene_mutation * mut = NULL;
   char str[128];
@@ -282,7 +282,7 @@ void ae_gene_tree_node::write_subtree_to_files(FILE * topologyFile, FILE * nodeA
   if (_gene_loss_type == NOT_LOST_YET)
     {
       assert( _protein_pointer != NULL );
-      fprintf(nodeAttributesFile, "  Shine-Dalgarno pos:%"PRId32", Stop pos: %"PRId32", M: %.8f, W: %.8f, H: %.8f, nb promoters: %"PRId32", conc: %.8f \n", \
+      fprintf(nodeAttributesFile, "  Shine-Dalgarno pos:%" PRId32 ", Stop pos: %" PRId32 ", M: %.8f, W: %.8f, H: %.8f, nb promoters: %" PRId32 ", conc: %.8f \n", \
               _protein_pointer->get_shine_dal_pos(), _protein_pointer->get_last_STOP_base_pos(), \
               _protein_pointer->get_mean(), _protein_pointer->get_width(), _protein_pointer->get_height(),  \
               _protein_pointer->get_rna_list()->get_nb_elts(), _protein_pointer->get_concentration() );
@@ -301,16 +301,16 @@ void ae_gene_tree_node::write_subtree_nodes_in_tabular_file(int32_t treeID, FILE
   if (_right_child != NULL)  _right_child->write_subtree_nodes_in_tabular_file(treeID, f);
   
 
-  fprintf(f, "%"PRId32" ", treeID);
-  fprintf(f, "%"PRId32" ", _ID);
-  if (_parent_node != NULL)   fprintf(f, "%"PRId32" ", _parent_node->_ID);
+  fprintf(f, "%" PRId32 " ", treeID);
+  fprintf(f, "%" PRId32 " ", _ID);
+  if (_parent_node != NULL)   fprintf(f, "%" PRId32 " ", _parent_node->_ID);
   else                        fprintf(f, "-1 ");
-  if (_left_child != NULL)    fprintf(f, "%"PRId32" ", _left_child->_ID);
+  if (_left_child != NULL)    fprintf(f, "%" PRId32 " ", _left_child->_ID);
   else                        fprintf(f, "-1 ");
-  if (_right_child != NULL)   fprintf(f, "%"PRId32" ", _right_child->_ID);
+  if (_right_child != NULL)   fprintf(f, "%" PRId32 " ", _right_child->_ID);
   else                        fprintf(f, "-1 ");
-  fprintf(f, "%"PRId32" ", _node_creation_date);
-  fprintf(f, "%"PRId32" ", _dna_creation_date);
+  fprintf(f, "%" PRId32 " ", _node_creation_date);
+  fprintf(f, "%" PRId32 " ", _dna_creation_date);
   switch(_gene_loss_type)
     {
     case NOT_LOST_YET:            fprintf(f, "NOT_LOST_YET "); break;
@@ -320,11 +320,11 @@ void ae_gene_tree_node::write_subtree_nodes_in_tabular_file(int32_t treeID, FILE
     case DUPLICATED:              fprintf(f, "DUPLICATED ");  break;
     default: break;
     }
-  fprintf(f, "%"PRId32" ", _gene_loss_date); 
+  fprintf(f, "%" PRId32 " ", _gene_loss_date);
   if (_strand == LEADING) fprintf(f, "LEADING ");
   else                    fprintf(f, "LAGGING ");
-  fprintf(f, "%"PRId32" ", _shine_dal_position); 
-  fprintf(f, "%"PRId32" ", _nb_promoters); 
+  fprintf(f, "%" PRId32 " ", _shine_dal_position);
+  fprintf(f, "%" PRId32 " ", _nb_promoters);
   if (_gene_loss_type == NOT_LOST_YET)
     {
       assert( _protein_pointer != NULL );
@@ -334,7 +334,7 @@ void ae_gene_tree_node::write_subtree_nodes_in_tabular_file(int32_t treeID, FILE
     }
   else {fprintf(f, "-1 -1 -1 -1 ");} 
 
-  fprintf(f, "%"PRId32" ", _mutation_list->get_nb_elts());
+  fprintf(f, "%" PRId32 " ", _mutation_list->get_nb_elts());
   int32_t nb_localmut_upstream_neutral = 0, nb_localmut_upstream_benef = 0, nb_localmut_upstream_delet = 0;
   int32_t nb_rear_upstream_neutral = 0, nb_rear_upstream_benef = 0, nb_rear_upstream_delet = 0;
   int32_t nb_localmut_cds_neutral = 0, nb_localmut_cds_benef = 0, nb_localmut_cds_delet = 0;
@@ -382,7 +382,7 @@ void ae_gene_tree_node::write_subtree_nodes_in_tabular_file(int32_t treeID, FILE
           mnode = mnode->get_next();
         } 
     }
-  fprintf(f, "%"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" ", \
+  fprintf(f, "%" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " ", \
           nb_localmut_upstream_neutral, nb_localmut_upstream_benef, nb_localmut_upstream_delet,  \
           nb_localmut_cds_neutral, nb_localmut_cds_benef, nb_localmut_cds_delet, \
           nb_rear_upstream_neutral, nb_rear_upstream_benef, nb_rear_upstream_delet, \
