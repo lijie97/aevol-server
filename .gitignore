@@ -51,3 +51,10 @@ tests/Makefile.in
 
 # ignore performance records
 **/perf.data*
+
+# ignore example generated files
+# i.e. ignore everything under examples directory
+examples/*/**
+# but consider param.in files
+!examples/**/param.in
+!examples/**/README
