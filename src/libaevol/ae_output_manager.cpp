@@ -76,9 +76,9 @@ ae_output_manager::ae_output_manager( ae_exp_manager* exp_m )
 // =================================================================
 ae_output_manager::~ae_output_manager( void )
 {
-  delete _stats;
-  delete _tree;
-  delete _dump;
+  if ( _stats != NULL )  delete _stats;
+  if ( _tree  != NULL )  delete _tree;
+  if ( _dump  != NULL )  delete _dump;
   delete _logs;
 }
 
