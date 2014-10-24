@@ -166,7 +166,11 @@ int main( int argc, char* argv[] )
       printf("ERROR: failed to open source chromosome file %s\n",chromosome_file_name);
       exit( EXIT_FAILURE );
     }
-    fgets(rawchromosome, 1000000, chromosome_file);
+    if (fgets(rawchromosome, 1000000, chromosome_file) == NULL)
+    {
+      printf("ERROR: failed to read from chromosome file %s\n",chromosome_file_name);
+      exit( EXIT_FAILURE );
+    }
     lchromosome = strlen(rawchromosome)-1;
     chromosome = new char[lchromosome]; // Warning: will become the DNA of the first individual created -> no not delete, will be freed in ~ae_dna.
     strncpy(chromosome, rawchromosome, lchromosome);
@@ -186,7 +190,11 @@ int main( int argc, char* argv[] )
       printf("ERROR: failed to open source chromosome file %s\n",plasmid_file_name);
       exit( EXIT_FAILURE );
     }
-    fgets(rawplasmid, 1000000, plasmid_file);
+    if (fgets(rawplasmid, 1000000, plasmid_file) == NULL)
+    {
+      printf("ERROR: failed to read from chromosome file %s\n",chromosome_file_name);
+      exit( EXIT_FAILURE );
+    }
     lplasmid = strlen(rawplasmid)-1;
     plasmid = new char[lplasmid]; // Warning: will become the DNA of the first individual created -> no not delete, will be freed in ~ae_dna.
     strncpy(plasmid, rawplasmid, lplasmid);

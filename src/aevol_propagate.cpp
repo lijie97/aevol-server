@@ -200,7 +200,11 @@ int main( int argc, char* argv[] )
     FILE* lg_file = fopen( lg_filename, "r" );
     if ( lg_file != NULL )
     {
-      fscanf( lg_file, "%" PRId32 "\n", &num_gener );
+      if (fscanf( lg_file, "%" PRId32 "\n", &num_gener ) == EOF)
+      {
+	printf("ERROR: failed to read last generation from file %s\n",lg_filename);
+	exit( EXIT_FAILURE );
+      }
       fclose( lg_file );
     }
     else
