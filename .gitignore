@@ -48,3 +48,6 @@ src/post_treatments/aevol_misc_view_generation
 tests/Makefile
 tests/Makefile.in
 **/*.o
+
+# ignore performance records
+**/perf.data*
