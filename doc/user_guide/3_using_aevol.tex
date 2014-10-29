@@ -177,6 +177,28 @@ Usage: \verb?aevol_misc_create_eps [-i INDEX | -r RANK] -g GENER?
 There must have been a backup of the population at this generation. For example, if the program is called with the option
 \verb?-g 4000?, there must be a file called \verb?pop_004000.ae? in the \verb?populations? directory. The program will then create a subdirectory called \\\verb?analysis-generation004000? and write the EPS files therein. If neither index nor rank are specified, the program creates the EPS files of the best individual.
 
+
+\subsection{aevol\_misc\_mutagenesis}
+\label{sect:mutagenesis}
+
+This \verb?mutagenesis? tool creates and evaluates single mutants of an individual saved in a backup,  by default the best of its generation. Use option \verb?-g? to specify the generation number contanining the individual of interest. There must have been a backup of the population at this generation. For example, if the program is called with the option
+\verb?-g 4000?, there must be a file called \verb?pop_004000.ae? in the \verb?populations? directory.
+
+Use either the \verb?-r? or the \verb?-i? option to select another individual than the best one: with \verb?-i?, you have to provide the ID of the individual, and with \verb?-r? the rank (1 for the individual with the lowest fitness, N for the fittest one).
+
+The type of mutations to perform must be specified with the \verb?-m? option. Choose 0 to create mutants with a point mutation, 1 for a small insertion, 2 for a small deletion, 3 for a duplication, 4 for a large deletion, 5 for a translocation or 6 for an inversion.
+
+For the point mutations, all single mutants will be created and evaluated. For the other mutation types, an exhaustive mutagenesis would take too much time, hence only a sample of mutants (1000 by default) will be generated. Use option \verb?-n? to specify another sample size.
+
+The output file will be placed in a subdirectory called \verb?analysis-generationGENER?.
+
+Usage:
+\begin{verbatim}
+aevol_misc_mutagenesis -g GENER [-i INDEX | -r RANK]
+                       [-m MUTATIONTYPE] [-n NBMUTANTS]
+\end{verbatim}
+
+
 \subsection{aevol\_misc\_robustness}
 \label{sect:robustness}
 
