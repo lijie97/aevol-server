@@ -34,21 +34,17 @@ AM_CPPFLAGS += -D_FORTIFY_SOURCE=2
 ############################################
 #           Set programs to build          #
 ############################################
-bin_PROGRAMS = aevol_misc_robustness aevol_misc_ancstats aevol_misc_create_eps aevol_misc_fixed_mutations aevol_misc_gene_families aevol_misc_lineage aevol_misc_compute_pop_stats aevol_misc_extract aevol_misc_mutational_robustness
+bin_PROGRAMS = aevol_misc_robustness aevol_misc_ancstats aevol_misc_create_eps aevol_misc_fixed_mutations aevol_misc_gene_families aevol_misc_lineage aevol_misc_extract aevol_misc_mutational_robustness
 if WITH_X
   bin_PROGRAMS += aevol_misc_view_generation
 endif # X
 noinst_PROGRAMS = aevol_misc_template
 
-CLEANFILES = aevol_misc_ancstats aevol_misc_compute_pop_stats aevol_misc_create_eps aevol_misc_extract aevol_misc_fixed_mutations aevol_misc_gene_families aevol_misc_lineage aevol_misc_robustness aevol_misc_template aevol_misc_view_generation aevol_misc_mutational_robustness
+CLEANFILES = aevol_misc_ancstats aevol_misc_create_eps aevol_misc_extract aevol_misc_fixed_mutations aevol_misc_gene_families aevol_misc_lineage aevol_misc_robustness aevol_misc_template aevol_misc_view_generation aevol_misc_mutational_robustness
 
 aevol_misc_mutational_robustness_SOURCES = mutationalrobustness.cpp
 
 aevol_misc_ancstats_SOURCES = ancstats.cpp
-
-#aevol_misc_compute_pop_stats_HEADERS = population_statistics.h
-aevol_misc_compute_pop_stats_SOURCES = population_statistics.cpp compute_pop_stats.cpp
-aevol_misc_compute_pop_stats_SOURCES += population_statistics.h
 
 aevol_misc_create_eps_SOURCES = create_eps.cpp
 

@@ -46,9 +46,10 @@
 //                            Project Files
 // =================================================================
 #include <ae_macros.h>
-#include <population_statistics.h>
 #include <ae_exp_manager.h>
-
+#include <ae_list.h>
+#include <ae_population.h>
+#include <ae_individual.h>
 
 
 // =================================================================
