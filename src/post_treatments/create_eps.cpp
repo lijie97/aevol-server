@@ -228,7 +228,7 @@ int main( int argc, char* argv[] )
   // =================================================================
 
   char directory_name[64];
-  sprintf( directory_name, "analysis-generation%06"PRId32, num_gener );
+  snprintf( directory_name, 63, "analysis-generation%06"PRId32, num_gener );
 
   // Check whether the directory already exists and is writable
   if ( access( directory_name, F_OK ) == 0 )
@@ -378,9 +378,8 @@ void draw_triangles( ae_individual* indiv, ae_environment* env, char * directory
   double scalex = 0.8*(1 - 2*margin);
   double scaley = 0.4*(1 - 2*margin);
 
-  char filename[50];
-  strncpy( filename, directoryName, 29 );
-  strcat(  filename, "/best_triangles.eps" );
+  char filename[128];
+  snprintf( filename, 127, "%s/best_triangles.eps", directoryName);
   FILE * drawingfile = fopen( filename, "w" );
 
 
@@ -517,9 +516,8 @@ void draw_pos_neg_profiles( ae_individual * indiv, ae_environment* env, char * d
   double margin = 0.1;
   double scale = 0.8*(1 - 2*margin);
 
-  char filename[50];
-  strncpy( filename, directoryName, 29 );
-  strcat(  filename, "/best_pos_neg_profiles.eps" );
+  char filename[128];
+  snprintf( filename, 127, "%s/best_pos_neg_profiles.eps", directoryName);
   FILE * drawingfile = fopen( filename, "w" );
 
 
@@ -639,9 +637,8 @@ void draw_phenotype( ae_individual* indiv, ae_environment* env, char* directoryN
   double scale = 0.8*(1 - 2*margin);
 
 
-  char filename[50];
-  strncpy( filename, directoryName, 29 );
-  strcat(  filename, "/best_phenotype.eps" );
+  char filename[128];
+  snprintf(  filename, 127, "%s/best_phenotype.eps", directoryName );
   FILE * drawingfile = fopen( filename, "w" );
 
   if (drawingfile == NULL)
@@ -774,9 +771,8 @@ void draw_genetic_unit_with_CDS( ae_genetic_unit* gen_unit, char * directoryName
   double r = 0.35;
   double scale = 2*M_PI*r/gen_length;
 
-  char filename[50];
-  strncpy( filename, directoryName, 29 );
-  strcat(  filename, "/best_genome_with_CDS.eps" );
+  char filename[128];
+  snprintf(  filename, 127, "%s/best_genome_with_CDS.eps", directoryName );
   FILE * drawingfile = fopen( filename, "w" );
 
   fprintf( drawingfile, "%%!PS-Adobe-3.0 EPSF-3.0\n" );
@@ -1070,9 +1066,8 @@ void draw_genetic_unit_with_mRNAs( ae_genetic_unit* gen_unit, char * directoryNa
   double r = 0.35;
   double scale = 2*M_PI*r/gen_length;
 
-  char filename[50];
-  strncpy( filename, directoryName, 29 );
-  strcat(  filename, "/best_genome_with_mRNAs.eps" );
+  char filename[128];
+  snprintf(  filename, 127, "%s/best_genome_with_mRNAs.eps", directoryName );
   FILE * drawingfile = fopen( filename, "w" );
 
   fprintf( drawingfile, "%%!PS-Adobe-3.0 EPSF-3.0\n" );
