@@ -227,8 +227,8 @@ int main( int argc, char* argv[] )
   //                      Create the EPS files
   // =================================================================
 
-  char directory_name[30];
-  sprintf( directory_name, "files-generation%06" PRId32, num_gener );
+  char directory_name[64];
+  sprintf( directory_name, "analysis-generation%06"PRId32, num_gener );
 
   // Check whether the directory already exists and is writable
   if ( access( directory_name, F_OK ) == 0 )
@@ -321,38 +321,40 @@ void print_help(char* prog_path)
   printf( "\n" );
 #ifdef __REGUL
   printf( "Usage : rcreate_eps -h\n");
-  printf( "or :    rcreate_eps [-i index | -r rank] -g generation \n" );
+  printf( "or :    rcreate_eps [-i INDEX | -r RANK] -g GENER \n" );
 #else
   printf( "Usage : create_eps -h\n");
-  printf( "or :    create_eps  [-i index | -r rank] -g generation \n" );
+  printf( "or :    create_eps  [-i INDEX | -r RANK] -g GENER \n" );
 #endif
   printf( "\n" );
-  printf( "This program creates 5 EPS files with the triangles, the positive and negatives \n" );
-  printf( "profiles, the phenotype, the CDS, the mRNAs of the chosen individual or the best\n");
-  printf( "individual. This program requires at least one population backup file and one \n" );
-  printf( "environment backup file of end_gener\n" );
+  printf( "This program creates 5 EPS files with the triangles, the positive and negative \n" );
+  printf( "profiles, the phenotype, the CDS, the mRNAs of the chosen individual (the best by default)\n");
+  printf( "of generation GENER. This program requires at least one population backup file and one\n" );
+  printf( "environment backup file at generation GENER. The EPS files are placed in a \n" );
+  printf( "subdirectory called analysis-generationGENER.\n" );
   printf( "\n" );
   printf( "\n" );
   printf( "\t-h or --help    : Display this help.\n" );
   printf( "\n" );
-  printf( "\t-i index or --index index : \n" );
+  printf( "\t-i INDEX or --index INDEX : \n" );
   printf( "\t                  Creates the EPS files for the individual whose\n" );
-  printf( "\t                  index is index. The index must be comprised \n" );
+  printf( "\t                  index is INDEX. The index must be comprised \n" );
   printf( "\t                  between 0 and N-1, with N the size of the \n" );
   printf( "\t                  population at the ending generation. If neither\n" );
   printf( "\t                  index nor rank are specified, the program creates \n" );
-  printf( "\t                  the EPS files of the best individual\n" );
+  printf( "\t                  the EPS files of the best individual. \n" );
   printf( "\n" );
-  printf( "\t-r rank or --rank rank : \n" );
+  printf( "\t-r RANK or --rank RANK : \n" );
   printf( "\t                  Creates the EPS files for the individual whose\n" );
   printf( "\t                  rank is rank. The rank must be comprised \n" );
-  printf( "\t                  between 0 and N-1, with N the size of the \n" );
+  printf( "\t                  between 1 and N, with N the size of the \n" );
   printf( "\t                  population at the ending generation. If neither\n" );
   printf( "\t                  index nor rank are specified, the program creates \n" );
-  printf( "\t                  the EPS files of the best individual\n" );
+  printf( "\t                  the EPS files of the best individual. \n" );
   printf( "\n" );
-  printf( "\t-g generation or --gener generation : \n" );
-  printf( "\t                  Create the EPS files for the chosen individual of end_gener\n" );
+  printf( "\t-g GENER or --gener GENER : \n" );
+  printf( "\t                  Create the EPS files for the chosen individual of \n" );
+  printf( "\t                  generation GENER. \n" );
   printf( "\n" );
 }
 

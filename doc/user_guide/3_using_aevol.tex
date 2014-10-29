@@ -172,10 +172,10 @@ The \verb?create_eps? tool takes a generation number as an input, and produces s
 \item \verb?best_triangles.eps?, where all triangles resulting from the translation of a coding sequence are superimposed.
 \end{itemize}
 
-Usage: \verb?aevol_misc_create_eps [-i index | -r rank] -g generation_number?
+Usage: \verb?aevol_misc_create_eps [-i INDEX | -r RANK] -g GENER?
 
 There must have been a backup of the population at this generation. For example, if the program is called with the option
-\verb?-g 4000?, there must be a file called \verb?pop_004000.ae? in the \verb?populations? directory. The program will then create a directory called \\\verb?files-generation004000? and write the EPS files therein. If neither index nor rank are specified, the program creates the EPS files of the best individual.
+\verb?-g 4000?, there must be a file called \verb?pop_004000.ae? in the \verb?populations? directory. The program will then create a subdirectory called \\\verb?analysis-generation004000? and write the EPS files therein. If neither index nor rank are specified, the program creates the EPS files of the best individual.
 
 \subsection{aevol\_misc\_robustness}
 \label{sect:robustness}
