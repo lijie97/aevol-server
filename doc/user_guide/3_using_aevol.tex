@@ -180,13 +180,13 @@ There must have been a backup of the population at this generation. For example,
 \subsection{aevol\_misc\_robustness}
 \label{sect:robustness}
 
-The \verb?robustness? tool computes the replication statistics of all the individuals of a given generation, like the proportion of neutral, beneficial, deleterious offsprings. This is done by simulating $nbchildren$ replications for each individual (1000 replications by default), with its mutation, rearrangement and transfer rates. Depending on those rates and genome size, there can be several mutations per replication. Those global statistics are written in \verb?stat/robustness_numgener.out?, with one line per individual in the specified generation.
+The \verb?robustness? tool computes the replication statistics of all the individuals of a given generation, like the proportion of neutral, beneficial, deleterious offsprings. This is done by simulating $NBCHILDREN$ replications for each individual (1000 replications by default), with its mutation, rearrangement and transfer rates. Depending on those rates and genome size, there can be several mutations per replication. Those global statistics are written in \verb?analysis-generationGENER/robustness-allindivs-gGENER.out?, with one line per individual in the specified generation.
 
-The program also outputs detailed statistics for one of the individuals (the best one by default). The detailed statistics for this individual are written in \verb?stats/replication_numgener.out?, with one line per simulated child of this particular individual.
+The program also outputs detailed statistics for one of the individuals (the best one by default). The detailed statistics for this individual are written in\\ \verb?analysis-generationGENER/robustness-singleindiv-details-gGENER-iINDEX-rRANK.out?, with one line per simulated child of this particular individual.
 
-Usage: \verb?aevol_misc_robustness -g numgener [-n nbchildren] [-r rank | -i index]?
+Usage: \verb?aevol_misc_robustness -g GENER [-n NBCHILDREN] [-r RANK | -i INDEX]?
 
-If neither index nor rank are specified, the program computes the detailed statistics for the best individual of generation \verb?numgener?.
+If neither index nor rank are specified, the program computes the detailed statistics for the best individual of generation \verb?GENER?.
 
 
 \subsection{aevol\_misc\_lineage}

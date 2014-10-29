@@ -60,9 +60,7 @@ aevol_misc_gene_families_SOURCES = gene_families.cpp
 
 aevol_misc_lineage_SOURCES = lineage.cpp
 
-#aevol_misc_robustness_HEADERS = population_statistics.h
-aevol_misc_robustness_SOURCES = population_statistics.cpp robustness.cpp
-aevol_misc_robustness_SOURCES +=population_statistics.h
+aevol_misc_robustness_SOURCES = robustness.cpp
 
 aevol_misc_template_SOURCES = template.cpp
 
