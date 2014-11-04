@@ -34,7 +34,7 @@ AM_PROG_CC_C_O
 
 # Initialize configure-time defined flags
 AC_SUBST(AEVOLCPPFLAGS, "") # C PreProcessor flags
-AC_SUBST(AEVOLCXXFLAGS, "") # C++ Compile flags
+AC_SUBST(AEVOLCXXFLAGS, "-std=c++11") # C++ Compile flags
 AC_SUBST(AEVOLLDFLAGS, "")  # Linker flags
 
 
