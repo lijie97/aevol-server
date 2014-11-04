@@ -3,25 +3,25 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //*****************************************************************************
 
 
@@ -77,7 +77,7 @@ ae_mutation::ae_mutation( const ae_mutation &model )
   _align_score = NULL;
 
   _mut_type = model._mut_type;
-  
+
   switch( _mut_type )
   {
     case SWITCH :
@@ -227,7 +227,7 @@ ae_mutation::ae_mutation( gzFile backup_file )
       gzread( backup_file, _pos,      sizeof(*_pos) );
       _length = new int32_t;
       gzread( backup_file, _length,  sizeof(*_length) );
-      
+
       _seq = new char[_length[0] + 1];
       gzread( backup_file, _seq,  _length[0] * sizeof(_seq[0]) );
       _seq[_length[0]] = '\0';
@@ -249,7 +249,7 @@ ae_mutation::ae_mutation( gzFile backup_file )
       gzread( backup_file, _length,  sizeof(*_length) );
       _align_score = new int16_t;
       gzread( backup_file, _align_score, sizeof(*_align_score) );
-      
+
       break;
     }
     case DEL :
@@ -260,7 +260,7 @@ ae_mutation::ae_mutation( gzFile backup_file )
       gzread( backup_file, _length,  sizeof(*_length) );
       _align_score = new int16_t;
       gzread( backup_file, _align_score, sizeof(*_align_score) );
-      
+
       break;
     }
     case TRANS :
@@ -274,7 +274,7 @@ ae_mutation::ae_mutation( gzFile backup_file )
       gzread( backup_file, _length,  sizeof(*_length) );
       _align_score = new int16_t[2];
       gzread( backup_file, _align_score, 2 * sizeof(_align_score[0]) );
-      
+
       break;
     }
     case INV :
@@ -285,7 +285,7 @@ ae_mutation::ae_mutation( gzFile backup_file )
       gzread( backup_file, _length,  sizeof(*_length) );
       _align_score = new int16_t;
       gzread( backup_file, _align_score, sizeof(*_align_score) );
-      
+
       break;
     }
     case INSERT:
@@ -413,7 +413,7 @@ ae_mutation::~ae_mutation( void )
 void ae_mutation::report_point_mutation( int32_t pos )
 {
   //~ printf( "report point mutation at %ld\n", pos );
-  
+
   _mut_type = SWITCH;
   _pos      = new int32_t( pos );
   _length = new int32_t(1);
@@ -422,7 +422,7 @@ void ae_mutation::report_point_mutation( int32_t pos )
 void ae_mutation::report_small_insertion( int32_t pos, int32_t length, const char* seq )
 {
   //~ printf( "report small insertion of %s (%ld) at %ld\n", seq, length, pos );
-  
+
   _mut_type = S_INS;
   _pos = new int32_t( pos );
   _length = new int32_t(length);
@@ -434,7 +434,7 @@ void ae_mutation::report_small_insertion( int32_t pos, int32_t length, const cha
 void ae_mutation::report_small_deletion( int32_t pos, int32_t length )
 {
   //~ printf( "report small deletion of %ld at %ld\n", length, pos );
-  
+
   _mut_type = S_DEL;
   _pos = new int32_t( pos );
   _length = new int32_t(length);
@@ -443,49 +443,49 @@ void ae_mutation::report_small_deletion( int32_t pos, int32_t length )
 void ae_mutation::report_duplication( int32_t pos_1, int32_t pos_2, int32_t pos_3, int32_t length, int16_t align_score )
 {
   //~ printf( "report duplication of [%ld, %ld] to %ld\n", pos_1, pos_2, pos_3 );
-  
+
   _mut_type = DUPL;
-  
+
   _pos = new int32_t[3];
   _pos[0] = pos_1;
   _pos[1] = pos_2;
   _pos[2] = pos_3;
-  
+
   _length = new int32_t(length);
-  
+
   _align_score = new int16_t( align_score );
 }
 
 void ae_mutation::report_deletion( int32_t pos_1, int32_t pos_2, int32_t length, int16_t align_score )
 {
   //~ printf( "report deletion of [%ld, %ld]\n", pos_1, pos_2 );
-  
+
   _mut_type = DEL;
-  
+
   _pos = new int32_t[2];
   _pos[0] = pos_1;
   _pos[1] = pos_2;
-  
+
   _length = new int32_t(length);
-  
+
   _align_score = new int16_t( align_score );
 }
 
 void ae_mutation::report_translocation( int32_t pos_1, int32_t pos_2, int32_t pos_3, int32_t pos_4, int32_t length, bool invert, int16_t align_score_1, int16_t align_score_2 )
 {
   //~ printf( "report translocation of [%ld, %ld] to %ld through %ld (%s)\n", pos_1, pos_2, pos_3, pos_4, invert?"invert":"plain" );
-  
+
   _mut_type = TRANS;
-  
+
   _pos = new int32_t[4];
   _pos[0] = pos_1;
   _pos[1] = pos_2;
   _pos[2] = pos_3;
   _pos[3] = pos_4;
   _invert = invert;
-  
+
   _length = new int32_t(length);
-  
+
   _align_score = new int16_t[2];
   _align_score[0] = align_score_1;
   _align_score[1] = align_score_2;
@@ -494,22 +494,22 @@ void ae_mutation::report_translocation( int32_t pos_1, int32_t pos_2, int32_t po
 void ae_mutation::report_inversion( int32_t pos_1, int32_t pos_2, int32_t length, int16_t align_score )
 {
   //~ printf( "report inversion of [%ld, %ld]\n", pos_1, pos_2 );
-  
+
   _mut_type = INV;
-  
+
   _pos = new int32_t[2];
   _pos[0] = pos_1;
   _pos[1] = pos_2;
-  
+
   _length = new int32_t(length);
-  
+
   _align_score = new int16_t( align_score );
 }
 
 void ae_mutation::report_insertion( int32_t pos, int32_t length, const char* seq )
 {
   //~ printf( "report insertion of %s (%ld) at %ld\n", seq, length, pos );
-  
+
   _mut_type = INSERT;
   _pos = new int32_t( pos );
   _length = new int32_t(length);
@@ -526,16 +526,16 @@ void ae_mutation::report_ins_HT(int32_t alignment_1_donor_pos_1, int32_t alignme
   _pos[1] = alignment_1_donor_pos_2; //donor
   _pos[2] = alignment_2_ind_pos; //exogenote   // NOTE: wrong comment? I think it's receiver
   _pos[3] = alignment_2_donor_pos; //receiver  // NOTE: wrong comment? I think it's exogenote
-  
+
   _length = new int32_t( length );
   _seq = new char[length + 1];
   strncpy(_seq, donor_seq, length);
   _seq[length] = '\0';
-  
+
   _align_score = new int16_t[2];
   _align_score[0] = alignment_1_score;
   _align_score[1] = alignment_2_score;
-  
+
   _donor_id = donor_id;
   _sense = sense;
 }
@@ -545,21 +545,21 @@ void ae_mutation::report_repl_HT(int32_t alignment_1_ind_pos, int32_t alignment_
   _mut_type = REPL_HT;
   _pos = new int32_t[4];
   _pos[0] = alignment_1_ind_pos; //receiver
-  _pos[1] = alignment_1_donor_pos; //donor 
+  _pos[1] = alignment_1_donor_pos; //donor
   _pos[2] = alignment_2_ind_pos; //receiver
   _pos[3] = alignment_2_donor_pos; //donor
-  
+
   _length = new int32_t[2];
   _length[0] = repl_seq_length;
   _length[1] = donor_seq_length;
   _seq = new char[donor_seq_length + 1];
   strncpy(_seq, donor_seq, donor_seq_length);
   _seq[donor_seq_length] = '\0';
-  
+
   _align_score = new int16_t[2];
   _align_score[0] = alignment_1_score;
   _align_score[1] = alignment_2_score;
-  
+
   _donor_id = donor_id;
   _sense = sense;
 }
@@ -767,7 +767,7 @@ int32_t ae_mutation::segment_length( int32_t gen_unit_len )
 
       if (_pos[0] <= _pos[1]) res = _pos[1] - _pos[0];
       else res = gen_unit_len - _pos[0] + _pos[1];
-      
+
       break;
     }
     case TRANS :

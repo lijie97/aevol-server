@@ -3,32 +3,32 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 // ****************************************************************************
- 
- 
+
+
  #ifndef __AE_DNA_H__
 #define  __AE_DNA_H__
- 
- 
+
+
 // =================================================================
 //                              Libraries
 // =================================================================
@@ -65,7 +65,7 @@ class ae_rna;
 
 
 class ae_dna : public ae_string
-{  
+{
   public :
     // =================================================================
     //                             Constructors
@@ -76,12 +76,12 @@ class ae_dna : public ae_string
     ae_dna( ae_genetic_unit* gen_unit, char* seq, int32_t length );
     ae_dna( ae_genetic_unit* gen_unit, gzFile backup_file );
     ae_dna( ae_genetic_unit* gen_unit, char* organism_file_name );
-  
+
     // =================================================================
     //                             Destructors
     // =================================================================
     virtual ~ae_dna( void );
-  
+
     // =================================================================
     //                              Accessors
     // =================================================================
@@ -91,30 +91,30 @@ class ae_dna : public ae_string
     //   inline       int32_t get_length( void ) const;
     inline ae_dna_replic_report*  get_replic_report( void ) const;
     inline void                   set_replic_report( ae_dna_replic_report * rep ); // for post-treatment only
-    
+
     inline ae_genetic_unit *      get_genetic_unit( void ) const;
     inline ae_individual*         get_indiv(void) const;
-    
+
     char* get_subsequence( int32_t from, int32_t to, ae_strand strand ) const; // WARNING : creates a new char[...] (up to you to delete it!)
 
 
     // =================================================================
     //                            Public Methods
-    // =================================================================    
+    // =================================================================
     // Perform all the mutations (local mutations, rearrangements and transfer)
     void perform_mutations( int32_t parent_id );
-    
+
     // Perform all the local mutations (point mutations and indels) of the replication
     void do_small_mutations( void );
-    
+
     // Perform all the chromosomic rearrangements (duplications, deletions, translocations and inversions)
     // of the replication
     void do_rearrangements( void );
     void do_rearrangements_with_align( void );
-    
+
     // Perform all transfer (with insertion and with replacement)
     void do_transfer( int32_t parent_id );
-    
+
     // Perform a single local mutation at a random position
     ae_mutation* do_switch( void );
     ae_mutation* do_small_insertion( void );
@@ -124,7 +124,7 @@ class ae_dna : public ae_string
     bool do_switch( int32_t pos );
     bool do_small_insertion( int32_t pos, int16_t nb_insert, char * seq );
     bool do_small_deletion( int32_t pos, int16_t nb_del );
-    
+
     // Perform a single rearrangement at random positions
     ae_mutation* do_duplication( void );
     ae_mutation* do_deletion( void );
@@ -132,7 +132,7 @@ class ae_dna : public ae_string
     ae_mutation* do_inter_GU_translocation( void );
     ae_mutation* do_inversion( void );
     ae_mutation* do_insertion( const char* seq_to_insert, int32_t seq_length = -1 );
-  
+
     // Perform a single rearrangement at specified positions
     bool do_duplication( int32_t pos_1, int32_t pos_2, int32_t pos_3 );
     bool do_deletion( int32_t pos_1, int32_t pos_2 );
@@ -140,40 +140,40 @@ class ae_dna : public ae_string
     bool do_inter_GU_translocation( int32_t pos_1, int32_t pos_2, int32_t pos_3, int32_t pos_4, bool invert );
     bool do_inversion( int32_t pos_1, int32_t pos_2 );
     bool do_insertion( int32_t pos, const char* seq_to_insert, int32_t seq_length );
-    
+
     // Perform transfer with the search of alignments
     ae_mutation* do_ins_HT( int32_t parent_id );
     ae_mutation* do_repl_HT( int32_t parent_id );
-    
+
     // Perform a single transfer at specified positions
     bool do_ins_HT( int32_t pos, const char* seq_to_insert, int32_t seq_length );
     bool do_repl_HT( int32_t pos1, int32_t pos2, const char* seq_to_insert, int32_t seq_length );
-    
+
     ae_genetic_unit*  extract_into_new_GU( int32_t pos_1, int32_t pos_2 );
     ae_genetic_unit*  copy_into_new_GU   ( int32_t pos_1, int32_t pos_2 ) const;
     void insert_GU( ae_genetic_unit* GU_to_insert, int32_t pos_B, int32_t pos_D, bool invert );
-    
+
     ae_vis_a_vis* search_alignment( ae_dna* chrom2, int32_t& nb_pairs, ae_sense sense );
     ae_vis_a_vis* search_alignment_around_positions( ae_dna* chrom2, int32_t chrom1_pos_1, int32_t chrom1_pos_2, ae_sense sense, int8_t& research_sense);
-    
+
     void undergo_this_mutation( ae_mutation * mut ); // useful when we replay the evolution
 
     void compute_statistical_data( void );
-    
-    
+
+
     static void set_GU( ae_list<ae_rna*>** rna_list, ae_genetic_unit* GU );
-  
-  
+
+
     // =================================================================
     //                           Public Attributes
     // =================================================================
-  
-  
-  
-  
-  
+
+
+
+
+
   protected :
-  
+
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
@@ -187,7 +187,7 @@ class ae_dna : public ae_string
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
     };
-  
+
     // =================================================================
     //                           Protected Methods
     // =================================================================
@@ -196,13 +196,13 @@ class ae_dna : public ae_string
     void ABCDE_to_ACpDpBE( int32_t pos_B, int32_t pos_C, int32_t pos_D, int32_t pos_E );
     void inter_GU_ABCDE_to_ACDBE( int32_t pos_B, int32_t pos_C, int32_t pos_E );
     void inter_GU_ABCDE_to_BDCAE( int32_t pos_B, int32_t pos_C, int32_t pos_E );
-    
-    
+
+
     // =================================================================
     //                          Protected Attributes
     // =================================================================
     ae_exp_manager* _exp_m;
-    
+
     // From ae_string
     //   char*   _data;
     //   int32_t _length;
