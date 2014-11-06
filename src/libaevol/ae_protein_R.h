@@ -24,6 +24,8 @@
 // 
 // ****************************************************************************
 
+#ifndef AE_PROTEIN_R_H
+#define AE_PROTEIN_R_H
 
 // =================================================================
 //                              Libraries
@@ -160,3 +162,5 @@ void ae_protein_R::remove_influences( void )
   }
 
 }
+
+#endif // AE_PROTEIN_R_H
