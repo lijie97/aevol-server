@@ -16,13 +16,11 @@ AC_CONFIG_SRCDIR([src/aevol_run.cpp])
 # Build config.h using config.h.in as a template
 #AC_CONFIG_HEADERS([config.h:config.h.in])
 
-
 # Change default value for CXXFLAGS
 test_CXXFLAGS=${CXXFLAGS+set}
 if test "$test_CXXFLAGS" != set; then
   CXXFLAGS=""
 fi
-
 
 # Checks for programs
 AC_PROG_CXX
@@ -31,17 +29,14 @@ AC_PROG_INSTALL
 AC_PROG_RANLIB
 AM_PROG_CC_C_O
 
-
 # Initialize configure-time defined flags
 AC_SUBST(AEVOLCPPFLAGS, "") # C PreProcessor flags
-AC_SUBST(AEVOLCXXFLAGS, "") # C++ Compile flags
+AC_SUBST(AEVOLCXXFLAGS, "-std=c++11") # C++ Compile flags
 AC_SUBST(AEVOLLDFLAGS, "")  # Linker flags
-
 
 # Checks for libraries.
 AC_CHECK_LIB([m], [cos], , [AC_MSG_ERROR([PACKAGE_NAME requires the math library, please install it.])])
 AC_CHECK_LIB([z], [gzread], , [AC_MSG_ERROR([PACKAGE_NAME requires the zlib development library, please install it.])])
-
 
 # Checks for header files.
 AC_CHECK_HEADERS([inttypes.h limits.h stdint.h stdlib.h string.h unistd.h])
@@ -59,12 +54,6 @@ AC_TYPE_UINT8_T
 # Checks for library functions.
 AC_CHECK_FUNCS([floor memset mkdir pow rint sqrt gzread])
 
-
-
-
-
-
-
 # ****************************************************************************
 #                                  OPTIONS
 #
@@ -80,11 +69,6 @@ AC_CHECK_FUNCS([floor memset mkdir pow rint sqrt gzread])
 #
 # ****************************************************************************
 
-
-
-
-
-
 #  ******************* check option consistency ***************************
 AC_MSG_CHECKING([checking parameter consistency])
 if test "x$enable_in2p3" = "xyes" ; then
@@ -98,10 +82,6 @@ if test "x$enable_in2p3" = "xyes" ; then
   fi
 fi
 AC_MSG_RESULT([OK])
-
-
-
-
 
 #   ************************ --without-x option *********************
 #
@@ -134,8 +114,6 @@ else
    AC_DEFINE(__NO_X)
 fi
 
-
-
 #  ******************* --enable-optim option ***************************
 #
 #  With this option, the programs are compiled with the
@@ -152,8 +130,6 @@ else
   AEVOLCXXFLAGS+=" -O0"
 fi
 
-
-
 #  ******************* --enable-normalized-fitness option ***************************
 #
 #  With this option, the NORMALIZED_FITNESS flag is defined,
@@ -166,10 +142,6 @@ AM_CONDITIONAL(WITH_NORMALIZED_FITNESS, test x"$enable_normalized_fitness" != xn
 if test "x$enable_normalized_fitness" = "xyes" ; then
    AC_DEFINE(NORMALIZED_FITNESS)
 fi
-
-
-
-
 
 #  ************************* --enable-mtperiod=period option *******************************
 #
@@ -201,10 +173,6 @@ fi
 
 AC_MSG_RESULT($period)
 AC_DEFINE_UNQUOTED([SFMT_MEXP], [$period])
-
-
-
-
 
 #  ************************* --enable-trivialjumps=jumpsize option *******************************
 #
@@ -249,8 +217,6 @@ if test "x$trivialjumps" = "xyes" ; then
 elif test "x$trivialjumps" != "xno" ; then
   AC_DEFINE_UNQUOTED([TRIVIAL_METHOD_JUMP_SIZE], [$trivialjumps])
 fi
-
-
 
 #  ******************* --enable-devel option ***************************
 #
@@ -297,8 +263,6 @@ fi
 AM_CONDITIONAL([WANT_DOXYGEN], [test -n "$HAVE_DOXYGEN"])
 AM_CONDITIONAL([WITH_CPPUNIT], [test -n "$cppunit_missing"])
 
-
-
 #  ******************* --enable-debug option ***************************
 #
 #  With this option, the DEBUG flag is defined, and the programs are
@@ -316,8 +280,6 @@ else
    AC_DEFINE(NDEBUG)
 fi
 
-
-
 #  ******************* --enable-in2p3 option ***************************
 #
 #  With this option, the IN2P3 flag is defined
@@ -329,9 +291,6 @@ AM_CONDITIONAL(WITH_IN2P3, test x"$enable_in2p3" != xno)
 if test "x$enable_in2p3" = "xyes" ; then
    AC_DEFINE(__IN2P3)
 fi
-
-
-
 
 #  ************************* back to GENERAL stuff *******************************
 
