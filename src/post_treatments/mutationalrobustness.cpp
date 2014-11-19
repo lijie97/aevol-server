@@ -58,7 +58,7 @@ int main( int argc, char* argv[] )
   ae_exp_manager* exp_manager = new ae_exp_manager();
   exp_manager->load( gener, false, true, false );
   ae_population* pop = exp_manager->get_pop();
-  int32_t nb_indivs = exp_manager->get_nb_indivs();
+  // int32_t nb_indivs = exp_manager->get_nb_indivs();
 
   // Open output file and write the header
   FILE * output = fopen(output_file_name, "w");

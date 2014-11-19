@@ -57,7 +57,7 @@ void print_version( void );
 int main( int argc, char* argv[] )
 {
   // 1) Initialize command-line option variables with default values
-  bool  opt = false;
+  // bool  opt = false;
   char* input_dir = NULL;
   int32_t num_gener = -1;
 
@@ -92,7 +92,7 @@ int main( int argc, char* argv[] )
       }
       case 'o' :
       {
-        opt = true;
+        // opt = true;
         break;
       }
       case 'i' :

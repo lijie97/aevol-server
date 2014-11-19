@@ -171,11 +171,11 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
   //      to be clockwise, the drawing angle (theta) will be given as
   //      (90 - alpha), alpha being the "classical" trigonometric angle
   int16_t alpha_first, alpha_last; // Angles of first and last transcribed bases from OriC (degrees)
-  int16_t theta_first, theta_last; // Transposed angles on the trigonometric circle (degrees)
+  int16_t theta_first; //, theta_last; // Transposed angles on the trigonometric circle (degrees)
   int16_t nb_sect;
   // Same as above with precision = 1/64 degree
   int16_t alpha_first_64, alpha_last_64;
-  int16_t theta_first_64, theta_last_64;
+  int16_t theta_first_64; //, theta_last_64;
   int16_t nb_sect_64;
 
   // ----------------
@@ -193,14 +193,14 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
     alpha_first   = (int16_t) round(  360 * ((double)cds->get_first_translated_pos() / (double)genome_length ));
     alpha_last    = (int16_t) round(  360 * ((double)cds->get_last_translated_pos()  / (double)genome_length ));
     theta_first   = ae_utils::mod( 90 - alpha_first, 360 );
-    theta_last    = ae_utils::mod( 90 - alpha_last, 360 );
+    // theta_last    = ae_utils::mod( 90 - alpha_last, 360 );
     nb_sect       = ae_utils::mod( alpha_last - alpha_first + 1,  360 );
 
     // These are the same as above but with a higher precision (1/64 degrees)
     alpha_first_64   = (int16_t) round(64 * 360 * ((double)cds->get_first_translated_pos() / (double)genome_length ));
     alpha_last_64    = (int16_t) round(64 * 360 * ((double)cds->get_last_translated_pos() / (double)genome_length ));
     theta_first_64   = ae_utils::mod( 64 * 90 - alpha_first_64, 64 * 360 );
-    theta_last_64    = ae_utils::mod( 64 * 90 - alpha_last_64, 64 * 360 );
+    // theta_last_64    = ae_utils::mod( 64 * 90 - alpha_last_64, 64 * 360 );
     nb_sect_64       = ae_utils::mod( alpha_last_64 - alpha_first_64 + 1,  64 * 360 );
 
 
@@ -277,14 +277,14 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
     alpha_first   = (int16_t) round(  360 * ((double)cds->get_first_translated_pos() / (double)genome_length ));
     alpha_last    = (int16_t) round(  360 * ((double)cds->get_last_translated_pos()  / (double)genome_length ));
     theta_first   = ae_utils::mod( 90 - alpha_first, 360 );
-    theta_last    = ae_utils::mod( 90 - alpha_last, 360 );
+    // theta_last    = ae_utils::mod( 90 - alpha_last, 360 );
     nb_sect = ae_utils::mod( alpha_first - alpha_last + 1,  360 );
 
     // These are the same as above but with a higher precision (1/64 degrees)
     alpha_first_64   = (int16_t) round(64 * 360 * ((double)cds->get_first_translated_pos() / (double)genome_length ));
     alpha_last_64    = (int16_t) round(64 * 360 * ((double)cds->get_last_translated_pos() / (double)genome_length ));
     theta_first_64   = ae_utils::mod( 64 * 90 - alpha_first_64, 64 * 360 );
-    theta_last_64    = ae_utils::mod( 64 * 90 - alpha_last_64, 64 * 360 );
+    // theta_last_64    = ae_utils::mod( 64 * 90 - alpha_last_64, 64 * 360 );
     nb_sect_64 = ae_utils::mod( alpha_first_64 - alpha_last_64 + 1,  64 * 360 );
 
 
@@ -410,11 +410,11 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
     //      to be clockwise, the drawing angle (theta) will be given as
     //      (90 - alpha), alpha being the "classical" trigonometric angle
     int16_t alpha_first, alpha_last; // Angles of first and last transcribed bases from OriC (degrees)
-    int16_t theta_first, theta_last; // Transposed angles on the trigonometric circle (degrees)
+    int16_t theta_first; //, theta_last; // Transposed angles on the trigonometric circle (degrees)
     int16_t nb_sect;
     // Same as above with precision = 1/64 degree
     int16_t alpha_first_64, alpha_last_64;
-    int16_t theta_first_64, theta_last_64;
+    int16_t theta_first_64; //, theta_last_64;
     int16_t nb_sect_64;
 
     // ----------------
@@ -432,14 +432,14 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
       alpha_first   = (int16_t) round(  360 * ((double)cds->get_first_translated_pos() / (double)genome_length ));
       alpha_last    = (int16_t) round(  360 * ((double)cds->get_last_translated_pos()  / (double)genome_length ));
       theta_first   = ae_utils::mod( 90 - alpha_first, 360 );
-      theta_last    = ae_utils::mod( 90 - alpha_last, 360 );
+      // theta_last    = ae_utils::mod( 90 - alpha_last, 360 );
       nb_sect       = ae_utils::mod( alpha_last - alpha_first + 1,  360 );
 
       // These are the same as above but with a higher precision (1/64 degrees)
       alpha_first_64   = (int16_t) round(64 * 360 * ((double)cds->get_first_translated_pos() / (double)genome_length ));
       alpha_last_64    = (int16_t) round(64 * 360 * ((double)cds->get_last_translated_pos() / (double)genome_length ));
       theta_first_64   = ae_utils::mod( 64 * 90 - alpha_first_64, 64 * 360 );
-      theta_last_64    = ae_utils::mod( 64 * 90 - alpha_last_64, 64 * 360 );
+      // theta_last_64    = ae_utils::mod( 64 * 90 - alpha_last_64, 64 * 360 );
       nb_sect_64       = ae_utils::mod( alpha_last_64 - alpha_first_64 + 1,  64 * 360 );
 
 
@@ -516,14 +516,14 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
       alpha_first   = (int16_t) round(  360 * ((double)cds->get_first_translated_pos() / (double)genome_length ));
       alpha_last    = (int16_t) round(  360 * ((double)cds->get_last_translated_pos()  / (double)genome_length ));
       theta_first   = ae_utils::mod( 90 - alpha_first, 360 );
-      theta_last    = ae_utils::mod( 90 - alpha_last, 360 );
+      // theta_last    = ae_utils::mod( 90 - alpha_last, 360 );
       nb_sect = ae_utils::mod( alpha_first - alpha_last + 1,  360 );
 
       // These are the same as above but with a higher precision (1/64 degrees)
       alpha_first_64   = (int16_t) round(64 * 360 * ((double)cds->get_first_translated_pos() / (double)genome_length ));
       alpha_last_64    = (int16_t) round(64 * 360 * ((double)cds->get_last_translated_pos() / (double)genome_length ));
       theta_first_64   = ae_utils::mod( 64 * 90 - alpha_first_64, 64 * 360 );
-      theta_last_64    = ae_utils::mod( 64 * 90 - alpha_last_64, 64 * 360 );
+      // theta_last_64    = ae_utils::mod( 64 * 90 - alpha_last_64, 64 * 360 );
       nb_sect_64 = ae_utils::mod( alpha_first_64 - alpha_last_64 + 1,  64 * 360 );
 
 

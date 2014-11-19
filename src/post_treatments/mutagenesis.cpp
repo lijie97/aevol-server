@@ -85,7 +85,7 @@ int main( int argc, char* argv[] )
   int32_t wanted_index    = -1;
   int32_t num_gener       = 0;
   int32_t mutation_type   = 0;
-  bool exhaustive_mutagenesis = true;
+  // bool exhaustive_mutagenesis = true;
   int32_t nb_mutants      = -1; // used if mutagenesis cannot be exhaustive, i.e. for all mutation types other than point mutations
 
 
@@ -156,12 +156,12 @@ int main( int argc, char* argv[] )
             mutation_type = (ae_mutation_type) atol(optarg);
             if (mutation_type == SWITCH)
               {
-                exhaustive_mutagenesis = true;
+                // exhaustive_mutagenesis = true;
               }
             else if ((mutation_type == S_INS) || (mutation_type == S_DEL) || (mutation_type == DUPL) || (mutation_type == DEL) || \
                      (mutation_type == TRANS) || (mutation_type == INV))
               {
-                exhaustive_mutagenesis = false;
+                // exhaustive_mutagenesis = false;
               }
             else
               {

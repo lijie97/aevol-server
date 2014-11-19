@@ -648,7 +648,7 @@ void change_by_cloning_best(ae_population* pop, ae_exp_manager* exp_m)
     {
       int16_t x = 0, y = 0;
       int16_t x_max = exp_m->get_grid_width();
-      int16_t y_max = exp_m->get_grid_height();
+      // int16_t y_max = exp_m->get_grid_height();
       ae_grid_cell* grid_cell = NULL;
       
       ae_list_node<ae_individual*>* indiv_node = pop->get_indivs()->get_first();

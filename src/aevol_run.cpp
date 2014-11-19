@@ -105,8 +105,8 @@ int main( int argc, char* argv[] )
   // -------------------------------------------------------------------------
   // 1) Initialize command-line option variables with default values
   // -------------------------------------------------------------------------
-  bool use_text_files   = false;
-  bool pause_on_startup = false;
+  // bool use_text_files   = false;
+  // bool pause_on_startup = false;
   bool verbose          = false;
   
   int32_t num_gener = 0;
@@ -178,7 +178,7 @@ int main( int argc, char* argv[] )
       }
       case 't' :
       {
-        use_text_files = true;
+        // use_text_files = true;
         printf( "%s: error: Option -t or --text not yet implemented.\n", argv[0] );
         exit( EXIT_FAILURE );
         
@@ -192,7 +192,7 @@ int main( int argc, char* argv[] )
       }
       case 'w' :
       {
-        pause_on_startup = true;
+        // pause_on_startup = true;
         
         break;
       }
