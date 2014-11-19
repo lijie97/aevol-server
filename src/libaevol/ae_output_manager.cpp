@@ -215,8 +215,8 @@ void ae_output_manager::load( gzFile setup_file, bool verbose, bool to_be_run  )
 void ae_output_manager::load( FILE* setup_file, bool verbose, bool to_be_run  )
 {
   // Write the backup steps
-  fscanf( setup_file, "BACKUP_STEP %" PRId32 "\n", &_backup_step );
-  fscanf( setup_file, "BIG_BACKUP_STEP %" PRId32 "\n", &_big_backup_step );
+  fscanf( setup_file, "BACKUP_STEP %" SCNd32 "\n", &_backup_step );
+  fscanf( setup_file, "BIG_BACKUP_STEP %" SCNd32 "\n", &_big_backup_step );
   
   // Stats
   int32_t num_gener = _exp_m->get_num_gener();
@@ -231,7 +231,11 @@ void ae_output_manager::load( FILE* setup_file, bool verbose, bool to_be_run  )
       _stats = new ae_stats( _exp_m );
     }
   }
-  fscanf( setup_file, "COMPUTE_PHENOTYPIC_CONTRIBUTION_BY_GU %" PRId8 "\n", (int8_t*) &_compute_phen_contrib_by_GU );
+  {
+    int tmp;
+    fscanf( setup_file, "COMPUTE_PHENOTYPIC_CONTRIBUTION_BY_GU %d\n", &tmp);
+    _compute_phen_contrib_by_GU = tmp;
+  }
   
   char tmp[10];
   
@@ -241,9 +245,9 @@ void ae_output_manager::load( FILE* setup_file, bool verbose, bool to_be_run  )
   if ( _record_tree )
   {
     int32_t tmp_tree_step;
-    fscanf( setup_file, "TREE_STEP %" PRId32 "\n", &tmp_tree_step );
+    fscanf( setup_file, "TREE_STEP %" SCNd32 "\n", &tmp_tree_step );
     int8_t tmp_tree_mode;
-    fscanf( setup_file, "TREE_MODE %" PRId8 "\n", &tmp_tree_mode );
+    fscanf(setup_file, "TREE_MODE %" SCNd8 "\n", &tmp_tree_mode);
     if ( (ae_tree_mode)tmp_tree_mode != LIGHT && (ae_tree_mode)tmp_tree_mode != NORMAL)
     {
         printf( "%s:%d: error: invalid tree mode\n", __FILE__, __LINE__ );
@@ -257,7 +261,7 @@ void ae_output_manager::load( FILE* setup_file, bool verbose, bool to_be_run  )
   // Dumps
   fscanf( setup_file, "MAKE_DUMPS %s\n", tmp );
   _make_dumps = ! strcmp( tmp, "true" );
-  fscanf( setup_file, "DUMP_STEP %" PRId32 "\n", &_dump_step );
+  fscanf( setup_file, "DUMP_STEP %" SCNd32 "\n", &_dump_step );
   if( _make_dumps == true)
   {
     _dump = new ae_dump(_exp_m);
@@ -265,7 +269,7 @@ void ae_output_manager::load( FILE* setup_file, bool verbose, bool to_be_run  )
   
   // Logs
   int8_t logs;
-  fscanf( setup_file, "LOGS %" PRId8 "\n", &logs );
+  fscanf( setup_file, "LOGS %" SCNd8 "\n", &logs );
   _logs->load(logs, num_gener);
 }
 
