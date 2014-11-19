@@ -100,7 +100,6 @@ ae_logs::~ae_logs( void )
 void ae_logs::load( int8_t logs, int32_t num_gener )
 {
   char* line = new char[500];
-  char* ret;
   
   _logs = logs;
   
@@ -123,11 +122,15 @@ void ae_logs::load( int8_t logs, int32_t num_gener )
     }
     
     // Copy file headers
-    ret = fgets( line, 500, old_transfer_log );
+    if (fgets(line, 500, old_transfer_log) == NULL) {
+      // TODO check for error
+    }
     while ( !feof( old_transfer_log ) && line[0] == '#' )
     {
       fputs( line, _transfer_log );
-      ret = fgets( line, 500, old_transfer_log );
+      if (fgets(line, 500, old_transfer_log) == NULL) {
+	// TODO check for error
+      }
     }
     // This is the empty line between the header and the values
     //fputs( line, _transfer_log );
@@ -136,11 +139,15 @@ void ae_logs::load( int8_t logs, int32_t num_gener )
     while ( (int32_t)atol(line) < num_gener && !feof(old_transfer_log) )
     {
       fputs( line, _transfer_log );
-      ret = fgets( line, 500, old_transfer_log );
+      if (fgets(line, 500, old_transfer_log) == NULL) {
+	// TODO check for error
+      }
       while(!feof(old_transfer_log) & (line[0] == '\t' || line[0] == ' '))
       {
         fputs( line, _transfer_log );
-        ret = fgets( line, 500, old_transfer_log );
+        if (fgets(line, 500, old_transfer_log) == NULL) {
+	  // TODO check for error
+	}
       }
     }
     
@@ -165,11 +172,15 @@ void ae_logs::load( int8_t logs, int32_t num_gener )
     }
     
     // Copy file headers
-    ret = fgets( line, 500, old_rear_log );
+    if (fgets(line, 500, old_rear_log) == NULL) {
+      // TODO check for error
+    }
     while ( !feof( old_rear_log ) && line[0] == '#' )
     {
       fputs( line, _rear_log );
-      ret = fgets( line, 500, old_rear_log );
+      if (fgets(line, 500, old_rear_log) == NULL) {
+	// TODO check for error
+      }
     }
     // This is the empty line between the header and the values
     //fputs( line, _rear_log );
@@ -178,7 +189,9 @@ void ae_logs::load( int8_t logs, int32_t num_gener )
     while ( (int32_t)atol(line) < num_gener && !feof(old_rear_log) )
     {
       fputs( line, _rear_log );
-      ret = fgets( line, 500, old_rear_log );
+      if (fgets(line, 500, old_rear_log) == NULL) {
+	// TODO check for error
+      }
     }
     
     fclose( old_rear_log );
@@ -202,11 +215,15 @@ void ae_logs::load( int8_t logs, int32_t num_gener )
     }
     
     // Copy file headers
-    ret = fgets( line, 500, old_barrier_log );
+    if (fgets(line, 500, old_barrier_log) == NULL) {
+      // TODO check for error
+    }
     while ( !feof( old_barrier_log ) && line[0] == '#' )
     {
       fputs( line, _barrier_log );
-      ret = fgets( line, 500, old_barrier_log );
+      if (fgets(line, 500, old_barrier_log) == NULL) {
+	// TODO check for error
+      }
     }
     // This is the empty line between the header and the values
     //fputs( line, _barrier_log );
@@ -215,7 +232,9 @@ void ae_logs::load( int8_t logs, int32_t num_gener )
     while ( (int32_t)atol(line) < num_gener && !feof(old_barrier_log) )
     {
       fputs( line, _barrier_log );
-      ret = fgets( line, 500, old_barrier_log );
+      if (fgets(line, 500, old_barrier_log) == NULL) {
+	// TODO check for error
+      }
     }
     
     fclose( old_barrier_log );

@@ -108,7 +108,6 @@ ae_stats::ae_stats( ae_exp_manager* exp_m,
     char* cur_file_name;  // Syntaxic sugar for _stat_files_names[][][]
     FILE* cur_file;       // Syntaxic sugar for _stat_files[][][]
     char  line[500];
-    char* trash;
     
     for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
     { 
@@ -131,22 +130,31 @@ ae_stats::ae_stats( ae_exp_manager* exp_m,
             cur_file = fopen( cur_file_name, "w" );
             
             // Copy file header
-            trash = fgets( line, 500, old_file );
+            if (fgets(line, 500, old_file) == NULL) {
+              // TODO check for error
+            }
+
             while ( !feof( old_file ) && line[0] == '#' )
             {
               fputs( line, cur_file );
-              trash = fgets( line, 500, old_file );
+              if (fgets(line, 500, old_file) == NULL) {
+                // TODO check for error
+              }
             }
             
             // Copy the empty line between the header and the values
             fputs( line, cur_file );
             
             // Copy stats until num_gener (included)
-            trash = fgets( line, 500, old_file );
+            if (fgets(line, 500, old_file) == NULL) {
+              // TODO check for error
+            }
             while ( (int32_t)atol(line) < _exp_m->get_first_gener() && !feof(old_file) )
             {
               fputs( line, cur_file );
-              trash = fgets( line, 500, old_file );
+              if (fgets(line, 500, old_file)) {
+                // TODO check for error
+              }
             }
             
             fclose( old_file );
