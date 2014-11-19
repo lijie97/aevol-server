@@ -200,7 +200,7 @@ int main( int argc, char* argv[] )
   // ----------------------
 
   char directory_name[64];
-  sprintf( directory_name, "analysis-generation%06"PRId32, num_gener );
+  sprintf( directory_name, "analysis-generation%06" PRId32, num_gener );
   
   // Check whether the directory already exists and is writable
   if ( access( directory_name, F_OK ) == 0 )
@@ -223,10 +223,10 @@ int main( int argc, char* argv[] )
   
 
   char filename[256];
-  snprintf(  filename, 255, "%s/robustness-allindivs-g%06"PRId32".out", directory_name, num_gener );
+  snprintf(  filename, 255, "%s/robustness-allindivs-g%06" PRId32 ".out", directory_name, num_gener );
   FILE * outputfile_wholepop = fopen( filename, "w" );
   
-  snprintf(  filename, 255, "%s/robustness-singleindiv-details-g%06"PRId32"-i%"PRId32"-r%"PRId32".out", directory_name, num_gener, wanted_index, wanted_rank );
+  snprintf(  filename, 255, "%s/robustness-singleindiv-details-g%06" PRId32 "-i%" PRId32 "-r%" PRId32 ".out", directory_name, num_gener, wanted_index, wanted_rank );
   FILE * outputfile_details = fopen( filename, "w" );
 
 

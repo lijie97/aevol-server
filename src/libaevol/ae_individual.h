@@ -1517,7 +1517,7 @@ void ae_individual::do_transcription_translation_folding( void )
     {
       rna = rna_node->get_obj();
 
-      printf( "RNA at pos : %"PRId32"      length : %"PRId32" bp\n", rna->get_promoter_pos(), rna->get_transcript_length() );
+      printf( "RNA at pos : %" PRId32 "      length : %" PRId32 " bp\n", rna->get_promoter_pos(), rna->get_transcript_length() );
       printf( "  strand : %s    basal level : %f\n", (rna->get_strand() == LEADING)?"LEADING":"LAGGING", rna->get_basal_level() );
 
       rna_node = rna_node->get_next();
@@ -1534,7 +1534,7 @@ void ae_individual::do_transcription_translation_folding( void )
       prot = prot_node->get_obj();
 
       char* prot_sequence = prot->get_AA_sequence();
-      printf( "prot %p at pos : %"PRId32"      length : %"PRId32" AAs\n", prot, prot->get_first_translated_pos(), prot->get_length() );
+      printf( "prot %p at pos : %" PRId32 "      length : %" PRId32 " AAs\n", prot, prot->get_first_translated_pos(), prot->get_length() );
       printf( "  strand : %s    concentration : %f\n", (prot->get_strand() == LEADING)?"LEADING":"LAGGING", prot->get_concentration() );
       printf( "  sequence : %s\n", prot_sequence );
       printf( "  mean : %f      width : %f      height : %f\n", prot->get_mean(), prot->get_width(), prot->get_height() );

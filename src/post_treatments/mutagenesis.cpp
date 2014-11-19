@@ -195,7 +195,7 @@ int main( int argc, char* argv[] )
     {
       nb_mutants = 1000;
       printf( "Mutagenesis cannot be exhaustive in a reasonable time for mutations \n" );
-      printf( "other than point mutations. A sample of %"PRId32" mutants will be generated.\n", nb_mutants );
+      printf( "other than point mutations. A sample of %" PRId32 " mutants will be generated.\n", nb_mutants );
     }
 
 
@@ -311,7 +311,7 @@ int main( int argc, char* argv[] )
     }
 
   char directory_name[64];
-  snprintf( directory_name, 63, "analysis-generation%06"PRId32, num_gener );
+  snprintf( directory_name, 63, "analysis-generation%06" PRId32, num_gener );
 
   // Check whether the directory already exists and is writable
   if ( access( directory_name, F_OK ) == 0 )
@@ -334,7 +334,7 @@ int main( int argc, char* argv[] )
 
 
   char output_file_name[256];
-  snprintf( output_file_name, 255, "%s/mutagenesis-g%06"PRId32"-i%"PRId32"-r%"PRId32"-%s.out", \
+  snprintf( output_file_name, 255, "%s/mutagenesis-g%06" PRId32 "-i%" PRId32 "-r%" PRId32 "-%s.out", \
             directory_name, num_gener, wanted_index, wanted_rank, mutation_type_name  );
 
   FILE * output = fopen( output_file_name, "w" );
@@ -350,11 +350,11 @@ int main( int argc, char* argv[] )
   int16_t col = 1;
 
   fprintf( output, "# ####################################################################################################\n" );
-  fprintf( output, "#   Single %s mutants of individual %"PRId32" (rank %"PRId32") at generation %"PRId32"\n", mutation_type_name, wanted_index, wanted_rank, num_gener );
+  fprintf( output, "#   Single %s mutants of individual %" PRId32 " (rank %" PRId32 ") at generation %" PRId32 "\n", mutation_type_name, wanted_index, wanted_rank, num_gener );
   fprintf( output, "# ####################################################################################################\n" );
-  fprintf( output, "#  %"PRId16".  Mutation type    (0: switch, 1: smallins, 2: smalldel, 3:dupl, 4: del, 5:trans, 6:inv) \n", col ); col++;
-  fprintf( output, "#  %"PRId16".  Genetic unit which underwent the mutation (0 = chromosome) \n", col ); col++;
-  fprintf( output, "#  %"PRId16".  Length of this genetic unit before the event \n", col ); col++;
+  fprintf( output, "#  %" PRId16 ".  Mutation type    (0: switch, 1: smallins, 2: smalldel, 3:dupl, 4: del, 5:trans, 6:inv) \n", col ); col++;
+  fprintf( output, "#  %" PRId16 ".  Genetic unit which underwent the mutation (0 = chromosome) \n", col ); col++;
+  fprintf( output, "#  %" PRId16 ".  Length of this genetic unit before the event \n", col ); col++;
 
   switch ( mutation_type )
     {
@@ -363,65 +363,65 @@ int main( int argc, char* argv[] )
         // Even though not all five columns are relevant for point mutations, we still write them all
         // to make the statistical analysis easier if other types of mutants are to be generated.
         // This way, for a given experiment, the number of columns will be the same for all types of mutants.
-        fprintf( output, "#  %"PRId16".  pos0            (position of the point mutation on the genetic unit) \n", col ); col++;
-        fprintf( output, "#  %"PRId16".  pos1            (irrelevant for point mutations) \n", col ); col ++;
-        fprintf( output, "#  %"PRId16".  pos2            (irrelevant for point mutations) \n", col ); col++;
-        fprintf( output, "#  %"PRId16".  pos3            (irrelevant for point mutations) \n", col ); col++;
-        fprintf( output, "#  %"PRId16".  invert          (irrelevant for point mutations) \n", col ); col++;
+        fprintf( output, "#  %" PRId16 ".  pos0            (position of the point mutation on the genetic unit) \n", col ); col++;
+        fprintf( output, "#  %" PRId16 ".  pos1            (irrelevant for point mutations) \n", col ); col ++;
+        fprintf( output, "#  %" PRId16 ".  pos2            (irrelevant for point mutations) \n", col ); col++;
+        fprintf( output, "#  %" PRId16 ".  pos3            (irrelevant for point mutations) \n", col ); col++;
+        fprintf( output, "#  %" PRId16 ".  invert          (irrelevant for point mutations) \n", col ); col++;
         break;
       }
     case S_INS:
       {
-        fprintf( output, "#  %"PRId16".  pos0            (position of the small insertion on the genetic unit) \n", col ); col++;
-        fprintf( output, "#  %"PRId16".  pos1            (irrelevant for small insertions) \n", col ); col ++;
-        fprintf( output, "#  %"PRId16".  pos2            (irrelevant for small insertions) \n", col ); col++;
-        fprintf( output, "#  %"PRId16".  pos3            (irrelevant for small insertions) \n", col ); col++;
-        fprintf( output, "#  %"PRId16".  invert          (irrelevant for small insertions) \n", col ); col++;
+        fprintf( output, "#  %" PRId16 ".  pos0            (position of the small insertion on the genetic unit) \n", col ); col++;
+        fprintf( output, "#  %" PRId16 ".  pos1            (irrelevant for small insertions) \n", col ); col ++;
+        fprintf( output, "#  %" PRId16 ".  pos2            (irrelevant for small insertions) \n", col ); col++;
+        fprintf( output, "#  %" PRId16 ".  pos3            (irrelevant for small insertions) \n", col ); col++;
+        fprintf( output, "#  %" PRId16 ".  invert          (irrelevant for small insertions) \n", col ); col++;
         break;
       }
     case S_DEL:
       {
-        fprintf( output, "#  %"PRId16".  pos0            (position of the small deletion on the genetic unit) \n", col ); col++;
-        fprintf( output, "#  %"PRId16".  pos1            (irrelevant for small deletions) \n", col ); col ++;
-        fprintf( output, "#  %"PRId16".  pos2            (irrelevant for small deletions) \n", col ); col++;
-        fprintf( output, "#  %"PRId16".  pos3            (irrelevant for small deletions) \n", col ); col++;
-        fprintf( output, "#  %"PRId16".  invert          (irrelevant for small deletions) \n", col ); col++;
+        fprintf( output, "#  %" PRId16 ".  pos0            (position of the small deletion on the genetic unit) \n", col ); col++;
+        fprintf( output, "#  %" PRId16 ".  pos1            (irrelevant for small deletions) \n", col ); col ++;
+        fprintf( output, "#  %" PRId16 ".  pos2            (irrelevant for small deletions) \n", col ); col++;
+        fprintf( output, "#  %" PRId16 ".  pos3            (irrelevant for small deletions) \n", col ); col++;
+        fprintf( output, "#  %" PRId16 ".  invert          (irrelevant for small deletions) \n", col ); col++;
         break;
       }
     case DUPL:
       {
-        fprintf( output, "#  %"PRId16".  pos0            (begin of the duplicated segment) \n", col ); col++;
-        fprintf( output, "#  %"PRId16".  pos1            (end of the duplicated segment) \n", col ); col ++;
-        fprintf( output, "#  %"PRId16".  pos2            (reinsertion point of the duplicate in the genetic unit) \n", col ); col++;
-        fprintf( output, "#  %"PRId16".  pos3            (irrelevant for duplications) \n", col ); col++;
-        fprintf( output, "#  %"PRId16".  invert          (irrelevant for duplications) \n", col ); col++;
+        fprintf( output, "#  %" PRId16 ".  pos0            (begin of the duplicated segment) \n", col ); col++;
+        fprintf( output, "#  %" PRId16 ".  pos1            (end of the duplicated segment) \n", col ); col ++;
+        fprintf( output, "#  %" PRId16 ".  pos2            (reinsertion point of the duplicate in the genetic unit) \n", col ); col++;
+        fprintf( output, "#  %" PRId16 ".  pos3            (irrelevant for duplications) \n", col ); col++;
+        fprintf( output, "#  %" PRId16 ".  invert          (irrelevant for duplications) \n", col ); col++;
         break;
       }
     case DEL:
       {
-        fprintf( output, "#  %"PRId16".  pos0            (begin of the deleted segment) \n", col ); col++;
-        fprintf( output, "#  %"PRId16".  pos1            (end of the deleted segment) \n", col ); col ++;
-        fprintf( output, "#  %"PRId16".  pos2            (irrelevant for large deletions) \n", col ); col++;
-        fprintf( output, "#  %"PRId16".  pos3            (irrelevant for large deletions) \n", col ); col++;
-        fprintf( output, "#  %"PRId16".  invert          (irrelevant for large deletions) \n", col ); col++;
+        fprintf( output, "#  %" PRId16 ".  pos0            (begin of the deleted segment) \n", col ); col++;
+        fprintf( output, "#  %" PRId16 ".  pos1            (end of the deleted segment) \n", col ); col ++;
+        fprintf( output, "#  %" PRId16 ".  pos2            (irrelevant for large deletions) \n", col ); col++;
+        fprintf( output, "#  %" PRId16 ".  pos3            (irrelevant for large deletions) \n", col ); col++;
+        fprintf( output, "#  %" PRId16 ".  invert          (irrelevant for large deletions) \n", col ); col++;
         break;
       }
     case TRANS:
       {
-        fprintf( output, "#  %"PRId16".  pos0            (begin of the excised segment) \n", col ); col++;
-        fprintf( output, "#  %"PRId16".  pos1            (end of the excised segment) \n", col ); col ++;
-        fprintf( output, "#  %"PRId16".  pos2            (cutting point in the excised segment when reinserted) \n", col ); col++;
-        fprintf( output, "#  %"PRId16".  pos3            (reinsertion point of the segment in the genetic unit) \n", col ); col++;
-        fprintf( output, "#  %"PRId16".  invert          (was the segment inverted when reinserted (0: no, 1: yes)) \n", col ); col++;
+        fprintf( output, "#  %" PRId16 ".  pos0            (begin of the excised segment) \n", col ); col++;
+        fprintf( output, "#  %" PRId16 ".  pos1            (end of the excised segment) \n", col ); col ++;
+        fprintf( output, "#  %" PRId16 ".  pos2            (cutting point in the excised segment when reinserted) \n", col ); col++;
+        fprintf( output, "#  %" PRId16 ".  pos3            (reinsertion point of the segment in the genetic unit) \n", col ); col++;
+        fprintf( output, "#  %" PRId16 ".  invert          (was the segment inverted when reinserted (0: no, 1: yes)) \n", col ); col++;
         break;
       }
     case INV:
       {
-        fprintf( output, "#  %"PRId16".  pos0            (begin of the inverted segment) \n", col ); col++;
-        fprintf( output, "#  %"PRId16".  pos1            (end of the inverted segment) \n", col ); col ++;
-        fprintf( output, "#  %"PRId16".  pos2            (irrelevant for inversions) \n", col ); col++;
-        fprintf( output, "#  %"PRId16".  pos3            (irrelevant for inversions) \n", col ); col++;
-        fprintf( output, "#  %"PRId16".  invert          (irrelevant for inversions) \n", col ); col++;
+        fprintf( output, "#  %" PRId16 ".  pos0            (begin of the inverted segment) \n", col ); col++;
+        fprintf( output, "#  %" PRId16 ".  pos1            (end of the inverted segment) \n", col ); col ++;
+        fprintf( output, "#  %" PRId16 ".  pos2            (irrelevant for inversions) \n", col ); col++;
+        fprintf( output, "#  %" PRId16 ".  pos3            (irrelevant for inversions) \n", col ); col++;
+        fprintf( output, "#  %" PRId16 ".  invert          (irrelevant for inversions) \n", col ); col++;
         break;
       }
     default:
@@ -434,41 +434,41 @@ int main( int argc, char* argv[] )
 
   if ( initial_indiv->get_with_alignments() )
     {
-      fprintf( output, "#  %"PRId16".  align_score1    (score that was needed for the rearrangement to occur)\n", col ); col++;
-      fprintf( output, "#  %"PRId16".  align_score2    (score for the reinsertion for translocations)\n", col ); col++;
+      fprintf( output, "#  %" PRId16 ".  align_score1    (score that was needed for the rearrangement to occur)\n", col ); col++;
+      fprintf( output, "#  %" PRId16 ".  align_score2    (score for the reinsertion for translocations)\n", col ); col++;
     }
 
 
-  fprintf( output, "#  %"PRId16".  Length of the {inserted, deleted, duplicated, translocated, inverted} segment \n", col ); col++;
-  fprintf( output, "#  %"PRId16".  Number of coding RNAs possibly disrupted by the breakpoint(s) \n", col ); col++;
-  fprintf( output, "#  %"PRId16".  Number of coding RNAs completely included in the segment \n", col ); col++;
-  fprintf( output, "#  %"PRId16".  Metabolic error after the mutation \n", col ); col++;
+  fprintf( output, "#  %" PRId16 ".  Length of the {inserted, deleted, duplicated, translocated, inverted} segment \n", col ); col++;
+  fprintf( output, "#  %" PRId16 ".  Number of coding RNAs possibly disrupted by the breakpoint(s) \n", col ); col++;
+  fprintf( output, "#  %" PRId16 ".  Number of coding RNAs completely included in the segment \n", col ); col++;
+  fprintf( output, "#  %" PRId16 ".  Metabolic error after the mutation \n", col ); col++;
 
   if (exp_manager->get_with_secretion())
     {
-      fprintf( output, "#  %"PRId16".  Secretion error after the mutation \n", col ); col++;
+      fprintf( output, "#  %" PRId16 ".  Secretion error after the mutation \n", col ); col++;
     }
 
   if ( (exp_manager->get_with_plasmids()) && (exp_manager->get_tune_donor_ability() != 0.0) )
     {
-      fprintf( output, "#  %"PRId16".  Error on the donor ability after the mutation \n", col ); col++;
+      fprintf( output, "#  %" PRId16 ".  Error on the donor ability after the mutation \n", col ); col++;
     }
 
   if ( (exp_manager->get_with_plasmids()) && (exp_manager->get_tune_recipient_ability() != 0.0) )
     {
-      fprintf( output, "#  %"PRId16".  Error on the recipient ability after the mutation \n", col ); col++;
+      fprintf( output, "#  %" PRId16 ".  Error on the recipient ability after the mutation \n", col ); col++;
     }
 
-  fprintf( output, "#  %"PRId16".  Total genome size after the mutation \n", col); col++;
-  fprintf( output, "#  %"PRId16".  Number of coding RNAs after the mutation \n", col); col++;
-  fprintf( output, "#  %"PRId16".  Number of non coding RNAs after the mutation \n", col); col++;
-  fprintf( output, "#  %"PRId16".  Number of functional coding sequences after the mutation \n", col); col++;
-  fprintf( output, "#  %"PRId16".  Number of non functional coding sequences after the mutation \n", col); col++;
-  fprintf( output, "#  %"PRId16".  Number of coding bases after the mutation \n", col); col++;
-  fprintf( output, "#  %"PRId16".  Number of transcribed but not translated bases after the mutation\n", col); col++;
-  fprintf( output, "#  %"PRId16".  Number of non transcribed bases after the mutation \n", col); col++;
-  fprintf( output, "#  %"PRId16".  Number of bases belonging to at least one coding RNA, after the mutation \n", col); col++;
-  fprintf( output, "#  %"PRId16".  Number of bases not belonging to any coding RNA, after the mutation \n", col); col++;
+  fprintf( output, "#  %" PRId16 ".  Total genome size after the mutation \n", col); col++;
+  fprintf( output, "#  %" PRId16 ".  Number of coding RNAs after the mutation \n", col); col++;
+  fprintf( output, "#  %" PRId16 ".  Number of non coding RNAs after the mutation \n", col); col++;
+  fprintf( output, "#  %" PRId16 ".  Number of functional coding sequences after the mutation \n", col); col++;
+  fprintf( output, "#  %" PRId16 ".  Number of non functional coding sequences after the mutation \n", col); col++;
+  fprintf( output, "#  %" PRId16 ".  Number of coding bases after the mutation \n", col); col++;
+  fprintf( output, "#  %" PRId16 ".  Number of transcribed but not translated bases after the mutation\n", col); col++;
+  fprintf( output, "#  %" PRId16 ".  Number of non transcribed bases after the mutation \n", col); col++;
+  fprintf( output, "#  %" PRId16 ".  Number of bases belonging to at least one coding RNA, after the mutation \n", col); col++;
+  fprintf( output, "#  %" PRId16 ".  Number of bases not belonging to any coding RNA, after the mutation \n", col); col++;
   fprintf( output, "####################################################################################################################\n" );
   fprintf( output, "#  Values for the initial individual [irr = irrelevant]: \n" );
   fprintf( output, "####################################################################################################################\n" );
@@ -502,16 +502,16 @@ int main( int argc, char* argv[] )
     {
       fprintf( output, "%e ", initial_indiv->get_dist_to_target_by_feature( RECIPIENT ));
     }
-  fprintf( output, "%"PRId32" ", initial_indiv->get_total_genome_size());
-  fprintf( output, "%"PRId32" ", initial_indiv->get_nb_coding_RNAs());
-  fprintf( output, "%"PRId32" ", initial_indiv->get_nb_non_coding_RNAs());
-  fprintf( output, "%"PRId32" ", initial_indiv->get_nb_functional_genes());
-  fprintf( output, "%"PRId32" ", initial_indiv->get_nb_non_functional_genes());
-  fprintf( output, "%"PRId32" ", initial_indiv->get_total_genome_size() - initial_indiv->get_nb_bases_in_0_CDS()); // coding bp
-  fprintf( output, "%"PRId32" ", initial_indiv->get_total_genome_size() - initial_indiv->get_nb_bases_in_0_RNA() - (initial_indiv->get_total_genome_size() - initial_indiv->get_nb_bases_in_0_CDS())); // transcribed but not translated bp
-  fprintf( output, "%"PRId32" ", initial_indiv->get_nb_bases_in_0_RNA()); // not transcribed bp
-  fprintf( output, "%"PRId32" ", initial_indiv->get_total_genome_size() - initial_indiv->get_nb_bases_in_0_coding_RNA());
-  fprintf( output, "%"PRId32" ", initial_indiv->get_nb_bases_in_0_coding_RNA());
+  fprintf( output, "%" PRId32 " ", initial_indiv->get_total_genome_size());
+  fprintf( output, "%" PRId32 " ", initial_indiv->get_nb_coding_RNAs());
+  fprintf( output, "%" PRId32 " ", initial_indiv->get_nb_non_coding_RNAs());
+  fprintf( output, "%" PRId32 " ", initial_indiv->get_nb_functional_genes());
+  fprintf( output, "%" PRId32 " ", initial_indiv->get_nb_non_functional_genes());
+  fprintf( output, "%" PRId32 " ", initial_indiv->get_total_genome_size() - initial_indiv->get_nb_bases_in_0_CDS()); // coding bp
+  fprintf( output, "%" PRId32 " ", initial_indiv->get_total_genome_size() - initial_indiv->get_nb_bases_in_0_RNA() - (initial_indiv->get_total_genome_size() - initial_indiv->get_nb_bases_in_0_CDS())); // transcribed but not translated bp
+  fprintf( output, "%" PRId32 " ", initial_indiv->get_nb_bases_in_0_RNA()); // not transcribed bp
+  fprintf( output, "%" PRId32 " ", initial_indiv->get_total_genome_size() - initial_indiv->get_nb_bases_in_0_coding_RNA());
+  fprintf( output, "%" PRId32 " ", initial_indiv->get_nb_bases_in_0_coding_RNA());
   fprintf( output, "\n");
   fprintf( output, "####################################################################################################################\n" );
 
@@ -577,22 +577,22 @@ int main( int argc, char* argv[] )
               if( exp_manager->get_with_secretion()) { secretion_error_after = mutant->get_dist_to_target_by_feature( SECRETION ); }
 
               // Write the description of the mutant in the output file
-              fprintf( output, "%"PRId32" ", mutation_type);
-              fprintf( output, "%"PRId32" ", u); // genetic unit number (0 for the chromosome)
-              fprintf( output, "%"PRId32" ", initial_indiv->get_genetic_unit(u)->get_dna()->get_length()); // Length of GU before the event
-              fprintf( output, "%"PRId32" ", pos0);
-              fprintf( output, "%"PRId32" ", pos1);
-              fprintf( output, "%"PRId32" ", pos2);
-              fprintf( output, "%"PRId32" ", pos3);
+              fprintf( output, "%" PRId32 " ", mutation_type);
+              fprintf( output, "%" PRId32 " ", u); // genetic unit number (0 for the chromosome)
+              fprintf( output, "%" PRId32 " ", initial_indiv->get_genetic_unit(u)->get_dna()->get_length()); // Length of GU before the event
+              fprintf( output, "%" PRId32 " ", pos0);
+              fprintf( output, "%" PRId32 " ", pos1);
+              fprintf( output, "%" PRId32 " ", pos2);
+              fprintf( output, "%" PRId32 " ", pos3);
               if (invert) fprintf( output, "1 "); else fprintf( output, "0 ");
               if (mutant->get_with_alignments() )
                 {
-                  fprintf( output, "%"PRId16" ", align_score1);
-                  fprintf( output, "%"PRId16" ", align_score2);
+                  fprintf( output, "%" PRId16 " ", align_score1);
+                  fprintf( output, "%" PRId16 " ", align_score2);
                 }
-              fprintf( output, "%"PRId32" ", mut_length);
-              fprintf( output, "%"PRId32" ", nb_genes_at_breakpoints);
-              fprintf( output, "%"PRId32" ", nb_genes_in_segment);
+              fprintf( output, "%" PRId32 " ", mut_length);
+              fprintf( output, "%" PRId32 " ", nb_genes_at_breakpoints);
+              fprintf( output, "%" PRId32 " ", nb_genes_in_segment);
               fprintf( output, "%e ",        metabolic_error_after);
               if (exp_manager->get_with_secretion())
                 {
@@ -606,16 +606,16 @@ int main( int argc, char* argv[] )
                 {
                   fprintf( output, "%e ", mutant->get_dist_to_target_by_feature( RECIPIENT ));
                 }
-              fprintf( output, "%"PRId32" ", mutant->get_total_genome_size());
-              fprintf( output, "%"PRId32" ", mutant->get_nb_coding_RNAs());
-              fprintf( output, "%"PRId32" ", mutant->get_nb_non_coding_RNAs());
-              fprintf( output, "%"PRId32" ", mutant->get_nb_functional_genes());
-              fprintf( output, "%"PRId32" ", mutant->get_nb_non_functional_genes());
-              fprintf( output, "%"PRId32" ", mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_CDS()); // coding bp
-              fprintf( output, "%"PRId32" ", mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_RNA() - (mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_CDS())); // transcribed but not translated bp
-              fprintf( output, "%"PRId32" ", mutant->get_nb_bases_in_0_RNA()); // not transcribed bp
-              fprintf( output, "%"PRId32" ", mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_coding_RNA());
-              fprintf( output, "%"PRId32" ", mutant->get_nb_bases_in_0_coding_RNA());
+              fprintf( output, "%" PRId32 " ", mutant->get_total_genome_size());
+              fprintf( output, "%" PRId32 " ", mutant->get_nb_coding_RNAs());
+              fprintf( output, "%" PRId32 " ", mutant->get_nb_non_coding_RNAs());
+              fprintf( output, "%" PRId32 " ", mutant->get_nb_functional_genes());
+              fprintf( output, "%" PRId32 " ", mutant->get_nb_non_functional_genes());
+              fprintf( output, "%" PRId32 " ", mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_CDS()); // coding bp
+              fprintf( output, "%" PRId32 " ", mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_RNA() - (mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_CDS())); // transcribed but not translated bp
+              fprintf( output, "%" PRId32 " ", mutant->get_nb_bases_in_0_RNA()); // not transcribed bp
+              fprintf( output, "%" PRId32 " ", mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_coding_RNA());
+              fprintf( output, "%" PRId32 " ", mutant->get_nb_bases_in_0_coding_RNA());
               fprintf( output, "\n");
 
               delete mutant;
@@ -865,22 +865,22 @@ int main( int argc, char* argv[] )
           if( exp_manager->get_with_secretion()) { secretion_error_after = mutant->get_dist_to_target_by_feature( SECRETION ); }
 
           // Write the description of the mutant in the output file
-          fprintf( output, "%"PRId32" ", mutation_type);
-          fprintf( output, "%"PRId32" ", u); // genetic unit number (0 for the chromosome)
-          fprintf( output, "%"PRId32" ", initial_indiv->get_genetic_unit(u)->get_dna()->get_length()); // Length of GU before the event
-          fprintf( output, "%"PRId32" ", pos0);
-          fprintf( output, "%"PRId32" ", pos1);
-          fprintf( output, "%"PRId32" ", pos2);
-          fprintf( output, "%"PRId32" ", pos3);
+          fprintf( output, "%" PRId32 " ", mutation_type);
+          fprintf( output, "%" PRId32 " ", u); // genetic unit number (0 for the chromosome)
+          fprintf( output, "%" PRId32 " ", initial_indiv->get_genetic_unit(u)->get_dna()->get_length()); // Length of GU before the event
+          fprintf( output, "%" PRId32 " ", pos0);
+          fprintf( output, "%" PRId32 " ", pos1);
+          fprintf( output, "%" PRId32 " ", pos2);
+          fprintf( output, "%" PRId32 " ", pos3);
           if ( invert ) fprintf( output, "1 "); else fprintf( output, "0 ");
           if ( mutant->get_with_alignments() )
             {
-              fprintf( output, "%"PRId16" ", align_score1);
-              fprintf( output, "%"PRId16" ", align_score2);
+              fprintf( output, "%" PRId16 " ", align_score1);
+              fprintf( output, "%" PRId16 " ", align_score2);
             }
-          fprintf( output, "%"PRId32" ", mut_length);
-          fprintf( output, "%"PRId32" ", nb_genes_at_breakpoints);
-          fprintf( output, "%"PRId32" ", nb_genes_in_segment);
+          fprintf( output, "%" PRId32 " ", mut_length);
+          fprintf( output, "%" PRId32 " ", nb_genes_at_breakpoints);
+          fprintf( output, "%" PRId32 " ", nb_genes_in_segment);
           fprintf( output, "%e ",        metabolic_error_after);
           if ( exp_manager->get_with_secretion() )
             {
@@ -894,16 +894,16 @@ int main( int argc, char* argv[] )
             {
               fprintf( output, "%e ", mutant->get_dist_to_target_by_feature( RECIPIENT ));
             }
-          fprintf( output, "%"PRId32" ", mutant->get_total_genome_size());
-          fprintf( output, "%"PRId32" ", mutant->get_nb_coding_RNAs());
-          fprintf( output, "%"PRId32" ", mutant->get_nb_non_coding_RNAs());
-          fprintf( output, "%"PRId32" ", mutant->get_nb_functional_genes());
-          fprintf( output, "%"PRId32" ", mutant->get_nb_non_functional_genes());
-          fprintf( output, "%"PRId32" ", mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_CDS()); // coding bp
-          fprintf( output, "%"PRId32" ", mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_RNA() - (mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_CDS())); // transcribed but not translated bp
-          fprintf( output, "%"PRId32" ", mutant->get_nb_bases_in_0_RNA()); // not transcribed bp
-          fprintf( output, "%"PRId32" ", mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_coding_RNA());
-          fprintf( output, "%"PRId32" ", mutant->get_nb_bases_in_0_coding_RNA());
+          fprintf( output, "%" PRId32 " ", mutant->get_total_genome_size());
+          fprintf( output, "%" PRId32 " ", mutant->get_nb_coding_RNAs());
+          fprintf( output, "%" PRId32 " ", mutant->get_nb_non_coding_RNAs());
+          fprintf( output, "%" PRId32 " ", mutant->get_nb_functional_genes());
+          fprintf( output, "%" PRId32 " ", mutant->get_nb_non_functional_genes());
+          fprintf( output, "%" PRId32 " ", mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_CDS()); // coding bp
+          fprintf( output, "%" PRId32 " ", mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_RNA() - (mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_CDS())); // transcribed but not translated bp
+          fprintf( output, "%" PRId32 " ", mutant->get_nb_bases_in_0_RNA()); // not transcribed bp
+          fprintf( output, "%" PRId32 " ", mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_coding_RNA());
+          fprintf( output, "%" PRId32 " ", mutant->get_nb_bases_in_0_coding_RNA());
           fprintf( output, "\n");
 
 
