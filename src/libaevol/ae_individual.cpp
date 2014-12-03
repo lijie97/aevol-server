@@ -877,12 +877,10 @@ void ae_individual::compute_fitness( ae_environment* envir )
   #endif
 }
 
-void ae_individual::reevaluate( ae_environment* envir /*= NULL*/ )
-{
-  // useful for post-treatment programs that replay mutations
-  // on a single individual playing the role of the successive
-  // ancestors
 
+
+void ae_individual::clear_everything_except_dna_and_promoters()
+{
   _evaluated                    = false;
   _transcribed                  = false;
   _translated                   = false;
@@ -893,9 +891,6 @@ void ae_individual::reevaluate( ae_environment* envir /*= NULL*/ )
   _statistical_data_computed    = false;
   _non_coding_computed          = false;
   _modularity_computed          = false;
-
-  if ( envir == NULL ) envir = _exp_m->get_env();
-
 
   ae_list_node<ae_genetic_unit*>* unit_node = _genetic_unit_list->get_first();
   ae_genetic_unit * unit = NULL;
@@ -925,7 +920,11 @@ void ae_individual::reevaluate( ae_environment* envir /*= NULL*/ )
   }
 
   // Initialize all the fitness-related stuff
-  delete [] _dist_to_target_by_segment;
+  if ( _dist_to_target_by_segment != NULL)
+    {
+      delete [] _dist_to_target_by_segment;
+      _dist_to_target_by_segment  = NULL;
+    }
 
   for ( int8_t i = 0 ; i < NB_FEATURES ; i++ )
   {
@@ -933,8 +932,8 @@ void ae_individual::reevaluate( ae_environment* envir /*= NULL*/ )
     _fitness_by_feature[i]        = 0.0;
   }
 
-  //For each RNA / individual / genetic_unit delete proteins it knows
-  //Deleting the protein it self is made only once
+  // For each RNA / individual / genetic_unit delete proteins it knows
+  // Deleting the protein itself is made only once
 
   _rna_list->erase( false );
   _protein_list->erase( false );
@@ -992,9 +991,44 @@ void ae_individual::reevaluate( ae_environment* envir /*= NULL*/ )
   _nb_neutral_regions                 = -1;
 
   _modularity = -1;
+}
 
+
+void ae_individual::reevaluate( ae_environment* envir /*= NULL*/ )
+{
+  // useful for post-treatment programs that replay mutations
+  // on a single individual playing the role of the successive
+  // ancestors
+
+  clear_everything_except_dna_and_promoters();
+
+  if ( envir == NULL ) envir = _exp_m->get_env();
   evaluate( envir );
 }
+
+
+void ae_individual::add_GU( char * &sequence, int32_t length )
+{
+  clear_everything_except_dna_and_promoters();
+  _genetic_unit_list->add( new ae_genetic_unit( this, sequence, length ) );
+}
+
+
+void ae_individual::add_GU( ae_genetic_unit * unit)
+{
+  clear_everything_except_dna_and_promoters();
+  _genetic_unit_list->add( unit );
+}
+
+
+void ae_individual::remove_GU( int16_t num_unit )
+{
+  clear_everything_except_dna_and_promoters();
+  ae_list_node<ae_genetic_unit*>* node = _genetic_unit_list->get_node( num_unit );
+  _genetic_unit_list->remove( node, true, true );
+}
+
+
 
 void ae_individual::do_transcription( void )
 {
@@ -1091,6 +1125,7 @@ void ae_individual::evaluate( ae_environment* envir /*= NULL*/ )
     }
   }
 }
+
 
 
 void ae_individual::inject_GU( ae_individual* donor )

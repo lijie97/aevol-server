@@ -47,7 +47,7 @@
 #include <assert.h>
 #include <ae_utils.h>
 
-
+#include <ae_jumping_mt.h>
 
 
 // =================================================================
@@ -71,7 +71,7 @@ class ae_string
     // =================================================================
     ae_string( void );
     ae_string( const ae_string &model );
-    ae_string( int32_t length );
+    ae_string( int32_t length, ae_jumping_mt * prng );
     ae_string( const char* seq, int32_t length );
     ae_string( char* seq, int32_t length, bool use_seq );
     ae_string( gzFile backup_file );

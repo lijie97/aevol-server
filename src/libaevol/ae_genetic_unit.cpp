@@ -467,7 +467,7 @@ ae_genetic_unit::~ae_genetic_unit( void )
   delete _inhib_contribution;
   if ( _phenotypic_contribution != NULL ) delete _phenotypic_contribution;
 
-  delete [] _dist_to_target_per_segment;
+  if ( _dist_to_target_per_segment != NULL ) delete [] _dist_to_target_per_segment;
 
   assert( _dist_to_target_by_feature != NULL );
   delete [] _dist_to_target_by_feature;
@@ -1194,6 +1194,7 @@ void ae_genetic_unit::reset_expression( void )
   if ( _phenotypic_contribution != NULL )
   {
     delete _phenotypic_contribution; // Not re-created now, will be conditionally allocated in compute_phenotypic_contribution
+    _phenotypic_contribution = NULL;
   }
 
   init_statistical_data();
