@@ -35,9 +35,8 @@
 #include <string>
 #include <X11/Xutil.h>
 #include <X11/cursorfont.h>
-
-
-
+#include <unordered_map>
+#include <string>
 
 // =================================================================
 //                            Project Files
@@ -45,9 +44,6 @@
 #include <ae_X11_window.h>
 
 #include <ae_exp_setup.h>
-
-
-
 
 // =================================================================
 //                       Basic X11/Xlib notions
@@ -533,26 +529,26 @@ char* ae_X11_window::get_color( double mean )
 //                           Protected Methods
 // =================================================================
 
-uint32_t ae_X11_window::get_pixel( Display *display, int8_t screen, char *color_name, uint32_t default_color )
+uint32_t ae_X11_window::get_pixel(Display *display, int8_t screen, char *color_name, uint32_t default_color)
 {
-  XColor color;
+  // hacked on 2014-12-05 because XQuarz and Yosemite make XAllocColor veeery slow
+  // dirty memoization workaround: display and screen are assumed to be constant
+  // costs 21Kb of RAM on basic example (according to the measure given before the return)
+  static std::unordered_map <std::string, unsigned long> color_memo;
 
-  if ( XParseColor( display, DefaultColormap(display,screen), color_name, &color ) == 0 )
-  {
-    fprintf( stderr, "Invalid colour : %s\n", color_name );
-    return default_color;
+  // if color_name is already recorded, compute and record it
+  if (color_memo.find(color_name) == color_memo.end()) { 
+    XColor color;
+    if (XParseColor(display, DefaultColormap(display,screen), color_name, &color) == 0) {
+      fprintf(stderr, "Invalid color: %s\n", color_name);
+      return default_color;
+    }
+    if (XAllocColor(display, DefaultColormap(display,screen), &color) == 0) {
+      fprintf(stderr, "Could not allocate color %s\n", color_name);
+      return default_color;
+    }
+    color_memo[color_name] = color.pixel;
   }
-
-  if ( XAllocColor( display, DefaultColormap(display,screen), &color ) == 0 )
-  {
-    fprintf( stderr, "Could not allocate colour %s\n", color_name );
-    return default_color;
-  }
-
-
-  return color.pixel;
+  // printf("ram used: %lu bytes\n", sizeof(color_memo) + color_memo.size() * (sizeof(std::string) + sizeof(unsigned long)));
+  return color_memo[color_name];
 }
-
-
-
-
