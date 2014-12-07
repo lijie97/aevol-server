@@ -27,9 +27,9 @@
 #ifndef FUZZY_H
 #define FUZZY_H
 
-#include <ae_list.h>
-#include <ae_point_2d.h>
-#include <ae_macros.h>
+#include "ae_list.h"
+#include "point.h"
+#include "ae_macros.h"
 
 namespace aevol {
 
@@ -45,7 +45,7 @@ class fuzzy
     fuzzy(const fuzzy& f);
     fuzzy(const gzFile backup);
     virtual ~fuzzy();
-    ae_list<ae_point_2d*>* get_points();
+    ae_list<point*>* get_points();
     void initialize();
     void simplify();
     void print_points() const;
@@ -55,8 +55,8 @@ class fuzzy
     double get_geometric_area() const;
     double get_geometric_area(double begin, double end) const;
     double get_y(double x) const;
-    double get_x(double y, ae_point_2d* left, ae_point_2d* right) const;
-    ae_list_node<ae_point_2d*>* create_interpolated_point(double x);
+    double get_x(double y, point* left, point* right) const;
+    ae_list_node<point*>* create_interpolated_point(double x);
 
     void add_upper_bound(double up);
     void add_lower_bound(double low);
@@ -68,7 +68,7 @@ class fuzzy
 
   protected:
     bool is_increasing() const;
-    ae_list<ae_point_2d*>* _points;
+    ae_list<point*>* _points;
 
   private:
     // WARNING: The 2 following functions are private because they are
@@ -78,8 +78,8 @@ class fuzzy
     // The following conditions are MANDATORY : 
     //  - list_entry must be a node of the point list (_points) 
     //  - the corresponding point's abscissa must be ≤ x
-    double get_y(double x, ae_list_node<ae_point_2d*>* start) const;
-    ae_list_node<ae_point_2d*>* create_interpolated_point(double x, ae_list_node<ae_point_2d*>* start);
+    double get_y(double x, ae_list_node<point*>* start) const;
+    ae_list_node<point*>* create_interpolated_point(double x, ae_list_node<point*>* start);
 };
 } // namespace
 #endif // FUZZY_H
