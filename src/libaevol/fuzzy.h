@@ -33,8 +33,6 @@
 
 namespace aevol {
 
-class exp_manager;
-
 /// Triangle type-2 fuzzy sets.
 ///
 /// This class provides management tools for "fuzzy sets" abscissa are
@@ -70,7 +68,6 @@ class fuzzy
 
   protected:
     bool is_increasing() const;
-    exp_manager* _exp_m;
     ae_list<ae_point_2d*>* _points;
 
   private:
