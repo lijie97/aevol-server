@@ -69,7 +69,7 @@ class fuzzy
     void load(gzFile backup);
 
   protected:
-    void _assert_order();
+    bool is_increasing() const;
     exp_manager* _exp_m;
     ae_list<ae_point_2d*>* _points;
 

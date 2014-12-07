@@ -182,9 +182,7 @@ void fuzzy::simplify() {
     node = next_node;
   }
 
-  #ifdef DEBUG
-    _assert_order();
-  #endif
+  assert(is_increasing());
 }
 
 void fuzzy::print_points() const {
@@ -250,9 +248,7 @@ void fuzzy::add_triangle(double mean, double width, double height) {
     point_node = point_node->get_next();
   }
 
-  #ifdef DEBUG
-    _assert_order();
-  #endif
+  assert(is_increasing());
 }
 
 void fuzzy::add(fuzzy* to_add) {
@@ -285,9 +281,7 @@ void fuzzy::add(fuzzy* to_add) {
     point_node = point_node->get_next();
   }
 
-  #ifdef DEBUG
-    _assert_order();
-  #endif
+  assert(is_increasing());
 }
 
 void fuzzy::sub(fuzzy* to_sub) {
@@ -569,9 +563,7 @@ void fuzzy::sub(fuzzy* to_sub) {
   delete _points;
   _points = result;
 
-  #ifdef DEBUG
-    _assert_order();
-  #endif
+  assert(is_increasing());
 }
 
 double fuzzy::get_geometric_area() const {
@@ -722,9 +714,7 @@ void fuzzy::add_upper_bound(double upper_bound) {
     point_node = point_node->get_next();
   }
 
-  #ifdef DEBUG
-    _assert_order();
-  #endif
+  assert(is_increasing());
 }
 
 void fuzzy::add_lower_bound(double lower_bound) {
@@ -750,9 +740,7 @@ void fuzzy::add_lower_bound(double lower_bound) {
           // Create a point at the intersection of the segment and the floor defined by the lower bound
           _points->add_after(new ae_point_2d(get_x(lower_bound, prev_point, point), lower_bound), prev_node);
 
-          #ifdef DEBUG
-            _assert_order();
-          #endif
+	  assert(is_increasing());
         }
         // else nothing to do
       }
@@ -764,9 +752,7 @@ void fuzzy::add_lower_bound(double lower_bound) {
           // Create a point at the intersection of the segment and the floor defined by the lower bound
           _points->add_after(new ae_point_2d(get_x(lower_bound, point, next_point), lower_bound), point_node);
 
-          #ifdef DEBUG
-            _assert_order();
-          #endif
+	  assert(is_increasing());
         }
         // else nothing to do
       }
@@ -778,9 +764,7 @@ void fuzzy::add_lower_bound(double lower_bound) {
     point_node = point_node->get_next();
   }
 
-  #ifdef DEBUG
-    _assert_order();
-  #endif
+  assert(is_increasing());
 }
 
 
@@ -895,12 +879,10 @@ ae_list_node<ae_point_2d*>* fuzzy::create_interpolated_point(double x, ae_list_n
     return point_node;
   }
 
-  #ifdef DEBUG
-    _assert_order();
-  #endif
+  assert(is_increasing());
 }
 
-void fuzzy::_assert_order() {
+bool fuzzy::is_increasing() const {
   assert((_points->get_first()->get_obj())->x == X_MIN);
   assert((_points->get_last()->get_obj())->x == X_MAX);
 
@@ -913,11 +895,13 @@ void fuzzy::_assert_order() {
     point = point_node->get_obj();
     next_point = next_point_node->get_obj();
 
-    assert(point->x <= next_point->x);
+    if (point->x > next_point->x)
+      return false;
 
     point_node = point_node->get_next();
     next_point_node = next_point_node->get_next();
   }
-}
+  return true;
+}  
 
 } // namespace aevol
