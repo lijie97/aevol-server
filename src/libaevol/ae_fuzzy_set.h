@@ -37,6 +37,9 @@
 #define __AE_FUZZY_SET_H__
 
 
+#include <fuzzy.h>
+typedef aevol::fuzzy ae_fuzzy_set;
+#if 0
 // =================================================================
 //                              Libraries
 // =================================================================
@@ -210,4 +213,5 @@ ae_list_node<ae_point_2d*>* ae_fuzzy_set::create_interpolated_point( double x )
 }
 
 
+#endif // 0
 #endif // __AE_FUZZY_SET_H__
