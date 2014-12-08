@@ -1,8 +1,4 @@
-// ****************************************************************************
-//
-//          Aevol - An in silico experimental evolution platform
-//
-// ****************************************************************************
+// Aevol - An in silico experimental evolution platform
 // 
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
@@ -21,60 +17,18 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
-//*****************************************************************************
 
-
-
-
-// =================================================================
-//                              Libraries
-// =================================================================
 #include <stdio.h>
-
-
-
-// =================================================================
-//                            Project Files
-// =================================================================
 #include <ae_fuzzy_set_X11.h>
 
 namespace aevol {
 
+ae_fuzzy_set_X11::ae_fuzzy_set_X11( void ) : ae_fuzzy_set() {}
 
+ae_fuzzy_set_X11::ae_fuzzy_set_X11( const ae_fuzzy_set &model ) : ae_fuzzy_set(model) {}
 
-//##############################################################################
-//                                                                             #
-//                           Class ae_fuzzy_set_X11                            #
-//                                                                             #
-//##############################################################################
+ae_fuzzy_set_X11::~ae_fuzzy_set_X11( void ) {}
 
-// =================================================================
-//                    Definition of static attributes
-// =================================================================
-
-// =================================================================
-//                             Constructors
-// =================================================================
-ae_fuzzy_set_X11::ae_fuzzy_set_X11( void ) : ae_fuzzy_set()
-{
-}
-
-ae_fuzzy_set_X11::ae_fuzzy_set_X11( const ae_fuzzy_set &model ) : ae_fuzzy_set(model)
-{
-};
-
-
-// =================================================================
-//                             Destructors
-// =================================================================
-ae_fuzzy_set_X11::~ae_fuzzy_set_X11( void )
-{
-}
-
-// =================================================================
-//                            Public Methods
-// =================================================================
 void ae_fuzzy_set_X11::display( ae_X11_window* win, color_map color, bool fill /*= false*/, bool bold /*= false*/ )
 {
   double y_min = Y_MIN - 0.1 * Y_MAX; // Yields a bottom margin
@@ -119,7 +73,4 @@ void ae_fuzzy_set_X11::display( ae_X11_window* win, color_map color, bool fill /
     node = node->get_next();
   }
 }
-// =================================================================
-//                           Protected Methods
-// =================================================================
 } // namespace aevol
