@@ -347,7 +347,7 @@ int main( int argc, char* argv[] )
               env->clear_custom_points();
               env->clear_gaussians();
               env->clear_initial_gaussians();
-              env->set_custom_points(new ae_list<ae_point_2d*>());
+              env->set_custom_points(new ae_list<point*>());
               env->add_custom_point( atof(line->words[1]), atof(line->words[2]));
               printf("\tChange of the environment: first custom point with x=%f, y=%f \n",atof(line->words[1]), atof(line->words[2]));
               env_change = true;

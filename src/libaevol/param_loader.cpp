@@ -51,7 +51,7 @@
 #include <ae_jumping_mt.h>
 #include <ae_gaussian.h>
 #include <ae_env_segment.h>
-#include <ae_point_2d.h>
+#include <point.h>
 #include <ae_align.h>
 
 //~ #ifdef __X11
@@ -810,8 +810,8 @@ void param_loader::interpret_line( f_line* line, int32_t cur_line )
   }
   else if ( strcmp( line->words[0], "ENV_ADD_POINT" ) == 0 )
   {
-    if ( _env_custom_points == NULL ) _env_custom_points = new ae_list<ae_point_2d*>();
-    _env_custom_points->add( new ae_point_2d(  atof( line->words[1] ), atof( line->words[2] ) ) );
+    if ( _env_custom_points == NULL ) _env_custom_points = new ae_list<point*>();
+    _env_custom_points->add( new point(  atof( line->words[1] ), atof( line->words[2] ) ) );
   }
   else if ( (strcmp( line->words[0], "ENV_ADD_GAUSSIAN" ) == 0 ) || ( strcmp( line->words[0], "ENV_GAUSSIAN" ) == 0 ))
   {

@@ -53,7 +53,7 @@
 #include <ae_enums.h>
 #include <ae_list.h>
 #include <ae_gaussian.h>
-#include <ae_point_2d.h>
+#include <point.h>
 
 // =================================================================
 //                          Class declarations
@@ -161,7 +161,7 @@ class param_loader
 
     // ------------------------------------------------------------ Environment
     ae_list<ae_gaussian*>* _env_gaussians;
-    ae_list<ae_point_2d*>* _env_custom_points;
+    ae_list<point*>* _env_custom_points;
     int16_t  _env_sampling;
 
     // ---------------------------------------- Environment x-axis segmentation

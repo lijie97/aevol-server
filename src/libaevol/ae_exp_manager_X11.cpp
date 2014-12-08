@@ -42,7 +42,7 @@
 // =================================================================
 #include <ae_exp_manager_X11.h>
 #include <ae_spatial_structure.h>
-#include <ae_point_2d.h>
+#include <point.h>
 #include <ae_population_X11.h>
 #include <ae_individual_X11.h>
 #include <ae_X11_window.h>

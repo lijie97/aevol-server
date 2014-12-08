@@ -37,6 +37,9 @@
 #define __AE_FUZZY_SET_H__
 
 
+#include <fuzzy.h>
+typedef aevol::fuzzy ae_fuzzy_set;
+#if 0
 // =================================================================
 //                              Libraries
 // =================================================================
@@ -52,7 +55,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <ae_list.h>
-#include <ae_point_2d.h>
+#include <point.h>
 #include <ae_macros.h>
 
 
@@ -87,7 +90,7 @@ class ae_fuzzy_set
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline ae_list<ae_point_2d*>* get_points( void );
+    inline ae_list<point*>* get_points( void );
 
     // =================================================================
     //                            Public Methods
@@ -101,8 +104,8 @@ class ae_fuzzy_set
     double get_geometric_area( void ) const;
     double get_geometric_area( double start_segment, double end_segment ) const;
     inline double get_y( double x ) const;
-    inline double get_x( double y, ae_point_2d* left_point, ae_point_2d* right_point ) const;
-    inline ae_list_node<ae_point_2d*>* create_interpolated_point( double x );
+    inline double get_x( double y, point* left_point, point* right_point ) const;
+    inline ae_list_node<point*>* create_interpolated_point( double x );
 
     void add_upper_bound( double upper_bound );
     void add_lower_bound( double lower_bound );
@@ -149,7 +152,7 @@ class ae_fuzzy_set
     //                          Protected Attributes
     // =================================================================
     exp_manager*            _exp_m;
-    ae_list<ae_point_2d*>*  _points;
+    ae_list<point*>*  _points;
 
 
 
@@ -162,15 +165,15 @@ class ae_fuzzy_set
     //            The following conditions are MANDATORY :
     //              list_entry must be a node of the point list (_points)
     //              the corresponding point's abscissa must be <= x
-    double get_y( double x, ae_list_node<ae_point_2d*>* list_entry ) const;
-    ae_list_node<ae_point_2d*>* create_interpolated_point( double x, ae_list_node<ae_point_2d*>* list_entry );
+    double get_y( double x, ae_list_node<point*>* list_entry ) const;
+    ae_list_node<point*>* create_interpolated_point( double x, ae_list_node<point*>* list_entry );
 };
 
 
 // =====================================================================
 //                          Accessors definitions
 // =====================================================================
-ae_list<ae_point_2d*>* ae_fuzzy_set::get_points( void )
+ae_list<point*>* ae_fuzzy_set::get_points( void )
 {
   return _points;
 }
@@ -181,8 +184,8 @@ ae_list<ae_point_2d*>* ae_fuzzy_set::get_points( void )
 void ae_fuzzy_set::initialize( void )
 {
   _points->erase( true );
-  _points->add( new ae_point_2d( X_MIN, 0.0 ) );
-  _points->add( new ae_point_2d( X_MAX, 0.0 ) );
+  _points->add( new point( X_MIN, 0.0 ) );
+  _points->add( new point( X_MAX, 0.0 ) );
 }
 
 double ae_fuzzy_set::get_y( double x ) const
@@ -190,7 +193,7 @@ double ae_fuzzy_set::get_y( double x ) const
   return get_y( x, _points->get_first() );
 }
 
-double ae_fuzzy_set::get_x( double y, ae_point_2d* left_point, ae_point_2d* right_point ) const
+double ae_fuzzy_set::get_x( double y, point* left_point, point* right_point ) const
 {
   assert( left_point != NULL );
   assert( right_point != NULL );
@@ -204,10 +207,11 @@ double ae_fuzzy_set::get_x( double y, ae_point_2d* left_point, ae_point_2d* righ
   else return tmp;
 }
 
-ae_list_node<ae_point_2d*>* ae_fuzzy_set::create_interpolated_point( double x )
+ae_list_node<point*>* ae_fuzzy_set::create_interpolated_point( double x )
 {
   return create_interpolated_point( x, _points->get_first() );
 }
 
 
+#endif // 0
 #endif // __AE_FUZZY_SET_H__

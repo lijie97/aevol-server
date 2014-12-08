@@ -38,7 +38,7 @@
 //                            Project Files
 // =================================================================
 #include <ae_environment.h>
-#include <ae_point_2d.h>
+#include <point.h>
 #include <ae_gaussian.h>
 #include <ae_list.h>
 
@@ -143,13 +143,13 @@ ae_environment::ae_environment( const ae_environment &model ) :
   if (model._custom_points == NULL) { _custom_points  = NULL; }
   else
     {
-      _custom_points = new ae_list<ae_point_2d *>;
-      ae_list_node<ae_point_2d *> * node = model._custom_points->get_first();
-      ae_point_2d * point = NULL;
+      _custom_points = new ae_list<point *>;
+      ae_list_node<point *> * node = model._custom_points->get_first();
+      point * m = NULL;
       while (node != NULL)
         {
-          point = node->get_obj();
-          _custom_points->add( new ae_point_2d(*point));
+          m = node->get_obj();
+          _custom_points->add( new point(*m));
           node = node->get_next();
         }
     }
@@ -278,13 +278,13 @@ void ae_environment::save( gzFile backup_file ) const
   
   if ( _custom_points != NULL )
   {
-    ae_list_node<ae_point_2d*>* custom_point_node = _custom_points->get_first();
-    ae_point_2d*  custom_point;
+    ae_list_node<point*>* custom_point_node = _custom_points->get_first();
+    point*  custom_point;
     for ( int16_t i = 0 ; i < nb_custom_points ; i++ )
     {
       custom_point = custom_point_node->get_obj();
       
-      custom_point->save( backup_file );
+      writepoint(*custom_point, backup_file);
       
       custom_point_node = custom_point_node->get_next();
     }
@@ -382,10 +382,10 @@ void ae_environment::load( gzFile backup_file )
   // -------------------------
   int16_t nb_custom_points;
   gzread( backup_file, &nb_custom_points, sizeof(nb_custom_points) );
-  if ( nb_custom_points > 0 ) _custom_points = new ae_list<ae_point_2d*>();
+  if ( nb_custom_points > 0 ) _custom_points = new ae_list<point*>();
   for ( int16_t i = 0 ; i < nb_custom_points ; i++ )
   {
-    _custom_points->add( new ae_point_2d( backup_file ) );
+    _custom_points->add(new point(readpoint(backup_file)));
   }
   
   
@@ -486,7 +486,7 @@ void ae_environment::add_initial_gaussian( double a, double b, double c )
 
 void ae_environment::add_custom_point( double x, double y )
 {
-  _custom_points->add(new ae_point_2d(x, y));
+  _custom_points->add(new point(x, y));
 }
 
 void ae_environment::build( void )
@@ -508,12 +508,12 @@ void ae_environment::build( void )
   
       for ( int16_t i = 0 ; i <= _sampling ; i++ )
         {
-          ae_point_2d* new_point = new ae_point_2d( X_MIN + (double)i * (X_MAX - X_MIN) / (double)_sampling, 0.0 );
+          point* new_point = new point( X_MIN + (double)i * (X_MAX - X_MIN) / (double)_sampling, 0.0 );
           node = _gaussians->get_first();
     
           while ( node )
             {
-              new_point->y += node->get_obj()->compute_y( new_point->x );
+              new_point->second += node->get_obj()->compute_y( new_point->first );
       
               node = node->get_next();
             }
@@ -529,29 +529,29 @@ void ae_environment::build( void )
  
   if ( _custom_points != NULL)
     {
-      ae_list_node<ae_point_2d*>* pt_node = _custom_points->get_first();
-      ae_point_2d *custom_point = pt_node->get_obj();
-      ae_point_2d *new_point;
+      ae_list_node<point*>* pt_node = _custom_points->get_first();
+      point *custom_point = pt_node->get_obj();
+      point *new_point;
       
-      if ( custom_point->x > X_MIN)
+      if ( custom_point->first > X_MIN)
         {
           // Add the point (X_MIN, Y_MIN) in front of the list of points
-          new_point = new ae_point_2d( X_MIN, Y_MIN );
+          new_point = new point( X_MIN, Y_MIN );
           _points->add_front( new_point );
         }
               
       while ( pt_node != NULL )
         {
           custom_point = pt_node->get_obj();
-          new_point = new ae_point_2d( *custom_point );
+          new_point = new point( *custom_point );
           _points->add( new_point );
           pt_node = pt_node->get_next();
         }
       
-      if ( custom_point->x < X_MAX )
+      if ( custom_point->first < X_MAX )
         {
           // Add the point (X_MAX, Y_MIN) at the end of the list of points
-          new_point = new ae_point_2d( X_MAX, Y_MIN );
+          new_point = new point( X_MAX, Y_MIN );
           _points->add( new_point );  
         }
     }
@@ -631,10 +631,10 @@ void ae_environment::apply_noise( void )
     }
     else // _cur_noise has already been created -> reinitialize all its points to 0
     {
-      ae_list_node<ae_point_2d*>* point_node  = _cur_noise->get_points()->get_first();
+      ae_list_node<point*>* point_node  = _cur_noise->get_points()->get_first();
       while ( point_node != NULL )
       {
-        point_node->get_obj()->y = 0;
+        point_node->get_obj()->second = 0;
         
         point_node = point_node->get_next();
       }
@@ -687,15 +687,15 @@ void ae_environment::apply_noise( void )
       }
       
       // For each point in the noise fuzzy set, apply the noise computed for the corresponding zone
-      ae_list_node<ae_point_2d*>* point_node  = _cur_noise->get_points()->get_first();
-      ae_point_2d*  point       = NULL;
+      ae_list_node<point*>* point_node  = _cur_noise->get_points()->get_first();
+      point*  point       = NULL;
       int32_t       point_index = 0;
       while ( point_node != NULL )
       {
         point = point_node->get_obj();
         
         num_zone = floor( point_index++ / nb_points_in_each_zone );
-        point->y += noise_component[num_zone];
+        point->second += noise_component[num_zone];
         
         point_node = point_node->get_next();
       }
@@ -707,12 +707,12 @@ void ae_environment::apply_noise( void )
     
     // <DEBUG>
     //~ ae_list_node* point_node  = _cur_noise->get_points()->get_first();
-    //~ ae_point_2d*  point       = NULL;
+    //~ point*  point       = NULL;
     //~ while ( point_node != NULL )
     //~ {
       //~ point = point_node->get_obj();
       
-      //~ printf( "  x: %f\ty: %e\n", point->x, point->y );
+      //~ printf( "  x: %f\ty: %e\n", point->first, point->second );
       
       //~ point_node = point_node->get_next();
     //~ }

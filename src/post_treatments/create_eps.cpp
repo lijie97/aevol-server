@@ -593,12 +593,12 @@ void draw_pos_neg_profiles( ae_individual * indiv, ae_environment* env, char * d
   fprintf( drawingfile, "0.002 setlinewidth\n" );
   fprintf( drawingfile, "%lf %lf moveto\n", margin, 0.5);
 
-  ae_list_node<ae_point_2d*>* node = indiv->get_phenotype_activ()->get_points()->get_first();
-  ae_point_2d* pt = NULL;
+  ae_list_node<point*>* node = indiv->get_phenotype_activ()->get_points()->get_first();
+  point* pt = NULL;
   while (node != NULL)
   {
     pt = node->get_obj();
-    fprintf( drawingfile, "%lf %lf lineto\n", margin + scale*pt->x, 0.5 + scale*pt->y);
+    fprintf( drawingfile, "%lf %lf lineto\n", margin + scale*pt->first, 0.5 + scale*pt->second);
     node = node->get_next();
   }
   fprintf( drawingfile, "stroke\n" );
@@ -616,8 +616,8 @@ void draw_pos_neg_profiles( ae_individual * indiv, ae_environment* env, char * d
   pt = NULL;
   while (node != NULL)
   {
-    pt = (ae_point_2d *) node->get_obj();
-    fprintf( drawingfile, "%lf %lf lineto\n", margin + scale*pt->x, 0.5 + scale*pt->y);
+    pt = (point *) node->get_obj();
+    fprintf( drawingfile, "%lf %lf lineto\n", margin + scale*pt->first, 0.5 + scale*pt->second);
     node = node->get_next();
   }
   fprintf( drawingfile, "stroke\n" );
@@ -724,12 +724,12 @@ void draw_phenotype( ae_individual* indiv, ae_environment* env, char* directoryN
   fprintf( drawingfile,"[ ] 0 setdash\n" );
   fprintf( drawingfile, "0.002 setlinewidth\n" );
   fprintf( drawingfile, "%lf %lf moveto\n", margin, margin);
-  ae_list_node<ae_point_2d*>* node = indiv->get_phenotype()->get_points()->get_first();
-  ae_point_2d* pt = NULL;
+  ae_list_node<point*>* node = indiv->get_phenotype()->get_points()->get_first();
+  point* pt = NULL;
   while (node != NULL)
     {
-      pt = (ae_point_2d *) node->get_obj();
-      fprintf( drawingfile, "%lf %lf lineto\n", margin + scale*pt->x, margin + scale*pt->y);
+      pt = (point *) node->get_obj();
+      fprintf( drawingfile, "%lf %lf lineto\n", margin + scale*pt->first, margin + scale*pt->second);
       node = node->get_next();
     }
   fprintf( drawingfile, "stroke\n" );
@@ -745,8 +745,8 @@ void draw_phenotype( ae_individual* indiv, ae_environment* env, char* directoryN
   pt = NULL;
   while (node != NULL)
     {
-      pt = (ae_point_2d *) node->get_obj();
-      fprintf( drawingfile, "%lf %lf lineto\n", margin + scale*pt->x, margin + scale*pt->y);
+      pt = (point *) node->get_obj();
+      fprintf( drawingfile, "%lf %lf lineto\n", margin + scale*pt->first, margin + scale*pt->second);
       node = node->get_next();
     }
   fprintf( drawingfile, "stroke\n" );

@@ -25,6 +25,7 @@
 //*****************************************************************************
 
 
+#if 0
 
 
 // =================================================================
@@ -57,23 +58,23 @@
 // =================================================================
 ae_fuzzy_set::ae_fuzzy_set( void )
 {
-  _points = new ae_list<ae_point_2d*>();
+  _points = new ae_list<point*>();
 
   initialize();
 }
 
 ae_fuzzy_set::ae_fuzzy_set( const ae_fuzzy_set &model )
 {
-  _points = new ae_list<ae_point_2d*>();
+  _points = new ae_list<point*>();
 
-  ae_list_node<ae_point_2d*>* model_point_parser = model._points->get_first();
-  ae_point_2d*  model_point;
+  ae_list_node<point*>* model_point_parser = model._points->get_first();
+  point*  model_point;
 
   while ( model_point_parser != NULL )
   {
     model_point = model_point_parser->get_obj();
 
-    _points->add( new ae_point_2d( *model_point ) );
+    _points->add( new point( *model_point ) );
 
     model_point_parser = model_point_parser->get_next();
   }
@@ -81,7 +82,7 @@ ae_fuzzy_set::ae_fuzzy_set( const ae_fuzzy_set &model )
 
 ae_fuzzy_set::ae_fuzzy_set( gzFile backup_file )
 {
-  _points = new ae_list<ae_point_2d*>();
+  _points = new ae_list<point*>();
 
   load( backup_file );
 }
@@ -114,12 +115,12 @@ void ae_fuzzy_set::simplify( void )
 
   //  printf("initial nb of points %d\n",_points.get_count());
 
-  ae_list_node<ae_point_2d*>* node = _points->get_first();
-  ae_list_node<ae_point_2d*>* next_node = NULL;
-  ae_list_node<ae_point_2d*>* other_node = NULL;
-  ae_point_2d* pt = NULL;
-  ae_point_2d* next_pt = NULL;
-  ae_point_2d* other_pt = NULL;
+  ae_list_node<point*>* node = _points->get_first();
+  ae_list_node<point*>* next_node = NULL;
+  ae_list_node<point*>* other_node = NULL;
+  point* pt = NULL;
+  point* next_pt = NULL;
+  point* other_pt = NULL;
   double x, y, next_x, next_y, other_x, other_y;
 
   while ( node != NULL )
@@ -209,8 +210,8 @@ void ae_fuzzy_set::simplify( void )
 
 void ae_fuzzy_set::print_points( void ) const
 {
-  ae_list_node<ae_point_2d*>* point_node = _points->get_first();
-  ae_point_2d*  point;
+  ae_list_node<point*>* point_node = _points->get_first();
+  point*  point;
 
   while ( point_node != NULL )
   {
@@ -240,9 +241,9 @@ void ae_fuzzy_set::add_triangle( double mean, double width, double height )
 
   // We will need at least a point at abscissa x0, x1 and x2,
   // Create them if they don't exist or update them if they do.
-  ae_list_node<ae_point_2d*>* node_0 = NULL;
-  ae_list_node<ae_point_2d*>* node_1 = NULL;
-  ae_list_node<ae_point_2d*>* node_2 = NULL;
+  ae_list_node<point*>* node_0 = NULL;
+  ae_list_node<point*>* node_1 = NULL;
+  ae_list_node<point*>* node_2 = NULL;
 
   if ( x0 >= X_MIN )  node_0 = create_interpolated_point( x0 );
                       node_1 = create_interpolated_point( x1, node_0 );
@@ -250,8 +251,8 @@ void ae_fuzzy_set::add_triangle( double mean, double width, double height )
 
 
   // Update all the points in the list having their abscisse in ]x0;x2[
-  ae_list_node<ae_point_2d*>* point_node;
-  ae_point_2d*  point;
+  ae_list_node<point*>* point_node;
+  point*  point;
   if ( node_0 != NULL ) point_node = node_0->get_next();
   else point_node = _points->get_first();
 
@@ -286,10 +287,10 @@ void ae_fuzzy_set::add_triangle( double mean, double width, double height )
 void ae_fuzzy_set::add( ae_fuzzy_set* to_add )
 {
   // Add interpolated points (one point is needed for each abscissa present in either of the two point lists)
-  ae_list_node<ae_point_2d*>* point_node = _points->get_first();
-  ae_list_node<ae_point_2d*>* point_to_add_node = to_add->get_points()->get_first();
-  ae_point_2d*  point;
-  ae_point_2d*  point_to_add;
+  ae_list_node<point*>* point_node = _points->get_first();
+  ae_list_node<point*>* point_to_add_node = to_add->get_points()->get_first();
+  point*  point;
+  point*  point_to_add;
 
   while ( point_to_add_node != NULL )
   {
@@ -329,20 +330,20 @@ void ae_fuzzy_set::sub( ae_fuzzy_set* to_sub )
 
 
   // 2. Add.
-  ae_list_node<ae_point_2d*>* bn = _points->get_first();
-  ae_list_node<ae_point_2d*>* rn = (to_sub->_points)->get_first();
-  ae_list_node<ae_point_2d*>* next_bn = NULL;
-  ae_list_node<ae_point_2d*>* next_rn = NULL;
-  ae_point_2d* bpt = NULL;
-  ae_point_2d* rpt = NULL;
-  ae_point_2d* next_bpt = NULL;
-  ae_point_2d* next_rpt = NULL;
-  ae_point_2d* new_pt = NULL;
+  ae_list_node<point*>* bn = _points->get_first();
+  ae_list_node<point*>* rn = (to_sub->_points)->get_first();
+  ae_list_node<point*>* next_bn = NULL;
+  ae_list_node<point*>* next_rn = NULL;
+  point* bpt = NULL;
+  point* rpt = NULL;
+  point* next_bpt = NULL;
+  point* next_rpt = NULL;
+  point* new_pt = NULL;
   double xb, yb, xr, yr, next_xb, next_yb, next_xr, next_yr;
   double yb_interpol, yr_interpol;
   bool red_discont = false;
   bool black_discont = false;
-  ae_list<ae_point_2d*>* result = new ae_list<ae_point_2d*>();
+  ae_list<point*>* result = new ae_list<point*>();
 
   while ( bn != NULL || rn != NULL ) // there are more points to deal with
   {
@@ -375,7 +376,7 @@ void ae_fuzzy_set::sub( ae_fuzzy_set* to_sub )
 
       if ( rn != NULL && yb != 0 )
       {
-        new_pt = new ae_point_2d( xb, -yr_interpol );
+        new_pt = new point( xb, -yr_interpol );
         assert( new_pt );
         result->add( new_pt );
       }
@@ -385,7 +386,7 @@ void ae_fuzzy_set::sub( ae_fuzzy_set* to_sub )
         rpt = rn->get_obj();
         xr = rpt->x;
         yr = rpt->y;
-        new_pt = new ae_point_2d( xr, -yr );
+        new_pt = new point( xr, -yr );
         assert( new_pt );
         result->add( new_pt );
 
@@ -426,7 +427,7 @@ void ae_fuzzy_set::sub( ae_fuzzy_set* to_sub )
 
       if ( bn != NULL && yr != 0 )
       {
-        new_pt = new ae_point_2d( xr, yb_interpol );
+        new_pt = new point( xr, yb_interpol );
         assert( new_pt );
         result->add( new_pt );
       }
@@ -436,7 +437,7 @@ void ae_fuzzy_set::sub( ae_fuzzy_set* to_sub )
         bpt = bn->get_obj();
         xb = bpt->x;
         yb = bpt->y;
-        new_pt = new ae_point_2d( xb, yb );
+        new_pt = new point( xb, yb );
         assert( new_pt );
         result->add( new_pt );
 
@@ -456,7 +457,7 @@ void ae_fuzzy_set::sub( ae_fuzzy_set* to_sub )
       {
         // case 1a : no discontinuity
         // => P(x, yb + yr)
-        new_pt = new ae_point_2d( xb, yb - yr );
+        new_pt = new point( xb, yb - yr );
         assert( new_pt );
         result->add( new_pt );
 
@@ -472,11 +473,11 @@ void ae_fuzzy_set::sub( ae_fuzzy_set* to_sub )
           // case 1b : discontinuity in the black function only
           // => P-(x, yb- + yr) and P+(x, yb+ + yr)
           // P+ is computed using the following black point
-          new_pt = new ae_point_2d( xb, yb - yr );
+          new_pt = new point( xb, yb - yr );
           assert( new_pt );
           result->add( new_pt );
 
-          new_pt = new ae_point_2d( xb, next_yb - yr );
+          new_pt = new point( xb, next_yb - yr );
           assert( new_pt );
           result->add( new_pt );
 
@@ -492,11 +493,11 @@ void ae_fuzzy_set::sub( ae_fuzzy_set* to_sub )
             // case 1c : discontinuity in the red function only
             // => P-(x, yb + yr-) and P+(x, yb + yr+)
             // P+ is computed using the following red point
-            new_pt = new ae_point_2d( xb, yb - yr );
+            new_pt = new point( xb, yb - yr );
             assert( new_pt );
             result->add( new_pt );
 
-            new_pt = new ae_point_2d( xb, yb - next_yr );
+            new_pt = new point( xb, yb - next_yr );
             assert( new_pt );
             result->add( new_pt );
 
@@ -510,11 +511,11 @@ void ae_fuzzy_set::sub( ae_fuzzy_set* to_sub )
             // case 1d : discontinuity in both functions
             // => P-(x, yb- + yr-) and P+(x, yb+ + yr+)
             // P+ is computed using both the following red and black points
-            new_pt = new ae_point_2d( xb, yb - yr );
+            new_pt = new point( xb, yb - yr );
             assert( new_pt );
             result->add( new_pt );
 
-            new_pt = new ae_point_2d( xb, next_yb - next_yr );
+            new_pt = new point( xb, next_yb - next_yr );
             assert( new_pt );
             result->add( new_pt );
 
@@ -549,7 +550,7 @@ void ae_fuzzy_set::sub( ae_fuzzy_set* to_sub )
         {
           // case 2a : no discontinuity
           // => P(xb, yb + red(xb))
-          new_pt = new ae_point_2d( xb, yb - yr_interpol );
+          new_pt = new point( xb, yb - yr_interpol );
           assert( new_pt );
           result->add( new_pt );
 
@@ -560,11 +561,11 @@ void ae_fuzzy_set::sub( ae_fuzzy_set* to_sub )
         {
           // case 2b : discontinuity on xb in the black function
           // => P-(xb, yb- + red(xb)) and P+(xb, yb+ + red(xb))
-          new_pt = new ae_point_2d( xb, yb - yr_interpol );
+          new_pt = new point( xb, yb - yr_interpol );
           assert( new_pt );
           result->add( new_pt );
 
-          new_pt = new ae_point_2d( xb, next_yb - yr_interpol );
+          new_pt = new point( xb, next_yb - yr_interpol );
           assert( new_pt );
           result->add( new_pt );
 
@@ -594,7 +595,7 @@ void ae_fuzzy_set::sub( ae_fuzzy_set* to_sub )
         {
           // case 3a : no discontinuity
           // => P(xr, yr + black(xr))
-          new_pt = new ae_point_2d( xr, yb_interpol - yr );
+          new_pt = new point( xr, yb_interpol - yr );
           assert( new_pt );
           result->add( new_pt );
 
@@ -605,11 +606,11 @@ void ae_fuzzy_set::sub( ae_fuzzy_set* to_sub )
         {
           // case 2b : discontinuity on xr
           // => P-(xr, yr- + black(xr)) and P+(xr, yr+ + black(xr))
-          new_pt = new ae_point_2d( xr, yb_interpol - yr );
+          new_pt = new point( xr, yb_interpol - yr );
           assert( new_pt );
           result->add( new_pt );
 
-          new_pt = new ae_point_2d( xr, yb_interpol - next_yr );
+          new_pt = new point( xr, yb_interpol - next_yr );
           assert( new_pt );
           result->add( new_pt );
 
@@ -638,9 +639,9 @@ double ae_fuzzy_set::get_geometric_area( void ) const
   double area = 0;
   double tmp, tmp2;
 
-  ae_point_2d*  point =  _points->get_first()->get_obj();
-  ae_list_node<ae_point_2d*>* next_point_node = _points->get_first()->get_next();
-  ae_point_2d*  next_point = NULL;
+  point*  point =  _points->get_first()->get_obj();
+  ae_list_node<point*>* next_point_node = _points->get_first()->get_next();
+  point*  next_point = NULL;
 
   while ( next_point_node != NULL )
   {
@@ -651,7 +652,7 @@ double ae_fuzzy_set::get_geometric_area( void ) const
       if ( (point->y > 0 && next_point->y < 0) || (point->y < 0 && next_point->y > 0) )
       {
         // The segment [point, next_point] crosses the abscissa axis => We will compute the area in 2 parts
-        ae_point_2d* pt_zero  = new ae_point_2d( get_x( 0.0, point, next_point ), 0.0 );
+        point* pt_zero  = new point( get_x( 0.0, point, next_point ), 0.0 );
 
         tmp = (point->y + pt_zero->y) * (pt_zero->x - point->x) / 2.0;              // Negative if y1 is negative
         tmp2 =  (pt_zero->y + next_point->y) * (next_point->x - pt_zero->x) / 2.0;  // Negative if y2 is negative
@@ -690,11 +691,11 @@ double ae_fuzzy_set::get_geometric_area( double start_segment, double end_segmen
   double area = 0;
   double tmp, tmp2;
 
-  ae_list_node<ae_point_2d*>* point_node      = _points->get_first();
-  ae_list_node<ae_point_2d*>* next_point_node = point_node->get_next();
+  ae_list_node<point*>* point_node      = _points->get_first();
+  ae_list_node<point*>* next_point_node = point_node->get_next();
 
-  ae_point_2d*  point       = point_node->get_obj();
-  ae_point_2d*  next_point  = NULL;
+  point*  point       = point_node->get_obj();
+  point*  next_point  = NULL;
 
   while ( next_point_node != NULL )
   {
@@ -703,14 +704,14 @@ double ae_fuzzy_set::get_geometric_area( double start_segment, double end_segmen
     // If there are no points at x = start_segment and x = end_segment, we must interpolate them
     if ( point->x < start_segment && next_point->x > start_segment )
     {
-      next_point      = new ae_point_2d( start_segment, get_y( start_segment, point_node ) );
+      next_point      = new point( start_segment, get_y( start_segment, point_node ) );
       next_point_node = _points->add_after( next_point, point_node );
 
       continue;
     }
     if ( point->x < end_segment && next_point->x > end_segment )
     {
-      next_point      = new ae_point_2d( end_segment, get_y( end_segment, point_node ) );
+      next_point      = new point( end_segment, get_y( end_segment, point_node ) );
       next_point_node = _points->add_after( next_point, point_node );
 
       continue;
@@ -724,7 +725,7 @@ double ae_fuzzy_set::get_geometric_area( double start_segment, double end_segmen
         if ( (point->y > 0 && next_point->y < 0) || (point->y < 0 && next_point->y > 0) )
         {
           // The segment [point, next_point] crosses the abscissa axis => We will compute the area in 2 parts
-          ae_point_2d* pt_zero  = new ae_point_2d( get_x( 0.0, point, next_point ), 0.0 );
+          point* pt_zero  = new point( get_x( 0.0, point, next_point ), 0.0 );
 
           tmp = (point->y + pt_zero->y) * (pt_zero->x - point->x) / 2.0;              // Negative if y1 is negative
           tmp2 =  (pt_zero->y + next_point->y) * (next_point->x - pt_zero->x) / 2.0;  // Negative if y2 is negative
@@ -755,13 +756,13 @@ double ae_fuzzy_set::get_geometric_area( double start_segment, double end_segmen
 
 void ae_fuzzy_set::add_upper_bound( double upper_bound )
 {
-  ae_list_node<ae_point_2d*>* point_node = _points->get_first();
-  ae_point_2d*  point;
+  ae_list_node<point*>* point_node = _points->get_first();
+  point*  point;
 
-  ae_list_node<ae_point_2d*>* prev_node;
-  ae_list_node<ae_point_2d*>* next_node;
-  ae_point_2d*  prev_point;
-  ae_point_2d*  next_point;
+  ae_list_node<point*>* prev_node;
+  ae_list_node<point*>* next_node;
+  point*  prev_point;
+  point*  next_point;
 
   while ( point_node != NULL )
   {
@@ -779,7 +780,7 @@ void ae_fuzzy_set::add_upper_bound( double upper_bound )
         if ( prev_point->y < upper_bound ) // In fact it can only be < or ==
         {
           // Create a point at the intersection of the segment and the ceiling defined by the upper bound
-          _points->add_after( new ae_point_2d( get_x( upper_bound, prev_point, point ), upper_bound ), prev_node );
+          _points->add_after( new point( get_x( upper_bound, prev_point, point ), upper_bound ), prev_node );
         }
       }
 
@@ -790,7 +791,7 @@ void ae_fuzzy_set::add_upper_bound( double upper_bound )
         if ( next_point->y < upper_bound )
         {
           // Create a point at the intersection of the segment and the ceiling defined by the upper bound
-          _points->add_after( new ae_point_2d( get_x( upper_bound, point, next_point ), upper_bound ), point_node );
+          _points->add_after( new point( get_x( upper_bound, point, next_point ), upper_bound ), point_node );
         }
       }
 
@@ -808,13 +809,13 @@ void ae_fuzzy_set::add_upper_bound( double upper_bound )
 
 void ae_fuzzy_set::add_lower_bound( double lower_bound )
 {
-  ae_list_node<ae_point_2d*>* point_node = _points->get_first();
-  ae_point_2d*  point;
+  ae_list_node<point*>* point_node = _points->get_first();
+  point*  point;
 
-  ae_list_node<ae_point_2d*>* prev_node;
-  ae_list_node<ae_point_2d*>* next_node;
-  ae_point_2d*  prev_point;
-  ae_point_2d*  next_point;
+  ae_list_node<point*>* prev_node;
+  ae_list_node<point*>* next_node;
+  point*  prev_point;
+  point*  next_point;
 
   while ( point_node != NULL )
   {
@@ -832,7 +833,7 @@ void ae_fuzzy_set::add_lower_bound( double lower_bound )
         if ( prev_point->y > lower_bound ) // In fact it can only be > or ==
         {
           // Create a point at the intersection of the segment and the floor defined by the lower bound
-          _points->add_after( new ae_point_2d( get_x( lower_bound, prev_point, point ), lower_bound ), prev_node );
+          _points->add_after( new point( get_x( lower_bound, prev_point, point ), lower_bound ), prev_node );
 
           #ifdef DEBUG
             _assert_order();
@@ -848,7 +849,7 @@ void ae_fuzzy_set::add_lower_bound( double lower_bound )
         if ( next_point->y > lower_bound )
         {
           // Create a point at the intersection of the segment and the floor defined by the lower bound
-          _points->add_after( new ae_point_2d( get_x( lower_bound, point, next_point ), lower_bound ), point_node );
+          _points->add_after( new point( get_x( lower_bound, point, next_point ), lower_bound ), point_node );
 
           #ifdef DEBUG
             _assert_order();
@@ -877,11 +878,11 @@ bool ae_fuzzy_set::is_identical_to( const ae_fuzzy_set * other, double tolerance
     return false;
   }
 
-  ae_list_node<ae_point_2d*>* point_node = _points->get_first();
-  ae_point_2d*  point = NULL;
+  ae_list_node<point*>* point_node = _points->get_first();
+  point*  point = NULL;
 
-  ae_list_node<ae_point_2d*>* other_node = other->_points->get_first();
-  ae_point_2d*  other_point = NULL;
+  ae_list_node<point*>* other_node = other->_points->get_first();
+  point*  other_point = NULL;
 
   bool ok = true;
 
@@ -908,8 +909,8 @@ void ae_fuzzy_set::save( gzFile backup_file ) const
 
   if ( _points != NULL )
   {
-    ae_list_node<ae_point_2d*>* point_node = _points->get_first();
-    ae_point_2d*  point;
+    ae_list_node<point*>* point_node = _points->get_first();
+    point*  point;
     for ( int16_t i = 0 ; i < nb_points ; i++ )
     {
       point = point_node->get_obj();
@@ -927,11 +928,11 @@ void ae_fuzzy_set::load( gzFile backup_file )
   int16_t nb_points;
   gzread( backup_file, &nb_points, sizeof(nb_points) );
 
-  if ( nb_points > 0 ) _points = new ae_list<ae_point_2d*>();
+  if ( nb_points > 0 ) _points = new ae_list<point*>();
 
   for ( int16_t i = 0 ; i < nb_points ; i++ )
   {
-    _points->add( new ae_point_2d( backup_file ) );
+    _points->add( new point( backup_file ) );
   }
 }
 
@@ -939,7 +940,7 @@ void ae_fuzzy_set::load( gzFile backup_file )
 // =================================================================
 //                           Protected Methods
 // =================================================================
-double ae_fuzzy_set::get_y( double x, ae_list_node<ae_point_2d*>* list_entry ) const
+double ae_fuzzy_set::get_y( double x, ae_list_node<point*>* list_entry ) const
 {
   if ( list_entry == NULL ) list_entry = _points->get_first();
 
@@ -949,8 +950,8 @@ double ae_fuzzy_set::get_y( double x, ae_list_node<ae_point_2d*>* list_entry ) c
   assert( _points->get_nb_elts() >= 2 );
 
   // Look for the first point of the list having point->x >= x
-  ae_list_node<ae_point_2d*>* point_node  = list_entry;
-  ae_point_2d*  point       = point_node->get_obj();
+  ae_list_node<point*>* point_node  = list_entry;
+  point*  point       = point_node->get_obj();
 
   while ( point->x < x )
   {
@@ -963,12 +964,12 @@ double ae_fuzzy_set::get_y( double x, ae_list_node<ae_point_2d*>* list_entry ) c
   if ( point->x == x ) return point->y;
   else
   {
-    ae_point_2d* prev_point = point_node->get_prev()->get_obj();
+    point* prev_point = point_node->get_prev()->get_obj();
     return prev_point->y + (point->y - prev_point->y) * (x - prev_point->x) / (point->x - prev_point->x);
   }
 }
 
-ae_list_node<ae_point_2d*>* ae_fuzzy_set::create_interpolated_point( double x, ae_list_node<ae_point_2d*>* list_entry )
+ae_list_node<point*>* ae_fuzzy_set::create_interpolated_point( double x, ae_list_node<point*>* list_entry )
 {
   if ( list_entry == NULL ) list_entry = _points->get_first();
 
@@ -977,8 +978,8 @@ ae_list_node<ae_point_2d*>* ae_fuzzy_set::create_interpolated_point( double x, a
   assert( _points->get_nb_elts() >= 2 );
 
   // Look for the first point of the list having point->x >= x
-  ae_list_node<ae_point_2d*>* point_node  = list_entry;
-  ae_point_2d*  point       = point_node->get_obj();
+  ae_list_node<point*>* point_node  = list_entry;
+  point*  point       = point_node->get_obj();
 
   while ( point->x < x )
   {
@@ -993,7 +994,7 @@ ae_list_node<ae_point_2d*>* ae_fuzzy_set::create_interpolated_point( double x, a
   }
   else
   {
-    point_node = _points->add_before( new ae_point_2d( x, get_y( x ) ), point_node );
+    point_node = _points->add_before( new point( x, get_y( x ) ), point_node );
     return point_node;
   }
 
@@ -1007,10 +1008,10 @@ void ae_fuzzy_set::_assert_order( void )
   assert( (_points->get_first()->get_obj())->x == X_MIN );
   assert( (_points->get_last()->get_obj())->x == X_MAX );
 
-  ae_list_node<ae_point_2d*>* point_node  = _points->get_first();
-  ae_list_node<ae_point_2d*>* next_point_node = point_node->get_next();
-  ae_point_2d*  point;
-  ae_point_2d*  next_point;
+  ae_list_node<point*>* point_node  = _points->get_first();
+  ae_list_node<point*>* next_point_node = point_node->get_next();
+  point*  point;
+  point*  next_point;
 
   while ( next_point_node != NULL )
   {
@@ -1024,3 +1025,4 @@ void ae_fuzzy_set::_assert_order( void )
   }
 }
 
+#endif
