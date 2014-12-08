@@ -35,14 +35,15 @@
 #include <string.h>
 #include <assert.h>
 
+#include <list>
+#include <iostream>
+
+using std::cout;
 
 namespace aevol {
 
 template <typename T>
 class ae_list;
-
-
-
 
 template <typename T>
 class ae_list_node
@@ -87,6 +88,7 @@ class ae_list
     //~ inline ae_list( ae_list* parent );
     /*inline ae_list( const ae_list &model );*/
     inline virtual ~ae_list();
+    ae_list(std::list<T>);
 
     // Add obj in a newly created node at the end (resp beginning) of the list
     // => syntaxic sugar for add_after( obj, _last );
@@ -167,6 +169,19 @@ ae_list<T>::ae_list()
   _nb_elts = 0;
 }
 
+// conversion constructor
+// to decouple ae_* from ae_list
+template <typename T>
+ae_list<T>::ae_list(std::list<T> l)
+{
+  _last = _first = NULL;
+  _nb_elts = 0;
+
+  for (T e: l)
+    cout << *e << ' ';
+  cout << '\n';
+  
+}
 
 // Doesn't create new objects
 /*ae_list::ae_list( const ae_list &model )
