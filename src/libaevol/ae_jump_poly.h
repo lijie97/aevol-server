@@ -25,14 +25,15 @@
 // ****************************************************************************
 
 
-/*! \brief Definition of jumping polynomials for various settings of the Mersenne Twister
-*/
 
 
 #ifndef __AE_JUMP_POLYS_H__
 #define __AE_JUMP_POLYS_H__
 
 namespace aevol {
+
+/*! \brief Definition of jumping polynomials for various settings of the Mersenne Twister
+*/
 
 #if SFMT_MEXP == 607
 const char* jump_poly = "2c375358c852082b88bdf47ffe5ac31b6cd4e255a12f271951f250f805d473248be9e75baee81f0474e793983cdc11c198d269b4bd9c34ca9eec3f91cceb172450d9b6001eaa29d97ba1cdb59c50684e";
