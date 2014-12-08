@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <ae_fuzzy_set_X11.h>
+#include "ae_macros.h"
 
 namespace aevol {
 

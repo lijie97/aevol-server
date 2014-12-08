@@ -23,7 +23,6 @@
 
 #include "ae_list.h"
 #include "point.h"
-#include "ae_macros.h"
 
 namespace aevol {
 

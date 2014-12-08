@@ -26,6 +26,7 @@
 
 #include "fuzzy.h"
 #include "point.h"
+#include "ae_macros.h"
 
 namespace aevol {
 
