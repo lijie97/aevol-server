@@ -63,8 +63,7 @@
 //debug
 #include <ae_gaussian.h>
 
-
-
+using namespace aevol;
 
 enum check_type
 {

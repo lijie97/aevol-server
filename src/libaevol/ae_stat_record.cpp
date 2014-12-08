@@ -48,6 +48,7 @@
 #include <ae_dna_replic_report.h>
 
 
+namespace aevol {
 
 
 
@@ -1050,3 +1051,4 @@ void ae_stat_record::substract_power( ae_stat_record const * means, ae_stat_reco
 // =================================================================
 //                           Protected Methods
 // =================================================================
+} // namespace aevol

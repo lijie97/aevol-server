@@ -49,6 +49,7 @@
 #include <ae_macros.h>
 
 
+namespace aevol {
 
 
 // =================================================================
@@ -152,4 +153,5 @@ ae_codon* ae_codon::copy( void )
   return new ae_codon( _value );
 }
 
+} // namespace aevol
 #endif // __AE_CODON_H__

@@ -93,8 +93,7 @@
 #include <ae_list.h>
 #include <ae_exp_manager.h>
 
-
-
+using namespace aevol;
 
 // =================================================================
 //                         Function declarations

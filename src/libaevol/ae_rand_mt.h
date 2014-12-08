@@ -105,6 +105,8 @@
 #include <zlib.h>
 #include <ae_macros.h>
 
+namespace aevol {
+
 class ae_rand_mt
 {
   // Data
@@ -306,5 +308,6 @@ void ae_rand_mt::write_to_backup( gzFile backup_file ) const
   save( saveArray );
   gzwrite( backup_file, saveArray, SAVE * sizeof( saveArray[0] ) );
 }
+} // namespace aevol
   
 #endif

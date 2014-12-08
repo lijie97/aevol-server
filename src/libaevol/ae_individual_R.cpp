@@ -35,6 +35,7 @@
 //                            Project Files
 // =================================================================
 #include <ae_individual_R.h>
+namespace aevol {
 
 //##############################################################################
 //                                                                             #
@@ -429,3 +430,4 @@ void ae_individual_R::make_rna_list( void )
     rna_node = rna_node->get_next();
   }
 }
+} // namespace aevol

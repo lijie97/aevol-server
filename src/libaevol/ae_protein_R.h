@@ -38,6 +38,8 @@
 #include <ae_influence_R.h>
 #include <ae_codon.h>
 
+namespace aevol {
+
 //##############################################################################
 //                                                                             #
 //                           Class ae_protein_R                                #
@@ -162,5 +164,7 @@ void ae_protein_R::remove_influences( void )
   }
 
 }
+
+} // namespace aevol
 
 #endif // AE_PROTEIN_R_H

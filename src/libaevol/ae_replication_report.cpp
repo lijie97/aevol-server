@@ -41,8 +41,7 @@
 #include <ae_mutation.h>
 #include <ae_individual.h>
 
-
-
+namespace aevol {
 
 //##############################################################################
 //                                                                             #
@@ -388,3 +387,4 @@ void ae_replication_report::write_to_tree_file( gzFile tree_file ) const
 //                          Non inline accessors
 // =================================================================
 
+} // namespace aevol

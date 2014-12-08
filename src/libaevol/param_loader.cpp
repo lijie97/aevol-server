@@ -62,6 +62,7 @@
   #include <ae_array_short.h>
 #endif
 
+namespace aevol {
 
 // =================================================================
 //                          Class declarations
@@ -1969,3 +1970,4 @@ void param_loader::print_to_file( FILE* file )
   fprintf( file, "translation_cost :           %e\n",  _translation_cost           );
 }
 
+} // namespace aevol

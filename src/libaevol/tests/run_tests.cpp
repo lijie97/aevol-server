@@ -44,6 +44,7 @@
 #include "Test_ae_individual.h"
 #include "Test_ae_list.h"
 
+using namespace aevol;
 
 // ===========================================================================
 //                             Declare Used Namespaces

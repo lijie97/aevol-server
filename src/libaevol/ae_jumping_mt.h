@@ -62,9 +62,7 @@
 #define MT_RAND_MAX         4294967295.0
 #define MT_RAND_MAX_PLUS_1  4294967296.0
 
-
-
-
+namespace aevol {
 
 class ae_jumping_mt
 {
@@ -205,5 +203,6 @@ inline int64_t ae_jumping_mt::random( int64_t max )
   return (int64_t) floor( ((double)max) * sfmt_genrand_real2(_sfmt) );
 }
 
+} // namespace aevol
 
 #endif // __AE_JUMPING_MT_H__

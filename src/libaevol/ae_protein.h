@@ -49,6 +49,7 @@
 #include <ae_dna.h>
 #include <ae_codon.h>
 
+namespace aevol {
 
 
 
@@ -215,5 +216,5 @@ bool ae_protein::get_is_functional( void ) const
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-
+} // namespace aevol
 #endif // __AE_PROTEIN_H__

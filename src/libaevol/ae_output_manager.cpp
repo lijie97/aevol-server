@@ -42,6 +42,7 @@
 #include <ae_output_manager.h>
 #include <ae_exp_manager.h>
 
+namespace aevol {
 
 
 
@@ -362,3 +363,4 @@ void ae_output_manager::write_tree( void ) const
 // =================================================================
 //                          Non inline accessors
 // =================================================================
+} // namespace aevol

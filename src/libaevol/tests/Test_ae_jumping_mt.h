@@ -44,8 +44,7 @@
 // =================================================================
 #include <ae_jumping_mt.h>
 
-
-
+namespace aevol {
 
 // ===========================================================================
 //                             Declare Used Namespaces
@@ -153,5 +152,6 @@ class Test_ae_jumping_mt : public TestFixture
 //                          Inline functions' definition
 // ===========================================================================
 
+} // namespace aevol
 
 #endif // TEST_AE_JUMPING_MT

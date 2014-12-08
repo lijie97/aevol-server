@@ -33,6 +33,8 @@
 #include <inttypes.h>
 #include <zlib.h>
 
+namespace aevol {
+
 // =================================================================
 //                            Project Files
 // =================================================================
@@ -159,5 +161,5 @@ void ae_matrix_double::print_to_file( FILE* file )
     fprintf( file, "\n");
   }
 }
-
+} // namespace aevol
 #endif // __AE_MATRIX_DOUBLE_H__

@@ -45,8 +45,7 @@
 #include <ae_population.h>
 #include <ae_X11_window.h>
 
-
-
+namespace aevol {
 
 // =================================================================
 //                          Class declarations
@@ -122,5 +121,6 @@ class ae_population_X11 : public ae_population
 //                          Accessors definitions
 // =====================================================================
 
+} // namespace aevol
 
 #endif // __AE_POPULATION_X11_H__

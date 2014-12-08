@@ -45,6 +45,7 @@
 #include <ae_rna.h>
 #include <ae_utils.h>
 
+namespace aevol {
 
 
 
@@ -519,3 +520,4 @@ ae_individual* ae_protein::get_indiv( void ) const
 {
   return _gen_unit->get_indiv();
 }
+} // namespace aevol

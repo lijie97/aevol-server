@@ -55,6 +55,7 @@
 #include <ae_gene_tree.h>
 #include <ae_enums.h>
 
+using namespace aevol;
 
 // TODO : predire la position de tous les genes apres la mutation
 // puis verifier dans la liste des genes de l'indiv apres evaluation

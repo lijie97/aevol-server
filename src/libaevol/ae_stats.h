@@ -52,6 +52,7 @@
 #include <ae_individual.h>
 
 
+namespace aevol {
 
 
 // =================================================================
@@ -183,5 +184,5 @@ inline void ae_stats::write_header( FILE* file_name, const char* header, int8_t 
 }
         
 
-
+} // namespace aevol
 #endif // __AE_STATS_H__

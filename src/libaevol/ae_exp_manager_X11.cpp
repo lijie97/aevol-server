@@ -47,6 +47,7 @@
 #include <ae_individual_X11.h>
 #include <ae_X11_window.h>
 
+namespace aevol {
 
 
 // XCheckMaskEvent() doesn't get ClientMessage Events so use XCheckIfEvent()
@@ -807,3 +808,4 @@ void ae_exp_manager_X11::set_codes( void )
   _key_codes[KEY_8]       = XKeysymToKeycode( _display, XK_8 );
   _key_codes[KEY_9]       = XKeysymToKeycode( _display, XK_9 );
 }
+} // namespace aevol

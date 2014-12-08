@@ -44,6 +44,7 @@
 #include <ae_genetic_unit.h>
 
 
+namespace aevol {
 
 //##############################################################################
 //                                                                             #
@@ -1214,3 +1215,4 @@ void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leav
 // =================================================================
 
 
+} // namespace aevol

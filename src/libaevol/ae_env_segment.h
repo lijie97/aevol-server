@@ -43,6 +43,7 @@
 #include <ae_enums.h>
 
 
+namespace aevol {
 
 
 // =================================================================
@@ -195,5 +196,5 @@ inline void ae_env_segment::load( gzFile backup_file )
 // =================================================================
 
 
-
+} // namespace aevol
 #endif // __AE_ENV_SEGMENT_H__

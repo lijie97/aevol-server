@@ -35,6 +35,7 @@
 #include <stdlib.h>
 #include <math.h>
 
+namespace aevol {
 
 
 // =================================================================
@@ -197,5 +198,6 @@ void ae_gaussian::save( gzFile backup_file )
   gzwrite( backup_file, &_width, sizeof(_width) );
 }
 
+} // namespace aevol
 
 #endif // __AE_GAUSSIAN_H__

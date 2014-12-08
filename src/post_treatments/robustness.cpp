@@ -51,6 +51,7 @@
 #include <ae_population.h>
 #include <ae_individual.h>
 
+using namespace aevol;
 
 // =================================================================
 //                         Function declarations

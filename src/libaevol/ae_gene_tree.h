@@ -54,9 +54,7 @@
 #include <assert.h>
 #include <ae_rna.h>
 
-
-
-
+namespace aevol {
 
 // =================================================================
 //                          Class declarations
@@ -214,5 +212,6 @@ inline int32_t ae_gene_tree::get_nb_active_leaves() const
 //                       Inline functions' definition
 // =====================================================================
 
+} // namespace aevol
 
 #endif // __AE_GENE_TREE_H__

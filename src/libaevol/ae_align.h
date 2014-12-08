@@ -45,8 +45,7 @@
 #include <assert.h>
 #include <ae_vis_a_vis.h>
 
-
-
+namespace aevol {
 
 // =================================================================
 //                          Class declarations
@@ -143,5 +142,6 @@ class ae_align
 //                       Inline functions' definition
 // =====================================================================
 
+} // namespace aevol
 
 #endif // __AE_ALIGN_H__

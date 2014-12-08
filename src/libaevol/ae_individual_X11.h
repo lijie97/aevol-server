@@ -45,8 +45,7 @@
 #include <ae_individual.h>
 #include <ae_X11_window.h>
 
-
-
+namespace aevol {
 
 // =================================================================
 //                          Class declarations
@@ -137,5 +136,6 @@ class ae_individual_X11 : public virtual ae_individual
 //                          Accessors definitions
 // =====================================================================
 
+} // namespace aevol
 
 #endif // __AE_INDIVIDUAL_X11_H__

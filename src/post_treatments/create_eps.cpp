@@ -52,7 +52,7 @@
 #include <ae_exp_manager.h>
 #include <ae_utils.h>
 
-
+using namespace aevol;
 
 // ========
 //  TO DO

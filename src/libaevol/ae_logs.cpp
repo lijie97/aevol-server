@@ -39,8 +39,7 @@
 #include <ae_logs.h>
 #include <ae_exp_setup.h>
 
-
-
+namespace aevol {
 
 //##############################################################################
 //                                                                             #
@@ -444,3 +443,4 @@ void ae_logs::write_headers( void ) const
     fprintf( _param_modification_log, "######################################################################\n" );
   }*/
 }
+} // namespace aevol

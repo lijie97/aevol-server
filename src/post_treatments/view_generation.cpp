@@ -49,8 +49,7 @@
 #include <ae_individual.h>
 #include <ae_list.h>
 
-
-
+using namespace aevol;
 
 // =================================================================
 //                         Function declarations

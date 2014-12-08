@@ -10,6 +10,8 @@
 #include <ae_exp_manager.h>
 #include <libgen.h>
 
+using namespace aevol;
+
 void print_help( char* prog_name );
 void analyse_indiv( ae_exp_manager*, ae_individual*, FILE*, int32_t );
 

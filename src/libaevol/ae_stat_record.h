@@ -45,6 +45,7 @@
 #include <assert.h>
 
 
+namespace aevol {
 
 
 // =================================================================
@@ -239,5 +240,6 @@ class ae_stat_record
 //                       Inline functions' definition
 // =====================================================================
 
+} // namespace aevol
 
 #endif // __AE_STAT_RECORD_H__

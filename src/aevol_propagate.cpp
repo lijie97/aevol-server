@@ -52,7 +52,7 @@ const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 #endif
 #include <param_loader.h>
 
-
+using namespace aevol;
 
 // =================================================================
 //                         Function declarations

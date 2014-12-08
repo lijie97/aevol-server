@@ -28,6 +28,8 @@
 #ifndef __AE_ENUMS_H__
 #define __AE_ENUMS_H__
 
+namespace aevol {
+
 enum ae_align_fun_shape
 {
   LINEAR  = 0,
@@ -101,7 +103,6 @@ enum ae_log_type
   //LOG_LOADS     = 0x08
 };
 
-
-
+} // namespace aevol
 
 #endif // __AE_ENUMS_H__

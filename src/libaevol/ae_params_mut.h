@@ -46,8 +46,7 @@
 #include <assert.h>
 #include <ae_enums.h>
 
-
-
+namespace aevol {
 
 // =================================================================
 //                          Class declarations
@@ -566,5 +565,6 @@ inline void ae_params_mut::set_align_mismatch_cost( int16_t align_mismatch_cost 
 //                       Inline functions' definition
 // =====================================================================
 
+} // namespace aevol
 
 #endif // __AE_PARAMS_MUT_H__

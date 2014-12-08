@@ -47,6 +47,7 @@
 #include <ae_utils.h>
 
 
+namespace aevol {
 
 
 // =================================================================
@@ -356,6 +357,6 @@ inline void ae_vis_a_vis::check_indices( void )
   _i_1 = ae_utils::mod( _i_1, _chrom_1->get_length() );
   _i_2 = ae_utils::mod( _i_2, _chrom_2->get_length() );
 }
-
+} // namespace aevol
 
 #endif // __AE_VIS_A_VIS_H__

@@ -50,6 +50,7 @@
 #include <ae_logs.h>
 
 
+namespace aevol {
 
 
 // =================================================================
@@ -276,5 +277,7 @@ inline void ae_output_manager::flush( void )
 {
   _stats->flush();
 }
+
+} // namespace aevol
 
 #endif // __AE_OUPUT_MANAGER_H__

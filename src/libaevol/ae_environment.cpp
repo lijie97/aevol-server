@@ -42,6 +42,7 @@
 #include <ae_gaussian.h>
 #include <ae_list.h>
 
+namespace aevol {
 
 
 
@@ -833,3 +834,4 @@ void ae_environment::_compute_area( void )
   }
 }
 
+} // namespace aevol

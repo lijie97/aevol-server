@@ -57,8 +57,7 @@
 #include <ae_mutation.h>
 //#include <ae_param_loader.h>
 
-
-
+using namespace aevol;
 
 enum check_type
 {

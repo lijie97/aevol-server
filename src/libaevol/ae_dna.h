@@ -48,6 +48,7 @@
 #include <ae_string.h>
 
 
+namespace aevol {
 
 
 // =================================================================
@@ -242,5 +243,5 @@ inline ae_genetic_unit * ae_dna::get_genetic_unit( void ) const
 //                       Inline functions' definition
 // =====================================================================
 
-
+} // namespace aevol
 #endif // __AE_DNA_H__

@@ -44,8 +44,7 @@
 #include <ae_exp_setup.h>
 #include <ae_utils.h>
 
-
-
+namespace aevol {
 
 //##############################################################################
 //                                                                             #
@@ -888,3 +887,4 @@ void ae_individual_X11::reset_sectors( void )
     }
   }
 }
+} // namespace aevol

@@ -47,8 +47,7 @@
 #include <assert.h>
 #include <ae_utils.h>
 
-
-
+namespace aevol {
 
 // =================================================================
 //                          Class declarations
@@ -171,5 +170,6 @@ int32_t ae_string::nb_blocks( int32_t length )
   return length/BLOCK_SIZE + 1;
 }
 
+} // namespace aevol
 
 #endif // __AE_STRING_H__

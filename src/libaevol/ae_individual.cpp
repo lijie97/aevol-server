@@ -62,6 +62,7 @@
     #include <ae_individual_X11.h>
   #endif
 #endif
+namespace aevol {
 
 //##############################################################################
 //                                                                             #
@@ -1565,3 +1566,4 @@ void ae_individual::make_rna_list( void )
     gen_unit_node = gen_unit_node->get_next();
   }
 }
+} // namespace aevol

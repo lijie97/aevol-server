@@ -44,6 +44,7 @@
 #include <ae_fuzzy_set.h>
 #include <ae_X11_window.h>
 
+namespace aevol {
 
 
 
@@ -108,5 +109,5 @@ class ae_fuzzy_set_X11 : public ae_fuzzy_set
 //                          Accessors definitions
 // =====================================================================
 
-
+} // namespace aevol
 #endif // __AE_FUZZY_SET_X11_H__

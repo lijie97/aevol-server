@@ -55,6 +55,7 @@
 
 
 
+namespace aevol {
 
 // =================================================================
 //                          Class declarations
@@ -1577,5 +1578,5 @@ void ae_individual::do_transcription_translation_folding( void )
   }
 #endif
 
-
+} // namespace aevol
 #endif // __AE_INDIVIDUAL_H__

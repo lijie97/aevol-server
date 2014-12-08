@@ -40,6 +40,8 @@
 #include <ae_individual_R.h>
 #include <ae_individual_X11.h>
 
+namespace aevol {
+
 // =================================================================
 //                          Class declarations
 // =================================================================
@@ -97,5 +99,5 @@ class ae_individual_R_X11 : public ae_individual_R, ae_individual_X11
 // =====================================================================
 //                          Accessors definitions
 // =====================================================================
-
+} // namespace aevol
 #endif // __AE_INDIVIDUAL_R_X11_H__

@@ -40,6 +40,7 @@
 #include <ae_genetic_unit.h>
 #include <ae_individual.h>
 
+namespace aevol {
 
 
 
@@ -154,3 +155,4 @@ int32_t ae_rna::get_last_transcribed_pos( void ) const
 // =================================================================
 //                           Protected Methods
 // =================================================================
+} // namespace aevol

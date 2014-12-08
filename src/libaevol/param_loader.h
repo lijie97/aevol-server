@@ -55,6 +55,7 @@
 #include <ae_gaussian.h>
 #include <point.h>
 
+namespace aevol {
 // =================================================================
 //                          Class declarations
 // =================================================================
@@ -307,5 +308,5 @@ class param_loader
 
 };
 
-
+} // namespace aevol
 #endif // __param_loader_H__

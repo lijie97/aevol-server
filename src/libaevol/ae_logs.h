@@ -46,8 +46,7 @@
 #include <assert.h>
 #include <ae_enums.h>
 
-
-
+namespace aevol {
 
 // =================================================================
 //                          Class declarations
@@ -203,5 +202,6 @@ inline bool ae_logs::is_logged( ae_log_type log_type ) const
 //                       Inline functions' definition
 // =====================================================================
 
+} // namespace aevol
 
 #endif // __AE_LOGS_H__

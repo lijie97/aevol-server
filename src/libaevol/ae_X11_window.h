@@ -46,6 +46,7 @@
 #include <assert.h>
 
 
+namespace aevol {
 
 
 // =================================================================
@@ -202,5 +203,5 @@ void ae_X11_window::blacken( void )
   fill_rectangle( 0, 0, _width, _height, BLACK );
 }
 
-
+} // namespace aevol
 #endif // __AE_X11_WINDOW_H__

@@ -61,6 +61,7 @@
 #include <ae_population.h>
 
 
+namespace aevol {
 
 
 // =================================================================
@@ -609,5 +610,5 @@ inline void ae_exp_manager::load( int32_t first_gener, bool use_text_files,
   load( ".", first_gener, use_text_files, verbose, to_be_run );
 }
 
-
+} // namespace aevol
 #endif // __AE_EXP_MANAGER_H__

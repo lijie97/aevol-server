@@ -36,6 +36,7 @@
 #include <assert.h>
 
 
+namespace aevol {
 
 template <typename T>
 class ae_list;
@@ -977,5 +978,7 @@ inline void ae_list_node<T>::set_obj( T obj )
 {
   _obj = obj;
 }
+
+} // namespace aevol
 
 #endif // AE_LIST_H

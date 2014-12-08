@@ -45,8 +45,7 @@
 #include <ae_fuzzy_set_X11.h>
 #endif
 
-
-
+namespace aevol {
 
 // =================================================================
 //                          Class declarations
@@ -131,5 +130,6 @@ class ae_phenotype : public ae_fuzzy_set_X11
 //                       Inline functions' definition
 // =====================================================================
 
+} // namespace aevol
 
 #endif // __AE_PHENOTYPE_H__

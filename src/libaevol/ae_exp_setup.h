@@ -48,8 +48,7 @@
 #include <ae_dump.h>
 #include <ae_jumping_mt.h>
 
-
-
+namespace aevol {
 
 // ===========================================================================
 //                          Class declarations
@@ -378,5 +377,6 @@ inline void ae_exp_setup::step_to_next_generation( void )
   _sel->step_to_next_generation();
 }
 
+} // namespace aevol
 
 #endif // __AE_EXP_SETUP_H__

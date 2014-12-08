@@ -46,6 +46,9 @@
 #define NB_OVERLOADABLE INT32_C(256)
 #define LEN_TOKEN INT32_C(256)
 
+namespace aevol {
+
+
 // =================================================================
 //                          Class declarations
 // =================================================================
@@ -129,5 +132,6 @@ inline void ae_param_overloader::store_overload( char* token )
   strcpy( _tokens_overloaded[_nb_overloaded++], token );
 }
 
+} // namespace aevol
 
 #endif // __AE_PARAM_OVERLOADER_H__

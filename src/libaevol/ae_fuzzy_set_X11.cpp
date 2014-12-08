@@ -39,6 +39,7 @@
 // =================================================================
 #include <ae_fuzzy_set_X11.h>
 
+namespace aevol {
 
 
 
@@ -118,7 +119,7 @@ void ae_fuzzy_set_X11::display( ae_X11_window* win, color_map color, bool fill /
     node = node->get_next();
   }
 }
-
 // =================================================================
 //                           Protected Methods
 // =================================================================
+} // namespace aevol

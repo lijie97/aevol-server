@@ -47,6 +47,7 @@
 #include <ae_environment.h>
 #include <ae_utils.h>
 
+namespace aevol {
 
 
 // =================================================================
@@ -854,4 +855,5 @@ inline void ae_genetic_unit::copy_promoters_starting_between( int32_t pos_1, int
   //~ }
 //~ }
 
+} // namespace aevol
 #endif // __ae_genetic_unit_H__

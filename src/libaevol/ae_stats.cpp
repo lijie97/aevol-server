@@ -53,8 +53,7 @@
   #include <ae_protein_R.h>
 #endif
 
-
-
+namespace aevol {
 
 //##############################################################################
 //                                                                             #
@@ -735,3 +734,4 @@ void ae_stats::open_files( void )
     }
   }
 }
+} // namespace aevol

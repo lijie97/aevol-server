@@ -45,6 +45,7 @@
 #include <assert.h>
 #include <ae_list.h>
 #include <ae_mutation.h>
+namespace aevol {
 
 
 
@@ -256,5 +257,5 @@ inline void ae_dna_replic_report::add_HT( ae_mutation* HT )
   _nb_mut[ HT->get_mut_type() ]++;
 }
 
-
+} // namespace aevol
 #endif // __AE_DNA_REPLIC_REPORT_H__

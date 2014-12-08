@@ -40,6 +40,7 @@
 #include <ae_codon.h>
 #include <ae_utils.h>
 
+namespace aevol {
 
 
 
@@ -124,3 +125,4 @@ void ae_codon::save( gzFile backup_file )
 // =================================================================
 //                           Protected Methods
 // =================================================================
+} // namespace aevol

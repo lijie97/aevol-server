@@ -45,8 +45,7 @@
 #include <ae_rna.h>
 #include <ae_macros.h>
 
-
-
+namespace aevol {
 
 //##############################################################################
 //                                                                             #
@@ -290,3 +289,4 @@ void ae_gene_mutation::get_description_string_for_gene_mut(char * str)
 
 }
 
+} // namespace aevol

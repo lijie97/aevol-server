@@ -48,6 +48,7 @@
 #include <ae_utils.h>
 #include <ae_protein.h>
 
+namespace aevol {
 
 
 
@@ -223,5 +224,5 @@ void ae_rna::shift_position( int32_t delta_pos, int32_t genome_length )
   _pos = ae_utils::mod( _pos + delta_pos, genome_length );
 }
 
-
+} // namespace aevol
 #endif // __AE_RNA_H__

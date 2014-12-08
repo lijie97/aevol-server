@@ -43,8 +43,7 @@
 // =================================================================
 #include <ae_individual.h>
 
-
-
+namespace aevol {
 
 // ===========================================================================
 //                             Declare Used Namespaces
@@ -158,5 +157,6 @@ class Test_ae_individual : public TestFixture
 //                          Inline functions' definition
 // ===========================================================================
 
+} // namespace aevol
 
 #endif // TEST_AE_INDIVIDUAL

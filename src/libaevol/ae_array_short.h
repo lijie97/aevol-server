@@ -34,8 +34,7 @@
 #include <inttypes.h>
 #include <zlib.h>
 
-
-
+namespace aevol {
 
 // =================================================================
 //                            Project Files
@@ -47,9 +46,6 @@
 // =================================================================
 //                          Class declarations
 // =================================================================
-
-
-
 
 class ae_array_short
 {
@@ -192,5 +188,7 @@ void ae_array_short::print_to_file( FILE* file )
   }
   fprintf( file, "\n" );
 }
+
+} // namespace aevol
 
 #endif // __AE_ARRAY_SHORT_H__

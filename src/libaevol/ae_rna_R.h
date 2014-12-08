@@ -41,6 +41,8 @@
 #include <ae_protein.h>
 #include <ae_influence_R.h>
 
+namespace aevol {
+
 // =================================================================
 //                          Class declarations
 // =================================================================
@@ -126,5 +128,7 @@ ae_rna_R* ae_rna_R::copy( void )
   return new ae_rna_R( this );
 }
 */
+
+} // namespace aevol
 
 #endif // __AE_RNA_R_H__

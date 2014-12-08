@@ -44,6 +44,7 @@
 #include <ae_X11_window.h>
 
 #include <ae_exp_setup.h>
+namespace aevol {
 
 // =================================================================
 //                       Basic X11/Xlib notions
@@ -552,3 +553,4 @@ uint32_t ae_X11_window::get_pixel(Display *display, int8_t screen, char *color_n
   // printf("ram used: %lu bytes\n", sizeof(color_memo) + color_memo.size() * (sizeof(std::string) + sizeof(unsigned long)));
   return color_memo[color_name];
 }
+} // namespace aevol

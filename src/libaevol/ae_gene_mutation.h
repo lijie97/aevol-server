@@ -52,6 +52,7 @@
 #include <ae_enums.h>
 
 
+namespace aevol {
 
 
 // =================================================================
@@ -189,5 +190,5 @@ inline ae_gene_mutation_region ae_gene_mutation::get_region()
 //                       Inline functions' definition
 // =====================================================================
 
-
+} // namespace aevol
 #endif // __AE_GENE_MUTATION_H__

@@ -104,8 +104,7 @@
 #include <ae_list.h>
 #include <ae_experiment.h>
 
-
-
+using namespace aevol;
 
 // =================================================================
 //                         Function declarations

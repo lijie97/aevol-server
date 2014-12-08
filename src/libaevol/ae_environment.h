@@ -53,7 +53,7 @@
 #endif
 
 
-
+namespace aevol {
 
 // =================================================================
 //                          Class declarations
@@ -439,4 +439,5 @@ inline void ae_environment::apply_variation( void )
   _compute_area();
 }
 
+} // namespace aevol
 #endif // __AE_ENVIRONMENT_H__

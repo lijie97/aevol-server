@@ -43,6 +43,8 @@
 #include <assert.h>
 #include <ae_protein.h>
 
+namespace aevol {
+
 // =================================================================
 //                          Class declarations
 // =================================================================
@@ -139,5 +141,5 @@ ae_influence_R* ae_influence_R::copy( void )
   return new ae_influence_R( _rna, _protein, _enhancing_coef, _operating_coef );
 }
 */
-
+} // namespace aevol
 #endif // __AE_INFLUENCE_R_H__

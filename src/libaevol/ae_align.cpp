@@ -40,6 +40,7 @@
 #include <ae_utils.h>
 #include <ae_individual.h>
 
+namespace aevol {
 
 
 //##############################################################################
@@ -310,7 +311,7 @@ ae_vis_a_vis* ae_align::search_alignment_indirect( const ae_dna* chrom_1, const 
   
   return NULL; // Didn't find any alignment with sufficient score.
 }
-
+} // namespace aevol
 // =================================================================
 //                           Protected Methods
 // =================================================================

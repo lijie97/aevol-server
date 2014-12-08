@@ -48,6 +48,7 @@
 #include <ae_dna_replic_report.h>
 #include <ae_enums.h>
 
+namespace aevol {
 
 
 // =================================================================
@@ -330,5 +331,6 @@ inline void ae_replication_report::set_donor_genome_size( int32_t donor_genome_s
   //~ _rearrangements->add( rear_list );
 //~ }
 
+} // namespace aevol
 
 #endif // __AE_REPLICATION_REPORT_H__

@@ -45,6 +45,7 @@
 #include <assert.h>
 #include <ae_individual.h>
 
+namespace aevol {
 
 
 
@@ -201,5 +202,5 @@ inline void ae_grid_cell::set_individual( ae_individual * indiv )
 //                       Inline functions' definition
 // =====================================================================
 
-
+} // namespace aevol
 #endif // __AE_GRID_CELL_H__

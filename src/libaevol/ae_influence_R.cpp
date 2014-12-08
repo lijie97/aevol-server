@@ -49,6 +49,9 @@
 // =================================================================
 //                             Constructors
 // =================================================================
+
+namespace aevol {
+
 ae_influence_R::ae_influence_R( ae_rna* rna, ae_protein *protein, double enhancing_coef, double operating_coef )
 {
   _enhancing_coef = enhancing_coef;
@@ -72,3 +75,4 @@ ae_influence_R::~ae_influence_R( void )
 // =================================================================
 //                           Protected Methods
 // =================================================================
+} // namespace aevol

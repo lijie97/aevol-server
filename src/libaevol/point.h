@@ -24,9 +24,12 @@
 #include <zlib.h>
 #include <utility>
 
+namespace aevol {
+
 typedef std::pair<double, double> point;
 
 point readpoint(const gzFile backup_file);
 void writepoint(const point& p, gzFile backup_file);
 
+} // namespace aevol
 #endif // POINT_H

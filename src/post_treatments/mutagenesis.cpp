@@ -54,6 +54,8 @@
 #include <ae_dna.h>
 #include <ae_mutation.h>
 
+using namespace aevol;
+
 // =================================================================
 //                         Function declarations
 // =================================================================
@@ -1003,7 +1005,3 @@ void print_version( void )
 {
   printf( "aevol %s\n", VERSION );
 }
-
-
-
-

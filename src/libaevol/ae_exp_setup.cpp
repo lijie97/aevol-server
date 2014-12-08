@@ -48,8 +48,7 @@
   #include <ae_population_X11.h>
 #endif
 
-
-
+namespace aevol {
 
 //##############################################################################
 //                                                                             #
@@ -217,3 +216,4 @@ void ae_exp_setup::load( FILE* setup_file, gzFile backup_file, bool verbose )
 // ===========================================================================
 //                                Protected Methods
 // ===========================================================================
+} // namespace aevol

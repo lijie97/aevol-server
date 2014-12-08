@@ -45,9 +45,7 @@
 #include <ae_gene_tree.h>
 #include <ae_gene_tree_node.h>
 
-
-
-
+namespace aevol {
 
 //##############################################################################
 //                                                                             #
@@ -232,3 +230,4 @@ void ae_gene_tree::write_nodes_in_tabular_file(int32_t treeID, FILE * f)
 //                           Protected Methods
 // =================================================================
 
+} // namespace aevol

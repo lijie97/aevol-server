@@ -52,6 +52,7 @@
 #endif
 
 
+namespace aevol {
 
 
 // =================================================================
@@ -4166,3 +4167,4 @@ void ae_genetic_unit::init_statistical_data( void ) // TODO : integrate into com
   _end_neutral_regions = NULL;
 }
 
+} // namespace aevol

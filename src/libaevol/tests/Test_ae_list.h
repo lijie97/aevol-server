@@ -44,8 +44,7 @@
 // =================================================================
 #include <ae_list.h>
 
-
-
+namespace aevol {
 
 // ===========================================================================
 //                             Declare Used Namespaces
@@ -160,5 +159,6 @@ class Test_ae_list : public TestFixture
 //                          Inline functions' definition
 // ===========================================================================
 
+} // namespace aevol
 
 #endif // TEST_AE_LIST

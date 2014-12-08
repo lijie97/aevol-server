@@ -34,7 +34,7 @@
 namespace aevol {
 
 /// Triangle type-2 fuzzy sets.
-///
+
 /// This class provides management tools for "fuzzy sets" abscissa are
 /// bound between MIN_X and MAX_X (defined elsewhere) A "fuzzy set"
 /// should always have at least two points of abscissa MIN_X and MAX_X.

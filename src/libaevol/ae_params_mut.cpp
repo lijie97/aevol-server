@@ -39,7 +39,7 @@
 #include <ae_params_mut.h>
 #include <ae_align.h>
 
-
+namespace aevol {
 
 //##############################################################################
 //                                                                             #
@@ -265,3 +265,4 @@ void ae_params_mut::save( gzFile backup_file ) const
 // =================================================================
 //                          Non inline accessors
 // =================================================================
+} // namespace aevol

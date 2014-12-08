@@ -50,6 +50,8 @@
   #include <ae_exp_manager.h>
 #endif
 
+using namespace aevol;
+
 // =================================================================
 //                         Function declarations
 // =================================================================
@@ -372,4 +374,3 @@ void print_help( char* prog_name )
 	printf( "Change a population file as specified in the parameter file.\n" );
   printf( "(default: param_to_change.in)\n\n" );
 }
-

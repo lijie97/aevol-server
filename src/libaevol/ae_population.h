@@ -46,6 +46,7 @@
 #include <ae_jumping_mt.h>
 #include <ae_tree.h>
 
+namespace aevol {
 
 
 // =================================================================
@@ -500,5 +501,6 @@ inline void ae_population::evaluate_individuals( ae_environment* envir )
     indiv_node = indiv_node->get_next();
   }
 }
+} // namespace aevol
 
 #endif // __AE_POPULATION_H__

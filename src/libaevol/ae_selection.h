@@ -46,6 +46,7 @@
 #include <ae_spatial_structure.h>
 
 
+namespace aevol {
 
 
 // =================================================================
@@ -218,5 +219,5 @@ inline void ae_selection::set_selection_pressure( double sel_pressure )
 //                       Inline functions' definition
 // =====================================================================
 
-
+} // namespace aevol
 #endif // __AE_SELECTION_H__

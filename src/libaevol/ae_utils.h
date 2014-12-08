@@ -48,10 +48,7 @@
 //                          Class declarations
 // =================================================================
 
-
-
-
-
+namespace aevol {
 
 class ae_utils
 {
@@ -98,5 +95,5 @@ inline void ae_utils::exchange( int32_t &a, int32_t &b )
   a = b;
   b = tmp;
 }
-
+} // namespace aevol
 #endif // __AE_UTILS_H__

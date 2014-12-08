@@ -39,6 +39,7 @@
 #include <ae_grid_cell.h>
 #include <ae_individual.h>
 
+namespace aevol {
 
 
 
@@ -96,3 +97,4 @@ void ae_grid_cell::save( gzFile backup_file ) const
 // =================================================================
 //                           Protected Methods
 // =================================================================
+} // namespace aevol

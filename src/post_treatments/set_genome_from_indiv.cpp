@@ -47,8 +47,7 @@
 #include <ae_experiment.h>
 #include <ae_param_loader.h>
 
-
-
+using namespace aevol;
 
 // =================================================================
 //                         Function declarations

@@ -46,6 +46,7 @@
 #include <ae_grid_cell.h>
 
 
+namespace aevol {
 
 
 
@@ -300,5 +301,5 @@ inline void ae_spatial_structure::set_secretion_diffusion_prop( double diffusion
 //                       Inline functions' definition
 // =====================================================================
 
-
+} // namespace aevol
 #endif // __AE_SPATIAL_STRUCTURE_H__

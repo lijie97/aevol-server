@@ -41,6 +41,8 @@
 #include <ae_rna_R.h>
 #include <ae_protein_R.h>
 
+namespace aevol {
+
 // =================================================================
 //                          Class declarations
 // =================================================================
@@ -108,5 +110,7 @@ class ae_individual_R : public virtual ae_individual
 // =====================================================================
 //                          Accessors definitions
 // =====================================================================
+
+} // namespace aevol
 
 #endif // __AE_INDIVIDUAL_R_H__

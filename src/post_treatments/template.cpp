@@ -42,7 +42,7 @@
 // =================================================================
 #include <ae_exp_manager.h>
 
-
+using namespace aevol;
 
 // =================================================================
 //                         Function declarations
@@ -183,11 +183,3 @@ void print_version( void )
 {
   printf( "aevol %s\n", VERSION );
 }
-
-
-
-
-
-
-
-

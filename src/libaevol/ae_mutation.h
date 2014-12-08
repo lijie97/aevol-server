@@ -47,6 +47,7 @@
 #include <ae_enums.h>
 #include <zlib.h>
 
+namespace aevol {
 
 // =================================================================
 //                          Class declarations
@@ -194,5 +195,5 @@ inline int32_t ae_mutation::get_length( void )
 //                       Inline functions' definition
 // =====================================================================
 
-
+} // namespace aevol
 #endif // __AE_MUTATION_H__

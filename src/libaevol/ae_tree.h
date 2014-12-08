@@ -47,6 +47,7 @@
 #include <ae_enums.h>
 
 
+namespace aevol {
 
 
 // =================================================================
@@ -213,5 +214,6 @@ inline int32_t ae_tree::get_LCA( int32_t num_gener, int32_t a, int32_t b, int32_
   return num_gener;
 }
 
+} // namespace aevol
 
 #endif // __AE_TREE_H__

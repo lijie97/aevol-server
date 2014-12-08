@@ -20,6 +20,8 @@
 
 #include "point.h"
 
+namespace aevol {
+  
 point readpoint(gzFile backup_file) {
   point p;
   gzread(backup_file, &p.first, sizeof(p.first));
@@ -31,3 +33,5 @@ void writepoint(const point& p, gzFile backup_file) {
   gzwrite(backup_file, &p.first, sizeof(p.first));
   gzwrite(backup_file, &p.second, sizeof(p.second));
 }
+
+} // namespace aevol

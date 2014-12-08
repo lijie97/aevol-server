@@ -39,8 +39,7 @@
 #include <ae_dna_replic_report.h>
 #include <ae_mutation.h>
 
-
-
+namespace aevol {
 
 //##############################################################################
 //                                                                             #
@@ -198,3 +197,4 @@ void ae_dna_replic_report::compute_stats( void )
 // =================================================================
 //                           Protected Methods
 // =================================================================
+} // namespace aevol

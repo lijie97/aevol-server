@@ -44,8 +44,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-
-
+namespace aevol {
 
 // =================================================================
 //                          Class declarations
@@ -136,5 +135,6 @@ class ae_template
 //                       Inline functions' definition
 // =====================================================================
 
+} // namespace aevol
 
 #endif // __AE_TEMPLATE_H__

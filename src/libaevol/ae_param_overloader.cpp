@@ -40,9 +40,7 @@
 #include <ae_param_overloader.h>
 #include <ae_param_loader.h>
 
-
-
-
+namespace aevol {
 
 //##############################################################################
 //                                                                             #
@@ -109,3 +107,5 @@ void ae_param_overloader::write_log( FILE* log_file ) const
   }
   fprintf( log_file, "\n");
 }
+
+} // namespace aevol

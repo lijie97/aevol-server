@@ -60,6 +60,8 @@
 #include <ae_vis_a_vis.h>
 #include <ae_align.h>
 
+namespace aevol {
+
 //##############################################################################
 //                                                                             #
 //                             Class ae_population                             #
@@ -403,3 +405,4 @@ ae_individual* ae_population::get_indiv_by_id( int32_t id ) const
 
   return NULL;
 }
+} // namespace aevol

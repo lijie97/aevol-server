@@ -53,9 +53,7 @@
 #include <ae_dna_replic_report.h>
 #include <ae_mutation.h>
 
-
-
-
+using namespace aevol;
 
 enum check_type
 {

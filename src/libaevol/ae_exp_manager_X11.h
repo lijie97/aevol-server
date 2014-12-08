@@ -44,8 +44,7 @@
 // =================================================================
 #include <ae_exp_manager.h>
 
-
-
+namespace aevol {
 
 // =================================================================
 //                          Class declarations
@@ -246,5 +245,6 @@ ae_X11_window* ae_exp_manager_X11::get_window( int8_t win )
 //                       Inline functions' definition
 // =====================================================================
 
+} // namespace aevol
 
 #endif // __AE_EXP_SETUP_X11_H__

@@ -58,7 +58,7 @@
 #include <ae_gene_mutation.h>
 #include <ae_gene_tree.h>
 
-
+namespace aevol {
 
 // =================================================================
 //                          Class declarations
@@ -188,5 +188,6 @@ inline ae_gene_loss_type ae_gene_tree_node::get_gene_loss_type() const
 //                       Inline functions' definition
 // =====================================================================
 
+} // namespace aevol
 
 #endif // __AE_GENE_TREE_NODE_H__

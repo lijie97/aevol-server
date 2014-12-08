@@ -49,8 +49,7 @@
 #include <ae_vis_a_vis.h>
 #include <ae_align.h>
 
-
-
+namespace aevol {
 
 //##############################################################################
 //                                                                             #
@@ -3386,3 +3385,4 @@ void ae_dna::inter_GU_ABCDE_to_BDCAE( int32_t pos_B, int32_t pos_C, int32_t pos_
   inter_GU_ABCDE_to_ACDBE( 0, pos_B, pos_E );
   inter_GU_ABCDE_to_ACDBE( len_B, (len_B+len_C), len_DA);
 }
+} // namespace aevol
