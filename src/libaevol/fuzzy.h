@@ -18,8 +18,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef FUZZY_H
-#define FUZZY_H
+#ifndef AEVOL_FUZZY_H
+#define AEVOL_FUZZY_H
 
 #include "ae_list.h"
 #include "point.h"
@@ -75,4 +75,4 @@ class fuzzy
     ae_list_node<point*>* create_interpolated_point(double x, ae_list_node<point*>* start);
 };
 } // namespace
-#endif // FUZZY_H
+#endif // AEVOL_FUZZY_H
