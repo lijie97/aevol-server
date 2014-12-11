@@ -68,7 +68,7 @@
 /**
  * Creates a random dna sequence of length <length> belonging to <gen_unit>.
  */
-ae_dna::ae_dna( ae_genetic_unit* gen_unit, int32_t length ) : ae_string( length, gen_unit->get_indiv()->get_mut_prng() )
+ae_dna::ae_dna( ae_genetic_unit* gen_unit, int32_t length, ae_jumping_mt * prng ) : ae_string( length, prng )
 {
   _gen_unit = gen_unit;
   _exp_m    = gen_unit->get_exp_m();

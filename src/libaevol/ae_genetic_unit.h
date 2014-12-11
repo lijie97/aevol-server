@@ -45,6 +45,7 @@
 #include <ae_protein.h>
 #include <ae_fuzzy_set.h>
 #include <ae_environment.h>
+#include <ae_jumping_mt.h>
 #include <ae_utils.h>
 
 
@@ -66,7 +67,7 @@ class ae_genetic_unit
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_genetic_unit( ae_individual* indiv, int32_t length );
+    ae_genetic_unit( ae_individual* indiv, int32_t length, ae_jumping_mt * prng );
     ae_genetic_unit( ae_individual* indiv, char* seq, int32_t length, ae_list<ae_rna*>** prom_list = NULL );
     ae_genetic_unit( ae_individual* indiv, const ae_genetic_unit &model );
     ae_genetic_unit( ae_individual* indiv, ae_genetic_unit* const parent );
