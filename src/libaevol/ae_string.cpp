@@ -75,20 +75,20 @@ ae_string::ae_string( const ae_string &model )
 }
 
 /*!
-  Creates a new ae_string with enough space to store a string of the given length.
+  Creates a new random string with the given length.
 */
-ae_string::ae_string( int32_t length )
+ae_string::ae_string( int32_t length, ae_jumping_mt* prng )
 {
   _nb_blocks = nb_blocks( length );
   _length = length;
   _data = new char[_nb_blocks * BLOCK_SIZE];
 
   // Generate a random genome
-  /*for ( int32_t i = 0 ; i < _length ; i++ )
+  for ( int32_t i = 0 ; i < _length ; i++ )
   {
-    _data[i] = '0' + ae_common::sim->alea->random( NB_BASE );
+    _data[i] = '0' + prng->random( NB_BASE );
   }
-  _data[_length] = '\0';*/
+  _data[_length] = '\0';
 }
 
 /**

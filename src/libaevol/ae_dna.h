@@ -46,7 +46,7 @@
 #include <ae_list.h>
 #include <ae_mutation.h>
 #include <ae_string.h>
-
+#include <ae_jumping_mt.h>
 
 
 
@@ -70,7 +70,7 @@ class ae_dna : public ae_string
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_dna( ae_genetic_unit* gen_unit, int32_t length );
+    ae_dna( ae_genetic_unit* gen_unit, int32_t length, ae_jumping_mt * prng );
     ae_dna( ae_genetic_unit* gen_unit, const ae_dna &model );
     ae_dna( ae_genetic_unit* gen_unit, ae_dna* const parent_dna );
     ae_dna( ae_genetic_unit* gen_unit, char* seq, int32_t length );
