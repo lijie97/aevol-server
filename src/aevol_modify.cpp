@@ -401,10 +401,14 @@ int main( int argc, char* argv[] )
               exit( EXIT_FAILURE );
             }
         }
+      else if ( strcmp( line->words[0], "SECRETION_CONTRIB_TO_FITNESS" ) == 0 )
+      {
+        exp_manager->get_exp_s()->set_secretion_contrib_to_fitness( atof( line->words[1] ) );
+      }
       else if ( strcmp( line->words[0], "SECRETION_COST" ) == 0 )
-        {
-          exp_manager->get_exp_s()->set_secretion_cost( atof( line->words[1] ) );
-        }
+      {
+        exp_manager->get_exp_s()->set_secretion_cost( atof( line->words[1] ) );
+      }
       else if ( strcmp( line->words[0], "SEED" ) == 0 )
         {
           int32_t seed = atoi( line->words[1] ) ;
