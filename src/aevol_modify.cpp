@@ -248,6 +248,14 @@ int main( int argc, char* argv[] )
           delete env_axis_segment_boundaries;
           delete env_axis_features;
         }
+      else if ( strcmp( line->words[0], "DUMP_STEP" ) == 0 )
+      {
+        int step = atoi( line->words[1] );
+        if (step>0)
+        {
+          exp_manager->get_output_m()->set_dump_step( step );
+        }
+      }
       else if ( strcmp( line->words[0], "POPULATION_SIZE") == 0 )
         {
           if (exp_manager->is_spatially_structured())
