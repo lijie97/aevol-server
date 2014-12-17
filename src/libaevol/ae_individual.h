@@ -246,6 +246,8 @@ class ae_individual
     inline void set_min_genome_length( int32_t min_genome_length );
     inline void set_max_genome_length( int32_t max_genome_length );
 
+    // Plasmids
+    inline void set_allow_plasmids( bool allow_plasmids );
 
     // Mutation rates etc...
     inline void set_point_mutation_rate( double point_mutation_rate);
@@ -1205,6 +1207,11 @@ inline int16_t ae_individual::get_align_mismatch_cost( void ) const
 inline bool ae_individual::get_with_stochasticity( void ) const
 {
   return _with_stochasticity;
+}
+
+inline void ae_individual::set_allow_plasmids( bool allow_plasmids )
+{
+  _allow_plasmids=allow_plasmids;
 }
 
 // Genome size constraints

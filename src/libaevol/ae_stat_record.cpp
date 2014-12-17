@@ -325,7 +325,7 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_individual const * ind
       }
       
       // Mutation stats
-      if ( replic_report != NULL )
+      if (( replic_report != NULL ) && (gen_unit->get_dna()->get_replic_report()!=NULL))
       {
         _nb_mut    += gen_unit->get_dna()->get_replic_report()->get_nb_small_mutations();
         _nb_rear   += gen_unit->get_dna()->get_replic_report()->get_nb_rearrangements();
