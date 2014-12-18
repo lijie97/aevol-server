@@ -11,12 +11,10 @@ else # WITHOUT_CPPUNIT
   SUBDIRS = SFMT-src-1.4 .
 endif
 
-
 ########################
 # Set library to build #
 ########################
 noinst_LIBRARIES = libaevol.a
-
 
 ############################################
 # C99 exact-width integer specific support #
@@ -26,27 +24,108 @@ noinst_LIBRARIES = libaevol.a
 # __STDC_LIMIT_MACROS allows us to use exact-width integer limit macros with e.g. INT32_MAX
 AM_CPPFLAGS += -D__STDC_FORMAT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS
 
+common_headers = \
+ae_align.h \
+ae_codon.h \
+ae_dna.h \
+ae_dump.h \
+ae_enums.h \
+ae_environment.h \
+ae_env_segment.h \
+ae_exp_manager.h \
+ae_exp_setup.h \
+ae_fuzzy_set.h \
+ae_gaussian.h \
+ae_genetic_unit.h \
+ae_grid_cell.h \
+ae_individual.h \
+ae_list.h \
+ae_logs.h \
+ae_macros.h \
+ae_mutation.h \
+ae_output_manager.h \
+ae_params_mut.h \
+ae_phenotype.h \
+ae_population.h \
+point.h \
+ae_protein.h \
+ae_jumping_mt.h \
+ae_jump_poly.h \
+ae_replication_report.h \
+ae_dna_replic_report.h \
+ae_rna.h \
+ae_stats.h \
+ae_stat_record.h \
+ae_string.h \
+ae_tree.h \
+ae_utils.h \
+ae_vis_a_vis.h \
+ae_selection.h \
+ae_spatial_structure.h \
+ae_gene_tree.h \
+ae_gene_tree_node.h \
+ae_gene_mutation.h \
+fuzzy.h
 
+common_headers += \
+param_loader.h \
+f_line.h
 
-common_headers = ae_align.h ae_codon.h ae_dna.h ae_dump.h ae_enums.h ae_environment.h ae_env_segment.h ae_exp_manager.h ae_exp_setup.h ae_fuzzy_set.h ae_gaussian.h ae_genetic_unit.h ae_grid_cell.h ae_individual.h ae_list.h ae_logs.h ae_macros.h ae_mutation.h ae_output_manager.h ae_params_mut.h ae_phenotype.h ae_population.h point.h ae_protein.h ae_jumping_mt.h ae_jump_poly.h ae_replication_report.h ae_dna_replic_report.h ae_rna.h ae_stats.h ae_stat_record.h ae_string.h ae_tree.h ae_utils.h ae_vis_a_vis.h ae_selection.h ae_spatial_structure.h ae_gene_tree.h ae_gene_tree_node.h ae_gene_mutation.h ae_fuzzy.h
-common_headers += param_loader.h f_line.h
-
-common_sources = ae_align.cpp ae_codon.cpp ae_dna.cpp ae_dump.cpp ae_environment.cpp ae_exp_manager.cpp ae_exp_setup.cpp ae_fuzzy_set.cpp ae_genetic_unit.cpp ae_grid_cell.cpp ae_individual.cpp ae_logs.cpp ae_mutation.cpp ae_output_manager.cpp ae_params_mut.cpp ae_phenotype.cpp ae_population.cpp point.cpp ae_protein.cpp ae_jumping_mt.cpp ae_replication_report.cpp ae_dna_replic_report.cpp ae_rna.cpp ae_stats.cpp ae_stat_record.cpp ae_string.cpp ae_tree.cpp ae_vis_a_vis.cpp ae_selection.cpp ae_spatial_structure.cpp ae_gene_tree.cpp ae_gene_tree_node.cpp ae_gene_mutation.cpp fuzzy.cpp
+common_sources = \
+ae_align.cpp \
+ae_codon.cpp \
+ae_dna.cpp \
+ae_dump.cpp \
+ae_environment.cpp \
+ae_exp_manager.cpp \
+ae_exp_setup.cpp \
+ae_genetic_unit.cpp \
+ae_grid_cell.cpp \
+ae_individual.cpp \
+ae_logs.cpp \
+ae_mutation.cpp \
+ae_output_manager.cpp \
+ae_params_mut.cpp \
+ae_phenotype.cpp \
+ae_population.cpp \
+point.cpp \
+ae_protein.cpp \
+ae_jumping_mt.cpp \
+ae_replication_report.cpp \
+ae_dna_replic_report.cpp \
+ae_rna.cpp \
+ae_stats.cpp \
+ae_stat_record.cpp \
+ae_string.cpp \
+ae_tree.cpp \
+ae_vis_a_vis.cpp \
+ae_selection.cpp \
+ae_spatial_structure.cpp \
+ae_gene_tree.cpp \
+ae_gene_tree_node.cpp \
+ae_gene_mutation.cpp \
+fuzzy.cpp
 common_sources += param_loader.cpp f_line.cpp
 
+X11_headers = \
+ae_fuzzy_set_X11.h \
+ae_individual_X11.h \
+ae_population_X11.h \
+ae_exp_manager_X11.h \
+ae_X11_window.h
 
-X11_headers = ae_fuzzy_set_X11.h ae_individual_X11.h ae_population_X11.h ae_exp_manager_X11.h ae_X11_window.h
-X11_sources = ae_fuzzy_set_X11.cpp ae_individual_X11.cpp ae_population_X11.cpp ae_exp_manager_X11.cpp ae_X11_window.cpp
-
-
-
+X11_sources = \
+ae_fuzzy_set_X11.cpp \
+ae_individual_X11.cpp \
+ae_population_X11.cpp \
+ae_exp_manager_X11.cpp \
+ae_X11_window.cpp
 
 # The target_CPPFLAGS for each target may look useless, it is here to force automake to create
 # prefixed object files so that we don't use an object file built for another set of macrodefinitions
 # e.g. We don't want to use an object file created with NO_X when building the X11 lib
 
 libaevol_a_CPPFLAGS = $(AM_CPPFLAGS)
-
 
 if WITH_X
 #libaevol_a_HEADERS = $(common_headers) $(X11_headers)
