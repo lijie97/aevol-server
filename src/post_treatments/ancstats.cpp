@@ -365,7 +365,7 @@ int main(int argc, char** argv)
         backup_env = new ae_environment();
         backup_env->load( env_file );
 
-        if ( ! env->is_identical_to(backup_env, tolerance) )
+        if ( ! env->is_identical_to(*backup_env, tolerance) )
           {
             printf("Warning: At t=%" PRId32 ", the replayed environment is not the same\n", num_gener);
             printf("         as the one saved at generation %" PRId32 "... \n", num_gener );

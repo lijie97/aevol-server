@@ -21,58 +21,89 @@
 #ifndef AEVOL_FUZZY_H
 #define AEVOL_FUZZY_H
 
-#include "ae_list.h"
+#include <list>
+
+#include "ae_list.h" // TODO: not needed here; add where needed transitively
+#include "ae_macros.h"
 #include "point.h"
 
 namespace aevol {
 
-/// Triangle type-2 fuzzy sets.
-
+/// Triangular fuzzy sets.
+///
 /// This class provides management tools for "fuzzy sets" abscissa are
-/// bound between MIN_X and MAX_X (defined elsewhere) A "fuzzy set"
-/// should always have at least two points of abscissa MIN_X and MAX_X.
+/// bound between X_MIN and X_MAX (defined in ae_macros.h) A "fuzzy
+/// set" should always have at least two points of abscissa X_MIN and
+/// X_MAX.
+///
+/// A fuzzy set holds elements in a set X together with a probability
+/// function X → [0,1] which tells how likely element x ∈ X beholds to
+/// the fuzzy set. With these triangular fuzzy sets, the probability
+/// function is a finite sum of isosceles triangles.
+///
+/// The current class models fuzzy sets over range X = [X_MIN; X_MAX]
+/// by representing the probability function as the list of singular
+/// points on its graph.
+///
+/// \verbatim
+/// \\code{.unparsed}
+///           ^
+///       y2  +...              X                                            ....
+///           |...             / \                                           ....
+///       y6  +...            /   \               X                          ....
+///           |...           /     \             / \                         ....
+///       y4  +...          /       \   X       /   \                        ....
+///           |...         /         \ / \     /     \                       ....
+///      y3,y9+...        /           X   \   /       \             X        ....
+///           |...       /                 \ /         \           / \       ....
+///       y5  +...      /                   X           \         /   \      ....
+///           |...     /                                 \       /     \     ....
+///       0   +--X----X---------|-----|-|---|-----|-------X-----X-------X----X--->
+///            X_MIN x1        x2    x3 x4 x5    x6      x7    x8  x9  x10 X_MAX
+/// \\endcode
+/// \endverbatim
+/// fs.points would hold the list {(X_MIN,0),(x1,y1),...,(x10,y10)(X_MAX,0)}
 class fuzzy
 {
-  public:
-    fuzzy();
-    fuzzy(const fuzzy& f);
-    fuzzy(const gzFile backup);
-    virtual ~fuzzy();
-    ae_list<point*>* get_points();
-    void initialize();
-    void simplify();
-    void print_points() const;
-    void add_triangle(double mean, double width, double height);
-    void add(fuzzy* f);
-    void sub(fuzzy* f);
-    double get_geometric_area() const;
-    double get_geometric_area(double begin, double end) const;
-    double get_y(double x) const;
-    double get_x(double y, point* left, point* right) const;
-    ae_list_node<point*>* create_interpolated_point(double x);
+ public:
+  fuzzy(): points({point(X_MIN, 0.0), point(X_MAX, 0.0)}) {};
+  // fuzzy();
+  fuzzy(const fuzzy& f): points(f.points) {};
+  fuzzy(const gzFile backup) {load(backup);};
+  virtual ~fuzzy() {};
+  // breaks encapsulation
+  // TODO: remove foreign dependency and nuke this function
+  std::list<point>& get_points() {return points;};
+  // called from ae_environment::apply_noise(), should otherwise be private
+  // TODO: remove call from apply_noise() and make create_interpolated_point protected
+  std::list<point>::iterator create_interpolated_point(double x);
+  std::list<point>::iterator create_interpolated_point(double x, std::list<point>::iterator start);
+  void simplify();
+  void add_triangle(double mean, double width, double height);
+  void add(const fuzzy& f);
+  void sub(const fuzzy& f);
+  double get_geometric_area() const;
+  double get_geometric_area(std::list<point>::const_iterator begin,
+                            std::list<point>::const_iterator end) const;
+  double get_geometric_area(double start_segment, double end_segment) const;
+  double get_y(double x, std::list<point>::const_iterator begin) const;
+  double get_y(double x) const;
+  // get_x should be moved out of fuzzy class as it really applies to pair of points
+  double get_x(const point& left, const point& right, double y) const;
+  
 
-    void add_upper_bound(double up);
-    void add_lower_bound(double low);
+  void add_upper_bound(double up);
+  void add_lower_bound(double low);
 
-    bool is_identical_to(const fuzzy* fs, double tolerance) const;
+  bool is_identical_to(const fuzzy& fs, double tolerance) const;
 
-    void save(gzFile backup) const;
-    void load(gzFile backup);
+  void save(gzFile backup) const;
+  void load(gzFile backup);
+  void reset();
 
-  protected:
-    bool is_increasing() const;
-    ae_list<point*>* _points;
-
-  private:
-    // WARNING: The 2 following functions are private because they are
-    // dangerous. They are optimized versions of their homonyms,
-    // starting their search at the given list entry.
-
-    // The following conditions are MANDATORY : 
-    //  - list_entry must be a node of the point list (_points) 
-    //  - the corresponding point's abscissa must be ≤ x
-    double get_y(double x, ae_list_node<point*>* start) const;
-    ae_list_node<point*>* create_interpolated_point(double x, ae_list_node<point*>* start);
+ protected:
+  bool is_increasing() const;
+  std::list<point> points;
 };
-} // namespace
+} // namespace aevol
 #endif // AEVOL_FUZZY_H

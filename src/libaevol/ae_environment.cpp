@@ -41,6 +41,7 @@
 #include <point.h>
 #include <ae_gaussian.h>
 #include <ae_list.h>
+#include <list>
 
 namespace aevol {
 
@@ -492,102 +493,71 @@ void ae_environment::add_custom_point( double x, double y )
 
 void ae_environment::build( void )
 {
+  // NB : Extreme points (at abscissa X_MIN and X_MAX) will be generated, we need to erase the list first
+  points.clear();
 
-  // NB : Extreme points (at abscissa MIN_X and MAX_X) will be generated, we need to erase the list first
-  _points->erase( true );
-      
-
-  // ----------------------------------------
   // 1) Generate sample points from gaussians
-  // ----------------------------------------
-
-  if ( _gaussians != NULL)
-    {
-   
+  if ( _gaussians != NULL) {
+    ae_list_node<ae_gaussian*>* node = NULL;
   
-      ae_list_node<ae_gaussian*>* node = NULL;
-  
-      for ( int16_t i = 0 ; i <= _sampling ; i++ )
-        {
-          point* new_point = new point( X_MIN + (double)i * (X_MAX - X_MIN) / (double)_sampling, 0.0 );
-          node = _gaussians->get_first();
+    for ( int16_t i = 0 ; i <= _sampling ; i++ ) {
+      point new_point = point( X_MIN + (double)i * (X_MAX - X_MIN) / (double)_sampling, 0.0 );
+      node = _gaussians->get_first();
     
-          while ( node )
-            {
-              new_point->second += node->get_obj()->compute_y( new_point->first );
-      
-              node = node->get_next();
-            }
-    
-          _points->add( new_point );
-        }
+      while ( node ) {
+        new_point.second += node->get_obj()->compute_y( new_point.first );
+        node = node->get_next();
+      }
+      points.push_back(new_point);
     }
+  }
   
 
-  // --------------------
   // 2) Add custom points
-  // --------------------
- 
-  if ( _custom_points != NULL)
-    {
-      ae_list_node<point*>* pt_node = _custom_points->get_first();
-      point *custom_point = pt_node->get_obj();
-      point *new_point;
+  if ( _custom_points != NULL) {
+    ae_list_node<point*>* pt_node = _custom_points->get_first();
+    point *custom_point = pt_node->get_obj();
+    point new_point;
       
-      if ( custom_point->first > X_MIN)
-        {
-          // Add the point (X_MIN, Y_MIN) in front of the list of points
-          new_point = new point( X_MIN, Y_MIN );
-          _points->add_front( new_point );
-        }
-              
-      while ( pt_node != NULL )
-        {
-          custom_point = pt_node->get_obj();
-          new_point = new point( *custom_point );
-          _points->add( new_point );
-          pt_node = pt_node->get_next();
-        }
-      
-      if ( custom_point->first < X_MAX )
-        {
-          // Add the point (X_MAX, Y_MIN) at the end of the list of points
-          new_point = new point( X_MAX, Y_MIN );
-          _points->add( new_point );  
-        }
+    if ( custom_point->first > X_MIN) {
+      // Add the point (X_MIN, Y_MIN) in front of the list of points
+      new_point = point( X_MIN, Y_MIN );
+      points.push_front( new_point );
     }
+
+    while ( pt_node != NULL ) {
+      custom_point = pt_node->get_obj();
+      new_point = point( *custom_point );
+      points.push_back(new_point);
+      pt_node = pt_node->get_next();
+    }
+      
+    if ( custom_point->first < X_MAX ) {
+      // Add the point (X_MAX, Y_MIN) at the end of the list of points
+      new_point = point( X_MAX, Y_MIN );
+      points.push_back(new_point);  
+    }
+  }
   
 
-  // ---------------------------------------
   // 3) Simplify (get rid of useless points)
-  // ---------------------------------------
   add_lower_bound( Y_MIN );
   add_upper_bound( Y_MAX );
   simplify();
   
-  
-  // ---------------------------------------
   // 4) Compute areas (total and by feature)
-  // ---------------------------------------
   _compute_area();
-  
-  
-  // -------------------------------------------------------------------
+    
   //  5) If needed, create a copy of the initial state of the gaussians
-  // -------------------------------------------------------------------
-  if ( _initial_gaussians == NULL && (_var_method != NO_VAR || is_noise_allowed()) )
-  {
+  if ( _initial_gaussians == NULL && (_var_method != NO_VAR || is_noise_allowed()) ) {
     _initial_gaussians = new ae_list<ae_gaussian*>();
     
     int32_t nb_gaussians = _gaussians->get_nb_elts();
     ae_list_node<ae_gaussian*>* gaussian_node = _gaussians->get_first();
     ae_gaussian*  gaussian      = NULL;
-    for ( int16_t i = 0 ; i < nb_gaussians ; i++ )
-    {
+    for ( int16_t i = 0 ; i < nb_gaussians ; i++ ) {
       gaussian = gaussian_node->get_obj();
-      
       _initial_gaussians->add( new ae_gaussian( *gaussian ) );
-      
       gaussian_node = gaussian_node->get_next();
     }
   }
@@ -632,13 +602,7 @@ void ae_environment::apply_noise( void )
     }
     else // _cur_noise has already been created -> reinitialize all its points to 0
     {
-      ae_list_node<point*>* point_node  = _cur_noise->get_points()->get_first();
-      while ( point_node != NULL )
-      {
-        point_node->get_obj()->second = 0;
-        
-        point_node = point_node->get_next();
-      }
+      _cur_noise->reset();
     }
     
     
@@ -651,7 +615,7 @@ void ae_environment::apply_noise( void )
     {
       int32_t num_zone;
       int32_t nb_zones = 1 << fractal_step;
-      int32_t nb_points_in_each_zone = _cur_noise->get_points()->get_nb_elts() / nb_zones;
+      int32_t nb_points_in_each_zone = _cur_noise->get_points().size() / nb_zones;
       
       // Compute current noise intensity
       // We first test the trivial (most common) cases, then the general (positive or negative) cases
@@ -688,17 +652,14 @@ void ae_environment::apply_noise( void )
       }
       
       // For each point in the noise fuzzy set, apply the noise computed for the corresponding zone
-      ae_list_node<point*>* point_node  = _cur_noise->get_points()->get_first();
-      point*  point       = NULL;
-      int32_t       point_index = 0;
-      while ( point_node != NULL )
+      // Rewritten along with fuzzy sets
+      // TODO: test (vld, 2014-12-17)
       {
-        point = point_node->get_obj();
-        
-        num_zone = floor( point_index++ / nb_points_in_each_zone );
-        point->second += noise_component[num_zone];
-        
-        point_node = point_node->get_next();
+        std::list<point> points = _cur_noise->get_points();
+        size_t i = 0;
+        for (std::list<point>::iterator p = points.begin() ; p != points.end() ; ++p, ++i) {
+          p->second += noise_component[static_cast<size_t>(floor(i / nb_points_in_each_zone))];
+        }
       }
       delete noise_component;
       
@@ -721,7 +682,7 @@ void ae_environment::apply_noise( void )
     
     
     // Apply the fractal noise to the environment
-    this->add( _cur_noise );
+    this->add( *_cur_noise );
     
     // Bind Y values in [Y_MIN, Y_MAX]
     add_lower_bound( Y_MIN );

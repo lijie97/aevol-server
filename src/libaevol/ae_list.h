@@ -38,6 +38,9 @@
 #include <list>
 #include <iostream>
 
+#include "point.h"
+
+// #include "ae_list.h"
 using std::cout;
 
 namespace aevol {
@@ -46,8 +49,7 @@ template <typename T>
 class ae_list;
 
 template <typename T>
-class ae_list_node
-{
+class ae_list_node {
   friend class ae_list<T>;
 
   public :
@@ -58,7 +60,6 @@ class ae_list_node
     inline ae_list_node( const ae_list_node &model );
 
     virtual inline ~ae_list_node( void );
-
     inline T&             get_obj( void );
     inline ae_list_node*  get_prev( void );
     inline ae_list_node*  get_next( void );
@@ -89,6 +90,7 @@ class ae_list
     /*inline ae_list( const ae_list &model );*/
     inline virtual ~ae_list();
     ae_list(std::list<T>);
+  // bool operator==(ae_list<T> &l);
 
     // Add obj in a newly created node at the end (resp beginning) of the list
     // => syntaxic sugar for add_after( obj, _last );
@@ -171,17 +173,32 @@ ae_list<T>::ae_list()
 
 // conversion constructor
 // to decouple ae_* from ae_list
-template <typename T>
-ae_list<T>::ae_list(std::list<T> l)
-{
-  _last = _first = NULL;
-  _nb_elts = 0;
+// template <>
+// ae_list<point*>::ae_list(std::list<point> l) {
+//   _last = _first = NULL;
+//   _nb_elts = 0;
 
-  for (T e: l)
-    cout << *e << ' ';
-  cout << '\n';
+//   for (T p: l) {
+//     add(ae_list_node<point*>(&l));
+//     cout << *e << ' ';
+//   }
+//   cout << '\n';
   
-}
+// }
+
+// template <typename T>
+// bool ae_list<T>::operator==(ae_list<T> &l) {
+//   ae_list_node<T>* e1 = _first;
+//   ae_list_node<T>* e2 = l.get_first();
+
+//   while (e1 != NULL and e2 != NULL) {
+//     if (e1->get_obj() != e2->get_obj())
+//       return false;
+//     e1 = e1->get_next();
+//     e2 = e2->get_next();
+//   }
+//   return e1 == e2;
+// }
 
 // Doesn't create new objects
 /*ae_list::ae_list( const ae_list &model )

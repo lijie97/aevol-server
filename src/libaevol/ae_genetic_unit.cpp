@@ -1040,8 +1040,8 @@ void ae_genetic_unit::compute_phenotypic_contribution( void )
   if ( _exp_m->get_output_m()->get_compute_phen_contrib_by_GU() )
   {
     _phenotypic_contribution = new ae_phenotype();
-    _phenotypic_contribution->add( _activ_contribution );
-    _phenotypic_contribution->add( _inhib_contribution );
+    _phenotypic_contribution->add( *_activ_contribution );
+    _phenotypic_contribution->add( *_inhib_contribution );
     _phenotypic_contribution->simplify();
   }
 }
@@ -1060,7 +1060,7 @@ void ae_genetic_unit::compute_distance_to_target( ae_environment* env )
 
   // Compute the difference between the (whole) phenotype and the environment
   ae_fuzzy_set* delta = new ae_fuzzy_set( *_phenotypic_contribution );
-  delta->sub( env );
+  delta->sub( *env );
 
   ae_env_segment** segments = env->get_segments();
 

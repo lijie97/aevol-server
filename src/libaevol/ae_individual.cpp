@@ -753,8 +753,8 @@ void ae_individual::compute_phenotype( void )
   {
     gen_unit = gen_unit_node->get_obj();
 
-    _phenotype_activ->add( gen_unit->get_activ_contribution() );
-    _phenotype_inhib->add( gen_unit->get_inhib_contribution() );
+    _phenotype_activ->add( *gen_unit->get_activ_contribution() );
+    _phenotype_inhib->add( *gen_unit->get_inhib_contribution() );
 
     gen_unit_node = gen_unit_node->get_next();
   }
@@ -763,8 +763,8 @@ void ae_individual::compute_phenotype( void )
   _phenotype_inhib->add_lower_bound( - Y_MAX );
 
   _phenotype = new ae_phenotype();
-  _phenotype->add( _phenotype_activ );
-  _phenotype->add( _phenotype_inhib );
+  _phenotype->add( *_phenotype_activ );
+  _phenotype->add( *_phenotype_inhib );
   _phenotype->add_lower_bound( Y_MIN );
   _phenotype->simplify();
 }
@@ -780,7 +780,7 @@ void ae_individual::compute_distance_to_target( ae_environment* envir )
 
   // Compute the difference between the (whole) phenotype and the environment
   ae_fuzzy_set* delta = new ae_fuzzy_set( *_phenotype );
-  delta->sub( envir );
+  delta->sub( *envir );
 
   ae_env_segment** segments = envir->get_segments();
   _dist_to_target_by_segment = new double [envir->get_nb_segments()];

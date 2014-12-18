@@ -1,8 +1,4 @@
-// ****************************************************************************
-//
-//          Aevol - An in silico experimental evolution platform
-//
-// ****************************************************************************
+// Aevol - An in silico experimental evolution platform
 // 
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
@@ -21,25 +17,13 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
-// ****************************************************************************
-
 
 #ifndef  __AE_ENVIRONMENT_H__
 #define  __AE_ENVIRONMENT_H__
 
-
-// =================================================================
-//                              Libraries
-// =================================================================
 #include <inttypes.h>
 #include <zlib.h>
 
-
-
-// =================================================================
-//                            Project Files
-// =================================================================
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,18 +36,7 @@
   #include <ae_fuzzy_set_X11.h>
 #endif
 
-
 namespace aevol {
-
-// =================================================================
-//                          Class declarations
-// =================================================================
-
-
-
-
-
-
 
 #ifdef __NO_X
 class ae_environment : public ae_fuzzy_set
@@ -74,22 +47,12 @@ class ae_environment : public ae_fuzzy_set_X11
 #endif
 {
   public :
-
-    // =================================================================
-    //                             Constructors
-    // =================================================================
     ae_environment( void );
     ae_environment( const ae_environment &model );
     ae_environment( gzFile backup_file );
 
-    // =================================================================
-    //                             Destructors
-    // =================================================================
     virtual ~ae_environment( void );
 
-    // =================================================================
-    //                         Accessors: getters
-    // =================================================================
     inline ae_list<ae_gaussian*>* get_gaussians( void ) const;
     inline ae_list<point*>* get_custom_points( void ) const;
     inline double               get_total_area( void ) const;
@@ -104,9 +67,6 @@ class ae_environment : public ae_fuzzy_set_X11
     inline ae_env_noise         get_noise_method( void ) const;
     inline bool                 is_noise_allowed( void ) const;
     
-    // =================================================================
-    //                         Accessors: setters
-    // =================================================================
     inline void   set_gaussians( ae_list<ae_gaussian*>* gaussians );
     inline void   set_custom_points( ae_list<point*>* custom_points );
     inline void   set_sampling( int16_t val );
@@ -123,10 +83,6 @@ class ae_environment : public ae_fuzzy_set_X11
     inline void   set_noise_prob( double prob );
     inline void   set_noise_sampling_log( int32_t sampling_log );
 
-
-    // =================================================================
-    //                            Public Methods
-    // =================================================================
     void save( gzFile backup_file ) const;
     void load( gzFile backup_file );
 
@@ -140,39 +96,13 @@ class ae_environment : public ae_fuzzy_set_X11
     
     inline void apply_variation( void );
     void apply_noise( void );
-
-
-    // =================================================================
-    //                           Public Attributes
-    // =================================================================
-
-
-
-
-
+    
   protected :
-
-    // =================================================================
-    //                         Forbidden Constructors
-    // =================================================================
-    //~ ae_environment( void )
-    //~ {
-      //~ printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
-      //~ exit( EXIT_FAILURE );
-    //~ };
-  
-
-    // =================================================================
-    //                           Protected Methods
-    // =================================================================
     void _apply_autoregressive_mean_variation( void );
     void _apply_autoregressive_height_variation( void );
     void _apply_local_gaussian_variation( void );
     void _compute_area( void );
 
-    // =================================================================
-    //                          Protected Attributes
-    // =================================================================
     ae_list<ae_gaussian*>*  _initial_gaussians; // List containing all the gaussians of the environment in their initial state
     ae_list<ae_gaussian*>*  _gaussians;         // List containing all the gaussians of the environment
     int16_t   _sampling;                        // Number of points to be generated from the gaussians.
@@ -204,10 +134,6 @@ class ae_environment : public ae_fuzzy_set_X11
     int32_t         _noise_sampling_log;  // Log2 of the number of points in the noise fuzzy_set
 };
 
-
-// =====================================================================
-//                          Getters' definitions
-// =====================================================================
 inline int16_t ae_environment::get_nb_segments( void ) const
 {
   return _nb_segments;
@@ -279,10 +205,6 @@ inline bool ae_environment::is_noise_allowed( void ) const
   return ( _noise_method != NO_NOISE );
 }
 
-
-// =====================================================================
-//                          Setters' definitions
-// =====================================================================
 inline void ae_environment::set_gaussians( ae_list<ae_gaussian*>* gaussians )
 {
   _gaussians = gaussians;
@@ -297,7 +219,6 @@ inline void ae_environment::set_sampling( int16_t val )
 {
   _sampling = val;
 }
-
 
 inline void ae_environment::set_segmentation( int16_t nb_segments, double* boundaries, ae_env_axis_feature* features, bool separate_segments /*= false*/ )
 {
@@ -380,10 +301,6 @@ inline void ae_environment::set_noise_sampling_log( int32_t sampling_log )
   _noise_sampling_log = sampling_log;
 }
 
-
-// =====================================================================
-//                       Inline functions' definition
-// =====================================================================
 inline void ae_environment::clear_initial_gaussians( void )
 {
   if (_initial_gaussians != NULL)
