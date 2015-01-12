@@ -48,7 +48,7 @@ src/post_treatments/aevol_misc_template
 src/post_treatments/aevol_misc_view_generation
 tests/Makefile
 tests/Makefile.in
-**/*.o
+*.o
 
 
 # ignore the files that are generated from the user guide source
@@ -59,13 +59,13 @@ doc/user_guide/user_manual.synctex.gz
 doc/user_guide/user_manual.toc
 
 # ignore performance records
-**/perf.data*
+perf.data*
 
 
 
 # ignore example generated files
 # i.e. ignore everything under examples directory
-examples/*/**
+examples/*/*
 # but consider param.in files
-!examples/**/param.in
-!examples/**/README
+!examples/*/param.in
+!examples/*/README
