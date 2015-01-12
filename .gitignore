@@ -44,6 +44,8 @@ src/post_treatments/aevol_misc_gene_families
 src/post_treatments/aevol_misc_lineage
 src/post_treatments/aevol_misc_robustness
 src/post_treatments/aevol_misc_mutagenesis
+src/post_treatments/aevol_misc_mutational_robustness
+src/post_treatments/src/post_treatments/aevol_misc_transform_plasmid
 src/post_treatments/aevol_misc_template
 src/post_treatments/aevol_misc_view_generation
 tests/Makefile
