@@ -224,9 +224,8 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, const ae_genetic_unit &m
   _translated                         = false;
   _phenotypic_contributions_computed  = false;
   _non_coding_computed                = false;
-
-  _distance_to_target_computed  = model._distance_to_target_computed;
-  _fitness_computed             = model._fitness_computed;
+  _distance_to_target_computed        = false;
+  _fitness_computed                   = false;
 
   _min_gu_length = model._min_gu_length;
   _max_gu_length = model._max_gu_length;
@@ -1170,6 +1169,8 @@ void ae_genetic_unit::reset_expression( void )
   _translated                         = false;
   _phenotypic_contributions_computed  = false;
   _non_coding_computed                = false;
+  _distance_to_target_computed        = false;
+  _fitness_computed                   = false;
 
 
   // I do not erase the RNA lists, because they were updated
