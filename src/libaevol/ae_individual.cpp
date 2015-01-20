@@ -251,9 +251,11 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile backup_file )
   int16_t y;
   gzread( backup_file, &x, sizeof(x) );
   gzread( backup_file, &y, sizeof(y) );
+  _placed_in_population = false;
   if ( _exp_m != NULL && _exp_m->is_spatially_structured() )
   {
     set_grid_cell( _exp_m->get_grid_cell( x, y ) );
+
   }
 
   // Retreive generic probes
@@ -331,8 +333,6 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile backup_file )
   _statistical_data_computed    = false;
   _non_coding_computed          = false;
   _modularity_computed          = false;
-
-  _placed_in_population = false;
 
 
   // Initialize statistical data
