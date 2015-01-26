@@ -526,7 +526,9 @@ void ae_genetic_unit::do_transcription( void )
 
   // If the genome is not long enough to bear a promoter and a terminator,
   // we set all its RNAs to a length of -1
-  if ( genome_length < PROM_SIZE + TERM_SIZE )
+  // (NB but a terminator can share code with the promoter, making it
+  // possible for the genome to be no longer than the promoter)
+  if ( genome_length < PROM_SIZE )
   {
     rna_node = _rna_list[LEADING]->get_first();
     while ( rna_node != NULL )
