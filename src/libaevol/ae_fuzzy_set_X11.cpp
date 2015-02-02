@@ -39,7 +39,7 @@ void ae_fuzzy_set_X11::display( ae_X11_window* win, color_map color, bool fill /
   int16_t next_x;
   int16_t next_y;
   
-  for (list<point>::iterator p = points.begin() ; p != points.end() ; ++p) {
+  for (list<point>::iterator p = points.begin() ; p != prev(points.end()) ; ++p) {
     list<point>::iterator q = next(p);
     
     // Display segment [p, q]

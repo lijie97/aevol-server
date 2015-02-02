@@ -151,7 +151,8 @@ void fuzzy::add_triangle(double mean, double width, double height) {
     return;
 
   list<point>::iterator p0, p1, p2;
-  p0 = p1 = p2 = points.begin();
+  p0 = p1 = points.begin();
+  p2 = prev(points.end());
   
   double x0 = mean - width;
   double x1 = mean;
@@ -165,7 +166,7 @@ void fuzzy::add_triangle(double mean, double width, double height) {
 
   // Update points with abscissas in (x0;x1)
   for (list<point>::iterator p = p0 ; p != p1 ; ++p)
-    p->second += height * (p->first - x0) / (x1 - x0);
+    p->second += (p->first - x0) / (x1 - x0) * height;
   
   // Update points with abscissas in (x0;x1)
   for (list<point>::iterator p = p1 ; p != p2 ; ++p)
@@ -398,11 +399,11 @@ list<point>::iterator fuzzy::create_interpolated_point(double x, std::list<point
   ++call_counter;
   // cout << call_counter << std::endl;
 
-  // get first point *greater* than x
+  // get first point stricly greater than x and return its predecessor
   list<point>::iterator p = find_if(start, points.end(), [x](point& q){return q.first > x;});
   if (prev(p)->first == x)
     // point already in points
-    return p;
+    return prev(p);
   else {
     auto newp = points.insert(p, point(x, get_y(x)));
     // insert point *before* p
