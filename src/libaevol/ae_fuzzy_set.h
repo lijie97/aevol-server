@@ -37,5 +37,5 @@
 #define __AE_FUZZY_SET_H__
 
 #include <fuzzy.h>
-typedef aevol::fuzzy ae_fuzzy_set;
+typedef aevol::Fuzzy ae_fuzzy_set;
 #endif // __AE_FUZZY_SET_H__

@@ -63,14 +63,14 @@ namespace aevol {
 /// \\endcode
 /// \endverbatim
 /// fs.points would hold the list {(X_MIN,0),(x1,y1),...,(x10,y10)(X_MAX,0)}
-class fuzzy
+class Fuzzy
 {
  public:
-  fuzzy(): points({point(X_MIN, 0.0), point(X_MAX, 0.0)}) {};
+  Fuzzy(): points({point(X_MIN, 0.0), point(X_MAX, 0.0)}) {};
   // fuzzy();
-  fuzzy(const fuzzy& f): points(f.points) {};
-  fuzzy(const gzFile backup) {load(backup);};
-  virtual ~fuzzy() {};
+  Fuzzy(const Fuzzy& f): points(f.points) {};
+  Fuzzy(const gzFile backup) {load(backup);};
+  virtual ~Fuzzy() {};
   // breaks encapsulation
   // TODO: remove foreign dependency and nuke this function
   std::list<point>& get_points() {return points;};
@@ -80,8 +80,8 @@ class fuzzy
   std::list<point>::iterator create_interpolated_point(double x, std::list<point>::iterator start);
   void simplify();
   void add_triangle(double mean, double width, double height);
-  void add(const fuzzy& f);
-  void sub(const fuzzy& f);
+  void add(const Fuzzy& f);
+  void sub(const Fuzzy& f);
   double get_geometric_area() const;
   double get_geometric_area(std::list<point>::const_iterator begin,
                             std::list<point>::const_iterator end) const;
@@ -95,7 +95,7 @@ class fuzzy
   void add_upper_bound(double up);
   void add_lower_bound(double low);
 
-  bool is_identical_to(const fuzzy& fs, double tolerance) const;
+  bool is_identical_to(const Fuzzy& fs, double tolerance) const;
 
   void save(gzFile backup) const;
   void load(gzFile backup);

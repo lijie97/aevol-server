@@ -47,7 +47,7 @@ namespace aevol {
 ///
 /// TODO: use it! (vld, 2014-12-19)
 /// 
-double fuzzy::get_y(double x, list<point>::const_iterator begin) const {
+double Fuzzy::get_y(double x, list<point>::const_iterator begin) const {
   assert(x >= X_MIN and x <= X_MAX);
   assert(points.size() >= 2);
 
@@ -67,7 +67,7 @@ double fuzzy::get_y(double x, list<point>::const_iterator begin) const {
   }
 }
 
-double fuzzy::get_y(double x) const {
+double Fuzzy::get_y(double x) const {
   return get_y(x, points.begin());
 }
 
@@ -80,7 +80,7 @@ double fuzzy::get_y(double x) const {
 /// \pre{`y` should be between `p1` and `p2` ordinates} because
 /// despite the fast that it might be mathematically sound otherwise,
 /// it suggest the user has mixed things up.
-double fuzzy::get_x(const point& p1, const point& p2, double y) const {
+double Fuzzy::get_x(const point& p1, const point& p2, double y) const {
   assert((p2.second <= y and y <= p1.second) or
   	 (p1.second <= y and y <= p2.second));
   assert(p1.second != p2.second);
@@ -118,7 +118,7 @@ double fuzzy::get_x(const point& p1, const point& p2, double y) const {
 /// idem on non-null ordinate
 /// idem on //y-axis
 /// test with points starting/ending with constant
-void fuzzy::simplify() {
+void Fuzzy::simplify() {
   for (list<point>::iterator p = points.begin();
        p != points.end() and p != prev(points.end()) and p != prev(points.end(), 2);
        ++p)
@@ -135,7 +135,7 @@ void fuzzy::simplify() {
 /// \param mean abscissa of its apex
 /// \param width of the side opposite to the apex
 /// \param height ordinate of the apex
-void fuzzy::add_triangle(double mean, double width, double height) {
+void Fuzzy::add_triangle(double mean, double width, double height) {
   assert(points.begin()->first == X_MIN);
   assert(prev(points.end())->first == X_MAX);
 
@@ -185,7 +185,7 @@ void fuzzy::add_triangle(double mean, double width, double height) {
 /// Semantically speaking, we deal with fuzzy sets over the same
 /// range. So adding two fuzzy sets sums up to adding the probability
 /// functions.
-void fuzzy::add(const fuzzy& fs) {
+void Fuzzy::add(const Fuzzy& fs) {
   // assert(points.begin()->first == X_MIN);
   // assert(prev(points.end())->first == X_MAX);
 
@@ -207,7 +207,7 @@ void fuzzy::add(const fuzzy& fs) {
 /// Substract to the current fuzzy set.
 ///
 /// TODO: Dumb version (?), to be completed.
-void fuzzy::sub(const fuzzy& fs) {
+void Fuzzy::sub(const Fuzzy& fs) {
   // assert(points.begin()->first == X_MIN);
   // assert(prev(points.end())->first == X_MAX);
 
@@ -222,12 +222,12 @@ void fuzzy::sub(const fuzzy& fs) {
   // assert(is_increasing());
 }
 
-double fuzzy::get_geometric_area() const {
+double Fuzzy::get_geometric_area() const {
   return get_geometric_area(points.begin(), points.end());
 }
 
 /// Get integral of the absolute of probability function.
-double fuzzy::get_geometric_area(list<point>::const_iterator begin,
+double Fuzzy::get_geometric_area(list<point>::const_iterator begin,
 				 list<point>::const_iterator end) const {
   double area = 0;
   for (list<point>::const_iterator p = begin ; p != points.end() and next(p) != end ; ++p)
@@ -239,7 +239,7 @@ double fuzzy::get_geometric_area(list<point>::const_iterator begin,
 }
 
 /// TODO: test case with discontinuity
-double fuzzy::get_geometric_area(double start_segment, double end_segment) const {
+double Fuzzy::get_geometric_area(double start_segment, double end_segment) const {
 
   // assert(start_segment < end_segment);
 
@@ -270,7 +270,7 @@ double fuzzy::get_geometric_area(double start_segment, double end_segment) const
 }
 
 double area_test() {
-  fuzzy f;
+  Fuzzy f;
   f.add_triangle(0.5, 1.0, 0.5);
   double a = f.get_geometric_area(0.0,1.0);
   return a;
@@ -291,7 +291,7 @@ double area_test() {
 ///      underneath: kept  X			 |
 ///
 /// TODO: prevent adding superfluous points by jumping over whole above zones
-void fuzzy::add_upper_bound(double upper_bound) {
+void Fuzzy::add_upper_bound(double upper_bound) {
   // assert(points.begin()->first == X_MIN);
   // assert(prev(points.end())->first == X_MAX);
 
@@ -316,7 +316,7 @@ void fuzzy::add_upper_bound(double upper_bound) {
 /// `pf` := max(`pf`, `lower_bound`)
 ///
 /// TODO: refactor with add_upper_bound (vld, 2014-12-17)
-void fuzzy::add_lower_bound(double lower_bound) {
+void Fuzzy::add_lower_bound(double lower_bound) {
   // assert(points.begin()->first == X_MIN);
   // assert(prev(points.end())->first == X_MAX);
 
@@ -338,7 +338,7 @@ void fuzzy::add_lower_bound(double lower_bound) {
 }
 
 
-bool fuzzy::is_identical_to(const fuzzy& fs, double tolerance ) const {
+bool Fuzzy::is_identical_to(const Fuzzy& fs, double tolerance ) const {
   // Since list::size() has constant complexity since C++ 11, checking
   // size is an inexpensive first step.
   if (points.size() != fs.points.size()) 
@@ -354,7 +354,7 @@ bool fuzzy::is_identical_to(const fuzzy& fs, double tolerance ) const {
 }
 
 
-void fuzzy::save(gzFile backup_file) const {
+void Fuzzy::save(gzFile backup_file) const {
   int16_t nb_points = points.size();
   gzwrite(backup_file, &nb_points, sizeof(nb_points));
 
@@ -363,7 +363,7 @@ void fuzzy::save(gzFile backup_file) const {
 }
 
 
-void fuzzy::load(gzFile backup_file) {
+void Fuzzy::load(gzFile backup_file) {
   // assert(points.begin()->first == X_MIN);
   // assert(prev(points.end())->first == X_MAX);
 
@@ -377,14 +377,14 @@ void fuzzy::load(gzFile backup_file) {
   // assert(prev(points.end())->first == X_MAX);
 }
 
-list<point>::iterator fuzzy::create_interpolated_point(double x) {
+list<point>::iterator Fuzzy::create_interpolated_point(double x) {
   return create_interpolated_point(x, points.begin());
 }
 
 /// Find first point before abscissa `x`, starting from `start`.
 ///
 /// `start_point` must refer to a point before abscissa `x`
-list<point>::iterator fuzzy::create_interpolated_point(double x, std::list<point>::iterator start) {
+list<point>::iterator Fuzzy::create_interpolated_point(double x, std::list<point>::iterator start) {
   assert(points.begin()->first == X_MIN);
   assert(prev(points.end())->first == X_MAX);
 
@@ -411,7 +411,7 @@ list<point>::iterator fuzzy::create_interpolated_point(double x, std::list<point
   }
 }
 
-bool fuzzy::is_increasing() const {
+bool Fuzzy::is_increasing() const {
   // assert(points.begin()->first == X_MIN);
   // assert(prev(points.end())->first == X_MAX);
 
@@ -424,7 +424,7 @@ bool fuzzy::is_increasing() const {
 /// Set all points ordinate to 0
 ///
 /// Used in ae_environment::apply_noise(). Not sure if it's useful.
-void fuzzy::reset() {
+void Fuzzy::reset() {
   // assert(points.begin()->first == X_MIN);
   // assert(prev(points.end())->first == X_MAX);
 
