@@ -69,3 +69,9 @@ examples/*/**
 # but consider param.in files
 !examples/**/param.in
 !examples/**/README
+
+# ignore tags (ctags, etags...) used for code navigation
+# In case you don't know about tags, see for instance see for instance:
+# http://ctags.sourceforge.net/
+**/tags
+TAGS
