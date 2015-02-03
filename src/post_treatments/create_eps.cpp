@@ -594,7 +594,7 @@ void draw_pos_neg_profiles( ae_individual * indiv, ae_environment* env, char * d
   fprintf( drawingfile, "%lf %lf moveto\n", margin, 0.5);
 
   for (const auto& p: indiv->get_phenotype_activ()->get_points())
-    fprintf(drawingfile, "%lf %lf lineto\n", margin + scale * p.first, 0.5 + scale * p.second);
+    fprintf(drawingfile, "%lf %lf lineto\n", margin + scale * p.x, 0.5 + scale * p.y);
   fprintf(drawingfile, "stroke\n" );
 
 
@@ -607,7 +607,7 @@ void draw_pos_neg_profiles( ae_individual * indiv, ae_environment* env, char * d
   fprintf( drawingfile, "%lf %lf moveto\n", margin, 0.5);
 
   for (const auto& p: indiv->get_phenotype_inhib()->get_points())
-    fprintf( drawingfile, "%lf %lf lineto\n", margin + scale * p.first, 0.5 + scale * p.second);
+    fprintf( drawingfile, "%lf %lf lineto\n", margin + scale * p.x, 0.5 + scale * p.y);
   fprintf( drawingfile, "stroke\n" );
 
   fprintf( drawingfile,"%%%%EOF\n" );
@@ -712,7 +712,7 @@ void draw_phenotype( ae_individual* indiv, ae_environment* env, char* directoryN
   fprintf( drawingfile, "0.002 setlinewidth\n" );
   fprintf( drawingfile, "%lf %lf moveto\n", margin, margin);
   for (const auto& p: indiv->get_phenotype()->get_points())
-    fprintf(drawingfile, "%lf %lf lineto\n", margin + scale * p.first, margin + scale * p.second);
+    fprintf(drawingfile, "%lf %lf lineto\n", margin + scale * p.x, margin + scale * p.y);
   fprintf( drawingfile, "stroke\n" );
 
 
@@ -723,7 +723,7 @@ void draw_phenotype( ae_individual* indiv, ae_environment* env, char* directoryN
   fprintf( drawingfile, "0.001 setlinewidth\n" );
   fprintf( drawingfile, "%lf %lf moveto\n", margin, margin);
   for (const auto& p: env->get_points())
-    fprintf(drawingfile, "%lf %lf lineto\n", margin + scale * p.first, margin + scale * p.second);
+    fprintf(drawingfile, "%lf %lf lineto\n", margin + scale * p.x, margin + scale * p.y);
   fprintf( drawingfile, "stroke\n" );
 
 

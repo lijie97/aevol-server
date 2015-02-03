@@ -811,8 +811,8 @@ void param_loader::interpret_line( f_line* line, int32_t cur_line )
   }
   else if ( strcmp( line->words[0], "ENV_ADD_POINT" ) == 0 )
   {
-    if ( _env_custom_points == NULL ) _env_custom_points = new ae_list<point*>();
-    _env_custom_points->add( new point(  atof( line->words[1] ), atof( line->words[2] ) ) );
+    if ( _env_custom_points == NULL ) _env_custom_points = new ae_list<Point*>();
+    _env_custom_points->add( new Point(  atof( line->words[1] ), atof( line->words[2] ) ) );
   }
   else if ( (strcmp( line->words[0], "ENV_ADD_GAUSSIAN" ) == 0 ) || ( strcmp( line->words[0], "ENV_GAUSSIAN" ) == 0 ))
   {

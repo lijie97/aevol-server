@@ -574,12 +574,12 @@ void write_environment_stats( int32_t num_gener, const ae_environment * env, FIL
   else if ( env->get_custom_points() != NULL )
     {
       // For each point : x y
-      ae_list_node<point*>* ptnode  = env->get_custom_points()->get_first();
-      point*  pt      = NULL;
+      ae_list_node<Point*>* ptnode  = env->get_custom_points()->get_first();
+      Point*  pt      = NULL;
       while ( ptnode != NULL )
         {
           pt = ptnode->get_obj();
-          fprintf( env_output_file, "  %.16f %.16f", pt->first, pt->second );
+          fprintf( env_output_file, "  %.16f %.16f", pt->x, pt->y );
           ptnode = ptnode->get_next();
         }
 

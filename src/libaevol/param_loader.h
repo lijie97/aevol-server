@@ -162,7 +162,7 @@ class param_loader
 
     // ------------------------------------------------------------ Environment
     ae_list<ae_gaussian*>* _env_gaussians;
-    ae_list<point*>* _env_custom_points;
+    ae_list<Point*>* _env_custom_points;
     int16_t  _env_sampling;
 
     // ---------------------------------------- Environment x-axis segmentation

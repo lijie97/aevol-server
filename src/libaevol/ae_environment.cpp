@@ -145,13 +145,13 @@ ae_environment::ae_environment( const ae_environment &model ) :
   if (model._custom_points == NULL) { _custom_points  = NULL; }
   else
     {
-      _custom_points = new ae_list<point *>;
-      ae_list_node<point *> * node = model._custom_points->get_first();
-      point * m = NULL;
+      _custom_points = new ae_list<Point *>;
+      ae_list_node<Point *> * node = model._custom_points->get_first();
+      Point * m = NULL;
       while (node != NULL)
         {
           m = node->get_obj();
-          _custom_points->add( new point(*m));
+          _custom_points->add( new Point(*m));
           node = node->get_next();
         }
     }
@@ -280,8 +280,8 @@ void ae_environment::save( gzFile backup_file ) const
   
   if ( _custom_points != NULL )
   {
-    ae_list_node<point*>* custom_point_node = _custom_points->get_first();
-    point*  custom_point;
+    ae_list_node<Point*>* custom_point_node = _custom_points->get_first();
+    Point*  custom_point;
     for ( int16_t i = 0 ; i < nb_custom_points ; i++ )
     {
       custom_point = custom_point_node->get_obj();
@@ -384,10 +384,10 @@ void ae_environment::load( gzFile backup_file )
   // -------------------------
   int16_t nb_custom_points;
   gzread( backup_file, &nb_custom_points, sizeof(nb_custom_points) );
-  if ( nb_custom_points > 0 ) _custom_points = new ae_list<point*>();
+  if ( nb_custom_points > 0 ) _custom_points = new ae_list<Point*>();
   for ( int16_t i = 0 ; i < nb_custom_points ; i++ )
   {
-    _custom_points->add(new point(readpoint(backup_file)));
+    _custom_points->add(new Point(readpoint(backup_file)));
   }
   
   
@@ -488,7 +488,7 @@ void ae_environment::add_initial_gaussian( double a, double b, double c )
 
 void ae_environment::add_custom_point( double x, double y )
 {
-  _custom_points->add(new point(x, y));
+  _custom_points->add(new Point(x, y));
 }
 
 void ae_environment::build( void )
@@ -501,7 +501,7 @@ void ae_environment::build( void )
     ae_list_node<ae_gaussian*>* node = NULL;
   
     for ( int16_t i = 0 ; i <= _sampling ; i++ ) {
-      point new_point = point( X_MIN + (double)i * (X_MAX - X_MIN) / (double)_sampling, 0.0 );
+      Point new_point = Point( X_MIN + (double)i * (X_MAX - X_MIN) / (double)_sampling, 0.0 );
       node = _gaussians->get_first();
     
       while ( node ) {
@@ -515,26 +515,26 @@ void ae_environment::build( void )
 
   // 2) Add custom points
   if ( _custom_points != NULL) {
-    ae_list_node<point*>* pt_node = _custom_points->get_first();
-    point *custom_point = pt_node->get_obj();
-    point new_point;
+    ae_list_node<Point*>* pt_node = _custom_points->get_first();
+    Point *custom_point = pt_node->get_obj();
+    Point new_point;
       
     if ( custom_point->x > X_MIN) {
       // Add the point (X_MIN, Y_MIN) in front of the list of points
-      new_point = point( X_MIN, Y_MIN );
+      new_point = Point( X_MIN, Y_MIN );
       points.push_front( new_point );
     }
 
     while ( pt_node != NULL ) {
       custom_point = pt_node->get_obj();
-      new_point = point( *custom_point );
+      new_point = Point( *custom_point );
       points.push_back(new_point);
       pt_node = pt_node->get_next();
     }
       
     if ( custom_point->x < X_MAX ) {
       // Add the point (X_MAX, Y_MIN) at the end of the list of points
-      new_point = point( X_MAX, Y_MIN );
+      new_point = Point( X_MAX, Y_MIN );
       points.push_back(new_point);  
     }
   }
@@ -655,9 +655,9 @@ void ae_environment::apply_noise( void )
       // Rewritten along with fuzzy sets
       // TODO: test (vld, 2014-12-17)
       {
-        std::list<point> points = _cur_noise->get_points();
+        std::list<Point> points = _cur_noise->get_points();
         size_t i = 0;
-        for (std::list<point>::iterator p = points.begin() ; p != points.end() ; ++p, ++i) {
+        for (std::list<Point>::iterator p = points.begin() ; p != points.end() ; ++p, ++i) {
           p->y += noise_component[static_cast<size_t>(floor(i / nb_points_in_each_zone))];
         }
       }

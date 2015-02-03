@@ -22,14 +22,14 @@
 
 namespace aevol {
   
-point readpoint(gzFile backup_file) {
-  point p;
+Point readpoint(gzFile backup_file) {
+  Point p;
   gzread(backup_file, &p.x, sizeof(p.x));
   gzread(backup_file, &p.y, sizeof(p.y));
   return p;
 }
 
-void writepoint(const point& p, gzFile backup_file) {
+void writepoint(const Point& p, gzFile backup_file) {
   gzwrite(backup_file, &p.x, sizeof(p.x));
   gzwrite(backup_file, &p.y, sizeof(p.y));
 }

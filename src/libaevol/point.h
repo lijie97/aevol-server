@@ -26,15 +26,15 @@
 
 namespace aevol {
 
-struct point {
+struct Point {
   double x;
   double y;
-  point(double x_, double y_): x(x_), y(y_) {};
-  point() {};
+  Point(double x_, double y_): x(x_), y(y_) {};
+  Point() {};
 };
 
-point readpoint(const gzFile backup_file);
-void writepoint(const point& p, gzFile backup_file);
+Point readpoint(const gzFile backup_file);
+void writepoint(const Point& p, gzFile backup_file);
 
 } // namespace aevol
 #endif // POINT_H
