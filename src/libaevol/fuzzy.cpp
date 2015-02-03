@@ -54,16 +54,16 @@ double Fuzzy::get_y(double x, list<point>::const_iterator begin) const {
   // Get the first point having abscissa ≥ x
   list<point>::const_iterator p2 =
     find_if(begin, points.end(),
-            [x](const point& m){return m.first >= x;});
+            [x](const point& m){return m.x >= x;});
   assert(p2 != points.end());
   
-  if (p2->first == x) // If p2 has abscissa x, he's the guy
-    return p2->second;
+  if (p2->x == x) // If p2 has abscissa x, he's the guy
+    return p2->y;
   else { // Otherwise interpolate
     list<point>::const_iterator p1 = prev(p2);
-    return p1->second +
-      (x - p1->first) * ((p2->second - p1->second) /
-                         (p2->first - p1->first));
+    return p1->y +
+      (x - p1->x) * ((p2->y - p1->y) /
+                         (p2->x - p1->x));
   }
 }
 
@@ -81,12 +81,12 @@ double Fuzzy::get_y(double x) const {
 /// despite the fast that it might be mathematically sound otherwise,
 /// it suggest the user has mixed things up.
 double Fuzzy::get_x(const point& p1, const point& p2, double y) const {
-  assert((p2.second <= y and y <= p1.second) or
-  	 (p1.second <= y and y <= p2.second));
-  assert(p1.second != p2.second);
-  double x = p1.first + (y - p1.second) * ((p2.first - p1.first) /
-                                           (p2.second - p1.second));
-  assert(p1.first <= x and x <= p2.first);
+  assert((p2.y <= y and y <= p1.y) or
+  	 (p1.y <= y and y <= p2.y));
+  assert(p1.y != p2.y);
+  double x = p1.x + (y - p1.y) * ((p2.x - p1.x) /
+                                           (p2.y - p1.y));
+  assert(p1.x <= x and x <= p2.x);
   return x;
 }
 
@@ -122,13 +122,13 @@ void Fuzzy::simplify() {
   for (list<point>::iterator p = points.begin();
        p != points.end() and p != prev(points.end()) and p != prev(points.end(), 2);
        ++p)
-    if (p->first == next(p)->first and p->first == next(p,2)->first)
-      points.erase(next(p), prev(find_if(p, points.end(), [p](const point& q){return q.first != p->first;})));
-    else if (p->second == next(p)->second and p->second == next(p,2)->second)
-      points.erase(next(p), prev(find_if(p, points.end(), [p](const point& q){return q.second != p->second;})));
+    if (p->x == next(p)->x and p->x == next(p,2)->x)
+      points.erase(next(p), prev(find_if(p, points.end(), [p](const point& q){return q.x != p->x;})));
+    else if (p->y == next(p)->y and p->y == next(p,2)->y)
+      points.erase(next(p), prev(find_if(p, points.end(), [p](const point& q){return q.y != p->y;})));
 
-  assert(points.begin()->first == X_MIN);
-  assert(prev(points.end())->first == X_MAX);
+  assert(points.begin()->x == X_MIN);
+  assert(prev(points.end())->x == X_MAX);
 }
 
 /// Add a triangle to the fuzzy set.
@@ -136,8 +136,8 @@ void Fuzzy::simplify() {
 /// \param width of the side opposite to the apex
 /// \param height ordinate of the apex
 void Fuzzy::add_triangle(double mean, double width, double height) {
-  assert(points.begin()->first == X_MIN);
-  assert(prev(points.end())->first == X_MAX);
+  assert(points.begin()->x == X_MIN);
+  assert(prev(points.end())->x == X_MAX);
 
   assert(width > 0.0);
   assert(X_MIN <= mean and mean <= X_MAX);
@@ -166,14 +166,14 @@ void Fuzzy::add_triangle(double mean, double width, double height) {
 
   // Update points with abscissas in (x0;x1)
   for (list<point>::iterator p = p0 ; p != p1 ; ++p)
-    p->second += (p->first - x0) / (x1 - x0) * height;
+    p->y += (p->x - x0) / (x1 - x0) * height;
   
   // Update points with abscissas in (x0;x1)
   for (list<point>::iterator p = p1 ; p != p2 ; ++p)
-    p->second += height * (x2 - p->first) / (x2 - x1);
+    p->y += height * (x2 - p->x) / (x2 - x1);
 
-  assert(points.begin()->first == X_MIN);
-  assert(prev(points.end())->first == X_MAX);
+  assert(points.begin()->x == X_MIN);
+  assert(prev(points.end())->x == X_MAX);
   assert(is_increasing());
   return;
 }
@@ -192,12 +192,12 @@ void Fuzzy::add(const Fuzzy& fs) {
   // Add interpolated points to current fuzzy set so that
   // `fs.points` ⊂ `points`
   for (const point& q: fs.points)
-    create_interpolated_point(q.first);
+    create_interpolated_point(q.x);
 
   // each point in `points` gets `fs`'s counterpart ordinate added to
   // it.
   for (point& p: points)
-    p.second += fs.get_y(p.first);
+    p.y += fs.get_y(p.x);
 
   // assert(points.begin()->first == X_MIN);
   // assert(prev(points.end())->first == X_MAX);
@@ -212,10 +212,10 @@ void Fuzzy::sub(const Fuzzy& fs) {
   // assert(prev(points.end())->first == X_MAX);
 
   for (const point& q: fs.points)
-    create_interpolated_point(q.first);
+    create_interpolated_point(q.x);
 
   for (point& p: points)
-    p.second -= fs.get_y(p.first);
+    p.y -= fs.get_y(p.x);
 
   // assert(points.begin()->first == X_MIN);
   // assert(prev(points.end())->first == X_MAX);
@@ -234,7 +234,7 @@ double Fuzzy::get_geometric_area(list<point>::const_iterator begin,
     // Note that the area of a crossed trapezoid can be computed just
     // the same as a normal one provided the bases are counted
     // algebrically (+/-).
-    area += fabs(((p->second) + next(p)->second) * (next(p)->first - p->first) / 2);
+    area += fabs(((p->y) + next(p)->y) * (next(p)->x - p->x) / 2);
   return area;
 }
 
@@ -245,8 +245,8 @@ double Fuzzy::get_geometric_area(double start_segment, double end_segment) const
 
   // Fuzzy set first (resp last) point must be at x = X_MIN (resp x = X_MAX)
   assert(not points.empty());
-  assert(points.begin()->first == X_MIN);
-  assert(prev(points.end())->first == X_MAX);
+  assert(points.begin()->x == X_MIN);
+  assert(prev(points.end())->x == X_MAX);
 
   // We must have (X_MIN <= start_segment < end_segment <= X_MAX)
   assert(start_segment >= X_MIN and start_segment < end_segment and end_segment <= X_MAX);
@@ -256,15 +256,15 @@ double Fuzzy::get_geometric_area(double start_segment, double end_segment) const
   // ****************************************************************
 
   list<point>::const_iterator begin = find_if(points.begin(), points.end(),
-                                        [start_segment](const point& p){return p.first > start_segment;});
+                                        [start_segment](const point& p){return p.x > start_segment;});
   list<point>::const_iterator end = find_if(begin, points.end(),
-                                      [end_segment](const point& p){return p.first < end_segment;});
+                                      [end_segment](const point& p){return p.x < end_segment;});
 
   assert(begin != points.end());
   assert(end != points.end());
   
-  double first_part = fabs((get_y(start_segment) + begin->second) * (begin->first - start_segment) / 2.0);
-  double last_part = fabs((get_y(end_segment) + end->second) * (end->first - end_segment) / 2.0);
+  double first_part = fabs((get_y(start_segment) + begin->y) * (begin->x - start_segment) / 2.0);
+  double last_part = fabs((get_y(end_segment) + end->y) * (end->x - end_segment) / 2.0);
 
   return first_part + get_geometric_area(begin, end) + last_part;
 }
@@ -296,15 +296,15 @@ void Fuzzy::add_upper_bound(double upper_bound) {
   // assert(prev(points.end())->first == X_MAX);
 
   for (list<point>::iterator p = points.begin() ; p != points.end() ; ++p) {
-    if (p->second <= upper_bound)
+    if (p->y <= upper_bound)
       continue;
     // Surrounding segments must be cut if they fall down the upper
     // bound. Add cutting points.
-    if (prev(p)->second < upper_bound)
+    if (prev(p)->y < upper_bound)
       points.insert(p, point(get_x(*prev(p), *p, upper_bound), upper_bound));
-    if (next(p)->second < upper_bound)
+    if (next(p)->y < upper_bound)
       points.insert(next(p), point(get_x(*p, *next(p), upper_bound), upper_bound));
-    p->second = upper_bound;
+    p->y = upper_bound;
   }
   // assert(points.begin()->first == X_MIN);
   // assert(prev(points.end())->first == X_MAX);
@@ -321,15 +321,15 @@ void Fuzzy::add_lower_bound(double lower_bound) {
   // assert(prev(points.end())->first == X_MAX);
 
   for (list<point>::iterator p = points.begin() ; p != points.end() ; ++p) {
-    if (p->second >= lower_bound)
+    if (p->y >= lower_bound)
       continue;
     // Surrounding segments must be cut if they fall down the upper
     // bound. Add cutting points.
-    if (prev(p)->second > lower_bound)
+    if (prev(p)->y > lower_bound)
       points.insert(p, point(get_x(*prev(p), *p, lower_bound), lower_bound));
-    if (next(p)->second > lower_bound)
+    if (next(p)->y > lower_bound)
       points.insert(next(p), point(get_x(*p, *next(p), lower_bound), lower_bound));
-    p->second = lower_bound;
+    p->y = lower_bound;
   }
 
   // assert(points.begin()->first == X_MIN);
@@ -347,8 +347,8 @@ bool Fuzzy::is_identical_to(const Fuzzy& fs, double tolerance ) const {
   for (list<point>::const_iterator p = points.begin(), q = fs.points.begin() ;
        p != points.end() ; // no need to check q because both lists have same size
        ++p, ++q)
-    if (fabs(p->first - q->first) > tolerance * (fabs(p->first) + fabs(q->first)) or
-        fabs(p->second - q->second) > tolerance * (fabs(p->second) + fabs(q->second)))
+    if (fabs(p->x - q->x) > tolerance * (fabs(p->x) + fabs(q->x)) or
+        fabs(p->y - q->y) > tolerance * (fabs(p->y) + fabs(q->y)))
       return false;
   return true;
 }
@@ -385,14 +385,14 @@ list<point>::iterator Fuzzy::create_interpolated_point(double x) {
 ///
 /// `start_point` must refer to a point before abscissa `x`
 list<point>::iterator Fuzzy::create_interpolated_point(double x, std::list<point>::iterator start) {
-  assert(points.begin()->first == X_MIN);
-  assert(prev(points.end())->first == X_MAX);
+  assert(points.begin()->x == X_MIN);
+  assert(prev(points.end())->x == X_MAX);
 
   assert(x >= X_MIN and x <= X_MAX );
   assert(points.size() >= 2 );
 
   // TODO: probably denotes a logic error
-  if (start->first <= x )
+  if (start->x <= x )
     start = points.begin();
   
   static int call_counter;
@@ -400,8 +400,8 @@ list<point>::iterator Fuzzy::create_interpolated_point(double x, std::list<point
   // cout << call_counter << std::endl;
 
   // get first point stricly greater than x and return its predecessor
-  list<point>::iterator p = find_if(start, points.end(), [x](point& q){return q.first > x;});
-  if (prev(p)->first == x)
+  list<point>::iterator p = find_if(start, points.end(), [x](point& q){return q.x > x;});
+  if (prev(p)->x == x)
     // point already in points
     return prev(p);
   else {
@@ -416,7 +416,7 @@ bool Fuzzy::is_increasing() const {
   // assert(prev(points.end())->first == X_MAX);
 
   for (list<point>::const_iterator p = points.begin() ; p != prev(points.end(), 2) ; ++p)
-    if (p->first > next(p)->first)
+    if (p->x > next(p)->x)
       return false;
   return true;
 }
@@ -429,7 +429,7 @@ void Fuzzy::reset() {
   // assert(prev(points.end())->first == X_MAX);
 
   for (point& p: points)
-    p.second = 0;
+    p.y = 0;
 
   // assert(points.begin()->first == X_MIN);
   // assert(prev(points.end())->first == X_MAX);

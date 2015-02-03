@@ -43,10 +43,10 @@ void ae_fuzzy_set_X11::display( ae_X11_window* win, color_map color, bool fill /
     list<point>::iterator q = next(p);
     
     // Display segment [p, q]
-    cur_x   = (      (p->first -  X_MIN) / delta_x  ) * win->get_width();
-    cur_y   = ( 1 - ((p->second -  y_min) / delta_y) ) * win->get_height();
-    next_x  = (      (q->first - X_MIN) / delta_x  ) * win->get_width();
-    next_y  = ( 1 - ((q->second - y_min) / delta_y) ) * win->get_height();
+    cur_x   = (      (p->x -  X_MIN) / delta_x  ) * win->get_width();
+    cur_y   = ( 1 - ((p->y -  y_min) / delta_y) ) * win->get_height();
+    next_x  = (      (q->x - X_MIN) / delta_x  ) * win->get_width();
+    next_y  = ( 1 - ((q->y - y_min) / delta_y) ) * win->get_height();
     
     if (fill) {
       char* fill_color;

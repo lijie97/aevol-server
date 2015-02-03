@@ -26,7 +26,12 @@
 
 namespace aevol {
 
-typedef std::pair<double, double> point;
+struct point {
+  double x;
+  double y;
+  point(double x_, double y_): x(x_), y(y_) {};
+  point() {};
+};
 
 point readpoint(const gzFile backup_file);
 void writepoint(const point& p, gzFile backup_file);

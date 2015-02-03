@@ -505,7 +505,7 @@ void ae_environment::build( void )
       node = _gaussians->get_first();
     
       while ( node ) {
-        new_point.second += node->get_obj()->compute_y( new_point.first );
+        new_point.y += node->get_obj()->compute_y( new_point.x );
         node = node->get_next();
       }
       points.push_back(new_point);
@@ -519,7 +519,7 @@ void ae_environment::build( void )
     point *custom_point = pt_node->get_obj();
     point new_point;
       
-    if ( custom_point->first > X_MIN) {
+    if ( custom_point->x > X_MIN) {
       // Add the point (X_MIN, Y_MIN) in front of the list of points
       new_point = point( X_MIN, Y_MIN );
       points.push_front( new_point );
@@ -532,7 +532,7 @@ void ae_environment::build( void )
       pt_node = pt_node->get_next();
     }
       
-    if ( custom_point->first < X_MAX ) {
+    if ( custom_point->x < X_MAX ) {
       // Add the point (X_MAX, Y_MIN) at the end of the list of points
       new_point = point( X_MAX, Y_MIN );
       points.push_back(new_point);  
@@ -658,7 +658,7 @@ void ae_environment::apply_noise( void )
         std::list<point> points = _cur_noise->get_points();
         size_t i = 0;
         for (std::list<point>::iterator p = points.begin() ; p != points.end() ; ++p, ++i) {
-          p->second += noise_component[static_cast<size_t>(floor(i / nb_points_in_each_zone))];
+          p->y += noise_component[static_cast<size_t>(floor(i / nb_points_in_each_zone))];
         }
       }
       delete noise_component;
@@ -674,7 +674,7 @@ void ae_environment::apply_noise( void )
     //~ {
       //~ point = point_node->get_obj();
       
-      //~ printf( "  x: %f\ty: %e\n", point->first, point->second );
+      //~ printf( "  x: %f\ty: %e\n", point->x, point->y );
       
       //~ point_node = point_node->get_next();
     //~ }
