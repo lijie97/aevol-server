@@ -1274,18 +1274,10 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
   // 2) ------------------------------------------------ Create the environment
   // Move the gaussian list and the list of custom points from the parameters
   // to the environment
-  ae_list<ae_gaussian*>* ae_env_gaussians = _env_gaussians.empty()?
-      NULL:
-      new ae_list<ae_gaussian*>(_env_gaussians);
-  env->set_gaussians(ae_env_gaussians);
-  ae_env_gaussians = NULL; // captured by `env`, not to be deleted here
+  env->set_gaussians(_env_gaussians);
   for (ae_gaussian* g: _env_gaussians)
     delete g;
-  ae_list<Point*>* ae_custom_points = _custom_points.empty()?
-      NULL:
-      new ae_list<Point*>(_custom_points);
-  env->set_custom_points(ae_custom_points);
-  ae_custom_points = NULL; // captured by `env`, not to be deleted here
+  env->set_custom_points(_custom_points);
   for (Point* p: _custom_points)
     delete p;
 
