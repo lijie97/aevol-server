@@ -55,6 +55,8 @@ class ae_environment : public ae_fuzzy_set_X11
 
     inline ae_list<ae_gaussian*>* get_gaussians( void ) const;
     inline ae_list<Point*>* get_custom_points( void ) const;
+    inline bool gaussians_provided() const;
+    inline bool custom_points_provided() const;
     inline double               get_total_area( void ) const;
     inline int16_t              get_nb_segments( void ) const;
     inline ae_env_segment**     get_segments( void ) const;
@@ -147,6 +149,14 @@ inline ae_list<ae_gaussian*>* ae_environment::get_gaussians( void ) const
 inline ae_list<Point*>* ae_environment::get_custom_points( void ) const
 {
   return _custom_points;
+}
+
+bool ae_environment::gaussians_provided() const {
+  return not _gaussians->is_empty();
+}
+
+bool ae_environment::custom_points_provided() const {
+  return not _custom_points->is_empty();
 }
 
 

@@ -540,11 +540,11 @@ FILE* open_environment_stat_file( const char * prefix, const ae_environment * en
   delete env_output_file_name;
 
   // Write headers
-  if ( env->get_gaussians() != NULL)
+  if (env->gaussians_provided())
     {
       fprintf( env_output_file, "# Each line contains : Generation, and then, for each gaussian: M W H.\n" );
     }
-  else if ( env->get_custom_points() != NULL )
+  else if (env->custom_points_provided())
     {
       fprintf( env_output_file, "# Each line contains : Generation, and then, for each point: x y.\n" );
     }
@@ -559,7 +559,7 @@ void write_environment_stats( int32_t num_gener, const ae_environment * env, FIL
   // Num gener
   fprintf( env_output_file, "%" PRId32, num_gener );
 
-  if ( env->get_gaussians() != NULL)
+  if (env->gaussians_provided())
     {
       // For each gaussian : M W H
       ae_list_node<ae_gaussian*>* gaussnode  = env->get_gaussians()->get_first();
@@ -571,7 +571,7 @@ void write_environment_stats( int32_t num_gener, const ae_environment * env, FIL
           gaussnode = gaussnode->get_next();
         }
     }
-  else if ( env->get_custom_points() != NULL )
+  else if (env->custom_points_provided())
     {
       // For each point : x y
       ae_list_node<Point*>* ptnode  = env->get_custom_points()->get_first();

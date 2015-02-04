@@ -496,14 +496,14 @@ int main( int argc, char* argv[] )
 
 
   // Check for incompatible options
-  if ( ( env->get_gaussians() != NULL ) && (env->get_custom_points() != NULL)) 
+  if (env->gaussians_provided() and env->custom_points_provided())
     {
       printf( "ERROR in param file \"%s\" : parameters ENV_ADD_POINT and ENV_ADD_GAUSSIAN are incompatible.\n",
               param_file_name );
       exit( EXIT_FAILURE ); 
     }
 
-  if ( ( env->get_custom_points() != NULL) && ( env->get_var_method() != NO_VAR ))
+  if (env->custom_points_provided() and (env->get_var_method() != NO_VAR))
     {
       printf( "ERROR in param file \"%s\" : environmental variation is incompatible with ENV_ADD_POINT, please use ENV_ADD_GAUSSIAN instead. \n", param_file_name );
       exit( EXIT_FAILURE ); 
