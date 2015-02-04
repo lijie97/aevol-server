@@ -31,6 +31,7 @@ struct Point {
   double y;
   Point(double x_, double y_): x(x_), y(y_) {};
   Point() {};
+  Point(Point* p): x(p->x), y(p->y) {};
 };
 
 Point readpoint(const gzFile backup_file);
