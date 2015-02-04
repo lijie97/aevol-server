@@ -55,8 +55,6 @@ class ae_environment : public ae_fuzzy_set_X11
 
     virtual ~ae_environment( void );
 
-    inline ae_list<ae_gaussian*>* get_gaussians( void ) const;
-    inline ae_list<Point*>* get_custom_points( void ) const;
     inline const std::list<ae_gaussian*>& get_gaussians2() const;
     inline const std::list<Point*>& get_custom_points2() const;
     inline bool gaussians_provided() const;
