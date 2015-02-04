@@ -63,6 +63,8 @@
 //debug
 #include <ae_gaussian.h>
 
+#include <list>
+
 using namespace aevol;
 
 enum check_type
@@ -560,31 +562,11 @@ void write_environment_stats( int32_t num_gener, const ae_environment * env, FIL
   fprintf( env_output_file, "%" PRId32, num_gener );
 
   if (env->gaussians_provided())
-    {
-      // For each gaussian : M W H
-      ae_list_node<ae_gaussian*>* gaussnode  = env->get_gaussians()->get_first();
-      ae_gaussian*  gauss      = NULL;
-      while ( gaussnode != NULL )
-        {
-          gauss = gaussnode->get_obj();
-          fprintf( env_output_file, "     %.16f %.16f %.16f", gauss->get_mean(), gauss->get_width(), gauss->get_height() );
-          gaussnode = gaussnode->get_next();
-        }
-    }
+    for (ae_gaussian* g: env->get_gaussians2())
+      fprintf(env_output_file, "     %.16f %.16f %.16f", g->get_mean(), g->get_width(), g->get_height());
   else if (env->custom_points_provided())
-    {
-      // For each point : x y
-      ae_list_node<Point*>* ptnode  = env->get_custom_points()->get_first();
-      Point*  pt      = NULL;
-      while ( ptnode != NULL )
-        {
-          pt = ptnode->get_obj();
-          fprintf( env_output_file, "  %.16f %.16f", pt->x, pt->y );
-          ptnode = ptnode->get_next();
-        }
-
-    }
-
+    for (Point* p: env->get_custom_points2())
+      fprintf(env_output_file, "  %.16f %.16f", p->x, p->y);
 
   fprintf( env_output_file, "\n" );
 }
