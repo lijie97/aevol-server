@@ -330,7 +330,7 @@ int main( int argc, char* argv[] )
               env->clear_custom_points();
               env->clear_gaussians();
               env->clear_initial_gaussians();
-              env->set_gaussians(new ae_list<ae_gaussian*>());
+              env->reset_gaussians();
               env->add_gaussian( atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
               printf("\tChange of the environment: first gaussian with %f, %f, %f \n",atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
               env_change = true;
@@ -349,7 +349,7 @@ int main( int argc, char* argv[] )
               env->clear_custom_points();
               env->clear_gaussians();
               env->clear_initial_gaussians();
-              env->set_custom_points(new ae_list<Point*>());
+              env->reset_custom_points();
               env->add_custom_point( atof(line->words[1]), atof(line->words[2]));
               printf("\tChange of the environment: first custom point with x=%f, y=%f \n",atof(line->words[1]), atof(line->words[2]));
               env_change = true;

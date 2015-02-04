@@ -70,12 +70,10 @@ class ae_environment : public ae_fuzzy_set_X11
     inline int32_t              get_var_tau( void )    const;
     inline ae_env_noise         get_noise_method( void ) const;
     inline bool                 is_noise_allowed( void ) const;
-
-    inline void   set_gaussians( ae_list<ae_gaussian*>* gaussians );
-    inline void   set_custom_points( ae_list<Point*>* custom_points );
-
     inline void   set_gaussians(std::list<ae_gaussian*> gaussians);
+    inline void   reset_gaussians() {std_gaussians.clear();}
     inline void   set_custom_points(std::list<Point*> custom_points);
+    inline void   reset_custom_points() {std_custom_points.clear();}
 
     inline void   set_sampling( int16_t val );
     inline void   set_segmentation( int16_t nb_segments, double* boundaries, ae_env_axis_feature* features, bool separate_segments = false );
@@ -224,16 +222,6 @@ inline ae_env_noise ae_environment::get_noise_method( void ) const
 inline bool ae_environment::is_noise_allowed( void ) const
 {
   return ( _noise_method != NO_NOISE );
-}
-
-inline void ae_environment::set_gaussians( ae_list<ae_gaussian*>* gaussians )
-{
-  _gaussians = gaussians;
-}
-
-inline void ae_environment::set_custom_points( ae_list<Point*>* custom_points )
-{
-  _custom_points = custom_points;
 }
 
 inline void ae_environment::set_gaussians(std::list<ae_gaussian*> gaussians) {
