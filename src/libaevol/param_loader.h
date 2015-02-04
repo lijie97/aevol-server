@@ -51,9 +51,10 @@
 #include <assert.h>
 #include <ae_macros.h>
 #include <ae_enums.h>
-#include <ae_list.h>
 #include <ae_gaussian.h>
 #include <point.h>
+
+#include <list>
 
 namespace aevol {
 // =================================================================
@@ -161,8 +162,8 @@ class param_loader
     char*    _strain_name;
 
     // ------------------------------------------------------------ Environment
-    ae_list<ae_gaussian*>* _env_gaussians;
-    ae_list<Point*>* _env_custom_points;
+    std::list<ae_gaussian*> _env_gaussians;
+    std::list<Point*> _custom_points;
     int16_t  _env_sampling;
 
     // ---------------------------------------- Environment x-axis segmentation

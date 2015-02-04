@@ -137,8 +137,6 @@ param_loader::param_loader( const char* file_name )
   }
 
   // ------------------------------------------------------------ Environment
-  _env_gaussians      = NULL;
-  _env_custom_points  = NULL;
   _env_sampling       = 300;
 
   // ---------------------------------------- Environment x-axis segmentation
@@ -811,13 +809,11 @@ void param_loader::interpret_line( f_line* line, int32_t cur_line )
   }
   else if ( strcmp( line->words[0], "ENV_ADD_POINT" ) == 0 )
   {
-    if ( _env_custom_points == NULL ) _env_custom_points = new ae_list<Point*>();
-    _env_custom_points->add( new Point(  atof( line->words[1] ), atof( line->words[2] ) ) );
+    _custom_points.push_back(new Point(atof(line->words[1]), atof(line->words[2])));
   }
   else if ( (strcmp( line->words[0], "ENV_ADD_GAUSSIAN" ) == 0 ) || ( strcmp( line->words[0], "ENV_GAUSSIAN" ) == 0 ))
   {
-    if ( _env_gaussians == NULL ) _env_gaussians = new ae_list<ae_gaussian*>();
-    _env_gaussians->add( new ae_gaussian( atof( line->words[1] ), atof( line->words[2] ), atof( line->words[3] ) ) );
+    _env_gaussians.push_back(new ae_gaussian(atof(line->words[1]), atof(line->words[2]), atof(line->words[3])));
   }
   else if ( strcmp( line->words[0], "ENV_SAMPLING" ) == 0 )
   {
@@ -1173,8 +1169,9 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
     exit( EXIT_FAILURE );
   }
 
-  // Check for incompatible environment options
-  if ( ( _env_custom_points != NULL) && ( _env_gaussians != NULL))
+  // Check for incompatible environment options:
+  // at most one of these two lists should be used
+  if (not _custom_points.empty() and not _env_gaussians.empty())
   {
     printf( "ERROR in param file \"%s\" : ENV_ADD_POINT is incompatible with ENV_ADD_GAUSSIAN (or ENV_GAUSSIAN).\n",
            _param_file_name );
@@ -1182,7 +1179,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
 
   }
 
-  if ( ( _env_custom_points != NULL) && ( _env_var_method != NO_VAR))
+  if (not _custom_points.empty() and ( _env_var_method != NO_VAR))
   {
     printf( "ERROR in param file \"%s\" : ENV_ADD_POINT is incompatible with environmental variation.\n",
            _param_file_name );
@@ -1277,10 +1274,20 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
   // 2) ------------------------------------------------ Create the environment
   // Move the gaussian list and the list of custom points from the parameters
   // to the environment
-  env->set_gaussians( _env_gaussians );
-  _env_gaussians = NULL;
-  env->set_custom_points( _env_custom_points );
-  _env_custom_points = NULL;
+  ae_list<ae_gaussian*>* ae_env_gaussians = _env_gaussians.empty()?
+      NULL:
+      new ae_list<ae_gaussian*>(_env_gaussians);
+  env->set_gaussians(ae_env_gaussians);
+  ae_env_gaussians = NULL; // captured by `env`, not to be deleted here
+  for (ae_gaussian* g: _env_gaussians)
+    delete g;
+  ae_list<Point*>* ae_custom_points = _custom_points.empty()?
+      NULL:
+      new ae_list<Point*>(_custom_points);
+  env->set_custom_points(ae_custom_points);
+  ae_custom_points = NULL; // captured by `env`, not to be deleted here
+  for (Point* p: _custom_points)
+    delete p;
 
   // Copy the sampling
   env->set_sampling( _env_sampling );
