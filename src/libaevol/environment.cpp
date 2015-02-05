@@ -75,8 +75,8 @@ Environment::Environment(const Environment &model) :
   // Environment "shape"
   _sampling           = model._sampling;
 
-  std_initial_gaussians = model.std_initial_gaussians;
-  std_gaussians = model.std_gaussians;
+  initial_gaussians = model.initial_gaussians;
+  gaussians = model.gaussians;
 
   _total_area = model._total_area;
 
@@ -143,11 +143,11 @@ void Environment::save(gzFile backup_file) const {
   // ---------------------
   //  Write gaussians
   // ---------------------
-  size_t nb_gaussians = std_gaussians.size();
+  size_t nb_gaussians = gaussians.size();
   gzwrite(backup_file, &nb_gaussians, sizeof(nb_gaussians));
 
-  if (not std_gaussians.empty())
-    for (const ae_gaussian& g: std_gaussians)
+  if (not gaussians.empty())
+    for (const ae_gaussian& g: gaussians)
       g.save(backup_file);
 
   // ---------------------
@@ -199,11 +199,11 @@ void Environment::save(gzFile backup_file) const {
   //  If needed, keep a copy of the initial state of the gaussians
   // ---------------------------------------------------------------
   if (_var_method != NO_VAR || is_noise_allowed()) {
-    size_t nb_gaussians = std_initial_gaussians.size();
+    size_t nb_gaussians = initial_gaussians.size();
     gzwrite(backup_file, &nb_gaussians, sizeof(nb_gaussians));
 
-    if (not std_initial_gaussians.empty())
-      for (const ae_gaussian& g: std_initial_gaussians)
+    if (not initial_gaussians.empty())
+      for (const ae_gaussian& g: initial_gaussians)
         g.save(backup_file);
   }
 }
@@ -216,7 +216,7 @@ void Environment::load(gzFile backup_file) {
   gzread(backup_file, &nb_gaussians, sizeof(nb_gaussians));
 
   for (size_t i = 0; i < static_cast<size_t>(nb_gaussians); ++i)
-    std_gaussians.push_back(ae_gaussian(backup_file));
+    gaussians.push_back(ae_gaussian(backup_file));
 
   // ------------------------------
   //  Retrieve sampling
@@ -281,7 +281,7 @@ void Environment::load(gzFile backup_file) {
     size_t nb_gaussians;
     gzread(backup_file, &nb_gaussians, sizeof(nb_gaussians));
     for (size_t i = 0 ; i < static_cast<size_t>(nb_gaussians) ; ++i)
-      std_initial_gaussians.push_back(ae_gaussian(backup_file));
+      initial_gaussians.push_back(ae_gaussian(backup_file));
   }
 
   // ------------------------------
@@ -291,11 +291,11 @@ void Environment::load(gzFile backup_file) {
 }
 
 void Environment::add_gaussian(double a, double b, double c) {
-  std_gaussians.push_back(ae_gaussian(a, b, c));
+  gaussians.push_back(ae_gaussian(a, b, c));
 }
 
 void Environment::add_initial_gaussian(double a, double b, double c) {
-  std_initial_gaussians.push_back(ae_gaussian(a, b, c));
+  initial_gaussians.push_back(ae_gaussian(a, b, c));
 }
 
 void Environment::build() {
@@ -303,10 +303,10 @@ void Environment::build() {
   points.clear();
 
   // 1) Generate sample points from gaussians
-  if (not std_gaussians.empty())
+  if (not gaussians.empty())
     for (size_t i = 0 ; i <= _sampling ; i++) {
       Point new_point = Point(X_MIN + (double)i * (X_MAX - X_MIN) / (double)_sampling, 0.0);
-      for (const ae_gaussian& g: std_gaussians)
+      for (const ae_gaussian& g: gaussians)
         new_point.y += g.compute_y(new_point.x);
       points.push_back(new_point);
     }
@@ -323,9 +323,9 @@ void Environment::build() {
   _compute_area();
 
   //  5) If needed, create a copy of the initial state of the gaussians
-  if (std_initial_gaussians.empty() and (_var_method != NO_VAR or is_noise_allowed()))
-    for (ae_gaussian& g: std_gaussians)
-      std_initial_gaussians.push_back(ae_gaussian(g));
+  if (initial_gaussians.empty() and (_var_method != NO_VAR or is_noise_allowed()))
+    for (ae_gaussian& g: gaussians)
+      initial_gaussians.push_back(ae_gaussian(g));
 }
 
 /*!
@@ -423,8 +423,8 @@ void Environment::_apply_autoregressive_mean_variation() {
   // delta_m follows an autoregressive stochastic process
   // with the parameters _var_sigma and _var_tau
 
-  auto ref = std_initial_gaussians.begin();
-  for (ae_gaussian& g: std_gaussians) {
+  auto ref = initial_gaussians.begin();
+  for (ae_gaussian& g: gaussians) {
     // Find the current delta_mean = current_mean - ref_mean
     double delta_mean = g.get_mean() - ref->get_mean();
 
@@ -446,8 +446,8 @@ void Environment::_apply_autoregressive_height_variation() {
   // delta_m follows an autoregressive stochastic process
   // with the parameters _var_sigma and _var_tau
 
-  auto ref = std_initial_gaussians.begin();
-  for (ae_gaussian& g: std_gaussians) {
+  auto ref = initial_gaussians.begin();
+  for (ae_gaussian& g: gaussians) {
     // Find the current delta_height = current_height - ref_height
     double delta_height = g.get_height() - ref->get_height();
 

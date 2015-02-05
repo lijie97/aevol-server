@@ -55,10 +55,10 @@ class Environment : public ae_fuzzy_set_X11
   virtual ~Environment();
 
   const std::list<ae_gaussian>& get_gaussians() const {
-    return std_gaussians;
+    return gaussians;
   }
   bool gaussians_provided() const {
-    return not std_gaussians.empty();
+    return not gaussians.empty();
   }
   size_t get_nb_segments() const {
     return _nb_segments;
@@ -79,8 +79,8 @@ class Environment : public ae_fuzzy_set_X11
     return (_noise_method != NO_NOISE);
   }
 
-  void set_gaussians(const std::list<ae_gaussian>& gaussians) {
-    std_gaussians = gaussians;
+  void set_gaussians(const std::list<ae_gaussian>& gaussians_model) {
+    gaussians = gaussians_model;
   }
   void set_sampling(size_t val){
     _sampling = val;
@@ -134,10 +134,10 @@ class Environment : public ae_fuzzy_set_X11
   void add_initial_gaussian(double a, double b, double c);
   void build();
   void clear_gaussians() {
-    std_gaussians.clear();
+    gaussians.clear();
   }
   void clear_initial_gaussians() {
-    std_initial_gaussians.clear();
+    initial_gaussians.clear();
   }
 
   void apply_variation();
@@ -149,8 +149,8 @@ class Environment : public ae_fuzzy_set_X11
   void _apply_local_gaussian_variation();
   void _compute_area();
 
-  std::list<ae_gaussian> std_initial_gaussians; // List containing all the gaussians of the environment in their initial state
-  std::list<ae_gaussian> std_gaussians;         // List containing all the gaussians of the environment
+  std::list<ae_gaussian> initial_gaussians; // List containing all the gaussians of the environment in their initial state
+  std::list<ae_gaussian> gaussians;         // List containing all the gaussians of the environment
   size_t _sampling;                             // Number of points to be generated from the gaussians.
 
   size_t _nb_segments;
