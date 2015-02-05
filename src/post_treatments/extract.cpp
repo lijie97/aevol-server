@@ -348,7 +348,7 @@ inline void analyse_gu( ae_genetic_unit* gen_unit, int32_t gen_unit_number, FILE
       // Retrieving the feature of the protein also necessitates the an environment file.
       if ( env != NULL )
       {
-        for ( int i=0; i<=(env->get_nb_segments() - 1); i++ )
+        for (size_t i = 0; i <= env->get_nb_segments() - 1; ++i)
         {
           if ( (mean > env->get_segment_boundaries(i) ) && (mean < env->get_segment_boundaries(i+1)) )
           {

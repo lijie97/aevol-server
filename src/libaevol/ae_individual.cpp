@@ -784,7 +784,7 @@ void ae_individual::compute_distance_to_target( Environment* envir )
 
   ae_env_segment** segments = envir->get_segments();
   _dist_to_target_by_segment = new double [envir->get_nb_segments()];
-  for ( int8_t i = 0 ; i < envir->get_nb_segments() ; i++ )
+  for ( size_t i = 0 ; i < envir->get_nb_segments() ; i++ )
   {
     _dist_to_target_by_segment[i] = 0;
   }
@@ -793,7 +793,7 @@ void ae_individual::compute_distance_to_target( Environment* envir )
   //   => We shouldn't parse the whole list of points on the left of the segment we are considering (we have
   //      already been through them!)
 
-  for ( int16_t i = 0 ; i < envir->get_nb_segments() ; i++ )
+  for ( size_t i = 0 ; i < envir->get_nb_segments() ; i++ )
   {
     _dist_to_target_by_segment[i] = delta->get_geometric_area( segments[i]->start, segments[i]->stop );
     _dist_to_target_by_feature[segments[i]->feature] += _dist_to_target_by_segment[i];

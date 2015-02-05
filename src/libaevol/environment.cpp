@@ -87,12 +87,12 @@ Environment::Environment(const Environment &model) :
     _segments = NULL;
   else {
     _segments = new ae_env_segment* [_nb_segments];
-    for (int32_t i = 0; i < _nb_segments; i++)
+    for (size_t i = 0; i < _nb_segments; i++)
       _segments[i] = new ae_env_segment(*(model._segments[i]));
   }
 
   _area_by_feature  = new double [NB_FEATURES];
-  for (int32_t i = 0; i < NB_FEATURES; i++)
+  for (size_t i = 0; i < NB_FEATURES; i++)
     _area_by_feature[i] = model._area_by_feature[i];
 
   // Variation management
@@ -129,7 +129,7 @@ Environment::~Environment() {
   _noise_prng = NULL;
 
   if (_segments != NULL) {
-    for (int16_t i = 0 ; i < _nb_segments; i++)
+    for (size_t i = 0 ; i < _nb_segments; i++)
       delete _segments[i];
     delete [] _segments;
   }
@@ -143,7 +143,7 @@ void Environment::save(gzFile backup_file) const {
   // ---------------------
   //  Write gaussians
   // ---------------------
-  int16_t nb_gaussians = std_gaussians.size();
+  size_t nb_gaussians = std_gaussians.size();
   gzwrite(backup_file, &nb_gaussians, sizeof(nb_gaussians));
 
   if (not std_gaussians.empty())
@@ -160,7 +160,7 @@ void Environment::save(gzFile backup_file) const {
   // -------------------------------
   gzwrite(backup_file, &_nb_segments, sizeof(_nb_segments));
 
-  for (int16_t i = 0 ; i < _nb_segments; i++) {
+  for (size_t i = 0 ; i < _nb_segments; i++) {
     _segments[i]->save(backup_file);
   }
 
@@ -199,7 +199,7 @@ void Environment::save(gzFile backup_file) const {
   //  If needed, keep a copy of the initial state of the gaussians
   // ---------------------------------------------------------------
   if (_var_method != NO_VAR || is_noise_allowed()) {
-    int16_t nb_gaussians = std_initial_gaussians.size();
+    size_t nb_gaussians = std_initial_gaussians.size();
     gzwrite(backup_file, &nb_gaussians, sizeof(nb_gaussians));
 
     if (not std_initial_gaussians.empty())
@@ -212,7 +212,7 @@ void Environment::load(gzFile backup_file) {
   // ---------------------
   //  Retreive gaussians
   // ---------------------
-  int16_t nb_gaussians;
+  size_t nb_gaussians;
   gzread(backup_file, &nb_gaussians, sizeof(nb_gaussians));
 
   for (size_t i = 0; i < static_cast<size_t>(nb_gaussians); ++i)
@@ -227,7 +227,7 @@ void Environment::load(gzFile backup_file) {
   //  Retrieve x-axis segmentation
   // -------------------------------
   // Delete old data
-  for (int16_t i = 0 ; i < _nb_segments ; i++)
+  for (size_t i = 0 ; i < _nb_segments ; i++)
     delete _segments[i];
 
   delete [] _segments;
@@ -237,7 +237,7 @@ void Environment::load(gzFile backup_file) {
 
   _segments = new ae_env_segment* [_nb_segments];
 
-  for (int16_t i = 0 ; i < _nb_segments; i++)
+  for (size_t i = 0 ; i < _nb_segments; i++)
     _segments[i] = new ae_env_segment(backup_file);
 
   // ----------------------------------------
@@ -278,7 +278,7 @@ void Environment::load(gzFile backup_file) {
   //  If needed, retreive the copy of the initial state of the gaussians
   // --------------------------------------------------------------------
   if (_var_method != NO_VAR || is_noise_allowed()) {
-    int16_t nb_gaussians;
+    size_t nb_gaussians;
     gzread(backup_file, &nb_gaussians, sizeof(nb_gaussians));
     for (size_t i = 0 ; i < static_cast<size_t>(nb_gaussians) ; ++i)
       std_initial_gaussians.push_back(ae_gaussian(backup_file));
@@ -304,7 +304,7 @@ void Environment::build() {
 
   // 1) Generate sample points from gaussians
   if (not std_gaussians.empty())
-    for (int16_t i = 0 ; i <= _sampling ; i++) {
+    for (size_t i = 0 ; i <= _sampling ; i++) {
       Point new_point = Point(X_MIN + (double)i * (X_MAX - X_MIN) / (double)_sampling, 0.0);
       for (const ae_gaussian& g: std_gaussians)
         new_point.y += g.compute_y(new_point.x);
@@ -350,7 +350,7 @@ void Environment::apply_noise() {
       _cur_noise = new ae_fuzzy_set();
 
       // Add points to reflect the sampling
-      int32_t nb_points = 1 << (_noise_sampling_log - 1);
+      size_t nb_points = 1 << (_noise_sampling_log - 1);
       double interval = (X_MAX - X_MIN) / (nb_points - 1);
       double half_interval = interval / 2;
       double cur_x = interval;
@@ -368,11 +368,11 @@ void Environment::apply_noise() {
     // Add a random noise to the whole fuzzy set, then cut it in 2 and add
     // another noise to each half and so on (apply noise to the 4 quarters...)
     // until each zone contains only one single point.
-    int8_t fractal_step = 0;
+    size_t fractal_step = 0;
     while (fractal_step < _noise_sampling_log) {
-      int32_t num_zone;
-      int32_t nb_zones = 1 << fractal_step;
-      int32_t nb_points_in_each_zone = _cur_noise->get_points().size() / nb_zones;
+      size_t num_zone;
+      size_t nb_zones = 1 << fractal_step;
+      size_t nb_points_in_each_zone = _cur_noise->get_points().size() / nb_zones;
 
       // Compute current noise intensity
       // We first test the trivial (most common) cases, then the general (positive or negative) cases
@@ -471,13 +471,13 @@ void Environment::_apply_local_gaussian_variation() {
 void Environment::_compute_area() {
   _total_area = 0.0;
 
-  for (int8_t i = 0 ; i < NB_FEATURES ; i++)
+  for (size_t i = 0 ; i < NB_FEATURES ; i++)
     _area_by_feature[i] = 0.0;
 
   // TODO : We should take into account that we compute the areas in a specific order (from the leftmost segment, rightwards)
   //   => We shouldn't parse the whole list of points on the left of the segment we are considering (we have
   //      already been through them!)
-  for (int16_t i = 0 ; i < _nb_segments ; i++) {
+  for (size_t i = 0 ; i < _nb_segments ; i++) {
     _area_by_feature[_segments[i]->feature] += get_geometric_area(_segments[i]->start, _segments[i]->stop);
     _total_area += _area_by_feature[_segments[i]->feature];
   }

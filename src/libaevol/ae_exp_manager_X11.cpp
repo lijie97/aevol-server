@@ -649,7 +649,7 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
       {
         ae_env_segment** segments = get_env()->get_segments();
      
-        for ( int16_t i = 0 ; i < get_env()->get_nb_segments() ; i++ )
+        for ( size_t i = 0 ; i < get_env()->get_nb_segments() ; i++ )
         {
           if ( segments[i]->feature != METABOLISM )
           {

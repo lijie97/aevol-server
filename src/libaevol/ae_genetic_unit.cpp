@@ -1072,7 +1072,7 @@ void ae_genetic_unit::compute_distance_to_target( Environment* env )
   {
     _dist_to_target_per_segment = new double [env->get_nb_segments()]; // Can not be allocated in constructor because number of segments is then unknow
   }
-  for ( int16_t i = 0 ; i < env->get_nb_segments() ; i++ )
+  for ( size_t i = 0 ; i < env->get_nb_segments() ; i++ )
   {
     _dist_to_target_per_segment[i] = delta->get_geometric_area( segments[i]->start, segments[i]->stop );
     _dist_to_target_by_feature[segments[i]->feature] += _dist_to_target_per_segment[i];
