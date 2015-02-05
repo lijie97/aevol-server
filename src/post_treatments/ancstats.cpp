@@ -546,10 +546,6 @@ FILE* open_environment_stat_file( const char * prefix, const ae_environment * en
     {
       fprintf( env_output_file, "# Each line contains : Generation, and then, for each gaussian: M W H.\n" );
     }
-  else if (env->custom_points_provided())
-    {
-      fprintf( env_output_file, "# Each line contains : Generation, and then, for each point: x y.\n" );
-    }
   fprintf( env_output_file, "#\n" );
 
   return env_output_file;
@@ -564,9 +560,6 @@ void write_environment_stats( int32_t num_gener, const ae_environment * env, FIL
   if (env->gaussians_provided())
     for (ae_gaussian* g: env->get_gaussians2())
       fprintf(env_output_file, "     %.16f %.16f %.16f", g->get_mean(), g->get_width(), g->get_height());
-  else if (env->custom_points_provided())
-    for (Point* p: env->get_custom_points2())
-      fprintf(env_output_file, "  %.16f %.16f", p->x, p->y);
 
   fprintf( env_output_file, "\n" );
 }

@@ -56,9 +56,7 @@ class ae_environment : public ae_fuzzy_set_X11
     virtual ~ae_environment( void );
 
     inline const std::list<ae_gaussian*>& get_gaussians2() const;
-    inline const std::list<Point*>& get_custom_points2() const;
     inline bool gaussians_provided() const;
-    inline bool custom_points_provided() const;
     inline double               get_total_area( void ) const;
     inline int16_t              get_nb_segments( void ) const;
     inline ae_env_segment**     get_segments( void ) const;
@@ -72,8 +70,6 @@ class ae_environment : public ae_fuzzy_set_X11
     inline bool                 is_noise_allowed( void ) const;
     inline void   set_gaussians(std::list<ae_gaussian*> gaussians);
     inline void   reset_gaussians() {std_gaussians.clear();}
-    inline void   set_custom_points(std::list<Point*> custom_points);
-    inline void   reset_custom_points() {std_custom_points.clear();}
 
     inline void   set_sampling( int16_t val );
     inline void   set_segmentation( int16_t nb_segments, double* boundaries, ae_env_axis_feature* features, bool separate_segments = false );
@@ -92,8 +88,6 @@ class ae_environment : public ae_fuzzy_set_X11
     void save( gzFile backup_file ) const;
     void load( gzFile backup_file );
 
-    void add_custom_point( double x, double y );
-    void add_custom_point2(double x, double y);
     void add_gaussian( double a, double b, double c );
     void add_gaussian2(double a, double b, double c);
     void add_initial_gaussian( double a, double b, double c );
@@ -101,7 +95,6 @@ class ae_environment : public ae_fuzzy_set_X11
     void build( void );
     inline void clear_initial_gaussians( void );
     inline void clear_gaussians( void );
-    inline void clear_custom_points( void );
 
     inline void apply_variation( void );
     void apply_noise( void );
@@ -117,10 +110,6 @@ class ae_environment : public ae_fuzzy_set_X11
     std::list<ae_gaussian*>  std_initial_gaussians; // List containing all the gaussians of the environment in their initial state
     std::list<ae_gaussian*>  std_gaussians;     // List containing all the gaussians of the environment
     int16_t   _sampling;                        // Number of points to be generated from the gaussians.
-    ae_list<Point*>*  _custom_points;     // List containing all the custom points of the environment.
-                                                // This can not be used in conjunction with gaussians.
-    std::list<Point*>  std_custom_points;       // List containing all the custom points of the environment.
-                                                // This can not be used in conjunction with gaussians.
 
     int16_t           _nb_segments;
     ae_env_segment**  _segments; // Ordered table of segments.
@@ -131,7 +120,7 @@ class ae_environment : public ae_fuzzy_set_X11
     double  _total_area;      // Geometric area of the whole function
     double* _area_by_feature; // Geometric area of each feature
 
-    // Variation management (compatible only with gaussians, not with custom points)
+    // Variation management (compatible only with gaussians)
     ae_env_var      _var_method;  // Variation method
     ae_jumping_mt*  _var_prng;    // PRNG used for variation
     double          _var_sigma;   // Autoregressive mean variation sigma parameter
@@ -156,16 +145,10 @@ inline const std::list<ae_gaussian*>& ae_environment::get_gaussians2() const {
   return std_gaussians;
 }
 
-inline const std::list<Point*>& ae_environment::get_custom_points2() const {
-  return std_custom_points;
-}
-
 bool ae_environment::gaussians_provided() const {
   return not _gaussians->is_empty();
 }
 
-bool ae_environment::custom_points_provided() const {
-  return not _custom_points->is_empty();
 }
 
 
@@ -226,10 +209,6 @@ inline bool ae_environment::is_noise_allowed( void ) const
 
 inline void ae_environment::set_gaussians(std::list<ae_gaussian*> gaussians) {
   std_gaussians = gaussians;
-}
-
-inline void ae_environment::set_custom_points(std::list<Point*> custom_points) {
-  std_custom_points = custom_points;
 }
 
 inline void ae_environment::set_sampling( int16_t val )
@@ -338,14 +317,6 @@ inline void ae_environment::clear_gaussians( void )
   _gaussians = NULL;
 }
 
-inline void ae_environment::clear_custom_points( void )
-{
-  if (_custom_points != NULL)
-    {
-    _custom_points->erase(true);
-    delete _custom_points;
-    }
-  _custom_points = NULL;
 }
 
 

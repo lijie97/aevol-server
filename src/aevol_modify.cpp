@@ -327,7 +327,6 @@ int main( int argc, char* argv[] )
             }
           else
             {
-              env->clear_custom_points();
               env->clear_gaussians();
               env->clear_initial_gaussians();
               env->reset_gaussians();
@@ -339,22 +338,9 @@ int main( int argc, char* argv[] )
         }
       else if ( strcmp( line->words[0], "ENV_ADD_POINT" ) == 0 ) 
         {
-          if ( env_change )
-            {
-              env->add_custom_point( atof(line->words[1]), atof(line->words[2]) );
-              printf("\tAddition of a custom point with x=%f, y=%f\n",atof(line->words[1]), atof(line->words[2]));
-            }
-          else
-            {
-              env->clear_custom_points();
-              env->clear_gaussians();
-              env->clear_initial_gaussians();
-              env->reset_custom_points();
-              env->add_custom_point( atof(line->words[1]), atof(line->words[2]));
-              printf("\tChange of the environment: first custom point with x=%f, y=%f \n",atof(line->words[1]), atof(line->words[2]));
-              env_change = true;
-            }
-          env_hasbeenmodified = true;
+          // custom_points
+          printf( "%s:%d: error: Custom points management has been removed.\n", __FILE__, __LINE__ );
+          exit( EXIT_FAILURE );
         }
       else if ( strcmp( line->words[0], "ENV_VARIATION" ) == 0 )
         {
@@ -493,22 +479,6 @@ int main( int argc, char* argv[] )
       delete line;
     }
   fclose( param_file );
-
-
-  // Check for incompatible options
-  if (env->gaussians_provided() and env->custom_points_provided())
-    {
-      printf( "ERROR in param file \"%s\" : parameters ENV_ADD_POINT and ENV_ADD_GAUSSIAN are incompatible.\n",
-              param_file_name );
-      exit( EXIT_FAILURE ); 
-    }
-
-  if (env->custom_points_provided() and (env->get_var_method() != NO_VAR))
-    {
-      printf( "ERROR in param file \"%s\" : environmental variation is incompatible with ENV_ADD_POINT, please use ENV_ADD_GAUSSIAN instead. \n", param_file_name );
-      exit( EXIT_FAILURE ); 
-    }
-
 
   printf("OK\n");
 

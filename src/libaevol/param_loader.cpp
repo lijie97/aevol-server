@@ -809,7 +809,9 @@ void param_loader::interpret_line( f_line* line, int32_t cur_line )
   }
   else if ( strcmp( line->words[0], "ENV_ADD_POINT" ) == 0 )
   {
-    _custom_points.push_back(new Point(atof(line->words[1]), atof(line->words[2])));
+    // custom_points
+    printf( "%s:%d: error: Custom points management has been removed.\n", __FILE__, __LINE__ );
+    exit( EXIT_FAILURE );
   }
   else if ( (strcmp( line->words[0], "ENV_ADD_GAUSSIAN" ) == 0 ) || ( strcmp( line->words[0], "ENV_GAUSSIAN" ) == 0 ))
   {
@@ -1169,24 +1171,6 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
     exit( EXIT_FAILURE );
   }
 
-  // Check for incompatible environment options:
-  // at most one of these two lists should be used
-  if (not _custom_points.empty() and not _env_gaussians.empty())
-  {
-    printf( "ERROR in param file \"%s\" : ENV_ADD_POINT is incompatible with ENV_ADD_GAUSSIAN (or ENV_GAUSSIAN).\n",
-           _param_file_name );
-    exit( EXIT_FAILURE );
-
-  }
-
-  if (not _custom_points.empty() and ( _env_var_method != NO_VAR))
-  {
-    printf( "ERROR in param file \"%s\" : ENV_ADD_POINT is incompatible with environmental variation.\n",
-           _param_file_name );
-    exit( EXIT_FAILURE );
-  }
-
-
   // Initialize _prng
   // This one will be used to create the initial genome(s) and to generate seeds for other prng
   _prng = new ae_jumping_mt( _seed );
@@ -1272,14 +1256,10 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
 
 
   // 2) ------------------------------------------------ Create the environment
-  // Move the gaussian list and the list of custom points from the parameters
-  // to the environment
+  // Move the gaussian list from the parameters to the environment
   env->set_gaussians(_env_gaussians);
   for (ae_gaussian* g: _env_gaussians)
     delete g;
-  env->set_custom_points(_custom_points);
-  for (Point* p: _custom_points)
-    delete p;
 
   // Copy the sampling
   env->set_sampling( _env_sampling );

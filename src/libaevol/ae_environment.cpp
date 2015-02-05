@@ -73,7 +73,6 @@ ae_environment::ae_environment( void ) :
   _initial_gaussians  = NULL;
   _gaussians          = NULL;
   _sampling           = 0;
-  _custom_points      = NULL;
 
   _total_area = 0.0;
 
@@ -145,21 +144,6 @@ ae_environment::ae_environment( const ae_environment &model ) :
 
   std_gaussians = model.std_gaussians;
 
-  if (model._custom_points == NULL) { _custom_points  = NULL; }
-  else
-    {
-      _custom_points = new ae_list<Point *>;
-      ae_list_node<Point *> * node = model._custom_points->get_first();
-      Point * m = NULL;
-      while (node != NULL)
-        {
-          m = node->get_obj();
-          _custom_points->add( new Point(*m));
-          node = node->get_next();
-        }
-    }
-
-  std_custom_points = model.std_custom_points;
 
   _total_area = model._total_area;
 
@@ -223,11 +207,6 @@ ae_environment::~ae_environment( void )
     delete _initial_gaussians;
   }
 
-  if ( _custom_points != NULL )
-  {
-    _custom_points->erase( true );
-    delete _custom_points;
-  }
 
   if (_var_prng != NULL)   delete _var_prng;
   if (_noise_prng != NULL) delete _noise_prng;
@@ -280,30 +259,6 @@ void ae_environment::save( gzFile backup_file ) const
   //  Write sampling
   // ---------------------
   gzwrite( backup_file, &_sampling, sizeof(_sampling) );
-
-  // ---------------------
-  //  Write custom points
-  // ---------------------
-  int16_t nb_custom_points = (_custom_points == NULL) ? 0 : _custom_points->get_nb_elts();
-  gzwrite( backup_file, &nb_custom_points, sizeof(nb_custom_points) );
-
-  if ( _custom_points != NULL )
-  {
-    ae_list_node<Point*>* custom_point_node = _custom_points->get_first();
-    Point*  custom_point;
-    for ( int16_t i = 0 ; i < nb_custom_points ; i++ )
-    {
-      custom_point = custom_point_node->get_obj();
-
-      writepoint(*custom_point, backup_file);
-
-      custom_point_node = custom_point_node->get_next();
-    }
-  }
-
-  if (not std_custom_points.empty())
-    for (Point* p: std_custom_points)
-      writepoint(*p, backup_file);
 
   // -------------------------------
   //  Write x-axis segmentation
@@ -396,21 +351,6 @@ void ae_environment::load( gzFile backup_file )
   //  Retrieve sampling
   // ------------------------------
   gzread( backup_file, &_sampling, sizeof(_sampling) );
-
-
-  // -------------------------
-  //  Retreive custom points
-  // -------------------------
-  int16_t nb_custom_points;
-  gzread( backup_file, &nb_custom_points, sizeof(nb_custom_points) );
-  if ( nb_custom_points > 0 ) _custom_points = new ae_list<Point*>();
-  for ( int16_t i = 0 ; i < nb_custom_points ; i++ )
-  {
-    _custom_points->add(new Point(readpoint(backup_file)));
-  }
-
-  for (size_t i = 0; i < static_cast<size_t>(nb_custom_points); ++i)
-    std_custom_points.push_back(new Point(readpoint(backup_file)));
 
   // -------------------------------
   //  Retrieve x-axis segmentation
@@ -516,15 +456,6 @@ void ae_environment::add_initial_gaussian2(double a, double b, double c) {
   std_initial_gaussians.push_back(new ae_gaussian(a, b, c));
 }
 
-void ae_environment::add_custom_point( double x, double y )
-{
-  _custom_points->add(new Point(x, y));
-}
-
-void ae_environment::add_custom_point2(double x, double y) {
-  std_custom_points.push_back(new Point(x, y));
-}
-
 void ae_environment::build( void )
 {
   // NB : Extreme points (at abscissa X_MIN and X_MAX) will be generated, we need to erase the list first
@@ -556,49 +487,8 @@ void ae_environment::build( void )
   }
 
   // 2) Add custom points
-  if ( _custom_points != NULL) {
-    ae_list_node<Point*>* pt_node = _custom_points->get_first();
-    Point *custom_point = pt_node->get_obj();
-    Point new_point;
-
-    if ( custom_point->x > X_MIN) {
-      // Add the point (X_MIN, Y_MIN) in front of the list of points
-      new_point = Point( X_MIN, Y_MIN );
-      points.push_front( new_point );
-    }
-
-    while ( pt_node != NULL ) {
-      custom_point = pt_node->get_obj();
-      new_point = Point( *custom_point );
-      points.push_back(new_point);
-      pt_node = pt_node->get_next();
-    }
-
-    if ( custom_point->x < X_MAX ) {
-      // Add the point (X_MAX, Y_MIN) at the end of the list of points
-      new_point = Point( X_MAX, Y_MIN );
-      points.push_back(new_point);
-    }
-  }
-
-  if (not std_custom_points.empty()) {
-    auto p = std_custom_points.begin();
-
-    if ((*p)->x > X_MIN)
-      // Add the point (X_MIN, Y_MIN) in front of the list of points
-      points.push_front(Point(X_MIN, Y_MIN));
-
-    while (p != std_custom_points.end()) {
-      points.push_back(Point(*p));
-      ++p;
-    }
-
-    if ((*prev(p))->x < X_MAX ) {
-      // Add the point (X_MAX, Y_MIN) at the end of the list of points
-      points.push_back(Point(X_MAX, Y_MIN));
-    }
-  }
-
+  // custom points were unused: removed
+  
   // 3) Simplify (get rid of useless points)
   add_lower_bound( Y_MIN );
   add_upper_bound( Y_MAX );
