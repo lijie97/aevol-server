@@ -558,8 +558,8 @@ void write_environment_stats( int32_t num_gener, const ae_environment * env, FIL
   fprintf( env_output_file, "%" PRId32, num_gener );
 
   if (env->gaussians_provided())
-    for (ae_gaussian* g: env->get_gaussians2())
-      fprintf(env_output_file, "     %.16f %.16f %.16f", g->get_mean(), g->get_width(), g->get_height());
+    for (const ae_gaussian& g: env->get_gaussians())
+      fprintf(env_output_file, "     %.16f %.16f %.16f", g.get_mean(), g.get_width(), g.get_height());
 
   fprintf( env_output_file, "\n" );
 }

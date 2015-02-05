@@ -83,9 +83,9 @@ class ae_gaussian
     // =================================================================
     //                            Public Methods
     // =================================================================
-    inline double compute_y( double x );
+    inline double compute_y( double x ) const;
     
-    inline void save( gzFile backup_file );
+    inline void save( gzFile backup_file ) const;
   
     // =================================================================
     //                           Public Attributes
@@ -186,12 +186,12 @@ inline void ae_gaussian::set_width( double width )
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-double ae_gaussian::compute_y( double x )
+double ae_gaussian::compute_y( double x ) const
 {
   return _height * exp( -(x-_mean)*(x-_mean) / (2*_width*_width) );
 }
 
-void ae_gaussian::save( gzFile backup_file )
+void ae_gaussian::save( gzFile backup_file ) const
 {
   gzwrite( backup_file, &_height, sizeof(_height) );
   gzwrite( backup_file, &_mean, sizeof(_mean) );

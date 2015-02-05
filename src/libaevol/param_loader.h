@@ -162,7 +162,7 @@ class param_loader
     char*    _strain_name;
 
     // ------------------------------------------------------------ Environment
-    std::list<ae_gaussian*> _env_gaussians;
+    std::list<ae_gaussian> std_env_gaussians;
     int16_t  _env_sampling;
 
     // ---------------------------------------- Environment x-axis segmentation

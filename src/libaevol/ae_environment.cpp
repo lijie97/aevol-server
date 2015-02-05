@@ -70,8 +70,6 @@ ae_environment::ae_environment( void ) :
 #endif
 {
   // Environment "shape"
-  _initial_gaussians  = NULL;
-  _gaussians          = NULL;
   _sampling           = 0;
 
   _total_area = 0.0;
@@ -112,39 +110,9 @@ ae_environment::ae_environment( const ae_environment &model ) :
    // Environment "shape"
   _sampling           = model._sampling;
 
-  if (model._initial_gaussians == NULL) { _initial_gaussians  = NULL; }
-  else
-    {
-      _initial_gaussians = new ae_list<ae_gaussian *>;
-      ae_list_node<ae_gaussian *> * node = model._initial_gaussians->get_first();
-      ae_gaussian * gaussian = NULL;
-      while (node != NULL)
-        {
-          gaussian = node->get_obj();
-          _initial_gaussians->add( new ae_gaussian(*gaussian));
-          node = node->get_next();
-        }
-    }
-
   std_initial_gaussians = model.std_initial_gaussians;
-
-  if (model._gaussians == NULL) { _gaussians  = NULL; }
-  else
-    {
-      _gaussians = new ae_list<ae_gaussian *>;
-      ae_list_node<ae_gaussian *> * node = model._gaussians->get_first();
-      ae_gaussian * gaussian = NULL;
-      while (node != NULL)
-        {
-          gaussian = node->get_obj();
-          _gaussians->add( new ae_gaussian(*gaussian));
-          node = node->get_next();
-        }
-    }
-
   std_gaussians = model.std_gaussians;
-
-
+  
   _total_area = model._total_area;
 
   // Environment segmentation
@@ -188,26 +156,8 @@ ae_environment::ae_environment( const ae_environment &model ) :
 
 };
 
-
-
-// =================================================================
-//                             Destructors
-// =================================================================
 ae_environment::~ae_environment( void )
 {
-  if ( _gaussians != NULL )
-  {
-    _gaussians->erase( true );
-    delete _gaussians;
-  }
-
-  if ( _initial_gaussians != NULL )
-  {
-    _initial_gaussians->erase( true );
-    delete _initial_gaussians;
-  }
-
-
   if (_var_prng != NULL)   delete _var_prng;
   if (_noise_prng != NULL) delete _noise_prng;
 
@@ -234,26 +184,12 @@ void ae_environment::save( gzFile backup_file ) const
   // ---------------------
   //  Write gaussians
   // ---------------------
-  int16_t nb_gaussians = ( _gaussians == NULL ) ? 0 : _gaussians->get_nb_elts();
+  int16_t nb_gaussians = std_gaussians.size();
   gzwrite( backup_file, &nb_gaussians, sizeof(nb_gaussians) );
 
-  if ( _gaussians != NULL )
-  {
-    ae_list_node<ae_gaussian*>* gaussian_node = _gaussians->get_first();
-    ae_gaussian*  gaussian;
-    for ( int16_t i = 0 ; i < nb_gaussians ; i++ )
-    {
-      gaussian = gaussian_node->get_obj();
-
-      gaussian->save( backup_file );
-
-      gaussian_node = gaussian_node->get_next();
-    }
-  }
-
   if (not std_gaussians.empty())
-    for (ae_gaussian* g: std_gaussians)
-      g->save(backup_file);
+    for (const ae_gaussian& g: std_gaussians)
+      g.save(backup_file);
 
   // ---------------------
   //  Write sampling
@@ -308,26 +244,12 @@ void ae_environment::save( gzFile backup_file ) const
   // ---------------------------------------------------------------
   if ( _var_method != NO_VAR || is_noise_allowed() )
   {
-    int16_t nb_gaussians = ( _initial_gaussians == NULL ) ? 0 : _initial_gaussians->get_nb_elts();
-    gzwrite( backup_file, &nb_gaussians, sizeof(nb_gaussians) );
-
-    if ( _initial_gaussians != NULL )
-    {
-      ae_list_node<ae_gaussian*>* gaussian_node = _initial_gaussians->get_first();
-      ae_gaussian*  gaussian;
-      for ( int16_t i = 0 ; i < nb_gaussians ; i++ )
-      {
-        gaussian = gaussian_node->get_obj();
-
-        gaussian->save( backup_file );
-
-        gaussian_node = gaussian_node->get_next();
-      }
-    }
+    int16_t nb_gaussians = std_initial_gaussians.size();
+    gzwrite(backup_file, &nb_gaussians, sizeof(nb_gaussians));
 
     if (not std_initial_gaussians.empty())
-      for (ae_gaussian* g: std_initial_gaussians)
-        g->save(backup_file);
+      for (const ae_gaussian& g: std_initial_gaussians)
+        g.save(backup_file);
   }
 }
 
@@ -337,15 +259,10 @@ void ae_environment::load( gzFile backup_file )
   //  Retreive gaussians
   // ---------------------
   int16_t nb_gaussians;
-  gzread( backup_file, &nb_gaussians, sizeof(nb_gaussians) );
-  if ( nb_gaussians > 0 ) _gaussians = new ae_list<ae_gaussian*>();
-  for ( int16_t i = 0 ; i < nb_gaussians ; i++ )
-  {
-    _gaussians->add( new ae_gaussian( backup_file ) );
-  }
+  gzread(backup_file, &nb_gaussians, sizeof(nb_gaussians));
 
   for (size_t i = 0; i < static_cast<size_t>(nb_gaussians); ++i)
-    std_gaussians.push_back(new ae_gaussian(backup_file));
+    std_gaussians.push_back(ae_gaussian(backup_file));
 
   // ------------------------------
   //  Retrieve sampling
@@ -415,21 +332,15 @@ void ae_environment::load( gzFile backup_file )
     gzread( backup_file, &_noise_sampling_log, sizeof(_noise_sampling_log) );
   }
 
-
   // --------------------------------------------------------------------
   //  If needed, retreive the copy of the initial state of the gaussians
   // --------------------------------------------------------------------
   if ( _var_method != NO_VAR || is_noise_allowed() )
   {
     int16_t nb_gaussians;
-    gzread( backup_file, &nb_gaussians, sizeof(nb_gaussians) );
-    if ( nb_gaussians > 0 ) _initial_gaussians = new ae_list<ae_gaussian*>();
-    for ( int16_t i = 0 ; i < nb_gaussians ; i++ )
-    {
-      _initial_gaussians->add( new ae_gaussian( backup_file ) );
-    }
+    gzread(backup_file, &nb_gaussians, sizeof(nb_gaussians));
     for (size_t i = 0 ; i < static_cast<size_t>(nb_gaussians) ; ++i)
-      std_initial_gaussians.push_back(new ae_gaussian(backup_file));
+      std_initial_gaussians.push_back(ae_gaussian(backup_file));
   }
 
   // ------------------------------
@@ -438,22 +349,12 @@ void ae_environment::load( gzFile backup_file )
   build();
 }
 
-void ae_environment::add_gaussian( double a, double b, double c )
-{
-  _gaussians->add( new ae_gaussian( a, b, c ) );
+void ae_environment::add_gaussian(double a, double b, double c) {
+  std_gaussians.push_back(ae_gaussian(a, b, c));
 }
 
-void ae_environment::add_gaussian2(double a, double b, double c) {
-  std_gaussians.push_back(new ae_gaussian(a, b, c));
-}
-
-void ae_environment::add_initial_gaussian( double a, double b, double c )
-{
-  _initial_gaussians->add( new ae_gaussian( a, b, c ) );
-}
-
-void ae_environment::add_initial_gaussian2(double a, double b, double c) {
-  std_initial_gaussians.push_back(new ae_gaussian(a, b, c));
+void ae_environment::add_initial_gaussian(double a, double b, double c) {
+  std_initial_gaussians.push_back(ae_gaussian(a, b, c));
 }
 
 void ae_environment::build( void )
@@ -462,29 +363,13 @@ void ae_environment::build( void )
   points.clear();
 
   // 1) Generate sample points from gaussians
-  if ( _gaussians != NULL) {
-    ae_list_node<ae_gaussian*>* node = NULL;
-
-    for ( int16_t i = 0 ; i <= _sampling ; i++ ) {
-      Point new_point = Point( X_MIN + (double)i * (X_MAX - X_MIN) / (double)_sampling, 0.0 );
-      node = _gaussians->get_first();
-
-      while ( node ) {
-        new_point.y += node->get_obj()->compute_y( new_point.x );
-        node = node->get_next();
-      }
-      points.push_back(new_point);
-    }
-  }
-
-  if (not std_gaussians.empty()) {
+  if (not std_gaussians.empty())
     for ( int16_t i = 0 ; i <= _sampling ; i++ ) {
       Point new_point = Point(X_MIN + (double)i * (X_MAX - X_MIN) / (double)_sampling, 0.0);
-      for (ae_gaussian* g: std_gaussians)
-        new_point.y += g->compute_y(new_point.x);
+      for (const ae_gaussian& g: std_gaussians)
+        new_point.y += g.compute_y(new_point.x);
       points.push_back(new_point);
     }
-  }
 
   // 2) Add custom points
   // custom points were unused: removed
@@ -498,22 +383,9 @@ void ae_environment::build( void )
   _compute_area();
 
   //  5) If needed, create a copy of the initial state of the gaussians
-  if ( _initial_gaussians == NULL && (_var_method != NO_VAR || is_noise_allowed()) ) {
-    _initial_gaussians = new ae_list<ae_gaussian*>();
-
-    int32_t nb_gaussians = _gaussians->get_nb_elts();
-    ae_list_node<ae_gaussian*>* gaussian_node = _gaussians->get_first();
-    ae_gaussian*  gaussian      = NULL;
-    for ( int16_t i = 0 ; i < nb_gaussians ; i++ ) {
-      gaussian = gaussian_node->get_obj();
-      _initial_gaussians->add( new ae_gaussian( *gaussian ) );
-      gaussian_node = gaussian_node->get_next();
-    }
-  }
-
   if (std_initial_gaussians.empty() and (_var_method != NO_VAR or is_noise_allowed()))
-    for (ae_gaussian* g: std_gaussians)
-      std_initial_gaussians.push_back(new ae_gaussian(*g));
+    for (ae_gaussian& g: std_gaussians)
+      std_initial_gaussians.push_back(ae_gaussian(g));
 }
 
 /*!
@@ -656,48 +528,19 @@ void ae_environment::_apply_autoregressive_mean_variation( void )
   // delta_m follows an autoregressive stochastic process
   // with the parameters _var_sigma and _var_tau
 
-  int16_t nb_gaussians = _gaussians->get_nb_elts();
-
-  ae_list_node<ae_gaussian*>* gaussian_node = _gaussians->get_first();
-  ae_gaussian* gaussian;
-  ae_list_node<ae_gaussian*>* ref_gaussian_node = _initial_gaussians->get_first();
-  ae_gaussian* ref_gaussian;
-  for ( int16_t i = 0 ; i < nb_gaussians ; i++ )
-  {
-    gaussian      = gaussian_node->get_obj();
-    ref_gaussian  = ref_gaussian_node->get_obj();
-
-    // Find the current delta_mean = current_mean - ref_mean
-    double delta_mean = gaussian->get_mean() - ref_gaussian->get_mean();
-    //double delta_height = gaussian->get_height() - ref_gaussian->get_height();
-
-    // Compute the next value :
-    // Dm(t+1) = Dm(t)*(1-1/tau) + ssd/tau*sqrt(2*tau-1)*normal_random()
-    delta_mean =  delta_mean * (1.0 - 1.0/_var_tau) + (_var_sigma/_var_tau) * sqrt(2*_var_tau- 1.0) * _var_prng->gaussian_random();
-    //delta_height =  delta_height * (1.0 - 1.0/_var_tau) + (_var_sigma/_var_tau) * sqrt(2*_var_tau- 1.0) * _var_prng->gaussian_random();
-
-    // Deduce the new value of the mean : ref_mean + delta_m
-    gaussian->set_mean( ref_gaussian->get_mean() + delta_mean );
-    //gaussian->set_height( ref_gaussian->get_height() + delta_height );
-
-    gaussian_node = gaussian_node->get_next();
-    ref_gaussian_node = ref_gaussian_node->get_next();
-  }
-
   auto ref = std_initial_gaussians.begin();
-  for (ae_gaussian* g: std_gaussians) {
+  for (ae_gaussian& g: std_gaussians) {
     // Find the current delta_mean = current_mean - ref_mean
-    double delta_mean = g->get_mean() - (*ref)->get_mean();
+    double delta_mean = g.get_mean() - ref->get_mean();
 
     // Compute the next value:
     // Dm(t+1) = Dm(t) × (1 - 1/tau) + ssd/tau × sqrt(2 tau - 1) × normal_random()
     delta_mean =  delta_mean * (1.0 - 1.0/_var_tau) + (_var_sigma/_var_tau) * sqrt(2*_var_tau- 1.0) * _var_prng->gaussian_random();
 
     // Deduce the new value of the mean: ref_mean + delta_m
-    g->set_mean((*ref)->get_mean() + delta_mean);
+    g.set_mean(ref->get_mean() + delta_mean);
     ++ref;
   }
-
 
   build();
 }
@@ -710,45 +553,20 @@ void ae_environment::_apply_autoregressive_height_variation( void )
   // delta_m follows an autoregressive stochastic process
   // with the parameters _var_sigma and _var_tau
 
-  int16_t nb_gaussians = _gaussians->get_nb_elts();
-
-  ae_list_node<ae_gaussian*>* gaussian_node = _gaussians->get_first();
-  ae_gaussian* gaussian;
-  ae_list_node<ae_gaussian*>* ref_gaussian_node = _initial_gaussians->get_first();
-  ae_gaussian* ref_gaussian;
-  for ( int16_t i = 0 ; i < nb_gaussians ; i++ )
-  {
-    gaussian      = gaussian_node->get_obj();
-    ref_gaussian  = ref_gaussian_node->get_obj();
-
-    // Find the current delta_height = current_height - ref_height
-    double delta_height = gaussian->get_height() - ref_gaussian->get_height();
-
-    // Compute the next value :
-    // Dh(t+1) = Dh(t)*(1-1/tau) + ssd/tau*sqrt(2*tau-1)*normal_random()
-    delta_height =  delta_height * (1.0 - 1.0/_var_tau) + (_var_sigma/_var_tau) * sqrt(2*_var_tau- 1.0) * _var_prng->gaussian_random();
-
-    // Deduce the new value of the height : ref_height + delta_h
-    gaussian->set_height( ref_gaussian->get_height() + delta_height );
-
-    gaussian_node = gaussian_node->get_next();
-    ref_gaussian_node = ref_gaussian_node->get_next();
-  }
-
   auto ref = std_initial_gaussians.begin();
-  for (ae_gaussian* g: std_gaussians) {
+  for (ae_gaussian& g: std_gaussians) {
     // Find the current delta_height = current_height - ref_height
-    double delta_height = g->get_height() - (*ref)->get_height();
+    double delta_height = g.get_height() - ref->get_height();
 
     // Compute the next value :
     // Dh(t+1) = Dh(t) * (1 - 1/tau) + ssd/tau * sqrt(2 tau - 1) * normal_random()
     delta_height =  delta_height * (1.0 - 1.0/_var_tau) + (_var_sigma/_var_tau) * sqrt(2*_var_tau- 1.0) * _var_prng->gaussian_random();
 
     // Deduce the new value of the height : ref_height + delta_h
-    g->set_height((*ref)->get_height() + delta_height );
+    g.set_height(ref->get_height() + delta_height );
     ++ref;
   }
-
+  
   build();
 }
 

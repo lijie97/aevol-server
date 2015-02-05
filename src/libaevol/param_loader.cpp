@@ -815,7 +815,7 @@ void param_loader::interpret_line( f_line* line, int32_t cur_line )
   }
   else if ( (strcmp( line->words[0], "ENV_ADD_GAUSSIAN" ) == 0 ) || ( strcmp( line->words[0], "ENV_GAUSSIAN" ) == 0 ))
   {
-    _env_gaussians.push_back(new ae_gaussian(atof(line->words[1]), atof(line->words[2]), atof(line->words[3])));
+    std_env_gaussians.push_back(ae_gaussian(atof(line->words[1]), atof(line->words[2]), atof(line->words[3])));
   }
   else if ( strcmp( line->words[0], "ENV_SAMPLING" ) == 0 )
   {
@@ -1257,9 +1257,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
 
   // 2) ------------------------------------------------ Create the environment
   // Move the gaussian list from the parameters to the environment
-  env->set_gaussians(_env_gaussians);
-  for (ae_gaussian* g: _env_gaussians)
-    delete g;
+  env->set_gaussians(std_env_gaussians);
 
   // Copy the sampling
   env->set_sampling( _env_sampling );

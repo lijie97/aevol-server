@@ -55,7 +55,7 @@ class ae_environment : public ae_fuzzy_set_X11
 
     virtual ~ae_environment( void );
 
-    inline const std::list<ae_gaussian*>& get_gaussians2() const;
+    inline const std::list<ae_gaussian>& get_gaussians() const;
     inline bool gaussians_provided() const;
     inline double               get_total_area( void ) const;
     inline int16_t              get_nb_segments( void ) const;
@@ -68,8 +68,10 @@ class ae_environment : public ae_fuzzy_set_X11
     inline int32_t              get_var_tau( void )    const;
     inline ae_env_noise         get_noise_method( void ) const;
     inline bool                 is_noise_allowed( void ) const;
-    inline void   set_gaussians(std::list<ae_gaussian*> gaussians);
-    inline void   reset_gaussians() {std_gaussians.clear();}
+    inline void   set_gaussians(const std::list<ae_gaussian>& gaussians);
+    inline void   reset_gaussians() {
+      std_gaussians.clear();
+    }
 
     inline void   set_sampling( int16_t val );
     inline void   set_segmentation( int16_t nb_segments, double* boundaries, ae_env_axis_feature* features, bool separate_segments = false );
@@ -88,13 +90,11 @@ class ae_environment : public ae_fuzzy_set_X11
     void save( gzFile backup_file ) const;
     void load( gzFile backup_file );
 
-    void add_gaussian( double a, double b, double c );
-    void add_gaussian2(double a, double b, double c);
-    void add_initial_gaussian( double a, double b, double c );
-    void add_initial_gaussian2(double a, double b, double c);
+    void add_gaussian(double a, double b, double c);
+    void add_initial_gaussian(double a, double b, double c);
     void build( void );
-    inline void clear_initial_gaussians( void );
-    inline void clear_gaussians( void );
+    inline void clear_initial_gaussians();
+    inline void clear_gaussians();
 
     inline void apply_variation( void );
     void apply_noise( void );
@@ -105,11 +105,9 @@ class ae_environment : public ae_fuzzy_set_X11
     void _apply_local_gaussian_variation( void );
     void _compute_area( void );
 
-    ae_list<ae_gaussian*>*  _initial_gaussians; // List containing all the gaussians of the environment in their initial state
-    ae_list<ae_gaussian*>*  _gaussians;         // List containing all the gaussians of the environment
-    std::list<ae_gaussian*>  std_initial_gaussians; // List containing all the gaussians of the environment in their initial state
-    std::list<ae_gaussian*>  std_gaussians;     // List containing all the gaussians of the environment
-    int16_t   _sampling;                        // Number of points to be generated from the gaussians.
+    std::list<ae_gaussian> std_initial_gaussians;  // List containing all the gaussians of the environment in their initial state
+    std::list<ae_gaussian> std_gaussians;          // List containing all the gaussians of the environment
+    int16_t _sampling;                             // Number of points to be generated from the gaussians.
 
     int16_t           _nb_segments;
     ae_env_segment**  _segments; // Ordered table of segments.
@@ -141,16 +139,13 @@ inline int16_t ae_environment::get_nb_segments( void ) const
   return _nb_segments;
 }
 
-inline const std::list<ae_gaussian*>& ae_environment::get_gaussians2() const {
+inline const std::list<ae_gaussian>& ae_environment::get_gaussians() const {
   return std_gaussians;
 }
 
 bool ae_environment::gaussians_provided() const {
-  return not _gaussians->is_empty();
+  return not std_gaussians.empty();
 }
-
-}
-
 
 inline ae_env_segment** ae_environment::get_segments( void ) const
 {
@@ -207,7 +202,7 @@ inline bool ae_environment::is_noise_allowed( void ) const
   return ( _noise_method != NO_NOISE );
 }
 
-inline void ae_environment::set_gaussians(std::list<ae_gaussian*> gaussians) {
+inline void ae_environment::set_gaussians(const std::list<ae_gaussian>& gaussians) {
   std_gaussians = gaussians;
 }
 
@@ -297,28 +292,15 @@ inline void ae_environment::set_noise_sampling_log( int32_t sampling_log )
   _noise_sampling_log = sampling_log;
 }
 
-inline void ae_environment::clear_initial_gaussians( void )
-{
-  if (_initial_gaussians != NULL)
-  {
-    _initial_gaussians->erase(true);
-    delete _initial_gaussians;
-  }
-  _initial_gaussians=NULL;
+// TODO VLD: check if still of any use
+inline void ae_environment::clear_initial_gaussians(void) {
+  std_initial_gaussians.clear();
 }
 
-inline void ae_environment::clear_gaussians( void )
-{
-  if (_gaussians != NULL)
-    {
-    _gaussians->erase(true);
-    delete _gaussians;
-    }
-  _gaussians = NULL;
+// TODO VLD: check if still of any use
+inline void ae_environment::clear_gaussians(void) {
+  std_gaussians.clear();
 }
-
-}
-
 
 inline void ae_environment::apply_variation( void )
 {
