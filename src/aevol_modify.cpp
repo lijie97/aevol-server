@@ -329,7 +329,6 @@ int main( int argc, char* argv[] )
             {
               env->clear_gaussians();
               env->clear_initial_gaussians();
-              env->reset_gaussians();
               env->add_gaussian( atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
               printf("\tChange of the environment: first gaussian with %f, %f, %f \n",atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
               env_change = true;

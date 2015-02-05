@@ -69,8 +69,6 @@ class Environment : public ae_fuzzy_set_X11
   inline ae_env_noise         get_noise_method() const;
   inline bool                 is_noise_allowed() const;
   inline void   set_gaussians(const std::list<ae_gaussian>& gaussians);
-  inline void   reset_gaussians() { std_gaussians.clear(); }
-
   inline void   set_sampling(int16_t val);
   inline void   set_segmentation(int16_t nb_segments, double* boundaries, ae_env_axis_feature* features, bool separate_segments = false);
   inline void   set_var_method(ae_env_var var_method);
@@ -91,8 +89,8 @@ class Environment : public ae_fuzzy_set_X11
   void add_gaussian(double a, double b, double c);
   void add_initial_gaussian(double a, double b, double c);
   void build();
-  inline void clear_initial_gaussians();
-  inline void clear_gaussians();
+  inline void clear_gaussians() { std_gaussians.clear(); }
+  inline void clear_initial_gaussians() { std_initial_gaussians.clear(); }
 
   inline void apply_variation();
   void apply_noise();
@@ -262,16 +260,6 @@ inline void Environment::set_noise_sigma(double sigma) {
 
 inline void Environment::set_noise_sampling_log(int32_t sampling_log) {
   _noise_sampling_log = sampling_log;
-}
-
-// TODO VLD: check if still of any use
-inline void Environment::clear_initial_gaussians(void) {
-  std_initial_gaussians.clear();
-}
-
-// TODO VLD: check if still of any use
-inline void Environment::clear_gaussians(void) {
-  std_gaussians.clear();
 }
 
 inline void Environment::apply_variation() {
