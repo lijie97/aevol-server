@@ -23,20 +23,20 @@
 
 #include <inttypes.h>
 #include <zlib.h>
-
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <ae_env_segment.h>
-#include <ae_jumping_mt.h>
-#include <ae_fuzzy_set.h>
-#include <ae_gaussian.h>
-#ifdef __X11
-#include <ae_fuzzy_set_X11.h>
-#endif
 
 #include <list>
+
+#include "ae_env_segment.h"
+#include "ae_jumping_mt.h"
+#include "ae_fuzzy_set.h"
+#include "ae_gaussian.h"
+#ifdef __X11
+#include "ae_fuzzy_set_X11.h"
+#endif
 
 namespace aevol {
 
@@ -50,8 +50,8 @@ class Environment : public ae_fuzzy_set_X11
 {
  public :
   Environment();
-  Environment( const Environment &model );
-  Environment( gzFile backup_file );
+  Environment(const Environment& model);
+  Environment(gzFile backup_file);
 
   virtual ~Environment();
 
@@ -60,9 +60,9 @@ class Environment : public ae_fuzzy_set_X11
   inline double               get_total_area() const;
   inline int16_t              get_nb_segments() const;
   inline ae_env_segment**     get_segments() const;
-  inline double               get_segment_boundaries( int16_t i ) const;
-  inline ae_env_axis_feature  get_axis_feature( int16_t i ) const;
-  inline double               get_area_by_feature( int8_t feature ) const;
+  inline double               get_segment_boundaries(int16_t i) const;
+  inline ae_env_axis_feature  get_axis_feature(int16_t i) const;
+  inline double               get_area_by_feature(int8_t feature) const;
   inline ae_env_var           get_var_method() const;
   inline double               get_var_sigma()  const;
   inline int32_t              get_var_tau()    const;
@@ -71,22 +71,22 @@ class Environment : public ae_fuzzy_set_X11
   inline void   set_gaussians(const std::list<ae_gaussian>& gaussians);
   inline void   reset_gaussians() { std_gaussians.clear(); }
 
-  inline void   set_sampling( int16_t val );
-  inline void   set_segmentation( int16_t nb_segments, double* boundaries, ae_env_axis_feature* features, bool separate_segments = false );
-  inline void   set_var_method( ae_env_var var_method );
-  inline void   set_var_prng( ae_jumping_mt* prng );
-  inline void   set_var_sigma( double sigma );
-  inline void   set_var_tau( int32_t tau );
-  inline void   set_var_sigma_tau( double sigma, int32_t tau );
-  inline void   set_noise_method( ae_env_noise noise_method );
-  inline void   set_noise_prng( ae_jumping_mt* prng );
-  inline void   set_noise_sigma( double sigma );
-  inline void   set_noise_alpha( double alpha );
-  inline void   set_noise_prob( double prob );
-  inline void   set_noise_sampling_log( int32_t sampling_log );
+  inline void   set_sampling(int16_t val);
+  inline void   set_segmentation(int16_t nb_segments, double* boundaries, ae_env_axis_feature* features, bool separate_segments = false);
+  inline void   set_var_method(ae_env_var var_method);
+  inline void   set_var_prng(ae_jumping_mt* prng);
+  inline void   set_var_sigma(double sigma);
+  inline void   set_var_tau(int32_t tau);
+  inline void   set_var_sigma_tau(double sigma, int32_t tau);
+  inline void   set_noise_method(ae_env_noise noise_method);
+  inline void   set_noise_prng(ae_jumping_mt* prng);
+  inline void   set_noise_sigma(double sigma);
+  inline void   set_noise_alpha(double alpha);
+  inline void   set_noise_prob(double prob);
+  inline void   set_noise_sampling_log(int32_t sampling_log);
 
-  void save( gzFile backup_file ) const;
-  void load( gzFile backup_file );
+  void save(gzFile backup_file) const;
+  void load(gzFile backup_file);
 
   void add_gaussian(double a, double b, double c);
   void add_initial_gaussian(double a, double b, double c);
@@ -148,20 +148,20 @@ inline ae_env_segment** Environment::get_segments() const {
   return _segments;
 }
 
-inline double Environment::get_segment_boundaries( int16_t i ) const {
-  assert( i <= _nb_segments );
+inline double Environment::get_segment_boundaries(int16_t i) const {
+  assert(i <= _nb_segments);
 
-  if ( i == _nb_segments ) return _segments[i-1]->stop;
+  if (i == _nb_segments) return _segments[i-1]->stop;
   else return _segments[i]->start;
 }
 
-inline ae_env_axis_feature Environment::get_axis_feature( int16_t i ) const {
-  assert( i < _nb_segments );
+inline ae_env_axis_feature Environment::get_axis_feature(int16_t i) const {
+  assert(i < _nb_segments);
 
   return _segments[i]->feature;
 }
 
-inline double Environment::get_area_by_feature( int8_t feature ) const {
+inline double Environment::get_area_by_feature(int8_t feature) const {
   return _area_by_feature[ feature ];
 }
 
@@ -186,20 +186,20 @@ inline ae_env_noise Environment::get_noise_method() const {
 }
 
 inline bool Environment::is_noise_allowed() const {
-  return ( _noise_method != NO_NOISE );
+  return (_noise_method != NO_NOISE);
 }
 
 inline void Environment::set_gaussians(const std::list<ae_gaussian>& gaussians) {
   std_gaussians = gaussians;
 }
 
-inline void Environment::set_sampling( int16_t val ) {
+inline void Environment::set_sampling(int16_t val) {
   _sampling = val;
 }
 
-inline void Environment::set_segmentation( int16_t nb_segments, double* boundaries, ae_env_axis_feature* features, bool separate_segments /*= false*/ ) {
+inline void Environment::set_segmentation(int16_t nb_segments, double* boundaries, ae_env_axis_feature* features, bool separate_segments /*= false*/) {
   // Delete the data to be replaced
-  for ( int16_t i = 0 ; i < _nb_segments ; i++ )
+  for (int16_t i = 0 ; i < _nb_segments ; i++)
   {
     delete _segments[i];
   }
@@ -209,58 +209,58 @@ inline void Environment::set_segmentation( int16_t nb_segments, double* boundari
   _nb_segments  = nb_segments;
   _segments     = new ae_env_segment* [_nb_segments];
 
-  for ( int16_t i = 0 ; i < _nb_segments; i++ )
+  for (int16_t i = 0 ; i < _nb_segments; i++)
   {
-    _segments[i] = new ae_env_segment( boundaries[i], boundaries[i+1], features[i] );
+    _segments[i] = new ae_env_segment(boundaries[i], boundaries[i+1], features[i]);
   }
 
   // TODO : Manage separate_segments
 }
 
-inline void Environment::set_var_method( ae_env_var var_method ) {
+inline void Environment::set_var_method(ae_env_var var_method) {
   _var_method = var_method;
 }
 
-inline void Environment::set_var_prng( ae_jumping_mt* prng ) {
+inline void Environment::set_var_prng(ae_jumping_mt* prng) {
   if (_var_prng != NULL) delete _var_prng;
   _var_prng = prng;
 }
 
-inline void Environment::set_var_sigma( double sigma ) {
+inline void Environment::set_var_sigma(double sigma) {
   _var_sigma = sigma;
 }
 
-inline void Environment::set_var_tau( int32_t tau ) {
+inline void Environment::set_var_tau(int32_t tau) {
   _var_tau = tau;
 }
 
-inline void Environment::set_var_sigma_tau( double sigma, int32_t tau ) {
+inline void Environment::set_var_sigma_tau(double sigma, int32_t tau) {
   _var_sigma  = sigma;
   _var_tau    = tau;
 }
 
-inline void Environment::set_noise_method( ae_env_noise noise_method ) {
+inline void Environment::set_noise_method(ae_env_noise noise_method) {
   _noise_method = noise_method;
 }
 
-inline void Environment::set_noise_prng( ae_jumping_mt* prng ) {
-  if( _noise_prng != NULL) delete _noise_prng;
+inline void Environment::set_noise_prng(ae_jumping_mt* prng) {
+  if(_noise_prng != NULL) delete _noise_prng;
   _noise_prng = prng;
 }
 
-inline void Environment::set_noise_prob( double prob ) {
+inline void Environment::set_noise_prob(double prob) {
   _noise_prob = prob;
 }
 
-inline void Environment::set_noise_alpha( double alpha ) {
+inline void Environment::set_noise_alpha(double alpha) {
   _noise_alpha = alpha;
 }
 
-inline void Environment::set_noise_sigma( double sigma ) {
+inline void Environment::set_noise_sigma(double sigma) {
   _noise_sigma = sigma;
 }
 
-inline void Environment::set_noise_sampling_log( int32_t sampling_log ) {
+inline void Environment::set_noise_sampling_log(int32_t sampling_log) {
   _noise_sampling_log = sampling_log;
 }
 
@@ -275,7 +275,7 @@ inline void Environment::clear_gaussians(void) {
 }
 
 inline void Environment::apply_variation() {
-  switch ( _var_method )
+  switch (_var_method)
   {
     case NO_VAR :
       return;
@@ -289,8 +289,8 @@ inline void Environment::apply_variation() {
       _apply_local_gaussian_variation();
       break;
     default :
-      printf( "ERROR : in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("ERROR : in file %s : l%d\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
   }
 
   // Environment has changed, recompute its area
