@@ -100,7 +100,7 @@ int main( int argc, char* argv[] )
 
 // Treatment of one individual
 void analyse_indiv(ae_exp_manager* exp, ae_individual* initial_indiv, FILE* output, int32_t ndiv ){
-  ae_environment* env = exp->get_env();
+  Environment* env = exp->get_env();
   double initial_metabolic_error = initial_indiv->get_dist_to_target_by_feature( METABOLISM );
   double initial_secretion_error = initial_indiv->get_dist_to_target_by_feature( SECRETION );
   double final_metabolic_error      = 0.0;

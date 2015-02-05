@@ -71,7 +71,7 @@ class ae_individual_R : public virtual ae_individual
     // =================================================================
     //                            Public Methods
     // =================================================================
-    virtual void evaluate( ae_environment* envir );
+    virtual void evaluate( Environment* envir );
     void    set_influences( void );
     void    update_concentrations( void );
     void    multiply_concentrations( double factor );

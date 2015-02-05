@@ -45,7 +45,7 @@
 //#include <ae_common.h>
 #include <ae_population.h>
 #include <ae_individual.h>
-#include <ae_environment.h>
+#include <environment.h>
 #include <ae_protein.h>
 #include <ae_rna.h>
 #include <ae_list.h>
@@ -75,19 +75,19 @@ void print_version( void );
 // aminoacid sequence). In the case of Raevol, the concentration used here is the
 // final one, i.e. the one reached after all the time steps of the lifetime.
 // If a coding sequence has several promoters, only one triangle is drawn.
-void draw_triangles( ae_individual* indiv, ae_environment* env, char * directoryName );
+void draw_triangles( ae_individual* indiv, Environment* env, char * directoryName );
 
 
 
 // In the case of Raevol, the profile is drawn using the final concentrations
 // of the proteins, i.e. the ones reached after all the time steps of the lifetime.
-void draw_pos_neg_profiles( ae_individual * indiv, ae_environment* env, char * directoryName );
+void draw_pos_neg_profiles( ae_individual * indiv, Environment* env, char * directoryName );
 
 
 
 // In the case of Raevol, the phenotype is drawn using the final concentrations
 // of the proteins, i.e. the ones reached after all the time steps of the lifetime.
-void draw_phenotype( ae_individual * indiv, ae_environment * envir, char * directoryName );
+void draw_phenotype( ae_individual * indiv, Environment * envir, char * directoryName );
 
 
 
@@ -189,7 +189,7 @@ int main( int argc, char* argv[] )
   //                       Read the backup file
   // =================================================================
   ae_individual*  indiv;
-  ae_environment* env;
+  Environment* env;
 
   // Load the simulation
   ae_exp_manager* exp_manager = new ae_exp_manager();
@@ -371,7 +371,7 @@ void print_version( void )
 
 
 
-void draw_triangles( ae_individual* indiv, ae_environment* env, char * directoryName )
+void draw_triangles( ae_individual* indiv, Environment* env, char * directoryName )
 {
   const uint8_t bbsize = 200;  // a4 paper: 595*842
   double margin = 0.1;
@@ -510,7 +510,7 @@ void draw_triangles( ae_individual* indiv, ae_environment* env, char * directory
 
 
 
-void draw_pos_neg_profiles( ae_individual * indiv, ae_environment* env, char * directoryName )
+void draw_pos_neg_profiles( ae_individual * indiv, Environment* env, char * directoryName )
 {
   const uint8_t bbsize = 200;  // a4 paper: 595*842
   double margin = 0.1;
@@ -617,7 +617,7 @@ void draw_pos_neg_profiles( ae_individual * indiv, ae_environment* env, char * d
 
 
 
-void draw_phenotype( ae_individual* indiv, ae_environment* env, char* directoryName )
+void draw_phenotype( ae_individual* indiv, Environment* env, char* directoryName )
 {
   const uint8_t bbsize = 200;  // a4 paper: 595*842
   double margin = 0.1;

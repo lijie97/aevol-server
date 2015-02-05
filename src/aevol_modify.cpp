@@ -156,7 +156,7 @@ int main( int argc, char* argv[] )
 
   // 7) Define syntaxic sugars for the population, the environment, the selection...  
   ae_population* pop = exp_manager->get_pop();
-  ae_environment* env = exp_manager->get_env();
+  Environment* env = exp_manager->get_env();
   ae_selection* sel = exp_manager->get_sel();
 
 

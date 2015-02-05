@@ -84,6 +84,7 @@ Test_ae_list::~Test_ae_list( void )
 // ===========================================================================
 void Test_ae_list::setUp( void )
 {
+  printf("Test_ae_list setUp\n");
   int_list = new ae_list<int*>();
   for (int i = 0 ; i < INT_LIST_SIZE ; i++)
   {
@@ -99,6 +100,7 @@ void Test_ae_list::tearDown( void )
 
 void Test_ae_list::basic_tests1( void )
 {
+  printf("Test_ae_list basic_tests1\n");
   // Manually check the content of int_list (checks add(T*))
   ae_list_node<int*>* node = int_list->get_first();
   int32_t nb_elts = 0;
@@ -283,6 +285,10 @@ void Test_ae_list::assert_equal(const ae_list<T>* expected,
 
   CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, expected->get_nb_elts(), nb_elts);
   delete msg;
+}
+
+void Test_ae_list::testfalse() {
+  CPPUNIT_ASSERT(false);
 }
 
 // ===========================================================================

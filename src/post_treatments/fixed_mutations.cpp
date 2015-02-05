@@ -217,7 +217,7 @@ int main(int argc, char** argv)
   // Open the experiment manager
   ae_exp_manager* exp_manager = new ae_exp_manager();
   exp_manager->load( begin_gener, false, true, false );
-  ae_environment* env = new ae_environment( *(exp_manager->get_env()) ); // independent copy
+  Environment* env = new Environment( *(exp_manager->get_env()) ); // independent copy
 
   int32_t backup_step = exp_manager->get_backup_step();
 
@@ -306,7 +306,7 @@ int main(int argc, char** argv)
   char mut_descr_string[80];
 
   ae_exp_manager* exp_manager_backup = NULL;
-  ae_environment* backup_env = NULL;
+  Environment* backup_env = NULL;
 
   bool check_now = false;
 
@@ -336,7 +336,7 @@ int main(int argc, char** argv)
         char env_file_name[255];
         sprintf( env_file_name, "./" ENV_FNAME_FORMAT, num_gener );
         gzFile env_file = gzopen( env_file_name, "r" );
-        backup_env = new ae_environment();
+        backup_env = new Environment();
         backup_env->load( env_file );
 
         if ( ! env->is_identical_to(*backup_env, tolerance) )
@@ -346,7 +346,7 @@ int main(int argc, char** argv)
             printf("         with tolerance of %lg\n", tolerance);
             printf("Replacing the replayed environment by the one stored in the backup.\n");
             delete env;
-            env = new ae_environment(*backup_env);
+            env = new Environment(*backup_env);
           }
         delete backup_env;
       }

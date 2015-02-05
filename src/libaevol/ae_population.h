@@ -137,7 +137,7 @@ class ae_population
     //~ ae_individual*  calculate_local_competition ( int16_t x, int16_t y );
     ae_individual*  calculate_GU_transfer ( int16_t x, int16_t y );
     void            do_random_migrations ( void );
-    inline void     evaluate_individuals( ae_environment* envir );
+    inline void     evaluate_individuals( Environment* envir );
     void            sort_individuals( void );
     void            update_best( void );
 
@@ -487,7 +487,7 @@ inline void ae_population::set_replication_reports( ae_tree* tree, int32_t num_g
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-inline void ae_population::evaluate_individuals( ae_environment* envir )
+inline void ae_population::evaluate_individuals( Environment* envir )
 {
   ae_list_node<ae_individual*>*  indiv_node  = _indivs->get_first();
   ae_individual * indiv       = NULL;

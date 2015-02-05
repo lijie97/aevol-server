@@ -61,7 +61,7 @@ namespace aevol {
 //                          Class declarations
 // =================================================================
 class ae_exp_manager;
-class ae_environment;
+class Environment;
 class ae_individual;
 
 

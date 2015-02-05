@@ -25,5 +25,23 @@
 namespace aevol {
 
 CPPUNIT_TEST_SUITE_REGISTRATION(Test_fuzzy);
+void Test_fuzzy::setUp() {
+  printf("fuzzy setup");
+}
+
+Test_fuzzy::Test_fuzzy() {}
+
+Test_fuzzy::~Test_fuzzy() {}
+
+void Test_fuzzy::tearDown() {
+}
+
+void Test_fuzzy::truetest() {
+  CPPUNIT_ASSERT(1==1);
+}
+
+void Test_fuzzy::falsetest() {
+  CPPUNIT_ASSERT(1==2);
+}
 
 } // namespace aevol

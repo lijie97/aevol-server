@@ -67,7 +67,7 @@ namespace aevol {
 // =================================================================
 //                          Class declarations
 // =================================================================
-class ae_environment;
+class Environment;
 
 
 
@@ -1198,7 +1198,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
   // Create aliases (syntaxic sugars)
   ae_exp_setup*       exp_s     = exp_m->get_exp_s();
   ae_population*      pop       = exp_m->get_pop();
-  ae_environment*     env       = exp_m->get_env();
+  Environment*     env       = exp_m->get_env();
   ae_selection*       sel       = exp_m->get_sel();
   ae_output_manager*  output_m  = exp_m->get_output_m();
 

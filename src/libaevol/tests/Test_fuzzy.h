@@ -36,8 +36,12 @@ using namespace std;
 class Test_fuzzy : public TestFixture
 {
   CPPUNIT_TEST_SUITE(Test_fuzzy);
-  // CPPUNIT_TEST(...);
+  CPPUNIT_TEST(truetest);
+  CPPUNIT_TEST(falsetest);
   CPPUNIT_TEST_SUITE_END();
+ public:
+  void falsetest();
+  void truetest();
 };
 
 } // namespace aevol

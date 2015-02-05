@@ -56,7 +56,7 @@
 #include <ae_replication_report.h>
 #include <ae_dna_replic_report.h>
 #include <ae_mutation.h>
-#include <ae_environment.h>
+#include <environment.h>
 #include <ae_enums.h>
 
 
@@ -83,14 +83,14 @@ enum check_type
 void print_help(char* prog_path);
 void print_version( void );
 
-FILE* open_environment_stat_file( const char * prefix, const ae_environment * env );
-void write_environment_stats( int32_t num_gener, const ae_environment * env, FILE* env_file);
+FILE* open_environment_stat_file( const char * prefix, const Environment * env );
+void write_environment_stats( int32_t num_gener, const Environment * env, FILE* env_file);
 
 FILE* open_terminators_stat_file( const char * prefix );
 void write_terminators_stats( int32_t num_gener,  ae_individual * indiv, FILE* terminator_file );
 
 FILE* open_zones_stat_file( const char * prefix );
-void write_zones_stats( int32_t num_gener,  ae_individual * indiv, ae_environment * env, FILE* zone_file );
+void write_zones_stats( int32_t num_gener,  ae_individual * indiv, Environment * env, FILE* zone_file );
 
 FILE* open_operons_stat_file( const char * prefix );
 void write_operons_stats( int32_t num_gener,  ae_individual * indiv, FILE* operon_file );
@@ -244,7 +244,7 @@ int main(int argc, char** argv)
   ae_exp_manager* exp_manager = new ae_exp_manager();
   
   exp_manager->load( begin_gener, false, true, false);
-  ae_environment* env = new ae_environment( *(exp_manager->get_env()) ); // independent copy
+  Environment* env = new Environment( *(exp_manager->get_env()) ); // independent copy
 
   int32_t backup_step = exp_manager->get_backup_step();
 
@@ -333,7 +333,7 @@ int main(int argc, char** argv)
   int32_t nb_gener = end_gener - begin_gener;
 
   ae_exp_manager* exp_manager_backup = NULL;
-  ae_environment* backup_env = NULL;
+  Environment* backup_env = NULL;
 
   bool check_now = false;
 
@@ -364,7 +364,7 @@ int main(int argc, char** argv)
         char env_file_name[255];
         sprintf( env_file_name, "./" ENV_FNAME_FORMAT, num_gener );
         gzFile env_file = gzopen( env_file_name, "r" );
-        backup_env = new ae_environment();
+        backup_env = new Environment();
         backup_env->load( env_file );
 
         if ( ! env->is_identical_to(*backup_env, tolerance) )
@@ -374,7 +374,7 @@ int main(int argc, char** argv)
             printf("         with tolerance of %lg\n", tolerance);
             printf("Replacing the replayed environment by the one stored in the backup.\n");
             delete env;
-            env = new ae_environment(*backup_env);
+            env = new Environment(*backup_env);
           }
         delete backup_env;
       }
@@ -533,7 +533,7 @@ int main(int argc, char** argv)
 
 
 
-FILE* open_environment_stat_file( const char * prefix, const ae_environment * env )
+FILE* open_environment_stat_file( const char * prefix, const Environment * env )
 {
   // Open file
   char* env_output_file_name = new char[80];
@@ -552,7 +552,7 @@ FILE* open_environment_stat_file( const char * prefix, const ae_environment * en
 }
 
 
-void write_environment_stats( int32_t num_gener, const ae_environment * env, FILE*  env_output_file)
+void write_environment_stats( int32_t num_gener, const Environment * env, FILE*  env_output_file)
 {
   // Num gener
   fprintf( env_output_file, "%" PRId32, num_gener );
@@ -613,7 +613,7 @@ FILE* open_zones_stat_file( const char * prefix  )
   return zones_output_file;
 }
 
-void write_zones_stats( int32_t num_gener, ae_individual * indiv, ae_environment * env, FILE* zones_output_file )
+void write_zones_stats( int32_t num_gener, ae_individual * indiv, Environment * env, FILE* zones_output_file )
 {
   assert( env->get_nb_segments() > 1 );
 

@@ -75,7 +75,7 @@ ae_exp_manager::ae_exp_manager( void )
   #endif
 
   // ------------------------------------------------------------- Environment
-  _env = new ae_environment();
+  _env = new Environment();
 
   // ------------------------------------------------------- Spatial structure
   _spatial_structure = NULL;

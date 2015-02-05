@@ -96,7 +96,7 @@ class ae_exp_manager
     // =======================================================================
     inline ae_exp_setup*        get_exp_s( void ) const;
     inline ae_population*       get_pop( void ) const;
-    inline ae_environment*      get_env( void ) const;
+    inline Environment*      get_env( void ) const;
     inline ae_selection*        get_sel( void ) const;
     inline ae_output_manager*   get_output_m( void ) const;
 
@@ -275,7 +275,7 @@ class ae_exp_manager
     ae_population* _pop;
 
     // ----------------------------------------------------------- Environment
-    ae_environment* _env;
+    Environment* _env;
 
     // ----------------------------------------------------- Spatial structure
     ae_spatial_structure* _spatial_structure;
@@ -327,7 +327,7 @@ inline bool ae_exp_manager::quit_signal_received( void ) const
   return _quit_signal_received;
 }
 
-inline ae_environment* ae_exp_manager::get_env( void ) const
+inline Environment* ae_exp_manager::get_env( void ) const
 {
   return _env;
 }

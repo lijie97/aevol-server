@@ -44,7 +44,7 @@
 #include <ae_rna.h>
 #include <ae_protein.h>
 #include <ae_fuzzy_set.h>
-#include <ae_environment.h>
+#include <environment.h>
 #include <ae_utils.h>
 
 namespace aevol {
@@ -157,8 +157,8 @@ class ae_genetic_unit
     void compute_phenotypic_contribution( void );
 
     // DM: these two are identical to functions from ae_individual
-    void compute_distance_to_target( ae_environment* envir );
-    void compute_fitness( ae_environment* envir );
+    void compute_distance_to_target( Environment* envir );
+    void compute_fitness( Environment* envir );
 
     void reset_expression( void ); // useful for post-treatment programs
 

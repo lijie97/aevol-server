@@ -183,7 +183,7 @@ ae_individual_R::~ae_individual_R( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_individual_R::evaluate( ae_environment* envir )
+void ae_individual_R::evaluate( Environment* envir )
 {
   // ---------------------------------------------------------------------------
   // 1) Transcription - Translation - Folding

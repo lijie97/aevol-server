@@ -769,7 +769,7 @@ void ae_individual::compute_phenotype( void )
   _phenotype->simplify();
 }
 
-void ae_individual::compute_distance_to_target( ae_environment* envir )
+void ae_individual::compute_distance_to_target( Environment* envir )
 // Compute the areas between the phenotype and the environment for each environmental segment
 // If the environment is not segmented, the total area is computed
 {
@@ -809,7 +809,7 @@ void ae_individual::compute_distance_to_target( ae_environment* envir )
   The behaviour of this function depends on many parameters and most notably on whether it is
   a "composite" fitness or not, and on the selection scheme.
 */
-void ae_individual::compute_fitness( ae_environment* envir )
+void ae_individual::compute_fitness( Environment* envir )
 {
   if ( _fitness_computed ) return; // Fitness has already been computed, nothing to do.
   _fitness_computed = true;
@@ -878,7 +878,7 @@ void ae_individual::compute_fitness( ae_environment* envir )
   #endif
 }
 
-void ae_individual::reevaluate( ae_environment* envir /*= NULL*/ )
+void ae_individual::reevaluate( Environment* envir /*= NULL*/ )
 {
   // useful for post-treatment programs that replay mutations
   // on a single individual playing the role of the successive
@@ -1057,7 +1057,7 @@ void ae_individual::do_folding( void )
   }
 }
 
-void ae_individual::evaluate( ae_environment* envir /*= NULL*/ )
+void ae_individual::evaluate( Environment* envir /*= NULL*/ )
 {
   if ( _evaluated == true ) return; // Individual has already been evaluated, nothing to do.
   _evaluated = true;

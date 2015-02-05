@@ -44,7 +44,7 @@
 //                            Project Files
 // =================================================================
 #include <ae_list.h>
-#include <ae_environment.h>
+#include <environment.h>
 #include <ae_genetic_unit.h>
 #include <ae_dna.h>
 #include <ae_rna.h>
@@ -294,19 +294,19 @@ class ae_individual
     void inject_GU( ae_individual* donor );
     void inject_2GUs( ae_individual* partner );
 
-    virtual void evaluate( ae_environment* envir = NULL );
-    virtual void reevaluate( ae_environment* envir = NULL );
+    virtual void evaluate( Environment* envir = NULL );
+    virtual void reevaluate( Environment* envir = NULL );
     inline void do_transcription_translation_folding( void );
     void do_transcription( void );
     void do_translation( void );
     void do_folding( void );
     void compute_phenotype( void );
-    void compute_distance_to_target( ae_environment* envir );
+    void compute_distance_to_target( Environment* envir );
 
     // Computation of a "proper" fitness value (one that increases when the individual is fitter)
     // The behaviour of this function depends on many parameters and most notably on whether it is
     // a "composite" fitness or not, and on the selection scheme.
-    void compute_fitness( ae_environment* envir );
+    void compute_fitness( Environment* envir );
 
     void compute_statistical_data();
     void compute_non_coding( void );

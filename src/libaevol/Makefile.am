@@ -30,7 +30,7 @@ ae_codon.h \
 ae_dna.h \
 ae_dump.h \
 ae_enums.h \
-ae_environment.h \
+environment.h \
 ae_env_segment.h \
 ae_exp_manager.h \
 ae_exp_setup.h \
@@ -76,7 +76,7 @@ ae_align.cpp \
 ae_codon.cpp \
 ae_dna.cpp \
 ae_dump.cpp \
-ae_environment.cpp \
+environment.cpp \
 ae_exp_manager.cpp \
 ae_exp_setup.cpp \
 ae_genetic_unit.cpp \

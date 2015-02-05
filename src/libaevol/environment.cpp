@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-#include <ae_environment.h>
+#include <environment.h>
 #include <point.h>
 #include <ae_gaussian.h>
 
@@ -28,7 +28,7 @@
 
 namespace aevol {
 
-ae_environment::ae_environment() :
+Environment::Environment() :
 #ifdef __NO_X
   ae_fuzzy_set()
 #elif defined __X11
@@ -63,7 +63,7 @@ ae_environment::ae_environment() :
   _noise_sampling_log = 8;
 }
 
-ae_environment::ae_environment( const ae_environment &model ) :
+Environment::Environment( const Environment &model ) :
 #ifdef __NO_X
   ae_fuzzy_set(model)
 #elif defined __X11
@@ -118,7 +118,7 @@ ae_environment::ae_environment( const ae_environment &model ) :
   _noise_sampling_log = model._noise_sampling_log;
 };
 
-ae_environment::~ae_environment() {
+Environment::~Environment() {
   if (_var_prng != NULL)   delete _var_prng;
   if (_noise_prng != NULL) delete _noise_prng;
 
@@ -137,7 +137,7 @@ ae_environment::~ae_environment() {
   delete _cur_noise;
 }
 
-void ae_environment::save( gzFile backup_file ) const {
+void Environment::save( gzFile backup_file ) const {
   // ---------------------
   //  Write gaussians
   // ---------------------
@@ -210,7 +210,7 @@ void ae_environment::save( gzFile backup_file ) const {
   }
 }
 
-void ae_environment::load( gzFile backup_file ) {
+void Environment::load( gzFile backup_file ) {
   // ---------------------
   //  Retreive gaussians
   // ---------------------
@@ -300,15 +300,15 @@ void ae_environment::load( gzFile backup_file ) {
   build();
 }
 
-void ae_environment::add_gaussian(double a, double b, double c) {
+void Environment::add_gaussian(double a, double b, double c) {
   std_gaussians.push_back(ae_gaussian(a, b, c));
 }
 
-void ae_environment::add_initial_gaussian(double a, double b, double c) {
+void Environment::add_initial_gaussian(double a, double b, double c) {
   std_initial_gaussians.push_back(ae_gaussian(a, b, c));
 }
 
-void ae_environment::build() {
+void Environment::build() {
   // NB : Extreme points (at abscissa X_MIN and X_MAX) will be generated, we need to erase the list first
   points.clear();
 
@@ -345,7 +345,7 @@ void ae_environment::build() {
            white noise          uniform fractal             unique draw
                                      noise
  */
-void ae_environment::apply_noise() {
+void Environment::apply_noise() {
   if ( _noise_method != NO_NOISE && _noise_prng->random() < _noise_prob && _noise_sampling_log > 0 )
   {
     // =====================================================================================
@@ -441,7 +441,7 @@ void ae_environment::apply_noise() {
   }
 }
 
-void ae_environment::_apply_autoregressive_mean_variation() {
+void Environment::_apply_autoregressive_mean_variation() {
   // For each gaussian :
   // current_mean = ref_mean + delta_m, where
   // delta_m follows an autoregressive stochastic process
@@ -464,7 +464,7 @@ void ae_environment::_apply_autoregressive_mean_variation() {
   build();
 }
 
-void ae_environment::_apply_autoregressive_height_variation() {
+void Environment::_apply_autoregressive_height_variation() {
   // For each gaussian :
   // current_height = ref_height + delta_h, where
   // delta_m follows an autoregressive stochastic process
@@ -487,12 +487,12 @@ void ae_environment::_apply_autoregressive_height_variation() {
   build();
 }
 
-void ae_environment::_apply_local_gaussian_variation() {
+void Environment::_apply_local_gaussian_variation() {
   printf( "ERROR, _apply_local_gaussian_variation has not yet been implemented. in file %s:%d\n", __FILE__, __LINE__ );
   exit( EXIT_FAILURE );
 }
 
-void ae_environment::_compute_area() {
+void Environment::_compute_area() {
   _total_area = 0.0;
 
   for ( int8_t i = 0 ; i < NB_FEATURES ; i++ )

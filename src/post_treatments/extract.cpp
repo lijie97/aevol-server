@@ -89,7 +89,7 @@
 // =================================================================
 #include <ae_population.h>
 #include <ae_individual.h>
-#include <ae_environment.h>
+#include <environment.h>
 #include <ae_list.h>
 #include <ae_exp_manager.h>
 
@@ -101,8 +101,8 @@ using namespace aevol;
 void print_help(char* prog_path);
 void print_version( void );
 
-void analyse_indiv( ae_individual* indiv, FILE* triangles_file, FILE* sequence_file, int16_t gu, ae_environment* env );
-void analyse_gu( ae_genetic_unit* gen_unit, int32_t gen_unit_number, FILE* triangles_file, ae_environment* env );
+void analyse_indiv( ae_individual* indiv, FILE* triangles_file, FILE* sequence_file, int16_t gu, Environment* env );
+void analyse_gu( ae_genetic_unit* gen_unit, int32_t gen_unit_number, FILE* triangles_file, Environment* env );
 
 
 
@@ -185,7 +185,7 @@ int main( int argc, char* argv[] )
   }
 
   ae_population* pop = NULL;
-  ae_environment* env = NULL;
+  Environment* env = NULL;
   ae_exp_manager* exp_manager = new ae_exp_manager();
 
   // Two possible sources: either the user provided a "full" simulation via a generation number (option '-r'), either he just provided a population file (option '-p').
@@ -259,7 +259,7 @@ int main( int argc, char* argv[] )
 }
 
 // Parsing an individual
-inline void analyse_indiv( ae_individual* indiv, FILE* triangles_file, FILE* sequence_file, int16_t gu, ae_environment* env )
+inline void analyse_indiv( ae_individual* indiv, FILE* triangles_file, FILE* sequence_file, int16_t gu, Environment* env )
 {
   if ( gu == -1 ) // We want to treat all genetic units
   {
@@ -311,7 +311,7 @@ inline void analyse_indiv( ae_individual* indiv, FILE* triangles_file, FILE* seq
 }
 
 // Parsing a GU
-inline void analyse_gu( ae_genetic_unit* gen_unit, int32_t gen_unit_number, FILE* triangles_file, ae_environment* env )
+inline void analyse_gu( ae_genetic_unit* gen_unit, int32_t gen_unit_number, FILE* triangles_file, Environment* env )
 {
   // Construct the list of all rnas
   ae_list<ae_rna*>** llrnas = gen_unit->get_rna_list();

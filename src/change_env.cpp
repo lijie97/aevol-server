@@ -41,7 +41,7 @@
 //                            Project Files
 // =================================================================
 #include <f_line.h>
-#include <ae_environment.h>
+#include <environment.h>
 
 #ifdef __X11
   #include <ae_exp_manager_X11.h>
@@ -126,7 +126,7 @@ int main( int argc, char* argv[] )
 
   // 5) Initialize an empty environment then load the backup environment
   printf("Loading the backup environment\t");
-  ae_environment* env = new ae_environment();
+  Environment* env = new Environment();
   gzFile env_file = gzopen( env_file_name, "r" );
   if ( env_file == Z_NULL )
   {

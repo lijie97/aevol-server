@@ -1051,7 +1051,7 @@ void ae_genetic_unit::compute_phenotypic_contribution( void )
 
   If the environment is not segmented, the total area is computed
 */
-void ae_genetic_unit::compute_distance_to_target( ae_environment* env )
+void ae_genetic_unit::compute_distance_to_target( Environment* env )
 {
   if ( _distance_to_target_computed ) return; // _distance_to_target has already been computed, nothing to do.
   _distance_to_target_computed = true;
@@ -1087,7 +1087,7 @@ void ae_genetic_unit::compute_distance_to_target( ae_environment* env )
   The behaviour of this function depends on many parameters and most notably on whether it is
   a "composite" fitness or not, and on the selection scheme.
 */
-void ae_genetic_unit::compute_fitness( ae_environment* env )
+void ae_genetic_unit::compute_fitness( Environment* env )
 {
   if ( _fitness_computed ) return; // Fitness has already been computed, nothing to do.
   _fitness_computed = true;
@@ -3558,7 +3558,7 @@ bool* ae_genetic_unit::is_belonging_to_coding_RNA( void )
 */
 void ae_genetic_unit::remove_non_coding_bases( void)
 {
-  ae_environment* env = _exp_m->get_env() ;
+  Environment* env = _exp_m->get_env() ;
 
   reset_expression();
   locate_promoters();
@@ -3635,7 +3635,7 @@ void ae_genetic_unit::remove_non_coding_bases( void)
 */
 void ae_genetic_unit::double_non_coding_bases(void)
 {
-  ae_environment* env = _exp_m->get_env() ;
+  Environment* env = _exp_m->get_env() ;
 
   reset_expression();
   locate_promoters();
