@@ -1,8 +1,4 @@
-// ****************************************************************************
-//
-//          Aevol - An in silico experimental evolution platform
-//
-// ****************************************************************************
+// Aevol - An in silico experimental evolution platform
 //
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
@@ -21,46 +17,18 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-//*****************************************************************************
 
-
-
-
-// =================================================================
-//                              Libraries
-// =================================================================
 #include <math.h>
 
-
-
-// =================================================================
-//                            Project Files
-// =================================================================
 #include <ae_environment.h>
 #include <point.h>
 #include <ae_gaussian.h>
-#include <ae_list.h>
+
 #include <list>
 
 namespace aevol {
 
-
-
-//##############################################################################
-//                                                                             #
-//                            Class ae_environment                             #
-//                                                                             #
-//##############################################################################
-
-// =================================================================
-//                    Definition of static attributes
-// =================================================================
-
-// =================================================================
-//                             Constructors
-// =================================================================
-ae_environment::ae_environment( void ) :
+ae_environment::ae_environment() :
 #ifdef __NO_X
   ae_fuzzy_set()
 #elif defined __X11
@@ -70,15 +38,14 @@ ae_environment::ae_environment( void ) :
 #endif
 {
   // Environment "shape"
-  _sampling           = 0;
-
+  _sampling   = 0;
   _total_area = 0.0;
 
   // Environment segmentation
-  _nb_segments      = 1;
-  _segments         = new ae_env_segment* [1];
-  _segments[0]      = new ae_env_segment( X_MIN, X_MAX, METABOLISM );
-  _area_by_feature  = new double [NB_FEATURES];
+  _nb_segments     = 1;
+  _segments        = new ae_env_segment* [1];
+  _segments[0]     = new ae_env_segment( X_MIN, X_MAX, METABOLISM );
+  _area_by_feature = new double [NB_FEATURES];
 
   // Variation management
   _var_prng   = NULL;
@@ -96,8 +63,6 @@ ae_environment::ae_environment( void ) :
   _noise_sampling_log = 8;
 }
 
-
-
 ae_environment::ae_environment( const ae_environment &model ) :
 #ifdef __NO_X
   ae_fuzzy_set(model)
@@ -112,7 +77,7 @@ ae_environment::ae_environment( const ae_environment &model ) :
 
   std_initial_gaussians = model.std_initial_gaussians;
   std_gaussians = model.std_gaussians;
-  
+
   _total_area = model._total_area;
 
   // Environment segmentation
@@ -134,7 +99,6 @@ ae_environment::ae_environment( const ae_environment &model ) :
       _area_by_feature[i] = model._area_by_feature[i];
     }
 
-
   // Variation management
   _var_method = model._var_method;
   if (model._var_prng == NULL) { _var_prng = NULL; }
@@ -152,12 +116,9 @@ ae_environment::ae_environment( const ae_environment &model ) :
   _noise_alpha        = model._noise_alpha;
   _noise_sigma        = model._noise_sigma;
   _noise_sampling_log = model._noise_sampling_log;
-
-
 };
 
-ae_environment::~ae_environment( void )
-{
+ae_environment::~ae_environment() {
   if (_var_prng != NULL)   delete _var_prng;
   if (_noise_prng != NULL) delete _noise_prng;
 
@@ -176,11 +137,7 @@ ae_environment::~ae_environment( void )
   delete _cur_noise;
 }
 
-// =================================================================
-//                            Public Methods
-// =================================================================
-void ae_environment::save( gzFile backup_file ) const
-{
+void ae_environment::save( gzFile backup_file ) const {
   // ---------------------
   //  Write gaussians
   // ---------------------
@@ -253,8 +210,7 @@ void ae_environment::save( gzFile backup_file ) const
   }
 }
 
-void ae_environment::load( gzFile backup_file )
-{
+void ae_environment::load( gzFile backup_file ) {
   // ---------------------
   //  Retreive gaussians
   // ---------------------
@@ -288,11 +244,7 @@ void ae_environment::load( gzFile backup_file )
   for ( int16_t i = 0 ; i < _nb_segments; i++ )
   {
     _segments[i] = new ae_env_segment( backup_file );
-    //~ _segments[i] = new ae_env_segment(  ae_common::init_params->get_env_axis_segment_boundaries()[i],
-                                        //~ ae_common::init_params->get_env_axis_segment_boundaries()[i+1],
-                                        //~ ae_common::init_params->get_env_axis_features()[i] );
   }
-
 
   // ----------------------------------------
   //  Retrieve environmental variation data
@@ -307,7 +259,6 @@ void ae_environment::load( gzFile backup_file )
     gzread( backup_file, &_var_sigma, sizeof(_var_sigma) );
     gzread( backup_file, &_var_tau,   sizeof(_var_tau) );
   }
-
 
   // ------------------------------------
   //  Retrieve environmental noise data
@@ -357,8 +308,7 @@ void ae_environment::add_initial_gaussian(double a, double b, double c) {
   std_initial_gaussians.push_back(ae_gaussian(a, b, c));
 }
 
-void ae_environment::build( void )
-{
+void ae_environment::build() {
   // NB : Extreme points (at abscissa X_MIN and X_MAX) will be generated, we need to erase the list first
   points.clear();
 
@@ -373,7 +323,7 @@ void ae_environment::build( void )
 
   // 2) Add custom points
   // custom points were unused: removed
-  
+
   // 3) Simplify (get rid of useless points)
   add_lower_bound( Y_MIN );
   add_upper_bound( Y_MAX );
@@ -395,14 +345,12 @@ void ae_environment::build( void )
            white noise          uniform fractal             unique draw
                                      noise
  */
-void ae_environment::apply_noise( void )
-{
+void ae_environment::apply_noise() {
   if ( _noise_method != NO_NOISE && _noise_prng->random() < _noise_prob && _noise_sampling_log > 0 )
   {
     // =====================================================================================
     // Compute a fractal noise in a new fuzzy set and apply it to the (unnoised) environment
     // =====================================================================================
-
 
     // Clear previous noise (get an unnoised state of th ecurrent environment)
     build();
@@ -430,7 +378,6 @@ void ae_environment::apply_noise( void )
       _cur_noise->reset();
     }
 
-
     // Compute a fractal noise:
     // Add a random noise to the whole fuzzy set, then cut it in 2 and add
     // another noise to each half and so on (apply noise to the 4 quarters...)
@@ -449,14 +396,6 @@ void ae_environment::apply_noise( void )
       {
         noise_intensity = _noise_sigma;
       }
-      //~ else if (_noise_alpha == 1.0)
-      //~ {
-        //~ noise_intensity = _noise_sigma * ( 1 << (fractal_step - 1) );
-      //~ }
-      //~ else if (_noise_alpha == -1.0)
-      //~ {
-        //~ noise_intensity = _noise_sigma * ( 1 << (_noise_sampling_log - fractal_step - 1) );
-      //~ }
       else if ( _noise_alpha > 0.0 )
       {
         noise_intensity = _noise_sigma * pow( 1.0 - _noise_alpha, fractal_step );
@@ -465,7 +404,6 @@ void ae_environment::apply_noise( void )
       {
         noise_intensity = _noise_sigma * pow( 1.0 + _noise_alpha, _noise_sampling_log - fractal_step );
       }
-      //~ printf( "_noise_sigma %e\tfractal_step : %"PRId8"\tnoise_intensity : %e\n", _noise_sigma, fractal_step, noise_intensity );
 
       // For each zone in the current fractal step, compute a random noise to
       // be applied to all the points in the zone
@@ -491,21 +429,6 @@ void ae_environment::apply_noise( void )
       fractal_step++;
     }
 
-
-    // <DEBUG>
-    //~ ae_list_node* point_node  = _cur_noise->get_points()->get_first();
-    //~ point*  point       = NULL;
-    //~ while ( point_node != NULL )
-    //~ {
-      //~ point = point_node->get_obj();
-
-      //~ printf( "  x: %f\ty: %e\n", point->x, point->y );
-
-      //~ point_node = point_node->get_next();
-    //~ }
-    // </DEBUG>
-
-
     // Apply the fractal noise to the environment
     this->add( *_cur_noise );
 
@@ -518,11 +441,7 @@ void ae_environment::apply_noise( void )
   }
 }
 
-// =================================================================
-//                           Protected Methods
-// =================================================================
-void ae_environment::_apply_autoregressive_mean_variation( void )
-{
+void ae_environment::_apply_autoregressive_mean_variation() {
   // For each gaussian :
   // current_mean = ref_mean + delta_m, where
   // delta_m follows an autoregressive stochastic process
@@ -545,9 +464,7 @@ void ae_environment::_apply_autoregressive_mean_variation( void )
   build();
 }
 
-
-void ae_environment::_apply_autoregressive_height_variation( void )
-{
+void ae_environment::_apply_autoregressive_height_variation() {
   // For each gaussian :
   // current_height = ref_height + delta_h, where
   // delta_m follows an autoregressive stochastic process
@@ -566,18 +483,16 @@ void ae_environment::_apply_autoregressive_height_variation( void )
     g.set_height(ref->get_height() + delta_height );
     ++ref;
   }
-  
+
   build();
 }
 
-void ae_environment::_apply_local_gaussian_variation( void )
-{
+void ae_environment::_apply_local_gaussian_variation() {
   printf( "ERROR, _apply_local_gaussian_variation has not yet been implemented. in file %s:%d\n", __FILE__, __LINE__ );
   exit( EXIT_FAILURE );
 }
 
-void ae_environment::_compute_area( void )
-{
+void ae_environment::_compute_area() {
   _total_area = 0.0;
 
   for ( int8_t i = 0 ; i < NB_FEATURES ; i++ )
@@ -594,5 +509,4 @@ void ae_environment::_compute_area( void )
     _total_area += _area_by_feature[_segments[i]->feature];
   }
 }
-
 } // namespace aevol
