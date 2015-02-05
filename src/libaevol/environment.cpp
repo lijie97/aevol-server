@@ -119,8 +119,10 @@ Environment::Environment( const Environment &model ) :
 };
 
 Environment::~Environment() {
-  if (_var_prng != NULL)   delete _var_prng;
-  if (_noise_prng != NULL) delete _noise_prng;
+  delete _var_prng;
+  _var_prng = NULL;
+  delete _noise_prng;
+  _noise_prng = NULL;
 
   if ( _segments != NULL )
   {
