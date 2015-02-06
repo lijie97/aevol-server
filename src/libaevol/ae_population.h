@@ -197,6 +197,8 @@ class ae_population
     // Individuals
     int32_t                   _nb_indivs;
     ae_list<ae_individual*>*  _indivs;
+    // new individual list targeted at replacing _nb_indivs and _indivs
+    std::list<ae_individual> std_indivs;
 };
 
 
