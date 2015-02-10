@@ -93,7 +93,7 @@ class Fuzzy
   
 
   void add_upper_bound(double up);
-  void add_lower_bound(double low);
+  void add_lower_bound(double low, bool lower = true);
 
   bool is_identical_to(const Fuzzy& fs, double tolerance) const;
 

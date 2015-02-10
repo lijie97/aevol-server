@@ -292,49 +292,37 @@ double area_test() {
 ///
 /// TODO: prevent adding superfluous points by jumping over whole above zones
 void Fuzzy::add_upper_bound(double upper_bound) {
-  // assert(points.begin()->first == X_MIN);
-  // assert(prev(points.end())->first == X_MAX);
-
-  for (list<Point>::iterator p = points.begin() ; p != points.end() ; ++p) {
-    if (p->y <= upper_bound)
-      continue;
-    // Surrounding segments must be cut if they fall down the upper
-    // bound. Add cutting points.
-    if (prev(p)->y < upper_bound)
-      points.insert(p, Point(get_x(*prev(p), *p, upper_bound), upper_bound));
-    if (next(p)->y < upper_bound)
-      points.insert(next(p), Point(get_x(*p, *next(p), upper_bound), upper_bound));
-    p->y = upper_bound;
-  }
-  // assert(points.begin()->first == X_MIN);
-  // assert(prev(points.end())->first == X_MAX);
-  // assert(is_increasing());
+  add_lower_bound(upper_bound, false);
 }
 
 /// Probability function gets floored out.
 ///
 /// `pf` := max(`pf`, `lower_bound`)
 ///
-/// TODO: refactor with add_upper_bound (vld, 2014-12-17)
-void Fuzzy::add_lower_bound(double lower_bound) {
-  // assert(points.begin()->first == X_MIN);
-  // assert(prev(points.end())->first == X_MAX);
+/// TODO: rename function to clip and make arguments more explicit (vld, 2015-02-10)
+void Fuzzy::add_lower_bound(double lower_bound, bool lower) {
+  assert(points.begin()->x == X_MIN);
+  assert(prev(points.end())->x == X_MAX);
+  assert(is_increasing());
 
   for (list<Point>::iterator p = points.begin() ; p != points.end() ; ++p) {
-    if (p->y >= lower_bound)
-      continue;
-    // Surrounding segments must be cut if they fall down the upper
-    // bound. Add cutting points.
-    if (prev(p)->y > lower_bound)
-      points.insert(p, Point(get_x(*prev(p), *p, lower_bound), lower_bound));
-    if (next(p)->y > lower_bound)
-      points.insert(next(p), Point(get_x(*p, *next(p), lower_bound), lower_bound));
-    p->y = lower_bound;
+    if (next(p) != points.end() and
+        ((p->y < lower_bound and lower_bound < next(p)->y) or
+         (p->y > lower_bound and lower_bound > next(p)->y))) { // ie if p and next(p) are across lower_bound
+      // insert interpolated point
+      //           *after* p
+      points.insert(next(p), Point(get_x(*p, *next(p), lower_bound),
+                                   lower_bound));
+      // could now fast forward over created point... TODO?
+    }
+    if (lower     and p->y < lower_bound or
+        not lower and p->y > lower_bound)
+      p->y = lower_bound;
   }
 
-  // assert(points.begin()->first == X_MIN);
-  // assert(prev(points.end())->first == X_MAX);
-  // assert(is_increasing());
+  assert(points.begin()->x == X_MIN);
+  assert(prev(points.end())->x == X_MAX);
+  assert(is_increasing());
 }
 
 
