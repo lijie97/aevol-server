@@ -77,16 +77,17 @@ double Fuzzy::get_y(double x) const {
 /// \pre{`p1` and `p2` should not be on the same horizontal line}
 /// otherwise any x would fit.
 ///
-/// \pre{`y` should be between `p1` and `p2` ordinates} because
-/// despite the fast that it might be mathematically sound otherwise,
-/// it suggest the user has mixed things up.
+/// \pre{`y` should be between `p1` and `p2` ordinates} Despite the
+/// fact that the reverse is mathematically sound, it's not supposed
+/// to happend here.
 double Fuzzy::get_x(const Point& p1, const Point& p2, double y) const {
   assert((p2.y <= y and y <= p1.y) or
   	 (p1.y <= y and y <= p2.y));
   assert(p1.y != p2.y);
-  double x = p1.x + (y - p1.y) * ((p2.x - p1.x) /
-                                           (p2.y - p1.y));
-  assert(p1.x <= x and x <= p2.x);
+  double x = p1.x + (y - p1.y) * (p2.x - p1.x) /
+                                 (p2.y - p1.y);
+  assert((p2.x <= x and x <= p1.x) or
+         (p1.x <= x and x <= p2.x));
   return x;
 }
 
@@ -399,6 +400,7 @@ list<Point>::iterator Fuzzy::create_interpolated_point(double x, std::list<Point
   }
 }
 
+/// Check that list of `points`' abscissas is (strictly) increasing.
 bool Fuzzy::is_increasing() const {
   // assert(points.begin()->first == X_MIN);
   // assert(prev(points.end())->first == X_MAX);
