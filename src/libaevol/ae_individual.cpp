@@ -759,13 +759,13 @@ void ae_individual::compute_phenotype( void )
     gen_unit_node = gen_unit_node->get_next();
   }
 
-  _phenotype_activ->add_upper_bound(   Y_MAX );
-  _phenotype_inhib->add_lower_bound( - Y_MAX );
+  _phenotype_activ->clip(Fuzzy::clipping_direction::max,   Y_MAX);
+  _phenotype_inhib->clip(Fuzzy::clipping_direction::min, - Y_MAX);
 
   _phenotype = new ae_phenotype();
   _phenotype->add( *_phenotype_activ );
   _phenotype->add( *_phenotype_inhib );
-  _phenotype->add_lower_bound( Y_MIN );
+  _phenotype->clip(Fuzzy::clipping_direction::min, Y_MIN);
   _phenotype->simplify();
 }
 

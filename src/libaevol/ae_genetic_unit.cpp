@@ -1033,8 +1033,8 @@ void ae_genetic_unit::compute_phenotypic_contribution( void )
 
   // It is not necessary to add a lower bound to _activ_contribution as there can be no negative y
   // The same goes for the upper bound for _inhib_contribution
-  _activ_contribution->add_upper_bound(   Y_MAX );
-  _inhib_contribution->add_lower_bound( - Y_MAX );
+  _activ_contribution->clip(Fuzzy::clipping_direction::max,   Y_MAX );
+  _inhib_contribution->clip(Fuzzy::clipping_direction::min, - Y_MAX );
   _activ_contribution->simplify();
   _inhib_contribution->simplify();
 

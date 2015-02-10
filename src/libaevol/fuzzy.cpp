@@ -277,48 +277,39 @@ double area_test() {
   return a;
 }
 
-/// Probability function gets "ceilinged out".
+/// Probability function gets clipped either upwise ou downwise.
 ///
 /// `pf` := min(`pf`, `upper_bound`)
 ///
 ///            X    above: removed		 |
 ///           / \				 |
-///          /   \               X   upper_bound |
+///          /   \               X      bound    |
 /// --------o-----o-------------o-o--------	 |
 ///        /       \   X       /   \		 |
 ///       X         \ / \     /     \		 |
 ///                  X   \   /       X		 |
 ///                       \ /			 |
 ///      underneath: kept  X			 |
-///
-/// TODO: prevent adding superfluous points by jumping over whole above zones
-void Fuzzy::add_upper_bound(double upper_bound) {
-  add_lower_bound(upper_bound, false);
-}
 
-/// Probability function gets floored out.
-///
 /// `pf` := max(`pf`, `lower_bound`)
-///
-/// TODO: rename function to clip and make arguments more explicit (vld, 2015-02-10)
-void Fuzzy::add_lower_bound(double lower_bound, bool lower) {
+void Fuzzy::clip(clipping_direction direction, double bound) {
   assert(points.begin()->x == X_MIN);
   assert(prev(points.end())->x == X_MAX);
   assert(is_increasing());
 
   for (list<Point>::iterator p = points.begin() ; p != points.end() ; ++p) {
     if (next(p) != points.end() and
-        ((p->y < lower_bound and lower_bound < next(p)->y) or
-         (p->y > lower_bound and lower_bound > next(p)->y))) { // ie if p and next(p) are across lower_bound
+        ((p->y < bound and bound < next(p)->y) or
+         (p->y > bound and bound > next(p)->y))) { // ie if p and next(p) are across bound
       // insert interpolated point
       //           *after* p
-      points.insert(next(p), Point(get_x(*p, *next(p), lower_bound),
-                                   lower_bound));
+      points.insert(next(p), Point(get_x(*p, *next(p), bound),
+                                   bound));
       // could now fast forward over created point... TODO?
     }
-    if (lower     and p->y < lower_bound or
-        not lower and p->y > lower_bound)
-      p->y = lower_bound;
+    if ((direction == clipping_direction::min and p->y < bound) or
+        (direction == clipping_direction::max and p->y > bound))
+      p->y = bound;
   }
 
   assert(points.begin()->x == X_MIN);

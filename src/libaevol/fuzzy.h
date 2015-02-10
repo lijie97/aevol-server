@@ -91,9 +91,8 @@ class Fuzzy
   // get_x should be moved out of fuzzy class as it really applies to pair of points
   double get_x(const Point& left, const Point& right, double y) const;
   
-
-  void add_upper_bound(double up);
-  void add_lower_bound(double low, bool lower = true);
+  enum class clipping_direction {min, max};
+  void clip(clipping_direction direction, double bound);
 
   bool is_identical_to(const Fuzzy& fs, double tolerance) const;
 
