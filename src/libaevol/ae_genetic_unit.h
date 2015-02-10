@@ -40,12 +40,12 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_dna.h>
-#include <ae_rna.h>
-#include <ae_protein.h>
-#include <ae_fuzzy_set.h>
-#include <environment.h>
-#include <ae_utils.h>
+#include "ae_dna.h"
+#include "ae_rna.h"
+#include "ae_protein.h"
+#include "fuzzy.h"
+#include "environment.h"
+#include "ae_utils.h"
 
 namespace aevol {
 
@@ -86,9 +86,9 @@ class ae_genetic_unit
     inline ae_exp_manager*  get_exp_m( void ) const;
     inline ae_individual*   get_indiv( void )                   const;
     inline ae_dna*          get_dna( void )                     const;
-    inline ae_fuzzy_set*    get_activ_contribution( void )      const;
-    inline ae_fuzzy_set*    get_inhib_contribution( void )      const;
-    inline ae_fuzzy_set*    get_phenotypic_contribution( void ) const;
+    inline Fuzzy*    get_activ_contribution( void )      const;
+    inline Fuzzy*    get_inhib_contribution( void )      const;
+    inline Fuzzy*    get_phenotypic_contribution( void ) const;
 
     inline ae_list<ae_rna*>** get_rna_list( void )                const;
     inline ae_list<ae_protein*>** get_protein_list( void ) const;
@@ -299,9 +299,9 @@ class ae_genetic_unit
 
     ae_individual*  _indiv;
     ae_dna*         _dna;
-    ae_fuzzy_set*   _activ_contribution;
-    ae_fuzzy_set*   _inhib_contribution;
-    ae_fuzzy_set*   _phenotypic_contribution;
+    Fuzzy*   _activ_contribution;
+    Fuzzy*   _inhib_contribution;
+    Fuzzy*   _phenotypic_contribution;
     // NB : _phenotypic_contribution is only an indicative value, not used for the whole phenotype computation
 
     ae_list<ae_rna*>**     _rna_list;
@@ -402,17 +402,17 @@ inline ae_list<ae_protein*>** ae_genetic_unit::get_protein_list( void ) const
   return _protein_list;
 }
 
-inline ae_fuzzy_set* ae_genetic_unit::get_activ_contribution( void ) const
+inline Fuzzy* ae_genetic_unit::get_activ_contribution( void ) const
 {
   return _activ_contribution;
 }
 
-inline ae_fuzzy_set* ae_genetic_unit::get_inhib_contribution( void ) const
+inline Fuzzy* ae_genetic_unit::get_inhib_contribution( void ) const
 {
   return _inhib_contribution;
 }
 
-inline ae_fuzzy_set* ae_genetic_unit::get_phenotypic_contribution( void ) const
+inline Fuzzy* ae_genetic_unit::get_phenotypic_contribution( void ) const
 {
   assert(_phenotypic_contribution != NULL);
   return _phenotypic_contribution;

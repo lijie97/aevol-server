@@ -51,6 +51,7 @@
   #include <ae_individual.h>
 #endif
 
+#include "fuzzy.h"
 
 namespace aevol {
 
@@ -111,8 +112,8 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, int32_t length )
   _protein_list[LAGGING]  = new ae_list<ae_protein*>();
 
   // Create empty fuzzy sets for the phenotypic contributions
-  _activ_contribution = new ae_fuzzy_set();
-  _inhib_contribution = new ae_fuzzy_set();
+  _activ_contribution = new Fuzzy();
+  _inhib_contribution = new Fuzzy();
   _phenotypic_contribution = NULL;
   // NB : _phenotypic_contribution is only an indicative value,
   //      it is not used for the whole phenotype computation
@@ -185,8 +186,8 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, char* seq, int32_t lengt
   _protein_list[LAGGING]  = new ae_list<ae_protein*>();
 
   // Create empty fuzzy sets for the phenotypic contributions
-  _activ_contribution = new ae_fuzzy_set();
-  _inhib_contribution = new ae_fuzzy_set();
+  _activ_contribution = new Fuzzy();
+  _inhib_contribution = new Fuzzy();
   _phenotypic_contribution = NULL;
   // NB : _phenotypic_contribution is only an indicative value,
   //      it is not used for the whole phenotype computation
@@ -245,8 +246,8 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, const ae_genetic_unit &m
   _protein_list[LAGGING]  = new ae_list<ae_protein*>();
 
   // Create empty fuzzy sets for the phenotypic contributions
-  _activ_contribution = new ae_fuzzy_set();
-  _inhib_contribution = new ae_fuzzy_set();
+  _activ_contribution = new Fuzzy();
+  _inhib_contribution = new Fuzzy();
   _phenotypic_contribution = NULL;
   // NB : _phenotypic_contribution is only an indicative value, not used for the whole phenotype computation
   _dist_to_target_per_segment = NULL;
@@ -316,8 +317,8 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, ae_genetic_unit* const p
   _protein_list[LAGGING]  = new ae_list<ae_protein*>();
 
   // Create empty fuzzy sets for the phenotypic contributions
-  _activ_contribution = new ae_fuzzy_set();
-  _inhib_contribution = new ae_fuzzy_set();
+  _activ_contribution = new Fuzzy();
+  _inhib_contribution = new Fuzzy();
   _phenotypic_contribution = NULL;
   // NB : _phenotypic_contribution is only an indicative value, not used for the whole phenotype computation
 
@@ -362,8 +363,8 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, gzFile backup_file )
   _protein_list[LAGGING]  = new ae_list<ae_protein*>();
 
   // Create empty fuzzy sets for the phenotypic contributions
-  _activ_contribution = new ae_fuzzy_set();
-  _inhib_contribution = new ae_fuzzy_set();
+  _activ_contribution = new Fuzzy();
+  _inhib_contribution = new Fuzzy();
   _phenotypic_contribution = NULL;
   // NB : _phenotypic_contribution is only an indicative value, not used for the whole phenotype computation
 
@@ -416,8 +417,8 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, char* organism_file_name
   _protein_list[LAGGING]  = new ae_list<ae_protein*>();
 
   // Create empty fuzzy sets for the phenotypic contributions
-  _activ_contribution = new ae_fuzzy_set();
-  _inhib_contribution = new ae_fuzzy_set();
+  _activ_contribution = new Fuzzy();
+  _inhib_contribution = new Fuzzy();
   _phenotypic_contribution = NULL;
   // NB : _phenotypic_contribution is only an indicative value,
   //      it is not used for the whole phenotype computation
@@ -1059,7 +1060,7 @@ void ae_genetic_unit::compute_distance_to_target( Environment* env )
   compute_phenotypic_contribution();
 
   // Compute the difference between the (whole) phenotype and the environment
-  ae_fuzzy_set* delta = new ae_fuzzy_set( *_phenotypic_contribution );
+  Fuzzy* delta = new Fuzzy( *_phenotypic_contribution );
   delta->sub( *env );
 
   ae_env_segment** segments = env->get_segments();
@@ -1183,13 +1184,13 @@ void ae_genetic_unit::reset_expression( void )
   if ( _activ_contribution != NULL )
   {
     delete _activ_contribution;
-    _activ_contribution = new ae_fuzzy_set();
+    _activ_contribution = new Fuzzy();
   }
 
   if ( _inhib_contribution != NULL )
   {
     delete _inhib_contribution;
-    _inhib_contribution = new ae_fuzzy_set();
+    _inhib_contribution = new Fuzzy();
   }
 
   if ( _phenotypic_contribution != NULL )
