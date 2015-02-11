@@ -70,8 +70,8 @@ namespace aevol {
 /// \invariant{`is_increasing()`}
 class Fuzzy
 {
- private:
-  bool invariant() {
+ protected:
+  bool invariant() const {
     return
         points.size() >= 2             and
         points.begin()->x == X_MIN     and
@@ -79,24 +79,31 @@ class Fuzzy
         is_increasing()
         ;
   };
+  bool is_increasing() const;
 
  public:
   Fuzzy(): points({Point(X_MIN, 0.0), Point(X_MAX, 0.0)}) {};
-  // fuzzy();
   Fuzzy(const Fuzzy& f): points(f.points) {};
-  Fuzzy(const gzFile backup) {load(backup);};
+  Fuzzy(const gzFile backup) { load(backup); };
   virtual ~Fuzzy() {};
-  // breaks encapsulation
-  // TODO: remove foreign dependency and nuke this function
-  std::list<Point>& get_points() {return points;};
-  // called from ae_environment::apply_noise(), should otherwise be private
-  // TODO: remove call from apply_noise() and make create_interpolated_point protected
+
+  void save(gzFile backup) const;
+  void load(gzFile backup);
+  void reset();
+
+  const std::list<Point>& get_points() const {return points;};
+  // TODO: should be made protected (called from ae_environment::apply_noise())
   std::list<Point>::iterator create_interpolated_point(double x);
-  std::list<Point>::iterator create_interpolated_point(double x, std::list<Point>::iterator start);
+  // TODO: should be made protected or removed (looks like implementation specific)
   void simplify();
   void add_triangle(double mean, double width, double height);
   void add(const Fuzzy& f);
   void sub(const Fuzzy& f);
+
+  /// `clipping_direction` is only used for `clip` function's keyword.
+  enum clipping_direction: bool {min, max};
+  void clip(clipping_direction direction, double bound);
+
   double get_geometric_area() const;
   double get_geometric_area(std::list<Point>::const_iterator begin,
                             std::list<Point>::const_iterator end) const;
@@ -105,20 +112,12 @@ class Fuzzy
   double get_y(double x) const;
   // get_x should be moved out of fuzzy class as it really applies to pair of points
   double get_x(const Point& left, const Point& right, double y) const;
-  
-  /// `clipping_direction` is only used for `clip` function's keyword.
-  enum clipping_direction: bool {min, max};
-  void clip(clipping_direction direction, double bound);
-
   bool is_identical_to(const Fuzzy& fs, double tolerance) const;
 
-  void save(gzFile backup) const;
-  void load(gzFile backup);
-  void reset();
-
  protected:
-  bool is_increasing() const;
   std::list<Point> points;
+
+  std::list<Point>::iterator create_interpolated_point(double x, std::list<Point>::iterator start);
 };
 } // namespace aevol
 #endif // AEVOL_FUZZY_H
