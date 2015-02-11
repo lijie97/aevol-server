@@ -119,5 +119,7 @@ class Fuzzy
 
   std::list<Point>::iterator create_interpolated_point(double x, std::list<Point>::iterator start);
 };
+
+double trapezoid_area(const Point& p1, const Point& p2);
 } // namespace aevol
 #endif // AEVOL_FUZZY_H

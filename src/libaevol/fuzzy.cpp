@@ -215,52 +215,59 @@ void Fuzzy::sub(const Fuzzy& fs) {
   assert(invariant());
 }
 
+/// Absolute area between x-axis and segment [p1,p2].
+///
+/// The area of a crossed trapezoid can be computed just the same as a
+/// normal one if the bases are counted algebrically (±).
+double trapezoid_area(const Point& p1, const Point& p2) {
+  return fabs((p1.y + p2.y) / 2.0 *
+              (p2.x - p1.x));
+}
+
 double Fuzzy::get_geometric_area() const {
   return get_geometric_area(points.begin(), points.end());
 }
 
 /// Get integral of the absolute of probability function.
+///
 double Fuzzy::get_geometric_area(list<Point>::const_iterator begin,
-				 list<Point>::const_iterator end) const {
+                                 list<Point>::const_iterator end) const {
+  // Precondition would be along the lines of:
+  // assert(points.begin() <= begin < end < points.end());
   double area = 0;
-  for (list<Point>::const_iterator p = begin ; p != points.end() and next(p) != end ; ++p)
-    // Note that the area of a crossed trapezoid can be computed just
-    // the same as a normal one provided the bases are counted
-    // algebrically (+/-).
-    area += fabs(((p->y) + next(p)->y) * (next(p)->x - p->x) / 2);
+  for (list<Point>::const_iterator p = begin ; next(p) != end ; ++p)
+    area += trapezoid_area(*p, *next(p));
   return area;
 }
 
-/// TODO: test case with discontinuity
-double Fuzzy::get_geometric_area(double start_segment, double end_segment) const {
+double Fuzzy::get_geometric_area(double x_start, double x_stop) const {
+  assert(invariant());
+  // Precondition: X_MIN ≤ x_start < x_stop ≤ X_MAX
+  assert(X_MIN <= x_start and x_start < x_stop and x_stop <= X_MAX);
 
-  // assert(start_segment < end_segment);
-
-  // Fuzzy set first (resp last) point must be at x = X_MIN (resp x = X_MAX)
-  assert(not points.empty());
-  assert(points.begin()->x == X_MIN);
-  assert(prev(points.end())->x == X_MAX);
-
-  // We must have (X_MIN <= start_segment < end_segment <= X_MAX)
-  assert(start_segment >= X_MIN and start_segment < end_segment and end_segment <= X_MAX);
-
-  // ****************************************************************
-  // TODO: check!!! (vld, 2014-12-16)
-  // ****************************************************************
-
+  // first point with abscissa ≥ x_start
   list<Point>::const_iterator begin = find_if(points.begin(), points.end(),
-                                        [start_segment](const Point& p){return p.x > start_segment;});
+                                              [x_start](const Point& p){return p.x >= x_start;});
+  // point following the last one with abscissa ≤ x_stop
   list<Point>::const_iterator end = find_if(begin, points.end(),
-                                      [end_segment](const Point& p){return p.x < end_segment;});
+                                            [x_stop](const Point& p){return p.x > x_stop;});
 
-  assert(begin != points.end());
-  assert(end != points.end());
-  
-  double first_part = fabs((get_y(start_segment) + begin->y) * (begin->x - start_segment) / 2.0);
-  double last_part = fabs((get_y(end_segment) + end->y) * (end->x - end_segment) / 2.0);
+  // area before begin
+  double first_part = trapezoid_area(Point(x_start, get_y(x_start)), *begin);
+  // area after prev(end)
+  double last_part = trapezoid_area(*prev(end), Point(x_stop, get_y(x_stop)));
 
   return first_part + get_geometric_area(begin, end) + last_part;
 }
+
+// double Fuzzy::get_geometric_area(double start_segment, double end_segment) const {
+//   // Precondition: X_MIN ≤ start_segment < end_segment ≤ X_MAX
+//   assert(X_MIN <= start_segment and start_segment < end_segment and end_segment <= X_MAX);
+
+//   Fuzzy copy(*this);
+
+//   return copy.get_geometric_area(copy.create_interpolated_point(start_segment), next(copy.create_interpolated_point(end_segment)));
+// }
 
 double area_test() {
   Fuzzy f;
@@ -358,23 +365,16 @@ list<Point>::iterator Fuzzy::create_interpolated_point(double x, std::list<Point
   if (start->x <= x )
     start = points.begin();
   
-  static int call_counter;
-  ++call_counter;
-  // cout << call_counter << std::endl;
-
-  // get first point stricly greater than x and return its predecessor
+  // get first point with abscissa stricly greater than x
   list<Point>::iterator p = find_if(start, points.end(), [x](Point& q){return q.x > x;});
   if (prev(p)->x == x) {
     // point already in points
     assert(invariant());
     return prev(p);
   }
-  else {
-    auto newp = points.insert(p, Point(x, get_y(x)));
-    // insert point *before* p
-    assert(invariant());
-    return newp; // points.insert(p, point(x, get_y(x)));
-  }
+  // insert point before p
+  assert(invariant());
+  return points.insert(p, Point(x, get_y(x)));
 }
 
 /// Check that list of `points`' abscissas is (strictly) increasing.
