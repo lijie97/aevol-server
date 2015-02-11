@@ -63,8 +63,23 @@ namespace aevol {
 /// \\endcode
 /// \endverbatim
 /// fs.points would hold the list {(X_MIN,0),(x1,y1),...,(x10,y10)(X_MAX,0)}
+///
+/// \invariant{`points.size()` ≥ 2}
+/// \invariant{`points.begin()->x == X_MIN`}
+/// \invariant{`prev(points.end())->x == X_MAX`}
+/// \invariant{`is_increasing()`}
 class Fuzzy
 {
+ private:
+  bool invariant() {
+    return
+        points.size() >= 2             and
+        points.begin()->x == X_MIN     and
+        prev(points.end())->x == X_MAX and
+        is_increasing()
+        ;
+  };
+
  public:
   Fuzzy(): points({Point(X_MIN, 0.0), Point(X_MAX, 0.0)}) {};
   // fuzzy();
