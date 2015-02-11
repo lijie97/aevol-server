@@ -106,12 +106,8 @@ class Fuzzy
   // get_x should be moved out of fuzzy class as it really applies to pair of points
   double get_x(const Point& left, const Point& right, double y) const;
   
-  /// The `clipping_direction` is only used for `clip` function's
-  /// keyword. It gets very verbose on calls (because of namespaces
-  /// i.e. `Fuzzy::clipping_direction::min`) but I want the type of
-  /// clipping to be very clear. A simple `enum` would be shorter but
-  /// I would then expect collisions with the names `min`and `max`.
-  enum class clipping_direction: bool {min, max};
+  /// `clipping_direction` is only used for `clip` function's keyword.
+  enum clipping_direction: bool {min, max};
   void clip(clipping_direction direction, double bound);
 
   bool is_identical_to(const Fuzzy& fs, double tolerance) const;

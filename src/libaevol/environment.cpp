@@ -315,8 +315,8 @@ void Environment::build() {
   // custom points were unused: removed
 
   // 3) Simplify (get rid of useless points)
-  clip(clipping_direction::min, Y_MIN);
-  clip(clipping_direction::max, Y_MAX);
+  clip(min, Y_MIN);
+  clip(max, Y_MAX);
   simplify();
 
   // 4) Compute areas (total and by feature)
@@ -409,8 +409,8 @@ void Environment::apply_noise() {
     this->add(*_cur_noise);
 
     // Bind Y values in [Y_MIN, Y_MAX]
-    clip(clipping_direction::min, Y_MIN);
-    clip(clipping_direction::max, Y_MAX);
+    clip(min, Y_MIN);
+    clip(max, Y_MAX);
 
     // Environment has changed, recompute its area
     _compute_area();
