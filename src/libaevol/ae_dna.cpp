@@ -2058,7 +2058,10 @@ ae_mutation* ae_dna::do_repl_HT( int32_t parent_id )
           exogenote = donor_dna->copy_into_new_GU( alignment_2->get_i_2(), alignment_1->get_i_2() );
         }
 
-        char* alignment1_parent_dna,* alignment2_parent_dna,* alignment1_donor_dna,* alignment2_donor_dna;
+        char* alignment1_parent_dna = nullptr;
+        char* alignment2_parent_dna = nullptr;
+        char* alignment1_donor_dna  = nullptr;
+        char* alignment2_donor_dna  = nullptr;
         if ( _exp_m->get_output_m()->is_logged(LOG_TRANSFER) == true )
         {
           if( sense  == DIRECT)
