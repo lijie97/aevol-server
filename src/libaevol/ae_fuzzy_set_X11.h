@@ -25,15 +25,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <ae_fuzzy_set.h>
+#include "fuzzy.h"
 #include <ae_X11_window.h>
 
 namespace aevol {
-class ae_fuzzy_set_X11 : public ae_fuzzy_set
+class ae_fuzzy_set_X11 : public Fuzzy
 {  
  public :
-  ae_fuzzy_set_X11(): ae_fuzzy_set() {};
-  ae_fuzzy_set_X11(const ae_fuzzy_set& model): ae_fuzzy_set(model) {};
+  ae_fuzzy_set_X11(): Fuzzy() {};
+  ae_fuzzy_set_X11(const Fuzzy& model): Fuzzy(model) {};
   virtual ~ae_fuzzy_set_X11() {};  
   virtual void display(ae_X11_window* win, color_map color, bool fill = false, bool bold = false);
 };

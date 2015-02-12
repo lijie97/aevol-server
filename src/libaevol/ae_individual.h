@@ -52,7 +52,7 @@
 #include <ae_phenotype.h>
 #include <ae_replication_report.h>
 #include <ae_params_mut.h>
-
+#include "fuzzy.h"
 
 
 namespace aevol {
@@ -125,8 +125,8 @@ class ae_individual
     inline int32_t get_rank( void ) const;
 
 
-    inline ae_fuzzy_set* get_phenotype_activ( void ) const;
-    inline ae_fuzzy_set* get_phenotype_inhib( void ) const;
+    inline Fuzzy* get_phenotype_activ( void ) const;
+    inline Fuzzy* get_phenotype_inhib( void ) const;
     inline ae_phenotype* get_phenotype( void )       const;
 
     inline double* get_dist_to_target_by_segment( void ) const;
@@ -384,8 +384,8 @@ class ae_individual
     int32_t  _rank; // [1 ; POP_SIZE]
 
     // Total activation (resp. inhibition) of metabolic functions
-    ae_fuzzy_set* _phenotype_activ;
-    ae_fuzzy_set* _phenotype_inhib;
+    Fuzzy* _phenotype_activ;
+    Fuzzy* _phenotype_inhib;
 
     // The phenotype, roughly corresponding to the sum of activ and inhib
     ae_phenotype* _phenotype;
@@ -691,7 +691,7 @@ inline int32_t ae_individual::get_genetic_unit_seq_length( int16_t num_unit ) co
 /*!
   TODO
 */
-ae_fuzzy_set* ae_individual::get_phenotype_activ( void ) const
+Fuzzy* ae_individual::get_phenotype_activ( void ) const
 {
   return _phenotype_activ;
 }
@@ -699,7 +699,7 @@ ae_fuzzy_set* ae_individual::get_phenotype_activ( void ) const
 /*!
   TODO
 */
-ae_fuzzy_set* ae_individual::get_phenotype_inhib( void ) const
+Fuzzy* ae_individual::get_phenotype_inhib( void ) const
 {
   return _phenotype_inhib;
 }

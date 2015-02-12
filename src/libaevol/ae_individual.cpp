@@ -48,6 +48,7 @@
 #include <ae_population.h>
 #include <ae_vis_a_vis.h>
 #include <ae_utils.h>
+#include "fuzzy.h"
 
 #ifdef __NO_X
   #ifdef __REGUL
@@ -425,8 +426,8 @@ ae_individual::ae_individual( const ae_individual &model, bool replication_repor
   // Copy phenotype
   if ( _phenotype_computed )
   {
-    _phenotype_activ  = new ae_fuzzy_set( *(model._phenotype_activ) );
-    _phenotype_inhib  = new ae_fuzzy_set( *(model._phenotype_inhib) );
+    _phenotype_activ  = new Fuzzy( *(model._phenotype_activ) );
+    _phenotype_inhib  = new Fuzzy( *(model._phenotype_inhib) );
     _phenotype        = new ae_phenotype( this, *(model._phenotype) );
   }
   else
@@ -744,8 +745,8 @@ void ae_individual::compute_phenotype( void )
   //   * _phenotype_activ for the proteins realising a set of functions
   //   * _phenotype_inhib for the proteins inhibiting a set of functions
   // The phenotype will then be given by the sum of these 2 fuzzy sets
-  _phenotype_activ = new ae_fuzzy_set();
-  _phenotype_inhib = new ae_fuzzy_set();
+  _phenotype_activ = new Fuzzy();
+  _phenotype_inhib = new Fuzzy();
 
   ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
   ae_genetic_unit*  gen_unit;
@@ -779,7 +780,7 @@ void ae_individual::compute_distance_to_target( Environment* envir )
   if ( ! _phenotype_computed ) compute_phenotype();
 
   // Compute the difference between the (whole) phenotype and the environment
-  ae_fuzzy_set* delta = new ae_fuzzy_set( *_phenotype );
+  Fuzzy* delta = new Fuzzy( *_phenotype );
   delta->sub( *envir );
 
   ae_env_segment** segments = envir->get_segments();

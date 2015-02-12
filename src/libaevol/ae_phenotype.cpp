@@ -38,6 +38,7 @@
 // =================================================================
 #include <ae_phenotype.h>
 #include <ae_individual.h>
+#include "fuzzy.h"
 
 namespace aevol {
 
@@ -56,7 +57,7 @@ namespace aevol {
 // =================================================================
 ae_phenotype::ae_phenotype( void ) :
 #ifdef __NO_X
-  ae_fuzzy_set()
+  Fuzzy()
 #elif defined __X11
   ae_fuzzy_set_X11()
 #else
@@ -68,7 +69,7 @@ ae_phenotype::ae_phenotype( void ) :
 
 ae_phenotype::ae_phenotype( ae_individual* indiv, const ae_phenotype &model ) :
 #ifdef __NO_X
-  ae_fuzzy_set( model )
+  Fuzzy( model )
 #elif defined __X11
   ae_fuzzy_set_X11( model )
 #else
@@ -80,7 +81,7 @@ ae_phenotype::ae_phenotype( ae_individual* indiv, const ae_phenotype &model ) :
 
 ae_phenotype::ae_phenotype( ae_individual* indiv ) :
 #ifdef __NO_X
-  ae_fuzzy_set()
+  Fuzzy()
 #elif defined __X11
   ae_fuzzy_set_X11()
 #else

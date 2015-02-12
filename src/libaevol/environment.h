@@ -32,7 +32,7 @@
 
 #include "ae_env_segment.h"
 #include "ae_jumping_mt.h"
-#include "ae_fuzzy_set.h"
+#include "fuzzy.h"
 #include "ae_gaussian.h"
 #ifdef __X11
 #include "ae_fuzzy_set_X11.h"
@@ -41,7 +41,7 @@
 namespace aevol {
 
 #ifdef __NO_X
-class Environment : public ae_fuzzy_set
+class Environment : public Fuzzy
 #elif defined __X11
 class Environment : public ae_fuzzy_set_X11
 #else
@@ -169,7 +169,7 @@ class Environment : public ae_fuzzy_set_X11
   size_t _var_tau;          // Autoregressive mean variation tau parameter
 
   // Noise management
-  ae_fuzzy_set* _cur_noise;    // Current noise (pure noise that is added to the environment fuzzy set)
+  Fuzzy* _cur_noise;           // Current noise (pure noise that is added to the environment fuzzy set)
   ae_jumping_mt* _noise_prng;  // PRNG used for noise
   ae_env_noise _noise_method;  // Probability of variation.
   double _noise_alpha;         // Alpha value (variance coefficient)

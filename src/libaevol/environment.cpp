@@ -24,13 +24,14 @@
 
 #include "environment.h"
 #include "point.h"
+#include "fuzzy.h"
 #include "ae_gaussian.h"
 
 namespace aevol {
 
 Environment::Environment() :
 #ifdef __NO_X
-    ae_fuzzy_set()
+    Fuzzy()
 #elif defined __X11
     ae_fuzzy_set_X11()
 #else
@@ -65,7 +66,7 @@ Environment::Environment() :
 
 Environment::Environment(const Environment &model) :
 #ifdef __NO_X
-    ae_fuzzy_set(model)
+    Fuzzy(model)
 #elif defined __X11
     ae_fuzzy_set_X11(model)
 #else
@@ -110,7 +111,7 @@ Environment::Environment(const Environment &model) :
   if (model._cur_noise == NULL)
     _cur_noise = NULL;
   else
-    _cur_noise = new ae_fuzzy_set(*(model._cur_noise));
+    _cur_noise = new Fuzzy(*(model._cur_noise));
   if (model._noise_prng == NULL)
     _noise_prng = NULL;
   else
@@ -264,7 +265,7 @@ void Environment::load(gzFile backup_file) {
     int8_t tmp_cur_noise_saved;
     gzread(backup_file, &tmp_cur_noise_saved,  sizeof(tmp_cur_noise_saved));
     if (tmp_cur_noise_saved) {
-      _cur_noise  = new ae_fuzzy_set(backup_file);
+      _cur_noise  = new Fuzzy(backup_file);
     }
 
     _noise_prng = new ae_jumping_mt(backup_file);
@@ -347,7 +348,7 @@ void Environment::apply_noise() {
     // Initialize the cur_noise (current noise) fuzzy set to a set of points with y=0
     // The number of points is determined by _noise_sampling_log (2^_noise_sampling_log)
     if (_cur_noise == NULL) {
-      _cur_noise = new ae_fuzzy_set();
+      _cur_noise = new Fuzzy();
 
       // Add points to reflect the sampling
       size_t nb_points = 1 << (_noise_sampling_log - 1);

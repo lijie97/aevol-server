@@ -39,7 +39,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_fuzzy_set.h>
+#include "fuzzy.h"
 
 #ifdef __X11
 #include <ae_fuzzy_set_X11.h>
@@ -57,7 +57,7 @@ class ae_individual;
 
  
 #ifdef __NO_X
-class ae_phenotype : public ae_fuzzy_set
+class ae_phenotype : public Fuzzy
 #elif defined __X11
 class ae_phenotype : public ae_fuzzy_set_X11
 #else

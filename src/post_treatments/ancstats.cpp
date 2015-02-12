@@ -58,7 +58,7 @@
 #include <ae_mutation.h>
 #include <environment.h>
 #include <ae_enums.h>
-
+#include "fuzzy.h"
 
 //debug
 #include <ae_gaussian.h>
@@ -643,8 +643,8 @@ void write_zones_stats( int32_t num_gener, ae_individual * indiv, Environment * 
   }
 
 
-  ae_fuzzy_set* activ = NULL;
-  ae_fuzzy_set* inhib = NULL;
+  Fuzzy* activ = NULL;
+  Fuzzy* inhib = NULL;
   ae_phenotype* phen  = NULL;
 
 
