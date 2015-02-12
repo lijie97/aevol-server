@@ -82,7 +82,7 @@ double Fuzzy::get_y(double x) const {
 /// to happend here.
 double Fuzzy::get_x(const Point& p1, const Point& p2, double y) const {
   assert((p2.y <= y and y <= p1.y) or
-  	 (p1.y <= y and y <= p2.y));
+         (p1.y <= y and y <= p2.y));
   assert(p1.y != p2.y);
   double x = p1.x + (y - p1.y) * (p2.x - p1.x) /
                                  (p2.y - p1.y);
@@ -130,6 +130,9 @@ void Fuzzy::simplify() {
     else if (p->y == next(p)->y and p->y == next(p,2)->y)
       points.erase(next(p), prev(find_if(p, points.end(), [p](const Point& q){return q.y != p->y;})));
 
+  // postcondition:
+  // there are no 3 points that all share the same abscissas or that all share the same ordinates
+  // all the points come from previous `points` list
   assert(invariant());
 }
 
@@ -177,9 +180,9 @@ void Fuzzy::add_triangle(double mean, double width, double height) {
   return;
 }
 
-//************************************** proof reading mark
-
-/// Add a fuzzy set to the current one. Should actually be called `operator+=()`.
+/// Add a fuzzy set to the current one.
+///
+/// Should actually be called `operator+=()`.
 ///
 /// Semantically speaking, we deal with fuzzy sets over the same
 /// range. So adding two fuzzy sets sums up to adding the probability
@@ -280,15 +283,15 @@ double area_test() {
 ///
 /// `pf` := min(`pf`, `upper_bound`)
 ///
-///            X    above: removed		 |
-///           / \				 |
+///            X    above: removed               |
+///           / \                                |
 ///          /   \               X      bound    |
-/// --------o-----o-------------o-o--------	 |
-///        /       \   X       /   \		 |
-///       X         \ / \     /     \		 |
-///                  X   \   /       X		 |
-///                       \ /			 |
-///      underneath: kept  X			 |
+/// --------o-----o-------------o-o--------      |
+///        /       \   X       /   \             |
+///       X         \ / \     /     \            |
+///                  X   \   /       X           |
+///                       \ /                    |
+///      underneath: kept  X                     |
 
 /// `pf` := max(`pf`, `lower_bound`)
 void Fuzzy::clip(clipping_direction direction, double bound) {
@@ -357,6 +360,8 @@ list<Point>::iterator Fuzzy::create_interpolated_point(double x) {
 /// Find first point before abscissa `x`, starting from `start`.
 ///
 /// `start_point` must refer to a point before abscissa `x`
+///
+/// idempotent: creating existing point returns existing point
 list<Point>::iterator Fuzzy::create_interpolated_point(double x, std::list<Point>::iterator start) {
   assert(invariant());
   assert(x >= X_MIN and x <= X_MAX );
