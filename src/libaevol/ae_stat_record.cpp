@@ -359,10 +359,15 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_individual const * ind
     {
       gen_unit_node = indiv->get_genetic_unit_list()->get_first()->get_next();
     }
-    if ( chrom_or_gu == CHROM ) 
+    else if ( chrom_or_gu == CHROM )
     {
       gen_unit_node = indiv->get_genetic_unit_list()->get_first();
     }
+    else {
+      printf("%s: error: ae_stat_record called with inappropriate `chrom_or_gu`\n", __FILE__);
+      exit(EXIT_FAILURE);
+    }
+
 
     gen_unit = gen_unit_node->get_obj();
     
