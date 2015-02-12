@@ -46,6 +46,9 @@
 #include <ae_population_X11.h>
 #include <ae_individual_X11.h>
 #include <ae_X11_window.h>
+#ifdef __X11
+#include "fuzzy_X11.h"
+#endif
 
 namespace aevol {
 
@@ -681,8 +684,8 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
         
         if ( indiv->get_allow_plasmids() )
         {
-          ((ae_fuzzy_set_X11*)indiv->get_genetic_unit( 0 )->get_phenotypic_contribution())->display( cur_win, YELLOW );
-          ((ae_fuzzy_set_X11*)indiv->get_genetic_unit( 1 )->get_phenotypic_contribution())->display( cur_win, GREEN );
+          ((Fuzzy_X11*)indiv->get_genetic_unit( 0 )->get_phenotypic_contribution())->display( cur_win, YELLOW );
+          ((Fuzzy_X11*)indiv->get_genetic_unit( 1 )->get_phenotypic_contribution())->display( cur_win, GREEN );
         }
         
         indiv_node = indiv_node->get_next();

@@ -42,7 +42,7 @@
 #include "fuzzy.h"
 
 #ifdef __X11
-#include <ae_fuzzy_set_X11.h>
+#include "fuzzy_X11.h"
 #endif
 
 namespace aevol {
@@ -59,7 +59,7 @@ class ae_individual;
 #ifdef __NO_X
 class ae_phenotype : public Fuzzy
 #elif defined __X11
-class ae_phenotype : public ae_fuzzy_set_X11
+class ae_phenotype : public Fuzzy_X11
 #else
 #error You must specify a graphic option
 #endif

@@ -19,16 +19,19 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdio.h>
-#include <ae_fuzzy_set_X11.h>
-#include "ae_macros.h"
 #include <list>
+
+#include <fuzzy_X11.h>
+#include "ae_macros.h"
 
 using std::list;
 
 namespace aevol {
 
-void ae_fuzzy_set_X11::display( ae_X11_window* win, color_map color, bool fill /*= false*/, bool bold /*= false*/ )
-{
+void Fuzzy_X11::display(ae_X11_window* win,
+                               color_map      color,
+                               bool           fill /*= false*/,
+                               bool           bold /*= false*/ ) {
   double y_min = Y_MIN - 0.1 * Y_MAX; // Yields a bottom margin
   double y_max = Y_MAX * 1.1;         // Yields a top margin
   double delta_x = X_MAX - X_MIN;

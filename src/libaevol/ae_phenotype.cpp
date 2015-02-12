@@ -39,6 +39,9 @@
 #include <ae_phenotype.h>
 #include <ae_individual.h>
 #include "fuzzy.h"
+#ifdef __X11
+#include "fuzzy_X11.h"
+#endif
 
 namespace aevol {
 
@@ -59,7 +62,7 @@ ae_phenotype::ae_phenotype( void ) :
 #ifdef __NO_X
   Fuzzy()
 #elif defined __X11
-  ae_fuzzy_set_X11()
+  Fuzzy_X11()
 #else
 #error You must specify a graphic option
 #endif
@@ -71,7 +74,7 @@ ae_phenotype::ae_phenotype( ae_individual* indiv, const ae_phenotype &model ) :
 #ifdef __NO_X
   Fuzzy( model )
 #elif defined __X11
-  ae_fuzzy_set_X11( model )
+  Fuzzy_X11( model )
 #else
 #error You must specify a graphic option
 #endif
@@ -83,7 +86,7 @@ ae_phenotype::ae_phenotype( ae_individual* indiv ) :
 #ifdef __NO_X
   Fuzzy()
 #elif defined __X11
-  ae_fuzzy_set_X11()
+  Fuzzy_X11()
 #else
 #error You must specify a graphic option
 #endif

@@ -18,24 +18,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
  
-#ifndef __AE_FUZZY_SET_X11_H__
-#define __AE_FUZZY_SET_X11_H__
+#ifndef AEVOL_FUZZY_X11_H
+#define AEVOL_FUZZY_X11_H
  
 #include <inttypes.h>
 #include <stdlib.h>
 #include <stdio.h>
 
 #include "fuzzy.h"
-#include <ae_X11_window.h>
+#include "ae_X11_window.h"
 
 namespace aevol {
-class ae_fuzzy_set_X11 : public Fuzzy
+class Fuzzy_X11 : public Fuzzy
 {  
  public :
-  ae_fuzzy_set_X11(): Fuzzy() {};
-  ae_fuzzy_set_X11(const Fuzzy& model): Fuzzy(model) {};
-  virtual ~ae_fuzzy_set_X11() {};  
+  Fuzzy_X11(): Fuzzy() {};
+  Fuzzy_X11(const Fuzzy& model): Fuzzy(model) {};
+  virtual ~Fuzzy_X11() {};
   virtual void display(ae_X11_window* win, color_map color, bool fill = false, bool bold = false);
 };
 } // namespace aevol
-#endif // __AE_FUZZY_SET_X11_H__
+#endif // AEVOL_FUZZY_X11_H

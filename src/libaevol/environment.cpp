@@ -25,6 +25,9 @@
 #include "environment.h"
 #include "point.h"
 #include "fuzzy.h"
+#ifdef __X11
+#include "fuzzy_X11.h"
+#endif
 #include "ae_gaussian.h"
 
 namespace aevol {
@@ -33,7 +36,7 @@ Environment::Environment() :
 #ifdef __NO_X
     Fuzzy()
 #elif defined __X11
-    ae_fuzzy_set_X11()
+    Fuzzy_X11()
 #else
 #error You must specify a graphic option
 #endif
@@ -68,7 +71,7 @@ Environment::Environment(const Environment &model) :
 #ifdef __NO_X
     Fuzzy(model)
 #elif defined __X11
-    ae_fuzzy_set_X11(model)
+    Fuzzy_X11(model)
 #else
 #error You must specify a graphic option
 #endif

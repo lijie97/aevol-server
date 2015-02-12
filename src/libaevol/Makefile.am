@@ -34,7 +34,7 @@ environment.h \
 ae_env_segment.h \
 ae_exp_manager.h \
 ae_exp_setup.h \
-ae_fuzzy_set.h \
+fuzzy.h \
 ae_gaussian.h \
 ae_genetic_unit.h \
 ae_grid_cell.h \
@@ -64,8 +64,7 @@ ae_selection.h \
 ae_spatial_structure.h \
 ae_gene_tree.h \
 ae_gene_tree_node.h \
-ae_gene_mutation.h \
-fuzzy.h
+ae_gene_mutation.h
 
 common_headers += \
 param_loader.h \
@@ -108,14 +107,14 @@ fuzzy.cpp
 common_sources += param_loader.cpp f_line.cpp
 
 X11_headers = \
-ae_fuzzy_set_X11.h \
+fuzzy_X11.h \
 ae_individual_X11.h \
 ae_population_X11.h \
 ae_exp_manager_X11.h \
 ae_X11_window.h
 
 X11_sources = \
-ae_fuzzy_set_X11.cpp \
+fuzzy_X11.cpp \
 ae_individual_X11.cpp \
 ae_population_X11.cpp \
 ae_exp_manager_X11.cpp \

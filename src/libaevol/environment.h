@@ -35,7 +35,7 @@
 #include "fuzzy.h"
 #include "ae_gaussian.h"
 #ifdef __X11
-#include "ae_fuzzy_set_X11.h"
+#include "fuzzy_X11.h"
 #endif
 
 namespace aevol {
@@ -43,7 +43,7 @@ namespace aevol {
 #ifdef __NO_X
 class Environment : public Fuzzy
 #elif defined __X11
-class Environment : public ae_fuzzy_set_X11
+class Environment : public Fuzzy_X11
 #else
 #error You must specify a graphic option
 #endif
