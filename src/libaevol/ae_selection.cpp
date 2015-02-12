@@ -36,21 +36,21 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_selection.h>
-#include <ae_exp_manager.h>
-#include <ae_vis_a_vis.h>
+#include "ae_selection.h"
+#include "ae_exp_manager.h"
+#include "ae_vis_a_vis.h"
 
 #ifdef __NO_X
   #ifndef __REGUL
-    #include <ae_individual.h>
+    #include "ae_individual.h"
   #else
-    #include <ae_individual_R.h>
+    #include "ae_individual_R.h"
   #endif
 #elif defined __X11
   #ifndef __REGUL
-    #include <ae_individual_X11.h>
+    #include "ae_individual_X11.h"
   #else
-    #include <ae_individual_R_X11.h>
+    #include "ae_individual_R_X11.h"
   #endif
 #endif
 

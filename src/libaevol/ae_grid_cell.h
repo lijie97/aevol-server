@@ -43,7 +43,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <ae_individual.h>
+#include "ae_individual.h"
 
 namespace aevol {
 

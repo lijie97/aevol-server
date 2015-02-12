@@ -42,15 +42,15 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-//#include <ae_common.h>
-#include <ae_population.h>
-#include <ae_individual.h>
+//#include "ae_common.h"
+#include "ae_population.h"
+#include "ae_individual.h"
 #include <environment.h>
-#include <ae_protein.h>
-#include <ae_rna.h>
-#include <ae_list.h>
-#include <ae_exp_manager.h>
-#include <ae_utils.h>
+#include "ae_protein.h"
+#include "ae_rna.h"
+#include "ae_list.h"
+#include "ae_exp_manager.h"
+#include "ae_utils.h"
 
 using namespace aevol;
 

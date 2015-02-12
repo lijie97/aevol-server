@@ -39,9 +39,9 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_gene_tree_node.h>
-#include <ae_gene_mutation.h>
-#include <ae_genetic_unit.h>
+#include "ae_gene_tree_node.h"
+#include "ae_gene_mutation.h"
+#include "ae_genetic_unit.h"
 
 
 namespace aevol {

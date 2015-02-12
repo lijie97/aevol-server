@@ -37,13 +37,13 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_protein.h>
+#include "ae_protein.h"
 
-#include <ae_codon.h>
-#include <ae_individual.h>
-#include <ae_genetic_unit.h>
-#include <ae_rna.h>
-#include <ae_utils.h>
+#include "ae_codon.h"
+#include "ae_individual.h"
+#include "ae_genetic_unit.h"
+#include "ae_rna.h"
+#include "ae_utils.h"
 
 namespace aevol {
 

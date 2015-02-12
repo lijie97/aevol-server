@@ -36,16 +36,16 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_stat_record.h>
+#include "ae_stat_record.h"
 
-#include <ae_list.h>
-#include <ae_exp_manager.h>
-#include <ae_exp_setup.h>
-#include <ae_population.h>
-#include <ae_individual.h>
-#include <ae_genetic_unit.h>
-#include <ae_replication_report.h>
-#include <ae_dna_replic_report.h>
+#include "ae_list.h"
+#include "ae_exp_manager.h"
+#include "ae_exp_setup.h"
+#include "ae_population.h"
+#include "ae_individual.h"
+#include "ae_genetic_unit.h"
+#include "ae_replication_report.h"
+#include "ae_dna_replic_report.h"
 
 
 namespace aevol {

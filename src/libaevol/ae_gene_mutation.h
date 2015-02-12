@@ -47,9 +47,9 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_mutation.h>
-#include <ae_rna.h>
-#include <ae_enums.h>
+#include "ae_mutation.h"
+#include "ae_rna.h"
+#include "ae_enums.h"
 
 
 namespace aevol {

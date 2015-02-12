@@ -53,10 +53,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <ae_rna.h>
-#include <ae_list.h>
-#include <ae_gene_mutation.h>
-#include <ae_gene_tree.h>
+#include "ae_rna.h"
+#include "ae_list.h"
+#include "ae_gene_mutation.h"
+#include "ae_gene_tree.h"
 
 namespace aevol {
 

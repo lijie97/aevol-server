@@ -42,24 +42,24 @@
 // =================================================================
 #include <param_loader.h>
 
-#include <ae_exp_manager.h>
-#include <ae_exp_setup.h>
-#include <ae_output_manager.h>
-#include <ae_population.h>
-#include <ae_individual.h>
+#include "ae_exp_manager.h"
+#include "ae_exp_setup.h"
+#include "ae_output_manager.h"
+#include "ae_population.h"
+#include "ae_individual.h"
 
-#include <ae_jumping_mt.h>
-#include <ae_gaussian.h>
-#include <ae_env_segment.h>
+#include "ae_jumping_mt.h"
+#include "ae_gaussian.h"
+#include "ae_env_segment.h"
 #include <point.h>
-#include <ae_align.h>
+#include "ae_align.h"
 
 //~ #ifdef __X11
-  //~ #include <ae_individual_X11.h>
+  //~ #include "ae_individual_X11.h"
 //~ #endif
 
 #ifdef __REGUL
-  #include <ae_array_short.h>
+  #include "ae_array_short.h"
 #endif
 
 namespace aevol {

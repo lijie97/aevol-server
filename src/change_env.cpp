@@ -44,9 +44,9 @@
 #include <environment.h>
 
 #ifdef __X11
-  #include <ae_exp_manager_X11.h>
+  #include "ae_exp_manager_X11.h"
 #else
-  #include <ae_exp_manager.h>
+  #include "ae_exp_manager.h"
 #endif
 
 using namespace aevol;

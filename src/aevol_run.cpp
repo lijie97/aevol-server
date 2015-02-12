@@ -39,12 +39,12 @@
 //                            Project Files
 // =================================================================
 #ifdef __X11
-  #include <ae_exp_manager_X11.h>
+  #include "ae_exp_manager_X11.h"
 #else
-  #include <ae_exp_manager.h>
+  #include "ae_exp_manager.h"
 #endif
 
-#include <ae_macros.h>
+#include "ae_macros.h"
 
 using namespace aevol;
 

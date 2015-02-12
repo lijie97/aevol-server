@@ -42,8 +42,8 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_population.h>
-#include <ae_X11_window.h>
+#include "ae_population.h"
+#include "ae_X11_window.h"
 
 namespace aevol {
 

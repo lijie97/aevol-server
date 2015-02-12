@@ -38,8 +38,8 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_jumping_mt.h>
-#include <ae_jump_poly.h>
+#include "ae_jumping_mt.h"
+#include "ae_jump_poly.h"
 
 
 namespace aevol {

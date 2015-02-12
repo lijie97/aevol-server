@@ -41,7 +41,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <ae_protein.h>
+#include "ae_protein.h"
 
 namespace aevol {
 

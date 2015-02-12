@@ -36,8 +36,8 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_grid_cell.h>
-#include <ae_individual.h>
+#include "ae_grid_cell.h"
+#include "ae_individual.h"
 
 namespace aevol {
 

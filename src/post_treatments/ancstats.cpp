@@ -47,21 +47,21 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_utils.h>
-#include <ae_exp_manager.h>
-#include <ae_individual.h>
-#include <ae_genetic_unit.h>
-#include <ae_list.h>
-#include <ae_tree.h>
-#include <ae_replication_report.h>
-#include <ae_dna_replic_report.h>
-#include <ae_mutation.h>
+#include "ae_utils.h"
+#include "ae_exp_manager.h"
+#include "ae_individual.h"
+#include "ae_genetic_unit.h"
+#include "ae_list.h"
+#include "ae_tree.h"
+#include "ae_replication_report.h"
+#include "ae_dna_replic_report.h"
+#include "ae_mutation.h"
 #include <environment.h>
-#include <ae_enums.h>
+#include "ae_enums.h"
 #include "fuzzy.h"
 
 //debug
-#include <ae_gaussian.h>
+#include "ae_gaussian.h"
 
 #include <list>
 

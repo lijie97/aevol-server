@@ -41,10 +41,10 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_list.h>
-#include <ae_individual.h>
-#include <ae_jumping_mt.h>
-#include <ae_tree.h>
+#include "ae_list.h"
+#include "ae_individual.h"
+#include "ae_jumping_mt.h"
+#include "ae_tree.h"
 
 namespace aevol {
 

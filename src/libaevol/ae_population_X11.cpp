@@ -37,9 +37,9 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_population_X11.h>
-#include <ae_individual_X11.h>
-#include <ae_exp_manager_X11.h>
+#include "ae_population_X11.h"
+#include "ae_individual_X11.h"
+#include "ae_exp_manager_X11.h"
 
 namespace aevol {
 

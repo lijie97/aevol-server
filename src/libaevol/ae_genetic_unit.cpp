@@ -36,19 +36,19 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_genetic_unit.h>
+#include "ae_genetic_unit.h"
 
 
-#include <ae_exp_manager.h>
-#include <ae_exp_setup.h>
-#include <ae_codon.h>
-#include <ae_mutation.h>
-#include <ae_enums.h>
+#include "ae_exp_manager.h"
+#include "ae_exp_setup.h"
+#include "ae_codon.h"
+#include "ae_mutation.h"
+#include "ae_enums.h"
 
 #ifdef __REGUL
-  #include <ae_individual_R.h>
+  #include "ae_individual_R.h"
 #else
-  #include <ae_individual.h>
+  #include "ae_individual.h"
 #endif
 
 #include "fuzzy.h"

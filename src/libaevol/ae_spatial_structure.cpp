@@ -36,8 +36,8 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_spatial_structure.h>
-#include <ae_population.h>
+#include "ae_spatial_structure.h"
+#include "ae_population.h"
 
 
 namespace aevol {

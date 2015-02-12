@@ -38,11 +38,11 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_individual_X11.h>
+#include "ae_individual_X11.h"
 
-#include <ae_exp_manager.h>
-#include <ae_exp_setup.h>
-#include <ae_utils.h>
+#include "ae_exp_manager.h"
+#include "ae_exp_setup.h"
+#include "ae_utils.h"
 
 namespace aevol {
 

@@ -43,8 +43,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <ae_dna.h>
-#include <ae_utils.h>
+#include "ae_dna.h"
+#include "ae_utils.h"
 
 
 namespace aevol {

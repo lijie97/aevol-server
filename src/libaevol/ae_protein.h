@@ -40,14 +40,14 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_list.h>
+#include "ae_list.h"
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <ae_macros.h>
-#include <ae_dna.h>
-#include <ae_codon.h>
+#include "ae_macros.h"
+#include "ae_dna.h"
+#include "ae_codon.h"
 
 namespace aevol {
 

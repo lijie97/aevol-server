@@ -26,7 +26,7 @@
 #include <cppunit/TestCase.h>
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <fuzzy.h>
+#include "fuzzy.h"
 
 namespace aevol {
 

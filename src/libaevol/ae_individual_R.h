@@ -37,9 +37,9 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_individual.h>
-#include <ae_rna_R.h>
-#include <ae_protein_R.h>
+#include "ae_individual.h"
+#include "ae_rna_R.h"
+#include "ae_protein_R.h"
 
 namespace aevol {
 

@@ -42,8 +42,8 @@
 //                            Project Files
 // =================================================================
 
-#include <ae_gene_tree.h>
-#include <ae_gene_tree_node.h>
+#include "ae_gene_tree.h"
+#include "ae_gene_tree_node.h"
 
 namespace aevol {
 

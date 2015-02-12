@@ -43,15 +43,15 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_list.h>
+#include "ae_list.h"
 #include <environment.h>
-#include <ae_genetic_unit.h>
-#include <ae_dna.h>
-#include <ae_rna.h>
-#include <ae_protein.h>
-#include <ae_phenotype.h>
-#include <ae_replication_report.h>
-#include <ae_params_mut.h>
+#include "ae_genetic_unit.h"
+#include "ae_dna.h"
+#include "ae_rna.h"
+#include "ae_protein.h"
+#include "ae_phenotype.h"
+#include "ae_replication_report.h"
+#include "ae_params_mut.h"
 #include "fuzzy.h"
 
 

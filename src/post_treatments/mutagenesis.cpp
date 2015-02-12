@@ -46,13 +46,13 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_macros.h>
-#include <ae_exp_manager.h>
-#include <ae_individual.h>
-#include <ae_genetic_unit.h>
-#include <ae_vis_a_vis.h>
-#include <ae_dna.h>
-#include <ae_mutation.h>
+#include "ae_macros.h"
+#include "ae_exp_manager.h"
+#include "ae_individual.h"
+#include "ae_genetic_unit.h"
+#include "ae_vis_a_vis.h"
+#include "ae_dna.h"
+#include "ae_mutation.h"
 
 using namespace aevol;
 

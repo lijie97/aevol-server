@@ -36,8 +36,8 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_params_mut.h>
-#include <ae_align.h>
+#include "ae_params_mut.h"
+#include "ae_align.h"
 
 namespace aevol {
 

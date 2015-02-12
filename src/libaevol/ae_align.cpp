@@ -36,9 +36,9 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_align.h>
-#include <ae_utils.h>
-#include <ae_individual.h>
+#include "ae_align.h"
+#include "ae_utils.h"
+#include "ae_individual.h"
 
 namespace aevol {
 

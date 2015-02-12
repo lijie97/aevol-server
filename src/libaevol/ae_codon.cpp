@@ -37,8 +37,8 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_codon.h>
-#include <ae_utils.h>
+#include "ae_codon.h"
+#include "ae_utils.h"
 
 namespace aevol {
 

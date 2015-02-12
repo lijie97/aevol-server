@@ -40,27 +40,27 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_codon.h>
-#include <ae_exp_setup.h>
-#include <ae_exp_manager.h>
-#include <ae_grid_cell.h>
-#include <ae_genetic_unit.h>
-#include <ae_population.h>
-#include <ae_vis_a_vis.h>
-#include <ae_utils.h>
+#include "ae_codon.h"
+#include "ae_exp_setup.h"
+#include "ae_exp_manager.h"
+#include "ae_grid_cell.h"
+#include "ae_genetic_unit.h"
+#include "ae_population.h"
+#include "ae_vis_a_vis.h"
+#include "ae_utils.h"
 #include "fuzzy.h"
 
 #ifdef __NO_X
   #ifdef __REGUL
-    #include <ae_individual_R.h>
+    #include "ae_individual_R.h"
   #else
-    #include <ae_individual.h>
+    #include "ae_individual.h"
   #endif
 #elif defined __X11
   #ifdef __REGUL
-    #include <ae_individual_R_X11.h>
+    #include "ae_individual_R_X11.h"
   #else
-    #include <ae_individual_X11.h>
+    #include "ae_individual_X11.h"
   #endif
 #endif
 namespace aevol {

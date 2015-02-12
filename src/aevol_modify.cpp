@@ -42,11 +42,11 @@ const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 //                            Project Files
 // =================================================================
 #include <f_line.h>
-#include <ae_population.h>
+#include "ae_population.h"
 #ifdef __X11
-#include <ae_exp_manager_X11.h>
+#include "ae_exp_manager_X11.h"
 #else
-#include <ae_exp_manager.h>
+#include "ae_exp_manager.h"
 #endif
 
 using namespace aevol;

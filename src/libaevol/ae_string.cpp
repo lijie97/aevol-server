@@ -38,8 +38,8 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_string.h>
-#include <ae_exp_setup.h>
+#include "ae_string.h"
+#include "ae_exp_setup.h"
 
 namespace aevol {
 

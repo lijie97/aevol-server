@@ -42,8 +42,8 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_individual.h>
-#include <ae_X11_window.h>
+#include "ae_individual.h"
+#include "ae_X11_window.h"
 
 namespace aevol {
 

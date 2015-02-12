@@ -36,10 +36,10 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_replication_report.h>
-#include <ae_dna_replic_report.h>
-#include <ae_mutation.h>
-#include <ae_individual.h>
+#include "ae_replication_report.h"
+#include "ae_dna_replic_report.h"
+#include "ae_mutation.h"
+#include "ae_individual.h"
 
 namespace aevol {
 

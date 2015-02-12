@@ -36,8 +36,8 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_phenotype.h>
-#include <ae_individual.h>
+#include "ae_phenotype.h"
+#include "ae_individual.h"
 #include "fuzzy.h"
 #ifdef __X11
 #include "fuzzy_X11.h"

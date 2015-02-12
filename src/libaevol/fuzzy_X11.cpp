@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <list>
 
-#include <fuzzy_X11.h>
+#include "fuzzy_X11.h"
 #include "ae_macros.h"
 
 using std::list;

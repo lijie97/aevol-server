@@ -39,15 +39,15 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_exp_manager.h>
-#include <ae_exp_setup.h>
-#include <ae_dna.h>
-#include <ae_genetic_unit.h>
-#include <ae_individual.h>
-#include <ae_rna.h>
-#include <ae_utils.h>
-#include <ae_vis_a_vis.h>
-#include <ae_align.h>
+#include "ae_exp_manager.h"
+#include "ae_exp_setup.h"
+#include "ae_dna.h"
+#include "ae_genetic_unit.h"
+#include "ae_individual.h"
+#include "ae_rna.h"
+#include "ae_utils.h"
+#include "ae_vis_a_vis.h"
+#include "ae_align.h"
 
 namespace aevol {
 

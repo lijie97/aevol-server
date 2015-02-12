@@ -40,10 +40,10 @@
 //                            Project Files
 // =================================================================
 
-#include <ae_mutation.h>
-#include <ae_gene_mutation.h>
-#include <ae_rna.h>
-#include <ae_macros.h>
+#include "ae_mutation.h"
+#include "ae_gene_mutation.h"
+#include "ae_rna.h"
+#include "ae_macros.h"
 
 namespace aevol {
 

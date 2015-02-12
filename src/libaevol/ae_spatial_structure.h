@@ -43,7 +43,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <ae_grid_cell.h>
+#include "ae_grid_cell.h"
 
 
 namespace aevol {

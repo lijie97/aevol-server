@@ -37,8 +37,8 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_individual_R.h>
-#include <ae_individual_X11.h>
+#include "ae_individual_R.h"
+#include "ae_individual_X11.h"
 
 namespace aevol {
 

@@ -37,9 +37,9 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_rna.h>
-#include <ae_protein.h>
-#include <ae_influence_R.h>
+#include "ae_rna.h"
+#include "ae_protein.h"
+#include "ae_influence_R.h"
 
 namespace aevol {
 

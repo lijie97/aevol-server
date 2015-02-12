@@ -38,11 +38,11 @@
 //                            Project Files
 // =================================================================
 #include "Test_ae_individual.h"
-#include <ae_macros.h>
-#include <ae_genetic_unit.h>
-#include <ae_rna.h>
-#include <ae_protein.h>
-#include <ae_params_mut.h>
+#include "ae_macros.h"
+#include "ae_genetic_unit.h"
+#include "ae_rna.h"
+#include "ae_protein.h"
+#include "ae_params_mut.h"
 
 namespace aevol {
 
