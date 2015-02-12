@@ -49,7 +49,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "ae_macros.h"
+#include "macros.h"
 #include "ae_enums.h"
 #include "ae_gaussian.h"
 #include <point.h>

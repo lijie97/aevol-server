@@ -30,7 +30,7 @@
 
 #include "fuzzy.h"
 #include "point.h"
-#include "ae_macros.h"
+#include "macros.h"
 
 using std::list;
 using std::prev;

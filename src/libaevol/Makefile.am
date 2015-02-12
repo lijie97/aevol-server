@@ -41,7 +41,7 @@ ae_grid_cell.h \
 ae_individual.h \
 ae_list.h \
 ae_logs.h \
-ae_macros.h \
+macros.h \
 ae_mutation.h \
 ae_output_manager.h \
 ae_params_mut.h \

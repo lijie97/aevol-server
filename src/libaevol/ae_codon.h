@@ -46,7 +46,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "ae_dna.h"
-#include "ae_macros.h"
+#include "macros.h"
 
 
 namespace aevol {

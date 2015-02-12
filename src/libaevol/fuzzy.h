@@ -24,7 +24,7 @@
 #include <list>
 
 #include "ae_list.h" // TODO: not needed here; add where needed transitively
-#include "ae_macros.h"
+#include "macros.h"
 #include "point.h"
 
 namespace aevol {
@@ -32,7 +32,7 @@ namespace aevol {
 /// Triangular fuzzy sets.
 ///
 /// This class provides management tools for "fuzzy sets" abscissa are
-/// bound between X_MIN and X_MAX (defined in ae_macros.h) A "fuzzy
+/// bound between X_MIN and X_MAX (defined in macros.h) A "fuzzy
 /// set" should always have at least two points of abscissa X_MIN and
 /// X_MAX.
 ///

@@ -22,7 +22,7 @@
 #include <list>
 
 #include "fuzzy_X11.h"
-#include "ae_macros.h"
+#include "macros.h"
 
 using std::list;
 

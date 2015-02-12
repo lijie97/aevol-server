@@ -44,7 +44,7 @@
   #include "ae_exp_manager.h"
 #endif
 
-#include "ae_macros.h"
+#include "macros.h"
 
 using namespace aevol;
 

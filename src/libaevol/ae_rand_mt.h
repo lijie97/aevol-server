@@ -103,7 +103,7 @@
 #include <time.h>
 #include <math.h>
 #include <zlib.h>
-#include "ae_macros.h"
+#include "macros.h"
 
 namespace aevol {
 
