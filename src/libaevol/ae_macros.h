@@ -1,9 +1,5 @@
-// ****************************************************************************
+// Aevol - An in silico experimental evolution platform
 //
-//          Aevol - An in silico experimental evolution platform
-//
-// ****************************************************************************
-// 
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
@@ -21,15 +17,19 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
-// ****************************************************************************
-
 
 #include <inttypes.h>
 
-#define NB_BASE INT8_C(2) // WARNING :  A lot of stuff has been optimized for binary genomes
-                          //            Changing the value of NB_BASE implies verifying the existing code
-                          //            and make changes where necessary
+#ifndef AEVOL_MACROS_H
+#define AEVOL_MACROS_H
+
+constexpr int8_t NB_BASE = 2; // WARNING :  A lot of stuff has been optimized for binary genomes
+                              //            Changing the value of NB_BASE implies verifying the existing code
+                              //            and make changes where necessary
+
+// NB The following strings are not easily replaced with `constexpr
+// const char*` because they are meant to be concatenated by the
+// preprocessor.
 
 // Backup directories and file name formats
 // Experimental Setup
@@ -68,46 +68,46 @@
 // Best last organism file
 #define BEST_LAST_ORG_FNAME "best_last_org.txt"
 
-
 #define FIXED_POPULATION_SIZE // Some calculation can be spared if we know that the size of the population is fixed
 
-#define PROM_SIZE       INT8_C(22)
-#define PROM_SEQ        "0101011001110010010110"
+constexpr int8_t PROM_SIZE = 22;
+constexpr const char* PROM_SEQ = "0101011001110010010110";
 
-#define PROM_MAX_DIFF   INT8_C(4)
-#define TERM_STEM_SIZE  INT8_C(4)
-#define TERM_LOOP_SIZE  INT8_C(3)
-#define TERM_SIZE       INT8_C(2 * TERM_STEM_SIZE + TERM_LOOP_SIZE)
+constexpr int8_t PROM_MAX_DIFF  = 4;
+constexpr int8_t TERM_STEM_SIZE = 4;
+constexpr int8_t TERM_LOOP_SIZE = 3;
+constexpr int8_t TERM_SIZE      = 2 * TERM_STEM_SIZE + TERM_LOOP_SIZE;
 
-#define SHINE_DAL_SIZE      INT8_C(6)
-#define SHINE_DAL_SEQ       "011011"
-#define SHINE_START_SPACER  INT8_C(4)
+constexpr int8_t SHINE_DAL_SIZE = 6;
+constexpr const char* SHINE_DAL_SEQ = "011011";
+constexpr int8_t SHINE_START_SPACER = 4;
 
-#define CODON_SIZE    INT8_C(3)
-#define CODON_START   INT8_C(0)   // "000"
-#define CODON_STOP    INT8_C(1)   // "001"
-#define CODON_M0      INT8_C(4)   // "100"
-#define CODON_M1      INT8_C(5)   // "101"
-#define CODON_W0      INT8_C(2)   // "010"
-#define CODON_W1      INT8_C(3)   // "011"
-#define CODON_H0      INT8_C(6)   // "110"
-#define CODON_H1      INT8_C(7)   // "111"
+constexpr int8_t CODON_SIZE  = 3;
+constexpr int8_t CODON_START = 0b000;
+constexpr int8_t CODON_STOP  = 0b001;
+constexpr int8_t CODON_M0    = 0b100;
+constexpr int8_t CODON_M1    = 0b101;
+constexpr int8_t CODON_W0    = 0b010;
+constexpr int8_t CODON_W1    = 0b011;
+constexpr int8_t CODON_H0    = 0b110;
+constexpr int8_t CODON_H1    = 0b111;
 
 #ifdef __REGUL
-  #define MAX_CODON   INT8_C(1 << CODON_SIZE)
-  #define QUADON_SIZE 4
-  #define MAX_QUADON  INT8_C(1 << QUADON_SIZE)
+constexpr int8_t MAX_CODON   = 1 << CODON_SIZE;
+constexpr int8_t QUADON_SIZE = 4;
+constexpr int8_t MAX_QUADON  = 1 << QUADON_SIZE;
 #endif
 
-#define X_MIN   0.0
-#define X_MAX   1.0
-#define Y_MIN   0.0
-#define Y_MAX   1.0
-#define H_MIN   -1.0
-#define H_MAX   1.0
-#define W_MIN   0.0
+constexpr double X_MIN = 0.0;
+constexpr double X_MAX = 1.0;
+constexpr double Y_MIN = 0.0;
+constexpr double Y_MAX = 1.0;
+constexpr double H_MIN = -1.0;
+constexpr double H_MAX = 1.0;
+constexpr double W_MIN = 0.0;
 // W_MAX is defined through a parameter
 
-#define SC_MATCH_BONUS    INT8_C(1)
-#define SC_MISMATCH_COST  INT8_C(2)
+constexpr int8_t SC_MATCH_BONUS   = 1;
+constexpr int8_t SC_MISMATCH_COST = 2;
 
+#endif // AEVOL_MACROS_H
