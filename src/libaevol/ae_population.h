@@ -130,6 +130,7 @@ class ae_population
     //                            Public Methods
     // =================================================================
     void replace_population( ae_list<ae_individual*>* new_indivs );
+    void replace_population(std::list<ae_individual*>& new_indivs);
     //~ void            step_to_next_generation( void );
     //~ void            step_to_next_generation_grid( void );
     //~ ae_individual*  do_replication( ae_individual* parent, int32_t id, int16_t x = -1, int16_t y = -1 );

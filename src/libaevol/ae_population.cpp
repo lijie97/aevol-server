@@ -33,6 +33,7 @@
 #include <stdio.h>
 #include <math.h>
 
+#include <list>
 
 // =================================================================
 //                            Project Files
@@ -161,6 +162,12 @@ void ae_population::replace_population(ae_list<ae_individual*>* new_indivs)
 
     indiv_node = indiv_node->get_next();
   }
+}
+
+void ae_population::replace_population(std::list<ae_individual*>& new_indivs)
+{
+  auto ae_new_indivs = new ae_list<ae_individual*>(new_indivs);
+  replace_population(ae_new_indivs);
 }
 
 void ae_population::save( gzFile backup_file ) const
