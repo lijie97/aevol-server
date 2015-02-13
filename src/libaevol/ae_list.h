@@ -77,8 +77,8 @@ class ae_list_node {
     ae_list_node* _next;
 };
 
-
-
+template <typename T>
+inline std::list<T> aelist_to_stdlist(ae_list<T>*);
 
 template <typename T>
 class ae_list
@@ -179,6 +179,18 @@ ae_list<T>::ae_list(std::list<T> l) {
   for (T p: l)
     add(new (typename std::remove_pointer<T>::type)(*p));
   // NB remove_pointer gets type from pointer (e.g. int* -> int, char** -> char)
+}
+
+// Would like to write a proper conversion constructor, but that is
+// not possible outside of the std::list class.
+template <typename T>
+inline std::list<T> aelist_to_stdlist(ae_list<T>* l) {
+  std::list<T> r;
+  for (ae_list_node<T>* e = l->get_first();
+       e != nullptr;
+       e = e->get_next())
+    r.push_back(e->get_obj());
+  return r;
 }
 
 // Doesn't create new objects

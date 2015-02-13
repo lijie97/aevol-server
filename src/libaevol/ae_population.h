@@ -212,21 +212,9 @@ inline ae_list<ae_individual*>* ae_population::get_indivs( void ) const
   return _indivs;
 }
 
-// Would like to write a proper conversion constructor, but that is
-// not possible outside of std::list.
-// TODO: generalize for it to work on any type of list and move it to a significant place.
-inline std::list<ae_individual*> convert(ae_list<ae_individual*>* l) {
-  std::list<ae_individual*> r;
-  for (ae_list_node<ae_individual*>* e = l->get_first();
-       e != nullptr;
-       e = e->get_next())
-    r.push_back(e->get_obj());
-  return r;
-}
-
 inline std::list<ae_individual*> ae_population::get_indivs_std() const {
   // return std::list<ae_individual*>(_indivs);
-  return convert(_indivs);
+  return aelist_to_stdlist(_indivs);
 }
 
 inline int32_t ae_population::get_nb_indivs( void ) const
