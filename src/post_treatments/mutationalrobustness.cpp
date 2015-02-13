@@ -10,6 +10,8 @@
 #include "ae_exp_manager.h"
 #include <libgen.h>
 
+#include <list>
+
 using namespace aevol;
 
 void print_help( char* prog_name );
@@ -79,13 +81,8 @@ int main( int argc, char* argv[] )
 
   // Parse and treat the individuals
   if (!best_only){
-    ae_list_node<ae_individual*>* indiv_node = pop->get_indivs()->get_first();
-    ae_individual* indiv      = NULL;
-    while( indiv_node != NULL ){
-      indiv = (ae_individual *) indiv_node->get_obj();
+    for (ae_individual* indiv: pop->get_indivs_std())
       analyse_indiv(exp_manager, indiv, output, ndiv);
-      indiv_node = indiv_node->get_next();
-    }
   }
   else{
     ae_individual* indiv=pop->get_best();
