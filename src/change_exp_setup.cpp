@@ -232,43 +232,6 @@ int main( int argc, char* argv[] )
       printf("Ok\n");
       
       #warning PRNG change disabled
-      //~ printf("Change of the prng in each individual\t");
-      //~ int32_t limit = (int32_t)2*pow(10,9);
-      //~ int size = 624;
-      //~ uint32_t indiv_seed[size];
-      
-      //~ int32_t   nb_indivs = pop->get_nb_indivs();
-      //~ ae_list_node<ae_individual*>*   indiv_node  = pop->get_indivs()->get_first();
-      //~ ae_individual*  indiv       = NULL;
-      //~ ae_jumping_mt* indiv_prng   = NULL;
-      //~ printf("\n");
-      //~ for ( int32_t i = 0 ; i < nb_indivs ; i++ )
-      //~ {
-        //~ for(int j=0;j<size;j++){
-          //~ indiv_seed[j] = prng->random(limit);
-        //~ }
-        //~ indiv_prng = new ae_jumping_mt(indiv_seed,size);
-        //~ indiv_prng->jump();
-        
-        //~ indiv = indiv_node->get_obj();
-        //~ indiv->set_prng(indiv_prng);
-        //~ indiv_node = indiv_node->get_next();
-      //~ }
-      //~ printf("Ok\n");
-      
-      /*printf("Change of the backup\t");
-      char* new_pop_file_name   = NULL;
-      new_pop_file_name = new char[strlen(pop_file_name)-3+strlen("_changed.ae")+1];
-      sprintf(new_pop_file_name, "%s_changed.ae",strtok(pop_file_name, "."));
-      gzFile new_pop_file = gzopen( new_pop_file_name, "w" );
-      if ( new_pop_file == Z_NULL )
-      {
-        printf( "%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, new_pop_file_name );
-        exit( EXIT_FAILURE );
-      }
-      pop->save( new_pop_file );
-      gzclose( new_pop_file );
-      printf("Ok\n");*/
     }
   
     delete line;
