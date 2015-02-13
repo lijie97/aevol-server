@@ -40,14 +40,13 @@
 #include <math.h>
 #include <sys/stat.h>
 
-
+#include <list>
 
 // =================================================================
 //                            Project Files
 // =================================================================
 #include "macros.h"
 #include "ae_exp_manager.h"
-#include "ae_list.h"
 #include "ae_population.h"
 #include "ae_individual.h"
 
@@ -156,40 +155,32 @@ int main( int argc, char* argv[] )
       wanted_rank = exp_manager->get_nb_indivs();  // the best one has rank N
     }
 
-  ae_individual* wanted_indiv = NULL;
-  ae_individual* tmpindiv = NULL;
-  ae_list_node<ae_individual*>* indiv_node = exp_manager->get_pop()->get_indivs()->get_last();
-  bool found = false;
-  int32_t current_rank = -1, current_index = -1;
-  while ((indiv_node != NULL) && (!found))
-    {
-      tmpindiv = (ae_individual*) indiv_node->get_obj();
-      current_index = tmpindiv->get_id();
-      current_rank = tmpindiv->get_rank();
+  // TODO: factor with duplicated code in mutagenesis.cpp
+  ae_individual* wanted_indiv = nullptr;
+  { // (local scope for `indivs` used as a shorthand)
+    bool found = false;
+    int32_t current_rank = -1;
+    int32_t current_index = -1;
+    std::list<ae_individual*> indivs = exp_manager->get_pop()->get_indivs_std();
+    for (auto indiv = indivs.rbegin(); not found and indiv != indivs.rend(); ++indiv) {
+      current_index = (*indiv)->get_id();
+      current_rank = (*indiv)->get_rank();
 
-      if (wanted_index != -1)
-        {
-          if (current_index == wanted_index)
-            {
-              found = true;
-              wanted_indiv = tmpindiv;
-              wanted_rank = current_rank;
-            }
-        }
-      else 
-        {
-          // no index was specified, we use the desired rank
-          if (current_rank == wanted_rank)
-            {
-              found = true;
-              wanted_indiv = tmpindiv;
-              wanted_index = current_index;
-            }
-        }
-      indiv_node = indiv_node->get_prev();
+      if (wanted_index != -1 and current_index == wanted_index) {
+        found = true;
+        wanted_indiv = (*indiv);
+        wanted_rank = current_rank;
+      }
+      else if (current_rank == wanted_rank) {
+        // no index was specified, we use the desired rank
+        found = true;
+        wanted_indiv = (*indiv);
+        wanted_index = current_index;
+      }
     }
+    assert(found);
+  }
 
-  assert(found);
   wanted_indiv->evaluate();
   wanted_indiv->compute_statistical_data();
   wanted_indiv->compute_non_coding();
@@ -282,54 +273,49 @@ int main( int argc, char* argv[] )
   exp_manager->get_exp_s()->get_sel()->compute_prob_reprod();
   double* tmp_reprod = exp_manager->get_exp_s()->get_sel()->get_prob_reprod();
 
+  { // (local scope for `indivs` used as a shorthand)
+    std::list<ae_individual*> indivs = exp_manager->get_pop()->get_indivs_std();
+    for (auto indiv = indivs.rbegin(); indiv != indivs.rend(); ++indiv) {
+      int32_t current_index = (*indiv)->get_id();
+      int32_t current_rank = (*indiv)->get_rank();
 
-  ae_list_node<ae_individual*>* node = exp_manager->get_pop()->get_indivs()->get_last();
-  ae_individual * tmpind = NULL;
-  while (node != NULL)
-    {
-      tmpind = node->get_obj();
-      node = node->get_prev();
-      
-      current_index = tmpind->get_id();
-      current_rank = tmpind->get_rank();
- 
-      // ------------------------------------
-      //              Compute Fv
-      // ------------------------------------	
-      th_fv = tmpind->compute_theoritical_f_nu();
-    
-      if ( tmpind == wanted_indiv )
-        {
-          tmpind->compute_experimental_f_nu( nb_children, reproduction_statistics, offsprings_statistics, outputfile_details);
-        }
+      // Compute Fv ----------------------------------------------------------------
+      th_fv = (*indiv)->compute_theoritical_f_nu();
+
+      if ((*indiv) == wanted_indiv)
+        (*indiv)->compute_experimental_f_nu(nb_children,
+                                            reproduction_statistics,
+                                            offsprings_statistics,
+                                            outputfile_details);
       else
-        {
-          tmpind->compute_experimental_f_nu( nb_children, reproduction_statistics, offsprings_statistics);
-        }
+        (*indiv)->compute_experimental_f_nu(nb_children,
+                                            reproduction_statistics,
+                                            offsprings_statistics);
 
-    
-      // ------------------------------------
-      //            Write to file
-      // ------------------------------------ 
-      fprintf( outputfile_wholepop, "%" PRId32 " %" PRId32 " %le %le %" PRId32 " %" PRId32 " %le %le %le %le %le %le %le %le %le %le %le\n",
-               current_rank,                                              \
-               current_index, \
-               tmpind->get_fitness(), \
-               tmpind->get_dist_to_target_by_feature( METABOLISM ), \
-               tmpind->get_total_genome_size(), \
-               tmpind->get_nb_functional_genes(), \
-               tmp_reprod[current_rank - 1], \
-               reproduction_statistics[0], \
-               reproduction_statistics[1], \
-               reproduction_statistics[2], \
-               th_fv, \
-               offsprings_statistics[0], \
-               offsprings_statistics[1], \
-               offsprings_statistics[2], \
-               offsprings_statistics[3], \
-               offsprings_statistics[4], \
-               offsprings_statistics[5]);    
+
+      // Write to file -------------------------------------------------------------
+      fprintf(outputfile_wholepop,
+              "%" PRId32 " %" PRId32 " %le %le %" PRId32 " %" PRId32 " %le %le %le %le %le %le %le %le %le %le %le\n",
+              current_rank,
+              current_index,
+              (*indiv)->get_fitness(),
+              (*indiv)->get_dist_to_target_by_feature( METABOLISM ),
+              (*indiv)->get_total_genome_size(),
+              (*indiv)->get_nb_functional_genes(),
+              tmp_reprod[current_rank - 1],
+              reproduction_statistics[0],
+              reproduction_statistics[1],
+              reproduction_statistics[2],
+              th_fv,
+              offsprings_statistics[0],
+              offsprings_statistics[1],
+              offsprings_statistics[2],
+              offsprings_statistics[3],
+              offsprings_statistics[4],
+              offsprings_statistics[5]
+              );
     }
+  }
 
 
 
