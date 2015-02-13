@@ -41,7 +41,7 @@
 #include <assert.h>
 #include <sys/stat.h>
 
-
+#include <list>
 
 // =================================================================
 //                            Project Files
@@ -222,40 +222,32 @@ int main( int argc, char* argv[] )
       wanted_rank = exp_manager->get_nb_indivs();  // the best one has rank N
     }
 
-  ae_individual* initial_indiv = NULL;
-  ae_individual* tmpindiv = NULL;
-  ae_list_node<ae_individual*>* indiv_node = exp_manager->get_pop()->get_indivs()->get_last();
-  bool found = false;
-  int32_t current_rank = -1, current_index = -1;
-  while ((indiv_node != NULL) && (!found))
-  {
-    tmpindiv = (ae_individual*) indiv_node->get_obj();
-    current_index = tmpindiv->get_id();
-    current_rank = tmpindiv->get_rank();
+  // TODO: factor with duplicated code in robustness.cpp
+  ae_individual* initial_indiv = nullptr;
+  { // (local scope for `indivs` used as a shorthand)
+    bool found = false;
+    int32_t current_rank = -1;
+    int32_t current_index = -1;
+    std::list<ae_individual*> indivs = exp_manager->get_pop()->get_indivs_std();
+    for (auto indiv = indivs.rbegin(); not found and indiv != indivs.rend(); ++indiv) {
+      current_index = (*indiv)->get_id();
+      current_rank = (*indiv)->get_rank();
 
-    if (wanted_index != -1)
-      {
-        if (current_index == wanted_index)
-          {
-            found = true;
-            initial_indiv = tmpindiv;
-            wanted_rank = current_rank;
-          }
+      if (wanted_index != -1 and current_index == wanted_index) {
+        found = true;
+        initial_indiv = (*indiv);
+        wanted_rank = current_rank;
       }
-    else
-      {
+      else if (current_rank == wanted_rank) {
         // no index was specified, we use the desired rank
-         if (current_rank == wanted_rank)
-          {
-            found = true;
-            initial_indiv = tmpindiv;
-            wanted_index = current_index;
-          }
+        found = true;
+        initial_indiv = (*indiv);
+        wanted_index = current_index;
       }
-    indiv_node = indiv_node->get_prev();
+    }
+    assert(found);
   }
 
-  assert(found);
   initial_indiv->evaluate();
   initial_indiv->compute_statistical_data();
   initial_indiv->compute_non_coding();
@@ -526,8 +518,6 @@ int main( int argc, char* argv[] )
   int32_t nb_genetic_units = initial_indiv->get_nb_genetic_units();
   double * relative_lengths_genetic_units = NULL;
   int32_t u = 0;
-  ae_list_node<ae_genetic_unit*> * gu_node = NULL;
-  ae_genetic_unit * unit = NULL;
   double alea, cumul;
   int32_t pos, pos0, pos1, pos2, pos3;
   int32_t mut_length;
@@ -553,11 +543,8 @@ int main( int argc, char* argv[] )
       metabolic_error_after = -1.0;
       secretion_error_after = -1.0;
 
-      gu_node = initial_indiv->get_genetic_unit_list()->get_first();
-      while (gu_node != NULL)
-        {
-          unit = gu_node->get_obj();
-          initial_len = unit->get_dna()->get_length();
+      for (const ae_genetic_unit* gu: initial_indiv->get_genetic_unit_list_std()) {
+          initial_len = gu->get_dna()->get_length();
 
           for (pos = 0; pos < initial_len; pos++)
             {
@@ -624,7 +611,6 @@ int main( int argc, char* argv[] )
               delete mut;
             }
 
-          gu_node = gu_node->get_next();
           u++;
         }
 
@@ -634,14 +620,10 @@ int main( int argc, char* argv[] )
       // *******************************  Sampling nb_mutants mutants  **********************************
 
       relative_lengths_genetic_units = new double[nb_genetic_units];
-      gu_node = initial_indiv->get_genetic_unit_list()->get_first();
-      while (gu_node != NULL)
-        {
-          unit = gu_node->get_obj();
-          relative_lengths_genetic_units[u] = unit->get_dna()->get_length() / (double) initial_indiv->get_total_genome_size();
-          gu_node = gu_node->get_next();
-          u++;
-        }
+
+      for (const ae_genetic_unit* gu: initial_indiv->get_genetic_unit_list_std())
+        relative_lengths_genetic_units[u++] =
+            gu->get_dna()->get_length() / static_cast<double>(initial_indiv->get_total_genome_size());
 
       for ( int32_t i = 0; i < nb_mutants; i++)
         {
