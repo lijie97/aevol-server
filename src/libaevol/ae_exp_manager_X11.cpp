@@ -35,7 +35,7 @@
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 
-
+#include <list>
 
 // =================================================================
 //                            Project Files
@@ -673,22 +673,12 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
       }    
 
       // Display all the phenotypes (blue)
-      ae_list_node<ae_individual*>* indiv_node = _pop->get_indivs()->get_first();
-      ae_individual*  indiv;
-      
-      while ( indiv_node != NULL )
-      {
-        indiv = indiv_node->get_obj();
-        
-        indiv->get_phenotype()->display( cur_win, BLUE );
-        
-        if ( indiv->get_allow_plasmids() )
-        {
-          ((Fuzzy_X11*)indiv->get_genetic_unit( 0 )->get_phenotypic_contribution())->display( cur_win, YELLOW );
-          ((Fuzzy_X11*)indiv->get_genetic_unit( 1 )->get_phenotypic_contribution())->display( cur_win, GREEN );
+      for (const auto& indiv: _pop->get_indivs_std()) {
+        indiv->get_phenotype()->display(cur_win, BLUE);
+        if ( indiv->get_allow_plasmids()) {
+          ((Fuzzy_X11*)indiv->get_genetic_unit(0)->get_phenotypic_contribution())->display(cur_win, YELLOW);
+          ((Fuzzy_X11*)indiv->get_genetic_unit(1)->get_phenotypic_contribution())->display(cur_win, GREEN);
         }
-        
-        indiv_node = indiv_node->get_next();
       }
         
       // Display best indiv's phenotype (white)
