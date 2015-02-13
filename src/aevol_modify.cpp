@@ -619,22 +619,15 @@ void change_by_cloning_best(ae_population* pop, ae_exp_manager* exp_m)
       // int16_t y_max = exp_m->get_grid_height();
       ae_grid_cell* grid_cell = NULL;
       
-      ae_list_node<ae_individual*>* indiv_node = pop->get_indivs()->get_first();
-      ae_individual*  indiv = NULL;
-    
-      while ( indiv_node != NULL )
-        {
-          indiv = indiv_node->get_obj();  
-          grid_cell = exp_m->get_grid_cell( x, y );
-          grid_cell->set_individual( indiv );
-          x++;
-          if (x == x_max) 
-            {
-              x = 0;
-              y++;
-            }
-          indiv_node = indiv_node->get_next();
+      for (auto& indiv: pop->get_indivs_std()) {
+        grid_cell = exp_m->get_grid_cell(x, y);
+        grid_cell->set_individual(indiv);
+        x++;
+        if (x == x_max) {
+          x = 0;
+          y++;
         }
+      }
     }
 
   pop->evaluate_individuals( exp_m->get_env() );
@@ -681,7 +674,7 @@ void change_based_on_non_coding_bases_of_best_individual(ae_population* pop, ae_
       // 3) Create the new population 
 
    
-      ae_list<ae_individual*>*  new_generation  = new ae_list<ae_individual*>();
+      std::list<ae_individual*> new_generation;
 
       ae_individual* indiv = create_clone(best_indiv, -1);
             
@@ -726,9 +719,9 @@ void change_based_on_non_coding_bases_of_best_individual(ae_population* pop, ae_
             int32_t  index_new_indiv = 0;
             for ( int32_t i = 0 ; i < subpopulation_size ; i++ ) // clones of the 3 individuals
               {
-                new_generation->add(create_clone( indiv, index_new_indiv++ ));
-                new_generation->add(create_clone( only_coding_indiv, index_new_indiv++ ));
-                new_generation->add(create_clone( twice_non_coding_indiv, index_new_indiv++ ));
+                new_generation.push_back(create_clone(indiv, index_new_indiv++));
+                new_generation.push_back(create_clone(only_coding_indiv, index_new_indiv++));
+                new_generation.push_back(create_clone(twice_non_coding_indiv, index_new_indiv++));
               }
             break;
           }
@@ -736,7 +729,7 @@ void change_based_on_non_coding_bases_of_best_individual(ae_population* pop, ae_
           {
             for ( int32_t i = 0 ; i < pop->get_nb_indivs() ; i++ )
               {
-                new_generation->add(create_clone( only_coding_indiv, i ));
+                new_generation.push_back(create_clone(only_coding_indiv, i));
               }
             break;
           }
@@ -744,7 +737,7 @@ void change_based_on_non_coding_bases_of_best_individual(ae_population* pop, ae_
           {
             for ( int32_t i = 0 ; i < pop->get_nb_indivs() ; i++ )
               {
-                new_generation->add(create_clone( twice_non_coding_indiv, i ));
+                new_generation.push_back(create_clone(twice_non_coding_indiv, i));
               }
             break;
           }
@@ -796,21 +789,11 @@ void change_based_on_non_coding_bases_in_population(ae_population* pop, ae_exp_m
 {
   if(type == REMOVE_NON_CODING_BASES_POPULATION || type == DOUBLE_NON_CODING_BASES_POPULATION)
     {
-      ae_list_node<ae_individual*>*   indiv_node = pop->get_indivs()->get_first();
-      ae_individual*  indiv           = NULL;
-      for ( int32_t i = 0 ; i < pop->get_nb_indivs() ; i++ )
-        {
-          indiv = indiv_node->get_obj();
-          if(type ==  REMOVE_NON_CODING_BASES_POPULATION)
-            {
-              indiv->remove_non_coding_bases();
-            }
-          else
-            {
-              indiv->double_non_coding_bases();
-            }
-          indiv_node = indiv_node->get_next();
-        }
+      for (auto& indiv: pop->get_indivs_std())
+        if (type == REMOVE_NON_CODING_BASES_POPULATION)
+          indiv->remove_non_coding_bases();
+        else
+          indiv->double_non_coding_bases();
     }
   else
     {
