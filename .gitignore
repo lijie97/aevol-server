@@ -75,3 +75,13 @@ examples/*/**
 # http://ctags.sourceforge.net/
 **/tags
 TAGS
+
+# local ignore
+.cproject
+.project
+.settings/
+doc/*
+examples/
+src/post_treatments/aevol_misc_mutational_robustness
+src/post_treatments/aevol_misc_transform_plasmid
+tests/*
