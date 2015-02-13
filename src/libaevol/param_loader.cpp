@@ -37,6 +37,8 @@
 #include <limits.h>
 #include <time.h>
 
+#include <list>
+
 // =================================================================
 //                            Project Files
 // =================================================================
@@ -1512,23 +1514,13 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
     int16_t y_max = exp_m->get_grid_height();
     ae_grid_cell* grid_cell = NULL;
 
-    ae_list_node<ae_individual*>* indiv_node = pop->get_indivs()->get_first();
-    ae_individual*  indiv = NULL;
-
-    while ( indiv_node != NULL )
-    {
-      indiv = indiv_node->get_obj();
-
-      do
-      {
+    for (const auto& indiv: pop->get_indivs_std()) {
+      do {
         x = exp_m->get_spatial_structure()->get_prng()->random( x_max );
         y = exp_m->get_spatial_structure()->get_prng()->random( y_max );
         grid_cell = exp_m->get_grid_cell( x, y );
       } while ( grid_cell->get_individual() != NULL );
-
       grid_cell->set_individual( indiv );
-
-      indiv_node = indiv_node->get_next();
     }
   }
 
