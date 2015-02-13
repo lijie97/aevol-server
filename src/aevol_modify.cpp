@@ -36,7 +36,7 @@ const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 #include <stdio.h>
 #include <string.h>
 
-
+#include <list>
 
 // =================================================================
 //                            Project Files
@@ -606,13 +606,10 @@ void change_by_cloning_best(ae_population* pop, ae_exp_manager* exp_m)
   int32_t population_size = pop->get_nb_indivs();
   ae_individual* best_indiv = exp_m->get_indiv_by_rank( population_size );
 
-  ae_list<ae_individual*>*  new_population  = new ae_list<ae_individual*>();
-  for ( int32_t i = 0 ; i < population_size ; i++ )
-    {
-      new_population->add(create_clone( best_indiv, i ));
-    }
-  
-  pop->replace_population( new_population );
+  std::list<ae_individual*> new_population;
+  for (size_t i = 0; i < static_cast<size_t>(population_size); ++i)
+    new_population.push_back(create_clone(best_indiv, i));
+  pop->replace_population(new_population);
 
   // If the population is spatially structured, set each individual's position
   if ( exp_m->is_spatially_structured() )
