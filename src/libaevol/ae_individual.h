@@ -38,7 +38,7 @@
 #include <zlib.h>
 #include <assert.h>
 
-
+#include <list>
 
 // =================================================================
 //                            Project Files

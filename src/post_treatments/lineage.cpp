@@ -39,8 +39,7 @@
 #include <zlib.h>
 #include <sys/stat.h>
 
-
-
+#include <list>
 
 // =================================================================
 //                            Project Files
@@ -406,14 +405,12 @@ int main(int argc, char** argv)
 
   ae_list_node<ae_dna_replic_report*>*  report_node = NULL;
   ae_list_node<ae_mutation*>*           mut_node = NULL;
-  ae_list_node<ae_genetic_unit*>*       gen_unit_node = NULL;
   ae_dna_replic_report* rep   = NULL;
   ae_mutation*          mut   = NULL;
-  ae_genetic_unit*      unit  = NULL;
+  std::list<ae_genetic_unit*>::const_iterator unit;
 
   ae_individual*   stored_indiv          = NULL;
-  ae_list_node<ae_genetic_unit*>*    stored_gen_unit_node  = NULL;
-  ae_genetic_unit* stored_gen_unit       = NULL;
+  std::list<ae_genetic_unit*>::const_iterator stored_gen_unit;
 
   ae_exp_manager* exp_manager_backup = NULL;
 
@@ -451,7 +448,7 @@ int main(int argc, char** argv)
       // NB : The list of individuals is sorted according to the index
       ae_individual * stored_indiv_tmp  = exp_manager_backup->get_indiv_by_id( indices[i+1] );
       stored_indiv = new ae_individual( *stored_indiv_tmp, false );
-      stored_gen_unit_node = stored_indiv->get_genetic_unit_list()->get_first();
+      stored_gen_unit = stored_indiv->get_genetic_unit_list_std().cbegin();
     }
 
 
@@ -459,20 +456,19 @@ int main(int argc, char** argv)
     // during the evolution
 
     report_node   = reports[i]->get_dna_replic_reports()->get_first();
-    gen_unit_node = initial_ancestor->get_genetic_unit_list()->get_first();
+    unit = initial_ancestor->get_genetic_unit_list_std().cbegin();
 
     while ( report_node != NULL )
     {
-      assert( gen_unit_node != NULL );
+      assert(unit != initial_ancestor->get_genetic_unit_list_std().cend());
 
       rep = (ae_dna_replic_report *) report_node->get_obj();
-      unit = (ae_genetic_unit *) gen_unit_node->get_obj();
 
       mut_node = rep->get_HT()->get_first();
       while ( mut_node != NULL )
       {
         mut = (ae_mutation *) mut_node->get_obj();
-        (unit->get_dna())->undergo_this_mutation( mut );
+        ((*unit)->get_dna())->undergo_this_mutation( mut );
         mut_node = mut_node->get_next();
       }
 
@@ -480,7 +476,7 @@ int main(int argc, char** argv)
       while ( mut_node != NULL )
       {
         mut = (ae_mutation *) mut_node->get_obj();
-        (unit->get_dna())->undergo_this_mutation( mut );
+        ((*unit)->get_dna())->undergo_this_mutation( mut );
         mut_node = mut_node->get_next();
       }
 
@@ -488,7 +484,7 @@ int main(int argc, char** argv)
       while ( mut_node != NULL )
       {
         mut = (ae_mutation *) mut_node->get_obj();
-        unit->get_dna()->undergo_this_mutation( mut );
+        (*unit)->get_dna()->undergo_this_mutation( mut );
         mut_node = mut_node->get_next();
       }
 
@@ -499,19 +495,17 @@ int main(int argc, char** argv)
           printf( "Checking the sequence of the unit..." );
           fflush( stdout );
         }
-        assert( stored_gen_unit_node != NULL );
+        assert(stored_gen_unit != stored_indiv->get_genetic_unit_list_std().cend());
 
-        stored_gen_unit = (ae_genetic_unit *) stored_gen_unit_node->get_obj();
+        char * str1 = new char[(*unit)->get_dna()->get_length() + 1];
+        memcpy( str1, (*unit)->get_dna()->get_data(), (*unit)->get_dna()->get_length() * sizeof(char) );
+        str1[(*unit)->get_dna()->get_length()] = '\0';
 
-        char * str1 = new char[unit->get_dna()->get_length() + 1];
-        memcpy( str1, unit->get_dna()->get_data(), unit->get_dna()->get_length() * sizeof(char) );
-        str1[unit->get_dna()->get_length()] = '\0';
+        char * str2 = new char[(*stored_gen_unit)->get_dna()->get_length() + 1];
+        memcpy(str2, (*stored_gen_unit)->get_dna()->get_data(), (*stored_gen_unit)->get_dna()->get_length() * sizeof(char));
+        str2[(*stored_gen_unit)->get_dna()->get_length()] = '\0';
 
-        char * str2 = new char[stored_gen_unit->get_dna()->get_length() + 1];
-        memcpy(str2, stored_gen_unit->get_dna()->get_data(), stored_gen_unit->get_dna()->get_length() * sizeof(char));
-        str2[stored_gen_unit->get_dna()->get_length()] = '\0';
-
-        if ( strncmp( str1, str2, stored_gen_unit->get_dna()->get_length() ) == 0 )
+        if ( strncmp( str1, str2, (*stored_gen_unit)->get_dna()->get_length() ) == 0 )
         {
           if ( verbose ) printf( " OK\n" );
         }
@@ -537,17 +531,17 @@ int main(int argc, char** argv)
         delete [] str1;
         delete [] str2;
 
-        stored_gen_unit_node = stored_gen_unit_node->get_next();
+        ++stored_gen_unit;
       }
 
       report_node   = report_node->get_next();
-      gen_unit_node = gen_unit_node->get_next();
+      ++unit;
     }
 
-    assert( gen_unit_node == NULL );
+    assert(unit == initial_ancestor->get_genetic_unit_list_std().cend());
     if ( check_genome_now )
     {
-      assert( stored_gen_unit_node == NULL );
+      assert(stored_gen_unit == stored_indiv->get_genetic_unit_list_std().cend());
       delete stored_indiv;
       delete exp_manager_backup;
     }

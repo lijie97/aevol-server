@@ -458,17 +458,12 @@ void draw_triangles( ae_individual* indiv, Environment* env, char * directoryNam
   fprintf( drawingfile,"[ ] 0 setdash\n" );
 
   double h;
-  ae_list_node<ae_genetic_unit*>* gen_unit_node = indiv->get_genetic_unit_list()->get_first();
-  ae_genetic_unit*  gen_unit = NULL;
 
-  while ( gen_unit_node != NULL )
-  {
-    gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
-
+  for (auto& gu: indiv->get_genetic_unit_list_std()) {
     ae_list_node<ae_protein*>* prot_node = NULL;
     ae_protein* prot = NULL;
 
-    prot_node = (gen_unit->get_protein_list())[LEADING]->get_first();
+    prot_node = (gu->get_protein_list())[LEADING]->get_first();
     while ( prot_node != NULL )
     {
       prot = (ae_protein*) prot_node->get_obj();
@@ -483,7 +478,7 @@ void draw_triangles( ae_individual* indiv, Environment* env, char * directoryNam
     }
 
 
-    prot_node = (gen_unit->get_protein_list())[LAGGING]->get_first();
+    prot_node = (gu->get_protein_list())[LAGGING]->get_first();
     while ( prot_node != NULL )
     {
       prot = (ae_protein*) prot_node->get_obj();
@@ -497,8 +492,6 @@ void draw_triangles( ae_individual* indiv, Environment* env, char * directoryNam
 
       prot_node = prot_node->get_next();
     }
-
-    gen_unit_node = gen_unit_node->get_next();
   }
 
 

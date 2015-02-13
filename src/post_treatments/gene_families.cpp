@@ -38,7 +38,7 @@
 #include <zlib.h>
 #include <sys/stat.h>  // for the permission symbols used with mkdir
 
-
+#include <list>
 
 // =================================================================
 //                            Project Files
@@ -265,35 +265,23 @@ int main(int argc, char** argv)
   // where the paralogs (gene copies created by duplication) will be monitored
 
   ae_list<ae_gene_tree*> * gene_trees = new ae_list<ae_gene_tree*>();
-  ae_list_node<ae_genetic_unit*>*   unitnode = NULL;
-  ae_genetic_unit *  unit = NULL;
   ae_list_node<ae_protein*> *prot_node = NULL;
   ae_protein *prot = NULL;
 
-  unitnode = indiv->get_genetic_unit_list()->get_first();
-  while (unitnode != NULL)
-    {
-      unit = unitnode->get_obj();
-      prot_node = (unit->get_protein_list()[LEADING])->get_first();
-      while(prot_node != NULL)
-        {
-          prot = prot_node->get_obj();
-          gene_trees->add(new ae_gene_tree(begin_gener, prot));
-          prot_node = prot_node->get_next();
-        }
-      prot_node = (unit->get_protein_list()[LAGGING])->get_first();
-      while(prot_node != NULL)
-        {
-          prot = prot_node->get_obj();
-          gene_trees->add(new ae_gene_tree(begin_gener, prot));
-          prot_node = prot_node->get_next();
-        }
-      unitnode = unitnode->get_next();
+  for (const auto& unit: indiv->get_genetic_unit_list_std()) {
+    prot_node = (unit->get_protein_list()[LEADING])->get_first();
+    while(prot_node != NULL) {
+      prot = prot_node->get_obj();
+      gene_trees->add(new ae_gene_tree(begin_gener, prot));
+      prot_node = prot_node->get_next();
     }
-
-
-
-
+    prot_node = (unit->get_protein_list()[LAGGING])->get_first();
+    while(prot_node != NULL) {
+      prot = prot_node->get_obj();
+      gene_trees->add(new ae_gene_tree(begin_gener, prot));
+      prot_node = prot_node->get_next();
+    }
+  }
 
   // ===============================================================================
   //  Replay the mutation to get the successive ancestors and analyze them
@@ -307,12 +295,10 @@ int main(int argc, char** argv)
   ae_list_node<ae_mutation*>* mnode = NULL;
   ae_mutation* mut = NULL;
 
-  unitnode = NULL;
-  unit = NULL;
+  std::list<ae_genetic_unit*>::const_iterator unit;
 
   ae_individual* stored_indiv = NULL;
-  ae_list_node<ae_genetic_unit*>* stored_unit_node = NULL;
-  ae_genetic_unit*  stored_unit = NULL;
+  std::list<ae_genetic_unit*>::const_iterator stored_unit;
 
   int32_t i, index, genetic_unit_number, unitlen_before;
   double metabolic_error_before, metabolic_error_after, impact_on_metabolic_error;
@@ -375,7 +361,7 @@ int main(int argc, char** argv)
 
     genetic_unit_number = 0;
     dnarepnode = (rep->get_dna_replic_reports())->get_first();
-    unitnode   = (indiv->get_genetic_unit_list())->get_first();
+    auto unit = indiv->get_genetic_unit_list_std().cbegin();
 
 
     if ( check_now )
@@ -383,20 +369,19 @@ int main(int argc, char** argv)
       exp_manager_backup = new ae_exp_manager();
       exp_manager_backup->load( num_gener, false, true, false );
       stored_indiv = new ae_individual( * (ae_individual *)exp_manager_backup->get_indiv_by_id( index ), false );
-      stored_unit_node = stored_indiv->get_genetic_unit_list()->get_first();
+      stored_unit = stored_indiv->get_genetic_unit_list_std().begin();
     }
 
 
     while ( dnarepnode != NULL )
     {
-      assert( unitnode != NULL );
+      assert(unit != indiv->get_genetic_unit_list_std().cend());
 
       dnarep = dnarepnode->get_obj();
-      unit   = unitnode->get_obj();
 
-      unit->get_dna()->set_replic_report( dnarep );
+      (*unit)->get_dna()->set_replic_report( dnarep );
 
-      update_pointers_in_trees(gene_trees, unit); // because of the reevaluate at each new generation (envir. variation possible)
+      update_pointers_in_trees(gene_trees, *unit); // because of the reevaluate at each new generation (envir. variation possible)
 
       // ***************************************
       //             Transfer events
@@ -444,19 +429,19 @@ int main(int argc, char** argv)
         mut = (ae_mutation *) mnode->get_obj();
 
         metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
-        unitlen_before = unit->get_dna()->get_length();
+        unitlen_before = (*unit)->get_dna()->get_length();
         anticipate_mutation_effect_on_genes_in_trees(gene_trees, mut, unitlen_before);
 
-        unit->get_dna()->undergo_this_mutation( mut );
+        (*unit)->get_dna()->undergo_this_mutation(mut);
 
         indiv->reevaluate(env);
         metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
-        register_actual_mutation_effect_on_genes_in_trees(gene_trees, mut, unit, num_gener, impact_on_metabolic_error);
+        register_actual_mutation_effect_on_genes_in_trees(gene_trees, mut, *unit, num_gener, impact_on_metabolic_error);
 
         /* New genes that have been created "from scratch", i.e. not by duplication => new gene tree */
-        prot_node = (unit->get_protein_list()[LEADING])->get_first();
+        prot_node = ((*unit)->get_protein_list()[LEADING])->get_first();
         while (prot_node != NULL)
           {
             prot = prot_node->get_obj();
@@ -467,7 +452,7 @@ int main(int argc, char** argv)
               }
             prot_node = prot_node->get_next();
           }
-         prot_node = (unit->get_protein_list()[LAGGING])->get_first();
+         prot_node = ((*unit)->get_protein_list()[LAGGING])->get_first();
          while (prot_node != NULL)
           {
             prot = prot_node->get_obj();
@@ -494,18 +479,18 @@ int main(int argc, char** argv)
         mut = (ae_mutation *) mnode->get_obj();
 
         metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
-        unitlen_before = unit->get_dna()->get_length();
+        unitlen_before = (*unit)->get_dna()->get_length();
         anticipate_mutation_effect_on_genes_in_trees(gene_trees, mut, unitlen_before);
-        unit->get_dna()->undergo_this_mutation( mut );
+        (*unit)->get_dna()->undergo_this_mutation( mut );
 
         indiv->reevaluate(env);
         metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
-        register_actual_mutation_effect_on_genes_in_trees(gene_trees, mut, unit, num_gener, impact_on_metabolic_error);
+        register_actual_mutation_effect_on_genes_in_trees(gene_trees, mut, *unit, num_gener, impact_on_metabolic_error);
 
         /* New genes that have been created "from scratch", i.e. not by duplication => new gene tree */
-        prot_node = (unit->get_protein_list()[LEADING])->get_first();
+        prot_node = ((*unit)->get_protein_list()[LEADING])->get_first();
         while (prot_node != NULL)
           {
             prot = prot_node->get_obj();
@@ -516,7 +501,7 @@ int main(int argc, char** argv)
               }
             prot_node = prot_node->get_next();
           }
-         prot_node = (unit->get_protein_list()[LAGGING])->get_first();
+        prot_node = ((*unit)->get_protein_list()[LAGGING])->get_first();
          while (prot_node != NULL)
           {
             prot = prot_node->get_obj();
@@ -541,19 +526,18 @@ int main(int argc, char** argv)
           fflush(NULL);
         }
 
-        assert( stored_unit_node != NULL );
-        stored_unit = (ae_genetic_unit *) stored_unit_node->get_obj();
+        assert(stored_unit != stored_indiv->get_genetic_unit_list_std().end());
 
-        char * str1 = new char[unit->get_dna()->get_length() + 1];
-        memcpy(str1, unit->get_dna()->get_data(), \
-               unit->get_dna()->get_length()*sizeof(char));
-        str1[unit->get_dna()->get_length()] = '\0';
+        char * str1 = new char[(*unit)->get_dna()->get_length() + 1];
+        memcpy(str1, (*unit)->get_dna()->get_data(), \
+               (*unit)->get_dna()->get_length()*sizeof(char));
+        str1[(*unit)->get_dna()->get_length()] = '\0';
 
-        char * str2 = new char[(stored_unit->get_dna())->get_length() + 1];
-        memcpy(str2, (stored_unit->get_dna())->get_data(), (stored_unit->get_dna())->get_length()*sizeof(char));
-        str2[(stored_unit->get_dna())->get_length()] = '\0';
+        char * str2 = new char[((*stored_unit)->get_dna())->get_length() + 1];
+        memcpy(str2, ((*stored_unit)->get_dna())->get_data(), ((*stored_unit)->get_dna())->get_length()*sizeof(char));
+        str2[((*stored_unit)->get_dna())->get_length()] = '\0';
 
-        if(strncmp(str1,str2, (stored_unit->get_dna())->get_length())==0)
+        if(strncmp(str1,str2, ((*stored_unit)->get_dna())->get_length())==0)
         {
           if ( verbose ) printf(" OK\n");
         }
@@ -577,16 +561,16 @@ int main(int argc, char** argv)
         delete [] str1;
         delete [] str2;
 
-        stored_unit_node = stored_unit_node->get_next();
+        ++stored_unit;
       }
 
 
       dnarepnode = dnarepnode->get_next();
-      unitnode = unitnode->get_next();
+      ++unit;
       genetic_unit_number ++;
     }
 
-    assert( unitnode == NULL );
+    assert(unit ==  indiv->get_genetic_unit_list_std().cend());
 
 
     if ( verbose ) printf(" OK\n");
@@ -595,7 +579,7 @@ int main(int argc, char** argv)
 
     if ( check_now && ae_utils::mod(num_gener, backup_step) == 0 )
     {
-      assert(stored_unit_node == NULL);
+      assert(stored_unit == stored_indiv->get_genetic_unit_list_std().end());
       delete stored_indiv;
       delete exp_manager_backup;
     }

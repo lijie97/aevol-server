@@ -322,12 +322,7 @@ int main(int argc, char** argv)
   ae_list_node<ae_mutation*>* mnode  = NULL;
   ae_mutation* mut = NULL;
 
-  ae_list_node<ae_genetic_unit*>* unitnode  = NULL;
-  ae_genetic_unit* unit = NULL;
-
   ae_individual* stored_indiv = NULL;
-  ae_list_node<ae_genetic_unit*>* storedunitnode  = NULL;
-  ae_genetic_unit* storedunit = NULL;
 
   int32_t index;
   int32_t nb_gener = end_gener - begin_gener;
@@ -385,31 +380,33 @@ int main(int argc, char** argv)
 
     // 2) Replay replication (create current individual's child)
     dnarepnode  = rep->get_dna_replic_reports()->get_first();
-    unitnode    = indiv->get_genetic_unit_list()->get_first();
+    std::list<ae_genetic_unit*> gulist = indiv->get_genetic_unit_list_std();
+    std::list<ae_genetic_unit*> storedgulist = stored_indiv->get_genetic_unit_list_std();
 
+    std::list<ae_genetic_unit*>::const_iterator unit = gulist.begin();
+    std::list<ae_genetic_unit*>::const_iterator storedunit;
     if ( check_now )
     {
       exp_manager_backup = new ae_exp_manager();
       exp_manager_backup->load( num_gener, false, true, false );
       stored_indiv = new ae_individual( * (ae_individual *)exp_manager_backup->get_indiv_by_id( index ), false );
-      storedunitnode = stored_indiv->get_genetic_unit_list()->get_first();
+      storedunit = storedgulist.begin();
     }
 
     // For each genetic unit, replay the replication (undergo all mutations)
     while ( dnarepnode != NULL )
     {
-      assert( unitnode != NULL );
+      assert(unit != gulist.end());
 
       dnarep  = (ae_dna_replic_report *)  dnarepnode->get_obj();
-      unit    = (ae_genetic_unit *)       unitnode->get_obj();
 
-      unit->get_dna()->set_replic_report( dnarep );
+      (*unit)->get_dna()->set_replic_report(dnarep);
 
       mnode = dnarep->get_HT()->get_first();
       while ( mnode != NULL )
       {
         mut = (ae_mutation *) mnode->get_obj();
-        unit->get_dna()->undergo_this_mutation(mut);
+        (*unit)->get_dna()->undergo_this_mutation(mut);
         mnode = mnode->get_next();
       }
 
@@ -417,7 +414,7 @@ int main(int argc, char** argv)
       while ( mnode != NULL )
       {
         mut = (ae_mutation *) mnode->get_obj();
-        unit->get_dna()->undergo_this_mutation(mut);
+        (*unit)->get_dna()->undergo_this_mutation(mut);
         mnode = mnode->get_next();
       }
 
@@ -425,7 +422,7 @@ int main(int argc, char** argv)
       while ( mnode != NULL )
       {
         mut = (ae_mutation *) mnode->get_obj();
-        unit->get_dna()->undergo_this_mutation( mut );
+        (*unit)->get_dna()->undergo_this_mutation(mut);
         mnode = mnode->get_next();
       }
 
@@ -437,22 +434,19 @@ int main(int argc, char** argv)
           fflush(NULL);
         }
 
-        assert( storedunitnode != NULL );
-        storedunit = (ae_genetic_unit *) storedunitnode->get_obj();
+        assert(storedunit != storedgulist.end());
 
-        char * str1 = new char[unit->get_dna()->get_length() + 1];
-        memcpy(str1, unit->get_dna()->get_data(), \
-               unit->get_dna()->get_length()*sizeof(char));
-        str1[unit->get_dna()->get_length()] = '\0';
+        char * str1 = new char[(*unit)->get_dna()->get_length() + 1];
+        memcpy(str1, (*unit)->get_dna()->get_data(), \
+               (*unit)->get_dna()->get_length()*sizeof(char));
+        str1[(*unit)->get_dna()->get_length()] = '\0';
 
-        char * str2 = new char[(storedunit->get_dna())->get_length() + 1];
-        memcpy(str2, (storedunit->get_dna())->get_data(), (storedunit->get_dna())->get_length()*sizeof(char));
-        str2[(storedunit->get_dna())->get_length()] = '\0';
+        char * str2 = new char[((*storedunit)->get_dna())->get_length() + 1];
+        memcpy(str2, ((*storedunit)->get_dna())->get_data(), ((*storedunit)->get_dna())->get_length()*sizeof(char));
+        str2[((*storedunit)->get_dna())->get_length()] = '\0';
 
-        if ( strncmp( str1, str2, storedunit->get_dna()->get_length() ) == 0 )
-        {
-          if ( verbose ) printf(" OK\n");
-        }
+        if (strncmp(str1, str2, (*storedunit)->get_dna()->get_length()) == 0 and verbose)
+          printf(" OK\n");
         else
         {
           if ( verbose ) printf( " ERROR !\n" );
@@ -474,15 +468,15 @@ int main(int argc, char** argv)
         delete [] str1;
         delete [] str2;
 
-        storedunitnode = storedunitnode->get_next();
+        ++storedunit;
       }
 
 
       dnarepnode = dnarepnode->get_next();
-      unitnode = unitnode->get_next();
+      ++unit;
     }
 
-    assert( unitnode == NULL );
+    assert(unit == gulist.end());
 
     // 3) All the mutations have been replayed, we can now evaluate the new individual
     indiv->reevaluate( env );
@@ -506,7 +500,7 @@ int main(int argc, char** argv)
 
     if ( check_now )
     {
-      assert( storedunitnode == NULL );
+      assert(storedunit == storedgulist.end());
       delete stored_indiv;
       delete exp_manager_backup;
     }

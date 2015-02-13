@@ -264,11 +264,7 @@ inline void analyse_indiv( ae_individual* indiv, FILE* triangles_file, FILE* seq
   if ( gu == -1 ) // We want to treat all genetic units
   {
     int32_t gen_unit_number = 0;
-    ae_list_node<ae_genetic_unit*>* gen_unit_node = indiv->get_genetic_unit_list()->get_first();
-    while ( gen_unit_node != NULL )
-    {
-      ae_genetic_unit* gen_unit = (ae_genetic_unit*) gen_unit_node->get_obj();
-
+    for (auto& gen_unit: indiv->get_genetic_unit_list_std()) {
       if ( triangles_file != NULL )
       {
         analyse_gu(gen_unit, gen_unit_number, triangles_file, env); // We call the triangle parser for each GU successively
@@ -280,7 +276,6 @@ inline void analyse_indiv( ae_individual* indiv, FILE* triangles_file, FILE* seq
         fprintf(sequence_file,"%.*s ",length,dna); // We output the sequences of each GU separated by a space
       }
 
-      gen_unit_node = gen_unit_node->get_next();
       gen_unit_number++;
     }
   }
