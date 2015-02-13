@@ -269,17 +269,9 @@ void ae_tree::fill_tree_with_cur_gener( void )
       _replics[gener_i]   = new ae_replication_report* [_nb_indivs[gener_i]];
       
       
-      ae_list_node<ae_individual*>* indiv_node = _exp_m->get_indivs()->get_first();
-      ae_individual*  indiv       = NULL;
-      int32_t         num_indiv   = 0;
-      
-      while ( indiv_node != NULL )
-      {
-        indiv = indiv_node->get_obj();
-        
+      for (const auto& indiv: _exp_m->get_indivs_std()) {
+        size_t num_indiv = 0;
         _replics[gener_i][num_indiv++] = indiv->get_replic_report();
-
-        indiv_node = indiv_node->get_next();
       }
       
       break;

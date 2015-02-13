@@ -36,7 +36,7 @@
 #include <unistd.h>
 #include <zlib.h>
 
-
+#include <list>
 
 // =================================================================
 //                            Project Files
@@ -111,16 +111,8 @@ ae_exp_manager::~ae_exp_manager( void )
 // ===========================================================================
 void ae_exp_manager::foreach_indiv(void (*processor)(ae_individual& indiv)) const
 {
-  ae_list_node<ae_individual*>* indiv_node = get_indivs()->get_first();
-  ae_individual* indiv = NULL;
-  while ( indiv_node != NULL )
-  {
-    indiv = indiv_node->get_obj();
-
+  for (const auto& indiv: get_indivs_std())
     processor(*indiv);
-
-    indiv_node = indiv_node->get_next();
-  }
 }
 
 // ===========================================================================
