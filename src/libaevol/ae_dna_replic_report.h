@@ -34,7 +34,7 @@
 // =================================================================
 #include <inttypes.h>
 
-
+#include <list>
 
 // =================================================================
 //                            Project Files
@@ -80,8 +80,11 @@ class ae_dna_replic_report
     //                              Accessors
     // =================================================================
     inline ae_list<ae_mutation*>* get_mutations( void )      const;
+    inline std::list<ae_mutation*> get_mutations_std()       const;
     inline ae_list<ae_mutation*>* get_rearrangements( void ) const;
-    inline ae_list<ae_mutation*>* get_HT( void ) const;
+    inline const std::list<ae_mutation*> get_rearrangements_std() const;
+    inline ae_list<ae_mutation*>* get_HT( void )   const;
+    inline const std::list<ae_mutation*> get_HT_std() const;
 
     inline int32_t get_nb_small_mutations( void )  const;
     inline int32_t get_nb_rearrangements( void )   const;
@@ -153,14 +156,26 @@ inline ae_list<ae_mutation*>* ae_dna_replic_report::get_mutations( void ) const
   return _mutations;
 }
 
+inline std::list<ae_mutation*> ae_dna_replic_report::get_mutations_std() const {
+  return aelist_to_stdlist(_mutations);
+}
+
 inline ae_list<ae_mutation*>* ae_dna_replic_report::get_rearrangements( void ) const
 {
   return _rearrangements;
 }
 
+inline const std::list<ae_mutation*> ae_dna_replic_report::get_rearrangements_std() const {
+  return aelist_to_stdlist(_rearrangements);
+}
+
 inline ae_list<ae_mutation*>* ae_dna_replic_report::get_HT( void ) const
 {
   return _HT;
+}
+
+inline const std::list<ae_mutation*> ae_dna_replic_report::get_HT_std() const {
+  return aelist_to_stdlist(_HT);
 }
 
 inline int32_t ae_dna_replic_report::get_nb_small_mutations( void ) const

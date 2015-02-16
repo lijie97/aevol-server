@@ -112,6 +112,7 @@ class ae_replication_report
   
     
     inline ae_list<ae_dna_replic_report*>* get_dna_replic_reports( void ) const;
+    inline const std::list<ae_dna_replic_report*> get_dna_replic_reports_std() const;
 
 
     // =================================================================
@@ -255,10 +256,9 @@ inline ae_list<ae_dna_replic_report*>* ae_replication_report::get_dna_replic_rep
   return _dna_replic_reports;
 }
 
-
-
-
-
+inline const std::list<ae_dna_replic_report*> ae_replication_report::get_dna_replic_reports_std() const {
+  return aelist_to_stdlist(_dna_replic_reports);
+}
 
 inline void ae_replication_report::set_indiv( ae_individual * indiv )
 {
