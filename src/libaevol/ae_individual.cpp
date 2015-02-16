@@ -954,14 +954,14 @@ void ae_individual::reevaluate( Environment* envir /*= NULL*/ )
       while(rna_node !=NULL)
       {
         rna = rna_node->get_obj();
-        rna->get_transcribed_proteins()->erase( false );
+        rna->clear_transcribed_proteins();
         rna_node = rna_node->get_next();
       }
       rna_node = (gen_unit->get_rna_list()[LAGGING])->get_first();
       while(rna_node !=NULL)
       {
         rna = rna_node->get_obj();
-        rna->get_transcribed_proteins()->erase( false );
+        rna->clear_transcribed_proteins();
         rna_node = rna_node->get_next();
       }
 

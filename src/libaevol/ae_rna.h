@@ -101,6 +101,7 @@ class ae_rna
 
     inline ae_list<ae_protein*>* get_transcribed_proteins( void ) const;
     inline const std::list<ae_protein*>& get_transcribed_proteins_std() const;
+    inline void clear_transcribed_proteins() { transcribed_proteins.clear(); };
 
     // =================================================================
     //                            Public Methods

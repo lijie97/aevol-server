@@ -324,38 +324,29 @@ inline void analyse_gu( ae_genetic_unit* gen_unit, int32_t gen_unit_number, FILE
   {
     rna = (ae_rna *) rna_node->get_obj();
 
-    ae_list<ae_protein*>* lprot = rna->get_transcribed_proteins();
-    ae_list_node<ae_protein*>* prot_node = lprot->get_first();
-    ae_protein* prot = NULL;
-
-    while( prot_node != NULL )
-    {
-      prot = (ae_protein*) prot_node->get_obj();
-
-      double height = prot->get_height();
-      double width = prot->get_width();
-      double mean = prot->get_mean();
+    for (const auto& protein: rna->get_transcribed_proteins_std()) {
+      double height = protein->get_height();
+      double width = protein->get_width();
+      double mean = protein->get_mean();
       double concentration=rna->get_basal_level();
-      int32_t fpos = prot->get_first_translated_pos();
-      int32_t lpos = prot->get_last_translated_pos();
+      int32_t fpos = protein->get_first_translated_pos();
+      int32_t lpos = protein->get_last_translated_pos();
 
       int nfeat = -1;
       // Retrieving the feature of the protein also necessitates the an environment file.
       if ( env != NULL )
-      {
         for (size_t i = 0; i <= env->get_nb_segments() - 1; ++i)
-        {
-          if ( (mean > env->get_segment_boundaries(i) ) && (mean < env->get_segment_boundaries(i+1)) )
-          {
+          if ((mean > env->get_segment_boundaries(i)) and (mean < env->get_segment_boundaries(i+1))) {
             nfeat = env->get_axis_feature(i);
             break;
           }
-        }
-      }
 
-      fprintf(triangles_file,"%f_%f_%f_%f_%d_%d_%i_%i_%d_%d ",mean,height,width,concentration,rna_nb,rna->get_strand(),fpos,lpos,nfeat,gen_unit_number);
-
-      prot_node = prot_node->get_next();
+      fprintf(triangles_file,
+              "%f_%f_%f_%f_%d_%d_%i_%i_%d_%d ",
+              mean, height, width, concentration,
+              rna_nb, rna->get_strand(),
+              fpos, lpos,
+              nfeat, gen_unit_number);
     }
 
     rna_node = rna_node->get_next();

@@ -839,7 +839,7 @@ void ae_genetic_unit::do_translation( void )
     }
 
     // Statistics
-    if ( ! rna->get_transcribed_proteins()->is_empty() ) // coding RNA
+    if (not rna->get_transcribed_proteins_std().empty()) // coding RNA
     {
       _nb_coding_RNAs++;
       _overall_size_coding_RNAs += rna->get_transcript_length();
@@ -959,7 +959,7 @@ void ae_genetic_unit::do_translation( void )
     }
 
     // Statistics
-    if ( ! rna->get_transcribed_proteins()->is_empty() ) // coding RNA
+    if (not rna->get_transcribed_proteins_std().empty()) // coding RNA
     {
       _nb_coding_RNAs++;
       _overall_size_coding_RNAs += rna->get_transcript_length();
@@ -1724,7 +1724,7 @@ void ae_genetic_unit::compute_non_coding( void )
         }
       }
 
-      if ( ! rna->get_transcribed_proteins()->is_empty() ) // coding RNA
+      if (not rna->get_transcribed_proteins_std().empty()) // coding RNA
       {
         if ( first <= last )
         {
@@ -3528,7 +3528,7 @@ bool* ae_genetic_unit::is_belonging_to_coding_RNA( void )
         first = rna->get_last_transcribed_pos();
       }
 
-      if ( ! rna->get_transcribed_proteins()->is_empty() ) // coding RNA
+      if (not rna->get_transcribed_proteins_std().empty()) // coding RNA
       {
         if ( first <= last )
         {
