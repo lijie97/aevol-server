@@ -324,7 +324,7 @@ inline void analyse_gu( ae_genetic_unit* gen_unit, int32_t gen_unit_number, FILE
   {
     rna = (ae_rna *) rna_node->get_obj();
 
-    for (const auto& protein: rna->get_transcribed_proteins_std()) {
+    for (const auto& protein: rna->get_transcribed_proteins()) {
       double height = protein->get_height();
       double width = protein->get_width();
       double mean = protein->get_mean();

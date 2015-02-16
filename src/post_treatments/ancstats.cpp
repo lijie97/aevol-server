@@ -745,13 +745,13 @@ void write_operons_stats( int32_t num_gener, ae_individual * indiv, FILE*  opero
   {
     rna = rna_node->get_obj();
 
-    if (rna->get_transcribed_proteins_std().size() >= 20)
+    if (rna->get_transcribed_proteins().size() >= 20)
     {
-      printf("Found operon with 20 genes or more : %" PRId32 "\n", rna->get_transcribed_proteins_std().size());
+      printf("Found operon with 20 genes or more : %" PRId32 "\n", rna->get_transcribed_proteins().size());
       getchar();
     }
 
-    nb_genes_per_rna[rna->get_transcribed_proteins_std().size()]++;
+    nb_genes_per_rna[rna->get_transcribed_proteins().size()]++;
 
     rna_node = rna_node->get_next();
   }

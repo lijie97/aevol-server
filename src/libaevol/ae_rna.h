@@ -99,8 +99,7 @@ class ae_rna
     inline void       set_transcript_length( int32_t length );
     inline bool       is_coding( void ) const;
 
-    inline ae_list<ae_protein*>* get_transcribed_proteins( void ) const;
-    inline const std::list<ae_protein*>& get_transcribed_proteins_std() const;
+    inline const std::list<ae_protein*>& get_transcribed_proteins() const;
     inline void clear_transcribed_proteins() { transcribed_proteins.clear(); };
 
     // =================================================================
@@ -203,12 +202,7 @@ inline void ae_rna::set_transcript_length( int32_t transcript_length )
   _transcript_length = transcript_length;
 }
 
-inline ae_list<ae_protein*>* ae_rna::get_transcribed_proteins( void ) const
-{
-  return new ae_list<ae_protein*>(transcribed_proteins);
-}
-
-inline const std::list<ae_protein*>& ae_rna::get_transcribed_proteins_std() const {
+inline const std::list<ae_protein*>& ae_rna::get_transcribed_proteins() const {
   return transcribed_proteins;
 }
 
