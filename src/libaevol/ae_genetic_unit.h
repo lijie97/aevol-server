@@ -93,6 +93,8 @@ class ae_genetic_unit
     inline ae_list<ae_rna*>** get_rna_list( void )                const;
     inline std::vector<std::list<ae_rna*>> get_rna_list_std()     const;
     inline ae_list<ae_protein*>** get_protein_list( void ) const;
+    inline std::vector<std::list<ae_protein*>> get_protein_list_std() const;
+
 
 
     // Direct DNA access
@@ -411,6 +413,19 @@ inline ae_list<ae_protein*>** ae_genetic_unit::get_protein_list( void ) const
   assert( _protein_list[LAGGING] );
 
   return _protein_list;
+}
+
+inline std::vector<std::list<ae_protein*>> ae_genetic_unit::get_protein_list_std() const {
+  assert( _protein_list );
+  assert( _protein_list[LEADING] );
+  assert( _protein_list[LAGGING] );
+  std::vector<std::list<ae_protein*>> r;
+  for (int8_t strand = LEADING ; strand <= LAGGING ; strand++)
+    for (ae_list_node<ae_protein*>* protein_node = _protein_list[strand]->get_first();
+         protein_node != NULL;
+         protein_node = protein_node->get_next())
+      r[strand].push_back(protein_node->get_obj());
+  return std::move(r);
 }
 
 inline Fuzzy* ae_genetic_unit::get_activ_contribution( void ) const
