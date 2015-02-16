@@ -168,17 +168,9 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, char* seq, int32_t lengt
     // Copy rna lists
     _rna_list = prom_list;
 
-    // conversion should not happen here: hack in the process of removing ae_lists from ae_dna
-    // TODO vld: remove from here...
-    std::vector<std::list<ae_rna*>> rna_list;
-    for (int8_t strand = LEADING ; strand <= LAGGING ; strand++)
-      for (ae_list_node<ae_rna*>* rna_node = _rna_list[strand]->get_first();
-           rna_node != NULL;
-           rna_node = rna_node->get_next())
-        rna_list[strand].push_back(rna_node->get_obj());
-    // ... until there
-
-    ae_dna::set_GU(rna_list, this);
+    // TODO vld: remove conversion that should not happen here
+    // (hack in the process of removing ae_lists from ae_dna)
+    ae_dna::set_GU(get_rna_list_std(), this);
   }
   else
   {
