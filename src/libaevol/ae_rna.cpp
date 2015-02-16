@@ -31,7 +31,7 @@
 //                              Libraries
 // =================================================================
 
-
+#include <list>
 
 // =================================================================
 //                            Project Files
@@ -72,17 +72,8 @@ ae_rna::ae_rna( ae_genetic_unit* gen_unit, const ae_rna &model )
   //            proteins must NOT be CREATED here.
 
   // TODO : Not needed for the moment...
-  //~ ae_list_node<ae_protein*>* prot_node = model._transcribed_proteins->get_first();
-  //~ ae_protein*   prot;
-
-  //~ while ( prot_node != NULL )
-  //~ {
-    //~ prot = prot_node->get_obj();
-
-    //~ _transcribed_proteins->add( prot );
-
-    //~ prot_node = prot_node->get_next();
-  //~ }
+  // for (const auto& protein: model.transcribed_proteins)
+  //   transcribed_proteins.push_back(protein);
 }
 
 ae_rna::ae_rna( ae_genetic_unit* gen_unit )
