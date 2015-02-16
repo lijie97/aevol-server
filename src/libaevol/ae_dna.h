@@ -36,7 +36,8 @@
 #include <stdlib.h>
 #include <zlib.h>
 
-
+#include <list>
+#include <vector>
 
 // =================================================================
 //                            Project Files
@@ -163,6 +164,7 @@ class ae_dna : public ae_string
 
 
     static void set_GU( ae_list<ae_rna*>** rna_list, ae_genetic_unit* GU );
+    static void set_GU(std::vector<std::list<ae_rna*>>& rna_list, ae_genetic_unit* GU);
 
 
     // =================================================================

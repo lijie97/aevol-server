@@ -34,7 +34,8 @@
 #include <stdio.h>
 #include <math.h>
 
-
+#include <list>
+#include <vector>
 
 // =================================================================
 //                            Project Files
@@ -2334,6 +2335,12 @@ void ae_dna::compute_statistical_data( void )
       rna_node = rna_node->get_next();
     }
   }
+}
+
+void ae_dna::set_GU(std::vector<std::list<ae_rna*>>& rna_list, ae_genetic_unit* GU) {
+  for (int8_t strand = LEADING; strand <= LAGGING; strand++)
+    for (auto& rna: rna_list[strand])
+      rna->set_genetic_unit(GU);
 }
 
 
