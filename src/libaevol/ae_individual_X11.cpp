@@ -163,9 +163,6 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
   // ---------------
   //  Draw each CDS
   // ---------------
-  ae_list_node<ae_protein*>* cds_node  = NULL;
-  ae_protein*   cds       = NULL;
-
   // NB : As we want OriC to be at the "top" of the circle and the orientation
   //      to be clockwise, the drawing angle (theta) will be given as
   //      (90 - alpha), alpha being the "classical" trigonometric angle
@@ -180,12 +177,7 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
   // ----------------
   //  LEADING strand
   // ----------------
-  cds_node = gen_unit->get_protein_list()[LEADING]->get_first();
-
-  while ( cds_node != NULL )
-  {
-    cds = cds_node->get_obj();
-
+  for (const auto& cds: gen_unit->get_protein_list_std()[LEADING]) {
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)
     // nb_sect : "length" in degrees of the arc to be drawn
@@ -257,19 +249,12 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
     char* color = ae_X11_window::get_color( cds->get_mean() );
     win->draw_arc_64( pos_x, pos_y, diam2, theta_first_64 - nb_sect_64, nb_sect_64, color );
     delete [] color;
-
-    cds_node = cds_node->get_next();
   }
 
   // ----------------
   //  LAGGING strand
   // ----------------
-  cds_node = gen_unit->get_protein_list()[LAGGING]->get_first();
-
-  while ( cds_node != NULL )
-  {
-    cds = cds_node->get_obj();
-
+  for (const auto& cds: gen_unit->get_protein_list_std()[LAGGING]) {
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)
     // nb_sect : "length" in degrees of the arc to be drawn
@@ -341,8 +326,6 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
     char* color = ae_X11_window::get_color( cds->get_mean() );
     win->draw_arc_64( pos_x, pos_y, diam2, theta_first_64, nb_sect_64, color );
     delete [] color;
-
-    cds_node = cds_node->get_next();
   }
 
 
@@ -402,9 +385,6 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
     // ---------------
     //  Draw each CDS
     // ---------------
-    ae_list_node<ae_protein*>* cds_node  = NULL;
-    ae_protein*   cds       = NULL;
-
     // NB : As we want OriC to be at the "top" of the circle and the orientation
     //      to be clockwise, the drawing angle (theta) will be given as
     //      (90 - alpha), alpha being the "classical" trigonometric angle
@@ -419,12 +399,7 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
     // ----------------
     //  LEADING strand
     // ----------------
-    cds_node = gen_unit->get_protein_list()[LEADING]->get_first();
-
-    while ( cds_node != NULL )
-    {
-      cds = cds_node->get_obj();
-
+    for (const auto& cds: gen_unit->get_protein_list_std()[LEADING]) {
       // Alpha : angles from OriC (in degrees)
       // Theta : angles on the trigonometric circle (in degrees)
       // nb_sect : "length" in degrees of the arc to be drawn
@@ -496,19 +471,12 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
       char* color = ae_X11_window::get_color( cds->get_mean() );
       win->draw_arc_64( pos_x, pos_y, diam2, theta_first_64 - nb_sect_64, nb_sect_64, color );
       delete [] color;
-
-      cds_node = cds_node->get_next();
     }
 
     // ----------------
     //  LAGGING strand
     // ----------------
-    cds_node = gen_unit->get_protein_list()[LAGGING]->get_first();
-
-    while ( cds_node != NULL )
-    {
-      cds = cds_node->get_obj();
-
+    for (const auto& cds: gen_unit->get_protein_list_std()[LAGGING]) {
       // Alpha : angles from OriC (in degrees)
       // Theta : angles on the trigonometric circle (in degrees)
       // nb_sect : "length" in degrees of the arc to be drawn
@@ -580,8 +548,6 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
       char* color = ae_X11_window::get_color( cds->get_mean() );
       win->draw_arc_64( pos_x, pos_y, diam2, theta_first_64, nb_sect_64, color );
       delete [] color;
-
-      cds_node = cds_node->get_next();
     }
   }
 }
@@ -623,9 +589,6 @@ void ae_individual_X11::display_rnas( ae_X11_window* win )
   // ---------------
   //  Draw each RNA
   // ---------------
-  ae_list_node<ae_rna*>* rna_node  = NULL;
-  ae_rna*       rna       = NULL;
-
   // NB : As we want OriC to be at the "top" of the circle and the orientation
   //      to be clockwise, the drawing angle (theta) will be given as
   //      (90 - alpha), alpha being the "classical" trigonometric angle
@@ -640,12 +603,7 @@ void ae_individual_X11::display_rnas( ae_X11_window* win )
   // ----------------
   //  LEADING strand
   // ----------------
-  rna_node = gen_unit->get_rna_list()[LEADING]->get_first();
-
-  while ( rna_node != NULL )
-  {
-    rna = rna_node->get_obj();
-
+  for (const auto& rna: gen_unit->get_rna_list_std()[LEADING]) {
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)
     // nb_sect : "length" in degrees of the arc to be drawn
@@ -738,19 +696,12 @@ void ae_individual_X11::display_rnas( ae_X11_window* win )
     win->fill_arc( pos_x, pos_y, arrow_thick, ae_utils::mod(180+theta_last, 360), 180, color );
 
     delete [] color;
-
-    rna_node = rna_node->get_next();
   }
 
   // ----------------
   //  LAGGING strand
   // ----------------
-  rna_node = gen_unit->get_rna_list()[LAGGING]->get_first();
-
-  while ( rna_node != NULL )
-  {
-    rna = rna_node->get_obj();
-
+  for (const auto& rna: gen_unit->get_rna_list_std()[LAGGING]) {
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)
     // nb_sect : "length" in degrees of the arc to be drawn
@@ -843,8 +794,6 @@ void ae_individual_X11::display_rnas( ae_X11_window* win )
     win->fill_arc( pos_x, pos_y, arrow_thick, theta_last, 180, color );
 
     delete [] color;
-
-    rna_node = rna_node->get_next();
   }
 }
 
