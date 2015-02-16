@@ -2602,7 +2602,7 @@ void ae_dna::insert_GU( ae_genetic_unit* GU_to_insert, int32_t pos_B, int32_t po
   _gen_unit->look_for_new_promoters_around( pos_B );
   _gen_unit->look_for_new_promoters_around( pos_B + len_CD );
 
-  set_GU( _gen_unit->get_rna_list(), _gen_unit );
+  set_GU(_gen_unit->get_rna_list_std(), _gen_unit);
 }
 
 
