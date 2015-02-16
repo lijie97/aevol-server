@@ -94,6 +94,7 @@
 #include <stdio.h>
 #include <signal.h>
 
+#include <list>
 
 // =================================================================
 //                            Project Files
@@ -101,7 +102,6 @@
 #include "ae_common.h"
 #include "ae_population.h"
 #include "ae_individual.h"
-#include "ae_list.h"
 #include "ae_experiment.h"
 
 using namespace aevol;
@@ -255,16 +255,9 @@ int main( int argc, char* argv[] )
     }
     else
     {
-      ae_list_node  * indiv_node = ae_common::pop->get_indivs()->get_first();
-      ae_individual * indiv      = NULL;
-
-      while( indiv_node != NULL )
-      {
-        indiv = (ae_individual *) indiv_node->get_obj();
+      for (const auto& indiv: pop->get_indivs()) {
         if ( main_output != NULL)           { print_genome_info(indiv, main_output); }
 	if ( neutral_region_output != NULL) { print_neutral_regions(indiv, neutral_region_output); }
-        indiv_node = indiv_node->get_next();
-	i++;
       }
     }
   }
