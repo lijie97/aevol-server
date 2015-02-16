@@ -70,8 +70,7 @@ ae_rna::ae_rna( ae_genetic_unit* gen_unit, const ae_rna &model )
   // Copy transcribed proteins
   // WARNING : Since this list do not "own" the proteins (they will not be deleted)
   //            proteins must NOT be CREATED here.
-  _transcribed_proteins = new ae_list<ae_protein*>();
-  
+
   // TODO : Not needed for the moment...
   //~ ae_list_node<ae_protein*>* prot_node = model._transcribed_proteins->get_first();
   //~ ae_protein*   prot;
@@ -89,8 +88,6 @@ ae_rna::ae_rna( ae_genetic_unit* gen_unit, const ae_rna &model )
 ae_rna::ae_rna( ae_genetic_unit* gen_unit )
 {
   _gen_unit = gen_unit;
-  
-  _transcribed_proteins = new ae_list<ae_protein*>();
 }
 
 ae_rna::ae_rna( ae_genetic_unit* gen_unit, ae_strand strand, int32_t pos, int8_t diff )
@@ -101,8 +98,6 @@ ae_rna::ae_rna( ae_genetic_unit* gen_unit, ae_strand strand, int32_t pos, int8_t
 
   _transcript_length  = -1;
   _basal_level        = 1 - (double)diff / (PROM_MAX_DIFF + 1);
-  
-  _transcribed_proteins = new ae_list<ae_protein*>();
 }
 
 /*
@@ -121,8 +116,6 @@ ae_rna::ae_rna( ae_rna* parent )
 // =================================================================
 ae_rna::~ae_rna( void )
 {
-  _transcribed_proteins->erase( false );
-  delete _transcribed_proteins;
 }
 
 // =================================================================
