@@ -50,40 +50,6 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_individual_R::ae_individual_R( const ae_individual_R &model, bool replication_report_copy  ) : ae_individual( model, replication_report_copy  ) // TODO : When is this used?
-{
-  //printf("ae_individual_R( model )");
-  
-  _rna_list_coding = new ae_list();
-  
-  if( ae_common::with_heredity )
-  {
-    _inherited_protein_list = new ae_list();
-    
-    // We copy all the proteins from model
-    for ( int8_t strand = LEADING ; strand <= LAGGING ; strand++ )
-    {
-      ae_list_node<ae_protein_R*>* prot_node = model._protein_list->get_first();
-      ae_protein_R* prot;
-      
-      while ( prot_node != NULL )
-      {
-        prot = prot_node->get_obj();
-        
-        ae_protein_R* inherited_prot = new ae_protein_R( NULL, *prot );
-        inherited_prot->set_inherited( true );
-        
-        _inherited_protein_list->add( inherited_prot );
-
-        prot_node = prot_node->get_next();
-      }
-    }
-  }
-  else
-  {
-    _inherited_protein_list = NULL;
-  }
-}
 
 /*
  * Used at initialization
