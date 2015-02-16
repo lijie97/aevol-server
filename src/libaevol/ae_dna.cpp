@@ -2317,26 +2317,6 @@ void ae_dna::compute_statistical_data( void )
   //~ }
 }
 
-/* static */ void ae_dna::set_GU( ae_list<ae_rna*>** rna_list, ae_genetic_unit* GU )
-{
-  ae_list_node<ae_rna*>* rna_node  = NULL;
-  ae_rna* rna = NULL;
-
-  for ( int8_t strand = LEADING ; strand <= LAGGING ; strand++ )
-  {
-    rna_node = rna_list[strand]->get_first();
-
-    while ( rna_node != NULL )
-    {
-      rna = rna_node->get_obj();
-
-      rna->set_genetic_unit( GU );
-
-      rna_node = rna_node->get_next();
-    }
-  }
-}
-
 void ae_dna::set_GU(std::vector<std::list<ae_rna*>>&& rna_list, ae_genetic_unit* GU) {
   for (int8_t strand = LEADING; strand <= LAGGING; strand++)
     for (auto& rna: rna_list[strand])

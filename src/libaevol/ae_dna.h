@@ -44,7 +44,6 @@
 // =================================================================
 #include "ae_dna_replic_report.h"
 #include "ae_enums.h"
-#include "ae_list.h"
 #include "ae_mutation.h"
 #include "ae_string.h"
 
@@ -162,8 +161,6 @@ class ae_dna : public ae_string
 
     void compute_statistical_data( void );
 
-
-    static void set_GU( ae_list<ae_rna*>** rna_list, ae_genetic_unit* GU );
     static void set_GU(std::vector<std::list<ae_rna*>>&& rna_list, ae_genetic_unit* GU);
 
 
