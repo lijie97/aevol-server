@@ -162,51 +162,26 @@ void ae_selection::step_to_next_generation( void )
   // 3) Make the selected individuals "reproduce", thus creating the new generation
   // ------------------------------------------------------------------------------
   ae_list<ae_individual*>*      new_generation  = new ae_list<ae_individual*>();
-  ae_list<ae_individual*>*      old_generation  = _exp_m->get_indivs();
-  ae_list_node<ae_individual*>* indiv_node      = old_generation->get_first();
-  ae_list_node<ae_individual*>* next_indiv_node = NULL;
-  ae_individual*  indiv           = NULL;
-  int32_t         index_new_indiv = 0;
+  std::list<ae_individual*>     old_generation  = _exp_m->get_indivs_std();
+  std::list<ae_individual*>::const_iterator indiv = old_generation.begin();
+  int32_t index_new_indiv = 0;
 
-  for ( int32_t i = 0 ; i < nb_indivs ; i++ )
-  {
+  for (int32_t i = 0; i < nb_indivs; i++) {
     // Make indiv i reproduce (nb_offsprings[i] offsprings)
-    indiv = indiv_node->get_obj();
-
-    next_indiv_node = indiv_node->get_next();
-
-    for ( int32_t j = 0 ; j < nb_offsprings[i] ; j++ )
-    {
+    for (int32_t j = 0; j < nb_offsprings[i]; j++) {
       #ifdef DISTRIBUTED_PRNG
         #error Not implemented yet !
         // For all but the first time, Take a jump in the PRNG
-        if ( j > 0 ) indiv->do_prng_jump();
+        if (j > 0) indiv->do_prng_jump();
       #endif
 
       // Create a new individual (evaluated at the end of do_replication)
-      new_generation->add( do_replication( indiv, index_new_indiv++ ) );
+      new_generation->add(do_replication(*indiv, index_new_indiv++));
     }
-
-    // All the offsprings of this individual have been generated, if there is no transfer,
-    // the indiv will not be used any more and can hence be deleted
-    if ( (not _exp_m->get_with_HT()) and (not _exp_m->get_with_plasmids()) )
-    {
-      old_generation->remove( indiv_node, true, true );
-    }
-
-    indiv_node = next_indiv_node;
+    ++indiv;
   }
-
-  if ( _exp_m->get_with_HT() or _exp_m->get_with_plasmids() )
-  {
-    // The individuals have not yet been deleted, do it now.
-    old_generation->erase( true );
-  }
-
 
   delete [] nb_offsprings;
-
-
 
   // -------------------------------------------------------------
   //  4) Replace the current generation by the newly created one.
