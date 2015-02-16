@@ -23,7 +23,6 @@
 
 #include <list>
 
-#include "ae_list.h" // TODO: not needed here; add where needed transitively
 #include "macros.h"
 #include "point.h"
 
