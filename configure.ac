@@ -7,6 +7,9 @@ AC_PREREQ([2.65])
 # Provide FULL-PACKAGE-NAME, VERSION and BUG-REPORT-ADDRESS
 AC_INIT([AEVOL], [4.4], [aevol-bugs@lists.gforge.inria.fr], , [www.aevol.fr])
 
+# Specify the location of additional local Autoconf macros
+AC_CONFIG_MACRO_DIR([m4])
+
 # We want to use automake
 AM_INIT_AUTOMAKE
 
@@ -204,6 +207,7 @@ elif test "x$trivialjumps" != "xno" ; then
   AC_DEFINE_UNQUOTED([TRIVIAL_METHOD_JUMP_SIZE], [$trivialjumps])
 fi
 
+
 #  ******************* --enable-devel option ***************************
 #
 #  This enables developers' features:
@@ -245,6 +249,13 @@ if test "x$enable_devel" = "xyes" ; then
   fi
 
   # Add GTest
+  # Configure pthreads.
+  ACX_PTHREAD()
+  AM_CONDITIONAL([HAVE_PTHREADS],[test "x$acx_pthread_ok" = "xyes"])
+  AC_SUBST(PTHREAD_CFLAGS)
+  AC_SUBST(PTHREAD_LIBS)
+
+  # Tell autoconf to run a separate configure script in gtest's dir
   AC_CONFIG_SUBDIRS([src/tests/gtest-1.7.0])
 else
   # Output a warning message about multi-configuration and make clean
@@ -252,6 +263,7 @@ else
 fi
 AM_CONDITIONAL([WANT_DOXYGEN], [test -n "$HAVE_DOXYGEN"])
 AM_CONDITIONAL([WITH_CPPUNIT], [test -n "$cppunit_missing"])
+
 
 #  ******************* --enable-debug option ***************************
 #
