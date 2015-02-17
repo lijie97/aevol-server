@@ -180,9 +180,11 @@ else
 endif
 
 # Build rules for libraries.
-lib_LTLIBRARIES = lib/libgtest.la lib/libgtest_main.la
+lib_LIBRARIES = lib/libgtest.a lib/libgtest_main.a
+#lib_LTLIBRARIES = lib/libgtest.la lib/libgtest_main.la
 
-lib_libgtest_la_SOURCES = src/gtest-all.cc
+lib_libgtest_a_SOURCES = src/gtest-all.cc
+#lib_libgtest_la_SOURCES = src/gtest-all.cc
 
 pkginclude_HEADERS = \
   include/gtest/gtest-death-test.h \
@@ -209,8 +211,10 @@ pkginclude_internal_HEADERS = \
   include/gtest/internal/gtest-tuple.h \
   include/gtest/internal/gtest-type-util.h
 
-lib_libgtest_main_la_SOURCES = src/gtest_main.cc
-lib_libgtest_main_la_LIBADD = lib/libgtest.la
+lib_libgtest_main_a_SOURCES = src/gtest_main.cc
+lib_libgtest_main_a_LIBADD = lib/libgtest.a
+#lib_libgtest_main_la_SOURCES = src/gtest_main.cc
+#lib_libgtest_main_la_LIBADD = lib/libgtest.la
 
 # Bulid rules for samples and tests. Automake's naming for some of
 # these variables isn't terribly obvious, so this is a brief
@@ -219,43 +223,43 @@ lib_libgtest_main_la_LIBADD = lib/libgtest.la
 # TESTS -- Programs run automatically by "make check"
 # check_PROGRAMS -- Programs built by "make check" but not necessarily run
 
-noinst_LTLIBRARIES = samples/libsamples.la
+#noinst_LTLIBRARIES = samples/libsamples.la
 
-samples_libsamples_la_SOURCES = \
-  samples/sample1.cc \
-  samples/sample1.h \
-  samples/sample2.cc \
-  samples/sample2.h \
-  samples/sample3-inl.h \
-  samples/sample4.cc \
-  samples/sample4.h
-
+#samples_libsamples_la_SOURCES = \
+#  samples/sample1.cc \
+#  samples/sample1.h \
+#  samples/sample2.cc \
+#  samples/sample2.h \
+#  samples/sample3-inl.h \
+#  samples/sample4.cc \
+#  samples/sample4.h
+#
 TESTS=
-TESTS_ENVIRONMENT = GTEST_SOURCE_DIR="$(srcdir)/test" \
-                    GTEST_BUILD_DIR="$(top_builddir)/test"
+#TESTS_ENVIRONMENT = GTEST_SOURCE_DIR="$(srcdir)/test" \
+#                    GTEST_BUILD_DIR="$(top_builddir)/test"
 check_PROGRAMS=
-
-# A simple sample on using gtest.
-TESTS += samples/sample1_unittest
-check_PROGRAMS += samples/sample1_unittest
-samples_sample1_unittest_SOURCES = samples/sample1_unittest.cc
-samples_sample1_unittest_LDADD = lib/libgtest_main.la \
-                                 lib/libgtest.la \
-                                 samples/libsamples.la
-
-# Another sample.  It also verifies that libgtest works.
-TESTS += samples/sample10_unittest
-check_PROGRAMS += samples/sample10_unittest
-samples_sample10_unittest_SOURCES = samples/sample10_unittest.cc
-samples_sample10_unittest_LDADD = lib/libgtest.la
-
-# This tests most constructs of gtest and verifies that libgtest_main
-# and libgtest work.
-TESTS += test/gtest_all_test
-check_PROGRAMS += test/gtest_all_test
-test_gtest_all_test_SOURCES = test/gtest_all_test.cc
-test_gtest_all_test_LDADD = lib/libgtest_main.la \
-                            lib/libgtest.la
+#
+## A simple sample on using gtest.
+#TESTS += samples/sample1_unittest
+#check_PROGRAMS += samples/sample1_unittest
+#samples_sample1_unittest_SOURCES = samples/sample1_unittest.cc
+#samples_sample1_unittest_LDADD = lib/libgtest_main.la \
+#                                 lib/libgtest.la \
+#                                 samples/libsamples.la
+#
+## Another sample.  It also verifies that libgtest works.
+#TESTS += samples/sample10_unittest
+#check_PROGRAMS += samples/sample10_unittest
+#samples_sample10_unittest_SOURCES = samples/sample10_unittest.cc
+#samples_sample10_unittest_LDADD = lib/libgtest.la
+#
+## This tests most constructs of gtest and verifies that libgtest_main
+## and libgtest work.
+#TESTS += test/gtest_all_test
+#check_PROGRAMS += test/gtest_all_test
+#test_gtest_all_test_SOURCES = test/gtest_all_test.cc
+#test_gtest_all_test_LDADD = lib/libgtest_main.la \
+#                            lib/libgtest.la
 
 # Tests that fused gtest files compile and work.
 FUSED_GTEST_SRC = \
