@@ -5,7 +5,7 @@ AM_CPPFLAGS = $(AEVOLCPPFLAGS)
 AM_CXXFLAGS = $(AEVOLCXXFLAGS)
 AM_LDFLAGS = $(AEVOLLDFLAGS)
 
-SUBDIRS = libaevol post_treatments
+SUBDIRS = tests libaevol post_treatments
 
 AM_CPPFLAGS += -I$(top_srcdir)/src/libaevol
 

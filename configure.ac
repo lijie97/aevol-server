@@ -54,6 +54,8 @@ AC_TYPE_UINT8_T
 # Checks for library functions.
 AC_CHECK_FUNCS([floor memset mkdir pow rint sqrt gzread])
 
+AC_CONFIG_SUBDIRS([src/tests/gtest-1.7.0])
+
 # ****************************************************************************
 #                                  OPTIONS
 #
@@ -299,6 +301,7 @@ AC_CONFIG_FILES([Makefile
                  src/libaevol/Makefile
                  src/libaevol/SFMT-src-1.4/Makefile
                  src/libaevol/tests/Makefile
+                 src/tests/Makefile
                  src/post_treatments/Makefile
                  tests/Makefile
                  doc/Makefile])
