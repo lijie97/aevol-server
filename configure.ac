@@ -66,23 +66,8 @@ AC_CHECK_FUNCS([floor memset mkdir pow rint sqrt gzread])
 #     --enable-trivialjumps=jumpsize    [disabled]
 #     --enable-devel                    [disabled]
 #     --enable-debug                    [disabled]
-#     --enable-in2p3                    [disabled]
 #
 # ****************************************************************************
-
-#  ******************* check option consistency ***************************
-AC_MSG_CHECKING([checking parameter consistency])
-if test "x$enable_in2p3" = "xyes" ; then
-  if test "x$enable_debug" = "xyes" ; then
-    AC_MSG_RESULT([FAIL])
-    AC_MSG_ERROR([debug and in2p3 are not compatible])
-  fi
-  if test "x$with_x" != xno ; then
-    AC_MSG_RESULT([FAIL])
-    AC_MSG_ERROR([x and in2p3 are not compatible])
-  fi
-fi
-AC_MSG_RESULT([OK])
 
 #   ************************ --without-x option *********************
 #
@@ -283,18 +268,6 @@ if test "x$enable_debug" = "xyes" ; then
    AEVOLCXXFLAGS+=" -g -Wall"
 else
    AC_DEFINE(NDEBUG)
-fi
-
-#  ******************* --enable-in2p3 option ***************************
-#
-#  With this option, the IN2P3 flag is defined
-
-AC_MSG_CHECKING([whether to use IN2P3 specific features])
-AC_ARG_ENABLE(in2p3, [  --enable-in2p3 to enable IN2P3 specific features], , enable_in2p3=no)
-AC_MSG_RESULT($enable_in2p3)
-AM_CONDITIONAL(WITH_IN2P3, test x"$enable_in2p3" != xno)
-if test "x$enable_in2p3" = "xyes" ; then
-   AC_DEFINE(__IN2P3)
 fi
 
 #  ************************* back to GENERAL stuff *******************************

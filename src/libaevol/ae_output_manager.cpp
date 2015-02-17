@@ -312,13 +312,6 @@ void ae_output_manager::write_current_generation_outputs( void ) const
     {
       printf( "Error : could not open file " LAST_GENER_FNAME "\n" );
     }
-    
-    #ifdef __IN2P3
-      if ( num_gener % _big_backup_step == 0 )
-      {
-        system( "./make_big_backup.py" );
-      }
-    #endif
   }
 
   if ( _make_dumps ) 

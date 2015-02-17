@@ -59,11 +59,6 @@
 void catch_usr1( int sig_num );
 #endif
 
-#ifdef __IN2P3
-void catch_usr1( int sig_num );
-void catch_xcpu( int sig_num );
-#endif
-
 void print_help( char* prog_path );
 void print_version( void );
 
@@ -78,11 +73,6 @@ int main( int argc, char* argv[] )
   #ifndef __NO_X
     signal( SIGUSR1, catch_usr1 );
   #endif
-
-  #ifdef __IN2P3
-    signal( SIGUSR1, catch_usr1 );
-    signal( SIGXCPU, catch_xcpu );
-  #endif  
   
   
   // Print warning for debug mode
@@ -262,20 +252,6 @@ void catch_usr1( int sig_num )
   {
     ((ae_exp_manager_X11*) exp_manager)->toggle_display_on_off();
   }
-}
-#endif
-
-#ifdef __IN2P3
-void catch_usr1( int sig_num )
-{
-  //system( "./make_big_backup.py" );
-  exit( EXIT_FAILURE );
-}
-
-void catch_xcpu( int sig_num )
-{
-  //system( "./make_big_backup.py" );
-  exit( EXIT_FAILURE );
 }
 #endif
 
