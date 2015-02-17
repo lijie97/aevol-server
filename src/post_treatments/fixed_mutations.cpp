@@ -46,7 +46,6 @@
 #include "ae_exp_manager.h"
 #include "ae_individual.h"
 #include "ae_genetic_unit.h"
-#include "ae_list.h"
 #include "ae_tree.h"
 #include "ae_replication_report.h"
 #include "ae_dna_replic_report.h"
@@ -285,14 +284,6 @@ int main(int argc, char** argv)
   //  (and, optionally, check that the rebuilt envir and genome are correct each
   //   time a backup is available)
   // ===============================================================================
-  ae_replication_report* rep = NULL;
-  ae_list_node<ae_dna_replic_report*>* dnarepnode = NULL;
-  ae_dna_replic_report* dnarep = NULL;
-
-  ae_list_node<ae_mutation*>* mnode = NULL;
-  ae_mutation* mut = NULL;
-
-  std::list<ae_genetic_unit*>::const_iterator unit;
 
   ae_individual* stored_indiv = NULL;
   std::list<ae_genetic_unit*>::const_iterator stored_unit;
@@ -311,7 +302,7 @@ int main(int argc, char** argv)
   {
     num_gener = begin_gener + i + 1;  // where are we in time...
 
-    rep = new ae_replication_report( lineage_file, indiv );
+    ae_replication_report* rep = new ae_replication_report( lineage_file, indiv );
     index = rep->get_id(); // who are we building...
     indiv->set_replication_report(rep);
 
@@ -353,8 +344,8 @@ int main(int argc, char** argv)
     // during the evolution, or if some translocations occurred between different genetic units
 
     genetic_unit_number = 0;
-    dnarepnode = (rep->get_dna_replic_reports())->get_first();
-    unit = indiv->get_genetic_unit_list_std().begin();
+    std::list<ae_dna_replic_report*>::const_iterator dnareport = rep->get_dna_replic_reports_std().begin();
+    std::list<ae_genetic_unit*>::const_iterator unit = indiv->get_genetic_unit_list_std().begin();
 
     if ( check_now && ae_utils::mod(num_gener, backup_step) == 0)
     {
@@ -365,29 +356,23 @@ int main(int argc, char** argv)
       stored_unit = stored_indiv->get_genetic_unit_list_std().begin();
     }
 
-    while ( dnarepnode != NULL )
+    while (dnareport != rep->get_dna_replic_reports_std().end())
     {
       assert(unit != indiv->get_genetic_unit_list_std().end());
 
-      dnarep = (ae_dna_replic_report *) dnarepnode->get_obj();
-
-      (*unit)->get_dna()->set_replic_report( dnarep );
+      (*unit)->get_dna()->set_replic_report(*dnareport);
 
       // ***************************************
       //             Transfer events
       // ***************************************
 
-      mnode = dnarep->get_HT()->get_first();
-      while ( mnode != NULL )
-      {
-        mut = (ae_mutation *) mnode->get_obj();
-
+      for (const auto& mutation: (*dnareport)->get_HT_std()) {
         metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
         unitlen_before = (*unit)->get_dna()->get_length();
-        (*unit)->compute_nb_of_affected_genes(mut, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
+        (*unit)->compute_nb_of_affected_genes(mutation, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
 
 
-        (*unit)->get_dna()->undergo_this_mutation( mut );
+        (*unit)->get_dna()->undergo_this_mutation( mutation );
         indiv->reevaluate(env);
 
 
@@ -395,15 +380,11 @@ int main(int argc, char** argv)
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
 
-        mut->get_generic_description_string( mut_descr_string );
+        mutation->get_generic_description_string( mut_descr_string );
         fprintf( output, "%" PRId32 " %" PRId32 " %s %" PRId32 " %.15f  %" PRId32 " %" PRId32 " %" PRId32 " \n",\
                  num_gener, genetic_unit_number, \
                  mut_descr_string, unitlen_before, \
                  impact_on_metabolic_error, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment );
-
-
-
-        mnode = mnode->get_next();
       }
 
 
@@ -411,29 +392,22 @@ int main(int argc, char** argv)
       //           Rearrangement events
       // ***************************************
 
-      mnode = dnarep->get_rearrangements()->get_first();
-      while ( mnode != NULL )
-      {
-        mut = (ae_mutation *) mnode->get_obj();
-
+      for (const auto& mutation: (*dnareport)->get_rearrangements_std()) {
         metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
         unitlen_before = (*unit)->get_dna()->get_length();
-        (*unit)->compute_nb_of_affected_genes(mut, nb_genes_at_breakpoints, nb_genes_in_segment,  nb_genes_in_replaced_segment);
+        (*unit)->compute_nb_of_affected_genes(mutation, nb_genes_at_breakpoints, nb_genes_in_segment,  nb_genes_in_replaced_segment);
 
-        (*unit)->get_dna()->undergo_this_mutation( mut );
+        (*unit)->get_dna()->undergo_this_mutation( mutation );
 
         indiv->reevaluate(env);
         metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
-        mut->get_generic_description_string( mut_descr_string );
+        mutation->get_generic_description_string( mut_descr_string );
         fprintf( output, "%" PRId32 " %" PRId32 " %s %" PRId32 " %.15f %" PRId32 " %" PRId32 " %" PRId32 " \n",\
                  num_gener, genetic_unit_number, \
                  mut_descr_string, unitlen_before, \
                  impact_on_metabolic_error, nb_genes_at_breakpoints, nb_genes_in_segment,  nb_genes_in_replaced_segment );
-
-
-        mnode = mnode->get_next();
       }
 
 
@@ -441,28 +415,22 @@ int main(int argc, char** argv)
       // Local events (point mutations & small indels)
       // ***************************************
 
-      mnode = dnarep->get_mutations()->get_first();
-      while ( mnode != NULL )
-      {
-        mut = (ae_mutation *) mnode->get_obj();
-
+      for (const auto& mutation: (*dnareport)->get_mutations_std()) {
         metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
         unitlen_before = (*unit)->get_dna()->get_length();
-        (*unit)->compute_nb_of_affected_genes(mut, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
+        (*unit)->compute_nb_of_affected_genes(mutation, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
 
-        (*unit)->get_dna()->undergo_this_mutation( mut );
+        (*unit)->get_dna()->undergo_this_mutation( mutation );
 
         indiv->reevaluate(env);
         metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
-        mut->get_generic_description_string( mut_descr_string );
+        mutation->get_generic_description_string( mut_descr_string );
         fprintf( output, "%" PRId32 " %" PRId32 " %s %" PRId32 " %.15f %" PRId32 " %" PRId32 " %" PRId32 " \n",\
                  num_gener, genetic_unit_number, \
                  mut_descr_string, unitlen_before, \
                  impact_on_metabolic_error, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment );
-
-        mnode = mnode->get_next();
       }
 
       if ( check_now && ae_utils::mod(num_gener, backup_step) == 0)
@@ -512,9 +480,9 @@ int main(int argc, char** argv)
       }
 
 
-      dnarepnode = dnarepnode->get_next();
+      ++dnareport;
       ++unit;
-      genetic_unit_number ++;
+      genetic_unit_number++;
     }
 
     assert(unit == indiv->get_genetic_unit_list_std().end());
