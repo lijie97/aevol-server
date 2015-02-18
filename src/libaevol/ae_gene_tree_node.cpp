@@ -75,7 +75,7 @@ ae_gene_tree_node::ae_gene_tree_node( int32_t nodeCreationDate, ae_protein * pro
   _shine_dal_position = protein->get_shine_dal_pos();
   _strand = protein->get_strand();
 
-  _nb_promoters = protein->get_rna_list()->get_nb_elts();
+  _nb_promoters = protein->get_rna_list_std().size();
   //printf("%d promoters at positions", _nb_promoters); // debug
   _promoter_positions = new int32_t[_nb_promoters];
   _rna_pointers = new ae_rna*[_nb_promoters];
@@ -256,7 +256,7 @@ void ae_gene_tree_node::write_subtree_to_files(FILE * topologyFile, FILE * nodeA
       fprintf(nodeAttributesFile, "  Shine-Dalgarno pos:%" PRId32 ", Stop pos: %" PRId32 ", M: %.8f, W: %.8f, H: %.8f, nb promoters: %" PRId32 ", conc: %.8f \n", \
               _protein_pointer->get_shine_dal_pos(), _protein_pointer->get_last_STOP_base_pos(), \
               _protein_pointer->get_mean(), _protein_pointer->get_width(), _protein_pointer->get_height(),  \
-              _protein_pointer->get_rna_list()->get_nb_elts(), _protein_pointer->get_concentration() );
+              static_cast<int32_t>(_protein_pointer->get_rna_list_std().size()), _protein_pointer->get_concentration() );
     }
   fprintf(nodeAttributesFile, "\n\n");
 }
@@ -425,7 +425,7 @@ void ae_gene_tree_node::update_pointers_in_subtree_leaves(ae_genetic_unit * unit
     if (protein != pl.end()) {
       /* The strand and shine dal position are correct */
       /* Update the protein and rna pointers and positions */
-      _nb_promoters = (*protein)->get_rna_list()->get_nb_elts();
+      _nb_promoters = (*protein)->get_rna_list_std().size();
       if (_promoter_positions != NULL) delete [] _promoter_positions;
       if (_rna_pointers != NULL) delete [] _rna_pointers;
       _promoter_positions = new int32_t[_nb_promoters];
@@ -539,7 +539,7 @@ void ae_gene_tree_node::anticipate_mutation_effect_on_genes_in_subtree_leaves(ae
 
       int32_t first_cds, last_cds;
       int32_t first_upstream, last_upstream; // "upstream region" is the segment between the furthest promoter and the Shine-Dalgarno sequence
-      int32_t nbprom = _protein_pointer->get_rna_list()->get_nb_elts();
+      int32_t nbprom = _protein_pointer->get_rna_list_std().size();
       assert(nbprom != 0);
       assert(nbprom == static_cast<int32_t>(_nb_promoters));
       int32_t position_furthest_prom = -1, currentprompos = -1;
@@ -979,7 +979,7 @@ void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leav
           if (protein != pl.end()) {
             /* The strand and shine dal position are correct */
             /* Update the protein and rna pointers and positions */
-            _nb_promoters = (*protein)->get_rna_list()->get_nb_elts();
+            _nb_promoters = (*protein)->get_rna_list_std().size();
             if (_promoter_positions != NULL) delete [] _promoter_positions;
             if (_rna_pointers != NULL) delete [] _rna_pointers;
             _promoter_positions = new int32_t[_nb_promoters];
@@ -1025,7 +1025,7 @@ void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leav
           if (protein != pl.end()) {
             /* The strand and shine dal position are correct */
             /* Update the protein and rna pointers and positions */
-            _nb_promoters = (*protein)->get_rna_list()->get_nb_elts();
+            _nb_promoters = (*protein)->get_rna_list_std().size();
             if (_promoter_positions != NULL) delete [] _promoter_positions;
             if (_rna_pointers != NULL) delete [] _rna_pointers;
             _promoter_positions = new int32_t[_nb_promoters];

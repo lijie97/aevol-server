@@ -34,13 +34,11 @@
 // =================================================================
 #include <inttypes.h>
 
-
-
+#include <list>
 
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_list.h"
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -87,7 +85,6 @@ class ae_protein
     //                              Accessors
     // =================================================================
     inline ae_strand          get_strand( void )                const;
-    inline ae_list<ae_rna*>*  get_rna_list( void )              const;
     inline const std::list<ae_rna*> get_rna_list_std()          const;
     inline int32_t            get_shine_dal_pos( void )         const;
     inline int32_t            get_first_translated_pos( void )  const;
@@ -142,7 +139,7 @@ class ae_protein
     // =================================================================
     ae_genetic_unit*  _gen_unit;
     ae_strand         _strand;
-    ae_list<ae_rna*>* _rna_list;              // RNAs transcribing this protein
+    std::list<ae_rna*> rna_list;              // RNAs transcribing this protein
     int32_t           _shine_dal_pos;         // Index of the corresponding shine dalgarno sequence in the genome
     int32_t           _first_translated_pos;  // Index of the first base following the START codon
     int32_t           _last_translated_pos;   // Index of the last base before the STOP codon
@@ -150,7 +147,7 @@ class ae_protein
     double            _concentration;
     bool              _is_functional;
     
-    ae_list<ae_codon*>* _AA_list;
+    std::list<ae_codon*> _AA_list;
 
     // Phenotypic contribution (triangle) parameters
     double _mean;
@@ -167,13 +164,8 @@ inline ae_strand ae_protein::get_strand( void ) const
   return _strand;
 }
 
-inline ae_list<ae_rna*>* ae_protein::get_rna_list( void ) const
-{
-  return _rna_list;
-}
-
 inline const std::list<ae_rna*> ae_protein::get_rna_list_std() const {
-  return aelist_to_stdlist(_rna_list);
+  return rna_list;
 }
 
 int32_t ae_protein::get_shine_dal_pos( void ) const

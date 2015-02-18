@@ -3,25 +3,25 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //*****************************************************************************
 
 
@@ -32,7 +32,7 @@
 // =================================================================
 #include <math.h>
 
-
+#include <list>
 
 // =================================================================
 //                            Project Files
@@ -70,7 +70,7 @@ namespace aevol {
 ae_protein::ae_protein( ae_genetic_unit* gen_unit, const ae_protein &model )
 {
   _gen_unit  = gen_unit;
-  
+
   _strand                 = model._strand;
   _shine_dal_pos          = model._shine_dal_pos;
   _first_translated_pos   = model._first_translated_pos;
@@ -78,25 +78,12 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, const ae_protein &model )
   _length                 = model._length;
   _concentration          = model._concentration;
   _is_functional          = model._is_functional;
-  
-  _rna_list = new ae_list<ae_rna*>();
-  
-  // Copy the list of amino-acids
-  _AA_list  = new ae_list<ae_codon*>();
-  
-  ae_list_node<ae_codon*>* AA_node = model._AA_list->get_first();
-  ae_codon* AA = NULL;
 
-  
-  while ( AA_node != NULL )
-  {
-    AA = AA_node->get_obj();
-    
-    _AA_list->add( new ae_codon( *AA ) );
-    
-    AA_node = AA_node->get_next();
-  }
-  
+  // Copy the list of amino-acids
+
+  // TODO vld: check if deep copy needed
+  _AA_list = model._AA_list;
+
   // Copy triangle parameters
   _mean   = model._mean;
   _width  = model._width;
@@ -116,7 +103,7 @@ ae_protein::ae_protein(ae_genetic_unit* gen_unit,
   _strand         = strand;
   _shine_dal_pos  = shine_dal_pos;
   _length         = codon_list.size();
-  
+
   #ifndef __REGUL
     // In Aevol the concentration of a new protein is set at the basal level
     _concentration  = rna->get_basal_level();
@@ -133,12 +120,11 @@ ae_protein::ae_protein(ae_genetic_unit* gen_unit,
       _concentration = rna->get_basal_level();
     }
   #endif
-  
+
   // TODO : make this cleaner...
-  _AA_list = new ae_list<ae_codon*>(codon_list);
-  
-  _rna_list = new ae_list<ae_rna*>();
-  _rna_list->add( rna );
+  _AA_list = codon_list;
+
+  rna_list.push_back(rna);
 
   if ( _strand == LEADING )
   {
@@ -312,7 +298,7 @@ ae_protein::ae_protein(ae_genetic_unit* gen_unit,
   _mean   = (X_MAX - X_MIN) * _mean + X_MIN;
   _width  = (get_indiv()->get_w_max() - W_MIN) * _width + W_MIN;
   _height = (H_MAX - H_MIN) * _height + H_MIN;
-  
+
   if ( nb_m == 0 || nb_w == 0 || nb_h == 0 || _width == 0.0 || _height == 0.0 )
   {
     _is_functional = false;
@@ -358,19 +344,14 @@ ae_protein::ae_protein( gzFile backup_file )
   gzread( backup_file, &_mean,  			          sizeof(_mean)                 );
   gzread( backup_file, &_width,    			        sizeof(_width)                );
   gzread( backup_file, &_height,                sizeof(_height)               );
-  
-  _rna_list = new ae_list<ae_rna*>();
 
   // Retreive the AA
-  _AA_list = new ae_list<ae_codon*>();
   int16_t nb_AA = 0;
   gzread( backup_file, &nb_AA,  sizeof(nb_AA) );
-  
-  for ( int16_t i = 0 ; i < nb_AA ; i++ )
-  {
-    _AA_list->add( new ae_codon( backup_file ) );
-  }
-  
+
+  for (int16_t i = 0 ; i < nb_AA ; i++)
+    _AA_list.push_back(new ae_codon(backup_file));
+
 }
 
 // =================================================================
@@ -378,11 +359,8 @@ ae_protein::ae_protein( gzFile backup_file )
 // =================================================================
 ae_protein::~ae_protein( void )
 {
-  _rna_list->erase( false );
-  delete _rna_list;
-  
-  _AA_list->erase( true );
-  delete _AA_list;
+  for (const auto& AA: _AA_list)
+    delete AA;
 }
 
 // =================================================================
@@ -402,23 +380,18 @@ int32_t ae_protein::get_last_STOP_base_pos( void ) const
 
 void ae_protein::add_RNA( ae_rna* rna )
 {
-  _rna_list->add( rna );
+  rna_list.push_back(rna);
   _concentration += rna->get_basal_level();
 }
 
 char* ae_protein::get_AA_sequence( void ) const
 {
   char* seq = new char[3*_length]; // + 1 (for the '\0')  - 1 (_length - 1 spaces)
-  
-  ae_list_node<ae_codon*>* codon_node = _AA_list->get_first();
-  
+
   int32_t i = 0;
-  while ( codon_node != NULL )
-  {
-    ae_codon* codon = codon_node->get_obj();
-    
+  for (const auto& codon: _AA_list) {
     if ( i != 0 ) seq[i++] = ' ';
-    
+
     switch ( codon->get_value() )
     {
       case CODON_START :
@@ -464,10 +437,8 @@ char* ae_protein::get_AA_sequence( void ) const
         break;
       }
     }
-    
-    codon_node = codon_node->get_next();
   }
-  
+
   seq[3*_length-1] = '\0';
   return seq;
 }
@@ -488,20 +459,11 @@ void ae_protein::save( gzFile backup_file )
   gzwrite( backup_file, &_height,		     	      sizeof(_height)               );
 
   // Write the Acide Amino in the backup file
-  int16_t nb_AA = _AA_list->get_nb_elts();
+  int16_t nb_AA = _AA_list.size();
   gzwrite( backup_file, &nb_AA,  sizeof(nb_AA) );
 
-  ae_list_node<ae_codon*>* AA_node = _AA_list->get_first();
-  ae_codon* AA;
-
-  for ( int16_t i = 0 ; i < nb_AA ; i++ )
-  {
-  AA = AA_node->get_obj();
-   
-  AA->save( backup_file );
-    
-  AA_node = AA_node->get_next();
-  }
+  for (const auto& AA: _AA_list)
+    AA->save( backup_file );
 }
 
 // =================================================================

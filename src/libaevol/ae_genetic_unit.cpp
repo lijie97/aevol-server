@@ -1518,12 +1518,7 @@ void ae_genetic_unit::compute_non_coding( void )
 
       // Include the promoter and terminator to essential DNA
       // Mark everything between promoter and terminator as not neutral
-      ae_list_node<ae_rna*>* rna_node  = prot->get_rna_list()->get_first();
-      ae_rna*       rna       = NULL;
-
-      while ( rna_node != NULL )
-      {
-        rna = rna_node->get_obj();
+      for (const auto& rna: prot->get_rna_list_std()) {
 
         int32_t prom_first;
         int32_t prom_last;
@@ -1623,8 +1618,6 @@ void ae_genetic_unit::compute_non_coding( void )
         }
         //~ printf( "\n" );
         //~ getchar();
-
-        rna_node = rna_node->get_next();
       }
 
 
