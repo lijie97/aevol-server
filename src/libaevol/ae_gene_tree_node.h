@@ -54,7 +54,6 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "ae_rna.h"
-#include "ae_list.h"
 #include "ae_gene_mutation.h"
 #include "ae_gene_tree.h"
 
@@ -126,13 +125,13 @@ class ae_gene_tree_node
     ae_gene_loss_type   _gene_loss_type;      // NOT_LOST_YET or LOST_BY_LOCAL_MUTATION or DELETED or BROKEN_BY_REAR
     ae_strand           _strand;
     int32_t             _shine_dal_position;
-    int32_t             _nb_promoters;
+    size_t             _nb_promoters;
     int32_t *           _promoter_positions;
     ae_protein *        _protein_pointer;     // for a leaf (current state of a gene), points to the potein object
                                               // for an internal node (ancestral state of a gene), points to NULL
     ae_rna **           _rna_pointers;         // for a leaf (current state of a gene), points to the RNA object 
                                               // for an internal node (ancestral state of a gene), points to NULL
-    ae_list<ae_gene_mutation*> * _mutation_list;       // list of ae_gene_mutations since the creation date of the node, i.e. since the last duplication
+    std::list<ae_gene_mutation*> mutation_list;       // list of ae_gene_mutations since the creation date of the node, i.e. since the last duplication
 
 
     ae_gene_tree_node * _left_child;    // NULL until the gene is duplicated, then points to the copy lying on the original DNA segment 
