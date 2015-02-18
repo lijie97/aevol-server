@@ -143,8 +143,6 @@ class ae_genetic_unit
     inline int32_t  get_max_gu_length( void ) const;
 
 
-    inline void  set_rna_list( ae_list<ae_rna*>** new_list );
-
     inline void set_min_gu_length( int32_t min_gu_length );
     inline void set_max_gu_length( int32_t max_gu_length );
 
@@ -653,11 +651,6 @@ inline int32_t ae_genetic_unit::get_max_gu_length( void ) const
 {
   return _max_gu_length;
 }
-
-inline void ae_genetic_unit::set_rna_list( ae_list<ae_rna*>** new_list )
-{
-  _rna_list = new_list;
-} // TODO : erase that! // NOTE : Why?
 
 inline void ae_genetic_unit::set_min_gu_length( int32_t min_gu_length )
 {
