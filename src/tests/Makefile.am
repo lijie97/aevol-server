@@ -11,6 +11,7 @@ SUBDIRS = $(gtest_dir)
 
 # We define the global AM_CPPFLAGS and not target-specific flags because
 # everything we compile includes from these directories.
+AM_CPPFLAGS += -I$(top_srcdir)/src/libaevol
 AM_CPPFLAGS += -isystem $(gtest_dir) -isystem $(gtest_dir)/include
 
 # Modifies compiler and linker flags for pthreads compatibility.
@@ -27,7 +28,7 @@ endif
 ############################################
 #           Set programs to build          #
 ############################################
-check_PROGRAMS = sampleTest
+check_PROGRAMS = sampleTest individualTest
 CLEANFILES = $(check_PROGRAMS)
 TESTS = $(check_PROGRAMS)
 
@@ -35,3 +36,9 @@ TESTS = $(check_PROGRAMS)
 sampleTest_SOURCES = sampleTest.cpp
 sampleTest_LDADD = $(gtest_dir)/lib/libgtest_main.a \
                    $(gtest_dir)/lib/libgtest.a
+
+individualTest_SOURCES = individualTest.cpp
+individualTest_LDADD = 	$(gtest_dir)/lib/libgtest_main.a \
+                   		$(gtest_dir)/lib/libgtest.a \
+						$(top_srcdir)/src/libaevol/libaevol.a \
+						$(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
