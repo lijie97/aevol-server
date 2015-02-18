@@ -103,7 +103,11 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, const ae_protein &model )
   _height = model._height;
 }
 
-ae_protein::ae_protein( ae_genetic_unit* gen_unit, ae_list<ae_codon*>* codon_list, ae_strand strand, int32_t shine_dal_pos, ae_rna* rna )
+ae_protein::ae_protein(ae_genetic_unit* gen_unit,
+                       const std::list<ae_codon*>& codon_list,
+                       ae_strand strand,
+                       int32_t shine_dal_pos,
+                       ae_rna* rna )
 {
   assert( shine_dal_pos >= 0 );
   assert( shine_dal_pos < gen_unit->get_seq_length() );
@@ -111,7 +115,7 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, ae_list<ae_codon*>* codon_lis
   _gen_unit       = gen_unit;
   _strand         = strand;
   _shine_dal_pos  = shine_dal_pos;
-  _length         = codon_list->get_nb_elts();
+  _length         = codon_list.size();
   
   #ifndef __REGUL
     // In Aevol the concentration of a new protein is set at the basal level
@@ -131,7 +135,7 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, ae_list<ae_codon*>* codon_lis
   #endif
   
   // TODO : make this cleaner...
-  _AA_list = codon_list;
+  _AA_list = new ae_list<ae_codon*>(codon_list);
   
   _rna_list = new ae_list<ae_rna*>();
   _rna_list->add( rna );
@@ -172,14 +176,7 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, ae_list<ae_codon*>* codon_lis
   bool bin_w = false; // when applying the XOR operator for the Gray to standard conversion
   bool bin_h = false;
 
-  ae_list_node<ae_codon*>* node = codon_list->get_first();
-  ae_codon* codon = NULL;
-
-
-  while ( node != NULL )
-  {
-    codon = node->get_obj();
-
+  for (const auto& codon: codon_list) {
     switch ( codon->get_value() )
     {
       case CODON_M0 :
@@ -286,8 +283,6 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, ae_list<ae_codon*>* codon_lis
         break;
       }
     }
-
-    node = node->get_next();
   }
 
 

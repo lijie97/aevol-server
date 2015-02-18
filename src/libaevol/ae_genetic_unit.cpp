@@ -786,7 +786,7 @@ void ae_genetic_unit::do_translation( void )
                 // The protein is valid, create the corresponding object
                 ae_protein* protein;
                 #ifndef __REGUL
-                  protein = new ae_protein( this, codon_list, LEADING, shine_dal_pos, rna );
+                  protein = new ae_protein( this, aelist_to_stdlist(codon_list), LEADING, shine_dal_pos, rna );
                 #else
                   protein = new ae_protein_R( this, codon_list, LEADING, shine_dal_pos, rna );
                 #endif
@@ -907,9 +907,9 @@ void ae_genetic_unit::do_translation( void )
                 // The protein is valid, create the corresponding object
                 ae_protein* protein;
                 #ifndef __REGUL
-                  protein = new ae_protein( this, codon_list, LAGGING, shine_dal_pos, rna );
+                  protein = new ae_protein(this, aelist_to_stdlist(codon_list), LAGGING, shine_dal_pos, rna);
                 #else
-                  protein = new ae_protein_R( this, codon_list, LAGGING, shine_dal_pos, rna );
+                  protein = new ae_protein_R(this, aelist_to_stdlist(codon_list), LAGGING, shine_dal_pos, rna);
                 #endif
 
                 // The codon list will be kept in the protein
