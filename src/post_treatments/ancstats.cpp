@@ -747,7 +747,7 @@ void write_operons_stats( int32_t num_gener, ae_individual * indiv, FILE*  opero
 
     if (rna->get_transcribed_proteins().size() >= 20)
     {
-      printf("Found operon with 20 genes or more : %" PRId32 "\n", rna->get_transcribed_proteins().size());
+      printf("Found operon with 20 genes or more : %zu\n", rna->get_transcribed_proteins().size());
       getchar();
     }
 
