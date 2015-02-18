@@ -84,6 +84,7 @@ class ae_protein
     // =================================================================
     inline ae_strand          get_strand( void )                const;
     inline ae_list<ae_rna*>*  get_rna_list( void )              const;
+    inline const std::list<ae_rna*> get_rna_list_std()          const;
     inline int32_t            get_shine_dal_pos( void )         const;
     inline int32_t            get_first_translated_pos( void )  const;
     inline int32_t            get_last_translated_pos( void )   const;
@@ -165,6 +166,10 @@ inline ae_strand ae_protein::get_strand( void ) const
 inline ae_list<ae_rna*>* ae_protein::get_rna_list( void ) const
 {
   return _rna_list;
+}
+
+inline const std::list<ae_rna*> ae_protein::get_rna_list_std() const {
+  return aelist_to_stdlist(_rna_list);
 }
 
 int32_t ae_protein::get_shine_dal_pos( void ) const
