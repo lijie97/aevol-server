@@ -79,20 +79,13 @@ class ae_gene_tree_node
     // =================================================================
     //                             Constructors
     // =================================================================
-
-    ae_gene_tree_node( int32_t nodeCreationDate, ae_protein * protein); 
+    ae_gene_tree_node( int32_t nodeCreationDate, ae_protein * protein);
 
   
     // =================================================================
     //                             Destructors
     // =================================================================
     virtual ~ae_gene_tree_node( void );
-  
-    // =================================================================
-    //                              Accessors
-    // =================================================================
-    inline ae_list<ae_gene_mutation*>* get_mutation_list() const;
-    inline ae_gene_loss_type get_gene_loss_type() const;
   
     // =================================================================
     //                            Public Methods
@@ -104,14 +97,6 @@ class ae_gene_tree_node
     void update_pointers_in_subtree_leaves(ae_genetic_unit * unit);
     void anticipate_mutation_effect_on_genes_in_subtree_leaves(ae_mutation * mut, int32_t lengthOfGeneticUnit);
     void register_actual_mutation_effect_on_genes_in_subtree_leaves( ae_gene_tree * tree, ae_mutation * mut, ae_genetic_unit * unit, int32_t gener, double impact_on_metabolic_error);
-  
-    // =================================================================
-    //                           Public Attributes
-    // =================================================================
-  
-  
-  
-  
   
   protected :
   
@@ -128,13 +113,7 @@ class ae_gene_tree_node
         printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
         exit( EXIT_FAILURE );
       };
-    
-  
-    // =================================================================
-    //                           Protected Methods
-    // =================================================================
 
-  
     // =================================================================
     //                          Protected Attributes
     // =================================================================
@@ -169,25 +148,6 @@ class ae_gene_tree_node
     
     
 };
-
-
-// =====================================================================
-//                          Accessors' definitions
-// =====================================================================
-inline ae_list<ae_gene_mutation*>* ae_gene_tree_node::get_mutation_list() const
-{
-  return _mutation_list;
-}
-
-inline ae_gene_loss_type ae_gene_tree_node::get_gene_loss_type() const
-{
-  return _gene_loss_type;
-}
-
-// =====================================================================
-//                       Inline functions' definition
-// =====================================================================
-
 } // namespace aevol
 
 #endif // __AE_GENE_TREE_NODE_H__
