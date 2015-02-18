@@ -310,38 +310,35 @@ void ae_gene_tree_node::write_subtree_nodes_in_tabular_file(int32_t treeID, FILE
   int32_t nb_rear_upstream_neutral = 0, nb_rear_upstream_benef = 0, nb_rear_upstream_delet = 0;
   int32_t nb_localmut_cds_neutral = 0, nb_localmut_cds_benef = 0, nb_localmut_cds_delet = 0;
   int32_t nb_rear_cds_neutral = 0, nb_rear_cds_benef = 0, nb_rear_cds_delet = 0;
-  if ((_gene_loss_type == DELETED) || (_gene_loss_type == LOST_BY_LOCAL_MUTATION) || (_gene_loss_type == BROKEN_BY_REAR)) {
-    // do not count the last event, it was disruptive
-    // TODO vld: check these awful if conditions
-    for (const auto& mutation: mutation_list) {
-      if      ((mutation->type_of_event() == 0) && (mutation->get_region() == UPSTREAM) && (mutation->get_impact_on_metabolic_error() == 0.0)) {nb_localmut_upstream_neutral ++;}
-      else if ((mutation->type_of_event() == 0) && (mutation->get_region() == UPSTREAM) && (mutation->get_impact_on_metabolic_error() < 0.0)) {nb_localmut_upstream_benef ++;}
-      else if ((mutation->type_of_event() == 0) && (mutation->get_region() == UPSTREAM) && (mutation->get_impact_on_metabolic_error() > 0.0)) {nb_localmut_upstream_delet ++;}
-      else if ((mutation->type_of_event() == 0) && ((mutation->get_region() == CDS) || (mutation->get_region() == BOTH)) && (mutation->get_impact_on_metabolic_error() == 0.0)) {nb_localmut_cds_neutral ++;}
-      else if ((mutation->type_of_event() == 0) && ((mutation->get_region() == CDS) || (mutation->get_region() == BOTH)) && (mutation->get_impact_on_metabolic_error() < 0.0)) {nb_localmut_cds_benef ++;}
-      else if ((mutation->type_of_event() == 0) && ((mutation->get_region() == CDS) || (mutation->get_region() == BOTH)) && (mutation->get_impact_on_metabolic_error() > 0.0)) {nb_localmut_cds_delet ++;}
-      else if ((mutation->type_of_event() == 1) && (mutation->get_region() == UPSTREAM) && (mutation->get_impact_on_metabolic_error() == 0.0)) {nb_rear_upstream_neutral ++;}
-      else if ((mutation->type_of_event() == 1) && (mutation->get_region() == UPSTREAM) && (mutation->get_impact_on_metabolic_error() < 0.0)) {nb_rear_upstream_benef ++;}
-      else if ((mutation->type_of_event() == 1) && (mutation->get_region() == UPSTREAM) && (mutation->get_impact_on_metabolic_error() > 0.0)) {nb_rear_upstream_delet ++;}
-      else if ((mutation->type_of_event() == 1) && ((mutation->get_region() == CDS) || (mutation->get_region() == BOTH)) && (mutation->get_impact_on_metabolic_error() == 0.0)) {nb_rear_cds_neutral ++;}
-      else if ((mutation->type_of_event() == 1) && ((mutation->get_region() == CDS) || (mutation->get_region() == BOTH)) && (mutation->get_impact_on_metabolic_error() < 0.0)) {nb_rear_cds_benef ++;}
-      else if ((mutation->type_of_event() == 1) && ((mutation->get_region() == CDS) || (mutation->get_region() == BOTH)) && (mutation->get_impact_on_metabolic_error() > 0.0)) {nb_rear_cds_delet ++;}
+  for (const auto& mutation: mutation_list) {
+    if (mutation == &(*mutation_list.back()))
+      // do not count the last event, if it was disruptive
+      if ((_gene_loss_type == DELETED) || (_gene_loss_type == LOST_BY_LOCAL_MUTATION) || (_gene_loss_type == BROKEN_BY_REAR))
+        break;
+
+    if (mutation->type_of_event() == 0) {
+      if (mutation->get_region() == UPSTREAM) {
+        if      (mutation->get_impact_on_metabolic_error() == 0.0) nb_localmut_upstream_neutral++;
+        else if (mutation->get_impact_on_metabolic_error() < 0.0)  nb_localmut_upstream_benef++;
+        else if (mutation->get_impact_on_metabolic_error() > 0.0)  nb_localmut_upstream_delet++;
+      }
+      else {
+        if      (mutation->get_impact_on_metabolic_error() == 0.0) nb_localmut_cds_neutral++;
+        else if (mutation->get_impact_on_metabolic_error() < 0.0)  nb_localmut_cds_benef++;
+        else if (mutation->get_impact_on_metabolic_error() > 0.0)  nb_localmut_cds_delet++;
+      }
     }
-  }
-  else {
-    for (const auto& mutation: mutation_list) {
-      if      ((mutation->type_of_event() == 0) && (mutation->get_region() == UPSTREAM) && (mutation->get_impact_on_metabolic_error() == 0.0)) {nb_localmut_upstream_neutral ++;}
-      else if ((mutation->type_of_event() == 0) && (mutation->get_region() == UPSTREAM) && (mutation->get_impact_on_metabolic_error() < 0.0)) {nb_localmut_upstream_benef ++;}
-      else if ((mutation->type_of_event() == 0) && (mutation->get_region() == UPSTREAM) && (mutation->get_impact_on_metabolic_error() > 0.0)) {nb_localmut_upstream_delet ++;}
-      else if ((mutation->type_of_event() == 0) && ((mutation->get_region() == CDS) || (mutation->get_region() == BOTH)) && (mutation->get_impact_on_metabolic_error() == 0.0)) {nb_localmut_cds_neutral ++;}
-      else if ((mutation->type_of_event() == 0) && ((mutation->get_region() == CDS) || (mutation->get_region() == BOTH)) && (mutation->get_impact_on_metabolic_error() < 0.0)) {nb_localmut_cds_benef ++;}
-      else if ((mutation->type_of_event() == 0) && ((mutation->get_region() == CDS) || (mutation->get_region() == BOTH)) && (mutation->get_impact_on_metabolic_error() > 0.0)) {nb_localmut_cds_delet ++;}
-      else if ((mutation->type_of_event() == 1) && (mutation->get_region() == UPSTREAM) && (mutation->get_impact_on_metabolic_error() == 0.0)) {nb_rear_upstream_neutral ++;}
-      else if ((mutation->type_of_event() == 1) && (mutation->get_region() == UPSTREAM) && (mutation->get_impact_on_metabolic_error() < 0.0)) {nb_rear_upstream_benef ++;}
-      else if ((mutation->type_of_event() == 1) && (mutation->get_region() == UPSTREAM) && (mutation->get_impact_on_metabolic_error() > 0.0)) {nb_rear_upstream_delet ++;}
-      else if ((mutation->type_of_event() == 1) && ((mutation->get_region() == CDS) || (mutation->get_region() == BOTH)) && (mutation->get_impact_on_metabolic_error() == 0.0)) {nb_rear_cds_neutral ++;}
-      else if ((mutation->type_of_event() == 1) && ((mutation->get_region() == CDS) || (mutation->get_region() == BOTH)) && (mutation->get_impact_on_metabolic_error() < 0.0)) {nb_rear_cds_benef ++;}
-      else if ((mutation->type_of_event() == 1) && ((mutation->get_region() == CDS) || (mutation->get_region() == BOTH)) && (mutation->get_impact_on_metabolic_error() > 0.0)) {nb_rear_cds_delet ++;}
+    else {
+      if (mutation->get_region() == UPSTREAM) {
+        if      (mutation->get_impact_on_metabolic_error() == 0.0) nb_rear_upstream_neutral++;
+        else if (mutation->get_impact_on_metabolic_error() < 0.0)  nb_rear_upstream_benef++;
+        else if (mutation->get_impact_on_metabolic_error() > 0.0)  nb_rear_upstream_delet++;
+      }
+      else {
+        if      (mutation->get_impact_on_metabolic_error() == 0.0) nb_rear_cds_neutral++;
+        else if (mutation->get_impact_on_metabolic_error() < 0.0)  nb_rear_cds_benef++;
+        else if (mutation->get_impact_on_metabolic_error() > 0.0)  nb_rear_cds_delet++;
+      }
     }
   }
   fprintf(f, "%" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " ", \
