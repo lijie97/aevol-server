@@ -186,7 +186,6 @@ void ae_selection::step_to_next_generation( void )
   // -------------------------------------------------------------
   //  4) Replace the current generation by the newly created one.
   // -------------------------------------------------------------
-  assert( _exp_m->get_pop()->get_indivs()->is_empty() );
   _exp_m->get_pop()->update_population( new_generation );
 
 
