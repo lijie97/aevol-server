@@ -4,13 +4,14 @@
 AM_CPPFLAGS = $(AEVOLCPPFLAGS)
 AM_CXXFLAGS = $(AEVOLCXXFLAGS)
 AM_LDFLAGS = $(AEVOLLDFLAGS)
+gtest_dir = gtest-1.7.0
 
-SUBDIRS = gtest-1.7.0
+SUBDIRS = $(gtest_dir)
 
 
 # We define the global AM_CPPFLAGS and not target-specific flags because
 # everything we compile includes from these directories.
-AM_CPPFLAGS += -I$(srcdir) -I$(srcdir)/include
+AM_CPPFLAGS += -isystem $(gtest_dir) -isystem $(gtest_dir)/include
 
 # Modifies compiler and linker flags for pthreads compatibility.
 if HAVE_PTHREADS
@@ -32,5 +33,5 @@ TESTS = $(check_PROGRAMS)
 
 
 sampleTest_SOURCES = sampleTest.cpp
-sampleTest_LDADD = gtest-1.7.0/lib/libgtest_main.a \
-                   gtest-1.7.0/lib/libgtest.a
+sampleTest_LDADD = $(gtest_dir)/lib/libgtest_main.a \
+                   $(gtest_dir)/lib/libgtest.a
