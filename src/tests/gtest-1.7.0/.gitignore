@@ -1,0 +1,13 @@
+build-aux/config.h
+build-aux/stamp-h1
+fused-src/
+lib/
+libtool
+samples/.deps/
+samples/.dirstamp
+scripts/gtest-config
+src/.deps/
+src/.dirstamp
+test/.deps/
+test/.dirstamp
+test/fused_gtest_test
