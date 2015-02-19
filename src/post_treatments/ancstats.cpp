@@ -316,11 +316,6 @@ int main(int argc, char** argv)
   int32_t num_gener = 0;
 
   ae_replication_report* rep = NULL;
-  ae_list_node<ae_dna_replic_report*>* dnarepnode  = NULL;
-  ae_dna_replic_report* dnarep = NULL;
-
-  ae_list_node<ae_mutation*>* mnode  = NULL;
-  ae_mutation* mut = NULL;
 
   ae_individual* stored_indiv = NULL;
 
@@ -379,11 +374,9 @@ int main(int argc, char** argv)
     // during the evolution
 
     // 2) Replay replication (create current individual's child)
-    dnarepnode  = rep->get_dna_replic_reports()->get_first();
     std::list<ae_genetic_unit*> gulist = indiv->get_genetic_unit_list_std();
     std::list<ae_genetic_unit*> storedgulist = stored_indiv->get_genetic_unit_list_std();
 
-    std::list<ae_genetic_unit*>::const_iterator unit = gulist.begin();
     std::list<ae_genetic_unit*>::const_iterator storedunit;
     if ( check_now )
     {
@@ -394,37 +387,20 @@ int main(int argc, char** argv)
     }
 
     // For each genetic unit, replay the replication (undergo all mutations)
-    while ( dnarepnode != NULL )
-    {
+    std::list<ae_genetic_unit*>::const_iterator unit = gulist.begin();
+    for (const auto& dnarep: rep->get_dna_replic_reports()) {
       assert(unit != gulist.end());
-
-      dnarep  = (ae_dna_replic_report *)  dnarepnode->get_obj();
 
       (*unit)->get_dna()->set_replic_report(dnarep);
 
-      mnode = dnarep->get_HT()->get_first();
-      while ( mnode != NULL )
-      {
-        mut = (ae_mutation *) mnode->get_obj();
+      for (const auto& mut: dnarep->get_HT_std())
         (*unit)->get_dna()->undergo_this_mutation(mut);
-        mnode = mnode->get_next();
-      }
 
-      mnode = dnarep->get_rearrangements()->get_first();
-      while ( mnode != NULL )
-      {
-        mut = (ae_mutation *) mnode->get_obj();
+      for (const auto& mut: dnarep->get_rearrangements_std())
         (*unit)->get_dna()->undergo_this_mutation(mut);
-        mnode = mnode->get_next();
-      }
 
-      mnode = dnarep->get_mutations()->get_first();
-      while ( mnode != NULL )
-      {
-        mut = (ae_mutation *) mnode->get_obj();
+      for (const auto& mut: dnarep->get_mutations_std())
         (*unit)->get_dna()->undergo_this_mutation(mut);
-        mnode = mnode->get_next();
-      }
 
       if ( check_now )
       {
@@ -470,9 +446,6 @@ int main(int argc, char** argv)
 
         ++storedunit;
       }
-
-
-      dnarepnode = dnarepnode->get_next();
       ++unit;
     }
 

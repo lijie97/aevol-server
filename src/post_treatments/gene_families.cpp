@@ -289,8 +289,6 @@ int main(int argc, char** argv)
   //   time a backup is available)
   // ===============================================================================
   ae_replication_report* rep = NULL;
-  ae_list_node<ae_dna_replic_report*>* dnarepnode = NULL;
-  ae_dna_replic_report* dnarep = NULL;
 
   ae_list_node<ae_mutation*>* mnode = NULL;
   ae_mutation* mut = NULL;
@@ -360,7 +358,6 @@ int main(int argc, char** argv)
     // during the evolution, or if some translocations occurred between different genetic units
 
     genetic_unit_number = 0;
-    dnarepnode = (rep->get_dna_replic_reports())->get_first();
     auto unit = indiv->get_genetic_unit_list_std().cbegin();
 
 
@@ -373,14 +370,9 @@ int main(int argc, char** argv)
     }
 
 
-    while ( dnarepnode != NULL )
-    {
+    for (const auto& dnarep: rep->get_dna_replic_reports()) {
       assert(unit != indiv->get_genetic_unit_list_std().cend());
-
-      dnarep = dnarepnode->get_obj();
-
       (*unit)->get_dna()->set_replic_report( dnarep );
-
       update_pointers_in_trees(gene_trees, *unit); // because of the reevaluate at each new generation (envir. variation possible)
 
       // ***************************************
@@ -563,9 +555,6 @@ int main(int argc, char** argv)
 
         ++stored_unit;
       }
-
-
-      dnarepnode = dnarepnode->get_next();
       ++unit;
       genetic_unit_number ++;
     }

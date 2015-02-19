@@ -647,7 +647,7 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
 
     if ( new_indiv->get_replic_report() != NULL )
     {
-      new_indiv->get_replic_report()->get_dna_replic_reports()->add( chromosome->get_dna()->get_replic_report() );
+      new_indiv->get_replic_report()->add_dna_replic_report(chromosome->get_dna()->get_replic_report());
     }
   }
   else
@@ -672,7 +672,7 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
  
         if ( new_indiv->get_replic_report() != NULL )
         {
-          new_indiv->get_replic_report()->get_dna_replic_reports()->add( gen_unit->get_dna()->get_replic_report() );
+          new_indiv->get_replic_report()->add_dna_replic_report(gen_unit->get_dna()->get_replic_report());
         }
 
         gen_unit_node = gen_unit_node->get_next();
@@ -691,7 +691,7 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
 
         if ( new_indiv->get_replic_report() != NULL )
         {
-          new_indiv->get_replic_report()->get_dna_replic_reports()->add( gen_unit->get_dna()->get_replic_report() );
+          new_indiv->get_replic_report()->add_dna_replic_report(gen_unit->get_dna()->get_replic_report());
         }
 
         gen_unit_node = gen_unit_node->get_prev();

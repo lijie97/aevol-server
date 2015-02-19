@@ -344,7 +344,7 @@ int main(int argc, char** argv)
     // during the evolution, or if some translocations occurred between different genetic units
 
     genetic_unit_number = 0;
-    std::list<ae_dna_replic_report*>::const_iterator dnareport = rep->get_dna_replic_reports_std().begin();
+    std::list<ae_dna_replic_report*>::const_iterator dnareport = rep->get_dna_replic_reports().begin();
     std::list<ae_genetic_unit*>::const_iterator unit = indiv->get_genetic_unit_list_std().begin();
 
     if ( check_now && ae_utils::mod(num_gener, backup_step) == 0)
@@ -356,7 +356,7 @@ int main(int argc, char** argv)
       stored_unit = stored_indiv->get_genetic_unit_list_std().begin();
     }
 
-    while (dnareport != rep->get_dna_replic_reports_std().end())
+    while (dnareport != rep->get_dna_replic_reports().end())
     {
       assert(unit != indiv->get_genetic_unit_list_std().end());
 

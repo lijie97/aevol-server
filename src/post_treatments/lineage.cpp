@@ -24,9 +24,6 @@
 //
 //*****************************************************************************
 
-
-
-
 // =================================================================
 //                              Libraries
 // =================================================================
@@ -49,7 +46,6 @@
 #include "ae_exp_manager.h"
 #include "ae_individual.h"
 #include "ae_genetic_unit.h"
-#include "ae_list.h"
 #include "ae_tree.h"
 #include "ae_replication_report.h"
 #include "ae_dna_replic_report.h"
@@ -65,17 +61,11 @@ enum check_type
   NO_CHECK    = 2
 };
 
-
-
 // =================================================================
 //                         Function declarations
 // =================================================================
 void print_help(char* prog_path);
 void print_version( void );
-
-
-
-
 
 int main(int argc, char** argv)
 {
@@ -402,11 +392,6 @@ int main(int argc, char** argv)
     printf("============================================================ \n");
   }
 
-
-  ae_list_node<ae_dna_replic_report*>*  report_node = NULL;
-  ae_list_node<ae_mutation*>*           mut_node = NULL;
-  ae_dna_replic_report* rep   = NULL;
-  ae_mutation*          mut   = NULL;
   std::list<ae_genetic_unit*>::const_iterator unit;
 
   ae_individual*   stored_indiv          = NULL;
@@ -455,38 +440,18 @@ int main(int argc, char** argv)
     // Warning: this portion of code won't work if the number of units changes
     // during the evolution
 
-    report_node   = reports[i]->get_dna_replic_reports()->get_first();
     unit = initial_ancestor->get_genetic_unit_list_std().cbegin();
-
-    while ( report_node != NULL )
-    {
+    for (const auto& rep: reports[i]->get_dna_replic_reports()) {
       assert(unit != initial_ancestor->get_genetic_unit_list_std().cend());
 
-      rep = (ae_dna_replic_report *) report_node->get_obj();
-
-      mut_node = rep->get_HT()->get_first();
-      while ( mut_node != NULL )
-      {
-        mut = (ae_mutation *) mut_node->get_obj();
+      for (const auto& mut: rep->get_HT_std())
         ((*unit)->get_dna())->undergo_this_mutation( mut );
-        mut_node = mut_node->get_next();
-      }
 
-      mut_node = rep->get_rearrangements()->get_first();
-      while ( mut_node != NULL )
-      {
-        mut = (ae_mutation *) mut_node->get_obj();
+      for (const auto& mut: rep->get_rearrangements_std())
         ((*unit)->get_dna())->undergo_this_mutation( mut );
-        mut_node = mut_node->get_next();
-      }
 
-      mut_node = rep->get_mutations()->get_first();
-      while ( mut_node != NULL )
-      {
-        mut = (ae_mutation *) mut_node->get_obj();
+      for (const auto& mut: rep->get_mutations_std())
         (*unit)->get_dna()->undergo_this_mutation( mut );
-        mut_node = mut_node->get_next();
-      }
 
       if ( check_genome_now )
       {
@@ -533,8 +498,6 @@ int main(int argc, char** argv)
 
         ++stored_gen_unit;
       }
-
-      report_node   = report_node->get_next();
       ++unit;
     }
 
@@ -556,9 +519,6 @@ int main(int argc, char** argv)
   exit(EXIT_SUCCESS);
 
 }
-
-
-
 
 /*!
   \brief
