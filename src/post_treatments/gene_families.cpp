@@ -83,8 +83,8 @@ void print_help(char* prog_path);
 void print_version( void );
 
 void update_pointers_in_trees(ae_list<ae_gene_tree*> * gene_trees, ae_genetic_unit * unit);
-void anticipate_mutation_effect_on_genes_in_trees(ae_list<ae_gene_tree*> * gene_trees, ae_mutation * mut, int32_t unitlen_before);
-void register_actual_mutation_effect_on_genes_in_trees(ae_list<ae_gene_tree*> * gene_trees, ae_mutation * mut, ae_genetic_unit * unit, int32_t gener, double impact_on_metabolic_error);
+void anticipate_mutation_effect_on_genes_in_trees(ae_list<ae_gene_tree*> * gene_trees, const ae_mutation * mut, int32_t unitlen_before);
+void register_actual_mutation_effect_on_genes_in_trees(ae_list<ae_gene_tree*>* gene_trees, const ae_mutation* mut, ae_genetic_unit * unit, int32_t gener, double impact_on_metabolic_error);
 void search_protein_in_gene_trees(ae_list<ae_gene_tree*> * gene_trees, ae_protein * prot, ae_gene_tree ** resultTree, ae_gene_tree_node ** resultNode);
 void set_end_gener_if_active_leaves_in_trees(ae_list<ae_gene_tree*> * gene_trees, int32_t gener);
 void write_gene_trees_to_files(ae_list<ae_gene_tree*> * gene_trees, int32_t end_gener);
@@ -290,9 +290,6 @@ int main(int argc, char** argv)
   // ===============================================================================
   ae_replication_report* rep = NULL;
 
-  ae_list_node<ae_mutation*>* mnode = NULL;
-  ae_mutation* mut = NULL;
-
   std::list<ae_genetic_unit*>::const_iterator unit;
 
   ae_individual* stored_indiv = NULL;
@@ -415,22 +412,18 @@ int main(int argc, char** argv)
       //           Rearrangement events
       // ***************************************
 
-      mnode = dnarep->get_rearrangements()->get_first();
-      while ( mnode != NULL )
-      {
-        mut = (ae_mutation *) mnode->get_obj();
-
+      for (const auto& mut: dnarep->get_rearrangements()) {
         metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
         unitlen_before = (*unit)->get_dna()->get_length();
-        anticipate_mutation_effect_on_genes_in_trees(gene_trees, mut, unitlen_before);
+        anticipate_mutation_effect_on_genes_in_trees(gene_trees, &mut, unitlen_before);
 
-        (*unit)->get_dna()->undergo_this_mutation(mut);
+        (*unit)->get_dna()->undergo_this_mutation(&mut);
 
         indiv->reevaluate(env);
         metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
-        register_actual_mutation_effect_on_genes_in_trees(gene_trees, mut, *unit, num_gener, impact_on_metabolic_error);
+        register_actual_mutation_effect_on_genes_in_trees(gene_trees, &mut, *unit, num_gener, impact_on_metabolic_error);
 
         /* New genes that have been created "from scratch", i.e. not by duplication => new gene tree */
         prot_node = ((*unit)->get_protein_list()[LEADING])->get_first();
@@ -440,7 +433,7 @@ int main(int argc, char** argv)
             search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
             if (genetreenode == NULL)
               {
-                gene_trees->add(new ae_gene_tree(num_gener, prot, mut));
+                gene_trees->add(new ae_gene_tree(num_gener, prot, &mut));
               }
             prot_node = prot_node->get_next();
           }
@@ -451,13 +444,12 @@ int main(int argc, char** argv)
             search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
             if (genetreenode == NULL)
               {
-                gene_trees->add(new ae_gene_tree(num_gener, prot, mut));
+                gene_trees->add(new ae_gene_tree(num_gener, prot, &mut));
               }
             prot_node = prot_node->get_next();
           }
          // print_gene_trees_to_screen(gene_trees);// DEBUG
          // indiv->print_protein_list(); // DEBUG
-         mnode = mnode->get_next();
       }
 
 
@@ -465,21 +457,17 @@ int main(int argc, char** argv)
       // Local events (point mutations & small indels)
       // ***************************************
 
-      mnode = dnarep->get_mutations()->get_first();
-      while ( mnode != NULL )
-      {
-        mut = (ae_mutation *) mnode->get_obj();
-
+      for (const auto& mut: dnarep->get_mutations()) {
         metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
         unitlen_before = (*unit)->get_dna()->get_length();
-        anticipate_mutation_effect_on_genes_in_trees(gene_trees, mut, unitlen_before);
-        (*unit)->get_dna()->undergo_this_mutation( mut );
+        anticipate_mutation_effect_on_genes_in_trees(gene_trees, &mut, unitlen_before);
+        (*unit)->get_dna()->undergo_this_mutation(&mut);
 
         indiv->reevaluate(env);
         metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
-        register_actual_mutation_effect_on_genes_in_trees(gene_trees, mut, *unit, num_gener, impact_on_metabolic_error);
+        register_actual_mutation_effect_on_genes_in_trees(gene_trees, &mut, *unit, num_gener, impact_on_metabolic_error);
 
         /* New genes that have been created "from scratch", i.e. not by duplication => new gene tree */
         prot_node = ((*unit)->get_protein_list()[LEADING])->get_first();
@@ -489,7 +477,7 @@ int main(int argc, char** argv)
             search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
             if (genetreenode == NULL)
               {
-                gene_trees->add(new ae_gene_tree(num_gener, prot, mut));
+                gene_trees->add(new ae_gene_tree(num_gener, prot, &mut));
               }
             prot_node = prot_node->get_next();
           }
@@ -500,14 +488,10 @@ int main(int argc, char** argv)
             search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
             if (genetreenode == NULL)
               {
-                gene_trees->add(new ae_gene_tree(num_gener, prot,  mut));
+                gene_trees->add(new ae_gene_tree(num_gener, prot, &mut));
               }
             prot_node = prot_node->get_next();
           }
-
-         // print_gene_trees_to_screen(gene_trees);// DEBUG
-         // indiv->print_protein_list(); // DEBUG
-         mnode = mnode->get_next();
       }
 
       if ( check_now && ae_utils::mod(num_gener, backup_step) == 0)
@@ -635,7 +619,10 @@ void update_pointers_in_trees(ae_list<ae_gene_tree*> * gene_trees, ae_genetic_un
 }
 
 
-void anticipate_mutation_effect_on_genes_in_trees(ae_list<ae_gene_tree*> * gene_trees, ae_mutation * mut, int32_t unitlen_before)
+void anticipate_mutation_effect_on_genes_in_trees(
+    ae_list<ae_gene_tree*> * gene_trees,
+    const ae_mutation* mut,
+    int32_t unitlen_before)
 {
   ae_list_node<ae_gene_tree*> * n = gene_trees->get_first();
   ae_gene_tree * tree = NULL;
@@ -647,7 +634,12 @@ void anticipate_mutation_effect_on_genes_in_trees(ae_list<ae_gene_tree*> * gene_
     }
 }
 
-void register_actual_mutation_effect_on_genes_in_trees(ae_list<ae_gene_tree*> * gene_trees, ae_mutation * mut, ae_genetic_unit * unit, int32_t gener, double impact_on_metabolic_error)
+void register_actual_mutation_effect_on_genes_in_trees(
+    ae_list<ae_gene_tree*>* gene_trees,
+    const ae_mutation* mut,
+    ae_genetic_unit* unit,
+    int32_t gener,
+    double impact_on_metabolic_error)
 {
   ae_list_node<ae_gene_tree*> * n = gene_trees->get_first();
   ae_gene_tree * tree = NULL;

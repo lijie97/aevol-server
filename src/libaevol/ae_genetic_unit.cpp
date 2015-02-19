@@ -3799,7 +3799,7 @@ static bool gene_totally_in_segment(int32_t pos1, int32_t pos2, int32_t first, i
 
 // WARNING: This method works properly only in the case of a single genetic unit (no plasmid).
 // Translocations between different genetic units is not managed.
-void ae_genetic_unit::compute_nb_of_affected_genes(ae_mutation * mut, int & nb_genes_at_breakpoints, int & nb_genes_in_segment, int & nb_genes_in_replaced_segment)
+void ae_genetic_unit::compute_nb_of_affected_genes(const ae_mutation * mut, int & nb_genes_at_breakpoints, int & nb_genes_in_segment, int & nb_genes_in_replaced_segment)
 {
   nb_genes_at_breakpoints = 0;
   nb_genes_in_segment = 0;

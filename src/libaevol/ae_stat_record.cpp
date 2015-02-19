@@ -228,12 +228,12 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_individual const * ind
     {
       _nb_mut    = gen_unit->get_dna()->get_replic_report()->get_nb_small_mutations();
       _nb_rear   = gen_unit->get_dna()->get_replic_report()->get_nb_rearrangements();
-      _nb_switch = gen_unit->get_dna()->get_replic_report()->get_nb_switch();
+      _nb_switch = gen_unit->get_dna()->get_replic_report()->get_nb(SWITCH);
       _nb_indels = gen_unit->get_dna()->get_replic_report()->get_nb_indels();
-      _nb_dupl   = gen_unit->get_dna()->get_replic_report()->get_nb_duplications();
-      _nb_del    = gen_unit->get_dna()->get_replic_report()->get_nb_deletions();
-      _nb_trans  = gen_unit->get_dna()->get_replic_report()->get_nb_translocations();
-      _nb_inv    = gen_unit->get_dna()->get_replic_report()->get_nb_inversions();
+      _nb_dupl   = gen_unit->get_dna()->get_replic_report()->get_nb(DUPL);
+      _nb_del    = gen_unit->get_dna()->get_replic_report()->get_nb(DEL);
+      _nb_trans  = gen_unit->get_dna()->get_replic_report()->get_nb(TRANS);
+      _nb_inv    = gen_unit->get_dna()->get_replic_report()->get_nb(INV);
       
       // Rearrangement rate stats
       int32_t parent_genome_size = replic_report->get_parent_genome_size();
@@ -330,12 +330,12 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_individual const * ind
       {
         _nb_mut    += gen_unit->get_dna()->get_replic_report()->get_nb_small_mutations();
         _nb_rear   += gen_unit->get_dna()->get_replic_report()->get_nb_rearrangements();
-        _nb_switch += gen_unit->get_dna()->get_replic_report()->get_nb_switch();
+        _nb_switch += gen_unit->get_dna()->get_replic_report()->get_nb(SWITCH);
         _nb_indels += gen_unit->get_dna()->get_replic_report()->get_nb_indels();
-        _nb_dupl   += gen_unit->get_dna()->get_replic_report()->get_nb_duplications();
-        _nb_del    += gen_unit->get_dna()->get_replic_report()->get_nb_deletions();
-        _nb_trans  += gen_unit->get_dna()->get_replic_report()->get_nb_translocations();
-        _nb_inv    += gen_unit->get_dna()->get_replic_report()->get_nb_inversions();
+        _nb_dupl   += gen_unit->get_dna()->get_replic_report()->get_nb(DUPL);
+        _nb_del    += gen_unit->get_dna()->get_replic_report()->get_nb(DEL);
+        _nb_trans  += gen_unit->get_dna()->get_replic_report()->get_nb(TRANS);
+        _nb_inv    += gen_unit->get_dna()->get_replic_report()->get_nb(INV);
       }
 
      gen_unit_node = gen_unit_node->get_next();
@@ -435,12 +435,12 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_individual const * ind
     {
       _nb_mut    = gen_unit->get_dna()->get_replic_report()->get_nb_small_mutations();
       _nb_rear   = gen_unit->get_dna()->get_replic_report()->get_nb_rearrangements();
-      _nb_switch = gen_unit->get_dna()->get_replic_report()->get_nb_switch();
+      _nb_switch = gen_unit->get_dna()->get_replic_report()->get_nb(SWITCH);
       _nb_indels = gen_unit->get_dna()->get_replic_report()->get_nb_indels();
-      _nb_dupl   = gen_unit->get_dna()->get_replic_report()->get_nb_duplications();
-      _nb_del    = gen_unit->get_dna()->get_replic_report()->get_nb_deletions();
-      _nb_trans  = gen_unit->get_dna()->get_replic_report()->get_nb_translocations();
-      _nb_inv    = gen_unit->get_dna()->get_replic_report()->get_nb_inversions();
+      _nb_dupl   = gen_unit->get_dna()->get_replic_report()->get_nb(DUPL);
+      _nb_del    = gen_unit->get_dna()->get_replic_report()->get_nb(DEL);
+      _nb_trans  = gen_unit->get_dna()->get_replic_report()->get_nb(TRANS);
+      _nb_inv    = gen_unit->get_dna()->get_replic_report()->get_nb(INV);
     }
     
     // Rearrangement rate stats

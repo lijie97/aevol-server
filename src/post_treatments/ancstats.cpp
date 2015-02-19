@@ -393,14 +393,14 @@ int main(int argc, char** argv)
 
       (*unit)->get_dna()->set_replic_report(dnarep);
 
-      for (const auto& mut: dnarep->get_HT_std())
-        (*unit)->get_dna()->undergo_this_mutation(mut);
+      for (const auto& mut: dnarep->get_HT())
+        (*unit)->get_dna()->undergo_this_mutation(&mut);
 
-      for (const auto& mut: dnarep->get_rearrangements_std())
-        (*unit)->get_dna()->undergo_this_mutation(mut);
+      for (const auto& mut: dnarep->get_rearrangements())
+        (*unit)->get_dna()->undergo_this_mutation(&mut);
 
-      for (const auto& mut: dnarep->get_mutations_std())
-        (*unit)->get_dna()->undergo_this_mutation(mut);
+      for (const auto& mut: dnarep->get_mutations())
+        (*unit)->get_dna()->undergo_this_mutation(&mut);
 
       if ( check_now )
       {

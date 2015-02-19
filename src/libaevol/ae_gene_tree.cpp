@@ -76,7 +76,7 @@ ae_gene_tree::ae_gene_tree( void )
 }
 
 // Creates a tree with just a root node.
-ae_gene_tree::ae_gene_tree( int32_t nodeCreationDate, ae_protein * protein, ae_mutation * mut /* = NULL */ )
+ae_gene_tree::ae_gene_tree( int32_t nodeCreationDate, ae_protein * protein, const ae_mutation* mut /* = NULL */ )
 {
   _root = new ae_gene_tree_node(nodeCreationDate, protein);
   if (mut == NULL)  _creation_type = INITIALIZATION;
@@ -120,12 +120,12 @@ void ae_gene_tree::update_pointers_in_tree_leaves(ae_genetic_unit * unit)
   _root->update_pointers_in_subtree_leaves(unit);
 }
 
-void ae_gene_tree::anticipate_mutation_effect_on_genes_in_tree_leaves(ae_mutation * mut, int32_t lengthOfGeneticUnit)
+void ae_gene_tree::anticipate_mutation_effect_on_genes_in_tree_leaves(const ae_mutation* mut, int32_t lengthOfGeneticUnit)
 {
   _root->anticipate_mutation_effect_on_genes_in_subtree_leaves(mut, lengthOfGeneticUnit);
 }
 
-void ae_gene_tree::register_actual_mutation_effect_on_genes_in_tree_leaves( ae_mutation * mut, ae_genetic_unit * unit, int32_t gener, double impact_on_metabolic_error)
+void ae_gene_tree::register_actual_mutation_effect_on_genes_in_tree_leaves(const ae_mutation* mut, ae_genetic_unit * unit, int32_t gener, double impact_on_metabolic_error)
 {
   _root->register_actual_mutation_effect_on_genes_in_subtree_leaves( this, mut, unit, gener, impact_on_metabolic_error);
 }

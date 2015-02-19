@@ -157,24 +157,22 @@ ae_replication_report::ae_replication_report( gzFile tree_file, ae_individual * 
     dnareport = new ae_dna_replic_report();
     
     gzread( tree_file, &nb_HT, sizeof(nb_HT) );
+    // TODO vld fix memory leaks with news
     for ( myevent  = 0 ; myevent < nb_HT ; myevent++ )
     {
       event = new ae_mutation( tree_file );
-      dnareport->add_HT( event );
+      dnareport->add_HT(*event);
     }
     
     gzread( tree_file, &nb_rears, sizeof(nb_rears) );
     for ( myevent  = 0 ; myevent < nb_rears ; myevent++ )
-    {
-      event = new ae_mutation( tree_file );
-      dnareport->get_rearrangements()->add( event );
-    }
-    
+      dnareport->add_rear(*new ae_mutation(tree_file));
+
     gzread( tree_file, &nb_muts, sizeof(nb_muts) );
     for(myevent  = 0 ; myevent < nb_muts ; myevent++ )
     {
       event = new ae_mutation( tree_file );
-      dnareport->get_mutations()->add( event );
+      dnareport->add_mut(*event);
     }
 
     dnareport->compute_stats();
@@ -224,30 +222,30 @@ void ae_replication_report::signal_end_of_replication( void )
   bool*     bool_trash  = new bool;
   int16_t*  align_scores = new int16_t[2];
   for (const auto& dna_rep: _dna_replic_reports) {
-    nb_align += dna_rep->get_nb_duplications();
-    nb_align += dna_rep->get_nb_deletions();
-    nb_align += 2 * dna_rep->get_nb_translocations();
-    nb_align += dna_rep->get_nb_inversions();
+    nb_align += dna_rep->get_nb(DUPL);
+    nb_align += dna_rep->get_nb(DEL);
+    nb_align += 2 * dna_rep->get_nb(TRANS);
+    nb_align += dna_rep->get_nb(INV);
     
-    for (const auto& rear: dna_rep->get_rearrangements_std()) {
-      mut_type = rear->get_mut_type();
+    for (const auto& rear: dna_rep->get_rearrangements()) {
+      mut_type = rear.get_mut_type();
       
       switch( mut_type )
       {
         case DUPL:
-          rear->get_infos_duplication( int32_trash, int32_trash, int32_trash, &align_scores[0] );
+          rear.get_infos_duplication( int32_trash, int32_trash, int32_trash, &align_scores[0] );
           _mean_align_score += align_scores[0];
           break;
         case DEL:
-          rear->get_infos_deletion( int32_trash, int32_trash, &align_scores[0] );
+          rear.get_infos_deletion( int32_trash, int32_trash, &align_scores[0] );
           _mean_align_score += align_scores[0];
           break;
         case TRANS:
-          rear->get_infos_translocation( int32_trash, int32_trash, int32_trash, int32_trash, bool_trash, &align_scores[0], &align_scores[1] );
+          rear.get_infos_translocation( int32_trash, int32_trash, int32_trash, int32_trash, bool_trash, &align_scores[0], &align_scores[1] );
           _mean_align_score += align_scores[0] + align_scores[1];
           break;
         case INV:
-          rear->get_infos_inversion( int32_trash, int32_trash, &align_scores[0] );
+          rear.get_infos_inversion( int32_trash, int32_trash, &align_scores[0] );
           _mean_align_score += align_scores[0];
           break;
         default:
@@ -296,24 +294,24 @@ void ae_replication_report::write_to_tree_file( gzFile tree_file ) const
     // Store HT
     int32_t nb_HT = report->get_nb_HT();
     gzwrite( tree_file, &nb_HT, sizeof(nb_HT) );
-    for (const auto& HT: report->get_HT_std())
-      HT->save(tree_file);
+    for (const auto& HT: report->get_HT())
+      HT.save(tree_file);
 
     // Store rearrangements
     int32_t nb_rears = report->get_nb_rearrangements();
     gzwrite( tree_file, &nb_rears, sizeof(nb_rears) );
     //~ printf( "  nb_rears : %"PRId32"\n", nb_rears );
 
-    for (const auto& rear: report->get_rearrangements_std())
-      rear->save(tree_file);
+    for (const auto& rear: report->get_rearrangements())
+      rear.save(tree_file);
 
     // Store mutations
     int32_t nb_muts = report->get_nb_small_mutations();
     gzwrite( tree_file, &nb_muts, sizeof(nb_muts) );
     //~ printf( "  nb_muts : %"PRId32"\n", nb_muts );
 
-    for (const auto& mutation: report->get_mutations_std())
-      mutation->save( tree_file );
+    for (const auto& mutation: report->get_mutations())
+      mutation.save( tree_file );
   }
 }
 

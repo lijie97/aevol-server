@@ -321,7 +321,7 @@ void ae_dna::do_small_mutations( void )
     {
       if ( mut != NULL )
       {
-        _replic_report->add_mut( mut );
+        _replic_report->add_mut(*mut);
       }
     }
     else
@@ -406,7 +406,7 @@ void ae_dna::do_rearrangements( void )
     {
       if ( mut != NULL )
       {
-        _replic_report->add_rear( mut );
+        _replic_report->add_rear(*mut);
       }
     }
     else
@@ -756,7 +756,7 @@ void ae_dna::do_rearrangements_with_align( void )
     {
       if ( _exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL )
       {
-        _replic_report->add_rear( mut );
+        _replic_report->add_rear(*mut);
         mut = NULL;
       }
       else
@@ -778,7 +778,7 @@ void ae_dna::do_transfer( int32_t parent_id )
     {
       if ( mut != NULL )
       {
-        _replic_report->add_HT( mut );
+        _replic_report->add_HT(*mut);
       }
     }
     else
@@ -798,7 +798,7 @@ void ae_dna::do_transfer( int32_t parent_id )
     {
       if ( mut != NULL )
       {
-        _replic_report->add_HT( mut );
+        _replic_report->add_HT(*mut);
       }
     }
     else
@@ -2198,7 +2198,7 @@ bool ae_dna::do_repl_HT( int32_t pos1, int32_t pos2, const char* seq_to_insert, 
   return true;
 }
 
-void ae_dna::undergo_this_mutation( ae_mutation * mut )
+void ae_dna::undergo_this_mutation(const ae_mutation * mut)
 {
   if( mut == NULL ) return;
 

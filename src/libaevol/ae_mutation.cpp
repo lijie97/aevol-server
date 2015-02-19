@@ -565,7 +565,7 @@ void ae_mutation::report_repl_HT(int32_t alignment_1_ind_pos, int32_t alignment_
   _sense = sense;
 }
 
-void ae_mutation::save( gzFile backup_file ) // Usually <backup_file> is the tree file (?)
+void ae_mutation::save( gzFile backup_file ) const // Usually <backup_file> is the tree file (?)
 {
   int8_t tmp_mut_type = _mut_type;
   gzwrite( backup_file, &tmp_mut_type,  sizeof(tmp_mut_type) );
@@ -652,7 +652,7 @@ void ae_mutation::save( gzFile backup_file ) // Usually <backup_file> is the tre
 
 
 
-void ae_mutation::get_generic_description_string( char * str )
+void ae_mutation::get_generic_description_string( char * str ) const
 {
   switch ( _mut_type )
   {
@@ -816,7 +816,7 @@ int32_t ae_mutation::segment_length( int32_t gen_unit_len )
 
 
 
-void ae_mutation::get_infos_point_mutation( int32_t* pos )
+void ae_mutation::get_infos_point_mutation( int32_t* pos ) const
 {
   assert( _mut_type == SWITCH );
   *pos = _pos[0];
@@ -824,7 +824,7 @@ void ae_mutation::get_infos_point_mutation( int32_t* pos )
 
 
 
-void ae_mutation::get_infos_small_insertion( int32_t* pos, int32_t* length )
+void ae_mutation::get_infos_small_insertion( int32_t* pos, int32_t* length ) const
 {
   assert( _mut_type == S_INS );
   *pos    = *_pos;
@@ -833,14 +833,14 @@ void ae_mutation::get_infos_small_insertion( int32_t* pos, int32_t* length )
 
 
 // seq must be a char array, large enough to contain _length+1 characters
-void ae_mutation::get_sequence_small_insertion( char* seq )
+void ae_mutation::get_sequence_small_insertion( char* seq ) const
 {
   assert( _mut_type == S_INS );
   strncpy( seq, _seq, _length[0]);
   seq[_length[0]] = '\0';
 }
 
-void ae_mutation::get_infos_small_deletion( int32_t* pos, int32_t* length )
+void ae_mutation::get_infos_small_deletion( int32_t* pos, int32_t* length ) const
 {
   assert( _mut_type == S_DEL );
   *pos    = _pos[0];
@@ -848,7 +848,7 @@ void ae_mutation::get_infos_small_deletion( int32_t* pos, int32_t* length )
 }
 
 
-void ae_mutation::get_infos_duplication( int32_t* pos1, int32_t* pos2, int32_t* pos3, int16_t* align_score )
+void ae_mutation::get_infos_duplication( int32_t* pos1, int32_t* pos2, int32_t* pos3, int16_t* align_score ) const
 {
   assert( _mut_type == DUPL );
   *pos1    = _pos[0];
@@ -862,7 +862,7 @@ void ae_mutation::get_infos_duplication( int32_t* pos1, int32_t* pos2, int32_t* 
 }
 
 
-void ae_mutation::get_infos_deletion( int32_t* pos1, int32_t* pos2, int16_t* align_score )
+void ae_mutation::get_infos_deletion( int32_t* pos1, int32_t* pos2, int16_t* align_score ) const
 {
   assert( _mut_type == DEL );
   *pos1    = _pos[0];
@@ -876,7 +876,7 @@ void ae_mutation::get_infos_deletion( int32_t* pos1, int32_t* pos2, int16_t* ali
 
 
 void ae_mutation::get_infos_translocation( int32_t* pos1, int32_t* pos2, int32_t* pos3, int32_t* pos4, bool* invert,
-                                           int16_t* align_score_1, int16_t* align_score_2 )
+                                           int16_t* align_score_1, int16_t* align_score_2 ) const
 {
   assert( _mut_type == TRANS );
   *pos1    = _pos[0];
@@ -893,7 +893,7 @@ void ae_mutation::get_infos_translocation( int32_t* pos1, int32_t* pos2, int32_t
 }
 
 
-void ae_mutation::get_infos_inversion( int32_t* pos1, int32_t* pos2, int16_t* align_score )
+void ae_mutation::get_infos_inversion( int32_t* pos1, int32_t* pos2, int16_t* align_score ) const
 {
   assert( _mut_type == INV );
   *pos1    = _pos[0];
@@ -905,21 +905,21 @@ void ae_mutation::get_infos_inversion( int32_t* pos1, int32_t* pos2, int16_t* al
   }
 }
 
-void ae_mutation::get_infos_insertion( int32_t* pos, int32_t* length )
+void ae_mutation::get_infos_insertion( int32_t* pos, int32_t* length ) const
 {
   assert( _mut_type == INSERT );
   *pos    = _pos[0];
   *length = _length[0];
 }
 
-void ae_mutation::get_sequence_insertion( char* seq )
+void ae_mutation::get_sequence_insertion( char* seq ) const
 {
   assert( _mut_type == INSERT );
   strncpy( seq, _seq, _length[0]);
   seq[_length[0]] = '\0';
 }
 
-void ae_mutation::get_infos_ins_HT( int32_t* pos1, int32_t* pos2, int32_t* pos3, int32_t* pos4, ae_sense* sense, int32_t* length )
+void ae_mutation::get_infos_ins_HT( int32_t* pos1, int32_t* pos2, int32_t* pos3, int32_t* pos4, ae_sense* sense, int32_t* length ) const
 {
   assert( _mut_type == INS_HT );
   *pos1    = _pos[0];
@@ -930,14 +930,14 @@ void ae_mutation::get_infos_ins_HT( int32_t* pos1, int32_t* pos2, int32_t* pos3,
   *length = _length[0];
 }
 
-void ae_mutation::get_sequence_ins_HT( char* seq )
+void ae_mutation::get_sequence_ins_HT( char* seq ) const
 {
   assert( _mut_type == INS_HT );
   strncpy( seq, _seq, _length[0]);
   seq[_length[0]] = '\0';
 }
 
-void ae_mutation::get_infos_repl_HT( int32_t* pos1, int32_t* pos2, int32_t* pos3, int32_t* pos4, ae_sense* sense, int32_t* length )
+void ae_mutation::get_infos_repl_HT( int32_t* pos1, int32_t* pos2, int32_t* pos3, int32_t* pos4, ae_sense* sense, int32_t* length ) const
 {
   assert( _mut_type == REPL_HT );
   *pos1    = _pos[0];
@@ -948,7 +948,7 @@ void ae_mutation::get_infos_repl_HT( int32_t* pos1, int32_t* pos2, int32_t* pos3
   *length = _length[1];
 }
 
-void ae_mutation::get_sequence_repl_HT( char* seq )
+void ae_mutation::get_sequence_repl_HT( char* seq ) const
 {
   assert( _mut_type == REPL_HT );
   strncpy( seq, _seq, _length[1]);

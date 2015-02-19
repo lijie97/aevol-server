@@ -444,14 +444,14 @@ int main(int argc, char** argv)
     for (const auto& rep: reports[i]->get_dna_replic_reports()) {
       assert(unit != initial_ancestor->get_genetic_unit_list_std().cend());
 
-      for (const auto& mut: rep->get_HT_std())
-        ((*unit)->get_dna())->undergo_this_mutation( mut );
+      for (const auto& mut: rep->get_HT())
+        ((*unit)->get_dna())->undergo_this_mutation(&mut);
 
-      for (const auto& mut: rep->get_rearrangements_std())
-        ((*unit)->get_dna())->undergo_this_mutation( mut );
+      for (const auto& mut: rep->get_rearrangements())
+        ((*unit)->get_dna())->undergo_this_mutation(&mut);
 
-      for (const auto& mut: rep->get_mutations_std())
-        (*unit)->get_dna()->undergo_this_mutation( mut );
+      for (const auto& mut: rep->get_mutations())
+        (*unit)->get_dna()->undergo_this_mutation(&mut);
 
       if ( check_genome_now )
       {

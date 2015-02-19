@@ -366,13 +366,13 @@ int main(int argc, char** argv)
       //             Transfer events
       // ***************************************
 
-      for (const auto& mutation: (*dnareport)->get_HT_std()) {
+      for (const auto& mutation: (*dnareport)->get_HT()) {
         metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
         unitlen_before = (*unit)->get_dna()->get_length();
-        (*unit)->compute_nb_of_affected_genes(mutation, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
+        (*unit)->compute_nb_of_affected_genes(&mutation, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
 
 
-        (*unit)->get_dna()->undergo_this_mutation( mutation );
+        (*unit)->get_dna()->undergo_this_mutation(&mutation);
         indiv->reevaluate(env);
 
 
@@ -380,7 +380,7 @@ int main(int argc, char** argv)
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
 
-        mutation->get_generic_description_string( mut_descr_string );
+        mutation.get_generic_description_string( mut_descr_string );
         fprintf( output, "%" PRId32 " %" PRId32 " %s %" PRId32 " %.15f  %" PRId32 " %" PRId32 " %" PRId32 " \n",\
                  num_gener, genetic_unit_number, \
                  mut_descr_string, unitlen_before, \
@@ -392,18 +392,18 @@ int main(int argc, char** argv)
       //           Rearrangement events
       // ***************************************
 
-      for (const auto& mutation: (*dnareport)->get_rearrangements_std()) {
+      for (const auto& mutation: (*dnareport)->get_rearrangements()) {
         metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
         unitlen_before = (*unit)->get_dna()->get_length();
-        (*unit)->compute_nb_of_affected_genes(mutation, nb_genes_at_breakpoints, nb_genes_in_segment,  nb_genes_in_replaced_segment);
+        (*unit)->compute_nb_of_affected_genes(&mutation, nb_genes_at_breakpoints, nb_genes_in_segment,  nb_genes_in_replaced_segment);
 
-        (*unit)->get_dna()->undergo_this_mutation( mutation );
+        (*unit)->get_dna()->undergo_this_mutation(&mutation);
 
         indiv->reevaluate(env);
         metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
-        mutation->get_generic_description_string( mut_descr_string );
+        mutation.get_generic_description_string( mut_descr_string );
         fprintf( output, "%" PRId32 " %" PRId32 " %s %" PRId32 " %.15f %" PRId32 " %" PRId32 " %" PRId32 " \n",\
                  num_gener, genetic_unit_number, \
                  mut_descr_string, unitlen_before, \
@@ -415,18 +415,18 @@ int main(int argc, char** argv)
       // Local events (point mutations & small indels)
       // ***************************************
 
-      for (const auto& mutation: (*dnareport)->get_mutations_std()) {
+      for (const auto& mutation: (*dnareport)->get_mutations()) {
         metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
         unitlen_before = (*unit)->get_dna()->get_length();
-        (*unit)->compute_nb_of_affected_genes(mutation, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
+        (*unit)->compute_nb_of_affected_genes(&mutation, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
 
-        (*unit)->get_dna()->undergo_this_mutation( mutation );
+        (*unit)->get_dna()->undergo_this_mutation(&mutation);
 
         indiv->reevaluate(env);
         metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
-        mutation->get_generic_description_string( mut_descr_string );
+        mutation.get_generic_description_string( mut_descr_string );
         fprintf( output, "%" PRId32 " %" PRId32 " %s %" PRId32 " %.15f %" PRId32 " %" PRId32 " %" PRId32 " \n",\
                  num_gener, genetic_unit_number, \
                  mut_descr_string, unitlen_before, \

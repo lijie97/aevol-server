@@ -68,11 +68,6 @@ enum ae_mutation_type
   REPL_HT = 9
 };
 
-
-
-
-
-
 class ae_mutation
 {
   public :
@@ -92,24 +87,24 @@ class ae_mutation
     // =================================================================
     //                        Accessors: Getters
     // =================================================================
-    inline ae_mutation_type get_mut_type( void );
-    inline int32_t          get_length( void );
+    inline ae_mutation_type get_mut_type( void ) const;
+    inline int32_t          get_length( void ) const;
 
-    void get_infos_point_mutation( int32_t* pos );
-    void get_infos_small_insertion( int32_t* pos, int32_t* length ); // everything except the sequence
-    void get_sequence_small_insertion( char* seq ); // seq must be a char array, large enough to contain _length+1 characters
-    void get_infos_small_deletion( int32_t* pos, int32_t* length );
-    void get_infos_duplication( int32_t* pos1, int32_t* pos2, int32_t* pos3, int16_t* align_score = NULL );
-    void get_infos_deletion( int32_t* pos1, int32_t* pos2, int16_t* align_score = NULL );
+    void get_infos_point_mutation( int32_t* pos ) const;
+    void get_infos_small_insertion( int32_t* pos, int32_t* length ) const; // everything except the sequence
+    void get_sequence_small_insertion( char* seq ) const; // seq must be a char array, large enough to contain _length+1 characters
+    void get_infos_small_deletion( int32_t* pos, int32_t* length ) const;
+    void get_infos_duplication( int32_t* pos1, int32_t* pos2, int32_t* pos3, int16_t* align_score = NULL ) const;
+    void get_infos_deletion( int32_t* pos1, int32_t* pos2, int16_t* align_score = NULL ) const;
     void get_infos_translocation( int32_t* pos1, int32_t* pos2, int32_t* pos3, int32_t* pos4, bool* invert,
-                                  int16_t* align_score_1 = NULL, int16_t* align_score_2 = NULL );
-    void get_infos_inversion( int32_t* pos1, int32_t* pos2, int16_t* align_score = NULL );
-    void get_infos_insertion( int32_t* pos, int32_t* length );
-    void get_sequence_insertion( char* seq );
-    void get_infos_ins_HT( int32_t* pos1, int32_t* pos2, int32_t* pos3, int32_t* pos4, ae_sense* sense, int32_t* length );
-    void get_sequence_ins_HT( char* seq );
-    void get_infos_repl_HT( int32_t* pos1, int32_t* pos2, int32_t* pos3, int32_t* pos4, ae_sense* sense, int32_t* length );
-    void get_sequence_repl_HT( char* seq );
+                                  int16_t* align_score_1 = NULL, int16_t* align_score_2 = NULL ) const;
+    void get_infos_inversion( int32_t* pos1, int32_t* pos2, int16_t* align_score = NULL ) const;
+    void get_infos_insertion( int32_t* pos, int32_t* length ) const;
+    void get_sequence_insertion( char* seq ) const;
+    void get_infos_ins_HT( int32_t* pos1, int32_t* pos2, int32_t* pos3, int32_t* pos4, ae_sense* sense, int32_t* length ) const;
+    void get_sequence_ins_HT( char* seq ) const;
+    void get_infos_repl_HT( int32_t* pos1, int32_t* pos2, int32_t* pos3, int32_t* pos4, ae_sense* sense, int32_t* length ) const;
+    void get_sequence_repl_HT( char* seq ) const;
 
     // =================================================================
     //                        Accessors: Setters
@@ -131,12 +126,12 @@ class ae_mutation
     void report_ins_HT(int32_t alignment_1_donor_pos_1, int32_t alignment_1_donor_pos_2, int32_t alignment_2_ind_pos, int32_t alignment_2_donor_pos, int32_t length, int16_t alignment_1_score, int16_t alignment_2_score, int32_t donor_id, ae_sense sense, const char* seq);
     void report_repl_HT(int32_t alignment_1_donor_pos_1, int32_t alignment_1_donor_pos_2, int32_t alignment_2_ind_pos, int32_t alignment_2_donor_pos, int32_t repl_seq_length, int32_t donor_seq_length, int16_t alignment_1_score, int16_t alignment_2_score, int32_t donor_id, ae_sense sense, const char* seq);
 
-    void get_generic_description_string( char * str );
+    void get_generic_description_string( char * str ) const;
 
     /* DEPRECATED, use get_length instead */
     int32_t segment_length( int32_t gen_unit_len );
 
-    void save( gzFile backup_file );
+    void save( gzFile backup_file ) const;
 
     // =================================================================
     //                           Public Attributes
@@ -179,12 +174,12 @@ class ae_mutation
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-ae_mutation_type ae_mutation::get_mut_type( void )
+ae_mutation_type ae_mutation::get_mut_type( void ) const
 {
   return _mut_type;
 }
 
-inline int32_t ae_mutation::get_length( void )
+inline int32_t ae_mutation::get_length( void ) const
 {
   return _length[0];
 }

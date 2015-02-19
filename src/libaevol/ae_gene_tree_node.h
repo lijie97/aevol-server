@@ -94,8 +94,8 @@ class ae_gene_tree_node
     void write_subtree_to_files(FILE * topologyFile, FILE * nodeAttributesFile, int32_t end_gener);
     void write_subtree_nodes_in_tabular_file(int32_t treeID, FILE *f); // f must already be open
     void update_pointers_in_subtree_leaves(ae_genetic_unit * unit);
-    void anticipate_mutation_effect_on_genes_in_subtree_leaves(ae_mutation * mut, int32_t lengthOfGeneticUnit);
-    void register_actual_mutation_effect_on_genes_in_subtree_leaves( ae_gene_tree * tree, ae_mutation * mut, ae_genetic_unit * unit, int32_t gener, double impact_on_metabolic_error);
+    void anticipate_mutation_effect_on_genes_in_subtree_leaves(const ae_mutation* mut, int32_t lengthOfGeneticUnit);
+    void register_actual_mutation_effect_on_genes_in_subtree_leaves(ae_gene_tree* tree, const ae_mutation* mut, const ae_genetic_unit* unit, int32_t gener, double impact_on_metabolic_error);
   
   protected :
   

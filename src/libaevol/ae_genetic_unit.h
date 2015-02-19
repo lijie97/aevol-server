@@ -40,6 +40,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
+#include "ae_list.h"
 #include "ae_dna.h"
 #include "ae_rna.h"
 #include "ae_protein.h"
@@ -247,7 +248,7 @@ class ae_genetic_unit
 
     // WARNING: The method below works properly only in the case of a single genetic unit (no plasmid).
     // Translocations between different genetic units is not managed.
-    void compute_nb_of_affected_genes(ae_mutation * mut, int & nb_genes_at_breakpoints, int & nb_genes_in_segment, int & nb_genes_in_replaced_segment);
+    void compute_nb_of_affected_genes(const ae_mutation * mut, int & nb_genes_at_breakpoints, int & nb_genes_in_segment, int & nb_genes_in_replaced_segment);
 
     // =================================================================
     //                           Public Attributes

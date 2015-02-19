@@ -158,7 +158,7 @@ class ae_dna : public ae_string
     ae_vis_a_vis* search_alignment( ae_dna* chrom2, int32_t& nb_pairs, ae_sense sense );
     ae_vis_a_vis* search_alignment_around_positions( ae_dna* chrom2, int32_t chrom1_pos_1, int32_t chrom1_pos_2, ae_sense sense, int8_t& research_sense);
 
-    void undergo_this_mutation( ae_mutation * mut ); // useful when we replay the evolution
+    void undergo_this_mutation(const ae_mutation * mut); // useful when we replay the evolution
 
     void compute_statistical_data( void );
 
