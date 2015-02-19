@@ -3,25 +3,25 @@
 //          Aevol - An in silico experimental evolution platform
 //
 // ****************************************************************************
-// 
+//
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
 // E-mail: See <http://www.aevol.fr/contact/>
 // Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //*****************************************************************************
 
 
@@ -81,12 +81,18 @@ ae_exp_manager_X11::ae_exp_manager_X11( void ) : ae_exp_manager()
   _win_size = NULL;
   _win_pos  = NULL;
   _win_name = NULL;
-  
+
   _display_on             = false;
   _handle_display_on_off  = false;
-  
+
   // Initialize XLib stuff
   _display  = XOpenDisplay( NULL );
+  if (_display == NULL)
+  {
+    printf("ERROR:\tCould not open connection to X server.\n");
+    printf("\tIf you are using aevol through SSH, you may use ssh -X.\n");
+    exit(EXIT_FAILURE);
+  }
   _screen   = XDefaultScreen( _display );
   _atoms    = new Atom[2];
   _atoms[0] = XInternAtom( _display, "WM_DELETE_WINDOW", False );
@@ -112,7 +118,7 @@ ae_exp_manager_X11::~ae_exp_manager_X11( void )
 {
   delete [] _key_codes;
   delete [] _atoms;
-  
+
   for ( int8_t i = 0 ; i < NB_WIN ; i++ )
   {
     if ( _win != NULL )
@@ -129,13 +135,13 @@ ae_exp_manager_X11::~ae_exp_manager_X11( void )
     }
   }
   if ( _win != NULL ) delete [] _win;
-  
+
   XCloseDisplay( _display );
-  
+
   if ( _win_name != NULL ) delete [] _win_name;
   if ( _win_size != NULL ) delete [] _win_size;
   if ( _win_pos != NULL ) delete [] _win_pos;
-  
+
 }
 
 // =================================================================
@@ -162,7 +168,7 @@ void ae_exp_manager_X11::display( void )
   if ( _handle_display_on_off )
   {
     _handle_display_on_off = false;
-    
+
     if ( _display_on ) // Display was "on", close all windows (after saving their current size and position)
     {
       for ( int8_t num_win = 0 ; num_win < NB_WIN ; num_win++ )
@@ -177,10 +183,10 @@ void ae_exp_manager_X11::display( void )
           XGetGeometry( _display, _win[num_win]->get_window(), &aWindow, &x_return, &y_return,
                         &_win_size[num_win][0], &_win_size[num_win][1], &border_width_return, &depth_return );
           XTranslateCoordinates( _display, _win[num_win]->get_window(), DefaultRootWindow(_display), 0, 0, &dest_x_return, &dest_y_return, &aWindow );
-          
+
           _win_pos[num_win][0] = dest_x_return - x_return;
           _win_pos[num_win][1] = dest_y_return - y_return;
-          
+
           // 2) Delete window
           delete _win[num_win];
           _win[num_win] = NULL;
@@ -190,17 +196,17 @@ void ae_exp_manager_X11::display( void )
       XFlush( _display );
       delete _win;
       _win = NULL;
-      
+
       _display_on = false;
     }
     else // Display was "off", open windows
     {
       _show_window |= 1;
       _new_show_window = _show_window;
-      
+
       // If it's the first time the display is switched on, initialize it.
       if ( _win == NULL ) initialize();
-      
+
       for ( int8_t i = 0 ; i < NB_WIN ; i++ )
       {
         if ( get_show_window(i) )
@@ -208,12 +214,12 @@ void ae_exp_manager_X11::display( void )
           _win[i] = new ae_X11_window( _display, _screen, _atoms, _win_pos[i][0], _win_pos[i][1], _win_size[i][0], _win_size[i][1], _win_name[i] );
         }
       }
-      
+
       _display_on = true;
     }
   }
 
-  
+
   // ----------
   // 3) Display
   // ----------
@@ -233,7 +239,7 @@ void ae_exp_manager_X11::display( void )
         }
       }
     }
-    
+
     // Refresh all windows
     XFlush( _display );
   }
@@ -243,10 +249,10 @@ void ae_exp_manager_X11::handle_events( void )
 {
   XEvent event;
   int8_t win_number;
-  
+
 
   // XCheckMaskEvent() doesn't get ClientMessage Events so use XCheckIfEvent()
-  // with the custom AlwaysTruePredicate function as a work-around (ClientMessage 
+  // with the custom AlwaysTruePredicate function as a work-around (ClientMessage
   // events are needed in order to catch "WM_DELETE_WINDOW")
   int iCurrEvent    = 0;
   int iIgnoreNoise  = 0;
@@ -254,7 +260,7 @@ void ae_exp_manager_X11::handle_events( void )
   {
     iCurrEvent ++;
     win_number = identify_window( event.xany.window );
-    
+
     if( win_number == -1) continue;
     // We discard this event because it occurred on a destroyed window
     // (e.g. the user pressed F3 and then moved or resized the window,
@@ -266,7 +272,7 @@ void ae_exp_manager_X11::handle_events( void )
       {
         _win[win_number]->resize( event.xconfigure.width, event.xconfigure.height );
         //~ _win[win_number]->repos( event.xconfigure.x, event.xconfigure.y );
-        
+
         // Mark window as having to be entirely redrawn
         _new_show_window |= 1 << win_number;
         break;
@@ -297,15 +303,15 @@ void ae_exp_manager_X11::handle_events( void )
           XGetGeometry( _display, _win[win_number]->get_window(), &aWindow, &x_return, &y_return,
                         &_win_size[win_number][0], &_win_size[win_number][1], &border_width_return, &depth_return );
           XTranslateCoordinates( _display, _win[win_number]->get_window(), DefaultRootWindow(_display), 0, 0, &dest_x_return, &dest_y_return, &aWindow );
-          
+
           _win_pos[win_number][0] = dest_x_return - x_return;
           _win_pos[win_number][1] = dest_y_return - y_return;
-          
+
           // 2) Delete window and mark as "not to be shown"
           delete _win[win_number];
           _win[win_number] = NULL;
           _show_window &= ~(1 << win_number);
-          
+
           // 3) If it was the main that was closed, turn display off.
           if ( win_number == 0 )
           {
@@ -325,15 +331,15 @@ void ae_exp_manager_X11::handle_events( void )
              event.xkey.keycode == _key_codes[KEY_F6] )
         {
           int8_t num_win;
-          
+
           // Not sure a switch would work on any platform => use ifs instead
           if ( event.xkey.keycode == _key_codes[KEY_F1] ) num_win = 1;
           else if ( event.xkey.keycode == _key_codes[KEY_F2] ) num_win = 2;
           else if ( event.xkey.keycode == _key_codes[KEY_F3] ) num_win = 3;
           else if ( event.xkey.keycode == _key_codes[KEY_F4] ) num_win = 4;
           else if ( event.xkey.keycode == _key_codes[KEY_F5] ) num_win = 5;
-          else  num_win = 6; // case where ( event.xkey.keycode == _key_codes[KEY_F6] ) 
-          
+          else  num_win = 6; // case where ( event.xkey.keycode == _key_codes[KEY_F6] )
+
           if ( get_show_window( num_win ) )
           {
             // 1) Save current window position and size
@@ -344,10 +350,10 @@ void ae_exp_manager_X11::handle_events( void )
             XGetGeometry( _display, _win[num_win]->get_window(), &aWindow, &x_return, &y_return,
                           &_win_size[num_win][0], &_win_size[num_win][1], &border_width_return, &depth_return );
             XTranslateCoordinates( _display, _win[num_win]->get_window(), DefaultRootWindow(_display), 0, 0, &dest_x_return, &dest_y_return, &aWindow );
-            
+
             _win_pos[num_win][0] = dest_x_return - x_return;
             _win_pos[num_win][1] = dest_y_return - y_return;
-            
+
             // 2) Delete window and mark as "not to be shown"
             delete _win[num_win];
             _win[num_win] = NULL;
@@ -361,7 +367,7 @@ void ae_exp_manager_X11::handle_events( void )
             _show_window |= _new_show_window;
             draw_window( num_win );
           }
-        }     
+        }
         else if ( event.xkey.keycode == _key_codes[KEY_P] )
         {
           printf(" P A U S E D \n");
@@ -372,7 +378,7 @@ void ae_exp_manager_X11::handle_events( void )
             {
               if ( event.xkey.keycode == _key_codes[KEY_P] )
               {
-                pause_key = true;               
+                pause_key = true;
               }
             }
           }
@@ -383,11 +389,11 @@ void ae_exp_manager_X11::handle_events( void )
           _quit_signal_received = true;
           // We do not exit here, because it is cleaner to let the main program
           // interpret the signal and call the destructor of the simulation.
-          // This ensures that the connection to the X server will be closed 
+          // This ensures that the connection to the X server will be closed
           // in a clean way, which is much better if we want to run other
           // X applications afterwards!
         }
-        
+
         break;
       }
       default :
@@ -416,11 +422,11 @@ void ae_exp_manager_X11::initialize( bool with_grid /*= false*/, bool with_plasm
   _win      = new ae_X11_window* [NB_WIN];
   _win_size = new unsigned int* [NB_WIN];
   _win_pos  = new int* [NB_WIN];
-  
+
   for ( int8_t i = 0 ; i < NB_WIN ; i++ )
   {
     _win[i] = NULL;
-    
+
     // Default values
     _win_size[i] = new unsigned int[2];
     _win_size[i][0] = 300;
@@ -429,17 +435,17 @@ void ae_exp_manager_X11::initialize( bool with_grid /*= false*/, bool with_plasm
     _win_pos[i][0]  = 0;
     _win_pos[i][1]  = 0;
   }
-  
+
   // Set phenotype window width
   _win_size[1][0] = 600;
-  
+
   // Set CDS and RNA window width
   if ( with_plasmids )
   {
     _win_size[2][0] = 600;
     _win_size[3][0] = 600;
   }
-  
+
   // Set initial positions if screen is large enough
   if ( with_plasmids && with_grid )
   {
@@ -497,8 +503,8 @@ void ae_exp_manager_X11::initialize( bool with_grid /*= false*/, bool with_plasm
       _win_pos[3][1]  = 350;
     }
   }
-  
-  
+
+
   // Visible windows at the beginning of the run
   if ( with_grid )
   {
@@ -509,12 +515,12 @@ void ae_exp_manager_X11::initialize( bool with_grid /*= false*/, bool with_plasm
     _show_window  = 0x000F;   // hex for bin 1111   => show first 4 windows
   }
   _new_show_window = _show_window;
-  
-  
+
+
   _win_name = new char*[NB_WIN];
   if ( with_grid )  _win_name[0] = (char*) "Population grid";
   else              _win_name[0] = (char*) "Population";
-  
+
   _win_name[1] = (char*) "Phenotypic profile";
   _win_name[2] = (char*) "Genes";
   _win_name[3] = (char*) "RNAs";
@@ -532,7 +538,7 @@ int8_t ae_exp_manager_X11::identify_window( Window winID )
       if ( _win[i]->get_window() == winID ) return i;
     }
   }
-  
+
   return -1;
 }
 
@@ -543,7 +549,7 @@ void ae_exp_manager_X11::draw_window( int8_t win_number )
     fprintf(stderr, "Error: cannot draw this window, it doesn't exist.\n");
     return;
   }
-  
+
   ae_X11_window* cur_win = _win[win_number];
 
   switch ( win_number )
@@ -556,7 +562,7 @@ void ae_exp_manager_X11::draw_window( int8_t win_number )
     case 1:
     {
       cur_win->blacken();
-      
+
       // Display colour bar
       char* color;
       for ( int16_t i = 0 ; i < cur_win->get_width() ; i++ )
@@ -566,7 +572,7 @@ void ae_exp_manager_X11::draw_window( int8_t win_number )
         cur_win->draw_line( i, cur_win->get_height() * 19 / 20, i, cur_win->get_height(), color );
         delete [] color;
       }
-      
+
       break;
     }
 
@@ -585,7 +591,7 @@ void ae_exp_manager_X11::draw_window( int8_t win_number )
     {
       break;
     }
-   
+
     // Metabolic fitness  grid
     case 5:
     {
@@ -598,7 +604,7 @@ void ae_exp_manager_X11::draw_window( int8_t win_number )
       break;
     }
   }
-  
+
   refresh_window( win_number );
   _new_show_window &= ~(1 << win_number);
 
@@ -612,7 +618,7 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
     fprintf(stderr, "Error: cannot draw this window, it doesn't exist.\n");
     return;
   }
-  
+
   ae_X11_window* cur_win = _win[win_number];
 
   switch ( win_number )
@@ -621,12 +627,12 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
     case 0 :
     {
       cur_win->blacken();
-      
+
       if ( is_spatially_structured() )
       {
         double** grid = get_spatial_structure()->get_total_fitness_grid();
         ((ae_population_X11*)_pop)->display_grid( cur_win, grid );
-        
+
         // Has been allocated in ae_spatial_structure::get_total_fitness_grid()
         for ( int16_t x = 0 ; x < get_grid_width() ; x++ )
         {
@@ -640,13 +646,13 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
       }
       break;
     }
-    
+
     // Display phenotypes and environment
     case 1 :
     {
       // Blacken all the window except the colour bar
       cur_win->fill_rectangle( 0, 0, cur_win->get_width(), cur_win->get_height() * 19 / 20, BLACK );
-      
+
       // Mark all the non-metabolic segments (paint them in grey)
       if ( get_env()->get_nb_segments() > 1 )
       {
@@ -670,20 +676,22 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
             }
           }
         }
-      }    
+      }
 
       // Display all the phenotypes (blue)
-      for (const auto& indiv: _pop->get_indivs_std()) {
+      for (const auto& indiv: _pop->get_indivs_std())
+      {
         indiv->get_phenotype()->display(cur_win, BLUE);
-        if ( indiv->get_allow_plasmids()) {
+        if ( indiv->get_allow_plasmids())
+        {
           ((Fuzzy_X11*)indiv->get_genetic_unit(0)->get_phenotypic_contribution())->display(cur_win, YELLOW);
           ((Fuzzy_X11*)indiv->get_genetic_unit(1)->get_phenotypic_contribution())->display(cur_win, GREEN);
         }
       }
-        
+
       // Display best indiv's phenotype (white)
       get_best_indiv()->get_phenotype()->display( cur_win, WHITE, true );
-      
+
       // Display environment (red)
       get_env()->display( cur_win, RED, false, true );
     }
@@ -693,7 +701,7 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
     case 2 :
     {
       cur_win->blacken();
-      
+
       ae_individual_X11* indiv = dynamic_cast<ae_individual_X11*>( get_best_indiv() );
       indiv->display_cdss( cur_win );
     }
@@ -703,7 +711,7 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
     case 3 :
     {
       cur_win->blacken();
-      
+
       ae_individual_X11* indiv = dynamic_cast<ae_individual_X11*>( get_best_indiv() );
       indiv->display_rnas( cur_win );
     }
@@ -713,19 +721,19 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
     case 4 :
     {
       cur_win->blacken();
-      
+
       if ( is_spatially_structured() )
       {
         ((ae_population_X11*)_pop)->display_grid( cur_win, get_spatial_structure()->get_secretion_present_grid());
       }
     }
     break;
-   
+
     // Display the metabolic fitness grid
     case 5 :
     {
       cur_win->blacken();
-      
+
       ((ae_population_X11*)_pop)->display_grid( cur_win, get_spatial_structure()->get_metabolic_fitness_grid());
     }
     break;
@@ -734,7 +742,7 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
     case 6:
     {
       cur_win->blacken();
-      
+
       ((ae_population_X11*)_pop)->display_grid( cur_win, get_spatial_structure()->get_secreted_amount_grid());
     }
     break;
@@ -751,7 +759,7 @@ void ae_exp_manager_X11::set_codes( void )
 {
   _key_codes = new KeyCode[50];
   assert( _key_codes );
-  
+
   _key_codes[KEY_ESCAPE]  = XKeysymToKeycode( _display, XK_Escape );
   _key_codes[KEY_F1]      = XKeysymToKeycode( _display, XK_F1 );
   _key_codes[KEY_F2]      = XKeysymToKeycode( _display, XK_F2 );

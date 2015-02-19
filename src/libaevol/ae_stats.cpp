@@ -554,6 +554,8 @@ void ae_stats::write_current_generation_statistics( void )
   
   for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
   {
+    if ((!_exp_m->get_output_m()->get_compute_phen_contrib_by_GU())&&chrom_or_GU>ALL_GU) continue;
+
     stat_records = new ae_stat_record* [NB_BEST_OR_GLOB];
     
     stat_records[BEST] = new ae_stat_record( _exp_m, _exp_m->get_best_indiv(), (chrom_or_gen_unit) chrom_or_GU );
@@ -674,6 +676,9 @@ void ae_stats::set_file_names( const char * prefix, bool one_lambda_indiv_only )
   {
     // If plasmids are not allowed, don't issue "chromosome" and "plasmids" files
     if ( not _exp_m->get_with_plasmids() && chrom_or_GU > 0 ) continue;
+    // Idem if COMPUTE_PHEN_CONTRIB_BY_GU not set
+    if ((!_exp_m->get_output_m()->get_compute_phen_contrib_by_GU())&&chrom_or_GU>ALL_GU) continue;
+
 
     for ( int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++ )
     {

@@ -194,6 +194,10 @@ int main( int argc, char* argv[] )
   
   bool env_change = false;
   bool env_hasbeenmodified = false;
+  bool start_to_record_tree = false;
+  bool set_tree_step = false;
+  int32_t tree_step = 100;
+  ae_tree_mode tree_mode = NORMAL;
   
   f_line* line;
   int32_t cur_line = 0;
@@ -250,6 +254,67 @@ int main( int argc, char* argv[] )
           delete env_axis_segment_boundaries;
           delete env_axis_features;
         }
+     else if ( strcmp( line->words[0], "RECORD_TREE" ) == 0 )
+     {
+       if ( strncmp( line->words[1], "true", 4 ) == 0 )
+       {
+         start_to_record_tree = true;
+       }
+       else if ( strncmp( line->words[1], "false", 5 ) == 0 )
+       {
+         printf( "ERROR stop recording tree is not implemented yet.\n");
+         exit(EXIT_FAILURE);
+       }
+       else
+       {
+         printf( "ERROR in param file \"%s\" on line %" PRId32" : unknown tree recording option (use true/false).\n",
+                param_file_name, cur_line );
+         exit( EXIT_FAILURE );
+       }
+       if (exp_manager->get_output_m()->get_record_tree())
+       {
+         printf( "ERROR modification of already existing tree not impemented yet\n" );
+         exit(EXIT_FAILURE);
+       }
+     }
+     else if ( strcmp( line->words[0], "TREE_STEP" ) == 0 )
+     {
+       tree_step = atol( line->words[1] );
+       set_tree_step = true;
+     }
+     else if ( strcmp( line->words[0], "TREE_MODE" ) == 0 )
+     {
+       if ( strcmp( line->words[1], "light" ) == 0 )
+       {
+         tree_mode = LIGHT;
+       }
+       else if ( strcmp( line->words[1], "normal" ) == 0 )
+       {
+         tree_mode = NORMAL;
+       }
+       else
+       {
+         printf( "ERROR in param file \"%s\" on line %" PRId32" : unknown tree mode option (use normal/light).\n",
+                param_file_name, cur_line );
+         exit( EXIT_FAILURE );
+       }
+     }
+      else if ( strcmp( line->words[0], "DUMP_STEP" ) == 0 )
+      {
+        int step = atoi( line->words[1] );
+        if (step>0)
+        {
+          exp_manager->get_output_m()->set_dump_step( step );
+        }
+      }
+     else if ( strcmp( line->words[0], "BACKUP_STEP" ) == 0 )
+     {
+       exp_manager->get_output_m()->set_backup_step( atol( line->words[1] ) );
+     }
+     else if ( strcmp( line->words[0], "BIG_BACKUP_STEP" ) == 0 )
+     {
+       exp_manager->get_output_m()->set_big_backup_step( atol( line->words[1] ) );
+     }
       else if ( strcmp( line->words[0], "POPULATION_SIZE") == 0 )
         {
           if (exp_manager->is_spatially_structured())
@@ -261,8 +326,55 @@ int main( int argc, char* argv[] )
           pop->set_nb_indivs(atol( line->words[1] ));
           printf("\tChange of population size to %ld\n",atol( line->words[1] ));
         }
+     else if ( strcmp( line->words[0], "SELECTION_SCHEME" ) == 0 )
+     {
+       if ( strncmp( line->words[1], "lin", 3 ) == 0 )
+       {
+         if ( line->nb_words != 3 )
+         {
+           printf( "ERROR in param file \"%s\" on line %" PRId32 " : selection pressure parameter is missing.\n",
+                   param_file_name, cur_line );
+           exit( EXIT_FAILURE );
+         }
+         sel->set_selection_scheme(RANK_LINEAR);
+         sel->set_selection_pressure(atof( line->words[2] ) );
+       }
+       else if ( strncmp( line->words[1], "exp", 3 ) == 0 )
+       {
+         if ( line->nb_words != 3 )
+         {
+           printf( "ERROR in param file \"%s\" on line %" PRId32 " : selection pressure parameter is missing.\n",
+                   param_file_name, cur_line );
+           exit( EXIT_FAILURE );
+         }
+         sel->set_selection_scheme(RANK_EXPONENTIAL);
+         sel->set_selection_pressure(atof( line->words[2] ) );
+       }
+       else if ( strncmp( line->words[1], "fitness", 7 ) == 0 )
+       {
+         if ( line->nb_words != 3 )
+         {
+           printf( "ERROR in param file \"%s\" on line %" PRId32 " : selection pressure parameter is missing.\n",
+                   param_file_name, cur_line );
+           exit( EXIT_FAILURE );
+         }
+         sel->set_selection_scheme(FITNESS_PROPORTIONATE);
+         sel->set_selection_pressure(atof( line->words[2] ) );
+       }
+       else if ( strcmp( line->words[1], "fittest" ) == 0 )
+       {
+         sel->set_selection_scheme(FITTEST);
+       }
+       else
+       {
+         printf( "ERROR in param file \"%s\" on line %" PRId32" : unknown selection scheme \"%s\".\n",
+                param_file_name, cur_line, line->words[1] );
+         exit( EXIT_FAILURE );
+       }
+     }
       else if ( strcmp( line->words[0], "SELECTION_PRESSURE") == 0 )
         {
+          printf( "WARNING: SELECTION_PRESSURE keyword is outdated, you should specify a value for selection pressure using SELECTION_SCHEME\n" );
           sel->set_selection_pressure(atof( line->words[1] ) );
           printf("\tChange of selection pressure to %f\n",atof( line->words[1] ));
         }
@@ -388,10 +500,89 @@ int main( int argc, char* argv[] )
               exit( EXIT_FAILURE );
             }
         }
+      else if ( strcmp( line->words[0], "SECRETION_CONTRIB_TO_FITNESS" ) == 0 )
+      {
+        exp_manager->get_exp_s()->set_secretion_contrib_to_fitness( atof( line->words[1] ) );
+      }
       else if ( strcmp( line->words[0], "SECRETION_COST" ) == 0 )
-        {
-          exp_manager->get_exp_s()->set_secretion_cost( atof( line->words[1] ) );
+      {
+        exp_manager->get_exp_s()->set_secretion_cost( atof( line->words[1] ) );
+      }
+      else if ( strcmp( line->words[0], "PLASMID_MINIMAL_LENGTH" ) == 0 )
+      {
+        if (!exp_manager->get_with_plasmids()){
+          printf("ERROR: option PLASMID_MINIMAL_LENGTH has no sense because there are no plasmids in this population.\n");
+          exit( EXIT_FAILURE );
         }
+        int32_t plasmid_minimal_length = atoi( line->words[1] );
+        ae_list_node<ae_individual*>* indiv_node = pop->get_indivs()->get_first();
+        ae_individual* indiv      = NULL;
+        while( indiv_node != NULL )
+        {
+          indiv = (ae_individual *) indiv_node->get_obj();
+          if (indiv->get_genetic_unit(1)->get_seq_length()<plasmid_minimal_length)
+          {
+            printf("ERROR: there is one genetic unit with a smaller length than the new minimum.\n");
+            exit( EXIT_FAILURE );
+          }
+          indiv->get_genetic_unit(1)->set_min_gu_length(plasmid_minimal_length);
+          indiv_node = indiv_node->get_next();
+        }
+      }
+      else if ( strcmp( line->words[0], "PLASMID_MAXIMAL_LENGTH" ) == 0 )
+      {
+        if (!exp_manager->get_with_plasmids())
+        {
+          printf("ERROR: option PLASMID_MAXIMAL_LENGTH has no sense because there are no plasmids in this population.\n");
+          exit( EXIT_FAILURE );
+        }
+        int32_t plasmid_maximal_length = atoi( line->words[1] );
+        ae_list_node<ae_individual*>* indiv_node = pop->get_indivs()->get_first();
+        ae_individual* indiv      = NULL;
+        while( indiv_node != NULL )
+        {
+          indiv = (ae_individual *) indiv_node->get_obj();
+          if (indiv->get_genetic_unit(1)->get_seq_length()>plasmid_maximal_length)
+          {
+            printf("ERROR: there is one genetic unit with a higher length than the new maximum.\n");
+            exit( EXIT_FAILURE );
+          }
+          indiv->get_genetic_unit(1)->set_max_gu_length(plasmid_maximal_length);
+          indiv_node = indiv_node->get_next();
+        }
+      }
+      else if ( strcmp( line->words[0], "CHROMOSOME_MINIMAL_LENGTH" ) == 0 )
+      {
+        int32_t chromosome_minimal_length = atoi( line->words[1] );
+        ae_list_node<ae_individual*>* indiv_node = pop->get_indivs()->get_first();
+        ae_individual* indiv      = NULL;
+        while( indiv_node != NULL )
+        {
+          indiv = (ae_individual *) indiv_node->get_obj();
+          if (indiv->get_genetic_unit(0)->get_seq_length()<chromosome_minimal_length){
+            printf("ERROR: there is one genetic unit with a smaller length than the new minimum.\n");
+            exit( EXIT_FAILURE );
+          }
+          indiv->get_genetic_unit(0)->set_min_gu_length(chromosome_minimal_length);
+          indiv_node = indiv_node->get_next();
+        }
+      }
+      else if ( strcmp( line->words[0], "CHROMOSOME_MAXIMAL_LENGTH" ) == 0 )
+      {
+        int32_t chromosome_maximal_length = atoi( line->words[1] );
+        ae_list_node<ae_individual*>* indiv_node = pop->get_indivs()->get_first();
+        ae_individual* indiv      = NULL;
+        while( indiv_node != NULL )
+        {
+          indiv = (ae_individual *) indiv_node->get_obj();
+          if (indiv->get_genetic_unit(0)->get_seq_length()>chromosome_maximal_length){
+            printf("ERROR: there is one genetic unit with a higher length than the new maximum.\n");
+            exit( EXIT_FAILURE );
+          }
+          indiv->get_genetic_unit(0)->set_max_gu_length(chromosome_maximal_length);
+          indiv_node = indiv_node->get_next();
+        }
+      }
       else if ( strcmp( line->words[0], "SEED" ) == 0 )
         {
           int32_t seed = atoi( line->words[1] ) ;
@@ -481,8 +672,6 @@ int main( int argc, char* argv[] )
 
   printf("OK\n");
 
-
- 
   if (env_hasbeenmodified)
     {
       env->build();
@@ -490,10 +679,16 @@ int main( int argc, char* argv[] )
       pop->sort_individuals();
     }
 
- 
   // 9) Save the modified experiment
-  
- 
+  if (start_to_record_tree)
+  {
+    if (!set_tree_step)
+    {
+      printf("WARNING: you modifed parameter RECORD_TREE without specifying TREE_STEP in the same parameter modification file. TREE_STEP will be set to its default value even if you previously gave another value.\n");
+    }
+    exp_manager->get_output_m()->init_tree( exp_manager, tree_mode, tree_step );
+  }
+
   if (take_care_of_the_tree)
     {
       printf("Save the modified replication reports into tree...\t");
@@ -513,7 +708,6 @@ int main( int argc, char* argv[] )
   exp_manager->write_setup_files();
   exp_manager->save();
   printf("OK\n");
-   
 
   delete exp_manager;
 }

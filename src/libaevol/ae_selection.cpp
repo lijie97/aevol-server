@@ -624,7 +624,7 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
     #endif
   #endif
 
-
+ 
   // ===========================================================================
   //  2) Set the new individual's location on the grid
   //     (needed if the population is structured)
@@ -633,6 +633,8 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
   {
     new_indiv->set_grid_cell( _exp_m->get_spatial_structure()->get_grid_cell( x, y ) );
   }
+
+
 
   // ===========================================================================
   //  3) Perform transfer, rearrangements and mutations
@@ -667,7 +669,7 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
         gen_unit = gen_unit_node->get_obj();
 
         gen_unit->get_dna()->perform_mutations( parent->get_id() );
-
+ 
         if ( new_indiv->get_replic_report() != NULL )
         {
           new_indiv->get_replic_report()->get_dna_replic_reports()->add( gen_unit->get_dna()->get_replic_report() );

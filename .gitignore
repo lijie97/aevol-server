@@ -10,31 +10,13 @@ autom4te.cache/
 config.log
 config.status
 configure
-doc/Makefile
-doc/Makefile.in
-src/.deps/
-src/Makefile
-src/Makefile.in
+.deps/
 src/aevol_create
 src/aevol_modify
 src/aevol_propagate
 src/aevol_run
-src/libaevol/.deps/
-src/libaevol/Makefile
-src/libaevol/Makefile.in
-src/libaevol/SFMT-src-1.4/.deps/
-src/libaevol/SFMT-src-1.4/Makefile
-src/libaevol/SFMT-src-1.4/Makefile.in
-src/libaevol/SFMT-src-1.4/jump/.deps/
 src/libaevol/SFMT-src-1.4/jump/.dirstamp
-src/libaevol/SFMT-src-1.4/libsfmt.a
-src/libaevol/libaevol.a
-src/libaevol/tests/.deps/
-src/libaevol/tests/Makefile
-src/libaevol/tests/Makefile.in
-src/post_treatments/.deps/
-src/post_treatments/Makefile
-src/post_treatments/Makefile.in
+*.a
 src/post_treatments/aevol_misc_ancstats
 src/post_treatments/aevol_misc_compute_pop_stats
 src/post_treatments/aevol_misc_create_eps
@@ -46,9 +28,7 @@ src/post_treatments/aevol_misc_robustness
 src/post_treatments/aevol_misc_mutagenesis
 src/post_treatments/aevol_misc_template
 src/post_treatments/aevol_misc_view_generation
-tests/Makefile
-tests/Makefile.in
-**/*.o
+*.o
 
 
 # ignore the files that are generated from the user guide source
@@ -59,7 +39,7 @@ doc/user_guide/user_manual.synctex.gz
 doc/user_guide/user_manual.toc
 
 # ignore performance records
-**/perf.data*
+perf.data*
 
 
 
@@ -69,19 +49,3 @@ examples/*/**
 # but consider param.in files
 !examples/**/param.in
 !examples/**/README
-
-# ignore tags (ctags, etags...) used for code navigation
-# In case you don't know about tags, see for instance see for instance:
-# http://ctags.sourceforge.net/
-**/tags
-TAGS
-
-# local ignore
-.cproject
-.project
-.settings/
-doc/*
-examples/
-src/post_treatments/aevol_misc_mutational_robustness
-src/post_treatments/aevol_misc_transform_plasmid
-tests/*
