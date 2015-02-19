@@ -1,7 +1,6 @@
-if WITH_IN2P3
-  SUBDIRS = src tests
-else # WITHOUT_IN2P3
-  SUBDIRS = src doc tests
-endif # IN2P3
 
+# Specify the location of additional local Autoconf macros
+ACLOCAL_AMFLAGS = -I m4
+
+SUBDIRS = src doc
 EXTRA_DIST = examples

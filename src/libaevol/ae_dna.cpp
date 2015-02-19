@@ -67,7 +67,7 @@ namespace aevol {
 /**
  * Creates a random dna sequence of length <length> belonging to <gen_unit>.
  */
-ae_dna::ae_dna( ae_genetic_unit* gen_unit, int32_t length ) : ae_string( length )
+ae_dna::ae_dna( ae_genetic_unit* gen_unit, int32_t length, ae_jumping_mt * prng ) : ae_string( length, prng )
 {
   _gen_unit = gen_unit;
   _exp_m    = gen_unit->get_exp_m();
@@ -228,7 +228,7 @@ void ae_dna::perform_mutations( int32_t parent_id )
 
   if(_indiv->get_with_HT())
   {
-  	do_transfer(parent_id);
+    do_transfer(parent_id);
   }
 
   if ( _indiv->get_with_alignments() )
@@ -344,6 +344,7 @@ void ae_dna::do_rearrangements( void )
   // duplications we perform on the genome follows a binomial law B(n, p), with
   // n = genome length.
 
+
   int32_t nb_dupl  = _indiv->_mut_prng->binomial_random( _length, _indiv->get_duplication_rate() );
   int32_t nb_del   = _indiv->_mut_prng->binomial_random( _length, _indiv->get_deletion_rate() );
   int32_t nb_trans = _indiv->_mut_prng->binomial_random( _length, _indiv->get_translocation_rate() );
@@ -381,25 +382,21 @@ void ae_dna::do_rearrangements( void )
     if ( random_value < nb_dupl )
     {
       mut = do_duplication();
-
       nb_dupl--;  // Updating the urn (no replacement!)...
     }
     else if ( random_value < nb_dupl + nb_del )
     {
       mut = do_deletion();
-
       nb_del--;
     }
     else if ( random_value < nb_dupl + nb_del + nb_trans )
     {
       mut = do_translocation();
-
       nb_trans--;
     }
     else
     {
       mut = do_inversion();
-
       nb_inv--;
     }
 
@@ -1084,6 +1081,8 @@ ae_mutation* ae_dna::do_deletion( void )
   int32_t gu_size_after   = gu_size_before - segment_length;
   int32_t genome_size_before = _indiv->get_amount_of_dna();
   int32_t genome_size_after = genome_size_before - segment_length;
+
+
   if ( ( gu_size_after < _gen_unit->get_min_gu_length() ) || ( genome_size_after < _indiv->get_min_genome_length() ) )
   {
     if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
@@ -1118,6 +1117,7 @@ ae_mutation* ae_dna::do_deletion( void )
 
 ae_mutation* ae_dna::do_translocation( void )
 {
+
   ae_mutation* mut = NULL;
 
   int32_t pos_1, pos_2, pos_3, pos_4;
@@ -1208,6 +1208,7 @@ ae_mutation* ae_dna::do_translocation( void )
         }
       }
 
+
       if ( pos_4 >= chrom_length )
       {
         pos_4_rel = pos_4 - chrom_length;
@@ -1216,18 +1217,20 @@ ae_mutation* ae_dna::do_translocation( void )
       {
         pos_4_rel = pos_4;
       }
+
     }
 
     invert = ( _indiv->_mut_prng->random( 2 ) == 0 );
 
+
     if ( ( _gen_unit == chromosome && pos_4 >= chrom_length ) || // If inter GU translocation
          ( _gen_unit == plasmid && pos_4 < chrom_length ) )
     {
-      //~ printf( "Translocation from the %s to the %s\n", _gen_unit==chromosome?"chromosome":"plasmid", _gen_unit==chromosome?"plasmid":"chromosome" );
+      // printf( "Translocation from the %s to the %s\n", _gen_unit==chromosome?"chromosome":"plasmid", _gen_unit==chromosome?"plasmid":"chromosome" );
 
       //~ printf( "  Chromosome length : %"PRId32"     Plasmid length : %"PRId32"     Total length : %"PRId32"\n",
               //~ chrom_length, plasmid->get_dna()->get_length(), chrom_length + plasmid->get_dna()->get_length() );
-      //~ printf( "  %"PRId32" %"PRId32" %"PRId32" %"PRId32" (length : %"PRId32")\n", pos_1, pos_2, pos_3, pos_4, segment_length );
+      //~ printf( "  %"PRId32" %"PRId32" %"Pthere are plasmidsRId32" %"PRId32" (length : %"PRId32")\n", pos_1, pos_2, pos_3, pos_4, segment_length );
       //~ printf( "  former pos : %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n", former_pos_1, former_pos_2, former_pos_3, former_pos_4 );
 
       if ( do_inter_GU_translocation( pos_1_rel, pos_2_rel, pos_3_rel, pos_4_rel, invert ) )
@@ -1253,7 +1256,7 @@ ae_mutation* ae_dna::do_translocation( void )
       {
 
       }
-      //~ printf( "Translocation intra %s\n", _gen_unit==chromosome?"chromosome":"plasmid" );
+      // printf( "Translocation intra %s\n", _gen_unit==chromosome?"chromosome":"plasmid" );
       //~ printf( "  Chromosome length : %"PRId32"     Plasmid length : %"PRId32"     Total length : %"PRId32"\n",
               //~ chrom_length, plasmid->get_dna()->get_length(), chrom_length + plasmid->get_dna()->get_length() );
       //~ printf( "  %"PRId32" %"PRId32" %"PRId32" %"PRId32" (length : %"PRId32")\n", pos_1, pos_2, pos_3, pos_4, segment_length );

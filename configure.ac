@@ -7,6 +7,9 @@ AC_PREREQ([2.65])
 # Provide FULL-PACKAGE-NAME, VERSION and BUG-REPORT-ADDRESS
 AC_INIT([AEVOL], [4.4], [aevol-bugs@lists.gforge.inria.fr], , [www.aevol.fr])
 
+# Specify the location of additional local Autoconf macros
+AC_CONFIG_MACRO_DIR([m4])
+
 # We want to use automake
 AM_INIT_AUTOMAKE
 
@@ -54,6 +57,7 @@ AC_TYPE_UINT8_T
 # Checks for library functions.
 AC_CHECK_FUNCS([floor memset mkdir pow rint sqrt gzread])
 
+
 # ****************************************************************************
 #                                  OPTIONS
 #
@@ -65,23 +69,8 @@ AC_CHECK_FUNCS([floor memset mkdir pow rint sqrt gzread])
 #     --enable-trivialjumps=jumpsize    [disabled]
 #     --enable-devel                    [disabled]
 #     --enable-debug                    [disabled]
-#     --enable-in2p3                    [disabled]
 #
 # ****************************************************************************
-
-#  ******************* check option consistency ***************************
-AC_MSG_CHECKING([checking parameter consistency])
-if test "x$enable_in2p3" = "xyes" ; then
-  if test "x$enable_debug" = "xyes" ; then
-    AC_MSG_RESULT([FAIL])
-    AC_MSG_ERROR([debug and in2p3 are not compatible])
-  fi
-  if test "x$with_x" != xno ; then
-    AC_MSG_RESULT([FAIL])
-    AC_MSG_ERROR([x and in2p3 are not compatible])
-  fi
-fi
-AC_MSG_RESULT([OK])
 
 #   ************************ --without-x option *********************
 #
@@ -218,6 +207,7 @@ elif test "x$trivialjumps" != "xno" ; then
   AC_DEFINE_UNQUOTED([TRIVIAL_METHOD_JUMP_SIZE], [$trivialjumps])
 fi
 
+
 #  ******************* --enable-devel option ***************************
 #
 #  This enables developers' features:
@@ -230,6 +220,7 @@ AC_MSG_CHECKING([whether to use devel features])
 AC_ARG_ENABLE(devel, [  --enable-devel turn on development features], , enable_devel=no)
 AC_MSG_RESULT($enable_devel)
 AM_CONDITIONAL(ENABLE_DEVEL, test x"$enable_devel" != xno)
+AM_CONDITIONAL(WITH_GTEST, test x"$enable_devel" != xno)
 if test "x$enable_devel" = "xyes" ; then
   # Make clean at the end of the configuration process
   # (usefull when several configurations are done consecutively, typically during development)
@@ -256,12 +247,23 @@ if test "x$enable_devel" = "xyes" ; then
   if test "x$cppunit_missing" != xno ; then
     AC_MSG_ERROR([cppunit not found, make will fail - please install cppunit.])
   fi
+
+  # Add GTest
+  # Configure pthreads.
+  ACX_PTHREAD()
+  AM_CONDITIONAL([HAVE_PTHREADS],[test "x$acx_pthread_ok" = "xyes"])
+  AC_SUBST(PTHREAD_CFLAGS)
+  AC_SUBST(PTHREAD_LIBS)
+
+  # Tell autoconf to run a separate configure script in gtest's dir
+  AC_CONFIG_SUBDIRS([src/tests/gtest-1.7.0])
 else
   # Output a warning message about multi-configuration and make clean
   AC_CONFIG_COMMANDS([user_warning], [AC_MSG_NOTICE([Consider using make clean if you are re-configuring.])])
 fi
 AM_CONDITIONAL([WANT_DOXYGEN], [test -n "$HAVE_DOXYGEN"])
 AM_CONDITIONAL([WITH_CPPUNIT], [test -n "$cppunit_missing"])
+
 
 #  ******************* --enable-debug option ***************************
 #
@@ -280,18 +282,6 @@ else
    AC_DEFINE(NDEBUG)
 fi
 
-#  ******************* --enable-in2p3 option ***************************
-#
-#  With this option, the IN2P3 flag is defined
-
-AC_MSG_CHECKING([whether to use IN2P3 specific features])
-AC_ARG_ENABLE(in2p3, [  --enable-in2p3 to enable IN2P3 specific features], , enable_in2p3=no)
-AC_MSG_RESULT($enable_in2p3)
-AM_CONDITIONAL(WITH_IN2P3, test x"$enable_in2p3" != xno)
-if test "x$enable_in2p3" = "xyes" ; then
-   AC_DEFINE(__IN2P3)
-fi
-
 #  ************************* back to GENERAL stuff *******************************
 
 AC_CONFIG_FILES([Makefile
@@ -299,6 +289,7 @@ AC_CONFIG_FILES([Makefile
                  src/libaevol/Makefile
                  src/libaevol/SFMT-src-1.4/Makefile
                  src/libaevol/tests/Makefile
+                 src/tests/Makefile
                  src/post_treatments/Makefile
                  tests/Makefile
                  doc/Makefile])

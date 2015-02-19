@@ -249,7 +249,8 @@ class ae_individual
     inline void set_min_genome_length( int32_t min_genome_length );
     inline void set_max_genome_length( int32_t max_genome_length );
 
-    inline void add_GU( char * &sequence, int32_t length );
+    // Plasmids
+    inline void set_allow_plasmids( bool allow_plasmids );
 
     // Mutation rates etc...
     inline void set_point_mutation_rate( double point_mutation_rate);
@@ -290,6 +291,12 @@ class ae_individual
     // =================================================================
     //                            Public Methods
     // =================================================================
+
+
+    void add_GU( char * &sequence, int32_t length );  // warning: the individual is left in a totally "cleared" state but not reevaluated
+    void add_GU( ae_genetic_unit * unit ); // warning: the individual is left in a totally "cleared" state but not reevaluated
+    void remove_GU ( int16_t num_unit ); // warning: the individual is left in a totally "cleared" state but not reevaluated
+
     inline void renew_dist_to_target_by_feature( void );
     inline void renew_fitness_by_feature( void );
 
@@ -298,6 +305,7 @@ class ae_individual
 
     virtual void evaluate( Environment* envir = NULL );
     virtual void reevaluate( Environment* envir = NULL );
+    virtual void clear_everything_except_dna_and_promoters(void);
     inline void do_transcription_translation_folding( void );
     void do_transcription( void );
     void do_translation( void );
@@ -1209,6 +1217,11 @@ inline bool ae_individual::get_with_stochasticity( void ) const
   return _with_stochasticity;
 }
 
+inline void ae_individual::set_allow_plasmids( bool allow_plasmids )
+{
+  _allow_plasmids=allow_plasmids;
+}
+
 // Genome size constraints
 /*!
   TODO
@@ -1319,13 +1332,7 @@ inline void ae_individual::set_w_max( double w_max )
   _w_max = w_max;
 }
 
-/*!
-  TODO
-*/
-inline void ae_individual::add_GU( char * &sequence, int32_t length )
-{
-  _genetic_unit_list->add( new ae_genetic_unit( this, sequence, length ) );
-}
+
 
 // Genome size constraints
 /*!
