@@ -137,3 +137,7 @@ void print_help( char* prog_name )
   printf("\t-r ng  : modify generation ng (need a full backup), \n");
   printf("\t-p plasmid_file : read plasmid sequence from file plasmid_file\n");
 }
+  if (fgets(rawplasmid, 1000000, plasmid_file) == nullptr) {
+    printf("Failed to read from %s\n", plasmid_file_name);
+    exit(EXIT_FAILURE);
+  }
