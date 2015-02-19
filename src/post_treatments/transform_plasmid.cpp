@@ -90,7 +90,10 @@ int main( int argc, char* argv[] )
   char rawplasmid[1000000];
   int32_t lplasmid=-1;
   FILE* plasmid_file = fopen(plasmid_file_name,"r");
-  fgets(rawplasmid, 1000000, plasmid_file);
+  if (fgets(rawplasmid, 1000000, plasmid_file) == nullptr) {
+    printf("Failed to read from %s\n", plasmid_file_name);
+    exit(EXIT_FAILURE);
+  }
   lplasmid = strlen(rawplasmid)-1;
   fclose(plasmid_file);
 
@@ -137,7 +140,3 @@ void print_help( char* prog_name )
   printf("\t-r ng  : modify generation ng (need a full backup), \n");
   printf("\t-p plasmid_file : read plasmid sequence from file plasmid_file\n");
 }
-  if (fgets(rawplasmid, 1000000, plasmid_file) == nullptr) {
-    printf("Failed to read from %s\n", plasmid_file_name);
-    exit(EXIT_FAILURE);
-  }
