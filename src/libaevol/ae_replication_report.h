@@ -312,22 +312,6 @@ inline void ae_replication_report::set_donor_genome_size( int32_t donor_genome_s
   _donor_genome_size = donor_genome_size;
 }
 
-  
-
-
-// =====================================================================
-//                       Inline functions' definition
-// =====================================================================
-//~ void ae_replication_report::add_mutation_list( ae_list* mut_list )
-//~ {
-  //~ _mutations->add( mut_list );
-//~ }
-
-//~ void ae_replication_report::add_rearrangement_list( ae_list* rear_list )
-//~ {
-  //~ _rearrangements->add( rear_list );
-//~ }
-
 } // namespace aevol
 
 #endif // __AE_REPLICATION_REPORT_H__
