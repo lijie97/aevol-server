@@ -44,8 +44,12 @@ class DnaReplicReport {
   // Public Methods
   void compute_stats();  // useful when we inspect a tree file
   void add_rear(const ae_mutation& rear);
+  void add_rear(ae_mutation&& rear);
   void add_mut(const ae_mutation& mut);
+  void add_mut(ae_mutation&& mut);
   void add_HT(const ae_mutation& HT);
+  void add_HT(ae_mutation&& HT);
+
 
  protected :
   std::list<ae_mutation> mutations_;       // Lists of mutations, rearrangements and undergone

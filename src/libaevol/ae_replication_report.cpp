@@ -157,15 +157,15 @@ ae_replication_report::ae_replication_report( gzFile tree_file, ae_individual * 
     
     gzread( tree_file, &nb_HT, sizeof(nb_HT) );
     for ( myevent  = 0 ; myevent < nb_HT ; myevent++ )
-      dnareport->add_HT(ae_mutation(tree_file));
+      dnareport->add_HT(std::move(ae_mutation(tree_file)));
 
     gzread( tree_file, &nb_rears, sizeof(nb_rears) );
     for ( myevent  = 0 ; myevent < nb_rears ; myevent++ )
-      dnareport->add_rear(ae_mutation(tree_file));
+      dnareport->add_rear(std::move(ae_mutation(tree_file)));
 
     gzread( tree_file, &nb_muts, sizeof(nb_muts) );
     for(myevent  = 0 ; myevent < nb_muts ; myevent++ )
-      dnareport->add_mut(ae_mutation( tree_file ));
+      dnareport->add_mut(std::move(ae_mutation( tree_file )));
 
     dnareport->compute_stats();
     _dna_replic_reports.push_back(dnareport);
