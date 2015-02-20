@@ -772,7 +772,7 @@ void ae_genetic_unit::do_translation( void )
           // Build codon list and make new protein when stop found
           int32_t j = i + SHINE_DAL_SIZE + SHINE_START_SPACER + CODON_SIZE; // next codon to examine
           ae_codon* codon;
-          ae_list<ae_codon*>* codon_list = new ae_list<ae_codon*>();
+          std::list<ae_codon*> codon_list;
           //~ int32_t nb_m, nb_w, nb_h;  // Number of M, W, H-codons found in the gene
           //~ nb_m = nb_w = nb_h = 0; // TODO : usefull?
 
@@ -782,18 +782,15 @@ void ae_genetic_unit::do_translation( void )
 
             if ( codon->is_stop() )
             {
-              if ( codon_list->is_empty() == false ) // at least one amino-acid
+              if (not codon_list.empty()) // at least one amino-acid
               {
                 // The protein is valid, create the corresponding object
                 ae_protein* protein;
                 #ifndef __REGUL
-                  protein = new ae_protein( this, aelist_to_stdlist(codon_list), LEADING, shine_dal_pos, rna );
+                  protein = new ae_protein( this, codon_list, LEADING, shine_dal_pos, rna );
                 #else
-                  protein = new ae_protein_R( this, codon_list, LEADING, shine_dal_pos, rna );
+                  protein = new ae_protein_R( this, new ae_list<ae_codon*>(codon_list), LEADING, shine_dal_pos, rna );
                 #endif
-
-                // The codon list will be kept in the protein
-                codon_list = NULL;
 
                 _protein_list[LEADING]->add( protein );
                 rna->add_transcribed_protein( protein );
@@ -820,21 +817,11 @@ void ae_genetic_unit::do_translation( void )
             }
             else
             {
-              codon_list->add( codon );
+              codon_list.push_back(codon);
             }
 
             j += CODON_SIZE;
           }
-
-          // The codon list is no longer useful, delete it with all its items
-          // TODO : memory leek in RAEVOL?
-//          #ifndef __REGUL
-            if ( codon_list != NULL )
-            {
-              codon_list->erase( true );
-              delete codon_list;
-            }
-//          #endif
         }
       }
     }
