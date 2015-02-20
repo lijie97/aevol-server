@@ -292,13 +292,13 @@ void ae_replication_report::write_to_tree_file( gzFile tree_file ) const
 
   for (const auto& report: _dna_replic_reports) {
     // Store HT
-    int32_t nb_HT = report->get_nb_HT();
+    int32_t nb_HT = report->get_nb(HT);
     gzwrite( tree_file, &nb_HT, sizeof(nb_HT) );
     for (const auto& HT: report->get_HT())
       HT.save(tree_file);
 
     // Store rearrangements
-    int32_t nb_rears = report->get_nb_rearrangements();
+    int32_t nb_rears = report->get_nb(REARR);
     gzwrite( tree_file, &nb_rears, sizeof(nb_rears) );
     //~ printf( "  nb_rears : %"PRId32"\n", nb_rears );
 
@@ -306,7 +306,7 @@ void ae_replication_report::write_to_tree_file( gzFile tree_file ) const
       rear.save(tree_file);
 
     // Store mutations
-    int32_t nb_muts = report->get_nb_small_mutations();
+    int32_t nb_muts = report->get_nb(S_MUT);
     gzwrite( tree_file, &nb_muts, sizeof(nb_muts) );
     //~ printf( "  nb_muts : %"PRId32"\n", nb_muts );
 

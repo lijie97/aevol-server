@@ -18,10 +18,58 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <cinttypes>
+#include <list>
+#include <cstdlib>
+#include <cassert>
+
 #include "ae_dna_replic_report.h"
 #include "ae_mutation.h"
 
 namespace aevol {
+
+int32_t ae_dna_replic_report::get_nb(enum ae_mutation_type t)  const {
+  switch (t) {
+    case S_MUT:
+      assert(_mutations.size() ==
+             static_cast<size_t>(_nb_mut[SWITCH] +
+                                 _nb_mut[S_INS] +
+                                 _nb_mut[S_DEL]));
+      return _mutations.size();
+    case REARR:
+      assert(_rearrangements.size() ==
+             static_cast<size_t>(_nb_mut[DUPL] +
+                                 _nb_mut[DEL] +
+                                 _nb_mut[TRANS] +
+                                 _nb_mut[INV]));
+      return _rearrangements.size();
+    case HT:
+      assert(_HT.size() ==
+             static_cast<size_t>(_nb_mut[INS_HT] +
+                                 _nb_mut[REPL_HT]));
+      return _HT.size();
+    case INDEL:
+      return _nb_mut[S_INS] + _nb_mut[S_DEL];
+    default: // Simple mutation type.
+      return _nb_mut[t];
+  };
+}
+
+void ae_dna_replic_report::add_mut(const ae_mutation& mut) {
+  _mutations.push_back(mut);
+  _nb_mut[mut.get_mut_type()]++;
+}
+
+void ae_dna_replic_report::add_rear(const ae_mutation& rear) {
+  _rearrangements.push_back(rear);
+  _nb_mut[rear.get_mut_type()]++;
+}
+
+void ae_dna_replic_report::add_HT(const ae_mutation& HT) {
+  _HT.push_back(HT);
+  _nb_mut[HT.get_mut_type()]++;
+}
+
 
 /// Useful when we inspect a tree file
 /// because stats are not saved in the file.

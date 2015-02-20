@@ -226,10 +226,10 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_individual const * ind
     // Mutation stats
     if ( replic_report != NULL )
     {
-      _nb_mut    = gen_unit->get_dna()->get_replic_report()->get_nb_small_mutations();
-      _nb_rear   = gen_unit->get_dna()->get_replic_report()->get_nb_rearrangements();
+      _nb_mut    = gen_unit->get_dna()->get_replic_report()->get_nb(S_MUT);
+      _nb_rear   = gen_unit->get_dna()->get_replic_report()->get_nb(REARR);
       _nb_switch = gen_unit->get_dna()->get_replic_report()->get_nb(SWITCH);
-      _nb_indels = gen_unit->get_dna()->get_replic_report()->get_nb_indels();
+      _nb_indels = gen_unit->get_dna()->get_replic_report()->get_nb(INDEL);
       _nb_dupl   = gen_unit->get_dna()->get_replic_report()->get_nb(DUPL);
       _nb_del    = gen_unit->get_dna()->get_replic_report()->get_nb(DEL);
       _nb_trans  = gen_unit->get_dna()->get_replic_report()->get_nb(TRANS);
@@ -328,10 +328,10 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_individual const * ind
       // Mutation stats
       if (( replic_report != NULL ) && (gen_unit->get_dna()->get_replic_report()!=NULL))
       {
-        _nb_mut    += gen_unit->get_dna()->get_replic_report()->get_nb_small_mutations();
-        _nb_rear   += gen_unit->get_dna()->get_replic_report()->get_nb_rearrangements();
+        _nb_mut    += gen_unit->get_dna()->get_replic_report()->get_nb(S_MUT);
+        _nb_rear   += gen_unit->get_dna()->get_replic_report()->get_nb(REARR);
         _nb_switch += gen_unit->get_dna()->get_replic_report()->get_nb(SWITCH);
-        _nb_indels += gen_unit->get_dna()->get_replic_report()->get_nb_indels();
+        _nb_indels += gen_unit->get_dna()->get_replic_report()->get_nb(INDEL);
         _nb_dupl   += gen_unit->get_dna()->get_replic_report()->get_nb(DUPL);
         _nb_del    += gen_unit->get_dna()->get_replic_report()->get_nb(DEL);
         _nb_trans  += gen_unit->get_dna()->get_replic_report()->get_nb(TRANS);
@@ -433,10 +433,10 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_individual const * ind
     // Mutation stats
     if ( gen_unit->get_dna()->get_replic_report() != NULL )
     {
-      _nb_mut    = gen_unit->get_dna()->get_replic_report()->get_nb_small_mutations();
-      _nb_rear   = gen_unit->get_dna()->get_replic_report()->get_nb_rearrangements();
+      _nb_mut    = gen_unit->get_dna()->get_replic_report()->get_nb(S_MUT);
+      _nb_rear   = gen_unit->get_dna()->get_replic_report()->get_nb(REARR);
       _nb_switch = gen_unit->get_dna()->get_replic_report()->get_nb(SWITCH);
-      _nb_indels = gen_unit->get_dna()->get_replic_report()->get_nb_indels();
+      _nb_indels = gen_unit->get_dna()->get_replic_report()->get_nb(INDEL);
       _nb_dupl   = gen_unit->get_dna()->get_replic_report()->get_nb(DUPL);
       _nb_del    = gen_unit->get_dna()->get_replic_report()->get_nb(DEL);
       _nb_trans  = gen_unit->get_dna()->get_replic_report()->get_nb(TRANS);
