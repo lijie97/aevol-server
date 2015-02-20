@@ -924,6 +924,9 @@ void ae_gene_tree_node::anticipate_mutation_effect_on_genes_in_subtree_leaves(co
             // TO DO
             break;
           }
+        default:
+          // Only simple mutation types are considered.
+          break;
         }
     }
 }

@@ -56,17 +56,32 @@ namespace aevol {
 
 enum ae_mutation_type
 {
+  // Simple mutation types.
   SWITCH  = 0,
-  S_INS   = 1,
-  S_DEL   = 2,
-  DUPL    = 3,
-  DEL     = 4,
-  TRANS   = 5,
-  INV     = 6,
-  INSERT  = 7,
-  INS_HT  = 8,
-  REPL_HT = 9
+  S_INS,
+  S_DEL,
+  DUPL,
+  DEL,
+  TRANS,
+  INV,
+  INSERT,
+  INS_HT,
+  REPL_HT,
+
+  // Composite mutation types follow. They represent categories of
+  // several simple mutation types. Therefore, they should not be used
+  // as array index for counters.
+  //
+  // The composite mutations should extend the ae_mutation_type. But
+  // C++ enums can't be inherited directly.
+  S_MUT, // SWITCH or S_INS or S_DEL
+  REARR, // DUPL or DEL or TRANS or INV
+  HT,    // INS_HT or REPL_HT
+  INDEL  // S_INS or S_DEL
 };
+
+// enum composite_mutation_type {
+// };
 
 class ae_mutation
 {

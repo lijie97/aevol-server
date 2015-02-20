@@ -4040,6 +4040,9 @@ void ae_genetic_unit::compute_nb_of_affected_genes(const ae_mutation * mut, int 
             else if (breakpoint_inside_gene(pos2, first, last)) nb_genes_at_breakpoints ++;  // the gene was disrupted by the breakpoint p2
             break;
           }
+        default:
+          // Only simple mutation types are considered.
+          break;
         }
 
     }
@@ -4118,6 +4121,9 @@ void ae_genetic_unit::compute_nb_of_affected_genes(const ae_mutation * mut, int 
             else if (breakpoint_inside_gene(pos2, first, last)) nb_genes_at_breakpoints ++;  // the gene was disrupted by the breakpoint p2
             break;
           }
+        default:
+          // Only simple mutation types are considered.
+          break;
         }
     }
 
