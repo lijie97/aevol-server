@@ -79,7 +79,7 @@ class ae_individual_X11 : public virtual ae_individual
     ae_individual_X11( const ae_individual_X11 &model, bool replication_report_copy );
     ae_individual_X11(  ae_individual_X11* const parent, int32_t id,
                         ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng );
-    //~ ae_individual_X11( char* genome, int32_t genome_size );
+    ae_individual_X11() = delete; // forbidden constructor
 
     // =================================================================
     //                             Destructors
@@ -106,16 +106,6 @@ class ae_individual_X11 : public virtual ae_individual
 
 
   protected :
-
-    // =================================================================
-    //                         Forbidden Constructors
-    // =================================================================
-    ae_individual_X11( void )
-    {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-
     // =================================================================
     //                           Protected Methods
     // =================================================================

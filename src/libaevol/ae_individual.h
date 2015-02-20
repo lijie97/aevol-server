@@ -93,6 +93,8 @@ class ae_individual
     ae_individual( const ae_individual &model, bool replication_report_copy = false );
     ae_individual(  ae_individual* const parent, int32_t id,
                     ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng );
+    ae_individual() = delete; // forbidden constructor
+
 
     // =================================================================
     //                             Destructors
@@ -356,16 +358,6 @@ class ae_individual
 
 
   protected :
-
-    // =================================================================
-    //                         Forbidden Constructors
-    // =================================================================
-    ae_individual( void )
-    {
-      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-
     // =================================================================
     //                           Protected Methods
     // =================================================================
