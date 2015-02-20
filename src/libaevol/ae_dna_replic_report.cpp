@@ -28,7 +28,7 @@
 
 namespace aevol {
 
-int32_t ae_dna_replic_report::get_nb(enum MutationType t)  const {
+int32_t ae_dna_replic_report::get_nb(MutationType t)  const {
   switch (t) {
     case S_MUT:
       assert(_mutations.size() ==

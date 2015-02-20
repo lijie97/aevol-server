@@ -39,7 +39,7 @@ class ae_dna_replic_report {
   const std::list<ae_mutation> get_mutations()      const { return _mutations; };
   const std::list<ae_mutation> get_rearrangements() const { return _rearrangements; };
   const std::list<ae_mutation> get_HT()             const { return _HT; };
-  int32_t get_nb(enum MutationType t) const;
+  int32_t get_nb(MutationType t) const;
 
   // Public Methods
   void compute_stats();  // useful when we inspect a tree file
