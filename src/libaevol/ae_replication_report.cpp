@@ -150,30 +150,22 @@ ae_replication_report::ae_replication_report( gzFile tree_file, ae_individual * 
   int32_t mydnareport, myevent;
   int32_t nb_rears, nb_muts, nb_HT;
   DnaReplicReport * dnareport = NULL;
-  ae_mutation * event = NULL;
 
   for ( mydnareport = 0 ; mydnareport < nb_dna_replic_reports ; mydnareport++ )
   {
     dnareport = new DnaReplicReport();
     
     gzread( tree_file, &nb_HT, sizeof(nb_HT) );
-    // TODO vld fix memory leaks with news
     for ( myevent  = 0 ; myevent < nb_HT ; myevent++ )
-    {
-      event = new ae_mutation( tree_file );
-      dnareport->add_HT(*event);
-    }
-    
+      dnareport->add_HT(ae_mutation(tree_file));
+
     gzread( tree_file, &nb_rears, sizeof(nb_rears) );
     for ( myevent  = 0 ; myevent < nb_rears ; myevent++ )
-      dnareport->add_rear(*new ae_mutation(tree_file));
+      dnareport->add_rear(ae_mutation(tree_file));
 
     gzread( tree_file, &nb_muts, sizeof(nb_muts) );
     for(myevent  = 0 ; myevent < nb_muts ; myevent++ )
-    {
-      event = new ae_mutation( tree_file );
-      dnareport->add_mut(*event);
-    }
+      dnareport->add_mut(ae_mutation( tree_file ));
 
     dnareport->compute_stats();
     _dna_replic_reports.push_back(dnareport);
