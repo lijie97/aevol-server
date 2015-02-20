@@ -110,8 +110,8 @@ class ae_replication_report
     inline void     set_donor_secretion_error( double donor_secretion_error );
     inline void     set_donor_genome_size( int32_t donor_genome_size );
   
-    inline const std::list<ae_dna_replic_report*> get_dna_replic_reports() const;
-    inline void add_dna_replic_report(ae_dna_replic_report* rep) { _dna_replic_reports.push_back(rep); }
+    inline const std::list<DnaReplicReport*> get_dna_replic_reports() const;
+    inline void add_dna_replic_report(DnaReplicReport* rep) { _dna_replic_reports.push_back(rep); }
 
     // =================================================================
     //                            Public Methods
@@ -162,7 +162,7 @@ class ae_replication_report
     int16_t         _nb_coding_RNAs;
     int16_t         _nb_non_coding_RNAs;
     
-    std::list<ae_dna_replic_report*>  _dna_replic_reports; // List of each genetic unit's replication report
+    std::list<DnaReplicReport*>  _dna_replic_reports; // List of each genetic unit's replication report
     
     double          _parent_metabolic_error;
     double          _parent_secretion_error;
@@ -246,7 +246,7 @@ inline double ae_replication_report::get_mean_align_score( void ) const
   return _mean_align_score;
 }
 
-inline const std::list<ae_dna_replic_report*> ae_replication_report::get_dna_replic_reports() const {
+inline const std::list<DnaReplicReport*> ae_replication_report::get_dna_replic_reports() const {
   return _dna_replic_reports;
 }
 

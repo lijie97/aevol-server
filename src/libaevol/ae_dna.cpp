@@ -89,7 +89,7 @@ ae_dna::ae_dna( ae_genetic_unit* gen_unit, const ae_dna &model ) : ae_string( mo
 
   if ( ( _exp_m->get_num_gener() > 0 && _exp_m->get_output_m()->get_record_tree() ) && ( model._replic_report != NULL ) )
   {
-    _replic_report = new ae_dna_replic_report( *(model._replic_report) );
+    _replic_report = new DnaReplicReport( *(model._replic_report) );
   }
   else
   {
@@ -224,7 +224,7 @@ void ae_dna::perform_mutations( int32_t parent_id )
 {
   if ( _exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL )
   {
-    _replic_report = new ae_dna_replic_report();
+    _replic_report = new DnaReplicReport();
   }
 
   if(_indiv->get_with_HT())

@@ -29,16 +29,16 @@ namespace aevol {
 
 class ae_dna;
 
-class ae_dna_replic_report {
+class DnaReplicReport {
   friend class ae_dna;
   
  public :
   // Constructor, copy contructor and destructor are synthesized by compiler.
 
   // Accessors
-  const std::list<ae_mutation> get_mutations()      const { return _mutations; };
-  const std::list<ae_mutation> get_rearrangements() const { return _rearrangements; };
-  const std::list<ae_mutation> get_HT()             const { return _HT; };
+  const std::list<ae_mutation> get_mutations()      const { return mutations_; };
+  const std::list<ae_mutation> get_rearrangements() const { return rearrangements_; };
+  const std::list<ae_mutation> get_HT()             const { return ht_; };
   int32_t get_nb(MutationType t) const;
 
   // Public Methods
@@ -48,9 +48,9 @@ class ae_dna_replic_report {
   void add_HT(const ae_mutation& HT);
 
  protected :
-  std::list<ae_mutation> _mutations;       // Lists of mutations, rearrangements and undergone
-  std::list<ae_mutation> _rearrangements;  // by the genetic unit at last replication
-  std::list<ae_mutation> _HT;
+  std::list<ae_mutation> mutations_;       // Lists of mutations, rearrangements and undergone
+  std::list<ae_mutation> rearrangements_;  // by the genetic unit at last replication
+  std::list<ae_mutation> ht_;
   int32_t _nb_mut[10]; // Number of mutations/rearrangements/HT of each (simple) type undergone
 };
 

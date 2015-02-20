@@ -91,8 +91,8 @@ class ae_dna : public ae_string
     //   inline const char*   get_data( void ) const;
     //   inline       void    set_data( char* data, int32_t length = -1 );
     //   inline       int32_t get_length( void ) const;
-    inline ae_dna_replic_report*  get_replic_report( void ) const;
-    inline void                   set_replic_report( ae_dna_replic_report * rep ); // for post-treatment only
+    inline DnaReplicReport*  get_replic_report( void ) const;
+    inline void                   set_replic_report( DnaReplicReport * rep ); // for post-treatment only
 
     inline ae_genetic_unit *      get_genetic_unit( void ) const;
     inline ae_individual*         get_indiv(void) const;
@@ -210,14 +210,14 @@ class ae_dna : public ae_string
     //   int32_t _nb_blocks;
     ae_individual*        _indiv;
     ae_genetic_unit*      _gen_unit; // Genetic unit which the genetic unit belongs to
-    ae_dna_replic_report* _replic_report;
+    DnaReplicReport* _replic_report;
 };
 
 
 // =====================================================================
 //                          Accessors definitions
 // =====================================================================
-inline ae_dna_replic_report* ae_dna::get_replic_report( void ) const
+inline DnaReplicReport* ae_dna::get_replic_report( void ) const
 {
   return _replic_report;
 }
@@ -228,7 +228,7 @@ inline ae_individual* ae_dna::get_indiv(void) const
 }
 
  // for post-treatment only
-inline void ae_dna::set_replic_report( ae_dna_replic_report * rep )
+inline void ae_dna::set_replic_report( DnaReplicReport * rep )
 {
   _replic_report = rep;
 }

@@ -123,7 +123,7 @@ ae_replication_report::ae_replication_report( const ae_replication_report &model
   _mean_align_score       = model._mean_align_score;
 
   for (const auto& rep: model._dna_replic_reports)
-    _dna_replic_reports.push_back(new ae_dna_replic_report(*rep));
+    _dna_replic_reports.push_back(new DnaReplicReport(*rep));
 }
 
 
@@ -149,12 +149,12 @@ ae_replication_report::ae_replication_report( gzFile tree_file, ae_individual * 
   
   int32_t mydnareport, myevent;
   int32_t nb_rears, nb_muts, nb_HT;
-  ae_dna_replic_report * dnareport = NULL;
+  DnaReplicReport * dnareport = NULL;
   ae_mutation * event = NULL;
 
   for ( mydnareport = 0 ; mydnareport < nb_dna_replic_reports ; mydnareport++ )
   {
-    dnareport = new ae_dna_replic_report();
+    dnareport = new DnaReplicReport();
     
     gzread( tree_file, &nb_HT, sizeof(nb_HT) );
     // TODO vld fix memory leaks with news
