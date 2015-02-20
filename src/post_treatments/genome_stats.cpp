@@ -304,7 +304,7 @@ inline void print_neutral_regions( ae_individual* indiv, FILE* output_file )
   if ( output_file == NULL ) return;
 
   //header
-  ae_genetic_unit* chromosome = (ae_genetic_unit*) indiv->get_genetic_unit_list()->get_first()->get_obj();
+  ae_genetic_unit* chromosome = *indiv->get_genetic_unit_list_std().begin();
   int32_t nb_neutral_regions  = chromosome->get_nb_neutral_regions();
   fprintf( output_file, "# chromosome length: %"PRId32", %"PRId32" neutral bases, %"PRId32" neutral regions\n",
 	   chromosome->get_dna()->get_length(), chromosome->get_nb_bases_in_neutral_regions(), nb_neutral_regions);

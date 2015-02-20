@@ -1131,7 +1131,7 @@ void ae_individual::evaluate( Environment* envir /*= NULL*/ )
 void ae_individual::inject_GU( ae_individual* donor )
 {
   // Add the GU at the end of the list
-  ae_list_node<ae_genetic_unit*>* gen_unit_node = donor->get_genetic_unit_list()->get_last();
+  ae_list_node<ae_genetic_unit*>* gen_unit_node = donor->_genetic_unit_list->get_last();
   ae_genetic_unit* temp_GU = new ae_genetic_unit( this, *(gen_unit_node->get_obj()) );
   _genetic_unit_list->add( temp_GU );
 }
@@ -1139,14 +1139,14 @@ void ae_individual::inject_GU( ae_individual* donor )
 void ae_individual::inject_2GUs( ae_individual* partner )
 {
   //We swap GUs from the end of the list
-  ae_list_node<ae_genetic_unit*>* gen_unit_node_1 = partner->get_genetic_unit_list()->get_last();
+  ae_list_node<ae_genetic_unit*>* gen_unit_node_1 = partner->_genetic_unit_list->get_last();
   ae_list_node<ae_genetic_unit*>* gen_unit_node_2 = _genetic_unit_list->get_last();
 
   ae_genetic_unit* temp_GU_1 = new ae_genetic_unit( this, *(gen_unit_node_1->get_obj()) );
   ae_genetic_unit* temp_GU_2 = new ae_genetic_unit( this, *(gen_unit_node_2->get_obj()) );
 
   _genetic_unit_list->add( temp_GU_1 );
-  partner->get_genetic_unit_list()->add( temp_GU_2 );
+  partner->_genetic_unit_list->add( temp_GU_2 );
 }
 
 void ae_individual::compute_statistical_data( void )
@@ -1438,7 +1438,7 @@ double ae_individual::compute_theoritical_f_nu( void )
   // Abbreviations are chosen according to Carole's formula.
   // Please notice that compared to the formula we have the beginning
   // and ends of neutral regions instead of 'functional regions'
-  ae_genetic_unit* chromosome = get_genetic_unit_list()->get_first()->get_obj();
+  ae_genetic_unit* chromosome = _genetic_unit_list->get_first()->get_obj();
   int32_t L       = chromosome->get_dna()->get_length();
   int32_t N_G     = chromosome->get_nb_neutral_regions(); // which is not exactly Carole's original definition
   int32_t* b_i    = chromosome->get_beginning_neutral_regions();

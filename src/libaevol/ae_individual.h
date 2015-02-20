@@ -121,6 +121,8 @@ class ae_individual
 
     inline ae_list<ae_genetic_unit*>* get_genetic_unit_list( void )     const;
     inline const std::list<ae_genetic_unit*> get_genetic_unit_list_std() const;
+    /// Keep only the first (main chromosome) and the last chromosomes from the GU.
+    inline void drop_nested_genetic_units();
 
     inline const char* get_genetic_unit_sequence   ( int16_t num_unit ) const;
     inline int32_t     get_genetic_unit_seq_length ( int16_t num_unit ) const;
@@ -615,6 +617,18 @@ inline const std::list<ae_genetic_unit*> ae_individual::get_genetic_unit_list_st
   return aelist_to_stdlist(_genetic_unit_list);
 }
 
+inline void ae_individual::drop_nested_genetic_units() {
+  if (_genetic_unit_list->get_nb_elts() <= 2)
+    return;
+
+  while (_genetic_unit_list->get_nb_elts() > 2)
+    _genetic_unit_list->remove(_genetic_unit_list->get_first()->get_next(), true, true);
+
+  // to be replaced with
+  // _genetic_unit_list.erase(std::next(_genetic_unit_list.begin()),
+  //                          std::prev(_genetic_unit_list.end()));
+  assert(_genetic_unit_list->get_nb_elts() <= 2);
+}
 
 /*!
   Returns genetic unit number <num_unit> (0 for main chromosome)

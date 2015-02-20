@@ -75,6 +75,10 @@ class ae_genetic_unit
     ae_genetic_unit( ae_individual* indiv, ae_genetic_unit* const parent );
     ae_genetic_unit( ae_individual* indiv, gzFile backup_file );
     ae_genetic_unit( ae_individual* indiv, char* organism_file_name );
+    ae_genetic_unit() = delete;
+    ae_genetic_unit(const ae_genetic_unit &) = delete;
+
+
 
 
     // =================================================================
@@ -259,22 +263,6 @@ class ae_genetic_unit
 
 
   protected :
-
-    // =================================================================
-    //                         Forbidden Constructors
-    // =================================================================
-    ae_genetic_unit( void )
-    {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-    ae_genetic_unit( const ae_genetic_unit &model )
-    {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-
-
     // =================================================================
     //                           Protected Methods
     // =================================================================

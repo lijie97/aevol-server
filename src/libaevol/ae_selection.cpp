@@ -369,19 +369,10 @@ void ae_selection::step_to_next_generation_grid( void )
     {
       for ( int16_t y = 0 ; y < grid_height ; y++ )
       {
-        bool reevaluate = false;
-        while ( sp_struct->get_indiv_at(x, y)->get_genetic_unit_list()->get_nb_elts() > 2 )
-        {
-          reevaluate = true;
-          sp_struct->get_indiv_at(x, y)->get_genetic_unit_list()->remove(
-                  sp_struct->get_indiv_at(x, y)->get_genetic_unit_list()->get_first()->get_next(), true, true);
-        }
+        bool reevaluate = (sp_struct->get_indiv_at(x, y)->get_nb_genetic_units() > 2);
+        sp_struct->get_indiv_at(x, y)->drop_nested_genetic_units();
         if (reevaluate)
-        {
           sp_struct->get_indiv_at(x, y)->reevaluate();
-          //previous code avoided full re-evaluation, just updated the "full" proteins list:
-          //_pop_grid[x][y]->get_individual()->reevaluate_after_GU_transfer(ae_common::sim->get_env());
-        }
       }
     }
   }
@@ -641,7 +632,7 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
   // ===========================================================================
   if ( ! new_indiv->get_allow_plasmids() )
   {
-    ae_genetic_unit* chromosome = new_indiv->get_genetic_unit_list()->get_first()->get_obj();
+    ae_genetic_unit* chromosome = *new_indiv->get_genetic_unit_list_std().begin();
 
     chromosome->get_dna()->perform_mutations( parent->get_id());
 
@@ -651,50 +642,23 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
     }
   }
   else
-  {
-    // For each GU, apply mutations
-    ae_list_node<ae_genetic_unit*>* gen_unit_node = NULL;
-    ae_genetic_unit* gen_unit = NULL;
-
+  { // For each GU, apply mutations
     // Randomly determine the order in which the GUs will undergo mutations
     bool inverse_order = (_prng->random((int32_t) 2) < 0.5);
 
-    if ( ! inverse_order )
-    // Apply mutations in normal GU order
-    {
-      gen_unit_node = new_indiv->get_genetic_unit_list()->get_first();
-
-      while ( gen_unit_node != NULL )
-      {
-        gen_unit = gen_unit_node->get_obj();
-
+    if (not inverse_order) { // Apply mutations in normal GU order
+      for (const auto& gen_unit: new_indiv->get_genetic_unit_list_std()) {
         gen_unit->get_dna()->perform_mutations( parent->get_id() );
- 
         if ( new_indiv->get_replic_report() != NULL )
-        {
           new_indiv->get_replic_report()->add_dna_replic_report(gen_unit->get_dna()->get_replic_report());
-        }
-
-        gen_unit_node = gen_unit_node->get_next();
       }
     }
-    else
-    // Apply mutations in inverse GU order
-    {
-      gen_unit_node = new_indiv->get_genetic_unit_list()->get_last();
-
-      while ( gen_unit_node != NULL )
-      {
-        gen_unit = gen_unit_node->get_obj();
-
-        gen_unit->get_dna()->perform_mutations( parent->get_id() );
-
-        if ( new_indiv->get_replic_report() != NULL )
-        {
-          new_indiv->get_replic_report()->add_dna_replic_report(gen_unit->get_dna()->get_replic_report());
-        }
-
-        gen_unit_node = gen_unit_node->get_prev();
+    else { // Apply mutations in inverse GU order
+      const auto& gul = new_indiv->get_genetic_unit_list_std();
+      for (auto gen_unit = gul.crbegin(); gen_unit != gul.crend(); ++gen_unit) {
+        (*gen_unit)->get_dna()->perform_mutations(parent->get_id());
+        if (new_indiv->get_replic_report() != nullptr)
+          new_indiv->get_replic_report()->add_dna_replic_report((*gen_unit)->get_dna()->get_replic_report());
       }
     }
   }

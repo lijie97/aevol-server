@@ -1133,8 +1133,8 @@ ae_mutation* ae_dna::do_translocation( void )
     int32_t pos_1_rel, pos_2_rel, pos_3_rel, pos_4_rel;
 
     ae_individual* indiv = _indiv;
-    ae_genetic_unit* chromosome = indiv->get_genetic_unit_list()->get_first()->get_obj();
-    ae_genetic_unit* plasmid    = indiv->get_genetic_unit_list()->get_first()->get_next()->get_obj();
+    ae_genetic_unit* chromosome = *indiv->get_genetic_unit_list_std().begin();
+    ae_genetic_unit* plasmid    = *std::next(indiv->get_genetic_unit_list_std().begin());
     int32_t chrom_length        = chromosome->get_dna()->get_length();
     int32_t total_amount_of_dna = indiv->get_amount_of_dna();
 
