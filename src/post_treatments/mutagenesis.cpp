@@ -155,7 +155,7 @@ int main( int argc, char* argv[] )
           }
         case 'm' :
           {
-            mutation_type = (ae_mutation_type) atol(optarg);
+            mutation_type = (MutationType) atol(optarg);
             if (mutation_type == SWITCH)
               {
                 // exhaustive_mutagenesis = true;

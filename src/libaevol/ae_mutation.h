@@ -54,7 +54,7 @@ namespace aevol {
 // =================================================================
 
 
-enum ae_mutation_type
+enum MutationType
 {
   // Simple mutation types.
   SWITCH  = 0,
@@ -102,7 +102,7 @@ class ae_mutation
     // =================================================================
     //                        Accessors: Getters
     // =================================================================
-    inline ae_mutation_type get_mut_type( void ) const;
+    inline MutationType get_mut_type( void ) const;
     inline int32_t          get_length( void ) const;
 
     void get_infos_point_mutation( int32_t* pos ) const;
@@ -175,7 +175,7 @@ class ae_mutation
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ae_mutation_type  _mut_type;
+    MutationType  _mut_type;
     int32_t*          _pos;
     int32_t*           _length;
     char*             _seq;
@@ -189,7 +189,7 @@ class ae_mutation
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-ae_mutation_type ae_mutation::get_mut_type( void ) const
+MutationType ae_mutation::get_mut_type( void ) const
 {
   return _mut_type;
 }

@@ -211,7 +211,7 @@ ae_mutation::ae_mutation( gzFile backup_file )
 
   int8_t tmp_mut_type;
   gzread( backup_file, &tmp_mut_type,  sizeof(tmp_mut_type) );
-  _mut_type = (ae_mutation_type) tmp_mut_type;
+  _mut_type = (MutationType) tmp_mut_type;
   //~ printf("mut type %d\n", _mut_type);
 
   switch ( _mut_type )

@@ -3812,7 +3812,7 @@ void ae_genetic_unit::compute_nb_of_affected_genes(const ae_mutation * mut, int 
   int32_t first, last;
   bool invert = false;
   ae_sense sense = DIRECT;
-  ae_mutation_type type = mut->get_mut_type();
+  MutationType type = mut->get_mut_type();
   switch(type)
     {
     case SWITCH:

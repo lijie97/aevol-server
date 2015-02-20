@@ -463,7 +463,7 @@ void ae_gene_tree_node::anticipate_mutation_effect_on_genes_in_subtree_leaves(co
       int32_t pos0 = -1, pos1 = -1, pos2 = -1, pos2bis = -1, pos3 = -1, mutlength = -1;
       // int32_t pos1donor = -1, pos2donor = -1, pos3donor = -1;  ae_sense sense = DIRECT;  // related to transfer (TO DO)
       bool invert = false;
-      ae_mutation_type type = mut->get_mut_type();
+      MutationType type = mut->get_mut_type();
       switch(type)
         {
         case SWITCH:

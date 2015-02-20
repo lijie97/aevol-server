@@ -217,7 +217,7 @@ void ae_replication_report::signal_end_of_replication( void )
   
   // Compute the mean alignment score
   int32_t nb_align = 0;
-  ae_mutation_type        mut_type;
+  MutationType        mut_type;
   int32_t*  int32_trash = new int32_t;
   bool*     bool_trash  = new bool;
   int16_t*  align_scores = new int16_t[2];
