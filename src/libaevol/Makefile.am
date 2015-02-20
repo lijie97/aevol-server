@@ -52,7 +52,7 @@ ae_protein.h \
 ae_jumping_mt.h \
 ae_jump_poly.h \
 ae_replication_report.h \
-ae_dna_replic_report.h \
+dna_replic_report.h \
 ae_rna.h \
 ae_stats.h \
 ae_stat_record.h \
@@ -91,7 +91,7 @@ point.cpp \
 ae_protein.cpp \
 ae_jumping_mt.cpp \
 ae_replication_report.cpp \
-ae_dna_replic_report.cpp \
+dna_replic_report.cpp \
 ae_rna.cpp \
 ae_stats.cpp \
 ae_stat_record.cpp \

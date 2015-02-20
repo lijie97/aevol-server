@@ -45,7 +45,7 @@
 #include "ae_individual.h"
 #include "ae_genetic_unit.h"
 #include "ae_replication_report.h"
-#include "ae_dna_replic_report.h"
+#include "dna_replic_report.h"
 
 
 namespace aevol {
