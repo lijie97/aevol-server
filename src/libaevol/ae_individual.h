@@ -143,8 +143,6 @@ class ae_individual
     inline ae_list<ae_rna*>*      get_rna_list( void )      const;
 
     inline int32_t get_nb_plasmids( void )  const;
-    inline int32_t get_nb_gen_units( void ) const;
-
     inline double get_w_max( void ) const;
 
     // Genome size constraints
@@ -765,14 +763,6 @@ inline ae_list<ae_rna*>* ae_individual::get_rna_list( void ) const
 inline int32_t ae_individual::get_nb_plasmids( void ) const
 {
   return _genetic_unit_list->get_nb_elts() - 1;
-}
-
-/*!
-  TODO
-*/
-inline int32_t ae_individual::get_nb_gen_units( void ) const
-{
-  return _genetic_unit_list->get_nb_elts();
 }
 
 /*!
