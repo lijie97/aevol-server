@@ -136,7 +136,7 @@ ae_stat_record::ae_stat_record( const ae_stat_record &model )
 }
 
 /* If used for post-treatments, num_gener is mandatory */
-ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_individual const * indiv, chrom_or_gen_unit chrom_or_gu, bool compute_non_coding, int32_t num_gener )
+ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_individual * indiv, chrom_or_gen_unit chrom_or_gu, bool compute_non_coding, int32_t num_gener )
 {
   _exp_m = exp_m;
   initialize_data();
