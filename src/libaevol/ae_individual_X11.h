@@ -76,7 +76,7 @@ class ae_individual_X11 : public virtual ae_individual
                         int32_t age );
 
     ae_individual_X11( ae_exp_manager* exp_manager, gzFile backup_file );
-    ae_individual_X11( const ae_individual_X11 &model, bool replication_report_copy );
+    ae_individual_X11(const ae_individual_X11 &model, bool replication_report_copy );
     ae_individual_X11(  ae_individual_X11* const parent, int32_t id,
                         ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng );
     ae_individual_X11() = delete; // forbidden constructor

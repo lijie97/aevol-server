@@ -12,6 +12,8 @@
 
 #include <list>
 
+#include "ae_individual.h"
+
 using namespace aevol;
 
 void print_help( char* prog_name );

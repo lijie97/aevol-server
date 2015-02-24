@@ -374,10 +374,16 @@ int main(int argc, char** argv)
     // during the evolution
 
     // 2) Replay replication (create current individual's child)
-    std::list<ae_genetic_unit*> gulist = indiv->get_genetic_unit_list_std();
-    std::list<ae_genetic_unit*> storedgulist = stored_indiv->get_genetic_unit_list_std();
+    // VLD used to copy pointers to existing unit lists
+    // TODO vld: check if the correct behavior is preserved
+    std::list<ae_genetic_unit> gulist; // = indiv->get_genetic_unit_list_std();
+    for (auto& gu: indiv->get_genetic_unit_list_std_nonconst())
+      gulist.emplace_back(indiv, &gu);
+    std::list<ae_genetic_unit> storedgulist; // = stored_indiv->get_genetic_unit_list_std();
+    for (auto& gu: stored_indiv->get_genetic_unit_list_std_nonconst())
+      gulist.emplace_back(indiv, &gu);
 
-    std::list<ae_genetic_unit*>::const_iterator storedunit;
+    std::list<ae_genetic_unit>::const_iterator storedunit;
     if ( check_now )
     {
       exp_manager_backup = new ae_exp_manager();
@@ -387,20 +393,20 @@ int main(int argc, char** argv)
     }
 
     // For each genetic unit, replay the replication (undergo all mutations)
-    std::list<ae_genetic_unit*>::const_iterator unit = gulist.begin();
+    std::list<ae_genetic_unit>::const_iterator unit = gulist.begin();
     for (const auto& dnarep: rep->get_dna_replic_reports()) {
       assert(unit != gulist.end());
 
-      (*unit)->get_dna()->set_replic_report(dnarep);
+      unit->get_dna()->set_replic_report(dnarep);
 
       for (const auto& mut: dnarep->get_HT())
-        (*unit)->get_dna()->undergo_this_mutation(&mut);
+        unit->get_dna()->undergo_this_mutation(&mut);
 
       for (const auto& mut: dnarep->get_rearrangements())
-        (*unit)->get_dna()->undergo_this_mutation(&mut);
+        unit->get_dna()->undergo_this_mutation(&mut);
 
       for (const auto& mut: dnarep->get_mutations())
-        (*unit)->get_dna()->undergo_this_mutation(&mut);
+        unit->get_dna()->undergo_this_mutation(&mut);
 
       if ( check_now )
       {
@@ -412,16 +418,16 @@ int main(int argc, char** argv)
 
         assert(storedunit != storedgulist.end());
 
-        char * str1 = new char[(*unit)->get_dna()->get_length() + 1];
-        memcpy(str1, (*unit)->get_dna()->get_data(), \
-               (*unit)->get_dna()->get_length()*sizeof(char));
-        str1[(*unit)->get_dna()->get_length()] = '\0';
+        char * str1 = new char[unit->get_dna()->get_length() + 1];
+        memcpy(str1, unit->get_dna()->get_data(), \
+               unit->get_dna()->get_length()*sizeof(char));
+        str1[unit->get_dna()->get_length()] = '\0';
 
-        char * str2 = new char[((*storedunit)->get_dna())->get_length() + 1];
-        memcpy(str2, ((*storedunit)->get_dna())->get_data(), ((*storedunit)->get_dna())->get_length()*sizeof(char));
-        str2[((*storedunit)->get_dna())->get_length()] = '\0';
+        char * str2 = new char[(storedunit->get_dna())->get_length() + 1];
+        memcpy(str2, (storedunit->get_dna())->get_data(), (storedunit->get_dna())->get_length()*sizeof(char));
+        str2[(storedunit->get_dna())->get_length()] = '\0';
 
-        if (strncmp(str1, str2, (*storedunit)->get_dna()->get_length()) == 0 and verbose)
+        if (strncmp(str1, str2, storedunit->get_dna()->get_length()) == 0 and verbose)
           printf(" OK\n");
         else
         {

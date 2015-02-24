@@ -632,7 +632,7 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
   // ===========================================================================
   if ( ! new_indiv->get_allow_plasmids() )
   {
-    ae_genetic_unit* chromosome = *new_indiv->get_genetic_unit_list_std().begin();
+    const ae_genetic_unit* chromosome = &new_indiv->get_genetic_unit_list_std().front();
 
     chromosome->get_dna()->perform_mutations( parent->get_id());
 
@@ -648,17 +648,17 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
 
     if (not inverse_order) { // Apply mutations in normal GU order
       for (const auto& gen_unit: new_indiv->get_genetic_unit_list_std()) {
-        gen_unit->get_dna()->perform_mutations( parent->get_id() );
+        gen_unit.get_dna()->perform_mutations( parent->get_id() );
         if ( new_indiv->get_replic_report() != NULL )
-          new_indiv->get_replic_report()->add_dna_replic_report(gen_unit->get_dna()->get_replic_report());
+          new_indiv->get_replic_report()->add_dna_replic_report(gen_unit.get_dna()->get_replic_report());
       }
     }
     else { // Apply mutations in inverse GU order
       const auto& gul = new_indiv->get_genetic_unit_list_std();
       for (auto gen_unit = gul.crbegin(); gen_unit != gul.crend(); ++gen_unit) {
-        (*gen_unit)->get_dna()->perform_mutations(parent->get_id());
+        gen_unit->get_dna()->perform_mutations(parent->get_id());
         if (new_indiv->get_replic_report() != nullptr)
-          new_indiv->get_replic_report()->add_dna_replic_report((*gen_unit)->get_dna()->get_replic_report());
+          new_indiv->get_replic_report()->add_dna_replic_report(gen_unit->get_dna()->get_replic_report());
       }
     }
   }

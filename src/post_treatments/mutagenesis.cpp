@@ -543,19 +543,19 @@ int main( int argc, char* argv[] )
       metabolic_error_after = -1.0;
       secretion_error_after = -1.0;
 
-      for (const ae_genetic_unit* gu: initial_indiv->get_genetic_unit_list_std()) {
-          initial_len = gu->get_dna()->get_length();
+      for (const auto& gu: initial_indiv->get_genetic_unit_list_std()) {
+          initial_len = gu.get_dna()->get_length();
 
           for (pos = 0; pos < initial_len; pos++)
             {
               mutant = new ae_individual( *initial_indiv, false );
-              mutant->get_genetic_unit(u)->get_dna()->do_switch( pos );
+              mutant->get_genetic_unit(u).get_dna()->do_switch( pos );
               mut = new ae_mutation();
               mut->report_point_mutation(pos);
               mut_length = 1;
               pos0 = pos;
 
-              initial_indiv->get_genetic_unit(u)->compute_nb_of_affected_genes(mut, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
+              initial_indiv->get_genetic_unit_nonconst(u).compute_nb_of_affected_genes(mut, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
 
               // Evaluate the mutant, compute its statistics
               mutant->reevaluate();
@@ -568,7 +568,7 @@ int main( int argc, char* argv[] )
               // Write the description of the mutant in the output file
               fprintf( output, "%" PRId32 " ", mutation_type);
               fprintf( output, "%" PRId32 " ", u); // genetic unit number (0 for the chromosome)
-              fprintf( output, "%" PRId32 " ", initial_indiv->get_genetic_unit(u)->get_dna()->get_length()); // Length of GU before the event
+              fprintf( output, "%" PRId32 " ", initial_indiv->get_genetic_unit(u).get_dna()->get_length()); // Length of GU before the event
               fprintf( output, "%" PRId32 " ", pos0);
               fprintf( output, "%" PRId32 " ", pos1);
               fprintf( output, "%" PRId32 " ", pos2);
@@ -621,9 +621,9 @@ int main( int argc, char* argv[] )
 
       relative_lengths_genetic_units = new double[nb_genetic_units];
 
-      for (const ae_genetic_unit* gu: initial_indiv->get_genetic_unit_list_std())
+      for (const auto& gu: initial_indiv->get_genetic_unit_list_std())
         relative_lengths_genetic_units[u++] =
-            gu->get_dna()->get_length() / static_cast<double>(initial_indiv->get_total_genome_size());
+            gu.get_dna()->get_length() / static_cast<double>(initial_indiv->get_total_genome_size());
 
       for ( int32_t i = 0; i < nb_mutants; i++)
         {
@@ -648,7 +648,7 @@ int main( int argc, char* argv[] )
 
           alignment_1 = NULL;
           alignment_2 = NULL;
-          initial_dna   = initial_indiv->get_genetic_unit(u)->get_dna();
+          initial_dna   = initial_indiv->get_genetic_unit(u).get_dna();
           initial_len   = initial_dna->get_length();
           metabolic_error_after = -1.0;
           secretion_error_after = -1.0;
@@ -659,7 +659,7 @@ int main( int argc, char* argv[] )
               {
                 do
                   {
-                    mut =  mutant->get_genetic_unit(u)->get_dna()->do_small_insertion();
+                    mut =  mutant->get_genetic_unit(u).get_dna()->do_small_insertion();
                   }
                 while (mut == NULL);
                 mut->get_infos_small_insertion( &pos0, &mut_length );
@@ -669,7 +669,7 @@ int main( int argc, char* argv[] )
               {
                 do
                   {
-                    mut =  mutant->get_genetic_unit(u)->get_dna()->do_small_deletion();
+                    mut =  mutant->get_genetic_unit(u).get_dna()->do_small_deletion();
                   }
                 while (mut == NULL);
                 mut->get_infos_small_deletion( &pos0, &mut_length );
@@ -689,7 +689,7 @@ int main( int argc, char* argv[] )
                           }
                         while ( alignment_1 == NULL );
                         mut_length = ae_utils::mod( alignment_1->get_i_2() - alignment_1->get_i_1(), initial_len );
-                        rear_done = mutant->get_genetic_unit(u)->get_dna()->do_duplication( alignment_1->get_i_1(), alignment_1->get_i_2(), alignment_1->get_i_2() );
+                        rear_done = mutant->get_genetic_unit(u).get_dna()->do_duplication( alignment_1->get_i_1(), alignment_1->get_i_2(), alignment_1->get_i_2() );
                       } while ( !rear_done );
 
                     mut = new ae_mutation();
@@ -699,7 +699,7 @@ int main( int argc, char* argv[] )
                   {
                     do
                       {
-                        mut =  mutant->get_genetic_unit(u)->get_dna()->do_duplication();
+                        mut =  mutant->get_genetic_unit(u).get_dna()->do_duplication();
                       }
                     while (mut == NULL);
                   }
@@ -721,7 +721,7 @@ int main( int argc, char* argv[] )
                           }
                         while ( alignment_1 == NULL );
                         mut_length = ae_utils::mod( alignment_1->get_i_2() - alignment_1->get_i_1(), initial_len );
-                        rear_done = mutant->get_genetic_unit(u)->get_dna()->do_deletion( alignment_1->get_i_1(), alignment_1->get_i_2() );
+                        rear_done = mutant->get_genetic_unit(u).get_dna()->do_deletion( alignment_1->get_i_1(), alignment_1->get_i_2() );
                       } while ( !rear_done );
 
                     mut = new ae_mutation();
@@ -731,7 +731,7 @@ int main( int argc, char* argv[] )
                   {
                     do
                       {
-                        mut =  mutant->get_genetic_unit(u)->get_dna()->do_deletion();
+                        mut =  mutant->get_genetic_unit(u).get_dna()->do_deletion();
                       }
                     while (mut == NULL);
                   }
@@ -763,17 +763,17 @@ int main( int argc, char* argv[] )
                         mut_length = ae_utils::mod( alignment_1->get_i_2() - alignment_1->get_i_1(), initial_len );
 
                         // Extract the segment to be translocated
-                        ae_genetic_unit* tmp_segment = mutant->get_genetic_unit(u)->get_dna()->extract_into_new_GU( alignment_1->get_i_1(), alignment_1->get_i_2() );
+                        ae_genetic_unit* tmp_segment = mutant->get_genetic_unit(u).get_dna()->extract_into_new_GU( alignment_1->get_i_1(), alignment_1->get_i_2() );
                         // Look for a "new" alignment between this segment and the remaining of the chromosome
                         do
                           {
                             nb_pairs = initial_len;
-                            alignment_2 = tmp_segment->get_dna()->search_alignment( mutant->get_genetic_unit(u)->get_dna(), nb_pairs, BOTH_SENSES );
+                            alignment_2 = tmp_segment->get_dna()->search_alignment( mutant->get_genetic_unit(u).get_dna(), nb_pairs, BOTH_SENSES );
                           }
                         while ( alignment_2 == NULL );
                         invert = (alignment_2->get_sense() == INDIRECT);
                         // Reinsert the segment into the genetic unit
-                        mutant->get_genetic_unit(u)->get_dna()->insert_GU( tmp_segment, alignment_2->get_i_2(), alignment_2->get_i_1(), invert);
+                        mutant->get_genetic_unit(u).get_dna()->insert_GU( tmp_segment, alignment_2->get_i_2(), alignment_2->get_i_1(), invert);
                         rear_done = true;
                         delete tmp_segment;
                       } while ( !rear_done );
@@ -786,7 +786,7 @@ int main( int argc, char* argv[] )
                   {
                     do
                       {
-                        mut =  mutant->get_genetic_unit(u)->get_dna()->do_translocation();
+                        mut =  mutant->get_genetic_unit(u).get_dna()->do_translocation();
                       }
                     while (mut == NULL);
                   }
@@ -811,7 +811,7 @@ int main( int argc, char* argv[] )
                             alignment_1->swap();
                           }
                         mut_length = ae_utils::mod( alignment_1->get_i_2() - alignment_1->get_i_1(), initial_len );
-                        rear_done = mutant->get_genetic_unit(u)->get_dna()->do_inversion( alignment_1->get_i_1(), alignment_1->get_i_2() );
+                        rear_done = mutant->get_genetic_unit(u).get_dna()->do_inversion( alignment_1->get_i_1(), alignment_1->get_i_2() );
                       } while ( !rear_done );
                     mut = new ae_mutation();
                     mut->report_inversion( alignment_1->get_i_1(), alignment_1->get_i_2(), mut_length, alignment_1->get_score() );
@@ -820,7 +820,7 @@ int main( int argc, char* argv[] )
                   {
                     do
                       {
-                        mut =  mutant->get_genetic_unit(u)->get_dna()->do_inversion();
+                        mut =  mutant->get_genetic_unit(u).get_dna()->do_inversion();
                       }
                     while (mut == NULL);
                   }
@@ -837,7 +837,7 @@ int main( int argc, char* argv[] )
           mut_length = mut->get_length();
 
           // TO DO: improve this method to make it work also with interGU translocations
-          initial_indiv->get_genetic_unit(u)->compute_nb_of_affected_genes(mut, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
+          initial_indiv->get_genetic_unit_nonconst(u).compute_nb_of_affected_genes(mut, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
 
 
           // Evaluate the mutant, compute its statistics
@@ -851,7 +851,7 @@ int main( int argc, char* argv[] )
           // Write the description of the mutant in the output file
           fprintf( output, "%" PRId32 " ", mutation_type);
           fprintf( output, "%" PRId32 " ", u); // genetic unit number (0 for the chromosome)
-          fprintf( output, "%" PRId32 " ", initial_indiv->get_genetic_unit(u)->get_dna()->get_length()); // Length of GU before the event
+          fprintf( output, "%" PRId32 " ", initial_indiv->get_genetic_unit(u).get_dna()->get_length()); // Length of GU before the event
           fprintf( output, "%" PRId32 " ", pos0);
           fprintf( output, "%" PRId32 " ", pos1);
           fprintf( output, "%" PRId32 " ", pos2);

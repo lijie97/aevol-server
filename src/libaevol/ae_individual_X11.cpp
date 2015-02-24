@@ -83,7 +83,7 @@ ae_individual_X11::ae_individual_X11( ae_exp_manager* exp_manager, gzFile backup
   init_occupied_sectors();
 }
 
-ae_individual_X11::ae_individual_X11( const ae_individual_X11 &model, bool replication_report_copy  )
+ae_individual_X11::ae_individual_X11(const ae_individual_X11 &model, bool replication_report_copy  )
         : ae_individual( model, replication_report_copy  )
 {
   init_occupied_sectors();
@@ -122,7 +122,7 @@ void ae_individual_X11::display( void )
 void ae_individual_X11::display_cdss( ae_X11_window* win )
 {
   // Retreive the genetic unit corresponding to the main chromosome
-  ae_genetic_unit* gen_unit = get_genetic_unit(0);
+  ae_genetic_unit* gen_unit = &_genetic_unit_list.front();
   int32_t genome_length = gen_unit->get_dna()->get_length();
 
   // Display the number of CDSs
@@ -339,8 +339,8 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
   // --------------------------------------------------------------------------This is temporary, it is a big copy-paste of what's above.
   if ( _allow_plasmids )
   {
-    // Retreive the genetic unit corresponding to the plasmid
-    ae_genetic_unit* gen_unit = get_genetic_unit(1);
+    // Retreive the genetic unit corresponding to the plasmid (i.e. index 1 in _genetic_unit_list)
+    ae_genetic_unit* gen_unit = &*std::next(_genetic_unit_list.begin());
     if ( gen_unit == NULL ) return;
 
     int32_t genome_length = gen_unit->get_dna()->get_length();
@@ -555,7 +555,7 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
 void ae_individual_X11::display_rnas( ae_X11_window* win )
 {
   // Retreive the genetic unit corresponding to the main chromosome
-  ae_genetic_unit* gen_unit = _genetic_unit_list->get_first()->get_obj();
+  const ae_genetic_unit* gen_unit = &_genetic_unit_list.front();
   int32_t genome_length = gen_unit->get_dna()->get_length();
 
   // Display the number of RNAs

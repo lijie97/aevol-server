@@ -30,12 +30,13 @@
 // =================================================================
 //                              Libraries
 // =================================================================
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 #include <sys/stat.h>
 #include <algorithm>
-#include <assert.h>
-
+#include <cassert>
+#include <list>
+#include <algorithm>
 
 // =================================================================
 //                            Project Files
@@ -70,6 +71,1059 @@ namespace aevol {
 //                             Class ae_individual                             #
 //                                                                             #
 //##############################################################################
+
+
+// =====================================================================
+//                           Getters' definitions
+// =====================================================================
+/*!
+  TODO
+*/
+const char* ae_individual::get_strain_name(void) const
+{
+  return _strain_name;
+}
+
+/*!
+  TODO
+*/
+int32_t ae_individual::get_age(void) const
+{
+  return _age;
+}
+
+/*!
+  TODO
+*/
+int32_t ae_individual::get_id( void ) const
+{
+  return _id;
+}
+
+/*!
+  TODO
+*/
+double* ae_individual::get_dist_to_target_by_segment( void ) const
+{
+  return _dist_to_target_by_segment;
+}
+
+/*!
+  Get the individual's rank in the population (1 for the worst indiv, POP_SIZE for the best)
+
+  Warning: be sure you call sort_individuals() before using get_rank_in_population
+*/
+int32_t ae_individual::get_rank( void ) const
+{
+  return _rank;
+}
+
+/*!
+  TODO
+*/
+ae_exp_manager* ae_individual::get_exp_m( void ) const
+{
+  return _exp_m;
+}
+
+/*!
+  TODO
+*/
+ae_jumping_mt* ae_individual::get_mut_prng( void ) const
+{
+  return _mut_prng;
+}
+
+/*!
+  TODO
+*/
+ae_jumping_mt* ae_individual::get_stoch_prng( void ) const
+{
+  return _stoch_prng;
+}
+
+/*!
+  Returns the number of genetic units
+*/
+int16_t ae_individual::get_nb_genetic_units( void ) const
+{
+  return _genetic_unit_list.size();
+}
+
+/// Get the number of plasmids. That is, the number of genetic units
+/// minus one DNA-based genetic unit.
+int32_t ae_individual::get_nb_plasmids( void ) const
+{
+  return _genetic_unit_list.size() - 1;
+}
+
+/*!
+  TODO
+*/
+int32_t ae_individual::get_amount_of_dna( void ) const
+{
+  int32_t amount = 0;
+  for (const auto& gen_unit: _genetic_unit_list)
+    amount += gen_unit.get_dna()->get_length();
+  return amount;
+}
+
+/// Return the list of genetic units.
+const std::list<ae_genetic_unit>& ae_individual::get_genetic_unit_list_std() const {
+  return _genetic_unit_list;
+}
+
+std::list<ae_genetic_unit>& ae_individual::get_genetic_unit_list_std_nonconst() {
+  return _genetic_unit_list;
+}
+
+/// Remove all the elements from the GU list except the firt and the
+/// last ones. If the GU list has less that 2 elements, do nothing.
+void ae_individual::drop_nested_genetic_units() {
+  if (_genetic_unit_list.size() <= 2)
+    return;
+
+  _genetic_unit_list.erase(std::next(_genetic_unit_list.begin()),
+                           std::prev(_genetic_unit_list.end()));
+  assert(_genetic_unit_list.size() <= 2);
+}
+
+/// Returns genetic unit number `num_unit` (0 for main chromosome)
+///
+/// TODO vld: should return a reference
+const ae_genetic_unit& ae_individual::get_genetic_unit(int16_t num_unit) const
+{
+  assert(num_unit < static_cast<int32_t>(_genetic_unit_list.size()));
+  auto it = _genetic_unit_list.begin();
+  std::advance(it, num_unit);
+  return *it;
+}
+
+// TODO vld: to be removed once the situation get clearer
+ae_genetic_unit& ae_individual::get_genetic_unit_nonconst(int16_t num_unit)
+{
+  assert(num_unit < static_cast<int32_t>(_genetic_unit_list.size()));
+  auto it = _genetic_unit_list.begin();
+  std::advance(it, num_unit);
+  return *it;
+}
+
+/*!
+  TODO
+*/
+double ae_individual::get_dist_to_target_by_feature( ae_env_axis_feature feature ) const
+{
+  assert( _distance_to_target_computed );
+
+  return _dist_to_target_by_feature[feature];
+}
+
+/*!
+  TODO
+*/
+double ae_individual::get_fitness( void ) const
+{
+  assert( _fitness_computed );
+
+  return _fitness;
+}
+
+/*!
+  TODO
+*/
+double ae_individual::get_fitness_by_feature( ae_env_axis_feature feature ) const
+{
+  assert( _fitness_computed );
+
+  return _fitness_by_feature[feature];
+}
+
+/*!
+  TODO
+*/
+ae_grid_cell* ae_individual::get_grid_cell( void ) const
+{
+  return _grid_cell;
+}
+
+/*!
+  TODO
+*/
+bool ae_individual::get_placed_in_population ( void ) const
+{
+  return _placed_in_population;
+}
+
+/*!
+  Returns the sequence of genetic unit number <num_unit> (0 for main chromosome)
+*/
+const char* ae_individual::get_genetic_unit_sequence( int16_t num_unit ) const
+{
+  return get_genetic_unit(num_unit).get_sequence();
+}
+
+/*!
+  Returns the sequence length of genetic unit number <num_unit> (0 for main chromosome)
+*/
+int32_t ae_individual::get_genetic_unit_seq_length( int16_t num_unit ) const
+{
+  return get_genetic_unit(num_unit).get_seq_length();
+}
+
+/*!
+  TODO
+*/
+Fuzzy* ae_individual::get_phenotype_activ( void ) const
+{
+  return _phenotype_activ;
+}
+
+/*!
+  TODO
+*/
+Fuzzy* ae_individual::get_phenotype_inhib( void ) const
+{
+  return _phenotype_inhib;
+}
+
+/*!
+  TODO
+*/
+ae_phenotype* ae_individual::get_phenotype( void ) const
+{
+  return _phenotype;
+}
+
+/*!
+  TODO
+*/
+ae_replication_report* ae_individual::get_replic_report( void ) const
+{
+  return _replic_report;
+}
+
+/*!
+  TODO
+*/
+ae_list<ae_protein*>* ae_individual::get_protein_list( void ) const
+{
+  assert( _protein_list );
+
+  return _protein_list;
+}
+
+/*!
+  TODO
+*/
+ae_list<ae_rna*>* ae_individual::get_rna_list( void ) const
+{
+  return _rna_list;
+}
+
+/*!
+  TODO
+*/
+int32_t ae_individual::get_total_genome_size( void )
+{
+  if ( ! _statistical_data_computed ) compute_statistical_data();
+  return _total_genome_size;
+}
+
+/*!
+  TODO
+*/
+int32_t ae_individual::get_nb_coding_RNAs( void )
+{
+  if ( ! _statistical_data_computed ) compute_statistical_data();
+  return _nb_coding_RNAs;
+}
+
+/*!
+  TODO
+*/
+int32_t ae_individual::get_nb_non_coding_RNAs( void )
+{
+  if ( ! _statistical_data_computed ) compute_statistical_data();
+  return _nb_non_coding_RNAs;
+}
+
+/*!
+  TODO
+*/
+double ae_individual::get_overall_size_coding_RNAs( void )
+{
+  if ( ! _statistical_data_computed ) compute_statistical_data();
+  return _overall_size_coding_RNAs;
+}
+
+/*!
+  TODO
+*/
+double ae_individual::get_av_size_coding_RNAs( void )
+{
+  if ( ! _statistical_data_computed ) compute_statistical_data();
+  if ( _nb_coding_RNAs != 0 )
+  {
+    return _overall_size_coding_RNAs / _nb_coding_RNAs;
+  }
+  else return 0.0;
+}
+
+/*!
+  TODO
+*/
+double ae_individual::get_overall_size_non_coding_RNAs( void )
+{
+  if ( ! _statistical_data_computed ) compute_statistical_data();
+  return _overall_size_non_coding_RNAs;
+}
+
+/*!
+  TODO
+*/
+double ae_individual::get_av_size_non_coding_RNAs( void )
+{
+  if ( ! _statistical_data_computed ) compute_statistical_data();
+  if ( _nb_non_coding_RNAs != 0 )
+  {
+    return _overall_size_non_coding_RNAs / _nb_non_coding_RNAs;
+  }
+  else return 0.0;
+}
+
+/*!
+  TODO
+*/
+int32_t ae_individual::get_nb_genes_activ( void )
+{
+  if ( ! _statistical_data_computed ) compute_statistical_data();
+  return _nb_genes_activ;
+}
+
+/*!
+  TODO
+*/
+int32_t ae_individual::get_nb_genes_inhib( void )
+{
+  if ( ! _statistical_data_computed ) compute_statistical_data();
+  return _nb_genes_inhib;
+}
+
+/*!
+  TODO
+*/
+int32_t ae_individual::get_nb_functional_genes( void )
+{
+  if ( ! _statistical_data_computed ) compute_statistical_data();
+  return _nb_functional_genes;
+}
+
+/*!
+  TODO
+*/
+int32_t ae_individual::get_nb_non_functional_genes( void )
+{
+  if ( ! _statistical_data_computed ) compute_statistical_data();
+  return _nb_non_functional_genes;
+}
+
+/*!
+  TODO
+*/
+double ae_individual::get_overall_size_functional_genes( void )
+{
+  if ( ! _statistical_data_computed ) compute_statistical_data();
+  return _overall_size_functional_genes;
+}
+
+/*!
+  TODO
+*/
+double ae_individual::get_av_size_functional_genes( void )
+{
+  if ( ! _statistical_data_computed ) compute_statistical_data();
+  if ( _nb_functional_genes != 0 )
+  {
+    return _overall_size_functional_genes / _nb_functional_genes;
+  }
+  else return 0.0;
+}
+
+/*!
+  TODO
+*/
+double ae_individual::get_overall_size_non_functional_genes( void )
+{
+  if ( ! _statistical_data_computed ) compute_statistical_data();
+  return _overall_size_non_functional_genes;
+}
+
+/*!
+  TODO
+*/
+double ae_individual::get_av_size_non_functional_genes( void )
+{
+  if ( ! _statistical_data_computed ) compute_statistical_data();
+  if ( _nb_non_functional_genes != 0 )
+  {
+    return _overall_size_non_functional_genes / _nb_non_functional_genes;
+  }
+  else return 0.0;
+}
+
+/*!
+  TODO
+*/
+int32_t ae_individual::get_nb_bases_in_0_CDS( void )
+{
+  if ( ! _statistical_data_computed ) compute_statistical_data();
+  if ( ! _non_coding_computed ) compute_non_coding();
+  return _nb_bases_in_0_CDS;
+}
+
+/*!
+  TODO
+*/
+int32_t ae_individual::get_nb_bases_in_0_functional_CDS( void )
+{
+  if ( ! _statistical_data_computed ) compute_statistical_data();
+  if ( ! _non_coding_computed ) compute_non_coding();
+  return _nb_bases_in_0_functional_CDS;
+}
+
+/*!
+  TODO
+*/
+int32_t ae_individual::get_nb_bases_in_0_non_functional_CDS( void )
+{
+  if ( ! _statistical_data_computed ) compute_statistical_data();
+  if ( ! _non_coding_computed ) compute_non_coding();
+  return _nb_bases_in_0_non_functional_CDS;
+}
+
+/*!
+  TODO
+*/
+int32_t ae_individual::get_nb_bases_in_0_RNA( void )
+{
+  if ( ! _statistical_data_computed ) compute_statistical_data();
+  if ( ! _non_coding_computed ) compute_non_coding();
+  return _nb_bases_in_0_RNA;
+}
+
+/*!
+  TODO
+*/
+int32_t ae_individual::get_nb_bases_in_0_coding_RNA( void )
+{
+  if ( ! _statistical_data_computed ) compute_statistical_data();
+  if ( ! _non_coding_computed ) compute_non_coding();
+  return _nb_bases_in_0_coding_RNA;
+}
+
+/*!
+  TODO
+*/
+int32_t ae_individual::get_nb_bases_in_0_non_coding_RNA( void )
+{
+  if ( ! _statistical_data_computed ) compute_statistical_data();
+  if ( ! _non_coding_computed ) compute_non_coding();
+  return _nb_bases_in_0_non_coding_RNA;
+}
+
+/*!
+  TODO
+*/
+int32_t ae_individual::get_nb_bases_in_neutral_regions( void )
+{
+  if ( ! _statistical_data_computed ) compute_statistical_data();
+  if ( ! _non_coding_computed ) compute_non_coding();
+  return _nb_bases_in_neutral_regions;
+}
+
+/*!
+  TODO
+*/
+int32_t ae_individual::get_nb_neutral_regions( void )
+{
+  if ( ! _statistical_data_computed ) compute_statistical_data();
+  if ( ! _non_coding_computed ) compute_non_coding();
+  return _nb_neutral_regions;
+}
+
+/*!
+  TODO
+*/
+double ae_individual::get_modularity( void )
+{
+  printf("\n  WARNING : modularity measure not yet implemented.\n");
+  //~ if ( _modularity < 0 ) compute_modularity();
+  //~ return _modularity;
+  return 0;
+}
+
+/*!
+  TODO
+*/
+double ae_individual::get_w_max( void ) const
+{
+  return _w_max;
+}
+
+// ------------------------------------------------------------- Mutation rates
+/*!
+  TODO
+*/
+double ae_individual::get_point_mutation_rate( void ) const
+{
+  return _mut_params->get_point_mutation_rate();
+}
+
+/*!
+  TODO
+*/
+double ae_individual::get_small_insertion_rate( void ) const
+{
+  return _mut_params->get_small_insertion_rate();
+}
+
+/*!
+  TODO
+*/
+double ae_individual::get_small_deletion_rate( void ) const
+{
+  return _mut_params->get_small_deletion_rate();
+}
+
+/*!
+  TODO
+*/
+int16_t ae_individual::get_max_indel_size( void ) const
+{
+  return _mut_params->get_max_indel_size();
+}
+
+// ---------------------------------- Rearrangement rates (without alignements)
+/*!
+  TODO
+*/
+double ae_individual::get_duplication_rate( void ) const
+{
+  return _mut_params->get_duplication_rate();
+}
+
+/*!
+  TODO
+*/
+double ae_individual::get_deletion_rate( void ) const
+{
+  return _mut_params->get_deletion_rate();
+}
+
+/*!
+  TODO
+*/
+double ae_individual::get_translocation_rate( void ) const
+{
+  return _mut_params->get_translocation_rate();
+}
+
+/*!
+  TODO
+*/
+double ae_individual::get_inversion_rate( void ) const
+{
+  return _mut_params->get_inversion_rate();
+}
+
+// ------------------------------------- Rearrangement rates (with alignements)
+/*!
+  TODO
+*/
+double ae_individual::get_neighbourhood_rate( void ) const
+{
+  return _mut_params->get_neighbourhood_rate();
+}
+
+/*!
+  TODO
+*/
+double ae_individual::get_duplication_proportion( void ) const
+{
+  return _mut_params->get_duplication_proportion();
+}
+
+/*!
+  TODO
+*/
+double ae_individual::get_deletion_proportion( void ) const
+{
+  return _mut_params->get_deletion_proportion();
+}
+
+/*!
+  TODO
+*/
+double ae_individual::get_translocation_proportion( void ) const
+{
+  return _mut_params->get_translocation_proportion();
+}
+
+/*!
+  TODO
+*/
+double ae_individual::get_inversion_proportion( void ) const
+{
+  return _mut_params->get_inversion_proportion();
+}
+
+// ---------------------------------------------------------------- Transfer
+bool ae_individual::get_with_4pts_trans( void ) const
+{
+  return _mut_params->get_with_4pts_trans();
+}
+
+bool ae_individual::get_with_HT( void ) const
+{
+  return _mut_params->get_with_HT();
+}
+
+bool ae_individual::get_repl_HT_with_close_points( void ) const
+{
+  return _mut_params->get_repl_HT_with_close_points();
+}
+
+double ae_individual::get_HT_ins_rate( void ) const
+{
+  return _mut_params->get_HT_ins_rate();
+}
+
+double ae_individual::get_HT_repl_rate( void ) const
+{
+  return _mut_params->get_HT_repl_rate();
+}
+
+double ae_individual::get_repl_HT_detach_rate( void ) const
+{
+  return _mut_params->get_repl_HT_detach_rate();
+}
+
+
+// ---------------------------------------------------------------- Alignements
+bool ae_individual::get_with_alignments(void) const
+{
+ return _mut_params->get_with_alignments();
+}
+
+ae_align_fun_shape ae_individual::get_align_fun_shape( void ) const
+{
+ return _mut_params->get_align_fun_shape();
+}
+
+double ae_individual::get_align_sigm_lambda( void ) const
+{
+ return _mut_params->get_align_sigm_lambda();
+}
+
+int16_t ae_individual::get_align_sigm_mean( void ) const
+{
+ return _mut_params->get_align_sigm_mean();
+}
+
+int16_t ae_individual::get_align_lin_min( void ) const
+{
+ return _mut_params->get_align_lin_min();
+}
+
+int16_t ae_individual::get_align_lin_max( void ) const
+{
+ return _mut_params->get_align_lin_max();
+}
+
+int16_t ae_individual::get_align_max_shift( void ) const
+{
+ return _mut_params->get_align_max_shift();
+}
+
+int16_t ae_individual::get_align_w_zone_h_len( void ) const
+{
+ return _mut_params->get_align_w_zone_h_len();
+}
+
+int16_t ae_individual::get_align_match_bonus( void ) const
+{
+ return _mut_params->get_align_match_bonus();
+}
+
+int16_t ae_individual::get_align_mismatch_cost( void ) const
+{
+ return _mut_params->get_align_mismatch_cost();
+}
+
+/*!
+  TODO
+*/
+bool ae_individual::get_with_stochasticity( void ) const
+{
+  return _with_stochasticity;
+}
+
+void ae_individual::set_allow_plasmids( bool allow_plasmids )
+{
+  _allow_plasmids=allow_plasmids;
+}
+
+// Genome size constraints
+/*!
+  TODO
+*/
+int32_t ae_individual::get_min_genome_length( void ) const
+{
+  return _min_genome_length;
+}
+
+/*!
+  TODO
+*/
+int32_t ae_individual::get_max_genome_length( void ) const
+{
+  return _max_genome_length;
+}
+
+// Plasmids settings
+/*!
+  TODO
+*/
+bool ae_individual::get_allow_plasmids( void ) const
+{
+  return _allow_plasmids;
+}
+
+/*!
+  \brief Return the _int_probes
+
+  \return _int_probes
+*/
+int32_t* ae_individual::get_int_probes ( void ) const
+{
+  return _int_probes;
+}
+
+/*!
+  \brief Return the _double_probes
+
+  \return _double_probes
+*/
+double* ae_individual::get_double_probes ( void) const
+{
+  return _double_probes;
+}
+
+
+// =====================================================================
+//                           Setters' definitions
+// =====================================================================
+void ae_individual::set_strain_name(char* name)
+{
+  assert(name && strlen(name) < INT8_MAX); // Conservative, could be <=
+  int8_t name_len = strlen(name);
+  delete [] _strain_name;
+  _strain_name = new char[name_len+1];
+  memcpy(_strain_name, name, name_len+1);
+}
+
+/*!
+  TODO
+*/
+void ae_individual::set_id( int32_t id )
+{
+  _id = id;
+
+  if ( _replic_report != NULL )
+  {
+    _replic_report->set_id( id );
+  }
+}
+
+/*!
+  TODO
+*/
+void ae_individual::set_rank( int32_t rank )
+{
+  _rank = rank;
+
+  if ( _replic_report != NULL )
+  {
+    _replic_report->set_rank( rank );
+  }
+}
+
+/*!
+  TODO
+*/
+void ae_individual::set_placed_in_population( bool placed_in_population )
+{
+  _placed_in_population = placed_in_population;
+}
+
+/*!
+  Set the individual's replication report
+  To be used by post-treatment only
+*/
+void ae_individual::set_replication_report( ae_replication_report * rep )
+{
+  _replic_report = rep;
+}
+
+/*!
+  TODO
+*/
+void ae_individual::set_w_max( double w_max )
+{
+  _w_max = w_max;
+}
+
+
+
+// Genome size constraints
+/*!
+  TODO
+*/
+void ae_individual::set_min_genome_length( int32_t min_genome_length )
+{
+  _min_genome_length = min_genome_length;
+}
+
+/*!
+  TODO
+*/
+void ae_individual::set_max_genome_length( int32_t max_genome_length )
+{
+  _max_genome_length = max_genome_length;
+}
+
+
+void ae_individual::set_point_mutation_rate( double point_mutation_rate)
+{
+  _mut_params->set_point_mutation_rate(point_mutation_rate);
+}
+
+void ae_individual::set_small_insertion_rate( double small_insertion_rate)
+{
+  _mut_params->set_small_insertion_rate(small_insertion_rate);
+}
+
+void ae_individual::set_small_deletion_rate( double small_deletion_rate)
+{
+  _mut_params->set_small_deletion_rate(small_deletion_rate);
+}
+
+void ae_individual::set_max_indel_size( int16_t max_indel_size)
+{
+  _mut_params->set_max_indel_size(max_indel_size);
+}
+
+void ae_individual::set_duplication_rate( double duplication_rate)
+{
+  _mut_params->set_duplication_rate(duplication_rate);
+}
+
+void ae_individual::set_deletion_rate( double deletion_rate)
+{
+  _mut_params->set_deletion_rate(deletion_rate);
+}
+
+void ae_individual::set_translocation_rate( double translocation_rate)
+{
+  _mut_params->set_translocation_rate(translocation_rate);
+}
+
+void ae_individual::set_inversion_rate( double inversion_rate)
+{
+  _mut_params->set_inversion_rate(inversion_rate);
+}
+
+void ae_individual::set_neighbourhood_rate( double neighbourhood_rate)
+{
+  _mut_params->set_neighbourhood_rate(neighbourhood_rate);
+}
+
+void ae_individual::set_duplication_proportion( double duplication_proportion)
+{
+  _mut_params->set_duplication_proportion(duplication_proportion);
+}
+
+void ae_individual::set_deletion_proportion( double deletion_proportion)
+{
+  _mut_params->set_deletion_proportion(deletion_proportion);
+}
+
+void ae_individual::set_translocation_proportion( double translocation_proportion)
+{
+  _mut_params->set_translocation_proportion(translocation_proportion);
+}
+
+void ae_individual::set_inversion_proportion( double inversion_proportion)
+{
+  _mut_params->set_inversion_proportion(inversion_proportion);
+}
+
+void ae_individual::set_with_4pts_trans( bool with_4pts_trans )
+{
+        _mut_params->set_with_4pts_trans(with_4pts_trans);
+}
+
+void ae_individual::set_with_alignments( bool with_alignments )
+{
+        _mut_params->set_with_alignments(with_alignments);
+}
+
+void ae_individual::set_with_HT( bool with_HT )
+{
+        _mut_params->set_with_HT(with_HT);
+}
+
+void ae_individual::set_repl_HT_with_close_points( bool repl_HT_with_close_points)
+{
+        _mut_params->set_repl_HT_with_close_points(repl_HT_with_close_points);
+}
+
+void ae_individual::set_HT_ins_rate( double HT_ins_rate )
+{
+        _mut_params->set_HT_ins_rate(HT_ins_rate);
+}
+
+void ae_individual::set_HT_repl_rate( double HT_repl_rate )
+{
+        _mut_params->set_HT_repl_rate(HT_repl_rate);
+}
+
+void ae_individual::set_repl_HT_detach_rate( double repl_HT_detach_rate )
+{
+        _mut_params->set_repl_HT_detach_rate(repl_HT_detach_rate);
+}
+
+
+void ae_individual::set_with_stochasticity( bool with_stoch )
+{
+  _with_stochasticity = with_stoch;
+}
+
+void ae_individual::set_stoch_prng( ae_jumping_mt* prng )
+{
+  _stoch_prng = prng;
+}
+
+void ae_individual::set_mut_prng( ae_jumping_mt* prng )
+{
+  _mut_prng = prng;
+}
+
+/*!
+  \brief Change the _int_probes
+
+  \param int_probes 5 int32_t* that constitute a probe
+*/
+void ae_individual::set_int_probes ( int32_t* int_probes)
+{
+  _int_probes = int_probes;
+}
+
+/*!
+  \brief Change the _double_probes
+
+  \param double_probes 5 double* that constitute a probe
+*/
+void ae_individual::set_double_probes ( double* double_probes)
+{
+  _double_probes = double_probes;
+}
+
+// =====================================================================
+//                       functions' definition
+// =====================================================================
+
+void ae_individual::reset_dist_to_target_by_segment( double* dist_to_target_by_segment )
+{
+  if ( _dist_to_target_by_segment != NULL ) delete [] _dist_to_target_by_segment;
+  _dist_to_target_by_segment = dist_to_target_by_segment;
+}
+
+void ae_individual::renew_dist_to_target_by_feature( void )
+{
+  if ( _dist_to_target_by_feature != NULL ) delete [] _dist_to_target_by_feature;
+  _dist_to_target_by_feature = new double [NB_FEATURES];
+}
+
+
+void ae_individual::renew_fitness_by_feature( void )
+{
+  if ( _fitness_by_feature != NULL ) delete [] _fitness_by_feature;
+  _fitness_by_feature = new double [NB_FEATURES];
+}
+
+void ae_individual::do_transcription_translation_folding( void )
+{
+  if ( _transcribed == true && _translated == true && _folded == true ) return;
+
+  do_transcription();
+  do_translation();
+  do_folding();
+
+  make_protein_list();
+}
+
+#ifdef DEBUG
+  void ae_individual::print_rna_list( void )
+  {
+    ae_list_node<ae_rna*>* rna_node  = _rna_list->get_first();
+    ae_rna*       rna       = NULL;
+
+    while ( rna_node != NULL )
+    {
+      rna = rna_node->get_obj();
+
+      printf( "RNA at pos : %" PRId32 "      length : %" PRId32 " bp\n", rna->get_promoter_pos(), rna->get_transcript_length() );
+      printf( "  strand : %s    basal level : %f\n", (rna->get_strand() == LEADING)?"LEADING":"LAGGING", rna->get_basal_level() );
+
+      rna_node = rna_node->get_next();
+    }
+  }
+
+  void ae_individual::print_protein_list( void )
+  {
+    ae_list_node<ae_protein*>* prot_node = _protein_list->get_first();
+    ae_protein*   prot = NULL;
+
+    while ( prot_node != NULL )
+    {
+      prot = prot_node->get_obj();
+
+      char* prot_sequence = prot->get_AA_sequence();
+      printf( "prot %p at pos : %" PRId32 "      length : %" PRId32 " AAs\n", prot, prot->get_first_translated_pos(), prot->get_length() );
+      printf( "  strand : %s    concentration : %f\n", (prot->get_strand() == LEADING)?"LEADING":"LAGGING", prot->get_concentration() );
+      printf( "  sequence : %s\n", prot_sequence );
+      printf( "  mean : %f      width : %f      height : %f\n", prot->get_mean(), prot->get_width(), prot->get_height() );
+      delete prot_sequence;
+
+      prot_node = prot_node->get_next();
+    }
+  }
+
+  void ae_individual::assert_promoters( void )
+  {
+    // Perform assertion for each genetic unit
+    for (auto& gen_unit: _genetic_unit_list)
+      gen_unit.assert_promoters();
+  }
+
+  void ae_individual::assert_promoters_order( void )
+  {
+    // Perform assertion for each genetic unit
+    for (auto& gen_unit: _genetic_unit_list)
+      gen_unit.assert_promoters_order();
+  }
+#endif
 
 // =================================================================
 //                    Definition of static attributes
@@ -131,7 +1185,6 @@ ae_individual::ae_individual( ae_exp_manager* exp_m,
   _grid_cell = NULL;
 
   // The chromosome and plasmids (if allowed)
-  _genetic_unit_list = new ae_list<ae_genetic_unit*>();
 
   _protein_list = new ae_list<ae_protein*>();
   _rna_list     = new ae_list<ae_rna*>();
@@ -285,14 +1338,11 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile backup_file )
   _allow_plasmids = tmp_allow_plasmids ? 1 : 0;
 
   // Retreive genetic units
-  _genetic_unit_list = new ae_list<ae_genetic_unit*>();
   int16_t nb_gen_units;
   gzread( backup_file, &nb_gen_units,  sizeof(nb_gen_units) );
 
   for ( int16_t i = 0 ; i < nb_gen_units ; i++ )
-  {
-    _genetic_unit_list->add( new ae_genetic_unit( this, backup_file ) );
-  }
+    _genetic_unit_list.emplace_back(this, backup_file);
 
   // --------------------------------------------------------------------------------------------
   // No more data to retreive, the following are only structural initializations (no data is set)
@@ -365,7 +1415,7 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile backup_file )
 }
 
 // Copy constructor
-ae_individual::ae_individual( const ae_individual &model, bool replication_report_copy /* = FALSE */ )
+ae_individual::ae_individual(const ae_individual &model, bool replication_report_copy /* = FALSE */ )
 {
   _exp_m = model._exp_m;
 
@@ -409,19 +1459,10 @@ ae_individual::ae_individual( const ae_individual &model, bool replication_repor
   _placed_in_population         = model._placed_in_population;
   _grid_cell = model._grid_cell;
 
-  // Create an empty list of genetic units
-  _genetic_unit_list = new ae_list<ae_genetic_unit*>();
-
-
   // Copy model's genetic units
-  ae_list_node<ae_genetic_unit*>* gen_unit_node = model._genetic_unit_list->get_first();
-  while ( gen_unit_node != NULL )
-  {
-    _genetic_unit_list->add( new ae_genetic_unit( this, *(gen_unit_node->get_obj()) ) );
-
-    gen_unit_node = gen_unit_node->get_next();
-  }
-
+  // Should actually use ae_genetic_unit copy ctor which is disabled.
+  for (const auto& gu: model._genetic_unit_list)
+    _genetic_unit_list.emplace_back(this, gu);
 
   // Copy phenotype
   if ( _phenotype_computed )
@@ -560,14 +1601,10 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id, ae_jumpin
   // Create new genetic units with their DNA copied from here
   // NOTE : The RNA lists (one per genetic unit) will also be copied so that we don't
   // need to look for promoters on the whole genome
-  _genetic_unit_list = new ae_list<ae_genetic_unit*>();
-  ae_list_node<ae_genetic_unit*>* gen_unit_node = parent->_genetic_unit_list->get_first();
-  while ( gen_unit_node != NULL )
-  {
-    _genetic_unit_list->add( new ae_genetic_unit( this, gen_unit_node->get_obj() ) );
-
-    gen_unit_node = gen_unit_node->get_next();
-  }
+  // TODO vld: do deep copy (because of above comment)
+  // _genetic_unit_list = parent->_genetic_unit_list;
+  for (auto& gu: parent->_genetic_unit_list)
+    _genetic_unit_list.emplace_back(this, &gu);
 
   _phenotype_activ  = NULL;
   _phenotype_inhib  = NULL;
@@ -671,13 +1708,11 @@ ae_individual::~ae_individual( void )
   _rna_list->erase( false );
   delete _rna_list;
 
-  assert( _genetic_unit_list != NULL );
-  _genetic_unit_list->erase( true );
+  // TODO vld: check next comment
   // When the unit is destoyed, its dna is destroyed too, thus the pointer
   // to the ae_dna_replication_report is destroyed. But the
   // dna_replic_report object itself is not deleted, its address is
   // still contained in the global replic_report object in the tree.
-  delete _genetic_unit_list;
 
   delete _phenotype_activ;
   delete _phenotype_inhib;
@@ -708,12 +1743,8 @@ void ae_individual::set_exp_m( ae_exp_manager* exp_m )
   _exp_m = exp_m;
 
   // Update pointer to exp_manager in each GU
-  ae_list_node<ae_genetic_unit*>* GU_node = _genetic_unit_list->get_first();
-  while ( GU_node != NULL )
-  {
-    GU_node->get_obj()->set_exp_m(_exp_m);
-    GU_node = GU_node->get_next();
-  }
+  for (auto& gen_unit: _genetic_unit_list)
+    gen_unit.set_exp_m(_exp_m);
 }
 
 /*!
@@ -748,16 +1779,9 @@ void ae_individual::compute_phenotype( void )
   _phenotype_activ = new Fuzzy();
   _phenotype_inhib = new Fuzzy();
 
-  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
-  ae_genetic_unit*  gen_unit;
-  while ( gen_unit_node != NULL )
-  {
-    gen_unit = gen_unit_node->get_obj();
-
-    _phenotype_activ->add( *gen_unit->get_activ_contribution() );
-    _phenotype_inhib->add( *gen_unit->get_inhib_contribution() );
-
-    gen_unit_node = gen_unit_node->get_next();
+  for (const auto& gen_unit: _genetic_unit_list) {
+    _phenotype_activ->add(*gen_unit.get_activ_contribution());
+    _phenotype_inhib->add(*gen_unit.get_inhib_contribution());
   }
 
   _phenotype_activ->clip(Fuzzy::max,   Y_MAX);
@@ -893,14 +1917,8 @@ void ae_individual::clear_everything_except_dna_and_promoters()
   _non_coding_computed          = false;
   _modularity_computed          = false;
 
-  ae_list_node<ae_genetic_unit*>* unit_node = _genetic_unit_list->get_first();
-  ae_genetic_unit * unit = NULL;
-  while (unit_node != NULL)
-  {
-    unit = unit_node->get_obj();
-    unit->reset_expression();
-    unit_node = unit_node->get_next();
-  }
+  for (auto& gen_unit: _genetic_unit_list)
+    gen_unit.reset_expression();
 
   if ( _phenotype_activ != NULL )
   {
@@ -939,35 +1957,15 @@ void ae_individual::clear_everything_except_dna_and_promoters()
   _rna_list->erase( false );
   _protein_list->erase( false );
 
-  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
-  ae_list_node<ae_rna*>* rna_node = NULL;
-  ae_rna*           rna = NULL;
-  ae_genetic_unit*  gen_unit = NULL;
-
-  while ( gen_unit_node != NULL )
-    {
-      gen_unit = gen_unit_node->get_obj();
-
-      rna_node = (gen_unit->get_rna_list()[LEADING])->get_first();
-      while(rna_node !=NULL)
-      {
-        rna = rna_node->get_obj();
-        rna->clear_transcribed_proteins();
-        rna_node = rna_node->get_next();
-      }
-      rna_node = (gen_unit->get_rna_list()[LAGGING])->get_first();
-      while(rna_node !=NULL)
-      {
-        rna = rna_node->get_obj();
-        rna->clear_transcribed_proteins();
-        rna_node = rna_node->get_next();
-      }
-
-      (gen_unit->get_protein_list()[LEADING])->erase( true );
-      (gen_unit->get_protein_list()[LAGGING])->erase( true );
-
-      gen_unit_node = gen_unit_node->get_next();
-    }
+  for (const auto& gen_unit: _genetic_unit_list) {
+    for (const auto& rna: gen_unit.get_rna_list_std()[LEADING])
+      rna->clear_transcribed_proteins();
+    for (const auto& rna: gen_unit.get_rna_list_std()[LAGGING])
+      rna->clear_transcribed_proteins();
+    // TODO vld: convert to STL the next 2 lines
+    // (gen_unit->get_protein_list()[LEADING])->erase( true );
+    // (gen_unit->get_protein_list()[LAGGING])->erase( true );
+  }
 
   // Initialize statistical data
   _total_genome_size                  = 0;
@@ -1010,84 +2008,81 @@ void ae_individual::reevaluate( Environment* envir /*= NULL*/ )
 void ae_individual::add_GU( char * &sequence, int32_t length )
 {
   clear_everything_except_dna_and_promoters();
-  _genetic_unit_list->add( new ae_genetic_unit( this, sequence, length ) );
+  _genetic_unit_list.emplace_back(this, sequence, length);
 }
 
 
-void ae_individual::add_GU( ae_genetic_unit * unit)
-{
+// void ae_individual::add_GU(ae_genetic_unit&& unit)
+// {
+//   clear_everything_except_dna_and_promoters();
+//   // TODO vld: calls forbidden copy ctor?
+//   _genetic_unit_list.push_back(std::move(unit));
+// }
+
+void ae_individual::add_GU(ae_individual* indiv,
+                           int32_t chromosome_length,
+                           ae_jumping_mt* prng) {
   clear_everything_except_dna_and_promoters();
-  _genetic_unit_list->add( unit );
+  _genetic_unit_list.emplace_back(indiv, chromosome_length, prng);
 }
 
+// void ae_individual::add_GU(ae_individual* indiv, int32_t length, ae_jumping_mt* prng) {
+//   clear_everything_except_dna_and_promoters();
+//   _genetic_unit_list.emplace_back(indiv, length, prng);
+// }
 
 void ae_individual::remove_GU( int16_t num_unit )
 {
+  // TODO vld: this function suggests again that _genetic_unit_list should be a vector
   clear_everything_except_dna_and_promoters();
-  ae_list_node<ae_genetic_unit*>* node = _genetic_unit_list->get_node( num_unit );
-  _genetic_unit_list->remove( node, true, true );
+  auto it = _genetic_unit_list.begin();
+  std::advance(it, num_unit);
+  _genetic_unit_list.erase(it);
 }
 
 
 
 void ae_individual::do_transcription( void )
 {
-  if ( _transcribed == true ) return; // Transcription has already been performed, nothing to do.
+  if (_transcribed)
+    return; // Transcription has already been performed, nothing to do.
   _transcribed = true;
 
-  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
-  ae_genetic_unit*  gen_unit;
-
-  while ( gen_unit_node != NULL )
-  {
-    gen_unit = gen_unit_node->get_obj();
-
-    gen_unit->do_transcription();
-    _rna_list->add_list( gen_unit->get_rna_list()[LEADING] );
-    _rna_list->add_list( gen_unit->get_rna_list()[LAGGING] );
-
-    gen_unit_node = gen_unit_node->get_next();
+  for (auto& gen_unit: _genetic_unit_list) {
+    gen_unit.do_transcription();
+    _rna_list->add_list(gen_unit.get_rna_list()[LEADING]);
+    _rna_list->add_list(gen_unit.get_rna_list()[LAGGING]);
   }
 }
 
 void ae_individual::do_translation( void )
 {
-  if ( _translated == true ) return; // ARNs have already been translated, nothing to do.
+  if (_translated)
+    return; // ARNs have already been translated, nothing to do.
   _translated = true;
-  if ( _transcribed == false ) do_transcription();
 
-  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
-  ae_genetic_unit*  gen_unit;
+  // TODO vld: should not the next test be an assert?
+  if (not _transcribed)
+    do_transcription();
 
-  while ( gen_unit_node != NULL )
-  {
-    gen_unit = gen_unit_node->get_obj();
-
-    gen_unit->do_translation();
-    _protein_list->add_list( gen_unit->get_protein_list()[LEADING] );
-    _protein_list->add_list( gen_unit->get_protein_list()[LAGGING] );
-
-    gen_unit_node = gen_unit_node->get_next();
+  for (auto& gen_unit: _genetic_unit_list) {
+    gen_unit.do_translation();
+    _protein_list->add_list(gen_unit.get_protein_list()[LEADING]);
+    _protein_list->add_list(gen_unit.get_protein_list()[LAGGING]);
   }
 }
 
 void ae_individual::do_folding( void )
 {
-  if ( _folded == true ) return; // Proteins have already been folded, nothing to do.
+  if (_folded)
+    return; // Proteins have already been folded, nothing to do.
   _folded = true;
-  if ( _translated == false ) do_translation();
 
-  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
-  ae_genetic_unit*  gen_unit;
+  if (not _translated)
+    do_translation();
 
-  while ( gen_unit_node != NULL )
-  {
-    gen_unit = gen_unit_node->get_obj();
-
-    gen_unit->compute_phenotypic_contribution();
-
-    gen_unit_node = gen_unit_node->get_next();
-  }
+  for (auto& gen_unit: _genetic_unit_list)
+    gen_unit.compute_phenotypic_contribution();
 }
 
 void ae_individual::evaluate( Environment* envir /*= NULL*/ )
@@ -1113,15 +2108,9 @@ void ae_individual::evaluate( Environment* envir /*= NULL*/ )
 
   if ( _exp_m->get_output_m()->get_compute_phen_contrib_by_GU() )
   {
-    ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
-    ae_genetic_unit*  gen_unit = NULL;
-
-    while ( gen_unit_node != NULL )
-    {
-      gen_unit = gen_unit_node->get_obj();
-      gen_unit->compute_distance_to_target( envir );
-      gen_unit->compute_fitness( envir );
-      gen_unit_node = gen_unit_node->get_next();
+    for (auto& gen_unit: _genetic_unit_list) {
+      gen_unit.compute_distance_to_target(envir);
+      gen_unit.compute_fitness(envir);
     }
   }
 }
@@ -1131,22 +2120,21 @@ void ae_individual::evaluate( Environment* envir /*= NULL*/ )
 void ae_individual::inject_GU( ae_individual* donor )
 {
   // Add the GU at the end of the list
-  ae_list_node<ae_genetic_unit*>* gen_unit_node = donor->_genetic_unit_list->get_last();
-  ae_genetic_unit* temp_GU = new ae_genetic_unit( this, *(gen_unit_node->get_obj()) );
-  _genetic_unit_list->add( temp_GU );
+  _genetic_unit_list.emplace_back(this, donor->_genetic_unit_list.back());
 }
 
 void ae_individual::inject_2GUs( ae_individual* partner )
 {
-  //We swap GUs from the end of the list
-  ae_list_node<ae_genetic_unit*>* gen_unit_node_1 = partner->_genetic_unit_list->get_last();
-  ae_list_node<ae_genetic_unit*>* gen_unit_node_2 = _genetic_unit_list->get_last();
+  // We swap GUs from the end of the list.
 
-  ae_genetic_unit* temp_GU_1 = new ae_genetic_unit( this, *(gen_unit_node_1->get_obj()) );
-  ae_genetic_unit* temp_GU_2 = new ae_genetic_unit( this, *(gen_unit_node_2->get_obj()) );
+  // TODO vld: As far as I understood the old code (47b27578), the
+  // elements were not swapped but appended to the end of the other GU
+  // lists. Error?  Original author (Dule, commit 47b27578), asked for
+  // clarification by e-mail on 2015-02-23.
 
-  _genetic_unit_list->add( temp_GU_1 );
-  partner->_genetic_unit_list->add( temp_GU_2 );
+  const auto& gu_list_back_it = std::prev(_genetic_unit_list.end()); // initial last cell from _genetic_unit_list
+  _genetic_unit_list.splice(_genetic_unit_list.end(), partner->_genetic_unit_list, std::prev(partner->_genetic_unit_list.end()));
+  partner->_genetic_unit_list.splice(partner->_genetic_unit_list.end(), _genetic_unit_list, gu_list_back_it);
 }
 
 void ae_individual::compute_statistical_data( void )
@@ -1159,26 +2147,18 @@ void ae_individual::compute_statistical_data( void )
     compute_phenotype();
   }
 
-  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
-  ae_genetic_unit*  gen_unit      = NULL;
-
-  while ( gen_unit_node != NULL )
-  {
-    gen_unit = gen_unit_node->get_obj();
-
-    _total_genome_size                 += gen_unit->get_dna()->get_length();
-    _nb_coding_RNAs                    += gen_unit->get_nb_coding_RNAs();
-    _nb_non_coding_RNAs                += gen_unit->get_nb_non_coding_RNAs();
-    _overall_size_coding_RNAs          += gen_unit->get_overall_size_coding_RNAs();
-    _overall_size_non_coding_RNAs      += gen_unit->get_overall_size_non_coding_RNAs();
-    _nb_genes_activ                    += gen_unit->get_nb_genes_activ();
-    _nb_genes_inhib                    += gen_unit->get_nb_genes_inhib();
-    _nb_functional_genes               += gen_unit->get_nb_functional_genes();
-    _nb_non_functional_genes           += gen_unit->get_nb_non_functional_genes();
-    _overall_size_functional_genes     += gen_unit->get_overall_size_functional_genes();
-    _overall_size_non_functional_genes += gen_unit->get_overall_size_non_functional_genes();
-
-    gen_unit_node = gen_unit_node->get_next();
+  for (const auto& gen_unit: _genetic_unit_list) {
+    _total_genome_size                 += gen_unit.get_dna()->get_length();
+    _nb_coding_RNAs                    += gen_unit.get_nb_coding_RNAs();
+    _nb_non_coding_RNAs                += gen_unit.get_nb_non_coding_RNAs();
+    _overall_size_coding_RNAs          += gen_unit.get_overall_size_coding_RNAs();
+    _overall_size_non_coding_RNAs      += gen_unit.get_overall_size_non_coding_RNAs();
+    _nb_genes_activ                    += gen_unit.get_nb_genes_activ();
+    _nb_genes_inhib                    += gen_unit.get_nb_genes_inhib();
+    _nb_functional_genes               += gen_unit.get_nb_functional_genes();
+    _nb_non_functional_genes           += gen_unit.get_nb_non_functional_genes();
+    _overall_size_functional_genes     += gen_unit.get_overall_size_functional_genes();
+    _overall_size_non_functional_genes += gen_unit.get_overall_size_non_functional_genes();
   }
 
   if ( _replic_report != NULL )
@@ -1202,22 +2182,15 @@ void ae_individual::compute_non_coding( void )
   _nb_bases_in_neutral_regions        = 0;
   _nb_neutral_regions                 = 0;
 
-  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
-  ae_genetic_unit*  gen_unit = NULL;
-
-  while ( gen_unit_node != NULL )
-  {
-    gen_unit = gen_unit_node->get_obj();
-
-    _nb_bases_in_0_CDS                  += gen_unit->get_nb_bases_in_0_CDS();
-    _nb_bases_in_0_functional_CDS       += gen_unit->get_nb_bases_in_0_functional_CDS();
-    _nb_bases_in_0_non_functional_CDS   += gen_unit->get_nb_bases_in_0_non_functional_CDS();
-    _nb_bases_in_0_RNA                  += gen_unit->get_nb_bases_in_0_RNA();
-    _nb_bases_in_0_coding_RNA           += gen_unit->get_nb_bases_in_0_coding_RNA();
-    _nb_bases_in_0_non_coding_RNA       += gen_unit->get_nb_bases_in_0_non_coding_RNA();
-    _nb_bases_in_neutral_regions        += gen_unit->get_nb_bases_in_neutral_regions();
-    _nb_neutral_regions                 += gen_unit->get_nb_neutral_regions();
-    gen_unit_node = gen_unit_node->get_next();
+  for (auto& gen_unit: _genetic_unit_list) {
+    _nb_bases_in_0_CDS                  += gen_unit.get_nb_bases_in_0_CDS();
+    _nb_bases_in_0_functional_CDS       += gen_unit.get_nb_bases_in_0_functional_CDS();
+    _nb_bases_in_0_non_functional_CDS   += gen_unit.get_nb_bases_in_0_non_functional_CDS();
+    _nb_bases_in_0_RNA                  += gen_unit.get_nb_bases_in_0_RNA();
+    _nb_bases_in_0_coding_RNA           += gen_unit.get_nb_bases_in_0_coding_RNA();
+    _nb_bases_in_0_non_coding_RNA       += gen_unit.get_nb_bases_in_0_non_coding_RNA();
+    _nb_bases_in_neutral_regions        += gen_unit.get_nb_bases_in_neutral_regions();
+    _nb_neutral_regions                 += gen_unit.get_nb_neutral_regions();
   }
 }
 
@@ -1272,37 +2245,18 @@ void ae_individual::save( gzFile backup_file ) const
   gzwrite( backup_file, &tmp_allow_plasmids, sizeof(tmp_allow_plasmids) );
 
   // Write genetic units
-  int16_t nb_gen_units = _genetic_unit_list->get_nb_elts();
+  int16_t nb_gen_units = _genetic_unit_list.size();
   gzwrite( backup_file, &nb_gen_units,  sizeof(nb_gen_units) );
 
-  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
-  ae_genetic_unit*  gen_unit;
-  for ( int16_t i = 0 ; i < nb_gen_units ; i++ )
-  {
-    gen_unit = gen_unit_node->get_obj();
-
-    gen_unit->save( backup_file );
-
-    gen_unit_node = gen_unit_node->get_next();
-  }
+  for (const auto& gen_unit: _genetic_unit_list)
+    gen_unit.save(backup_file);
 }
 
 int32_t ae_individual::get_nb_terminators( void )
 {
   int32_t nb_term = 0;
-
-  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
-  ae_genetic_unit*  gen_unit      = NULL;
-
-  while ( gen_unit_node != NULL )
-  {
-    gen_unit = gen_unit_node->get_obj();
-
-    nb_term += gen_unit->get_nb_terminators();
-
-    gen_unit_node = gen_unit_node->get_next();
-  }
-
+  for (auto& gen_unit: _genetic_unit_list)
+    nb_term += gen_unit.get_nb_terminators();
   return nb_term;
 }
 
@@ -1425,25 +2379,25 @@ void ae_individual::compute_experimental_f_nu( int32_t nb_children, double* repr
 }
 
 
-/*!
-  \brief Compute reproduction theoretical proportion of neutral offsprings
-
-  Compute the theoretical proportion of neutral offsprings given the Carole's formula, based on the mutations and rearrangement rates and not on multiple replications
-
-  \return theoretical proportion of neutral offsprings
-*/
+/// Compute reproduction theoretical proportion of neutral offsprings.
+///
+/// Compute the theoretical proportion of neutral offsprings given the
+/// Carole's formula, based on the mutations and rearrangement rates
+/// and not on multiple replications.
+///
+/// \return theoretical proportion of neutral offsprings
 double ae_individual::compute_theoritical_f_nu( void )
 {
   // We first have to collect information about genome structure.
   // Abbreviations are chosen according to Carole's formula.
   // Please notice that compared to the formula we have the beginning
   // and ends of neutral regions instead of 'functional regions'
-  ae_genetic_unit* chromosome = _genetic_unit_list->get_first()->get_obj();
-  int32_t L       = chromosome->get_dna()->get_length();
-  int32_t N_G     = chromosome->get_nb_neutral_regions(); // which is not exactly Carole's original definition
-  int32_t* b_i    = chromosome->get_beginning_neutral_regions();
-  int32_t* e_i    = chromosome->get_end_neutral_regions();
-  int32_t lambda  = chromosome->get_nb_bases_in_neutral_regions();
+  ae_genetic_unit& chromosome = _genetic_unit_list.front();
+  int32_t L       = chromosome.get_dna()->get_length();
+  int32_t N_G     = chromosome.get_nb_neutral_regions(); // which is not exactly Carole's original definition
+  int32_t* b_i    = chromosome.get_beginning_neutral_regions();
+  int32_t* e_i    = chromosome.get_end_neutral_regions();
+  int32_t lambda  = chromosome.get_nb_bases_in_neutral_regions();
   int32_t l       = L - lambda; // nb bases in 'functional regions'
 
   int32_t* lambda_i = NULL;  // nb bases in ith neutral region
@@ -1496,64 +2450,40 @@ double ae_individual::compute_theoritical_f_nu( void )
   return Fv;
 }
 
-/*!
-  \brief Remove the bases that are not in coding RNA
-
-  Remove the bases that are not in coding RNA and test at each loss that fitness is not changed
-*/
-void ae_individual::remove_non_coding_bases(void)
+/// Remove the bases that are not in coding RNA.
+///
+/// Remove the bases that are not in coding RNA and test at each loss
+/// that fitness is not changed.
+void ae_individual::remove_non_coding_bases()
 {
-  //reevaluate(_exp_m->get_env());
-  //double initial_fitness = get_fitness();
+  for (auto& gen_unit: _genetic_unit_list)
+    gen_unit.remove_non_coding_bases();
 
-  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
-  ae_genetic_unit*  gen_unit = NULL;
-
-  while ( gen_unit_node != NULL )
-  {
-    gen_unit = gen_unit_node->get_obj();
-    gen_unit->remove_non_coding_bases();
-
-    //reevaluate(_exp_m->get_env());
-    //assert(get_fitness()==initial_fitness);
-    gen_unit_node = gen_unit_node->get_next();
-  }
   _non_coding_computed = false;
-  assert(get_nb_bases_in_0_coding_RNA()==0);
+  assert(get_nb_bases_in_0_coding_RNA() == 0);
 }
 
-/*!
-  \brief Double the bases that are not in coding RNA
-
-  Double the bases that are not in coding RNA by addition of random bases and test at each addition that fitness is not changed
-*/
+/// Double the bases that are not in coding RNA.
+///
+/// Double the bases that are not in coding RNA by addition of random
+/// bases and test at each addition that fitness is not changed.
 void ae_individual::double_non_coding_bases(void)
 {
-  //reevaluate(_exp_m->get_env());
-  //double initial_fitness = get_fitness();
   _statistical_data_computed = false;
   _non_coding_computed = false;
-  _total_genome_size                  = 0;
+  _total_genome_size = 0;
   int32_t initial_non_coding_base_nb = get_nb_bases_in_0_coding_RNA();
 
-  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
-  ae_genetic_unit*  gen_unit = NULL;
+  for (auto& gen_unit: _genetic_unit_list)
+    gen_unit.double_non_coding_bases();
 
-  while ( gen_unit_node != NULL )
-  {
-    gen_unit = gen_unit_node->get_obj();
-    gen_unit->double_non_coding_bases();
-
-    //reevaluate(_exp_m->get_env());
-    //assert(get_fitness()==initial_fitness);
-    gen_unit_node = gen_unit_node->get_next();
-  }
   _statistical_data_computed = false;
   _non_coding_computed = false;
-  _total_genome_size                  = 0;
+  _total_genome_size = 0;
 
   assert(get_nb_bases_in_0_coding_RNA()==2*initial_non_coding_base_nb);
 }
+
 // =================================================================
 //                           Protected Methods
 // =================================================================
@@ -1565,17 +2495,9 @@ void ae_individual::make_protein_list( void )
   _protein_list->erase( false );
 
   // Make a copy of each genetic unit's protein list
-  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
-  ae_genetic_unit*  gen_unit      = NULL;
-
-  while ( gen_unit_node != NULL )
-  {
-    gen_unit = gen_unit_node->get_obj();
-
-    _protein_list->add_list( gen_unit->get_protein_list()[LEADING] );
-    _protein_list->add_list( gen_unit->get_protein_list()[LAGGING] );
-
-    gen_unit_node = gen_unit_node->get_next();
+  for (const auto& gen_unit: _genetic_unit_list) {
+    _protein_list->add_list( gen_unit.get_protein_list()[LEADING] );
+    _protein_list->add_list( gen_unit.get_protein_list()[LAGGING] );
   }
 }
 
@@ -1587,17 +2509,10 @@ void ae_individual::make_rna_list( void )
   _rna_list->erase( false );
 
   // Make a copy of each genetic unit's rna list
-  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
-  ae_genetic_unit*  gen_unit = NULL;
-
-  while ( gen_unit_node != NULL )
-  {
-    gen_unit = gen_unit_node->get_obj();
-
-    _rna_list->add_list( gen_unit->get_rna_list()[LEADING] );
-    _rna_list->add_list( gen_unit->get_rna_list()[LAGGING] );
-
-    gen_unit_node = gen_unit_node->get_next();
+  for (const auto& gen_unit: _genetic_unit_list) {
+    _rna_list->add_list( gen_unit.get_rna_list()[LEADING] );
+    _rna_list->add_list( gen_unit.get_rna_list()[LAGGING] );
   }
 }
+
 } // namespace aevol

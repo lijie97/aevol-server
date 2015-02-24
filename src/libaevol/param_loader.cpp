@@ -1366,8 +1366,8 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
                                               0 );
 
     indiv->add_GU( chromosome, lchromosome );
-    indiv->get_genetic_unit(0)->set_min_gu_length(_chromosome_minimal_length);
-    indiv->get_genetic_unit(0)->set_max_gu_length(_chromosome_maximal_length);
+    indiv->get_genetic_unit_nonconst(0).set_min_gu_length(_chromosome_minimal_length);
+    indiv->get_genetic_unit_nonconst(0).set_max_gu_length(_chromosome_maximal_length);
 
     if (plasmid != NULL)
     {
@@ -1378,8 +1378,8 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
         exit( EXIT_FAILURE );
       }
       indiv->add_GU( plasmid, lplasmid );
-      indiv->get_genetic_unit(1)->set_min_gu_length(_plasmid_minimal_length);
-      indiv->get_genetic_unit(1)->set_max_gu_length(_plasmid_maximal_length);
+      indiv->get_genetic_unit_nonconst(1).set_min_gu_length(_plasmid_minimal_length);
+      indiv->get_genetic_unit_nonconst(1).set_max_gu_length(_plasmid_maximal_length);
     }
     else if (_allow_plasmids)
     {
@@ -1415,13 +1415,13 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
       // fitness is better than that corresponding to a flat phenotype)
       // and set its id
       indiv = create_random_individual_with_good_gene( exp_m, param_mut, id_new_indiv++ );
-      indiv->get_genetic_unit(0)->set_min_gu_length(_chromosome_minimal_length);
-      indiv->get_genetic_unit(0)->set_max_gu_length(_chromosome_maximal_length);
+      indiv->get_genetic_unit_nonconst(0).set_min_gu_length(_chromosome_minimal_length);
+      indiv->get_genetic_unit_nonconst(0).set_max_gu_length(_chromosome_maximal_length);
 
       if (_allow_plasmids)
       {
-        indiv->get_genetic_unit(1)->set_min_gu_length(_plasmid_minimal_length);
-        indiv->get_genetic_unit(1)->set_max_gu_length(_plasmid_maximal_length);
+        indiv->get_genetic_unit_nonconst(1).set_min_gu_length(_plasmid_minimal_length);
+        indiv->get_genetic_unit_nonconst(1).set_max_gu_length(_plasmid_maximal_length);
       }
 
       indiv->set_with_stochasticity( _with_stochasticity );
@@ -1452,12 +1452,12 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
       {
         // Create an individual and set its id
         indiv = create_random_individual_with_good_gene( exp_m, param_mut, id_new_indiv++ );
-        indiv->get_genetic_unit(0)->set_min_gu_length(_chromosome_minimal_length);
-        indiv->get_genetic_unit(0)->set_max_gu_length(_chromosome_maximal_length);
+        indiv->get_genetic_unit_nonconst(0).set_min_gu_length(_chromosome_minimal_length);
+        indiv->get_genetic_unit_nonconst(0).set_max_gu_length(_chromosome_maximal_length);
         if (_allow_plasmids)
         {
-          indiv->get_genetic_unit(1)->set_min_gu_length(_plasmid_minimal_length);
-          indiv->get_genetic_unit(1)->set_max_gu_length(_plasmid_maximal_length);
+          indiv->get_genetic_unit_nonconst(1).set_min_gu_length(_plasmid_minimal_length);
+          indiv->get_genetic_unit_nonconst(1).set_max_gu_length(_plasmid_maximal_length);
         }
 
         // Add it to the list
@@ -1473,12 +1473,12 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
     {
       // Create a random individual and set its id
       indiv = create_random_individual( exp_m, param_mut, id_new_indiv++ );
-      indiv->get_genetic_unit(0)->set_min_gu_length(_chromosome_minimal_length);
-      indiv->get_genetic_unit(0)->set_max_gu_length(_chromosome_maximal_length);
+      indiv->get_genetic_unit_nonconst(0).set_min_gu_length(_chromosome_minimal_length);
+      indiv->get_genetic_unit_nonconst(0).set_max_gu_length(_chromosome_maximal_length);
       if (_allow_plasmids)
       {
-        indiv->get_genetic_unit(1)->set_min_gu_length(_plasmid_minimal_length);
-        indiv->get_genetic_unit(1)->set_max_gu_length(_plasmid_maximal_length);
+        indiv->get_genetic_unit_nonconst(1).set_min_gu_length(_plasmid_minimal_length);
+        indiv->get_genetic_unit_nonconst(1).set_max_gu_length(_plasmid_maximal_length);
       }
 
       // Add it to the list
@@ -1507,12 +1507,12 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
       {
         // Create a random individual and set its id
         indiv = create_random_individual( exp_m, param_mut, id_new_indiv++ );
-        indiv->get_genetic_unit(0)->set_min_gu_length(_chromosome_minimal_length);
-        indiv->get_genetic_unit(0)->set_max_gu_length(_chromosome_maximal_length);
+        indiv->get_genetic_unit_nonconst(0).set_min_gu_length(_chromosome_minimal_length);
+        indiv->get_genetic_unit_nonconst(0).set_max_gu_length(_chromosome_maximal_length);
         if (_allow_plasmids)
         {
-          indiv->get_genetic_unit(1)->set_min_gu_length(_plasmid_minimal_length);
-          indiv->get_genetic_unit(1)->set_max_gu_length(_plasmid_maximal_length);
+          indiv->get_genetic_unit_nonconst(1).set_min_gu_length(_plasmid_minimal_length);
+          indiv->get_genetic_unit_nonconst(1).set_max_gu_length(_plasmid_maximal_length);
         }
 
         // Add it to the list
@@ -1671,16 +1671,16 @@ ae_individual* param_loader::create_random_individual( ae_exp_manager* exp_m, ae
                                             _strain_name,
                                             0 );
 
-  ae_genetic_unit * chrom = new ae_genetic_unit( indiv, _chromosome_initial_length, _prng); // a random sequence is generated by the ae_string constructor
-  indiv->add_GU( chrom );
-  
+  // ae_genetic_unit * chrom = new ae_genetic_unit( indiv, _chromosome_initial_length, _prng); // a random sequence is generated by the ae_string constructor
+  // indiv->add_GU(ae_genetic_unit( indiv, _chromosome_initial_length, _prng));
+  indiv->add_GU(indiv, _chromosome_initial_length, _prng);
+  const ae_genetic_unit * chrom = &indiv->get_genetic_unit_list_std().back();
+
   if (_allow_plasmids) // We create a plasmid
   {
     if ( _plasmid_initial_gene == 1 ) // Then the plasmid is generated independently from the chromosome
-    {
-      ae_genetic_unit * plasmid = new ae_genetic_unit( indiv, _plasmid_initial_length, _prng); // a random sequence is generated by the ae_string constructor
-      indiv->add_GU( plasmid );
-    }
+      // indiv->add_GU(ae_genetic_unit( indiv, _plasmid_initial_length, _prng)); // a random sequence is generated by the ae_string constructor
+      indiv->add_GU( indiv, _plasmid_initial_length, _prng); // a random sequence is generated by the ae_string constructor
     else // The plasmid has the same genome than the chromosome
     {
       char * plasmid_genome = new char [_chromosome_initial_length + 1]; // As ae_dna constructor do not allocate memory but directly use the provided string, we allocate the memory here.
@@ -1763,15 +1763,15 @@ ae_individual* param_loader::create_random_individual_with_good_gene( ae_exp_man
                                             id,
                                             _strain_name,
                                             0 );
-  ae_genetic_unit * chrom = new ae_genetic_unit( indiv, _chromosome_initial_length, _prng); // a random sequence is generated by the ae_string constructor
-  indiv->add_GU( chrom );
+  indiv->add_GU(indiv, _chromosome_initial_length, _prng); // a random sequence is generated by the ae_string constructor
+  const ae_genetic_unit * chrom = &indiv->get_genetic_unit_list_std().back();
   indiv->evaluate( exp_m->get_env() );
 
   while ( indiv->get_dist_to_target_by_feature( METABOLISM ) >= env_metabolic_area )
     {
       indiv->remove_GU(0);
-      chrom = new ae_genetic_unit( indiv, _chromosome_initial_length, _prng); // a random sequence is generated by the ae_string constructor
-      indiv->add_GU( chrom );
+      // chrom = new ae_genetic_unit( indiv, _chromosome_initial_length, _prng); // a random sequence is generated by the ae_string constructor
+      indiv->add_GU(indiv, _chromosome_initial_length, _prng); // a random sequence is generated by the ae_string constructor
       indiv->evaluate( exp_m->get_env() );
     }
 
@@ -1781,15 +1781,13 @@ ae_individual* param_loader::create_random_individual_with_good_gene( ae_exp_man
     {
       if ( _plasmid_initial_gene == 1 )
         {
-          ae_genetic_unit * plasmid = new ae_genetic_unit( indiv, _plasmid_initial_length, _prng); // a random sequence is generated by the ae_string constructor
-           indiv->add_GU( plasmid );
+          indiv->add_GU(indiv, _plasmid_initial_length, _prng); // a random sequence is generated by the ae_string constructor
            indiv->evaluate( exp_m->get_env() );
 
-           while ( indiv->get_genetic_unit(1)->get_dist_to_target_by_feature( METABOLISM ) >= env_metabolic_area )
+           while ( indiv->get_genetic_unit(1).get_dist_to_target_by_feature( METABOLISM ) >= env_metabolic_area )
              {
                indiv->remove_GU(1);
-               plasmid = new ae_genetic_unit( indiv, _plasmid_initial_length, _prng); // a random sequence is generated by the ae_string constructor
-               indiv->add_GU( plasmid );
+               indiv->add_GU(indiv, _plasmid_initial_length, _prng); // a random sequence is generated by the ae_string constructor
                indiv->evaluate( exp_m->get_env() );
              }
         }

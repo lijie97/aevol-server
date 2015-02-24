@@ -392,10 +392,10 @@ int main(int argc, char** argv)
     printf("============================================================ \n");
   }
 
-  std::list<ae_genetic_unit*>::const_iterator unit;
+  std::list<ae_genetic_unit>::const_iterator unit;
 
   ae_individual*   stored_indiv          = NULL;
-  std::list<ae_genetic_unit*>::const_iterator stored_gen_unit;
+  std::list<ae_genetic_unit>::const_iterator stored_gen_unit;
 
   ae_exp_manager* exp_manager_backup = NULL;
 
@@ -445,13 +445,13 @@ int main(int argc, char** argv)
       assert(unit != initial_ancestor->get_genetic_unit_list_std().cend());
 
       for (const auto& mut: rep->get_HT())
-        ((*unit)->get_dna())->undergo_this_mutation(&mut);
+        (unit->get_dna())->undergo_this_mutation(&mut);
 
       for (const auto& mut: rep->get_rearrangements())
-        ((*unit)->get_dna())->undergo_this_mutation(&mut);
+        (unit->get_dna())->undergo_this_mutation(&mut);
 
       for (const auto& mut: rep->get_mutations())
-        (*unit)->get_dna()->undergo_this_mutation(&mut);
+        unit->get_dna()->undergo_this_mutation(&mut);
 
       if ( check_genome_now )
       {
@@ -462,15 +462,15 @@ int main(int argc, char** argv)
         }
         assert(stored_gen_unit != stored_indiv->get_genetic_unit_list_std().cend());
 
-        char * str1 = new char[(*unit)->get_dna()->get_length() + 1];
-        memcpy( str1, (*unit)->get_dna()->get_data(), (*unit)->get_dna()->get_length() * sizeof(char) );
-        str1[(*unit)->get_dna()->get_length()] = '\0';
+        char * str1 = new char[unit->get_dna()->get_length() + 1];
+        memcpy( str1, unit->get_dna()->get_data(), unit->get_dna()->get_length() * sizeof(char) );
+        str1[unit->get_dna()->get_length()] = '\0';
 
-        char * str2 = new char[(*stored_gen_unit)->get_dna()->get_length() + 1];
-        memcpy(str2, (*stored_gen_unit)->get_dna()->get_data(), (*stored_gen_unit)->get_dna()->get_length() * sizeof(char));
-        str2[(*stored_gen_unit)->get_dna()->get_length()] = '\0';
+        char * str2 = new char[stored_gen_unit->get_dna()->get_length() + 1];
+        memcpy(str2, stored_gen_unit->get_dna()->get_data(), stored_gen_unit->get_dna()->get_length() * sizeof(char));
+        str2[stored_gen_unit->get_dna()->get_length()] = '\0';
 
-        if ( strncmp( str1, str2, (*stored_gen_unit)->get_dna()->get_length() ) == 0 )
+        if ( strncmp( str1, str2, stored_gen_unit->get_dna()->get_length() ) == 0 )
         {
           if ( verbose ) printf( " OK\n" );
         }

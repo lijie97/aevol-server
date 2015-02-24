@@ -260,7 +260,7 @@ int main( int argc, char* argv[] )
   //                  Write the data in the EPS files
   // =================================================================
 
-  ae_genetic_unit*  indiv_main_genome = indiv->get_genetic_unit( 0 );
+  ae_genetic_unit*  indiv_main_genome = &indiv->get_genetic_unit_nonconst( 0 );
 
   printf( "Creating the EPS file with the triangles of the chosen individual... " );
   fflush(stdout);
@@ -463,7 +463,7 @@ void draw_triangles( ae_individual* indiv, Environment* env, char * directoryNam
     ae_list_node<ae_protein*>* prot_node = NULL;
     ae_protein* prot = NULL;
 
-    prot_node = (gu->get_protein_list())[LEADING]->get_first();
+    prot_node = (gu.get_protein_list())[LEADING]->get_first();
     while ( prot_node != NULL )
     {
       prot = (ae_protein*) prot_node->get_obj();
@@ -478,7 +478,7 @@ void draw_triangles( ae_individual* indiv, Environment* env, char * directoryNam
     }
 
 
-    prot_node = (gu->get_protein_list())[LAGGING]->get_first();
+    prot_node = (gu.get_protein_list())[LAGGING]->get_first();
     while ( prot_node != NULL )
     {
       prot = (ae_protein*) prot_node->get_obj();

@@ -286,7 +286,7 @@ int main(int argc, char** argv)
   // ===============================================================================
 
   ae_individual* stored_indiv = NULL;
-  std::list<ae_genetic_unit*>::const_iterator stored_unit;
+  std::list<ae_genetic_unit>::const_iterator stored_unit;
 
   int32_t i, index, genetic_unit_number, unitlen_before;
   int32_t nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment;
@@ -345,7 +345,7 @@ int main(int argc, char** argv)
 
     genetic_unit_number = 0;
     std::list<DnaReplicReport*>::const_iterator dnareport = rep->get_dna_replic_reports().begin();
-    std::list<ae_genetic_unit*>::const_iterator unit = indiv->get_genetic_unit_list_std().begin();
+    std::list<ae_genetic_unit>::iterator unit = indiv->get_genetic_unit_list_std_nonconst().begin();
 
     if ( check_now && ae_utils::mod(num_gener, backup_step) == 0)
     {
@@ -360,7 +360,7 @@ int main(int argc, char** argv)
     {
       assert(unit != indiv->get_genetic_unit_list_std().end());
 
-      (*unit)->get_dna()->set_replic_report(*dnareport);
+      unit->get_dna()->set_replic_report(*dnareport);
 
       // ***************************************
       //             Transfer events
@@ -368,11 +368,11 @@ int main(int argc, char** argv)
 
       for (const auto& mutation: (*dnareport)->get_HT()) {
         metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
-        unitlen_before = (*unit)->get_dna()->get_length();
-        (*unit)->compute_nb_of_affected_genes(&mutation, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
+        unitlen_before = unit->get_dna()->get_length();
+        unit->compute_nb_of_affected_genes(&mutation, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
 
 
-        (*unit)->get_dna()->undergo_this_mutation(&mutation);
+        unit->get_dna()->undergo_this_mutation(&mutation);
         indiv->reevaluate(env);
 
 
@@ -394,10 +394,10 @@ int main(int argc, char** argv)
 
       for (const auto& mutation: (*dnareport)->get_rearrangements()) {
         metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
-        unitlen_before = (*unit)->get_dna()->get_length();
-        (*unit)->compute_nb_of_affected_genes(&mutation, nb_genes_at_breakpoints, nb_genes_in_segment,  nb_genes_in_replaced_segment);
+        unitlen_before = unit->get_dna()->get_length();
+        unit->compute_nb_of_affected_genes(&mutation, nb_genes_at_breakpoints, nb_genes_in_segment,  nb_genes_in_replaced_segment);
 
-        (*unit)->get_dna()->undergo_this_mutation(&mutation);
+        unit->get_dna()->undergo_this_mutation(&mutation);
 
         indiv->reevaluate(env);
         metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
@@ -417,10 +417,10 @@ int main(int argc, char** argv)
 
       for (const auto& mutation: (*dnareport)->get_mutations()) {
         metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
-        unitlen_before = (*unit)->get_dna()->get_length();
-        (*unit)->compute_nb_of_affected_genes(&mutation, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
+        unitlen_before = unit->get_dna()->get_length();
+        unit->compute_nb_of_affected_genes(&mutation, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
 
-        (*unit)->get_dna()->undergo_this_mutation(&mutation);
+        unit->get_dna()->undergo_this_mutation(&mutation);
 
         indiv->reevaluate(env);
         metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
@@ -443,16 +443,16 @@ int main(int argc, char** argv)
 
         assert(stored_unit != stored_indiv->get_genetic_unit_list_std().end());
 
-        char * str1 = new char[(*unit)->get_dna()->get_length() + 1];
-        memcpy(str1, (*unit)->get_dna()->get_data(), \
-               (*unit)->get_dna()->get_length()*sizeof(char));
-        str1[(*unit)->get_dna()->get_length()] = '\0';
+        char * str1 = new char[unit->get_dna()->get_length() + 1];
+        memcpy(str1, unit->get_dna()->get_data(), \
+               unit->get_dna()->get_length()*sizeof(char));
+        str1[unit->get_dna()->get_length()] = '\0';
 
-        char * str2 = new char[((*stored_unit)->get_dna())->get_length() + 1];
-        memcpy(str2, ((*stored_unit)->get_dna())->get_data(), ((*stored_unit)->get_dna())->get_length()*sizeof(char));
-        str2[((*stored_unit)->get_dna())->get_length()] = '\0';
+        char * str2 = new char[(stored_unit->get_dna())->get_length() + 1];
+        memcpy(str2, (stored_unit->get_dna())->get_data(), (stored_unit->get_dna())->get_length()*sizeof(char));
+        str2[(stored_unit->get_dna())->get_length()] = '\0';
 
-        if(strncmp(str1,str2, ((*stored_unit)->get_dna())->get_length())==0)
+        if(strncmp(str1,str2, (stored_unit->get_dna())->get_length())==0)
         {
           if ( verbose ) printf(" OK\n");
         }

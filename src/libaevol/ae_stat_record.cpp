@@ -159,7 +159,7 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_individual * indiv, ch
     // -------------------------------------------------
     ae_replication_report* replic_report = indiv->get_replic_report(); // can be NULL under certain conditions
 
-    ae_genetic_unit& gen_unit = **indiv->get_genetic_unit_list_std().begin();
+    ae_genetic_unit& gen_unit = *indiv->get_genetic_unit_list_std_nonconst().begin();
 
     // Metabolic error stats
     _metabolic_error = (double) indiv->get_dist_to_target_by_feature( METABOLISM );
@@ -288,43 +288,43 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_individual * indiv, ch
       _parent_secretion_error = 0.0;
     }
 
-    for (const auto& gen_unit: indiv->get_genetic_unit_list_std()) {
+    for (auto& gen_unit: indiv->get_genetic_unit_list_std_nonconst()) {
       // Genes and RNA stats
-      _amount_of_dna               += gen_unit->get_dna()->get_length();
-      _nb_coding_rnas              += gen_unit->get_nb_coding_RNAs();
-      _nb_non_coding_rnas          += gen_unit->get_nb_non_coding_RNAs();
-      _av_size_coding_rnas         += gen_unit->get_av_size_coding_RNAs();
-      _av_size_non_coding_rnas     += gen_unit->get_av_size_non_coding_RNAs();
-      _nb_functional_genes         += gen_unit->get_nb_functional_genes();
-      _nb_non_functional_genes     += gen_unit->get_nb_non_functional_genes();
-      _av_size_functional_gene     += gen_unit->get_av_size_functional_genes();
-      _av_size_non_functional_gene += gen_unit->get_av_size_non_functional_genes();
+      _amount_of_dna               += gen_unit.get_dna()->get_length();
+      _nb_coding_rnas              += gen_unit.get_nb_coding_RNAs();
+      _nb_non_coding_rnas          += gen_unit.get_nb_non_coding_RNAs();
+      _av_size_coding_rnas         += gen_unit.get_av_size_coding_RNAs();
+      _av_size_non_coding_rnas     += gen_unit.get_av_size_non_coding_RNAs();
+      _nb_functional_genes         += gen_unit.get_nb_functional_genes();
+      _nb_non_functional_genes     += gen_unit.get_nb_non_functional_genes();
+      _av_size_functional_gene     += gen_unit.get_av_size_functional_genes();
+      _av_size_non_functional_gene += gen_unit.get_av_size_non_functional_genes();
 
       // Non coding stats
       if ( compute_non_coding )
       {
-        _nb_bases_in_0_CDS                += gen_unit->get_nb_bases_in_0_CDS();
-        _nb_bases_in_0_functional_CDS     += gen_unit->get_nb_bases_in_0_functional_CDS();
-        _nb_bases_in_0_non_functional_CDS += gen_unit->get_nb_bases_in_0_non_functional_CDS();
-        _nb_bases_in_0_RNA                += gen_unit->get_nb_bases_in_0_RNA();
-        _nb_bases_in_0_coding_RNA         += gen_unit->get_nb_bases_in_0_coding_RNA();
-        _nb_bases_in_0_non_coding_RNA     += gen_unit->get_nb_bases_in_0_non_coding_RNA();
+        _nb_bases_in_0_CDS                += gen_unit.get_nb_bases_in_0_CDS();
+        _nb_bases_in_0_functional_CDS     += gen_unit.get_nb_bases_in_0_functional_CDS();
+        _nb_bases_in_0_non_functional_CDS += gen_unit.get_nb_bases_in_0_non_functional_CDS();
+        _nb_bases_in_0_RNA                += gen_unit.get_nb_bases_in_0_RNA();
+        _nb_bases_in_0_coding_RNA         += gen_unit.get_nb_bases_in_0_coding_RNA();
+        _nb_bases_in_0_non_coding_RNA     += gen_unit.get_nb_bases_in_0_non_coding_RNA();
         
-        _nb_bases_non_essential                     += gen_unit->get_nb_bases_non_essential();
-        _nb_bases_non_essential_including_nf_genes  += gen_unit->get_nb_bases_non_essential_including_nf_genes();
+        _nb_bases_non_essential                     += gen_unit.get_nb_bases_non_essential();
+        _nb_bases_non_essential_including_nf_genes  += gen_unit.get_nb_bases_non_essential_including_nf_genes();
       }
       
       // Mutation stats
-      if (( replic_report != NULL ) && (gen_unit->get_dna()->get_replic_report()!=NULL))
+      if (( replic_report != NULL ) && (gen_unit.get_dna()->get_replic_report()!=NULL))
       {
-        _nb_mut    += gen_unit->get_dna()->get_replic_report()->get_nb(S_MUT);
-        _nb_rear   += gen_unit->get_dna()->get_replic_report()->get_nb(REARR);
-        _nb_switch += gen_unit->get_dna()->get_replic_report()->get_nb(SWITCH);
-        _nb_indels += gen_unit->get_dna()->get_replic_report()->get_nb(INDEL);
-        _nb_dupl   += gen_unit->get_dna()->get_replic_report()->get_nb(DUPL);
-        _nb_del    += gen_unit->get_dna()->get_replic_report()->get_nb(DEL);
-        _nb_trans  += gen_unit->get_dna()->get_replic_report()->get_nb(TRANS);
-        _nb_inv    += gen_unit->get_dna()->get_replic_report()->get_nb(INV);
+        _nb_mut    += gen_unit.get_dna()->get_replic_report()->get_nb(S_MUT);
+        _nb_rear   += gen_unit.get_dna()->get_replic_report()->get_nb(REARR);
+        _nb_switch += gen_unit.get_dna()->get_replic_report()->get_nb(SWITCH);
+        _nb_indels += gen_unit.get_dna()->get_replic_report()->get_nb(INDEL);
+        _nb_dupl   += gen_unit.get_dna()->get_replic_report()->get_nb(DUPL);
+        _nb_del    += gen_unit.get_dna()->get_replic_report()->get_nb(DEL);
+        _nb_trans  += gen_unit.get_dna()->get_replic_report()->get_nb(TRANS);
+        _nb_inv    += gen_unit.get_dna()->get_replic_report()->get_nb(INV);
       }
     }
     
@@ -348,8 +348,8 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_individual * indiv, ch
     }
 
     ae_genetic_unit& gen_unit = (chrom_or_gu == PLASMIDS) ?
-        **std::next(indiv->get_genetic_unit_list_std().begin()) :
-        **indiv->get_genetic_unit_list_std().begin();
+        *std::next(indiv->get_genetic_unit_list_std_nonconst().begin()) :
+        indiv->get_genetic_unit_list_std_nonconst().front();
 
     // -------------------------------------------------
     // Compute statistical data for the given individual

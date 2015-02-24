@@ -1133,8 +1133,8 @@ ae_mutation* ae_dna::do_translocation( void )
     int32_t pos_1_rel, pos_2_rel, pos_3_rel, pos_4_rel;
 
     ae_individual* indiv = _indiv;
-    ae_genetic_unit* chromosome = *indiv->get_genetic_unit_list_std().begin();
-    ae_genetic_unit* plasmid    = *std::next(indiv->get_genetic_unit_list_std().begin());
+    const ae_genetic_unit* chromosome = &indiv->get_genetic_unit_list_std().front();
+    const ae_genetic_unit* plasmid    = &*std::next(indiv->get_genetic_unit_list_std().begin());
     int32_t chrom_length        = chromosome->get_dna()->get_length();
     int32_t total_amount_of_dna = indiv->get_amount_of_dna();
 
@@ -1658,14 +1658,15 @@ bool ae_dna::do_inter_GU_translocation( int32_t pos_1_rel, int32_t pos_2_rel, in
   }
 
   //
-  ae_genetic_unit* chromosome     = _indiv->get_genetic_unit( 0 );
-  ae_genetic_unit* plasmid        = _indiv->get_genetic_unit( 1 );
-  ae_genetic_unit* destination_GU = ( _gen_unit == chromosome )? plasmid : chromosome;
+  const ae_genetic_unit& chromosome     = _indiv->get_genetic_unit( 0 );
+  const ae_genetic_unit& plasmid        = _indiv->get_genetic_unit( 1 );
+  // TODO vld (2015-02-23): check if this == is sound
+  const ae_genetic_unit& destination_GU = (_gen_unit == &chromosome) ? plasmid : chromosome;
 
-  int32_t dest_gu_size_before = destination_GU->get_seq_length();
+  int32_t dest_gu_size_before = destination_GU.get_seq_length();
 
   // Do not allow translocation if it would increase the size of the receiving GU above a threshold
-  if (dest_gu_size_before + segment_length > destination_GU->get_max_gu_length())
+  if (dest_gu_size_before + segment_length > destination_GU.get_max_gu_length())
   {
     if ( _exp_m->get_output_m()->is_logged( LOG_BARRIER ) == true )
     {
@@ -1859,7 +1860,7 @@ ae_mutation* ae_dna::do_ins_HT( int32_t parent_id )
 
   // 2) Look for an alignment within the donor genome
   ae_vis_a_vis* alignment_1   = NULL;
-  ae_dna*       donor_dna     = donor->get_genetic_unit( 0 )->get_dna();
+  ae_dna*       donor_dna     = donor->get_genetic_unit(0).get_dna();
   int32_t       nb_pairs_1    = (int32_t)( ceil( donor_dna->get_length() * _indiv->get_neighbourhood_rate() ) );
 
   alignment_1 = donor_dna->search_alignment( donor_dna, nb_pairs_1, DIRECT );
@@ -1976,7 +1977,7 @@ ae_mutation* ae_dna::do_repl_HT( int32_t parent_id )
   // 2) Look for an alignment between the parent genome and the donor genome
   ae_vis_a_vis* alignment_1   = NULL;
   ae_vis_a_vis* alignment_2   = NULL;
-  ae_dna*       donor_dna     = donor->get_genetic_unit( 0 )->get_dna();
+  ae_dna*       donor_dna     = donor->get_genetic_unit(0).get_dna();
   ae_sense      sense         = (_exp_m->get_sel()->get_prng()->random() < 0.5) ? DIRECT : INDIRECT;
   int32_t       nb_pairs_1    = (int32_t)( ceil( get_length() * _indiv->get_neighbourhood_rate() ) );
   int32_t       nb_pairs_2    = (int32_t)( ceil( get_length() * _indiv->get_neighbourhood_rate() ) );
@@ -3257,16 +3258,16 @@ void ae_dna::inter_GU_ABCDE_to_ACDBE( int32_t pos_B, int32_t pos_C, int32_t pos_
   {
     // Useful values
     ae_individual* indiv            = _indiv;
-    ae_genetic_unit* chromosome     = indiv->get_genetic_unit( 0 );
-    ae_genetic_unit* plasmid        = indiv->get_genetic_unit( 1 );
-    ae_genetic_unit* destination_GU = ( _gen_unit == chromosome )? plasmid : chromosome;
+    ae_genetic_unit& chromosome     = indiv->get_genetic_unit_nonconst(0);
+    ae_genetic_unit& plasmid        = indiv->get_genetic_unit_nonconst(1);
+    ae_genetic_unit& destination_GU = ( _gen_unit == &chromosome )? plasmid : chromosome;
 
     // Compute segment lengths
     int32_t len_A = pos_B;
     int32_t len_B = pos_C - pos_B;
     int32_t len_C = _length - pos_C;
     int32_t len_D = pos_E;
-    int32_t len_E = destination_GU->get_dna()->get_length() - pos_E;
+    int32_t len_E = destination_GU.get_dna()->get_length() - pos_E;
     int32_t len_AC = len_A + len_C;
     int32_t len_DB = len_D + len_B;
     int32_t len_DBE = len_DB + len_E;
@@ -3283,7 +3284,7 @@ void ae_dna::inter_GU_ABCDE_to_ACDBE( int32_t pos_B, int32_t pos_C, int32_t pos_
     // Create the new sequence of the destination genetic unit
     tmp = ae_string::nb_blocks(len_DBE) * BLOCK_SIZE;
     char* new_sequence_dest = new char[tmp];
-    char* dest_GU_former_seq = (char*) destination_GU->get_dna()->get_data();
+    char* dest_GU_former_seq = (char*) destination_GU.get_dna()->get_data();
 
     memcpy( new_sequence_dest,           dest_GU_former_seq,          len_D * sizeof(char) );
     memcpy( &new_sequence_dest[len_D],   &_data[pos_B],               len_B * sizeof(char) );
@@ -3305,7 +3306,7 @@ void ae_dna::inter_GU_ABCDE_to_ACDBE( int32_t pos_B, int32_t pos_C, int32_t pos_
     // 1) Remove promoters that include a breakpoint
     _gen_unit->remove_promoters_around( pos_B );
     _gen_unit->remove_promoters_around( pos_C );
-    destination_GU->remove_promoters_around( pos_E );
+    destination_GU.remove_promoters_around(pos_E);
 
     // Create temporary lists for promoters to move and/or invert
     ae_list<ae_rna*>** promoters_B = new ae_list<ae_rna*>*[2];
@@ -3322,11 +3323,11 @@ void ae_dna::inter_GU_ABCDE_to_ACDBE( int32_t pos_B, int32_t pos_C, int32_t pos_
 
     // ========== Replace sequences ==========
     set_data( new_sequence_this, len_AC );
-    destination_GU->get_dna()->set_data( new_sequence_dest, len_DBE );
+    destination_GU.get_dna()->set_data( new_sequence_dest, len_DBE );
 
 
     // 3) Shift these promoters positions
-    ae_genetic_unit::shift_promoters( promoters_B, len_D - len_A, destination_GU->get_dna()->get_length() );
+    ae_genetic_unit::shift_promoters( promoters_B, len_D - len_A, destination_GU.get_dna()->get_length() );
 
     // Reassign promoters to their new genetic unit
     ae_list_node<ae_rna*>* rna_node;
@@ -3337,17 +3338,17 @@ void ae_dna::inter_GU_ABCDE_to_ACDBE( int32_t pos_B, int32_t pos_C, int32_t pos_
       while ( rna_node )
       {
         rna = rna_node->get_obj();
-        rna->set_genetic_unit(destination_GU);
+        rna->set_genetic_unit(&destination_GU);
         rna_node = rna_node->get_next();
       }
     }
 
     // Shift the promoters of sequences C and E
     _gen_unit->move_all_promoters_after( pos_C, -len_B );
-    destination_GU->move_all_promoters_after( pos_E, len_B );
+    destination_GU.move_all_promoters_after( pos_E, len_B );
 
     // 4) Reinsert the shifted promoters
-    destination_GU->insert_promoters( promoters_B );
+    destination_GU.insert_promoters( promoters_B );
 
     // Delete the temporary lists (objects are untouched)
     delete promoters_B[LEADING];
@@ -3357,9 +3358,9 @@ void ae_dna::inter_GU_ABCDE_to_ACDBE( int32_t pos_B, int32_t pos_C, int32_t pos_
     // 5) Look for new promoters including a breakpoint
     _gen_unit->look_for_new_promoters_around( 0 );
     _gen_unit->look_for_new_promoters_around( len_A );
-    destination_GU->look_for_new_promoters_around( 0 );
-    destination_GU->look_for_new_promoters_around( len_D );
-    destination_GU->look_for_new_promoters_around( len_DB );
+    destination_GU.look_for_new_promoters_around( 0 );
+    destination_GU.look_for_new_promoters_around( len_D );
+    destination_GU.look_for_new_promoters_around( len_DB );
   }
 }
 

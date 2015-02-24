@@ -168,13 +168,13 @@ int main( int argc, char* argv[] )
 
       if (wanted_index != -1 and current_index == wanted_index) {
         found = true;
-        wanted_indiv = (*indiv);
+        wanted_indiv = *indiv;
         wanted_rank = current_rank;
       }
       else if (current_rank == wanted_rank) {
         // no index was specified, we use the desired rank
         found = true;
-        wanted_indiv = (*indiv);
+        wanted_indiv = *indiv;
         wanted_index = current_index;
       }
     }
@@ -282,7 +282,7 @@ int main( int argc, char* argv[] )
       // Compute Fv ----------------------------------------------------------------
       th_fv = (*indiv)->compute_theoritical_f_nu();
 
-      if ((*indiv) == wanted_indiv)
+      if (*indiv == wanted_indiv)
         (*indiv)->compute_experimental_f_nu(nb_children,
                                             reproduction_statistics,
                                             offsprings_statistics,

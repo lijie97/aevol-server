@@ -71,15 +71,12 @@ class ae_genetic_unit
     // =================================================================
     ae_genetic_unit( ae_individual* indiv, int32_t length, ae_jumping_mt * prng );
     ae_genetic_unit( ae_individual* indiv, char* seq, int32_t length, ae_list<ae_rna*>** prom_list = NULL );
-    ae_genetic_unit( ae_individual* indiv, const ae_genetic_unit &model );
-    ae_genetic_unit( ae_individual* indiv, ae_genetic_unit* const parent );
+    ae_genetic_unit( ae_individual* indiv, const ae_genetic_unit& model );
+    ae_genetic_unit( ae_individual* indiv, const ae_genetic_unit* parent );
     ae_genetic_unit( ae_individual* indiv, gzFile backup_file );
     ae_genetic_unit( ae_individual* indiv, char* organism_file_name );
     ae_genetic_unit() = delete;
     ae_genetic_unit(const ae_genetic_unit &) = delete;
-
-
-
 
     // =================================================================
     //                             Destructors
@@ -234,7 +231,7 @@ class ae_genetic_unit
     void copy_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>* new_promoter_list );
     //~ inline void copy_all_promoters( ae_list** new_promoter_lists );
 
-    void save( gzFile backup_file );
+    void save( gzFile backup_file ) const;
 
     int32_t get_nb_terminators( void );
 

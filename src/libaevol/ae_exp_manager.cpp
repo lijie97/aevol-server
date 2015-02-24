@@ -43,6 +43,7 @@
 // =================================================================
 #include "ae_exp_manager.h"
 #include "ae_population.h"
+#include "ae_individual.h"
 
 #ifdef __X11
   #include "ae_population_X11.h"
@@ -595,7 +596,7 @@ void ae_exp_manager::run_evolution( void )
   printf ("  The run is finished. \n");
   printf ("  Printing the final best individual into " BEST_LAST_ORG_FNAME "\n");
   FILE* org_file = fopen( BEST_LAST_ORG_FNAME, "w" );
-  fputs( _pop->get_best()->get_genetic_unit(0)->get_dna()->get_data(), org_file );
+  fputs( _pop->get_best()->get_genetic_unit(0).get_dna()->get_data(), org_file );
   fclose ( org_file );
 }
 

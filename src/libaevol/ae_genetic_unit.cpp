@@ -220,7 +220,7 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, char* seq, int32_t lengt
   Copies the DNA and recomputes all the rest.
   It is slower than copying as much as possible and regenerate only what is necessary but it works whatever the state of the model GU.
 */
-ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, const ae_genetic_unit &model )
+ae_genetic_unit::ae_genetic_unit(ae_individual* indiv, const ae_genetic_unit& model)
 {
   _exp_m = indiv->get_exp_m();
   _indiv = indiv;
@@ -270,7 +270,7 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, const ae_genetic_unit &m
   compute_phenotypic_contribution();
 }
 
-ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, ae_genetic_unit* const parent )
+ae_genetic_unit::ae_genetic_unit(ae_individual* indiv, const ae_genetic_unit* parent)
 {
   _exp_m = indiv->get_exp_m();
   _indiv = indiv;
@@ -3302,7 +3302,7 @@ void ae_genetic_unit::copy_lagging_promoters_starting_between( int32_t pos_1, in
   }
 }
 
-void ae_genetic_unit::save( gzFile backup_file )
+void ae_genetic_unit::save( gzFile backup_file ) const
 {
   _dna->save( backup_file );
   gzwrite( backup_file, &_min_gu_length, sizeof(_min_gu_length) );

@@ -520,12 +520,12 @@ int main( int argc, char* argv[] )
         while( indiv_node != NULL )
         {
           indiv = (ae_individual *) indiv_node->get_obj();
-          if (indiv->get_genetic_unit(1)->get_seq_length()<plasmid_minimal_length)
+          if (indiv->get_genetic_unit(1).get_seq_length()<plasmid_minimal_length)
           {
             printf("ERROR: there is one genetic unit with a smaller length than the new minimum.\n");
             exit( EXIT_FAILURE );
           }
-          indiv->get_genetic_unit(1)->set_min_gu_length(plasmid_minimal_length);
+          indiv->get_genetic_unit_nonconst(1).set_min_gu_length(plasmid_minimal_length);
           indiv_node = indiv_node->get_next();
         }
       }
@@ -542,12 +542,12 @@ int main( int argc, char* argv[] )
         while( indiv_node != NULL )
         {
           indiv = (ae_individual *) indiv_node->get_obj();
-          if (indiv->get_genetic_unit(1)->get_seq_length()>plasmid_maximal_length)
+          if (indiv->get_genetic_unit_nonconst(1).get_seq_length()>plasmid_maximal_length)
           {
             printf("ERROR: there is one genetic unit with a higher length than the new maximum.\n");
             exit( EXIT_FAILURE );
           }
-          indiv->get_genetic_unit(1)->set_max_gu_length(plasmid_maximal_length);
+          indiv->get_genetic_unit_nonconst(1).set_max_gu_length(plasmid_maximal_length);
           indiv_node = indiv_node->get_next();
         }
       }
@@ -559,11 +559,11 @@ int main( int argc, char* argv[] )
         while( indiv_node != NULL )
         {
           indiv = (ae_individual *) indiv_node->get_obj();
-          if (indiv->get_genetic_unit(0)->get_seq_length()<chromosome_minimal_length){
+          if (indiv->get_genetic_unit_nonconst(0).get_seq_length()<chromosome_minimal_length){
             printf("ERROR: there is one genetic unit with a smaller length than the new minimum.\n");
             exit( EXIT_FAILURE );
           }
-          indiv->get_genetic_unit(0)->set_min_gu_length(chromosome_minimal_length);
+          indiv->get_genetic_unit_nonconst(0).set_min_gu_length(chromosome_minimal_length);
           indiv_node = indiv_node->get_next();
         }
       }
@@ -575,11 +575,11 @@ int main( int argc, char* argv[] )
         while( indiv_node != NULL )
         {
           indiv = (ae_individual *) indiv_node->get_obj();
-          if (indiv->get_genetic_unit(0)->get_seq_length()>chromosome_maximal_length){
+          if (indiv->get_genetic_unit_nonconst(0).get_seq_length()>chromosome_maximal_length){
             printf("ERROR: there is one genetic unit with a higher length than the new maximum.\n");
             exit( EXIT_FAILURE );
           }
-          indiv->get_genetic_unit(0)->set_max_gu_length(chromosome_maximal_length);
+          indiv->get_genetic_unit_nonconst(0).set_max_gu_length(chromosome_maximal_length);
           indiv_node = indiv_node->get_next();
         }
       }

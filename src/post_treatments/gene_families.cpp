@@ -269,13 +269,13 @@ int main(int argc, char** argv)
   ae_protein *prot = NULL;
 
   for (const auto& unit: indiv->get_genetic_unit_list_std()) {
-    prot_node = (unit->get_protein_list()[LEADING])->get_first();
+    prot_node = (unit.get_protein_list()[LEADING])->get_first();
     while(prot_node != NULL) {
       prot = prot_node->get_obj();
       gene_trees->add(new ae_gene_tree(begin_gener, prot));
       prot_node = prot_node->get_next();
     }
-    prot_node = (unit->get_protein_list()[LAGGING])->get_first();
+    prot_node = (unit.get_protein_list()[LAGGING])->get_first();
     while(prot_node != NULL) {
       prot = prot_node->get_obj();
       gene_trees->add(new ae_gene_tree(begin_gener, prot));
@@ -290,10 +290,10 @@ int main(int argc, char** argv)
   // ===============================================================================
   ae_replication_report* rep = NULL;
 
-  std::list<ae_genetic_unit*>::const_iterator unit;
+  std::list<ae_genetic_unit>::const_iterator unit;
 
   ae_individual* stored_indiv = NULL;
-  std::list<ae_genetic_unit*>::const_iterator stored_unit;
+  std::list<ae_genetic_unit>::const_iterator stored_unit;
 
   int32_t i, index, genetic_unit_number, unitlen_before;
   double metabolic_error_before, metabolic_error_after, impact_on_metabolic_error;
@@ -355,7 +355,7 @@ int main(int argc, char** argv)
     // during the evolution, or if some translocations occurred between different genetic units
 
     genetic_unit_number = 0;
-    auto unit = indiv->get_genetic_unit_list_std().cbegin();
+    auto unit = indiv->get_genetic_unit_list_std_nonconst().begin();
 
 
     if ( check_now )
@@ -369,8 +369,8 @@ int main(int argc, char** argv)
 
     for (const auto& dnarep: rep->get_dna_replic_reports()) {
       assert(unit != indiv->get_genetic_unit_list_std().cend());
-      (*unit)->get_dna()->set_replic_report( dnarep );
-      update_pointers_in_trees(gene_trees, *unit); // because of the reevaluate at each new generation (envir. variation possible)
+      unit->get_dna()->set_replic_report( dnarep );
+      update_pointers_in_trees(gene_trees, &*unit); // because of the reevaluate at each new generation (envir. variation possible)
 
       // ***************************************
       //             Transfer events
@@ -384,11 +384,11 @@ int main(int argc, char** argv)
         mut = (ae_mutation *) mnode->get_obj();
 
         metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
-        unitlen_before = unit->get_dna()->get_length();
-        unit->compute_nb_of_affected_genes(mut, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
+        unitlen_before = unit.get_dna()->get_length();
+        unit.compute_nb_of_affected_genes(mut, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
 
 
-        unit->get_dna()->undergo_this_mutation( mut );
+        unit.get_dna()->undergo_this_mutation( mut );
         indiv->reevaluate(env);
 
 
@@ -414,19 +414,19 @@ int main(int argc, char** argv)
 
       for (const auto& mut: dnarep->get_rearrangements()) {
         metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
-        unitlen_before = (*unit)->get_dna()->get_length();
+        unitlen_before = unit->get_dna()->get_length();
         anticipate_mutation_effect_on_genes_in_trees(gene_trees, &mut, unitlen_before);
 
-        (*unit)->get_dna()->undergo_this_mutation(&mut);
+        unit->get_dna()->undergo_this_mutation(&mut);
 
         indiv->reevaluate(env);
         metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
-        register_actual_mutation_effect_on_genes_in_trees(gene_trees, &mut, *unit, num_gener, impact_on_metabolic_error);
+        register_actual_mutation_effect_on_genes_in_trees(gene_trees, &mut, &*unit, num_gener, impact_on_metabolic_error);
 
         /* New genes that have been created "from scratch", i.e. not by duplication => new gene tree */
-        prot_node = ((*unit)->get_protein_list()[LEADING])->get_first();
+        prot_node = (unit->get_protein_list()[LEADING])->get_first();
         while (prot_node != NULL)
           {
             prot = prot_node->get_obj();
@@ -437,7 +437,7 @@ int main(int argc, char** argv)
               }
             prot_node = prot_node->get_next();
           }
-         prot_node = ((*unit)->get_protein_list()[LAGGING])->get_first();
+         prot_node = (unit->get_protein_list()[LAGGING])->get_first();
          while (prot_node != NULL)
           {
             prot = prot_node->get_obj();
@@ -459,18 +459,18 @@ int main(int argc, char** argv)
 
       for (const auto& mut: dnarep->get_mutations()) {
         metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
-        unitlen_before = (*unit)->get_dna()->get_length();
+        unitlen_before = unit->get_dna()->get_length();
         anticipate_mutation_effect_on_genes_in_trees(gene_trees, &mut, unitlen_before);
-        (*unit)->get_dna()->undergo_this_mutation(&mut);
+        unit->get_dna()->undergo_this_mutation(&mut);
 
         indiv->reevaluate(env);
         metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
-        register_actual_mutation_effect_on_genes_in_trees(gene_trees, &mut, *unit, num_gener, impact_on_metabolic_error);
+        register_actual_mutation_effect_on_genes_in_trees(gene_trees, &mut, &*unit, num_gener, impact_on_metabolic_error);
 
         /* New genes that have been created "from scratch", i.e. not by duplication => new gene tree */
-        prot_node = ((*unit)->get_protein_list()[LEADING])->get_first();
+        prot_node = (unit->get_protein_list()[LEADING])->get_first();
         while (prot_node != NULL)
           {
             prot = prot_node->get_obj();
@@ -481,7 +481,7 @@ int main(int argc, char** argv)
               }
             prot_node = prot_node->get_next();
           }
-        prot_node = ((*unit)->get_protein_list()[LAGGING])->get_first();
+        prot_node = (unit->get_protein_list()[LAGGING])->get_first();
          while (prot_node != NULL)
           {
             prot = prot_node->get_obj();
@@ -504,16 +504,16 @@ int main(int argc, char** argv)
 
         assert(stored_unit != stored_indiv->get_genetic_unit_list_std().end());
 
-        char * str1 = new char[(*unit)->get_dna()->get_length() + 1];
-        memcpy(str1, (*unit)->get_dna()->get_data(), \
-               (*unit)->get_dna()->get_length()*sizeof(char));
-        str1[(*unit)->get_dna()->get_length()] = '\0';
+        char * str1 = new char[unit->get_dna()->get_length() + 1];
+        memcpy(str1, unit->get_dna()->get_data(), \
+               unit->get_dna()->get_length()*sizeof(char));
+        str1[unit->get_dna()->get_length()] = '\0';
 
-        char * str2 = new char[((*stored_unit)->get_dna())->get_length() + 1];
-        memcpy(str2, ((*stored_unit)->get_dna())->get_data(), ((*stored_unit)->get_dna())->get_length()*sizeof(char));
-        str2[((*stored_unit)->get_dna())->get_length()] = '\0';
+        char * str2 = new char[(stored_unit->get_dna())->get_length() + 1];
+        memcpy(str2, (stored_unit->get_dna())->get_data(), (stored_unit->get_dna())->get_length()*sizeof(char));
+        str2[(stored_unit->get_dna())->get_length()] = '\0';
 
-        if(strncmp(str1,str2, ((*stored_unit)->get_dna())->get_length())==0)
+        if(strncmp(str1,str2, (stored_unit->get_dna())->get_length())==0)
         {
           if ( verbose ) printf(" OK\n");
         }

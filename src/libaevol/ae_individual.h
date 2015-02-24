@@ -63,11 +63,6 @@ namespace aevol {
 class ae_exp_manager;
 class ae_grid_cell;
 
-
-
-
-
-
 class ae_individual
 {
   friend class ae_dna;
@@ -90,7 +85,7 @@ class ae_individual
                     int32_t age );
 
     ae_individual( ae_exp_manager* exp_m, gzFile backup_file );
-    ae_individual( const ae_individual &model, bool replication_report_copy = false );
+    ae_individual(const ae_individual &model, bool replication_report_copy = false );
     ae_individual(  ae_individual* const parent, int32_t id,
                     ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng );
     ae_individual() = delete; // forbidden constructor
@@ -104,190 +99,191 @@ class ae_individual
     // =================================================================
     //                        Accessors: Getters
     // =================================================================
-    inline const char*  get_strain_name(void) const;
-    inline int32_t      get_age(void) const;
+    const char*  get_strain_name(void) const;
+    int32_t      get_age(void) const;
 
-    inline ae_exp_manager*  get_exp_m( void ) const;
-    inline int16_t          get_nb_genetic_units( void ) const;
-    inline int32_t          get_amount_of_dna( void ) const;
-    inline ae_genetic_unit* get_genetic_unit( int16_t num_unit ) const;
-    inline double           get_dist_to_target_by_feature( ae_env_axis_feature feature ) const;
-    inline double           get_fitness( void ) const;
-    inline double           get_fitness_by_feature( ae_env_axis_feature feature ) const;
-    inline ae_grid_cell*    get_grid_cell( void ) const;
-    inline bool             get_placed_in_population( void ) const;
-    inline ae_jumping_mt*   get_mut_prng( void ) const;
-    inline ae_jumping_mt*   get_stoch_prng( void ) const;
+    ae_exp_manager*  get_exp_m( void ) const;
+    int16_t          get_nb_genetic_units( void ) const;
+    int32_t          get_nb_plasmids( void )  const;
+    int32_t          get_amount_of_dna( void ) const;
+    const ae_genetic_unit& get_genetic_unit( int16_t num_unit ) const;
+    ae_genetic_unit& get_genetic_unit_nonconst( int16_t num_unit );
+    double           get_dist_to_target_by_feature( ae_env_axis_feature feature ) const;
+    double           get_fitness( void ) const;
+    double           get_fitness_by_feature( ae_env_axis_feature feature ) const;
+    ae_grid_cell*    get_grid_cell( void ) const;
+    bool             get_placed_in_population( void ) const;
+    ae_jumping_mt*   get_mut_prng( void ) const;
+    ae_jumping_mt*   get_stoch_prng( void ) const;
 
-    inline ae_list<ae_genetic_unit*>* get_genetic_unit_list( void )     const;
-    inline const std::list<ae_genetic_unit*> get_genetic_unit_list_std() const;
+    const std::list<ae_genetic_unit>& get_genetic_unit_list_std() const;
+    std::list<ae_genetic_unit>& get_genetic_unit_list_std_nonconst();
     /// Keep only the first (main chromosome) and the last chromosomes from the GU.
-    inline void drop_nested_genetic_units();
+    void drop_nested_genetic_units();
 
-    inline const char* get_genetic_unit_sequence   ( int16_t num_unit ) const;
-    inline int32_t     get_genetic_unit_seq_length ( int16_t num_unit ) const;
+    const char* get_genetic_unit_sequence   ( int16_t num_unit ) const;
+    int32_t     get_genetic_unit_seq_length ( int16_t num_unit ) const;
 
-    inline int32_t get_id( void ) const;
-    inline int32_t get_rank( void ) const;
+    int32_t get_id( void ) const;
+    int32_t get_rank( void ) const;
 
 
-    inline Fuzzy* get_phenotype_activ( void ) const;
-    inline Fuzzy* get_phenotype_inhib( void ) const;
-    inline ae_phenotype* get_phenotype( void )       const;
+    Fuzzy* get_phenotype_activ( void ) const;
+    Fuzzy* get_phenotype_inhib( void ) const;
+    ae_phenotype* get_phenotype( void )       const;
 
-    inline double* get_dist_to_target_by_segment( void ) const;
+    double* get_dist_to_target_by_segment( void ) const;
 
-    inline ae_replication_report* get_replic_report( void ) const;
+    ae_replication_report* get_replic_report( void ) const;
 
-    inline ae_list<ae_protein*>*  get_protein_list( void )  const;
-    inline ae_list<ae_rna*>*      get_rna_list( void )      const;
+    ae_list<ae_protein*>*  get_protein_list( void )  const;
+    ae_list<ae_rna*>*      get_rna_list( void )      const;
 
-    inline int32_t get_nb_plasmids( void )  const;
-    inline double get_w_max( void ) const;
+    double get_w_max( void ) const;
 
     // Genome size constraints
-    inline int32_t get_min_genome_length( void ) const;
-    inline int32_t get_max_genome_length( void ) const;
+    int32_t get_min_genome_length( void ) const;
+    int32_t get_max_genome_length( void ) const;
 
     // Plasmids settings
-    inline bool     get_allow_plasmids( void ) const;
+    bool     get_allow_plasmids( void ) const;
 
     // Mutation rates etc...
-    inline double   get_point_mutation_rate( void ) const;
-    inline double   get_small_insertion_rate( void ) const;
-    inline double   get_small_deletion_rate( void ) const;
-    inline int16_t  get_max_indel_size( void ) const;
+    double   get_point_mutation_rate( void ) const;
+    double   get_small_insertion_rate( void ) const;
+    double   get_small_deletion_rate( void ) const;
+    int16_t  get_max_indel_size( void ) const;
 
-    inline double get_duplication_rate( void ) const;
-    inline double get_deletion_rate( void ) const;
-    inline double get_translocation_rate( void ) const;
-    inline double get_inversion_rate( void ) const;
-    inline double get_neighbourhood_rate( void ) const;
-    inline double get_duplication_proportion( void ) const;
-    inline double get_deletion_proportion( void ) const;
-    inline double get_translocation_proportion( void ) const;
-    inline double get_inversion_proportion( void ) const;
+    double get_duplication_rate( void ) const;
+    double get_deletion_rate( void ) const;
+    double get_translocation_rate( void ) const;
+    double get_inversion_rate( void ) const;
+    double get_neighbourhood_rate( void ) const;
+    double get_duplication_proportion( void ) const;
+    double get_deletion_proportion( void ) const;
+    double get_translocation_proportion( void ) const;
+    double get_inversion_proportion( void ) const;
 
     // Transfer
-    inline bool   get_with_4pts_trans( void ) const;
-    inline bool   get_with_HT( void ) const;
-    inline bool   get_repl_HT_with_close_points( void ) const;
-    inline double get_HT_ins_rate( void ) const;
-    inline double get_HT_repl_rate( void ) const;
-    inline double get_repl_HT_detach_rate( void ) const;
+    bool   get_with_4pts_trans( void ) const;
+    bool   get_with_HT( void ) const;
+    bool   get_repl_HT_with_close_points( void ) const;
+    double get_HT_ins_rate( void ) const;
+    double get_HT_repl_rate( void ) const;
+    double get_repl_HT_detach_rate( void ) const;
 
     // ------------------------------------------------------------ Alignements
-    inline bool  get_with_alignments(void) const;
-    inline ae_align_fun_shape get_align_fun_shape( void ) const;
-    inline double  get_align_sigm_lambda( void ) const;
-    inline int16_t get_align_sigm_mean( void ) const;
-    inline int16_t get_align_lin_min( void ) const;
-    inline int16_t get_align_lin_max( void ) const;
+    bool  get_with_alignments(void) const;
+    ae_align_fun_shape get_align_fun_shape( void ) const;
+    double  get_align_sigm_lambda( void ) const;
+    int16_t get_align_sigm_mean( void ) const;
+    int16_t get_align_lin_min( void ) const;
+    int16_t get_align_lin_max( void ) const;
 
     // Maximum shift of one seq on the other
-    inline int16_t get_align_max_shift( void ) const;
+    int16_t get_align_max_shift( void ) const;
     // Work zone half length
-    inline int16_t get_align_w_zone_h_len( void ) const;
+    int16_t get_align_w_zone_h_len( void ) const;
     // Corresponding residues match bonus
-    inline int16_t get_align_match_bonus( void ) const;
+    int16_t get_align_match_bonus( void ) const;
     // Corresponding residues mismatch cost
-    inline int16_t get_align_mismatch_cost( void ) const;
+    int16_t get_align_mismatch_cost( void ) const;
 
 
     // ----------------------------------------------- Phenotypic stochasticity
-    inline bool get_with_stochasticity( void ) const;
+    bool get_with_stochasticity( void ) const;
 
     // Statistical data
-    inline int32_t  get_total_genome_size( void ); // TODO: duplicate with get_amount_of_dna?
-    inline int32_t  get_nb_coding_RNAs( void );
-    inline int32_t  get_nb_non_coding_RNAs( void );
-    inline double   get_overall_size_coding_RNAs( void );
-    inline double   get_av_size_coding_RNAs( void );
-    inline double   get_overall_size_non_coding_RNAs( void );
-    inline double   get_av_size_non_coding_RNAs( void );
-    inline int32_t  get_nb_genes_activ( void );
-    inline int32_t  get_nb_genes_inhib( void );
-    inline int32_t  get_nb_functional_genes( void );
-    inline int32_t  get_nb_non_functional_genes( void );
-    inline double   get_overall_size_functional_genes( void );
-    inline double   get_av_size_functional_genes( void );
-    inline double   get_overall_size_non_functional_genes( void );
-    inline double   get_av_size_non_functional_genes( void );
+    int32_t  get_total_genome_size( void ); // TODO: duplicate with get_amount_of_dna?
+    int32_t  get_nb_coding_RNAs( void );
+    int32_t  get_nb_non_coding_RNAs( void );
+    double   get_overall_size_coding_RNAs( void );
+    double   get_av_size_coding_RNAs( void );
+    double   get_overall_size_non_coding_RNAs( void );
+    double   get_av_size_non_coding_RNAs( void );
+    int32_t  get_nb_genes_activ( void );
+    int32_t  get_nb_genes_inhib( void );
+    int32_t  get_nb_functional_genes( void );
+    int32_t  get_nb_non_functional_genes( void );
+    double   get_overall_size_functional_genes( void );
+    double   get_av_size_functional_genes( void );
+    double   get_overall_size_non_functional_genes( void );
+    double   get_av_size_non_functional_genes( void );
 
-    inline int32_t  get_nb_bases_in_0_CDS( void );
-    inline int32_t  get_nb_bases_in_0_functional_CDS( void );
-    inline int32_t  get_nb_bases_in_0_non_functional_CDS( void );
-    inline int32_t  get_nb_bases_in_0_RNA( void );
-    inline int32_t  get_nb_bases_in_0_coding_RNA( void );
-    inline int32_t  get_nb_bases_in_0_non_coding_RNA( void );
-    inline int32_t  get_nb_bases_in_neutral_regions( void );
-    inline int32_t  get_nb_neutral_regions( void );
+    int32_t  get_nb_bases_in_0_CDS( void );
+    int32_t  get_nb_bases_in_0_functional_CDS( void );
+    int32_t  get_nb_bases_in_0_non_functional_CDS( void );
+    int32_t  get_nb_bases_in_0_RNA( void );
+    int32_t  get_nb_bases_in_0_coding_RNA( void );
+    int32_t  get_nb_bases_in_0_non_coding_RNA( void );
+    int32_t  get_nb_bases_in_neutral_regions( void );
+    int32_t  get_nb_neutral_regions( void );
 
-    inline double get_modularity( void ); // Not const
+    double get_modularity( void ); // Not const
 
-    inline int32_t* get_int_probes ( void ) const;
-    inline double* get_double_probes ( void) const;
+    int32_t* get_int_probes ( void ) const;
+    double* get_double_probes ( void) const;
 
 
     // =================================================================
     //                        Accessors: Setters
     // =================================================================
-    inline void set_strain_name(char* name);
+    void set_strain_name(char* name);
 
     void set_exp_m( ae_exp_manager* exp_m );
-    inline void set_id( int32_t id );
-    inline void set_rank( int32_t rank );
+    void set_id( int32_t id );
+    void set_rank( int32_t rank );
 
     void set_grid_cell( ae_grid_cell* grid_cell );
-    inline void set_placed_in_population( bool placed_in_population );
+    void set_placed_in_population( bool placed_in_population );
 
-    inline void set_replication_report( ae_replication_report * rep );
+    void set_replication_report( ae_replication_report * rep );
 
-    inline void reset_dist_to_target_by_segment( double * dist_to_target_by_segment );
+    void reset_dist_to_target_by_segment( double * dist_to_target_by_segment );
 
-    inline void set_w_max( double w_max );
+    void set_w_max( double w_max );
 
     // Genome size constraints
-    inline void set_min_genome_length( int32_t min_genome_length );
-    inline void set_max_genome_length( int32_t max_genome_length );
+    void set_min_genome_length( int32_t min_genome_length );
+    void set_max_genome_length( int32_t max_genome_length );
 
     // Plasmids
-    inline void set_allow_plasmids( bool allow_plasmids );
+    void set_allow_plasmids( bool allow_plasmids );
 
     // Mutation rates etc...
-    inline void set_point_mutation_rate( double point_mutation_rate);
-    inline void set_small_insertion_rate( double small_insertion_rate);
-    inline void set_small_deletion_rate( double small_deletion_rate);
-    inline void set_max_indel_size( int16_t max_indel_size);
+    void set_point_mutation_rate( double point_mutation_rate);
+    void set_small_insertion_rate( double small_insertion_rate);
+    void set_small_deletion_rate( double small_deletion_rate);
+    void set_max_indel_size( int16_t max_indel_size);
 
-    inline void set_duplication_rate( double duplication_rate);
-    inline void set_deletion_rate( double deletion_rate);
-    inline void set_translocation_rate( double translocation_rate);
-    inline void set_inversion_rate( double inversion_rate);
-    inline void set_neighbourhood_rate( double neighbourhood_rate);
-    inline void set_duplication_proportion( double duplication_proportion);
-    inline void set_deletion_proportion( double deletion_proportion);
-    inline void set_translocation_proportion( double translocation_proportion);
-    inline void set_inversion_proportion( double inversion_proportion);
+    void set_duplication_rate( double duplication_rate);
+    void set_deletion_rate( double deletion_rate);
+    void set_translocation_rate( double translocation_rate);
+    void set_inversion_rate( double inversion_rate);
+    void set_neighbourhood_rate( double neighbourhood_rate);
+    void set_duplication_proportion( double duplication_proportion);
+    void set_deletion_proportion( double deletion_proportion);
+    void set_translocation_proportion( double translocation_proportion);
+    void set_inversion_proportion( double inversion_proportion);
 
     // Transfer
-    inline void set_with_4pts_trans( bool with_4pts_trans );
-    inline void set_with_alignments( bool with_alignments );
-    inline void set_with_HT( bool with_HT );
-    inline void set_repl_HT_with_close_points( bool repl_HT_with_close_points);
-    inline void set_HT_ins_rate( double HT_ins_rate );
-    inline void set_HT_repl_rate( double HT_repl_rate );
-    inline void set_repl_HT_detach_rate( double repl_HT_detach_rate );
+    void set_with_4pts_trans( bool with_4pts_trans );
+    void set_with_alignments( bool with_alignments );
+    void set_with_HT( bool with_HT );
+    void set_repl_HT_with_close_points( bool repl_HT_with_close_points);
+    void set_HT_ins_rate( double HT_ins_rate );
+    void set_HT_repl_rate( double HT_repl_rate );
+    void set_repl_HT_detach_rate( double repl_HT_detach_rate );
 
     // ----------------------------------------------- Phenotypic stochasticity
-    inline void set_with_stochasticity( bool with_stoch );
+    void set_with_stochasticity( bool with_stoch );
 
-    inline void set_mut_prng( ae_jumping_mt* prng );
-    inline void set_stoch_prng( ae_jumping_mt* prng );
+    void set_mut_prng( ae_jumping_mt* prng );
+    void set_stoch_prng( ae_jumping_mt* prng );
 
     //------------------------------------------------ Generic probes
-    inline void set_int_probes ( int32_t* int_probes);
-    inline void set_double_probes ( double* double_probes);
+    void set_int_probes ( int32_t* int_probes);
+    void set_double_probes ( double* double_probes);
 
 
     // =================================================================
@@ -296,11 +292,13 @@ class ae_individual
 
 
     void add_GU( char * &sequence, int32_t length );  // warning: the individual is left in a totally "cleared" state but not reevaluated
-    void add_GU( ae_genetic_unit * unit ); // warning: the individual is left in a totally "cleared" state but not reevaluated
-    void remove_GU ( int16_t num_unit ); // warning: the individual is left in a totally "cleared" state but not reevaluated
+    // void add_GU(ae_genetic_unit&& unit ); // warning: the individual is left in a totally "cleared" state but not reevaluated
+  void add_GU(ae_individual* indiv, int32_t chromosome_length, ae_jumping_mt* prng);
 
-    inline void renew_dist_to_target_by_feature( void );
-    inline void renew_fitness_by_feature( void );
+    // void add_GU(ae_individual* indiv, int32_t length, ae_jumping_mt* prng);
+    void remove_GU ( int16_t num_unit ); // warning: the individual is left in a totally "cleared" state but not reevaluated
+    void renew_dist_to_target_by_feature( void );
+    void renew_fitness_by_feature( void );
 
     void inject_GU( ae_individual* donor );
     void inject_2GUs( ae_individual* partner );
@@ -308,7 +306,7 @@ class ae_individual
     virtual void evaluate( Environment* envir = NULL );
     virtual void reevaluate( Environment* envir = NULL );
     virtual void clear_everything_except_dna_and_promoters(void);
-    inline void do_transcription_translation_folding( void );
+    void do_transcription_translation_folding( void );
     void do_transcription( void );
     void do_translation( void );
     void do_folding( void );
@@ -328,11 +326,11 @@ class ae_individual
     int32_t get_nb_terminators( void );
 
     #ifdef DEBUG
-      inline void print_rna_list( void );
-      inline void print_protein_list( void );
+      void print_rna_list( void );
+      void print_protein_list( void );
 
-      inline void assert_promoters( void );
-      inline void assert_promoters_order( void );
+      void assert_promoters( void );
+      void assert_promoters_order( void );
     #endif
 
     void compute_experimental_f_nu( int32_t nb_children, double* reproduction_statistics, double* offsprings_statistics = NULL, FILE* replication_file = NULL);
@@ -415,7 +413,7 @@ class ae_individual
     ae_grid_cell* _grid_cell;
 
     // The chromosome and plasmids (if allowed)
-    ae_list<ae_genetic_unit*>* _genetic_unit_list;
+    std::list<ae_genetic_unit> _genetic_unit_list;
 
     // Report of all the mutational events undergone during the individuals creation,
     // i.e. during the replication that gave birth to this individual
@@ -502,1091 +500,6 @@ class ae_individual
                         // phenotypic triangles overlap and the average intergenic distance
                         // (ignoring non-functional genes)void compute_phenotype( void );
 };
-
-
-// =====================================================================
-//                           Getters' definitions
-// =====================================================================
-/*!
-  TODO
-*/
-inline const char* ae_individual::get_strain_name(void) const
-{
-  return _strain_name;
-}
-
-/*!
-  TODO
-*/
-inline int32_t ae_individual::get_age(void) const
-{
-  return _age;
-}
-
-/*!
-  TODO
-*/
-inline int32_t ae_individual::get_id( void ) const
-{
-  return _id;
-}
-
-/*!
-  TODO
-*/
-inline double* ae_individual::get_dist_to_target_by_segment( void ) const
-{
-  return _dist_to_target_by_segment;
-}
-
-/*!
-  Get the individual's rank in the population (1 for the worst indiv, POP_SIZE for the best)
-
-  Warning: be sure you call sort_individuals() before using get_rank_in_population
-*/
-inline int32_t ae_individual::get_rank( void ) const
-{
-  return _rank;
-}
-
-/*!
-  TODO
-*/
-inline ae_exp_manager* ae_individual::get_exp_m( void ) const
-{
-  return _exp_m;
-}
-
-/*!
-  TODO
-*/
-inline ae_jumping_mt* ae_individual::get_mut_prng( void ) const
-{
-  return _mut_prng;
-}
-
-/*!
-  TODO
-*/
-inline ae_jumping_mt* ae_individual::get_stoch_prng( void ) const
-{
-  return _stoch_prng;
-}
-
-/*!
-  Returns the number of genetic units
-*/
-inline int16_t ae_individual::get_nb_genetic_units( void ) const
-{
-  return _genetic_unit_list->get_nb_elts();
-}
-
-/*!
-  TODO
-*/
-inline int32_t ae_individual::get_amount_of_dna( void ) const
-{
-  int32_t amount = 0;
-
-  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
-  ae_genetic_unit* gen_unit = NULL;
-
-  while ( gen_unit_node != NULL )
-  {
-    gen_unit = gen_unit_node->get_obj();
-
-    amount += gen_unit->get_dna()->get_length();
-
-    gen_unit_node = gen_unit_node->get_next();
-  }
-
-  return amount;
-}
-
-/*!
-  Returns the list of genetic units
-*/
-inline ae_list<ae_genetic_unit*>* ae_individual::get_genetic_unit_list( void ) const
-{
-  return _genetic_unit_list;
-}
-
-inline const std::list<ae_genetic_unit*> ae_individual::get_genetic_unit_list_std() const {
-  return aelist_to_stdlist(_genetic_unit_list);
-}
-
-inline void ae_individual::drop_nested_genetic_units() {
-  if (_genetic_unit_list->get_nb_elts() <= 2)
-    return;
-
-  while (_genetic_unit_list->get_nb_elts() > 2)
-    _genetic_unit_list->remove(_genetic_unit_list->get_first()->get_next(), true, true);
-
-  // to be replaced with
-  // _genetic_unit_list.erase(std::next(_genetic_unit_list.begin()),
-  //                          std::prev(_genetic_unit_list.end()));
-  assert(_genetic_unit_list->get_nb_elts() <= 2);
-}
-
-/*!
-  Returns genetic unit number <num_unit> (0 for main chromosome)
-*/
-inline ae_genetic_unit* ae_individual::get_genetic_unit( int16_t num_unit ) const
-{
-  assert( num_unit < _genetic_unit_list->get_nb_elts() );
-
-  ae_list_node<ae_genetic_unit*>* gen_unit_node = _genetic_unit_list->get_first();
-
-  for ( int16_t i = 0 ; i < num_unit ; i++ )
-  {
-    gen_unit_node = gen_unit_node->get_next();
-  }
-
-  return gen_unit_node->get_obj();
-}
-
-/*!
-  TODO
-*/
-inline double ae_individual::get_dist_to_target_by_feature( ae_env_axis_feature feature ) const
-{
-  assert( _distance_to_target_computed );
-
-  return _dist_to_target_by_feature[feature];
-}
-
-/*!
-  TODO
-*/
-inline double ae_individual::get_fitness( void ) const
-{
-  assert( _fitness_computed );
-
-  return _fitness;
-}
-
-/*!
-  TODO
-*/
-inline double ae_individual::get_fitness_by_feature( ae_env_axis_feature feature ) const
-{
-  assert( _fitness_computed );
-
-  return _fitness_by_feature[feature];
-}
-
-/*!
-  TODO
-*/
-inline ae_grid_cell* ae_individual::get_grid_cell( void ) const
-{
-  return _grid_cell;
-}
-
-/*!
-  TODO
-*/
-inline bool ae_individual::get_placed_in_population ( void ) const
-{
-  return _placed_in_population;
-}
-
-/*!
-  Returns the sequence of genetic unit number <num_unit> (0 for main chromosome)
-*/
-inline const char* ae_individual::get_genetic_unit_sequence( int16_t num_unit ) const
-{
-  return get_genetic_unit( num_unit )->get_sequence();
-}
-
-/*!
-  Returns the sequence length of genetic unit number <num_unit> (0 for main chromosome)
-*/
-inline int32_t ae_individual::get_genetic_unit_seq_length( int16_t num_unit ) const
-{
-  return get_genetic_unit( num_unit )->get_seq_length();
-}
-
-/*!
-  TODO
-*/
-Fuzzy* ae_individual::get_phenotype_activ( void ) const
-{
-  return _phenotype_activ;
-}
-
-/*!
-  TODO
-*/
-Fuzzy* ae_individual::get_phenotype_inhib( void ) const
-{
-  return _phenotype_inhib;
-}
-
-/*!
-  TODO
-*/
-ae_phenotype* ae_individual::get_phenotype( void ) const
-{
-  return _phenotype;
-}
-
-/*!
-  TODO
-*/
-ae_replication_report* ae_individual::get_replic_report( void ) const
-{
-  return _replic_report;
-}
-
-/*!
-  TODO
-*/
-inline ae_list<ae_protein*>* ae_individual::get_protein_list( void ) const
-{
-  assert( _protein_list );
-
-  return _protein_list;
-}
-
-/*!
-  TODO
-*/
-inline ae_list<ae_rna*>* ae_individual::get_rna_list( void ) const
-{
-  return _rna_list;
-}
-
-/*!
-  TODO
-*/
-inline int32_t ae_individual::get_nb_plasmids( void ) const
-{
-  return _genetic_unit_list->get_nb_elts() - 1;
-}
-
-/*!
-  TODO
-*/
-inline int32_t ae_individual::get_total_genome_size( void )
-{
-  if ( ! _statistical_data_computed ) compute_statistical_data();
-  return _total_genome_size;
-}
-
-/*!
-  TODO
-*/
-inline int32_t ae_individual::get_nb_coding_RNAs( void )
-{
-  if ( ! _statistical_data_computed ) compute_statistical_data();
-  return _nb_coding_RNAs;
-}
-
-/*!
-  TODO
-*/
-inline int32_t ae_individual::get_nb_non_coding_RNAs( void )
-{
-  if ( ! _statistical_data_computed ) compute_statistical_data();
-  return _nb_non_coding_RNAs;
-}
-
-/*!
-  TODO
-*/
-inline double ae_individual::get_overall_size_coding_RNAs( void )
-{
-  if ( ! _statistical_data_computed ) compute_statistical_data();
-  return _overall_size_coding_RNAs;
-}
-
-/*!
-  TODO
-*/
-inline double ae_individual::get_av_size_coding_RNAs( void )
-{
-  if ( ! _statistical_data_computed ) compute_statistical_data();
-  if ( _nb_coding_RNAs != 0 )
-  {
-    return _overall_size_coding_RNAs / _nb_coding_RNAs;
-  }
-  else return 0.0;
-}
-
-/*!
-  TODO
-*/
-inline double ae_individual::get_overall_size_non_coding_RNAs( void )
-{
-  if ( ! _statistical_data_computed ) compute_statistical_data();
-  return _overall_size_non_coding_RNAs;
-}
-
-/*!
-  TODO
-*/
-inline double ae_individual::get_av_size_non_coding_RNAs( void )
-{
-  if ( ! _statistical_data_computed ) compute_statistical_data();
-  if ( _nb_non_coding_RNAs != 0 )
-  {
-    return _overall_size_non_coding_RNAs / _nb_non_coding_RNAs;
-  }
-  else return 0.0;
-}
-
-/*!
-  TODO
-*/
-inline int32_t ae_individual::get_nb_genes_activ( void )
-{
-  if ( ! _statistical_data_computed ) compute_statistical_data();
-  return _nb_genes_activ;
-}
-
-/*!
-  TODO
-*/
-inline int32_t ae_individual::get_nb_genes_inhib( void )
-{
-  if ( ! _statistical_data_computed ) compute_statistical_data();
-  return _nb_genes_inhib;
-}
-
-/*!
-  TODO
-*/
-inline int32_t ae_individual::get_nb_functional_genes( void )
-{
-  if ( ! _statistical_data_computed ) compute_statistical_data();
-  return _nb_functional_genes;
-}
-
-/*!
-  TODO
-*/
-inline int32_t ae_individual::get_nb_non_functional_genes( void )
-{
-  if ( ! _statistical_data_computed ) compute_statistical_data();
-  return _nb_non_functional_genes;
-}
-
-/*!
-  TODO
-*/
-inline double ae_individual::get_overall_size_functional_genes( void )
-{
-  if ( ! _statistical_data_computed ) compute_statistical_data();
-  return _overall_size_functional_genes;
-}
-
-/*!
-  TODO
-*/
-inline double ae_individual::get_av_size_functional_genes( void )
-{
-  if ( ! _statistical_data_computed ) compute_statistical_data();
-  if ( _nb_functional_genes != 0 )
-  {
-    return _overall_size_functional_genes / _nb_functional_genes;
-  }
-  else return 0.0;
-}
-
-/*!
-  TODO
-*/
-inline double ae_individual::get_overall_size_non_functional_genes( void )
-{
-  if ( ! _statistical_data_computed ) compute_statistical_data();
-  return _overall_size_non_functional_genes;
-}
-
-/*!
-  TODO
-*/
-inline double ae_individual::get_av_size_non_functional_genes( void )
-{
-  if ( ! _statistical_data_computed ) compute_statistical_data();
-  if ( _nb_non_functional_genes != 0 )
-  {
-    return _overall_size_non_functional_genes / _nb_non_functional_genes;
-  }
-  else return 0.0;
-}
-
-/*!
-  TODO
-*/
-inline int32_t ae_individual::get_nb_bases_in_0_CDS( void )
-{
-  if ( ! _statistical_data_computed ) compute_statistical_data();
-  if ( ! _non_coding_computed ) compute_non_coding();
-  return _nb_bases_in_0_CDS;
-}
-
-/*!
-  TODO
-*/
-inline int32_t ae_individual::get_nb_bases_in_0_functional_CDS( void )
-{
-  if ( ! _statistical_data_computed ) compute_statistical_data();
-  if ( ! _non_coding_computed ) compute_non_coding();
-  return _nb_bases_in_0_functional_CDS;
-}
-
-/*!
-  TODO
-*/
-inline int32_t ae_individual::get_nb_bases_in_0_non_functional_CDS( void )
-{
-  if ( ! _statistical_data_computed ) compute_statistical_data();
-  if ( ! _non_coding_computed ) compute_non_coding();
-  return _nb_bases_in_0_non_functional_CDS;
-}
-
-/*!
-  TODO
-*/
-inline int32_t ae_individual::get_nb_bases_in_0_RNA( void )
-{
-  if ( ! _statistical_data_computed ) compute_statistical_data();
-  if ( ! _non_coding_computed ) compute_non_coding();
-  return _nb_bases_in_0_RNA;
-}
-
-/*!
-  TODO
-*/
-inline int32_t ae_individual::get_nb_bases_in_0_coding_RNA( void )
-{
-  if ( ! _statistical_data_computed ) compute_statistical_data();
-  if ( ! _non_coding_computed ) compute_non_coding();
-  return _nb_bases_in_0_coding_RNA;
-}
-
-/*!
-  TODO
-*/
-inline int32_t ae_individual::get_nb_bases_in_0_non_coding_RNA( void )
-{
-  if ( ! _statistical_data_computed ) compute_statistical_data();
-  if ( ! _non_coding_computed ) compute_non_coding();
-  return _nb_bases_in_0_non_coding_RNA;
-}
-
-/*!
-  TODO
-*/
-inline int32_t ae_individual::get_nb_bases_in_neutral_regions( void )
-{
-  if ( ! _statistical_data_computed ) compute_statistical_data();
-  if ( ! _non_coding_computed ) compute_non_coding();
-  return _nb_bases_in_neutral_regions;
-}
-
-/*!
-  TODO
-*/
-inline int32_t ae_individual::get_nb_neutral_regions( void )
-{
-  if ( ! _statistical_data_computed ) compute_statistical_data();
-  if ( ! _non_coding_computed ) compute_non_coding();
-  return _nb_neutral_regions;
-}
-
-/*!
-  TODO
-*/
-inline double ae_individual::get_modularity( void )
-{
-  printf("\n  WARNING : modularity measure not yet implemented.\n");
-  //~ if ( _modularity < 0 ) compute_modularity();
-  //~ return _modularity;
-  return 0;
-}
-
-/*!
-  TODO
-*/
-inline double ae_individual::get_w_max( void ) const
-{
-  return _w_max;
-}
-
-// ------------------------------------------------------------- Mutation rates
-/*!
-  TODO
-*/
-inline double ae_individual::get_point_mutation_rate( void ) const
-{
-  return _mut_params->get_point_mutation_rate();
-}
-
-/*!
-  TODO
-*/
-inline double ae_individual::get_small_insertion_rate( void ) const
-{
-  return _mut_params->get_small_insertion_rate();
-}
-
-/*!
-  TODO
-*/
-inline double ae_individual::get_small_deletion_rate( void ) const
-{
-  return _mut_params->get_small_deletion_rate();
-}
-
-/*!
-  TODO
-*/
-inline int16_t ae_individual::get_max_indel_size( void ) const
-{
-  return _mut_params->get_max_indel_size();
-}
-
-// ---------------------------------- Rearrangement rates (without alignements)
-/*!
-  TODO
-*/
-inline double ae_individual::get_duplication_rate( void ) const
-{
-  return _mut_params->get_duplication_rate();
-}
-
-/*!
-  TODO
-*/
-inline double ae_individual::get_deletion_rate( void ) const
-{
-  return _mut_params->get_deletion_rate();
-}
-
-/*!
-  TODO
-*/
-inline double ae_individual::get_translocation_rate( void ) const
-{
-  return _mut_params->get_translocation_rate();
-}
-
-/*!
-  TODO
-*/
-inline double ae_individual::get_inversion_rate( void ) const
-{
-  return _mut_params->get_inversion_rate();
-}
-
-// ------------------------------------- Rearrangement rates (with alignements)
-/*!
-  TODO
-*/
-inline double ae_individual::get_neighbourhood_rate( void ) const
-{
-  return _mut_params->get_neighbourhood_rate();
-}
-
-/*!
-  TODO
-*/
-inline double ae_individual::get_duplication_proportion( void ) const
-{
-  return _mut_params->get_duplication_proportion();
-}
-
-/*!
-  TODO
-*/
-inline double ae_individual::get_deletion_proportion( void ) const
-{
-  return _mut_params->get_deletion_proportion();
-}
-
-/*!
-  TODO
-*/
-inline double ae_individual::get_translocation_proportion( void ) const
-{
-  return _mut_params->get_translocation_proportion();
-}
-
-/*!
-  TODO
-*/
-inline double ae_individual::get_inversion_proportion( void ) const
-{
-  return _mut_params->get_inversion_proportion();
-}
-
-// ---------------------------------------------------------------- Transfer
-inline bool ae_individual::get_with_4pts_trans( void ) const
-{
-  return _mut_params->get_with_4pts_trans();
-}
-
-inline bool ae_individual::get_with_HT( void ) const
-{
-  return _mut_params->get_with_HT();
-}
-
-inline bool ae_individual::get_repl_HT_with_close_points( void ) const
-{
-  return _mut_params->get_repl_HT_with_close_points();
-}
-
-inline double ae_individual::get_HT_ins_rate( void ) const
-{
-  return _mut_params->get_HT_ins_rate();
-}
-
-inline double ae_individual::get_HT_repl_rate( void ) const
-{
-  return _mut_params->get_HT_repl_rate();
-}
-
-inline double ae_individual::get_repl_HT_detach_rate( void ) const
-{
-  return _mut_params->get_repl_HT_detach_rate();
-}
-
-
-// ---------------------------------------------------------------- Alignements
-inline bool ae_individual::get_with_alignments(void) const
-{
- return _mut_params->get_with_alignments();
-}
-
-inline ae_align_fun_shape ae_individual::get_align_fun_shape( void ) const
-{
- return _mut_params->get_align_fun_shape();
-}
-
-inline double ae_individual::get_align_sigm_lambda( void ) const
-{
- return _mut_params->get_align_sigm_lambda();
-}
-
-inline int16_t ae_individual::get_align_sigm_mean( void ) const
-{
- return _mut_params->get_align_sigm_mean();
-}
-
-inline int16_t ae_individual::get_align_lin_min( void ) const
-{
- return _mut_params->get_align_lin_min();
-}
-
-inline int16_t ae_individual::get_align_lin_max( void ) const
-{
- return _mut_params->get_align_lin_max();
-}
-
-inline int16_t ae_individual::get_align_max_shift( void ) const
-{
- return _mut_params->get_align_max_shift();
-}
-
-inline int16_t ae_individual::get_align_w_zone_h_len( void ) const
-{
- return _mut_params->get_align_w_zone_h_len();
-}
-
-inline int16_t ae_individual::get_align_match_bonus( void ) const
-{
- return _mut_params->get_align_match_bonus();
-}
-
-inline int16_t ae_individual::get_align_mismatch_cost( void ) const
-{
- return _mut_params->get_align_mismatch_cost();
-}
-
-/*!
-  TODO
-*/
-inline bool ae_individual::get_with_stochasticity( void ) const
-{
-  return _with_stochasticity;
-}
-
-inline void ae_individual::set_allow_plasmids( bool allow_plasmids )
-{
-  _allow_plasmids=allow_plasmids;
-}
-
-// Genome size constraints
-/*!
-  TODO
-*/
-inline int32_t ae_individual::get_min_genome_length( void ) const
-{
-  return _min_genome_length;
-}
-
-/*!
-  TODO
-*/
-inline int32_t ae_individual::get_max_genome_length( void ) const
-{
-  return _max_genome_length;
-}
-
-// Plasmids settings
-/*!
-  TODO
-*/
-inline bool ae_individual::get_allow_plasmids( void ) const
-{
-  return _allow_plasmids;
-}
-
-/*!
-  \brief Return the _int_probes
-
-  \return _int_probes
-*/
-inline int32_t* ae_individual::get_int_probes ( void ) const
-{
-  return _int_probes;
-}
-
-/*!
-  \brief Return the _double_probes
-
-  \return _double_probes
-*/
-inline double* ae_individual::get_double_probes ( void) const
-{
-  return _double_probes;
-}
-
-
-// =====================================================================
-//                           Setters' definitions
-// =====================================================================
-inline void ae_individual::set_strain_name(char* name)
-{
-  assert(name && strlen(name) < INT8_MAX); // Conservative, could be <=
-  int8_t name_len = strlen(name);
-  delete [] _strain_name;
-  _strain_name = new char[name_len+1];
-  memcpy(_strain_name, name, name_len+1);
-}
-
-/*!
-  TODO
-*/
-inline void ae_individual::set_id( int32_t id )
-{
-  _id = id;
-
-  if ( _replic_report != NULL )
-  {
-    _replic_report->set_id( id );
-  }
-}
-
-/*!
-  TODO
-*/
-inline void ae_individual::set_rank( int32_t rank )
-{
-  _rank = rank;
-
-  if ( _replic_report != NULL )
-  {
-    _replic_report->set_rank( rank );
-  }
-}
-
-/*!
-  TODO
-*/
-inline void ae_individual::set_placed_in_population( bool placed_in_population )
-{
-  _placed_in_population = placed_in_population;
-}
-
-/*!
-  Set the individual's replication report
-  To be used by post-treatment only
-*/
-inline void ae_individual::set_replication_report( ae_replication_report * rep )
-{
-  _replic_report = rep;
-}
-
-/*!
-  TODO
-*/
-inline void ae_individual::set_w_max( double w_max )
-{
-  _w_max = w_max;
-}
-
-
-
-// Genome size constraints
-/*!
-  TODO
-*/
-inline void ae_individual::set_min_genome_length( int32_t min_genome_length )
-{
-  _min_genome_length = min_genome_length;
-}
-
-/*!
-  TODO
-*/
-inline void ae_individual::set_max_genome_length( int32_t max_genome_length )
-{
-  _max_genome_length = max_genome_length;
-}
-
-
-inline void ae_individual::set_point_mutation_rate( double point_mutation_rate)
-{
-  _mut_params->set_point_mutation_rate(point_mutation_rate);
-}
-
-inline void ae_individual::set_small_insertion_rate( double small_insertion_rate)
-{
-  _mut_params->set_small_insertion_rate(small_insertion_rate);
-}
-
-inline void ae_individual::set_small_deletion_rate( double small_deletion_rate)
-{
-  _mut_params->set_small_deletion_rate(small_deletion_rate);
-}
-
-inline void ae_individual::set_max_indel_size( int16_t max_indel_size)
-{
-  _mut_params->set_max_indel_size(max_indel_size);
-}
-
-inline void ae_individual::set_duplication_rate( double duplication_rate)
-{
-  _mut_params->set_duplication_rate(duplication_rate);
-}
-
-inline void ae_individual::set_deletion_rate( double deletion_rate)
-{
-  _mut_params->set_deletion_rate(deletion_rate);
-}
-
-inline void ae_individual::set_translocation_rate( double translocation_rate)
-{
-  _mut_params->set_translocation_rate(translocation_rate);
-}
-
-inline void ae_individual::set_inversion_rate( double inversion_rate)
-{
-  _mut_params->set_inversion_rate(inversion_rate);
-}
-
-inline void ae_individual::set_neighbourhood_rate( double neighbourhood_rate)
-{
-  _mut_params->set_neighbourhood_rate(neighbourhood_rate);
-}
-
-inline void ae_individual::set_duplication_proportion( double duplication_proportion)
-{
-  _mut_params->set_duplication_proportion(duplication_proportion);
-}
-
-inline void ae_individual::set_deletion_proportion( double deletion_proportion)
-{
-  _mut_params->set_deletion_proportion(deletion_proportion);
-}
-
-inline void ae_individual::set_translocation_proportion( double translocation_proportion)
-{
-  _mut_params->set_translocation_proportion(translocation_proportion);
-}
-
-inline void ae_individual::set_inversion_proportion( double inversion_proportion)
-{
-  _mut_params->set_inversion_proportion(inversion_proportion);
-}
-
-inline void ae_individual::set_with_4pts_trans( bool with_4pts_trans )
-{
-	_mut_params->set_with_4pts_trans(with_4pts_trans);
-}
-
-inline void ae_individual::set_with_alignments( bool with_alignments )
-{
-	_mut_params->set_with_alignments(with_alignments);
-}
-
-inline void ae_individual::set_with_HT( bool with_HT )
-{
-	_mut_params->set_with_HT(with_HT);
-}
-
-inline void ae_individual::set_repl_HT_with_close_points( bool repl_HT_with_close_points)
-{
-	_mut_params->set_repl_HT_with_close_points(repl_HT_with_close_points);
-}
-
-inline void ae_individual::set_HT_ins_rate( double HT_ins_rate )
-{
-	_mut_params->set_HT_ins_rate(HT_ins_rate);
-}
-
-inline void ae_individual::set_HT_repl_rate( double HT_repl_rate )
-{
-	_mut_params->set_HT_repl_rate(HT_repl_rate);
-}
-
-inline void ae_individual::set_repl_HT_detach_rate( double repl_HT_detach_rate )
-{
-	_mut_params->set_repl_HT_detach_rate(repl_HT_detach_rate);
-}
-
-
-inline void ae_individual::set_with_stochasticity( bool with_stoch )
-{
-  _with_stochasticity = with_stoch;
-}
-
-inline void ae_individual::set_stoch_prng( ae_jumping_mt* prng )
-{
-  _stoch_prng = prng;
-}
-
-inline void ae_individual::set_mut_prng( ae_jumping_mt* prng )
-{
-  _mut_prng = prng;
-}
-
-/*!
-  \brief Change the _int_probes
-
-  \param int_probes 5 int32_t* that constitute a probe
-*/
-inline void ae_individual::set_int_probes ( int32_t* int_probes)
-{
-  _int_probes = int_probes;
-}
-
-/*!
-  \brief Change the _double_probes
-
-  \param double_probes 5 double* that constitute a probe
-*/
-inline void ae_individual::set_double_probes ( double* double_probes)
-{
-  _double_probes = double_probes;
-}
-
-// =====================================================================
-//                       Inline functions' definition
-// =====================================================================
-
-inline void ae_individual::reset_dist_to_target_by_segment( double* dist_to_target_by_segment )
-{
-  if ( _dist_to_target_by_segment != NULL ) delete [] _dist_to_target_by_segment;
-  _dist_to_target_by_segment = dist_to_target_by_segment;
-}
-
-inline void ae_individual::renew_dist_to_target_by_feature( void )
-{
-  if ( _dist_to_target_by_feature != NULL ) delete [] _dist_to_target_by_feature;
-  _dist_to_target_by_feature = new double [NB_FEATURES];
-}
-
-
-inline void ae_individual::renew_fitness_by_feature( void )
-{
-  if ( _fitness_by_feature != NULL ) delete [] _fitness_by_feature;
-  _fitness_by_feature = new double [NB_FEATURES];
-}
-
-void ae_individual::do_transcription_translation_folding( void )
-{
-  if ( _transcribed == true && _translated == true && _folded == true ) return;
-
-  do_transcription();
-  do_translation();
-  do_folding();
-
-  make_protein_list();
-}
-
-#ifdef DEBUG
-  inline void ae_individual::print_rna_list( void )
-  {
-    ae_list_node<ae_rna*>* rna_node  = _rna_list->get_first();
-    ae_rna*       rna       = NULL;
-
-    while ( rna_node != NULL )
-    {
-      rna = rna_node->get_obj();
-
-      printf( "RNA at pos : %" PRId32 "      length : %" PRId32 " bp\n", rna->get_promoter_pos(), rna->get_transcript_length() );
-      printf( "  strand : %s    basal level : %f\n", (rna->get_strand() == LEADING)?"LEADING":"LAGGING", rna->get_basal_level() );
-
-      rna_node = rna_node->get_next();
-    }
-  }
-
-  inline void ae_individual::print_protein_list( void )
-  {
-    ae_list_node<ae_protein*>* prot_node = _protein_list->get_first();
-    ae_protein*   prot = NULL;
-
-    while ( prot_node != NULL )
-    {
-      prot = prot_node->get_obj();
-
-      char* prot_sequence = prot->get_AA_sequence();
-      printf( "prot %p at pos : %" PRId32 "      length : %" PRId32 " AAs\n", prot, prot->get_first_translated_pos(), prot->get_length() );
-      printf( "  strand : %s    concentration : %f\n", (prot->get_strand() == LEADING)?"LEADING":"LAGGING", prot->get_concentration() );
-      printf( "  sequence : %s\n", prot_sequence );
-      printf( "  mean : %f      width : %f      height : %f\n", prot->get_mean(), prot->get_width(), prot->get_height() );
-      delete prot_sequence;
-
-      prot_node = prot_node->get_next();
-    }
-  }
-
-  inline void ae_individual::assert_promoters( void )
-  {
-    // Perform assertion for each genetic unit
-    ae_list_node<ae_genetic_unit*>*     gen_unit_node = _genetic_unit_list->get_first();
-    ae_genetic_unit*  gen_unit      = NULL;
-
-    while ( gen_unit_node != NULL )
-    {
-      gen_unit = gen_unit_node->get_obj();
-
-      gen_unit->assert_promoters();
-
-      gen_unit_node = gen_unit_node->get_next();
-    }
-  }
-
-  inline void ae_individual::assert_promoters_order( void )
-  {
-    // Perform assertion for each genetic unit
-    ae_list_node<ae_genetic_unit*>*     gen_unit_node = _genetic_unit_list->get_first();
-    ae_genetic_unit*  gen_unit      = NULL;
-
-    while ( gen_unit_node != NULL )
-    {
-      gen_unit = gen_unit_node->get_obj();
-
-      gen_unit->assert_promoters_order();
-
-      gen_unit_node = gen_unit_node->get_next();
-    }
-  }
-#endif
 
 } // namespace aevol
 #endif // __AE_INDIVIDUAL_H__
