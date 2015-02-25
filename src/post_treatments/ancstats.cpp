@@ -594,10 +594,6 @@ void write_zones_stats( int32_t num_gener, ae_individual * indiv, Environment * 
   int16_t num_segment = 0;
   ae_env_segment** segments = env->get_segments();
 
-  ae_list<ae_protein*>* prot_list = indiv->get_protein_list();
-  ae_list_node<ae_protein*>* prot_node = NULL;
-  ae_protein* prot = NULL;
-
   // Tables : index 0 for the 0 segment
   //                1 for the neutral segment
   int32_t nb_genes_activ[nb_segments];
@@ -623,13 +619,7 @@ void write_zones_stats( int32_t num_gener, ae_individual * indiv, Environment * 
 
 
   // Compute number of genes in each segment
-  prot_node = prot_list->get_first();
-  prot      = NULL;
-
-  while ( prot_node != NULL )
-  {
-    prot = prot_node->get_obj();
-
+  for (const auto& prot: indiv->get_protein_list()) {
     // Go to the corresponding segment
     num_segment = 0;
     while ( prot->get_mean() > segments[num_segment]->stop )
@@ -662,8 +652,6 @@ void write_zones_stats( int32_t num_gener, ae_individual * indiv, Environment * 
         }
       }
     }
-
-    prot_node = prot_node->get_next();
   }
 
   // Compute the geometric areas
@@ -717,13 +705,7 @@ void write_operons_stats( int32_t num_gener, ae_individual * indiv, FILE*  opero
     nb_genes_per_rna[i] = 0;
   }
 
-  ae_list_node<ae_rna*>* rna_node = indiv->get_rna_list()->get_first();
-  ae_rna* rna = NULL;
-
-  while ( rna_node != NULL )
-  {
-    rna = rna_node->get_obj();
-
+  for (const auto& rna: indiv->get_rna_list()) {
     if (rna->get_transcribed_proteins().size() >= 20)
     {
       printf("Found operon with 20 genes or more : %zu\n", rna->get_transcribed_proteins().size());
@@ -731,8 +713,6 @@ void write_operons_stats( int32_t num_gener, ae_individual * indiv, FILE*  opero
     }
 
     nb_genes_per_rna[rna->get_transcribed_proteins().size()]++;
-
-    rna_node = rna_node->get_next();
   }
 
   fprintf(  operons_output_file, "%" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n",

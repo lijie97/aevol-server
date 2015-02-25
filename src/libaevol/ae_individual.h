@@ -43,7 +43,6 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_list.h"
 #include <environment.h>
 #include "ae_genetic_unit.h"
 #include "ae_dna.h"
@@ -140,8 +139,8 @@ class ae_individual
 
     ae_replication_report* get_replic_report( void ) const;
 
-    ae_list<ae_protein*>*  get_protein_list( void )  const;
-    ae_list<ae_rna*>*      get_rna_list( void )      const;
+    const std::list<ae_protein*>&  get_protein_list( void )  const;
+    const std::list<ae_rna*>&      get_rna_list( void )      const;
 
     double get_w_max( void ) const;
 

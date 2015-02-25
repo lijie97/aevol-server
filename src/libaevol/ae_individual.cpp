@@ -220,13 +220,13 @@ ae_replication_report* ae_individual::get_replic_report() const {
 }
 
 /// TODO
-ae_list<ae_protein*>* ae_individual::get_protein_list() const {
-  return new ae_list<ae_protein*>(_protein_list);
+const std::list<ae_protein*>& ae_individual::get_protein_list() const {
+  return _protein_list;
 }
 
 /// TODO
-ae_list<ae_rna*>* ae_individual::get_rna_list() const {
-  return new ae_list<ae_rna*>(_rna_list);
+const std::list<ae_rna*>& ae_individual::get_rna_list() const {
+  return _rna_list;
 }
 
 /// TODO
