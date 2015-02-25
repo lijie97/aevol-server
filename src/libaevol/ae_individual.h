@@ -423,7 +423,7 @@ class ae_individual
     // Access lists to all the proteins/RNAs of the individual.
     // Please note that these proteins/RNAs are actually managed (i.e. newed and deleted) via genetic units.
     std::list<ae_protein*> _protein_list;
-    ae_list<ae_rna*>*     _rna_list;
+    std::list<ae_rna*>     _rna_list;
 
     // Generic probes
     int32_t*  _int_probes;        // Table of 5 int32_t values to be used as one wishes

@@ -314,7 +314,7 @@ ae_list<ae_protein*>* ae_individual::get_protein_list( void ) const {
 */
 ae_list<ae_rna*>* ae_individual::get_rna_list( void ) const
 {
-  return _rna_list;
+  return new ae_list<ae_rna*>(_rna_list);
 }
 
 /*!
@@ -1147,8 +1147,6 @@ ae_individual::ae_individual( ae_exp_manager* exp_m,
 
   // The chromosome and plasmids (if allowed)
 
-  _rna_list     = new ae_list<ae_rna*>();
-
   // Generic probes
   _int_probes     = new int32_t[5];
   _double_probes  = new double[5];
@@ -1330,9 +1328,6 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile backup_file )
                           // NB : If the replication report is needed in future development, it will have to be
                           // loaded from the tree file.
 
-  _rna_list     = new ae_list<ae_rna*>();
-
-
   // Initialize the computational state of the individual
   _evaluated                    = false;
   _transcribed                  = false;
@@ -1490,8 +1485,6 @@ ae_individual::ae_individual(const ae_individual &model, bool replication_report
     _replic_report = NULL;
   }
 
-  _rna_list     = new ae_list<ae_rna*>();
-
   // Generic probes
   _int_probes     = new int32_t[5];
   _double_probes  = new double[5];
@@ -1590,9 +1583,6 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id, ae_jumpin
     _replic_report = NULL;
   }
 
-  // Create protein and RNA access lists
-  _rna_list     = new ae_list<ae_rna*>();
-
   // Generic probes
   _int_probes     = new int32_t[5];
   _double_probes  = new double[5];
@@ -1655,9 +1645,7 @@ ae_individual::~ae_individual( void )
   // The _replic_report pointer is destroyed, but not the report itself,
   // it will be deleted later, when the tree is written on disk and emptied.
 
-  assert( _rna_list != NULL );
-  _rna_list->erase( false );
-  delete _rna_list;
+  // Proteins and RNAs are recycled, don't delete them.
 
   // When the unit is destoyed, its dna is destroyed too, thus the pointer
   // to the ae_dna_replication_report is destroyed. But the
@@ -1904,8 +1892,6 @@ void ae_individual::clear_everything_except_dna_and_promoters()
   // For each RNA / individual / genetic_unit delete proteins it knows
   // Deleting the protein itself is made only once
 
-  _rna_list->erase( false );
-
   for (const auto& gen_unit: _genetic_unit_list) {
     for (const auto& rna: gen_unit.get_rna_list_std()[LEADING])
       rna->clear_transcribed_proteins();
@@ -1987,8 +1973,17 @@ void ae_individual::do_transcription( void )
 
   for (auto& gen_unit: _genetic_unit_list) {
     gen_unit.do_transcription();
-    _rna_list->add_list(gen_unit.get_rna_list()[LEADING]);
-    _rna_list->add_list(gen_unit.get_rna_list()[LAGGING]);
+    {
+      const auto& rna_list = gen_unit.get_rna_list_std();
+      {
+        const auto& lead = rna_list[LEADING];
+        _rna_list.insert(_rna_list.end(), lead.begin(), lead.end());
+      }
+      {
+        const auto& lagg = rna_list[LAGGING];
+        _rna_list.insert(_rna_list.end(), lagg.begin(), lagg.end());
+      }
+    }
   }
 }
 
@@ -2003,11 +1998,17 @@ void ae_individual::do_translation( void )
 
   for (auto& gen_unit: _genetic_unit_list) {
     gen_unit.do_translation();
-    const auto& protein_list = gen_unit.get_protein_list_std();
-    const auto& lead = protein_list[LEADING];
-    _protein_list.insert(_protein_list.end(), lead.begin(), lead.end());
-    const auto& lagg = protein_list[LAGGING];
-    _protein_list.insert(_protein_list.end(), lagg.begin(), lagg.end());
+    {
+      const auto& protein_list = gen_unit.get_protein_list_std();
+      {
+        const auto& lead = protein_list[LEADING];
+        _protein_list.insert(_protein_list.end(), lead.begin(), lead.end());
+      }
+      {
+        const auto& lagg = protein_list[LAGGING];
+        _protein_list.insert(_protein_list.end(), lagg.begin(), lagg.end());
+      }
+    }
   }
 }
 
@@ -2424,31 +2425,34 @@ void ae_individual::double_non_coding_bases(void)
 // =================================================================
 //                           Protected Methods
 // =================================================================
+
+// TODO vld: refactor make_protein_list and make_rna_list
 void ae_individual::make_protein_list() {
   // Clear list
   _protein_list.clear();
 
   // Make a copy of each genetic unit's protein list
   for (const auto& gen_unit: _genetic_unit_list) {
-    const auto& protein_list = gen_unit.get_protein_list_std()
-    const auto& lead = protein_list[LEADING]; // shorhand
+    const auto& protein_list = gen_unit.get_protein_list_std();
+    const auto& lead = protein_list[LEADING];
     _protein_list.insert(_protein_list.end(), lead.begin(), lead.end());
-    const auto& lagg = protein_list.[LAGGING]; // shorthand
+    const auto& lagg = protein_list[LAGGING];
     _protein_list.insert(_protein_list.end(), lagg.begin(), lagg.end());
   }
 }
 
 void ae_individual::make_rna_list( void )
 {
-  assert( _rna_list != NULL );
-
-  // Clean list
-  _rna_list->erase( false );
+  // Clear list
+  _rna_list.clear();
 
   // Make a copy of each genetic unit's rna list
   for (const auto& gen_unit: _genetic_unit_list) {
-    _rna_list->add_list( gen_unit.get_rna_list()[LEADING] );
-    _rna_list->add_list( gen_unit.get_rna_list()[LAGGING] );
+    const auto& rna_list = gen_unit.get_rna_list_std();
+    const auto& lead = rna_list[LEADING];
+    _rna_list.insert(_rna_list.end(), lead.begin(), lead.end());
+    const auto& lagg = rna_list[LAGGING];
+    _rna_list.insert(_rna_list.end(), lagg.begin(), lagg.end());
   }
 }
 
