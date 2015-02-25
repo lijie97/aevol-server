@@ -404,7 +404,7 @@ inline std::vector<std::list<ae_protein*>> ae_genetic_unit::get_protein_list_std
   assert( _protein_list );
   assert( _protein_list[LEADING] );
   assert( _protein_list[LAGGING] );
-  std::vector<std::list<ae_protein*>> r;
+  std::vector<std::list<ae_protein*>> r(LAGGING - LEADING + 1);
   for (int8_t strand = LEADING ; strand <= LAGGING ; strand++)
     for (ae_list_node<ae_protein*>* protein_node = _protein_list[strand]->get_first();
          protein_node != NULL;
