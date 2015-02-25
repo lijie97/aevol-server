@@ -382,7 +382,7 @@ inline ae_list<ae_rna*>** ae_genetic_unit::get_rna_list( void ) const
 }
 
 inline std::vector<std::list<ae_rna*>> ae_genetic_unit::get_rna_list_std() const {
-  std::vector<std::list<ae_rna*>> r;
+  std::vector<std::list<ae_rna*>> r(LAGGING - LEADING + 1);
   for (int8_t strand = LEADING ; strand <= LAGGING ; strand++)
     for (ae_list_node<ae_rna*>* rna_node = _rna_list[strand]->get_first();
          rna_node != NULL;
