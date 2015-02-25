@@ -63,6 +63,10 @@ namespace aevol {
 class ae_exp_manager;
 class ae_grid_cell;
 
+
+/// Models an individual cell.
+///
+/// Proteins ans RNAs are shared with descent. Genetic units are an individual's own.
 class ae_individual
 {
   friend class ae_dna;
@@ -326,9 +330,6 @@ class ae_individual
     int32_t get_nb_terminators( void );
 
     #ifdef DEBUG
-      void print_rna_list( void );
-      void print_protein_list( void );
-
       void assert_promoters( void );
       void assert_promoters_order( void );
     #endif
@@ -421,7 +422,7 @@ class ae_individual
 
     // Access lists to all the proteins/RNAs of the individual.
     // Please note that these proteins/RNAs are actually managed (i.e. newed and deleted) via genetic units.
-    ae_list<ae_protein*>* _protein_list;
+    std::list<ae_protein*> _protein_list;
     ae_list<ae_rna*>*     _rna_list;
 
     // Generic probes

@@ -189,8 +189,6 @@ void ae_individual::drop_nested_genetic_units() {
 }
 
 /// Returns genetic unit number `num_unit` (0 for main chromosome)
-///
-/// TODO vld: should return a reference
 const ae_genetic_unit& ae_individual::get_genetic_unit(int16_t num_unit) const
 {
   assert(num_unit < static_cast<int32_t>(_genetic_unit_list.size()));
@@ -199,7 +197,9 @@ const ae_genetic_unit& ae_individual::get_genetic_unit(int16_t num_unit) const
   return *it;
 }
 
-// TODO vld: to be removed once the situation get clearer
+/// Returns genetic unit number `num_unit` (0 for main chromosome) as
+/// a non-constant reference. To be used when the purpose if to alter
+/// the individual.
 ae_genetic_unit& ae_individual::get_genetic_unit_nonconst(int16_t num_unit)
 {
   assert(num_unit < static_cast<int32_t>(_genetic_unit_list.size()));
@@ -305,11 +305,8 @@ ae_replication_report* ae_individual::get_replic_report( void ) const
 /*!
   TODO
 */
-ae_list<ae_protein*>* ae_individual::get_protein_list( void ) const
-{
-  assert( _protein_list );
-
-  return _protein_list;
+ae_list<ae_protein*>* ae_individual::get_protein_list( void ) const {
+  return new ae_list<ae_protein*>(_protein_list);
 }
 
 /*!
@@ -1074,42 +1071,6 @@ void ae_individual::do_transcription_translation_folding( void )
 }
 
 #ifdef DEBUG
-  void ae_individual::print_rna_list( void )
-  {
-    ae_list_node<ae_rna*>* rna_node  = _rna_list->get_first();
-    ae_rna*       rna       = NULL;
-
-    while ( rna_node != NULL )
-    {
-      rna = rna_node->get_obj();
-
-      printf( "RNA at pos : %" PRId32 "      length : %" PRId32 " bp\n", rna->get_promoter_pos(), rna->get_transcript_length() );
-      printf( "  strand : %s    basal level : %f\n", (rna->get_strand() == LEADING)?"LEADING":"LAGGING", rna->get_basal_level() );
-
-      rna_node = rna_node->get_next();
-    }
-  }
-
-  void ae_individual::print_protein_list( void )
-  {
-    ae_list_node<ae_protein*>* prot_node = _protein_list->get_first();
-    ae_protein*   prot = NULL;
-
-    while ( prot_node != NULL )
-    {
-      prot = prot_node->get_obj();
-
-      char* prot_sequence = prot->get_AA_sequence();
-      printf( "prot %p at pos : %" PRId32 "      length : %" PRId32 " AAs\n", prot, prot->get_first_translated_pos(), prot->get_length() );
-      printf( "  strand : %s    concentration : %f\n", (prot->get_strand() == LEADING)?"LEADING":"LAGGING", prot->get_concentration() );
-      printf( "  sequence : %s\n", prot_sequence );
-      printf( "  mean : %f      width : %f      height : %f\n", prot->get_mean(), prot->get_width(), prot->get_height() );
-      delete prot_sequence;
-
-      prot_node = prot_node->get_next();
-    }
-  }
-
   void ae_individual::assert_promoters( void )
   {
     // Perform assertion for each genetic unit
@@ -1186,7 +1147,6 @@ ae_individual::ae_individual( ae_exp_manager* exp_m,
 
   // The chromosome and plasmids (if allowed)
 
-  _protein_list = new ae_list<ae_protein*>();
   _rna_list     = new ae_list<ae_rna*>();
 
   // Generic probes
@@ -1370,7 +1330,6 @@ ae_individual::ae_individual( ae_exp_manager* exp_m, gzFile backup_file )
                           // NB : If the replication report is needed in future development, it will have to be
                           // loaded from the tree file.
 
-  _protein_list = new ae_list<ae_protein*>();
   _rna_list     = new ae_list<ae_rna*>();
 
 
@@ -1531,7 +1490,6 @@ ae_individual::ae_individual(const ae_individual &model, bool replication_report
     _replic_report = NULL;
   }
 
-  _protein_list = new ae_list<ae_protein*>();
   _rna_list     = new ae_list<ae_rna*>();
 
   // Generic probes
@@ -1601,8 +1559,6 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id, ae_jumpin
   // Create new genetic units with their DNA copied from here
   // NOTE : The RNA lists (one per genetic unit) will also be copied so that we don't
   // need to look for promoters on the whole genome
-  // TODO vld: do deep copy (because of above comment)
-  // _genetic_unit_list = parent->_genetic_unit_list;
   for (auto& gu: parent->_genetic_unit_list)
     _genetic_unit_list.emplace_back(this, &gu);
 
@@ -1635,7 +1591,6 @@ ae_individual::ae_individual( ae_individual* const parent, int32_t id, ae_jumpin
   }
 
   // Create protein and RNA access lists
-  _protein_list = new ae_list<ae_protein*>();
   _rna_list     = new ae_list<ae_rna*>();
 
   // Generic probes
@@ -1700,15 +1655,10 @@ ae_individual::~ae_individual( void )
   // The _replic_report pointer is destroyed, but not the report itself,
   // it will be deleted later, when the tree is written on disk and emptied.
 
-  assert( _protein_list != NULL );
-  _protein_list->erase( false );
-  delete _protein_list;
-
   assert( _rna_list != NULL );
   _rna_list->erase( false );
   delete _rna_list;
 
-  // TODO vld: check next comment
   // When the unit is destoyed, its dna is destroyed too, thus the pointer
   // to the ae_dna_replication_report is destroyed. But the
   // dna_replic_report object itself is not deleted, its address is
@@ -1955,7 +1905,6 @@ void ae_individual::clear_everything_except_dna_and_promoters()
   // Deleting the protein itself is made only once
 
   _rna_list->erase( false );
-  _protein_list->erase( false );
 
   for (const auto& gen_unit: _genetic_unit_list) {
     for (const auto& rna: gen_unit.get_rna_list_std()[LEADING])
@@ -2011,14 +1960,8 @@ void ae_individual::add_GU( char * &sequence, int32_t length )
   _genetic_unit_list.emplace_back(this, sequence, length);
 }
 
-
-// void ae_individual::add_GU(ae_genetic_unit&& unit)
-// {
-//   clear_everything_except_dna_and_promoters();
-//   // TODO vld: calls forbidden copy ctor?
-//   _genetic_unit_list.push_back(std::move(unit));
-// }
-
+/// Overloaded version to prevent the use of ae_genetic_unit disabled
+/// copy ctor. Forwards arguments to ae_genetic_unit's ctor.
 void ae_individual::add_GU(ae_individual* indiv,
                            int32_t chromosome_length,
                            ae_jumping_mt* prng) {
@@ -2026,14 +1969,8 @@ void ae_individual::add_GU(ae_individual* indiv,
   _genetic_unit_list.emplace_back(indiv, chromosome_length, prng);
 }
 
-// void ae_individual::add_GU(ae_individual* indiv, int32_t length, ae_jumping_mt* prng) {
-//   clear_everything_except_dna_and_promoters();
-//   _genetic_unit_list.emplace_back(indiv, length, prng);
-// }
-
 void ae_individual::remove_GU( int16_t num_unit )
 {
-  // TODO vld: this function suggests again that _genetic_unit_list should be a vector
   clear_everything_except_dna_and_promoters();
   auto it = _genetic_unit_list.begin();
   std::advance(it, num_unit);
@@ -2061,14 +1998,16 @@ void ae_individual::do_translation( void )
     return; // ARNs have already been translated, nothing to do.
   _translated = true;
 
-  // TODO vld: should not the next test be an assert?
   if (not _transcribed)
     do_transcription();
 
   for (auto& gen_unit: _genetic_unit_list) {
     gen_unit.do_translation();
-    _protein_list->add_list(gen_unit.get_protein_list()[LEADING]);
-    _protein_list->add_list(gen_unit.get_protein_list()[LAGGING]);
+    const auto& protein_list = gen_unit.get_protein_list_std();
+    const auto& lead = protein_list[LEADING];
+    _protein_list.insert(_protein_list.end(), lead.begin(), lead.end());
+    const auto& lagg = protein_list[LAGGING];
+    _protein_list.insert(_protein_list.end(), lagg.begin(), lagg.end());
   }
 }
 
@@ -2096,8 +2035,6 @@ void ae_individual::evaluate( Environment* envir /*= NULL*/ )
   // 1) Transcription - Translation - Folding
   // ----------------------------------------------------------------------
   do_transcription_translation_folding();
-  //~ print_rna_list();
-  //~ print_protein_list();
 
   // ----------------------------------------------------------------------
   // 2) Compute phenotype and compare it to the environment => fitness
@@ -2487,17 +2424,17 @@ void ae_individual::double_non_coding_bases(void)
 // =================================================================
 //                           Protected Methods
 // =================================================================
-void ae_individual::make_protein_list( void )
-{
-  assert( _protein_list != NULL );
-
-  // Clean list
-  _protein_list->erase( false );
+void ae_individual::make_protein_list() {
+  // Clear list
+  _protein_list.clear();
 
   // Make a copy of each genetic unit's protein list
   for (const auto& gen_unit: _genetic_unit_list) {
-    _protein_list->add_list( gen_unit.get_protein_list()[LEADING] );
-    _protein_list->add_list( gen_unit.get_protein_list()[LAGGING] );
+    const auto& protein_list = gen_unit.get_protein_list_std()
+    const auto& lead = protein_list[LEADING]; // shorhand
+    _protein_list.insert(_protein_list.end(), lead.begin(), lead.end());
+    const auto& lagg = protein_list.[LAGGING]; // shorthand
+    _protein_list.insert(_protein_list.end(), lagg.begin(), lagg.end());
   }
 }
 
