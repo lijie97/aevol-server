@@ -265,22 +265,12 @@ int main(int argc, char** argv)
   // where the paralogs (gene copies created by duplication) will be monitored
 
   ae_list<ae_gene_tree*> * gene_trees = new ae_list<ae_gene_tree*>();
-  ae_list_node<ae_protein*> *prot_node = NULL;
-  ae_protein *prot = NULL;
 
   for (const auto& unit: indiv->get_genetic_unit_list_std()) {
-    prot_node = (unit.get_protein_list()[LEADING])->get_first();
-    while(prot_node != NULL) {
-      prot = prot_node->get_obj();
+    for (const auto& prot: unit.get_protein_list_std()[LEADING])
       gene_trees->add(new ae_gene_tree(begin_gener, prot));
-      prot_node = prot_node->get_next();
-    }
-    prot_node = (unit.get_protein_list()[LAGGING])->get_first();
-    while(prot_node != NULL) {
-      prot = prot_node->get_obj();
+    for (const auto& prot: unit.get_protein_list_std()[LAGGING])
       gene_trees->add(new ae_gene_tree(begin_gener, prot));
-      prot_node = prot_node->get_next();
-    }
   }
 
   // ===============================================================================
@@ -426,28 +416,16 @@ int main(int argc, char** argv)
         register_actual_mutation_effect_on_genes_in_trees(gene_trees, &mut, &*unit, num_gener, impact_on_metabolic_error);
 
         /* New genes that have been created "from scratch", i.e. not by duplication => new gene tree */
-        prot_node = (unit->get_protein_list()[LEADING])->get_first();
-        while (prot_node != NULL)
-          {
-            prot = prot_node->get_obj();
-            search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
-            if (genetreenode == NULL)
-              {
-                gene_trees->add(new ae_gene_tree(num_gener, prot, &mut));
-              }
-            prot_node = prot_node->get_next();
-          }
-         prot_node = (unit->get_protein_list()[LAGGING])->get_first();
-         while (prot_node != NULL)
-          {
-            prot = prot_node->get_obj();
-            search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
-            if (genetreenode == NULL)
-              {
-                gene_trees->add(new ae_gene_tree(num_gener, prot, &mut));
-              }
-            prot_node = prot_node->get_next();
-          }
+        for (const auto& prot: unit->get_protein_list_std()[LEADING]) {
+          search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
+          if (genetreenode == nullptr)
+            gene_trees->add(new ae_gene_tree(num_gener, prot, &mut));
+        }
+        for (const auto& prot: unit->get_protein_list_std()[LAGGING]) {
+          search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
+          if (genetreenode == nullptr)
+            gene_trees->add(new ae_gene_tree(num_gener, prot, &mut));
+        }
          // print_gene_trees_to_screen(gene_trees);// DEBUG
          // indiv->print_protein_list(); // DEBUG
       }
@@ -470,28 +448,16 @@ int main(int argc, char** argv)
         register_actual_mutation_effect_on_genes_in_trees(gene_trees, &mut, &*unit, num_gener, impact_on_metabolic_error);
 
         /* New genes that have been created "from scratch", i.e. not by duplication => new gene tree */
-        prot_node = (unit->get_protein_list()[LEADING])->get_first();
-        while (prot_node != NULL)
-          {
-            prot = prot_node->get_obj();
-            search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
-            if (genetreenode == NULL)
-              {
-                gene_trees->add(new ae_gene_tree(num_gener, prot, &mut));
-              }
-            prot_node = prot_node->get_next();
-          }
-        prot_node = (unit->get_protein_list()[LAGGING])->get_first();
-         while (prot_node != NULL)
-          {
-            prot = prot_node->get_obj();
-            search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
-            if (genetreenode == NULL)
-              {
-                gene_trees->add(new ae_gene_tree(num_gener, prot, &mut));
-              }
-            prot_node = prot_node->get_next();
-          }
+        for (const auto& prot: unit->get_protein_list_std()[LEADING]) {
+          search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
+          if (genetreenode == nullptr)
+            gene_trees->add(new ae_gene_tree(num_gener, prot, &mut));
+        }
+        for (const auto& prot: unit->get_protein_list_std()[LAGGING]) {
+          search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
+          if (genetreenode == nullptr)
+            gene_trees->add(new ae_gene_tree(num_gener, prot, &mut));
+        }
       }
 
       if ( check_now && ae_utils::mod(num_gener, backup_step) == 0)

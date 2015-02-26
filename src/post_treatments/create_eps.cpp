@@ -459,14 +459,8 @@ void draw_triangles( ae_individual* indiv, Environment* env, char * directoryNam
 
   double h;
 
-  for (auto& gu: indiv->get_genetic_unit_list_std()) {
-    ae_list_node<ae_protein*>* prot_node = NULL;
-    ae_protein* prot = NULL;
-
-    prot_node = (gu.get_protein_list())[LEADING]->get_first();
-    while ( prot_node != NULL )
-    {
-      prot = (ae_protein*) prot_node->get_obj();
+  for (const auto& gu: indiv->get_genetic_unit_list_std()) {
+    for (const auto& prot: gu.get_protein_list_std()[LEADING]) {
       h = prot->get_height() * prot->get_concentration();
       fprintf( drawingfile, "%lf %lf moveto\n", margin, 0.5);
       fprintf( drawingfile, "%lf %lf lineto\n", margin + scalex*(prot->get_mean() - prot->get_width()), 0.5);
@@ -474,14 +468,9 @@ void draw_triangles( ae_individual* indiv, Environment* env, char * directoryNam
       fprintf( drawingfile, "%lf %lf lineto\n", margin + scalex*(prot->get_mean() + prot->get_width()), 0.5);
       fprintf( drawingfile, "%lf %lf moveto\n", margin + scalex*(1), 0.5);
       fprintf( drawingfile, "stroke\n" );
-      prot_node = prot_node->get_next();
     }
 
-
-    prot_node = (gu.get_protein_list())[LAGGING]->get_first();
-    while ( prot_node != NULL )
-    {
-      prot = (ae_protein*) prot_node->get_obj();
+    for (const auto& prot: gu.get_protein_list_std()[LAGGING]) {
       h = prot->get_height() * prot->get_concentration();
       fprintf( drawingfile, "%lf %lf moveto\n", margin, 0.5);
       fprintf( drawingfile, "%lf %lf lineto\n", margin + scalex*(prot->get_mean() - prot->get_width()), 0.5);
@@ -489,8 +478,6 @@ void draw_triangles( ae_individual* indiv, Environment* env, char * directoryNam
       fprintf( drawingfile, "%lf %lf lineto\n", margin + scalex*(prot->get_mean() + prot->get_width()), 0.5);
       fprintf( drawingfile, "%lf %lf moveto\n", margin + scalex*(1), 0.5);
       fprintf( drawingfile, "stroke\n" );
-
-      prot_node = prot_node->get_next();
     }
   }
 
@@ -777,9 +764,6 @@ void draw_genetic_unit_with_CDS( ae_genetic_unit* gen_unit, char * directoryName
   //  genes
   // -----------
 
-  ae_list_node<ae_protein*>* node = NULL;
-  ae_protein* prot = NULL;
-
   int32_t first;
   int32_t last;
   int8_t  layer = 0;
@@ -811,10 +795,7 @@ void draw_genetic_unit_with_CDS( ae_genetic_unit* gen_unit, char * directoryName
 
 
   // printf("LEADING\n" );
-  node = (gen_unit->get_protein_list())[LEADING]->get_first();
-  while (node != NULL)
-  {
-    prot = (ae_protein *) node->get_obj();
+  for (const auto& prot: gen_unit->get_protein_list_std()[LEADING]) {
     first = prot->get_first_translated_pos();
     last = prot->get_last_translated_pos();
     // h = prot->get_height() * prot->get_concentration();
@@ -906,16 +887,11 @@ void draw_genetic_unit_with_CDS( ae_genetic_unit* gen_unit, char * directoryName
       fprintf( drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r + layer*0.02, theta_last, theta_first);
       fprintf( drawingfile, "stroke\n" );
     }
-
-    node = node->get_next();
   }
 
 
   // printf("LAGGING\n" );
-  node = (gen_unit->get_protein_list())[LAGGING]->get_first();
-  while (node != NULL)
-  {
-    prot = (ae_protein *) node->get_obj();
+  for (const auto& prot: gen_unit->get_protein_list_std()[LAGGING]) {
     first = prot->get_first_translated_pos();
     last = prot->get_last_translated_pos();
     // h = prot->get_height() * prot->get_concentration();
@@ -1007,8 +983,6 @@ void draw_genetic_unit_with_CDS( ae_genetic_unit* gen_unit, char * directoryName
       fprintf( drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r - layer*0.02, theta_first, theta_last);
       fprintf( drawingfile, "stroke\n" );
     }
-
-    node = node->get_next();
   }
 
 
