@@ -86,7 +86,7 @@ std::list<ae_individual*> ae_population::get_indivs_std() const {
 
 int32_t ae_population::get_nb_indivs( void ) const
 {
-  return _nb_indivs;
+  return _indivs.size();
 }
 
 ae_individual* ae_population::get_best( void ) const
@@ -124,7 +124,6 @@ ae_jumping_mt* ae_population::get_stoch_prng( void ) const
 void ae_population::add_indiv( ae_individual* indiv )
 {
   _indivs.push_back(indiv);
-  _nb_indivs++;
 }
 
 
@@ -272,9 +271,6 @@ ae_population::ae_population( ae_exp_manager* exp_m )
     _stoch_prng     = NULL;
     _stoch_prng_bak = NULL;
   #endif
-
-  // Individuals
-  _nb_indivs  = 0;
 }
 
 
@@ -298,14 +294,14 @@ ae_population::~ae_population( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_population::set_nb_indivs(int32_t nb_indivs)
+void ae_population::set_nb_indivs(size_t nb_indivs)
 {
   int32_t index_to_duplicate;
   ae_individual* indiv = NULL;
-  if(nb_indivs > _nb_indivs)
+  if(nb_indivs > _indivs.size())
   {
-    int32_t initial_pop_size = _nb_indivs;
-    for(int32_t i = initial_pop_size; i < nb_indivs; i++)
+    int32_t initial_pop_size = _indivs.size();
+    for(size_t i = initial_pop_size; i < nb_indivs; i++)
     {
       index_to_duplicate = _exp_m->get_sel()->get_prng()->random( initial_pop_size );
       indiv = new ae_individual(*get_indiv_by_id(index_to_duplicate), true);
@@ -313,12 +309,12 @@ void ae_population::set_nb_indivs(int32_t nb_indivs)
       add_indiv(indiv);
     }
   }
-  else if(nb_indivs < _nb_indivs)
+  else if(nb_indivs < _indivs.size())
   {
     std::list<ae_individual*> new_population;
-    for(int32_t i = 0; i < nb_indivs; i++)
+    for(size_t i = 0; i < nb_indivs; i++)
     {
-      index_to_duplicate = _exp_m->get_sel()->get_prng()->random( _nb_indivs );
+      index_to_duplicate = _exp_m->get_sel()->get_prng()->random(static_cast<int32_t>(_indivs.size()));
       indiv = new ae_individual(*get_indiv_by_id(index_to_duplicate), true);
       indiv->set_id(i);
       new_population.emplace_back(indiv);
@@ -356,7 +352,8 @@ void ae_population::save( gzFile backup_file ) const
       _stoch_prng->save( backup_file );
     }
   #endif
-  gzwrite( backup_file, &_nb_indivs, sizeof(_nb_indivs) );
+  const int32_t nb_indivs = _indivs.size();
+  gzwrite( backup_file, &nb_indivs, sizeof(nb_indivs) );
 
   // Write individuals
   for (const auto& indiv: _indivs)
@@ -375,13 +372,14 @@ void ae_population::load( gzFile backup_file, bool verbose )
       _stoch_prng = new ae_jumping_mt( backup_file );
     }
   #endif
-  gzread( backup_file, &_nb_indivs, sizeof(_nb_indivs) );
+  int32_t nb_indivs = _indivs.size();
+  gzread( backup_file, &nb_indivs, sizeof(nb_indivs) );
 
   // ----------------------------------------------------- Retreive individuals
   if ( verbose ) printf( "  Loading individuals " );
   ae_individual* indiv = NULL;
-  int32_t nb_ind_div_10 = _nb_indivs / 10;
-  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
+  int32_t nb_ind_div_10 = nb_indivs / 10;
+  for ( size_t i = 0 ; i < static_cast<size_t>(nb_indivs) ; i++ )
   {
     if ( verbose && i && i % nb_ind_div_10 == 0 )
     {
@@ -456,7 +454,7 @@ void ae_population::update_best( void )
                                  return i1->get_fitness() < i2->get_fitness();
                                });
   _indivs.splice(_indivs.end(), _indivs, best);
-  (*best)->set_rank(_nb_indivs);
+  (*best)->set_rank(_indivs.size());
 }
 
 // The new pop must be consistent and belong to the same experiment as the one
@@ -470,7 +468,6 @@ void ae_population::update_population(std::list<ae_individual*>&& new_indivs)
 
   // Replace with new indivs
   _indivs = new_indivs;
-  _nb_indivs = _indivs.size();
 }
 
 ae_individual* ae_population::create_clone( ae_individual* dolly, int32_t id )

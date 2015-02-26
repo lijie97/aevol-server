@@ -94,7 +94,7 @@ class ae_population
     // =================================================================
     //                        Accessors: Setters
     // =================================================================
-    void set_nb_indivs( int32_t nb_indivs );
+    void set_nb_indivs( size_t nb_indivs );
 
     void add_indiv( ae_individual* indiv );
 
@@ -191,7 +191,6 @@ class ae_population
     #endif
 
     // Individuals
-    int32_t                   _nb_indivs;
     std::list<ae_individual*>  _indivs;
 };
 
