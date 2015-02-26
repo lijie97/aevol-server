@@ -2547,8 +2547,8 @@ void ae_dna::insert_GU( ae_genetic_unit* GU_to_insert, int32_t pos_B, int32_t po
     GU_to_insert->extract_promoters_starting_between( 0, pos_D, proms_C );
   }
   GU_to_insert->extract_promoters_starting_between( pos_D, len_CD, proms_D );
-  assert( GU_to_insert->get_rna_list()[LEADING]->is_empty() );
-  assert( GU_to_insert->get_rna_list()[LAGGING]->is_empty() );
+  assert( GU_to_insert->get_rna_list_std()[LEADING].empty() );
+  assert( GU_to_insert->get_rna_list_std()[LAGGING].empty() );
   ae_genetic_unit::shift_promoters( proms_D, -len_C, len_D );
 
   if ( invert )

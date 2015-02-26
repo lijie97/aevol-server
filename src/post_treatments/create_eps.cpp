@@ -1072,9 +1072,6 @@ void draw_genetic_unit_with_mRNAs( ae_genetic_unit* gen_unit, char * directoryNa
   //  mRNAs
   // -----------
 
-  ae_list_node<ae_rna*>* node  = NULL;
-  ae_rna* rna = NULL;
-
   int32_t first;
   int32_t last;
   int8_t  layer = 0;
@@ -1106,10 +1103,7 @@ void draw_genetic_unit_with_mRNAs( ae_genetic_unit* gen_unit, char * directoryNa
 
 
 
-  node = (gen_unit->get_rna_list())[LEADING]->get_first();
-  while (node != NULL)
-  {
-    rna = (ae_rna *) node->get_obj();
+  for (const auto& rna: gen_unit->get_rna_list_std()[LEADING]) {
     first = rna->get_first_transcribed_pos();
     last = rna->get_last_transcribed_pos();
 
@@ -1201,16 +1195,11 @@ void draw_genetic_unit_with_mRNAs( ae_genetic_unit* gen_unit, char * directoryNa
       fprintf( drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r + layer*0.02, theta_last, theta_first);
       fprintf( drawingfile, "stroke\n" );
     }
-
-    node = node->get_next();
   }
 
 
 
-  node = (gen_unit->get_rna_list())[LAGGING]->get_first();
-  while (node != NULL)
-  {
-    rna = (ae_rna *) node->get_obj();
+  for (const auto& rna: gen_unit->get_rna_list_std()[LAGGING]) {
     first = rna->get_first_transcribed_pos();
     last = rna->get_last_transcribed_pos();
 
@@ -1300,8 +1289,6 @@ void draw_genetic_unit_with_mRNAs( ae_genetic_unit* gen_unit, char * directoryNa
       fprintf( drawingfile, "%lf %lf %lf %d %d arc\n", 0.5, 0.5, r - layer*0.02, theta_first, theta_last);
       fprintf( drawingfile, "stroke\n" );
     }
-
-    node = node->get_next();
   }
 
 

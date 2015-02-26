@@ -560,9 +560,9 @@ void ae_individual_X11::display_rnas( ae_X11_window* win )
 
   // Display the number of RNAs
   char nb_rna[40];
-  sprintf( nb_rna, "Leading : %" PRId32 " RNAs", gen_unit->get_rna_list()[LEADING]->get_nb_elts() );
+  sprintf( nb_rna, "Leading : %" PRId32 " RNAs", static_cast<int32_t>(gen_unit->get_rna_list_std()[LEADING].size()));
   win->draw_string( 15, 15, nb_rna );
-  sprintf( nb_rna, "Lagging : %" PRId32 " RNAs", gen_unit->get_rna_list()[LAGGING]->get_nb_elts() );
+  sprintf( nb_rna, "Lagging : %" PRId32 " RNAs", static_cast<int32_t>(gen_unit->get_rna_list_std()[LAGGING].size()));
   win->draw_string( 15, 30, nb_rna );
 
   // Compute display diameter according to genome length and window size

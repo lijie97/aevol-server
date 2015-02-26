@@ -304,21 +304,13 @@ inline void analyse_indiv( ae_individual* indiv, FILE* triangles_file, FILE* seq
 inline void analyse_gu( ae_genetic_unit* gen_unit, int32_t gen_unit_number, FILE* triangles_file, Environment* env )
 {
   // Construct the list of all rnas
-  ae_list<ae_rna*>** llrnas = gen_unit->get_rna_list();
-  ae_list<ae_rna*>* lrnas = new ae_list<ae_rna*>();
-  lrnas->add_list(llrnas[LEADING]);
-  lrnas->add_list(llrnas[LAGGING]);
+  auto llrnas = gen_unit->get_rna_list_std();
+  auto lrnas = llrnas[LEADING];
+  lrnas.splice(lrnas.end(), llrnas[LAGGING]);
 
   // Parse this list
-  ae_list_node<ae_rna*>* rna_node = lrnas->get_first();;
-
-  ae_rna* rna = NULL;
   int rna_nb = 0;
-
-  while( rna_node != NULL )
-  {
-    rna = (ae_rna *) rna_node->get_obj();
-
+  for (const auto& rna: lrnas) {
     for (const auto& protein: rna->get_transcribed_proteins()) {
       double height = protein->get_height();
       double width = protein->get_width();
@@ -343,12 +335,8 @@ inline void analyse_gu( ae_genetic_unit* gen_unit, int32_t gen_unit_number, FILE
               fpos, lpos,
               nfeat, gen_unit_number);
     }
-
-    rna_node = rna_node->get_next();
     rna_nb++;
   }
-
-  delete lrnas;
 }
 
 
