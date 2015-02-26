@@ -515,7 +515,7 @@ int main( int argc, char* argv[] )
           exit( EXIT_FAILURE );
         }
         int32_t plasmid_minimal_length = atoi( line->words[1] );
-        for (const auto& indiv: pop->get_indivs_std()) {
+        for (const auto& indiv: pop->get_indivs()) {
           if (indiv->get_genetic_unit(1).get_seq_length()<plasmid_minimal_length)
           {
             printf("ERROR: there is one genetic unit with a smaller length than the new minimum.\n");
@@ -532,7 +532,7 @@ int main( int argc, char* argv[] )
           exit( EXIT_FAILURE );
         }
         int32_t plasmid_maximal_length = atoi( line->words[1] );
-        for (const auto& indiv: pop->get_indivs_std()) {
+        for (const auto& indiv: pop->get_indivs()) {
           if (indiv->get_genetic_unit_nonconst(1).get_seq_length()>plasmid_maximal_length)
           {
             printf("ERROR: there is one genetic unit with a higher length than the new maximum.\n");
@@ -544,7 +544,7 @@ int main( int argc, char* argv[] )
       else if ( strcmp( line->words[0], "CHROMOSOME_MINIMAL_LENGTH" ) == 0 )
       {
         int32_t chromosome_minimal_length = atoi( line->words[1] );
-        for (const auto& indiv: pop->get_indivs_std()) {
+        for (const auto& indiv: pop->get_indivs()) {
           if (indiv->get_genetic_unit_nonconst(0).get_seq_length()<chromosome_minimal_length){
             printf("ERROR: there is one genetic unit with a smaller length than the new minimum.\n");
             exit( EXIT_FAILURE );
@@ -555,7 +555,7 @@ int main( int argc, char* argv[] )
       else if ( strcmp( line->words[0], "CHROMOSOME_MAXIMAL_LENGTH" ) == 0 )
       {
         int32_t chromosome_maximal_length = atoi( line->words[1] );
-        for (const auto& indiv: pop->get_indivs_std()) {
+        for (const auto& indiv: pop->get_indivs()) {
           if (indiv->get_genetic_unit_nonconst(0).get_seq_length()>chromosome_maximal_length){
             printf("ERROR: there is one genetic unit with a higher length than the new maximum.\n");
             exit( EXIT_FAILURE );
@@ -793,7 +793,7 @@ void change_by_cloning_best(ae_population* pop, ae_exp_manager* exp_m)
       // int16_t y_max = exp_m->get_grid_height();
       ae_grid_cell* grid_cell = NULL;
       
-      for (auto& indiv: pop->get_indivs_std()) {
+      for (auto& indiv: pop->get_indivs()) {
         grid_cell = exp_m->get_grid_cell(x, y);
         grid_cell->set_individual(indiv);
         x++;
@@ -962,7 +962,7 @@ void change_based_on_non_coding_bases_in_population(ae_population* pop, ae_exp_m
 {
   if(type == REMOVE_NON_CODING_BASES_POPULATION || type == DOUBLE_NON_CODING_BASES_POPULATION)
     {
-      for (auto& indiv: pop->get_indivs_std())
+      for (auto& indiv: pop->get_indivs())
         if (type == REMOVE_NON_CODING_BASES_POPULATION)
           indiv->remove_non_coding_bases();
         else

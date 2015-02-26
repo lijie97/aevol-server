@@ -83,7 +83,7 @@ int main( int argc, char* argv[] )
 
   // Parse and treat the individuals
   if (!best_only){
-    for (ae_individual* indiv: pop->get_indivs_std())
+    for (ae_individual* indiv: pop->get_indivs())
       analyse_indiv(exp_manager, indiv, output, ndiv);
   }
   else{

@@ -228,7 +228,7 @@ int main( int argc, char* argv[] )
   }
   else
   {
-    for (const auto& indiv: pop->get_indivs_std()) {
+    for (const auto& indiv: pop->get_indivs()) {
       indiv->do_transcription_translation_folding(); // We need to recompute proteins if not already done (ie if using a population file and not a full backup)
       analyse_indiv(indiv, triangles_file, sequence_file, gu, env);
     }

@@ -75,7 +75,7 @@ namespace aevol {
 // =====================================================================
 //                           Getters' definitions
 // =====================================================================
-std::list<ae_individual*> ae_population::get_indivs_std() const {
+std::list<ae_individual*> ae_population::get_indivs() const {
   return _indivs;
 }
 

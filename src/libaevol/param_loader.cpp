@@ -1531,7 +1531,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
     int16_t y_max = exp_m->get_grid_height();
     ae_grid_cell* grid_cell = NULL;
 
-    for (const auto& indiv: pop->get_indivs_std()) {
+    for (const auto& indiv: pop->get_indivs()) {
       do {
         x = exp_m->get_spatial_structure()->get_prng()->random( x_max );
         y = exp_m->get_spatial_structure()->get_prng()->random( y_max );

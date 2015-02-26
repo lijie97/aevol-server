@@ -73,7 +73,7 @@ class ae_population
     // =================================================================
     //                        Accessors: Getters
     // =================================================================
-    std::list<ae_individual*> get_indivs_std() const;
+    std::list<ae_individual*> get_indivs() const;
     int32_t                  get_nb_indivs( void ) const;
     ae_individual*           get_best( void ) const;
     ae_individual*                  get_indiv_by_id( int32_t id ) const;

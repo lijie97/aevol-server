@@ -454,7 +454,7 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_population const * pop
   // ------------------------------------------------------------------
   // Compute statistical data for the each individual in the population
   // ------------------------------------------------------------------
-  for (const auto& indiv: pop->get_indivs_std()) {
+  for (const auto& indiv: pop->get_indivs()) {
     ae_stat_record* indiv_stat_record = new ae_stat_record( _exp_m, indiv, chrom_or_gu, false );
     this->add(indiv_stat_record, indiv->get_id());
     delete indiv_stat_record;
@@ -484,7 +484,7 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_population const * pop
   // ------------------------------------------------------------------
   // Compute statistical data for the each individual in the population
   // ------------------------------------------------------------------
-  for (const auto& indiv: pop->get_indivs_std()) {
+  for (const auto& indiv: pop->get_indivs()) {
     ae_stat_record* indiv_stat_record = new ae_stat_record( _exp_m, indiv, chrom_or_gu, false );
     this->substract_power( means, indiv_stat_record, 2 );
     delete indiv_stat_record;
@@ -513,7 +513,7 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_population const * pop
   // ------------------------------------------------------------------
   // Compute statistical data for the each individual in the population
   // ------------------------------------------------------------------
-  for (const auto& indiv: pop->get_indivs_std()) {
+  for (const auto& indiv: pop->get_indivs()) {
     ae_stat_record* indiv_stat_record = new ae_stat_record( _exp_m, indiv, chrom_or_gu, false );
     this->substract_power( means, indiv_stat_record, 3 );    
     delete indiv_stat_record;

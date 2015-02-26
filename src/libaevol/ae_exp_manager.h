@@ -468,7 +468,7 @@ inline ae_individual* ae_exp_manager::get_best_indiv( void ) const
 
 inline std::list<ae_individual*> ae_exp_manager::get_indivs_std() const
 {
-  return get_pop()->get_indivs_std();
+  return get_pop()->get_indivs();
 }
 
 inline ae_individual * ae_exp_manager::get_indiv_by_id( int32_t id ) const

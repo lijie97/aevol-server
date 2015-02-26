@@ -512,7 +512,7 @@ void ae_selection::compute_prob_reprod( void )
     double  sum       = 0;
 
     size_t i = 0;
-    for (const auto& indiv: _exp_m->get_pop()->get_indivs_std()) {
+    for (const auto& indiv: _exp_m->get_pop()->get_indivs()) {
       fitnesses[i] = indiv->get_fitness();
       sum += fitnesses[i];
       ++i;

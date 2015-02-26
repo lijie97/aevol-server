@@ -102,7 +102,7 @@ int main( int argc, char* argv[] )
   exp_manager->get_output_m()->set_compute_phen_contrib_by_GU(true);
 
   // We parse the individuals and transform them
-  for (const auto& indiv: pop->get_indivs_std()) {
+  for (const auto& indiv: pop->get_indivs()) {
     char* plasmid=new char[lplasmid+1]; // Warning: will become the DNA of the first individual created -> no not delete, will be freed in ~ae_dna.
     strncpy(plasmid, rawplasmid, lplasmid);
     plasmid[lplasmid]='\0';
