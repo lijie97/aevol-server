@@ -161,8 +161,8 @@ void ae_selection::step_to_next_generation( void )
   // ------------------------------------------------------------------------------
   // 3) Make the selected individuals "reproduce", thus creating the new generation
   // ------------------------------------------------------------------------------
-  ae_list<ae_individual*>*      new_generation  = new ae_list<ae_individual*>();
-  std::list<ae_individual*>     old_generation  = _exp_m->get_indivs_std();
+  std::list<ae_individual*> new_generation;
+  std::list<ae_individual*> old_generation  = _exp_m->get_indivs_std();
   std::list<ae_individual*>::const_iterator indiv = old_generation.begin();
   int32_t index_new_indiv = 0;
 
@@ -176,7 +176,7 @@ void ae_selection::step_to_next_generation( void )
       #endif
 
       // Create a new individual (evaluated at the end of do_replication)
-      new_generation->add(do_replication(*indiv, index_new_indiv++));
+      new_generation.push_back(do_replication(*indiv, index_new_indiv++));
     }
     ++indiv;
   }
@@ -186,7 +186,7 @@ void ae_selection::step_to_next_generation( void )
   // -------------------------------------------------------------
   //  4) Replace the current generation by the newly created one.
   // -------------------------------------------------------------
-  _exp_m->get_pop()->update_population( new_generation );
+  _exp_m->get_pop()->update_population(std::move(new_generation));
 
 
   // --------------------------------------
@@ -263,7 +263,7 @@ void ae_selection::step_to_next_generation_grid( void )
 
 
   // Create the new generation
-  ae_list<ae_individual*>* new_generation = new ae_list<ae_individual*>();
+  std::list<ae_individual*> new_generation;
   int32_t index_new_indiv = 0;
   for ( int16_t x = 0 ; x < grid_width ; x++ )
   {
@@ -274,12 +274,12 @@ void ae_selection::step_to_next_generation_grid( void )
         #error Not implemented yet !
         new_indiv_grid[x][y]->do_prng_jump();
       #endif
-      new_generation->add( pop_grid[x][y]->get_individual() );
+        new_generation.emplace_back(pop_grid[x][y]->get_individual());
     }
   }
 
   // Replace the old population by the newly created one
-  _exp_m->get_pop()->replace_population( new_generation );
+  _exp_m->get_pop()->replace_population(std::move(new_generation));
 
   // delete the temporary grid
   for ( int16_t x = 0 ; x < grid_width ; x++ )

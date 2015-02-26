@@ -54,11 +54,6 @@ namespace aevol {
 // =================================================================
 class ae_exp_manager;
 
-
-
-
-
-
 class ae_population
 {
   friend class ae_selection;
@@ -130,8 +125,7 @@ class ae_population
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void replace_population( ae_list<ae_individual*>* new_indivs );
-    void replace_population(std::list<ae_individual*>& new_indivs);
+    void replace_population(std::list<ae_individual*>&& new_indivs);
     //~ void            step_to_next_generation( void );
     //~ void            step_to_next_generation_grid( void );
     //~ ae_individual*  do_replication( ae_individual* parent, int32_t id, int16_t x = -1, int16_t y = -1 );
@@ -179,7 +173,7 @@ class ae_population
     // =================================================================
     //                           Protected Methods
     // =================================================================
-    void update_population(ae_list<ae_individual*>* new_indivs);
+    void update_population(std::list<ae_individual*>&& new_indivs);
     ae_individual* create_random_individual( int32_t id );
     ae_individual* create_random_individual_with_good_gene( int32_t id );
     ae_individual* create_clone( ae_individual* dolly, int32_t id );
@@ -198,7 +192,7 @@ class ae_population
 
     // Individuals
     int32_t                   _nb_indivs;
-    ae_list<ae_individual*>*  _indivs;
+    std::list<ae_individual*>  _indivs;
 };
 
 } // namespace aevol

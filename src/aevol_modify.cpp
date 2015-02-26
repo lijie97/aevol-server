@@ -803,7 +803,7 @@ void change_by_cloning_best(ae_population* pop, ae_exp_manager* exp_m)
   std::list<ae_individual*> new_population;
   for (size_t i = 0; i < static_cast<size_t>(population_size); ++i)
     new_population.push_back(create_clone(best_indiv, i));
-  pop->replace_population(new_population);
+  pop->replace_population(std::move(new_population));
 
   // If the population is spatially structured, set each individual's position
   if ( exp_m->is_spatially_structured() )
@@ -946,7 +946,7 @@ void change_based_on_non_coding_bases_of_best_individual(ae_population* pop, ae_
       //  4) Replace the current population by the new one
       pop->get_indivs()->erase( true );
       assert( pop->get_indivs()->is_empty() );
-      pop->replace_population( new_generation );
+      pop->replace_population(std::move(new_generation));
     
     
 

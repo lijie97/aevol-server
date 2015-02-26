@@ -34,6 +34,7 @@
 #include <math.h>
 
 #include <list>
+#include <algorithm>
 
 // =================================================================
 //                            Project Files
@@ -76,12 +77,11 @@ namespace aevol {
 // =====================================================================
 ae_list<ae_individual*>* ae_population::get_indivs( void ) const
 {
-  return _indivs;
+  return new ae_list<ae_individual*>(_indivs);
 }
 
 std::list<ae_individual*> ae_population::get_indivs_std() const {
-  // return std::list<ae_individual*>(_indivs);
-  return aelist_to_stdlist(_indivs);
+  return _indivs;
 }
 
 int32_t ae_population::get_nb_indivs( void ) const
@@ -91,26 +91,21 @@ int32_t ae_population::get_nb_indivs( void ) const
 
 ae_individual* ae_population::get_best( void ) const
 {
-  return _indivs->get_last()->get_obj();
+  return _indivs.back();
 }
 
-/*!
-  Get the indiv corresponding to the given rank (1 for the worst indiv, POP_SIZE for the best)
-
-  Warning, be sure you call sort_individuals() before using get_indiv_by_rank
-*/
+/// Get the indiv corresponding to the given rank (1 for the worst indiv, POP_SIZE for the best)
+///
+/// Warning, be sure you call sort_individuals() before using get_indiv_by_rank
+///
+/// TODO vld: If this function is used often, suggests that _indivs
+/// should be a vector instead of a list.
 ae_individual* ae_population::get_indiv_by_rank( int32_t rank ) const
 {
-  ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
-
-  for ( int32_t i = 1 ; i < rank ; i++ )
-  {
-    indiv_node = indiv_node->get_next();
-  }
-
-  assert( indiv_node->get_obj()->get_rank() == rank );
-
-  return indiv_node->get_obj();
+  auto indiv = _indivs.begin();
+  std::advance(indiv, rank);
+  assert((*indiv)->get_rank() == rank);
+  return *indiv;
 }
 
 ae_jumping_mt* ae_population::get_mut_prng( void ) const
@@ -126,14 +121,9 @@ ae_jumping_mt* ae_population::get_stoch_prng( void ) const
 // =====================================================================
 //                           Setters' definitions
 // =====================================================================
-/*void ae_population::set_nb_indivs( int32_t nb_indivs )
-{
-  _nb_indivs = nb_indivs;
-}*/
-
 void ae_population::add_indiv( ae_individual* indiv )
 {
-  _indivs->add( indiv );
+  _indivs.push_back(indiv);
   _nb_indivs++;
 }
 
@@ -142,222 +132,116 @@ void ae_population::set_mut_prng( ae_jumping_mt* prng )
 {
   if (_mut_prng != NULL) delete _mut_prng;
   _mut_prng = prng;
-  ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
-  ae_individual*  indiv;
-  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
-  {
-    indiv = indiv_node->get_obj();
-    indiv->set_mut_prng( _mut_prng );
-    indiv_node = indiv_node->get_next();
-  }
+  for (auto& indiv: _indivs)
+    indiv->set_mut_prng(_mut_prng);
 }
 
 void ae_population::set_stoch_prng( ae_jumping_mt* prng )
 {
-  if (_stoch_prng != NULL) delete _stoch_prng;
+  if (_stoch_prng != NULL)
+    delete _stoch_prng;
   _stoch_prng = prng;
-  ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
-  ae_individual*  indiv;
-  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
-  {
-    indiv = indiv_node->get_obj();
-    indiv->set_stoch_prng( _stoch_prng );
-    indiv_node = indiv_node->get_next();
-  }
+
+  for (auto& indiv: _indivs)
+    indiv->set_stoch_prng(_stoch_prng);
 }
 
 
 // Mutation rates etc...
 void ae_population::set_overall_point_mutation_rate( double point_mutation_rate )
 {
-  ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
-  ae_individual*  indiv;
-  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
-  {
-    indiv = indiv_node->get_obj();
-    indiv->set_point_mutation_rate( point_mutation_rate );
-    indiv_node = indiv_node->get_next();
-  }
+  for (auto& indiv: _indivs)
+    indiv->set_point_mutation_rate(point_mutation_rate);
 }
 
 void ae_population::set_overall_small_insertion_rate( double small_insertion_rate )
 {
-  ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
-  ae_individual*  indiv;
-  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
-  {
-    indiv = indiv_node->get_obj();
-    indiv->set_small_insertion_rate( small_insertion_rate );
-    indiv_node = indiv_node->get_next();
-  }
+  for (auto& indiv: _indivs)
+    indiv->set_small_insertion_rate(small_insertion_rate);
 }
 
 void ae_population::set_overall_small_deletion_rate( double small_deletion_rate )
 {
-  ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
-  ae_individual*  indiv;
-  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
-  {
-    indiv = indiv_node->get_obj();
-    indiv->set_small_deletion_rate( small_deletion_rate );
-    indiv_node = indiv_node->get_next();
-  }
+  for (auto& indiv: _indivs)
+    indiv->set_small_deletion_rate(small_deletion_rate);
 }
 
 void ae_population::set_overall_max_indel_size( int16_t max_indel_size )
 {
-  ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
-  ae_individual*  indiv;
-  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
-  {
-    indiv = indiv_node->get_obj();
-    indiv->set_max_indel_size( max_indel_size );
-    indiv_node = indiv_node->get_next();
-  }
+  for (auto& indiv: _indivs)
+    indiv->set_max_indel_size(max_indel_size);
 }
 
 void ae_population::set_overall_duplication_rate( double duplication_rate )
 {
-  ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
-  ae_individual*  indiv;
-  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
-  {
-    indiv = indiv_node->get_obj();
-    indiv->set_duplication_rate( duplication_rate );
-    indiv_node = indiv_node->get_next();
-  }
+  for (auto& indiv: _indivs)
+    indiv->set_duplication_rate(duplication_rate);
 }
 
 void ae_population::set_overall_deletion_rate( double deletion_rate)
 {
-  ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
-  ae_individual*  indiv;
-  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
-  {
-    indiv = indiv_node->get_obj();
-    indiv->set_deletion_rate( deletion_rate );
-    indiv_node = indiv_node->get_next();
-  }
+  for (auto& indiv: _indivs)
+    indiv->set_deletion_rate(deletion_rate);
 }
 
 void ae_population::set_overall_translocation_rate( double translocation_rate)
 {
-  ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
-  ae_individual*  indiv;
-  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
-  {
-    indiv = indiv_node->get_obj();
-    indiv->set_translocation_rate( translocation_rate );
-    indiv_node = indiv_node->get_next();
-  }
+  for (auto& indiv: _indivs)
+    indiv->set_translocation_rate(translocation_rate);
 }
 
 void ae_population::set_overall_inversion_rate( double inversion_rate)
 {
-  ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
-  ae_individual*  indiv;
-  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
-  {
-    indiv = indiv_node->get_obj();
+  for (auto& indiv: _indivs)
     indiv->set_inversion_rate( inversion_rate );
-    indiv_node = indiv_node->get_next();
-  }
 }
 
 void ae_population::set_overall_transfer_ins_rate (double transfer_ins_rate)
 {
-        ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
-  ae_individual*  indiv;
-  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
-  {
-    indiv = indiv_node->get_obj();
+  for (auto& indiv: _indivs)
     indiv->set_HT_ins_rate( transfer_ins_rate );
-    indiv_node = indiv_node->get_next();
-  }
 }
 
 void ae_population::set_overall_transfer_repl_rate (double transfer_repl_rate)
 {
-        ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
-  ae_individual*  indiv;
-  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
-  {
-    indiv = indiv_node->get_obj();
+  for (auto& indiv: _indivs)
     indiv->set_HT_repl_rate( transfer_repl_rate );
-    indiv_node = indiv_node->get_next();
-  }
 }
 
 void ae_population::set_overall_neighbourhood_rate( double neighbourhood_rate)
 {
-  ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
-  ae_individual*  indiv;
-  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
-  {
-    indiv = indiv_node->get_obj();
+  for (auto& indiv: _indivs)
     indiv->set_neighbourhood_rate( neighbourhood_rate );
-    indiv_node = indiv_node->get_next();
-  }
 }
 
 void ae_population::set_overall_duplication_proportion( double duplication_proportion)
 {
-  ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
-  ae_individual*  indiv;
-  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
-  {
-    indiv = indiv_node->get_obj();
+  for (auto& indiv: _indivs)
     indiv->set_duplication_proportion( duplication_proportion );
-    indiv_node = indiv_node->get_next();
-  }
 }
 
 void ae_population::set_overall_deletion_proportion( double deletion_proportion)
 {
-  ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
-  ae_individual*  indiv;
-  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
-  {
-    indiv = indiv_node->get_obj();
+  for (auto& indiv: _indivs)
     indiv->set_deletion_proportion( deletion_proportion );
-    indiv_node = indiv_node->get_next();
-  }
 }
 
 void ae_population::set_overall_translocation_proportion( double translocation_proportion)
 {
-  ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
-  ae_individual*  indiv;
-  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
-  {
-    indiv = indiv_node->get_obj();
+  for (auto& indiv: _indivs)
     indiv->set_translocation_proportion( translocation_proportion );
-    indiv_node = indiv_node->get_next();
-  }
 }
 
 void ae_population::set_overall_inversion_proportion( double inversion_proportion)
 {
-  ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
-  ae_individual*  indiv;
-  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
-  {
-    indiv = indiv_node->get_obj();
+  for (auto& indiv: _indivs)
     indiv->set_inversion_proportion( inversion_proportion );
-    indiv_node = indiv_node->get_next();
-  }
 }
 
 void ae_population::set_replication_reports( ae_tree* tree, int32_t num_gener)
 {
-  ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
-  ae_individual*  indiv;
-  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
-  {
-    indiv = indiv_node->get_obj();
+  for (auto& indiv: _indivs)
     indiv->set_replication_report( tree->get_report_by_index( num_gener, indiv->get_id()));
-    indiv_node = indiv_node->get_next();
-  }
 }
 
 // =====================================================================
@@ -365,16 +249,9 @@ void ae_population::set_replication_reports( ae_tree* tree, int32_t num_gener)
 // =====================================================================
 void ae_population::evaluate_individuals( Environment* envir )
 {
-  ae_list_node<ae_individual*>*  indiv_node  = _indivs->get_first();
-  ae_individual * indiv       = NULL;
-
-  while ( indiv_node != NULL )
-  {
-    indiv = indiv_node->get_obj();
+  for (auto& indiv: _indivs) {
     indiv->evaluate( envir );
     indiv->compute_statistical_data();
-
-    indiv_node = indiv_node->get_next();
   }
 }
 
@@ -398,7 +275,6 @@ ae_population::ae_population( ae_exp_manager* exp_m )
 
   // Individuals
   _nb_indivs  = 0;
-  _indivs     = new ae_list<ae_individual*>();
 }
 
 
@@ -414,8 +290,9 @@ ae_population::~ae_population( void )
     delete _stoch_prng_bak;
   #endif
 
-  _indivs->erase( true );
-  delete _indivs;
+    for (auto& indiv: _indivs)
+      delete indiv;
+    _indivs.clear();
 }
 
 // =================================================================
@@ -438,46 +315,33 @@ void ae_population::set_nb_indivs(int32_t nb_indivs)
   }
   else if(nb_indivs < _nb_indivs)
   {
-    ae_list<ae_individual*>* new_population = new ae_list<ae_individual*>();
+    std::list<ae_individual*> new_population;
     for(int32_t i = 0; i < nb_indivs; i++)
     {
       index_to_duplicate = _exp_m->get_sel()->get_prng()->random( _nb_indivs );
       indiv = new ae_individual(*get_indiv_by_id(index_to_duplicate), true);
       indiv->set_id(i);
-      new_population->add(indiv);
+      new_population.emplace_back(indiv);
     }
-    update_population(new_population);
+    update_population(std::move(new_population));
   }
   sort_individuals();
 }
 
-void ae_population::replace_population(ae_list<ae_individual*>* new_indivs)
+void ae_population::replace_population(std::list<ae_individual*>&& new_indivs)
 {
   // First replace the former indivs by the new ones
-  update_population(new_indivs);
+  update_population(std::move(new_indivs));
 
   // Then reconciliate any possible inconsistency...
 
   // Update pointer to exp_manager in each individual
   // Replace indivs id by a new one
-  ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
-  ae_individual* indiv = NULL;
-  int32_t  id = 0;
-  while ( indiv_node != NULL )
-  {
-    indiv = indiv_node->get_obj();
-
+  int32_t id = 0;
+  for (auto& indiv: _indivs) {
     indiv->set_exp_m(_exp_m);
     indiv->set_id(id++);
-
-    indiv_node = indiv_node->get_next();
   }
-}
-
-void ae_population::replace_population(std::list<ae_individual*>& new_indivs)
-{
-  auto ae_new_indivs = new ae_list<ae_individual*>(new_indivs);
-  replace_population(ae_new_indivs);
 }
 
 void ae_population::save( gzFile backup_file ) const
@@ -495,14 +359,8 @@ void ae_population::save( gzFile backup_file ) const
   gzwrite( backup_file, &_nb_indivs, sizeof(_nb_indivs) );
 
   // Write individuals
-  ae_list_node<ae_individual*>*   indiv_node = _indivs->get_first();
-  ae_individual*  indiv;
-  for ( int32_t i = 0 ; i < _nb_indivs ; i++ )
-  {
-    indiv = indiv_node->get_obj();
+  for (const auto& indiv: _indivs)
     indiv->save( backup_file );
-    indiv_node = indiv_node->get_next();
-  }
 }
 
 void ae_population::load( gzFile backup_file, bool verbose )
@@ -545,7 +403,7 @@ void ae_population::load( gzFile backup_file, bool verbose )
       #endif
     #endif
 
-    _indivs->add( indiv );
+    _indivs.emplace_back( indiv );
   }
 }
 
@@ -575,103 +433,44 @@ void ae_population::load(const char* backup_file_name, bool verbose)
 // =================================================================
 void ae_population::sort_individuals( void )
 {
-  // Insertion sort
-  ae_list_node<ae_individual*>* last_sorted   = _indivs->get_first();
-  ae_list_node<ae_individual*>* comp          = NULL;
-  ae_list_node<ae_individual*>* item_to_sort  = NULL;
-  double  fit_comp;
-  double  fitness_to_sort;
-  bool    is_sorted;
-
-  // only "pop_size - 1" iterations since the first item is already "sorted"
-  for ( int32_t nb_sorted = 1 ; nb_sorted < _nb_indivs ; nb_sorted++ )
-  {
-    item_to_sort    = last_sorted->get_next();
-    fitness_to_sort = item_to_sort->get_obj()->get_fitness();
-    is_sorted       = false;
-
-    comp = last_sorted;
-
-    // looking for its place among the sorted items
-    while ( !is_sorted )
-    {
-      fit_comp = comp->get_obj()->get_fitness();
-
-      if ( fitness_to_sort >= fit_comp ) // The right place of the item is after comp
-      {
-        if ( item_to_sort->get_prev() == comp )
-        {
-          // item_to_sort is already at the right place
-          is_sorted = true;
-          last_sorted = item_to_sort;
-        }
-
-        // item_to_sort has to be inserted just after comp
-        _indivs->remove( item_to_sort, false, false );
-        _indivs->insert_after( item_to_sort, comp );
-        is_sorted = true;
-      }
-      else
-      {
-        // move on to compare with the next item
-        comp = comp->get_prev();
-      }
-
-      if ( comp == NULL )
-      {
-        // item_to_sort has to be inserted at the beginning of the list
-        _indivs->remove( item_to_sort, false, false );
-        _indivs->add_front( item_to_sort );
-        is_sorted = true;
-      }
-    }
-  }
+  _indivs.sort([](const ae_individual* i1,
+                  const ae_individual* i2) { return i1->get_fitness() < i2->get_fitness(); });
 
   // Update the rank of the individuals
-  ae_list_node<ae_individual*>* indiv_node  = _indivs->get_first();
-  ae_individual* indiv       = NULL;
-
-  for ( int32_t rank = 1 ; rank <= _nb_indivs ; rank++ )
-  {
-    indiv = indiv_node->get_obj();
-    indiv->set_rank( rank );
-    indiv_node = indiv_node->get_next();
+  int32_t rank = 1;
+  for (auto& indiv: _indivs) {
+    indiv->set_rank(rank);
+    ++rank;
   }
-
 }
 
-// Find the best individual and put it at the end of the list: this is quicker than sorting the whole list in case we only need the best individual, for example when we have spatial structure.
+/// Find the best individual and put it at the end of the list: this
+/// is quicker than sorting the whole list in case we only need the
+/// best individual, for example when we have spatial structure.
 void ae_population::update_best( void )
 {
-  ae_list_node<ae_individual*>* current_best  = _indivs->get_first();
-  ae_list_node<ae_individual*>* candidate     = _indivs->get_first();
-
-  while ( candidate != NULL )
-  {
-    if (  candidate->get_obj()->get_fitness() >= current_best->get_obj()->get_fitness() )
-    {
-      current_best = candidate;
-    }
-    candidate = candidate->get_next();
-  }
-
-  _indivs->remove( current_best, false, false );
-  _indivs->add( current_best );
-
-  current_best->get_obj()->set_rank( _nb_indivs );
+  auto best = std::max_element(_indivs.begin(),
+                               _indivs.end(),
+                               [](const ae_individual* i1,
+                                  const ae_individual* i2) -> bool {
+                                 return i1->get_fitness() < i2->get_fitness();
+                               });
+  _indivs.splice(_indivs.end(), _indivs, best);
+  (*best)->set_rank(_nb_indivs);
 }
 
 // The new pop must be consistent and belong to the same experiment as the one
 // it replaces, otherwise use replace_population
-void ae_population::update_population(ae_list<ae_individual*>* new_indivs)
+void ae_population::update_population(std::list<ae_individual*>&& new_indivs)
 {
   // Delete the former indivs
-  _indivs->erase( true );
-  delete _indivs;
+  for (auto& indiv: _indivs)
+    delete indiv;
+  _indivs.clear();
 
   // Replace with new indivs
   _indivs = new_indivs;
-  _nb_indivs = _indivs->get_nb_elts();
+  _nb_indivs = _indivs.size();
 }
 
 ae_individual* ae_population::create_clone( ae_individual* dolly, int32_t id )
@@ -706,20 +505,10 @@ ae_individual* ae_population::create_clone( ae_individual* dolly, int32_t id )
 // =================================================================
 ae_individual* ae_population::get_indiv_by_id( int32_t id ) const
 {
-  ae_list_node<ae_individual*>* indiv_node = _indivs->get_first();
-  ae_individual*  indiv;
-  while ( indiv_node != NULL )
-  {
-    indiv = indiv_node->get_obj();
-
-    if ( indiv->get_id() == id )
-    {
+  for (const auto& indiv: _indivs)
+    if (indiv->get_id() == id)
       return indiv;
-    }
-
-    indiv_node = indiv_node->get_next();
-  }
-
-  return NULL;
+  return nullptr;
 }
+
 } // namespace aevol
