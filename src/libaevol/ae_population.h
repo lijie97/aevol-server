@@ -41,7 +41,6 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_list.h"
 #include "ae_individual.h"
 #include "ae_jumping_mt.h"
 #include "ae_tree.h"
@@ -74,7 +73,6 @@ class ae_population
     // =================================================================
     //                        Accessors: Getters
     // =================================================================
-    ae_list<ae_individual*>* get_indivs( void ) const;
     std::list<ae_individual*> get_indivs_std() const;
     int32_t                  get_nb_indivs( void ) const;
     ae_individual*           get_best( void ) const;
