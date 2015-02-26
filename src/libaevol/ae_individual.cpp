@@ -1694,7 +1694,7 @@ void ae_individual::do_translation() {
   for (auto& gen_unit: _genetic_unit_list) {
     gen_unit.do_translation();
     {
-      const auto& protein_list = gen_unit.get_protein_list_std();
+      const auto& protein_list = gen_unit.get_protein_list();
       {
         const auto& lead = protein_list[LEADING];
         _protein_list.insert(_protein_list.end(), lead.begin(), lead.end());
@@ -2116,7 +2116,7 @@ void ae_individual::make_protein_list() {
 
   // Make a copy of each genetic unit's protein list
   for (const auto& gen_unit: _genetic_unit_list) {
-    const auto& protein_list = gen_unit.get_protein_list_std();
+    const auto& protein_list = gen_unit.get_protein_list();
     const auto& lead = protein_list[LEADING];
     _protein_list.insert(_protein_list.end(), lead.begin(), lead.end());
     const auto& lagg = protein_list[LAGGING];

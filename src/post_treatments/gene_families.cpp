@@ -267,9 +267,9 @@ int main(int argc, char** argv)
   ae_list<ae_gene_tree*> * gene_trees = new ae_list<ae_gene_tree*>();
 
   for (const auto& unit: indiv->get_genetic_unit_list_std()) {
-    for (const auto& prot: unit.get_protein_list_std()[LEADING])
+    for (const auto& prot: unit.get_protein_list()[LEADING])
       gene_trees->add(new ae_gene_tree(begin_gener, prot));
-    for (const auto& prot: unit.get_protein_list_std()[LAGGING])
+    for (const auto& prot: unit.get_protein_list()[LAGGING])
       gene_trees->add(new ae_gene_tree(begin_gener, prot));
   }
 
@@ -416,12 +416,12 @@ int main(int argc, char** argv)
         register_actual_mutation_effect_on_genes_in_trees(gene_trees, &mut, &*unit, num_gener, impact_on_metabolic_error);
 
         /* New genes that have been created "from scratch", i.e. not by duplication => new gene tree */
-        for (const auto& prot: unit->get_protein_list_std()[LEADING]) {
+        for (const auto& prot: unit->get_protein_list()[LEADING]) {
           search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
           if (genetreenode == nullptr)
             gene_trees->add(new ae_gene_tree(num_gener, prot, &mut));
         }
-        for (const auto& prot: unit->get_protein_list_std()[LAGGING]) {
+        for (const auto& prot: unit->get_protein_list()[LAGGING]) {
           search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
           if (genetreenode == nullptr)
             gene_trees->add(new ae_gene_tree(num_gener, prot, &mut));
@@ -448,12 +448,12 @@ int main(int argc, char** argv)
         register_actual_mutation_effect_on_genes_in_trees(gene_trees, &mut, &*unit, num_gener, impact_on_metabolic_error);
 
         /* New genes that have been created "from scratch", i.e. not by duplication => new gene tree */
-        for (const auto& prot: unit->get_protein_list_std()[LEADING]) {
+        for (const auto& prot: unit->get_protein_list()[LEADING]) {
           search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
           if (genetreenode == nullptr)
             gene_trees->add(new ae_gene_tree(num_gener, prot, &mut));
         }
-        for (const auto& prot: unit->get_protein_list_std()[LAGGING]) {
+        for (const auto& prot: unit->get_protein_list()[LAGGING]) {
           search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
           if (genetreenode == nullptr)
             gene_trees->add(new ae_gene_tree(num_gener, prot, &mut));

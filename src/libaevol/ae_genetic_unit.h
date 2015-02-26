@@ -94,7 +94,7 @@ class ae_genetic_unit
     inline Fuzzy*    get_phenotypic_contribution( void ) const;
 
     inline std::vector<std::list<ae_rna*>> get_rna_list()     const;
-    inline std::vector<std::list<ae_protein*>> get_protein_list_std() const;
+    inline std::vector<std::list<ae_protein*>> get_protein_list() const;
 
 
 
@@ -384,7 +384,7 @@ inline std::vector<std::list<ae_rna*>> ae_genetic_unit::get_rna_list() const {
   return std::move(r);
 }
 
-inline std::vector<std::list<ae_protein*>> ae_genetic_unit::get_protein_list_std() const {
+inline std::vector<std::list<ae_protein*>> ae_genetic_unit::get_protein_list() const {
   assert( _protein_list );
   assert( _protein_list[LEADING] );
   assert( _protein_list[LAGGING] );
