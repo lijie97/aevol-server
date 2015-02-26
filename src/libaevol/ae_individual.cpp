@@ -1593,9 +1593,9 @@ void ae_individual::clear_everything_except_dna_and_promoters() {
   // Deleting the protein itself is made only once
 
   for (const auto& gen_unit: _genetic_unit_list) {
-    for (const auto& rna: gen_unit.get_rna_list_std()[LEADING])
+    for (const auto& rna: gen_unit.get_rna_list()[LEADING])
       rna->clear_transcribed_proteins();
-    for (const auto& rna: gen_unit.get_rna_list_std()[LAGGING])
+    for (const auto& rna: gen_unit.get_rna_list()[LAGGING])
       rna->clear_transcribed_proteins();
     // TODO vld: convert to STL the next 2 lines
     // (gen_unit->get_protein_list()[LEADING])->erase(true);
@@ -1670,7 +1670,7 @@ void ae_individual::do_transcription() {
   for (auto& gen_unit: _genetic_unit_list) {
     gen_unit.do_transcription();
     {
-      const auto& rna_list = gen_unit.get_rna_list_std();
+      const auto& rna_list = gen_unit.get_rna_list();
       {
         const auto& lead = rna_list[LEADING];
         _rna_list.insert(_rna_list.end(), lead.begin(), lead.end());
@@ -2130,7 +2130,7 @@ void ae_individual::make_rna_list() {
 
   // Make a copy of each genetic unit's rna list
   for (const auto& gen_unit: _genetic_unit_list) {
-    const auto& rna_list = gen_unit.get_rna_list_std();
+    const auto& rna_list = gen_unit.get_rna_list();
     const auto& lead = rna_list[LEADING];
     _rna_list.insert(_rna_list.end(), lead.begin(), lead.end());
     const auto& lagg = rna_list[LAGGING];

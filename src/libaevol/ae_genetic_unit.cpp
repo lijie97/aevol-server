@@ -170,7 +170,7 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, char* seq, int32_t lengt
 
     // TODO vld: remove conversion that should not happen here
     // (hack in the process of removing ae_lists from ae_dna)
-    ae_dna::set_GU(get_rna_list_std(), this);
+    ae_dna::set_GU(get_rna_list(), this);
   }
   else
   {

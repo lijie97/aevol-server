@@ -1103,7 +1103,7 @@ void draw_genetic_unit_with_mRNAs( ae_genetic_unit* gen_unit, char * directoryNa
 
 
 
-  for (const auto& rna: gen_unit->get_rna_list_std()[LEADING]) {
+  for (const auto& rna: gen_unit->get_rna_list()[LEADING]) {
     first = rna->get_first_transcribed_pos();
     last = rna->get_last_transcribed_pos();
 
@@ -1199,7 +1199,7 @@ void draw_genetic_unit_with_mRNAs( ae_genetic_unit* gen_unit, char * directoryNa
 
 
 
-  for (const auto& rna: gen_unit->get_rna_list_std()[LAGGING]) {
+  for (const auto& rna: gen_unit->get_rna_list()[LAGGING]) {
     first = rna->get_first_transcribed_pos();
     last = rna->get_last_transcribed_pos();
 

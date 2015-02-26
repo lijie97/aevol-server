@@ -560,9 +560,9 @@ void ae_individual_X11::display_rnas( ae_X11_window* win )
 
   // Display the number of RNAs
   char nb_rna[40];
-  sprintf( nb_rna, "Leading : %" PRId32 " RNAs", static_cast<int32_t>(gen_unit->get_rna_list_std()[LEADING].size()));
+  sprintf( nb_rna, "Leading : %" PRId32 " RNAs", static_cast<int32_t>(gen_unit->get_rna_list()[LEADING].size()));
   win->draw_string( 15, 15, nb_rna );
-  sprintf( nb_rna, "Lagging : %" PRId32 " RNAs", static_cast<int32_t>(gen_unit->get_rna_list_std()[LAGGING].size()));
+  sprintf( nb_rna, "Lagging : %" PRId32 " RNAs", static_cast<int32_t>(gen_unit->get_rna_list()[LAGGING].size()));
   win->draw_string( 15, 30, nb_rna );
 
   // Compute display diameter according to genome length and window size
@@ -603,7 +603,7 @@ void ae_individual_X11::display_rnas( ae_X11_window* win )
   // ----------------
   //  LEADING strand
   // ----------------
-  for (const auto& rna: gen_unit->get_rna_list_std()[LEADING]) {
+  for (const auto& rna: gen_unit->get_rna_list()[LEADING]) {
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)
     // nb_sect : "length" in degrees of the arc to be drawn
@@ -701,7 +701,7 @@ void ae_individual_X11::display_rnas( ae_X11_window* win )
   // ----------------
   //  LAGGING strand
   // ----------------
-  for (const auto& rna: gen_unit->get_rna_list_std()[LAGGING]) {
+  for (const auto& rna: gen_unit->get_rna_list()[LAGGING]) {
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)
     // nb_sect : "length" in degrees of the arc to be drawn

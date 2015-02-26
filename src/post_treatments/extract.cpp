@@ -304,7 +304,7 @@ inline void analyse_indiv( ae_individual* indiv, FILE* triangles_file, FILE* seq
 inline void analyse_gu( ae_genetic_unit* gen_unit, int32_t gen_unit_number, FILE* triangles_file, Environment* env )
 {
   // Construct the list of all rnas
-  auto llrnas = gen_unit->get_rna_list_std();
+  auto llrnas = gen_unit->get_rna_list();
   auto lrnas = llrnas[LEADING];
   lrnas.splice(lrnas.end(), llrnas[LAGGING]);
 

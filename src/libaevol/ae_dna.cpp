@@ -2547,8 +2547,8 @@ void ae_dna::insert_GU( ae_genetic_unit* GU_to_insert, int32_t pos_B, int32_t po
     GU_to_insert->extract_promoters_starting_between( 0, pos_D, proms_C );
   }
   GU_to_insert->extract_promoters_starting_between( pos_D, len_CD, proms_D );
-  assert( GU_to_insert->get_rna_list_std()[LEADING].empty() );
-  assert( GU_to_insert->get_rna_list_std()[LAGGING].empty() );
+  assert( GU_to_insert->get_rna_list()[LEADING].empty() );
+  assert( GU_to_insert->get_rna_list()[LAGGING].empty() );
   ae_genetic_unit::shift_promoters( proms_D, -len_C, len_D );
 
   if ( invert )
@@ -2586,7 +2586,7 @@ void ae_dna::insert_GU( ae_genetic_unit* GU_to_insert, int32_t pos_B, int32_t po
   _gen_unit->look_for_new_promoters_around( pos_B );
   _gen_unit->look_for_new_promoters_around( pos_B + len_CD );
 
-  set_GU(_gen_unit->get_rna_list_std(), _gen_unit);
+  set_GU(_gen_unit->get_rna_list(), _gen_unit);
 }
 
 
