@@ -228,14 +228,9 @@ int main( int argc, char* argv[] )
   }
   else
   {
-    ae_list_node<ae_individual*>* indiv_node = pop->get_indivs()->get_first();
-    ae_individual* indiv      = NULL;
-    while( indiv_node != NULL )
-    {
-      indiv = (ae_individual *) indiv_node->get_obj();
+    for (const auto& indiv: pop->get_indivs_std()) {
       indiv->do_transcription_translation_folding(); // We need to recompute proteins if not already done (ie if using a population file and not a full backup)
       analyse_indiv(indiv, triangles_file, sequence_file, gu, env);
-      indiv_node = indiv_node->get_next();
     }
   }
 

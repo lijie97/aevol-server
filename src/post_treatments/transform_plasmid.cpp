@@ -102,11 +102,7 @@ int main( int argc, char* argv[] )
   exp_manager->get_output_m()->set_compute_phen_contrib_by_GU(true);
 
   // We parse the individuals and transform them
-  ae_list_node<ae_individual*>* indiv_node = pop->get_indivs()->get_first();
-  ae_individual* indiv      = NULL;
-  while( indiv_node != NULL )
-  {
-    indiv = (ae_individual *) indiv_node->get_obj();
+  for (const auto& indiv: pop->get_indivs_std()) {
     char* plasmid=new char[lplasmid+1]; // Warning: will become the DNA of the first individual created -> no not delete, will be freed in ~ae_dna.
     strncpy(plasmid, rawplasmid, lplasmid);
     plasmid[lplasmid]='\0';
@@ -118,7 +114,6 @@ int main( int argc, char* argv[] )
     indiv->get_genetic_unit_nonconst(1).get_dna()->set_replic_report(NULL);
     indiv->get_genetic_unit_nonconst(1).compute_phenotypic_contribution();
     indiv->reevaluate();
-    indiv_node = indiv_node->get_next();
   }
 
   // We save and exit

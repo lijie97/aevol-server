@@ -511,15 +511,11 @@ void ae_selection::compute_prob_reprod( void )
     double* fitnesses = new double[nb_indivs];
     double  sum       = 0;
 
-    ae_list_node<ae_individual*>* indiv_node = _exp_m->get_pop()->get_indivs()->get_first();
-    ae_individual*  indiv       = NULL;
-
-    for ( int32_t i = 0 ; i < nb_indivs ; i++ )
-    {
-      indiv = indiv_node->get_obj();
+    size_t i = 0;
+    for (const auto& indiv: _exp_m->get_pop()->get_indivs_std()) {
       fitnesses[i] = indiv->get_fitness();
       sum += fitnesses[i];
-      indiv_node = indiv_node->get_next();
+      ++i;
     }
 
     for ( int32_t i = 0 ; i < nb_indivs ; i++ )

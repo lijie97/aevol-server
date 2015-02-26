@@ -515,18 +515,13 @@ int main( int argc, char* argv[] )
           exit( EXIT_FAILURE );
         }
         int32_t plasmid_minimal_length = atoi( line->words[1] );
-        ae_list_node<ae_individual*>* indiv_node = pop->get_indivs()->get_first();
-        ae_individual* indiv      = NULL;
-        while( indiv_node != NULL )
-        {
-          indiv = (ae_individual *) indiv_node->get_obj();
+        for (const auto& indiv: pop->get_indivs_std()) {
           if (indiv->get_genetic_unit(1).get_seq_length()<plasmid_minimal_length)
           {
             printf("ERROR: there is one genetic unit with a smaller length than the new minimum.\n");
             exit( EXIT_FAILURE );
           }
           indiv->get_genetic_unit_nonconst(1).set_min_gu_length(plasmid_minimal_length);
-          indiv_node = indiv_node->get_next();
         }
       }
       else if ( strcmp( line->words[0], "PLASMID_MAXIMAL_LENGTH" ) == 0 )
@@ -537,50 +532,35 @@ int main( int argc, char* argv[] )
           exit( EXIT_FAILURE );
         }
         int32_t plasmid_maximal_length = atoi( line->words[1] );
-        ae_list_node<ae_individual*>* indiv_node = pop->get_indivs()->get_first();
-        ae_individual* indiv      = NULL;
-        while( indiv_node != NULL )
-        {
-          indiv = (ae_individual *) indiv_node->get_obj();
+        for (const auto& indiv: pop->get_indivs_std()) {
           if (indiv->get_genetic_unit_nonconst(1).get_seq_length()>plasmid_maximal_length)
           {
             printf("ERROR: there is one genetic unit with a higher length than the new maximum.\n");
             exit( EXIT_FAILURE );
           }
           indiv->get_genetic_unit_nonconst(1).set_max_gu_length(plasmid_maximal_length);
-          indiv_node = indiv_node->get_next();
         }
       }
       else if ( strcmp( line->words[0], "CHROMOSOME_MINIMAL_LENGTH" ) == 0 )
       {
         int32_t chromosome_minimal_length = atoi( line->words[1] );
-        ae_list_node<ae_individual*>* indiv_node = pop->get_indivs()->get_first();
-        ae_individual* indiv      = NULL;
-        while( indiv_node != NULL )
-        {
-          indiv = (ae_individual *) indiv_node->get_obj();
+        for (const auto& indiv: pop->get_indivs_std()) {
           if (indiv->get_genetic_unit_nonconst(0).get_seq_length()<chromosome_minimal_length){
             printf("ERROR: there is one genetic unit with a smaller length than the new minimum.\n");
             exit( EXIT_FAILURE );
           }
           indiv->get_genetic_unit_nonconst(0).set_min_gu_length(chromosome_minimal_length);
-          indiv_node = indiv_node->get_next();
         }
       }
       else if ( strcmp( line->words[0], "CHROMOSOME_MAXIMAL_LENGTH" ) == 0 )
       {
         int32_t chromosome_maximal_length = atoi( line->words[1] );
-        ae_list_node<ae_individual*>* indiv_node = pop->get_indivs()->get_first();
-        ae_individual* indiv      = NULL;
-        while( indiv_node != NULL )
-        {
-          indiv = (ae_individual *) indiv_node->get_obj();
+        for (const auto& indiv: pop->get_indivs_std()) {
           if (indiv->get_genetic_unit_nonconst(0).get_seq_length()>chromosome_maximal_length){
             printf("ERROR: there is one genetic unit with a higher length than the new maximum.\n");
             exit( EXIT_FAILURE );
           }
           indiv->get_genetic_unit_nonconst(0).set_max_gu_length(chromosome_maximal_length);
-          indiv_node = indiv_node->get_next();
         }
       }
       else if ( strcmp( line->words[0], "SEED" ) == 0 )
@@ -944,8 +924,7 @@ void change_based_on_non_coding_bases_of_best_individual(ae_population* pop, ae_
         }
       
       //  4) Replace the current population by the new one
-      pop->get_indivs()->erase( true );
-      assert( pop->get_indivs()->is_empty() );
+      //     -> Useless since it is done by replace_population.
       pop->replace_population(std::move(new_generation));
     
     

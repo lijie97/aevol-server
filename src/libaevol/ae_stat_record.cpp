@@ -454,20 +454,10 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_population const * pop
   // ------------------------------------------------------------------
   // Compute statistical data for the each individual in the population
   // ------------------------------------------------------------------
-  ae_list_node<ae_individual*>* indiv_node  = pop->get_indivs()->get_first();
-  ae_individual*  indiv       = NULL;
-  
-  int32_t index;
-
-  while ( indiv_node != NULL )
-  {
-    indiv = indiv_node->get_obj();
-    index = indiv->get_id();
+  for (const auto& indiv: pop->get_indivs_std()) {
     ae_stat_record* indiv_stat_record = new ae_stat_record( _exp_m, indiv, chrom_or_gu, false );
-    this->add( indiv_stat_record, index  );
+    this->add(indiv_stat_record, indiv->get_id());
     delete indiv_stat_record;
-    
-    indiv_node = indiv_node->get_next();
   }
   
   
@@ -494,17 +484,10 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_population const * pop
   // ------------------------------------------------------------------
   // Compute statistical data for the each individual in the population
   // ------------------------------------------------------------------
-  ae_list_node<ae_individual*>*   indiv_node  = pop->get_indivs()->get_first();
-  ae_individual*  indiv       = NULL;
-
-  while ( indiv_node != NULL )
-  {
-    indiv = indiv_node->get_obj();
+  for (const auto& indiv: pop->get_indivs_std()) {
     ae_stat_record* indiv_stat_record = new ae_stat_record( _exp_m, indiv, chrom_or_gu, false );
     this->substract_power( means, indiv_stat_record, 2 );
     delete indiv_stat_record;
-    
-    indiv_node = indiv_node->get_next();
   }
   
   // ---------------------------------------------------------------------------------
@@ -530,16 +513,10 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_population const * pop
   // ------------------------------------------------------------------
   // Compute statistical data for the each individual in the population
   // ------------------------------------------------------------------
-  ae_list_node<ae_individual*>* indiv_node  = pop->get_indivs()->get_first();
-  ae_individual*  indiv       = NULL;
-
-  while ( indiv_node != NULL )
-  {
-    indiv = indiv_node->get_obj();
+  for (const auto& indiv: pop->get_indivs_std()) {
     ae_stat_record* indiv_stat_record = new ae_stat_record( _exp_m, indiv, chrom_or_gu, false );
     this->substract_power( means, indiv_stat_record, 3 );    
     delete indiv_stat_record;
-    indiv_node = indiv_node->get_next();
   }
 
   this->divide( - _pop_size );
