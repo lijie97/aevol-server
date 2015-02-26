@@ -93,7 +93,6 @@ class ae_genetic_unit
     inline Fuzzy*    get_inhib_contribution( void )      const;
     inline Fuzzy*    get_phenotypic_contribution( void ) const;
 
-    inline ae_list<ae_rna*>** get_rna_list( void )                const;
     inline std::vector<std::list<ae_rna*>> get_rna_list_std()     const;
     inline ae_list<ae_protein*>** get_protein_list( void ) const;
     inline std::vector<std::list<ae_protein*>> get_protein_list_std() const;
@@ -374,11 +373,6 @@ inline ae_individual* ae_genetic_unit::get_indiv( void ) const
 inline ae_dna* ae_genetic_unit::get_dna( void ) const
 {
   return _dna;
-}
-
-inline ae_list<ae_rna*>** ae_genetic_unit::get_rna_list( void ) const
-{
-  return _rna_list;
 }
 
 inline std::vector<std::list<ae_rna*>> ae_genetic_unit::get_rna_list_std() const {
