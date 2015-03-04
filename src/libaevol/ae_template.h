@@ -61,12 +61,14 @@ class ae_template
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_template( void );
+    ae_template(void) = default; //< Default ctor
+    ae_template(const ae_template&) = delete; //< Copy ctor
+    ae_template(ae_template&&) = delete; //< Move ctor
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_template( void );
+    virtual ~ae_template(void) = default; //< Destructor
 
     // =================================================================
     //                        Accessors: getters
@@ -93,22 +95,6 @@ class ae_template
 
 
   protected :
-
-    // =================================================================
-    //                         Forbidden Constructors
-    // =================================================================
-    /*ae_template( void )
-    {
-      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-    ae_template( const ae_template &model )
-    {
-      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };*/
-
-
     // =================================================================
     //                           Protected Methods
     // =================================================================
