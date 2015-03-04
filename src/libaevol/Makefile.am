@@ -64,11 +64,10 @@ ae_selection.h \
 ae_spatial_structure.h \
 ae_gene_tree.h \
 ae_gene_tree_node.h \
-ae_gene_mutation.h
-
-common_headers += \
+ae_gene_mutation.h \
 param_loader.h \
-f_line.h
+f_line.h \
+Time.h
 
 common_sources = \
 ae_align.cpp \
@@ -103,8 +102,10 @@ ae_spatial_structure.cpp \
 ae_gene_tree.cpp \
 ae_gene_tree_node.cpp \
 ae_gene_mutation.cpp \
-fuzzy.cpp
-common_sources += param_loader.cpp f_line.cpp
+fuzzy.cpp \
+param_loader.cpp \
+f_line.cpp \
+Time.cpp
 
 X11_headers = \
 fuzzy_X11.h \
