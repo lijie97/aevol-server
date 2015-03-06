@@ -177,7 +177,9 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
   // ----------------
   //  LEADING strand
   // ----------------
-  for (const auto& cds: gen_unit->get_protein_list()[LEADING]) {
+  const auto& prot_lists = gen_unit->get_protein_list();
+  for (const auto& cds: prot_lists[LEADING])
+  {
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)
     // nb_sect : "length" in degrees of the arc to be drawn
@@ -254,7 +256,8 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
   // ----------------
   //  LAGGING strand
   // ----------------
-  for (const auto& cds: gen_unit->get_protein_list()[LAGGING]) {
+  for (const auto& cds: prot_lists[LAGGING])
+  {
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)
     // nb_sect : "length" in degrees of the arc to be drawn
@@ -603,7 +606,9 @@ void ae_individual_X11::display_rnas( ae_X11_window* win )
   // ----------------
   //  LEADING strand
   // ----------------
-  for (const auto& rna: gen_unit->get_rna_list()[LEADING]) {
+  const auto& rna_lists = gen_unit->get_rna_list();
+  for (const auto& rna: rna_lists[LEADING])
+  {
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)
     // nb_sect : "length" in degrees of the arc to be drawn
@@ -701,7 +706,7 @@ void ae_individual_X11::display_rnas( ae_X11_window* win )
   // ----------------
   //  LAGGING strand
   // ----------------
-  for (const auto& rna: gen_unit->get_rna_list()[LAGGING]) {
+  for (const auto& rna: rna_lists[LAGGING]) {
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)
     // nb_sect : "length" in degrees of the arc to be drawn
