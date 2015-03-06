@@ -101,7 +101,6 @@ class ae_exp_manager
     inline double get_selection_pressure(void) const;
 
     // ------------------------------------------------------ Spatial structure
-    inline bool                   is_spatially_structured(void) const;
     inline ae_spatial_structure*  get_spatial_structure(void) const;
     inline ae_grid_cell*          get_grid_cell( int16_t x, int16_t y ) const;
     inline int16_t                get_grid_width(void) const;
@@ -329,11 +328,6 @@ inline double ae_exp_manager::get_selection_pressure(void) const
 }
 
 // Global settings
-inline bool ae_exp_manager::is_spatially_structured(void) const
-{
-  return ( get_spatial_structure() != NULL );
-}
-
 inline ae_spatial_structure* ae_exp_manager::get_spatial_structure(void) const
 {
   return _spatial_structure;

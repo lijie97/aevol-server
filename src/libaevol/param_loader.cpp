@@ -1514,40 +1514,37 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
     }
   }
 
-  // If the population is spatially structured, set each individual's position
-  if ( exp_m->is_spatially_structured() )
-  {
-    int16_t x, y;
-    int16_t x_max = exp_m->get_grid_width();
-    int16_t y_max = exp_m->get_grid_height();
-    ae_grid_cell* grid_cell = NULL;
+  // Set each individual's position on the grid
+  int16_t x, y;
+  int16_t x_max = exp_m->get_grid_width();
+  int16_t y_max = exp_m->get_grid_height();
+  ae_grid_cell* grid_cell = NULL;
 
-    for (const auto& indiv: pop->get_indivs()) {
-      do {
-        x = exp_m->get_spatial_structure()->get_prng()->random( x_max );
-        y = exp_m->get_spatial_structure()->get_prng()->random( y_max );
-        grid_cell = exp_m->get_grid_cell( x, y );
-      } while ( grid_cell->get_individual() != NULL );
-      grid_cell->set_individual( indiv );
-    }
+  for (const auto& indiv: pop->get_indivs()) {
+    do {
+      x = exp_m->get_spatial_structure()->get_prng()->random(x_max);
+      y = exp_m->get_spatial_structure()->get_prng()->random(y_max);
+      grid_cell = exp_m->get_grid_cell(x, y);
+    } while (grid_cell->get_individual() != NULL);
+    grid_cell->set_individual(indiv);
   }
 
 
 
   // 4) ------------------------------------------ Set the recording parameters
-  output_m->set_backup_step( _backup_step );
-  output_m->set_big_backup_step( _big_backup_step );
+  output_m->set_backup_step(_backup_step);
+  output_m->set_big_backup_step(_big_backup_step);
 
-  if ( _record_tree )
+  if (_record_tree)
   {
-    output_m->init_tree( exp_m, _tree_mode, _tree_step );
+    output_m->init_tree(exp_m, _tree_mode, _tree_step);
   }
 
-  if ( _make_dumps )
+  if (_make_dumps)
   {
-    output_m->set_dump_step( _dump_step );
+    output_m->set_dump_step(_dump_step);
   }
-  output_m->set_logs( _logs );
+  output_m->set_logs(_logs);
 
   delete param_mut;
 }

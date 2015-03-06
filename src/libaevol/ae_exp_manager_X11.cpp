@@ -672,22 +672,15 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
     {
       cur_win->blacken();
 
-      if ( is_spatially_structured() )
-      {
-        double** grid = get_spatial_structure()->get_total_fitness_grid();
-        ((ae_population_X11*)_pop)->display_grid(cur_win, grid);
+      double** grid = get_spatial_structure()->get_total_fitness_grid();
+      ((ae_population_X11*)_pop)->display_grid(cur_win, grid);
 
-        // Has been allocated in ae_spatial_structure::get_total_fitness_grid()
-        for ( int16_t x = 0 ; x < get_grid_width() ; x++ )
-        {
-          delete [] grid[x];
-        }
-        delete [] grid;
-      }
-      else
+      // Has been allocated in ae_spatial_structure::get_total_fitness_grid()
+      for ( int16_t x = 0 ; x < get_grid_width() ; x++ )
       {
-        ((ae_population_X11*)_pop)->display(cur_win);
+        delete [] grid[x];
       }
+      delete [] grid;
       break;
     }
 
@@ -766,10 +759,7 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
     {
       cur_win->blacken();
 
-      if ( is_spatially_structured() )
-      {
-        ((ae_population_X11*)_pop)->display_grid( cur_win, get_spatial_structure()->get_secretion_present_grid());
-      }
+      ((ae_population_X11*)_pop)->display_grid( cur_win, get_spatial_structure()->get_secretion_present_grid());
     }
     break;
 

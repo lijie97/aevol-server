@@ -65,6 +65,8 @@ class ae_selection
     // =================================================================
     //                             Constructors
     // =================================================================
+    ae_selection(void) = delete;
+    ae_selection(const ae_selection&) = delete;
     ae_selection( ae_exp_manager* exp_m );
     ae_selection( ae_exp_manager* exp_m, gzFile backup_file );
 
@@ -120,29 +122,13 @@ class ae_selection
 
 
   protected :
-
-    // =================================================================
-    //                         Forbidden Constructors
-    // =================================================================
-    ae_selection( void )
-    {
-      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-    ae_selection( const ae_selection &model )
-    {
-      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-
-
     // =================================================================
     //                           Protected Methods
     // =================================================================
     //void compute_prob_reprod( void );
     void compute_local_prob_reprod( void );
     //ae_individual* do_replication( ae_individual* parent, int32_t index, int16_t x = -1, int16_t y = -1 );
-    ae_individual* calculate_local_competition ( int16_t x, int16_t y );
+    ae_individual* do_local_competition(int16_t x, int16_t y);
 
     // =======================================================================
     //                             Protected Attributes

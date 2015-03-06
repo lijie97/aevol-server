@@ -254,74 +254,68 @@ int main( int argc, char* argv[] )
   exp_manager->load( input_dir, num_gener, false, verbose, false );
 
   if (generalseed != -1)
-    {
-      ae_jumping_mt * prng = new ae_jumping_mt( generalseed );
-      
-      selseed      = prng->random( 1000000 );
-      mutseed      = prng->random( 1000000 );
-      stochseed    = prng->random( 1000000 );
-      envvarseed   = prng->random( 1000000 );
-      envnoiseseed = prng->random( 1000000 );
+  {
+    ae_jumping_mt * prng = new ae_jumping_mt(generalseed);
+    
+    selseed      = prng->random(1000000);
+    mutseed      = prng->random(1000000);
+    stochseed    = prng->random(1000000);
+    envvarseed   = prng->random(1000000);
+    envnoiseseed = prng->random(1000000);
 
-      ae_jumping_mt * selprng           = new ae_jumping_mt( selseed );
-      ae_jumping_mt * mutprng           = new ae_jumping_mt( mutseed );
-      ae_jumping_mt * stochprng         = new ae_jumping_mt( stochseed );
-      ae_jumping_mt * envvarprng        = new ae_jumping_mt( envvarseed );
-      ae_jumping_mt * envnoiseprng      = new ae_jumping_mt( envnoiseseed );
+    ae_jumping_mt * selprng           = new ae_jumping_mt( selseed );
+    ae_jumping_mt * mutprng           = new ae_jumping_mt( mutseed );
+    ae_jumping_mt * stochprng         = new ae_jumping_mt( stochseed );
+    ae_jumping_mt * envvarprng        = new ae_jumping_mt( envvarseed );
+    ae_jumping_mt * envnoiseprng      = new ae_jumping_mt( envnoiseseed );
+
+    exp_manager->get_sel()->set_prng( selprng ); 
+    exp_manager->get_pop()->set_mut_prng( mutprng );
+    exp_manager->get_pop()->set_stoch_prng( stochprng );
+    exp_manager->get_env()->set_var_prng( envvarprng );
+    exp_manager->get_env()->set_noise_prng( envnoiseprng );
+
+    exp_manager->get_spatial_structure()->set_prng(
+        new ae_jumping_mt(prng->random(1000000)));
+    
+    delete prng;
+  }
+  else
+  {
+    if ( selseed != -1 )
+    {
+      ae_jumping_mt * selprng  = new ae_jumping_mt(selseed);
+
+      exp_manager->get_spatial_structure()->set_prng(
+          new ae_jumping_mt(selprng->random(1000000)));
 
       exp_manager->get_sel()->set_prng( selprng ); 
-      exp_manager->get_pop()->set_mut_prng( mutprng );
-      exp_manager->get_pop()->set_stoch_prng( stochprng );
-      exp_manager->get_env()->set_var_prng( envvarprng );
-      exp_manager->get_env()->set_noise_prng( envnoiseprng );
-
-      if (exp_manager->is_spatially_structured())
-        {
-          int32_t spatialstructseed = prng->random( 1000000 );
-          ae_jumping_mt * spatialstructprng = new ae_jumping_mt( spatialstructseed );
-          exp_manager->get_spatial_structure()->set_prng(spatialstructprng);
-        }      
-      
-      delete prng;
     }
-  else
+
+    if ( mutseed != -1 )
     {
-      if ( selseed != -1 )
-        {
-          ae_jumping_mt * selprng  = new ae_jumping_mt( selseed );
-          if (exp_manager->is_spatially_structured())
-            {
-              int32_t spatialstructseed = selprng->random( 1000000 );
-              ae_jumping_mt * spatialstructprng = new ae_jumping_mt( spatialstructseed );
-              exp_manager->get_spatial_structure()->set_prng(spatialstructprng);
-            }   
-          exp_manager->get_sel()->set_prng( selprng ); 
-        }
-
-      if ( mutseed != -1 )
-        {
-          ae_jumping_mt * mutprng = new ae_jumping_mt( mutseed );
-          exp_manager->get_pop()->set_mut_prng( mutprng );
-        }
-
-      if ( stochseed != -1 )
-        {
-          ae_jumping_mt * stochprng = new ae_jumping_mt( stochseed );
-          exp_manager->get_pop()->set_stoch_prng( stochprng );
-        }
-
-      if ( envvarseed != -1 )
-        {
-          ae_jumping_mt * envvarprng = new ae_jumping_mt( envvarseed );
-          exp_manager->get_env()->set_var_prng( envvarprng );
-        }
-
-      if ( envnoiseseed != -1 )
-        {
-          ae_jumping_mt * envnoiseprng = new ae_jumping_mt( envnoiseseed );
-          exp_manager->get_env()->set_noise_prng( envnoiseprng );
-        }
+      ae_jumping_mt * mutprng = new ae_jumping_mt( mutseed );
+      exp_manager->get_pop()->set_mut_prng( mutprng );
     }
+
+    if ( stochseed != -1 )
+    {
+      ae_jumping_mt * stochprng = new ae_jumping_mt( stochseed );
+      exp_manager->get_pop()->set_stoch_prng( stochprng );
+    }
+
+    if ( envvarseed != -1 )
+    {
+      ae_jumping_mt * envvarprng = new ae_jumping_mt( envvarseed );
+      exp_manager->get_env()->set_var_prng( envvarprng );
+    }
+
+    if ( envnoiseseed != -1 )
+    {
+      ae_jumping_mt * envnoiseprng = new ae_jumping_mt( envnoiseseed );
+      exp_manager->get_env()->set_noise_prng( envnoiseprng );
+    }
+  }
 
 
   exp_manager->save_copy( output_dir, 0 );

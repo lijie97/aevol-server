@@ -119,84 +119,12 @@ void ae_selection::step_to_next_generation( void )
   // 4) Replace the current generation by the newly created one.
   // 5) Sort the newly created population*
 
-  if ( _prng == NULL )
+  if (_prng == NULL)
   {
-    printf( "%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__ );
-    exit( EXIT_FAILURE );
+    printf("%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__);
+    exit(EXIT_FAILURE);
   }
 
-  if ( _exp_m->is_spatially_structured() )
-  {
-    step_to_next_generation_grid();
-    return;
-  }
-
-
-  if ( _exp_m->get_pop()->get_indiv_by_id( 0 )->get_with_stochasticity() )
-  {
-    _exp_m->get_pop()->backup_stoch_prng();
-  }
-
-
-  // -------------------------------------------------------------------------------
-  // 1) Compute the probability of reproduction of each individual in the population
-  // -------------------------------------------------------------------------------
-  #ifndef FIXED_POPULATION_SIZE
-    #error this method is not ready for variable population size
-    compute_prob_reprod();
-  #else
-    if ( _selection_scheme == FITNESS_PROPORTIONATE || _prob_reprod == NULL )
-    {
-      compute_prob_reprod();
-    }
-  #endif
-
-  // --------------------------------------------------------------------------------------------------------
-  // 2) Simulate the stochastic process by a multinomial drawing (based upon the probabilities computed in 1)
-  // --------------------------------------------------------------------------------------------------------
-  int32_t  nb_indivs = _exp_m->get_pop()->get_nb_indivs();
-  int32_t* nb_offsprings = new int32_t[nb_indivs];
-  _prng->multinomial_drawing( nb_offsprings, _prob_reprod, nb_indivs, nb_indivs );
-
-  // ------------------------------------------------------------------------------
-  // 3) Make the selected individuals "reproduce", thus creating the new generation
-  // ------------------------------------------------------------------------------
-  std::list<ae_individual*> new_generation;
-  std::list<ae_individual*> old_generation  = _exp_m->get_indivs_std();
-  std::list<ae_individual*>::const_iterator indiv = old_generation.begin();
-  int32_t index_new_indiv = 0;
-
-  for (int32_t i = 0; i < nb_indivs; i++) {
-    // Make indiv i reproduce (nb_offsprings[i] offsprings)
-    for (int32_t j = 0; j < nb_offsprings[i]; j++) {
-      #ifdef DISTRIBUTED_PRNG
-        #error Not implemented yet !
-        // For all but the first time, Take a jump in the PRNG
-        if (j > 0) indiv->do_prng_jump();
-      #endif
-
-      // Create a new individual (evaluated at the end of do_replication)
-      new_generation.push_back(do_replication(*indiv, index_new_indiv++));
-    }
-    ++indiv;
-  }
-
-  delete [] nb_offsprings;
-
-  // -------------------------------------------------------------
-  //  4) Replace the current generation by the newly created one.
-  // -------------------------------------------------------------
-  _exp_m->get_pop()->update_population(std::move(new_generation));
-
-
-  // --------------------------------------
-  //  5) Sort the newly created population
-  // --------------------------------------
-  _exp_m->get_pop()->sort_individuals();
-}
-
-void ae_selection::step_to_next_generation_grid( void )
-{
   // -------------------------------------------------------------------------------
   // 1) Compute the probability of reproduction of each individual in the population
   // -------------------------------------------------------------------------------
@@ -219,11 +147,10 @@ void ae_selection::step_to_next_generation_grid( void )
     exit( EXIT_FAILURE );
   }
 
+  // Create proxies
   ae_spatial_structure* sp_struct = _exp_m->get_spatial_structure();
-
   int16_t grid_width  = _exp_m->get_grid_width();
   int16_t grid_height = _exp_m->get_grid_height();
-
   ae_grid_cell*** pop_grid = _exp_m->get_pop_grid();
 
   // create a temporary grid to store new individuals
@@ -235,25 +162,26 @@ void ae_selection::step_to_next_generation_grid( void )
 
 
   // Do local competitions
-  for ( int16_t x = 0 ; x < grid_width ; x++ )
+  for (int16_t x = 0 ; x < grid_width ; x++)
   {
-    for ( int16_t y = 0 ; y < grid_height ; y++ )
+    for (int16_t y = 0 ; y < grid_height ; y++)
     {
-      new_indiv_grid[x][y] = calculate_local_competition( x, y );
+      new_indiv_grid[x][y] = do_local_competition(x, y);
     }
   }
 
 
+  // TODO : Why is that not *after* the creation of the new population ?
   // Add the compound secreted by the individuals
-  if ( _exp_m->get_with_secretion() )
+  if (_exp_m->get_with_secretion())
   {
-    double tmp_secretion;
     for ( int16_t x = 0 ; x < grid_width ; x++ )
     {
       for ( int16_t y = 0 ; y < grid_height ; y++ )
       {
-        tmp_secretion = pop_grid[x][y]->get_compound_amount() + pop_grid[x][y]->get_individual()->get_fitness_by_feature(SECRETION);
-        pop_grid[x][y]->set_compound_amount( tmp_secretion );
+        pop_grid[x][y]->set_compound_amount(
+            pop_grid[x][y]->get_compound_amount() +
+            pop_grid[x][y]->get_individual()->get_fitness_by_feature(SECRETION));
       }
     }
 
@@ -269,12 +197,12 @@ void ae_selection::step_to_next_generation_grid( void )
   {
     for ( int16_t y = 0 ; y < grid_height ; y++ )
     {
-      pop_grid[x][y]->set_individual( do_replication( new_indiv_grid[x][y], index_new_indiv++, x, y ) );
+      pop_grid[x][y]->set_individual(do_replication(new_indiv_grid[x][y], index_new_indiv++, x, y));
       #ifdef DISTRIBUTED_PRNG
         #error Not implemented yet !
         new_indiv_grid[x][y]->do_prng_jump();
       #endif
-        new_generation.emplace_back(pop_grid[x][y]->get_individual());
+      new_generation.emplace_back(pop_grid[x][y]->get_individual());
     }
   }
 
@@ -295,10 +223,12 @@ void ae_selection::step_to_next_generation_grid( void )
   }
 
   // Perform plasmid transfer
-  if ( _exp_m->get_with_plasmids() && ( (_exp_m->get_prob_plasmid_HT() != 0.0) || (_exp_m->get_tune_donor_ability() != 0.0) || (_exp_m->get_tune_recipient_ability() != 0.0) ) )
+  if (_exp_m->get_with_plasmids() &&
+      ((_exp_m->get_prob_plasmid_HT() != 0.0) ||
+        (_exp_m->get_tune_donor_ability() != 0.0) ||
+        (_exp_m->get_tune_recipient_ability() != 0.0)))
   {
     int16_t x_offset, y_offset, new_x, new_y;
-
 
     // Shuffle the grid:
     int16_t total_size = ((grid_width)*(grid_height));
@@ -365,9 +295,9 @@ void ae_selection::step_to_next_generation_grid( void )
 
     // If an individual has more than 2 GUs, we keep only the first (main chromosome) and the last one
     // and re-evaluate the individual
-    for ( int16_t x = 0 ; x < grid_width ; x++ )
+    for (int16_t x = 0 ; x < grid_width ; x++)
     {
-      for ( int16_t y = 0 ; y < grid_height ; y++ )
+      for (int16_t y = 0 ; y < grid_height ; y++)
       {
         bool reevaluate = (sp_struct->get_indiv_at(x, y)->get_nb_genetic_units() > 2);
         sp_struct->get_indiv_at(x, y)->drop_nested_genetic_units();
@@ -614,11 +544,10 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
  
   // ===========================================================================
   //  2) Set the new individual's location on the grid
-  //     (needed if the population is structured)
   // ===========================================================================
-  if ( _exp_m->is_spatially_structured() && (x != -1) )
+  if (x != -1) // TODO: why is this test needed ?
   {
-    new_indiv->set_grid_cell( _exp_m->get_spatial_structure()->get_grid_cell( x, y ) );
+    new_indiv->set_grid_cell(_exp_m->get_spatial_structure()->get_grid_cell(x, y));
   }
 
 
@@ -626,7 +555,7 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
   // ===========================================================================
   //  3) Perform transfer, rearrangements and mutations
   // ===========================================================================
-  if ( ! new_indiv->get_allow_plasmids() )
+  if (not new_indiv->get_allow_plasmids())
   {
     const ae_genetic_unit* chromosome = &new_indiv->get_genetic_unit_list_std().front();
 
@@ -682,7 +611,7 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
   return new_indiv;
 }
 
-ae_individual* ae_selection::calculate_local_competition ( int16_t x, int16_t y )
+ae_individual* ae_selection::do_local_competition (int16_t x, int16_t y)
 {
   // This function uses the array _prob_reprod when selection scheme is RANK_LINEAR, RANK_EXPONENTIAL, or FITTEST. For these selection schemes, the function compute_local_prob_reprod (creating the array _prob_reprod) must have been called before.
   // When selection scheme is FITNESS_PROPORTIONATE, this function only uses the fitness values

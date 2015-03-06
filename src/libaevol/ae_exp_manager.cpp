@@ -203,10 +203,7 @@ void ae_exp_manager::save(void) const
   get_env()->save(env_file);
   get_pop()->save(pop_file);
   get_sel()->save(sel_file);
-  if ( is_spatially_structured() )
-  {
-    get_spatial_structure()->save(sp_struct_file);
-  }
+  get_spatial_structure()->save(sp_struct_file);
 
   // 4) Close backup files
   close_backup_files( env_file, pop_file, sel_file, sp_struct_file );
@@ -260,10 +257,7 @@ void ae_exp_manager::save_copy( char* dir, int32_t num_gener /*= 0*/ ) const
   get_env()->save( env_file );
   get_pop()->save( pop_file );
   get_sel()->save( sel_file );
-  if ( is_spatially_structured() )
-  {
-    get_spatial_structure()->save( sp_struct_file );
-  }
+  get_spatial_structure()->save(sp_struct_file);
 
   // 4) Close setup and backup files
   close_setup_files( exp_s_gzfile, exp_s_txtfile, out_p_gzfile, out_p_txtfile );
@@ -374,15 +368,12 @@ void ae_exp_manager::load( const char* dir,
   // 4) Recompute unsaved data
   // ---------------------------------------------------------------------------
   // Evaluate individuals
-  _pop->evaluate_individuals( get_env() );
+  _pop->evaluate_individuals(get_env());
 
   // If the population is spatially structured, then the individuals are saved
   // and loaded in the order of the grid and not in increasing order of fitness
   // so we have to sort the individuals
-  if ( is_spatially_structured() )
-  {
-    _pop->sort_individuals();
-  }
+  _pop->sort_individuals();
 }
 
 
@@ -543,15 +534,12 @@ void ae_exp_manager::load(int64_t t0,
   // 5) Recompute unsaved data
   // ---------------------------------------------------------------------------
   // Evaluate individuals
-  _pop->evaluate_individuals( get_env() );
+  _pop->evaluate_individuals(get_env());
 
   // If the population is spatially structured, then the individuals are saved
   // and loaded in the order of the grid and not in increasing order of fitness
   // so we have to sort the individuals
-  if ( is_spatially_structured() )
-  {
-    _pop->sort_individuals();
-  }
+  _pop->sort_individuals();
 }
 
 /*!
@@ -645,14 +633,11 @@ void ae_exp_manager::create_missing_directories( const char* dir /*= "."*/ ) con
     err( EXIT_FAILURE, cur_dir_name, errno );
   }
   // Spatial structure
-  if ( is_spatially_structured() )
+  sprintf( cur_dir_name, "%s/" SP_STRUCT_DIR, dir );
+  status = mkdir( cur_dir_name, 0755 );
+  if ( status == -1 && errno != EEXIST )
   {
-    sprintf( cur_dir_name, "%s/" SP_STRUCT_DIR, dir );
-    status = mkdir( cur_dir_name, 0755 );
-    if ( status == -1 && errno != EEXIST )
-    {
-      err( EXIT_FAILURE, cur_dir_name, errno );
-    }
+    err( EXIT_FAILURE, cur_dir_name, errno );
   }
 }
 
@@ -673,10 +658,12 @@ void ae_exp_manager::open_backup_files(gzFile& env_file,
   char env_file_name[255];
   char pop_file_name[255];
   char exp_backup_file_name[255];
+  char sp_struct_file_name[255];
 
   sprintf(env_file_name, "%s/" ENV_FNAME_FORMAT, dir, t);
   sprintf(pop_file_name, "%s/" POP_FNAME_FORMAT, dir, t);
   sprintf(exp_backup_file_name, "%s/" EXP_S_FNAME_FORMAT, dir, t);
+  sprintf(sp_struct_file_name, "%s/" SP_STRUCT_FNAME_FORMAT, dir, t);
 
 
   // -------------------------------------------------------------------------
@@ -685,78 +672,35 @@ void ae_exp_manager::open_backup_files(gzFile& env_file,
   env_file = gzopen(env_file_name, mode);
   pop_file = gzopen(pop_file_name, mode);
   exp_backup_file = gzopen(exp_backup_file_name, mode);
+  sp_struct_file = gzopen(sp_struct_file_name, mode);
 
 
   // -------------------------------------------------------------------------
   // 3) Check that files were correctly opened
   // -------------------------------------------------------------------------
-  if ( env_file == Z_NULL )
+  if (env_file == Z_NULL)
   {
     printf( "%s:%d: error: could not open backup file %s\n",
             __FILE__, __LINE__, env_file_name );
     exit( EXIT_FAILURE );
   }
-  if ( pop_file == Z_NULL )
+  if (pop_file == Z_NULL)
   {
     printf( "%s:%d: error: could not open backup file %s\n",
             __FILE__, __LINE__, pop_file_name );
     exit( EXIT_FAILURE );
   }
-  if ( exp_backup_file == Z_NULL )
+  if (exp_backup_file == Z_NULL)
   {
     printf( "%s:%d: error: could not open backup file %s\n",
             __FILE__, __LINE__, exp_backup_file_name );
     exit( EXIT_FAILURE );
   }
-
-
-  // -------------------------------------------------------------------------
-  // 4) Handle optional files
-  // -------------------------------------------------------------------------
-  char sp_struct_file_name[255];
-  sprintf(sp_struct_file_name, "%s/" SP_STRUCT_FNAME_FORMAT, dir, t);
-
-  // Check whether there should be spatial structure
-  bool spatially_structured = false;
-  if ( strcmp( mode, "w" ) == 0 )
+  if (sp_struct_file == Z_NULL)
   {
-    if ( is_spatially_structured() )
-      spatially_structured = true;
-  }
-  else if ( strcmp( mode, "r" ) == 0 )
-  {
-    // Check for the existence of the corresponding file in the file system.
-    struct stat stat_buf;
-    if ( stat( sp_struct_file_name, &stat_buf ) == -1 )
-    {
-      if ( errno != ENOENT )
-      {
-        printf( "%s:%d: error: unknown error.\n", __FILE__, __LINE__ );
-        exit( EXIT_FAILURE );
-      }
-      // Else file does not exist, leave spatially_structured to false
-    }
-    else
-    {
-      spatially_structured = true;
-    }
-  }
-
-  // If there should be spatial structure, open file and check
-  if ( spatially_structured )
-  {
-    sp_struct_file = gzopen( sp_struct_file_name, mode );
-
-    if ( sp_struct_file == Z_NULL )
-    {
-      printf( "%s:%d: error: could not open backup file %s\n",
-              __FILE__, __LINE__, sp_struct_file_name );
-      exit( EXIT_FAILURE );
-    }
-  }
-  else
-  {
-    sp_struct_file = NULL;
+    printf( "%s:%d: error: could not open backup file %s\n",
+            __FILE__, __LINE__, sp_struct_file_name );
+    exit( EXIT_FAILURE );
   }
 }
 
@@ -765,13 +709,10 @@ void ae_exp_manager::close_backup_files(  gzFile& env_file,
                                           gzFile& exp_backup_file,
                                           gzFile& sp_struct_file ) const
 {
-  gzclose( env_file );
-  gzclose( pop_file );
-  gzclose( exp_backup_file );
-  if ( is_spatially_structured() )
-  {
-    gzclose( sp_struct_file );
-  }
+  gzclose(env_file);
+  gzclose(pop_file);
+  gzclose(exp_backup_file);
+  gzclose(sp_struct_file);
 }
 
 void ae_exp_manager::open_setup_files(

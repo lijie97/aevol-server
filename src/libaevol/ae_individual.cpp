@@ -973,10 +973,9 @@ ae_individual::ae_individual(ae_exp_manager* exp_m, gzFile backup_file) {
   gzread(backup_file, &x, sizeof(x));
   gzread(backup_file, &y, sizeof(y));
   _placed_in_population = false;
-  if (_exp_m != NULL && _exp_m->is_spatially_structured())
+  if (_exp_m != NULL)
   {
     set_grid_cell(_exp_m->get_grid_cell(x, y));
-
   }
 
   // Retreive generic probes
@@ -1837,14 +1836,9 @@ void ae_individual::save(gzFile backup_file) const {
   gzwrite(backup_file, &_id,   sizeof(_id));
   gzwrite(backup_file, &_rank, sizeof(_rank));
 
-  // Write the position of the individual (or -1, -1 if there is no spatial structure)
-  int16_t x = -1;
-  int16_t y = -1;
-  if (_exp_m->is_spatially_structured())
-  {
-    x = _grid_cell->get_x();
-    y = _grid_cell->get_y();
-  }
+  // Write the position of the individual
+  int16_t x = _grid_cell->get_x();
+  int16_t y = _grid_cell->get_y();
   gzwrite(backup_file, &x, sizeof(x));
   gzwrite(backup_file, &y, sizeof(y));
 

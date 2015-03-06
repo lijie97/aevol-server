@@ -89,8 +89,6 @@ void ae_population_X11::display(ae_X11_window* win)
 // Display a grid of values
 void ae_population_X11::display_grid(ae_X11_window* win, double** cell_grid)
 {
-  assert(_exp_m->is_spatially_structured());
-  
   // printf("display grid\n");
   char t[40];
   int nb_colors = 50; 

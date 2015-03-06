@@ -317,17 +317,12 @@ int main( int argc, char* argv[] )
      {
        exp_manager->get_output_m()->set_big_backup_step( atol( line->words[1] ) );
      }
-      else if ( strcmp( line->words[0], "POPULATION_SIZE") == 0 )
-        {
-          if (exp_manager->is_spatially_structured())
-            {
-              printf( "ERROR in param file \"%s\" on line %" PRId32 ": the change of population size is not implemented yet\n for spatially structured populations",
-                      param_file_name, cur_line );
-              exit( EXIT_FAILURE );
-            }
-          pop->set_nb_indivs(atol( line->words[1] ));
-          printf("\tChange of population size to %ld\n",atol( line->words[1] ));
-        }
+     else if ( strcmp( line->words[0], "POPULATION_SIZE") == 0 )
+     {
+        printf( "ERROR in param file \"%s\" on line %" PRId32 ": the change of population size is not implemented yet\n for spatially structured populations",
+                param_file_name, cur_line );
+        exit( EXIT_FAILURE );
+      }
      else if ( strcmp( line->words[0], "SELECTION_SCHEME" ) == 0 )
      {
        if ( strncmp( line->words[1], "lin", 3 ) == 0 )
@@ -566,87 +561,84 @@ int main( int argc, char* argv[] )
         }
       }
       else if ( strcmp( line->words[0], "SEED" ) == 0 )
-        {
-          int32_t seed = atoi( line->words[1] ) ;
-      
-          ae_jumping_mt* prng = new ae_jumping_mt( seed );
-      
-          // Change prng in ae_selection 
-          sel->set_prng( new ae_jumping_mt(*prng) );
-      
-          if( exp_manager->is_spatially_structured())
-            {
-              ae_spatial_structure* sp_struct = exp_manager->get_spatial_structure();
-              sp_struct->set_prng(new ae_jumping_mt(*prng) );
-            }
-      
-          printf("\tChange of the seed to %d in selection \n",atoi( line->words[1] ));
-        }
+      {
+        int32_t seed = atoi( line->words[1] ) ;
+    
+        ae_jumping_mt* prng = new ae_jumping_mt( seed );
+    
+        // Change prng in ae_selection 
+        sel->set_prng( new ae_jumping_mt(*prng) );
+    
+        ae_spatial_structure* sp_struct = exp_manager->get_spatial_structure();
+        sp_struct->set_prng(new ae_jumping_mt(*prng) );
+    
+        printf("\tChange of the seed to %d in selection \n",atoi( line->words[1] ));
+      }
       else if ( strcmp( line->words[0], "MUT_SEED" ) == 0 )
-        {
-          int32_t mut_seed = atoi( line->words[1] ) ;
-      
-          ae_jumping_mt* mut_prng = new ae_jumping_mt( mut_seed );
-      
-          // Change prng of the population
-          pop->set_mut_prng( new ae_jumping_mt(*mut_prng) );
-          printf("\tChange of the seed to %d in mutations \n",atoi( line->words[1] ));
-        }
+      {
+        int32_t mut_seed = atoi( line->words[1] ) ;
+    
+        ae_jumping_mt* mut_prng = new ae_jumping_mt( mut_seed );
+    
+        // Change prng of the population
+        pop->set_mut_prng( new ae_jumping_mt(*mut_prng) );
+        printf("\tChange of the seed to %d in mutations \n",atoi( line->words[1] ));
+      }
       else if ( strcmp( line->words[0], "STOCH_SEED" ) == 0 )
-        {
-          int32_t stoch_seed = atoi( line->words[1] ) ;
-      
-          ae_jumping_mt* stoch_prng = new ae_jumping_mt( stoch_seed );
-      
-          // Change prng of the population
-          pop->set_stoch_prng( new ae_jumping_mt(*stoch_prng) );
-          printf("\tChange of the seed to %d in individuals' stochasticity \n",atoi( line->words[1] ));
-        }
+      {
+        int32_t stoch_seed = atoi( line->words[1] ) ;
+    
+        ae_jumping_mt* stoch_prng = new ae_jumping_mt( stoch_seed );
+    
+        // Change prng of the population
+        pop->set_stoch_prng( new ae_jumping_mt(*stoch_prng) );
+        printf("\tChange of the seed to %d in individuals' stochasticity \n",atoi( line->words[1] ));
+      }
       else if ( strcmp( line->words[0], "CLONE_BEST" ) == 0 )
-        {
-          change_by_cloning_best(pop, exp_manager);
-          printf("\tChange of the population for a population with %" PRId32 " individuals, all clones of the best one\n",pop->get_nb_indivs());
-        }
+      {
+        change_by_cloning_best(pop, exp_manager);
+        printf("\tChange of the population for a population with %" PRId32 " individuals, all clones of the best one\n",pop->get_nb_indivs());
+      }
       else if ( strcmp( line->words[0], "CREATE_3_SUBPOPULATIONS_BASED_ON_NON_CODING_BASES" ) == 0 )
-        {
-          change_based_on_non_coding_bases_of_best_individual(pop, exp_manager, SUBPOPULATIONS_BASED_ON_NON_CODING_BASES);
-          printf("\tChange of the population for a population with %" PRId32 " individuals in 3 equal subpopulations (A: clones of the previous best individual, B: clones of the previous best individual without any non coding bases, C: clones of the previous best individual with twice non bases\n",pop->get_nb_indivs());
-          printf("WARNING: lineage will not work properly if called with \n");
-          printf("         a begin generation anterior to this modification \n");
-        }
+      {
+        change_based_on_non_coding_bases_of_best_individual(pop, exp_manager, SUBPOPULATIONS_BASED_ON_NON_CODING_BASES);
+        printf("\tChange of the population for a population with %" PRId32 " individuals in 3 equal subpopulations (A: clones of the previous best individual, B: clones of the previous best individual without any non coding bases, C: clones of the previous best individual with twice non bases\n",pop->get_nb_indivs());
+        printf("WARNING: lineage will not work properly if called with \n");
+        printf("         a begin generation anterior to this modification \n");
+      }
       else if ( strcmp( line->words[0], "REMOVE_NON_CODING_BASES_BEST" ) == 0 )
-        {
-          change_based_on_non_coding_bases_of_best_individual(pop, exp_manager, REMOVE_NON_CODING_BASES_BEST_IND);
-          printf("\tChange of the population for a population with %" PRId32 " clones of the best individual ancestor without any non coding bases\n",pop->get_nb_indivs());
-          printf("WARNING: lineage will not work properly if called with \n");
-          printf("         a begin generation anterior to this modification \n");
-        }
+      {
+        change_based_on_non_coding_bases_of_best_individual(pop, exp_manager, REMOVE_NON_CODING_BASES_BEST_IND);
+        printf("\tChange of the population for a population with %" PRId32 " clones of the best individual ancestor without any non coding bases\n",pop->get_nb_indivs());
+        printf("WARNING: lineage will not work properly if called with \n");
+        printf("         a begin generation anterior to this modification \n");
+      }
       else if ( strcmp( line->words[0], "REMOVE_NON_CODING_BASES_POP" ) == 0 )
-        {
-          change_based_on_non_coding_bases_in_population(pop, exp_manager,  REMOVE_NON_CODING_BASES_POPULATION);
-          printf("\tChange of the population for a population with %" PRId32 " individuals without any non coding bases\n",pop->get_nb_indivs());
-          printf("WARNING: lineage will not work properly if called with \n");
-          printf("         a begin generation anterior to this modification \n");
-        }
+      {
+        change_based_on_non_coding_bases_in_population(pop, exp_manager,  REMOVE_NON_CODING_BASES_POPULATION);
+        printf("\tChange of the population for a population with %" PRId32 " individuals without any non coding bases\n",pop->get_nb_indivs());
+        printf("WARNING: lineage will not work properly if called with \n");
+        printf("         a begin generation anterior to this modification \n");
+      }
       else if ( strcmp( line->words[0], "DOUBLE_NON_CODING_BASES_BEST" ) == 0 )
-        {
-          change_based_on_non_coding_bases_of_best_individual(pop, exp_manager,  DOUBLE_NON_CODING_BASES_BEST_IND);
-          printf("\tChange of the population for a population with %" PRId32 " clones of the best individual ancestor with twice the non coding bases number \n",pop->get_nb_indivs());
-          printf("WARNING: lineage will not work properly if called with \n");
-          printf("         a begin generation anterior to this modification \n");
-        }
+      {
+        change_based_on_non_coding_bases_of_best_individual(pop, exp_manager,  DOUBLE_NON_CODING_BASES_BEST_IND);
+        printf("\tChange of the population for a population with %" PRId32 " clones of the best individual ancestor with twice the non coding bases number \n",pop->get_nb_indivs());
+        printf("WARNING: lineage will not work properly if called with \n");
+        printf("         a begin generation anterior to this modification \n");
+      }
       else if ( strcmp( line->words[0], "DOUBLE_NON_CODING_BASES_POP" ) == 0 )
-        {
-          change_based_on_non_coding_bases_in_population(pop, exp_manager, DOUBLE_NON_CODING_BASES_POPULATION);
-          printf("\tChange of the population for a population with %" PRId32 " individuals with twice the non coding bases number\n",pop->get_nb_indivs());
-          printf("WARNING: lineage will not work properly if called with \n");
-          printf("         a begin generation anterior to this modification \n");
-        }
+      {
+        change_based_on_non_coding_bases_in_population(pop, exp_manager, DOUBLE_NON_CODING_BASES_POPULATION);
+        printf("\tChange of the population for a population with %" PRId32 " individuals with twice the non coding bases number\n",pop->get_nb_indivs());
+        printf("WARNING: lineage will not work properly if called with \n");
+        printf("         a begin generation anterior to this modification \n");
+      }
       else
-        {
-          printf( "%s:%d: error: the change %s is not implemented yet \n", __FILE__, __LINE__, line->words[0] );
-          exit( EXIT_FAILURE );
-        }
+      {
+        printf( "%s:%d: error: the change %s is not implemented yet \n", __FILE__, __LINE__, line->words[0] );
+        exit( EXIT_FAILURE );
+      }
 
       delete line;
     }
@@ -787,28 +779,24 @@ void change_by_cloning_best(ae_population* pop, ae_exp_manager* exp_m)
     new_population.push_back(create_clone(best_indiv, i));
   pop->replace_population(std::move(new_population));
 
-  // If the population is spatially structured, set each individual's position
-  if ( exp_m->is_spatially_structured() )
-    {
-      int16_t x = 0, y = 0;
-      int16_t x_max = exp_m->get_grid_width();
-      // int16_t y_max = exp_m->get_grid_height();
-      ae_grid_cell* grid_cell = NULL;
-      
-      for (auto& indiv: pop->get_indivs()) {
-        grid_cell = exp_m->get_grid_cell(x, y);
-        grid_cell->set_individual(indiv);
-        x++;
-        if (x == x_max) {
-          x = 0;
-          y++;
-        }
-      }
+  // Set each individual's position on the grid
+  int16_t x = 0, y = 0;
+  int16_t x_max = exp_m->get_grid_width();
+  // int16_t y_max = exp_m->get_grid_height();
+  ae_grid_cell* grid_cell = NULL;
+  
+  for (auto& indiv: pop->get_indivs()) {
+    grid_cell = exp_m->get_grid_cell(x, y);
+    grid_cell->set_individual(indiv);
+    x++;
+    if (x == x_max) {
+      x = 0;
+      y++;
     }
+  }
 
   pop->evaluate_individuals( exp_m->get_env() );
   pop->sort_individuals();
-
 }
 
 
