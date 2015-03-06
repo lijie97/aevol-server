@@ -72,7 +72,6 @@ class ae_rna
     ae_rna(void) = delete;
     ae_rna(const ae_genetic_unit&) = delete;
     ae_rna( ae_genetic_unit* gen_unit, const ae_rna &model );
-    ae_rna( ae_genetic_unit* gen_unit );
     ae_rna( ae_genetic_unit* gen_unit, ae_strand strand, int32_t index, int8_t diff );
     //ae_rna( ae_rna* parent );
 
