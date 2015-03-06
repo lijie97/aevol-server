@@ -49,6 +49,11 @@
 #include "ae_jumping_mt.h"
 #include "ae_utils.h"
 
+
+
+using std::vector;
+using std::list;
+
 namespace aevol {
 
 
@@ -93,8 +98,11 @@ class ae_genetic_unit
     Fuzzy*    get_inhib_contribution( void )      const;
     Fuzzy*    get_phenotypic_contribution( void ) const;
 
-    std::vector<std::list<ae_rna*>> get_rna_list()     const;
-    std::vector<std::list<ae_protein*>> get_protein_list() const;
+    // TODO: re constify
+    // TODO return as (rvalue?) reference
+    /*const*/ std::vector<std::list<ae_rna*>> get_rna_list() const;
+    // TODO return as (rvalue?) reference
+    const list<ae_protein*> get_protein_list(ae_strand strand) const;
 
 
 
@@ -157,6 +165,11 @@ class ae_genetic_unit
     void do_transcription( void );
     void do_translation( void );
     void compute_phenotypic_contribution( void );
+
+    void take_ownership_of_all_rnas(void) { ae_dna::set_GU(get_rna_list(), this); };
+
+
+  
 
     // DM: these two are identical to functions from ae_individual
     void compute_distance_to_target( Environment* envir );
@@ -354,8 +367,6 @@ class ae_genetic_unit
     bool _distance_to_target_computed;
     bool _fitness_computed;
 };
-
-
 
 } // namespace aevol
 #endif // __ae_genetic_unit_H__

@@ -45,6 +45,9 @@
 #include "ae_genetic_unit.h"
 
 
+ using std::list;
+
+
 namespace aevol {
 
 //##############################################################################
@@ -418,8 +421,8 @@ void ae_gene_tree_node::update_pointers_in_subtree_leaves(ae_genetic_unit * unit
       return;
 
     // TODO vld: refactor DUPLICATED CODE (ref dc1)
-    const auto& pl = unit->get_protein_list()[_strand]; // shorthand
-    const std::list<ae_protein*>::const_iterator protein =
+    const auto& pl = unit->get_protein_list(_strand); // shorthand
+    const list<ae_protein*>::const_iterator protein =
         find_if(pl.cbegin(), pl.cend(),
                 [this](ae_protein* p){return p->get_shine_dal_pos() == _shine_dal_position;});
     if (protein != pl.end()) {
@@ -975,8 +978,8 @@ void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leav
           // Just make sure that we have correctly predicted the positions of the SD sequence and of the promoters.
 
           // TODO vld: refactor DUPLICATED CODE (ref dc1)
-          const auto& pl = unit->get_protein_list()[_strand]; // shorthand
-          const std::list<ae_protein*>::const_iterator protein =
+          const auto& pl = unit->get_protein_list(_strand); // shorthand
+          const list<ae_protein*>::const_iterator protein =
               find_if(pl.cbegin(), pl.cend(),
                       [this](ae_protein* p){return p->get_shine_dal_pos() == _shine_dal_position;});
           if (protein != pl.end()) {
@@ -1021,8 +1024,8 @@ void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leav
 
           /* Check whether the protein survived the event */
           // TODO vld: refactor DUPLICATED CODE (ref dc1)
-          const auto& pl = unit->get_protein_list()[_strand]; // shorthand
-          const std::list<ae_protein*>::const_iterator protein =
+          const auto& pl = unit->get_protein_list(_strand); // shorthand
+          const list<ae_protein*>::const_iterator protein =
               find_if(pl.cbegin(), pl.cend(),
                       [this](ae_protein* p){return p->get_shine_dal_pos() == _shine_dal_position;});
           if (protein != pl.end()) {
@@ -1060,8 +1063,8 @@ void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leav
         /* Check whether the duplicated CDS found a promoter */
         /* It should be on the same strand as myself, at the _putative_position_for_the_duplicate */
 
-        const auto& pl = unit->get_protein_list()[_strand]; // shorthand
-        const std::list<ae_protein*>::const_iterator protein =
+        const auto& pl = unit->get_protein_list(_strand); // shorthand
+        const list<ae_protein*>::const_iterator protein =
             find_if(pl.cbegin(), pl.cend(),
                     [this](ae_protein* p){return p->get_shine_dal_pos() == _putative_position_for_the_duplicate;});
 

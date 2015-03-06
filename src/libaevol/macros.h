@@ -34,7 +34,7 @@ constexpr int8_t NB_BASE = 2; // WARNING :  A lot of stuff has been optimized fo
 // Backup directories and file name formats
 // Experimental Setup
 #define EXP_S_DIR                 "exp_setup"
-#define EXP_S_FNAME_BASE          "exp_setup_%06" PRId32
+#define EXP_S_FNAME_BASE          "exp_setup_%06" PRId64
 #define EXP_S_FNAME_FORMAT        EXP_S_DIR "/" EXP_S_FNAME_BASE ".ae"
 //~ #define EXP_S_TXT_FNAME_FORMAT    EXP_S_DIR"/"EXP_S_FNAME_BASE".in"
 #define EXP_S_CONST_FNAME_BASE        "exp_setup_const"
@@ -49,15 +49,15 @@ constexpr int8_t NB_BASE = 2; // WARNING :  A lot of stuff has been optimized fo
 #define OUT_P_TXT_CUR_FNAME       "output_profile.in"
 // Environment
 #define ENV_DIR                   "environment"
-#define ENV_FNAME_BASE            "env_%06" PRId32
+#define ENV_FNAME_BASE            "env_%06" PRId64
 #define ENV_FNAME_FORMAT          ENV_DIR "/" ENV_FNAME_BASE ".ae"
 // Population
 #define POP_DIR                   "populations"
-#define POP_FNAME_BASE            "pop_%06" PRId32
+#define POP_FNAME_BASE            "pop_%06" PRId64
 #define POP_FNAME_FORMAT          POP_DIR "/" POP_FNAME_BASE ".ae"
 // Spatial Structure
 #define SP_STRUCT_DIR             "spatial_structure"
-#define SP_STRUCT_FNAME_BASE      "sp_struct_%06" PRId32
+#define SP_STRUCT_FNAME_BASE      "sp_struct_%06" PRId64
 #define SP_STRUCT_FNAME_FORMAT    SP_STRUCT_DIR "/" SP_STRUCT_FNAME_BASE".ae"
 // Stats
 #define STATS_DIR   "stats"

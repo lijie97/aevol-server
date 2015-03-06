@@ -212,9 +212,11 @@ int main(int argc, char** argv)
     exit( EXIT_FAILURE );
   }
 
-  int32_t begin_gener, end_gener, final_index, num_gener, final_indiv_rank;
-  gzread(lineage_file, &begin_gener, sizeof(begin_gener));
-  gzread(lineage_file, &end_gener, sizeof(end_gener));
+  int64_t t0;
+  int64_t t_end;
+  int32_t  final_index, final_indiv_rank;
+  gzread(lineage_file, &t0, sizeof(t0));
+  gzread(lineage_file, &t_end, sizeof(t_end));
   gzread(lineage_file, &final_index, sizeof(final_index) );
   gzread(lineage_file, &final_indiv_rank,   sizeof(final_indiv_rank) );
 
@@ -222,8 +224,8 @@ int main(int argc, char** argv)
   {
     printf("\n\n");
     printf("================================================================================\n");
-    printf(" Gene families of the ancestors of indiv. #%" PRId32 " (t=%" PRId32 " to %" PRId32 ")\n",
-            final_index, begin_gener, end_gener);
+    printf(" Gene families of the ancestors of indiv. #%" PRId32 " (t=%" PRId64 " to %" PRId64 ")\n",
+            final_index, t0, t_end);
     printf("================================================================================\n");
   }
 
@@ -236,10 +238,10 @@ int main(int argc, char** argv)
 
 
   ae_exp_manager* exp_manager = new ae_exp_manager();
-  exp_manager->load( begin_gener, false, true, false );
-  Environment* env = new Environment( *(exp_manager->get_env()) ); // independent copy
+  exp_manager->load(t0, false, true, false);
+  Environment* env = new Environment(*(exp_manager->get_env())); // independent copy
 
-  int32_t backup_step = exp_manager->get_backup_step();
+  int64_t backup_step = exp_manager->get_backup_step();
 
 
   // ==============================
@@ -266,11 +268,12 @@ int main(int argc, char** argv)
 
   ae_list<ae_gene_tree*> * gene_trees = new ae_list<ae_gene_tree*>();
 
-  for (const auto& unit: indiv->get_genetic_unit_list_std()) {
-    for (const auto& prot: unit.get_protein_list()[LEADING])
-      gene_trees->add(new ae_gene_tree(begin_gener, prot));
-    for (const auto& prot: unit.get_protein_list()[LAGGING])
-      gene_trees->add(new ae_gene_tree(begin_gener, prot));
+  for (const auto& unit: indiv->get_genetic_unit_list_std())
+  {
+    for (const auto& prot: unit.get_protein_list(LEADING))
+      gene_trees->add(new ae_gene_tree(t0, prot));
+    for (const auto& prot: unit.get_protein_list(LAGGING))
+      gene_trees->add(new ae_gene_tree(t0, prot));
   }
 
   // ===============================================================================
@@ -285,7 +288,7 @@ int main(int argc, char** argv)
   ae_individual* stored_indiv = NULL;
   std::list<ae_genetic_unit>::const_iterator stored_unit;
 
-  int32_t i, index, genetic_unit_number, unitlen_before;
+  int32_t index, genetic_unit_number, unitlen_before;
   double metabolic_error_before, metabolic_error_after, impact_on_metabolic_error;
 
 
@@ -297,10 +300,10 @@ int main(int argc, char** argv)
 
   bool check_now = false;
 
-  for ( i = 0; i < end_gener - begin_gener; i++ )
-  {
-    num_gener = begin_gener + i + 1;  // where are we in time...
 
+  aevol::Time::plusplus();
+  while (get_time() <= t_end)
+  {
     env->build();
 
     rep = new ae_replication_report( lineage_file, indiv );
@@ -308,30 +311,32 @@ int main(int argc, char** argv)
     indiv->set_replication_report(rep);
 
     // Check now?
-    check_now = ( ( check == FULL_CHECK && ae_utils::mod( num_gener, backup_step ) == 0 ) ||
-                  ( check == ENV_CHECK && ae_utils::mod( num_gener, backup_step ) == 0 ) ||
-                  ( check == LIGHT_CHECK && num_gener == end_gener ) );
+    check_now = ((check == FULL_CHECK && ae_utils::mod(get_time(), backup_step ) == 0) ||
+                 (check == ENV_CHECK && ae_utils::mod(get_time(), backup_step ) == 0) ||
+                 (check == LIGHT_CHECK && get_time() == t_end));
 
 
-    if ( verbose ) printf("Rebuilding ancestor at generation %" PRId32 " (index %" PRId32 ")...", num_gener, index);
+    if (verbose)
+      printf("Rebuilding ancestor at time %" PRId64 " (index %" PRId32 ")...",
+          get_time(), index);
 
     env->build();
     env->apply_variation();
     indiv->reevaluate(env);
 
     // Check, and possibly update, the environment according to the backup files (update necessary if the env. was modified by aevol_modify at some point)
-    if (ae_utils::mod( num_gener, backup_step ) == 0)
+    if (ae_utils::mod( get_time(), backup_step ) == 0)
       {
         char env_file_name[255];
-        sprintf( env_file_name, "./" ENV_FNAME_FORMAT, num_gener );
+        sprintf( env_file_name, "./" ENV_FNAME_FORMAT, get_time() );
         gzFile env_file = gzopen( env_file_name, "r" );
         backup_env = new Environment();
         backup_env->load( env_file );
 
         if ( ! env->is_identical_to(*backup_env, tolerance) )
           {
-            printf("Warning: At t=%" PRId32 ", the replayed environment is not the same\n", num_gener);
-            printf("         as the one saved at generation %" PRId32 "... \n", num_gener );
+            printf("Warning: At t=%" PRId64 ", the replayed environment is not the same\n", get_time());
+            printf("         as the one saved at t=%" PRId64 "... \n", get_time() );
             printf("         with tolerance of %lg\n", tolerance);
             printf("Replacing the replayed environment by the one stored in the backup.\n");
             delete env;
@@ -351,7 +356,7 @@ int main(int argc, char** argv)
     if ( check_now )
     {
       exp_manager_backup = new ae_exp_manager();
-      exp_manager_backup->load( num_gener, false, true, false );
+      exp_manager_backup->load( get_time(), false, true, false );
       stored_indiv = new ae_individual( * (ae_individual *)exp_manager_backup->get_indiv_by_id( index ), false );
       stored_unit = stored_indiv->get_genetic_unit_list_std().begin();
     }
@@ -388,7 +393,7 @@ int main(int argc, char** argv)
 
         mut->get_generic_description_string( mut_descr_string );
         fprintf( output, "%"PRId32 " %"PRId32 " %s %"PRId32 " %.15f  %"PRId32 " %"PRId32 " %"PRId32 " \n",\
-                 num_gener, genetic_unit_number, \
+                 get_time(), genetic_unit_number, \
                  mut_descr_string, unitlen_before, \
                  impact_on_metabolic_error, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment );
 
@@ -413,18 +418,18 @@ int main(int argc, char** argv)
         metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
-        register_actual_mutation_effect_on_genes_in_trees(gene_trees, &mut, &*unit, num_gener, impact_on_metabolic_error);
+        register_actual_mutation_effect_on_genes_in_trees(gene_trees, &mut, &*unit, get_time(), impact_on_metabolic_error);
 
         /* New genes that have been created "from scratch", i.e. not by duplication => new gene tree */
-        for (const auto& prot: unit->get_protein_list()[LEADING]) {
+        for (const auto& prot: unit->get_protein_list(LEADING)) {
           search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
           if (genetreenode == nullptr)
-            gene_trees->add(new ae_gene_tree(num_gener, prot, &mut));
+            gene_trees->add(new ae_gene_tree(get_time(), prot, &mut));
         }
-        for (const auto& prot: unit->get_protein_list()[LAGGING]) {
+        for (const auto& prot: unit->get_protein_list(LAGGING)) {
           search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
           if (genetreenode == nullptr)
-            gene_trees->add(new ae_gene_tree(num_gener, prot, &mut));
+            gene_trees->add(new ae_gene_tree(get_time(), prot, &mut));
         }
          // print_gene_trees_to_screen(gene_trees);// DEBUG
          // indiv->print_protein_list(); // DEBUG
@@ -436,31 +441,31 @@ int main(int argc, char** argv)
       // ***************************************
 
       for (const auto& mut: dnarep->get_mutations()) {
-        metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
+        metabolic_error_before = indiv->get_dist_to_target_by_feature(METABOLISM);
         unitlen_before = unit->get_dna()->get_length();
         anticipate_mutation_effect_on_genes_in_trees(gene_trees, &mut, unitlen_before);
         unit->get_dna()->undergo_this_mutation(&mut);
 
         indiv->reevaluate(env);
-        metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
+        metabolic_error_after = indiv->get_dist_to_target_by_feature(METABOLISM);
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
-        register_actual_mutation_effect_on_genes_in_trees(gene_trees, &mut, &*unit, num_gener, impact_on_metabolic_error);
+        register_actual_mutation_effect_on_genes_in_trees(gene_trees, &mut, &*unit, get_time(), impact_on_metabolic_error);
 
         /* New genes that have been created "from scratch", i.e. not by duplication => new gene tree */
-        for (const auto& prot: unit->get_protein_list()[LEADING]) {
+        for (const auto& prot: unit->get_protein_list(LEADING)) {
           search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
           if (genetreenode == nullptr)
-            gene_trees->add(new ae_gene_tree(num_gener, prot, &mut));
+            gene_trees->add(new ae_gene_tree(get_time(), prot, &mut));
         }
-        for (const auto& prot: unit->get_protein_list()[LAGGING]) {
+        for (const auto& prot: unit->get_protein_list(LAGGING)) {
           search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
           if (genetreenode == nullptr)
-            gene_trees->add(new ae_gene_tree(num_gener, prot, &mut));
+            gene_trees->add(new ae_gene_tree(get_time(), prot, &mut));
         }
       }
 
-      if ( check_now && ae_utils::mod(num_gener, backup_step) == 0)
+      if ( check_now && ae_utils::mod(get_time(), backup_step) == 0)
       {
         if ( verbose )
         {
@@ -487,7 +492,7 @@ int main(int argc, char** argv)
         {
           if ( verbose ) printf( " ERROR !\n" );
           fprintf( stderr, "Error: the rebuilt unit is not the same as \n");
-          fprintf( stderr, "the one saved at generation %" PRId32 "... ", begin_gener );
+          fprintf( stderr, "the one saved at generation %" PRId64 "... ", t0);
           fprintf( stderr, "Rebuilt unit : %zu bp\n %s\n", strlen(str1), str1 );
           fprintf( stderr, "Stored unit  : %zu bp\n %s\n", strlen(str2), str2 );
           delete [] str1;
@@ -516,16 +521,18 @@ int main(int argc, char** argv)
 
     delete rep;
 
-    if ( check_now && ae_utils::mod(num_gener, backup_step) == 0 )
+    if ( check_now && ae_utils::mod(get_time(), backup_step) == 0 )
     {
       assert(stored_unit == stored_indiv->get_genetic_unit_list_std().end());
       delete stored_indiv;
       delete exp_manager_backup;
     }
+
+    aevol::Time::plusplus();
   }
 
-  set_end_gener_if_active_leaves_in_trees(gene_trees, end_gener);
-  write_gene_trees_to_files(gene_trees, end_gener);
+  set_end_gener_if_active_leaves_in_trees(gene_trees, t_end);
+  write_gene_trees_to_files(gene_trees, t_end);
   gene_trees->erase(true);
   delete gene_trees;
 

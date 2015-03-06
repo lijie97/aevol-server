@@ -71,9 +71,9 @@ namespace aevol {
 /*!
   Create a NEW stat manager
  */
-ae_stats::ae_stats( ae_exp_manager* exp_m,
-                    bool best_indiv_only,
-                    const char * prefix /* = "stat" */ )
+ae_stats::ae_stats(ae_exp_manager* exp_m,
+                   bool best_indiv_only,
+                   const char * prefix /* = "stat" */)
 {
   _exp_m = exp_m;
   init_data();
@@ -85,20 +85,20 @@ ae_stats::ae_stats( ae_exp_manager* exp_m,
 /*!
   Create a stat manager to append existing stats
  */
-ae_stats::ae_stats( ae_exp_manager* exp_m,
-                    int32_t num_gener,
-                    bool best_indiv_only,
-                    const char * prefix /* = "stat" */,
-                    bool addition_old_stats /* = true */,
-                    bool delete_old_stats /* = true */)
+ae_stats::ae_stats(ae_exp_manager* exp_m,
+                   int64_t time,
+                   bool best_indiv_only,
+                   const char * prefix /* = "stat" */,
+                   bool addition_old_stats /* = true */,
+                   bool delete_old_stats /* = true */)
 {
   _exp_m = exp_m;
   init_data();
-  set_file_names( prefix, best_indiv_only );
+  set_file_names(prefix, best_indiv_only);
   
   // ---------------------------------------------------------------------------
   //  Make a backup copy (named <original_name>.old) of each file
-  //  and copy its content into the new stat file untill <num_gener> is reached
+  //  and copy its content into the new stat file untill <time> is reached
   // ---------------------------------------------------------------------------
   if(addition_old_stats)
   {
@@ -108,61 +108,65 @@ ae_stats::ae_stats( ae_exp_manager* exp_m,
     FILE* cur_file;       // Syntaxic sugar for _stat_files[][][]
     char  line[500];
     
-    for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
+    for (int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++)
     { 
-      for ( int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++ )
+      for (int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++)
       {
-        for ( int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++ )
+        for (int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++)
         {
           cur_file_name = _stat_files_names[chrom_or_GU][best_or_glob][stat_type];
-          if ( cur_file_name != NULL )
+          if (cur_file_name != NULL)
           {
-            sprintf( old_file_name, "%s.old", cur_file_name );
-            int8_t exist_file = rename( cur_file_name, old_file_name );
-            if ( exist_file != 0 )
+            sprintf(old_file_name, "%s.old", cur_file_name);
+            int8_t exist_file = rename(cur_file_name, old_file_name);
+            if (exist_file != 0)
             {
-              printf( "ERROR : Could not rename %s as %s.\n", cur_file_name, old_file_name );
-              exit( EXIT_FAILURE );
+              printf("ERROR : Could not rename %s as %s.\n", cur_file_name, old_file_name);
+              exit(EXIT_FAILURE);
             }
             
-            old_file = fopen( old_file_name, "r" );
-            cur_file = fopen( cur_file_name, "w" );
+            old_file = fopen(old_file_name, "r");
+            cur_file = fopen(cur_file_name, "w");
             
             // Copy file header
-            if (fgets(line, 500, old_file) == NULL) {
+            if (fgets(line, 500, old_file) == NULL)
+            {
               // TODO check for error
             }
 
-            while ( !feof( old_file ) && line[0] == '#' )
+            while (!feof( old_file ) && line[0] == '#')
             {
-              fputs( line, cur_file );
-              if (fgets(line, 500, old_file) == NULL) {
+              fputs(line, cur_file);
+              if (fgets(line, 500, old_file) == NULL)
+              {
                 // TODO check for error
               }
             }
             
             // Copy the empty line between the header and the values
-            fputs( line, cur_file );
+            fputs(line, cur_file);
             
-            // Copy stats until num_gener (included)
-            if (fgets(line, 500, old_file) == NULL) {
+            // Copy stats until time (included)
+            if (fgets(line, 500, old_file) == NULL)
+            {
               // TODO check for error
             }
-            while ( (int32_t)atol(line) < _exp_m->get_first_gener() && !feof(old_file) )
+            while ((int32_t)atol(line) < time && !feof(old_file) )
             {
-              fputs( line, cur_file );
-              if (fgets(line, 500, old_file)) {
+              fputs(line, cur_file);
+              if (fgets(line, 500, old_file))
+              {
                 // TODO check for error
               }
             }
             
-            fclose( old_file );
+            fclose(old_file);
             
             _stat_files[chrom_or_GU][best_or_glob][stat_type] = cur_file;
             
-            if ( delete_old_stats )
+            if (delete_old_stats)
             {
-              remove( old_file_name );
+              remove(old_file_name);
             }
           }
         }
@@ -580,13 +584,13 @@ void ae_stats::write_current_generation_statistics( void )
   }
 }
 
-void ae_stats::write_statistics_of_this_indiv( ae_individual * indiv, int32_t num_gener )
+void ae_stats::write_statistics_of_this_indiv(ae_individual * indiv)
 {
   ae_stat_record* stat_record;
   
   for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
   {
-    stat_record = new ae_stat_record( _exp_m, indiv, (chrom_or_gen_unit) chrom_or_GU, true, num_gener );
+    stat_record = new ae_stat_record(_exp_m, indiv, (chrom_or_gen_unit) chrom_or_GU, true);
     
     for ( int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++ )
     {

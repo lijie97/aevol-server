@@ -72,21 +72,21 @@ class ae_stats
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_stats( ae_exp_manager* exp_m,
-              bool best_indiv_only = false,
-              const char * prefix = "stat" );
-    ae_stats( ae_exp_manager* exp_m,
-              int32_t num_gener,
-              bool best_indiv_only = false,
-              const char * prefix = "stat",
-              bool addition_old_stats = true,
-              bool delete_old_stats = true );
+    ae_stats(ae_exp_manager* exp_m,
+             bool best_indiv_only = false,
+             const char * prefix = "stat");
+    ae_stats(ae_exp_manager* exp_m,
+             int64_t time,
+             bool best_indiv_only = false,
+             const char * prefix = "stat",
+             bool addition_old_stats = true,
+             bool delete_old_stats = true);
 
  
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_stats( void );
+    virtual ~ae_stats(void);
 
     // =================================================================
     //                        Accessors: getters
@@ -95,14 +95,14 @@ class ae_stats
     // =================================================================
     //                        Accessors: setters
     // =================================================================
-    inline void set_exp_m( ae_exp_manager* exp_m);
+    inline void set_exp_m(ae_exp_manager* exp_m);
     
     // =================================================================
     //                            Public Methods
     // =================================================================
 
-    void write_current_generation_statistics( void );
-    void write_statistics_of_this_indiv( ae_individual* indiv, int32_t num_gener );
+    void write_current_generation_statistics(void);
+    void write_statistics_of_this_indiv(ae_individual* indiv);
     
     void flush( void );
 

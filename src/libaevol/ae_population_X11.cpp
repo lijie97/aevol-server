@@ -79,25 +79,24 @@ ae_population_X11::~ae_population_X11( void )
 // =================================================================
 
 // Display unstructured population
-void ae_population_X11::display( ae_X11_window* win )
+void ae_population_X11::display(ae_X11_window* win)
 {
-  char generation[40];
-  sprintf( generation, "Generation = %" PRId32, _exp_m->get_num_gener() );
-  win->draw_string( 15, 15, generation );
+  char t[40];
+  sprintf(t, "Generation = %" PRId64, Time::get_time());
+  win->draw_string(15, 15, t);
 }
 
 // Display a grid of values
-void ae_population_X11::display_grid( ae_X11_window* win, double** cell_grid )
+void ae_population_X11::display_grid(ae_X11_window* win, double** cell_grid)
 {
-  assert( _exp_m->is_spatially_structured() );
-  
+  assert(_exp_m->is_spatially_structured());
   
   // printf("display grid\n");
-  char gener[40];
-  int num_colors = 50; 
+  char t[40];
+  int nb_colors = 50; 
   
-  sprintf( gener, "Generation = %" PRId32, _exp_m->get_num_gener() );
-  win->draw_string( 15, 15, gener );
+  sprintf(t, "Generation = %" PRId64, Time::get_time());
+  win->draw_string(15, 15, t);
   
   
   const int grid_width  = _exp_m->get_grid_width();
@@ -112,12 +111,12 @@ void ae_population_X11::display_grid( ae_X11_window* win, double** cell_grid )
   int cell_size = 5;
 
   // draw the color scale for fitness
-  int y_step_size = grid_height*cell_size/num_colors;
-  for ( int i = 0; i  < num_colors; i++ )
+  int y_step_size = grid_height*cell_size/nb_colors;
+  for ( int i = 0; i  < nb_colors; i++ )
   {
     win->fill_rectangle( x1 - 30, y1 - 80 + y_step_size * i,
                          cell_size * 5, y_step_size,
-                         _col_map[num_colors-1-i] );
+                         _col_map[nb_colors-1-i] );
   }
 
   // find min/max of the matrix

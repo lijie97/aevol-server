@@ -105,17 +105,29 @@ class ae_stat_record
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_stat_record( ae_exp_manager* exp_m );
-    ae_stat_record( const ae_stat_record &model );
-    ae_stat_record( ae_exp_manager* exp_m, ae_individual * indiv, chrom_or_gen_unit chrom_or_gu = CHROM, bool compute_non_coding = true, int32_t num_gener = -1 );
-    ae_stat_record( ae_exp_manager* exp_m, ae_population const * pop, chrom_or_gen_unit chrom_or_gu = CHROM );
-    ae_stat_record( ae_exp_manager* exp_m, ae_population const * pop, ae_stat_record const * means, chrom_or_gen_unit chrom_or_gu = CHROM );
-    ae_stat_record( ae_exp_manager* exp_m, ae_population const * pop, ae_stat_record const * means, ae_stat_record const * stdevs, chrom_or_gen_unit chrom_or_gu = CHROM );
+    ae_stat_record(ae_exp_manager* exp_m);
+    ae_stat_record(const ae_stat_record &model);
+    ae_stat_record(ae_exp_manager* exp_m,
+                   ae_individual* indiv,
+                   chrom_or_gen_unit chrom_or_gu = CHROM,
+                   bool compute_non_coding = true);
+    ae_stat_record(ae_exp_manager* exp_m,
+                   ae_population const * pop,
+                   chrom_or_gen_unit chrom_or_gu = CHROM);
+    ae_stat_record(ae_exp_manager* exp_m,
+                   const ae_population* pop,
+                   const ae_stat_record* means,
+                   chrom_or_gen_unit chrom_or_gu = CHROM);
+    ae_stat_record(ae_exp_manager* exp_m,
+                   const ae_population* pop,
+                   const ae_stat_record* means,
+                   const ae_stat_record* stdevs,
+                   chrom_or_gen_unit chrom_or_gu = CHROM);
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_stat_record( void );
+    virtual ~ae_stat_record(void);
 
     // =================================================================
     //                              Accessors
@@ -171,7 +183,6 @@ class ae_stat_record
     //      compute averages over the population.
     indiv_or_pop _record_type;
     
-    double  _num_gener;
     double  _pop_size;
 
     double  _fitness;

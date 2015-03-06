@@ -63,49 +63,51 @@ class ae_tree
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_tree( ae_exp_manager* exp_m, ae_tree_mode tree_mode, int32_t tree_step );
+    ae_tree(ae_exp_manager* exp_m, ae_tree_mode tree_mode, int64_t tree_step);
     // To be used when we want to run a simulation.
-    ae_tree( ae_exp_manager* exp_m, char* tree_file_name ); 
+    ae_tree(ae_exp_manager* exp_m, char* tree_file_name); 
     // To be used when we want to INSPECT a tree, 
     // not when we want to run a simulation.
     
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_tree( void );
+    virtual ~ae_tree(void);
 
     // =================================================================
     //                        Accessors: getters
     // =================================================================
-    inline int32_t       get_tree_step( void ) const;
-    inline ae_tree_mode  get_tree_mode( void ) const;
+    inline int64_t       get_tree_step(void) const;
+    inline ae_tree_mode  get_tree_mode(void) const;
     
     // Precondition for the following 3 methods: 
     // the tree was emptied every TREE_STEP generations ==> it contains
     // only the last generations since the last emptying ==> do not ask
     // something about an older generation 
-    int32_t get_nb_indivs( int32_t generation ) const;
-    ae_replication_report * get_report_by_index( int32_t generation, int32_t index ) const;
-    ae_replication_report * get_report_by_rank( int32_t generation, int32_t rank ) const;
+    int32_t get_nb_indivs(int64_t t) const;
+    ae_replication_report* get_report_by_index(int64_t t, int32_t index) const;
+    ae_replication_report* get_report_by_rank(int64_t t, int32_t rank) const;
   
 
     // =================================================================
     //                        Accessors: setters
     // =================================================================
-    void set_replic_report( int32_t id, ae_replication_report* replic_report );
-    void set_replic_report( int32_t generation, int32_t id, ae_replication_report* replic_report );
-    void set_nb_indivs (int32_t nb_indivs, int32_t generation);
+    void set_replic_report(int32_t id, ae_replication_report* replic_report);
+    void set_replic_report(int64_t t, int32_t id, ae_replication_report* replic_report);
+    void set_nb_indivs(int32_t nb_indivs, int64_t t);
     
     
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void fill_tree_with_cur_gener( void );
-    void write_to_tree_file( gzFile tree_file );
+    void fill_tree_with_cur_gener(void);
+    void write_to_tree_file(gzFile tree_file);
     
-    inline int32_t get_LCA( int32_t num_gener, int32_t a, int32_t b, int32_t *j );
-    // Returns the generation of the last common ancestor of individuals number a and b
-    // of generation num_gener and stores its index in j if provided (not NULL)
+    /** Returns the date of birth of the last common ancestor of individuals
+     * of index a and b at time t and stores its index in j if provided
+     * (not NULL)
+     */
+    inline int64_t get_LCA(int64_t t, int32_t a, int32_t b, int32_t *j);
     
 
     // =================================================================
@@ -142,7 +144,7 @@ class ae_tree
     // =================================================================
     ae_exp_manager* _exp_m;
     
-    int32_t       _tree_step;
+    int64_t       _tree_step;
     ae_tree_mode  _tree_mode;
     int32_t*      _nb_indivs;
     
@@ -163,12 +165,12 @@ class ae_tree
 // =====================================================================
 //                           Getters' definitions
 // =====================================================================
-inline int32_t ae_tree::get_tree_step( void ) const
+inline int64_t ae_tree::get_tree_step(void) const
 {
   return _tree_step;
 }
 
-inline ae_tree_mode ae_tree::get_tree_mode( void ) const
+inline ae_tree_mode ae_tree::get_tree_mode(void) const
 {
   return _tree_mode;
 }
@@ -181,10 +183,7 @@ inline ae_tree_mode ae_tree::get_tree_mode( void ) const
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-
-inline int32_t ae_tree::get_LCA( int32_t num_gener, int32_t a, int32_t b, int32_t* j = NULL )
-// Returns the generation of the last common ancestor of individuals number a and b
-// of generation num_gener and stores its index in j if provided (not NULL)
+inline int64_t ae_tree::get_LCA(int64_t t, int32_t a, int32_t b, int32_t* j = NULL)
 {
   switch( _tree_mode )
   {
@@ -197,12 +196,12 @@ inline int32_t ae_tree::get_LCA( int32_t num_gener, int32_t a, int32_t b, int32_
     {
       while ( a != b )
       {
-        a = _parent[num_gener][a];
-        b = _parent[num_gener][b];
-        num_gener = num_gener - 1;
+        a = _parent[t][a];
+        b = _parent[t][b];
+        t--;
       }
       
-      if ( j != NULL )
+      if (j != NULL)
       {
         *j = a;
       }
@@ -211,7 +210,7 @@ inline int32_t ae_tree::get_LCA( int32_t num_gener, int32_t a, int32_t b, int32_
     }
   }
   
-  return num_gener;
+  return t;
 }
 
 } // namespace aevol

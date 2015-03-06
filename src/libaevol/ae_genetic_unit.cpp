@@ -89,27 +89,25 @@ ae_dna* ae_genetic_unit::get_dna( void ) const
   return _dna;
 }
 
-std::vector<std::list<ae_rna*>> ae_genetic_unit::get_rna_list() const {
-  std::vector<std::list<ae_rna*>> r(LAGGING - LEADING + 1);
+/*const*/ vector<list<ae_rna*>> ae_genetic_unit::get_rna_list() const
+{
+  vector<list<ae_rna*>> r(LAGGING - LEADING + 1);
   for (int8_t strand = LEADING ; strand <= LAGGING ; strand++)
     for (ae_list_node<ae_rna*>* rna_node = _rna_list[strand]->get_first();
          rna_node != NULL;
          rna_node = rna_node->get_next())
       r[strand].push_back(rna_node->get_obj());
-  return std::move(r);
+  return r;//std::move(r);
 }
 
-std::vector<std::list<ae_protein*>> ae_genetic_unit::get_protein_list() const {
-  assert( _protein_list );
-  assert( _protein_list[LEADING] );
-  assert( _protein_list[LAGGING] );
-  std::vector<std::list<ae_protein*>> r(LAGGING - LEADING + 1);
-  for (int8_t strand = LEADING ; strand <= LAGGING ; strand++)
-    for (ae_list_node<ae_protein*>* protein_node = _protein_list[strand]->get_first();
-         protein_node != NULL;
+const list<ae_protein*> ae_genetic_unit::get_protein_list(ae_strand strand) const
+{
+  list<ae_protein*> r;
+    for (ae_list_node<ae_protein*>* protein_node = _protein_list[strand]->get_first() ;
+         protein_node != NULL ;
          protein_node = protein_node->get_next())
-      r[strand].push_back(protein_node->get_obj());
-  return std::move(r);
+      r.push_back(protein_node->get_obj());
+  return r;
 }
 
 Fuzzy* ae_genetic_unit::get_activ_contribution( void ) const
@@ -1682,7 +1680,6 @@ void ae_genetic_unit::reset_expression( void )
 
   init_statistical_data();
 }
-
 
 
 void ae_genetic_unit::print_coding_rnas()

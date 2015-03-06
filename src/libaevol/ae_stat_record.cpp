@@ -75,7 +75,6 @@ ae_stat_record::ae_stat_record( const ae_stat_record &model )
 {
   _exp_m = model._exp_m;
   
-  _num_gener = model._num_gener;
   _pop_size  = model._pop_size;
   
   _metabolic_error         = model._metabolic_error;
@@ -135,8 +134,10 @@ ae_stat_record::ae_stat_record( const ae_stat_record &model )
   #endif
 }
 
-/* If used for post-treatments, num_gener is mandatory */
-ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_individual * indiv, chrom_or_gen_unit chrom_or_gu, bool compute_non_coding, int32_t num_gener )
+ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
+                               ae_individual* indiv,
+                               chrom_or_gen_unit chrom_or_gu,
+                               bool compute_non_coding)
 {
   _exp_m = exp_m;
   initialize_data();
@@ -145,7 +146,6 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_individual * indiv, ch
   // ---------------
   // Simulation data
   // ---------------
-  _num_gener = ( num_gener == -1 ) ? _exp_m->get_num_gener() : num_gener;
   _pop_size = 0; // The pop_size value is irrelevent when dealing with a single individual. It is present for column alignment.
   
   #ifdef __REGUL
@@ -153,7 +153,8 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_individual * indiv, ch
   #endif  
     
   // TODO : These conditions are not well managed!!!
-  if (indiv->get_nb_genetic_units() == 1) { // One single Genetic Unit
+  if (indiv->get_nb_genetic_units() == 1)
+  { // One single Genetic Unit
     // -------------------------------------------------
     // Compute statistical data for the given individual
     // -------------------------------------------------
@@ -438,7 +439,9 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_individual * indiv, ch
 }
 
 // Calculate average statistics for all the recorded values 
-ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_population const * pop, chrom_or_gen_unit chrom_or_gu )
+ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
+                               const ae_population* pop,
+                               chrom_or_gen_unit chrom_or_gu)
 {
   _exp_m = exp_m;
   initialize_data();
@@ -448,8 +451,7 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_population const * pop
   // ---------------
   // Simulation data
   // ---------------
-  _num_gener = (double) _exp_m->get_num_gener();
-  _pop_size  = (double) pop->get_nb_indivs();
+  _pop_size = (double) pop->get_nb_indivs();
 
   // ------------------------------------------------------------------
   // Compute statistical data for the each individual in the population
@@ -464,11 +466,14 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_population const * pop
   // ------------------------------------------------------------------
   // Divide every accumulator by the number of indivs in the population
   // ------------------------------------------------------------------
-  this->divide( _pop_size );
+  this->divide(_pop_size);
 }
 
 // Calculate standard deviation for all the recorded values 
-ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_population const * pop, ae_stat_record const * means, chrom_or_gen_unit chrom_or_gu )
+ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
+                               const ae_population* pop,
+                               const ae_stat_record* means,
+                               chrom_or_gen_unit chrom_or_gu)
 {
   _exp_m = exp_m;
   initialize_data();
@@ -478,7 +483,6 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_population const * pop
   // ---------------
   // Simulation data
   // ---------------
-  _num_gener = (double) _exp_m->get_num_gener();
   _pop_size  = (double) pop->get_nb_indivs();
 
   // ------------------------------------------------------------------
@@ -497,7 +501,11 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_population const * pop
 }
 
  // Calculate skewness for all the recorded values 
-ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_population const * pop, ae_stat_record const * means, ae_stat_record const * stdevs, chrom_or_gen_unit chrom_or_gu )
+ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
+                               const ae_population* pop,
+                               const ae_stat_record* means,
+                               const ae_stat_record* stdevs,
+                               chrom_or_gen_unit chrom_or_gu)
 {
   _exp_m = exp_m;
   initialize_data();
@@ -507,21 +515,21 @@ ae_stat_record::ae_stat_record( ae_exp_manager* exp_m, ae_population const * pop
   // ---------------
   // Simulation data
   // ---------------
-  _num_gener = (double) _exp_m->get_num_gener();
   _pop_size  = (double) pop->get_nb_indivs();
 
   // ------------------------------------------------------------------
   // Compute statistical data for the each individual in the population
   // ------------------------------------------------------------------
-  for (const auto& indiv: pop->get_indivs()) {
-    ae_stat_record* indiv_stat_record = new ae_stat_record( _exp_m, indiv, chrom_or_gu, false );
-    this->substract_power( means, indiv_stat_record, 3 );    
+  for (const auto& indiv: pop->get_indivs())
+  {
+    ae_stat_record* indiv_stat_record = new ae_stat_record(_exp_m, indiv, chrom_or_gu, false);
+    this->substract_power(means, indiv_stat_record, 3);
     delete indiv_stat_record;
   }
 
-  this->divide( - _pop_size );
+  this->divide(-_pop_size);
   
-  this->divide_record( stdevs, 3/2 );
+  this->divide_record(stdevs, 3/2);
 }
 
 // =================================================================
@@ -536,7 +544,6 @@ ae_stat_record::~ae_stat_record( void )
 // =================================================================
 void ae_stat_record::initialize_data( void )
 {
-  _num_gener = 0.0;
   _pop_size  = 0.0;
   
   _metabolic_error         = 0.0;
@@ -602,8 +609,8 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
   {
     if ( stat_type_to_print == FITNESS_STATS )
     {
-      fprintf( stat_file, "%" PRId32 " %" PRId32 " %e %" PRId32 " %e %e %e %e %e %e %e",
-              (int32_t) _num_gener,
+      fprintf(stat_file, "%" PRId64 " %" PRId32 " %e %" PRId32 " %e %e %e %e %e %e %e",
+              Time::get_time(),
               (int32_t) _pop_size,
               _fitness,              
               (int32_t) _amount_of_dna,
@@ -627,8 +634,8 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
     }
     if ( stat_type_to_print == MUTATION_STATS )
     {
-      fprintf(  stat_file, "%" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "",
-              (int32_t) _num_gener,
+      fprintf(stat_file, "%" PRId64 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "",
+              Time::get_time(),
               (int32_t) _nb_mut,
               (int32_t) _nb_rear,
               (int32_t) _nb_switch,
@@ -641,8 +648,8 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
     }
     if ( stat_type_to_print == GENES_STATS )
     {
-      fprintf(  stat_file, "%" PRId32 " %" PRId32 " %" PRId32 " %f %f %" PRId32 " %" PRId32 " %f %f ",
-              (int32_t) _num_gener,
+      fprintf(  stat_file, "%" PRId64 " %" PRId32 " %" PRId32 " %f %f %" PRId32 " %" PRId32 " %f %f ",
+              Time::get_time(),
               (int32_t) _nb_coding_rnas,
               (int32_t) _nb_non_coding_rnas,
               _av_size_coding_rnas,
@@ -654,8 +661,8 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
     }
     if ( stat_type_to_print == BP_STATS )
     {
-      fprintf(  stat_file, "%" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "",
-              (int32_t) _num_gener,
+      fprintf(  stat_file, "%" PRId64 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "",
+              Time::get_time(),
               (int32_t) _nb_bases_in_0_CDS,
               (int32_t) _nb_bases_in_0_functional_CDS,
               (int32_t) _nb_bases_in_0_non_functional_CDS,
@@ -667,8 +674,8 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
     }
     if ( stat_type_to_print == REAR_STATS )
     {
-      fprintf(  stat_file, "%" PRId32 " %e %e %e %e %f",
-              (int32_t) _num_gener,
+      fprintf(  stat_file, "%" PRId64 " %e %e %e %e %f",
+              Time::get_time(),
               _dupl_rate,
               _del_rate,
               _trans_rate,
@@ -680,8 +687,8 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
   {
    if ( stat_type_to_print == FITNESS_STATS )
     {
-      fprintf(  stat_file, "%" PRId32 " %" PRId32 " %e %f %e %e %e %e %e %e %e",
-              (int32_t) _num_gener,
+      fprintf(  stat_file, "%" PRId64 " %" PRId32 " %e %f %e %e %e %e %e %e %e",
+              Time::get_time(),
               (int32_t) _pop_size,
               _fitness,              
               _amount_of_dna, 
@@ -705,8 +712,8 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
     }
     if ( stat_type_to_print == MUTATION_STATS )
     {        
-      fprintf(  stat_file, "%" PRId32 " %f %f %f %f %f %f %f %f",
-              (int32_t) _num_gener,
+      fprintf(  stat_file, "%" PRId64 " %f %f %f %f %f %f %f %f",
+              Time::get_time(),
               _nb_mut,
               _nb_rear,
               _nb_switch,
@@ -719,8 +726,8 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
     }
     if ( stat_type_to_print == GENES_STATS )
     {
-      fprintf(  stat_file, "%" PRId32 " %f %f %f %f %f %f %f %f",
-              (int32_t) _num_gener,
+      fprintf(  stat_file, "%" PRId64 " %f %f %f %f %f %f %f %f",
+              Time::get_time(),
               _nb_coding_rnas,
               _nb_non_coding_rnas,
               _av_size_coding_rnas,
@@ -734,8 +741,8 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
     {
      // TO DO (if needed) : base-pair stats for all individuals, not just for the best one. 
      //
-     // fprintf(  stat_file, "%" PRId32 " %f %f %f %f %f %f %f %f",
-     //         (int32_t)_num_gener,
+     // fprintf(  stat_file, "%" PRId64 " %f %f %f %f %f %f %f %f",
+     //         Time::get_time(),
      //         _nb_bases_in_0_CDS,
      //         _nb_bases_in_0_functional_CDS,
      //         _nb_bases_in_0_non_functional_CDS,
@@ -747,8 +754,8 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
     }
     if ( stat_type_to_print == REAR_STATS )
     {
-      fprintf(  stat_file, "%" PRId32 " %e %e %e %e %f",
-              (int32_t) _num_gener,
+      fprintf(  stat_file, "%" PRId64 " %e %e %e %e %f",
+              Time::get_time(),
               _dupl_rate,
               _del_rate,
               _trans_rate,
@@ -760,9 +767,9 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
   fprintf( stat_file, "\n" );
 }
 
-void ae_stat_record::divide( double divisor )
+void ae_stat_record::divide(double divisor)
 {
-  // NB : _num_gener and pop_size are global values and are not to be divided.
+  // NB : pop_size is a "global" value and must not be divided.
   
   _fitness                 /= divisor;
   
@@ -825,9 +832,9 @@ void ae_stat_record::divide( double divisor )
 }
 
 
-void ae_stat_record::divide_record( ae_stat_record const * to_divide, double power )
+void ae_stat_record::divide_record(ae_stat_record const * to_divide, double power)
 {
-  // NB : _num_gener and pop_size are global values and are not to be divided.
+  // NB : pop_size is a "global" value and must not be divided.
   
   if (to_divide->_fitness != 0) { _fitness    /= pow(to_divide->_fitness, power); }
   
@@ -886,9 +893,9 @@ void ae_stat_record::divide_record( ae_stat_record const * to_divide, double pow
   #endif
 }
 
-void ae_stat_record::add( ae_stat_record* to_add, int32_t index )
+void ae_stat_record::add(ae_stat_record* to_add, int32_t index)
 {
-  // NB : _num_gener and pop_size are global values and are not to be summed.
+  // NB : pop_size is a global values and must not be summed.
   
   _fitness                 += to_add->_fitness;
   
@@ -948,9 +955,11 @@ void ae_stat_record::add( ae_stat_record* to_add, int32_t index )
   #endif
 }
 
-void ae_stat_record::substract_power( ae_stat_record const * means, ae_stat_record const * to_substract, double power )
+void ae_stat_record::substract_power(const ae_stat_record* means,
+                                     const ae_stat_record* to_substract,
+                                     double power)
 {
-  // NB : _num_gener and pop_size are global values and are not to be summed.
+  // NB : pop_size is a "global" value and must not be summed.
   _fitness                 += pow( means->_fitness - to_substract->_fitness, power );
   
   _metabolic_error         += pow( means->_metabolic_error - to_substract->_metabolic_error, power );
