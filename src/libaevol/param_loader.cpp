@@ -30,19 +30,19 @@
 // =================================================================
 //                              Libraries
 // =================================================================
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-#include <errno.h>
-#include <limits.h>
-#include <time.h>
+#include <cstdlib>
+#include <cstring>
+#include <cassert>
+#include <cerrno>
+#include <climits>
+#include <ctime>
 
 #include <list>
 
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <param_loader.h>
+#include "param_loader.h"
 
 #include "ae_exp_manager.h"
 #include "ae_exp_setup.h"
@@ -53,12 +53,9 @@
 #include "ae_jumping_mt.h"
 #include "ae_gaussian.h"
 #include "ae_env_segment.h"
-#include <point.h>
+#include "point.h"
 #include "ae_align.h"
 
-//~ #ifdef __X11
-  //~ #include "ae_individual_X11.h"
-//~ #endif
 
 #ifdef __REGUL
   #include "ae_array_short.h"
@@ -91,9 +88,7 @@ static const int8_t STRAIN_NAME_LOGIN_SIZE    = 10;
 // =================================================================
 //                             Constructors
 // =================================================================
-
-
-param_loader::param_loader( const char* file_name )
+param_loader::param_loader(const char* file_name)
 {
   // Give default values to parameters
 
@@ -112,9 +107,11 @@ param_loader::param_loader( const char* file_name )
   // ----------------------------------------------------- Initial conditions
   _chromosome_initial_length  = 5000;
   _init_method            = ONE_GOOD_GENE | CLONE;
-  _init_pop_size          = 1000;
+  _init_pop_size          = 1024;
   _strain_name = new char[STRAIN_NAME_DEFAULT_SIZE+1];
 
+
+  // ------------------------------------------------------------- Strain name
   char* login_name = new char[LOGIN_NAME_MAX+1];
   // Try get user login. If fail, replace by default value
   if(getlogin_r(login_name, LOGIN_NAME_MAX) != 0)
@@ -139,7 +136,7 @@ param_loader::param_loader( const char* file_name )
   }
 
   // ------------------------------------------------------------ Environment
-  _env_sampling       = 300;
+  _env_sampling = 300;
 
   // ---------------------------------------- Environment x-axis segmentation
   _env_axis_nb_segments         = 1;
@@ -207,9 +204,8 @@ param_loader::param_loader( const char* file_name )
   _selection_pressure = 0.998;
 
   // ------------------------------------------------------ Spatial structure
-  _spatially_structured       = false;
-  _grid_width                 = 0;
-  _grid_height                = 0;
+  _grid_width                 = 32;
+  _grid_height                = 32;
   _migration_number           = 0;
 
   // -------------------------------------------------------------- Secretion
@@ -283,22 +279,22 @@ param_loader::param_loader( const char* file_name )
 }
 
 // =================================================================
-//                             Destructors
+//                             Destructor
 // =================================================================
 param_loader::~param_loader( void )
 {
-   free( _param_file_name );
-   fclose( _param_file );
-   if ( _env_axis_segment_boundaries != NULL ) delete [] _env_axis_segment_boundaries;
-   if ( _env_axis_features != NULL ) delete [] _env_axis_features;
-   if ( _prng != NULL) delete _prng;
-   delete [] _strain_name;
+  free(_param_file_name);
+  fclose(_param_file);
+  if (_env_axis_segment_boundaries != NULL)
+    delete [] _env_axis_segment_boundaries;
+  if (_env_axis_features != NULL) delete [] _env_axis_features;
+  if (_prng != NULL) delete _prng;
+  delete [] _strain_name;
 }
 
 // =================================================================
 //                            Public Methods
 // =================================================================
-
 void param_loader::interpret_line( f_line* line, int32_t cur_line )
 {
   if ( strcmp( line->words[0], "STRAIN_NAME" ) == 0 )
@@ -469,13 +465,17 @@ void param_loader::interpret_line( f_line* line, int32_t cur_line )
   {
     _init_pop_size = atol( line->words[1] );
   }
+  else if ( strcmp( line->words[0], "WORLD_SIZE" ) == 0 )
+  {
+    _grid_width = atoi(line->words[2]);
+    _grid_height = atoi(line->words[3]);
+  }
   else if ( strcmp( line->words[0], "POP_STRUCTURE" ) == 0 )
   {
     if ( strcmp( line->words[1], "grid" ) == 0 )
     {
-      _spatially_structured = true;
-      _grid_width = atol( line->words[2] );
-      _grid_height = atol( line->words[3] );
+      _grid_width = atoi( line->words[2] );
+      _grid_height = atoi( line->words[3] );
     }
     else
     {
@@ -1206,29 +1206,23 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
   ae_jumping_mt * stoch_prng  = new ae_jumping_mt( _stoch_seed );
   ae_jumping_mt * selection_prng = new ae_jumping_mt( selection_seed );
   ae_jumping_mt * spatial_struct_prng = NULL;
-  if ( _spatially_structured )
-    {
-      int32_t spatial_struct_seed = _prng->random( 1000000 );
-      spatial_struct_prng = new ae_jumping_mt( spatial_struct_seed );
-    }
+
+  spatial_struct_prng = new ae_jumping_mt(_prng->random(1000000));
 
 
-  // Create aliases (syntaxic sugars)
-  ae_exp_setup*       exp_s     = exp_m->get_exp_s();
-  ae_population*      pop       = exp_m->get_pop();
-  Environment*     env       = exp_m->get_env();
-  ae_selection*       sel       = exp_m->get_sel();
-  ae_output_manager*  output_m  = exp_m->get_output_m();
+  // Create aliases
+  ae_exp_setup* exp_s = exp_m->get_exp_s();
+  ae_population* pop = exp_m->get_pop();
+  Environment* env = exp_m->get_env();
+  ae_selection* sel = exp_m->get_sel();
+  ae_output_manager* output_m  = exp_m->get_output_m();
 
-  // If the population is spatially structured,
-  // check that the population fits in the spatial structure
-  if ( _spatially_structured )
+
+  // Check that the population fits in the spatial structure
+  if (_init_pop_size != _grid_width * _grid_height)
   {
-    if ( _init_pop_size != _grid_width * _grid_height )
-    {
-      printf( "ERROR: the number of individuals does not match the size of the grid\n" );
-      exit( EXIT_FAILURE );
-    }
+    printf("ERROR: the number of individuals does not match the size of the grid\n");
+    exit(EXIT_FAILURE);
   }
 
   // 1) ------------------------------------- Initialize the experimental setup
@@ -1256,16 +1250,13 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
   output_m->set_compute_phen_contrib_by_GU( _compute_phen_contrib_by_GU );
 
   // -------------------------------------------------------- Spatial structure
-  if ( _spatially_structured )
-  {
-    exp_m->set_spatial_structure( _grid_width,
-                                  _grid_height,
-                                  spatial_struct_prng );
-    ae_spatial_structure* sp_struct = exp_m->get_spatial_structure();
-    sp_struct->set_secretion_degradation_prop( _secretion_degradation_prop );
-    sp_struct->set_secretion_diffusion_prop( _secretion_diffusion_prop );
-    sp_struct->set_migration_number( _migration_number );
-  }
+  exp_m->set_spatial_structure( _grid_width,
+                                _grid_height,
+                                spatial_struct_prng );
+  ae_spatial_structure* sp_struct = exp_m->get_spatial_structure();
+  sp_struct->set_secretion_degradation_prop( _secretion_degradation_prop );
+  sp_struct->set_secretion_diffusion_prop( _secretion_diffusion_prop );
+  sp_struct->set_migration_number( _migration_number );
 
   // ---------------------------------------------------------------- Secretion
   exp_s->set_with_secretion( _with_secretion );

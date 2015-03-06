@@ -32,8 +32,12 @@
 // =================================================================
 //                              Libraries
 // =================================================================
-#include <inttypes.h>
-#include <stdio.h>
+#include <cinttypes>
+#include <cstdio>
+#include <cstdlib>
+#include <cassert>
+
+#include <list>
 
 #include <zlib.h>
 
@@ -41,20 +45,13 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <f_line.h>
+#include "f_line.h"
 #include "ae_params_mut.h"
 #include "ae_jumping_mt.h"
-
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
 #include "macros.h"
 #include "ae_enums.h"
 #include "ae_gaussian.h"
-#include <point.h>
-
-#include <list>
+#include "point.h"
 
 namespace aevol {
 // =================================================================
@@ -67,238 +64,215 @@ class ae_individual;
 
 class param_loader
 {
-  public :
+ public :
+  // =========================================================================
+  //                          Constructors & Destructor
+  // =========================================================================
+    param_loader(void) = delete;
+    param_loader(const param_loader&) = delete;
+    param_loader(const char* file_name);
+    virtual ~param_loader(void);
 
-    // =================================================================
-    //                             Constructors
-    // =================================================================
-    param_loader( const char* file_name );
+  // =========================================================================
+  //                                  Getters
+  // =========================================================================
 
-    // =================================================================
-    //                             Destructors
-    // =================================================================
-    virtual ~param_loader( void );
+  // =========================================================================
+  //                                  Setters
+  // =========================================================================
 
-    // =================================================================
-    //                              Accessors
-    // =================================================================
-
-    // =================================================================
-    //                            Public Methods
-    // =================================================================
-    void read_file( void );
-    void load( ae_exp_manager* exp_m, bool verbose = false, char* chromosome = NULL, int32_t lchromosome = 0, char* plasmid = NULL, int32_t lplasmid = 0 );
+  // =========================================================================
+  //                             Public Methods
+  // =========================================================================
+  void read_file(void);
+  void load(ae_exp_manager* exp_m, bool verbose = false, char* chromosome = NULL, int32_t lchromosome = 0, char* plasmid = NULL, int32_t lplasmid = 0 );
 
 
-    f_line* get_line( int32_t* );
+  f_line* get_line( int32_t* );
 
-    // =================================================================
-    //                           Public Attributes
-    // =================================================================
-
-    void print_to_file( FILE* file );
+  void print_to_file( FILE* file );
 
 
 
 
-  protected :
+ protected :
+  // =========================================================================
+  //                            Protected Methods
+  // =========================================================================
+  static void format_line( f_line*, char*, bool* );
+  void interpret_line( f_line* line, int32_t cur_line );
+  ae_individual* create_random_individual( ae_exp_manager* exp_m, ae_params_mut* param_mut, int32_t id ) const;
+  ae_individual* create_random_individual_with_good_gene( ae_exp_manager* exp_m, ae_params_mut* param_mut, int32_t id ) const;
+  ae_individual* create_clone( ae_individual* dolly, int32_t id ) const;
 
-    // =================================================================
-    //                         Forbidden Constructors
-    // =================================================================
-    param_loader( void )
-    {
-      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-    param_loader( const param_loader &model )
-    {
-      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
+  // =========================================================================
+  //                               Attributes
+  // =========================================================================
+  ae_jumping_mt* _prng;
 
-    // =================================================================
-    //                           Protected Methods
-    // =================================================================
-    static void format_line( f_line*, char*, bool* );
-    void interpret_line( f_line* line, int32_t cur_line );
-    ae_individual* create_random_individual( ae_exp_manager* exp_m, ae_params_mut* param_mut, int32_t id ) const;
-    ae_individual* create_random_individual_with_good_gene( ae_exp_manager* exp_m, ae_params_mut* param_mut, int32_t id ) const;
-    ae_individual* create_clone( ae_individual* dolly, int32_t id ) const;
+  char*   _param_file_name;
+  FILE*   _param_file;
 
+  // ----------------------------------------- PseudoRandom Number Generators
+  // Seed for the selection random generator
+  int32_t _seed;
+  // Seed for the mutations random generator
+  int32_t _mut_seed;
+  // Seed for the stochasticity random generator
+  int32_t _stoch_seed;
+  // Seed for the environmental variation random generator
+  int32_t _env_var_seed;
+  // Seed for the environmental noise random generator
+  int32_t _env_noise_seed;
 
+  // ------------------------------------------------------------ Constraints
+  int32_t _min_genome_length;
+  int32_t _max_genome_length;
+  double  _w_max;
 
-    // =================================================================
-    //                          Protected Attributes
-    // =================================================================
-    //~ ae_exp_manager* _exp_m;
+  // ----------------------------------------------------- Initial conditions
+  int32_t  _chromosome_initial_length;
+  int8_t   _init_method;
+  int32_t  _init_pop_size;
+  char*    _strain_name;
 
-    ae_jumping_mt* _prng;
+  // ------------------------------------------------------------ Environment
+  std::list<ae_gaussian> std_env_gaussians;
+  int16_t  _env_sampling;
 
-    char*   _param_file_name;
-    FILE*   _param_file;
+  // ---------------------------------------- Environment x-axis segmentation
+  // Number of x-axis segments
+  int16_t _env_axis_nb_segments;
+  // x-axis segment boundaries (sorted -- including MIN_X and MAX_X)
+  double* _env_axis_segment_boundaries;
+  // x-axis segment features
+  ae_env_axis_feature* _env_axis_features;
+  // Whether to automatically separate segments
+  bool _env_axis_separate_segments;
 
-    // ----------------------------------------- PseudoRandom Number Generators
-    // Seed for the selection random generator
-    int32_t _seed;
-    // Seed for the mutations random generator
-    int32_t _mut_seed;
-    // Seed for the stochasticity random generator
-    int32_t _stoch_seed;
-    // Seed for the environmental variation random generator
-    int32_t _env_var_seed;
-    // Seed for the environmental noise random generator
-    int32_t _env_noise_seed;
+  // -------------------------------------------------- Environment variation
+  ae_env_var  _env_var_method;
+  double      _env_var_sigma;
+  int32_t     _env_var_tau;
 
-    // ------------------------------------------------------------ Constraints
-    int32_t _min_genome_length;
-    int32_t _max_genome_length;
-    double  _w_max;
+  // ------------------------------------------------------ Environment noise
+  ae_env_noise _env_noise_method;   // Method... TODO
+  double  _env_noise_alpha;         // Alpha value (variance coefficient)
+  double  _env_noise_sigma;         // Variance of the noise
+  double  _env_noise_prob;          // Probability of variation.
+  int32_t _env_noise_sampling_log;  // Log2 of the number of points in the noise fuzzy_set
 
-    // ----------------------------------------------------- Initial conditions
-    int32_t  _chromosome_initial_length;
-    int8_t   _init_method;
-    int32_t  _init_pop_size;
-    char*    _strain_name;
+  // --------------------------------------------------------- Mutation rates
+  double  _point_mutation_rate;
+  double  _small_insertion_rate;
+  double  _small_deletion_rate;
+  int16_t _max_indel_size;
 
-    // ------------------------------------------------------------ Environment
-    std::list<ae_gaussian> std_env_gaussians;
-    int16_t  _env_sampling;
+  // -------------------------------------------- Rearrangements and Transfer
+  bool    _with_4pts_trans;
+  bool    _with_alignments;
+  bool    _with_HT;
+  bool    _repl_HT_with_close_points;
+  double  _HT_ins_rate;
+  double  _HT_repl_rate;
+  double  _repl_HT_detach_rate;
 
-    // ---------------------------------------- Environment x-axis segmentation
-    // Number of x-axis segments
-    int16_t _env_axis_nb_segments;
-    // x-axis segment boundaries (sorted -- including MIN_X and MAX_X)
-    double* _env_axis_segment_boundaries;
-    // x-axis segment features
-    ae_env_axis_feature* _env_axis_features;
-    // Whether to automatically separate segments
-    bool _env_axis_separate_segments;
+  // ------------------------------ Rearrangement rates (without alignements)
+  double _duplication_rate;
+  double _deletion_rate;
+  double _translocation_rate;
+  double _inversion_rate;
 
-    // -------------------------------------------------- Environment variation
-    ae_env_var  _env_var_method;
-    double      _env_var_sigma;
-    int32_t     _env_var_tau;
+  // --------------------------------- Rearrangement rates (with alignements)
+  double _neighbourhood_rate;
+  double _duplication_proportion;
+  double _deletion_proportion;
+  double _translocation_proportion;
+  double _inversion_proportion;
 
-    // ------------------------------------------------------ Environment noise
-    ae_env_noise _env_noise_method;   // Method... TODO
-    double  _env_noise_alpha;         // Alpha value (variance coefficient)
-    double  _env_noise_sigma;         // Variance of the noise
-    double  _env_noise_prob;          // Probability of variation.
-    int32_t _env_noise_sampling_log;  // Log2 of the number of points in the noise fuzzy_set
+  // ------------------------------------------------------------ Alignements
+  ae_align_fun_shape _align_fun_shape;
+  double  _align_sigm_lambda;
+  int16_t _align_sigm_mean;
+  int16_t _align_lin_min;
+  int16_t _align_lin_max;
 
-    // --------------------------------------------------------- Mutation rates
-    double  _point_mutation_rate;
-    double  _small_insertion_rate;
-    double  _small_deletion_rate;
-    int16_t _max_indel_size;
+  int16_t _align_max_shift;     // Maximum shift of one seq on the other
+  int16_t _align_w_zone_h_len;  // Work zone half length
+  int16_t _align_match_bonus;   // Corresponding residues match bonus
+  int16_t _align_mismatch_cost; // Corresponding residues mismatch cost
 
-    // -------------------------------------------- Rearrangements and Transfer
-    bool    _with_4pts_trans;
-    bool    _with_alignments;
-    bool    _with_HT;
-    bool    _repl_HT_with_close_points;
-    double  _HT_ins_rate;
-    double  _HT_repl_rate;
-    double  _repl_HT_detach_rate;
+  // ----------------------------------------------- Phenotypic Stochasticity
+  bool _with_stochasticity;
 
-    // ------------------------------ Rearrangement rates (without alignements)
-    double _duplication_rate;
-    double _deletion_rate;
-    double _translocation_rate;
-    double _inversion_rate;
+  // -------------------------------------------------------------- Selection
+  ae_selection_scheme  _selection_scheme;
+  double               _selection_pressure;
 
-    // --------------------------------- Rearrangement rates (with alignements)
-    double _neighbourhood_rate;
-    double _duplication_proportion;
-    double _deletion_proportion;
-    double _translocation_proportion;
-    double _inversion_proportion;
+  // ------------------------------------------------------ Spatial structure
+  int16_t  _grid_width;
+  int16_t  _grid_height;
+  int32_t  _migration_number; // TODO : explain
 
-    // ------------------------------------------------------------ Alignements
-    ae_align_fun_shape _align_fun_shape;
-    double  _align_sigm_lambda;
-    int16_t _align_sigm_mean;
-    int16_t _align_lin_min;
-    int16_t _align_lin_max;
+  // -------------------------------------------------------------- Secretion
+  bool   _with_secretion;
+  // Proportion of the fitness contributed by secretion
+  double _secretion_contrib_to_fitness;      // (0,1)
+  // Proportion that diffuses into each cell, every generation
+  // (0 for no diffusion)
+  double _secretion_diffusion_prop;
+  // Proportion of secreted substance that degrades every generation
+  double _secretion_degradation_prop;
+  // Cost of secreting the compound, as a proportion of the amount secreted
+  double _secretion_cost;
+  // Starting configuration of secretion grid
+  // 0, all are 0; 1, point source of secreted compund
+  double _secretion_init;
 
-    int16_t _align_max_shift;     // Maximum shift of one seq on the other
-    int16_t _align_w_zone_h_len;  // Work zone half length
-    int16_t _align_match_bonus;   // Corresponding residues match bonus
-    int16_t _align_mismatch_cost; // Corresponding residues mismatch cost
+  // --------------------------------------------------------------- Plasmids
+  bool      _allow_plasmids;
+  int32_t   _plasmid_initial_length;
+  int32_t   _plasmid_initial_gene;
+  int32_t   _plasmid_minimal_length;
+  int32_t   _plasmid_maximal_length;
+  int32_t   _chromosome_minimal_length;
+  int32_t   _chromosome_maximal_length;
+  double    _prob_plasmid_HT;
+  double    _tune_donor_ability;
+  double    _tune_recipient_ability;
+  double    _donor_cost;
+  double    _recipient_cost;
+  bool      _compute_phen_contrib_by_GU;
+  bool      _swap_GUs;
 
-    // ----------------------------------------------- Phenotypic Stochasticity
-    bool _with_stochasticity;
+  // ------------------------------------------------------- Translation cost
+  double _translation_cost;
 
-    // -------------------------------------------------------------- Selection
-    ae_selection_scheme  _selection_scheme;
-    double               _selection_pressure;
+  // ---------------------------------------------------------------- Outputs
+  // Stats
+  int8_t _stats;
+  // Whether to delete the existing statistics file
+  // (otherwise kept with the suffix ".old")
+  bool _delete_old_stats;
 
-    // ------------------------------------------------------ Spatial structure
-    bool     _spatially_structured;
-    int16_t  _grid_width;
-    int16_t  _grid_height;
-    int32_t  _migration_number; // TODO : explain
+  // Backups
+  int32_t _backup_step;
+  int32_t _big_backup_step;
 
-    // -------------------------------------------------------------- Secretion
-    bool   _with_secretion;
-    // Proportion of the fitness contributed by secretion
-    double _secretion_contrib_to_fitness;      // (0,1)
-    // Proportion that diffuses into each cell, every generation
-    // (0 for no diffusion)
-    double _secretion_diffusion_prop;
-    // Proportion of secreted substance that degrades every generation
-    double _secretion_degradation_prop;
-    // Cost of secreting the compound, as a proportion of the amount secreted
-    double _secretion_cost;
-    // Starting configuration of secretion grid
-    // 0, all are 0; 1, point source of secreted compund
-    double _secretion_init;
+  // Tree
+  bool         _record_tree;
+  int32_t      _tree_step;
+  ae_tree_mode _tree_mode;
 
-    // --------------------------------------------------------------- Plasmids
-    bool      _allow_plasmids;
-    int32_t   _plasmid_initial_length;
-    int32_t   _plasmid_initial_gene;
-    int32_t   _plasmid_minimal_length;
-    int32_t   _plasmid_maximal_length;
-    int32_t   _chromosome_minimal_length;
-    int32_t   _chromosome_maximal_length;
-    double    _prob_plasmid_HT;
-    double    _tune_donor_ability;
-    double    _tune_recipient_ability;
-    double    _donor_cost;
-    double    _recipient_cost;
-    bool      _compute_phen_contrib_by_GU;
-    bool      _swap_GUs;
+  // Dumps // TODO : explain
+  bool    _make_dumps;
+  int32_t _dump_step;
 
-    // ------------------------------------------------------- Translation cost
-    double _translation_cost;
+  // Logs
+  int8_t _logs;
 
-    // ---------------------------------------------------------------- Outputs
-    // Stats
-    int8_t _stats;
-    // Whether to delete the existing statistics file
-    // (otherwise kept with the suffix ".old")
-    bool _delete_old_stats;
-
-    // Backups
-    int32_t _backup_step;
-    int32_t _big_backup_step;
-
-    // Tree
-    bool         _record_tree;
-    int32_t      _tree_step;
-    ae_tree_mode _tree_mode;
-
-    // Dumps // TODO : explain
-    bool    _make_dumps;
-    int32_t _dump_step;
-
-    // Logs
-    int8_t _logs;
-
-    // Other
-    bool _more_stats;  // TODO : explain
+  // Other
+  bool _more_stats;  // TODO : explain
 
   #ifdef __REGUL
     // ------------------------------------------------------- Binding matrix
