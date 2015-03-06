@@ -71,185 +71,6 @@ namespace aevol {
 //##############################################################################
 
 
-
-// =====================================================================
-//                           Getters' definitions
-// =====================================================================
-std::list<ae_individual*> ae_population::get_indivs() const {
-  return _indivs;
-}
-
-int32_t ae_population::get_nb_indivs( void ) const
-{
-  return _indivs.size();
-}
-
-ae_individual* ae_population::get_best( void ) const
-{
-  return _indivs.back();
-}
-
-/// Get the indiv corresponding to the given rank (1 for the worst indiv, POP_SIZE for the best)
-///
-/// Warning, be sure you call sort_individuals() before using get_indiv_by_rank
-///
-/// TODO vld: If this function is used often, suggests that _indivs
-/// should be a vector instead of a list.
-ae_individual* ae_population::get_indiv_by_rank( int32_t rank ) const
-{
-  auto indiv = _indivs.begin();
-  std::advance(indiv, rank);
-  assert((*indiv)->get_rank() == rank);
-  return *indiv;
-}
-
-ae_jumping_mt* ae_population::get_mut_prng( void ) const
-{
-  return _mut_prng;
-}
-
-ae_jumping_mt* ae_population::get_stoch_prng( void ) const
-{
-  return _stoch_prng;
-}
-
-// =====================================================================
-//                           Setters' definitions
-// =====================================================================
-void ae_population::add_indiv( ae_individual* indiv )
-{
-  _indivs.push_back(indiv);
-}
-
-
-void ae_population::set_mut_prng( ae_jumping_mt* prng )
-{
-  if (_mut_prng != NULL) delete _mut_prng;
-  _mut_prng = prng;
-  for (auto& indiv: _indivs)
-    indiv->set_mut_prng(_mut_prng);
-}
-
-void ae_population::set_stoch_prng( ae_jumping_mt* prng )
-{
-  if (_stoch_prng != NULL)
-    delete _stoch_prng;
-  _stoch_prng = prng;
-
-  for (auto& indiv: _indivs)
-    indiv->set_stoch_prng(_stoch_prng);
-}
-
-
-// Mutation rates etc...
-void ae_population::set_overall_point_mutation_rate( double point_mutation_rate )
-{
-  for (auto& indiv: _indivs)
-    indiv->set_point_mutation_rate(point_mutation_rate);
-}
-
-void ae_population::set_overall_small_insertion_rate( double small_insertion_rate )
-{
-  for (auto& indiv: _indivs)
-    indiv->set_small_insertion_rate(small_insertion_rate);
-}
-
-void ae_population::set_overall_small_deletion_rate( double small_deletion_rate )
-{
-  for (auto& indiv: _indivs)
-    indiv->set_small_deletion_rate(small_deletion_rate);
-}
-
-void ae_population::set_overall_max_indel_size( int16_t max_indel_size )
-{
-  for (auto& indiv: _indivs)
-    indiv->set_max_indel_size(max_indel_size);
-}
-
-void ae_population::set_overall_duplication_rate( double duplication_rate )
-{
-  for (auto& indiv: _indivs)
-    indiv->set_duplication_rate(duplication_rate);
-}
-
-void ae_population::set_overall_deletion_rate( double deletion_rate)
-{
-  for (auto& indiv: _indivs)
-    indiv->set_deletion_rate(deletion_rate);
-}
-
-void ae_population::set_overall_translocation_rate( double translocation_rate)
-{
-  for (auto& indiv: _indivs)
-    indiv->set_translocation_rate(translocation_rate);
-}
-
-void ae_population::set_overall_inversion_rate( double inversion_rate)
-{
-  for (auto& indiv: _indivs)
-    indiv->set_inversion_rate( inversion_rate );
-}
-
-void ae_population::set_overall_transfer_ins_rate (double transfer_ins_rate)
-{
-  for (auto& indiv: _indivs)
-    indiv->set_HT_ins_rate( transfer_ins_rate );
-}
-
-void ae_population::set_overall_transfer_repl_rate (double transfer_repl_rate)
-{
-  for (auto& indiv: _indivs)
-    indiv->set_HT_repl_rate( transfer_repl_rate );
-}
-
-void ae_population::set_overall_neighbourhood_rate( double neighbourhood_rate)
-{
-  for (auto& indiv: _indivs)
-    indiv->set_neighbourhood_rate( neighbourhood_rate );
-}
-
-void ae_population::set_overall_duplication_proportion( double duplication_proportion)
-{
-  for (auto& indiv: _indivs)
-    indiv->set_duplication_proportion( duplication_proportion );
-}
-
-void ae_population::set_overall_deletion_proportion( double deletion_proportion)
-{
-  for (auto& indiv: _indivs)
-    indiv->set_deletion_proportion( deletion_proportion );
-}
-
-void ae_population::set_overall_translocation_proportion( double translocation_proportion)
-{
-  for (auto& indiv: _indivs)
-    indiv->set_translocation_proportion( translocation_proportion );
-}
-
-void ae_population::set_overall_inversion_proportion( double inversion_proportion)
-{
-  for (auto& indiv: _indivs)
-    indiv->set_inversion_proportion( inversion_proportion );
-}
-
-void ae_population::set_replication_reports( ae_tree* tree, int32_t num_gener)
-{
-  for (auto& indiv: _indivs)
-    indiv->set_replication_report( tree->get_report_by_index( num_gener, indiv->get_id()));
-}
-
-// =====================================================================
-//                       Inline functions' definition
-// =====================================================================
-void ae_population::evaluate_individuals( Environment* envir )
-{
-  for (auto& indiv: _indivs) {
-    indiv->evaluate( envir );
-    indiv->compute_statistical_data();
-  }
-}
-
-
 // =================================================================
 //                    Definition of static attributes
 // =================================================================
@@ -257,7 +78,7 @@ void ae_population::evaluate_individuals( Environment* envir )
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_population::ae_population( ae_exp_manager* exp_m )
+ae_population::ae_population(ae_exp_manager* exp_m)
 {
   _exp_m = exp_m;
 
@@ -273,7 +94,7 @@ ae_population::ae_population( ae_exp_manager* exp_m )
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_population::~ae_population( void )
+ae_population::~ae_population(void)
 {
   #ifndef DISTRIBUTED_PRNG
     delete _mut_prng;
@@ -488,19 +309,190 @@ ae_individual* ae_population::create_clone( ae_individual* dolly, int32_t id )
   return indiv;
 }
 
+void ae_population::evaluate_individuals( Environment* envir )
+{
+  for (auto& indiv: _indivs) {
+    indiv->evaluate( envir );
+    indiv->compute_statistical_data();
+  }
+}
 
 
 
 
-// =================================================================
-//                          Non inline accessors
-// =================================================================
+
+// =====================================================================
+//                           Getters' definitions
+// =====================================================================
 ae_individual* ae_population::get_indiv_by_id( int32_t id ) const
 {
   for (const auto& indiv: _indivs)
     if (indiv->get_id() == id)
       return indiv;
   return nullptr;
+}
+
+std::list<ae_individual*> ae_population::get_indivs() const {
+  return _indivs;
+}
+
+int32_t ae_population::get_nb_indivs( void ) const
+{
+  return _indivs.size();
+}
+
+ae_individual* ae_population::get_best( void ) const
+{
+  return _indivs.back();
+}
+
+/// Get the indiv corresponding to the given rank (1 for the worst indiv, POP_SIZE for the best)
+///
+/// Warning, be sure you call sort_individuals() before using get_indiv_by_rank
+///
+/// TODO vld: If this function is used often, suggests that _indivs
+/// should be a vector instead of a list.
+ae_individual* ae_population::get_indiv_by_rank( int32_t rank ) const
+{
+  auto indiv = _indivs.begin();
+  std::advance(indiv, rank);
+  assert((*indiv)->get_rank() == rank);
+  return *indiv;
+}
+
+ae_jumping_mt* ae_population::get_mut_prng( void ) const
+{
+  return _mut_prng;
+}
+
+ae_jumping_mt* ae_population::get_stoch_prng( void ) const
+{
+  return _stoch_prng;
+}
+
+// =====================================================================
+//                           Setters' definitions
+// =====================================================================
+void ae_population::add_indiv( ae_individual* indiv )
+{
+  _indivs.push_back(indiv);
+}
+
+
+void ae_population::set_mut_prng( ae_jumping_mt* prng )
+{
+  if (_mut_prng != NULL) delete _mut_prng;
+  _mut_prng = prng;
+  for (auto& indiv: _indivs)
+    indiv->set_mut_prng(_mut_prng);
+}
+
+void ae_population::set_stoch_prng( ae_jumping_mt* prng )
+{
+  if (_stoch_prng != NULL)
+    delete _stoch_prng;
+  _stoch_prng = prng;
+
+  for (auto& indiv: _indivs)
+    indiv->set_stoch_prng(_stoch_prng);
+}
+
+
+// Mutation rates etc...
+void ae_population::set_overall_point_mutation_rate( double point_mutation_rate )
+{
+  for (auto& indiv: _indivs)
+    indiv->set_point_mutation_rate(point_mutation_rate);
+}
+
+void ae_population::set_overall_small_insertion_rate( double small_insertion_rate )
+{
+  for (auto& indiv: _indivs)
+    indiv->set_small_insertion_rate(small_insertion_rate);
+}
+
+void ae_population::set_overall_small_deletion_rate( double small_deletion_rate )
+{
+  for (auto& indiv: _indivs)
+    indiv->set_small_deletion_rate(small_deletion_rate);
+}
+
+void ae_population::set_overall_max_indel_size( int16_t max_indel_size )
+{
+  for (auto& indiv: _indivs)
+    indiv->set_max_indel_size(max_indel_size);
+}
+
+void ae_population::set_overall_duplication_rate( double duplication_rate )
+{
+  for (auto& indiv: _indivs)
+    indiv->set_duplication_rate(duplication_rate);
+}
+
+void ae_population::set_overall_deletion_rate( double deletion_rate)
+{
+  for (auto& indiv: _indivs)
+    indiv->set_deletion_rate(deletion_rate);
+}
+
+void ae_population::set_overall_translocation_rate( double translocation_rate)
+{
+  for (auto& indiv: _indivs)
+    indiv->set_translocation_rate(translocation_rate);
+}
+
+void ae_population::set_overall_inversion_rate( double inversion_rate)
+{
+  for (auto& indiv: _indivs)
+    indiv->set_inversion_rate( inversion_rate );
+}
+
+void ae_population::set_overall_transfer_ins_rate (double transfer_ins_rate)
+{
+  for (auto& indiv: _indivs)
+    indiv->set_HT_ins_rate( transfer_ins_rate );
+}
+
+void ae_population::set_overall_transfer_repl_rate (double transfer_repl_rate)
+{
+  for (auto& indiv: _indivs)
+    indiv->set_HT_repl_rate( transfer_repl_rate );
+}
+
+void ae_population::set_overall_neighbourhood_rate( double neighbourhood_rate)
+{
+  for (auto& indiv: _indivs)
+    indiv->set_neighbourhood_rate( neighbourhood_rate );
+}
+
+void ae_population::set_overall_duplication_proportion( double duplication_proportion)
+{
+  for (auto& indiv: _indivs)
+    indiv->set_duplication_proportion( duplication_proportion );
+}
+
+void ae_population::set_overall_deletion_proportion( double deletion_proportion)
+{
+  for (auto& indiv: _indivs)
+    indiv->set_deletion_proportion( deletion_proportion );
+}
+
+void ae_population::set_overall_translocation_proportion( double translocation_proportion)
+{
+  for (auto& indiv: _indivs)
+    indiv->set_translocation_proportion( translocation_proportion );
+}
+
+void ae_population::set_overall_inversion_proportion( double inversion_proportion)
+{
+  for (auto& indiv: _indivs)
+    indiv->set_inversion_proportion( inversion_proportion );
+}
+
+void ae_population::set_replication_reports( ae_tree* tree, int32_t num_gener)
+{
+  for (auto& indiv: _indivs)
+    indiv->set_replication_report( tree->get_report_by_index( num_gener, indiv->get_id()));
 }
 
 } // namespace aevol

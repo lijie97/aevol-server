@@ -108,14 +108,12 @@ f_line.cpp \
 Time.cpp
 
 X11_headers = \
-fuzzy_X11.h \
 ae_individual_X11.h \
 ae_population_X11.h \
 ae_exp_manager_X11.h \
 ae_X11_window.h
 
 X11_sources = \
-fuzzy_X11.cpp \
 ae_individual_X11.cpp \
 ae_population_X11.cpp \
 ae_exp_manager_X11.cpp \

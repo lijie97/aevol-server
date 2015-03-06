@@ -43,6 +43,7 @@
 //                            Project Files
 // =================================================================
 #include "ae_exp_manager.h"
+#include "ae_X11_window.h"
 
 namespace aevol {
 
@@ -117,34 +118,36 @@ class ae_exp_manager_X11 : public ae_exp_manager
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_exp_manager_X11( void );
+    ae_exp_manager_X11(void);
     //~ ae_exp_manager_X11( ae_param_overloader* param_overloader = NULL );
     //~ ae_exp_manager_X11( char* backup_file_name, bool to_be_run = true, ae_param_overloader* param_overloader = NULL );
   
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_exp_manager_X11( void );
+    virtual ~ae_exp_manager_X11(void);
   
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline bool             get_display_on( void );
-    inline Display *        get_display( void );
-    inline int8_t           get_screen( void );
-    inline Atom *           get_atoms ( void );
-    inline bool             get_show_window( int8_t win );
-    inline bool             get_new_show_window( int8_t win );
-    inline ae_X11_window *  get_window( int8_t win );
+    inline bool             get_display_on(void);
+    inline Display *        get_display(void);
+    inline int8_t           get_screen(void);
+    inline Atom *           get_atoms (void);
+    inline bool             get_show_window(int8_t win);
+    inline bool             get_new_show_window(int8_t win);
+    inline ae_X11_window *  get_window(int8_t win);
   
     // =================================================================
     //                            Public Methods
     // =================================================================
-    KeyCode* get_key_codes( void )  { return _key_codes;  };
-    virtual void display( void );
-    void toggle_display_on_off( void );
-    void handle_events( void );
-    bool quit_signal_received( void );
+    KeyCode* get_key_codes(void)  { return _key_codes;  };
+    virtual void display(void);
+    void toggle_display_on_off(void);
+    void handle_events(void);
+    bool quit_signal_received(void);
+    void display(ae_X11_window* win, Fuzzy& fuzzy, color_map color,
+        bool fill = false, bool bold = false);
 
     // =================================================================
     //                           Public Attributes
@@ -159,7 +162,7 @@ class ae_exp_manager_X11 : public ae_exp_manager
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    //~ ae_exp_manager_X11( void )
+    //~ ae_exp_manager_X11(void)
     //~ {
       //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       //~ exit( EXIT_FAILURE );
@@ -174,7 +177,7 @@ class ae_exp_manager_X11 : public ae_exp_manager
   //                           Protected Methods
   // =================================================================
   void    initialize( bool with_grid = false, bool with_plasmids = false );
-  void    set_codes( void );
+  void    set_codes(void);
   int8_t  identify_window( Window winID );
   void    draw_window( int8_t win_number );
   void    refresh_window( int8_t win_number );
@@ -202,12 +205,12 @@ class ae_exp_manager_X11 : public ae_exp_manager
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-bool ae_exp_manager_X11::get_display_on( void )
+bool ae_exp_manager_X11::get_display_on(void)
 {
   return _display_on;
 }
 
-Display * ae_exp_manager_X11::get_display( void )
+Display * ae_exp_manager_X11::get_display(void)
 {
   return _display;
 }
@@ -224,13 +227,13 @@ bool ae_exp_manager_X11::get_new_show_window( int8_t win )
 }
 
 
-int8_t ae_exp_manager_X11::get_screen( void )
+int8_t ae_exp_manager_X11::get_screen(void)
 {
   return _screen;
 }
 
 
-Atom* ae_exp_manager_X11::get_atoms( void )
+Atom* ae_exp_manager_X11::get_atoms(void)
 {
   return _atoms;
 }

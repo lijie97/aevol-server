@@ -46,9 +46,7 @@
 #include "ae_population_X11.h"
 #include "ae_individual_X11.h"
 #include "ae_X11_window.h"
-#ifdef __X11
-#include "fuzzy_X11.h"
-#endif
+#include "fuzzy.h"
 
 namespace aevol {
 
@@ -93,10 +91,10 @@ ae_exp_manager_X11::ae_exp_manager_X11( void ) : ae_exp_manager()
     printf("\tIf you are using aevol through SSH, you may use ssh -X.\n");
     exit(EXIT_FAILURE);
   }
-  _screen   = XDefaultScreen( _display );
+  _screen   = XDefaultScreen(_display);
   _atoms    = new Atom[2];
-  _atoms[0] = XInternAtom( _display, "WM_DELETE_WINDOW", False );
-  _atoms[1] = XInternAtom( _display, "WM_PROTOCOLS", False );
+  _atoms[0] = XInternAtom(_display, "WM_DELETE_WINDOW", False);
+  _atoms[1] = XInternAtom(_display, "WM_PROTOCOLS", False);
   set_codes();
 }
 
@@ -136,7 +134,7 @@ ae_exp_manager_X11::~ae_exp_manager_X11( void )
   }
   if ( _win != NULL ) delete [] _win;
 
-  XCloseDisplay( _display );
+  XCloseDisplay(_display);
 
   if ( _win_name != NULL ) delete [] _win_name;
   if ( _win_size != NULL ) delete [] _win_size;
@@ -154,35 +152,40 @@ bool ae_exp_manager_X11::quit_signal_received( void )
   return _quit_signal_received;
 }
 
-void ae_exp_manager_X11::display( void )
+void ae_exp_manager_X11::display(void)
 {
   // ---------------------
   // 1) Handle user events
   // ---------------------
-  if ( _display_on ) handle_events();
+  if (_display_on) handle_events();
 
 
   // --------------------------------------------------
   // 2) Handle signal that toggle the display on or off
   // --------------------------------------------------
-  if ( _handle_display_on_off )
+  if (_handle_display_on_off)
   {
     _handle_display_on_off = false;
 
-    if ( _display_on ) // Display was "on", close all windows (after saving their current size and position)
+    if (_display_on)
+    // Display was "on", close all windows
+    // (after saving their current size and position)
     {
-      for ( int8_t num_win = 0 ; num_win < NB_WIN ; num_win++ )
+      for (int8_t num_win = 0 ; num_win < NB_WIN ; num_win++)
       {
-        if ( _win[num_win] != NULL )
+        if (_win[num_win] != NULL)
         {
           // 1) Save current window position and size
           Window aWindow; // Unused
           int x_return, y_return;
           int dest_x_return, dest_y_return;
           unsigned int border_width_return, depth_return; // Unused
-          XGetGeometry( _display, _win[num_win]->get_window(), &aWindow, &x_return, &y_return,
-                        &_win_size[num_win][0], &_win_size[num_win][1], &border_width_return, &depth_return );
-          XTranslateCoordinates( _display, _win[num_win]->get_window(), DefaultRootWindow(_display), 0, 0, &dest_x_return, &dest_y_return, &aWindow );
+          XGetGeometry(_display, _win[num_win]->get_window(), &aWindow,
+              &x_return, &y_return,
+              &_win_size[num_win][0], &_win_size[num_win][1],
+              &border_width_return, &depth_return);
+          XTranslateCoordinates(_display, _win[num_win]->get_window(),
+              DefaultRootWindow(_display), 0, 0, &dest_x_return, &dest_y_return, &aWindow);
 
           _win_pos[num_win][0] = dest_x_return - x_return;
           _win_pos[num_win][1] = dest_y_return - y_return;
@@ -193,7 +196,7 @@ void ae_exp_manager_X11::display( void )
         }
       }
 
-      XFlush( _display );
+      XFlush(_display);
       delete _win;
       _win = NULL;
 
@@ -211,7 +214,9 @@ void ae_exp_manager_X11::display( void )
       {
         if ( get_show_window(i) )
         {
-          _win[i] = new ae_X11_window( _display, _screen, _atoms, _win_pos[i][0], _win_pos[i][1], _win_size[i][0], _win_size[i][1], _win_name[i] );
+          _win[i] = new ae_X11_window(_display, _screen, _atoms,
+              _win_pos[i][0], _win_pos[i][1],
+              _win_size[i][0], _win_size[i][1], _win_name[i]);
         }
       }
 
@@ -223,25 +228,25 @@ void ae_exp_manager_X11::display( void )
   // ----------
   // 3) Display
   // ----------
-  if ( _display_on )
+  if (_display_on)
   {
-    for ( int8_t i = 0 ; i < NB_WIN ; i++ )
+    for (int8_t i = 0 ; i < NB_WIN ; i++)
     {
-      if ( get_show_window( i ) )
+      if (get_show_window(i))
       {
-        if ( get_new_show_window( i ) )
+        if (get_new_show_window(i))
         {
-          draw_window( i );
+          draw_window(i);
         }
         else
         {
-          refresh_window( i );
+          refresh_window(i);
         }
       }
     }
 
     // Refresh all windows
-    XFlush( _display );
+    XFlush(_display);
   }
 }
 
@@ -256,7 +261,7 @@ void ae_exp_manager_X11::handle_events( void )
   // events are needed in order to catch "WM_DELETE_WINDOW")
   int iCurrEvent    = 0;
   int iIgnoreNoise  = 0;
-  while( XCheckIfEvent( _display, &event, AlwaysTruePredicate, 0) )
+  while( XCheckIfEvent(_display, &event, AlwaysTruePredicate, 0))
   {
     iCurrEvent ++;
     win_number = identify_window( event.xany.window );
@@ -287,7 +292,7 @@ void ae_exp_manager_X11::handle_events( void )
         if( iCurrEvent > iIgnoreNoise )
         {
           draw_window( win_number );
-          iIgnoreNoise = iCurrEvent + XQLength( _display );
+          iIgnoreNoise = iCurrEvent + XQLength(_display);
         }
         break;
       }
@@ -411,6 +416,45 @@ void ae_exp_manager_X11::toggle_display_on_off( void )
   _handle_display_on_off = true;
 }
 
+
+
+void ae_exp_manager_X11::display(ae_X11_window* win,
+    Fuzzy& fuzzy,
+    color_map color,
+    bool fill /*= false*/,
+    bool bold /*= false*/ )
+{
+  double y_min = Y_MIN - 0.1 * Y_MAX; // Yields a bottom margin
+  double y_max = Y_MAX * 1.1;         // Yields a top margin
+  double delta_x = X_MAX - X_MIN;
+  double delta_y = y_max - y_min;
+  
+  int16_t cur_x;
+  int16_t cur_y;
+  int16_t next_x;
+  int16_t next_y;
+  
+  for (list<Point>::const_iterator p = fuzzy.get_points().begin() ; p != prev(fuzzy.get_points().end()) ; ++p) {
+    list<Point>::const_iterator q = next(p);
+    
+    // Display segment [p, q]
+    cur_x   = (      (p->x -  X_MIN) / delta_x  ) * win->get_width();
+    cur_y   = ( 1 - ((p->y -  y_min) / delta_y) ) * win->get_height();
+    next_x  = (      (q->x - X_MIN) / delta_x  ) * win->get_width();
+    next_y  = ( 1 - ((q->y - y_min) / delta_y) ) * win->get_height();
+    
+    if (fill) {
+      char* fill_color;
+      for ( int16_t i = cur_x ; i < next_x ; i++ ) {
+        fill_color = ae_X11_window::get_color( ((double)i / win->get_width()) * (X_MAX - X_MIN) );
+        win->draw_line( i, ( 1 - ((0 -  y_min) / delta_y) ) * win->get_height(),
+                        i, cur_y + (((i - cur_x) * (next_y - cur_y)) / (next_x - cur_x)) , fill_color );
+        delete [] fill_color;
+      }
+    }
+    win->draw_line( cur_x, cur_y, next_x, next_y, color, bold );
+  }
+}
 
 
 // =================================================================
@@ -631,7 +675,7 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
       if ( is_spatially_structured() )
       {
         double** grid = get_spatial_structure()->get_total_fitness_grid();
-        ((ae_population_X11*)_pop)->display_grid( cur_win, grid );
+        ((ae_population_X11*)_pop)->display_grid(cur_win, grid);
 
         // Has been allocated in ae_spatial_structure::get_total_fitness_grid()
         for ( int16_t x = 0 ; x < get_grid_width() ; x++ )
@@ -642,7 +686,7 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
       }
       else
       {
-        ((ae_population_X11*)_pop)->display( cur_win );
+        ((ae_population_X11*)_pop)->display(cur_win);
       }
       break;
     }
@@ -681,19 +725,19 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
       // Display all the phenotypes (blue)
       for (const auto& indiv: _pop->get_indivs())
       {
-        indiv->get_phenotype()->display(cur_win, BLUE);
+        display(cur_win, *(indiv->get_phenotype()), BLUE);
         if ( indiv->get_allow_plasmids())
         {
-          ((Fuzzy_X11*)indiv->get_genetic_unit(0).get_phenotypic_contribution())->display(cur_win, YELLOW);
-          ((Fuzzy_X11*)indiv->get_genetic_unit(1).get_phenotypic_contribution())->display(cur_win, GREEN);
+          display(cur_win, *(indiv->get_genetic_unit(0).get_phenotypic_contribution()), YELLOW);
+          display(cur_win, *(indiv->get_genetic_unit(1).get_phenotypic_contribution()), GREEN);
         }
       }
 
       // Display best indiv's phenotype (white)
-      get_best_indiv()->get_phenotype()->display( cur_win, WHITE, true );
+      display( cur_win, *(get_best_indiv()->get_phenotype()), WHITE, true );
 
       // Display environment (red)
-      get_env()->display( cur_win, RED, false, true );
+      display( cur_win, *get_env(), RED, false, true );
     }
     break;
 

@@ -86,11 +86,11 @@ class ae_exp_manager
     // =======================================================================
     //                           Accessors: getters
     // =======================================================================
-    inline ae_exp_setup*        get_exp_s(void) const;
-    inline ae_population*       get_pop(void) const;
-    inline Environment*      get_env(void) const;
-    inline ae_selection*        get_sel(void) const;
-    inline ae_output_manager*   get_output_m(void) const;
+    inline ae_exp_setup* get_exp_s(void) const;
+    inline ae_population* get_pop(void) const;
+    inline Environment* get_env(void) const;
+    inline ae_selection* get_sel(void) const;
+    inline ae_output_manager* get_output_m(void) const;
 
     inline bool quit_signal_received(void) const;
 

@@ -69,17 +69,6 @@ namespace aevol {
 /// \invariant{`is_increasing()`}
 class Fuzzy
 {
- protected:
-  bool invariant() const {
-    return
-        points.size() >= 2             and
-        points.begin()->x == X_MIN     and
-        prev(points.end())->x == X_MAX and
-        is_increasing()
-        ;
-  };
-  bool is_increasing() const;
-
  public:
   Fuzzy(): points({Point(X_MIN, 0.0), Point(X_MAX, 0.0)}) {};
   Fuzzy(const Fuzzy& f): points(f.points) {};
@@ -103,6 +92,7 @@ class Fuzzy
   enum clipping_direction: bool {min, max};
   void clip(clipping_direction direction, double bound);
 
+  const std::list<Point>& get_points(void) {return points;};
   double get_geometric_area() const;
   double get_geometric_area(std::list<Point>::const_iterator begin,
                             std::list<Point>::const_iterator end) const;
@@ -114,6 +104,16 @@ class Fuzzy
   bool is_identical_to(const Fuzzy& fs, double tolerance) const;
 
  protected:
+  bool invariant() const {
+    return
+        points.size() >= 2             and
+        points.begin()->x == X_MIN     and
+        prev(points.end())->x == X_MAX and
+        is_increasing()
+        ;
+  };
+  bool is_increasing() const;
+
   std::list<Point> points;
 
   std::list<Point>::iterator create_interpolated_point(double x, std::list<Point>::iterator start);

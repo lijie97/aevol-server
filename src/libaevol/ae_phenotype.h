@@ -32,7 +32,7 @@
 // =================================================================
 //                              Libraries
 // =================================================================
-#include <inttypes.h>
+#include <cinttypes>
 
 
 
@@ -40,10 +40,6 @@
 //                            Project Files
 // =================================================================
 #include "fuzzy.h"
-
-#ifdef __X11
-#include "fuzzy_X11.h"
-#endif
 
 namespace aevol {
 
@@ -56,27 +52,22 @@ class ae_individual;
 
 
  
-#ifdef __NO_X
 class ae_phenotype : public Fuzzy
-#elif defined __X11
-class ae_phenotype : public Fuzzy_X11
-#else
-#error You must specify a graphic option
-#endif
 {
   public :
   
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_phenotype( void );
-    ae_phenotype( ae_individual* indiv );
-    ae_phenotype( ae_individual* indiv, const ae_phenotype &model );
+    ae_phenotype(void);
+    ae_phenotype(const ae_phenotype&) = delete;
+    ae_phenotype(ae_individual* indiv);
+    ae_phenotype(ae_individual* indiv, const ae_phenotype &model);
   
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_phenotype( void );
+    virtual ~ae_phenotype(void) = default;
   
     // =================================================================
     //                              Accessors
@@ -95,22 +86,6 @@ class ae_phenotype : public Fuzzy_X11
   
   
   protected :
-  
-    // =================================================================
-    //                         Forbidden Constructors
-    // =================================================================
-    //~ ae_phenotype( void )
-    //~ {
-      //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      //~ exit( EXIT_FAILURE );
-    //~ };
-    ae_phenotype( const ae_phenotype &model )
-    {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-
-  
     // =================================================================
     //                           Protected Methods
     // =================================================================
