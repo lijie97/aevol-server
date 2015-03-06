@@ -1698,9 +1698,8 @@ void ae_individual::do_translation() {
   for (auto& gen_unit: _genetic_unit_list) {
     gen_unit.do_translation();
     // Create proxies
-    const auto& protein_list = gen_unit.get_protein_list();
-    const auto& lead = protein_list[LEADING];
-    const auto& lagg = protein_list[LAGGING];
+    const auto& lead = gen_unit.get_protein_list(LEADING);
+    const auto& lagg = gen_unit.get_protein_list(LAGGING);
 
     _protein_list.insert(_protein_list.end(), lead.begin(), lead.end());
     _protein_list.insert(_protein_list.end(), lagg.begin(), lagg.end());
@@ -2115,11 +2114,13 @@ void ae_individual::make_protein_list() {
   _protein_list.clear();
 
   // Make a copy of each genetic unit's protein list
-  for (const auto& gen_unit: _genetic_unit_list) {
-    const auto& protein_list = gen_unit.get_protein_list();
-    const auto& lead = protein_list[LEADING];
+  for (const auto& gen_unit: _genetic_unit_list)
+  {
+    // Creates proxies
+    const auto& lead = gen_unit.get_protein_list(LEADING);
+    const auto& lagg = gen_unit.get_protein_list(LAGGING);
+
     _protein_list.insert(_protein_list.end(), lead.begin(), lead.end());
-    const auto& lagg = protein_list[LAGGING];
     _protein_list.insert(_protein_list.end(), lagg.begin(), lagg.end());
   }
 }
@@ -2129,11 +2130,14 @@ void ae_individual::make_rna_list() {
   _rna_list.clear();
 
   // Make a copy of each genetic unit's rna list
-  for (const auto& gen_unit: _genetic_unit_list) {
+  for (const auto& gen_unit: _genetic_unit_list)
+  {
+    // Create proxies
     const auto& rna_list = gen_unit.get_rna_list();
     const auto& lead = rna_list[LEADING];
-    _rna_list.insert(_rna_list.end(), lead.begin(), lead.end());
     const auto& lagg = rna_list[LAGGING];
+
+    _rna_list.insert(_rna_list.end(), lead.begin(), lead.end());
     _rna_list.insert(_rna_list.end(), lagg.begin(), lagg.end());
   }
 }

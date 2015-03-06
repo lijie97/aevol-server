@@ -129,9 +129,9 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
   char display_string[40];
   sprintf( display_string, "Main chromosome size : %" PRId32 "bp", genome_length );
   win->draw_string( 15, 25, display_string );
-  sprintf( display_string, "Leading : %" PRId32 " CDSs", static_cast<int32_t>(gen_unit->get_protein_list()[LEADING].size()));
+  sprintf( display_string, "Leading : %" PRId32 " CDSs", static_cast<int32_t>(gen_unit->get_protein_list(LEADING).size()));
   win->draw_string( 15, 40, display_string );
-  sprintf( display_string, "Lagging : %" PRId32 " CDSs", static_cast<int32_t>(gen_unit->get_protein_list()[LAGGING].size()));
+  sprintf( display_string, "Lagging : %" PRId32 " CDSs", static_cast<int32_t>(gen_unit->get_protein_list(LAGGING).size()));
   win->draw_string( 15, 55, display_string );
 
   // Compute display diameter according to genome length and window size
@@ -177,8 +177,7 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
   // ----------------
   //  LEADING strand
   // ----------------
-  const auto& prot_lists = gen_unit->get_protein_list();
-  for (const auto& cds: prot_lists[LEADING])
+  for (const auto& cds: gen_unit->get_protein_list(LEADING))
   {
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)
@@ -256,7 +255,7 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
   // ----------------
   //  LAGGING strand
   // ----------------
-  for (const auto& cds: prot_lists[LAGGING])
+  for (const auto& cds: gen_unit->get_protein_list(LAGGING))
   {
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)
@@ -402,7 +401,8 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
     // ----------------
     //  LEADING strand
     // ----------------
-    for (const auto& cds: gen_unit->get_protein_list()[LEADING]) {
+    for (const auto& cds: gen_unit->get_protein_list(LEADING))
+    {
       // Alpha : angles from OriC (in degrees)
       // Theta : angles on the trigonometric circle (in degrees)
       // nb_sect : "length" in degrees of the arc to be drawn
@@ -479,7 +479,8 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
     // ----------------
     //  LAGGING strand
     // ----------------
-    for (const auto& cds: gen_unit->get_protein_list()[LAGGING]) {
+    for (const auto& cds: gen_unit->get_protein_list(LAGGING))
+    {
       // Alpha : angles from OriC (in degrees)
       // Theta : angles on the trigonometric circle (in degrees)
       // nb_sect : "length" in degrees of the arc to be drawn

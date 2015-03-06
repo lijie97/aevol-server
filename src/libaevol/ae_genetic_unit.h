@@ -49,6 +49,11 @@
 #include "ae_jumping_mt.h"
 #include "ae_utils.h"
 
+
+
+using std::vector;
+using std::list;
+
 namespace aevol {
 
 
@@ -86,18 +91,18 @@ class ae_genetic_unit
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline ae_exp_manager*  get_exp_m( void ) const;
-    inline ae_individual*   get_indiv( void )                   const;
-    inline ae_dna*          get_dna( void )                     const;
-    inline Fuzzy*    get_activ_contribution( void )      const;
-    inline Fuzzy*    get_inhib_contribution( void )      const;
-    inline Fuzzy*    get_phenotypic_contribution( void ) const;
+    inline ae_exp_manager* get_exp_m( void ) const;
+    inline ae_individual* get_indiv( void ) const;
+    inline ae_dna* get_dna( void ) const;
+    inline Fuzzy* get_activ_contribution( void ) const;
+    inline Fuzzy* get_inhib_contribution( void ) const;
+    inline Fuzzy* get_phenotypic_contribution( void ) const;
 
     // TODO: re constify
     // TODO return as (rvalue?) reference
-    /*const*/ std::vector<std::list<ae_rna*>> get_rna_list() const;
+    inline /*const*/ vector<list<ae_rna*>> get_rna_list() const;
     // TODO return as (rvalue?) reference
-    inline const std::vector<std::list<ae_protein*>> get_protein_list() const;
+    inline const list<ae_protein*> get_protein_list(ae_strand strand) const;
 
 
 
@@ -382,16 +387,25 @@ inline ae_dna* ae_genetic_unit::get_dna( void ) const
   return _dna;
 }
 
-inline const std::vector<std::list<ae_protein*>> ae_genetic_unit::get_protein_list() const {
-  assert( _protein_list );
-  assert( _protein_list[LEADING] );
-  assert( _protein_list[LAGGING] );
-  std::vector<std::list<ae_protein*>> r(LAGGING - LEADING + 1);
-  for (int8_t strand = LEADING ; strand <= LAGGING ; strand++)
-    for (ae_list_node<ae_protein*>* protein_node = _protein_list[strand]->get_first();
-         protein_node != NULL;
+inline const list<ae_protein*> ae_genetic_unit::get_protein_list(ae_strand strand) const
+{
+  list<ae_protein*> r;
+    for (ae_list_node<ae_protein*>* protein_node = _protein_list[strand]->get_first() ;
+         protein_node != NULL ;
          protein_node = protein_node->get_next())
-      r[strand].push_back(protein_node->get_obj());
+      r.push_back(protein_node->get_obj());
+  return r;
+}
+
+
+inline /*const*/ vector<list<ae_rna*>> ae_genetic_unit::get_rna_list() const
+{
+  vector<list<ae_rna*>> r(LAGGING - LEADING + 1);
+  for (int8_t strand = LEADING ; strand <= LAGGING ; strand++)
+    for (ae_list_node<ae_rna*>* rna_node = _rna_list[strand]->get_first();
+         rna_node != NULL;
+         rna_node = rna_node->get_next())
+      r[strand].push_back(rna_node->get_obj());
   return r;//std::move(r);
 }
 
