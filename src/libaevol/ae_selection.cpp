@@ -89,7 +89,7 @@ ae_selection::ae_selection( ae_exp_manager* exp_m )
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_selection::~ae_selection( void )
+ae_selection::~ae_selection(void)
 {
   delete _prng;
   if (_prob_reprod!=NULL)
@@ -101,7 +101,7 @@ ae_selection::~ae_selection( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_selection::step_to_next_generation( void )
+void ae_selection::step_to_next_generation(void)
 {
   // To create the new generation, we must create nb_indivs new individuals
   // (offspring) and "kill" the existing ones.
@@ -222,12 +222,25 @@ void ae_selection::step_to_next_generation( void )
     sp_struct->do_random_migrations();
   }
 
-  // Perform plasmid transfer
+  PerformPlasmidTransfers();
+
+  // Update the best individual
+  _exp_m->get_pop()->update_best();
+}
+
+void ae_selection::PerformPlasmidTransfers(void)
+{
   if (_exp_m->get_with_plasmids() &&
       ((_exp_m->get_prob_plasmid_HT() != 0.0) ||
         (_exp_m->get_tune_donor_ability() != 0.0) ||
         (_exp_m->get_tune_recipient_ability() != 0.0)))
   {
+    // Create proxies
+    ae_spatial_structure* sp_struct = _exp_m->get_spatial_structure();
+    int16_t grid_width  = _exp_m->get_grid_width();
+    int16_t grid_height = _exp_m->get_grid_height();
+    ae_grid_cell*** pop_grid = _exp_m->get_pop_grid();
+  
     int16_t x_offset, y_offset, new_x, new_y;
 
     // Shuffle the grid:
@@ -306,9 +319,6 @@ void ae_selection::step_to_next_generation( void )
       }
     }
   }
-
-  // Update the best individual
-  _exp_m->get_pop()->update_best();
 }
 
 /*!

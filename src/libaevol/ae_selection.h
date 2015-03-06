@@ -100,8 +100,8 @@ class ae_selection
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void step_to_next_generation( void );
-    void step_to_next_generation_grid( void );
+    void step_to_next_generation(void);
+    void PerformPlasmidTransfers(void);
     void write_setup_file( gzFile setup_file ) const;
     void write_setup_file( FILE* setup_file ) const;
     void save( gzFile& backup_file ) const;
