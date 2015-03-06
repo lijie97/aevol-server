@@ -40,11 +40,17 @@ namespace aevol {
 class Environment : public Fuzzy
 {
  public :
+  // =========================================================================
+  //                          Constructors & Destructor
+  // =========================================================================
   Environment();
   Environment(const Environment& model);
   Environment(gzFile backup_file);
   virtual ~Environment();
 
+  // =========================================================================
+  //                                  Getters
+  // =========================================================================
   const std::list<ae_gaussian>& get_gaussians() const {
     return gaussians;
   }
@@ -65,11 +71,13 @@ class Environment : public Fuzzy
   ae_env_noise get_noise_method() const {
     return _noise_method;
   }
-
-  bool is_noise_allowed() const{
+  bool is_noise_allowed() const {
     return (_noise_method != NO_NOISE);
   }
 
+  // =========================================================================
+  //                                  Setters
+  // =========================================================================
   void set_gaussians(const std::list<ae_gaussian>& gaussians_model) {
     gaussians = gaussians_model;
   }
@@ -118,6 +126,9 @@ class Environment : public Fuzzy
     _noise_sampling_log = sampling_log;
   }
 
+  // =========================================================================
+  //                             Public Methods
+  // =========================================================================
   void save(gzFile backup_file) const;
   void load(gzFile backup_file);
 
@@ -135,11 +146,18 @@ class Environment : public Fuzzy
   void apply_noise();
 
  protected :
+  // =========================================================================
+  //                            Protected Methods
+  // =========================================================================
   void _apply_autoregressive_mean_variation();
   void _apply_autoregressive_height_variation();
   void _apply_local_gaussian_variation();
   void _compute_area();
 
+
+  // =========================================================================
+  //                               Attributes
+  // =========================================================================
   std::list<ae_gaussian> initial_gaussians; // List containing all the gaussians of the environment in their initial state
   std::list<ae_gaussian> gaussians;         // List containing all the gaussians of the environment
   size_t _sampling;                             // Number of points to be generated from the gaussians.
