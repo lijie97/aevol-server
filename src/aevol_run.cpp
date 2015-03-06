@@ -92,8 +92,8 @@ int main( int argc, char* argv[] )
   // bool pause_on_startup = false;
   bool verbose          = false;
   
-  int32_t num_gener = 0;
-  int32_t nb_gener  = 1000;
+  int64_t num_gener = 0;
+  int64_t nb_gener  = 1000;
   
   #ifndef __NO_X
     bool show_display_on_startup = true;
@@ -208,8 +208,8 @@ int main( int argc, char* argv[] )
     exp_manager = new ae_exp_manager();
   #endif
   
-  exp_manager->load( num_gener, false, verbose );
-  exp_manager->set_nb_gener( nb_gener );
+  exp_manager->load(num_gener, false, verbose);
+  exp_manager->set_t_end(nb_gener);
   
  
 

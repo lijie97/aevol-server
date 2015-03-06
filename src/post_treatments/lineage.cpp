@@ -93,11 +93,11 @@ int main(int argc, char** argv)
 
   // Default values
   check_type  check_genome      = LIGHT_CHECK;
-  bool        verbose           = false;
-  int32_t     begin_gener       = 0;
-  int32_t     end_gener         = -1;
-  int32_t     final_indiv_index = -1;
-  int32_t     final_indiv_rank  = -1;
+  bool verbose = false;
+  int64_t t0 = 0;
+  int64_t t_end = -1;
+  int32_t final_indiv_index = -1;
+  int32_t final_indiv_rank  = -1;
   char tree_file_name[50];
 
   const char * short_options = "hVvncb:i:r:e:";
@@ -132,52 +132,52 @@ int main(int argc, char** argv)
       case 'v' : verbose = true;                    break;
       case 'n' : check_genome = NO_CHECK;           break;
       case 'c' : check_genome = FULL_CHECK;         break;
-      case 'b' : begin_gener  = atol(optarg);       break;
+      case 'b' : t0  = atol(optarg);                break;
       case 'i' : final_indiv_index  = atol(optarg); break;
       case 'r' : final_indiv_rank  = atol(optarg);  break;
       case 'e' :
       {
-        if ( strcmp( optarg, "" ) == 0 )
+        if (strcmp( optarg, "" ) == 0)
         {
           printf( "%s: error: Option -e or --end : missing argument.\n", argv[0] );
           exit( EXIT_FAILURE );
         }
 
-        end_gener = atol( optarg );
+        t_end = atol(optarg);
 
         break;
       }
     }
   }
 
-  if ( end_gener == -1 )
+  if ( t_end == -1 )
   {
-    printf( "%s: error: You must provide a generation number.\n", argv[0] );
-    exit( EXIT_FAILURE );
+    printf("%s: error: You must provide a generation number.\n", argv[0]);
+    exit(EXIT_FAILURE);
   }
 
   // Load the simulation
   ae_exp_manager* exp_manager = new ae_exp_manager();
-  exp_manager->load( end_gener, false, true, false );
+  exp_manager->load(t_end, false, true, false);
 
-  if ( exp_manager->get_tree_mode() == LIGHT )
+  if (exp_manager->get_tree_mode() == LIGHT)
   {
-    printf( "%s: error: The light tree mode is not managed", argv[0] );
-    exit( EXIT_FAILURE );
+    printf("%s: error: The light tree mode is not managed", argv[0]);
+    exit(EXIT_FAILURE);
   }
 
-  int32_t tree_step = exp_manager->get_tree_step();
+  int64_t tree_step = exp_manager->get_tree_step();
 
   //delete exp_manager;
 
 
   // The tree
-  ae_tree * tree = NULL;
+  ae_tree* tree = NULL;
 
   // Indices, ranks and replication reports of the individuals in the lineage
-  int32_t *                 indices = new int32_t[end_gener - begin_gener + 1];
+  int32_t* indices = new int32_t[t_end - t0 + 1];
   //~ int32_t *                 ranks   = new int32_t[end_gener - begin_gener + 1];
-  ae_replication_report **  reports = new ae_replication_report*[end_gener - begin_gener];
+  ae_replication_report**  reports = new ae_replication_report*[t_end - t0];
   // NB: we do not need the report of the ancestor at generation begin_gener
   // (it might be the generation 0, for which we have no reports)
   // reports[0] = how ancestor at generation begin_gener + 1 was created
@@ -196,12 +196,12 @@ int main(int argc, char** argv)
   //  Load the last tree file
   // =========================
 
-  if ( verbose )
+  if (verbose)
   {
-    printf( "\n\n" );
-    printf( "====================================\n" );
-    printf( " Loading the last tree file ... " );
-    fflush( stdout );
+    printf("\n\n");
+    printf("====================================\n");
+    printf(" Loading the last tree file ... ");
+    fflush(stdout);
   }
 
 
@@ -217,16 +217,16 @@ int main(int argc, char** argv)
   // except if end_gener%ae_common::rec_params->get_tree_step()==0.
 
   #ifdef __REGUL
-    sprintf( tree_file_name,"tree/tree_%06" PRId32 ".rae", end_gener );
+    sprintf(tree_file_name,"tree/tree_%06" PRId64 ".rae", t_end);
   #else
-    sprintf( tree_file_name,"tree/tree_%06" PRId32 ".ae", end_gener );
+    sprintf(tree_file_name,"tree/tree_%06" PRId64 ".ae", t_end);
   #endif
   char pop_file_name[255];
-  sprintf( pop_file_name, POP_FNAME_FORMAT, end_gener );
+  sprintf(pop_file_name, POP_FNAME_FORMAT, t_end);
 
-  tree = new ae_tree( exp_manager, tree_file_name );
+  tree = new ae_tree(exp_manager, tree_file_name);
 
-  if ( verbose )
+  if (verbose)
   {
     printf("OK\n");
     printf("====================================\n");
@@ -239,11 +239,12 @@ int main(int argc, char** argv)
   if ( final_indiv_index != -1 )
   {
     // The index was directly provided, get the replication report and update the indices and ranks tables
-    reports[end_gener - begin_gener - 1] = new ae_replication_report( *(tree->get_report_by_index(end_gener, final_indiv_index)) );
-    final_indiv_rank = reports[end_gener - begin_gener - 1]->get_rank();
+    reports[t_end - t0 - 1] =
+        new ae_replication_report(*(tree->get_report_by_index(t_end,
+                                                              final_indiv_index)));
+    final_indiv_rank = reports[t_end - t0 - 1]->get_rank();
 
-    indices[end_gener - begin_gener]  = final_indiv_index;
-    //~ ranks[end_gener - begin_gener]    = final_indiv_rank;
+    indices[t_end - t0]  = final_indiv_index;
   }
   else
   {
@@ -252,13 +253,13 @@ int main(int argc, char** argv)
       // No index nor rank was given in the command line.
       // By default, we construct the lineage of the best individual, the rank of which
       // is simply the number of individuals in the population.
-      final_indiv_rank = tree->get_nb_indivs( end_gener );
+      final_indiv_rank = tree->get_nb_indivs(t_end);
     }
 
-    reports[end_gener - begin_gener - 1] = new ae_replication_report( *(tree->get_report_by_rank(end_gener, final_indiv_rank)) );
-    final_indiv_index = reports[end_gener - begin_gener - 1]->get_id();
+    reports[t_end - t0 - 1] = new ae_replication_report( *(tree->get_report_by_rank(t_end, final_indiv_rank)) );
+    final_indiv_index = reports[t_end - t0 - 1]->get_id();
 
-    indices[end_gener - begin_gener]  = final_indiv_index;
+    indices[t_end - t0]  = final_indiv_index;
     //~ ranks[end_gener - begin_gener]    = final_indiv_rank;
   }
 
@@ -271,9 +272,13 @@ int main(int argc, char** argv)
   char output_file_name[101];
 
   #ifdef __REGUL
-    snprintf( output_file_name, 100, "lineage-b%06" PRId32 "-e%06" PRId32 "-i%" PRId32 "-r%" PRId32 ".rae", begin_gener, end_gener, final_indiv_index, final_indiv_rank);
+    snprintf(output_file_name, 100,
+        "lineage-b%06" PRId64 "-e%06" PRId64 "-i%" PRId32 "-r%" PRId32 ".rae",
+        t0, t_end, final_indiv_index, final_indiv_rank);
   #else
-    snprintf( output_file_name, 100, "lineage-b%06" PRId32 "-e%06" PRId32 "-i%" PRId32 "-r%" PRId32 ".ae",  begin_gener, end_gener, final_indiv_index, final_indiv_rank);
+    snprintf(output_file_name, 100,
+        "lineage-b%06" PRId64 "-e%06" PRId64 "-i%" PRId32 "-r%" PRId32 ".ae",
+        t0, t_end, final_indiv_index, final_indiv_rank);
   #endif
 
   gzFile lineage_file = gzopen(output_file_name, "w");
@@ -300,37 +305,36 @@ int main(int argc, char** argv)
   }
 
 
-  // Retreive the index of the first ancestor from the last replicatino report
-  indices[end_gener - begin_gener -1] = reports[end_gener - begin_gener -1]->get_parent_id();
+  // Retreive the index of the first ancestor from the last replication report
+  indices[t_end - t0 -1] = reports[t_end - t0 - 1]->get_parent_id();
 
-  int32_t i, num_gener;
-  for ( i = end_gener - begin_gener - 2 ; i >= 0 ; i-- )
+  for (int64_t i = t_end - t0 - 2 ; i >= 0 ; i--)
   {
+    int64_t t = t0 + i + 1;
+
     // We want to fill reports[i], that is to say, how the ancestor
     // at generation begin_gener + i + 1  was created
+    if (verbose)
+      printf("Getting the replication report for the ancestor at generation %" PRId64 "\n", t);
 
-    num_gener = begin_gener + i + 1;
-    if ( verbose ) printf( "Getting the replication report for the ancestor at generation %" PRId32 "\n", num_gener );
-
-
-    if ( ae_utils::mod( num_gener, tree_step ) == 0 )
+    if (ae_utils::mod(t, tree_step) == 0)
     {
       // Change the tree file
       delete tree;
 
       #ifdef __REGUL
-        sprintf( tree_file_name,"tree/tree_%06" PRId32 ".rae", num_gener );
+        sprintf(tree_file_name,"tree/tree_%06" PRId64 ".rae", t);
       #else
-        sprintf( tree_file_name,"tree/tree_%06" PRId32 ".ae",  num_gener );
+        sprintf(tree_file_name,"tree/tree_%06" PRId64 ".ae", t);
       #endif
 
-      sprintf( pop_file_name,       POP_FNAME_FORMAT,       num_gener );
+      sprintf(pop_file_name, POP_FNAME_FORMAT, t);
 
-      tree = new ae_tree( exp_manager, tree_file_name );
+      tree = new ae_tree(exp_manager, tree_file_name);
     }
 
     // Copy the replication report of the ancestor
-    reports[i] = new ae_replication_report( *(tree->get_report_by_index(num_gener, indices[i + 1])) );
+    reports[i] = new ae_replication_report(*(tree->get_report_by_index(t, indices[i + 1])));
 
     // Retreive the index and rank of the next ancestor from the report
     indices[i] = reports[i]->get_parent_id();
@@ -338,7 +342,7 @@ int main(int argc, char** argv)
   delete exp_manager;
 
 
-  if ( verbose )  printf("OK\n");
+  if (verbose)  printf("OK\n");
 
 
   // =============================================================================
@@ -355,23 +359,23 @@ int main(int argc, char** argv)
 
   // Load the simulation
   exp_manager = new ae_exp_manager();
-  exp_manager->load( begin_gener, false, true, false );
+  exp_manager->load(t0, false, true, false);
 
   // Copy the initial ancestor
   // NB : The list of individuals is sorted according to the index
-  ae_individual * initial_ancestor_tmp  = exp_manager->get_indiv_by_id( indices[0] );
-  ae_individual * initial_ancestor      = new ae_individual( *initial_ancestor_tmp, false );
+  ae_individual * initial_ancestor_tmp  = exp_manager->get_indiv_by_id(indices[0]);
+  ae_individual * initial_ancestor      = new ae_individual(*initial_ancestor_tmp, false);
 
 
-  gzwrite( lineage_file, &begin_gener,        sizeof(begin_gener) );
-  gzwrite( lineage_file, &end_gener,          sizeof(end_gener)   );
-  gzwrite( lineage_file, &final_indiv_index,  sizeof(final_indiv_index) );
-  gzwrite( lineage_file, &final_indiv_rank,   sizeof(final_indiv_rank) );
+  gzwrite(lineage_file, &t0, sizeof(t0));
+  gzwrite(lineage_file, &t_end, sizeof(t_end));
+  gzwrite(lineage_file, &final_indiv_index, sizeof(final_indiv_index));
+  gzwrite(lineage_file, &final_indiv_rank, sizeof(final_indiv_rank));
 
-  initial_ancestor->save( lineage_file );
+  initial_ancestor->save(lineage_file);
 
 
-  if ( verbose )
+  if (verbose)
   {
     printf("OK\n");
     printf("=============================================== \n");
@@ -404,20 +408,20 @@ int main(int argc, char** argv)
   // which is stored in the individual
   bool check_genome_now = false;
 
-  for ( i = 0 ; i < end_gener - begin_gener ; i++ )
+  for (int64_t i = 0 ; i < t_end - t0 ; i++)
   {
     // Where are we in time...
-    num_gener = begin_gener + i + 1;
+    int64_t t = t0 + i + 1;
 
     // Do we need to check the genome now?
-    check_genome_now =  ( ( check_genome == FULL_CHECK && ae_utils::mod( num_gener, tree_step ) == 0 ) ||
-                          ( check_genome == LIGHT_CHECK && num_gener == end_gener ) );
+    check_genome_now = ((check_genome == FULL_CHECK && ae_utils::mod(t, tree_step) == 0) ||
+                        (check_genome == LIGHT_CHECK && t == t_end));
 
     // Write the replication report of the ancestor for current generation
-    if ( verbose )
+    if (verbose)
     {
-      printf( "Writing the replication report for generation %" PRId32 " (built from indiv %" PRId32 " at generation %" PRId32 ")\n",
-              num_gener, indices[i], num_gener-1 );
+      printf("Writing the replication report for t= %" PRId64 " (built from indiv %" PRId32 " at t= %" PRId64 ")\n",
+             t, indices[i], t-1);
     }
     reports[i]->write_to_tree_file( lineage_file );
     if ( verbose ) printf( " OK\n" );
@@ -427,7 +431,7 @@ int main(int argc, char** argv)
     {
       // Load the simulation
       exp_manager_backup = new ae_exp_manager();
-      exp_manager_backup->load( num_gener, false, true, false );
+      exp_manager_backup->load(t, false, true, false);
 
       // Copy the ancestor from the backup
       // NB : The list of individuals is sorted according to the index
@@ -477,8 +481,8 @@ int main(int argc, char** argv)
         else
         {
           if ( verbose ) printf( " ERROR !\n" );
-          fprintf( stderr, "Error: the rebuilt unit is not the same as \n");
-          fprintf( stderr, "the one stored in backup file at %" PRId32 "\n", num_gener);
+          fprintf(stderr, "Error: the rebuilt unit is not the same as \n");
+          fprintf(stderr, "the one stored in backup file at %" PRId64 "\n", t);
           //fprintf( stderr, "Rebuilt unit : %"PRId32" bp\n %s\n", (int32_t)strlen(str1), str1 );
           //fprintf( stderr, "Stored unit  : %"PRId32" bp\n %s\n", (int32_t)strlen(str2), str2 );
           delete [] str1;

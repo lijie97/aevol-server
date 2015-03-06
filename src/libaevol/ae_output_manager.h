@@ -81,12 +81,12 @@ class ae_output_manager
     // =================================================================
     
     // Backup
-    inline int32_t	get_backup_step(void) const;
-    inline int32_t	get_big_backup_step(void) const;
+    inline int64_t	get_backup_step(void) const;
+    inline int64_t	get_big_backup_step(void) const;
     
     // Tree
     inline bool         get_record_tree( void ) const;
-    inline int32_t      get_tree_step( void ) const;
+    inline int64_t      get_tree_step( void ) const;
     inline ae_tree_mode get_tree_mode( void ) const;
     inline ae_tree*     get_tree( void ) const;
   
@@ -100,11 +100,11 @@ class ae_output_manager
     // =================================================================
     //                        Accessors: setters
     // =================================================================
-    inline void set_backup_step( int32_t backup_step );
-    inline void set_big_backup_step( int32_t big_backup_step );
-    inline void init_tree( ae_exp_manager* exp_m, ae_tree_mode _tree_mode, int32_t _tree_step );
-    inline void set_dump_step( int32_t dump_step );
-    inline void set_compute_phen_contrib_by_GU( bool compute_phen_contrib_by_GU );
+    inline void set_backup_step(int64_t backup_step);
+    inline void set_big_backup_step(int64_t big_backup_step);
+    inline void init_tree(ae_exp_manager* exp_m, ae_tree_mode _tree_mode, int64_t _tree_step);
+    inline void set_dump_step(int64_t dump_step);
+    inline void set_compute_phen_contrib_by_GU(bool compute_phen_contrib_by_GU);
     inline void set_logs (int8_t logs);
   
     // =================================================================
@@ -157,8 +157,8 @@ class ae_output_manager
     ae_exp_manager* _exp_m;
     
     // Backups
-    int32_t _backup_step;
-    int32_t _big_backup_step;
+    int64_t _backup_step;
+    int64_t _big_backup_step;
     
     // Stats
     ae_stats* _stats;
@@ -170,7 +170,7 @@ class ae_output_manager
     
     // Dumps
     bool      _make_dumps;
-    int32_t   _dump_step;
+    int64_t   _dump_step;
     ae_dump*  _dump;
     
     // Logs
@@ -183,12 +183,12 @@ class ae_output_manager
 // =====================================================================
 
 // Backup
-inline int32_t ae_output_manager::get_backup_step(void) const
+inline int64_t ae_output_manager::get_backup_step(void) const
 {
   return _backup_step;
 }
 
-inline int32_t ae_output_manager::get_big_backup_step(void) const
+inline int64_t ae_output_manager::get_big_backup_step(void) const
 {
   return _big_backup_step;
 }
@@ -199,7 +199,7 @@ inline bool ae_output_manager::get_record_tree( void ) const
   return _record_tree;
 }
 
-inline int32_t ae_output_manager::get_tree_step( void ) const
+inline int64_t ae_output_manager::get_tree_step( void ) const
 {
   return _tree->get_tree_step();
 }
@@ -234,23 +234,23 @@ inline bool ae_output_manager::get_compute_phen_contrib_by_GU( void ) const
 // =====================================================================
 //                           Setters' definitions
 // =====================================================================
-inline void ae_output_manager::set_backup_step( int32_t backup_step )
+inline void ae_output_manager::set_backup_step(int64_t backup_step)
 {
   _backup_step = backup_step;
 }
 
-inline void ae_output_manager::set_big_backup_step( int32_t big_backup_step )
+inline void ae_output_manager::set_big_backup_step(int64_t big_backup_step)
 {
   _big_backup_step = big_backup_step;
 }
 
-inline void ae_output_manager::init_tree( ae_exp_manager* exp_m, ae_tree_mode _tree_mode, int32_t _tree_step )
+inline void ae_output_manager::init_tree(ae_exp_manager* exp_m, ae_tree_mode _tree_mode, int64_t _tree_step)
 {
   _record_tree = true;
   _tree = new ae_tree( exp_m, _tree_mode, _tree_step );
 }
 
-inline void ae_output_manager::set_dump_step( int32_t dump_step )
+inline void ae_output_manager::set_dump_step(int64_t dump_step)
 {
   _make_dumps = true;
   _dump_step  = dump_step;

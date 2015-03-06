@@ -41,6 +41,7 @@
 // =================================================================
 #include "ae_output_manager.h"
 #include "ae_exp_manager.h"
+#include "Time.h"
 
 namespace aevol {
 
@@ -116,42 +117,42 @@ void ae_output_manager::write_setup_file( gzFile setup_file ) const
   gzwrite( setup_file, &logs,  sizeof(logs) );
 }
 
-void ae_output_manager::write_setup_file( FILE* setup_file ) const
+void ae_output_manager::write_setup_file(FILE* setup_file) const
 {
   // Write the backup steps
-  fprintf( setup_file, "BACKUP_STEP %" PRId32 "\n", _backup_step );
-  fprintf( setup_file, "BIG_BACKUP_STEP %" PRId32 "\n", _big_backup_step );
+  fprintf(setup_file, "BACKUP_STEP %" PRId64 "\n", _backup_step);
+  fprintf(setup_file, "BIG_BACKUP_STEP %" PRId64 "\n", _big_backup_step);
   
   // Stats
-  fprintf( setup_file, "COMPUTE_PHENOTYPIC_CONTRIBUTION_BY_GU %" PRId8 "\n", (int8_t) _compute_phen_contrib_by_GU );
+  fprintf(setup_file, "COMPUTE_PHENOTYPIC_CONTRIBUTION_BY_GU %" PRId8 "\n", (int8_t) _compute_phen_contrib_by_GU );
   
   // Tree
-  fprintf( setup_file, "RECORD_TREE %s\n", _record_tree ? "true" : "false" );
-  if ( _record_tree )
+  fprintf(setup_file, "RECORD_TREE %s\n", _record_tree ? "true" : "false");
+  if (_record_tree)
   {
-    fprintf( setup_file, "TREE_STEP %" PRId32 "\n", _tree->get_tree_step() );
+    fprintf(setup_file, "TREE_STEP %" PRId64 "\n", _tree->get_tree_step());
     
-    if ( _tree->get_tree_mode() == LIGHT )
+    if (_tree->get_tree_mode() == LIGHT)
     {
-      fprintf( setup_file, "TREE_MODE LIGHT\n" );
+      fprintf(setup_file, "TREE_MODE LIGHT\n");
     }
-    else if ( _tree->get_tree_mode() == NORMAL )
+    else if (_tree->get_tree_mode() == NORMAL)
     {
-      fprintf( setup_file, "TREE_MODE NORMAL\n" );
+      fprintf(setup_file, "TREE_MODE NORMAL\n");
     }
     else
     {
-      fprintf( setup_file, "TREE_MODE UNKNOWN\n" );
+      fprintf(setup_file, "TREE_MODE UNKNOWN\n");
     }
   }
   
   // Dumps
-  fprintf( setup_file, "MAKE_DUMPS %s\n", _make_dumps ? "true" : "false" );
-  fprintf( setup_file, "DUMP_STEP %" PRId32 "\n", _dump_step );
+  fprintf(setup_file, "MAKE_DUMPS %s\n", _make_dumps ? "true" : "false");
+  fprintf(setup_file, "DUMP_STEP %" PRId64 "\n", _dump_step);
   
   // Logs
   int8_t logs = _logs->get_logs();
-  fprintf( setup_file, "LOGS %" PRId8 "\n", logs );
+  fprintf(setup_file, "LOGS %" PRId8 "\n", logs);
 }
 
 void ae_output_manager::load( gzFile setup_file, bool verbose, bool to_be_run  )
@@ -161,16 +162,15 @@ void ae_output_manager::load( gzFile setup_file, bool verbose, bool to_be_run  )
   gzread( setup_file, &_big_backup_step,  sizeof(_big_backup_step) );
   
   // Stats
-  int32_t num_gener = _exp_m->get_num_gener();
-  if( to_be_run )
+  if (to_be_run)
   {
-    if ( num_gener > 0 )
+    if (Time::get_time() > 0)
     {
-      _stats = new ae_stats( _exp_m, num_gener );
+      _stats = new ae_stats(_exp_m, Time::get_time());
     }
     else
     {
-      _stats = new ae_stats( _exp_m );
+      _stats = new ae_stats(_exp_m);
     }
   }
   gzread( setup_file, &_compute_phen_contrib_by_GU,  sizeof(_compute_phen_contrib_by_GU) );
@@ -206,30 +206,29 @@ void ae_output_manager::load( gzFile setup_file, bool verbose, bool to_be_run  )
   
   // Logs
   int8_t logs;
-  gzread( setup_file, &logs, sizeof(logs) );
-  if( to_be_run)
+  gzread(setup_file, &logs, sizeof(logs));
+  if (to_be_run)
   {
-    _logs->load(logs, num_gener);
+    _logs->load(logs, Time::get_time());
   }
 }
 
-void ae_output_manager::load( FILE* setup_file, bool verbose, bool to_be_run  )
+void ae_output_manager::load(FILE* setup_file, bool verbose, bool to_be_run)
 {
   // Write the backup steps
-  fscanf( setup_file, "BACKUP_STEP %" SCNd32 "\n", &_backup_step );
-  fscanf( setup_file, "BIG_BACKUP_STEP %" SCNd32 "\n", &_big_backup_step );
+  fscanf(setup_file, "BACKUP_STEP %" SCNd64 "\n", &_backup_step);
+  fscanf(setup_file, "BIG_BACKUP_STEP %" SCNd64 "\n", &_big_backup_step);
   
   // Stats
-  int32_t num_gener = _exp_m->get_num_gener();
-  if( to_be_run)
+  if(to_be_run)
   {
-    if ( num_gener > 0 )
+    if (Time::get_time() > 0)
     {
-      _stats = new ae_stats( _exp_m, num_gener );
+      _stats = new ae_stats(_exp_m, Time::get_time());
     }
     else
     {
-      _stats = new ae_stats( _exp_m );
+      _stats = new ae_stats(_exp_m);
     }
   }
   {
@@ -241,12 +240,12 @@ void ae_output_manager::load( FILE* setup_file, bool verbose, bool to_be_run  )
   char tmp[10];
   
   // Tree
-  fscanf( setup_file, "RECORD_TREE %s\n", tmp );
+  fscanf(setup_file, "RECORD_TREE %s\n", tmp);
   _record_tree = ! strcmp( tmp, "true" );
   if ( _record_tree )
   {
-    int32_t tmp_tree_step;
-    fscanf( setup_file, "TREE_STEP %" SCNd32 "\n", &tmp_tree_step );
+    int64_t tmp_tree_step;
+    fscanf( setup_file, "TREE_STEP %" SCNd64 "\n", &tmp_tree_step );
     int8_t tmp_tree_mode;
     fscanf(setup_file, "TREE_MODE %" SCNd8 "\n", &tmp_tree_mode);
     if ( (ae_tree_mode)tmp_tree_mode != LIGHT && (ae_tree_mode)tmp_tree_mode != NORMAL)
@@ -262,7 +261,7 @@ void ae_output_manager::load( FILE* setup_file, bool verbose, bool to_be_run  )
   // Dumps
   fscanf( setup_file, "MAKE_DUMPS %s\n", tmp );
   _make_dumps = ! strcmp( tmp, "true" );
-  fscanf( setup_file, "DUMP_STEP %" SCNd32 "\n", &_dump_step );
+  fscanf( setup_file, "DUMP_STEP %" SCNd64 "\n", &_dump_step );
   if( _make_dumps == true)
   {
     _dump = new ae_dump(_exp_m);
@@ -270,44 +269,42 @@ void ae_output_manager::load( FILE* setup_file, bool verbose, bool to_be_run  )
   
   // Logs
   int8_t logs;
-  fscanf( setup_file, "LOGS %" SCNd8 "\n", &logs );
-  _logs->load(logs, num_gener);
+  fscanf(setup_file, "LOGS %" SCNd8 "\n", &logs);
+  _logs->load(logs, Time::get_time());
 }
 
 void ae_output_manager::write_current_generation_outputs( void ) const
 {
-  int32_t num_gener = _exp_m->get_num_gener();
-  
   _stats->write_current_generation_statistics();
   
-  if ( _record_tree )
+  if (_record_tree)
   {
-    if ( num_gener > 0 )
+    if (Time::get_time() > 0)
     {
       _tree->fill_tree_with_cur_gener(); 
     }
   }
 
   // Write backup and tree
-  if ( _record_tree && (num_gener != _exp_m->get_first_gener()) && (num_gener % _tree->get_tree_step() == 0) )    
+  if (_record_tree && (Time::get_time() % _tree->get_tree_step() == 0))
   {
-    if ( _tree->get_tree_mode() == NORMAL ) 
+    if (_tree->get_tree_mode() == NORMAL)
     { 
       write_tree();
     }
   }
   
-  if ( num_gener % _backup_step == 0 )
+  if (Time::get_time() % _backup_step == 0)
   {
     _stats->flush();
     _exp_m->save();
     
     // Update the LAST_GENER file
-    FILE* last_gener_file = fopen( LAST_GENER_FNAME, "w" );
-    if ( last_gener_file != NULL )
+    FILE* last_gener_file = fopen(LAST_GENER_FNAME, "w");
+    if (last_gener_file != NULL)
     {
-      fprintf( last_gener_file, "%" PRId32 "\n", num_gener );
-      fclose( last_gener_file );
+      fprintf(last_gener_file, "%" PRId64 "\n", Time::get_time());
+      fclose(last_gener_file);
     }
     else
     {
@@ -315,9 +312,9 @@ void ae_output_manager::write_current_generation_outputs( void ) const
     }
   }
 
-  if ( _make_dumps ) 
+  if (_make_dumps)
   {
-    if( num_gener % _dump_step == 0 )
+    if(Time::get_time() % _dump_step == 0)
     {
       _dump->write_current_generation_dump();
     }
@@ -340,9 +337,9 @@ void ae_output_manager::write_tree( void ) const
   char tree_file_name[50];
   
 #ifdef __REGUL
-  sprintf( tree_file_name, "tree/tree_%06" PRId32 ".rae", _exp_m->get_num_gener() );
+  sprintf tree_file_name, "tree/tree_%06" PRId64 ".rae", Time::get_time());
 #else
-  sprintf( tree_file_name, "tree/tree_%06" PRId32 ".ae", _exp_m->get_num_gener() );
+  sprintf(tree_file_name, "tree/tree_%06" PRId64 ".ae", Time::get_time());
 #endif
   
   gzFile tree_file = gzopen( tree_file_name, "w" );

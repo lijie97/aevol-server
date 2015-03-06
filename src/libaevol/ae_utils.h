@@ -53,11 +53,12 @@ namespace aevol {
 class ae_utils
 {
   public :
-    static inline int32_t mod( int32_t a, int32_t b );
-    static inline int32_t min( int32_t a, int32_t b );
-    static inline int32_t max( int32_t a, int32_t b );
-    static inline void    exchange( int32_t &a, int32_t &b );
-    static inline int16_t hamming( const char* str1, const char* str2 );
+    static inline int32_t mod(int32_t a, int32_t b);
+    static inline int64_t mod(int64_t a, int64_t b);
+    static inline int32_t min(int32_t a, int32_t b);
+    static inline int32_t max(int32_t a, int32_t b);
+    static inline void    exchange(int32_t &a, int32_t &b);
+    static inline int16_t hamming(const char* str1, const char* str2);
 
   protected :
     ae_utils( const ae_utils &model )
@@ -69,27 +70,37 @@ class ae_utils
 };
 
 
-inline int32_t ae_utils::mod( int32_t a, int32_t b )
+inline int32_t ae_utils::mod(int32_t a, int32_t b)
 {
-  assert( b > 0 );
+  assert(b > 0);
   
-  while ( a < 0 )  a += b;
-  while ( a >= b ) a -= b;
+  while (a < 0)  a += b;
+  while (a >= b) a -= b;
   
   return a;
 }
 
-inline int32_t ae_utils::min( int32_t a, int32_t b )
+inline int64_t ae_utils::mod(int64_t a, int64_t b)
+{
+  assert(b > 0);
+  
+  while (a < 0)  a += b;
+  while (a >= b) a -= b;
+  
+  return a;
+}
+
+inline int32_t ae_utils::min(int32_t a, int32_t b)
 {
   return ((a < b)? a : b);
 }
 
-inline int32_t ae_utils::max( int32_t a, int32_t b )
+inline int32_t ae_utils::max(int32_t a, int32_t b)
 {
   return ((a > b)? a : b);
 }
 
-inline void ae_utils::exchange( int32_t &a, int32_t &b )
+inline void ae_utils::exchange(int32_t &a, int32_t &b)
 {
   int32_t tmp = a;
   a = b;

@@ -163,7 +163,9 @@ int main( int argc, char* argv[] )
   // If relevant, load the tree information 
   char tree_file_name[50];
   ae_tree * tree = NULL;
-  bool take_care_of_the_tree = exp_manager->get_record_tree() && (exp_manager->get_tree_mode() == NORMAL) && (exp_manager->get_num_gener() > 0);
+  bool take_care_of_the_tree = exp_manager->get_record_tree() &&
+                              exp_manager->get_tree_mode() == NORMAL &&
+                              get_time() > 0;
 
   if ( take_care_of_the_tree )
     {

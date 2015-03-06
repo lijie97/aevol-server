@@ -63,7 +63,7 @@ const int32_t ae_tree::NO_PARENT = -1;
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_tree::ae_tree( ae_exp_manager* exp_m, ae_tree_mode tree_mode, int32_t tree_step )
+ae_tree::ae_tree(ae_exp_manager* exp_m, ae_tree_mode tree_mode, int64_t tree_step)
 {
   _exp_m = exp_m;
 
@@ -136,16 +136,16 @@ ae_tree::ae_tree( ae_exp_manager* exp_m, char* tree_file_name )
 
       gzread( tree_file, _nb_indivs, _tree_step * sizeof(_nb_indivs[0]) );
 
-      for ( int32_t gener_i = 0 ; gener_i < _tree_step ; gener_i++ )
+      for ( int64_t t = 0 ; t < _tree_step ; t++ )
       {
-        _replics[gener_i] = new ae_replication_report*[_nb_indivs[gener_i]];
-        for ( int32_t indiv_i = 0 ; indiv_i < _nb_indivs[gener_i] ; indiv_i++ )
+        _replics[t] = new ae_replication_report*[_nb_indivs[t]];
+        for ( int32_t indiv_i = 0 ; indiv_i < _nb_indivs[t] ; indiv_i++ )
         {
           // Retreive a replication report
           replic_report = new ae_replication_report( tree_file, NULL );
 
           // Put it at its rightful position
-          _replics[gener_i][replic_report->get_id()] = replic_report;
+          _replics[t][replic_report->get_id()] = replic_report;
         }
       }
       gzclose( tree_file );
@@ -213,31 +213,31 @@ ae_tree::~ae_tree( void )
 
 
 
-int32_t ae_tree::get_nb_indivs( int32_t generation ) const
+int32_t ae_tree::get_nb_indivs(int64_t t) const
 {
-  return _nb_indivs[ae_utils::mod(generation - 1, _tree_step)];
+  return _nb_indivs[ae_utils::mod(t - 1, _tree_step)];
 }
 
 
-ae_replication_report * ae_tree::get_report_by_index( int32_t generation, int32_t index ) const
+ae_replication_report* ae_tree::get_report_by_index(int64_t t, int32_t index) const
 {
   assert( _tree_mode == NORMAL );
 
-  return _replics[ae_utils::mod(generation - 1, _tree_step)][index];
+  return _replics[ae_utils::mod(t - 1, _tree_step)][index];
 }
 
 
-ae_replication_report * ae_tree::get_report_by_rank( int32_t generation, int32_t rank ) const
+ae_replication_report * ae_tree::get_report_by_rank(int64_t t, int32_t rank) const
 {
   assert( _tree_mode == NORMAL );
-  int32_t nb_indivs = get_nb_indivs( generation );
+  int32_t nb_indivs = get_nb_indivs(t);
   assert( rank <= nb_indivs );
 
   for ( int32_t i = 0 ; i < nb_indivs ; i++ )
   {
-    if ( _replics[ae_utils::mod(generation - 1, _tree_step)][i]->get_rank() == rank )
+    if ( _replics[ae_utils::mod(t - 1, _tree_step)][i]->get_rank() == rank )
     {
-      return _replics[ae_utils::mod(generation - 1, _tree_step)][i];
+      return _replics[ae_utils::mod(t - 1, _tree_step)][i];
     }
   }
 
@@ -246,17 +246,17 @@ ae_replication_report * ae_tree::get_report_by_rank( int32_t generation, int32_t
 }
 
 
-void ae_tree::set_nb_indivs (int32_t nb_indivs, int32_t generation)
+void ae_tree::set_nb_indivs (int32_t nb_indivs, int64_t t)
 {
-  _nb_indivs[ae_utils::mod(generation - 1, _tree_step)] = nb_indivs;
+  _nb_indivs[ae_utils::mod(t - 1, _tree_step)] = nb_indivs;
 }
 
 
-void ae_tree::fill_tree_with_cur_gener( void )
+void ae_tree::fill_tree_with_cur_gener(void)
 {
-  assert( _exp_m != NULL && _exp_m->get_num_gener() > 0 );
+  assert(_exp_m != NULL && Time::get_time() > 0);
 
-  switch ( _tree_mode )
+  switch (_tree_mode)
   {
     case NORMAL :
     {
@@ -264,14 +264,14 @@ void ae_tree::fill_tree_with_cur_gener( void )
       // generations n*TREE_STEP+1 --> (n+1)*_tree_step
       // (for _tree_step == 100, information on generations
       // 1 to 100, or 101 to 200, or 201 to 300, etc)
-      int32_t gener_i     = ae_utils::mod( _exp_m->get_num_gener() - 1, _tree_step );
-      _nb_indivs[gener_i] = _exp_m->get_pop()->get_nb_indivs();
-      _replics[gener_i]   = new ae_replication_report* [_nb_indivs[gener_i]];
+      int64_t time_i = ae_utils::mod(Time::get_time() - 1, _tree_step);
+      _nb_indivs[time_i] = _exp_m->get_pop()->get_nb_indivs();
+      _replics[time_i]   = new ae_replication_report* [_nb_indivs[time_i]];
 
 
       for (const auto& indiv: _exp_m->get_indivs_std()) {
         size_t num_indiv = 0;
-        _replics[gener_i][num_indiv++] = indiv->get_replic_report();
+        _replics[time_i][num_indiv++] = indiv->get_replic_report();
       }
 
       break;
@@ -281,7 +281,7 @@ void ae_tree::fill_tree_with_cur_gener( void )
       // TO DO
 
       // TO CHECK !!
-      // not sure that gener_i should be used in this block...
+      // not sure that time_i should be used in this block...
 
       // int32_t gener_i     = ae_utils::mod( _exp_m->get_num_gener() - 1, _tree_step );
       // _nb_indivs[gener_i] = _exp_m->get_nb_indivs();
@@ -305,26 +305,26 @@ void ae_tree::write_to_tree_file( gzFile tree_file )
       // Write the tree in the backup
       gzwrite( tree_file, &_nb_indivs[0], _tree_step * sizeof(_nb_indivs[0]) );
 
-      for ( int32_t gener_i = 0 ; gener_i < _tree_step ; gener_i++ )
+      for ( int64_t t = 0 ; t < _tree_step ; t++ )
       {
-        for ( int32_t indiv_i = 0 ; indiv_i < _nb_indivs[gener_i] ; indiv_i++ )
+        for ( int32_t indiv_i = 0 ; indiv_i < _nb_indivs[t] ; indiv_i++ )
         {
-          assert(_replics[gener_i][indiv_i] != NULL);
-          _replics[gener_i][indiv_i]->write_to_tree_file( tree_file );
+          assert(_replics[t][indiv_i] != NULL);
+          _replics[t][indiv_i]->write_to_tree_file( tree_file );
         }
       }
 
       // Reinitialize the tree
-      for ( int32_t gener_i = 0 ; gener_i < _tree_step ; gener_i++ )
+      for ( int32_t t = 0 ; t < _tree_step ; t++ )
       {
-        for ( int32_t indiv_i = 0 ; indiv_i < _nb_indivs[gener_i] ; indiv_i++ )
+        for ( int32_t indiv_i = 0 ; indiv_i < _nb_indivs[t] ; indiv_i++ )
         {
-          delete _replics[gener_i][indiv_i];
-          _replics[gener_i][indiv_i] = NULL;
+          delete _replics[t][indiv_i];
+          _replics[t][indiv_i] = NULL;
         }
 
-        delete [] _replics[gener_i];
-        _replics[gener_i] = NULL;
+        delete [] _replics[t];
+        _replics[t] = NULL;
       }
 
       break;
@@ -342,55 +342,55 @@ void ae_tree::write_to_tree_file( gzFile tree_file )
 // =================================================================
 //                  Non-inline accessors' definition
 // =================================================================
-void ae_tree::set_replic_report( int32_t id, ae_replication_report* replic_report )
+void ae_tree::set_replic_report(int32_t id, ae_replication_report* replic_report)
 {
-  assert( _tree_mode == NORMAL );
+  assert(_tree_mode == NORMAL);
 
-  int32_t gener_i = ae_utils::mod(_exp_m->get_num_gener() - 1, _tree_step); // CK: BUGFIX. Previous expression was: _exp_m->get_num_gener() % _tree_step;
+  int64_t t = ae_utils::mod(Time::get_time() - 1, _tree_step);
 
-  if ( _replics[gener_i] == NULL )
+  if (_replics[t] == NULL)
   {
-    _replics[gener_i] = new ae_replication_report* [_exp_m->get_nb_indivs()];
+    _replics[t] = new ae_replication_report* [_exp_m->get_nb_indivs()];
 
-    memset( _replics[gener_i], 0, _exp_m->get_nb_indivs() * sizeof( *_replics ) );
+    memset(_replics[t], 0, _exp_m->get_nb_indivs() * sizeof(*_replics));
   }
 
-  assert( _replics[gener_i][id] == NULL );
-  _replics[gener_i][id] = new ae_replication_report(*replic_report);
+  assert(_replics[t][id] == NULL);
+  _replics[t][id] = new ae_replication_report(*replic_report);
 }
 
 
 
 
 // CK: Added for aevol_modify
-void ae_tree::set_replic_report( int32_t generation, int32_t id, ae_replication_report* replic_report )
+void ae_tree::set_replic_report(int64_t t, int32_t id, ae_replication_report* replic_report)
 {
   assert( _tree_mode == NORMAL );
 
-  int32_t g = ae_utils::mod(generation - 1, _tree_step);
+  t = ae_utils::mod(t - 1, _tree_step);
 
-  if ( _replics[g] == NULL )
+  if (_replics[t] == NULL)
   {
-    _replics[g] = new ae_replication_report* [_exp_m->get_nb_indivs()];
-    memset( _replics[g], 0, _exp_m->get_nb_indivs() * sizeof( *_replics ) );
+    _replics[t] = new ae_replication_report* [_exp_m->get_nb_indivs()];
+    memset( _replics[t], 0, _exp_m->get_nb_indivs() * sizeof( *_replics ) );
   }
 
-  if ( _replics[g][id] != NULL )
+  if ( _replics[t][id] != NULL )
     {
-      printf("Erased previous replication report for indiv %d of generation %d (%d)\n", id, generation, g);
-      delete _replics[g][id];
+      printf("Erased previous replication report for indiv %" PRId32 " at relative time %" PRId64 "\n", id, t);
+      delete _replics[t][id];
     }
-  _replics[g][id] = new ae_replication_report(*replic_report);
-  _replics[g][id]->set_id(id);
+  _replics[t][id] = new ae_replication_report(*replic_report);
+  _replics[t][id]->set_id(id);
 
   // debug
-  printf("Added replication report for indiv %d of generation %d (%d) :\n", id, generation, g);
-  printf("  ID            %d \n", _replics[g][id]->get_id() );
-  printf("  Rank          %d \n", _replics[g][id]->get_rank() );
-  printf("  Genome size   %d \n", _replics[g][id]->get_genome_size() );
-  printf("  P. ID         %d \n", _replics[g][id]->get_parent_id() );
-  printf("  P. met.err.   %f \n", _replics[g][id]->get_parent_metabolic_error() );
-  printf("  P. size       %d \n", _replics[g][id]->get_parent_genome_size() );
+  // printf("Added replication report for indiv %d at relative time %d :\n", id, t);
+  // printf("  ID            %d \n", _replics[t][id]->get_id() );
+  // printf("  Rank          %d \n", _replics[t][id]->get_rank() );
+  // printf("  Genome size   %d \n", _replics[t][id]->get_genome_size() );
+  // printf("  P. ID         %d \n", _replics[t][id]->get_parent_id() );
+  // printf("  P. met.err.   %f \n", _replics[t][id]->get_parent_metabolic_error() );
+  // printf("  P. size       %d \n", _replics[t][id]->get_parent_genome_size() );
 }
 
 

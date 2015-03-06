@@ -46,6 +46,7 @@
 #include <cassert>
 #include <list>
 
+#include "Time.h"
 #include "ae_jumping_mt.h"
 #include "ae_exp_setup.h"
 #include "ae_output_manager.h"
@@ -70,12 +71,12 @@ class ae_exp_manager
     // =======================================================================
     //                                Constructors
     // =======================================================================
-    ae_exp_manager( void );
+    ae_exp_manager(void);
 
     // =======================================================================
     //                                Destructors
     // =======================================================================
-    virtual ~ae_exp_manager( void );
+    virtual ~ae_exp_manager(void);
 
     // =======================================================================
     //                                 Algorithms
@@ -85,78 +86,74 @@ class ae_exp_manager
     // =======================================================================
     //                           Accessors: getters
     // =======================================================================
-    inline ae_exp_setup*        get_exp_s( void ) const;
-    inline ae_population*       get_pop( void ) const;
-    inline Environment*      get_env( void ) const;
-    inline ae_selection*        get_sel( void ) const;
-    inline ae_output_manager*   get_output_m( void ) const;
+    inline ae_exp_setup*        get_exp_s(void) const;
+    inline ae_population*       get_pop(void) const;
+    inline Environment*      get_env(void) const;
+    inline ae_selection*        get_sel(void) const;
+    inline ae_output_manager*   get_output_m(void) const;
 
-    inline int32_t  get_first_gener( void ) const;
-    inline int32_t  get_num_gener( void ) const;
-
-    inline bool quit_signal_received( void ) const;
+    inline bool quit_signal_received(void) const;
 
 
-    inline int16_t  get_nb_env_segments( void ) const;
+    inline int16_t  get_nb_env_segments(void) const;
 
-    inline ae_selection_scheme get_selection_scheme( void ) const;
-    inline double get_selection_pressure( void ) const;
+    inline ae_selection_scheme get_selection_scheme(void) const;
+    inline double get_selection_pressure(void) const;
 
     // ------------------------------------------------------ Spatial structure
-    inline bool                   is_spatially_structured( void ) const;
-    inline ae_spatial_structure*  get_spatial_structure( void ) const;
+    inline bool                   is_spatially_structured(void) const;
+    inline ae_spatial_structure*  get_spatial_structure(void) const;
     inline ae_grid_cell*          get_grid_cell( int16_t x, int16_t y ) const;
-    inline int16_t                get_grid_width( void ) const;
-    inline int16_t                get_grid_height( void ) const;
-    inline ae_grid_cell***        get_pop_grid( void ) const;
+    inline int16_t                get_grid_width(void) const;
+    inline int16_t                get_grid_height(void) const;
+    inline ae_grid_cell***        get_pop_grid(void) const;
 
     // -------------------------------------------------------- Global settings
-    inline bool   get_with_HT( void ) const;
-    inline bool   get_repl_HT_with_close_points ( void ) const;
-    inline double get_HT_ins_rate( void ) const;
-    inline double get_HT_repl_rate( void ) const;
-    inline double get_repl_HT_detach_rate( void ) const;
+    inline bool   get_with_HT(void) const;
+    inline bool   get_repl_HT_with_close_points (void) const;
+    inline double get_HT_ins_rate(void) const;
+    inline double get_HT_repl_rate(void) const;
+    inline double get_repl_HT_detach_rate(void) const;
 
     // The ability to own a plasmid is a property of the individuals (_allow_plasmids) because it is used during mutations
     // However there is also a property of the experimental setup (_with_plasmids) that indicates whether plasmids are used because we need this during replication and during loading/writting
     // For now when plasmids are used each individual has one and only one plasmid (so these variables should always be equals), however this may change in the future
     // There is no longer property _with_plasmids_HT because the ability to transfer is evolvable and thus may depend on the plasmid itself
 
-    inline bool   get_with_plasmids( void ) const;
-    inline double get_prob_plasmid_HT( void ) const;
-    inline double get_tune_donor_ability( void ) const;
-    inline double get_tune_recipient_ability( void ) const;
-    inline double get_donor_cost( void ) const;
-    inline double get_recipient_cost( void ) const;
-    inline bool   get_swap_GUs( void ) const;
+    inline bool   get_with_plasmids(void) const;
+    inline double get_prob_plasmid_HT(void) const;
+    inline double get_tune_donor_ability(void) const;
+    inline double get_tune_recipient_ability(void) const;
+    inline double get_donor_cost(void) const;
+    inline double get_recipient_cost(void) const;
+    inline bool   get_swap_GUs(void) const;
 
-    inline bool   get_with_secretion( void ) const;
-    inline double get_secretion_contrib_to_fitness( void ) const;
-    inline double get_secretion_cost( void ) const;
+    inline bool   get_with_secretion(void) const;
+    inline double get_secretion_contrib_to_fitness(void) const;
+    inline double get_secretion_cost(void) const;
 
-    //~ inline bool   get_with_alignments( void ) const;
+    //~ inline bool   get_with_alignments(void) const;
 
     // Accessors to population stuff
     inline std::list<ae_individual*> get_indivs_std() const;
-    inline int32_t                  get_nb_indivs( void ) const;
+    inline int32_t                  get_nb_indivs(void) const;
 
-    inline ae_individual* get_best_indiv( void ) const;
+    inline ae_individual* get_best_indiv(void) const;
     inline ae_individual*	get_indiv_by_id( int32_t id ) const;
     inline ae_individual* get_indiv_by_rank( int32_t rank ) const;
 
     // Accessors to output manager stuff
-    inline int32_t	get_backup_step(void) const;
-    inline int32_t	get_big_backup_step(void) const;
-    inline bool         get_record_tree( void ) const;
-    inline int32_t      get_tree_step( void ) const;
-    inline ae_tree_mode get_tree_mode( void ) const;
-    inline ae_tree*     get_tree( void ) const;
+    inline int64_t	get_backup_step(void) const;
+    inline int64_t	get_big_backup_step(void) const;
+    inline bool         get_record_tree(void) const;
+    inline int32_t      get_tree_step(void) const;
+    inline ae_tree_mode get_tree_mode(void) const;
+    inline ae_tree*     get_tree(void) const;
 
     // =======================================================================
     //                          Accessors: setters
     // =======================================================================
-    inline void set_first_gener( int32_t first_gener );
-    inline void set_nb_gener( int32_t nb_gener );
+    inline void set_t_end(int64_t _t_end) { t_end = _t_end; };
     //~ inline void set_min_genome_length( int32_t min_genome_length );
     //~ inline void set_max_genome_length( int32_t max_genome_length );
     inline void set_spatial_structure(  int16_t grid_width,
@@ -176,12 +173,12 @@ class ae_exp_manager
     // =======================================================================
     //                               Public Methods
     // =======================================================================
-    void write_setup_files( void );
-    void save( void ) const;
+    void write_setup_files(void);
+    void save(void) const;
     void save_copy( char* dir, int32_t num_gener = 0 ) const;
     inline void load( int32_t first_gener, bool use_text_files, bool verbose, bool to_be_run = true );
-    void load( const char* dir, int32_t first_gener, bool use_text_files, bool verbose, bool to_be_run = true );
-    void load( int32_t first_gener,
+    void load( const char* dir, int64_t t0, bool use_text_files, bool verbose, bool to_be_run = true );
+    void load( int64_t t0,
                char* exp_setup_file_name,
                char* out_prof_file_name,
                char* env_file_name,
@@ -190,8 +187,8 @@ class ae_exp_manager
                char* sp_struct_file_name,
                bool verbose,
                bool to_be_run = true);
-    void run_evolution( void );
-    virtual void display( void ) {};
+    void run_evolution(void);
+    virtual void display(void) {};
 
     // =======================================================================
     //                              Public Attributes
@@ -207,7 +204,7 @@ class ae_exp_manager
     // =======================================================================
     //                            Forbidden Constructors
     // =======================================================================
-    /*ae_exp_manager( void )
+    /*ae_exp_manager(void)
     {
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
@@ -222,7 +219,7 @@ class ae_exp_manager
     // =======================================================================
     //                              Protected Methods
     // =======================================================================
-    inline void step_to_next_generation( void );
+    inline void step_to_next_generation(void);
 
     void load( gzFile& pop_file,
                gzFile& env_file,
@@ -235,23 +232,23 @@ class ae_exp_manager
                bool verbose,
                bool to_be_run = true );
 
-    void create_missing_directories( const char* dir = "." ) const;
-    void open_backup_files( gzFile& env_file,
+    void create_missing_directories(const char* dir = ".") const;
+    void open_backup_files(gzFile& env_file,
+                           gzFile& pop_file,
+                           gzFile& sel_file,
+                           gzFile& sp_struct_file,
+                           int64_t t,
+                           const char mode[3],
+                           const char* dir = ".") const;
+    void close_backup_files(gzFile& env_file,
                             gzFile& pop_file,
                             gzFile& sel_file,
-                            gzFile& sp_struct_file,
-                            int32_t num_gener,
-                            const char mode[3],
-                            const char* dir = "." ) const;
-    void close_backup_files(  gzFile& env_file,
-                              gzFile& pop_file,
-                              gzFile& sel_file,
-                              gzFile& sp_struct_file ) const;
-    void open_setup_files(  gzFile& exp_s_gzfile, FILE*& exp_s_txtfile,
-                            gzFile& out_p_gzfile, FILE*& out_p_txtfile,
-                            int32_t num_gener,
-                            const char mode[3],
-                            const char* dir = "." ) const;
+                            gzFile& sp_struct_file) const;
+    void open_setup_files(gzFile& exp_s_gzfile, FILE*& exp_s_txtfile,
+                          gzFile& out_p_gzfile, FILE*& out_p_txtfile,
+                          int64_t t,
+                          const char mode[3],
+                          const char* dir = "." ) const;
     void close_setup_files(
             gzFile& exp_s_gzfile, FILE* exp_s_txtfile,
             gzFile& out_p_gzfile, FILE* out_p_txtfile ) const;
@@ -274,13 +271,11 @@ class ae_exp_manager
     // -------------------------------------------------------- Output manager
     ae_output_manager* _output_m;
 
-    // -------------------------- Generation numbers (first, last and current)
-    int32_t _first_gener;
-    int32_t _last_gener;
-    int32_t _num_gener;
+    // ------------------------------ Timestep up to which we want to simulate
+    int64_t t_end;
 
     // Set to true when ctrl-Q is received. Will cause the simulation
-    // to be ended after current generation is completed
+    // to be ended after the current timestep is completed
     bool _quit_signal_received;
 };
 
@@ -288,68 +283,58 @@ class ae_exp_manager
 // ===========================================================================
 //                             Getters' definitions
 // ===========================================================================
-inline ae_population* ae_exp_manager::get_pop( void ) const
+inline ae_population* ae_exp_manager::get_pop(void) const
 {
   return _pop;
 }
 
-inline ae_exp_setup* ae_exp_manager::get_exp_s( void ) const
+inline ae_exp_setup* ae_exp_manager::get_exp_s(void) const
 {
   return _exp_s;
 }
 
-inline ae_output_manager* ae_exp_manager::get_output_m( void ) const
+inline ae_output_manager* ae_exp_manager::get_output_m(void) const
 {
   return _output_m;
 }
 
-inline int32_t ae_exp_manager::get_first_gener( void ) const
-{
-  return _first_gener;
-}
-
-inline int32_t ae_exp_manager::get_num_gener( void ) const
-{
-  return _num_gener;
-}
-
-inline bool ae_exp_manager::quit_signal_received( void ) const
+inline bool ae_exp_manager::quit_signal_received(void) const
 {
   return _quit_signal_received;
 }
 
-inline Environment* ae_exp_manager::get_env( void ) const
+inline Environment* ae_exp_manager::get_env(void) const
 {
   return _env;
 }
 
-inline ae_selection* ae_exp_manager::get_sel( void ) const
+inline ae_selection* ae_exp_manager::get_sel(void) const
 {
   return get_exp_s()->get_sel();
 }
 
-inline int16_t ae_exp_manager::get_nb_env_segments( void ) const
+inline int16_t ae_exp_manager::get_nb_env_segments(void) const
 {
   return get_env()->get_nb_segments();
 }
 
-inline ae_selection_scheme ae_exp_manager::get_selection_scheme( void ) const
+inline ae_selection_scheme ae_exp_manager::get_selection_scheme(void) const
 {
   return get_sel()->get_selection_scheme();
 }
 
-inline double ae_exp_manager::get_selection_pressure( void ) const
+inline double ae_exp_manager::get_selection_pressure(void) const
 {
   return get_sel()->get_selection_pressure();
 }
 
 // Global settings
-inline bool ae_exp_manager::is_spatially_structured( void ) const
+inline bool ae_exp_manager::is_spatially_structured(void) const
 {
   return ( get_spatial_structure() != NULL );
 }
 
-inline ae_spatial_structure* ae_exp_manager::get_spatial_structure( void ) const
+inline ae_spatial_structure* ae_exp_manager::get_spatial_structure(void) const
 {
   return _spatial_structure;
 }
@@ -359,109 +344,109 @@ inline ae_grid_cell* ae_exp_manager::get_grid_cell( int16_t x, int16_t y ) const
   return get_spatial_structure()->get_grid_cell( x, y );
 }
 
-inline int16_t ae_exp_manager::get_grid_width( void ) const
+inline int16_t ae_exp_manager::get_grid_width(void) const
 {
   return get_spatial_structure()->get_grid_width();
 }
 
-inline int16_t ae_exp_manager::get_grid_height( void ) const
+inline int16_t ae_exp_manager::get_grid_height(void) const
 {
   return get_spatial_structure()->get_grid_height();
 }
 
-inline ae_grid_cell*** ae_exp_manager::get_pop_grid( void ) const
+inline ae_grid_cell*** ae_exp_manager::get_pop_grid(void) const
 {
   return get_spatial_structure()->get_pop_grid();
 }
 
-inline bool ae_exp_manager::get_with_HT( void ) const
+inline bool ae_exp_manager::get_with_HT(void) const
 {
   return get_exp_s()->get_with_HT();
 }
 
-inline bool ae_exp_manager::get_repl_HT_with_close_points ( void ) const
+inline bool ae_exp_manager::get_repl_HT_with_close_points (void) const
 {
   return get_exp_s()->get_repl_HT_with_close_points();
 }
 
-inline double ae_exp_manager::get_HT_ins_rate( void ) const
+inline double ae_exp_manager::get_HT_ins_rate(void) const
 {
   return get_exp_s()->get_HT_ins_rate();
 }
 
-inline double ae_exp_manager::get_HT_repl_rate( void ) const
+inline double ae_exp_manager::get_HT_repl_rate(void) const
 {
   return get_exp_s()->get_HT_repl_rate();
 }
 
-inline double ae_exp_manager::get_repl_HT_detach_rate( void ) const
+inline double ae_exp_manager::get_repl_HT_detach_rate(void) const
 {
   return get_exp_s()->get_repl_HT_detach_rate();
 }
 
-inline bool ae_exp_manager::get_with_plasmids( void ) const
+inline bool ae_exp_manager::get_with_plasmids(void) const
 {
   return get_exp_s()->get_with_plasmids();
 }
 
-inline double ae_exp_manager::get_prob_plasmid_HT( void ) const
+inline double ae_exp_manager::get_prob_plasmid_HT(void) const
 {
   return get_exp_s()->get_prob_plasmid_HT();
 }
 
-inline double ae_exp_manager::get_tune_donor_ability( void ) const
+inline double ae_exp_manager::get_tune_donor_ability(void) const
 {
   return get_exp_s()->get_tune_donor_ability();
 }
 
-inline double ae_exp_manager::get_tune_recipient_ability( void ) const
+inline double ae_exp_manager::get_tune_recipient_ability(void) const
 {
   return get_exp_s()->get_tune_recipient_ability();
 }
 
-inline double ae_exp_manager::get_donor_cost( void ) const
+inline double ae_exp_manager::get_donor_cost(void) const
 {
   return get_exp_s()->get_donor_cost();
 }
 
-inline double ae_exp_manager::get_recipient_cost( void ) const
+inline double ae_exp_manager::get_recipient_cost(void) const
 {
   return get_exp_s()->get_recipient_cost();
 }
 
-inline bool ae_exp_manager::get_swap_GUs( void ) const
+inline bool ae_exp_manager::get_swap_GUs(void) const
 {
   return get_exp_s()->get_swap_GUs();
 }
 
-inline bool ae_exp_manager::get_with_secretion( void ) const
+inline bool ae_exp_manager::get_with_secretion(void) const
 {
   return get_exp_s()->get_with_secretion();
 }
 
-inline double ae_exp_manager::get_secretion_contrib_to_fitness( void ) const
+inline double ae_exp_manager::get_secretion_contrib_to_fitness(void) const
 {
   return get_exp_s()->get_secretion_contrib_to_fitness();
 }
 
-inline double ae_exp_manager::get_secretion_cost( void ) const
+inline double ae_exp_manager::get_secretion_cost(void) const
 {
   return get_exp_s()->get_secretion_cost();
 }
 
-//~ inline bool ae_exp_manager::get_with_alignments( void ) const
+//~ inline bool ae_exp_manager::get_with_alignments(void) const
 //~ {
   //~ return _exp_s->get_with_alignments();
 //~ }
 
 
 // Accessors to population stuff
-inline int32_t ae_exp_manager::get_nb_indivs( void ) const
+inline int32_t ae_exp_manager::get_nb_indivs(void) const
 {
   return get_pop()->get_nb_indivs();
 }
 
-inline ae_individual* ae_exp_manager::get_best_indiv( void ) const
+inline ae_individual* ae_exp_manager::get_best_indiv(void) const
 {
   return get_pop()->get_best();
 }
@@ -483,32 +468,32 @@ inline ae_individual * ae_exp_manager::get_indiv_by_rank( int32_t rank ) const
 
 
 // Accessors to output manager stuff
-inline int32_t ae_exp_manager::get_backup_step(void) const
+inline int64_t ae_exp_manager::get_backup_step(void) const
 {
 	return get_output_m()->get_backup_step();
 }
 
-inline int32_t ae_exp_manager::get_big_backup_step(void) const
+inline int64_t ae_exp_manager::get_big_backup_step(void) const
 {
 	return get_output_m()->get_big_backup_step();
 }
 
-inline bool ae_exp_manager::get_record_tree( void ) const
+inline bool ae_exp_manager::get_record_tree(void) const
 {
 	return get_output_m()->get_record_tree();
 }
 
-inline int32_t ae_exp_manager::get_tree_step( void ) const
+inline int32_t ae_exp_manager::get_tree_step(void) const
 {
 	return get_output_m()->get_tree_step();
 }
 
-inline ae_tree_mode ae_exp_manager::get_tree_mode( void ) const
+inline ae_tree_mode ae_exp_manager::get_tree_mode(void) const
 {
 	return get_output_m()->get_tree_mode();
 }
 
-inline ae_tree* ae_exp_manager::get_tree( void ) const
+inline ae_tree* ae_exp_manager::get_tree(void) const
 {
 	return get_output_m()->get_tree();
 }
@@ -516,16 +501,6 @@ inline ae_tree* ae_exp_manager::get_tree( void ) const
 // ===========================================================================
 //                             Setters' definitions
 // ===========================================================================
-inline void ae_exp_manager::set_first_gener( int32_t first_gener )
-{
-  _num_gener = _first_gener = first_gener;
-}
-
-inline void ae_exp_manager::set_nb_gener( int32_t nb_gener )
-{
-  _last_gener = _first_gener + nb_gener;
-}
-
 // Global constraints
 //~ inline void ae_exp_manager::set_min_genome_length( int32_t min_genome_length )
 //~ {
@@ -579,7 +554,7 @@ inline void ae_exp_manager::set_repl_HT_detach_rate( double repl_HT_detach_rate)
 // ===========================================================================
 //                         Inline methods' definition
 // ===========================================================================
-inline void ae_exp_manager::step_to_next_generation( void )
+inline void ae_exp_manager::step_to_next_generation(void)
 {
   // Apply environmental variation
   _env->apply_variation();
@@ -588,7 +563,8 @@ inline void ae_exp_manager::step_to_next_generation( void )
   _env->apply_noise();
 
   _exp_s->step_to_next_generation();
-  _num_gener++;
+
+  Time::plusplus();
 }
 
 

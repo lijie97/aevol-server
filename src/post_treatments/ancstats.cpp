@@ -40,6 +40,7 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <list>
 
 
 
@@ -63,9 +64,9 @@
 //debug
 #include "ae_gaussian.h"
 
-#include <list>
 
 using namespace aevol;
+
 
 enum check_type
 {
@@ -84,16 +85,16 @@ void print_help(char* prog_path);
 void print_version( void );
 
 FILE* open_environment_stat_file( const char * prefix, const Environment * env );
-void write_environment_stats( int32_t num_gener, const Environment * env, FILE* env_file);
+void write_environment_stats( int32_t t, const Environment * env, FILE* env_file);
 
 FILE* open_terminators_stat_file( const char * prefix );
-void write_terminators_stats( int32_t num_gener,  ae_individual * indiv, FILE* terminator_file );
+void write_terminators_stats( int32_t t,  ae_individual * indiv, FILE* terminator_file );
 
 FILE* open_zones_stat_file( const char * prefix );
-void write_zones_stats( int32_t num_gener,  ae_individual * indiv, Environment * env, FILE* zone_file );
+void write_zones_stats( int32_t t,  ae_individual * indiv, Environment * env, FILE* zone_file );
 
 FILE* open_operons_stat_file( const char * prefix );
-void write_operons_stats( int32_t num_gener,  ae_individual * indiv, FILE* operon_file );
+void write_operons_stats( int32_t t,  ae_individual * indiv, FILE* operon_file );
 
 
 double* dist_to_target_segment;
@@ -104,16 +105,16 @@ int main(int argc, char** argv)
   // The input file (lineage.ae or lineage.rae) must contain the following information:
   //
   // - common data                                                (ae_common::write_to_backup)
-  // - begin gener                                                (int32_t)
-  // - end gener                                                  (int32_t)
+  // - begin gener                                                (int64_t)
+  // - end gener                                                  (int64_t)
   // - final individual index                                     (int32_t)
   // - initial genome size                                        (int32_t)
   // - initial ancestor (nb genetic units + sequences)            (ae_individual::write_to_backup)
-  // - replication report of ancestor at generation begin_gener+1 (ae_replic_report::write_to_backup)
-  // - replication report of ancestor at generation begin_gener+2 (ae_replic_report::write_to_backup)
-  // - replication report of ancestor at generation begin_gener+3 (ae_replic_report::write_to_backup)
+  // - replication report of ancestor at time t0+1  (ae_replic_report::write_to_backup)
+  // - replication report of ancestor at time t0+2  (ae_replic_report::write_to_backup)
+  // - replication report of ancestor at time t0+3  (ae_replic_report::write_to_backup)
   // - ...
-  // - replication report of ancestor at generation end_gener     (ae_replic_report::write_to_backup)
+  // - replication report of ancestor at time t_end (ae_replic_report::write_to_backup)
 
 
 
@@ -214,23 +215,24 @@ int main(int argc, char** argv)
     exit( EXIT_FAILURE );
   }
 
-  int32_t begin_gener       = 0;
-  int32_t end_gener         = 0;
+  int64_t t0 = 0;
+  int64_t t_end = 0;
   int32_t final_indiv_index = 0;
   int32_t final_indiv_rank  = 0;
 
 
-  gzread( lineage_file, &begin_gener,       sizeof(begin_gener)       );
-  gzread( lineage_file, &end_gener,         sizeof(end_gener)         );
-  gzread( lineage_file, &final_indiv_index, sizeof(final_indiv_index) );
-  gzread( lineage_file, &final_indiv_rank,  sizeof(final_indiv_rank)  );
+  gzread(lineage_file, &t0, sizeof(t0));
+  gzread(lineage_file, &t_end, sizeof(t_end));
+  gzread(lineage_file, &final_indiv_index, sizeof(final_indiv_index));
+  gzread(lineage_file, &final_indiv_rank,  sizeof(final_indiv_rank));
 
   if ( verbose )
   {
     printf("\n\n");
     printf( "===============================================================================\n" );
-    printf( " Statistics of the ancestors of indiv. %" PRId32 " (rank %" PRId32 ") from generation %" PRId32 " to %" PRId32 "\n",
-            final_indiv_index, final_indiv_rank, begin_gener, end_gener );
+    printf(" Statistics of the ancestors of indiv. %" PRId32
+           " (rank %" PRId32 ") from time %" PRId64 " to %" PRId64 "\n",
+           final_indiv_index, final_indiv_rank, t0, t_end );
     printf("================================================================================\n");
   }
 
@@ -243,28 +245,30 @@ int main(int argc, char** argv)
 
   ae_exp_manager* exp_manager = new ae_exp_manager();
   
-  exp_manager->load( begin_gener, false, true, false);
-  Environment* env = new Environment( *(exp_manager->get_env()) ); // independent copy
+  exp_manager->load(t0, false, true, false);
+  Environment* env = new Environment(*(exp_manager->get_env())); // independent copy
 
-  int32_t backup_step = exp_manager->get_backup_step();
+  int64_t backup_step = exp_manager->get_backup_step();
 
   // =========================
   //  Open the output file(s)
   // =========================
   // Create missing directories
   int status;
-  status = mkdir( "stats/ancstats/", 0755 );
-  if ( (status == -1) && (errno != EEXIST) )
+  status = mkdir("stats/ancstats/", 0755);
+  if ((status == -1) && (errno != EEXIST))
   {
-    err( EXIT_FAILURE, "stats/ancstats/" );
+    err(EXIT_FAILURE, "stats/ancstats/");
   }
 
   char prefix[50];
-  snprintf( prefix, 50, "ancstats/ancstats-b%06" PRId32 "-e%06" PRId32 "-i%" PRId32 "-r%" PRId32,begin_gener, end_gener, final_indiv_index , final_indiv_rank);
+  snprintf(prefix, 50,
+      "ancstats/ancstats-b%06" PRId64 "-e%06" PRId64 "-i%" PRId32 "-r%" PRId32,
+      t0, t_end, final_indiv_index, final_indiv_rank);
   bool best_indiv_only = true;
   bool addition_old_stats = false;
   bool delete_old_stats = true;
-  ae_stats * mystats = new ae_stats(exp_manager, begin_gener, best_indiv_only, prefix, addition_old_stats, delete_old_stats);
+  ae_stats * mystats = new ae_stats(exp_manager, t0, best_indiv_only, prefix, addition_old_stats, delete_old_stats);
   //mystats->write_headers();
 
   // Optional outputs
@@ -282,21 +286,21 @@ int main(int argc, char** argv)
   //  Prepare the initial ancestor and write its stats
   // ==================================================
   ae_individual * indiv = new ae_individual(exp_manager, lineage_file );
-  indiv->evaluate( env );
+  indiv->evaluate(env);
   indiv->compute_statistical_data();
   indiv->compute_non_coding();
 
-  mystats->write_statistics_of_this_indiv( indiv, begin_gener );
+  mystats->write_statistics_of_this_indiv(indiv);
 
 
   // Optional outputs
-  write_environment_stats( begin_gener, env, env_output_file );
-  write_terminators_stats( begin_gener, indiv, term_output_file );
+  write_environment_stats(t0, env, env_output_file);
+  write_terminators_stats(t0, indiv, term_output_file);
   if(env->get_nb_segments() > 1)
   {
-    write_zones_stats( begin_gener, indiv, env, zones_output_file );
+    write_zones_stats( t0, indiv, env, zones_output_file );
   }
-  write_operons_stats( begin_gener, indiv, operons_output_file );
+  write_operons_stats( t0, indiv, operons_output_file );
 
 
   if ( verbose )
@@ -312,36 +316,32 @@ int main(int argc, char** argv)
   //  (and, optionally, check that the rebuilt envir is correct each time a backup
   //  is available)
   // ===============================================================================
-
-  int32_t num_gener = 0;
-
   ae_replication_report* rep = NULL;
 
   ae_individual* stored_indiv = NULL;
 
   int32_t index;
-  int32_t nb_gener = end_gener - begin_gener;
 
   ae_exp_manager* exp_manager_backup = NULL;
   Environment* backup_env = NULL;
 
   bool check_now = false;
 
-  for ( int32_t i = 0 ; i < nb_gener ; i++ )
+  aevol::Time::plusplus();
+  while (get_time() <= t_end)
   {
-    num_gener = begin_gener + i + 1;  // where we are in time..
-
-
     rep = new ae_replication_report( lineage_file, indiv );
     index = rep->get_id(); // who we are building...
     indiv->set_replication_report( rep );
 
     // Check now?
-    check_now = ( ( check == FULL_CHECK && ae_utils::mod( num_gener, backup_step ) == 0 ) ||
-                  ( check == ENV_CHECK && ae_utils::mod( num_gener, backup_step ) == 0 ) ||
-                  ( check == LIGHT_CHECK && num_gener == end_gener ) );
+    check_now = ((check == FULL_CHECK && ae_utils::mod(get_time(), backup_step) == 0) ||
+                 (check == ENV_CHECK && ae_utils::mod(get_time(), backup_step) == 0) ||
+                 (check == LIGHT_CHECK && get_time() == t_end));
 
-    if ( verbose ) printf("Rebuilding ancestor at generation %" PRId32 " (index %" PRId32 ")...", num_gener, index);
+    if (verbose)
+        printf("Rebuilding ancestor at generation %" PRId64
+            " (index %" PRId32 ")...", get_time(), index);
 
     // 1) Rebuild environment
     env->build();
@@ -349,28 +349,28 @@ int main(int argc, char** argv)
     indiv->reevaluate(env);
 
     // Check, and possibly update, the environment according to the backup files (update necessary if the env. was modified by aevol_modify at some point)
-    if (ae_utils::mod( num_gener, backup_step ) == 0)
+    if (ae_utils::mod(get_time(), backup_step) == 0)
+    {
+      char env_file_name[255];
+      sprintf(env_file_name, "./" ENV_FNAME_FORMAT, get_time());
+      gzFile env_file = gzopen(env_file_name, "r");
+      backup_env = new Environment();
+      backup_env->load( env_file );
+
+      if ( ! env->is_identical_to(*backup_env, tolerance) )
       {
-        char env_file_name[255];
-        sprintf( env_file_name, "./" ENV_FNAME_FORMAT, num_gener );
-        gzFile env_file = gzopen( env_file_name, "r" );
-        backup_env = new Environment();
-        backup_env->load( env_file );
-
-        if ( ! env->is_identical_to(*backup_env, tolerance) )
-          {
-            printf("Warning: At t=%" PRId32 ", the replayed environment is not the same\n", num_gener);
-            printf("         as the one saved at generation %" PRId32 "... \n", num_gener );
-            printf("         with tolerance of %lg\n", tolerance);
-            printf("Replacing the replayed environment by the one stored in the backup.\n");
-            delete env;
-            env = new Environment(*backup_env);
-          }
-        delete backup_env;
+        printf("Warning: At get_time()=%" PRId64 ", the replayed environment is not the same\n", get_time());
+        printf("         as the one saved at get_time()=%" PRId64 "... \n", get_time() );
+        printf("         with tolerance of %lg\n", tolerance);
+        printf("Replacing the replayed environment by the one stored in the backup.\n");
+        delete env;
+        env = new Environment(*backup_env);
       }
+      delete backup_env;
+    }
 
 
-    // Warning: this portion of code won't work if the number of units changes
+    // Warning: this portion of code won'get_time() work if the number of units changes
     // during the evolution
 
     // 2) Replay replication (create current individual's child)
@@ -384,11 +384,11 @@ int main(int argc, char** argv)
       gulist.emplace_back(indiv, &gu);
 
     std::list<ae_genetic_unit>::const_iterator storedunit;
-    if ( check_now )
+    if (check_now)
     {
       exp_manager_backup = new ae_exp_manager();
-      exp_manager_backup->load( num_gener, false, true, false );
-      stored_indiv = new ae_individual( * (ae_individual *)exp_manager_backup->get_indiv_by_id( index ), false );
+      exp_manager_backup->load(get_time(), false, true, false);
+      stored_indiv = new ae_individual(*(ae_individual *)exp_manager_backup->get_indiv_by_id( index ), false);
       storedunit = storedgulist.begin();
     }
 
@@ -432,10 +432,10 @@ int main(int argc, char** argv)
         else
         {
           if ( verbose ) printf( " ERROR !\n" );
-          fprintf( stderr, "Error: the rebuilt genetic unit is not the same as \n");
-          fprintf( stderr, "the one saved at generation %" PRId32 "... ", num_gener );
-          fprintf( stderr, "Rebuilt unit : %" PRId32 " bp\n %s\n", (int32_t)strlen(str1), str1 );
-          fprintf( stderr, "Stored unit  : %" PRId32 " bp\n %s\n", (int32_t)strlen(str2), str2 );
+          fprintf(stderr, "Error: the rebuilt genetic unit is not the same as \n");
+          fprintf(stderr, "the one saved at generation %" PRId64 "... ", get_time());
+          fprintf(stderr, "Rebuilt unit : %" PRId32 " bp\n %s\n", (int32_t)strlen(str1), str1);
+          fprintf(stderr, "Stored unit  : %" PRId32 " bp\n %s\n", (int32_t)strlen(str2), str2);
 
           delete [] str1;
           delete [] str2;
@@ -458,20 +458,20 @@ int main(int argc, char** argv)
     assert(unit == gulist.end());
 
     // 3) All the mutations have been replayed, we can now evaluate the new individual
-    indiv->reevaluate( env );
+    indiv->reevaluate(env);
     indiv->compute_statistical_data();
     indiv->compute_non_coding();
 
-    mystats->write_statistics_of_this_indiv( indiv, num_gener );
+    mystats->write_statistics_of_this_indiv(indiv);
 
     // Optional outputs
-    write_environment_stats( num_gener, env, env_output_file );
-    write_terminators_stats( num_gener, indiv, term_output_file );
+    write_environment_stats(get_time(), env, env_output_file);
+    write_terminators_stats(get_time(), indiv, term_output_file);
     if(env->get_nb_segments() > 1)
     {
-      write_zones_stats( num_gener, indiv, env, zones_output_file );
+      write_zones_stats(get_time(), indiv, env, zones_output_file);
     }
-    write_operons_stats( num_gener, indiv, operons_output_file );
+    write_operons_stats(get_time(), indiv, operons_output_file);
 
     if ( verbose ) printf(" OK\n");
 
@@ -483,6 +483,8 @@ int main(int argc, char** argv)
       delete stored_indiv;
       delete exp_manager_backup;
     }
+
+    aevol::Time::plusplus();
   }
 
   gzclose(lineage_file);
@@ -525,10 +527,10 @@ FILE* open_environment_stat_file( const char * prefix, const Environment * env )
 }
 
 
-void write_environment_stats( int32_t num_gener, const Environment * env, FILE*  env_output_file)
+void write_environment_stats( int32_t t, const Environment * env, FILE*  env_output_file)
 {
   // Num gener
-  fprintf( env_output_file, "%" PRId32, num_gener );
+  fprintf( env_output_file, "%" PRId32, t );
 
   if (env->gaussians_provided())
     for (const ae_gaussian& g: env->get_gaussians())
@@ -556,10 +558,10 @@ FILE* open_terminators_stat_file( const char * prefix )
   return term_output_file;
 }
 
-void write_terminators_stats( int32_t num_gener,  ae_individual * indiv, FILE* term_output_file  )
+void write_terminators_stats( int32_t t,  ae_individual * indiv, FILE* term_output_file  )
 {
   fprintf(  term_output_file, "%" PRId32 " %" PRId32 " %" PRId32 "\n",
-            num_gener,
+            t,
             indiv->get_total_genome_size(),
             indiv->get_nb_terminators() );
 }
@@ -586,7 +588,7 @@ FILE* open_zones_stat_file( const char * prefix  )
   return zones_output_file;
 }
 
-void write_zones_stats( int32_t num_gener, ae_individual * indiv, Environment * env, FILE* zones_output_file )
+void write_zones_stats( int32_t t, ae_individual * indiv, Environment * env, FILE* zones_output_file )
 {
   assert( env->get_nb_segments() > 1 );
 
@@ -668,7 +670,7 @@ void write_zones_stats( int32_t num_gener, ae_individual * indiv, Environment * 
 
 
   // Print stats to file
-  fprintf(  zones_output_file, "%" PRId32, num_gener );
+  fprintf(  zones_output_file, "%" PRId32, t );
 
   for ( num_segment = 0 ; num_segment < nb_segments ; num_segment++ )
   {
@@ -697,7 +699,7 @@ FILE* open_operons_stat_file( const char * prefix  )
   return operons_output_file;
 }
 
-void write_operons_stats( int32_t num_gener, ae_individual * indiv, FILE*  operons_output_file)
+void write_operons_stats(int32_t t, ae_individual * indiv, FILE*  operons_output_file)
 {
   int32_t nb_genes_per_rna[20];
   for ( int i = 0 ; i < 20 ; i++ )
@@ -716,7 +718,7 @@ void write_operons_stats( int32_t num_gener, ae_individual * indiv, FILE*  opero
   }
 
   fprintf(  operons_output_file, "%" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n",
-            num_gener,
+            t,
             nb_genes_per_rna[0],
             nb_genes_per_rna[1],
             nb_genes_per_rna[2],

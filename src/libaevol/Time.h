@@ -125,6 +125,8 @@ class Time
 //                       Inline functions' definition
 // =====================================================================
 
+int64_t get_time(void);
+
 } // namespace aevol
 
 #endif // __AE_TIME_H__
