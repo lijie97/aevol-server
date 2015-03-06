@@ -69,6 +69,8 @@ class ae_rna
     // =================================================================
     //                             Constructors
     // =================================================================
+    ae_rna(void) = delete;
+    ae_rna(const ae_genetic_unit&) = delete;
     ae_rna( ae_genetic_unit* gen_unit, const ae_rna &model );
     ae_rna( ae_genetic_unit* gen_unit );
     ae_rna( ae_genetic_unit* gen_unit, ae_strand strand, int32_t index, int8_t diff );
@@ -88,8 +90,8 @@ class ae_rna
     //~ void* get_indiv( void ) const { return (void*)_indiv; };
     // </DEBUG>
 
-    inline ae_genetic_unit * get_genetic_unit( void ) const;
-    inline void              set_genetic_unit( ae_genetic_unit*  gen_unit );
+    inline const ae_genetic_unit * get_genetic_unit(void) const;
+    inline void set_genetic_unit(const ae_genetic_unit*  gen_unit);
     inline ae_strand  get_strand( void ) const;
     inline void       set_strand( ae_strand strand );
     inline int32_t    get_promoter_pos( void ) const;
@@ -119,21 +121,9 @@ class ae_rna
 
 
   protected :
-
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    ae_rna( void )
-    {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-
-    ae_rna( const ae_rna &model )
-    {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
 
     // =================================================================
     //                           Protected Methods
@@ -142,7 +132,7 @@ class ae_rna
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ae_genetic_unit*  _gen_unit;
+    const ae_genetic_unit*  _gen_unit;
     ae_strand         _strand;
     int32_t           _pos; // Index of the promoter on the genome.
                             // The promoter itself is NOT transcribed
@@ -157,12 +147,12 @@ class ae_rna
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-inline ae_genetic_unit * ae_rna::get_genetic_unit( void ) const
+inline const ae_genetic_unit* ae_rna::get_genetic_unit( void ) const
 {
   return _gen_unit;
 }
 
-inline void ae_rna::set_genetic_unit( ae_genetic_unit*  gen_unit )
+inline void ae_rna::set_genetic_unit(const ae_genetic_unit*  gen_unit)
 {
   _gen_unit = gen_unit;
 }

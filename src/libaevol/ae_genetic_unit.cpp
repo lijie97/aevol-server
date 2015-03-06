@@ -1196,6 +1196,16 @@ void ae_genetic_unit::reset_expression( void )
 }
 
 
+/*const*/ std::vector<std::list<ae_rna*>> ae_genetic_unit::get_rna_list() const {
+  std::vector<std::list<ae_rna*>> r(LAGGING - LEADING + 1);
+  for (int8_t strand = LEADING ; strand <= LAGGING ; strand++)
+    for (ae_list_node<ae_rna*>* rna_node = _rna_list[strand]->get_first();
+         rna_node != NULL;
+         rna_node = rna_node->get_next())
+      r[strand].push_back(rna_node->get_obj());
+  return r;//std::move(r);
+}
+
 
 void ae_genetic_unit::print_coding_rnas()
 {

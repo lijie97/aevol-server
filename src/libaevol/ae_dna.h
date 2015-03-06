@@ -162,7 +162,8 @@ class ae_dna : public ae_string
 
     void compute_statistical_data( void );
 
-    static void set_GU(std::vector<std::list<ae_rna*>>&& rna_list, ae_genetic_unit* GU);
+    // TODO rna_list should be passed by ref
+    static void set_GU(std::vector<std::list<ae_rna*>> rna_list, const ae_genetic_unit* GU);
 
 
     // =================================================================

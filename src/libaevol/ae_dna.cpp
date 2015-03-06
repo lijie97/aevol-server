@@ -2321,7 +2321,7 @@ void ae_dna::compute_statistical_data( void )
   //~ }
 }
 
-void ae_dna::set_GU(std::vector<std::list<ae_rna*>>&& rna_list, ae_genetic_unit* GU) {
+void ae_dna::set_GU(std::vector<std::list<ae_rna*>> rna_list, const ae_genetic_unit* GU) {
   for (int8_t strand = LEADING; strand <= LAGGING; strand++)
     for (auto& rna: rna_list[strand])
       rna->set_genetic_unit(GU);
@@ -2449,7 +2449,7 @@ ae_genetic_unit* ae_dna::copy_into_new_GU( int32_t pos_1, int32_t pos_2 ) const
 
   Sequence from GU_to_insert is untouched but its list of promoters is emptied
 */
-void ae_dna::insert_GU( ae_genetic_unit* GU_to_insert, int32_t pos_B, int32_t pos_D, bool invert )
+void ae_dna::insert_GU(ae_genetic_unit* GU_to_insert, int32_t pos_B, int32_t pos_D, bool invert)
 {
   // Compute segment lengths
   const char* GUti_data = GU_to_insert->get_dna()->get_data();
@@ -2586,7 +2586,7 @@ void ae_dna::insert_GU( ae_genetic_unit* GU_to_insert, int32_t pos_B, int32_t po
   _gen_unit->look_for_new_promoters_around( pos_B );
   _gen_unit->look_for_new_promoters_around( pos_B + len_CD );
 
-  set_GU(_gen_unit->get_rna_list(), _gen_unit);
+  _gen_unit->take_ownership_of_all_rnas();
 }
 
 

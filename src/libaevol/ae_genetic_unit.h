@@ -93,8 +93,11 @@ class ae_genetic_unit
     inline Fuzzy*    get_inhib_contribution( void )      const;
     inline Fuzzy*    get_phenotypic_contribution( void ) const;
 
-    inline std::vector<std::list<ae_rna*>> get_rna_list()     const;
-    inline std::vector<std::list<ae_protein*>> get_protein_list() const;
+    // TODO: re constify
+    // TODO return as (rvalue?) reference
+    /*const*/ std::vector<std::list<ae_rna*>> get_rna_list() const;
+    // TODO return as (rvalue?) reference
+    inline const std::vector<std::list<ae_protein*>> get_protein_list() const;
 
 
 
@@ -157,6 +160,11 @@ class ae_genetic_unit
     void do_transcription( void );
     void do_translation( void );
     void compute_phenotypic_contribution( void );
+
+    void take_ownership_of_all_rnas(void) { ae_dna::set_GU(get_rna_list(), this); };
+
+
+  
 
     // DM: these two are identical to functions from ae_individual
     void compute_distance_to_target( Environment* envir );
@@ -374,17 +382,7 @@ inline ae_dna* ae_genetic_unit::get_dna( void ) const
   return _dna;
 }
 
-inline std::vector<std::list<ae_rna*>> ae_genetic_unit::get_rna_list() const {
-  std::vector<std::list<ae_rna*>> r(LAGGING - LEADING + 1);
-  for (int8_t strand = LEADING ; strand <= LAGGING ; strand++)
-    for (ae_list_node<ae_rna*>* rna_node = _rna_list[strand]->get_first();
-         rna_node != NULL;
-         rna_node = rna_node->get_next())
-      r[strand].push_back(rna_node->get_obj());
-  return std::move(r);
-}
-
-inline std::vector<std::list<ae_protein*>> ae_genetic_unit::get_protein_list() const {
+inline const std::vector<std::list<ae_protein*>> ae_genetic_unit::get_protein_list() const {
   assert( _protein_list );
   assert( _protein_list[LEADING] );
   assert( _protein_list[LAGGING] );
@@ -394,7 +392,7 @@ inline std::vector<std::list<ae_protein*>> ae_genetic_unit::get_protein_list() c
          protein_node != NULL;
          protein_node = protein_node->get_next())
       r[strand].push_back(protein_node->get_obj());
-  return std::move(r);
+  return r;//std::move(r);
 }
 
 inline Fuzzy* ae_genetic_unit::get_activ_contribution( void ) const

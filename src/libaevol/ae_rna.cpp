@@ -76,7 +76,7 @@ ae_rna::ae_rna( ae_genetic_unit* gen_unit, const ae_rna &model )
   //   transcribed_proteins.push_back(protein);
 }
 
-ae_rna::ae_rna( ae_genetic_unit* gen_unit )
+ae_rna::ae_rna(ae_genetic_unit* gen_unit)
 {
   _gen_unit = gen_unit;
 }
