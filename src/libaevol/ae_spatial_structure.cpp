@@ -30,7 +30,7 @@
 // =================================================================
 //                              Libraries
 // =================================================================
-
+#include <list>
 
 
 // =================================================================
@@ -38,6 +38,9 @@
 // =================================================================
 #include "ae_spatial_structure.h"
 #include "ae_population.h"
+
+
+using std::list;
 
 
 namespace aevol {
@@ -56,9 +59,15 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_spatial_structure::ae_spatial_structure( void )
+ae_spatial_structure::ae_spatial_structure(void)
 {
   _prng = NULL;
+
+  #ifndef DISTRIBUTED_PRNG
+    _mut_prng       = NULL;
+    _stoch_prng     = NULL;
+    _stoch_prng_bak = NULL;
+  #endif
 
   _grid_width = -1;
   _grid_height = -1;
@@ -70,54 +79,50 @@ ae_spatial_structure::ae_spatial_structure( void )
   _secretion_degradation_prop = -1;
 }
 
-ae_spatial_structure::ae_spatial_structure( gzFile backup_file )
-{
-  _prng = new ae_jumping_mt( backup_file );
-
-  gzread( backup_file, &_grid_width,  sizeof(_grid_width) );
-  gzread( backup_file, &_grid_height, sizeof(_grid_height) );
-
-  _pop_grid = new ae_grid_cell** [_grid_width];
-  for ( int16_t x = 0 ; x < _grid_width ; x++ )
-  {
-    _pop_grid[x] = new ae_grid_cell* [_grid_height];
-    for ( int16_t y = 0 ; y < _grid_height ; y++ )
-    {
-      _pop_grid[x][y] = new ae_grid_cell( backup_file );
-    }
-  }
-
-  gzread( backup_file, &_migration_number,           sizeof(_migration_number) );
-  gzread( backup_file, &_secretion_diffusion_prop,   sizeof(_secretion_diffusion_prop) );
-  gzread( backup_file, &_secretion_degradation_prop, sizeof(_secretion_degradation_prop) );
-}
-
 // =================================================================
-//                             Destructors
+//                             Destructor
 // =================================================================
-ae_spatial_structure::~ae_spatial_structure( void )
+ae_spatial_structure::~ae_spatial_structure(void)
 {
-  if ( _pop_grid != NULL )
+  for (int16_t x = 0 ; x < _grid_width ; x++)
   {
-    for ( int16_t i = 0 ; i < _grid_width ; i++ )
+    for (int16_t y = 0 ; y < _grid_height ; y++)
     {
-      for ( int16_t j = 0 ; j < _grid_height ; j++ )
-      {
-        delete _pop_grid[i][j];
-      }
-
-      delete [] _pop_grid[i];
+      delete _pop_grid[x][y];
     }
 
-    delete [] _pop_grid;
+    delete [] _pop_grid[x];
   }
+  delete [] _pop_grid;
+
   delete _prng;
+  #ifndef DISTRIBUTED_PRNG
+    delete _mut_prng;
+    delete _stoch_prng;
+    delete _stoch_prng_bak;
+  #endif
 }
 
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_spatial_structure::update_secretion_grid ( void )
+void ae_spatial_structure::place_indiv(ae_individual* indiv,
+                                       int16_t x, int16_t y)
+{
+  _pop_grid[x][y]->set_individual(indiv);
+}
+
+void ae_spatial_structure::evaluate_individuals(Environment* envir)
+{
+  for (int16_t x = 0 ; x < _grid_width ; x++)
+    for (int16_t y = 0 ; y < _grid_height ; y++)
+    {
+      get_indiv_at(x, y)->evaluate(envir);
+      get_indiv_at(x, y)->compute_statistical_data();
+    }
+}
+
+void ae_spatial_structure::update_secretion_grid(void)
 {
   int16_t cur_x, cur_y;
 
@@ -188,23 +193,50 @@ void ae_spatial_structure::do_random_migrations ( void )
   }
 }
 
-void ae_spatial_structure::save( gzFile backup_file ) const
+void ae_spatial_structure::update_best(void)
 {
-  if ( _prng == NULL )
+  x_best = y_best = 0;
+  double fit_best = get_indiv_at(0, 0)->get_fitness();
+  for (int16_t x = 0 ; x < _grid_width ; x++)
+    for (int16_t y = 0 ; y < _grid_height ; y++)
+  {
+    if (get_indiv_at(x, y)->get_fitness() > fit_best)
+    {
+      x_best = x;
+      y_best = y;
+      fit_best = get_indiv_at(x, y)->get_fitness();
+    }
+  }
+}
+
+void ae_spatial_structure::save(gzFile backup_file) const
+{
+  if (_prng == NULL)
   {
     printf( "%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__ );
     exit( EXIT_FAILURE );
   }
+
+  _prng->save(backup_file);
+
+  #ifndef DISTRIBUTED_PRNG
+    _mut_prng->save(backup_file);
+
+    int8_t tmp_with_stoch = _stoch_prng == NULL ? 0 : 1;
+    gzwrite( backup_file, &tmp_with_stoch, sizeof(tmp_with_stoch) );
+    if (tmp_with_stoch)
+    {
+      _stoch_prng->save(backup_file);
+    }
+  #endif
   if ( _pop_grid == NULL )
   {
     printf( "%s:%d: error: grid not initialized.\n", __FILE__, __LINE__ );
     exit( EXIT_FAILURE );
   }
 
-  _prng->save( backup_file );
-
-  gzwrite( backup_file, &_grid_width,   sizeof(_grid_width) );
-  gzwrite( backup_file, &_grid_height,  sizeof(_grid_height) );
+  gzwrite(backup_file, &_grid_width,   sizeof(_grid_width));
+  gzwrite(backup_file, &_grid_height,  sizeof(_grid_height));
 
   for ( int16_t x = 0 ; x < _grid_width ; x++ )
   {
@@ -214,16 +246,116 @@ void ae_spatial_structure::save( gzFile backup_file ) const
     }
   }
 
-  gzwrite( backup_file, &_migration_number,           sizeof(_migration_number) );
-  gzwrite( backup_file, &_secretion_diffusion_prop,   sizeof(_secretion_diffusion_prop) );
-  gzwrite( backup_file, &_secretion_degradation_prop, sizeof(_secretion_degradation_prop) );
+  gzwrite(backup_file, &x_best, sizeof(x_best));
+  gzwrite(backup_file, &y_best, sizeof(y_best));
+
+  gzwrite(backup_file, &_migration_number,           sizeof(_migration_number));
+  gzwrite(backup_file, &_secretion_diffusion_prop,   sizeof(_secretion_diffusion_prop));
+  gzwrite(backup_file, &_secretion_degradation_prop, sizeof(_secretion_degradation_prop));
+}
+
+void ae_spatial_structure::load(gzFile backup_file, ae_exp_manager* exp_man)
+{
+  _prng = new ae_jumping_mt(backup_file);
+  #ifndef DISTRIBUTED_PRNG
+    _mut_prng   = new ae_jumping_mt(backup_file);
+    int8_t tmp_with_stoch;
+    gzread( backup_file, &tmp_with_stoch, sizeof(tmp_with_stoch) );
+    if (tmp_with_stoch)
+    {
+      _stoch_prng = new ae_jumping_mt(backup_file);
+    }
+  #endif
+
+  gzread(backup_file, &_grid_width,  sizeof(_grid_width));
+  gzread(backup_file, &_grid_height, sizeof(_grid_height));
+
+  _pop_grid = new ae_grid_cell** [_grid_width];
+  for (int16_t x = 0 ; x < _grid_width ; x++)
+  {
+    _pop_grid[x] = new ae_grid_cell* [_grid_height];
+    for (int16_t y = 0 ; y < _grid_height ; y++)
+    {
+      _pop_grid[x][y] = new ae_grid_cell(backup_file, exp_man);
+    }
+  }
+
+  gzread(backup_file, &x_best, sizeof(x_best));
+  gzread(backup_file, &y_best, sizeof(y_best));
+
+  gzread(backup_file, &_migration_number,           sizeof(_migration_number));
+  gzread(backup_file, &_secretion_diffusion_prop,   sizeof(_secretion_diffusion_prop));
+  gzread(backup_file, &_secretion_degradation_prop, sizeof(_secretion_degradation_prop));
 }
 
 // =================================================================
 //                           Protected Methods
 // =================================================================
+#ifndef DISTRIBUTED_PRNG
+  void ae_spatial_structure::backup_stoch_prng( void )
+  {
+    delete _stoch_prng_bak;
+    _stoch_prng_bak = new ae_jumping_mt( *_stoch_prng );
+  }
+#endif
 
 // =================================================================
 //                          Non inline accessors
 // =================================================================
+ae_jumping_mt* ae_spatial_structure::get_prng(void) const
+{
+  return _prng;
+}
+
+ae_jumping_mt* ae_spatial_structure::get_mut_prng( void ) const
+{
+  return _mut_prng;
+}
+
+ae_jumping_mt* ae_spatial_structure::get_stoch_prng( void ) const
+{
+  return _stoch_prng;
+}
+
+list<ae_individual*>&& ae_spatial_structure::get_indivs_std(void) const
+{
+  list<ae_individual*> r;
+
+  for (int16_t x = 0 ; x < _grid_width ; x++)
+    for (int16_t y = 0 ; y < _grid_height ; y++)
+  {
+    r.push_back(get_indiv_at(x, y));
+  }
+
+  return std::move(r);
+}
+
+void ae_spatial_structure::set_mut_prng(ae_jumping_mt* prng)
+{
+  if (_mut_prng != NULL) delete _mut_prng;
+  _mut_prng = prng;
+
+  for (int16_t x = 0 ; x < _grid_width ; x++)
+    for (int16_t y = 0 ; y < _grid_height ; y++)
+  {
+    ae_individual* indiv;
+    if ((indiv = get_indiv_at(x, y)))
+      indiv->set_mut_prng(_mut_prng);
+  }
+}
+
+void ae_spatial_structure::set_stoch_prng(ae_jumping_mt* prng)
+{
+  if (_stoch_prng != NULL)
+    delete _stoch_prng;
+  _stoch_prng = prng;
+
+  for (int16_t x = 0 ; x < _grid_width ; x++)
+    for (int16_t y = 0 ; y < _grid_height ; y++)
+  {
+    ae_individual* indiv;
+    if ((indiv = get_indiv_at(x, y)))
+      indiv->set_stoch_prng(_stoch_prng);
+  }
+}
 } // namespace aevol

@@ -255,7 +255,7 @@ int main( int argc, char* argv[] )
 
   if (generalseed != -1)
   {
-    ae_jumping_mt * prng = new ae_jumping_mt(generalseed);
+    ae_jumping_mt* prng = new ae_jumping_mt(generalseed);
     
     selseed      = prng->random(1000000);
     mutseed      = prng->random(1000000);
@@ -263,15 +263,15 @@ int main( int argc, char* argv[] )
     envvarseed   = prng->random(1000000);
     envnoiseseed = prng->random(1000000);
 
-    ae_jumping_mt * selprng           = new ae_jumping_mt( selseed );
-    ae_jumping_mt * mutprng           = new ae_jumping_mt( mutseed );
-    ae_jumping_mt * stochprng         = new ae_jumping_mt( stochseed );
-    ae_jumping_mt * envvarprng        = new ae_jumping_mt( envvarseed );
-    ae_jumping_mt * envnoiseprng      = new ae_jumping_mt( envnoiseseed );
+    ae_jumping_mt* selprng           = new ae_jumping_mt( selseed );
+    ae_jumping_mt* mutprng           = new ae_jumping_mt( mutseed );
+    ae_jumping_mt* stochprng         = new ae_jumping_mt( stochseed );
+    ae_jumping_mt* envvarprng        = new ae_jumping_mt( envvarseed );
+    ae_jumping_mt* envnoiseprng      = new ae_jumping_mt( envnoiseseed );
 
     exp_manager->get_sel()->set_prng( selprng ); 
-    exp_manager->get_pop()->set_mut_prng( mutprng );
-    exp_manager->get_pop()->set_stoch_prng( stochprng );
+    exp_manager->get_spatial_structure()->set_mut_prng( mutprng );
+    exp_manager->get_spatial_structure()->set_stoch_prng( stochprng );
     exp_manager->get_env()->set_var_prng( envvarprng );
     exp_manager->get_env()->set_noise_prng( envnoiseprng );
 
@@ -295,13 +295,13 @@ int main( int argc, char* argv[] )
     if ( mutseed != -1 )
     {
       ae_jumping_mt * mutprng = new ae_jumping_mt( mutseed );
-      exp_manager->get_pop()->set_mut_prng( mutprng );
+      exp_manager->get_spatial_structure()->set_mut_prng( mutprng );
     }
 
     if ( stochseed != -1 )
     {
       ae_jumping_mt * stochprng = new ae_jumping_mt( stochseed );
-      exp_manager->get_pop()->set_stoch_prng( stochprng );
+      exp_manager->get_spatial_structure()->set_stoch_prng( stochprng );
     }
 
     if ( envvarseed != -1 )

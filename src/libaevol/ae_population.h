@@ -76,12 +76,8 @@ class ae_population
     std::list<ae_individual*> get_indivs() const;
     int32_t                  get_nb_indivs( void ) const;
     ae_individual*           get_best( void ) const;
-    ae_individual*                  get_indiv_by_id( int32_t id ) const;
+    ae_individual*           get_indiv_by_id( int32_t id ) const;
     ae_individual*           get_indiv_by_rank( int32_t rank ) const;
-
-    // PRNGs
-    ae_jumping_mt* get_mut_prng( void ) const;
-    ae_jumping_mt* get_stoch_prng( void ) const;
 
     // Spatial structure
     //~ double** get_secretion_present( void ) const;
@@ -95,10 +91,6 @@ class ae_population
     void set_nb_indivs( size_t nb_indivs );
 
     void add_indiv( ae_individual* indiv );
-
-    // PRNGs
-    void set_mut_prng( ae_jumping_mt* prng );
-    void set_stoch_prng( ae_jumping_mt* prng );
 
     // Mutation rates etc...
     void set_overall_point_mutation_rate( double point_mutation_rate);
@@ -131,17 +123,13 @@ class ae_population
     //~ ae_individual*  calculate_local_competition ( int16_t x, int16_t y );
     ae_individual*  calculate_GU_transfer ( int16_t x, int16_t y );
     void            do_random_migrations ( void );
-    void     evaluate_individuals( Environment* envir );
+    void evaluate_individuals(Environment* envir);
     void            sort_individuals( void );
     void            update_best( void );
 
     void save( gzFile backup_file ) const;
     void load( gzFile backup_file, bool verbose );
     void load(const char* backup_file_name, bool verbose);
-
-    #ifndef DISTRIBUTED_PRNG
-      void backup_stoch_prng( void );
-    #endif
 
     // =================================================================
     //                           Public Attributes
@@ -181,12 +169,6 @@ class ae_population
     //                          Protected Attributes
     // =================================================================
     ae_exp_manager* _exp_m;
-
-    #ifndef DISTRIBUTED_PRNG
-      ae_jumping_mt* _mut_prng;
-      ae_jumping_mt* _stoch_prng;
-      ae_jumping_mt* _stoch_prng_bak;
-    #endif
 
     // Individuals
     std::list<ae_individual*>  _indivs;

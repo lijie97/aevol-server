@@ -81,7 +81,8 @@ class ae_exp_manager
     // =======================================================================
     //                                 Algorithms
     // =======================================================================
-    void foreach_indiv(void (*processor)(ae_individual& indiv)) const;
+    // TODO: tmp disabled
+    // void foreach_indiv(void (*processor)(ae_individual& indiv)) const;
 
     // =======================================================================
     //                           Accessors: getters
@@ -138,8 +139,8 @@ class ae_exp_manager
     inline int32_t                  get_nb_indivs(void) const;
 
     inline ae_individual* get_best_indiv(void) const;
-    inline ae_individual*	get_indiv_by_id( int32_t id ) const;
-    inline ae_individual* get_indiv_by_rank( int32_t rank ) const;
+    // inline ae_individual*	get_indiv_by_id( int32_t id ) const;
+    // inline ae_individual* get_indiv_by_rank( int32_t rank ) const;
 
     // Accessors to output manager stuff
     inline int64_t	get_backup_step(void) const;
@@ -188,6 +189,7 @@ class ae_exp_manager
                bool to_be_run = true);
     void run_evolution(void);
     virtual void display(void) {};
+    void update_best(void);
 
     // =======================================================================
     //                              Public Attributes
@@ -335,7 +337,7 @@ inline ae_spatial_structure* ae_exp_manager::get_spatial_structure(void) const
 
 inline ae_grid_cell* ae_exp_manager::get_grid_cell( int16_t x, int16_t y ) const
 {
-  return get_spatial_structure()->get_grid_cell( x, y );
+  return get_spatial_structure()->get_grid_cell(x, y);
 }
 
 inline int16_t ae_exp_manager::get_grid_width(void) const
@@ -437,28 +439,28 @@ inline double ae_exp_manager::get_secretion_cost(void) const
 // Accessors to population stuff
 inline int32_t ae_exp_manager::get_nb_indivs(void) const
 {
-  return get_pop()->get_nb_indivs();
+  return get_spatial_structure()->get_nb_indivs();
 }
 
 inline ae_individual* ae_exp_manager::get_best_indiv(void) const
 {
-  return get_pop()->get_best();
+  return get_spatial_structure()->get_best_indiv();
 }
 
 inline std::list<ae_individual*> ae_exp_manager::get_indivs_std() const
 {
-  return get_pop()->get_indivs();
+  return get_spatial_structure()->get_indivs_std();
 }
 
-inline ae_individual * ae_exp_manager::get_indiv_by_id( int32_t id ) const
-{
-  return get_pop()->get_indiv_by_id( id );
-}
+// inline ae_individual* ae_exp_manager::get_indiv_by_id(int32_t id) const
+// {
+//   return get_pop()->get_indiv_by_id(id);
+// }
 
-inline ae_individual * ae_exp_manager::get_indiv_by_rank( int32_t rank ) const
-{
-  return get_pop()->get_indiv_by_rank( rank );
-}
+// inline ae_individual* ae_exp_manager::get_indiv_by_rank(int32_t rank) const
+// {
+//   return get_pop()->get_indiv_by_rank(rank);
+// }
 
 
 // Accessors to output manager stuff
@@ -565,10 +567,10 @@ inline void ae_exp_manager::step_to_next_generation(void)
 /*!
   \brief Load an experiment with default files from the current directory
  */
-inline void ae_exp_manager::load( int32_t first_gener, bool use_text_files,
-                                  bool verbose, bool to_be_run /*  = true */ )
+inline void ae_exp_manager::load(int32_t first_gener, bool use_text_files,
+                                 bool verbose, bool to_be_run /*  = true */ )
 {
-  load( ".", first_gener, use_text_files, verbose, to_be_run );
+  load(".", first_gener, use_text_files, verbose, to_be_run);
 }
 
 } // namespace aevol

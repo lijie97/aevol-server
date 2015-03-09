@@ -108,11 +108,11 @@ ae_exp_manager::~ae_exp_manager( void )
 // ===========================================================================
 //                                   Algorithms
 // ===========================================================================
-void ae_exp_manager::foreach_indiv(void (*processor)(ae_individual& indiv)) const
-{
-  for (const auto& indiv: get_indivs_std())
-    processor(*indiv);
-}
+// void ae_exp_manager::foreach_indiv(void (*processor)(ae_individual& indiv)) const
+// {
+//   for (const auto& indiv: get_indivs_std())
+//     processor(*indiv);
+// }
 
 // ===========================================================================
 //                                 Public Methods
@@ -210,7 +210,7 @@ void ae_exp_manager::save(void) const
 }
 
 /*!
-  \brief Saves a complete copy of the experiment to the provided location.
+  \brief Saves a complete copy of the experiment at the provided location.
 
   Save both the setup (constant) and the backup (dynamic) files to the <dir>
   directory. Dynamic file names will be appended with the <num_gener>
@@ -236,7 +236,7 @@ void ae_exp_manager::save(void) const
   \see write_setup_files( void )
   \see save( void )
 */
-void ae_exp_manager::save_copy( char* dir, int32_t num_gener /*= 0*/ ) const
+void ae_exp_manager::save_copy(char* dir, int32_t num_gener /*= 0*/) const
 {
   // 1) Create missing directories
   create_missing_directories(dir);
@@ -268,27 +268,27 @@ void ae_exp_manager::save_copy( char* dir, int32_t num_gener /*= 0*/ ) const
 /*!
   \brief Load an experiment with the provided files
  */
-void ae_exp_manager::load( gzFile& pop_file,
-                           gzFile& env_file,
-                           gzFile& exp_s_gzfile,
-                           FILE*&  exp_s_txtfile,
-                           gzFile& exp_backup_file,
-                           gzFile& sp_struct_file,
-                           gzFile& out_p_gzfile,
-                           FILE*& out_p_txtfile,
-                           bool verbose,
-                           bool to_be_run /*  = true */ )
+void ae_exp_manager::load(gzFile& pop_file,
+                          gzFile& env_file,
+                          gzFile& exp_s_gzfile,
+                          FILE*&  exp_s_txtfile,
+                          gzFile& exp_backup_file,
+                          gzFile& sp_struct_file,
+                          gzFile& out_p_gzfile,
+                          FILE*& out_p_txtfile,
+                          bool verbose,
+                          bool to_be_run /*  = true */)
 {
   // ---------------------------------------- Retrieve experimental setup data
   printf( "  Loading experimental setup..." );
   fflush( stdout );
   if ( exp_s_gzfile != NULL )
   {
-    _exp_s->load( exp_s_gzfile, exp_backup_file, verbose );
+    _exp_s->load(exp_s_gzfile, exp_backup_file, verbose);
   }
   else
   {
-    _exp_s->load( exp_s_txtfile, exp_backup_file, verbose );
+    _exp_s->load(exp_s_txtfile, exp_backup_file, verbose);
   }
   printf( " OK\n" );
 
@@ -297,7 +297,8 @@ void ae_exp_manager::load( gzFile& pop_file,
   {
     printf( "  Loading spatial structure..." );
     fflush( stdout );
-    _spatial_structure = new ae_spatial_structure( sp_struct_file );
+    _spatial_structure = new ae_spatial_structure();
+    _spatial_structure->load(sp_struct_file, this);
     printf( " OK\n" );
   }
 
@@ -333,9 +334,9 @@ void ae_exp_manager::load( gzFile& pop_file,
 /*!
   \brief Load an experiment with default files from a given directory
  */
-void ae_exp_manager::load( const char* dir,
+void ae_exp_manager::load(const char* dir,
     int64_t t0, bool use_text_files,
-    bool verbose, bool to_be_run /*  = true */ )
+    bool verbose, bool to_be_run /*  = true */)
 {
   Time::set_time(t0);
 
@@ -353,8 +354,8 @@ void ae_exp_manager::load( const char* dir,
   // -------------------------------------------------------------------------
   // 2) Load data from backup and parameter files
   // -------------------------------------------------------------------------
-  load( pop_file, env_file, exp_s_gzfile, exp_s_txtfile, exp_backup_file,
-        sp_struct_file, out_p_gzfile, out_p_txtfile, verbose, to_be_run );
+  load(pop_file, env_file, exp_s_gzfile, exp_s_txtfile, exp_backup_file,
+       sp_struct_file, out_p_gzfile, out_p_txtfile, verbose, to_be_run);
 
 
   // -------------------------------------------------------------------------
@@ -368,7 +369,7 @@ void ae_exp_manager::load( const char* dir,
   // 4) Recompute unsaved data
   // ---------------------------------------------------------------------------
   // Evaluate individuals
-  _pop->evaluate_individuals(get_env());
+  _spatial_structure->evaluate_individuals(get_env());
 
   // If the population is spatially structured, then the individuals are saved
   // and loaded in the order of the grid and not in increasing order of fitness
@@ -477,7 +478,8 @@ void ae_exp_manager::load(int64_t t0,
   {
     printf( "  Loading spatial structure..." );
     fflush( stdout );
-    _spatial_structure = new ae_spatial_structure( sp_struct_file );
+    _spatial_structure = new ae_spatial_structure();
+    _spatial_structure->load(sp_struct_file, this);
     printf( "OK\n" );
   }
 
@@ -561,7 +563,7 @@ void ae_exp_manager::run_evolution( void )
     printf("============================== %" PRId64 " ==============================\n",
         Time::get_time());
     printf("  Best individual's distance to target (metabolic) : %f\n",
-        _pop->get_best()->get_dist_to_target_by_feature(METABOLISM));
+        get_best_indiv()->get_dist_to_target_by_feature(METABOLISM));
 
     #ifdef __X11
       display();
@@ -587,6 +589,11 @@ void ae_exp_manager::run_evolution( void )
   FILE* org_file = fopen(BEST_LAST_ORG_FNAME, "w");
   fputs(_pop->get_best()->get_genetic_unit(0).get_dna()->get_data(), org_file);
   fclose(org_file);
+}
+
+void ae_exp_manager::update_best(void)
+{
+  _spatial_structure->update_best();
 }
 
 // ===========================================================================

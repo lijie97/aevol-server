@@ -1202,17 +1202,14 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
   if ( _stoch_seed == 0 ) {
     _stoch_seed = _prng->random( 1000000 );
   }
-  ae_jumping_mt * mut_prng    = new ae_jumping_mt( _mut_seed );
-  ae_jumping_mt * stoch_prng  = new ae_jumping_mt( _stoch_seed );
-  ae_jumping_mt * selection_prng = new ae_jumping_mt( selection_seed );
-  ae_jumping_mt * spatial_struct_prng = NULL;
-
-  spatial_struct_prng = new ae_jumping_mt(_prng->random(1000000));
+  ae_jumping_mt* mut_prng    = new ae_jumping_mt(_mut_seed);
+  ae_jumping_mt* stoch_prng  = new ae_jumping_mt(_stoch_seed);
+  ae_jumping_mt* selection_prng = new ae_jumping_mt(selection_seed);
+  ae_jumping_mt* spatial_struct_prng = new ae_jumping_mt(_prng->random(1000000));
 
 
   // Create aliases
   ae_exp_setup* exp_s = exp_m->get_exp_s();
-  ae_population* pop = exp_m->get_pop();
   Environment* env = exp_m->get_env();
   ae_selection* sel = exp_m->get_sel();
   ae_output_manager* output_m  = exp_m->get_output_m();
@@ -1248,15 +1245,6 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
   exp_s->set_recipient_cost( _recipient_cost );
   exp_s->set_swap_GUs( _swap_GUs );
   output_m->set_compute_phen_contrib_by_GU( _compute_phen_contrib_by_GU );
-
-  // -------------------------------------------------------- Spatial structure
-  exp_m->set_spatial_structure( _grid_width,
-                                _grid_height,
-                                spatial_struct_prng );
-  ae_spatial_structure* sp_struct = exp_m->get_spatial_structure();
-  sp_struct->set_secretion_degradation_prop( _secretion_degradation_prop );
-  sp_struct->set_secretion_diffusion_prop( _secretion_diffusion_prop );
-  sp_struct->set_migration_number( _migration_number );
 
   // ---------------------------------------------------------------- Secretion
   exp_s->set_with_secretion( _with_secretion );
@@ -1312,9 +1300,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
 
 
   // 3) --------------------------------------------- Create the new population
-  pop->set_mut_prng( mut_prng );
-  pop->set_stoch_prng( stoch_prng );
-
+  list<ae_individual*> indivs;
   // Generate a model ae_mut_param object
   ae_params_mut* param_mut = new ae_params_mut();
   param_mut->set_point_mutation_rate( _point_mutation_rate );
@@ -1345,8 +1331,8 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
   {
     printf("Option -c is used: chromosome will be loaded from a text file\n");
     ae_individual* indiv = new ae_individual( exp_m,
-                                              pop->get_mut_prng(),
-                                              pop->get_stoch_prng(),
+                                              mut_prng,
+                                              stoch_prng,
                                               param_mut,
                                               _w_max,
                                               _min_genome_length,
@@ -1382,16 +1368,13 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
     indiv->compute_statistical_data();
     indiv->evaluate( exp_m->get_env() );
     printf("Starting with a clonal population of individual with metabolic error %f and secretion error %f \n",indiv->get_dist_to_target_by_feature(METABOLISM),indiv->get_dist_to_target_by_feature(SECRETION));
-    pop->add_indiv( indiv );
+    indivs.push_back(indiv);
 
     // Make the clones and add them to the list of individuals
-    ae_individual* clone = NULL;
-    for ( int32_t i = 1 ; i < _init_pop_size ; i++ )
+    for (int32_t i = 1 ; i < _init_pop_size ; i++)
     {
-      clone = create_clone( indiv, id_new_indiv++ );
-      pop->add_indiv( clone );
+      indivs.push_back(create_clone(indiv, id_new_indiv++));
     }
-    pop->sort_individuals();
   }
   else if (plasmid != NULL)
   {
@@ -1405,7 +1388,8 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
       // Create an individual with a "good" gene (in fact, make an indiv whose
       // fitness is better than that corresponding to a flat phenotype)
       // and set its id
-      indiv = create_random_individual_with_good_gene( exp_m, param_mut, id_new_indiv++ );
+      indiv = create_random_individual_with_good_gene(exp_m, id_new_indiv++, param_mut,
+                                                      mut_prng, stoch_prng);
       indiv->get_genetic_unit_nonconst(0).set_min_gu_length(_chromosome_minimal_length);
       indiv->get_genetic_unit_nonconst(0).set_max_gu_length(_chromosome_maximal_length);
 
@@ -1418,31 +1402,27 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
       indiv->set_with_stochasticity( _with_stochasticity );
 
       // Add it to the list
-      pop->add_indiv( indiv );
+      indivs.push_back(indiv);
 
       // Make the clones and add them to the list of individuals
-      ae_individual* clone = NULL;
       for ( int32_t i = 1 ; i < _init_pop_size ; i++ )
       {
-        // Create a clone, setting its id
-        clone = create_clone( indiv, id_new_indiv++ );
+        // Add new clone to the list
+        indivs.push_back(create_clone(indiv, id_new_indiv++));
 
         #ifdef DISTRIBUTED_PRNG
           #error Not implemented yet !
           indiv->do_prng_jump();
         #endif
-
-        // Add it to the list
-        pop->add_indiv( clone );
       }
-      pop->sort_individuals();
     }
     else // if ( ! CLONE )
     {
       for ( int32_t i = 0 ; i < _init_pop_size ; i++ )
       {
         // Create an individual and set its id
-        indiv = create_random_individual_with_good_gene( exp_m, param_mut, id_new_indiv++ );
+        indiv = create_random_individual_with_good_gene(exp_m, id_new_indiv++, param_mut,
+                                                        mut_prng, stoch_prng);
         indiv->get_genetic_unit_nonconst(0).set_min_gu_length(_chromosome_minimal_length);
         indiv->get_genetic_unit_nonconst(0).set_max_gu_length(_chromosome_maximal_length);
         if (_allow_plasmids)
@@ -1452,10 +1432,8 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
         }
 
         // Add it to the list
-        pop->add_indiv( indiv );
+        indivs.push_back(indiv);
       }
-
-      pop->sort_individuals();
     }
   }
   else // if ( ! ONE_GOOD_GENE )
@@ -1463,7 +1441,8 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
     if ( _init_method & CLONE )
     {
       // Create a random individual and set its id
-      indiv = create_random_individual( exp_m, param_mut, id_new_indiv++ );
+      indiv = create_random_individual(exp_m, id_new_indiv++, param_mut,
+                                       mut_prng, stoch_prng);
       indiv->get_genetic_unit_nonconst(0).set_min_gu_length(_chromosome_minimal_length);
       indiv->get_genetic_unit_nonconst(0).set_max_gu_length(_chromosome_maximal_length);
       if (_allow_plasmids)
@@ -1473,31 +1452,27 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
       }
 
       // Add it to the list
-      pop->add_indiv( indiv );
+      indivs.push_back(indiv);
 
       // Make the clones and add them to the list of individuals
-      ae_individual* clone = NULL;
       for ( int32_t i = 1 ; i < _init_pop_size ; i++ )
       {
-        // Create a clone, setting its id
-        clone = create_clone( indiv, id_new_indiv++ );
+        // Add clone to the list
+        indivs.push_back(create_clone(indiv, id_new_indiv++));
 
         #ifdef DISTRIBUTED_PRNG
           #error Not implemented yet !
           indiv->do_prng_jump();
         #endif
-
-        // Add it to the list
-        pop->add_indiv( clone );
       }
-      pop->sort_individuals();
     }
     else // if ( ! CLONE )
     {
       for ( int32_t i = 0 ; i < _init_pop_size ; i++ )
       {
         // Create a random individual and set its id
-        indiv = create_random_individual( exp_m, param_mut, id_new_indiv++ );
+        indiv = create_random_individual(exp_m, id_new_indiv++, param_mut,
+                                         mut_prng, stoch_prng);
         indiv->get_genetic_unit_nonconst(0).set_min_gu_length(_chromosome_minimal_length);
         indiv->get_genetic_unit_nonconst(0).set_max_gu_length(_chromosome_maximal_length);
         if (_allow_plasmids)
@@ -1507,26 +1482,35 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
         }
 
         // Add it to the list
-        pop->add_indiv( indiv );
+        indivs.push_back(indiv);
       }
-
-      pop->sort_individuals();
     }
   }
+
+  // -------------------------------------------------------- Spatial structure
+  exp_m->set_spatial_structure(_grid_width,
+                               _grid_height,
+                               spatial_struct_prng);
+  ae_spatial_structure* sp_struct = exp_m->get_spatial_structure();
+  sp_struct->set_secretion_degradation_prop(_secretion_degradation_prop);
+  sp_struct->set_secretion_diffusion_prop(_secretion_diffusion_prop);
+  sp_struct->set_migration_number(_migration_number);
+
+  sp_struct->set_mut_prng(mut_prng);
+  sp_struct->set_stoch_prng(stoch_prng);
 
   // Set each individual's position on the grid
   int16_t x, y;
   int16_t x_max = exp_m->get_grid_width();
   int16_t y_max = exp_m->get_grid_height();
-  ae_grid_cell* grid_cell = NULL;
 
-  for (const auto& indiv: pop->get_indivs()) {
+  for (const auto& indiv: indivs) {
     do {
       x = exp_m->get_spatial_structure()->get_prng()->random(x_max);
       y = exp_m->get_spatial_structure()->get_prng()->random(y_max);
-      grid_cell = exp_m->get_grid_cell(x, y);
-    } while (grid_cell->get_individual() != NULL);
-    grid_cell->set_individual(indiv);
+    } while (sp_struct->get_indiv_at(x, y) != NULL);
+
+    sp_struct->place_indiv(indiv, x, y);
   }
 
 
@@ -1638,7 +1622,9 @@ f_line* param_loader::get_line( int32_t* cur_line_ptr ) // void
   \param id index of newly created individual in the population
   \return clone of dolly
 */
-ae_individual* param_loader::create_random_individual( ae_exp_manager* exp_m, ae_params_mut* param_mut, int32_t id ) const
+ae_individual* param_loader::create_random_individual(
+    ae_exp_manager* exp_m, int32_t id, ae_params_mut* param_mut,
+    ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng) const
 {
  
 
@@ -1647,17 +1633,17 @@ ae_individual* param_loader::create_random_individual( ae_exp_manager* exp_m, ae
   #ifdef DISTRIBUTED_PRNG
     #error Not implemented yet !
   #endif
-  ae_individual* indiv = new ae_individual( exp_m,
-                                            exp_m->get_pop()->get_mut_prng(),
-                                            exp_m->get_pop()->get_stoch_prng(),
-                                            param_mut,
-                                            _w_max,
-                                            _min_genome_length,
-                                            _max_genome_length,
-                                            _allow_plasmids,
-                                            id,
-                                            _strain_name,
-                                            0 );
+  ae_individual* indiv = new ae_individual(exp_m,
+                                           mut_prng,
+                                           stoch_prng,
+                                           param_mut,
+                                           _w_max,
+                                           _min_genome_length,
+                                           _max_genome_length,
+                                           _allow_plasmids,
+                                           id,
+                                           _strain_name,
+                                           0 );
 
   // ae_genetic_unit * chrom = new ae_genetic_unit( indiv, _chromosome_initial_length, _prng); // a random sequence is generated by the ae_string constructor
   // indiv->add_GU(ae_genetic_unit( indiv, _chromosome_initial_length, _prng));
@@ -1735,25 +1721,26 @@ ae_individual* param_loader::create_random_individual( ae_exp_manager* exp_m, ae
   \param id index of newly created individual in the population
   \return clone of dolly
 */
-ae_individual* param_loader::create_random_individual_with_good_gene( ae_exp_manager* exp_m, ae_params_mut* param_mut, int32_t id ) const
+ae_individual* param_loader::create_random_individual_with_good_gene(
+    ae_exp_manager* exp_m, int32_t id, ae_params_mut* param_mut,
+    ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng) const
 {
   // First find a chromosome with at least one beneficial metabolic gene
-
-  double env_metabolic_area = exp_m->get_env()->get_area_by_feature( METABOLISM );
-  ae_individual* indiv = new ae_individual( exp_m,
-                                            exp_m->get_pop()->get_mut_prng(),
-                                            exp_m->get_pop()->get_stoch_prng(),
-                                            param_mut,
-                                            _w_max,
-                                            _min_genome_length,
-                                            _max_genome_length,
-                                            _allow_plasmids,
-                                            id,
-                                            _strain_name,
-                                            0 );
+  double env_metabolic_area = exp_m->get_env()->get_area_by_feature(METABOLISM);
+  ae_individual* indiv = new ae_individual(exp_m,
+                                           mut_prng,
+                                           stoch_prng,
+                                           param_mut,
+                                           _w_max,
+                                           _min_genome_length,
+                                           _max_genome_length,
+                                           _allow_plasmids,
+                                           id,
+                                           _strain_name,
+                                           0);
   indiv->add_GU(indiv, _chromosome_initial_length, _prng); // a random sequence is generated by the ae_string constructor
   const ae_genetic_unit * chrom = &indiv->get_genetic_unit_list_std().back();
-  indiv->evaluate( exp_m->get_env() );
+  indiv->evaluate(exp_m->get_env());
 
   while ( indiv->get_dist_to_target_by_feature( METABOLISM ) >= env_metabolic_area )
   {

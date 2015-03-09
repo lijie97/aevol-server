@@ -193,9 +193,9 @@ void ae_selection::step_to_next_generation(void)
   // Create the new generation
   std::list<ae_individual*> new_generation;
   int32_t index_new_indiv = 0;
-  for ( int16_t x = 0 ; x < grid_width ; x++ )
+  for (int16_t x = 0 ; x < grid_width ; x++)
   {
-    for ( int16_t y = 0 ; y < grid_height ; y++ )
+    for (int16_t y = 0 ; y < grid_height ; y++)
     {
       pop_grid[x][y]->set_individual(do_replication(new_indiv_grid[x][y], index_new_indiv++, x, y));
       #ifdef DISTRIBUTED_PRNG
@@ -225,7 +225,7 @@ void ae_selection::step_to_next_generation(void)
   PerformPlasmidTransfers();
 
   // Update the best individual
-  _exp_m->get_pop()->update_best();
+  _exp_m->update_best();
 }
 
 void ae_selection::PerformPlasmidTransfers(void)

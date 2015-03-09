@@ -32,17 +32,16 @@
 // =================================================================
 //                              Libraries
 // =================================================================
-#include <inttypes.h>
+#include <cinttypes>
+#include <cstdio>
+#include <cstdlib>
+#include <cassert>
 
 
 
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
 #include "ae_individual.h"
 
 namespace aevol {
@@ -52,7 +51,7 @@ namespace aevol {
 // =================================================================
 //                          Class declarations
 // =================================================================
-
+class ae_exp_manager;
 
 
 
@@ -64,8 +63,10 @@ class ae_grid_cell
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_grid_cell( int16_t x, int16_t y, ae_individual* indiv );
-    ae_grid_cell( gzFile backup_file );
+    ae_grid_cell(void) = delete;
+    ae_grid_cell(const ae_grid_cell&) = delete;
+    ae_grid_cell(int16_t x, int16_t y, ae_individual* indiv);
+    ae_grid_cell(gzFile backup_file, ae_exp_manager* exp_m);
 
     // =================================================================
     //                             Destructors
@@ -94,7 +95,7 @@ class ae_grid_cell
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void save( gzFile backup_file ) const;
+    void save(gzFile backup_file) const;
 
     // =================================================================
     //                           Public Attributes
@@ -105,22 +106,6 @@ class ae_grid_cell
 
 
   protected :
-
-    // =================================================================
-    //                         Forbidden Constructors
-    // =================================================================
-    ae_grid_cell( void )
-    {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-    //~ ae_grid_cell( const ae_grid_cell &model )
-    //~ {
-      //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      //~ exit( EXIT_FAILURE );
-    //~ };
-
-
     // =================================================================
     //                           Protected Methods
     // =================================================================
@@ -136,7 +121,7 @@ class ae_grid_cell
     double _compound_amount; 
     
     // pointer to the individual in this cell 
-    ae_individual * _individual; 
+    ae_individual* _individual; 
 
 };
 
@@ -187,12 +172,12 @@ inline void ae_grid_cell::set_compound_amount(double compound_amount)
   _compound_amount = compound_amount;
 }
 
-inline void ae_grid_cell::set_individual( ae_individual * indiv )
+inline void ae_grid_cell::set_individual(ae_individual* indiv)
 {
   _individual = indiv;
-  if ( _individual->get_grid_cell() != this )
+  if (_individual->get_grid_cell() != this)
   {
-    _individual->set_grid_cell( this );
+    _individual->set_grid_cell(this);
   }
 }
 

@@ -53,6 +53,7 @@ namespace aevol {
 // =================================================================
 //                          Class declarations
 // =================================================================
+  class ae_exp_manager;
 
 
 
@@ -65,36 +66,46 @@ class ae_spatial_structure
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_spatial_structure( void );
-    ae_spatial_structure( gzFile backup_file );
+    ae_spatial_structure(void);
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_spatial_structure( void );
+    virtual ~ae_spatial_structure(void);
 
     // =================================================================
     //                        Accessors: getters
     // =================================================================
-    inline ae_jumping_mt *  get_prng( void ) const;
-    inline int16_t          get_grid_width( void ) const;
-    inline int16_t          get_grid_height( void ) const;
-    inline int32_t          get_migration_number( void ) const;
-    inline ae_grid_cell***  get_pop_grid( void ) const;
-    inline ae_grid_cell*    get_grid_cell( int16_t x, int16_t y ) const;
-    inline ae_individual*   get_indiv_at( int16_t x, int16_t y ) const;
+    // PRNGs
+    ae_jumping_mt* get_prng(void) const;
+    ae_jumping_mt* get_mut_prng( void ) const;
+    ae_jumping_mt* get_stoch_prng( void ) const;
+
+    std::list<ae_individual*>&& get_indivs_std(void) const;
+    inline int32_t          get_nb_indivs(void) const;
+    inline ae_individual*   get_best_indiv(void) const;
+    inline int16_t          get_grid_width(void) const;
+    inline int16_t          get_grid_height(void) const;
+    inline int32_t          get_migration_number(void) const;
+    inline ae_grid_cell***  get_pop_grid(void) const;
+    inline ae_grid_cell*    get_grid_cell(int16_t x, int16_t y) const;
+    inline ae_individual*   get_indiv_at(int16_t x, int16_t y) const;
   
-    inline double** get_secretion_present_grid( void ) const;
-    inline double** get_secreted_amount_grid( void ) const;
-    inline double** get_metabolic_fitness_grid( void ) const;
-    inline double** get_total_fitness_grid( void ) const;
+    inline double** get_secretion_present_grid(void) const;
+    inline double** get_secreted_amount_grid(void) const;
+    inline double** get_metabolic_fitness_grid(void) const;
+    inline double** get_total_fitness_grid(void) const;
 
     // =================================================================
     //                        Accessors: setters
     // =================================================================
+    // PRNGs
+    inline void set_prng(ae_jumping_mt* prng);
+    void set_mut_prng( ae_jumping_mt* prng );
+    void set_stoch_prng( ae_jumping_mt* prng );
+
     inline void set_grid_size( int16_t grid_x, int16_t grid_y );
     inline void set_migration_number( int32_t migration_number );
-    inline void set_prng( ae_jumping_mt* prng );
     inline void set_secretion_degradation_prop( double degradation_prop );
     inline void set_secretion_diffusion_prop( double diffusion_prop );
 
@@ -105,9 +116,13 @@ class ae_spatial_structure
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void update_secretion_grid( void ); 
-    void do_random_migrations ( void );
+    void place_indiv(ae_individual* indiv, int16_t x, int16_t y);
+    void evaluate_individuals(Environment* envir);
+    void update_secretion_grid(void); 
+    void do_random_migrations (void);
+    void update_best(void);
     void save( gzFile backup_file ) const;
+    void load(gzFile backup_file, ae_exp_manager* exp_man);
 
     // =================================================================
     //                           Public Attributes
@@ -122,7 +137,7 @@ class ae_spatial_structure
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    /*ae_spatial_structure( void )
+    /*ae_spatial_structure(void)
     {
       printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
@@ -137,14 +152,25 @@ class ae_spatial_structure
     // =================================================================
     //                           Protected Methods
     // =================================================================
+    #ifndef DISTRIBUTED_PRNG
+      void backup_stoch_prng( void );
+    #endif
 
     // =================================================================
     //                          Protected Attributes
     // =================================================================
     ae_jumping_mt* _prng;
+
+    #ifndef DISTRIBUTED_PRNG
+      ae_jumping_mt* _mut_prng;
+      ae_jumping_mt* _stoch_prng;
+      ae_jumping_mt* _stoch_prng_bak;
+    #endif
     
     int16_t _grid_width; 
     int16_t _grid_height;
+
+    int16_t x_best, y_best;
     
     ae_grid_cell*** _pop_grid;
     
@@ -157,42 +183,48 @@ class ae_spatial_structure
 // =====================================================================
 //                           Getters' definitions
 // =====================================================================
-inline ae_jumping_mt * ae_spatial_structure::get_prng( void ) const
+inline int32_t ae_spatial_structure::get_nb_indivs(void) const
 {
-  return _prng;
+  return _grid_width * _grid_height;
 }
 
-inline int16_t ae_spatial_structure::get_grid_width( void ) const
+inline ae_individual* ae_spatial_structure::get_best_indiv(void) const
+{
+  return _pop_grid[x_best][y_best]->get_individual();
+}
+
+inline int16_t ae_spatial_structure::get_grid_width(void) const
 {
   return _grid_width;
 }
 
-inline int16_t ae_spatial_structure::get_grid_height( void ) const
+inline int16_t ae_spatial_structure::get_grid_height(void) const
 {
   return _grid_height;
 }
 
-inline int32_t ae_spatial_structure::get_migration_number( void ) const
+inline int32_t ae_spatial_structure::get_migration_number(void) const
 {
   return _migration_number;
 }
 
-inline ae_grid_cell*** ae_spatial_structure::get_pop_grid( void ) const
+inline ae_grid_cell*** ae_spatial_structure::get_pop_grid(void) const
 {
   return _pop_grid;
 }
 
-inline ae_grid_cell* ae_spatial_structure::get_grid_cell( int16_t x, int16_t y ) const
+inline ae_grid_cell* ae_spatial_structure::get_grid_cell(int16_t x,
+                                                         int16_t y) const
 {
   return _pop_grid[x][y];
 }
 
-inline ae_individual* ae_spatial_structure::get_indiv_at( int16_t x, int16_t y ) const
+inline ae_individual* ae_spatial_structure::get_indiv_at(int16_t x, int16_t y) const
 {
   return _pop_grid[x][y]->get_individual();
 }
 
-inline double** ae_spatial_structure::get_secretion_present_grid( void ) const
+inline double** ae_spatial_structure::get_secretion_present_grid(void) const
 {
   double** ret = new double*[_grid_width];
   
@@ -208,7 +240,7 @@ inline double** ae_spatial_structure::get_secretion_present_grid( void ) const
   return ret;
 }
 
-inline double** ae_spatial_structure::get_secreted_amount_grid( void ) const
+inline double** ae_spatial_structure::get_secreted_amount_grid(void) const
 {
   double** ret = new double*[_grid_width];
   for ( int16_t x = 0 ; x < _grid_width ; x++ )
@@ -223,7 +255,7 @@ inline double** ae_spatial_structure::get_secreted_amount_grid( void ) const
   return ret;
 }
 
-inline double** ae_spatial_structure::get_metabolic_fitness_grid( void ) const
+inline double** ae_spatial_structure::get_metabolic_fitness_grid(void) const
 {
   double** ret = new double*[_grid_width];
   for ( int16_t x = 0 ; x < _grid_width ; x++ )
@@ -238,7 +270,7 @@ inline double** ae_spatial_structure::get_metabolic_fitness_grid( void ) const
   return ret;
 }
 
-inline double** ae_spatial_structure::get_total_fitness_grid( void ) const
+inline double** ae_spatial_structure::get_total_fitness_grid(void) const
 {
   double** ret = new double*[_grid_width];
   for ( int16_t x = 0 ; x < _grid_width ; x++ )

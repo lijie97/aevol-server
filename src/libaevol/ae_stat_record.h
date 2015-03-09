@@ -32,17 +32,18 @@
 // =================================================================
 //                              Libraries
 // =================================================================
-#include <inttypes.h>
+#include <cinttypes>
+#include <cstdio>
+#include <cstdlib>
+#include <cassert>
+
+#include <list>
 
 
 
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
 
 
 namespace aevol {
@@ -105,6 +106,7 @@ class ae_stat_record
     // =================================================================
     //                             Constructors
     // =================================================================
+    ae_stat_record(void) = delete;
     ae_stat_record(ae_exp_manager* exp_m);
     ae_stat_record(const ae_stat_record &model);
     ae_stat_record(ae_exp_manager* exp_m,
@@ -112,7 +114,7 @@ class ae_stat_record
                    chrom_or_gen_unit chrom_or_gu = CHROM,
                    bool compute_non_coding = true);
     ae_stat_record(ae_exp_manager* exp_m,
-                   ae_population const * pop,
+                   const std::list<ae_individual*> indivs,
                    chrom_or_gen_unit chrom_or_gu = CHROM);
     ae_stat_record(ae_exp_manager* exp_m,
                    const ae_population* pop,
@@ -154,22 +156,6 @@ class ae_stat_record
 
 
   protected :
-
-    // =================================================================
-    //                         Forbidden Constructors
-    // =================================================================
-    ae_stat_record( void )
-    {
-      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-    /*ae_stat_record( const ae_stat_record &model )
-    {
-      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };*/
-
-
     // =================================================================
     //                           Protected Methods
     // =================================================================

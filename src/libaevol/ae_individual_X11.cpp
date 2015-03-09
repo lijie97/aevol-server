@@ -77,20 +77,24 @@ ae_individual_X11::ae_individual_X11( ae_exp_manager* exp_m,
   init_occupied_sectors();
 }
 
-ae_individual_X11::ae_individual_X11( ae_exp_manager* exp_manager, gzFile backup_file )
-        : ae_individual( exp_manager, backup_file )
+ae_individual_X11::ae_individual_X11(ae_exp_manager* exp_manager, gzFile backup_file) :
+    ae_individual(exp_manager, backup_file)
 {
   init_occupied_sectors();
 }
 
-ae_individual_X11::ae_individual_X11(const ae_individual_X11 &model, bool replication_report_copy  )
-        : ae_individual( model, replication_report_copy  )
+ae_individual_X11::ae_individual_X11(const ae_individual_X11 &model,
+                                     bool replication_report_copy) :
+    ae_individual(model, replication_report_copy)
 {
   init_occupied_sectors();
 }
 
-ae_individual_X11::ae_individual_X11( ae_individual_X11* const parent, int32_t id, ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng )
-        : ae_individual( parent, id, mut_prng, stoch_prng )
+ae_individual_X11::ae_individual_X11(ae_individual_X11* const parent,
+                                     int32_t id,
+                                     ae_jumping_mt* mut_prng,
+                                     ae_jumping_mt* stoch_prng) :
+    ae_individual(parent, id, mut_prng, stoch_prng)
 {
   init_occupied_sectors();
 }

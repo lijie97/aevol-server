@@ -200,18 +200,19 @@ int main( int argc, char* argv[] )
 
   if (indiv_index == -1 && indiv_rank == -1)
   {
-  	indiv = new ae_individual(*exp_manager->get_best_indiv(), false);
+    indiv = new ae_individual(*exp_manager->get_best_indiv(), false);
   }
   else
   {
-  	if (indiv_rank != -1)
-  	{
-  		indiv = new ae_individual(*exp_manager->get_indiv_by_rank(indiv_rank), false);
-  	}
-  	else
-  	{
-  		indiv = new ae_individual(*exp_manager->get_indiv_by_id(indiv_index), false);
-  	}
+    // TODO: disabled tmp
+    // if (indiv_rank != -1)
+    // {
+    //   indiv = new ae_individual(*exp_manager->get_indiv_by_rank(indiv_rank), false);
+    // }
+    // else
+    // {
+    //   indiv = new ae_individual(*exp_manager->get_indiv_by_id(indiv_index), false);
+    // }
   }
 
 

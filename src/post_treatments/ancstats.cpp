@@ -388,7 +388,8 @@ int main(int argc, char** argv)
     {
       exp_manager_backup = new ae_exp_manager();
       exp_manager_backup->load(get_time(), false, true, false);
-      stored_indiv = new ae_individual(*(ae_individual *)exp_manager_backup->get_indiv_by_id( index ), false);
+      // TODO: disabled tmp
+      // stored_indiv = new ae_individual(*(ae_individual *)exp_manager_backup->get_indiv_by_id( index ), false);
       storedunit = storedgulist.begin();
     }
 

@@ -51,6 +51,602 @@
 #endif
 namespace aevol {
 
+// ===========================================================================
+//                             Constructors
+// ===========================================================================
+ae_individual::ae_individual(ae_exp_manager* exp_m,
+                             ae_jumping_mt* mut_prng,
+                             ae_jumping_mt* stoch_prng,
+                             ae_params_mut* param_mut,
+                             double w_max,
+                             int32_t min_genome_length,
+                             int32_t max_genome_length,
+                             bool allow_plasmids,
+                             int32_t id,
+                             char* strain_name,
+                             int32_t age)
+{
+  // Experiment manager
+  _exp_m = exp_m;
+
+  // PRNGs
+  _mut_prng   = mut_prng;
+  _stoch_prng = stoch_prng;
+
+  // Replication Report
+  _replic_report = NULL;
+
+  // ID and rank of the indiv ; name and "age" of the strain
+  set_id(id);
+  _rank = -1; // TODO: UNRANKED
+  _age = age;
+  _strain_name = new char[strlen(strain_name)+1];
+  strcpy(_strain_name, strain_name);
+
+  _phenotype_activ  = NULL;
+  _phenotype_inhib  = NULL;
+  _phenotype        = NULL;
+
+  _dist_to_target_by_segment  = NULL;
+  _dist_to_target_by_feature  = new double [NB_FEATURES];
+  for (int i=0; i<NB_FEATURES; i++)
+  {
+    _dist_to_target_by_feature[i]=0;
+  }
+  _fitness_by_feature         = new double [NB_FEATURES];
+  for (int i=0; i<NB_FEATURES; i++)
+  {
+    _fitness_by_feature[i]=0;
+  }
+
+  _fitness = 0.0;
+  // When using structured population, this is the cell the individual is in
+  // x = y = -1;
+
+  // The chromosome and plasmids (if allowed)
+
+  // Generic probes
+  _int_probes     = new int32_t[5];
+  _double_probes  = new double[5];
+  for (int8_t i = 0 ; i < 5 ; i++)
+  {
+    _int_probes[i]    = 0;
+    _double_probes[i] = 0.0;
+  }
+
+  // Mutation rates etc...
+  _mut_params = new ae_params_mut(*param_mut);
+
+  // Artificial chemistry
+  _w_max = w_max;
+
+  // Genome size constraints
+  _min_genome_length = min_genome_length;
+  _max_genome_length = max_genome_length;
+
+  // Plasmids settings
+  _allow_plasmids         = allow_plasmids;
+
+
+  // --------------------------------------------------
+  // "State" of the individual
+  // --------------------------------------------------
+  _evaluated                    = false;
+  _transcribed                  = false;
+  _translated                   = false;
+  _folded                       = false;
+  _phenotype_computed           = false;
+  _distance_to_target_computed  = false;
+  _fitness_computed             = false;
+  _statistical_data_computed    = false;
+  _non_coding_computed          = false;
+  _modularity_computed          = false;
+  _placed_in_population         = false;
+
+
+
+  // ----------------------------------------
+  // Statistical data
+  // ----------------------------------------
+  // Genome, RNAs and genes size and stuff
+  _total_genome_size  = 0;
+
+  _nb_coding_RNAs     = 0;
+  _nb_non_coding_RNAs = 0;
+
+  _overall_size_coding_RNAs     = 0.0;
+  _overall_size_non_coding_RNAs = 0.0;
+
+  _nb_genes_activ           = 0;
+  _nb_genes_inhib           = 0;
+  _nb_functional_genes      = 0;
+  _nb_non_functional_genes  = 0;
+
+  _overall_size_functional_genes      = 0.0;
+  _overall_size_non_functional_genes  = 0.0;
+
+  // Coding / non-coding
+  _nb_bases_in_0_CDS                = 0;
+  _nb_bases_in_0_functional_CDS     = 0;
+  _nb_bases_in_0_non_functional_CDS = 0;
+  _nb_bases_in_0_RNA                = 0;
+  _nb_bases_in_0_coding_RNA         = 0;
+  _nb_bases_in_0_non_coding_RNA     = 0;
+  _nb_bases_in_neutral_regions      = 0;
+  _nb_neutral_regions               = 0;
+
+  _modularity = 0.0;
+}
+
+/*!
+  This constructor retreives an individual from a backup file.
+
+  Since this generation has already been processed, no unnecessary calculation (e.g. fitness) will be done.
+  No transcription, translation or other process of that kind is performed.
+*/
+ae_individual::ae_individual(ae_exp_manager* exp_m, gzFile backup_file)
+{
+  _exp_m = exp_m;
+
+  // Retrieve the name and "age" of the strain
+  int8_t strain_string_len;
+  gzread(backup_file, &strain_string_len, sizeof(strain_string_len));
+  _strain_name = new char[strain_string_len+1];
+  gzread(backup_file, _strain_name, strain_string_len+1);
+  gzread(backup_file, &_age, sizeof(_age));
+
+  // Retrieve the PRNGs
+  #ifdef DISTRIBUTED_PRNG
+    _mut_prng   = new ae_jumping_mt(backup_file);
+    _stoch_prng = new ae_jumping_mt(backup_file);
+  #else
+    if (exp_m == NULL)
+    {
+      // Detached mode
+      _mut_prng   = NULL;
+      _stoch_prng = NULL;
+    }
+    else
+    {
+      _mut_prng   = exp_m->get_spatial_structure()->get_mut_prng();
+      _stoch_prng = exp_m->get_spatial_structure()->get_stoch_prng();
+      assert(_mut_prng);
+      assert(_stoch_prng);
+    }
+  #endif
+
+  // Retreive id and rank
+  gzread(backup_file, &_id,    sizeof(_id));
+  gzread(backup_file, &_rank,  sizeof(_rank));
+
+  // Retrieve spatial coordinates
+  // gzread(backup_file, &x, sizeof(x));
+  // gzread(backup_file, &y, sizeof(y));
+  _placed_in_population = false;
+
+  // Retreive generic probes
+  _int_probes     = new int32_t[5];
+  _double_probes  = new double[5];
+  gzread(backup_file, _int_probes,     5 * sizeof(*_int_probes));
+  gzread(backup_file, _double_probes,  5 * sizeof(*_double_probes));
+
+  // Retrieve mutational parameters
+  _mut_params = new ae_params_mut(backup_file);
+
+  // ------------------------------------------------- Phenotypic stochasticity
+  gzread(backup_file, &_with_stochasticity, sizeof(_with_stochasticity));
+
+  // Retrieve artificial chemistry parameters
+  gzread(backup_file, &_w_max, sizeof(_w_max));
+
+  // Retrieve genome size constraints
+  gzread(backup_file, &_min_genome_length, sizeof(_min_genome_length));
+  gzread(backup_file, &_max_genome_length, sizeof(_max_genome_length));
+
+  // Retrieve plasmids settings
+  int8_t tmp_allow_plasmids;
+  gzread(backup_file, &tmp_allow_plasmids, sizeof(tmp_allow_plasmids));
+  _allow_plasmids = tmp_allow_plasmids ? 1 : 0;
+
+  // Retreive genetic units
+  int16_t nb_gen_units;
+  gzread(backup_file, &nb_gen_units,  sizeof(nb_gen_units));
+
+  for (int16_t i = 0 ; i < nb_gen_units ; i++)
+    _genetic_unit_list.emplace_back(this, backup_file);
+
+  // --------------------------------------------------------------------------------------------
+  // No more data to retreive, the following are only structural initializations (no data is set)
+  // --------------------------------------------------------------------------------------------
+
+  // Create empty fuzzy sets for activation and inhibition
+  _phenotype_activ  = NULL;
+  _phenotype_inhib  = NULL;
+  _phenotype        = NULL;
+
+  _dist_to_target_by_segment  = NULL;
+  _dist_to_target_by_feature  = new double [NB_FEATURES];
+  _fitness_by_feature         = new double [NB_FEATURES];
+
+  for (int8_t i = 0 ; i < NB_FEATURES ; i++)
+  {
+    _dist_to_target_by_feature[i] = 0.0;
+    _fitness_by_feature[i]        = 0.0;
+  }
+
+
+  // Replication report, protein list and rna list initialization
+  _replic_report = NULL;  // We are reloading from a backup, the replication report for the loaded generation
+                          // is already in the tree file corresponding to this generation and needs not be re-written.
+                          // NB : If the replication report is needed in future development, it will have to be
+                          // loaded from the tree file.
+
+  // Initialize the computational state of the individual
+  _evaluated                    = false;
+  _transcribed                  = false;
+  _translated                   = false;
+  _folded                       = false;
+  _phenotype_computed           = false;
+  _distance_to_target_computed  = false;
+  _fitness_computed             = false;
+  _statistical_data_computed    = false;
+  _non_coding_computed          = false;
+  _modularity_computed          = false;
+
+
+  // Initialize statistical data
+  _total_genome_size                  = 0;
+  _nb_coding_RNAs                     = 0;
+  _nb_non_coding_RNAs                 = 0;
+  _overall_size_coding_RNAs           = 0;
+  _overall_size_non_coding_RNAs       = 0;
+  _nb_genes_activ                     = 0;
+  _nb_genes_inhib                     = 0;
+  _nb_functional_genes                = 0;
+  _nb_non_functional_genes            = 0;
+  _overall_size_functional_genes      = 0;
+  _overall_size_non_functional_genes  = 0;
+
+  _nb_bases_in_0_CDS                  = -1;
+  _nb_bases_in_0_functional_CDS       = -1;
+  _nb_bases_in_0_non_functional_CDS   = -1;
+  _nb_bases_in_0_RNA                  = -1;
+  _nb_bases_in_0_coding_RNA           = -1;
+  _nb_bases_in_0_non_coding_RNA       = -1;
+  _nb_bases_in_neutral_regions        = -1;
+  _nb_neutral_regions                 = -1;
+
+  _modularity = -1;
+
+  //evaluate();
+}
+
+// Copy constructor
+ae_individual::ae_individual(const ae_individual &model, bool replication_report_copy /* = FALSE */)
+{
+  _exp_m = model._exp_m;
+
+  // PRNGs
+  #ifdef DISTRIBUTED_PRNG
+    _mut_prng   = new ae_jumping_mt(*(model._mut_prng));
+    _stoch_prng = new ae_jumping_mt(*(model._stoch_prng));
+  #else
+    _mut_prng   = model._mut_prng;
+    _stoch_prng = model._stoch_prng;
+  #endif
+
+  int strain_string_len = strlen(model._strain_name);
+  _strain_name = new char[strain_string_len+1];
+  memcpy(_strain_name, model._strain_name, strain_string_len+1);
+  _age  = model._age;
+
+  _id   = model._id;
+  _rank = model._rank;
+
+  _evaluated                    = false;//model._evaluated;
+  _transcribed                  = false;//model._transcribed;
+  _translated                   = false;//model._translated;
+  _folded                       = false;//model._folded;
+  _phenotype_computed           = model._phenotype_computed;
+
+  _with_stochasticity = model._with_stochasticity;
+
+  // Artificial chemistry parameters
+  _w_max = model._w_max;
+
+  // The distance to target and what results from it depend on the environment
+  // and must hence be recomputed with the (possibly different) environment.
+  _distance_to_target_computed  = false;
+  _fitness_computed             = false;
+  _statistical_data_computed    = model._statistical_data_computed;
+
+  _non_coding_computed          = model._non_coding_computed;
+  _modularity_computed          = model._modularity_computed;
+
+  _placed_in_population         = false;
+
+  // Copy model's genetic units
+  // Should actually use ae_genetic_unit copy ctor which is disabled.
+  for (const auto& gu: model._genetic_unit_list)
+    _genetic_unit_list.emplace_back(this, gu);
+
+  // Copy phenotype
+  if (_phenotype_computed)
+  {
+    _phenotype_activ  = new Fuzzy(*(model._phenotype_activ));
+    _phenotype_inhib  = new Fuzzy(*(model._phenotype_inhib));
+    _phenotype        = new ae_phenotype(this, *(model._phenotype));
+  }
+  else
+  {
+    _phenotype_activ  = NULL;
+    _phenotype_inhib  = NULL;
+    _phenotype        = NULL;
+  }
+
+
+  // Copy fitness-related stuff
+  _dist_to_target_by_segment  = NULL;
+  _dist_to_target_by_feature  = new double [NB_FEATURES];
+  _fitness_by_feature         = new double [NB_FEATURES];
+
+  for (int8_t i = 0 ; i < NB_FEATURES ; i++)
+  {
+    _dist_to_target_by_feature[i] = model._dist_to_target_by_feature[i];
+    _fitness_by_feature[i] = model._fitness_by_feature[i];
+  }
+
+  _fitness = model._fitness;
+
+
+  // Copy statistical data
+  _total_genome_size                  = model._total_genome_size;
+  _nb_coding_RNAs                     = model._nb_coding_RNAs;
+  _nb_non_coding_RNAs                 = model._nb_non_coding_RNAs;
+  _overall_size_coding_RNAs           = model._overall_size_coding_RNAs;
+  _overall_size_non_coding_RNAs       = model._overall_size_non_coding_RNAs;
+  _nb_genes_activ                     = model._nb_genes_activ;
+  _nb_genes_inhib                     = model._nb_genes_inhib;
+  _nb_functional_genes                = model._nb_functional_genes;
+  _nb_non_functional_genes            = model._nb_non_functional_genes;
+  _overall_size_functional_genes      = model._overall_size_functional_genes;
+  _overall_size_non_functional_genes  = model._overall_size_non_functional_genes;
+
+  _nb_bases_in_0_CDS                  = model._nb_bases_in_0_CDS;
+  _nb_bases_in_0_functional_CDS       = model._nb_bases_in_0_functional_CDS;
+  _nb_bases_in_0_non_functional_CDS   = model._nb_bases_in_0_non_functional_CDS;
+  _nb_bases_in_0_RNA                  = model._nb_bases_in_0_RNA;
+  _nb_bases_in_0_coding_RNA           = model._nb_bases_in_0_coding_RNA;
+  _nb_bases_in_0_non_coding_RNA       = model._nb_bases_in_0_non_coding_RNA;
+  _nb_bases_in_neutral_regions        = model._nb_bases_in_neutral_regions;
+  _nb_neutral_regions                 = model._nb_neutral_regions;
+
+  _modularity = model._modularity;
+
+
+  // Create a new replication report to store mutational events
+  if (replication_report_copy && _exp_m->get_output_m()->get_record_tree() && (_exp_m->get_output_m()->get_tree_mode() == NORMAL) && (model._replic_report != NULL))
+  {
+    _replic_report = new ae_replication_report(*model._replic_report);
+    _replic_report->set_indiv(this);
+    // TODO: remove this after checking it is the old way
+    //_exp_m->get_output_m()->get_tree()->set_replic_report(_id, _replic_report);
+  }
+  else
+  {
+    _replic_report = NULL;
+  }
+
+  // Generic probes
+  _int_probes     = new int32_t[5];
+  _double_probes  = new double[5];
+  for (int8_t i = 0 ; i < 5 ; i++)
+  {
+    _int_probes[i]    = model._int_probes[i];
+    _double_probes[i] = model._double_probes[i];
+  }
+
+  // Mutation rates etc...
+  _mut_params = new ae_params_mut(*(model._mut_params));
+
+
+  // Genome size constraints
+  _min_genome_length = model._min_genome_length;
+  _max_genome_length = model._max_genome_length;
+
+  // Plasmids settings
+  _allow_plasmids         = model._allow_plasmids;
+
+  evaluate();
+}
+
+/*!
+  This constructor creates a new individual with the same genome as it's parent.
+  The location of promoters will be copied but no further process will be performed.
+
+  The phenotype and the fitness are not set, neither is the statistical data.
+*/
+ae_individual::ae_individual(ae_individual* const parent, int32_t id, ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng)
+{
+  _exp_m = parent->_exp_m;
+
+  // PRNGs
+  _mut_prng   = mut_prng;
+  _stoch_prng = stoch_prng;
+
+  int strain_string_len = strlen(parent->_strain_name);
+  _strain_name = new char[strain_string_len+1];
+  memcpy(_strain_name, parent->_strain_name, strain_string_len+1);
+  _age  = parent->_age + 1;
+
+  _id   = id;
+  _rank = -1;
+
+  _evaluated                    = false;
+  _transcribed                  = false;
+  _translated                   = false;
+  _folded                       = false;
+  _phenotype_computed           = false;
+  _distance_to_target_computed  = false;
+  _fitness_computed             = false;
+  _statistical_data_computed    = false;
+  _non_coding_computed          = false;
+  _modularity_computed          = false;
+
+  _placed_in_population = false;
+  // x = y = -1;
+
+  _with_stochasticity = parent->_with_stochasticity;
+
+  // Artificial chemistry parameters
+  _w_max = parent->_w_max;
+
+  // Create new genetic units with their DNA copied from here
+  // NOTE : The RNA lists (one per genetic unit) will also be copied so that we don't
+  // need to look for promoters on the whole genome
+  for (auto& gu: parent->_genetic_unit_list)
+    _genetic_unit_list.emplace_back(this, &gu);
+
+  _phenotype_activ  = NULL;
+  _phenotype_inhib  = NULL;
+  _phenotype        = NULL;
+
+  // Initialize all the fitness-related stuff
+  _dist_to_target_by_segment  = NULL;
+  _dist_to_target_by_feature  = new double [NB_FEATURES];
+  _fitness_by_feature         = new double [NB_FEATURES];
+
+  for (int8_t i = 0 ; i < NB_FEATURES ; i++)
+  {
+    _dist_to_target_by_feature[i] = 0.0;
+    _fitness_by_feature[i]        = 0.0;
+  }
+
+  // Create a new replication report to store mutational events
+  if (_exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL)
+  {
+    _replic_report = new ae_replication_report(this, parent);
+
+    // TODO: remove this after checking it is the old way
+    //_exp_m->get_output_m()->get_tree()->set_replic_report(_id, _replic_report);
+  }
+  else
+  {
+    _replic_report = NULL;
+  }
+
+  // Generic probes
+  _int_probes     = new int32_t[5];
+  _double_probes  = new double[5];
+  for (int8_t i = 0 ; i < 5 ; i++)
+  {
+    _int_probes[i]    = parent->_int_probes[i];
+    _double_probes[i] = parent->_double_probes[i];
+  }
+
+  // Mutation rates etc...
+  _mut_params = new ae_params_mut(*(parent->_mut_params));
+
+  // Genome size constraints
+  _min_genome_length = parent->_min_genome_length;
+  _max_genome_length = parent->_max_genome_length;
+
+  // Plasmids settings
+  _allow_plasmids         = parent->_allow_plasmids;
+
+  // Initialize statistical data
+  _total_genome_size                  = 0;
+  _nb_coding_RNAs                     = 0;
+  _nb_non_coding_RNAs                 = 0;
+  _overall_size_coding_RNAs           = 0;
+  _overall_size_non_coding_RNAs       = 0;
+  _nb_genes_activ                     = 0;
+  _nb_genes_inhib                     = 0;
+  _nb_functional_genes                = 0;
+  _nb_non_functional_genes            = 0;
+  _overall_size_functional_genes      = 0;
+  _overall_size_non_functional_genes  = 0;
+
+  _nb_bases_in_0_CDS                  = -1;
+  _nb_bases_in_0_functional_CDS       = -1;
+  _nb_bases_in_0_non_functional_CDS   = -1;
+  _nb_bases_in_0_RNA                  = -1;
+  _nb_bases_in_0_coding_RNA           = -1;
+  _nb_bases_in_0_non_coding_RNA       = -1;
+  _nb_bases_in_neutral_regions        = -1;
+  _nb_neutral_regions                 = -1;
+
+  _modularity = -1;
+
+  //evaluate();
+}
+
+
+// =================================================================
+//                             Destructor
+// =================================================================
+ae_individual::~ae_individual()
+{
+  #ifdef DISTRIBUTED_PRNG
+    delete _mut_prng;
+    delete _stoch_prng;
+  #endif
+
+  delete [] _strain_name;
+
+  // The _replic_report pointer is destroyed, but not the report itself,
+  // it will be deleted later, when the tree is written on disk and emptied.
+
+  // Proteins and RNAs are recycled, don't delete them.
+
+  // When the unit is destoyed, its dna is destroyed too, thus the pointer
+  // to the ae_dna_replication_report is destroyed. But the
+  // dna_replic_report object itself is not deleted, its address is
+  // still contained in the global replic_report object in the tree.
+
+  delete _phenotype_activ;
+  delete _phenotype_inhib;
+  delete _phenotype;
+
+  if (_dist_to_target_by_segment != NULL) delete [] _dist_to_target_by_segment;
+  delete [] _dist_to_target_by_feature;
+
+  delete [] _fitness_by_feature;
+
+  // Generic probes
+  delete [] _int_probes;
+  delete [] _double_probes;
+
+  delete _mut_params;
+
+  /*if(_replic_report!= NULL)
+  {
+    delete _replic_report;
+  }*/
+}
+
+// =================================================================
+//                        Non-inline Accessors
+// =================================================================
+void ae_individual::set_exp_m(ae_exp_manager* exp_m) {
+  _exp_m = exp_m;
+
+  // Update pointer to exp_manager in each GU
+  for (auto& gen_unit: _genetic_unit_list)
+    gen_unit.set_exp_m(_exp_m);
+}
+
+/// TODO
+void ae_individual::set_grid_cell(ae_grid_cell* grid_cell)
+{
+  _grid_cell = grid_cell;
+  _placed_in_population = true;
+  // x = grid_cell->get_x();
+  // y = grid_cell->get_y();
+  if (grid_cell->get_individual() != this)
+    grid_cell->set_individual(this);
+}
+
 /// TODO
 const char* ae_individual::get_strain_name(void) const {
   return _strain_name;
@@ -804,600 +1400,6 @@ void ae_individual::do_transcription_translation_folding() {
   }
 #endif
 
-//                             Constructors
-
-ae_individual::ae_individual(ae_exp_manager* exp_m,
-                              ae_jumping_mt* mut_prng,
-                              ae_jumping_mt* stoch_prng,
-                              ae_params_mut* param_mut,
-                              double w_max,
-                              int32_t min_genome_length,
-                              int32_t max_genome_length,
-                              bool allow_plasmids,
-                              int32_t id,
-                              char* strain_name,
-                              int32_t age) {
-  // Experiment manager
-  _exp_m = exp_m;
-
-  // PRNGs
-  _mut_prng   = mut_prng;
-  _stoch_prng = stoch_prng;
-
-  // Replication Report
-  _replic_report = NULL;
-
-  // ID and rank of the indiv ; name and "age" of the strain
-  set_id(id);
-  _rank = -1; // TODO: UNRANKED
-  _age = age;
-  _strain_name = new char[strlen(strain_name)+1];
-  strcpy(_strain_name, strain_name);
-
-  _phenotype_activ  = NULL;
-  _phenotype_inhib  = NULL;
-  _phenotype        = NULL;
-
-  _dist_to_target_by_segment  = NULL;
-  _dist_to_target_by_feature  = new double [NB_FEATURES];
-  for (int i=0; i<NB_FEATURES; i++)
-  {
-    _dist_to_target_by_feature[i]=0;
-  }
-  _fitness_by_feature         = new double [NB_FEATURES];
-  for (int i=0; i<NB_FEATURES; i++)
-  {
-    _fitness_by_feature[i]=0;
-  }
-
-  _fitness = 0.0;
-  // When using structured population, this is the cell the individual is in
-  _grid_cell = NULL;
-
-  // The chromosome and plasmids (if allowed)
-
-  // Generic probes
-  _int_probes     = new int32_t[5];
-  _double_probes  = new double[5];
-  for (int8_t i = 0 ; i < 5 ; i++)
-  {
-    _int_probes[i]    = 0;
-    _double_probes[i] = 0.0;
-  }
-
-  // Mutation rates etc...
-  _mut_params = new ae_params_mut(*param_mut);
-
-  // Artificial chemistry
-  _w_max = w_max;
-
-  // Genome size constraints
-  _min_genome_length = min_genome_length;
-  _max_genome_length = max_genome_length;
-
-  // Plasmids settings
-  _allow_plasmids         = allow_plasmids;
-
-
-  // --------------------------------------------------
-  // "State" of the individual
-  // --------------------------------------------------
-  _evaluated                    = false;
-  _transcribed                  = false;
-  _translated                   = false;
-  _folded                       = false;
-  _phenotype_computed           = false;
-  _distance_to_target_computed  = false;
-  _fitness_computed             = false;
-  _statistical_data_computed    = false;
-  _non_coding_computed          = false;
-  _modularity_computed          = false;
-  _placed_in_population         = false;
-
-
-
-  // ----------------------------------------
-  // Statistical data
-  // ----------------------------------------
-  // Genome, RNAs and genes size and stuff
-  _total_genome_size  = 0;
-
-  _nb_coding_RNAs     = 0;
-  _nb_non_coding_RNAs = 0;
-
-  _overall_size_coding_RNAs     = 0.0;
-  _overall_size_non_coding_RNAs = 0.0;
-
-  _nb_genes_activ           = 0;
-  _nb_genes_inhib           = 0;
-  _nb_functional_genes      = 0;
-  _nb_non_functional_genes  = 0;
-
-  _overall_size_functional_genes      = 0.0;
-  _overall_size_non_functional_genes  = 0.0;
-
-  // Coding / non-coding
-  _nb_bases_in_0_CDS                = 0;
-  _nb_bases_in_0_functional_CDS     = 0;
-  _nb_bases_in_0_non_functional_CDS = 0;
-  _nb_bases_in_0_RNA                = 0;
-  _nb_bases_in_0_coding_RNA         = 0;
-  _nb_bases_in_0_non_coding_RNA     = 0;
-  _nb_bases_in_neutral_regions      = 0;
-  _nb_neutral_regions               = 0;
-
-  _modularity = 0.0;
-}
-
-/*!
-  This constructor retreives an individual from a backup file.
-
-  Since this generation has already been processed, no unnecessary calculation (e.g. fitness) will be done.
-  No transcription, translation or other process of that kind is performed.
-*/
-ae_individual::ae_individual(ae_exp_manager* exp_m, gzFile backup_file) {
-  _exp_m = exp_m;
-
-  // Retrieve the name and "age" of the strain
-  int8_t strain_string_len;
-  gzread(backup_file, &strain_string_len, sizeof(strain_string_len));
-  _strain_name = new char[strain_string_len+1];
-  gzread(backup_file, _strain_name, strain_string_len+1);
-  gzread(backup_file, &_age, sizeof(_age));
-
-  // Retrieve the PRNGs
-  #ifdef DISTRIBUTED_PRNG
-    _mut_prng   = new ae_jumping_mt(backup_file);
-    _stoch_prng = new ae_jumping_mt(backup_file);
-  #else
-    if (exp_m == NULL)
-    {
-      // Detached mode
-      _mut_prng   = NULL;
-      _stoch_prng = NULL;
-    }
-    else
-    {
-      _mut_prng   = exp_m->get_pop()->get_mut_prng();
-      _stoch_prng = exp_m->get_pop()->get_stoch_prng();
-    }
-  #endif
-
-  // Retreive id and rank
-  gzread(backup_file, &_id,    sizeof(_id));
-  gzread(backup_file, &_rank,  sizeof(_rank));
-
-  // Retrieve spatial coordinates
-  int16_t x;
-  int16_t y;
-  gzread(backup_file, &x, sizeof(x));
-  gzread(backup_file, &y, sizeof(y));
-  _placed_in_population = false;
-  if (_exp_m != NULL)
-  {
-    set_grid_cell(_exp_m->get_grid_cell(x, y));
-  }
-
-  // Retreive generic probes
-  _int_probes     = new int32_t[5];
-  _double_probes  = new double[5];
-  gzread(backup_file, _int_probes,     5 * sizeof(*_int_probes));
-  gzread(backup_file, _double_probes,  5 * sizeof(*_double_probes));
-
-  // Retrieve mutational parameters
-  _mut_params = new ae_params_mut(backup_file);
-
-  // ------------------------------------------------- Phenotypic stochasticity
-  gzread(backup_file, &_with_stochasticity, sizeof(_with_stochasticity));
-
-  // Retrieve artificial chemistry parameters
-  gzread(backup_file, &_w_max, sizeof(_w_max));
-
-  // Retrieve genome size constraints
-  gzread(backup_file, &_min_genome_length, sizeof(_min_genome_length));
-  gzread(backup_file, &_max_genome_length, sizeof(_max_genome_length));
-
-  // Retrieve plasmids settings
-  int8_t tmp_allow_plasmids;
-  gzread(backup_file, &tmp_allow_plasmids, sizeof(tmp_allow_plasmids));
-  _allow_plasmids = tmp_allow_plasmids ? 1 : 0;
-
-  // Retreive genetic units
-  int16_t nb_gen_units;
-  gzread(backup_file, &nb_gen_units,  sizeof(nb_gen_units));
-
-  for (int16_t i = 0 ; i < nb_gen_units ; i++)
-    _genetic_unit_list.emplace_back(this, backup_file);
-
-  // --------------------------------------------------------------------------------------------
-  // No more data to retreive, the following are only structural initializations (no data is set)
-  // --------------------------------------------------------------------------------------------
-
-  // Create empty fuzzy sets for activation and inhibition
-  _phenotype_activ  = NULL;
-  _phenotype_inhib  = NULL;
-  _phenotype        = NULL;
-
-  _dist_to_target_by_segment  = NULL;
-  _dist_to_target_by_feature  = new double [NB_FEATURES];
-  _fitness_by_feature         = new double [NB_FEATURES];
-
-  for (int8_t i = 0 ; i < NB_FEATURES ; i++)
-  {
-    _dist_to_target_by_feature[i] = 0.0;
-    _fitness_by_feature[i]        = 0.0;
-  }
-
-
-  // Replication report, protein list and rna list initialization
-  _replic_report = NULL;  // We are reloading from a backup, the replication report for the loaded generation
-                          // is already in the tree file corresponding to this generation and needs not be re-written.
-                          // NB : If the replication report is needed in future development, it will have to be
-                          // loaded from the tree file.
-
-  // Initialize the computational state of the individual
-  _evaluated                    = false;
-  _transcribed                  = false;
-  _translated                   = false;
-  _folded                       = false;
-  _phenotype_computed           = false;
-  _distance_to_target_computed  = false;
-  _fitness_computed             = false;
-  _statistical_data_computed    = false;
-  _non_coding_computed          = false;
-  _modularity_computed          = false;
-
-
-  // Initialize statistical data
-  _total_genome_size                  = 0;
-  _nb_coding_RNAs                     = 0;
-  _nb_non_coding_RNAs                 = 0;
-  _overall_size_coding_RNAs           = 0;
-  _overall_size_non_coding_RNAs       = 0;
-  _nb_genes_activ                     = 0;
-  _nb_genes_inhib                     = 0;
-  _nb_functional_genes                = 0;
-  _nb_non_functional_genes            = 0;
-  _overall_size_functional_genes      = 0;
-  _overall_size_non_functional_genes  = 0;
-
-  _nb_bases_in_0_CDS                  = -1;
-  _nb_bases_in_0_functional_CDS       = -1;
-  _nb_bases_in_0_non_functional_CDS   = -1;
-  _nb_bases_in_0_RNA                  = -1;
-  _nb_bases_in_0_coding_RNA           = -1;
-  _nb_bases_in_0_non_coding_RNA       = -1;
-  _nb_bases_in_neutral_regions        = -1;
-  _nb_neutral_regions                 = -1;
-
-  _modularity = -1;
-
-  //evaluate();
-}
-
-// Copy constructor
-ae_individual::ae_individual(const ae_individual &model, bool replication_report_copy /* = FALSE */) {
-  _exp_m = model._exp_m;
-
-  // PRNGs
-  #ifdef DISTRIBUTED_PRNG
-    _mut_prng   = new ae_jumping_mt(*(model._mut_prng));
-    _stoch_prng = new ae_jumping_mt(*(model._stoch_prng));
-  #else
-    _mut_prng   = model._mut_prng;
-    _stoch_prng = model._stoch_prng;
-  #endif
-
-  int strain_string_len = strlen(model._strain_name);
-  _strain_name = new char[strain_string_len+1];
-  memcpy(_strain_name, model._strain_name, strain_string_len+1);
-  _age  = model._age;
-
-  _id   = model._id;
-  _rank = model._rank;
-
-  _evaluated                    = false;//model._evaluated;
-  _transcribed                  = false;//model._transcribed;
-  _translated                   = false;//model._translated;
-  _folded                       = false;//model._folded;
-  _phenotype_computed           = model._phenotype_computed;
-
-  _with_stochasticity = model._with_stochasticity;
-
-  // Artificial chemistry parameters
-  _w_max = model._w_max;
-
-  // The distance to target and what results from it depend on the environment
-  // and must hence be recomputed with the (possibly different) environment.
-  _distance_to_target_computed  = false;
-  _fitness_computed             = false;
-  _statistical_data_computed    = model._statistical_data_computed;
-
-  _non_coding_computed          = model._non_coding_computed;
-  _modularity_computed          = model._modularity_computed;
-
-  _placed_in_population         = model._placed_in_population;
-  _grid_cell = model._grid_cell;
-
-  // Copy model's genetic units
-  // Should actually use ae_genetic_unit copy ctor which is disabled.
-  for (const auto& gu: model._genetic_unit_list)
-    _genetic_unit_list.emplace_back(this, gu);
-
-  // Copy phenotype
-  if (_phenotype_computed)
-  {
-    _phenotype_activ  = new Fuzzy(*(model._phenotype_activ));
-    _phenotype_inhib  = new Fuzzy(*(model._phenotype_inhib));
-    _phenotype        = new ae_phenotype(this, *(model._phenotype));
-  }
-  else
-  {
-    _phenotype_activ  = NULL;
-    _phenotype_inhib  = NULL;
-    _phenotype        = NULL;
-  }
-
-
-  // Copy fitness-related stuff
-  _dist_to_target_by_segment  = NULL;
-  _dist_to_target_by_feature  = new double [NB_FEATURES];
-  _fitness_by_feature         = new double [NB_FEATURES];
-
-  for (int8_t i = 0 ; i < NB_FEATURES ; i++)
-  {
-    _dist_to_target_by_feature[i] = model._dist_to_target_by_feature[i];
-    _fitness_by_feature[i] = model._fitness_by_feature[i];
-  }
-
-  _fitness = model._fitness;
-
-
-  // Copy statistical data
-  _total_genome_size                  = model._total_genome_size;
-  _nb_coding_RNAs                     = model._nb_coding_RNAs;
-  _nb_non_coding_RNAs                 = model._nb_non_coding_RNAs;
-  _overall_size_coding_RNAs           = model._overall_size_coding_RNAs;
-  _overall_size_non_coding_RNAs       = model._overall_size_non_coding_RNAs;
-  _nb_genes_activ                     = model._nb_genes_activ;
-  _nb_genes_inhib                     = model._nb_genes_inhib;
-  _nb_functional_genes                = model._nb_functional_genes;
-  _nb_non_functional_genes            = model._nb_non_functional_genes;
-  _overall_size_functional_genes      = model._overall_size_functional_genes;
-  _overall_size_non_functional_genes  = model._overall_size_non_functional_genes;
-
-  _nb_bases_in_0_CDS                  = model._nb_bases_in_0_CDS;
-  _nb_bases_in_0_functional_CDS       = model._nb_bases_in_0_functional_CDS;
-  _nb_bases_in_0_non_functional_CDS   = model._nb_bases_in_0_non_functional_CDS;
-  _nb_bases_in_0_RNA                  = model._nb_bases_in_0_RNA;
-  _nb_bases_in_0_coding_RNA           = model._nb_bases_in_0_coding_RNA;
-  _nb_bases_in_0_non_coding_RNA       = model._nb_bases_in_0_non_coding_RNA;
-  _nb_bases_in_neutral_regions        = model._nb_bases_in_neutral_regions;
-  _nb_neutral_regions                 = model._nb_neutral_regions;
-
-  _modularity = model._modularity;
-
-
-  // Create a new replication report to store mutational events
-  if (replication_report_copy && _exp_m->get_output_m()->get_record_tree() && (_exp_m->get_output_m()->get_tree_mode() == NORMAL) && (model._replic_report != NULL))
-  {
-    _replic_report = new ae_replication_report(*model._replic_report);
-    _replic_report->set_indiv(this);
-    // TODO: remove this after checking it is the old way
-    //_exp_m->get_output_m()->get_tree()->set_replic_report(_id, _replic_report);
-  }
-  else
-  {
-    _replic_report = NULL;
-  }
-
-  // Generic probes
-  _int_probes     = new int32_t[5];
-  _double_probes  = new double[5];
-  for (int8_t i = 0 ; i < 5 ; i++)
-  {
-    _int_probes[i]    = model._int_probes[i];
-    _double_probes[i] = model._double_probes[i];
-  }
-
-  // Mutation rates etc...
-  _mut_params = new ae_params_mut(*(model._mut_params));
-
-
-  // Genome size constraints
-  _min_genome_length = model._min_genome_length;
-  _max_genome_length = model._max_genome_length;
-
-  // Plasmids settings
-  _allow_plasmids         = model._allow_plasmids;
-
-  evaluate();
-}
-
-/*!
-  This constructor creates a new individual with the same genome as it's parent.
-  The location of promoters will be copied but no further process will be performed.
-
-  The phenotype and the fitness are not set, neither is the statistical data.
-*/
-ae_individual::ae_individual(ae_individual* const parent, int32_t id, ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng) {
-  _exp_m = parent->_exp_m;
-
-  // PRNGs
-  _mut_prng   = mut_prng;
-  _stoch_prng = stoch_prng;
-
-  int strain_string_len = strlen(parent->_strain_name);
-  _strain_name = new char[strain_string_len+1];
-  memcpy(_strain_name, parent->_strain_name, strain_string_len+1);
-  _age  = parent->_age + 1;
-
-  _id   = id;
-  _rank = -1;
-
-  _evaluated                    = false;
-  _transcribed                  = false;
-  _translated                   = false;
-  _folded                       = false;
-  _phenotype_computed           = false;
-  _distance_to_target_computed  = false;
-  _fitness_computed             = false;
-  _statistical_data_computed    = false;
-  _non_coding_computed          = false;
-  _modularity_computed          = false;
-
-  _placed_in_population = false;
-  _grid_cell = NULL;
-
-  _with_stochasticity = parent->_with_stochasticity;
-
-  // Artificial chemistry parameters
-  _w_max = parent->_w_max;
-
-  // Create new genetic units with their DNA copied from here
-  // NOTE : The RNA lists (one per genetic unit) will also be copied so that we don't
-  // need to look for promoters on the whole genome
-  for (auto& gu: parent->_genetic_unit_list)
-    _genetic_unit_list.emplace_back(this, &gu);
-
-  _phenotype_activ  = NULL;
-  _phenotype_inhib  = NULL;
-  _phenotype        = NULL;
-
-  // Initialize all the fitness-related stuff
-  _dist_to_target_by_segment  = NULL;
-  _dist_to_target_by_feature  = new double [NB_FEATURES];
-  _fitness_by_feature         = new double [NB_FEATURES];
-
-  for (int8_t i = 0 ; i < NB_FEATURES ; i++)
-  {
-    _dist_to_target_by_feature[i] = 0.0;
-    _fitness_by_feature[i]        = 0.0;
-  }
-
-  // Create a new replication report to store mutational events
-  if (_exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL)
-  {
-    _replic_report = new ae_replication_report(this, parent);
-
-    // TODO: remove this after checking it is the old way
-    //_exp_m->get_output_m()->get_tree()->set_replic_report(_id, _replic_report);
-  }
-  else
-  {
-    _replic_report = NULL;
-  }
-
-  // Generic probes
-  _int_probes     = new int32_t[5];
-  _double_probes  = new double[5];
-  for (int8_t i = 0 ; i < 5 ; i++)
-  {
-    _int_probes[i]    = parent->_int_probes[i];
-    _double_probes[i] = parent->_double_probes[i];
-  }
-
-  // Mutation rates etc...
-  _mut_params = new ae_params_mut(*(parent->_mut_params));
-
-  // Genome size constraints
-  _min_genome_length = parent->_min_genome_length;
-  _max_genome_length = parent->_max_genome_length;
-
-  // Plasmids settings
-  _allow_plasmids         = parent->_allow_plasmids;
-
-  // Initialize statistical data
-  _total_genome_size                  = 0;
-  _nb_coding_RNAs                     = 0;
-  _nb_non_coding_RNAs                 = 0;
-  _overall_size_coding_RNAs           = 0;
-  _overall_size_non_coding_RNAs       = 0;
-  _nb_genes_activ                     = 0;
-  _nb_genes_inhib                     = 0;
-  _nb_functional_genes                = 0;
-  _nb_non_functional_genes            = 0;
-  _overall_size_functional_genes      = 0;
-  _overall_size_non_functional_genes  = 0;
-
-  _nb_bases_in_0_CDS                  = -1;
-  _nb_bases_in_0_functional_CDS       = -1;
-  _nb_bases_in_0_non_functional_CDS   = -1;
-  _nb_bases_in_0_RNA                  = -1;
-  _nb_bases_in_0_coding_RNA           = -1;
-  _nb_bases_in_0_non_coding_RNA       = -1;
-  _nb_bases_in_neutral_regions        = -1;
-  _nb_neutral_regions                 = -1;
-
-  _modularity = -1;
-
-  //evaluate();
-}
-
-
-// =================================================================
-//                             Destructors
-// =================================================================
-ae_individual::~ae_individual() {
-  #ifdef DISTRIBUTED_PRNG
-    delete _mut_prng;
-    delete _stoch_prng;
-  #endif
-
-  delete [] _strain_name;
-
-  // The _replic_report pointer is destroyed, but not the report itself,
-  // it will be deleted later, when the tree is written on disk and emptied.
-
-  // Proteins and RNAs are recycled, don't delete them.
-
-  // When the unit is destoyed, its dna is destroyed too, thus the pointer
-  // to the ae_dna_replication_report is destroyed. But the
-  // dna_replic_report object itself is not deleted, its address is
-  // still contained in the global replic_report object in the tree.
-
-  delete _phenotype_activ;
-  delete _phenotype_inhib;
-  delete _phenotype;
-
-  if (_dist_to_target_by_segment != NULL) delete [] _dist_to_target_by_segment;
-  delete [] _dist_to_target_by_feature;
-
-  delete [] _fitness_by_feature;
-
-  // Generic probes
-  delete [] _int_probes;
-  delete [] _double_probes;
-
-  delete _mut_params;
-
-  /*if(_replic_report!= NULL)
-  {
-    delete _replic_report;
-  }*/
-}
-
-// =================================================================
-//                        Non-inline Accessors
-// =================================================================
-void ae_individual::set_exp_m(ae_exp_manager* exp_m) {
-  _exp_m = exp_m;
-
-  // Update pointer to exp_manager in each GU
-  for (auto& gen_unit: _genetic_unit_list)
-    gen_unit.set_exp_m(_exp_m);
-}
-
-/// TODO
-void ae_individual::set_grid_cell(ae_grid_cell* grid_cell) {
-  _placed_in_population = true;
-  _grid_cell = grid_cell;
-  if (_grid_cell->get_individual() != this)
-  {
-    _grid_cell->set_individual(this);
-  }
-}
-
 // =================================================================
 //                            Public Methods
 // =================================================================
@@ -1535,7 +1537,7 @@ void ae_individual::compute_fitness(Environment* envir) {
     else
     {
       _fitness =  _fitness_by_feature[METABOLISM]
-                  *  (1 + _exp_m->get_secretion_contrib_to_fitness() * _grid_cell->get_compound_amount()
+                  *  (1 + _exp_m->get_secretion_contrib_to_fitness() * get_grid_cell()->get_compound_amount()
                          - _exp_m->get_secretion_cost() * _fitness_by_feature[SECRETION]);
     }
   #endif
@@ -1837,10 +1839,8 @@ void ae_individual::save(gzFile backup_file) const {
   gzwrite(backup_file, &_rank, sizeof(_rank));
 
   // Write the position of the individual
-  int16_t x = _grid_cell->get_x();
-  int16_t y = _grid_cell->get_y();
-  gzwrite(backup_file, &x, sizeof(x));
-  gzwrite(backup_file, &y, sizeof(y));
+  // gzwrite(backup_file, &x, sizeof(x));
+  // gzwrite(backup_file, &y, sizeof(y));
 
   // Write generic probes
   gzwrite(backup_file, _int_probes,    5 * sizeof(*_int_probes));

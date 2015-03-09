@@ -81,12 +81,6 @@ namespace aevol {
 ae_population::ae_population(ae_exp_manager* exp_m)
 {
   _exp_m = exp_m;
-
-  #ifndef DISTRIBUTED_PRNG
-    _mut_prng       = NULL;
-    _stoch_prng     = NULL;
-    _stoch_prng_bak = NULL;
-  #endif
 }
 
 
@@ -96,15 +90,9 @@ ae_population::ae_population(ae_exp_manager* exp_m)
 // =================================================================
 ae_population::~ae_population(void)
 {
-  #ifndef DISTRIBUTED_PRNG
-    delete _mut_prng;
-    delete _stoch_prng;
-    delete _stoch_prng_bak;
-  #endif
-
-    for (auto& indiv: _indivs)
-      delete indiv;
-    _indivs.clear();
+  // for (auto& indiv: _indivs)
+  //   delete indiv;
+  // _indivs.clear();
 }
 
 // =================================================================
@@ -156,69 +144,50 @@ void ae_population::replace_population(std::list<ae_individual*>&& new_indivs)
   }
 }
 
-void ae_population::save( gzFile backup_file ) const
+void ae_population::save(gzFile backup_file) const
 {
   // Write population intrinsic data
-  #ifndef DISTRIBUTED_PRNG
-    _mut_prng->save( backup_file );
-    int8_t tmp_with_stoch = _stoch_prng == NULL ? 0 : 1;
-    gzwrite( backup_file, &tmp_with_stoch, sizeof(tmp_with_stoch) );
-    if ( tmp_with_stoch )
-    {
-      _stoch_prng->save( backup_file );
-    }
-  #endif
   const int32_t nb_indivs = _indivs.size();
   gzwrite( backup_file, &nb_indivs, sizeof(nb_indivs) );
 
   // Write individuals
-  for (const auto& indiv: _indivs)
-    indiv->save( backup_file );
+  // for (const auto& indiv: _indivs)
+  //   indiv->save( backup_file );
 }
 
-void ae_population::load( gzFile backup_file, bool verbose )
+void ae_population::load(gzFile backup_file, bool verbose)
 {
   // --------------------------------------- Retreive population intrinsic data
-  #ifndef DISTRIBUTED_PRNG
-    _mut_prng   = new ae_jumping_mt( backup_file );
-    int8_t tmp_with_stoch;
-    gzread( backup_file, &tmp_with_stoch, sizeof(tmp_with_stoch) );
-    if ( tmp_with_stoch )
-    {
-      _stoch_prng = new ae_jumping_mt( backup_file );
-    }
-  #endif
   int32_t nb_indivs = _indivs.size();
   gzread( backup_file, &nb_indivs, sizeof(nb_indivs) );
 
   // ----------------------------------------------------- Retreive individuals
-  if ( verbose ) printf( "  Loading individuals " );
-  ae_individual* indiv = NULL;
-  int32_t nb_ind_div_10 = nb_indivs / 10;
-  for ( size_t i = 0 ; i < static_cast<size_t>(nb_indivs) ; i++ )
-  {
-    if ( verbose && i && i % nb_ind_div_10 == 0 )
-    {
-      putchar( '*' );
-      fflush( stdout );
-    }
+  // ae_individual* indiv = NULL;
+  // int32_t nb_ind_div_10 = nb_indivs / 10;
+  // for ( size_t i = 0 ; i < static_cast<size_t>(nb_indivs) ; i++ )
+  // {
+  //   if ( verbose && i && i % nb_ind_div_10 == 0 )
+  //   {
+  //     putchar( '*' );
+  //     fflush( stdout );
+  //   }
 
-    #ifdef __NO_X
-      #ifndef __REGUL
-        indiv = new ae_individual( _exp_m, backup_file );
-      #else
-        indiv = new ae_individual_R( _exp_m, backup_file );
-      #endif
-    #elif defined __X11
-      #ifndef __REGUL
-        indiv = new ae_individual_X11( _exp_m, backup_file );
-      #else
-        indiv = new ae_individual_R_X11( _exp_m, backup_file );
-      #endif
-    #endif
+  //   #ifdef __NO_X
+  //     #ifndef __REGUL
+  //       indiv = new ae_individual( _exp_m, backup_file );
+  //     #else
+  //       indiv = new ae_individual_R( _exp_m, backup_file );
+  //     #endif
+  //   #elif defined __X11
+  //     #ifndef __REGUL
+  //       indiv = new ae_individual_X11( _exp_m, backup_file );
+  //     #else
+  //       indiv = new ae_individual_R_X11( _exp_m, backup_file );
+  //     #endif
+  //   #endif
 
-    _indivs.emplace_back( indiv );
-  }
+  //   _indivs.emplace_back(indiv);
+  // }
 }
 
 void ae_population::load(const char* backup_file_name, bool verbose)
@@ -232,14 +201,6 @@ void ae_population::load(const char* backup_file_name, bool verbose)
   }
   this->load(backup_file, verbose);
 }
-
-#ifndef DISTRIBUTED_PRNG
-  void ae_population::backup_stoch_prng( void )
-  {
-    delete _stoch_prng_bak;
-    _stoch_prng_bak = new ae_jumping_mt( *_stoch_prng );
-  }
-#endif
 
 
 // =================================================================
@@ -360,16 +321,6 @@ ae_individual* ae_population::get_indiv_by_rank( int32_t rank ) const
   return *indiv;
 }
 
-ae_jumping_mt* ae_population::get_mut_prng( void ) const
-{
-  return _mut_prng;
-}
-
-ae_jumping_mt* ae_population::get_stoch_prng( void ) const
-{
-  return _stoch_prng;
-}
-
 // =====================================================================
 //                           Setters' definitions
 // =====================================================================
@@ -377,26 +328,6 @@ void ae_population::add_indiv( ae_individual* indiv )
 {
   _indivs.push_back(indiv);
 }
-
-
-void ae_population::set_mut_prng( ae_jumping_mt* prng )
-{
-  if (_mut_prng != NULL) delete _mut_prng;
-  _mut_prng = prng;
-  for (auto& indiv: _indivs)
-    indiv->set_mut_prng(_mut_prng);
-}
-
-void ae_population::set_stoch_prng( ae_jumping_mt* prng )
-{
-  if (_stoch_prng != NULL)
-    delete _stoch_prng;
-  _stoch_prng = prng;
-
-  for (auto& indiv: _indivs)
-    indiv->set_stoch_prng(_stoch_prng);
-}
-
 
 // Mutation rates etc...
 void ae_population::set_overall_point_mutation_rate( double point_mutation_rate )

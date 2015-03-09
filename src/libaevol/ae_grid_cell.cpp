@@ -38,6 +38,7 @@
 // =================================================================
 #include "ae_grid_cell.h"
 #include "ae_individual.h"
+#include "ae_individual_X11.h"
 
 namespace aevol {
 
@@ -56,24 +57,39 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_grid_cell::ae_grid_cell( int16_t x, int16_t y, ae_individual* indiv )
+ae_grid_cell::ae_grid_cell(int16_t x, int16_t y, ae_individual* indiv)
 {
   _x = x;
   _y = y;
   
-  _compound_amount  = 0.0;
+  _compound_amount = 0.0;
   
-  _individual       = indiv;
+  _individual = indiv;
 }
 
-ae_grid_cell::ae_grid_cell( gzFile backup_file )
+ae_grid_cell::ae_grid_cell(gzFile backup_file, ae_exp_manager* exp_m)
 {
-  gzread( backup_file, &_x, sizeof(_x) );
-  gzread( backup_file, &_y, sizeof(_y) );
+  gzread(backup_file, &_x, sizeof(_x));
+  gzread(backup_file, &_y, sizeof(_y));
   
-  gzread( backup_file, &_compound_amount, sizeof(_compound_amount) );
+  gzread(backup_file, &_compound_amount, sizeof(_compound_amount));
   
-  _individual = NULL;
+  #ifdef __NO_X
+    #ifndef __REGUL
+      _individual = new ae_individual(exp_m, backup_file);
+    #else
+      _individual = new ae_individual_R(exp_m, backup_file);
+    #endif
+  #elif defined __X11
+    #ifndef __REGUL
+      _individual = new ae_individual_X11(exp_m, backup_file);
+    #else
+      _individual = new ae_individual_R_X11(exp_m, backup_file);
+    #endif
+  #endif
+
+  _individual->set_grid_cell(this);
+  // _individual = NULL;
 }
 
 // =================================================================
@@ -81,17 +97,20 @@ ae_grid_cell::ae_grid_cell( gzFile backup_file )
 // =================================================================
 ae_grid_cell::~ae_grid_cell( void )
 {
+  delete _individual;
 }
 
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_grid_cell::save( gzFile backup_file ) const
+void ae_grid_cell::save(gzFile backup_file) const
 {
   gzwrite( backup_file, &_x, sizeof(_x) );
   gzwrite( backup_file, &_y, sizeof(_y) );
   
   gzwrite( backup_file, &_compound_amount, sizeof(_compound_amount) );
+
+  _individual->save(backup_file);
 }
 
 // =================================================================

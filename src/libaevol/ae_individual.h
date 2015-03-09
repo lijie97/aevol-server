@@ -114,7 +114,7 @@ class ae_individual
     double           get_dist_to_target_by_feature( ae_env_axis_feature feature ) const;
     double           get_fitness( void ) const;
     double           get_fitness_by_feature( ae_env_axis_feature feature ) const;
-    ae_grid_cell*    get_grid_cell( void ) const;
+    ae_grid_cell*    get_grid_cell(void) const;
     bool             get_placed_in_population( void ) const;
     ae_jumping_mt*   get_mut_prng( void ) const;
     ae_jumping_mt*   get_stoch_prng( void ) const;
@@ -410,7 +410,8 @@ class ae_individual
     double _fitness;
 
     // When using structured population, this is the cell the individual is in
-    ae_grid_cell* _grid_cell;
+    ae_grid_cell* _grid_cell = NULL;
+    // int16_t x, y;
 
     // The chromosome and plasmids (if allowed)
     std::list<ae_genetic_unit> _genetic_unit_list;

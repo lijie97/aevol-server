@@ -72,6 +72,8 @@ class ae_dna : public ae_string
     // =================================================================
     //                             Constructors
     // =================================================================
+    ae_dna(void) = delete;
+    ae_dna(const ae_dna&) = delete;
     ae_dna( ae_genetic_unit* gen_unit, int32_t length, ae_jumping_mt * prng );
     ae_dna( ae_genetic_unit* gen_unit, const ae_dna &model );
     ae_dna( ae_genetic_unit* gen_unit, ae_dna* const parent_dna );
@@ -175,21 +177,6 @@ class ae_dna : public ae_string
 
 
   protected :
-
-    // =================================================================
-    //                         Forbidden Constructors
-    // =================================================================
-    ae_dna( void )
-    {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-    ae_dna( const ae_dna &model )
-    {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-
     // =================================================================
     //                           Protected Methods
     // =================================================================
@@ -209,8 +196,8 @@ class ae_dna : public ae_string
     //   char*   _data;
     //   int32_t _length;
     //   int32_t _nb_blocks;
-    ae_individual*        _indiv;
-    ae_genetic_unit*      _gen_unit; // Genetic unit which the genetic unit belongs to
+    ae_individual* _indiv;
+    ae_genetic_unit* _gen_unit; // Genetic unit which the genetic unit belongs to
     DnaReplicReport* _replic_report;
 };
 

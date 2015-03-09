@@ -158,6 +158,7 @@ int main( int argc, char* argv[] )
   ae_population* pop = exp_manager->get_pop();
   Environment* env = exp_manager->get_env();
   ae_selection* sel = exp_manager->get_sel();
+  ae_spatial_structure* sp_struct = exp_manager->get_spatial_structure();
 
 
   // If relevant, load the tree information 
@@ -569,7 +570,6 @@ int main( int argc, char* argv[] )
         // Change prng in ae_selection 
         sel->set_prng( new ae_jumping_mt(*prng) );
     
-        ae_spatial_structure* sp_struct = exp_manager->get_spatial_structure();
         sp_struct->set_prng(new ae_jumping_mt(*prng) );
     
         printf("\tChange of the seed to %d in selection \n",atoi( line->words[1] ));
@@ -581,17 +581,17 @@ int main( int argc, char* argv[] )
         ae_jumping_mt* mut_prng = new ae_jumping_mt( mut_seed );
     
         // Change prng of the population
-        pop->set_mut_prng( new ae_jumping_mt(*mut_prng) );
+        sp_struct->set_mut_prng(new ae_jumping_mt(*mut_prng));
         printf("\tChange of the seed to %d in mutations \n",atoi( line->words[1] ));
       }
       else if ( strcmp( line->words[0], "STOCH_SEED" ) == 0 )
       {
         int32_t stoch_seed = atoi( line->words[1] ) ;
     
-        ae_jumping_mt* stoch_prng = new ae_jumping_mt( stoch_seed );
+        ae_jumping_mt* stoch_prng = new ae_jumping_mt(stoch_seed);
     
         // Change prng of the population
-        pop->set_stoch_prng( new ae_jumping_mt(*stoch_prng) );
+        sp_struct->set_stoch_prng(new ae_jumping_mt(*stoch_prng));
         printf("\tChange of the seed to %d in individuals' stochasticity \n",atoi( line->words[1] ));
       }
       else if ( strcmp( line->words[0], "CLONE_BEST" ) == 0 )
@@ -772,7 +772,7 @@ void format_line( f_line* formated_line, char* line, bool* line_is_interpretable
 void change_by_cloning_best(ae_population* pop, ae_exp_manager* exp_m)
 {
   int32_t population_size = pop->get_nb_indivs();
-  ae_individual* best_indiv = exp_m->get_indiv_by_rank( population_size );
+  ae_individual* best_indiv = exp_m->get_best_indiv();
 
   std::list<ae_individual*> new_population;
   for (size_t i = 0; i < static_cast<size_t>(population_size); ++i)
@@ -832,7 +832,7 @@ void change_based_on_non_coding_bases_of_best_individual(ae_population* pop, ae_
       int32_t subpopulation_size = (int)floor(pop->get_nb_indivs()/3);
   
       // 2) Get the best individual
-      ae_individual* best_indiv = exp_m->get_indiv_by_rank( pop->get_nb_indivs() );
+      ae_individual* best_indiv = exp_m->get_best_indiv();
 
     
       // 3) Create the new population 

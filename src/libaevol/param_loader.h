@@ -101,8 +101,12 @@ class param_loader
   // =========================================================================
   static void format_line( f_line*, char*, bool* );
   void interpret_line( f_line* line, int32_t cur_line );
-  ae_individual* create_random_individual( ae_exp_manager* exp_m, ae_params_mut* param_mut, int32_t id ) const;
-  ae_individual* create_random_individual_with_good_gene( ae_exp_manager* exp_m, ae_params_mut* param_mut, int32_t id ) const;
+  ae_individual* create_random_individual(
+      ae_exp_manager* exp_m, int32_t id, ae_params_mut* param_mut,
+      ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng) const;
+  ae_individual* create_random_individual_with_good_gene(
+      ae_exp_manager* exp_m, int32_t id, ae_params_mut* param_mut,
+      ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng) const;
   ae_individual* create_clone( ae_individual* dolly, int32_t id ) const;
 
   // =========================================================================

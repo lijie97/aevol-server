@@ -30,6 +30,7 @@
 // =================================================================
 //                              Libraries
 // =================================================================
+#include <list>
 
 
 
@@ -46,6 +47,9 @@
 #include "ae_genetic_unit.h"
 #include "ae_replication_report.h"
 #include "dna_replic_report.h"
+
+
+using std::list;
 
 
 namespace aevol {
@@ -65,13 +69,13 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_stat_record::ae_stat_record( ae_exp_manager* exp_m )
+ae_stat_record::ae_stat_record(ae_exp_manager* exp_m)
 {
   _exp_m = exp_m;
   initialize_data();
 }
 
-ae_stat_record::ae_stat_record( const ae_stat_record &model )
+ae_stat_record::ae_stat_record(const ae_stat_record &model)
 {
   _exp_m = model._exp_m;
   
@@ -435,12 +439,11 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
       _mean_align_score = replic_report->get_mean_align_score();
     }
   }
-
 }
 
 // Calculate average statistics for all the recorded values 
 ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
-                               const ae_population* pop,
+                               const list<ae_individual*> indivs,
                                chrom_or_gen_unit chrom_or_gu)
 {
   _exp_m = exp_m;
@@ -451,13 +454,14 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
   // ---------------
   // Simulation data
   // ---------------
-  _pop_size = (double) pop->get_nb_indivs();
+  _pop_size = (double) indivs.size();
 
   // ------------------------------------------------------------------
   // Compute statistical data for the each individual in the population
   // ------------------------------------------------------------------
-  for (const auto& indiv: pop->get_indivs()) {
-    ae_stat_record* indiv_stat_record = new ae_stat_record( _exp_m, indiv, chrom_or_gu, false );
+  for (const auto& indiv: indivs)
+  {
+    ae_stat_record* indiv_stat_record = new ae_stat_record(_exp_m, indiv, chrom_or_gu, false);
     this->add(indiv_stat_record, indiv->get_id());
     delete indiv_stat_record;
   }
