@@ -148,6 +148,7 @@ class ae_exp_manager_X11 : public ae_exp_manager
     bool quit_signal_received(void);
     void display(ae_X11_window* win, Fuzzy& fuzzy, color_map color,
         bool fill = false, bool bold = false);
+    void display_grid(ae_X11_window* win, double** cell_grid);
 
     // =================================================================
     //                           Public Attributes
@@ -176,11 +177,12 @@ class ae_exp_manager_X11 : public ae_exp_manager
   // =================================================================
   //                           Protected Methods
   // =================================================================
-  void    initialize( bool with_grid = false, bool with_plasmids = false );
-  void    set_codes(void);
-  int8_t  identify_window( Window winID );
-  void    draw_window( int8_t win_number );
-  void    refresh_window( int8_t win_number );
+  void initialize(bool with_grid = false, bool with_plasmids = false);
+  void compute_colormap(void);  
+  void set_codes(void);
+  int8_t identify_window(Window winID);
+  void draw_window(int8_t win_number);
+  void refresh_window(int8_t win_number);
 
   
   // =================================================================
@@ -199,6 +201,8 @@ class ae_exp_manager_X11 : public ae_exp_manager
   char **         _win_name;  // window names
   unsigned int**  _win_size;  // window sizes
   int**           _win_pos;   // window positions
+
+  char** _col_map;
 };
 
 

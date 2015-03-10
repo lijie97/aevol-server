@@ -60,10 +60,10 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_output_manager::ae_output_manager( ae_exp_manager* exp_m )
+ae_output_manager::ae_output_manager(ae_exp_manager* exp_m)
 {
   _exp_m  = exp_m;
-  _stats  = NULL;
+  _stats  = new ae_stats(exp_m);;
   _tree   = NULL;
   _dump   = NULL;
   _compute_phen_contrib_by_GU = false;
@@ -78,9 +78,9 @@ ae_output_manager::ae_output_manager( ae_exp_manager* exp_m )
 // =================================================================
 ae_output_manager::~ae_output_manager( void )
 {
-  if ( _stats != NULL )  delete _stats;
-  if ( _tree  != NULL )  delete _tree;
-  if ( _dump  != NULL )  delete _dump;
+  delete _stats;
+  delete _tree;
+  delete _dump;
   delete _logs;
 }
 

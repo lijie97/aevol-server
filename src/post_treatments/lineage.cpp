@@ -158,7 +158,7 @@ int main(int argc, char** argv)
 
   // Load the simulation
   ae_exp_manager* exp_manager = new ae_exp_manager();
-  exp_manager->load(t_end, false, true, false);
+  exp_manager->load(t_end, true, false);
 
   if (exp_manager->get_tree_mode() == LIGHT)
   {
@@ -359,7 +359,7 @@ int main(int argc, char** argv)
 
   // Load the simulation
   exp_manager = new ae_exp_manager();
-  exp_manager->load(t0, false, true, false);
+  exp_manager->load(t0, true, false);
 
   // Copy the initial ancestor
   // NB : The list of individuals is sorted according to the index
@@ -432,7 +432,7 @@ int main(int argc, char** argv)
     {
       // Load the simulation
       exp_manager_backup = new ae_exp_manager();
-      exp_manager_backup->load(t, false, true, false);
+      exp_manager_backup->load(t, true, false);
 
       // Copy the ancestor from the backup
       // NB : The list of individuals is sorted according to the index

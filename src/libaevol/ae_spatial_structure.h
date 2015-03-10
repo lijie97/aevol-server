@@ -117,6 +117,7 @@ class ae_spatial_structure
     //                            Public Methods
     // =================================================================
     void place_indiv(ae_individual* indiv, int16_t x, int16_t y);
+    void FillGridWithClones(ae_individual& dolly);
     void evaluate_individuals(Environment* envir);
     void update_secretion_grid(void); 
     void do_random_migrations (void);

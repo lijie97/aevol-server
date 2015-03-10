@@ -93,6 +93,7 @@ class ae_individual
                     ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng );
     ae_individual() = delete; // forbidden constructor
 
+    static ae_individual* create_clone(ae_individual* dolly, int32_t id);
 
     // =================================================================
     //                             Destructors

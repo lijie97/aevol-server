@@ -107,7 +107,6 @@ class param_loader
   ae_individual* create_random_individual_with_good_gene(
       ae_exp_manager* exp_m, int32_t id, ae_params_mut* param_mut,
       ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng) const;
-  ae_individual* create_clone( ae_individual* dolly, int32_t id ) const;
 
   // =========================================================================
   //                               Attributes

@@ -42,12 +42,9 @@
 //                            Project Files
 // =================================================================
 #include "ae_exp_manager.h"
-#include "ae_population.h"
 #include "ae_individual.h"
 
-#ifdef __X11
-  #include "ae_population_X11.h"
-#endif
+
 
 namespace aevol {
 //##############################################################################
@@ -63,17 +60,10 @@ namespace aevol {
 // ===========================================================================
 //                                 Constructors
 // ===========================================================================
-ae_exp_manager::ae_exp_manager( void )
+ae_exp_manager::ae_exp_manager(void)
 {
   // ------------------------------------------------------ Experimental setup
-  _exp_s = new ae_exp_setup( this );
-
-  // -------------------------------------------------------------- Population
-  #ifdef __X11
-    _pop = new ae_population_X11( this );
-  #else
-    _pop = new ae_population( this );
-  #endif
+  _exp_s = new ae_exp_setup(this);
 
   // ------------------------------------------------------------- Environment
   _env = new Environment();
@@ -82,7 +72,7 @@ ae_exp_manager::ae_exp_manager( void )
   _spatial_structure = NULL;
 
   // ---------------------------------------------------------- Output manager
-  _output_m = new ae_output_manager( this );
+  _output_m = new ae_output_manager(this);
 
 
   // -------------------------------- Timestep up to which we want to simulate
@@ -98,7 +88,6 @@ ae_exp_manager::ae_exp_manager( void )
 // ===========================================================================
 ae_exp_manager::~ae_exp_manager( void )
 {
-  delete _pop;
   delete _exp_s;
   delete _output_m;
   delete _env;
@@ -148,19 +137,15 @@ void ae_exp_manager::write_setup_files(void)
   create_missing_directories();
 
   // 2) Open setup files (experimental setup and output profile)
-  gzFile exp_s_gzfile, out_p_gzfile;
-  FILE*  exp_s_txtfile, * out_p_txtfile;
-  open_setup_files(exp_s_gzfile, exp_s_txtfile, out_p_gzfile, out_p_txtfile,
-      Time::get_time(), "w");
+  gzFile exp_s_file, out_p_file;
+  open_setup_files(exp_s_file, out_p_file, Time::get_time(), "w");
 
   // 4) Write setup data
-  _exp_s->write_setup_file(exp_s_gzfile);
-  _output_m->write_setup_file(out_p_gzfile);
-  _exp_s->write_setup_file(exp_s_txtfile);
-  _output_m->write_setup_file(out_p_txtfile);
+  _exp_s->write_setup_file(exp_s_file);
+  _output_m->write_setup_file(out_p_file);
 
   // 5) Close setup files
-  close_setup_files(exp_s_gzfile, exp_s_txtfile, out_p_gzfile, out_p_txtfile);
+  close_setup_files(exp_s_file, out_p_file);
 }
 
 /*!
@@ -195,18 +180,17 @@ void ae_exp_manager::save(void) const
   create_missing_directories();
 
   // 2) Open backup files (environment, population, selection and spatial structure)
-  gzFile env_file, pop_file, sel_file, sp_struct_file;
-  open_backup_files(env_file, pop_file, sel_file, sp_struct_file,
+  gzFile env_file, sel_file, sp_struct_file;
+  open_backup_files(env_file, sel_file, sp_struct_file,
       Time::get_time(), "w");
 
   // 3) Write the state of the environment, population and spatial structure into the backups
   get_env()->save(env_file);
-  get_pop()->save(pop_file);
   get_sel()->save(sel_file);
   get_spatial_structure()->save(sp_struct_file);
 
   // 4) Close backup files
-  close_backup_files( env_file, pop_file, sel_file, sp_struct_file );
+  close_backup_files(env_file, sel_file, sp_struct_file);
 }
 
 /*!
@@ -243,69 +227,47 @@ void ae_exp_manager::save_copy(char* dir, int32_t num_gener /*= 0*/) const
 
   // 2) Open setup files (experimental setup and output profile)
   //    and backup files (environment, population, selection and spacial structure)
-  gzFile exp_s_gzfile, out_p_gzfile;
-  FILE*  exp_s_txtfile, * out_p_txtfile;
-  open_setup_files( exp_s_gzfile, exp_s_txtfile, out_p_gzfile, out_p_txtfile, num_gener, "w", dir );
-  gzFile env_file, pop_file, sel_file, sp_struct_file;
-  open_backup_files( env_file, pop_file, sel_file, sp_struct_file, num_gener, "w", dir );
+  gzFile exp_s_file, out_p_file, env_file, sel_file, sp_struct_file;
+  open_setup_files(exp_s_file, out_p_file, num_gener, "w", dir);
+  open_backup_files(env_file, sel_file, sp_struct_file, num_gener, "w", dir);
 
   // 3) Write setup data
-  _exp_s->write_setup_file( exp_s_gzfile );
-  _output_m->write_setup_file( out_p_gzfile );
+  _exp_s->write_setup_file(exp_s_file);
+  _output_m->write_setup_file(out_p_file);
 
   // 4) Write the state of the environment, population, selection and spatial structure into the backups
-  get_env()->save( env_file );
-  get_pop()->save( pop_file );
-  get_sel()->save( sel_file );
+  get_env()->save(env_file);
+  get_sel()->save(sel_file);
   get_spatial_structure()->save(sp_struct_file);
 
   // 4) Close setup and backup files
-  close_setup_files( exp_s_gzfile, exp_s_txtfile, out_p_gzfile, out_p_txtfile );
-  close_backup_files( env_file, pop_file, sel_file, sp_struct_file );
+  close_setup_files(exp_s_file, out_p_file);
+  close_backup_files(env_file, sel_file, sp_struct_file);
 }
 
 
 /*!
   \brief Load an experiment with the provided files
  */
-void ae_exp_manager::load(gzFile& pop_file,
-                          gzFile& env_file,
-                          gzFile& exp_s_gzfile,
-                          FILE*&  exp_s_txtfile,
+void ae_exp_manager::load(gzFile& env_file,
+                          gzFile& exp_s_file,
                           gzFile& exp_backup_file,
                           gzFile& sp_struct_file,
-                          gzFile& out_p_gzfile,
-                          FILE*& out_p_txtfile,
+                          gzFile& out_p_file,
                           bool verbose,
                           bool to_be_run /*  = true */)
 {
   // ---------------------------------------- Retrieve experimental setup data
   printf( "  Loading experimental setup..." );
   fflush( stdout );
-  if ( exp_s_gzfile != NULL )
-  {
-    _exp_s->load(exp_s_gzfile, exp_backup_file, verbose);
-  }
-  else
-  {
-    _exp_s->load(exp_s_txtfile, exp_backup_file, verbose);
-  }
+  _exp_s->load(exp_s_file, exp_backup_file, verbose);
   printf( " OK\n" );
 
   // ----------------------------------------- Retrieve spatial structure data
-  if ( sp_struct_file != NULL )
-  {
-    printf( "  Loading spatial structure..." );
-    fflush( stdout );
-    _spatial_structure = new ae_spatial_structure();
-    _spatial_structure->load(sp_struct_file, this);
-    printf( " OK\n" );
-  }
-
-  // ------------------------------------------------ Retrieve population data
-  printf( "  Loading population..." );
+  printf( "  Loading spatial structure..." );
   fflush( stdout );
-  _pop->load( pop_file, verbose );
+  _spatial_structure = new ae_spatial_structure();
+  _spatial_structure->load(sp_struct_file, this);
   printf( " OK\n" );
 
   // --------------------------------------------- Retrieve environmental data
@@ -319,14 +281,7 @@ void ae_exp_manager::load(gzFile& pop_file,
   // --------------------------------------------- Retrieve output profile data
   printf( "  Loading output profile..." );
   fflush( stdout );
-  if ( out_p_gzfile != NULL )
-  {
-    _output_m->load( out_p_gzfile, verbose, to_be_run );
-  }
-  else
-  {
-    _output_m->load( out_p_txtfile, verbose, to_be_run );
-  }
+  _output_m->load( out_p_file, verbose, to_be_run );
   printf( " OK\n" );
 }
 
@@ -335,8 +290,7 @@ void ae_exp_manager::load(gzFile& pop_file,
   \brief Load an experiment with default files from a given directory
  */
 void ae_exp_manager::load(const char* dir,
-    int64_t t0, bool use_text_files,
-    bool verbose, bool to_be_run /*  = true */)
+    int64_t t0, bool verbose, bool to_be_run /*  = true */)
 {
   Time::set_time(t0);
 
@@ -344,25 +298,24 @@ void ae_exp_manager::load(const char* dir,
   // 1) Open setup files (experimental setup and output profile)
   //    and backup files (environment, population, selection and sp structure)
   // -------------------------------------------------------------------------
-  gzFile exp_s_gzfile, out_p_gzfile;
-  FILE*  exp_s_txtfile, * out_p_txtfile;
-  open_setup_files(exp_s_gzfile, exp_s_txtfile, out_p_gzfile, out_p_txtfile, t0, "r", dir );
-  gzFile env_file, pop_file, exp_backup_file, sp_struct_file;
-  open_backup_files(env_file, pop_file, exp_backup_file, sp_struct_file, t0, "r", dir );
+  gzFile exp_s_file, out_p_file;
+  gzFile env_file, exp_backup_file, sp_struct_file;
+  open_setup_files(exp_s_file, out_p_file, t0, "r", dir );
+  open_backup_files(env_file, exp_backup_file, sp_struct_file, t0, "r", dir );
 
 
   // -------------------------------------------------------------------------
   // 2) Load data from backup and parameter files
   // -------------------------------------------------------------------------
-  load(pop_file, env_file, exp_s_gzfile, exp_s_txtfile, exp_backup_file,
-       sp_struct_file, out_p_gzfile, out_p_txtfile, verbose, to_be_run);
+  load(env_file, exp_s_file, exp_backup_file,
+       sp_struct_file, out_p_file, verbose, to_be_run);
 
 
   // -------------------------------------------------------------------------
   // 3) Close setup and backup files
   // -------------------------------------------------------------------------
-  close_setup_files( exp_s_gzfile, exp_s_txtfile, out_p_gzfile, out_p_txtfile );
-  close_backup_files( env_file, pop_file, exp_backup_file, sp_struct_file );
+  close_setup_files(exp_s_file, out_p_file);
+  close_backup_files(env_file, exp_backup_file, sp_struct_file);
 
 
   // ---------------------------------------------------------------------------
@@ -370,11 +323,6 @@ void ae_exp_manager::load(const char* dir,
   // ---------------------------------------------------------------------------
   // Evaluate individuals
   _spatial_structure->evaluate_individuals(get_env());
-
-  // If the population is spatially structured, then the individuals are saved
-  // and loaded in the order of the grid and not in increasing order of fitness
-  // so we have to sort the individuals
-  _pop->sort_individuals();
 }
 
 
@@ -382,166 +330,75 @@ void ae_exp_manager::load(const char* dir,
   \brief Load an experiment with the provided constitutive files
  */
 void ae_exp_manager::load(int64_t t0,
-                          char* pop_file_name,
                           char* env_file_name,
                           char* exp_setup_file_name,
                           char* exp_backup_file_name,
                           char* sp_struct_file_name,
                           char* out_prof_file_name,
-                          bool verbose ,
-                          bool to_be_run /* = true */)
+                          bool verbose /*= false*/,
+                          bool to_be_run /*= true*/)
 {
   Time::set_time(t0);
 
   // ---------------------------------------------------------------------------
-  // 1) Determine whether the parameter files are in binary or plain text format
-  //    and open in the corresponding "mode"
+  // Open files and check them
   // ---------------------------------------------------------------------------
-  gzFile exp_setup_gzfile = NULL;
-  gzFile out_prof_gzfile = NULL;
-  FILE* exp_setup_txtfile = NULL;
-  FILE* out_prof_txtfile = NULL;
-
-  exp_setup_gzfile = gzopen( exp_setup_file_name, "r" );
-  out_prof_gzfile = gzopen( out_prof_file_name, "r" );
-
-  if ( exp_setup_gzfile == Z_NULL )
-  {
-    printf( "%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, exp_setup_file_name );
-    exit( EXIT_FAILURE );
-  }
-  if ( out_prof_gzfile == Z_NULL )
-  {
-    printf( "%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, out_prof_file_name );
-    exit( EXIT_FAILURE );
-  }
-
-  if (gzdirect(exp_setup_gzfile))
-  {
-    // The provided output profile file is not zipped, it is a plain text setup file
-    // => Close gzfile and open as plain file instead
-    gzclose(exp_setup_gzfile);
-    exp_setup_gzfile = NULL;
-    exp_setup_txtfile = fopen(exp_setup_file_name, "r");
-  }
-
-  if ( gzdirect( out_prof_gzfile ) )
-  {
-    // The provided output profile file is not zipped, it is a plain text setup file
-    // => Close gzfile and open as plain file instead
-    gzclose( out_prof_gzfile );
-    out_prof_gzfile = NULL;
-    out_prof_txtfile = fopen( out_prof_file_name, "r" );
-  }
-
-
-  // ---------------------------------------------------------------------------
-  // 2) Open backup and parameter files
-  // ---------------------------------------------------------------------------
+  gzFile exp_setup_file = gzopen(exp_setup_file_name, "r");
+  gzFile out_prof_file = gzopen(out_prof_file_name, "r");
   gzFile env_file = gzopen( env_file_name, "r" );
-  gzFile pop_file = gzopen( pop_file_name, "r" );
   gzFile exp_backup_file = gzopen( exp_backup_file_name, "r" );
-  gzFile sp_struct_file  = NULL;
-
-  if ( env_file == Z_NULL )
-  {
-    printf( "%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, env_file_name );
-    exit( EXIT_FAILURE );
-  }
-  if ( pop_file == Z_NULL )
-  {
-    printf( "%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, pop_file_name );
-    exit( EXIT_FAILURE );
-  }
-  if ( exp_backup_file == Z_NULL )
-  {
-    printf( "%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, exp_backup_file_name );
-    exit( EXIT_FAILURE );
-  }
-  if ( sp_struct_file_name != NULL )
-  {
-    sp_struct_file = gzopen( sp_struct_file_name, "r" );
-    if ( sp_struct_file == Z_NULL )
-    {
-      printf( "%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, sp_struct_file_name );
-      exit( EXIT_FAILURE );
-    }
-  }
+  gzFile sp_struct_file  = gzopen( sp_struct_file_name, "r" );
 
 
-  // ---------------------------------------------------------------------------
-  // 3) Load data from backup and parameter files
-  // ---------------------------------------------------------------------------
-
-  // ----------------------------------------- Retrieve spatial structure data
-  if ( sp_struct_file != NULL )
+  if (exp_setup_file == Z_NULL)
   {
-    printf( "  Loading spatial structure..." );
-    fflush( stdout );
-    _spatial_structure = new ae_spatial_structure();
-    _spatial_structure->load(sp_struct_file, this);
-    printf( "OK\n" );
+    printf("%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, exp_setup_file_name);
+    exit(EXIT_FAILURE);
   }
-
-  // ------------------------------------------------ Retrieve population data
-  printf( "  Loading population..." );
-  fflush( stdout );
-  _pop->load( pop_file, verbose );
-  printf( "OK\n" );
-
-  // --------------------------------------------- Retrieve environmental data
-  printf( "  Loading environment..." );
-  fflush( stdout );
-  //~ delete _env;
-  //~ _env = new ae_environment();
-  _env->load( env_file );
-  printf( "OK\n" );
-
-  // ---------------------------------------- Retrieve experimental setup data
-  printf( "  Loading experimental setup..." );
-  fflush( stdout );
-  if ( exp_setup_gzfile != NULL )
+  if (out_prof_file == Z_NULL)
   {
-    _exp_s->load( exp_setup_gzfile, exp_backup_file, verbose );
+    printf("%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, out_prof_file_name);
+    exit(EXIT_FAILURE);
   }
-  else
+  if (env_file == Z_NULL)
   {
-    _exp_s->load( exp_setup_txtfile, exp_backup_file, verbose );
+    printf("%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, env_file_name);
+    exit(EXIT_FAILURE);
   }
-  printf( "OK\n" );
-
-  // --------------------------------------------- Retrieve output profile data
-  if ( out_prof_gzfile != NULL )
+  if (exp_backup_file == Z_NULL)
   {
-    _output_m->load( out_prof_gzfile, verbose, to_be_run );
+    printf("%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, exp_backup_file_name);
+    exit( EXIT_FAILURE);
   }
-  else
+  if (sp_struct_file == Z_NULL)
   {
-    _output_m->load( out_prof_txtfile, verbose, to_be_run );
+    printf("%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, sp_struct_file_name);
+    exit(EXIT_FAILURE);
   }
 
 
   // ---------------------------------------------------------------------------
-  // 4) Close setup and backup files
+  // Actually load data
   // ---------------------------------------------------------------------------
-  gzclose(pop_file);
+  load(env_file, exp_setup_file, exp_backup_file,
+      sp_struct_file, out_prof_file, verbose, to_be_run);
+
+
+  // ---------------------------------------------------------------------------
+  // Close setup and backup files
+  // ---------------------------------------------------------------------------
   gzclose(env_file);
-  gzclose(exp_setup_gzfile);
+  gzclose(exp_setup_file);
   gzclose(exp_backup_file);
   gzclose(sp_struct_file);
-  gzclose(out_prof_gzfile);
+  gzclose(out_prof_file);
 
 
   // ---------------------------------------------------------------------------
   // 5) Recompute unsaved data
   // ---------------------------------------------------------------------------
   // Evaluate individuals
-  _pop->evaluate_individuals(get_env());
-
-  // If the population is spatially structured, then the individuals are saved
-  // and loaded in the order of the grid and not in increasing order of fitness
-  // so we have to sort the individuals
-  _pop->sort_individuals();
+  _spatial_structure->evaluate_individuals(get_env());
 }
 
 /*!
@@ -582,12 +439,12 @@ void ae_exp_manager::run_evolution( void )
   printf("============================== %" PRId64 " ==============================\n",
       Time::get_time());
   printf("  Best individual's distance to target (metabolic) : %f\n",
-      _pop->get_best()->get_dist_to_target_by_feature(METABOLISM));
+      get_best_indiv()->get_dist_to_target_by_feature(METABOLISM));
   printf("===================================================================\n");
   printf("  The run is finished. \n");
   printf("  Printing the final best individual into " BEST_LAST_ORG_FNAME "\n");
   FILE* org_file = fopen(BEST_LAST_ORG_FNAME, "w");
-  fputs(_pop->get_best()->get_genetic_unit(0).get_dna()->get_data(), org_file);
+  fputs(get_best_indiv()->get_genetic_unit_sequence(0), org_file);
   fclose(org_file);
 }
 
@@ -649,12 +506,11 @@ void ae_exp_manager::create_missing_directories( const char* dir /*= "."*/ ) con
 }
 
 void ae_exp_manager::open_backup_files(gzFile& env_file,
-                                       gzFile& pop_file,
                                        gzFile& exp_backup_file,
                                        gzFile& sp_struct_file,
                                        int64_t t,
                                        const char mode[3],
-                                       const char* dir /*= "."*/ ) const
+                                       const char* dir /*= "."*/) const
 {
   assert( strcmp( mode, "w" ) == 0 or strcmp( mode, "r" ) == 0 );
 
@@ -663,12 +519,10 @@ void ae_exp_manager::open_backup_files(gzFile& env_file,
   //    Optional files (e.g. spatial structure) will be handled separately
   // -------------------------------------------------------------------------
   char env_file_name[255];
-  char pop_file_name[255];
   char exp_backup_file_name[255];
   char sp_struct_file_name[255];
 
   sprintf(env_file_name, "%s/" ENV_FNAME_FORMAT, dir, t);
-  sprintf(pop_file_name, "%s/" POP_FNAME_FORMAT, dir, t);
   sprintf(exp_backup_file_name, "%s/" EXP_S_FNAME_FORMAT, dir, t);
   sprintf(sp_struct_file_name, "%s/" SP_STRUCT_FNAME_FORMAT, dir, t);
 
@@ -677,7 +531,6 @@ void ae_exp_manager::open_backup_files(gzFile& env_file,
   // 2) Open backup files (environment, population and selection)
   // -------------------------------------------------------------------------
   env_file = gzopen(env_file_name, mode);
-  pop_file = gzopen(pop_file_name, mode);
   exp_backup_file = gzopen(exp_backup_file_name, mode);
   sp_struct_file = gzopen(sp_struct_file_name, mode);
 
@@ -689,12 +542,6 @@ void ae_exp_manager::open_backup_files(gzFile& env_file,
   {
     printf( "%s:%d: error: could not open backup file %s\n",
             __FILE__, __LINE__, env_file_name );
-    exit( EXIT_FAILURE );
-  }
-  if (pop_file == Z_NULL)
-  {
-    printf( "%s:%d: error: could not open backup file %s\n",
-            __FILE__, __LINE__, pop_file_name );
     exit( EXIT_FAILURE );
   }
   if (exp_backup_file == Z_NULL)
@@ -711,76 +558,53 @@ void ae_exp_manager::open_backup_files(gzFile& env_file,
   }
 }
 
-void ae_exp_manager::close_backup_files(  gzFile& env_file,
-                                          gzFile& pop_file,
-                                          gzFile& exp_backup_file,
-                                          gzFile& sp_struct_file ) const
+void ae_exp_manager::close_backup_files(gzFile& env_file,
+                                        gzFile& exp_backup_file,
+                                        gzFile& sp_struct_file ) const
 {
   gzclose(env_file);
-  gzclose(pop_file);
   gzclose(exp_backup_file);
   gzclose(sp_struct_file);
 }
 
 void ae_exp_manager::open_setup_files(
-        gzFile& exp_s_gzfile, FILE*& exp_s_txtfile,
-        gzFile& out_p_gzfile, FILE*& out_p_txtfile,
+        gzFile& exp_s_file,
+        gzFile& out_p_file,
         int64_t t,
         const char mode[3],
         const char* dir /*= "."*/ ) const
 {
   // 1) Generate setup file names
-  char exp_s_gzfile_name[255];
-  char exp_s_txtfile_name[255];
-  char out_p_gzfile_name[255];
-  char out_p_txtfile_name[255];
+  char exp_s_file_name[255];
+  char out_p_file_name[255];
 
-  sprintf( exp_s_gzfile_name,  "%s/" EXP_S_CONST_FNAME_FORMAT,     dir );
-  sprintf( exp_s_txtfile_name, "%s/" EXP_S_TXT_CONST_FNAME_FORMAT, dir );
-  sprintf( out_p_gzfile_name,  "%s/" OUT_P_FNAME_FORMAT,     dir );
-  sprintf( out_p_txtfile_name, "%s/" OUT_P_TXT_FNAME_FORMAT, dir );
+  sprintf(exp_s_file_name, "%s/" EXP_S_CONST_FNAME_FORMAT, dir);
+  sprintf(out_p_file_name, "%s/" OUT_P_FNAME_FORMAT, dir);
 
   // 2) Open backup files (environment, population and spacial structure)
-  exp_s_gzfile  = gzopen( exp_s_gzfile_name, mode );
-  exp_s_txtfile = fopen( exp_s_txtfile_name, mode );
-  out_p_gzfile  = gzopen( out_p_gzfile_name, mode );
-  out_p_txtfile = fopen( out_p_txtfile_name, mode );
+  exp_s_file = gzopen(exp_s_file_name, mode);
+  out_p_file = gzopen(out_p_file_name, mode);
 
   // 3) Check that files were correctly opened
-  if ( exp_s_gzfile == Z_NULL )
+  if (exp_s_file == Z_NULL)
   {
     printf( "%s:%d: error: could not open backup file %s\n",
-            __FILE__, __LINE__, exp_s_gzfile_name );
+            __FILE__, __LINE__, exp_s_file_name );
     exit( EXIT_FAILURE );
   }
-  if ( exp_s_txtfile == NULL )
+  if (out_p_file == Z_NULL)
   {
     printf( "%s:%d: error: could not open backup file %s\n",
-            __FILE__, __LINE__, exp_s_txtfile_name );
-    exit( EXIT_FAILURE );
-  }
-  if ( out_p_gzfile == Z_NULL )
-  {
-    printf( "%s:%d: error: could not open backup file %s\n",
-            __FILE__, __LINE__, out_p_gzfile_name );
-    exit( EXIT_FAILURE );
-  }
-  if ( out_p_txtfile == NULL )
-  {
-    printf( "%s:%d: error: could not open backup file %s\n",
-            __FILE__, __LINE__, out_p_txtfile_name );
+            __FILE__, __LINE__, out_p_file_name );
     exit( EXIT_FAILURE );
   }
 }
 
-void ae_exp_manager::close_setup_files(
-        gzFile& exp_s_gzfile, FILE* exp_s_txtfile,
-        gzFile& out_p_gzfile, FILE* out_p_txtfile ) const
+void ae_exp_manager::close_setup_files(gzFile& exp_s_file,
+                                       gzFile& out_p_file) const
 {
-  gzclose( exp_s_gzfile );
-  fclose( exp_s_txtfile );
-  gzclose( out_p_gzfile );
-  fclose( out_p_txtfile );
+  gzclose(exp_s_file);
+  gzclose(out_p_file);
 }
 // ===========================================================================
 //                               Non inline accessors

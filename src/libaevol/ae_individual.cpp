@@ -31,7 +31,6 @@
 #include "ae_exp_manager.h"
 #include "ae_grid_cell.h"
 #include "ae_genetic_unit.h"
-#include "ae_population.h"
 #include "ae_vis_a_vis.h"
 #include "ae_utils.h"
 #include "fuzzy.h"
@@ -579,6 +578,21 @@ ae_individual::ae_individual(ae_individual* const parent, int32_t id, ae_jumping
   _modularity = -1;
 
   //evaluate();
+}
+
+/*!
+  \brief Create of clone of an ae_individual
+
+  \param dolly original individual to be cloned
+  \param id ID of the clone in the population
+  \return clone of dolly
+*/
+ae_individual* ae_individual::create_clone(ae_individual* dolly, int32_t id)
+{
+  ae_individual* indiv = new ae_individual(*dolly, false);
+  indiv->set_id(id);
+
+  return indiv;
 }
 
 

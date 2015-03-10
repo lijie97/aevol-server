@@ -45,7 +45,6 @@
 #include "ae_stat_record.h"
 #include "ae_exp_manager.h"
 #include "ae_exp_setup.h"
-#include "ae_population.h"
 #include "ae_individual.h"
 #include "ae_genetic_unit.h"
 #ifdef __REGUL
@@ -72,12 +71,14 @@ namespace aevol {
   Create a NEW stat manager
  */
 ae_stats::ae_stats(ae_exp_manager* exp_m,
-                   bool best_indiv_only,
-                   const char * prefix /* = "stat" */)
+             bool best_indiv_only /*= false*/,
+             const char* prefix /*= "stat"*/,
+             bool with_plasmids /*= false*/,
+             bool compute_phen_contrib_by_GU /*= false*/)
 {
   _exp_m = exp_m;
   init_data();
-  set_file_names( prefix, best_indiv_only );
+  set_file_names(prefix, best_indiv_only, with_plasmids, compute_phen_contrib_by_GU);// _exp_m->get_with_plasmids(), _exp_m->get_output_m()->get_compute_phen_contrib_by_GU());
   open_files();
   write_headers();
 }
@@ -558,7 +559,8 @@ void ae_stats::write_current_generation_statistics( void )
   
   for (int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++)
   {
-    if ((!_exp_m->get_output_m()->get_compute_phen_contrib_by_GU())&&chrom_or_GU>ALL_GU) continue;
+    if ((not _exp_m->get_output_m()->get_compute_phen_contrib_by_GU()) &&
+        chrom_or_GU > ALL_GU) continue;
 
     stat_records = new ae_stat_record* [NB_BEST_OR_GLOB];
     
@@ -566,9 +568,9 @@ void ae_stats::write_current_generation_statistics( void )
                                             (chrom_or_gen_unit) chrom_or_GU);
     stat_records[GLOB] = new ae_stat_record(_exp_m, _exp_m->get_indivs_std(),
                                             (chrom_or_gen_unit) chrom_or_GU);
-    stat_records[SDEV] = new ae_stat_record(_exp_m, _exp_m->get_pop(),
+    stat_records[SDEV] = new ae_stat_record(_exp_m, _exp_m->get_indivs_std(),
                                             stat_records[GLOB], (chrom_or_gen_unit) chrom_or_GU);
-    stat_records[SKEW] = new ae_stat_record(_exp_m, _exp_m->get_pop(),
+    stat_records[SKEW] = new ae_stat_record(_exp_m, _exp_m->get_indivs_std(),
                                             stat_records[GLOB], stat_records[SDEV], (chrom_or_gen_unit) chrom_or_GU );
     
     for ( int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++ )
@@ -666,7 +668,10 @@ void ae_stats::init_data( void )
  *       give it a name temporarily so that we can write the warning headers. Once this
  *       is done, the name will be deleted to mark the file as "not to be written into"
  */
-void ae_stats::set_file_names( const char * prefix, bool one_lambda_indiv_only )
+void ae_stats::set_file_names(const char* prefix,
+                              bool one_lambda_indiv_only,
+                              bool with_plasmids /*= false*/,
+                              bool compute_phen_contrib_by_GU /*= false*/)
 {
   // 1) Create stats directory
   int status;
@@ -683,9 +688,12 @@ void ae_stats::set_file_names( const char * prefix, bool one_lambda_indiv_only )
   for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
   {
     // If plasmids are not allowed, don't issue "chromosome" and "plasmids" files
-    if ( not _exp_m->get_with_plasmids() && chrom_or_GU > 0 ) continue;
+    if (not with_plasmids && chrom_or_GU > 0)
+      continue;
+
     // Idem if COMPUTE_PHEN_CONTRIB_BY_GU not set
-    if ((!_exp_m->get_output_m()->get_compute_phen_contrib_by_GU())&&chrom_or_GU>ALL_GU) continue;
+    if ((not compute_phen_contrib_by_GU && chrom_or_GU > ALL_GU))
+      continue;
 
 
     for ( int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++ )

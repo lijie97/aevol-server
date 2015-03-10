@@ -46,7 +46,6 @@ ae_mutation.h \
 ae_output_manager.h \
 ae_params_mut.h \
 ae_phenotype.h \
-ae_population.h \
 point.h \
 ae_protein.h \
 ae_jumping_mt.h \
@@ -85,7 +84,6 @@ ae_mutation.cpp \
 ae_output_manager.cpp \
 ae_params_mut.cpp \
 ae_phenotype.cpp \
-ae_population.cpp \
 point.cpp \
 ae_protein.cpp \
 ae_jumping_mt.cpp \
@@ -109,13 +107,11 @@ Time.cpp
 
 X11_headers = \
 ae_individual_X11.h \
-ae_population_X11.h \
 ae_exp_manager_X11.h \
 ae_X11_window.h
 
 X11_sources = \
 ae_individual_X11.cpp \
-ae_population_X11.cpp \
 ae_exp_manager_X11.cpp \
 ae_X11_window.cpp
 

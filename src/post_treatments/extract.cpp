@@ -191,8 +191,7 @@ int main( int argc, char* argv[] )
   // Two possible sources: either the user provided a "full" simulation via a generation number (option '-r'), either he just provided a population file (option '-p').
   if ( num_gener != -1 )
   {
-    exp_manager->load( num_gener, false, false, false );
-    pop = exp_manager->get_pop();
+    exp_manager->load(num_gener, false, false);
     env = exp_manager->get_env();
   }
   else

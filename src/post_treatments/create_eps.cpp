@@ -193,7 +193,7 @@ int main( int argc, char* argv[] )
 
   // Load the simulation
   ae_exp_manager* exp_manager = new ae_exp_manager();
-  exp_manager->load( num_gener, false, true, false );
+  exp_manager->load(num_gener, true, false);
 
   env = exp_manager->get_env();
 

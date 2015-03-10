@@ -41,7 +41,6 @@
 #include "macros.h"
 #include "ae_exp_manager.h"
 #include "ae_exp_setup.h"
-#include "ae_population.h"
 #include "ae_individual.h"
 #include "ae_utils.h"
 
@@ -265,7 +264,7 @@ void ae_tree::fill_tree_with_cur_gener(void)
       // (for _tree_step == 100, information on generations
       // 1 to 100, or 101 to 200, or 201 to 300, etc)
       int64_t time_i = ae_utils::mod(Time::get_time() - 1, _tree_step);
-      _nb_indivs[time_i] = _exp_m->get_pop()->get_nb_indivs();
+      _nb_indivs[time_i] = _exp_m->get_nb_indivs();
       _replics[time_i]   = new ae_replication_report* [_nb_indivs[time_i]];
 
 

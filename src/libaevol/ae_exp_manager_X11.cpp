@@ -42,8 +42,7 @@
 // =================================================================
 #include "ae_exp_manager_X11.h"
 #include "ae_spatial_structure.h"
-#include <point.h>
-#include "ae_population_X11.h"
+#include "point.h"
 #include "ae_individual_X11.h"
 #include "ae_X11_window.h"
 #include "fuzzy.h"
@@ -456,6 +455,79 @@ void ae_exp_manager_X11::display(ae_X11_window* win,
   }
 }
 
+// Display a grid of values
+void ae_exp_manager_X11::display_grid(ae_X11_window* win, double** cell_grid)
+{
+  // printf("display grid\n");
+  char t[40];
+  int nb_colors = 50; 
+  
+  sprintf(t, "Generation = %" PRId64, Time::get_time());
+  win->draw_string(15, 15, t);
+  
+  
+  const int grid_width  = get_grid_width();
+  const int grid_height = get_grid_height();
+
+  int nb_slots_in_a_row = (int) grid_height;
+  int slot_width = 200/nb_slots_in_a_row;
+  int x1 = 50 + 50 + slot_width/2;
+  int y1 = 75 + 50 + slot_width/2;
+
+  // create the colormap colors to be used for grid plotting
+  int cell_size = 5;
+
+  // draw the color scale for fitness
+  int y_step_size = grid_height*cell_size/nb_colors;
+  for ( int i = 0; i  < nb_colors; i++ )
+  {
+    win->fill_rectangle( x1 - 30, y1 - 80 + y_step_size * i,
+                         cell_size * 5, y_step_size,
+                         _col_map[nb_colors-1-i] );
+  }
+
+  // find min/max of the matrix
+  double grid_max = 0;
+  double grid_min = 1000000;
+  for ( int x = 0 ; x < grid_width ; x++ )
+  {
+    for ( int y = 0 ; y < grid_height ; y++ )
+    {
+       if (cell_grid[x][y] > grid_max) {grid_max = cell_grid[x][y];}
+       if (cell_grid[x][y] < grid_min) {grid_min = cell_grid[x][y];}
+     }
+  }
+  double col_sec_interval = (grid_max - grid_min)/49;
+
+  char scale_txt[40];
+  sprintf(scale_txt,"%.2e", grid_max);
+  win->draw_string(x1-80, y1-80,scale_txt);
+  sprintf(scale_txt,"%.2e", grid_min);
+  win->draw_string(x1-80, y1-80+grid_height*cell_size,scale_txt);
+
+  for (int x = 0; x < grid_width; x++)
+  {
+    for (int y = 0; y < grid_height; y++)
+    {
+      char * col_string;
+      // calculate the color
+      int new_col;
+      if (col_sec_interval==0)
+      {
+        new_col = 0;
+      }
+      else
+      {
+        new_col = (int) floor((cell_grid[x][y] - grid_min) / col_sec_interval);
+      }
+      col_string = _col_map[new_col];
+
+      // draw a colored rectangle for each cell
+      win->fill_rectangle( x1 + 50 + x*cell_size, y1 - 80 + y*cell_size, cell_size, cell_size, col_string );
+    }
+  }
+}
+
 
 // =================================================================
 //                           Protected Methods
@@ -571,6 +643,8 @@ void ae_exp_manager_X11::initialize( bool with_grid /*= false*/, bool with_plasm
   _win_name[4] = (char*) "Secreted compound present";
   _win_name[5] = (char*) "Metabolic fitness";
   _win_name[6] = (char*) "Current secretion";
+
+  compute_colormap();
 }
 
 int8_t ae_exp_manager_X11::identify_window( Window winID )
@@ -673,7 +747,7 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
       cur_win->blacken();
 
       double** grid = get_spatial_structure()->get_total_fitness_grid();
-      ((ae_population_X11*)_pop)->display_grid(cur_win, grid);
+      display_grid(cur_win, grid);
 
       // Has been allocated in ae_spatial_structure::get_total_fitness_grid()
       for ( int16_t x = 0 ; x < get_grid_width() ; x++ )
@@ -716,7 +790,7 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
       }
 
       // Display all the phenotypes (blue)
-      for (const auto& indiv: _pop->get_indivs())
+      for (const auto& indiv: get_indivs_std())
       {
         display(cur_win, *(indiv->get_phenotype()), BLUE);
         if ( indiv->get_allow_plasmids())
@@ -759,7 +833,7 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
     {
       cur_win->blacken();
 
-      ((ae_population_X11*)_pop)->display_grid( cur_win, get_spatial_structure()->get_secretion_present_grid());
+      display_grid(cur_win, get_spatial_structure()->get_secretion_present_grid());
     }
     break;
 
@@ -768,7 +842,7 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
     {
       cur_win->blacken();
 
-      ((ae_population_X11*)_pop)->display_grid( cur_win, get_spatial_structure()->get_metabolic_fitness_grid());
+      display_grid(cur_win, get_spatial_structure()->get_metabolic_fitness_grid());
     }
     break;
 
@@ -777,7 +851,7 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
     {
       cur_win->blacken();
 
-      ((ae_population_X11*)_pop)->display_grid( cur_win, get_spatial_structure()->get_secreted_amount_grid());
+      display_grid(cur_win, get_spatial_structure()->get_secreted_amount_grid());
     }
     break;
   }
@@ -842,5 +916,66 @@ void ae_exp_manager_X11::set_codes( void )
   _key_codes[KEY_7]       = XKeysymToKeycode( _display, XK_7 );
   _key_codes[KEY_8]       = XKeysymToKeycode( _display, XK_8 );
   _key_codes[KEY_9]       = XKeysymToKeycode( _display, XK_9 );
+}
+
+
+void ae_exp_manager_X11::compute_colormap( void )
+{
+    _col_map = new char* [50];
+    
+    _col_map[0] = (char*)"RGBi:1.0/0.0/0.0";
+    _col_map[1] = (char*)"RGBi:1.0/0.1/0.0";   
+    _col_map[2] = (char*)"RGBi:1.0/0.2/0.0";
+    _col_map[3] = (char*)"RGBi:1.0/0.3/0.0";
+    _col_map[4] = (char*)"RGBi:1.0/0.4/0.0";
+    _col_map[5] = (char*)"RGBi:1.0/0.5/0.0";
+    _col_map[6] = (char*)"RGBi:1.0/0.6/0.0";
+    _col_map[7] = (char*)"RGBi:1.0/0.7/0.0";
+    _col_map[8] = (char*)"RGBi:1.0/0.8/0.0";
+    _col_map[9] = (char*)"RGBi:1.0/0.9/0.0";
+
+    _col_map[10] = (char*)"RGBi:0.9/1.0/0.0";
+    _col_map[11] = (char*)"RGBi:0.8/1.0/0.0";
+    _col_map[12] = (char*)"RGBi:0.7/1.0/0.0";
+    _col_map[13] = (char*)"RGBi:0.6/1.0/0.0";
+    _col_map[14] = (char*)"RGBi:0.5/1.0/0.0";
+    _col_map[15] = (char*)"RGBi:0.4/1.0/0.0";
+    _col_map[16] = (char*)"RGBi:0.3/1.0/0.0";
+    _col_map[17] = (char*)"RGBi:0.2/1.0/0.0";
+    _col_map[18] = (char*)"RGBi:0.1/1.0/0.0";
+    _col_map[19] = (char*)"RGBi:0.0/1.0/0.0";
+
+    _col_map[20] = (char*)"RGBi:0.0/1.0/0.1";
+    _col_map[21] = (char*)"RGBi:0.0/1.0/0.2";
+    _col_map[22] = (char*)"RGBi:0.0/1.0/0.3";
+    _col_map[23] = (char*)"RGBi:0.0/1.0/0.4";
+    _col_map[24] = (char*)"RGBi:0.0/1.0/0.5";
+    _col_map[25] = (char*)"RGBi:0.0/1.0/0.6";
+    _col_map[26] = (char*)"RGBi:0.0/1.0/0.7";
+    _col_map[27] = (char*)"RGBi:0.0/1.0/0.8";
+    _col_map[28] = (char*)"RGBi:0.0/1.0/0.9";
+    _col_map[29] = (char*)"RGBi:0.0/1.0/1.0";
+
+    _col_map[30] = (char*)"RGBi:0.0/0.9/1.0";
+    _col_map[31] = (char*)"RGBi:0.0/0.8/1.0";
+    _col_map[32] = (char*)"RGBi:0.0/0.7/1.0";
+    _col_map[33] = (char*)"RGBi:0.0/0.6/1.0";
+    _col_map[34] = (char*)"RGBi:0.0/0.5/1.0";
+    _col_map[35] = (char*)"RGBi:0.0/0.4/1.0";
+    _col_map[36] = (char*)"RGBi:0.0/0.3/1.0";
+    _col_map[37] = (char*)"RGBi:0.0/0.2/1.0";
+    _col_map[38] = (char*)"RGBi:0.0/0.1/1.0";
+    _col_map[39] = (char*)"RGBi:0.0/0.0/1.0";
+
+    _col_map[40] = (char*)"RGBi:0.1/0.0/1.0";
+    _col_map[41] = (char*)"RGBi:0.2/0.0/1.0";
+    _col_map[42] = (char*)"RGBi:0.3/0.0/1.0";
+    _col_map[43] = (char*)"RGBi:0.4/0.0/1.0";
+    _col_map[44] = (char*)"RGBi:0.5/0.0/1.0";
+    _col_map[45] = (char*)"RGBi:0.6/0.0/1.0";
+    _col_map[46] = (char*)"RGBi:0.7/0.0/1.0";
+    _col_map[47] = (char*)"RGBi:0.8/0.0/1.0";
+    _col_map[48] = (char*)"RGBi:0.9/0.0/1.0";
+    _col_map[49] = (char*)"RGBi:1.0/0.0/1.0";
 }
 } // namespace aevol

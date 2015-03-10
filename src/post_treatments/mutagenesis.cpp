@@ -54,6 +54,8 @@
 #include "ae_dna.h"
 #include "ae_mutation.h"
 
+
+using std::list;
 using namespace aevol;
 
 // =================================================================
@@ -206,7 +208,7 @@ int main( int argc, char* argv[] )
   // ------------------------------------------------------
 
   ae_exp_manager* exp_manager = new ae_exp_manager();
-  exp_manager->load( num_gener, false, true, false );
+  exp_manager->load(num_gener, true, false);
 
   if ( exp_manager->get_output_m()->get_record_tree() == false )
     {
@@ -228,7 +230,7 @@ int main( int argc, char* argv[] )
     bool found = false;
     int32_t current_rank = -1;
     int32_t current_index = -1;
-    std::list<ae_individual*> indivs = exp_manager->get_pop()->get_indivs();
+    list<ae_individual*> indivs = exp_manager->get_indivs_std();
     for (auto indiv = indivs.rbegin(); not found and indiv != indivs.rend(); ++indiv) {
       current_index = (*indiv)->get_id();
       current_rank = (*indiv)->get_rank();

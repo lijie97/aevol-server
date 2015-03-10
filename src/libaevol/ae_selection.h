@@ -112,7 +112,6 @@ class ae_selection
                                    int32_t index,
                                    int16_t x = -1,
                                    int16_t y = -1 );
-    void compute_prob_reprod( void );
     // =================================================================
     //                           Public Attributes
     // =================================================================
@@ -125,7 +124,7 @@ class ae_selection
     // =================================================================
     //                           Protected Methods
     // =================================================================
-    //void compute_prob_reprod( void );
+    void compute_prob_reprod( void );
     void compute_local_prob_reprod( void );
     //ae_individual* do_replication( ae_individual* parent, int32_t index, int16_t x = -1, int16_t y = -1 );
     ae_individual* do_local_competition(int16_t x, int16_t y);

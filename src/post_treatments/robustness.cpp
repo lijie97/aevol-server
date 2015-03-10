@@ -50,6 +50,8 @@
 #include "ae_population.h"
 #include "ae_individual.h"
 
+
+using std::list;
 using namespace aevol;
 
 // =================================================================
@@ -148,7 +150,7 @@ int main( int argc, char* argv[] )
   // -----------------------------------------------------------------------------------
 
   ae_exp_manager* exp_manager = new ae_exp_manager();
-  exp_manager->load( num_gener, false, true, false );
+  exp_manager->load(num_gener, true, false);
 
   if ( (wanted_rank == -1) && (wanted_index == -1) ) 
     {
@@ -161,7 +163,7 @@ int main( int argc, char* argv[] )
     bool found = false;
     int32_t current_rank = -1;
     int32_t current_index = -1;
-    std::list<ae_individual*> indivs = exp_manager->get_pop()->get_indivs();
+    std::list<ae_individual*> indivs = exp_manager->get_indivs_std();
     for (auto indiv = indivs.rbegin(); not found and indiv != indivs.rend(); ++indiv) {
       current_index = (*indiv)->get_id();
       current_rank = (*indiv)->get_rank();
@@ -270,39 +272,40 @@ int main( int argc, char* argv[] )
   double offsprings_statistics[6];
   double th_fv;
   
-  exp_manager->get_exp_s()->get_sel()->compute_prob_reprod();
-  double* tmp_reprod = exp_manager->get_exp_s()->get_sel()->get_prob_reprod();
+  // exp_manager->get_exp_s()->get_sel()->compute_prob_reprod();
+  // double* tmp_reprod = exp_manager->get_exp_s()->get_sel()->get_prob_reprod();
 
   { // (local scope for `indivs` used as a shorthand)
-    std::list<ae_individual*> indivs = exp_manager->get_pop()->get_indivs();
-    for (auto indiv = indivs.rbegin(); indiv != indivs.rend(); ++indiv) {
-      int32_t current_index = (*indiv)->get_id();
-      int32_t current_rank = (*indiv)->get_rank();
+    list<ae_individual*> indivs = exp_manager->get_indivs_std();
+    for (auto indiv : indivs)
+    {
+      int32_t current_index = indiv->get_id();
+      int32_t current_rank = indiv->get_rank();
 
       // Compute Fv ----------------------------------------------------------------
-      th_fv = (*indiv)->compute_theoritical_f_nu();
+      th_fv = indiv->compute_theoritical_f_nu();
 
-      if (*indiv == wanted_indiv)
-        (*indiv)->compute_experimental_f_nu(nb_children,
-                                            reproduction_statistics,
-                                            offsprings_statistics,
-                                            outputfile_details);
+      if (indiv == wanted_indiv)
+        indiv->compute_experimental_f_nu(nb_children,
+                                         reproduction_statistics,
+                                         offsprings_statistics,
+                                         outputfile_details);
       else
-        (*indiv)->compute_experimental_f_nu(nb_children,
-                                            reproduction_statistics,
-                                            offsprings_statistics);
+        indiv->compute_experimental_f_nu(nb_children,
+                                         reproduction_statistics,
+                                         offsprings_statistics);
 
 
       // Write to file -------------------------------------------------------------
       fprintf(outputfile_wholepop,
-              "%" PRId32 " %" PRId32 " %le %le %" PRId32 " %" PRId32 " %le %le %le %le %le %le %le %le %le %le %le\n",
+              "%" PRId32 " %" PRId32 " %le %le %" PRId32 " %" PRId32
+              " %le %le %le %le %le %le %le %le %le %le\n",
               current_rank,
               current_index,
-              (*indiv)->get_fitness(),
-              (*indiv)->get_dist_to_target_by_feature( METABOLISM ),
-              (*indiv)->get_total_genome_size(),
-              (*indiv)->get_nb_functional_genes(),
-              tmp_reprod[current_rank - 1],
+              indiv->get_fitness(),
+              indiv->get_dist_to_target_by_feature(METABOLISM),
+              indiv->get_total_genome_size(),
+              indiv->get_nb_functional_genes(),
               reproduction_statistics[0],
               reproduction_statistics[1],
               reproduction_statistics[2],

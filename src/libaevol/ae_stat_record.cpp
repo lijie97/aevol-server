@@ -42,7 +42,6 @@
 #include "ae_list.h"
 #include "ae_exp_manager.h"
 #include "ae_exp_setup.h"
-#include "ae_population.h"
 #include "ae_individual.h"
 #include "ae_genetic_unit.h"
 #include "ae_replication_report.h"
@@ -475,7 +474,7 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
 
 // Calculate standard deviation for all the recorded values 
 ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
-                               const ae_population* pop,
+                               const list<ae_individual*> indivs,
                                const ae_stat_record* means,
                                chrom_or_gen_unit chrom_or_gu)
 {
@@ -487,14 +486,14 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
   // ---------------
   // Simulation data
   // ---------------
-  _pop_size  = (double) pop->get_nb_indivs();
+  _pop_size = (double) indivs.size();
 
   // ------------------------------------------------------------------
   // Compute statistical data for the each individual in the population
   // ------------------------------------------------------------------
-  for (const auto& indiv: pop->get_indivs()) {
+  for (const auto& indiv : indivs) {
     ae_stat_record* indiv_stat_record = new ae_stat_record( _exp_m, indiv, chrom_or_gu, false );
-    this->substract_power( means, indiv_stat_record, 2 );
+    this->substract_power(means, indiv_stat_record, 2 );
     delete indiv_stat_record;
   }
   
@@ -506,7 +505,7 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
 
  // Calculate skewness for all the recorded values 
 ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
-                               const ae_population* pop,
+                               const list<ae_individual*> indivs,
                                const ae_stat_record* means,
                                const ae_stat_record* stdevs,
                                chrom_or_gen_unit chrom_or_gu)
@@ -519,12 +518,12 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
   // ---------------
   // Simulation data
   // ---------------
-  _pop_size  = (double) pop->get_nb_indivs();
+  _pop_size = (double) indivs.size();
 
   // ------------------------------------------------------------------
   // Compute statistical data for the each individual in the population
   // ------------------------------------------------------------------
-  for (const auto& indiv: pop->get_indivs())
+  for (const auto& indiv : indivs)
   {
     ae_stat_record* indiv_stat_record = new ae_stat_record(_exp_m, indiv, chrom_or_gu, false);
     this->substract_power(means, indiv_stat_record, 3);

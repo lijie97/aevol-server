@@ -153,11 +153,11 @@ void ae_selection::step_to_next_generation(void)
   int16_t grid_height = _exp_m->get_grid_height();
   ae_grid_cell*** pop_grid = _exp_m->get_pop_grid();
 
-  // create a temporary grid to store new individuals
-  ae_individual*** new_indiv_grid = new ae_individual** [grid_width];
+  // create a temporary grid to store the reproducers
+  ae_individual*** reproducers = new ae_individual** [grid_width];
   for ( int16_t i = 0 ; i < grid_width ; i++ )
   {
-    new_indiv_grid[i] = new ae_individual* [grid_height];
+    reproducers[i] = new ae_individual* [grid_height];
   }
 
 
@@ -166,7 +166,7 @@ void ae_selection::step_to_next_generation(void)
   {
     for (int16_t y = 0 ; y < grid_height ; y++)
     {
-      new_indiv_grid[x][y] = do_local_competition(x, y);
+      reproducers[x][y] = do_local_competition(x, y);
     }
   }
 
@@ -197,27 +197,24 @@ void ae_selection::step_to_next_generation(void)
   {
     for (int16_t y = 0 ; y < grid_height ; y++)
     {
-      pop_grid[x][y]->set_individual(do_replication(new_indiv_grid[x][y], index_new_indiv++, x, y));
+      pop_grid[x][y]->set_individual(do_replication(reproducers[x][y], index_new_indiv++, x, y));
       #ifdef DISTRIBUTED_PRNG
         #error Not implemented yet !
-        new_indiv_grid[x][y]->do_prng_jump();
+        reproducers[x][y]->do_prng_jump();
       #endif
       new_generation.emplace_back(pop_grid[x][y]->get_individual());
     }
   }
 
-  // Replace the old population by the newly created one
-  _exp_m->get_pop()->replace_population(std::move(new_generation));
-
   // delete the temporary grid
   for ( int16_t x = 0 ; x < grid_width ; x++ )
   {
-    delete [] new_indiv_grid[x];
+    delete [] reproducers[x];
   }
-  delete [] new_indiv_grid;
+  delete [] reproducers;
 
   // randomly migrate some organisms, if necessary
-  if ( sp_struct->get_migration_number() > 0 )
+  if (sp_struct->get_migration_number() > 0)
   {
     sp_struct->do_random_migrations();
   }
@@ -239,7 +236,6 @@ void ae_selection::PerformPlasmidTransfers(void)
     ae_spatial_structure* sp_struct = _exp_m->get_spatial_structure();
     int16_t grid_width  = _exp_m->get_grid_width();
     int16_t grid_height = _exp_m->get_grid_height();
-    ae_grid_cell*** pop_grid = _exp_m->get_pop_grid();
   
     int16_t x_offset, y_offset, new_x, new_y;
 
@@ -385,10 +381,10 @@ void ae_selection::compute_prob_reprod( void )
     delete [] _prob_reprod;
   }
 
-  int32_t nb_indivs = _exp_m->get_pop()->get_nb_indivs();
+  int32_t nb_indivs = _exp_m->get_nb_indivs();
   _prob_reprod = new double[nb_indivs];
 
-  if ( _selection_scheme == RANK_LINEAR )
+  if (_selection_scheme == RANK_LINEAR)
   {
     // The probability of reproduction for an individual is given by
     // ( 2-SP + 2 * (SP-1) * (R-1)/(N-1) ) / N
@@ -403,8 +399,8 @@ void ae_selection::compute_prob_reprod( void )
     // probs[0] will hence be given by (2-SP)/N
     // probs[i+1] can then be expressed by probs[i] + (2*(SP-1)) / (N*(N-1))
 
-    double increment  = (2 * (_selection_pressure-1)) / (nb_indivs * (nb_indivs-1));
-    _prob_reprod[0]   = (2 - _selection_pressure) / nb_indivs;
+    double increment = (2 * (_selection_pressure-1)) / (nb_indivs * (nb_indivs-1));
+    _prob_reprod[0]  = (2 - _selection_pressure) / nb_indivs;
 
     for ( int32_t i = 1 ; i < nb_indivs ; i++ )
     {
@@ -441,7 +437,7 @@ void ae_selection::compute_prob_reprod( void )
 
     // No need to normalize: We don't allow ex-aequo
   }
-  else if ( _selection_scheme == FITNESS_PROPORTIONATE ) // Fitness Proportionate
+  else if (_selection_scheme == FITNESS_PROPORTIONATE) // Fitness Proportionate
   {
     // The probability of reproduction for an individual is given by
     // exp( -SP * gap ) / sum of this measure on all individuals
@@ -452,7 +448,7 @@ void ae_selection::compute_prob_reprod( void )
     double  sum       = 0;
 
     size_t i = 0;
-    for (const auto& indiv: _exp_m->get_pop()->get_indivs()) {
+    for (const auto& indiv: _exp_m->get_indivs_std()) {
       fitnesses[i] = indiv->get_fitness();
       sum += fitnesses[i];
       ++i;

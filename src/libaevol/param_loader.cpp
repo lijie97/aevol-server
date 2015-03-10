@@ -47,7 +47,6 @@
 #include "ae_exp_manager.h"
 #include "ae_exp_setup.h"
 #include "ae_output_manager.h"
-#include "ae_population.h"
 #include "ae_individual.h"
 
 #include "ae_jumping_mt.h"
@@ -1127,7 +1126,9 @@ void param_loader::read_file( void )
 }
 
 
-void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, int32_t lchromosome, char* plasmid, int32_t lplasmid )
+void param_loader::load(ae_exp_manager* exp_m, bool verbose,
+    char* chromosome, int32_t lchromosome, 
+    char* plasmid, int32_t lplasmid)
 {
   // Check consistency of min, max and initial length of chromosome and plasmid
   // Default for by GU minimal or maximal size is -1.
@@ -1136,21 +1137,21 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
   if (_allow_plasmids)
   {
     if (_plasmid_initial_gene!=1) // the plasmid will be copied from the chromosome
+    {
+      if (_plasmid_initial_length != -1)
       {
-        if (_plasmid_initial_length != -1)
-          {
-            printf("WARNING: PLASMID_INITIAL_LENGTH is not taken into account because PLASMID_INITIAL_GENE is set to 0 (copy from chromosome)\n");
-            _plasmid_initial_length = _chromosome_initial_length;
-          }
+        printf("WARNING: PLASMID_INITIAL_LENGTH is not taken into account because PLASMID_INITIAL_GENE is set to 0 (copy from chromosome)\n");
+        _plasmid_initial_length = _chromosome_initial_length;
       }
+    }
     else if (_plasmid_initial_gene == 1) 
+    {
+      if ( _compute_phen_contrib_by_GU == false )
       {
-        if ( _compute_phen_contrib_by_GU == false )
-          {
-            printf("ERROR: when using PLASMID_INITIAL_GENE==1, the paramater COMPUTE_PHEN_CONTRIB_BY_GU should be set to true.\n");
-            exit( EXIT_FAILURE );
-          }
+        printf("ERROR: when using PLASMID_INITIAL_GENE==1, the paramater COMPUTE_PHEN_CONTRIB_BY_GU should be set to true.\n");
+        exit( EXIT_FAILURE );
       }
+    }
     if (_plasmid_maximal_length == -1)
     {
       _plasmid_maximal_length = _max_genome_length;
@@ -1191,7 +1192,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
 
   // Initialize _prng
   // This one will be used to create the initial genome(s) and to generate seeds for other prng
-  _prng = new ae_jumping_mt( _seed );
+  _prng = new ae_jumping_mt(_seed);
 
   // Initialize mut_prng, stoch_prng, spatial_struct_prng :
   // if mut_seed (respectively stoch_seed) not given in param.in, choose it at random
@@ -1373,7 +1374,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
     // Make the clones and add them to the list of individuals
     for (int32_t i = 1 ; i < _init_pop_size ; i++)
     {
-      indivs.push_back(create_clone(indiv, id_new_indiv++));
+      indivs.push_back(ae_individual::create_clone(indiv, id_new_indiv++));
     }
   }
   else if (plasmid != NULL)
@@ -1399,7 +1400,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
         indiv->get_genetic_unit_nonconst(1).set_max_gu_length(_plasmid_maximal_length);
       }
 
-      indiv->set_with_stochasticity( _with_stochasticity );
+      indiv->set_with_stochasticity(_with_stochasticity);
 
       // Add it to the list
       indivs.push_back(indiv);
@@ -1408,7 +1409,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
       for ( int32_t i = 1 ; i < _init_pop_size ; i++ )
       {
         // Add new clone to the list
-        indivs.push_back(create_clone(indiv, id_new_indiv++));
+        indivs.push_back(ae_individual::create_clone(indiv, id_new_indiv++));
 
         #ifdef DISTRIBUTED_PRNG
           #error Not implemented yet !
@@ -1458,7 +1459,7 @@ void param_loader::load( ae_exp_manager* exp_m, bool verbose, char* chromosome, 
       for ( int32_t i = 1 ; i < _init_pop_size ; i++ )
       {
         // Add clone to the list
-        indivs.push_back(create_clone(indiv, id_new_indiv++));
+        indivs.push_back(ae_individual::create_clone(indiv, id_new_indiv++));
 
         #ifdef DISTRIBUTED_PRNG
           #error Not implemented yet !
@@ -1782,32 +1783,6 @@ ae_individual* param_loader::create_random_individual_with_good_gene(
   // printf( "metabolic error of the generated individual : %f (%" PRId32 " gene(s))\n",
   //         indiv->get_dist_to_target_by_feature(METABOLISM), indiv->get_protein_list()->get_nb_elts() );
 
-  return indiv;
-}
-
-/*!
-  \brief Create of clone of an ae_individual
-
-  \param dolly original individual that would be cloned
-  \param id index of the clone in the population
-  \return clone of dolly
-*/
-ae_individual* param_loader::create_clone( ae_individual* dolly, int32_t id ) const
-{
-  ae_individual* indiv;
-
-  indiv = new ae_individual( *dolly, false );
-
-
-  //~ #ifdef __X11
-    //~ indiv = new ae_individual_X11( *(dynamic_cast<ae_individual_X11*>(dolly)), false );
-  //~ #else
-    //~ indiv = new ae_individual( *dolly, false );
-  //~ #endif
-
-  indiv->set_id( id );
-  //~ printf( "metabolic error of the clonal individual : %f (%"PRId32" gene(s))\n",
-          //~ indiv->get_dist_to_target_by_feature(METABOLISM), indiv->get_protein_list()->get_nb_elts());
   return indiv;
 }
 

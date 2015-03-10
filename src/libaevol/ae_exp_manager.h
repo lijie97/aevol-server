@@ -50,7 +50,6 @@
 #include "ae_jumping_mt.h"
 #include "ae_exp_setup.h"
 #include "ae_output_manager.h"
-#include "ae_population.h"
 
 
 namespace aevol {
@@ -88,7 +87,6 @@ class ae_exp_manager
     //                           Accessors: getters
     // =======================================================================
     inline ae_exp_setup* get_exp_s(void) const;
-    inline ae_population* get_pop(void) const;
     inline Environment* get_env(void) const;
     inline ae_selection* get_sel(void) const;
     inline ae_output_manager* get_output_m(void) const;
@@ -176,20 +174,25 @@ class ae_exp_manager
     void write_setup_files(void);
     void save(void) const;
     void save_copy( char* dir, int32_t num_gener = 0 ) const;
-    inline void load( int32_t first_gener, bool use_text_files, bool verbose, bool to_be_run = true );
-    void load( const char* dir, int64_t t0, bool use_text_files, bool verbose, bool to_be_run = true );
-    void load( int64_t t0,
-               char* exp_setup_file_name,
-               char* out_prof_file_name,
-               char* env_file_name,
-               char* pop_file_name,
-               char* sel_file_name,
-               char* sp_struct_file_name,
-               bool verbose,
-               bool to_be_run = true);
+    inline void load(int32_t first_gener,
+        bool verbose = false, bool to_be_run = true);
+    void load(const char* dir, int64_t t0,
+        bool verbose = false, bool to_be_run = true);
+    void load(int64_t t0,
+              char* env_file,
+              char* exp_s_file,
+              char* exp_backup_file,
+              char* sp_struct_file,
+              char* out_p_file,
+              bool verbose = false,
+              bool to_be_run = true);
     void run_evolution(void);
     virtual void display(void) {};
     void update_best(void);
+
+    void FillGridWithClones(ae_individual& dolly) {
+      _spatial_structure->FillGridWithClones(dolly);
+    }
 
     // =======================================================================
     //                              Public Attributes
@@ -222,46 +225,36 @@ class ae_exp_manager
     // =======================================================================
     inline void step_to_next_generation(void);
 
-    void load( gzFile& pop_file,
-               gzFile& env_file,
-               gzFile& exp_s_gzfile,
-               FILE*&  exp_s_txtfile,
-               gzFile& exp_backup_file,
-               gzFile& sp_struct_file,
-               gzFile& out_p_gzfile,
-               FILE*& out_p_txtfile,
-               bool verbose,
-               bool to_be_run = true );
+    void load(gzFile& env_file,
+              gzFile& exp_s_file,
+              gzFile& exp_backup_file,
+              gzFile& sp_struct_file,
+              gzFile& out_p_file,
+              bool verbose = false,
+              bool to_be_run = true);
 
     void create_missing_directories(const char* dir = ".") const;
     void open_backup_files(gzFile& env_file,
-                           gzFile& pop_file,
                            gzFile& sel_file,
                            gzFile& sp_struct_file,
                            int64_t t,
                            const char mode[3],
                            const char* dir = ".") const;
     void close_backup_files(gzFile& env_file,
-                            gzFile& pop_file,
                             gzFile& sel_file,
                             gzFile& sp_struct_file) const;
-    void open_setup_files(gzFile& exp_s_gzfile, FILE*& exp_s_txtfile,
-                          gzFile& out_p_gzfile, FILE*& out_p_txtfile,
+    void open_setup_files(gzFile& exp_s_gzfile,
+                          gzFile& out_p_gzfile,
                           int64_t t,
                           const char mode[3],
-                          const char* dir = "." ) const;
-    void close_setup_files(
-            gzFile& exp_s_gzfile, FILE* exp_s_txtfile,
-            gzFile& out_p_gzfile, FILE* out_p_txtfile ) const;
+                          const char* dir = ".") const;
+    void close_setup_files(gzFile& exp_s_gzfile, gzFile& out_p_gzfile) const;
 
     // =======================================================================
     //                             Protected Attributes
     // =======================================================================
     // ---------------------------------------------------- Experimental setup
     ae_exp_setup* _exp_s;
-
-    // ------------------------------------------------------------ Population
-    ae_population* _pop;
 
     // ----------------------------------------------------------- Environment
     Environment* _env;
@@ -284,11 +277,6 @@ class ae_exp_manager
 // ===========================================================================
 //                             Getters' definitions
 // ===========================================================================
-inline ae_population* ae_exp_manager::get_pop(void) const
-{
-  return _pop;
-}
-
 inline ae_exp_setup* ae_exp_manager::get_exp_s(void) const
 {
   return _exp_s;
@@ -452,16 +440,6 @@ inline std::list<ae_individual*> ae_exp_manager::get_indivs_std() const
   return get_spatial_structure()->get_indivs_std();
 }
 
-// inline ae_individual* ae_exp_manager::get_indiv_by_id(int32_t id) const
-// {
-//   return get_pop()->get_indiv_by_id(id);
-// }
-
-// inline ae_individual* ae_exp_manager::get_indiv_by_rank(int32_t rank) const
-// {
-//   return get_pop()->get_indiv_by_rank(rank);
-// }
-
 
 // Accessors to output manager stuff
 inline int64_t ae_exp_manager::get_backup_step(void) const
@@ -567,10 +545,11 @@ inline void ae_exp_manager::step_to_next_generation(void)
 /*!
   \brief Load an experiment with default files from the current directory
  */
-inline void ae_exp_manager::load(int32_t first_gener, bool use_text_files,
-                                 bool verbose, bool to_be_run /*  = true */ )
+inline void ae_exp_manager::load(int32_t first_gener,
+                                 bool verbose /*= false*/,
+                                 bool to_be_run /*= true*/ )
 {
-  load(".", first_gener, use_text_files, verbose, to_be_run);
+  load(".", first_gener, verbose, to_be_run);
 }
 
 } // namespace aevol

@@ -72,9 +72,13 @@ class ae_stats
     // =================================================================
     //                             Constructors
     // =================================================================
+    ae_stats(void) = delete;
+    ae_stats(const ae_stats&) = delete;
     ae_stats(ae_exp_manager* exp_m,
              bool best_indiv_only = false,
-             const char * prefix = "stat");
+             const char* prefix = "stat",
+             bool with_plasmids = false,
+             bool compute_phen_contrib_by_GU = false);
     ae_stats(ae_exp_manager* exp_m,
              int64_t time,
              bool best_indiv_only = false,
@@ -119,26 +123,14 @@ class ae_stats
   
   
   protected :
-  
-    // =================================================================
-    //                         Forbidden Constructors
-    // =================================================================
-    ae_stats( void )
-    {
-      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-    ae_stats( const ae_stats &model )
-    {
-      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-  
     // =================================================================
     //                           Protected Methods
     // =================================================================
     void init_data( void );
-    void set_file_names( const char * prefix, bool best_indiv_only );
+    void set_file_names(const char* prefix,
+                        bool one_lambda_indiv_only,
+                        bool with_plasmids = false,
+                        bool compute_phen_contrib_by_GU = false);
     void open_files( void );
     
     inline void write_header( FILE* file_name, const char* header );

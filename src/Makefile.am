@@ -5,7 +5,8 @@ AM_CPPFLAGS = $(AEVOLCPPFLAGS)
 AM_CXXFLAGS = $(AEVOLCXXFLAGS)
 AM_LDFLAGS = $(AEVOLLDFLAGS)
 
-SUBDIRS = libaevol post_treatments
+#SUBDIRS = libaevol post_treatments
+SUBDIRS = libaevol
 
 if WITH_GTEST
   SUBDIRS += tests

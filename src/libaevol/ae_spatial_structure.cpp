@@ -37,7 +37,6 @@
 //                            Project Files
 // =================================================================
 #include "ae_spatial_structure.h"
-#include "ae_population.h"
 
 
 using std::list;
@@ -110,6 +109,16 @@ void ae_spatial_structure::place_indiv(ae_individual* indiv,
                                        int16_t x, int16_t y)
 {
   _pop_grid[x][y]->set_individual(indiv);
+}
+
+void ae_spatial_structure::FillGridWithClones(ae_individual& dolly)
+{
+  int32_t id_new_indiv = 0;
+  for (int16_t x = 0 ; x < _grid_width ; x++)
+    for (int16_t y = 0 ; y < _grid_height ; y++)
+  {
+    place_indiv(ae_individual::create_clone(&dolly, id_new_indiv++), x, y);
+  }
 }
 
 void ae_spatial_structure::evaluate_individuals(Environment* envir)

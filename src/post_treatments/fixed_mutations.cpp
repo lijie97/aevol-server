@@ -216,7 +216,7 @@ int main(int argc, char** argv)
 
   // Open the experiment manager
   ae_exp_manager* exp_manager = new ae_exp_manager();
-  exp_manager->load(t0, false, true, false);
+  exp_manager->load(t0, true, false);
   Environment* env = new Environment(*(exp_manager->get_env())); // independent copy
 
   int64_t backup_step = exp_manager->get_backup_step();
@@ -356,7 +356,7 @@ int main(int argc, char** argv)
     {
 
       exp_manager_backup = new ae_exp_manager();
-      exp_manager_backup->load(get_time(), false, true, false);
+      exp_manager_backup->load(get_time(), true, false);
       // TODO: disabled tmp
       // stored_indiv = new ae_individual( * (ae_individual *)exp_manager_backup->get_indiv_by_id( index ), false );
       stored_unit = stored_indiv->get_genetic_unit_list_std().begin();

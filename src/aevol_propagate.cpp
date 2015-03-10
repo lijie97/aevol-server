@@ -251,7 +251,7 @@ int main( int argc, char* argv[] )
     ae_exp_manager* exp_manager = new ae_exp_manager();
   #endif
   
-  exp_manager->load( input_dir, num_gener, false, verbose, false );
+  exp_manager->load(input_dir, num_gener, verbose, false);
 
   if (generalseed != -1)
   {

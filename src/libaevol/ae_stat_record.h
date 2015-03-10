@@ -117,11 +117,11 @@ class ae_stat_record
                    const std::list<ae_individual*> indivs,
                    chrom_or_gen_unit chrom_or_gu = CHROM);
     ae_stat_record(ae_exp_manager* exp_m,
-                   const ae_population* pop,
+                   const std::list<ae_individual*> indivs,
                    const ae_stat_record* means,
                    chrom_or_gen_unit chrom_or_gu = CHROM);
     ae_stat_record(ae_exp_manager* exp_m,
-                   const ae_population* pop,
+                   const std::list<ae_individual*> indivs,
                    const ae_stat_record* means,
                    const ae_stat_record* stdevs,
                    chrom_or_gen_unit chrom_or_gu = CHROM);

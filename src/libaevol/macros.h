@@ -36,17 +36,13 @@ constexpr int8_t NB_BASE = 2; // WARNING :  A lot of stuff has been optimized fo
 #define EXP_S_DIR                 "exp_setup"
 #define EXP_S_FNAME_BASE          "exp_setup_%06" PRId64
 #define EXP_S_FNAME_FORMAT        EXP_S_DIR "/" EXP_S_FNAME_BASE ".ae"
-//~ #define EXP_S_TXT_FNAME_FORMAT    EXP_S_DIR"/"EXP_S_FNAME_BASE".in"
 #define EXP_S_CONST_FNAME_BASE        "exp_setup_const"
 #define EXP_S_CONST_FNAME_FORMAT      EXP_S_DIR "/" EXP_S_CONST_FNAME_BASE ".ae"
-#define EXP_S_TXT_CONST_FNAME_FORMAT  EXP_S_DIR "/" EXP_S_CONST_FNAME_BASE ".in"
 // Output Profile
 #define OUT_P_DIR                 "output_profile"
 #define OUT_P_FNAME_BASE          "output_profile"
 #define OUT_P_FNAME_FORMAT        OUT_P_DIR "/" OUT_P_FNAME_BASE ".ae"
-#define OUT_P_TXT_FNAME_FORMAT    OUT_P_DIR "/" OUT_P_FNAME_BASE ".in"
 #define OUT_P_CUR_FNAME           "output_profile.ae"
-#define OUT_P_TXT_CUR_FNAME       "output_profile.in"
 // Environment
 #define ENV_DIR                   "environment"
 #define ENV_FNAME_BASE            "env_%06" PRId64
