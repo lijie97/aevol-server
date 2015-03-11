@@ -52,9 +52,9 @@ constexpr int8_t NB_BASE = 2; // WARNING :  A lot of stuff has been optimized fo
 #define POP_FNAME_BASE            "pop_%06" PRId64
 #define POP_FNAME_FORMAT          POP_DIR "/" POP_FNAME_BASE ".ae"
 // Spatial Structure
-#define SP_STRUCT_DIR             "spatial_structure"
-#define SP_STRUCT_FNAME_BASE      "sp_struct_%06" PRId64
-#define SP_STRUCT_FNAME_FORMAT    SP_STRUCT_DIR "/" SP_STRUCT_FNAME_BASE".ae"
+#define WORLD_DIR             "world"
+#define WORLD_FNAME_BASE      "world_%06" PRId64
+#define WORLD_FNAME_FORMAT    WORLD_DIR "/" WORLD_FNAME_BASE".ae"
 // Stats
 #define STATS_DIR   "stats"
 // Tree

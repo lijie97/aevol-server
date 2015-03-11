@@ -207,8 +207,9 @@ ae_individual::ae_individual(ae_exp_manager* exp_m, gzFile backup_file)
     }
     else
     {
-      _mut_prng   = exp_m->get_spatial_structure()->get_mut_prng();
-      _stoch_prng = exp_m->get_spatial_structure()->get_stoch_prng();
+      // TODO: => prngs as parameters
+      _mut_prng   = exp_m->world()->get_mut_prng();
+      _stoch_prng = exp_m->world()->get_stoch_prng();
       assert(_mut_prng);
       assert(_stoch_prng);
     }

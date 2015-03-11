@@ -60,13 +60,13 @@ ae_tree.h \
 ae_utils.h \
 ae_vis_a_vis.h \
 ae_selection.h \
-ae_spatial_structure.h \
 ae_gene_tree.h \
 ae_gene_tree_node.h \
 ae_gene_mutation.h \
 param_loader.h \
 f_line.h \
-Time.h
+Time.h \
+world.h
 
 common_sources = \
 ae_align.cpp \
@@ -96,14 +96,14 @@ ae_string.cpp \
 ae_tree.cpp \
 ae_vis_a_vis.cpp \
 ae_selection.cpp \
-ae_spatial_structure.cpp \
 ae_gene_tree.cpp \
 ae_gene_tree_node.cpp \
 ae_gene_mutation.cpp \
 fuzzy.cpp \
 param_loader.cpp \
 f_line.cpp \
-Time.cpp
+Time.cpp \
+world.cpp
 
 X11_headers = \
 ae_individual_X11.h \

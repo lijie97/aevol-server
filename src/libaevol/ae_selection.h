@@ -32,18 +32,17 @@
 // =================================================================
 //                              Libraries
 // =================================================================
-#include <inttypes.h>
+#include <cinttypes>
+#include <cstdio>
+#include <cstdlib>
+#include <cassert>
 
 
 
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
-#include "ae_spatial_structure.h"
+#include "world.h"
 
 
 namespace aevol {

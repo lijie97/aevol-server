@@ -148,9 +148,9 @@ void ae_selection::step_to_next_generation(void)
   }
 
   // Create proxies
-  ae_spatial_structure* sp_struct = _exp_m->get_spatial_structure();
-  int16_t grid_width  = _exp_m->get_grid_width();
-  int16_t grid_height = _exp_m->get_grid_height();
+  World* world = _exp_m->world();
+  int16_t grid_width  = world->width();
+  int16_t grid_height = world->height();
   ae_grid_cell*** pop_grid = _exp_m->get_pop_grid();
 
   // create a temporary grid to store the reproducers
@@ -186,7 +186,7 @@ void ae_selection::step_to_next_generation(void)
     }
 
     // Diffusion and degradation of compound in the environment
-    sp_struct->update_secretion_grid();
+    world->update_secretion_grid();
   }
 
 
@@ -214,9 +214,9 @@ void ae_selection::step_to_next_generation(void)
   delete [] reproducers;
 
   // randomly migrate some organisms, if necessary
-  if (sp_struct->get_migration_number() > 0)
+  if (world->get_migration_number() > 0)
   {
-    sp_struct->do_random_migrations();
+    world->do_random_migrations();
   }
 
   PerformPlasmidTransfers();
@@ -233,9 +233,9 @@ void ae_selection::PerformPlasmidTransfers(void)
         (_exp_m->get_tune_recipient_ability() != 0.0)))
   {
     // Create proxies
-    ae_spatial_structure* sp_struct = _exp_m->get_spatial_structure();
-    int16_t grid_width  = _exp_m->get_grid_width();
-    int16_t grid_height = _exp_m->get_grid_height();
+    World* world = _exp_m->world();
+    int16_t grid_width  = world->width();
+    int16_t grid_height = world->height();
   
     int16_t x_offset, y_offset, new_x, new_y;
 
@@ -277,17 +277,17 @@ void ae_selection::PerformPlasmidTransfers(void)
         if ((new_x != x)||(new_y != y))
         {
           double ptransfer = _exp_m->get_prob_plasmid_HT() + _exp_m->get_tune_donor_ability()
-                            * sp_struct->get_indiv_at(x, y)->get_fitness_by_feature(DONOR)
-                            + _exp_m->get_tune_recipient_ability() * sp_struct->get_indiv_at(new_x, new_y)->get_fitness_by_feature(RECIPIENT) ;
+                            * world->get_indiv_at(x, y)->get_fitness_by_feature(DONOR)
+                            + _exp_m->get_tune_recipient_ability() * world->get_indiv_at(new_x, new_y)->get_fitness_by_feature(RECIPIENT) ;
           if ( _prng->random() < ptransfer ) // will x give a plasmid to n ?
           {
             if ( _exp_m->get_swap_GUs() )
             {
-              sp_struct->get_indiv_at(new_x, new_y)->inject_2GUs( sp_struct->get_indiv_at(x, y) );
+              world->get_indiv_at(new_x, new_y)->inject_2GUs(world->get_indiv_at(x, y));
             }
             else
             {
-              sp_struct->get_indiv_at(new_x, new_y)->inject_GU( sp_struct->get_indiv_at(x, y) );
+              world->get_indiv_at(new_x, new_y)->inject_GU(world->get_indiv_at(x, y));
             }
           }
         }
@@ -308,10 +308,10 @@ void ae_selection::PerformPlasmidTransfers(void)
     {
       for (int16_t y = 0 ; y < grid_height ; y++)
       {
-        bool reevaluate = (sp_struct->get_indiv_at(x, y)->get_nb_genetic_units() > 2);
-        sp_struct->get_indiv_at(x, y)->drop_nested_genetic_units();
+        bool reevaluate = (world->get_indiv_at(x, y)->get_nb_genetic_units() > 2);
+        world->get_indiv_at(x, y)->drop_nested_genetic_units();
         if (reevaluate)
-          sp_struct->get_indiv_at(x, y)->reevaluate();
+          world->get_indiv_at(x, y)->reevaluate();
       }
     }
   }
@@ -374,7 +374,7 @@ void ae_selection::load( FILE*& exp_setup_file,
 // =================================================================
 //                           Protected Methods
 // =================================================================
-void ae_selection::compute_prob_reprod( void )
+void ae_selection::compute_prob_reprod( void ) // non spatially structured only
 {
   if ( _prob_reprod != NULL )
   {
@@ -551,10 +551,7 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
   // ===========================================================================
   //  2) Set the new individual's location on the grid
   // ===========================================================================
-  if (x != -1) // TODO: why is this test needed ?
-  {
-    new_indiv->set_grid_cell(_exp_m->get_spatial_structure()->get_grid_cell(x, y));
-  }
+  _exp_m->world()->place_indiv(new_indiv, x, y);
 
 
 
@@ -622,11 +619,11 @@ ae_individual* ae_selection::do_local_competition (int16_t x, int16_t y)
   // This function uses the array _prob_reprod when selection scheme is RANK_LINEAR, RANK_EXPONENTIAL, or FITTEST. For these selection schemes, the function compute_local_prob_reprod (creating the array _prob_reprod) must have been called before.
   // When selection scheme is FITNESS_PROPORTIONATE, this function only uses the fitness values
 
-  ae_spatial_structure* sp_struct = _exp_m->get_spatial_structure();
+  World* world = _exp_m->world();
 
   int16_t neighborhood_size = 9;
-  int16_t grid_width  = sp_struct->get_grid_width();
-  int16_t grid_height = sp_struct->get_grid_height();
+  int16_t grid_width  = world->width();
+  int16_t grid_height = world->height();
   int16_t cur_x;
   int16_t cur_y;
 
@@ -644,7 +641,7 @@ ae_individual* ae_selection::do_local_competition (int16_t x, int16_t y)
     {
       cur_x = ( x + i + grid_width )  % grid_width;
       cur_y = ( y + j + grid_height ) % grid_height;
-      local_fit_array[count]  = sp_struct->get_indiv_at( cur_x, cur_y )->get_fitness();
+      local_fit_array[count]  = world->get_indiv_at( cur_x, cur_y )->get_fitness();
       sort_fit_array[count]   = local_fit_array[count];
       initial_location[count] = count;
       sum_local_fit += local_fit_array[count];
@@ -733,8 +730,8 @@ ae_individual* ae_selection::do_local_competition (int16_t x, int16_t y)
   delete [] initial_location;
   delete [] probs;
 
-  return sp_struct->get_indiv_at( (x+x_offset+grid_width)  % grid_width,
-                                  (y+y_offset+grid_height) % grid_height );
+  return world->get_indiv_at((x+x_offset+grid_width)  % grid_width,
+                             (y+y_offset+grid_height) % grid_height);
 }
 
 // =================================================================

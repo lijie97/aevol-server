@@ -54,6 +54,7 @@
 #include "ae_env_segment.h"
 #include "point.h"
 #include "ae_align.h"
+#include "world.h"
 
 
 #ifdef __REGUL
@@ -1194,7 +1195,7 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
   // This one will be used to create the initial genome(s) and to generate seeds for other prng
   _prng = new ae_jumping_mt(_seed);
 
-  // Initialize mut_prng, stoch_prng, spatial_struct_prng :
+  // Initialize mut_prng, stoch_prng, world_prng :
   // if mut_seed (respectively stoch_seed) not given in param.in, choose it at random
   int32_t selection_seed = _prng->random( 1000000 );
   if ( _mut_seed == 0 ) {
@@ -1206,7 +1207,7 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
   ae_jumping_mt* mut_prng    = new ae_jumping_mt(_mut_seed);
   ae_jumping_mt* stoch_prng  = new ae_jumping_mt(_stoch_seed);
   ae_jumping_mt* selection_prng = new ae_jumping_mt(selection_seed);
-  ae_jumping_mt* spatial_struct_prng = new ae_jumping_mt(_prng->random(1000000));
+  ae_jumping_mt* world_prng = new ae_jumping_mt(_prng->random(1000000));
 
 
   // Create aliases
@@ -1489,16 +1490,14 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
   }
 
   // -------------------------------------------------------- Spatial structure
-  exp_m->set_spatial_structure(_grid_width,
-                               _grid_height,
-                               spatial_struct_prng);
-  ae_spatial_structure* sp_struct = exp_m->get_spatial_structure();
-  sp_struct->set_secretion_degradation_prop(_secretion_degradation_prop);
-  sp_struct->set_secretion_diffusion_prop(_secretion_diffusion_prop);
-  sp_struct->set_migration_number(_migration_number);
+  exp_m->init_world(_grid_width, _grid_height, world_prng);
+  World* world = exp_m->world();
+  world->set_secretion_degradation_prop(_secretion_degradation_prop);
+  world->set_secretion_diffusion_prop(_secretion_diffusion_prop);
+  world->set_migration_number(_migration_number);
 
-  sp_struct->set_mut_prng(mut_prng);
-  sp_struct->set_stoch_prng(stoch_prng);
+  world->set_mut_prng(mut_prng);
+  world->set_stoch_prng(stoch_prng);
 
   // Set each individual's position on the grid
   int16_t x, y;
@@ -1507,11 +1506,11 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
 
   for (const auto& indiv: indivs) {
     do {
-      x = exp_m->get_spatial_structure()->get_prng()->random(x_max);
-      y = exp_m->get_spatial_structure()->get_prng()->random(y_max);
-    } while (sp_struct->get_indiv_at(x, y) != NULL);
+      x = exp_m->world()->get_prng()->random(x_max);
+      y = exp_m->world()->get_prng()->random(y_max);
+    } while (world->get_indiv_at(x, y) != NULL);
 
-    sp_struct->place_indiv(indiv, x, y);
+    world->place_indiv(indiv, x, y);
   }
 
 

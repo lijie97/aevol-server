@@ -105,7 +105,7 @@ void ae_dump::write_fitness_total(void)
       "stats/dump/fitness_total_%06" PRId64 ".out",
       Time::get_time());
   current_file = fopen( filename_buffer, "w+" );
-  double** map = _exp_m->get_spatial_structure()->get_total_fitness_grid();
+  double** map = _exp_m->world()->get_total_fitness_grid();
   fprintf( current_file, "#\tX\tY\tfitness_total(X, Y)\n" );
   
   for( int16_t x = 0 ; x < _exp_m->get_grid_width() ; x++ )
@@ -119,7 +119,7 @@ void ae_dump::write_fitness_total(void)
   fflush( current_file );
   fclose( current_file );
       
-  // Has been allocated in ae_spatial_structure::get_total_fitness_grid()
+  // Has been allocated in World::get_total_fitness_grid()
   for ( int16_t x = 0 ; x < _exp_m->get_grid_width() ; x++ )
   {
     delete [] map[x];
@@ -134,7 +134,7 @@ void ae_dump::write_secreted_amount ( void )
       Time::get_time()) ;
   current_file = fopen(filename_buffer, "w+");
   
-  double** map = _exp_m->get_spatial_structure()->get_secreted_amount_grid();
+  double** map = _exp_m->world()->get_secreted_amount_grid();
   fprintf( current_file, "#\tX\tY\tsecreted_amount(X, Y)\n" );
   for( int16_t x = 0 ; x < _exp_m->get_grid_width() ; x++ )
   {
@@ -160,7 +160,7 @@ void ae_dump::write_fitness_metabolic ( void )
       Time::get_time());
   current_file = fopen( filename_buffer, "w+" );
   
-  double** map = _exp_m->get_spatial_structure()->get_metabolic_fitness_grid();
+  double** map = _exp_m->world()->get_metabolic_fitness_grid();
   fprintf( current_file, "#\tX\tY\tfitness_metabolic(X, Y)\n" );
   for( int16_t x = 0 ; x < _exp_m->get_grid_width() ; x++ )
   {
@@ -186,7 +186,7 @@ void ae_dump::write_secretion_present ( void )
       Time::get_time());
   current_file = fopen( filename_buffer, "w+" );
   
-  double** map = _exp_m->get_spatial_structure()->get_secretion_present_grid();
+  double** map = _exp_m->world()->get_secretion_present_grid();
   fprintf( current_file, "#\tX\tY\tsecretion_present(X, Y)\n" );
   for( int16_t x = 0 ; x < _exp_m->get_grid_width() ; x++ )
   {
@@ -219,16 +219,21 @@ void ae_dump::write_individual_probes( void )
   {
     for( int16_t y = 0 ; y < _exp_m->get_grid_height() ; y++ )
     {
-      fprintf( current_file, "%" PRId32, _exp_m->get_spatial_structure()->get_indiv_at(x,y)->get_id() );
-      int32_t* int_probes = _exp_m->get_spatial_structure()->get_indiv_at(x,y)->get_int_probes();
-      double* double_probes = _exp_m->get_spatial_structure()->get_indiv_at(x,y)->get_double_probes();
-      for( int16_t i=0; i<5; i++) fprintf( current_file, "\t%" PRId32, int_probes[i] );
-      for( int16_t i=0; i<5; i++) fprintf( current_file, "\t%f", double_probes[i] );
-      fprintf( current_file, "\n" );
+      fprintf(current_file, "%" PRId32,
+          _exp_m->world()->get_indiv_at(x,y)->get_id());
+      int32_t* int_probes =
+          _exp_m->world()->get_indiv_at(x,y)->get_int_probes();
+      double* double_probes =
+          _exp_m->world()->get_indiv_at(x,y)->get_double_probes();
+      for( int16_t i=0; i<5; i++)
+        fprintf(current_file, "\t%" PRId32, int_probes[i]);
+      for( int16_t i=0; i<5; i++)
+        fprintf(current_file, "\t%f", double_probes[i]);
+      fprintf(current_file, "\n");
     }
   }
-  fflush( current_file );
-  fclose( current_file );
+  fflush(current_file);
+  fclose(current_file);
 }
 
 // =================================================================

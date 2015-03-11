@@ -36,7 +36,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_spatial_structure.h"
+#include "world.h"
 
 
 using std::list;
@@ -47,7 +47,7 @@ namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                         Class ae_spatial_structure                          #
+//                                Class World                                  #
 //                                                                             #
 //##############################################################################
 
@@ -58,7 +58,7 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_spatial_structure::ae_spatial_structure(void)
+World::World(void)
 {
   _prng = NULL;
 
@@ -81,7 +81,7 @@ ae_spatial_structure::ae_spatial_structure(void)
 // =================================================================
 //                             Destructor
 // =================================================================
-ae_spatial_structure::~ae_spatial_structure(void)
+World::~World(void)
 {
   for (int16_t x = 0 ; x < _grid_width ; x++)
   {
@@ -105,13 +105,13 @@ ae_spatial_structure::~ae_spatial_structure(void)
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_spatial_structure::place_indiv(ae_individual* indiv,
+void World::place_indiv(ae_individual* indiv,
                                        int16_t x, int16_t y)
 {
   _pop_grid[x][y]->set_individual(indiv);
 }
 
-void ae_spatial_structure::FillGridWithClones(ae_individual& dolly)
+void World::FillGridWithClones(ae_individual& dolly)
 {
   int32_t id_new_indiv = 0;
   for (int16_t x = 0 ; x < _grid_width ; x++)
@@ -121,7 +121,7 @@ void ae_spatial_structure::FillGridWithClones(ae_individual& dolly)
   }
 }
 
-void ae_spatial_structure::evaluate_individuals(Environment* envir)
+void World::evaluate_individuals(Environment* envir)
 {
   for (int16_t x = 0 ; x < _grid_width ; x++)
     for (int16_t y = 0 ; y < _grid_height ; y++)
@@ -131,7 +131,7 @@ void ae_spatial_structure::evaluate_individuals(Environment* envir)
     }
 }
 
-void ae_spatial_structure::update_secretion_grid(void)
+void World::update_secretion_grid(void)
 {
   int16_t cur_x, cur_y;
 
@@ -182,7 +182,7 @@ void ae_spatial_structure::update_secretion_grid(void)
   delete [] new_secretion;
 }
 
-void ae_spatial_structure::do_random_migrations ( void )
+void World::do_random_migrations ( void )
 {
   ae_individual * tmp_swap;
 
@@ -202,7 +202,7 @@ void ae_spatial_structure::do_random_migrations ( void )
   }
 }
 
-void ae_spatial_structure::update_best(void)
+void World::update_best(void)
 {
   x_best = y_best = 0;
   double fit_best = get_indiv_at(0, 0)->get_fitness();
@@ -218,7 +218,7 @@ void ae_spatial_structure::update_best(void)
   }
 }
 
-void ae_spatial_structure::save(gzFile backup_file) const
+void World::save(gzFile backup_file) const
 {
   if (_prng == NULL)
   {
@@ -263,7 +263,7 @@ void ae_spatial_structure::save(gzFile backup_file) const
   gzwrite(backup_file, &_secretion_degradation_prop, sizeof(_secretion_degradation_prop));
 }
 
-void ae_spatial_structure::load(gzFile backup_file, ae_exp_manager* exp_man)
+void World::load(gzFile backup_file, ae_exp_manager* exp_man)
 {
   _prng = new ae_jumping_mt(backup_file);
   #ifndef DISTRIBUTED_PRNG
@@ -301,7 +301,7 @@ void ae_spatial_structure::load(gzFile backup_file, ae_exp_manager* exp_man)
 //                           Protected Methods
 // =================================================================
 #ifndef DISTRIBUTED_PRNG
-  void ae_spatial_structure::backup_stoch_prng( void )
+  void World::backup_stoch_prng( void )
   {
     delete _stoch_prng_bak;
     _stoch_prng_bak = new ae_jumping_mt( *_stoch_prng );
@@ -311,22 +311,22 @@ void ae_spatial_structure::load(gzFile backup_file, ae_exp_manager* exp_man)
 // =================================================================
 //                          Non inline accessors
 // =================================================================
-ae_jumping_mt* ae_spatial_structure::get_prng(void) const
+ae_jumping_mt* World::get_prng(void) const
 {
   return _prng;
 }
 
-ae_jumping_mt* ae_spatial_structure::get_mut_prng( void ) const
+ae_jumping_mt* World::get_mut_prng( void ) const
 {
   return _mut_prng;
 }
 
-ae_jumping_mt* ae_spatial_structure::get_stoch_prng( void ) const
+ae_jumping_mt* World::get_stoch_prng( void ) const
 {
   return _stoch_prng;
 }
 
-list<ae_individual*>&& ae_spatial_structure::get_indivs_std(void) const
+list<ae_individual*>&& World::get_indivs_std(void) const
 {
   list<ae_individual*> r;
 
@@ -339,7 +339,7 @@ list<ae_individual*>&& ae_spatial_structure::get_indivs_std(void) const
   return std::move(r);
 }
 
-void ae_spatial_structure::set_mut_prng(ae_jumping_mt* prng)
+void World::set_mut_prng(ae_jumping_mt* prng)
 {
   if (_mut_prng != NULL) delete _mut_prng;
   _mut_prng = prng;
@@ -353,7 +353,7 @@ void ae_spatial_structure::set_mut_prng(ae_jumping_mt* prng)
   }
 }
 
-void ae_spatial_structure::set_stoch_prng(ae_jumping_mt* prng)
+void World::set_stoch_prng(ae_jumping_mt* prng)
 {
   if (_stoch_prng != NULL)
     delete _stoch_prng;

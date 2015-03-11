@@ -156,17 +156,17 @@ int main( int argc, char* argv[] )
   // 7) Define syntaxic sugars for the population, the environment, the selection...  
   Environment* env = exp_manager->get_env();
   ae_selection* sel = exp_manager->get_sel();
-  ae_spatial_structure* sp_struct = exp_manager->get_spatial_structure();
+  World* world = exp_manager->world();
 
 
   // If relevant, load the tree information 
   char tree_file_name[50];
   ae_tree * tree = NULL;
   bool take_care_of_the_tree = exp_manager->get_record_tree() &&
-                              exp_manager->get_tree_mode() == NORMAL &&
-                              get_time() > 0;
+                               exp_manager->get_tree_mode() == NORMAL &&
+                               get_time() > 0;
 
-  if ( take_care_of_the_tree )
+  if (take_care_of_the_tree)
   {
     // If a tree is available, assign the replication reports to the individuals
     #ifdef __REGUL
@@ -593,10 +593,9 @@ int main( int argc, char* argv[] )
   
       ae_jumping_mt* prng = new ae_jumping_mt( seed );
   
-      // Change prng in ae_selection 
-      sel->set_prng( new ae_jumping_mt(*prng) );
-  
-      sp_struct->set_prng(new ae_jumping_mt(*prng) );
+      // Change prngs
+      sel->set_prng(new ae_jumping_mt(*prng));
+      world->set_prng(new ae_jumping_mt(*prng));
   
       printf("\tChange of the seed to %d in selection \n",atoi( line->words[1] ));
     }
@@ -606,8 +605,8 @@ int main( int argc, char* argv[] )
   
       ae_jumping_mt* mut_prng = new ae_jumping_mt( mut_seed );
   
-      // Change prng of the population
-      sp_struct->set_mut_prng(new ae_jumping_mt(*mut_prng));
+      // Change mutation prng
+      world->set_mut_prng(new ae_jumping_mt(*mut_prng));
       printf("\tChange of the seed to %d in mutations \n",atoi( line->words[1] ));
     }
     else if ( strcmp( line->words[0], "STOCH_SEED" ) == 0 )
@@ -616,8 +615,8 @@ int main( int argc, char* argv[] )
   
       ae_jumping_mt* stoch_prng = new ae_jumping_mt(stoch_seed);
   
-      // Change prng of the population
-      sp_struct->set_stoch_prng(new ae_jumping_mt(*stoch_prng));
+      // Change stochasticity prng
+      world->set_stoch_prng(new ae_jumping_mt(*stoch_prng));
       printf("\tChange of the seed to %d in individuals' stochasticity \n",atoi( line->words[1] ));
     }
     else if ( strcmp( line->words[0], "CLONE_BEST" ) == 0 )

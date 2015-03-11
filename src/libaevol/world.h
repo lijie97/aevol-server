@@ -25,8 +25,8 @@
 //*****************************************************************************
 
 
-#ifndef __AE_SPATIAL_STRUCTURE_H__
-#define __AE_SPATIAL_STRUCTURE_H__
+#ifndef __AE_WORLD_H__
+#define __AE_WORLD_H__
 
 
 // =================================================================
@@ -60,18 +60,18 @@ namespace aevol {
 
 
 
-class ae_spatial_structure
+class World
 {
   public :
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_spatial_structure(void);
+    World(void);
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_spatial_structure(void);
+    virtual ~World(void);
 
     // =================================================================
     //                        Accessors: getters
@@ -84,8 +84,8 @@ class ae_spatial_structure
     std::list<ae_individual*>&& get_indivs_std(void) const;
     inline int32_t          get_nb_indivs(void) const;
     inline ae_individual*   get_best_indiv(void) const;
-    inline int16_t          get_grid_width(void) const;
-    inline int16_t          get_grid_height(void) const;
+    inline int16_t          width()  const {return _grid_width;};
+    inline int16_t          height() const {return _grid_height;};
     inline int32_t          get_migration_number(void) const;
     inline ae_grid_cell***  get_pop_grid(void) const;
     inline ae_grid_cell*    get_grid_cell(int16_t x, int16_t y) const;
@@ -138,12 +138,12 @@ class ae_spatial_structure
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    /*ae_spatial_structure(void)
+    /*World(void)
     {
       printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
     };
-    ae_spatial_structure( const ae_spatial_structure &model )
+    World( const World &model )
     {
       printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
@@ -184,48 +184,38 @@ class ae_spatial_structure
 // =====================================================================
 //                           Getters' definitions
 // =====================================================================
-inline int32_t ae_spatial_structure::get_nb_indivs(void) const
+inline int32_t World::get_nb_indivs(void) const
 {
   return _grid_width * _grid_height;
 }
 
-inline ae_individual* ae_spatial_structure::get_best_indiv(void) const
+inline ae_individual* World::get_best_indiv(void) const
 {
   return _pop_grid[x_best][y_best]->get_individual();
 }
 
-inline int16_t ae_spatial_structure::get_grid_width(void) const
-{
-  return _grid_width;
-}
-
-inline int16_t ae_spatial_structure::get_grid_height(void) const
-{
-  return _grid_height;
-}
-
-inline int32_t ae_spatial_structure::get_migration_number(void) const
+inline int32_t World::get_migration_number(void) const
 {
   return _migration_number;
 }
 
-inline ae_grid_cell*** ae_spatial_structure::get_pop_grid(void) const
+inline ae_grid_cell*** World::get_pop_grid(void) const
 {
   return _pop_grid;
 }
 
-inline ae_grid_cell* ae_spatial_structure::get_grid_cell(int16_t x,
+inline ae_grid_cell* World::get_grid_cell(int16_t x,
                                                          int16_t y) const
 {
   return _pop_grid[x][y];
 }
 
-inline ae_individual* ae_spatial_structure::get_indiv_at(int16_t x, int16_t y) const
+inline ae_individual* World::get_indiv_at(int16_t x, int16_t y) const
 {
   return _pop_grid[x][y]->get_individual();
 }
 
-inline double** ae_spatial_structure::get_secretion_present_grid(void) const
+inline double** World::get_secretion_present_grid(void) const
 {
   double** ret = new double*[_grid_width];
   
@@ -241,7 +231,7 @@ inline double** ae_spatial_structure::get_secretion_present_grid(void) const
   return ret;
 }
 
-inline double** ae_spatial_structure::get_secreted_amount_grid(void) const
+inline double** World::get_secreted_amount_grid(void) const
 {
   double** ret = new double*[_grid_width];
   for ( int16_t x = 0 ; x < _grid_width ; x++ )
@@ -256,7 +246,7 @@ inline double** ae_spatial_structure::get_secreted_amount_grid(void) const
   return ret;
 }
 
-inline double** ae_spatial_structure::get_metabolic_fitness_grid(void) const
+inline double** World::get_metabolic_fitness_grid(void) const
 {
   double** ret = new double*[_grid_width];
   for ( int16_t x = 0 ; x < _grid_width ; x++ )
@@ -271,7 +261,7 @@ inline double** ae_spatial_structure::get_metabolic_fitness_grid(void) const
   return ret;
 }
 
-inline double** ae_spatial_structure::get_total_fitness_grid(void) const
+inline double** World::get_total_fitness_grid(void) const
 {
   double** ret = new double*[_grid_width];
   for ( int16_t x = 0 ; x < _grid_width ; x++ )
@@ -289,13 +279,13 @@ inline double** ae_spatial_structure::get_total_fitness_grid(void) const
 // =====================================================================
 //                           Setters' definitions
 // =====================================================================
-inline void ae_spatial_structure::set_prng( ae_jumping_mt* prng )
+inline void World::set_prng( ae_jumping_mt* prng )
 {
   if (_prng != NULL) delete _prng;
   _prng = prng;
 }
 
-inline void ae_spatial_structure::set_grid_size( int16_t grid_width, int16_t grid_height )
+inline void World::set_grid_size( int16_t grid_width, int16_t grid_height )
 {
   _grid_width   = grid_width;
   _grid_height  = grid_height;
@@ -311,16 +301,16 @@ inline void ae_spatial_structure::set_grid_size( int16_t grid_width, int16_t gri
   }
 }
 
-inline void ae_spatial_structure::set_migration_number( int32_t migration_number )
+inline void World::set_migration_number( int32_t migration_number )
 {
   _migration_number = migration_number;
 }
 
-inline void ae_spatial_structure::set_secretion_degradation_prop( double degradation_prop )
+inline void World::set_secretion_degradation_prop( double degradation_prop )
 {
   _secretion_degradation_prop=degradation_prop;
 }
-inline void ae_spatial_structure::set_secretion_diffusion_prop( double diffusion_prop )
+inline void World::set_secretion_diffusion_prop( double diffusion_prop )
 {
   _secretion_diffusion_prop=diffusion_prop;
 }
@@ -335,4 +325,4 @@ inline void ae_spatial_structure::set_secretion_diffusion_prop( double diffusion
 // =====================================================================
 
 } // namespace aevol
-#endif // __AE_SPATIAL_STRUCTURE_H__
+#endif // __AE_WORLD_H__

@@ -41,7 +41,7 @@
 //                            Project Files
 // =================================================================
 #include "ae_exp_manager_X11.h"
-#include "ae_spatial_structure.h"
+#include "world.h"
 #include "point.h"
 #include "ae_individual_X11.h"
 #include "ae_X11_window.h"
@@ -746,7 +746,7 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
     {
       cur_win->blacken();
 
-      double** grid = get_spatial_structure()->get_total_fitness_grid();
+      double** grid = world()->get_total_fitness_grid();
       display_grid(cur_win, grid);
 
       // Has been allocated in ae_spatial_structure::get_total_fitness_grid()
@@ -833,7 +833,7 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
     {
       cur_win->blacken();
 
-      display_grid(cur_win, get_spatial_structure()->get_secretion_present_grid());
+      display_grid(cur_win, world()->get_secretion_present_grid());
     }
     break;
 
@@ -842,7 +842,7 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
     {
       cur_win->blacken();
 
-      display_grid(cur_win, get_spatial_structure()->get_metabolic_fitness_grid());
+      display_grid(cur_win, world()->get_metabolic_fitness_grid());
     }
     break;
 
@@ -851,7 +851,7 @@ void ae_exp_manager_X11::refresh_window( int8_t win_number )
     {
       cur_win->blacken();
 
-      display_grid(cur_win, get_spatial_structure()->get_secreted_amount_grid());
+      display_grid(cur_win, world()->get_secreted_amount_grid());
     }
     break;
   }

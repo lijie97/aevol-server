@@ -100,11 +100,11 @@ class ae_exp_manager
     inline double get_selection_pressure(void) const;
 
     // ------------------------------------------------------ Spatial structure
-    inline ae_spatial_structure*  get_spatial_structure(void) const;
-    inline ae_grid_cell*          get_grid_cell( int16_t x, int16_t y ) const;
-    inline int16_t                get_grid_width(void) const;
-    inline int16_t                get_grid_height(void) const;
-    inline ae_grid_cell***        get_pop_grid(void) const;
+    inline World*             world(void) const;
+    inline ae_grid_cell*      get_grid_cell(int16_t x, int16_t y) const;
+    inline int16_t            get_grid_width(void) const;
+    inline int16_t            get_grid_height(void) const;
+    inline ae_grid_cell***    get_pop_grid(void) const;
 
     // -------------------------------------------------------- Global settings
     inline bool   get_with_HT(void) const;
@@ -154,9 +154,8 @@ class ae_exp_manager
     inline void set_t_end(int64_t _t_end) { t_end = _t_end; };
     //~ inline void set_min_genome_length( int32_t min_genome_length );
     //~ inline void set_max_genome_length( int32_t max_genome_length );
-    inline void set_spatial_structure(  int16_t grid_width,
-                                        int16_t grid_height,
-                                        ae_jumping_mt* prng );
+    inline void init_world(int16_t grid_width, int16_t grid_height,
+                           ae_jumping_mt* prng);
 
     inline void set_with_HT( bool with_HT ) ;
     inline void set_repl_HT_with_close_points ( bool repl_HT_with_close_points) ;
@@ -191,7 +190,7 @@ class ae_exp_manager
     void update_best(void);
 
     void FillGridWithClones(ae_individual& dolly) {
-      _spatial_structure->FillGridWithClones(dolly);
+      world_->FillGridWithClones(dolly);
     }
 
     // =======================================================================
@@ -260,7 +259,7 @@ class ae_exp_manager
     Environment* _env;
 
     // ----------------------------------------------------- Spatial structure
-    ae_spatial_structure* _spatial_structure;
+    World* world_;
 
     // -------------------------------------------------------- Output manager
     ae_output_manager* _output_m;
@@ -318,29 +317,29 @@ inline double ae_exp_manager::get_selection_pressure(void) const
 }
 
 // Global settings
-inline ae_spatial_structure* ae_exp_manager::get_spatial_structure(void) const
+inline World* ae_exp_manager::world(void) const
 {
-  return _spatial_structure;
+  return world_;
 }
 
-inline ae_grid_cell* ae_exp_manager::get_grid_cell( int16_t x, int16_t y ) const
+inline ae_grid_cell* ae_exp_manager::get_grid_cell(int16_t x, int16_t y) const
 {
-  return get_spatial_structure()->get_grid_cell(x, y);
+  return world()->get_grid_cell(x, y);
 }
 
 inline int16_t ae_exp_manager::get_grid_width(void) const
 {
-  return get_spatial_structure()->get_grid_width();
+  return world()->width();
 }
 
 inline int16_t ae_exp_manager::get_grid_height(void) const
 {
-  return get_spatial_structure()->get_grid_height();
+  return world()->height();
 }
 
 inline ae_grid_cell*** ae_exp_manager::get_pop_grid(void) const
 {
-  return get_spatial_structure()->get_pop_grid();
+  return world()->get_pop_grid();
 }
 
 inline bool ae_exp_manager::get_with_HT(void) const
@@ -427,17 +426,17 @@ inline double ae_exp_manager::get_secretion_cost(void) const
 // Accessors to population stuff
 inline int32_t ae_exp_manager::get_nb_indivs(void) const
 {
-  return get_spatial_structure()->get_nb_indivs();
+  return world()->get_nb_indivs();
 }
 
 inline ae_individual* ae_exp_manager::get_best_indiv(void) const
 {
-  return get_spatial_structure()->get_best_indiv();
+  return world()->get_best_indiv();
 }
 
 inline std::list<ae_individual*> ae_exp_manager::get_indivs_std() const
 {
-  return get_spatial_structure()->get_indivs_std();
+  return world()->get_indivs_std();
 }
 
 
@@ -486,13 +485,12 @@ inline ae_tree* ae_exp_manager::get_tree(void) const
   //~ _exp_s->set_max_genome_length( max_genome_length );
 //~ }
 
-inline void ae_exp_manager::set_spatial_structure( int16_t grid_width,
-                                                   int16_t grid_height,
-                                                   ae_jumping_mt* prng )
+inline void ae_exp_manager::init_world(int16_t grid_width, int16_t grid_height,
+                                       ae_jumping_mt* prng )
 {
-  _spatial_structure = new ae_spatial_structure();
-  _spatial_structure->set_grid_size( grid_width, grid_height );
-  _spatial_structure->set_prng( prng );
+  world_ = new World();
+  world_->set_grid_size(grid_width, grid_height);
+  world_->set_prng(prng);
 }
 
 
