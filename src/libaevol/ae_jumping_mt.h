@@ -32,21 +32,21 @@
 // =================================================================
 //                              Libraries
 // =================================================================
-#include <inttypes.h>
+#include <cinttypes>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cassert>
+
 #include <zlib.h>
-#include <math.h>
-#include <SFMT-src-1.4/SFMT.h>
-#include <SFMT-src-1.4/jump/SFMT-jump.h>
 
 
 
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
+#include "SFMT-src-1.4/SFMT.h"
+#include "SFMT-src-1.4/jump/SFMT-jump.h"
 
 
 
@@ -70,14 +70,14 @@ class ae_jumping_mt
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_jumping_mt( const uint32_t& simple_seed );   // Initialize with a simple uint32_t
-    ae_jumping_mt( const ae_jumping_mt &model );    // Create a copy of an existing generator
-    ae_jumping_mt( gzFile backup_file );           // Load from a gz backup file
+    ae_jumping_mt(const uint32_t& simple_seed);   // Initialize with a simple uint32_t
+    ae_jumping_mt(const ae_jumping_mt &model);    // Create a copy of an existing generator
+    ae_jumping_mt(gzFile backup_file);           // Load from a gz backup file
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_jumping_mt( void );
+    virtual ~ae_jumping_mt(void);
 
     // =================================================================
     //                        Accessors: getters
@@ -94,20 +94,20 @@ class ae_jumping_mt
     // =================================================================
     //                            Public Methods
     // =================================================================
-    inline double   random( void );         // Double in [0, 1[ (uniform distribution)
-    inline int8_t   random( int8_t max );   // ~
-    inline int16_t  random( int16_t max );  // ~
-    inline int32_t  random( int32_t max );  // ~ > Integer in [0, max[ (uniform distribution)
-    inline int64_t  random( int64_t max );  // ~
-    int32_t         binomial_random( int32_t nb, double prob ); // Binomial drawing of parameters (nb, prob)
-    double          gaussian_random( void );                    // Double following a Standard Normal distribution
-    int8_t          roulette_random( double* probs, int8_t nb_elts ); // Roulette selection
-    void            multinomial_drawing ( int32_t* destination, double* source, int32_t nb_drawings, int32_t colors );
-    // Multinomial drawing of parameters ( nb, {source[0], source[1], ... source[colors-1]} )
+    inline double   random(void);         // Double in [0, 1[ (uniform distribution)
+    inline int8_t   random(int8_t max);   // ~
+    inline int16_t  random(int16_t max);  // ~
+    inline int32_t  random(int32_t max);  // ~ > Integer in [0, max[ (uniform distribution)
+    inline int64_t  random(int64_t max);  // ~
+    int32_t         binomial_random(int32_t nb, double prob); // Binomial drawing of parameters (nb, prob)
+    double          gaussian_random(void);                    // Double following a Standard Normal distribution
+    int8_t          roulette_random(double* probs, int8_t nb_elts); // Roulette selection
+    void            multinomial_drawing (int32_t* destination, double* source, int32_t nb_drawings, int32_t colors);
+    // Multinomial drawing of parameters (nb, {source[0], source[1], ... source[colors-1]})
     
-    void jump( void );
+    void jump(void);
     
-    void save( gzFile backup_file ) const;
+    void save(gzFile backup_file) const;
 
     // =================================================================
     //                           Public Attributes
@@ -124,22 +124,22 @@ class ae_jumping_mt
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    ae_jumping_mt( void )
+    ae_jumping_mt(void)
     {
-      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
     };
-    /*ae_jumping_mt( const ae_jumping_mt &model )
+    /*ae_jumping_mt(const ae_jumping_mt &model)
     {
-      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
     };*/
 
 
     // =================================================================
     //                           Protected Methods
     // =================================================================
-    static double gammln( double X );
+    static double gammln(double X);
 
     // =================================================================
     //                          Protected Attributes
@@ -166,41 +166,41 @@ class ae_jumping_mt
 /*!
   Draw a double precision real-number in [0, 1) with a uniform distribution
  */
-inline double ae_jumping_mt::random( void )
+inline double ae_jumping_mt::random(void)
 {
-  return sfmt_genrand_real2( _sfmt );
+  return sfmt_genrand_real2(_sfmt);
 }
 
 /*!
   Draw an 8-bit integer in [0, max[ with a uniform distribution
  */
-inline int8_t ae_jumping_mt::random( int8_t max )
+inline int8_t ae_jumping_mt::random(int8_t max)
 {
-  return (int8_t) floor( ((double)max) * sfmt_genrand_real2(_sfmt) );
+  return (int8_t) floor(((double)max) * sfmt_genrand_real2(_sfmt));
 }
 
 /*!
   Draw an 16-bit integer in [0, max[ with a uniform distribution
  */
-inline int16_t ae_jumping_mt::random( int16_t max )
+inline int16_t ae_jumping_mt::random(int16_t max)
 {
-  return (int16_t) floor( ((double)max) * sfmt_genrand_real2(_sfmt) );
+  return (int16_t) floor(((double)max) * sfmt_genrand_real2(_sfmt));
 }
 
 /*!
   Draw an 32-bit integer in [0, max[ with a uniform distribution
  */
-inline int32_t ae_jumping_mt::random( int32_t max )
+inline int32_t ae_jumping_mt::random(int32_t max)
 {
-  return (int32_t) floor( ((double)max) * sfmt_genrand_real2(_sfmt) );
+  return (int32_t) floor(((double)max) * sfmt_genrand_real2(_sfmt));
 }
 
 /*!
   Draw an 64-bit integer in [0, max[ with a uniform distribution
  */
-inline int64_t ae_jumping_mt::random( int64_t max )
+inline int64_t ae_jumping_mt::random(int64_t max)
 {
-  return (int64_t) floor( ((double)max) * sfmt_genrand_real2(_sfmt) );
+  return (int64_t) floor(((double)max) * sfmt_genrand_real2(_sfmt));
 }
 
 } // namespace aevol

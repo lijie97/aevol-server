@@ -213,9 +213,10 @@ class param_loader
   double               _selection_pressure;
 
   // ------------------------------------------------------ Spatial structure
-  int16_t  _grid_width;
-  int16_t  _grid_height;
-  int32_t  _migration_number; // TODO : explain
+  int16_t _grid_width  = 32;
+  int16_t _grid_height = 32;
+  bool    well_mixed = false;
+  int32_t partial_mix_nb_permutations = 0;
 
   // -------------------------------------------------------------- Secretion
   bool   _with_secretion;

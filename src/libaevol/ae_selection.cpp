@@ -214,10 +214,7 @@ void ae_selection::step_to_next_generation(void)
   delete [] reproducers;
 
   // randomly migrate some organisms, if necessary
-  if (world->get_migration_number() > 0)
-  {
-    world->ShuffleIndivs();
-  }
+  world->MixIndivs();
 
   PerformPlasmidTransfers();
 

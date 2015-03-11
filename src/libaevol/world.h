@@ -66,7 +66,7 @@ class World
     // =================================================================
     //                             Constructors
     // =================================================================
-    World(void);
+    World(void) = default;
     World(const World&) = delete;
 
     // =================================================================
@@ -87,9 +87,9 @@ class World
     inline ae_individual*   get_best_indiv(void) const;
     inline int16_t          width()  const {return width_;};
     inline int16_t          height() const {return height_;};
-    inline int32_t          get_migration_number(void) const;
+    inline int32_t          partial_mix_nb_permutations() const;
     inline ae_grid_cell***  grid(void) const {return grid_;};
-    inline ae_grid_cell*    get_grid_cell(int16_t x, int16_t y) const;
+    inline ae_grid_cell*    grid(int16_t x, int16_t y) const;
     inline ae_individual*   get_indiv_at(int16_t x, int16_t y) const;
   
     inline double** get_secretion_present_grid(void) const;
@@ -105,9 +105,11 @@ class World
     void set_mut_prng(ae_jumping_mt* prng);
     void set_stoch_prng(ae_jumping_mt* prng);
 
-    inline void set_migration_number(int32_t migration_number);
+    inline void set_is_well_mixed(bool is_well_mixed);
+    inline void set_partial_mix_nb_permutations(int32_t nb_permutations);
     inline void set_secretion_degradation_prop(double degradation_prop);
     inline void set_secretion_diffusion_prop(double diffusion_prop);
+    inline void set_best(int16_t x, int16_t y);
 
     // =================================================================
     //                              Operators
@@ -120,8 +122,8 @@ class World
     void PlaceIndiv(ae_individual* indiv, int16_t x, int16_t y);
     void FillGridWithClones(ae_individual& dolly);
     void evaluate_individuals(Environment* envir);
-    void update_secretion_grid(void); 
-    void ShuffleIndivs(void);
+    void update_secretion_grid(void);
+    void MixIndivs(void);
     void update_best(void);
     void save(gzFile backup_file) const;
     void load(gzFile backup_file, ae_exp_manager* exp_man);
@@ -139,6 +141,8 @@ class World
     //                           Protected Methods
     // =================================================================
     void MallocGrid(void);
+    void WellMixIndivs(void);
+    void PartiallyMixIndivs(void);
     #ifndef DISTRIBUTED_PRNG
       void backup_stoch_prng(void);
     #endif
@@ -146,25 +150,28 @@ class World
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ae_jumping_mt* _prng;
+    ae_jumping_mt* _prng = NULL;
 
     #ifndef DISTRIBUTED_PRNG
-      ae_jumping_mt* _mut_prng;
-      ae_jumping_mt* _stoch_prng;
-      ae_jumping_mt* _stoch_prng_bak;
+      ae_jumping_mt* _mut_prng = NULL;
+      ae_jumping_mt* _stoch_prng = NULL;
+      ae_jumping_mt* _stoch_prng_bak = NULL;
     #endif
     
-    int16_t width_; 
-    int16_t height_;
+    int16_t width_  = -1;
+    int16_t height_ = -1;
 
-    int16_t x_best, y_best;
+    int16_t x_best = -1;
+    int16_t y_best = -1;
     
-    ae_grid_cell*** grid_;
-    ae_grid_cell** grid_1d_;
+    ae_grid_cell*** grid_ = NULL;
+    ae_grid_cell** grid_1d_ = NULL;
     
-    int32_t _migration_number;
-    double  _secretion_diffusion_prop;
-    double  _secretion_degradation_prop;
+    bool is_well_mixed_ = false;
+    int32_t partial_mix_nb_permutations_ = 0;
+
+    double  _secretion_diffusion_prop = -1;
+    double  _secretion_degradation_prop = -1;
 };
 
 
@@ -181,13 +188,12 @@ inline ae_individual* World::get_best_indiv(void) const
   return grid_[x_best][y_best]->get_individual();
 }
 
-inline int32_t World::get_migration_number(void) const
+inline int32_t World::partial_mix_nb_permutations(void) const
 {
-  return _migration_number;
+  return partial_mix_nb_permutations_;
 }
 
-inline ae_grid_cell* World::get_grid_cell(int16_t x,
-                                                         int16_t y) const
+inline ae_grid_cell* World::grid(int16_t x, int16_t y) const
 {
   return grid_[x][y];
 }
@@ -261,24 +267,30 @@ inline double** World::get_total_fitness_grid(void) const
 // =====================================================================
 //                           Setters' definitions
 // =====================================================================
-inline void World::set_prng(ae_jumping_mt* prng)
-{
-  if (_prng != NULL) delete _prng;
+inline void World::set_prng(ae_jumping_mt* prng) {
+  delete _prng;
   _prng = prng;
 }
 
-inline void World::set_migration_number(int32_t migration_number)
-{
-  _migration_number = migration_number;
+inline void World::set_is_well_mixed(bool is_well_mixed) {
+  is_well_mixed_ = is_well_mixed;
 }
 
-inline void World::set_secretion_degradation_prop(double degradation_prop)
-{
+inline void World::set_partial_mix_nb_permutations(int32_t nb_permutations) {
+  partial_mix_nb_permutations_ = nb_permutations;
+}
+
+inline void World::set_secretion_degradation_prop(double degradation_prop) {
   _secretion_degradation_prop=degradation_prop;
 }
-inline void World::set_secretion_diffusion_prop(double diffusion_prop)
-{
+
+inline void World::set_secretion_diffusion_prop(double diffusion_prop) {
   _secretion_diffusion_prop=diffusion_prop;
+}
+
+inline void World::set_best(int16_t x, int16_t y) {
+  x_best = x;
+  y_best = y;
 }
 
 

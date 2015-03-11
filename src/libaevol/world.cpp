@@ -58,25 +58,6 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-World::World(void)
-{
-  _prng = NULL;
-
-  #ifndef DISTRIBUTED_PRNG
-    _mut_prng       = NULL;
-    _stoch_prng     = NULL;
-    _stoch_prng_bak = NULL;
-  #endif
-
-  width_ = -1;
-  height_ = -1;
-
-  grid_ = NULL;
-
-  _migration_number = -1;
-  _secretion_diffusion_prop = -1;
-  _secretion_degradation_prop = -1;
-}
 
 // =================================================================
 //                             Destructor
@@ -202,31 +183,52 @@ void World::update_secretion_grid(void)
 }
 
 /*
+ * Perform mixing of individuals
+ *
+ * Depending on parameters this can either well-mix or partially-mix
+ * the population
+ */
+void World::MixIndivs(void)
+{
+  if (is_well_mixed_)
+    WellMixIndivs();
+  else if (partial_mix_nb_permutations_ > 0)
+    PartiallyMixIndivs();
+}
+
+/*
  * Suffle individuals randomly using Fisher-Yates shuffle
  */
-void World::shuffle_indivs(void)
+void World::WellMixIndivs(void)
 {
-  // for (i from n − 1 downto 1) {
-  //   j ← random integer with 0 ≤ j ≤ i
-  //   exchange a[j] and a[i]
-  // }
+  for (int16_t i = width_ * height_ - 1 ; i > 0 ; i--) {
+    int16_t j = _prng->random(i + 1); // random in [0, 1]
 
+    // Swap individuals btw cells i and j
+    ae_individual* tmp = grid_1d_[i]->get_individual();
+    grid_1d_[i]->set_individual(grid_1d_[j]->get_individual());
+    grid_1d_[j]->set_individual(tmp);
+  }
+}
 
-  ae_individual * tmp_swap;
-
-  int16_t old_x; int16_t old_y; int16_t new_x; int16_t new_y;
-  for (int16_t i = 0 ; i < _migration_number ; i++)
+/*
+ * Perform permutations between individuals randomly
+ *
+ * The number of permutations is given by partial_mix_nb_permutations_
+ */
+void World::PartiallyMixIndivs(void)
+{
+  for (int32_t i = 0 ; i < partial_mix_nb_permutations_ ; i++)
   {
-    old_x = (int16_t) (_prng->random() * width_);
-    old_y = (int16_t) (_prng->random() * height_);
-    new_x = (int16_t) (_prng->random() * width_);
-    new_y = (int16_t) (_prng->random() * height_);
+    int16_t old_x = _prng->random(width_);
+    int16_t old_y = _prng->random(height_);
+    int16_t new_x = _prng->random(width_);
+    int16_t new_y = _prng->random(height_);
 
-
-    // swap the individuals in these grid cells...
-    tmp_swap = grid_[old_x][old_y]->get_individual();
-    grid_[old_x][old_y]->set_individual( grid_[new_x][new_y]->get_individual() );
-    grid_[new_x][new_y]->set_individual( tmp_swap );
+    // Swap the individuals in these grid cells...
+    ae_individual* tmp_swap = grid_[old_x][old_y]->get_individual();
+    grid_[old_x][old_y]->set_individual(grid_[new_x][new_y]->get_individual());
+    grid_[new_x][new_y]->set_individual(tmp_swap);
   }
 }
 
@@ -286,9 +288,10 @@ void World::save(gzFile backup_file) const
   gzwrite(backup_file, &x_best, sizeof(x_best));
   gzwrite(backup_file, &y_best, sizeof(y_best));
 
-  gzwrite(backup_file, &_migration_number,           sizeof(_migration_number));
-  gzwrite(backup_file, &_secretion_diffusion_prop,   sizeof(_secretion_diffusion_prop));
-  gzwrite(backup_file, &_secretion_degradation_prop, sizeof(_secretion_degradation_prop));
+  gzwrite(backup_file, &is_well_mixed_,               sizeof(is_well_mixed_));
+  gzwrite(backup_file, &partial_mix_nb_permutations_, sizeof(partial_mix_nb_permutations_));
+  gzwrite(backup_file, &_secretion_diffusion_prop,    sizeof(_secretion_diffusion_prop));
+  gzwrite(backup_file, &_secretion_degradation_prop,  sizeof(_secretion_degradation_prop));
 }
 
 void World::load(gzFile backup_file, ae_exp_manager* exp_man)
@@ -316,9 +319,10 @@ void World::load(gzFile backup_file, ae_exp_manager* exp_man)
   gzread(backup_file, &x_best, sizeof(x_best));
   gzread(backup_file, &y_best, sizeof(y_best));
 
-  gzread(backup_file, &_migration_number,           sizeof(_migration_number));
-  gzread(backup_file, &_secretion_diffusion_prop,   sizeof(_secretion_diffusion_prop));
-  gzread(backup_file, &_secretion_degradation_prop, sizeof(_secretion_degradation_prop));
+  gzread(backup_file, &is_well_mixed_,               sizeof(is_well_mixed_));
+  gzread(backup_file, &partial_mix_nb_permutations_, sizeof(partial_mix_nb_permutations_));
+  gzread(backup_file, &_secretion_diffusion_prop,    sizeof(_secretion_diffusion_prop));
+  gzread(backup_file, &_secretion_degradation_prop,  sizeof(_secretion_degradation_prop));
 }
 
 // =================================================================

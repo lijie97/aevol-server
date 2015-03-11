@@ -324,7 +324,7 @@ inline World* ae_exp_manager::world(void) const
 
 inline ae_grid_cell* ae_exp_manager::get_grid_cell(int16_t x, int16_t y) const
 {
-  return world()->get_grid_cell(x, y);
+  return world()->grid(x, y);
 }
 
 inline int16_t ae_exp_manager::get_grid_width(void) const
