@@ -281,7 +281,7 @@ int main( int argc, char* argv[] )
   }
   else
   {
-    if ( selseed != -1 )
+    if (selseed != -1)
     {
       ae_jumping_mt * selprng  = new ae_jumping_mt(selseed);
 

@@ -339,7 +339,7 @@ inline int16_t ae_exp_manager::get_grid_height(void) const
 
 inline ae_grid_cell*** ae_exp_manager::get_pop_grid(void) const
 {
-  return world()->get_pop_grid();
+  return world()->grid();
 }
 
 inline bool ae_exp_manager::get_with_HT(void) const
@@ -489,7 +489,7 @@ inline void ae_exp_manager::init_world(int16_t grid_width, int16_t grid_height,
                                        ae_jumping_mt* prng )
 {
   world_ = new World();
-  world_->set_grid_size(grid_width, grid_height);
+  world_->InitGrid(grid_width, grid_height);
   world_->set_prng(prng);
 }
 

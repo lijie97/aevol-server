@@ -216,7 +216,7 @@ void ae_selection::step_to_next_generation(void)
   // randomly migrate some organisms, if necessary
   if (world->get_migration_number() > 0)
   {
-    world->do_random_migrations();
+    world->ShuffleIndivs();
   }
 
   PerformPlasmidTransfers();
@@ -551,7 +551,7 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
   // ===========================================================================
   //  2) Set the new individual's location on the grid
   // ===========================================================================
-  _exp_m->world()->place_indiv(new_indiv, x, y);
+  _exp_m->world()->PlaceIndiv(new_indiv, x, y);
 
 
 

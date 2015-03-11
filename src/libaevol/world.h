@@ -67,6 +67,7 @@ class World
     //                             Constructors
     // =================================================================
     World(void);
+    World(const World&) = delete;
 
     // =================================================================
     //                             Destructors
@@ -78,16 +79,16 @@ class World
     // =================================================================
     // PRNGs
     ae_jumping_mt* get_prng(void) const;
-    ae_jumping_mt* get_mut_prng( void ) const;
-    ae_jumping_mt* get_stoch_prng( void ) const;
+    ae_jumping_mt* get_mut_prng(void) const;
+    ae_jumping_mt* get_stoch_prng(void) const;
 
     std::list<ae_individual*>&& get_indivs_std(void) const;
     inline int32_t          get_nb_indivs(void) const;
     inline ae_individual*   get_best_indiv(void) const;
-    inline int16_t          width()  const {return _grid_width;};
-    inline int16_t          height() const {return _grid_height;};
+    inline int16_t          width()  const {return width_;};
+    inline int16_t          height() const {return height_;};
     inline int32_t          get_migration_number(void) const;
-    inline ae_grid_cell***  get_pop_grid(void) const;
+    inline ae_grid_cell***  grid(void) const {return grid_;};
     inline ae_grid_cell*    get_grid_cell(int16_t x, int16_t y) const;
     inline ae_individual*   get_indiv_at(int16_t x, int16_t y) const;
   
@@ -101,13 +102,12 @@ class World
     // =================================================================
     // PRNGs
     inline void set_prng(ae_jumping_mt* prng);
-    void set_mut_prng( ae_jumping_mt* prng );
-    void set_stoch_prng( ae_jumping_mt* prng );
+    void set_mut_prng(ae_jumping_mt* prng);
+    void set_stoch_prng(ae_jumping_mt* prng);
 
-    inline void set_grid_size( int16_t grid_x, int16_t grid_y );
-    inline void set_migration_number( int32_t migration_number );
-    inline void set_secretion_degradation_prop( double degradation_prop );
-    inline void set_secretion_diffusion_prop( double diffusion_prop );
+    inline void set_migration_number(int32_t migration_number);
+    inline void set_secretion_degradation_prop(double degradation_prop);
+    inline void set_secretion_diffusion_prop(double diffusion_prop);
 
     // =================================================================
     //                              Operators
@@ -116,13 +116,14 @@ class World
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void place_indiv(ae_individual* indiv, int16_t x, int16_t y);
+    void InitGrid(int16_t width, int16_t height);
+    void PlaceIndiv(ae_individual* indiv, int16_t x, int16_t y);
     void FillGridWithClones(ae_individual& dolly);
     void evaluate_individuals(Environment* envir);
     void update_secretion_grid(void); 
-    void do_random_migrations (void);
+    void ShuffleIndivs(void);
     void update_best(void);
-    void save( gzFile backup_file ) const;
+    void save(gzFile backup_file) const;
     void load(gzFile backup_file, ae_exp_manager* exp_man);
 
     // =================================================================
@@ -134,27 +135,12 @@ class World
 
 
   protected :
-
-    // =================================================================
-    //                         Forbidden Constructors
-    // =================================================================
-    /*World(void)
-    {
-      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-    World( const World &model )
-    {
-      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };*/
-
-
     // =================================================================
     //                           Protected Methods
     // =================================================================
+    void MallocGrid(void);
     #ifndef DISTRIBUTED_PRNG
-      void backup_stoch_prng( void );
+      void backup_stoch_prng(void);
     #endif
 
     // =================================================================
@@ -168,12 +154,13 @@ class World
       ae_jumping_mt* _stoch_prng_bak;
     #endif
     
-    int16_t _grid_width; 
-    int16_t _grid_height;
+    int16_t width_; 
+    int16_t height_;
 
     int16_t x_best, y_best;
     
-    ae_grid_cell*** _pop_grid;
+    ae_grid_cell*** grid_;
+    ae_grid_cell** grid_1d_;
     
     int32_t _migration_number;
     double  _secretion_diffusion_prop;
@@ -186,12 +173,12 @@ class World
 // =====================================================================
 inline int32_t World::get_nb_indivs(void) const
 {
-  return _grid_width * _grid_height;
+  return width_ * height_;
 }
 
 inline ae_individual* World::get_best_indiv(void) const
 {
-  return _pop_grid[x_best][y_best]->get_individual();
+  return grid_[x_best][y_best]->get_individual();
 }
 
 inline int32_t World::get_migration_number(void) const
@@ -199,32 +186,27 @@ inline int32_t World::get_migration_number(void) const
   return _migration_number;
 }
 
-inline ae_grid_cell*** World::get_pop_grid(void) const
-{
-  return _pop_grid;
-}
-
 inline ae_grid_cell* World::get_grid_cell(int16_t x,
                                                          int16_t y) const
 {
-  return _pop_grid[x][y];
+  return grid_[x][y];
 }
 
 inline ae_individual* World::get_indiv_at(int16_t x, int16_t y) const
 {
-  return _pop_grid[x][y]->get_individual();
+  return grid_[x][y]->get_individual();
 }
 
 inline double** World::get_secretion_present_grid(void) const
 {
-  double** ret = new double*[_grid_width];
+  double** ret = new double*[width_];
   
-  for ( int16_t x = 0; x < _grid_width ; x++ )
+  for (int16_t x = 0; x < width_ ; x++)
   {
-    ret[x] = new double[_grid_height];
-    for ( int16_t y = 0; y < _grid_height ; y++ )
+    ret[x] = new double[height_];
+    for (int16_t y = 0; y < height_ ; y++)
     { 
-      ret[x][y] = _pop_grid[x][y]->get_compound_amount(); 
+      ret[x][y] = grid_[x][y]->get_compound_amount(); 
     }
   }
   
@@ -233,13 +215,13 @@ inline double** World::get_secretion_present_grid(void) const
 
 inline double** World::get_secreted_amount_grid(void) const
 {
-  double** ret = new double*[_grid_width];
-  for ( int16_t x = 0 ; x < _grid_width ; x++ )
+  double** ret = new double*[width_];
+  for (int16_t x = 0 ; x < width_ ; x++)
   {
-    ret[x] = new double[_grid_height];
-    for ( int16_t y = 0; y < _grid_height ; y++ )
+    ret[x] = new double[height_];
+    for (int16_t y = 0; y < height_ ; y++)
     {
-      ret[x][y] = _pop_grid[x][y]->get_secreted_amount();
+      ret[x][y] = grid_[x][y]->get_secreted_amount();
     }
   }
   
@@ -248,13 +230,13 @@ inline double** World::get_secreted_amount_grid(void) const
 
 inline double** World::get_metabolic_fitness_grid(void) const
 {
-  double** ret = new double*[_grid_width];
-  for ( int16_t x = 0 ; x < _grid_width ; x++ )
+  double** ret = new double*[width_];
+  for (int16_t x = 0 ; x < width_ ; x++)
   {
-    ret[x] = new double[_grid_height];
-    for ( int16_t y = 0; y < _grid_height ; y++ )
+    ret[x] = new double[height_];
+    for (int16_t y = 0; y < height_ ; y++)
     {
-      ret[x][y] = _pop_grid[x][y]->get_metabolic_fitness();
+      ret[x][y] = grid_[x][y]->get_metabolic_fitness();
     }
   }
   
@@ -263,13 +245,13 @@ inline double** World::get_metabolic_fitness_grid(void) const
 
 inline double** World::get_total_fitness_grid(void) const
 {
-  double** ret = new double*[_grid_width];
-  for ( int16_t x = 0 ; x < _grid_width ; x++ )
+  double** ret = new double*[width_];
+  for (int16_t x = 0 ; x < width_ ; x++)
   {
-    ret[x] = new double[_grid_height];
-    for ( int16_t y = 0; y < _grid_height ; y++ )
+    ret[x] = new double[height_];
+    for (int16_t y = 0; y < height_ ; y++)
     {
-      ret[x][y] = _pop_grid[x][y]->get_total_fitness();
+      ret[x][y] = grid_[x][y]->get_total_fitness();
     }
   }
   
@@ -279,38 +261,22 @@ inline double** World::get_total_fitness_grid(void) const
 // =====================================================================
 //                           Setters' definitions
 // =====================================================================
-inline void World::set_prng( ae_jumping_mt* prng )
+inline void World::set_prng(ae_jumping_mt* prng)
 {
   if (_prng != NULL) delete _prng;
   _prng = prng;
 }
 
-inline void World::set_grid_size( int16_t grid_width, int16_t grid_height )
-{
-  _grid_width   = grid_width;
-  _grid_height  = grid_height;
-  
-  _pop_grid = new ae_grid_cell** [_grid_width];
-  for ( int16_t x = 0 ; x < _grid_width ; x++ )
-  {
-    _pop_grid[x] = new ae_grid_cell* [_grid_height];
-    for ( int16_t y = 0 ; y < _grid_height ; y++ )
-    {
-      _pop_grid[x][y] = new ae_grid_cell( x, y, NULL );
-    }
-  }
-}
-
-inline void World::set_migration_number( int32_t migration_number )
+inline void World::set_migration_number(int32_t migration_number)
 {
   _migration_number = migration_number;
 }
 
-inline void World::set_secretion_degradation_prop( double degradation_prop )
+inline void World::set_secretion_degradation_prop(double degradation_prop)
 {
   _secretion_degradation_prop=degradation_prop;
 }
-inline void World::set_secretion_diffusion_prop( double diffusion_prop )
+inline void World::set_secretion_diffusion_prop(double diffusion_prop)
 {
   _secretion_diffusion_prop=diffusion_prop;
 }

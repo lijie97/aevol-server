@@ -1510,7 +1510,7 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
       y = exp_m->world()->get_prng()->random(y_max);
     } while (world->get_indiv_at(x, y) != NULL);
 
-    world->place_indiv(indiv, x, y);
+    world->PlaceIndiv(indiv, x, y);
   }
 
 
