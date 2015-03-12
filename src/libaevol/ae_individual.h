@@ -44,6 +44,7 @@
 //                            Project Files
 // =================================================================
 #include "indiv_stats.h"
+#include "non_coding_stats.h"
 #include "environment.h"
 #include "ae_genetic_unit.h"
 #include "ae_dna.h"
@@ -464,8 +465,6 @@ class ae_individual
     bool _phenotype_computed;
     bool _distance_to_target_computed;
     bool _fitness_computed;
-    bool _non_coding_computed;
-    bool _modularity_computed;
 
     bool _placed_in_population; // TODO: spatial ?
 
@@ -475,23 +474,12 @@ class ae_individual
     // Statistical data
     // ----------------------------------------
     IndivStats* stats_ = NULL;
-    // IndivNCStats* indivs_nc_stats_ = NULL;
+    NonCodingStats* nc_stats_ = NULL;
     // Genome, RNAs and genes size and stuff
 
     // Mutation/Rearrangement statistics are managed in the replication report
 
     // Coding / non-coding
-    int32_t _nb_bases_in_0_CDS;               // Number of bases that are not included in any gene
-    int32_t _nb_bases_in_0_functional_CDS;    // Number of bases that are not included in any functional gene
-    int32_t _nb_bases_in_0_non_functional_CDS;// Number of bases that are not included in any degenerated gene
-    int32_t _nb_bases_in_0_RNA;               // Number of bases that are not included in any RNA
-    int32_t _nb_bases_in_0_coding_RNA;        // Number of bases that are not included in any coding RNA
-                                              // (RNAs containing at least one CDS)
-    int32_t _nb_bases_in_0_non_coding_RNA;    // Number of bases that are not included in any non coding RNA
-    int32_t _nb_bases_in_neutral_regions;     // Number of bases that are in a neutral region
-                                              // A base is considered neutral when neither itself NOR its corresponding base on the other
-                                              // strand belongs to a coding promoter->terminator region (both included)
-    int32_t _nb_neutral_regions;              // Number of neutral regions
 
     double _modularity; // Ratio between the pairwise distance between genes whose corresponding
                         // phenotypic triangles overlap and the average intergenic distance
