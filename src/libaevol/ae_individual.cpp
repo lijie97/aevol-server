@@ -137,7 +137,6 @@ ae_individual::ae_individual(ae_exp_manager* exp_m,
   _phenotype_computed           = false;
   _distance_to_target_computed  = false;
   _fitness_computed             = false;
-  _statistical_data_computed    = false;
   _non_coding_computed          = false;
   _modularity_computed          = false;
   _placed_in_population         = false;
@@ -147,23 +146,6 @@ ae_individual::ae_individual(ae_exp_manager* exp_m,
   // ----------------------------------------
   // Statistical data
   // ----------------------------------------
-  // Genome, RNAs and genes size and stuff
-  _total_genome_size  = 0;
-
-  _nb_coding_RNAs     = 0;
-  _nb_non_coding_RNAs = 0;
-
-  _overall_size_coding_RNAs     = 0.0;
-  _overall_size_non_coding_RNAs = 0.0;
-
-  _nb_genes_activ           = 0;
-  _nb_genes_inhib           = 0;
-  _nb_functional_genes      = 0;
-  _nb_non_functional_genes  = 0;
-
-  _overall_size_functional_genes      = 0.0;
-  _overall_size_non_functional_genes  = 0.0;
-
   // Coding / non-coding
   _nb_bases_in_0_CDS                = 0;
   _nb_bases_in_0_functional_CDS     = 0;
@@ -289,23 +271,9 @@ ae_individual::ae_individual(ae_exp_manager* exp_m, gzFile backup_file)
   _phenotype_computed           = false;
   _distance_to_target_computed  = false;
   _fitness_computed             = false;
-  _statistical_data_computed    = false;
   _non_coding_computed          = false;
   _modularity_computed          = false;
 
-
-  // Initialize statistical data
-  _total_genome_size                  = 0;
-  _nb_coding_RNAs                     = 0;
-  _nb_non_coding_RNAs                 = 0;
-  _overall_size_coding_RNAs           = 0;
-  _overall_size_non_coding_RNAs       = 0;
-  _nb_genes_activ                     = 0;
-  _nb_genes_inhib                     = 0;
-  _nb_functional_genes                = 0;
-  _nb_non_functional_genes            = 0;
-  _overall_size_functional_genes      = 0;
-  _overall_size_non_functional_genes  = 0;
 
   _nb_bases_in_0_CDS                  = -1;
   _nb_bases_in_0_functional_CDS       = -1;
@@ -322,7 +290,8 @@ ae_individual::ae_individual(ae_exp_manager* exp_m, gzFile backup_file)
 }
 
 // Copy constructor
-ae_individual::ae_individual(const ae_individual &model, bool replication_report_copy /* = FALSE */)
+ae_individual::ae_individual(const ae_individual &model,
+                             bool replication_report_copy /*= false*/)
 {
   _exp_m = model._exp_m;
 
@@ -358,7 +327,6 @@ ae_individual::ae_individual(const ae_individual &model, bool replication_report
   // and must hence be recomputed with the (possibly different) environment.
   _distance_to_target_computed  = false;
   _fitness_computed             = false;
-  _statistical_data_computed    = model._statistical_data_computed;
 
   _non_coding_computed          = model._non_coding_computed;
   _modularity_computed          = model._modularity_computed;
@@ -400,17 +368,8 @@ ae_individual::ae_individual(const ae_individual &model, bool replication_report
 
 
   // Copy statistical data
-  _total_genome_size                  = model._total_genome_size;
-  _nb_coding_RNAs                     = model._nb_coding_RNAs;
-  _nb_non_coding_RNAs                 = model._nb_non_coding_RNAs;
-  _overall_size_coding_RNAs           = model._overall_size_coding_RNAs;
-  _overall_size_non_coding_RNAs       = model._overall_size_non_coding_RNAs;
-  _nb_genes_activ                     = model._nb_genes_activ;
-  _nb_genes_inhib                     = model._nb_genes_inhib;
-  _nb_functional_genes                = model._nb_functional_genes;
-  _nb_non_functional_genes            = model._nb_non_functional_genes;
-  _overall_size_functional_genes      = model._overall_size_functional_genes;
-  _overall_size_non_functional_genes  = model._overall_size_non_functional_genes;
+  stats_ = model.stats_ ? new IndivStats(*model.stats_) :
+                                        NULL;
 
   _nb_bases_in_0_CDS                  = model._nb_bases_in_0_CDS;
   _nb_bases_in_0_functional_CDS       = model._nb_bases_in_0_functional_CDS;
@@ -466,7 +425,7 @@ ae_individual::ae_individual(const ae_individual &model, bool replication_report
 
   The phenotype and the fitness are not set, neither is the statistical data.
 */
-ae_individual::ae_individual(ae_individual* const parent, int32_t id, ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng)
+ae_individual::ae_individual(const ae_individual* parent, int32_t id, ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng)
 {
   _exp_m = parent->_exp_m;
 
@@ -489,7 +448,6 @@ ae_individual::ae_individual(ae_individual* const parent, int32_t id, ae_jumping
   _phenotype_computed           = false;
   _distance_to_target_computed  = false;
   _fitness_computed             = false;
-  _statistical_data_computed    = false;
   _non_coding_computed          = false;
   _modularity_computed          = false;
 
@@ -555,18 +513,6 @@ ae_individual::ae_individual(ae_individual* const parent, int32_t id, ae_jumping
   _allow_plasmids = parent->_allow_plasmids;
 
   // Initialize statistical data
-  _total_genome_size                  = 0;
-  _nb_coding_RNAs                     = 0;
-  _nb_non_coding_RNAs                 = 0;
-  _overall_size_coding_RNAs           = 0;
-  _overall_size_non_coding_RNAs       = 0;
-  _nb_genes_activ                     = 0;
-  _nb_genes_inhib                     = 0;
-  _nb_functional_genes                = 0;
-  _nb_non_functional_genes            = 0;
-  _overall_size_functional_genes      = 0;
-  _overall_size_non_functional_genes  = 0;
-
   _nb_bases_in_0_CDS                  = -1;
   _nb_bases_in_0_functional_CDS       = -1;
   _nb_bases_in_0_non_functional_CDS   = -1;
@@ -605,7 +551,8 @@ ae_individual* ae_individual::CreateIndividual(ae_exp_manager* exp_m,
   \param id ID of the clone in the population
   \return clone of dolly
 */
-ae_individual* ae_individual::create_clone(ae_individual* dolly, int32_t id)
+ae_individual* ae_individual::CreateClone(const ae_individual* dolly,
+                                           int32_t id)
 {
   ae_individual* indiv = new ae_individual(*dolly, false);
   indiv->set_id(id);
@@ -650,6 +597,8 @@ ae_individual::~ae_individual()
   delete [] _double_probes;
 
   delete _mut_params;
+
+  delete stats_;
 
   /*if(_replic_report!= NULL)
   {
@@ -858,164 +807,131 @@ const std::list<ae_rna*>& ae_individual::get_rna_list() const {
 }
 
 /// TODO
-int32_t ae_individual::get_total_genome_size() {
-  if (! _statistical_data_computed) compute_statistical_data();
-  return _total_genome_size;
+int32_t ae_individual::get_total_genome_size() const {
+  return stats_->total_genome_size();
 }
 
 /// TODO
-int32_t ae_individual::get_nb_coding_RNAs() {
-  if (! _statistical_data_computed) compute_statistical_data();
-  return _nb_coding_RNAs;
+int32_t ae_individual::get_nb_coding_RNAs() const {
+  return stats_->nb_coding_RNAs();
 }
 
 /// TODO
-int32_t ae_individual::get_nb_non_coding_RNAs() {
-  if (! _statistical_data_computed) compute_statistical_data();
-  return _nb_non_coding_RNAs;
+int32_t ae_individual::get_nb_non_coding_RNAs() const {
+  return stats_->nb_non_coding_RNAs();
 }
 
 /// TODO
-double ae_individual::get_overall_size_coding_RNAs() {
-  if (! _statistical_data_computed) compute_statistical_data();
-  return _overall_size_coding_RNAs;
+double ae_individual::get_overall_size_coding_RNAs() const {
+  return stats_->overall_size_coding_RNAs();
 }
 
 /// TODO
-double ae_individual::get_av_size_coding_RNAs() {
-  if (! _statistical_data_computed) compute_statistical_data();
-  if (_nb_coding_RNAs != 0)
-  {
-    return _overall_size_coding_RNAs / _nb_coding_RNAs;
-  }
-  else return 0.0;
+double ae_individual::get_av_size_coding_RNAs() const {
+  return stats_->nb_coding_RNAs() == 0 ?
+      0.0 :
+      stats_->overall_size_coding_RNAs() /
+          stats_->nb_coding_RNAs();
 }
 
 /// TODO
-double ae_individual::get_overall_size_non_coding_RNAs() {
-  if (! _statistical_data_computed) compute_statistical_data();
-  return _overall_size_non_coding_RNAs;
+double ae_individual::get_overall_size_non_coding_RNAs() const {
+  return stats_->overall_size_non_coding_RNAs();
 }
 
 /// TODO
-double ae_individual::get_av_size_non_coding_RNAs() {
-  if (! _statistical_data_computed) compute_statistical_data();
-  if (_nb_non_coding_RNAs != 0)
-  {
-    return _overall_size_non_coding_RNAs / _nb_non_coding_RNAs;
-  }
-  else return 0.0;
+double ae_individual::get_av_size_non_coding_RNAs() const {
+  return stats_->nb_non_coding_RNAs() == 0 ?
+      0.0 :
+      stats_->overall_size_non_coding_RNAs() /
+          stats_->nb_non_coding_RNAs();
 }
 
 /// TODO
-int32_t ae_individual::get_nb_genes_activ() {
-  if (! _statistical_data_computed) compute_statistical_data();
-  return _nb_genes_activ;
+int32_t ae_individual::get_nb_genes_activ() const {
+  return stats_->nb_genes_activ();
 }
 
 /// TODO
-int32_t ae_individual::get_nb_genes_inhib() {
-  if (! _statistical_data_computed) compute_statistical_data();
-  return _nb_genes_inhib;
+int32_t ae_individual::get_nb_genes_inhib() const {
+  return stats_->nb_genes_inhib();
 }
 
 /// TODO
-int32_t ae_individual::get_nb_functional_genes() {
-  if (! _statistical_data_computed) compute_statistical_data();
-  return _nb_functional_genes;
+int32_t ae_individual::get_nb_functional_genes() const {
+  return stats_->nb_functional_genes();
 }
 
 /// TODO
-int32_t ae_individual::get_nb_non_functional_genes() {
-  if (! _statistical_data_computed) compute_statistical_data();
-  return _nb_non_functional_genes;
+int32_t ae_individual::get_nb_non_functional_genes() const {
+  return stats_->nb_non_functional_genes();
 }
 
 /// TODO
-double ae_individual::get_overall_size_functional_genes() {
-  if (! _statistical_data_computed) compute_statistical_data();
-  return _overall_size_functional_genes;
+double ae_individual::get_overall_size_functional_genes() const {
+  return stats_->overall_size_functional_genes();
 }
 
 /// TODO
-double ae_individual::get_av_size_functional_genes() {
-  if (! _statistical_data_computed) compute_statistical_data();
-  if (_nb_functional_genes != 0)
-  {
-    return _overall_size_functional_genes / _nb_functional_genes;
-  }
-  else return 0.0;
+double ae_individual::get_av_size_functional_genes() const {
+  return stats_->nb_functional_genes() == 0 ?
+      0.0 :
+      stats_->overall_size_functional_genes() /
+          stats_->nb_functional_genes();
 }
 
 /// TODO
-double ae_individual::get_overall_size_non_functional_genes() {
-  if (! _statistical_data_computed) compute_statistical_data();
-  return _overall_size_non_functional_genes;
+double ae_individual::get_overall_size_non_functional_genes() const {
+  return stats_->overall_size_non_functional_genes();
 }
 
 /// TODO
-double ae_individual::get_av_size_non_functional_genes() {
-  if (! _statistical_data_computed) compute_statistical_data();
-  if (_nb_non_functional_genes != 0)
-  {
-    return _overall_size_non_functional_genes / _nb_non_functional_genes;
-  }
-  else return 0.0;
+double ae_individual::get_av_size_non_functional_genes() const {
+  return stats_->nb_non_functional_genes() == 0 ?
+      0.0 :
+      stats_->overall_size_non_functional_genes() /
+          stats_->nb_non_functional_genes();
 }
 
 /// TODO
-int32_t ae_individual::get_nb_bases_in_0_CDS() {
-  if (! _statistical_data_computed) compute_statistical_data();
-  if (! _non_coding_computed) compute_non_coding();
+int32_t ae_individual::get_nb_bases_in_0_CDS() const {
   return _nb_bases_in_0_CDS;
 }
 
 /// TODO
-int32_t ae_individual::get_nb_bases_in_0_functional_CDS() {
-  if (! _statistical_data_computed) compute_statistical_data();
-  if (! _non_coding_computed) compute_non_coding();
+int32_t ae_individual::get_nb_bases_in_0_functional_CDS() const {
   return _nb_bases_in_0_functional_CDS;
 }
 
 /// TODO
-int32_t ae_individual::get_nb_bases_in_0_non_functional_CDS() {
-  if (! _statistical_data_computed) compute_statistical_data();
-  if (! _non_coding_computed) compute_non_coding();
+int32_t ae_individual::get_nb_bases_in_0_non_functional_CDS() const {
+  // if (! _statistical_data_computed) compute_statistical_data();
+  // if (! _non_coding_computed) compute_non_coding();
   return _nb_bases_in_0_non_functional_CDS;
 }
 
 /// TODO
-int32_t ae_individual::get_nb_bases_in_0_RNA() {
-  if (! _statistical_data_computed) compute_statistical_data();
-  if (! _non_coding_computed) compute_non_coding();
+int32_t ae_individual::get_nb_bases_in_0_RNA() const {
   return _nb_bases_in_0_RNA;
 }
 
 /// TODO
-int32_t ae_individual::get_nb_bases_in_0_coding_RNA() {
-  if (! _statistical_data_computed) compute_statistical_data();
-  if (! _non_coding_computed) compute_non_coding();
+int32_t ae_individual::get_nb_bases_in_0_coding_RNA() const {
   return _nb_bases_in_0_coding_RNA;
 }
 
 /// TODO
-int32_t ae_individual::get_nb_bases_in_0_non_coding_RNA() {
-  if (! _statistical_data_computed) compute_statistical_data();
-  if (! _non_coding_computed) compute_non_coding();
+int32_t ae_individual::get_nb_bases_in_0_non_coding_RNA() const {
   return _nb_bases_in_0_non_coding_RNA;
 }
 
 /// TODO
-int32_t ae_individual::get_nb_bases_in_neutral_regions() {
-  if (! _statistical_data_computed) compute_statistical_data();
-  if (! _non_coding_computed) compute_non_coding();
+int32_t ae_individual::get_nb_bases_in_neutral_regions() const {
   return _nb_bases_in_neutral_regions;
 }
 
 /// TODO
-int32_t ae_individual::get_nb_neutral_regions() {
-  if (! _statistical_data_computed) compute_statistical_data();
-  if (! _non_coding_computed) compute_non_coding();
+int32_t ae_individual::get_nb_neutral_regions() const {
   return _nb_neutral_regions;
 }
 
@@ -1584,7 +1500,6 @@ void ae_individual::clear_everything_except_dna_and_promoters() {
   _phenotype_computed           = false;
   _distance_to_target_computed  = false;
   _fitness_computed             = false;
-  _statistical_data_computed    = false;
   _non_coding_computed          = false;
   _modularity_computed          = false;
 
@@ -1639,17 +1554,8 @@ void ae_individual::clear_everything_except_dna_and_promoters() {
 
 
   // Initialize statistical data
-  _total_genome_size                  = 0;
-  _nb_coding_RNAs                     = 0;
-  _nb_non_coding_RNAs                 = 0;
-  _overall_size_coding_RNAs           = 0;
-  _overall_size_non_coding_RNAs       = 0;
-  _nb_genes_activ                     = 0;
-  _nb_genes_inhib                     = 0;
-  _nb_functional_genes                = 0;
-  _nb_non_functional_genes            = 0;
-  _overall_size_functional_genes      = 0;
-  _overall_size_non_functional_genes  = 0;
+  delete stats_;
+  stats_ = NULL;
 
   _nb_bases_in_0_CDS                  = -1;
   _nb_bases_in_0_functional_CDS       = -1;
@@ -1799,8 +1705,8 @@ void ae_individual::inject_2GUs(ae_individual* partner) {
 }
 
 void ae_individual::compute_statistical_data() {
-  if (_statistical_data_computed) return; // Statistical data has already been computed, nothing to do.
-  _statistical_data_computed = true;
+  if (stats_ != NULL) return; // Statistical data has already been computed, nothing to do.
+  stats_ = new IndivStats();
 
   if (not _phenotype_computed)
   {
@@ -1808,17 +1714,28 @@ void ae_individual::compute_statistical_data() {
   }
 
   for (const auto& gen_unit: _genetic_unit_list) {
-    _total_genome_size                 += gen_unit.get_dna()->get_length();
-    _nb_coding_RNAs                    += gen_unit.get_nb_coding_RNAs();
-    _nb_non_coding_RNAs                += gen_unit.get_nb_non_coding_RNAs();
-    _overall_size_coding_RNAs          += gen_unit.get_overall_size_coding_RNAs();
-    _overall_size_non_coding_RNAs      += gen_unit.get_overall_size_non_coding_RNAs();
-    _nb_genes_activ                    += gen_unit.get_nb_genes_activ();
-    _nb_genes_inhib                    += gen_unit.get_nb_genes_inhib();
-    _nb_functional_genes               += gen_unit.get_nb_functional_genes();
-    _nb_non_functional_genes           += gen_unit.get_nb_non_functional_genes();
-    _overall_size_functional_genes     += gen_unit.get_overall_size_functional_genes();
-    _overall_size_non_functional_genes += gen_unit.get_overall_size_non_functional_genes();
+    stats_->total_genome_size_ +=
+        gen_unit.get_dna()->get_length();
+    stats_->nb_coding_RNAs_ +=
+        gen_unit.get_nb_coding_RNAs();
+    stats_->nb_non_coding_RNAs_ +=
+        gen_unit.get_nb_non_coding_RNAs();
+    stats_->overall_size_coding_RNAs_ +=
+        gen_unit.get_overall_size_coding_RNAs();
+    stats_->overall_size_non_coding_RNAs_ +=
+        gen_unit.get_overall_size_non_coding_RNAs();
+    stats_->nb_genes_activ_ +=
+        gen_unit.get_nb_genes_activ();
+    stats_->nb_genes_inhib_ +=
+        gen_unit.get_nb_genes_inhib();
+    stats_->nb_functional_genes_ +=
+        gen_unit.get_nb_functional_genes();
+    stats_->nb_non_functional_genes_ +=
+        gen_unit.get_nb_non_functional_genes();
+    stats_->overall_size_functional_genes_ +=
+        gen_unit.get_overall_size_functional_genes();
+    stats_->overall_size_non_functional_genes_ +=
+        gen_unit.get_overall_size_non_functional_genes();
   }
 
   if (_replic_report != NULL)
@@ -2115,17 +2032,13 @@ void ae_individual::remove_non_coding_bases() {
 /// Double the bases that are not in coding RNA by addition of random
 /// bases and test at each addition that fitness is not changed.
 void ae_individual::double_non_coding_bases(void) {
-  _statistical_data_computed = false;
-  _non_coding_computed = false;
-  _total_genome_size = 0;
+  stats_->total_genome_size_ = 0;
   int32_t initial_non_coding_base_nb = get_nb_bases_in_0_coding_RNA();
 
   for (auto& gen_unit: _genetic_unit_list)
     gen_unit.double_non_coding_bases();
 
-  _statistical_data_computed = false;
-  _non_coding_computed = false;
-  _total_genome_size = 0;
+  stats_->total_genome_size_ = 0;
 
   assert(get_nb_bases_in_0_coding_RNA()==2*initial_non_coding_base_nb);
 }

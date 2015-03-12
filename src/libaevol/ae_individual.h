@@ -43,7 +43,8 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <environment.h>
+#include "indiv_stats.h"
+#include "environment.h"
 #include "ae_genetic_unit.h"
 #include "ae_dna.h"
 #include "ae_rna.h"
@@ -75,27 +76,29 @@ class ae_individual
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_individual( ae_exp_manager* exp_m,
-                    ae_jumping_mt* mut_prng,
-                    ae_jumping_mt* stoch_prng,
-                    ae_params_mut* param_mut,
-                    double w_max,
-                    int32_t min_genome_length,
-                    int32_t max_genome_length,
-                    bool allow_plasmids,
-                    int32_t id,
-                    char* strain_name,
-                    int32_t age);
+    ae_individual(ae_exp_manager* exp_m,
+                  ae_jumping_mt* mut_prng,
+                  ae_jumping_mt* stoch_prng,
+                  ae_params_mut* param_mut,
+                  double w_max,
+                  int32_t min_genome_length,
+                  int32_t max_genome_length,
+                  bool allow_plasmids,
+                  int32_t id,
+                  char* strain_name,
+                  int32_t age);
 
     ae_individual(ae_exp_manager* exp_m, gzFile backup_file);
-    ae_individual(const ae_individual &model, bool replication_report_copy = false);
-    ae_individual( ae_individual* const parent, int32_t id,
-                    ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng);
+    ae_individual(const ae_individual &model,
+                  bool replication_report_copy = false);
+    ae_individual(const ae_individual* parent, int32_t id,
+                  ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng);
     ae_individual() = delete; // forbidden constructor
 
-    static ae_individual* CreateIndividual(ae_exp_manager* exp_m, gzFile backup_file);
+    static ae_individual* CreateIndividual(ae_exp_manager* exp_m,
+                                           gzFile backup_file);
 
-    static ae_individual* create_clone(ae_individual* dolly, int32_t id);
+    static ae_individual* CreateClone(const ae_individual* dolly, int32_t id);
 
     // =================================================================
     //                             Destructors
@@ -200,30 +203,30 @@ class ae_individual
     bool get_with_stochasticity(void) const;
 
     // Statistical data
-    int32_t  get_total_genome_size(void); // TODO: duplicate with get_amount_of_dna?
-    int32_t  get_nb_coding_RNAs(void);
-    int32_t  get_nb_non_coding_RNAs(void);
-    double   get_overall_size_coding_RNAs(void);
-    double   get_av_size_coding_RNAs(void);
-    double   get_overall_size_non_coding_RNAs(void);
-    double   get_av_size_non_coding_RNAs(void);
-    int32_t  get_nb_genes_activ(void);
-    int32_t  get_nb_genes_inhib(void);
-    int32_t  get_nb_functional_genes(void);
-    int32_t  get_nb_non_functional_genes(void);
-    double   get_overall_size_functional_genes(void);
-    double   get_av_size_functional_genes(void);
-    double   get_overall_size_non_functional_genes(void);
-    double   get_av_size_non_functional_genes(void);
+    int32_t  get_total_genome_size(void) const; // TODO: duplicate with get_amount_of_dna?
+    int32_t  get_nb_coding_RNAs(void) const;
+    int32_t  get_nb_non_coding_RNAs(void) const;
+    double   get_overall_size_coding_RNAs(void) const;
+    double   get_av_size_coding_RNAs(void) const;
+    double   get_overall_size_non_coding_RNAs(void) const;
+    double   get_av_size_non_coding_RNAs(void) const;
+    int32_t  get_nb_genes_activ(void) const;
+    int32_t  get_nb_genes_inhib(void) const;
+    int32_t  get_nb_functional_genes(void) const;
+    int32_t  get_nb_non_functional_genes(void) const;
+    double   get_overall_size_functional_genes(void) const;
+    double   get_av_size_functional_genes(void) const;
+    double   get_overall_size_non_functional_genes(void) const;
+    double   get_av_size_non_functional_genes(void) const;
 
-    int32_t  get_nb_bases_in_0_CDS(void);
-    int32_t  get_nb_bases_in_0_functional_CDS(void);
-    int32_t  get_nb_bases_in_0_non_functional_CDS(void);
-    int32_t  get_nb_bases_in_0_RNA(void);
-    int32_t  get_nb_bases_in_0_coding_RNA(void);
-    int32_t  get_nb_bases_in_0_non_coding_RNA(void);
-    int32_t  get_nb_bases_in_neutral_regions(void);
-    int32_t  get_nb_neutral_regions(void);
+    int32_t  get_nb_bases_in_0_CDS(void) const;
+    int32_t  get_nb_bases_in_0_functional_CDS(void) const;
+    int32_t  get_nb_bases_in_0_non_functional_CDS(void) const;
+    int32_t  get_nb_bases_in_0_RNA(void) const;
+    int32_t  get_nb_bases_in_0_coding_RNA(void) const;
+    int32_t  get_nb_bases_in_0_non_coding_RNA(void) const;
+    int32_t  get_nb_bases_in_neutral_regions(void) const;
+    int32_t  get_nb_neutral_regions(void) const;
 
     double get_modularity(void); // Not const
 
@@ -299,7 +302,7 @@ class ae_individual
 
     void add_GU(char * &sequence, int32_t length);  // warning: the individual is left in a totally "cleared" state but not reevaluated
     // void add_GU(ae_genetic_unit&& unit); // warning: the individual is left in a totally "cleared" state but not reevaluated
-  void add_GU(ae_individual* indiv, int32_t chromosome_length, ae_jumping_mt* prng);
+    void add_GU(ae_individual* indiv, int32_t chromosome_length, ae_jumping_mt* prng);
 
     // void add_GU(ae_individual* indiv, int32_t length, ae_jumping_mt* prng);
     void remove_GU (int16_t num_unit); // warning: the individual is left in a totally "cleared" state but not reevaluated
@@ -461,7 +464,6 @@ class ae_individual
     bool _phenotype_computed;
     bool _distance_to_target_computed;
     bool _fitness_computed;
-    bool _statistical_data_computed;
     bool _non_coding_computed;
     bool _modularity_computed;
 
@@ -472,18 +474,9 @@ class ae_individual
     // ----------------------------------------
     // Statistical data
     // ----------------------------------------
+    IndivStats* stats_ = NULL;
+    // IndivNCStats* indivs_nc_stats_ = NULL;
     // Genome, RNAs and genes size and stuff
-    int32_t _total_genome_size;                 // Sum of sizes of the genetic units
-    int32_t _nb_coding_RNAs;                    // Number of coding RNAs (at least one gene on RNA)
-    int32_t _nb_non_coding_RNAs;                // Number of non-coding-RNAs
-    double  _overall_size_coding_RNAs;          // Average size of coding RNAs
-    double  _overall_size_non_coding_RNAs;      // Average size of non-coding RNAs
-    int32_t _nb_genes_activ;                    // Number of genes realizing a function
-    int32_t _nb_genes_inhib;                    // Number of genes inhibitting a function
-    int32_t _nb_functional_genes;               // Number of functional genes
-    int32_t _nb_non_functional_genes;           // Number of non-functional genes
-    double  _overall_size_functional_genes;     // Average size of functional genes
-    double  _overall_size_non_functional_genes; // Average size of non-functional genes
 
     // Mutation/Rearrangement statistics are managed in the replication report
 

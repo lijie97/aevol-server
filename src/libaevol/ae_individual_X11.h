@@ -63,28 +63,28 @@ class ae_individual_X11 : public virtual ae_individual
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_individual_X11(  ae_exp_manager* exp_m,
-                        ae_jumping_mt* mut_prng,
-                        ae_jumping_mt* stoch_prng,
-                        ae_params_mut* param_mut,
-                        double w_max,
-                        int32_t min_genome_length,
-                        int32_t max_genome_length,
-                        bool allow_plasmids,
-                        int32_t id,
-                        char* strain_name,
-                        int32_t age );
+    ae_individual_X11(ae_exp_manager* exp_m,
+                      ae_jumping_mt* mut_prng,
+                      ae_jumping_mt* stoch_prng,
+                      ae_params_mut* param_mut,
+                      double w_max,
+                      int32_t min_genome_length,
+                      int32_t max_genome_length,
+                      bool allow_plasmids,
+                      int32_t id,
+                      char* strain_name,
+                      int32_t age);
 
-    ae_individual_X11( ae_exp_manager* exp_manager, gzFile backup_file );
-    ae_individual_X11(const ae_individual_X11 &model, bool replication_report_copy );
-    ae_individual_X11(  ae_individual_X11* const parent, int32_t id,
-                        ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng );
+    ae_individual_X11(ae_exp_manager* exp_manager, gzFile backup_file);
+    ae_individual_X11(const ae_individual_X11 &model, bool replication_report_copy);
+    ae_individual_X11( ae_individual_X11* const parent, int32_t id,
+                        ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng);
     ae_individual_X11() = delete; // forbidden constructor
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_individual_X11( void );
+    virtual ~ae_individual_X11(void);
 
     // =================================================================
     //                              Accessors
@@ -93,9 +93,9 @@ class ae_individual_X11 : public virtual ae_individual
     // =================================================================
     //                            Public Methods
     // =================================================================
-    virtual void display( void );
-    virtual void display_cdss( ae_X11_window* win );
-    virtual void display_rnas( ae_X11_window* win );
+    virtual void display(void);
+    virtual void display_cdss(ae_X11_window* win);
+    virtual void display_rnas(ae_X11_window* win);
 
     // =================================================================
     //                           Public Attributes
@@ -109,9 +109,9 @@ class ae_individual_X11 : public virtual ae_individual
     // =================================================================
     //                           Protected Methods
     // =================================================================
-    void reset_sectors( void );
-    void add_layer( void );
-    void init_occupied_sectors( void );
+    void reset_sectors(void);
+    void add_layer(void);
+    void init_occupied_sectors(void);
 
     // =================================================================
     //                          Protected Attributes

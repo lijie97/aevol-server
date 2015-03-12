@@ -1380,7 +1380,7 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
     // Make the clones and add them to the list of individuals
     for (int32_t i = 1 ; i < _init_pop_size ; i++)
     {
-      indivs.push_back(ae_individual::create_clone(indiv, id_new_indiv++));
+      indivs.push_back(ae_individual::CreateClone(indiv, id_new_indiv++));
     }
   }
   else if (plasmid != NULL)
@@ -1415,7 +1415,7 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
       for (int32_t i = 1 ; i < _init_pop_size ; i++)
       {
         // Add new clone to the list
-        indivs.push_back(ae_individual::create_clone(indiv, id_new_indiv++));
+        indivs.push_back(ae_individual::CreateClone(indiv, id_new_indiv++));
 
         #ifdef DISTRIBUTED_PRNG
           #error Not implemented yet !
@@ -1465,7 +1465,7 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
       for (int32_t i = 1 ; i < _init_pop_size ; i++)
       {
         // Add clone to the list
-        indivs.push_back(ae_individual::create_clone(indiv, id_new_indiv++));
+        indivs.push_back(ae_individual::CreateClone(indiv, id_new_indiv++));
 
         #ifdef DISTRIBUTED_PRNG
           #error Not implemented yet !

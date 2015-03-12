@@ -56,7 +56,9 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_replication_report::ae_replication_report( ae_individual * indiv, ae_individual * parent, ae_individual * donor /* = NULL */ )
+ae_replication_report::ae_replication_report(ae_individual* indiv,
+                                             const ae_individual* parent,
+                                             ae_individual* donor /*= NULL*/)
 {
   _indiv = indiv;
   
@@ -74,12 +76,12 @@ ae_replication_report::ae_replication_report( ae_individual * indiv, ae_individu
   _nb_coding_RNAs     = 0;
   _nb_non_coding_RNAs = 0;
   
-  _parent_metabolic_error = parent->get_dist_to_target_by_feature( METABOLISM );
-  _parent_secretion_error = parent->get_dist_to_target_by_feature( SECRETION );
+  _parent_metabolic_error = parent->get_dist_to_target_by_feature(METABOLISM);
+  _parent_secretion_error = parent->get_dist_to_target_by_feature(SECRETION);
   _parent_genome_size     = parent->get_total_genome_size();
   _mean_align_score       = 0.0;
   
-  if ( donor == NULL )
+  if (donor == NULL)
   {
     _donor_id               = -1;
     _donor_metabolic_error  = 0.0;
@@ -89,8 +91,8 @@ ae_replication_report::ae_replication_report( ae_individual * indiv, ae_individu
   else
   {
     _donor_id              = donor->get_id();
-    _donor_metabolic_error = donor->get_dist_to_target_by_feature( METABOLISM );
-    _donor_secretion_error = donor->get_dist_to_target_by_feature( SECRETION );
+    _donor_metabolic_error = donor->get_dist_to_target_by_feature(METABOLISM);
+    _donor_secretion_error = donor->get_dist_to_target_by_feature(SECRETION);
     _donor_genome_size     = donor->get_total_genome_size();
   }
     
@@ -98,7 +100,7 @@ ae_replication_report::ae_replication_report( ae_individual * indiv, ae_individu
 
 
 // Creates an independent copy of the original report
-ae_replication_report::ae_replication_report( const ae_replication_report &model )
+ae_replication_report::ae_replication_report(const ae_replication_report &model)
 {
   _parent_id  = model._parent_id;
   _donor_id   = model._donor_id;
@@ -127,45 +129,45 @@ ae_replication_report::ae_replication_report( const ae_replication_report &model
 }
 
 
-ae_replication_report::ae_replication_report( gzFile tree_file, ae_individual * indiv )
+ae_replication_report::ae_replication_report(gzFile tree_file, ae_individual * indiv)
 {
   _indiv = indiv;
     
-  gzread( tree_file, &_id,        sizeof(_id)         );
-  gzread( tree_file, &_rank,      sizeof(_rank)       );
-  gzread( tree_file, &_parent_id, sizeof(_parent_id)  );
-  gzread( tree_file, &_donor_id,  sizeof(_donor_id)   );
+  gzread(tree_file, &_id,        sizeof(_id)        );
+  gzread(tree_file, &_rank,      sizeof(_rank)      );
+  gzread(tree_file, &_parent_id, sizeof(_parent_id) );
+  gzread(tree_file, &_donor_id,  sizeof(_donor_id)  );
   
-  gzread( tree_file, &_genome_size,         sizeof(_genome_size) );
-  gzread( tree_file, &_metabolic_error,     sizeof(_metabolic_error) );
-  gzread( tree_file, &_nb_genes_activ,      sizeof(_nb_genes_activ) );
-  gzread( tree_file, &_nb_genes_inhib,      sizeof(_nb_genes_inhib) );
-  gzread( tree_file, &_nb_non_fun_genes,    sizeof(_nb_non_fun_genes) );
-  gzread( tree_file, &_nb_coding_RNAs,      sizeof(_nb_coding_RNAs) );
-  gzread( tree_file, &_nb_non_coding_RNAs,  sizeof(_nb_non_coding_RNAs) );
+  gzread(tree_file, &_genome_size,         sizeof(_genome_size));
+  gzread(tree_file, &_metabolic_error,     sizeof(_metabolic_error));
+  gzread(tree_file, &_nb_genes_activ,      sizeof(_nb_genes_activ));
+  gzread(tree_file, &_nb_genes_inhib,      sizeof(_nb_genes_inhib));
+  gzread(tree_file, &_nb_non_fun_genes,    sizeof(_nb_non_fun_genes));
+  gzread(tree_file, &_nb_coding_RNAs,      sizeof(_nb_coding_RNAs));
+  gzread(tree_file, &_nb_non_coding_RNAs,  sizeof(_nb_non_coding_RNAs));
   
   int32_t nb_dna_replic_reports;
-  gzread( tree_file, &nb_dna_replic_reports, sizeof(nb_dna_replic_reports) );
+  gzread(tree_file, &nb_dna_replic_reports, sizeof(nb_dna_replic_reports));
   
   int32_t mydnareport, myevent;
   int32_t nb_rears, nb_muts, nb_HT;
   DnaReplicReport * dnareport = NULL;
 
-  for ( mydnareport = 0 ; mydnareport < nb_dna_replic_reports ; mydnareport++ )
+  for (mydnareport = 0 ; mydnareport < nb_dna_replic_reports ; mydnareport++)
   {
     dnareport = new DnaReplicReport();
     
-    gzread( tree_file, &nb_HT, sizeof(nb_HT) );
-    for ( myevent  = 0 ; myevent < nb_HT ; myevent++ )
+    gzread(tree_file, &nb_HT, sizeof(nb_HT));
+    for (myevent  = 0 ; myevent < nb_HT ; myevent++)
       dnareport->add_HT(std::move(ae_mutation(tree_file)));
 
-    gzread( tree_file, &nb_rears, sizeof(nb_rears) );
-    for ( myevent  = 0 ; myevent < nb_rears ; myevent++ )
+    gzread(tree_file, &nb_rears, sizeof(nb_rears));
+    for (myevent  = 0 ; myevent < nb_rears ; myevent++)
       dnareport->add_rear(std::move(ae_mutation(tree_file)));
 
-    gzread( tree_file, &nb_muts, sizeof(nb_muts) );
-    for(myevent  = 0 ; myevent < nb_muts ; myevent++ )
-      dnareport->add_mut(std::move(ae_mutation( tree_file )));
+    gzread(tree_file, &nb_muts, sizeof(nb_muts));
+    for(myevent  = 0 ; myevent < nb_muts ; myevent++)
+      dnareport->add_mut(std::move(ae_mutation(tree_file)));
 
     dnareport->compute_stats();
     _dna_replic_reports.push_back(dnareport);
@@ -183,7 +185,7 @@ ae_replication_report::ae_replication_report( gzFile tree_file, ae_individual * 
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_replication_report::~ae_replication_report( void )
+ae_replication_report::~ae_replication_report(void)
 {
   for (const auto& rep: _dna_replic_reports)
     delete rep;
@@ -195,11 +197,11 @@ ae_replication_report::~ae_replication_report( void )
 /**
  * Method called at the end of the replication. Actions such as finalize the calculation of average values can be done here.
  */
-void ae_replication_report::signal_end_of_replication( void )
+void ae_replication_report::signal_end_of_replication(void)
 {
   // Retreive data from the individual
   _genome_size        = _indiv->get_total_genome_size();
-  _metabolic_error    = _indiv->get_dist_to_target_by_feature( METABOLISM );
+  _metabolic_error    = _indiv->get_dist_to_target_by_feature(METABOLISM);
   _nb_genes_activ     = _indiv->get_nb_genes_activ();
   _nb_genes_inhib     = _indiv->get_nb_genes_inhib();
   _nb_non_fun_genes   = _indiv->get_nb_functional_genes();
@@ -222,38 +224,38 @@ void ae_replication_report::signal_end_of_replication( void )
     for (const auto& rear: dna_rep->get_rearrangements()) {
       mut_type = rear.get_mut_type();
       
-      switch( mut_type )
+      switch(mut_type)
       {
         case DUPL:
-          rear.get_infos_duplication( int32_trash, int32_trash, int32_trash, &align_scores[0] );
+          rear.get_infos_duplication(int32_trash, int32_trash, int32_trash, &align_scores[0]);
           _mean_align_score += align_scores[0];
           break;
         case DEL:
-          rear.get_infos_deletion( int32_trash, int32_trash, &align_scores[0] );
+          rear.get_infos_deletion(int32_trash, int32_trash, &align_scores[0]);
           _mean_align_score += align_scores[0];
           break;
         case TRANS:
-          rear.get_infos_translocation( int32_trash, int32_trash, int32_trash, int32_trash, bool_trash, &align_scores[0], &align_scores[1] );
+          rear.get_infos_translocation(int32_trash, int32_trash, int32_trash, int32_trash, bool_trash, &align_scores[0], &align_scores[1]);
           _mean_align_score += align_scores[0] + align_scores[1];
           break;
         case INV:
-          rear.get_infos_inversion( int32_trash, int32_trash, &align_scores[0] );
+          rear.get_infos_inversion(int32_trash, int32_trash, &align_scores[0]);
           _mean_align_score += align_scores[0];
           break;
         default:
-          fprintf( stderr, "ERROR, invalid mutation type \"%d\" in file %s:%d.\n", mut_type, __FILE__, __LINE__ );
-          exit( EXIT_FAILURE );
+          fprintf(stderr, "ERROR, invalid mutation type \"%d\" in file %s:%d.\n", mut_type, __FILE__, __LINE__);
+          exit(EXIT_FAILURE);
       }
     }
   }
   
-  if ( nb_align != 0 )
+  if (nb_align != 0)
   {
     _mean_align_score /= nb_align;
   }
   else
   {
-    assert( _mean_align_score == 0.0 );
+    assert(_mean_align_score == 0.0);
   }
   
   delete int32_trash;
@@ -261,49 +263,49 @@ void ae_replication_report::signal_end_of_replication( void )
   delete [] align_scores;
 }
 
-void ae_replication_report::write_to_tree_file( gzFile tree_file ) const
+void ae_replication_report::write_to_tree_file(gzFile tree_file) const
 {
   // Store individual identifiers and rank
-  gzwrite( tree_file, &_id,         sizeof(_id)         );
-  gzwrite( tree_file, &_rank,       sizeof(_rank)       );
-  gzwrite( tree_file, &_parent_id,  sizeof(_parent_id)  );
-  gzwrite( tree_file, &_donor_id,   sizeof(_donor_id)   );
+  gzwrite(tree_file, &_id,         sizeof(_id)        );
+  gzwrite(tree_file, &_rank,       sizeof(_rank)      );
+  gzwrite(tree_file, &_parent_id,  sizeof(_parent_id) );
+  gzwrite(tree_file, &_donor_id,   sizeof(_donor_id)  );
   
-  gzwrite( tree_file, &_genome_size,         sizeof(_genome_size) );
-  gzwrite( tree_file, &_metabolic_error,     sizeof(_metabolic_error) );
-  gzwrite( tree_file, &_nb_genes_activ,      sizeof(_nb_genes_activ) );
-  gzwrite( tree_file, &_nb_genes_inhib,      sizeof(_nb_genes_inhib) );
-  gzwrite( tree_file, &_nb_non_fun_genes,    sizeof(_nb_non_fun_genes) );
-  gzwrite( tree_file, &_nb_coding_RNAs,      sizeof(_nb_coding_RNAs) );
-  gzwrite( tree_file, &_nb_non_coding_RNAs,  sizeof(_nb_non_coding_RNAs) );  
+  gzwrite(tree_file, &_genome_size,         sizeof(_genome_size));
+  gzwrite(tree_file, &_metabolic_error,     sizeof(_metabolic_error));
+  gzwrite(tree_file, &_nb_genes_activ,      sizeof(_nb_genes_activ));
+  gzwrite(tree_file, &_nb_genes_inhib,      sizeof(_nb_genes_inhib));
+  gzwrite(tree_file, &_nb_non_fun_genes,    sizeof(_nb_non_fun_genes));
+  gzwrite(tree_file, &_nb_coding_RNAs,      sizeof(_nb_coding_RNAs));
+  gzwrite(tree_file, &_nb_non_coding_RNAs,  sizeof(_nb_non_coding_RNAs));  
   
   // For each genetic unit, write the mutations and rearrangements undergone during replication
   int32_t nb_dna_replic_reports = _dna_replic_reports.size();
-  gzwrite( tree_file, &nb_dna_replic_reports, sizeof(nb_dna_replic_reports) );
-  //~ printf( "  nb_dna_replic_reports : %"PRId32"\n", nb_dna_replic_reports );
+  gzwrite(tree_file, &nb_dna_replic_reports, sizeof(nb_dna_replic_reports));
+  //~ printf("  nb_dna_replic_reports : %"PRId32"\n", nb_dna_replic_reports);
 
   for (const auto& report: _dna_replic_reports) {
     // Store HT
     int32_t nb_HT = report->get_nb(HT);
-    gzwrite( tree_file, &nb_HT, sizeof(nb_HT) );
+    gzwrite(tree_file, &nb_HT, sizeof(nb_HT));
     for (const auto& HT: report->get_HT())
       HT.save(tree_file);
 
     // Store rearrangements
     int32_t nb_rears = report->get_nb(REARR);
-    gzwrite( tree_file, &nb_rears, sizeof(nb_rears) );
-    //~ printf( "  nb_rears : %"PRId32"\n", nb_rears );
+    gzwrite(tree_file, &nb_rears, sizeof(nb_rears));
+    //~ printf("  nb_rears : %"PRId32"\n", nb_rears);
 
     for (const auto& rear: report->get_rearrangements())
       rear.save(tree_file);
 
     // Store mutations
     int32_t nb_muts = report->get_nb(S_MUT);
-    gzwrite( tree_file, &nb_muts, sizeof(nb_muts) );
-    //~ printf( "  nb_muts : %"PRId32"\n", nb_muts );
+    gzwrite(tree_file, &nb_muts, sizeof(nb_muts));
+    //~ printf("  nb_muts : %"PRId32"\n", nb_muts);
 
     for (const auto& mutation: report->get_mutations())
-      mutation.save( tree_file );
+      mutation.save(tree_file);
   }
 }
 

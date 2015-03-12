@@ -66,48 +66,50 @@ class ae_replication_report
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_replication_report( ae_individual * indiv, ae_individual * parent, ae_individual * donor = NULL );
+    ae_replication_report(ae_individual* indiv,
+                          const ae_individual* parent,
+                          ae_individual* donor = NULL);
 
     // Creates a completely independent copy of the original report
-    ae_replication_report( const ae_replication_report &model );
+    ae_replication_report(const ae_replication_report& model);
 
-    ae_replication_report( gzFile tree_file, ae_individual * indiv );
+    ae_replication_report(gzFile tree_file, ae_individual* indiv);
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_replication_report( void );
+    virtual ~ae_replication_report(void);
 
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline ae_individual * get_indiv( void ) const;
-    int32_t         get_id( void ) const;
-    int32_t         get_rank( void ) const;
-    inline int32_t  get_genome_size( void ) const;
+    inline ae_individual * get_indiv(void) const;
+    int32_t         get_id(void) const;
+    int32_t         get_rank(void) const;
+    inline int32_t  get_genome_size(void) const;
 
-    inline int32_t  get_parent_id( void ) const;
-    inline double   get_parent_metabolic_error( void ) const;
-    inline double   get_parent_secretion_error( void ) const;
-    inline int32_t  get_parent_genome_size( void ) const;
+    inline int32_t  get_parent_id(void) const;
+    inline double   get_parent_metabolic_error(void) const;
+    inline double   get_parent_secretion_error(void) const;
+    inline int32_t  get_parent_genome_size(void) const;
 
-    inline double   get_mean_align_score( void ) const;
-    inline int32_t	get_donor_id( void ) const;
-    inline double   get_donor_metabolic_error( void ) const;
-    inline double   get_donor_secretion_error( void ) const;
-    inline int32_t  get_donor_genome_size( void ) const;
+    inline double   get_mean_align_score(void) const;
+    inline int32_t	get_donor_id(void) const;
+    inline double   get_donor_metabolic_error(void) const;
+    inline double   get_donor_secretion_error(void) const;
+    inline int32_t  get_donor_genome_size(void) const;
      
-    void            set_indiv( ae_individual * indiv);
-    void            set_id( int32_t id );
-    void            set_rank( int32_t rank );
-    inline void     set_parent_id( int32_t parent_id );
-    inline void     set_parent_metabolic_error( double parent_metabolic_error );
-    inline void     set_parent_secretion_error( double parent_secretion_error );
-    inline void     set_parent_genome_size( int32_t parent_genome_size );
-    inline void     set_donor_id(int32_t donor_id );
-    inline void     set_donor_metabolic_error( double donor_metabolic_error );
-    inline void     set_donor_secretion_error( double donor_secretion_error );
-    inline void     set_donor_genome_size( int32_t donor_genome_size );
+    void            set_indiv(ae_individual * indiv);
+    void            set_id(int32_t id);
+    void            set_rank(int32_t rank);
+    inline void     set_parent_id(int32_t parent_id);
+    inline void     set_parent_metabolic_error(double parent_metabolic_error);
+    inline void     set_parent_secretion_error(double parent_secretion_error);
+    inline void     set_parent_genome_size(int32_t parent_genome_size);
+    inline void     set_donor_id(int32_t donor_id);
+    inline void     set_donor_metabolic_error(double donor_metabolic_error);
+    inline void     set_donor_secretion_error(double donor_secretion_error);
+    inline void     set_donor_genome_size(int32_t donor_genome_size);
   
     inline const std::list<DnaReplicReport*> get_dna_replic_reports() const;
     inline void add_dna_replic_report(DnaReplicReport* rep) { _dna_replic_reports.push_back(rep); }
@@ -115,8 +117,8 @@ class ae_replication_report
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void signal_end_of_replication( void );
-    void write_to_tree_file( gzFile tree_file ) const;
+    void signal_end_of_replication(void);
+    void write_to_tree_file(gzFile tree_file) const;
 
 
     // =================================================================
@@ -132,10 +134,10 @@ class ae_replication_report
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    ae_replication_report( void )
+    ae_replication_report(void)
     {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
     };
 
 
@@ -183,64 +185,64 @@ class ae_replication_report
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-inline ae_individual * ae_replication_report::get_indiv( void ) const
+inline ae_individual * ae_replication_report::get_indiv(void) const
 {
   return _indiv;
 }
 
-inline int32_t ae_replication_report::get_id( void ) const
+inline int32_t ae_replication_report::get_id(void) const
 {
   return _id;
 }
 
-inline int32_t ae_replication_report::get_rank( void ) const
+inline int32_t ae_replication_report::get_rank(void) const
 {
   return _rank;
 }
 
-inline int32_t ae_replication_report::get_genome_size( void ) const
+inline int32_t ae_replication_report::get_genome_size(void) const
 {
   return _genome_size;
 }
 
-int32_t ae_replication_report::get_parent_id( void ) const
+int32_t ae_replication_report::get_parent_id(void) const
 {
   return _parent_id;
 }
 
-double ae_replication_report::get_parent_metabolic_error( void ) const
+double ae_replication_report::get_parent_metabolic_error(void) const
 {
   return _parent_metabolic_error;
 }
 
-double ae_replication_report::get_parent_secretion_error( void ) const
+double ae_replication_report::get_parent_secretion_error(void) const
 {
   return _parent_secretion_error;
 }
 
-int32_t ae_replication_report::get_parent_genome_size( void ) const
+int32_t ae_replication_report::get_parent_genome_size(void) const
 {
   return _parent_genome_size;
 }
 
-inline int32_t	ae_replication_report::get_donor_id( void ) const
+inline int32_t	ae_replication_report::get_donor_id(void) const
 {
   return _donor_id;
 }
 
-inline double   ae_replication_report::get_donor_metabolic_error( void ) const
+inline double   ae_replication_report::get_donor_metabolic_error(void) const
 {
   return _donor_metabolic_error;
 }
 
-inline int32_t  ae_replication_report::get_donor_genome_size( void ) const
+inline int32_t  ae_replication_report::get_donor_genome_size(void) const
 {
   return _donor_genome_size;
 }
 
 
 
-inline double ae_replication_report::get_mean_align_score( void ) const
+inline double ae_replication_report::get_mean_align_score(void) const
 {
   return _mean_align_score;
 }
@@ -249,57 +251,57 @@ inline const std::list<DnaReplicReport*> ae_replication_report::get_dna_replic_r
   return _dna_replic_reports;
 }
 
-inline void ae_replication_report::set_indiv( ae_individual * indiv )
+inline void ae_replication_report::set_indiv(ae_individual * indiv)
 {
   _indiv = indiv;
 }
 
-inline void ae_replication_report::set_id( int32_t id )
+inline void ae_replication_report::set_id(int32_t id)
 {
   _id = id;
 }
 
-inline void ae_replication_report::set_rank( int32_t rank )
+inline void ae_replication_report::set_rank(int32_t rank)
 {
   _rank = rank;
 }
 
-void ae_replication_report::set_parent_id( int32_t parent_id )
+void ae_replication_report::set_parent_id(int32_t parent_id)
 {
   _parent_id = parent_id;
 }
 
-void ae_replication_report::set_parent_metabolic_error( double parent_metabolic_error )
+void ae_replication_report::set_parent_metabolic_error(double parent_metabolic_error)
 {
   _parent_metabolic_error = parent_metabolic_error;
 }
 
-void ae_replication_report::set_parent_secretion_error( double parent_secretion_error )
+void ae_replication_report::set_parent_secretion_error(double parent_secretion_error)
 {
   _parent_secretion_error = parent_secretion_error;
 }
 
-void ae_replication_report::set_parent_genome_size( int32_t parent_genome_size )
+void ae_replication_report::set_parent_genome_size(int32_t parent_genome_size)
 {
   _parent_genome_size = parent_genome_size;
 }
 
-inline void ae_replication_report::set_donor_id(int32_t donor_id )
+inline void ae_replication_report::set_donor_id(int32_t donor_id)
 {
   _donor_id = donor_id;
 }
 
-inline void  ae_replication_report::set_donor_metabolic_error( double donor_metabolic_error )
+inline void  ae_replication_report::set_donor_metabolic_error(double donor_metabolic_error)
 {
   _donor_metabolic_error = donor_metabolic_error;
 }
 
-inline void ae_replication_report::set_donor_secretion_error( double donor_secretion_error )
+inline void ae_replication_report::set_donor_secretion_error(double donor_secretion_error)
 {
   _donor_secretion_error = donor_secretion_error;
 }
 
-inline void ae_replication_report::set_donor_genome_size( int32_t donor_genome_size )
+inline void ae_replication_report::set_donor_genome_size(int32_t donor_genome_size)
 {
   _donor_genome_size = donor_genome_size;
 }

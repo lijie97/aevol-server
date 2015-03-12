@@ -119,7 +119,7 @@ void World::FillGridWithClones(ae_individual& dolly)
   int32_t id_new_indiv = 0;
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++)
-      PlaceIndiv(ae_individual::create_clone(&dolly, id_new_indiv++), x, y);
+      PlaceIndiv(ae_individual::CreateClone(&dolly, id_new_indiv++), x, y);
 }
 
 void World::evaluate_individuals(Environment* envir)
