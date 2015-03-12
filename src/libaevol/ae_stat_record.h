@@ -169,7 +169,7 @@ class ae_stat_record
     //      compute averages over the population.
     indiv_or_pop _record_type;
     
-    double  _pop_size;
+    int32_t _pop_size;
 
     double  _fitness;
 
@@ -183,24 +183,24 @@ class ae_stat_record
   
     double  _compound_amount;
     
-    double  _amount_of_dna;
-    double  _nb_coding_rnas;
-    double  _nb_non_coding_rnas;
+    int32_t  _amount_of_dna;
+    int32_t  _nb_coding_rnas;
+    int32_t  _nb_non_coding_rnas;
     double  _av_size_coding_rnas;      // NOT including promoter but including terminator
     double  _av_size_non_coding_rnas;  // NOT including promoter but including terminator
-    double  _nb_functional_genes;
-    double  _nb_non_functional_genes;
+    int32_t  _nb_functional_genes;
+    int32_t  _nb_non_functional_genes;
     double  _av_size_functional_gene;     // NOT including START and STOP codons
     double  _av_size_non_functional_gene; // NOT including START and STOP codons
 
-    double  _nb_mut;
-    double  _nb_rear;
-    double  _nb_switch;
-    double  _nb_indels;
-    double  _nb_dupl;
-    double  _nb_del;
-    double  _nb_trans;
-    double  _nb_inv;
+    int32_t  _nb_mut;
+    int32_t  _nb_rear;
+    int32_t  _nb_switch;
+    int32_t  _nb_indels;
+    int32_t  _nb_dupl;
+    int32_t  _nb_del;
+    int32_t  _nb_trans;
+    int32_t  _nb_inv;
     
     double  _dupl_rate;
     double  _del_rate;
@@ -208,15 +208,15 @@ class ae_stat_record
     double  _inv_rate;
     double  _mean_align_score;
     
-    double  _nb_bases_in_0_CDS;
-    double  _nb_bases_in_0_functional_CDS;
-    double  _nb_bases_in_0_non_functional_CDS;
-    double  _nb_bases_in_0_RNA;
-    double  _nb_bases_in_0_coding_RNA;
-    double  _nb_bases_in_0_non_coding_RNA;
+    int32_t  _nb_bases_in_0_CDS;
+    int32_t  _nb_bases_in_0_functional_CDS;
+    int32_t  _nb_bases_in_0_non_functional_CDS;
+    int32_t  _nb_bases_in_0_RNA;
+    int32_t  _nb_bases_in_0_coding_RNA;
+    int32_t  _nb_bases_in_0_non_coding_RNA;
     
-    double  _nb_bases_non_essential;
-    double  _nb_bases_non_essential_including_nf_genes;
+    int32_t  _nb_bases_non_essential;
+    int32_t  _nb_bases_non_essential_including_nf_genes;
     
     #ifdef __REGUL
       double  _nb_influences;

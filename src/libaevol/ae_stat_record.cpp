@@ -486,7 +486,7 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
   // ---------------
   // Simulation data
   // ---------------
-  _pop_size = (double) indivs.size();
+  _pop_size = indivs.size();
 
   // ------------------------------------------------------------------
   // Compute statistical data for the each individual in the population
@@ -690,9 +690,9 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
   {
    if ( stat_type_to_print == FITNESS_STATS )
     {
-      fprintf(  stat_file, "%" PRId64 " %" PRId32 " %e %f %e %e %e %e %e %e %e",
+      fprintf(  stat_file, "%" PRId64 " %" PRId32 " %e %" PRId32 " %e %e %e %e %e %e %e",
               Time::get_time(),
-              (int32_t) _pop_size,
+              _pop_size,
               _fitness,              
               _amount_of_dna, 
               _metabolic_error,
@@ -715,30 +715,34 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
     }
     if ( stat_type_to_print == MUTATION_STATS )
     {        
-      fprintf(  stat_file, "%" PRId64 " %f %f %f %f %f %f %f %f",
-              Time::get_time(),
-              _nb_mut,
-              _nb_rear,
-              _nb_switch,
-              _nb_indels,
-              _nb_dupl,
-              _nb_del,
-              _nb_trans,
-              _nb_inv );
+      fprintf(stat_file,
+          "%" PRId64 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32
+          " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "",
+          Time::get_time(),
+          _nb_mut,
+          _nb_rear,
+          _nb_switch,
+          _nb_indels,
+          _nb_dupl,
+          _nb_del,
+          _nb_trans,
+          _nb_inv);
 
     }
     if ( stat_type_to_print == GENES_STATS )
     {
-      fprintf(  stat_file, "%" PRId64 " %f %f %f %f %f %f %f %f",
-              Time::get_time(),
-              _nb_coding_rnas,
-              _nb_non_coding_rnas,
-              _av_size_coding_rnas,
-              _av_size_non_coding_rnas,
-              _nb_functional_genes,
-              _nb_non_functional_genes,
-              _av_size_functional_gene,
-              _av_size_non_functional_gene );
+      fprintf(stat_file,
+          "%" PRId64 " %" PRId32 " %" PRId32 " %f %f %" PRId32 " %" PRId32
+          " %f %f",
+          Time::get_time(),
+          _nb_coding_rnas,
+          _nb_non_coding_rnas,
+          _av_size_coding_rnas,
+          _av_size_non_coding_rnas,
+          _nb_functional_genes,
+          _nb_non_functional_genes,
+          _av_size_functional_gene,
+          _av_size_non_functional_gene);
     }
     if ( stat_type_to_print == BP_STATS )
     {
