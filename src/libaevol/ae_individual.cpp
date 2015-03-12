@@ -552,7 +552,7 @@ ae_individual::ae_individual(ae_individual* const parent, int32_t id, ae_jumping
   _max_genome_length = parent->_max_genome_length;
 
   // Plasmids settings
-  _allow_plasmids         = parent->_allow_plasmids;
+  _allow_plasmids = parent->_allow_plasmids;
 
   // Initialize statistical data
   _total_genome_size                  = 0;
@@ -579,6 +579,23 @@ ae_individual::ae_individual(ae_individual* const parent, int32_t id, ae_jumping
   _modularity = -1;
 
   //evaluate();
+}
+
+ae_individual* ae_individual::CreateIndividual(ae_exp_manager* exp_m,
+                                               gzFile backup_file) {
+  #ifdef __NO_X
+    #ifndef __REGUL
+      return new ae_individual(exp_m, backup_file);
+    #else
+      return new ae_individual_R(exp_m, backup_file);
+    #endif
+  #elif defined __X11
+    #ifndef __REGUL
+      return new ae_individual_X11(exp_m, backup_file);
+    #else
+      return new ae_individual_R_X11(exp_m, backup_file);
+    #endif
+  #endif
 }
 
 /*!

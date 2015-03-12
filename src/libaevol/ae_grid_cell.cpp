@@ -59,8 +59,8 @@ namespace aevol {
 // =================================================================
 ae_grid_cell::ae_grid_cell(int16_t x, int16_t y, ae_individual* indiv)
 {
-  _x = x;
-  _y = y;
+  x_ = x;
+  y_ = y;
   
   _compound_amount = 0.0;
   
@@ -69,24 +69,12 @@ ae_grid_cell::ae_grid_cell(int16_t x, int16_t y, ae_individual* indiv)
 
 ae_grid_cell::ae_grid_cell(gzFile backup_file, ae_exp_manager* exp_m)
 {
-  gzread(backup_file, &_x, sizeof(_x));
-  gzread(backup_file, &_y, sizeof(_y));
+  gzread(backup_file, &x_, sizeof(x_));
+  gzread(backup_file, &y_, sizeof(y_));
   
   gzread(backup_file, &_compound_amount, sizeof(_compound_amount));
   
-  #ifdef __NO_X
-    #ifndef __REGUL
-      _individual = new ae_individual(exp_m, backup_file);
-    #else
-      _individual = new ae_individual_R(exp_m, backup_file);
-    #endif
-  #elif defined __X11
-    #ifndef __REGUL
-      _individual = new ae_individual_X11(exp_m, backup_file);
-    #else
-      _individual = new ae_individual_R_X11(exp_m, backup_file);
-    #endif
-  #endif
+  _individual = ae_individual::CreateIndividual(exp_m, backup_file);
 
   _individual->set_grid_cell(this);
   // _individual = NULL;
@@ -95,7 +83,7 @@ ae_grid_cell::ae_grid_cell(gzFile backup_file, ae_exp_manager* exp_m)
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_grid_cell::~ae_grid_cell( void )
+ae_grid_cell::~ae_grid_cell(void)
 {
   delete _individual;
 }
@@ -105,10 +93,10 @@ ae_grid_cell::~ae_grid_cell( void )
 // =================================================================
 void ae_grid_cell::save(gzFile backup_file) const
 {
-  gzwrite( backup_file, &_x, sizeof(_x) );
-  gzwrite( backup_file, &_y, sizeof(_y) );
+  gzwrite(backup_file, &x_, sizeof(x_));
+  gzwrite(backup_file, &y_, sizeof(y_));
   
-  gzwrite( backup_file, &_compound_amount, sizeof(_compound_amount) );
+  gzwrite(backup_file, &_compound_amount, sizeof(_compound_amount));
 
   _individual->save(backup_file);
 }

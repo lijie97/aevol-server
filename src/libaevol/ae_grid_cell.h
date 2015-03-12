@@ -71,26 +71,26 @@ class ae_grid_cell
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_grid_cell( void );
+    virtual ~ae_grid_cell(void);
 
 
     // =================================================================
     //                        Accessors: getters
     // =================================================================
-    inline int16_t get_x( void ) const;
-    inline int16_t get_y( void ) const;
-    inline double get_compound_amount( void ) const;
-    inline ae_individual* get_individual( void ) const;
+    inline int16_t x() const {return x_;};
+    inline int16_t y() const {return y_;};
+    inline double get_compound_amount(void) const;
+    inline ae_individual* get_individual(void) const;
   
-    inline double get_secreted_amount( void ) const;
-    inline double get_metabolic_fitness( void ) const;
-    inline double get_total_fitness( void ) const;
+    inline double get_secreted_amount(void) const;
+    inline double get_metabolic_fitness(void) const;
+    inline double get_total_fitness(void) const;
 
     // =================================================================
     //                        Accessors: setters
     // =================================================================
-    inline void set_compound_amount( double compound_amount );
-    inline void set_individual( ae_individual * indiv );
+    inline void set_compound_amount(double compound_amount);
+    inline void set_individual(ae_individual * indiv);
 
     // =================================================================
     //                            Public Methods
@@ -114,8 +114,8 @@ class ae_grid_cell
     //                          Protected Attributes
     // =================================================================
     // Position on the grid
-    int16_t _x;
-    int16_t _y;
+    int16_t x_;
+    int16_t y_;
 
     // Amount of secreted compound currently present in the grid cell 
     double _compound_amount; 
@@ -129,37 +129,27 @@ class ae_grid_cell
 // =====================================================================
 //                           Getters' definitions
 // =====================================================================
-inline int16_t ae_grid_cell::get_x( void ) const
-{
-  return _x;
-}
-
-inline int16_t ae_grid_cell::get_y( void ) const
-{
-  return _y;
-}
-
-inline double ae_grid_cell::get_compound_amount( void ) const
+inline double ae_grid_cell::get_compound_amount(void) const
 {
   return _compound_amount;
 }
 
-inline ae_individual* ae_grid_cell::get_individual( void ) const
+inline ae_individual* ae_grid_cell::get_individual(void) const
 {
   return _individual;
 }
 
-inline double ae_grid_cell::get_secreted_amount( void ) const
+inline double ae_grid_cell::get_secreted_amount(void) const
 {
-  return _individual->get_fitness_by_feature( SECRETION );
+  return _individual->get_fitness_by_feature(SECRETION);
 }
 
-inline double ae_grid_cell::get_metabolic_fitness( void ) const
+inline double ae_grid_cell::get_metabolic_fitness(void) const
 {
-  return _individual->get_fitness_by_feature( METABOLISM );
+  return _individual->get_fitness_by_feature(METABOLISM);
 }
 
-inline double ae_grid_cell::get_total_fitness( void ) const
+inline double ae_grid_cell::get_total_fitness(void) const
 {
   return _individual->get_fitness();
 }
