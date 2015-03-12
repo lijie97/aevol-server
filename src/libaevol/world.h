@@ -81,7 +81,7 @@ class World
     ae_jumping_mt* get_mut_prng(void) const;
     ae_jumping_mt* get_stoch_prng(void) const;
 
-    std::list<ae_individual*>&& get_indivs_std(void) const;
+    std::list<ae_individual*> get_indivs_std(void) const;
     inline int32_t          get_nb_indivs(void) const;
     inline ae_individual*   get_best_indiv(void) const;
     inline int16_t          width()  const {return width_;};

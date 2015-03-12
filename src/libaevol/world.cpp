@@ -354,7 +354,7 @@ ae_jumping_mt* World::get_stoch_prng( void ) const
   return _stoch_prng;
 }
 
-list<ae_individual*>&& World::get_indivs_std(void) const
+list<ae_individual*> World::get_indivs_std(void) const
 {
   list<ae_individual*> r;
 
@@ -362,7 +362,7 @@ list<ae_individual*>&& World::get_indivs_std(void) const
     for (int16_t y = 0 ; y < height_ ; y++)
       r.push_back(get_indiv_at(x, y));
 
-  return std::move(r);
+  return r;
 }
 
 void World::set_mut_prng(ae_jumping_mt* prng)
