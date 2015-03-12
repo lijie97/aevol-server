@@ -16,7 +16,7 @@ else
 endif
 
 # Build rules for libraries.
-lib_LIBRARIES = lib/libgtest.a lib/libgtest_main.a
+check_LIBRARIES = lib/libgtest.a lib/libgtest_main.a
 
 lib_libgtest_a_SOURCES = src/gtest-all.cc
 
