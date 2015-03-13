@@ -79,10 +79,11 @@ class ae_individual
     // =================================================================
     //                             Constructors
     // =================================================================
+    ae_individual() = delete;
     ae_individual(ae_exp_manager* exp_m,
                   std::shared_ptr<ae_jumping_mt> mut_prng,
                   std::shared_ptr<ae_jumping_mt> stoch_prng,
-                  ae_params_mut* param_mut,
+                  std::shared_ptr<ae_params_mut> param_mut,
                   double w_max,
                   int32_t min_genome_length,
                   int32_t max_genome_length,
@@ -97,7 +98,6 @@ class ae_individual
     ae_individual(const ae_individual* parent, int32_t id,
                   std::shared_ptr<ae_jumping_mt> mut_prng,
                   std::shared_ptr<ae_jumping_mt> stoch_prng);
-    ae_individual() = delete; // forbidden constructor
 
     static ae_individual* CreateIndividual(ae_exp_manager* exp_m,
                                            gzFile backup_file);
@@ -442,7 +442,7 @@ class ae_individual
     double*   _double_probes;     // Table of 5 double values to be used as one wishes
 
     // Mutation rates etc...
-    ae_params_mut* _mut_params;
+    std::shared_ptr<ae_params_mut> _mut_params;
 
     // ----------------------------------------------- Phenotypic stochasticity
     bool _with_stochasticity;

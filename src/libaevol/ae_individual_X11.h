@@ -66,7 +66,7 @@ class ae_individual_X11 : public virtual ae_individual
     ae_individual_X11(ae_exp_manager* exp_m,
                       std::shared_ptr<ae_jumping_mt> mut_prng,
                       std::shared_ptr<ae_jumping_mt> stoch_prng,
-                      ae_params_mut* param_mut,
+                      std::shared_ptr<ae_params_mut> param_mut,
                       double w_max,
                       int32_t min_genome_length,
                       int32_t max_genome_length,

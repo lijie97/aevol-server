@@ -105,13 +105,13 @@ class param_loader
   ae_individual* create_random_individual(
       ae_exp_manager* exp_m,
       int32_t id,
-      ae_params_mut* param_mut,
+      std::shared_ptr<ae_params_mut> param_mut,
       std::shared_ptr<ae_jumping_mt> mut_prng,
       std::shared_ptr<ae_jumping_mt> stoch_prng) const;
   ae_individual* create_random_individual_with_good_gene(
       ae_exp_manager* exp_m,
       int32_t id,
-      ae_params_mut* param_mut,
+      std::shared_ptr<ae_params_mut> param_mut,
       std::shared_ptr<ae_jumping_mt> mut_prng,
       std::shared_ptr<ae_jumping_mt> stoch_prng) const;
 

@@ -93,7 +93,7 @@ Environment::Environment(const Environment &model) : Fuzzy(model)
   _var_tau    = model._var_tau;
 
   // Noise management
-  _noise_method       = model._noise_method;
+  _noise_method = model._noise_method;
   if (model._cur_noise == NULL)
     _cur_noise = NULL;
   else

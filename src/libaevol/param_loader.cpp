@@ -1306,7 +1306,7 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
   // 3) --------------------------------------------- Create the new population
   list<ae_individual*> indivs;
   // Generate a model ae_mut_param object
-  ae_params_mut* param_mut = new ae_params_mut();
+  auto param_mut = std::make_shared<ae_params_mut>();
   param_mut->set_point_mutation_rate(_point_mutation_rate);
   param_mut->set_small_insertion_rate(_small_insertion_rate);
   param_mut->set_small_deletion_rate(_small_deletion_rate);
@@ -1534,8 +1534,6 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
     output_m->set_dump_step(_dump_step);
   }
   output_m->set_logs(_logs);
-
-  delete param_mut;
 }
 
 
@@ -1630,7 +1628,7 @@ f_line* param_loader::get_line(int32_t* cur_line_ptr) // void
 ae_individual* param_loader::create_random_individual(
     ae_exp_manager* exp_m,
     int32_t id,
-    ae_params_mut* param_mut,
+    std::shared_ptr<ae_params_mut> param_mut,
     std::shared_ptr<ae_jumping_mt> mut_prng,
     std::shared_ptr<ae_jumping_mt> stoch_prng) const
 {
@@ -1732,7 +1730,7 @@ ae_individual* param_loader::create_random_individual(
 ae_individual* param_loader::create_random_individual_with_good_gene(
     ae_exp_manager* exp_m,
     int32_t id,
-    ae_params_mut* param_mut,
+    std::shared_ptr<ae_params_mut> param_mut,
     std::shared_ptr<ae_jumping_mt> mut_prng,
     std::shared_ptr<ae_jumping_mt> stoch_prng) const
 {

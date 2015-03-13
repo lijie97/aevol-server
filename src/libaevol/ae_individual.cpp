@@ -56,7 +56,7 @@ namespace aevol {
 ae_individual::ae_individual(ae_exp_manager* exp_m,
                              std::shared_ptr<ae_jumping_mt> mut_prng,
                              std::shared_ptr<ae_jumping_mt> stoch_prng,
-                             ae_params_mut* param_mut,
+                             std::shared_ptr<ae_params_mut> param_mut,
                              double w_max,
                              int32_t min_genome_length,
                              int32_t max_genome_length,
@@ -114,7 +114,7 @@ ae_individual::ae_individual(ae_exp_manager* exp_m,
   }
 
   // Mutation rates etc...
-  _mut_params = new ae_params_mut(*param_mut);
+  _mut_params = param_mut;
 
   // Artificial chemistry
   _w_max = w_max;
@@ -201,7 +201,7 @@ ae_individual::ae_individual(ae_exp_manager* exp_m, gzFile backup_file)
   gzread(backup_file, _double_probes,  5 * sizeof(*_double_probes));
 
   // Retrieve mutational parameters
-  _mut_params = new ae_params_mut(backup_file);
+  _mut_params = std::make_shared<ae_params_mut>(backup_file);
 
   // ------------------------------------------------- Phenotypic stochasticity
   gzread(backup_file, &_with_stochasticity, sizeof(_with_stochasticity));
@@ -374,7 +374,7 @@ ae_individual::ae_individual(const ae_individual &model,
   }
 
   // Mutation rates etc...
-  _mut_params = new ae_params_mut(*(model._mut_params));
+  _mut_params = std::make_shared<ae_params_mut>(*(model._mut_params));
 
 
   // Genome size constraints
@@ -382,7 +382,7 @@ ae_individual::ae_individual(const ae_individual &model,
   _max_genome_length = model._max_genome_length;
 
   // Plasmids settings
-  _allow_plasmids         = model._allow_plasmids;
+  _allow_plasmids = model._allow_plasmids;
 
   evaluate();
 }
@@ -471,7 +471,7 @@ ae_individual::ae_individual(const ae_individual* parent, int32_t id,
   }
 
   // Mutation rates etc...
-  _mut_params = new ae_params_mut(*(parent->_mut_params));
+  _mut_params = std::make_shared<ae_params_mut>(*(parent->_mut_params));
 
   // Genome size constraints
   _min_genome_length = parent->_min_genome_length;
@@ -554,8 +554,6 @@ ae_individual::~ae_individual()
   // Generic probes
   delete [] _int_probes;
   delete [] _double_probes;
-
-  delete _mut_params;
 
   delete stats_;
 
