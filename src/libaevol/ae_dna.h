@@ -32,13 +32,14 @@
 // =================================================================
 //                              Libraries
 // =================================================================
-#include <inttypes.h>
-#include <stdlib.h>
-#include <zlib.h>
+#include <cinttypes>
+#include <cstdlib>
 
 #include <list>
 #include <vector>
 #include <memory>
+
+#include <zlib.h>
 
 // =================================================================
 //                            Project Files

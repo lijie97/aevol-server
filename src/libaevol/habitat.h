@@ -37,6 +37,8 @@
 #include <cstdlib>
 #include <cassert>
 
+#include <zlib.h>
+
 
 namespace aevol {
 
@@ -55,9 +57,10 @@ class Habitat
   // ==========================================================================
   //                               Constructors
   // ==========================================================================
-  Habitat(void) = default; //< Default ctor
+  Habitat(void); //< Default ctor
   Habitat(const Habitat&) = delete; //< Copy ctor
   Habitat(Habitat&&) = delete; //< Move ctor
+  Habitat(gzFile backup_file);
 
   // ==========================================================================
   //                                Destructor
@@ -67,10 +70,14 @@ class Habitat
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
+  double compound_amount(void) const {return compound_amount_;};
 
   // ==========================================================================
   //                                 Setters
   // ==========================================================================
+  void set_compound_amount(double compound_amount) {
+    compound_amount_ = compound_amount;
+  };
 
   // ==========================================================================
   //                                Operators
@@ -79,6 +86,7 @@ class Habitat
   // ==========================================================================
   //                              Public Methods
   // ==========================================================================
+  void save(gzFile backup_file) const;
 
 
 
@@ -92,6 +100,9 @@ class Habitat
   // ==========================================================================
   //                               Attributes
   // ==========================================================================
+
+  // Amount of secreted compound currently present in the grid cell 
+  double compound_amount_;
 };
 
 

@@ -166,22 +166,22 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
     ae_genetic_unit& gen_unit = *indiv->get_genetic_unit_list_std_nonconst().begin();
 
     // Metabolic error stats
-    _metabolic_error = (double) indiv->get_dist_to_target_by_feature( METABOLISM );
-    _metabolic_fitness = (double) indiv->get_fitness_by_feature( METABOLISM );
-    _parent_metabolic_error = ( replic_report != NULL ) ? replic_report->get_parent_metabolic_error() : 0.0;
+    _metabolic_error = (double) indiv->get_dist_to_target_by_feature(METABOLISM);
+    _metabolic_fitness = (double) indiv->get_fitness_by_feature(METABOLISM);
+    _parent_metabolic_error = (replic_report != NULL) ? replic_report->get_parent_metabolic_error() : 0.0;
 
     // Fitness
     _fitness = indiv->get_fitness();
 
     // Secretion stats
-    if ( _exp_m->get_with_secretion() )
+    if (_exp_m->get_with_secretion())
     {
-       _secretion_error   = (double) indiv->get_dist_to_target_by_feature( SECRETION );
-       _secretion_fitness = (double) indiv->get_fitness_by_feature( SECRETION );
-       _compound_amount   = (double) indiv->get_grid_cell()->get_compound_amount();
+       _secretion_error   = (double) indiv->get_dist_to_target_by_feature(SECRETION);
+       _secretion_fitness = (double) indiv->get_fitness_by_feature(SECRETION);
+       _compound_amount   = (double) indiv->get_grid_cell()->compound_amount();
        _parent_secretion_error = 0.0;
 
-      if ( replic_report != NULL )
+      if (replic_report != NULL)
       {
         _parent_secretion_error = replic_report->get_parent_secretion_error();
       }
@@ -209,7 +209,7 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
 
 
     // Non coding stats
-    if ( compute_non_coding )
+    if (compute_non_coding)
     {
       _nb_bases_in_0_CDS                = gen_unit.get_nb_bases_in_0_CDS();
       _nb_bases_in_0_functional_CDS     = gen_unit.get_nb_bases_in_0_functional_CDS();
@@ -223,7 +223,7 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
     }
 
     // Mutation stats
-    if ( replic_report != NULL )
+    if (replic_report != NULL)
     {
       _nb_mut    = gen_unit.get_dna()->get_replic_report()->get_nb(S_MUT);
       _nb_rear   = gen_unit.get_dna()->get_replic_report()->get_nb(REARR);
@@ -242,13 +242,13 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
       _inv_rate   = _nb_inv   / parent_genome_size;
 
       //~ // <DEBUG>
-      //~ if ( _nb_dupl + _nb_del + _nb_trans + _nb_inv != 0 )
+      //~ if (_nb_dupl + _nb_del + _nb_trans + _nb_inv != 0)
       //~ {
-        //~ printf( "_nb_dupl : %"PRId32"\n_nb_del : %"PRId32"\n_nb_trans : %"PRId32"\n_nb_inv : %"PRId32"\n",
-                //~ (int32_t) _nb_dupl, (int32_t) _nb_del, (int32_t) _nb_trans, (int32_t) _nb_inv );
-        //~ printf( "parent genome size : %"PRId32"\n", parent_genome_size );
-        //~ printf( "_dupl_rate : %f\n_del_rate : %f\n_trans_rate : %f\n_inv_rate : %f\n",
-                //~ _dupl_rate, _del_rate, _trans_rate, _inv_rate );
+        //~ printf("_nb_dupl : %"PRId32"\n_nb_del : %"PRId32"\n_nb_trans : %"PRId32"\n_nb_inv : %"PRId32"\n",
+                //~ (int32_t) _nb_dupl, (int32_t) _nb_del, (int32_t) _nb_trans, (int32_t) _nb_inv);
+        //~ printf("parent genome size : %"PRId32"\n", parent_genome_size);
+        //~ printf("_dupl_rate : %f\n_del_rate : %f\n_trans_rate : %f\n_inv_rate : %f\n",
+                //~ _dupl_rate, _del_rate, _trans_rate, _inv_rate);
         //~ getchar();
       //~ }
       //~ // </DEBUG>
@@ -256,7 +256,7 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
       _mean_align_score = replic_report->get_mean_align_score();
     }
   }
-  else if ( chrom_or_gu == ALL_GU )
+  else if (chrom_or_gu == ALL_GU)
   {
     // -------------------------------------------------
     // Compute statistical data for the given individual
@@ -264,22 +264,22 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
     ae_replication_report* replic_report = indiv->get_replic_report(); // can be NULL under certain conditions
 
     // Metabolic error stats
-    _metabolic_error = (double) indiv->get_dist_to_target_by_feature( METABOLISM );
-    _metabolic_fitness = (double) indiv->get_fitness_by_feature( METABOLISM );
-    _parent_metabolic_error = ( replic_report != NULL ) ? replic_report->get_parent_metabolic_error() : 0.0;
+    _metabolic_error = (double) indiv->get_dist_to_target_by_feature(METABOLISM);
+    _metabolic_fitness = (double) indiv->get_fitness_by_feature(METABOLISM);
+    _parent_metabolic_error = (replic_report != NULL) ? replic_report->get_parent_metabolic_error() : 0.0;
 
     // Fitness
     _fitness = indiv->get_fitness();
 
     // Secretion stats
-    if ( _exp_m->get_with_secretion() )
+    if (_exp_m->get_with_secretion())
     {
-       _secretion_error = (double) indiv->get_dist_to_target_by_feature( SECRETION );
+       _secretion_error = (double) indiv->get_dist_to_target_by_feature(SECRETION);
        _secretion_fitness = (double) indiv->get_fitness_by_feature(SECRETION);
-       _compound_amount   = (double) indiv->get_grid_cell()->get_compound_amount();
+       _compound_amount   = (double) indiv->get_grid_cell()->compound_amount();
        _parent_secretion_error = 0.0;
 
-      if ( replic_report != NULL )
+      if (replic_report != NULL)
       {
         _parent_secretion_error = replic_report->get_parent_secretion_error();
       }
@@ -305,7 +305,7 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
       _av_size_non_functional_gene += gen_unit.get_av_size_non_functional_genes();
 
       // Non coding stats
-      if ( compute_non_coding )
+      if (compute_non_coding)
       {
         _nb_bases_in_0_CDS                += gen_unit.get_nb_bases_in_0_CDS();
         _nb_bases_in_0_functional_CDS     += gen_unit.get_nb_bases_in_0_functional_CDS();
@@ -319,7 +319,7 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
       }
       
       // Mutation stats
-      if (( replic_report != NULL ) && (gen_unit.get_dna()->get_replic_report()!=NULL))
+      if ((replic_report != NULL) && (gen_unit.get_dna()->get_replic_report()!=NULL))
       {
         _nb_mut    += gen_unit.get_dna()->get_replic_report()->get_nb(S_MUT);
         _nb_rear   += gen_unit.get_dna()->get_replic_report()->get_nb(REARR);
@@ -333,7 +333,7 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
     }
     
     // Rearrangement rate stats
-    if ( replic_report != NULL )
+    if (replic_report != NULL)
     {
       int32_t parent_genome_size = replic_report->get_parent_genome_size();
       _dupl_rate  = _nb_dupl  / parent_genome_size;
@@ -361,22 +361,22 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
     ae_replication_report* replic_report = indiv->get_replic_report(); // can be NULL under certain conditions
     
     // Metabolic error stats
-    _metabolic_error = (double) gen_unit.get_dist_to_target_by_feature( METABOLISM );
-    _metabolic_fitness = (double) gen_unit.get_fitness_by_feature( METABOLISM );
-    _parent_metabolic_error = ( replic_report != NULL ) ? replic_report->get_parent_metabolic_error() : 0.0;
+    _metabolic_error = (double) gen_unit.get_dist_to_target_by_feature(METABOLISM);
+    _metabolic_fitness = (double) gen_unit.get_fitness_by_feature(METABOLISM);
+    _parent_metabolic_error = (replic_report != NULL) ? replic_report->get_parent_metabolic_error() : 0.0;
     
     // Fitness
     _fitness = indiv->get_fitness();
   
     // Secretion stats
-    if ( _exp_m->get_with_secretion() )
+    if (_exp_m->get_with_secretion())
     {
-       _secretion_error = (double) gen_unit.get_dist_to_target_by_feature( SECRETION );
-       _secretion_fitness = (double) gen_unit.get_fitness_by_feature( SECRETION );
-       _compound_amount   = (double) indiv->get_grid_cell()->get_compound_amount();
+       _secretion_error = (double) gen_unit.get_dist_to_target_by_feature(SECRETION);
+       _secretion_fitness = (double) gen_unit.get_fitness_by_feature(SECRETION);
+       _compound_amount   = (double) indiv->get_grid_cell()->compound_amount();
        _parent_secretion_error = 0.0;
   
-      if ( replic_report != NULL )
+      if (replic_report != NULL)
       {
         _parent_secretion_error = replic_report->get_parent_secretion_error();
       }
@@ -401,7 +401,7 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
     _av_size_non_functional_gene = gen_unit.get_av_size_non_functional_genes();
     
       // Non coding stats
-    if ( compute_non_coding )
+    if (compute_non_coding)
     {
       _nb_bases_in_0_CDS                  = gen_unit.get_nb_bases_in_0_CDS();
       _nb_bases_in_0_functional_CDS       = gen_unit.get_nb_bases_in_0_functional_CDS();
@@ -415,7 +415,7 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
     }
     
     // Mutation stats
-    if ( gen_unit.get_dna()->get_replic_report() != NULL )
+    if (gen_unit.get_dna()->get_replic_report() != NULL)
     {
       _nb_mut    = gen_unit.get_dna()->get_replic_report()->get_nb(S_MUT);
       _nb_rear   = gen_unit.get_dna()->get_replic_report()->get_nb(REARR);
@@ -428,7 +428,7 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
     }
     
     // Rearrangement rate stats
-    if ( replic_report != NULL )
+    if (replic_report != NULL)
     {
       int32_t parent_genome_size = replic_report->get_parent_genome_size();
       _dupl_rate  = _nb_dupl  / parent_genome_size;
@@ -492,15 +492,15 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
   // Compute statistical data for the each individual in the population
   // ------------------------------------------------------------------
   for (const auto& indiv : indivs) {
-    ae_stat_record* indiv_stat_record = new ae_stat_record( _exp_m, indiv, chrom_or_gu, false );
-    this->substract_power(means, indiv_stat_record, 2 );
+    ae_stat_record* indiv_stat_record = new ae_stat_record(_exp_m, indiv, chrom_or_gu, false);
+    this->substract_power(means, indiv_stat_record, 2);
     delete indiv_stat_record;
   }
   
   // ---------------------------------------------------------------------------------
   // Divide every accumulator by the square root of number of indivs in the population
   // ---------------------------------------------------------------------------------
-  this->divide( pow((_pop_size-1), 0.5) );
+  this->divide(pow((_pop_size-1), 0.5));
 }
 
  // Calculate skewness for all the recorded values 
@@ -538,14 +538,14 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_stat_record::~ae_stat_record( void )
+ae_stat_record::~ae_stat_record(void)
 {
 }
 
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_stat_record::initialize_data( void )
+void ae_stat_record::initialize_data(void)
 {
   _pop_size  = 0.0;
   
@@ -606,114 +606,120 @@ void ae_stat_record::initialize_data( void )
   #endif
 }
 
-void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_print) const
+void ae_stat_record::write_to_file(FILE* stat_file, stats_type stat_type_to_print) const
 {
-  if ( _record_type == INDIV )
+  if (_record_type == INDIV)
   {
-    if ( stat_type_to_print == FITNESS_STATS )
+    if (stat_type_to_print == FITNESS_STATS)
     {
-      fprintf(stat_file, "%" PRId64 " %" PRId32 " %e %" PRId32 " %e %e %e %e %e %e %e",
-              Time::get_time(),
-              (int32_t) _pop_size,
-              _fitness,              
-              (int32_t) _amount_of_dna,
-              _metabolic_error,
-              _parent_metabolic_error,
-              _metabolic_fitness,
-              _secretion_error,
-              _parent_secretion_error,
-              _secretion_fitness,
-              _compound_amount);
-
+      fprintf(stat_file,
+          "%" PRId64 " %" PRId32 " %e %" PRId32 " %e %e %e %e %e %e %e",
+          Time::get_time(),
+          _pop_size,
+          _fitness,
+          _amount_of_dna,
+          _metabolic_error,
+          _parent_metabolic_error,
+          _metabolic_fitness,
+          _secretion_error,
+          _parent_secretion_error,
+          _secretion_fitness,
+          _compound_amount);
       #ifdef __REGUL
-        fprintf(  stat_file, " %" PRId32 " %" PRId32 " %" PRId32 " %f %f %f",
-              (int32_t) _nb_influences,
-              (int32_t) _nb_enhancing_influences,
-              (int32_t) _nb_operating_influences,
-              _av_value_influences,
-              _av_value_enhancing_influences,
-              _av_value_operating_influences );
+        fprintf(stat_file,
+            " %" PRId32 " %" PRId32 " %" PRId32 " %f %f %f",
+            _nb_influences,
+            _nb_enhancing_influences,
+            _nb_operating_influences,
+            _av_value_influences,
+            _av_value_enhancing_influences,
+            _av_value_operating_influences);
       #endif
     }
-    if ( stat_type_to_print == MUTATION_STATS )
+    if (stat_type_to_print == MUTATION_STATS)
     {
-      fprintf(stat_file, "%" PRId64 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "",
-              Time::get_time(),
-              (int32_t) _nb_mut,
-              (int32_t) _nb_rear,
-              (int32_t) _nb_switch,
-              (int32_t) _nb_indels,
-              (int32_t) _nb_dupl,
-              (int32_t) _nb_del,
-              (int32_t) _nb_trans,
-              (int32_t) _nb_inv );
-
+      fprintf(stat_file,
+          "%" PRId64 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "",
+          Time::get_time(),
+          _nb_mut,
+          _nb_rear,
+          _nb_switch,
+          _nb_indels,
+          _nb_dupl,
+          _nb_del,
+          _nb_trans,
+          _nb_inv);
     }
-    if ( stat_type_to_print == GENES_STATS )
+    if (stat_type_to_print == GENES_STATS)
     {
-      fprintf(  stat_file, "%" PRId64 " %" PRId32 " %" PRId32 " %f %f %" PRId32 " %" PRId32 " %f %f ",
-              Time::get_time(),
-              (int32_t) _nb_coding_rnas,
-              (int32_t) _nb_non_coding_rnas,
-              _av_size_coding_rnas,
-              _av_size_non_coding_rnas,
-              (int32_t) _nb_functional_genes,
-              (int32_t) _nb_non_functional_genes,
-              _av_size_functional_gene,
-              _av_size_non_functional_gene );
+      fprintf(stat_file,
+          "%" PRId64 " %" PRId32 " %" PRId32 " %f %f %" PRId32 " %" PRId32 " %f %f ",
+          Time::get_time(),
+          _nb_coding_rnas,
+          _nb_non_coding_rnas,
+          _av_size_coding_rnas,
+          _av_size_non_coding_rnas,
+          _nb_functional_genes,
+          _nb_non_functional_genes,
+          _av_size_functional_gene,
+          _av_size_non_functional_gene);
     }
-    if ( stat_type_to_print == BP_STATS )
+    if (stat_type_to_print == BP_STATS)
     {
-      fprintf(  stat_file, "%" PRId64 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "",
-              Time::get_time(),
-              (int32_t) _nb_bases_in_0_CDS,
-              (int32_t) _nb_bases_in_0_functional_CDS,
-              (int32_t) _nb_bases_in_0_non_functional_CDS,
-              (int32_t) _nb_bases_in_0_RNA,
-              (int32_t) _nb_bases_in_0_coding_RNA,
-              (int32_t) _nb_bases_in_0_non_coding_RNA,
-              (int32_t) _nb_bases_non_essential,
-              (int32_t) _nb_bases_non_essential_including_nf_genes );
+      fprintf(stat_file,
+          "%" PRId64 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "",
+          Time::get_time(),
+          _nb_bases_in_0_CDS,
+          _nb_bases_in_0_functional_CDS,
+          _nb_bases_in_0_non_functional_CDS,
+          _nb_bases_in_0_RNA,
+          _nb_bases_in_0_coding_RNA,
+          _nb_bases_in_0_non_coding_RNA,
+          _nb_bases_non_essential,
+          _nb_bases_non_essential_including_nf_genes);
     }
-    if ( stat_type_to_print == REAR_STATS )
+    if (stat_type_to_print == REAR_STATS)
     {
-      fprintf(  stat_file, "%" PRId64 " %e %e %e %e %f",
-              Time::get_time(),
-              _dupl_rate,
-              _del_rate,
-              _trans_rate,
-              _inv_rate,
-              _mean_align_score );
+      fprintf(stat_file,
+          "%" PRId64 " %e %e %e %e %f",
+          Time::get_time(),
+          _dupl_rate,
+          _del_rate,
+          _trans_rate,
+          _inv_rate,
+          _mean_align_score);
     }
   }
   else // if _record_type == POP
   {
-   if ( stat_type_to_print == FITNESS_STATS )
+   if (stat_type_to_print == FITNESS_STATS)
     {
-      fprintf(  stat_file, "%" PRId64 " %" PRId32 " %e %" PRId32 " %e %e %e %e %e %e %e",
-              Time::get_time(),
-              _pop_size,
-              _fitness,              
-              _amount_of_dna, 
-              _metabolic_error,
-              _parent_metabolic_error,
-              _metabolic_fitness,
-              _secretion_error,
-              _parent_secretion_error,
-              _secretion_fitness,
-              _compound_amount);
+      fprintf(stat_file,
+          "%" PRId64 " %" PRId32 " %e %" PRId32 " %e %e %e %e %e %e %e",
+          Time::get_time(),
+          _pop_size,
+          _fitness,              
+          _amount_of_dna, 
+          _metabolic_error,
+          _parent_metabolic_error,
+          _metabolic_fitness,
+          _secretion_error,
+          _parent_secretion_error,
+          _secretion_fitness,
+          _compound_amount);
 
       #ifdef __REGUL
-        fprintf(  stat_file, " %" PRId32 " %" PRId32 " %" PRId32 " %f %f %f",
-              (int32_t) _nb_influences,
-              (int32_t) _nb_enhancing_influences,
-              (int32_t) _nb_operating_influences,
-              _av_value_influences,
-              _av_value_enhancing_influences,
-              _av_value_operating_influences );
+        fprintf(stat_file,
+            " %" PRId32 " %" PRId32 " %" PRId32 " %f %f %f",
+            _nb_influences,
+            _nb_enhancing_influences,
+            _nb_operating_influences,
+            _av_value_influences,
+            _av_value_enhancing_influences,
+            _av_value_operating_influences);
       #endif
     }
-    if ( stat_type_to_print == MUTATION_STATS )
+    if (stat_type_to_print == MUTATION_STATS)
     {        
       fprintf(stat_file,
           "%" PRId64 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32
@@ -729,7 +735,7 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
           _nb_inv);
 
     }
-    if ( stat_type_to_print == GENES_STATS )
+    if (stat_type_to_print == GENES_STATS)
     {
       fprintf(stat_file,
           "%" PRId64 " %" PRId32 " %" PRId32 " %f %f %" PRId32 " %" PRId32
@@ -744,11 +750,11 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
           _av_size_functional_gene,
           _av_size_non_functional_gene);
     }
-    if ( stat_type_to_print == BP_STATS )
+    if (stat_type_to_print == BP_STATS)
     {
      // TO DO (if needed) : base-pair stats for all individuals, not just for the best one. 
      //
-     // fprintf(  stat_file, "%" PRId64 " %f %f %f %f %f %f %f %f",
+     // fprintf( stat_file, "%" PRId64 " %f %f %f %f %f %f %f %f",
      //         Time::get_time(),
      //         _nb_bases_in_0_CDS,
      //         _nb_bases_in_0_functional_CDS,
@@ -757,21 +763,22 @@ void ae_stat_record::write_to_file( FILE* stat_file, stats_type stat_type_to_pri
      //         _nb_bases_in_0_coding_RNA,
      //         _nb_bases_in_0_non_coding_RNA,
      //         _nb_bases_non_essential,
-     //         _nb_bases_non_essential_including_nf_genes );
+     //         _nb_bases_non_essential_including_nf_genes);
     }
-    if ( stat_type_to_print == REAR_STATS )
+    if (stat_type_to_print == REAR_STATS)
     {
-      fprintf(  stat_file, "%" PRId64 " %e %e %e %e %f",
-              Time::get_time(),
-              _dupl_rate,
-              _del_rate,
-              _trans_rate,
-              _inv_rate,
-              _mean_align_score );
+      fprintf(stat_file,
+          "%" PRId64 " %e %e %e %e %f",
+          Time::get_time(),
+          _dupl_rate,
+          _del_rate,
+          _trans_rate,
+          _inv_rate,
+          _mean_align_score);
     }
   }
   
-  fprintf( stat_file, "\n" );
+  fprintf(stat_file, "\n");
 }
 
 void ae_stat_record::divide(double divisor)
@@ -809,12 +816,12 @@ void ae_stat_record::divide(double divisor)
   _nb_trans  /= divisor;
   _nb_inv    /= divisor;
   
-  //~ printf( "PREFINAL %f %f %f %f\n", _dupl_rate, _del_rate, _trans_rate, _inv_rate );
+  //~ printf("PREFINAL %f %f %f %f\n", _dupl_rate, _del_rate, _trans_rate, _inv_rate);
   _dupl_rate  /= divisor;
   _del_rate   /= divisor;
   _trans_rate /= divisor;
   _inv_rate   /= divisor;
-  //~ printf( "FINAL %f %f %f %f\n", _dupl_rate, _del_rate, _trans_rate, _inv_rate );
+  //~ printf("FINAL %f %f %f %f\n", _dupl_rate, _del_rate, _trans_rate, _inv_rate);
   //~ getchar();
   _mean_align_score /= divisor;
   
@@ -939,7 +946,7 @@ void ae_stat_record::add(ae_stat_record* to_add, int32_t index)
   _del_rate   += to_add->_del_rate;
   _trans_rate += to_add->_trans_rate;
   _inv_rate   += to_add->_inv_rate;
-  //~ printf( "%f %f %f %f\n", to_add->_dupl_rate, to_add->_del_rate, to_add->_trans_rate, to_add->_inv_rate );
+  //~ printf("%f %f %f %f\n", to_add->_dupl_rate, to_add->_del_rate, to_add->_trans_rate, to_add->_inv_rate);
   _mean_align_score += to_add->_mean_align_score;
   
   _nb_bases_in_0_CDS                += to_add->_nb_bases_in_0_CDS;
@@ -967,61 +974,61 @@ void ae_stat_record::substract_power(const ae_stat_record* means,
                                      double power)
 {
   // NB : pop_size is a "global" value and must not be summed.
-  _fitness                 += pow( means->_fitness - to_substract->_fitness, power );
+  _fitness                 += pow(means->_fitness - to_substract->_fitness, power);
   
-  _metabolic_error         += pow( means->_metabolic_error - to_substract->_metabolic_error, power );
-  _parent_metabolic_error  += pow( means->_parent_metabolic_error - to_substract->_parent_metabolic_error, power );
-  _metabolic_fitness         += pow( means->_metabolic_fitness - to_substract->_metabolic_fitness, power );
+  _metabolic_error         += pow(means->_metabolic_error - to_substract->_metabolic_error, power);
+  _parent_metabolic_error  += pow(means->_parent_metabolic_error - to_substract->_parent_metabolic_error, power);
+  _metabolic_fitness         += pow(means->_metabolic_fitness - to_substract->_metabolic_fitness, power);
   
-  _secretion_error         += pow( means->_secretion_error - to_substract->_secretion_error, power );
-  _parent_secretion_error  += pow( means->_parent_secretion_error - to_substract->_parent_secretion_error, power );
+  _secretion_error         += pow(means->_secretion_error - to_substract->_secretion_error, power);
+  _parent_secretion_error  += pow(means->_parent_secretion_error - to_substract->_parent_secretion_error, power);
   
-  _secretion_fitness       += pow( means->_secretion_fitness - to_substract->_secretion_fitness, power );
-  _compound_amount         += pow( means->_compound_amount - to_substract->_compound_amount, power );
+  _secretion_fitness       += pow(means->_secretion_fitness - to_substract->_secretion_fitness, power);
+  _compound_amount         += pow(means->_compound_amount - to_substract->_compound_amount, power);
   
-  _amount_of_dna               += pow( means->_amount_of_dna - to_substract->_amount_of_dna, power );
-  _nb_coding_rnas              += pow( means->_nb_coding_rnas - to_substract->_nb_coding_rnas, power );
-  _nb_non_coding_rnas          += pow( means->_nb_non_coding_rnas - to_substract->_nb_non_coding_rnas, power );
-  _av_size_coding_rnas         += pow( means->_av_size_coding_rnas - to_substract->_av_size_coding_rnas, power );
-  _av_size_non_coding_rnas     += pow( means->_av_size_non_coding_rnas - to_substract->_av_size_non_coding_rnas, power );
-  _nb_functional_genes         += pow( means->_nb_functional_genes - to_substract->_nb_functional_genes, power );
-  _nb_non_functional_genes     += pow( means->_nb_non_functional_genes - to_substract->_nb_non_functional_genes, power );
-  _av_size_functional_gene     += pow( means->_av_size_functional_gene - to_substract->_av_size_functional_gene, power );
-  _av_size_non_functional_gene += pow( means->_av_size_non_functional_gene - to_substract->_av_size_non_functional_gene, power );
+  _amount_of_dna               += pow(means->_amount_of_dna - to_substract->_amount_of_dna, power);
+  _nb_coding_rnas              += pow(means->_nb_coding_rnas - to_substract->_nb_coding_rnas, power);
+  _nb_non_coding_rnas          += pow(means->_nb_non_coding_rnas - to_substract->_nb_non_coding_rnas, power);
+  _av_size_coding_rnas         += pow(means->_av_size_coding_rnas - to_substract->_av_size_coding_rnas, power);
+  _av_size_non_coding_rnas     += pow(means->_av_size_non_coding_rnas - to_substract->_av_size_non_coding_rnas, power);
+  _nb_functional_genes         += pow(means->_nb_functional_genes - to_substract->_nb_functional_genes, power);
+  _nb_non_functional_genes     += pow(means->_nb_non_functional_genes - to_substract->_nb_non_functional_genes, power);
+  _av_size_functional_gene     += pow(means->_av_size_functional_gene - to_substract->_av_size_functional_gene, power);
+  _av_size_non_functional_gene += pow(means->_av_size_non_functional_gene - to_substract->_av_size_non_functional_gene, power);
 
-  _nb_mut    += pow( means->_nb_mut - to_substract->_nb_mut, power );
-  _nb_rear   += pow( means->_nb_rear - to_substract->_nb_rear, power );
-  _nb_switch += pow( means->_nb_switch - to_substract->_nb_switch, power );
-  _nb_indels += pow( means->_nb_indels - to_substract->_nb_indels, power );
-  _nb_dupl   += pow( means->_nb_dupl - to_substract->_nb_dupl, power );
-  _nb_del    += pow( means->_nb_del - to_substract->_nb_del, power );
-  _nb_trans  += pow( means->_nb_trans - to_substract->_nb_trans, power );
-  _nb_inv    += pow( means->_nb_inv - to_substract->_nb_inv, power );
+  _nb_mut    += pow(means->_nb_mut - to_substract->_nb_mut, power);
+  _nb_rear   += pow(means->_nb_rear - to_substract->_nb_rear, power);
+  _nb_switch += pow(means->_nb_switch - to_substract->_nb_switch, power);
+  _nb_indels += pow(means->_nb_indels - to_substract->_nb_indels, power);
+  _nb_dupl   += pow(means->_nb_dupl - to_substract->_nb_dupl, power);
+  _nb_del    += pow(means->_nb_del - to_substract->_nb_del, power);
+  _nb_trans  += pow(means->_nb_trans - to_substract->_nb_trans, power);
+  _nb_inv    += pow(means->_nb_inv - to_substract->_nb_inv, power);
     
-  _dupl_rate  += pow( means->_dupl_rate - to_substract->_dupl_rate, power );
-  _del_rate   += pow( means->_del_rate - to_substract->_del_rate, power );
-  _trans_rate += pow( means->_trans_rate - to_substract->_trans_rate, power );
-  _inv_rate   += pow( means->_inv_rate - to_substract->_inv_rate, power );
+  _dupl_rate  += pow(means->_dupl_rate - to_substract->_dupl_rate, power);
+  _del_rate   += pow(means->_del_rate - to_substract->_del_rate, power);
+  _trans_rate += pow(means->_trans_rate - to_substract->_trans_rate, power);
+  _inv_rate   += pow(means->_inv_rate - to_substract->_inv_rate, power);
   
-  _mean_align_score += pow( means->_mean_align_score - to_substract->_mean_align_score, power );
+  _mean_align_score += pow(means->_mean_align_score - to_substract->_mean_align_score, power);
   
-  _nb_bases_in_0_CDS                += pow( means->_nb_bases_in_0_CDS - to_substract->_nb_bases_in_0_CDS, power );
-  _nb_bases_in_0_functional_CDS     += pow( means->_nb_bases_in_0_functional_CDS - to_substract->_nb_bases_in_0_functional_CDS, power );
-  _nb_bases_in_0_non_functional_CDS += pow( means->_nb_bases_in_0_non_functional_CDS - to_substract->_nb_bases_in_0_non_functional_CDS, power );
-  _nb_bases_in_0_RNA                += pow( means->_nb_bases_in_0_RNA - to_substract->_nb_bases_in_0_RNA, power );
-  _nb_bases_in_0_coding_RNA         += pow( means->_nb_bases_in_0_coding_RNA - to_substract->_nb_bases_in_0_coding_RNA, power );
-  _nb_bases_in_0_non_coding_RNA     += pow( means->_nb_bases_in_0_non_coding_RNA - to_substract->_nb_bases_in_0_non_coding_RNA, power );
+  _nb_bases_in_0_CDS                += pow(means->_nb_bases_in_0_CDS - to_substract->_nb_bases_in_0_CDS, power);
+  _nb_bases_in_0_functional_CDS     += pow(means->_nb_bases_in_0_functional_CDS - to_substract->_nb_bases_in_0_functional_CDS, power);
+  _nb_bases_in_0_non_functional_CDS += pow(means->_nb_bases_in_0_non_functional_CDS - to_substract->_nb_bases_in_0_non_functional_CDS, power);
+  _nb_bases_in_0_RNA                += pow(means->_nb_bases_in_0_RNA - to_substract->_nb_bases_in_0_RNA, power);
+  _nb_bases_in_0_coding_RNA         += pow(means->_nb_bases_in_0_coding_RNA - to_substract->_nb_bases_in_0_coding_RNA, power);
+  _nb_bases_in_0_non_coding_RNA     += pow(means->_nb_bases_in_0_non_coding_RNA - to_substract->_nb_bases_in_0_non_coding_RNA, power);
     
-  _nb_bases_non_essential                     += pow( means->_nb_bases_non_essential - to_substract->_nb_bases_non_essential, power );
-  _nb_bases_non_essential_including_nf_genes  += pow( means->_nb_bases_non_essential_including_nf_genes - to_substract->_nb_bases_non_essential_including_nf_genes, power );
+  _nb_bases_non_essential                     += pow(means->_nb_bases_non_essential - to_substract->_nb_bases_non_essential, power);
+  _nb_bases_non_essential_including_nf_genes  += pow(means->_nb_bases_non_essential_including_nf_genes - to_substract->_nb_bases_non_essential_including_nf_genes, power);
     
   #ifdef __REGUL
-    _nb_influences                 += pow( means->_nb_influences - to_substract->_nb_influences, power );
-    _nb_enhancing_influences       += pow( means->_nb_enhancing_influences - to_substract->_nb_enhancing_influences, power );
-    _nb_operating_influences       += pow( means->_nb_operating_influences - to_substract->_nb_operating_influences, power );
-    _av_value_influences           += pow( means->_av_value_influences - to_substract->_av_value_influences, power );
-    _av_value_enhancing_influences += pow( means->_av_value_enhancing_influences - to_substract->_av_value_enhancing_influences, power );
-    _av_value_operating_influences += pow( means->_av_value_operating_influences - to_substract->_av_value_operating_influences, power );
+    _nb_influences                 += pow(means->_nb_influences - to_substract->_nb_influences, power);
+    _nb_enhancing_influences       += pow(means->_nb_enhancing_influences - to_substract->_nb_enhancing_influences, power);
+    _nb_operating_influences       += pow(means->_nb_operating_influences - to_substract->_nb_operating_influences, power);
+    _av_value_influences           += pow(means->_av_value_influences - to_substract->_av_value_influences, power);
+    _av_value_enhancing_influences += pow(means->_av_value_enhancing_influences - to_substract->_av_value_enhancing_influences, power);
+    _av_value_operating_influences += pow(means->_av_value_operating_influences - to_substract->_av_value_operating_influences, power);
   #endif
 }
 

@@ -165,25 +165,20 @@ ae_individual::ae_individual(ae_exp_manager* exp_m, gzFile backup_file)
   gzread(backup_file, &_age, sizeof(_age));
 
   // Retrieve the PRNGs
-  #ifdef DISTRIBUTED_PRNG
-    _mut_prng   = new ae_jumping_mt(backup_file);
-    _stoch_prng = new ae_jumping_mt(backup_file);
-  #else
-    if (exp_m == NULL)
-    {
-      // Detached mode
-      _mut_prng   = NULL;
-      _stoch_prng = NULL;
-    }
-    else
-    {
-      // TODO: => prngs as parameters
-      _mut_prng   = exp_m->world()->get_mut_prng();
-      _stoch_prng = exp_m->world()->get_stoch_prng();
-      assert(_mut_prng);
-      assert(_stoch_prng);
-    }
-  #endif
+  if (exp_m == NULL)
+  {
+    // Detached mode
+    _mut_prng   = NULL;
+    _stoch_prng = NULL;
+  }
+  else
+  {
+    // TODO: => prngs as parameters
+    _mut_prng   = exp_m->world()->get_mut_prng();
+    _stoch_prng = exp_m->world()->get_stoch_prng();
+    assert(_mut_prng);
+    assert(_stoch_prng);
+  }
 
   // Retreive id and rank
   gzread(backup_file, &_id,    sizeof(_id));
@@ -265,20 +260,18 @@ ae_individual::ae_individual(ae_exp_manager* exp_m, gzFile backup_file)
   //evaluate();
 }
 
-// Copy constructor
-ae_individual::ae_individual(const ae_individual &model,
-                             bool replication_report_copy /*= false*/)
+// TODO: this is obsolete, check usage and amend accordingly 
+//   id and rank mustn't me copied
+//   state booleans must be either all copied or not at all
+//   evaluate is called at the end, is that really wanted behaviour ?
+ae_individual::ae_individual(const ae_individual& model,
+                             bool replication_report_copy)
 {
   _exp_m = model._exp_m;
 
   // PRNGs
-  #ifdef DISTRIBUTED_PRNG
-    _mut_prng   = new ae_jumping_mt(*(model._mut_prng));
-    _stoch_prng = new ae_jumping_mt(*(model._stoch_prng));
-  #else
-    _mut_prng   = model._mut_prng;
-    _stoch_prng = model._stoch_prng;
-  #endif
+  _mut_prng   = model._mut_prng;
+  _stoch_prng = model._stoch_prng;
 
   int strain_string_len = strlen(model._strain_name);
   _strain_name = new char[strain_string_len+1];
@@ -488,19 +481,22 @@ ae_individual::ae_individual(const ae_individual* parent, int32_t id,
 
 ae_individual* ae_individual::CreateIndividual(ae_exp_manager* exp_m,
                                                gzFile backup_file) {
+  ae_individual* indiv = NULL;
   #ifdef __NO_X
     #ifndef __REGUL
-      return new ae_individual(exp_m, backup_file);
+      indiv = new ae_individual(exp_m, backup_file);
     #else
-      return new ae_individual_R(exp_m, backup_file);
+      indiv = new ae_individual_R(exp_m, backup_file);
     #endif
   #elif defined __X11
     #ifndef __REGUL
-      return new ae_individual_X11(exp_m, backup_file);
+      indiv = new ae_individual_X11(exp_m, backup_file);
     #else
-      return new ae_individual_R_X11(exp_m, backup_file);
+      indiv = new ae_individual_R_X11(exp_m, backup_file);
     #endif
   #endif
+  
+  return indiv;
 }
 
 /*!
@@ -511,7 +507,7 @@ ae_individual* ae_individual::CreateIndividual(ae_exp_manager* exp_m,
   \return clone of dolly
 */
 ae_individual* ae_individual::CreateClone(const ae_individual* dolly,
-                                           int32_t id)
+                                          int32_t id)
 {
   ae_individual* indiv = new ae_individual(*dolly, false);
   indiv->set_id(id);
@@ -525,11 +521,6 @@ ae_individual* ae_individual::CreateClone(const ae_individual* dolly,
 // =================================================================
 ae_individual::~ae_individual()
 {
-  #ifdef DISTRIBUTED_PRNG
-    delete _mut_prng;
-    delete _stoch_prng;
-  #endif
-
   delete [] _strain_name;
 
   // The _replic_report pointer is destroyed, but not the report itself,
@@ -1291,15 +1282,15 @@ void ae_individual::do_transcription_translation_folding() {
   void ae_individual::assert_promoters()
   {
     // Perform assertion for each genetic unit
-    for (auto& gen_unit: _genetic_unit_list)
-      gen_unit.assert_promoters();
+    // for (auto& gen_unit: _genetic_unit_list)
+    //   gen_unit.assert_promoters();
   }
 
   void ae_individual::assert_promoters_order()
   {
     // Perform assertion for each genetic unit
-    for (auto& gen_unit: _genetic_unit_list)
-      gen_unit.assert_promoters_order();
+    // for (auto& gen_unit: _genetic_unit_list)
+    //   gen_unit.assert_promoters_order();
   }
 #endif
 
@@ -1405,7 +1396,7 @@ void ae_individual::compute_fitness(Environment* envir) {
     }
     else
     {
-      _fitness =  _fitness_by_feature[METABOLISM] * (1 + _exp_m->get_secretion_contrib_to_fitness() * (_grid_cell->get_compound_amount() - _exp_m->get_secretion_cost() * _fitness_by_feature[SECRETION]));
+      _fitness =  _fitness_by_feature[METABOLISM] * (1 + _exp_m->get_secretion_contrib_to_fitness() * (_grid_cell->compound_amount() - _exp_m->get_secretion_cost() * _fitness_by_feature[SECRETION]));
     }
 
     if (_exp_m->get_selection_scheme() == FITNESS_PROPORTIONATE) // Then the exponential selection is integrated inside the fitness value
@@ -1440,7 +1431,7 @@ void ae_individual::compute_fitness(Environment* envir) {
     else
     {
       _fitness =  _fitness_by_feature[METABOLISM]
-                  *  (1 + _exp_m->get_secretion_contrib_to_fitness() * get_grid_cell()->get_compound_amount()
+                  *  (1 + _exp_m->get_secretion_contrib_to_fitness() * get_grid_cell()->compound_amount()
                          - _exp_m->get_secretion_cost() * _fitness_by_feature[SECRETION]);
     }
   #endif
@@ -1722,12 +1713,6 @@ void ae_individual::save(gzFile backup_file) const {
   gzwrite(backup_file, &strain_string_len, sizeof(strain_string_len));
   gzwrite(backup_file, _strain_name, strain_string_len+1);
   gzwrite(backup_file, &_age, sizeof(_age));
-
-  #ifdef DISTRIBUTED_PRNG
-    // Write the PRNG's state
-    _mut_prng->save(backup_file);
-    _stoch_prng->save(backup_file);
-  #endif
 
   // Write id and rank
   gzwrite(backup_file, &_id,   sizeof(_id));

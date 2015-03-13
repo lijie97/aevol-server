@@ -37,6 +37,8 @@
 #include <cstdlib>
 #include <cassert>
 
+#include <zlib.h>
+
 
 
 // =================================================================
@@ -211,7 +213,7 @@ inline double** World::get_secretion_present_grid(void) const
     ret[x] = new double[height_];
     for (int16_t y = 0; y < height_ ; y++)
     { 
-      ret[x][y] = grid_[x][y]->get_compound_amount(); 
+      ret[x][y] = grid_[x][y]->compound_amount(); 
     }
   }
   

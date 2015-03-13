@@ -80,6 +80,7 @@ class ae_individual
     //                             Constructors
     // =================================================================
     ae_individual() = delete;
+    ae_individual(const ae_individual&) = delete;
     ae_individual(ae_exp_manager* exp_m,
                   std::shared_ptr<ae_jumping_mt> mut_prng,
                   std::shared_ptr<ae_jumping_mt> stoch_prng,
@@ -93,15 +94,23 @@ class ae_individual
                   int32_t age);
 
     ae_individual(ae_exp_manager* exp_m, gzFile backup_file);
-    ae_individual(const ae_individual &model,
-                  bool replication_report_copy = false);
+    ae_individual(const ae_individual& model,
+                  bool replication_report_copy);
     ae_individual(const ae_individual* parent, int32_t id,
                   std::shared_ptr<ae_jumping_mt> mut_prng,
                   std::shared_ptr<ae_jumping_mt> stoch_prng);
-
     static ae_individual* CreateIndividual(ae_exp_manager* exp_m,
                                            gzFile backup_file);
 
+    /**
+     * \brief Create of clone of an ae_individual
+     *
+     * A clone is ... TODO
+     *
+     * \param dolly original individual to be cloned
+     * \param id ID of the clone in the population
+     * \return clone of dolly
+     */
     static ae_individual* CreateClone(const ae_individual* dolly, int32_t id);
 
     // =================================================================

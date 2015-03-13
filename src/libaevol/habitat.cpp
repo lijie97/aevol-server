@@ -49,6 +49,13 @@ namespace aevol {
 // ============================================================================
 //                                Constructors
 // ============================================================================
+Habitat::Habitat(void) {
+  compound_amount_ = 0.0;
+}
+
+Habitat::Habitat(gzFile backup_file) {
+  gzread(backup_file, &compound_amount_, sizeof(compound_amount_));
+}
 
 // ============================================================================
 //                                 Destructor
@@ -57,6 +64,9 @@ namespace aevol {
 // ============================================================================
 //                                   Methods
 // ============================================================================
+void Habitat::save(gzFile backup_file) const {
+  gzwrite(backup_file, &compound_amount_, sizeof(compound_amount_));
+}
 
 // ============================================================================
 //                            Non inline accessors

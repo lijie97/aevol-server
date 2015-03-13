@@ -101,9 +101,7 @@ void World::MallocGrid(void)
     grid_[x] = &(grid_1d_[x * height_]);
 }
 
-void World::PlaceIndiv(ae_individual* indiv,
-                                       int16_t x, int16_t y)
-{
+void World::PlaceIndiv(ae_individual* indiv, int16_t x, int16_t y) {
   grid_[x][y]->set_individual(indiv);
 }
 
@@ -134,7 +132,7 @@ void World::update_secretion_grid(void)
     new_secretion[x] = new double[height_];
     for (int16_t y = 0 ; y < height_ ; y++)
     {
-      new_secretion[x][y] = grid_[x][y]->get_compound_amount();
+      new_secretion[x][y] = grid_[x][y]->compound_amount();
     }
   }
 
@@ -151,7 +149,7 @@ void World::update_secretion_grid(void)
           cur_y = (y + j + height_) % height_;
 
           // add the diffusion from the neighboring cells
-          new_secretion[x][y] += grid_[cur_x][cur_y]->get_compound_amount() * _secretion_diffusion_prop;
+          new_secretion[x][y] += grid_[cur_x][cur_y]->compound_amount() * _secretion_diffusion_prop;
         }
       }
     }
@@ -163,8 +161,8 @@ void World::update_secretion_grid(void)
     for (int16_t y = 0 ; y < height_ ; y++)
     {
       grid_[x][y]->set_compound_amount(new_secretion[x][y] -
-          9 * grid_[x][y]->get_compound_amount() * _secretion_diffusion_prop);
-      grid_[x][y]->set_compound_amount(grid_[x][y]->get_compound_amount() *
+          9 * grid_[x][y]->compound_amount() * _secretion_diffusion_prop);
+      grid_[x][y]->set_compound_amount(grid_[x][y]->compound_amount() *
           (1 - _secretion_degradation_prop));
     }
   }

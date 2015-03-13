@@ -37,12 +37,15 @@
 #include <cstdlib>
 #include <cassert>
 
+#include <zlib.h>
+
 
 
 // =================================================================
 //                            Project Files
 // =================================================================
 #include "ae_individual.h"
+#include "habitat.h"
 
 namespace aevol {
 
@@ -79,7 +82,7 @@ class ae_grid_cell
     // =================================================================
     inline int16_t x() const {return x_;};
     inline int16_t y() const {return y_;};
-    inline double get_compound_amount(void) const;
+    inline double compound_amount(void) const;
     inline ae_individual* get_individual(void) const;
   
     inline double get_secreted_amount(void) const;
@@ -90,7 +93,7 @@ class ae_grid_cell
     //                        Accessors: setters
     // =================================================================
     inline void set_compound_amount(double compound_amount);
-    inline void set_individual(ae_individual * indiv);
+    inline void set_individual(ae_individual* indiv);
 
     // =================================================================
     //                            Public Methods
@@ -116,22 +119,20 @@ class ae_grid_cell
     // Position on the grid
     int16_t x_;
     int16_t y_;
-
-    // Amount of secreted compound currently present in the grid cell 
-    double _compound_amount; 
     
-    // pointer to the individual in this cell 
-    ae_individual* _individual; 
+    // Pointer to the individual in this cell
+    ae_individual* _individual = NULL;
 
+    Habitat* habitat_;
 };
 
 
 // =====================================================================
 //                           Getters' definitions
 // =====================================================================
-inline double ae_grid_cell::get_compound_amount(void) const
+inline double ae_grid_cell::compound_amount(void) const
 {
-  return _compound_amount;
+  return habitat_->compound_amount();
 }
 
 inline ae_individual* ae_grid_cell::get_individual(void) const
@@ -159,7 +160,7 @@ inline double ae_grid_cell::get_total_fitness(void) const
 // =====================================================================
 inline void ae_grid_cell::set_compound_amount(double compound_amount)
 {
-  _compound_amount = compound_amount;
+  habitat_->set_compound_amount(compound_amount);
 }
 
 inline void ae_grid_cell::set_individual(ae_individual* indiv)

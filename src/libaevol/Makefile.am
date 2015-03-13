@@ -63,6 +63,7 @@ ae_selection.h \
 ae_gene_tree.h \
 ae_gene_tree_node.h \
 ae_gene_mutation.h \
+habitat.h \
 param_loader.h \
 f_line.h \
 Time.h \
@@ -100,6 +101,7 @@ ae_gene_tree.cpp \
 ae_gene_tree_node.cpp \
 ae_gene_mutation.cpp \
 fuzzy.cpp \
+habitat.cpp \
 param_loader.cpp \
 f_line.cpp \
 Time.cpp \

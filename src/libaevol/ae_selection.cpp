@@ -176,7 +176,7 @@ void ae_selection::step_to_next_generation(void)
       for (int16_t y = 0 ; y < grid_height ; y++ )
       {
         pop_grid[x][y]->set_compound_amount(
-            pop_grid[x][y]->get_compound_amount() +
+            pop_grid[x][y]->compound_amount() +
             pop_grid[x][y]->get_individual()->get_fitness_by_feature(SECRETION));
       }
     }
@@ -187,13 +187,14 @@ void ae_selection::step_to_next_generation(void)
 
 
   // Create the new generation
+  std::list<ae_individual*> old_generation = _exp_m->get_indivs_std();;
   std::list<ae_individual*> new_generation;
   int32_t index_new_indiv = 0;
   for (int16_t x = 0 ; x < grid_width ; x++)
   {
     for (int16_t y = 0 ; y < grid_height ; y++)
     {
-      pop_grid[x][y]->set_individual(do_replication(reproducers[x][y], index_new_indiv++, x, y));
+      do_replication(reproducers[x][y], index_new_indiv++, x, y);
       #ifdef DISTRIBUTED_PRNG
         #error Not implemented yet !
         reproducers[x][y]->do_prng_jump();
@@ -202,12 +203,15 @@ void ae_selection::step_to_next_generation(void)
     }
   }
 
-  // delete the temporary grid
+  // delete the temporary grid and the parental generation
   for (int16_t x = 0 ; x < grid_width ; x++ )
   {
     delete [] reproducers[x];
   }
   delete [] reproducers;
+  for (auto indiv : old_generation) {
+    delete indiv;
+  }
 
   // randomly migrate some organisms, if necessary
   world->MixIndivs();
@@ -599,7 +603,6 @@ ae_individual* ae_selection::do_replication(ae_individual* parent, int32_t index
 
 
   #ifdef BIG_DEBUG
-  // ae_common::sim->get_logs()->flush();   // ae_common::sim is obsolete in version 4
   //  new_indiv->assert_promoters();
   #endif
 
