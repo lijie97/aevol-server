@@ -461,8 +461,8 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
   }
   else if (strcmp(line->words[0], "WORLD_SIZE") == 0)
   {
-    _grid_width = atoi(line->words[2]);
-    _grid_height = atoi(line->words[3]);
+    _grid_width = atoi(line->words[1]);
+    _grid_height = atoi(line->words[2]);
   }
   else if (strcmp(line->words[0], "POP_STRUCTURE") == 0)
   {
@@ -1222,7 +1222,12 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
   // Check that the population fits in the spatial structure
   if (_init_pop_size != _grid_width * _grid_height)
   {
-    printf("ERROR: the number of individuals does not match the size of the grid\n");
+    printf("ERROR: the number of individuals (%" PRId32
+        ") does not match the size of the grid  (%" PRId16
+        " * %" PRId16 ")\n",
+        _init_pop_size,
+        _grid_width,
+        _grid_height);
     exit(EXIT_FAILURE);
   }
 
