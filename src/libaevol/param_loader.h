@@ -38,6 +38,7 @@
 #include <cassert>
 
 #include <list>
+#include <memory>
 
 #include <zlib.h>
 
@@ -102,16 +103,22 @@ class param_loader
   static void format_line( f_line*, char*, bool* );
   void interpret_line( f_line* line, int32_t cur_line );
   ae_individual* create_random_individual(
-      ae_exp_manager* exp_m, int32_t id, ae_params_mut* param_mut,
-      ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng) const;
+      ae_exp_manager* exp_m,
+      int32_t id,
+      ae_params_mut* param_mut,
+      std::shared_ptr<ae_jumping_mt> mut_prng,
+      std::shared_ptr<ae_jumping_mt> stoch_prng) const;
   ae_individual* create_random_individual_with_good_gene(
-      ae_exp_manager* exp_m, int32_t id, ae_params_mut* param_mut,
-      ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng) const;
+      ae_exp_manager* exp_m,
+      int32_t id,
+      ae_params_mut* param_mut,
+      std::shared_ptr<ae_jumping_mt> mut_prng,
+      std::shared_ptr<ae_jumping_mt> stoch_prng) const;
 
   // =========================================================================
   //                               Attributes
   // =========================================================================
-  ae_jumping_mt* _prng;
+  std::shared_ptr<ae_jumping_mt> _prng;
 
   char*   _param_file_name;
   FILE*   _param_file;

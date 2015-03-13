@@ -137,8 +137,8 @@ class ae_exp_manager
     inline int32_t                  get_nb_indivs(void) const;
 
     inline ae_individual* get_best_indiv(void) const;
-    // inline ae_individual*	get_indiv_by_id( int32_t id ) const;
-    // inline ae_individual* get_indiv_by_rank( int32_t rank ) const;
+    // inline ae_individual*	get_indiv_by_id(int32_t id) const;
+    // inline ae_individual* get_indiv_by_rank(int32_t rank) const;
 
     // Accessors to output manager stuff
     inline int64_t	get_backup_step(void) const;
@@ -152,16 +152,16 @@ class ae_exp_manager
     //                          Accessors: setters
     // =======================================================================
     inline void set_t_end(int64_t _t_end) { t_end = _t_end; };
-    //~ inline void set_min_genome_length( int32_t min_genome_length );
-    //~ inline void set_max_genome_length( int32_t max_genome_length );
+    //~ inline void set_min_genome_length(int32_t min_genome_length);
+    //~ inline void set_max_genome_length(int32_t max_genome_length);
     inline void init_world(int16_t grid_width, int16_t grid_height,
-                           ae_jumping_mt* prng);
+                           std::shared_ptr<ae_jumping_mt> prng);
 
-    inline void set_with_HT( bool with_HT ) ;
-    inline void set_repl_HT_with_close_points ( bool repl_HT_with_close_points) ;
-    inline void set_HT_ins_rate( double HT_ins_rate) ;
-    inline void set_HT_repl_rate( double HT_repl_rate) ;
-    inline void set_repl_HT_detach_rate( double repl_HT_detach_rate) ;
+    inline void set_with_HT(bool with_HT);
+    inline void set_repl_HT_with_close_points (bool repl_HT_with_close_points) ;
+    inline void set_HT_ins_rate(double HT_ins_rate) ;
+    inline void set_HT_repl_rate(double HT_repl_rate) ;
+    inline void set_repl_HT_detach_rate(double repl_HT_detach_rate) ;
 
     // =======================================================================
     //                                 Operators
@@ -172,7 +172,7 @@ class ae_exp_manager
     // =======================================================================
     void write_setup_files(void);
     void save(void) const;
-    void save_copy( char* dir, int32_t num_gener = 0 ) const;
+    void save_copy(char* dir, int32_t num_gener = 0) const;
     inline void load(int32_t first_gener,
         bool verbose = false, bool to_be_run = true);
     void load(const char* dir, int64_t t0,
@@ -209,13 +209,13 @@ class ae_exp_manager
     // =======================================================================
     /*ae_exp_manager(void)
     {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
     };
-    ae_exp_manager( const ae_exp_manager &model )
+    ae_exp_manager(const ae_exp_manager &model)
     {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
     };*/
 
 
@@ -475,18 +475,18 @@ inline ae_tree* ae_exp_manager::get_tree(void) const
 //                             Setters' definitions
 // ===========================================================================
 // Global constraints
-//~ inline void ae_exp_manager::set_min_genome_length( int32_t min_genome_length )
+//~ inline void ae_exp_manager::set_min_genome_length(int32_t min_genome_length)
 //~ {
-  //~ _exp_s->set_min_genome_length( min_genome_length );
+  //~ _exp_s->set_min_genome_length(min_genome_length);
 //~ }
 
-//~ inline void ae_exp_manager::set_max_genome_length( int32_t max_genome_length )
+//~ inline void ae_exp_manager::set_max_genome_length(int32_t max_genome_length)
 //~ {
-  //~ _exp_s->set_max_genome_length( max_genome_length );
+  //~ _exp_s->set_max_genome_length(max_genome_length);
 //~ }
 
 inline void ae_exp_manager::init_world(int16_t grid_width, int16_t grid_height,
-                                       ae_jumping_mt* prng )
+                                       std::shared_ptr<ae_jumping_mt> prng)
 {
   world_ = new World();
   world_->InitGrid(grid_width, grid_height);
@@ -494,29 +494,29 @@ inline void ae_exp_manager::init_world(int16_t grid_width, int16_t grid_height,
 }
 
 
-inline void ae_exp_manager::set_with_HT( bool with_HT )
+inline void ae_exp_manager::set_with_HT(bool with_HT)
 {
-  _exp_s->set_with_HT( with_HT );
+  _exp_s->set_with_HT(with_HT);
 }
 
-inline void ae_exp_manager::set_repl_HT_with_close_points ( bool repl_HT_with_close_points)
+inline void ae_exp_manager::set_repl_HT_with_close_points (bool repl_HT_with_close_points)
 {
-  _exp_s->set_repl_HT_with_close_points( repl_HT_with_close_points );
+  _exp_s->set_repl_HT_with_close_points(repl_HT_with_close_points);
 }
 
-inline void ae_exp_manager::set_HT_ins_rate( double HT_ins_rate)
+inline void ae_exp_manager::set_HT_ins_rate(double HT_ins_rate)
 {
-  _exp_s->set_HT_ins_rate( HT_ins_rate );
+  _exp_s->set_HT_ins_rate(HT_ins_rate);
 }
 
-inline void ae_exp_manager::set_HT_repl_rate( double HT_repl_rate)
+inline void ae_exp_manager::set_HT_repl_rate(double HT_repl_rate)
 {
-  _exp_s->set_HT_repl_rate( HT_repl_rate );
+  _exp_s->set_HT_repl_rate(HT_repl_rate);
 }
 
-inline void ae_exp_manager::set_repl_HT_detach_rate( double repl_HT_detach_rate)
+inline void ae_exp_manager::set_repl_HT_detach_rate(double repl_HT_detach_rate)
 {
-  _exp_s->set_repl_HT_detach_rate( repl_HT_detach_rate );
+  _exp_s->set_repl_HT_detach_rate(repl_HT_detach_rate);
 }
 
 // ===========================================================================
@@ -545,7 +545,7 @@ inline void ae_exp_manager::step_to_next_generation(void)
  */
 inline void ae_exp_manager::load(int32_t first_gener,
                                  bool verbose /*= false*/,
-                                 bool to_be_run /*= true*/ )
+                                 bool to_be_run /*= true*/)
 {
   load(".", first_gener, verbose, to_be_run);
 }

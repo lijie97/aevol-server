@@ -32,13 +32,15 @@
 // =================================================================
 //                              Libraries
 // =================================================================
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cinttypes>
+#include <cstdio>
+#include <cstdlib>
+#include <cassert>
+
 #include <zlib.h>
-#include <assert.h>
 
 #include <list>
+#include <memory>
 
 // =================================================================
 //                            Project Files
@@ -78,8 +80,8 @@ class ae_individual
     //                             Constructors
     // =================================================================
     ae_individual(ae_exp_manager* exp_m,
-                  ae_jumping_mt* mut_prng,
-                  ae_jumping_mt* stoch_prng,
+                  std::shared_ptr<ae_jumping_mt> mut_prng,
+                  std::shared_ptr<ae_jumping_mt> stoch_prng,
                   ae_params_mut* param_mut,
                   double w_max,
                   int32_t min_genome_length,
@@ -93,7 +95,8 @@ class ae_individual
     ae_individual(const ae_individual &model,
                   bool replication_report_copy = false);
     ae_individual(const ae_individual* parent, int32_t id,
-                  ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng);
+                  std::shared_ptr<ae_jumping_mt> mut_prng,
+                  std::shared_ptr<ae_jumping_mt> stoch_prng);
     ae_individual() = delete; // forbidden constructor
 
     static ae_individual* CreateIndividual(ae_exp_manager* exp_m,
@@ -123,8 +126,8 @@ class ae_individual
     double           get_fitness_by_feature(ae_env_axis_feature feature) const;
     ae_grid_cell*    get_grid_cell(void) const;
     bool             get_placed_in_population(void) const;
-    ae_jumping_mt*   get_mut_prng(void) const;
-    ae_jumping_mt*   get_stoch_prng(void) const;
+    std::shared_ptr<ae_jumping_mt> get_mut_prng(void) const;
+    std::shared_ptr<ae_jumping_mt> get_stoch_prng(void) const;
 
     const std::list<ae_genetic_unit>& get_genetic_unit_list_std() const;
     std::list<ae_genetic_unit>& get_genetic_unit_list_std_nonconst();
@@ -288,8 +291,8 @@ class ae_individual
     // ----------------------------------------------- Phenotypic stochasticity
     void set_with_stochasticity(bool with_stoch);
 
-    void set_mut_prng(ae_jumping_mt* prng);
-    void set_stoch_prng(ae_jumping_mt* prng);
+    void set_mut_prng(std::shared_ptr<ae_jumping_mt> prng);
+    void set_stoch_prng(std::shared_ptr<ae_jumping_mt> prng);
 
     //------------------------------------------------ Generic probes
     void set_int_probes (int32_t* int_probes);
@@ -299,11 +302,10 @@ class ae_individual
     // =================================================================
     //                            Public Methods
     // =================================================================
-
-
     void add_GU(char * &sequence, int32_t length);  // warning: the individual is left in a totally "cleared" state but not reevaluated
     // void add_GU(ae_genetic_unit&& unit); // warning: the individual is left in a totally "cleared" state but not reevaluated
-    void add_GU(ae_individual* indiv, int32_t chromosome_length, ae_jumping_mt* prng);
+    void add_GU(ae_individual* indiv, int32_t chromosome_length,
+        std::shared_ptr<ae_jumping_mt> prng);
 
     // void add_GU(ae_individual* indiv, int32_t length, ae_jumping_mt* prng);
     void remove_GU (int16_t num_unit); // warning: the individual is left in a totally "cleared" state but not reevaluated
@@ -378,9 +380,12 @@ class ae_individual
     char*   _strain_name;
     int32_t _age;
 
-    // Random number generator
-    ae_jumping_mt* _mut_prng;
-    ae_jumping_mt* _stoch_prng;
+    // Random number generators
+    // These are shared pointers because depending on the configuration,
+    // they can either be exclusive to the individual or grid cell, or they
+    // can be mutualized (shared) for all or part of the population
+    std::shared_ptr<ae_jumping_mt> _mut_prng;
+    std::shared_ptr<ae_jumping_mt> _stoch_prng;
 
     // Individual ID and rank of the individual in the population
     // WARNING : The ID is no longer corresponding to the rank of the individual.

@@ -87,7 +87,7 @@ Environment::Environment(const Environment &model) : Fuzzy(model)
   if (model._var_prng == NULL)
     _var_prng = NULL;
   else
-    _var_prng = new ae_jumping_mt(*(model._var_prng));
+    _var_prng = std::make_shared<ae_jumping_mt>(*(model._var_prng));
 
   _var_sigma  = model._var_sigma;
   _var_tau    = model._var_tau;
@@ -101,7 +101,7 @@ Environment::Environment(const Environment &model) : Fuzzy(model)
   if (model._noise_prng == NULL)
     _noise_prng = NULL;
   else
-    _noise_prng = new ae_jumping_mt(*(model._noise_prng));
+    _noise_prng = std::make_shared<ae_jumping_mt>(*(model._noise_prng));
 
   _noise_prob         = model._noise_prob;
   _noise_alpha        = model._noise_alpha;
@@ -110,11 +110,6 @@ Environment::Environment(const Environment &model) : Fuzzy(model)
 };
 
 Environment::~Environment() {
-  delete _var_prng;
-  _var_prng = NULL;
-  delete _noise_prng;
-  _noise_prng = NULL;
-
   if (_segments != NULL) {
     for (size_t i = 0 ; i < _nb_segments; i++)
       delete _segments[i];
@@ -235,7 +230,7 @@ void Environment::load(gzFile backup_file) {
   _var_method = (ae_env_var) tmp_var_method;
 
   if (_var_method != NO_VAR) {
-    _var_prng = new ae_jumping_mt(backup_file);
+    _var_prng = std::make_shared<ae_jumping_mt>(backup_file);
     gzread(backup_file, &_var_sigma, sizeof(_var_sigma));
     gzread(backup_file, &_var_tau,   sizeof(_var_tau));
   }
@@ -254,7 +249,7 @@ void Environment::load(gzFile backup_file) {
       _cur_noise  = new Fuzzy(backup_file);
     }
 
-    _noise_prng = new ae_jumping_mt(backup_file);
+    _noise_prng = std::make_shared<ae_jumping_mt>(backup_file);
     gzread(backup_file, &_noise_alpha, sizeof(_noise_alpha));
     gzread(backup_file, &_noise_sigma, sizeof(_noise_sigma));
     gzread(backup_file, &_noise_prob,  sizeof(_noise_prob));

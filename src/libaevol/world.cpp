@@ -72,13 +72,6 @@ World::~World(void)
   // statements and these are the corresponding deletes
   delete [] grid_1d_;
   delete [] grid_;
-
-  delete _prng;
-  #ifndef DISTRIBUTED_PRNG
-    delete _mut_prng;
-    delete _stoch_prng;
-    delete _stoch_prng_bak;
-  #endif
 }
 
 // =================================================================
@@ -136,23 +129,23 @@ void World::update_secretion_grid(void)
   int16_t cur_x, cur_y;
 
   double ** new_secretion = new double*[width_];
-  for ( int16_t x = 0 ; x < width_ ; x++ )
+  for (int16_t x = 0 ; x < width_ ; x++)
   {
     new_secretion[x] = new double[height_];
-    for ( int16_t y = 0 ; y < height_ ; y++ )
+    for (int16_t y = 0 ; y < height_ ; y++)
     {
       new_secretion[x][y] = grid_[x][y]->get_compound_amount();
     }
   }
 
-  for ( int16_t x = 0 ; x < width_ ; x++ )
+  for (int16_t x = 0 ; x < width_ ; x++)
   {
-    for ( int16_t y = 0 ; y < height_ ; y++ )
+    for (int16_t y = 0 ; y < height_ ; y++)
     {
       // look at the entire neighborhood
-      for ( int8_t i = -1 ; i < 2 ; i++ )
+      for (int8_t i = -1 ; i < 2 ; i++)
       {
-        for ( int8_t j = -1 ; j < 2 ; j ++ )
+        for (int8_t j = -1 ; j < 2 ; j ++)
         {
           cur_x = (x + i + width_)  % width_;
           cur_y = (y + j + height_) % height_;
@@ -165,9 +158,9 @@ void World::update_secretion_grid(void)
   }
 
   // substract what has diffused from each cell, and calculate the compound degradation
-  for ( int16_t x = 0 ; x < width_ ; x++ )
+  for (int16_t x = 0 ; x < width_ ; x++)
   {
-    for ( int16_t y = 0 ; y < height_ ; y++ )
+    for (int16_t y = 0 ; y < height_ ; y++)
     {
       grid_[x][y]->set_compound_amount(new_secretion[x][y] -
           9 * grid_[x][y]->get_compound_amount() * _secretion_diffusion_prop);
@@ -175,7 +168,7 @@ void World::update_secretion_grid(void)
           (1 - _secretion_degradation_prop));
     }
   }
-  for ( int16_t x = 0 ; x < width_ ; x++ )
+  for (int16_t x = 0 ; x < width_ ; x++)
   {
     delete [] new_secretion[x];
   }
@@ -252,8 +245,8 @@ void World::save(gzFile backup_file) const
 {
   if (_prng == NULL)
   {
-    printf( "%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__ );
-    exit( EXIT_FAILURE );
+    printf("%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__);
+    exit(EXIT_FAILURE);
   }
 
   _prng->save(backup_file);
@@ -262,26 +255,26 @@ void World::save(gzFile backup_file) const
     _mut_prng->save(backup_file);
 
     int8_t tmp_with_stoch = _stoch_prng == NULL ? 0 : 1;
-    gzwrite( backup_file, &tmp_with_stoch, sizeof(tmp_with_stoch) );
+    gzwrite(backup_file, &tmp_with_stoch, sizeof(tmp_with_stoch));
     if (tmp_with_stoch)
     {
       _stoch_prng->save(backup_file);
     }
   #endif
-  if ( grid_ == NULL )
+  if (grid_ == NULL)
   {
-    printf( "%s:%d: error: grid not initialized.\n", __FILE__, __LINE__ );
-    exit( EXIT_FAILURE );
+    printf("%s:%d: error: grid not initialized.\n", __FILE__, __LINE__);
+    exit(EXIT_FAILURE);
   }
 
   gzwrite(backup_file, &width_,   sizeof(width_));
   gzwrite(backup_file, &height_,  sizeof(height_));
 
-  for ( int16_t x = 0 ; x < width_ ; x++ )
+  for (int16_t x = 0 ; x < width_ ; x++)
   {
-    for ( int16_t y = 0 ; y < height_ ; y++ )
+    for (int16_t y = 0 ; y < height_ ; y++)
     {
-      grid_[x][y]->save( backup_file );
+      grid_[x][y]->save(backup_file);
     }
   }
 
@@ -296,14 +289,14 @@ void World::save(gzFile backup_file) const
 
 void World::load(gzFile backup_file, ae_exp_manager* exp_man)
 {
-  _prng = new ae_jumping_mt(backup_file);
+  _prng = std::make_shared<ae_jumping_mt>(backup_file);
   #ifndef DISTRIBUTED_PRNG
-    _mut_prng   = new ae_jumping_mt(backup_file);
+    _mut_prng = std::make_shared<ae_jumping_mt>(backup_file);
     int8_t tmp_with_stoch;
-    gzread( backup_file, &tmp_with_stoch, sizeof(tmp_with_stoch) );
+    gzread(backup_file, &tmp_with_stoch, sizeof(tmp_with_stoch));
     if (tmp_with_stoch)
     {
-      _stoch_prng = new ae_jumping_mt(backup_file);
+      _stoch_prng = std::make_shared<ae_jumping_mt>(backup_file);
     }
   #endif
 
@@ -329,27 +322,27 @@ void World::load(gzFile backup_file, ae_exp_manager* exp_man)
 //                           Protected Methods
 // =================================================================
 #ifndef DISTRIBUTED_PRNG
-  void World::backup_stoch_prng( void )
+  void World::backup_stoch_prng(void)
   {
-    delete _stoch_prng_bak;
-    _stoch_prng_bak = new ae_jumping_mt(*_stoch_prng);
+    // Store a copy of _stoch_prng in _stoch_prng_bak
+    _stoch_prng_bak = std::make_unique<ae_jumping_mt>(*_stoch_prng);
   }
 #endif
 
 // =================================================================
 //                          Non inline accessors
 // =================================================================
-ae_jumping_mt* World::get_prng(void) const
+std::shared_ptr<ae_jumping_mt> World::get_prng(void) const
 {
   return _prng;
 }
 
-ae_jumping_mt* World::get_mut_prng( void ) const
+std::shared_ptr<ae_jumping_mt> World::get_mut_prng(void) const
 {
   return _mut_prng;
 }
 
-ae_jumping_mt* World::get_stoch_prng( void ) const
+std::shared_ptr<ae_jumping_mt> World::get_stoch_prng(void) const
 {
   return _stoch_prng;
 }
@@ -365,9 +358,8 @@ list<ae_individual*> World::get_indivs_std(void) const
   return r;
 }
 
-void World::set_mut_prng(ae_jumping_mt* prng)
+void World::set_mut_prng(std::shared_ptr<ae_jumping_mt> prng)
 {
-  if (_mut_prng != NULL) delete _mut_prng;
   _mut_prng = prng;
 
   for (int16_t x = 0 ; x < width_ ; x++)
@@ -378,10 +370,8 @@ void World::set_mut_prng(ae_jumping_mt* prng)
     }
 }
 
-void World::set_stoch_prng(ae_jumping_mt* prng)
+void World::set_stoch_prng(std::shared_ptr<ae_jumping_mt> prng)
 {
-  if (_stoch_prng != NULL)
-    delete _stoch_prng;
   _stoch_prng = prng;
 
   for (int16_t x = 0 ; x < width_ ; x++)

@@ -64,8 +64,8 @@ class ae_individual_X11 : public virtual ae_individual
     //                             Constructors
     // =================================================================
     ae_individual_X11(ae_exp_manager* exp_m,
-                      ae_jumping_mt* mut_prng,
-                      ae_jumping_mt* stoch_prng,
+                      std::shared_ptr<ae_jumping_mt> mut_prng,
+                      std::shared_ptr<ae_jumping_mt> stoch_prng,
                       ae_params_mut* param_mut,
                       double w_max,
                       int32_t min_genome_length,
@@ -77,8 +77,9 @@ class ae_individual_X11 : public virtual ae_individual
 
     ae_individual_X11(ae_exp_manager* exp_manager, gzFile backup_file);
     ae_individual_X11(const ae_individual_X11 &model, bool replication_report_copy);
-    ae_individual_X11( ae_individual_X11* const parent, int32_t id,
-                        ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng);
+    ae_individual_X11(ae_individual_X11* const parent, int32_t id,
+                      std::shared_ptr<ae_jumping_mt> mut_prng,
+                      std::shared_ptr<ae_jumping_mt> stoch_prng);
     ae_individual_X11() = delete; // forbidden constructor
 
     // =================================================================

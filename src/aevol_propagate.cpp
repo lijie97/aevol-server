@@ -57,14 +57,14 @@ using namespace aevol;
 // =================================================================
 //                         Function declarations
 // =================================================================
-void print_help( char* prog_path );
-void print_version( void );
+void print_help(char* prog_path);
+void print_version(void);
 
 
 
 
 
-int main( int argc, char* argv[] )
+int main(int argc, char* argv[])
 {
   // 1) Initialize command-line option variables with default values
   int32_t num_gener      = -1;
@@ -99,65 +99,65 @@ int main( int argc, char* argv[] )
       
   // 3) Get actual values of the command-line options
   int option;
-  while ( ( option = getopt_long(argc, argv, options_list, long_options_list, NULL) ) != -1 ) 
+  while ((option = getopt_long(argc, argv, options_list, long_options_list, NULL)) != -1) 
   {
-    switch ( option ) 
+    switch (option) 
     {
     case 'h' :
       {
-        print_help( argv[0] );
-        exit( EXIT_SUCCESS );
+        print_help(argv[0]);
+        exit(EXIT_SUCCESS);
       }
     case 'V' :
       {
         print_version();
-        exit( EXIT_SUCCESS );
+        exit(EXIT_SUCCESS);
       }
     case 'g' :
       {
-        num_gener = atoi( optarg );
+        num_gener = atoi(optarg);
         break;
       }
     case 'S' :
       {
-        generalseed = atoi( optarg );
+        generalseed = atoi(optarg);
         break;
       }
    case 's' :
       {
-        selseed = atoi( optarg );
+        selseed = atoi(optarg);
         break;
       }
     case 'm' :
       {
-        mutseed = atoi( optarg );
+        mutseed = atoi(optarg);
         break;
       }
     case 't' :
       {
-        stochseed = atoi( optarg );
+        stochseed = atoi(optarg);
         break;
       }
     case 'e' :
       {
-        envvarseed = atoi( optarg );
+        envvarseed = atoi(optarg);
         break;
       }
     case 'n' :
       {
-        envnoiseseed = atoi( optarg );
+        envnoiseseed = atoi(optarg);
         break;
       }
     case 'i' :
       {
         input_dir = new char[strlen(optarg)+1];
-        strcpy( input_dir, optarg );
+        strcpy(input_dir, optarg);
         break;
       }
     case 'o' :
       {
         output_dir = new char[strlen(optarg)+1];
-        strcpy( output_dir, optarg );
+        strcpy(output_dir, optarg);
         break;
       }
     case 'v' :
@@ -168,75 +168,77 @@ int main( int argc, char* argv[] )
     default :
       {
         // An error message is printed in getopt_long, we just need to exit
-        exit( EXIT_FAILURE );
+        exit(EXIT_FAILURE);
       }
     }
   }
 
-  if ( (generalseed != -1) && ( (selseed != -1)||(mutseed!=-1)||(stochseed!=-1)||(envvarseed!=-1)||(envnoiseseed!=-1) ) )
+  if ((generalseed != -1) &&
+      ((selseed != -1) || (mutseed != -1) || (stochseed != -1) ||
+        (envvarseed != -1) || (envnoiseseed != -1)))
     {
       fprintf(stderr, "Error: if you specify a general seed with -S or --seed, you should not specify additional seeds.\n");
-      exit( EXIT_FAILURE );
+      exit(EXIT_FAILURE);
     }
 
   
   // 4) Set undefined command line parameters to default values
-  if ( input_dir == NULL )
+  if (input_dir == NULL)
   {
     input_dir = new char[255];
-    sprintf( input_dir, "%s", "." );
+    sprintf(input_dir, "%s", ".");
   }
-  if ( output_dir == NULL )
+  if (output_dir == NULL)
   {
     output_dir = new char[255];
-    sprintf( output_dir, "%s", "output" );
+    sprintf(output_dir, "%s", "output");
   }
-  if ( num_gener == -1 )
+  if (num_gener == -1)
   {
     // Set num_gener to the content of the LAST_GENER file if it exists.
     // If it doesn't, print help and exit
     char lg_filename[300];
     sprintf(lg_filename, "%s/%s", input_dir, LAST_GENER_FNAME);
-    FILE* lg_file = fopen( lg_filename, "r" );
-    if ( lg_file != NULL )
+    FILE* lg_file = fopen(lg_filename, "r");
+    if (lg_file != NULL)
     {
-      if (fscanf( lg_file, "%" PRId32 "\n", &num_gener ) == EOF)
+      if (fscanf(lg_file, "%" PRId32 "\n", &num_gener) == EOF)
       {
 	printf("ERROR: failed to read last generation from file %s\n",lg_filename);
-	exit( EXIT_FAILURE );
+	exit(EXIT_FAILURE);
       }
-      fclose( lg_file );
+      fclose(lg_file);
     }
     else
     {
-      printf( "aevol_propagate: no generation number provided.\n" );
-      print_help( argv[0] );
-      exit( EXIT_FAILURE );
+      printf("aevol_propagate: no generation number provided.\n");
+      print_help(argv[0]);
+      exit(EXIT_FAILURE);
     }
   }
   
   
   // 5) Check whether the output directory is missing
   struct stat stat_buf;
-  if ( (stat( output_dir, &stat_buf ) == -1) && (errno == ENOENT) )
+  if ((stat(output_dir, &stat_buf) == -1) && (errno == ENOENT))
   {
-    // printf( "Directory \"%s\" does not exist. Create it ? [Y/n]\n", output_dir );
+    // printf("Directory \"%s\" does not exist. Create it ? [Y/n]\n", output_dir);
     // char answer = getchar();
-    // while ( answer != 'y' and answer != 'n' and answer != '\n' )
+    // while (answer != 'y' and answer != 'n' and answer != '\n')
     // {
-    //   printf( "Please answer by 'y' or 'n'. Create output directory ? [Y/n]\n" );
-    //   while( answer != '\n' && answer != EOF) answer = getchar(); // "flush" stdin
+    //   printf("Please answer by 'y' or 'n'. Create output directory ? [Y/n]\n");
+    //   while(answer != '\n' && answer != EOF) answer = getchar(); // "flush" stdin
     //   answer = getchar();
     // }
     // char flush = answer;
-    // while( flush != '\n' && flush != EOF) flush = getchar(); // "flush" stdin
-    // if ( answer == '\n' ) answer = 'y';
+    // while(flush != '\n' && flush != EOF) flush = getchar(); // "flush" stdin
+    // if (answer == '\n') answer = 'y';
     
-    // if ( answer == 'n' ) exit( EXIT_SUCCESS );
+    // if (answer == 'n') exit(EXIT_SUCCESS);
     
-    if ( mkdir( output_dir, 0755 ) )
+    if (mkdir(output_dir, 0755))
     {
-      err( EXIT_FAILURE, output_dir, errno );
+      err(EXIT_FAILURE, output_dir, errno);
     }
   }
   
@@ -255,69 +257,58 @@ int main( int argc, char* argv[] )
 
   if (generalseed != -1)
   {
-    ae_jumping_mt* prng = new ae_jumping_mt(generalseed);
-    
-    selseed      = prng->random(1000000);
-    mutseed      = prng->random(1000000);
-    stochseed    = prng->random(1000000);
-    envvarseed   = prng->random(1000000);
-    envnoiseseed = prng->random(1000000);
+    auto prng = std::make_unique<ae_jumping_mt>(generalseed);
 
-    ae_jumping_mt* selprng           = new ae_jumping_mt( selseed );
-    ae_jumping_mt* mutprng           = new ae_jumping_mt( mutseed );
-    ae_jumping_mt* stochprng         = new ae_jumping_mt( stochseed );
-    ae_jumping_mt* envvarprng        = new ae_jumping_mt( envvarseed );
-    ae_jumping_mt* envnoiseprng      = new ae_jumping_mt( envnoiseseed );
-
-    exp_manager->get_sel()->set_prng( selprng ); 
-    exp_manager->world()->set_mut_prng( mutprng );
-    exp_manager->world()->set_stoch_prng( stochprng );
-    exp_manager->get_env()->set_var_prng( envvarprng );
-    exp_manager->get_env()->set_noise_prng( envnoiseprng );
-
-    exp_manager->world()->set_prng(new ae_jumping_mt(prng->random(1000000)));
-    
-    delete prng;
+    exp_manager->get_sel()->set_prng(
+        std::make_unique<ae_jumping_mt>(prng->random(1000000)));
+    exp_manager->world()->set_prng(
+        std::make_unique<ae_jumping_mt>(prng->random(1000000)));
+    exp_manager->world()->set_mut_prng(
+        std::make_shared<ae_jumping_mt>(prng->random(1000000)));
+    exp_manager->world()->set_stoch_prng(
+        std::make_shared<ae_jumping_mt>(prng->random(1000000)));
+    exp_manager->get_env()->set_var_prng(
+        std::make_shared<ae_jumping_mt>(prng->random(1000000)));
+    exp_manager->get_env()->set_noise_prng(
+        std::make_shared<ae_jumping_mt>(prng->random(1000000)));
   }
   else
   {
     if (selseed != -1)
     {
-      ae_jumping_mt * selprng  = new ae_jumping_mt(selseed);
-
       exp_manager->world()->set_prng(
-          new ae_jumping_mt(selprng->random(1000000)));
-
-      exp_manager->get_sel()->set_prng( selprng ); 
+          std::make_unique<ae_jumping_mt>(selseed));
+      exp_manager->get_sel()->set_prng(
+          std::make_unique<ae_jumping_mt>(selseed));
     }
 
-    if ( mutseed != -1 )
+    if (mutseed != -1)
     {
-      ae_jumping_mt * mutprng = new ae_jumping_mt( mutseed );
-      exp_manager->world()->set_mut_prng( mutprng );
+      exp_manager->world()->set_mut_prng(
+          std::make_shared<ae_jumping_mt>(mutseed));
     }
 
-    if ( stochseed != -1 )
+    if (stochseed != -1)
     {
-      ae_jumping_mt * stochprng = new ae_jumping_mt( stochseed );
-      exp_manager->world()->set_stoch_prng( stochprng );
+      exp_manager->world()->set_stoch_prng(
+          std::make_shared<ae_jumping_mt>(stochseed));
     }
 
-    if ( envvarseed != -1 )
+    if (envvarseed != -1)
     {
-      ae_jumping_mt * envvarprng = new ae_jumping_mt( envvarseed );
-      exp_manager->get_env()->set_var_prng( envvarprng );
+      exp_manager->get_env()->set_var_prng(
+          std::make_shared<ae_jumping_mt>(envvarseed));
     }
 
-    if ( envnoiseseed != -1 )
+    if (envnoiseseed != -1)
     {
-      ae_jumping_mt * envnoiseprng = new ae_jumping_mt( envnoiseseed );
-      exp_manager->get_env()->set_noise_prng( envnoiseprng );
+      exp_manager->get_env()->set_noise_prng(
+          std::make_shared<ae_jumping_mt>(envnoiseseed));
     }
   }
 
 
-  exp_manager->save_copy( output_dir, 0 );
+  exp_manager->save_copy(output_dir, 0);
 }
 
 
@@ -330,63 +321,63 @@ int main( int argc, char* argv[] )
   \brief 
   
 */
-void print_help( char* prog_path ) 
+void print_help(char* prog_path) 
 {
   // Get the program file-name in prog_name (strip prog_path of the path)
   char* prog_name; // No new, it will point to somewhere inside prog_path
-  if ( ( prog_name = strrchr( prog_path, '/' ) ) ) prog_name++;
+  if ((prog_name = strrchr(prog_path, '/'))) prog_name++;
   else prog_name = prog_path;
   
-  printf( "******************************************************************************\n" );
-  printf( "*                                                                            *\n" );
-  printf( "*                        aevol - Artificial Evolution                        *\n" );
-  printf( "*                                                                            *\n" );
-  printf( "* Aevol is a simulation platform that allows one to let populations of       *\n" );
-  printf( "* digital organisms evolve in different conditions and study experimentally  *\n" );
-  printf( "* the mechanisms responsible for the structuration of the genome and the     *\n" );
-  printf( "* transcriptome.                                                             *\n" );
-  printf( "*                                                                            *\n" );
-  printf( "******************************************************************************\n" );
-  printf( "\n" );
-  printf( "%s:\n", prog_name );
-  printf( "\tCreate a fresh copy of the experiment as it was at the given generation.\n" );
-  printf( "\tThe generation number of the copy will be reset to 0.\n" );
-  printf( "\n" );
-  printf( "Usage : %s -h or --help\n", prog_name );
-  printf( "   or : %s -V or --version\n", prog_name );
-  printf( "   or : %s [-v] [-g GENER] [-i INDIR] [-o OUTDIR] [-S GENERALSEED]\n", prog_name );
-  printf( "   or : %s [-v] [-g GENER] [-i INDIR] [-o OUTDIR] [-s SELSEED] [-m MUTSEED] [-t STOCHSEED] [-e ENVVARSEED] [-n ENVNOISESEED] ]\n", prog_name );
-  printf( "\nOptions\n" );
-  printf( "  -h, --help\n\tprint this help, then exit\n\n" );
-  printf( "  -V, --version\n\tprint version number, then exit\n\n" );
-  printf( "  -v, --verbose\n\tbe verbose\n\n" );
-  printf( "  -g, --gener GENER\n\tspecify generation number\n" );
-  printf( "\t(default: that contained in file last_gener.txt, if any)\n\n" );
-  printf( "  -i, --in INDIR\n\tspecify input directory (default \".\")\n\n" );
-  printf( "  -o, --out OUTDIR\n\tspecify output directory (default \"./output\")\n\n" );
-  printf( "  -S, --general-seed GENERALSEED\n\tspecify an integer to be used as a seed for random numbers.\n" );
-  printf( "\tIf you use %s repeatedly to initialize several simulations, you should specify a different\n", prog_name );
-  printf( "\tseed for each simulation, otherwise all simulations will yield exactly the same results.\n" );
-  printf( "\tIf you specify this general seed, random drawings will be different for all random processes\n" );
-  printf( "\tenabled in your simulations (mutations, stochastic gene expression, selection, migration, \n" ),
-  printf( "\tenvironmental variation, environmental noise). To change the random drawings for a specific\n" );
-  printf( "\trandom process only, do not use -S but the options below.\n" );
-  printf( "  -s, --sel-seed SELSEED\n\tspecify an integer as a seed for random numbers needed for selection\n" );
-  printf( "\tand migration (if spatial structure is enabled).\n" );
-  printf( "  -m, --mut-seed MUTSEED\n\tspecify an integer as a seed for random numbers needed for mutations\n" );
-  printf( "  -t, --stoch-seed STOCHSEED\n\tspecify an integer as a seed for random numbers needed for \n" );
-  printf( "\tstochastic gene expression.\n" );
-  printf( "  -e, --env-var-seed ENVVARSEED\n\tspecify an integer as a seed for random numbers needed for \n" );
-  printf( "\tenvironmental variation.\n" );
-  printf( "  -n, --env-noise-seed ENVNOISESEED\n\tspecify an integer as a seed for random numbers needed for \n" );
-  printf( "\tenvironmental noise.\n" );
+  printf("******************************************************************************\n");
+  printf("*                                                                            *\n");
+  printf("*                        aevol - Artificial Evolution                        *\n");
+  printf("*                                                                            *\n");
+  printf("* Aevol is a simulation platform that allows one to let populations of       *\n");
+  printf("* digital organisms evolve in different conditions and study experimentally  *\n");
+  printf("* the mechanisms responsible for the structuration of the genome and the     *\n");
+  printf("* transcriptome.                                                             *\n");
+  printf("*                                                                            *\n");
+  printf("******************************************************************************\n");
+  printf("\n");
+  printf("%s:\n", prog_name);
+  printf("\tCreate a fresh copy of the experiment as it was at the given generation.\n");
+  printf("\tThe generation number of the copy will be reset to 0.\n");
+  printf("\n");
+  printf("Usage : %s -h or --help\n", prog_name);
+  printf("   or : %s -V or --version\n", prog_name);
+  printf("   or : %s [-v] [-g GENER] [-i INDIR] [-o OUTDIR] [-S GENERALSEED]\n", prog_name);
+  printf("   or : %s [-v] [-g GENER] [-i INDIR] [-o OUTDIR] [-s SELSEED] [-m MUTSEED] [-t STOCHSEED] [-e ENVVARSEED] [-n ENVNOISESEED] ]\n", prog_name);
+  printf("\nOptions\n");
+  printf("  -h, --help\n\tprint this help, then exit\n\n");
+  printf("  -V, --version\n\tprint version number, then exit\n\n");
+  printf("  -v, --verbose\n\tbe verbose\n\n");
+  printf("  -g, --gener GENER\n\tspecify generation number\n");
+  printf("\t(default: that contained in file last_gener.txt, if any)\n\n");
+  printf("  -i, --in INDIR\n\tspecify input directory (default \".\")\n\n");
+  printf("  -o, --out OUTDIR\n\tspecify output directory (default \"./output\")\n\n");
+  printf("  -S, --general-seed GENERALSEED\n\tspecify an integer to be used as a seed for random numbers.\n");
+  printf("\tIf you use %s repeatedly to initialize several simulations, you should specify a different\n", prog_name);
+  printf("\tseed for each simulation, otherwise all simulations will yield exactly the same results.\n");
+  printf("\tIf you specify this general seed, random drawings will be different for all random processes\n");
+  printf("\tenabled in your simulations (mutations, stochastic gene expression, selection, migration, \n"),
+  printf("\tenvironmental variation, environmental noise). To change the random drawings for a specific\n");
+  printf("\trandom process only, do not use -S but the options below.\n");
+  printf("  -s, --sel-seed SELSEED\n\tspecify an integer as a seed for random numbers needed for selection\n");
+  printf("\tand migration (if spatial structure is enabled).\n");
+  printf("  -m, --mut-seed MUTSEED\n\tspecify an integer as a seed for random numbers needed for mutations\n");
+  printf("  -t, --stoch-seed STOCHSEED\n\tspecify an integer as a seed for random numbers needed for \n");
+  printf("\tstochastic gene expression.\n");
+  printf("  -e, --env-var-seed ENVVARSEED\n\tspecify an integer as a seed for random numbers needed for \n");
+  printf("\tenvironmental variation.\n");
+  printf("  -n, --env-noise-seed ENVNOISESEED\n\tspecify an integer as a seed for random numbers needed for \n");
+  printf("\tenvironmental noise.\n");
 }
 
 /*!
   \brief 
   
 */
-void print_version( void ) 
+void print_version(void) 
 {
-	printf( "aevol %s\n", VERSION );
+	printf("aevol %s\n", VERSION);
 }

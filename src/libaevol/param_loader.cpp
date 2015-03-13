@@ -280,10 +280,9 @@ param_loader::~param_loader(void)
 {
   free(_param_file_name);
   fclose(_param_file);
-  if (_env_axis_segment_boundaries != NULL)
-    delete [] _env_axis_segment_boundaries;
-  if (_env_axis_features != NULL) delete [] _env_axis_features;
-  if (_prng != NULL) delete _prng;
+
+  delete [] _env_axis_segment_boundaries;
+  delete [] _env_axis_features;
   delete [] _strain_name;
 }
 
@@ -1198,21 +1197,19 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
 
   // Initialize _prng
   // This one will be used to create the initial genome(s) and to generate seeds for other prng
-  _prng = new ae_jumping_mt(_seed);
+  _prng = std::make_shared<ae_jumping_mt>(_seed);
 
   // Initialize mut_prng, stoch_prng, world_prng :
   // if mut_seed (respectively stoch_seed) not given in param.in, choose it at random
-  int32_t selection_seed = _prng->random(1000000);
   if (_mut_seed == 0) {
     _mut_seed = _prng->random(1000000);
   }
   if (_stoch_seed == 0) {
     _stoch_seed = _prng->random(1000000);
   }
-  ae_jumping_mt* mut_prng    = new ae_jumping_mt(_mut_seed);
-  ae_jumping_mt* stoch_prng  = new ae_jumping_mt(_stoch_seed);
-  ae_jumping_mt* selection_prng = new ae_jumping_mt(selection_seed);
-  ae_jumping_mt* world_prng = new ae_jumping_mt(_prng->random(1000000));
+  auto mut_prng   = std::make_shared<ae_jumping_mt>(_mut_seed);
+  auto stoch_prng = std::make_shared<ae_jumping_mt>(_stoch_seed);
+  auto world_prng = std::make_shared<ae_jumping_mt>(_prng->random(1000000));
 
 
   // Create aliases
@@ -1230,7 +1227,7 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
   }
 
   // 1) ------------------------------------- Initialize the experimental setup
-  sel->set_prng(selection_prng);
+  sel->set_prng(std::make_unique<ae_jumping_mt>(_prng->random(1000000)));
 
   // ---------------------------------------------------------------- Selection
   sel->set_selection_scheme(_selection_scheme);
@@ -1282,7 +1279,7 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
   if (_env_var_method != NO_VAR)
   {
     env->set_var_method(_env_var_method);
-    env->set_var_prng(new ae_jumping_mt(_env_var_seed));
+    env->set_var_prng(std::make_shared<ae_jumping_mt>(_env_var_seed));
     env->set_var_sigma_tau(_env_var_sigma, _env_var_tau);
   }
 
@@ -1291,7 +1288,7 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
   {
     env->set_noise_method(_env_noise_method);
     env->set_noise_sampling_log(_env_noise_sampling_log);
-    env->set_noise_prng(new ae_jumping_mt(_env_noise_seed));
+    env->set_noise_prng(std::make_shared<ae_jumping_mt>(_env_noise_seed));
     env->set_noise_alpha(_env_noise_alpha);
     env->set_noise_sigma(_env_noise_sigma);
     env->set_noise_prob(_env_noise_prob );
@@ -1631,8 +1628,11 @@ f_line* param_loader::get_line(int32_t* cur_line_ptr) // void
   \return clone of dolly
 */
 ae_individual* param_loader::create_random_individual(
-    ae_exp_manager* exp_m, int32_t id, ae_params_mut* param_mut,
-    ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng) const
+    ae_exp_manager* exp_m,
+    int32_t id,
+    ae_params_mut* param_mut,
+    std::shared_ptr<ae_jumping_mt> mut_prng,
+    std::shared_ptr<ae_jumping_mt> stoch_prng) const
 {
  
 
@@ -1730,8 +1730,11 @@ ae_individual* param_loader::create_random_individual(
   \return clone of dolly
 */
 ae_individual* param_loader::create_random_individual_with_good_gene(
-    ae_exp_manager* exp_m, int32_t id, ae_params_mut* param_mut,
-    ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng) const
+    ae_exp_manager* exp_m,
+    int32_t id,
+    ae_params_mut* param_mut,
+    std::shared_ptr<ae_jumping_mt> mut_prng,
+    std::shared_ptr<ae_jumping_mt> stoch_prng) const
 {
   // First find a chromosome with at least one beneficial metabolic gene
   double env_metabolic_area = exp_m->get_env()->get_area_by_feature(METABOLISM);

@@ -54,8 +54,8 @@ namespace aevol {
 //                             Constructors
 // ===========================================================================
 ae_individual::ae_individual(ae_exp_manager* exp_m,
-                             ae_jumping_mt* mut_prng,
-                             ae_jumping_mt* stoch_prng,
+                             std::shared_ptr<ae_jumping_mt> mut_prng,
+                             std::shared_ptr<ae_jumping_mt> stoch_prng,
                              ae_params_mut* param_mut,
                              double w_max,
                              int32_t min_genome_length,
@@ -393,7 +393,9 @@ ae_individual::ae_individual(const ae_individual &model,
 
   The phenotype and the fitness are not set, neither is the statistical data.
 */
-ae_individual::ae_individual(const ae_individual* parent, int32_t id, ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng)
+ae_individual::ae_individual(const ae_individual* parent, int32_t id,
+    std::shared_ptr<ae_jumping_mt> mut_prng,
+    std::shared_ptr<ae_jumping_mt> stoch_prng)
 {
   _exp_m = parent->_exp_m;
 
@@ -620,12 +622,12 @@ ae_exp_manager* ae_individual::get_exp_m() const {
 }
 
 /// TODO
-ae_jumping_mt* ae_individual::get_mut_prng() const {
+std::shared_ptr<ae_jumping_mt> ae_individual::get_mut_prng() const {
   return _mut_prng;
 }
 
 /// TODO
-ae_jumping_mt* ae_individual::get_stoch_prng() const {
+std::shared_ptr<ae_jumping_mt> ae_individual::get_stoch_prng() const {
   return _stoch_prng;
 }
 
@@ -1231,11 +1233,11 @@ void ae_individual::set_with_stochasticity(bool with_stoch) {
   _with_stochasticity = with_stoch;
 }
 
-void ae_individual::set_stoch_prng(ae_jumping_mt* prng) {
+void ae_individual::set_stoch_prng(std::shared_ptr<ae_jumping_mt> prng) {
   _stoch_prng = prng;
 }
 
-void ae_individual::set_mut_prng(ae_jumping_mt* prng) {
+void ae_individual::set_mut_prng(std::shared_ptr<ae_jumping_mt> prng) {
   _mut_prng = prng;
 }
 
@@ -1536,7 +1538,7 @@ void ae_individual::add_GU(char * &sequence, int32_t length) {
 /// copy ctor. Forwards arguments to ae_genetic_unit's ctor.
 void ae_individual::add_GU(ae_individual* indiv,
                            int32_t chromosome_length,
-                           ae_jumping_mt* prng) {
+                           std::shared_ptr<ae_jumping_mt> prng) {
   clear_everything_except_dna_and_promoters();
   _genetic_unit_list.emplace_back(indiv, chromosome_length, prng);
 }

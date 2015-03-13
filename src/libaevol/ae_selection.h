@@ -37,6 +37,8 @@
 #include <cstdlib>
 #include <cassert>
 
+#include <memory>
+
 
 
 // =================================================================
@@ -66,31 +68,31 @@ class ae_selection
     // =================================================================
     ae_selection(void) = delete;
     ae_selection(const ae_selection&) = delete;
-    ae_selection( ae_exp_manager* exp_m );
-    ae_selection( ae_exp_manager* exp_m, gzFile backup_file );
+    ae_selection(ae_exp_manager* exp_m);
+    ae_selection(ae_exp_manager* exp_m, gzFile backup_file);
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_selection( void );
+    virtual ~ae_selection(void);
 
     // =================================================================
     //                        Accessors: getters
     // =================================================================
-    inline ae_selection_scheme  get_selection_scheme( void ) const;
-    inline double               get_selection_pressure( void ) const;
+    inline ae_selection_scheme  get_selection_scheme(void) const;
+    inline double               get_selection_pressure(void) const;
     inline double*              get_prob_reprod(void) const;
-    inline ae_jumping_mt*       get_prng(void) const;
+    // inline std::unique_ptr<ae_jumping_mt> get_prng(void) const;
 
     // =================================================================
     //                        Accessors: setters
     // =================================================================
     // ----------------------------------------- Pseudo-random number generator
-    inline void set_prng( ae_jumping_mt* prng );
+    inline void set_prng(std::unique_ptr<ae_jumping_mt>&& prng);
 
     // -------------------------------------------------------------- Selection
-    inline void set_selection_scheme( ae_selection_scheme sel_scheme );
-    inline void set_selection_pressure( double sel_pressure );
+    inline void set_selection_scheme(ae_selection_scheme sel_scheme);
+    inline void set_selection_pressure(double sel_pressure);
 
     // =================================================================
     //                              Operators
@@ -101,16 +103,16 @@ class ae_selection
     // =================================================================
     void step_to_next_generation(void);
     void PerformPlasmidTransfers(void);
-    void write_setup_file( gzFile setup_file ) const;
-    void write_setup_file( FILE* setup_file ) const;
-    void save( gzFile& backup_file ) const;
-    void load( gzFile& exp_setup_file, gzFile& backup_file, bool verbose );
-    void load( FILE*&  exp_setup_file, gzFile& backup_file, bool verbose );
+    void write_setup_file(gzFile setup_file) const;
+    void write_setup_file(FILE* setup_file) const;
+    void save(gzFile& backup_file) const;
+    void load(gzFile& exp_setup_file, gzFile& backup_file, bool verbose);
+    void load(FILE*&  exp_setup_file, gzFile& backup_file, bool verbose);
     
-    ae_individual* do_replication( ae_individual* parent,
+    ae_individual* do_replication(ae_individual* parent,
                                    int32_t index,
                                    int16_t x = -1,
-                                   int16_t y = -1 );
+                                   int16_t y = -1);
     // =================================================================
     //                           Public Attributes
     // =================================================================
@@ -123,9 +125,9 @@ class ae_selection
     // =================================================================
     //                           Protected Methods
     // =================================================================
-    void compute_prob_reprod( void );
-    void compute_local_prob_reprod( void );
-    //ae_individual* do_replication( ae_individual* parent, int32_t index, int16_t x = -1, int16_t y = -1 );
+    void compute_prob_reprod(void);
+    void compute_local_prob_reprod(void);
+    //ae_individual* do_replication(ae_individual* parent, int32_t index, int16_t x = -1, int16_t y = -1);
     ae_individual* do_local_competition(int16_t x, int16_t y);
 
     // =======================================================================
@@ -134,7 +136,7 @@ class ae_selection
     ae_exp_manager* _exp_m;
     
     // ----------------------------------------- Pseudo-random number generator
-    ae_jumping_mt* _prng;
+    std::unique_ptr<ae_jumping_mt> prng_;
 
     // -------------------------------------------------------------- Selection
     ae_selection_scheme  _selection_scheme;
@@ -148,27 +150,27 @@ class ae_selection
 // =====================================================================
 //                           Getters' definitions
 // =====================================================================
-inline ae_jumping_mt* ae_selection::get_prng(void) const
-{
-  return _prng;
-}
+// inline std::unique_ptr<ae_jumping_mt> ae_selection::get_prng(void) const
+// {
+//   return prng_;
+// }
 
-inline ae_selection_scheme ae_selection::get_selection_scheme( void ) const
+inline ae_selection_scheme ae_selection::get_selection_scheme(void) const
 {
   return _selection_scheme;
 }
 
-inline double ae_selection::get_selection_pressure( void ) const
+inline double ae_selection::get_selection_pressure(void) const
 {
   return _selection_pressure;
 }
 
 inline double* ae_selection::get_prob_reprod(void) const
 {
-  if ( _prob_reprod == NULL )
+  if (_prob_reprod == NULL)
   {
-    printf( "ERROR, _prob_reprod has not been computed %s:%d\n", __FILE__, __LINE__ );
-    exit( EXIT_FAILURE );
+    printf("ERROR, _prob_reprod has not been computed %s:%d\n", __FILE__, __LINE__);
+    exit(EXIT_FAILURE);
   }
   return _prob_reprod;
 }
@@ -177,19 +179,18 @@ inline double* ae_selection::get_prob_reprod(void) const
 //                           Setters' definitions
 // =====================================================================
 // ----------------------------------------- Pseudo-random number generator
-inline void ae_selection::set_prng( ae_jumping_mt* prng )
+inline void ae_selection::set_prng(std::unique_ptr<ae_jumping_mt>&& prng)
 {
-  if (_prng != NULL) delete _prng;
-  _prng = prng;
+  prng_ = std::move(prng);
 }
 
 // -------------------------------------------------------------- Selection
-inline void ae_selection::set_selection_scheme( ae_selection_scheme sel_scheme )
+inline void ae_selection::set_selection_scheme(ae_selection_scheme sel_scheme)
 {
   _selection_scheme = sel_scheme;
 }
 
-inline void ae_selection::set_selection_pressure( double sel_pressure )
+inline void ae_selection::set_selection_pressure(double sel_pressure)
 {
   _selection_pressure = sel_pressure;
 }

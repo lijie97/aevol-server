@@ -21,14 +21,15 @@
 #ifndef AEVOL_ENVIRONMENT_H
 #define AEVOL_ENVIRONMENT_H
 
-#include <inttypes.h>
-#include <zlib.h>
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
+#include <cinttypes>
+#include <cstdio>
+#include <cstdlib>
+#include <cassert>
 
 #include <list>
+#include <memory>
+
+#include <zlib.h>
 
 #include "ae_env_segment.h"
 #include "ae_jumping_mt.h"
@@ -92,8 +93,7 @@ class Environment : public Fuzzy
   void set_var_method(ae_env_var var_method) {
     _var_method = var_method;
   }
-  void set_var_prng(ae_jumping_mt* prng) {
-    delete _var_prng;
+  void set_var_prng(std::shared_ptr<ae_jumping_mt> prng) {
     _var_prng = prng;
   }
   void set_var_sigma(double sigma) {
@@ -109,8 +109,7 @@ class Environment : public Fuzzy
   void set_noise_method(ae_env_noise noise_method) {
     _noise_method = noise_method;
   }
-  void set_noise_prng(ae_jumping_mt* prng) {
-    delete _noise_prng;
+  void set_noise_prng(std::shared_ptr<ae_jumping_mt> prng) {
     _noise_prng = prng;
   }
   void set_noise_sigma(double sigma) {
@@ -173,13 +172,13 @@ class Environment : public Fuzzy
 
   // Variation management (compatible only with gaussians)
   ae_env_var _var_method;   // Variation method
-  ae_jumping_mt* _var_prng; // PRNG used for variation
+  std::shared_ptr<ae_jumping_mt> _var_prng; // PRNG used for variation
   double _var_sigma;        // Autoregressive mean variation sigma parameter
   size_t _var_tau;          // Autoregressive mean variation tau parameter
 
   // Noise management
   Fuzzy* _cur_noise;           // Current noise (pure noise that is added to the environment fuzzy set)
-  ae_jumping_mt* _noise_prng;  // PRNG used for noise
+  std::shared_ptr<ae_jumping_mt> _noise_prng;  // PRNG used for noise
   ae_env_noise _noise_method;  // Probability of variation.
   double _noise_alpha;         // Alpha value (variance coefficient)
   double _noise_sigma;         // Variance of the noise

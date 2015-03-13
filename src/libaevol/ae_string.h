@@ -32,12 +32,15 @@
 // =================================================================
 //                              Libraries
 // =================================================================
-#include <inttypes.h>
+#include <cinttypes>
+#include <cstring>
+#include <cstdio>
+#include <cstdlib>
+#include <cassert>
+
 #include <zlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
+
+#include <memory>
 
 
 
@@ -63,101 +66,81 @@ namespace aevol {
  
 class ae_string
 {  
-  public :
-  
-    // =================================================================
-    //                             Constructors
-    // =================================================================
-    ae_string( void );
-    ae_string( const ae_string &model );
-    ae_string( int32_t length, ae_jumping_mt * prng );
-    ae_string( const char* seq, int32_t length );
-    ae_string( char* seq, int32_t length, bool use_seq );
-    ae_string( gzFile backup_file );
-    ae_string( char* organism_file_name );
-  
-    // =================================================================
-    //                             Destructors
-    // =================================================================
-    virtual ~ae_string( void );
-  
-    // =================================================================
-    //                              Accessors
-    // =================================================================
-    inline const char*   get_data( void ) const;
-    inline       void    set_data( char* data, int32_t length = -1 );
-    inline       int32_t get_length( void ) const;
-  
-    // =================================================================
-    //                            Public Methods
-    // =================================================================
-    void remove( int32_t first, int32_t last );
-    void insert( int32_t pos, const char* seq, int32_t seq_length = -1 );
-    void replace( int32_t pos, char* seq, int32_t seq_length = -1 );
-    
-    void save( gzFile backup_file );
-  
-    // =================================================================
-    //                           Public Attributes
-    // =================================================================
-  
-  
-  
-  
-  
-  protected :
-  
-    // =================================================================
-    //                         Forbidden Constructors
-    // =================================================================
-    //~ ae_string( void )
-    //~ {
-      //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      //~ exit( EXIT_FAILURE );
-    //~ };
-    /*    ae_string( const ae_string &model )
-    {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-      };*/
+ public :
 
+  // =================================================================
+  //                             Constructors
+  // =================================================================
+  ae_string(void);
+  ae_string(const ae_string &model);
+  ae_string(int32_t length, std::shared_ptr<ae_jumping_mt> prng);
+  ae_string(const char* seq, int32_t length);
+  ae_string(char* seq, int32_t length, bool use_seq);
+  ae_string(gzFile backup_file);
+  ae_string(char* organism_file_name);
+
+  // =================================================================
+  //                             Destructors
+  // =================================================================
+  virtual ~ae_string(void);
+
+  // =================================================================
+  //                              Accessors
+  // =================================================================
+  inline const char*   get_data(void) const;
+  inline       void    set_data(char* data, int32_t length = -1);
+  inline       int32_t get_length(void) const;
+
+  // =================================================================
+  //                            Public Methods
+  // =================================================================
+  void remove(int32_t first, int32_t last);
+  void insert(int32_t pos, const char* seq, int32_t seq_length = -1);
+  void replace(int32_t pos, char* seq, int32_t seq_length = -1);
   
-    // =================================================================
-    //                           Protected Methods
-    // =================================================================
-    static inline int32_t nb_blocks( int32_t length );
+  void save(gzFile backup_file);
   
-    // =================================================================
-    //                          Protected Attributes
-    // =================================================================
-    char*   _data;
-    int32_t _length;
-    int32_t _nb_blocks;
+  
+  
+  
+  
+ protected :
+  // =================================================================
+  //                           Protected Methods
+  // =================================================================
+  static inline int32_t nb_blocks(int32_t length);
+
+  // =================================================================
+  //                          Protected Attributes
+  // =================================================================
+  char*   _data;
+  int32_t _length;
+  int32_t _nb_blocks;
 };
 
 
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-inline const char* ae_string::get_data( void ) const
+inline const char* ae_string::get_data(void) const
 {
   return _data;
 }
 
-inline void ae_string::set_data( char* data, int32_t length /* = -1 */ )
+inline void ae_string::set_data(char* data, int32_t length /* = -1 */)
 {
-  if ( _data != NULL )
+  if (_data != NULL)
   {
     delete [] _data;
     _data = NULL;
   }
   
   _data       = data;
-  _length     = ( length != -1 ) ? length : strlen( _data );
-  _nb_blocks  = nb_blocks( _length );
+  _length     = (length != -1) ? length : strlen(_data);
+  _nb_blocks  = nb_blocks(_length);
 }
 
-inline int32_t ae_string::get_length( void ) const
+inline int32_t ae_string::get_length(void) const
 {
   return _length;
 }
@@ -165,7 +148,7 @@ inline int32_t ae_string::get_length( void ) const
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-int32_t ae_string::nb_blocks( int32_t length )
+int32_t ae_string::nb_blocks(int32_t length)
 {
   return length/BLOCK_SIZE + 1;
 }

@@ -77,9 +77,9 @@ class World
     //                        Accessors: getters
     // =================================================================
     // PRNGs
-    ae_jumping_mt* get_prng(void) const;
-    ae_jumping_mt* get_mut_prng(void) const;
-    ae_jumping_mt* get_stoch_prng(void) const;
+    std::shared_ptr<ae_jumping_mt> get_prng(void) const;
+    std::shared_ptr<ae_jumping_mt> get_mut_prng(void) const;
+    std::shared_ptr<ae_jumping_mt> get_stoch_prng(void) const;
 
     std::list<ae_individual*> get_indivs_std(void) const;
     inline int32_t          get_nb_indivs(void) const;
@@ -100,9 +100,9 @@ class World
     //                        Accessors: setters
     // =================================================================
     // PRNGs
-    inline void set_prng(ae_jumping_mt* prng);
-    void set_mut_prng(ae_jumping_mt* prng);
-    void set_stoch_prng(ae_jumping_mt* prng);
+    inline void set_prng(std::shared_ptr<ae_jumping_mt> prng);
+    void set_mut_prng(std::shared_ptr<ae_jumping_mt> prng);
+    void set_stoch_prng(std::shared_ptr<ae_jumping_mt> prng);
 
     inline void set_is_well_mixed(bool is_well_mixed);
     inline void set_partial_mix_nb_permutations(int32_t nb_permutations);
@@ -149,12 +149,12 @@ class World
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ae_jumping_mt* _prng = NULL;
+    std::shared_ptr<ae_jumping_mt> _prng = NULL;
 
     #ifndef DISTRIBUTED_PRNG
-      ae_jumping_mt* _mut_prng = NULL;
-      ae_jumping_mt* _stoch_prng = NULL;
-      ae_jumping_mt* _stoch_prng_bak = NULL;
+      std::shared_ptr<ae_jumping_mt> _mut_prng = NULL;
+      std::shared_ptr<ae_jumping_mt> _stoch_prng = NULL;
+      std::unique_ptr<ae_jumping_mt> _stoch_prng_bak = NULL;
     #endif
     
     int16_t width_  = -1;
@@ -266,8 +266,7 @@ inline double** World::get_total_fitness_grid(void) const
 // =====================================================================
 //                           Setters' definitions
 // =====================================================================
-inline void World::set_prng(ae_jumping_mt* prng) {
-  delete _prng;
+inline void World::set_prng(std::shared_ptr<ae_jumping_mt> prng) {
   _prng = prng;
 }
 

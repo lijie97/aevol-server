@@ -71,12 +71,12 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_selection::ae_selection( ae_exp_manager* exp_m )
+ae_selection::ae_selection(ae_exp_manager* exp_m )
 {
   _exp_m = exp_m;
 
   // ----------------------------------------- Pseudo-random number generator
-  _prng = NULL;
+  prng_ = NULL;
 
   // -------------------------------------------------------------- Selection
   _selection_scheme   = RANK_EXPONENTIAL;
@@ -91,11 +91,7 @@ ae_selection::ae_selection( ae_exp_manager* exp_m )
 // =================================================================
 ae_selection::~ae_selection(void)
 {
-  delete _prng;
-  if (_prob_reprod!=NULL)
-  {
-    delete [] _prob_reprod;
-  }
+  delete [] _prob_reprod;
 }
 
 // =================================================================
@@ -119,7 +115,7 @@ void ae_selection::step_to_next_generation(void)
   // 4) Replace the current generation by the newly created one.
   // 5) Sort the newly created population*
 
-  if (_prng == NULL)
+  if (prng_ == NULL)
   {
     printf("%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__);
     exit(EXIT_FAILURE);
@@ -135,16 +131,16 @@ void ae_selection::step_to_next_generation(void)
     // The function compute_local_prob_reprod creates and fills the array _prob_reprod, which is telling us the probability of being picked for reproduction according to the rank of an individual in its neighboorhood.
     // It is only usefull when selection is rank based. When selection scheme is FITNESS_PROPORTIONATE, we do not need to call it.
     // It shoud only be called once in the simulation and not at each generation. So if _prob_reprod already exists we do not need to call it.
-    if ( (_selection_scheme != FITNESS_PROPORTIONATE) && (_prob_reprod == NULL) )
+    if ((_selection_scheme != FITNESS_PROPORTIONATE) && (_prob_reprod == NULL) )
     {
       compute_local_prob_reprod();
     }
   #endif
 
-  if ( _prng == NULL )
+  if (prng_ == NULL )
   {
-    printf( "%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__ );
-    exit( EXIT_FAILURE );
+    printf("%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__ );
+    exit(EXIT_FAILURE );
   }
 
   // Create proxies
@@ -155,7 +151,7 @@ void ae_selection::step_to_next_generation(void)
 
   // create a temporary grid to store the reproducers
   ae_individual*** reproducers = new ae_individual** [grid_width];
-  for ( int16_t i = 0 ; i < grid_width ; i++ )
+  for (int16_t i = 0 ; i < grid_width ; i++ )
   {
     reproducers[i] = new ae_individual* [grid_height];
   }
@@ -175,9 +171,9 @@ void ae_selection::step_to_next_generation(void)
   // Add the compound secreted by the individuals
   if (_exp_m->get_with_secretion())
   {
-    for ( int16_t x = 0 ; x < grid_width ; x++ )
+    for (int16_t x = 0 ; x < grid_width ; x++ )
     {
-      for ( int16_t y = 0 ; y < grid_height ; y++ )
+      for (int16_t y = 0 ; y < grid_height ; y++ )
       {
         pop_grid[x][y]->set_compound_amount(
             pop_grid[x][y]->get_compound_amount() +
@@ -207,7 +203,7 @@ void ae_selection::step_to_next_generation(void)
   }
 
   // delete the temporary grid
-  for ( int16_t x = 0 ; x < grid_width ; x++ )
+  for (int16_t x = 0 ; x < grid_width ; x++ )
   {
     delete [] reproducers[x];
   }
@@ -239,7 +235,7 @@ void ae_selection::PerformPlasmidTransfers(void)
     // Shuffle the grid:
     int16_t total_size = ((grid_width)*(grid_height));
     int16_t** shuffled_table = new int16_t* [total_size];
-    for ( int16_t z = 0 ; z < total_size ; z++ )
+    for (int16_t z = 0 ; z < total_size ; z++ )
     {
       shuffled_table[z] = new int16_t[2];
       int16_t quotient = z / grid_width;
@@ -248,9 +244,9 @@ void ae_selection::PerformPlasmidTransfers(void)
       shuffled_table[z][1] = (int16_t) quotient;
     }
 
-    for ( int16_t z = 0 ;z < total_size - 1 ; z++ )
+    for (int16_t z = 0 ;z < total_size - 1 ; z++ )
     {
-      int16_t rand_nb = _prng->random((int16_t) (total_size-z));
+      int16_t rand_nb = prng_->random((int16_t) (total_size-z));
       int16_t* tmp=shuffled_table[z+rand_nb];
       shuffled_table[z+rand_nb]=shuffled_table[z];
       shuffled_table[z]=tmp;
@@ -258,15 +254,15 @@ void ae_selection::PerformPlasmidTransfers(void)
 
 
     // First transfer all the plasmids, but just add them at the end of the list of the GUs
-    for ( int16_t z = 0 ; z < total_size ; z++ ) // for each individual x
+    for (int16_t z = 0 ; z < total_size ; z++ ) // for each individual x
     {
       int16_t x=shuffled_table[z][0];
       int16_t y=shuffled_table[z][1];
 
-      for ( int16_t n = 0 ; n < 9 ; n++ ) // for each neighbour n of x
+      for (int16_t n = 0 ; n < 9 ; n++ ) // for each neighbour n of x
       {
-        x_offset = ( n / 3 ) - 1;
-        y_offset = ( n % 3 ) - 1;
+        x_offset = (n / 3 ) - 1;
+        y_offset = (n % 3 ) - 1;
 
         new_x = (x+x_offset+grid_width) % grid_width;
         new_y = (y+y_offset+grid_height) % grid_height;
@@ -276,9 +272,9 @@ void ae_selection::PerformPlasmidTransfers(void)
           double ptransfer = _exp_m->get_prob_plasmid_HT() + _exp_m->get_tune_donor_ability()
                             * world->get_indiv_at(x, y)->get_fitness_by_feature(DONOR)
                             + _exp_m->get_tune_recipient_ability() * world->get_indiv_at(new_x, new_y)->get_fitness_by_feature(RECIPIENT) ;
-          if ( _prng->random() < ptransfer ) // will x give a plasmid to n ?
+          if (prng_->random() < ptransfer ) // will x give a plasmid to n ?
           {
-            if ( _exp_m->get_swap_GUs() )
+            if (_exp_m->get_swap_GUs() )
             {
               world->get_indiv_at(new_x, new_y)->inject_2GUs(world->get_indiv_at(x, y));
             }
@@ -316,17 +312,17 @@ void ae_selection::PerformPlasmidTransfers(void)
 
 /*!
 */
-void ae_selection::write_setup_file( gzFile exp_setup_file ) const
+void ae_selection::write_setup_file(gzFile exp_setup_file ) const
 {
   // ---------------------------------------------------- Selection Parameters
   int8_t tmp_sel_scheme = _selection_scheme;
-  gzwrite( exp_setup_file, &tmp_sel_scheme,      sizeof(tmp_sel_scheme) );
-  gzwrite( exp_setup_file, &_selection_pressure, sizeof(_selection_pressure) );
+  gzwrite(exp_setup_file, &tmp_sel_scheme,      sizeof(tmp_sel_scheme) );
+  gzwrite(exp_setup_file, &_selection_pressure, sizeof(_selection_pressure) );
 }
 
 /*!
 */
-void ae_selection::write_setup_file( FILE* exp_setup_file ) const
+void ae_selection::write_setup_file(FILE* exp_setup_file ) const
 {
   // TODO
 }
@@ -334,33 +330,33 @@ void ae_selection::write_setup_file( FILE* exp_setup_file ) const
 
 /*!
 */
-void ae_selection::save( gzFile& backup_file ) const
+void ae_selection::save(gzFile& backup_file ) const
 {
-  if ( _prng == NULL )
+  if (prng_ == NULL )
   {
-    printf( "%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__ );
-    exit( EXIT_FAILURE );
+    printf("%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__ );
+    exit(EXIT_FAILURE );
   }
 
   // ----------------------------------------- Pseudo-random number generator
-  _prng->save( backup_file );
+  prng_->save(backup_file );
 }
 
-void ae_selection::load( gzFile& exp_setup_file,
+void ae_selection::load(gzFile& exp_setup_file,
                          gzFile& backup_file,
                          bool verbose )
 {
   // ---------------------------------------------------- Selection parameters
   int8_t tmp_sel_scheme;
-  gzread( exp_setup_file, &tmp_sel_scheme, sizeof(tmp_sel_scheme) );
+  gzread(exp_setup_file, &tmp_sel_scheme, sizeof(tmp_sel_scheme) );
   _selection_scheme = (ae_selection_scheme) tmp_sel_scheme;
-  gzread( exp_setup_file, &_selection_pressure, sizeof(_selection_pressure) );
+  gzread(exp_setup_file, &_selection_pressure, sizeof(_selection_pressure) );
 
   // ----------------------------------------- Pseudo-random number generator
-  _prng = new ae_jumping_mt( backup_file );
+  prng_ = std::make_unique<ae_jumping_mt>(backup_file);
 }
 
-void ae_selection::load( FILE*& exp_setup_file,
+void ae_selection::load(FILE*& exp_setup_file,
                          gzFile& backup_file,
                          bool verbose )
 {
@@ -371,9 +367,9 @@ void ae_selection::load( FILE*& exp_setup_file,
 // =================================================================
 //                           Protected Methods
 // =================================================================
-void ae_selection::compute_prob_reprod( void ) // non spatially structured only
+void ae_selection::compute_prob_reprod(void ) // non spatially structured only
 {
-  if ( _prob_reprod != NULL )
+  if (_prob_reprod != NULL )
   {
     delete [] _prob_reprod;
   }
@@ -384,7 +380,7 @@ void ae_selection::compute_prob_reprod( void ) // non spatially structured only
   if (_selection_scheme == RANK_LINEAR)
   {
     // The probability of reproduction for an individual is given by
-    // ( 2-SP + 2 * (SP-1) * (R-1)/(N-1) ) / N
+    // (2-SP + 2 * (SP-1) * (R-1)/(N-1) ) / N
     // With :
     //      SP : selective pressure. Linear ranking allows values of SP in [1.0, 2.0].
     //      R  : the rank of the individual in the population (1 for the worst individual)
@@ -399,19 +395,19 @@ void ae_selection::compute_prob_reprod( void ) // non spatially structured only
     double increment = (2 * (_selection_pressure-1)) / (nb_indivs * (nb_indivs-1));
     _prob_reprod[0]  = (2 - _selection_pressure) / nb_indivs;
 
-    for ( int32_t i = 1 ; i < nb_indivs ; i++ )
+    for (int32_t i = 1 ; i < nb_indivs ; i++ )
     {
       _prob_reprod[i] = _prob_reprod[i-1] + increment;
     }
 
     // No need to normalize: The sum is always 1 for linear ranking
   }
-  else if ( _selection_scheme == RANK_EXPONENTIAL )
+  else if (_selection_scheme == RANK_EXPONENTIAL )
   {
     // The probability of reproduction for an individual is given by
-    // ( (SP-1) * SP^(N-R) ) / ( SP^N - 1 )
+    // ((SP-1) * SP^(N-R) ) / (SP^N - 1 )
     // Which is equivalent to
-    // ( (SP-1) * SP^N ) / ( (SP^N - 1) * SP^R )
+    // ((SP-1) * SP^N ) / ((SP^N - 1) * SP^R )
     // With :
     //      SP : selective pressure. Exponential ranking allows values of SP in ]0.0, 1.0[
     //      R  : the rank of the individual in the population (1 for the worst individual)
@@ -424,10 +420,10 @@ void ae_selection::compute_prob_reprod( void ) // non spatially structured only
     // We will hence compute probs[0] with the original formula and infer the remaining values
 
     double SP_N = pow(_selection_pressure, nb_indivs); // SP^N
-    _prob_reprod[0] = ( (_selection_pressure - 1) * SP_N ) /
-                      ( (SP_N - 1) * _selection_pressure );
+    _prob_reprod[0] = ((_selection_pressure - 1) * SP_N ) /
+                      ((SP_N - 1) * _selection_pressure );
 
-    for ( int32_t i = 1 ; i < nb_indivs ; i++ )
+    for (int32_t i = 1 ; i < nb_indivs ; i++ )
     {
       _prob_reprod[i] = _prob_reprod[i-1] / _selection_pressure;
     }
@@ -437,7 +433,7 @@ void ae_selection::compute_prob_reprod( void ) // non spatially structured only
   else if (_selection_scheme == FITNESS_PROPORTIONATE) // Fitness Proportionate
   {
     // The probability of reproduction for an individual is given by
-    // exp( -SP * gap ) / sum of this measure on all individuals
+    // exp(-SP * gap ) / sum of this measure on all individuals
     //    SP : selective pressure. Fitness proportionate allows values of SP in ]0, +inf[
     //                             The closer SP to 0, the closer the selection to being linear.
 
@@ -451,30 +447,30 @@ void ae_selection::compute_prob_reprod( void ) // non spatially structured only
       ++i;
     }
 
-    for ( int32_t i = 0 ; i < nb_indivs ; i++ )
+    for (int32_t i = 0 ; i < nb_indivs ; i++ )
     {
       _prob_reprod[i] = fitnesses[i] / sum;
     }
 
     delete [] fitnesses;
   }
-  else if ( _selection_scheme == FITTEST) //  Fittest individual
+  else if (_selection_scheme == FITTEST) //  Fittest individual
   {
-    printf( "ERROR, fittest selection scheme is meant to be used for spatially structured populations %s:%d\n", __FILE__, __LINE__ );
-    exit( EXIT_FAILURE );
+    printf("ERROR, fittest selection scheme is meant to be used for spatially structured populations %s:%d\n", __FILE__, __LINE__ );
+    exit(EXIT_FAILURE );
   }
   else
   {
-    printf( "ERROR, invalid selection scheme in file %s:%d\n", __FILE__, __LINE__ );
-    exit( EXIT_FAILURE );
+    printf("ERROR, invalid selection scheme in file %s:%d\n", __FILE__, __LINE__ );
+    exit(EXIT_FAILURE );
   }
 }
 
-void ae_selection::compute_local_prob_reprod( void )
+void ae_selection::compute_local_prob_reprod(void )
 {
   int16_t neighborhood_size = 9;
 
-  if ( _prob_reprod != NULL )
+  if (_prob_reprod != NULL )
   {
     printf ("Warning, already defined %s:%d\n", __FILE__, __LINE__);
     delete [] _prob_reprod;
@@ -482,48 +478,48 @@ void ae_selection::compute_local_prob_reprod( void )
 
   _prob_reprod = new double[neighborhood_size];
 
-  if ( _selection_scheme == RANK_LINEAR )
+  if (_selection_scheme == RANK_LINEAR )
   {
     double increment = (2 * (_selection_pressure-1)) / (neighborhood_size * (neighborhood_size-1));
     double init_prob = (2 - _selection_pressure) / neighborhood_size;
 
-    for ( int16_t i = 0 ; i < neighborhood_size ; i++ )
+    for (int16_t i = 0 ; i < neighborhood_size ; i++ )
     {
       _prob_reprod[i] = init_prob + increment * i;
     }
   }
-  else if ( _selection_scheme == RANK_EXPONENTIAL )
+  else if (_selection_scheme == RANK_EXPONENTIAL )
   {
     double SP_N = pow(_selection_pressure, neighborhood_size);
-    _prob_reprod[0] = ( (_selection_pressure - 1) * SP_N ) /
-    ( (SP_N - 1) * _selection_pressure );
+    _prob_reprod[0] = ((_selection_pressure - 1) * SP_N ) /
+    ((SP_N - 1) * _selection_pressure );
 
-    for ( int16_t i = 1 ; i < neighborhood_size ; i++ )
+    for (int16_t i = 1 ; i < neighborhood_size ; i++ )
     {
       _prob_reprod[i] =  _prob_reprod[i-1] /  _selection_pressure;
     }
   }
-  else if ( _selection_scheme == FITTEST) //  Fittest individual
+  else if (_selection_scheme == FITTEST) //  Fittest individual
   {
-    for ( int16_t i = 0 ; i < neighborhood_size-1 ; i++ )
+    for (int16_t i = 0 ; i < neighborhood_size-1 ; i++ )
     {
       _prob_reprod[i] = 0.;
     }
     _prob_reprod[neighborhood_size-1] = 1.;
   }
-  else if ( _selection_scheme == FITNESS_PROPORTIONATE ) // Fitness Proportionate
+  else if (_selection_scheme == FITNESS_PROPORTIONATE ) // Fitness Proportionate
   {
-    printf( "ERROR, this function is not intented to be use with this selection scheme %s:%d\n", __FILE__, __LINE__ );
-    exit( EXIT_FAILURE );
+    printf("ERROR, this function is not intented to be use with this selection scheme %s:%d\n", __FILE__, __LINE__ );
+    exit(EXIT_FAILURE );
   }
   else
   {
-    printf( "ERROR, invalid selection scheme in file %s:%d\n", __FILE__, __LINE__ );
-    exit( EXIT_FAILURE );
+    printf("ERROR, invalid selection scheme in file %s:%d\n", __FILE__, __LINE__ );
+    exit(EXIT_FAILURE );
   }
 }
 
-ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t index, int16_t x /*= -1 */, int16_t y /*= -1 */ )
+ae_individual* ae_selection::do_replication(ae_individual* parent, int32_t index, int16_t x /*= -1 */, int16_t y /*= -1 */ )
 {
   ae_individual* new_indiv = NULL;
 
@@ -532,15 +528,15 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
   // ===========================================================================
   #ifdef __NO_X
     #ifndef __REGUL
-      new_indiv = new ae_individual( parent, index, parent->get_mut_prng(), parent->get_stoch_prng() );
+      new_indiv = new ae_individual(parent, index, parent->get_mut_prng(), parent->get_stoch_prng() );
     #else
-      new_indiv = new ae_individual_R( dynamic_cast<ae_individual_R*>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
+      new_indiv = new ae_individual_R(dynamic_cast<ae_individual_R*>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
     #endif
   #elif defined __X11
     #ifndef __REGUL
-      new_indiv = new ae_individual_X11( dynamic_cast<ae_individual_X11*>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
+      new_indiv = new ae_individual_X11(dynamic_cast<ae_individual_X11*>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
     #else
-      new_indiv = new ae_individual_R_X11( dynamic_cast<ae_individual_R_X11*>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
+      new_indiv = new ae_individual_R_X11(dynamic_cast<ae_individual_R_X11*>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
     #endif
   #endif
 
@@ -559,9 +555,9 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
   {
     const ae_genetic_unit* chromosome = &new_indiv->get_genetic_unit_list_std().front();
 
-    chromosome->get_dna()->perform_mutations( parent->get_id());
+    chromosome->get_dna()->perform_mutations(parent->get_id());
 
-    if ( new_indiv->get_replic_report() != NULL )
+    if (new_indiv->get_replic_report() != NULL )
     {
       new_indiv->get_replic_report()->add_dna_replic_report(chromosome->get_dna()->get_replic_report());
     }
@@ -569,12 +565,12 @@ ae_individual* ae_selection::do_replication( ae_individual* parent, int32_t inde
   else
   { // For each GU, apply mutations
     // Randomly determine the order in which the GUs will undergo mutations
-    bool inverse_order = (_prng->random((int32_t) 2) < 0.5);
+    bool inverse_order = (prng_->random((int32_t) 2) < 0.5);
 
     if (not inverse_order) { // Apply mutations in normal GU order
       for (const auto& gen_unit: new_indiv->get_genetic_unit_list_std()) {
-        gen_unit.get_dna()->perform_mutations( parent->get_id() );
-        if ( new_indiv->get_replic_report() != NULL )
+        gen_unit.get_dna()->perform_mutations(parent->get_id() );
+        if (new_indiv->get_replic_report() != NULL )
           new_indiv->get_replic_report()->add_dna_replic_report(gen_unit.get_dna()->get_replic_report());
       }
     }
@@ -632,13 +628,13 @@ ae_individual* ae_selection::do_local_competition (int16_t x, int16_t y)
   int16_t   count             = 0;
   double    sum_local_fit     = 0.0;
 
-  for ( int8_t i = -1 ; i < 2 ; i++ )
+  for (int8_t i = -1 ; i < 2 ; i++ )
   {
-    for ( int8_t j = -1 ; j < 2 ; j++ )
+    for (int8_t j = -1 ; j < 2 ; j++ )
     {
-      cur_x = ( x + i + grid_width )  % grid_width;
-      cur_y = ( y + j + grid_height ) % grid_height;
-      local_fit_array[count]  = world->get_indiv_at( cur_x, cur_y )->get_fitness();
+      cur_x = (x + i + grid_width )  % grid_width;
+      cur_y = (y + j + grid_height ) % grid_height;
+      local_fit_array[count]  = world->get_indiv_at(cur_x, cur_y )->get_fitness();
       sort_fit_array[count]   = local_fit_array[count];
       initial_location[count] = count;
       sum_local_fit += local_fit_array[count];
@@ -653,7 +649,7 @@ ae_individual* ae_selection::do_local_competition (int16_t x, int16_t y)
   // 4. Fittest individual
 
   // Any rank based selection
-  switch ( _selection_scheme )
+  switch (_selection_scheme )
   {
     case RANK_LINEAR :
     case RANK_EXPONENTIAL :
@@ -666,13 +662,13 @@ ae_individual* ae_selection::do_local_competition (int16_t x, int16_t y)
       int16_t loop_length = 8;
       double  tmp_holder;
       int16_t tmp_holder2;
-      while ( swaped == true )
+      while (swaped == true )
       {
         swaped = false;
-        for ( int16_t i = 0 ; i < loop_length ; i++ )
+        for (int16_t i = 0 ; i < loop_length ; i++ )
         {
           //if the first is higher than the second,  exchange them
-          if ( sort_fit_array[i] > sort_fit_array[i+1] )
+          if (sort_fit_array[i] > sort_fit_array[i+1] )
           {
             tmp_holder = sort_fit_array[i];
             sort_fit_array[i] = sort_fit_array[i+1];
@@ -691,7 +687,7 @@ ae_individual* ae_selection::do_local_competition (int16_t x, int16_t y)
 
 
       // Then we use the already computed probabilities
-      for ( int16_t i = 0 ; i < neighborhood_size ; i++ )
+      for (int16_t i = 0 ; i < neighborhood_size ; i++ )
       {
         probs[initial_location[i]] = _prob_reprod[i];
       }
@@ -701,7 +697,7 @@ ae_individual* ae_selection::do_local_competition (int16_t x, int16_t y)
     // Fitness proportionate selection
     case FITNESS_PROPORTIONATE :
     {
-      for( int16_t i = 0 ; i < neighborhood_size ; i++ )
+      for(int16_t i = 0 ; i < neighborhood_size ; i++ )
       {
         probs[i] = local_fit_array[i]/sum_local_fit;
       }
@@ -710,17 +706,17 @@ ae_individual* ae_selection::do_local_competition (int16_t x, int16_t y)
     }
     default :
     {
-      printf( "ERROR, invalid selection scheme in file %s:%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("ERROR, invalid selection scheme in file %s:%d\n", __FILE__, __LINE__ );
+      exit(EXIT_FAILURE );
     }
   }
 
 
   // pick one organism to reproduce, based on probs[] calculated above, using roulette selection
-  int8_t found_org = _prng->roulette_random( probs, 9 );
+  int8_t found_org = prng_->roulette_random(probs, 9 );
 
-  int16_t x_offset = ( found_org / 3 ) - 1;
-  int16_t y_offset = ( found_org % 3 ) - 1;
+  int16_t x_offset = (found_org / 3 ) - 1;
+  int16_t y_offset = (found_org % 3 ) - 1;
 
   delete [] local_fit_array;
   delete [] sort_fit_array;
