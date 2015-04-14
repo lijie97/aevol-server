@@ -70,19 +70,24 @@ namespace aevol {
 class Fuzzy
 {
  public:
+  // ==========================================================================
+  //                               Constructors
+  // ==========================================================================
   Fuzzy(): points({Point(X_MIN, 0.0), Point(X_MAX, 0.0)}) {};
   Fuzzy(const Fuzzy& f): points(f.points) {};
   Fuzzy(const gzFile backup) { load(backup); };
+
+  // ==========================================================================
+  //                                Destructor
+  // ==========================================================================
   virtual ~Fuzzy() {};
 
+  // ==========================================================================
+  //                              Public Methods
+  // ==========================================================================
   void save(gzFile backup) const;
   void load(gzFile backup);
   void reset();
-
-  const std::list<Point>& get_points() const {return points;};
-  // TODO: should be made protected (called from ae_environment::apply_noise())
-  std::list<Point>::iterator create_interpolated_point(double x);
-  // TODO: should be made protected or removed (looks like implementation specific)
   void simplify();
   void add_triangle(double mean, double width, double height);
   void add(const Fuzzy& f);
@@ -91,7 +96,14 @@ class Fuzzy
   /// `clipping_direction` is only used for `clip` function's keyword.
   enum clipping_direction: bool {min, max};
   void clip(clipping_direction direction, double bound);
+  // TODO: should be made protected (called from ae_environment::apply_noise())
+  std::list<Point>::iterator create_interpolated_point(double x);
 
+  // ==========================================================================
+  //                                 Getters
+  // ==========================================================================
+  const std::list<Point>& get_points() const {return points;};
+  // TODO: should be made protected or removed (looks like implementation specific)
   const std::list<Point>& get_points(void) {return points;};
   double get_geometric_area() const;
   double get_geometric_area(std::list<Point>::const_iterator begin,
@@ -103,20 +115,36 @@ class Fuzzy
   double get_x(const Point& left, const Point& right, double y) const;
   bool is_identical_to(const Fuzzy& fs, double tolerance) const;
 
+  // ==========================================================================
+  //                                 Setters
+  // ==========================================================================
+
+  // ==========================================================================
+  //                                Operators
+  // ==========================================================================
+
  protected:
+  // ==========================================================================
+  //                            Protected Methods
+  // ==========================================================================
   bool invariant() const {
     return
         points.size() >= 2             and
         points.begin()->x == X_MIN     and
         prev(points.end())->x == X_MAX and
-        is_increasing()
-        ;
+        is_increasing();
   };
   bool is_increasing() const;
 
+
+  // ==========================================================================
+  //                               Attributes
+  // ==========================================================================
   std::list<Point> points;
 
-  std::list<Point>::iterator create_interpolated_point(double x, std::list<Point>::iterator start);
+  std::list<Point>::iterator create_interpolated_point(
+          double x,
+          std::list<Point>::iterator start);
 };
 
 double trapezoid_area(const Point& p1, const Point& p2);
