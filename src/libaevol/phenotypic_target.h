@@ -25,8 +25,8 @@
 //*****************************************************************************
 
 
-#ifndef __AE_BOILERPLATE_CLASS_H__
-#define __AE_BOILERPLATE_CLASS_H__
+#ifndef __AE_PHENOTYPIC_TARGET__
+#define __AE_PHENOTYPIC_TARGET__
 
 
 // ============================================================================
@@ -49,20 +49,20 @@ namespace aevol {
 
 
 
-class BoilerplateClass
+class PhenotypicTarget
 {
  public :
   // ==========================================================================
   //                               Constructors
   // ==========================================================================
-  BoilerplateClass(void) = default; //< Default ctor
-  BoilerplateClass(const BoilerplateClass&) = delete; //< Copy ctor
-  BoilerplateClass(BoilerplateClass&&) = delete; //< Move ctor
+  PhenotypicTarget(void) = default; //< Default ctor
+  PhenotypicTarget(const PhenotypicTarget&) = delete; //< Copy ctor
+  PhenotypicTarget(PhenotypicTarget&&) = delete; //< Move ctor
 
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~BoilerplateClass(void) = default; //< Destructor
+  virtual ~PhenotypicTarget(void) = default; //< Destructor
 
   // ==========================================================================
   //                                 Getters
@@ -113,4 +113,4 @@ class BoilerplateClass
 
 } // namespace aevol
 
-#endif // __AE_BOILERPLATE_CLASS_H__
+#endif // __AE_PHENOTYPIC_TARGET__

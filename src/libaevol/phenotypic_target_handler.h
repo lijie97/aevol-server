@@ -37,6 +37,17 @@
 #include <cstdlib>
 #include <cassert>
 
+#include <memory>
+#include <list>
+
+#include "phenotypic_target.h"
+#include "ae_gaussian.h"
+#include "ae_enums.h"
+#include "ae_jumping_mt.h"
+#include "fuzzy.h"
+
+using std::list;
+
 
 namespace aevol {
 
@@ -98,6 +109,43 @@ class PhenotypicTargetHandler
   // ==========================================================================
   //                               Attributes
   // ==========================================================================
+  // ------------------------------------------------ Current Phenotypic Target
+  std::unique_ptr<PhenotypicTarget> phenotypic_target_;
+
+  // ---------------------------------------------------------------- Gaussians
+  /// Phenotypic target's constitutive Gaussians in their initial state
+  std::list<ae_gaussian> initial_gaussians_;
+    /// Phenotypic target's constitutive Gaussians in their current state
+  std::list<ae_gaussian> current_gaussians_;
+
+  // ----------------------------------------------------------------- Sampling
+  /// Number of points to be generated from the gaussians.
+  size_t sampling_;
+
+  // ---------------------------------------------------------------- Variation
+  /// Variation method
+  ae_env_var var_method_;
+  /// PRNG used for variation
+  std::shared_ptr<ae_jumping_mt> var_prng_;
+  /// Autoregressive mean variation sigma parameter
+  double var_sigma_;
+  /// Autoregressive mean variation tau parameter
+  size_t var_tau_; // TODO why size_t ?
+
+  // -------------------------------------------------------------------- Noise
+  /// Current noise (pure noise that is added to the phenotypic target)
+  Fuzzy* cur_noise_;
+  /// PRNG used for noise
+  std::shared_ptr<ae_jumping_mt> noise_prng_;
+  ae_env_noise noise_method_;
+  /// Alpha value (variance coefficient)
+  double noise_alpha_;
+  /// Variance of the noise
+  double noise_sigma_;
+  /// Probability of variation.
+  double noise_prob_;
+  /// Log2 of the number of points in the noise fuzzy_set
+  size_t noise_sampling_log_; // TODO why size_t ?
 };
 
 

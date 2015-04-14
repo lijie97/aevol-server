@@ -46,6 +46,7 @@ ae_mutation.h \
 ae_output_manager.h \
 ae_params_mut.h \
 phenotype.h \
+phenotypic_target.h \
 phenotypic_target_handler.h \
 point.h \
 ae_protein.h \
@@ -85,6 +86,7 @@ ae_logs.cpp \
 ae_mutation.cpp \
 ae_output_manager.cpp \
 ae_params_mut.cpp \
+phenotypic_target.cpp \
 phenotypic_target_handler.cpp \
 point.cpp \
 ae_protein.cpp \
