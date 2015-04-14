@@ -5,8 +5,7 @@
 // Copyright (C) 2004 LIRIS.
 // Web: https://liris.cnrs.fr/
 // E-mail: carole.knibbe@liris.cnrs.fr
-// Original Authors : Guillaume Beslon, Carole Knibbe, Virginie Lefort
-//                    David Parsons
+// Original Authors : Guillaume Beslon, Carole Knibbe, David Parsons
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -156,14 +155,15 @@ int main( int argc, char* argv[] )
 
   if ( chromosome_file_name != NULL )
   {
-    char rawchromosome[1000000];
+    const int max_input_chrom_size = 1000000;
+    char rawchromosome[max_input_chrom_size];
     FILE* chromosome_file = fopen(chromosome_file_name,"r");
     if (chromosome_file==NULL)
     {
       printf("ERROR: failed to open source chromosome file %s\n",chromosome_file_name);
       exit( EXIT_FAILURE );
     }
-    if (fgets(rawchromosome, 1000000, chromosome_file) == NULL)
+    if (fgets(rawchromosome, max_input_chrom_size, chromosome_file) == NULL)
     {
       printf("ERROR: failed to read from chromosome file %s\n",chromosome_file_name);
       exit( EXIT_FAILURE );
@@ -180,14 +180,15 @@ int main( int argc, char* argv[] )
 
   if ( plasmid_file_name != NULL )
   {
-    char rawplasmid[1000000];
+    const int max_input_plasmid_size = 1000000;
+    char rawplasmid[max_input_plasmid_size];
     FILE* plasmid_file = fopen(plasmid_file_name,"r");
     if (plasmid_file==NULL)
     {
       printf("ERROR: failed to open source chromosome file %s\n",plasmid_file_name);
       exit( EXIT_FAILURE );
     }
-    if (fgets(rawplasmid, 1000000, plasmid_file) == NULL)
+    if (fgets(rawplasmid, max_input_plasmid_size, plasmid_file) == NULL)
     {
       printf("ERROR: failed to read from chromosome file %s\n",chromosome_file_name);
       exit( EXIT_FAILURE );
