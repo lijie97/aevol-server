@@ -1284,7 +1284,7 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
 
   if (verbose)
   {
-    printf("Entire geometric area of the environment : %f\n", env->get_geometric_area());
+    printf("Entire geometric area of the phenotypic target : %f\n", env->get_geometric_area());
   }
 
 
