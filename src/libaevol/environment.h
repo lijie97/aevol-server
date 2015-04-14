@@ -166,8 +166,6 @@ class Environment : public Fuzzy
   // Each ae_env_segment knows its boundaries and corresponding feature.
   // When the environment is not segmented, this table contains a single
   // segment with feature METABOLIC and boundaries MIN_X and MAX_X
-
-  double _total_area;       // Geometric area of the whole function
   double* _area_by_feature; // Geometric area of each feature
 
   // Variation management (compatible only with gaussians)

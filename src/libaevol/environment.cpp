@@ -33,7 +33,6 @@ Environment::Environment() : Fuzzy()
 {
   // Environment "shape"
   _sampling   = 0;
-  _total_area = 0.0;
 
   // Environment segmentation
   _nb_segments     = 1;
@@ -60,12 +59,10 @@ Environment::Environment() : Fuzzy()
 Environment::Environment(const Environment &model) : Fuzzy(model)
 {
   // Environment "shape"
-  _sampling           = model._sampling;
+  _sampling = model._sampling;
 
   initial_gaussians = model.initial_gaussians;
   gaussians = model.gaussians;
-
-  _total_area = model._total_area;
 
   // Environment segmentation
   _nb_segments      = model._nb_segments;
@@ -451,8 +448,6 @@ void Environment::_apply_local_gaussian_variation() {
 }
 
 void Environment::_compute_area() {
-  _total_area = 0.0;
-
   for (size_t i = 0 ; i < NB_FEATURES ; i++)
     _area_by_feature[i] = 0.0;
 
@@ -461,7 +456,6 @@ void Environment::_compute_area() {
   //      already been through them!)
   for (size_t i = 0 ; i < _nb_segments ; i++) {
     _area_by_feature[_segments[i]->feature] += get_geometric_area(_segments[i]->start, _segments[i]->stop);
-    _total_area += _area_by_feature[_segments[i]->feature];
   }
 }
 } // namespace aevol
