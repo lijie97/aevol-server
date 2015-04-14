@@ -5,7 +5,7 @@
 AC_PREREQ([2.65])
 
 # Provide FULL-PACKAGE-NAME, VERSION and BUG-REPORT-ADDRESS
-AC_INIT([AEVOL], [4.4], [aevol-bugs@lists.gforge.inria.fr], , [www.aevol.fr])
+AC_INIT([AEVOL], [5.0], [aevol-bugs@lists.gforge.inria.fr], , [www.aevol.fr])
 
 # Specify the location of additional local Autoconf macros
 AC_CONFIG_MACRO_DIR([m4])
@@ -69,6 +69,7 @@ AC_CHECK_FUNCS([floor memset mkdir pow rint sqrt gzread])
 #     --enable-trivialjumps=jumpsize    [disabled]
 #     --enable-devel                    [disabled]
 #     --enable-debug                    [disabled]
+#     --enable-profiling                [disabled]
 #
 # ****************************************************************************
 
@@ -280,6 +281,21 @@ if test "x$enable_debug" = "xyes" ; then
    AEVOLCXXFLAGS+=" -g -Wall"
 else
    AC_DEFINE(NDEBUG)
+fi
+
+
+#  ******************* --enable-profiling option ***************************
+#
+#  With this option, the -pg flag is defined.
+#
+
+AC_MSG_CHECKING([whether to enable profiling])
+AC_ARG_ENABLE(profiling, [  --enable-profiling to enable profiling], , enable_profiling=no)
+AC_MSG_RESULT($enable_profiling)
+AM_CONDITIONAL(WITH_PROFILING, test x"$enable_profiling" != xno)
+if test "x$enable_profiling" = "xyes" ; then
+   AEVOLCXXFLAGS+=" -pg"
+   AEVOLLDFLAGS+=" -pg"
 fi
 
 #  ************************* back to GENERAL stuff *******************************
