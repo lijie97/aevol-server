@@ -309,7 +309,7 @@ ae_individual::ae_individual(const ae_individual& model,
   {
     _phenotype_activ  = new Fuzzy(*(model._phenotype_activ));
     _phenotype_inhib  = new Fuzzy(*(model._phenotype_inhib));
-    _phenotype        = new ae_phenotype(this, *(model._phenotype));
+    _phenotype        = new ae_phenotype(*(model._phenotype));
   }
   else
   {

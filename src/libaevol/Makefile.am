@@ -84,7 +84,6 @@ ae_logs.cpp \
 ae_mutation.cpp \
 ae_output_manager.cpp \
 ae_params_mut.cpp \
-ae_phenotype.cpp \
 point.cpp \
 ae_protein.cpp \
 ae_jumping_mt.cpp \
