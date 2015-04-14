@@ -400,8 +400,8 @@ void ae_exp_manager::load(int64_t t0,
   world_->evaluate_individuals(get_env());
 }
 
-/*!
-  Run the simulation
+/**
+ * Run the simulation
  */
 void ae_exp_manager::run_evolution(void)
 {

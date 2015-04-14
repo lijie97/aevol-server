@@ -88,7 +88,7 @@ class World
     inline ae_individual*   get_best_indiv(void) const;
     inline int16_t          width()  const {return width_;};
     inline int16_t          height() const {return height_;};
-    inline int32_t          partial_mix_nb_permutations() const;
+    inline int32_t          partial_mix_nb_permutations(void) const;
     inline ae_grid_cell***  grid(void) const {return grid_;};
     inline ae_grid_cell*    grid(int16_t x, int16_t y) const;
     inline ae_individual*   get_indiv_at(int16_t x, int16_t y) const;

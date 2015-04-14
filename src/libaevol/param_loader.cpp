@@ -1139,58 +1139,39 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
   // Default for by GU minimal or maximal size is -1.
   // If equal to -1, maximal sizes of each GU will be replaced by total maximal size for the whole genome
 
-  if (_allow_plasmids)
-  {
-    if (_plasmid_initial_gene!=1) // the plasmid will be copied from the chromosome
-    {
-      if (_plasmid_initial_length != -1)
-      {
+  if (_allow_plasmids) {
+    if (_plasmid_initial_gene != 1) // the plasmid will be copied from the chromosome
+      if (_plasmid_initial_length != -1) {
         printf("WARNING: PLASMID_INITIAL_LENGTH is not taken into account because PLASMID_INITIAL_GENE is set to 0 (copy from chromosome)\n");
         _plasmid_initial_length = _chromosome_initial_length;
       }
+    else if (_compute_phen_contrib_by_GU == false) {
+      printf("ERROR: when using PLASMID_INITIAL_GENE==1, the paramater COMPUTE_PHEN_CONTRIB_BY_GU should be set to true.\n");
+      exit(EXIT_FAILURE);
     }
-    else if (_plasmid_initial_gene == 1) 
-    {
-      if (_compute_phen_contrib_by_GU == false)
-      {
-        printf("ERROR: when using PLASMID_INITIAL_GENE==1, the paramater COMPUTE_PHEN_CONTRIB_BY_GU should be set to true.\n");
-        exit(EXIT_FAILURE);
-      }
-    }
+
     if (_plasmid_maximal_length == -1)
-    {
       _plasmid_maximal_length = _max_genome_length;
-    }
     if (_plasmid_minimal_length == -1)
-    {
       _plasmid_minimal_length = _min_genome_length;
-    }
-    if(_plasmid_minimal_length > _plasmid_initial_length)
-    {
+    if(_plasmid_minimal_length > _plasmid_initial_length) {
       printf("ERROR: PLASMID_INITIAL_LENGTH is lower than PLASMID_MINIMAL_LENGTH\n");
       exit(EXIT_FAILURE);
     }
-    if (_plasmid_maximal_length < _plasmid_initial_length)
-    {
+    if (_plasmid_maximal_length < _plasmid_initial_length) {
       printf("ERROR: PLASMID_INITIAL_LENGTH is higher than PLASMID_MAXIMAL_LENGTH\n");
       exit(EXIT_FAILURE);
     }
   }
   if (_chromosome_maximal_length == -1)
-  {
     _chromosome_maximal_length = _max_genome_length;
-  }
   if (_chromosome_minimal_length == -1)
-  {
     _chromosome_minimal_length = _min_genome_length;
-  }
-  if (_chromosome_minimal_length > _chromosome_initial_length)
-  {
+  if (_chromosome_minimal_length > _chromosome_initial_length) {
     printf("ERROR: CHROMOSOME_INITIAL_LENGTH is lower than CHROMOSOME_MINIMAL_LENGTH\n");
     exit(EXIT_FAILURE);
   }
-  if (_chromosome_maximal_length < _chromosome_initial_length)
-  {
+  if (_chromosome_maximal_length < _chromosome_initial_length) {
     printf("ERROR: CHROMOSOME_INITIAL_LENGTH is higher than PLASMID_MAXIMAL_LENGTH\n");
     exit(EXIT_FAILURE);
   }
@@ -1261,7 +1242,7 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
   exp_s->set_secretion_cost(_secretion_cost);
 
 
-  // 2) ------------------------------------------------ Create the environment
+  // 2) ------------------------------------------ Create the phenotypic target
   // Move the gaussian list from the parameters to the environment
   env->set_gaussians(std_env_gaussians);
 
@@ -1269,15 +1250,14 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
   env->set_sampling(_env_sampling);
 
   // Set the environment segmentation
-  if((_env_axis_features != NULL) && (_env_axis_segment_boundaries != NULL) )
-    {
-      // if param.in contained a line starting with ENV_AXIS_FEATURES,
-      // we use the values indicated on this line
-      env->set_segmentation(_env_axis_nb_segments,
-                         _env_axis_segment_boundaries,
-                         _env_axis_features,
-                         _env_axis_separate_segments);
-    } // else we leave the ae_environment as it is by default (one "metabolic" segment from X_MIN to XMAX)
+  if((_env_axis_features != NULL) && (_env_axis_segment_boundaries != NULL) ) {
+    // if param.in contained a line starting with ENV_AXIS_FEATURES,
+    // we use the values indicated on this line
+    env->set_segmentation(_env_axis_nb_segments,
+                       _env_axis_segment_boundaries,
+                       _env_axis_features,
+                       _env_axis_separate_segments);
+  } // else we leave the ae_environment as it is by default (one "metabolic" segment from X_MIN to X_MAX)
 
 
   // Set environmental variation

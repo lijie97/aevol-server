@@ -168,7 +168,7 @@ class Environment : public Fuzzy
   // segment with feature METABOLIC and boundaries MIN_X and MAX_X
   double* _area_by_feature; // Geometric area of each feature
 
-  // Variation management (compatible only with gaussians)
+  // Variation management
   ae_env_var _var_method;   // Variation method
   std::shared_ptr<ae_jumping_mt> _var_prng; // PRNG used for variation
   double _var_sigma;        // Autoregressive mean variation sigma parameter

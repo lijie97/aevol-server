@@ -121,7 +121,7 @@ class ae_grid_cell
     int16_t y_;
     
     // Pointer to the individual in this cell
-    ae_individual* _individual = NULL;
+    ae_individual* individual_ = NULL;
 
     Habitat* habitat_;
 };
@@ -137,22 +137,22 @@ inline double ae_grid_cell::compound_amount(void) const
 
 inline ae_individual* ae_grid_cell::get_individual(void) const
 {
-  return _individual;
+  return individual_;
 }
 
 inline double ae_grid_cell::get_secreted_amount(void) const
 {
-  return _individual->get_fitness_by_feature(SECRETION);
+  return individual_->get_fitness_by_feature(SECRETION);
 }
 
 inline double ae_grid_cell::get_metabolic_fitness(void) const
 {
-  return _individual->get_fitness_by_feature(METABOLISM);
+  return individual_->get_fitness_by_feature(METABOLISM);
 }
 
 inline double ae_grid_cell::get_total_fitness(void) const
 {
-  return _individual->get_fitness();
+  return individual_->get_fitness();
 }
 
 // =====================================================================
@@ -165,10 +165,10 @@ inline void ae_grid_cell::set_compound_amount(double compound_amount)
 
 inline void ae_grid_cell::set_individual(ae_individual* indiv)
 {
-  _individual = indiv;
-  if (_individual->get_grid_cell() != this)
+  individual_ = indiv;
+  if (individual_->get_grid_cell() != this)
   {
-    _individual->set_grid_cell(this);
+    individual_->set_grid_cell(this);
   }
 }
 

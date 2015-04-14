@@ -62,7 +62,7 @@ ae_grid_cell::ae_grid_cell(int16_t x, int16_t y, ae_individual* indiv)
   x_ = x;
   y_ = y;
   
-  _individual = indiv;
+  individual_ = indiv;
   habitat_ = new Habitat();
 }
 
@@ -73,9 +73,9 @@ ae_grid_cell::ae_grid_cell(gzFile backup_file, ae_exp_manager* exp_m)
 
   habitat_ = new Habitat(backup_file);
   
-  _individual = ae_individual::CreateIndividual(exp_m, backup_file);
+  individual_ = ae_individual::CreateIndividual(exp_m, backup_file);
 
-  _individual->set_grid_cell(this);
+  individual_->set_grid_cell(this);
   
   habitat_ = new Habitat();
 }
@@ -85,7 +85,7 @@ ae_grid_cell::ae_grid_cell(gzFile backup_file, ae_exp_manager* exp_m)
 // =================================================================
 ae_grid_cell::~ae_grid_cell(void)
 {
-  delete _individual;
+  delete individual_;
   delete habitat_;
 }
 
@@ -99,7 +99,7 @@ void ae_grid_cell::save(gzFile backup_file) const
 
   habitat_->save(backup_file);
 
-  _individual->save(backup_file);
+  individual_->save(backup_file);
 }
 
 // =================================================================

@@ -108,7 +108,7 @@ class ae_exp_manager
 
     // -------------------------------------------------------- Global settings
     inline bool   get_with_HT(void) const;
-    inline bool   get_repl_HT_with_close_points (void) const;
+    inline bool   get_repl_HT_with_close_points(void) const;
     inline double get_HT_ins_rate(void) const;
     inline double get_HT_repl_rate(void) const;
     inline double get_repl_HT_detach_rate(void) const;
