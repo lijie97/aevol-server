@@ -33,7 +33,6 @@
 #include "ae_genetic_unit.h"
 #include "ae_vis_a_vis.h"
 #include "ae_utils.h"
-#include "fuzzy.h"
 
 #ifdef __NO_X
   #ifdef __REGUL
@@ -309,7 +308,7 @@ ae_individual::ae_individual(const ae_individual& model,
   {
     _phenotype_activ  = new Fuzzy(*(model._phenotype_activ));
     _phenotype_inhib  = new Fuzzy(*(model._phenotype_inhib));
-    _phenotype        = new ae_phenotype(*(model._phenotype));
+    _phenotype        = new Phenotype(*(model._phenotype));
   }
   else
   {
@@ -735,7 +734,7 @@ Fuzzy* ae_individual::get_phenotype_inhib() const {
 }
 
 /// TODO
-ae_phenotype* ae_individual::get_phenotype() const {
+Phenotype* ae_individual::get_phenotype() const {
   return _phenotype;
 }
 
@@ -1320,7 +1319,7 @@ void ae_individual::compute_phenotype() {
   _phenotype_activ->clip(Fuzzy::max,   Y_MAX);
   _phenotype_inhib->clip(Fuzzy::min, - Y_MAX);
 
-  _phenotype = new ae_phenotype();
+  _phenotype = new Phenotype();
   _phenotype->add(*_phenotype_activ);
   _phenotype->add(*_phenotype_inhib);
   _phenotype->clip(Fuzzy::min, Y_MIN);

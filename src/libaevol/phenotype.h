@@ -44,7 +44,7 @@
 namespace aevol {
 
 // A phenotype is nothing more than a fuzzy set
-using ae_phenotype = Fuzzy;
+using Phenotype = Fuzzy;
 
 } // namespace aevol
 

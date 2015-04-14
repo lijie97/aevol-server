@@ -45,7 +45,7 @@ macros.h \
 ae_mutation.h \
 ae_output_manager.h \
 ae_params_mut.h \
-ae_phenotype.h \
+Phenotype.h \
 point.h \
 ae_protein.h \
 ae_jumping_mt.h \

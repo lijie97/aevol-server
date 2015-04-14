@@ -52,7 +52,7 @@
 #include "ae_dna.h"
 #include "ae_rna.h"
 #include "ae_protein.h"
-#include "ae_phenotype.h"
+#include "phenotype.h"
 #include "ae_replication_report.h"
 #include "ae_params_mut.h"
 #include "fuzzy.h"
@@ -152,7 +152,7 @@ class ae_individual
 
     Fuzzy* get_phenotype_activ(void) const;
     Fuzzy* get_phenotype_inhib(void) const;
-    ae_phenotype* get_phenotype(void)       const;
+    Phenotype* get_phenotype(void)       const;
 
     double* get_dist_to_target_by_segment(void) const;
 
@@ -409,7 +409,7 @@ class ae_individual
     Fuzzy* _phenotype_inhib;
 
     // The phenotype, roughly corresponding to the sum of activ and inhib
-    ae_phenotype* _phenotype;
+    Phenotype* _phenotype;
 
     // Table containing the partial area of the "gap" (difference between the phenotype and the environment)
     // for each environmental segment.

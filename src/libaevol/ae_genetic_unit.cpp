@@ -1519,7 +1519,7 @@ void ae_genetic_unit::compute_phenotypic_contribution(void)
 
   if (_exp_m->get_output_m()->get_compute_phen_contrib_by_GU())
   {
-    _phenotypic_contribution = new ae_phenotype();
+    _phenotypic_contribution = new Phenotype();
     _phenotypic_contribution->add(*_activ_contribution);
     _phenotypic_contribution->add(*_inhib_contribution);
     _phenotypic_contribution->simplify();
