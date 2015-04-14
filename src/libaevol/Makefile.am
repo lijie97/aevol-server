@@ -45,7 +45,8 @@ macros.h \
 ae_mutation.h \
 ae_output_manager.h \
 ae_params_mut.h \
-Phenotype.h \
+phenotype.h \
+phenotypic_target_handler.h \
 point.h \
 ae_protein.h \
 ae_jumping_mt.h \
@@ -84,6 +85,7 @@ ae_logs.cpp \
 ae_mutation.cpp \
 ae_output_manager.cpp \
 ae_params_mut.cpp \
+phenotypic_target_handler.cpp \
 point.cpp \
 ae_protein.cpp \
 ae_jumping_mt.cpp \
