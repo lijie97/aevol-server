@@ -1593,17 +1593,17 @@ void ae_individual::clear_everything_except_dna_and_promoters() {
   // Deleting the protein itself is made only once
 
   for (const auto& gen_unit: _genetic_unit_list) {
-    auto rna_list = gen_unit.get_rna_list();
-    for (const auto& rna: rna_list[LEADING])
-      rna->clear_transcribed_proteins();
-    for (const auto& rna: rna_list[LAGGING])
-      rna->clear_transcribed_proteins();
+    for (auto strand: {LEADING, LAGGING}) {
+      auto gu_list = gen_unit.get_rna_list();
+      // TODO vld: strange bug if `gen_unit.get_rna_list()[strand]`
+      // instead of `gu_list[strand]`
+      for (const auto& rna: gu_list[strand])
+        rna->clear_transcribed_proteins();
     // TODO vld: convert to STL the next 2 lines
     // (gen_unit->get_protein_list()[LEADING])->erase(true);
     // (gen_unit->get_protein_list()[LAGGING])->erase(true);
+    }
   }
-
-
 
   // Initialize statistical data
   _total_genome_size                  = 0;
