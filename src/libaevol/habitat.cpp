@@ -32,6 +32,12 @@
 // ============================================================================
 #include "habitat.h"
 
+#include <iostream>
+
+
+using std::cout;
+using std::endl;
+
 
 namespace aevol {
 
@@ -51,10 +57,18 @@ namespace aevol {
 // ============================================================================
 Habitat::Habitat(void) {
   compound_amount_ = 0.0;
+  phenotypic_target_handler_ = std::make_shared<PhenotypicTargetHandler>();
 }
 
-Habitat::Habitat(gzFile backup_file) {
-  gzread(backup_file, &compound_amount_, sizeof(compound_amount_));
+Habitat::Habitat(const Habitat& rhs, bool share_phenotypic_target) {
+  assert(share_phenotypic_target);
+  compound_amount_ = rhs.compound_amount_;
+  phenotypic_target_handler_ = rhs.phenotypic_target_handler_;
+}
+
+Habitat::Habitat(gzFile backup_file,
+                 std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler_) {
+  load(backup_file, phenotypic_target_handler_);
 }
 
 // ============================================================================
@@ -64,8 +78,20 @@ Habitat::Habitat(gzFile backup_file) {
 // ============================================================================
 //                                   Methods
 // ============================================================================
-void Habitat::save(gzFile backup_file) const {
+void Habitat::save(gzFile backup_file,
+                   bool skip_phenotypic_target /*=false*/) const {
   gzwrite(backup_file, &compound_amount_, sizeof(compound_amount_));
+  if (not skip_phenotypic_target)
+    phenotypic_target_handler_->save(backup_file);
+}
+
+void Habitat::load(gzFile backup_file,
+                   std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler) {
+  gzread(backup_file, &compound_amount_, sizeof(compound_amount_));
+  if (phenotypic_target_handler == nullptr)
+    phenotypic_target_handler_ = std::make_shared<PhenotypicTargetHandler>(backup_file);
+  else
+    phenotypic_target_handler_ = phenotypic_target_handler;
 }
 
 // ============================================================================

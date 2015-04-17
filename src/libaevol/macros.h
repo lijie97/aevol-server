@@ -43,14 +43,6 @@ constexpr int8_t NB_BASE = 2; // WARNING :  A lot of stuff has been optimized fo
 #define OUT_P_FNAME_BASE          "output_profile"
 #define OUT_P_FNAME_FORMAT        OUT_P_DIR "/" OUT_P_FNAME_BASE ".ae"
 #define OUT_P_CUR_FNAME           "output_profile.ae"
-// Environment
-#define ENV_DIR                   "environment"
-#define ENV_FNAME_BASE            "env_%06" PRId64
-#define ENV_FNAME_FORMAT          ENV_DIR "/" ENV_FNAME_BASE ".ae"
-// Population
-#define POP_DIR                   "populations"
-#define POP_FNAME_BASE            "pop_%06" PRId64
-#define POP_FNAME_FORMAT          POP_DIR "/" POP_FNAME_BASE ".ae"
 // Spatial Structure
 #define WORLD_DIR             "world"
 #define WORLD_FNAME_BASE      "world_%06" PRId64

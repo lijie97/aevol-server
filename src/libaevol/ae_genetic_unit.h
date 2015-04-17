@@ -30,27 +30,21 @@
 
 
 // =================================================================
-//                              Libraries
+//                              Includes
 // =================================================================
 #include <cinttypes>
 #include <cstdio>
 
-
 #include <memory>
 
-
-// =================================================================
-//                            Project Files
-// =================================================================
 #include "ae_list.h"
 #include "ae_dna.h"
 #include "ae_rna.h"
 #include "ae_protein.h"
 #include "fuzzy.h"
-#include "environment.h"
 #include "ae_jumping_mt.h"
 #include "ae_utils.h"
-
+#include "phenotypic_target.h"
 
 
 using std::vector;
@@ -176,8 +170,8 @@ class ae_genetic_unit
   
 
     // DM: these two are identical to functions from ae_individual
-    void compute_distance_to_target(Environment* envir);
-    void compute_fitness(Environment* envir);
+    void compute_distance_to_target(const PhenotypicTarget& target);
+    void compute_fitness(const PhenotypicTarget& target);
 
     void reset_expression(void); // useful for post-treatment programs
 

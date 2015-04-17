@@ -83,12 +83,12 @@ ae_individual_X11::ae_individual_X11(ae_exp_manager* exp_manager, gzFile backup_
   init_occupied_sectors();
 }
 
-ae_individual_X11::ae_individual_X11(const ae_individual_X11 &model,
-                                     bool replication_report_copy) :
-    ae_individual(model, replication_report_copy)
-{
-  init_occupied_sectors();
-}
+//ae_individual_X11::ae_individual_X11(const ae_individual_X11 &model,
+//                                     bool replication_report_copy) :
+//    ae_individual(model, replication_report_copy)
+//{
+//  init_occupied_sectors();
+//}
 
 ae_individual_X11::ae_individual_X11(ae_individual_X11* const parent,
                                      int32_t id,

@@ -28,22 +28,23 @@
 
 
 // =================================================================
-//                              Libraries
+//                              Includes
 // =================================================================
 #include <err.h>
-#include <errno.h>
+#include <cerrno>
 #include <sys/stat.h>
-#include <unistd.h>
-#include <zlib.h>
 
 #include <list>
+#include <iostream>
 
-// =================================================================
-//                            Project Files
-// =================================================================
+#include <zlib.h>
+
 #include "ae_exp_manager.h"
 #include "ae_individual.h"
 
+
+using std::cout;
+using std::endl;
 
 
 namespace aevol {
@@ -64,9 +65,6 @@ ae_exp_manager::ae_exp_manager(void)
 {
   // ------------------------------------------------------ Experimental setup
   _exp_s = new ae_exp_setup(this);
-
-  // ------------------------------------------------------------- Environment
-  _env = new Environment();
 
   // ------------------------------------------------------------------- World
   world_ = NULL;
@@ -90,7 +88,6 @@ ae_exp_manager::~ae_exp_manager(void)
 {
   delete _exp_s;
   delete _output_m;
-  delete _env;
   delete world_;
 }
 
@@ -106,6 +103,17 @@ ae_exp_manager::~ae_exp_manager(void)
 // ===========================================================================
 //                                 Public Methods
 // ===========================================================================
+void ae_exp_manager::InitializeWorld(int16_t grid_width,
+                                     int16_t grid_height,
+                                     std::shared_ptr<ae_jumping_mt> prng,
+                                     const Habitat& habitat,
+                                     bool share_phenotypic_target)
+{
+  world_ = new World();
+  world_->InitGrid(grid_width, grid_height, habitat, share_phenotypic_target);
+  world_->set_prng(prng);
+}
+
 /*!
   \brief Save all the static data (the data that is constant throughout
   a simulation)
@@ -123,7 +131,6 @@ ae_exp_manager::~ae_exp_manager(void)
   \see load(int64_t t0,
             char* exp_setup_file_name,
             char* out_prof_file_name,
-            char* env_file_name,
             char* pop_file_name,
             char* sel_file_name,
             char* world_file_name,
@@ -153,7 +160,6 @@ void ae_exp_manager::write_setup_files(void)
 
   Save the state of
     * The population
-    * The environment iff it is changing (i.e. it has variation and/or noise)
     * The world
     * The PRNG (random generator) used for the selection
 
@@ -166,7 +172,6 @@ void ae_exp_manager::write_setup_files(void)
   \see load(int64_t t0,
             char* exp_setup_file_name,
             char* out_prof_file_name,
-            char* env_file_name,
             char* pop_file_name,
             char* sel_file_name,
             char* world_file_name,
@@ -176,21 +181,19 @@ void ae_exp_manager::write_setup_files(void)
 */
 void ae_exp_manager::save(void) const
 {
-  // 1) Create missing directories
+  // Create missing directories
   create_missing_directories();
 
-  // 2) Open backup files (environment, selection and world)
-  gzFile env_file, sel_file, world_file;
-  open_backup_files(env_file, sel_file, world_file,
-      Time::get_time(), "w");
+  // Open backup files
+  gzFile sel_file, world_file;
+  open_backup_files(sel_file, world_file, Time::get_time(), "w");
 
-  // 3) Write the state of the environment and world into the backups
-  get_env()->save(env_file);
+  // Save experiment
   get_sel()->save(sel_file);
   world_->save(world_file);
 
-  // 4) Close backup files
-  close_backup_files(env_file, sel_file, world_file);
+  // Close backup files
+  close_backup_files(sel_file, world_file);
 }
 
 /*!
@@ -204,14 +207,12 @@ void ae_exp_manager::save(void) const
     * The output profile
 
   Dynamic files (saved as gzipped binary)
-    * The environment iff it is changing (i.e. it has variation and/or noise)
     * The world
     * The PRNG (random generator) used for the selection
 
   \see load(int32_t first_gener,
              char* exp_setup_file_name,
              char* out_prof_file_name,
-             char* env_file_name,
              char* pop_file_name,
              char* sel_file_name,
              char* world_file_name,
@@ -221,35 +222,32 @@ void ae_exp_manager::save(void) const
 */
 void ae_exp_manager::save_copy(char* dir, int32_t num_gener /*= 0*/) const
 {
-  // 1) Create missing directories
+  // Create missing directories
   create_missing_directories(dir);
 
-  // 2) Open setup files (experimental setup and output profile)
-  //    and backup files (environment, selection and world)
-  gzFile exp_s_file, out_p_file, env_file, sel_file, world_file;
+  // Open setup files and backup files
+  gzFile exp_s_file, out_p_file, sel_file, world_file;
   open_setup_files(exp_s_file, out_p_file, num_gener, "w", dir);
-  open_backup_files(env_file, sel_file, world_file, num_gener, "w", dir);
+  open_backup_files(sel_file, world_file, num_gener, "w", dir);
 
-  // 3) Write setup data
+  // Write setup data
   _exp_s->write_setup_file(exp_s_file);
   _output_m->write_setup_file(out_p_file);
 
-  // 4) Write the state of the environment, selection and world into the backups
-  get_env()->save(env_file);
+  // Write the state of selection and world into the backups
   get_sel()->save(sel_file);
   world_->save(world_file);
 
-  // 4) Close setup and backup files
+  // Close setup and backup files
   close_setup_files(exp_s_file, out_p_file);
-  close_backup_files(env_file, sel_file, world_file);
+  close_backup_files(sel_file, world_file);
 }
 
 
 /*!
   \brief Load an experiment with the provided files
  */
-void ae_exp_manager::load(gzFile& env_file,
-                          gzFile& exp_s_file,
+void ae_exp_manager::load(gzFile& exp_s_file,
                           gzFile& exp_backup_file,
                           gzFile& world_file,
                           gzFile& out_p_file,
@@ -269,14 +267,6 @@ void ae_exp_manager::load(gzFile& env_file,
   world_->load(world_file, this);
   printf(" OK\n");
 
-  // --------------------------------------------- Retrieve environmental data
-  printf("  Loading environment...");
-  fflush(stdout);
-  //~ delete _env;
-  //~ _env = new ae_environment();
-  _env->load(env_file);
-  printf(" OK\n");
-
   // --------------------------------------------- Retrieve output profile data
   printf("  Loading output profile...");
   fflush(stdout);
@@ -294,42 +284,40 @@ void ae_exp_manager::load(const char* dir,
   Time::set_time(t0);
 
   // -------------------------------------------------------------------------
-  // 1) Open setup files (experimental setup and output profile)
-  //    and backup files (environment, selection and world)
+  // Open setup files and backup files
   // -------------------------------------------------------------------------
   gzFile exp_s_file, out_p_file;
-  gzFile env_file, exp_backup_file, world_file;
+  gzFile exp_backup_file, world_file;
   open_setup_files(exp_s_file, out_p_file, t0, "r", dir);
-  open_backup_files(env_file, exp_backup_file, world_file, t0, "r", dir);
+  open_backup_files(exp_backup_file, world_file, t0, "r", dir);
 
 
   // -------------------------------------------------------------------------
-  // 2) Load data from backup and parameter files
+  // Load data from backup and parameter files
   // -------------------------------------------------------------------------
-  load(env_file, exp_s_file, exp_backup_file,
+  load(exp_s_file, exp_backup_file,
        world_file, out_p_file, verbose, to_be_run);
 
 
   // -------------------------------------------------------------------------
-  // 3) Close setup and backup files
+  // Close setup and backup files
   // -------------------------------------------------------------------------
   close_setup_files(exp_s_file, out_p_file);
-  close_backup_files(env_file, exp_backup_file, world_file);
+  close_backup_files(exp_backup_file, world_file);
 
 
   // ---------------------------------------------------------------------------
-  // 4) Recompute unsaved data
+  // Recompute unsaved data
   // ---------------------------------------------------------------------------
   // Evaluate individuals
-  world_->evaluate_individuals(get_env());
+  world_->evaluate_individuals();
 }
 
 
-/*!
-  \brief Load an experiment with the provided constitutive files
+/**
+ * \brief Load an experiment with the provided constitutive files
  */
 void ae_exp_manager::load(int64_t t0,
-                          char* env_file_name,
                           char* exp_setup_file_name,
                           char* exp_backup_file_name,
                           char* world_file_name,
@@ -344,7 +332,6 @@ void ae_exp_manager::load(int64_t t0,
   // ---------------------------------------------------------------------------
   gzFile exp_setup_file = gzopen(exp_setup_file_name, "r");
   gzFile out_prof_file = gzopen(out_prof_file_name, "r");
-  gzFile env_file = gzopen(env_file_name, "r");
   gzFile exp_backup_file = gzopen(exp_backup_file_name, "r");
   gzFile world_file  = gzopen(world_file_name, "r");
 
@@ -357,11 +344,6 @@ void ae_exp_manager::load(int64_t t0,
   if (out_prof_file == Z_NULL)
   {
     printf("%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, out_prof_file_name);
-    exit(EXIT_FAILURE);
-  }
-  if (env_file == Z_NULL)
-  {
-    printf("%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, env_file_name);
     exit(EXIT_FAILURE);
   }
   if (exp_backup_file == Z_NULL)
@@ -379,14 +361,13 @@ void ae_exp_manager::load(int64_t t0,
   // ---------------------------------------------------------------------------
   // Actually load data
   // ---------------------------------------------------------------------------
-  load(env_file, exp_setup_file, exp_backup_file,
-      world_file, out_prof_file, verbose, to_be_run);
+  load(exp_setup_file, exp_backup_file, world_file, out_prof_file,
+       verbose, to_be_run);
 
 
   // ---------------------------------------------------------------------------
   // Close setup and backup files
   // ---------------------------------------------------------------------------
-  gzclose(env_file);
   gzclose(exp_setup_file);
   gzclose(exp_backup_file);
   gzclose(world_file);
@@ -397,7 +378,7 @@ void ae_exp_manager::load(int64_t t0,
   // 5) Recompute unsaved data
   // ---------------------------------------------------------------------------
   // Evaluate individuals
-  world_->evaluate_individuals(get_env());
+  world_->evaluate_individuals();
 }
 
 /**
@@ -481,20 +462,6 @@ void ae_exp_manager::create_missing_directories(const char* dir /*= "."*/) const
   {
     err(EXIT_FAILURE, cur_dir_name, errno);
   }
-  // Environment
-  sprintf(cur_dir_name, "%s/" ENV_DIR, dir);
-  status = mkdir(cur_dir_name, 0755);
-  if ((status == -1) && (errno != EEXIST))
-  {
-    err(EXIT_FAILURE, cur_dir_name, errno);
-  }
-  // Population
-  sprintf(cur_dir_name, "%s/" POP_DIR, dir);
-  status = mkdir(cur_dir_name, 0755);
-  if ((status == -1) && (errno != EEXIST))
-  {
-    err(EXIT_FAILURE, cur_dir_name, errno);
-  }
   // World
   sprintf(cur_dir_name, "%s/" WORLD_DIR, dir);
   status = mkdir(cur_dir_name, 0755);
@@ -504,8 +471,7 @@ void ae_exp_manager::create_missing_directories(const char* dir /*= "."*/) const
   }
 }
 
-void ae_exp_manager::open_backup_files(gzFile& env_file,
-                                       gzFile& exp_backup_file,
+void ae_exp_manager::open_backup_files(gzFile& exp_backup_file,
                                        gzFile& world_file,
                                        int64_t t,
                                        const char mode[3],
@@ -514,34 +480,25 @@ void ae_exp_manager::open_backup_files(gzFile& env_file,
   assert(strcmp(mode, "w") == 0 or strcmp(mode, "r") == 0);
 
   // -------------------------------------------------------------------------
-  // 1) Generate backup file names for mandatory files.
+  // Generate backup file names for mandatory files.
   // -------------------------------------------------------------------------
-  char env_file_name[255];
   char exp_backup_file_name[255];
   char world_file_name[255];
 
-  sprintf(env_file_name, "%s/" ENV_FNAME_FORMAT, dir, t);
   sprintf(exp_backup_file_name, "%s/" EXP_S_FNAME_FORMAT, dir, t);
   sprintf(world_file_name, "%s/" WORLD_FNAME_FORMAT, dir, t);
 
 
   // -------------------------------------------------------------------------
-  // 2) Open backup files (environment, population and selection)
+  // Open backup files
   // -------------------------------------------------------------------------
-  env_file = gzopen(env_file_name, mode);
   exp_backup_file = gzopen(exp_backup_file_name, mode);
   world_file = gzopen(world_file_name, mode);
 
 
   // -------------------------------------------------------------------------
-  // 3) Check that files were correctly opened
+  // Check that files were correctly opened
   // -------------------------------------------------------------------------
-  if (env_file == Z_NULL)
-  {
-    printf("%s:%d: error: could not open backup file %s\n",
-            __FILE__, __LINE__, env_file_name);
-    exit(EXIT_FAILURE);
-  }
   if (exp_backup_file == Z_NULL)
   {
     printf("%s:%d: error: could not open backup file %s\n",
@@ -556,11 +513,9 @@ void ae_exp_manager::open_backup_files(gzFile& env_file,
   }
 }
 
-void ae_exp_manager::close_backup_files(gzFile& env_file,
-                                        gzFile& exp_backup_file,
+void ae_exp_manager::close_backup_files(gzFile& exp_backup_file,
                                         gzFile& world_file) const
 {
-  gzclose(env_file);
   gzclose(exp_backup_file);
   gzclose(world_file);
 }
@@ -579,7 +534,7 @@ void ae_exp_manager::open_setup_files(
   sprintf(exp_s_file_name, "%s/" EXP_S_CONST_FNAME_FORMAT, dir);
   sprintf(out_p_file_name, "%s/" OUT_P_FNAME_FORMAT, dir);
 
-  // 2) Open backup files (environment and world)
+  // 2) Open backup files
   exp_s_file = gzopen(exp_s_file_name, mode);
   out_p_file = gzopen(out_p_file_name, mode);
 

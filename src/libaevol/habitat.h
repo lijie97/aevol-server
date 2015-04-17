@@ -64,7 +64,9 @@ class Habitat
   Habitat(void); //< Default ctor
   Habitat(const Habitat&) = delete; //< Copy ctor
   Habitat(Habitat&&) = delete; //< Move ctor
-  Habitat(gzFile backup_file);
+  Habitat(const Habitat&, bool share_phenotypic_target);
+  Habitat(gzFile backup_file,
+          std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler_);
 
   // ==========================================================================
   //                                Destructor
@@ -75,6 +77,15 @@ class Habitat
   //                                 Getters
   // ==========================================================================
   double compound_amount(void) const {return compound_amount_;};
+  const PhenotypicTarget& phenotypic_target() const {
+    return phenotypic_target_handler_->phenotypic_target();
+  }
+  const PhenotypicTargetHandler& phenotypic_target_handler() const {
+    return *phenotypic_target_handler_;
+  }
+  PhenotypicTargetHandler& phenotypic_target_handler_nonconst() const {
+    return *phenotypic_target_handler_;
+  }
 
   // ==========================================================================
   //                                 Setters
@@ -90,7 +101,10 @@ class Habitat
   // ==========================================================================
   //                              Public Methods
   // ==========================================================================
-  void save(gzFile backup_file) const;
+  void save(gzFile backup_file,
+            bool skip_phenotypic_target = false) const;
+  void load(gzFile backup_file,
+            std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler);
 
 
 

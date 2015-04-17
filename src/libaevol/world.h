@@ -60,116 +60,122 @@ class ae_exp_manager;
 
 class World
 {
-  public :
-    // =================================================================
-    //                             Constructors
-    // =================================================================
-    World(void) = default;
-    World(const World&) = delete;
+ public :
+  // =================================================================
+  //                             Constructors
+  // =================================================================
+  World(void) = default;
+  World(const World&) = delete;
 
-    // =================================================================
-    //                             Destructors
-    // =================================================================
-    virtual ~World(void);
+  // =================================================================
+  //                             Destructors
+  // =================================================================
+  virtual ~World(void);
 
-    // =================================================================
-    //                        Accessors: getters
-    // =================================================================
-    // PRNGs
-    std::shared_ptr<ae_jumping_mt> get_prng(void) const;
-    std::shared_ptr<ae_jumping_mt> get_mut_prng(void) const;
-    std::shared_ptr<ae_jumping_mt> get_stoch_prng(void) const;
+  // =================================================================
+  //                        Accessors: getters
+  // =================================================================
+  // PRNGs
+  std::shared_ptr<ae_jumping_mt> get_prng(void) const;
+  std::shared_ptr<ae_jumping_mt> get_mut_prng(void) const;
+  std::shared_ptr<ae_jumping_mt> get_stoch_prng(void) const;
 
-    std::list<ae_individual*> get_indivs_std(void) const;
-    inline int32_t          get_nb_indivs(void) const;
-    inline ae_individual*   get_best_indiv(void) const;
-    inline int16_t          width()  const {return width_;};
-    inline int16_t          height() const {return height_;};
-    inline int32_t          partial_mix_nb_permutations(void) const;
-    inline ae_grid_cell***  grid(void) const {return grid_;};
-    inline ae_grid_cell*    grid(int16_t x, int16_t y) const;
-    inline ae_individual*   get_indiv_at(int16_t x, int16_t y) const;
-  
-    inline double** get_secretion_present_grid(void) const;
-    inline double** get_secreted_amount_grid(void) const;
-    inline double** get_metabolic_fitness_grid(void) const;
-    inline double** get_total_fitness_grid(void) const;
+  std::list<ae_individual*> get_indivs_std(void) const;
+  inline int32_t          get_nb_indivs(void) const;
+  inline ae_individual*   get_best_indiv(void) const;
+  inline int16_t          width()  const {return width_;};
+  inline int16_t          height() const {return height_;};
+  inline int32_t          partial_mix_nb_permutations(void) const;
+  inline ae_grid_cell***  grid(void) const {return grid_;};
+  inline ae_grid_cell*    grid(int16_t x, int16_t y) const;
+  inline ae_individual*   get_indiv_at(int16_t x, int16_t y) const;
 
-    // =================================================================
-    //                        Accessors: setters
-    // =================================================================
-    // PRNGs
-    inline void set_prng(std::shared_ptr<ae_jumping_mt> prng);
-    void set_mut_prng(std::shared_ptr<ae_jumping_mt> prng);
-    void set_stoch_prng(std::shared_ptr<ae_jumping_mt> prng);
+  inline double** get_secretion_present_grid(void) const;
+  inline double** get_secreted_amount_grid(void) const;
+  inline double** get_metabolic_fitness_grid(void) const;
+  inline double** get_total_fitness_grid(void) const;
 
-    inline void set_is_well_mixed(bool is_well_mixed);
-    inline void set_partial_mix_nb_permutations(int32_t nb_permutations);
-    inline void set_secretion_degradation_prop(double degradation_prop);
-    inline void set_secretion_diffusion_prop(double diffusion_prop);
-    inline void set_best(int16_t x, int16_t y);
+  // =================================================================
+  //                        Accessors: setters
+  // =================================================================
+  // PRNGs
+  inline void set_prng(std::shared_ptr<ae_jumping_mt> prng);
+  void set_mut_prng(std::shared_ptr<ae_jumping_mt> prng);
+  void set_stoch_prng(std::shared_ptr<ae_jumping_mt> prng);
 
-    // =================================================================
-    //                              Operators
-    // =================================================================
+  inline void set_is_well_mixed(bool is_well_mixed);
+  inline void set_partial_mix_nb_permutations(int32_t nb_permutations);
+  inline void set_secretion_degradation_prop(double degradation_prop);
+  inline void set_secretion_diffusion_prop(double diffusion_prop);
+  inline void set_best(int16_t x, int16_t y);
 
-    // =================================================================
-    //                            Public Methods
-    // =================================================================
-    void InitGrid(int16_t width, int16_t height);
-    void PlaceIndiv(ae_individual* indiv, int16_t x, int16_t y);
-    void FillGridWithClones(ae_individual& dolly);
-    void evaluate_individuals(Environment* envir);
-    void update_secretion_grid(void);
-    void MixIndivs(void);
-    void update_best(void);
-    void save(gzFile backup_file) const;
-    void load(gzFile backup_file, ae_exp_manager* exp_man);
+  // =================================================================
+  //                              Operators
+  // =================================================================
 
-    // =================================================================
-    //                           Public Attributes
-    // =================================================================
+  // =================================================================
+  //                            Public Methods
+  // =================================================================
+  void InitGrid(int16_t width, int16_t height,
+                const Habitat& habitat,
+                bool share_phenotypic_target);
+  void PlaceIndiv(ae_individual* indiv, int16_t x, int16_t y);
+  void FillGridWithClones(ae_individual& dolly);
+  void evaluate_individuals();
+  void update_secretion_grid(void);
+  void MixIndivs(void);
+  void update_best(void);
+
+  void save(gzFile backup_file) const;
+  void load(gzFile backup_file, ae_exp_manager* exp_man);
+
+  // =================================================================
+  //                           Public Attributes
+  // =================================================================
 
 
 
 
 
-  protected :
-    // =================================================================
-    //                           Protected Methods
-    // =================================================================
-    void MallocGrid(void);
-    void WellMixIndivs(void);
-    void PartiallyMixIndivs(void);
-    #ifndef DISTRIBUTED_PRNG
-      void backup_stoch_prng(void);
-    #endif
+ protected :
+  // =================================================================
+  //                           Protected Methods
+  // =================================================================
+  void MallocGrid(void);
+  void WellMixIndivs(void);
+  void PartiallyMixIndivs(void);
+  #ifndef DISTRIBUTED_PRNG
+    void backup_stoch_prng(void);
+  #endif
 
-    // =================================================================
-    //                          Protected Attributes
-    // =================================================================
-    std::shared_ptr<ae_jumping_mt> _prng = NULL;
+  // =================================================================
+  //                          Protected Attributes
+  // =================================================================
+  std::shared_ptr<ae_jumping_mt> _prng = NULL;
 
-    #ifndef DISTRIBUTED_PRNG
-      std::shared_ptr<ae_jumping_mt> _mut_prng = NULL;
-      std::shared_ptr<ae_jumping_mt> _stoch_prng = NULL;
-      std::unique_ptr<ae_jumping_mt> _stoch_prng_bak = NULL;
-    #endif
-    
-    int16_t width_  = -1;
-    int16_t height_ = -1;
+  #ifndef DISTRIBUTED_PRNG
+    std::shared_ptr<ae_jumping_mt> _mut_prng = nullptr;
+    std::shared_ptr<ae_jumping_mt> _stoch_prng = nullptr;
+    std::unique_ptr<ae_jumping_mt> _stoch_prng_bak = nullptr;
+  #endif
 
-    int16_t x_best = -1;
-    int16_t y_best = -1;
-    
-    ae_grid_cell*** grid_ = NULL;
-    ae_grid_cell** grid_1d_ = NULL;
-    
-    bool is_well_mixed_ = false;
-    int32_t partial_mix_nb_permutations_ = 0;
+  int16_t width_  = -1;
+  int16_t height_ = -1;
 
-    double  _secretion_diffusion_prop = -1;
-    double  _secretion_degradation_prop = -1;
+  int16_t x_best = -1;
+  int16_t y_best = -1;
+
+  ae_grid_cell*** grid_ = nullptr;
+  ae_grid_cell** grid_1d_ = nullptr;
+
+  bool is_well_mixed_ = false;
+  int32_t partial_mix_nb_permutations_ = 0;
+
+  bool phenotypic_target_shared = true;
+  std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler_ = nullptr;
+
+  double  _secretion_diffusion_prop = -1;
+  double  _secretion_degradation_prop = -1;
 };
 
 

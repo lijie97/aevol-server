@@ -29,7 +29,7 @@ const char* DEFAULT_PARAM_FILE_NAME = "param.in";
  
  
 // =================================================================
-//                              Libraries
+//                              Includes
 // =================================================================
 #include <cstdlib>
 #include <cstdio>
@@ -39,9 +39,6 @@ const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 
 #include <list>
 
-// =================================================================
-//                            Project Files
-// =================================================================
 #include "f_line.h"
 #ifdef __X11
 #include "ae_exp_manager_X11.h"
@@ -154,7 +151,7 @@ int main(int argc, char* argv[])
   exp_manager->load(num_gener, false, verbose);
 
   // 7) Define syntaxic sugars for the population, the environment, the selection...  
-  Environment* env = exp_manager->get_env();
+//  Environment* env = exp_manager->get_env();
   ae_selection* sel = exp_manager->get_sel();
   World* world = exp_manager->world();
 
@@ -208,53 +205,56 @@ int main(int argc, char* argv[])
     cur_line++;
     if (strcmp(line->words[0], "ENV_AXIS_FEATURES") == 0)
     {
-      int16_t env_axis_nb_segments = line->nb_words / 2;
-      double* env_axis_segment_boundaries = new double [env_axis_nb_segments + 1];
-      env_axis_segment_boundaries[0] = X_MIN;
-      for (int16_t i = 1 ; i < env_axis_nb_segments ; i++)
-      {
-        env_axis_segment_boundaries[i] = atof(line->words[2*i]);
-      }
-      env_axis_segment_boundaries[env_axis_nb_segments] = X_MAX;
-  
-      // Set segment features
-      ae_env_axis_feature* env_axis_features = new ae_env_axis_feature[env_axis_nb_segments];
-      for (int16_t i = 0 ; i < env_axis_nb_segments ; i++)
-      {
-        if (strcmp(line->words[2*i+1], "NEUTRAL") == 0)
-        {
-          env_axis_features[i] = NEUTRAL;
-        }
-        else if (strcmp(line->words[2*i+1], "METABOLISM") == 0)
-        {
-          env_axis_features[i] = METABOLISM;
-        }
-        else if (strcmp(line->words[2*i+1], "SECRETION") == 0)
-        {
-          exp_manager->get_exp_s()->set_with_secretion(true);
-          env_axis_features[i] = SECRETION;
-        }
-        else if (strcmp(line->words[2*i+1], "DONOR") == 0)
-        {
-          env_axis_features[i] = DONOR;
-        }
-        else if (strcmp(line->words[2*i+1], "RECIPIENT") == 0)
-        {
-          env_axis_features[i] = RECIPIENT;
-        }
-        else
-        {
-          printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown axis feature \"%s\".\n",
-                  param_file_name, cur_line, line->words[2*i+1]);
-          exit(EXIT_FAILURE);
-        }
-      }
-      env->set_segmentation(env_axis_nb_segments,
-                             env_axis_segment_boundaries,
-                             env_axis_features);
-      env_hasbeenmodified = true;
-      delete env_axis_segment_boundaries;
-      delete env_axis_features;
+      // TODO <david.parsons@inria.fr> adapt to new organization
+      printf("%s:%d: error: ENV_AXIS_FEATURES has to be adapted to the new organization.\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
+//      int16_t env_axis_nb_segments = line->nb_words / 2;
+//      double* env_axis_segment_boundaries = new double [env_axis_nb_segments + 1];
+//      env_axis_segment_boundaries[0] = X_MIN;
+//      for (int16_t i = 1 ; i < env_axis_nb_segments ; i++)
+//      {
+//        env_axis_segment_boundaries[i] = atof(line->words[2*i]);
+//      }
+//      env_axis_segment_boundaries[env_axis_nb_segments] = X_MAX;
+//
+//      // Set segment features
+//      ae_env_axis_feature* env_axis_features = new ae_env_axis_feature[env_axis_nb_segments];
+//      for (int16_t i = 0 ; i < env_axis_nb_segments ; i++)
+//      {
+//        if (strcmp(line->words[2*i+1], "NEUTRAL") == 0)
+//        {
+//          env_axis_features[i] = NEUTRAL;
+//        }
+//        else if (strcmp(line->words[2*i+1], "METABOLISM") == 0)
+//        {
+//          env_axis_features[i] = METABOLISM;
+//        }
+//        else if (strcmp(line->words[2*i+1], "SECRETION") == 0)
+//        {
+//          exp_manager->get_exp_s()->set_with_secretion(true);
+//          env_axis_features[i] = SECRETION;
+//        }
+//        else if (strcmp(line->words[2*i+1], "DONOR") == 0)
+//        {
+//          env_axis_features[i] = DONOR;
+//        }
+//        else if (strcmp(line->words[2*i+1], "RECIPIENT") == 0)
+//        {
+//          env_axis_features[i] = RECIPIENT;
+//        }
+//        else
+//        {
+//          printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown axis feature \"%s\".\n",
+//                  param_file_name, cur_line, line->words[2*i+1]);
+//          exit(EXIT_FAILURE);
+//        }
+//      }
+//      env->set_segmentation(env_axis_nb_segments,
+//                             env_axis_segment_boundaries,
+//                             env_axis_features);
+//      env_hasbeenmodified = true;
+//      delete env_axis_segment_boundaries;
+//      delete env_axis_features;
     }
     else if (strcmp(line->words[0], "RECORD_TREE") == 0)
     {
@@ -450,20 +450,23 @@ int main(int argc, char* argv[])
     }
     else if ((strcmp(line->words[0], "ENV_ADD_GAUSSIAN") == 0) || (strcmp(line->words[0], "ENV_GAUSSIAN") == 0))
     {
-      if (env_change)
-      {
-        env->add_gaussian(atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
-        printf("\tAddition of a gaussian with %f, %f, %f \n",atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
-      }
-      else
-      {
-        env->clear_gaussians();
-        env->clear_initial_gaussians();
-        env->add_gaussian(atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
-        printf("\tChange of the environment: first gaussian with %f, %f, %f \n",atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
-        env_change = true;
-      }
-      env_hasbeenmodified = true;
+      // TODO <david.parsons@inria.fr> adapt to new organization
+      printf("%s:%d: error: ENV_ADD_GAUSSIAN has to be adapted to the new organization.\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
+//      if (env_change)
+//      {
+//        env->add_gaussian(atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
+//        printf("\tAddition of a gaussian with %f, %f, %f \n",atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
+//      }
+//      else
+//      {
+//        env->clear_gaussians();
+//        env->clear_initial_gaussians();
+//        env->add_gaussian(atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
+//        printf("\tChange of the environment: first gaussian with %f, %f, %f \n",atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
+//        env_change = true;
+//      }
+//      env_hasbeenmodified = true;
     }
     else if (strcmp(line->words[0], "ENV_ADD_POINT") == 0) 
     {
@@ -473,50 +476,53 @@ int main(int argc, char* argv[])
     }
     else if (strcmp(line->words[0], "ENV_VARIATION") == 0)
     {
-      static bool env_var_already_set = false;
-      if (env_var_already_set)
-      {
-        printf("%s:%d: ERROR in param file : duplicate entry for %s.\n", __FILE__, __LINE__, line->words[0]);
-        exit(EXIT_FAILURE);
-      }
-      env_var_already_set = true;
-  
-      if (strcmp(line->words[1], "none") == 0)
-      {
-        assert(line->nb_words == 2);
-        env->set_var_method(NO_VAR);
-        printf("\tNo more environmental variation\n");
-      }
-      else if (strcmp(line->words[1], "autoregressive_mean_variation") == 0)
-      {
-        assert(line->nb_words == 5);
-        env->set_var_method(AUTOREGRESSIVE_MEAN_VAR);
-        env->set_var_sigma(atof(line->words[2]));
-        env->set_var_tau(atol(line->words[3]));
-        env->set_var_prng(std::make_shared<ae_jumping_mt>(atoi(line->words[4])));
-        printf("\tChange of environmental variation to a autoregressive mean variation with sigma=%f, tau=%ld and seed=%d\n", atof(line->words[2]),atol(line->words[3]),atoi(line->words[4]));
-      }
-      else if (strcmp(line->words[1], "autoregressive_height_variation") == 0)
-      {
-        assert(line->nb_words == 5);
-        env->set_var_method(AUTOREGRESSIVE_HEIGHT_VAR);
-        env->set_var_sigma(atof(line->words[2]));
-        env->set_var_tau(atol(line->words[3]));
-        env->set_var_prng(std::make_shared<ae_jumping_mt>(atoi(line->words[4])));
-        printf("\tChange of environmental variation to a autoregressive height variation with sigma=%f, tau=%ld and seed=%d\n", atof(line->words[2]),atol(line->words[3]),atoi(line->words[4]));
-      }
-      else if (strcmp(line->words[1], "add_local_gaussians") == 0)
-      {
-        assert(line->nb_words == 3);
-        env->set_var_method(LOCAL_GAUSSIANS_VAR);
-        env->set_var_prng(std::make_shared<ae_jumping_mt>(atoi(line->words[2])));
-        printf("\tChange of environmental variation to a local gaussians variation with seed=%d\n", atoi(line->words[2]));
-      }
-      else
-      {
-        printf("%s:%d: ERROR in param file : unknown environment variation method.\n", __FILE__, __LINE__);
-        exit(EXIT_FAILURE);
-      }
+      // TODO <david.parsons@inria.fr> adapt to new organization
+      printf("%s:%d: error: ENV_VARIATION has to be adapted to the new organization.\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
+//      static bool env_var_already_set = false;
+//      if (env_var_already_set)
+//      {
+//        printf("%s:%d: ERROR in param file : duplicate entry for %s.\n", __FILE__, __LINE__, line->words[0]);
+//        exit(EXIT_FAILURE);
+//      }
+//      env_var_already_set = true;
+//
+//      if (strcmp(line->words[1], "none") == 0)
+//      {
+//        assert(line->nb_words == 2);
+//        env->set_var_method(NO_VAR);
+//        printf("\tNo more environmental variation\n");
+//      }
+//      else if (strcmp(line->words[1], "autoregressive_mean_variation") == 0)
+//      {
+//        assert(line->nb_words == 5);
+//        env->set_var_method(AUTOREGRESSIVE_MEAN_VAR);
+//        env->set_var_sigma(atof(line->words[2]));
+//        env->set_var_tau(atol(line->words[3]));
+//        env->set_var_prng(std::make_shared<ae_jumping_mt>(atoi(line->words[4])));
+//        printf("\tChange of environmental variation to a autoregressive mean variation with sigma=%f, tau=%ld and seed=%d\n", atof(line->words[2]),atol(line->words[3]),atoi(line->words[4]));
+//      }
+//      else if (strcmp(line->words[1], "autoregressive_height_variation") == 0)
+//      {
+//        assert(line->nb_words == 5);
+//        env->set_var_method(AUTOREGRESSIVE_HEIGHT_VAR);
+//        env->set_var_sigma(atof(line->words[2]));
+//        env->set_var_tau(atol(line->words[3]));
+//        env->set_var_prng(std::make_shared<ae_jumping_mt>(atoi(line->words[4])));
+//        printf("\tChange of environmental variation to a autoregressive height variation with sigma=%f, tau=%ld and seed=%d\n", atof(line->words[2]),atol(line->words[3]),atoi(line->words[4]));
+//      }
+//      else if (strcmp(line->words[1], "add_local_gaussians") == 0)
+//      {
+//        assert(line->nb_words == 3);
+//        env->set_var_method(LOCAL_GAUSSIANS_VAR);
+//        env->set_var_prng(std::make_shared<ae_jumping_mt>(atoi(line->words[2])));
+//        printf("\tChange of environmental variation to a local gaussians variation with seed=%d\n", atoi(line->words[2]));
+//      }
+//      else
+//      {
+//        printf("%s:%d: ERROR in param file : unknown environment variation method.\n", __FILE__, __LINE__);
+//        exit(EXIT_FAILURE);
+//      }
     }
     else if (strcmp(line->words[0], "SECRETION_CONTRIB_TO_FITNESS") == 0)
     {
@@ -668,10 +674,10 @@ int main(int argc, char* argv[])
 
   printf("OK\n");
 
-  if (env_hasbeenmodified)
-  {
-    env->build();
-  }
+//  if (env_hasbeenmodified)
+//  {
+//    env->build();
+//  }
 
   // 9) Save the modified experiment
   if (start_to_record_tree)

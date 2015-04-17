@@ -219,9 +219,10 @@ ae_individual::ae_individual(ae_exp_manager* exp_m, gzFile backup_file)
   for (int16_t i = 0 ; i < nb_gen_units ; i++)
     _genetic_unit_list.emplace_back(this, backup_file);
 
-  // --------------------------------------------------------------------------------------------
-  // No more data to retreive, the following are only structural initializations (no data is set)
-  // --------------------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  // No more data to retrieve, the following are only structural
+  // initializations (no data is set)
+  // --------------------------------------------------------------------------
 
   // Create empty fuzzy sets for activation and inhibition
   _phenotype_activ  = NULL;
@@ -256,7 +257,7 @@ ae_individual::ae_individual(ae_exp_manager* exp_m, gzFile backup_file)
 
   _modularity = -1;
 
-  //evaluate();
+  //Evaluate();
 }
 
 // TODO: this is obsolete, check usage and amend accordingly 
@@ -291,8 +292,6 @@ ae_individual::ae_individual(const ae_individual& model,
   // Artificial chemistry parameters
   _w_max = model._w_max;
 
-  // The distance to target and what results from it depend on the environment
-  // and must hence be recomputed with the (possibly different) environment.
   _distance_to_target_computed  = false;
   _fitness_computed             = false;
 
@@ -375,8 +374,6 @@ ae_individual::ae_individual(const ae_individual& model,
 
   // Plasmids settings
   _allow_plasmids = model._allow_plasmids;
-
-  evaluate();
 }
 
 /*!
@@ -475,7 +472,7 @@ ae_individual::ae_individual(const ae_individual* parent, int32_t id,
   // Initialize statistical data
   _modularity = -1;
 
-  //evaluate();
+  //Evaluate();
 }
 
 ae_individual* ae_individual::CreateIndividual(ae_exp_manager* exp_m,
@@ -499,11 +496,11 @@ ae_individual* ae_individual::CreateIndividual(ae_exp_manager* exp_m,
 }
 
 /*!
-  \brief Create of clone of an ae_individual
+  \brief Create a clone
 
   \param dolly original individual to be cloned
-  \param id ID of the clone in the population
-  \return clone of dolly
+  \param id ID of the clone
+  \return clone of dolly (not evaluated)
 */
 ae_individual* ae_individual::CreateClone(const ae_individual* dolly,
                                           int32_t id)
@@ -576,12 +573,12 @@ void ae_individual::set_grid_cell(ae_grid_cell* grid_cell)
 }
 
 /// TODO
-const char* ae_individual::get_strain_name(void) const {
+const char* ae_individual::get_strain_name() const {
   return _strain_name;
 }
 
 /// TODO
-int32_t ae_individual::get_age(void) const {
+int32_t ae_individual::get_age() const {
   return _age;
 }
 
@@ -736,6 +733,10 @@ Fuzzy* ae_individual::get_phenotype_inhib() const {
 /// TODO
 Phenotype* ae_individual::get_phenotype() const {
   return _phenotype;
+}
+
+const PhenotypicTarget& ae_individual::phenotypic_target() const {
+  return _grid_cell->phenotypic_target();
 }
 
 /// TODO
@@ -988,7 +989,7 @@ double ae_individual::get_repl_HT_detach_rate() const {
 
 
 // ---------------------------------------------------------------- Alignements
-bool ae_individual::get_with_alignments(void) const {
+bool ae_individual::get_with_alignments() const {
  return _mut_params->get_with_alignments();
 }
 
@@ -1326,9 +1327,9 @@ void ae_individual::compute_phenotype() {
   _phenotype->simplify();
 }
 
-void ae_individual::compute_distance_to_target(Environment* envir) {
-// Compute the areas between the phenotype and the environment for each environmental segment
-// If the environment is not segmented, the total area is computed
+void ae_individual::compute_distance_to_target(const PhenotypicTarget& target) {
+// Compute the areas between the phenotype and the target for each segment
+// If the target is not segmented, the total area is computed
   if (_distance_to_target_computed)
     return; // _distance_to_target has already been computed, nothing to do.
 
@@ -1337,13 +1338,13 @@ void ae_individual::compute_distance_to_target(Environment* envir) {
   if (not _phenotype_computed)
     compute_phenotype();
 
-  // Compute the difference between the (whole) phenotype and the environment
+  // Compute the difference between the (whole) phenotype and the target
   Fuzzy* delta = new Fuzzy(*_phenotype);
-  delta->sub(*envir);
+  delta->sub(target);
 
-  ae_env_segment** segments = envir->get_segments();
-  _dist_to_target_by_segment = new double [envir->get_nb_segments()];
-  for (size_t i = 0 ; i < envir->get_nb_segments() ; i++)
+  ae_env_segment** segments = target.segments();
+  _dist_to_target_by_segment = new double [target.nb_segments()];
+  for (size_t i = 0 ; i < target.nb_segments() ; i++) // TODO dpa suppress warning
   {
     _dist_to_target_by_segment[i] = 0;
   }
@@ -1352,7 +1353,7 @@ void ae_individual::compute_distance_to_target(Environment* envir) {
   //   => We shouldn't parse the whole list of points on the left of the segment we are considering (we have
   //      already been through them!)
 
-  for (size_t i = 0 ; i < envir->get_nb_segments() ; i++)
+  for (size_t i = 0 ; i < target.nb_segments() ; i++)// TODO dpa suppress warning
   {
     _dist_to_target_by_segment[i] = delta->get_geometric_area(segments[i]->start, segments[i]->stop);
     _dist_to_target_by_feature[segments[i]->feature] += _dist_to_target_by_segment[i];
@@ -1368,7 +1369,7 @@ void ae_individual::compute_distance_to_target(Environment* envir) {
   The behaviour of this function depends on many parameters and most notably on whether it is
   a "composite" fitness or not, and on the selection scheme.
 */
-void ae_individual::compute_fitness(Environment* envir) {
+void ae_individual::compute_fitness(const PhenotypicTarget& target) {
   if (_fitness_computed) return; // Fitness has already been computed, nothing to do.
   _fitness_computed = true;
 
@@ -1403,36 +1404,37 @@ void ae_individual::compute_fitness(Environment* envir) {
       _fitness = exp(-_exp_m->get_selection_pressure() * (1 - _fitness));
     }
   #else
-    for (int8_t i = 0 ; i < NB_FEATURES ; i++)
+  for (int8_t i = 0 ; i < NB_FEATURES ; i++)
+  {
+    if (i == SECRETION)
     {
-      if (i == SECRETION)
-      {
-        _fitness_by_feature[SECRETION] =  exp(- _exp_m->get_selection_pressure() * _dist_to_target_by_feature[SECRETION])
-                                        - exp(- _exp_m->get_selection_pressure() * envir->get_area_by_feature(SECRETION));
+      _fitness_by_feature[SECRETION] =  exp(- _exp_m->get_selection_pressure() * _dist_to_target_by_feature[SECRETION])
+                                        - exp(- _exp_m->get_selection_pressure() * target.area_by_feature(SECRETION));
 
-        if (_fitness_by_feature[i] < 0)
-        {
-          _fitness_by_feature[i] = 0;
-        }
-      }
-      else
+      if (_fitness_by_feature[i] < 0)
       {
-        _fitness_by_feature[i] = exp(- _exp_m->get_selection_pressure() * _dist_to_target_by_feature[i]);
+        _fitness_by_feature[i] = 0;
       }
-    }
-
-    // Calculate combined, total fitness here!
-    // Multiply the contribution of metabolism and the amount of compound in the environment
-    if ((! _placed_in_population) || (! _exp_m->get_with_secretion()))
-    {
-      _fitness =  _fitness_by_feature[METABOLISM] ;
     }
     else
     {
-      _fitness =  _fitness_by_feature[METABOLISM]
-                  *  (1 + _exp_m->get_secretion_contrib_to_fitness() * get_grid_cell()->compound_amount()
-                         - _exp_m->get_secretion_cost() * _fitness_by_feature[SECRETION]);
+      _fitness_by_feature[i] = exp(- _exp_m->get_selection_pressure() * _dist_to_target_by_feature[i]);
     }
+  }
+
+  // Calculate combined, total fitness here!
+  // Multiply the contribution of metabolism and the amount of compound in the
+  // habitat
+  if ((! _placed_in_population) || (! _exp_m->get_with_secretion()))
+  {
+    _fitness =  _fitness_by_feature[METABOLISM] ;
+  }
+  else
+  {
+    _fitness =  _fitness_by_feature[METABOLISM]
+                *  (1 + _exp_m->get_secretion_contrib_to_fitness() * get_grid_cell()->compound_amount()
+                    - _exp_m->get_secretion_cost() * _fitness_by_feature[SECRETION]);
+  }
   #endif
 }
 
@@ -1505,15 +1507,13 @@ void ae_individual::clear_everything_except_dna_and_promoters() {
   _modularity = -1;
 }
 
-void ae_individual::reevaluate(Environment* envir /*= NULL*/) {
+void ae_individual::reevaluate() {
   // useful for post-treatment programs that replay mutations
   // on a single individual playing the role of the successive
   // ancestors
 
   clear_everything_except_dna_and_promoters();
-
-  if (envir == NULL) envir = _exp_m->get_env();
-  evaluate(envir);
+  Evaluate();
 }
 
 
@@ -1593,31 +1593,31 @@ void ae_individual::do_folding() {
     gen_unit.compute_phenotypic_contribution();
 }
 
-void ae_individual::evaluate(Environment* envir /*= NULL*/) {
+void ae_individual::Evaluate() {
+  EvaluateInContext(_grid_cell->habitat());
+}
+
+void ae_individual::EvaluateInContext(const Habitat& habitat) {
   if (_evaluated == true) return; // Individual has already been evaluated, nothing to do.
   _evaluated = true;
 
-  if (envir == NULL) envir = _exp_m->get_env();
-
   // ----------------------------------------------------------------------
-  // 1) Transcription - Translation - Folding
+  // Transcription - Translation - Folding
   // ----------------------------------------------------------------------
   do_transcription_translation_folding();
 
   // ----------------------------------------------------------------------
-  // 2) Compute phenotype and compare it to the environment => fitness
+  // Compute phenotype and compare it to the target => fitness
   // ----------------------------------------------------------------------
   compute_phenotype();
-  compute_distance_to_target(envir);
-  compute_fitness(envir);
+  compute_distance_to_target(habitat.phenotypic_target());
+  compute_fitness(habitat.phenotypic_target());
 
   if (_exp_m->get_output_m()->get_compute_phen_contrib_by_GU())
-  {
     for (auto& gen_unit: _genetic_unit_list) {
-      gen_unit.compute_distance_to_target(envir);
-      gen_unit.compute_fitness(envir);
+      gen_unit.compute_distance_to_target(habitat.phenotypic_target());
+      gen_unit.compute_fitness(habitat.phenotypic_target());
     }
-  }
 }
 
 

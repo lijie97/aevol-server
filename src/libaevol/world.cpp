@@ -28,17 +28,15 @@
 
 
 // =================================================================
-//                              Libraries
-// =================================================================
-#include <list>
-
-
-// =================================================================
-//                            Project Files
+//                              Includes
 // =================================================================
 #include "world.h"
 
+#include <list>
+#include <iostream>
 
+using std::cout;
+using std::endl;
 using std::list;
 
 
@@ -77,8 +75,15 @@ World::~World(void)
 // =================================================================
 //                            Public Methods
 // =================================================================
-void World::InitGrid(int16_t width, int16_t height)
+void World::InitGrid(int16_t width, int16_t height,
+                     const Habitat& habitat,
+                     bool share_phenotypic_target)
 {
+  assert(share_phenotypic_target);
+
+  if (share_phenotypic_target)
+    phenotypic_target_handler_ = std::make_shared<PhenotypicTargetHandler>(habitat.phenotypic_target_handler());
+
   width_  = width;
   height_ = height;
 
@@ -86,7 +91,14 @@ void World::InitGrid(int16_t width, int16_t height)
 
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++)
-      grid_[x][y] = new ae_grid_cell(x, y, NULL);
+    {
+      if (share_phenotypic_target)
+        grid_[x][y] =
+            new ae_grid_cell(x, y,
+                             std::make_unique<Habitat>
+                                 (habitat, share_phenotypic_target),
+                             NULL);
+    }
 }
 
 void World::MallocGrid(void)
@@ -113,11 +125,11 @@ void World::FillGridWithClones(ae_individual& dolly)
       PlaceIndiv(ae_individual::CreateClone(&dolly, id_new_indiv++), x, y);
 }
 
-void World::evaluate_individuals(Environment* envir)
+void World::evaluate_individuals()
 {
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++) {
-      get_indiv_at(x, y)->evaluate(envir);
+      get_indiv_at(x, y)->Evaluate();
       get_indiv_at(x, y)->compute_statistical_data();
     }
 }
@@ -241,7 +253,7 @@ void World::update_best(void)
 
 void World::save(gzFile backup_file) const
 {
-  if (_prng == NULL)
+  if (_prng == nullptr)
   {
     printf("%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__);
     exit(EXIT_FAILURE);
@@ -252,29 +264,33 @@ void World::save(gzFile backup_file) const
   #ifndef DISTRIBUTED_PRNG
     _mut_prng->save(backup_file);
 
-    int8_t tmp_with_stoch = _stoch_prng == NULL ? 0 : 1;
+    int8_t tmp_with_stoch = _stoch_prng == nullptr ? 0 : 1;
     gzwrite(backup_file, &tmp_with_stoch, sizeof(tmp_with_stoch));
     if (tmp_with_stoch)
     {
       _stoch_prng->save(backup_file);
     }
   #endif
-  if (grid_ == NULL)
+  if (grid_ == nullptr)
   {
     printf("%s:%d: error: grid not initialized.\n", __FILE__, __LINE__);
     exit(EXIT_FAILURE);
   }
 
+  // Manage shared or private phenotypic targets
+  int8_t tmp_phenotypic_target_shared = phenotypic_target_shared ? 1 : 0;
+  gzwrite(backup_file,
+          &tmp_phenotypic_target_shared,
+          sizeof(tmp_phenotypic_target_shared));
+  if (phenotypic_target_shared)
+    phenotypic_target_handler_->save(backup_file);
+
   gzwrite(backup_file, &width_,   sizeof(width_));
   gzwrite(backup_file, &height_,  sizeof(height_));
 
   for (int16_t x = 0 ; x < width_ ; x++)
-  {
     for (int16_t y = 0 ; y < height_ ; y++)
-    {
-      grid_[x][y]->save(backup_file);
-    }
-  }
+      grid_[x][y]->save(backup_file, phenotypic_target_shared);
 
   gzwrite(backup_file, &x_best, sizeof(x_best));
   gzwrite(backup_file, &y_best, sizeof(y_best));
@@ -298,6 +314,17 @@ void World::load(gzFile backup_file, ae_exp_manager* exp_man)
     }
   #endif
 
+  // Manage shared or private phenotypic targets
+  int8_t tmp_phenotypic_target_shared;
+  gzread(backup_file,
+          &tmp_phenotypic_target_shared,
+          sizeof(tmp_phenotypic_target_shared));
+  phenotypic_target_shared = tmp_phenotypic_target_shared;
+  if (phenotypic_target_shared)
+    phenotypic_target_handler_ =
+        std::make_shared<PhenotypicTargetHandler>(backup_file);
+  phenotypic_target_handler_->build_phenotypic_target();
+
   gzread(backup_file, &width_,  sizeof(width_));
   gzread(backup_file, &height_, sizeof(height_));
 
@@ -305,7 +332,9 @@ void World::load(gzFile backup_file, ae_exp_manager* exp_man)
 
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++)
-      grid_[x][y] = new ae_grid_cell(backup_file, exp_man);
+      grid_[x][y] = new ae_grid_cell(backup_file,
+                                     exp_man,
+                                     phenotypic_target_handler_);
 
   gzread(backup_file, &x_best, sizeof(x_best));
   gzread(backup_file, &y_best, sizeof(y_best));

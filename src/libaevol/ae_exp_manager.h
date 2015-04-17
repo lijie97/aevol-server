@@ -50,6 +50,7 @@
 #include "ae_jumping_mt.h"
 #include "ae_exp_setup.h"
 #include "ae_output_manager.h"
+#include "world.h"
 
 
 namespace aevol {
@@ -87,14 +88,10 @@ class ae_exp_manager
     //                           Accessors: getters
     // =======================================================================
     inline ae_exp_setup* get_exp_s(void) const;
-    inline Environment* get_env(void) const;
     inline ae_selection* get_sel(void) const;
     inline ae_output_manager* get_output_m(void) const;
 
     inline bool quit_signal_received(void) const;
-
-
-    inline int16_t  get_nb_env_segments(void) const;
 
     inline ae_selection_scheme get_selection_scheme(void) const;
     inline double get_selection_pressure(void) const;
@@ -137,7 +134,7 @@ class ae_exp_manager
     inline int32_t                  get_nb_indivs(void) const;
 
     inline ae_individual* get_best_indiv(void) const;
-    // inline ae_individual*	get_indiv_by_id(int32_t id) const;
+    // inline ae_individual* get_indiv_by_id(int32_t id) const;
     // inline ae_individual* get_indiv_by_rank(int32_t rank) const;
 
     // Accessors to output manager stuff
@@ -154,9 +151,6 @@ class ae_exp_manager
     inline void set_t_end(int64_t _t_end) { t_end = _t_end; };
     //~ inline void set_min_genome_length(int32_t min_genome_length);
     //~ inline void set_max_genome_length(int32_t max_genome_length);
-    inline void init_world(int16_t grid_width, int16_t grid_height,
-                           std::shared_ptr<ae_jumping_mt> prng);
-
     inline void set_with_HT(bool with_HT);
     inline void set_repl_HT_with_close_points (bool repl_HT_with_close_points) ;
     inline void set_HT_ins_rate(double HT_ins_rate) ;
@@ -170,6 +164,11 @@ class ae_exp_manager
     // =======================================================================
     //                               Public Methods
     // =======================================================================
+    void InitializeWorld(int16_t grid_width,
+                         int16_t grid_height,
+                         std::shared_ptr<ae_jumping_mt> prng,
+                         const Habitat& habitat,
+                         bool share_phenotypic_target);
     void write_setup_files(void);
     void save(void) const;
     void save_copy(char* dir, int32_t num_gener = 0) const;
@@ -178,7 +177,6 @@ class ae_exp_manager
     void load(const char* dir, int64_t t0,
         bool verbose = false, bool to_be_run = true);
     void load(int64_t t0,
-              char* env_file,
               char* exp_s_file,
               char* exp_backup_file,
               char* sp_struct_file,
@@ -193,39 +191,16 @@ class ae_exp_manager
       world_->FillGridWithClones(dolly);
     }
 
-    // =======================================================================
-    //                              Public Attributes
-    // =======================================================================
-
-
-
 
 
 
   protected :
-
-    // =======================================================================
-    //                            Forbidden Constructors
-    // =======================================================================
-    /*ae_exp_manager(void)
-    {
-      printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
-      exit(EXIT_FAILURE);
-    };
-    ae_exp_manager(const ae_exp_manager &model)
-    {
-      printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
-      exit(EXIT_FAILURE);
-    };*/
-
-
     // =======================================================================
     //                              Protected Methods
     // =======================================================================
     inline void step_to_next_generation(void);
 
-    void load(gzFile& env_file,
-              gzFile& exp_s_file,
+    void load(gzFile& exp_s_file,
               gzFile& exp_backup_file,
               gzFile& sp_struct_file,
               gzFile& out_p_file,
@@ -233,14 +208,12 @@ class ae_exp_manager
               bool to_be_run = true);
 
     void create_missing_directories(const char* dir = ".") const;
-    void open_backup_files(gzFile& env_file,
-                           gzFile& sel_file,
+    void open_backup_files(gzFile& sel_file,
                            gzFile& sp_struct_file,
                            int64_t t,
                            const char mode[3],
                            const char* dir = ".") const;
-    void close_backup_files(gzFile& env_file,
-                            gzFile& sel_file,
+    void close_backup_files(gzFile& sel_file,
                             gzFile& sp_struct_file) const;
     void open_setup_files(gzFile& exp_s_gzfile,
                           gzFile& out_p_gzfile,
@@ -255,20 +228,17 @@ class ae_exp_manager
     // ---------------------------------------------------- Experimental setup
     ae_exp_setup* _exp_s;
 
-    // ----------------------------------------------------------- Environment
-    Environment* _env;
-
     // ----------------------------------------------------- Spatial structure
     World* world_;
 
     // -------------------------------------------------------- Output manager
     ae_output_manager* _output_m;
 
-    // ------------------------------ Timestep up to which we want to simulate
+    // ----------------------------- Time step up to which we want to simulate
     int64_t t_end;
 
     // Set to true when ctrl-Q is received. Will cause the simulation
-    // to be ended after the current timestep is completed
+    // to be ended after the current time step is completed
     bool _quit_signal_received;
 };
 
@@ -291,19 +261,9 @@ inline bool ae_exp_manager::quit_signal_received(void) const
   return _quit_signal_received;
 }
 
-inline Environment* ae_exp_manager::get_env(void) const
-{
-  return _env;
-}
-
 inline ae_selection* ae_exp_manager::get_sel(void) const
 {
   return get_exp_s()->get_sel();
-}
-
-inline int16_t ae_exp_manager::get_nb_env_segments(void) const
-{
-  return get_env()->get_nb_segments();
 }
 
 inline ae_selection_scheme ae_exp_manager::get_selection_scheme(void) const
@@ -485,14 +445,6 @@ inline ae_tree* ae_exp_manager::get_tree(void) const
   //~ _exp_s->set_max_genome_length(max_genome_length);
 //~ }
 
-inline void ae_exp_manager::init_world(int16_t grid_width, int16_t grid_height,
-                                       std::shared_ptr<ae_jumping_mt> prng)
-{
-  world_ = new World();
-  world_->InitGrid(grid_width, grid_height);
-  world_->set_prng(prng);
-}
-
 
 inline void ae_exp_manager::set_with_HT(bool with_HT)
 {
@@ -526,13 +478,8 @@ inline void ae_exp_manager::set_repl_HT_detach_rate(double repl_HT_detach_rate)
 // ===========================================================================
 //                         Inline methods' definition
 // ===========================================================================
-inline void ae_exp_manager::step_to_next_generation(void)
-{
-  // Apply environmental variation
-  _env->apply_variation();
-
-  // Apply environmental noise
-  _env->apply_noise();
+inline void ae_exp_manager::step_to_next_generation(void) {
+  // TODO <david.parsons@inria.fr> Apply phenotypic target  variation and noise
 
   _exp_s->step_to_next_generation();
 

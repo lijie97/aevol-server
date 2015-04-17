@@ -267,10 +267,13 @@ int main(int argc, char* argv[])
         std::make_shared<ae_jumping_mt>(prng->random(1000000)));
     exp_manager->world()->set_stoch_prng(
         std::make_shared<ae_jumping_mt>(prng->random(1000000)));
-    exp_manager->get_env()->set_var_prng(
-        std::make_shared<ae_jumping_mt>(prng->random(1000000)));
-    exp_manager->get_env()->set_noise_prng(
-        std::make_shared<ae_jumping_mt>(prng->random(1000000)));
+    // TODO <david.parsons@inria.fr> adapt to new organization
+    printf("%s:%d: error: feature has to be adapted to the new organization.\n", __FILE__, __LINE__);
+    exit(EXIT_FAILURE);
+//    exp_manager->get_env()->set_var_prng(
+//        std::make_shared<ae_jumping_mt>(prng->random(1000000)));
+//    exp_manager->get_env()->set_noise_prng(
+//        std::make_shared<ae_jumping_mt>(prng->random(1000000)));
   }
   else
   {
@@ -296,14 +299,20 @@ int main(int argc, char* argv[])
 
     if (envvarseed != -1)
     {
-      exp_manager->get_env()->set_var_prng(
-          std::make_shared<ae_jumping_mt>(envvarseed));
+      // TODO <david.parsons@inria.fr> adapt to new organization
+      printf("%s:%d: error: feature has to be adapted to the new organization.\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
+//      exp_manager->get_env()->set_var_prng(
+//          std::make_shared<ae_jumping_mt>(envvarseed));
     }
 
     if (envnoiseseed != -1)
     {
-      exp_manager->get_env()->set_noise_prng(
-          std::make_shared<ae_jumping_mt>(envnoiseseed));
+      // TODO <david.parsons@inria.fr> adapt to new organization
+      printf("%s:%d: error: feature has to be adapted to the new organization.\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
+//      exp_manager->get_env()->set_noise_prng(
+//          std::make_shared<ae_jumping_mt>(envnoiseseed));
     }
   }
 

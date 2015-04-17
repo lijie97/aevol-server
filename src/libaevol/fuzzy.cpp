@@ -22,13 +22,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "fuzzy.h"
+
 #include <cstdint>
 #include <cassert>
 #include <cmath>
+
 #include <iterator>
+#include <iostream>
 #include <algorithm>
 
-#include "fuzzy.h"
 #include "point.h"
 #include "macros.h"
 
@@ -37,6 +40,8 @@ using std::prev;
 using std::next;
 using std::find_if;
 using std::fabs;
+using std::cout;
+using std::endl;
 
 namespace aevol {
 
@@ -335,6 +340,8 @@ bool Fuzzy::is_identical_to(const Fuzzy& fs, double tolerance ) const {
 void Fuzzy::save(gzFile backup_file) const {
   int16_t nb_points = points.size();
   gzwrite(backup_file, &nb_points, sizeof(nb_points));
+  cout << __FILE__ << ":" << __LINE__ << ":" << gztell(backup_file) << endl;
+  cout << __FILE__ << ":" << __LINE__ << ":" << nb_points << endl;
 
   for (const Point& p : points)
     writepoint(p, backup_file);
@@ -346,7 +353,8 @@ void Fuzzy::load(gzFile backup_file) {
 
   int16_t nb_points;
   gzread(backup_file, &nb_points, sizeof(nb_points));
-
+  cout << __FILE__ << ":" << __LINE__ << ":" << gztell(backup_file) << endl;
+  cout << __FILE__ << ":" << __LINE__ << ":" << nb_points << endl;
   for (int16_t i = 0 ; i < nb_points ; i++)
     points.push_back(Point(readpoint(backup_file)));
 
@@ -392,7 +400,7 @@ bool Fuzzy::is_increasing() const {
 
 /// Set all points ordinate to 0
 ///
-/// Used in ae_environment::apply_noise(). Not sure if it's useful.
+// TODO <david.parsons@inria.fr> Not sure if it's useful.
 void Fuzzy::reset() {
   assert(invariant());
 

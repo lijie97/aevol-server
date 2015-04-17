@@ -30,7 +30,7 @@
 
 
 // =================================================================
-//                              Libraries
+//                              Includes
 // =================================================================
 #include <cinttypes>
 #include <cstdio>
@@ -42,10 +42,6 @@
 
 #include <zlib.h>
 
-
-// =================================================================
-//                            Project Files
-// =================================================================
 #include "f_line.h"
 #include "ae_params_mut.h"
 #include "ae_jumping_mt.h"
@@ -53,13 +49,13 @@
 #include "ae_enums.h"
 #include "ae_gaussian.h"
 #include "point.h"
+#include "habitat.h"
 
 namespace aevol {
 // =================================================================
 //                          Class declarations
 // =================================================================
 class ae_exp_manager;
-class Environment;
 class ae_individual;
 
 
@@ -100,6 +96,7 @@ class param_loader
   // =========================================================================
   //                            Protected Methods
   // =========================================================================
+  void CheckConsistency();
   static void format_line( f_line*, char*, bool* );
   void interpret_line( f_line* line, int32_t cur_line );
   ae_individual* create_random_individual(
@@ -107,13 +104,15 @@ class param_loader
       int32_t id,
       std::shared_ptr<ae_params_mut> param_mut,
       std::shared_ptr<ae_jumping_mt> mut_prng,
-      std::shared_ptr<ae_jumping_mt> stoch_prng) const;
+      std::shared_ptr<ae_jumping_mt> stoch_prng,
+      const Habitat& habitat) const;
   ae_individual* create_random_individual_with_good_gene(
       ae_exp_manager* exp_m,
       int32_t id,
       std::shared_ptr<ae_params_mut> param_mut,
       std::shared_ptr<ae_jumping_mt> mut_prng,
-      std::shared_ptr<ae_jumping_mt> stoch_prng) const;
+      std::shared_ptr<ae_jumping_mt> stoch_prng,
+      const Habitat& habitat) const;
 
   // =========================================================================
   //                               Attributes
@@ -130,9 +129,9 @@ class param_loader
   int32_t _mut_seed;
   // Seed for the stochasticity random generator
   int32_t _stoch_seed;
-  // Seed for the environmental variation random generator
+  // Seed for the phenotypic target variation random generator
   int32_t _env_var_seed;
-  // Seed for the environmental noise random generator
+  // Seed for the phenotypic target noise random generator
   int32_t _env_noise_seed;
 
   // ------------------------------------------------------------ Constraints
@@ -146,26 +145,26 @@ class param_loader
   int32_t  _init_pop_size;
   char*    _strain_name;
 
-  // ------------------------------------------------------------ Environment
+  // -------------------------------------------------------- Phenotypic target
   std::list<ae_gaussian> std_env_gaussians;
   int16_t  _env_sampling;
 
-  // ---------------------------------------- Environment x-axis segmentation
-  // Number of x-axis segments
+  // ------------------------------------ Phenotypic target x-axis segmentation
+  /// Number of x-axis segments
   int16_t _env_axis_nb_segments;
-  // x-axis segment boundaries (sorted -- including MIN_X and MAX_X)
+  /// x-axis segment boundaries (sorted -- including MIN_X and MAX_X)
   double* _env_axis_segment_boundaries;
-  // x-axis segment features
+  /// x-axis segment features
   ae_env_axis_feature* _env_axis_features;
-  // Whether to automatically separate segments
+  /// Whether to automatically separate segments
   bool _env_axis_separate_segments;
 
-  // -------------------------------------------------- Environment variation
+  // ---------------------------------------------- Phenotypic target variation
   ae_env_var  _env_var_method;
   double      _env_var_sigma;
   int32_t     _env_var_tau;
 
-  // ------------------------------------------------------ Environment noise
+  // -------------------------------------------------- Phenotypic target noise
   ae_env_noise _env_noise_method;   // Method... TODO
   double  _env_noise_alpha;         // Alpha value (variance coefficient)
   double  _env_noise_sigma;         // Variance of the noise

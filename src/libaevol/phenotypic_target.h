@@ -37,6 +37,10 @@
 #include <cstdlib>
 #include <cassert>
 
+#include "fuzzy.h"
+#include "ae_env_segment.h"
+#include "ae_enums.h"
+
 
 namespace aevol {
 
@@ -49,28 +53,43 @@ namespace aevol {
 
 
 
-class PhenotypicTarget
+class PhenotypicTarget : public Fuzzy
 {
+  friend class PhenotypicTargetHandler;
+
  public :
   // ==========================================================================
   //                               Constructors
   // ==========================================================================
-  PhenotypicTarget(void) = default; //< Default ctor
-  PhenotypicTarget(const PhenotypicTarget&) = delete; //< Copy ctor
+  PhenotypicTarget(void); //< Default ctor
+  PhenotypicTarget(const PhenotypicTarget&); //< Copy ctor
   PhenotypicTarget(PhenotypicTarget&&) = delete; //< Move ctor
 
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~PhenotypicTarget(void) = default; //< Destructor
+  virtual ~PhenotypicTarget(void); //< Destructor
 
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
+  double area_by_feature(int8_t feature) const {
+    return area_by_feature_[feature];
+  }
+  int8_t nb_segments() const {
+    return nb_segments_;
+  }
+  ae_env_segment** segments() const {
+    return segments_;
+  }
 
-  // ==========================================================================
+// ==========================================================================
   //                                 Setters
   // ==========================================================================
+  void set_segmentation(int8_t nb_segments,
+                        double* boundaries,
+                        ae_env_axis_feature* features,
+                        bool separate_segments);
 
   // ==========================================================================
   //                                Operators
@@ -79,7 +98,10 @@ class PhenotypicTarget
   // ==========================================================================
   //                              Public Methods
   // ==========================================================================
+  void ComputeArea();
 
+  void SaveSegmentation(gzFile backup_file) const;
+  void LoadSegmentation(gzFile backup_file);
 
 
 
@@ -92,6 +114,15 @@ class PhenotypicTarget
   // ==========================================================================
   //                               Attributes
   // ==========================================================================
+  /// Number segments.
+  int8_t nb_segments_;
+  /// Ordered array of segments.
+  /// Each ae_env_segment knows its boundaries and corresponding feature.
+  /// When the phenotypic target is not segmented, this array contains a single
+  /// segment with feature METABOLIC and boundaries MIN_X and MAX_X
+  ae_env_segment** segments_;
+  /// Geometric area of each feature
+  double* area_by_feature_;
 };
 
 

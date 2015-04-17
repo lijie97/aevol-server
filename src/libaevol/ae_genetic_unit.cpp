@@ -28,16 +28,11 @@
 
 
 // =================================================================
-//                              Libraries
-// =================================================================
-#include <assert.h>
-
-
-// =================================================================
-//                            Project Files
+//                              Includes
 // =================================================================
 #include "ae_genetic_unit.h"
 
+#include <cassert>
 
 #include "ae_exp_manager.h"
 #include "ae_exp_setup.h"
@@ -606,8 +601,8 @@ ae_genetic_unit::ae_genetic_unit(ae_individual* indiv,
   // NB : _phenotypic_contribution is only an indicative value,
   //      it is not used for the whole phenotype computation
 
-  // _dist_to_target_per_segment depends on the segmentation of the environment
-  // and will hence be newed at evaluation time
+  // _dist_to_target_per_segment depends on the segmentation of the phenotypic
+  // target and will hence be allocated at evaluation time
   _dist_to_target_per_segment = NULL;
 
   _dist_to_target_by_feature  = new double [NB_FEATURES];
@@ -1527,32 +1522,31 @@ void ae_genetic_unit::compute_phenotypic_contribution(void)
 }
 
 /*!
-  \brief Compute the areas between the phenotype and the environment for each environmental segment.
+  Compute the areas between the phenotype and the target for each segment.
 
-  If the environment is not segmented, the total area is computed
+  If the phenotypic target is not segmented, the total area is computed
 */
-void ae_genetic_unit::compute_distance_to_target(Environment* env)
-{
+void ae_genetic_unit::compute_distance_to_target(const PhenotypicTarget& target) {
   if (_distance_to_target_computed) return; // _distance_to_target has already been computed, nothing to do.
   _distance_to_target_computed = true;
 
   compute_phenotypic_contribution();
 
-  // Compute the difference between the (whole) phenotype and the environment
+  // Compute the difference between the (whole) phenotype and the target
   Fuzzy* delta = new Fuzzy(*_phenotypic_contribution);
-  delta->sub(*env);
+  delta->sub(target);
 
-  ae_env_segment** segments = env->get_segments();
+  ae_env_segment** segments = target.segments();
 
-  // TODO : We should take into account that we compute the areas in order (from the leftmost segment, rightwards)
+  // TODO <david.parsons@inria.fr> We should take into account that we compute the areas in order (from the leftmost segment, rightwards)
   //   => We shouldn't parse the whole list of points on the left of the segment we are considering (we have
   //      already been through them!)
 
   if (_dist_to_target_per_segment == NULL)
   {
-    _dist_to_target_per_segment = new double [env->get_nb_segments()]; // Can not be allocated in constructor because number of segments is then unknow
+    _dist_to_target_per_segment = new double [target.nb_segments()]; // Can not be allocated in constructor because number of segments is then unknow
   }
-  for (size_t i = 0 ; i < env->get_nb_segments() ; i++)
+  for (size_t i = 0 ; i < target.nb_segments() ; i++) // TODO dpa suppress warning
   {
     _dist_to_target_per_segment[i] = delta->get_geometric_area(segments[i]->start, segments[i]->stop);
     _dist_to_target_by_feature[segments[i]->feature] += _dist_to_target_per_segment[i];
@@ -1567,8 +1561,7 @@ void ae_genetic_unit::compute_distance_to_target(Environment* env)
   The behaviour of this function depends on many parameters and most notably on whether it is
   a "composite" fitness or not, and on the selection scheme.
 */
-void ae_genetic_unit::compute_fitness(Environment* env)
-{
+void ae_genetic_unit::compute_fitness(const PhenotypicTarget& target) {
   if (_fitness_computed) return; // Fitness has already been computed, nothing to do.
   _fitness_computed = true;
 
@@ -1611,7 +1604,7 @@ void ae_genetic_unit::compute_fitness(Environment* env)
     if (i == SECRETION)
     {
       _fitness_by_feature[SECRETION] =  exp(-_exp_m->get_selection_pressure() * _dist_to_target_by_feature[SECRETION])
-                                      - exp(-_exp_m->get_selection_pressure() * env->get_area_by_feature(SECRETION));
+                                      - exp(-_exp_m->get_selection_pressure() * target.area_by_feature(SECRETION));
 
       if (_fitness_by_feature[i] < 0)
       {
@@ -1625,7 +1618,7 @@ void ae_genetic_unit::compute_fitness(Environment* env)
   }
 
   // Calculate combined, total fitness here!
-  // Multiply the contribution of metabolism and the amount of compound in the environment
+  // Multiply the contribution of metabolism and the amount of compound in the habitat
   if ((! _indiv->get_placed_in_population()) || (! _exp_m->get_with_secretion()))
   {
     _fitness = _fitness_by_feature[METABOLISM] ;
@@ -4029,193 +4022,197 @@ bool* ae_genetic_unit::is_belonging_to_coding_RNA(void)
 /*!
   \brief Remove the bases that are not in coding RNA
 
-  Remove the bases that are not in coding RNA and test at each loss that fitness is not changed
+  Remove the bases that are not in coding RNA and test at each loss that
+  fitness is not changed
 */
 void ae_genetic_unit::remove_non_coding_bases(void)
 {
-  Environment* env = _exp_m->get_env() ;
-
-  reset_expression();
-  locate_promoters();
-  _distance_to_target_computed        = false;
-  _fitness_computed                   = false;
-  compute_phenotypic_contribution();
-  if(_exp_m->get_output_m()->get_compute_phen_contrib_by_GU())
-  {
-    compute_distance_to_target(env);
-  }
-  compute_fitness(env);
-  double initial_fitness = get_fitness();
-
-  int32_t genome_length = _dna->get_length();
-  bool* belongs_to_coding_RNA = is_belonging_to_coding_RNA();
-
-  int32_t non_coding_bases_nb = get_nb_bases_in_0_coding_RNA();
-  int32_t start = 0;
-  int32_t end = 0;
-
-
-  for (int32_t i = genome_length-1 ; i >= 0 ; i--)
-  {
-    if (belongs_to_coding_RNA[i] == false)
-    {
-      end = i+1;
-      while((i-1) >=0 && belongs_to_coding_RNA[(i-1)] == false)
-      {
-        i--;
-      }
-      start = i;
-      _dna->remove(start,end);
-
-      locate_promoters();
-      reset_expression();
-      _distance_to_target_computed        = false;
-      _fitness_computed                   = false;
-      compute_phenotypic_contribution();
-      if(_exp_m->get_output_m()->get_compute_phen_contrib_by_GU())
-      {
-        compute_distance_to_target(env);
-      }
-      compute_fitness(env);
-      assert(get_fitness()==initial_fitness);
-
-      _non_coding_computed = false;
-      non_coding_bases_nb = get_nb_bases_in_0_coding_RNA();
-    }
-  }
-
-  locate_promoters();
-  reset_expression();
-  _distance_to_target_computed        = false;
-  _fitness_computed                   = false;
-  compute_phenotypic_contribution();
-  if(_exp_m->get_output_m()->get_compute_phen_contrib_by_GU())
-  {
-    compute_distance_to_target(env);
-  }
-  compute_fitness(env);
-  assert(get_fitness()==initial_fitness);
-
-  _non_coding_computed = false;
-  non_coding_bases_nb = get_nb_bases_in_0_coding_RNA();
-  assert(non_coding_bases_nb==0);
-
-  delete [] belongs_to_coding_RNA;
+// TODO dpa Restore method (deal with checking that the fitness remains untouched)
+//  Environment* env = _exp_m->get_env() ;
+//
+//  reset_expression();
+//  locate_promoters();
+//  _distance_to_target_computed        = false;
+//  _fitness_computed                   = false;
+//  compute_phenotypic_contribution();
+//  if(_exp_m->get_output_m()->get_compute_phen_contrib_by_GU())
+//  {
+//    compute_distance_to_target(env);
+//  }
+//  compute_fitness(env);
+//  double initial_fitness = get_fitness();
+//
+//  int32_t genome_length = _dna->get_length();
+//  bool* belongs_to_coding_RNA = is_belonging_to_coding_RNA();
+//
+//  int32_t non_coding_bases_nb = get_nb_bases_in_0_coding_RNA();
+//  int32_t start = 0;
+//  int32_t end = 0;
+//
+//
+//  for (int32_t i = genome_length-1 ; i >= 0 ; i--)
+//  {
+//    if (belongs_to_coding_RNA[i] == false)
+//    {
+//      end = i+1;
+//      while((i-1) >=0 && belongs_to_coding_RNA[(i-1)] == false)
+//      {
+//        i--;
+//      }
+//      start = i;
+//      _dna->remove(start,end);
+//
+//      locate_promoters();
+//      reset_expression();
+//      _distance_to_target_computed        = false;
+//      _fitness_computed                   = false;
+//      compute_phenotypic_contribution();
+//      if(_exp_m->get_output_m()->get_compute_phen_contrib_by_GU())
+//      {
+//        compute_distance_to_target(env);
+//      }
+//      compute_fitness(env);
+//      assert(get_fitness()==initial_fitness);
+//
+//      _non_coding_computed = false;
+//      non_coding_bases_nb = get_nb_bases_in_0_coding_RNA();
+//    }
+//  }
+//
+//  locate_promoters();
+//  reset_expression();
+//  _distance_to_target_computed        = false;
+//  _fitness_computed                   = false;
+//  compute_phenotypic_contribution();
+//  if(_exp_m->get_output_m()->get_compute_phen_contrib_by_GU())
+//  {
+//    compute_distance_to_target(env);
+//  }
+//  compute_fitness(env);
+//  assert(get_fitness()==initial_fitness);
+//
+//  _non_coding_computed = false;
+//  non_coding_bases_nb = get_nb_bases_in_0_coding_RNA();
+//  assert(non_coding_bases_nb==0);
+//
+//  delete [] belongs_to_coding_RNA;
 }
 
 /*!
   \brief Double the bases that are not in coding RNA
 
-  Double the bases that are not in coding RNA by addition of random bases and test at each addition that fitness is not changed
+  Double the bases that are not in coding RNA by addition of random bases and
+  test at each addition that fitness is not changed
 */
 void ae_genetic_unit::double_non_coding_bases(void)
 {
-  Environment* env = _exp_m->get_env() ;
-
-  reset_expression();
-  locate_promoters();
-  _distance_to_target_computed        = false;
-  _fitness_computed                   = false;
-  compute_phenotypic_contribution();
-  if(_exp_m->get_output_m()->get_compute_phen_contrib_by_GU())
-  {
-    compute_distance_to_target(env);
-  }
-  compute_fitness(env);
-  double initial_fitness = get_fitness();
-
-  int32_t genome_length = _dna->get_length();
-  bool* belongs_to_coding_RNA = is_belonging_to_coding_RNA();
-
-  _non_coding_computed = false;
-  int32_t inital_non_coding_bases_nb = get_nb_bases_in_0_coding_RNA();
-  int32_t start = 0;
-  int32_t end = 0;
-  int32_t length = 0;
-  int32_t pos = 0;
-  char * random_portion = NULL;
-  bool insertion_ok = false;
-  int32_t non_coding_bases_nb_before_fitness = get_nb_bases_in_0_coding_RNA();
-  int32_t non_coding_bases_nb_after_fitness = get_nb_bases_in_0_coding_RNA();
-
-  int32_t non_coding_bases_nb = get_nb_bases_in_0_coding_RNA();
-
-  for (int32_t i = genome_length-1 ; i >= 0 ; i--)
-  {
-    if (belongs_to_coding_RNA[i] == false)
-    {
-      end = i+1;
-      while((i-1) >=0 && belongs_to_coding_RNA[(i-1)] == false)
-      {
-        i--;
-      }
-      start = i;
-      length = end-start;
-
-      insertion_ok = false;
-      while(not insertion_ok)
-      {
-        random_portion = new char [length+1];
-        for (int32_t j = 0 ; j < length ; j++)
-        {
-          random_portion[j] = '0' + _indiv->get_mut_prng()->random(NB_BASE);
-        }
-        random_portion[length] = 0;
-        pos = _indiv->get_mut_prng()->random(length)+start;
-        _dna->insert(pos, random_portion);
-
-        _non_coding_computed = false;
-        non_coding_bases_nb_before_fitness = get_nb_bases_in_0_coding_RNA();
-
-        locate_promoters();
-        reset_expression();
-        _distance_to_target_computed        = false;
-        _fitness_computed                   = false;
-        compute_phenotypic_contribution();
-        if(_exp_m->get_output_m()->get_compute_phen_contrib_by_GU())
-        {
-          compute_distance_to_target(env);
-        }
-        compute_fitness(env);
-        assert(get_fitness()==initial_fitness);
-
-        _non_coding_computed = false;
-        non_coding_bases_nb_after_fitness = get_nb_bases_in_0_coding_RNA();
-
-        if (non_coding_bases_nb_before_fitness != non_coding_bases_nb_after_fitness)
-        {
-          _dna->remove(pos, pos + length);
-        }
-        else
-        {
-          insertion_ok = true;
-        }
-
-      }
-      _non_coding_computed = false;
-
-      delete [] random_portion;
-      random_portion = NULL;
-    }
-  }
-
-  locate_promoters();
-  reset_expression();
-  _distance_to_target_computed        = false;
-  _fitness_computed                   = false;
-  compute_phenotypic_contribution();
-  if(_exp_m->get_output_m()->get_compute_phen_contrib_by_GU())
-  {
-    compute_distance_to_target(env);
-  }
-  compute_fitness(env);
-  assert(get_fitness()==initial_fitness);
-
-  _non_coding_computed = false;
-  non_coding_bases_nb = get_nb_bases_in_0_coding_RNA();
-  assert(non_coding_bases_nb == 2*inital_non_coding_bases_nb);
-
-  delete [] belongs_to_coding_RNA;
+// TODO dpa Restore method (deal with checking that the fitness remains untouched)
+//  Environment* env = _exp_m->get_env() ;
+//
+//  reset_expression();
+//  locate_promoters();
+//  _distance_to_target_computed        = false;
+//  _fitness_computed                   = false;
+//  compute_phenotypic_contribution();
+//  if(_exp_m->get_output_m()->get_compute_phen_contrib_by_GU())
+//  {
+//    compute_distance_to_target(env);
+//  }
+//  compute_fitness(env);
+//  double initial_fitness = get_fitness();
+//
+//  int32_t genome_length = _dna->get_length();
+//  bool* belongs_to_coding_RNA = is_belonging_to_coding_RNA();
+//
+//  _non_coding_computed = false;
+//  int32_t inital_non_coding_bases_nb = get_nb_bases_in_0_coding_RNA();
+//  int32_t start = 0;
+//  int32_t end = 0;
+//  int32_t length = 0;
+//  int32_t pos = 0;
+//  char * random_portion = NULL;
+//  bool insertion_ok = false;
+//  int32_t non_coding_bases_nb_before_fitness = get_nb_bases_in_0_coding_RNA();
+//  int32_t non_coding_bases_nb_after_fitness = get_nb_bases_in_0_coding_RNA();
+//
+//  int32_t non_coding_bases_nb = get_nb_bases_in_0_coding_RNA();
+//
+//  for (int32_t i = genome_length-1 ; i >= 0 ; i--)
+//  {
+//    if (belongs_to_coding_RNA[i] == false)
+//    {
+//      end = i+1;
+//      while((i-1) >=0 && belongs_to_coding_RNA[(i-1)] == false)
+//      {
+//        i--;
+//      }
+//      start = i;
+//      length = end-start;
+//
+//      insertion_ok = false;
+//      while(not insertion_ok)
+//      {
+//        random_portion = new char [length+1];
+//        for (int32_t j = 0 ; j < length ; j++)
+//        {
+//          random_portion[j] = '0' + _indiv->get_mut_prng()->random(NB_BASE);
+//        }
+//        random_portion[length] = 0;
+//        pos = _indiv->get_mut_prng()->random(length)+start;
+//        _dna->insert(pos, random_portion);
+//
+//        _non_coding_computed = false;
+//        non_coding_bases_nb_before_fitness = get_nb_bases_in_0_coding_RNA();
+//
+//        locate_promoters();
+//        reset_expression();
+//        _distance_to_target_computed        = false;
+//        _fitness_computed                   = false;
+//        compute_phenotypic_contribution();
+//        if(_exp_m->get_output_m()->get_compute_phen_contrib_by_GU())
+//        {
+//          compute_distance_to_target(env);
+//        }
+//        compute_fitness(env);
+//        assert(get_fitness()==initial_fitness);
+//
+//        _non_coding_computed = false;
+//        non_coding_bases_nb_after_fitness = get_nb_bases_in_0_coding_RNA();
+//
+//        if (non_coding_bases_nb_before_fitness != non_coding_bases_nb_after_fitness)
+//        {
+//          _dna->remove(pos, pos + length);
+//        }
+//        else
+//        {
+//          insertion_ok = true;
+//        }
+//
+//      }
+//      _non_coding_computed = false;
+//
+//      delete [] random_portion;
+//      random_portion = NULL;
+//    }
+//  }
+//
+//  locate_promoters();
+//  reset_expression();
+//  _distance_to_target_computed        = false;
+//  _fitness_computed                   = false;
+//  compute_phenotypic_contribution();
+//  if(_exp_m->get_output_m()->get_compute_phen_contrib_by_GU())
+//  {
+//    compute_distance_to_target(env);
+//  }
+//  compute_fitness(env);
+//  assert(get_fitness()==initial_fitness);
+//
+//  _non_coding_computed = false;
+//  non_coding_bases_nb = get_nb_bases_in_0_coding_RNA();
+//  assert(non_coding_bases_nb == 2*inital_non_coding_bases_nb);
+//
+//  delete [] belongs_to_coding_RNA;
 }
 
 

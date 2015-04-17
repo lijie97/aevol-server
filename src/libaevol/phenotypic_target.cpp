@@ -32,6 +32,8 @@
 // ============================================================================
 #include "phenotypic_target.h"
 
+#include <cstring>
+
 
 namespace aevol {
 
@@ -49,14 +51,92 @@ namespace aevol {
 // ============================================================================
 //                                Constructors
 // ============================================================================
+PhenotypicTarget::PhenotypicTarget() : Fuzzy() {
+  nb_segments_     = 1;
+  segments_        = new ae_env_segment* [1];
+  segments_[0]     = new ae_env_segment(X_MIN, X_MAX, METABOLISM);
+  area_by_feature_ = new double [NB_FEATURES];
+}
+
+PhenotypicTarget::PhenotypicTarget(const PhenotypicTarget& rhs) : Fuzzy(rhs) {
+  nb_segments_     = rhs.nb_segments_;
+  segments_        = new ae_env_segment* [nb_segments_];
+  for (int8_t i = 0 ; i < nb_segments_ ; i++)
+    segments_[i] = new ae_env_segment(*(rhs.segments_[i]));
+  area_by_feature_ = new double [NB_FEATURES];
+  memcpy(area_by_feature_,
+         rhs.area_by_feature_,
+         NB_FEATURES * sizeof(*area_by_feature_));
+}
 
 // ============================================================================
 //                                 Destructor
 // ============================================================================
+PhenotypicTarget::~PhenotypicTarget() {
+  if (segments_ != NULL) {
+    for (int8_t i = 0 ; i < nb_segments_ ; i++)
+      delete segments_[i];
+    delete [] segments_;
+  }
+  delete [] area_by_feature_;
+}
 
 // ============================================================================
 //                                   Methods
 // ============================================================================
+void PhenotypicTarget::set_segmentation(int8_t nb_segments,
+                                        double *boundaries,
+                                        ae_env_axis_feature *features,
+                                        bool separate_segments) {
+  // Delete the data to be replaced
+  for (int8_t i = 0 ; i < nb_segments_ ; i++)
+    delete segments_[i];
+  delete segments_;
+
+  // Now replace with the new data
+  nb_segments_  = nb_segments;
+  segments_     = new ae_env_segment* [nb_segments_];
+
+  for (int8_t i = 0 ; i < nb_segments_; i++)
+    segments_[i] = new ae_env_segment(boundaries[i], boundaries[i+1], features[i]);
+
+  // TODO <dpa>: Manage separate_segments
+}
+
+void PhenotypicTarget::ComputeArea() {
+  for (int8_t i = 0 ; i < NB_FEATURES ; i++)
+    area_by_feature_[i] = 0.0;
+
+  // TODO <dpa>: We should take into account that we compute the areas in a specific order (from the leftmost segment, rightwards)
+  //   => We shouldn't parse the whole list of points on the left of the segment we are considering (we have
+  //      already been through them!)
+  for (int8_t i = 0 ; i < nb_segments_ ; i++) {
+    area_by_feature_[segments_[i]->feature] +=
+        get_geometric_area(segments_[i]->start, segments_[i]->stop);
+  }
+}
+
+void PhenotypicTarget::SaveSegmentation(gzFile backup_file) const {
+  // --------------------------------------------------------------------------
+  //  Write x-axis segmentation
+  gzwrite(backup_file, &nb_segments_, sizeof(nb_segments_));
+
+  for (int8_t i = 0 ; i < nb_segments_; i++) // TODO <david.parsons@inria.fr> suppress warning
+    segments_[i]->save(backup_file);
+}
+
+void PhenotypicTarget::LoadSegmentation(gzFile backup_file) {
+  // Delete obsolete segmentation data
+  for (int8_t i = 0 ; i < nb_segments_ ; i++)
+    delete segments_[i];
+  delete [] segments_;
+
+  // Replace by data from the backup
+  gzread(backup_file, &nb_segments_, sizeof(nb_segments_));
+  segments_ = new ae_env_segment* [nb_segments_];
+  for (int8_t i = 0 ; i < nb_segments_; i++)
+    segments_[i] = new ae_env_segment(backup_file);
+}
 
 // ============================================================================
 //                            Non inline accessors

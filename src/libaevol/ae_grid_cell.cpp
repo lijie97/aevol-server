@@ -28,17 +28,19 @@
 
 
 // =================================================================
-//                              Libraries
-// =================================================================
-
-
-
-// =================================================================
-//                            Project Files
+//                              Includes
 // =================================================================
 #include "ae_grid_cell.h"
+
+#include <iostream>
+
 #include "ae_individual.h"
 #include "ae_individual_X11.h"
+
+
+using std::cout;
+using std::endl;
+
 
 namespace aevol {
 
@@ -57,27 +59,23 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_grid_cell::ae_grid_cell(int16_t x, int16_t y, ae_individual* indiv)
+ae_grid_cell::ae_grid_cell(int16_t x, int16_t y,
+                           std::unique_ptr<Habitat>&& habitat,
+                           ae_individual* indiv)
 {
   x_ = x;
   y_ = y;
   
   individual_ = indiv;
-  habitat_ = new Habitat();
+  habitat_ = std::move(habitat);
 }
 
-ae_grid_cell::ae_grid_cell(gzFile backup_file, ae_exp_manager* exp_m)
+ae_grid_cell::ae_grid_cell(gzFile backup_file,
+                           ae_exp_manager* exp_m,
+                           std::shared_ptr<PhenotypicTargetHandler>
+                              phenotypic_target_handler_)
 {
-  gzread(backup_file, &x_, sizeof(x_));
-  gzread(backup_file, &y_, sizeof(y_));
-
-  habitat_ = new Habitat(backup_file);
-  
-  individual_ = ae_individual::CreateIndividual(exp_m, backup_file);
-
-  individual_->set_grid_cell(this);
-  
-  habitat_ = new Habitat();
+  load(backup_file, exp_m, phenotypic_target_handler_);
 }
 
 // =================================================================
@@ -86,20 +84,35 @@ ae_grid_cell::ae_grid_cell(gzFile backup_file, ae_exp_manager* exp_m)
 ae_grid_cell::~ae_grid_cell(void)
 {
   delete individual_;
-  delete habitat_;
 }
 
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_grid_cell::save(gzFile backup_file) const
+void ae_grid_cell::save(gzFile backup_file,
+                        bool skip_phenotypic_target /*=false*/) const
 {
   gzwrite(backup_file, &x_, sizeof(x_));
   gzwrite(backup_file, &y_, sizeof(y_));
 
-  habitat_->save(backup_file);
+  habitat_->save(backup_file, skip_phenotypic_target);
 
   individual_->save(backup_file);
+}
+
+void ae_grid_cell::load(gzFile backup_file,
+                        ae_exp_manager* exp_m,
+                        std::shared_ptr<PhenotypicTargetHandler>
+                            phenotypic_target_handler)
+{
+  gzread(backup_file, &x_, sizeof(x_));
+  gzread(backup_file, &y_, sizeof(y_));
+
+  habitat_ = std::make_unique<Habitat>(backup_file, phenotypic_target_handler);
+
+  individual_ = ae_individual::CreateIndividual(exp_m, backup_file);
+
+  individual_->set_grid_cell(this);
 }
 
 // =================================================================

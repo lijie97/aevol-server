@@ -66,9 +66,6 @@ namespace aevol {
 // =================================================================
 //                          Class declarations
 // =================================================================
-class Environment;
-
-
 
 
 //##############################################################################
@@ -135,21 +132,21 @@ param_loader::param_loader(const char* file_name)
     _strain_name[strain_name_len++] = '0' + rand() % 10;
   }
 
-  // ------------------------------------------------------------ Environment
+  // -------------------------------------------------------- Phenotypic target
   _env_sampling = 300;
 
-  // ---------------------------------------- Environment x-axis segmentation
+  // ------------------------------------ Phenotypic target x-axis segmentation
   _env_axis_nb_segments         = 1;
   _env_axis_segment_boundaries  = NULL;
   _env_axis_features            = NULL;
   _env_axis_separate_segments   = false;
 
-  // -------------------------------------------------- Environment variation
+  // ---------------------------------------------- Phenotypic target variation
   _env_var_method = NO_VAR;
   _env_var_sigma  = 0;
   _env_var_tau    = 0;
 
-  // ------------------------------------------------------ Environment noise
+  // -------------------------------------------------- Phenotypic target noise
   _env_noise_method       = NO_NOISE;
   _env_noise_alpha        = 0;
   _env_noise_sigma        = 0;
@@ -867,7 +864,8 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
     }
     else
     {
-      printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown environment variation method.\n",
+      printf("ERROR in param file \"%s\" on line %" PRId32
+                 " : unknown phenotypic target variation method.\n",
               _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
@@ -877,7 +875,8 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
     static bool env_noise_already_set = false;
     if (env_noise_already_set)
     {
-      printf("ERROR in param file \"%s\" on line %" PRId32 " : duplicate entry for %s.\n",
+      printf("ERROR in param file \"%s\" on line %" PRId32
+                 " : duplicate entry for %s.\n",
               _param_file_name, cur_line, line->words[0]);
       exit(EXIT_FAILURE);
     }
@@ -900,8 +899,10 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
     }
     else
     {
-      printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown environment noise method.\n",
-              _param_file_name, cur_line);
+      printf("ERROR in param file \"%s\" on line %" PRId32
+                 " : unknown phenotypic target noise method.\n",
+             _param_file_name,
+             cur_line);
       exit(EXIT_FAILURE);
     }
   }
@@ -1130,21 +1131,15 @@ void param_loader::read_file(void)
   }
 }
 
-
-void param_loader::load(ae_exp_manager* exp_m, bool verbose,
-    char* chromosome, int32_t lchromosome, 
-    char* plasmid, int32_t lplasmid)
-{
-  // Check consistency of min, max and initial length of chromosome and plasmid
-  // Default for by GU minimal or maximal size is -1.
-  // If equal to -1, maximal sizes of each GU will be replaced by total maximal size for the whole genome
-
+void param_loader::CheckConsistency() {
   if (_allow_plasmids) {
-    if (_plasmid_initial_gene != 1) // the plasmid will be copied from the chromosome
+    if (_plasmid_initial_gene != 1) { // the plasmid will be copied from the chromosome
       if (_plasmid_initial_length != -1) {
-        printf("WARNING: PLASMID_INITIAL_LENGTH is not taken into account because PLASMID_INITIAL_GENE is set to 0 (copy from chromosome)\n");
+        printf(
+            "WARNING: PLASMID_INITIAL_LENGTH is not taken into account because PLASMID_INITIAL_GENE is set to 0 (copy from chromosome)\n");
         _plasmid_initial_length = _chromosome_initial_length;
       }
+    }
     else if (_compute_phen_contrib_by_GU == false) {
       printf("ERROR: when using PLASMID_INITIAL_GENE==1, the paramater COMPUTE_PHEN_CONTRIB_BY_GU should be set to true.\n");
       exit(EXIT_FAILURE);
@@ -1175,6 +1170,26 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
     printf("ERROR: CHROMOSOME_INITIAL_LENGTH is higher than PLASMID_MAXIMAL_LENGTH\n");
     exit(EXIT_FAILURE);
   }
+  // Check that the population fits in the spatial structure
+  if (_init_pop_size != _grid_width * _grid_height)
+  {
+    printf("ERROR: the number of individuals (%" PRId32
+               ") does not match the size of the grid  (%" PRId16
+               " * %" PRId16 ")\n",
+           _init_pop_size,
+           _grid_width,
+           _grid_height);
+    exit(EXIT_FAILURE);
+  }
+}
+
+void param_loader::load(ae_exp_manager* exp_m, bool verbose,
+    char* chromosome, int32_t lchromosome,
+    char* plasmid, int32_t lplasmid) {
+  // Check consistency of min, max and initial length of chromosome and plasmid
+  // Default for by GU minimal or maximal size is -1.
+  // If equal to -1, maximal sizes of each GU will be replaced by total maximal size for the whole genome
+  CheckConsistency();
 
   // Initialize _prng
   // This one will be used to create the initial genome(s) and to generate seeds for other prng
@@ -1192,25 +1207,10 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
   auto stoch_prng = std::make_shared<ae_jumping_mt>(_stoch_seed);
   auto world_prng = std::make_shared<ae_jumping_mt>(_prng->random(1000000));
 
-
   // Create aliases
   ae_exp_setup* exp_s = exp_m->get_exp_s();
-  Environment* env = exp_m->get_env();
   ae_selection* sel = exp_m->get_sel();
   ae_output_manager* output_m  = exp_m->get_output_m();
-
-
-  // Check that the population fits in the spatial structure
-  if (_init_pop_size != _grid_width * _grid_height)
-  {
-    printf("ERROR: the number of individuals (%" PRId32
-        ") does not match the size of the grid  (%" PRId16
-        " * %" PRId16 ")\n",
-        _init_pop_size,
-        _grid_width,
-        _grid_height);
-    exit(EXIT_FAILURE);
-  }
 
   // 1) ------------------------------------- Initialize the experimental setup
   sel->set_prng(std::make_unique<ae_jumping_mt>(_prng->random(1000000)));
@@ -1242,50 +1242,55 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
   exp_s->set_secretion_cost(_secretion_cost);
 
 
-  // 2) ------------------------------------------ Create the phenotypic target
-  // Move the gaussian list from the parameters to the environment
-  env->set_gaussians(std_env_gaussians);
+  // 2) --------------------------------------------- Create and init a Habitat
+  Habitat habitat;
+  // Shorthand for phenotypic target handler
+  PhenotypicTargetHandler& phenotypic_target_handler =
+      habitat.phenotypic_target_handler_nonconst();
+  // Move the gaussian list from the parameters to the phen target handler
+  phenotypic_target_handler.set_gaussians(std_env_gaussians);
 
   // Copy the sampling
-  env->set_sampling(_env_sampling);
+  phenotypic_target_handler.set_sampling(_env_sampling);
 
-  // Set the environment segmentation
+  // Set phenotypic target segmentation
   if((_env_axis_features != NULL) && (_env_axis_segment_boundaries != NULL) ) {
     // if param.in contained a line starting with ENV_AXIS_FEATURES,
     // we use the values indicated on this line
-    env->set_segmentation(_env_axis_nb_segments,
-                       _env_axis_segment_boundaries,
-                       _env_axis_features,
-                       _env_axis_separate_segments);
-  } // else we leave the ae_environment as it is by default (one "metabolic" segment from X_MIN to X_MAX)
+    phenotypic_target_handler.set_segmentation(_env_axis_nb_segments,
+                                                 _env_axis_segment_boundaries,
+                                                 _env_axis_features,
+                                                 _env_axis_separate_segments);
+  }
+  // else we leave the segmentation as it is by default
+  // (one "metabolic" segment from X_MIN to X_MAX)
 
 
-  // Set environmental variation
+  // Set phenotypic target variation
   if (_env_var_method != NO_VAR)
   {
-    env->set_var_method(_env_var_method);
-    env->set_var_prng(std::make_shared<ae_jumping_mt>(_env_var_seed));
-    env->set_var_sigma_tau(_env_var_sigma, _env_var_tau);
+    phenotypic_target_handler.set_var_method(_env_var_method);
+    phenotypic_target_handler.set_var_prng(std::make_shared<ae_jumping_mt>(_env_var_seed));
+    phenotypic_target_handler.set_var_sigma_tau(_env_var_sigma, _env_var_tau);
   }
 
-  // Set environmental noise
+  // Set phenotypic target noise
   if (_env_noise_method != NO_NOISE)
   {
-    env->set_noise_method(_env_noise_method);
-    env->set_noise_sampling_log(_env_noise_sampling_log);
-    env->set_noise_prng(std::make_shared<ae_jumping_mt>(_env_noise_seed));
-    env->set_noise_alpha(_env_noise_alpha);
-    env->set_noise_sigma(_env_noise_sigma);
-    env->set_noise_prob(_env_noise_prob );
+    phenotypic_target_handler.set_noise_method(_env_noise_method);
+    phenotypic_target_handler.set_noise_sampling_log(_env_noise_sampling_log);
+    phenotypic_target_handler.set_noise_prng(std::make_shared<ae_jumping_mt>(_env_noise_seed));
+    phenotypic_target_handler.set_noise_alpha(_env_noise_alpha);
+    phenotypic_target_handler.set_noise_sigma(_env_noise_sigma);
+    phenotypic_target_handler.set_noise_prob(_env_noise_prob );
   }
 
-  // Build the environment
-  env->build();
+  // Build the phenotypic target
+  phenotypic_target_handler.build_phenotypic_target();
 
   if (verbose)
-  {
-    printf("Entire geometric area of the phenotypic target : %f\n", env->get_geometric_area());
-  }
+    printf("Entire geometric area of the phenotypic target : %f\n",
+           phenotypic_target_handler.get_geometric_area());
 
 
   // 3) --------------------------------------------- Create the new population
@@ -1313,8 +1318,8 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
   param_mut->set_translocation_proportion(_translocation_proportion);
   param_mut->set_inversion_proportion(_inversion_proportion);
 
-  ae_individual* indiv        = NULL;
-  int32_t        id_new_indiv = 0;
+  ae_individual* indiv = NULL;
+  int32_t id_new_indiv = 0;
 
   if (chromosome != NULL)
   {
@@ -1355,14 +1360,16 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
 
     indiv->set_with_stochasticity(_with_stochasticity);
     indiv->compute_statistical_data();
-    indiv->evaluate(exp_m->get_env());
+    indiv->EvaluateInContext(habitat);
     printf("Starting with a clonal population of individual with metabolic error %f and secretion error %f \n",indiv->get_dist_to_target_by_feature(METABOLISM),indiv->get_dist_to_target_by_feature(SECRETION));
     indivs.push_back(indiv);
 
     // Make the clones and add them to the list of individuals
     for (int32_t i = 1 ; i < _init_pop_size ; i++)
     {
-      indivs.push_back(ae_individual::CreateClone(indiv, id_new_indiv++));
+      ae_individual* clone = ae_individual::CreateClone(indiv, id_new_indiv++);
+      clone->EvaluateInContext(habitat);
+      indivs.push_back(clone);
     }
   }
   else if (plasmid != NULL)
@@ -1378,7 +1385,7 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
       // fitness is better than that corresponding to a flat phenotype)
       // and set its id
       indiv = create_random_individual_with_good_gene(exp_m, id_new_indiv++, param_mut,
-                                                      mut_prng, stoch_prng);
+                                                      mut_prng, stoch_prng, habitat);
       indiv->get_genetic_unit_nonconst(0).set_min_gu_length(_chromosome_minimal_length);
       indiv->get_genetic_unit_nonconst(0).set_max_gu_length(_chromosome_maximal_length);
 
@@ -1397,7 +1404,9 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
       for (int32_t i = 1 ; i < _init_pop_size ; i++)
       {
         // Add new clone to the list
-        indivs.push_back(ae_individual::CreateClone(indiv, id_new_indiv++));
+        ae_individual* clone = ae_individual::CreateClone(indiv, id_new_indiv++);
+        clone->EvaluateInContext(habitat);
+        indivs.push_back(clone);
 
         #ifdef DISTRIBUTED_PRNG
           #error Not implemented yet !
@@ -1411,7 +1420,7 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
       {
         // Create an individual and set its id
         indiv = create_random_individual_with_good_gene(exp_m, id_new_indiv++, param_mut,
-                                                        mut_prng, stoch_prng);
+                                                        mut_prng, stoch_prng, habitat);
         indiv->get_genetic_unit_nonconst(0).set_min_gu_length(_chromosome_minimal_length);
         indiv->get_genetic_unit_nonconst(0).set_max_gu_length(_chromosome_maximal_length);
         if (_allow_plasmids)
@@ -1431,7 +1440,7 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
     {
       // Create a random individual and set its id
       indiv = create_random_individual(exp_m, id_new_indiv++, param_mut,
-                                       mut_prng, stoch_prng);
+                                       mut_prng, stoch_prng, habitat);
       indiv->get_genetic_unit_nonconst(0).set_min_gu_length(_chromosome_minimal_length);
       indiv->get_genetic_unit_nonconst(0).set_max_gu_length(_chromosome_maximal_length);
       if (_allow_plasmids)
@@ -1447,7 +1456,9 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
       for (int32_t i = 1 ; i < _init_pop_size ; i++)
       {
         // Add clone to the list
-        indivs.push_back(ae_individual::CreateClone(indiv, id_new_indiv++));
+        ae_individual* clone = ae_individual::CreateClone(indiv, id_new_indiv++);
+        clone->EvaluateInContext(habitat);
+        indivs.push_back(clone);
 
         #ifdef DISTRIBUTED_PRNG
           #error Not implemented yet !
@@ -1461,7 +1472,7 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
       {
         // Create a random individual and set its id
         indiv = create_random_individual(exp_m, id_new_indiv++, param_mut,
-                                         mut_prng, stoch_prng);
+                                         mut_prng, stoch_prng, habitat);
         indiv->get_genetic_unit_nonconst(0).set_min_gu_length(_chromosome_minimal_length);
         indiv->get_genetic_unit_nonconst(0).set_max_gu_length(_chromosome_maximal_length);
         if (_allow_plasmids)
@@ -1477,7 +1488,10 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
   }
 
   // -------------------------------------------------------- Spatial structure
-  exp_m->init_world(_grid_width, _grid_height, world_prng);
+  exp_m->InitializeWorld(_grid_width, _grid_height,
+                         world_prng,
+                         habitat,
+                         true);
   World* world = exp_m->world();
   world->set_secretion_degradation_prop(_secretion_degradation_prop);
   world->set_secretion_diffusion_prop(_secretion_diffusion_prop);
@@ -1500,7 +1514,7 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
 
     world->PlaceIndiv(indiv, x, y);
   }
-  
+
   world->set_best(0, 0);
 
 
@@ -1615,9 +1629,10 @@ ae_individual* param_loader::create_random_individual(
     int32_t id,
     std::shared_ptr<ae_params_mut> param_mut,
     std::shared_ptr<ae_jumping_mt> mut_prng,
-    std::shared_ptr<ae_jumping_mt> stoch_prng) const
+    std::shared_ptr<ae_jumping_mt> stoch_prng,
+    const Habitat& habitat) const
 {
- 
+
 
   // ------------------------------------------------------- Global constraints
   // Create an individual with this genome and set its id
@@ -1699,7 +1714,7 @@ ae_individual* param_loader::create_random_individual(
   }*/
 
   // Evaluate the newly created individual
-  indiv->evaluate(exp_m->get_env());
+  indiv->EvaluateInContext(habitat);
 
   return indiv;
 }
@@ -1717,10 +1732,11 @@ ae_individual* param_loader::create_random_individual_with_good_gene(
     int32_t id,
     std::shared_ptr<ae_params_mut> param_mut,
     std::shared_ptr<ae_jumping_mt> mut_prng,
-    std::shared_ptr<ae_jumping_mt> stoch_prng) const
+    std::shared_ptr<ae_jumping_mt> stoch_prng,
+    const Habitat& habitat) const
 {
   // First find a chromosome with at least one beneficial metabolic gene
-  double env_metabolic_area = exp_m->get_env()->get_area_by_feature(METABOLISM);
+  double env_metabolic_area = habitat.phenotypic_target().area_by_feature(METABOLISM);
   ae_individual* indiv = new ae_individual(exp_m,
                                            mut_prng,
                                            stoch_prng,
@@ -1734,41 +1750,41 @@ ae_individual* param_loader::create_random_individual_with_good_gene(
                                            0);
   indiv->add_GU(indiv, _chromosome_initial_length, _prng); // a random sequence is generated by the ae_string constructor
   const ae_genetic_unit * chrom = &indiv->get_genetic_unit_list_std().back();
-  indiv->evaluate(exp_m->get_env());
+  indiv->EvaluateInContext(habitat);
 
   while (indiv->get_dist_to_target_by_feature(METABOLISM) >= env_metabolic_area)
   {
     indiv->remove_GU(0);
     // chrom = new ae_genetic_unit(indiv, _chromosome_initial_length, _prng); // a random sequence is generated by the ae_string constructor
     indiv->add_GU(indiv, _chromosome_initial_length, _prng); // a random sequence is generated by the ae_string constructor
-    indiv->evaluate(exp_m->get_env());
+    indiv->EvaluateInContext(habitat);
   }
 
 
   // Then, if a plasmid should be created, make sure there is also at least one metabolic gene on the plasmid
   if (_allow_plasmids)
+  {
+    if (_plasmid_initial_gene == 1)
     {
-      if (_plasmid_initial_gene == 1)
-        {
-          indiv->add_GU(indiv, _plasmid_initial_length, _prng); // a random sequence is generated by the ae_string constructor
-           indiv->evaluate(exp_m->get_env());
+      indiv->add_GU(indiv, _plasmid_initial_length, _prng); // a random sequence is generated by the ae_string constructor
+       indiv->EvaluateInContext(habitat);
 
-           while (indiv->get_genetic_unit(1).get_dist_to_target_by_feature(METABOLISM) >= env_metabolic_area)
-             {
-               indiv->remove_GU(1);
-               indiv->add_GU(indiv, _plasmid_initial_length, _prng); // a random sequence is generated by the ae_string constructor
-               indiv->evaluate(exp_m->get_env());
-             }
-        }
-      else
-        {
-          // The plasmid is a copy of the chromosome
-          char * plasmid_genome = new char [_chromosome_initial_length + 1]; // As ae_dna constructor do not allocate memory but directly use the provided string, we allocate the memory here.
-          strncpy(plasmid_genome, chrom->get_sequence(), _chromosome_initial_length+1);
-          indiv->add_GU(plasmid_genome, _chromosome_initial_length);
-          indiv->evaluate(exp_m->get_env());
-        }
+       while (indiv->get_genetic_unit(1).get_dist_to_target_by_feature(METABOLISM) >= env_metabolic_area)
+       {
+         indiv->remove_GU(1);
+         indiv->add_GU(indiv, _plasmid_initial_length, _prng); // a random sequence is generated by the ae_string constructor
+         indiv->EvaluateInContext(habitat);
+       }
     }
+    else
+    {
+      // The plasmid is a copy of the chromosome
+      char * plasmid_genome = new char [_chromosome_initial_length + 1]; // As ae_dna constructor do not allocate memory but directly use the provided string, we allocate the memory here.
+      strncpy(plasmid_genome, chrom->get_sequence(), _chromosome_initial_length+1);
+      indiv->add_GU(plasmid_genome, _chromosome_initial_length);
+      indiv->EvaluateInContext(habitat);
+    }
+  }
 
   // Compute the "good" individual's statistics
   indiv->compute_statistical_data();

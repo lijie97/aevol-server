@@ -146,7 +146,7 @@ class ae_exp_manager_X11 : public ae_exp_manager
     void toggle_display_on_off(void);
     void handle_events(void);
     bool quit_signal_received(void);
-    void display(ae_X11_window* win, Fuzzy& fuzzy, color_map color,
+    void display(ae_X11_window* win, const Fuzzy& fuzzy, color_map color,
         bool fill = false, bool bold = false);
     void display_grid(ae_X11_window* win, double** cell_grid);
 

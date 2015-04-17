@@ -181,7 +181,7 @@ void ae_selection::step_to_next_generation(void)
       }
     }
 
-    // Diffusion and degradation of compound in the environment
+    // Diffusion and degradation of compound in the habitat
     world->update_secretion_grid();
   }
 
@@ -593,7 +593,7 @@ ae_individual* ae_selection::do_replication(ae_individual* parent, int32_t index
   // ===========================================================================
   //  4) Evaluate new individual
   // ===========================================================================
-  new_indiv->evaluate();
+  new_indiv->Evaluate();
 
 
   // ===========================================================================

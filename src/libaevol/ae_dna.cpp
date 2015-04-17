@@ -1943,10 +1943,10 @@ ae_mutation* ae_dna::do_ins_HT(int32_t parent_id)
 {
   ae_mutation* mut = NULL;
 
-  int32_t nb_indivs = _exp_m->get_nb_indivs();
+  // TODO dpa disabled
+  // int32_t nb_indivs = _exp_m->get_nb_indivs();
 
 
-  // TODO: disabled
   // this version was coded for a non spatially structured population
 
 
@@ -2073,10 +2073,9 @@ ae_mutation* ae_dna::do_repl_HT(int32_t parent_id)
 {
   ae_mutation* mut = NULL;
 
-  int32_t nb_indivs = _exp_m->get_nb_indivs();
-
-
   // TODO: disabled
+  // int32_t nb_indivs = _exp_m->get_nb_indivs();
+
   // this version was coded for a non spatially structured population
 
 

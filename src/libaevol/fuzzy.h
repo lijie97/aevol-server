@@ -96,7 +96,7 @@ class Fuzzy
   /// `clipping_direction` is only used for `clip` function's keyword.
   enum clipping_direction: bool {min, max};
   void clip(clipping_direction direction, double bound);
-  // TODO: should be made protected (called from ae_environment::apply_noise())
+  // TODO: should be made protected
   std::list<Point>::iterator create_interpolated_point(double x);
 
   // ==========================================================================

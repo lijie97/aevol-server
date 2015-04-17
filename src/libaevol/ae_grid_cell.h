@@ -62,68 +62,83 @@ class ae_exp_manager;
 
 class ae_grid_cell
 {
-  public :
-    // =================================================================
-    //                             Constructors
-    // =================================================================
-    ae_grid_cell(void) = delete;
-    ae_grid_cell(const ae_grid_cell&) = delete;
-    ae_grid_cell(int16_t x, int16_t y, ae_individual* indiv);
-    ae_grid_cell(gzFile backup_file, ae_exp_manager* exp_m);
+ public :
+  // =================================================================
+  //                             Constructors
+  // =================================================================
+  ae_grid_cell(void) = delete;
+  ae_grid_cell(const ae_grid_cell&) = delete;
+  ae_grid_cell(int16_t x, int16_t y,
+               std::unique_ptr<Habitat>&& habitat,
+               ae_individual* indiv);
+  ae_grid_cell(gzFile backup_file,
+               ae_exp_manager* exp_m,
+               std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler_);
 
-    // =================================================================
-    //                             Destructors
-    // =================================================================
-    virtual ~ae_grid_cell(void);
-
-
-    // =================================================================
-    //                        Accessors: getters
-    // =================================================================
-    inline int16_t x() const {return x_;};
-    inline int16_t y() const {return y_;};
-    inline double compound_amount(void) const;
-    inline ae_individual* get_individual(void) const;
-  
-    inline double get_secreted_amount(void) const;
-    inline double get_metabolic_fitness(void) const;
-    inline double get_total_fitness(void) const;
-
-    // =================================================================
-    //                        Accessors: setters
-    // =================================================================
-    inline void set_compound_amount(double compound_amount);
-    inline void set_individual(ae_individual* indiv);
-
-    // =================================================================
-    //                            Public Methods
-    // =================================================================
-    void save(gzFile backup_file) const;
-
-    // =================================================================
-    //                           Public Attributes
-    // =================================================================
+  // =================================================================
+  //                             Destructors
+  // =================================================================
+  virtual ~ae_grid_cell(void);
 
 
+  // =================================================================
+  //                        Accessors: getters
+  // =================================================================
+  inline int16_t x() const {return x_;};
+  inline int16_t y() const {return y_;};
+  inline double compound_amount(void) const;
+  inline ae_individual* get_individual(void) const;
+
+  inline double get_secreted_amount(void) const;
+  inline double get_metabolic_fitness(void) const;
+  inline double get_total_fitness(void) const;
+
+  const Habitat& habitat() const {
+    return *habitat_;
+  }
+  const PhenotypicTarget& phenotypic_target() const {
+    return habitat_->phenotypic_target();
+  }
+
+  // =================================================================
+  //                        Accessors: setters
+  // =================================================================
+  inline void set_compound_amount(double compound_amount);
+  inline void set_individual(ae_individual* indiv);
+
+  // =================================================================
+  //                            Public Methods
+  // =================================================================
+  void save(gzFile backup_file,
+            bool skip_phenotypic_target = false) const;
+  void load(gzFile backup_file,
+            ae_exp_manager* exp_m,
+            std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler);
+
+  // =================================================================
+  //                           Public Attributes
+  // =================================================================
 
 
 
-  protected :
-    // =================================================================
-    //                           Protected Methods
-    // =================================================================
 
-    // =================================================================
-    //                          Protected Attributes
-    // =================================================================
-    // Position on the grid
-    int16_t x_;
-    int16_t y_;
-    
-    // Pointer to the individual in this cell
-    ae_individual* individual_ = NULL;
 
-    Habitat* habitat_;
+ protected :
+  // =================================================================
+  //                           Protected Methods
+  // =================================================================
+
+  // =================================================================
+  //                          Protected Attributes
+  // =================================================================
+  // Position on the grid
+  int16_t x_;
+  int16_t y_;
+
+  // Pointer to the individual in this cell
+  ae_individual* individual_ = NULL;
+
+  std::unique_ptr<Habitat> habitat_;
 };
 
 
