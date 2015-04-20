@@ -48,6 +48,8 @@
 #include "ae_utils.h"
 #include "ae_protein.h"
 
+#include "ae_list.h" // TODO vld: to be removed with utility function `distinct`
+
 namespace aevol {
 
 
@@ -59,8 +61,25 @@ class ae_individual;
 class ae_genetic_unit;
 
 
+/// Tell if there are no two consecutive nodes pointing to the same object.
+/// Please read me vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+/// ***!#'$       TO REMOVE ALONG WITH INCLUDE AE_LIST !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+/// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+inline bool distinct(ae_list<ae_rna*>* l) {
+  for (ae_list_node<ae_rna*>* n = l->get_first();
+       n != nullptr and n->get_next() != nullptr;
+       n = n->get_next())
+    if (n->get_obj() == n->get_next()->get_obj())
+      return false;
+  return true;
+}
 
-
+inline bool distinct(std::list<ae_rna*>& l) {
+  for (auto it = l.begin(); it != l.end() and next(it) != l.end(); ++it)
+    if (*it == *next(it))
+      return false;
+  return true;
+}
 
 class ae_rna
 {

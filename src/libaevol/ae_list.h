@@ -169,17 +169,14 @@ ae_list<T>::ae_list()
   _nb_elts = 0;
 }
 
-// // Conversion constructor: build ae_list from std::list copying content.
-// // Written as a transition to decouple ae_* from ae_list.
-// template <typename T>
-// ae_list<T>::ae_list(std::list<T> l) {
-//   _last = _first = NULL;
-//   _nb_elts = 0;
-
-//   for (T p: l)
-//     add(new (typename std::remove_pointer<T>::type)(*p));
-//   // NB remove_pointer gets type from pointer (e.g. int* -> int, char** -> char)
-// }
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const std::list<T>& l) {
+  os << "List {";
+  for (const auto& e: l)
+    os << e << " ";
+  os << "}";
+  return os;
+}
 
 // Conversion constructor: build ae_list from std::list.
 // Written as a transition to decouple ae_* from ae_list.

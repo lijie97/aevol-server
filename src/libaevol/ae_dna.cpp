@@ -3175,7 +3175,9 @@ void ae_dna::ABCDE_to_ADBpCpE( int32_t pos_B, int32_t pos_C, int32_t pos_D, int3
     }
     if ( len_C >= PROM_SIZE )
     {
+      assert(distinct(promoters_C[LEADING])); // TODO vld: remove: for debugging process only
       _gen_unit->extract_promoters_included_in( pos_C, pos_D, promoters_C );
+      assert(distinct(promoters_C[LEADING])); // TODO vld: remove: for debugging process only
     }
     if ( len_D >= PROM_SIZE )
     {

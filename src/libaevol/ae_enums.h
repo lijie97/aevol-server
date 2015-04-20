@@ -103,6 +103,17 @@ enum ae_log_type
   //LOG_LOADS     = 0x08
 };
 
+constexpr const char* StrandName[] = {
+  "LEADING",
+  "LAGGING"
+};
+
+enum Position {
+  BEFORE,
+  BETWEEN,
+  AFTER
+};
+
 } // namespace aevol
 
 #endif // __AE_ENUMS_H__

@@ -103,8 +103,7 @@ class ae_genetic_unit
     /*const*/ std::vector<std::list<ae_rna*>> get_rna_list() const;
     // TODO return as (rvalue?) reference
     const list<ae_protein*> get_protein_list(ae_strand strand) const;
-
-
+    void clear_protein_list(ae_strand strand);
 
     // Direct DNA access
     const char*  get_sequence( void ) const;
@@ -177,11 +176,11 @@ class ae_genetic_unit
 
     void reset_expression( void ); // useful for post-treatment programs
 
-    void print_rnas( void ) const;
-    void print_coding_rnas( void );
-    static void print_rnas( ae_list<ae_rna*>** rnas );
-    static void print_rnas( ae_list<ae_rna*>* rnas, ae_strand strand );
-    void print_proteins( void ) const;
+    void print_rnas() const;
+    void print_coding_rnas();
+    static void print_rnas(const std::vector<std::list<ae_rna*>>& rnas);
+    static void print_rnas(const std::list<ae_rna*>& rnas, ae_strand strand);
+    void print_proteins() const;
 
     bool        is_promoter( ae_strand strand, int32_t pos, int8_t& dist ) const;
     bool        is_terminator( ae_strand strand, int32_t pos ) const;
@@ -193,9 +192,15 @@ class ae_genetic_unit
     void compute_non_coding( void );
 
 
-    void duplicate_promoters_included_in( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>** duplicated_promoters );
+  // these functions are called once, they should likely not be public methods
+  void duplicate_promoters_included_in( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>** duplicated_promoters );
 
     void get_promoters_included_in( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>** promoters );
+  void get_promoters(ae_strand strand_id,
+                     Position start,
+                     int32_t pos1,
+                     int32_t pos2,
+                     ae_list<ae_rna*>* leading_promoters);
     void get_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>* leading_promoters );
     void get_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>* lagging_promoters );
     void get_leading_promoters_starting_after( int32_t pos, ae_list<ae_rna*>* leading_promoters );
@@ -215,6 +220,7 @@ class ae_genetic_unit
     void extract_leading_promoters_starting_before( int32_t pos, ae_list<ae_rna*>* extracted_promoters );
     void extract_lagging_promoters_starting_before( int32_t pos, ae_list<ae_rna*>* extracted_promoters );
     void extract_lagging_promoters_starting_after( int32_t pos, ae_list<ae_rna*>* extracted_promoters );
+  // end comment
 
     static void shift_promoters( ae_list<ae_rna*>** promoters_to_shift, int32_t delta_pos, int32_t seq_length );
     void insert_promoters( ae_list<ae_rna*>** promoters_to_insert );
@@ -303,8 +309,11 @@ class ae_genetic_unit
     Fuzzy*   _phenotypic_contribution;
     // NB : _phenotypic_contribution is only an indicative value, not used for the whole phenotype computation
 
-    ae_list<ae_rna*>**     _rna_list;
-    ae_list<ae_protein*>** _protein_list;
+    // TODO vld: Both of _rna_list and _protein_list should hold objects instead of pointers.
+    // _rna_list always has 2 elements: make it an std::array
+    std::vector<std::list<ae_rna*>> _rna_list = {{},{}};
+    // _protein_list always has 2 elements: make it an std::array
+    std::vector<std::list<ae_protein*>> _protein_list = {{},{}};
 
     // DM: For plasmid work, we sometimes *need* all the data (e.g. fitness, secretion) calculated for each GU
     double* _dist_to_target_per_segment;
