@@ -756,9 +756,6 @@ ae_genetic_unit::ae_genetic_unit(ae_individual* indiv, const ae_genetic_unit* pa
   }
 
   init_statistical_data();
-  // TODO vld: remove these asserts
-  assert(distinct(_rna_list[LEADING]));
-  assert(distinct(_rna_list[LAGGING]));
 }
 
 ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, gzFile backup_file )
@@ -914,9 +911,6 @@ void ae_genetic_unit::locate_promoters( void )
         _rna_list[LAGGING].push_back(new ae_rna_R(this, LAGGING, _dna->get_length() - i - 1, dist));
 #endif
     }
-  // TODO vld: remove these asserts
-  assert(distinct(_rna_list[LEADING]));
-  assert(distinct(_rna_list[LAGGING]));
 }
 
 void ae_genetic_unit::do_transcription( void )
@@ -981,9 +975,6 @@ void ae_genetic_unit::do_transcription( void )
         (*rna)->set_transcript_length( -1 );
     }
   }
-  // TODO vld: remove these asserts
-  assert(distinct(_rna_list[LEADING]));
-  assert(distinct(_rna_list[LAGGING]));
 }
 
 void ae_genetic_unit::do_translation()
@@ -1100,9 +1091,6 @@ void ae_genetic_unit::do_translation()
       }
     }
   }
-  // TODO vld: remove these asserts
-  assert(distinct(_rna_list[LEADING]));
-  assert(distinct(_rna_list[LAGGING]));
 }
 
 void ae_genetic_unit::compute_phenotypic_contribution( void )
@@ -2049,9 +2037,6 @@ void ae_genetic_unit::get_promoters(ae_strand strand_id,
                         });
   for (auto& rna = it_begin; rna != it_end; ++rna)
     leading_promoters->add(*rna);
-  // TODO vld: remove these asserts
-  assert(distinct(_rna_list[LEADING]));
-  assert(distinct(_rna_list[LAGGING]));
 }
 
 void ae_genetic_unit::get_leading_promoters_starting_between( int32_t pos1, int32_t pos2, ae_list<ae_rna*>* leading_promoters ) {
@@ -2135,9 +2120,6 @@ void ae_genetic_unit::invert_promoters_included_in( int32_t pos_1, int32_t pos_2
   ae_list_node<ae_rna*>* rna_node  = NULL;
   ae_rna* rna             = NULL;
 
-  static int cnt; cnt++;
-  // cout << "invert promoters call #" << cnt++ << "\n";
-  
   // ...on the former LAGGING strand (becoming the LEADING strand)
   rna_node = promoter_lists[LEADING]->get_first();
   int i = 0;
@@ -2176,8 +2158,7 @@ void ae_genetic_unit::extract_leading_promoters_starting_between(int32_t pos_1,
   assert(pos_1 >= 0 && pos_1 < pos_2 && pos_2 <= _dna->get_length());
 
   // Find the first promoters in the interval
-  auto strand = _rna_list[LEADING];
-  assert(distinct(strand)); // TODO vld: remove: for debugging process only
+  auto& strand = _rna_list[LEADING];
   auto first = find_if(strand.begin(),
                        strand.end(),
                        [pos_1](ae_rna* p)
@@ -2194,20 +2175,16 @@ void ae_genetic_unit::extract_leading_promoters_starting_between(int32_t pos_1,
   auto ae_extr = new ae_list<ae_rna*>(extr);
   extracted_promoters->merge(ae_extr);
   delete ae_extr;
-  assert(distinct(extracted_promoters)); // TODO vld: remove: for debugging process only
-  // TODO vld: remove these asserts
-  assert(distinct(_rna_list[LEADING]));
-  assert(distinct(_rna_list[LAGGING]));
+  strand.erase(first, last);
 }
 
 void ae_genetic_unit::extract_lagging_promoters_starting_between(int32_t pos_1,
                                                                  int32_t pos_2,
                                                                  ae_list<ae_rna*>* extracted_promoters ) {
   assert( pos_1 >= 0 && pos_1 < pos_2 && pos_2 <= _dna->get_length() );
-  assert(distinct(extracted_promoters)); // TODO vld: remove: for debugging process only
   
   // Find the first promoters in the interval (if any)
-  auto strand = _rna_list[LAGGING];
+  auto& strand = _rna_list[LAGGING];
   auto first = find_if(strand.begin(), strand.end(), [pos_2](ae_rna* r) { return r->get_promoter_pos() < pos_2; });
   if (first == strand.end() or (*first)->get_promoter_pos() >= pos_1 )
     return;
@@ -2218,10 +2195,7 @@ void ae_genetic_unit::extract_lagging_promoters_starting_between(int32_t pos_1,
   // Extract the promoters (remove them from the individual's list and put the in extracted_promoters)
   auto extr = std::list<ae_rna*>(first, last);
   extracted_promoters->merge(new ae_list<ae_rna*>(extr));
-  assert(distinct(extracted_promoters)); // TODO vld: remove: for debugging process only
-  // TODO vld: remove these asserts
-  assert(distinct(_rna_list[LEADING]));
-  assert(distinct(_rna_list[LAGGING]));
+  strand.erase(first, last);
 }
 
 void ae_genetic_unit::extract_leading_promoters_starting_after(int32_t pos,
@@ -2229,7 +2203,7 @@ void ae_genetic_unit::extract_leading_promoters_starting_after(int32_t pos,
   assert( pos >= 0 && pos < _dna->get_length() );
 
   // Find the first promoters in the interval
-  auto strand = _rna_list[LEADING];
+  auto& strand = _rna_list[LEADING];
   auto first = find_if(strand.begin(), strand.end(), [pos](ae_rna* r) { return r->get_promoter_pos() >= pos; });
   if (first == strand.end())
     return;
@@ -2237,31 +2211,27 @@ void ae_genetic_unit::extract_leading_promoters_starting_after(int32_t pos,
   // Extract the promoters (remove them from the individual's list and put the in extracted_promoters)
   std::list<ae_rna*> extr = std::list<ae_rna*>(first, strand.end());
   extracted_promoters->merge(new ae_list<ae_rna*>(extr));
-  // TODO vld: remove these asserts
-  assert(distinct(_rna_list[LEADING]));
-  assert(distinct(_rna_list[LAGGING]));
+  strand.erase(first, strand.end());
 }
 
 void ae_genetic_unit::extract_leading_promoters_starting_before( int32_t pos, ae_list<ae_rna*>* extracted_promoters ) {
   assert( pos >= 0 && pos < _dna->get_length() );
 
   // Find the last promoters in the interval
-  auto strand = _rna_list[LEADING];
+  auto& strand = _rna_list[LEADING];
   auto last = find_if(strand.begin(), strand.end(), [pos](ae_rna* r) { return r->get_promoter_pos() >= pos; });
 
   // Extract the promoters (remove them from the individual's list and put the in extracted_promoters)
   std::list<ae_rna*> extr = std::list<ae_rna*>(strand.begin(), last);
   extracted_promoters->merge(new ae_list<ae_rna*>(extr));
-  // TODO vld: remove these asserts
-  assert(distinct(_rna_list[LEADING]));
-  assert(distinct(_rna_list[LAGGING]));
+  strand.erase(strand.begin(), last);
 }
 
 void ae_genetic_unit::extract_lagging_promoters_starting_before( int32_t pos, ae_list<ae_rna*>* extracted_promoters ) {
   assert( pos >= 0 && pos < _dna->get_length() );
 
   // Find the first promoters in the interval
-  auto strand = _rna_list[LAGGING];
+  auto& strand = _rna_list[LAGGING];
   auto first = find_if(strand.begin(), strand.end(), [pos](ae_rna* r) { return r->get_promoter_pos() < pos; });
   if (first == strand.end())
     return;
@@ -2269,9 +2239,7 @@ void ae_genetic_unit::extract_lagging_promoters_starting_before( int32_t pos, ae
   // Extract the promoters (remove them from the individual's list and put the in extracted_promoters)
   std::list<ae_rna*> extr(first, strand.end());
   extracted_promoters->merge(new ae_list<ae_rna*>(extr));
-  // TODO vld: remove these asserts
-  assert(distinct(_rna_list[LEADING]));
-  assert(distinct(_rna_list[LAGGING]));
+  strand.erase(first, strand.end());
 }
 
 void ae_genetic_unit::extract_lagging_promoters_starting_after( int32_t pos, ae_list<ae_rna*>* extracted_promoters )
@@ -2279,7 +2247,7 @@ void ae_genetic_unit::extract_lagging_promoters_starting_after( int32_t pos, ae_
   assert( pos >= 0 && pos < _dna->get_length() );
 
   // Find the last promoters in the interval
-  auto strand = _rna_list[LAGGING];
+  auto& strand = _rna_list[LAGGING];
 
   // Find the last promoters in the interval
   auto last = find_if(strand.begin(), strand.end(), [pos](ae_rna* r) { return r->get_promoter_pos() < pos; });
@@ -2289,9 +2257,7 @@ void ae_genetic_unit::extract_lagging_promoters_starting_after( int32_t pos, ae_
   // Extract the promoters (remove them from the individual's list and put the in extracted_promoters)
   std::list<ae_rna*> extr(strand.begin(), last);
   extracted_promoters->merge(new ae_list<ae_rna*>(extr));
-  // TODO vld: remove these asserts
-  assert(distinct(_rna_list[LEADING]));
-  assert(distinct(_rna_list[LAGGING]));
+  strand.erase(strand.begin(), last);
 }
 
 /*!
@@ -2328,8 +2294,9 @@ void ae_genetic_unit::extract_lagging_promoters_starting_after( int32_t pos, ae_
   and the positions of the promoters from <promoters_to_insert> and <this->_rna_list> must not be interlaced
   i.e. no promoter in <this->_rna_list> must have a position in [first_prom_to_insert->pos ; last_prom_to_insert->pos]
 */
-void ae_genetic_unit::insert_promoters( ae_list<ae_rna*>** promoters_to_insert )
+void ae_genetic_unit::insert_promoters(ae_list<ae_rna*>** promoters_to_insert)
 {
+  // TODO vld: to be merged with insert_promoters_at(...)
   for (auto strand: {LEADING, LAGGING}) {
     if (promoters_to_insert[strand]->get_nb_elts() <= 0)
       continue;
