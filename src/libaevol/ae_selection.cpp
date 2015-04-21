@@ -195,10 +195,6 @@ void ae_selection::step_to_next_generation(void)
     for (int16_t y = 0 ; y < grid_height ; y++)
     {
       do_replication(reproducers[x][y], index_new_indiv++, x, y);
-      #ifdef DISTRIBUTED_PRNG
-        #error Not implemented yet !
-        reproducers[x][y]->do_prng_jump();
-      #endif
       new_generation.emplace_back(pop_grid[x][y]->get_individual());
     }
   }

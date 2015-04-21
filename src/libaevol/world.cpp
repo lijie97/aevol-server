@@ -261,16 +261,14 @@ void World::save(gzFile backup_file) const
 
   _prng->save(backup_file);
 
-  #ifndef DISTRIBUTED_PRNG
-    _mut_prng->save(backup_file);
+  _mut_prng->save(backup_file);
 
-    int8_t tmp_with_stoch = _stoch_prng == nullptr ? 0 : 1;
-    gzwrite(backup_file, &tmp_with_stoch, sizeof(tmp_with_stoch));
-    if (tmp_with_stoch)
-    {
-      _stoch_prng->save(backup_file);
-    }
-  #endif
+  int8_t tmp_with_stoch = static_cast<int8_t>(_stoch_prng == nullptr ? 0 : 1);
+  gzwrite(backup_file, &tmp_with_stoch, sizeof(tmp_with_stoch));
+  if (tmp_with_stoch)
+  {
+    _stoch_prng->save(backup_file);
+  }
   if (grid_ == nullptr)
   {
     printf("%s:%d: error: grid not initialized.\n", __FILE__, __LINE__);
@@ -278,7 +276,7 @@ void World::save(gzFile backup_file) const
   }
 
   // Manage shared or private phenotypic targets
-  int8_t tmp_phenotypic_target_shared = phenotypic_target_shared ? 1 : 0;
+  int8_t tmp_phenotypic_target_shared = static_cast<int8_t>(phenotypic_target_shared ? 1 : 0);
   gzwrite(backup_file,
           &tmp_phenotypic_target_shared,
           sizeof(tmp_phenotypic_target_shared));
@@ -304,15 +302,15 @@ void World::save(gzFile backup_file) const
 void World::load(gzFile backup_file, ae_exp_manager* exp_man)
 {
   _prng = std::make_shared<ae_jumping_mt>(backup_file);
-  #ifndef DISTRIBUTED_PRNG
-    _mut_prng = std::make_shared<ae_jumping_mt>(backup_file);
-    int8_t tmp_with_stoch;
-    gzread(backup_file, &tmp_with_stoch, sizeof(tmp_with_stoch));
-    if (tmp_with_stoch)
-    {
-      _stoch_prng = std::make_shared<ae_jumping_mt>(backup_file);
-    }
-  #endif
+
+  _mut_prng = std::make_shared<ae_jumping_mt>(backup_file);
+
+  int8_t tmp_with_stoch;
+  gzread(backup_file, &tmp_with_stoch, sizeof(tmp_with_stoch));
+  if (tmp_with_stoch)
+  {
+    _stoch_prng = std::make_shared<ae_jumping_mt>(backup_file);
+  }
 
   // Manage shared or private phenotypic targets
   int8_t tmp_phenotypic_target_shared;
@@ -348,13 +346,11 @@ void World::load(gzFile backup_file, ae_exp_manager* exp_man)
 // =================================================================
 //                           Protected Methods
 // =================================================================
-#ifndef DISTRIBUTED_PRNG
-  void World::backup_stoch_prng(void)
-  {
-    // Store a copy of _stoch_prng in _stoch_prng_bak
-    _stoch_prng_bak = std::make_unique<ae_jumping_mt>(*_stoch_prng);
-  }
-#endif
+void World::backup_stoch_prng(void)
+{
+  // Store a copy of _stoch_prng in _stoch_prng_bak
+  _stoch_prng_bak = std::make_unique<ae_jumping_mt>(*_stoch_prng);
+}
 
 // =================================================================
 //                          Non inline accessors

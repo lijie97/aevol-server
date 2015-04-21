@@ -144,20 +144,16 @@ class World
   void MallocGrid(void);
   void WellMixIndivs(void);
   void PartiallyMixIndivs(void);
-  #ifndef DISTRIBUTED_PRNG
-    void backup_stoch_prng(void);
-  #endif
+  void backup_stoch_prng(void);
 
   // =================================================================
   //                          Protected Attributes
   // =================================================================
   std::shared_ptr<ae_jumping_mt> _prng = NULL;
 
-  #ifndef DISTRIBUTED_PRNG
-    std::shared_ptr<ae_jumping_mt> _mut_prng = nullptr;
-    std::shared_ptr<ae_jumping_mt> _stoch_prng = nullptr;
-    std::unique_ptr<ae_jumping_mt> _stoch_prng_bak = nullptr;
-  #endif
+  std::shared_ptr<ae_jumping_mt> _mut_prng = nullptr;
+  std::shared_ptr<ae_jumping_mt> _stoch_prng = nullptr;
+  std::unique_ptr<ae_jumping_mt> _stoch_prng_bak = nullptr;
 
   int16_t width_  = -1;
   int16_t height_ = -1;

@@ -1407,11 +1407,6 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
         ae_individual* clone = ae_individual::CreateClone(indiv, id_new_indiv++);
         clone->EvaluateInContext(habitat);
         indivs.push_back(clone);
-
-        #ifdef DISTRIBUTED_PRNG
-          #error Not implemented yet !
-          indiv->do_prng_jump();
-        #endif
       }
     }
     else // if (! CLONE)
@@ -1459,11 +1454,6 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
         ae_individual* clone = ae_individual::CreateClone(indiv, id_new_indiv++);
         clone->EvaluateInContext(habitat);
         indivs.push_back(clone);
-
-        #ifdef DISTRIBUTED_PRNG
-          #error Not implemented yet !
-          indiv->do_prng_jump();
-        #endif
       }
     }
     else // if (! CLONE)
@@ -1636,9 +1626,6 @@ ae_individual* param_loader::create_random_individual(
 
   // ------------------------------------------------------- Global constraints
   // Create an individual with this genome and set its id
-  #ifdef DISTRIBUTED_PRNG
-    #error Not implemented yet !
-  #endif
   ae_individual* indiv = new ae_individual(exp_m,
                                            mut_prng,
                                            stoch_prng,
