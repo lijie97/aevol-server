@@ -2013,7 +2013,7 @@ void ae_genetic_unit::get_promoters(ae_strand strand_id,
 
   // TODO vld: These find_if puns are not very nice. Could just negate return if LAGGING or something in that spirit.
 
-  assert((pos1 >= 0 and pos1 <= pos2 and pos2 < _dna->get_length()) or
+  assert((pos1 >= 0 and pos1 <= pos2 and pos2 <= _dna->get_length()) or
          (pos2 == 0 and pos1 >= 0 and pos1 < _dna->get_length()) or
          (pos1 == 0 and pos2 >= 0 and pos2 < _dna->get_length()));
 
