@@ -1520,7 +1520,7 @@ bool ae_dna::do_duplication( int32_t pos_1, int32_t pos_2, int32_t pos_3 )
   // Create a copy of the promoters beared by the segment to be duplicated
   // (they will be inserted in the individual's RNA list later)
 
-  std::vector<std::list<ae_rna*>> duplicated_promoters = {{},{}};
+  Promoters2 duplicated_promoters = {{},{}};
   _gen_unit->duplicate_promoters_included_in( pos_1, pos_2, duplicated_promoters);
 
   _gen_unit->remove_promoters_around( pos_3 );
@@ -2429,7 +2429,7 @@ void ae_dna::compute_statistical_data( void )
   //~ }
 }
 
-void ae_dna::set_GU(std::vector<std::list<ae_rna*>> rna_list, const ae_genetic_unit* GU) {
+void ae_dna::set_GU(Promoters2 rna_list, const ae_genetic_unit* GU) {
   for (int8_t strand = LEADING; strand <= LAGGING; strand++)
     for (auto& rna: rna_list[strand])
       rna->set_genetic_unit(GU);
@@ -2448,12 +2448,9 @@ ae_genetic_unit* ae_dna::extract_into_new_GU( int32_t pos_1, int32_t pos_2 )
 
   // Remove promoters belonging to the sequence (to be extracted) from the "old" GU
   // and put them in a stand-alone promoter list (with indices ranging from 0 to seq_length-1)
-  ae_list<ae_rna*>** proms_GU_1  = new ae_list<ae_rna*>*[2];
-  proms_GU_1[LEADING]   = new ae_list<ae_rna*>();
-  proms_GU_1[LAGGING]   = new ae_list<ae_rna*>();
+  Promoters2 proms_GU_1 = {{},{}};
   _gen_unit->extract_promoters_included_in( pos_1, pos_2, proms_GU_1 );
   ae_genetic_unit::shift_promoters( proms_GU_1, -pos_1, _length );
-
 
   // ==================== Manage sequences ====================
   // Copy the sequence in a stand-alone char* (size must be multiple of BLOCK_SIZE)
@@ -2471,11 +2468,8 @@ ae_genetic_unit* ae_dna::extract_into_new_GU( int32_t pos_1, int32_t pos_2 )
 
   set_data( sequence_GU_0, length_GU_0 );
 
-
   // ==================== Create the new genetic unit ====================
-  auto std_proms_GU_1 = aestrand_to_std(proms_GU_1);
-  ae_genetic_unit* GU_1 = new ae_genetic_unit( _indiv, sequence_GU_1, length_GU_1, std_proms_GU_1 );
-
+  ae_genetic_unit* GU_1 = new ae_genetic_unit( _indiv, sequence_GU_1, length_GU_1, proms_GU_1 );
 
   // ==================== Update promoter lists ====================
   // Shift the position of the promoters of the "old" GU
@@ -2503,9 +2497,7 @@ ae_genetic_unit* ae_dna::copy_into_new_GU( int32_t pos_1, int32_t pos_2 ) const
   // ==================== Copy promoters from old sequence ====================
   // Copy the promoters belonging to the sequence to be copied from the "old" GU
   // into a stand-alone promoter list (with indices ranging from 0 to seq_length-1)
-  ae_list<ae_rna*>** proms_new_GU  = new ae_list<ae_rna*>*[2];
-  proms_new_GU[LEADING]   = new ae_list<ae_rna*>();
-  proms_new_GU[LAGGING]   = new ae_list<ae_rna*>();
+  Promoters2 proms_new_GU = {{},{}};
   _gen_unit->copy_promoters_included_in( pos_1, pos_2, proms_new_GU );
   ae_genetic_unit::shift_promoters( proms_new_GU, -pos_1, _length );
 
@@ -2527,9 +2519,7 @@ ae_genetic_unit* ae_dna::copy_into_new_GU( int32_t pos_1, int32_t pos_2 ) const
 
 
   // ==================== Create the new genetic unit ====================
-  std::vector<std::list<ae_rna*>> std_proms_new_GU = {aelist_to_stdlist(proms_new_GU[LEADING]),
-                                                      aelist_to_stdlist(proms_new_GU[LAGGING])};
-  ae_genetic_unit* new_GU = new ae_genetic_unit( _indiv, sequence_new_GU, length_new_GU, std_proms_new_GU); // TODO vld: remove conversion once ae_dna stlized
+  ae_genetic_unit* new_GU = new ae_genetic_unit( _indiv, sequence_new_GU, length_new_GU, proms_new_GU);
 
   // ==================== Update new GU promoter list ====================
   // Look for new promoters around breakpoints
@@ -2645,12 +2635,8 @@ void ae_dna::insert_GU(ae_genetic_unit* GU_to_insert, int32_t pos_B, int32_t pos
   // NOTE : Once removed the promoters starting on sequence D, the remaining is precisely the promoters
   //        starting on sequence C (and they are at their rightful position). We can hence directly use
   //        the list of promoters from GU_to_insert.
-  ae_list<ae_rna*>** proms_C = new ae_list<ae_rna*>*[2];
-  proms_C[LEADING]  = new ae_list<ae_rna*>();
-  proms_C[LAGGING]  = new ae_list<ae_rna*>();
-  ae_list<ae_rna*>** proms_D  = new ae_list<ae_rna*>*[2];
-  proms_D[LEADING]  = new ae_list<ae_rna*>();
-  proms_D[LAGGING]  = new ae_list<ae_rna*>();
+  Promoters2 proms_C = {{},{}};
+  Promoters2 proms_D = {{},{}};
 
   if ( pos_D != 0 ) // TODO : Manage this in the different functions? with a parameter WholeGenomeEventHandling ?
   {
@@ -2683,14 +2669,6 @@ void ae_dna::insert_GU(ae_genetic_unit* GU_to_insert, int32_t pos_B, int32_t pos
     _gen_unit->insert_promoters_at( proms_D, len_A );
     _gen_unit->insert_promoters_at( proms_C, len_A + len_D );
   }
-
-  // Delete the temporary lists (objects are untouched)
-  delete proms_C[LEADING];
-  delete proms_C[LAGGING];
-  delete [] proms_C;
-  delete proms_D[LEADING];
-  delete proms_D[LAGGING];
-  delete [] proms_D;
 
   // Look for new promoters around breakpoints
   _gen_unit->look_for_new_promoters_around( pos_B );
@@ -3012,15 +2990,9 @@ void ae_dna::ABCDE_to_ADCBE( int32_t pos_B, int32_t pos_C, int32_t pos_D, int32_
     _gen_unit->remove_promoters_around( pos_E );
 
     // Create temporary lists for promoters to move and/or invert
-    ae_list<ae_rna*>** promoters_B = new ae_list<ae_rna*>*[2];
-    promoters_B[LEADING] = new ae_list<ae_rna*>();
-    promoters_B[LAGGING] = new ae_list<ae_rna*>();
-    ae_list<ae_rna*>** promoters_C = new ae_list<ae_rna*>*[2];
-    promoters_C[LEADING] = new ae_list<ae_rna*>();
-    promoters_C[LAGGING] = new ae_list<ae_rna*>();
-    ae_list<ae_rna*>** promoters_D = new ae_list<ae_rna*>*[2];
-    promoters_D[LEADING] = new ae_list<ae_rna*>();
-    promoters_D[LAGGING] = new ae_list<ae_rna*>();
+    Promoters2 promoters_B = {{},{}};
+    Promoters2 promoters_C = {{},{}};
+    Promoters2 promoters_D = {{},{}};
 
     // 2) Extract promoters that are totally included in each segment to be moved (B, C and D)
     if ( len_B >= PROM_SIZE )
@@ -3045,17 +3017,6 @@ void ae_dna::ABCDE_to_ADCBE( int32_t pos_B, int32_t pos_C, int32_t pos_D, int32_
     _gen_unit->insert_promoters( promoters_B );
     _gen_unit->insert_promoters( promoters_C );
     _gen_unit->insert_promoters( promoters_D );
-
-    // Delete the temporary lists (objects are untouched)
-    delete promoters_B[LEADING];
-    delete promoters_B[LAGGING];
-    delete [] promoters_B;
-    delete promoters_C[LEADING];
-    delete promoters_C[LAGGING];
-    delete [] promoters_C;
-    delete promoters_D[LEADING];
-    delete promoters_D[LAGGING];
-    delete [] promoters_D;
 
     // 5) Look for new promoters including a breakpoint
     _gen_unit->look_for_new_promoters_around( len_A );
@@ -3155,15 +3116,9 @@ void ae_dna::ABCDE_to_ADBpCpE( int32_t pos_B, int32_t pos_C, int32_t pos_D, int3
     _gen_unit->remove_promoters_around( pos_E );
 
     // Create temporary lists for promoters to move and/or invert
-    ae_list<ae_rna*>** promoters_B = new ae_list<ae_rna*>*[2];
-    promoters_B[LEADING] = new ae_list<ae_rna*>();
-    promoters_B[LAGGING] = new ae_list<ae_rna*>();
-    ae_list<ae_rna*>** promoters_C = new ae_list<ae_rna*>*[2];
-    promoters_C[LEADING] = new ae_list<ae_rna*>();
-    promoters_C[LAGGING] = new ae_list<ae_rna*>();
-    ae_list<ae_rna*>** promoters_D = new ae_list<ae_rna*>*[2];
-    promoters_D[LEADING] = new ae_list<ae_rna*>();
-    promoters_D[LAGGING] = new ae_list<ae_rna*>();
+    Promoters2 promoters_B = {{},{}};
+    Promoters2 promoters_C = {{},{}};
+    Promoters2 promoters_D = {{},{}};
 
     // 2) Extract promoters that are totally included in each segment to be moved (B, C and D)
     if ( len_B >= PROM_SIZE )
@@ -3192,17 +3147,6 @@ void ae_dna::ABCDE_to_ADBpCpE( int32_t pos_B, int32_t pos_C, int32_t pos_D, int3
     _gen_unit->insert_promoters( promoters_C );
     _gen_unit->insert_promoters( promoters_B );
     _gen_unit->insert_promoters( promoters_D );
-
-    // Delete the temporary lists (objects are untouched)
-    delete promoters_B[LEADING];
-    delete promoters_B[LAGGING];
-    delete [] promoters_B;
-    delete promoters_C[LEADING];
-    delete promoters_C[LAGGING];
-    delete [] promoters_C;
-    delete promoters_D[LEADING];
-    delete promoters_D[LAGGING];
-    delete [] promoters_D;
 
     // 5) Look for new promoters including a breakpoint
     _gen_unit->look_for_new_promoters_around( len_A );
@@ -3302,15 +3246,9 @@ void ae_dna::ABCDE_to_ACpDpBE( int32_t pos_B, int32_t pos_C, int32_t pos_D, int3
     _gen_unit->remove_promoters_around( pos_E );
 
     // Create temporary lists for promoters to move and/or invert
-    ae_list<ae_rna*>** promoters_B = new ae_list<ae_rna*>*[2];
-    promoters_B[LEADING] = new ae_list<ae_rna*>();
-    promoters_B[LAGGING] = new ae_list<ae_rna*>();
-    ae_list<ae_rna*>** promoters_C = new ae_list<ae_rna*>*[2];
-    promoters_C[LEADING] = new ae_list<ae_rna*>();
-    promoters_C[LAGGING] = new ae_list<ae_rna*>();
-    ae_list<ae_rna*>** promoters_D = new ae_list<ae_rna*>*[2];
-    promoters_D[LEADING] = new ae_list<ae_rna*>();
-    promoters_D[LAGGING] = new ae_list<ae_rna*>();
+    Promoters2 promoters_B = {{},{}};
+    Promoters2 promoters_C = {{},{}};
+    Promoters2 promoters_D = {{},{}};
 
     // 2) Extract promoters that are totally included in each segment to be moved (B, C and D)
     if ( len_B >= PROM_SIZE )
@@ -3339,17 +3277,6 @@ void ae_dna::ABCDE_to_ACpDpBE( int32_t pos_B, int32_t pos_C, int32_t pos_D, int3
     _gen_unit->insert_promoters( promoters_B );
     _gen_unit->insert_promoters( promoters_D );
     _gen_unit->insert_promoters( promoters_C );
-
-    // Delete the temporary lists (objects are untouched)
-    delete promoters_B[LEADING];
-    delete promoters_B[LAGGING];
-    delete [] promoters_B;
-    delete promoters_C[LEADING];
-    delete promoters_C[LAGGING];
-    delete [] promoters_C;
-    delete promoters_D[LEADING];
-    delete promoters_D[LAGGING];
-    delete [] promoters_D;
 
     // 5) Look for new promoters including a breakpoint
     _gen_unit->look_for_new_promoters_around( len_A );
@@ -3419,9 +3346,7 @@ void ae_dna::inter_GU_ABCDE_to_ACDBE( int32_t pos_B, int32_t pos_C, int32_t pos_
     destination_GU.remove_promoters_around(pos_E);
 
     // Create temporary lists for promoters to move and/or invert
-    ae_list<ae_rna*>** promoters_B = new ae_list<ae_rna*>*[2];
-    promoters_B[LEADING] = new ae_list<ae_rna*>();
-    promoters_B[LAGGING] = new ae_list<ae_rna*>();
+    Promoters2 promoters_B = {{},{}};
 
     // 2) Extract promoters that are totally included in each segment to be moved (B, C and E)
     if ( len_B >= PROM_SIZE )
@@ -3440,18 +3365,9 @@ void ae_dna::inter_GU_ABCDE_to_ACDBE( int32_t pos_B, int32_t pos_C, int32_t pos_
     ae_genetic_unit::shift_promoters( promoters_B, len_D - len_A, destination_GU.get_dna()->get_length() );
 
     // Reassign promoters to their new genetic unit
-    ae_list_node<ae_rna*>* rna_node;
-    ae_rna* rna;
-    for (int32_t tmp_strand = 0;  tmp_strand < 2; tmp_strand++)
-    {
-      rna_node = promoters_B[tmp_strand]->get_first();
-      while ( rna_node )
-      {
-        rna = rna_node->get_obj();
+    for (auto& strand: {LEADING, LAGGING})
+      for (auto& rna: promoters_B[strand])
         rna->set_genetic_unit(&destination_GU);
-        rna_node = rna_node->get_next();
-      }
-    }
 
     // Shift the promoters of sequences C and E
     _gen_unit->move_all_promoters_after( pos_C, -len_B );
@@ -3459,11 +3375,6 @@ void ae_dna::inter_GU_ABCDE_to_ACDBE( int32_t pos_B, int32_t pos_C, int32_t pos_
 
     // 4) Reinsert the shifted promoters
     destination_GU.insert_promoters( promoters_B );
-
-    // Delete the temporary lists (objects are untouched)
-    delete promoters_B[LEADING];
-    delete promoters_B[LAGGING];
-    delete [] promoters_B;
 
     // 5) Look for new promoters including a breakpoint
     _gen_unit->look_for_new_promoters_around( 0 );

@@ -28,19 +28,9 @@
 #ifndef __AE_GENETIC_UNIT_H__
 #define __AE_GENETIC_UNIT_H__
 
-
-// =================================================================
-//                              Libraries
-// =================================================================
 #include <inttypes.h>
 #include <stdio.h>
 
-
-
-// =================================================================
-//                            Project Files
-// =================================================================
-#include "ae_list.h"
 #include "ae_dna.h"
 #include "ae_rna.h"
 #include "ae_protein.h"
@@ -49,33 +39,15 @@
 #include "ae_jumping_mt.h"
 #include "ae_utils.h"
 
-
-
 using std::vector;
 using std::list;
 
 namespace aevol {
 
-// TODO vld: remove utility function after STLization
-// Convert an ae_list modelized double strand to std.
-// Useful in the process of STLizing.
-static std::vector<std::list<ae_rna*>> aestrand_to_std(ae_list<ae_rna*>** doublestrand)
-{
-  std::vector<std::list<ae_rna*>> stdstrand = {aelist_to_stdlist(doublestrand[LEADING]),
-                                               aelist_to_stdlist(doublestrand[LAGGING])};
-  return stdstrand;
-}
+using Promoters = std::list<ae_rna*>;
+using Promoters2 = std::vector<Promoters>;
 
-
-// =================================================================
-//                          Class declarations
-// =================================================================
 class ae_exp_manager;
-
-
-
-
-
 
 class ae_genetic_unit
 {
@@ -88,7 +60,7 @@ class ae_genetic_unit
     ae_genetic_unit(ae_individual* indiv,
                     char* seq,
                     int32_t length,
-                    const std::vector<std::list<ae_rna*>>& prom_list = {{},{}});
+                    const Promoters2& prom_list = {{},{}});
     ae_genetic_unit( ae_individual* indiv, const ae_genetic_unit& model );
     ae_genetic_unit( ae_individual* indiv, const ae_genetic_unit* parent );
     ae_genetic_unit( ae_individual* indiv, gzFile backup_file );
@@ -113,7 +85,7 @@ class ae_genetic_unit
 
     // TODO: re constify
     // TODO return as (rvalue?) reference
-    /*const*/ std::vector<std::list<ae_rna*>> get_rna_list() const;
+    /*const*/ Promoters2 get_rna_list() const;
     // TODO return as (rvalue?) reference
     const list<ae_protein*> get_protein_list(ae_strand strand) const;
     void clear_protein_list(ae_strand strand);
@@ -191,8 +163,8 @@ class ae_genetic_unit
 
     void print_rnas() const;
     void print_coding_rnas();
-    static void print_rnas(const std::vector<std::list<ae_rna*>>& rnas);
-    static void print_rnas(const std::list<ae_rna*>& rnas, ae_strand strand);
+    static void print_rnas(const Promoters2& rnas);
+    static void print_rnas(const Promoters& rnas, ae_strand strand);
     void print_proteins() const;
 
     bool        is_promoter( ae_strand strand, int32_t pos, int8_t& dist ) const;
@@ -208,35 +180,45 @@ class ae_genetic_unit
   // these functions are called once, they should likely not be public methods
   void duplicate_promoters_included_in(int32_t pos_1,
                                        int32_t pos_2,
-                                       std::vector<std::list<ae_rna*>>& duplicated_promoters);
+                                       Promoters2& duplicated_promoters);
 
   void get_promoters_included_in(int32_t pos_1,
                                  int32_t pos_2,
-                                 std::vector<std::list<ae_rna*>>& promoters);
+                                 Promoters2& promoters);
   void get_promoters(ae_strand strand_id,
                      Position start,
                      int32_t pos1,
                      int32_t pos2,
-                     std::list<ae_rna*>& promoters);
+                     Promoters& promoters);
 
-    void invert_promoters_included_in( int32_t pos_1, int32_t pos_2 );
-    static void invert_promoters( ae_list<ae_rna*>** promoter_lists, int32_t seq_length );
-    static void invert_promoters( ae_list<ae_rna*>** promoter_lists, int32_t pos_1, int32_t pos_2 ); // See WARNING
+  void invert_promoters_included_in(int32_t pos_1, int32_t pos_2);
+  static void invert_promoters(Promoters2& promoter_lists, int32_t seq_length );
+  static void invert_promoters(Promoters2& promoter_lists, int32_t pos_1, int32_t pos_2 ); // See WARNING
 
-    void extract_promoters_included_in( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>** extracted_promoters );
-    void extract_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>** extracted_promoters );
-    void extract_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>* extracted_promoters );
-    void extract_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>* extracted_promoters );
-    void extract_leading_promoters_starting_after( int32_t pos, ae_list<ae_rna*>* extracted_promoters );
-    void extract_leading_promoters_starting_before( int32_t pos, ae_list<ae_rna*>* extracted_promoters );
-    void extract_lagging_promoters_starting_before( int32_t pos, ae_list<ae_rna*>* extracted_promoters );
-    void extract_lagging_promoters_starting_after( int32_t pos, ae_list<ae_rna*>* extracted_promoters );
+  void extract_promoters_included_in(int32_t pos_1,
+                                     int32_t pos_2,
+                                     Promoters2& extracted_promoters);
+  void extract_promoters_starting_between(int32_t pos_1,
+                                          int32_t pos_2,
+                                          Promoters2& extracted_promoters);
+  void extract_leading_promoters_starting_between(int32_t pos_1,
+                                                  int32_t pos_2,
+                                                  Promoters& extracted_promoters);
+  void extract_lagging_promoters_starting_between(int32_t pos_1,
+                                                  int32_t pos_2,
+                                                  Promoters& extracted_promoters);
+
+
+
+  
+
   // end comment
 
-    static void shift_promoters( ae_list<ae_rna*>** promoters_to_shift, int32_t delta_pos, int32_t seq_length );
-    void insert_promoters( ae_list<ae_rna*>** promoters_to_insert );
-    void insert_promoters_at( ae_list<ae_rna*>** promoters_to_insert, int32_t pos );
-  void insert_promoters_at(std::vector<std::list<ae_rna*>>& promoters_to_insert,
+  static void shift_promoters(Promoters2& promoters_to_shift,
+                              int32_t delta_pos,
+                              int32_t seq_length);
+  void insert_promoters(Promoters2& promoters_to_insert);
+  void insert_promoters_at(Promoters2& promoters_to_insert,
                            int32_t pos );
 
     void remove_promoters_around( int32_t pos );
@@ -250,16 +232,10 @@ class ae_genetic_unit
     void move_all_leading_promoters_after( int32_t pos, int32_t delta_pos );
     void move_all_lagging_promoters_after( int32_t pos, int32_t delta_pos );
 
-    // Not implemented!!!
-    //~ void duplicate_promoters_starting_between( int32_t pos_1, int32_t pos_2, int32_t delta_pos );
-    //~ void duplicate_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2, int32_t delta_pos );
-    //~ void duplicate_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2, int32_t delta_pos );
-
-    void copy_promoters_included_in( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>** new_promoter_lists );
-    void copy_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>** new_promoter_lists );
-    void copy_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>* new_promoter_list );
-    void copy_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>* new_promoter_list );
-    //~ void copy_all_promoters( ae_list** new_promoter_lists );
+  void copy_promoters_included_in( int32_t pos_1, int32_t pos_2, Promoters2& new_promoter_lists );
+  void copy_promoters_starting_between( int32_t pos_1, int32_t pos_2, Promoters2& new_promoter_lists );
+  void copy_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2, Promoters& new_promoter_list );
+  void copy_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2, Promoters& new_promoter_list );
 
     void save( gzFile backup_file ) const;
 
@@ -324,7 +300,7 @@ class ae_genetic_unit
 
     // TODO vld: Both of _rna_list and _protein_list should hold objects instead of pointers.
     // _rna_list always has 2 elements: make it an std::array
-    std::vector<std::list<ae_rna*>> _rna_list = {{},{}};
+    Promoters2 _rna_list = {{},{}};
     // _protein_list always has 2 elements: make it an std::array
     std::vector<std::list<ae_protein*>> _protein_list = {{},{}};
 
