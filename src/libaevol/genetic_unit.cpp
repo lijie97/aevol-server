@@ -31,24 +31,14 @@
 #include "ae_enums.h"
 
 #ifdef __REGUL
-  #include "ae_individual_R.h"
+#include "ae_individual_R.h"
 #else
-  #include "ae_individual.h"
+#include "ae_individual.h"
 #endif
 
 #include "fuzzy.h"
 
 namespace aevol {
-
-// =================================================================
-//                       Miscellaneous Functions
-// =================================================================
-int compare_prot_pos( const void* pos, const void* prot ) // This function has to be a plain int
-                                                            // to comply with the definition of bsearch()
-{
-  if ( ((ae_protein*)prot)->get_shine_dal_pos() == *(int32_t*)pos ) return 0;
-  else return 1;
-}
 
 // =================================================================
 //                          Accessors' definitions
@@ -278,7 +268,7 @@ double GeneticUnit::get_modularity( void ) const
 
 double GeneticUnit::get_dist_to_target_by_feature( ae_env_axis_feature feature ) const
 {
-   assert( _distance_to_target_computed );
+  assert( _distance_to_target_computed );
 
   return _dist_to_target_by_feature[feature];
 }
@@ -365,8 +355,8 @@ void GeneticUnit::move_all_promoters_after( int32_t pos, int32_t delta_pos )
 }
 
 void GeneticUnit::extract_promoters_included_in(int32_t pos_1,
-                                                    int32_t pos_2,
-                                                    Promoters2& extracted_promoters)
+                                                int32_t pos_2,
+                                                Promoters2& extracted_promoters)
 {
   assert(pos_1 >= 0);
   assert(pos_1 < pos_2);
@@ -379,8 +369,8 @@ void GeneticUnit::extract_promoters_included_in(int32_t pos_1,
 }
 
 void GeneticUnit::extract_promoters_starting_between(int32_t pos_1,
-                                                         int32_t pos_2,
-                                                         Promoters2& extracted_promoters)
+                                                     int32_t pos_2,
+                                                     Promoters2& extracted_promoters)
 {
   extract_leading_promoters_starting_between(pos_1, pos_2, extracted_promoters[LEADING]);
   extract_lagging_promoters_starting_between(pos_1, pos_2, extracted_promoters[LAGGING]);
@@ -394,11 +384,11 @@ void GeneticUnit::extract_promoters_starting_between(int32_t pos_1,
   If the genome is smaller than the size of a promoter, all the promoters will be removed.
 
   \verbatim
-     -------------------------------------------------------
-    |   |   |   |   | X | X |   |   |   |   |   |   |   |   |
-     -------------------------------------------------------
-    ^                   ^
-    0                  pos
+  -------------------------------------------------------
+  |   |   |   |   | X | X |   |   |   |   |   |   |   |   |
+  -------------------------------------------------------
+  ^                   ^
+  0                  pos
   \endverbatim
 */
 void GeneticUnit::remove_promoters_around( int32_t pos )
@@ -419,16 +409,16 @@ void GeneticUnit::remove_promoters_around( int32_t pos )
   \brief  Remove those promoters that would be broken if the sequence [pos_1 ; pos_2[ was deleted.
 
   Remove promoters that     * include BOTH the base before AND after pos_1 (marked X in the cartoon below).
-                            * include BOTH the base before AND after pos_2 (marked Y in the cartoon below).
-                            * are completely contained between pos_1 and pos_2.
+  * include BOTH the base before AND after pos_2 (marked Y in the cartoon below).
+  * are completely contained between pos_1 and pos_2.
   If the remaining sequence, i.e. [pos_2 ; pos_1[ is smaller than the size of a promoter, all the promoters will be removed.
 
   \verbatim
-     -------------------------------------------------------
-    |   |   |   |   | X | X |   |   |   | Y | Y |   |   |   |
-     -------------------------------------------------------
-    ^                   ^                   ^
-    0                 pos_1               pos_2
+  -------------------------------------------------------
+  |   |   |   |   | X | X |   |   |   | Y | Y |   |   |   |
+  -------------------------------------------------------
+  ^                   ^                   ^
+  0                 pos_1               pos_2
   \endverbatim
 */
 void GeneticUnit::remove_promoters_around( int32_t pos_1, int32_t pos_2 )
@@ -491,8 +481,8 @@ void GeneticUnit::look_for_new_promoters_around( int32_t pos_1, int32_t pos_2 )
 {
   //~ if ( ae_utils::mod( pos_1 - pos_2, _dna->get_length()) == PROM_SIZE - 1 )
   //~ {
-    //~ // We have to look at every possible position on the genome.
-    //~ locate_promoters();
+  //~ // We have to look at every possible position on the genome.
+  //~ locate_promoters();
   //~ }
   /*else*/ if ( _dna->get_length() >= PROM_SIZE )
   {
@@ -502,16 +492,16 @@ void GeneticUnit::look_for_new_promoters_around( int32_t pos_1, int32_t pos_2 )
 }
 
 void GeneticUnit::copy_promoters_starting_between(int32_t pos_1,
-                                                      int32_t pos_2,
-                                                      Promoters2& new_promoter_lists)
+                                                  int32_t pos_2,
+                                                  Promoters2& new_promoter_lists)
 {
   copy_leading_promoters_starting_between(pos_1, pos_2, new_promoter_lists[LEADING]);
   copy_lagging_promoters_starting_between(pos_1, pos_2, new_promoter_lists[LAGGING]);
 }
 
 void GeneticUnit::copy_promoters_included_in(int32_t pos_1,
-                                                 int32_t pos_2,
-                                                 Promoters2& new_promoter_lists )
+                                             int32_t pos_2,
+                                             Promoters2& new_promoter_lists )
 {
   if ( ae_utils::mod( pos_2 - pos_1 - 1, _dna->get_length() ) + 1 >= PROM_SIZE )
   {
@@ -586,9 +576,9 @@ GeneticUnit::GeneticUnit( ae_individual* indiv, int32_t length, ae_jumping_mt * 
 ///   seq will be used directly which means the caller must not delete it
 ///   The same goes for prom_list if it is provided.
 GeneticUnit::GeneticUnit(ae_individual* indiv,
-                                 char* seq,
-                                 int32_t length,
-                                 const Promoters2& prom_list /* = {{},{}} */)
+                         char* seq,
+                         int32_t length,
+                         const Promoters2& prom_list /* = {{},{}} */)
 {
   _exp_m = indiv->get_exp_m();
   _indiv = indiv;
@@ -710,7 +700,7 @@ GeneticUnit::GeneticUnit(ae_individual* indiv, const GeneticUnit* parent)
   // Note that the length of the RNA will have to be recomputed (do_transcription)
   for (auto strand: {LEADING, LAGGING})
     for (auto* rna: _rna_list[strand]) {
-      // TODO VLD: change to emplace_back when compiler error understood
+      // TODO vld: change to emplace_back when compiler error understood
 #ifndef __REGUL
       _rna_list[strand].push_back(new ae_rna(this, *rna));
       // _rna_list[strand].emplace_back(this, *rna); // error: cannot convert ‘aevol::ae_rna’ to ‘aevol::ae_rna*’ in initialization… ?
@@ -879,7 +869,7 @@ void GeneticUnit::locate_promoters( void )
     {
       // #ifdef cases only difference is on the constructor
       // if _rna_list knows exactly which type it holds (ae_rna vs ae_rna_R), it can decide on its own
-      // TODO VLD: hence, code chunk should be rewritten with emplace_back
+      // TODO vld: hence, code chunk should be rewritten with emplace_back
       // (but, FTR, dumb emplace_back rewrite fails to be compiled)
 #ifndef __REGUL
       if (is_promoter(LEADING, i, dist)) // dist takes the hamming distance of the sequence from the consensus
@@ -923,7 +913,7 @@ void GeneticUnit::do_transcription( void )
       int32_t i;
       for ( i = 0 ; i < genome_length ; i++ ) {
         if (   (strand_id == LEADING and is_terminator(LEADING, transcript_start + i))
-            or (strand_id == LAGGING and is_terminator(LAGGING, transcript_start - i))) {
+               or (strand_id == LAGGING and is_terminator(LAGGING, transcript_start - i))) {
           // Found terminator => set transcript's length
           (*rna)->set_transcript_length( i + TERM_SIZE );
 
@@ -984,7 +974,7 @@ void GeneticUnit::do_translation()
            ++i) {
         // TODO vld: synthetize condition
         if (   (strand == LEADING and is_shine_dalgarno( LEADING, ae_utils::mod(transcript_start + i, genome_length)) and is_start(LEADING, ae_utils::mod(transcript_start + i + SHINE_DAL_SIZE + SHINE_START_SPACER, genome_length)))
-            or (strand == LAGGING and is_shine_dalgarno( LAGGING, ae_utils::mod(transcript_start - i, genome_length)) and is_start(LAGGING, ae_utils::mod(transcript_start - i - SHINE_DAL_SIZE - SHINE_START_SPACER, genome_length)))) {
+               or (strand == LAGGING and is_shine_dalgarno( LAGGING, ae_utils::mod(transcript_start - i, genome_length)) and is_start(LAGGING, ae_utils::mod(transcript_start - i - SHINE_DAL_SIZE - SHINE_START_SPACER, genome_length)))) {
           // We found a translation initiation, we can now build the
           // protein until we find a STOP codon or until we reach the
           // end of the transcript (in which case the protein is not
@@ -1026,7 +1016,7 @@ void GeneticUnit::do_translation()
 #ifndef __REGUL
                   protein = new ae_protein(this, codon_list, strand, shine_dal_pos, rna);
 #else // TODO vld: check/test
-                  protein = new ae_protein_R(this, new ae_list<ae_codon*>(codon_list), strand, shine_dal_pos, rna);
+                  protein = new ae_protein_R(this, codon_list, strand, shine_dal_pos, rna);
 #endif
                   // The codon list will be kept in the protein
                   codon_list.clear();
@@ -1088,14 +1078,14 @@ void GeneticUnit::compute_phenotypic_contribution( void )
             ->add_triangle(prot->get_mean(),
                            prot->get_width(),
                            prot->get_height() * prot->get_concentration() );
-        // if ( prot->get_height() > 0 )
-        //   _activ_contribution->add_triangle(prot->get_mean(),
-        //                                     prot->get_width(),
-        //                                     prot->get_height() * prot->get_concentration() );
-        // else
-        //   _inhib_contribution->add_triangle(prot->get_mean(),
-        //                                     prot->get_width(),
-        //                                     prot->get_height() * prot->get_concentration() );
+  // if ( prot->get_height() > 0 )
+  //   _activ_contribution->add_triangle(prot->get_mean(),
+  //                                     prot->get_width(),
+  //                                     prot->get_height() * prot->get_concentration() );
+  // else
+  //   _inhib_contribution->add_triangle(prot->get_mean(),
+  //                                     prot->get_width(),
+  //                                     prot->get_height() * prot->get_concentration() );
 
   // It is not necessary to add a lower bound to _activ_contribution as there can be no negative y
   // The same goes for the upper bound for _inhib_contribution
@@ -1198,7 +1188,7 @@ void GeneticUnit::compute_fitness( Environment* env )
     if ( i == SECRETION )
     {
       _fitness_by_feature[SECRETION] =  exp( -_exp_m->get_selection_pressure() * _dist_to_target_by_feature[SECRETION] )
-                                      - exp( -_exp_m->get_selection_pressure() * env->get_area_by_feature(SECRETION) );
+          - exp( -_exp_m->get_selection_pressure() * env->get_area_by_feature(SECRETION) );
 
       if ( _fitness_by_feature[i] < 0 )
       {
@@ -1220,8 +1210,8 @@ void GeneticUnit::compute_fitness( Environment* env )
   else
   {
     _fitness =  _fitness_by_feature[METABOLISM] *
-                ( 1 + _exp_m->get_secretion_contrib_to_fitness() * _indiv->get_grid_cell()->get_compound_amount()
-                    - _exp_m->get_secretion_cost() * _fitness_by_feature[SECRETION] );
+        ( 1 + _exp_m->get_secretion_contrib_to_fitness() * _indiv->get_grid_cell()->get_compound_amount()
+          - _exp_m->get_secretion_cost() * _fitness_by_feature[SECRETION] );
   }
 
 #endif
@@ -1872,8 +1862,8 @@ void GeneticUnit::compute_non_coding( void )
 }
 
 void GeneticUnit::duplicate_promoters_included_in(int32_t pos_1,
-                                                      int32_t pos_2,
-                                                      Promoters2& duplicated_promoters)
+                                                  int32_t pos_2,
+                                                  Promoters2& duplicated_promoters)
 {
   // 1) Get promoters to be duplicated
   get_promoters_included_in( pos_1, pos_2, duplicated_promoters );
@@ -1899,8 +1889,8 @@ void GeneticUnit::duplicate_promoters_included_in(int32_t pos_1,
 }
 
 void GeneticUnit::get_promoters_included_in(int32_t pos_1,
-                                                int32_t pos_2,
-                                                Promoters2& promoters)
+                                            int32_t pos_2,
+                                            Promoters2& promoters)
 {
   assert( pos_1 >= 0 && pos_1 <= _dna->get_length() && pos_2 >= 0 && pos_2 <= _dna->get_length() );
 
@@ -1944,7 +1934,7 @@ void GeneticUnit::get_promoters_included_in(int32_t pos_1,
         get_promoters(LEADING, AFTER, pos_1, pos_1, promoters[LEADING] );
         get_promoters(LEADING, BEFORE, 0, pos_2 - PROM_SIZE + 1, promoters[LEADING] );
         get_promoters(LAGGING, BETWEEN, pos_1 - _dna->get_length() + PROM_SIZE - 1, pos_2,
-                                                promoters[LAGGING] );
+                      promoters[LAGGING] );
       }
       else // is_near_end_of_genome && is_near_beginning_of_genome
       {
@@ -1967,13 +1957,14 @@ void GeneticUnit::get_promoters_included_in(int32_t pos_1,
 /// increasing positions. Whereas they are found in reverse order if
 /// the strand is lagging.
 void GeneticUnit::get_promoters(ae_strand strand_id,
-                                    Position start,
-                                    int32_t pos1,
-                                    int32_t pos2,
-                                    Promoters& promoters) {
+                                Position start,
+                                int32_t pos1,
+                                int32_t pos2,
+                                Promoters& promoters) {
   // TODO vld: First try, the parameter list could be cleverer.
 
-  // TODO vld: These find_if puns are not very nice. Could just negate return if LAGGING or something in that spirit.
+  // TODO vld: These find_if puns are not very nice. Could just negate
+  // return if LAGGING or something in that spirit.
 
   assert((pos1 >= 0 and pos1 <= pos2 and pos2 <= _dna->get_length()) or
          (pos2 == 0 and pos1 >= 0 and pos1 < _dna->get_length()) or
@@ -2004,7 +1995,7 @@ void GeneticUnit::get_promoters(ae_strand strand_id,
 /// Invert all the promoters of promoter_lists for a sequence of
 /// length seq_length.
 /*static*/ void GeneticUnit::invert_promoters(Promoters2& promoter_lists,
-                                                  int32_t seq_length)
+                                              int32_t seq_length)
 {
   GeneticUnit::invert_promoters(promoter_lists, 0, seq_length);
 }
@@ -2016,8 +2007,8 @@ void GeneticUnit::get_promoters(ae_strand strand_id,
 /// WARNING : This function is pretty specific, make sure you
 /// understand its precise behaviour before using it.
 /*static*/ void GeneticUnit::invert_promoters(Promoters2& promoter_lists,
-                                                  int32_t pos1,
-                                                  int32_t pos2 )
+                                              int32_t pos1,
+                                              int32_t pos2 )
 {
   assert( pos1 >= 0 && pos1 <= pos2 ); // Could check (pos2 < length) but another parameter would be necessary
 
@@ -2037,7 +2028,7 @@ void GeneticUnit::get_promoters(ae_strand strand_id,
 }
 
 void GeneticUnit::invert_promoters_included_in(int32_t pos1,
-                                                   int32_t pos2)
+                                               int32_t pos2)
 {
   assert(pos1 >= 0);
   assert(pos1 <= pos2);
@@ -2062,8 +2053,8 @@ void GeneticUnit::invert_promoters_included_in(int32_t pos1,
 
 // TODO vld: should it append extracted promoters to extracted_promoters or replace its content
 void GeneticUnit::extract_leading_promoters_starting_between(int32_t pos_1,
-                                                                 int32_t pos_2,
-                                                                 Promoters& extracted_promoters)
+                                                             int32_t pos_2,
+                                                             Promoters& extracted_promoters)
 {
   assert(pos_1 >= 0);
   assert(pos_1 < pos_2);
@@ -2091,8 +2082,8 @@ void GeneticUnit::extract_leading_promoters_starting_between(int32_t pos_1,
 }
 
 void GeneticUnit::extract_lagging_promoters_starting_between(int32_t pos_1,
-                                                                 int32_t pos_2,
-                                                                 Promoters& extracted_promoters )
+                                                             int32_t pos_2,
+                                                             Promoters& extracted_promoters )
 {
   assert(pos_1 >= 0);
   assert(pos_1 < pos_2);
@@ -2144,8 +2135,8 @@ void GeneticUnit::extract_lagging_promoters_starting_between(int32_t pos_1,
 ///  be shifted by <delta_pos>, then a modulo <seq_length> will be
 ///  applied
 /*static*/ void GeneticUnit::shift_promoters(Promoters2& promoters_to_shift,
-                                                 int32_t delta_pos,
-                                                 int32_t seq_length )
+                                             int32_t delta_pos,
+                                             int32_t seq_length )
 {
   for (auto& strand: {LEADING, LAGGING})
     for (auto& rna: promoters_to_shift[strand])
@@ -2195,7 +2186,7 @@ void GeneticUnit::insert_promoters(Promoters2& promoters_to_insert)
 /// position according to a stand-alone sequence (i.e. at a RELATIVE
 /// position). Their position will be updated automatically.
 void GeneticUnit::insert_promoters_at(Promoters2& promoters_to_insert,
-                                          int32_t pos ) {
+                                      int32_t pos ) {
   for (auto strand: {LEADING, LAGGING}) {
     if (promoters_to_insert[strand].size() <= 0)
       continue;
@@ -2432,9 +2423,9 @@ void GeneticUnit::look_for_new_leading_promoters_starting_between( int32_t pos_1
       auto& strand = _rna_list[LEADING];
       auto first = find_if(strand.begin(), strand.end(), [i](ae_rna* r) { return r->get_promoter_pos() >= i; });
 #ifndef __REGUL
-        _rna_list[LEADING].insert(first, new ae_rna(this, LEADING, i, dist));
+      _rna_list[LEADING].insert(first, new ae_rna(this, LEADING, i, dist));
 #else
-        _rna_list[LEADING].insert(first, new ae_rna_R(this, LEADING, i, dist));
+      _rna_list[LEADING].insert(first, new ae_rna_R(this, LEADING, i, dist));
 #endif
     }
   }
@@ -2448,11 +2439,11 @@ void GeneticUnit::look_for_new_leading_promoters_starting_between( int32_t pos_1
 
   Assuming (PROM_SIZE == 4), the LAGGING promoter whose starting position is pos spans the cells filled with X on the following cartoon:
   \verbatim
-     -------------------------------
-    |   |   | X | X | X | X |   |   |
-     -------------------------------
-                        ^
-                       pos
+  -------------------------------
+  |   |   | X | X | X | X |   |   |
+  -------------------------------
+  ^
+  pos
   \endverbatim
 */
 void GeneticUnit::look_for_new_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2 ) {
@@ -2479,9 +2470,9 @@ void GeneticUnit::look_for_new_lagging_promoters_starting_between( int32_t pos_1
       auto& strand = _rna_list[LAGGING];
       auto first = find_if(strand.begin(), strand.end(), [i](ae_rna* r) { return r->get_promoter_pos() <= i; });
 #ifndef __REGUL
-        _rna_list[LAGGING].emplace(first, new ae_rna( this, LAGGING, i, dist));
+      _rna_list[LAGGING].emplace(first, new ae_rna( this, LAGGING, i, dist));
 #else
-        _rna_list[LAGGING].emplace(first, new ae_rna_R( this, LAGGING, i, dist));
+      _rna_list[LAGGING].emplace(first, new ae_rna_R( this, LAGGING, i, dist));
 #endif
     }
   }
@@ -2504,9 +2495,9 @@ void GeneticUnit::look_for_new_leading_promoters_starting_after( int32_t pos ) {
       auto& strand = _rna_list[LEADING];
       auto first = find_if(strand.begin(), strand.end(), [i](ae_rna* r) { return r->get_promoter_pos() >= i; });
 #ifndef __REGUL
-        _rna_list[LEADING].emplace(first, new ae_rna(this, LEADING, i, dist));
+      _rna_list[LEADING].emplace(first, new ae_rna(this, LEADING, i, dist));
 #else
-        _rna_list[LEADING].emplace(first, new ae_rna_R(this, LEADING, i, dist));
+      _rna_list[LEADING].emplace(first, new ae_rna_R(this, LEADING, i, dist));
 #endif
     }
   }
@@ -2660,28 +2651,11 @@ void GeneticUnit::move_all_lagging_promoters_after( int32_t pos, int32_t delta_p
     (*rna)->shift_position(delta_pos, _dna->get_length());
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// STL versions TODO vld: cleanup
-
 /// Copy (into new_promoter_list) the promoters from the LEADING
 /// strand whose starting positions lie in [pos_1 ; pos_2[
 void GeneticUnit::copy_leading_promoters_starting_between(int32_t pos_1,
-                                                              int32_t pos_2,
-                                                              Promoters& new_promoter_list ) {
+                                                          int32_t pos_2,
+                                                          Promoters& new_promoter_list ) {
   // 1) Go to first RNA to copy
   auto& strand = _rna_list[LEADING];
   const auto& first = find_if(strand.begin(),
@@ -2725,8 +2699,8 @@ void GeneticUnit::copy_leading_promoters_starting_between(int32_t pos_1,
 ///                      pos
 /// \endverbatim
 void GeneticUnit::copy_lagging_promoters_starting_between(int32_t pos_1,
-                                                              int32_t pos_2,
-                                                              Promoters& new_promoter_list) {
+                                                          int32_t pos_2,
+                                                          Promoters& new_promoter_list) {
   // Go to first RNA to copy
   auto& strand = _rna_list[LAGGING];
   const auto& first = find_if(strand.rbegin(),
@@ -2779,9 +2753,9 @@ int32_t GeneticUnit::get_nb_terminators( void ) {
   if (_dna->get_length() >= TERM_SIZE)
     for (int32_t i = 0 ; i < _dna->get_length() ; i++)
       if (is_terminator(LEADING, i))  // No need to count on both the
-                                      // LEADING and the LAGGING
-                                      // strand as terminators are
-                                      // "shared"
+        // LEADING and the LAGGING
+        // strand as terminators are
+        // "shared"
         nb_term++;
   return nb_term;
 }
@@ -3122,15 +3096,15 @@ void GeneticUnit::double_non_coding_bases(void)
 static bool breakpoint_inside_gene(int32_t pos_brkpt, int32_t first, int32_t last)
 {
   if (first < last) // most frequent case
-    {
-      if( (first <= pos_brkpt) && (pos_brkpt <= last)) {return true;}
-      else {return false;}
-    }
+  {
+    if( (first <= pos_brkpt) && (pos_brkpt <= last)) {return true;}
+    else {return false;}
+  }
   else // special case where the RNA overlaps ori
-    {
-      if( (first <= pos_brkpt) || (pos_brkpt <= last) ) {return true;}
-      else {return false;}
-    }
+  {
+    if( (first <= pos_brkpt) || (pos_brkpt <= last) ) {return true;}
+    else {return false;}
+  }
 }
 
 
@@ -3142,27 +3116,27 @@ static bool breakpoint_inside_gene(int32_t pos_brkpt, int32_t first, int32_t las
 static bool gene_totally_in_segment(int32_t pos1, int32_t pos2, int32_t first, int32_t last)
 {
   if ( (first < last)  && (pos1 <= pos2) )
-    {
-      if ( ((first >= pos1) && (first <= pos2)) && ((last >= pos1) && (last <= pos2)) ) {return true; }
-      else {return false;}
-    }
+  {
+    if ( ((first >= pos1) && (first <= pos2)) && ((last >= pos1) && (last <= pos2)) ) {return true; }
+    else {return false;}
+  }
   else if ( (first < last) && (pos1 > pos2) )  // mut seg in 2 pieces but not the gene
+  {
+    if ( (first >= pos1) || (last <= pos2) )  // the gene is either completely in [pos1, genlen-1] or completely in [0, pos2]
     {
-      if ( (first >= pos1) || (last <= pos2) )  // the gene is either completely in [pos1, genlen-1] or completely in [0, pos2]
-        {
-          return true;
-        }
-      else return false;
+      return true;
     }
+    else return false;
+  }
   else if ( (first > last) && (pos1 <= pos2) )  // gene in two pieces but not mut seg, the gene cannot be totally included
-    {
-      return false;
-    }
+  {
+    return false;
+  }
   else // both mut seg and the gene are in 2 pieces
-    {
-      if ((first >= pos1) && (last <= pos2)) {return true;}
-      else {return false;}
-    }
+  {
+    if ((first >= pos1) && (last <= pos2)) {return true;}
+    else {return false;}
+  }
 }
 
 
@@ -3215,7 +3189,7 @@ void GeneticUnit::compute_nb_of_affected_genes(const ae_mutation * mut, int & nb
       pos2 = ae_utils::mod(pos2 - 1, genlen);
       mutlength = mut->get_length();
       break;
-    case INSERT: { // TODO VLD: removing block generates conflicts on variable names, check, clean
+    case INSERT: { // vld: removing block generates conflicts on variable names, TODO vld: clean
       mut->get_infos_insertion(&pos0, &mutlength);
       seq = new char[mutlength+1];
       mut->get_sequence_insertion(seq);

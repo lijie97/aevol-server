@@ -38,7 +38,7 @@ using std::list;
 namespace aevol {
 
 using Promoters = std::list<ae_rna*>;
-using Promoters2 = std::vector<Promoters>;
+using Promoters2 = std::vector<Promoters>; // double stranded
 
 class ae_exp_manager;
 
