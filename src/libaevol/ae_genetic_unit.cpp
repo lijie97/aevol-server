@@ -1888,60 +1888,38 @@ void ae_genetic_unit::compute_non_coding( void )
   delete [] is_not_neutral;
 }
 
-void ae_genetic_unit::duplicate_promoters_included_in( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>** duplicated_promoters )
+void ae_genetic_unit::duplicate_promoters_included_in(int32_t pos_1,
+                                                      int32_t pos_2,
+                                                      std::vector<std::list<ae_rna*>>& duplicated_promoters)
 {
   // 1) Get promoters to be duplicated
   get_promoters_included_in( pos_1, pos_2, duplicated_promoters );
 
   // 2) Set RNAs' position as their position on the duplicated segment
-  ae_list_node<ae_rna*>* rna_node  = NULL;
-
-  // -- LEADING --
-  rna_node = duplicated_promoters[LEADING]->get_first();
-  while ( rna_node != NULL )
-  {
-
+  for (auto& strand: {LEADING, LAGGING}) {
+    for (auto& rna: duplicated_promoters[strand]) {
+      // Make a copy of current RNA
 #ifndef __REGUL
-    // Make a copy of current RNA
-    ae_rna* copy = new ae_rna( this, *(rna_node->get_obj()) );
+      ae_rna* copy = new ae_rna(this, *rna);
 #else
-    // Make a copy of current RNA
-    ae_rna_R* copy = new ae_rna_R( this, *(rna_node->get_obj()) );
+      ae_rna_R* copy = new ae_rna_R(this, *rna);
 #endif
 
-    // Set RNA's position as it's position on the duplicated segment
-    copy->shift_position( -pos_1, _dna->get_length() );
+      // Set RNA's position as it's position on the duplicated segment
+      copy->shift_position(-pos_1, _dna->get_length());
 
-    // Replace current object by the copy
-    // Do not delete the replaced object as it is still a valid promoter in the individual's promoter list
-    rna_node->set_obj( copy );
-
-    rna_node = rna_node->get_next();
-  }
-
-  // -- LAGGING --
-  rna_node = duplicated_promoters[LAGGING]->get_first();
-  while ( rna_node != NULL )
-  {
-
-#ifndef __REGUL
-    // Make a copy of current RNA
-    ae_rna* copy = new ae_rna( this, *(rna_node->get_obj()) );
-#else
-    // Make a copy of current RNA
-    ae_rna_R* copy = new ae_rna_R( this, *(rna_node->get_obj()) );
-#endif
-    // Set RNA's position as it's position on the duplicated segment
-    copy->shift_position( -pos_1, _dna->get_length() );
-
-    // Replace current object by the copy (don't delete the replaced object as it is still a valid promoter)
-    rna_node->set_obj( copy );
-
-    rna_node = rna_node->get_next();
+      // Replace current object by the copy
+      // Do not delete the replaced object as it is still a valid promoter in the individual's promoter list
+      rna = copy;
+    }
   }
 }
 
-void ae_genetic_unit::get_promoters_included_in( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>** promoters )
+
+
+void ae_genetic_unit::get_promoters_included_in(int32_t pos_1,
+                                                int32_t pos_2,
+                                                std::vector<std::list<ae_rna*>>& promoters)
 {
   assert( pos_1 >= 0 && pos_1 <= _dna->get_length() && pos_2 >= 0 && pos_2 <= _dna->get_length() );
 
@@ -2007,48 +1985,6 @@ void ae_genetic_unit::get_promoters(ae_strand strand_id,
                                     Position start,
                                     int32_t pos1,
                                     int32_t pos2,
-                                    ae_list<ae_rna*>* leading_promoters) {
-  // TODO vld: First try, the parameter list could be cleverer.
-
-  // TODO vld: These find_if puns are not very nice. Could just negate return if LAGGING or something in that spirit.
-
-  assert((pos1 >= 0 and pos1 <= pos2 and pos2 <= _dna->get_length()) or
-         (pos2 == 0 and pos1 >= 0 and pos1 < _dna->get_length()) or
-         (pos1 == 0 and pos2 >= 0 and pos2 < _dna->get_length()));
-
-  auto strand = _rna_list[strand_id];
-
-  auto it_begin = find_if(strand.begin(),
-                          strand.end(),
-                          [pos1, strand_id](ae_rna* p) {
-                            if (strand_id == LEADING)
-                              return p->get_promoter_pos() >= pos1;
-                            else
-                              return p->get_promoter_pos() < pos1;
-                          });
-  auto it_end = find_if(it_begin,
-                        strand.end(),
-                        [pos2, strand_id](ae_rna* p) {
-                          if (strand_id == LEADING)
-                            return p->get_promoter_pos() > pos2;
-                          else
-                            return p->get_promoter_pos() <= pos2;
-                        });
-  for (auto& rna = it_begin; rna != it_end; ++rna)
-    leading_promoters->add(*rna);
-}
-
-/// Get promoters from strand. STL version.
-///
-///
-///
-/// When the strand is leading, promoders are found ordered with
-/// increasing positions. Whereas they are found in reverse order if
-/// the strand is lagging.
-void ae_genetic_unit::get_promoters(ae_strand strand_id,
-                                    Position start,
-                                    int32_t pos1,
-                                    int32_t pos2,
                                     std::list<ae_rna*>& promoters) {
   // TODO vld: First try, the parameter list could be cleverer.
 
@@ -2080,29 +2016,33 @@ void ae_genetic_unit::get_promoters(ae_strand strand_id,
   // TODO vld: compact function by moving find_ifs inside insert
 }
 
-void ae_genetic_unit::get_leading_promoters_starting_between( int32_t pos1, int32_t pos2, ae_list<ae_rna*>* leading_promoters ) {
+void ae_genetic_unit::get_leading_promoters_starting_between( int32_t pos1, int32_t pos2, std::list<ae_rna*>& leading_promoters ) {
   get_promoters(LEADING, BETWEEN, pos1, pos2, leading_promoters);
 }
 
-void ae_genetic_unit::get_lagging_promoters_starting_between( int32_t pos1, int32_t pos2, ae_list<ae_rna*>* lagging_promoters ) {
+void ae_genetic_unit::get_lagging_promoters_starting_between( int32_t pos1, int32_t pos2, std::list<ae_rna*>& lagging_promoters ) {
   get_promoters(LAGGING, BETWEEN, pos1, pos2, lagging_promoters);
 }
 
-void ae_genetic_unit::get_leading_promoters_starting_after( int32_t pos, ae_list<ae_rna*>* leading_promoters ) {
+void ae_genetic_unit::get_leading_promoters_starting_after( int32_t pos, std::list<ae_rna*>& leading_promoters ) {
   get_promoters(LEADING, AFTER, pos, pos, leading_promoters);
 }
 
-void ae_genetic_unit::get_lagging_promoters_starting_after( int32_t pos, ae_list<ae_rna*>* lagging_promoters ){
+void ae_genetic_unit::get_lagging_promoters_starting_after( int32_t pos, std::list<ae_rna*>& lagging_promoters ){
   get_promoters(LAGGING, AFTER, 0, pos, lagging_promoters);
 }
 
-void ae_genetic_unit::get_leading_promoters_starting_before( int32_t pos, ae_list<ae_rna*>* leading_promoters ){
+void ae_genetic_unit::get_leading_promoters_starting_before( int32_t pos, std::list<ae_rna*>& leading_promoters ){
   get_promoters(LEADING, BEFORE, 0, pos, leading_promoters);
 }
 
-void ae_genetic_unit::get_lagging_promoters_starting_before( int32_t pos, ae_list<ae_rna*>* lagging_promoters ) {
+void ae_genetic_unit::get_lagging_promoters_starting_before( int32_t pos, std::list<ae_rna*>& lagging_promoters ) {
   get_promoters(LAGGING, BEFORE, pos, 0, lagging_promoters);
 }
+
+
+
+
 
 void ae_genetic_unit::invert_promoters_included_in( int32_t pos_1, int32_t pos_2 )
 {
@@ -2396,6 +2336,42 @@ void ae_genetic_unit::insert_promoters_at(ae_list<ae_rna*>** promoters_to_insert
         _rna_list[strand].insert(first, to_insert->get_obj());
       else
         _rna_list[strand].push_back(to_insert->get_obj());
+    }
+  }
+}
+
+/// STL version
+/// TODO vld: remove old version and these 2 lines
+///
+/// Insert promoters in double stranded list `promoters_to_insert`
+/// into `this->_rna_list` at position `pos`
+///
+/// The promoters in `promoters_to_insert` must be at their rightful
+/// position according to a stand-alone sequence (i.e. at a RELATIVE
+/// position). Their position will be updated automatically.
+void ae_genetic_unit::insert_promoters_at(std::vector<std::list<ae_rna*>>& promoters_to_insert,
+                                          int32_t pos ) {
+  for (auto strand: {LEADING, LAGGING}) {
+    if (promoters_to_insert[strand].size() <= 0)
+      continue;
+    // Get to the right position in individual's list (first promoter after the inserted segment)
+    auto first = find_if(_rna_list[strand].begin(),
+                         _rna_list[strand].end(),
+                         [pos, strand](ae_rna* r) {
+                           if (strand == LEADING)
+                             return r->get_promoter_pos() >= pos;
+                           else
+                             return r->get_promoter_pos() < pos; });
+
+    // Insert the promoters in the individual's RNA list
+    for (auto& to_insert: promoters_to_insert[strand]) {
+      // Update promoter position
+      to_insert->shift_position( pos, _dna->get_length() );
+      // Insert
+      if (first != _rna_list[strand].end())
+        _rna_list[strand].insert(first, to_insert);
+      else
+        _rna_list[strand].push_back(to_insert);
     }
   }
 }

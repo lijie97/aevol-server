@@ -206,26 +206,26 @@ class ae_genetic_unit
 
 
   // these functions are called once, they should likely not be public methods
-  void duplicate_promoters_included_in( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>** duplicated_promoters );
-  // void duplicate_promoters_included_in( int32_t pos_1, int32_t pos_2, const std::vector<std::list<ae_rna*>>& duplicated_promoters);
+  void duplicate_promoters_included_in(int32_t pos_1,
+                                       int32_t pos_2,
+                                       std::vector<std::list<ae_rna*>>& duplicated_promoters);
 
     void get_promoters_included_in( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>** promoters );
-  void get_promoters(ae_strand strand_id,
-                     Position start,
-                     int32_t pos1,
-                     int32_t pos2,
-                     ae_list<ae_rna*>* leading_promoters);
+  void get_promoters_included_in(int32_t pos_1,
+                                 int32_t pos_2,
+                                 std::vector<std::list<ae_rna*>>& promoters);
   void get_promoters(ae_strand strand_id,
                      Position start,
                      int32_t pos1,
                      int32_t pos2,
                      std::list<ae_rna*>& promoters);
-    void get_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>* leading_promoters );
-    void get_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>* lagging_promoters );
-    void get_leading_promoters_starting_after( int32_t pos, ae_list<ae_rna*>* leading_promoters );
-    void get_leading_promoters_starting_before( int32_t pos, ae_list<ae_rna*>* leading_promoters );
-    void get_lagging_promoters_starting_before( int32_t pos, ae_list<ae_rna*>* lagging_promoters );
-    void get_lagging_promoters_starting_after( int32_t pos, ae_list<ae_rna*>* lagging_promoters );
+
+    void get_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2, std::list<ae_rna*>& leading_promoters );
+    void get_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2, std::list<ae_rna*>& lagging_promoters );
+    void get_leading_promoters_starting_after( int32_t pos, std::list<ae_rna*>& leading_promoters );
+    void get_leading_promoters_starting_before( int32_t pos, std::list<ae_rna*>& leading_promoters );
+    void get_lagging_promoters_starting_before( int32_t pos, std::list<ae_rna*>& lagging_promoters );
+    void get_lagging_promoters_starting_after( int32_t pos, std::list<ae_rna*>& lagging_promoters );
 
     void invert_promoters_included_in( int32_t pos_1, int32_t pos_2 );
     static void invert_promoters( ae_list<ae_rna*>** promoter_lists, int32_t seq_length );
@@ -244,6 +244,8 @@ class ae_genetic_unit
     static void shift_promoters( ae_list<ae_rna*>** promoters_to_shift, int32_t delta_pos, int32_t seq_length );
     void insert_promoters( ae_list<ae_rna*>** promoters_to_insert );
     void insert_promoters_at( ae_list<ae_rna*>** promoters_to_insert, int32_t pos );
+  void insert_promoters_at(std::vector<std::list<ae_rna*>>& promoters_to_insert,
+                           int32_t pos );
 
     void remove_promoters_around( int32_t pos );
     void remove_promoters_around( int32_t pos_1, int32_t pos_2 );

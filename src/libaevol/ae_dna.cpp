@@ -1519,10 +1519,9 @@ bool ae_dna::do_duplication( int32_t pos_1, int32_t pos_2, int32_t pos_3 )
 
   // Create a copy of the promoters beared by the segment to be duplicated
   // (they will be inserted in the individual's RNA list later)
-  ae_list<ae_rna*>** duplicated_promoters = new ae_list<ae_rna*>*[2];
-  duplicated_promoters[LEADING] = new ae_list<ae_rna*>();
-  duplicated_promoters[LAGGING] = new ae_list<ae_rna*>();
-  _gen_unit->duplicate_promoters_included_in( pos_1, pos_2, duplicated_promoters );
+
+  std::vector<std::list<ae_rna*>> duplicated_promoters = {{},{}};
+  _gen_unit->duplicate_promoters_included_in( pos_1, pos_2, duplicated_promoters);
 
   _gen_unit->remove_promoters_around( pos_3 );
 
@@ -1549,10 +1548,6 @@ bool ae_dna::do_duplication( int32_t pos_1, int32_t pos_2, int32_t pos_3 )
 
 
   delete [] duplicate_segment;
-
-  delete duplicated_promoters[LEADING];
-  delete duplicated_promoters[LAGGING];
-  delete [] duplicated_promoters;
 
   return true;
 }
