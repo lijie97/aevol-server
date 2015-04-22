@@ -49,7 +49,7 @@
 #include "macros.h"
 #include "ae_exp_manager.h"
 #include "ae_individual.h"
-#include "ae_genetic_unit.h"
+#include "genetic_unit.h"
 #include "ae_vis_a_vis.h"
 #include "ae_dna.h"
 #include "ae_mutation.h"
@@ -765,7 +765,7 @@ int main( int argc, char* argv[] )
                         mut_length = ae_utils::mod( alignment_1->get_i_2() - alignment_1->get_i_1(), initial_len );
 
                         // Extract the segment to be translocated
-                        ae_genetic_unit* tmp_segment = mutant->get_genetic_unit(u).get_dna()->extract_into_new_GU( alignment_1->get_i_1(), alignment_1->get_i_2() );
+                        GeneticUnit* tmp_segment = mutant->get_genetic_unit(u).get_dna()->extract_into_new_GU( alignment_1->get_i_1(), alignment_1->get_i_2() );
                         // Look for a "new" alignment between this segment and the remaining of the chromosome
                         do
                           {

@@ -24,13 +24,12 @@
 #include <algorithm>
 #include <cassert>
 #include <list>
-#include <algorithm>
 
 #include "ae_codon.h"
 #include "ae_exp_setup.h"
 #include "ae_exp_manager.h"
 #include "ae_grid_cell.h"
-#include "ae_genetic_unit.h"
+#include "genetic_unit.h"
 #include "ae_vis_a_vis.h"
 #include "ae_utils.h"
 
@@ -242,9 +241,9 @@ ae_individual::ae_individual(ae_exp_manager* exp_m, gzFile backup_file)
 
   // Replication report, protein list and rna list initialization
   _replic_report = NULL;  // We are reloading from a backup, the replication report for the loaded generation
-                          // is already in the tree file corresponding to this generation and needs not be re-written.
-                          // NB : If the replication report is needed in future development, it will have to be
-                          // loaded from the tree file.
+  // is already in the tree file corresponding to this generation and needs not be re-written.
+  // NB : If the replication report is needed in future development, it will have to be
+  // loaded from the tree file.
 
   // Initialize the computational state of the individual
   _evaluated                    = false;
@@ -298,7 +297,7 @@ ae_individual::ae_individual(const ae_individual& model,
   _placed_in_population         = false;
 
   // Copy model's genetic units
-  // Should actually use ae_genetic_unit copy ctor which is disabled.
+  // Should actually use GeneticUnit copy ctor which is disabled.
   for (const auto& gu: model._genetic_unit_list)
     _genetic_unit_list.emplace_back(this, gu);
 
@@ -333,11 +332,11 @@ ae_individual::ae_individual(const ae_individual& model,
 
   // Copy statistical data
   stats_ = model.stats_ ?
-      new IndivStats(*model.stats_) :
-      NULL;
+           new IndivStats(*model.stats_) :
+           NULL;
   nc_stats_ = model.nc_stats_ ?
-      new NonCodingStats(*model.nc_stats_) :
-      NULL;
+              new NonCodingStats(*model.nc_stats_) :
+              NULL;
 
   _modularity = model._modularity;
 
@@ -383,8 +382,8 @@ ae_individual::ae_individual(const ae_individual& model,
   The phenotype and the fitness are not set, neither is the statistical data.
 */
 ae_individual::ae_individual(const ae_individual* parent, int32_t id,
-    std::shared_ptr<ae_jumping_mt> mut_prng,
-    std::shared_ptr<ae_jumping_mt> stoch_prng)
+                             std::shared_ptr<ae_jumping_mt> mut_prng,
+                             std::shared_ptr<ae_jumping_mt> stoch_prng)
 {
   _exp_m = parent->_exp_m;
 
@@ -478,7 +477,7 @@ ae_individual::ae_individual(const ae_individual* parent, int32_t id,
 ae_individual* ae_individual::CreateIndividual(ae_exp_manager* exp_m,
                                                gzFile backup_file) {
   ae_individual* indiv = NULL;
-  #ifdef __NO_X
+#ifdef __NO_X
     #ifndef __REGUL
       indiv = new ae_individual(exp_m, backup_file);
     #else
@@ -491,7 +490,7 @@ ae_individual* ae_individual::CreateIndividual(ae_exp_manager* exp_m,
       indiv = new ae_individual_R_X11(exp_m, backup_file);
     #endif
   #endif
-  
+
   return indiv;
 }
 
@@ -638,11 +637,11 @@ int32_t ae_individual::get_amount_of_dna() const {
 }
 
 /// Return the list of genetic units.
-const std::list<ae_genetic_unit>& ae_individual::get_genetic_unit_list_std() const {
+const std::list<GeneticUnit>& ae_individual::get_genetic_unit_list_std() const {
   return _genetic_unit_list;
 }
 
-std::list<ae_genetic_unit>& ae_individual::get_genetic_unit_list_std_nonconst() {
+std::list<GeneticUnit>& ae_individual::get_genetic_unit_list_std_nonconst() {
   return _genetic_unit_list;
 }
 
@@ -658,7 +657,7 @@ void ae_individual::drop_nested_genetic_units() {
 }
 
 /// Returns genetic unit number `num_unit` (0 for main chromosome)
-const ae_genetic_unit& ae_individual::get_genetic_unit(int16_t num_unit) const {
+const GeneticUnit& ae_individual::get_genetic_unit(int16_t num_unit) const {
   assert(num_unit < static_cast<int32_t>(_genetic_unit_list.size()));
   auto it = _genetic_unit_list.begin();
   std::advance(it, num_unit);
@@ -668,7 +667,7 @@ const ae_genetic_unit& ae_individual::get_genetic_unit(int16_t num_unit) const {
 /// Returns genetic unit number `num_unit` (0 for main chromosome) as
 /// a non-constant reference. To be used when the purpose if to alter
 /// the individual.
-ae_genetic_unit& ae_individual::get_genetic_unit_nonconst(int16_t num_unit) {
+GeneticUnit& ae_individual::get_genetic_unit_nonconst(int16_t num_unit) {
   assert(num_unit < static_cast<int32_t>(_genetic_unit_list.size()));
   auto it = _genetic_unit_list.begin();
   std::advance(it, num_unit);
@@ -777,9 +776,9 @@ double ae_individual::get_overall_size_coding_RNAs() const {
 /// TODO
 double ae_individual::get_av_size_coding_RNAs() const {
   return stats_->nb_coding_RNAs() == 0 ?
-      0.0 :
-      stats_->overall_size_coding_RNAs() /
-          stats_->nb_coding_RNAs();
+         0.0 :
+         stats_->overall_size_coding_RNAs() /
+         stats_->nb_coding_RNAs();
 }
 
 /// TODO
@@ -790,9 +789,9 @@ double ae_individual::get_overall_size_non_coding_RNAs() const {
 /// TODO
 double ae_individual::get_av_size_non_coding_RNAs() const {
   return stats_->nb_non_coding_RNAs() == 0 ?
-      0.0 :
-      stats_->overall_size_non_coding_RNAs() /
-          stats_->nb_non_coding_RNAs();
+         0.0 :
+         stats_->overall_size_non_coding_RNAs() /
+         stats_->nb_non_coding_RNAs();
 }
 
 /// TODO
@@ -823,9 +822,9 @@ double ae_individual::get_overall_size_functional_genes() const {
 /// TODO
 double ae_individual::get_av_size_functional_genes() const {
   return stats_->nb_functional_genes() == 0 ?
-      0.0 :
-      stats_->overall_size_functional_genes() /
-          stats_->nb_functional_genes();
+         0.0 :
+         stats_->overall_size_functional_genes() /
+         stats_->nb_functional_genes();
 }
 
 /// TODO
@@ -836,9 +835,9 @@ double ae_individual::get_overall_size_non_functional_genes() const {
 /// TODO
 double ae_individual::get_av_size_non_functional_genes() const {
   return stats_->nb_non_functional_genes() == 0 ?
-      0.0 :
-      stats_->overall_size_non_functional_genes() /
-          stats_->nb_non_functional_genes();
+         0.0 :
+         stats_->overall_size_non_functional_genes() /
+         stats_->nb_non_functional_genes();
 }
 
 /// TODO
@@ -990,43 +989,43 @@ double ae_individual::get_repl_HT_detach_rate() const {
 
 // ---------------------------------------------------------------- Alignements
 bool ae_individual::get_with_alignments() const {
- return _mut_params->get_with_alignments();
+  return _mut_params->get_with_alignments();
 }
 
 ae_align_fun_shape ae_individual::get_align_fun_shape() const {
- return _mut_params->get_align_fun_shape();
+  return _mut_params->get_align_fun_shape();
 }
 
 double ae_individual::get_align_sigm_lambda() const {
- return _mut_params->get_align_sigm_lambda();
+  return _mut_params->get_align_sigm_lambda();
 }
 
 int16_t ae_individual::get_align_sigm_mean() const {
- return _mut_params->get_align_sigm_mean();
+  return _mut_params->get_align_sigm_mean();
 }
 
 int16_t ae_individual::get_align_lin_min() const {
- return _mut_params->get_align_lin_min();
+  return _mut_params->get_align_lin_min();
 }
 
 int16_t ae_individual::get_align_lin_max() const {
- return _mut_params->get_align_lin_max();
+  return _mut_params->get_align_lin_max();
 }
 
 int16_t ae_individual::get_align_max_shift() const {
- return _mut_params->get_align_max_shift();
+  return _mut_params->get_align_max_shift();
 }
 
 int16_t ae_individual::get_align_w_zone_h_len() const {
- return _mut_params->get_align_w_zone_h_len();
+  return _mut_params->get_align_w_zone_h_len();
 }
 
 int16_t ae_individual::get_align_match_bonus() const {
- return _mut_params->get_align_match_bonus();
+  return _mut_params->get_align_match_bonus();
 }
 
 int16_t ae_individual::get_align_mismatch_cost() const {
- return _mut_params->get_align_mismatch_cost();
+  return _mut_params->get_align_mismatch_cost();
 }
 
 /// TODO
@@ -1190,31 +1189,31 @@ void ae_individual::set_inversion_proportion(double inversion_proportion) {
 }
 
 void ae_individual::set_with_4pts_trans(bool with_4pts_trans) {
-        _mut_params->set_with_4pts_trans(with_4pts_trans);
+  _mut_params->set_with_4pts_trans(with_4pts_trans);
 }
 
 void ae_individual::set_with_alignments(bool with_alignments) {
-        _mut_params->set_with_alignments(with_alignments);
+  _mut_params->set_with_alignments(with_alignments);
 }
 
 void ae_individual::set_with_HT(bool with_HT) {
-        _mut_params->set_with_HT(with_HT);
+  _mut_params->set_with_HT(with_HT);
 }
 
 void ae_individual::set_repl_HT_with_close_points(bool repl_HT_with_close_points) {
-        _mut_params->set_repl_HT_with_close_points(repl_HT_with_close_points);
+  _mut_params->set_repl_HT_with_close_points(repl_HT_with_close_points);
 }
 
 void ae_individual::set_HT_ins_rate(double HT_ins_rate) {
-        _mut_params->set_HT_ins_rate(HT_ins_rate);
+  _mut_params->set_HT_ins_rate(HT_ins_rate);
 }
 
 void ae_individual::set_HT_repl_rate(double HT_repl_rate) {
-        _mut_params->set_HT_repl_rate(HT_repl_rate);
+  _mut_params->set_HT_repl_rate(HT_repl_rate);
 }
 
 void ae_individual::set_repl_HT_detach_rate(double repl_HT_detach_rate) {
-        _mut_params->set_repl_HT_detach_rate(repl_HT_detach_rate);
+  _mut_params->set_repl_HT_detach_rate(repl_HT_detach_rate);
 }
 
 
@@ -1373,7 +1372,7 @@ void ae_individual::compute_fitness(const PhenotypicTarget& target) {
   if (_fitness_computed) return; // Fitness has already been computed, nothing to do.
   _fitness_computed = true;
 
-  #ifdef NORMALIZED_FITNESS
+#ifdef NORMALIZED_FITNESS
     for (int8_t i = 0 ; i < NB_FEATURES ; i++)
     {
       if (envir->get_area_by_feature(i)==0.)
@@ -1435,7 +1434,7 @@ void ae_individual::compute_fitness(const PhenotypicTarget& target) {
                 *  (1 + _exp_m->get_secretion_contrib_to_fitness() * get_grid_cell()->compound_amount()
                     - _exp_m->get_secretion_cost() * _fitness_by_feature[SECRETION]);
   }
-  #endif
+#endif
 }
 
 
@@ -1471,10 +1470,10 @@ void ae_individual::clear_everything_except_dna_and_promoters() {
 
   // Initialize all the fitness-related stuff
   if (_dist_to_target_by_segment != NULL)
-    {
-      delete [] _dist_to_target_by_segment;
-      _dist_to_target_by_segment  = NULL;
-    }
+  {
+    delete [] _dist_to_target_by_segment;
+    _dist_to_target_by_segment  = NULL;
+  }
 
   for (int8_t i = 0 ; i < NB_FEATURES ; i++)
   {
@@ -1522,8 +1521,8 @@ void ae_individual::add_GU(char * &sequence, int32_t length) {
   _genetic_unit_list.emplace_back(this, sequence, length);
 }
 
-/// Overloaded version to prevent the use of ae_genetic_unit disabled
-/// copy ctor. Forwards arguments to ae_genetic_unit's ctor.
+/// Overloaded version to prevent the use of GeneticUnit disabled
+/// copy ctor. Forwards arguments to GeneticUnit's ctor.
 void ae_individual::add_GU(ae_individual* indiv,
                            int32_t chromosome_length,
                            std::shared_ptr<ae_jumping_mt> prng) {
@@ -1683,7 +1682,7 @@ void ae_individual::compute_statistical_data() {
 
 void ae_individual::compute_non_coding() {
   if (nc_stats_ != NULL) return; // _non_coding has already been computed,
-                                 // nothing to do.
+  // nothing to do.
   nc_stats_ = new NonCodingStats();
 
   for (auto& gen_unit: _genetic_unit_list) {
@@ -1887,7 +1886,7 @@ double ae_individual::compute_theoritical_f_nu() {
   // Abbreviations are chosen according to Carole's formula.
   // Please notice that compared to the formula we have the beginning
   // and ends of neutral regions instead of 'functional regions'
-  ae_genetic_unit& chromosome = _genetic_unit_list.front();
+  GeneticUnit& chromosome = _genetic_unit_list.front();
   int32_t L       = chromosome.get_dna()->get_length();
   int32_t N_G     = chromosome.get_nb_neutral_regions(); // which is not exactly Carole's original definition
   int32_t* b_i    = chromosome.get_beginning_neutral_regions();
@@ -1959,7 +1958,7 @@ void ae_individual::remove_non_coding_bases() {
   delete nc_stats_;
   nc_stats_ = NULL;
 
-  #ifdef DEBUG
+#ifdef DEBUG
     compute_statistical_data();
     compute_non_coding();
     assert(get_nb_bases_in_0_coding_RNA() == 0);
@@ -1983,7 +1982,7 @@ void ae_individual::double_non_coding_bases(void) {
   delete nc_stats_;
   nc_stats_ = NULL;
 
-  #ifdef DEBUG
+#ifdef DEBUG
     compute_statistical_data();
     compute_non_coding();
     assert(get_nb_bases_in_0_coding_RNA() == 2 * initial_non_coding_base_nb);

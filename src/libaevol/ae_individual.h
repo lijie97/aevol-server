@@ -47,7 +47,7 @@
 // =================================================================
 #include "indiv_stats.h"
 #include "non_coding_stats.h"
-#include "ae_genetic_unit.h"
+#include "genetic_unit.h"
 #include "ae_dna.h"
 #include "ae_rna.h"
 #include "ae_protein.h"
@@ -130,8 +130,8 @@ class ae_individual
   int16_t          get_nb_genetic_units() const;
   int32_t          get_nb_plasmids()  const;
   int32_t          get_amount_of_dna() const;
-  const ae_genetic_unit& get_genetic_unit(int16_t num_unit) const;
-  ae_genetic_unit& get_genetic_unit_nonconst(int16_t num_unit);
+  const GeneticUnit& get_genetic_unit(int16_t num_unit) const;
+  GeneticUnit& get_genetic_unit_nonconst(int16_t num_unit);
   double           get_dist_to_target_by_feature(ae_env_axis_feature feature) const;
   double           get_fitness() const;
   double           get_fitness_by_feature(ae_env_axis_feature feature) const;
@@ -140,8 +140,8 @@ class ae_individual
   std::shared_ptr<ae_jumping_mt> get_mut_prng() const;
   std::shared_ptr<ae_jumping_mt> get_stoch_prng() const;
 
-  const std::list<ae_genetic_unit>& get_genetic_unit_list_std() const;
-  std::list<ae_genetic_unit>& get_genetic_unit_list_std_nonconst();
+  const std::list<GeneticUnit>& get_genetic_unit_list_std() const;
+  std::list<GeneticUnit>& get_genetic_unit_list_std_nonconst();
   /// Keep only the first (main chromosome) and the last chromosomes from the GU.
   void drop_nested_genetic_units();
 
@@ -315,9 +315,9 @@ class ae_individual
   //                            Public Methods
   // =================================================================
   void add_GU(char * &sequence, int32_t length);  // warning: the individual is left in a totally "cleared" state but not reevaluated
-  // void add_GU(ae_genetic_unit&& unit); // warning: the individual is left in a totally "cleared" state but not reevaluated
+  // void add_GU(GeneticUnit&& unit); // warning: the individual is left in a totally "cleared" state but not reevaluated
   void add_GU(ae_individual* indiv, int32_t chromosome_length,
-      std::shared_ptr<ae_jumping_mt> prng);
+              std::shared_ptr<ae_jumping_mt> prng);
 
   // void add_GU(ae_individual* indiv, int32_t length, ae_jumping_mt* prng);
   void remove_GU (int16_t num_unit); // warning: the individual is left in a totally "cleared" state but not reevaluated
@@ -356,7 +356,7 @@ class ae_individual
 
   int32_t get_nb_terminators();
 
-  #ifdef DEBUG
+#ifdef DEBUG
     void assert_promoters();
     void assert_promoters_order();
   #endif
@@ -451,7 +451,7 @@ class ae_individual
   // int16_t x, y;
 
   // The chromosome and plasmids (if allowed)
-  std::list<ae_genetic_unit> _genetic_unit_list;
+  std::list<GeneticUnit> _genetic_unit_list;
 
   // Report of all the mutational events undergone during the individuals creation,
   // i.e. during the replication that gave birth to this individual
@@ -512,8 +512,8 @@ class ae_individual
   // Coding / non-coding
 
   double _modularity; // Ratio between the pairwise distance between genes whose corresponding
-                      // phenotypic triangles overlap and the average intergenic distance
-                      // (ignoring non-functional genes)void compute_phenotype();
+  // phenotypic triangles overlap and the average intergenic distance
+  // (ignoring non-functional genes)void compute_phenotype();
 };
 
 } // namespace aevol

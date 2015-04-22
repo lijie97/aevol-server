@@ -82,12 +82,6 @@ enum ae_selection_scheme
   FITNESS_PROPORTIONATE = 2,
   FITTEST               = 3
 };
-
-enum ae_strand
-{
-  LEADING = 0,
-  LAGGING = 1
-};
   
 enum ae_tree_mode
 {
@@ -101,6 +95,23 @@ enum ae_log_type
   LOG_REAR      = 0x02,
   LOG_BARRIER   = 0x04,
   //LOG_LOADS     = 0x08
+};
+
+enum ae_strand
+{
+  LEADING = 0,
+  LAGGING = 1
+};
+
+constexpr const char* StrandName[] = {
+    "LEADING",
+    "LAGGING"
+};
+
+enum Position {
+  BEFORE,
+  BETWEEN,
+  AFTER
 };
 
 } // namespace aevol

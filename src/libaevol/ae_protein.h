@@ -68,8 +68,8 @@ class ae_protein
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_protein( ae_genetic_unit* gen_unit, const ae_protein &model );
-    ae_protein(ae_genetic_unit* gen_unit,
+    ae_protein( GeneticUnit* gen_unit, const ae_protein &model );
+    ae_protein(GeneticUnit* gen_unit,
                const std::list<ae_codon*>& codon_list,
                ae_strand strand,
                int32_t shine_dal,
@@ -137,7 +137,7 @@ class ae_protein
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ae_genetic_unit*  _gen_unit;
+    GeneticUnit*  _gen_unit;
     ae_strand         _strand;
     std::list<ae_rna*> rna_list;              // RNAs transcribing this protein
     int32_t           _shine_dal_pos;         // Index of the corresponding shine dalgarno sequence in the genome

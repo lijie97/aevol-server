@@ -43,7 +43,7 @@
 #include "ae_exp_manager.h"
 #include "ae_exp_setup.h"
 #include "ae_individual.h"
-#include "ae_genetic_unit.h"
+#include "genetic_unit.h"
 #include "ae_replication_report.h"
 #include "dna_replic_report.h"
 
@@ -163,7 +163,7 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
     // -------------------------------------------------
     ae_replication_report* replic_report = indiv->get_replic_report(); // can be NULL under certain conditions
 
-    ae_genetic_unit& gen_unit = *indiv->get_genetic_unit_list_std_nonconst().begin();
+    GeneticUnit& gen_unit = *indiv->get_genetic_unit_list_std_nonconst().begin();
 
     // Metabolic error stats
     _metabolic_error = (double) indiv->get_dist_to_target_by_feature(METABOLISM);
@@ -351,7 +351,7 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
       exit(EXIT_FAILURE);
     }
 
-    ae_genetic_unit& gen_unit = (chrom_or_gu == PLASMIDS) ?
+    GeneticUnit& gen_unit = (chrom_or_gu == PLASMIDS) ?
         *std::next(indiv->get_genetic_unit_list_std_nonconst().begin()) :
         indiv->get_genetic_unit_list_std_nonconst().front();
 

@@ -37,7 +37,7 @@
 //                            Project Files
 // =================================================================
 #include "ae_rna.h"
-#include "ae_genetic_unit.h"
+#include "genetic_unit.h"
 #include "ae_individual.h"
 
 namespace aevol {
@@ -57,7 +57,7 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_rna::ae_rna( ae_genetic_unit* gen_unit, const ae_rna &model )
+ae_rna::ae_rna( GeneticUnit* gen_unit, const ae_rna &model )
 {
   // Copy "trivial" attributes
   _gen_unit  = gen_unit;
@@ -76,7 +76,7 @@ ae_rna::ae_rna( ae_genetic_unit* gen_unit, const ae_rna &model )
   //   transcribed_proteins.push_back(protein);
 }
 
-ae_rna::ae_rna( ae_genetic_unit* gen_unit, ae_strand strand, int32_t pos, int8_t diff )
+ae_rna::ae_rna( GeneticUnit* gen_unit, ae_strand strand, int32_t pos, int8_t diff )
 {
   _gen_unit  = gen_unit;
   _strand = strand;

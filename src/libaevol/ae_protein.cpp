@@ -41,7 +41,7 @@
 
 #include "ae_codon.h"
 #include "ae_individual.h"
-#include "ae_genetic_unit.h"
+#include "genetic_unit.h"
 #include "ae_rna.h"
 #include "ae_utils.h"
 
@@ -67,7 +67,7 @@ namespace aevol {
  *
  * Copies the protein but does nothing regarding the RNAs transcribing it (creates an empty list).
  */
-ae_protein::ae_protein( ae_genetic_unit* gen_unit, const ae_protein &model )
+ae_protein::ae_protein( GeneticUnit* gen_unit, const ae_protein &model )
 {
   _gen_unit  = gen_unit;
 
@@ -90,7 +90,7 @@ ae_protein::ae_protein( ae_genetic_unit* gen_unit, const ae_protein &model )
   _height = model._height;
 }
 
-ae_protein::ae_protein(ae_genetic_unit* gen_unit,
+ae_protein::ae_protein(GeneticUnit* gen_unit,
                        const std::list<ae_codon*>& codon_list,
                        ae_strand strand,
                        int32_t shine_dal_pos,

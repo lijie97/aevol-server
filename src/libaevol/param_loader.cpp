@@ -80,7 +80,7 @@ namespace aevol {
 static const int8_t STRAIN_NAME_DEFAULT_SIZE  = 20;
 static const int8_t STRAIN_NAME_LOGIN_SIZE    = 10;
 #ifndef LOGIN_NAME_MAX
-  #define LOGIN_NAME_MAX 256
+#define LOGIN_NAME_MAX 256
 #endif
 // =================================================================
 //                             Constructors
@@ -250,7 +250,7 @@ param_loader::param_loader(const char* file_name)
   // Other
   _more_stats = false;
 
-  #ifdef __REGUL
+#ifdef __REGUL
     // ------------------------------------------------------- Binding matrix
     _binding_zeros_percentage = 75;
   #endif
@@ -261,8 +261,8 @@ param_loader::param_loader(const char* file_name)
 
   if (_param_file == NULL)
   {
-     printf("ERROR : couldn't open file %s\n", file_name);
-     exit(EXIT_FAILURE);
+    printf("ERROR : couldn't open file %s\n", file_name);
+    exit(EXIT_FAILURE);
   }
 
   assert(_param_file);
@@ -296,7 +296,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
   }
   else if (strcmp(line->words[0], "MAX_TRIANGLE_WIDTH") == 0)
   {
-   _w_max = atof(line->words[1]);
+    _w_max = atof(line->words[1]);
   }
   else if (strcmp(line->words[0], "ENV_AXIS_FEATURES") == 0)
   {
@@ -340,7 +340,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
       else
       {
         printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown axis feature \"%s\".\n",
-                _param_file_name, cur_line, line->words[2*i+1]);
+               _param_file_name, cur_line, line->words[2*i+1]);
         exit(EXIT_FAILURE);
       }
     }
@@ -362,7 +362,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
     else
     {
       printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown tree recording option (use true/false).\n",
-              _param_file_name, cur_line);
+             _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
   }
@@ -371,7 +371,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
     if (strcmp(line->words[1], "light") == 0)
     {
       printf("ERROR in param file \"%s\" on line %" PRId32 " : the \"light\" tree recording option is not implemented yet.\n",
-              _param_file_name, cur_line);
+             _param_file_name, cur_line);
       exit(EXIT_FAILURE);
       // _tree_mode = LIGHT;
     }
@@ -382,7 +382,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
     else
     {
       printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown tree mode option (use normal/light).\n",
-              _param_file_name, cur_line);
+             _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
   }
@@ -399,7 +399,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
     else
     {
       printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown more stats option (use true/false).\n",
-              _param_file_name, cur_line);
+             _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
   }
@@ -436,7 +436,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
       if (_min_genome_length == 0)
       {
         printf("ERROR in param file \"%s\" on line %" PRId32 " : MIN_GENOME_LENGTH must be > 0.\n",
-                _param_file_name, cur_line);
+               _param_file_name, cur_line);
         exit(EXIT_FAILURE);
       }
     }
@@ -484,7 +484,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
       partial_mix_nb_permutations = atol(line->words[2]);
     else {
       printf("ERROR in param file \"%s\" on line %" PRId32
-          " : unknown mixing option.\n", _param_file_name, cur_line);
+                 " : unknown mixing option.\n", _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
   }
@@ -507,7 +507,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
       else
       {
         printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown initialization method %s.\n",
-                _param_file_name, cur_line, line->words[1]);
+               _param_file_name, cur_line, line->words[1]);
         exit(EXIT_FAILURE);
       }
     }
@@ -569,7 +569,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
     if (line->nb_words != 2 && line->nb_words != 4)
     {
       printf("ERROR in param file \"%s\" on line %" PRId32 " : incorrect number of parameters for keyword \"%s\".\n",
-              _param_file_name, cur_line, line->words[0]);
+             _param_file_name, cur_line, line->words[0]);
       exit(EXIT_FAILURE);
     }
 
@@ -596,7 +596,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
     else
     {
       printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown align function shape \"%s\".\n",
-              _param_file_name, cur_line, line->words[1]);
+             _param_file_name, cur_line, line->words[1]);
       exit(EXIT_FAILURE);
     }
   }
@@ -630,7 +630,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
       if (line->nb_words != 3)
       {
         printf("ERROR in param file \"%s\" on line %" PRId32 " : selection pressure parameter is missing.\n",
-                _param_file_name, cur_line);
+               _param_file_name, cur_line);
         exit(EXIT_FAILURE);
       }
 
@@ -642,7 +642,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
       if (line->nb_words != 3)
       {
         printf("ERROR in param file \"%s\" on line %" PRId32 " : selection pressure parameter is missing.\n",
-                _param_file_name, cur_line);
+               _param_file_name, cur_line);
         exit(EXIT_FAILURE);
       }
 
@@ -654,7 +654,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
       if (line->nb_words != 3)
       {
         printf("ERROR in param file \"%s\" on line %" PRId32 " : selection pressure parameter is missing.\n",
-                _param_file_name, cur_line);
+               _param_file_name, cur_line);
         exit(EXIT_FAILURE);
       }
 
@@ -668,7 +668,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
     else
     {
       printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown selection scheme \"%s\".\n",
-              _param_file_name, cur_line, line->words[1]);
+             _param_file_name, cur_line, line->words[1]);
       exit(EXIT_FAILURE);
     }
   }
@@ -678,7 +678,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
     if (seed_already_set)
     {
       printf("ERROR in param file \"%s\" on line %" PRId32 " : duplicate entry for SEED.\n",
-              _param_file_name, cur_line);
+             _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
     _seed = atol(line->words[1]);
@@ -690,7 +690,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
     if (mut_seed_already_set)
     {
       printf("ERROR in param file \"%s\" on line %" PRId32 " : duplicate entry for MUT_SEED.\n",
-              _param_file_name, cur_line);
+             _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
     _mut_seed = atol(line->words[1]);
@@ -702,7 +702,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
     if (stoch_seed_already_set)
     {
       printf("ERROR in param file \"%s\" on line %" PRId32 " : duplicate entry for STOCH_SEED.\n",
-              _param_file_name, cur_line);
+             _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
     _stoch_seed = atol(line->words[1]);
@@ -722,7 +722,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
     else
     {
       printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown 4pts_trans option (use true/false).\n",
-              _param_file_name, cur_line);
+             _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
   }
@@ -739,7 +739,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
     else
     {
       printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown alignement option (use true/false).\n",
-              _param_file_name, cur_line);
+             _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
   }
@@ -756,7 +756,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
     else
     {
       printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown transfer option (use true/false).\n",
-              _param_file_name, cur_line);
+             _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
   }
@@ -773,7 +773,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
     else
     {
       printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown transfer option (use true/false).\n",
-              _param_file_name, cur_line);
+             _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
   }
@@ -790,7 +790,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
     else
     {
       printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown swap option (use true/false).\n",
-              _param_file_name, cur_line);
+             _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
   }
@@ -830,7 +830,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
     if (env_var_already_set)
     {
       printf("ERROR in param file \"%s\" on line %" PRId32 " : duplicate entry for %s.\n",
-              _param_file_name, cur_line, line->words[0]);
+             _param_file_name, cur_line, line->words[0]);
       exit(EXIT_FAILURE);
     }
     env_var_already_set = true;
@@ -866,7 +866,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
     {
       printf("ERROR in param file \"%s\" on line %" PRId32
                  " : unknown phenotypic target variation method.\n",
-              _param_file_name, cur_line);
+             _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
   }
@@ -877,7 +877,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
     {
       printf("ERROR in param file \"%s\" on line %" PRId32
                  " : duplicate entry for %s.\n",
-              _param_file_name, cur_line, line->words[0]);
+             _param_file_name, cur_line, line->words[0]);
       exit(EXIT_FAILURE);
     }
     env_noise_already_set = true;
@@ -889,7 +889,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
     }
     else if (strcmp(line->words[1], "FRACTAL") == 0)
     {
-			assert(line->nb_words == 6);
+      assert(line->nb_words == 6);
       _env_noise_method = FRACTAL;
       _env_noise_sampling_log = atoi(line->words[2]);
       _env_noise_sigma = atof(line->words[3]);
@@ -920,7 +920,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
     if (_secretion_degradation_prop > 1 || _secretion_degradation_prop < 0)
     {
       printf("ERROR in param file \"%s\" on line %" PRId32 " : degradation must be in (0,1).\n",
-              _param_file_name, cur_line);
+             _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
   }
@@ -945,7 +945,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
     else
     {
       printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown allow_plasmids option (use true/false).\n",
-              _param_file_name, cur_line);
+             _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
   }
@@ -1006,7 +1006,7 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
     else
     {
       printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown compute_phen_contrib_by_GU option (use true/false).\n",
-              _param_file_name, cur_line);
+             _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
   }
@@ -1026,20 +1026,20 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
       {
         _logs |= LOG_BARRIER;
       }
-      /*else if (strcmp(line->words[i], "LOADS") == 0)
-      {
-        tmp_to_be_logged |= LOG_LOADS;
-      }   */
+        /*else if (strcmp(line->words[i], "LOADS") == 0)
+        {
+          tmp_to_be_logged |= LOG_LOADS;
+        }   */
       else
       {
         printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown log option %s.\n",
-                _param_file_name, cur_line, line->words[1]);
+               _param_file_name, cur_line, line->words[1]);
         exit(EXIT_FAILURE);
       }
     }
   }
 
-  #ifdef __REGUL
+#ifdef __REGUL
     else if (strcmp(line->words[0], "HILL_SHAPE_N") == 0)
     {
       _hill_shape_n = atof(line->words[1]);
@@ -1184,8 +1184,8 @@ void param_loader::CheckConsistency() {
 }
 
 void param_loader::load(ae_exp_manager* exp_m, bool verbose,
-    char* chromosome, int32_t lchromosome,
-    char* plasmid, int32_t lplasmid) {
+                        char* chromosome, int32_t lchromosome,
+                        char* plasmid, int32_t lplasmid) {
   // Check consistency of min, max and initial length of chromosome and plasmid
   // Default for by GU minimal or maximal size is -1.
   // If equal to -1, maximal sizes of each GU will be replaced by total maximal size for the whole genome
@@ -1258,9 +1258,9 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
     // if param.in contained a line starting with ENV_AXIS_FEATURES,
     // we use the values indicated on this line
     phenotypic_target_handler.set_segmentation(_env_axis_nb_segments,
-                                                 _env_axis_segment_boundaries,
-                                                 _env_axis_features,
-                                                 _env_axis_separate_segments);
+                                               _env_axis_segment_boundaries,
+                                               _env_axis_features,
+                                               _env_axis_separate_segments);
   }
   // else we leave the segmentation as it is by default
   // (one "metabolic" segment from X_MIN to X_MAX)
@@ -1325,16 +1325,16 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
   {
     printf("Option -c is used: chromosome will be loaded from a text file\n");
     ae_individual* indiv = new ae_individual(exp_m,
-                                              mut_prng,
-                                              stoch_prng,
-                                              param_mut,
-                                              _w_max,
-                                              _min_genome_length,
-                                              _max_genome_length,
-                                              _allow_plasmids,
-                                              id_new_indiv++,
-                                              _strain_name,
-                                              0);
+                                             mut_prng,
+                                             stoch_prng,
+                                             param_mut,
+                                             _w_max,
+                                             _min_genome_length,
+                                             _max_genome_length,
+                                             _allow_plasmids,
+                                             id_new_indiv++,
+                                             _strain_name,
+                                             0);
 
     indiv->add_GU(chromosome, lchromosome);
     indiv->get_genetic_unit_nonconst(0).set_min_gu_length(_chromosome_minimal_length);
@@ -1641,7 +1641,7 @@ ae_individual* param_loader::create_random_individual(
   // ae_genetic_unit * chrom = new ae_genetic_unit(indiv, _chromosome_initial_length, _prng); // a random sequence is generated by the ae_string constructor
   // indiv->add_GU(ae_genetic_unit(indiv, _chromosome_initial_length, _prng));
   indiv->add_GU(indiv, _chromosome_initial_length, _prng);
-  const ae_genetic_unit * chrom = &indiv->get_genetic_unit_list_std().back();
+  const GeneticUnit * chrom = &indiv->get_genetic_unit_list_std().back();
 
   if (_allow_plasmids) // We create a plasmid
   {
@@ -1736,8 +1736,8 @@ ae_individual* param_loader::create_random_individual_with_good_gene(
                                            _strain_name,
                                            0);
   indiv->add_GU(indiv, _chromosome_initial_length, _prng); // a random sequence is generated by the ae_string constructor
-  const ae_genetic_unit * chrom = &indiv->get_genetic_unit_list_std().back();
-  indiv->EvaluateInContext(habitat);
+  const GeneticUnit * chrom = &indiv->get_genetic_unit_list_std().back();
+  indiv->evaluate( exp_m->get_env() );
 
   while (indiv->get_dist_to_target_by_feature(METABOLISM) >= env_metabolic_area)
   {
@@ -1754,14 +1754,14 @@ ae_individual* param_loader::create_random_individual_with_good_gene(
     if (_plasmid_initial_gene == 1)
     {
       indiv->add_GU(indiv, _plasmid_initial_length, _prng); // a random sequence is generated by the ae_string constructor
-       indiv->EvaluateInContext(habitat);
+      indiv->EvaluateInContext(habitat);
 
-       while (indiv->get_genetic_unit(1).get_dist_to_target_by_feature(METABOLISM) >= env_metabolic_area)
-       {
-         indiv->remove_GU(1);
-         indiv->add_GU(indiv, _plasmid_initial_length, _prng); // a random sequence is generated by the ae_string constructor
-         indiv->EvaluateInContext(habitat);
-       }
+      while (indiv->get_genetic_unit(1).get_dist_to_target_by_feature(METABOLISM) >= env_metabolic_area)
+      {
+        indiv->remove_GU(1);
+        indiv->add_GU(indiv, _plasmid_initial_length, _prng); // a random sequence is generated by the ae_string constructor
+        indiv->EvaluateInContext(habitat);
+      }
     }
     else
     {

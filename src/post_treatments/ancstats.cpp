@@ -51,7 +51,7 @@
 #include "ae_utils.h"
 #include "ae_exp_manager.h"
 #include "ae_individual.h"
-#include "ae_genetic_unit.h"
+#include "genetic_unit.h"
 #include "ae_list.h"
 #include "ae_tree.h"
 #include "ae_replication_report.h"
@@ -376,14 +376,14 @@ int main(int argc, char** argv)
     // 2) Replay replication (create current individual's child)
     // VLD used to copy pointers to existing unit lists
     // TODO vld: check if the correct behavior is preserved
-    std::list<ae_genetic_unit> gulist; // = indiv->get_genetic_unit_list_std();
+    std::list<GeneticUnit> gulist; // = indiv->get_genetic_unit_list_std();
     for (auto& gu: indiv->get_genetic_unit_list_std_nonconst())
       gulist.emplace_back(indiv, &gu);
-    std::list<ae_genetic_unit> storedgulist; // = stored_indiv->get_genetic_unit_list_std();
+    std::list<GeneticUnit> storedgulist; // = stored_indiv->get_genetic_unit_list_std();
     for (auto& gu: stored_indiv->get_genetic_unit_list_std_nonconst())
       gulist.emplace_back(indiv, &gu);
 
-    std::list<ae_genetic_unit>::const_iterator storedunit;
+    std::list<GeneticUnit>::const_iterator storedunit;
     if (check_now)
     {
       exp_manager_backup = new ae_exp_manager();
@@ -394,7 +394,7 @@ int main(int argc, char** argv)
     }
 
     // For each genetic unit, replay the replication (undergo all mutations)
-    std::list<ae_genetic_unit>::const_iterator unit = gulist.begin();
+    std::list<GeneticUnit>::const_iterator unit = gulist.begin();
     for (const auto& dnarep: rep->get_dna_replic_reports()) {
       assert(unit != gulist.end());
 

@@ -46,7 +46,7 @@
 #include "ae_utils.h"
 #include "ae_exp_manager.h"
 #include "ae_individual.h"
-#include "ae_genetic_unit.h"
+#include "genetic_unit.h"
 #include "ae_list.h"
 #include "ae_tree.h"
 #include "ae_replication_report.h"
@@ -82,9 +82,9 @@ enum check_type
 void print_help(char* prog_path);
 void print_version( void );
 
-void update_pointers_in_trees(ae_list<ae_gene_tree*> * gene_trees, ae_genetic_unit * unit);
+void update_pointers_in_trees(ae_list<ae_gene_tree*> * gene_trees, GeneticUnit * unit);
 void anticipate_mutation_effect_on_genes_in_trees(ae_list<ae_gene_tree*> * gene_trees, const ae_mutation * mut, int32_t unitlen_before);
-void register_actual_mutation_effect_on_genes_in_trees(ae_list<ae_gene_tree*>* gene_trees, const ae_mutation* mut, ae_genetic_unit * unit, int32_t gener, double impact_on_metabolic_error);
+void register_actual_mutation_effect_on_genes_in_trees(ae_list<ae_gene_tree*>* gene_trees, const ae_mutation* mut, GeneticUnit * unit, int32_t gener, double impact_on_metabolic_error);
 void search_protein_in_gene_trees(ae_list<ae_gene_tree*> * gene_trees, ae_protein * prot, ae_gene_tree ** resultTree, ae_gene_tree_node ** resultNode);
 void set_end_gener_if_active_leaves_in_trees(ae_list<ae_gene_tree*> * gene_trees, int32_t gener);
 void write_gene_trees_to_files(ae_list<ae_gene_tree*> * gene_trees, int32_t end_gener);
@@ -283,10 +283,10 @@ int main(int argc, char** argv)
   // ===============================================================================
   ae_replication_report* rep = NULL;
 
-  std::list<ae_genetic_unit>::const_iterator unit;
+  std::list<GeneticUnit>::const_iterator unit;
 
   ae_individual* stored_indiv = NULL;
-  std::list<ae_genetic_unit>::const_iterator stored_unit;
+  std::list<GeneticUnit>::const_iterator stored_unit;
 
   int32_t index, genetic_unit_number, unitlen_before;
   double metabolic_error_before, metabolic_error_after, impact_on_metabolic_error;
@@ -580,7 +580,7 @@ void search_protein_in_gene_trees(ae_list<ae_gene_tree*> * gene_trees, ae_protei
 
 
 
-void update_pointers_in_trees(ae_list<ae_gene_tree*> * gene_trees, ae_genetic_unit * unit)
+void update_pointers_in_trees(ae_list<ae_gene_tree*> * gene_trees, GeneticUnit * unit)
 {
   ae_list_node<ae_gene_tree*> * n = gene_trees->get_first();
   ae_gene_tree * tree = NULL;
@@ -611,7 +611,7 @@ void anticipate_mutation_effect_on_genes_in_trees(
 void register_actual_mutation_effect_on_genes_in_trees(
     ae_list<ae_gene_tree*>* gene_trees,
     const ae_mutation* mut,
-    ae_genetic_unit* unit,
+    GeneticUnit* unit,
     int32_t gener,
     double impact_on_metabolic_error)
 {

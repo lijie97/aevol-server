@@ -59,7 +59,7 @@ namespace aevol {
 // =================================================================
 class ae_exp_manager;
 class ae_individual;
-class ae_genetic_unit;
+class GeneticUnit;
 class ae_vis_a_vis;
 class ae_rna;
 
@@ -74,16 +74,16 @@ class ae_dna : public ae_string
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_dna(void) = delete;
-    ae_dna(const ae_dna&) = delete;
-    ae_dna(ae_genetic_unit* gen_unit,
+    ae_dna(void) = delete; // TODO <david.parsons@inria.fr> merge unsure
+    ae_dna(const ae_dna&) = delete; // TODO <david.parsons@inria.fr> merge unsure
+    ae_dna(GeneticUnit* gen_unit,
            int32_t length,
            std::shared_ptr<ae_jumping_mt> prng);
-    ae_dna(ae_genetic_unit* gen_unit, const ae_dna &model);
-    ae_dna(ae_genetic_unit* gen_unit, ae_dna* const parent_dna);
-    ae_dna(ae_genetic_unit* gen_unit, char* seq, int32_t length);
-    ae_dna(ae_genetic_unit* gen_unit, gzFile backup_file);
-    ae_dna(ae_genetic_unit* gen_unit, char* organism_file_name);
+    ae_dna(GeneticUnit* gen_unit, const ae_dna &model);
+    ae_dna(GeneticUnit* gen_unit, ae_dna* const parent_dna);
+    ae_dna(GeneticUnit* gen_unit, char* seq, int32_t length);
+    ae_dna(GeneticUnit* gen_unit, gzFile backup_file);
+    ae_dna(GeneticUnit* gen_unit, char* organism_file_name);
 
     // =================================================================
     //                             Destructors
@@ -100,7 +100,7 @@ class ae_dna : public ae_string
     inline DnaReplicReport*  get_replic_report(void) const;
     inline void                   set_replic_report(DnaReplicReport * rep); // for post-treatment only
 
-    inline ae_genetic_unit *      get_genetic_unit(void) const;
+    inline GeneticUnit*      get_genetic_unit(void) const;
     inline ae_individual*         get_indiv(void) const;
 
     char* get_subsequence(int32_t from, int32_t to, ae_strand strand) const; // WARNING : creates a new char[...] (up to you to delete it!)
@@ -157,9 +157,9 @@ class ae_dna : public ae_string
     bool do_ins_HT(int32_t pos, const char* seq_to_insert, int32_t seq_length);
     bool do_repl_HT(int32_t pos1, int32_t pos2, const char* seq_to_insert, int32_t seq_length);
 
-    ae_genetic_unit*  extract_into_new_GU(int32_t pos_1, int32_t pos_2);
-    ae_genetic_unit*  copy_into_new_GU   (int32_t pos_1, int32_t pos_2) const;
-    void insert_GU(ae_genetic_unit* GU_to_insert, int32_t pos_B, int32_t pos_D, bool invert);
+    GeneticUnit*  extract_into_new_GU(int32_t pos_1, int32_t pos_2);
+    GeneticUnit*  copy_into_new_GU(int32_t pos_1, int32_t pos_2) const;
+    void insert_GU(GeneticUnit* GU_to_insert, int32_t pos_B, int32_t pos_D, bool invert);
 
     ae_vis_a_vis* search_alignment(ae_dna* chrom2, int32_t& nb_pairs, ae_sense sense);
     ae_vis_a_vis* search_alignment_around_positions(ae_dna* chrom2, int32_t chrom1_pos_1, int32_t chrom1_pos_2, ae_sense sense, int8_t& research_sense);
@@ -169,7 +169,7 @@ class ae_dna : public ae_string
     void compute_statistical_data(void);
 
     // TODO rna_list should be passed by ref
-    static void set_GU(std::vector<std::list<ae_rna*>> rna_list, const ae_genetic_unit* GU);
+    static void set_GU(std::vector<std::list<ae_rna*>> rna_list, const GeneticUnit* GU);
 
 
     // =================================================================
@@ -200,8 +200,9 @@ class ae_dna : public ae_string
     //   char*   _data;
     //   int32_t _length;
     //   int32_t _nb_blocks;
+
     ae_individual* _indiv;
-    ae_genetic_unit* _gen_unit; // Genetic unit which the genetic unit belongs to
+    GeneticUnit* _gen_unit; // Genetic unit which the dna sequence belongs to
     DnaReplicReport* _replic_report;
 };
 
@@ -225,7 +226,7 @@ inline void ae_dna::set_replic_report(DnaReplicReport * rep)
   _replic_report = rep;
 }
 
-inline ae_genetic_unit * ae_dna::get_genetic_unit(void) const
+inline GeneticUnit * ae_dna::get_genetic_unit(void) const
 {
   return _gen_unit;
 }

@@ -553,7 +553,7 @@ ae_individual* ae_selection::do_replication(ae_individual* parent, int32_t index
   // ===========================================================================
   if (not new_indiv->get_allow_plasmids())
   {
-    const ae_genetic_unit* chromosome = &new_indiv->get_genetic_unit_list_std().front();
+    const GeneticUnit* chromosome = &new_indiv->get_genetic_unit_list_std().front();
 
     chromosome->get_dna()->perform_mutations(parent->get_id());
 

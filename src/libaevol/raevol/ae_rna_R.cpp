@@ -58,17 +58,17 @@ ae_rna_R::ae_rna_R( void ) : ae_rna()
   _influence_list = new ae_list();
 }
 
-ae_rna_R::ae_rna_R( ae_genetic_unit* gen_unit, const ae_rna_R &model ) : ae_rna( gen_unit, model )
+ae_rna_R::ae_rna_R( GeneticUnit* gen_unit, const ae_rna_R &model ) : ae_rna( gen_unit, model )
 {
   _influence_list = new ae_list();
 }
 
-ae_rna_R::ae_rna_R( ae_genetic_unit* gen_unit ) : ae_rna( gen_unit )
+ae_rna_R::ae_rna_R( GeneticUnit* gen_unit ) : ae_rna( gen_unit )
 {
   _influence_list = new ae_list();
 }
 
-ae_rna_R::ae_rna_R( ae_genetic_unit* gen_unit, ae_strand strand, int32_t index, int8_t diff ) :
+ae_rna_R::ae_rna_R( GeneticUnit* gen_unit, ae_strand strand, int32_t index, int8_t diff ) :
   ae_rna( gen_unit, strand, index, diff )
 {
   _influence_list = new ae_list();

@@ -42,7 +42,7 @@
 #include "ae_dump.h"
 #include "ae_exp_manager.h"
 #include "ae_individual.h"
-#include "ae_genetic_unit.h"
+#include "genetic_unit.h"
 #ifdef __REGUL
   #include "ae_influence_R.h"
   #include "ae_protein_R.h"
