@@ -96,14 +96,14 @@ void draw_phenotype( ae_individual * indiv, Environment * envir, char * director
 // at the start codon and ending at the stop codon. Coding sequences that are on the
 // leading (resp. lagging) strand are drawn outside (resp. inside) the circle. If a coding
 // sequence has several promoters, only one arc is drawn.
-void draw_genetic_unit_with_CDS( ae_genetic_unit* gen_unit, char * directoryName );
+void draw_genetic_unit_with_CDS( GeneticUnit* gen_unit, char * directoryName );
 
 
 // The chromosome is drawn as a circle. Transcribed sequences are represented by arcs starting
 // at the first trasncribed position codon and ending at the last transcribed position. mRNAs
 // that are on the leading (resp. lagging) strand are drawn outside (resp. inside) the circle.
 // mRNAs which include at least one coding sequence are black, the others are gray.
- void draw_genetic_unit_with_mRNAs( ae_genetic_unit* gen_unit, char * directoryName );
+ void draw_genetic_unit_with_mRNAs( GeneticUnit* gen_unit, char * directoryName );
 
 
 int main( int argc, char* argv[] )
@@ -260,7 +260,7 @@ int main( int argc, char* argv[] )
   //                  Write the data in the EPS files
   // =================================================================
 
-  ae_genetic_unit*  indiv_main_genome = &indiv->get_genetic_unit_nonconst( 0 );
+  GeneticUnit*  indiv_main_genome = &indiv->get_genetic_unit_nonconst( 0 );
 
   printf( "Creating the EPS file with the triangles of the chosen individual... " );
   fflush(stdout);
@@ -719,7 +719,7 @@ void draw_phenotype( ae_individual* indiv, Environment* env, char* directoryName
 
 
 
-void draw_genetic_unit_with_CDS( ae_genetic_unit* gen_unit, char * directoryName )
+void draw_genetic_unit_with_CDS( GeneticUnit* gen_unit, char * directoryName )
 {
   const uint8_t bbsize = 200;  // a4 paper: 595*842
   int32_t gen_length = (gen_unit->get_dna())->get_length();
@@ -1001,7 +1001,7 @@ void draw_genetic_unit_with_CDS( ae_genetic_unit* gen_unit, char * directoryName
 
 
 
-void draw_genetic_unit_with_mRNAs( ae_genetic_unit* gen_unit, char * directoryName )
+void draw_genetic_unit_with_mRNAs( GeneticUnit* gen_unit, char * directoryName )
 {
   const uint8_t bbsize = 200;  // a4 paper: 595*842
   int32_t gen_length = (gen_unit->get_dna())->get_length();

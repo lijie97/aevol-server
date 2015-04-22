@@ -45,7 +45,7 @@
 #include "ae_utils.h"
 #include "ae_exp_manager.h"
 #include "ae_individual.h"
-#include "ae_genetic_unit.h"
+#include "genetic_unit.h"
 #include "ae_tree.h"
 #include "ae_replication_report.h"
 #include "dna_replic_report.h"
@@ -396,10 +396,10 @@ int main(int argc, char** argv)
     printf("============================================================ \n");
   }
 
-  std::list<ae_genetic_unit>::const_iterator unit;
+  std::list<GeneticUnit>::const_iterator unit;
 
   ae_individual*   stored_indiv          = NULL;
-  std::list<ae_genetic_unit>::const_iterator stored_gen_unit;
+  std::list<GeneticUnit>::const_iterator stored_gen_unit;
 
   ae_exp_manager* exp_manager_backup = NULL;
 

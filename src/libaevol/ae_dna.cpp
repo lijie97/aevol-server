@@ -43,7 +43,7 @@
 #include "ae_exp_manager.h"
 #include "ae_exp_setup.h"
 #include "ae_dna.h"
-#include "ae_genetic_unit.h"
+#include "genetic_unit.h"
 #include "ae_individual.h"
 #include "ae_rna.h"
 #include "ae_utils.h"
@@ -68,7 +68,7 @@ namespace aevol {
 /**
  * Create a random dna sequence of length <length> belonging to <gen_unit>.
  */
-ae_dna::ae_dna( ae_genetic_unit* gen_unit, int32_t length, ae_jumping_mt * prng ) : ae_string( length, prng )
+ae_dna::ae_dna( GeneticUnit* gen_unit, int32_t length, ae_jumping_mt * prng ) : ae_string( length, prng )
 {
   _gen_unit = gen_unit;
   _exp_m    = gen_unit->get_exp_m();
@@ -81,7 +81,7 @@ ae_dna::ae_dna( ae_genetic_unit* gen_unit, int32_t length, ae_jumping_mt * prng 
  * Create a new piece of dna identical to the model but belonging to <gen_unit>
  * The replication report is copied if it exists
  */
-ae_dna::ae_dna(ae_genetic_unit* gen_unit, const ae_dna &model) :
+ae_dna::ae_dna(GeneticUnit* gen_unit, const ae_dna &model) :
   ae_string(model)
 {
   _gen_unit = gen_unit;
@@ -97,7 +97,7 @@ ae_dna::ae_dna(ae_genetic_unit* gen_unit, const ae_dna &model) :
  * Creates a new piece of dna identical to the parent's but belonging to <gen_unit>
  * The replication report is set to NULL
  */
-ae_dna::ae_dna( ae_genetic_unit* gen_unit, ae_dna* const parent_dna ) :
+ae_dna::ae_dna( GeneticUnit* gen_unit, ae_dna* const parent_dna ) :
     ae_string( parent_dna->_data, parent_dna->_length )
 {
   _gen_unit = gen_unit;
@@ -113,7 +113,7 @@ ae_dna::ae_dna( ae_genetic_unit* gen_unit, ae_dna* const parent_dna ) :
  *           which means the caller must not delete it.
  * The replication report is set to NULL
  */
-ae_dna::ae_dna( ae_genetic_unit* gen_unit, char* seq, int32_t length ) :
+ae_dna::ae_dna( GeneticUnit* gen_unit, char* seq, int32_t length ) :
     ae_string( seq, length, true )
 {
   _gen_unit = gen_unit;
@@ -127,7 +127,7 @@ ae_dna::ae_dna( ae_genetic_unit* gen_unit, char* seq, int32_t length ) :
  * Loads a piece of dna from <backup_file>
  * The replication report is set to NULL
  */
-ae_dna::ae_dna( ae_genetic_unit* gen_unit, gzFile backup_file ) : ae_string( backup_file )
+ae_dna::ae_dna( GeneticUnit* gen_unit, gzFile backup_file ) : ae_string( backup_file )
 {
   _gen_unit = gen_unit;
   _exp_m    = gen_unit->get_exp_m();
@@ -140,7 +140,7 @@ ae_dna::ae_dna( ae_genetic_unit* gen_unit, gzFile backup_file ) : ae_string( bac
  * Creates a dna sequence from a text file
  * The replication report is set to NULL
  */
-ae_dna::ae_dna( ae_genetic_unit* gen_unit, char* organism_file_name ) : ae_string( organism_file_name )
+ae_dna::ae_dna( GeneticUnit* gen_unit, char* organism_file_name ) : ae_string( organism_file_name )
 {
   _gen_unit = gen_unit;
   _exp_m    = gen_unit->get_exp_m();
@@ -630,7 +630,7 @@ void ae_dna::do_rearrangements_with_align( void )
         int32_t segment_length = ae_utils::mod( alignment->get_i_2() - alignment->get_i_1(), _length );
 
         // Extract the segment to be translocated
-        ae_genetic_unit* translocated_segment = extract_into_new_GU( alignment->get_i_1(), alignment->get_i_2() );
+        GeneticUnit* translocated_segment = extract_into_new_GU( alignment->get_i_1(), alignment->get_i_2() );
 
         // Look for an alignment between the segment to be translocated and the rest of the genome
         bool direct_sense;
@@ -1200,8 +1200,8 @@ ae_mutation* ae_dna::do_translocation( void )
     int32_t pos_1_rel, pos_2_rel, pos_3_rel, pos_4_rel;
 
     ae_individual* indiv = _indiv;
-    const ae_genetic_unit* chromosome = &indiv->get_genetic_unit_list_std().front();
-    const ae_genetic_unit* plasmid    = &*std::next(indiv->get_genetic_unit_list_std().begin());
+    const GeneticUnit* chromosome = &indiv->get_genetic_unit_list_std().front();
+    const GeneticUnit* plasmid    = &*std::next(indiv->get_genetic_unit_list_std().begin());
     int32_t chrom_length        = chromosome->get_dna()->get_length();
     int32_t total_amount_of_dna = indiv->get_amount_of_dna();
 
@@ -1742,10 +1742,10 @@ bool ae_dna::do_inter_GU_translocation( int32_t pos_1_rel, int32_t pos_2_rel, in
   }
 
   //
-  const ae_genetic_unit& chromosome = _indiv->get_genetic_unit(0);
-  const ae_genetic_unit& plasmid    = _indiv->get_genetic_unit(1);
+  const GeneticUnit& chromosome = _indiv->get_genetic_unit(0);
+  const GeneticUnit& plasmid    = _indiv->get_genetic_unit(1);
   // TODO vld (2015-02-23): check if this == is sound
-  const ae_genetic_unit& destination_GU = (_gen_unit == &chromosome) ?
+  const GeneticUnit& destination_GU = (_gen_unit == &chromosome) ?
                                               plasmid :
                                               chromosome;
 
@@ -1958,7 +1958,7 @@ ae_mutation* ae_dna::do_ins_HT( int32_t parent_id )
     if ( alignment_1 != NULL )
     {
       // 3) Make a copy of the sequence to be transferred (the exogenote)
-      ae_genetic_unit* exogenote = donor_dna->copy_into_new_GU( alignment_1->get_i_1(), alignment_1->get_i_2() );
+      GeneticUnit* exogenote = donor_dna->copy_into_new_GU( alignment_1->get_i_1(), alignment_1->get_i_2() );
 
       // 4) Look for an alignments between the exogenote and the endogenote
       ae_vis_a_vis* alignment_2 = NULL;
@@ -2156,7 +2156,7 @@ ae_mutation* ae_dna::do_repl_HT( int32_t parent_id )
       else
       {
         // 3) Make a copy of the sequence to be transferred (the exogenote)
-        ae_genetic_unit* exogenote = NULL;
+        GeneticUnit* exogenote = NULL;
         if ( sense == DIRECT )
         {
           exogenote = donor_dna->copy_into_new_GU( alignment_1->get_i_2(), alignment_2->get_i_2() );
@@ -2347,7 +2347,7 @@ void ae_dna::undergo_this_mutation(const ae_mutation * mut)
       if ( _indiv->get_with_alignments() )
       {
         // Extract the segment to be translocated
-        ae_genetic_unit* translocated_segment = extract_into_new_GU( pos1, pos2 );
+        GeneticUnit* translocated_segment = extract_into_new_GU( pos1, pos2 );
 
         // Reinsert the segment
         insert_GU( translocated_segment, pos3, pos4, invert );
@@ -2429,14 +2429,14 @@ void ae_dna::compute_statistical_data( void )
   //~ }
 }
 
-void ae_dna::set_GU(Promoters2 rna_list, const ae_genetic_unit* GU) {
+void ae_dna::set_GU(Promoters2 rna_list, const GeneticUnit* GU) {
   for (int8_t strand = LEADING; strand <= LAGGING; strand++)
     for (auto& rna: rna_list[strand])
       rna->set_genetic_unit(GU);
 }
 
 
-ae_genetic_unit* ae_dna::extract_into_new_GU( int32_t pos_1, int32_t pos_2 )
+GeneticUnit* ae_dna::extract_into_new_GU( int32_t pos_1, int32_t pos_2 )
 {
   assert( pos_1 < pos_2 );
   int32_t seq_length = pos_2 - pos_1;
@@ -2450,7 +2450,7 @@ ae_genetic_unit* ae_dna::extract_into_new_GU( int32_t pos_1, int32_t pos_2 )
   // and put them in a stand-alone promoter list (with indices ranging from 0 to seq_length-1)
   Promoters2 proms_GU_1 = {{},{}};
   _gen_unit->extract_promoters_included_in( pos_1, pos_2, proms_GU_1 );
-  ae_genetic_unit::shift_promoters( proms_GU_1, -pos_1, _length );
+  GeneticUnit::shift_promoters( proms_GU_1, -pos_1, _length );
 
   // ==================== Manage sequences ====================
   // Copy the sequence in a stand-alone char* (size must be multiple of BLOCK_SIZE)
@@ -2469,7 +2469,7 @@ ae_genetic_unit* ae_dna::extract_into_new_GU( int32_t pos_1, int32_t pos_2 )
   set_data( sequence_GU_0, length_GU_0 );
 
   // ==================== Create the new genetic unit ====================
-  ae_genetic_unit* GU_1 = new ae_genetic_unit( _indiv, sequence_GU_1, length_GU_1, proms_GU_1 );
+  GeneticUnit* GU_1 = new GeneticUnit( _indiv, sequence_GU_1, length_GU_1, proms_GU_1 );
 
   // ==================== Update promoter lists ====================
   // Shift the position of the promoters of the "old" GU
@@ -2489,7 +2489,7 @@ ae_genetic_unit* ae_dna::extract_into_new_GU( int32_t pos_1, int32_t pos_2 )
   The new genetic unit's list of promoter is up-to-date.
   if ( pos_1 == pos_2 ), the whole genome is copied
 */
-ae_genetic_unit* ae_dna::copy_into_new_GU( int32_t pos_1, int32_t pos_2 ) const
+GeneticUnit* ae_dna::copy_into_new_GU( int32_t pos_1, int32_t pos_2 ) const
 {
   int32_t seq_length = ae_utils::mod( pos_2 - pos_1, _length );
   if ( seq_length == 0 ) seq_length = _length;
@@ -2499,7 +2499,7 @@ ae_genetic_unit* ae_dna::copy_into_new_GU( int32_t pos_1, int32_t pos_2 ) const
   // into a stand-alone promoter list (with indices ranging from 0 to seq_length-1)
   Promoters2 proms_new_GU = {{},{}};
   _gen_unit->copy_promoters_included_in( pos_1, pos_2, proms_new_GU );
-  ae_genetic_unit::shift_promoters( proms_new_GU, -pos_1, _length );
+  GeneticUnit::shift_promoters( proms_new_GU, -pos_1, _length );
 
 
   // ==================== Manage sequences ====================
@@ -2519,7 +2519,7 @@ ae_genetic_unit* ae_dna::copy_into_new_GU( int32_t pos_1, int32_t pos_2 ) const
 
 
   // ==================== Create the new genetic unit ====================
-  ae_genetic_unit* new_GU = new ae_genetic_unit( _indiv, sequence_new_GU, length_new_GU, proms_new_GU);
+  GeneticUnit* new_GU = new GeneticUnit( _indiv, sequence_new_GU, length_new_GU, proms_new_GU);
 
   // ==================== Update new GU promoter list ====================
   // Look for new promoters around breakpoints
@@ -2549,7 +2549,7 @@ ae_genetic_unit* ae_dna::copy_into_new_GU( int32_t pos_1, int32_t pos_2 ) const
 
   Sequence from GU_to_insert is untouched but its list of promoters is emptied
 */
-void ae_dna::insert_GU(ae_genetic_unit* GU_to_insert, int32_t pos_B, int32_t pos_D, bool invert)
+void ae_dna::insert_GU(GeneticUnit* GU_to_insert, int32_t pos_B, int32_t pos_D, bool invert)
 {
   // Compute segment lengths
   const char* GUti_data = GU_to_insert->get_dna()->get_data();
@@ -2645,7 +2645,7 @@ void ae_dna::insert_GU(ae_genetic_unit* GU_to_insert, int32_t pos_B, int32_t pos
   GU_to_insert->extract_promoters_starting_between( pos_D, len_CD, proms_D );
   assert( GU_to_insert->get_rna_list()[LEADING].empty() );
   assert( GU_to_insert->get_rna_list()[LAGGING].empty() );
-  ae_genetic_unit::shift_promoters( proms_D, -len_C, len_D );
+  GeneticUnit::shift_promoters( proms_D, -len_C, len_D );
 
   if ( invert )
   {
@@ -2654,8 +2654,8 @@ void ae_dna::insert_GU(ae_genetic_unit* GU_to_insert, int32_t pos_B, int32_t pos
     //~ ae_genetic_unit::print_rnas( proms_D );
     //~ printf( "//////////////////////////////////////\n" );
 
-    ae_genetic_unit::invert_promoters( proms_C, len_C );
-    ae_genetic_unit::invert_promoters( proms_D, len_D );
+    GeneticUnit::invert_promoters( proms_C, len_C );
+    GeneticUnit::invert_promoters( proms_D, len_D );
 
     //~ ae_genetic_unit::print_rnas( proms_C );
     //~ ae_genetic_unit::print_rnas( proms_D );
@@ -3009,9 +3009,9 @@ void ae_dna::ABCDE_to_ADCBE( int32_t pos_B, int32_t pos_C, int32_t pos_D, int32_
     }
 
     // 3) Shift these promoters positions
-    ae_genetic_unit::shift_promoters( promoters_B, len_D + len_C,  _gen_unit->get_dna()->get_length() );
-    ae_genetic_unit::shift_promoters( promoters_C, len_D - len_B,  _gen_unit->get_dna()->get_length() );
-    ae_genetic_unit::shift_promoters( promoters_D, -len_B - len_C, _gen_unit->get_dna()->get_length() );
+    GeneticUnit::shift_promoters( promoters_B, len_D + len_C,  _gen_unit->get_dna()->get_length() );
+    GeneticUnit::shift_promoters( promoters_C, len_D - len_B,  _gen_unit->get_dna()->get_length() );
+    GeneticUnit::shift_promoters( promoters_D, -len_B - len_C, _gen_unit->get_dna()->get_length() );
 
     // 4) Reinsert the shifted promoters
     _gen_unit->insert_promoters( promoters_B );
@@ -3135,13 +3135,13 @@ void ae_dna::ABCDE_to_ADBpCpE( int32_t pos_B, int32_t pos_C, int32_t pos_D, int3
     }
 
     // 3a) Invert promoters of segments B and C
-    ae_genetic_unit::invert_promoters( promoters_B, pos_B, pos_C );
-    ae_genetic_unit::invert_promoters( promoters_C, pos_C, pos_D );
+    GeneticUnit::invert_promoters( promoters_B, pos_B, pos_C );
+    GeneticUnit::invert_promoters( promoters_C, pos_C, pos_D );
 
     // 3b) Shift these promoters positions
-    ae_genetic_unit::shift_promoters( promoters_B, len_D,           _gen_unit->get_dna()->get_length() );
-    ae_genetic_unit::shift_promoters( promoters_C, len_D,           _gen_unit->get_dna()->get_length() );
-    ae_genetic_unit::shift_promoters( promoters_D, -len_B - len_C,  _gen_unit->get_dna()->get_length() );
+    GeneticUnit::shift_promoters( promoters_B, len_D,           _gen_unit->get_dna()->get_length() );
+    GeneticUnit::shift_promoters( promoters_C, len_D,           _gen_unit->get_dna()->get_length() );
+    GeneticUnit::shift_promoters( promoters_D, -len_B - len_C,  _gen_unit->get_dna()->get_length() );
 
     // 4) Reinsert the shifted promoters
     _gen_unit->insert_promoters( promoters_C );
@@ -3265,13 +3265,13 @@ void ae_dna::ABCDE_to_ACpDpBE( int32_t pos_B, int32_t pos_C, int32_t pos_D, int3
     }
 
     // 3a) Invert promoters of segments C and D
-    ae_genetic_unit::invert_promoters( promoters_C, pos_C, pos_D );
-    ae_genetic_unit::invert_promoters( promoters_D, pos_D, pos_E );
+    GeneticUnit::invert_promoters( promoters_C, pos_C, pos_D );
+    GeneticUnit::invert_promoters( promoters_D, pos_D, pos_E );
 
     // 3b) Shift these promoters positions
-    ae_genetic_unit::shift_promoters( promoters_B, len_C + len_D, _gen_unit->get_dna()->get_length() );
-    ae_genetic_unit::shift_promoters( promoters_C, -len_B,        _gen_unit->get_dna()->get_length() );
-    ae_genetic_unit::shift_promoters( promoters_D, -len_B,        _gen_unit->get_dna()->get_length() );
+    GeneticUnit::shift_promoters( promoters_B, len_C + len_D, _gen_unit->get_dna()->get_length() );
+    GeneticUnit::shift_promoters( promoters_C, -len_B,        _gen_unit->get_dna()->get_length() );
+    GeneticUnit::shift_promoters( promoters_D, -len_B,        _gen_unit->get_dna()->get_length() );
 
     // 4) Reinsert the shifted promoters
     _gen_unit->insert_promoters( promoters_B );
@@ -3295,9 +3295,9 @@ void ae_dna::inter_GU_ABCDE_to_ACDBE( int32_t pos_B, int32_t pos_C, int32_t pos_
   {
     // Useful values
     ae_individual* indiv            = _indiv;
-    ae_genetic_unit& chromosome     = indiv->get_genetic_unit_nonconst(0);
-    ae_genetic_unit& plasmid        = indiv->get_genetic_unit_nonconst(1);
-    ae_genetic_unit& destination_GU = ( _gen_unit == &chromosome )? plasmid : chromosome;
+    GeneticUnit& chromosome     = indiv->get_genetic_unit_nonconst(0);
+    GeneticUnit& plasmid        = indiv->get_genetic_unit_nonconst(1);
+    GeneticUnit& destination_GU = ( _gen_unit == &chromosome )? plasmid : chromosome;
 
     // Compute segment lengths
     int32_t len_A = pos_B;
@@ -3362,7 +3362,7 @@ void ae_dna::inter_GU_ABCDE_to_ACDBE( int32_t pos_B, int32_t pos_C, int32_t pos_
 
 
     // 3) Shift these promoters positions
-    ae_genetic_unit::shift_promoters( promoters_B, len_D - len_A, destination_GU.get_dna()->get_length() );
+    GeneticUnit::shift_promoters( promoters_B, len_D - len_A, destination_GU.get_dna()->get_length() );
 
     // Reassign promoters to their new genetic unit
     for (auto& strand: {LEADING, LAGGING})

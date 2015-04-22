@@ -56,7 +56,7 @@ namespace aevol {
 //                          Class declarations
 // =================================================================
 class ae_individual;
-class ae_genetic_unit;
+class GeneticUnit;
 
 class ae_rna
 {
@@ -66,9 +66,9 @@ class ae_rna
     //                             Constructors
     // =================================================================
     ae_rna(void) = delete;
-    ae_rna(const ae_genetic_unit&) = delete;
-    ae_rna( ae_genetic_unit* gen_unit, const ae_rna &model );
-    ae_rna( ae_genetic_unit* gen_unit, ae_strand strand, int32_t index, int8_t diff );
+    ae_rna(const GeneticUnit&) = delete;
+    ae_rna( GeneticUnit* gen_unit, const ae_rna &model );
+    ae_rna( GeneticUnit* gen_unit, ae_strand strand, int32_t index, int8_t diff );
     //ae_rna( ae_rna* parent );
 
     // =================================================================
@@ -81,12 +81,12 @@ class ae_rna
     // =================================================================
 
     // <DEBUG>
-    void check( ae_genetic_unit* gen_unit ) { assert( gen_unit == _gen_unit ); };
+    void check( GeneticUnit* gen_unit ) { assert( gen_unit == _gen_unit ); };
     //~ void* get_indiv( void ) const { return (void*)_indiv; };
     // </DEBUG>
 
-    inline const ae_genetic_unit * get_genetic_unit(void) const;
-    inline void set_genetic_unit(const ae_genetic_unit*  gen_unit);
+    inline const GeneticUnit * get_genetic_unit(void) const;
+    inline void set_genetic_unit(const GeneticUnit*  gen_unit);
     inline ae_strand  get_strand( void ) const;
     inline void       set_strand( ae_strand strand );
     inline int32_t    get_promoter_pos( void ) const;
@@ -127,7 +127,7 @@ class ae_rna
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    const ae_genetic_unit*  _gen_unit;
+    const GeneticUnit*  _gen_unit;
     ae_strand         _strand;
     int32_t           _pos; // Index of the promoter on the genome.
                             // The promoter itself is NOT transcribed
@@ -142,12 +142,12 @@ class ae_rna
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-inline const ae_genetic_unit* ae_rna::get_genetic_unit( void ) const
+inline const GeneticUnit* ae_rna::get_genetic_unit( void ) const
 {
   return _gen_unit;
 }
 
-inline void ae_rna::set_genetic_unit(const ae_genetic_unit*  gen_unit)
+inline void ae_rna::set_genetic_unit(const GeneticUnit*  gen_unit)
 {
   _gen_unit = gen_unit;
 }

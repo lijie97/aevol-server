@@ -115,7 +115,7 @@ void ae_gene_tree::set_end_gener_if_active_leaves(int32_t gener)
   if (_nb_active_leaves > 0) _end_gener = gener;
 }
 
-void ae_gene_tree::update_pointers_in_tree_leaves(ae_genetic_unit * unit)
+void ae_gene_tree::update_pointers_in_tree_leaves(GeneticUnit * unit)
 {
   _root->update_pointers_in_subtree_leaves(unit);
 }
@@ -125,7 +125,7 @@ void ae_gene_tree::anticipate_mutation_effect_on_genes_in_tree_leaves(const ae_m
   _root->anticipate_mutation_effect_on_genes_in_subtree_leaves(mut, lengthOfGeneticUnit);
 }
 
-void ae_gene_tree::register_actual_mutation_effect_on_genes_in_tree_leaves(const ae_mutation* mut, ae_genetic_unit * unit, int32_t gener, double impact_on_metabolic_error)
+void ae_gene_tree::register_actual_mutation_effect_on_genes_in_tree_leaves(const ae_mutation* mut, GeneticUnit * unit, int32_t gener, double impact_on_metabolic_error)
 {
   _root->register_actual_mutation_effect_on_genes_in_subtree_leaves( this, mut, unit, gener, impact_on_metabolic_error);
 }

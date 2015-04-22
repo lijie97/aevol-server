@@ -36,7 +36,7 @@ ae_exp_manager.h \
 ae_exp_setup.h \
 fuzzy.h \
 ae_gaussian.h \
-ae_genetic_unit.h \
+genetic_unit.h \
 ae_grid_cell.h \
 ae_individual.h \
 ae_list.h \
@@ -77,7 +77,7 @@ ae_dump.cpp \
 environment.cpp \
 ae_exp_manager.cpp \
 ae_exp_setup.cpp \
-ae_genetic_unit.cpp \
+genetic_unit.cpp \
 ae_grid_cell.cpp \
 ae_individual.cpp \
 ae_logs.cpp \

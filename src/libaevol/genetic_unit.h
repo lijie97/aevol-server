@@ -42,29 +42,29 @@ using Promoters2 = std::vector<Promoters>;
 
 class ae_exp_manager;
 
-class ae_genetic_unit
+class GeneticUnit
 {
  public :
 
   // =================================================================
   //                             Constructors
   // =================================================================
-  ae_genetic_unit( ae_individual* indiv, int32_t length, ae_jumping_mt * prng );
-  ae_genetic_unit(ae_individual* indiv,
+  GeneticUnit( ae_individual* indiv, int32_t length, ae_jumping_mt * prng );
+  GeneticUnit(ae_individual* indiv,
                   char* seq,
                   int32_t length,
                   const Promoters2& prom_list = {{},{}});
-  ae_genetic_unit( ae_individual* indiv, const ae_genetic_unit& model );
-  ae_genetic_unit( ae_individual* indiv, const ae_genetic_unit* parent );
-  ae_genetic_unit( ae_individual* indiv, gzFile backup_file );
-  ae_genetic_unit( ae_individual* indiv, char* organism_file_name );
-  ae_genetic_unit() = delete;
-  ae_genetic_unit(const ae_genetic_unit &) = delete;
+  GeneticUnit( ae_individual* indiv, const GeneticUnit& model );
+  GeneticUnit( ae_individual* indiv, const GeneticUnit* parent );
+  GeneticUnit( ae_individual* indiv, gzFile backup_file );
+  GeneticUnit( ae_individual* indiv, char* organism_file_name );
+  GeneticUnit() = delete;
+  GeneticUnit(const GeneticUnit &) = delete;
 
   // =================================================================
   //                             Destructors
   // =================================================================
-  virtual ~ae_genetic_unit( void );
+  virtual ~GeneticUnit( void );
 
   // =================================================================
   //                              Accessors

@@ -41,7 +41,7 @@
 // =================================================================
 #include "ae_individual.h"
 #include "macros.h"
-#include "ae_genetic_unit.h"
+#include "genetic_unit.h"
 #include "ae_rna.h"
 #include "ae_protein.h"
 #include "ae_params_mut.h"

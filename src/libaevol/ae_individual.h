@@ -44,7 +44,7 @@
 //                            Project Files
 // =================================================================
 #include <environment.h>
-#include "ae_genetic_unit.h"
+#include "genetic_unit.h"
 #include "ae_dna.h"
 #include "ae_rna.h"
 #include "ae_protein.h"
@@ -109,8 +109,8 @@ class ae_individual
     int16_t          get_nb_genetic_units( void ) const;
     int32_t          get_nb_plasmids( void )  const;
     int32_t          get_amount_of_dna( void ) const;
-    const ae_genetic_unit& get_genetic_unit( int16_t num_unit ) const;
-    ae_genetic_unit& get_genetic_unit_nonconst( int16_t num_unit );
+    const GeneticUnit& get_genetic_unit( int16_t num_unit ) const;
+    GeneticUnit& get_genetic_unit_nonconst( int16_t num_unit );
     double           get_dist_to_target_by_feature( ae_env_axis_feature feature ) const;
     double           get_fitness( void ) const;
     double           get_fitness_by_feature( ae_env_axis_feature feature ) const;
@@ -119,8 +119,8 @@ class ae_individual
     ae_jumping_mt*   get_mut_prng( void ) const;
     ae_jumping_mt*   get_stoch_prng( void ) const;
 
-    const std::list<ae_genetic_unit>& get_genetic_unit_list_std() const;
-    std::list<ae_genetic_unit>& get_genetic_unit_list_std_nonconst();
+    const std::list<GeneticUnit>& get_genetic_unit_list_std() const;
+    std::list<GeneticUnit>& get_genetic_unit_list_std_nonconst();
     /// Keep only the first (main chromosome) and the last chromosomes from the GU.
     void drop_nested_genetic_units();
 
@@ -413,7 +413,7 @@ class ae_individual
     ae_grid_cell* _grid_cell;
 
     // The chromosome and plasmids (if allowed)
-    std::list<ae_genetic_unit> _genetic_unit_list;
+    std::list<GeneticUnit> _genetic_unit_list;
 
     // Report of all the mutational events undergone during the individuals creation,
     // i.e. during the replication that gave birth to this individual

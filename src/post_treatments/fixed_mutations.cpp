@@ -45,7 +45,7 @@
 #include "ae_utils.h"
 #include "ae_exp_manager.h"
 #include "ae_individual.h"
-#include "ae_genetic_unit.h"
+#include "genetic_unit.h"
 #include "ae_tree.h"
 #include "ae_replication_report.h"
 #include "dna_replic_report.h"
@@ -290,7 +290,7 @@ int main(int argc, char** argv)
   // ===============================================================================
 
   ae_individual* stored_indiv = NULL;
-  std::list<ae_genetic_unit>::const_iterator stored_unit;
+  std::list<GeneticUnit>::const_iterator stored_unit;
 
   int32_t index, genetic_unit_number, unitlen_before;
   int32_t nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment;
@@ -350,7 +350,7 @@ int main(int argc, char** argv)
 
     genetic_unit_number = 0;
     std::list<DnaReplicReport*>::const_iterator dnareport = rep->get_dna_replic_reports().begin();
-    std::list<ae_genetic_unit>::iterator unit = indiv->get_genetic_unit_list_std_nonconst().begin();
+    std::list<GeneticUnit>::iterator unit = indiv->get_genetic_unit_list_std_nonconst().begin();
 
     if (check_now && ae_utils::mod(get_time(), backup_step) == 0)
     {

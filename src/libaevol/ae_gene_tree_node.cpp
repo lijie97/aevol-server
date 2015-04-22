@@ -42,7 +42,7 @@
 // =================================================================
 #include "ae_gene_tree_node.h"
 #include "ae_gene_mutation.h"
-#include "ae_genetic_unit.h"
+#include "genetic_unit.h"
 
 
  using std::list;
@@ -407,7 +407,7 @@ static bool subsegment_totally_in_segment(int32_t pos1, int32_t pos2, int32_t fi
 }
 
 
-void ae_gene_tree_node::update_pointers_in_subtree_leaves(ae_genetic_unit * unit)
+void ae_gene_tree_node::update_pointers_in_subtree_leaves(GeneticUnit * unit)
 {
  if ((_left_child != NULL) || (_right_child != NULL)) // I am a internal node
     {
@@ -937,7 +937,7 @@ void ae_gene_tree_node::anticipate_mutation_effect_on_genes_in_subtree_leaves(co
 
 
 
-void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leaves(ae_gene_tree* tree, const ae_mutation* mut, const ae_genetic_unit* unit, int32_t gener, double impact_on_metabolic_error)
+void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leaves(ae_gene_tree* tree, const ae_mutation* mut, const GeneticUnit* unit, int32_t gener, double impact_on_metabolic_error)
 {
   if ((_left_child != NULL) || (_right_child != NULL)) // I am a internal node, just delegate work to others
     {

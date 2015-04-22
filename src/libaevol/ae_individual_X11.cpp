@@ -122,7 +122,7 @@ void ae_individual_X11::display( void )
 void ae_individual_X11::display_cdss( ae_X11_window* win )
 {
   // Retreive the genetic unit corresponding to the main chromosome
-  ae_genetic_unit* gen_unit = &_genetic_unit_list.front();
+  GeneticUnit* gen_unit = &_genetic_unit_list.front();
   int32_t genome_length = gen_unit->get_dna()->get_length();
 
   // Display the number of CDSs
@@ -342,7 +342,7 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
   if ( _allow_plasmids )
   {
     // Retreive the genetic unit corresponding to the plasmid (i.e. index 1 in _genetic_unit_list)
-    ae_genetic_unit* gen_unit = &*std::next(_genetic_unit_list.begin());
+    GeneticUnit* gen_unit = &*std::next(_genetic_unit_list.begin());
     if ( gen_unit == NULL ) return;
 
     int32_t genome_length = gen_unit->get_dna()->get_length();
@@ -559,7 +559,7 @@ void ae_individual_X11::display_cdss( ae_X11_window* win )
 void ae_individual_X11::display_rnas( ae_X11_window* win )
 {
   // Retreive the genetic unit corresponding to the main chromosome
-  const ae_genetic_unit* gen_unit = &_genetic_unit_list.front();
+  const GeneticUnit* gen_unit = &_genetic_unit_list.front();
   int32_t genome_length = gen_unit->get_dna()->get_length();
 
   // Display the number of RNAs

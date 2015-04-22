@@ -102,7 +102,7 @@ void print_help(char* prog_path);
 void print_version( void );
 
 void analyse_indiv( ae_individual* indiv, FILE* triangles_file, FILE* sequence_file, int16_t gu, Environment* env );
-void analyse_gu( ae_genetic_unit* gen_unit, int32_t gen_unit_number, FILE* triangles_file, Environment* env );
+void analyse_gu( GeneticUnit* gen_unit, int32_t gen_unit_number, FILE* triangles_file, Environment* env );
 
 
 
@@ -276,7 +276,7 @@ inline void analyse_indiv( ae_individual* indiv, FILE* triangles_file, FILE* seq
   }
   else // User specified a genetic unit
   {
-    ae_genetic_unit* gen_unit = &indiv->get_genetic_unit_nonconst(gu);
+    GeneticUnit* gen_unit = &indiv->get_genetic_unit_nonconst(gu);
     if ( triangles_file != NULL )
     {
       analyse_gu(gen_unit, gu, triangles_file, env); // We call the triangle parser
@@ -301,7 +301,7 @@ inline void analyse_indiv( ae_individual* indiv, FILE* triangles_file, FILE* seq
 }
 
 // Parsing a GU
-inline void analyse_gu( ae_genetic_unit* gen_unit, int32_t gen_unit_number, FILE* triangles_file, Environment* env )
+inline void analyse_gu( GeneticUnit* gen_unit, int32_t gen_unit_number, FILE* triangles_file, Environment* env )
 {
   // Construct the list of all rnas
   auto llrnas = gen_unit->get_rna_list();

@@ -30,7 +30,7 @@
 #include "ae_exp_setup.h"
 #include "ae_exp_manager.h"
 #include "ae_grid_cell.h"
-#include "ae_genetic_unit.h"
+#include "genetic_unit.h"
 #include "ae_population.h"
 #include "ae_vis_a_vis.h"
 #include "ae_utils.h"
@@ -117,11 +117,11 @@ int32_t ae_individual::get_amount_of_dna() const {
 }
 
 /// Return the list of genetic units.
-const std::list<ae_genetic_unit>& ae_individual::get_genetic_unit_list_std() const {
+const std::list<GeneticUnit>& ae_individual::get_genetic_unit_list_std() const {
   return _genetic_unit_list;
 }
 
-std::list<ae_genetic_unit>& ae_individual::get_genetic_unit_list_std_nonconst() {
+std::list<GeneticUnit>& ae_individual::get_genetic_unit_list_std_nonconst() {
   return _genetic_unit_list;
 }
 
@@ -137,7 +137,7 @@ void ae_individual::drop_nested_genetic_units() {
 }
 
 /// Returns genetic unit number `num_unit` (0 for main chromosome)
-const ae_genetic_unit& ae_individual::get_genetic_unit(int16_t num_unit) const {
+const GeneticUnit& ae_individual::get_genetic_unit(int16_t num_unit) const {
   assert(num_unit < static_cast<int32_t>(_genetic_unit_list.size()));
   auto it = _genetic_unit_list.begin();
   std::advance(it, num_unit);
@@ -147,7 +147,7 @@ const ae_genetic_unit& ae_individual::get_genetic_unit(int16_t num_unit) const {
 /// Returns genetic unit number `num_unit` (0 for main chromosome) as
 /// a non-constant reference. To be used when the purpose if to alter
 /// the individual.
-ae_genetic_unit& ae_individual::get_genetic_unit_nonconst(int16_t num_unit) {
+GeneticUnit& ae_individual::get_genetic_unit_nonconst(int16_t num_unit) {
   assert(num_unit < static_cast<int32_t>(_genetic_unit_list.size()));
   auto it = _genetic_unit_list.begin();
   std::advance(it, num_unit);
@@ -2012,7 +2012,7 @@ double ae_individual::compute_theoritical_f_nu() {
   // Abbreviations are chosen according to Carole's formula.
   // Please notice that compared to the formula we have the beginning
   // and ends of neutral regions instead of 'functional regions'
-  ae_genetic_unit& chromosome = _genetic_unit_list.front();
+  GeneticUnit& chromosome = _genetic_unit_list.front();
   int32_t L       = chromosome.get_dna()->get_length();
   int32_t N_G     = chromosome.get_nb_neutral_regions(); // which is not exactly Carole's original definition
   int32_t* b_i    = chromosome.get_beginning_neutral_regions();

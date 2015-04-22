@@ -154,8 +154,8 @@ void ae_individual_R::evaluate( Environment* envir )
   // ---------------------------------------------------------------------------
   // 1) Transcription - Translation - Folding
   // ---------------------------------------------------------------------------
-  ae_list_node<ae_genetic_unit*>*     gen_unit_node = _genetic_unit_list->get_first();
-  ae_genetic_unit*  gen_unit = NULL;
+  ae_list_node<GeneticUnit*>*     gen_unit_node = _genetic_unit_list->get_first();
+  GeneticUnit*  gen_unit = NULL;
   
   while ( gen_unit_node != NULL )
   {
@@ -314,7 +314,7 @@ void ae_individual_R::multiply_concentrations( double factor )
   }
 }
 
-int8_t ae_individual_R::get_quadon( ae_genetic_unit* gen_unit, ae_strand strand, int32_t pos )
+int8_t ae_individual_R::get_quadon( GeneticUnit* gen_unit, ae_strand strand, int32_t pos )
 {
   const char* dna = gen_unit->get_dna()->get_data();
   int32_t  len    = gen_unit->get_dna()->get_length();

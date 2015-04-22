@@ -54,10 +54,10 @@ class ae_rna_R : public ae_rna
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_rna_R( ae_genetic_unit* gen_unit, const ae_rna_R &model );
+    ae_rna_R( GeneticUnit* gen_unit, const ae_rna_R &model );
     ae_rna_R( void );
-    ae_rna_R( ae_genetic_unit* gen_unit );
-    ae_rna_R( ae_genetic_unit* gen_unit, ae_strand strand, int32_t index, int8_t diff );
+    ae_rna_R( GeneticUnit* gen_unit );
+    ae_rna_R( GeneticUnit* gen_unit, ae_strand strand, int32_t index, int8_t diff );
 
     // =================================================================
     //                             Destructors
