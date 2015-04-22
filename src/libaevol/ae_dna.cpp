@@ -2478,7 +2478,9 @@ ae_genetic_unit* ae_dna::extract_into_new_GU( int32_t pos_1, int32_t pos_2 )
 
 
   // ==================== Create the new genetic unit ====================
-  ae_genetic_unit* GU_1 = new ae_genetic_unit( _indiv, sequence_GU_1, length_GU_1, proms_GU_1 );
+  std::vector<std::list<ae_rna*>> std_proms_GU_1 = {aelist_to_stdlist(proms_GU_1[LEADING]),
+                                                    aelist_to_stdlist(proms_GU_1[LAGGING])};
+  ae_genetic_unit* GU_1 = new ae_genetic_unit( _indiv, sequence_GU_1, length_GU_1, std_proms_GU_1 );
 
 
   // ==================== Update promoter lists ====================
@@ -2531,8 +2533,9 @@ ae_genetic_unit* ae_dna::copy_into_new_GU( int32_t pos_1, int32_t pos_2 ) const
 
 
   // ==================== Create the new genetic unit ====================
-  ae_genetic_unit* new_GU = new ae_genetic_unit( _indiv, sequence_new_GU, length_new_GU, proms_new_GU );
-
+  std::vector<std::list<ae_rna*>> std_proms_new_GU = {aelist_to_stdlist(proms_new_GU[LEADING]),
+                                                      aelist_to_stdlist(proms_new_GU[LAGGING])};
+  ae_genetic_unit* new_GU = new ae_genetic_unit( _indiv, sequence_new_GU, length_new_GU, std_proms_new_GU); // TODO vld: remove conversion once ae_dna stlized
 
   // ==================== Update new GU promoter list ====================
   // Look for new promoters around breakpoints

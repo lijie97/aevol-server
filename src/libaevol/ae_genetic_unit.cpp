@@ -593,16 +593,19 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, int32_t length, ae_jumpi
   init_statistical_data();
 }
 
-/*!
-  \brief Create a new genetic unit for indiv with sequence seq [of size length] [and containing promoters prom_list]
-
-  Promoters will be looked for if prom_list is not provided (this may take some time).
-
-  WARNING :
-    seq will be used directly which means the caller must not delete it
-    The same goes for prom_list if it is provided.
-*/
-ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, char* seq, int32_t length, ae_list<ae_rna*>** prom_list /*= NULL*/ )
+/// Create a new genetic unit for `indiv` with sequence `seq` of size
+/// `length` [and containing promoters `prom_list`]
+///
+///  Promoters will be looked for if prom_list is not provided (this
+///  may take some time).
+///
+/// WARNING:
+///   seq will be used directly which means the caller must not delete it
+///   The same goes for prom_list if it is provided.
+ae_genetic_unit::ae_genetic_unit(ae_individual* indiv,
+                                 char* seq,
+                                 int32_t length,
+                                 const std::vector<std::list<ae_rna*>>& prom_list /* = {{},{}} */)
 {
   _exp_m = indiv->get_exp_m();
   _indiv = indiv;
@@ -619,16 +622,12 @@ ae_genetic_unit::ae_genetic_unit( ae_individual* indiv, char* seq, int32_t lengt
 
   _dna = new ae_dna( this, seq, length );
 
-  if ( prom_list != NULL )
-  {
+  if (not prom_list[LEADING].empty() and not prom_list[LAGGING].empty()) { // if not default `prom_list`
     // Copy rna lists
-    // TODO vld: prom_list will be made vector<list>: remove these conversions
-    _rna_list[LEADING] = aelist_to_stdlist(prom_list[LEADING]);
-    _rna_list[LAGGING] = aelist_to_stdlist(prom_list[LAGGING]);
+    _rna_list[LEADING] = prom_list[LEADING];
+    _rna_list[LAGGING] = prom_list[LAGGING];
     ae_dna::set_GU(_rna_list, this);
-  }
-  else
-  {
+  } else {
     // Look for promoters
     locate_promoters();
   }
