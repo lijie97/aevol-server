@@ -1915,8 +1915,6 @@ void ae_genetic_unit::duplicate_promoters_included_in(int32_t pos_1,
   }
 }
 
-
-
 void ae_genetic_unit::get_promoters_included_in(int32_t pos_1,
                                                 int32_t pos_2,
                                                 std::vector<std::list<ae_rna*>>& promoters)
@@ -1929,8 +1927,8 @@ void ae_genetic_unit::get_promoters_included_in(int32_t pos_1,
 
     if ( seg_length >= PROM_SIZE )
     {
-      get_leading_promoters_starting_between( pos_1, pos_2 - PROM_SIZE + 1, promoters[LEADING] );
-      get_lagging_promoters_starting_between( pos_1 + PROM_SIZE - 1, pos_2, promoters[LAGGING] );
+      get_promoters(LEADING, BETWEEN, pos_1, pos_2 - PROM_SIZE + 1, promoters[LEADING]);
+      get_promoters(LAGGING, BETWEEN, pos_1 + PROM_SIZE - 1, pos_2, promoters[LAGGING] );
     }
   }
   else
@@ -1944,31 +1942,35 @@ void ae_genetic_unit::get_promoters_included_in(int32_t pos_1,
 
       if ( !is_near_end_of_genome && !is_near_beginning_of_genome )
       {
-        get_leading_promoters_starting_after( pos_1, promoters[LEADING] );
-        get_leading_promoters_starting_before( pos_2 - PROM_SIZE + 1, promoters[LEADING] );
-        get_lagging_promoters_starting_before( pos_2, promoters[LAGGING] );
-        get_lagging_promoters_starting_after( pos_1 + PROM_SIZE - 1, promoters[LAGGING] );
+        get_promoters(LEADING, AFTER, pos_1, pos_1, promoters[LEADING] );
+        get_promoters(LEADING, BEFORE, 0, pos_2 - PROM_SIZE + 1, promoters[LEADING] );
+        get_promoters(LAGGING, BEFORE, pos_2, 0, promoters[LAGGING] );
+        get_promoters(LAGGING, AFTER, 0, pos_1 + PROM_SIZE - 1, promoters[LAGGING] );
       }
       else if ( !is_near_end_of_genome ) // => && is_near_beginning_of_genome
       {
-        get_leading_promoters_starting_between( pos_1, pos_2 + _dna->get_length() - PROM_SIZE + 1,
-                                                promoters[LEADING] );
-        get_lagging_promoters_starting_before( pos_2, promoters[LAGGING] );
-        get_lagging_promoters_starting_after( pos_1 + PROM_SIZE - 1, promoters[LAGGING] );
+        // get_promoters(leading, between, pos_1, pos_2 + _dna->get_length() - PROM_SIZE + 1,
+        //                                         promoters[LEADING] );
+        get_promoters(LEADING, BETWEEN, pos_1, pos_2 + _dna->get_length() - PROM_SIZE + 1,
+                      promoters[LEADING]);
+        get_promoters(LAGGING, BEFORE, pos_2, 0, promoters[LAGGING] );
+        get_promoters(LAGGING, AFTER, 0, pos_1 + PROM_SIZE - 1, promoters[LAGGING] );
       }
       else if ( !is_near_beginning_of_genome ) // => && is_near_end_of_genome
       {
-        get_leading_promoters_starting_after( pos_1, promoters[LEADING] );
-        get_leading_promoters_starting_before( pos_2 - PROM_SIZE + 1, promoters[LEADING] );
-        get_lagging_promoters_starting_between( pos_1 - _dna->get_length() + PROM_SIZE - 1, pos_2,
+        get_promoters(LEADING, AFTER, pos_1, pos_1, promoters[LEADING] );
+        get_promoters(LEADING, BEFORE, 0, pos_2 - PROM_SIZE + 1, promoters[LEADING] );
+        get_promoters(LAGGING, BETWEEN, pos_1 - _dna->get_length() + PROM_SIZE - 1, pos_2,
                                                 promoters[LAGGING] );
       }
       else // is_near_end_of_genome && is_near_beginning_of_genome
       {
-        get_leading_promoters_starting_between( pos_1, pos_2 + _dna->get_length() - PROM_SIZE + 1,
-                                                promoters[LEADING] );
-        get_lagging_promoters_starting_between( pos_1 - _dna->get_length() + PROM_SIZE - 1, pos_2,
-                                                promoters[LAGGING] );
+        // get_promoters(leading, between, pos_1, pos_2 + _dna->get_length() - PROM_SIZE + 1,
+        //                                         promoters[LEADING] );
+        get_promoters(LEADING, BETWEEN, pos_1, pos_2 + _dna->get_length() - PROM_SIZE + 1,
+                      promoters[LEADING]);
+        get_promoters(LAGGING, BETWEEN, pos_1 - _dna->get_length() + PROM_SIZE - 1, pos_2,
+                      promoters[LAGGING] );
       }
     }
   }
@@ -2015,34 +2017,6 @@ void ae_genetic_unit::get_promoters(ae_strand strand_id,
   promoters.insert(promoters.end(), it_begin, it_end);
   // TODO vld: compact function by moving find_ifs inside insert
 }
-
-void ae_genetic_unit::get_leading_promoters_starting_between( int32_t pos1, int32_t pos2, std::list<ae_rna*>& leading_promoters ) {
-  get_promoters(LEADING, BETWEEN, pos1, pos2, leading_promoters);
-}
-
-void ae_genetic_unit::get_lagging_promoters_starting_between( int32_t pos1, int32_t pos2, std::list<ae_rna*>& lagging_promoters ) {
-  get_promoters(LAGGING, BETWEEN, pos1, pos2, lagging_promoters);
-}
-
-void ae_genetic_unit::get_leading_promoters_starting_after( int32_t pos, std::list<ae_rna*>& leading_promoters ) {
-  get_promoters(LEADING, AFTER, pos, pos, leading_promoters);
-}
-
-void ae_genetic_unit::get_lagging_promoters_starting_after( int32_t pos, std::list<ae_rna*>& lagging_promoters ){
-  get_promoters(LAGGING, AFTER, 0, pos, lagging_promoters);
-}
-
-void ae_genetic_unit::get_leading_promoters_starting_before( int32_t pos, std::list<ae_rna*>& leading_promoters ){
-  get_promoters(LEADING, BEFORE, 0, pos, leading_promoters);
-}
-
-void ae_genetic_unit::get_lagging_promoters_starting_before( int32_t pos, std::list<ae_rna*>& lagging_promoters ) {
-  get_promoters(LAGGING, BEFORE, pos, 0, lagging_promoters);
-}
-
-
-
-
 
 void ae_genetic_unit::invert_promoters_included_in( int32_t pos_1, int32_t pos_2 )
 {

@@ -210,7 +210,6 @@ class ae_genetic_unit
                                        int32_t pos_2,
                                        std::vector<std::list<ae_rna*>>& duplicated_promoters);
 
-    void get_promoters_included_in( int32_t pos_1, int32_t pos_2, ae_list<ae_rna*>** promoters );
   void get_promoters_included_in(int32_t pos_1,
                                  int32_t pos_2,
                                  std::vector<std::list<ae_rna*>>& promoters);
@@ -219,13 +218,6 @@ class ae_genetic_unit
                      int32_t pos1,
                      int32_t pos2,
                      std::list<ae_rna*>& promoters);
-
-    void get_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2, std::list<ae_rna*>& leading_promoters );
-    void get_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2, std::list<ae_rna*>& lagging_promoters );
-    void get_leading_promoters_starting_after( int32_t pos, std::list<ae_rna*>& leading_promoters );
-    void get_leading_promoters_starting_before( int32_t pos, std::list<ae_rna*>& leading_promoters );
-    void get_lagging_promoters_starting_before( int32_t pos, std::list<ae_rna*>& lagging_promoters );
-    void get_lagging_promoters_starting_after( int32_t pos, std::list<ae_rna*>& lagging_promoters );
 
     void invert_promoters_included_in( int32_t pos_1, int32_t pos_2 );
     static void invert_promoters( ae_list<ae_rna*>** promoter_lists, int32_t seq_length );
