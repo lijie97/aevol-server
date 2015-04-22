@@ -56,6 +56,16 @@ using std::list;
 
 namespace aevol {
 
+// TODO vld: remove utility function after STLization
+// Convert an ae_list modelized double strand to std.
+// Useful in the process of STLizing.
+static std::vector<std::list<ae_rna*>> aestrand_to_std(ae_list<ae_rna*>** doublestrand)
+{
+  std::vector<std::list<ae_rna*>> stdstrand = {aelist_to_stdlist(doublestrand[LEADING]),
+                                               aelist_to_stdlist(doublestrand[LAGGING])};
+  return stdstrand;
+}
+
 
 // =================================================================
 //                          Class declarations

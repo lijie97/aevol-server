@@ -2478,8 +2478,7 @@ ae_genetic_unit* ae_dna::extract_into_new_GU( int32_t pos_1, int32_t pos_2 )
 
 
   // ==================== Create the new genetic unit ====================
-  std::vector<std::list<ae_rna*>> std_proms_GU_1 = {aelist_to_stdlist(proms_GU_1[LEADING]),
-                                                    aelist_to_stdlist(proms_GU_1[LAGGING])};
+  auto std_proms_GU_1 = aestrand_to_std(proms_GU_1);
   ae_genetic_unit* GU_1 = new ae_genetic_unit( _indiv, sequence_GU_1, length_GU_1, std_proms_GU_1 );
 
 
