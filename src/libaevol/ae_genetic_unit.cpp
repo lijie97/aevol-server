@@ -2038,6 +2038,48 @@ void ae_genetic_unit::get_promoters(ae_strand strand_id,
     leading_promoters->add(*rna);
 }
 
+/// Get promoters from strand. STL version.
+///
+///
+///
+/// When the strand is leading, promoders are found ordered with
+/// increasing positions. Whereas they are found in reverse order if
+/// the strand is lagging.
+void ae_genetic_unit::get_promoters(ae_strand strand_id,
+                                    Position start,
+                                    int32_t pos1,
+                                    int32_t pos2,
+                                    std::list<ae_rna*>& promoters) {
+  // TODO vld: First try, the parameter list could be cleverer.
+
+  // TODO vld: These find_if puns are not very nice. Could just negate return if LAGGING or something in that spirit.
+
+  assert((pos1 >= 0 and pos1 <= pos2 and pos2 <= _dna->get_length()) or
+         (pos2 == 0 and pos1 >= 0 and pos1 < _dna->get_length()) or
+         (pos1 == 0 and pos2 >= 0 and pos2 < _dna->get_length()));
+
+  auto strand = _rna_list[strand_id];
+
+  auto it_begin = find_if(strand.begin(),
+                          strand.end(),
+                          [pos1, strand_id](ae_rna* p) {
+                            if (strand_id == LEADING)
+                              return p->get_promoter_pos() >= pos1;
+                            else
+                              return p->get_promoter_pos() < pos1;
+                          });
+  auto it_end = find_if(it_begin,
+                        strand.end(),
+                        [pos2, strand_id](ae_rna* p) {
+                          if (strand_id == LEADING)
+                            return p->get_promoter_pos() > pos2;
+                          else
+                            return p->get_promoter_pos() <= pos2;
+                        });
+  promoters.insert(promoters.end(), it_begin, it_end);
+  // TODO vld: compact function by moving find_ifs inside insert
+}
+
 void ae_genetic_unit::get_leading_promoters_starting_between( int32_t pos1, int32_t pos2, ae_list<ae_rna*>* leading_promoters ) {
   get_promoters(LEADING, BETWEEN, pos1, pos2, leading_promoters);
 }
