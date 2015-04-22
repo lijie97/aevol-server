@@ -83,12 +83,6 @@ enum ae_selection_scheme
   FITTEST               = 3
 };
 
-enum ae_strand
-{
-  LEADING = 0,
-  LAGGING = 1
-};
-  
 enum ae_tree_mode
 {
   LIGHT   = 0,
@@ -101,6 +95,13 @@ enum ae_log_type
   LOG_REAR      = 0x02,
   LOG_BARRIER   = 0x04,
   //LOG_LOADS     = 0x08
+};
+
+// vld: shouldn't these 3 definitions go to ae_enums.h?
+enum ae_strand
+{
+  LEADING = 0,
+  LAGGING = 1
 };
 
 constexpr const char* StrandName[] = {

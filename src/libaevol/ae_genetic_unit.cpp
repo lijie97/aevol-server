@@ -1,8 +1,4 @@
-// ****************************************************************************
-//
-//          Aevol - An in silico experimental evolution platform
-//
-// ****************************************************************************
+// Aevol - An in silico experimental evolution platform
 //
 // Copyright: See the AUTHORS file provided with the package or <www.aevol.fr>
 // Web: http://www.aevol.fr/
@@ -21,22 +17,11 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-//*****************************************************************************
 
-
-
-
-// =================================================================
-//                              Libraries
-// =================================================================
 #include <cassert>
 #include <list>
 #include <algorithm>
 
-// =================================================================
-//                            Project Files
-// =================================================================
 #include "ae_genetic_unit.h"
 
 #include "ae_exp_manager.h"
@@ -55,7 +40,6 @@
 
 namespace aevol {
 
-
 // =================================================================
 //                       Miscellaneous Functions
 // =================================================================
@@ -66,14 +50,9 @@ int compare_prot_pos( const void* pos, const void* prot ) // This function has t
   else return 1;
 }
 
-//##############################################################################
-//                                                                             #
-//                            Class ae_genetic_unit                            #
-//                                                                             #
-//##############################################################################
-// =====================================================================
+// =================================================================
 //                          Accessors' definitions
-// =====================================================================
+// =================================================================
 ae_exp_manager* ae_genetic_unit::get_exp_m( void ) const
 {
   return _exp_m;
