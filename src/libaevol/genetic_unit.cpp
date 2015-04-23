@@ -362,7 +362,7 @@ void GeneticUnit::extract_promoters_included_in(int32_t pos_1,
   assert(pos_1 < pos_2);
   assert(pos_2 <= _dna->get_length());
 
-  if ( pos_2 - pos_1 > PROM_SIZE )
+  if ( pos_2 - pos_1 < PROM_SIZE )
     return;
   extract_leading_promoters_starting_between(pos_1, pos_2 - PROM_SIZE + 1, extracted_promoters[LEADING]);
   extract_lagging_promoters_starting_between(pos_1 + PROM_SIZE - 1, pos_2, extracted_promoters[LAGGING]);
