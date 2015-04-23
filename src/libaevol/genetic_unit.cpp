@@ -922,10 +922,15 @@ void GeneticUnit::do_transcription( void )
           // between the promoter and the terminator of the RNA we have just treated.
           // They are hence the RNAs whose promoter starts at most i bases after the
           // current rna's promoter
-          for (auto rna2 = std::next(rna); rna2 != strand.end(); ++rna2)
-            // We know rna_2 is after rna => rna_2->pos > rna->pos (LEADING strand) because the list is sorted
-            if ( (*rna2)->get_promoter_pos() - (*rna)->get_promoter_pos() <= i ) {
-              (*rna2)->set_transcript_length( i - ((*rna2)->get_promoter_pos() - (*rna)->get_promoter_pos()) + TERM_SIZE );
+          for (auto rna2 = std::next(rna); rna2 != strand.end(); ++rna2) {
+            // We know rna_2 is after rna => | rna_2->pos > rna->pos for LEADING strand
+            //                               | rna_2->pos < rna->pos for LAGGING strand
+            // because the list is sorted.
+
+            auto delta_pos = abs((*rna2)->get_promoter_pos() - (*rna)->get_promoter_pos());
+            if (delta_pos <= i) {
+              (*rna2)->set_transcript_length(i - delta_pos + TERM_SIZE);
+              
               // Step forward in RNA list
               rna = rna2;
             } else {
