@@ -70,7 +70,7 @@ class ae_grid_cell;
 
 /// Models an individual cell.
 ///
-/// Proteins ans RNAs are shared with descent.
+/// Proteins and RNAs are shared with descent.
 /// Genetic units are an individual's own.
 class ae_individual
 {
@@ -463,8 +463,8 @@ class ae_individual
   std::list<ae_rna*>     _rna_list;
 
   // Generic probes
-  int32_t*  _int_probes;        // Table of 5 int32_t values to be used as one wishes
-  double*   _double_probes;     // Table of 5 double values to be used as one wishes
+  int32_t*  _int_probes;        // Array of 5 int32_t values to be used as one wishes
+  double*   _double_probes;     // Array of 5 double values to be used as one wishes
 
   // Mutation rates etc...
   std::shared_ptr<ae_params_mut> _mut_params;

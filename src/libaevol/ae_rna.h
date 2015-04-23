@@ -58,10 +58,6 @@ namespace aevol {
 class ae_individual;
 class GeneticUnit;
 
-
-
-
-
 class ae_rna
 {
   public :

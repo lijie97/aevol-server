@@ -82,7 +82,7 @@ enum ae_selection_scheme
   FITNESS_PROPORTIONATE = 2,
   FITTEST               = 3
 };
-  
+
 enum ae_tree_mode
 {
   LIGHT   = 0,
@@ -104,8 +104,8 @@ enum ae_strand
 };
 
 constexpr const char* StrandName[] = {
-    "LEADING",
-    "LAGGING"
+  "LEADING",
+  "LAGGING"
 };
 
 enum Position {
