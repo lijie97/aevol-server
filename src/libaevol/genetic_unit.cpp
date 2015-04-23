@@ -384,11 +384,11 @@ void GeneticUnit::extract_promoters_starting_between(int32_t pos_1,
   If the genome is smaller than the size of a promoter, all the promoters will be removed.
 
   \verbatim
-  -------------------------------------------------------
-  |   |   |   |   | X | X |   |   |   |   |   |   |   |   |
-  -------------------------------------------------------
-  ^                   ^
-  0                  pos
+     -------------------------------------------------------
+    |   |   |   |   | X | X |   |   |   |   |   |   |   |   |
+     -------------------------------------------------------
+    ^                   ^
+    0                  pos
   \endverbatim
 */
 void GeneticUnit::remove_promoters_around( int32_t pos )
@@ -409,16 +409,16 @@ void GeneticUnit::remove_promoters_around( int32_t pos )
   \brief  Remove those promoters that would be broken if the sequence [pos_1 ; pos_2[ was deleted.
 
   Remove promoters that     * include BOTH the base before AND after pos_1 (marked X in the cartoon below).
-  * include BOTH the base before AND after pos_2 (marked Y in the cartoon below).
-  * are completely contained between pos_1 and pos_2.
+                            * include BOTH the base before AND after pos_2 (marked Y in the cartoon below).
+                            * are completely contained between pos_1 and pos_2.
   If the remaining sequence, i.e. [pos_2 ; pos_1[ is smaller than the size of a promoter, all the promoters will be removed.
 
   \verbatim
-  -------------------------------------------------------
-  |   |   |   |   | X | X |   |   |   | Y | Y |   |   |   |
-  -------------------------------------------------------
-  ^                   ^                   ^
-  0                 pos_1               pos_2
+     -------------------------------------------------------
+    |   |   |   |   | X | X |   |   |   | Y | Y |   |   |   |
+     -------------------------------------------------------
+    ^                   ^                   ^
+    0                 pos_1               pos_2
   \endverbatim
 */
 void GeneticUnit::remove_promoters_around( int32_t pos_1, int32_t pos_2 )
