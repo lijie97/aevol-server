@@ -30,6 +30,8 @@
 // =================================================================
 //                              Libraries
 // =================================================================
+#include <list>
+#include <algorithm>
 #include <inttypes.h>
 #include <getopt.h>
 #include <stdlib.h>
@@ -82,13 +84,13 @@ enum check_type
 void print_help(char* prog_path);
 void print_version( void );
 
-void update_pointers_in_trees(ae_list<ae_gene_tree*> * gene_trees, GeneticUnit * unit);
-void anticipate_mutation_effect_on_genes_in_trees(ae_list<ae_gene_tree*> * gene_trees, const ae_mutation * mut, int32_t unitlen_before);
-void register_actual_mutation_effect_on_genes_in_trees(ae_list<ae_gene_tree*>* gene_trees, const ae_mutation* mut, GeneticUnit * unit, int32_t gener, double impact_on_metabolic_error);
-void search_protein_in_gene_trees(ae_list<ae_gene_tree*> * gene_trees, ae_protein * prot, ae_gene_tree ** resultTree, ae_gene_tree_node ** resultNode);
-void set_end_gener_if_active_leaves_in_trees(ae_list<ae_gene_tree*> * gene_trees, int32_t gener);
-void write_gene_trees_to_files(ae_list<ae_gene_tree*> * gene_trees, int32_t end_gener);
-void print_gene_trees_to_screen(ae_list<ae_gene_tree*> * gene_trees); // For debug purposes
+void update_pointers_in_trees(std::list<ae_gene_tree>& gene_trees, GeneticUnit * unit);
+void anticipate_mutation_effect_on_genes_in_trees(std::list<ae_gene_tree>& gene_trees, const ae_mutation * mut, int32_t unitlen_before);
+void register_actual_mutation_effect_on_genes_in_trees(std::list<ae_gene_tree>& gene_trees, const ae_mutation* mut, GeneticUnit * unit, int32_t gener, double impact_on_metabolic_error);
+void search_protein_in_gene_trees(std::list<ae_gene_tree>& gene_trees, ae_protein * prot, ae_gene_tree ** resultTree, bool& found);
+void set_end_gener_if_active_leaves_in_trees(std::list<ae_gene_tree>& gene_trees, int32_t gener);
+void write_gene_trees_to_files(std::list<ae_gene_tree>& gene_trees, int32_t end_gener);
+void print_gene_trees_to_screen(std::list<ae_gene_tree>& gene_trees); // For debug purposes
 
 
 
@@ -266,14 +268,14 @@ int main(int argc, char** argv)
   // Each initial gene in this ancestral genome will be the root of a gene tree,
   // where the paralogs (gene copies created by duplication) will be monitored
 
-  ae_list<ae_gene_tree*> * gene_trees = new ae_list<ae_gene_tree*>();
+  std::list<ae_gene_tree> gene_trees;
 
   for (const auto& unit: indiv->get_genetic_unit_list_std())
   {
     for (const auto& prot: unit.get_protein_list(LEADING))
-      gene_trees->add(new ae_gene_tree(t0, prot));
+      gene_trees.emplace_back(t0, prot);
     for (const auto& prot: unit.get_protein_list(LAGGING))
-      gene_trees->add(new ae_gene_tree(t0, prot));
+      gene_trees.emplace_back(t0, prot);
   }
 
   // ===============================================================================
@@ -293,7 +295,7 @@ int main(int argc, char** argv)
 
 
   ae_gene_tree * genetree = NULL;
-  ae_gene_tree_node * genetreenode = NULL;
+  bool found = false;
 
   ae_exp_manager* exp_manager_backup = NULL;
   Environment* backup_env = NULL;
@@ -422,14 +424,14 @@ int main(int argc, char** argv)
 
         /* New genes that have been created "from scratch", i.e. not by duplication => new gene tree */
         for (const auto& prot: unit->get_protein_list(LEADING)) {
-          search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
-          if (genetreenode == nullptr)
-            gene_trees->add(new ae_gene_tree(get_time(), prot, &mut));
+          search_protein_in_gene_trees(gene_trees, prot, &genetree, found);
+          if (not found)
+            gene_trees.emplace_back(get_time(), prot, &mut);
         }
         for (const auto& prot: unit->get_protein_list(LAGGING)) {
-          search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
-          if (genetreenode == nullptr)
-            gene_trees->add(new ae_gene_tree(get_time(), prot, &mut));
+          search_protein_in_gene_trees(gene_trees, prot, &genetree, found);
+          if (not found)
+            gene_trees.emplace_back(get_time(), prot, &mut);
         }
          // print_gene_trees_to_screen(gene_trees);// DEBUG
          // indiv->print_protein_list(); // DEBUG
@@ -454,14 +456,14 @@ int main(int argc, char** argv)
 
         /* New genes that have been created "from scratch", i.e. not by duplication => new gene tree */
         for (const auto& prot: unit->get_protein_list(LEADING)) {
-          search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
-          if (genetreenode == nullptr)
-            gene_trees->add(new ae_gene_tree(get_time(), prot, &mut));
+          search_protein_in_gene_trees(gene_trees, prot, &genetree, found);
+          if (not found)
+            gene_trees.emplace_back(get_time(), prot, &mut);
         }
         for (const auto& prot: unit->get_protein_list(LAGGING)) {
-          search_protein_in_gene_trees(gene_trees, prot, &genetree, &genetreenode);
-          if (genetreenode == nullptr)
-            gene_trees->add(new ae_gene_tree(get_time(), prot, &mut));
+          search_protein_in_gene_trees(gene_trees, prot, &genetree, found);
+          if (not found)
+            gene_trees.emplace_back(get_time(), prot, &mut);
         }
       }
 
@@ -533,8 +535,6 @@ int main(int argc, char** argv)
 
   set_end_gener_if_active_leaves_in_trees(gene_trees, t_end);
   write_gene_trees_to_files(gene_trees, t_end);
-  gene_trees->erase(true);
-  delete gene_trees;
 
   gzclose(lineage_file);
   delete exp_manager;
@@ -550,113 +550,67 @@ int main(int argc, char** argv)
 
 
 
-void search_protein_in_gene_trees(ae_list<ae_gene_tree*> * gene_trees, ae_protein * prot, ae_gene_tree ** resultTree, ae_gene_tree_node ** resultNode)
+void search_protein_in_gene_trees(std::list<ae_gene_tree>& gene_trees, ae_protein * prot, ae_gene_tree ** resultTree, bool& found)
 {
   fflush(stdout);
-  ae_list_node<ae_gene_tree*> * n = gene_trees->get_first();
-  ae_gene_tree * tree = NULL;
-  ae_gene_tree_node * result = NULL;
-  int32_t tree_number = 0;
-  while ((n!= NULL) && (result==NULL))
-    {
-      tree = n->get_obj();
-      result = tree->search_in_leaves(prot);
-      n = n->get_next();
-      tree_number++;
-    }
-
-  if(result != NULL)
-    {
-      *resultTree = tree;
-      *resultNode = result;
-    }
-  else
-    {
-      *resultTree = NULL;
-      *resultNode = NULL;
-    }
+  auto it = find_if(gene_trees.begin(),
+                    gene_trees.end(),
+                    [prot](ae_gene_tree& m)
+                    { return m.search_in_leaves(prot) == NULL; });
+  *resultTree = &*it;
+  found = (it != gene_trees.end());
 }
 
 
 
-void update_pointers_in_trees(ae_list<ae_gene_tree*> * gene_trees, GeneticUnit * unit)
+void update_pointers_in_trees(std::list<ae_gene_tree>& gene_trees, GeneticUnit * unit)
 {
-  ae_list_node<ae_gene_tree*> * n = gene_trees->get_first();
-  ae_gene_tree * tree = NULL;
-  while (n!= NULL)
-    {
-      tree = n->get_obj();
-      tree->update_pointers_in_tree_leaves(unit);
-      n = n->get_next();
-    }
+  for (auto& n: gene_trees)
+    n.update_pointers_in_tree_leaves(unit);
 }
 
 
 void anticipate_mutation_effect_on_genes_in_trees(
-    ae_list<ae_gene_tree*> * gene_trees,
+    std::list<ae_gene_tree>& gene_trees,
     const ae_mutation* mut,
     int32_t unitlen_before)
 {
-  ae_list_node<ae_gene_tree*> * n = gene_trees->get_first();
-  ae_gene_tree * tree = NULL;
-  while (n!= NULL)
-    {
-      tree = n->get_obj();
-      tree->anticipate_mutation_effect_on_genes_in_tree_leaves(mut, unitlen_before);
-      n = n->get_next();
-    }
+  for (auto& n: gene_trees)
+    n.anticipate_mutation_effect_on_genes_in_tree_leaves(mut, unitlen_before);
 }
 
 void register_actual_mutation_effect_on_genes_in_trees(
-    ae_list<ae_gene_tree*>* gene_trees,
+    std::list<ae_gene_tree>& gene_trees,
     const ae_mutation* mut,
     GeneticUnit* unit,
     int32_t gener,
     double impact_on_metabolic_error)
 {
-  ae_list_node<ae_gene_tree*> * n = gene_trees->get_first();
-  ae_gene_tree * tree = NULL;
-  while (n!= NULL)
-    {
-      tree = n->get_obj();
-      tree->register_actual_mutation_effect_on_genes_in_tree_leaves(mut, unit, gener, impact_on_metabolic_error);
-      n = n->get_next();
-    }
-
+  for (auto& n: gene_trees)
+    n.register_actual_mutation_effect_on_genes_in_tree_leaves(mut, unit, gener, impact_on_metabolic_error);
 }
 
 
 
-void set_end_gener_if_active_leaves_in_trees(ae_list<ae_gene_tree*> * gene_trees, int32_t gener)
+void set_end_gener_if_active_leaves_in_trees(std::list<ae_gene_tree>& gene_trees, int32_t gener)
 {
-  ae_list_node<ae_gene_tree*> * n = gene_trees->get_first();
-  ae_gene_tree * tree = NULL;
-  while (n!= NULL)
-    {
-      tree = n->get_obj();
-      tree->set_end_gener_if_active_leaves(gener);
-      n = n->get_next();
-    }
+  for (auto& n: gene_trees)
+    n.set_end_gener_if_active_leaves(gener);
 }
 
 
-void print_gene_trees_to_screen(ae_list<ae_gene_tree*> * gene_trees)
+void print_gene_trees_to_screen(std::list<ae_gene_tree>& gene_trees)
 {
-  ae_list_node<ae_gene_tree*> * n = gene_trees->get_first();
-  ae_gene_tree* tree = NULL;
   int32_t tree_number = 0;
-  while (n!= NULL)
-    {
-      tree = n->get_obj();
-      printf("Content of tree %d :\n", tree_number);
-      tree->print_to_screen();
-      n = n->get_next();
-      tree_number++;
-    }
+  for (auto& n: gene_trees) {
+    printf("Content of tree %d :\n", tree_number);
+    n.print_to_screen();
+    tree_number++;
+  }
 }
 
 
-void write_gene_trees_to_files(ae_list<ae_gene_tree*> * gene_trees, int32_t end_gener)
+void write_gene_trees_to_files(std::list<ae_gene_tree>& gene_trees, int32_t end_gener)
 {
   // Prepare the directory for the outputs files related to the gene trees
   char directory_name[] = "gene_trees";
@@ -705,24 +659,19 @@ void write_gene_trees_to_files(ae_list<ae_gene_tree*> * gene_trees, int32_t end_
 
   char topol_file_name[128];
   char node_attr_file_name[128];
-  ae_list_node<ae_gene_tree*> * n = gene_trees->get_first();
-  ae_gene_tree * tree = NULL;
   int32_t tree_number = 0;
 
-  while (n!= NULL)
-    {
-      tree = n->get_obj();
+  for (auto& n: gene_trees) {
       fprintf(tree_statistics_file, "%" PRId32 " ", tree_number);
-      if (tree->get_creation_type() == INITIALIZATION)  fprintf(tree_statistics_file, "INITIALIZATION ");
-      else if (tree->get_creation_type() == LOCAL_MUTATION)  fprintf(tree_statistics_file, "LOCAL_MUTATION ");
-      else if (tree->get_creation_type() == REARRANGEMENT)  fprintf(tree_statistics_file, "REARRANGEMENT ");
+      if (n.get_creation_type() == INITIALIZATION)  fprintf(tree_statistics_file, "INITIALIZATION ");
+      else if (n.get_creation_type() == LOCAL_MUTATION)  fprintf(tree_statistics_file, "LOCAL_MUTATION ");
+      else if (n.get_creation_type() == REARRANGEMENT)  fprintf(tree_statistics_file, "REARRANGEMENT ");
       else fprintf(tree_statistics_file, "TRANSFER ");
-      fprintf(tree_statistics_file, "%" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n", tree->get_begin_gener(), tree->get_end_gener(), tree->get_total_nb_nodes(), tree->get_nb_internal_nodes(), tree->get_nb_leaves(), tree->get_nb_active_leaves());
+      fprintf(tree_statistics_file, "%" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n", n.get_begin_gener(), n.get_end_gener(), n.get_total_nb_nodes(), n.get_nb_internal_nodes(), n.get_nb_leaves(), n.get_nb_active_leaves());
       sprintf(topol_file_name, "gene_trees/genetree%06" PRId32 "-topology.tre", tree_number);
       sprintf(node_attr_file_name, "gene_trees/genetree%06" PRId32 "-nodeattr.txt", tree_number);
-      tree->write_to_files(topol_file_name, node_attr_file_name, end_gener);
-      tree->write_nodes_in_tabular_file(tree_number, nodeattr_tabular_file);
-      n = n->get_next();
+      n.write_to_files(topol_file_name, node_attr_file_name, end_gener);
+      n.write_nodes_in_tabular_file(tree_number, nodeattr_tabular_file);
       tree_number ++;
     }
 
