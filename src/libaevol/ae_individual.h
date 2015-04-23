@@ -92,7 +92,7 @@ class ae_individual
                 int32_t max_genome_length,
                 bool allow_plasmids,
                 int32_t id,
-                char* strain_name,
+                const char* strain_name,
                 int32_t age);
 
   ae_individual(ae_exp_manager* exp_m, gzFile backup_file);
