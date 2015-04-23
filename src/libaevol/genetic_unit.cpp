@@ -957,10 +957,7 @@ void GeneticUnit::do_transcription( void )
             //                               | rna_2->pos < rna->pos for LAGGING strand
             // because the list is sorted.
 
-            // vld: isn't there a bug here? Next condition appears to
-            // contradict the 2nd property → appears to be recomputed
-            // afterwards.
-            auto delta_pos = (*rna2)->get_promoter_pos() - (*rna)->get_promoter_pos();
+            auto delta_pos = abs((*rna2)->get_promoter_pos() - (*rna)->get_promoter_pos());
             if (delta_pos <= i) {
               (*rna2)->set_transcript_length(i - delta_pos + TERM_SIZE);
               // Step forward in RNA list
