@@ -89,6 +89,8 @@ void individualTest::SetUp(void)
   // AS = Arbitrary Sequence
   // AG = Arbitrary Gene
   // Do not modify the sequences !
+
+  // Define a few arbitrary sequences
   char as[5][10] = {
     "0011",
     "11101",
@@ -96,13 +98,21 @@ void individualTest::SetUp(void)
     "11000",
     "000101"
   };
+
+  // Define an arbitrary gene
   char gene[255];
   sprintf(gene, "%s0011000100110110010001", SHINE_DAL_SEQ);
+
+  // Define an arbitrary terminator
   char term[TERM_SIZE+1] = "01000001101";
+
+  // Define a few arbitrary promoters
   char prom[2][23] = {
     "0101010001110110010110", // dist from consensus: 2 => basal level: 0.6
     "0101011001110010010010"  // dist from consensus: 1 => basal level: 0.8
   };
+
+  // Construct a gene with these arbitrary sequences
   char* genome = new char[1024];
   sprintf( genome, "%s%s%s%s%s%s%s%s%s", as[0], prom[0], as[1], gene, as[2],
            term, as[3], prom[1], as[4]);
