@@ -44,8 +44,6 @@ run_tests_SOURCES = \
 	run_tests.cpp \
 	Test_ae_jumping_mt.h \
 	Test_ae_jumping_mt.cpp \
-	Test_ae_list.h \
-	Test_ae_list.cpp \
 	Test_ae_individual.h \
 	Test_ae_individual.cpp
 	Test_fuzzy.h \
