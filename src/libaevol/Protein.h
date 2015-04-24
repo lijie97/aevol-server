@@ -104,7 +104,7 @@ class Protein
     // =================================================================
     //                            Public Methods
     // =================================================================
-            void  add_RNA( Rna * rna );
+    void  add_RNA( Rna * rna );
     char* get_AA_sequence(char separator = ' ') const; // WARNING : creates a new char[...] (up to you to delete it!)
     virtual void  save( gzFile backup_file );
 

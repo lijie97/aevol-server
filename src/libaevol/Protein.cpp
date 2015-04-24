@@ -384,14 +384,13 @@ void Protein::add_RNA( Rna * rna )
   _concentration += rna->get_basal_level();
 }
 
-char*Protein::get_AA_sequence(char separator /*= ' '*/) const
+char* Protein::get_AA_sequence(char separator /*= ' '*/) const
 {
   char* seq = new char[3*_length]; // + 1 (for the '\0')  - 1 (_length - 1 spaces)
 
   int32_t i = 0;
   for (const auto& codon: _AA_list) {
     if ( i != 0 ) seq[i++] = separator;
-
     switch ( codon->get_value() )
     {
       case CODON_START :
