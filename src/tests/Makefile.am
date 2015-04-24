@@ -44,7 +44,7 @@ AM_CPPFLAGS += -D_FORTIFY_SOURCE=2
 ############################################
 #           Set programs to build          #
 ############################################
-check_PROGRAMS = sampleTest individualTest
+check_PROGRAMS = sampleTest individualTest TranscriptionTranslationTest
 CLEANFILES = $(check_PROGRAMS)
 TESTS = $(check_PROGRAMS)
 
@@ -54,7 +54,13 @@ sampleTest_LDADD = $(gtest_dir)/lib/libgtest_main.a \
                    $(gtest_dir)/lib/libgtest.a
 
 individualTest_SOURCES = individualTest.cpp
-individualTest_LDADD = 	$(gtest_dir)/lib/libgtest_main.a \
-                   		$(gtest_dir)/lib/libgtest.a \
-						$(top_srcdir)/src/libaevol/libaevol.a \
-						$(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
+individualTest_LDADD =  $(gtest_dir)/lib/libgtest_main.a \
+                        $(gtest_dir)/lib/libgtest.a \
+                        $(top_srcdir)/src/libaevol/libaevol.a \
+                        $(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
+
+TranscriptionTranslationTest_SOURCES = TranscriptionTranslationTest.cpp
+TranscriptionTranslationTest_LDADD = $(gtest_dir)/lib/libgtest_main.a \
+			                         $(gtest_dir)/lib/libgtest.a \
+			                         $(top_srcdir)/src/libaevol/libaevol.a \
+			                         $(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
