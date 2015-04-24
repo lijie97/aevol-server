@@ -26,54 +26,6 @@
 
 
 
-//
-// This program extracts some data about the individuals and write
-// them into text files easy to parse with e.g. matlab.
-//
-// Two kinds of data can be extracted :
-//
-//  * data about the phenotype (option -t) : write information about
-//    the proteins in a text file. A space delimits two proteins, a
-//    new line delimits two individuals. For each protein, the output
-//    is "m_h_w_c_r_s_f_l_z_g" where :
-//        * m, h, w and c are the mean, height, width and concentration of the
-//            protein
-//        * r is an identifier of the rna it belongs (usefull to
-//            know if several proteins are on the same rna)
-//        * s indicates the strand (LEADING/LAGGING)
-//        * f and l are the first and last translated base
-//        * z indicates the feature (at the center of the protein)
-//        * g indicates the genetic unit to which the protein belongs
-//            (0=chromosome, 1=plasmid)
-//
-//  * sequences of the individuals (option -s) : write the sequences
-//    in a text file. A new line delimits two individuals. In case
-//    there are several GU, they are separated by spaces.
-//
-// The option -b only treats the best individual
-//
-// The input can be either a generation number, in which case we
-// will attempt to load a full backup tree, or a population file,
-// in which case features of the proteins won't be outputed as we
-// need to know the environment to infer them.
-//
-// Examples :
-//
-// For generation 20000, write infos about the phenotypes of all the
-// individuals in phe_020000 and the sequences of all the
-// individuals in seq_020000 :
-//
-//    extract -r 20000 -t phe_020000 -s seq_020000
-//
-// For generation 20000, write the best individual's sequence in
-// seq_020000_best :
-//
-//    extract -b -r 20000 -s seq_020000_best
-// or extract -b -p populations/pop_020000.ae -s seq_020000_best
-//
-
-
-
 
 // =================================================================
 //                              Libraries
@@ -118,14 +70,14 @@ int main( int argc, char* argv[] )
   // Define allowed options
   const char * options_list = "hVr:t:s:bg:";
   static struct option long_options_list[] = {
-    {"help",      no_argument,        NULL, 'h'},
-    {"version",   no_argument,        NULL, 'V'},
-    {"resume",    required_argument,  NULL, 'r'},
-    {"triangles", required_argument,  NULL, 't'},
-    {"sequence",  required_argument,  NULL, 's'},
-    {"best",      no_argument,        NULL, 'b'},
-    {"gu",        required_argument,  NULL, 'g'},
-    {0, 0, 0, 0}
+      {"help",      no_argument,        NULL, 'h'},
+      {"version",   no_argument,        NULL, 'V'},
+      {"resume",    required_argument,  NULL, 'r'},
+      {"triangles", required_argument,  NULL, 't'},
+      {"sequence",  required_argument,  NULL, 's'},
+      {"best",      no_argument,        NULL, 'b'},
+      {"gu",        required_argument,  NULL, 'g'},
+      {0, 0, 0, 0}
   };
 
   // Get actual values of the command-line options
@@ -171,6 +123,26 @@ int main( int argc, char* argv[] )
   if ( triangles_file_name != NULL )
   {
     triangles_file = fopen(triangles_file_name,"w");
+
+    // Write file headers
+    int key = 1;
+    fprintf(triangles_file, "# %2.d individual's identifier (id)\n", key++);
+    fprintf(triangles_file, "# %2.d chromosome or plasmid (c_or_p)\n", key++);
+    fprintf(triangles_file, "# %2.d strand\n", key++);
+    fprintf(triangles_file, "# %2.d protein position (pos)\n", key++);
+    fprintf(triangles_file, "# %2.d length (len)\n", key++);
+    fprintf(triangles_file, "# %2.d position of last translated nucleotide (lpos)\n", key++);
+    fprintf(triangles_file, "# %2.d primary sequence (sequence)\n", key++);
+    fprintf(triangles_file, "# %2.d mean (m)\n", key++);
+    fprintf(triangles_file, "# %2.d width (w)\n", key++);
+    fprintf(triangles_file, "# %2.d height (h)\n", key++);
+    fprintf(triangles_file, "# %2.d concentration (c)\n", key++);
+    fprintf(triangles_file, "# %2.d feature (f)\n", key++);
+    fprintf(triangles_file, "# %2.d promoter position (prom_pos)\n", key++);
+    fprintf(triangles_file, "# %2.d RNA length (rna_len)\n", key++);
+    fprintf(triangles_file, "# %2.d basal level (basal_level)\n", key++);
+    fprintf(triangles_file, "\n");
+    fprintf(triangles_file, "id c_or_p trand pos len lpos sequence m w h c f prom_pos rna_len basal_level\n");
   }
   if ( sequence_file_name != NULL )
   {
@@ -280,12 +252,7 @@ inline void analyse_gu(GeneticUnit* gen_unit, int32_t gen_unit_number,
   int rna_nb = 0;
   for (const auto& rna: lrnas) {
     for (const auto& protein: rna.get_transcribed_proteins()) {
-      double height = protein->get_height();
-      double width = protein->get_width();
       double mean = protein->get_mean();
-      double concentration=rna.get_basal_level();
-      int32_t fpos = protein->get_first_translated_pos();
-      int32_t lpos = protein->get_last_translated_pos();
 
       int nfeat = -1;
 
@@ -296,12 +263,28 @@ inline void analyse_gu(GeneticUnit* gen_unit, int32_t gen_unit_number,
           break;
         }
 
+      char *dummy;
       fprintf(triangles_file,
-              "%f_%f_%f_%f_%d_%d_%i_%i_%d_%d ",
-              mean, height, width, concentration,
-              rna_nb, rna.get_strand(),
-              fpos, lpos,
-              nfeat, gen_unit_number);
+              "%" PRId32 " %s %s %" PRId32 " %" PRId32 " %" PRId32
+                  " %s %f %f %f %f %d %" PRId32 " %" PRId32 " %f\n",
+              gen_unit->get_indiv()->get_id(),
+              gen_unit_number != 0 ? "PLASMID" :
+              "CHROM  ",
+              protein->get_strand() == LEADING ? "LEADING" :
+              "LAGGING",
+              protein->get_first_translated_pos(),
+              protein->get_length(),
+              protein->get_last_translated_pos(),
+              dummy = protein->get_AA_sequence('_'),
+              mean,
+              protein->get_width(),
+              protein->get_height(),
+              protein->get_concentration(),
+              nfeat,
+              rna.get_promoter_pos(),
+              rna.get_transcript_length(),
+              rna.get_basal_level());
+      delete dummy;
     }
     rna_nb++;
   }
