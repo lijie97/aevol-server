@@ -362,7 +362,7 @@ void GeneticUnit::extract_promoters_included_in(int32_t pos_1,
   assert(pos_1 < pos_2);
   assert(pos_2 <= _dna->get_length());
 
-  if ( pos_2 - pos_1 > PROM_SIZE )
+  if ( pos_2 - pos_1 < PROM_SIZE )
     return;
   extract_leading_promoters_starting_between(pos_1, pos_2 - PROM_SIZE + 1, extracted_promoters[LEADING]);
   extract_lagging_promoters_starting_between(pos_1 + PROM_SIZE - 1, pos_2, extracted_promoters[LAGGING]);
@@ -384,11 +384,11 @@ void GeneticUnit::extract_promoters_starting_between(int32_t pos_1,
   If the genome is smaller than the size of a promoter, all the promoters will be removed.
 
   \verbatim
-  -------------------------------------------------------
-  |   |   |   |   | X | X |   |   |   |   |   |   |   |   |
-  -------------------------------------------------------
-  ^                   ^
-  0                  pos
+     -------------------------------------------------------
+    |   |   |   |   | X | X |   |   |   |   |   |   |   |   |
+     -------------------------------------------------------
+    ^                   ^
+    0                  pos
   \endverbatim
 */
 void GeneticUnit::remove_promoters_around( int32_t pos )
@@ -409,16 +409,16 @@ void GeneticUnit::remove_promoters_around( int32_t pos )
   \brief  Remove those promoters that would be broken if the sequence [pos_1 ; pos_2[ was deleted.
 
   Remove promoters that     * include BOTH the base before AND after pos_1 (marked X in the cartoon below).
-  * include BOTH the base before AND after pos_2 (marked Y in the cartoon below).
-  * are completely contained between pos_1 and pos_2.
+                            * include BOTH the base before AND after pos_2 (marked Y in the cartoon below).
+                            * are completely contained between pos_1 and pos_2.
   If the remaining sequence, i.e. [pos_2 ; pos_1[ is smaller than the size of a promoter, all the promoters will be removed.
 
   \verbatim
-  -------------------------------------------------------
-  |   |   |   |   | X | X |   |   |   | Y | Y |   |   |   |
-  -------------------------------------------------------
-  ^                   ^                   ^
-  0                 pos_1               pos_2
+     -------------------------------------------------------
+    |   |   |   |   | X | X |   |   |   | Y | Y |   |   |   |
+     -------------------------------------------------------
+    ^                   ^                   ^
+    0                 pos_1               pos_2
   \endverbatim
 */
 void GeneticUnit::remove_promoters_around( int32_t pos_1, int32_t pos_2 )
@@ -597,10 +597,12 @@ GeneticUnit::GeneticUnit(ae_individual* indiv,
 
   if (not prom_list[LEADING].empty() and not prom_list[LAGGING].empty()) { // if not default `prom_list`
     // Copy rna lists
-    _rna_list[LEADING] = prom_list[LEADING];
-    _rna_list[LAGGING] = prom_list[LAGGING];
+    _rna_list = prom_list;
     ae_dna::set_GU(_rna_list, this);
   } else {
+    for (auto& strand: {LEADING, LAGGING})
+      assert(_rna_list[strand].empty());
+
     // Look for promoters
     locate_promoters();
   }
@@ -646,8 +648,8 @@ GeneticUnit::GeneticUnit(ae_individual* indiv, const GeneticUnit& model)
   _translated                         = false;
   _phenotypic_contributions_computed  = false;
   _non_coding_computed                = false;
-  _distance_to_target_computed        = false;
-  _fitness_computed                   = false;
+  _distance_to_target_computed        = model._distance_to_target_computed;
+  _fitness_computed                   = model._fitness_computed;
 
   _min_gu_length = model._min_gu_length;
   _max_gu_length = model._max_gu_length;
@@ -700,10 +702,8 @@ GeneticUnit::GeneticUnit(ae_individual* indiv, const GeneticUnit* parent)
   // Note that the length of the RNA will have to be recomputed (do_transcription)
   for (auto strand: {LEADING, LAGGING})
     for (auto* rna: _rna_list[strand]) {
-      // TODO vld: change to emplace_back when compiler error understood
 #ifndef __REGUL
       _rna_list[strand].push_back(new ae_rna(this, *rna));
-      // _rna_list[strand].emplace_back(this, *rna); // error: cannot convert ‘aevol::ae_rna’ to ‘aevol::ae_rna*’ in initialization… ?
 #else
       _rna_list[strand].push_back(new ae_rna_R(this, (dynamic_cast<ae_rna_R*>(rna))));
 #endif
@@ -822,7 +822,11 @@ GeneticUnit::GeneticUnit( ae_individual* indiv, char* organism_file_name )
 // =================================================================
 GeneticUnit::~GeneticUnit( void )
 {
-  // needed only because _rna_list hold pointers
+  // needed only because _rna_list and _protein_list hold pointers
+  for (auto& strand: _protein_list)
+    for (auto& prot: strand)
+      delete prot;
+
   for (auto& strand: _rna_list)
     for (auto& rna: strand)
       delete rna;
@@ -864,25 +868,22 @@ void GeneticUnit::locate_promoters( void )
     strand.clear();
   }
 
-  if ( _dna->get_length() >= PROM_SIZE )
-    for ( int32_t i = 0 ; i < _dna->get_length() ; i++ )
-    {
-      // #ifdef cases only difference is on the constructor
-      // if _rna_list knows exactly which type it holds (ae_rna vs ae_rna_R), it can decide on its own
-      // TODO vld: hence, code chunk should be rewritten with emplace_back
-      // (but, FTR, dumb emplace_back rewrite fails to be compiled)
+  if ( _dna->get_length() < PROM_SIZE )
+    return;
+  for ( int32_t i = 0 ; i < _dna->get_length() ; i++ ) {
+    // can't use emplace_back because of _rna_list containing pointers instead of objects
 #ifndef __REGUL
-      if (is_promoter(LEADING, i, dist)) // dist takes the hamming distance of the sequence from the consensus
-        _rna_list[LEADING].push_back(new ae_rna(this, LEADING, i, dist));
-      if (is_promoter(LAGGING, _dna->get_length() - i - 1, dist))
-        _rna_list[LAGGING].push_back(new ae_rna(this, LAGGING, _dna->get_length() - i - 1, dist));
+    if (is_promoter(LEADING, i, dist)) // dist takes the hamming distance of the sequence from the consensus
+      _rna_list[LEADING].push_back(new ae_rna(this, LEADING, i, dist));
+    if (is_promoter(LAGGING, _dna->get_length() - i - 1, dist))
+      _rna_list[LAGGING].push_back(new ae_rna(this, LAGGING, _dna->get_length() - i - 1, dist));
 #else
-      if (is_promoter(LEADING, i, dist))
-        _rna_list[LEADING].push_back(new ae_rna_R(this, LEADING, i, dist));
-      if (is_promoter(LAGGING, _dna->get_length() - i - 1, dist))
-        _rna_list[LAGGING].push_back(new ae_rna_R(this, LAGGING, _dna->get_length() - i - 1, dist));
+    if (is_promoter(LEADING, i, dist))
+      _rna_list[LEADING].push_back(new ae_rna_R(this, LEADING, i, dist));
+    if (is_promoter(LAGGING, _dna->get_length() - i - 1, dist))
+      _rna_list[LAGGING].push_back(new ae_rna_R(this, LAGGING, _dna->get_length() - i - 1, dist));
 #endif
-    }
+  }
 }
 
 void GeneticUnit::do_transcription( void )
@@ -904,18 +905,18 @@ void GeneticUnit::do_transcription( void )
     return;
   }
 
-  for (int strand_id = LEADING; strand_id <= LAGGING; ++strand_id) {
+  for (auto& strand_id: {LEADING, LAGGING}) {
     auto& strand = _rna_list[strand_id];
     for (auto rna = strand.begin(); rna != strand.end(); ++rna) {
       transcript_start = (*rna)->get_first_transcribed_pos();
       (*rna)->set_transcript_length(-1);
 
       int32_t i;
-      for ( i = 0 ; i < genome_length ; i++ ) {
+      for (i = 0 ; i < genome_length ; ++i) {
         if (   (strand_id == LEADING and is_terminator(LEADING, transcript_start + i))
-               or (strand_id == LAGGING and is_terminator(LAGGING, transcript_start - i))) {
+            or (strand_id == LAGGING and is_terminator(LAGGING, transcript_start - i))) {
           // Found terminator => set transcript's length
-          (*rna)->set_transcript_length( i + TERM_SIZE );
+          (*rna)->set_transcript_length(i + TERM_SIZE);
 
           // Deduce the length of all the RNAs that share the same terminator
           // These are the RNAs whose promoter is entirely (and strictly) included
@@ -938,6 +939,7 @@ void GeneticUnit::do_transcription( void )
               // we will need to search its own terminator
               break;
             }
+          }
           // Terminator found for this RNA, nothing else to do (for this RNA)
           break;
         }
