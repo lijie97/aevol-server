@@ -103,7 +103,7 @@ class ae_protein
     //                            Public Methods
     // =================================================================
             void  add_RNA( ae_rna* rna );
-            char* get_AA_sequence( void ) const; // WARNING : creates a new char[...] (up to you to delete it!)
+    char* get_AA_sequence(char separator = ' ') const; // WARNING : creates a new char[...] (up to you to delete it!)
     virtual void  save( gzFile backup_file );
 
     // =================================================================
