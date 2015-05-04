@@ -978,9 +978,12 @@ void GeneticUnit::do_translation()
       for (int32_t i = 0;
            transcript_length - i >= SHINE_DAL_SIZE + SHINE_START_SPACER + 3 * CODON_SIZE;
            ++i) {
-        // TODO vld: synthetize condition
-        if (   (strand == LEADING and is_shine_dalgarno( LEADING, ae_utils::mod(transcript_start + i, genome_length)) and is_start(LEADING, ae_utils::mod(transcript_start + i + SHINE_DAL_SIZE + SHINE_START_SPACER, genome_length)))
-               or (strand == LAGGING and is_shine_dalgarno( LAGGING, ae_utils::mod(transcript_start - i, genome_length)) and is_start(LAGGING, ae_utils::mod(transcript_start - i - SHINE_DAL_SIZE - SHINE_START_SPACER, genome_length)))) {
+        if (is_shine_dalgarno(strand, ae_utils::mod(transcript_start
+                                                    + (strand == LEADING ? i : -i), genome_length))
+            and is_start(strand,
+                         ae_utils::mod(transcript_start
+                                       + (strand == LEADING ? 1 : -1)
+                                       * (i + SHINE_DAL_SIZE + SHINE_START_SPACER), genome_length))) {
           // We found a translation initiation, we can now build the
           // protein until we find a STOP codon or until we reach the
           // end of the transcript (in which case the protein is not
