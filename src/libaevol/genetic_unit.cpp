@@ -913,8 +913,7 @@ void GeneticUnit::do_transcription( void )
 
       int32_t i;
       for (i = 0 ; i < genome_length ; ++i) {
-        if (   (strand_id == LEADING and is_terminator(LEADING, transcript_start + i))
-            or (strand_id == LAGGING and is_terminator(LAGGING, transcript_start - i))) {
+        if (is_terminator(strand_id, transcript_start + (strand_id == LEADING ? i : -i))) {
           // Found terminator => set transcript's length
           (*rna)->set_transcript_length(i + TERM_SIZE);
 
