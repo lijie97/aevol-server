@@ -990,8 +990,8 @@ void GeneticUnit::do_translation()
           // valid)
 
           // First of all, we will check whether this CDS has already
-          // been translated (because it is present on another RNA In
-          // that case, we don't need to tranlate it again, we only
+          // been translated (because it is present on another RNA).
+          // In that case, we don't need to tranlate it again, we only
           // need to increase the protein's concentration according to
           // the promoter transcription level
           int32_t shine_dal_pos = (strand == LEADING) ?
