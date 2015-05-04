@@ -1023,11 +1023,10 @@ void GeneticUnit::do_translation()
                   ae_protein* protein;
 #ifndef __REGUL
                   protein = new ae_protein(this, codon_list, strand, shine_dal_pos, rna);
-#else // TODO vld: check/test
+#else
                   protein = new ae_protein_R(this, codon_list, strand, shine_dal_pos, rna);
 #endif
-                  // The codon list will be kept in the protein
-                  codon_list.clear();
+                  codon_list.clear(); // has been copied into `protein`
 
                   protein_strand.emplace_back(protein);
                   rna->add_transcribed_protein(protein);
