@@ -994,9 +994,7 @@ void GeneticUnit::do_translation()
           // In that case, we don't need to tranlate it again, we only
           // need to increase the protein's concentration according to
           // the promoter transcription level
-          int32_t shine_dal_pos = (strand == LEADING) ?
-              ae_utils::mod(transcript_start + i, genome_length) :
-              ae_utils::mod(transcript_start - i, genome_length);
+          int32_t shine_dal_pos = ae_utils::mod(transcript_start + (strand == LEADING ? i : -i), genome_length);
           auto& protein_strand = _protein_list[strand];
           auto protein = find_if(protein_strand.begin(), protein_strand.end(), [shine_dal_pos](ae_protein* p) { return p->get_shine_dal_pos() == shine_dal_pos; });
 
