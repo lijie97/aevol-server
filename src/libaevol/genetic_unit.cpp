@@ -1014,9 +1014,7 @@ void GeneticUnit::do_translation()
             while (transcript_length - j >= CODON_SIZE) {
               auto codon = new ae_codon(_dna,
                                         strand,
-                                        ae_utils::mod(((strand == LEADING) ?
-                                                       transcript_start + j :
-                                                       transcript_start - j),
+                                        ae_utils::mod(transcript_start + (strand == LEADING ? j : -j),
                                                       genome_length));
 
               if (codon->is_stop()) {
