@@ -996,7 +996,10 @@ void GeneticUnit::do_translation()
           // the promoter transcription level
           int32_t shine_dal_pos = ae_utils::mod(transcript_start + (strand == LEADING ? i : -i), genome_length);
           auto& protein_strand = _protein_list[strand];
-          auto protein = find_if(protein_strand.begin(), protein_strand.end(), [shine_dal_pos](ae_protein* p) { return p->get_shine_dal_pos() == shine_dal_pos; });
+          auto protein = find_if(protein_strand.begin(),
+                                 protein_strand.end(),
+                                 [shine_dal_pos](ae_protein* p)
+                                 { return p->get_shine_dal_pos() == shine_dal_pos; });
 
           if (protein != protein_strand.end()) {
             (*protein)->add_RNA(rna);
