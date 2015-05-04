@@ -1055,6 +1055,9 @@ void GeneticUnit::do_translation()
               }
               j += CODON_SIZE;
             }
+            if (not codon_list.empty())
+              for (auto& c: codon_list)
+                delete c;
           }
         }
       }
