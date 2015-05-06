@@ -566,14 +566,14 @@ void ae_exp_manager::run_evolution( void )
   // Dump the initial state of the population; useful for restarts
   _output_m->write_current_generation_outputs();
 
-  while (Time::get_time() < t_end)
-  {
-    if (quit_signal_received()) break;
-
+  while (true) { // termination condition is into the loop
     printf("============================== %" PRId64 " ==============================\n",
         Time::get_time());
     printf("  Best individual's distance to target (metabolic) : %f\n",
         _pop->get_best()->get_dist_to_target_by_feature(METABOLISM));
+
+    if (Time::get_time() >= t_end or quit_signal_received())
+      break;
 
     #ifdef __X11
       display();
