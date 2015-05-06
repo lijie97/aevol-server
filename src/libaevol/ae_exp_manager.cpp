@@ -568,16 +568,16 @@ void ae_exp_manager::run_evolution( void )
 
   while (true) { // termination condition is into the loop
     printf("============================== %" PRId64 " ==============================\n",
-        Time::get_time());
+           Time::get_time());
     printf("  Best individual's distance to target (metabolic) : %f\n",
-        _pop->get_best()->get_dist_to_target_by_feature(METABOLISM));
+           _pop->get_best()->get_dist_to_target_by_feature(METABOLISM));
 
     if (Time::get_time() >= t_end or quit_signal_received())
       break;
 
-    #ifdef __X11
-      display();
-    #endif
+#ifdef __X11
+    display();
+#endif
 
     // Take one step in the evolutionary loop
     step_to_next_generation();
@@ -587,13 +587,7 @@ void ae_exp_manager::run_evolution( void )
   }
 
   _output_m->flush();
-
-
-  printf("============================== %" PRId64 " ==============================\n",
-      Time::get_time());
-  printf("  Best individual's distance to target (metabolic) : %f\n",
-      _pop->get_best()->get_dist_to_target_by_feature(METABOLISM));
-  printf("===================================================================\n");
+  printf("================================================================\n");
   printf("  The run is finished. \n");
   printf("  Printing the final best individual into " BEST_LAST_ORG_FNAME "\n");
   FILE* org_file = fopen(BEST_LAST_ORG_FNAME, "w");
