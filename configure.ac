@@ -57,6 +57,12 @@ AC_TYPE_UINT8_T
 # Checks for library functions.
 AC_CHECK_FUNCS([floor memset mkdir pow rint sqrt gzread])
 
+# Configure pthreads (used by gtest).
+ACX_PTHREAD()
+AM_CONDITIONAL([HAVE_PTHREADS],[test "x$acx_pthread_ok" = "xyes"])
+AC_SUBST(PTHREAD_CFLAGS)
+AC_SUBST(PTHREAD_LIBS)
+
 
 # ****************************************************************************
 #                                  OPTIONS
@@ -250,12 +256,6 @@ if test "x$enable_devel" = "xyes" ; then
   fi
 
   # Add GTest
-  # Configure pthreads.
-  ACX_PTHREAD()
-  AM_CONDITIONAL([HAVE_PTHREADS],[test "x$acx_pthread_ok" = "xyes"])
-  AC_SUBST(PTHREAD_CFLAGS)
-  AC_SUBST(PTHREAD_LIBS)
-
   # Tell autoconf to run a separate configure script in gtest's dir
   AC_CONFIG_SUBDIRS([src/tests/gtest-1.7.0])
 else
