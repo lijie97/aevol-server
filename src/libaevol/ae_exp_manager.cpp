@@ -393,18 +393,18 @@ void ae_exp_manager::run_evolution(void)
   // Dump the initial state of the population; useful for restarts
   _output_m->write_current_generation_outputs();
 
-  while (Time::get_time() < t_end)
-  {
-    if (quit_signal_received()) break;
-
+  while (true) { // termination condition is into the loop
     printf("============================== %" PRId64 " ==============================\n",
-        Time::get_time());
+           Time::get_time());
     printf("  Best individual's distance to target (metabolic) : %f\n",
-        get_best_indiv()->get_dist_to_target_by_feature(METABOLISM));
+           get_best_indiv()->get_dist_to_target_by_feature(METABOLISM));
 
-    #ifdef __X11
-      display();
-    #endif
+    if (Time::get_time() >= t_end or quit_signal_received())
+      break;
+
+#ifdef __X11
+    display();
+#endif
 
     // Take one step in the evolutionary loop
     step_to_next_generation();
@@ -414,13 +414,7 @@ void ae_exp_manager::run_evolution(void)
   }
 
   _output_m->flush();
-
-
-  printf("============================== %" PRId64 " ==============================\n",
-      Time::get_time());
-  printf("  Best individual's distance to target (metabolic) : %f\n",
-      get_best_indiv()->get_dist_to_target_by_feature(METABOLISM));
-  printf("===================================================================\n");
+  printf("================================================================\n");
   printf("  The run is finished. \n");
   printf("  Printing the final best individual into " BEST_LAST_ORG_FNAME "\n");
   FILE* org_file = fopen(BEST_LAST_ORG_FNAME, "w");

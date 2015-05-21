@@ -942,8 +942,7 @@ void GeneticUnit::do_transcription( void )
 
       int32_t i;
       for (i = 0 ; i < genome_length ; ++i) {
-        if (   (strand_id == LEADING and is_terminator(LEADING, transcript_start + i))
-            or (strand_id == LAGGING and is_terminator(LAGGING, transcript_start - i))) {
+        if (is_terminator(strand_id, transcript_start + (strand_id == LEADING ? i : -i))) {
           // Found terminator => set transcript's length
           (*rna)->set_transcript_length(i + TERM_SIZE);
 
@@ -953,8 +952,9 @@ void GeneticUnit::do_transcription( void )
           // They are hence the RNAs whose promoter starts at most i bases after the
           // current rna's promoter
           for (auto rna2 = std::next(rna); rna2 != strand.end(); ++rna2) {
-            // We know rna_2 is after rna => | rna_2->pos > rna->pos for LEADING strand
-            //                               | rna_2->pos < rna->pos for LAGGING strand
+            // We know that if rna2 is after rna then:
+            // - rna_2->pos > rna->pos for LEADING strand
+            // - rna_2->pos < rna->pos for LAGGING strand
             // because the list is sorted.
 
             auto delta_pos = abs((*rna2)->get_promoter_pos() - (*rna)->get_promoter_pos());
@@ -1007,24 +1007,28 @@ void GeneticUnit::do_translation()
       for (int32_t i = 0;
            transcript_length - i >= SHINE_DAL_SIZE + SHINE_START_SPACER + 3 * CODON_SIZE;
            ++i) {
-        // TODO vld: synthetize condition
-        if (   (strand == LEADING and is_shine_dalgarno( LEADING, ae_utils::mod(transcript_start + i, genome_length)) and is_start(LEADING, ae_utils::mod(transcript_start + i + SHINE_DAL_SIZE + SHINE_START_SPACER, genome_length)))
-               or (strand == LAGGING and is_shine_dalgarno( LAGGING, ae_utils::mod(transcript_start - i, genome_length)) and is_start(LAGGING, ae_utils::mod(transcript_start - i - SHINE_DAL_SIZE - SHINE_START_SPACER, genome_length)))) {
+        if (is_shine_dalgarno(strand, ae_utils::mod(transcript_start
+                                                    + (strand == LEADING ? i : -i), genome_length))
+            and is_start(strand,
+                         ae_utils::mod(transcript_start
+                                       + (strand == LEADING ? 1 : -1)
+                                       * (i + SHINE_DAL_SIZE + SHINE_START_SPACER), genome_length))) {
           // We found a translation initiation, we can now build the
           // protein until we find a STOP codon or until we reach the
           // end of the transcript (in which case the protein is not
           // valid)
 
           // First of all, we will check whether this CDS has already
-          // been translated (because it is present on another RNA In
-          // that case, we don't need to tranlate it again, we only
+          // been translated (because it is present on another RNA).
+          // In that case, we don't need to tranlate it again, we only
           // need to increase the protein's concentration according to
           // the promoter transcription level
-          int32_t shine_dal_pos = (strand == LEADING) ?
-                                  ae_utils::mod(transcript_start + i, genome_length) :
-                                  ae_utils::mod(transcript_start - i, genome_length);
+          int32_t shine_dal_pos = ae_utils::mod(transcript_start + (strand == LEADING ? i : -i), genome_length);
           auto& protein_strand = _protein_list[strand];
-          auto protein = find_if(protein_strand.begin(), protein_strand.end(), [shine_dal_pos](ae_protein* p) { return p->get_shine_dal_pos() == shine_dal_pos; });
+          auto protein = find_if(protein_strand.begin(),
+                                 protein_strand.end(),
+                                 [shine_dal_pos](ae_protein* p)
+                                 { return p->get_shine_dal_pos() == shine_dal_pos; });
 
           if (protein != protein_strand.end()) {
             (*protein)->add_RNA(rna);
@@ -1039,9 +1043,7 @@ void GeneticUnit::do_translation()
             while (transcript_length - j >= CODON_SIZE) {
               auto codon = new ae_codon(_dna,
                                         strand,
-                                        ae_utils::mod(((strand == LEADING) ?
-                                                       transcript_start + j :
-                                                       transcript_start - j),
+                                        ae_utils::mod(transcript_start + (strand == LEADING ? j : -j),
                                                       genome_length));
 
               if (codon->is_stop()) {
@@ -1050,11 +1052,10 @@ void GeneticUnit::do_translation()
                   ae_protein* protein;
 #ifndef __REGUL
                   protein = new ae_protein(this, codon_list, strand, shine_dal_pos, rna);
-#else // TODO vld: check/test
+#else
                   protein = new ae_protein_R(this, codon_list, strand, shine_dal_pos, rna);
 #endif
-                  // The codon list will be kept in the protein
-                  codon_list.clear();
+                  codon_list.clear(); // has been copied into `protein`
 
                   protein_strand.emplace_back(protein);
                   rna->add_transcribed_protein(protein);
@@ -1083,6 +1084,9 @@ void GeneticUnit::do_translation()
               }
               j += CODON_SIZE;
             }
+            if (not codon_list.empty())
+              for (auto& c: codon_list)
+                delete c;
           }
         }
       }

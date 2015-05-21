@@ -70,7 +70,7 @@ class ae_protein
     // =================================================================
     ae_protein( GeneticUnit* gen_unit, const ae_protein &model );
     ae_protein(GeneticUnit* gen_unit,
-               const std::list<ae_codon*>& codon_list,
+               const std::list<ae_codon*> codon_list,
                ae_strand strand,
                int32_t shine_dal,
                ae_rna* rna );
