@@ -608,8 +608,12 @@ ae_individual* ae_selection::do_replication(ae_individual* parent, int32_t index
 
 ae_individual* ae_selection::do_local_competition (int16_t x, int16_t y)
 {
-  // This function uses the array _prob_reprod when selection scheme is RANK_LINEAR, RANK_EXPONENTIAL, or FITTEST. For these selection schemes, the function compute_local_prob_reprod (creating the array _prob_reprod) must have been called before.
-  // When selection scheme is FITNESS_PROPORTIONATE, this function only uses the fitness values
+  // This function uses the array _prob_reprod when selection scheme is
+  // RANK_LINEAR, RANK_EXPONENTIAL, or FITTEST. For these selection schemes,
+  // the function compute_local_prob_reprod (creating the array _prob_reprod)
+  // must have been called before.
+  // When selection scheme is FITNESS_PROPORTIONATE, this function only uses
+  // the fitness values
 
   World* world = _exp_m->world();
 
