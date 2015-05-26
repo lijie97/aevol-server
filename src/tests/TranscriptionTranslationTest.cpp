@@ -159,9 +159,9 @@ void expect_equal(const list<protein_line> expected_proteins,
     EXPECT_EQ(exp_prot->len, act_prot->len);
     EXPECT_EQ(exp_prot->lpos, act_prot->lpos);
     EXPECT_EQ(exp_prot->sequence, act_prot->sequence);
-    // EXPECT_NEAR(exp_prot->m, act_prot->m, 0.000001);
-    // EXPECT_NEAR(exp_prot->w, act_prot->w, 0.000001);
-    // EXPECT_NEAR(exp_prot->h, act_prot->h, 0.000001);
+    EXPECT_NEAR(exp_prot->m, act_prot->m, 0.000001);
+    EXPECT_NEAR(exp_prot->w, act_prot->w, 0.000001);
+    EXPECT_NEAR(exp_prot->h, act_prot->h, 0.000001);
     EXPECT_NEAR(exp_prot->c, act_prot->c, 0.000001);
     EXPECT_EQ(exp_prot->f, act_prot->f);
     EXPECT_EQ(exp_prot->prom_pos, act_prot->prom_pos);
@@ -187,7 +187,7 @@ void TranscriptionTranslationTest::check_genome(const string& dir, int generatio
 
   // Construct individual with the genome we've read
   ae_params_mut params_mut;
-  indiv = new ae_individual(nullptr, nullptr, nullptr, std::make_shared<ae_params_mut>(params_mut), 1.0, 10, 1000, false, 1, "anon-strain-1", 0);
+  indiv = new ae_individual(nullptr, nullptr, nullptr, std::make_shared<ae_params_mut>(params_mut), 0.1, 10, 1000, false, 1, "anon-strain-1", 0);
   char* raw_genome = new char[genome.size()+1];
   strcpy(raw_genome, genome.c_str());
   indiv->add_GU(raw_genome, genome.size());
