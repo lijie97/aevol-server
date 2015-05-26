@@ -709,6 +709,12 @@ GeneticUnit::GeneticUnit(ae_individual* indiv, const GeneticUnit& model)
   compute_phenotypic_contribution();
 }
 
+/**
+ * Reproduction constructor
+ *
+ * Create a new genetic unit copying the DNA sequence and the promoter list
+ * from the provided `parent`
+ */
 GeneticUnit::GeneticUnit(ae_individual* indiv, const GeneticUnit* parent)
 {
   _exp_m = indiv->get_exp_m();
@@ -729,14 +735,15 @@ GeneticUnit::GeneticUnit(ae_individual* indiv, const GeneticUnit* parent)
 
   // Copy promoter list (_rna_list)
   // Note that the length of the RNA will have to be recomputed (do_transcription)
-  for (auto strand: {LEADING, LAGGING})
-    for (auto* rna: _rna_list[strand]) {
+  for (auto strand: {LEADING, LAGGING}) {
+    for (auto* rna: parent->_rna_list[strand]) {
 #ifndef __REGUL
       _rna_list[strand].push_back(new ae_rna(this, *rna));
 #else
       _rna_list[strand].push_back(new ae_rna_R(this, (dynamic_cast<ae_rna_R*>(rna))));
 #endif
     }
+  }
 
   // Create empty fuzzy sets for the phenotypic contributions
   _activ_contribution = new Fuzzy();
