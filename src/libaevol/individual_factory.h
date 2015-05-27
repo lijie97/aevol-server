@@ -97,7 +97,8 @@ class IndividualFactory
       bool plasmid_initial_gene,
       int32_t plasmid_initial_length,
       char* strain_name,
-      std::shared_ptr<ae_jumping_mt> local_prng);
+      std::shared_ptr<ae_jumping_mt> local_prng,
+      bool better_than_flat);
   static ae_individual* create_random_individual_with_good_gene(
       ae_exp_manager* exp_m,
       int32_t id,

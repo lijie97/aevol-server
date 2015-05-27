@@ -1385,7 +1385,7 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
       // Create an individual with a "good" gene (in fact, make an indiv whose
       // fitness is better than that corresponding to a flat phenotype)
       // and set its id
-      indiv = IndividualFactory::create_random_individual_with_good_gene(
+      indiv = IndividualFactory::create_random_individual(
           exp_m,
           id_new_indiv++,
           param_mut,
@@ -1400,7 +1400,8 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
           _plasmid_initial_gene,
           _plasmid_initial_length,
           _strain_name,
-          _prng);
+          _prng,
+          true);
       indiv->get_genetic_unit_nonconst(0).set_min_gu_length(_chromosome_minimal_length);
       indiv->get_genetic_unit_nonconst(0).set_max_gu_length(_chromosome_maximal_length);
 
@@ -1429,7 +1430,7 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
       for (int32_t i = 0 ; i < _init_pop_size ; i++)
       {
         // Create an individual and set its id
-        indiv = IndividualFactory::create_random_individual_with_good_gene(
+        indiv = IndividualFactory::create_random_individual(
             exp_m,
             id_new_indiv++,
             param_mut,
@@ -1444,7 +1445,8 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
             _plasmid_initial_gene,
             _plasmid_initial_length,
             _strain_name,
-            _prng);
+            _prng,
+            true);
         indiv->get_genetic_unit_nonconst(0).set_min_gu_length(_chromosome_minimal_length);
         indiv->get_genetic_unit_nonconst(0).set_max_gu_length(_chromosome_maximal_length);
         if (_allow_plasmids)
@@ -1478,7 +1480,8 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
           _plasmid_initial_gene,
           _plasmid_initial_length,
           _strain_name,
-          _prng);
+          _prng,
+          false);
       indiv->get_genetic_unit_nonconst(0).set_min_gu_length(_chromosome_minimal_length);
       indiv->get_genetic_unit_nonconst(0).set_max_gu_length(_chromosome_maximal_length);
       if (_allow_plasmids)
@@ -1519,7 +1522,8 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
             _plasmid_initial_gene,
             _plasmid_initial_length,
             _strain_name,
-            _prng);
+            _prng,
+            false);
         indiv->get_genetic_unit_nonconst(0).set_min_gu_length(_chromosome_minimal_length);
         indiv->get_genetic_unit_nonconst(0).set_max_gu_length(_chromosome_maximal_length);
         if (_allow_plasmids)
