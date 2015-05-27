@@ -59,24 +59,6 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_individual_X11::ae_individual_X11(ae_exp_manager* exp_m,
-                                     std::shared_ptr<ae_jumping_mt> mut_prng,
-                                     std::shared_ptr<ae_jumping_mt> stoch_prng,
-                                     std::shared_ptr<ae_params_mut> param_mut,
-                                     double w_max,
-                                     int32_t min_genome_length,
-                                     int32_t max_genome_length,
-                                     bool allow_plasmids,
-                                     int32_t id,
-                                     char* strain_name,
-                                     int32_t age) :
-    ae_individual(exp_m, mut_prng, stoch_prng, param_mut, w_max,
-                  min_genome_length, max_genome_length, allow_plasmids,
-                  id, strain_name, age)
-{
-  init_occupied_sectors();
-}
-
 ae_individual_X11::ae_individual_X11(ae_exp_manager* exp_manager, gzFile backup_file) :
     ae_individual(exp_manager, backup_file)
 {
