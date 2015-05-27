@@ -393,6 +393,7 @@ void ae_exp_manager::run_evolution(void)
   // Dump the initial state of the population; useful for restarts
   _output_m->write_current_generation_outputs();
 
+  // For each generation
   while (true) { // termination condition is into the loop
     printf("============================== %" PRId64 " ==============================\n",
            Time::get_time());

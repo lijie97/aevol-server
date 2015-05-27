@@ -1622,10 +1622,8 @@ ae_individual* param_loader::create_random_individual(
     std::shared_ptr<ae_jumping_mt> stoch_prng,
     const Habitat& habitat) const
 {
-
-
   // ------------------------------------------------------- Global constraints
-  // Create an individual with this genome and set its id
+  // Create an individual and set its id
   ae_individual* indiv = new ae_individual(exp_m,
                                            mut_prng,
                                            stoch_prng,

@@ -51,6 +51,9 @@ namespace aevol {
 // ===========================================================================
 //                             Constructors
 // ===========================================================================
+/**
+ * // TODO <david.parsons@inria.fr>
+ */
 ae_individual::ae_individual(ae_exp_manager* exp_m,
                              std::shared_ptr<ae_jumping_mt> mut_prng,
                              std::shared_ptr<ae_jumping_mt> stoch_prng,
@@ -86,21 +89,21 @@ ae_individual::ae_individual(ae_exp_manager* exp_m,
 
   _dist_to_target_by_segment  = NULL;
   _dist_to_target_by_feature  = new double [NB_FEATURES];
+  _fitness_by_feature = new double [NB_FEATURES];
   for (int i=0; i<NB_FEATURES; i++)
   {
     _dist_to_target_by_feature[i]=0;
-  }
-  _fitness_by_feature         = new double [NB_FEATURES];
-  for (int i=0; i<NB_FEATURES; i++)
-  {
     _fitness_by_feature[i]=0;
   }
 
   _fitness = 0.0;
+
+  // TODO <david.parsons@inria.fr> Deal with cell coordinates on the grid
   // When using structured population, this is the cell the individual is in
   // x = y = -1;
 
   // The chromosome and plasmids (if allowed)
+  // TODO <david.parsons@inria.fr> ???
 
   // Generic probes
   _int_probes     = new int32_t[5];
@@ -146,9 +149,10 @@ ae_individual::ae_individual(ae_exp_manager* exp_m,
 }
 
 /*!
-  This constructor retreives an individual from a backup file.
+  This constructor retrieves an individual from a backup file.
 
-  Since this generation has already been processed, no unnecessary calculation (e.g. fitness) will be done.
+  Since this generation has already been processed, no unnecessary calculation
+  (e.g. fitness) will be done.
   No transcription, translation or other process of that kind is performed.
 */
 ae_individual::ae_individual(ae_exp_manager* exp_m, gzFile backup_file)
@@ -178,7 +182,7 @@ ae_individual::ae_individual(ae_exp_manager* exp_m, gzFile backup_file)
     assert(_stoch_prng);
   }
 
-  // Retreive id and rank
+  // Retrieve id and rank
   gzread(backup_file, &_id,    sizeof(_id));
   gzread(backup_file, &_rank,  sizeof(_rank));
 
@@ -187,7 +191,7 @@ ae_individual::ae_individual(ae_exp_manager* exp_m, gzFile backup_file)
   // gzread(backup_file, &y, sizeof(y));
   _placed_in_population = false;
 
-  // Retreive generic probes
+  // Retrieve generic probes
   _int_probes     = new int32_t[5];
   _double_probes  = new double[5];
   gzread(backup_file, _int_probes,     5 * sizeof(*_int_probes));
@@ -211,7 +215,7 @@ ae_individual::ae_individual(ae_exp_manager* exp_m, gzFile backup_file)
   gzread(backup_file, &tmp_allow_plasmids, sizeof(tmp_allow_plasmids));
   _allow_plasmids = tmp_allow_plasmids ? 1 : 0;
 
-  // Retreive genetic units
+  // Retrieve genetic units
   int16_t nb_gen_units;
   gzread(backup_file, &nb_gen_units,  sizeof(nb_gen_units));
 
@@ -375,11 +379,14 @@ ae_individual::ae_individual(const ae_individual& model,
   _allow_plasmids = model._allow_plasmids;
 }
 
-/*!
-  This constructor creates a new individual with the same genome as it's parent.
-  The location of promoters will be copied but no further process will be performed.
-
-  The phenotype and the fitness are not set, neither is the statistical data.
+/**
+ * Reproduction constructor
+ *
+ * This constructor creates a new individual with the same genome as it's
+ * parent. The location of promoters will be copied but no further process will
+ * be performed.
+ *
+ * The phenotype and the fitness are not set, neither is the statistical data.
 */
 ae_individual::ae_individual(const ae_individual* parent, int32_t id,
                              std::shared_ptr<ae_jumping_mt> mut_prng,
