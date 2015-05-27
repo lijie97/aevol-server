@@ -196,7 +196,7 @@ class PhenotypicTargetHandler
 
   // -------------------------------------------------------------------- Noise
   /// Current noise (pure noise that is added to the phenotypic target)
-  Fuzzy* cur_noise_;
+  Fuzzy* cur_noise_ = NULL;
   /// PRNG used for noise
   std::shared_ptr<ae_jumping_mt> noise_prng_;
   ae_env_noise noise_method_;
