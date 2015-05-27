@@ -38,6 +38,7 @@ ae_gaussian.h \
 genetic_unit.h \
 ae_grid_cell.h \
 ae_individual.h \
+individual_factory.h \
 ae_logs.h \
 macros.h \
 ae_mutation.h \
@@ -79,6 +80,7 @@ ae_exp_setup.cpp \
 genetic_unit.cpp \
 ae_grid_cell.cpp \
 ae_individual.cpp \
+individual_factory.cpp \
 ae_logs.cpp \
 ae_mutation.cpp \
 ae_output_manager.cpp \
