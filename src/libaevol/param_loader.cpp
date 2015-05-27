@@ -48,6 +48,7 @@
 #include "ae_exp_setup.h"
 #include "ae_output_manager.h"
 #include "ae_individual.h"
+#include "individual_factory.h"
 
 #include "ae_jumping_mt.h"
 #include "ae_gaussian.h"
@@ -1384,8 +1385,22 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
       // Create an individual with a "good" gene (in fact, make an indiv whose
       // fitness is better than that corresponding to a flat phenotype)
       // and set its id
-      indiv = create_random_individual_with_good_gene(exp_m, id_new_indiv++, param_mut,
-                                                      mut_prng, stoch_prng, habitat);
+      indiv = IndividualFactory::create_random_individual_with_good_gene(
+          exp_m,
+          id_new_indiv++,
+          param_mut,
+          mut_prng,
+          stoch_prng,
+          habitat,
+          _w_max,
+          _min_genome_length,
+          _max_genome_length,
+          _chromosome_initial_length,
+          _allow_plasmids,
+          _plasmid_initial_gene,
+          _plasmid_initial_length,
+          _strain_name,
+          _prng);
       indiv->get_genetic_unit_nonconst(0).set_min_gu_length(_chromosome_minimal_length);
       indiv->get_genetic_unit_nonconst(0).set_max_gu_length(_chromosome_maximal_length);
 
@@ -1414,8 +1429,22 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
       for (int32_t i = 0 ; i < _init_pop_size ; i++)
       {
         // Create an individual and set its id
-        indiv = create_random_individual_with_good_gene(exp_m, id_new_indiv++, param_mut,
-                                                        mut_prng, stoch_prng, habitat);
+        indiv = IndividualFactory::create_random_individual_with_good_gene(
+            exp_m,
+            id_new_indiv++,
+            param_mut,
+            mut_prng,
+            stoch_prng,
+            habitat,
+            _w_max,
+            _min_genome_length,
+            _max_genome_length,
+            _chromosome_initial_length,
+            _allow_plasmids,
+            _plasmid_initial_gene,
+            _plasmid_initial_length,
+            _strain_name,
+            _prng);
         indiv->get_genetic_unit_nonconst(0).set_min_gu_length(_chromosome_minimal_length);
         indiv->get_genetic_unit_nonconst(0).set_max_gu_length(_chromosome_maximal_length);
         if (_allow_plasmids)
@@ -1434,8 +1463,22 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
     if (_init_method & CLONE)
     {
       // Create a random individual and set its id
-      indiv = create_random_individual(exp_m, id_new_indiv++, param_mut,
-                                       mut_prng, stoch_prng, habitat);
+      indiv = IndividualFactory::create_random_individual(
+          exp_m,
+          id_new_indiv++,
+          param_mut,
+          mut_prng,
+          stoch_prng,
+          habitat,
+          _w_max,
+          _min_genome_length,
+          _max_genome_length,
+          _chromosome_initial_length,
+          _allow_plasmids,
+          _plasmid_initial_gene,
+          _plasmid_initial_length,
+          _strain_name,
+          _prng);
       indiv->get_genetic_unit_nonconst(0).set_min_gu_length(_chromosome_minimal_length);
       indiv->get_genetic_unit_nonconst(0).set_max_gu_length(_chromosome_maximal_length);
       if (_allow_plasmids)
@@ -1461,8 +1504,22 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
       for (int32_t i = 0 ; i < _init_pop_size ; i++)
       {
         // Create a random individual and set its id
-        indiv = create_random_individual(exp_m, id_new_indiv++, param_mut,
-                                         mut_prng, stoch_prng, habitat);
+        indiv = IndividualFactory::create_random_individual(
+            exp_m,
+            id_new_indiv++,
+            param_mut,
+            mut_prng,
+            stoch_prng,
+            habitat,
+            _w_max,
+            _min_genome_length,
+            _max_genome_length,
+            _chromosome_initial_length,
+            _allow_plasmids,
+            _plasmid_initial_gene,
+            _plasmid_initial_length,
+            _strain_name,
+            _prng);
         indiv->get_genetic_unit_nonconst(0).set_min_gu_length(_chromosome_minimal_length);
         indiv->get_genetic_unit_nonconst(0).set_max_gu_length(_chromosome_maximal_length);
         if (_allow_plasmids)
@@ -1604,180 +1661,6 @@ f_line* param_loader::get_line(int32_t* cur_line_ptr) // void
     delete formated_line;
     return NULL;
   }
-}
-
-/*!
-  \brief Create an individual with random sequences
-
-  \param exp_m global exp_manager
-  \param param_mut mutation parameter of the newly created individual
-  \param id index of newly created individual in the population
-  \return clone of dolly
-*/
-ae_individual* param_loader::create_random_individual(
-    ae_exp_manager* exp_m,
-    int32_t id,
-    std::shared_ptr<ae_params_mut> param_mut,
-    std::shared_ptr<ae_jumping_mt> mut_prng,
-    std::shared_ptr<ae_jumping_mt> stoch_prng,
-    const Habitat& habitat) const
-{
-  // ------------------------------------------------------- Global constraints
-  // Create an individual and set its id
-  ae_individual* indiv = new ae_individual(exp_m,
-                                           mut_prng,
-                                           stoch_prng,
-                                           param_mut,
-                                           _w_max,
-                                           _min_genome_length,
-                                           _max_genome_length,
-                                           _allow_plasmids,
-                                           id,
-                                           _strain_name,
-                                           0);
-
-  // ae_genetic_unit * chrom = new ae_genetic_unit(indiv, _chromosome_initial_length, _prng); // a random sequence is generated by the ae_string constructor
-  // indiv->add_GU(ae_genetic_unit(indiv, _chromosome_initial_length, _prng));
-  indiv->add_GU(indiv, _chromosome_initial_length, _prng);
-  const GeneticUnit * chrom = &indiv->get_genetic_unit_list_std().back();
-
-  if (_allow_plasmids) // We create a plasmid
-  {
-    if (_plasmid_initial_gene == 1) // Then the plasmid is generated independently from the chromosome
-      // indiv->add_GU(ae_genetic_unit(indiv, _plasmid_initial_length, _prng)); // a random sequence is generated by the ae_string constructor
-      indiv->add_GU(indiv, _plasmid_initial_length, _prng); // a random sequence is generated by the ae_string constructor
-    else // The plasmid has the same genome than the chromosome
-    {
-      char * plasmid_genome = new char [_chromosome_initial_length + 1]; // As ae_dna constructor do not allocate memory but directly use the provided string, we allocate the memory here.
-      strncpy(plasmid_genome, chrom->get_sequence(), _chromosome_initial_length+1);
-      indiv->add_GU(plasmid_genome, _chromosome_initial_length);
-    }
-  }
-
-
-  // Insert a few IS in the sequence
-  /*if (ae_common::init_params->get_init_method() & WITH_INS_SEQ)
-  {
-    // Create a random sequence
-    int32_t seq_len = 50;
-    char* ins_seq = new char[seq_len+1];
-    int16_t nb_insert = 50;
-    int16_t nb_invert = 50;
-
-    for (int32_t i = 0 ; i < seq_len ; i++)
-    {
-      ins_seq[i] = '0' + ae_common::sim->prng->random(NB_BASE);
-    }
-    ins_seq[seq_len] = '\0';
-
-
-    // Insert the sequence at random positions
-    ae_mutation* mut1 = NULL;
-    for (int16_t i = 0 ; i < nb_insert ; i++)
-    {
-      mut1 = indiv->get_genetic_unit(0)->get_dna()->do_insertion(ins_seq, seq_len);
-      delete mut1;
-    }
-
-
-    // Invert the sequence and insert it at random positions
-    char* inverted_seq = new char[seq_len+1];
-    for (int32_t i = 0 ; i < seq_len ; i++)
-    {
-      inverted_seq[i] = (ins_seq[seq_len-1-i] == '1') ? '0' : '1';
-    }
-    inverted_seq[seq_len] = '\0';
-
-    for (int16_t i = 0 ; i < nb_invert ; i++)
-    {
-      mut1 = indiv->get_genetic_unit(0)->get_dna()->do_insertion(inverted_seq, seq_len);
-      delete mut1;
-    }
-
-    delete [] ins_seq;
-    delete [] inverted_seq;
-  }*/
-
-  // Evaluate the newly created individual
-  indiv->EvaluateInContext(habitat);
-
-  return indiv;
-}
-
-/*!
-  \brief Create an individual with random sequences. The individual have to have at least one good functional gene
-
-  \param exp_m global exp_manager
-  \param param_mut mutation parameter of the newly created individual
-  \param id index of newly created individual in the population
-  \return clone of dolly
-*/
-ae_individual* param_loader::create_random_individual_with_good_gene(
-    ae_exp_manager* exp_m,
-    int32_t id,
-    std::shared_ptr<ae_params_mut> param_mut,
-    std::shared_ptr<ae_jumping_mt> mut_prng,
-    std::shared_ptr<ae_jumping_mt> stoch_prng,
-    const Habitat& habitat) const
-{
-  // First find a chromosome with at least one beneficial metabolic gene
-  double env_metabolic_area = habitat.phenotypic_target().area_by_feature(METABOLISM);
-  ae_individual* indiv = new ae_individual(exp_m,
-                                           mut_prng,
-                                           stoch_prng,
-                                           param_mut,
-                                           _w_max,
-                                           _min_genome_length,
-                                           _max_genome_length,
-                                           _allow_plasmids,
-                                           id,
-                                           _strain_name,
-                                           0);
-  indiv->add_GU(indiv, _chromosome_initial_length, _prng); // a random sequence is generated by the ae_string constructor
-  const GeneticUnit * chrom = &indiv->get_genetic_unit_list_std().back();
-  indiv->EvaluateInContext(habitat);
-
-  while (indiv->get_dist_to_target_by_feature(METABOLISM) >= env_metabolic_area)
-  {
-    indiv->remove_GU(0);
-    // chrom = new ae_genetic_unit(indiv, _chromosome_initial_length, _prng); // a random sequence is generated by the ae_string constructor
-    indiv->add_GU(indiv, _chromosome_initial_length, _prng); // a random sequence is generated by the ae_string constructor
-    indiv->EvaluateInContext(habitat);
-  }
-
-
-  // Then, if a plasmid should be created, make sure there is also at least one metabolic gene on the plasmid
-  if (_allow_plasmids)
-  {
-    if (_plasmid_initial_gene == 1)
-    {
-      indiv->add_GU(indiv, _plasmid_initial_length, _prng); // a random sequence is generated by the ae_string constructor
-      indiv->EvaluateInContext(habitat);
-
-      while (indiv->get_genetic_unit(1).get_dist_to_target_by_feature(METABOLISM) >= env_metabolic_area)
-      {
-        indiv->remove_GU(1);
-        indiv->add_GU(indiv, _plasmid_initial_length, _prng); // a random sequence is generated by the ae_string constructor
-        indiv->EvaluateInContext(habitat);
-      }
-    }
-    else
-    {
-      // The plasmid is a copy of the chromosome
-      char * plasmid_genome = new char [_chromosome_initial_length + 1]; // As ae_dna constructor do not allocate memory but directly use the provided string, we allocate the memory here.
-      strncpy(plasmid_genome, chrom->get_sequence(), _chromosome_initial_length+1);
-      indiv->add_GU(plasmid_genome, _chromosome_initial_length);
-      indiv->EvaluateInContext(habitat);
-    }
-  }
-
-  // Compute the "good" individual's statistics
-  indiv->compute_statistical_data();
-
-  // printf("metabolic error of the generated individual : %f (%" PRId32 " gene(s))\n",
-  //         indiv->get_dist_to_target_by_feature(METABOLISM), indiv->get_protein_list()->get_nb_elts());
-
-  return indiv;
 }
 
 void param_loader::print_to_file(FILE* file)

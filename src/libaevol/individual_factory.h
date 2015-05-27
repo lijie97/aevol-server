@@ -38,6 +38,7 @@
 #include <cassert>
 
 #include "ae_individual.h"
+#include "habitat.h"
 
 
 namespace aevol {
@@ -81,6 +82,38 @@ class IndividualFactory
   // ==========================================================================
   //                              Public Methods
   // ==========================================================================
+  static ae_individual* create_random_individual(
+      ae_exp_manager* exp_m,
+      int32_t id,
+      std::shared_ptr<ae_params_mut> param_mut,
+      std::shared_ptr<ae_jumping_mt> mut_prng,
+      std::shared_ptr<ae_jumping_mt> stoch_prng,
+      const Habitat& habitat,
+      double w_max,
+      int32_t min_genome_length,
+      int32_t max_genome_length,
+      int32_t chromosome_initial_length,
+      bool allow_plasmids,
+      bool plasmid_initial_gene,
+      int32_t plasmid_initial_length,
+      char* strain_name,
+      std::shared_ptr<ae_jumping_mt> local_prng);
+  static ae_individual* create_random_individual_with_good_gene(
+      ae_exp_manager* exp_m,
+      int32_t id,
+      std::shared_ptr<ae_params_mut> param_mut,
+      std::shared_ptr<ae_jumping_mt> mut_prng,
+      std::shared_ptr<ae_jumping_mt> stoch_prng,
+      const Habitat& habitat,
+      double w_max,
+      int32_t min_genome_length,
+      int32_t max_genome_length,
+      int32_t chromosome_initial_length,
+      bool allow_plasmids,
+      bool plasmid_initial_gene,
+      int32_t plasmid_initial_length,
+      char* strain_name,
+      std::shared_ptr<ae_jumping_mt> local_prng);
 
 
 
