@@ -1973,8 +1973,8 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
           //                                         promoters[LEADING] );
           get_promoters(LEADING, BETWEEN, pos_1, pos_2 - PROM_SIZE + 1 + _dna->get_length(),
                         promoters[LEADING]);
-          get_promoters(LAGGING, BEFORE, -1, pos_2, promoters[LAGGING] );
-          get_promoters(LAGGING, AFTER, pos_1 + PROM_SIZE - 1, -1, promoters[LAGGING] );
+          get_promoters(LAGGING, AFTER, pos_2, -1, promoters[LAGGING] );
+          get_promoters(LAGGING, BEFORE, -1, pos_1 + PROM_SIZE - 1, promoters[LAGGING] );
         }
         else if ( !is_near_beginning_of_genome ) // => && is_near_end_of_genome
         {
