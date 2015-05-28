@@ -2980,14 +2980,9 @@ void ae_dna::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D, int32_t
 
 
   // ========== Update promoter list ==========
-  // 1) Remove promoters that include a breakpoint
-  // 2) Extract promoters that are totally included in each segment to be moved (B, C and D)
-  // 3) Shift these promoters positions
-  // 4) Reinsert the shifted promoters
-  // 5) Look for new promoters including a breakpoint
   if (_length >= PROM_SIZE)
   {
-    // 1) Remove promoters that include a breakpoint
+    // Remove promoters that include a breakpoint
     _gen_unit->remove_promoters_around(pos_B);
     _gen_unit->remove_promoters_around(pos_C);
     _gen_unit->remove_promoters_around(pos_D);
@@ -2998,26 +2993,25 @@ void ae_dna::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D, int32_t
     Promoters2 promoters_C = {{},{}};
     Promoters2 promoters_D = {{},{}};
 
-    // 2) Extract promoters that are totally included in each segment to be moved (B, C and D)
+    // Extract promoters that are totally included in each segment to be moved
+    // and shift them to their new positions
     if (len_B >= PROM_SIZE)
     {
       _gen_unit->extract_promoters_included_in(pos_B, pos_C, promoters_B);
+      GeneticUnit::shift_promoters(promoters_B, len_D + len_C,  _gen_unit->get_dna()->get_length());
     }
     if (len_C >= PROM_SIZE)
     {
       _gen_unit->extract_promoters_included_in(pos_C, pos_D, promoters_C);
+      GeneticUnit::shift_promoters(promoters_C, len_D - len_B,  _gen_unit->get_dna()->get_length());
     }
     if (len_D >= PROM_SIZE)
     {
       _gen_unit->extract_promoters_included_in(pos_D, pos_E, promoters_D);
+      GeneticUnit::shift_promoters(promoters_D, -len_B - len_C, _gen_unit->get_dna()->get_length());
     }
 
-    // 3) Shift these promoters positions
-    GeneticUnit::shift_promoters(promoters_B, len_D + len_C,  _gen_unit->get_dna()->get_length());
-    GeneticUnit::shift_promoters(promoters_C, len_D - len_B,  _gen_unit->get_dna()->get_length());
-    GeneticUnit::shift_promoters(promoters_D, -len_B - len_C, _gen_unit->get_dna()->get_length());
-
-    // 4) Reinsert the shifted promoters
+    // Reinsert the shifted promoters
     _gen_unit->insert_promoters(promoters_B);
     _gen_unit->insert_promoters(promoters_C);
     _gen_unit->insert_promoters(promoters_D);
@@ -3106,14 +3100,9 @@ void ae_dna::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D, int32
 
 
   // ========== Update promoter list ==========
-  // 1) Remove promoters that include a breakpoint
-  // 2) Extract promoters that are totally included in each segment to be moved (B, C and D)
-  // 3) Shift (and invert when needed) these promoters positions
-  // 4) Reinsert the shifted promoters
-  // 5) Look for new promoters including a breakpoint
   if (_length >= PROM_SIZE)
   {
-    // 1) Remove promoters that include a breakpoint
+    // Remove promoters that include a breakpoint
     _gen_unit->remove_promoters_around(pos_B);
     _gen_unit->remove_promoters_around(pos_C);
     _gen_unit->remove_promoters_around(pos_D);
