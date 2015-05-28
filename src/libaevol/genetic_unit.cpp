@@ -1960,10 +1960,10 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 
         if ( !is_near_end_of_genome && !is_near_beginning_of_genome )
         {
-          get_promoters(LEADING, AFTER, pos_1, pos_1, promoters[LEADING] );
-          get_promoters(LEADING, BEFORE, 0, pos_2 - PROM_SIZE + 1, promoters[LEADING] );
-          get_promoters(LAGGING, BEFORE, pos_2, 0, promoters[LAGGING] );
-          get_promoters(LAGGING, AFTER, 0, pos_1 + PROM_SIZE - 1, promoters[LAGGING] );
+          get_promoters(LEADING, AFTER, pos_1, -1, promoters[LEADING] );
+          get_promoters(LEADING, BEFORE, -1, pos_2 - PROM_SIZE + 1, promoters[LEADING] );
+          get_promoters(LAGGING, AFTER, pos_2, -1, promoters[LAGGING] );
+          get_promoters(LAGGING, BEFORE, -1, pos_1 + PROM_SIZE - 1, promoters[LAGGING] );
         }
         else if ( !is_near_end_of_genome ) // => && is_near_beginning_of_genome
         {
@@ -2011,9 +2011,9 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     // TODO vld: These find_if puns are not very nice. Could just negate
     // return if LAGGING or something in that spirit.
 
-    assert((pos1 >= 0 and pos1 <= pos2 and pos2 <= _dna->get_length()) or
-           (pos2 == 0 and pos1 >= 0 and pos1 < _dna->get_length()) or
-           (pos1 == 0 and pos2 >= 0 and pos2 < _dna->get_length()));
+    assert((before_after_btw == BETWEEN and pos1 >= 0 and pos1 <= pos2 and pos2 <= _dna->get_length()) or
+           (before_after_btw == BEFORE and pos2 >= 0 and pos2 < _dna->get_length()) or
+           (before_after_btw == AFTER and pos1 >= 0 and pos1 < _dna->get_length()));
 
     auto strand = _rna_list[strand_id];
     auto it_begin = strand.begin();
