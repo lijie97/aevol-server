@@ -25,8 +25,8 @@
 //*****************************************************************************
 
 
-#ifndef __AE_PHENOTYPIC_TARGET_HANDLER_H__
-#define __AE_PHENOTYPIC_TARGET_HANDLER_H__
+#ifndef __AE_INDIVIDUAL_FACTORY_H__
+#define __AE_INDIVIDUAL_FACTORY_H__
 
 
 // ============================================================================
@@ -37,16 +37,8 @@
 #include <cstdlib>
 #include <cassert>
 
-#include <memory>
-#include <list>
-
-#include "phenotypic_target.h"
-#include "ae_gaussian.h"
-#include "ae_enums.h"
-#include "ae_jumping_mt.h"
-#include "fuzzy.h"
-
-using std::list;
+#include "ae_individual.h"
+#include "habitat.h"
 
 
 namespace aevol {
@@ -59,94 +51,29 @@ namespace aevol {
 
 
 
-/**
- * Manages a phenotypic target and its "evolution" over time
- *
- * Handles a phenotypic target, the variation and/or noise that may be applied
- * to it as well as the set of possible phenotypic targets and the rules that
- * define how and when we switch from one to another
- */
-class PhenotypicTargetHandler
+
+class IndividualFactory
 {
  public :
   // ==========================================================================
   //                               Constructors
   // ==========================================================================
-  PhenotypicTargetHandler(void); //< Default ctor
-  PhenotypicTargetHandler(const PhenotypicTargetHandler&); //< Copy ctor
-  PhenotypicTargetHandler(PhenotypicTargetHandler&&) = delete; //< Move ctor
-  PhenotypicTargetHandler(gzFile backup_file);
+  IndividualFactory(void) = default; //< Default ctor
+  IndividualFactory(const IndividualFactory&) = delete; //< Copy ctor
+  IndividualFactory(IndividualFactory&&) = delete; //< Move ctor
 
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~PhenotypicTargetHandler(void); //< Destructor
+  virtual ~IndividualFactory(void) = default; //< Destructor
 
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
-  const PhenotypicTarget& phenotypic_target() const {
-    return *phenotypic_target_;
-  };
-  double get_geometric_area() const {
-    return phenotypic_target_->get_geometric_area();
-  };
-  double area_by_feature(int8_t feature) const {
-    return phenotypic_target_->area_by_feature(feature);
-  }
 
   // ==========================================================================
   //                                 Setters
   // ==========================================================================
-  void set_gaussians(const list<ae_gaussian>& gaussians) {
-    current_gaussians_ = initial_gaussians_ = gaussians;
-  }
-  void set_sampling(int16_t val){
-    sampling_ = val;
-  }
-  void set_segmentation(int8_t nb_segments,
-                        double* boundaries,
-                        ae_env_axis_feature* features,
-                        bool separate_segments = false) {
-    phenotypic_target_->set_segmentation(nb_segments,
-        boundaries,
-        features,
-        separate_segments);
-  };
-  void set_var_method(ae_env_var var_method) {
-    var_method_ = var_method;
-  }
-  void set_var_prng(std::shared_ptr<ae_jumping_mt> prng) {
-    var_prng_ = prng;
-  }
-  void set_var_sigma(double sigma) {
-    var_sigma_ = sigma;
-  }
-  void set_var_tau(int32_t tau) {
-    var_tau_ = tau;
-  }
-  void set_var_sigma_tau(double sigma, int32_t tau) {
-    var_sigma_  = sigma;
-    var_tau_    = tau;
-  }
-  void set_noise_method(ae_env_noise noise_method) {
-    noise_method_ = noise_method;
-  }
-  void set_noise_prng(std::shared_ptr<ae_jumping_mt> prng) {
-    noise_prng_ = prng;
-  }
-  void set_noise_sigma(double sigma) {
-    noise_sigma_ = sigma;
-  }
-  void set_noise_alpha(double alpha) {
-    noise_alpha_ = alpha;
-  }
-  void set_noise_prob(double prob) {
-    noise_prob_ = prob;
-  }
-  void set_noise_sampling_log(int8_t sampling_log) {
-    noise_sampling_log_ = sampling_log;
-  }
 
   // ==========================================================================
   //                                Operators
@@ -155,10 +82,40 @@ class PhenotypicTargetHandler
   // ==========================================================================
   //                              Public Methods
   // ==========================================================================
-  void build_phenotypic_target();
+  static ae_individual* create_random_individual(
+      ae_exp_manager* exp_m,
+      int32_t id,
+      std::shared_ptr<ae_params_mut> param_mut,
+      std::shared_ptr<ae_jumping_mt> mut_prng,
+      std::shared_ptr<ae_jumping_mt> stoch_prng,
+      const Habitat& habitat,
+      double w_max,
+      int32_t min_genome_length,
+      int32_t max_genome_length,
+      int32_t chromosome_initial_length,
+      bool allow_plasmids,
+      bool plasmid_initial_gene,
+      int32_t plasmid_initial_length,
+      char* strain_name,
+      std::shared_ptr<ae_jumping_mt> local_prng,
+      bool better_than_flat);
+  static ae_individual* create_random_individual_with_good_gene(
+      ae_exp_manager* exp_m,
+      int32_t id,
+      std::shared_ptr<ae_params_mut> param_mut,
+      std::shared_ptr<ae_jumping_mt> mut_prng,
+      std::shared_ptr<ae_jumping_mt> stoch_prng,
+      const Habitat& habitat,
+      double w_max,
+      int32_t min_genome_length,
+      int32_t max_genome_length,
+      int32_t chromosome_initial_length,
+      bool allow_plasmids,
+      bool plasmid_initial_gene,
+      int32_t plasmid_initial_length,
+      char* strain_name,
+      std::shared_ptr<ae_jumping_mt> local_prng);
 
-  void save(gzFile backup_file) const;
-  void load(gzFile backup_file);
 
 
 
@@ -171,43 +128,6 @@ class PhenotypicTargetHandler
   // ==========================================================================
   //                               Attributes
   // ==========================================================================
-  // ------------------------------------------------ Current Phenotypic Target
-  std::unique_ptr<PhenotypicTarget> phenotypic_target_;
-
-  // ---------------------------------------------------------------- Gaussians
-  /// Phenotypic target's constitutive Gaussians in their initial state
-  std::list<ae_gaussian> initial_gaussians_;
-    /// Phenotypic target's constitutive Gaussians in their current state
-  std::list<ae_gaussian> current_gaussians_;
-
-  // ----------------------------------------------------------------- Sampling
-  /// Number of points to be generated from the gaussians.
-  int16_t sampling_;
-
-  // ---------------------------------------------------------------- Variation
-  /// Variation method
-  ae_env_var var_method_;
-  /// PRNG used for variation
-  std::shared_ptr<ae_jumping_mt> var_prng_;
-  /// Autoregressive mean variation sigma parameter
-  double var_sigma_;
-  /// Autoregressive mean variation tau parameter
-  int16_t var_tau_;
-
-  // -------------------------------------------------------------------- Noise
-  /// Current noise (pure noise that is added to the phenotypic target)
-  Fuzzy* cur_noise_ = NULL;
-  /// PRNG used for noise
-  std::shared_ptr<ae_jumping_mt> noise_prng_;
-  ae_env_noise noise_method_;
-  /// Alpha value (variance coefficient)
-  double noise_alpha_;
-  /// Variance of the noise
-  double noise_sigma_;
-  /// Probability of variation.
-  double noise_prob_;
-  /// Log2 of the number of points in the noise fuzzy_set
-  int8_t noise_sampling_log_;
 };
 
 
@@ -229,4 +149,4 @@ class PhenotypicTargetHandler
 
 } // namespace aevol
 
-#endif // __AE_PHENOTYPIC_TARGET_HANDLER_H__
+#endif // __AE_INDIVIDUAL_FACTORY_H__

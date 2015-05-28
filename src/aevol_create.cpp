@@ -30,18 +30,14 @@
 const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 
 // =================================================================
-//                              Libraries
+//                              Includes
 // =================================================================
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
+
 #include <getopt.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 
-
-
-// =================================================================
-//                            Project Files
-// =================================================================
 #ifdef __X11
   #include "ae_exp_manager_X11.h"
 #else

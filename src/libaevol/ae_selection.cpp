@@ -356,13 +356,6 @@ void ae_selection::load(gzFile& exp_setup_file,
   prng_ = std::make_unique<ae_jumping_mt>(backup_file);
 }
 
-void ae_selection::load(FILE*& exp_setup_file,
-                         gzFile& backup_file,
-                         bool verbose )
-{
-  // TODO
-}
-
 
 // =================================================================
 //                           Protected Methods

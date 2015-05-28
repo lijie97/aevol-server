@@ -99,20 +99,6 @@ class param_loader
   void CheckConsistency();
   static void format_line( f_line*, char*, bool* );
   void interpret_line( f_line* line, int32_t cur_line );
-  ae_individual* create_random_individual(
-      ae_exp_manager* exp_m,
-      int32_t id,
-      std::shared_ptr<ae_params_mut> param_mut,
-      std::shared_ptr<ae_jumping_mt> mut_prng,
-      std::shared_ptr<ae_jumping_mt> stoch_prng,
-      const Habitat& habitat) const;
-  ae_individual* create_random_individual_with_good_gene(
-      ae_exp_manager* exp_m,
-      int32_t id,
-      std::shared_ptr<ae_params_mut> param_mut,
-      std::shared_ptr<ae_jumping_mt> mut_prng,
-      std::shared_ptr<ae_jumping_mt> stoch_prng,
-      const Habitat& habitat) const;
 
   // =========================================================================
   //                               Attributes

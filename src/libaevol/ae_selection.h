@@ -107,8 +107,7 @@ class ae_selection
     void write_setup_file(FILE* setup_file) const;
     void save(gzFile& backup_file) const;
     void load(gzFile& exp_setup_file, gzFile& backup_file, bool verbose);
-    void load(FILE*&  exp_setup_file, gzFile& backup_file, bool verbose);
-    
+
     ae_individual* do_replication(ae_individual* parent,
                                    int32_t index,
                                    int16_t x = -1,
