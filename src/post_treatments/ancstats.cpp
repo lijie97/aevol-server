@@ -376,10 +376,10 @@ int main(int argc, char** argv)
     // VLD used to copy pointers to existing unit lists
     // TODO vld: check if the correct behavior is preserved
     std::list<GeneticUnit> gulist; // = indiv->get_genetic_unit_list_std();
-    for (auto& gu: indiv->get_genetic_unit_list_std_nonconst())
+    for (auto& gu: indiv->get_genetic_unit_list_nonconst())
       gulist.emplace_back(indiv, &gu);
     std::list<GeneticUnit> storedgulist; // = stored_indiv->get_genetic_unit_list_std();
-    for (auto& gu: stored_indiv->get_genetic_unit_list_std_nonconst())
+    for (auto& gu: stored_indiv->get_genetic_unit_list_nonconst())
       gulist.emplace_back(indiv, &gu);
 
     std::list<GeneticUnit>::const_iterator storedunit;

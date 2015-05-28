@@ -1203,8 +1203,8 @@ ae_mutation* ae_dna::do_translocation(void)
     int32_t pos_1_rel, pos_2_rel, pos_3_rel, pos_4_rel;
 
     ae_individual* indiv = _indiv;
-    const GeneticUnit* chromosome = &indiv->get_genetic_unit_list_std().front();
-    const GeneticUnit* plasmid    = &*std::next(indiv->get_genetic_unit_list_std().begin());
+    const GeneticUnit* chromosome = &indiv->get_genetic_unit_list().front();
+    const GeneticUnit* plasmid    = &*std::next(indiv->get_genetic_unit_list().begin());
     int32_t chrom_length        = chromosome->get_dna()->get_length();
     int32_t total_amount_of_dna = indiv->get_amount_of_dna();
 
@@ -1523,7 +1523,7 @@ bool ae_dna::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3)
   // Create a copy of the promoters beared by the segment to be duplicated
   // (they will be inserted in the individual's RNA list later)
 
-  Promoters2 duplicated_promoters = {{},{}};
+  Promoters2Strands duplicated_promoters = {{},{}};
   _gen_unit->duplicate_promoters_included_in(pos_1, pos_2, duplicated_promoters);
 
   _gen_unit->remove_promoters_around(pos_3);
@@ -2434,10 +2434,10 @@ void ae_dna::compute_statistical_data(void)
   //~ }
 }
 
-void ae_dna::set_GU(std::vector<std::list<ae_rna*>> rna_list, const GeneticUnit* GU) {
-  for (int8_t strand = LEADING; strand <= LAGGING; strand++)
+void ae_dna::set_GU(std::vector<std::list<ae_rna>> rna_list, const GeneticUnit* GU) {
+  for (auto& strand: {LEADING, LAGGING})
     for (auto& rna: rna_list[strand])
-      rna->set_genetic_unit(GU);
+      rna.set_genetic_unit(GU);
 }
 
 GeneticUnit* ae_dna::extract_into_new_GU(int32_t pos_1, int32_t pos_2)
@@ -2452,7 +2452,7 @@ GeneticUnit* ae_dna::extract_into_new_GU(int32_t pos_1, int32_t pos_2)
 
   // Remove promoters belonging to the sequence (to be extracted) from the "old" GU
   // and put them in a stand-alone promoter list (with indices ranging from 0 to seq_length-1)
-  Promoters2 proms_GU_1 = {{},{}};
+  Promoters2Strands proms_GU_1 = {{},{}};
   _gen_unit->extract_promoters_included_in(pos_1, pos_2, proms_GU_1);
   GeneticUnit::shift_promoters(proms_GU_1, -pos_1, _length);
 
@@ -2501,7 +2501,7 @@ GeneticUnit* ae_dna::copy_into_new_GU(int32_t pos_1, int32_t pos_2) const
   // ==================== Copy promoters from old sequence ====================
   // Copy the promoters belonging to the sequence to be copied from the "old" GU
   // into a stand-alone promoter list (with indices ranging from 0 to seq_length-1)
-  Promoters2 proms_new_GU = {{},{}};
+  Promoters2Strands proms_new_GU = {{},{}};
   _gen_unit->copy_promoters_included_in(pos_1, pos_2, proms_new_GU);
   GeneticUnit::shift_promoters(proms_new_GU, -pos_1, _length);
 
@@ -2639,8 +2639,8 @@ void ae_dna::insert_GU(GeneticUnit* GU_to_insert, int32_t pos_B, int32_t pos_D, 
   // NOTE : Once removed the promoters starting on sequence D, the remaining is precisely the promoters
   //        starting on sequence C (and they are at their rightful position). We can hence directly use
   //        the list of promoters from GU_to_insert.
-  Promoters2 proms_C = {{},{}};
-  Promoters2 proms_D = {{},{}};
+  Promoters2Strands proms_C = {{},{}};
+  Promoters2Strands proms_D = {{},{}};
 
   if (pos_D != 0) // TODO : Manage this in the different functions? with a parameter WholeGenomeEventHandling ?
   {
@@ -2989,9 +2989,9 @@ void ae_dna::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D, int32_t
     _gen_unit->remove_promoters_around(pos_E);
 
     // Create temporary lists for promoters to move and/or invert
-    Promoters2 promoters_B = {{},{}};
-    Promoters2 promoters_C = {{},{}};
-    Promoters2 promoters_D = {{},{}};
+    Promoters2Strands promoters_B = {{},{}};
+    Promoters2Strands promoters_C = {{},{}};
+    Promoters2Strands promoters_D = {{},{}};
 
     // Extract promoters that are totally included in each segment to be moved
     // and shift them to their new positions
@@ -3109,9 +3109,9 @@ void ae_dna::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D, int32
     _gen_unit->remove_promoters_around(pos_E);
 
     // Create temporary lists for promoters to move and/or invert
-    Promoters2 promoters_B = {{},{}};
-    Promoters2 promoters_C = {{},{}};
-    Promoters2 promoters_D = {{},{}};
+    Promoters2Strands promoters_B = {{},{}};
+    Promoters2Strands promoters_C = {{},{}};
+    Promoters2Strands promoters_D = {{},{}};
 
     // 2) Extract promoters that are totally included in each segment to be moved (B, C and D)
     if (len_B >= PROM_SIZE)
@@ -3239,9 +3239,9 @@ void ae_dna::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D, int32
     _gen_unit->remove_promoters_around(pos_E);
 
     // Create temporary lists for promoters to move and/or invert
-    Promoters2 promoters_B = {{},{}};
-    Promoters2 promoters_C = {{},{}};
-    Promoters2 promoters_D = {{},{}};
+    Promoters2Strands promoters_B = {{},{}};
+    Promoters2Strands promoters_C = {{},{}};
+    Promoters2Strands promoters_D = {{},{}};
 
     // 2) Extract promoters that are totally included in each segment to be moved (B, C and D)
     if (len_B >= PROM_SIZE)
@@ -3339,7 +3339,7 @@ void ae_dna::inter_GU_ABCDE_to_ACDBE(int32_t pos_B, int32_t pos_C, int32_t pos_E
     destination_GU.remove_promoters_around(pos_E);
 
     // Create temporary lists for promoters to move and/or invert
-    Promoters2 promoters_B = {{},{}};
+    Promoters2Strands promoters_B = {{},{}};
 
     // 2) Extract promoters that are totally included in each segment to be moved (B, C and E)
     if (len_B >= PROM_SIZE)
@@ -3360,7 +3360,7 @@ void ae_dna::inter_GU_ABCDE_to_ACDBE(int32_t pos_B, int32_t pos_C, int32_t pos_E
     // Reassign promoters to their new genetic unit
     for (auto& strand: {LEADING, LAGGING})
       for (auto& rna: promoters_B[strand])
-        rna->set_genetic_unit(&destination_GU);
+        rna.set_genetic_unit(&destination_GU);
 
     // Shift the promoters of sequences C and E
     _gen_unit->move_all_promoters_after(pos_C, -len_B);

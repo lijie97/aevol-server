@@ -114,7 +114,7 @@ list<protein_line> analyse_gu(const GeneticUnit& gen_unit, int32_t gen_unit_numb
 {
   list<protein_line> proteins;
 
-  Promoters2 llrnas = gen_unit.get_rna_list();
+  Promoters2Strands llrnas = gen_unit.get_rna_list();
   for(auto lrnas : llrnas) {
     for (auto rna : lrnas) {
       for (auto prot : rna->get_transcribed_proteins()) {

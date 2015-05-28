@@ -230,7 +230,7 @@ int main( int argc, char* argv[] )
     bool found = false;
     int32_t current_rank = -1;
     int32_t current_index = -1;
-    list<ae_individual*> indivs = exp_manager->get_indivs_std();
+    list<ae_individual*> indivs = exp_manager->get_indivs();
     for (auto indiv = indivs.rbegin(); not found and indiv != indivs.rend(); ++indiv) {
       current_index = (*indiv)->get_id();
       current_rank = (*indiv)->get_rank();
@@ -545,7 +545,7 @@ int main( int argc, char* argv[] )
       metabolic_error_after = -1.0;
       secretion_error_after = -1.0;
 
-      for (const auto& gu: initial_indiv->get_genetic_unit_list_std()) {
+      for (const auto& gu: initial_indiv->get_genetic_unit_list()) {
           initial_len = gu.get_dna()->get_length();
 
           for (pos = 0; pos < initial_len; pos++)
@@ -623,7 +623,7 @@ int main( int argc, char* argv[] )
 
       relative_lengths_genetic_units = new double[nb_genetic_units];
 
-      for (const auto& gu: initial_indiv->get_genetic_unit_list_std())
+      for (const auto& gu: initial_indiv->get_genetic_unit_list())
         relative_lengths_genetic_units[u++] =
             gu.get_dna()->get_length() / static_cast<double>(initial_indiv->get_total_genome_size());
 

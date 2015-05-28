@@ -268,7 +268,7 @@ void ae_tree::fill_tree_with_cur_gener(void)
       _replics[time_i]   = new ae_replication_report* [_nb_indivs[time_i]];
 
 
-      for (const auto& indiv: _exp_m->get_indivs_std()) {
+      for (const auto& indiv: _exp_m->get_indivs()) {
         size_t num_indiv = 0;
         _replics[time_i][num_indiv++] = indiv->get_replic_report();
       }

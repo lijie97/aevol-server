@@ -78,12 +78,12 @@ ae_gene_tree_node::ae_gene_tree_node( int32_t nodeCreationDate, ae_protein * pro
   _shine_dal_position = protein->get_shine_dal_pos();
   _strand = protein->get_strand();
 
-  _nb_promoters = protein->get_rna_list_std().size();
+  _nb_promoters = protein->get_rna_list().size();
   //printf("%d promoters at positions", _nb_promoters); // debug
   _promoter_positions = new int32_t[_nb_promoters];
   _rna_pointers = new ae_rna*[_nb_promoters];
   int32_t i = 0;
-  for (const auto& rna: protein->get_rna_list_std()) {
+  for (const auto& rna: protein->get_rna_list()) {
     _rna_pointers[i] = rna;
     _promoter_positions[i] = rna->get_promoter_pos();
     i++;
@@ -259,7 +259,7 @@ void ae_gene_tree_node::write_subtree_to_files(FILE * topologyFile, FILE * nodeA
       fprintf(nodeAttributesFile, "  Shine-Dalgarno pos:%" PRId32 ", Stop pos: %" PRId32 ", M: %.8f, W: %.8f, H: %.8f, nb promoters: %" PRId32 ", conc: %.8f \n", \
               _protein_pointer->get_shine_dal_pos(), _protein_pointer->get_last_STOP_base_pos(), \
               _protein_pointer->get_mean(), _protein_pointer->get_width(), _protein_pointer->get_height(),  \
-              static_cast<int32_t>(_protein_pointer->get_rna_list_std().size()), _protein_pointer->get_concentration() );
+              static_cast<int32_t>(_protein_pointer->get_rna_list().size()), _protein_pointer->get_concentration() );
     }
   fprintf(nodeAttributesFile, "\n\n");
 }
@@ -421,20 +421,21 @@ void ae_gene_tree_node::update_pointers_in_subtree_leaves(GeneticUnit * unit)
       return;
 
     // TODO vld: refactor DUPLICATED CODE (ref dc1)
-    const auto& pl = unit->get_protein_list(_strand); // shorthand
-    const list<ae_protein*>::const_iterator protein =
-        find_if(pl.cbegin(), pl.cend(),
-                [this](ae_protein* p){return p->get_shine_dal_pos() == _shine_dal_position;});
+    auto& pl = unit->get_protein_list(_strand); // shorthand
+    auto protein =
+        find_if(pl.begin(), pl.end(),
+                [this](ae_protein& p)
+                {return p.get_shine_dal_pos() == _shine_dal_position;});
     if (protein != pl.end()) {
       /* The strand and shine dal position are correct */
       /* Update the protein and rna pointers and positions */
-      _nb_promoters = (*protein)->get_rna_list_std().size();
+      _nb_promoters = protein->get_rna_list().size();
       if (_promoter_positions != NULL) delete [] _promoter_positions;
       if (_rna_pointers != NULL) delete [] _rna_pointers;
       _promoter_positions = new int32_t[_nb_promoters];
       _rna_pointers = new ae_rna*[_nb_promoters];
       size_t i = 0;
-      for (const auto& rna: (*protein)->get_rna_list_std()) {
+      for (const auto& rna: protein->get_rna_list()) {
         _rna_pointers[i] = rna;
         _promoter_positions[i] = rna->get_promoter_pos();
         i++;
@@ -542,7 +543,7 @@ void ae_gene_tree_node::anticipate_mutation_effect_on_genes_in_subtree_leaves(co
 
       int32_t first_cds, last_cds;
       int32_t first_upstream, last_upstream; // "upstream region" is the segment between the furthest promoter and the Shine-Dalgarno sequence
-      int32_t nbprom = _protein_pointer->get_rna_list_std().size();
+      int32_t nbprom = _protein_pointer->get_rna_list().size();
       assert(nbprom != 0);
       assert(nbprom == static_cast<int32_t>(_nb_promoters));
       int32_t position_furthest_prom = -1, currentprompos = -1;
@@ -550,7 +551,7 @@ void ae_gene_tree_node::anticipate_mutation_effect_on_genes_in_subtree_leaves(co
         {
           first_cds = _protein_pointer->get_shine_dal_pos();
           last_cds = _protein_pointer->get_last_STOP_base_pos( );
-          for (const auto& rna: _protein_pointer->get_rna_list_std()) {
+          for (const auto& rna: _protein_pointer->get_rna_list()) {
               currentprompos = rna->get_promoter_pos();
               if (currentprompos > first_cds) currentprompos = currentprompos - genlen; // negative value for promoters on the other side of ori
               if ((position_furthest_prom == -1) || (position_furthest_prom < currentprompos)) // we need the smallest promoter position
@@ -566,7 +567,7 @@ void ae_gene_tree_node::anticipate_mutation_effect_on_genes_in_subtree_leaves(co
         {
           first_cds = _protein_pointer->get_last_STOP_base_pos( );
           last_cds = _protein_pointer->get_shine_dal_pos();
-          for (const auto& rna: _protein_pointer->get_rna_list_std()) {
+          for (const auto& rna: _protein_pointer->get_rna_list()) {
               currentprompos = rna->get_promoter_pos();
               if (currentprompos < last_cds) currentprompos = currentprompos + genlen; // value larger than genlen for promoters on the other side of ori
               if ((position_furthest_prom == -1) || (position_furthest_prom > currentprompos)) // we need the largest promoter position
@@ -937,7 +938,7 @@ void ae_gene_tree_node::anticipate_mutation_effect_on_genes_in_subtree_leaves(co
 
 
 
-void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leaves(ae_gene_tree* tree, const ae_mutation* mut, const GeneticUnit* unit, int32_t gener, double impact_on_metabolic_error)
+void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leaves(ae_gene_tree* tree, const ae_mutation* mut, GeneticUnit* unit, int32_t gener, double impact_on_metabolic_error)
 {
   if ((_left_child != NULL) || (_right_child != NULL)) // I am a internal node, just delegate work to others
     {
@@ -978,20 +979,21 @@ void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leav
           // Just make sure that we have correctly predicted the positions of the SD sequence and of the promoters.
 
           // TODO vld: refactor DUPLICATED CODE (ref dc1)
-          const auto& pl = unit->get_protein_list(_strand); // shorthand
-          const list<ae_protein*>::const_iterator protein =
-              find_if(pl.cbegin(), pl.cend(),
-                      [this](ae_protein* p){return p->get_shine_dal_pos() == _shine_dal_position;});
+          auto& pl = unit->get_protein_list(_strand);
+          auto protein =
+              find_if(pl.begin(), pl.end(),
+                      [this](ae_protein& p)
+                      { return p.get_shine_dal_pos() == _shine_dal_position; });
           if (protein != pl.end()) {
             /* The strand and shine dal position are correct */
             /* Update the protein and rna pointers and positions */
-            _nb_promoters = (*protein)->get_rna_list_std().size();
+            _nb_promoters = protein->get_rna_list().size();
             if (_promoter_positions != NULL) delete [] _promoter_positions;
             if (_rna_pointers != NULL) delete [] _rna_pointers;
             _promoter_positions = new int32_t[_nb_promoters];
             _rna_pointers = new ae_rna*[_nb_promoters];
             size_t i = 0;
-            for (const auto& rna: (*protein)->get_rna_list_std()) {
+            for (const auto& rna: protein->get_rna_list()) {
               _rna_pointers[i] = rna;
               _promoter_positions[i] = rna->get_promoter_pos();
               i++;
@@ -1024,20 +1026,21 @@ void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leav
 
           /* Check whether the protein survived the event */
           // TODO vld: refactor DUPLICATED CODE (ref dc1)
-          const auto& pl = unit->get_protein_list(_strand); // shorthand
-          const list<ae_protein*>::const_iterator protein =
-              find_if(pl.cbegin(), pl.cend(),
-                      [this](ae_protein* p){return p->get_shine_dal_pos() == _shine_dal_position;});
+          auto& pl = unit->get_protein_list(_strand); // shorthand
+          auto protein =
+              find_if(pl.begin(), pl.end(),
+                      [this](ae_protein& p)
+                      { return p.get_shine_dal_pos() == _shine_dal_position; });
           if (protein != pl.end()) {
             /* The strand and shine dal position are correct */
             /* Update the protein and rna pointers and positions */
-            _nb_promoters = (*protein)->get_rna_list_std().size();
+            _nb_promoters = protein->get_rna_list().size();
             if (_promoter_positions != NULL) delete [] _promoter_positions;
             if (_rna_pointers != NULL) delete [] _rna_pointers;
             _promoter_positions = new int32_t[_nb_promoters];
             _rna_pointers = new ae_rna*[_nb_promoters];
             size_t i = 0;
-            for (const auto& rna: (*protein)->get_rna_list_std()) {
+            for (const auto& rna: protein->get_rna_list()) {
               _rna_pointers[i] = rna;
               _promoter_positions[i] = rna->get_promoter_pos();
               i++;
@@ -1063,10 +1066,11 @@ void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leav
         /* Check whether the duplicated CDS found a promoter */
         /* It should be on the same strand as myself, at the _putative_position_for_the_duplicate */
 
-        const auto& pl = unit->get_protein_list(_strand); // shorthand
-        const list<ae_protein*>::const_iterator protein =
-            find_if(pl.cbegin(), pl.cend(),
-                    [this](ae_protein* p){return p->get_shine_dal_pos() == _putative_position_for_the_duplicate;});
+        auto& pl = unit->get_protein_list(_strand); // shorthand
+        auto protein =
+            find_if(pl.begin(), pl.end(),
+                    [this](ae_protein& p)
+                    { return p.get_shine_dal_pos() == _putative_position_for_the_duplicate; });
 
         if (protein != pl.end()) {
           if (_protein_pointer != NULL) {
@@ -1083,7 +1087,7 @@ void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leav
           }
 
           // Create a new node for the "new" DNA segment
-          _right_child = new ae_gene_tree_node(gener, *protein);
+          _right_child = new ae_gene_tree_node(gener, &*protein);
           _right_child->_node_creation_date = gener;
           _right_child->_dna_creation_date = gener;
           _right_child->_parent_node = this;
@@ -1107,8 +1111,10 @@ void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leav
             (tree->_nb_internal_nodes) ++;
             // (tree->_nb_leaves) remains unchanged  <==  - 1 + 1 (the ex-leaf becomes an internal node, 1 leave is created)
           }
-          if (*protein != NULL) (tree->_nb_active_leaves) ++;
-          if (gener > tree->_end_gener) (tree->_end_gener) = gener;
+          if (protein != pl.end())
+            tree->_nb_active_leaves++;
+          if (gener > tree->_end_gener)
+            tree->_end_gener = gener;
         }
         // else nothing to do, the duplication was only partial, not a complete gene duplication
       }

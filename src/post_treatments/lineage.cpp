@@ -439,16 +439,16 @@ int main(int argc, char** argv)
       // TODO: disabled tmp
       ae_individual * stored_indiv_tmp;//  = exp_manager_backup->get_indiv_by_id( indices[i+1] );
       stored_indiv = new ae_individual( *stored_indiv_tmp, false );
-      stored_gen_unit = stored_indiv->get_genetic_unit_list_std().cbegin();
+      stored_gen_unit = stored_indiv->get_genetic_unit_list().cbegin();
     }
 
 
     // Warning: this portion of code won't work if the number of units changes
     // during the evolution
 
-    unit = initial_ancestor->get_genetic_unit_list_std().cbegin();
+    unit = initial_ancestor->get_genetic_unit_list().cbegin();
     for (const auto& rep: reports[i]->get_dna_replic_reports()) {
-      assert(unit != initial_ancestor->get_genetic_unit_list_std().cend());
+      assert(unit != initial_ancestor->get_genetic_unit_list().cend());
 
       for (const auto& mut: rep->get_HT())
         (unit->get_dna())->undergo_this_mutation(&mut);
@@ -466,7 +466,7 @@ int main(int argc, char** argv)
           printf( "Checking the sequence of the unit..." );
           fflush( stdout );
         }
-        assert(stored_gen_unit != stored_indiv->get_genetic_unit_list_std().cend());
+        assert(stored_gen_unit != stored_indiv->get_genetic_unit_list().cend());
 
         char * str1 = new char[unit->get_dna()->get_length() + 1];
         memcpy( str1, unit->get_dna()->get_data(), unit->get_dna()->get_length() * sizeof(char) );
@@ -507,10 +507,10 @@ int main(int argc, char** argv)
       ++unit;
     }
 
-    assert(unit == initial_ancestor->get_genetic_unit_list_std().cend());
+    assert(unit == initial_ancestor->get_genetic_unit_list().cend());
     if ( check_genome_now )
     {
-      assert(stored_gen_unit == stored_indiv->get_genetic_unit_list_std().cend());
+      assert(stored_gen_unit == stored_indiv->get_genetic_unit_list().cend());
       delete stored_indiv;
       delete exp_manager_backup;
     }

@@ -644,11 +644,11 @@ int32_t ae_individual::get_amount_of_dna() const {
 }
 
 /// Return the list of genetic units.
-const std::list<GeneticUnit>& ae_individual::get_genetic_unit_list_std() const {
+const std::list<GeneticUnit>& ae_individual::get_genetic_unit_list() const {
   return _genetic_unit_list;
 }
 
-std::list<GeneticUnit>& ae_individual::get_genetic_unit_list_std_nonconst() {
+std::list<GeneticUnit>& ae_individual::get_genetic_unit_list_nonconst() {
   return _genetic_unit_list;
 }
 
@@ -756,7 +756,7 @@ const std::list<ae_protein*>& ae_individual::get_protein_list() const {
 }
 
 /// TODO
-const std::list<ae_rna*>& ae_individual::get_rna_list() const {
+const std::list<const ae_rna*>& ae_individual::get_rna_list() const {
   return _rna_list;
 }
 
@@ -1496,8 +1496,8 @@ void ae_individual::clear_everything_except_dna_and_promoters() {
       auto gu_list = gen_unit.get_rna_list();
       // TODO vld: strange bug if `gen_unit.get_rna_list()[strand]`
       // instead of `gu_list[strand]`
-      for (const auto& rna: gu_list[strand])
-        rna->clear_transcribed_proteins();
+      for (auto& rna: gu_list[strand])
+        rna.clear_transcribed_proteins();
       gen_unit.clear_protein_list(strand);
     }
   }
@@ -1554,16 +1554,10 @@ void ae_individual::do_transcription() {
 
   for (auto& gen_unit: _genetic_unit_list) {
     gen_unit.do_transcription();
-    {
-      const auto& rna_list = gen_unit.get_rna_list();
-      {
-        const auto& lead = rna_list[LEADING];
-        _rna_list.insert(_rna_list.end(), lead.begin(), lead.end());
-      }
-      {
-        const auto& lagg = rna_list[LAGGING];
-        _rna_list.insert(_rna_list.end(), lagg.begin(), lagg.end());
-      }
+    const auto& rna_list = gen_unit.get_rna_list();
+    for (auto& strand: {LEADING, LAGGING}) {
+      for (auto& rna: rna_list[strand])
+        _rna_list.push_back(&rna);
     }
   }
 }
@@ -1578,12 +1572,12 @@ void ae_individual::do_translation() {
 
   for (auto& gen_unit: _genetic_unit_list) {
     gen_unit.do_translation();
-    // Create proxies
-    const auto& lead = gen_unit.get_protein_list(LEADING);
-    const auto& lagg = gen_unit.get_protein_list(LAGGING);
-
-    _protein_list.insert(_protein_list.end(), lead.begin(), lead.end());
-    _protein_list.insert(_protein_list.end(), lagg.begin(), lagg.end());
+    // append all proteins from `gen_unit` to `_protein_list`
+    for (auto& strand_id: {LEADING, LAGGING}) {
+      auto& strand = gen_unit.get_protein_list(strand_id);
+      for (auto& p: strand)
+        _protein_list.push_back(&p);
+    }
   }
 }
 
@@ -2006,14 +2000,14 @@ void ae_individual::make_protein_list() {
   _protein_list.clear();
 
   // Make a copy of each genetic unit's protein list
-  for (const auto& gen_unit: _genetic_unit_list)
+  for (auto& gen_unit: _genetic_unit_list)
   {
-    // Creates proxies
-    const auto& lead = gen_unit.get_protein_list(LEADING);
-    const auto& lagg = gen_unit.get_protein_list(LAGGING);
-
-    _protein_list.insert(_protein_list.end(), lead.begin(), lead.end());
-    _protein_list.insert(_protein_list.end(), lagg.begin(), lagg.end());
+    // append all proteins from `gen_unit` to `_protein_list`
+    for (auto& strand_id: {LEADING, LAGGING}) {
+      auto& strand = gen_unit.get_protein_list(strand_id);
+      for (auto& p: strand)
+        _protein_list.push_back(&p);
+    }
   }
 }
 
@@ -2029,8 +2023,10 @@ void ae_individual::make_rna_list() {
     const auto& lead = rna_list[LEADING];
     const auto& lagg = rna_list[LAGGING];
 
-    _rna_list.insert(_rna_list.end(), lead.begin(), lead.end());
-    _rna_list.insert(_rna_list.end(), lagg.begin(), lagg.end());
+    // append pointers to rna material to local _rna_list
+    for (auto& strand: {LEADING, LAGGING})
+      for (auto& rna: rna_list[strand])
+        _rna_list.push_back(&rna);
   }
 }
 

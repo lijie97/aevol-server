@@ -86,11 +86,11 @@ ae_dna* GeneticUnit::get_dna(void) const
   return _dna;
 }
 
-Promoters2 GeneticUnit::get_rna_list() const {
+Promoters2Strands GeneticUnit::get_rna_list() const {
   return _rna_list;
 }
 
-const std::list<ae_protein*> GeneticUnit::get_protein_list(ae_strand strand) const {
+std::list<ae_protein>& GeneticUnit::get_protein_list(ae_strand strand) {
   return _protein_list[strand];
 }
 
@@ -346,16 +346,16 @@ void GeneticUnit::print_rnas() const {
   print_rnas(_rna_list);
 }
 
-/* static */ void GeneticUnit::print_rnas(const Promoters2& rnas) {
+/* static */ void GeneticUnit::print_rnas(const Promoters2Strands& rnas) {
   print_rnas(rnas[LEADING], LEADING);
   print_rnas(rnas[LAGGING], LAGGING);
 }
 
-/* static */ void GeneticUnit::print_rnas(const Promoters& rnas, ae_strand strand) {
+/* static */ void GeneticUnit::print_rnas(const Promoters1Strand& rnas, ae_strand strand) {
   printf( "  %s ( %" PRId32 " )\n", strand == LEADING ? " LEADING " : "LAGGING", static_cast<int32_t>(rnas.size()));
   for (auto& rna: rnas) {
-    assert( rna->get_strand() == strand );
-    printf( "    Promoter on %s at %" PRId32 "\n", strand == LEADING ? " LEADING " : "LAGGING", rna->get_promoter_pos());
+    assert( rna.get_strand() == strand );
+    printf( "    Promoter on %s at %" PRId32 "\n", strand == LEADING ? " LEADING " : "LAGGING", rna.get_promoter_pos());
   }
 }
 
@@ -383,7 +383,7 @@ void GeneticUnit::move_all_promoters_after( int32_t pos, int32_t delta_pos )
 
 void GeneticUnit::extract_promoters_included_in(int32_t pos_1,
                                                 int32_t pos_2,
-                                                Promoters2& extracted_promoters)
+                                                Promoters2Strands& extracted_promoters)
 {
   assert(pos_1 >= 0);
   assert(pos_1 < pos_2);
@@ -397,7 +397,7 @@ void GeneticUnit::extract_promoters_included_in(int32_t pos_1,
 
 void GeneticUnit::extract_promoters_starting_between(int32_t pos_1,
                                                      int32_t pos_2,
-                                                     Promoters2& extracted_promoters)
+                                                     Promoters2Strands& extracted_promoters)
 {
   extract_leading_promoters_starting_between(pos_1, pos_2, extracted_promoters[LEADING]);
   extract_lagging_promoters_starting_between(pos_1, pos_2, extracted_promoters[LAGGING]);
@@ -522,7 +522,7 @@ void GeneticUnit::look_for_new_promoters_around( int32_t pos_1, int32_t pos_2 )
 
 void GeneticUnit::copy_promoters_starting_between(int32_t pos_1,
                                                   int32_t pos_2,
-                                                  Promoters2& new_promoter_lists)
+                                                  Promoters2Strands& new_promoter_lists)
 {
   copy_leading_promoters_starting_between(pos_1, pos_2, new_promoter_lists[LEADING]);
   copy_lagging_promoters_starting_between(pos_1, pos_2, new_promoter_lists[LAGGING]);
@@ -530,7 +530,7 @@ void GeneticUnit::copy_promoters_starting_between(int32_t pos_1,
 
 void GeneticUnit::copy_promoters_included_in(int32_t pos_1,
                                              int32_t pos_2,
-                                             Promoters2& new_promoter_lists )
+                                             Promoters2Strands& new_promoter_lists )
 {
   if ( ae_utils::mod( pos_2 - pos_1 - 1, _dna->get_length() ) + 1 >= PROM_SIZE )
   {
@@ -609,7 +609,7 @@ GeneticUnit::GeneticUnit(ae_individual* indiv,
 GeneticUnit::GeneticUnit(ae_individual* indiv,
                          char* seq,
                          int32_t length,
-                         const Promoters2& prom_list /* = {{},{}} */)
+                         const Promoters2Strands& prom_list /* = {{},{}} */)
 {
   _exp_m = indiv->get_exp_m();
   _indiv = indiv;
@@ -737,12 +737,12 @@ GeneticUnit::GeneticUnit(ae_individual* indiv, const GeneticUnit* parent)
 
   // Copy promoter list (_rna_list)
   // Note that the length of the RNA will have to be recomputed (do_transcription)
-  for (auto strand: {LEADING, LAGGING}) {
-    for (auto* rna: parent->_rna_list[strand]) {
+  for (auto& strand: {LEADING, LAGGING}) {
+    for (auto& rna: parent->_rna_list[strand]) {
 #ifndef __REGUL
-      _rna_list[strand].push_back(new ae_rna(this, *rna));
+      _rna_list[strand].emplace_back(this, rna);
 #else
-      _rna_list[strand].push_back(new ae_rna_R(this, (dynamic_cast<ae_rna_R*>(rna))));
+      _rna_list[strand].emplace_back(this, (dynamic_cast<ae_rna_R>(rna)));
 #endif
     }
   }
@@ -860,15 +860,6 @@ GeneticUnit::GeneticUnit( ae_individual* indiv, char* organism_file_name )
 // =================================================================
 GeneticUnit::~GeneticUnit( void )
 {
-  // needed only because _rna_list and _protein_list hold pointers
-  for (auto& strand: _protein_list)
-    for (auto& prot: strand)
-      delete prot;
-
-  for (auto& strand: _rna_list)
-    for (auto& rna: strand)
-      delete rna;
-
   delete _dna;
   delete _activ_contribution;
   delete _inhib_contribution;
@@ -901,25 +892,22 @@ void GeneticUnit::locate_promoters( void )
 
   // Empty RNA list
   for (auto& strand: _rna_list) {
-    for (auto& rna: strand)
-      delete rna;
     strand.clear();
   }
 
   if ( _dna->get_length() < PROM_SIZE )
     return;
   for ( int32_t i = 0 ; i < _dna->get_length() ; i++ ) {
-    // can't use emplace_back because of _rna_list containing pointers instead of objects
 #ifndef __REGUL
     if (is_promoter(LEADING, i, dist)) // dist takes the hamming distance of the sequence from the consensus
-      _rna_list[LEADING].push_back(new ae_rna(this, LEADING, i, dist));
+      _rna_list[LEADING].emplace_back(this, LEADING, i, dist);
     if (is_promoter(LAGGING, _dna->get_length() - i - 1, dist))
-      _rna_list[LAGGING].push_back(new ae_rna(this, LAGGING, _dna->get_length() - i - 1, dist));
+      _rna_list[LAGGING].emplace_back(this, LAGGING, _dna->get_length() - i - 1, dist);
 #else
     if (is_promoter(LEADING, i, dist))
-      _rna_list[LEADING].push_back(new ae_rna_R(this, LEADING, i, dist));
+      _rna_list[LEADING].emplace_back(this, LEADING, i, dist);
     if (is_promoter(LAGGING, _dna->get_length() - i - 1, dist))
-      _rna_list[LAGGING].push_back(new ae_rna_R(this, LAGGING, _dna->get_length() - i - 1, dist));
+      _rna_list[LAGGING].emplace_back(this, LAGGING, _dna->get_length() - i - 1, dist);
 #endif
   }
 }
@@ -939,21 +927,21 @@ void GeneticUnit::do_transcription( void )
   if (genome_length < PROM_SIZE) {
     for (auto& strand: _rna_list)
       for (auto& rna: strand)
-        rna->set_transcript_length(-1);
+        rna.set_transcript_length(-1);
     return;
   }
 
   for (auto& strand_id: {LEADING, LAGGING}) {
     auto& strand = _rna_list[strand_id];
     for (auto rna = strand.begin(); rna != strand.end(); ++rna) {
-      transcript_start = (*rna)->get_first_transcribed_pos();
-      (*rna)->set_transcript_length(-1);
+      transcript_start = rna->get_first_transcribed_pos();
+      rna->set_transcript_length(-1);
 
       int32_t i;
       for (i = 0 ; i < genome_length ; ++i) {
         if (is_terminator(strand_id, transcript_start + (strand_id == LEADING ? i : -i))) {
           // Found terminator => set transcript's length
-          (*rna)->set_transcript_length(i + TERM_SIZE);
+          rna->set_transcript_length(i + TERM_SIZE);
 
           // Deduce the length of all the RNAs that share the same terminator
           // These are the RNAs whose promoter is entirely (and strictly) included
@@ -962,13 +950,13 @@ void GeneticUnit::do_transcription( void )
           // current rna's promoter
           for (auto rna2 = std::next(rna); rna2 != strand.end(); ++rna2) {
             // We know that if rna2 is after rna then:
-            // - rna_2->pos > rna->pos for LEADING strand
-            // - rna_2->pos < rna->pos for LAGGING strand
+            // - rna_2.pos > rna.pos for LEADING strand
+            // - rna_2.pos < rna.pos for LAGGING strand
             // because the list is sorted.
 
-            auto delta_pos = abs((*rna2)->get_promoter_pos() - (*rna)->get_promoter_pos());
+            auto delta_pos = abs(rna2->get_promoter_pos() - rna->get_promoter_pos());
             if (delta_pos <= i) {
-              (*rna2)->set_transcript_length(i - delta_pos + TERM_SIZE);
+              rna2->set_transcript_length(i - delta_pos + TERM_SIZE);
               // Step forward in RNA list
               rna = rna2;
             } else {
@@ -988,7 +976,7 @@ void GeneticUnit::do_transcription( void )
         // length to -1. This will prevent the search for coding sequences downstream of this promoter.
         // However, we do not destroy the ae_rna object, it must still be kept in memory and
         // transmitted to the offspring in case a mutation recreates a terminator.
-        (*rna)->set_transcript_length( -1 );
+        rna->set_transcript_length( -1 );
     }
   }
 }
@@ -1007,8 +995,8 @@ void GeneticUnit::do_translation()
 
   for (auto strand: {LEADING, LAGGING}) {
     for (auto& rna: _rna_list[strand]) {
-      transcript_start  = rna->get_first_transcribed_pos();
-      transcript_length = rna->get_transcript_length();
+      transcript_start  = rna.get_first_transcribed_pos();
+      transcript_length = rna.get_transcript_length();
 
       // Try every position where a translation process could occur
       // Minimum number of bases needed is SHINE_DAL_SIZE + SHINE_START_SPACER + 3 * CODON_SIZE
@@ -1036,12 +1024,12 @@ void GeneticUnit::do_translation()
           auto& protein_strand = _protein_list[strand];
           auto protein = find_if(protein_strand.begin(),
                                  protein_strand.end(),
-                                 [shine_dal_pos](ae_protein* p)
-                                 { return p->get_shine_dal_pos() == shine_dal_pos; });
+                                 [shine_dal_pos](ae_protein& p)
+                                 { return p.get_shine_dal_pos() == shine_dal_pos; });
 
           if (protein != protein_strand.end()) {
-            (*protein)->add_RNA(rna);
-            rna->add_transcribed_protein(*protein);
+            protein->add_RNA(&rna);
+            rna.add_transcribed_protein(&*protein);
           }
           else {
             // Build codon list and make new protein when stop found
@@ -1058,29 +1046,23 @@ void GeneticUnit::do_translation()
               if (codon->is_stop()) {
                 if (not codon_list.empty()) { // at least one amino-acid
                   // The protein is valid, create the corresponding object
-                  ae_protein* protein;
-#ifndef __REGUL
-                  protein = new ae_protein(this, codon_list, strand, shine_dal_pos, rna);
-#else
-                  protein = new ae_protein_R(this, codon_list, strand, shine_dal_pos, rna);
-#endif
+                  protein_strand.emplace_back(this, codon_list, strand, shine_dal_pos, &rna);
+                  auto& protein = protein_strand.back();
                   codon_list.clear(); // has been copied into `protein`
+                  rna.add_transcribed_protein(&protein);
 
-                  protein_strand.emplace_back(protein);
-                  rna->add_transcribed_protein(protein);
-
-                  if (protein->get_is_functional()) {
+                  if (protein.get_is_functional()) {
                     _nb_fun_genes++;
-                    _overall_size_fun_genes += protein->get_length() * CODON_SIZE;
+                    _overall_size_fun_genes += protein.get_length() * CODON_SIZE;
 
-                    if (protein->get_height() > 0) _nb_genes_activ++;
+                    if (protein.get_height() > 0) _nb_genes_activ++;
                     else                           _nb_genes_inhib++;
                   }
                   else {
                     _nb_non_fun_genes++;
                     _overall_size_non_fun_genes += (strand == LEADING) ?
-                                                   protein->get_length() * CODON_SIZE :
-                                                   ( protein->get_length() + 2 ) * CODON_SIZE;
+                                                   protein.get_length() * CODON_SIZE :
+                                                   ( protein.get_length() + 2 ) * CODON_SIZE;
                   }
                 }
                 delete codon;
@@ -1101,13 +1083,13 @@ void GeneticUnit::do_translation()
       }
 
       // Statistics
-      if (not rna->get_transcribed_proteins().empty()) { // coding RNA
+      if (not rna.get_transcribed_proteins().empty()) { // coding RNA
         _nb_coding_RNAs++;
-        _overall_size_coding_RNAs += rna->get_transcript_length();
+        _overall_size_coding_RNAs += rna.get_transcript_length();
       }
       else { // non-coding RNA
         _nb_non_coding_RNAs++;
-        _overall_size_non_coding_RNAs += rna->get_transcript_length();
+        _overall_size_non_coding_RNAs += rna.get_transcript_length();
       }
     }
   }
@@ -1121,11 +1103,11 @@ void GeneticUnit::compute_phenotypic_contribution( void )
 
   for (const auto& strand: _protein_list) // two strands: LEADING & LAGGING
     for (const auto& prot: strand)
-      if ( prot->get_is_functional() )
-        ((prot->get_height() > 0) ? _activ_contribution: _inhib_contribution)
-            ->add_triangle(prot->get_mean(),
-                           prot->get_width(),
-                           prot->get_height() * prot->get_concentration() );
+      if (prot.get_is_functional())
+        ((prot.get_height() > 0) ? _activ_contribution: _inhib_contribution)
+            ->add_triangle(prot.get_mean(),
+                           prot.get_width(),
+                           prot.get_height() * prot.get_concentration());
   // if ( prot->get_height() > 0 )
   //   _activ_contribution->add_triangle(prot->get_mean(),
   //                                     prot->get_width(),
@@ -1283,10 +1265,6 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     // during the mutations (cf ae_dna::undergo_this_mutation)
     // TODO : Reinitialize _transcribed proteins ?
 
-    for (auto& strand: _protein_list) // vld: proof that ae_genetic_unit
-      for (auto& protein: strand)     // should be a list of objects
-        delete protein;               // rather than of pointers.
-
     if ( _activ_contribution != NULL )
     {
       delete _activ_contribution;
@@ -1314,8 +1292,8 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
       auto& strand = _rna_list[strand_id];
       printf("  %s \n", StrandName[strand_id]);
       for (const auto& rna: strand)
-        if (rna->is_coding())
-          printf("Promoter at %" PRId32 ", last transcribed position at %" PRId32 "\n", rna->get_promoter_pos(), rna->get_last_transcribed_pos());
+        if (rna.is_coding())
+          printf("Promoter at %" PRId32 ", last transcribed position at %" PRId32 "\n", rna.get_promoter_pos(), rna.get_last_transcribed_pos());
     }
   }
 
@@ -1324,17 +1302,17 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     printf( "  LEADING ( %" PRId32 " )\n", static_cast<int32_t>(_protein_list[LEADING].size()));
     for (const auto& prot: _protein_list[LEADING])
       printf( "    Gene on LEADING at %" PRId32 " (%" PRId32 ") (%f %f %f) (%f) %s\n",
-              prot->get_shine_dal_pos(), prot->get_length(),
-              prot->get_mean(), prot->get_width(), prot->get_height(), prot->get_concentration(),
-              prot->get_is_functional() ? "functional" : "non functional" );
+              prot.get_shine_dal_pos(), prot.get_length(),
+              prot.get_mean(), prot.get_width(), prot.get_height(), prot.get_concentration(),
+              prot.get_is_functional() ? "functional" : "non functional" );
 
 
     printf( "  LAGGING ( %" PRId32 " )\n", static_cast<int32_t>(_protein_list[LAGGING].size()));
     for (const auto& prot: _protein_list[LAGGING])
       printf( "    Gene on LAGGING at %" PRId32 " (%" PRId32 ") (%f %f %f) (%f) %s\n",
-              prot->get_shine_dal_pos(), prot->get_length(),
-              prot->get_mean(), prot->get_width(), prot->get_height(), prot->get_concentration(),
-              prot->get_is_functional() ? "functional" : "non functional" );
+              prot.get_shine_dal_pos(), prot.get_length(),
+              prot.get_mean(), prot.get_width(), prot.get_height(), prot.get_concentration(),
+              prot.get_is_functional() ? "functional" : "non functional" );
   }
 
   bool GeneticUnit::is_promoter( ae_strand strand, int32_t pos, int8_t& dist ) const
@@ -1523,12 +1501,12 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 
         switch (strand) {
           case LEADING:
-            first = prot->get_shine_dal_pos();
-            last  = prot->get_last_STOP_base_pos();
+            first = prot.get_shine_dal_pos();
+            last  = prot.get_last_STOP_base_pos();
             break;
           case LAGGING:
-            last  = prot->get_shine_dal_pos();
-            first = prot->get_last_STOP_base_pos();
+            last  = prot.get_shine_dal_pos();
+            first = prot.get_last_STOP_base_pos();
             break;
           default:
             assert(false); // error: should never happen
@@ -1539,7 +1517,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
           for ( int32_t i = first ; i <= last ; i++ )
           {
             belongs_to_CDS[i] = true;
-            if ( prot->get_is_functional() ) is_essential_DNA[i] = true;
+            if ( prot.get_is_functional() ) is_essential_DNA[i] = true;
             is_essential_DNA_including_nf_genes[i] = true;
           }
         }
@@ -1548,20 +1526,20 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
           for ( int32_t i = first ; i < genome_length ; i++ )
           {
             belongs_to_CDS[i] = true;
-            if ( prot->get_is_functional() ) is_essential_DNA[i] = true;
+            if ( prot.get_is_functional() ) is_essential_DNA[i] = true;
             is_essential_DNA_including_nf_genes[i] = true;
           }
           for ( int32_t i = 0 ; i <= last ; i++ )
           {
             belongs_to_CDS[i] = true;
-            if ( prot->get_is_functional() ) is_essential_DNA[i] = true;
+            if ( prot.get_is_functional() ) is_essential_DNA[i] = true;
             is_essential_DNA_including_nf_genes[i] = true;
           }
         }
 
         // Include the promoter and terminator to essential DNA
         // Mark everything between promoter and terminator as not neutral
-        for (const auto& rna: prot->get_rna_list_std()) {
+        for (const auto& rna: prot.get_rna_list()) {
 
           int32_t prom_first;
           int32_t prom_last;
@@ -1606,7 +1584,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
             for ( int32_t i = prom_first ; i <= prom_last ; i++ )
             {
               //~ printf( "%ld ", i );
-              if ( prot->get_is_functional() ) is_essential_DNA[i] = true;
+              if ( prot.get_is_functional() ) is_essential_DNA[i] = true;
               is_essential_DNA_including_nf_genes[i] = true;
             }
           }
@@ -1615,13 +1593,13 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
             for ( int32_t i = prom_first ; i < genome_length ; i++ )
             {
               //~ printf( "%ld ", i );
-              if ( prot->get_is_functional() ) is_essential_DNA[i] = true;
+              if ( prot.get_is_functional() ) is_essential_DNA[i] = true;
               is_essential_DNA_including_nf_genes[i] = true;
             }
             for ( int32_t i = 0 ; i <= prom_last ; i++ )
             {
               //~ printf( "%ld ", i );
-              if ( prot->get_is_functional() ) is_essential_DNA[i] = true;
+              if ( prot.get_is_functional() ) is_essential_DNA[i] = true;
               is_essential_DNA_including_nf_genes[i] = true;
             }
           }
@@ -1633,7 +1611,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
             for ( int32_t i = term_first ; i <= term_last ; i++ )
             {
               //~ printf( "%ld ", i );
-              if ( prot->get_is_functional() ) is_essential_DNA[i] = true;
+              if ( prot.get_is_functional() ) is_essential_DNA[i] = true;
               is_essential_DNA_including_nf_genes[i] = true;
             }
           }
@@ -1642,13 +1620,13 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
             for ( int32_t i = term_first ; i < genome_length ; i++ )
             {
               //~ printf( "%ld ", i );
-              if ( prot->get_is_functional() ) is_essential_DNA[i] = true;
+              if ( prot.get_is_functional() ) is_essential_DNA[i] = true;
               is_essential_DNA_including_nf_genes[i] = true;
             }
             for ( int32_t i = 0 ; i <= term_last ; i++ )
             {
               //~ printf( "%ld ", i );
-              if ( prot->get_is_functional() ) is_essential_DNA[i] = true;
+              if ( prot.get_is_functional() ) is_essential_DNA[i] = true;
               is_essential_DNA_including_nf_genes[i] = true;
             }
           }
@@ -1659,7 +1637,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 
 
 
-        if ( prot->get_is_functional() )
+        if ( prot.get_is_functional() )
         {
           if ( first <= last )
           {
@@ -1713,12 +1691,12 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
         int32_t last;
 
         if ( strand == LEADING ) {
-          first = rna->get_promoter_pos();
-          last  = rna->get_last_transcribed_pos();
+          first = rna.get_promoter_pos();
+          last  = rna.get_last_transcribed_pos();
         }
         else { // ( strand == LAGGING )
-          first = rna->get_last_transcribed_pos();
-          last  = rna->get_promoter_pos();
+          first = rna.get_last_transcribed_pos();
+          last  = rna.get_promoter_pos();
         }
 
         if ( first <= last ) {
@@ -1732,7 +1710,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
             belongs_to_RNA[i] = true;
         }
 
-        if (not rna->get_transcribed_proteins().empty()) { // coding RNA
+        if (not rna.get_transcribed_proteins().empty()) { // coding RNA
           if ( first <= last ) {
             for ( int32_t i = first ; i <= last ; i++ )
               belongs_to_coding_RNA[i] = true;
@@ -1908,36 +1886,32 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     delete [] is_not_neutral;
   }
 
+///
+///
+/// `duplicated_promoters` is an output parameter, it should be initially empty
   void GeneticUnit::duplicate_promoters_included_in(int32_t pos_1,
                                                     int32_t pos_2,
-                                                    Promoters2& duplicated_promoters)
+                                                    Promoters2Strands& duplicated_promoters)
   {
     // 1) Get promoters to be duplicated
-    get_promoters_included_in( pos_1, pos_2, duplicated_promoters );
+    Promoters2Strands retrieved_promoters = {{},{}};
+    get_promoters_included_in(pos_1, pos_2, retrieved_promoters);
 
     // 2) Set RNAs' position as their position on the duplicated segment
     for (auto& strand: {LEADING, LAGGING}) {
-      for (auto& rna: duplicated_promoters[strand]) {
-        // Make a copy of current RNA
-#ifndef __REGUL
-        ae_rna* copy = new ae_rna(this, *rna);
-#else
-      ae_rna_R* copy = new ae_rna_R(this, *rna);
-#endif
+      for (auto& rna: retrieved_promoters[strand]) {
+        // Make a copy of current RNA inside container
+        duplicated_promoters[strand].emplace_back(this, rna);
 
         // Set RNA's position as it's position on the duplicated segment
-        copy->shift_position(-pos_1, _dna->get_length());
-
-        // Replace current object by the copy
-        // Do not delete the replaced object as it is still a valid promoter in the individual's promoter list
-        rna = copy;
+        duplicated_promoters[strand].back().shift_position(-pos_1, _dna->get_length());
       }
     }
   }
 
   void GeneticUnit::get_promoters_included_in(int32_t pos_1,
                                               int32_t pos_2,
-                                              Promoters2& promoters)
+                                              Promoters2Strands& promoters)
   {
     assert( pos_1 >= 0 && pos_1 <= _dna->get_length() && pos_2 >= 0 && pos_2 <= _dna->get_length() );
 
@@ -2005,7 +1979,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
                                   Position before_after_btw, // with regard to the strand's reading direction
                                   int32_t pos1,
                                   int32_t pos2,
-                                  Promoters& promoters) {
+                                  Promoters1Strand& promoters) {
     // TODO vld: First try, the parameter list could be cleverer.
 
     // TODO vld: These find_if puns are not very nice. Could just negate
@@ -2023,22 +1997,22 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     if (before_after_btw != BEFORE) {
       it_begin = find_if(strand.begin(),
                          strand.end(),
-                         [pos1, strand_id](ae_rna *p) {
+                         [pos1, strand_id](ae_rna& p) {
                            if (strand_id == LEADING)
-                             return p->get_promoter_pos() >= pos1;
+                             return p.get_promoter_pos() >= pos1;
                            else
-                             return p->get_promoter_pos() < pos1;
+                             return p.get_promoter_pos() < pos1;
                          });
     }
 
     if (before_after_btw != AFTER) {
       it_end = find_if(it_begin,
                        strand.end(),
-                       [pos2, strand_id](ae_rna *p) {
+                       [pos2, strand_id](ae_rna& p) {
                          if (strand_id == LEADING)
-                           return p->get_promoter_pos() >= pos2;
+                           return p.get_promoter_pos() >= pos2;
                          else
-                           return p->get_promoter_pos() < pos2;
+                           return p.get_promoter_pos() < pos2;
                        });
     }
 
@@ -2047,7 +2021,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 
 /// Invert all the promoters of promoter_lists for a sequence of
 /// length seq_length.
-/*static*/ void GeneticUnit::invert_promoters(Promoters2& promoter_lists,
+/*static*/ void GeneticUnit::invert_promoters(Promoters2Strands& promoter_lists,
                                               int32_t seq_length)
   {
     GeneticUnit::invert_promoters(promoter_lists, 0, seq_length);
@@ -2059,7 +2033,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 ///
 /// WARNING : This function is pretty specific, make sure you
 /// understand its precise behaviour before using it.
-/*static*/ void GeneticUnit::invert_promoters(Promoters2& promoter_lists,
+/*static*/ void GeneticUnit::invert_promoters(Promoters2Strands& promoter_lists,
                                               int32_t pos1,
                                               int32_t pos2 )
   {
@@ -2071,12 +2045,12 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     // Update the position and strand of each promoter to be inverted...
     for (auto& strand: {LEADING, LAGGING})
       for (auto& rna: promoter_lists[strand]) {
-        assert(rna->get_strand() != strand); // strands have just been swapped
-        assert(rna->get_promoter_pos() >= pos1);
-        assert(rna->get_promoter_pos() < pos2);
+        assert(rna.get_strand() != strand); // strands have just been swapped
+        assert(rna.get_promoter_pos() >= pos1);
+        assert(rna.get_promoter_pos() < pos2);
 
-        rna->set_promoter_pos(pos1 + pos2 - rna->get_promoter_pos() - 1);
-        rna->set_strand(strand);
+        rna.set_promoter_pos(pos1 + pos2 - rna.get_promoter_pos() - 1);
+        rna.set_strand(strand);
       }
   }
 
@@ -2092,7 +2066,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     if (segment_length < PROM_SIZE)
       return;
 
-    Promoters2 inverted_promoters = {{},{}};
+    Promoters2Strands inverted_promoters = {{},{}};
 
     // 1) Extract the promoters completely included on the segment to be inverted
     extract_promoters_included_in(pos1, pos2, inverted_promoters);
@@ -2107,7 +2081,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 // TODO vld: should it append extracted promoters to extracted_promoters or replace its content
   void GeneticUnit::extract_leading_promoters_starting_between(int32_t pos_1,
                                                                int32_t pos_2,
-                                                               Promoters& extracted_promoters)
+                                                               Promoters1Strand& extracted_promoters)
   {
     assert(pos_1 >= 0);
     assert(pos_1 < pos_2);
@@ -2117,17 +2091,17 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     auto& strand = _rna_list[LEADING];
     auto first = find_if(strand.begin(),
                          strand.end(),
-                         [pos_1](ae_rna* p)
-                         { return p->get_promoter_pos() >= pos_1; });
+                         [pos_1](ae_rna& p)
+                         { return p.get_promoter_pos() >= pos_1; });
 
-    if (first == strand.end() or (*first)->get_promoter_pos() >= pos_2)
+    if (first == strand.end() or first->get_promoter_pos() >= pos_2)
       return;
 
     // Find the last promoters in the interval
     auto end = find_if(first,
                         strand.end(),
-                        [pos_2](ae_rna* p)
-                        { return p->get_promoter_pos() >= pos_2; });
+                        [pos_2](ae_rna& p)
+                        { return p.get_promoter_pos() >= pos_2; });
 
     // Extract the promoters (remove them from the individual's list and put them in extracted_promoters)
     extracted_promoters.insert(extracted_promoters.end(), first, end);
@@ -2136,7 +2110,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 
   void GeneticUnit::extract_lagging_promoters_starting_between(int32_t pos_1,
                                                                int32_t pos_2,
-                                                               Promoters& extracted_promoters )
+                                                               Promoters1Strand& extracted_promoters )
   {
     assert(pos_1 >= 0);
     assert(pos_1 < pos_2);
@@ -2146,17 +2120,17 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     auto& strand = _rna_list[LAGGING];
     auto first = find_if(strand.begin(),
                          strand.end(),
-                         [pos_2](ae_rna* r)
-                         { return r->get_promoter_pos() < pos_2; });
+                         [pos_2](ae_rna& r)
+                         { return r.get_promoter_pos() < pos_2; });
 
-    if (first == strand.end() or (*first)->get_promoter_pos() < pos_1)
+    if (first == strand.end() or first->get_promoter_pos() < pos_1)
       return;
 
     // Find the last promoters in the interval
     auto end = find_if(first,
                         strand.end(),
-                        [pos_1](ae_rna* r)
-                        { return r->get_promoter_pos() < pos_1; });
+                        [pos_1](ae_rna& r)
+                        { return r.get_promoter_pos() < pos_1; });
 
     // Extract the promoters (remove them from the individual's list and put the in extracted_promoters)
     extracted_promoters.insert(extracted_promoters.end(), first, end);
@@ -2187,13 +2161,13 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 /// Every promoter in double stranded list <promoters_to_shift> will
 ///  be shifted by <delta_pos>, then a modulo <seq_length> will be
 ///  applied
-/*static*/ void GeneticUnit::shift_promoters(Promoters2& promoters_to_shift,
+/*static*/ void GeneticUnit::shift_promoters(Promoters2Strands& promoters_to_shift,
                                              int32_t delta_pos,
                                              int32_t seq_length )
   {
     for (auto& strand: {LEADING, LAGGING})
       for (auto& rna: promoters_to_shift[strand])
-        rna->shift_position(delta_pos, seq_length);
+        rna.shift_position(delta_pos, seq_length);
   }
 
 /// Insert promoters in double stranded list `promoters_to_insert` into `this->_rna_list`.
@@ -2204,22 +2178,22 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 /// <this->_rna_list> must not be interlaced
 /// i.e. no promoter in <this->_rna_list> must have a position in
 /// [first_prom_to_insert->pos ; last_prom_to_insert->pos]
-  void GeneticUnit::insert_promoters(Promoters2& promoters_to_insert)
+  void GeneticUnit::insert_promoters(Promoters2Strands& promoters_to_insert)
   {
     // TODO vld: to be merged with insert_promoters_at(...)
     for (auto strand: {LEADING, LAGGING}) {
       if (promoters_to_insert[strand].size() <= 0)
         continue;
       // Get to the right position in individual's list (first promoter after the inserted segment)
-      int32_t from_pos = promoters_to_insert[strand].back()->get_promoter_pos();
+      int32_t from_pos = promoters_to_insert[strand].back().get_promoter_pos();
 
       auto pos = find_if(_rna_list[strand].begin(),
                          _rna_list[strand].end(),
-                         [from_pos, strand] (ae_rna* r) {
+                         [from_pos, strand] (ae_rna& r) {
                              if (strand == LEADING)
-                               return r->get_promoter_pos() >= from_pos;
+                               return r.get_promoter_pos() >= from_pos;
                              else
-                               return r->get_promoter_pos() < from_pos;
+                               return r.get_promoter_pos() < from_pos;
                          });
 
       // Insert the promoters in the individual's RNA list
@@ -2238,7 +2212,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 /// The promoters in `promoters_to_insert` must be at their rightful
 /// position according to a stand-alone sequence (i.e. at a RELATIVE
 /// position). Their position will be updated automatically.
-  void GeneticUnit::insert_promoters_at(Promoters2& promoters_to_insert,
+  void GeneticUnit::insert_promoters_at(Promoters2Strands& promoters_to_insert,
                                         int32_t pos ) {
     for (auto strand: {LEADING, LAGGING}) {
       if (promoters_to_insert[strand].size() <= 0)
@@ -2246,16 +2220,16 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
       // Get to the right position in individual's list (first promoter after the inserted segment)
       auto first = find_if(_rna_list[strand].begin(),
                            _rna_list[strand].end(),
-                           [pos, strand](ae_rna* r) {
+                           [pos, strand](ae_rna& r) {
                                if (strand == LEADING)
-                                 return r->get_promoter_pos() >= pos;
+                                 return r.get_promoter_pos() >= pos;
                                else
-                                 return r->get_promoter_pos() < pos; });
+                                 return r.get_promoter_pos() < pos; });
 
       // Insert the promoters in the individual's RNA list
       for (auto& to_insert: promoters_to_insert[strand]) {
         // Update promoter position
-        to_insert->shift_position( pos, _dna->get_length() );
+        to_insert.shift_position( pos, _dna->get_length() );
         // Insert
         if (first != _rna_list[strand].end())
           _rna_list[strand].insert(first, to_insert);
@@ -2283,14 +2257,12 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
       // STL Warning: don't erase the current iterator in the for-loop!
       for (auto it = find_if(strand.begin(),
                              strand.end(),
-                             [pos_1](ae_rna* r) { return r->get_promoter_pos() >= pos_1; }),
+                             [pos_1](ae_rna& r) { return r.get_promoter_pos() >= pos_1; }),
                nextit = it;
-           it != strand.end() and (*it)->get_promoter_pos() < pos_2;
+           it != strand.end() and it->get_promoter_pos() < pos_2;
            it = nextit) {
         nextit = next(it);
-        auto rna = *it; // Pointer copied to prevent `strand` from holding deleted object.
         strand.erase(it);
-        delete rna;
       }
     }
   }
@@ -2325,14 +2297,12 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
       // Delete RNAs until we pass pos_1 (or we reach the end of the list)
       for (auto it = find_if(strand.begin(),
                              strand.end(),
-                             [pos_2](ae_rna* r) { return r->get_promoter_pos() < pos_2; }),
+                             [pos_2](ae_rna& r) { return r.get_promoter_pos() < pos_2; }),
                nextit = it;
-           it != strand.end() and (*it)->get_promoter_pos() >= pos_1;
+           it != strand.end() and it->get_promoter_pos() >= pos_1;
            it = nextit) {
         nextit = next(it);
-        auto rna = *it;
         strand.erase(it);
-        delete rna;
       }
     }
   }
@@ -2348,12 +2318,10 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     // Delete RNAs until we reach pos (or we reach the end of the list)
     for (auto it = strand.begin(),
              nextit = it;
-         it != strand.end() and (*it)->get_promoter_pos() < pos;
+         it != strand.end() and it->get_promoter_pos() < pos;
          it = nextit) {
       nextit = next(it);
-      auto rna = *it;
       strand.erase(it);
-      delete rna;
     }
   }
 
@@ -2382,15 +2350,13 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     // TODO: optimize by starting from the end (with reverse iterators)
     for (auto it = find_if(strand.begin(),
                            strand.end(),
-                           [pos](ae_rna* r)
-                           { return r->get_promoter_pos() < pos; }),
+                           [pos](ae_rna& r)
+                           { return r.get_promoter_pos() < pos; }),
              nextit = it;
          it != strand.end();
          it = nextit) {
       nextit = next(it);
-      auto rna = *it;
       strand.erase(it);
-      delete rna;
     }
   }
 
@@ -2402,15 +2368,13 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 
     auto& strand = _rna_list[LEADING];
     // TODO: optimize by starting from the end (with reverse iterators)
-    for (auto it = find_if(strand.begin(), strand.end(), [pos](ae_rna* r)
-    { return r->get_promoter_pos() >= pos; }),
+    for (auto it = find_if(strand.begin(), strand.end(), [pos](ae_rna& r)
+    { return r.get_promoter_pos() >= pos; }),
              nextit = it;
          it != strand.end();
          it = nextit) {
       nextit = next(it);
-      auto rna = *it;
       strand.erase(it);
-      delete rna;
     }
   }
 
@@ -2438,12 +2402,10 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     // Delete RNAs until we pass pos (or we reach the end of the list)
     for (auto it = strand.begin(),
              nextit = it;
-         it != strand.end() and (*it)->get_promoter_pos() >= pos;
+         it != strand.end() and it->get_promoter_pos() >= pos;
          it = nextit) {
       nextit = next(it);
-      auto rna = *it;
       strand.erase(it);
-      delete rna;
     }
   }
 
@@ -2474,12 +2436,15 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 
         // Look for the right place to insert the new promoter in the list
         auto& strand = _rna_list[LEADING];
-        auto first = find_if(strand.begin(), strand.end(), [i](ae_rna* r) { return r->get_promoter_pos() >= i; });
-        if (first == strand.end() or (*first)->get_promoter_pos() != i) {
+        auto first = find_if(strand.begin(),
+                             strand.end(),
+                             [i](ae_rna& r)
+                             { return r.get_promoter_pos() >= i; });
+        if (first == strand.end() or first->get_promoter_pos() != i) {
 #ifndef __REGUL
-          _rna_list[LEADING].insert(first, new ae_rna(this, LEADING, i, dist));
+          _rna_list[LEADING].emplace(first, this, LEADING, i, dist);
 #else
-          _rna_list[LEADING].insert(first, new ae_rna_R(this, LEADING, i, dist));
+          _rna_list[LEADING].emplace(first, this, LEADING, i, dist);
 #endif
         }
       }
@@ -2522,14 +2487,15 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 
         // Look for the right place to insert the new promoter in the list
         auto& strand = _rna_list[LAGGING];
-        auto first = find_if(strand.begin(), strand.end(), [i](ae_rna* r) { return r->get_promoter_pos() <= i; });
-        if (first == strand.end() or (*first)->get_promoter_pos() != i) {
+        auto first = find_if(strand.begin(),
+                             strand.end(),
+                             [i](ae_rna& r)
+                             { return r.get_promoter_pos() <= i; });
 #ifndef __REGUL
-          _rna_list[LAGGING].emplace(first, new ae_rna( this, LAGGING, i, dist));
+        _rna_list[LAGGING].emplace(first, this, LAGGING, i, dist);
 #else
-          _rna_list[LAGGING].emplace(first, new ae_rna_R( this, LAGGING, i, dist));
+        _rna_list[LAGGING].emplace(first, this, LAGGING, i, dist);
 #endif // __REGUL
-        }
       }
     }
   }
@@ -2549,14 +2515,12 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
       if (is_promoter(LEADING, i, dist)) { // dist takes the hamming distance of the sequence from the consensus
         // Look for the right place to insert the new promoter in the list
         auto& strand = _rna_list[LEADING];
-        auto first = find_if(strand.begin(), strand.end(), [i](ae_rna* r) { return r->get_promoter_pos() >= i; });
-        if (first == strand.end() or (*first)->get_promoter_pos() != i) {
+        auto first = find_if(strand.begin(), strand.end(), [i](ae_rna& r) { return r.get_promoter_pos() >= i; });
 #ifndef __REGUL
-          _rna_list[LEADING].emplace(first, new ae_rna(this, LEADING, i, dist));
+        _rna_list[LEADING].emplace(first, this, LEADING, i, dist);
 #else
-          _rna_list[LEADING].emplace(first, new ae_rna_R(this, LEADING, i, dist));
+        _rna_list[LEADING].emplace(first, this, LEADING, i, dist);
 #endif
-        }
       }
     }
   }
@@ -2592,14 +2556,15 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
       {
         assert ( i >= 0 && i < _dna->get_length() );
         // Look for the right place to insert the new promoter in the list
-        first = find_if(first, strand.end(), [i](ae_rna* r) { return r->get_promoter_pos() <= i; });
-        if (first == strand.end() or (*first)->get_promoter_pos() != i) {
+        first = find_if(first,
+                        strand.end(),
+                        [i](ae_rna& r)
+                        { return r.get_promoter_pos() <= i; });
 #ifndef __REGUL
-          _rna_list[LAGGING].emplace(first, new ae_rna(this, LAGGING, i, dist));
+        _rna_list[LAGGING].emplace(first, this, LAGGING, i, dist);
 #else
-          _rna_list[LAGGING].emaplce(first, new ae_rna_R(this, LAGGING, i, dist));
+        _rna_list[LAGGING].emplace(first, this, LAGGING, i, dist);
 #endif
-        }
       }
     }
   }
@@ -2621,14 +2586,15 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
       if ( is_promoter( LEADING, i, dist ) ) // dist takes the hamming distance of the sequence from the consensus
       {
         // Look for the right place to insert the new promoter in the list
-        first = find_if(first, strand.end(), [i](ae_rna* r) { return r->get_promoter_pos() >= i; });
-        if (first == strand.end() or (*first)->get_promoter_pos() != i) {
+        first = find_if(first,
+                        strand.end(),
+                        [i](ae_rna& r)
+                        { return r.get_promoter_pos() >= i; });
 #ifndef __REGUL
-          _rna_list[LEADING].emplace(first, new ae_rna(this, LEADING, i, dist));
+        _rna_list[LEADING].emplace(first, this, LEADING, i, dist);
 #else
-          _rna_list[LEADING].emplace(first, new ae_rna_R( this, LEADING, i, dist ));
+        _rna_list[LEADING].emplace(first, this, LEADING, i, dist);
 #endif
-        }
       }
     }
   }
@@ -2666,14 +2632,12 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
       {
         assert ( i >= 0 && i < _dna->get_length() );
         // Look for the right place to insert the new promoter in the list
-        first = find_if(first, strand.end(), [i](ae_rna* r) { return r->get_promoter_pos() <= i; });
-        if (first == strand.end() or (*first)->get_promoter_pos() != i) {
+        first = find_if(first, strand.end(), [i](ae_rna& r) { return r.get_promoter_pos() <= i; });
 #ifndef __REGUL
-          _rna_list[LAGGING].emplace(first, new ae_rna(this, LAGGING, i, dist));
+        _rna_list[LAGGING].emplace(first, this, LAGGING, i, dist);
 #else
-          _rna_list[LAGGING].emplace(first, new ae_rna_R( this, LAGGING, i, dist));
+        _rna_list[LAGGING].emplace(first, this, LAGGING, i, dist);
 #endif
-        }
       }
     }
   }
@@ -2683,10 +2647,10 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 /// LEADING strand whose starting positions are >= pos.
   void GeneticUnit::move_all_leading_promoters_after( int32_t pos, int32_t delta_pos ) {
     auto& strand = _rna_list[LEADING];
-    for (auto rna = find_if(strand.begin(), strand.end(), [pos](ae_rna* r) { return r->get_promoter_pos() >= pos; });
+    for (auto rna = find_if(strand.begin(), strand.end(), [pos](ae_rna& r) { return r.get_promoter_pos() >= pos; });
          rna != strand.end();
          ++rna)
-      (*rna)->shift_position( delta_pos, _dna->get_length());
+      rna->shift_position( delta_pos, _dna->get_length());
   }
 
 
@@ -2710,38 +2674,38 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     auto& strand = _rna_list[LAGGING];
     // Update RNAs until we pass pos (or we reach the end of the list)
     for (auto rna = strand.begin();
-         rna != strand.end() and (*rna)->get_promoter_pos() >= pos;
+         rna != strand.end() and rna->get_promoter_pos() >= pos;
          ++rna)
-      (*rna)->shift_position(delta_pos, _dna->get_length());
+      rna->shift_position(delta_pos, _dna->get_length());
   }
 
 /// Copy (into new_promoter_list) the promoters from the LEADING
 /// strand whose starting positions lie in [pos_1 ; pos_2[
   void GeneticUnit::copy_leading_promoters_starting_between(int32_t pos_1,
                                                             int32_t pos_2,
-                                                            Promoters& new_promoter_list ) {
+                                                            Promoters1Strand& new_promoter_list ) {
     // 1) Go to first RNA to copy
     auto& strand = _rna_list[LEADING];
     const auto& first = find_if(strand.begin(),
                                 strand.end(),
-                                [pos_1](ae_rna* r) { return r->get_promoter_pos() >= pos_1; });
+                                [pos_1](ae_rna& r) { return r.get_promoter_pos() >= pos_1; });
 
     // 2) Copy RNAs
     if ( pos_1 < pos_2 ) {
       // Copy from pos_1 to pos_2
-      for (auto rna = first; rna != strand.end() and (*rna)->get_promoter_pos() < pos_2; ++rna)
-        new_promoter_list.push_back(new ae_rna(this, **rna));
+      for (auto rna = first; rna != strand.end() and rna->get_promoter_pos() < pos_2; ++rna)
+        new_promoter_list.emplace_back(this, *rna);
     }
     else {
       // Copy from pos_1 to the end of the list
       for (auto rna = first; rna != strand.end(); ++rna)
-        new_promoter_list.push_back(new ae_rna(this, **rna));
+        new_promoter_list.emplace_back(this, *rna);
 
       // Copy from the beginning of the list to pos_2
       for (auto& rna: strand) {
-        if (rna->get_promoter_pos() >= pos_2)
+        if (rna.get_promoter_pos() >= pos_2)
           break;
-        new_promoter_list.push_back(new ae_rna(this, *rna));
+        new_promoter_list.emplace_back(this, rna);
       }
     }
   }
@@ -2764,28 +2728,28 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 /// \endverbatim
   void GeneticUnit::copy_lagging_promoters_starting_between(int32_t pos_1,
                                                             int32_t pos_2,
-                                                            Promoters& new_promoter_list) {
+                                                            Promoters1Strand& new_promoter_list) {
     // Go to first RNA to copy
     auto& strand = _rna_list[LAGGING];
     const auto& first = find_if(strand.rbegin(),
                                 strand.rend(),
-                                [pos_1](ae_rna* r) { return r->get_promoter_pos() >= pos_1; });
+                                [pos_1](ae_rna& r) { return r.get_promoter_pos() >= pos_1; });
 
     // Copy RNAs
     if (pos_1 < pos_2) {
       // Copy from pos_1 to pos_2
-      for (auto rna = first; rna != strand.rend() and (*rna)->get_promoter_pos() < pos_2 ; ++rna)
-        new_promoter_list.push_front(new ae_rna(this, **rna));
+      for (auto rna = first; rna != strand.rend() and rna->get_promoter_pos() < pos_2 ; ++rna)
+        new_promoter_list.emplace_front(this, *rna);
     }
     else
     {
       // Copy from pos_1 to the beginning of the list (we are going backwards)
       for (auto rna = first; rna != strand.rend(); ++rna)
-        new_promoter_list.push_front(new ae_rna(this, **rna));
+        new_promoter_list.emplace_front(this, *rna);
 
       // Copy from the end of the list to pos_2 (we are going backwards)
-      for (auto rna = strand.rbegin(); rna != strand.rend() and (*rna)->get_promoter_pos() < pos_2; ++rna)
-        new_promoter_list.push_front(new ae_rna(this, **rna));
+      for (auto rna = strand.rbegin(); rna != strand.rend() and rna->get_promoter_pos() < pos_2; ++rna)
+        new_promoter_list.emplace_front(this, *rna);
     }
   }
 
@@ -2853,7 +2817,7 @@ void GeneticUnit::assert_promoters() {
          node_old != backup[strand].end(); // _rna_list is the same size as backup
          ++node_old, ++node_new) {
       // TODO vld: to factor
-      if ( (*node_old)->get_strand() != (*node_new)->get_strand() ) {
+      if ( node_old->get_strand() != node_new->get_strand() ) {
         printf("Individual %" PRId32 "\n", _indiv->get_id());
         printf( "****************************** STRAND problem ******************************\n" );
         printf( "should be : \n" );
@@ -2862,13 +2826,13 @@ void GeneticUnit::assert_promoters() {
         print_rnas( backup );
         printf( "****************************************************************************\n" );
         printf( "  %" PRId32 " (%s) : %f    vs    %" PRId32 " (%s) : %f\n",
-                (*node_old)->get_promoter_pos(), StrandName[strand], (*node_old)->get_basal_level(),
-                (*node_new)->get_promoter_pos(), StrandName[strand], (*node_new)->get_basal_level() );
+                node_old->get_promoter_pos(), StrandName[strand], node_old->get_basal_level(),
+                node_new->get_promoter_pos(), StrandName[strand], node_new->get_basal_level() );
         printf( "  genome length : %" PRId32 "\n", _dna->get_length() );
-        assert( (*node_old)->get_strand() == (*node_new)->get_strand() );
+        assert( node_old->get_strand() == node_new->get_strand() );
       }
 
-      if ( (*node_old)->get_promoter_pos() != (*node_new)->get_promoter_pos() ) {
+      if ( node_old->get_promoter_pos() != node_new->get_promoter_pos() ) {
         printf("Individual %" PRId32 "\n", _indiv->get_id());
         printf( "***************************** POSITION problem *****************************\n" );
         printf( "should be : \n" );
@@ -2877,13 +2841,13 @@ void GeneticUnit::assert_promoters() {
         print_rnas( backup );
         printf( "****************************************************************************\n" );
         printf( "  %" PRId32 " (%s) : %f    vs    %" PRId32 " (%s) : %f\n",
-                (*node_old)->get_promoter_pos(), StrandName[strand], (*node_old)->get_basal_level(),
-                (*node_new)->get_promoter_pos(), StrandName[strand], (*node_new)->get_basal_level() );
+                node_old->get_promoter_pos(), StrandName[strand], node_old->get_basal_level(),
+                node_new->get_promoter_pos(), StrandName[strand], node_new->get_basal_level() );
         printf( "  genome length : %" PRId32 "\n", _dna->get_length() );
-        assert( (*node_old)->get_promoter_pos() == (*node_new)->get_promoter_pos()  );
+        assert( node_old->get_promoter_pos() == node_new->get_promoter_pos()  );
       }
 
-      if ( (*node_old)->get_basal_level() != (*node_new)->get_basal_level() ) {
+      if ( node_old->get_basal_level() != node_new->get_basal_level() ) {
         printf("Individual %" PRId32 "\n", _indiv->get_id());
         printf( "*************************** BASAL LEVEL problem ****************************\n" );
         printf( "should be : \n" );
@@ -2892,10 +2856,10 @@ void GeneticUnit::assert_promoters() {
         print_rnas( backup );
         printf( "****************************************************************************\n" );
         printf( "  %" PRId32 " (%s) : %f    vs    %" PRId32 " (%s) : %f\n",
-                (*node_old)->get_promoter_pos(), StrandName[strand], (*node_old)->get_basal_level(),
-                (*node_new)->get_promoter_pos(), StrandName[strand], (*node_new)->get_basal_level() );
+                node_old->get_promoter_pos(), StrandName[strand], node_old->get_basal_level(),
+                node_new->get_promoter_pos(), StrandName[strand], node_new->get_basal_level() );
         printf( "  genome length : %" PRId32 "\n", _dna->get_length() );
-        assert( (*node_old)->get_basal_level() == (*node_new)->get_basal_level() );
+        assert( node_old->get_basal_level() == node_new->get_basal_level() );
       }
     }
   }
@@ -2911,8 +2875,8 @@ void GeneticUnit::assert_promoters_order() {
       continue;
 
     for (auto it =_rna_list[strand].begin(); next(it) != _rna_list[strand].end(); ++it) {
-      if ((strand == LEADING && (*it)->get_promoter_pos() >= (*next(it))->get_promoter_pos()) ||
-          (strand == LAGGING && (*it)->get_promoter_pos() <= (*next(it))->get_promoter_pos())) {
+      if ((strand == LEADING and it->get_promoter_pos() >= next(it)->get_promoter_pos()) or
+          (strand == LAGGING and it->get_promoter_pos() <= next(it)->get_promoter_pos())) {
         printf("Individual %" PRId32 "\n", _indiv->get_id());
         printf("********************** ORDER problem (%s) ***********************\n", StrandName[strand]);
         print_rnas();
@@ -2940,16 +2904,16 @@ bool* GeneticUnit::is_belonging_to_coding_RNA( void ) {
 
       if ( strand == LEADING )
       {
-        first = rna->get_promoter_pos();
-        last  = rna->get_last_transcribed_pos();
+        first = rna.get_promoter_pos();
+        last  = rna.get_last_transcribed_pos();
       }
       else // ( strand == LAGGING )
       {
-        last  = rna->get_promoter_pos();
-        first = rna->get_last_transcribed_pos();
+        last  = rna.get_promoter_pos();
+        first = rna.get_last_transcribed_pos();
       }
 
-      if (not rna->get_transcribed_proteins().empty()) // coding RNA
+      if (not rna.get_transcribed_proteins().empty()) // coding RNA
       {
         if ( first <= last )
         {
@@ -3297,10 +3261,10 @@ void GeneticUnit::double_non_coding_bases(void)
         // Check whether the pos3donor breakpoint killed one or several of those genes, in that case decrement nb_genes_in_segment
         for (auto& strand: tmpunit->_rna_list)
           for (auto& rna: strand) {
-            if (not rna->is_coding())
+            if (not rna.is_coding())
               continue;
-            first = rna->get_promoter_pos();
-            last = rna->get_last_transcribed_pos();
+            first = rna.get_promoter_pos();
+            last = rna.get_last_transcribed_pos();
             if (breakpoint_inside_gene(pos3donor, first, last))
               nb_genes_in_segment --;
           }
@@ -3324,10 +3288,10 @@ void GeneticUnit::double_non_coding_bases(void)
         // Remove the genes that overlap ori in this temporary unit, as the transferred segment was actually linear
         for (auto& strand: tmpunit->_rna_list)
           for (auto& rna: strand) {
-            if (not rna->is_coding())
+            if (not rna.is_coding())
               continue;
-            first = rna->get_promoter_pos();
-            last = rna->get_last_transcribed_pos();
+            first = rna.get_promoter_pos();
+            last = rna.get_last_transcribed_pos();
             if (first > last)
               nb_genes_in_segment --;
           }
@@ -3342,16 +3306,16 @@ void GeneticUnit::double_non_coding_bases(void)
 
     for (auto strand: {LEADING, LAGGING})
       for (auto& rna: _rna_list[strand]) {
-        if (rna->is_coding() == false) continue;
+        if (rna.is_coding() == false) continue;
 
         switch (strand) {
           case LEADING:
-            first = rna->get_promoter_pos();
-            last = rna->get_last_transcribed_pos();
+            first = rna.get_promoter_pos();
+            last = rna.get_last_transcribed_pos();
             break;
           case LAGGING:
-            first = rna->get_last_transcribed_pos();
-            last = rna->get_promoter_pos();
+            first = rna.get_last_transcribed_pos();
+            last = rna.get_promoter_pos();
         };
 
         // TODO vld: reoder lines (if invariant) in cases DUPL and

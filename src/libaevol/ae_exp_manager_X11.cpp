@@ -792,7 +792,7 @@ void ae_exp_manager_X11::refresh_window(int8_t win_number) {
       }
 
       // Display all the phenotypes (blue)
-      for (const auto& indiv: get_indivs_std())
+      for (const auto& indiv: get_indivs())
       {
         display(cur_win, *(indiv->get_phenotype()), BLUE);
         if (indiv->get_allow_plasmids())
@@ -921,61 +921,62 @@ void ae_exp_manager_X11::set_codes(void) {
 
 
 void ae_exp_manager_X11::compute_colormap(void) {
-    _col_map = new char* [50];
-    
-    _col_map[0] = (char*)"RGBi:1.0/0.0/0.0";
-    _col_map[1] = (char*)"RGBi:1.0/0.1/0.0";   
-    _col_map[2] = (char*)"RGBi:1.0/0.2/0.0";
-    _col_map[3] = (char*)"RGBi:1.0/0.3/0.0";
-    _col_map[4] = (char*)"RGBi:1.0/0.4/0.0";
-    _col_map[5] = (char*)"RGBi:1.0/0.5/0.0";
-    _col_map[6] = (char*)"RGBi:1.0/0.6/0.0";
-    _col_map[7] = (char*)"RGBi:1.0/0.7/0.0";
-    _col_map[8] = (char*)"RGBi:1.0/0.8/0.0";
-    _col_map[9] = (char*)"RGBi:1.0/0.9/0.0";
+  _col_map = {
+    (char*)"RGBi:1.0/0.0/0.0",
+    (char*)"RGBi:1.0/0.1/0.0",   
+    (char*)"RGBi:1.0/0.2/0.0",
+    (char*)"RGBi:1.0/0.3/0.0",
+    (char*)"RGBi:1.0/0.4/0.0",
+    (char*)"RGBi:1.0/0.5/0.0",
+    (char*)"RGBi:1.0/0.6/0.0",
+    (char*)"RGBi:1.0/0.7/0.0",
+    (char*)"RGBi:1.0/0.8/0.0",
+    (char*)"RGBi:1.0/0.9/0.0",
 
-    _col_map[10] = (char*)"RGBi:0.9/1.0/0.0";
-    _col_map[11] = (char*)"RGBi:0.8/1.0/0.0";
-    _col_map[12] = (char*)"RGBi:0.7/1.0/0.0";
-    _col_map[13] = (char*)"RGBi:0.6/1.0/0.0";
-    _col_map[14] = (char*)"RGBi:0.5/1.0/0.0";
-    _col_map[15] = (char*)"RGBi:0.4/1.0/0.0";
-    _col_map[16] = (char*)"RGBi:0.3/1.0/0.0";
-    _col_map[17] = (char*)"RGBi:0.2/1.0/0.0";
-    _col_map[18] = (char*)"RGBi:0.1/1.0/0.0";
-    _col_map[19] = (char*)"RGBi:0.0/1.0/0.0";
+    (char*)"RGBi:0.9/1.0/0.0",
+    (char*)"RGBi:0.8/1.0/0.0",
+    (char*)"RGBi:0.7/1.0/0.0",
+    (char*)"RGBi:0.6/1.0/0.0",
+    (char*)"RGBi:0.5/1.0/0.0",
+    (char*)"RGBi:0.4/1.0/0.0",
+    (char*)"RGBi:0.3/1.0/0.0",
+    (char*)"RGBi:0.2/1.0/0.0",
+    (char*)"RGBi:0.1/1.0/0.0",
+    (char*)"RGBi:0.0/1.0/0.0",
 
-    _col_map[20] = (char*)"RGBi:0.0/1.0/0.1";
-    _col_map[21] = (char*)"RGBi:0.0/1.0/0.2";
-    _col_map[22] = (char*)"RGBi:0.0/1.0/0.3";
-    _col_map[23] = (char*)"RGBi:0.0/1.0/0.4";
-    _col_map[24] = (char*)"RGBi:0.0/1.0/0.5";
-    _col_map[25] = (char*)"RGBi:0.0/1.0/0.6";
-    _col_map[26] = (char*)"RGBi:0.0/1.0/0.7";
-    _col_map[27] = (char*)"RGBi:0.0/1.0/0.8";
-    _col_map[28] = (char*)"RGBi:0.0/1.0/0.9";
-    _col_map[29] = (char*)"RGBi:0.0/1.0/1.0";
+    (char*)"RGBi:0.0/1.0/0.1",
+    (char*)"RGBi:0.0/1.0/0.2",
+    (char*)"RGBi:0.0/1.0/0.3",
+    (char*)"RGBi:0.0/1.0/0.4",
+    (char*)"RGBi:0.0/1.0/0.5",
+    (char*)"RGBi:0.0/1.0/0.6",
+    (char*)"RGBi:0.0/1.0/0.7",
+    (char*)"RGBi:0.0/1.0/0.8",
+    (char*)"RGBi:0.0/1.0/0.9",
+    (char*)"RGBi:0.0/1.0/1.0",
 
-    _col_map[30] = (char*)"RGBi:0.0/0.9/1.0";
-    _col_map[31] = (char*)"RGBi:0.0/0.8/1.0";
-    _col_map[32] = (char*)"RGBi:0.0/0.7/1.0";
-    _col_map[33] = (char*)"RGBi:0.0/0.6/1.0";
-    _col_map[34] = (char*)"RGBi:0.0/0.5/1.0";
-    _col_map[35] = (char*)"RGBi:0.0/0.4/1.0";
-    _col_map[36] = (char*)"RGBi:0.0/0.3/1.0";
-    _col_map[37] = (char*)"RGBi:0.0/0.2/1.0";
-    _col_map[38] = (char*)"RGBi:0.0/0.1/1.0";
-    _col_map[39] = (char*)"RGBi:0.0/0.0/1.0";
+    (char*)"RGBi:0.0/0.9/1.0",
+    (char*)"RGBi:0.0/0.8/1.0",
+    (char*)"RGBi:0.0/0.7/1.0",
+    (char*)"RGBi:0.0/0.6/1.0",
+    (char*)"RGBi:0.0/0.5/1.0",
+    (char*)"RGBi:0.0/0.4/1.0",
+    (char*)"RGBi:0.0/0.3/1.0",
+    (char*)"RGBi:0.0/0.2/1.0",
+    (char*)"RGBi:0.0/0.1/1.0",
+    (char*)"RGBi:0.0/0.0/1.0",
 
-    _col_map[40] = (char*)"RGBi:0.1/0.0/1.0";
-    _col_map[41] = (char*)"RGBi:0.2/0.0/1.0";
-    _col_map[42] = (char*)"RGBi:0.3/0.0/1.0";
-    _col_map[43] = (char*)"RGBi:0.4/0.0/1.0";
-    _col_map[44] = (char*)"RGBi:0.5/0.0/1.0";
-    _col_map[45] = (char*)"RGBi:0.6/0.0/1.0";
-    _col_map[46] = (char*)"RGBi:0.7/0.0/1.0";
-    _col_map[47] = (char*)"RGBi:0.8/0.0/1.0";
-    _col_map[48] = (char*)"RGBi:0.9/0.0/1.0";
-    _col_map[49] = (char*)"RGBi:1.0/0.0/1.0";
+    (char*)"RGBi:0.1/0.0/1.0",
+    (char*)"RGBi:0.2/0.0/1.0",
+    (char*)"RGBi:0.3/0.0/1.0",
+    (char*)"RGBi:0.4/0.0/1.0",
+    (char*)"RGBi:0.5/0.0/1.0",
+    (char*)"RGBi:0.6/0.0/1.0",
+    (char*)"RGBi:0.7/0.0/1.0",
+    (char*)"RGBi:0.8/0.0/1.0",
+    (char*)"RGBi:0.9/0.0/1.0",
+    (char*)"RGBi:1.0/0.0/1.0",
+  };
+
 }
 } // namespace aevol

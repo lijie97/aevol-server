@@ -135,7 +135,7 @@ ae_individual* IndividualFactory::create_random_individual(
       // The plasmid is a copy of the chromosome
       char* plasmid_genome = new char[chromosome_initial_length + 1];
       strncpy(plasmid_genome,
-              indiv->get_genetic_unit_list_std().back().get_sequence(),
+              indiv->get_genetic_unit_list().back().get_sequence(),
               chromosome_initial_length + 1);
       indiv->add_GU(plasmid_genome, chromosome_initial_length);
     }

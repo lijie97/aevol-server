@@ -459,7 +459,7 @@ void draw_triangles( ae_individual* indiv, Environment* env, char * directoryNam
 
   double h;
 
-  for (const auto& gu: indiv->get_genetic_unit_list_std()) {
+  for (const auto& gu: indiv->get_genetic_unit_list()) {
     for (const auto& prot: gu.get_protein_list(LEADING)) {
       h = prot->get_height() * prot->get_concentration();
       fprintf( drawingfile, "%lf %lf moveto\n", margin, 0.5);

@@ -140,8 +140,8 @@ class ae_individual
   std::shared_ptr<ae_jumping_mt> get_mut_prng() const;
   std::shared_ptr<ae_jumping_mt> get_stoch_prng() const;
 
-  const std::list<GeneticUnit>& get_genetic_unit_list_std() const;
-  std::list<GeneticUnit>& get_genetic_unit_list_std_nonconst();
+  const std::list<GeneticUnit>& get_genetic_unit_list() const;
+  std::list<GeneticUnit>& get_genetic_unit_list_nonconst();
   /// Keep only the first (main chromosome) and the last chromosomes from the GU.
   void drop_nested_genetic_units();
 
@@ -162,7 +162,7 @@ class ae_individual
   ae_replication_report* get_replic_report() const;
 
   const std::list<ae_protein*>&  get_protein_list()  const;
-  const std::list<ae_rna*>&      get_rna_list()      const;
+  const std::list<const ae_rna*>&      get_rna_list()      const;
 
   double get_w_max() const;
 
@@ -460,7 +460,7 @@ class ae_individual
   // Access lists to all the proteins/RNAs of the individual.
   // Please note that these proteins/RNAs are actually managed (i.e. newed and deleted) via genetic units.
   std::list<ae_protein*> _protein_list;
-  std::list<ae_rna*>     _rna_list;
+  std::list<const ae_rna*>     _rna_list;
 
   // Generic probes
   int32_t*  _int_probes;        // Array of 5 int32_t values to be used as one wishes

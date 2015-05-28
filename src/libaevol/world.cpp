@@ -370,7 +370,7 @@ std::shared_ptr<ae_jumping_mt> World::get_stoch_prng(void) const
   return _stoch_prng;
 }
 
-list<ae_individual*> World::get_indivs_std(void) const
+list<ae_individual*> World::get_indivs(void) const
 {
   list<ae_individual*> r;
 

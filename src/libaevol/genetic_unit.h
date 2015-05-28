@@ -51,8 +51,8 @@ using std::list;
 
 namespace aevol {
 
-using Promoters = std::list<ae_rna*>;
-using Promoters2 = std::vector<Promoters>; // double stranded
+using Promoters1Strand = std::list<ae_rna>;
+using Promoters2Strands = std::vector<Promoters1Strand>;
 
 class ae_exp_manager;
 
@@ -69,7 +69,7 @@ class GeneticUnit
   GeneticUnit(ae_individual* indiv,
               char* seq,
               int32_t length,
-              const Promoters2& prom_list = {{},{}});
+              const Promoters2Strands& prom_list = {{},{}});
   GeneticUnit( ae_individual* indiv, const GeneticUnit& model );
   GeneticUnit( ae_individual* indiv, const GeneticUnit* parent );
   GeneticUnit( ae_individual* indiv, gzFile backup_file );
@@ -93,10 +93,10 @@ class GeneticUnit
   Fuzzy*    get_phenotypic_contribution( void ) const;
 
   // TODO: re constify
-  // TODO return as (rvalue?) reference
-  /*const*/ Promoters2 get_rna_list() const;
-  // TODO return as (rvalue?) reference
-  const list<ae_protein*> get_protein_list(ae_strand strand) const;
+  // TODO return as reference
+  /*const*/ Promoters2Strands get_rna_list() const;
+  // TODO return as reference
+  std::list<ae_protein>& get_protein_list(ae_strand strand);
   void clear_protein_list(ae_strand strand);
 
   // Direct DNA access
@@ -172,8 +172,8 @@ class GeneticUnit
 
   void print_rnas() const;
   void print_coding_rnas();
-  static void print_rnas(const Promoters2& rnas);
-  static void print_rnas(const Promoters& rnas, ae_strand strand);
+  static void print_rnas(const Promoters2Strands& rnas);
+  static void print_rnas(const Promoters1Strand& rnas, ae_strand strand);
   void print_proteins() const;
 
   bool        is_promoter( ae_strand strand, int32_t pos, int8_t& dist ) const;
@@ -189,33 +189,33 @@ class GeneticUnit
   // these functions are called once, they should likely not be public methods
   void duplicate_promoters_included_in(int32_t pos_1,
                                        int32_t pos_2,
-                                       Promoters2& duplicated_promoters);
+                                       Promoters2Strands& duplicated_promoters);
 
   void get_promoters_included_in(int32_t pos_1,
                                  int32_t pos_2,
-                                 Promoters2& promoters);
+                                 Promoters2Strands& promoters);
   void get_promoters(ae_strand strand_id,
                      Position start,
                      int32_t pos1,
                      int32_t pos2,
-                     Promoters& promoters);
+                     Promoters1Strand& promoters);
 
   void invert_promoters_included_in(int32_t pos_1, int32_t pos_2);
-  static void invert_promoters(Promoters2& promoter_lists, int32_t seq_length );
-  static void invert_promoters(Promoters2& promoter_lists, int32_t pos_1, int32_t pos_2 ); // See WARNING
+  static void invert_promoters(Promoters2Strands& promoter_lists, int32_t seq_length );
+  static void invert_promoters(Promoters2Strands& promoter_lists, int32_t pos_1, int32_t pos_2 ); // See WARNING
 
   void extract_promoters_included_in(int32_t pos_1,
                                      int32_t pos_2,
-                                     Promoters2& extracted_promoters);
+                                     Promoters2Strands& extracted_promoters);
   void extract_promoters_starting_between(int32_t pos_1,
                                           int32_t pos_2,
-                                          Promoters2& extracted_promoters);
+                                          Promoters2Strands& extracted_promoters);
   void extract_leading_promoters_starting_between(int32_t pos_1,
                                                   int32_t pos_2,
-                                                  Promoters& extracted_promoters);
+                                                  Promoters1Strand& extracted_promoters);
   void extract_lagging_promoters_starting_between(int32_t pos_1,
                                                   int32_t pos_2,
-                                                  Promoters& extracted_promoters);
+                                                  Promoters1Strand& extracted_promoters);
 
 
 
@@ -223,11 +223,11 @@ class GeneticUnit
 
   // end comment
 
-  static void shift_promoters(Promoters2& promoters_to_shift,
+  static void shift_promoters(Promoters2Strands& promoters_to_shift,
                               int32_t delta_pos,
                               int32_t seq_length);
-  void insert_promoters(Promoters2& promoters_to_insert);
-  void insert_promoters_at(Promoters2& promoters_to_insert,
+  void insert_promoters(Promoters2Strands& promoters_to_insert);
+  void insert_promoters_at(Promoters2Strands& promoters_to_insert,
                            int32_t pos );
 
   void remove_promoters_around( int32_t pos );
@@ -241,10 +241,10 @@ class GeneticUnit
   void move_all_leading_promoters_after( int32_t pos, int32_t delta_pos );
   void move_all_lagging_promoters_after( int32_t pos, int32_t delta_pos );
 
-  void copy_promoters_included_in( int32_t pos_1, int32_t pos_2, Promoters2& new_promoter_lists );
-  void copy_promoters_starting_between( int32_t pos_1, int32_t pos_2, Promoters2& new_promoter_lists );
-  void copy_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2, Promoters& new_promoter_list );
-  void copy_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2, Promoters& new_promoter_list );
+  void copy_promoters_included_in( int32_t pos_1, int32_t pos_2, Promoters2Strands& new_promoter_lists );
+  void copy_promoters_starting_between( int32_t pos_1, int32_t pos_2, Promoters2Strands& new_promoter_lists );
+  void copy_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2, Promoters1Strand& new_promoter_list );
+  void copy_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2, Promoters1Strand& new_promoter_list );
 
   void save( gzFile backup_file ) const;
 
@@ -307,11 +307,10 @@ class GeneticUnit
   Fuzzy*   _phenotypic_contribution;
   // NB : _phenotypic_contribution is only an indicative value, not used for the whole phenotype computation
 
-  // TODO vld: Both of _rna_list and _protein_list should hold objects instead of pointers.
   // _rna_list always has 2 elements: make it an std::array
-  Promoters2 _rna_list = {{},{}};
+  Promoters2Strands _rna_list = {{},{}};
   // _protein_list always has 2 elements: make it an std::array
-  std::vector<std::list<ae_protein*>> _protein_list = {{},{}};
+  std::array<std::list<ae_protein>, 2> _protein_list; // = {{},{}};
 
   // DM: For plasmid work, we sometimes *need* all the data (e.g. fitness, secretion) calculated for each GU
   double* _dist_to_target_per_segment;

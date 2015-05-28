@@ -130,7 +130,7 @@ class ae_exp_manager
     //~ inline bool   get_with_alignments(void) const;
 
     // Accessors to population stuff
-    inline std::list<ae_individual*> get_indivs_std() const;
+    inline std::list<ae_individual*> get_indivs() const;
     inline int32_t                  get_nb_indivs(void) const;
 
     inline ae_individual* get_best_indiv(void) const;
@@ -394,9 +394,9 @@ inline ae_individual* ae_exp_manager::get_best_indiv(void) const
   return world()->get_best_indiv();
 }
 
-inline std::list<ae_individual*> ae_exp_manager::get_indivs_std() const
+inline std::list<ae_individual*> ae_exp_manager::get_indivs() const
 {
-  return world()->get_indivs_std();
+  return world()->get_indivs();
 }
 
 

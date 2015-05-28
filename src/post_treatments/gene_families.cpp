@@ -269,7 +269,7 @@ int main(int argc, char** argv)
 
   std::list<ae_gene_tree> gene_trees;
 
-  for (const auto& unit: indiv->get_genetic_unit_list_std())
+  for (const auto& unit: indiv->get_genetic_unit_list())
   {
     for (const auto& prot: unit.get_protein_list(LEADING))
       gene_trees.emplace_back(t0, prot);
@@ -351,7 +351,7 @@ int main(int argc, char** argv)
     // during the evolution, or if some translocations occurred between different genetic units
 
     genetic_unit_number = 0;
-    auto unit = indiv->get_genetic_unit_list_std_nonconst().begin();
+    auto unit = indiv->get_genetic_unit_list_nonconst().begin();
 
 
     if ( check_now )
@@ -360,12 +360,12 @@ int main(int argc, char** argv)
       exp_manager_backup->load(get_time(), true, false);
       // TODO: disabled tmp
       // stored_indiv = new ae_individual( * (ae_individual *)exp_manager_backup->get_indiv_by_id( index ), false );
-      stored_unit = stored_indiv->get_genetic_unit_list_std().begin();
+      stored_unit = stored_indiv->get_genetic_unit_list().begin();
     }
 
 
     for (const auto& dnarep: rep->get_dna_replic_reports()) {
-      assert(unit != indiv->get_genetic_unit_list_std().cend());
+      assert(unit != indiv->get_genetic_unit_list().cend());
       unit->get_dna()->set_replic_report( dnarep );
       update_pointers_in_trees(gene_trees, &*unit); // because of the reevaluate at each new generation (envir. variation possible)
 
@@ -475,7 +475,7 @@ int main(int argc, char** argv)
           fflush(NULL);
         }
 
-        assert(stored_unit != stored_indiv->get_genetic_unit_list_std().end());
+        assert(stored_unit != stored_indiv->get_genetic_unit_list().end());
 
         char * str1 = new char[unit->get_dna()->get_length() + 1];
         memcpy(str1, unit->get_dna()->get_data(), \
@@ -516,7 +516,7 @@ int main(int argc, char** argv)
       genetic_unit_number ++;
     }
 
-    assert(unit ==  indiv->get_genetic_unit_list_std().cend());
+    assert(unit ==  indiv->get_genetic_unit_list().cend());
 
 
     if ( verbose ) printf(" OK\n");
@@ -525,7 +525,7 @@ int main(int argc, char** argv)
 
     if ( check_now && ae_utils::mod(get_time(), backup_step) == 0 )
     {
-      assert(stored_unit == stored_indiv->get_genetic_unit_list_std().end());
+      assert(stored_unit == stored_indiv->get_genetic_unit_list().end());
       delete stored_indiv;
       delete exp_manager_backup;
     }

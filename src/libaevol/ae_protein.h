@@ -68,6 +68,8 @@ class ae_protein
     // =================================================================
     //                             Constructors
     // =================================================================
+    ae_protein() = delete;
+    ae_protein(const ae_protein &model) = delete;
     ae_protein( GeneticUnit* gen_unit, const ae_protein &model );
     ae_protein(GeneticUnit* gen_unit,
                const std::list<ae_codon*> codon_list,
@@ -85,7 +87,7 @@ class ae_protein
     //                              Accessors
     // =================================================================
     inline ae_strand          get_strand( void )                const;
-    inline const std::list<ae_rna*> get_rna_list_std()          const;
+    inline const std::list<ae_rna*> get_rna_list()          const;
     inline int32_t            get_shine_dal_pos( void )         const;
     inline int32_t            get_first_translated_pos( void )  const;
     inline int32_t            get_last_translated_pos( void )   const;
@@ -115,21 +117,6 @@ class ae_protein
 
 
   protected :
-
-    // =================================================================
-    //                         Forbidden Constructors
-    // =================================================================
-    ae_protein( void )
-    {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-    ae_protein( const ae_protein &model )
-    {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-
     // =================================================================
     //                           Protected Methods
     // =================================================================
@@ -164,7 +151,7 @@ inline ae_strand ae_protein::get_strand( void ) const
   return _strand;
 }
 
-inline const std::list<ae_rna*> ae_protein::get_rna_list_std() const {
+inline const std::list<ae_rna*> ae_protein::get_rna_list() const {
   return rna_list;
 }
 
