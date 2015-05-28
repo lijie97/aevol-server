@@ -202,7 +202,7 @@ class ae_exp_manager_X11 : public ae_exp_manager
   unsigned int**  _win_size;  // window sizes
   int**           _win_pos;   // window positions
 
-  char** _col_map;
+  std::vector<char*> _col_map;
 };
 
 
