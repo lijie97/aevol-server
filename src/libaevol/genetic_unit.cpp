@@ -2894,8 +2894,9 @@ void GeneticUnit::assert_promoters_order() {
     if (_rna_list[strand].size() < 2)
       continue;
 
-    for (auto it =_rna_list[strand].begin(); it != _rna_list[strand].end(); ++it) {
-      if ((*it)->get_promoter_pos() >= (*next(it))->get_promoter_pos()) {
+    for (auto it =_rna_list[strand].begin(); next(it) != _rna_list[strand].end(); ++it) {
+      if ((strand == LEADING && (*it)->get_promoter_pos() >= (*next(it))->get_promoter_pos()) ||
+          (strand == LAGGING && (*it)->get_promoter_pos() <= (*next(it))->get_promoter_pos())) {
         printf("********************** ORDER problem (%s) ***********************\n", StrandName[strand]);
         print_rnas();
         printf("****************************************************************************\n");
