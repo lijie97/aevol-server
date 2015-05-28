@@ -2613,7 +2613,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     // Hamming distance of the sequence from the promoter consensus
     int8_t dist;
 
-    auto strand = _rna_list[LEADING];
+    auto& strand = _rna_list[LEADING];
     auto first = strand.begin(); // TODO vld: should it not be reset at each loop step?
 
     for ( int32_t i = 0 ; i < pos ; i++ ) {
