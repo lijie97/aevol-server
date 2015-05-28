@@ -163,7 +163,7 @@ int main( int argc, char* argv[] )
     bool found = false;
     int32_t current_rank = -1;
     int32_t current_index = -1;
-    std::list<ae_individual*> indivs = exp_manager->get_indivs_std();
+    std::list<ae_individual*> indivs = exp_manager->get_indivs();
     for (auto indiv = indivs.rbegin(); not found and indiv != indivs.rend(); ++indiv) {
       current_index = (*indiv)->get_id();
       current_rank = (*indiv)->get_rank();
@@ -276,7 +276,7 @@ int main( int argc, char* argv[] )
   // double* tmp_reprod = exp_manager->get_exp_s()->get_sel()->get_prob_reprod();
 
   { // (local scope for `indivs` used as a shorthand)
-    list<ae_individual*> indivs = exp_manager->get_indivs_std();
+    list<ae_individual*> indivs = exp_manager->get_indivs();
     for (auto indiv : indivs)
     {
       int32_t current_index = indiv->get_id();

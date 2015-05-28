@@ -187,7 +187,7 @@ void ae_selection::step_to_next_generation(void)
 
 
   // Create the new generation
-  std::list<ae_individual*> old_generation = _exp_m->get_indivs_std();;
+  std::list<ae_individual*> old_generation = _exp_m->get_indivs();;
   std::list<ae_individual*> new_generation;
   int32_t index_new_indiv = 0;
   for (int16_t x = 0 ; x < grid_width ; x++)
@@ -441,7 +441,7 @@ void ae_selection::compute_prob_reprod(void ) // non spatially structured only
     double  sum       = 0;
 
     size_t i = 0;
-    for (const auto& indiv: _exp_m->get_indivs_std()) {
+    for (const auto& indiv: _exp_m->get_indivs()) {
       fitnesses[i] = indiv->get_fitness();
       sum += fitnesses[i];
       ++i;
@@ -553,7 +553,7 @@ ae_individual* ae_selection::do_replication(ae_individual* parent, int32_t index
   // ===========================================================================
   if (not new_indiv->get_allow_plasmids())
   {
-    const GeneticUnit* chromosome = &new_indiv->get_genetic_unit_list_std().front();
+    const GeneticUnit* chromosome = &new_indiv->get_genetic_unit_list().front();
 
     chromosome->get_dna()->perform_mutations(parent->get_id());
 
@@ -568,14 +568,14 @@ ae_individual* ae_selection::do_replication(ae_individual* parent, int32_t index
     bool inverse_order = (prng_->random((int32_t) 2) < 0.5);
 
     if (not inverse_order) { // Apply mutations in normal GU order
-      for (const auto& gen_unit: new_indiv->get_genetic_unit_list_std()) {
+      for (const auto& gen_unit: new_indiv->get_genetic_unit_list()) {
         gen_unit.get_dna()->perform_mutations(parent->get_id() );
         if (new_indiv->get_replic_report() != NULL )
           new_indiv->get_replic_report()->add_dna_replic_report(gen_unit.get_dna()->get_replic_report());
       }
     }
     else { // Apply mutations in inverse GU order
-      const auto& gul = new_indiv->get_genetic_unit_list_std();
+      const auto& gul = new_indiv->get_genetic_unit_list();
       for (auto gen_unit = gul.crbegin(); gen_unit != gul.crend(); ++gen_unit) {
         gen_unit->get_dna()->perform_mutations(parent->get_id());
         if (new_indiv->get_replic_report() != nullptr)

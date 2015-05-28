@@ -173,7 +173,7 @@ int main(int argc, char* argv[])
     #endif
     
     tree = new ae_tree(exp_manager, tree_file_name);
-    for (auto& indiv: exp_manager->get_indivs_std())
+    for (auto& indiv: exp_manager->get_indivs())
       indiv->set_replication_report(tree->get_report_by_index(num_gener, indiv->get_id()));
   }
 
@@ -379,63 +379,63 @@ int main(int argc, char* argv[])
     else if (strcmp(line->words[0], "POINT_MUTATION_RATE") == 0)
     {
       double point_mutation_rate = atof(line->words[1]);
-      for (auto& indiv: exp_manager->get_indivs_std())
+      for (auto& indiv: exp_manager->get_indivs())
         indiv->set_point_mutation_rate(point_mutation_rate);
       printf("\tChange of overall point mutation rate to %f\n", point_mutation_rate);
     }
     else if (strcmp(line->words[0], "SMALL_INSERTION_RATE") == 0)
     {
       double small_insertion_rate = atof(line->words[1]);
-      for (auto& indiv: exp_manager->get_indivs_std())
+      for (auto& indiv: exp_manager->get_indivs())
         indiv->set_small_insertion_rate(small_insertion_rate);
       printf("\tChange of overall small insertion rate to %f\n", small_insertion_rate);
     }
     else if (strcmp(line->words[0], "SMALL_DELETION_RATE") == 0)
     {
       double small_deletion_rate = atof(line->words[1]);
-      for (auto& indiv: exp_manager->get_indivs_std())
+      for (auto& indiv: exp_manager->get_indivs())
         indiv->set_small_deletion_rate(small_deletion_rate);
       printf("\tChange of overall small deletion rate to %f\n", small_deletion_rate);
     }
     else if (strcmp(line->words[0], "MAX_INDEL_SIZE") == 0)
     {
       int16_t max_indel_size = atol(line->words[1]);
-      for (auto& indiv: exp_manager->get_indivs_std())
+      for (auto& indiv: exp_manager->get_indivs())
         indiv->set_max_indel_size(max_indel_size);
       printf("\tChange of overall maximum indel size to %d\n", max_indel_size);
     }
     else if (strcmp(line->words[0], "DUPLICATION_RATE") == 0)
     {
       double duplication_rate = atof(line->words[1]);
-      for (auto& indiv: exp_manager->get_indivs_std())
+      for (auto& indiv: exp_manager->get_indivs())
         indiv->set_duplication_rate(duplication_rate);
       printf("\tChange of overall duplication rate to %f\n", duplication_rate);
     }
     else if (strcmp(line->words[0], "DELETION_RATE") == 0)
     {
       double deletion_rate = atof(line->words[1]);
-      for (auto& indiv: exp_manager->get_indivs_std())
+      for (auto& indiv: exp_manager->get_indivs())
         indiv->set_deletion_rate(deletion_rate);
       printf("\tChange of overall deletion rate to %f\n", deletion_rate);
     }
     else if (strcmp(line->words[0], "TRANSLOCATION_RATE") == 0)
     {
       double translocation_rate = atof(line->words[1]);
-      for (auto& indiv: exp_manager->get_indivs_std())
+      for (auto& indiv: exp_manager->get_indivs())
         indiv->set_translocation_rate(translocation_rate);
       printf("\tChange of overall translocation rate to %f\n", translocation_rate);
     }
     else if (strcmp(line->words[0], "INVERSION_RATE") == 0)
     {
       double inversion_rate = atof(line->words[1]);
-      for (auto& indiv: exp_manager->get_indivs_std())
+      for (auto& indiv: exp_manager->get_indivs())
         indiv->set_inversion_rate(inversion_rate);
       printf("\tChange of overall inversion to %f\n", inversion_rate);
     }
     else if (strcmp(line->words[0], "TRANSFER_INS_RATE") == 0)
     {
       double transfer_ins_rate = atof(line->words[1]);
-      for (auto& indiv: exp_manager->get_indivs_std())
+      for (auto& indiv: exp_manager->get_indivs())
         indiv->set_HT_ins_rate(transfer_ins_rate);
       exp_manager->set_HT_ins_rate(transfer_ins_rate);
       printf("\tChange of overall transfer insertion rate to %f\n", transfer_ins_rate);
@@ -443,7 +443,7 @@ int main(int argc, char* argv[])
     else if (strcmp(line->words[0], "TRANSFER_REPL_RATE") == 0)
     {
       double transfer_repl_rate = atof(line->words[1]);
-      for (auto& indiv: exp_manager->get_indivs_std())
+      for (auto& indiv: exp_manager->get_indivs())
         indiv->set_HT_repl_rate(transfer_repl_rate);
       exp_manager->set_HT_repl_rate(transfer_repl_rate);
       printf("\tChange of overall transfer replacement rate to %f\n", transfer_repl_rate);
@@ -540,7 +540,7 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
       }
       int32_t plasmid_minimal_length = atoi(line->words[1]);
-      for (const auto& indiv: exp_manager->get_indivs_std())
+      for (const auto& indiv: exp_manager->get_indivs())
       {
         if (indiv->get_genetic_unit(1).get_seq_length()<plasmid_minimal_length)
         {
@@ -558,7 +558,7 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
       }
       int32_t plasmid_maximal_length = atoi(line->words[1]);
-      for (const auto& indiv: exp_manager->get_indivs_std())
+      for (const auto& indiv: exp_manager->get_indivs())
       {
         if (indiv->get_genetic_unit_nonconst(1).get_seq_length()>plasmid_maximal_length)
         {
@@ -571,7 +571,7 @@ int main(int argc, char* argv[])
     else if (strcmp(line->words[0], "CHROMOSOME_MINIMAL_LENGTH") == 0)
     {
       int32_t chromosome_minimal_length = atoi(line->words[1]);
-      for (const auto& indiv: exp_manager->get_indivs_std())
+      for (const auto& indiv: exp_manager->get_indivs())
       {
         if (indiv->get_genetic_unit_nonconst(0).get_seq_length()<chromosome_minimal_length)
         {
@@ -584,7 +584,7 @@ int main(int argc, char* argv[])
     else if (strcmp(line->words[0], "CHROMOSOME_MAXIMAL_LENGTH") == 0)
     {
       int32_t chromosome_maximal_length = atoi(line->words[1]);
-      for (const auto& indiv: exp_manager->get_indivs_std()) {
+      for (const auto& indiv: exp_manager->get_indivs()) {
         if (indiv->get_genetic_unit_nonconst(0).get_seq_length()>chromosome_maximal_length)
         {
           printf("ERROR: there is one genetic unit with a higher length than the new maximum.\n");

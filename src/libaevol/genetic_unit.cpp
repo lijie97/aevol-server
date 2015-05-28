@@ -1537,7 +1537,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 
         // Include the promoter and terminator to essential DNA
         // Mark everything between promoter and terminator as not neutral
-        for (const auto& rna: prot.get_rna_list_std()) {
+        for (const auto& rna: prot.get_rna_list()) {
 
           int32_t prom_first;
           int32_t prom_last;

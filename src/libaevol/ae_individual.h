@@ -140,8 +140,8 @@ class ae_individual
   std::shared_ptr<ae_jumping_mt> get_mut_prng() const;
   std::shared_ptr<ae_jumping_mt> get_stoch_prng() const;
 
-  const std::list<GeneticUnit>& get_genetic_unit_list_std() const;
-  std::list<GeneticUnit>& get_genetic_unit_list_std_nonconst();
+  const std::list<GeneticUnit>& get_genetic_unit_list() const;
+  std::list<GeneticUnit>& get_genetic_unit_list_nonconst();
   /// Keep only the first (main chromosome) and the last chromosomes from the GU.
   void drop_nested_genetic_units();
 

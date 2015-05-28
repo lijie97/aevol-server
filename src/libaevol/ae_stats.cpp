@@ -566,11 +566,11 @@ void ae_stats::write_current_generation_statistics( void )
     
     stat_records[BEST] = new ae_stat_record(_exp_m, _exp_m->get_best_indiv(),
                                             (chrom_or_gen_unit) chrom_or_GU);
-    stat_records[GLOB] = new ae_stat_record(_exp_m, _exp_m->get_indivs_std(),
+    stat_records[GLOB] = new ae_stat_record(_exp_m, _exp_m->get_indivs(),
                                             (chrom_or_gen_unit) chrom_or_GU);
-    stat_records[SDEV] = new ae_stat_record(_exp_m, _exp_m->get_indivs_std(),
+    stat_records[SDEV] = new ae_stat_record(_exp_m, _exp_m->get_indivs(),
                                             stat_records[GLOB], (chrom_or_gen_unit) chrom_or_GU);
-    stat_records[SKEW] = new ae_stat_record(_exp_m, _exp_m->get_indivs_std(),
+    stat_records[SKEW] = new ae_stat_record(_exp_m, _exp_m->get_indivs(),
                                             stat_records[GLOB], stat_records[SDEV], (chrom_or_gen_unit) chrom_or_GU );
     
     for ( int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++ )

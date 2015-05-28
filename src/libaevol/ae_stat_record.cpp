@@ -162,7 +162,7 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
     // -------------------------------------------------
     ae_replication_report* replic_report = indiv->get_replic_report(); // can be NULL under certain conditions
 
-    GeneticUnit& gen_unit = *indiv->get_genetic_unit_list_std_nonconst().begin();
+    GeneticUnit& gen_unit = *indiv->get_genetic_unit_list_nonconst().begin();
 
     // Metabolic error stats
     _metabolic_error = (double) indiv->get_dist_to_target_by_feature(METABOLISM);
@@ -291,7 +291,7 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
       _parent_secretion_error = 0.0;
     }
 
-    for (auto& gen_unit: indiv->get_genetic_unit_list_std_nonconst()) {
+    for (auto& gen_unit: indiv->get_genetic_unit_list_nonconst()) {
       // Genes and RNA stats
       _amount_of_dna               += gen_unit.get_dna()->get_length();
       _nb_coding_rnas              += gen_unit.get_nb_coding_RNAs();
@@ -351,8 +351,8 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
     }
 
     GeneticUnit& gen_unit = (chrom_or_gu == PLASMIDS) ?
-        *std::next(indiv->get_genetic_unit_list_std_nonconst().begin()) :
-        indiv->get_genetic_unit_list_std_nonconst().front();
+        *std::next(indiv->get_genetic_unit_list_nonconst().begin()) :
+        indiv->get_genetic_unit_list_nonconst().front();
 
     // -------------------------------------------------
     // Compute statistical data for the given individual

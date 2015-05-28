@@ -792,7 +792,7 @@ void ae_exp_manager_X11::refresh_window(int8_t win_number) {
       }
 
       // Display all the phenotypes (blue)
-      for (const auto& indiv: get_indivs_std())
+      for (const auto& indiv: get_indivs())
       {
         display(cur_win, *(indiv->get_phenotype()), BLUE);
         if (indiv->get_allow_plasmids())

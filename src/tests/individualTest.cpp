@@ -237,7 +237,7 @@ TEST_F(individualTest, TestIndiv1)
   EXPECT_EQ(31, prot->get_shine_dal_pos());
   EXPECT_EQ(4, prot->get_length());
   EXPECT_FLOAT_EQ(1.4, prot->get_concentration());
-  EXPECT_EQ(2, prot->get_rna_list_std().size());
+  EXPECT_EQ(2, prot->get_rna_list().size());
 }
 
 TEST_F(individualTest, TestIndiv2)
@@ -268,7 +268,7 @@ TEST_F(individualTest, TestIndiv2)
   EXPECT_EQ(77, prot->get_shine_dal_pos());
   EXPECT_EQ(4, prot->get_length());
   EXPECT_FLOAT_EQ(1.4, prot->get_concentration());
-  EXPECT_EQ(2, prot->get_rna_list_std().size());
+  EXPECT_EQ(2, prot->get_rna_list().size());
 }
 
 TEST_F(individualTest, TestIndiv3)
@@ -294,7 +294,7 @@ TEST_F(individualTest, TestIndiv3)
   EXPECT_EQ(4, prot->get_shine_dal_pos());
   EXPECT_EQ(4, prot->get_length());
   EXPECT_FLOAT_EQ(0.8, prot->get_concentration());
-  EXPECT_EQ(1, prot->get_rna_list_std().size());
+  EXPECT_EQ(1, prot->get_rna_list().size());
 }
 
 TEST_F(individualTest, TestIndiv4)
@@ -320,7 +320,7 @@ TEST_F(individualTest, TestIndiv4)
   EXPECT_EQ(76, prot->get_shine_dal_pos());
   EXPECT_EQ(4, prot->get_length());
   EXPECT_FLOAT_EQ(0.8, prot->get_concentration());
-  EXPECT_EQ(1, prot->get_rna_list_std().size());
+  EXPECT_EQ(1, prot->get_rna_list().size());
 }
 
 // ===========================================================================

@@ -637,11 +637,11 @@ int32_t ae_individual::get_amount_of_dna() const {
 }
 
 /// Return the list of genetic units.
-const std::list<GeneticUnit>& ae_individual::get_genetic_unit_list_std() const {
+const std::list<GeneticUnit>& ae_individual::get_genetic_unit_list() const {
   return _genetic_unit_list;
 }
 
-std::list<GeneticUnit>& ae_individual::get_genetic_unit_list_std_nonconst() {
+std::list<GeneticUnit>& ae_individual::get_genetic_unit_list_nonconst() {
   return _genetic_unit_list;
 }
 
