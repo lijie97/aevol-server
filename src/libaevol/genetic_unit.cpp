@@ -86,7 +86,7 @@ ae_dna* GeneticUnit::get_dna(void) const
   return _dna;
 }
 
-Promoters2 GeneticUnit::get_rna_list() const {
+Promoters2Strands GeneticUnit::get_rna_list() const {
   return _rna_list;
 }
 
@@ -346,12 +346,12 @@ void GeneticUnit::print_rnas() const {
   print_rnas(_rna_list);
 }
 
-/* static */ void GeneticUnit::print_rnas(const Promoters2& rnas) {
+/* static */ void GeneticUnit::print_rnas(const Promoters2Strands& rnas) {
   print_rnas(rnas[LEADING], LEADING);
   print_rnas(rnas[LAGGING], LAGGING);
 }
 
-/* static */ void GeneticUnit::print_rnas(const Promoters& rnas, ae_strand strand) {
+/* static */ void GeneticUnit::print_rnas(const Promoters1Strand& rnas, ae_strand strand) {
   printf( "  %s ( %" PRId32 " )\n", strand == LEADING ? " LEADING " : "LAGGING", static_cast<int32_t>(rnas.size()));
   for (auto& rna: rnas) {
     assert( rna.get_strand() == strand );
@@ -383,7 +383,7 @@ void GeneticUnit::move_all_promoters_after( int32_t pos, int32_t delta_pos )
 
 void GeneticUnit::extract_promoters_included_in(int32_t pos_1,
                                                 int32_t pos_2,
-                                                Promoters2& extracted_promoters)
+                                                Promoters2Strands& extracted_promoters)
 {
   assert(pos_1 >= 0);
   assert(pos_1 < pos_2);
@@ -397,7 +397,7 @@ void GeneticUnit::extract_promoters_included_in(int32_t pos_1,
 
 void GeneticUnit::extract_promoters_starting_between(int32_t pos_1,
                                                      int32_t pos_2,
-                                                     Promoters2& extracted_promoters)
+                                                     Promoters2Strands& extracted_promoters)
 {
   extract_leading_promoters_starting_between(pos_1, pos_2, extracted_promoters[LEADING]);
   extract_lagging_promoters_starting_between(pos_1, pos_2, extracted_promoters[LAGGING]);
@@ -520,7 +520,7 @@ void GeneticUnit::look_for_new_promoters_around( int32_t pos_1, int32_t pos_2 )
 
 void GeneticUnit::copy_promoters_starting_between(int32_t pos_1,
                                                   int32_t pos_2,
-                                                  Promoters2& new_promoter_lists)
+                                                  Promoters2Strands& new_promoter_lists)
 {
   copy_leading_promoters_starting_between(pos_1, pos_2, new_promoter_lists[LEADING]);
   copy_lagging_promoters_starting_between(pos_1, pos_2, new_promoter_lists[LAGGING]);
@@ -528,7 +528,7 @@ void GeneticUnit::copy_promoters_starting_between(int32_t pos_1,
 
 void GeneticUnit::copy_promoters_included_in(int32_t pos_1,
                                              int32_t pos_2,
-                                             Promoters2& new_promoter_lists )
+                                             Promoters2Strands& new_promoter_lists )
 {
   if ( ae_utils::mod( pos_2 - pos_1 - 1, _dna->get_length() ) + 1 >= PROM_SIZE )
   {
@@ -607,7 +607,7 @@ GeneticUnit::GeneticUnit(ae_individual* indiv,
 GeneticUnit::GeneticUnit(ae_individual* indiv,
                          char* seq,
                          int32_t length,
-                         const Promoters2& prom_list /* = {{},{}} */)
+                         const Promoters2Strands& prom_list /* = {{},{}} */)
 {
   _exp_m = indiv->get_exp_m();
   _indiv = indiv;
@@ -1889,10 +1889,10 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 /// `duplicated_promoters` is an output parameter, it should be initially empty
   void GeneticUnit::duplicate_promoters_included_in(int32_t pos_1,
                                                     int32_t pos_2,
-                                                    Promoters2& duplicated_promoters)
+                                                    Promoters2Strands& duplicated_promoters)
   {
     // 1) Get promoters to be duplicated
-    Promoters2 retrieved_promoters = {{},{}};
+    Promoters2Strands retrieved_promoters = {{},{}};
     get_promoters_included_in(pos_1, pos_2, retrieved_promoters);
 
     // 2) Set RNAs' position as their position on the duplicated segment
@@ -1909,7 +1909,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 
   void GeneticUnit::get_promoters_included_in(int32_t pos_1,
                                               int32_t pos_2,
-                                              Promoters2& promoters)
+                                              Promoters2Strands& promoters)
   {
     assert( pos_1 >= 0 && pos_1 <= _dna->get_length() && pos_2 >= 0 && pos_2 <= _dna->get_length() );
 
@@ -1979,7 +1979,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
                                   Position start,
                                   int32_t pos1,
                                   int32_t pos2,
-                                  Promoters& promoters) {
+                                  Promoters1Strand& promoters) {
     // TODO vld: First try, the parameter list could be cleverer.
 
     // TODO vld: These find_if puns are not very nice. Could just negate
@@ -2013,7 +2013,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 
 /// Invert all the promoters of promoter_lists for a sequence of
 /// length seq_length.
-/*static*/ void GeneticUnit::invert_promoters(Promoters2& promoter_lists,
+/*static*/ void GeneticUnit::invert_promoters(Promoters2Strands& promoter_lists,
                                               int32_t seq_length)
   {
     GeneticUnit::invert_promoters(promoter_lists, 0, seq_length);
@@ -2025,7 +2025,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 ///
 /// WARNING : This function is pretty specific, make sure you
 /// understand its precise behaviour before using it.
-/*static*/ void GeneticUnit::invert_promoters(Promoters2& promoter_lists,
+/*static*/ void GeneticUnit::invert_promoters(Promoters2Strands& promoter_lists,
                                               int32_t pos1,
                                               int32_t pos2 )
   {
@@ -2058,7 +2058,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     if (segment_length < PROM_SIZE)
       return;
 
-    Promoters2 inverted_promoters = {{},{}};
+    Promoters2Strands inverted_promoters = {{},{}};
 
     // 1) Extract the promoters completely included on the segment to be inverted
     extract_promoters_included_in(pos1, pos2, inverted_promoters);
@@ -2073,7 +2073,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 // TODO vld: should it append extracted promoters to extracted_promoters or replace its content
   void GeneticUnit::extract_leading_promoters_starting_between(int32_t pos_1,
                                                                int32_t pos_2,
-                                                               Promoters& extracted_promoters)
+                                                               Promoters1Strand& extracted_promoters)
   {
     assert(pos_1 >= 0);
     assert(pos_1 < pos_2);
@@ -2102,7 +2102,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 
   void GeneticUnit::extract_lagging_promoters_starting_between(int32_t pos_1,
                                                                int32_t pos_2,
-                                                               Promoters& extracted_promoters )
+                                                               Promoters1Strand& extracted_promoters )
   {
     assert(pos_1 >= 0);
     assert(pos_1 < pos_2);
@@ -2153,7 +2153,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 /// Every promoter in double stranded list <promoters_to_shift> will
 ///  be shifted by <delta_pos>, then a modulo <seq_length> will be
 ///  applied
-/*static*/ void GeneticUnit::shift_promoters(Promoters2& promoters_to_shift,
+/*static*/ void GeneticUnit::shift_promoters(Promoters2Strands& promoters_to_shift,
                                              int32_t delta_pos,
                                              int32_t seq_length )
   {
@@ -2170,7 +2170,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 /// <this->_rna_list> must not be interlaced
 /// i.e. no promoter in <this->_rna_list> must have a position in
 /// [first_prom_to_insert->pos ; last_prom_to_insert->pos]
-  void GeneticUnit::insert_promoters(Promoters2& promoters_to_insert)
+  void GeneticUnit::insert_promoters(Promoters2Strands& promoters_to_insert)
   {
     // TODO vld: to be merged with insert_promoters_at(...)
     for (auto strand: {LEADING, LAGGING}) {
@@ -2204,7 +2204,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 /// The promoters in `promoters_to_insert` must be at their rightful
 /// position according to a stand-alone sequence (i.e. at a RELATIVE
 /// position). Their position will be updated automatically.
-  void GeneticUnit::insert_promoters_at(Promoters2& promoters_to_insert,
+  void GeneticUnit::insert_promoters_at(Promoters2Strands& promoters_to_insert,
                                         int32_t pos ) {
     for (auto strand: {LEADING, LAGGING}) {
       if (promoters_to_insert[strand].size() <= 0)
@@ -2662,7 +2662,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 /// strand whose starting positions lie in [pos_1 ; pos_2[
   void GeneticUnit::copy_leading_promoters_starting_between(int32_t pos_1,
                                                             int32_t pos_2,
-                                                            Promoters& new_promoter_list ) {
+                                                            Promoters1Strand& new_promoter_list ) {
     // 1) Go to first RNA to copy
     auto& strand = _rna_list[LEADING];
     const auto& first = find_if(strand.begin(),
@@ -2707,7 +2707,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 /// \endverbatim
   void GeneticUnit::copy_lagging_promoters_starting_between(int32_t pos_1,
                                                             int32_t pos_2,
-                                                            Promoters& new_promoter_list) {
+                                                            Promoters1Strand& new_promoter_list) {
     // Go to first RNA to copy
     auto& strand = _rna_list[LAGGING];
     const auto& first = find_if(strand.rbegin(),
