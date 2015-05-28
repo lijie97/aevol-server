@@ -68,6 +68,8 @@ class ae_protein
     // =================================================================
     //                             Constructors
     // =================================================================
+    ae_protein() = delete;
+    ae_protein(const ae_protein &model) = delete;
     ae_protein( GeneticUnit* gen_unit, const ae_protein &model );
     ae_protein(GeneticUnit* gen_unit,
                const std::list<ae_codon*> codon_list,
@@ -115,21 +117,6 @@ class ae_protein
 
 
   protected :
-
-    // =================================================================
-    //                         Forbidden Constructors
-    // =================================================================
-    ae_protein( void )
-    {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-    ae_protein( const ae_protein &model )
-    {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-
     // =================================================================
     //                           Protected Methods
     // =================================================================
