@@ -2825,7 +2825,15 @@ void GeneticUnit::assert_promoters() {
 
   // Compare lists
   for (auto strand: {LEADING, LAGGING}) {
-    assert(backup[strand].size() != _rna_list[strand].size());
+    if(backup[strand].size() != _rna_list[strand].size()) {
+      printf("***************** FOUND *******************");
+      print_rnas(backup[strand], strand);
+      printf("***************** EXPECTED *******************");
+      print_rnas(_rna_list[strand], strand);
+      printf("******************************************");
+      assert(false);
+    }
+
     auto node_old = backup[strand].begin();
     auto node_new = node_old; // just for the type
     for (node_old = backup[strand].begin(), node_new = _rna_list[strand].begin();
