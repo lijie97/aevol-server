@@ -1998,11 +1998,11 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 ///
 ///
 ///
-/// When the strand is leading, promoders are found ordered with
+/// When the strand is leading, promoters are found ordered with
 /// increasing positions. Whereas they are found in reverse order if
 /// the strand is lagging.
   void GeneticUnit::get_promoters(ae_strand strand_id,
-                                  Position start,
+                                  Position before_after_btw, // with regard to the strand's reading direction
                                   int32_t pos1,
                                   int32_t pos2,
                                   Promoters& promoters) {
@@ -2016,25 +2016,32 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
            (pos1 == 0 and pos2 >= 0 and pos2 < _dna->get_length()));
 
     auto strand = _rna_list[strand_id];
+    auto it_begin = strand.begin();
+    auto it_end   = strand.end();
 
-    auto it_begin = find_if(strand.begin(),
-                            strand.end(),
-                            [pos1, strand_id](ae_rna* p) {
-                                if (strand_id == LEADING)
-                                  return p->get_promoter_pos() >= pos1;
-                                else
-                                  return p->get_promoter_pos() < pos1;
-                            });
-    auto it_end = find_if(it_begin,
-                          strand.end(),
-                          [pos2, strand_id](ae_rna* p) {
-                              if (strand_id == LEADING)
-                                return p->get_promoter_pos() > pos2;
-                              else
-                                return p->get_promoter_pos() <= pos2;
-                          });
+    if (before_after_btw != BEFORE) {
+      it_begin = find_if(strand.begin(),
+                         strand.end(),
+                         [pos1, strand_id](ae_rna *p) {
+                           if (strand_id == LEADING)
+                             return p->get_promoter_pos() >= pos1;
+                           else
+                             return p->get_promoter_pos() < pos1;
+                         });
+    }
+
+    if (before_after_btw != AFTER) {
+      it_end = find_if(it_begin,
+                       strand.end(),
+                       [pos2, strand_id](ae_rna *p) {
+                         if (strand_id == LEADING)
+                           return p->get_promoter_pos() > pos2;
+                         else
+                           return p->get_promoter_pos() <= pos2;
+                       });
+    }
+
     promoters.insert(promoters.end(), it_begin, it_end);
-    // TODO vld: compact function by moving find_ifs inside insert
   }
 
 /// Invert all the promoters of promoter_lists for a sequence of
