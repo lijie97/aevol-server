@@ -2838,6 +2838,7 @@ void GeneticUnit::assert_promoters() {
   // Compare lists
   for (auto strand: {LEADING, LAGGING}) {
     if(backup[strand].size() != _rna_list[strand].size()) {
+      printf("Individual %" PRId32 "\n", _indiv->get_id());
       printf("***************** FOUND *******************");
       print_rnas(backup[strand], strand);
       printf("***************** EXPECTED *******************");
@@ -2853,6 +2854,7 @@ void GeneticUnit::assert_promoters() {
          ++node_old, ++node_new) {
       // TODO vld: to factor
       if ( (*node_old)->get_strand() != (*node_new)->get_strand() ) {
+        printf("Individual %" PRId32 "\n", _indiv->get_id());
         printf( "****************************** STRAND problem ******************************\n" );
         printf( "should be : \n" );
         print_rnas( _rna_list );
@@ -2867,6 +2869,7 @@ void GeneticUnit::assert_promoters() {
       }
 
       if ( (*node_old)->get_promoter_pos() != (*node_new)->get_promoter_pos() ) {
+        printf("Individual %" PRId32 "\n", _indiv->get_id());
         printf( "***************************** POSITION problem *****************************\n" );
         printf( "should be : \n" );
         print_rnas( _rna_list );
@@ -2881,6 +2884,7 @@ void GeneticUnit::assert_promoters() {
       }
 
       if ( (*node_old)->get_basal_level() != (*node_new)->get_basal_level() ) {
+        printf("Individual %" PRId32 "\n", _indiv->get_id());
         printf( "*************************** BASAL LEVEL problem ****************************\n" );
         printf( "should be : \n" );
         print_rnas( _rna_list );
@@ -2909,9 +2913,11 @@ void GeneticUnit::assert_promoters_order() {
     for (auto it =_rna_list[strand].begin(); next(it) != _rna_list[strand].end(); ++it) {
       if ((strand == LEADING && (*it)->get_promoter_pos() >= (*next(it))->get_promoter_pos()) ||
           (strand == LAGGING && (*it)->get_promoter_pos() <= (*next(it))->get_promoter_pos())) {
+        printf("Individual %" PRId32 "\n", _indiv->get_id());
         printf("********************** ORDER problem (%s) ***********************\n", StrandName[strand]);
         print_rnas();
         printf("****************************************************************************\n");
+        assert(false);
       }
     }
   }
