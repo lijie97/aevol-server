@@ -2148,18 +2148,18 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
                          [pos_2](ae_rna* r)
                          { return r->get_promoter_pos() < pos_2; });
 
-    if (first == strand.end() or (*first)->get_promoter_pos() >= pos_1)
+    if (first == strand.end() or (*first)->get_promoter_pos() < pos_1)
       return;
 
     // Find the last promoters in the interval
-    auto last = find_if(first,
+    auto end = find_if(first,
                         strand.end(),
                         [pos_1](ae_rna* r)
                         { return r->get_promoter_pos() < pos_1; });
 
     // Extract the promoters (remove them from the individual's list and put the in extracted_promoters)
-    extracted_promoters.insert(extracted_promoters.end(), first, last);
-    strand.erase(first, last);
+    extracted_promoters.insert(extracted_promoters.end(), first, end);
+    strand.erase(first, end);
   }
 
 
