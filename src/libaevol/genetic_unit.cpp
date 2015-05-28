@@ -2123,14 +2123,14 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
       return;
 
     // Find the last promoters in the interval
-    auto last = find_if(first,
+    auto end = find_if(first,
                         strand.end(),
                         [pos_2](ae_rna* p)
                         { return p->get_promoter_pos() >= pos_2; });
 
     // Extract the promoters (remove them from the individual's list and put them in extracted_promoters)
-    extracted_promoters.insert(extracted_promoters.end(), first, last);
-    strand.erase(first, last);
+    extracted_promoters.insert(extracted_promoters.end(), first, end);
+    strand.erase(first, end);
   }
 
   void GeneticUnit::extract_lagging_promoters_starting_between(int32_t pos_1,
@@ -2474,11 +2474,13 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
         // Look for the right place to insert the new promoter in the list
         auto& strand = _rna_list[LEADING];
         auto first = find_if(strand.begin(), strand.end(), [i](ae_rna* r) { return r->get_promoter_pos() >= i; });
+        if (first == strand.end() or (*first)->get_promoter_pos() != i) {
 #ifndef __REGUL
-        _rna_list[LEADING].insert(first, new ae_rna(this, LEADING, i, dist));
+          _rna_list[LEADING].insert(first, new ae_rna(this, LEADING, i, dist));
 #else
-        _rna_list[LEADING].insert(first, new ae_rna_R(this, LEADING, i, dist));
+          _rna_list[LEADING].insert(first, new ae_rna_R(this, LEADING, i, dist));
 #endif
+        }
       }
     }
   }
@@ -2520,11 +2522,13 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
         // Look for the right place to insert the new promoter in the list
         auto& strand = _rna_list[LAGGING];
         auto first = find_if(strand.begin(), strand.end(), [i](ae_rna* r) { return r->get_promoter_pos() <= i; });
+        if (first == strand.end() or (*first)->get_promoter_pos() != i) {
 #ifndef __REGUL
-        _rna_list[LAGGING].emplace(first, new ae_rna( this, LAGGING, i, dist));
+          _rna_list[LAGGING].emplace(first, new ae_rna( this, LAGGING, i, dist));
 #else
-        _rna_list[LAGGING].emplace(first, new ae_rna_R( this, LAGGING, i, dist));
-#endif
+          _rna_list[LAGGING].emplace(first, new ae_rna_R( this, LAGGING, i, dist));
+#endif // __REGUL
+        }
       }
     }
   }
@@ -2545,11 +2549,13 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
         // Look for the right place to insert the new promoter in the list
         auto& strand = _rna_list[LEADING];
         auto first = find_if(strand.begin(), strand.end(), [i](ae_rna* r) { return r->get_promoter_pos() >= i; });
+        if (first == strand.end() or (*first)->get_promoter_pos() != i) {
 #ifndef __REGUL
-        _rna_list[LEADING].emplace(first, new ae_rna(this, LEADING, i, dist));
+          _rna_list[LEADING].emplace(first, new ae_rna(this, LEADING, i, dist));
 #else
-        _rna_list[LEADING].emplace(first, new ae_rna_R(this, LEADING, i, dist));
+          _rna_list[LEADING].emplace(first, new ae_rna_R(this, LEADING, i, dist));
 #endif
+        }
       }
     }
   }
@@ -2586,11 +2592,13 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
         assert ( i >= 0 && i < _dna->get_length() );
         // Look for the right place to insert the new promoter in the list
         first = find_if(first, strand.end(), [i](ae_rna* r) { return r->get_promoter_pos() <= i; });
+        if (first == strand.end() or (*first)->get_promoter_pos() != i) {
 #ifndef __REGUL
-        _rna_list[LAGGING].emplace(first, new ae_rna(this, LAGGING, i, dist));
+          _rna_list[LAGGING].emplace(first, new ae_rna(this, LAGGING, i, dist));
 #else
-      _rna_list[LAGGING].emaplce(first, new ae_rna_R(this, LAGGING, i, dist));
+          _rna_list[LAGGING].emaplce(first, new ae_rna_R(this, LAGGING, i, dist));
 #endif
+        }
       }
     }
   }
@@ -2613,11 +2621,13 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
       {
         // Look for the right place to insert the new promoter in the list
         first = find_if(first, strand.end(), [i](ae_rna* r) { return r->get_promoter_pos() >= i; });
+        if (first == strand.end() or (*first)->get_promoter_pos() != i) {
 #ifndef __REGUL
-        _rna_list[LEADING].emplace(first, new ae_rna( this, LEADING, i, dist ));
+          _rna_list[LEADING].emplace(first, new ae_rna(this, LEADING, i, dist));
 #else
-      _rna_list[LEADING].emplace(first, new ae_rna_R( this, LEADING, i, dist ));
+          _rna_list[LEADING].emplace(first, new ae_rna_R( this, LEADING, i, dist ));
 #endif
+        }
       }
     }
   }
@@ -2656,11 +2666,13 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
         assert ( i >= 0 && i < _dna->get_length() );
         // Look for the right place to insert the new promoter in the list
         first = find_if(first, strand.end(), [i](ae_rna* r) { return r->get_promoter_pos() <= i; });
+        if (first == strand.end() or (*first)->get_promoter_pos() != i) {
 #ifndef __REGUL
-        _rna_list[LAGGING].emplace(first, new ae_rna( this, LAGGING, i, dist));
+          _rna_list[LAGGING].emplace(first, new ae_rna(this, LAGGING, i, dist));
 #else
-      _rna_list[LAGGING].emplace(first, new ae_rna_R( this, LAGGING, i, dist));
+          _rna_list[LAGGING].emplace(first, new ae_rna_R( this, LAGGING, i, dist));
 #endif
+        }
       }
     }
   }
