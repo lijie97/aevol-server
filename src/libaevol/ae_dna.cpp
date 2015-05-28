@@ -2434,10 +2434,10 @@ void ae_dna::compute_statistical_data(void)
   //~ }
 }
 
-void ae_dna::set_GU(std::vector<std::list<ae_rna*>> rna_list, const GeneticUnit* GU) {
-  for (int8_t strand = LEADING; strand <= LAGGING; strand++)
+void ae_dna::set_GU(std::vector<std::list<ae_rna>> rna_list, const GeneticUnit* GU) {
+  for (auto& strand: {LEADING, LAGGING})
     for (auto& rna: rna_list[strand])
-      rna->set_genetic_unit(GU);
+      rna.set_genetic_unit(GU);
 }
 
 GeneticUnit* ae_dna::extract_into_new_GU(int32_t pos_1, int32_t pos_2)
@@ -3371,7 +3371,7 @@ void ae_dna::inter_GU_ABCDE_to_ACDBE(int32_t pos_B, int32_t pos_C, int32_t pos_E
     // Reassign promoters to their new genetic unit
     for (auto& strand: {LEADING, LAGGING})
       for (auto& rna: promoters_B[strand])
-        rna->set_genetic_unit(&destination_GU);
+        rna.set_genetic_unit(&destination_GU);
 
     // Shift the promoters of sequences C and E
     _gen_unit->move_all_promoters_after(pos_C, -len_B);

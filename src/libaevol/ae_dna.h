@@ -168,8 +168,8 @@ class ae_dna : public ae_string
 
     void compute_statistical_data(void);
 
-    // TODO rna_list should be passed by ref
-    static void set_GU(std::vector<std::list<ae_rna*>> rna_list, const GeneticUnit* GU);
+    // TODO vld rna_list should be passed by reference
+    static void set_GU(std::vector<std::list<ae_rna>> rna_list, const GeneticUnit* GU);
 
 
     // =================================================================
