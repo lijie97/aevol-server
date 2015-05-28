@@ -1565,12 +1565,12 @@ void ae_individual::do_translation() {
 
   for (auto& gen_unit: _genetic_unit_list) {
     gen_unit.do_translation();
-    // Create proxies
-    const auto& lead = gen_unit.get_protein_list(LEADING);
-    const auto& lagg = gen_unit.get_protein_list(LAGGING);
-
-    _protein_list.insert(_protein_list.end(), lead.begin(), lead.end());
-    _protein_list.insert(_protein_list.end(), lagg.begin(), lagg.end());
+    // append all proteins from `gen_unit` to `_protein_list`
+    for (auto& strand_id: {LEADING, LAGGING}) {
+      auto& strand = gen_unit.get_protein_list(strand_id);
+      for (auto& p: strand)
+        _protein_list.push_back(&p);
+    }
   }
 }
 
@@ -1993,14 +1993,14 @@ void ae_individual::make_protein_list() {
   _protein_list.clear();
 
   // Make a copy of each genetic unit's protein list
-  for (const auto& gen_unit: _genetic_unit_list)
+  for (auto& gen_unit: _genetic_unit_list)
   {
-    // Creates proxies
-    const auto& lead = gen_unit.get_protein_list(LEADING);
-    const auto& lagg = gen_unit.get_protein_list(LAGGING);
-
-    _protein_list.insert(_protein_list.end(), lead.begin(), lead.end());
-    _protein_list.insert(_protein_list.end(), lagg.begin(), lagg.end());
+    // append all proteins from `gen_unit` to `_protein_list`
+    for (auto& strand_id: {LEADING, LAGGING}) {
+      auto& strand = gen_unit.get_protein_list(strand_id);
+      for (auto& p: strand)
+        _protein_list.push_back(&p);
+    }
   }
 }
 

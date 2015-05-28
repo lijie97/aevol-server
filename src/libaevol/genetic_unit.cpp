@@ -90,7 +90,7 @@ Promoters2 GeneticUnit::get_rna_list() const {
   return _rna_list;
 }
 
-const std::list<ae_protein*> GeneticUnit::get_protein_list(ae_strand strand) const {
+std::list<ae_protein>& GeneticUnit::get_protein_list(ae_strand strand) {
   return _protein_list[strand];
 }
 
@@ -858,11 +858,6 @@ GeneticUnit::GeneticUnit( ae_individual* indiv, char* organism_file_name )
 // =================================================================
 GeneticUnit::~GeneticUnit( void )
 {
-  // needed only because _rna_list and _protein_list hold pointers
-  for (auto& strand: _protein_list)
-    for (auto& prot: strand)
-      delete prot;
-
   delete _dna;
   delete _activ_contribution;
   delete _inhib_contribution;
@@ -1027,12 +1022,12 @@ void GeneticUnit::do_translation()
           auto& protein_strand = _protein_list[strand];
           auto protein = find_if(protein_strand.begin(),
                                  protein_strand.end(),
-                                 [shine_dal_pos](ae_protein* p)
-                                 { return p->get_shine_dal_pos() == shine_dal_pos; });
+                                 [shine_dal_pos](ae_protein& p)
+                                 { return p.get_shine_dal_pos() == shine_dal_pos; });
 
           if (protein != protein_strand.end()) {
-            (*protein)->add_RNA(&rna);
-            rna.add_transcribed_protein(*protein);
+            protein->add_RNA(&rna);
+            rna.add_transcribed_protein(&*protein);
           }
           else {
             // Build codon list and make new protein when stop found
@@ -1049,29 +1044,23 @@ void GeneticUnit::do_translation()
               if (codon->is_stop()) {
                 if (not codon_list.empty()) { // at least one amino-acid
                   // The protein is valid, create the corresponding object
-                  ae_protein* protein;
-#ifndef __REGUL
-                  protein = new ae_protein(this, codon_list, strand, shine_dal_pos, &rna);
-#else
-                  protein = new ae_protein_R(this, codon_list, strand, shine_dal_pos, &rna);
-#endif
+                  protein_strand.emplace_back(this, codon_list, strand, shine_dal_pos, &rna);
+                  auto& protein = protein_strand.back();
                   codon_list.clear(); // has been copied into `protein`
+                  rna.add_transcribed_protein(&protein);
 
-                  protein_strand.emplace_back(protein);
-                  rna.add_transcribed_protein(protein);
-
-                  if (protein->get_is_functional()) {
+                  if (protein.get_is_functional()) {
                     _nb_fun_genes++;
-                    _overall_size_fun_genes += protein->get_length() * CODON_SIZE;
+                    _overall_size_fun_genes += protein.get_length() * CODON_SIZE;
 
-                    if (protein->get_height() > 0) _nb_genes_activ++;
+                    if (protein.get_height() > 0) _nb_genes_activ++;
                     else                           _nb_genes_inhib++;
                   }
                   else {
                     _nb_non_fun_genes++;
                     _overall_size_non_fun_genes += (strand == LEADING) ?
-                                                   protein->get_length() * CODON_SIZE :
-                                                   ( protein->get_length() + 2 ) * CODON_SIZE;
+                                                   protein.get_length() * CODON_SIZE :
+                                                   ( protein.get_length() + 2 ) * CODON_SIZE;
                   }
                 }
                 delete codon;
@@ -1112,11 +1101,11 @@ void GeneticUnit::compute_phenotypic_contribution( void )
 
   for (const auto& strand: _protein_list) // two strands: LEADING & LAGGING
     for (const auto& prot: strand)
-      if ( prot->get_is_functional() )
-        ((prot->get_height() > 0) ? _activ_contribution: _inhib_contribution)
-            ->add_triangle(prot->get_mean(),
-                           prot->get_width(),
-                           prot->get_height() * prot->get_concentration() );
+      if (prot.get_is_functional())
+        ((prot.get_height() > 0) ? _activ_contribution: _inhib_contribution)
+            ->add_triangle(prot.get_mean(),
+                           prot.get_width(),
+                           prot.get_height() * prot.get_concentration());
   // if ( prot->get_height() > 0 )
   //   _activ_contribution->add_triangle(prot->get_mean(),
   //                                     prot->get_width(),
@@ -1274,10 +1263,6 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     // during the mutations (cf ae_dna::undergo_this_mutation)
     // TODO : Reinitialize _transcribed proteins ?
 
-    for (auto& strand: _protein_list) // vld: proof that ae_genetic_unit
-      for (auto& protein: strand)     // should be a list of objects
-        delete protein;               // rather than of pointers.
-
     if ( _activ_contribution != NULL )
     {
       delete _activ_contribution;
@@ -1315,17 +1300,17 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     printf( "  LEADING ( %" PRId32 " )\n", static_cast<int32_t>(_protein_list[LEADING].size()));
     for (const auto& prot: _protein_list[LEADING])
       printf( "    Gene on LEADING at %" PRId32 " (%" PRId32 ") (%f %f %f) (%f) %s\n",
-              prot->get_shine_dal_pos(), prot->get_length(),
-              prot->get_mean(), prot->get_width(), prot->get_height(), prot->get_concentration(),
-              prot->get_is_functional() ? "functional" : "non functional" );
+              prot.get_shine_dal_pos(), prot.get_length(),
+              prot.get_mean(), prot.get_width(), prot.get_height(), prot.get_concentration(),
+              prot.get_is_functional() ? "functional" : "non functional" );
 
 
     printf( "  LAGGING ( %" PRId32 " )\n", static_cast<int32_t>(_protein_list[LAGGING].size()));
     for (const auto& prot: _protein_list[LAGGING])
       printf( "    Gene on LAGGING at %" PRId32 " (%" PRId32 ") (%f %f %f) (%f) %s\n",
-              prot->get_shine_dal_pos(), prot->get_length(),
-              prot->get_mean(), prot->get_width(), prot->get_height(), prot->get_concentration(),
-              prot->get_is_functional() ? "functional" : "non functional" );
+              prot.get_shine_dal_pos(), prot.get_length(),
+              prot.get_mean(), prot.get_width(), prot.get_height(), prot.get_concentration(),
+              prot.get_is_functional() ? "functional" : "non functional" );
   }
 
   bool GeneticUnit::is_promoter( ae_strand strand, int32_t pos, int8_t& dist ) const
@@ -1514,12 +1499,12 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 
         switch (strand) {
           case LEADING:
-            first = prot->get_shine_dal_pos();
-            last  = prot->get_last_STOP_base_pos();
+            first = prot.get_shine_dal_pos();
+            last  = prot.get_last_STOP_base_pos();
             break;
           case LAGGING:
-            last  = prot->get_shine_dal_pos();
-            first = prot->get_last_STOP_base_pos();
+            last  = prot.get_shine_dal_pos();
+            first = prot.get_last_STOP_base_pos();
             break;
           default:
             assert(false); // error: should never happen
@@ -1530,7 +1515,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
           for ( int32_t i = first ; i <= last ; i++ )
           {
             belongs_to_CDS[i] = true;
-            if ( prot->get_is_functional() ) is_essential_DNA[i] = true;
+            if ( prot.get_is_functional() ) is_essential_DNA[i] = true;
             is_essential_DNA_including_nf_genes[i] = true;
           }
         }
@@ -1539,20 +1524,20 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
           for ( int32_t i = first ; i < genome_length ; i++ )
           {
             belongs_to_CDS[i] = true;
-            if ( prot->get_is_functional() ) is_essential_DNA[i] = true;
+            if ( prot.get_is_functional() ) is_essential_DNA[i] = true;
             is_essential_DNA_including_nf_genes[i] = true;
           }
           for ( int32_t i = 0 ; i <= last ; i++ )
           {
             belongs_to_CDS[i] = true;
-            if ( prot->get_is_functional() ) is_essential_DNA[i] = true;
+            if ( prot.get_is_functional() ) is_essential_DNA[i] = true;
             is_essential_DNA_including_nf_genes[i] = true;
           }
         }
 
         // Include the promoter and terminator to essential DNA
         // Mark everything between promoter and terminator as not neutral
-        for (const auto& rna: prot->get_rna_list_std()) {
+        for (const auto& rna: prot.get_rna_list_std()) {
 
           int32_t prom_first;
           int32_t prom_last;
@@ -1597,7 +1582,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
             for ( int32_t i = prom_first ; i <= prom_last ; i++ )
             {
               //~ printf( "%ld ", i );
-              if ( prot->get_is_functional() ) is_essential_DNA[i] = true;
+              if ( prot.get_is_functional() ) is_essential_DNA[i] = true;
               is_essential_DNA_including_nf_genes[i] = true;
             }
           }
@@ -1606,13 +1591,13 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
             for ( int32_t i = prom_first ; i < genome_length ; i++ )
             {
               //~ printf( "%ld ", i );
-              if ( prot->get_is_functional() ) is_essential_DNA[i] = true;
+              if ( prot.get_is_functional() ) is_essential_DNA[i] = true;
               is_essential_DNA_including_nf_genes[i] = true;
             }
             for ( int32_t i = 0 ; i <= prom_last ; i++ )
             {
               //~ printf( "%ld ", i );
-              if ( prot->get_is_functional() ) is_essential_DNA[i] = true;
+              if ( prot.get_is_functional() ) is_essential_DNA[i] = true;
               is_essential_DNA_including_nf_genes[i] = true;
             }
           }
@@ -1624,7 +1609,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
             for ( int32_t i = term_first ; i <= term_last ; i++ )
             {
               //~ printf( "%ld ", i );
-              if ( prot->get_is_functional() ) is_essential_DNA[i] = true;
+              if ( prot.get_is_functional() ) is_essential_DNA[i] = true;
               is_essential_DNA_including_nf_genes[i] = true;
             }
           }
@@ -1633,13 +1618,13 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
             for ( int32_t i = term_first ; i < genome_length ; i++ )
             {
               //~ printf( "%ld ", i );
-              if ( prot->get_is_functional() ) is_essential_DNA[i] = true;
+              if ( prot.get_is_functional() ) is_essential_DNA[i] = true;
               is_essential_DNA_including_nf_genes[i] = true;
             }
             for ( int32_t i = 0 ; i <= term_last ; i++ )
             {
               //~ printf( "%ld ", i );
-              if ( prot->get_is_functional() ) is_essential_DNA[i] = true;
+              if ( prot.get_is_functional() ) is_essential_DNA[i] = true;
               is_essential_DNA_including_nf_genes[i] = true;
             }
           }
@@ -1650,7 +1635,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 
 
 
-        if ( prot->get_is_functional() )
+        if ( prot.get_is_functional() )
         {
           if ( first <= last )
           {

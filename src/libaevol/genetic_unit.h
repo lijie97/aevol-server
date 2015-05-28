@@ -93,10 +93,10 @@ class GeneticUnit
   Fuzzy*    get_phenotypic_contribution( void ) const;
 
   // TODO: re constify
-  // TODO return as (rvalue?) reference
+  // TODO return as reference
   /*const*/ Promoters2 get_rna_list() const;
-  // TODO return as (rvalue?) reference
-  const list<ae_protein*> get_protein_list(ae_strand strand) const;
+  // TODO return as reference
+  std::list<ae_protein>& get_protein_list(ae_strand strand);
   void clear_protein_list(ae_strand strand);
 
   // Direct DNA access
@@ -307,11 +307,10 @@ class GeneticUnit
   Fuzzy*   _phenotypic_contribution;
   // NB : _phenotypic_contribution is only an indicative value, not used for the whole phenotype computation
 
-  // TODO vld: Both of _rna_list and _protein_list should hold objects instead of pointers.
   // _rna_list always has 2 elements: make it an std::array
   Promoters2 _rna_list = {{},{}};
   // _protein_list always has 2 elements: make it an std::array
-  std::vector<std::list<ae_protein*>> _protein_list = {{},{}};
+  std::array<std::list<ae_protein>, 2> _protein_list; // = {{},{}};
 
   // DM: For plasmid work, we sometimes *need* all the data (e.g. fitness, secretion) calculated for each GU
   double* _dist_to_target_per_segment;

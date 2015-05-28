@@ -186,15 +186,15 @@ void ae_individual_X11::display_cdss(ae_X11_window* win)
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)
     // nb_sect : "length" in degrees of the arc to be drawn
-    alpha_first   = (int16_t) round( 360 * ((double)cds->get_first_translated_pos() / (double)genome_length));
-    alpha_last    = (int16_t) round( 360 * ((double)cds->get_last_translated_pos()  / (double)genome_length));
+    alpha_first   = (int16_t) round( 360 * ((double)cds.get_first_translated_pos() / (double)genome_length));
+    alpha_last    = (int16_t) round( 360 * ((double)cds.get_last_translated_pos()  / (double)genome_length));
     theta_first   = ae_utils::mod(90 - alpha_first, 360);
     // theta_last    = ae_utils::mod(90 - alpha_last, 360);
     nb_sect       = ae_utils::mod(alpha_last - alpha_first + 1,  360);
 
     // These are the same as above but with a higher precision (1/64 degrees)
-    alpha_first_64   = (int16_t) round(64 * 360 * ((double)cds->get_first_translated_pos() / (double)genome_length));
-    alpha_last_64    = (int16_t) round(64 * 360 * ((double)cds->get_last_translated_pos() / (double)genome_length));
+    alpha_first_64   = (int16_t) round(64 * 360 * ((double)cds.get_first_translated_pos() / (double)genome_length));
+    alpha_last_64    = (int16_t) round(64 * 360 * ((double)cds.get_last_translated_pos() / (double)genome_length));
     theta_first_64   = ae_utils::mod(64 * 90 - alpha_first_64, 64 * 360);
     // theta_last_64    = ae_utils::mod(64 * 90 - alpha_last_64, 64 * 360);
     nb_sect_64       = ae_utils::mod(alpha_last_64 - alpha_first_64 + 1,  64 * 360);
@@ -251,7 +251,7 @@ void ae_individual_X11::display_cdss(ae_X11_window* win)
     pos_x         = (int16_t) round((double)(canvas_width  - diam2) / 2.0);
     pos_y         = (int16_t) round((double)(canvas_height - diam2) / 2.0);
 
-    char* color = ae_X11_window::get_color(cds->get_mean());
+    char* color = ae_X11_window::get_color(cds.get_mean());
     win->draw_arc_64(pos_x, pos_y, diam2, theta_first_64 - nb_sect_64, nb_sect_64, color);
     delete [] color;
   }
@@ -264,15 +264,15 @@ void ae_individual_X11::display_cdss(ae_X11_window* win)
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)
     // nb_sect : "length" in degrees of the arc to be drawn
-    alpha_first   = (int16_t) round( 360 * ((double)cds->get_first_translated_pos() / (double)genome_length));
-    alpha_last    = (int16_t) round( 360 * ((double)cds->get_last_translated_pos()  / (double)genome_length));
+    alpha_first   = (int16_t) round( 360 * ((double)cds.get_first_translated_pos() / (double)genome_length));
+    alpha_last    = (int16_t) round( 360 * ((double)cds.get_last_translated_pos()  / (double)genome_length));
     theta_first   = ae_utils::mod(90 - alpha_first, 360);
     // theta_last    = ae_utils::mod(90 - alpha_last, 360);
     nb_sect = ae_utils::mod(alpha_first - alpha_last + 1,  360);
 
     // These are the same as above but with a higher precision (1/64 degrees)
-    alpha_first_64   = (int16_t) round(64 * 360 * ((double)cds->get_first_translated_pos() / (double)genome_length));
-    alpha_last_64    = (int16_t) round(64 * 360 * ((double)cds->get_last_translated_pos() / (double)genome_length));
+    alpha_first_64   = (int16_t) round(64 * 360 * ((double)cds.get_first_translated_pos() / (double)genome_length));
+    alpha_last_64    = (int16_t) round(64 * 360 * ((double)cds.get_last_translated_pos() / (double)genome_length));
     theta_first_64   = ae_utils::mod(64 * 90 - alpha_first_64, 64 * 360);
     // theta_last_64    = ae_utils::mod(64 * 90 - alpha_last_64, 64 * 360);
     nb_sect_64 = ae_utils::mod(alpha_first_64 - alpha_last_64 + 1,  64 * 360);
@@ -329,7 +329,7 @@ void ae_individual_X11::display_cdss(ae_X11_window* win)
     pos_x         = (int16_t) round((double)(canvas_width  - diam2) / 2.0);
     pos_y         = (int16_t) round((double)(canvas_height - diam2) / 2.0);
 
-    char* color = ae_X11_window::get_color(cds->get_mean());
+    char* color = ae_X11_window::get_color(cds.get_mean());
     win->draw_arc_64(pos_x, pos_y, diam2, theta_first_64, nb_sect_64, color);
     delete [] color;
   }
@@ -410,15 +410,15 @@ void ae_individual_X11::display_cdss(ae_X11_window* win)
       // Alpha : angles from OriC (in degrees)
       // Theta : angles on the trigonometric circle (in degrees)
       // nb_sect : "length" in degrees of the arc to be drawn
-      alpha_first   = (int16_t) round( 360 * ((double)cds->get_first_translated_pos() / (double)genome_length));
-      alpha_last    = (int16_t) round( 360 * ((double)cds->get_last_translated_pos()  / (double)genome_length));
+      alpha_first   = (int16_t) round( 360 * ((double)cds.get_first_translated_pos() / (double)genome_length));
+      alpha_last    = (int16_t) round( 360 * ((double)cds.get_last_translated_pos()  / (double)genome_length));
       theta_first   = ae_utils::mod(90 - alpha_first, 360);
       // theta_last    = ae_utils::mod(90 - alpha_last, 360);
       nb_sect       = ae_utils::mod(alpha_last - alpha_first + 1,  360);
 
       // These are the same as above but with a higher precision (1/64 degrees)
-      alpha_first_64   = (int16_t) round(64 * 360 * ((double)cds->get_first_translated_pos() / (double)genome_length));
-      alpha_last_64    = (int16_t) round(64 * 360 * ((double)cds->get_last_translated_pos() / (double)genome_length));
+      alpha_first_64   = (int16_t) round(64 * 360 * ((double)cds.get_first_translated_pos() / (double)genome_length));
+      alpha_last_64    = (int16_t) round(64 * 360 * ((double)cds.get_last_translated_pos() / (double)genome_length));
       theta_first_64   = ae_utils::mod(64 * 90 - alpha_first_64, 64 * 360);
       // theta_last_64    = ae_utils::mod(64 * 90 - alpha_last_64, 64 * 360);
       nb_sect_64       = ae_utils::mod(alpha_last_64 - alpha_first_64 + 1,  64 * 360);
@@ -475,7 +475,7 @@ void ae_individual_X11::display_cdss(ae_X11_window* win)
       pos_x         = canvas_width + (int16_t) round((double)(canvas_width  - diam2) / 2.0);
       pos_y         = (int16_t) round((double)(canvas_height - diam2) / 2.0);
 
-      char* color = ae_X11_window::get_color(cds->get_mean());
+      char* color = ae_X11_window::get_color(cds.get_mean());
       win->draw_arc_64(pos_x, pos_y, diam2, theta_first_64 - nb_sect_64, nb_sect_64, color);
       delete [] color;
     }
@@ -488,15 +488,15 @@ void ae_individual_X11::display_cdss(ae_X11_window* win)
       // Alpha : angles from OriC (in degrees)
       // Theta : angles on the trigonometric circle (in degrees)
       // nb_sect : "length" in degrees of the arc to be drawn
-      alpha_first   = (int16_t) round( 360 * ((double)cds->get_first_translated_pos() / (double)genome_length));
-      alpha_last    = (int16_t) round( 360 * ((double)cds->get_last_translated_pos()  / (double)genome_length));
+      alpha_first   = (int16_t) round( 360 * ((double)cds.get_first_translated_pos() / (double)genome_length));
+      alpha_last    = (int16_t) round( 360 * ((double)cds.get_last_translated_pos()  / (double)genome_length));
       theta_first   = ae_utils::mod(90 - alpha_first, 360);
       // theta_last    = ae_utils::mod(90 - alpha_last, 360);
       nb_sect = ae_utils::mod(alpha_first - alpha_last + 1,  360);
 
       // These are the same as above but with a higher precision (1/64 degrees)
-      alpha_first_64   = (int16_t) round(64 * 360 * ((double)cds->get_first_translated_pos() / (double)genome_length));
-      alpha_last_64    = (int16_t) round(64 * 360 * ((double)cds->get_last_translated_pos() / (double)genome_length));
+      alpha_first_64   = (int16_t) round(64 * 360 * ((double)cds.get_first_translated_pos() / (double)genome_length));
+      alpha_last_64    = (int16_t) round(64 * 360 * ((double)cds.get_last_translated_pos() / (double)genome_length));
       theta_first_64   = ae_utils::mod(64 * 90 - alpha_first_64, 64 * 360);
       // theta_last_64    = ae_utils::mod(64 * 90 - alpha_last_64, 64 * 360);
       nb_sect_64 = ae_utils::mod(alpha_first_64 - alpha_last_64 + 1,  64 * 360);
@@ -553,7 +553,7 @@ void ae_individual_X11::display_cdss(ae_X11_window* win)
       pos_x         = canvas_width + (int16_t) round((double)(canvas_width  - diam2) / 2.0);
       pos_y         = (int16_t) round((double)(canvas_height - diam2) / 2.0);
 
-      char* color = ae_X11_window::get_color(cds->get_mean());
+      char* color = ae_X11_window::get_color(cds.get_mean());
       win->draw_arc_64(pos_x, pos_y, diam2, theta_first_64, nb_sect_64, color);
       delete [] color;
     }
