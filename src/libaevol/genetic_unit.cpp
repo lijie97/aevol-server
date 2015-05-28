@@ -1946,7 +1946,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
       if ( seg_length >= PROM_SIZE )
       {
         get_promoters(LEADING, BETWEEN, pos_1, pos_2 - PROM_SIZE + 1, promoters[LEADING]);
-        get_promoters(LAGGING, BETWEEN, pos_1 + PROM_SIZE - 1, pos_2, promoters[LAGGING] );
+        get_promoters(LAGGING, BETWEEN, pos_2, pos_1 + PROM_SIZE - 1, promoters[LAGGING]);
       }
     }
     else
@@ -1969,25 +1969,25 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
         {
           // get_promoters(leading, between, pos_1, pos_2 + _dna->get_length() - PROM_SIZE + 1,
           //                                         promoters[LEADING] );
-          get_promoters(LEADING, BETWEEN, pos_1, pos_2 + _dna->get_length() - PROM_SIZE + 1,
+          get_promoters(LEADING, BETWEEN, pos_1, pos_2 - PROM_SIZE + 1 + _dna->get_length(),
                         promoters[LEADING]);
-          get_promoters(LAGGING, BEFORE, pos_2, 0, promoters[LAGGING] );
-          get_promoters(LAGGING, AFTER, 0, pos_1 + PROM_SIZE - 1, promoters[LAGGING] );
+          get_promoters(LAGGING, BEFORE, -1, pos_2, promoters[LAGGING] );
+          get_promoters(LAGGING, AFTER, pos_1 + PROM_SIZE - 1, -1, promoters[LAGGING] );
         }
         else if ( !is_near_beginning_of_genome ) // => && is_near_end_of_genome
         {
-          get_promoters(LEADING, AFTER, pos_1, pos_1, promoters[LEADING] );
-          get_promoters(LEADING, BEFORE, 0, pos_2 - PROM_SIZE + 1, promoters[LEADING] );
-          get_promoters(LAGGING, BETWEEN, pos_1 - _dna->get_length() + PROM_SIZE - 1, pos_2,
+          get_promoters(LEADING, AFTER, pos_1, -1, promoters[LEADING] );
+          get_promoters(LEADING, BEFORE, -1, pos_2 - PROM_SIZE + 1, promoters[LEADING] );
+          get_promoters(LAGGING, BETWEEN, pos_2, pos_1 + PROM_SIZE - 1 - _dna->get_length(),
                         promoters[LAGGING] );
         }
         else // is_near_end_of_genome && is_near_beginning_of_genome
         {
           // get_promoters(leading, between, pos_1, pos_2 + _dna->get_length() - PROM_SIZE + 1,
           //                                         promoters[LEADING] );
-          get_promoters(LEADING, BETWEEN, pos_1, pos_2 + _dna->get_length() - PROM_SIZE + 1,
+          get_promoters(LEADING, BETWEEN, pos_1, pos_2 - PROM_SIZE + 1 + _dna->get_length(),
                         promoters[LEADING]);
-          get_promoters(LAGGING, BETWEEN, pos_1 - _dna->get_length() + PROM_SIZE - 1, pos_2,
+          get_promoters(LAGGING, BETWEEN, pos_2, pos_1 + PROM_SIZE - 1 - _dna->get_length(),
                         promoters[LAGGING] );
         }
       }
@@ -2011,7 +2011,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     // TODO vld: These find_if puns are not very nice. Could just negate
     // return if LAGGING or something in that spirit.
 
-    assert((before_after_btw == BETWEEN and pos1 >= 0 and pos1 <= pos2 and pos2 <= _dna->get_length()) or
+    assert((before_after_btw == BETWEEN and pos1 >= 0 and pos2 >= 0 and pos1 <= _dna->get_length() and pos2 <= _dna->get_length()) or
            (before_after_btw == BEFORE and pos2 >= 0 and pos2 < _dna->get_length()) or
            (before_after_btw == AFTER and pos1 >= 0 and pos1 < _dna->get_length()));
 
