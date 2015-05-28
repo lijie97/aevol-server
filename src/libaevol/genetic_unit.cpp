@@ -1996,11 +1996,11 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     }
   }
 
-/// Get promoters from strand.
-///
-///
-///
-/// The promoters will be ordered with regard to the strand's reading direction
+/** Get promoters whose starting position are between/before/after
+ * pos_1 and pos_2.
+ *
+ * The promoters will be ordered with regard to the strand's reading direction
+ */
   void GeneticUnit::get_promoters(ae_strand strand_id,
                                   Position before_after_btw, // with regard to the strand's reading direction
                                   int32_t pos1,
@@ -2011,9 +2011,10 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     // TODO vld: These find_if puns are not very nice. Could just negate
     // return if LAGGING or something in that spirit.
 
-    assert((before_after_btw == BETWEEN and pos1 >= 0 and pos2 >= 0 and pos1 <= _dna->get_length() and pos2 <= _dna->get_length()) or
-           (before_after_btw == BEFORE and pos2 >= 0 and pos2 < _dna->get_length()) or
-           (before_after_btw == AFTER and pos1 >= 0 and pos1 < _dna->get_length()));
+    assert((before_after_btw == BETWEEN and pos1 >= 0 and pos2 >= 0 and
+            pos1 <= _dna->get_length() and pos2 <= _dna->get_length()) or
+        (before_after_btw == BEFORE and pos2 >= 0 and pos2 <= _dna->get_length()) or
+        (before_after_btw == AFTER and pos1 >= 0 and pos1 <= _dna->get_length()));
 
     auto strand = _rna_list[strand_id];
     auto it_begin = strand.begin();
@@ -2035,7 +2036,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
                        strand.end(),
                        [pos2, strand_id](ae_rna *p) {
                          if (strand_id == LEADING)
-                           return p->get_promoter_pos() > pos2;
+                           return p->get_promoter_pos() >= pos2;
                          else
                            return p->get_promoter_pos() < pos2;
                        });
