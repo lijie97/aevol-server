@@ -475,16 +475,18 @@ void GeneticUnit::remove_promoters_around( int32_t pos_1, int32_t pos_2 )
 ///   ^                   ^
 ///   0                  pos
 /// \endverbatim
-void GeneticUnit::look_for_new_promoters_around( int32_t pos )
+void GeneticUnit::look_for_new_promoters_around(int32_t pos)
 {
-  assert( pos >= 0 && pos <= _dna->get_length() );
+  assert(pos >= 0 && pos <= _dna->get_length());
 
-  if ( _dna->get_length() >= PROM_SIZE )
+  if (_dna->get_length() >= PROM_SIZE)
   {
-    look_for_new_leading_promoters_starting_between(  ae_utils::mod(pos - PROM_SIZE + 1, _dna->get_length()),
-                                                      ae_utils::mod(pos                , _dna->get_length()) );
-    look_for_new_lagging_promoters_starting_between(  ae_utils::mod(pos                , _dna->get_length()),
-                                                      ae_utils::mod(pos + PROM_SIZE - 1, _dna->get_length()) );
+    look_for_new_leading_promoters_starting_between(
+        ae_utils::mod(pos - PROM_SIZE + 1, _dna->get_length()),
+        pos);
+    look_for_new_lagging_promoters_starting_between(
+        pos,
+        ae_utils::mod(pos + PROM_SIZE - 1, _dna->get_length()) );
   }
 }
 
@@ -1998,9 +2000,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 ///
 ///
 ///
-/// When the strand is leading, promoters are found ordered with
-/// increasing positions. Whereas they are found in reverse order if
-/// the strand is lagging.
+/// The promoters will be ordered with regard to the strand's reading direction
   void GeneticUnit::get_promoters(ae_strand strand_id,
                                   Position before_after_btw, // with regard to the strand's reading direction
                                   int32_t pos1,
@@ -2037,7 +2037,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
                          if (strand_id == LEADING)
                            return p->get_promoter_pos() > pos2;
                          else
-                           return p->get_promoter_pos() <= pos2;
+                           return p->get_promoter_pos() < pos2;
                        });
     }
 
@@ -2485,10 +2485,9 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 
 
 /*!
-  \brief Look for new promoters on the LAGGIN strand whose starting positions would lie in [pos_1 ; pos_2[
+  \brief Look for new promoters on the LAGGING strand whose starting positions would lie in [pos_1 ; pos_2[
 
   NOTE : A lagging promoter whose starting position is pos spans [pos-PROM_SIZE+1 ; pos], not [pos-PROM_SIZE ; pos[
-
   Assuming (PROM_SIZE == 4), the LAGGING promoter whose starting position is pos spans the cells filled with X on the following cartoon:
   \verbatim
      -------------------------------
