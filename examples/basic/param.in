@@ -6,6 +6,7 @@
 STRAIN_NAME             basic_example
 SEED                    7250909
 INIT_POP_SIZE           1024
+WORLD_SIZE              32 32
 INIT_METHOD             ONE_GOOD_GENE CLONE
 CHROMOSOME_INITIAL_LENGTH   5000
 

@@ -162,7 +162,7 @@ inline void ae_rna::set_strand( ae_strand strand )
   _strand = strand;
 }
 
-inline void ae_rna::set_promoter_pos( int32_t pos )
+void ae_rna::set_promoter_pos( int32_t pos )
 {
   _pos = pos;
 }

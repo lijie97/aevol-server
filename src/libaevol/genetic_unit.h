@@ -253,10 +253,8 @@ class GeneticUnit
   //~ // set the genetic unit of all promoters to the appropriate
   //~ void reasign_promoter_genetic_unit (void);
 
-#ifdef DEBUG
   void assert_promoters( void );
   void assert_promoters_order( void );
-#endif
 
   bool* is_belonging_to_coding_RNA(void);
   void remove_non_coding_bases( void);
