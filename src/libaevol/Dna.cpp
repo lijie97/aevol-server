@@ -48,7 +48,7 @@
 #include "Rna.h"
 #include "ae_utils.h"
 #include "ae_vis_a_vis.h"
-#include "ae_align.h"
+#include "Alignment.h"
 
 namespace aevol {
 
@@ -497,7 +497,7 @@ void Dna::do_rearrangements_with_align(void)
       ////////////////////////////////////////////////////////////////////
       // 3) Test the existence of an alignment with a high enough score //
       ////////////////////////////////////////////////////////////////////
-      alignment = ae_align::search_alignment_direct(this, seed1, this, seed2, needed_score);
+      alignment = Alignment::search_alignment_direct(this, seed1, this, seed2, needed_score);
 
       if (alignment == NULL)
       {
@@ -661,11 +661,11 @@ void Dna::do_rearrangements_with_align(void)
 
           if (direct_sense)
           {
-            alignment_2 = ae_align::search_alignment_direct(this, seed1, translocated_segment->get_dna(), seed2, needed_score_2);
+            alignment_2 = Alignment::search_alignment_direct(this, seed1, translocated_segment->get_dna(), seed2, needed_score_2);
           }
           else // if indirect
           {
-            alignment_2 = ae_align::search_alignment_indirect(this, seed1, translocated_segment->get_dna(), seed2, needed_score_2);
+            alignment_2 = Alignment::search_alignment_indirect(this, seed1, translocated_segment->get_dna(), seed2, needed_score_2);
           }
 
           if (alignment_2 != NULL)
@@ -734,7 +734,7 @@ void Dna::do_rearrangements_with_align(void)
       ////////////////////////////////////////////////////////////////////
       // 3) Test the existence of an alignment with a high enough score //
       ////////////////////////////////////////////////////////////////////
-      alignment = ae_align::search_alignment_indirect(this, seed1, this, seed2, needed_score);
+      alignment = Alignment::search_alignment_indirect(this, seed1, this, seed2, needed_score);
 
       if (alignment == NULL)
       {
@@ -2736,7 +2736,7 @@ ae_vis_a_vis*Dna::search_alignment(Dna * chrom2, int32_t& nb_pairs, ae_sense sen
     ////////////////////////////////////////////////////////////////////
     if (cur_sense == DIRECT)
     {
-      alignment = ae_align::search_alignment_direct(this, seed1, chrom2, seed2, needed_score);
+      alignment = Alignment::search_alignment_direct(this, seed1, chrom2, seed2, needed_score);
       if (alignment != NULL)
       {
         return alignment;
@@ -2744,7 +2744,7 @@ ae_vis_a_vis*Dna::search_alignment(Dna * chrom2, int32_t& nb_pairs, ae_sense sen
     }
     else // if (cur_sense = INDIRECT)
     {
-      alignment = ae_align::search_alignment_indirect(this, seed1, chrom2, seed2, needed_score);
+      alignment = Alignment::search_alignment_indirect(this, seed1, chrom2, seed2, needed_score);
       if (alignment != NULL)
       {
         return alignment;
@@ -2822,12 +2822,12 @@ ae_vis_a_vis*Dna::search_alignment_around_positions(Dna * chrom2, int32_t chrom1
     if (cur_sense == DIRECT)
     {
       chrom2_pos_for_research = ae_utils::mod(chrom2_pos_for_research + first_research_sense * size_between_two_alignments, chrom2->get_length());
-      tmp_alignment = ae_align::search_alignment_direct(this, chrom1_pos_for_research, chrom2, chrom2_pos_for_research, needed_score);
+      tmp_alignment = Alignment::search_alignment_direct(this, chrom1_pos_for_research, chrom2, chrom2_pos_for_research, needed_score);
     }
     else // if (cur_sense = INDIRECT)
     {
       chrom2_pos_for_research = ae_utils::mod(chrom2_pos_for_research - first_research_sense * size_between_two_alignments, chrom2->get_length());
-      tmp_alignment = ae_align::search_alignment_indirect(this, chrom1_pos_for_research, chrom2, chrom2_pos_for_research, needed_score);
+      tmp_alignment = Alignment::search_alignment_indirect(this, chrom1_pos_for_research, chrom2, chrom2_pos_for_research, needed_score);
     }
     //printf("chrom1_pos_for_research : %d, chrom2_pos_for_research : %d\n", chrom1_pos_for_research, chrom1_pos_for_research);
 
@@ -2884,12 +2884,12 @@ ae_vis_a_vis*Dna::search_alignment_around_positions(Dna * chrom2, int32_t chrom1
     if (cur_sense == DIRECT)
     {
       chrom2_pos_for_research = ae_utils::mod(chrom2_pos_for_research + second_research_sense * size_between_two_alignments, chrom2->get_length());
-      tmp_alignment = ae_align::search_alignment_direct(this, chrom1_pos_for_research, chrom2, chrom2_pos_for_research, needed_score);
+      tmp_alignment = Alignment::search_alignment_direct(this, chrom1_pos_for_research, chrom2, chrom2_pos_for_research, needed_score);
     }
     else // if (cur_sense = INDIRECT)
     {
       chrom2_pos_for_research = ae_utils::mod(chrom2_pos_for_research - second_research_sense * size_between_two_alignments, chrom2->get_length());
-      tmp_alignment = ae_align::search_alignment_indirect(this, chrom1_pos_for_research, chrom2, chrom2_pos_for_research, needed_score);
+      tmp_alignment = Alignment::search_alignment_indirect(this, chrom1_pos_for_research, chrom2, chrom2_pos_for_research, needed_score);
     }
 
     if(tmp_alignment == NULL)

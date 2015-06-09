@@ -37,7 +37,7 @@
 //                            Project Files
 // =================================================================
 #include "ae_params_mut.h"
-#include "ae_align.h"
+#include "Alignment.h"
 
 namespace aevol {
 
@@ -189,16 +189,16 @@ ae_params_mut::ae_params_mut( gzFile backup_file )
   gzread( backup_file, &_align_match_bonus,   sizeof(_align_match_bonus) );
   gzread( backup_file, &_align_mismatch_cost, sizeof(_align_mismatch_cost) );
   
-  //ae_align::align_fun_shape     = _align_fun_shape;
-  //ae_align::align_sigm_lambda   = _align_sigm_lambda;
-  //ae_align::align_sigm_mean     = _align_sigm_mean;
-  //ae_align::align_lin_min       = _align_lin_min;
-  //ae_align::align_lin_max       = _align_lin_max;
+  //Alignment::align_fun_shape     = _align_fun_shape;
+  //Alignment::align_sigm_lambda   = _align_sigm_lambda;
+  //Alignment::align_sigm_mean     = _align_sigm_mean;
+  //Alignment::align_lin_min       = _align_lin_min;
+  //Alignment::align_lin_max       = _align_lin_max;
   
-  //ae_align::align_max_shift     = _align_max_shift;
-  //ae_align::align_w_zone_h_len  = _align_w_zone_h_len;
-  //ae_align::align_match_bonus   = _align_match_bonus;
-  //ae_align::align_mismatch_cost = _align_mismatch_cost;
+  //Alignment::align_max_shift     = _align_max_shift;
+  //Alignment::align_w_zone_h_len  = _align_w_zone_h_len;
+  //Alignment::align_match_bonus   = _align_match_bonus;
+  //Alignment::align_mismatch_cost = _align_mismatch_cost;
 }
 
 // =================================================================

@@ -36,7 +36,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_align.h"
+#include "Alignment.h"
 #include "ae_utils.h"
 #include "Individual.h"
 
@@ -45,26 +45,26 @@ namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                                Class ae_align                               #
+//                                Class Alignment                               #
 //                                                                             #
 //##############################################################################
 
 // =================================================================
 //                    Definition of static attributes
 // =================================================================
-//bool ae_align::with_alignments;
+//bool Alignment::with_alignments;
 
-//ae_align_fun_shape ae_align::align_fun_shape;
+//ae_align_fun_shape Alignment::align_fun_shape;
 
-//double  ae_align::align_sigm_lambda;
-//int16_t ae_align::align_sigm_mean;
-//int16_t ae_align::align_lin_min;
-//int16_t ae_align::align_lin_max;
+//double  Alignment::align_sigm_lambda;
+//int16_t Alignment::align_sigm_mean;
+//int16_t Alignment::align_lin_min;
+//int16_t Alignment::align_lin_max;
 
-//int16_t ae_align::align_max_shift;
-//int16_t ae_align::align_w_zone_h_len;
-//int16_t ae_align::align_match_bonus;
-//int16_t ae_align::align_mismatch_cost;
+//int16_t Alignment::align_max_shift;
+//int16_t Alignment::align_w_zone_h_len;
+//int16_t Alignment::align_match_bonus;
+//int16_t Alignment::align_mismatch_cost;
 
 // =================================================================
 //                             Constructors
@@ -77,7 +77,7 @@ namespace aevol {
 // =================================================================
 //                            Public Methods
 // =================================================================
-ae_vis_a_vis* ae_align::search_alignment_direct( const Dna * chrom_1, const int32_t seed_1,
+ae_vis_a_vis*Alignment::search_alignment_direct( const Dna * chrom_1, const int32_t seed_1,
                                                  const Dna * chrom_2, const int32_t seed_2, const int16_t needed_score )
 {
   ae_vis_a_vis * best_alignment = NULL;
@@ -185,7 +185,7 @@ ae_vis_a_vis* ae_align::search_alignment_direct( const Dna * chrom_1, const int3
 }
 
 
-ae_vis_a_vis* ae_align::search_alignment_indirect( const Dna * chrom_1, const int32_t seed_1,
+ae_vis_a_vis*Alignment::search_alignment_indirect( const Dna * chrom_1, const int32_t seed_1,
                                                    const Dna * chrom_2, const int32_t seed_2, const int16_t needed_score )
 {
   ae_vis_a_vis * best_alignment = NULL;

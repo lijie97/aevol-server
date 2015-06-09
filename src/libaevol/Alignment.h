@@ -57,7 +57,7 @@ class Dna;
 
 
 
-class ae_align
+class Alignment
 {
   public :
 
@@ -112,12 +112,12 @@ class ae_align
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    ae_align( void )
+    Alignment( void )
     {
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
     };
-    ae_align( const ae_align &model )
+    Alignment( const Alignment &model )
     {
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );

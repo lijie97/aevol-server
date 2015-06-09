@@ -62,7 +62,7 @@ namespace aevol {
 
 class ae_vis_a_vis
 {
-  friend class ae_align;
+  friend class Alignment;
   
   public :
 

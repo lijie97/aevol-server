@@ -19,8 +19,8 @@ include_directories(".")
 # Add targets add their dependencies
 # ============================================================================
 add_library(aevol
-  ae_align.cpp
-  ae_align.h
+  Alignment.cpp
+  Alignment.h
   ae_array_short.h
   Codon.cpp
   Codon.h
