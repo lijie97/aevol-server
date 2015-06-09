@@ -47,7 +47,7 @@
 // =================================================================
 #include "indiv_stats.h"
 #include "non_coding_stats.h"
-#include "genetic_unit.h"
+#include "GeneticUnit.h"
 #include "ae_dna.h"
 #include "ae_rna.h"
 #include "ae_protein.h"

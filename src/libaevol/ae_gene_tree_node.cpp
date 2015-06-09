@@ -42,7 +42,7 @@
 // =================================================================
 #include "ae_gene_tree_node.h"
 #include "ae_gene_mutation.h"
-#include "genetic_unit.h"
+#include "GeneticUnit.h"
 
 
  using std::list;

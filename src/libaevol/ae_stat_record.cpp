@@ -42,7 +42,7 @@
 #include "ExpManager.h"
 #include "ExpSetup.h"
 #include "Individual.h"
-#include "genetic_unit.h"
+#include "GeneticUnit.h"
 #include "ae_replication_report.h"
 #include "dna_replic_report.h"
 

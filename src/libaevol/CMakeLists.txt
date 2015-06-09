@@ -43,8 +43,8 @@ add_library(aevol
   ae_gene_tree.h
   ae_gene_tree_node.cpp
   ae_gene_tree_node.h
-  genetic_unit.cpp
-  genetic_unit.h
+  GeneticUnit.cpp
+  GeneticUnit.h
   habitat.cpp
   habitat.h
   ae_grid_cell.cpp

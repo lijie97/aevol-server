@@ -43,7 +43,7 @@
 #include "ExpManager.h"
 #include "ExpSetup.h"
 #include "ae_dna.h"
-#include "genetic_unit.h"
+#include "GeneticUnit.h"
 #include "Individual.h"
 #include "ae_rna.h"
 #include "ae_utils.h"

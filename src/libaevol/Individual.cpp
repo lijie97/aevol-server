@@ -29,7 +29,7 @@
 #include "ExpSetup.h"
 #include "ExpManager.h"
 #include "ae_grid_cell.h"
-#include "genetic_unit.h"
+#include "GeneticUnit.h"
 #include "ae_vis_a_vis.h"
 #include "ae_utils.h"
 

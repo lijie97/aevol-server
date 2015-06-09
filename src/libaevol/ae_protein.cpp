@@ -41,7 +41,7 @@
 
 #include "ae_codon.h"
 #include "Individual.h"
-#include "genetic_unit.h"
+#include "GeneticUnit.h"
 #include "ae_rna.h"
 #include "ae_utils.h"
 

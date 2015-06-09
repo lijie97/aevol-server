@@ -46,7 +46,7 @@
 #include "ExpManager.h"
 #include "ExpSetup.h"
 #include "Individual.h"
-#include "genetic_unit.h"
+#include "GeneticUnit.h"
 #ifdef __REGUL
   #include "ae_influence_R.h"
   #include "ae_protein_R.h"
