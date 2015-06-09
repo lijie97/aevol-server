@@ -26,7 +26,7 @@
 #include <list>
 
 #include "ae_codon.h"
-#include "ae_exp_setup.h"
+#include "ExpSetup.h"
 #include "ExpManager.h"
 #include "ae_grid_cell.h"
 #include "genetic_unit.h"

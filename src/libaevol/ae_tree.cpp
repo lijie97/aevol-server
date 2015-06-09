@@ -40,7 +40,7 @@
 
 #include "macros.h"
 #include "ExpManager.h"
-#include "ae_exp_setup.h"
+#include "ExpSetup.h"
 #include "ae_individual.h"
 #include "ae_utils.h"
 

@@ -41,7 +41,7 @@
 #include "ae_individual_X11.h"
 
 #include "ExpManager.h"
-#include "ae_exp_setup.h"
+#include "ExpSetup.h"
 #include "ae_utils.h"
 
 namespace aevol {

@@ -53,7 +53,7 @@ class ae_param_loader;
 
 
  
-class ae_exp_setup
+class ExpSetup
 {
   friend class ExpManager;
   
@@ -62,13 +62,13 @@ class ae_exp_setup
     // =======================================================================
     //                             Constructors
     // =======================================================================
-    ae_exp_setup( ExpManager * exp_m );
+    ExpSetup( ExpManager * exp_m );
   
   
     // =======================================================================
     //                             Destructors
     // =======================================================================
-    virtual ~ae_exp_setup( void );
+    virtual ~ExpSetup( void );
   
   
     // =======================================================================
@@ -150,12 +150,12 @@ class ae_exp_setup
     // =======================================================================
     //                         Forbidden Constructors
     // =======================================================================
-    ae_exp_setup( void )
+    ExpSetup( void )
     {
       printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
     };
-    ae_exp_setup( const ae_exp_setup &model )
+    ExpSetup( const ExpSetup &model )
     {
       printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
@@ -200,82 +200,82 @@ class ae_exp_setup
 // =====================================================================
 //                           Getters' definitions
 // =====================================================================
-inline ae_selection* ae_exp_setup::get_sel( void ) const
+inline ae_selection*ExpSetup::get_sel( void ) const
 {
   return _sel;
 }
 
-inline bool ae_exp_setup::get_with_HT( void ) const
+inline bool ExpSetup::get_with_HT( void ) const
 {
   return _with_HT;
 }
 
-inline bool ae_exp_setup::get_repl_HT_with_close_points( void ) const
+inline bool ExpSetup::get_repl_HT_with_close_points( void ) const
 {
   return _repl_HT_with_close_points;
 }
 
-inline double ae_exp_setup::get_HT_ins_rate( void ) const
+inline double ExpSetup::get_HT_ins_rate( void ) const
 {
   return _HT_ins_rate;
 }
 
-inline double ae_exp_setup::get_HT_repl_rate( void ) const
+inline double ExpSetup::get_HT_repl_rate( void ) const
 {
   return _HT_repl_rate;
 }
 
-inline double ae_exp_setup::get_repl_HT_detach_rate( void ) const
+inline double ExpSetup::get_repl_HT_detach_rate( void ) const
 {
   return _repl_HT_detach_rate;
 }
 
-inline bool ae_exp_setup::get_with_plasmids( void ) const
+inline bool ExpSetup::get_with_plasmids( void ) const
 {
   return _with_plasmids;
 }
 
-inline double ae_exp_setup::get_prob_plasmid_HT( void ) const
+inline double ExpSetup::get_prob_plasmid_HT( void ) const
 {
   return _prob_plasmid_HT;
 }
 
-inline double ae_exp_setup::get_tune_donor_ability( void ) const
+inline double ExpSetup::get_tune_donor_ability( void ) const
 {
   return _tune_donor_ability;
 }
 
-inline double ae_exp_setup::get_tune_recipient_ability( void ) const
+inline double ExpSetup::get_tune_recipient_ability( void ) const
 {
   return _tune_recipient_ability;
 }
 
-inline double ae_exp_setup::get_donor_cost( void ) const
+inline double ExpSetup::get_donor_cost( void ) const
 {
   return _donor_cost;
 }
 
-inline double ae_exp_setup::get_recipient_cost( void ) const
+inline double ExpSetup::get_recipient_cost( void ) const
 {
   return _recipient_cost;
 }
 
-inline bool   ae_exp_setup::get_swap_GUs( void ) const
+inline bool   ExpSetup::get_swap_GUs( void ) const
 {
   return _swap_GUs;
 }
 
-inline bool ae_exp_setup::get_with_secretion( void ) const
+inline bool ExpSetup::get_with_secretion( void ) const
 {
   return _with_secretion;
 }
 
-inline double ae_exp_setup::get_secretion_contrib_to_fitness( void ) const
+inline double ExpSetup::get_secretion_contrib_to_fitness( void ) const
 {
   return _secretion_contrib_to_fitness;
 }
 
-inline double ae_exp_setup::get_secretion_cost( void ) const
+inline double ExpSetup::get_secretion_cost( void ) const
 {
   return _secretion_cost;
 }
@@ -284,78 +284,78 @@ inline double ae_exp_setup::get_secretion_cost( void ) const
 //                           Setters' definitions
 // =====================================================================
 // --------------------------------------------------------------- Transfer
-inline void ae_exp_setup::set_with_HT( bool with_HT )
+inline void ExpSetup::set_with_HT( bool with_HT )
 {
   _with_HT = with_HT;
 }
 
-inline void ae_exp_setup::set_repl_HT_with_close_points( bool repl_HT_with_close_points )
+inline void ExpSetup::set_repl_HT_with_close_points( bool repl_HT_with_close_points )
 {
   _repl_HT_with_close_points = repl_HT_with_close_points;
 }
 
-inline void ae_exp_setup::set_HT_ins_rate( double HT_ins_rate )
+inline void ExpSetup::set_HT_ins_rate( double HT_ins_rate )
 {
   _HT_ins_rate = HT_ins_rate;
 }
 
-inline void ae_exp_setup::set_HT_repl_rate( double HT_repl_rate )
+inline void ExpSetup::set_HT_repl_rate( double HT_repl_rate )
 {
   _HT_repl_rate = HT_repl_rate;
 }
 
-inline void ae_exp_setup::set_repl_HT_detach_rate( double repl_HT_detach_rate )
+inline void ExpSetup::set_repl_HT_detach_rate( double repl_HT_detach_rate )
 {
   _repl_HT_detach_rate = repl_HT_detach_rate;
 }
 
-inline void ae_exp_setup::set_with_plasmids( bool with_p )
+inline void ExpSetup::set_with_plasmids( bool with_p )
 {
   _with_plasmids = with_p;
 }
 
-inline void ae_exp_setup::set_prob_plasmid_HT( double prob_p_HT )
+inline void ExpSetup::set_prob_plasmid_HT( double prob_p_HT )
 {
   _prob_plasmid_HT = prob_p_HT;
 }
 
-inline void ae_exp_setup::set_tune_donor_ability( double tune_donor_ability )
+inline void ExpSetup::set_tune_donor_ability( double tune_donor_ability )
 {
   _tune_donor_ability = tune_donor_ability;
 }
 
-inline void ae_exp_setup::set_tune_recipient_ability( double tune_recipient_ability )
+inline void ExpSetup::set_tune_recipient_ability( double tune_recipient_ability )
 {
   _tune_recipient_ability = tune_recipient_ability;
 }
 
-inline void ae_exp_setup::set_donor_cost( double donor_cost )
+inline void ExpSetup::set_donor_cost( double donor_cost )
 {
   _donor_cost = donor_cost;
 }
 
-inline void ae_exp_setup::set_recipient_cost( double recipient_cost )
+inline void ExpSetup::set_recipient_cost( double recipient_cost )
 {
   _recipient_cost = recipient_cost;
 }
 
-inline void ae_exp_setup::set_swap_GUs( bool swap_GUs )
+inline void ExpSetup::set_swap_GUs( bool swap_GUs )
 {
   _swap_GUs = swap_GUs;
 }
 
 // -------------------------------------------------------------- Secretion
-inline void ae_exp_setup::set_with_secretion( bool with_secretion )
+inline void ExpSetup::set_with_secretion( bool with_secretion )
 {
   _with_secretion = with_secretion;
 }
 
-inline void ae_exp_setup::set_secretion_contrib_to_fitness( double secretion_contrib )
+inline void ExpSetup::set_secretion_contrib_to_fitness( double secretion_contrib )
 {
   _secretion_contrib_to_fitness = secretion_contrib;
 }
 
-inline void ae_exp_setup::set_secretion_cost( double secretion_cost )
+inline void ExpSetup::set_secretion_cost( double secretion_cost )
 {
   _secretion_cost = secretion_cost;
 }
@@ -364,7 +364,7 @@ inline void ae_exp_setup::set_secretion_cost( double secretion_cost )
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-inline void ae_exp_setup::step_to_next_generation( void )
+inline void ExpSetup::step_to_next_generation( void )
 { 
   // Make the individuals reproduce
   _sel->step_to_next_generation();

@@ -37,7 +37,7 @@
 //                            Project Files
 // =================================================================
 #include "ae_logs.h"
-#include "ae_exp_setup.h"
+#include "ExpSetup.h"
 
 namespace aevol {
 

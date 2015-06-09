@@ -45,7 +45,7 @@
 #include "param_loader.h"
 
 #include "ExpManager.h"
-#include "ae_exp_setup.h"
+#include "ExpSetup.h"
 #include "ae_output_manager.h"
 #include "ae_individual.h"
 #include "individual_factory.h"
@@ -1209,7 +1209,7 @@ void param_loader::load(ExpManager * exp_m, bool verbose,
   auto world_prng = std::make_shared<ae_jumping_mt>(_prng->random(1000000));
 
   // Create aliases
-  ae_exp_setup* exp_s = exp_m->get_exp_s();
+  ExpSetup * exp_s = exp_m->get_exp_s();
   ae_selection* sel = exp_m->get_sel();
   ae_output_manager* output_m  = exp_m->get_output_m();
 

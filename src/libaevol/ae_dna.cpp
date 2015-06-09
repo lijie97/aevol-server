@@ -41,7 +41,7 @@
 //                            Project Files
 // =================================================================
 #include "ExpManager.h"
-#include "ae_exp_setup.h"
+#include "ExpSetup.h"
 #include "ae_dna.h"
 #include "genetic_unit.h"
 #include "ae_individual.h"

@@ -37,7 +37,7 @@
 #include <algorithm>
 
 #include "ExpManager.h"
-#include "ae_exp_setup.h"
+#include "ExpSetup.h"
 #include "ae_codon.h"
 #include "ae_mutation.h"
 #include "ae_enums.h"

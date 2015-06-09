@@ -32,7 +32,7 @@ ae_dump.h \
 ae_enums.h \
 ae_env_segment.h \
 ExpManager.h \
-ae_exp_setup.h \
+ExpSetup.h \
 fuzzy.h \
 ae_gaussian.h \
 genetic_unit.h \
@@ -76,7 +76,7 @@ ae_codon.cpp \
 ae_dna.cpp \
 ae_dump.cpp \
 ExpManager.cpp \
-ae_exp_setup.cpp \
+ExpSetup.cpp \
 genetic_unit.cpp \
 ae_grid_cell.cpp \
 ae_individual.cpp \

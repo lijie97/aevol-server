@@ -40,7 +40,7 @@
 #include "ae_stat_record.h"
 
 #include "ExpManager.h"
-#include "ae_exp_setup.h"
+#include "ExpSetup.h"
 #include "ae_individual.h"
 #include "genetic_unit.h"
 #include "ae_replication_report.h"

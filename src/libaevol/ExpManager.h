@@ -48,7 +48,7 @@
 
 #include "Time.h"
 #include "ae_jumping_mt.h"
-#include "ae_exp_setup.h"
+#include "ExpSetup.h"
 #include "ae_output_manager.h"
 #include "world.h"
 
@@ -87,7 +87,7 @@ class ExpManager
     // =======================================================================
     //                           Accessors: getters
     // =======================================================================
-    inline ae_exp_setup* get_exp_s(void) const;
+    inline ExpSetup * get_exp_s(void) const;
     inline ae_selection* get_sel(void) const;
     inline ae_output_manager* get_output_m(void) const;
 
@@ -226,7 +226,7 @@ class ExpManager
     //                             Protected Attributes
     // =======================================================================
     // ---------------------------------------------------- Experimental setup
-    ae_exp_setup* _exp_s;
+    ExpSetup * _exp_s;
 
     // ----------------------------------------------------- Spatial structure
     World* world_;
@@ -246,7 +246,7 @@ class ExpManager
 // ===========================================================================
 //                             Getters' definitions
 // ===========================================================================
-inline ae_exp_setup*ExpManager::get_exp_s(void) const
+inline ExpSetup *ExpManager::get_exp_s(void) const
 {
   return _exp_s;
 }

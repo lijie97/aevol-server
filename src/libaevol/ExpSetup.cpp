@@ -41,7 +41,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_exp_setup.h"
+#include "ExpSetup.h"
 
 
 
@@ -50,7 +50,7 @@ namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                              Class ae_exp_setup                             #
+//                              Class ExpSetup                             #
 //                                                                             #
 //##############################################################################
 
@@ -61,7 +61,7 @@ namespace aevol {
 // ===========================================================================
 //                                  Constructors
 // ===========================================================================
-ae_exp_setup::ae_exp_setup( ExpManager * exp_m )
+ExpSetup::ExpSetup( ExpManager * exp_m )
 {
   _exp_m  = exp_m;
   
@@ -94,7 +94,7 @@ ae_exp_setup::ae_exp_setup( ExpManager * exp_m )
 // ===========================================================================
 //                                 Destructor
 // ===========================================================================
-ae_exp_setup::~ae_exp_setup( void )
+ExpSetup::~ExpSetup( void )
 {
   delete _sel;
 }
@@ -104,7 +104,7 @@ ae_exp_setup::~ae_exp_setup( void )
 // ===========================================================================
 /*!
 */
-void ae_exp_setup::write_setup_file( gzFile exp_setup_file ) const
+void ExpSetup::write_setup_file( gzFile exp_setup_file ) const
 {
   // --------------------------------------------------------------- Transfer
   int8_t tmp_with_HT = _with_HT;
@@ -144,7 +144,7 @@ void ae_exp_setup::write_setup_file( gzFile exp_setup_file ) const
   get_sel()->write_setup_file( exp_setup_file );
 }
 
-void ae_exp_setup::write_setup_file( FILE* exp_setup_file ) const
+void ExpSetup::write_setup_file( FILE* exp_setup_file ) const
 {
   // --------------------------------------------------------------- Transfer
   //...
@@ -155,7 +155,7 @@ void ae_exp_setup::write_setup_file( FILE* exp_setup_file ) const
   get_sel()->write_setup_file( exp_setup_file );
 }
 
-void ae_exp_setup::load( gzFile setup_file, gzFile backup_file, bool verbose )
+void ExpSetup::load( gzFile setup_file, gzFile backup_file, bool verbose )
 {
   // -------------------------------------------- Retrieve transfer parameters
   int8_t tmp_with_HT;
@@ -202,7 +202,7 @@ void ae_exp_setup::load( gzFile setup_file, gzFile backup_file, bool verbose )
   get_sel()->load( setup_file, backup_file, verbose );
 }
 
-void ae_exp_setup::load( FILE* setup_file, gzFile backup_file, bool verbose )
+void ExpSetup::load( FILE* setup_file, gzFile backup_file, bool verbose )
 {
   printf( "Plain text setup file support not implemented yet (sorry)\n" );
   exit( EXIT_FAILURE );

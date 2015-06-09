@@ -50,7 +50,7 @@ namespace aevol {
 // =================================================================
 //                          Class declarations
 // =================================================================
-class ae_exp_setup;
+class ExpSetup;
 class ae_X11_window;
 
 enum key_map
@@ -111,7 +111,7 @@ enum key_map
  
 class ExpManager_X11 : public ExpManager
 {
-  friend class ae_exp_setup;
+  friend class ExpSetup;
   
   public :
     

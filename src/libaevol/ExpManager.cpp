@@ -64,7 +64,7 @@ namespace aevol {
 ExpManager::ExpManager(void)
 {
   // ------------------------------------------------------ Experimental setup
-  _exp_s = new ae_exp_setup(this);
+  _exp_s = new ExpSetup(this);
 
   // ------------------------------------------------------------------- World
   world_ = NULL;
