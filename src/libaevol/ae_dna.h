@@ -58,7 +58,7 @@ namespace aevol {
 //                          Class declarations
 // =================================================================
 class ExpManager;
-class ae_individual;
+class Individual;
 class GeneticUnit;
 class ae_vis_a_vis;
 class ae_rna;
@@ -101,7 +101,7 @@ class ae_dna : public ae_string
     inline void                   set_replic_report(DnaReplicReport * rep); // for post-treatment only
 
     inline GeneticUnit*   get_genetic_unit(void) const;
-    inline ae_individual* get_indiv(void) const;
+    inline Individual * get_indiv(void) const;
 
     char* get_subsequence(int32_t from, int32_t to, ae_strand strand) const; // WARNING : creates a new char[...] (up to you to delete it!)
 
@@ -201,7 +201,7 @@ class ae_dna : public ae_string
     //   int32_t _length;
     //   int32_t _nb_blocks;
 
-    ae_individual* _indiv;
+    Individual * _indiv;
     GeneticUnit* _gen_unit; // Genetic unit which the dna sequence belongs to
     DnaReplicReport* _replic_report;
 };
@@ -215,7 +215,7 @@ inline DnaReplicReport* ae_dna::get_replic_report(void) const
   return _replic_report;
 }
 
-inline ae_individual* ae_dna::get_indiv(void) const
+inline Individual * ae_dna::get_indiv(void) const
 {
   return _indiv;
 }

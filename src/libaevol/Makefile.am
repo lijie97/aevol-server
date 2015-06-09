@@ -37,7 +37,7 @@ fuzzy.h \
 ae_gaussian.h \
 genetic_unit.h \
 ae_grid_cell.h \
-ae_individual.h \
+Individual.h \
 individual_factory.h \
 ae_logs.h \
 macros.h \
@@ -79,7 +79,7 @@ ExpManager.cpp \
 ExpSetup.cpp \
 genetic_unit.cpp \
 ae_grid_cell.cpp \
-ae_individual.cpp \
+Individual.cpp \
 individual_factory.cpp \
 ae_logs.cpp \
 ae_mutation.cpp \

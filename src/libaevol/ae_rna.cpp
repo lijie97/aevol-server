@@ -38,7 +38,7 @@
 // =================================================================
 #include "ae_rna.h"
 #include "genetic_unit.h"
-#include "ae_individual.h"
+#include "Individual.h"
 
 namespace aevol {
 

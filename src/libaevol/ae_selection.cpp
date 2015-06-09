@@ -42,7 +42,7 @@
 
 #ifdef __NO_X
   #ifndef __REGUL
-    #include "ae_individual.h"
+    #include "Individual.h"
   #else
     #include "ae_individual_R.h"
   #endif
@@ -150,10 +150,10 @@ void ae_selection::step_to_next_generation(void)
   ae_grid_cell*** pop_grid = _exp_m->get_pop_grid();
 
   // create a temporary grid to store the reproducers
-  ae_individual*** reproducers = new ae_individual** [grid_width];
+  Individual *** reproducers = new Individual ** [grid_width];
   for (int16_t i = 0 ; i < grid_width ; i++ )
   {
-    reproducers[i] = new ae_individual* [grid_height];
+    reproducers[i] = new Individual * [grid_height];
   }
 
 
@@ -187,8 +187,8 @@ void ae_selection::step_to_next_generation(void)
 
 
   // Create the new generation
-  std::list<ae_individual*> old_generation = _exp_m->get_indivs();;
-  std::list<ae_individual*> new_generation;
+  std::list<Individual *> old_generation = _exp_m->get_indivs();;
+  std::list<Individual *> new_generation;
   int32_t index_new_indiv = 0;
   for (int16_t x = 0 ; x < grid_width ; x++)
   {
@@ -512,16 +512,16 @@ void ae_selection::compute_local_prob_reprod(void )
   }
 }
 
-ae_individual* ae_selection::do_replication(ae_individual* parent, int32_t index, int16_t x /*= -1 */, int16_t y /*= -1 */ )
+Individual * ae_selection::do_replication(Individual * parent, int32_t index, int16_t x /*= -1 */, int16_t y /*= -1 */ )
 {
-  ae_individual* new_indiv = NULL;
+  Individual * new_indiv = NULL;
 
   // ===========================================================================
   //  1) Copy parent
   // ===========================================================================
   #ifdef __NO_X
     #ifndef __REGUL
-      new_indiv = new ae_individual(parent, index, parent->get_mut_prng(), parent->get_stoch_prng() );
+      new_indiv = new Individual(parent, index, parent->get_mut_prng(), parent->get_stoch_prng() );
     #else
       new_indiv = new ae_individual_R(dynamic_cast<ae_individual_R*>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
     #endif
@@ -599,7 +599,7 @@ ae_individual* ae_selection::do_replication(ae_individual* parent, int32_t index
   return new_indiv;
 }
 
-ae_individual* ae_selection::do_local_competition (int16_t x, int16_t y)
+Individual * ae_selection::do_local_competition (int16_t x, int16_t y)
 {
   // This function uses the array _prob_reprod when selection scheme is
   // RANK_LINEAR, RANK_EXPONENTIAL, or FITTEST. For these selection schemes,

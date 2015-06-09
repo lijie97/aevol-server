@@ -55,7 +55,7 @@ namespace aevol {
 // =================================================================
 //                          Class declarations
 // =================================================================
-class ae_individual;
+class Individual;
 class GeneticUnit;
 
 class ae_rna

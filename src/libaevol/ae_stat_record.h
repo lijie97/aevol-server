@@ -54,7 +54,7 @@ namespace aevol {
 // =================================================================
 class ExpManager;
 class ae_stats;
-class ae_individual;
+class Individual;
 class ae_population;
 
 enum indiv_or_pop
@@ -110,18 +110,18 @@ class ae_stat_record
     ae_stat_record(ExpManager * exp_m);
     ae_stat_record(const ae_stat_record &model);
     ae_stat_record(ExpManager * exp_m,
-                   ae_individual* indiv,
+                   Individual * indiv,
                    chrom_or_gen_unit chrom_or_gu = CHROM,
                    bool compute_non_coding = true);
     ae_stat_record(ExpManager * exp_m,
-                   const std::list<ae_individual*> indivs,
+                   const std::list<Individual *> indivs,
                    chrom_or_gen_unit chrom_or_gu = CHROM);
     ae_stat_record(ExpManager * exp_m,
-                   const std::list<ae_individual*> indivs,
+                   const std::list<Individual *> indivs,
                    const ae_stat_record* means,
                    chrom_or_gen_unit chrom_or_gu = CHROM);
     ae_stat_record(ExpManager * exp_m,
-                   const std::list<ae_individual*> indivs,
+                   const std::list<Individual *> indivs,
                    const ae_stat_record* means,
                    const ae_stat_record* stdevs,
                    chrom_or_gen_unit chrom_or_gu = CHROM);

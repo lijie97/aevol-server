@@ -82,7 +82,7 @@ class ExpManager
     //                                 Algorithms
     // =======================================================================
     // TODO: tmp disabled
-    // void foreach_indiv(void (*processor)(ae_individual& indiv)) const;
+    // void foreach_indiv(void (*processor)(Individual& indiv)) const;
 
     // =======================================================================
     //                           Accessors: getters
@@ -130,12 +130,12 @@ class ExpManager
     //~ inline bool   get_with_alignments(void) const;
 
     // Accessors to population stuff
-    inline std::list<ae_individual*> get_indivs() const;
+    inline std::list<Individual *> get_indivs() const;
     inline int32_t                  get_nb_indivs(void) const;
 
-    inline ae_individual* get_best_indiv(void) const;
-    // inline ae_individual* get_indiv_by_id(int32_t id) const;
-    // inline ae_individual* get_indiv_by_rank(int32_t rank) const;
+    inline Individual * get_best_indiv(void) const;
+    // inline Individual* get_indiv_by_id(int32_t id) const;
+    // inline Individual* get_indiv_by_rank(int32_t rank) const;
 
     // Accessors to output manager stuff
     inline int64_t	get_backup_step(void) const;
@@ -187,7 +187,7 @@ class ExpManager
     virtual void display(void) {};
     void update_best(void);
 
-    void FillGridWithClones(ae_individual& dolly) {
+    void FillGridWithClones(Individual & dolly) {
       world_->FillGridWithClones(dolly);
     }
 
@@ -389,12 +389,12 @@ inline int32_t ExpManager::get_nb_indivs(void) const
   return world()->get_nb_indivs();
 }
 
-inline ae_individual*ExpManager::get_best_indiv(void) const
+inline Individual *ExpManager::get_best_indiv(void) const
 {
   return world()->get_best_indiv();
 }
 
-inline std::list<ae_individual*> ExpManager::get_indivs() const
+inline std::list<Individual *> ExpManager::get_indivs() const
 {
   return world()->get_indivs();
 }

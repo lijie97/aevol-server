@@ -108,7 +108,7 @@ class ae_selection
     void save(gzFile& backup_file) const;
     void load(gzFile& exp_setup_file, gzFile& backup_file, bool verbose);
 
-    ae_individual* do_replication(ae_individual* parent,
+    Individual * do_replication(Individual * parent,
                                    int32_t index,
                                    int16_t x = -1,
                                    int16_t y = -1);
@@ -126,8 +126,8 @@ class ae_selection
     // =================================================================
     void compute_prob_reprod(void);
     void compute_local_prob_reprod(void);
-    //ae_individual* do_replication(ae_individual* parent, int32_t index, int16_t x = -1, int16_t y = -1);
-    ae_individual* do_local_competition(int16_t x, int16_t y);
+    //Individual* do_replication(Individual* parent, int32_t index, int16_t x = -1, int16_t y = -1);
+    Individual * do_local_competition(int16_t x, int16_t y);
 
     // =======================================================================
     //                             Protected Attributes

@@ -60,14 +60,14 @@ namespace aevol {
 //                             Constructors
 // =================================================================
 ae_individual_X11::ae_individual_X11(ExpManager * exp_manager, gzFile backup_file) :
-    ae_individual(exp_manager, backup_file)
+    Individual(exp_manager, backup_file)
 {
   init_occupied_sectors();
 }
 
 //ae_individual_X11::ae_individual_X11(const ae_individual_X11 &model,
 //                                     bool replication_report_copy) :
-//    ae_individual(model, replication_report_copy)
+//    Individual(model, replication_report_copy)
 //{
 //  init_occupied_sectors();
 //}
@@ -76,12 +76,12 @@ ae_individual_X11::ae_individual_X11(ae_individual_X11* const parent,
                                      int32_t id,
                                      std::shared_ptr<ae_jumping_mt> mut_prng,
                                      std::shared_ptr<ae_jumping_mt> stoch_prng) :
-    ae_individual(parent, id, mut_prng, stoch_prng)
+    Individual(parent, id, mut_prng, stoch_prng)
 {
   init_occupied_sectors();
 }
 
-/*ae_individual_X11::ae_individual_X11(char* genome, int32_t genome_size) : ae_individual(genome, genome_size)
+/*ae_individual_X11::ae_individual_X11(char* genome, int32_t genome_size) : Individual(genome, genome_size)
 {
   init_occupied_sectors();
 }*/

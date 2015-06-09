@@ -53,7 +53,7 @@ namespace aevol {
 // =================================================================
 //                          Class declarations
 // =================================================================
-class ae_individual;
+class Individual;
 
 
 
@@ -66,14 +66,14 @@ class ae_replication_report
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_replication_report(ae_individual* indiv,
-                          const ae_individual* parent,
-                          ae_individual* donor = NULL);
+    ae_replication_report(Individual * indiv,
+                          const Individual * parent,
+                          Individual * donor = NULL);
 
     // Creates a completely independent copy of the original report
     ae_replication_report(const ae_replication_report& model);
 
-    ae_replication_report(gzFile tree_file, ae_individual* indiv);
+    ae_replication_report(gzFile tree_file, Individual * indiv);
 
     // =================================================================
     //                             Destructors
@@ -83,7 +83,7 @@ class ae_replication_report
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline ae_individual * get_indiv(void) const;
+    inline Individual * get_indiv(void) const;
     int32_t         get_id(void) const;
     int32_t         get_rank(void) const;
     inline int32_t  get_genome_size(void) const;
@@ -99,7 +99,7 @@ class ae_replication_report
     inline double   get_donor_secretion_error(void) const;
     inline int32_t  get_donor_genome_size(void) const;
      
-    void            set_indiv(ae_individual * indiv);
+    void            set_indiv(Individual * indiv);
     void            set_id(int32_t id);
     void            set_rank(int32_t rank);
     inline void     set_parent_id(int32_t parent_id);
@@ -149,7 +149,7 @@ class ae_replication_report
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ae_individual*  _indiv;
+    Individual *  _indiv;
     
     int32_t         _id;
     int32_t         _rank;
@@ -185,7 +185,7 @@ class ae_replication_report
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-inline ae_individual * ae_replication_report::get_indiv(void) const
+inline Individual * ae_replication_report::get_indiv(void) const
 {
   return _indiv;
 }
@@ -251,7 +251,7 @@ inline const std::list<DnaReplicReport*> ae_replication_report::get_dna_replic_r
   return _dna_replic_reports;
 }
 
-inline void ae_replication_report::set_indiv(ae_individual * indiv)
+inline void ae_replication_report::set_indiv(Individual * indiv)
 {
   _indiv = indiv;
 }

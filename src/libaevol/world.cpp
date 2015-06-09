@@ -113,16 +113,16 @@ void World::MallocGrid(void)
     grid_[x] = &(grid_1d_[x * height_]);
 }
 
-void World::PlaceIndiv(ae_individual* indiv, int16_t x, int16_t y) {
+void World::PlaceIndiv(Individual * indiv, int16_t x, int16_t y) {
   grid_[x][y]->set_individual(indiv);
 }
 
-void World::FillGridWithClones(ae_individual& dolly)
+void World::FillGridWithClones(Individual & dolly)
 {
   int32_t id_new_indiv = 0;
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++)
-      PlaceIndiv(ae_individual::CreateClone(&dolly, id_new_indiv++), x, y);
+      PlaceIndiv(Individual::CreateClone(&dolly, id_new_indiv++), x, y);
 }
 
 void World::evaluate_individuals()
@@ -208,7 +208,7 @@ void World::WellMixIndivs(void)
     int16_t j = _prng->random(i + 1); // random in [0, 1]
 
     // Swap individuals btw cells i and j
-    ae_individual* tmp = grid_1d_[i]->get_individual();
+    Individual * tmp = grid_1d_[i]->get_individual();
     grid_1d_[i]->set_individual(grid_1d_[j]->get_individual());
     grid_1d_[j]->set_individual(tmp);
   }
@@ -229,7 +229,7 @@ void World::PartiallyMixIndivs(void)
     int16_t new_y = _prng->random(height_);
 
     // Swap the individuals in these grid cells...
-    ae_individual* tmp_swap = grid_[old_x][old_y]->get_individual();
+    Individual * tmp_swap = grid_[old_x][old_y]->get_individual();
     grid_[old_x][old_y]->set_individual(grid_[new_x][new_y]->get_individual());
     grid_[new_x][new_y]->set_individual(tmp_swap);
   }
@@ -370,9 +370,9 @@ std::shared_ptr<ae_jumping_mt> World::get_stoch_prng(void) const
   return _stoch_prng;
 }
 
-list<ae_individual*> World::get_indivs(void) const
+list<Individual *> World::get_indivs(void) const
 {
-  list<ae_individual*> r;
+  list<Individual *> r;
 
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++)
@@ -387,7 +387,7 @@ void World::set_mut_prng(std::shared_ptr<ae_jumping_mt> prng)
 
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++) {
-      ae_individual* indiv;
+      Individual * indiv;
       if ((indiv = get_indiv_at(x, y)))
         indiv->set_mut_prng(_mut_prng);
     }
@@ -399,7 +399,7 @@ void World::set_stoch_prng(std::shared_ptr<ae_jumping_mt> prng)
 
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++) {
-      ae_individual* indiv;
+      Individual * indiv;
       if ((indiv = get_indiv_at(x, y)))
         indiv->set_stoch_prng(_stoch_prng);
     }

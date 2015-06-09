@@ -40,7 +40,7 @@
 #include "ae_protein.h"
 
 #include "ae_codon.h"
-#include "ae_individual.h"
+#include "Individual.h"
 #include "genetic_unit.h"
 #include "ae_rna.h"
 #include "ae_utils.h"
@@ -473,7 +473,7 @@ void ae_protein::save( gzFile backup_file )
 // =================================================================
 //                          Non inline accessors
 // =================================================================
-ae_individual* ae_protein::get_indiv( void ) const
+Individual * ae_protein::get_indiv( void ) const
 {
   return _gen_unit->get_indiv();
 }

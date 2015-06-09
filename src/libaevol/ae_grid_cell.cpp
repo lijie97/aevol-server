@@ -34,7 +34,7 @@
 
 #include <iostream>
 
-#include "ae_individual.h"
+#include "Individual.h"
 #include "ae_individual_X11.h"
 
 
@@ -61,7 +61,7 @@ namespace aevol {
 // =================================================================
 ae_grid_cell::ae_grid_cell(int16_t x, int16_t y,
                            std::unique_ptr<Habitat>&& habitat,
-                           ae_individual* indiv)
+                           Individual * indiv)
 {
   x_ = x;
   y_ = y;
@@ -110,7 +110,7 @@ void ae_grid_cell::load(gzFile backup_file,
 
   habitat_ = std::make_unique<Habitat>(backup_file, phenotypic_target_handler);
 
-  individual_ = ae_individual::CreateIndividual(exp_m, backup_file);
+  individual_ = Individual::CreateIndividual(exp_m, backup_file);
 
   individual_->set_grid_cell(this);
 }

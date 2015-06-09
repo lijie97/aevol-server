@@ -49,7 +49,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "ae_individual.h"
+#include "Individual.h"
 
 
 namespace aevol {
@@ -106,7 +106,7 @@ class ae_stats
     // =================================================================
 
     void write_current_generation_statistics(void);
-    void write_statistics_of_this_indiv(ae_individual* indiv);
+    void write_statistics_of_this_indiv(Individual * indiv);
     
     void flush( void );
 

@@ -63,17 +63,17 @@ class GeneticUnit
   // =================================================================
   //                             Constructors
   // =================================================================
-  GeneticUnit(ae_individual* indiv,
+  GeneticUnit(Individual * indiv,
               int32_t length,
               std::shared_ptr<ae_jumping_mt> prng);
-  GeneticUnit(ae_individual* indiv,
+  GeneticUnit(Individual * indiv,
               char* seq,
               int32_t length,
               const Promoters2Strands& prom_list = {{},{}});
-  GeneticUnit( ae_individual* indiv, const GeneticUnit& model );
-  GeneticUnit( ae_individual* indiv, const GeneticUnit* parent );
-  GeneticUnit( ae_individual* indiv, gzFile backup_file );
-  GeneticUnit( ae_individual* indiv, char* organism_file_name );
+  GeneticUnit( Individual * indiv, const GeneticUnit& model );
+  GeneticUnit( Individual * indiv, const GeneticUnit* parent );
+  GeneticUnit( Individual * indiv, gzFile backup_file );
+  GeneticUnit( Individual * indiv, char* organism_file_name );
   GeneticUnit() = delete;
   GeneticUnit(const GeneticUnit &) = delete;
 
@@ -86,7 +86,7 @@ class GeneticUnit
   //                              Accessors
   // =================================================================
   ExpManager *  get_exp_m( void ) const;
-  ae_individual*   get_indiv( void )                   const;
+  Individual *   get_indiv( void )                   const;
   ae_dna*          get_dna( void )                     const;
   Fuzzy*    get_activ_contribution( void )      const;
   Fuzzy*    get_inhib_contribution( void )      const;
@@ -164,7 +164,7 @@ class GeneticUnit
 
 
 
-  // DM: these two are identical to functions from ae_individual
+  // DM: these two are identical to functions from Individual
   void compute_distance_to_target(const PhenotypicTarget& target);
   void compute_fitness(const PhenotypicTarget& target);
 
@@ -298,7 +298,7 @@ class GeneticUnit
   // =================================================================
   ExpManager * _exp_m;
 
-  ae_individual*  _indiv;
+  Individual *  _indiv;
   ae_dna*         _dna;
   Fuzzy*   _activ_contribution;
   Fuzzy*   _inhib_contribution;

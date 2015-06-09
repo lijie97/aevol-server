@@ -40,7 +40,7 @@
 #include <zlib.h>
 
 #include "ExpManager.h"
-#include "ae_individual.h"
+#include "Individual.h"
 
 
 using std::cout;
@@ -94,7 +94,7 @@ ExpManager::~ExpManager(void)
 // ===========================================================================
 //                                   Algorithms
 // ===========================================================================
-// void ExpManager::foreach_indiv(void (*processor)(ae_individual& indiv)) const
+// void ExpManager::foreach_indiv(void (*processor)(Individual& indiv)) const
 // {
 //   for (const auto& indiv: get_indivs_std())
 //     processor(*indiv);

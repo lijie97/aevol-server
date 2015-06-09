@@ -72,7 +72,7 @@ class ae_grid_cell;
 ///
 /// Proteins and RNAs are shared with descent.
 /// Genetic units are an individual's own.
-class ae_individual
+class Individual
 {
   friend class ae_dna;
 
@@ -81,9 +81,9 @@ class ae_individual
   // =================================================================
   //                             Constructors
   // =================================================================
-  ae_individual() = delete;
-  ae_individual(const ae_individual&) = delete;
-  ae_individual(ExpManager * exp_m,
+  Individual() = delete;
+  Individual(const Individual &) = delete;
+  Individual(ExpManager * exp_m,
                 std::shared_ptr<ae_jumping_mt> mut_prng,
                 std::shared_ptr<ae_jumping_mt> stoch_prng,
                 std::shared_ptr<ae_params_mut> param_mut,
@@ -95,17 +95,17 @@ class ae_individual
                 const char* strain_name,
                 int32_t age);
 
-  ae_individual(ExpManager * exp_m, gzFile backup_file);
-  ae_individual(const ae_individual& model,
+  Individual(ExpManager * exp_m, gzFile backup_file);
+  Individual(const Individual & model,
                 bool replication_report_copy);
-  ae_individual(const ae_individual* parent, int32_t id,
+  Individual(const Individual * parent, int32_t id,
                 std::shared_ptr<ae_jumping_mt> mut_prng,
                 std::shared_ptr<ae_jumping_mt> stoch_prng);
-  static ae_individual* CreateIndividual(ExpManager * exp_m,
+  static Individual * CreateIndividual(ExpManager * exp_m,
                                          gzFile backup_file);
 
   /**
-   * \brief Create of clone of an ae_individual
+   * \brief Create of clone of an Individual
    *
    * A clone is ... TODO
    *
@@ -113,12 +113,12 @@ class ae_individual
    * \param id ID of the clone in the population
    * \return clone of dolly
    */
-  static ae_individual* CreateClone(const ae_individual* dolly, int32_t id);
+  static Individual * CreateClone(const Individual * dolly, int32_t id);
 
   // =================================================================
   //                             Destructors
   // =================================================================
-  virtual ~ae_individual();
+  virtual ~Individual();
 
   // =================================================================
   //                        Accessors: Getters
@@ -316,16 +316,16 @@ class ae_individual
   // =================================================================
   void add_GU(char * &sequence, int32_t length);  // warning: the individual is left in a totally "cleared" state but not reevaluated
   // void add_GU(GeneticUnit&& unit); // warning: the individual is left in a totally "cleared" state but not reevaluated
-  void add_GU(ae_individual* indiv, int32_t chromosome_length,
+  void add_GU(Individual * indiv, int32_t chromosome_length,
               std::shared_ptr<ae_jumping_mt> prng);
 
-  // void add_GU(ae_individual* indiv, int32_t length, ae_jumping_mt* prng);
+  // void add_GU(Individual* indiv, int32_t length, ae_jumping_mt* prng);
   void remove_GU (int16_t num_unit); // warning: the individual is left in a totally "cleared" state but not reevaluated
   void renew_dist_to_target_by_feature();
   void renew_fitness_by_feature();
 
-  void inject_GU(ae_individual* donor);
-  void inject_2GUs(ae_individual* partner);
+  void inject_GU(Individual * donor);
+  void inject_2GUs(Individual * partner);
 
   /**
    * Main evaluation method

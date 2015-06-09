@@ -51,7 +51,7 @@ namespace aevol {
 
 class NonCodingStats
 {
-  friend ae_individual;
+  friend Individual;
 
  public :
   // ==========================================================================

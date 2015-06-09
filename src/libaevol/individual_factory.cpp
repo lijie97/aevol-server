@@ -60,7 +60,7 @@ namespace aevol {
 /**
  * Create an individual with random sequences
  */
-ae_individual* IndividualFactory::create_random_individual(
+Individual * IndividualFactory::create_random_individual(
     ExpManager * exp_m,
     int32_t id,
     std::shared_ptr<ae_params_mut> param_mut,
@@ -79,7 +79,7 @@ ae_individual* IndividualFactory::create_random_individual(
     bool better_than_flat)
 {
   // Create a genome-less individual with the provided parameters
-  ae_individual* indiv = new ae_individual(exp_m,
+  Individual * indiv = new Individual(exp_m,
                                            mut_prng,
                                            stoch_prng,
                                            param_mut,

@@ -45,7 +45,7 @@
 #include "ae_stat_record.h"
 #include "ExpManager.h"
 #include "ExpSetup.h"
-#include "ae_individual.h"
+#include "Individual.h"
 #include "genetic_unit.h"
 #ifdef __REGUL
   #include "ae_influence_R.h"
@@ -590,7 +590,7 @@ void ae_stats::write_current_generation_statistics( void )
   }
 }
 
-void ae_stats::write_statistics_of_this_indiv(ae_individual * indiv)
+void ae_stats::write_statistics_of_this_indiv(Individual * indiv)
 {
   ae_stat_record* stat_record;
   

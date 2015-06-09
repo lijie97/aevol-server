@@ -41,7 +41,7 @@
 
 #include "ExpManager.h"
 #include "ExpSetup.h"
-#include "ae_individual.h"
+#include "Individual.h"
 #include "genetic_unit.h"
 #include "ae_replication_report.h"
 #include "dna_replic_report.h"
@@ -137,7 +137,7 @@ ae_stat_record::ae_stat_record(const ae_stat_record &model)
 }
 
 ae_stat_record::ae_stat_record(ExpManager * exp_m,
-                               ae_individual* indiv,
+                               Individual * indiv,
                                chrom_or_gen_unit chrom_or_gu,
                                bool compute_non_coding)
 {
@@ -441,7 +441,7 @@ ae_stat_record::ae_stat_record(ExpManager * exp_m,
 
 // Calculate average statistics for all the recorded values 
 ae_stat_record::ae_stat_record(ExpManager * exp_m,
-                               const list<ae_individual*> indivs,
+                               const list<Individual *> indivs,
                                chrom_or_gen_unit chrom_or_gu)
 {
   _exp_m = exp_m;
@@ -473,7 +473,7 @@ ae_stat_record::ae_stat_record(ExpManager * exp_m,
 
 // Calculate standard deviation for all the recorded values 
 ae_stat_record::ae_stat_record(ExpManager * exp_m,
-                               const list<ae_individual*> indivs,
+                               const list<Individual *> indivs,
                                const ae_stat_record* means,
                                chrom_or_gen_unit chrom_or_gu)
 {
@@ -504,7 +504,7 @@ ae_stat_record::ae_stat_record(ExpManager * exp_m,
 
  // Calculate skewness for all the recorded values 
 ae_stat_record::ae_stat_record(ExpManager * exp_m,
-                               const list<ae_individual*> indivs,
+                               const list<Individual *> indivs,
                                const ae_stat_record* means,
                                const ae_stat_record* stdevs,
                                chrom_or_gen_unit chrom_or_gu)

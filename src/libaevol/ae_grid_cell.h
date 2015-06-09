@@ -44,7 +44,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_individual.h"
+#include "Individual.h"
 #include "habitat.h"
 
 namespace aevol {
@@ -70,7 +70,7 @@ class ae_grid_cell
   ae_grid_cell(const ae_grid_cell&) = delete;
   ae_grid_cell(int16_t x, int16_t y,
                std::unique_ptr<Habitat>&& habitat,
-               ae_individual* indiv);
+               Individual * indiv);
   ae_grid_cell(gzFile backup_file,
                ExpManager * exp_m,
                std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler_);
@@ -87,7 +87,7 @@ class ae_grid_cell
   inline int16_t x() const {return x_;};
   inline int16_t y() const {return y_;};
   inline double compound_amount(void) const;
-  inline ae_individual* get_individual(void) const;
+  inline Individual * get_individual(void) const;
 
   inline double get_secreted_amount(void) const;
   inline double get_metabolic_fitness(void) const;
@@ -104,7 +104,7 @@ class ae_grid_cell
   //                        Accessors: setters
   // =================================================================
   inline void set_compound_amount(double compound_amount);
-  inline void set_individual(ae_individual* indiv);
+  inline void set_individual(Individual * indiv);
 
   // =================================================================
   //                            Public Methods
@@ -136,7 +136,7 @@ class ae_grid_cell
   int16_t y_;
 
   // Pointer to the individual in this cell
-  ae_individual* individual_ = NULL;
+  Individual * individual_ = NULL;
 
   std::unique_ptr<Habitat> habitat_;
 };
@@ -150,7 +150,7 @@ inline double ae_grid_cell::compound_amount(void) const
   return habitat_->compound_amount();
 }
 
-inline ae_individual* ae_grid_cell::get_individual(void) const
+inline Individual * ae_grid_cell::get_individual(void) const
 {
   return individual_;
 }
@@ -178,7 +178,7 @@ inline void ae_grid_cell::set_compound_amount(double compound_amount)
   habitat_->set_compound_amount(compound_amount);
 }
 
-inline void ae_grid_cell::set_individual(ae_individual* indiv)
+inline void ae_grid_cell::set_individual(Individual * indiv)
 {
   individual_ = indiv;
   if (individual_->get_grid_cell() != this)

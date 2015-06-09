@@ -80,15 +80,15 @@ class World
   std::shared_ptr<ae_jumping_mt> get_mut_prng(void) const;
   std::shared_ptr<ae_jumping_mt> get_stoch_prng(void) const;
 
-  std::list<ae_individual*> get_indivs(void) const;
+  std::list<Individual *> get_indivs(void) const;
   inline int32_t          get_nb_indivs(void) const;
-  inline ae_individual*   get_best_indiv(void) const;
+  inline Individual *   get_best_indiv(void) const;
   inline int16_t          width()  const {return width_;};
   inline int16_t          height() const {return height_;};
   inline int32_t          partial_mix_nb_permutations(void) const;
   inline ae_grid_cell***  grid(void) const {return grid_;};
   inline ae_grid_cell*    grid(int16_t x, int16_t y) const;
-  inline ae_individual*   get_indiv_at(int16_t x, int16_t y) const;
+  inline Individual *   get_indiv_at(int16_t x, int16_t y) const;
 
   inline double** get_secretion_present_grid(void) const;
   inline double** get_secreted_amount_grid(void) const;
@@ -119,8 +119,8 @@ class World
   void InitGrid(int16_t width, int16_t height,
                 const Habitat& habitat,
                 bool share_phenotypic_target);
-  void PlaceIndiv(ae_individual* indiv, int16_t x, int16_t y);
-  void FillGridWithClones(ae_individual& dolly);
+  void PlaceIndiv(Individual * indiv, int16_t x, int16_t y);
+  void FillGridWithClones(Individual & dolly);
   void evaluate_individuals();
   void update_secretion_grid(void);
   void MixIndivs(void);
@@ -183,7 +183,7 @@ inline int32_t World::get_nb_indivs(void) const
   return width_ * height_;
 }
 
-inline ae_individual* World::get_best_indiv(void) const
+inline Individual * World::get_best_indiv(void) const
 {
   return grid_[x_best][y_best]->get_individual();
 }
@@ -198,7 +198,7 @@ inline ae_grid_cell* World::grid(int16_t x, int16_t y) const
   return grid_[x][y];
 }
 
-inline ae_individual* World::get_indiv_at(int16_t x, int16_t y) const
+inline Individual * World::get_indiv_at(int16_t x, int16_t y) const
 {
   return grid_[x][y]->get_individual();
 }

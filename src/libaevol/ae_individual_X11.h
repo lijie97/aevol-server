@@ -42,7 +42,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_individual.h"
+#include "Individual.h"
 #include "ae_X11_window.h"
 
 namespace aevol {
@@ -56,7 +56,7 @@ namespace aevol {
 
 
 
-class ae_individual_X11 : public virtual ae_individual
+class ae_individual_X11 : public virtual Individual
 {
   public :
 

@@ -54,7 +54,7 @@ namespace aevol {
 // =================================================================
 //                          Class declarations
 // =================================================================
-class ae_individual;
+class Individual;
 class ae_rna;
 
 
@@ -99,7 +99,7 @@ class ae_protein
     inline double             get_concentration( void )         const;
     inline  bool              get_is_functional( void )         const;
     
-    ae_individual* get_indiv( void ) const;
+    Individual * get_indiv( void ) const;
 
     // =================================================================
     //                            Public Methods

@@ -45,7 +45,7 @@
 #ifdef __REGUL
   #include "ae_individual_R.h"
 #else
-#include "ae_individual.h"
+#include "Individual.h"
 #endif
 
 #include "fuzzy.h"
@@ -75,7 +75,7 @@ ExpManager * GeneticUnit::get_exp_m(void) const
   return _exp_m;
 }
 
-ae_individual* GeneticUnit::get_indiv(void) const
+Individual * GeneticUnit::get_indiv(void) const
 {
   return _indiv;
 }
@@ -552,7 +552,7 @@ void GeneticUnit::copy_promoters_included_in(int32_t pos_1,
   Promoters will be looked for on the whole sequence but no further process
   will be performed.
 */
-GeneticUnit::GeneticUnit(ae_individual* indiv,
+GeneticUnit::GeneticUnit(Individual * indiv,
                          int32_t length,
                          std::shared_ptr<ae_jumping_mt> prng)
 {
@@ -606,7 +606,7 @@ GeneticUnit::GeneticUnit(ae_individual* indiv,
 /// WARNING:
 ///   seq will be used directly which means the caller must not delete it
 ///   The same goes for prom_list if it is provided.
-GeneticUnit::GeneticUnit(ae_individual* indiv,
+GeneticUnit::GeneticUnit(Individual * indiv,
                          char* seq,
                          int32_t length,
                          const Promoters2Strands& prom_list /* = {{},{}} */)
@@ -670,7 +670,7 @@ GeneticUnit::GeneticUnit(ae_individual* indiv,
   Copies the DNA and recomputes all the rest.
   It is slower than copying as much as possible and regenerate only what is necessary but it works whatever the state of the model GU.
 */
-GeneticUnit::GeneticUnit(ae_individual* indiv, const GeneticUnit& model)
+GeneticUnit::GeneticUnit(Individual * indiv, const GeneticUnit& model)
 {
   _exp_m = indiv->get_exp_m();
   _indiv = indiv;
@@ -717,7 +717,7 @@ GeneticUnit::GeneticUnit(ae_individual* indiv, const GeneticUnit& model)
  * Create a new genetic unit copying the DNA sequence and the promoter list
  * from the provided `parent`
  */
-GeneticUnit::GeneticUnit(ae_individual* indiv, const GeneticUnit* parent)
+GeneticUnit::GeneticUnit(Individual * indiv, const GeneticUnit* parent)
 {
   _exp_m = indiv->get_exp_m();
   _indiv = indiv;
@@ -768,7 +768,7 @@ GeneticUnit::GeneticUnit(ae_individual* indiv, const GeneticUnit* parent)
   init_statistical_data();
 }
 
-GeneticUnit::GeneticUnit( ae_individual* indiv, gzFile backup_file )
+GeneticUnit::GeneticUnit( Individual * indiv, gzFile backup_file )
 {
   _exp_m = indiv->get_exp_m();
   _indiv = indiv;
@@ -816,7 +816,7 @@ GeneticUnit::GeneticUnit( ae_individual* indiv, gzFile backup_file )
   Promoters will be looked for on the whole sequence but no further process
   will be performed.
 */
-GeneticUnit::GeneticUnit( ae_individual* indiv, char* organism_file_name )
+GeneticUnit::GeneticUnit( Individual * indiv, char* organism_file_name )
 {
   _exp_m = indiv->get_exp_m();
   _indiv = indiv;

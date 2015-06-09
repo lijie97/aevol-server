@@ -37,13 +37,15 @@
 #include <cstdlib>
 #include <cassert>
 
+#include "Individual.h"
+
 
 namespace aevol {
 
 // ============================================================================
 //                          Class declarations
 // ============================================================================
-class ae_individual;
+class Individual;
 
 
 
@@ -52,7 +54,7 @@ class ae_individual;
 
 class IndivStats
 {
-  friend ae_individual;
+  friend Individual;
 
  public :
   // ==========================================================================

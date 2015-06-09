@@ -39,7 +39,7 @@
 #include "ae_replication_report.h"
 #include "dna_replic_report.h"
 #include "ae_mutation.h"
-#include "ae_individual.h"
+#include "Individual.h"
 
 namespace aevol {
 
@@ -56,9 +56,9 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_replication_report::ae_replication_report(ae_individual* indiv,
-                                             const ae_individual* parent,
-                                             ae_individual* donor /*= NULL*/)
+ae_replication_report::ae_replication_report(Individual * indiv,
+                                             const Individual * parent,
+                                             Individual * donor /*= NULL*/)
 {
   _indiv = indiv;
   
@@ -129,7 +129,7 @@ ae_replication_report::ae_replication_report(const ae_replication_report &model)
 }
 
 
-ae_replication_report::ae_replication_report(gzFile tree_file, ae_individual * indiv)
+ae_replication_report::ae_replication_report(gzFile tree_file, Individual * indiv)
 {
   _indiv = indiv;
     

@@ -56,7 +56,7 @@ namespace aevol {
 //                          Class declarations
 // =================================================================
 class ExpManager;
-class ae_individual;
+class Individual;
 
 
 class param_loader

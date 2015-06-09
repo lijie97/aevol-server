@@ -49,8 +49,8 @@ add_library(aevol
   habitat.h
   ae_grid_cell.cpp
   ae_grid_cell.h
-  ae_individual.cpp
-  ae_individual.h
+  Individual.cpp
+  Individual.h
   ae_individual_X11.cpp
   ae_individual_X11.h
   individual_factory.cpp

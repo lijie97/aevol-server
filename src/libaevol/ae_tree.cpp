@@ -41,7 +41,7 @@
 #include "macros.h"
 #include "ExpManager.h"
 #include "ExpSetup.h"
-#include "ae_individual.h"
+#include "Individual.h"
 #include "ae_utils.h"
 
 

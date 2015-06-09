@@ -37,7 +37,7 @@
 #include <cstdlib>
 #include <cassert>
 
-#include "ae_individual.h"
+#include "Individual.h"
 #include "habitat.h"
 
 
@@ -82,7 +82,7 @@ class IndividualFactory
   // ==========================================================================
   //                              Public Methods
   // ==========================================================================
-  static ae_individual* create_random_individual(
+  static Individual * create_random_individual(
       ExpManager * exp_m,
       int32_t id,
       std::shared_ptr<ae_params_mut> param_mut,
@@ -99,7 +99,7 @@ class IndividualFactory
       char* strain_name,
       std::shared_ptr<ae_jumping_mt> local_prng,
       bool better_than_flat);
-  static ae_individual* create_random_individual_with_good_gene(
+  static Individual * create_random_individual_with_good_gene(
       ExpManager * exp_m,
       int32_t id,
       std::shared_ptr<ae_params_mut> param_mut,

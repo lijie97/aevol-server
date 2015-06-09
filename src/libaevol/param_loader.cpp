@@ -47,7 +47,7 @@
 #include "ExpManager.h"
 #include "ExpSetup.h"
 #include "ae_output_manager.h"
-#include "ae_individual.h"
+#include "Individual.h"
 #include "individual_factory.h"
 
 #include "ae_jumping_mt.h"
@@ -1295,7 +1295,7 @@ void param_loader::load(ExpManager * exp_m, bool verbose,
 
 
   // 3) --------------------------------------------- Create the new population
-  list<ae_individual*> indivs;
+  list<Individual *> indivs;
   // Generate a model ae_mut_param object
   auto param_mut = std::make_shared<ae_params_mut>();
   param_mut->set_point_mutation_rate(_point_mutation_rate);
@@ -1319,13 +1319,13 @@ void param_loader::load(ExpManager * exp_m, bool verbose,
   param_mut->set_translocation_proportion(_translocation_proportion);
   param_mut->set_inversion_proportion(_inversion_proportion);
 
-  ae_individual* indiv = NULL;
+  Individual * indiv = NULL;
   int32_t id_new_indiv = 0;
 
   if (chromosome != NULL)
   {
     printf("Option -c is used: chromosome will be loaded from a text file\n");
-    ae_individual* indiv = new ae_individual(exp_m,
+    Individual * indiv = new Individual(exp_m,
                                              mut_prng,
                                              stoch_prng,
                                              param_mut,
@@ -1368,7 +1368,7 @@ void param_loader::load(ExpManager * exp_m, bool verbose,
     // Make the clones and add them to the list of individuals
     for (int32_t i = 1 ; i < _init_pop_size ; i++)
     {
-      ae_individual* clone = ae_individual::CreateClone(indiv, id_new_indiv++);
+      Individual * clone = Individual::CreateClone(indiv, id_new_indiv++);
       clone->EvaluateInContext(habitat);
       indivs.push_back(clone);
     }
@@ -1420,7 +1420,7 @@ void param_loader::load(ExpManager * exp_m, bool verbose,
       for (int32_t i = 1 ; i < _init_pop_size ; i++)
       {
         // Add new clone to the list
-        ae_individual* clone = ae_individual::CreateClone(indiv, id_new_indiv++);
+        Individual * clone = Individual::CreateClone(indiv, id_new_indiv++);
         clone->EvaluateInContext(habitat);
         indivs.push_back(clone);
       }
@@ -1497,7 +1497,7 @@ void param_loader::load(ExpManager * exp_m, bool verbose,
       for (int32_t i = 1 ; i < _init_pop_size ; i++)
       {
         // Add clone to the list
-        ae_individual* clone = ae_individual::CreateClone(indiv, id_new_indiv++);
+        Individual * clone = Individual::CreateClone(indiv, id_new_indiv++);
         clone->EvaluateInContext(habitat);
         indivs.push_back(clone);
       }

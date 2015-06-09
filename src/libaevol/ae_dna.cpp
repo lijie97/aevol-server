@@ -44,7 +44,7 @@
 #include "ExpSetup.h"
 #include "ae_dna.h"
 #include "genetic_unit.h"
-#include "ae_individual.h"
+#include "Individual.h"
 #include "ae_rna.h"
 #include "ae_utils.h"
 #include "ae_vis_a_vis.h"
@@ -1202,7 +1202,7 @@ ae_mutation* ae_dna::do_translocation(void)
     // -----------------------------------------------------------------
     int32_t pos_1_rel, pos_2_rel, pos_3_rel, pos_4_rel;
 
-    ae_individual* indiv = _indiv;
+    Individual * indiv = _indiv;
     const GeneticUnit* chromosome = &indiv->get_genetic_unit_list().front();
     const GeneticUnit* plasmid    = &*std::next(indiv->get_genetic_unit_list().begin());
     int32_t chrom_length        = chromosome->get_dna()->get_length();
@@ -1948,7 +1948,7 @@ ae_mutation* ae_dna::do_ins_HT(int32_t parent_id)
 //
 //  // 1) Draw a random donor (uniform drawing).
 //  // We use the rank because indivs are sorted by rank (1 for the worst, POP_SIZE for the best).
-//  ae_individual * donor = NULL;
+//  Individual * donor = NULL;
 //  do donor = _exp_m->get_pop()->get_indiv_by_rank(_exp_m->get_sel()->get_prng()->random(nb_indivs) + 1);
 //  while (donor->get_id() == parent_id);
 //
@@ -2073,7 +2073,7 @@ ae_mutation* ae_dna::do_repl_HT(int32_t parent_id)
 //  //printf("Indiv: %d\n",new_indiv->get_id());
 //  // 1) Draw a random donor (uniform drawing).
 //  // We use the rank because indivs are sorted by rank (1 for the worst, POP_SIZE for the best).
-//  ae_individual * donor = NULL;
+//  Individual * donor = NULL;
 //  do donor = _exp_m->get_pop()->get_indiv_by_rank(_exp_m->get_sel()->get_prng()->random(nb_indivs) + 1);
 //  while (donor->get_id() == parent_id);
 //
@@ -3287,7 +3287,7 @@ void ae_dna::inter_GU_ABCDE_to_ACDBE(int32_t pos_B, int32_t pos_C, int32_t pos_E
   if (pos_B != pos_C)
   {
     // Useful values
-    ae_individual* indiv            = _indiv;
+    Individual * indiv            = _indiv;
     GeneticUnit& chromosome     = indiv->get_genetic_unit_nonconst(0);
     GeneticUnit& plasmid        = indiv->get_genetic_unit_nonconst(1);
     GeneticUnit& destination_GU = (_gen_unit == &chromosome)? plasmid : chromosome;
