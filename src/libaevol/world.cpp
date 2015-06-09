@@ -299,7 +299,7 @@ void World::save(gzFile backup_file) const
   gzwrite(backup_file, &_secretion_degradation_prop,  sizeof(_secretion_degradation_prop));
 }
 
-void World::load(gzFile backup_file, ae_exp_manager* exp_man)
+void World::load(gzFile backup_file, ExpManager * exp_man)
 {
   _prng = std::make_shared<ae_jumping_mt>(backup_file);
 

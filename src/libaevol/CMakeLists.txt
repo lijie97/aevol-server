@@ -30,8 +30,8 @@ add_library(aevol
   ae_dump.h
   ae_enums.h
   ae_env_segment.h
-  ae_exp_manager.cpp
-  ae_exp_manager.h
+  ExpManager.cpp
+  ExpManager.h
   ae_exp_manager_X11.cpp
   ae_exp_manager_X11.h
   ae_exp_setup.cpp

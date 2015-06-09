@@ -71,7 +71,7 @@ static Bool AlwaysTruePredicate (Display*, XEvent*, char*) { return True; }
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_exp_manager_X11::ae_exp_manager_X11(void) : ae_exp_manager()
+ae_exp_manager_X11::ae_exp_manager_X11(void) : ExpManager()
 {
   // Basic initializations
   _win      = NULL;

@@ -54,7 +54,7 @@ namespace aevol {
 // =================================================================
 //                          Class declarations
 // =================================================================
-class ae_exp_manager;
+class ExpManager;
 
 
 
@@ -72,7 +72,7 @@ class ae_grid_cell
                std::unique_ptr<Habitat>&& habitat,
                ae_individual* indiv);
   ae_grid_cell(gzFile backup_file,
-               ae_exp_manager* exp_m,
+               ExpManager * exp_m,
                std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler_);
 
   // =================================================================
@@ -112,7 +112,7 @@ class ae_grid_cell
   void save(gzFile backup_file,
             bool skip_phenotypic_target = false) const;
   void load(gzFile backup_file,
-            ae_exp_manager* exp_m,
+            ExpManager * exp_m,
             std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler);
 
   // =================================================================

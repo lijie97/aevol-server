@@ -43,7 +43,7 @@
 // =================================================================
 #include "ae_stats.h"
 #include "ae_stat_record.h"
-#include "ae_exp_manager.h"
+#include "ExpManager.h"
 #include "ae_exp_setup.h"
 #include "ae_individual.h"
 #include "genetic_unit.h"
@@ -70,7 +70,7 @@ namespace aevol {
 /*!
   Create a NEW stat manager
  */
-ae_stats::ae_stats(ae_exp_manager* exp_m,
+ae_stats::ae_stats(ExpManager * exp_m,
              bool best_indiv_only /*= false*/,
              const char* prefix /*= "stat"*/,
              bool with_plasmids /*= false*/,
@@ -86,7 +86,7 @@ ae_stats::ae_stats(ae_exp_manager* exp_m,
 /*!
   Create a stat manager to append existing stats
  */
-ae_stats::ae_stats(ae_exp_manager* exp_m,
+ae_stats::ae_stats(ExpManager * exp_m,
                    int64_t time,
                    bool best_indiv_only,
                    const char * prefix /* = "stat" */,

@@ -42,7 +42,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_exp_manager.h"
+#include "ExpManager.h"
 #include "ae_X11_window.h"
 
 namespace aevol {
@@ -109,7 +109,7 @@ enum key_map
 
 
  
-class ae_exp_manager_X11 : public ae_exp_manager
+class ae_exp_manager_X11 : public ExpManager
 {
   friend class ae_exp_setup;
   

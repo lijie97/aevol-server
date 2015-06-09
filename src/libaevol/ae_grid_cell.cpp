@@ -71,7 +71,7 @@ ae_grid_cell::ae_grid_cell(int16_t x, int16_t y,
 }
 
 ae_grid_cell::ae_grid_cell(gzFile backup_file,
-                           ae_exp_manager* exp_m,
+                           ExpManager * exp_m,
                            std::shared_ptr<PhenotypicTargetHandler>
                               phenotypic_target_handler_)
 {
@@ -101,7 +101,7 @@ void ae_grid_cell::save(gzFile backup_file,
 }
 
 void ae_grid_cell::load(gzFile backup_file,
-                        ae_exp_manager* exp_m,
+                        ExpManager * exp_m,
                         std::shared_ptr<PhenotypicTargetHandler>
                             phenotypic_target_handler)
 {

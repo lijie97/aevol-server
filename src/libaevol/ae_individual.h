@@ -64,7 +64,7 @@ namespace aevol {
 // =================================================================
 //                          Class declarations
 // =================================================================
-class ae_exp_manager;
+class ExpManager;
 class ae_grid_cell;
 
 
@@ -83,7 +83,7 @@ class ae_individual
   // =================================================================
   ae_individual() = delete;
   ae_individual(const ae_individual&) = delete;
-  ae_individual(ae_exp_manager* exp_m,
+  ae_individual(ExpManager * exp_m,
                 std::shared_ptr<ae_jumping_mt> mut_prng,
                 std::shared_ptr<ae_jumping_mt> stoch_prng,
                 std::shared_ptr<ae_params_mut> param_mut,
@@ -95,13 +95,13 @@ class ae_individual
                 const char* strain_name,
                 int32_t age);
 
-  ae_individual(ae_exp_manager* exp_m, gzFile backup_file);
+  ae_individual(ExpManager * exp_m, gzFile backup_file);
   ae_individual(const ae_individual& model,
                 bool replication_report_copy);
   ae_individual(const ae_individual* parent, int32_t id,
                 std::shared_ptr<ae_jumping_mt> mut_prng,
                 std::shared_ptr<ae_jumping_mt> stoch_prng);
-  static ae_individual* CreateIndividual(ae_exp_manager* exp_m,
+  static ae_individual* CreateIndividual(ExpManager * exp_m,
                                          gzFile backup_file);
 
   /**
@@ -126,7 +126,7 @@ class ae_individual
   const char*  get_strain_name() const;
   int32_t      get_age() const;
 
-  ae_exp_manager*  get_exp_m() const;
+  ExpManager *  get_exp_m() const;
   int16_t          get_nb_genetic_units() const;
   int32_t          get_nb_plasmids()  const;
   int32_t          get_amount_of_dna() const;
@@ -255,7 +255,7 @@ class ae_individual
   // =================================================================
   void set_strain_name(char* name);
 
-  void set_exp_m(ae_exp_manager* exp_m);
+  void set_exp_m(ExpManager * exp_m);
   void set_id(int32_t id);
   void set_rank(int32_t rank);
 
@@ -393,7 +393,7 @@ class ae_individual
   // =================================================================
   //                          Protected Attributes
   // =================================================================
-  ae_exp_manager* _exp_m;
+  ExpManager * _exp_m;
 
   // Name and "Age" of the strain
   char*   _strain_name;

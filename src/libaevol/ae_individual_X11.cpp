@@ -40,7 +40,7 @@
 // =================================================================
 #include "ae_individual_X11.h"
 
-#include "ae_exp_manager.h"
+#include "ExpManager.h"
 #include "ae_exp_setup.h"
 #include "ae_utils.h"
 
@@ -59,7 +59,7 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_individual_X11::ae_individual_X11(ae_exp_manager* exp_manager, gzFile backup_file) :
+ae_individual_X11::ae_individual_X11(ExpManager * exp_manager, gzFile backup_file) :
     ae_individual(exp_manager, backup_file)
 {
   init_occupied_sectors();

@@ -39,7 +39,7 @@
 
 #include <zlib.h>
 
-#include "ae_exp_manager.h"
+#include "ExpManager.h"
 #include "ae_individual.h"
 
 
@@ -50,7 +50,7 @@ using std::endl;
 namespace aevol {
 //##############################################################################
 //                                                                             #
-//                             Class ae_exp_manager                            #
+//                             Class ExpManager                            #
 //                                                                             #
 //##############################################################################
 
@@ -61,7 +61,7 @@ namespace aevol {
 // ===========================================================================
 //                                 Constructors
 // ===========================================================================
-ae_exp_manager::ae_exp_manager(void)
+ExpManager::ExpManager(void)
 {
   // ------------------------------------------------------ Experimental setup
   _exp_s = new ae_exp_setup(this);
@@ -84,7 +84,7 @@ ae_exp_manager::ae_exp_manager(void)
 // ===========================================================================
 //                                  Destructor
 // ===========================================================================
-ae_exp_manager::~ae_exp_manager(void)
+ExpManager::~ExpManager(void)
 {
   delete _exp_s;
   delete _output_m;
@@ -94,7 +94,7 @@ ae_exp_manager::~ae_exp_manager(void)
 // ===========================================================================
 //                                   Algorithms
 // ===========================================================================
-// void ae_exp_manager::foreach_indiv(void (*processor)(ae_individual& indiv)) const
+// void ExpManager::foreach_indiv(void (*processor)(ae_individual& indiv)) const
 // {
 //   for (const auto& indiv: get_indivs_std())
 //     processor(*indiv);
@@ -103,7 +103,7 @@ ae_exp_manager::~ae_exp_manager(void)
 // ===========================================================================
 //                                 Public Methods
 // ===========================================================================
-void ae_exp_manager::InitializeWorld(int16_t grid_width,
+void ExpManager::InitializeWorld(int16_t grid_width,
                                      int16_t grid_height,
                                      std::shared_ptr<ae_jumping_mt> prng,
                                      const Habitat& habitat,
@@ -138,7 +138,7 @@ void ae_exp_manager::InitializeWorld(int16_t grid_width,
   \see save(void)
   \see save_copy(char* dir, int64_t t)
 */
-void ae_exp_manager::write_setup_files(void)
+void ExpManager::write_setup_files(void)
 {
   // 1) Create missing directories
   create_missing_directories();
@@ -179,7 +179,7 @@ void ae_exp_manager::write_setup_files(void)
   \see write_setup_files(void)
   \see save_copy(char* dir, int64_t t)
 */
-void ae_exp_manager::save(void) const
+void ExpManager::save(void) const
 {
   // Create missing directories
   create_missing_directories();
@@ -220,7 +220,7 @@ void ae_exp_manager::save(void) const
   \see write_setup_files(void)
   \see save(void)
 */
-void ae_exp_manager::save_copy(char* dir, int32_t num_gener /*= 0*/) const
+void ExpManager::save_copy(char* dir, int32_t num_gener /*= 0*/) const
 {
   // Create missing directories
   create_missing_directories(dir);
@@ -247,7 +247,7 @@ void ae_exp_manager::save_copy(char* dir, int32_t num_gener /*= 0*/) const
 /*!
   \brief Load an experiment with the provided files
  */
-void ae_exp_manager::load(gzFile& exp_s_file,
+void ExpManager::load(gzFile& exp_s_file,
                           gzFile& exp_backup_file,
                           gzFile& world_file,
                           gzFile& out_p_file,
@@ -278,7 +278,7 @@ void ae_exp_manager::load(gzFile& exp_s_file,
 /*!
   \brief Load an experiment with default files from a given directory
  */
-void ae_exp_manager::load(const char* dir,
+void ExpManager::load(const char* dir,
     int64_t t0, bool verbose, bool to_be_run /*  = true */)
 {
   Time::set_time(t0);
@@ -317,7 +317,7 @@ void ae_exp_manager::load(const char* dir,
 /**
  * \brief Load an experiment with the provided constitutive files
  */
-void ae_exp_manager::load(int64_t t0,
+void ExpManager::load(int64_t t0,
                           char* exp_setup_file_name,
                           char* exp_backup_file_name,
                           char* world_file_name,
@@ -384,7 +384,7 @@ void ae_exp_manager::load(int64_t t0,
 /**
  * Run the simulation
  */
-void ae_exp_manager::run_evolution(void)
+void ExpManager::run_evolution(void)
 {
   // We are running a simulation.
   // Save the setup files to keep track of the setup history
@@ -423,7 +423,7 @@ void ae_exp_manager::run_evolution(void)
   fclose(org_file);
 }
 
-void ae_exp_manager::update_best(void)
+void ExpManager::update_best(void)
 {
   world_->update_best();
 }
@@ -431,7 +431,7 @@ void ae_exp_manager::update_best(void)
 // ===========================================================================
 //                                Protected Methods
 // ===========================================================================
-void ae_exp_manager::create_missing_directories(const char* dir /*= "."*/) const
+void ExpManager::create_missing_directories(const char* dir /*= "."*/) const
 {
   char cur_dir_name[255];
   int status;
@@ -466,7 +466,7 @@ void ae_exp_manager::create_missing_directories(const char* dir /*= "."*/) const
   }
 }
 
-void ae_exp_manager::open_backup_files(gzFile& exp_backup_file,
+void ExpManager::open_backup_files(gzFile& exp_backup_file,
                                        gzFile& world_file,
                                        int64_t t,
                                        const char mode[3],
@@ -508,14 +508,14 @@ void ae_exp_manager::open_backup_files(gzFile& exp_backup_file,
   }
 }
 
-void ae_exp_manager::close_backup_files(gzFile& exp_backup_file,
+void ExpManager::close_backup_files(gzFile& exp_backup_file,
                                         gzFile& world_file) const
 {
   gzclose(exp_backup_file);
   gzclose(world_file);
 }
 
-void ae_exp_manager::open_setup_files(
+void ExpManager::open_setup_files(
     gzFile& exp_s_file,
     gzFile& out_p_file,
     int64_t t,
@@ -548,7 +548,7 @@ void ae_exp_manager::open_setup_files(
   }
 }
 
-void ae_exp_manager::close_setup_files(gzFile& exp_s_file,
+void ExpManager::close_setup_files(gzFile& exp_s_file,
                                        gzFile& out_p_file) const
 {
   gzclose(exp_s_file);

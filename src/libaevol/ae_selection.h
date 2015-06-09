@@ -53,7 +53,7 @@ namespace aevol {
 // =================================================================
 //                          Class declarations
 // =================================================================
-class ae_exp_manager;
+class ExpManager;
 
 
 
@@ -68,8 +68,8 @@ class ae_selection
     // =================================================================
     ae_selection(void) = delete;
     ae_selection(const ae_selection&) = delete;
-    ae_selection(ae_exp_manager* exp_m);
-    ae_selection(ae_exp_manager* exp_m, gzFile backup_file);
+    ae_selection(ExpManager * exp_m);
+    ae_selection(ExpManager * exp_m, gzFile backup_file);
 
     // =================================================================
     //                             Destructors
@@ -132,7 +132,7 @@ class ae_selection
     // =======================================================================
     //                             Protected Attributes
     // =======================================================================
-    ae_exp_manager* _exp_m;
+    ExpManager * _exp_m;
     
     // ----------------------------------------- Pseudo-random number generator
     std::unique_ptr<ae_jumping_mt> prng_;

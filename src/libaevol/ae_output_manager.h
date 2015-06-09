@@ -56,7 +56,7 @@ namespace aevol {
 // =================================================================
 //                          Class declarations
 // =================================================================
-class ae_exp_manager;
+class ExpManager;
 
 
 
@@ -69,7 +69,7 @@ class ae_output_manager
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_output_manager( ae_exp_manager* exp_m );
+    ae_output_manager( ExpManager * exp_m );
 
     // =================================================================
     //                             Destructors
@@ -102,7 +102,7 @@ class ae_output_manager
     // =================================================================
     inline void set_backup_step(int64_t backup_step);
     inline void set_big_backup_step(int64_t big_backup_step);
-    inline void init_tree(ae_exp_manager* exp_m, ae_tree_mode _tree_mode, int64_t _tree_step);
+    inline void init_tree(ExpManager * exp_m, ae_tree_mode _tree_mode, int64_t _tree_step);
     inline void set_dump_step(int64_t dump_step);
     inline void set_compute_phen_contrib_by_GU(bool compute_phen_contrib_by_GU);
     inline void set_logs (int8_t logs);
@@ -154,7 +154,7 @@ class ae_output_manager
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ae_exp_manager* _exp_m;
+    ExpManager * _exp_m;
     
     // Backups
     int64_t _backup_step;
@@ -244,7 +244,7 @@ inline void ae_output_manager::set_big_backup_step(int64_t big_backup_step)
   _big_backup_step = big_backup_step;
 }
 
-inline void ae_output_manager::init_tree(ae_exp_manager* exp_m, ae_tree_mode _tree_mode, int64_t _tree_step)
+inline void ae_output_manager::init_tree(ExpManager * exp_m, ae_tree_mode _tree_mode, int64_t _tree_step)
 {
   _record_tree = true;
   _tree = new ae_tree( exp_m, _tree_mode, _tree_step );

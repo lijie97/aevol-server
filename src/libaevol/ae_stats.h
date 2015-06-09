@@ -58,7 +58,7 @@ namespace aevol {
 // =================================================================
 //                          Class declarations
 // =================================================================
-class ae_exp_manager;
+class ExpManager;
 
 
 
@@ -74,12 +74,12 @@ class ae_stats
     // =================================================================
     ae_stats(void) = delete;
     ae_stats(const ae_stats&) = delete;
-    ae_stats(ae_exp_manager* exp_m,
+    ae_stats(ExpManager * exp_m,
              bool best_indiv_only = false,
              const char* prefix = "stat",
              bool with_plasmids = false,
              bool compute_phen_contrib_by_GU = false);
-    ae_stats(ae_exp_manager* exp_m,
+    ae_stats(ExpManager * exp_m,
              int64_t time,
              bool best_indiv_only = false,
              const char * prefix = "stat",
@@ -99,7 +99,7 @@ class ae_stats
     // =================================================================
     //                        Accessors: setters
     // =================================================================
-    inline void set_exp_m(ae_exp_manager* exp_m);
+    inline void set_exp_m(ExpManager * exp_m);
     
     // =================================================================
     //                            Public Methods
@@ -139,7 +139,7 @@ class ae_stats
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ae_exp_manager* _exp_m;
+    ExpManager * _exp_m;
     
     // 3D tables of stat files (FILE*) and their names (char*)
     // Dimensions are given by:
@@ -160,7 +160,7 @@ class ae_stats
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-inline void ae_stats::set_exp_m( ae_exp_manager* exp_m)
+inline void ae_stats::set_exp_m( ExpManager * exp_m)
 {
   _exp_m = exp_m;
 }

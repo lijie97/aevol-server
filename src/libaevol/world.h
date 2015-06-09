@@ -51,7 +51,7 @@ namespace aevol {
 // =================================================================
 //                          Class declarations
 // =================================================================
-class ae_exp_manager;
+class ExpManager;
 
 
 
@@ -127,7 +127,7 @@ class World
   void update_best(void);
 
   void save(gzFile backup_file) const;
-  void load(gzFile backup_file, ae_exp_manager* exp_man);
+  void load(gzFile backup_file, ExpManager * exp_man);
 
   // =================================================================
   //                           Public Attributes

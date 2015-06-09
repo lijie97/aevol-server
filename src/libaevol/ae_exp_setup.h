@@ -55,14 +55,14 @@ class ae_param_loader;
  
 class ae_exp_setup
 {
-  friend class ae_exp_manager;
+  friend class ExpManager;
   
   public :
   
     // =======================================================================
     //                             Constructors
     // =======================================================================
-    ae_exp_setup( ae_exp_manager* exp_m );
+    ae_exp_setup( ExpManager * exp_m );
   
   
     // =======================================================================
@@ -85,7 +85,7 @@ class ae_exp_setup
     inline double get_repl_HT_detach_rate( void ) const;
     
     // --------------------------------------------------------------- Plasmids
-    // See comments in ae_exp_manager.h on how plasmids are handled
+    // See comments in ExpManager.h on how plasmids are handled
     inline bool   get_with_plasmids( void ) const;
     inline double get_prob_plasmid_HT( void ) const;
     inline double get_tune_donor_ability( void ) const;
@@ -169,7 +169,7 @@ class ae_exp_setup
     // =======================================================================
     //                          Protected Attributes
     // =======================================================================
-    ae_exp_manager* _exp_m;
+    ExpManager * _exp_m;
       
     // ----------------------------------------------------- Selection context
     ae_selection* _sel;

@@ -27,7 +27,7 @@
 
 #include "ae_codon.h"
 #include "ae_exp_setup.h"
-#include "ae_exp_manager.h"
+#include "ExpManager.h"
 #include "ae_grid_cell.h"
 #include "genetic_unit.h"
 #include "ae_vis_a_vis.h"
@@ -54,7 +54,7 @@ namespace aevol {
 /**
  * // TODO <david.parsons@inria.fr>
  */
-ae_individual::ae_individual(ae_exp_manager* exp_m,
+ae_individual::ae_individual(ExpManager * exp_m,
                              std::shared_ptr<ae_jumping_mt> mut_prng,
                              std::shared_ptr<ae_jumping_mt> stoch_prng,
                              std::shared_ptr<ae_params_mut> param_mut,
@@ -155,7 +155,7 @@ ae_individual::ae_individual(ae_exp_manager* exp_m,
   (e.g. fitness) will be done.
   No transcription, translation or other process of that kind is performed.
 */
-ae_individual::ae_individual(ae_exp_manager* exp_m, gzFile backup_file)
+ae_individual::ae_individual(ExpManager * exp_m, gzFile backup_file)
 {
   _exp_m = exp_m;
 
@@ -481,7 +481,7 @@ ae_individual::ae_individual(const ae_individual* parent, int32_t id,
   //Evaluate();
 }
 
-ae_individual* ae_individual::CreateIndividual(ae_exp_manager* exp_m,
+ae_individual* ae_individual::CreateIndividual(ExpManager * exp_m,
                                                gzFile backup_file) {
   ae_individual* indiv = NULL;
 #ifdef __NO_X
@@ -559,7 +559,7 @@ ae_individual::~ae_individual()
 // =================================================================
 //                        Non-inline Accessors
 // =================================================================
-void ae_individual::set_exp_m(ae_exp_manager* exp_m) {
+void ae_individual::set_exp_m(ExpManager * exp_m) {
   _exp_m = exp_m;
 
   // Update pointer to exp_manager in each GU
@@ -608,7 +608,7 @@ int32_t ae_individual::get_rank() const {
 }
 
 /// TODO
-ae_exp_manager* ae_individual::get_exp_m() const {
+ExpManager * ae_individual::get_exp_m() const {
   return _exp_m;
 }
 

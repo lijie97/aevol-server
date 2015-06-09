@@ -36,7 +36,7 @@
 #include <list>
 #include <algorithm>
 
-#include "ae_exp_manager.h"
+#include "ExpManager.h"
 #include "ae_exp_setup.h"
 #include "ae_codon.h"
 #include "ae_mutation.h"
@@ -70,7 +70,7 @@ int compare_prot_pos(const void* pos, const void* prot) // This function has to 
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-ae_exp_manager* GeneticUnit::get_exp_m(void) const
+ExpManager * GeneticUnit::get_exp_m(void) const
 {
   return _exp_m;
 }
@@ -334,7 +334,7 @@ void GeneticUnit::set_max_gu_length( int32_t max_gu_length )
   _max_gu_length = max_gu_length;
 }
 
-void GeneticUnit::set_exp_m( ae_exp_manager* exp_m )
+void GeneticUnit::set_exp_m( ExpManager * exp_m )
 {
   _exp_m = exp_m;
 }

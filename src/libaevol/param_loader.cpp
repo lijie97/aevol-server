@@ -44,7 +44,7 @@
 // =================================================================
 #include "param_loader.h"
 
-#include "ae_exp_manager.h"
+#include "ExpManager.h"
 #include "ae_exp_setup.h"
 #include "ae_output_manager.h"
 #include "ae_individual.h"
@@ -1184,7 +1184,7 @@ void param_loader::CheckConsistency() {
   }
 }
 
-void param_loader::load(ae_exp_manager* exp_m, bool verbose,
+void param_loader::load(ExpManager * exp_m, bool verbose,
                         char* chromosome, int32_t lchromosome,
                         char* plasmid, int32_t lplasmid) {
   // Check consistency of min, max and initial length of chromosome and plasmid

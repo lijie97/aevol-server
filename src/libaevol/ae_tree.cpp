@@ -39,7 +39,7 @@
 #include "ae_tree.h"
 
 #include "macros.h"
-#include "ae_exp_manager.h"
+#include "ExpManager.h"
 #include "ae_exp_setup.h"
 #include "ae_individual.h"
 #include "ae_utils.h"
@@ -62,7 +62,7 @@ const int32_t ae_tree::NO_PARENT = -1;
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_tree::ae_tree(ae_exp_manager* exp_m, ae_tree_mode tree_mode, int64_t tree_step)
+ae_tree::ae_tree(ExpManager * exp_m, ae_tree_mode tree_mode, int64_t tree_step)
 {
   _exp_m = exp_m;
 
@@ -111,7 +111,7 @@ ae_tree::ae_tree(ae_exp_manager* exp_m, ae_tree_mode tree_mode, int64_t tree_ste
 
 
 
-ae_tree::ae_tree( ae_exp_manager* exp_m, char* tree_file_name )
+ae_tree::ae_tree( ExpManager * exp_m, char* tree_file_name )
 {
   _exp_m = exp_m;
 

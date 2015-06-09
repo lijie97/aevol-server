@@ -40,7 +40,7 @@
 //                            Project Files
 // =================================================================
 #include "ae_output_manager.h"
-#include "ae_exp_manager.h"
+#include "ExpManager.h"
 #include "Time.h"
 
 namespace aevol {
@@ -60,7 +60,7 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_output_manager::ae_output_manager(ae_exp_manager* exp_m)
+ae_output_manager::ae_output_manager(ExpManager * exp_m)
 {
   _exp_m  = exp_m;
   _stats  = new ae_stats(exp_m);;

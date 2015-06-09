@@ -26,7 +26,7 @@
 
 
 /*!
-  \class ae_exp_manager
+  \class ExpManager
 
   \brief This is aevol's top-level class. It allows for
   high-level experiment management
@@ -65,18 +65,18 @@ namespace aevol {
 
 
 
-class ae_exp_manager
+class ExpManager
 {
   public :
     // =======================================================================
     //                                Constructors
     // =======================================================================
-    ae_exp_manager(void);
+    ExpManager(void);
 
     // =======================================================================
     //                                Destructors
     // =======================================================================
-    virtual ~ae_exp_manager(void);
+    virtual ~ExpManager(void);
 
     // =======================================================================
     //                                 Algorithms
@@ -246,187 +246,187 @@ class ae_exp_manager
 // ===========================================================================
 //                             Getters' definitions
 // ===========================================================================
-inline ae_exp_setup* ae_exp_manager::get_exp_s(void) const
+inline ae_exp_setup*ExpManager::get_exp_s(void) const
 {
   return _exp_s;
 }
 
-inline ae_output_manager* ae_exp_manager::get_output_m(void) const
+inline ae_output_manager*ExpManager::get_output_m(void) const
 {
   return _output_m;
 }
 
-inline bool ae_exp_manager::quit_signal_received(void) const
+inline bool ExpManager::quit_signal_received(void) const
 {
   return _quit_signal_received;
 }
 
-inline ae_selection* ae_exp_manager::get_sel(void) const
+inline ae_selection*ExpManager::get_sel(void) const
 {
   return get_exp_s()->get_sel();
 }
 
-inline ae_selection_scheme ae_exp_manager::get_selection_scheme(void) const
+inline ae_selection_scheme ExpManager::get_selection_scheme(void) const
 {
   return get_sel()->get_selection_scheme();
 }
 
-inline double ae_exp_manager::get_selection_pressure(void) const
+inline double ExpManager::get_selection_pressure(void) const
 {
   return get_sel()->get_selection_pressure();
 }
 
 // Global settings
-inline World* ae_exp_manager::world(void) const
+inline World*ExpManager::world(void) const
 {
   return world_;
 }
 
-inline ae_grid_cell* ae_exp_manager::get_grid_cell(int16_t x, int16_t y) const
+inline ae_grid_cell*ExpManager::get_grid_cell(int16_t x, int16_t y) const
 {
   return world()->grid(x, y);
 }
 
-inline int16_t ae_exp_manager::get_grid_width(void) const
+inline int16_t ExpManager::get_grid_width(void) const
 {
   return world()->width();
 }
 
-inline int16_t ae_exp_manager::get_grid_height(void) const
+inline int16_t ExpManager::get_grid_height(void) const
 {
   return world()->height();
 }
 
-inline ae_grid_cell*** ae_exp_manager::get_pop_grid(void) const
+inline ae_grid_cell***ExpManager::get_pop_grid(void) const
 {
   return world()->grid();
 }
 
-inline bool ae_exp_manager::get_with_HT(void) const
+inline bool ExpManager::get_with_HT(void) const
 {
   return get_exp_s()->get_with_HT();
 }
 
-inline bool ae_exp_manager::get_repl_HT_with_close_points (void) const
+inline bool ExpManager::get_repl_HT_with_close_points (void) const
 {
   return get_exp_s()->get_repl_HT_with_close_points();
 }
 
-inline double ae_exp_manager::get_HT_ins_rate(void) const
+inline double ExpManager::get_HT_ins_rate(void) const
 {
   return get_exp_s()->get_HT_ins_rate();
 }
 
-inline double ae_exp_manager::get_HT_repl_rate(void) const
+inline double ExpManager::get_HT_repl_rate(void) const
 {
   return get_exp_s()->get_HT_repl_rate();
 }
 
-inline double ae_exp_manager::get_repl_HT_detach_rate(void) const
+inline double ExpManager::get_repl_HT_detach_rate(void) const
 {
   return get_exp_s()->get_repl_HT_detach_rate();
 }
 
-inline bool ae_exp_manager::get_with_plasmids(void) const
+inline bool ExpManager::get_with_plasmids(void) const
 {
   return get_exp_s()->get_with_plasmids();
 }
 
-inline double ae_exp_manager::get_prob_plasmid_HT(void) const
+inline double ExpManager::get_prob_plasmid_HT(void) const
 {
   return get_exp_s()->get_prob_plasmid_HT();
 }
 
-inline double ae_exp_manager::get_tune_donor_ability(void) const
+inline double ExpManager::get_tune_donor_ability(void) const
 {
   return get_exp_s()->get_tune_donor_ability();
 }
 
-inline double ae_exp_manager::get_tune_recipient_ability(void) const
+inline double ExpManager::get_tune_recipient_ability(void) const
 {
   return get_exp_s()->get_tune_recipient_ability();
 }
 
-inline double ae_exp_manager::get_donor_cost(void) const
+inline double ExpManager::get_donor_cost(void) const
 {
   return get_exp_s()->get_donor_cost();
 }
 
-inline double ae_exp_manager::get_recipient_cost(void) const
+inline double ExpManager::get_recipient_cost(void) const
 {
   return get_exp_s()->get_recipient_cost();
 }
 
-inline bool ae_exp_manager::get_swap_GUs(void) const
+inline bool ExpManager::get_swap_GUs(void) const
 {
   return get_exp_s()->get_swap_GUs();
 }
 
-inline bool ae_exp_manager::get_with_secretion(void) const
+inline bool ExpManager::get_with_secretion(void) const
 {
   return get_exp_s()->get_with_secretion();
 }
 
-inline double ae_exp_manager::get_secretion_contrib_to_fitness(void) const
+inline double ExpManager::get_secretion_contrib_to_fitness(void) const
 {
   return get_exp_s()->get_secretion_contrib_to_fitness();
 }
 
-inline double ae_exp_manager::get_secretion_cost(void) const
+inline double ExpManager::get_secretion_cost(void) const
 {
   return get_exp_s()->get_secretion_cost();
 }
 
-//~ inline bool ae_exp_manager::get_with_alignments(void) const
+//~ inline bool ExpManager::get_with_alignments(void) const
 //~ {
   //~ return _exp_s->get_with_alignments();
 //~ }
 
 
 // Accessors to population stuff
-inline int32_t ae_exp_manager::get_nb_indivs(void) const
+inline int32_t ExpManager::get_nb_indivs(void) const
 {
   return world()->get_nb_indivs();
 }
 
-inline ae_individual* ae_exp_manager::get_best_indiv(void) const
+inline ae_individual*ExpManager::get_best_indiv(void) const
 {
   return world()->get_best_indiv();
 }
 
-inline std::list<ae_individual*> ae_exp_manager::get_indivs() const
+inline std::list<ae_individual*> ExpManager::get_indivs() const
 {
   return world()->get_indivs();
 }
 
 
 // Accessors to output manager stuff
-inline int64_t ae_exp_manager::get_backup_step(void) const
+inline int64_t ExpManager::get_backup_step(void) const
 {
 	return get_output_m()->get_backup_step();
 }
 
-inline int64_t ae_exp_manager::get_big_backup_step(void) const
+inline int64_t ExpManager::get_big_backup_step(void) const
 {
 	return get_output_m()->get_big_backup_step();
 }
 
-inline bool ae_exp_manager::get_record_tree(void) const
+inline bool ExpManager::get_record_tree(void) const
 {
 	return get_output_m()->get_record_tree();
 }
 
-inline int32_t ae_exp_manager::get_tree_step(void) const
+inline int32_t ExpManager::get_tree_step(void) const
 {
 	return get_output_m()->get_tree_step();
 }
 
-inline ae_tree_mode ae_exp_manager::get_tree_mode(void) const
+inline ae_tree_mode ExpManager::get_tree_mode(void) const
 {
 	return get_output_m()->get_tree_mode();
 }
 
-inline ae_tree* ae_exp_manager::get_tree(void) const
+inline ae_tree*ExpManager::get_tree(void) const
 {
 	return get_output_m()->get_tree();
 }
@@ -435,38 +435,38 @@ inline ae_tree* ae_exp_manager::get_tree(void) const
 //                             Setters' definitions
 // ===========================================================================
 // Global constraints
-//~ inline void ae_exp_manager::set_min_genome_length(int32_t min_genome_length)
+//~ inline void ExpManager::set_min_genome_length(int32_t min_genome_length)
 //~ {
   //~ _exp_s->set_min_genome_length(min_genome_length);
 //~ }
 
-//~ inline void ae_exp_manager::set_max_genome_length(int32_t max_genome_length)
+//~ inline void ExpManager::set_max_genome_length(int32_t max_genome_length)
 //~ {
   //~ _exp_s->set_max_genome_length(max_genome_length);
 //~ }
 
 
-inline void ae_exp_manager::set_with_HT(bool with_HT)
+inline void ExpManager::set_with_HT(bool with_HT)
 {
   _exp_s->set_with_HT(with_HT);
 }
 
-inline void ae_exp_manager::set_repl_HT_with_close_points (bool repl_HT_with_close_points)
+inline void ExpManager::set_repl_HT_with_close_points (bool repl_HT_with_close_points)
 {
   _exp_s->set_repl_HT_with_close_points(repl_HT_with_close_points);
 }
 
-inline void ae_exp_manager::set_HT_ins_rate(double HT_ins_rate)
+inline void ExpManager::set_HT_ins_rate(double HT_ins_rate)
 {
   _exp_s->set_HT_ins_rate(HT_ins_rate);
 }
 
-inline void ae_exp_manager::set_HT_repl_rate(double HT_repl_rate)
+inline void ExpManager::set_HT_repl_rate(double HT_repl_rate)
 {
   _exp_s->set_HT_repl_rate(HT_repl_rate);
 }
 
-inline void ae_exp_manager::set_repl_HT_detach_rate(double repl_HT_detach_rate)
+inline void ExpManager::set_repl_HT_detach_rate(double repl_HT_detach_rate)
 {
   _exp_s->set_repl_HT_detach_rate(repl_HT_detach_rate);
 }
@@ -478,7 +478,7 @@ inline void ae_exp_manager::set_repl_HT_detach_rate(double repl_HT_detach_rate)
 // ===========================================================================
 //                         Inline methods' definition
 // ===========================================================================
-inline void ae_exp_manager::step_to_next_generation(void) {
+inline void ExpManager::step_to_next_generation(void) {
   // TODO <david.parsons@inria.fr> Apply phenotypic target  variation and noise
 
   _exp_s->step_to_next_generation();
@@ -490,7 +490,7 @@ inline void ae_exp_manager::step_to_next_generation(void) {
 /*!
   \brief Load an experiment with default files from the current directory
  */
-inline void ae_exp_manager::load(int32_t first_gener,
+inline void ExpManager::load(int32_t first_gener,
                                  bool verbose /*= false*/,
                                  bool to_be_run /*= true*/)
 {

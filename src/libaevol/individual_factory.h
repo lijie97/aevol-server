@@ -83,7 +83,7 @@ class IndividualFactory
   //                              Public Methods
   // ==========================================================================
   static ae_individual* create_random_individual(
-      ae_exp_manager* exp_m,
+      ExpManager * exp_m,
       int32_t id,
       std::shared_ptr<ae_params_mut> param_mut,
       std::shared_ptr<ae_jumping_mt> mut_prng,
@@ -100,7 +100,7 @@ class IndividualFactory
       std::shared_ptr<ae_jumping_mt> local_prng,
       bool better_than_flat);
   static ae_individual* create_random_individual_with_good_gene(
-      ae_exp_manager* exp_m,
+      ExpManager * exp_m,
       int32_t id,
       std::shared_ptr<ae_params_mut> param_mut,
       std::shared_ptr<ae_jumping_mt> mut_prng,

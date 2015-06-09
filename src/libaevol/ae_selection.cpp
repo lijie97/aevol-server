@@ -37,7 +37,7 @@
 //                            Project Files
 // =================================================================
 #include "ae_selection.h"
-#include "ae_exp_manager.h"
+#include "ExpManager.h"
 #include "ae_vis_a_vis.h"
 
 #ifdef __NO_X
@@ -71,7 +71,7 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_selection::ae_selection(ae_exp_manager* exp_m )
+ae_selection::ae_selection(ExpManager * exp_m )
 {
   _exp_m = exp_m;
 

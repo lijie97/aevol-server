@@ -61,7 +61,7 @@ namespace aevol {
 // ===========================================================================
 //                                  Constructors
 // ===========================================================================
-ae_exp_setup::ae_exp_setup( ae_exp_manager* exp_m )
+ae_exp_setup::ae_exp_setup( ExpManager * exp_m )
 {
   _exp_m  = exp_m;
   

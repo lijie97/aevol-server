@@ -61,7 +61,7 @@ namespace aevol {
  * Create an individual with random sequences
  */
 ae_individual* IndividualFactory::create_random_individual(
-    ae_exp_manager* exp_m,
+    ExpManager * exp_m,
     int32_t id,
     std::shared_ptr<ae_params_mut> param_mut,
     std::shared_ptr<ae_jumping_mt> mut_prng,

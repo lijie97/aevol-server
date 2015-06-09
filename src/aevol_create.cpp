@@ -41,10 +41,10 @@ const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 #ifdef __X11
   #include "ae_exp_manager_X11.h"
 #else
-  #include "ae_exp_manager.h"
+  #include "ExpManager.h"
 #endif
 
-#include "libaevol/ae_exp_manager.h"
+#include "ExpManager.h"
 #include "libaevol/param_loader.h"
 
 
@@ -145,7 +145,7 @@ int main(int argc, char* argv[])
 
 
   // 6) Initialize the experiment manager
-  ae_exp_manager* exp_manager = new ae_exp_manager();
+  ExpManager * exp_manager = new ExpManager();
 
 
   // 7) Initialize the simulation from the parameter file

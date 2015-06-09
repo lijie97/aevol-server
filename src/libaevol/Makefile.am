@@ -31,7 +31,7 @@ ae_dna.h \
 ae_dump.h \
 ae_enums.h \
 ae_env_segment.h \
-ae_exp_manager.h \
+ExpManager.h \
 ae_exp_setup.h \
 fuzzy.h \
 ae_gaussian.h \
@@ -75,7 +75,7 @@ ae_align.cpp \
 ae_codon.cpp \
 ae_dna.cpp \
 ae_dump.cpp \
-ae_exp_manager.cpp \
+ExpManager.cpp \
 ae_exp_setup.cpp \
 genetic_unit.cpp \
 ae_grid_cell.cpp \

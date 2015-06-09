@@ -41,7 +41,7 @@
 #ifdef __X11
   #include "ae_exp_manager_X11.h"
 #else
-  #include "ae_exp_manager.h"
+  #include "ExpManager.h"
 #endif
 
 #include "macros.h"
@@ -55,7 +55,7 @@ void catch_usr1( int sig_num );
 void print_help( char* prog_path );
 void print_version( void );
 
-static ae_exp_manager* exp_manager = NULL;
+static ExpManager * exp_manager = NULL;
 
 
 
@@ -205,7 +205,7 @@ int main( int argc, char* argv[] )
   #ifndef __NO_X
     exp_manager = new ae_exp_manager_X11();
   #else
-    exp_manager = new ae_exp_manager();
+    exp_manager = new ExpManager();
   #endif
   
   exp_manager->load(num_gener, false, verbose);

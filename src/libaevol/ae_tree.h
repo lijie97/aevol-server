@@ -53,7 +53,7 @@ namespace aevol {
 // =================================================================
 //                          Class declarations
 // =================================================================
-class ae_exp_manager;
+class ExpManager;
 
 
 class ae_tree
@@ -63,9 +63,9 @@ class ae_tree
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_tree(ae_exp_manager* exp_m, ae_tree_mode tree_mode, int64_t tree_step);
+    ae_tree(ExpManager * exp_m, ae_tree_mode tree_mode, int64_t tree_step);
     // To be used when we want to run a simulation.
-    ae_tree(ae_exp_manager* exp_m, char* tree_file_name);
+    ae_tree(ExpManager * exp_m, char* tree_file_name);
     // To be used when we want to INSPECT a tree, 
     // not when we want to run a simulation.
     
@@ -142,7 +142,7 @@ class ae_tree
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ae_exp_manager* _exp_m;
+    ExpManager * _exp_m;
     
     int64_t       _tree_step;
     ae_tree_mode  _tree_mode;

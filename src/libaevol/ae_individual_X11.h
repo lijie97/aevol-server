@@ -63,7 +63,7 @@ class ae_individual_X11 : public virtual ae_individual
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_individual_X11(ae_exp_manager* exp_manager, gzFile backup_file);
+    ae_individual_X11(ExpManager * exp_manager, gzFile backup_file);
     ae_individual_X11(const ae_individual_X11 &model, bool replication_report_copy);
     ae_individual_X11(ae_individual_X11* const parent, int32_t id,
                       std::shared_ptr<ae_jumping_mt> mut_prng,

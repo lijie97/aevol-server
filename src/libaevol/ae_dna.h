@@ -57,7 +57,7 @@ namespace aevol {
 // =================================================================
 //                          Class declarations
 // =================================================================
-class ae_exp_manager;
+class ExpManager;
 class ae_individual;
 class GeneticUnit;
 class ae_vis_a_vis;
@@ -194,7 +194,7 @@ class ae_dna : public ae_string
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ae_exp_manager* _exp_m;
+    ExpManager * _exp_m;
 
     // From ae_string
     //   char*   _data;

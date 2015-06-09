@@ -52,7 +52,7 @@ namespace aevol {
 // =================================================================
 //                          Class declarations
 // =================================================================
-class ae_exp_manager;
+class ExpManager;
 class ae_stats;
 class ae_individual;
 class ae_population;
@@ -107,20 +107,20 @@ class ae_stat_record
     //                             Constructors
     // =================================================================
     ae_stat_record(void) = delete;
-    ae_stat_record(ae_exp_manager* exp_m);
+    ae_stat_record(ExpManager * exp_m);
     ae_stat_record(const ae_stat_record &model);
-    ae_stat_record(ae_exp_manager* exp_m,
+    ae_stat_record(ExpManager * exp_m,
                    ae_individual* indiv,
                    chrom_or_gen_unit chrom_or_gu = CHROM,
                    bool compute_non_coding = true);
-    ae_stat_record(ae_exp_manager* exp_m,
+    ae_stat_record(ExpManager * exp_m,
                    const std::list<ae_individual*> indivs,
                    chrom_or_gen_unit chrom_or_gu = CHROM);
-    ae_stat_record(ae_exp_manager* exp_m,
+    ae_stat_record(ExpManager * exp_m,
                    const std::list<ae_individual*> indivs,
                    const ae_stat_record* means,
                    chrom_or_gen_unit chrom_or_gu = CHROM);
-    ae_stat_record(ae_exp_manager* exp_m,
+    ae_stat_record(ExpManager * exp_m,
                    const std::list<ae_individual*> indivs,
                    const ae_stat_record* means,
                    const ae_stat_record* stdevs,
@@ -163,7 +163,7 @@ class ae_stat_record
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ae_exp_manager* _exp_m;
+    ExpManager * _exp_m;
     
     // NB : All the attributes are doubles because they will be used to
     //      compute averages over the population.

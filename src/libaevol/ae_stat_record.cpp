@@ -39,7 +39,7 @@
 // =================================================================
 #include "ae_stat_record.h"
 
-#include "ae_exp_manager.h"
+#include "ExpManager.h"
 #include "ae_exp_setup.h"
 #include "ae_individual.h"
 #include "genetic_unit.h"
@@ -67,7 +67,7 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_stat_record::ae_stat_record(ae_exp_manager* exp_m)
+ae_stat_record::ae_stat_record(ExpManager * exp_m)
 {
   _exp_m = exp_m;
   initialize_data();
@@ -136,7 +136,7 @@ ae_stat_record::ae_stat_record(const ae_stat_record &model)
   #endif
 }
 
-ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
+ae_stat_record::ae_stat_record(ExpManager * exp_m,
                                ae_individual* indiv,
                                chrom_or_gen_unit chrom_or_gu,
                                bool compute_non_coding)
@@ -440,7 +440,7 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
 }
 
 // Calculate average statistics for all the recorded values 
-ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
+ae_stat_record::ae_stat_record(ExpManager * exp_m,
                                const list<ae_individual*> indivs,
                                chrom_or_gen_unit chrom_or_gu)
 {
@@ -472,7 +472,7 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
 }
 
 // Calculate standard deviation for all the recorded values 
-ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
+ae_stat_record::ae_stat_record(ExpManager * exp_m,
                                const list<ae_individual*> indivs,
                                const ae_stat_record* means,
                                chrom_or_gen_unit chrom_or_gu)
@@ -503,7 +503,7 @@ ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
 }
 
  // Calculate skewness for all the recorded values 
-ae_stat_record::ae_stat_record(ae_exp_manager* exp_m,
+ae_stat_record::ae_stat_record(ExpManager * exp_m,
                                const list<ae_individual*> indivs,
                                const ae_stat_record* means,
                                const ae_stat_record* stdevs,

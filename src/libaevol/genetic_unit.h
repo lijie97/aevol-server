@@ -54,7 +54,7 @@ namespace aevol {
 using Promoters1Strand = std::list<ae_rna>;
 using Promoters2Strands = std::vector<Promoters1Strand>;
 
-class ae_exp_manager;
+class ExpManager;
 
 class GeneticUnit
 {
@@ -85,7 +85,7 @@ class GeneticUnit
   // =================================================================
   //                              Accessors
   // =================================================================
-  ae_exp_manager*  get_exp_m( void ) const;
+  ExpManager *  get_exp_m( void ) const;
   ae_individual*   get_indiv( void )                   const;
   ae_dna*          get_dna( void )                     const;
   Fuzzy*    get_activ_contribution( void )      const;
@@ -148,7 +148,7 @@ class GeneticUnit
   void set_min_gu_length( int32_t min_gu_length );
   void set_max_gu_length( int32_t max_gu_length );
 
-  void set_exp_m( ae_exp_manager* exp_m );
+  void set_exp_m( ExpManager * exp_m );
 
 
   // =================================================================
@@ -296,7 +296,7 @@ class GeneticUnit
   // =================================================================
   //                          Protected Attributes
   // =================================================================
-  ae_exp_manager* _exp_m;
+  ExpManager * _exp_m;
 
   ae_individual*  _indiv;
   ae_dna*         _dna;

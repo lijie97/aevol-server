@@ -40,7 +40,7 @@
 //                            Project Files
 // =================================================================
 #include "ae_dump.h"
-#include "ae_exp_manager.h"
+#include "ExpManager.h"
 #include "ae_individual.h"
 #include "genetic_unit.h"
 #ifdef __REGUL
@@ -67,7 +67,7 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_dump::ae_dump( ae_exp_manager* exp_m )
+ae_dump::ae_dump( ExpManager * exp_m )
 {
   _exp_m = exp_m;
   int status;
