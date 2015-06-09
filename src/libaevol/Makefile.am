@@ -28,7 +28,7 @@ common_headers = \
 Alignment.h \
 Codon.h \
 Dna.h \
-ae_dump.h \
+Dump.h \
 ae_enums.h \
 ae_env_segment.h \
 ExpManager.h \
@@ -74,7 +74,7 @@ common_sources = \
 Alignment.cpp \
 Codon.cpp \
 Dna.cpp \
-ae_dump.cpp \
+Dump.cpp \
 ExpManager.cpp \
 ExpSetup.cpp \
 GeneticUnit.cpp \

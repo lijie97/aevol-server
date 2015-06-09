@@ -57,19 +57,19 @@ class ExpManager;
 #define _AE_DUMP_FILENAME_BUFSIZE INT32_C(256)
 
 
-class ae_dump
+class Dump
 {  
  public :
   
   // =================================================================
   //                             Constructors
   // =================================================================
-  ae_dump( ExpManager * exp_m );
+  Dump( ExpManager * exp_m );
   
   // =================================================================
   //                             Destructors
   // =================================================================
-  virtual ~ae_dump( void )
+  virtual ~Dump( void )
   {
   }
   
@@ -100,7 +100,7 @@ class ae_dump
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    ae_dump( const ae_dump &model )
+    Dump( const Dump &model )
     {
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );

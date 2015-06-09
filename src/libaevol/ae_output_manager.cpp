@@ -201,7 +201,7 @@ void ae_output_manager::load( gzFile setup_file, bool verbose, bool to_be_run  )
   gzread( setup_file, &_dump_step,  sizeof(_dump_step) );
   if( _make_dumps == true)
   {
-    _dump = new ae_dump(_exp_m);
+    _dump = new Dump(_exp_m);
   }
   
   // Logs
@@ -264,7 +264,7 @@ void ae_output_manager::load(FILE* setup_file, bool verbose, bool to_be_run)
   fscanf( setup_file, "DUMP_STEP %" SCNd64 "\n", &_dump_step );
   if( _make_dumps == true)
   {
-    _dump = new ae_dump(_exp_m);
+    _dump = new Dump(_exp_m);
   }
   
   // Logs

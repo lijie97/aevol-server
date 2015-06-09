@@ -39,7 +39,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_dump.h"
+#include "Dump.h"
 #include "ExpManager.h"
 #include "Individual.h"
 #include "GeneticUnit.h"
@@ -56,7 +56,7 @@ namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                                Class ae_dump                                #
+//                                Class Dump                                #
 //                                                                             #
 //##############################################################################
 
@@ -67,7 +67,7 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_dump::ae_dump( ExpManager * exp_m )
+Dump::Dump( ExpManager * exp_m )
 {
   _exp_m = exp_m;
   int status;
@@ -88,7 +88,7 @@ ae_dump::ae_dump( ExpManager * exp_m )
 
 const char* DUMP_FORMAT = "\t%d\t%d\t%f\n";
 
-void ae_dump::write_current_generation_dump( void )
+void Dump::write_current_generation_dump( void )
 {
   //  printf("Begin dump\n");
   write_fitness_total();
@@ -99,7 +99,7 @@ void ae_dump::write_current_generation_dump( void )
   //  printf("End dump\n");
 }
 
-void ae_dump::write_fitness_total(void)
+void Dump::write_fitness_total(void)
 {
   sprintf(filename_buffer,
       "stats/dump/fitness_total_%06" PRId64 ".out",
@@ -127,7 +127,7 @@ void ae_dump::write_fitness_total(void)
   delete [] map;
 }
 
-void ae_dump::write_secreted_amount ( void )
+void Dump::write_secreted_amount ( void )
 {
   sprintf(filename_buffer,
       "stats/dump/secreted_amount_%06" PRId64 ".out",
@@ -153,7 +153,7 @@ void ae_dump::write_secreted_amount ( void )
   delete [] map;
 }
 
-void ae_dump::write_fitness_metabolic ( void )
+void Dump::write_fitness_metabolic ( void )
 {
   sprintf( filename_buffer,
       "stats/dump/fitness_metabolic_%06" PRId64 ".out",
@@ -179,7 +179,7 @@ void ae_dump::write_fitness_metabolic ( void )
   delete [] map;
 }
 
-void ae_dump::write_secretion_present ( void )
+void Dump::write_secretion_present ( void )
 {
   sprintf(filename_buffer,
       "stats/dump/secretion_present_%06" PRId64 ".out",
@@ -206,7 +206,7 @@ void ae_dump::write_secretion_present ( void )
 /*!
   \brief Write the probes (5 int and 5 double) of each individual at a given generation
 */
-void ae_dump::write_individual_probes( void )
+void Dump::write_individual_probes( void )
 {
   sprintf(filename_buffer,
       "stats/dump/individual_probes_%06" PRId64 ".out",

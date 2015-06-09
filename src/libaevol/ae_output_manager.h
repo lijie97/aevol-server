@@ -46,7 +46,7 @@
 #include "ae_enums.h"
 #include "ae_stats.h"
 #include "ae_tree.h"
-#include "ae_dump.h"
+#include "Dump.h"
 #include "ae_logs.h"
 
 
@@ -171,7 +171,7 @@ class ae_output_manager
     // Dumps
     bool      _make_dumps;
     int64_t   _dump_step;
-    ae_dump*  _dump;
+    Dump *  _dump;
     
     // Logs
     ae_logs*  _logs;

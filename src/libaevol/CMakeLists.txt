@@ -25,8 +25,8 @@ add_library(aevol
   Codon.h
   Dna.cpp
   Dna.h
-  ae_dump.cpp
-  ae_dump.h
+  Dump.cpp
+  Dump.h
   ae_enums.h
   ae_env_segment.h
   ExpManager.cpp
