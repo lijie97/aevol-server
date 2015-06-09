@@ -48,7 +48,7 @@
 #include "ExpSetup.h"
 #include "ae_output_manager.h"
 #include "Individual.h"
-#include "individual_factory.h"
+#include "IndividualFactory.h"
 
 #include "ae_jumping_mt.h"
 #include "ae_gaussian.h"

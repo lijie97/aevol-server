@@ -38,7 +38,7 @@ ae_gaussian.h \
 GeneticUnit.h \
 ae_grid_cell.h \
 Individual.h \
-individual_factory.h \
+IndividualFactory.h \
 ae_logs.h \
 macros.h \
 ae_mutation.h \
@@ -80,7 +80,7 @@ ExpSetup.cpp \
 GeneticUnit.cpp \
 ae_grid_cell.cpp \
 Individual.cpp \
-individual_factory.cpp \
+IndividualFactory.cpp \
 ae_logs.cpp \
 ae_mutation.cpp \
 ae_output_manager.cpp \

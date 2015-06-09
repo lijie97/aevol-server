@@ -53,8 +53,8 @@ add_library(aevol
   Individual.h
   ae_individual_X11.cpp
   ae_individual_X11.h
-  individual_factory.cpp
-  individual_factory.h
+  IndividualFactory.cpp
+  IndividualFactory.h
   ae_jumping_mt.cpp
   ae_jumping_mt.h
   ae_jump_poly.h
