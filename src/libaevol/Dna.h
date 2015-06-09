@@ -68,27 +68,27 @@ class ae_rna;
 
 
 
-class ae_dna : public ae_string
+class Dna : public ae_string
 {
   public :
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_dna(void) = delete; // TODO <david.parsons@inria.fr> merge unsure
-    ae_dna(const ae_dna&) = delete; // TODO <david.parsons@inria.fr> merge unsure
-    ae_dna(GeneticUnit* gen_unit,
+    Dna(void) = delete; // TODO <david.parsons@inria.fr> merge unsure
+    Dna(const Dna &) = delete; // TODO <david.parsons@inria.fr> merge unsure
+    Dna(GeneticUnit* gen_unit,
            int32_t length,
            std::shared_ptr<ae_jumping_mt> prng);
-    ae_dna(GeneticUnit* gen_unit, const ae_dna &model);
-    ae_dna(GeneticUnit* gen_unit, ae_dna* const parent_dna);
-    ae_dna(GeneticUnit* gen_unit, char* seq, int32_t length);
-    ae_dna(GeneticUnit* gen_unit, gzFile backup_file);
-    ae_dna(GeneticUnit* gen_unit, char* organism_file_name);
+    Dna(GeneticUnit* gen_unit, const Dna &model);
+    Dna(GeneticUnit* gen_unit, Dna * const parent_dna);
+    Dna(GeneticUnit* gen_unit, char* seq, int32_t length);
+    Dna(GeneticUnit* gen_unit, gzFile backup_file);
+    Dna(GeneticUnit* gen_unit, char* organism_file_name);
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_dna(void);
+    virtual ~Dna(void);
 
     // =================================================================
     //                              Accessors
@@ -161,8 +161,8 @@ class ae_dna : public ae_string
     GeneticUnit*  copy_into_new_GU(int32_t pos_1, int32_t pos_2) const;
     void insert_GU(GeneticUnit* GU_to_insert, int32_t pos_B, int32_t pos_D, bool invert);
 
-    ae_vis_a_vis* search_alignment(ae_dna* chrom2, int32_t& nb_pairs, ae_sense sense);
-    ae_vis_a_vis* search_alignment_around_positions(ae_dna* chrom2, int32_t chrom1_pos_1, int32_t chrom1_pos_2, ae_sense sense, int8_t& research_sense);
+    ae_vis_a_vis* search_alignment(Dna * chrom2, int32_t& nb_pairs, ae_sense sense);
+    ae_vis_a_vis* search_alignment_around_positions(Dna * chrom2, int32_t chrom1_pos_1, int32_t chrom1_pos_2, ae_sense sense, int8_t& research_sense);
 
     void undergo_this_mutation(const ae_mutation * mut); // useful when we replay the evolution
 
@@ -210,23 +210,23 @@ class ae_dna : public ae_string
 // =====================================================================
 //                          Accessors definitions
 // =====================================================================
-inline DnaReplicReport* ae_dna::get_replic_report(void) const
+inline DnaReplicReport*Dna::get_replic_report(void) const
 {
   return _replic_report;
 }
 
-inline Individual * ae_dna::get_indiv(void) const
+inline Individual *Dna::get_indiv(void) const
 {
   return _indiv;
 }
 
  // for post-treatment only
-inline void ae_dna::set_replic_report(DnaReplicReport * rep)
+inline void Dna::set_replic_report(DnaReplicReport * rep)
 {
   _replic_report = rep;
 }
 
-inline GeneticUnit* ae_dna::get_genetic_unit(void) const
+inline GeneticUnit*Dna::get_genetic_unit(void) const
 {
   return _gen_unit;
 }

@@ -80,7 +80,7 @@ Individual * GeneticUnit::get_indiv(void) const
   return _indiv;
 }
 
-ae_dna* GeneticUnit::get_dna(void) const
+Dna * GeneticUnit::get_dna(void) const
 {
   assert(_dna->get_length() != 0);
   return _dna;
@@ -569,7 +569,7 @@ GeneticUnit::GeneticUnit(Individual * indiv,
   _min_gu_length = -1;
   _max_gu_length = -1;
 
-  _dna = new ae_dna( this, length, prng );
+  _dna = new Dna( this, length, prng );
 
   // Create empty fuzzy sets for the phenotypic contributions
   _activ_contribution = new Fuzzy();
@@ -624,12 +624,12 @@ GeneticUnit::GeneticUnit(Individual * indiv,
   _min_gu_length = -1;
   _max_gu_length = -1;
 
-  _dna = new ae_dna( this, seq, length );
+  _dna = new Dna( this, seq, length );
 
   if (not prom_list[LEADING].empty() and not prom_list[LAGGING].empty()) { // if not default `prom_list`
     // Copy rna lists
     _rna_list = prom_list;
-    ae_dna::set_GU(_rna_list, this);
+    Dna::set_GU(_rna_list, this);
   } else {
     for (auto& strand: {LEADING, LAGGING})
       assert(_rna_list[strand].empty());
@@ -686,7 +686,7 @@ GeneticUnit::GeneticUnit(Individual * indiv, const GeneticUnit& model)
   _max_gu_length = model._max_gu_length;
 
   // Copy DNA
-  _dna = new ae_dna( this, *(model._dna) );
+  _dna = new Dna( this, *(model._dna) );
 
   // Create empty fuzzy sets for the phenotypic contributions
   _activ_contribution = new Fuzzy();
@@ -733,7 +733,7 @@ GeneticUnit::GeneticUnit(Individual * indiv, const GeneticUnit* parent)
   _max_gu_length = parent->_max_gu_length;
 
   // Copy DNA
-  _dna = new ae_dna( this, parent->_dna );
+  _dna = new Dna( this, parent->_dna );
 
   // Copy promoter list (_rna_list)
   // Note that the length of the RNA will have to be recomputed (do_transcription)
@@ -780,7 +780,7 @@ GeneticUnit::GeneticUnit( Individual * indiv, gzFile backup_file )
   _distance_to_target_computed        = false;
   _fitness_computed                   = false;
 
-  _dna = new ae_dna( this, backup_file );
+  _dna = new Dna( this, backup_file );
 
   gzread( backup_file, &_min_gu_length, sizeof(_min_gu_length) );
   gzread( backup_file, &_max_gu_length, sizeof(_max_gu_length) );
@@ -828,7 +828,7 @@ GeneticUnit::GeneticUnit( Individual * indiv, char* organism_file_name )
   _distance_to_target_computed        = false;
   _fitness_computed                   = false;
 
-  _dna = new ae_dna( this, organism_file_name );
+  _dna = new Dna( this, organism_file_name );
 
   // Create empty fuzzy sets for the phenotypic contributions
   _activ_contribution = new Fuzzy();
@@ -1262,7 +1262,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 
 
     // I do not erase the RNA lists, because they were updated
-    // during the mutations (cf ae_dna::undergo_this_mutation)
+    // during the mutations (cf Dna::undergo_this_mutation)
     // TODO : Reinitialize _transcribed proteins ?
 
     if ( _activ_contribution != NULL )

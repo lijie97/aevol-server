@@ -44,7 +44,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "ae_dna.h"
+#include "Dna.h"
 #include "ae_utils.h"
 #include "ae_protein.h"
 

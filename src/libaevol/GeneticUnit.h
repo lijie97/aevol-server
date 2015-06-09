@@ -37,7 +37,7 @@
 
 #include <memory>
 
-#include "ae_dna.h"
+#include "Dna.h"
 #include "ae_rna.h"
 #include "ae_protein.h"
 #include "Fuzzy.h"
@@ -87,7 +87,7 @@ class GeneticUnit
   // =================================================================
   ExpManager *  get_exp_m( void ) const;
   Individual *   get_indiv( void )                   const;
-  ae_dna*          get_dna( void )                     const;
+  Dna *          get_dna( void )                     const;
   Fuzzy*    get_activ_contribution( void )      const;
   Fuzzy*    get_inhib_contribution( void )      const;
   Fuzzy*    get_phenotypic_contribution( void ) const;
@@ -159,7 +159,7 @@ class GeneticUnit
   void do_translation( void );
   void compute_phenotypic_contribution( void );
 
-  void take_ownership_of_all_rnas(void) { ae_dna::set_GU(get_rna_list(), this); };
+  void take_ownership_of_all_rnas(void) { Dna::set_GU(get_rna_list(), this); };
 
 
 
@@ -299,7 +299,7 @@ class GeneticUnit
   ExpManager * _exp_m;
 
   Individual *  _indiv;
-  ae_dna*         _dna;
+  Dna *         _dna;
   Fuzzy*   _activ_contribution;
   Fuzzy*   _inhib_contribution;
   Fuzzy*   _phenotypic_contribution;

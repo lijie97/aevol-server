@@ -42,7 +42,7 @@
 // =================================================================
 #include "ExpManager.h"
 #include "ExpSetup.h"
-#include "ae_dna.h"
+#include "Dna.h"
 #include "GeneticUnit.h"
 #include "Individual.h"
 #include "ae_rna.h"
@@ -54,7 +54,7 @@ namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                                Class ae_dna                                 #
+//                                Class Dna                                 #
 //                                                                             #
 //##############################################################################
 
@@ -68,7 +68,7 @@ namespace aevol {
 /**
  * Create a random dna sequence of length <length> belonging to <gen_unit>.
  */
-ae_dna::ae_dna(GeneticUnit* gen_unit,
+Dna::Dna(GeneticUnit* gen_unit,
                int32_t length,
                std::shared_ptr<ae_jumping_mt> prng) :
     ae_string(length, prng)
@@ -84,7 +84,7 @@ ae_dna::ae_dna(GeneticUnit* gen_unit,
  * Create a new piece of dna identical to the model but belonging to <gen_unit>
  * The replication report is copied if it exists
  */
-ae_dna::ae_dna(GeneticUnit* gen_unit, const ae_dna &model) :
+Dna::Dna(GeneticUnit* gen_unit, const Dna &model) :
     ae_string(model)
 {
   _gen_unit = gen_unit;
@@ -100,7 +100,7 @@ ae_dna::ae_dna(GeneticUnit* gen_unit, const ae_dna &model) :
  * Creates a new piece of dna identical to the parent's but belonging to <gen_unit>
  * The replication report is set to NULL
  */
-ae_dna::ae_dna(GeneticUnit* gen_unit, ae_dna* const parent_dna) :
+Dna::Dna(GeneticUnit* gen_unit, Dna * const parent_dna) :
 ae_string(parent_dna->_data, parent_dna->_length)
 {
 _gen_unit = gen_unit;
@@ -116,7 +116,7 @@ _replic_report = NULL;
  *           which means the caller must not delete it.
  * The replication report is set to NULL
  */
-ae_dna::ae_dna(GeneticUnit* gen_unit, char* seq, int32_t length) :
+Dna::Dna(GeneticUnit* gen_unit, char* seq, int32_t length) :
     ae_string(seq, length, true)
 {
   _gen_unit = gen_unit;
@@ -130,7 +130,7 @@ ae_dna::ae_dna(GeneticUnit* gen_unit, char* seq, int32_t length) :
  * Loads a piece of dna from <backup_file>
  * The replication report is set to NULL
  */
-ae_dna::ae_dna(GeneticUnit* gen_unit, gzFile backup_file) : ae_string(backup_file)
+Dna::Dna(GeneticUnit* gen_unit, gzFile backup_file) : ae_string(backup_file)
 {
   _gen_unit = gen_unit;
   _exp_m    = gen_unit->get_exp_m();
@@ -143,7 +143,7 @@ ae_dna::ae_dna(GeneticUnit* gen_unit, gzFile backup_file) : ae_string(backup_fil
  * Creates a dna sequence from a text file
  * The replication report is set to NULL
  */
-ae_dna::ae_dna(GeneticUnit* gen_unit, char* organism_file_name) : ae_string(organism_file_name)
+Dna::Dna(GeneticUnit* gen_unit, char* organism_file_name) : ae_string(organism_file_name)
 {
   _gen_unit = gen_unit;
   _exp_m    = gen_unit->get_exp_m();
@@ -155,14 +155,14 @@ ae_dna::ae_dna(GeneticUnit* gen_unit, char* organism_file_name) : ae_string(orga
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_dna::~ae_dna(void)
+Dna::~Dna(void)
 {
 }
 
 // =================================================================
 //                         Non inline Accessors
 // =================================================================
-char* ae_dna::get_subsequence(int32_t from, int32_t to, ae_strand strand) const
+char*Dna::get_subsequence(int32_t from, int32_t to, ae_strand strand) const
 {
   char* subseq = NULL;
 
@@ -219,7 +219,7 @@ char* ae_dna::get_subsequence(int32_t from, int32_t to, ae_strand strand) const
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_dna::perform_mutations(int32_t parent_id)
+void Dna::perform_mutations(int32_t parent_id)
 {
   if (_exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL)
   {
@@ -251,7 +251,7 @@ void ae_dna::perform_mutations(int32_t parent_id)
   //~ new_indiv->_replic_report->compute_statistical_data();
 }
 
-void ae_dna::do_small_mutations(void)
+void Dna::do_small_mutations(void)
 {
   // ==============================================================
   //  1. Compute how many rearrangements this genome will undertake
@@ -334,7 +334,7 @@ void ae_dna::do_small_mutations(void)
   }
 }
 
-void ae_dna::do_rearrangements(void)
+void Dna::do_rearrangements(void)
 {
   // ==============================================================
   //  1. Compute how many rearrangements this genome will undertake
@@ -419,7 +419,7 @@ void ae_dna::do_rearrangements(void)
   }
 }
 
-void ae_dna::do_rearrangements_with_align(void)
+void Dna::do_rearrangements_with_align(void)
 {
   bool    direct_sense; // Whether we look for a direct or indirect alignment
   double  rand1 = 0.0;  // Determines the type of rearrangement that will be done if an alignment is found
@@ -813,7 +813,7 @@ void ae_dna::do_rearrangements_with_align(void)
   }
 }
 
-void ae_dna::do_transfer(int32_t parent_id)
+void Dna::do_transfer(int32_t parent_id)
 {
   ae_mutation* mut = NULL;
   if (_indiv->get_mut_prng()->random() < _indiv->get_HT_ins_rate())
@@ -857,7 +857,7 @@ void ae_dna::do_transfer(int32_t parent_id)
   }
 }
 
-ae_mutation* ae_dna::do_switch(void)
+ae_mutation*Dna::do_switch(void)
 {
   ae_mutation* mut = NULL;
 
@@ -876,7 +876,7 @@ ae_mutation* ae_dna::do_switch(void)
   return mut;
 }
 
-ae_mutation* ae_dna::do_small_insertion(void)
+ae_mutation*Dna::do_small_insertion(void)
 {
   ae_mutation* mut = NULL;
 
@@ -939,7 +939,7 @@ ae_mutation* ae_dna::do_small_insertion(void)
   return mut;
 }
 
-ae_mutation* ae_dna::do_small_deletion(void)
+ae_mutation*Dna::do_small_deletion(void)
 {
   ae_mutation* mut = NULL;
 
@@ -986,7 +986,7 @@ ae_mutation* ae_dna::do_small_deletion(void)
   return mut;
 }
 
-bool ae_dna::do_switch(int32_t pos)
+bool Dna::do_switch(int32_t pos)
 {
   // Perform the mutation
   if (_data[pos] == '0')  _data[pos] = '1';
@@ -1005,7 +1005,7 @@ bool ae_dna::do_switch(int32_t pos)
   return true;
 }
 
-bool ae_dna::do_small_insertion(int32_t pos, int16_t nb_insert, char * seq)
+bool Dna::do_small_insertion(int32_t pos, int16_t nb_insert, char * seq)
 {
   // Check genome size limit
   assert(_length + nb_insert <= _gen_unit->get_max_gu_length());
@@ -1036,7 +1036,7 @@ bool ae_dna::do_small_insertion(int32_t pos, int16_t nb_insert, char * seq)
   return true;
 }
 
-bool ae_dna::do_small_deletion(int32_t pos, int16_t nb_del)
+bool Dna::do_small_deletion(int32_t pos, int16_t nb_del)
 {
   // Check genome size limit
   assert(_length - nb_del >= _gen_unit->get_min_gu_length());
@@ -1077,7 +1077,7 @@ bool ae_dna::do_small_deletion(int32_t pos, int16_t nb_del)
   return true;
 }
 
-ae_mutation* ae_dna::do_duplication(void)
+ae_mutation*Dna::do_duplication(void)
 {
   ae_mutation* mut = NULL;
 
@@ -1131,7 +1131,7 @@ ae_mutation* ae_dna::do_duplication(void)
   return mut;
 }
 
-ae_mutation* ae_dna::do_deletion(void)
+ae_mutation*Dna::do_deletion(void)
 {
   ae_mutation* mut = NULL;
 
@@ -1186,7 +1186,7 @@ ae_mutation* ae_dna::do_deletion(void)
   return mut;
 }
 
-ae_mutation* ae_dna::do_translocation(void)
+ae_mutation*Dna::do_translocation(void)
 {
 
   ae_mutation* mut = NULL;
@@ -1409,7 +1409,7 @@ ae_mutation* ae_dna::do_translocation(void)
   return mut;
 }
 
-ae_mutation* ae_dna::do_inversion(void)
+ae_mutation*Dna::do_inversion(void)
 {
   ae_mutation* mut = NULL;
 
@@ -1446,7 +1446,7 @@ ae_mutation* ae_dna::do_inversion(void)
   return mut;
 }
 
-ae_mutation* ae_dna::do_insertion(const char* seq_to_insert, int32_t seq_length /*= -1*/)
+ae_mutation*Dna::do_insertion(const char* seq_to_insert, int32_t seq_length /*= -1*/)
 {
   ae_mutation* mut = NULL;
 
@@ -1473,7 +1473,7 @@ ae_mutation* ae_dna::do_insertion(const char* seq_to_insert, int32_t seq_length 
 }
 
 
-bool ae_dna::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3)
+bool Dna::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3)
 // Duplicate segment [pos_1; pos_2[ and insert the duplicate before pos_3
 {
   char* duplicate_segment = NULL;
@@ -1555,7 +1555,7 @@ bool ae_dna::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3)
   return true;
 }
 
-bool ae_dna::do_deletion(int32_t pos_1, int32_t pos_2)
+bool Dna::do_deletion(int32_t pos_1, int32_t pos_2)
 // Delete segment going from pos_1 (included) to pos_2 (excluded)
 {
   if (pos_1 < pos_2)
@@ -1622,7 +1622,7 @@ bool ae_dna::do_deletion(int32_t pos_1, int32_t pos_2)
   return true;
 }
 
-bool ae_dna::do_translocation(int32_t pos_1, int32_t pos_2, int32_t pos_3, int32_t pos_4, bool invert)
+bool Dna::do_translocation(int32_t pos_1, int32_t pos_2, int32_t pos_3, int32_t pos_4, bool invert)
 {
   // Provided that OriC must be at position 0
   //
@@ -1719,7 +1719,7 @@ bool ae_dna::do_translocation(int32_t pos_1, int32_t pos_2, int32_t pos_3, int32
   return true;
 }
 
-bool ae_dna::do_inter_GU_translocation(int32_t pos_1_rel, int32_t pos_2_rel, int32_t pos_3_rel, int32_t pos_4_rel, bool invert)
+bool Dna::do_inter_GU_translocation(int32_t pos_1_rel, int32_t pos_2_rel, int32_t pos_3_rel, int32_t pos_4_rel, bool invert)
 {
   // TODO check GU lengths according to positions and size limit
   int32_t segment_length = ae_utils::mod(pos_2_rel - pos_1_rel, _length);
@@ -1865,7 +1865,7 @@ bool ae_dna::do_inter_GU_translocation(int32_t pos_1_rel, int32_t pos_2_rel, int
   return true;
 }
 
-bool ae_dna::do_inversion(int32_t pos_1, int32_t pos_2)
+bool Dna::do_inversion(int32_t pos_1, int32_t pos_2)
 // Invert segment going from pos_1 (included) to pos_2 (excluded)
 // Exemple : sequence 011101001100 => 110011010001
 {
@@ -1915,7 +1915,7 @@ bool ae_dna::do_inversion(int32_t pos_1, int32_t pos_2)
   return true;
 }
 
-bool ae_dna::do_insertion(int32_t pos, const char* seq_to_insert, int32_t seq_length)
+bool Dna::do_insertion(int32_t pos, const char* seq_to_insert, int32_t seq_length)
 {
   // Remove the promoters that will be broken
   _gen_unit->remove_promoters_around(pos);
@@ -1934,7 +1934,7 @@ bool ae_dna::do_insertion(int32_t pos, const char* seq_to_insert, int32_t seq_le
 }
 
 
-ae_mutation* ae_dna::do_ins_HT(int32_t parent_id)
+ae_mutation*Dna::do_ins_HT(int32_t parent_id)
 {
   ae_mutation* mut = NULL;
 
@@ -1954,7 +1954,7 @@ ae_mutation* ae_dna::do_ins_HT(int32_t parent_id)
 //
 //  // 2) Look for an alignment within the donor genome
 //  ae_vis_a_vis* alignment_1   = NULL;
-//  ae_dna*       donor_dna     = donor->get_genetic_unit(0).get_dna();
+//  Dna*       donor_dna     = donor->get_genetic_unit(0).get_dna();
 //  int32_t       nb_pairs_1    = (int32_t)(ceil(donor_dna->get_length() * _indiv->get_neighbourhood_rate()));
 //
 //  alignment_1 = donor_dna->search_alignment(donor_dna, nb_pairs_1, DIRECT);
@@ -2059,7 +2059,7 @@ ae_mutation* ae_dna::do_ins_HT(int32_t parent_id)
   return mut;
 }
 
-ae_mutation* ae_dna::do_repl_HT(int32_t parent_id)
+ae_mutation*Dna::do_repl_HT(int32_t parent_id)
 {
   ae_mutation* mut = NULL;
 
@@ -2080,7 +2080,7 @@ ae_mutation* ae_dna::do_repl_HT(int32_t parent_id)
 //  // 2) Look for an alignment between the parent genome and the donor genome
 //  ae_vis_a_vis* alignment_1   = NULL;
 //  ae_vis_a_vis* alignment_2   = NULL;
-//  ae_dna*       donor_dna     = donor->get_genetic_unit(0).get_dna();
+//  Dna*       donor_dna     = donor->get_genetic_unit(0).get_dna();
 //  ae_sense      sense         = (_exp_m->get_sel()->get_prng()->random() < 0.5) ? DIRECT : INDIRECT;
 //  int32_t       nb_pairs_1    = (int32_t)(ceil(get_length() * _indiv->get_neighbourhood_rate()));
 //  int32_t       nb_pairs_2    = (int32_t)(ceil(get_length() * _indiv->get_neighbourhood_rate()));
@@ -2264,7 +2264,7 @@ ae_mutation* ae_dna::do_repl_HT(int32_t parent_id)
   return mut;
 }
 
-bool ae_dna::do_ins_HT(int32_t pos, const char* seq_to_insert, int32_t seq_length)
+bool Dna::do_ins_HT(int32_t pos, const char* seq_to_insert, int32_t seq_length)
 {
   // Remove the promoters that will be broken
   _gen_unit->remove_promoters_around(pos);
@@ -2282,7 +2282,7 @@ bool ae_dna::do_ins_HT(int32_t pos, const char* seq_to_insert, int32_t seq_lengt
   return true;
 }
 
-bool ae_dna::do_repl_HT(int32_t pos1, int32_t pos2, const char* seq_to_insert, int32_t seq_length)
+bool Dna::do_repl_HT(int32_t pos1, int32_t pos2, const char* seq_to_insert, int32_t seq_length)
 {
   // Remove the promoters that will be broken
   _gen_unit->remove_promoters_around(pos1);
@@ -2312,7 +2312,7 @@ bool ae_dna::do_repl_HT(int32_t pos1, int32_t pos2, const char* seq_to_insert, i
   return true;
 }
 
-void ae_dna::undergo_this_mutation(const ae_mutation * mut)
+void Dna::undergo_this_mutation(const ae_mutation * mut)
 {
   if(mut == NULL) return;
 
@@ -2387,7 +2387,7 @@ void ae_dna::undergo_this_mutation(const ae_mutation * mut)
   }
 }
 
-void ae_dna::compute_statistical_data(void)
+void Dna::compute_statistical_data(void)
 // *************************************************************************************************
 //                                      WARNING     Deprecated
 // *************************************************************************************************
@@ -2434,13 +2434,13 @@ void ae_dna::compute_statistical_data(void)
   //~ }
 }
 
-void ae_dna::set_GU(std::vector<std::list<ae_rna>> rna_list, const GeneticUnit* GU) {
+void Dna::set_GU(std::vector<std::list<ae_rna>> rna_list, const GeneticUnit* GU) {
   for (auto& strand: {LEADING, LAGGING})
     for (auto& rna: rna_list[strand])
       rna.set_genetic_unit(GU);
 }
 
-GeneticUnit* ae_dna::extract_into_new_GU(int32_t pos_1, int32_t pos_2)
+GeneticUnit*Dna::extract_into_new_GU(int32_t pos_1, int32_t pos_2)
 {
   assert(pos_1 < pos_2);
   int32_t seq_length = pos_2 - pos_1;
@@ -2493,7 +2493,7 @@ GeneticUnit* ae_dna::extract_into_new_GU(int32_t pos_1, int32_t pos_2)
   The new genetic unit's list of promoter is up-to-date.
   if (pos_1 == pos_2), the whole genome is copied
 */
-GeneticUnit* ae_dna::copy_into_new_GU(int32_t pos_1, int32_t pos_2) const
+GeneticUnit*Dna::copy_into_new_GU(int32_t pos_1, int32_t pos_2) const
 {
   int32_t seq_length = ae_utils::mod(pos_2 - pos_1, _length);
   if (seq_length == 0) seq_length = _length;
@@ -2553,7 +2553,7 @@ GeneticUnit* ae_dna::copy_into_new_GU(int32_t pos_1, int32_t pos_2) const
 
   Sequence from GU_to_insert is untouched but its list of promoters is emptied
 */
-void ae_dna::insert_GU(GeneticUnit* GU_to_insert, int32_t pos_B, int32_t pos_D, bool invert)
+void Dna::insert_GU(GeneticUnit* GU_to_insert, int32_t pos_B, int32_t pos_D, bool invert)
 {
   // Compute segment lengths
   const char* GUti_data = GU_to_insert->get_dna()->get_data();
@@ -2692,7 +2692,7 @@ void ae_dna::insert_GU(GeneticUnit* GU_to_insert, int32_t pos_B, int32_t pos_D, 
   The sense of the searched alignment can be either DIRECT, INDIRECT or BOTH_SENSE. \
   In the latter case, the sense will be randomly drawn (uniformly between DIRECT and INDIRECT) for each pair of points.
 */
-ae_vis_a_vis* ae_dna::search_alignment(ae_dna* chrom2, int32_t& nb_pairs, ae_sense sense)
+ae_vis_a_vis*Dna::search_alignment(Dna * chrom2, int32_t& nb_pairs, ae_sense sense)
 {
   ae_vis_a_vis* alignment = NULL;
   ae_sense cur_sense = sense; // Which sense (direct or indirect)
@@ -2765,7 +2765,7 @@ ae_vis_a_vis* ae_dna::search_alignment(ae_dna* chrom2, int32_t& nb_pairs, ae_sen
   The sense of the searched alignment can be either DIRECT, INDIRECT or BOTH_SENSE. \
   In the latter case, the sense will be randomly drawn (uniformly between DIRECT and INDIRECT) for each pair of points.
 */
-ae_vis_a_vis* ae_dna::search_alignment_around_positions(ae_dna* chrom2, int32_t chrom1_pos_1, int32_t chrom2_pos_1, ae_sense sense, int8_t& research_sense)
+ae_vis_a_vis*Dna::search_alignment_around_positions(Dna * chrom2, int32_t chrom1_pos_1, int32_t chrom2_pos_1, ae_sense sense, int8_t& research_sense)
 {
   ae_vis_a_vis* alignment = NULL;
   ae_vis_a_vis* tmp_alignment = NULL;
@@ -2936,7 +2936,7 @@ ae_vis_a_vis* ae_dna::search_alignment_around_positions(ae_dna* chrom2, int32_t 
  * Extract the sequence going from pos_1 (included) to pos_2 (excluded) into a new standalone genetic unit.
  * Promoter lists are created / updated accordingly
  */
-void ae_dna::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D, int32_t pos_E)
+void Dna::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D, int32_t pos_E)
 {
   // Rearrange the sequence from ABCDE to ADCBE (complex translocation of segment defined
   // between positions pos_B and pos_D)
@@ -3024,7 +3024,7 @@ void ae_dna::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D, int32_t
   }
 }
 
-void ae_dna::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D, int32_t pos_E)
+void Dna::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D, int32_t pos_E)
 {
   // Rearrange the sequence from ABCDE to ADBpCpE (complex translocation with inversion
   // of segment defined between positions pos_B and pos_D)
@@ -3149,7 +3149,7 @@ void ae_dna::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D, int32
   }
 }
 
-void ae_dna::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D, int32_t pos_E)
+void Dna::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D, int32_t pos_E)
 {
   // Rearrange the sequence from ABCDE to ACpDpBE (complex translocation with inversion
   // of segment defined between positions pos_C and pos_E)
@@ -3279,7 +3279,7 @@ void ae_dna::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D, int32
   }
 }
 
-void ae_dna::inter_GU_ABCDE_to_ACDBE(int32_t pos_B, int32_t pos_C, int32_t pos_E)
+void Dna::inter_GU_ABCDE_to_ACDBE(int32_t pos_B, int32_t pos_C, int32_t pos_E)
 {
   // Check points' order and range
   assert((pos_B >= 0 && pos_C >= pos_B) && (pos_E >= 0));
@@ -3378,7 +3378,7 @@ void ae_dna::inter_GU_ABCDE_to_ACDBE(int32_t pos_B, int32_t pos_C, int32_t pos_E
   }
 }
 
-void ae_dna::inter_GU_ABCDE_to_BDCAE(int32_t pos_B, int32_t pos_C, int32_t pos_E)
+void Dna::inter_GU_ABCDE_to_BDCAE(int32_t pos_B, int32_t pos_C, int32_t pos_E)
 {
   // Check points' order and range
   assert((pos_B >= 0 && pos_C >= pos_B) && (pos_E >= 0));

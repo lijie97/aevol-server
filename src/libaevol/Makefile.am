@@ -27,7 +27,7 @@ AM_CPPFLAGS += -D__STDC_FORMAT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MA
 common_headers = \
 ae_align.h \
 codon.h \
-ae_dna.h \
+dna.h \
 ae_dump.h \
 ae_enums.h \
 ae_env_segment.h \
@@ -73,7 +73,7 @@ world.h
 common_sources = \
 ae_align.cpp \
 codon.cpp \
-ae_dna.cpp \
+dna.cpp \
 ae_dump.cpp \
 ExpManager.cpp \
 ExpSetup.cpp \

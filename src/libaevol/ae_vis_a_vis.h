@@ -43,7 +43,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "ae_dna.h"
+#include "Dna.h"
 #include "ae_utils.h"
 
 
@@ -69,7 +69,7 @@ class ae_vis_a_vis
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_vis_a_vis( const ae_dna* chrom_1, const ae_dna* chrom_2, int32_t i_1, int32_t i_2, ae_sense sense = DIRECT );
+    ae_vis_a_vis( const Dna * chrom_1, const Dna * chrom_2, int32_t i_1, int32_t i_2, ae_sense sense = DIRECT );
     ae_vis_a_vis( const ae_vis_a_vis & orig );
     //~ ae_vis_a_vis( const ae_vis_a_vis * const orig );
 
@@ -81,8 +81,8 @@ class ae_vis_a_vis
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline const ae_dna*  get_chrom_1( void ) const;
-    inline const ae_dna*  get_chrom_2( void ) const;
+    inline const Dna *  get_chrom_1( void ) const;
+    inline const Dna *  get_chrom_2( void ) const;
     inline int32_t        get_i_1( void ) const;
     inline int32_t        get_i_2( void ) const;
     inline int16_t        get_score( void ) const;
@@ -127,7 +127,7 @@ class ae_vis_a_vis
   
     //~ ae_vis_a_vis( void )
     //~ {
-      //~ _chrom_1 = _chrom_2 = new ae_dna(); // const members must be initialized
+      //~ _chrom_1 = _chrom_2 = new Dna(); // const members must be initialized
       //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       //~ exit( EXIT_FAILURE );
     //~ };
@@ -145,8 +145,8 @@ class ae_vis_a_vis
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    const ae_dna *  _chrom_1;
-    const ae_dna *  _chrom_2;
+    const Dna *  _chrom_1;
+    const Dna *  _chrom_2;
     int32_t         _i_1; // Index on chrom_1
     int32_t         _i_2; // Index on chrom_2
     int16_t         _score;
@@ -167,12 +167,12 @@ class ae_vis_a_vis
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-inline const ae_dna* ae_vis_a_vis::get_chrom_1( void ) const
+inline const Dna * ae_vis_a_vis::get_chrom_1( void ) const
 {
   return _chrom_1;
 }
 
-inline const ae_dna* ae_vis_a_vis::get_chrom_2( void ) const
+inline const Dna * ae_vis_a_vis::get_chrom_2( void ) const
 {
   return _chrom_2;
 }
@@ -332,7 +332,7 @@ inline void ae_vis_a_vis::sub( int inc_1, int inc_2 )
 
 inline void ae_vis_a_vis::swap( void )
 {
-  const ae_dna *  tmp_chrom = _chrom_1;
+  const Dna *  tmp_chrom = _chrom_1;
   int32_t         tmp_i     = _i_1;
   
   _chrom_1  = _chrom_2;

@@ -27,10 +27,10 @@
 
 namespace aevol {
 
-class ae_dna;
+class Dna;
 
 class DnaReplicReport {
-  friend class ae_dna;
+  friend class Dna;
   
  public :
   // Constructor, copy contructor and destructor are synthesized by compiler.

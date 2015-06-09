@@ -55,7 +55,7 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_vis_a_vis::ae_vis_a_vis( const ae_dna* chrom_1, const ae_dna* chrom_2, int32_t i_1, int32_t i_2, ae_sense sense /*= DIRECT*/ )
+ae_vis_a_vis::ae_vis_a_vis( const Dna * chrom_1, const Dna * chrom_2, int32_t i_1, int32_t i_2, ae_sense sense /*= DIRECT*/ )
 {
   _chrom_1  = chrom_1;
   _chrom_2  = chrom_2;

@@ -48,7 +48,7 @@
 #include "indiv_stats.h"
 #include "non_coding_stats.h"
 #include "GeneticUnit.h"
-#include "ae_dna.h"
+#include "Dna.h"
 #include "ae_rna.h"
 #include "ae_protein.h"
 #include "phenotype.h"
@@ -74,7 +74,7 @@ class ae_grid_cell;
 /// Genetic units are an individual's own.
 class Individual
 {
-  friend class ae_dna;
+  friend class Dna;
 
  public :
 

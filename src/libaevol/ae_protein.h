@@ -44,7 +44,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "macros.h"
-#include "ae_dna.h"
+#include "Dna.h"
 #include "Codon.h"
 
 namespace aevol {

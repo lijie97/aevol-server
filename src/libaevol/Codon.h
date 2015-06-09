@@ -45,7 +45,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "ae_dna.h"
+#include "Dna.h"
 #include "macros.h"
 
 
@@ -71,7 +71,7 @@ class Codon
     Codon( void );
     Codon( const Codon &model );
     Codon( int8_t value );
-    Codon( ae_dna* genome, ae_strand strand, int32_t index );
+    Codon( Dna * genome, ae_strand strand, int32_t index );
     Codon( gzFile backup_file );
 
     // =================================================================

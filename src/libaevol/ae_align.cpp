@@ -77,8 +77,8 @@ namespace aevol {
 // =================================================================
 //                            Public Methods
 // =================================================================
-ae_vis_a_vis* ae_align::search_alignment_direct( const ae_dna* chrom_1, const int32_t seed_1,
-                                                 const ae_dna* chrom_2, const int32_t seed_2, const int16_t needed_score )
+ae_vis_a_vis* ae_align::search_alignment_direct( const Dna * chrom_1, const int32_t seed_1,
+                                                 const Dna * chrom_2, const int32_t seed_2, const int16_t needed_score )
 {
   ae_vis_a_vis * best_alignment = NULL;
   
@@ -185,8 +185,8 @@ ae_vis_a_vis* ae_align::search_alignment_direct( const ae_dna* chrom_1, const in
 }
 
 
-ae_vis_a_vis* ae_align::search_alignment_indirect( const ae_dna* chrom_1, const int32_t seed_1,
-                                                   const ae_dna* chrom_2, const int32_t seed_2, const int16_t needed_score )
+ae_vis_a_vis* ae_align::search_alignment_indirect( const Dna * chrom_1, const int32_t seed_1,
+                                                   const Dna * chrom_2, const int32_t seed_2, const int16_t needed_score )
 {
   ae_vis_a_vis * best_alignment = NULL;
   

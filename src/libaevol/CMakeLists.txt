@@ -24,8 +24,8 @@ add_library(aevol
   ae_array_short.h
   Codon.cpp
   Codon.h
-  ae_dna.cpp
-  ae_dna.h
+  Dna.cpp
+  Dna.h
   ae_dump.cpp
   ae_dump.h
   ae_enums.h
