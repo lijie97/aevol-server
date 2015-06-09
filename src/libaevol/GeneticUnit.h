@@ -40,7 +40,7 @@
 #include "ae_dna.h"
 #include "ae_rna.h"
 #include "ae_protein.h"
-#include "fuzzy.h"
+#include "Fuzzy.h"
 #include "ae_jumping_mt.h"
 #include "ae_utils.h"
 #include "phenotypic_target.h"

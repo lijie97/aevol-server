@@ -94,8 +94,8 @@ add_library(aevol
   dna_replic_report.h
   f_line.cpp
   f_line.h
-  fuzzy.cpp
-  fuzzy.h
+  Fuzzy.cpp
+  Fuzzy.h
   indiv_stats.h
   macros.h
   non_coding_stats.h

@@ -33,7 +33,7 @@ ae_enums.h \
 ae_env_segment.h \
 ExpManager.h \
 ExpSetup.h \
-fuzzy.h \
+Fuzzy.h \
 ae_gaussian.h \
 GeneticUnit.h \
 ae_grid_cell.h \
@@ -102,7 +102,7 @@ ae_selection.cpp \
 ae_gene_tree.cpp \
 ae_gene_tree_node.cpp \
 ae_gene_mutation.cpp \
-fuzzy.cpp \
+Fuzzy.cpp \
 habitat.cpp \
 param_loader.cpp \
 f_line.cpp \

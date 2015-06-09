@@ -54,7 +54,7 @@
 #include "phenotype.h"
 #include "ae_replication_report.h"
 #include "ae_params_mut.h"
-#include "fuzzy.h"
+#include "Fuzzy.h"
 #include "phenotypic_target.h"
 #include "habitat.h"
 

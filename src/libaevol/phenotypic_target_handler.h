@@ -44,7 +44,7 @@
 #include "ae_gaussian.h"
 #include "ae_enums.h"
 #include "ae_jumping_mt.h"
-#include "fuzzy.h"
+#include "Fuzzy.h"
 
 using std::list;
 

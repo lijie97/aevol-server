@@ -48,7 +48,7 @@
 #include "Individual.h"
 #endif
 
-#include "fuzzy.h"
+#include "Fuzzy.h"
 
 namespace aevol {
 

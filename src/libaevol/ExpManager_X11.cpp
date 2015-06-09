@@ -45,7 +45,7 @@
 #include "point.h"
 #include "ae_individual_X11.h"
 #include "ae_X11_window.h"
-#include "fuzzy.h"
+#include "Fuzzy.h"
 
 namespace aevol {
 

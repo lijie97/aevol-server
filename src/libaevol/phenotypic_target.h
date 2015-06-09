@@ -37,7 +37,7 @@
 #include <cstdlib>
 #include <cassert>
 
-#include "fuzzy.h"
+#include "Fuzzy.h"
 #include "ae_env_segment.h"
 #include "ae_enums.h"
 
