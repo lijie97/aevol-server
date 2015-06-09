@@ -61,7 +61,7 @@ class ExpManager;
 class Individual;
 class GeneticUnit;
 class ae_vis_a_vis;
-class ae_rna;
+class Rna;
 
 
 
@@ -169,7 +169,7 @@ class Dna : public ae_string
     void compute_statistical_data(void);
 
     // TODO vld rna_list should be passed by reference
-    static void set_GU(std::vector<std::list<ae_rna>> rna_list, const GeneticUnit* GU);
+    static void set_GU(std::vector<std::list<Rna>> rna_list, const GeneticUnit* GU);
 
 
     // =================================================================

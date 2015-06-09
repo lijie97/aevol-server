@@ -756,7 +756,7 @@ const std::list<Protein *>&Individual::get_protein_list() const {
 }
 
 /// TODO
-const std::list<const ae_rna*>&Individual::get_rna_list() const {
+const std::list<const Rna *>&Individual::get_rna_list() const {
   return _rna_list;
 }
 

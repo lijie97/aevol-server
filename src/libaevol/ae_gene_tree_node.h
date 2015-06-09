@@ -53,7 +53,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "ae_rna.h"
+#include "Rna.h"
 #include "ae_gene_mutation.h"
 #include "ae_gene_tree.h"
 
@@ -129,7 +129,7 @@ class ae_gene_tree_node
     int32_t *           _promoter_positions;
     Protein *        _protein_pointer;     // for a leaf (current state of a gene), points to the potein object
                                               // for an internal node (ancestral state of a gene), points to NULL
-    ae_rna **           _rna_pointers;         // for a leaf (current state of a gene), points to the RNA object 
+                                              Rna **           _rna_pointers;         // for a leaf (current state of a gene), points to the RNA object
                                               // for an internal node (ancestral state of a gene), points to NULL
     std::list<ae_gene_mutation*> mutation_list;       // list of ae_gene_mutations since the creation date of the node, i.e. since the last duplication
 

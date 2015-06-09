@@ -42,7 +42,7 @@
 #include "Codon.h"
 #include "Individual.h"
 #include "GeneticUnit.h"
-#include "ae_rna.h"
+#include "Rna.h"
 #include "ae_utils.h"
 
 namespace aevol {
@@ -94,7 +94,7 @@ Protein::Protein(GeneticUnit* gen_unit,
                        std::list<Codon *> codon_list,
                        ae_strand strand,
                        int32_t shine_dal_pos,
-                       ae_rna* rna )
+                       Rna * rna )
 {
   assert( shine_dal_pos >= 0 );
   assert( shine_dal_pos < gen_unit->get_seq_length() );
@@ -378,7 +378,7 @@ int32_t Protein::get_last_STOP_base_pos( void ) const
   }
 }
 
-void Protein::add_RNA( ae_rna* rna )
+void Protein::add_RNA( Rna * rna )
 {
   rna_list.push_back(rna);
   _concentration += rna->get_basal_level();

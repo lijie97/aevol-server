@@ -42,7 +42,7 @@
 
 #include "ae_mutation.h"
 #include "ae_gene_mutation.h"
-#include "ae_rna.h"
+#include "Rna.h"
 #include "macros.h"
 
 namespace aevol {

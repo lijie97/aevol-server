@@ -81,7 +81,7 @@ ae_gene_tree_node::ae_gene_tree_node( int32_t nodeCreationDate, Protein * protei
   _nb_promoters = protein->get_rna_list().size();
   //printf("%d promoters at positions", _nb_promoters); // debug
   _promoter_positions = new int32_t[_nb_promoters];
-  _rna_pointers = new ae_rna*[_nb_promoters];
+  _rna_pointers = new Rna *[_nb_promoters];
   int32_t i = 0;
   for (const auto& rna: protein->get_rna_list()) {
     _rna_pointers[i] = rna;
@@ -433,7 +433,7 @@ void ae_gene_tree_node::update_pointers_in_subtree_leaves(GeneticUnit * unit)
       if (_promoter_positions != NULL) delete [] _promoter_positions;
       if (_rna_pointers != NULL) delete [] _rna_pointers;
       _promoter_positions = new int32_t[_nb_promoters];
-      _rna_pointers = new ae_rna*[_nb_promoters];
+      _rna_pointers = new Rna *[_nb_promoters];
       size_t i = 0;
       for (const auto& rna: protein->get_rna_list()) {
         _rna_pointers[i] = rna;
@@ -991,7 +991,7 @@ void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leav
             if (_promoter_positions != NULL) delete [] _promoter_positions;
             if (_rna_pointers != NULL) delete [] _rna_pointers;
             _promoter_positions = new int32_t[_nb_promoters];
-            _rna_pointers = new ae_rna*[_nb_promoters];
+            _rna_pointers = new Rna *[_nb_promoters];
             size_t i = 0;
             for (const auto& rna: protein->get_rna_list()) {
               _rna_pointers[i] = rna;
@@ -1038,7 +1038,7 @@ void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leav
             if (_promoter_positions != NULL) delete [] _promoter_positions;
             if (_rna_pointers != NULL) delete [] _rna_pointers;
             _promoter_positions = new int32_t[_nb_promoters];
-            _rna_pointers = new ae_rna*[_nb_promoters];
+            _rna_pointers = new Rna *[_nb_promoters];
             size_t i = 0;
             for (const auto& rna: protein->get_rna_list()) {
               _rna_pointers[i] = rna;

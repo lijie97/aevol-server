@@ -36,7 +36,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_rna.h"
+#include "Rna.h"
 #include "GeneticUnit.h"
 #include "Individual.h"
 
@@ -46,7 +46,7 @@ namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                                 Class ae_rna                                #
+//                                 Class Rna                                #
 //                                                                             #
 //##############################################################################
 
@@ -57,7 +57,7 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_rna::ae_rna( GeneticUnit* gen_unit, const ae_rna &model )
+Rna::Rna( GeneticUnit* gen_unit, const Rna &model )
 {
   // Copy "trivial" attributes
   _gen_unit  = gen_unit;
@@ -76,7 +76,7 @@ ae_rna::ae_rna( GeneticUnit* gen_unit, const ae_rna &model )
   //   transcribed_proteins.push_back(protein);
 }
 
-ae_rna::ae_rna( GeneticUnit* gen_unit, ae_strand strand, int32_t pos, int8_t diff )
+Rna::Rna( GeneticUnit* gen_unit, ae_strand strand, int32_t pos, int8_t diff )
 {
   _gen_unit  = gen_unit;
   _strand = strand;
@@ -87,7 +87,7 @@ ae_rna::ae_rna( GeneticUnit* gen_unit, ae_strand strand, int32_t pos, int8_t dif
 }
 
 /*
-ae_rna::ae_rna( ae_rna* parent )
+Rna::Rna( Rna* parent )
 {
   _gen_unit           = parent->_gen_unit;
   _strand             = parent->_strand;
@@ -100,14 +100,14 @@ ae_rna::ae_rna( ae_rna* parent )
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_rna::~ae_rna( void )
+Rna::~Rna( void )
 {
 }
 
 // =================================================================
 //                            Public Methods
 // =================================================================
-int32_t ae_rna::get_first_transcribed_pos( void ) const
+int32_t Rna::get_first_transcribed_pos( void ) const
 {
   if ( _strand == LEADING )
   {
@@ -119,7 +119,7 @@ int32_t ae_rna::get_first_transcribed_pos( void ) const
   }
 }
 
-int32_t ae_rna::get_last_transcribed_pos( void ) const
+int32_t Rna::get_last_transcribed_pos( void ) const
 {
   if ( _strand == LEADING )
   {

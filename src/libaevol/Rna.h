@@ -58,23 +58,23 @@ namespace aevol {
 class Individual;
 class GeneticUnit;
 
-class ae_rna
+class Rna
 {
   public :
 
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_rna(void) = delete;
-    ae_rna(const GeneticUnit&) = delete;
-    ae_rna( GeneticUnit* gen_unit, const ae_rna &model );
-    ae_rna( GeneticUnit* gen_unit, ae_strand strand, int32_t index, int8_t diff );
-    //ae_rna( ae_rna* parent );
+    Rna(void) = delete;
+    Rna(const GeneticUnit&) = delete;
+    Rna( GeneticUnit* gen_unit, const Rna &model );
+    Rna( GeneticUnit* gen_unit, ae_strand strand, int32_t index, int8_t diff );
+    //Rna( Rna* parent );
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_rna( void );
+    virtual ~Rna( void );
 
     // =================================================================
     //                              Accessors
@@ -142,56 +142,56 @@ class ae_rna
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-inline const GeneticUnit* ae_rna::get_genetic_unit( void ) const
+inline const GeneticUnit*Rna::get_genetic_unit( void ) const
 {
   return _gen_unit;
 }
 
-inline void ae_rna::set_genetic_unit(const GeneticUnit*  gen_unit)
+inline void Rna::set_genetic_unit(const GeneticUnit*  gen_unit)
 {
   _gen_unit = gen_unit;
 }
 
-inline ae_strand ae_rna::get_strand( void ) const
+inline ae_strand Rna::get_strand( void ) const
 {
   return _strand;
 }
 
-inline void ae_rna::set_strand( ae_strand strand )
+inline void Rna::set_strand( ae_strand strand )
 {
   _strand = strand;
 }
 
-void ae_rna::set_promoter_pos( int32_t pos )
+void Rna::set_promoter_pos( int32_t pos )
 {
   _pos = pos;
 }
 
-inline int32_t ae_rna::get_promoter_pos( void ) const
+inline int32_t Rna::get_promoter_pos( void ) const
 {
   return _pos;
 }
 
-inline double ae_rna::get_basal_level( void ) const
+inline double Rna::get_basal_level( void ) const
 {
   return _basal_level;
 }
 
-inline int32_t ae_rna::get_transcript_length( void ) const
+inline int32_t Rna::get_transcript_length( void ) const
 {
   return _transcript_length;
 }
 
-inline void ae_rna::set_transcript_length( int32_t transcript_length )
+inline void Rna::set_transcript_length( int32_t transcript_length )
 {
   _transcript_length = transcript_length;
 }
 
-inline const std::list<Protein *>& ae_rna::get_transcribed_proteins() const {
+inline const std::list<Protein *>&Rna::get_transcribed_proteins() const {
   return transcribed_proteins;
 }
 
-inline bool ae_rna::is_coding( void ) const
+inline bool Rna::is_coding( void ) const
 {
   return (not transcribed_proteins.empty());
 }
@@ -199,12 +199,12 @@ inline bool ae_rna::is_coding( void ) const
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-void ae_rna::add_transcribed_protein( Protein * prot )
+void Rna::add_transcribed_protein( Protein * prot )
 {
   transcribed_proteins.push_back(prot);
 }
 
-void ae_rna::shift_position( int32_t delta_pos, int32_t genome_length )
+void Rna::shift_position( int32_t delta_pos, int32_t genome_length )
 {
   _pos = ae_utils::mod( _pos + delta_pos, genome_length );
 }

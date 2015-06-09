@@ -38,7 +38,7 @@
 #include <memory>
 
 #include "Dna.h"
-#include "ae_rna.h"
+#include "Rna.h"
 #include "Protein.h"
 #include "Fuzzy.h"
 #include "ae_jumping_mt.h"
@@ -51,7 +51,7 @@ using std::list;
 
 namespace aevol {
 
-using Promoters1Strand = std::list<ae_rna>;
+using Promoters1Strand = std::list<Rna>;
 using Promoters2Strands = std::vector<Promoters1Strand>;
 
 class ExpManager;

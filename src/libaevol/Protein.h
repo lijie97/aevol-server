@@ -55,7 +55,7 @@ namespace aevol {
 //                          Class declarations
 // =================================================================
 class Individual;
-class ae_rna;
+class Rna;
 
 
 
@@ -75,7 +75,7 @@ class Protein
                const std::list<Codon *> codon_list,
                ae_strand strand,
                int32_t shine_dal,
-               ae_rna* rna );
+               Rna * rna );
     //Protein( Protein* parent );
     Protein( gzFile backup_file );
     // =================================================================
@@ -87,7 +87,7 @@ class Protein
     //                              Accessors
     // =================================================================
     inline ae_strand          get_strand( void )                const;
-    inline const std::list<ae_rna*> get_rna_list()          const;
+    inline const std::list<Rna *> get_rna_list()          const;
     inline int32_t            get_shine_dal_pos( void )         const;
     inline int32_t            get_first_translated_pos( void )  const;
     inline int32_t            get_last_translated_pos( void )   const;
@@ -104,7 +104,7 @@ class Protein
     // =================================================================
     //                            Public Methods
     // =================================================================
-            void  add_RNA( ae_rna* rna );
+            void  add_RNA( Rna * rna );
     char* get_AA_sequence(char separator = ' ') const; // WARNING : creates a new char[...] (up to you to delete it!)
     virtual void  save( gzFile backup_file );
 
@@ -126,7 +126,7 @@ class Protein
     // =================================================================
     GeneticUnit*  _gen_unit;
     ae_strand         _strand;
-    std::list<ae_rna*> rna_list;              // RNAs transcribing this protein
+    std::list<Rna *> rna_list;              // RNAs transcribing this protein
     int32_t           _shine_dal_pos;         // Index of the corresponding shine dalgarno sequence in the genome
     int32_t           _first_translated_pos;  // Index of the first base following the START codon
     int32_t           _last_translated_pos;   // Index of the last base before the STOP codon
@@ -151,7 +151,7 @@ inline ae_strand Protein::get_strand( void ) const
   return _strand;
 }
 
-inline const std::list<ae_rna*> Protein::get_rna_list() const {
+inline const std::list<Rna *> Protein::get_rna_list() const {
   return rna_list;
 }
 

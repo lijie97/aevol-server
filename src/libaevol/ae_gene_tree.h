@@ -52,7 +52,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "ae_rna.h"
+#include "Rna.h"
 
 namespace aevol {
 

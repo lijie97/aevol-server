@@ -26,8 +26,8 @@ AM_CPPFLAGS += -D__STDC_FORMAT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MA
 
 common_headers = \
 ae_align.h \
-codon.h \
-dna.h \
+Codon.h \
+Dna.h \
 ae_dump.h \
 ae_enums.h \
 ae_env_segment.h \
@@ -53,7 +53,7 @@ ae_jumping_mt.h \
 ae_jump_poly.h \
 ae_replication_report.h \
 dna_replic_report.h \
-ae_rna.h \
+Rna.h \
 ae_stats.h \
 ae_stat_record.h \
 ae_string.h \
@@ -72,8 +72,8 @@ world.h
 
 common_sources = \
 ae_align.cpp \
-codon.cpp \
-dna.cpp \
+Codon.cpp \
+Dna.cpp \
 ae_dump.cpp \
 ExpManager.cpp \
 ExpSetup.cpp \
@@ -92,7 +92,7 @@ Protein.cpp \
 ae_jumping_mt.cpp \
 ae_replication_report.cpp \
 dna_replic_report.cpp \
-ae_rna.cpp \
+Rna.cpp \
 ae_stats.cpp \
 ae_stat_record.cpp \
 ae_string.cpp \

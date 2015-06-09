@@ -49,7 +49,7 @@
 #include "non_coding_stats.h"
 #include "GeneticUnit.h"
 #include "Dna.h"
-#include "ae_rna.h"
+#include "Rna.h"
 #include "Protein.h"
 #include "phenotype.h"
 #include "ae_replication_report.h"
@@ -162,7 +162,7 @@ class Individual
   ae_replication_report* get_replic_report() const;
 
   const std::list<Protein *>&  get_protein_list()  const;
-  const std::list<const ae_rna*>&      get_rna_list()      const;
+  const std::list<const Rna *>&      get_rna_list()      const;
 
   double get_w_max() const;
 
@@ -460,7 +460,7 @@ class Individual
   // Access lists to all the proteins/RNAs of the individual.
   // Please note that these proteins/RNAs are actually managed (i.e. newed and deleted) via genetic units.
   std::list<Protein *> _protein_list;
-  std::list<const ae_rna*>     _rna_list;
+  std::list<const Rna *>     _rna_list;
 
   // Generic probes
   int32_t*  _int_probes;        // Array of 5 int32_t values to be used as one wishes

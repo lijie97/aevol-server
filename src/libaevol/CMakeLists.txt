@@ -73,8 +73,8 @@ add_library(aevol
   ae_rand_mt.h
   ae_replication_report.cpp
   ae_replication_report.h
-  ae_rna.cpp
-  ae_rna.h
+  Rna.cpp
+  Rna.h
   ae_selection.cpp
   ae_selection.h
   ae_stat_record.cpp

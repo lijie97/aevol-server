@@ -45,7 +45,7 @@
 #include "Dna.h"
 #include "GeneticUnit.h"
 #include "Individual.h"
-#include "ae_rna.h"
+#include "Rna.h"
 #include "ae_utils.h"
 #include "ae_vis_a_vis.h"
 #include "ae_align.h"
@@ -2434,7 +2434,7 @@ void Dna::compute_statistical_data(void)
   //~ }
 }
 
-void Dna::set_GU(std::vector<std::list<ae_rna>> rna_list, const GeneticUnit* GU) {
+void Dna::set_GU(std::vector<std::list<Rna>> rna_list, const GeneticUnit* GU) {
   for (auto& strand: {LEADING, LAGGING})
     for (auto& rna: rna_list[strand])
       rna.set_genetic_unit(GU);
