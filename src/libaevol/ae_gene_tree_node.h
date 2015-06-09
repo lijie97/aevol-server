@@ -78,7 +78,7 @@ class ae_gene_tree_node
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_gene_tree_node( int32_t nodeCreationDate, ae_protein * protein);
+    ae_gene_tree_node( int32_t nodeCreationDate, Protein * protein);
 
   
     // =================================================================
@@ -89,7 +89,7 @@ class ae_gene_tree_node
     // =================================================================
     //                            Public Methods
     // =================================================================
-    ae_gene_tree_node * search_in_subtree_leaves(const ae_protein * protein);
+    ae_gene_tree_node * search_in_subtree_leaves(const Protein * protein);
     void print_subtree_to_screen(void); // for debug purposes
     void write_subtree_to_files(FILE * topologyFile, FILE * nodeAttributesFile, int32_t end_gener);
     void write_subtree_nodes_in_tabular_file(int32_t treeID, FILE *f); // f must already be open
@@ -127,7 +127,7 @@ class ae_gene_tree_node
     int32_t             _shine_dal_position;
     size_t             _nb_promoters;
     int32_t *           _promoter_positions;
-    ae_protein *        _protein_pointer;     // for a leaf (current state of a gene), points to the potein object
+    Protein *        _protein_pointer;     // for a leaf (current state of a gene), points to the potein object
                                               // for an internal node (ancestral state of a gene), points to NULL
     ae_rna **           _rna_pointers;         // for a leaf (current state of a gene), points to the RNA object 
                                               // for an internal node (ancestral state of a gene), points to NULL

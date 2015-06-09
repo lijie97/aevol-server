@@ -76,7 +76,7 @@ ae_gene_tree::ae_gene_tree( void )
 }
 
 // Creates a tree with just a root node.
-ae_gene_tree::ae_gene_tree( int32_t nodeCreationDate, ae_protein * protein, const ae_mutation* mut /* = NULL */ )
+ae_gene_tree::ae_gene_tree( int32_t nodeCreationDate, Protein * protein, const ae_mutation* mut /* = NULL */ )
 {
   _root = new ae_gene_tree_node(nodeCreationDate, protein);
   if (mut == NULL)  _creation_type = INITIALIZATION;
@@ -130,7 +130,7 @@ void ae_gene_tree::register_actual_mutation_effect_on_genes_in_tree_leaves(const
   _root->register_actual_mutation_effect_on_genes_in_subtree_leaves( this, mut, unit, gener, impact_on_metabolic_error);
 }
 
-// void ae_gene_tree::duplicate_this_gene( ae_gene_tree_node * node, int32_t duplicDate, ae_protein * newProtein )
+// void ae_gene_tree::duplicate_this_gene( ae_gene_tree_node * node, int32_t duplicDate, Protein * newProtein )
 // {
 //   if (newProtein == node->_protein_pointer) {fprintf(stderr, "Error, duplication with the same protein\n"); exit(EXIT_FAILURE);}
 
@@ -181,7 +181,7 @@ void ae_gene_tree::register_actual_mutation_effect_on_genes_in_tree_leaves(const
   
 
 
-ae_gene_tree_node * ae_gene_tree::search_in_leaves(const ae_protein * protein)
+ae_gene_tree_node * ae_gene_tree::search_in_leaves(const Protein * protein)
 {
   return _root->search_in_subtree_leaves(protein);
 }

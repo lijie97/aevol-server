@@ -67,8 +67,8 @@ add_library(aevol
   ae_params_mut.cpp
   ae_params_mut.h
   phenotype.h
-  ae_protein.cpp
-  ae_protein.h
+  Protein.cpp
+  Protein.h
   ae_rand_mt.cpp
   ae_rand_mt.h
   ae_replication_report.cpp

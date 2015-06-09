@@ -64,7 +64,7 @@ namespace aevol {
 // =================================================================
 int32_t ae_gene_tree_node::_nextID = 0;
 
-ae_gene_tree_node::ae_gene_tree_node( int32_t nodeCreationDate, ae_protein * protein)
+ae_gene_tree_node::ae_gene_tree_node( int32_t nodeCreationDate, Protein * protein)
 {
   _ID = ae_gene_tree_node::_nextID;
   ae_gene_tree_node::_nextID ++;
@@ -121,7 +121,7 @@ ae_gene_tree_node::~ae_gene_tree_node( void )
 //                            Public Methods
 // =================================================================
 
-ae_gene_tree_node * ae_gene_tree_node::search_in_subtree_leaves(const ae_protein * protein)
+ae_gene_tree_node * ae_gene_tree_node::search_in_subtree_leaves(const Protein * protein)
 {
   ae_gene_tree_node *result_left = NULL, *result_right = NULL;
   if ((_left_child == NULL) && (_right_child == NULL)) // I am a leaf
@@ -424,7 +424,7 @@ void ae_gene_tree_node::update_pointers_in_subtree_leaves(GeneticUnit * unit)
     auto& pl = unit->get_protein_list(_strand); // shorthand
     auto protein =
         find_if(pl.begin(), pl.end(),
-                [this](ae_protein& p)
+                [this](Protein & p)
                 {return p.get_shine_dal_pos() == _shine_dal_position;});
     if (protein != pl.end()) {
       /* The strand and shine dal position are correct */
@@ -982,7 +982,7 @@ void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leav
           auto& pl = unit->get_protein_list(_strand);
           auto protein =
               find_if(pl.begin(), pl.end(),
-                      [this](ae_protein& p)
+                      [this](Protein & p)
                       { return p.get_shine_dal_pos() == _shine_dal_position; });
           if (protein != pl.end()) {
             /* The strand and shine dal position are correct */
@@ -1029,7 +1029,7 @@ void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leav
           auto& pl = unit->get_protein_list(_strand); // shorthand
           auto protein =
               find_if(pl.begin(), pl.end(),
-                      [this](ae_protein& p)
+                      [this](Protein & p)
                       { return p.get_shine_dal_pos() == _shine_dal_position; });
           if (protein != pl.end()) {
             /* The strand and shine dal position are correct */
@@ -1069,7 +1069,7 @@ void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leav
         auto& pl = unit->get_protein_list(_strand); // shorthand
         auto protein =
             find_if(pl.begin(), pl.end(),
-                    [this](ae_protein& p)
+                    [this](Protein & p)
                     { return p.get_shine_dal_pos() == _putative_position_for_the_duplicate; });
 
         if (protein != pl.end()) {

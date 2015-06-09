@@ -751,7 +751,7 @@ ae_replication_report*Individual::get_replic_report() const {
 }
 
 /// TODO
-const std::list<ae_protein*>&Individual::get_protein_list() const {
+const std::list<Protein *>&Individual::get_protein_list() const {
   return _protein_list;
 }
 

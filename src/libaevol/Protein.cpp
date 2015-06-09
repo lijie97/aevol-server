@@ -37,7 +37,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_protein.h"
+#include "Protein.h"
 
 #include "Codon.h"
 #include "Individual.h"
@@ -51,7 +51,7 @@ namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                              Class ae_protein                               #
+//                              Class Protein                               #
 //                                                                             #
 //##############################################################################
 
@@ -67,7 +67,7 @@ namespace aevol {
  *
  * Copies the protein but does nothing regarding the RNAs transcribing it (creates an empty list).
  */
-ae_protein::ae_protein( GeneticUnit* gen_unit, const ae_protein &model )
+Protein::Protein( GeneticUnit* gen_unit, const Protein &model )
 {
   _gen_unit  = gen_unit;
 
@@ -90,7 +90,7 @@ ae_protein::ae_protein( GeneticUnit* gen_unit, const ae_protein &model )
   _height = model._height;
 }
 
-ae_protein::ae_protein(GeneticUnit* gen_unit,
+Protein::Protein(GeneticUnit* gen_unit,
                        std::list<Codon *> codon_list,
                        ae_strand strand,
                        int32_t shine_dal_pos,
@@ -314,7 +314,7 @@ ae_protein::ae_protein(GeneticUnit* gen_unit,
 }
 
 /*
-ae_protein::ae_protein( ae_protein* parent )
+Protein::Protein( Protein* parent )
 {
   _gen_unit             = parent->_gen_unit;
   _strand               = parent->_strand;
@@ -329,7 +329,7 @@ ae_protein::ae_protein( ae_protein* parent )
 }
 */
 
-ae_protein::ae_protein( gzFile backup_file )
+Protein::Protein( gzFile backup_file )
 {
   _gen_unit = NULL;
   int8_t tmp_strand;
@@ -357,7 +357,7 @@ ae_protein::ae_protein( gzFile backup_file )
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_protein::~ae_protein( void )
+Protein::~Protein( void )
 {
   for (const auto& AA: _AA_list)
     delete AA;
@@ -366,7 +366,7 @@ ae_protein::~ae_protein( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-int32_t ae_protein::get_last_STOP_base_pos( void ) const
+int32_t Protein::get_last_STOP_base_pos( void ) const
 {
   if ( _strand == LEADING )
   {
@@ -378,13 +378,13 @@ int32_t ae_protein::get_last_STOP_base_pos( void ) const
   }
 }
 
-void ae_protein::add_RNA( ae_rna* rna )
+void Protein::add_RNA( ae_rna* rna )
 {
   rna_list.push_back(rna);
   _concentration += rna->get_basal_level();
 }
 
-char* ae_protein::get_AA_sequence(char separator /*= ' '*/) const
+char*Protein::get_AA_sequence(char separator /*= ' '*/) const
 {
   char* seq = new char[3*_length]; // + 1 (for the '\0')  - 1 (_length - 1 spaces)
 
@@ -443,7 +443,7 @@ char* ae_protein::get_AA_sequence(char separator /*= ' '*/) const
   return seq;
 }
 
-void ae_protein::save( gzFile backup_file )
+void Protein::save( gzFile backup_file )
 {
   // The rna_list is not write because there is no need to, it is an empty list.
   int8_t tmp_strand = _strand;
@@ -473,7 +473,7 @@ void ae_protein::save( gzFile backup_file )
 // =================================================================
 //                          Non inline accessors
 // =================================================================
-Individual * ae_protein::get_indiv( void ) const
+Individual *Protein::get_indiv( void ) const
 {
   return _gen_unit->get_indiv();
 }

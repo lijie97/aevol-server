@@ -61,27 +61,27 @@ class ae_rna;
 
 
 
-class ae_protein
+class Protein
 {
   public :
 
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_protein() = delete;
-    ae_protein(const ae_protein &model) = delete;
-    ae_protein( GeneticUnit* gen_unit, const ae_protein &model );
-    ae_protein(GeneticUnit* gen_unit,
+    Protein() = delete;
+    Protein(const Protein &model) = delete;
+    Protein( GeneticUnit* gen_unit, const Protein &model );
+    Protein(GeneticUnit* gen_unit,
                const std::list<Codon *> codon_list,
                ae_strand strand,
                int32_t shine_dal,
                ae_rna* rna );
-    //ae_protein( ae_protein* parent );
-    ae_protein( gzFile backup_file );
+    //Protein( Protein* parent );
+    Protein( gzFile backup_file );
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_protein( void );
+    virtual ~Protein( void );
 
     // =================================================================
     //                              Accessors
@@ -146,56 +146,56 @@ class ae_protein
 // =====================================================================
 //                          Accessors definitions
 // =====================================================================
-inline ae_strand ae_protein::get_strand( void ) const
+inline ae_strand Protein::get_strand( void ) const
 {
   return _strand;
 }
 
-inline const std::list<ae_rna*> ae_protein::get_rna_list() const {
+inline const std::list<ae_rna*> Protein::get_rna_list() const {
   return rna_list;
 }
 
-int32_t ae_protein::get_shine_dal_pos( void ) const
+int32_t Protein::get_shine_dal_pos( void ) const
 {
   return _shine_dal_pos;
 }
 
-int32_t ae_protein::get_first_translated_pos( void ) const
+int32_t Protein::get_first_translated_pos( void ) const
 {
   return _first_translated_pos;
 }
 
-int32_t ae_protein::get_last_translated_pos( void ) const
+int32_t Protein::get_last_translated_pos( void ) const
 {
   return _last_translated_pos;
 }
 
-double ae_protein::get_mean( void ) const
+double Protein::get_mean( void ) const
 {
   return _mean;
 }
 
-double ae_protein::get_width( void ) const
+double Protein::get_width( void ) const
 {
   return _width;
 }
 
-double ae_protein::get_height( void ) const
+double Protein::get_height( void ) const
 {
   return _height;
 }
 
-int32_t ae_protein::get_length( void ) const
+int32_t Protein::get_length( void ) const
 {
   return _length;
 }
 
-double ae_protein::get_concentration( void ) const
+double Protein::get_concentration( void ) const
 {
   return _concentration;
 }
 
-bool ae_protein::get_is_functional( void ) const
+bool Protein::get_is_functional( void ) const
 {
   return _is_functional;
 }

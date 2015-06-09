@@ -86,7 +86,7 @@ class ae_gene_tree
     //                             Constructors
     // =================================================================
     ae_gene_tree( void );
-    ae_gene_tree( int32_t nodeCreationDate, ae_protein * protein, const ae_mutation* mut = NULL ); // Creates a tree with just a root node.
+    ae_gene_tree( int32_t nodeCreationDate, Protein * protein, const ae_mutation* mut = NULL ); // Creates a tree with just a root node.
    
 
   
@@ -117,11 +117,11 @@ class ae_gene_tree
     void anticipate_mutation_effect_on_genes_in_tree_leaves(const ae_mutation* mut, int32_t lengthOfGeneticUnit);
     void register_actual_mutation_effect_on_genes_in_tree_leaves(const ae_mutation* mut, GeneticUnit * unit, int32_t gener, double impact_on_metabolic_error);
 
-    /* void duplicate_this_gene(ae_gene_tree_node * node, int32_t duplicDate, ae_protein * newProtein); */
+    /* void duplicate_this_gene(ae_gene_tree_node * node, int32_t duplicDate, Protein * newProtein); */
     /* void report_gene_mutation(ae_gene_tree_node * node, ae_gene_mutation * geneMut); */
     /* void report_gene_loss(ae_gene_tree_node * node, int32_t geneLossDate, ae_gene_loss_type geneLossType); */
 
-    ae_gene_tree_node * search_in_leaves(const ae_protein * protein); // Returns NULL if not found
+    ae_gene_tree_node * search_in_leaves(const Protein * protein); // Returns NULL if not found
     void print_to_screen(void); // for debug purposes
     void write_to_files(const char * topologyFileName, const char * nodeAttributesFileName, int32_t end_gener); // Newick format for the topology file
     void write_nodes_in_tabular_file(int32_t treeID, FILE * f);  // f must already be open 

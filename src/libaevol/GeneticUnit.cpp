@@ -58,7 +58,7 @@ namespace aevol {
 int compare_prot_pos(const void* pos, const void* prot) // This function has to be a plain int
 // to comply with the definition of bsearch()
 {
-  if (((ae_protein*)prot)->get_shine_dal_pos() == *(int32_t*)pos) return 0;
+  if (((Protein *)prot)->get_shine_dal_pos() == *(int32_t*)pos) return 0;
   else return 1;
 }
 
@@ -90,7 +90,7 @@ Promoters2Strands GeneticUnit::get_rna_list() const {
   return _rna_list;
 }
 
-std::list<ae_protein>& GeneticUnit::get_protein_list(ae_strand strand) {
+std::list<Protein>& GeneticUnit::get_protein_list(ae_strand strand) {
   return _protein_list[strand];
 }
 
@@ -1024,7 +1024,7 @@ void GeneticUnit::do_translation()
           auto& protein_strand = _protein_list[strand];
           auto protein = find_if(protein_strand.begin(),
                                  protein_strand.end(),
-                                 [shine_dal_pos](ae_protein& p)
+                                 [shine_dal_pos](Protein & p)
                                  { return p.get_shine_dal_pos() == shine_dal_pos; });
 
           if (protein != protein_strand.end()) {

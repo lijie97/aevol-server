@@ -39,7 +39,7 @@
 
 #include "Dna.h"
 #include "ae_rna.h"
-#include "ae_protein.h"
+#include "Protein.h"
 #include "Fuzzy.h"
 #include "ae_jumping_mt.h"
 #include "ae_utils.h"
@@ -96,7 +96,7 @@ class GeneticUnit
   // TODO return as reference
   /*const*/ Promoters2Strands get_rna_list() const;
   // TODO return as reference
-  std::list<ae_protein>& get_protein_list(ae_strand strand);
+  std::list<Protein>& get_protein_list(ae_strand strand);
   void clear_protein_list(ae_strand strand);
 
   // Direct DNA access
@@ -308,7 +308,7 @@ class GeneticUnit
   // _rna_list always has 2 elements: make it an std::array
   Promoters2Strands _rna_list = {{},{}};
   // _protein_list always has 2 elements: make it an std::array
-  std::array<std::list<ae_protein>, 2> _protein_list; // = {{},{}};
+  std::array<std::list<Protein>, 2> _protein_list; // = {{},{}};
 
   // DM: For plasmid work, we sometimes *need* all the data (e.g. fitness, secretion) calculated for each GU
   double* _dist_to_target_per_segment;

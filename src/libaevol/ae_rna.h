@@ -46,7 +46,7 @@
 #include <assert.h>
 #include "Dna.h"
 #include "ae_utils.h"
-#include "ae_protein.h"
+#include "Protein.h"
 
 namespace aevol {
 
@@ -96,7 +96,7 @@ class ae_rna
     inline void       set_transcript_length( int32_t length );
     inline bool       is_coding( void ) const;
 
-    inline const std::list<ae_protein*>& get_transcribed_proteins() const;
+    inline const std::list<Protein *>& get_transcribed_proteins() const;
     inline void clear_transcribed_proteins() { transcribed_proteins.clear(); };
 
     // =================================================================
@@ -104,7 +104,7 @@ class ae_rna
     // =================================================================
     int32_t get_first_transcribed_pos( void ) const;   // The promoter is NOT transcribed.
     int32_t get_last_transcribed_pos( void ) const;    // The terminator is transcribed.
-    inline void add_transcribed_protein( ae_protein* prot );
+    inline void add_transcribed_protein( Protein * prot );
     inline void shift_position( int32_t delta_pos, int32_t genome_length );
 
     // =================================================================
@@ -135,7 +135,7 @@ class ae_rna
     int32_t           _transcript_length;
     double            _basal_level;
 
-    std::list<ae_protein*> transcribed_proteins;
+    std::list<Protein *> transcribed_proteins;
 };
 
 
@@ -187,7 +187,7 @@ inline void ae_rna::set_transcript_length( int32_t transcript_length )
   _transcript_length = transcript_length;
 }
 
-inline const std::list<ae_protein*>& ae_rna::get_transcribed_proteins() const {
+inline const std::list<Protein *>& ae_rna::get_transcribed_proteins() const {
   return transcribed_proteins;
 }
 
@@ -199,7 +199,7 @@ inline bool ae_rna::is_coding( void ) const
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-void ae_rna::add_transcribed_protein( ae_protein* prot )
+void ae_rna::add_transcribed_protein( Protein * prot )
 {
   transcribed_proteins.push_back(prot);
 }

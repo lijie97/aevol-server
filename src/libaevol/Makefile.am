@@ -48,7 +48,7 @@ phenotype.h \
 phenotypic_target.h \
 phenotypic_target_handler.h \
 point.h \
-ae_protein.h \
+Protein.h \
 ae_jumping_mt.h \
 ae_jump_poly.h \
 ae_replication_report.h \
@@ -88,7 +88,7 @@ ae_params_mut.cpp \
 phenotypic_target.cpp \
 phenotypic_target_handler.cpp \
 point.cpp \
-ae_protein.cpp \
+Protein.cpp \
 ae_jumping_mt.cpp \
 ae_replication_report.cpp \
 dna_replic_report.cpp \
