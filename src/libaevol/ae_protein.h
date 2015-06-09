@@ -45,7 +45,7 @@
 #include <assert.h>
 #include "macros.h"
 #include "ae_dna.h"
-#include "ae_codon.h"
+#include "Codon.h"
 
 namespace aevol {
 
@@ -72,7 +72,7 @@ class ae_protein
     ae_protein(const ae_protein &model) = delete;
     ae_protein( GeneticUnit* gen_unit, const ae_protein &model );
     ae_protein(GeneticUnit* gen_unit,
-               const std::list<ae_codon*> codon_list,
+               const std::list<Codon *> codon_list,
                ae_strand strand,
                int32_t shine_dal,
                ae_rna* rna );
@@ -134,7 +134,7 @@ class ae_protein
     double            _concentration;
     bool              _is_functional;
     
-    std::list<ae_codon*> _AA_list;
+    std::list<Codon *> _AA_list;
 
     // Phenotypic contribution (triangle) parameters
     double _mean;

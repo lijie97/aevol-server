@@ -22,8 +22,8 @@ add_library(aevol
   ae_align.cpp
   ae_align.h
   ae_array_short.h
-  ae_codon.cpp
-  ae_codon.h
+  Codon.cpp
+  Codon.h
   ae_dna.cpp
   ae_dna.h
   ae_dump.cpp

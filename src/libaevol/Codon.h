@@ -61,23 +61,23 @@ namespace aevol {
 
 
 
-class ae_codon
+class Codon
 {
   public :
 
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_codon( void );
-    ae_codon( const ae_codon &model );
-    ae_codon( int8_t value );
-    ae_codon( ae_dna* genome, ae_strand strand, int32_t index );
-    ae_codon( gzFile backup_file );
+    Codon( void );
+    Codon( const Codon &model );
+    Codon( int8_t value );
+    Codon( ae_dna* genome, ae_strand strand, int32_t index );
+    Codon( gzFile backup_file );
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_codon( void );
+    virtual ~Codon( void );
 
     // =================================================================
     //                              Accessors
@@ -89,7 +89,7 @@ class ae_codon
     // =================================================================
     inline bool is_start( void );
     inline bool is_stop( void );
-    inline ae_codon* copy( void );
+    inline Codon * copy( void );
     void   save( gzFile backup_file );
 
     // =================================================================
@@ -105,12 +105,12 @@ class ae_codon
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    //~ ae_codon( void )
+    //~ Codon( void )
     //~ {
       //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       //~ exit( EXIT_FAILURE );
     //~ };
-    //~ ae_codon( const ae_codon &model )
+    //~ Codon( const Codon &model )
     //~ {
       //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       //~ exit( EXIT_FAILURE );
@@ -130,17 +130,17 @@ class ae_codon
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-int8_t ae_codon::get_value( void )
+int8_t Codon::get_value( void )
 {
   return _value;
 }
 
-bool ae_codon::is_start( void )
+bool Codon::is_start( void )
 {
   return _value == CODON_START;
 }
 
-bool ae_codon::is_stop( void )
+bool Codon::is_stop( void )
 {
   return _value == CODON_STOP;
 }
@@ -148,9 +148,9 @@ bool ae_codon::is_stop( void )
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-ae_codon* ae_codon::copy( void )
+Codon *Codon::copy( void )
 {
-  return new ae_codon( _value );
+  return new Codon( _value );
 }
 
 } // namespace aevol

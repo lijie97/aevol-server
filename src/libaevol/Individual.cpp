@@ -25,7 +25,7 @@
 #include <cassert>
 #include <list>
 
-#include "ae_codon.h"
+#include "Codon.h"
 #include "ExpSetup.h"
 #include "ExpManager.h"
 #include "ae_grid_cell.h"

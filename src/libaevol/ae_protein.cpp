@@ -39,7 +39,7 @@
 // =================================================================
 #include "ae_protein.h"
 
-#include "ae_codon.h"
+#include "Codon.h"
 #include "Individual.h"
 #include "GeneticUnit.h"
 #include "ae_rna.h"
@@ -91,7 +91,7 @@ ae_protein::ae_protein( GeneticUnit* gen_unit, const ae_protein &model )
 }
 
 ae_protein::ae_protein(GeneticUnit* gen_unit,
-                       std::list<ae_codon*> codon_list,
+                       std::list<Codon *> codon_list,
                        ae_strand strand,
                        int32_t shine_dal_pos,
                        ae_rna* rna )
@@ -350,7 +350,7 @@ ae_protein::ae_protein( gzFile backup_file )
   gzread( backup_file, &nb_AA,  sizeof(nb_AA) );
 
   for (int16_t i = 0 ; i < nb_AA ; i++)
-    _AA_list.push_back(new ae_codon(backup_file));
+    _AA_list.push_back(new Codon(backup_file));
 
 }
 

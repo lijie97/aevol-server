@@ -37,7 +37,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_codon.h"
+#include "Codon.h"
 #include "ae_utils.h"
 
 namespace aevol {
@@ -46,7 +46,7 @@ namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                                Class ae_codon                               #
+//                                Class Codon                               #
 //                                                                             #
 //##############################################################################
 
@@ -57,22 +57,22 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_codon::ae_codon( void )
+Codon::Codon( void )
 {
   _value = -1;
 }
 
-ae_codon::ae_codon( const ae_codon &model )
+Codon::Codon( const Codon &model )
 {
   _value = model._value;
 }
 
-ae_codon::ae_codon( int8_t value )
+Codon::Codon( int8_t value )
 {
   _value = value;
 }
 
-ae_codon::ae_codon( ae_dna* dna, ae_strand strand, int32_t index )
+Codon::Codon( ae_dna* dna, ae_strand strand, int32_t index )
 {
   const char* gen = dna->get_data();
   int32_t     len = dna->get_length();
@@ -103,7 +103,7 @@ ae_codon::ae_codon( ae_dna* dna, ae_strand strand, int32_t index )
   }
 }
 
-ae_codon::ae_codon( gzFile backup_file )
+Codon::Codon( gzFile backup_file )
 {
   gzread( backup_file, &_value,   			sizeof(_value) );
 }
@@ -111,14 +111,14 @@ ae_codon::ae_codon( gzFile backup_file )
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_codon::~ae_codon( void )
+Codon::~Codon( void )
 {
 }
 
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_codon::save( gzFile backup_file )
+void Codon::save( gzFile backup_file )
 {
   gzwrite( backup_file, &_value,   			sizeof(_value) );
 }

@@ -38,7 +38,7 @@
 
 #include "ExpManager.h"
 #include "ExpSetup.h"
-#include "ae_codon.h"
+#include "Codon.h"
 #include "ae_mutation.h"
 #include "ae_enums.h"
 
@@ -1035,10 +1035,10 @@ void GeneticUnit::do_translation()
             // Build codon list and make new protein when stop found
             int32_t j = i + SHINE_DAL_SIZE + SHINE_START_SPACER + CODON_SIZE; // next codon to examine
 
-            std::list<ae_codon*> codon_list;
+            std::list<Codon *> codon_list;
 
             while (transcript_length - j >= CODON_SIZE) {
-              auto codon = new ae_codon(_dna,
+              auto codon = new Codon(_dna,
                                         strand,
                                         ae_utils::mod(transcript_start + (strand == LEADING ? j : -j),
                                                       genome_length));
