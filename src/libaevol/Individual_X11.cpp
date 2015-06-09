@@ -38,7 +38,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_individual_X11.h"
+#include "Individual_X11.h"
 
 #include "ExpManager.h"
 #include "ExpSetup.h"
@@ -48,7 +48,7 @@ namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                           Class ae_individual_X11                           #
+//                           Class Individual_X11                           #
 //                                                                             #
 //##############################################################################
 
@@ -59,20 +59,20 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_individual_X11::ae_individual_X11(ExpManager * exp_manager, gzFile backup_file) :
+Individual_X11::Individual_X11(ExpManager * exp_manager, gzFile backup_file) :
     Individual(exp_manager, backup_file)
 {
   init_occupied_sectors();
 }
 
-//ae_individual_X11::ae_individual_X11(const ae_individual_X11 &model,
+//Individual_X11::Individual_X11(const Individual_X11 &model,
 //                                     bool replication_report_copy) :
 //    Individual(model, replication_report_copy)
 //{
 //  init_occupied_sectors();
 //}
 
-ae_individual_X11::ae_individual_X11(ae_individual_X11* const parent,
+Individual_X11::Individual_X11(Individual_X11 * const parent,
                                      int32_t id,
                                      std::shared_ptr<ae_jumping_mt> mut_prng,
                                      std::shared_ptr<ae_jumping_mt> stoch_prng) :
@@ -81,7 +81,7 @@ ae_individual_X11::ae_individual_X11(ae_individual_X11* const parent,
   init_occupied_sectors();
 }
 
-/*ae_individual_X11::ae_individual_X11(char* genome, int32_t genome_size) : Individual(genome, genome_size)
+/*Individual_X11::Individual_X11(char* genome, int32_t genome_size) : Individual(genome, genome_size)
 {
   init_occupied_sectors();
 }*/
@@ -89,7 +89,7 @@ ae_individual_X11::ae_individual_X11(ae_individual_X11* const parent,
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_individual_X11::~ae_individual_X11(void)
+Individual_X11::~Individual_X11(void)
 {
   for (int16_t layer = 0 ; layer < _outmost_layer ; layer++)
   {
@@ -101,11 +101,11 @@ ae_individual_X11::~ae_individual_X11(void)
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_individual_X11::display(void)
+void Individual_X11::display(void)
 {
 }
 
-void ae_individual_X11::display_cdss(ae_X11_window* win)
+void Individual_X11::display_cdss(ae_X11_window* win)
 {
   // Retreive the genetic unit corresponding to the main chromosome
   GeneticUnit* gen_unit = &_genetic_unit_list.front();
@@ -542,7 +542,7 @@ void ae_individual_X11::display_cdss(ae_X11_window* win)
   }
 }
 
-void ae_individual_X11::display_rnas(ae_X11_window* win)
+void Individual_X11::display_rnas(ae_X11_window* win)
 {
   // Retreive the genetic unit corresponding to the main chromosome
   const GeneticUnit* gen_unit = &_genetic_unit_list.front();
@@ -792,7 +792,7 @@ void ae_individual_X11::display_rnas(ae_X11_window* win)
 // =================================================================
 //                           Protected Methods
 // =================================================================
-void ae_individual_X11::add_layer(void)
+void Individual_X11::add_layer(void)
 {
   _occupied_sectors[LEADING][_outmost_layer] = new bool[360];
   _occupied_sectors[LAGGING][_outmost_layer] = new bool[360];
@@ -806,7 +806,7 @@ void ae_individual_X11::add_layer(void)
   _outmost_layer++;
 }
 
-void ae_individual_X11::init_occupied_sectors(void)
+void Individual_X11::init_occupied_sectors(void)
 {
   _outmost_layer = 1;
 
@@ -817,7 +817,7 @@ void ae_individual_X11::init_occupied_sectors(void)
   }
 }
 
-void ae_individual_X11::reset_sectors(void)
+void Individual_X11::reset_sectors(void)
 {
   for (int16_t layer = 0 ; layer < _outmost_layer ; layer++)
   {

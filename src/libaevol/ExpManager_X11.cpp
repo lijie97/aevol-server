@@ -43,7 +43,7 @@
 #include "ExpManager_X11.h"
 #include "world.h"
 #include "point.h"
-#include "ae_individual_X11.h"
+#include "Individual_X11.h"
 #include "ae_X11_window.h"
 #include "Fuzzy.h"
 
@@ -804,7 +804,7 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
     {
       cur_win->blacken();
 
-      ae_individual_X11* indiv = dynamic_cast<ae_individual_X11*>(get_best_indiv());
+      Individual_X11 * indiv = dynamic_cast<Individual_X11 *>(get_best_indiv());
       indiv->display_cdss(cur_win);
     }
     break;
@@ -814,7 +814,7 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
     {
       cur_win->blacken();
 
-      ae_individual_X11* indiv = dynamic_cast<ae_individual_X11*>(get_best_indiv());
+      Individual_X11 * indiv = dynamic_cast<Individual_X11 *>(get_best_indiv());
       indiv->display_rnas(cur_win);
     }
     break;

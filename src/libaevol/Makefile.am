@@ -110,12 +110,12 @@ Time.cpp \
 world.cpp
 
 X11_headers = \
-ae_individual_X11.h \
+Individual_X11.h \
 ExpManager_X11.h \
 ae_X11_window.h
 
 X11_sources = \
-ae_individual_X11.cpp \
+Individual_X11.cpp \
 ExpManager_X11.cpp \
 ae_X11_window.cpp
 

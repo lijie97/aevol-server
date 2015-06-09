@@ -51,8 +51,8 @@ add_library(aevol
   ae_grid_cell.h
   Individual.cpp
   Individual.h
-  ae_individual_X11.cpp
-  ae_individual_X11.h
+  Individual_X11.cpp
+  Individual_X11.h
   IndividualFactory.cpp
   IndividualFactory.h
   ae_jumping_mt.cpp

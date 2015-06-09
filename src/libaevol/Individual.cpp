@@ -43,7 +43,7 @@
   #ifdef __REGUL
     #include "ae_individual_R_X11.h"
   #else
-    #include "ae_individual_X11.h"
+    #include "Individual_X11.h"
   #endif
 #endif
 namespace aevol {
@@ -492,7 +492,7 @@ Individual *Individual::CreateIndividual(ExpManager * exp_m,
     #endif
   #elif defined __X11
     #ifndef __REGUL
-      indiv = new ae_individual_X11(exp_m, backup_file);
+      indiv = new Individual_X11(exp_m, backup_file);
     #else
       indiv = new ae_individual_R_X11(exp_m, backup_file);
     #endif

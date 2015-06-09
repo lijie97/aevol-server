@@ -35,7 +35,7 @@
 #include <iostream>
 
 #include "Individual.h"
-#include "ae_individual_X11.h"
+#include "Individual_X11.h"
 
 
 using std::cout;

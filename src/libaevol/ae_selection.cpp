@@ -48,7 +48,7 @@
   #endif
 #elif defined __X11
   #ifndef __REGUL
-    #include "ae_individual_X11.h"
+    #include "Individual_X11.h"
   #else
     #include "ae_individual_R_X11.h"
   #endif
@@ -527,7 +527,7 @@ Individual * ae_selection::do_replication(Individual * parent, int32_t index, in
     #endif
   #elif defined __X11
     #ifndef __REGUL
-      new_indiv = new ae_individual_X11(dynamic_cast<ae_individual_X11*>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
+      new_indiv = new Individual_X11(dynamic_cast<Individual_X11 *>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
     #else
       new_indiv = new ae_individual_R_X11(dynamic_cast<ae_individual_R_X11*>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
     #endif

@@ -56,24 +56,24 @@ namespace aevol {
 
 
 
-class ae_individual_X11 : public virtual Individual
+class Individual_X11 : public virtual Individual
 {
   public :
 
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_individual_X11(ExpManager * exp_manager, gzFile backup_file);
-    ae_individual_X11(const ae_individual_X11 &model, bool replication_report_copy);
-    ae_individual_X11(ae_individual_X11* const parent, int32_t id,
+    Individual_X11(ExpManager * exp_manager, gzFile backup_file);
+    Individual_X11(const Individual_X11 &model, bool replication_report_copy);
+    Individual_X11(Individual_X11 * const parent, int32_t id,
                       std::shared_ptr<ae_jumping_mt> mut_prng,
                       std::shared_ptr<ae_jumping_mt> stoch_prng);
-    ae_individual_X11() = delete; // forbidden constructor
+    Individual_X11() = delete; // forbidden constructor
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_individual_X11(void);
+    virtual ~Individual_X11(void);
 
     // =================================================================
     //                              Accessors
