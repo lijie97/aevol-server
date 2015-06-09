@@ -111,12 +111,12 @@ world.cpp
 
 X11_headers = \
 ae_individual_X11.h \
-ae_exp_manager_X11.h \
+ExpManager_X11.h \
 ae_X11_window.h
 
 X11_sources = \
 ae_individual_X11.cpp \
-ae_exp_manager_X11.cpp \
+ExpManager_X11.cpp \
 ae_X11_window.cpp
 
 # The target_CPPFLAGS for each target may look useless, it is here to force automake to create

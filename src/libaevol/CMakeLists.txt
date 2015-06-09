@@ -32,8 +32,8 @@ add_library(aevol
   ae_env_segment.h
   ExpManager.cpp
   ExpManager.h
-  ae_exp_manager_X11.cpp
-  ae_exp_manager_X11.h
+  ExpManager_X11.cpp
+  ExpManager_X11.h
   ae_exp_setup.cpp
   ae_exp_setup.h
   ae_gaussian.h

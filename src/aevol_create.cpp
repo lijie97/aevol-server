@@ -39,7 +39,7 @@ const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 #include <getopt.h>
 
 #ifdef __X11
-  #include "ae_exp_manager_X11.h"
+  #include "ExpManager_X11.h"
 #else
   #include "ExpManager.h"
 #endif
@@ -217,7 +217,7 @@ int main(int argc, char* argv[])
   delete my_param_loader;
 
 
-  //~ ((ae_exp_manager_X11*)exp_manager)->toggle_display_on_off();
+  //~ ((ExpManager_X11*)exp_manager)->toggle_display_on_off();
   //~ exp_manager->display();
   //~ getchar();
 

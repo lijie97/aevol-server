@@ -109,7 +109,7 @@ enum key_map
 
 
  
-class ae_exp_manager_X11 : public ExpManager
+class ExpManager_X11 : public ExpManager
 {
   friend class ae_exp_setup;
   
@@ -118,12 +118,12 @@ class ae_exp_manager_X11 : public ExpManager
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_exp_manager_X11(void);
+    ExpManager_X11(void);
   
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_exp_manager_X11(void);
+    virtual ~ExpManager_X11(void);
   
     // =================================================================
     //                              Accessors
@@ -161,12 +161,12 @@ class ae_exp_manager_X11 : public ExpManager
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    //~ ae_exp_manager_X11(void)
+    //~ ExpManager_X11(void)
     //~ {
       //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       //~ exit( EXIT_FAILURE );
     //~ };
-    ae_exp_manager_X11( const ae_exp_manager_X11 &model )
+    ExpManager_X11( const ExpManager_X11 &model )
     {
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
@@ -207,41 +207,41 @@ class ae_exp_manager_X11 : public ExpManager
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-bool ae_exp_manager_X11::get_display_on(void)
+bool ExpManager_X11::get_display_on(void)
 {
   return _display_on;
 }
 
-Display * ae_exp_manager_X11::get_display(void)
+Display *ExpManager_X11::get_display(void)
 {
   return _display;
 }
 
 
-bool ae_exp_manager_X11::get_show_window( int8_t win )
+bool ExpManager_X11::get_show_window( int8_t win )
 {
   return ( (_show_window >> win) & 1 );
 }
 
-bool ae_exp_manager_X11::get_new_show_window( int8_t win )
+bool ExpManager_X11::get_new_show_window( int8_t win )
 {
   return ( (_new_show_window >> win) & 1 );
 }
 
 
-int8_t ae_exp_manager_X11::get_screen(void)
+int8_t ExpManager_X11::get_screen(void)
 {
   return _screen;
 }
 
 
-Atom* ae_exp_manager_X11::get_atoms(void)
+Atom*ExpManager_X11::get_atoms(void)
 {
   return _atoms;
 }
 
 
-ae_X11_window* ae_exp_manager_X11::get_window( int8_t win )
+ae_X11_window*ExpManager_X11::get_window( int8_t win )
 {
   return _win[win];
 }

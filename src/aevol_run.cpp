@@ -39,7 +39,7 @@
 //                            Project Files
 // =================================================================
 #ifdef __X11
-  #include "ae_exp_manager_X11.h"
+  #include "ExpManager_X11.h"
 #else
   #include "ExpManager.h"
 #endif
@@ -203,7 +203,7 @@ int main( int argc, char* argv[] )
   //                          Load the simulation
   // =================================================================
   #ifndef __NO_X
-    exp_manager = new ae_exp_manager_X11();
+    exp_manager = new ExpManager_X11();
   #else
     exp_manager = new ExpManager();
   #endif
@@ -219,7 +219,7 @@ int main( int argc, char* argv[] )
   #ifndef __NO_X
     if ( show_display_on_startup )
     {
-      ((ae_exp_manager_X11*) exp_manager)->toggle_display_on_off();
+      ((ExpManager_X11 *) exp_manager)->toggle_display_on_off();
     }
   #endif
   
@@ -243,7 +243,7 @@ void catch_usr1( int sig_num )
   printf( "display on/off\n" );
   if ( exp_manager != NULL )
   {
-    ((ae_exp_manager_X11*) exp_manager)->toggle_display_on_off();
+    ((ExpManager_X11 *) exp_manager)->toggle_display_on_off();
   }
 }
 #endif

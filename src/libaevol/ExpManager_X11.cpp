@@ -40,7 +40,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_exp_manager_X11.h"
+#include "ExpManager_X11.h"
 #include "world.h"
 #include "point.h"
 #include "ae_individual_X11.h"
@@ -59,7 +59,7 @@ static Bool AlwaysTruePredicate (Display*, XEvent*, char*) { return True; }
 
 //##############################################################################
 //                                                                             #
-//                          Class ae_exp_manager_X11                           #
+//                          Class ExpManager_X11                           #
 //                                                                             #
 //##############################################################################
 
@@ -71,7 +71,7 @@ static Bool AlwaysTruePredicate (Display*, XEvent*, char*) { return True; }
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_exp_manager_X11::ae_exp_manager_X11(void) : ExpManager()
+ExpManager_X11::ExpManager_X11(void) : ExpManager()
 {
   // Basic initializations
   _win      = NULL;
@@ -100,7 +100,7 @@ ae_exp_manager_X11::ae_exp_manager_X11(void) : ExpManager()
 // =================================================================
 //                             Destructor
 // =================================================================
-ae_exp_manager_X11::~ae_exp_manager_X11(void)
+ExpManager_X11::~ExpManager_X11(void)
 {
   delete [] _key_codes;
   delete [] _atoms;
@@ -135,12 +135,12 @@ ae_exp_manager_X11::~ae_exp_manager_X11(void)
 // =================================================================
 
 
-bool ae_exp_manager_X11::quit_signal_received(void)
+bool ExpManager_X11::quit_signal_received(void)
 {
   return _quit_signal_received;
 }
 
-void ae_exp_manager_X11::display(void)
+void ExpManager_X11::display(void)
 {
   // ---------------------
   // 1) Handle user events
@@ -238,7 +238,7 @@ void ae_exp_manager_X11::display(void)
   }
 }
 
-void ae_exp_manager_X11::handle_events(void)
+void ExpManager_X11::handle_events(void)
 {
   XEvent event;
   int8_t win_number;
@@ -398,7 +398,7 @@ void ae_exp_manager_X11::handle_events(void)
   }
 }
 
-void ae_exp_manager_X11::toggle_display_on_off(void)
+void ExpManager_X11::toggle_display_on_off(void)
 {
   // Mark action to be done
   _handle_display_on_off = true;
@@ -406,7 +406,7 @@ void ae_exp_manager_X11::toggle_display_on_off(void)
 
 
 
-void ae_exp_manager_X11::display(ae_X11_window* win,
+void ExpManager_X11::display(ae_X11_window* win,
     const Fuzzy& fuzzy,
     color_map color,
     bool fill /*= false*/,
@@ -445,7 +445,7 @@ void ae_exp_manager_X11::display(ae_X11_window* win,
 }
 
 // Display a grid of values
-void ae_exp_manager_X11::display_grid(ae_X11_window* win, double** cell_grid)
+void ExpManager_X11::display_grid(ae_X11_window* win, double** cell_grid)
 {
   // printf("display grid\n");
   char t[40];
@@ -521,7 +521,7 @@ void ae_exp_manager_X11::display_grid(ae_X11_window* win, double** cell_grid)
 // =================================================================
 //                           Protected Methods
 // =================================================================
-void ae_exp_manager_X11::initialize(bool with_grid /*= false*/, bool with_plasmids /*= false*/)
+void ExpManager_X11::initialize(bool with_grid /*= false*/, bool with_plasmids /*= false*/)
 {
   // Initialize window structures
   _win      = new ae_X11_window* [NB_WIN];
@@ -636,7 +636,7 @@ void ae_exp_manager_X11::initialize(bool with_grid /*= false*/, bool with_plasmi
   compute_colormap();
 }
 
-int8_t ae_exp_manager_X11::identify_window(Window winID)
+int8_t ExpManager_X11::identify_window(Window winID)
 {
   for (int8_t i = 0 ; i < NB_WIN ; i++)
   {
@@ -649,7 +649,7 @@ int8_t ae_exp_manager_X11::identify_window(Window winID)
   return -1;
 }
 
-void ae_exp_manager_X11::draw_window(int8_t win_number)
+void ExpManager_X11::draw_window(int8_t win_number)
 {
   if (_win[win_number] == NULL)
   {
@@ -718,7 +718,7 @@ void ae_exp_manager_X11::draw_window(int8_t win_number)
   XFlush(_display);
 }
 
-void ae_exp_manager_X11::refresh_window(int8_t win_number) {
+void ExpManager_X11::refresh_window(int8_t win_number) {
   if (_win[win_number] == NULL)
   {
     fprintf(stderr, "Error: cannot draw this window, it doesn't exist.\n");
@@ -854,7 +854,7 @@ void ae_exp_manager_X11::refresh_window(int8_t win_number) {
 
 
 
-void ae_exp_manager_X11::set_codes(void) {
+void ExpManager_X11::set_codes(void) {
   _key_codes = new KeyCode[50];
   assert(_key_codes);
 
@@ -909,7 +909,7 @@ void ae_exp_manager_X11::set_codes(void) {
 }
 
 
-void ae_exp_manager_X11::compute_colormap(void) {
+void ExpManager_X11::compute_colormap(void) {
   _col_map = {
     (char*)"RGBi:1.0/0.0/0.0",
     (char*)"RGBi:1.0/0.1/0.0",   
