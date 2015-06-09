@@ -21,7 +21,6 @@ include_directories(".")
 add_library(aevol
   Alignment.cpp
   Alignment.h
-  ae_array_short.h
   Codon.cpp
   Codon.h
   Dna.cpp

@@ -58,10 +58,6 @@
 #include "world.h"
 
 
-#ifdef __REGUL
-  #include "ae_array_short.h"
-#endif
-
 namespace aevol {
 
 // =================================================================
