@@ -119,8 +119,6 @@ class ae_exp_manager_X11 : public ae_exp_manager
     //                             Constructors
     // =================================================================
     ae_exp_manager_X11(void);
-    //~ ae_exp_manager_X11( ae_param_overloader* param_overloader = NULL );
-    //~ ae_exp_manager_X11( char* backup_file_name, bool to_be_run = true, ae_param_overloader* param_overloader = NULL );
   
     // =================================================================
     //                             Destructors

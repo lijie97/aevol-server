@@ -65,7 +65,7 @@ class ae_tree
     // =================================================================
     ae_tree(ae_exp_manager* exp_m, ae_tree_mode tree_mode, int64_t tree_step);
     // To be used when we want to run a simulation.
-    ae_tree(ae_exp_manager* exp_m, char* tree_file_name); 
+    ae_tree(ae_exp_manager* exp_m, char* tree_file_name);
     // To be used when we want to INSPECT a tree, 
     // not when we want to run a simulation.
     

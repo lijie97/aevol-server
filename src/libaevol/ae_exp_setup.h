@@ -48,7 +48,6 @@ namespace aevol {
 //                          Class declarations
 // ===========================================================================
 class ae_param_loader;
-class ae_param_overloader;
 
 
 
