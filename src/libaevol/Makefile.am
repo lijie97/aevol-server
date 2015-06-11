@@ -50,7 +50,7 @@ phenotypic_target_handler.h \
 point.h \
 Protein.h \
 JumpingMT.h \
-ae_jump_poly.h \
+JumpPoly.h \
 ae_replication_report.h \
 dna_replic_report.h \
 Rna.h \
