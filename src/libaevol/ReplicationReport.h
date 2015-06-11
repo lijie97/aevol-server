@@ -44,7 +44,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "dna_replic_report.h"
+#include "DnaReplicationReport.h"
 #include "ae_enums.h"
 
 namespace aevol {

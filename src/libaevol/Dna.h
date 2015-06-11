@@ -44,7 +44,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "dna_replic_report.h"
+#include "DnaReplicationReport.h"
 #include "ae_enums.h"
 #include "Mutation.h"
 #include "ae_string.h"

@@ -23,7 +23,7 @@
 #include <cstdlib>
 #include <cassert>
 
-#include "dna_replic_report.h"
+#include "DnaReplicationReport.h"
 #include "Mutation.h"
 
 namespace aevol {

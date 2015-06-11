@@ -37,7 +37,7 @@
 //                            Project Files
 // =================================================================
 #include "ReplicationReport.h"
-#include "dna_replic_report.h"
+#include "DnaReplicationReport.h"
 #include "Mutation.h"
 #include "Individual.h"
 
