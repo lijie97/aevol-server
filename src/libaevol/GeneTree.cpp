@@ -76,7 +76,7 @@ GeneTree::GeneTree( void )
 }
 
 // Creates a tree with just a root node.
-GeneTree::GeneTree( int32_t nodeCreationDate, Protein * protein, const ae_mutation* mut /* = NULL */ )
+GeneTree::GeneTree( int32_t nodeCreationDate, Protein * protein, const Mutation * mut /* = NULL */ )
 {
   _root = new GeneTreeNode(nodeCreationDate, protein);
   if (mut == NULL)  _creation_type = INITIALIZATION;
@@ -120,12 +120,12 @@ void GeneTree::update_pointers_in_tree_leaves(GeneticUnit * unit)
   _root->update_pointers_in_subtree_leaves(unit);
 }
 
-void GeneTree::anticipate_mutation_effect_on_genes_in_tree_leaves(const ae_mutation* mut, int32_t lengthOfGeneticUnit)
+void GeneTree::anticipate_mutation_effect_on_genes_in_tree_leaves(const Mutation * mut, int32_t lengthOfGeneticUnit)
 {
   _root->anticipate_mutation_effect_on_genes_in_subtree_leaves(mut, lengthOfGeneticUnit);
 }
 
-void GeneTree::register_actual_mutation_effect_on_genes_in_tree_leaves(const ae_mutation* mut, GeneticUnit * unit, int32_t gener, double impact_on_metabolic_error)
+void GeneTree::register_actual_mutation_effect_on_genes_in_tree_leaves(const Mutation * mut, GeneticUnit * unit, int32_t gener, double impact_on_metabolic_error)
 {
   _root->register_actual_mutation_effect_on_genes_in_subtree_leaves( this, mut, unit, gener, impact_on_metabolic_error);
 }

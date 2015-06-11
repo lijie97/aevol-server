@@ -39,7 +39,7 @@
 #include "ExpManager.h"
 #include "ExpSetup.h"
 #include "Codon.h"
-#include "ae_mutation.h"
+#include "Mutation.h"
 #include "ae_enums.h"
 
 #ifdef __REGUL
@@ -3210,7 +3210,7 @@ void GeneticUnit::double_non_coding_bases(void)
 
 // WARNING: This method works properly only in the case of a single genetic unit (no plasmid).
 // Translocations between different genetic units is not managed.
-  void GeneticUnit::compute_nb_of_affected_genes(const ae_mutation * mut, int & nb_genes_at_breakpoints, int & nb_genes_in_segment, int & nb_genes_in_replaced_segment)
+  void GeneticUnit::compute_nb_of_affected_genes(const Mutation * mut, int & nb_genes_at_breakpoints, int & nb_genes_in_segment, int & nb_genes_in_replaced_segment)
   {
     nb_genes_at_breakpoints = 0;
     nb_genes_in_segment = 0;

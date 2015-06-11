@@ -38,7 +38,7 @@
 // =================================================================
 #include "ae_replication_report.h"
 #include "dna_replic_report.h"
-#include "ae_mutation.h"
+#include "Mutation.h"
 #include "Individual.h"
 
 namespace aevol {
@@ -159,15 +159,15 @@ ae_replication_report::ae_replication_report(gzFile tree_file, Individual * indi
     
     gzread(tree_file, &nb_HT, sizeof(nb_HT));
     for (myevent  = 0 ; myevent < nb_HT ; myevent++)
-      dnareport->add_HT(std::move(ae_mutation(tree_file)));
+      dnareport->add_HT(std::move(Mutation(tree_file)));
 
     gzread(tree_file, &nb_rears, sizeof(nb_rears));
     for (myevent  = 0 ; myevent < nb_rears ; myevent++)
-      dnareport->add_rear(std::move(ae_mutation(tree_file)));
+      dnareport->add_rear(std::move(Mutation(tree_file)));
 
     gzread(tree_file, &nb_muts, sizeof(nb_muts));
     for(myevent  = 0 ; myevent < nb_muts ; myevent++)
-      dnareport->add_mut(std::move(ae_mutation(tree_file)));
+      dnareport->add_mut(std::move(Mutation(tree_file)));
 
     dnareport->compute_stats();
     _dna_replic_reports.push_back(dnareport);

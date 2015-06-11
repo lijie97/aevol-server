@@ -86,7 +86,7 @@ class GeneTree
     //                             Constructors
     // =================================================================
     GeneTree( void );
-    GeneTree( int32_t nodeCreationDate, Protein * protein, const ae_mutation* mut = NULL ); // Creates a tree with just a root node.
+    GeneTree( int32_t nodeCreationDate, Protein * protein, const Mutation * mut = NULL ); // Creates a tree with just a root node.
    
 
   
@@ -114,8 +114,8 @@ class GeneTree
 
     void set_end_gener_if_active_leaves(int32_t gener);
     void update_pointers_in_tree_leaves(GeneticUnit * unit);
-    void anticipate_mutation_effect_on_genes_in_tree_leaves(const ae_mutation* mut, int32_t lengthOfGeneticUnit);
-    void register_actual_mutation_effect_on_genes_in_tree_leaves(const ae_mutation* mut, GeneticUnit * unit, int32_t gener, double impact_on_metabolic_error);
+    void anticipate_mutation_effect_on_genes_in_tree_leaves(const Mutation * mut, int32_t lengthOfGeneticUnit);
+    void register_actual_mutation_effect_on_genes_in_tree_leaves(const Mutation * mut, GeneticUnit * unit, int32_t gener, double impact_on_metabolic_error);
 
     /* void duplicate_this_gene(GeneTreeNode * node, int32_t duplicDate, Protein * newProtein); */
     /* void report_gene_mutation(GeneTreeNode * node, GeneMutation * geneMut); */

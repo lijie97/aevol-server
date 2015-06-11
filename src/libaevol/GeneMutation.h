@@ -47,7 +47,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_mutation.h"
+#include "Mutation.h"
 #include "Rna.h"
 #include "ae_enums.h"
 
@@ -84,7 +84,7 @@ enum ae_gene_mutation_region
 
 
 
-class GeneMutation : public ae_mutation
+class GeneMutation : public Mutation
 {
   friend class GeneTreeNode;
   
@@ -96,7 +96,7 @@ class GeneMutation : public ae_mutation
   
   // Creates a copy of the mutation mut, but enriched with the generation when it occured
   // and the position where it occurred in the RNA, relative to the first bp of the promoter
-  GeneMutation(ae_mutation const & mut, int32_t gener, int32_t cdsPosBefore, ae_strand strandBefore, ae_gene_mutation_region region );
+  GeneMutation(Mutation const & mut, int32_t gener, int32_t cdsPosBefore, ae_strand strandBefore, ae_gene_mutation_region region );
   
   GeneMutation( const GeneMutation &model );
   
@@ -148,7 +148,7 @@ class GeneMutation : public ae_mutation
   //                          Protected Attributes
   // =================================================================
   
-  int32_t*  _position_relative_to_shine_dal; /* array of positions similar to the _pos array of the ae_mutation class (size 1 for the switch, 2 for an inversion, etc.) */
+  int32_t*  _position_relative_to_shine_dal; /* array of positions similar to the _pos array of the Mutation class (size 1 for the switch, 2 for an inversion, etc.) */
   int32_t   _generation;
   double    _impact_on_metabolic_error;
   ae_gene_mutation_region _region;

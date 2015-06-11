@@ -83,21 +83,21 @@ enum MutationType
 // enum composite_mutation_type {
 // };
 
-class ae_mutation
+class Mutation
 {
   public :
 
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_mutation( void );
-    ae_mutation( const ae_mutation &model );
-    ae_mutation( gzFile backup_file );
+    Mutation( void );
+    Mutation( const Mutation &model );
+    Mutation( gzFile backup_file );
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_mutation( void );
+    virtual ~Mutation( void );
 
     // =================================================================
     //                        Accessors: Getters
@@ -161,7 +161,7 @@ class ae_mutation
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    //~ ae_mutation( void )
+    //~ Mutation( void )
     //~ {
       //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       //~ exit( EXIT_FAILURE );
@@ -189,12 +189,12 @@ class ae_mutation
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-MutationType ae_mutation::get_mut_type( void ) const
+MutationType Mutation::get_mut_type( void ) const
 {
   return _mut_type;
 }
 
-inline int32_t ae_mutation::get_length( void ) const
+inline int32_t Mutation::get_length( void ) const
 {
   return _length[0];
 }

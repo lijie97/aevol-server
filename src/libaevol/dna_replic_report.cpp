@@ -24,7 +24,7 @@
 #include <cassert>
 
 #include "dna_replic_report.h"
-#include "ae_mutation.h"
+#include "Mutation.h"
 
 namespace aevol {
 
@@ -55,32 +55,32 @@ int32_t DnaReplicReport::get_nb(MutationType t)  const {
   };
 }
 
-void DnaReplicReport::add_mut(const ae_mutation& mut) {
+void DnaReplicReport::add_mut(const Mutation & mut) {
   mutations_.push_back(mut);
   _nb_mut[mut.get_mut_type()]++;
 }
 
-void DnaReplicReport::add_mut(ae_mutation&& mut) {
+void DnaReplicReport::add_mut(Mutation && mut) {
   mutations_.emplace_back(mut);
   _nb_mut[mut.get_mut_type()]++;
 }
 
-void DnaReplicReport::add_rear(ae_mutation&& rear) {
+void DnaReplicReport::add_rear(Mutation && rear) {
   rearrangements_.emplace_back(rear);
   _nb_mut[rear.get_mut_type()]++;
 }
 
-void DnaReplicReport::add_rear(const ae_mutation& rear) {
+void DnaReplicReport::add_rear(const Mutation & rear) {
   rearrangements_.push_back(rear);
   _nb_mut[rear.get_mut_type()]++;
 }
 
-void DnaReplicReport::add_HT(ae_mutation&& HT) {
+void DnaReplicReport::add_HT(Mutation && HT) {
   ht_.emplace_back(HT);
   _nb_mut[HT.get_mut_type()]++;
 }
 
-void DnaReplicReport::add_HT(const ae_mutation& HT) {
+void DnaReplicReport::add_HT(const Mutation & HT) {
   ht_.push_back(HT);
   _nb_mut[HT.get_mut_type()]++;
 }

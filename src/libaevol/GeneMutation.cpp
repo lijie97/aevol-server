@@ -40,7 +40,7 @@
 //                            Project Files
 // =================================================================
 
-#include "ae_mutation.h"
+#include "Mutation.h"
 #include "GeneMutation.h"
 #include "Rna.h"
 #include "macros.h"
@@ -68,7 +68,7 @@ namespace aevol {
 
 // Creates a copy of the mutation mut, but enriched with the generation when it occured
 // and the position where it occurred in the RNA, relative to the first bp of the promoter
-GeneMutation::GeneMutation(ae_mutation const & mut, int32_t gener, int32_t cdsPosBefore, ae_strand strandBefore, ae_gene_mutation_region region  ) : ae_mutation(mut)
+GeneMutation::GeneMutation(Mutation const & mut, int32_t gener, int32_t cdsPosBefore, ae_strand strandBefore, ae_gene_mutation_region region  ) : Mutation(mut)
 {
   _generation = gener;
   _impact_on_metabolic_error = 0.0; /* should be set to its real value when known */
@@ -175,7 +175,7 @@ GeneMutation::GeneMutation(ae_mutation const & mut, int32_t gener, int32_t cdsPo
 
 GeneMutation::~GeneMutation()
 {
-  /* ae_mutation::~ae_mutation() will be called automatically by the compiler for the other attributes */
+  /* Mutation::Mutationwill be called automatically by the compiler for the other attributes */
   switch ( _mut_type )
   {
   case SWITCH :

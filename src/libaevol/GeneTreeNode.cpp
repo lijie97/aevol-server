@@ -448,7 +448,7 @@ void GeneTreeNode::update_pointers_in_subtree_leaves(GeneticUnit * unit)
   }
 }
 
-void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const ae_mutation* mut, int32_t lengthOfGeneticUnit)
+void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const Mutation * mut, int32_t lengthOfGeneticUnit)
 {
   if ((_left_child != NULL) || (_right_child != NULL)) // I am a internal node
     {
@@ -939,7 +939,7 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const a
 
 
 void GeneTreeNode::register_actual_mutation_effect_on_genes_in_subtree_leaves(
-    GeneTree * tree, const ae_mutation* mut, GeneticUnit* unit, int32_t gener, double impact_on_metabolic_error)
+    GeneTree * tree, const Mutation * mut, GeneticUnit* unit, int32_t gener, double impact_on_metabolic_error)
 {
   if ((_left_child != NULL) || (_right_child != NULL)) // I am a internal node, just delegate work to others
     {

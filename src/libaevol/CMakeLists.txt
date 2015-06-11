@@ -59,8 +59,8 @@ add_library(aevol
   JumpPoly.h
   Logging.cpp
   Logging.h
-  ae_mutation.cpp
-  ae_mutation.h
+  Mutation.cpp
+  Mutation.h
   ae_output_manager.cpp
   ae_output_manager.h
   ae_params_mut.cpp

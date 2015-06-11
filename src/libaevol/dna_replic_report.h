@@ -23,7 +23,7 @@
 
 #include <list>
 
-#include "ae_mutation.h"
+#include "Mutation.h"
 
 namespace aevol {
 
@@ -36,25 +36,25 @@ class DnaReplicReport {
   // Constructor, copy contructor and destructor are synthesized by compiler.
 
   // Accessors
-  const std::list<ae_mutation> get_mutations()      const { return mutations_; };
-  const std::list<ae_mutation> get_rearrangements() const { return rearrangements_; };
-  const std::list<ae_mutation> get_HT()             const { return ht_; };
+  const std::list<Mutation> get_mutations()      const { return mutations_; };
+  const std::list<Mutation> get_rearrangements() const { return rearrangements_; };
+  const std::list<Mutation> get_HT()             const { return ht_; };
   int32_t get_nb(MutationType t) const;
 
   // Public Methods
   void compute_stats();  // useful when we inspect a tree file
-  void add_rear(const ae_mutation& rear);
-  void add_rear(ae_mutation&& rear);
-  void add_mut(const ae_mutation& mut);
-  void add_mut(ae_mutation&& mut);
-  void add_HT(const ae_mutation& HT);
-  void add_HT(ae_mutation&& HT);
+  void add_rear(const Mutation & rear);
+  void add_rear(Mutation && rear);
+  void add_mut(const Mutation & mut);
+  void add_mut(Mutation && mut);
+  void add_HT(const Mutation & HT);
+  void add_HT(Mutation && HT);
 
 
  protected :
-  std::list<ae_mutation> mutations_;       // Lists of mutations, rearrangements and undergone
-  std::list<ae_mutation> rearrangements_;  // by the genetic unit at last replication
-  std::list<ae_mutation> ht_;
+  std::list<Mutation> mutations_;       // Lists of mutations, rearrangements and undergone
+  std::list<Mutation> rearrangements_;  // by the genetic unit at last replication
+  std::list<Mutation> ht_;
   int32_t _nb_mut[10]; // Number of mutations/rearrangements/HT of each (simple) type undergone
 };
 

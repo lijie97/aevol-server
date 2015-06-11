@@ -41,7 +41,7 @@ Individual.h \
 IndividualFactory.h \
 Logging.h \
 macros.h \
-ae_mutation.h \
+Mutation.h \
 ae_output_manager.h \
 ae_params_mut.h \
 phenotype.h \
@@ -82,7 +82,7 @@ GridCell.cpp \
 Individual.cpp \
 IndividualFactory.cpp \
 Logging.cpp \
-ae_mutation.cpp \
+Mutation.cpp \
 ae_output_manager.cpp \
 ae_params_mut.cpp \
 phenotypic_target.cpp \

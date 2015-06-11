@@ -158,7 +158,7 @@ Individual * IndividualFactory::create_random_individual(
 
 
     // Insert the sequence at random positions
-    ae_mutation* mut1 = NULL;
+    Mutation* mut1 = NULL;
     for (int16_t i = 0 ; i < nb_insert ; i++)
     {
       mut1 = indiv->get_genetic_unit(0)->get_dna()->do_insertion(ins_seq, seq_len);
