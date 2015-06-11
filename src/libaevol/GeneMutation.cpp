@@ -41,7 +41,7 @@
 // =================================================================
 
 #include "ae_mutation.h"
-#include "ae_gene_mutation.h"
+#include "GeneMutation.h"
 #include "Rna.h"
 #include "macros.h"
 
@@ -49,7 +49,7 @@ namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                        Class ae_gene_mutation                               #
+//                        Class GeneMutation                               #
 //                                                                             #
 //##############################################################################
 
@@ -68,7 +68,7 @@ namespace aevol {
 
 // Creates a copy of the mutation mut, but enriched with the generation when it occured
 // and the position where it occurred in the RNA, relative to the first bp of the promoter
-ae_gene_mutation::ae_gene_mutation(ae_mutation const & mut, int32_t gener, int32_t cdsPosBefore, ae_strand strandBefore, ae_gene_mutation_region region  ) : ae_mutation(mut)
+GeneMutation::GeneMutation(ae_mutation const & mut, int32_t gener, int32_t cdsPosBefore, ae_strand strandBefore, ae_gene_mutation_region region  ) : ae_mutation(mut)
 {
   _generation = gener;
   _impact_on_metabolic_error = 0.0; /* should be set to its real value when known */
@@ -173,7 +173,7 @@ ae_gene_mutation::ae_gene_mutation(ae_mutation const & mut, int32_t gener, int32
 //                             Destructors
 // =================================================================
 
-ae_gene_mutation::~ae_gene_mutation()
+GeneMutation::~GeneMutation()
 {
   /* ae_mutation::~ae_mutation() will be called automatically by the compiler for the other attributes */
   switch ( _mut_type )
@@ -218,7 +218,7 @@ ae_gene_mutation::~ae_gene_mutation()
 // =================================================================
 
 // 0 if local mut, 1 if rearrangement, 2 if transfer
-int8_t ae_gene_mutation::type_of_event()
+int8_t GeneMutation::type_of_event()
 {
   if ((_mut_type == SWITCH) || (_mut_type == S_INS) || (_mut_type == S_DEL)) return 0;
   else if ((_mut_type == DUPL) || (_mut_type == DEL) || (_mut_type == TRANS) || (_mut_type == INV)) return 1;
@@ -230,7 +230,7 @@ int8_t ae_gene_mutation::type_of_event()
 
 
 // str must be at least of size 60
-void ae_gene_mutation::get_description_string_for_gene_mut(char * str)
+void GeneMutation::get_description_string_for_gene_mut(char * str)
 { 
    switch ( _mut_type )
   {

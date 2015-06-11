@@ -161,7 +161,7 @@ void ae_gene_tree::register_actual_mutation_effect_on_genes_in_tree_leaves(const
 // }
 
 
-// void ae_gene_tree::report_gene_mutation( ae_gene_tree_node * node, ae_gene_mutation * geneMut)
+// void ae_gene_tree::report_gene_mutation( ae_gene_tree_node * node, GeneMutation * geneMut)
 // {
 //   node->_mutation_list->add(geneMut);
 //   if (geneMut->get_generation() > _end_gener) _end_gener = geneMut->get_generation();

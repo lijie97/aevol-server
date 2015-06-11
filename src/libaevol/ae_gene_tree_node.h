@@ -54,7 +54,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "Rna.h"
-#include "ae_gene_mutation.h"
+#include "GeneMutation.h"
 #include "ae_gene_tree.h"
 
 namespace aevol {
@@ -131,7 +131,7 @@ class ae_gene_tree_node
                                               // for an internal node (ancestral state of a gene), points to NULL
                                               Rna **           _rna_pointers;         // for a leaf (current state of a gene), points to the RNA object
                                               // for an internal node (ancestral state of a gene), points to NULL
-    std::list<ae_gene_mutation*> mutation_list;       // list of ae_gene_mutations since the creation date of the node, i.e. since the last duplication
+    std::list<GeneMutation *> mutation_list;       // list of ae_gene_mutations since the creation date of the node, i.e. since the last duplication
 
 
     ae_gene_tree_node * _left_child;    // NULL until the gene is duplicated, then points to the copy lying on the original DNA segment 

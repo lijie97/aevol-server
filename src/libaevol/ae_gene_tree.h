@@ -118,7 +118,7 @@ class ae_gene_tree
     void register_actual_mutation_effect_on_genes_in_tree_leaves(const ae_mutation* mut, GeneticUnit * unit, int32_t gener, double impact_on_metabolic_error);
 
     /* void duplicate_this_gene(ae_gene_tree_node * node, int32_t duplicDate, Protein * newProtein); */
-    /* void report_gene_mutation(ae_gene_tree_node * node, ae_gene_mutation * geneMut); */
+    /* void report_gene_mutation(ae_gene_tree_node * node, GeneMutation * geneMut); */
     /* void report_gene_loss(ae_gene_tree_node * node, int32_t geneLossDate, ae_gene_loss_type geneLossType); */
 
     ae_gene_tree_node * search_in_leaves(const Protein * protein); // Returns NULL if not found

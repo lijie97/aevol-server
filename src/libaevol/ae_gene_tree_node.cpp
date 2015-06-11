@@ -41,7 +41,7 @@
 //                            Project Files
 // =================================================================
 #include "ae_gene_tree_node.h"
-#include "ae_gene_mutation.h"
+#include "GeneMutation.h"
 #include "GeneticUnit.h"
 
 
@@ -112,7 +112,7 @@ ae_gene_tree_node::~ae_gene_tree_node( void )
   if (_right_child != NULL) delete _right_child;
   if (_promoter_positions != NULL) delete [] _promoter_positions;
   if (_rna_pointers != NULL) delete [] _rna_pointers;
-  std::for_each(mutation_list.begin(), mutation_list.end(), std::default_delete<ae_gene_mutation>());
+  std::for_each(mutation_list.begin(), mutation_list.end(), std::default_delete<GeneMutation>());
 }
 
 
@@ -954,11 +954,11 @@ void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leav
           return;
         }
 
-      ae_gene_mutation * genemut = NULL;
+      GeneMutation * genemut = NULL;
 
       if (_cds_completely_deleted)
         {
-          genemut = new ae_gene_mutation(*mut, gener, _shine_dal_position, _strand, CDS);
+          genemut = new GeneMutation(*mut, gener, _shine_dal_position, _strand, CDS);
           genemut->set_impact_on_metabolic_error(impact_on_metabolic_error);
           mutation_list.push_back(genemut);
           if (gener > tree->_end_gener) tree->_end_gener = gener;
@@ -1017,9 +1017,9 @@ void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leav
       if (_cds_possibly_modified || _proms_possibly_modified)
         {
           /* Record the impact of the mutation on the metabolic error */
-          if      ((_cds_possibly_modified) && (_proms_possibly_modified))   genemut = new ae_gene_mutation(*mut, gener, _shine_dal_position, _strand, BOTH);
-          else if ((_cds_possibly_modified) && (!_proms_possibly_modified))  genemut = new ae_gene_mutation(*mut, gener, _shine_dal_position, _strand, CDS);
-          else if ((!_cds_possibly_modified) && (_proms_possibly_modified))  genemut = new ae_gene_mutation(*mut, gener, _shine_dal_position, _strand, UPSTREAM);
+          if      ((_cds_possibly_modified) && (_proms_possibly_modified))   genemut = new GeneMutation(*mut, gener, _shine_dal_position, _strand, BOTH);
+          else if ((_cds_possibly_modified) && (!_proms_possibly_modified))  genemut = new GeneMutation(*mut, gener, _shine_dal_position, _strand, CDS);
+          else if ((!_cds_possibly_modified) && (_proms_possibly_modified))  genemut = new GeneMutation(*mut, gener, _shine_dal_position, _strand, UPSTREAM);
           genemut->set_impact_on_metabolic_error(impact_on_metabolic_error);
           mutation_list.push_back(genemut);
           if (gener > tree->_end_gener) tree->_end_gener = gener;

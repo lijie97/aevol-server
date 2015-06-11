@@ -24,7 +24,7 @@
 //*****************************************************************************
 
 
-/*! \class ae_gene_mutation
+/*! \class GeneMutation
     \brief Currently used only by post-treatments, on a specific lineage, to monitor the fate of paralogs.
          Each paralog maintains a list of the mutations it underwent. A gene mutation is a mutation, but
          enriched with the generation when it occurred and the position where it occurred in the coding RNA
@@ -84,7 +84,7 @@ enum ae_gene_mutation_region
 
 
 
-class ae_gene_mutation : public ae_mutation
+class GeneMutation : public ae_mutation
 {
   friend class ae_gene_tree_node;
   
@@ -96,15 +96,15 @@ class ae_gene_mutation : public ae_mutation
   
   // Creates a copy of the mutation mut, but enriched with the generation when it occured
   // and the position where it occurred in the RNA, relative to the first bp of the promoter
-  ae_gene_mutation(ae_mutation const & mut, int32_t gener, int32_t cdsPosBefore, ae_strand strandBefore, ae_gene_mutation_region region );
+  GeneMutation(ae_mutation const & mut, int32_t gener, int32_t cdsPosBefore, ae_strand strandBefore, ae_gene_mutation_region region );
   
-  ae_gene_mutation( const ae_gene_mutation &model );
+  GeneMutation( const GeneMutation &model );
   
   // =================================================================
   //                             Destructors
   // =================================================================
   
-  virtual ~ae_gene_mutation();
+  virtual ~GeneMutation();
   
   // =================================================================
   //                              Accessors
@@ -129,12 +129,12 @@ class ae_gene_mutation : public ae_mutation
   //                         Forbidden Constructors
   // =================================================================
   
-  ae_gene_mutation( void )
+  GeneMutation( void )
     {
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
     };
-  /* ae_gene_mutation( const ae_gene_mutation &model ) */
+  /* GeneMutation( const GeneMutation &model ) */
   /*   { */
   /*     printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ ); */
   /*     exit( EXIT_FAILURE ); */
@@ -163,25 +163,25 @@ class ae_gene_mutation : public ae_mutation
 //                         Inline Accessors' definitions
 // =====================================================================
 
-inline int32_t ae_gene_mutation::get_generation() const
+inline int32_t GeneMutation::get_generation() const
 {
   return _generation;
 }
 
-inline double ae_gene_mutation::get_impact_on_metabolic_error() const
+inline double GeneMutation::get_impact_on_metabolic_error() const
 {
   return _impact_on_metabolic_error;
 
 }
 
 
-inline void ae_gene_mutation::set_impact_on_metabolic_error(double impact)
+inline void GeneMutation::set_impact_on_metabolic_error(double impact)
 {
   _impact_on_metabolic_error = impact;
 }
 
 
-inline ae_gene_mutation_region ae_gene_mutation::get_region()
+inline ae_gene_mutation_region GeneMutation::get_region()
 {
   return _region;
 }
