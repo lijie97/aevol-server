@@ -37,7 +37,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_stat_record.h"
+#include "StatRecord.h"
 
 #include "ExpManager.h"
 #include "ExpSetup.h"
@@ -56,7 +56,7 @@ namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                             Class ae_stat_record                            #
+//                             Class StatRecord                            #
 //                                                                             #
 //##############################################################################
 
@@ -67,13 +67,13 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_stat_record::ae_stat_record(ExpManager * exp_m)
+StatRecord::StatRecord(ExpManager * exp_m)
 {
   _exp_m = exp_m;
   initialize_data();
 }
 
-ae_stat_record::ae_stat_record(const ae_stat_record &model)
+StatRecord::StatRecord(const StatRecord &model)
 {
   _exp_m = model._exp_m;
   
@@ -136,7 +136,7 @@ ae_stat_record::ae_stat_record(const ae_stat_record &model)
   #endif
 }
 
-ae_stat_record::ae_stat_record(ExpManager * exp_m,
+StatRecord::StatRecord(ExpManager * exp_m,
                                Individual * indiv,
                                chrom_or_gen_unit chrom_or_gu,
                                bool compute_non_coding)
@@ -346,7 +346,7 @@ ae_stat_record::ae_stat_record(ExpManager * exp_m,
   // WARNING (TODO) As it is coded, this will work only if there is ONE SINGLE PLASMID!
   {
     if (chrom_or_gu != PLASMIDS and chrom_or_gu != CHROM) {
-      printf("%s: error: ae_stat_record called with inappropriate `chrom_or_gu`\n", __FILE__);
+      printf("%s: error: StatRecord called with inappropriate `chrom_or_gu`\n", __FILE__);
       exit(EXIT_FAILURE);
     }
 
@@ -440,7 +440,7 @@ ae_stat_record::ae_stat_record(ExpManager * exp_m,
 }
 
 // Calculate average statistics for all the recorded values 
-ae_stat_record::ae_stat_record(ExpManager * exp_m,
+StatRecord::StatRecord(ExpManager * exp_m,
                                const list<Individual *> indivs,
                                chrom_or_gen_unit chrom_or_gu)
 {
@@ -459,7 +459,7 @@ ae_stat_record::ae_stat_record(ExpManager * exp_m,
   // ------------------------------------------------------------------
   for (const auto& indiv: indivs)
   {
-    ae_stat_record* indiv_stat_record = new ae_stat_record(_exp_m, indiv, chrom_or_gu, false);
+    StatRecord * indiv_stat_record = new StatRecord(_exp_m, indiv, chrom_or_gu, false);
     this->add(indiv_stat_record, indiv->get_id());
     delete indiv_stat_record;
   }
@@ -472,9 +472,9 @@ ae_stat_record::ae_stat_record(ExpManager * exp_m,
 }
 
 // Calculate standard deviation for all the recorded values 
-ae_stat_record::ae_stat_record(ExpManager * exp_m,
+StatRecord::StatRecord(ExpManager * exp_m,
                                const list<Individual *> indivs,
-                               const ae_stat_record* means,
+                               const StatRecord * means,
                                chrom_or_gen_unit chrom_or_gu)
 {
   _exp_m = exp_m;
@@ -491,7 +491,7 @@ ae_stat_record::ae_stat_record(ExpManager * exp_m,
   // Compute statistical data for the each individual in the population
   // ------------------------------------------------------------------
   for (const auto& indiv : indivs) {
-    ae_stat_record* indiv_stat_record = new ae_stat_record(_exp_m, indiv, chrom_or_gu, false);
+    StatRecord * indiv_stat_record = new StatRecord(_exp_m, indiv, chrom_or_gu, false);
     this->substract_power(means, indiv_stat_record, 2);
     delete indiv_stat_record;
   }
@@ -503,10 +503,10 @@ ae_stat_record::ae_stat_record(ExpManager * exp_m,
 }
 
  // Calculate skewness for all the recorded values 
-ae_stat_record::ae_stat_record(ExpManager * exp_m,
+StatRecord::StatRecord(ExpManager * exp_m,
                                const list<Individual *> indivs,
-                               const ae_stat_record* means,
-                               const ae_stat_record* stdevs,
+                               const StatRecord * means,
+                               const StatRecord * stdevs,
                                chrom_or_gen_unit chrom_or_gu)
 {
   _exp_m = exp_m;
@@ -524,7 +524,7 @@ ae_stat_record::ae_stat_record(ExpManager * exp_m,
   // ------------------------------------------------------------------
   for (const auto& indiv : indivs)
   {
-    ae_stat_record* indiv_stat_record = new ae_stat_record(_exp_m, indiv, chrom_or_gu, false);
+    StatRecord * indiv_stat_record = new StatRecord(_exp_m, indiv, chrom_or_gu, false);
     this->substract_power(means, indiv_stat_record, 3);
     delete indiv_stat_record;
   }
@@ -537,14 +537,14 @@ ae_stat_record::ae_stat_record(ExpManager * exp_m,
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_stat_record::~ae_stat_record(void)
+StatRecord::~StatRecord(void)
 {
 }
 
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_stat_record::initialize_data(void)
+void StatRecord::initialize_data(void)
 {
   _pop_size  = 0.0;
   
@@ -605,7 +605,7 @@ void ae_stat_record::initialize_data(void)
   #endif
 }
 
-void ae_stat_record::write_to_file(FILE* stat_file, stats_type stat_type_to_print) const
+void StatRecord::write_to_file(FILE* stat_file, stats_type stat_type_to_print) const
 {
   if (_record_type == INDIV)
   {
@@ -780,7 +780,7 @@ void ae_stat_record::write_to_file(FILE* stat_file, stats_type stat_type_to_prin
   fprintf(stat_file, "\n");
 }
 
-void ae_stat_record::divide(double divisor)
+void StatRecord::divide(double divisor)
 {
   // NB : pop_size is a "global" value and must not be divided.
   
@@ -845,7 +845,7 @@ void ae_stat_record::divide(double divisor)
 }
 
 
-void ae_stat_record::divide_record(ae_stat_record const * to_divide, double power)
+void StatRecord::divide_record(StatRecord const * to_divide, double power)
 {
   // NB : pop_size is a "global" value and must not be divided.
   
@@ -906,7 +906,7 @@ void ae_stat_record::divide_record(ae_stat_record const * to_divide, double powe
   #endif
 }
 
-void ae_stat_record::add(ae_stat_record* to_add, int32_t index)
+void StatRecord::add(StatRecord * to_add, int32_t index)
 {
   // NB : pop_size is a global values and must not be summed.
   
@@ -968,8 +968,8 @@ void ae_stat_record::add(ae_stat_record* to_add, int32_t index)
   #endif
 }
 
-void ae_stat_record::substract_power(const ae_stat_record* means,
-                                     const ae_stat_record* to_substract,
+void StatRecord::substract_power(const StatRecord * means,
+                                     const StatRecord * to_substract,
                                      double power)
 {
   // NB : pop_size is a "global" value and must not be summed.

@@ -55,7 +55,7 @@ ReplicationReport.h \
 DnaReplicationReport.h \
 Rna.h \
 ae_stats.h \
-ae_stat_record.h \
+StatRecord.h \
 ae_string.h \
 ae_tree.h \
 ae_utils.h \
@@ -94,7 +94,7 @@ ReplicationReport.cpp \
 DnaReplicationReport.cpp \
 Rna.cpp \
 ae_stats.cpp \
-ae_stat_record.cpp \
+StatRecord.cpp \
 ae_string.cpp \
 ae_tree.cpp \
 ae_vis_a_vis.cpp \

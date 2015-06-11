@@ -98,7 +98,7 @@ enum stats_type
 
 
 
-class ae_stat_record
+class StatRecord
 {
   friend class ae_stats;
   public :
@@ -106,30 +106,30 @@ class ae_stat_record
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_stat_record(void) = delete;
-    ae_stat_record(ExpManager * exp_m);
-    ae_stat_record(const ae_stat_record &model);
-    ae_stat_record(ExpManager * exp_m,
+    StatRecord(void) = delete;
+    StatRecord(ExpManager * exp_m);
+    StatRecord(const StatRecord &model);
+    StatRecord(ExpManager * exp_m,
                    Individual * indiv,
                    chrom_or_gen_unit chrom_or_gu = CHROM,
                    bool compute_non_coding = true);
-    ae_stat_record(ExpManager * exp_m,
+    StatRecord(ExpManager * exp_m,
                    const std::list<Individual *> indivs,
                    chrom_or_gen_unit chrom_or_gu = CHROM);
-    ae_stat_record(ExpManager * exp_m,
+    StatRecord(ExpManager * exp_m,
                    const std::list<Individual *> indivs,
-                   const ae_stat_record* means,
+                   const StatRecord * means,
                    chrom_or_gen_unit chrom_or_gu = CHROM);
-    ae_stat_record(ExpManager * exp_m,
+    StatRecord(ExpManager * exp_m,
                    const std::list<Individual *> indivs,
-                   const ae_stat_record* means,
-                   const ae_stat_record* stdevs,
+                   const StatRecord * means,
+                   const StatRecord * stdevs,
                    chrom_or_gen_unit chrom_or_gu = CHROM);
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_stat_record(void);
+    virtual ~StatRecord(void);
 
     // =================================================================
     //                              Accessors
@@ -142,10 +142,10 @@ class ae_stat_record
     void write_to_file( FILE* stat_file, stats_type stat_type_to_print ) const;
     
     void divide( double divisor );
-    void divide_record( ae_stat_record const * means, double power );
+    void divide_record( StatRecord const * means, double power );
 
-    void add( ae_stat_record* to_add, int32_t index );
-    void substract_power( ae_stat_record const * means, ae_stat_record const * to_substract, double power );
+    void add( StatRecord * to_add, int32_t index );
+    void substract_power( StatRecord const * means, StatRecord const * to_substract, double power );
     
     // =================================================================
     //                           Public Attributes
