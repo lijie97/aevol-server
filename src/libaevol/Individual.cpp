@@ -57,7 +57,7 @@ namespace aevol {
 Individual::Individual(ExpManager * exp_m,
                              std::shared_ptr<JumpingMT> mut_prng,
                              std::shared_ptr<JumpingMT> stoch_prng,
-                             std::shared_ptr<ae_params_mut> param_mut,
+                             std::shared_ptr<MutationParams> param_mut,
                              double w_max,
                              int32_t min_genome_length,
                              int32_t max_genome_length,
@@ -198,7 +198,7 @@ Individual::Individual(ExpManager * exp_m, gzFile backup_file)
   gzread(backup_file, _double_probes,  5 * sizeof(*_double_probes));
 
   // Retrieve mutational parameters
-  _mut_params = std::make_shared<ae_params_mut>(backup_file);
+  _mut_params = std::make_shared<MutationParams>(backup_file);
 
   // ------------------------------------------------- Phenotypic stochasticity
   gzread(backup_file, &_with_stochasticity, sizeof(_with_stochasticity));
@@ -368,7 +368,7 @@ Individual::Individual(const Individual & model,
   }
 
   // Mutation rates etc...
-  _mut_params = std::make_shared<ae_params_mut>(*(model._mut_params));
+  _mut_params = std::make_shared<MutationParams>(*(model._mut_params));
 
 
   // Genome size constraints
@@ -466,7 +466,7 @@ Individual::Individual(const Individual * parent, int32_t id,
   }
 
   // Mutation rates etc...
-  _mut_params = std::make_shared<ae_params_mut>(*(parent->_mut_params));
+  _mut_params = std::make_shared<MutationParams>(*(parent->_mut_params));
 
   // Genome size constraints
   _min_genome_length = parent->_min_genome_length;

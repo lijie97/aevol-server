@@ -53,7 +53,7 @@
 #include "Protein.h"
 #include "phenotype.h"
 #include "ae_replication_report.h"
-#include "ae_params_mut.h"
+#include "MutationParams.h"
 #include "Fuzzy.h"
 #include "phenotypic_target.h"
 #include "habitat.h"
@@ -86,7 +86,7 @@ class Individual
   Individual(ExpManager * exp_m,
                 std::shared_ptr<JumpingMT> mut_prng,
                 std::shared_ptr<JumpingMT> stoch_prng,
-                std::shared_ptr<ae_params_mut> param_mut,
+                std::shared_ptr<MutationParams> param_mut,
                 double w_max,
                 int32_t min_genome_length,
                 int32_t max_genome_length,
@@ -467,7 +467,7 @@ class Individual
   double*   _double_probes;     // Array of 5 double values to be used as one wishes
 
   // Mutation rates etc...
-  std::shared_ptr<ae_params_mut> _mut_params;
+  std::shared_ptr<MutationParams> _mut_params;
 
   // ----------------------------------------------- Phenotypic stochasticity
   bool _with_stochasticity;

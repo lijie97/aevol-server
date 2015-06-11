@@ -36,14 +36,14 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_params_mut.h"
+#include "MutationParams.h"
 #include "Alignment.h"
 
 namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                             Class ae_params_mut                             #
+//                             Class MutationParams                             #
 //                                                                             #
 //##############################################################################
 
@@ -54,7 +54,7 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_params_mut::ae_params_mut( void )
+MutationParams::MutationParams( void )
 {
   // --------------------------------------------------------- Mutation rates
   _point_mutation_rate  = 0.0;
@@ -98,7 +98,7 @@ ae_params_mut::ae_params_mut( void )
   _align_mismatch_cost  = 2;
 }
 
-ae_params_mut::ae_params_mut( const ae_params_mut& model )
+MutationParams::MutationParams( const MutationParams & model )
 {
   // --------------------------------------------------------- Mutation rates
   _point_mutation_rate  = model._point_mutation_rate;
@@ -142,7 +142,7 @@ ae_params_mut::ae_params_mut( const ae_params_mut& model )
   _align_mismatch_cost  = model._align_mismatch_cost;
 }
 
-ae_params_mut::ae_params_mut( gzFile backup_file )
+MutationParams::MutationParams( gzFile backup_file )
 {
   // --------------------------------------------------------- Mutation rates
   gzread( backup_file, &_point_mutation_rate,  sizeof(_point_mutation_rate) );
@@ -204,14 +204,14 @@ ae_params_mut::ae_params_mut( gzFile backup_file )
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_params_mut::~ae_params_mut( void )
+MutationParams::~MutationParams( void )
 {
 }
 
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_params_mut::save( gzFile backup_file ) const
+void MutationParams::save( gzFile backup_file ) const
 {
   // --------------------------------------------------------- Mutation rates
   gzwrite( backup_file, &_point_mutation_rate,  sizeof(_point_mutation_rate) );

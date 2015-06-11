@@ -43,7 +43,7 @@
 #include <zlib.h>
 
 #include "f_line.h"
-#include "ae_params_mut.h"
+#include "MutationParams.h"
 #include "JumpingMT.h"
 #include "macros.h"
 #include "ae_enums.h"

@@ -63,8 +63,8 @@ add_library(aevol
   Mutation.h
   OutputManager.cpp
   OutputManager.h
-  ae_params_mut.cpp
-  ae_params_mut.h
+  MutationParams.cpp
+  MutationParams.h
   phenotype.h
   Protein.cpp
   Protein.h

@@ -1294,7 +1294,7 @@ void param_loader::load(ExpManager * exp_m, bool verbose,
   // 3) --------------------------------------------- Create the new population
   list<Individual *> indivs;
   // Generate a model ae_mut_param object
-  auto param_mut = std::make_shared<ae_params_mut>();
+  auto param_mut = std::make_shared<MutationParams>();
   param_mut->set_point_mutation_rate(_point_mutation_rate);
   param_mut->set_small_insertion_rate(_small_insertion_rate);
   param_mut->set_small_deletion_rate(_small_deletion_rate);

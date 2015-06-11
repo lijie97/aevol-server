@@ -63,7 +63,7 @@ namespace aevol {
 Individual * IndividualFactory::create_random_individual(
     ExpManager * exp_m,
     int32_t id,
-    std::shared_ptr<ae_params_mut> param_mut,
+    std::shared_ptr<MutationParams> param_mut,
     std::shared_ptr<JumpingMT> mut_prng,
     std::shared_ptr<JumpingMT> stoch_prng,
     const Habitat& habitat,
