@@ -267,7 +267,7 @@ inline double** World::get_total_fitness_grid(void) const
 // =====================================================================
 //                           Setters' definitions
 // =====================================================================
-inline void World::set_prng(std::shared_ptr<ae_jumping_mt> prng) {
+inline void World::set_prng(std::shared_ptr<JumpingMT> prng) {
   _prng = prng;
 }
 

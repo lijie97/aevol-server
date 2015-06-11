@@ -1228,11 +1228,11 @@ void Individual::set_with_stochasticity(bool with_stoch) {
   _with_stochasticity = with_stoch;
 }
 
-void Individual::set_stoch_prng(std::shared_ptr<ae_jumping_mt> prng) {
+void Individual::set_stoch_prng(std::shared_ptr<JumpingMT> prng) {
   _stoch_prng = prng;
 }
 
-void Individual::set_mut_prng(std::shared_ptr<ae_jumping_mt> prng) {
+void Individual::set_mut_prng(std::shared_ptr<JumpingMT> prng) {
   _mut_prng = prng;
 }
 

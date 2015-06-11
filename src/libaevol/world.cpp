@@ -381,7 +381,7 @@ list<Individual *> World::get_indivs(void) const
   return r;
 }
 
-void World::set_mut_prng(std::shared_ptr<ae_jumping_mt> prng)
+void World::set_mut_prng(std::shared_ptr<JumpingMT> prng)
 {
   _mut_prng = prng;
 
@@ -393,7 +393,7 @@ void World::set_mut_prng(std::shared_ptr<ae_jumping_mt> prng)
     }
 }
 
-void World::set_stoch_prng(std::shared_ptr<ae_jumping_mt> prng)
+void World::set_stoch_prng(std::shared_ptr<JumpingMT> prng)
 {
   _stoch_prng = prng;
 

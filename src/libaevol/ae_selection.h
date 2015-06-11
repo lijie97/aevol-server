@@ -178,7 +178,7 @@ inline double* ae_selection::get_prob_reprod(void) const
 //                           Setters' definitions
 // =====================================================================
 // ----------------------------------------- Pseudo-random number generator
-inline void ae_selection::set_prng(std::unique_ptr<ae_jumping_mt>&& prng)
+inline void ae_selection::set_prng(std::unique_ptr<JumpingMT>&& prng)
 {
   prng_ = std::move(prng);
 }

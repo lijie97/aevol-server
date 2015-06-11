@@ -39,7 +39,7 @@
 //                            Project Files
 // =================================================================
 #include "JumpingMT.h"
-#include "ae_jump_poly.h"
+#include "JumpPoly.h"
 
 
 namespace aevol {
