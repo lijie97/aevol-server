@@ -302,7 +302,7 @@ void MersenneTwister::load( uint32_t *const loadArray )
   pNext = &state[N-left];
 }
 
-void ae_rand_mt::write_to_backup( gzFile backup_file ) const
+void MersenneTwister::write_to_backup( gzFile backup_file ) const
 {
   uint32_t saveArray[SAVE];
   save( saveArray );
