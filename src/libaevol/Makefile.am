@@ -57,7 +57,7 @@ Rna.h \
 Stats.h \
 StatRecord.h \
 ae_string.h \
-ae_tree.h \
+Tree.h \
 ae_utils.h \
 ae_vis_a_vis.h \
 Selection.h \
@@ -96,7 +96,7 @@ Rna.cpp \
 Stats.cpp \
 StatRecord.cpp \
 ae_string.cpp \
-ae_tree.cpp \
+Tree.cpp \
 ae_vis_a_vis.cpp \
 Selection.cpp \
 GeneTree.cpp \

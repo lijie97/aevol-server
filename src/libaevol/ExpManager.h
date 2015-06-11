@@ -143,7 +143,7 @@ class ExpManager
     inline bool         get_record_tree(void) const;
     inline int32_t      get_tree_step(void) const;
     inline ae_tree_mode get_tree_mode(void) const;
-    inline ae_tree*     get_tree(void) const;
+    inline Tree *     get_tree(void) const;
 
     // =======================================================================
     //                          Accessors: setters
@@ -426,7 +426,7 @@ inline ae_tree_mode ExpManager::get_tree_mode(void) const
 	return get_output_m()->get_tree_mode();
 }
 
-inline ae_tree*ExpManager::get_tree(void) const
+inline Tree *ExpManager::get_tree(void) const
 {
 	return get_output_m()->get_tree();
 }

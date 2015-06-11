@@ -84,8 +84,8 @@ add_library(aevol
   Stats.h
   ae_string.cpp
   ae_string.h
-  ae_tree.cpp
-  ae_tree.h
+  Tree.cpp
+  Tree.h
   ae_utils.h
   ae_vis_a_vis.cpp
   ae_vis_a_vis.h

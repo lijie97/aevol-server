@@ -56,23 +56,23 @@ namespace aevol {
 class ExpManager;
 
 
-class ae_tree
+class Tree
 {  
   public :
     
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_tree(ExpManager * exp_m, ae_tree_mode tree_mode, int64_t tree_step);
+    Tree(ExpManager * exp_m, ae_tree_mode tree_mode, int64_t tree_step);
     // To be used when we want to run a simulation.
-    ae_tree(ExpManager * exp_m, char* tree_file_name);
+    Tree(ExpManager * exp_m, char* tree_file_name);
     // To be used when we want to INSPECT a tree, 
     // not when we want to run a simulation.
     
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_tree(void);
+    virtual ~Tree(void);
 
     // =================================================================
     //                        Accessors: getters
@@ -124,12 +124,12 @@ class ae_tree
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    ae_tree( void )
+    Tree( void )
     {
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
     };
-    ae_tree( const ae_tree &model )
+    Tree( const Tree &model )
     {
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
@@ -165,12 +165,12 @@ class ae_tree
 // =====================================================================
 //                           Getters' definitions
 // =====================================================================
-inline int64_t ae_tree::get_tree_step(void) const
+inline int64_t Tree::get_tree_step(void) const
 {
   return _tree_step;
 }
 
-inline ae_tree_mode ae_tree::get_tree_mode(void) const
+inline ae_tree_mode Tree::get_tree_mode(void) const
 {
   return _tree_mode;
 }
@@ -183,7 +183,7 @@ inline ae_tree_mode ae_tree::get_tree_mode(void) const
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-inline int64_t ae_tree::get_LCA(int64_t t, int32_t a, int32_t b, int32_t* j = NULL)
+inline int64_t Tree::get_LCA(int64_t t, int32_t a, int32_t b, int32_t* j = NULL)
 {
   switch( _tree_mode )
   {

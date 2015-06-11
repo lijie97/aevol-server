@@ -45,7 +45,7 @@
 #include <assert.h>
 #include "ae_enums.h"
 #include "Stats.h"
-#include "ae_tree.h"
+#include "Tree.h"
 #include "Dump.h"
 #include "Logging.h"
 
@@ -88,7 +88,7 @@ class OutputManager
     inline bool         get_record_tree( void ) const;
     inline int64_t      get_tree_step( void ) const;
     inline ae_tree_mode get_tree_mode( void ) const;
-    inline ae_tree*     get_tree( void ) const;
+    inline Tree *     get_tree( void ) const;
   
     // Logs
     inline FILE* get_log( ae_log_type log_type )   const;
@@ -166,7 +166,7 @@ class OutputManager
   
     // Tree
     bool      _record_tree;
-    ae_tree*  _tree;
+    Tree *  _tree;
     
     // Dumps
     bool      _make_dumps;
@@ -209,7 +209,7 @@ inline ae_tree_mode OutputManager::get_tree_mode( void ) const
   return _tree->get_tree_mode();
 }
 
-inline ae_tree*OutputManager::get_tree( void ) const
+inline Tree *OutputManager::get_tree( void ) const
 {
   return _tree;
 }
@@ -247,7 +247,7 @@ inline void OutputManager::set_big_backup_step(int64_t big_backup_step)
 inline void OutputManager::init_tree(ExpManager * exp_m, ae_tree_mode _tree_mode, int64_t _tree_step)
 {
   _record_tree = true;
-  _tree = new ae_tree( exp_m, _tree_mode, _tree_step );
+  _tree = new Tree( exp_m, _tree_mode, _tree_step );
 }
 
 inline void OutputManager::set_dump_step(int64_t dump_step)

@@ -191,7 +191,7 @@ void OutputManager::load( gzFile setup_file, bool verbose, bool to_be_run  )
       exit( EXIT_FAILURE );
     }
     
-    _tree = new ae_tree( _exp_m, (ae_tree_mode) tmp_tree_mode, tmp_tree_step );
+    _tree = new Tree( _exp_m, (ae_tree_mode) tmp_tree_mode, tmp_tree_step );
   }
   
   // Dumps
@@ -255,7 +255,7 @@ void OutputManager::load(FILE* setup_file, bool verbose, bool to_be_run)
         exit( EXIT_FAILURE );
     }
     
-    _tree = new ae_tree( _exp_m, (ae_tree_mode) tmp_tree_mode, tmp_tree_step );
+    _tree = new Tree( _exp_m, (ae_tree_mode) tmp_tree_mode, tmp_tree_step );
   }
   
   // Dumps

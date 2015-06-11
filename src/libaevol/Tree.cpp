@@ -36,7 +36,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_tree.h"
+#include "Tree.h"
 
 #include "macros.h"
 #include "ExpManager.h"
@@ -50,19 +50,19 @@ namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                                Class ae_tree                                #
+//                                Class Tree                                #
 //                                                                             #
 //##############################################################################
 
 // =================================================================
 //                    Definition of static attributes
 // =================================================================
-const int32_t ae_tree::NO_PARENT = -1;
+const int32_t Tree::NO_PARENT = -1;
 
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_tree::ae_tree(ExpManager * exp_m, ae_tree_mode tree_mode, int64_t tree_step)
+Tree::Tree(ExpManager * exp_m, ae_tree_mode tree_mode, int64_t tree_step)
 {
   _exp_m = exp_m;
 
@@ -111,7 +111,7 @@ ae_tree::ae_tree(ExpManager * exp_m, ae_tree_mode tree_mode, int64_t tree_step)
 
 
 
-ae_tree::ae_tree( ExpManager * exp_m, char* tree_file_name )
+Tree::Tree( ExpManager * exp_m, char* tree_file_name )
 {
   _exp_m = exp_m;
 
@@ -165,7 +165,7 @@ ae_tree::ae_tree( ExpManager * exp_m, char* tree_file_name )
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_tree::~ae_tree( void )
+Tree::~Tree( void )
 {
   switch ( _tree_mode )
   {
@@ -212,13 +212,13 @@ ae_tree::~ae_tree( void )
 
 
 
-int32_t ae_tree::get_nb_indivs(int64_t t) const
+int32_t Tree::get_nb_indivs(int64_t t) const
 {
   return _nb_indivs[ae_utils::mod(t - 1, _tree_step)];
 }
 
 
-ReplicationReport * ae_tree::get_report_by_index(int64_t t, int32_t index) const
+ReplicationReport *Tree::get_report_by_index(int64_t t, int32_t index) const
 {
   assert( _tree_mode == NORMAL );
 
@@ -226,7 +226,7 @@ ReplicationReport * ae_tree::get_report_by_index(int64_t t, int32_t index) const
 }
 
 
-ReplicationReport * ae_tree::get_report_by_rank(int64_t t, int32_t rank) const
+ReplicationReport *Tree::get_report_by_rank(int64_t t, int32_t rank) const
 {
   assert( _tree_mode == NORMAL );
   int32_t nb_indivs = get_nb_indivs(t);
@@ -245,13 +245,13 @@ ReplicationReport * ae_tree::get_report_by_rank(int64_t t, int32_t rank) const
 }
 
 
-void ae_tree::set_nb_indivs (int32_t nb_indivs, int64_t t)
+void Tree::set_nb_indivs (int32_t nb_indivs, int64_t t)
 {
   _nb_indivs[ae_utils::mod(t - 1, _tree_step)] = nb_indivs;
 }
 
 
-void ae_tree::fill_tree_with_cur_gener(void)
+void Tree::fill_tree_with_cur_gener(void)
 {
   assert(_exp_m != NULL && Time::get_time() > 0);
 
@@ -295,7 +295,7 @@ void ae_tree::fill_tree_with_cur_gener(void)
   }
 }
 
-void ae_tree::write_to_tree_file( gzFile tree_file )
+void Tree::write_to_tree_file( gzFile tree_file )
 {
   switch ( _tree_mode )
   {
@@ -341,7 +341,7 @@ void ae_tree::write_to_tree_file( gzFile tree_file )
 // =================================================================
 //                  Non-inline accessors' definition
 // =================================================================
-void ae_tree::set_replic_report(int32_t id, ReplicationReport * replic_report)
+void Tree::set_replic_report(int32_t id, ReplicationReport * replic_report)
 {
   assert(_tree_mode == NORMAL);
 
@@ -362,7 +362,7 @@ void ae_tree::set_replic_report(int32_t id, ReplicationReport * replic_report)
 
 
 // CK: Added for aevol_modify
-void ae_tree::set_replic_report(int64_t t, int32_t id, ReplicationReport * replic_report)
+void Tree::set_replic_report(int64_t t, int32_t id, ReplicationReport * replic_report)
 {
   assert( _tree_mode == NORMAL );
 
