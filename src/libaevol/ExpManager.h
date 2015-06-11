@@ -98,10 +98,10 @@ class ExpManager
 
     // ------------------------------------------------------ Spatial structure
     inline World*             world(void) const;
-    inline ae_grid_cell*      get_grid_cell(int16_t x, int16_t y) const;
+    inline GridCell *      get_grid_cell(int16_t x, int16_t y) const;
     inline int16_t            get_grid_width(void) const;
     inline int16_t            get_grid_height(void) const;
-    inline ae_grid_cell***    get_pop_grid(void) const;
+    inline GridCell ***    get_pop_grid(void) const;
 
     // -------------------------------------------------------- Global settings
     inline bool   get_with_HT(void) const;
@@ -282,7 +282,7 @@ inline World*ExpManager::world(void) const
   return world_;
 }
 
-inline ae_grid_cell*ExpManager::get_grid_cell(int16_t x, int16_t y) const
+inline GridCell *ExpManager::get_grid_cell(int16_t x, int16_t y) const
 {
   return world()->grid(x, y);
 }
@@ -297,7 +297,7 @@ inline int16_t ExpManager::get_grid_height(void) const
   return world()->height();
 }
 
-inline ae_grid_cell***ExpManager::get_pop_grid(void) const
+inline GridCell ***ExpManager::get_pop_grid(void) const
 {
   return world()->grid();
 }

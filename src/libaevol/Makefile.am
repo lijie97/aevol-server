@@ -36,7 +36,7 @@ ExpSetup.h \
 Fuzzy.h \
 Gaussian.h \
 GeneticUnit.h \
-ae_grid_cell.h \
+GridCell.h \
 Individual.h \
 IndividualFactory.h \
 ae_logs.h \
@@ -78,7 +78,7 @@ Dump.cpp \
 ExpManager.cpp \
 ExpSetup.cpp \
 GeneticUnit.cpp \
-ae_grid_cell.cpp \
+GridCell.cpp \
 Individual.cpp \
 IndividualFactory.cpp \
 ae_logs.cpp \

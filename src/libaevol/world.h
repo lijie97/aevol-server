@@ -41,7 +41,7 @@
 
 #include <zlib.h>
 
-#include "ae_grid_cell.h"
+#include "GridCell.h"
 
 
 namespace aevol {
@@ -86,8 +86,8 @@ class World
   inline int16_t          width()  const {return width_;};
   inline int16_t          height() const {return height_;};
   inline int32_t          partial_mix_nb_permutations(void) const;
-  inline ae_grid_cell***  grid(void) const {return grid_;};
-  inline ae_grid_cell*    grid(int16_t x, int16_t y) const;
+  inline GridCell ***  grid(void) const {return grid_;};
+  inline GridCell *    grid(int16_t x, int16_t y) const;
   inline Individual *   get_indiv_at(int16_t x, int16_t y) const;
 
   inline double** get_secretion_present_grid(void) const;
@@ -161,8 +161,8 @@ class World
   int16_t x_best = -1;
   int16_t y_best = -1;
 
-  ae_grid_cell*** grid_ = nullptr;
-  ae_grid_cell** grid_1d_ = nullptr;
+  GridCell *** grid_ = nullptr;
+  GridCell ** grid_1d_ = nullptr;
 
   bool is_well_mixed_ = false;
   int32_t partial_mix_nb_permutations_ = 0;
@@ -193,7 +193,7 @@ inline int32_t World::partial_mix_nb_permutations(void) const
   return partial_mix_nb_permutations_;
 }
 
-inline ae_grid_cell* World::grid(int16_t x, int16_t y) const
+inline GridCell * World::grid(int16_t x, int16_t y) const
 {
   return grid_[x][y];
 }

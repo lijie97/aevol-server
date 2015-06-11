@@ -65,7 +65,7 @@ namespace aevol {
 //                          Class declarations
 // =================================================================
 class ExpManager;
-class ae_grid_cell;
+class GridCell;
 
 
 /// Models an individual cell.
@@ -135,7 +135,7 @@ class Individual
   double           get_dist_to_target_by_feature(ae_env_axis_feature feature) const;
   double           get_fitness() const;
   double           get_fitness_by_feature(ae_env_axis_feature feature) const;
-  ae_grid_cell*    get_grid_cell() const;
+  GridCell *    get_grid_cell() const;
   bool             get_placed_in_population() const;
   std::shared_ptr<ae_jumping_mt> get_mut_prng() const;
   std::shared_ptr<ae_jumping_mt> get_stoch_prng() const;
@@ -259,7 +259,7 @@ class Individual
   void set_id(int32_t id);
   void set_rank(int32_t rank);
 
-  void set_grid_cell(ae_grid_cell* grid_cell);
+  void set_grid_cell(GridCell * grid_cell);
   void set_placed_in_population(bool placed_in_population);
 
   void set_replication_report(ae_replication_report * rep);
@@ -447,7 +447,7 @@ class Individual
   double _fitness;
 
   // When using structured population, this is the cell the individual is in
-  ae_grid_cell* _grid_cell = NULL;
+  GridCell * _grid_cell = NULL;
   // int16_t x, y;
 
   // The chromosome and plasmids (if allowed)

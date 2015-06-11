@@ -28,7 +28,7 @@
 #include "Codon.h"
 #include "ExpSetup.h"
 #include "ExpManager.h"
-#include "ae_grid_cell.h"
+#include "GridCell.h"
 #include "GeneticUnit.h"
 #include "ae_vis_a_vis.h"
 #include "ae_utils.h"
@@ -568,7 +568,7 @@ void Individual::set_exp_m(ExpManager * exp_m) {
 }
 
 /// TODO
-void Individual::set_grid_cell(ae_grid_cell* grid_cell)
+void Individual::set_grid_cell(GridCell * grid_cell)
 {
   _grid_cell = grid_cell;
   _placed_in_population = true;
@@ -703,7 +703,7 @@ double Individual::get_fitness_by_feature(ae_env_axis_feature feature) const {
 }
 
 /// TODO
-ae_grid_cell*Individual::get_grid_cell() const {
+GridCell *Individual::get_grid_cell() const {
   return _grid_cell;
 }
 

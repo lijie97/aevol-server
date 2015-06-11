@@ -30,7 +30,7 @@
 // =================================================================
 //                              Includes
 // =================================================================
-#include "ae_grid_cell.h"
+#include "GridCell.h"
 
 #include <iostream>
 
@@ -48,7 +48,7 @@ namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                              Class ae_grid_cell                             #
+//                              Class GridCell                             #
 //                                                                             #
 //##############################################################################
 
@@ -59,7 +59,7 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_grid_cell::ae_grid_cell(int16_t x, int16_t y,
+GridCell::GridCell(int16_t x, int16_t y,
                            std::unique_ptr<Habitat>&& habitat,
                            Individual * indiv)
 {
@@ -70,7 +70,7 @@ ae_grid_cell::ae_grid_cell(int16_t x, int16_t y,
   habitat_ = std::move(habitat);
 }
 
-ae_grid_cell::ae_grid_cell(gzFile backup_file,
+GridCell::GridCell(gzFile backup_file,
                            ExpManager * exp_m,
                            std::shared_ptr<PhenotypicTargetHandler>
                               phenotypic_target_handler_)
@@ -81,7 +81,7 @@ ae_grid_cell::ae_grid_cell(gzFile backup_file,
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_grid_cell::~ae_grid_cell(void)
+GridCell::~GridCell(void)
 {
   delete individual_;
 }
@@ -89,7 +89,7 @@ ae_grid_cell::~ae_grid_cell(void)
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_grid_cell::save(gzFile backup_file,
+void GridCell::save(gzFile backup_file,
                         bool skip_phenotypic_target /*=false*/) const
 {
   gzwrite(backup_file, &x_, sizeof(x_));
@@ -100,7 +100,7 @@ void ae_grid_cell::save(gzFile backup_file,
   individual_->save(backup_file);
 }
 
-void ae_grid_cell::load(gzFile backup_file,
+void GridCell::load(gzFile backup_file,
                         ExpManager * exp_m,
                         std::shared_ptr<PhenotypicTargetHandler>
                             phenotypic_target_handler)

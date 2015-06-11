@@ -60,25 +60,25 @@ class ExpManager;
 
 
 
-class ae_grid_cell
+class GridCell
 {
  public :
   // =================================================================
   //                             Constructors
   // =================================================================
-  ae_grid_cell(void) = delete;
-  ae_grid_cell(const ae_grid_cell&) = delete;
-  ae_grid_cell(int16_t x, int16_t y,
+  GridCell(void) = delete;
+  GridCell(const GridCell &) = delete;
+  GridCell(int16_t x, int16_t y,
                std::unique_ptr<Habitat>&& habitat,
                Individual * indiv);
-  ae_grid_cell(gzFile backup_file,
+  GridCell(gzFile backup_file,
                ExpManager * exp_m,
                std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler_);
 
   // =================================================================
   //                             Destructors
   // =================================================================
-  virtual ~ae_grid_cell(void);
+  virtual ~GridCell(void);
 
 
   // =================================================================
@@ -145,27 +145,27 @@ class ae_grid_cell
 // =====================================================================
 //                           Getters' definitions
 // =====================================================================
-inline double ae_grid_cell::compound_amount(void) const
+inline double GridCell::compound_amount(void) const
 {
   return habitat_->compound_amount();
 }
 
-inline Individual * ae_grid_cell::get_individual(void) const
+inline Individual *GridCell::get_individual(void) const
 {
   return individual_;
 }
 
-inline double ae_grid_cell::get_secreted_amount(void) const
+inline double GridCell::get_secreted_amount(void) const
 {
   return individual_->get_fitness_by_feature(SECRETION);
 }
 
-inline double ae_grid_cell::get_metabolic_fitness(void) const
+inline double GridCell::get_metabolic_fitness(void) const
 {
   return individual_->get_fitness_by_feature(METABOLISM);
 }
 
-inline double ae_grid_cell::get_total_fitness(void) const
+inline double GridCell::get_total_fitness(void) const
 {
   return individual_->get_fitness();
 }
@@ -173,12 +173,12 @@ inline double ae_grid_cell::get_total_fitness(void) const
 // =====================================================================
 //                           Setters' definitions
 // =====================================================================
-inline void ae_grid_cell::set_compound_amount(double compound_amount)
+inline void GridCell::set_compound_amount(double compound_amount)
 {
   habitat_->set_compound_amount(compound_amount);
 }
 
-inline void ae_grid_cell::set_individual(Individual * indiv)
+inline void GridCell::set_individual(Individual * indiv)
 {
   individual_ = indiv;
   if (individual_->get_grid_cell() != this)

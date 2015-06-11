@@ -94,7 +94,7 @@ void World::InitGrid(int16_t width, int16_t height,
     {
       if (share_phenotypic_target)
         grid_[x][y] =
-            new ae_grid_cell(x, y,
+            new GridCell(x, y,
                              std::make_unique<Habitat>
                                  (habitat, share_phenotypic_target),
                              NULL);
@@ -107,8 +107,8 @@ void World::MallocGrid(void)
   // in memory. However, we also want it to be 2D-accessible i.e. we want to
   // be able to access a cell with grid_[x][y].
   // The following code does just this
-  grid_1d_ = new ae_grid_cell* [width_ * height_];
-  grid_ = new ae_grid_cell** [width_];
+  grid_1d_ = new GridCell * [width_ * height_];
+  grid_ = new GridCell ** [width_];
   for (int16_t x = 0 ; x < width_ ; x++)
     grid_[x] = &(grid_1d_[x * height_]);
 }
@@ -330,7 +330,7 @@ void World::load(gzFile backup_file, ExpManager * exp_man)
 
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++)
-      grid_[x][y] = new ae_grid_cell(backup_file,
+      grid_[x][y] = new GridCell(backup_file,
                                      exp_man,
                                      phenotypic_target_handler_);
 
