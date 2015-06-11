@@ -52,7 +52,7 @@
 #include "Rna.h"
 #include "Protein.h"
 #include "phenotype.h"
-#include "ae_replication_report.h"
+#include "ReplicationReport.h"
 #include "MutationParams.h"
 #include "Fuzzy.h"
 #include "phenotypic_target.h"
@@ -159,7 +159,7 @@ class Individual
 
   double* get_dist_to_target_by_segment() const;
 
-  ae_replication_report* get_replic_report() const;
+  ReplicationReport * get_replic_report() const;
 
   const std::list<Protein *>&  get_protein_list()  const;
   const std::list<const Rna *>&      get_rna_list()      const;
@@ -262,7 +262,7 @@ class Individual
   void set_grid_cell(GridCell * grid_cell);
   void set_placed_in_population(bool placed_in_population);
 
-  void set_replication_report(ae_replication_report * rep);
+  void set_replication_report(ReplicationReport * rep);
 
   void reset_dist_to_target_by_segment(double * dist_to_target_by_segment);
 
@@ -455,7 +455,7 @@ class Individual
 
   // Report of all the mutational events undergone during the individuals creation,
   // i.e. during the replication that gave birth to this individual
-  ae_replication_report* _replic_report;
+  ReplicationReport * _replic_report;
 
   // Access lists to all the proteins/RNAs of the individual.
   // Please note that these proteins/RNAs are actually managed (i.e. newed and deleted) via genetic units.

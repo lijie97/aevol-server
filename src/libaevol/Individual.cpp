@@ -348,7 +348,7 @@ Individual::Individual(const Individual & model,
   // Create a new replication report to store mutational events
   if (replication_report_copy && _exp_m->get_output_m()->get_record_tree() && (_exp_m->get_output_m()->get_tree_mode() == NORMAL) && (model._replic_report != NULL))
   {
-    _replic_report = new ae_replication_report(*model._replic_report);
+    _replic_report = new ReplicationReport(*model._replic_report);
     _replic_report->set_indiv(this);
     // TODO: remove this after checking it is the old way
     //_exp_m->get_output_m()->get_tree()->set_replic_report(_id, _replic_report);
@@ -446,7 +446,7 @@ Individual::Individual(const Individual * parent, int32_t id,
   // Create a new replication report to store mutational events
   if (_exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL)
   {
-    _replic_report = new ae_replication_report(this, parent);
+    _replic_report = new ReplicationReport(this, parent);
 
     // TODO: remove this after checking it is the old way
     //_exp_m->get_output_m()->get_tree()->set_replic_report(_id, _replic_report);
@@ -746,7 +746,7 @@ const PhenotypicTarget&Individual::phenotypic_target() const {
 }
 
 /// TODO
-ae_replication_report*Individual::get_replic_report() const {
+ReplicationReport *Individual::get_replic_report() const {
   return _replic_report;
 }
 
@@ -1120,7 +1120,7 @@ void Individual::set_placed_in_population(bool placed_in_population) {
   Set the individual's replication report
   To be used by post-treatment only
 */
-void Individual::set_replication_report(ae_replication_report * rep) {
+void Individual::set_replication_report(ReplicationReport * rep) {
   _replic_report = rep;
 }
 

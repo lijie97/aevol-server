@@ -43,7 +43,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "ae_replication_report.h"
+#include "ReplicationReport.h"
 #include "ae_enums.h"
 
 
@@ -85,15 +85,15 @@ class ae_tree
     // only the last generations since the last emptying ==> do not ask
     // something about an older generation 
     int32_t get_nb_indivs(int64_t t) const;
-    ae_replication_report* get_report_by_index(int64_t t, int32_t index) const;
-    ae_replication_report* get_report_by_rank(int64_t t, int32_t rank) const;
+    ReplicationReport * get_report_by_index(int64_t t, int32_t index) const;
+    ReplicationReport * get_report_by_rank(int64_t t, int32_t rank) const;
   
 
     // =================================================================
     //                        Accessors: setters
     // =================================================================
-    void set_replic_report(int32_t id, ae_replication_report* replic_report);
-    void set_replic_report(int64_t t, int32_t id, ae_replication_report* replic_report);
+    void set_replic_report(int32_t id, ReplicationReport * replic_report);
+    void set_replic_report(int64_t t, int32_t id, ReplicationReport * replic_report);
     void set_nb_indivs(int32_t nb_indivs, int64_t t);
     
     
@@ -148,8 +148,8 @@ class ae_tree
     ae_tree_mode  _tree_mode;
     int32_t*      _nb_indivs;
     
-    ae_replication_report*** _replics;
-    // Two-dimensional table of ae_replication_report*
+    ReplicationReport *** _replics;
+    // Two-dimensional table of ReplicationReport*
     //    dimension 1 (lines)   : generation
     //    dimension 2 (columns) : individual
     //

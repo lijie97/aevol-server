@@ -43,7 +43,7 @@
 #include "ExpSetup.h"
 #include "Individual.h"
 #include "GeneticUnit.h"
-#include "ae_replication_report.h"
+#include "ReplicationReport.h"
 #include "dna_replic_report.h"
 
 
@@ -160,7 +160,7 @@ ae_stat_record::ae_stat_record(ExpManager * exp_m,
     // -------------------------------------------------
     // Compute statistical data for the given individual
     // -------------------------------------------------
-    ae_replication_report* replic_report = indiv->get_replic_report(); // can be NULL under certain conditions
+    ReplicationReport * replic_report = indiv->get_replic_report(); // can be NULL under certain conditions
 
     GeneticUnit& gen_unit = *indiv->get_genetic_unit_list_nonconst().begin();
 
@@ -260,7 +260,7 @@ ae_stat_record::ae_stat_record(ExpManager * exp_m,
     // -------------------------------------------------
     // Compute statistical data for the given individual
     // -------------------------------------------------
-    ae_replication_report* replic_report = indiv->get_replic_report(); // can be NULL under certain conditions
+    ReplicationReport * replic_report = indiv->get_replic_report(); // can be NULL under certain conditions
 
     // Metabolic error stats
     _metabolic_error = (double) indiv->get_dist_to_target_by_feature(METABOLISM);
@@ -357,7 +357,7 @@ ae_stat_record::ae_stat_record(ExpManager * exp_m,
     // -------------------------------------------------
     // Compute statistical data for the given individual
     // -------------------------------------------------
-    ae_replication_report* replic_report = indiv->get_replic_report(); // can be NULL under certain conditions
+    ReplicationReport * replic_report = indiv->get_replic_report(); // can be NULL under certain conditions
     
     // Metabolic error stats
     _metabolic_error = (double) gen_unit.get_dist_to_target_by_feature(METABOLISM);

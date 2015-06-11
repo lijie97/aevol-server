@@ -36,7 +36,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_replication_report.h"
+#include "ReplicationReport.h"
 #include "dna_replic_report.h"
 #include "Mutation.h"
 #include "Individual.h"
@@ -45,7 +45,7 @@ namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                         Class ae_replication_report                         #
+//                         Class ReplicationReport                         #
 //                                                                             #
 //##############################################################################
 
@@ -56,7 +56,7 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_replication_report::ae_replication_report(Individual * indiv,
+ReplicationReport::ReplicationReport(Individual * indiv,
                                              const Individual * parent,
                                              Individual * donor /*= NULL*/)
 {
@@ -100,7 +100,7 @@ ae_replication_report::ae_replication_report(Individual * indiv,
 
 
 // Creates an independent copy of the original report
-ae_replication_report::ae_replication_report(const ae_replication_report &model)
+ReplicationReport::ReplicationReport(const ReplicationReport &model)
 {
   _parent_id  = model._parent_id;
   _donor_id   = model._donor_id;
@@ -129,7 +129,7 @@ ae_replication_report::ae_replication_report(const ae_replication_report &model)
 }
 
 
-ae_replication_report::ae_replication_report(gzFile tree_file, Individual * indiv)
+ReplicationReport::ReplicationReport(gzFile tree_file, Individual * indiv)
 {
   _indiv = indiv;
     
@@ -185,7 +185,7 @@ ae_replication_report::ae_replication_report(gzFile tree_file, Individual * indi
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_replication_report::~ae_replication_report(void)
+ReplicationReport::~ReplicationReport(void)
 {
   for (const auto& rep: _dna_replic_reports)
     delete rep;
@@ -197,7 +197,7 @@ ae_replication_report::~ae_replication_report(void)
 /**
  * Method called at the end of the replication. Actions such as finalize the calculation of average values can be done here.
  */
-void ae_replication_report::signal_end_of_replication(void)
+void ReplicationReport::signal_end_of_replication(void)
 {
   // Retreive data from the individual
   _genome_size        = _indiv->get_total_genome_size();
@@ -263,7 +263,7 @@ void ae_replication_report::signal_end_of_replication(void)
   delete [] align_scores;
 }
 
-void ae_replication_report::write_to_tree_file(gzFile tree_file) const
+void ReplicationReport::write_to_tree_file(gzFile tree_file) const
 {
   // Store individual identifiers and rank
   gzwrite(tree_file, &_id,         sizeof(_id)        );

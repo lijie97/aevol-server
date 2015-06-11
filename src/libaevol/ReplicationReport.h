@@ -59,26 +59,26 @@ class Individual;
 
 
 
-class ae_replication_report
+class ReplicationReport
 {
   public :
 
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_replication_report(Individual * indiv,
+    ReplicationReport(Individual * indiv,
                           const Individual * parent,
                           Individual * donor = NULL);
 
     // Creates a completely independent copy of the original report
-    ae_replication_report(const ae_replication_report& model);
+    ReplicationReport(const ReplicationReport & model);
 
-    ae_replication_report(gzFile tree_file, Individual * indiv);
+    ReplicationReport(gzFile tree_file, Individual * indiv);
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_replication_report(void);
+    virtual ~ReplicationReport(void);
 
     // =================================================================
     //                              Accessors
@@ -134,7 +134,7 @@ class ae_replication_report
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    ae_replication_report(void)
+    ReplicationReport(void)
     {
       printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
       exit(EXIT_FAILURE);
@@ -185,123 +185,123 @@ class ae_replication_report
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-inline Individual * ae_replication_report::get_indiv(void) const
+inline Individual *ReplicationReport::get_indiv(void) const
 {
   return _indiv;
 }
 
-inline int32_t ae_replication_report::get_id(void) const
+inline int32_t ReplicationReport::get_id(void) const
 {
   return _id;
 }
 
-inline int32_t ae_replication_report::get_rank(void) const
+inline int32_t ReplicationReport::get_rank(void) const
 {
   return _rank;
 }
 
-inline int32_t ae_replication_report::get_genome_size(void) const
+inline int32_t ReplicationReport::get_genome_size(void) const
 {
   return _genome_size;
 }
 
-int32_t ae_replication_report::get_parent_id(void) const
+int32_t ReplicationReport::get_parent_id(void) const
 {
   return _parent_id;
 }
 
-double ae_replication_report::get_parent_metabolic_error(void) const
+double ReplicationReport::get_parent_metabolic_error(void) const
 {
   return _parent_metabolic_error;
 }
 
-double ae_replication_report::get_parent_secretion_error(void) const
+double ReplicationReport::get_parent_secretion_error(void) const
 {
   return _parent_secretion_error;
 }
 
-int32_t ae_replication_report::get_parent_genome_size(void) const
+int32_t ReplicationReport::get_parent_genome_size(void) const
 {
   return _parent_genome_size;
 }
 
-inline int32_t	ae_replication_report::get_donor_id(void) const
+inline int32_t	ReplicationReport::get_donor_id(void) const
 {
   return _donor_id;
 }
 
-inline double   ae_replication_report::get_donor_metabolic_error(void) const
+inline double   ReplicationReport::get_donor_metabolic_error(void) const
 {
   return _donor_metabolic_error;
 }
 
-inline int32_t  ae_replication_report::get_donor_genome_size(void) const
+inline int32_t  ReplicationReport::get_donor_genome_size(void) const
 {
   return _donor_genome_size;
 }
 
 
 
-inline double ae_replication_report::get_mean_align_score(void) const
+inline double ReplicationReport::get_mean_align_score(void) const
 {
   return _mean_align_score;
 }
 
-inline const std::list<DnaReplicReport*> ae_replication_report::get_dna_replic_reports() const {
+inline const std::list<DnaReplicReport*> ReplicationReport::get_dna_replic_reports() const {
   return _dna_replic_reports;
 }
 
-inline void ae_replication_report::set_indiv(Individual * indiv)
+inline void ReplicationReport::set_indiv(Individual * indiv)
 {
   _indiv = indiv;
 }
 
-inline void ae_replication_report::set_id(int32_t id)
+inline void ReplicationReport::set_id(int32_t id)
 {
   _id = id;
 }
 
-inline void ae_replication_report::set_rank(int32_t rank)
+inline void ReplicationReport::set_rank(int32_t rank)
 {
   _rank = rank;
 }
 
-void ae_replication_report::set_parent_id(int32_t parent_id)
+void ReplicationReport::set_parent_id(int32_t parent_id)
 {
   _parent_id = parent_id;
 }
 
-void ae_replication_report::set_parent_metabolic_error(double parent_metabolic_error)
+void ReplicationReport::set_parent_metabolic_error(double parent_metabolic_error)
 {
   _parent_metabolic_error = parent_metabolic_error;
 }
 
-void ae_replication_report::set_parent_secretion_error(double parent_secretion_error)
+void ReplicationReport::set_parent_secretion_error(double parent_secretion_error)
 {
   _parent_secretion_error = parent_secretion_error;
 }
 
-void ae_replication_report::set_parent_genome_size(int32_t parent_genome_size)
+void ReplicationReport::set_parent_genome_size(int32_t parent_genome_size)
 {
   _parent_genome_size = parent_genome_size;
 }
 
-inline void ae_replication_report::set_donor_id(int32_t donor_id)
+inline void ReplicationReport::set_donor_id(int32_t donor_id)
 {
   _donor_id = donor_id;
 }
 
-inline void  ae_replication_report::set_donor_metabolic_error(double donor_metabolic_error)
+inline void  ReplicationReport::set_donor_metabolic_error(double donor_metabolic_error)
 {
   _donor_metabolic_error = donor_metabolic_error;
 }
 
-inline void ae_replication_report::set_donor_secretion_error(double donor_secretion_error)
+inline void ReplicationReport::set_donor_secretion_error(double donor_secretion_error)
 {
   _donor_secretion_error = donor_secretion_error;
 }
 
-inline void ae_replication_report::set_donor_genome_size(int32_t donor_genome_size)
+inline void ReplicationReport::set_donor_genome_size(int32_t donor_genome_size)
 {
   _donor_genome_size = donor_genome_size;
 }

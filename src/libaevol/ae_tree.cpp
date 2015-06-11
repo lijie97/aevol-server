@@ -74,7 +74,7 @@ ae_tree::ae_tree(ExpManager * exp_m, ae_tree_mode tree_mode, int64_t tree_step)
     case NORMAL :
     {
       _nb_indivs    = new int32_t [_tree_step];
-      _replics      = new ae_replication_report** [_tree_step];
+      _replics      = new ReplicationReport ** [_tree_step];
 
       // All pointers in the _replics table must be set to NULL, otherwise
       // the destructor won't work properly if called before the matrix was
@@ -128,20 +128,20 @@ ae_tree::ae_tree( ExpManager * exp_m, char* tree_file_name )
         exit( EXIT_FAILURE );
       }
 
-      ae_replication_report * replic_report = NULL;
+      ReplicationReport * replic_report = NULL;
 
       _nb_indivs    = new int32_t[_tree_step];
-      _replics      = new ae_replication_report**[_tree_step];
+      _replics      = new ReplicationReport **[_tree_step];
 
       gzread( tree_file, _nb_indivs, _tree_step * sizeof(_nb_indivs[0]) );
 
       for ( int64_t t = 0 ; t < _tree_step ; t++ )
       {
-        _replics[t] = new ae_replication_report*[_nb_indivs[t]];
+        _replics[t] = new ReplicationReport *[_nb_indivs[t]];
         for ( int32_t indiv_i = 0 ; indiv_i < _nb_indivs[t] ; indiv_i++ )
         {
           // Retreive a replication report
-          replic_report = new ae_replication_report( tree_file, NULL );
+          replic_report = new ReplicationReport( tree_file, NULL );
 
           // Put it at its rightful position
           _replics[t][replic_report->get_id()] = replic_report;
@@ -218,7 +218,7 @@ int32_t ae_tree::get_nb_indivs(int64_t t) const
 }
 
 
-ae_replication_report* ae_tree::get_report_by_index(int64_t t, int32_t index) const
+ReplicationReport * ae_tree::get_report_by_index(int64_t t, int32_t index) const
 {
   assert( _tree_mode == NORMAL );
 
@@ -226,7 +226,7 @@ ae_replication_report* ae_tree::get_report_by_index(int64_t t, int32_t index) co
 }
 
 
-ae_replication_report * ae_tree::get_report_by_rank(int64_t t, int32_t rank) const
+ReplicationReport * ae_tree::get_report_by_rank(int64_t t, int32_t rank) const
 {
   assert( _tree_mode == NORMAL );
   int32_t nb_indivs = get_nb_indivs(t);
@@ -265,7 +265,7 @@ void ae_tree::fill_tree_with_cur_gener(void)
       // 1 to 100, or 101 to 200, or 201 to 300, etc)
       int64_t time_i = ae_utils::mod(Time::get_time() - 1, _tree_step);
       _nb_indivs[time_i] = _exp_m->get_nb_indivs();
-      _replics[time_i]   = new ae_replication_report* [_nb_indivs[time_i]];
+      _replics[time_i]   = new ReplicationReport * [_nb_indivs[time_i]];
 
 
       for (const auto& indiv: _exp_m->get_indivs()) {
@@ -341,7 +341,7 @@ void ae_tree::write_to_tree_file( gzFile tree_file )
 // =================================================================
 //                  Non-inline accessors' definition
 // =================================================================
-void ae_tree::set_replic_report(int32_t id, ae_replication_report* replic_report)
+void ae_tree::set_replic_report(int32_t id, ReplicationReport * replic_report)
 {
   assert(_tree_mode == NORMAL);
 
@@ -349,20 +349,20 @@ void ae_tree::set_replic_report(int32_t id, ae_replication_report* replic_report
 
   if (_replics[t] == NULL)
   {
-    _replics[t] = new ae_replication_report* [_exp_m->get_nb_indivs()];
+    _replics[t] = new ReplicationReport * [_exp_m->get_nb_indivs()];
 
     memset(_replics[t], 0, _exp_m->get_nb_indivs() * sizeof(*_replics));
   }
 
   assert(_replics[t][id] == NULL);
-  _replics[t][id] = new ae_replication_report(*replic_report);
+  _replics[t][id] = new ReplicationReport(*replic_report);
 }
 
 
 
 
 // CK: Added for aevol_modify
-void ae_tree::set_replic_report(int64_t t, int32_t id, ae_replication_report* replic_report)
+void ae_tree::set_replic_report(int64_t t, int32_t id, ReplicationReport * replic_report)
 {
   assert( _tree_mode == NORMAL );
 
@@ -370,7 +370,7 @@ void ae_tree::set_replic_report(int64_t t, int32_t id, ae_replication_report* re
 
   if (_replics[t] == NULL)
   {
-    _replics[t] = new ae_replication_report* [_exp_m->get_nb_indivs()];
+    _replics[t] = new ReplicationReport * [_exp_m->get_nb_indivs()];
     memset( _replics[t], 0, _exp_m->get_nb_indivs() * sizeof( *_replics ) );
   }
 
@@ -379,7 +379,7 @@ void ae_tree::set_replic_report(int64_t t, int32_t id, ae_replication_report* re
       printf("Erased previous replication report for indiv %" PRId32 " at relative time %" PRId64 "\n", id, t);
       delete _replics[t][id];
     }
-  _replics[t][id] = new ae_replication_report(*replic_report);
+  _replics[t][id] = new ReplicationReport(*replic_report);
   _replics[t][id]->set_id(id);
 
   // debug

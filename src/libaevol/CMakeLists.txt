@@ -70,8 +70,8 @@ add_library(aevol
   Protein.h
   MersenneTwister.cpp
   MersenneTwister.h
-  ae_replication_report.cpp
-  ae_replication_report.h
+  ReplicationReport.cpp
+  ReplicationReport.h
   Rna.cpp
   Rna.h
   ae_selection.cpp
