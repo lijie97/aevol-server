@@ -938,7 +938,8 @@ void ae_gene_tree_node::anticipate_mutation_effect_on_genes_in_subtree_leaves(co
 
 
 
-void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leaves(ae_gene_tree* tree, const ae_mutation* mut, GeneticUnit* unit, int32_t gener, double impact_on_metabolic_error)
+void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leaves(
+    GeneTree * tree, const ae_mutation* mut, GeneticUnit* unit, int32_t gener, double impact_on_metabolic_error)
 {
   if ((_left_child != NULL) || (_right_child != NULL)) // I am a internal node, just delegate work to others
     {

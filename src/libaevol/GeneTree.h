@@ -76,7 +76,7 @@ enum ae_gene_creation_type
 class ae_gene_tree_node;
 
  
-class ae_gene_tree
+class GeneTree
 {  
   friend class ae_gene_tree_node;
 
@@ -85,15 +85,15 @@ class ae_gene_tree
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_gene_tree( void );
-    ae_gene_tree( int32_t nodeCreationDate, Protein * protein, const ae_mutation* mut = NULL ); // Creates a tree with just a root node.
+    GeneTree( void );
+    GeneTree( int32_t nodeCreationDate, Protein * protein, const ae_mutation* mut = NULL ); // Creates a tree with just a root node.
    
 
   
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_gene_tree( void );
+    virtual ~GeneTree( void );
   
     // =================================================================
     //                              Accessors
@@ -141,7 +141,7 @@ class ae_gene_tree
     //                         Forbidden Constructors
     // =================================================================
 
-    ae_gene_tree( const ae_gene_tree &model )
+    GeneTree( const GeneTree &model )
       {
         printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
         exit( EXIT_FAILURE );
@@ -173,37 +173,37 @@ class ae_gene_tree
 //                          Accessors' definitions
 // =====================================================================
 
-inline ae_gene_creation_type ae_gene_tree::get_creation_type() const
+inline ae_gene_creation_type GeneTree::get_creation_type() const
 {
   return _creation_type;
 }
 
-inline int32_t ae_gene_tree::get_begin_gener() const
+inline int32_t GeneTree::get_begin_gener() const
 {
   return _begin_gener;
 }
 
-inline int32_t ae_gene_tree::get_end_gener() const
+inline int32_t GeneTree::get_end_gener() const
 {
   return _end_gener;
 }
 
-inline int32_t ae_gene_tree::get_total_nb_nodes() const
+inline int32_t GeneTree::get_total_nb_nodes() const
 {
   return _total_nb_nodes;
 }
 
-inline int32_t ae_gene_tree::get_nb_internal_nodes() const
+inline int32_t GeneTree::get_nb_internal_nodes() const
 {
   return _nb_internal_nodes;
 }
 
-inline int32_t ae_gene_tree::get_nb_leaves() const
+inline int32_t GeneTree::get_nb_leaves() const
 {
   return _nb_leaves;
 }
 
-inline int32_t ae_gene_tree::get_nb_active_leaves() const
+inline int32_t GeneTree::get_nb_active_leaves() const
 {
   return _nb_active_leaves;
 }

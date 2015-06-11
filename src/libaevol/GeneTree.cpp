@@ -42,14 +42,14 @@
 //                            Project Files
 // =================================================================
 
-#include "ae_gene_tree.h"
+#include "GeneTree.h"
 #include "ae_gene_tree_node.h"
 
 namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                            Class ae_gene_tree                               #
+//                            Class GeneTree                               #
 //                                                                             #
 //##############################################################################
 
@@ -63,7 +63,7 @@ namespace aevol {
 //                             Constructors
 // =================================================================
 
-ae_gene_tree::ae_gene_tree( void )
+GeneTree::GeneTree( void )
 {
   _root = NULL;
   _begin_gener = 0;
@@ -76,7 +76,7 @@ ae_gene_tree::ae_gene_tree( void )
 }
 
 // Creates a tree with just a root node.
-ae_gene_tree::ae_gene_tree( int32_t nodeCreationDate, Protein * protein, const ae_mutation* mut /* = NULL */ )
+GeneTree::GeneTree( int32_t nodeCreationDate, Protein * protein, const ae_mutation* mut /* = NULL */ )
 {
   _root = new ae_gene_tree_node(nodeCreationDate, protein);
   if (mut == NULL)  _creation_type = INITIALIZATION;
@@ -100,7 +100,7 @@ ae_gene_tree::ae_gene_tree( int32_t nodeCreationDate, Protein * protein, const a
 //                             Destructors
 // =================================================================
 
-ae_gene_tree::~ae_gene_tree( void )
+GeneTree::~GeneTree( void )
 {
   delete _root;
 }
@@ -110,27 +110,27 @@ ae_gene_tree::~ae_gene_tree( void )
 //                           Public Methods
 // =================================================================
 
-void ae_gene_tree::set_end_gener_if_active_leaves(int32_t gener)
+void GeneTree::set_end_gener_if_active_leaves(int32_t gener)
 {
   if (_nb_active_leaves > 0) _end_gener = gener;
 }
 
-void ae_gene_tree::update_pointers_in_tree_leaves(GeneticUnit * unit)
+void GeneTree::update_pointers_in_tree_leaves(GeneticUnit * unit)
 {
   _root->update_pointers_in_subtree_leaves(unit);
 }
 
-void ae_gene_tree::anticipate_mutation_effect_on_genes_in_tree_leaves(const ae_mutation* mut, int32_t lengthOfGeneticUnit)
+void GeneTree::anticipate_mutation_effect_on_genes_in_tree_leaves(const ae_mutation* mut, int32_t lengthOfGeneticUnit)
 {
   _root->anticipate_mutation_effect_on_genes_in_subtree_leaves(mut, lengthOfGeneticUnit);
 }
 
-void ae_gene_tree::register_actual_mutation_effect_on_genes_in_tree_leaves(const ae_mutation* mut, GeneticUnit * unit, int32_t gener, double impact_on_metabolic_error)
+void GeneTree::register_actual_mutation_effect_on_genes_in_tree_leaves(const ae_mutation* mut, GeneticUnit * unit, int32_t gener, double impact_on_metabolic_error)
 {
   _root->register_actual_mutation_effect_on_genes_in_subtree_leaves( this, mut, unit, gener, impact_on_metabolic_error);
 }
 
-// void ae_gene_tree::duplicate_this_gene( ae_gene_tree_node * node, int32_t duplicDate, Protein * newProtein )
+// void GeneTree::duplicate_this_gene( ae_gene_tree_node * node, int32_t duplicDate, Protein * newProtein )
 // {
 //   if (newProtein == node->_protein_pointer) {fprintf(stderr, "Error, duplication with the same protein\n"); exit(EXIT_FAILURE);}
 
@@ -161,7 +161,7 @@ void ae_gene_tree::register_actual_mutation_effect_on_genes_in_tree_leaves(const
 // }
 
 
-// void ae_gene_tree::report_gene_mutation( ae_gene_tree_node * node, GeneMutation * geneMut)
+// void GeneTree::report_gene_mutation( ae_gene_tree_node * node, GeneMutation * geneMut)
 // {
 //   node->_mutation_list->add(geneMut);
 //   if (geneMut->get_generation() > _end_gener) _end_gener = geneMut->get_generation();
@@ -169,7 +169,7 @@ void ae_gene_tree::register_actual_mutation_effect_on_genes_in_tree_leaves(const
  
 
 
-// void ae_gene_tree::report_gene_loss( ae_gene_tree_node * node, int32_t geneLossDate, ae_gene_loss_type geneLossType)
+// void GeneTree::report_gene_loss( ae_gene_tree_node * node, int32_t geneLossDate, ae_gene_loss_type geneLossType)
 // {
 //   node->_gene_loss_date = geneLossDate;
 //   node->_gene_loss_type = geneLossType;
@@ -181,20 +181,20 @@ void ae_gene_tree::register_actual_mutation_effect_on_genes_in_tree_leaves(const
   
 
 
-ae_gene_tree_node * ae_gene_tree::search_in_leaves(const Protein * protein)
+ae_gene_tree_node *GeneTree::search_in_leaves(const Protein * protein)
 {
   return _root->search_in_subtree_leaves(protein);
 }
  
 
-void ae_gene_tree::print_to_screen(void)
+void GeneTree::print_to_screen(void)
 {
   _root->print_subtree_to_screen();
   printf("\n");
 }
 
 
-void ae_gene_tree::write_to_files(const char * topologyFileName, const char * nodeAttributesFileName, int32_t end_gener)
+void GeneTree::write_to_files(const char * topologyFileName, const char * nodeAttributesFileName, int32_t end_gener)
 {
   FILE  * topology_file = fopen(topologyFileName, "w");
   if (topology_file == NULL)
@@ -220,7 +220,7 @@ void ae_gene_tree::write_to_files(const char * topologyFileName, const char * no
 
 
 // f must already be open 
-void ae_gene_tree::write_nodes_in_tabular_file(int32_t treeID, FILE * f)
+void GeneTree::write_nodes_in_tabular_file(int32_t treeID, FILE * f)
 {
   _root->write_subtree_nodes_in_tabular_file(treeID, f);
 }

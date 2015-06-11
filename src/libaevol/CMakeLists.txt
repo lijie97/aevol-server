@@ -38,8 +38,8 @@ add_library(aevol
   Gaussian.h
   GeneMutation.cpp
   GeneMutation.h
-  ae_gene_tree.cpp
-  ae_gene_tree.h
+  GeneTree.cpp
+  GeneTree.h
   ae_gene_tree_node.cpp
   ae_gene_tree_node.h
   GeneticUnit.cpp
