@@ -25,7 +25,7 @@
 //*****************************************************************************
 
 
-/*! \class ae_stats
+/*! \class Stats
     \brief Manage statistics files
 */
  
@@ -65,21 +65,21 @@ class ExpManager;
 
 
  
-class ae_stats
+class Stats
 {  
   public :
   
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_stats(void) = delete;
-    ae_stats(const ae_stats&) = delete;
-    ae_stats(ExpManager * exp_m,
+    Stats(void) = delete;
+    Stats(const Stats &) = delete;
+    Stats(ExpManager * exp_m,
              bool best_indiv_only = false,
              const char* prefix = "stat",
              bool with_plasmids = false,
              bool compute_phen_contrib_by_GU = false);
-    ae_stats(ExpManager * exp_m,
+    Stats(ExpManager * exp_m,
              int64_t time,
              bool best_indiv_only = false,
              const char * prefix = "stat",
@@ -90,7 +90,7 @@ class ae_stats
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_stats(void);
+    virtual ~Stats(void);
 
     // =================================================================
     //                        Accessors: getters
@@ -160,17 +160,17 @@ class ae_stats
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-inline void ae_stats::set_exp_m( ExpManager * exp_m)
+inline void Stats::set_exp_m( ExpManager * exp_m)
 {
   _exp_m = exp_m;
 }
 
-inline void ae_stats::write_header( FILE* file_name, const char* header )
+inline void Stats::write_header( FILE* file_name, const char* header )
 {
   if ( file_name != NULL) fprintf( file_name, "# %s\n", header );
 }
 
-inline void ae_stats::write_header( FILE* file_name, const char* header, int8_t key )
+inline void Stats::write_header( FILE* file_name, const char* header, int8_t key )
 {
   if ( file_name != NULL) fprintf( file_name, "# %2d. %s\n", key, header );
 }

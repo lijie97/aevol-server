@@ -36,7 +36,7 @@
 #include <cstdlib>
 
 #include "Selection.h"
-#include "ae_stats.h"
+#include "Stats.h"
 #include "Logging.h"
 #include "ae_tree.h"
 #include "Dump.h"

@@ -80,8 +80,8 @@ add_library(aevol
   Selection.h
   StatRecord.cpp
   StatRecord.h
-  ae_stats.cpp
-  ae_stats.h
+  Stats.cpp
+  Stats.h
   ae_string.cpp
   ae_string.h
   ae_tree.cpp

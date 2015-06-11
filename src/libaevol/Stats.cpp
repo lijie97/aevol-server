@@ -41,7 +41,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_stats.h"
+#include "Stats.h"
 #include "StatRecord.h"
 #include "ExpManager.h"
 #include "ExpSetup.h"
@@ -56,7 +56,7 @@ namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                                Class ae_stats                               #
+//                                Class Stats                               #
 //                                                                             #
 //##############################################################################
 
@@ -70,7 +70,7 @@ namespace aevol {
 /*!
   Create a NEW stat manager
  */
-ae_stats::ae_stats(ExpManager * exp_m,
+Stats::Stats(ExpManager * exp_m,
              bool best_indiv_only /*= false*/,
              const char* prefix /*= "stat"*/,
              bool with_plasmids /*= false*/,
@@ -86,7 +86,7 @@ ae_stats::ae_stats(ExpManager * exp_m,
 /*!
   Create a stat manager to append existing stats
  */
-ae_stats::ae_stats(ExpManager * exp_m,
+Stats::Stats(ExpManager * exp_m,
                    int64_t time,
                    bool best_indiv_only,
                    const char * prefix /* = "stat" */,
@@ -188,7 +188,7 @@ ae_stats::ae_stats(ExpManager * exp_m,
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_stats::~ae_stats( void )
+Stats::~Stats( void )
 {
   for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
   {
@@ -245,7 +245,7 @@ inline double rsqr( double x )
 }
 
 
-void ae_stats::write_headers( bool ancstats_stats /* = false */ )
+void Stats::write_headers( bool ancstats_stats /* = false */ )
 {
   // Column key in the stat files
   int8_t key;
@@ -553,7 +553,7 @@ void ae_stats::write_headers( bool ancstats_stats /* = false */ )
   flush();
 }
 
-void ae_stats::write_current_generation_statistics( void )
+void Stats::write_current_generation_statistics( void )
 {
   StatRecord ** stat_records;
   
@@ -590,7 +590,7 @@ void ae_stats::write_current_generation_statistics( void )
   }
 }
 
-void ae_stats::write_statistics_of_this_indiv(Individual * indiv)
+void Stats::write_statistics_of_this_indiv(Individual * indiv)
 {
   StatRecord * stat_record;
   
@@ -612,7 +612,7 @@ void ae_stats::write_statistics_of_this_indiv(Individual * indiv)
   }
 }
 
-void ae_stats::flush( void )
+void Stats::flush( void )
 {
   for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
   {
@@ -636,7 +636,7 @@ void ae_stats::flush( void )
 /**
  * Allocate memory and initialize file handlers and file names to NULL
  */
-void ae_stats::init_data( void )
+void Stats::init_data( void )
 {
   _stat_files       = new FILE***[NB_CHROM_OR_GU];
   _stat_files_names = new char***[NB_CHROM_OR_GU];
@@ -668,7 +668,7 @@ void ae_stats::init_data( void )
  *       give it a name temporarily so that we can write the warning headers. Once this
  *       is done, the name will be deleted to mark the file as "not to be written into"
  */
-void ae_stats::set_file_names(const char* prefix,
+void Stats::set_file_names(const char* prefix,
                               bool one_lambda_indiv_only,
                               bool with_plasmids /*= false*/,
                               bool compute_phen_contrib_by_GU /*= false*/)
@@ -739,7 +739,7 @@ void ae_stats::set_file_names(const char* prefix,
 /**
  * Open files that have a non NULL name
  */
-void ae_stats::open_files( void )
+void Stats::open_files( void )
 {
   for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
   {

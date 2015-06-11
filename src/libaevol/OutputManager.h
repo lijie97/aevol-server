@@ -44,7 +44,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "ae_enums.h"
-#include "ae_stats.h"
+#include "Stats.h"
 #include "ae_tree.h"
 #include "Dump.h"
 #include "Logging.h"
@@ -161,7 +161,7 @@ class OutputManager
     int64_t _big_backup_step;
     
     // Stats
-    ae_stats* _stats;
+    Stats * _stats;
     bool      _compute_phen_contrib_by_GU;
   
     // Tree

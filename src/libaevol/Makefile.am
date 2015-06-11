@@ -54,7 +54,7 @@ JumpPoly.h \
 ReplicationReport.h \
 DnaReplicationReport.h \
 Rna.h \
-ae_stats.h \
+Stats.h \
 StatRecord.h \
 ae_string.h \
 ae_tree.h \
@@ -93,7 +93,7 @@ JumpingMT.cpp \
 ReplicationReport.cpp \
 DnaReplicationReport.cpp \
 Rna.cpp \
-ae_stats.cpp \
+Stats.cpp \
 StatRecord.cpp \
 ae_string.cpp \
 ae_tree.cpp \

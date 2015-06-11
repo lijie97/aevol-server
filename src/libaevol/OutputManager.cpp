@@ -63,7 +63,7 @@ namespace aevol {
 OutputManager::OutputManager(ExpManager * exp_m)
 {
   _exp_m  = exp_m;
-  _stats  = new ae_stats(exp_m);;
+  _stats  = new Stats(exp_m);;
   _tree   = NULL;
   _dump   = NULL;
   _compute_phen_contrib_by_GU = false;
@@ -166,11 +166,11 @@ void OutputManager::load( gzFile setup_file, bool verbose, bool to_be_run  )
   {
     if (Time::get_time() > 0)
     {
-      _stats = new ae_stats(_exp_m, Time::get_time());
+      _stats = new Stats(_exp_m, Time::get_time());
     }
     else
     {
-      _stats = new ae_stats(_exp_m);
+      _stats = new Stats(_exp_m);
     }
   }
   gzread( setup_file, &_compute_phen_contrib_by_GU,  sizeof(_compute_phen_contrib_by_GU) );
@@ -224,11 +224,11 @@ void OutputManager::load(FILE* setup_file, bool verbose, bool to_be_run)
   {
     if (Time::get_time() > 0)
     {
-      _stats = new ae_stats(_exp_m, Time::get_time());
+      _stats = new Stats(_exp_m, Time::get_time());
     }
     else
     {
-      _stats = new ae_stats(_exp_m);
+      _stats = new Stats(_exp_m);
     }
   }
   {

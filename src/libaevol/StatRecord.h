@@ -53,7 +53,7 @@ namespace aevol {
 //                          Class declarations
 // =================================================================
 class ExpManager;
-class ae_stats;
+class Stats;
 class Individual;
 class ae_population;
 
@@ -100,7 +100,7 @@ enum stats_type
 
 class StatRecord
 {
-  friend class ae_stats;
+  friend class Stats;
   public :
 
     // =================================================================
