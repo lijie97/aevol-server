@@ -44,7 +44,7 @@
 #include "Individual.h"
 #include "GeneticUnit.h"
 #include "ReplicationReport.h"
-#include "dna_replic_report.h"
+#include "DnaReplicationReport.h"
 
 
 using std::list;

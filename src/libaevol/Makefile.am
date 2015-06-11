@@ -51,8 +51,8 @@ point.h \
 Protein.h \
 JumpingMT.h \
 JumpPoly.h \
-ae_replication_report.h \
-dna_replic_report.h \
+ReplicationReport.h \
+DnaReplicationReport.h \
 Rna.h \
 ae_stats.h \
 ae_stat_record.h \
@@ -90,8 +90,8 @@ phenotypic_target_handler.cpp \
 point.cpp \
 Protein.cpp \
 JumpingMT.cpp \
-ae_replication_report.cpp \
-dna_replic_report.cpp \
+ReplicationReport.cpp \
+DnaReplicationReport.cpp \
 Rna.cpp \
 ae_stats.cpp \
 ae_stat_record.cpp \

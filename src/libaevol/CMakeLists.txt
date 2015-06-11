@@ -72,6 +72,8 @@ add_library(aevol
   MersenneTwister.h
   ReplicationReport.cpp
   ReplicationReport.h
+  DnaReplicationReport.cpp
+  DnaReplicationReport.h
   Rna.cpp
   Rna.h
   ae_selection.cpp
@@ -89,8 +91,6 @@ add_library(aevol
   ae_vis_a_vis.h
   ae_X11_window.cpp
   ae_X11_window.h
-  dna_replic_report.cpp
-  dna_replic_report.h
   f_line.cpp
   f_line.h
   Fuzzy.cpp
