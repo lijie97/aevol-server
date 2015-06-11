@@ -52,22 +52,22 @@ namespace aevol {
 
 
  
-class ae_env_segment
+class PhenotypicSegment
 {  
   public :
   
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_env_segment() = delete;
-    inline ae_env_segment(double start, double stop, ae_env_axis_feature feature);
-    inline ae_env_segment(const ae_env_segment& source);
-    inline ae_env_segment(gzFile backup_file);
+    PhenotypicSegment() = delete;
+    inline PhenotypicSegment(double start, double stop, ae_env_axis_feature feature);
+    inline PhenotypicSegment(const PhenotypicSegment & source);
+    inline PhenotypicSegment(gzFile backup_file);
   
     // =================================================================
     //                             Destructors
     // =================================================================
-    inline virtual ~ae_env_segment(void);
+    inline virtual ~PhenotypicSegment(void);
   
     // =================================================================
     //                              Accessors
@@ -105,35 +105,35 @@ class ae_env_segment
 
 //##############################################################################
 //                                                                             #
-//                             Class ae_env_segment                            #
+//                             Class PhenotypicSegment                            #
 //                                                                             #
 //##############################################################################
 
 // =================================================================
 //                             Constructors
 // =================================================================
-//~ inline ae_env_segment::ae_env_segment(void)
+//~ inline PhenotypicSegment::PhenotypicSegment(void)
 //~ {
   //~ start   = X_MIN;
   //~ stop    = X_MAX;
   //~ feature = NEUTRAL;
 //~ }
 
-inline ae_env_segment::ae_env_segment(double start, double stop, ae_env_axis_feature feature)
+inline PhenotypicSegment::PhenotypicSegment(double start, double stop, ae_env_axis_feature feature)
 {
   this->start   = start;
   this->stop    = stop;
   this->feature = feature;
 }
 
-inline ae_env_segment::ae_env_segment(const ae_env_segment& source)
+inline PhenotypicSegment::PhenotypicSegment(const PhenotypicSegment & source)
 {
   this->start   = source.start;
   this->stop    = source.stop;
   this->feature = source.feature;
 }
 
-inline ae_env_segment::ae_env_segment(gzFile backup_file)
+inline PhenotypicSegment::PhenotypicSegment(gzFile backup_file)
 {
   load(backup_file);
 }
@@ -141,7 +141,7 @@ inline ae_env_segment::ae_env_segment(gzFile backup_file)
 // =================================================================
 //                             Destructors
 // =================================================================
-inline ae_env_segment::~ae_env_segment(void)
+inline PhenotypicSegment::~PhenotypicSegment(void)
 {
 }
 
@@ -152,7 +152,7 @@ inline ae_env_segment::~ae_env_segment(void)
 // =================================================================
 //                            Public Methods
 // =================================================================
-inline void ae_env_segment::save(gzFile backup_file) const
+inline void PhenotypicSegment::save(gzFile backup_file) const
 {
   gzwrite(backup_file, &start, sizeof(start));
   gzwrite(backup_file, &stop,  sizeof(stop));
@@ -160,7 +160,7 @@ inline void ae_env_segment::save(gzFile backup_file) const
   gzwrite(backup_file, &tmp_feature, sizeof(tmp_feature));
 }
 
-inline void ae_env_segment::load(gzFile backup_file)
+inline void PhenotypicSegment::load(gzFile backup_file)
 {
   gzread(backup_file, &start,  sizeof(start));
   gzread(backup_file, &stop,   sizeof(stop));

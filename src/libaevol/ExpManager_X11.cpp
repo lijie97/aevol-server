@@ -758,7 +758,7 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
       // Mark all the non-metabolic segments (paint them in grey)
       if (phenotypic_target.nb_segments() > 1)
       {
-        ae_env_segment** segments = phenotypic_target.segments();
+        PhenotypicSegment ** segments = phenotypic_target.segments();
 
         for (size_t i = 0 ; i < phenotypic_target.nb_segments() ; i++) // TODO <david.parsons@inria.fr> suppress warning
         {

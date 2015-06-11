@@ -52,7 +52,7 @@
 
 #include "ae_jumping_mt.h"
 #include "ae_gaussian.h"
-#include "ae_env_segment.h"
+#include "PhenotypicSegment.h"
 #include "point.h"
 #include "Alignment.h"
 #include "world.h"

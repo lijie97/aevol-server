@@ -28,7 +28,7 @@ add_library(aevol
   Dump.cpp
   Dump.h
   ae_enums.h
-  ae_env_segment.h
+  PhenotypicSegment.h
   ExpManager.cpp
   ExpManager.h
   ExpManager_X11.cpp

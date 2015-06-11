@@ -30,7 +30,7 @@ Codon.h \
 Dna.h \
 Dump.h \
 ae_enums.h \
-ae_env_segment.h \
+PhenotypicSegment.h \
 ExpManager.h \
 ExpSetup.h \
 Fuzzy.h \

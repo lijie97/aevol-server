@@ -1348,7 +1348,7 @@ void Individual::compute_distance_to_target(const PhenotypicTarget& target) {
   Fuzzy* delta = new Fuzzy(*_phenotype);
   delta->sub(target);
 
-  ae_env_segment** segments = target.segments();
+  PhenotypicSegment ** segments = target.segments();
   _dist_to_target_by_segment = new double [target.nb_segments()];
   for (size_t i = 0 ; i < target.nb_segments() ; i++) // TODO dpa suppress warning
   {

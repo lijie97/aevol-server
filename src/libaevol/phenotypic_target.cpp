@@ -53,16 +53,16 @@ namespace aevol {
 // ============================================================================
 PhenotypicTarget::PhenotypicTarget() : Fuzzy() {
   nb_segments_     = 1;
-  segments_        = new ae_env_segment* [1];
-  segments_[0]     = new ae_env_segment(X_MIN, X_MAX, METABOLISM);
+  segments_        = new PhenotypicSegment * [1];
+  segments_[0]     = new PhenotypicSegment(X_MIN, X_MAX, METABOLISM);
   area_by_feature_ = new double [NB_FEATURES];
 }
 
 PhenotypicTarget::PhenotypicTarget(const PhenotypicTarget& rhs) : Fuzzy(rhs) {
   nb_segments_     = rhs.nb_segments_;
-  segments_        = new ae_env_segment* [nb_segments_];
+  segments_        = new PhenotypicSegment * [nb_segments_];
   for (int8_t i = 0 ; i < nb_segments_ ; i++)
-    segments_[i] = new ae_env_segment(*(rhs.segments_[i]));
+    segments_[i] = new PhenotypicSegment(*(rhs.segments_[i]));
   area_by_feature_ = new double [NB_FEATURES];
   memcpy(area_by_feature_,
          rhs.area_by_feature_,
@@ -95,10 +95,10 @@ void PhenotypicTarget::set_segmentation(int8_t nb_segments,
 
   // Now replace with the new data
   nb_segments_  = nb_segments;
-  segments_     = new ae_env_segment* [nb_segments_];
+  segments_     = new PhenotypicSegment * [nb_segments_];
 
   for (int8_t i = 0 ; i < nb_segments_; i++)
-    segments_[i] = new ae_env_segment(boundaries[i], boundaries[i+1], features[i]);
+    segments_[i] = new PhenotypicSegment(boundaries[i], boundaries[i+1], features[i]);
 
   // TODO <dpa>: Manage separate_segments
 }
@@ -133,9 +133,9 @@ void PhenotypicTarget::LoadSegmentation(gzFile backup_file) {
 
   // Replace by data from the backup
   gzread(backup_file, &nb_segments_, sizeof(nb_segments_));
-  segments_ = new ae_env_segment* [nb_segments_];
+  segments_ = new PhenotypicSegment * [nb_segments_];
   for (int8_t i = 0 ; i < nb_segments_; i++)
-    segments_[i] = new ae_env_segment(backup_file);
+    segments_[i] = new PhenotypicSegment(backup_file);
 }
 
 // ============================================================================

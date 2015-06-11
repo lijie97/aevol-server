@@ -1148,7 +1148,7 @@ void GeneticUnit::compute_distance_to_target(const PhenotypicTarget& target) {
   Fuzzy* delta = new Fuzzy( *_phenotypic_contribution );
   delta->sub( target );
 
-  ae_env_segment** segments = target.segments();
+  PhenotypicSegment ** segments = target.segments();
 
   // TODO <david.parsons@inria.fr> We should take into account that we compute the areas in order (from the leftmost segment, rightwards)
   //   => We shouldn't parse the whole list of points on the left of the segment we are considering (we have
