@@ -68,8 +68,8 @@ add_library(aevol
   phenotype.h
   Protein.cpp
   Protein.h
-  ae_rand_mt.cpp
-  ae_rand_mt.h
+  MersenneTwister.cpp
+  MersenneTwister.h
   ae_replication_report.cpp
   ae_replication_report.h
   Rna.cpp

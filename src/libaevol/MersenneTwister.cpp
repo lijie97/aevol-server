@@ -38,13 +38,13 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_rand_mt.h"
+#include "MersenneTwister.h"
 
 namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                               Class ae_rand_mt                              #
+//                               Class MersenneTwister                              #
 //                                                                             #
 //##############################################################################
 
@@ -55,19 +55,19 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_rand_mt::ae_rand_mt( const uint32_t& oneSeed )
+MersenneTwister::MersenneTwister( const uint32_t& oneSeed )
 {
   seed( oneSeed );
 }
 
-ae_rand_mt::ae_rand_mt( gzFile backup_file )
+MersenneTwister::MersenneTwister( gzFile backup_file )
 {
   uint32_t loadArray[SAVE];
   gzread( backup_file, loadArray, SAVE * sizeof( loadArray[0] ) );
   load( loadArray );
 }
 
-ae_rand_mt::ae_rand_mt( const ae_rand_mt& model )
+MersenneTwister::MersenneTwister( const MersenneTwister & model )
 {
   memcpy( state, model.state, N * sizeof(*state) );
   pNext = state + (model.pNext - model.state);
@@ -78,14 +78,14 @@ ae_rand_mt::ae_rand_mt( const ae_rand_mt& model )
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_rand_mt::~ae_rand_mt( void )
+MersenneTwister::~MersenneTwister( void )
 {
 }
 
 // =================================================================
 //                            Public Methods
 // =================================================================
-int32_t ae_rand_mt::binomial_random( int32_t nb_drawings, double prob )
+int32_t MersenneTwister::binomial_random( int32_t nb_drawings, double prob )
 {
   // Returns an integer value that is a random deviate drawn from 
   // a binomial distribution of <nb> trials each of probability <prob>.
@@ -169,7 +169,7 @@ int32_t ae_rand_mt::binomial_random( int32_t nb_drawings, double prob )
   return nb_success;
 }
 
-double ae_rand_mt::gaussian_random( void )
+double MersenneTwister::gaussian_random( void )
 {
   double x1, x2;
   double r = 0;
@@ -187,7 +187,7 @@ double ae_rand_mt::gaussian_random( void )
   return x1 * r;
 }
 
-void ae_rand_mt::multinomial_drawing( int32_t* destination, double* source, int32_t nb_drawings, int32_t nb_colors )
+void MersenneTwister::multinomial_drawing( int32_t* destination, double* source, int32_t nb_drawings, int32_t nb_colors )
 {
   //    This function generates a vector of random variates, each with the
   //    binomial distribution (source code from http://www.agner.org/random/).
@@ -257,7 +257,7 @@ void ae_rand_mt::multinomial_drawing( int32_t* destination, double* source, int3
   destination[nb_colors-1] = n;
 }
 
-void ae_rand_mt::multinomial_roulette( int32_t* destination, double* source, int32_t nb_drawings, int32_t nb_colors )
+void MersenneTwister::multinomial_roulette( int32_t* destination, double* source, int32_t nb_drawings, int32_t nb_colors )
 {
   double rand_value;
   
@@ -297,7 +297,7 @@ void ae_rand_mt::multinomial_roulette( int32_t* destination, double* source, int
 // =================================================================
 //                           Protected Methods
 // =================================================================
-double ae_rand_mt::gammln( double X )
+double MersenneTwister::gammln( double X )
 // Returns the value ln[gamma(X)] for X.
 // The gamma function is defined by the integral  gamma(z) = int(0, +inf, t^(z-1).e^(-t)dt). 
 // When the argument z is an integer, the gamma function is just the familiar factorial 

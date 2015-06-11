@@ -24,8 +24,8 @@
 // 
 // ****************************************************************************
 //
-// ae_rand_mt.h
-// Mersenne Twister random number generator -- a C++ class ae_rand_mt
+// MersenneTwister.h
+// Mersenne Twister random number generator -- a C++ class MersenneTwister
 // Based on code by Makoto Matsumoto, Takuji Nishimura, and Shawn Cokus
 // Richard J. Wagner  v1.0  15 May 2003  rjwagner@writeme.com
 
@@ -94,7 +94,7 @@
 //          MT_RAND_MAX = OxFFFFFFFF + 1 = 2e32
 
 // Not thread safe (unless auto-initialization is avoided and each thread has
-// its own ae_rand_mt object)
+// its own MersenneTwister object)
 
 #include <stdint.h>
 #include <limits.h>
@@ -107,7 +107,7 @@
 
 namespace aevol {
 
-class ae_rand_mt
+class MersenneTwister
 {
   // Data
   public:
@@ -125,12 +125,12 @@ class ae_rand_mt
   //Methods
   public:
     // Constructors
-    ae_rand_mt( const uint32_t& oneSeed );  // initialize with a simple uint32_t
-    ae_rand_mt( gzFile backup_file );      // Load from a gz backup file
-    ae_rand_mt( const ae_rand_mt& model );
+    MersenneTwister( const uint32_t& oneSeed );  // initialize with a simple uint32_t
+    MersenneTwister( gzFile backup_file );      // Load from a gz backup file
+    MersenneTwister( const MersenneTwister & model );
   
     // Destructors
-    virtual ~ae_rand_mt( void );
+    virtual ~MersenneTwister( void );
     
     // Main generator
     inline uint32_t rand_next( void ); // Draw a 32-bit-long integer in [0, 2e32[
@@ -159,7 +159,7 @@ class ae_rand_mt
     inline void write_to_backup( gzFile backup_file ) const;
 
   protected:
-    ae_rand_mt( void )
+    MersenneTwister( void )
     {
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
@@ -179,7 +179,7 @@ class ae_rand_mt
 
 
 
-inline uint32_t ae_rand_mt::rand_next()
+inline uint32_t MersenneTwister::rand_next()
 {
   // Pull a 32-bit integer from the generator state
   // Every other access function simply transforms the numbers extracted here
@@ -195,34 +195,34 @@ inline uint32_t ae_rand_mt::rand_next()
   return ( s1 ^ (s1 >> 18) );
 }
 
-inline double ae_rand_mt::random( void )  // Double in [0, 1) (uniform distribution)
+inline double MersenneTwister::random( void )  // Double in [0, 1) (uniform distribution)
 {
   return ((double)rand_next()) / MT_RAND_MAX_PLUS_1;
 }
 
-inline int8_t ae_rand_mt::random( int8_t max ) // Integer in [0, max[ (uniform distribution)
+inline int8_t MersenneTwister::random( int8_t max ) // Integer in [0, max[ (uniform distribution)
 {
   return (int8_t)( ((double)max) * (((double)rand_next()) / MT_RAND_MAX_PLUS_1) );
 }
 
-inline int16_t ae_rand_mt::random( int16_t max ) // Integer in [0, max[ (uniform distribution)
+inline int16_t MersenneTwister::random( int16_t max ) // Integer in [0, max[ (uniform distribution)
 {
   return (int16_t)( ((double)max) * (((double)rand_next()) / MT_RAND_MAX_PLUS_1) );
 }
 
-inline int32_t ae_rand_mt::random( int32_t max ) // Integer in [0, max[ (uniform distribution)
+inline int32_t MersenneTwister::random( int32_t max ) // Integer in [0, max[ (uniform distribution)
 {
   return (int32_t)( ((double)max) * (((double)rand_next()) / MT_RAND_MAX_PLUS_1) );
 }
 
-inline void ae_rand_mt::seed( const uint32_t oneSeed )
+inline void MersenneTwister::seed( const uint32_t oneSeed )
 {
   // Seed the generator with a simple uint32_t
   initialize( oneSeed );
   reload();
 }
 
-inline void ae_rand_mt::initialize( const uint32_t seed )
+inline void MersenneTwister::initialize( const uint32_t seed )
 {
   // Initialize generator state with seed
   // See Knuth TAOCP Vol 2, 3rd Ed, p.106 for multiplier.
@@ -240,7 +240,7 @@ inline void ae_rand_mt::initialize( const uint32_t seed )
 }
 
 
-void ae_rand_mt::reload()
+void MersenneTwister::reload()
 {
   // Generate N new values in state
   // Made clearer and faster by Matthew Bellew (matthew.bellew@home.com)
@@ -256,7 +256,7 @@ void ae_rand_mt::reload()
 }
 
 
-uint32_t ae_rand_mt::hash( time_t t, clock_t c )
+uint32_t MersenneTwister::hash( time_t t, clock_t c )
 {
   // Get a uint32_t from t and c
   // Better than uint32_t(x) in case x is floating point in [0,1]
@@ -282,7 +282,7 @@ uint32_t ae_rand_mt::hash( time_t t, clock_t c )
 }
 
 
-void ae_rand_mt::save( uint32_t* saveArray ) const
+void MersenneTwister::save( uint32_t* saveArray ) const
 {
   register uint32_t *sa = saveArray;
   register const uint32_t *s = state;
@@ -292,7 +292,7 @@ void ae_rand_mt::save( uint32_t* saveArray ) const
 }
 
 
-void ae_rand_mt::load( uint32_t *const loadArray )
+void MersenneTwister::load( uint32_t *const loadArray )
 {
   register uint32_t *s = state;
   register uint32_t *la = loadArray;
