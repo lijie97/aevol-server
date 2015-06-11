@@ -47,7 +47,7 @@
 #include "ae_stats.h"
 #include "ae_tree.h"
 #include "Dump.h"
-#include "ae_logs.h"
+#include "Logging.h"
 
 
 namespace aevol {
@@ -174,7 +174,7 @@ class ae_output_manager
     Dump *  _dump;
     
     // Logs
-    ae_logs*  _logs;
+    Logging *  _logs;
 };
 
 

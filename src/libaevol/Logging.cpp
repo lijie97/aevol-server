@@ -36,14 +36,14 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_logs.h"
+#include "Logging.h"
 #include "ExpSetup.h"
 
 namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                                Class ae_logs                                #
+//                                Class Logging                                #
 //                                                                             #
 //##############################################################################
 
@@ -55,7 +55,7 @@ namespace aevol {
 //                             Constructors
 // =================================================================
 
-ae_logs::ae_logs( void )
+Logging::Logging( void )
 {
   _logs = 0;
   
@@ -68,7 +68,7 @@ ae_logs::ae_logs( void )
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_logs::~ae_logs( void )
+Logging::~Logging( void )
 {
   if ( _logs & LOG_TRANSFER )
   {
@@ -91,12 +91,12 @@ ae_logs::~ae_logs( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-/*void ae_logs::save( gzFile setup_file ) const
+/*void Logging::save( gzFile setup_file ) const
 {
   gzwrite( backup_file, &_logs, sizeof(_logs) );
 }*/
 
-void ae_logs::load( int8_t logs, int32_t num_gener )
+void Logging::load( int8_t logs, int32_t num_gener )
 {
   char* line = new char[500];
   
@@ -280,12 +280,12 @@ void ae_logs::load( int8_t logs, int32_t num_gener )
   delete [] line;
 }
 
-void ae_logs::print_to_file( FILE* file ) const
+void Logging::print_to_file( FILE* file ) const
 {
   fprintf( file, "logs        :                %" PRId8 "\n", _logs );
 }
 
-void ae_logs::set_logs( int8_t logs )
+void Logging::set_logs( int8_t logs )
 {
   _logs = logs;
     
@@ -332,7 +332,7 @@ void ae_logs::set_logs( int8_t logs )
   this->write_headers();
 }
 
-void ae_logs::flush( void )
+void Logging::flush( void )
 {
   if ( _logs & LOG_TRANSFER )
   {
@@ -355,7 +355,7 @@ void ae_logs::flush( void )
 // =================================================================
 //                           Protected Methods
 // =================================================================
-void ae_logs::write_headers( void ) const
+void Logging::write_headers( void ) const
 {
   // ========== TRANSFER LOG ==========
   if ( _logs & LOG_TRANSFER )

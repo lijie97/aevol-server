@@ -70,7 +70,7 @@ ae_output_manager::ae_output_manager(ExpManager * exp_m)
   _record_tree = false;
   _make_dumps = false;
   _dump_step = 0;
-  _logs  = new ae_logs();
+  _logs  = new Logging();
 }
 
 // =================================================================

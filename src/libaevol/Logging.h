@@ -54,19 +54,19 @@ namespace aevol {
 
 
 
-class ae_logs
+class Logging
 {
   public :
 
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_logs( void );
+    Logging( void );
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_logs( void );
+    virtual ~Logging( void );
 
     // =================================================================
     //                              Accessors
@@ -102,12 +102,12 @@ class ae_logs
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    /*    ae_logs( void )
+    /*    Logging( void )
     {
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
     };
-    ae_logs( const ae_logs &model )
+    Logging( const Logging &model )
     {
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
@@ -133,7 +133,7 @@ class ae_logs
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-inline FILE* ae_logs::get_log( ae_log_type log_type ) const
+inline FILE*Logging::get_log( ae_log_type log_type ) const
 {
   switch ( log_type )
   {
@@ -161,12 +161,12 @@ inline FILE* ae_logs::get_log( ae_log_type log_type ) const
   }
 }
 
-inline int8_t ae_logs::get_logs() const
+inline int8_t Logging::get_logs() const
 {
   return _logs;
 }
 
-inline bool ae_logs::is_logged( ae_log_type log_type ) const
+inline bool Logging::is_logged( ae_log_type log_type ) const
 {
   switch ( log_type )
   {

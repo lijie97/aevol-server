@@ -39,7 +39,7 @@ GeneticUnit.h \
 GridCell.h \
 Individual.h \
 IndividualFactory.h \
-ae_logs.h \
+Logging.h \
 macros.h \
 ae_mutation.h \
 ae_output_manager.h \
@@ -81,7 +81,7 @@ GeneticUnit.cpp \
 GridCell.cpp \
 Individual.cpp \
 IndividualFactory.cpp \
-ae_logs.cpp \
+Logging.cpp \
 ae_mutation.cpp \
 ae_output_manager.cpp \
 ae_params_mut.cpp \
