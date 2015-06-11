@@ -63,18 +63,18 @@ class ExpManager;
 
 
 
-class ae_output_manager
+class OutputManager
 {
   public :
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_output_manager( ExpManager * exp_m );
+    OutputManager( ExpManager * exp_m );
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_output_manager( void );
+    virtual ~OutputManager( void );
 
     // =================================================================
     //                        Accessors: getters
@@ -134,12 +134,12 @@ class ae_output_manager
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    ae_output_manager( void )
+    OutputManager( void )
     {
       printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
     };
-    ae_output_manager( const ae_output_manager &model )
+    OutputManager( const OutputManager &model )
     {
       printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
@@ -183,50 +183,50 @@ class ae_output_manager
 // =====================================================================
 
 // Backup
-inline int64_t ae_output_manager::get_backup_step(void) const
+inline int64_t OutputManager::get_backup_step(void) const
 {
   return _backup_step;
 }
 
-inline int64_t ae_output_manager::get_big_backup_step(void) const
+inline int64_t OutputManager::get_big_backup_step(void) const
 {
   return _big_backup_step;
 }
 
 // Tree
-inline bool ae_output_manager::get_record_tree( void ) const
+inline bool OutputManager::get_record_tree( void ) const
 {
   return _record_tree;
 }
 
-inline int64_t ae_output_manager::get_tree_step( void ) const
+inline int64_t OutputManager::get_tree_step( void ) const
 {
   return _tree->get_tree_step();
 }
 
-inline ae_tree_mode ae_output_manager::get_tree_mode( void ) const
+inline ae_tree_mode OutputManager::get_tree_mode( void ) const
 {
   return _tree->get_tree_mode();
 }
 
-inline ae_tree* ae_output_manager::get_tree( void ) const
+inline ae_tree*OutputManager::get_tree( void ) const
 {
   return _tree;
 }
 
 // Logs
-inline FILE* ae_output_manager::get_log( ae_log_type log_type )   const
+inline FILE*OutputManager::get_log( ae_log_type log_type )   const
 {
   return _logs->get_log( log_type );
 }
 
-inline bool  ae_output_manager::is_logged( ae_log_type log_type ) const
+inline bool  OutputManager::is_logged( ae_log_type log_type ) const
 {
   return _logs->is_logged( log_type );
 }
 
 // Stats
-inline bool ae_output_manager::get_compute_phen_contrib_by_GU( void ) const
+inline bool OutputManager::get_compute_phen_contrib_by_GU( void ) const
 {
   return _compute_phen_contrib_by_GU;
 }
@@ -234,34 +234,34 @@ inline bool ae_output_manager::get_compute_phen_contrib_by_GU( void ) const
 // =====================================================================
 //                           Setters' definitions
 // =====================================================================
-inline void ae_output_manager::set_backup_step(int64_t backup_step)
+inline void OutputManager::set_backup_step(int64_t backup_step)
 {
   _backup_step = backup_step;
 }
 
-inline void ae_output_manager::set_big_backup_step(int64_t big_backup_step)
+inline void OutputManager::set_big_backup_step(int64_t big_backup_step)
 {
   _big_backup_step = big_backup_step;
 }
 
-inline void ae_output_manager::init_tree(ExpManager * exp_m, ae_tree_mode _tree_mode, int64_t _tree_step)
+inline void OutputManager::init_tree(ExpManager * exp_m, ae_tree_mode _tree_mode, int64_t _tree_step)
 {
   _record_tree = true;
   _tree = new ae_tree( exp_m, _tree_mode, _tree_step );
 }
 
-inline void ae_output_manager::set_dump_step(int64_t dump_step)
+inline void OutputManager::set_dump_step(int64_t dump_step)
 {
   _make_dumps = true;
   _dump_step  = dump_step;
 }
 
-inline void ae_output_manager::set_compute_phen_contrib_by_GU( bool compute_phen_contrib_by_GU )
+inline void OutputManager::set_compute_phen_contrib_by_GU( bool compute_phen_contrib_by_GU )
 {
   _compute_phen_contrib_by_GU = compute_phen_contrib_by_GU;
 }
 
-inline void ae_output_manager::set_logs (int8_t logs)
+inline void OutputManager::set_logs (int8_t logs)
 {
   _logs->set_logs(logs);
 }
@@ -273,7 +273,7 @@ inline void ae_output_manager::set_logs (int8_t logs)
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-inline void ae_output_manager::flush( void )
+inline void OutputManager::flush( void )
 {
   _stats->flush();
 }

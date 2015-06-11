@@ -46,7 +46,7 @@
 
 #include "ExpManager.h"
 #include "ExpSetup.h"
-#include "ae_output_manager.h"
+#include "OutputManager.h"
 #include "Individual.h"
 #include "IndividualFactory.h"
 
@@ -1208,7 +1208,7 @@ void param_loader::load(ExpManager * exp_m, bool verbose,
   // Create aliases
   ExpSetup * exp_s = exp_m->get_exp_s();
   ae_selection* sel = exp_m->get_sel();
-  ae_output_manager* output_m  = exp_m->get_output_m();
+  OutputManager * output_m  = exp_m->get_output_m();
 
   // 1) ------------------------------------- Initialize the experimental setup
   sel->set_prng(std::make_unique<JumpingMT>(_prng->random(1000000)));

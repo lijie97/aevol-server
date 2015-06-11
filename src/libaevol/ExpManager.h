@@ -49,7 +49,7 @@
 #include "Time.h"
 #include "JumpingMT.h"
 #include "ExpSetup.h"
-#include "ae_output_manager.h"
+#include "OutputManager.h"
 #include "world.h"
 
 
@@ -89,7 +89,7 @@ class ExpManager
     // =======================================================================
     inline ExpSetup * get_exp_s(void) const;
     inline ae_selection* get_sel(void) const;
-    inline ae_output_manager* get_output_m(void) const;
+    inline OutputManager * get_output_m(void) const;
 
     inline bool quit_signal_received(void) const;
 
@@ -232,7 +232,7 @@ class ExpManager
     World* world_;
 
     // -------------------------------------------------------- Output manager
-    ae_output_manager* _output_m;
+    OutputManager * _output_m;
 
     // ----------------------------- Time step up to which we want to simulate
     int64_t t_end;
@@ -251,7 +251,7 @@ inline ExpSetup *ExpManager::get_exp_s(void) const
   return _exp_s;
 }
 
-inline ae_output_manager*ExpManager::get_output_m(void) const
+inline OutputManager *ExpManager::get_output_m(void) const
 {
   return _output_m;
 }

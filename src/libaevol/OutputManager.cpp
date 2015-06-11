@@ -39,7 +39,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_output_manager.h"
+#include "OutputManager.h"
 #include "ExpManager.h"
 #include "Time.h"
 
@@ -49,7 +49,7 @@ namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                           Class ae_output_manager                           #
+//                           Class OutputManager                           #
 //                                                                             #
 //##############################################################################
 
@@ -60,7 +60,7 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_output_manager::ae_output_manager(ExpManager * exp_m)
+OutputManager::OutputManager(ExpManager * exp_m)
 {
   _exp_m  = exp_m;
   _stats  = new ae_stats(exp_m);;
@@ -76,7 +76,7 @@ ae_output_manager::ae_output_manager(ExpManager * exp_m)
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_output_manager::~ae_output_manager( void )
+OutputManager::~OutputManager( void )
 {
   delete _stats;
   delete _tree;
@@ -87,7 +87,7 @@ ae_output_manager::~ae_output_manager( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_output_manager::write_setup_file( gzFile setup_file ) const
+void OutputManager::write_setup_file( gzFile setup_file ) const
 {
   // Write the backup steps
   gzwrite( setup_file, &_backup_step,      sizeof(_backup_step) );
@@ -117,7 +117,7 @@ void ae_output_manager::write_setup_file( gzFile setup_file ) const
   gzwrite( setup_file, &logs,  sizeof(logs) );
 }
 
-void ae_output_manager::write_setup_file(FILE* setup_file) const
+void OutputManager::write_setup_file(FILE* setup_file) const
 {
   // Write the backup steps
   fprintf(setup_file, "BACKUP_STEP %" PRId64 "\n", _backup_step);
@@ -155,7 +155,7 @@ void ae_output_manager::write_setup_file(FILE* setup_file) const
   fprintf(setup_file, "LOGS %" PRId8 "\n", logs);
 }
 
-void ae_output_manager::load( gzFile setup_file, bool verbose, bool to_be_run  )
+void OutputManager::load( gzFile setup_file, bool verbose, bool to_be_run  )
 {
   // Write the backup steps
   gzread( setup_file, &_backup_step,      sizeof(_backup_step) );
@@ -213,7 +213,7 @@ void ae_output_manager::load( gzFile setup_file, bool verbose, bool to_be_run  )
   }
 }
 
-void ae_output_manager::load(FILE* setup_file, bool verbose, bool to_be_run)
+void OutputManager::load(FILE* setup_file, bool verbose, bool to_be_run)
 {
   // Write the backup steps
   fscanf(setup_file, "BACKUP_STEP %" SCNd64 "\n", &_backup_step);
@@ -273,7 +273,7 @@ void ae_output_manager::load(FILE* setup_file, bool verbose, bool to_be_run)
   _logs->load(logs, Time::get_time());
 }
 
-void ae_output_manager::write_current_generation_outputs( void ) const
+void OutputManager::write_current_generation_outputs( void ) const
 {
   _stats->write_current_generation_statistics();
   
@@ -324,7 +324,7 @@ void ae_output_manager::write_current_generation_outputs( void ) const
 // =================================================================
 //                           Protected Methods
 // =================================================================
-void ae_output_manager::write_tree( void ) const
+void OutputManager::write_tree( void ) const
 {
   // Create the tree directory if it doesn't exist
   int status;

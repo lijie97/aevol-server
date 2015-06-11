@@ -42,7 +42,7 @@ IndividualFactory.h \
 Logging.h \
 macros.h \
 Mutation.h \
-ae_output_manager.h \
+OutputManager.h \
 ae_params_mut.h \
 phenotype.h \
 phenotypic_target.h \
@@ -83,7 +83,7 @@ Individual.cpp \
 IndividualFactory.cpp \
 Logging.cpp \
 Mutation.cpp \
-ae_output_manager.cpp \
+OutputManager.cpp \
 ae_params_mut.cpp \
 phenotypic_target.cpp \
 phenotypic_target_handler.cpp \

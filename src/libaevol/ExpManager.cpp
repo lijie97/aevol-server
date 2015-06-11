@@ -70,7 +70,7 @@ ExpManager::ExpManager(void)
   world_ = NULL;
 
   // ---------------------------------------------------------- Output manager
-  _output_m = new ae_output_manager(this);
+  _output_m = new OutputManager(this);
 
 
   // -------------------------------- Timestep up to which we want to simulate

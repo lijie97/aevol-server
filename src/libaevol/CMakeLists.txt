@@ -61,8 +61,8 @@ add_library(aevol
   Logging.h
   Mutation.cpp
   Mutation.h
-  ae_output_manager.cpp
-  ae_output_manager.h
+  OutputManager.cpp
+  OutputManager.h
   ae_params_mut.cpp
   ae_params_mut.h
   phenotype.h
