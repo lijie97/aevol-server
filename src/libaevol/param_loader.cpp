@@ -51,7 +51,7 @@
 #include "IndividualFactory.h"
 
 #include "ae_jumping_mt.h"
-#include "ae_gaussian.h"
+#include "Gaussian.h"
 #include "PhenotypicSegment.h"
 #include "point.h"
 #include "Alignment.h"
@@ -815,7 +815,8 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
   }
   else if ((strcmp(line->words[0], "ENV_ADD_GAUSSIAN") == 0) || (strcmp(line->words[0], "ENV_GAUSSIAN") == 0))
   {
-    std_env_gaussians.push_back(ae_gaussian(atof(line->words[1]), atof(line->words[2]), atof(line->words[3])));
+    std_env_gaussians.push_back(
+        Gaussian(atof(line->words[1]), atof(line->words[2]), atof(line->words[3])));
   }
   else if (strcmp(line->words[0], "ENV_SAMPLING") == 0)
   {

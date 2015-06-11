@@ -34,7 +34,7 @@ PhenotypicSegment.h \
 ExpManager.h \
 ExpSetup.h \
 Fuzzy.h \
-ae_gaussian.h \
+Gaussian.h \
 GeneticUnit.h \
 ae_grid_cell.h \
 Individual.h \

@@ -56,21 +56,21 @@ namespace aevol {
 
 
  
-class ae_gaussian
+class Gaussian
 {  
   public :
   
     // =================================================================
     //                             Constructors
     // =================================================================
-    inline ae_gaussian(double heigth, double mean, double width);
-    inline ae_gaussian(const ae_gaussian &model);
-    inline ae_gaussian(gzFile backup_file);
+    inline Gaussian(double heigth, double mean, double width);
+    inline Gaussian(const Gaussian &model);
+    inline Gaussian(gzFile backup_file);
   
     // =================================================================
     //                             Destructor
     // =================================================================
-    virtual inline ~ae_gaussian(void);
+    virtual inline ~Gaussian(void);
   
     // =================================================================
     //                              Accessors
@@ -102,7 +102,7 @@ class ae_gaussian
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    ae_gaussian(void)
+    Gaussian(void)
     {
       printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
       exit(EXIT_FAILURE);
@@ -124,21 +124,21 @@ class ae_gaussian
 // =====================================================================
 //                               Constructors
 // =====================================================================
-inline ae_gaussian::ae_gaussian(double height, double mean, double width)
+inline Gaussian::Gaussian(double height, double mean, double width)
 {
   _height = height;
   _mean   = mean;
   _width  = width;
 }
 
-inline ae_gaussian::ae_gaussian(const ae_gaussian &model)
+inline Gaussian::Gaussian(const Gaussian &model)
 {
   _height = model._height;
   _mean   = model._mean;
   _width  = model._width;
 }
 
-inline ae_gaussian::ae_gaussian(gzFile backup_file)
+inline Gaussian::Gaussian(gzFile backup_file)
 {
   gzread(backup_file, &_height,  sizeof(_height));
   gzread(backup_file, &_mean,    sizeof(_mean));
@@ -148,39 +148,39 @@ inline ae_gaussian::ae_gaussian(gzFile backup_file)
 // =====================================================================
 //                               Destructor
 // =====================================================================
-inline ae_gaussian::~ae_gaussian(void)
+inline Gaussian::~Gaussian(void)
 {
 }
 
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-inline double ae_gaussian::get_height(void) const
+inline double Gaussian::get_height(void) const
 {
   return _height;
 }
 
-inline double ae_gaussian::get_mean(void) const
+inline double Gaussian::get_mean(void) const
 {
   return _mean;
 }
 
-inline double ae_gaussian::get_width(void) const
+inline double Gaussian::get_width(void) const
 {
   return _width;
 }
 
-inline void ae_gaussian::set_height(double height)
+inline void Gaussian::set_height(double height)
 {
   _height = height;
 }
 
-inline void ae_gaussian::set_mean(double mean)
+inline void Gaussian::set_mean(double mean)
 {
   _mean = mean;
 }
 
-inline void ae_gaussian::set_width(double width)
+inline void Gaussian::set_width(double width)
 {
   _width = width;
 }
@@ -188,12 +188,12 @@ inline void ae_gaussian::set_width(double width)
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-double ae_gaussian::compute_y(double x) const
+double Gaussian::compute_y(double x) const
 {
   return _height * exp(-(x-_mean)*(x-_mean) / (2*_width*_width));
 }
 
-void ae_gaussian::save(gzFile backup_file) const
+void Gaussian::save(gzFile backup_file) const
 {
   gzwrite(backup_file, &_height, sizeof(_height));
   gzwrite(backup_file, &_mean, sizeof(_mean));

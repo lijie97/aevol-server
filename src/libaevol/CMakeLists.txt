@@ -35,7 +35,7 @@ add_library(aevol
   ExpManager_X11.h
   ExpSetup.cpp
   ExpSetup.h
-  ae_gaussian.h
+  Gaussian.h
   ae_gene_mutation.cpp
   ae_gene_mutation.h
   ae_gene_tree.cpp

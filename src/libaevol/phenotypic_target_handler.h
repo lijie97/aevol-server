@@ -41,7 +41,7 @@
 #include <list>
 
 #include "phenotypic_target.h"
-#include "ae_gaussian.h"
+#include "Gaussian.h"
 #include "ae_enums.h"
 #include "ae_jumping_mt.h"
 #include "Fuzzy.h"
@@ -98,7 +98,7 @@ class PhenotypicTargetHandler
   // ==========================================================================
   //                                 Setters
   // ==========================================================================
-  void set_gaussians(const list<ae_gaussian>& gaussians) {
+  void set_gaussians(const list<Gaussian>& gaussians) {
     current_gaussians_ = initial_gaussians_ = gaussians;
   }
   void set_sampling(int16_t val){
@@ -176,9 +176,9 @@ class PhenotypicTargetHandler
 
   // ---------------------------------------------------------------- Gaussians
   /// Phenotypic target's constitutive Gaussians in their initial state
-  std::list<ae_gaussian> initial_gaussians_;
+  std::list<Gaussian> initial_gaussians_;
     /// Phenotypic target's constitutive Gaussians in their current state
-  std::list<ae_gaussian> current_gaussians_;
+  std::list<Gaussian> current_gaussians_;
 
   // ----------------------------------------------------------------- Sampling
   /// Number of points to be generated from the gaussians.

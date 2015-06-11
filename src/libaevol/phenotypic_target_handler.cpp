@@ -128,7 +128,7 @@ void PhenotypicTargetHandler::build_phenotypic_target() {
   if (not current_gaussians_.empty())
     for (int16_t i = 0 ; i <= sampling_ ; i++) {
       Point new_point = Point(X_MIN + (double)i * (X_MAX - X_MIN) / (double)sampling_, 0.0);
-      for (const ae_gaussian& g: current_gaussians_)
+      for (const Gaussian & g: current_gaussians_)
         new_point.y += g.compute_y(new_point.x);
       phenotypic_target_->points.push_back(new_point);
     }
@@ -154,7 +154,7 @@ void PhenotypicTargetHandler::save(gzFile backup_file) const {
   // necessary)
   int8_t nb_gaussians = current_gaussians_.size();
   gzwrite(backup_file, &nb_gaussians, sizeof(nb_gaussians));
-  for (const ae_gaussian& g: current_gaussians_)
+  for (const Gaussian & g: current_gaussians_)
     g.save(backup_file);
 
   // --------------------------------------------------------------------------
@@ -195,7 +195,7 @@ void PhenotypicTargetHandler::save(gzFile backup_file) const {
   if (var_method_ != NO_VAR || noise_method_ != NO_NOISE) {
     size_t nb_gaussians = initial_gaussians_.size();
     gzwrite(backup_file, &nb_gaussians, sizeof(nb_gaussians));
-    for (const ae_gaussian& g: initial_gaussians_)
+    for (const Gaussian & g: initial_gaussians_)
       g.save(backup_file);
   }
 }
@@ -211,7 +211,7 @@ void PhenotypicTargetHandler::load(gzFile backup_file) {
   int8_t nb_gaussians;
   gzread(backup_file, &nb_gaussians, sizeof(nb_gaussians));
   for (int8_t i = 0 ; i < nb_gaussians ; i++)
-    current_gaussians_.push_back(ae_gaussian(backup_file));
+    current_gaussians_.push_back(Gaussian(backup_file));
 
   // --------------------------------------------------------------------------
   //  Retrieve sampling
@@ -253,8 +253,8 @@ void PhenotypicTargetHandler::load(gzFile backup_file) {
   if (var_method_ != NO_VAR || noise_method_ != NO_NOISE) {
     size_t nb_gaussians = initial_gaussians_.size();
     gzread(backup_file, &nb_gaussians, sizeof(nb_gaussians));
-    for (const ae_gaussian& g: initial_gaussians_)
-      initial_gaussians_.push_back(ae_gaussian(backup_file));
+    for (const Gaussian & g: initial_gaussians_)
+      initial_gaussians_.push_back(Gaussian(backup_file));
   }
 
   // --------------------------------------------------------------------------

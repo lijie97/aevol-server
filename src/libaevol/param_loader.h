@@ -47,7 +47,7 @@
 #include "ae_jumping_mt.h"
 #include "macros.h"
 #include "ae_enums.h"
-#include "ae_gaussian.h"
+#include "Gaussian.h"
 #include "point.h"
 #include "habitat.h"
 
@@ -132,7 +132,7 @@ class param_loader
   char*    _strain_name;
 
   // -------------------------------------------------------- Phenotypic target
-  std::list<ae_gaussian> std_env_gaussians;
+  std::list<Gaussian> std_env_gaussians;
   int16_t  _env_sampling;
 
   // ------------------------------------ Phenotypic target x-axis segmentation
