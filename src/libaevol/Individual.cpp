@@ -30,7 +30,7 @@
 #include "ExpManager.h"
 #include "GridCell.h"
 #include "GeneticUnit.h"
-#include "ae_vis_a_vis.h"
+#include "VisAVis.h"
 #include "ae_utils.h"
 
 #ifdef __NO_X

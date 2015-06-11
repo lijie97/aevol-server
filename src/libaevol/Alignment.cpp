@@ -77,15 +77,15 @@ namespace aevol {
 // =================================================================
 //                            Public Methods
 // =================================================================
-ae_vis_a_vis*Alignment::search_alignment_direct( const Dna * chrom_1, const int32_t seed_1,
+VisAVis *Alignment::search_alignment_direct( const Dna * chrom_1, const int32_t seed_1,
                                                  const Dna * chrom_2, const int32_t seed_2, const int16_t needed_score )
 {
-  ae_vis_a_vis * best_alignment = NULL;
+  VisAVis * best_alignment = NULL;
   
   int16_t nb_diags = 2 * chrom_1->get_indiv()->get_align_max_shift() + 1;
-  ae_vis_a_vis * cur_vav = NULL;
+  VisAVis * cur_vav = NULL;
   
-  // TODO : As ae_vis_a_vis now contains its score, we should adapt the code to make it more integrated
+  // TODO : As VisAVis now contains its score, we should adapt the code to make it more integrated
   int16_t cur_score;
   
   
@@ -111,15 +111,15 @@ ae_vis_a_vis*Alignment::search_alignment_direct( const Dna * chrom_1, const int3
     // Initialize cur_vav according to the diagonal we are on
     if ( cur_diag < chrom_1->get_indiv()->get_align_max_shift() )
     {
-      cur_vav = new ae_vis_a_vis( chrom_1, chrom_2, x_zone_1_first + cur_diag, w_zone_2_first, DIRECT );
+      cur_vav = new VisAVis( chrom_1, chrom_2, x_zone_1_first + cur_diag, w_zone_2_first, DIRECT );
     }
     else if ( cur_diag > chrom_1->get_indiv()->get_align_max_shift() )
     {
-      cur_vav = new ae_vis_a_vis( chrom_1, chrom_2, w_zone_1_first, w_zone_2_shifted_first - cur_diag, DIRECT );
+      cur_vav = new VisAVis( chrom_1, chrom_2, w_zone_1_first, w_zone_2_shifted_first - cur_diag, DIRECT );
     }
     else // Central diagonal
     {
-      cur_vav = new ae_vis_a_vis( chrom_1, chrom_2, w_zone_1_first, w_zone_2_first, DIRECT );
+      cur_vav = new VisAVis( chrom_1, chrom_2, w_zone_1_first, w_zone_2_first, DIRECT );
     }
     
     // A sequence against itself is not an alignment
@@ -144,7 +144,7 @@ ae_vis_a_vis*Alignment::search_alignment_direct( const Dna * chrom_1, const int3
         }
         else
         {
-          best_alignment = new ae_vis_a_vis( *cur_vav );
+          best_alignment = new VisAVis( *cur_vav );
         }
       }
       
@@ -185,14 +185,14 @@ ae_vis_a_vis*Alignment::search_alignment_direct( const Dna * chrom_1, const int3
 }
 
 
-ae_vis_a_vis*Alignment::search_alignment_indirect( const Dna * chrom_1, const int32_t seed_1,
+VisAVis *Alignment::search_alignment_indirect( const Dna * chrom_1, const int32_t seed_1,
                                                    const Dna * chrom_2, const int32_t seed_2, const int16_t needed_score )
 {
-  ae_vis_a_vis * best_alignment = NULL;
+  VisAVis * best_alignment = NULL;
   
   int16_t nb_diags = 2 * chrom_1->get_indiv()->get_align_max_shift() + 1;
   int16_t cur_score;
-  ae_vis_a_vis * cur_vav = NULL;
+  VisAVis * cur_vav = NULL;
   
   // Zone 1 (Indice on the chromosome)
   int32_t w_zone_1_first  = seed_1 - chrom_1->get_indiv()->get_align_w_zone_h_len();       // First base in working zone 1
@@ -208,9 +208,9 @@ ae_vis_a_vis*Alignment::search_alignment_indirect( const Dna * chrom_1, const in
   //    |_|_|_|_|_|_|_|_|_|_|   On this sequence, if you consider index 5, the nucleotide you need to consider 
   //                            for a backards read is seq[4], NOT seq[5].
   //
-  // This is managed by class ae_vis_a_vis.
+  // This is managed by class VisAVis.
   //
-  //    a b c d e f g h i j       Creating a new ae_vis_a_vis( F, 5, LAGGING );
+  //    a b c d e f g h i j       Creating a new VisAVis( F, 5, LAGGING );
   //    |_|_|_|_|_|_|_|_|_|_|     and then asking: my_vis_a_vis->match() will compare seq1[F] and seq2[4]
   //    | | | | | | | | | | |     (i.e. its "real" vis_a_vis).
   //      9 8 7 6 5 4 3 2 1 0     my_vis_a_vis->match() returns true if (seq1[F] == complementary( seq2[4] ))
@@ -245,15 +245,15 @@ ae_vis_a_vis*Alignment::search_alignment_indirect( const Dna * chrom_1, const in
     // Initialize cur_vav according to the diagonal we are on
     if ( cur_diag < chrom_1->get_indiv()->get_align_max_shift() )
     {
-      cur_vav = new ae_vis_a_vis( chrom_1, chrom_2, x_zone_1_first + cur_diag, w_zone_2_first, INDIRECT );
+      cur_vav = new VisAVis( chrom_1, chrom_2, x_zone_1_first + cur_diag, w_zone_2_first, INDIRECT );
     }
     else if ( cur_diag > chrom_1->get_indiv()->get_align_max_shift() )
     {
-      cur_vav = new ae_vis_a_vis( chrom_1, chrom_2, w_zone_1_first, w_zone_2_shifted_first + cur_diag, INDIRECT );
+      cur_vav = new VisAVis( chrom_1, chrom_2, w_zone_1_first, w_zone_2_shifted_first + cur_diag, INDIRECT );
     }
     else // Central diagonal
     {
-      cur_vav = new ae_vis_a_vis( chrom_1, chrom_2, w_zone_1_first, w_zone_2_first, INDIRECT );
+      cur_vav = new VisAVis( chrom_1, chrom_2, w_zone_1_first, w_zone_2_first, INDIRECT );
     }
     
     cur_score = 0;
@@ -272,7 +272,7 @@ ae_vis_a_vis*Alignment::search_alignment_indirect( const Dna * chrom_1, const in
         }
         else
         {
-          best_alignment = new ae_vis_a_vis( *cur_vav );
+          best_alignment = new VisAVis( *cur_vav );
         }
       }
       

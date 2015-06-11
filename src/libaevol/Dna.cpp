@@ -47,7 +47,7 @@
 #include "Individual.h"
 #include "Rna.h"
 #include "ae_utils.h"
-#include "ae_vis_a_vis.h"
+#include "VisAVis.h"
 #include "Alignment.h"
 
 namespace aevol {
@@ -431,7 +431,7 @@ void Dna::do_rearrangements_with_align(void)
   int32_t genome_size = _length; // Keep trace of the original length of the genome
 
   Mutation * mut = NULL;
-  ae_vis_a_vis* alignment = NULL;
+  VisAVis * alignment = NULL;
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // For each pair of points to be tested (i.e. while the organism is still "alive"),
@@ -638,7 +638,7 @@ void Dna::do_rearrangements_with_align(void)
         // Look for an alignment between the segment to be translocated and the rest of the genome
         bool direct_sense;
         int16_t needed_score_2;
-        ae_vis_a_vis* alignment_2 = NULL;
+        VisAVis * alignment_2 = NULL;
         int32_t seed1, seed2;
         for (nb_pairs = (int32_t)(ceil(ttl * _length * _indiv->get_neighbourhood_rate()))
             ; nb_pairs > 0
@@ -1953,7 +1953,7 @@ Mutation *Dna::do_ins_HT(int32_t parent_id)
 //  while (donor->get_id() == parent_id);
 //
 //  // 2) Look for an alignment within the donor genome
-//  ae_vis_a_vis* alignment_1   = NULL;
+//  VisAVis* alignment_1   = NULL;
 //  Dna*       donor_dna     = donor->get_genetic_unit(0).get_dna();
 //  int32_t       nb_pairs_1    = (int32_t)(ceil(donor_dna->get_length() * _indiv->get_neighbourhood_rate()));
 //
@@ -1965,7 +1965,7 @@ Mutation *Dna::do_ins_HT(int32_t parent_id)
 //      GeneticUnit* exogenote = donor_dna->copy_into_new_GU(alignment_1->get_i_1(), alignment_1->get_i_2());
 //
 //      // 4) Look for an alignments between the exogenote and the endogenote
-//      ae_vis_a_vis* alignment_2 = NULL;
+//      VisAVis* alignment_2 = NULL;
 //      int32_t       nb_pairs_2  = (int32_t)(ceil(get_length() * _indiv->get_neighbourhood_rate()));
 //
 //      alignment_2 = exogenote->get_dna()->search_alignment(this, nb_pairs_2, BOTH_SENSES);
@@ -2078,8 +2078,8 @@ Mutation *Dna::do_repl_HT(int32_t parent_id)
 //  while (donor->get_id() == parent_id);
 //
 //  // 2) Look for an alignment between the parent genome and the donor genome
-//  ae_vis_a_vis* alignment_1   = NULL;
-//  ae_vis_a_vis* alignment_2   = NULL;
+//  VisAVis* alignment_1   = NULL;
+//  VisAVis* alignment_2   = NULL;
 //  Dna*       donor_dna     = donor->get_genetic_unit(0).get_dna();
 //  ae_sense      sense         = (_exp_m->get_sel()->get_prng()->random() < 0.5) ? DIRECT : INDIRECT;
 //  int32_t       nb_pairs_1    = (int32_t)(ceil(get_length() * _indiv->get_neighbourhood_rate()));
@@ -2105,7 +2105,7 @@ Mutation *Dna::do_repl_HT(int32_t parent_id)
 //        // If the second alignment is found upstream of the first alignment, they are inverse to facilitate
 //        if(research_sense == -1)
 //        {
-//          ae_vis_a_vis* tmp_alignment = new ae_vis_a_vis(*alignment_1);
+//          VisAVis* tmp_alignment = new VisAVis(*alignment_1);
 //          alignment_1->copy(alignment_2);
 //          alignment_2->copy(tmp_alignment);
 //          delete tmp_alignment;
@@ -2692,9 +2692,9 @@ void Dna::insert_GU(GeneticUnit* GU_to_insert, int32_t pos_B, int32_t pos_D, boo
   The sense of the searched alignment can be either DIRECT, INDIRECT or BOTH_SENSE. \
   In the latter case, the sense will be randomly drawn (uniformly between DIRECT and INDIRECT) for each pair of points.
 */
-ae_vis_a_vis*Dna::search_alignment(Dna * chrom2, int32_t& nb_pairs, ae_sense sense)
+VisAVis *Dna::search_alignment(Dna * chrom2, int32_t& nb_pairs, ae_sense sense)
 {
-  ae_vis_a_vis* alignment = NULL;
+  VisAVis * alignment = NULL;
   ae_sense cur_sense = sense; // Which sense (direct or indirect)
   int16_t needed_score;       // Minimum alignement score needed to recombine (stochastic)
 
@@ -2765,10 +2765,10 @@ ae_vis_a_vis*Dna::search_alignment(Dna * chrom2, int32_t& nb_pairs, ae_sense sen
   The sense of the searched alignment can be either DIRECT, INDIRECT or BOTH_SENSE. \
   In the latter case, the sense will be randomly drawn (uniformly between DIRECT and INDIRECT) for each pair of points.
 */
-ae_vis_a_vis*Dna::search_alignment_around_positions(Dna * chrom2, int32_t chrom1_pos_1, int32_t chrom2_pos_1, ae_sense sense, int8_t& research_sense)
+VisAVis *Dna::search_alignment_around_positions(Dna * chrom2, int32_t chrom1_pos_1, int32_t chrom2_pos_1, ae_sense sense, int8_t& research_sense)
 {
-  ae_vis_a_vis* alignment = NULL;
-  ae_vis_a_vis* tmp_alignment = NULL;
+  VisAVis * alignment = NULL;
+  VisAVis * tmp_alignment = NULL;
   ae_sense cur_sense = sense; // Which sense (direct or indirect)
   int16_t needed_score;       // Minimum alignement score needed to recombine (stochastic)
   int32_t chrom1_pos_for_research;
@@ -2855,7 +2855,7 @@ ae_vis_a_vis*Dna::search_alignment_around_positions(Dna * chrom2, int32_t chrom1
       else
       {
         //printf("tmp_alignment != NULL alignment == NULL\n",i);
-        alignment = new ae_vis_a_vis(*tmp_alignment);
+        alignment = new VisAVis(*tmp_alignment);
       }
       delete tmp_alignment;
       chrom1_pos_for_research = alignment->get_i_1();
@@ -2912,7 +2912,7 @@ ae_vis_a_vis*Dna::search_alignment_around_positions(Dna * chrom2, int32_t chrom1
       }
       else
       {
-        alignment = new ae_vis_a_vis(*tmp_alignment);
+        alignment = new VisAVis(*tmp_alignment);
       }
       delete tmp_alignment;
       chrom1_pos_for_research = alignment->get_i_1();

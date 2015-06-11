@@ -59,7 +59,7 @@ StatRecord.h \
 ae_string.h \
 Tree.h \
 ae_utils.h \
-ae_vis_a_vis.h \
+VisAVis.h \
 Selection.h \
 GeneTree.h \
 GeneTreeNode.h \
@@ -97,7 +97,7 @@ Stats.cpp \
 StatRecord.cpp \
 ae_string.cpp \
 Tree.cpp \
-ae_vis_a_vis.cpp \
+VisAVis.cpp \
 Selection.cpp \
 GeneTree.cpp \
 GeneTreeNode.cpp \

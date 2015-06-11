@@ -43,7 +43,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "ae_vis_a_vis.h"
+#include "VisAVis.h"
 
 namespace aevol {
 
@@ -76,9 +76,9 @@ class Alignment
     // =================================================================
     //                            Public Methods
     // =================================================================
-    static ae_vis_a_vis* search_alignment_direct( const Dna * chrom1, const int32_t seed1,
+    static VisAVis * search_alignment_direct( const Dna * chrom1, const int32_t seed1,
                                                   const Dna * chrom2, const int32_t seed2, int16_t needed_score );
-    static ae_vis_a_vis* search_alignment_indirect( const Dna * chrom1, const int32_t seed1,
+    static VisAVis * search_alignment_indirect( const Dna * chrom1, const int32_t seed1,
                                                     const Dna * chrom2, const int32_t seed2, int16_t needed_score );
 
     // =================================================================

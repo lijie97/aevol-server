@@ -36,7 +36,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_vis_a_vis.h"
+#include "VisAVis.h"
 
 namespace aevol {
 
@@ -44,7 +44,7 @@ namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                              Class ae_vis_a_vis                             #
+//                              Class VisAVis                             #
 //                                                                             #
 //##############################################################################
 
@@ -55,7 +55,7 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_vis_a_vis::ae_vis_a_vis( const Dna * chrom_1, const Dna * chrom_2, int32_t i_1, int32_t i_2, ae_sense sense /*= DIRECT*/ )
+VisAVis::VisAVis( const Dna * chrom_1, const Dna * chrom_2, int32_t i_1, int32_t i_2, ae_sense sense /*= DIRECT*/ )
 {
   _chrom_1  = chrom_1;
   _chrom_2  = chrom_2;
@@ -65,7 +65,7 @@ ae_vis_a_vis::ae_vis_a_vis( const Dna * chrom_1, const Dna * chrom_2, int32_t i_
   _score    = 0;
 }
 
-ae_vis_a_vis::ae_vis_a_vis( const ae_vis_a_vis & orig )
+VisAVis::VisAVis( const VisAVis & orig )
 {
   _chrom_1  = orig._chrom_1;
   _chrom_2  = orig._chrom_2;
@@ -75,7 +75,7 @@ ae_vis_a_vis::ae_vis_a_vis( const ae_vis_a_vis & orig )
   _score    = orig._score;
 }
 
-//~ ae_vis_a_vis::ae_vis_a_vis( const ae_vis_a_vis * orig )
+//~ VisAVis::VisAVis( const VisAVis * orig )
 //~ {
   //~ _chrom_1  = orig->_chrom_1;
   //~ _chrom_2  = orig->_chrom_2;
@@ -87,7 +87,7 @@ ae_vis_a_vis::ae_vis_a_vis( const ae_vis_a_vis & orig )
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_vis_a_vis::~ae_vis_a_vis( void )
+VisAVis::~VisAVis( void )
 {
 }
 

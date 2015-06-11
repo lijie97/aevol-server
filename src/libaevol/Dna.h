@@ -60,7 +60,7 @@ namespace aevol {
 class ExpManager;
 class Individual;
 class GeneticUnit;
-class ae_vis_a_vis;
+class VisAVis;
 class Rna;
 
 
@@ -161,8 +161,8 @@ class Dna : public ae_string
     GeneticUnit*  copy_into_new_GU(int32_t pos_1, int32_t pos_2) const;
     void insert_GU(GeneticUnit* GU_to_insert, int32_t pos_B, int32_t pos_D, bool invert);
 
-    ae_vis_a_vis* search_alignment(Dna * chrom2, int32_t& nb_pairs, ae_sense sense);
-    ae_vis_a_vis* search_alignment_around_positions(Dna * chrom2, int32_t chrom1_pos_1, int32_t chrom1_pos_2, ae_sense sense, int8_t& research_sense);
+    VisAVis * search_alignment(Dna * chrom2, int32_t& nb_pairs, ae_sense sense);
+    VisAVis * search_alignment_around_positions(Dna * chrom2, int32_t chrom1_pos_1, int32_t chrom1_pos_2, ae_sense sense, int8_t& research_sense);
 
     void undergo_this_mutation(const Mutation * mut); // useful when we replay the evolution
 

@@ -41,7 +41,7 @@
 //                            Project Files
 // =================================================================
 #include "Mutation.h"
-#include "ae_vis_a_vis.h"
+#include "VisAVis.h"
 
 namespace aevol {
 

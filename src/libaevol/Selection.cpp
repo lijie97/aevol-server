@@ -38,7 +38,7 @@
 // =================================================================
 #include "Selection.h"
 #include "ExpManager.h"
-#include "ae_vis_a_vis.h"
+#include "VisAVis.h"
 
 #ifdef __NO_X
   #ifndef __REGUL

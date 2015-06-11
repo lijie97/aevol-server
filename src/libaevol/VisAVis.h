@@ -60,7 +60,7 @@ namespace aevol {
 
 
 
-class ae_vis_a_vis
+class VisAVis
 {
   friend class Alignment;
   
@@ -69,14 +69,14 @@ class ae_vis_a_vis
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_vis_a_vis( const Dna * chrom_1, const Dna * chrom_2, int32_t i_1, int32_t i_2, ae_sense sense = DIRECT );
-    ae_vis_a_vis( const ae_vis_a_vis & orig );
-    //~ ae_vis_a_vis( const ae_vis_a_vis * const orig );
+    VisAVis( const Dna * chrom_1, const Dna * chrom_2, int32_t i_1, int32_t i_2, ae_sense sense = DIRECT );
+    VisAVis( const VisAVis & orig );
+    //~ VisAVis( const VisAVis * const orig );
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_vis_a_vis( void );
+    virtual ~VisAVis( void );
 
     // =================================================================
     //                              Accessors
@@ -91,10 +91,10 @@ class ae_vis_a_vis
     // =================================================================
     //                              Operators
     // =================================================================
-    inline bool operator <  ( ae_vis_a_vis &cmp );
-    inline bool operator <= ( ae_vis_a_vis &cmp );    
-    inline bool operator >  ( ae_vis_a_vis &cmp );
-    inline bool operator >= ( ae_vis_a_vis &cmp );
+    inline bool operator <  ( VisAVis &cmp );
+    inline bool operator <= ( VisAVis &cmp );
+    inline bool operator >  ( VisAVis &cmp );
+    inline bool operator >= ( VisAVis &cmp );
 
     // =================================================================
     //                            Public Methods
@@ -108,7 +108,7 @@ class ae_vis_a_vis
     inline void sub( int inc_1, int inc_2 );
     inline void swap( void );
     
-    inline void copy( ae_vis_a_vis * source );
+    inline void copy( VisAVis * source );
     inline void check_indices( void );
 
     // =================================================================
@@ -125,13 +125,13 @@ class ae_vis_a_vis
     //                         Forbidden Constructors
     // =================================================================
   
-    //~ ae_vis_a_vis( void )
+    //~ VisAVis( void )
     //~ {
       //~ _chrom_1 = _chrom_2 = new Dna(); // const members must be initialized
       //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       //~ exit( EXIT_FAILURE );
     //~ };
-    /*ae_vis_a_vis( const ae_vis_a_vis &model )
+    /*VisAVis( const VisAVis &model )
     {
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
@@ -167,32 +167,32 @@ class ae_vis_a_vis
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-inline const Dna * ae_vis_a_vis::get_chrom_1( void ) const
+inline const Dna *VisAVis::get_chrom_1( void ) const
 {
   return _chrom_1;
 }
 
-inline const Dna * ae_vis_a_vis::get_chrom_2( void ) const
+inline const Dna *VisAVis::get_chrom_2( void ) const
 {
   return _chrom_2;
 }
 
-inline int32_t ae_vis_a_vis::get_i_1( void ) const
+inline int32_t VisAVis::get_i_1( void ) const
 {
   return _i_1;
 }
 
-inline int32_t ae_vis_a_vis::get_i_2( void ) const
+inline int32_t VisAVis::get_i_2( void ) const
 {
   return _i_2;
 }
 
-inline int16_t ae_vis_a_vis::get_score( void ) const
+inline int16_t VisAVis::get_score( void ) const
 {
   return _score;
 }
 
-inline ae_sense ae_vis_a_vis::get_sense( void ) const
+inline ae_sense VisAVis::get_sense( void ) const
 {
   return _sense;
 }
@@ -202,22 +202,22 @@ inline ae_sense ae_vis_a_vis::get_sense( void ) const
 // =====================================================================
 //                          Operators' definitions
 // =====================================================================
-inline bool ae_vis_a_vis::operator < ( ae_vis_a_vis &cmp )
+inline bool VisAVis::operator < ( VisAVis &cmp )
 {
   return ( _i_1 < cmp._i_1 );
 }
 
-inline bool ae_vis_a_vis::operator <= ( ae_vis_a_vis &cmp )
+inline bool VisAVis::operator <= ( VisAVis &cmp )
 {
   return ( _i_1 <= cmp._i_1 );
 }
 
-inline bool ae_vis_a_vis::operator > ( ae_vis_a_vis &cmp )
+inline bool VisAVis::operator > ( VisAVis &cmp )
 {
   return ( _i_1 > cmp._i_1 );
 }
 
-inline bool ae_vis_a_vis::operator >= ( ae_vis_a_vis &cmp )
+inline bool VisAVis::operator >= ( VisAVis &cmp )
 {
   return ( _i_1 >= cmp._i_1 );
 }
@@ -226,7 +226,7 @@ inline bool ae_vis_a_vis::operator >= ( ae_vis_a_vis &cmp )
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-inline bool ae_vis_a_vis::match( void )
+inline bool VisAVis::match( void )
 {
   if ( _sense == DIRECT )
   {
@@ -246,7 +246,7 @@ inline bool ae_vis_a_vis::match( void )
   }
 }
 
-inline void ae_vis_a_vis::step_fwd( void )
+inline void VisAVis::step_fwd( void )
 {
   if ( _sense == DIRECT )
   {
@@ -260,7 +260,7 @@ inline void ae_vis_a_vis::step_fwd( void )
   }
 }
 
-inline void ae_vis_a_vis::step_back( void )
+inline void VisAVis::step_back( void )
 {
   if ( _sense == DIRECT )
   {
@@ -274,7 +274,7 @@ inline void ae_vis_a_vis::step_back( void )
   }
 }
 
-inline void ae_vis_a_vis::add( int common_inc )
+inline void VisAVis::add( int common_inc )
 {
   if ( _sense == DIRECT )
   {
@@ -288,7 +288,7 @@ inline void ae_vis_a_vis::add( int common_inc )
   }
 }
 
-inline void ae_vis_a_vis::add( int inc_1, int inc_2 )
+inline void VisAVis::add( int inc_1, int inc_2 )
 {
   if ( _sense == DIRECT )
   {
@@ -302,7 +302,7 @@ inline void ae_vis_a_vis::add( int inc_1, int inc_2 )
   }
 }
 
-inline void ae_vis_a_vis::sub( int common_inc )
+inline void VisAVis::sub( int common_inc )
 {
   if ( _sense == DIRECT )
   {
@@ -316,7 +316,7 @@ inline void ae_vis_a_vis::sub( int common_inc )
   }
 }
 
-inline void ae_vis_a_vis::sub( int inc_1, int inc_2 )
+inline void VisAVis::sub( int inc_1, int inc_2 )
 {
   if ( _sense == DIRECT )
   {
@@ -330,7 +330,7 @@ inline void ae_vis_a_vis::sub( int inc_1, int inc_2 )
   }
 }
 
-inline void ae_vis_a_vis::swap( void )
+inline void VisAVis::swap( void )
 {
   const Dna *  tmp_chrom = _chrom_1;
   int32_t         tmp_i     = _i_1;
@@ -342,7 +342,7 @@ inline void ae_vis_a_vis::swap( void )
   _i_2      = tmp_i;
 }
 
-inline void ae_vis_a_vis::copy( ae_vis_a_vis * source )
+inline void VisAVis::copy( VisAVis * source )
 {
   _i_1 = source->_i_1;
   _i_2 = source->_i_2;
@@ -352,7 +352,7 @@ inline void ae_vis_a_vis::copy( ae_vis_a_vis * source )
   _score = source->_score;
 }
 
-inline void ae_vis_a_vis::check_indices( void )
+inline void VisAVis::check_indices( void )
 {
   _i_1 = ae_utils::mod( _i_1, _chrom_1->get_length() );
   _i_2 = ae_utils::mod( _i_2, _chrom_2->get_length() );
