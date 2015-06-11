@@ -1207,7 +1207,7 @@ void param_loader::load(ExpManager * exp_m, bool verbose,
 
   // Create aliases
   ExpSetup * exp_s = exp_m->get_exp_s();
-  ae_selection* sel = exp_m->get_sel();
+  Selection * sel = exp_m->get_sel();
   OutputManager * output_m  = exp_m->get_output_m();
 
   // 1) ------------------------------------- Initialize the experimental setup

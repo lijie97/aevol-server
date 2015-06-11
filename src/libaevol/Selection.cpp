@@ -36,7 +36,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_selection.h"
+#include "Selection.h"
 #include "ExpManager.h"
 #include "ae_vis_a_vis.h"
 
@@ -60,7 +60,7 @@ namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                              Class ae_selection                             #
+//                              Class Selection                             #
 //                                                                             #
 //##############################################################################
 
@@ -71,7 +71,7 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_selection::ae_selection(ExpManager * exp_m )
+Selection::Selection(ExpManager * exp_m )
 {
   _exp_m = exp_m;
 
@@ -89,7 +89,7 @@ ae_selection::ae_selection(ExpManager * exp_m )
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_selection::~ae_selection(void)
+Selection::~Selection(void)
 {
   delete [] _prob_reprod;
 }
@@ -97,7 +97,7 @@ ae_selection::~ae_selection(void)
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_selection::step_to_next_generation(void)
+void Selection::step_to_next_generation(void)
 {
   // To create the new generation, we must create nb_indivs new individuals
   // (offspring) and "kill" the existing ones.
@@ -218,7 +218,7 @@ void ae_selection::step_to_next_generation(void)
   _exp_m->update_best();
 }
 
-void ae_selection::PerformPlasmidTransfers(void)
+void Selection::PerformPlasmidTransfers(void)
 {
   if (_exp_m->get_with_plasmids() &&
       ((_exp_m->get_prob_plasmid_HT() != 0.0) ||
@@ -312,7 +312,7 @@ void ae_selection::PerformPlasmidTransfers(void)
 
 /*!
 */
-void ae_selection::write_setup_file(gzFile exp_setup_file ) const
+void Selection::write_setup_file(gzFile exp_setup_file ) const
 {
   // ---------------------------------------------------- Selection Parameters
   int8_t tmp_sel_scheme = _selection_scheme;
@@ -322,7 +322,7 @@ void ae_selection::write_setup_file(gzFile exp_setup_file ) const
 
 /*!
 */
-void ae_selection::write_setup_file(FILE* exp_setup_file ) const
+void Selection::write_setup_file(FILE* exp_setup_file ) const
 {
   // TODO
 }
@@ -330,7 +330,7 @@ void ae_selection::write_setup_file(FILE* exp_setup_file ) const
 
 /*!
 */
-void ae_selection::save(gzFile& backup_file ) const
+void Selection::save(gzFile& backup_file ) const
 {
   if (prng_ == NULL )
   {
@@ -342,7 +342,7 @@ void ae_selection::save(gzFile& backup_file ) const
   prng_->save(backup_file );
 }
 
-void ae_selection::load(gzFile& exp_setup_file,
+void Selection::load(gzFile& exp_setup_file,
                          gzFile& backup_file,
                          bool verbose )
 {
@@ -360,7 +360,7 @@ void ae_selection::load(gzFile& exp_setup_file,
 // =================================================================
 //                           Protected Methods
 // =================================================================
-void ae_selection::compute_prob_reprod(void ) // non spatially structured only
+void Selection::compute_prob_reprod(void ) // non spatially structured only
 {
   if (_prob_reprod != NULL )
   {
@@ -459,7 +459,7 @@ void ae_selection::compute_prob_reprod(void ) // non spatially structured only
   }
 }
 
-void ae_selection::compute_local_prob_reprod(void )
+void Selection::compute_local_prob_reprod(void )
 {
   int16_t neighborhood_size = 9;
 
@@ -512,7 +512,7 @@ void ae_selection::compute_local_prob_reprod(void )
   }
 }
 
-Individual * ae_selection::do_replication(Individual * parent, int32_t index, int16_t x /*= -1 */, int16_t y /*= -1 */ )
+Individual *Selection::do_replication(Individual * parent, int32_t index, int16_t x /*= -1 */, int16_t y /*= -1 */ )
 {
   Individual * new_indiv = NULL;
 
@@ -599,7 +599,7 @@ Individual * ae_selection::do_replication(Individual * parent, int32_t index, in
   return new_indiv;
 }
 
-Individual * ae_selection::do_local_competition (int16_t x, int16_t y)
+Individual *Selection::do_local_competition (int16_t x, int16_t y)
 {
   // This function uses the array _prob_reprod when selection scheme is
   // RANK_LINEAR, RANK_EXPONENTIAL, or FITTEST. For these selection schemes,

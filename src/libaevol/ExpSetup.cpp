@@ -66,7 +66,7 @@ ExpSetup::ExpSetup( ExpManager * exp_m )
   _exp_m  = exp_m;
   
   // -------------------------------------------------------------- Selection
-  _sel = new ae_selection( exp_m );
+  _sel = new Selection( exp_m );
   
   // --------------------------------------------------------------- Transfer
   _with_HT                    = false;

@@ -60,7 +60,7 @@ ae_string.h \
 ae_tree.h \
 ae_utils.h \
 ae_vis_a_vis.h \
-ae_selection.h \
+Selection.h \
 GeneTree.h \
 GeneTreeNode.h \
 GeneMutation.h \
@@ -98,7 +98,7 @@ ae_stat_record.cpp \
 ae_string.cpp \
 ae_tree.cpp \
 ae_vis_a_vis.cpp \
-ae_selection.cpp \
+Selection.cpp \
 GeneTree.cpp \
 GeneTreeNode.cpp \
 GeneMutation.cpp \

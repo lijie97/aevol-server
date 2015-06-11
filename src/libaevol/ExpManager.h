@@ -88,7 +88,7 @@ class ExpManager
     //                           Accessors: getters
     // =======================================================================
     inline ExpSetup * get_exp_s(void) const;
-    inline ae_selection* get_sel(void) const;
+    inline Selection * get_sel(void) const;
     inline OutputManager * get_output_m(void) const;
 
     inline bool quit_signal_received(void) const;
@@ -261,7 +261,7 @@ inline bool ExpManager::quit_signal_received(void) const
   return _quit_signal_received;
 }
 
-inline ae_selection*ExpManager::get_sel(void) const
+inline Selection *ExpManager::get_sel(void) const
 {
   return get_exp_s()->get_sel();
 }

@@ -76,8 +76,8 @@ add_library(aevol
   DnaReplicationReport.h
   Rna.cpp
   Rna.h
-  ae_selection.cpp
-  ae_selection.h
+  Selection.cpp
+  Selection.h
   ae_stat_record.cpp
   ae_stat_record.h
   ae_stats.cpp

@@ -60,21 +60,21 @@ class ExpManager;
 
 
 
-class ae_selection
+class Selection
 {
   public :
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_selection(void) = delete;
-    ae_selection(const ae_selection&) = delete;
-    ae_selection(ExpManager * exp_m);
-    ae_selection(ExpManager * exp_m, gzFile backup_file);
+    Selection(void) = delete;
+    Selection(const Selection &) = delete;
+    Selection(ExpManager * exp_m);
+    Selection(ExpManager * exp_m, gzFile backup_file);
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_selection(void);
+    virtual ~Selection(void);
 
     // =================================================================
     //                        Accessors: getters
@@ -149,22 +149,22 @@ class ae_selection
 // =====================================================================
 //                           Getters' definitions
 // =====================================================================
-// inline std::unique_ptr<JumpingMT> ae_selection::get_prng(void) const
+// inline std::unique_ptr<JumpingMT> Selection::get_prng(void) const
 // {
 //   return prng_;
 // }
 
-inline ae_selection_scheme ae_selection::get_selection_scheme(void) const
+inline ae_selection_scheme Selection::get_selection_scheme(void) const
 {
   return _selection_scheme;
 }
 
-inline double ae_selection::get_selection_pressure(void) const
+inline double Selection::get_selection_pressure(void) const
 {
   return _selection_pressure;
 }
 
-inline double* ae_selection::get_prob_reprod(void) const
+inline double*Selection::get_prob_reprod(void) const
 {
   if (_prob_reprod == NULL)
   {
@@ -178,18 +178,18 @@ inline double* ae_selection::get_prob_reprod(void) const
 //                           Setters' definitions
 // =====================================================================
 // ----------------------------------------- Pseudo-random number generator
-inline void ae_selection::set_prng(std::unique_ptr<JumpingMT>&& prng)
+inline void Selection::set_prng(std::unique_ptr<JumpingMT>&& prng)
 {
   prng_ = std::move(prng);
 }
 
 // -------------------------------------------------------------- Selection
-inline void ae_selection::set_selection_scheme(ae_selection_scheme sel_scheme)
+inline void Selection::set_selection_scheme(ae_selection_scheme sel_scheme)
 {
   _selection_scheme = sel_scheme;
 }
 
-inline void ae_selection::set_selection_pressure(double sel_pressure)
+inline void Selection::set_selection_pressure(double sel_pressure)
 {
   _selection_pressure = sel_pressure;
 }

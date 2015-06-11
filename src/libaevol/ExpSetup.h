@@ -35,7 +35,7 @@
 #include <cinttypes>
 #include <cstdlib>
 
-#include "ae_selection.h"
+#include "Selection.h"
 #include "ae_stats.h"
 #include "Logging.h"
 #include "ae_tree.h"
@@ -75,7 +75,7 @@ class ExpSetup
     //                         Accessors: getters
     // =======================================================================
     // ----------------------------------------------------- Selection context
-    inline ae_selection* get_sel( void ) const;
+    inline Selection * get_sel( void ) const;
   
     // --------------------------------------------------------------- Transfer
     inline bool   get_with_HT( void ) const;
@@ -172,7 +172,7 @@ class ExpSetup
     ExpManager * _exp_m;
       
     // ----------------------------------------------------- Selection context
-    ae_selection* _sel;
+    Selection * _sel;
     
     // --------------------------------------------------- Transfer parameters
     bool    _with_HT;
@@ -200,7 +200,7 @@ class ExpSetup
 // =====================================================================
 //                           Getters' definitions
 // =====================================================================
-inline ae_selection*ExpSetup::get_sel( void ) const
+inline Selection *ExpSetup::get_sel( void ) const
 {
   return _sel;
 }
