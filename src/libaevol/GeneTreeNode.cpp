@@ -40,7 +40,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_gene_tree_node.h"
+#include "GeneTreeNode.h"
 #include "GeneMutation.h"
 #include "GeneticUnit.h"
 
@@ -52,7 +52,7 @@ namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                          Class ae_gene_tree_node                            #
+//                          Class GeneTreeNode                            #
 //                                                                             #
 //##############################################################################
 
@@ -62,12 +62,12 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-int32_t ae_gene_tree_node::_nextID = 0;
+int32_t GeneTreeNode::_nextID = 0;
 
-ae_gene_tree_node::ae_gene_tree_node( int32_t nodeCreationDate, Protein * protein)
+GeneTreeNode::GeneTreeNode( int32_t nodeCreationDate, Protein * protein)
 {
-  _ID = ae_gene_tree_node::_nextID;
-  ae_gene_tree_node::_nextID ++;
+  _ID = GeneTreeNode::_nextID;
+  GeneTreeNode::_nextID ++;
 
   _dna_creation_date = nodeCreationDate;
   _node_creation_date = nodeCreationDate;
@@ -106,7 +106,7 @@ ae_gene_tree_node::ae_gene_tree_node( int32_t nodeCreationDate, Protein * protei
 //                             Destructors
 // =================================================================
 
-ae_gene_tree_node::~ae_gene_tree_node( void )
+GeneTreeNode::~GeneTreeNode( void )
 {
   if (_left_child != NULL) delete _left_child;
   if (_right_child != NULL) delete _right_child;
@@ -121,9 +121,9 @@ ae_gene_tree_node::~ae_gene_tree_node( void )
 //                            Public Methods
 // =================================================================
 
-ae_gene_tree_node * ae_gene_tree_node::search_in_subtree_leaves(const Protein * protein)
+GeneTreeNode *GeneTreeNode::search_in_subtree_leaves(const Protein * protein)
 {
-  ae_gene_tree_node *result_left = NULL, *result_right = NULL;
+  GeneTreeNode *result_left = NULL, *result_right = NULL;
   if ((_left_child == NULL) && (_right_child == NULL)) // I am a leaf
     {
       if (_protein_pointer == protein) return this;
@@ -140,7 +140,7 @@ ae_gene_tree_node * ae_gene_tree_node::search_in_subtree_leaves(const Protein * 
         {
           fprintf(stderr, "Error, the protein %p should not be found twice in the tree.\n", protein);
           // get the _root address to print the whole tree to screen
-          ae_gene_tree_node * n = _parent_node, *root = this;
+          GeneTreeNode * n = _parent_node, *root = this;
           while (n!=NULL) {root = n; n = n->_parent_node; }
           // here, n==NULL and root points on the root of the tree
           root->print_subtree_to_screen();
@@ -150,7 +150,7 @@ ae_gene_tree_node * ae_gene_tree_node::search_in_subtree_leaves(const Protein * 
 }
 
 
-void ae_gene_tree_node::print_subtree_to_screen(void)
+void GeneTreeNode::print_subtree_to_screen(void)
 {
   // Postorder tree traversal
 
@@ -197,7 +197,7 @@ void ae_gene_tree_node::print_subtree_to_screen(void)
 }
 
 
-void ae_gene_tree_node::write_subtree_to_files(FILE * topologyFile, FILE * nodeAttributesFile, int32_t end_gener)
+void GeneTreeNode::write_subtree_to_files(FILE * topologyFile, FILE * nodeAttributesFile, int32_t end_gener)
 {
   // Newick format for the topology file (postorder tree traversal with parentheses and branch lengths)
 
@@ -267,7 +267,7 @@ void ae_gene_tree_node::write_subtree_to_files(FILE * topologyFile, FILE * nodeA
 
 
 // all attributes on a single line
-void ae_gene_tree_node::write_subtree_nodes_in_tabular_file(int32_t treeID, FILE * f)
+void GeneTreeNode::write_subtree_nodes_in_tabular_file(int32_t treeID, FILE * f)
 {
   /* Left subtree */
   if (_left_child != NULL) _left_child->write_subtree_nodes_in_tabular_file(treeID, f);
@@ -407,7 +407,7 @@ static bool subsegment_totally_in_segment(int32_t pos1, int32_t pos2, int32_t fi
 }
 
 
-void ae_gene_tree_node::update_pointers_in_subtree_leaves(GeneticUnit * unit)
+void GeneTreeNode::update_pointers_in_subtree_leaves(GeneticUnit * unit)
 {
  if ((_left_child != NULL) || (_right_child != NULL)) // I am a internal node
     {
@@ -448,7 +448,7 @@ void ae_gene_tree_node::update_pointers_in_subtree_leaves(GeneticUnit * unit)
   }
 }
 
-void ae_gene_tree_node::anticipate_mutation_effect_on_genes_in_subtree_leaves(const ae_mutation* mut, int32_t lengthOfGeneticUnit)
+void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const ae_mutation* mut, int32_t lengthOfGeneticUnit)
 {
   if ((_left_child != NULL) || (_right_child != NULL)) // I am a internal node
     {
@@ -536,7 +536,7 @@ void ae_gene_tree_node::anticipate_mutation_effect_on_genes_in_subtree_leaves(co
           }
         default:
           {
-            fprintf(stderr, "Error: unknown mutation type in ae_gene_tree_node::anticipate_mutation_effect_on_genes_in_subtree.\n");
+            fprintf(stderr, "Error: unknown mutation type in GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree.\n");
           }
         }
 
@@ -938,7 +938,7 @@ void ae_gene_tree_node::anticipate_mutation_effect_on_genes_in_subtree_leaves(co
 
 
 
-void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leaves(
+void GeneTreeNode::register_actual_mutation_effect_on_genes_in_subtree_leaves(
     GeneTree * tree, const ae_mutation* mut, GeneticUnit* unit, int32_t gener, double impact_on_metabolic_error)
 {
   if ((_left_child != NULL) || (_right_child != NULL)) // I am a internal node, just delegate work to others
@@ -1076,7 +1076,7 @@ void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leav
         if (protein != pl.end()) {
           if (_protein_pointer != NULL) {
             // Create a new node for the "old" DNA segment
-            _left_child = new ae_gene_tree_node(gener, _protein_pointer);
+            _left_child = new GeneTreeNode(gener, _protein_pointer);
             _left_child->_node_creation_date = gener;
             _left_child->_dna_creation_date = _dna_creation_date;
             _left_child->_parent_node = this;
@@ -1088,7 +1088,7 @@ void ae_gene_tree_node::register_actual_mutation_effect_on_genes_in_subtree_leav
           }
 
           // Create a new node for the "new" DNA segment
-          _right_child = new ae_gene_tree_node(gener, &*protein);
+          _right_child = new GeneTreeNode(gener, &*protein);
           _right_child->_node_creation_date = gener;
           _right_child->_dna_creation_date = gener;
           _right_child->_parent_node = this;

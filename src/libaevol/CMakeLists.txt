@@ -40,8 +40,8 @@ add_library(aevol
   GeneMutation.h
   GeneTree.cpp
   GeneTree.h
-  ae_gene_tree_node.cpp
-  ae_gene_tree_node.h
+  GeneTreeNode.cpp
+  GeneTreeNode.h
   GeneticUnit.cpp
   GeneticUnit.h
   habitat.cpp

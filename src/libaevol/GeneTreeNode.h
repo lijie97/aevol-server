@@ -24,7 +24,7 @@
 //*****************************************************************************
 
 
-/** \class ae_gene_tree_node
+/** \class GeneTreeNode
  *  \brief Currently used only by post-treatments, on a specific lineage, to monitor the fate of paralogs.
  *         Each node corresponds to a coding RNA. When it is duplicated, two new nodes are added in the tree,
  *         as children of the ancestral version. The left child corresponds to the original DNA segment, while
@@ -69,7 +69,7 @@ namespace aevol {
 
 
  
-class ae_gene_tree_node
+class GeneTreeNode
 {  
   friend class GeneTree;
 
@@ -78,18 +78,18 @@ class ae_gene_tree_node
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_gene_tree_node( int32_t nodeCreationDate, Protein * protein);
+    GeneTreeNode( int32_t nodeCreationDate, Protein * protein);
 
   
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_gene_tree_node( void );
+    virtual ~GeneTreeNode( void );
   
     // =================================================================
     //                            Public Methods
     // =================================================================
-    ae_gene_tree_node * search_in_subtree_leaves(const Protein * protein);
+    GeneTreeNode * search_in_subtree_leaves(const Protein * protein);
     void print_subtree_to_screen(void); // for debug purposes
     void write_subtree_to_files(FILE * topologyFile, FILE * nodeAttributesFile, int32_t end_gener);
     void write_subtree_nodes_in_tabular_file(int32_t treeID, FILE *f); // f must already be open
@@ -102,12 +102,12 @@ class ae_gene_tree_node
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    ae_gene_tree_node( void )
+    GeneTreeNode( void )
       {
         printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
         exit( EXIT_FAILURE );
       };
-    ae_gene_tree_node( const ae_gene_tree_node &model )
+    GeneTreeNode( const GeneTreeNode &model )
       {
         printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
         exit( EXIT_FAILURE );
@@ -134,10 +134,10 @@ class ae_gene_tree_node
     std::list<GeneMutation *> mutation_list;       // list of ae_gene_mutations since the creation date of the node, i.e. since the last duplication
 
 
-    ae_gene_tree_node * _left_child;    // NULL until the gene is duplicated, then points to the copy lying on the original DNA segment 
-    ae_gene_tree_node * _right_child;   // NULL until the gene is duplicated, then points to the copy lying on the duplicated DNA segment 
+    GeneTreeNode * _left_child;    // NULL until the gene is duplicated, then points to the copy lying on the original DNA segment
+    GeneTreeNode * _right_child;   // NULL until the gene is duplicated, then points to the copy lying on the duplicated DNA segment
                                         // (which was reinserted elsewhere in the genome, possibly on another genetic unit)
-    ae_gene_tree_node * _parent_node;   // points to the node that corresponds to the state of the gene before the last duplication (NULL for the root of the gene tree)
+                                        GeneTreeNode * _parent_node;   // points to the node that corresponds to the state of the gene before the last duplication (NULL for the root of the gene tree)
 
     bool _cds_possibly_modified;
     bool _cds_completely_deleted;

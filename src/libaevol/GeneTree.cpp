@@ -43,7 +43,7 @@
 // =================================================================
 
 #include "GeneTree.h"
-#include "ae_gene_tree_node.h"
+#include "GeneTreeNode.h"
 
 namespace aevol {
 
@@ -78,7 +78,7 @@ GeneTree::GeneTree( void )
 // Creates a tree with just a root node.
 GeneTree::GeneTree( int32_t nodeCreationDate, Protein * protein, const ae_mutation* mut /* = NULL */ )
 {
-  _root = new ae_gene_tree_node(nodeCreationDate, protein);
+  _root = new GeneTreeNode(nodeCreationDate, protein);
   if (mut == NULL)  _creation_type = INITIALIZATION;
   else if ((mut->get_mut_type() == SWITCH) || (mut->get_mut_type() == S_INS) || (mut->get_mut_type() == S_DEL)) _creation_type = LOCAL_MUTATION;
   else if ((mut->get_mut_type() == DUPL) || (mut->get_mut_type() == DEL) || (mut->get_mut_type() == TRANS) || (mut->get_mut_type() == INV) ) _creation_type = REARRANGEMENT;
@@ -130,18 +130,18 @@ void GeneTree::register_actual_mutation_effect_on_genes_in_tree_leaves(const ae_
   _root->register_actual_mutation_effect_on_genes_in_subtree_leaves( this, mut, unit, gener, impact_on_metabolic_error);
 }
 
-// void GeneTree::duplicate_this_gene( ae_gene_tree_node * node, int32_t duplicDate, Protein * newProtein )
+// void GeneTree::duplicate_this_gene( GeneTreeNode * node, int32_t duplicDate, Protein * newProtein )
 // {
 //   if (newProtein == node->_protein_pointer) {fprintf(stderr, "Error, duplication with the same protein\n"); exit(EXIT_FAILURE);}
 
 //   // Create a new node for the "old" DNA segment
-//   node->_left_child = new ae_gene_tree_node(duplicDate, node->_protein_pointer);
+//   node->_left_child = new GeneTreeNode(duplicDate, node->_protein_pointer);
 //   node->_left_child->_node_creation_date = duplicDate;
 //   node->_left_child->_dna_creation_date = node->_dna_creation_date;
 //   node->_left_child->_parent_node = node;
 
 //   // Create a new node for the "new" DNA segment
-//   node->_right_child = new ae_gene_tree_node(duplicDate, newProtein);
+//   node->_right_child = new GeneTreeNode(duplicDate, newProtein);
 //   node->_right_child->_node_creation_date = duplicDate;
 //   node->_right_child->_dna_creation_date = duplicDate;
 //   node->_right_child->_parent_node = node;
@@ -161,7 +161,7 @@ void GeneTree::register_actual_mutation_effect_on_genes_in_tree_leaves(const ae_
 // }
 
 
-// void GeneTree::report_gene_mutation( ae_gene_tree_node * node, GeneMutation * geneMut)
+// void GeneTree::report_gene_mutation( GeneTreeNode * node, GeneMutation * geneMut)
 // {
 //   node->_mutation_list->add(geneMut);
 //   if (geneMut->get_generation() > _end_gener) _end_gener = geneMut->get_generation();
@@ -169,7 +169,7 @@ void GeneTree::register_actual_mutation_effect_on_genes_in_tree_leaves(const ae_
  
 
 
-// void GeneTree::report_gene_loss( ae_gene_tree_node * node, int32_t geneLossDate, ae_gene_loss_type geneLossType)
+// void GeneTree::report_gene_loss( GeneTreeNode * node, int32_t geneLossDate, ae_gene_loss_type geneLossType)
 // {
 //   node->_gene_loss_date = geneLossDate;
 //   node->_gene_loss_type = geneLossType;
@@ -181,7 +181,7 @@ void GeneTree::register_actual_mutation_effect_on_genes_in_tree_leaves(const ae_
   
 
 
-ae_gene_tree_node *GeneTree::search_in_leaves(const Protein * protein)
+GeneTreeNode *GeneTree::search_in_leaves(const Protein * protein)
 {
   return _root->search_in_subtree_leaves(protein);
 }

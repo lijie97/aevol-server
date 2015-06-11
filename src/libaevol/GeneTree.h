@@ -24,7 +24,7 @@
 //*****************************************************************************
 
 
-/** \class ae_gene_tree_node
+/** \class GeneTreeNode
  *  \brief Currently used only by post-treatments, on a specific lineage, to monitor the fate of paralogs.
  *         Each node corresponds to a coding RNA. When it is duplicated, two new nodes are added in the tree,
  *         as children of the ancestral version. The left child corresponds to the original DNA segment, while
@@ -73,12 +73,12 @@ enum ae_gene_creation_type
 
 
 
-class ae_gene_tree_node;
+class GeneTreeNode;
 
  
 class GeneTree
 {  
-  friend class ae_gene_tree_node;
+  friend class GeneTreeNode;
 
   public :
   
@@ -117,11 +117,11 @@ class GeneTree
     void anticipate_mutation_effect_on_genes_in_tree_leaves(const ae_mutation* mut, int32_t lengthOfGeneticUnit);
     void register_actual_mutation_effect_on_genes_in_tree_leaves(const ae_mutation* mut, GeneticUnit * unit, int32_t gener, double impact_on_metabolic_error);
 
-    /* void duplicate_this_gene(ae_gene_tree_node * node, int32_t duplicDate, Protein * newProtein); */
-    /* void report_gene_mutation(ae_gene_tree_node * node, GeneMutation * geneMut); */
-    /* void report_gene_loss(ae_gene_tree_node * node, int32_t geneLossDate, ae_gene_loss_type geneLossType); */
+    /* void duplicate_this_gene(GeneTreeNode * node, int32_t duplicDate, Protein * newProtein); */
+    /* void report_gene_mutation(GeneTreeNode * node, GeneMutation * geneMut); */
+    /* void report_gene_loss(GeneTreeNode * node, int32_t geneLossDate, ae_gene_loss_type geneLossType); */
 
-    ae_gene_tree_node * search_in_leaves(const Protein * protein); // Returns NULL if not found
+    GeneTreeNode * search_in_leaves(const Protein * protein); // Returns NULL if not found
     void print_to_screen(void); // for debug purposes
     void write_to_files(const char * topologyFileName, const char * nodeAttributesFileName, int32_t end_gener); // Newick format for the topology file
     void write_nodes_in_tabular_file(int32_t treeID, FILE * f);  // f must already be open 
@@ -157,7 +157,7 @@ class GeneTree
     //                          Protected Attributes
     // =================================================================
      
-    ae_gene_tree_node * _root;
+    GeneTreeNode * _root;
     ae_gene_creation_type _creation_type;
     int32_t _begin_gener;
     int32_t _end_gener;

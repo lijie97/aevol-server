@@ -86,7 +86,7 @@ enum ae_gene_mutation_region
 
 class GeneMutation : public ae_mutation
 {
-  friend class ae_gene_tree_node;
+  friend class GeneTreeNode;
   
  public :
 

@@ -62,7 +62,7 @@ ae_utils.h \
 ae_vis_a_vis.h \
 ae_selection.h \
 GeneTree.h \
-ae_gene_tree_node.h \
+GeneTreeNode.h \
 GeneMutation.h \
 habitat.h \
 param_loader.h \
@@ -100,7 +100,7 @@ ae_tree.cpp \
 ae_vis_a_vis.cpp \
 ae_selection.cpp \
 GeneTree.cpp \
-ae_gene_tree_node.cpp \
+GeneTreeNode.cpp \
 GeneMutation.cpp \
 Fuzzy.cpp \
 habitat.cpp \
