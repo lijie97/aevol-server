@@ -43,7 +43,7 @@
 //                            Project Files
 // =================================================================
 #include "Individual.h"
-#include "ae_X11_window.h"
+#include "X11Window.h"
 
 namespace aevol {
 
@@ -83,8 +83,8 @@ class Individual_X11 : public virtual Individual
     //                            Public Methods
     // =================================================================
     virtual void display(void);
-    virtual void display_cdss(ae_X11_window* win);
-    virtual void display_rnas(ae_X11_window* win);
+    virtual void display_cdss(X11Window * win);
+    virtual void display_rnas(X11Window * win);
 
     // =================================================================
     //                           Public Attributes

@@ -73,15 +73,15 @@ enum color_map
 
 
  
-class ae_X11_window
+class X11Window
 {  
   public :
   
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_X11_window( void );
-    ae_X11_window(  Display* display, int8_t screen, Atom * atoms,
+    X11Window( void );
+    X11Window(  Display* display, int8_t screen, Atom * atoms,
                     uint16_t pos_x, uint16_t pos_y, 
                     uint16_t width, uint16_t height,
                     const char* caption );
@@ -89,7 +89,7 @@ class ae_X11_window
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_X11_window( void );
+    virtual ~X11Window( void );
   
     // =================================================================
     //                              Accessors
@@ -147,12 +147,12 @@ class ae_X11_window
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    //~ ae_X11_window( void )
+    //~ X11Window( void )
     //~ {
       //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       //~ exit( EXIT_FAILURE );
     //~ };
-    ae_X11_window( const ae_X11_window &model )
+    X11Window( const X11Window &model )
     {
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
@@ -198,7 +198,7 @@ class ae_X11_window
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-void ae_X11_window::blacken( void )
+void X11Window::blacken( void )
 {
   fill_rectangle( 0, 0, _width, _height, BLACK );
 }

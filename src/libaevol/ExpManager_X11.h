@@ -43,7 +43,7 @@
 //                            Project Files
 // =================================================================
 #include "ExpManager.h"
-#include "ae_X11_window.h"
+#include "X11Window.h"
 
 namespace aevol {
 
@@ -51,7 +51,7 @@ namespace aevol {
 //                          Class declarations
 // =================================================================
 class ExpSetup;
-class ae_X11_window;
+class X11Window;
 
 enum key_map
 {
@@ -134,7 +134,7 @@ class ExpManager_X11 : public ExpManager
     inline Atom *           get_atoms (void);
     inline bool             get_show_window(int8_t win);
     inline bool             get_new_show_window(int8_t win);
-    inline ae_X11_window *  get_window(int8_t win);
+    inline X11Window *  get_window(int8_t win);
   
     // =================================================================
     //                            Public Methods
@@ -144,9 +144,9 @@ class ExpManager_X11 : public ExpManager
     void toggle_display_on_off(void);
     void handle_events(void);
     bool quit_signal_received(void);
-    void display(ae_X11_window* win, const Fuzzy& fuzzy, color_map color,
+    void display(X11Window * win, const Fuzzy& fuzzy, color_map color,
         bool fill = false, bool bold = false);
-    void display_grid(ae_X11_window* win, double** cell_grid);
+    void display_grid(X11Window * win, double** cell_grid);
 
     // =================================================================
     //                           Public Attributes
@@ -195,7 +195,7 @@ class ExpManager_X11 : public ExpManager
   Atom*     _atoms;
   KeyCode*  _key_codes;
   
-  ae_X11_window** _win;       // Table containing the <nb_windows> windows
+  X11Window ** _win;       // Table containing the <nb_windows> windows
   char **         _win_name;  // window names
   unsigned int**  _win_size;  // window sizes
   int**           _win_pos;   // window positions
@@ -241,7 +241,7 @@ Atom*ExpManager_X11::get_atoms(void)
 }
 
 
-ae_X11_window*ExpManager_X11::get_window( int8_t win )
+X11Window *ExpManager_X11::get_window( int8_t win )
 {
   return _win[win];
 }

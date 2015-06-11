@@ -112,12 +112,12 @@ world.cpp
 X11_headers = \
 Individual_X11.h \
 ExpManager_X11.h \
-ae_X11_window.h
+X11Window.h
 
 X11_sources = \
 Individual_X11.cpp \
 ExpManager_X11.cpp \
-ae_X11_window.cpp
+X11Window.cpp
 
 # The target_CPPFLAGS for each target may look useless, it is here to force automake to create
 # prefixed object files so that we don't use an object file built for another set of macrodefinitions

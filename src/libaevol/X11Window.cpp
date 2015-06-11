@@ -41,7 +41,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_X11_window.h"
+#include "X11Window.h"
 
 #include "ExpSetup.h"
 namespace aevol {
@@ -135,7 +135,7 @@ namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                             Class ae_X11_window                             #
+//                             Class X11Window                             #
 //                                                                             #
 //##############################################################################
 
@@ -146,12 +146,12 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_X11_window::ae_X11_window( void )
+X11Window::X11Window( void )
 {
 }
 
 
-ae_X11_window::ae_X11_window( Display* display, int8_t screen, Atom* atoms,
+X11Window::X11Window( Display* display, int8_t screen, Atom* atoms,
                               uint16_t x, uint16_t y, uint16_t width, uint16_t height,
                               const char* caption )
 {
@@ -244,7 +244,7 @@ ae_X11_window::ae_X11_window( Display* display, int8_t screen, Atom* atoms,
 //                             Destructors
 // =================================================================
 
-ae_X11_window::~ae_X11_window( void )
+X11Window::~X11Window( void )
 {
   XFreeGC( _display, _gcWhite );
   XFreeGC( _display, _gcBlack );
@@ -267,19 +267,19 @@ ae_X11_window::~ae_X11_window( void )
 
 
 
-void ae_X11_window::resize( unsigned int width, unsigned int height )
+void X11Window::resize( unsigned int width, unsigned int height )
 {
   _width  = width;
   _height = height;
 }
 
 
-void ae_X11_window::draw_string( int16_t x, int16_t y, char * str )
+void X11Window::draw_string( int16_t x, int16_t y, char * str )
 {
   XDrawImageString( _display, _window, _gcWhite, x, y, str, strlen(str) );
 }
 
-void ae_X11_window::draw_line( int16_t x1, int16_t y1, int16_t x2, int16_t y2, color_map color, bool bold /*= false*/ )
+void X11Window::draw_line( int16_t x1, int16_t y1, int16_t x2, int16_t y2, color_map color, bool bold /*= false*/ )
 {
   GC* gc = NULL;
   
@@ -331,7 +331,7 @@ void ae_X11_window::draw_line( int16_t x1, int16_t y1, int16_t x2, int16_t y2, c
   }
 }
 
-void ae_X11_window::draw_line( int16_t x1, int16_t y1, int16_t x2, int16_t y2, char* color, bool bold /*= false*/ )
+void X11Window::draw_line( int16_t x1, int16_t y1, int16_t x2, int16_t y2, char* color, bool bold /*= false*/ )
 {
   // Create custom GC
   XGCValues values;
@@ -350,17 +350,17 @@ void ae_X11_window::draw_line( int16_t x1, int16_t y1, int16_t x2, int16_t y2, c
   XFreeGC( _display, tmp_gc );
 }
 
-void ae_X11_window::draw_circle( int16_t x, int16_t y, int16_t diam )
+void X11Window::draw_circle( int16_t x, int16_t y, int16_t diam )
 {
   XDrawArc( _display, _window, _gcWhite, x, y, diam, diam, 0, 64*360 );
 }
 
-void ae_X11_window::draw_arc( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2 )
+void X11Window::draw_arc( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2 )
 {
   XDrawArc( _display, _window, _gcWhite, x, y, diam, diam, 64*angle1, 64*angle2 );
 }
 
-void ae_X11_window::draw_arc( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2, char* color )
+void X11Window::draw_arc( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2, char* color )
 {
   XGCValues values;
   values.line_width = 2;
@@ -373,12 +373,12 @@ void ae_X11_window::draw_arc( int16_t x, int16_t y, int16_t diam, int16_t angle1
   XFreeGC( _display, tmp_gc );
 }
 
-void ae_X11_window::draw_arc_64( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2 )
+void X11Window::draw_arc_64( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2 )
 {
   XDrawArc( _display, _window, _gcWhite, x, y, diam, diam, angle1, angle2 );
 }
 
-void ae_X11_window::draw_arc_64( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2, char* color )
+void X11Window::draw_arc_64( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2, char* color )
 {
   XGCValues values;
   values.line_width = 2;
@@ -391,12 +391,12 @@ void ae_X11_window::draw_arc_64( int16_t x, int16_t y, int16_t diam, int16_t ang
   XFreeGC( _display, tmp_gc );
 }
 
-void ae_X11_window::fill_arc( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2 )
+void X11Window::fill_arc( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2 )
 {
   XFillArc( _display, _window, _gcWhite, x, y, diam, diam, 64*angle1, 64*angle2 );
 }
 
-void ae_X11_window::fill_arc( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2, char* color )
+void X11Window::fill_arc( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2, char* color )
 {
   XGCValues values;
   values.line_width = 2;
@@ -409,12 +409,12 @@ void ae_X11_window::fill_arc( int16_t x, int16_t y, int16_t diam, int16_t angle1
   XFreeGC( _display, tmp_gc );
 }
 
-void ae_X11_window::fill_arc_64( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2 )
+void X11Window::fill_arc_64( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2 )
 {
   XFillArc( _display, _window, _gcWhite, x, y, diam, diam, angle1, angle2 );
 }
 
-void ae_X11_window::fill_arc_64( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2, char* color )
+void X11Window::fill_arc_64( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2, char* color )
 {
   XGCValues values;
   values.line_width = 2;
@@ -427,7 +427,7 @@ void ae_X11_window::fill_arc_64( int16_t x, int16_t y, int16_t diam, int16_t ang
   XFreeGC( _display, tmp_gc );
 }
 
-void ae_X11_window::fill_rectangle( int16_t x, int16_t y, int16_t width, int16_t height, color_map color )
+void X11Window::fill_rectangle( int16_t x, int16_t y, int16_t width, int16_t height, color_map color )
 {
   switch ( color )
   {
@@ -467,7 +467,7 @@ void ae_X11_window::fill_rectangle( int16_t x, int16_t y, int16_t width, int16_t
   }
 }
 
-void ae_X11_window::fill_rectangle( int16_t x, int16_t y, int16_t width, int16_t height, char* color )
+void X11Window::fill_rectangle( int16_t x, int16_t y, int16_t width, int16_t height, char* color )
 {
   XGCValues values;
   values.foreground = get_pixel( _display, _screen, color, WhitePixel(_display,_screen) );
@@ -479,7 +479,7 @@ void ae_X11_window::fill_rectangle( int16_t x, int16_t y, int16_t width, int16_t
   XFreeGC( _display, tmp_gc );
 }
 
-char* ae_X11_window::get_color( double mean )
+char*X11Window::get_color( double mean )
 {
   int16_t red, green, blue;
 
@@ -530,7 +530,7 @@ char* ae_X11_window::get_color( double mean )
 //                           Protected Methods
 // =================================================================
 
-uint32_t ae_X11_window::get_pixel(Display *display, int8_t screen, char *color_name, uint32_t default_color)
+uint32_t X11Window::get_pixel(Display *display, int8_t screen, char *color_name, uint32_t default_color)
 {
   // hacked on 2014-12-05 because XQuarz and Yosemite make XAllocColor veeery slow
   // dirty memoization workaround: display and screen are assumed to be constant

@@ -44,7 +44,7 @@
 #include "world.h"
 #include "point.h"
 #include "Individual_X11.h"
-#include "ae_X11_window.h"
+#include "X11Window.h"
 #include "Fuzzy.h"
 
 namespace aevol {
@@ -202,7 +202,7 @@ void ExpManager_X11::display(void)
       {
         if (get_show_window(i))
         {
-          _win[i] = new ae_X11_window(_display, _screen, _atoms,
+          _win[i] = new X11Window(_display, _screen, _atoms,
               _win_pos[i][0], _win_pos[i][1],
               _win_size[i][0], _win_size[i][1], _win_name[i]);
         }
@@ -354,7 +354,7 @@ void ExpManager_X11::handle_events(void)
           }
           else
           {
-            _win[num_win] = new ae_X11_window( _display, _screen, _atoms, _win_pos[num_win][0], _win_pos[num_win][1],
+            _win[num_win] = new X11Window( _display, _screen, _atoms, _win_pos[num_win][0], _win_pos[num_win][1],
                                                 _win_size[num_win][0], _win_size[num_win][1], _win_name[num_win]);
             _new_show_window |= 1 << num_win;
             _show_window |= _new_show_window;
@@ -406,7 +406,7 @@ void ExpManager_X11::toggle_display_on_off(void)
 
 
 
-void ExpManager_X11::display(ae_X11_window* win,
+void ExpManager_X11::display(X11Window * win,
     const Fuzzy& fuzzy,
     color_map color,
     bool fill /*= false*/,
@@ -434,7 +434,7 @@ void ExpManager_X11::display(ae_X11_window* win,
     if (fill) {
       char* fill_color;
       for (int16_t i = cur_x ; i < next_x ; i++) {
-        fill_color = ae_X11_window::get_color(((double)i / win->get_width()) * (X_MAX - X_MIN));
+        fill_color = X11Window::get_color(((double)i / win->get_width()) * (X_MAX - X_MIN));
         win->draw_line(i, (1 - ((0 -  y_min) / delta_y)) * win->get_height(),
                         i, cur_y + (((i - cur_x) * (next_y - cur_y)) / (next_x - cur_x)) , fill_color);
         delete [] fill_color;
@@ -445,7 +445,7 @@ void ExpManager_X11::display(ae_X11_window* win,
 }
 
 // Display a grid of values
-void ExpManager_X11::display_grid(ae_X11_window* win, double** cell_grid)
+void ExpManager_X11::display_grid(X11Window * win, double** cell_grid)
 {
   // printf("display grid\n");
   char t[40];
@@ -524,7 +524,7 @@ void ExpManager_X11::display_grid(ae_X11_window* win, double** cell_grid)
 void ExpManager_X11::initialize(bool with_grid /*= false*/, bool with_plasmids /*= false*/)
 {
   // Initialize window structures
-  _win      = new ae_X11_window* [NB_WIN];
+  _win      = new X11Window * [NB_WIN];
   _win_size = new unsigned int* [NB_WIN];
   _win_pos  = new int* [NB_WIN];
 
@@ -657,7 +657,7 @@ void ExpManager_X11::draw_window(int8_t win_number)
     return;
   }
 
-  ae_X11_window* cur_win = _win[win_number];
+  X11Window * cur_win = _win[win_number];
 
   switch (win_number)
   {
@@ -674,7 +674,7 @@ void ExpManager_X11::draw_window(int8_t win_number)
       char* color;
       for (int16_t i = 0 ; i < cur_win->get_width() ; i++)
       {
-        color = ae_X11_window::get_color(((double)i / cur_win->get_width()) * (X_MAX - X_MIN));
+        color = X11Window::get_color(((double)i / cur_win->get_width()) * (X_MAX - X_MIN));
         //~ cur_win->draw_line(i, 0, i, cur_win->get_height() / 20, color);
         cur_win->draw_line(i, cur_win->get_height() * 19 / 20, i, cur_win->get_height(), color);
         delete [] color;
@@ -725,7 +725,7 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
     return;
   }
 
-  ae_X11_window* cur_win = _win[win_number];
+  X11Window * cur_win = _win[win_number];
 
   switch (win_number)
   {

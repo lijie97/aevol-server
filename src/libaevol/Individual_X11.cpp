@@ -105,7 +105,7 @@ void Individual_X11::display(void)
 {
 }
 
-void Individual_X11::display_cdss(ae_X11_window* win)
+void Individual_X11::display_cdss(X11Window * win)
 {
   // Retreive the genetic unit corresponding to the main chromosome
   GeneticUnit* gen_unit = &_genetic_unit_list.front();
@@ -233,7 +233,7 @@ void Individual_X11::display_cdss(ae_X11_window* win)
     pos_x         = (int16_t) round((double)(canvas_width  - diam2) / 2.0);
     pos_y         = (int16_t) round((double)(canvas_height - diam2) / 2.0);
 
-    char* color = ae_X11_window::get_color(cds.get_mean());
+    char* color = X11Window::get_color(cds.get_mean());
     win->draw_arc_64(pos_x, pos_y, diam2, theta_first_64 - nb_sect_64, nb_sect_64, color);
     delete [] color;
   }
@@ -311,7 +311,7 @@ void Individual_X11::display_cdss(ae_X11_window* win)
     pos_x         = (int16_t) round((double)(canvas_width  - diam2) / 2.0);
     pos_y         = (int16_t) round((double)(canvas_height - diam2) / 2.0);
 
-    char* color = ae_X11_window::get_color(cds.get_mean());
+    char* color = X11Window::get_color(cds.get_mean());
     win->draw_arc_64(pos_x, pos_y, diam2, theta_first_64, nb_sect_64, color);
     delete [] color;
   }
@@ -457,7 +457,7 @@ void Individual_X11::display_cdss(ae_X11_window* win)
       pos_x         = canvas_width + (int16_t) round((double)(canvas_width  - diam2) / 2.0);
       pos_y         = (int16_t) round((double)(canvas_height - diam2) / 2.0);
 
-      char* color = ae_X11_window::get_color(cds.get_mean());
+      char* color = X11Window::get_color(cds.get_mean());
       win->draw_arc_64(pos_x, pos_y, diam2, theta_first_64 - nb_sect_64, nb_sect_64, color);
       delete [] color;
     }
@@ -535,14 +535,14 @@ void Individual_X11::display_cdss(ae_X11_window* win)
       pos_x         = canvas_width + (int16_t) round((double)(canvas_width  - diam2) / 2.0);
       pos_y         = (int16_t) round((double)(canvas_height - diam2) / 2.0);
 
-      char* color = ae_X11_window::get_color(cds.get_mean());
+      char* color = X11Window::get_color(cds.get_mean());
       win->draw_arc_64(pos_x, pos_y, diam2, theta_first_64, nb_sect_64, color);
       delete [] color;
     }
   }
 }
 
-void Individual_X11::display_rnas(ae_X11_window* win)
+void Individual_X11::display_rnas(X11Window * win)
 {
   // Retreive the genetic unit corresponding to the main chromosome
   const GeneticUnit* gen_unit = &_genetic_unit_list.front();
@@ -662,7 +662,7 @@ void Individual_X11::display_rnas(ae_X11_window* win)
     char* color;
     if (rna.is_coding())
     {
-      color = ae_X11_window::get_color(rna.get_basal_level());
+      color = X11Window::get_color(rna.get_basal_level());
     }
     else
     {
@@ -760,7 +760,7 @@ void Individual_X11::display_rnas(ae_X11_window* win)
     char* color;
     if (rna.is_coding())
     {
-      color = ae_X11_window::get_color(rna.get_basal_level());
+      color = X11Window::get_color(rna.get_basal_level());
     }
     else
     {

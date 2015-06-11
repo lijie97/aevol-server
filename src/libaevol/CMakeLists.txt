@@ -89,8 +89,8 @@ add_library(aevol
   ae_utils.h
   VisAVis.cpp
   VisAVis.h
-  ae_X11_window.cpp
-  ae_X11_window.h
+  X11Window.cpp
+  X11Window.h
   f_line.cpp
   f_line.h
   Fuzzy.cpp
