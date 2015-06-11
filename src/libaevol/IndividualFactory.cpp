@@ -64,8 +64,8 @@ Individual * IndividualFactory::create_random_individual(
     ExpManager * exp_m,
     int32_t id,
     std::shared_ptr<ae_params_mut> param_mut,
-    std::shared_ptr<ae_jumping_mt> mut_prng,
-    std::shared_ptr<ae_jumping_mt> stoch_prng,
+    std::shared_ptr<JumpingMT> mut_prng,
+    std::shared_ptr<JumpingMT> stoch_prng,
     const Habitat& habitat,
     double w_max,
     int32_t min_genome_length,
@@ -75,7 +75,7 @@ Individual * IndividualFactory::create_random_individual(
     bool plasmid_initial_gene,
     int32_t plasmid_initial_length,
     char* strain_name,
-    std::shared_ptr<ae_jumping_mt> local_prng,
+    std::shared_ptr<JumpingMT> local_prng,
     bool better_than_flat)
 {
   // Create a genome-less individual with the provided parameters

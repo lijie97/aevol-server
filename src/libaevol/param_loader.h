@@ -44,7 +44,7 @@
 
 #include "f_line.h"
 #include "ae_params_mut.h"
-#include "ae_jumping_mt.h"
+#include "JumpingMT.h"
 #include "macros.h"
 #include "ae_enums.h"
 #include "Gaussian.h"
@@ -103,7 +103,7 @@ class param_loader
   // =========================================================================
   //                               Attributes
   // =========================================================================
-  std::shared_ptr<ae_jumping_mt> _prng;
+  std::shared_ptr<JumpingMT> _prng;
 
   char*   _param_file_name;
   FILE*   _param_file;

@@ -224,7 +224,7 @@ void PhenotypicTargetHandler::load(gzFile backup_file) {
   var_method_ = (ae_env_var) tmp_var_method;
 
   if (var_method_ != NO_VAR) {
-    var_prng_ = std::make_shared<ae_jumping_mt>(backup_file);
+    var_prng_ = std::make_shared<JumpingMT>(backup_file);
     gzread(backup_file, &var_sigma_, sizeof(var_sigma_));
     gzread(backup_file, &var_tau_, sizeof(var_tau_));
   }
@@ -241,7 +241,7 @@ void PhenotypicTargetHandler::load(gzFile backup_file) {
     if (tmp_cur_noise_saved)
       cur_noise_ = new Fuzzy(backup_file);
 
-    noise_prng_ = std::make_shared<ae_jumping_mt>(backup_file);
+    noise_prng_ = std::make_shared<JumpingMT>(backup_file);
     gzread(backup_file, &noise_alpha_, sizeof(noise_alpha_));
     gzread(backup_file, &noise_sigma_, sizeof(noise_sigma_));
     gzread(backup_file, &noise_prob_,  sizeof(noise_prob_));

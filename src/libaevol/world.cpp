@@ -301,15 +301,15 @@ void World::save(gzFile backup_file) const
 
 void World::load(gzFile backup_file, ExpManager * exp_man)
 {
-  _prng = std::make_shared<ae_jumping_mt>(backup_file);
+  _prng = std::make_shared<JumpingMT>(backup_file);
 
-  _mut_prng = std::make_shared<ae_jumping_mt>(backup_file);
+  _mut_prng = std::make_shared<JumpingMT>(backup_file);
 
   int8_t tmp_with_stoch;
   gzread(backup_file, &tmp_with_stoch, sizeof(tmp_with_stoch));
   if (tmp_with_stoch)
   {
-    _stoch_prng = std::make_shared<ae_jumping_mt>(backup_file);
+    _stoch_prng = std::make_shared<JumpingMT>(backup_file);
   }
 
   // Manage shared or private phenotypic targets
@@ -349,23 +349,23 @@ void World::load(gzFile backup_file, ExpManager * exp_man)
 void World::backup_stoch_prng(void)
 {
   // Store a copy of _stoch_prng in _stoch_prng_bak
-  _stoch_prng_bak = std::make_unique<ae_jumping_mt>(*_stoch_prng);
+  _stoch_prng_bak = std::make_unique<JumpingMT>(*_stoch_prng);
 }
 
 // =================================================================
 //                          Non inline accessors
 // =================================================================
-std::shared_ptr<ae_jumping_mt> World::get_prng(void) const
+std::shared_ptr<JumpingMT> World::get_prng(void) const
 {
   return _prng;
 }
 
-std::shared_ptr<ae_jumping_mt> World::get_mut_prng(void) const
+std::shared_ptr<JumpingMT> World::get_mut_prng(void) const
 {
   return _mut_prng;
 }
 
-std::shared_ptr<ae_jumping_mt> World::get_stoch_prng(void) const
+std::shared_ptr<JumpingMT> World::get_stoch_prng(void) const
 {
   return _stoch_prng;
 }

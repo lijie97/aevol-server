@@ -105,7 +105,7 @@ ExpManager::~ExpManager(void)
 // ===========================================================================
 void ExpManager::InitializeWorld(int16_t grid_width,
                                      int16_t grid_height,
-                                     std::shared_ptr<ae_jumping_mt> prng,
+                                     std::shared_ptr<JumpingMT> prng,
                                      const Habitat& habitat,
                                      bool share_phenotypic_target)
 {

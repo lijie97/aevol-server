@@ -47,7 +47,7 @@
 #include <list>
 
 #include "Time.h"
-#include "ae_jumping_mt.h"
+#include "JumpingMT.h"
 #include "ExpSetup.h"
 #include "ae_output_manager.h"
 #include "world.h"
@@ -166,7 +166,7 @@ class ExpManager
     // =======================================================================
     void InitializeWorld(int16_t grid_width,
                          int16_t grid_height,
-                         std::shared_ptr<ae_jumping_mt> prng,
+                         std::shared_ptr<JumpingMT> prng,
                          const Habitat& habitat,
                          bool share_phenotypic_target);
     void write_setup_files(void);

@@ -48,7 +48,7 @@
 #include "ae_enums.h"
 #include "ae_mutation.h"
 #include "ae_string.h"
-#include "ae_jumping_mt.h"
+#include "JumpingMT.h"
 
 
 namespace aevol {
@@ -78,7 +78,7 @@ class Dna : public ae_string
     Dna(const Dna &) = delete; // TODO <david.parsons@inria.fr> merge unsure
     Dna(GeneticUnit* gen_unit,
            int32_t length,
-           std::shared_ptr<ae_jumping_mt> prng);
+           std::shared_ptr<JumpingMT> prng);
     Dna(GeneticUnit* gen_unit, const Dna &model);
     Dna(GeneticUnit* gen_unit, Dna * const parent_dna);
     Dna(GeneticUnit* gen_unit, char* seq, int32_t length);

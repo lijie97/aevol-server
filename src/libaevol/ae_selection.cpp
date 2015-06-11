@@ -353,7 +353,7 @@ void ae_selection::load(gzFile& exp_setup_file,
   gzread(exp_setup_file, &_selection_pressure, sizeof(_selection_pressure) );
 
   // ----------------------------------------- Pseudo-random number generator
-  prng_ = std::make_unique<ae_jumping_mt>(backup_file);
+  prng_ = std::make_unique<JumpingMT>(backup_file);
 }
 
 

@@ -82,13 +82,13 @@ class ae_selection
     inline ae_selection_scheme  get_selection_scheme(void) const;
     inline double               get_selection_pressure(void) const;
     inline double*              get_prob_reprod(void) const;
-    // inline std::unique_ptr<ae_jumping_mt> get_prng(void) const;
+    // inline std::unique_ptr<JumpingMT> get_prng(void) const;
 
     // =================================================================
     //                        Accessors: setters
     // =================================================================
     // ----------------------------------------- Pseudo-random number generator
-    inline void set_prng(std::unique_ptr<ae_jumping_mt>&& prng);
+    inline void set_prng(std::unique_ptr<JumpingMT>&& prng);
 
     // -------------------------------------------------------------- Selection
     inline void set_selection_scheme(ae_selection_scheme sel_scheme);
@@ -135,7 +135,7 @@ class ae_selection
     ExpManager * _exp_m;
     
     // ----------------------------------------- Pseudo-random number generator
-    std::unique_ptr<ae_jumping_mt> prng_;
+    std::unique_ptr<JumpingMT> prng_;
 
     // -------------------------------------------------------------- Selection
     ae_selection_scheme  _selection_scheme;
@@ -149,7 +149,7 @@ class ae_selection
 // =====================================================================
 //                           Getters' definitions
 // =====================================================================
-// inline std::unique_ptr<ae_jumping_mt> ae_selection::get_prng(void) const
+// inline std::unique_ptr<JumpingMT> ae_selection::get_prng(void) const
 // {
 //   return prng_;
 // }

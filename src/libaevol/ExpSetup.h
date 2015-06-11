@@ -40,7 +40,7 @@
 #include "ae_logs.h"
 #include "ae_tree.h"
 #include "Dump.h"
-#include "ae_jumping_mt.h"
+#include "JumpingMT.h"
 
 namespace aevol {
 

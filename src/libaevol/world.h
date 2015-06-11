@@ -76,9 +76,9 @@ class World
   //                        Accessors: getters
   // =================================================================
   // PRNGs
-  std::shared_ptr<ae_jumping_mt> get_prng(void) const;
-  std::shared_ptr<ae_jumping_mt> get_mut_prng(void) const;
-  std::shared_ptr<ae_jumping_mt> get_stoch_prng(void) const;
+  std::shared_ptr<JumpingMT> get_prng(void) const;
+  std::shared_ptr<JumpingMT> get_mut_prng(void) const;
+  std::shared_ptr<JumpingMT> get_stoch_prng(void) const;
 
   std::list<Individual *> get_indivs(void) const;
   inline int32_t          get_nb_indivs(void) const;
@@ -99,9 +99,9 @@ class World
   //                        Accessors: setters
   // =================================================================
   // PRNGs
-  inline void set_prng(std::shared_ptr<ae_jumping_mt> prng);
-  void set_mut_prng(std::shared_ptr<ae_jumping_mt> prng);
-  void set_stoch_prng(std::shared_ptr<ae_jumping_mt> prng);
+  inline void set_prng(std::shared_ptr<JumpingMT> prng);
+  void set_mut_prng(std::shared_ptr<JumpingMT> prng);
+  void set_stoch_prng(std::shared_ptr<JumpingMT> prng);
 
   inline void set_is_well_mixed(bool is_well_mixed);
   inline void set_partial_mix_nb_permutations(int32_t nb_permutations);
@@ -149,11 +149,11 @@ class World
   // =================================================================
   //                          Protected Attributes
   // =================================================================
-  std::shared_ptr<ae_jumping_mt> _prng = NULL;
+  std::shared_ptr<JumpingMT> _prng = NULL;
 
-  std::shared_ptr<ae_jumping_mt> _mut_prng = nullptr;
-  std::shared_ptr<ae_jumping_mt> _stoch_prng = nullptr;
-  std::unique_ptr<ae_jumping_mt> _stoch_prng_bak = nullptr;
+  std::shared_ptr<JumpingMT> _mut_prng = nullptr;
+  std::shared_ptr<JumpingMT> _stoch_prng = nullptr;
+  std::unique_ptr<JumpingMT> _stoch_prng_bak = nullptr;
 
   int16_t width_  = -1;
   int16_t height_ = -1;

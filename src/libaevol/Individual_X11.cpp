@@ -74,8 +74,8 @@ Individual_X11::Individual_X11(ExpManager * exp_manager, gzFile backup_file) :
 
 Individual_X11::Individual_X11(Individual_X11 * const parent,
                                      int32_t id,
-                                     std::shared_ptr<ae_jumping_mt> mut_prng,
-                                     std::shared_ptr<ae_jumping_mt> stoch_prng) :
+                                     std::shared_ptr<JumpingMT> mut_prng,
+                                     std::shared_ptr<JumpingMT> stoch_prng) :
     Individual(parent, id, mut_prng, stoch_prng)
 {
   init_occupied_sectors();

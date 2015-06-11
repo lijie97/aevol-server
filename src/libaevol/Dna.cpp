@@ -70,7 +70,7 @@ namespace aevol {
  */
 Dna::Dna(GeneticUnit* gen_unit,
                int32_t length,
-               std::shared_ptr<ae_jumping_mt> prng) :
+               std::shared_ptr<JumpingMT> prng) :
     ae_string(length, prng)
 {
   _gen_unit = gen_unit;

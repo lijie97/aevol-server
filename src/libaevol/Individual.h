@@ -84,8 +84,8 @@ class Individual
   Individual() = delete;
   Individual(const Individual &) = delete;
   Individual(ExpManager * exp_m,
-                std::shared_ptr<ae_jumping_mt> mut_prng,
-                std::shared_ptr<ae_jumping_mt> stoch_prng,
+                std::shared_ptr<JumpingMT> mut_prng,
+                std::shared_ptr<JumpingMT> stoch_prng,
                 std::shared_ptr<ae_params_mut> param_mut,
                 double w_max,
                 int32_t min_genome_length,
@@ -99,8 +99,8 @@ class Individual
   Individual(const Individual & model,
                 bool replication_report_copy);
   Individual(const Individual * parent, int32_t id,
-                std::shared_ptr<ae_jumping_mt> mut_prng,
-                std::shared_ptr<ae_jumping_mt> stoch_prng);
+                std::shared_ptr<JumpingMT> mut_prng,
+                std::shared_ptr<JumpingMT> stoch_prng);
   static Individual * CreateIndividual(ExpManager * exp_m,
                                          gzFile backup_file);
 
@@ -137,8 +137,8 @@ class Individual
   double           get_fitness_by_feature(ae_env_axis_feature feature) const;
   GridCell *    get_grid_cell() const;
   bool             get_placed_in_population() const;
-  std::shared_ptr<ae_jumping_mt> get_mut_prng() const;
-  std::shared_ptr<ae_jumping_mt> get_stoch_prng() const;
+  std::shared_ptr<JumpingMT> get_mut_prng() const;
+  std::shared_ptr<JumpingMT> get_stoch_prng() const;
 
   const std::list<GeneticUnit>& get_genetic_unit_list() const;
   std::list<GeneticUnit>& get_genetic_unit_list_nonconst();
@@ -303,8 +303,8 @@ class Individual
   // ----------------------------------------------- Phenotypic stochasticity
   void set_with_stochasticity(bool with_stoch);
 
-  void set_mut_prng(std::shared_ptr<ae_jumping_mt> prng);
-  void set_stoch_prng(std::shared_ptr<ae_jumping_mt> prng);
+  void set_mut_prng(std::shared_ptr<JumpingMT> prng);
+  void set_stoch_prng(std::shared_ptr<JumpingMT> prng);
 
   //------------------------------------------------ Generic probes
   void set_int_probes (int32_t* int_probes);
@@ -317,9 +317,9 @@ class Individual
   void add_GU(char * &sequence, int32_t length);  // warning: the individual is left in a totally "cleared" state but not reevaluated
   // void add_GU(GeneticUnit&& unit); // warning: the individual is left in a totally "cleared" state but not reevaluated
   void add_GU(Individual * indiv, int32_t chromosome_length,
-              std::shared_ptr<ae_jumping_mt> prng);
+              std::shared_ptr<JumpingMT> prng);
 
-  // void add_GU(Individual* indiv, int32_t length, ae_jumping_mt* prng);
+  // void add_GU(Individual* indiv, int32_t length, JumpingMT* prng);
   void remove_GU (int16_t num_unit); // warning: the individual is left in a totally "cleared" state but not reevaluated
   void renew_dist_to_target_by_feature();
   void renew_fitness_by_feature();
@@ -403,8 +403,8 @@ class Individual
   // These are shared pointers because depending on the configuration,
   // they can either be exclusive to the individual or grid cell, or they
   // can be mutualized (shared) for all or part of the population
-  std::shared_ptr<ae_jumping_mt> _mut_prng;
-  std::shared_ptr<ae_jumping_mt> _stoch_prng;
+  std::shared_ptr<JumpingMT> _mut_prng;
+  std::shared_ptr<JumpingMT> _stoch_prng;
 
   // Individual ID and rank of the individual in the population
   // WARNING : The ID is no longer corresponding to the rank of the individual.

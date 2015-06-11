@@ -554,7 +554,7 @@ void GeneticUnit::copy_promoters_included_in(int32_t pos_1,
 */
 GeneticUnit::GeneticUnit(Individual * indiv,
                          int32_t length,
-                         std::shared_ptr<ae_jumping_mt> prng)
+                         std::shared_ptr<JumpingMT> prng)
 {
   _indiv = indiv;
   _exp_m = indiv->get_exp_m();

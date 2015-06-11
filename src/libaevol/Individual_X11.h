@@ -66,8 +66,8 @@ class Individual_X11 : public virtual Individual
     Individual_X11(ExpManager * exp_manager, gzFile backup_file);
     Individual_X11(const Individual_X11 &model, bool replication_report_copy);
     Individual_X11(Individual_X11 * const parent, int32_t id,
-                      std::shared_ptr<ae_jumping_mt> mut_prng,
-                      std::shared_ptr<ae_jumping_mt> stoch_prng);
+                      std::shared_ptr<JumpingMT> mut_prng,
+                      std::shared_ptr<JumpingMT> stoch_prng);
     Individual_X11() = delete; // forbidden constructor
 
     // =================================================================

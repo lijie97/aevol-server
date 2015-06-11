@@ -38,7 +38,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_jumping_mt.h"
+#include "JumpingMT.h"
 #include "ae_jump_poly.h"
 
 
@@ -47,15 +47,15 @@ namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                             Class ae_jumping_mt                             #
+//                             Class JumpingMT                             #
 //                                                                             #
 //##############################################################################
 
 // =================================================================
 //                    Definition of static attributes
 // =================================================================
-int32_t ae_jumping_mt::nb_jumps   = 0;
-double  ae_jumping_mt::jump_time  = 0;
+int32_t JumpingMT::nb_jumps   = 0;
+double  JumpingMT::jump_time  = 0;
 
 // =================================================================
 //                             Constructors
@@ -63,7 +63,7 @@ double  ae_jumping_mt::jump_time  = 0;
 /*!
   Create a generator initialized with a simple uint32_t
  */
-ae_jumping_mt::ae_jumping_mt( const uint32_t& simple_seed )
+JumpingMT::JumpingMT( const uint32_t& simple_seed )
 {
   _sfmt = new sfmt_t();
   sfmt_init_gen_rand( _sfmt, simple_seed );
@@ -75,7 +75,7 @@ ae_jumping_mt::ae_jumping_mt( const uint32_t& simple_seed )
 /*!
   Create a copy of an existing generator
  */
-ae_jumping_mt::ae_jumping_mt( const ae_jumping_mt& model )
+JumpingMT::JumpingMT( const JumpingMT & model )
 {
   _sfmt = new sfmt_t();
   memcpy(_sfmt->state, model._sfmt->state, SFMT_N*sizeof(_sfmt->state[0]));
@@ -85,7 +85,7 @@ ae_jumping_mt::ae_jumping_mt( const ae_jumping_mt& model )
 /*!
   Load a generator from a gz backup file
  */
-ae_jumping_mt::ae_jumping_mt( gzFile backup_file )
+JumpingMT::JumpingMT( gzFile backup_file )
 {
   _sfmt = new sfmt_t();
   gzread( backup_file, _sfmt->state, SFMT_N * sizeof( _sfmt->state[0] ) );
@@ -95,7 +95,7 @@ ae_jumping_mt::ae_jumping_mt( gzFile backup_file )
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_jumping_mt::~ae_jumping_mt( void )
+JumpingMT::~JumpingMT( void )
 {
   delete _sfmt;
 }
@@ -106,7 +106,7 @@ ae_jumping_mt::~ae_jumping_mt( void )
 /*!
   Jump Ahead by a predefined jump length
  */
-void ae_jumping_mt::jump( void )
+void JumpingMT::jump( void )
 {
   //~ clock_t start, end;
   //~ start = clock();
@@ -139,7 +139,7 @@ void ae_jumping_mt::jump( void )
 
   Number of successes out of nb_drawings trials each of probability prob.
  */
-int32_t ae_jumping_mt::binomial_random( int32_t nb_drawings, double prob )
+int32_t JumpingMT::binomial_random( int32_t nb_drawings, double prob )
 {
   int32_t nb_success;
 
@@ -218,7 +218,7 @@ int32_t ae_jumping_mt::binomial_random( int32_t nb_drawings, double prob )
   return nb_success;
 }
 
-double ae_jumping_mt::gaussian_random( void )
+double JumpingMT::gaussian_random( void )
 {
   double x1, x2;
   double r = 0;
@@ -236,7 +236,7 @@ double ae_jumping_mt::gaussian_random( void )
   return x1 * r;
 }
 
-int8_t ae_jumping_mt::roulette_random( double* probs, int8_t nb_elts )
+int8_t JumpingMT::roulette_random( double* probs, int8_t nb_elts )
 {
   double pick_one = 0.0;
   while ( pick_one == 0 )
@@ -255,7 +255,7 @@ int8_t ae_jumping_mt::roulette_random( double* probs, int8_t nb_elts )
   return found_org;
 }
 
-void ae_jumping_mt::multinomial_drawing( int32_t* destination, double* source, int32_t nb_drawings, int32_t nb_colors )
+void JumpingMT::multinomial_drawing( int32_t* destination, double* source, int32_t nb_drawings, int32_t nb_colors )
 {
   //    This function generates a vector of random variates, each with the
   //    binomial distribution (source code from http://www.agner.org/random/).
@@ -328,7 +328,7 @@ void ae_jumping_mt::multinomial_drawing( int32_t* destination, double* source, i
   destination[nb_colors-1] = n;
 }
 
-void ae_jumping_mt::save( gzFile backup_file ) const
+void JumpingMT::save( gzFile backup_file ) const
 {
   gzwrite( backup_file, _sfmt->state, SFMT_N * sizeof( _sfmt->state[0] ) );
   gzwrite( backup_file, &(_sfmt->idx), sizeof( _sfmt->idx ) );
@@ -338,7 +338,7 @@ void ae_jumping_mt::save( gzFile backup_file ) const
 // =================================================================
 //                           Protected Methods
 // =================================================================
-double ae_jumping_mt::gammln( double X )
+double JumpingMT::gammln( double X )
 // Returns the value ln[gamma(X)] for X.
 // The gamma function is defined by the integral  gamma(z) = int(0, +inf, t^(z-1).e^(-t)dt). 
 // When the argument z is an integer, the gamma function is just the familiar factorial 

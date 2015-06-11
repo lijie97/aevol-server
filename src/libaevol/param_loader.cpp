@@ -50,7 +50,7 @@
 #include "Individual.h"
 #include "IndividualFactory.h"
 
-#include "ae_jumping_mt.h"
+#include "JumpingMT.h"
 #include "Gaussian.h"
 #include "PhenotypicSegment.h"
 #include "point.h"
@@ -1191,7 +1191,7 @@ void param_loader::load(ExpManager * exp_m, bool verbose,
 
   // Initialize _prng
   // This one will be used to create the initial genome(s) and to generate seeds for other prng
-  _prng = std::make_shared<ae_jumping_mt>(_seed);
+  _prng = std::make_shared<JumpingMT>(_seed);
 
   // Initialize mut_prng, stoch_prng, world_prng :
   // if mut_seed (respectively stoch_seed) not given in param.in, choose it at random
@@ -1201,9 +1201,9 @@ void param_loader::load(ExpManager * exp_m, bool verbose,
   if (_stoch_seed == 0) {
     _stoch_seed = _prng->random(1000000);
   }
-  auto mut_prng   = std::make_shared<ae_jumping_mt>(_mut_seed);
-  auto stoch_prng = std::make_shared<ae_jumping_mt>(_stoch_seed);
-  auto world_prng = std::make_shared<ae_jumping_mt>(_prng->random(1000000));
+  auto mut_prng   = std::make_shared<JumpingMT>(_mut_seed);
+  auto stoch_prng = std::make_shared<JumpingMT>(_stoch_seed);
+  auto world_prng = std::make_shared<JumpingMT>(_prng->random(1000000));
 
   // Create aliases
   ExpSetup * exp_s = exp_m->get_exp_s();
@@ -1211,7 +1211,7 @@ void param_loader::load(ExpManager * exp_m, bool verbose,
   ae_output_manager* output_m  = exp_m->get_output_m();
 
   // 1) ------------------------------------- Initialize the experimental setup
-  sel->set_prng(std::make_unique<ae_jumping_mt>(_prng->random(1000000)));
+  sel->set_prng(std::make_unique<JumpingMT>(_prng->random(1000000)));
 
   // ---------------------------------------------------------------- Selection
   sel->set_selection_scheme(_selection_scheme);
@@ -1268,7 +1268,7 @@ void param_loader::load(ExpManager * exp_m, bool verbose,
   if (_env_var_method != NO_VAR)
   {
     phenotypic_target_handler.set_var_method(_env_var_method);
-    phenotypic_target_handler.set_var_prng(std::make_shared<ae_jumping_mt>(_env_var_seed));
+    phenotypic_target_handler.set_var_prng(std::make_shared<JumpingMT>(_env_var_seed));
     phenotypic_target_handler.set_var_sigma_tau(_env_var_sigma, _env_var_tau);
   }
 
@@ -1277,7 +1277,7 @@ void param_loader::load(ExpManager * exp_m, bool verbose,
   {
     phenotypic_target_handler.set_noise_method(_env_noise_method);
     phenotypic_target_handler.set_noise_sampling_log(_env_noise_sampling_log);
-    phenotypic_target_handler.set_noise_prng(std::make_shared<ae_jumping_mt>(_env_noise_seed));
+    phenotypic_target_handler.set_noise_prng(std::make_shared<JumpingMT>(_env_noise_seed));
     phenotypic_target_handler.set_noise_alpha(_env_noise_alpha);
     phenotypic_target_handler.set_noise_sigma(_env_noise_sigma);
     phenotypic_target_handler.set_noise_prob(_env_noise_prob );

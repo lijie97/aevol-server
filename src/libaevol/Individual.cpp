@@ -55,8 +55,8 @@ namespace aevol {
  * // TODO <david.parsons@inria.fr>
  */
 Individual::Individual(ExpManager * exp_m,
-                             std::shared_ptr<ae_jumping_mt> mut_prng,
-                             std::shared_ptr<ae_jumping_mt> stoch_prng,
+                             std::shared_ptr<JumpingMT> mut_prng,
+                             std::shared_ptr<JumpingMT> stoch_prng,
                              std::shared_ptr<ae_params_mut> param_mut,
                              double w_max,
                              int32_t min_genome_length,
@@ -389,8 +389,8 @@ Individual::Individual(const Individual & model,
  * The phenotype and the fitness are not set, neither is the statistical data.
 */
 Individual::Individual(const Individual * parent, int32_t id,
-                             std::shared_ptr<ae_jumping_mt> mut_prng,
-                             std::shared_ptr<ae_jumping_mt> stoch_prng)
+                             std::shared_ptr<JumpingMT> mut_prng,
+                             std::shared_ptr<JumpingMT> stoch_prng)
 {
   _exp_m = parent->_exp_m;
 
@@ -613,12 +613,12 @@ ExpManager *Individual::get_exp_m() const {
 }
 
 /// TODO
-std::shared_ptr<ae_jumping_mt> Individual::get_mut_prng() const {
+std::shared_ptr<JumpingMT> Individual::get_mut_prng() const {
   return _mut_prng;
 }
 
 /// TODO
-std::shared_ptr<ae_jumping_mt> Individual::get_stoch_prng() const {
+std::shared_ptr<JumpingMT> Individual::get_stoch_prng() const {
   return _stoch_prng;
 }
 
@@ -1532,7 +1532,7 @@ void Individual::add_GU(char * &sequence, int32_t length) {
 /// copy ctor. Forwards arguments to GeneticUnit's ctor.
 void Individual::add_GU(Individual * indiv,
                            int32_t chromosome_length,
-                           std::shared_ptr<ae_jumping_mt> prng) {
+                           std::shared_ptr<JumpingMT> prng) {
   clear_everything_except_dna_and_promoters();
   _genetic_unit_list.emplace_back(indiv, chromosome_length, prng);
 }

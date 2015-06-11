@@ -86,8 +86,8 @@ class IndividualFactory
       ExpManager * exp_m,
       int32_t id,
       std::shared_ptr<ae_params_mut> param_mut,
-      std::shared_ptr<ae_jumping_mt> mut_prng,
-      std::shared_ptr<ae_jumping_mt> stoch_prng,
+      std::shared_ptr<JumpingMT> mut_prng,
+      std::shared_ptr<JumpingMT> stoch_prng,
       const Habitat& habitat,
       double w_max,
       int32_t min_genome_length,
@@ -97,14 +97,14 @@ class IndividualFactory
       bool plasmid_initial_gene,
       int32_t plasmid_initial_length,
       char* strain_name,
-      std::shared_ptr<ae_jumping_mt> local_prng,
+      std::shared_ptr<JumpingMT> local_prng,
       bool better_than_flat);
   static Individual * create_random_individual_with_good_gene(
       ExpManager * exp_m,
       int32_t id,
       std::shared_ptr<ae_params_mut> param_mut,
-      std::shared_ptr<ae_jumping_mt> mut_prng,
-      std::shared_ptr<ae_jumping_mt> stoch_prng,
+      std::shared_ptr<JumpingMT> mut_prng,
+      std::shared_ptr<JumpingMT> stoch_prng,
       const Habitat& habitat,
       double w_max,
       int32_t min_genome_length,
@@ -114,7 +114,7 @@ class IndividualFactory
       bool plasmid_initial_gene,
       int32_t plasmid_initial_length,
       char* strain_name,
-      std::shared_ptr<ae_jumping_mt> local_prng);
+      std::shared_ptr<JumpingMT> local_prng);
 
 
 

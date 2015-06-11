@@ -41,7 +41,7 @@
 #include "Rna.h"
 #include "Protein.h"
 #include "Fuzzy.h"
-#include "ae_jumping_mt.h"
+#include "JumpingMT.h"
 #include "ae_utils.h"
 #include "phenotypic_target.h"
 
@@ -65,7 +65,7 @@ class GeneticUnit
   // =================================================================
   GeneticUnit(Individual * indiv,
               int32_t length,
-              std::shared_ptr<ae_jumping_mt> prng);
+              std::shared_ptr<JumpingMT> prng);
   GeneticUnit(Individual * indiv,
               char* seq,
               int32_t length,

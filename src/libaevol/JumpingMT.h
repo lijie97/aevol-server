@@ -64,20 +64,20 @@
 
 namespace aevol {
 
-class ae_jumping_mt
+class JumpingMT
 {
   public :
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_jumping_mt(const uint32_t& simple_seed);   // Initialize with a simple uint32_t
-    ae_jumping_mt(const ae_jumping_mt &model);    // Create a copy of an existing generator
-    ae_jumping_mt(gzFile backup_file);           // Load from a gz backup file
+    JumpingMT(const uint32_t& simple_seed);   // Initialize with a simple uint32_t
+    JumpingMT(const JumpingMT &model);    // Create a copy of an existing generator
+    JumpingMT(gzFile backup_file);           // Load from a gz backup file
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_jumping_mt(void);
+    virtual ~JumpingMT(void);
 
     // =================================================================
     //                        Accessors: getters
@@ -124,12 +124,12 @@ class ae_jumping_mt
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    ae_jumping_mt(void)
+    JumpingMT(void)
     {
       printf("%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__);
       exit(EXIT_FAILURE);
     };
-    /*ae_jumping_mt(const ae_jumping_mt &model)
+    /*JumpingMT(const JumpingMT &model)
     {
       printf("%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__);
       exit(EXIT_FAILURE);
@@ -166,7 +166,7 @@ class ae_jumping_mt
 /*!
   Draw a double precision real-number in [0, 1) with a uniform distribution
  */
-inline double ae_jumping_mt::random(void)
+inline double JumpingMT::random(void)
 {
   return sfmt_genrand_real2(_sfmt);
 }
@@ -174,7 +174,7 @@ inline double ae_jumping_mt::random(void)
 /*!
   Draw an 8-bit integer in [0, max[ with a uniform distribution
  */
-inline int8_t ae_jumping_mt::random(int8_t max)
+inline int8_t JumpingMT::random(int8_t max)
 {
   return (int8_t) floor(((double)max) * sfmt_genrand_real2(_sfmt));
 }
@@ -182,7 +182,7 @@ inline int8_t ae_jumping_mt::random(int8_t max)
 /*!
   Draw an 16-bit integer in [0, max[ with a uniform distribution
  */
-inline int16_t ae_jumping_mt::random(int16_t max)
+inline int16_t JumpingMT::random(int16_t max)
 {
   return (int16_t) floor(((double)max) * sfmt_genrand_real2(_sfmt));
 }
@@ -190,7 +190,7 @@ inline int16_t ae_jumping_mt::random(int16_t max)
 /*!
   Draw an 32-bit integer in [0, max[ with a uniform distribution
  */
-inline int32_t ae_jumping_mt::random(int32_t max)
+inline int32_t JumpingMT::random(int32_t max)
 {
   return (int32_t) floor(((double)max) * sfmt_genrand_real2(_sfmt));
 }
@@ -198,7 +198,7 @@ inline int32_t ae_jumping_mt::random(int32_t max)
 /*!
   Draw an 64-bit integer in [0, max[ with a uniform distribution
  */
-inline int64_t ae_jumping_mt::random(int64_t max)
+inline int64_t JumpingMT::random(int64_t max)
 {
   return (int64_t) floor(((double)max) * sfmt_genrand_real2(_sfmt));
 }

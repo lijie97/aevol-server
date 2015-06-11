@@ -54,8 +54,8 @@ add_library(aevol
   Individual_X11.h
   IndividualFactory.cpp
   IndividualFactory.h
-  ae_jumping_mt.cpp
-  ae_jumping_mt.h
+  JumpingMT.cpp
+  JumpingMT.h
   ae_jump_poly.h
   ae_logs.cpp
   ae_logs.h

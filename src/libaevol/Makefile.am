@@ -49,7 +49,7 @@ phenotypic_target.h \
 phenotypic_target_handler.h \
 point.h \
 Protein.h \
-ae_jumping_mt.h \
+JumpingMT.h \
 ae_jump_poly.h \
 ae_replication_report.h \
 dna_replic_report.h \
@@ -89,7 +89,7 @@ phenotypic_target.cpp \
 phenotypic_target_handler.cpp \
 point.cpp \
 Protein.cpp \
-ae_jumping_mt.cpp \
+JumpingMT.cpp \
 ae_replication_report.cpp \
 dna_replic_report.cpp \
 Rna.cpp \

@@ -43,7 +43,7 @@
 #include "phenotypic_target.h"
 #include "Gaussian.h"
 #include "ae_enums.h"
-#include "ae_jumping_mt.h"
+#include "JumpingMT.h"
 #include "Fuzzy.h"
 
 using std::list;
@@ -116,7 +116,7 @@ class PhenotypicTargetHandler
   void set_var_method(ae_env_var var_method) {
     var_method_ = var_method;
   }
-  void set_var_prng(std::shared_ptr<ae_jumping_mt> prng) {
+  void set_var_prng(std::shared_ptr<JumpingMT> prng) {
     var_prng_ = prng;
   }
   void set_var_sigma(double sigma) {
@@ -132,7 +132,7 @@ class PhenotypicTargetHandler
   void set_noise_method(ae_env_noise noise_method) {
     noise_method_ = noise_method;
   }
-  void set_noise_prng(std::shared_ptr<ae_jumping_mt> prng) {
+  void set_noise_prng(std::shared_ptr<JumpingMT> prng) {
     noise_prng_ = prng;
   }
   void set_noise_sigma(double sigma) {
@@ -188,7 +188,7 @@ class PhenotypicTargetHandler
   /// Variation method
   ae_env_var var_method_;
   /// PRNG used for variation
-  std::shared_ptr<ae_jumping_mt> var_prng_;
+  std::shared_ptr<JumpingMT> var_prng_;
   /// Autoregressive mean variation sigma parameter
   double var_sigma_;
   /// Autoregressive mean variation tau parameter
@@ -198,7 +198,7 @@ class PhenotypicTargetHandler
   /// Current noise (pure noise that is added to the phenotypic target)
   Fuzzy* cur_noise_ = NULL;
   /// PRNG used for noise
-  std::shared_ptr<ae_jumping_mt> noise_prng_;
+  std::shared_ptr<JumpingMT> noise_prng_;
   ae_env_noise noise_method_;
   /// Alpha value (variance coefficient)
   double noise_alpha_;
