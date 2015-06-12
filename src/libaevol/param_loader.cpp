@@ -55,7 +55,7 @@
 #include "PhenotypicSegment.h"
 #include "point.h"
 #include "Alignment.h"
-#include "world.h"
+#include "World.h"
 
 
 namespace aevol {

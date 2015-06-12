@@ -41,7 +41,7 @@
 //                            Project Files
 // =================================================================
 #include "ExpManager_X11.h"
-#include "world.h"
+#include "World.h"
 #include "point.h"
 #include "Individual_X11.h"
 #include "X11Window.h"

@@ -108,8 +108,8 @@ add_library(aevol
   point.h
   Time.cpp
   Time.h
-  world.cpp
-  world.h)
+  World.cpp
+  World.h)
 
 
 # ============================================================================

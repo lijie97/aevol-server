@@ -65,7 +65,7 @@ class World
   //                             Constructors
   // =================================================================
   World(void) = default;
-  World(const World&) = delete;
+  World(const World &) = delete;
 
   // =================================================================
   //                             Destructors
@@ -183,7 +183,7 @@ inline int32_t World::get_nb_indivs(void) const
   return width_ * height_;
 }
 
-inline Individual * World::get_best_indiv(void) const
+inline Individual *World::get_best_indiv(void) const
 {
   return grid_[x_best][y_best]->get_individual();
 }
@@ -193,17 +193,17 @@ inline int32_t World::partial_mix_nb_permutations(void) const
   return partial_mix_nb_permutations_;
 }
 
-inline GridCell * World::grid(int16_t x, int16_t y) const
+inline GridCell *World::grid(int16_t x, int16_t y) const
 {
   return grid_[x][y];
 }
 
-inline Individual * World::get_indiv_at(int16_t x, int16_t y) const
+inline Individual *World::get_indiv_at(int16_t x, int16_t y) const
 {
   return grid_[x][y]->get_individual();
 }
 
-inline double** World::get_secretion_present_grid(void) const
+inline double**World::get_secretion_present_grid(void) const
 {
   double** ret = new double*[width_];
   
@@ -219,7 +219,7 @@ inline double** World::get_secretion_present_grid(void) const
   return ret;
 }
 
-inline double** World::get_secreted_amount_grid(void) const
+inline double**World::get_secreted_amount_grid(void) const
 {
   double** ret = new double*[width_];
   for (int16_t x = 0 ; x < width_ ; x++)
@@ -234,7 +234,7 @@ inline double** World::get_secreted_amount_grid(void) const
   return ret;
 }
 
-inline double** World::get_metabolic_fitness_grid(void) const
+inline double**World::get_metabolic_fitness_grid(void) const
 {
   double** ret = new double*[width_];
   for (int16_t x = 0 ; x < width_ ; x++)
@@ -249,7 +249,7 @@ inline double** World::get_metabolic_fitness_grid(void) const
   return ret;
 }
 
-inline double** World::get_total_fitness_grid(void) const
+inline double**World::get_total_fitness_grid(void) const
 {
   double** ret = new double*[width_];
   for (int16_t x = 0 ; x < width_ ; x++)

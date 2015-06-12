@@ -68,7 +68,7 @@ habitat.h \
 param_loader.h \
 ParameterLine.h \
 Time.h \
-world.h
+World.h
 
 common_sources = \
 Alignment.cpp \
@@ -107,7 +107,7 @@ habitat.cpp \
 param_loader.cpp \
 ParameterLine.cpp \
 Time.cpp \
-world.cpp
+World.cpp
 
 X11_headers = \
 Individual_X11.h \

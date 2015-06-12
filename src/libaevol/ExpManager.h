@@ -50,7 +50,7 @@
 #include "JumpingMT.h"
 #include "ExpSetup.h"
 #include "OutputManager.h"
-#include "world.h"
+#include "World.h"
 
 
 namespace aevol {
@@ -277,7 +277,7 @@ inline double ExpManager::get_selection_pressure(void) const
 }
 
 // Global settings
-inline World*ExpManager::world(void) const
+inline World* ExpManager::world(void) const
 {
   return world_;
 }
