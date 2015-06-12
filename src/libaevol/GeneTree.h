@@ -33,8 +33,8 @@
  */
  
  
- #ifndef __AE_GENE_TREE_H__
-#define  __AE_GENE_TREE_H__
+ #ifndef AEVOL_GENE_TREE_H__
+#define  AEVOL_GENE_TREE_H__
  
  
 // =================================================================
@@ -214,4 +214,4 @@ inline int32_t GeneTree::get_nb_active_leaves() const
 
 } // namespace aevol
 
-#endif // __AE_GENE_TREE_H__
+#endif // AEVOL_GENE_TREE_H__

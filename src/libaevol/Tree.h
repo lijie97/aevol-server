@@ -25,8 +25,8 @@
 //*****************************************************************************
  
  
-#ifndef __AE_TREE_H__
-#define __AE_TREE_H__
+#ifndef AEVOL_TREE_H__
+#define AEVOL_TREE_H__
 
 
 // =================================================================
@@ -215,4 +215,4 @@ inline int64_t Tree::get_LCA(int64_t t, int32_t a, int32_t b, int32_t* j = NULL)
 
 } // namespace aevol
 
-#endif // __AE_TREE_H__
+#endif // AEVOL_TREE_H__

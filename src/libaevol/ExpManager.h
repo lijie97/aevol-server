@@ -37,8 +37,8 @@
 */
 
 
-#ifndef __AE_EXP_MANAGER_H__
-#define __AE_EXP_MANAGER_H__
+#ifndef AEVOL_EXP_MANAGER_H__
+#define AEVOL_EXP_MANAGER_H__
 
 #include <cinttypes>
 #include <cstdio>
@@ -498,4 +498,4 @@ inline void ExpManager::load(int32_t first_gener,
 }
 
 } // namespace aevol
-#endif // __AE_EXP_MANAGER_H__
+#endif // AEVOL_EXP_MANAGER_H__

@@ -25,8 +25,8 @@
 //*****************************************************************************
 
 
-#ifndef __AE_PHENOTYPIC_TARGET__
-#define __AE_PHENOTYPIC_TARGET__
+#ifndef AEVOL_PHENOTYPIC_TARGET_H__
+#define AEVOL_PHENOTYPIC_TARGET_H__
 
 
 // ============================================================================
@@ -144,4 +144,4 @@ class PhenotypicTarget : public Fuzzy
 
 } // namespace aevol
 
-#endif // __AE_PHENOTYPIC_TARGET__
+#endif // AEVOL_PHENOTYPIC_TARGET_H__

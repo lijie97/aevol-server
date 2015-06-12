@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef __AE_OUPUT_MANAGER_H__
-#define __AE_OUPUT_MANAGER_H__
+#ifndef AEVOL_OUPUT_MANAGER_H__
+#define AEVOL_OUPUT_MANAGER_H__
 
 
 // =================================================================
@@ -280,4 +280,4 @@ inline void OutputManager::flush( void )
 
 } // namespace aevol
 
-#endif // __AE_OUPUT_MANAGER_H__
+#endif // AEVOL_OUPUT_MANAGER_H__

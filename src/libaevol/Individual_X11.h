@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef  __AE_INDIVIDUAL_X11_H__
-#define  __AE_INDIVIDUAL_X11_H__
+#ifndef  AEVOL_INDIVIDUAL_X11_H__
+#define  AEVOL_INDIVIDUAL_X11_H__
 
 
 // =================================================================
@@ -117,4 +117,4 @@ class Individual_X11 : public virtual Individual
 
 } // namespace aevol
 
-#endif // __AE_INDIVIDUAL_X11_H__
+#endif // AEVOL_INDIVIDUAL_X11_H__

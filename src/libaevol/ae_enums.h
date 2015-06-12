@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef __AE_ENUMS_H__
-#define __AE_ENUMS_H__
+#ifndef AEVOL_ENUMS_H__
+#define AEVOL_ENUMS_H__
 
 namespace aevol {
 
@@ -116,4 +116,4 @@ enum Position {
 
 } // namespace aevol
 
-#endif // __AE_ENUMS_H__
+#endif // AEVOL_ENUMS_H__

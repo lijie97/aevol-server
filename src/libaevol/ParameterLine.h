@@ -25,8 +25,8 @@
 //*****************************************************************************
 
 
-#ifndef __F_LINE_H__
-#define __F_LINE_H__
+#ifndef AEVOL_PARAMETER_LINE_H__
+#define AEVOL_PARAMETER_LINE_H__
 
 
 // =================================================================
@@ -100,4 +100,4 @@ class ParameterLine
 
 } // namespace aevol
 
-#endif // __f_line_H__
+#endif // AEVOL_PARAMETER_LINE_H__

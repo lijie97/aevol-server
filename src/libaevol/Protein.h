@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef __AE_PROTEIN_H__
-#define __AE_PROTEIN_H__
+#ifndef AEVOL_PROTEIN_H__
+#define AEVOL_PROTEIN_H__
 
 
 // =================================================================
@@ -205,4 +205,4 @@ bool Protein::get_is_functional( void ) const
 //                       Inline functions' definition
 // =====================================================================
 } // namespace aevol
-#endif // __AE_PROTEIN_H__
+#endif // AEVOL_PROTEIN_H__

@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
- #ifndef __AE_CODON_H__
-#define  __AE_CODON_H__
+#ifndef AEVOL_CODON_H__
+#define AEVOL_CODON_H__
 
 
 // =================================================================
@@ -154,4 +154,4 @@ Codon *Codon::copy( void )
 }
 
 } // namespace aevol
-#endif // __AE_CODON_H__
+#endif // AEVOL_CODON_H__

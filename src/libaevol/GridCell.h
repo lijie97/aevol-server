@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef __AE_GRID_CELL_H__
-#define __AE_GRID_CELL_H__
+#ifndef AEVOL_GRID_CELL_H__
+#define AEVOL_GRID_CELL_H__
 
 
 // =================================================================
@@ -194,4 +194,4 @@ inline void GridCell::set_individual(Individual * indiv)
 // =====================================================================
 
 } // namespace aevol
-#endif // __AE_GRID_CELL_H__
+#endif // AEVOL_GRID_CELL_H__

@@ -33,8 +33,8 @@
  */
  
  
- #ifndef __AE_GENE_TREE_NODE_H__
-#define  __AE_GENE_TREE_NODE_H__
+ #ifndef AEVOL_GENE_TREE_NODE_H__
+#define  AEVOL_GENE_TREE_NODE_H__
  
  
 // =================================================================
@@ -149,4 +149,4 @@ class GeneTreeNode
 };
 } // namespace aevol
 
-#endif // __AE_GENE_TREE_NODE_H__
+#endif // AEVOL_GENE_TREE_NODE_H__

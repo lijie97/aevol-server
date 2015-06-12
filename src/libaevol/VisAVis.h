@@ -25,8 +25,8 @@
 //*****************************************************************************
 
 
-#ifndef __AE_VIS_A_VIS_H__
-#define __AE_VIS_A_VIS_H__
+#ifndef AEVOL_VIS_A_VIS_H__
+#define AEVOL_VIS_A_VIS_H__
 
 
 // =================================================================
@@ -359,4 +359,4 @@ inline void VisAVis::check_indices( void )
 }
 } // namespace aevol
 
-#endif // __AE_VIS_A_VIS_H__
+#endif // AEVOL_VIS_A_VIS_H__

@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
- #ifndef __AE_DNA_H__
-#define  __AE_DNA_H__
+#ifndef AEVOL_DNA_H__
+#define AEVOL_DNA_H__
 
 
 // =================================================================
@@ -237,4 +237,4 @@ inline GeneticUnit*Dna::get_genetic_unit(void) const
 // =====================================================================
 
 } // namespace aevol
-#endif // __AE_DNA_H__
+#endif // AEVOL_DNA_H__

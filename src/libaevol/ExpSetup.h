@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef __AE_EXP_SETUP_H__
-#define __AE_EXP_SETUP_H__
+#ifndef AEVOL_EXP_SETUP_H__
+#define AEVOL_EXP_SETUP_H__
  
  
 // =================================================================
@@ -372,4 +372,4 @@ inline void ExpSetup::step_to_next_generation( void )
 
 } // namespace aevol
 
-#endif // __AE_EXP_SETUP_H__
+#endif // AEVOL_EXP_SETUP_H__

@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef __AE_INDIVIDUAL_H__
-#define __AE_INDIVIDUAL_H__
+#ifndef AEVOL_INDIVIDUAL_H__
+#define AEVOL_INDIVIDUAL_H__
 
 
 // =================================================================
@@ -517,4 +517,5 @@ class Individual
 };
 
 } // namespace aevol
-#endif // __AE_INDIVIDUAL_H__
+
+#endif // AEVOL_INDIVIDUAL_H__

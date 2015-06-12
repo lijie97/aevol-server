@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef __AE_ALIGN_H__
-#define __AE_ALIGN_H__
+#ifndef AEVOL_ALIGNMENT_H__
+#define AEVOL_ALIGNMENT_H__
 
 
 // =================================================================
@@ -144,4 +144,4 @@ class Alignment
 
 } // namespace aevol
 
-#endif // __AE_ALIGN_H__
+#endif // AEVOL_ALIGNMENT_H__

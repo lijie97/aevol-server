@@ -25,8 +25,8 @@
 //*****************************************************************************
 
 
-#ifndef __AE_STRING_H__
-#define __AE_STRING_H__
+#ifndef AEVOL_STRING_H__
+#define AEVOL_STRING_H__
  
  
 // =================================================================
@@ -155,4 +155,4 @@ int32_t ae_string::nb_blocks(int32_t length)
 
 } // namespace aevol
 
-#endif // __AE_STRING_H__
+#endif // AEVOL_STRING_H__

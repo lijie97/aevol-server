@@ -25,8 +25,8 @@
 //*****************************************************************************
 
 
-#ifndef __AE_PHENOTYPIC_TARGET_HANDLER_H__
-#define __AE_PHENOTYPIC_TARGET_HANDLER_H__
+#ifndef AEVOL_PHENOTYPIC_TARGET_HANDLER_H__
+#define AEVOL_PHENOTYPIC_TARGET_HANDLER_H__
 
 
 // ============================================================================
@@ -229,4 +229,4 @@ class PhenotypicTargetHandler
 
 } // namespace aevol
 
-#endif // __AE_PHENOTYPIC_TARGET_HANDLER_H__
+#endif // AEVOL_PHENOTYPIC_TARGET_HANDLER_H__

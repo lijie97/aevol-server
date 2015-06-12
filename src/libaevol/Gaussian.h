@@ -25,8 +25,8 @@
 // ****************************************************************************
  
  
-#ifndef __AE_GAUSSIAN_H__
-#define __AE_GAUSSIAN_H__
+#ifndef AEVOL_GAUSSIAN_H__
+#define AEVOL_GAUSSIAN_H__
  
  
 // =================================================================
@@ -202,4 +202,4 @@ void Gaussian::save(gzFile backup_file) const
 
 } // namespace aevol
 
-#endif // __AE_GAUSSIAN_H__
+#endif // AEVOL_GAUSSIAN_H__

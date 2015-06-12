@@ -25,8 +25,8 @@
 //*****************************************************************************
 
 
-#ifndef __AE_RNA_H__
-#define __AE_RNA_H__
+#ifndef AEVOL_RNA_H__
+#define AEVOL_RNA_H__
 
 
 // =================================================================
@@ -210,4 +210,4 @@ void Rna::shift_position( int32_t delta_pos, int32_t genome_length )
 }
 
 } // namespace aevol
-#endif // __AE_RNA_H__
+#endif // AEVOL_RNA_H__

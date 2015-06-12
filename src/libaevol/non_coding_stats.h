@@ -25,8 +25,8 @@
 //*****************************************************************************
 
 
-#ifndef __AE_NON_CODING_STATS_H__
-#define __AE_NON_CODING_STATS_H__
+#ifndef AEVOL_NON_CODING_STATS_H__
+#define AEVOL_NON_CODING_STATS_H__
 
 
 // ============================================================================
@@ -152,4 +152,4 @@ class NonCodingStats
 
 } // namespace aevol
 
-#endif // __AE_NON_CODING_STATS_H__
+#endif // AEVOL_NON_CODING_STATS_H__

@@ -30,8 +30,8 @@
 */
  
  
-#ifndef __AE_STATS_H__
-#define __AE_STATS_H__
+#ifndef AEVOL_STATS_H__
+#define AEVOL_STATS_H__
  
  
 // =================================================================
@@ -177,4 +177,4 @@ inline void Stats::write_header( FILE* file_name, const char* header, int8_t key
         
 
 } // namespace aevol
-#endif // __AE_STATS_H__
+#endif // AEVOL_STATS_H__

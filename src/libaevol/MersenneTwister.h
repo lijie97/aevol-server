@@ -81,8 +81,8 @@
 // when you write.
 
 
-#ifndef __AE_RAND_MT_H__
-#define __AE_RAND_MT_H__
+#ifndef AEVOL_MERSENNE_TWISTER_H__
+#define AEVOL_MERSENNE_TWISTER_H__
 
 
 #include <inttypes.h>

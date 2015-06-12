@@ -32,8 +32,8 @@
 */
  
  
- #ifndef __AE_GENE_MUTATION_H__
-#define  __AE_GENE_MUTATION_H__
+ #ifndef AEVOL_GENE_MUTATION_H__
+#define  AEVOL_GENE_MUTATION_H__
  
  
 // =================================================================
@@ -191,4 +191,4 @@ inline ae_gene_mutation_region GeneMutation::get_region()
 // =====================================================================
 
 } // namespace aevol
-#endif // __AE_GENE_MUTATION_H__
+#endif // AEVOL_GENE_MUTATION_H__

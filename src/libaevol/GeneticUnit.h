@@ -24,8 +24,8 @@
 //
 // ****************************************************************************
 
-#ifndef AEVOL_GENETIC_UNIT_H
-#define AEVOL_GENETIC_UNIT_H
+#ifndef AEVOL_GENETIC_UNIT_H__
+#define AEVOL_GENETIC_UNIT_H__
 
 
 
@@ -373,4 +373,4 @@ class GeneticUnit
 };
 
 } // namespace aevol
-#endif // AEVOL_GENETIC_UNIT_H
+#endif // AEVOL_GENETIC_UNIT_H__

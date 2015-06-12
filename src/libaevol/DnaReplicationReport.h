@@ -18,8 +18,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef AEVOL_DNA_REPLIC_REPORT_H
-#define AEVOL_DNA_REPLIC_REPORT_H
+#ifndef AEVOL_DNA_REPLICATION_REPORT_H__
+#define AEVOL_DNA_REPLICATION_REPORT_H__
 
 #include <list>
 
@@ -59,4 +59,4 @@ class DnaReplicReport {
 };
 
 } // namespace aevol
-#endif // AEVOL_DNA_REPLIC_REPORT_H
+#endif // AEVOL_DNA_REPLICATION_REPORT_H__

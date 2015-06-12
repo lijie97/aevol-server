@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef __AE_LOGS_H__
-#define __AE_LOGS_H__
+#ifndef AEVOL_LOGS_H__
+#define AEVOL_LOGS_H__
 
 
 // =================================================================
@@ -204,4 +204,4 @@ inline bool Logging::is_logged( ae_log_type log_type ) const
 
 } // namespace aevol
 
-#endif // __AE_LOGS_H__
+#endif // AEVOL_LOGS_H__

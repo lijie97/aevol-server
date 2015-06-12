@@ -25,8 +25,8 @@
 //*****************************************************************************
 
 
-#ifndef __AE_TIME_H__
-#define __AE_TIME_H__
+#ifndef AEVOL_TIME_H__
+#define AEVOL_TIME_H__
 
 
 // =================================================================
@@ -129,4 +129,4 @@ int64_t get_time(void);
 
 } // namespace aevol
 
-#endif // __AE_TIME_H__
+#endif // AEVOL_TIME_H__

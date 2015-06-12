@@ -18,8 +18,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef POINT_H
-#define POINT_H
+#ifndef AEVOL_POINT_H__
+#define AEVOL_POINT_H__
  
 #include <zlib.h>
 #include <utility>
@@ -38,4 +38,4 @@ Point readpoint(const gzFile backup_file);
 void writepoint(const Point& p, gzFile backup_file);
 
 } // namespace aevol
-#endif // POINT_H
+#endif // AEVOL_POINT_H__

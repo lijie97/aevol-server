@@ -25,8 +25,8 @@
 // ****************************************************************************
  
  
-#ifndef __AE_DUMP_H__
-#define  __AE_DUMP_H__
+#ifndef AEVOL_DUMP_H__
+#define AEVOL_DUMP_H__
  
  
 // =================================================================
@@ -128,4 +128,4 @@ class Dump
 
 } // namespace aevol
 
-#endif // __AE_DUMP_H__
+#endif // AEVOL_DUMP_H__

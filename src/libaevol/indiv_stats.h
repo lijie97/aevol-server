@@ -25,8 +25,8 @@
 //*****************************************************************************
 
 
-#ifndef __AE_INDIV_STATS_H__
-#define __AE_INDIV_STATS_H__
+#ifndef AEVOL_INDIV_STATS_H__
+#define AEVOL_INDIV_STATS_H__
 
 
 // ============================================================================
@@ -171,4 +171,4 @@ void IndivStats::Reset() {
 
 } // namespace aevol
 
-#endif // __AE_INDIV_STATS_H__
+#endif // AEVOL_INDIV_STATS_H__

@@ -25,8 +25,8 @@
 //*****************************************************************************
 
 
-#ifndef __AE_UTILS_H__
-#define __AE_UTILS_H__
+#ifndef AEVOL_UTILS_H__
+#define AEVOL_UTILS_H__
 
 
 // =================================================================
@@ -107,4 +107,4 @@ inline void ae_utils::exchange(int32_t &a, int32_t &b)
   b = tmp;
 }
 } // namespace aevol
-#endif // __AE_UTILS_H__
+#endif // AEVOL_UTILS_H__

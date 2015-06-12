@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef __AE_MUTATION_H__
-#define __AE_MUTATION_H__
+#ifndef AEVOL_MUTATION_H__
+#define AEVOL_MUTATION_H__
 
 
 // =================================================================
@@ -206,4 +206,4 @@ inline int32_t Mutation::get_length( void ) const
 // =====================================================================
 
 } // namespace aevol
-#endif // __AE_MUTATION_H__
+#endif // AEVOL_MUTATION_H__
