@@ -66,7 +66,7 @@ GeneTreeNode.h \
 GeneMutation.h \
 habitat.h \
 param_loader.h \
-f_line.h \
+ParameterLine.h \
 Time.h \
 world.h
 
@@ -105,7 +105,7 @@ GeneMutation.cpp \
 Fuzzy.cpp \
 habitat.cpp \
 param_loader.cpp \
-f_line.cpp \
+ParameterLine.cpp \
 Time.cpp \
 world.cpp
 

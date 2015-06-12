@@ -42,7 +42,7 @@
 
 #include <zlib.h>
 
-#include "f_line.h"
+#include "ParameterLine.h"
 #include "MutationParams.h"
 #include "JumpingMT.h"
 #include "macros.h"
@@ -85,7 +85,7 @@ class param_loader
   void load(ExpManager * exp_m, bool verbose = false, char* chromosome = NULL, int32_t lchromosome = 0, char* plasmid = NULL, int32_t lplasmid = 0 );
 
 
-  f_line* get_line( int32_t* );
+  ParameterLine * get_line( int32_t* );
 
   void print_to_file( FILE* file );
 
@@ -97,8 +97,8 @@ class param_loader
   //                            Protected Methods
   // =========================================================================
   void CheckConsistency();
-  static void format_line( f_line*, char*, bool* );
-  void interpret_line( f_line* line, int32_t cur_line );
+  static void format_line( ParameterLine *, char*, bool* );
+  void interpret_line( ParameterLine * line, int32_t cur_line );
 
   // =========================================================================
   //                               Attributes

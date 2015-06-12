@@ -91,8 +91,8 @@ add_library(aevol
   VisAVis.h
   X11Window.cpp
   X11Window.h
-  f_line.cpp
-  f_line.h
+  ParameterLine.cpp
+  ParameterLine.h
   Fuzzy.cpp
   Fuzzy.h
   indiv_stats.h

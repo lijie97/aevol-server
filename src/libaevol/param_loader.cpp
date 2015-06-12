@@ -283,7 +283,7 @@ param_loader::~param_loader(void)
 // =================================================================
 //                            Public Methods
 // =================================================================
-void param_loader::interpret_line(f_line* line, int32_t cur_line)
+void param_loader::interpret_line(ParameterLine * line, int32_t cur_line)
 {
   if (strcmp(line->words[0], "STRAIN_NAME") == 0)
   {
@@ -1119,10 +1119,10 @@ void param_loader::read_file(void)
   rewind(_param_file);
 
   int32_t cur_line = 0;
-  f_line* line;
+  ParameterLine * line;
 
 
-  while ((line = get_line(&cur_line)) != NULL) // TODO : write line = new f_line(_param_file) => f_line::f_line(char*)
+  while ((line = get_line(&cur_line)) != NULL) // TODO : write line = new ParameterLine(_param_file) => ParameterLine::ParameterLine(char*)
   {
     interpret_line(line, cur_line);
     delete line;
@@ -1595,7 +1595,7 @@ void param_loader::load(ExpManager * exp_m, bool verbose,
   \param line original line in char*
   \param line_is_interpretable boolean with about the possible intrepretation of the line
 */
-void param_loader::format_line(f_line* formated_line, char* line, bool* line_is_interpretable)
+void param_loader::format_line(ParameterLine * formated_line, char* line, bool* line_is_interpretable)
 {
   int16_t i = 0;
   int16_t j;
@@ -1633,12 +1633,12 @@ void param_loader::format_line(f_line* formated_line, char* line, bool* line_is_
 
   \return line (pointer)
 
-  \see format_line(f_line* formated_line, char* line, bool* line_is_interpretable)
+  \see format_line(ParameterLine* formated_line, char* line, bool* line_is_interpretable)
 */
-f_line* param_loader::get_line(int32_t* cur_line_ptr) // void
+ParameterLine * param_loader::get_line(int32_t* cur_line_ptr) // void
 {
   char line[255];
-  f_line* formated_line = new f_line();
+  ParameterLine * formated_line = new ParameterLine();
 
   bool found_interpretable_line = false; // Found line that is neither a comment nor empty
 
