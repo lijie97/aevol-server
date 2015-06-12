@@ -46,13 +46,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "macros.h"
-#include "ae_exp_manager.h"
-#include "ae_individual.h"
-#include "genetic_unit.h"
-#include "ae_vis_a_vis.h"
-#include "ae_dna.h"
-#include "ae_mutation.h"
+#include "aevol.h"
 
 
 using std::list;

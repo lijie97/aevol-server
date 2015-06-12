@@ -87,10 +87,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_population.h"
-#include "ae_individual.h"
-#include <environment.h>
-#include "ae_exp_manager.h"
+#include "aevol.h"
 
 using namespace aevol;
 

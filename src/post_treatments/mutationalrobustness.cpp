@@ -7,12 +7,11 @@
 */
 
 #include <getopt.h>
-#include "ae_exp_manager.h"
 #include <libgen.h>
 
 #include <list>
 
-#include "ae_individual.h"
+#include "aevol.h"
 
 using namespace aevol;
 

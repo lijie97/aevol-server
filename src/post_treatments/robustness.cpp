@@ -45,10 +45,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "macros.h"
-#include "ae_exp_manager.h"
-#include "ae_population.h"
-#include "ae_individual.h"
+#include "aevol.h"
 
 
 using std::list;

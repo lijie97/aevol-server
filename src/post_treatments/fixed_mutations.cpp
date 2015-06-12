@@ -42,14 +42,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_utils.h"
-#include "ae_exp_manager.h"
-#include "ae_individual.h"
-#include "genetic_unit.h"
-#include "ae_tree.h"
-#include "ae_replication_report.h"
-#include "dna_replic_report.h"
-#include "ae_mutation.h"
+#include "aevol.h"
 
 using namespace aevol;
 

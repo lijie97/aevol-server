@@ -44,9 +44,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_exp_manager_X11.h"
-#include "ae_population.h"
-#include "ae_individual.h"
+#include "aevol.h"
 
 using namespace aevol;
 
