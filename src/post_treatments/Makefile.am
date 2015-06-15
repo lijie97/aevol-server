@@ -34,34 +34,46 @@ AM_CPPFLAGS += -D_FORTIFY_SOURCE=2
 ############################################
 #           Set programs to build          #
 ############################################
-bin_PROGRAMS = aevol_misc_robustness aevol_misc_mutagenesis aevol_misc_ancstats aevol_misc_create_eps aevol_misc_fixed_mutations aevol_misc_gene_families aevol_misc_lineage aevol_misc_extract aevol_misc_mutational_robustness aevol_misc_transform_plasmid
-if WITH_X
-  bin_PROGRAMS += aevol_misc_view_generation
-endif # X
-noinst_PROGRAMS = aevol_misc_template
+# bin_PROGRAMS = \
+# aevol_misc_ancstats \
+# aevol_misc_create_eps \
+# aevol_misc_extract \
+# aevol_misc_fixed_mutations \
+# aevol_misc_gene_families \
+# aevol_misc_lineage \
+# aevol_misc_mutagenesis \
+# aevol_misc_mutational_robustness \
+# aevol_misc_robustness
+# aevol_misc_transform_plasmid
 
-CLEANFILES = aevol_misc_ancstats aevol_misc_create_eps aevol_misc_extract aevol_misc_fixed_mutations aevol_misc_gene_families aevol_misc_lineage aevol_misc_robustness aevol_misc_mutagenesis aevol_misc_template aevol_misc_view_generation aevol_misc_mutational_robustness aevol_misc_transform_plasmid
+# if WITH_X
+#   bin_PROGRAMS += aevol_misc_view_generation
+# endif # X
+# noinst_PROGRAMS = aevol_misc_template
 
-aevol_misc_mutational_robustness_SOURCES = mutationalrobustness.cpp
+# CLEANFILES = \
+# aevol_misc_ancstats \
+# aevol_misc_create_eps \
+# aevol_misc_extract \
+# aevol_misc_fixed_mutations \
+# aevol_misc_gene_families \
+# aevol_misc_lineage \
+# aevol_misc_mutagenesis \
+# aevol_misc_mutational_robustness \
+# aevol_misc_robustness \
+# aevol_misc_template \
+# aevol_misc_transform_plasmid \
+# aevol_misc_view_generation
 
-aevol_misc_ancstats_SOURCES = ancstats.cpp
-
-aevol_misc_create_eps_SOURCES = create_eps.cpp
-
-aevol_misc_extract_SOURCES = extract.cpp
-
-aevol_misc_fixed_mutations_SOURCES = fixed_mutations.cpp
-
-aevol_misc_gene_families_SOURCES = gene_families.cpp
-
-aevol_misc_lineage_SOURCES = lineage.cpp
-
-aevol_misc_robustness_SOURCES = robustness.cpp
-
-aevol_misc_mutagenesis_SOURCES = mutagenesis.cpp
-
-aevol_misc_template_SOURCES = template.cpp
-
-aevol_misc_view_generation_SOURCES = view_generation.cpp
-
-aevol_misc_transform_plasmid_SOURCES = transform_plasmid.cpp
+# aevol_misc_ancstats_SOURCES = ancstats.cpp
+# aevol_misc_create_eps_SOURCES = create_eps.cpp
+# aevol_misc_extract_SOURCES = extract.cpp
+# aevol_misc_fixed_mutations_SOURCES = fixed_mutations.cpp
+# aevol_misc_gene_families_SOURCES = gene_families.cpp
+# aevol_misc_lineage_SOURCES = lineage.cpp
+# aevol_misc_mutagenesis_SOURCES = mutagenesis.cpp
+# aevol_misc_mutational_robustness_SOURCES = mutationalrobustness.cpp
+# aevol_misc_robustness_SOURCES = robustness.cpp
+# aevol_misc_template_SOURCES = template.cpp
+# aevol_misc_transform_plasmid_SOURCES = transform_plasmid.cpp
+# aevol_misc_view_generation_SOURCES = view_generation.cpp
