@@ -130,4 +130,4 @@ target_compile_definitions(aevol
 # ============================================================================
 # Use C++11
 # ============================================================================
-target_compile_options(aevol PRIVATE "-std=c++14")
+target_compile_options(aevol PUBLIC "-std=c++14")
