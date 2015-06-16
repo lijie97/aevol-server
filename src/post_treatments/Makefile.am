@@ -34,15 +34,15 @@ AM_CPPFLAGS += -D_FORTIFY_SOURCE=2
 ############################################
 #           Set programs to build          #
 ############################################
-# bin_PROGRAMS = \
-# aevol_misc_ancstats \
-# aevol_misc_create_eps \
-# aevol_misc_extract \
-# aevol_misc_fixed_mutations \
-# aevol_misc_gene_families \
-# aevol_misc_lineage \
-# aevol_misc_mutagenesis \
-# aevol_misc_mutational_robustness \
+bin_PROGRAMS = \
+aevol_misc_create_eps
+# aevol_misc_ancstats
+# aevol_misc_extract
+# aevol_misc_fixed_mutations
+# aevol_misc_gene_families
+# aevol_misc_lineage
+# aevol_misc_mutagenesis
+# aevol_misc_mutational_robustness
 # aevol_misc_robustness
 # aevol_misc_transform_plasmid
 
@@ -51,22 +51,22 @@ AM_CPPFLAGS += -D_FORTIFY_SOURCE=2
 # endif # X
 # noinst_PROGRAMS = aevol_misc_template
 
-# CLEANFILES = \
-# aevol_misc_ancstats \
-# aevol_misc_create_eps \
-# aevol_misc_extract \
-# aevol_misc_fixed_mutations \
-# aevol_misc_gene_families \
-# aevol_misc_lineage \
-# aevol_misc_mutagenesis \
-# aevol_misc_mutational_robustness \
-# aevol_misc_robustness \
-# aevol_misc_template \
-# aevol_misc_transform_plasmid \
+CLEANFILES = \
+aevol_misc_create_eps
+# aevol_misc_ancstats
+# aevol_misc_extract
+# aevol_misc_fixed_mutations
+# aevol_misc_gene_families
+# aevol_misc_lineage
+# aevol_misc_mutagenesis
+# aevol_misc_mutational_robustness
+# aevol_misc_robustness
+# aevol_misc_template
+# aevol_misc_transform_plasmid
 # aevol_misc_view_generation
 
 # aevol_misc_ancstats_SOURCES = ancstats.cpp
-# aevol_misc_create_eps_SOURCES = create_eps.cpp
+aevol_misc_create_eps_SOURCES = create_eps.cpp
 # aevol_misc_extract_SOURCES = extract.cpp
 # aevol_misc_fixed_mutations_SOURCES = fixed_mutations.cpp
 # aevol_misc_gene_families_SOURCES = gene_families.cpp

@@ -94,6 +94,9 @@ class PhenotypicTargetHandler
   double area_by_feature(int8_t feature) const {
     return phenotypic_target_->area_by_feature(feature);
   }
+  const list<ae_gaussian>& gaussians() const {
+    return initial_gaussians_;
+  }
 
   // ==========================================================================
   //                                 Setters

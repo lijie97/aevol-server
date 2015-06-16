@@ -67,19 +67,19 @@ void print_version( void );
 // aminoacid sequence). In the case of Raevol, the concentration used here is the
 // final one, i.e. the one reached after all the time steps of the lifetime.
 // If a coding sequence has several promoters, only one triangle is drawn.
-void draw_triangles( ae_individual* indiv, Environment* env, char * directoryName );
+void draw_triangles( Individual* indiv, const PhenotypicTarget& target, char * directoryName );
 
 
 
 // In the case of Raevol, the profile is drawn using the final concentrations
 // of the proteins, i.e. the ones reached after all the time steps of the lifetime.
-void draw_pos_neg_profiles( ae_individual * indiv, Environment* env, char * directoryName );
+void draw_pos_neg_profiles( Individual * indiv, const PhenotypicTarget& target, char * directoryName );
 
 
 
 // In the case of Raevol, the phenotype is drawn using the final concentrations
 // of the proteins, i.e. the ones reached after all the time steps of the lifetime.
-void draw_phenotype( ae_individual * indiv, Environment * envir, char * directoryName );
+void draw_phenotype( Individual * indiv, const PhenotypicTarget& target, char * directoryName );
 
 
 
@@ -180,46 +180,45 @@ int main( int argc, char* argv[] )
   // =================================================================
   //                       Read the backup file
   // =================================================================
-  ae_individual*  indiv;
-  Environment* env;
+  Individual*  indiv;
 
   // Load the simulation
-  ae_exp_manager* exp_manager = new ae_exp_manager();
+  ExpManager* exp_manager = new ExpManager();
   exp_manager->load(num_gener, true, false);
 
-  env = exp_manager->get_env();
+  // WRONG WRONG WRONG WRONG WRONG 
+  // WRONG WRONG WRONG WRONG WRONG
+  // WRONG WRONG WRONG WRONG WRONG
+  // vvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
+  // int gridx = 0;
+  // int gridy = 0; // TODO vld: should it be read? In this case should be written beforehand.
 
   if (indiv_index == -1 && indiv_rank == -1)
   {
-    indiv = new ae_individual(*exp_manager->get_best_indiv(), false);
+    indiv = new Individual(*exp_manager->get_best_indiv(), false);
   }
   else
   {
-    // TODO: disabled tmp
-    // if (indiv_rank != -1)
-    // {
-    //   indiv = new ae_individual(*exp_manager->get_indiv_by_rank(indiv_rank), false);
-    // }
-    // else
-    // {
-    //   indiv = new ae_individual(*exp_manager->get_indiv_by_id(indiv_index), false);
-    // }
+    // TODO <david.parsons@inria.fr> tmp disabled
+//     if (indiv_rank != -1) {
+//       indiv = new Individual(*exp_manager->get_indiv_by_rank(indiv_rank), false);
+//     }
+//     else {
+//       indiv = new Individual(*exp_manager->get_indiv_by_id(indiv_index), false);
+//     }
   }
-
 
   // The constructor of the exp_manager has read the genomes of the individuals
   // and located their promoters, but has not performed the translation nor the
   // phenotype computation. We must do it now.
-  // However, as the individuals in the backups are sorted, we don't need to evaluate
-  // all the individuals, only those we are interested in (here only the best one)
-
-  indiv->evaluate( env );
+  // However, as the individuals in the backups are sorted, we don't need to
+  // evaluate all the individuals, only the one we are interested in
+  indiv->Evaluate();
 
   // =================================================================
   //                      Create the EPS files
   // =================================================================
-
   char directory_name[64];
   snprintf( directory_name, 63, "analysis-generation%06" PRId32, num_gener );
 
@@ -257,18 +256,18 @@ int main( int argc, char* argv[] )
 
   printf( "Creating the EPS file with the triangles of the chosen individual... " );
   fflush(stdout);
-  draw_triangles( indiv, env, directory_name );
+  draw_triangles( indiv, indiv->phenotypic_target(), directory_name );
   printf( "OK\n" );
 
   printf( "Creating the EPS file with the positive and negatives profiles of the chosen individual... " );
   fflush(stdout);
-  draw_pos_neg_profiles( indiv, env, directory_name );
+  draw_pos_neg_profiles( indiv, indiv->phenotypic_target(), directory_name );
   printf( "OK\n" );
 
 
   printf( "Creating the EPS file with the phenotype of the chosen individual... " );
   fflush(stdout);
-  draw_phenotype( indiv, env, directory_name );
+  draw_phenotype( indiv, indiv->phenotypic_target(), directory_name );
   printf( "OK\n" );
 
   printf( "Creating the EPS file with the CDS of the chosen individual... " );
@@ -285,7 +284,6 @@ int main( int argc, char* argv[] )
 
   delete indiv;
   delete exp_manager;
-  //   delete env;  // already done by the destructor of the exp_manager
 
   return EXIT_SUCCESS;
 }
@@ -364,7 +362,7 @@ void print_version( void )
 
 
 
-void draw_triangles( ae_individual* indiv, Environment* env, char * directoryName )
+void draw_triangles( Individual* indiv, const PhenotypicTarget& target, char * directoryName )
 {
   const uint8_t bbsize = 200;  // a4 paper: 595*842
   double margin = 0.1;
@@ -386,10 +384,10 @@ void draw_triangles( ae_individual* indiv, Environment* env, char * directoryNam
   // -----------------------------
   //  paint neutral zones in grey
   // -----------------------------
-  if ( env->get_nb_segments() > 1 )
+  if ( target.nb_segments() > 1 )
   {
-    int16_t nb_segments = env->get_nb_segments();
-    ae_env_segment** segments = env->get_segments();
+    int16_t nb_segments = target.nb_segments();
+    PhenotypicSegment** segments = target.segments();
 
     for ( int16_t i = 0 ; i < nb_segments ; i++ )
     {
@@ -452,23 +450,23 @@ void draw_triangles( ae_individual* indiv, Environment* env, char * directoryNam
 
   double h;
 
-  for (const auto& gu: indiv->get_genetic_unit_list()) {
+  for (auto& gu: indiv->get_genetic_unit_list_nonconst()) { // should use const version
     for (const auto& prot: gu.get_protein_list(LEADING)) {
-      h = prot->get_height() * prot->get_concentration();
+      h = prot.get_height() * prot.get_concentration();
       fprintf( drawingfile, "%lf %lf moveto\n", margin, 0.5);
-      fprintf( drawingfile, "%lf %lf lineto\n", margin + scalex*(prot->get_mean() - prot->get_width()), 0.5);
-      fprintf( drawingfile, "%lf %lf lineto\n", margin + scalex*(prot->get_mean()), 0.5 + scaley*(h));
-      fprintf( drawingfile, "%lf %lf lineto\n", margin + scalex*(prot->get_mean() + prot->get_width()), 0.5);
+      fprintf( drawingfile, "%lf %lf lineto\n", margin + scalex*(prot.get_mean() - prot.get_width()), 0.5);
+      fprintf( drawingfile, "%lf %lf lineto\n", margin + scalex*(prot.get_mean()), 0.5 + scaley*(h));
+      fprintf( drawingfile, "%lf %lf lineto\n", margin + scalex*(prot.get_mean() + prot.get_width()), 0.5);
       fprintf( drawingfile, "%lf %lf moveto\n", margin + scalex*(1), 0.5);
       fprintf( drawingfile, "stroke\n" );
     }
 
     for (const auto& prot: gu.get_protein_list(LAGGING)) {
-      h = prot->get_height() * prot->get_concentration();
+      h = prot.get_height() * prot.get_concentration();
       fprintf( drawingfile, "%lf %lf moveto\n", margin, 0.5);
-      fprintf( drawingfile, "%lf %lf lineto\n", margin + scalex*(prot->get_mean() - prot->get_width()), 0.5);
-      fprintf( drawingfile, "%lf %lf lineto\n", margin + scalex*(prot->get_mean()), 0.5 + scaley*(h));
-      fprintf( drawingfile, "%lf %lf lineto\n", margin + scalex*(prot->get_mean() + prot->get_width()), 0.5);
+      fprintf( drawingfile, "%lf %lf lineto\n", margin + scalex*(prot.get_mean() - prot.get_width()), 0.5);
+      fprintf( drawingfile, "%lf %lf lineto\n", margin + scalex*(prot.get_mean()), 0.5 + scaley*(h));
+      fprintf( drawingfile, "%lf %lf lineto\n", margin + scalex*(prot.get_mean() + prot.get_width()), 0.5);
       fprintf( drawingfile, "%lf %lf moveto\n", margin + scalex*(1), 0.5);
       fprintf( drawingfile, "stroke\n" );
     }
@@ -483,7 +481,7 @@ void draw_triangles( ae_individual* indiv, Environment* env, char * directoryNam
 
 
 
-void draw_pos_neg_profiles( ae_individual * indiv, Environment* env, char * directoryName )
+void draw_pos_neg_profiles( Individual * indiv, const PhenotypicTarget& target, char * directoryName )
 {
   const uint8_t bbsize = 200;  // a4 paper: 595*842
   double margin = 0.1;
@@ -504,10 +502,10 @@ void draw_pos_neg_profiles( ae_individual * indiv, Environment* env, char * dire
   // -----------------------------
   //  paint neutral zones in grey
   // -----------------------------
-  if ( env->get_nb_segments() > 1 )
+  if ( target.nb_segments() > 1 )
   {
-    int16_t nb_segments = env->get_nb_segments();
-    ae_env_segment** segments = env->get_segments();
+    int16_t nb_segments = target.nb_segments();
+    PhenotypicSegment** segments = target.segments();
 
     for ( int16_t i = 0 ; i < nb_segments ; i++ )
     {
@@ -590,7 +588,7 @@ void draw_pos_neg_profiles( ae_individual * indiv, Environment* env, char * dire
 
 
 
-void draw_phenotype( ae_individual* indiv, Environment* env, char* directoryName )
+void draw_phenotype( Individual* indiv, const PhenotypicTarget& target, char* directoryName )
 {
   const uint8_t bbsize = 200;  // a4 paper: 595*842
   double margin = 0.1;
@@ -618,10 +616,10 @@ void draw_phenotype( ae_individual* indiv, Environment* env, char* directoryName
   // -----------------------------
   //  paint neutral zones in grey
   // -----------------------------
-  if ( env->get_nb_segments() > 1 )
+  if ( target.nb_segments() > 1 )
   {
-    int16_t nb_segments = env->get_nb_segments();
-    ae_env_segment** segments = env->get_segments();
+    int16_t nb_segments = target.nb_segments();
+    PhenotypicSegment** segments = target.segments();
 
     for ( int16_t i = 0 ; i < nb_segments ; i++ )
     {
@@ -695,7 +693,7 @@ void draw_phenotype( ae_individual* indiv, Environment* env, char* directoryName
   fprintf( drawingfile,"[ ] 0 setdash\n" );
   fprintf( drawingfile, "0.001 setlinewidth\n" );
   fprintf( drawingfile, "%lf %lf moveto\n", margin, margin);
-  for (const auto& p: env->get_points())
+  for (const auto& p: target.get_points())
     fprintf(drawingfile, "%lf %lf lineto\n", margin + scale * p.x, margin + scale * p.y);
   fprintf( drawingfile, "stroke\n" );
 
@@ -789,9 +787,9 @@ void draw_genetic_unit_with_CDS( GeneticUnit* gen_unit, char * directoryName )
 
   // printf("LEADING\n" );
   for (const auto& prot: gen_unit->get_protein_list(LEADING)) {
-    first = prot->get_first_translated_pos();
-    last = prot->get_last_translated_pos();
-    // h = prot->get_height() * prot->get_concentration();
+    first = prot.get_first_translated_pos();
+    last = prot.get_last_translated_pos();
+    // h = prot.get_height() * prot.get_concentration();
 
     alpha_first   = (int16_t) round(  (double)(360 * first) / (double)gen_length );  //  == sect1 == alphaB
     alpha_last    = (int16_t) round(  (double)(360 * last)  / (double)gen_length );  //  == sect2 == alphaA
@@ -885,9 +883,9 @@ void draw_genetic_unit_with_CDS( GeneticUnit* gen_unit, char * directoryName )
 
   // printf("LAGGING\n" );
   for (const auto& prot: gen_unit->get_protein_list(LAGGING)) {
-    first = prot->get_first_translated_pos();
-    last = prot->get_last_translated_pos();
-    // h = prot->get_height() * prot->get_concentration();
+    first = prot.get_first_translated_pos();
+    last = prot.get_last_translated_pos();
+    // h = prot.get_height() * prot.get_concentration();
 
     alpha_first   = (int16_t) round(  (double)(360 * first) / (double)gen_length );
     alpha_last    = (int16_t) round(  (double)(360 * last)  / (double)gen_length );
@@ -1071,8 +1069,8 @@ void draw_genetic_unit_with_mRNAs( GeneticUnit* gen_unit, char * directoryName )
 
 
   for (const auto& rna: gen_unit->get_rna_list()[LEADING]) {
-    first = rna->get_first_transcribed_pos();
-    last = rna->get_last_transcribed_pos();
+    first = rna.get_first_transcribed_pos();
+    last = rna.get_last_transcribed_pos();
 
 
     alpha_first   = (int16_t) round(  (double)(360 * first) / (double)gen_length );  //  == sect1 == alphaB
@@ -1144,7 +1142,7 @@ void draw_genetic_unit_with_mRNAs( GeneticUnit* gen_unit, char * directoryName )
 
     // draw !
     fprintf( drawingfile, "0.018 setlinewidth\n" );
-    if ( rna->is_coding() ) fprintf( drawingfile, "0 0 0 setrgbcolor\n" );
+    if ( rna.is_coding() ) fprintf( drawingfile, "0 0 0 setrgbcolor\n" );
     else fprintf( drawingfile, "0.7 0.7 0.7 setrgbcolor\n" );
     layer++; // index starting at 0 but needed to start at 1
 
@@ -1167,8 +1165,8 @@ void draw_genetic_unit_with_mRNAs( GeneticUnit* gen_unit, char * directoryName )
 
 
   for (const auto& rna: gen_unit->get_rna_list()[LAGGING]) {
-    first = rna->get_first_transcribed_pos();
-    last = rna->get_last_transcribed_pos();
+    first = rna.get_first_transcribed_pos();
+    last = rna.get_last_transcribed_pos();
 
 
     alpha_first   = (int16_t) round(  (double)(360 * first) / (double)gen_length );
@@ -1238,7 +1236,7 @@ void draw_genetic_unit_with_mRNAs( GeneticUnit* gen_unit, char * directoryName )
 
     // draw !
     fprintf( drawingfile, "0.018 setlinewidth\n" );
-    if ( rna->is_coding() ) fprintf( drawingfile, "0 0 0 setrgbcolor\n" );
+    if ( rna.is_coding() ) fprintf( drawingfile, "0 0 0 setrgbcolor\n" );
     else fprintf( drawingfile, "0.7 0.7 0.7 setrgbcolor\n" );
     layer++; // index starting at 0 but needed to start at 1
 
