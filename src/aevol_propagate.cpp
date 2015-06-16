@@ -46,11 +46,11 @@ const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 //                            Project Files
 // =================================================================
 #ifdef __X11
-  #include "ae_exp_manager_X11.h"
+  #include "ExpManager_X11.h"
 #else
-  #include "ae_exp_manager.h"
+  #include "ExpManager.h"
 #endif
-#include <param_loader.h>
+#include "param_loader.h"
 
 using namespace aevol;
 
@@ -248,53 +248,53 @@ int main(int argc, char* argv[])
   //                    Load the model experiment
   // =================================================================
   #ifndef __NO_X
-    ae_exp_manager* exp_manager = new ae_exp_manager_X11();
+    ExpManager* exp_manager = new ExpManager_X11();
   #else
-    ae_exp_manager* exp_manager = new ae_exp_manager();
+    ExpManager* exp_manager = new ExpManager();
   #endif
   
   exp_manager->load(input_dir, num_gener, verbose, false);
 
   if (generalseed != -1)
   {
-    auto prng = std::make_unique<ae_jumping_mt>(generalseed);
+    auto prng = std::make_unique<JumpingMT>(generalseed);
 
     exp_manager->get_sel()->set_prng(
-        std::make_unique<ae_jumping_mt>(prng->random(1000000)));
+        std::make_unique<JumpingMT>(prng->random(1000000)));
     exp_manager->world()->set_prng(
-        std::make_unique<ae_jumping_mt>(prng->random(1000000)));
+        std::make_unique<JumpingMT>(prng->random(1000000)));
     exp_manager->world()->set_mut_prng(
-        std::make_shared<ae_jumping_mt>(prng->random(1000000)));
+        std::make_shared<JumpingMT>(prng->random(1000000)));
     exp_manager->world()->set_stoch_prng(
-        std::make_shared<ae_jumping_mt>(prng->random(1000000)));
+        std::make_shared<JumpingMT>(prng->random(1000000)));
     // TODO <david.parsons@inria.fr> adapt to new organization
     printf("%s:%d: error: feature has to be adapted to the new organization.\n", __FILE__, __LINE__);
     exit(EXIT_FAILURE);
 //    exp_manager->get_env()->set_var_prng(
-//        std::make_shared<ae_jumping_mt>(prng->random(1000000)));
+//        std::make_shared<JumpingMT>(prng->random(1000000)));
 //    exp_manager->get_env()->set_noise_prng(
-//        std::make_shared<ae_jumping_mt>(prng->random(1000000)));
+//        std::make_shared<JumpingMT>(prng->random(1000000)));
   }
   else
   {
     if (selseed != -1)
     {
       exp_manager->world()->set_prng(
-          std::make_unique<ae_jumping_mt>(selseed));
+          std::make_unique<JumpingMT>(selseed));
       exp_manager->get_sel()->set_prng(
-          std::make_unique<ae_jumping_mt>(selseed));
+          std::make_unique<JumpingMT>(selseed));
     }
 
     if (mutseed != -1)
     {
       exp_manager->world()->set_mut_prng(
-          std::make_shared<ae_jumping_mt>(mutseed));
+          std::make_shared<JumpingMT>(mutseed));
     }
 
     if (stochseed != -1)
     {
       exp_manager->world()->set_stoch_prng(
-          std::make_shared<ae_jumping_mt>(stochseed));
+          std::make_shared<JumpingMT>(stochseed));
     }
 
     if (envvarseed != -1)
@@ -303,7 +303,7 @@ int main(int argc, char* argv[])
       printf("%s:%d: error: feature has to be adapted to the new organization.\n", __FILE__, __LINE__);
       exit(EXIT_FAILURE);
 //      exp_manager->get_env()->set_var_prng(
-//          std::make_shared<ae_jumping_mt>(envvarseed));
+//          std::make_shared<JumpingMT>(envvarseed));
     }
 
     if (envnoiseseed != -1)
@@ -312,7 +312,7 @@ int main(int argc, char* argv[])
       printf("%s:%d: error: feature has to be adapted to the new organization.\n", __FILE__, __LINE__);
       exit(EXIT_FAILURE);
 //      exp_manager->get_env()->set_noise_prng(
-//          std::make_shared<ae_jumping_mt>(envnoiseseed));
+//          std::make_shared<JumpingMT>(envnoiseseed));
     }
   }
 

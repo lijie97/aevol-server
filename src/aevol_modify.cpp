@@ -39,11 +39,14 @@ const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 
 #include <list>
 
-#include "f_line.h"
+#include "ParameterLine.h"
 #ifdef __X11
-#include "ae_exp_manager_X11.h"
+#include "ExpManager_X11.h"
 #else
-#include "ae_exp_manager.h"
+#include "ExpManager.h"
+#include "libaevol/ParameterLine.h"
+#include "libaevol/JumpingMT.h"
+
 #endif
 
 using namespace aevol;
@@ -63,8 +66,8 @@ enum population_change_type
 void print_help(char* prog_path);
 void print_version(void);
 
-f_line* get_line(FILE* param_file);
-void format_line(f_line* formated_line, char* line, bool* line_is_interpretable);
+ParameterLine* get_line(FILE* param_file);
+void format_line(ParameterLine* formated_line, char* line, bool* line_is_interpretable);
 // void change_by_cloning_best(ae_population* pop, ae_exp_manager* exp_m);
 // void change_based_on_non_coding_bases_of_best_individual(ae_population* pop, ae_exp_manager* exp_m, population_change_type type);
 // void change_based_on_non_coding_bases_in_population(ae_population* pop, ae_exp_manager* exp_m, population_change_type type);
@@ -144,21 +147,21 @@ int main(int argc, char* argv[])
   
   // 6) Initialize the experiment manager
 #ifndef __NO_X
-  ae_exp_manager* exp_manager = new ae_exp_manager_X11();
+  ExpManager* exp_manager = new ExpManager_X11();
 #else
-  ae_exp_manager* exp_manager = new ae_exp_manager();
+  ExpManager* exp_manager = new ExpManager();
 #endif
   exp_manager->load(num_gener, false, verbose);
 
   // 7) Define syntaxic sugars for the population, the environment, the selection...  
 //  Environment* env = exp_manager->get_env();
-  ae_selection* sel = exp_manager->get_sel();
+  Selection* sel = exp_manager->get_sel();
   World* world = exp_manager->world();
 
 
   // If relevant, load the tree information 
   char tree_file_name[50];
-  ae_tree * tree = NULL;
+  Tree * tree = NULL;
   bool take_care_of_the_tree = exp_manager->get_record_tree() &&
                                exp_manager->get_tree_mode() == NORMAL &&
                                get_time() > 0;
@@ -172,7 +175,7 @@ int main(int argc, char* argv[])
       sprintf(tree_file_name,"tree/tree_%06" PRId32 ".ae", num_gener);
     #endif
     
-    tree = new ae_tree(exp_manager, tree_file_name);
+    tree = new Tree(exp_manager, tree_file_name);
     for (auto& indiv: exp_manager->get_indivs())
       indiv->set_replication_report(tree->get_report_by_index(num_gener, indiv->get_id()));
   }
@@ -198,7 +201,7 @@ int main(int argc, char* argv[])
   int32_t tree_step = 100;
   ae_tree_mode tree_mode = NORMAL;
   
-  f_line* line;
+  ParameterLine* line;
   int32_t cur_line = 0;
   while ((line = get_line(param_file)) != NULL) 
   {
@@ -499,7 +502,7 @@ int main(int argc, char* argv[])
 //        env->set_var_method(AUTOREGRESSIVE_MEAN_VAR);
 //        env->set_var_sigma(atof(line->words[2]));
 //        env->set_var_tau(atol(line->words[3]));
-//        env->set_var_prng(std::make_shared<ae_jumping_mt>(atoi(line->words[4])));
+//        env->set_var_prng(std::make_shared<JumpingMT>(atoi(line->words[4])));
 //        printf("\tChange of environmental variation to a autoregressive mean variation with sigma=%f, tau=%ld and seed=%d\n", atof(line->words[2]),atol(line->words[3]),atoi(line->words[4]));
 //      }
 //      else if (strcmp(line->words[1], "autoregressive_height_variation") == 0)
@@ -508,14 +511,14 @@ int main(int argc, char* argv[])
 //        env->set_var_method(AUTOREGRESSIVE_HEIGHT_VAR);
 //        env->set_var_sigma(atof(line->words[2]));
 //        env->set_var_tau(atol(line->words[3]));
-//        env->set_var_prng(std::make_shared<ae_jumping_mt>(atoi(line->words[4])));
+//        env->set_var_prng(std::make_shared<JumpingMT>(atoi(line->words[4])));
 //        printf("\tChange of environmental variation to a autoregressive height variation with sigma=%f, tau=%ld and seed=%d\n", atof(line->words[2]),atol(line->words[3]),atoi(line->words[4]));
 //      }
 //      else if (strcmp(line->words[1], "add_local_gaussians") == 0)
 //      {
 //        assert(line->nb_words == 3);
 //        env->set_var_method(LOCAL_GAUSSIANS_VAR);
-//        env->set_var_prng(std::make_shared<ae_jumping_mt>(atoi(line->words[2])));
+//        env->set_var_prng(std::make_shared<JumpingMT>(atoi(line->words[2])));
 //        printf("\tChange of environmental variation to a local gaussians variation with seed=%d\n", atoi(line->words[2]));
 //      }
 //      else
@@ -598,8 +601,8 @@ int main(int argc, char* argv[])
       int32_t seed = atoi(line->words[1]);
   
       // Change prngs
-      sel->set_prng(std::make_unique<ae_jumping_mt>(seed));
-      world->set_prng(std::make_unique<ae_jumping_mt>(seed));
+      sel->set_prng(std::make_unique<JumpingMT>(seed));
+      world->set_prng(std::make_unique<JumpingMT>(seed));
   
       printf("\tChange of the seed to %d in selection and world \n",atoi(line->words[1]));
     }
@@ -608,7 +611,7 @@ int main(int argc, char* argv[])
       int32_t mut_seed = atoi(line->words[1]);
   
       // Change mutation prng
-      world->set_mut_prng(std::make_shared<ae_jumping_mt>(mut_seed));
+      world->set_mut_prng(std::make_shared<JumpingMT>(mut_seed));
       printf("\tChange of the seed to %d in mutations \n",atoi(line->words[1]));
     }
     else if (strcmp(line->words[0], "STOCH_SEED") == 0)
@@ -616,7 +619,7 @@ int main(int argc, char* argv[])
       int32_t stoch_seed = atoi(line->words[1]);
   
       // Change stochasticity prng
-      world->set_stoch_prng(std::make_shared<ae_jumping_mt>(stoch_seed));
+      world->set_stoch_prng(std::make_shared<JumpingMT>(stoch_seed));
       printf("\tChange of the seed to %d in individuals' stochasticity \n",atoi(line->words[1]));
     }
     else if (strcmp(line->words[0], "CLONE_BEST") == 0)
@@ -722,12 +725,12 @@ int main(int argc, char* argv[])
   \param param_file file with param in which a line is reading
   \return line (pointer)
   
-  \see format_line(f_line* formated_line, char* line, bool* line_is_interpretable)
+  \see format_line(ParameterLine* formated_line, char* line, bool* line_is_interpretable)
 */
-f_line* get_line(FILE* param_file)
+ParameterLine* get_line(FILE* param_file)
 {
   char line[255];
-  f_line* formated_line = new f_line();
+  ParameterLine* formated_line = new ParameterLine();
 
   bool found_interpretable_line = false; 
 
@@ -759,7 +762,7 @@ f_line* get_line(FILE* param_file)
   \param line original line in char*
   \param line_is_interpretable boolean with about the possible intrepretation of the line
 */
-void format_line(f_line* formated_line, char* line, bool* line_is_interpretable)
+void format_line(ParameterLine* formated_line, char* line, bool* line_is_interpretable)
 {
   int16_t i = 0;
   int16_t j;
@@ -820,7 +823,7 @@ void format_line(f_line* formated_line, char* line, bool* line_is_interpretable)
 //   \param exp_m global exp_manager
 //   \param type type of change in the population
 // */
-// void change_based_on_non_coding_bases_of_best_individual(ae_population* pop, ae_exp_manager* exp_m, population_change_type type)
+// void change_based_on_non_coding_bases_of_best_individual(ae_population* pop, ExpManager* exp_m, population_change_type type)
 // {
 //   if(type == SUBPOPULATIONS_BASED_ON_NON_CODING_BASES || type == REMOVE_NON_CODING_BASES_BEST_IND || type == DOUBLE_NON_CODING_BASES_BEST_IND)
 //     {
@@ -944,7 +947,7 @@ void format_line(f_line* formated_line, char* line, bool* line_is_interpretable)
 //   \param exp_m global exp_manager
 //   \param type type of change in the population
 // */
-// void change_based_on_non_coding_bases_in_population(ae_population* pop, ae_exp_manager* exp_m, population_change_type type)
+// void change_based_on_non_coding_bases_in_population(ae_population* pop, ExpManager* exp_m, population_change_type type)
 // {
 //   if(type == REMOVE_NON_CODING_BASES_POPULATION || type == DOUBLE_NON_CODING_BASES_POPULATION)
 //     {
