@@ -99,22 +99,6 @@ class IndividualFactory
       char* strain_name,
       std::shared_ptr<JumpingMT> local_prng,
       bool better_than_flat);
-  static Individual * create_random_individual_with_good_gene(
-      ExpManager * exp_m,
-      int32_t id,
-      std::shared_ptr<MutationParams> param_mut,
-      std::shared_ptr<JumpingMT> mut_prng,
-      std::shared_ptr<JumpingMT> stoch_prng,
-      const Habitat& habitat,
-      double w_max,
-      int32_t min_genome_length,
-      int32_t max_genome_length,
-      int32_t chromosome_initial_length,
-      bool allow_plasmids,
-      bool plasmid_initial_gene,
-      int32_t plasmid_initial_length,
-      char* strain_name,
-      std::shared_ptr<JumpingMT> local_prng);
 
 
 
