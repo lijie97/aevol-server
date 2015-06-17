@@ -30,7 +30,7 @@
 // ============================================================================
 //                                   Includes
 // ============================================================================
-#include "phenotypic_target_handler.h"
+#include "PhenotypicTargetHandler.h"
 
 #include <iostream>
 

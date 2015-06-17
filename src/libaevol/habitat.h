@@ -41,7 +41,7 @@
 
 #include <zlib.h>
 
-#include "phenotypic_target_handler.h"
+#include "PhenotypicTargetHandler.h"
 
 
 namespace aevol {

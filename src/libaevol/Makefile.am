@@ -46,7 +46,7 @@ OutputManager.h \
 MutationParams.h \
 Phenotype.h \
 PhenotypicTarget.h \
-phenotypic_target_handler.h \
+PhenotypicTargetHandler.h \
 point.h \
 Protein.h \
 JumpingMT.h \
@@ -86,7 +86,7 @@ Mutation.cpp \
 OutputManager.cpp \
 MutationParams.cpp \
 PhenotypicTarget.cpp \
-phenotypic_target_handler.cpp \
+PhenotypicTargetHandler.cpp \
 point.cpp \
 Protein.cpp \
 JumpingMT.cpp \

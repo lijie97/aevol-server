@@ -101,8 +101,8 @@ add_library(aevol
   non_coding_stats.h
   param_loader.cpp
   param_loader.h
-  phenotypic_target_handler.cpp
-  phenotypic_target_handler.h
+  PhenotypicTargetHandler.cpp
+  PhenotypicTargetHandler.h
   PhenotypicTarget.cpp
   PhenotypicTarget.h
   point.cpp

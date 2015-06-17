@@ -64,7 +64,7 @@
 #include "Phenotype.h"
 #include "PhenotypicSegment.h"
 #include "PhenotypicTarget.h"
-#include "phenotypic_target_handler.h"
+#include "PhenotypicTargetHandler.h"
 #include "point.h"
 #include "Protein.h"
 #include "ReplicationReport.h"
