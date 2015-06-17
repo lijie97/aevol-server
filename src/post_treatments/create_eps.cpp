@@ -200,6 +200,7 @@ int main( int argc, char* argv[] )
   }
   else
   {
+<<<<<<< HEAD
     // TODO <david.parsons@inria.fr> tmp disabled
 //     if (indiv_rank != -1) {
 //       indiv = new Individual(*exp_manager->get_indiv_by_rank(indiv_rank), false);
@@ -207,6 +208,17 @@ int main( int argc, char* argv[] )
 //     else {
 //       indiv = new Individual(*exp_manager->get_indiv_by_id(indiv_index), false);
 //     }
+=======
+    // TODO: disabled tmp
+    // if (indiv_rank != -1)
+    // {
+    //   indiv = new Individual(*exp_manager->get_indiv_by_rank(indiv_rank), false);
+    // }
+    // else
+    // {
+    //   indiv = new Individual(*exp_manager->get_indiv_by_id(indiv_index), false);
+    // }
+>>>>>>> aa0846e... Fix renames after merge
   }
 
   // The constructor of the exp_manager has read the genomes of the individuals

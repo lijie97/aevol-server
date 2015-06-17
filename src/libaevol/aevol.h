@@ -39,7 +39,7 @@
 #include "ExpManager.h"
 #include "ExpManager_X11.h"
 #include "ExpSetup.h"
-#include "f_line.h"
+#include "ParameterLine.h"
 #include "Fuzzy.h"
 #include "Gaussian.h"
 #include "GeneMutation.h"
@@ -75,7 +75,7 @@
 #include "Time.h"
 #include "Tree.h"
 #include "VisAVis.h"
-#include "world.h"
+#include "World.h"
 #include "X11Window.h"
 
 #endif  // AEVOL_INCLUDE_AEVOL_H__
