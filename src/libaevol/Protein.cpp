@@ -91,10 +91,10 @@ Protein::Protein( GeneticUnit* gen_unit, const Protein &model )
 }
 
 Protein::Protein(GeneticUnit* gen_unit,
-                       std::list<Codon *> codon_list,
-                       Strand strand,
-                       int32_t shine_dal_pos,
-                       Rna * rna )
+                 const std::list<Codon*>& codon_list,
+                 Strand strand,
+                 int32_t shine_dal_pos,
+                 Rna* rna )
 {
   assert( shine_dal_pos >= 0 );
   assert( shine_dal_pos < gen_unit->get_seq_length() );
