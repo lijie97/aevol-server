@@ -43,7 +43,7 @@
 #include "Fuzzy.h"
 #include "JumpingMT.h"
 #include "ae_utils.h"
-#include "phenotypic_target.h"
+#include "PhenotypicTarget.h"
 
 
 using std::vector;

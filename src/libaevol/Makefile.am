@@ -45,7 +45,7 @@ Mutation.h \
 OutputManager.h \
 MutationParams.h \
 Phenotype.h \
-phenotypic_target.h \
+PhenotypicTarget.h \
 phenotypic_target_handler.h \
 point.h \
 Protein.h \
@@ -85,7 +85,7 @@ Logging.cpp \
 Mutation.cpp \
 OutputManager.cpp \
 MutationParams.cpp \
-phenotypic_target.cpp \
+PhenotypicTarget.cpp \
 phenotypic_target_handler.cpp \
 point.cpp \
 Protein.cpp \

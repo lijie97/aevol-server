@@ -103,8 +103,8 @@ add_library(aevol
   param_loader.h
   phenotypic_target_handler.cpp
   phenotypic_target_handler.h
-  phenotypic_target.cpp
-  phenotypic_target.h
+  PhenotypicTarget.cpp
+  PhenotypicTarget.h
   point.cpp
   point.h
   Time.cpp

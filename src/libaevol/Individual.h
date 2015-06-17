@@ -55,7 +55,7 @@
 #include "ReplicationReport.h"
 #include "MutationParams.h"
 #include "Fuzzy.h"
-#include "phenotypic_target.h"
+#include "PhenotypicTarget.h"
 #include "habitat.h"
 
 
