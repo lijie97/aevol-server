@@ -54,7 +54,7 @@ namespace aevol {
 // =================================================================
 //bool Alignment::with_alignments;
 
-//ae_align_fun_shape Alignment::align_fun_shape;
+//AlignmentFunctionShape Alignment::align_fun_shape;
 
 //double  Alignment::align_sigm_lambda;
 //int16_t Alignment::align_sigm_mean;

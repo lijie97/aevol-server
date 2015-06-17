@@ -76,7 +76,7 @@ Rna::Rna( GeneticUnit* gen_unit, const Rna &model )
   //   transcribed_proteins.push_back(protein);
 }
 
-Rna::Rna( GeneticUnit* gen_unit, ae_strand strand, int32_t pos, int8_t diff )
+Rna::Rna( GeneticUnit* gen_unit, Strand strand, int32_t pos, int8_t diff )
 {
   _gen_unit  = gen_unit;
   _strand = strand;

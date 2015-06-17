@@ -310,7 +310,7 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     _env_axis_segment_boundaries[_env_axis_nb_segments] = X_MAX;
 
     // Set segment features
-    _env_axis_features = new ae_env_axis_feature[_env_axis_nb_segments];
+    _env_axis_features = new PhenotypicFeature[_env_axis_nb_segments];
     for (int16_t i = 0 ; i < _env_axis_nb_segments ; i++)
     {
       if (strcmp(line->words[2*i+1], "NEUTRAL") == 0)

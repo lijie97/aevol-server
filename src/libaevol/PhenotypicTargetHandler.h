@@ -109,14 +109,14 @@ class PhenotypicTargetHandler
   }
   void set_segmentation(int8_t nb_segments,
                         double* boundaries,
-                        ae_env_axis_feature* features,
+                        PhenotypicFeature * features,
                         bool separate_segments = false) {
     phenotypic_target_->set_segmentation(nb_segments,
         boundaries,
         features,
         separate_segments);
   };
-  void set_var_method(ae_env_var var_method) {
+  void set_var_method(PhenotypicTargetVariationMethod var_method) {
     var_method_ = var_method;
   }
   void set_var_prng(std::shared_ptr<JumpingMT> prng) {
@@ -132,7 +132,7 @@ class PhenotypicTargetHandler
     var_sigma_  = sigma;
     var_tau_    = tau;
   }
-  void set_noise_method(ae_env_noise noise_method) {
+  void set_noise_method(PhenotypicTargetNoiseMethod noise_method) {
     noise_method_ = noise_method;
   }
   void set_noise_prng(std::shared_ptr<JumpingMT> prng) {
@@ -189,7 +189,7 @@ class PhenotypicTargetHandler
 
   // ---------------------------------------------------------------- Variation
   /// Variation method
-  ae_env_var var_method_;
+  PhenotypicTargetVariationMethod var_method_;
   /// PRNG used for variation
   std::shared_ptr<JumpingMT> var_prng_;
   /// Autoregressive mean variation sigma parameter
@@ -202,7 +202,7 @@ class PhenotypicTargetHandler
   Fuzzy* cur_noise_ = NULL;
   /// PRNG used for noise
   std::shared_ptr<JumpingMT> noise_prng_;
-  ae_env_noise noise_method_;
+  PhenotypicTargetNoiseMethod noise_method_;
   /// Alpha value (variance coefficient)
   double noise_alpha_;
   /// Variance of the noise

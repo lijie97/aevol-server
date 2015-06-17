@@ -88,7 +88,7 @@ class PhenotypicTarget : public Fuzzy
   // ==========================================================================
   void set_segmentation(int8_t nb_segments,
                         double* boundaries,
-                        ae_env_axis_feature* features,
+                        PhenotypicFeature * features,
                         bool separate_segments);
 
   // ==========================================================================

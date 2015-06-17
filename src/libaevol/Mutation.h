@@ -116,9 +116,9 @@ class Mutation
     void get_infos_inversion( int32_t* pos1, int32_t* pos2, int16_t* align_score = NULL ) const;
     void get_infos_insertion( int32_t* pos, int32_t* length ) const;
     void get_sequence_insertion( char* seq ) const;
-    void get_infos_ins_HT( int32_t* pos1, int32_t* pos2, int32_t* pos3, int32_t* pos4, ae_sense* sense, int32_t* length ) const;
+    void get_infos_ins_HT( int32_t* pos1, int32_t* pos2, int32_t* pos3, int32_t* pos4, AlignmentSense * sense, int32_t* length ) const;
     void get_sequence_ins_HT( char* seq ) const;
-    void get_infos_repl_HT( int32_t* pos1, int32_t* pos2, int32_t* pos3, int32_t* pos4, ae_sense* sense, int32_t* length ) const;
+    void get_infos_repl_HT( int32_t* pos1, int32_t* pos2, int32_t* pos3, int32_t* pos4, AlignmentSense * sense, int32_t* length ) const;
     void get_sequence_repl_HT( char* seq ) const;
 
     // =================================================================
@@ -138,8 +138,8 @@ class Mutation
                                 bool invert, int16_t align_score_1 = -1, int16_t align_score_2 = -1 );
     void report_inversion( int32_t pos_1, int32_t pos_2, int32_t length, int16_t align_score = -1 );
     void report_insertion( int32_t pos, int32_t length, const char* seq );
-    void report_ins_HT(int32_t alignment_1_donor_pos_1, int32_t alignment_1_donor_pos_2, int32_t alignment_2_ind_pos, int32_t alignment_2_donor_pos, int32_t length, int16_t alignment_1_score, int16_t alignment_2_score, int32_t donor_id, ae_sense sense, const char* seq);
-    void report_repl_HT(int32_t alignment_1_donor_pos_1, int32_t alignment_1_donor_pos_2, int32_t alignment_2_ind_pos, int32_t alignment_2_donor_pos, int32_t repl_seq_length, int32_t donor_seq_length, int16_t alignment_1_score, int16_t alignment_2_score, int32_t donor_id, ae_sense sense, const char* seq);
+    void report_ins_HT(int32_t alignment_1_donor_pos_1, int32_t alignment_1_donor_pos_2, int32_t alignment_2_ind_pos, int32_t alignment_2_donor_pos, int32_t length, int16_t alignment_1_score, int16_t alignment_2_score, int32_t donor_id, AlignmentSense sense, const char* seq);
+    void report_repl_HT(int32_t alignment_1_donor_pos_1, int32_t alignment_1_donor_pos_2, int32_t alignment_2_ind_pos, int32_t alignment_2_donor_pos, int32_t repl_seq_length, int32_t donor_seq_length, int16_t alignment_1_score, int16_t alignment_2_score, int32_t donor_id, AlignmentSense sense, const char* seq);
 
     void get_generic_description_string( char * str ) const;
 
@@ -182,7 +182,7 @@ class Mutation
     bool              _invert;
     int16_t*          _align_score;
     int32_t           _donor_id;   // CK: There should also be another int to indicate which genetic unit in the donor
-    ae_sense          _sense;
+    AlignmentSense _sense;
 };
 
 

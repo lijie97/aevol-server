@@ -30,13 +30,13 @@
 
 namespace aevol {
 
-enum ae_align_fun_shape
+enum AlignmentFunctionShape
 {
   LINEAR  = 0,
   SIGMOID = 1
 };
 
-enum ae_env_axis_feature
+enum PhenotypicFeature
 {
   NEUTRAL     = 0,
   METABOLISM  = 1,
@@ -47,7 +47,7 @@ enum ae_env_axis_feature
 
 #define NB_FEATURES 5 // This is used to know how many possible features exist to make them easy to parse.
 
-enum ae_env_var
+enum PhenotypicTargetVariationMethod
 {
   NO_VAR                    = 0,
   AUTOREGRESSIVE_MEAN_VAR   = 1,
@@ -55,27 +55,27 @@ enum ae_env_var
   LOCAL_GAUSSIANS_VAR       = 3
 };
 
-enum ae_env_noise
+enum PhenotypicTargetNoiseMethod
 {
   NO_NOISE  = 0,
   FRACTAL   = 1
 };
 
-enum ae_init_method
+enum GenomeInitializationMethod
 {
   ONE_GOOD_GENE   = 0x01,
   CLONE           = 0x02,
   WITH_INS_SEQ    = 0x04
 };
 
-enum ae_sense
+enum AlignmentSense
 {
   DIRECT      = 0,
   INDIRECT    = 1,
   BOTH_SENSES = 2
 };
   
-enum ae_selection_scheme
+enum SelectionScheme
 {
   RANK_LINEAR           = 0,
   RANK_EXPONENTIAL      = 1,
@@ -83,13 +83,13 @@ enum ae_selection_scheme
   FITTEST               = 3
 };
 
-enum ae_tree_mode
+enum TreeMode
 {
   LIGHT   = 0,
   NORMAL  = 1
 };
 
-enum ae_log_type
+enum LogType
 {
   LOG_TRANSFER  = 0x01,
   LOG_REAR      = 0x02,
@@ -97,7 +97,7 @@ enum ae_log_type
   //LOG_LOADS     = 0x08
 };
 
-enum ae_strand
+enum Strand
 {
   LEADING = 0,
   LAGGING = 1

@@ -62,7 +62,7 @@ const int32_t Tree::NO_PARENT = -1;
 // =================================================================
 //                             Constructors
 // =================================================================
-Tree::Tree(ExpManager * exp_m, ae_tree_mode tree_mode, int64_t tree_step)
+Tree::Tree(ExpManager * exp_m, TreeMode tree_mode, int64_t tree_step)
 {
   _exp_m = exp_m;
 

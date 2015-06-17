@@ -94,8 +94,8 @@ class GeneticUnit
 
   const Promoters2Strands& get_rna_list() const;
   // TODO return as reference
-  std::list<Protein>& get_protein_list(ae_strand strand);
-  void clear_protein_list(ae_strand strand);
+  std::list<Protein>& get_protein_list(Strand strand);
+  void clear_protein_list(Strand strand);
 
   // Direct DNA access
   const char*  get_sequence( void ) const;
@@ -135,9 +135,9 @@ class GeneticUnit
 
   double   get_modularity( void )                        const;
 
-  double   get_dist_to_target_by_feature( ae_env_axis_feature feature )  const;
+  double   get_dist_to_target_by_feature( PhenotypicFeature feature )  const;
   double   get_fitness( void )                                           const;
-  double   get_fitness_by_feature( ae_env_axis_feature feature )         const;
+  double   get_fitness_by_feature( PhenotypicFeature feature )         const;
 
   int32_t  get_min_gu_length( void ) const;
   int32_t  get_max_gu_length( void ) const;
@@ -171,15 +171,15 @@ class GeneticUnit
   void print_rnas() const;
   void print_coding_rnas();
   static void print_rnas(const Promoters2Strands& rnas);
-  static void print_rnas(const Promoters1Strand& rnas, ae_strand strand);
+  static void print_rnas(const Promoters1Strand& rnas, Strand strand);
   void print_proteins() const;
 
-  bool        is_promoter( ae_strand strand, int32_t pos, int8_t& dist ) const;
-  bool        is_terminator( ae_strand strand, int32_t pos ) const;
-  bool        is_shine_dalgarno( ae_strand strand, int32_t pos ) const;
-  bool is_start( ae_strand strand, int32_t pos ) const;
-  bool is_stop( ae_strand strand, int32_t pos ) const;
-  int8_t      get_codon( ae_strand strand, int32_t pos ) const;
+  bool        is_promoter( Strand strand, int32_t pos, int8_t& dist ) const;
+  bool        is_terminator( Strand strand, int32_t pos ) const;
+  bool        is_shine_dalgarno( Strand strand, int32_t pos ) const;
+  bool is_start( Strand strand, int32_t pos ) const;
+  bool is_stop( Strand strand, int32_t pos ) const;
+  int8_t      get_codon( Strand strand, int32_t pos ) const;
 
   void compute_non_coding( void );
 
@@ -192,7 +192,7 @@ class GeneticUnit
   void get_promoters_included_in(int32_t pos_1,
                                  int32_t pos_2,
                                  Promoters2Strands& promoters);
-  void get_promoters(ae_strand strand_id,
+  void get_promoters(Strand strand_id,
                      Position start,
                      int32_t pos1,
                      int32_t pos2,

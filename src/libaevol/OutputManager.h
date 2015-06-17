@@ -87,12 +87,12 @@ class OutputManager
     // Tree
     inline bool         get_record_tree( void ) const;
     inline int64_t      get_tree_step( void ) const;
-    inline ae_tree_mode get_tree_mode( void ) const;
+    inline TreeMode get_tree_mode( void ) const;
     inline Tree *     get_tree( void ) const;
   
     // Logs
-    inline FILE* get_log( ae_log_type log_type )   const;
-    inline bool  is_logged( ae_log_type log_type ) const;
+    inline FILE* get_log( LogType log_type )   const;
+    inline bool  is_logged( LogType log_type ) const;
   
     // Stats
     inline bool get_compute_phen_contrib_by_GU( void ) const;
@@ -102,7 +102,7 @@ class OutputManager
     // =================================================================
     inline void set_backup_step(int64_t backup_step);
     inline void set_big_backup_step(int64_t big_backup_step);
-    inline void init_tree(ExpManager * exp_m, ae_tree_mode _tree_mode, int64_t _tree_step);
+    inline void init_tree(ExpManager * exp_m, TreeMode _tree_mode, int64_t _tree_step);
     inline void set_dump_step(int64_t dump_step);
     inline void set_compute_phen_contrib_by_GU(bool compute_phen_contrib_by_GU);
     inline void set_logs (int8_t logs);
@@ -204,7 +204,7 @@ inline int64_t OutputManager::get_tree_step( void ) const
   return _tree->get_tree_step();
 }
 
-inline ae_tree_mode OutputManager::get_tree_mode( void ) const
+inline TreeMode OutputManager::get_tree_mode( void ) const
 {
   return _tree->get_tree_mode();
 }
@@ -215,12 +215,12 @@ inline Tree *OutputManager::get_tree( void ) const
 }
 
 // Logs
-inline FILE*OutputManager::get_log( ae_log_type log_type )   const
+inline FILE*OutputManager::get_log( LogType log_type )   const
 {
   return _logs->get_log( log_type );
 }
 
-inline bool  OutputManager::is_logged( ae_log_type log_type ) const
+inline bool  OutputManager::is_logged( LogType log_type ) const
 {
   return _logs->is_logged( log_type );
 }
@@ -244,7 +244,7 @@ inline void OutputManager::set_big_backup_step(int64_t big_backup_step)
   _big_backup_step = big_backup_step;
 }
 
-inline void OutputManager::init_tree(ExpManager * exp_m, ae_tree_mode _tree_mode, int64_t _tree_step)
+inline void OutputManager::init_tree(ExpManager * exp_m, TreeMode _tree_mode, int64_t _tree_step)
 {
   _record_tree = true;
   _tree = new Tree( exp_m, _tree_mode, _tree_step );

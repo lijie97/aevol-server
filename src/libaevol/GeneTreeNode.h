@@ -123,7 +123,7 @@ class GeneTreeNode
     int32_t             _node_creation_date;  // generation when this node was created. For right nodes, equals the dna creation date. 
     int32_t             _gene_loss_date;      // generation when the gene was lost: became a pseudogene, or was deleted, or was broken by a rearrangement
     ae_gene_loss_type   _gene_loss_type;      // NOT_LOST_YET or LOST_BY_LOCAL_MUTATION or DELETED or BROKEN_BY_REAR
-    ae_strand           _strand;
+    Strand _strand;
     int32_t             _shine_dal_position;
     size_t             _nb_promoters;
     int32_t *           _promoter_positions;

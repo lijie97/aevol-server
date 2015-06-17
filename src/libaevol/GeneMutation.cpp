@@ -68,7 +68,7 @@ namespace aevol {
 
 // Creates a copy of the mutation mut, but enriched with the generation when it occured
 // and the position where it occurred in the RNA, relative to the first bp of the promoter
-GeneMutation::GeneMutation(Mutation const & mut, int32_t gener, int32_t cdsPosBefore, ae_strand strandBefore, ae_gene_mutation_region region  ) : Mutation(mut)
+GeneMutation::GeneMutation(Mutation const & mut, int32_t gener, int32_t cdsPosBefore, Strand strandBefore, ae_gene_mutation_region region  ) : Mutation(mut)
 {
   _generation = gener;
   _impact_on_metabolic_error = 0.0; /* should be set to its real value when known */

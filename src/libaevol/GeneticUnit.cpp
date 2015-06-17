@@ -90,11 +90,11 @@ const Promoters2Strands& GeneticUnit::get_rna_list() const {
   return _rna_list;
 }
 
-std::list<Protein>& GeneticUnit::get_protein_list(ae_strand strand) {
+std::list<Protein>& GeneticUnit::get_protein_list(Strand strand) {
   return _protein_list[strand];
 }
 
-void GeneticUnit::clear_protein_list(ae_strand strand) {
+void GeneticUnit::clear_protein_list(Strand strand) {
   _protein_list[strand].clear();
 }
 
@@ -293,7 +293,7 @@ double GeneticUnit::get_modularity( void ) const
   return _modularity;
 }
 
-double GeneticUnit::get_dist_to_target_by_feature( ae_env_axis_feature feature ) const
+double GeneticUnit::get_dist_to_target_by_feature( PhenotypicFeature feature ) const
 {
   assert( _distance_to_target_computed );
 
@@ -307,7 +307,7 @@ double GeneticUnit::get_fitness( void ) const
   return _fitness;
 }
 
-double GeneticUnit::get_fitness_by_feature( ae_env_axis_feature feature ) const
+double GeneticUnit::get_fitness_by_feature( PhenotypicFeature feature ) const
 {
   assert( _fitness_computed );
 
@@ -351,7 +351,7 @@ void GeneticUnit::print_rnas() const {
   print_rnas(rnas[LAGGING], LAGGING);
 }
 
-/* static */ void GeneticUnit::print_rnas(const Promoters1Strand& rnas, ae_strand strand) {
+/* static */ void GeneticUnit::print_rnas(const Promoters1Strand& rnas, Strand strand) {
   printf( "  %s ( %" PRId32 " )\n", strand == LEADING ? " LEADING " : "LAGGING", static_cast<int32_t>(rnas.size()));
   for (auto& rna: rnas) {
     assert( rna.get_strand() == strand );
@@ -359,12 +359,12 @@ void GeneticUnit::print_rnas() const {
   }
 }
 
-bool GeneticUnit::is_start( ae_strand strand, int32_t index ) const
+bool GeneticUnit::is_start( Strand strand, int32_t index ) const
 {
   return ( get_codon( strand, index ) == CODON_START );
 }
 
-bool GeneticUnit::is_stop( ae_strand strand, int32_t index ) const
+bool GeneticUnit::is_stop( Strand strand, int32_t index ) const
 {
   return ( get_codon( strand, index ) == CODON_STOP );
 }
@@ -1315,7 +1315,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
               prot.get_is_functional() ? "functional" : "non functional" );
   }
 
-  bool GeneticUnit::is_promoter( ae_strand strand, int32_t pos, int8_t& dist ) const
+  bool GeneticUnit::is_promoter( Strand strand, int32_t pos, int8_t& dist ) const
   {
     //~ printf( "=============================================== is_promoter\n" );
     //~ printf( "pos : %" PRId32 "\n", pos );
@@ -1365,7 +1365,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     return true;
   }
 
-  bool GeneticUnit::is_terminator( ae_strand strand, int32_t pos ) const
+  bool GeneticUnit::is_terminator( Strand strand, int32_t pos ) const
   {
     const char* genome  = _dna->get_data();
     int32_t  len        = _dna->get_length();
@@ -1388,7 +1388,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     return true;
   }
 
-  bool GeneticUnit::is_shine_dalgarno( ae_strand strand, int32_t pos ) const
+  bool GeneticUnit::is_shine_dalgarno( Strand strand, int32_t pos ) const
   {
     const char* genome  = _dna->get_data();
     int32_t  len        = _dna->get_length();
@@ -1417,7 +1417,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     return true;
   }
 
-  int8_t GeneticUnit::get_codon( ae_strand strand, int32_t pos ) const
+  int8_t GeneticUnit::get_codon( Strand strand, int32_t pos ) const
   {
     const char* genome  = _dna->get_data();
     int32_t  len        = _dna->get_length();
@@ -1979,7 +1979,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
  *
  * The promoters will be ordered with regard to the strand's reading direction
  */
-  void GeneticUnit::get_promoters(ae_strand strand_id,
+  void GeneticUnit::get_promoters(Strand strand_id,
                                   Position before_after_btw, // with regard to the strand's reading direction
                                   int32_t pos1,
                                   int32_t pos2,
@@ -3222,7 +3222,7 @@ void GeneticUnit::double_non_coding_bases(void)
     char * seq = NULL;
     int32_t first, last;
     bool invert = false;
-    ae_sense sense = DIRECT;
+    AlignmentSense sense = DIRECT;
     MutationType type = mut->get_mut_type();
     switch(type) {
       case SWITCH:

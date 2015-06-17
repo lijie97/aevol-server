@@ -682,7 +682,7 @@ GeneticUnit&Individual::get_genetic_unit_nonconst(int16_t num_unit) {
 }
 
 /// TODO
-double Individual::get_dist_to_target_by_feature(ae_env_axis_feature feature) const {
+double Individual::get_dist_to_target_by_feature(PhenotypicFeature feature) const {
   assert(_distance_to_target_computed);
 
   return _dist_to_target_by_feature[feature];
@@ -696,7 +696,7 @@ double Individual::get_fitness() const {
 }
 
 /// TODO
-double Individual::get_fitness_by_feature(ae_env_axis_feature feature) const {
+double Individual::get_fitness_by_feature(PhenotypicFeature feature) const {
   assert(_fitness_computed);
 
   return _fitness_by_feature[feature];
@@ -999,7 +999,7 @@ bool Individual::get_with_alignments() const {
   return _mut_params->get_with_alignments();
 }
 
-ae_align_fun_shape Individual::get_align_fun_shape() const {
+AlignmentFunctionShape Individual::get_align_fun_shape() const {
   return _mut_params->get_align_fun_shape();
 }
 

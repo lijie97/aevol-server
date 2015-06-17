@@ -69,7 +69,7 @@ class VisAVis
     // =================================================================
     //                             Constructors
     // =================================================================
-    VisAVis( const Dna * chrom_1, const Dna * chrom_2, int32_t i_1, int32_t i_2, ae_sense sense = DIRECT );
+    VisAVis( const Dna * chrom_1, const Dna * chrom_2, int32_t i_1, int32_t i_2, AlignmentSense sense = DIRECT );
     VisAVis( const VisAVis & orig );
     //~ VisAVis( const VisAVis * const orig );
 
@@ -86,7 +86,7 @@ class VisAVis
     inline int32_t        get_i_1( void ) const;
     inline int32_t        get_i_2( void ) const;
     inline int16_t        get_score( void ) const;
-    inline ae_sense       get_sense( void ) const;
+    inline AlignmentSense get_sense( void ) const;
 
     // =================================================================
     //                              Operators
@@ -150,7 +150,7 @@ class VisAVis
     int32_t         _i_1; // Index on chrom_1
     int32_t         _i_2; // Index on chrom_2
     int16_t         _score;
-    ae_sense        _sense; // Sense (DIRECT or INDIRECT) of the vis_a_vis (alignement)
+    AlignmentSense _sense; // Sense (DIRECT or INDIRECT) of the vis_a_vis (alignement)
     // Say we have the following sequences :
     //    0 1 2 3 4 5 6 7 8 9             0 1 2 3 4 5 6 7 8 9
     //    |a|b|c|d|e|f|g|h|i|j|           |a|b|c|d|e|f|g|h|i|j|
@@ -192,7 +192,7 @@ inline int16_t VisAVis::get_score( void ) const
   return _score;
 }
 
-inline ae_sense VisAVis::get_sense( void ) const
+inline AlignmentSense VisAVis::get_sense( void ) const
 {
   return _sense;
 }

@@ -86,7 +86,7 @@ PhenotypicTarget::~PhenotypicTarget() {
 // ============================================================================
 void PhenotypicTarget::set_segmentation(int8_t nb_segments,
                                         double *boundaries,
-                                        ae_env_axis_feature *features,
+                                        PhenotypicFeature *features,
                                         bool separate_segments) {
   // Delete the data to be replaced
   for (int8_t i = 0 ; i < nb_segments_ ; i++)

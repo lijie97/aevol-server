@@ -349,7 +349,7 @@ void Selection::load(gzFile& exp_setup_file,
   // ---------------------------------------------------- Selection parameters
   int8_t tmp_sel_scheme;
   gzread(exp_setup_file, &tmp_sel_scheme, sizeof(tmp_sel_scheme) );
-  _selection_scheme = (ae_selection_scheme) tmp_sel_scheme;
+  _selection_scheme = (SelectionScheme) tmp_sel_scheme;
   gzread(exp_setup_file, &_selection_pressure, sizeof(_selection_pressure) );
 
   // ----------------------------------------- Pseudo-random number generator

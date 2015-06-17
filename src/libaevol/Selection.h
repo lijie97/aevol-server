@@ -79,7 +79,7 @@ class Selection
     // =================================================================
     //                        Accessors: getters
     // =================================================================
-    inline ae_selection_scheme  get_selection_scheme(void) const;
+    inline SelectionScheme get_selection_scheme(void) const;
     inline double               get_selection_pressure(void) const;
     inline double*              get_prob_reprod(void) const;
     // inline std::unique_ptr<JumpingMT> get_prng(void) const;
@@ -91,7 +91,7 @@ class Selection
     inline void set_prng(std::unique_ptr<JumpingMT>&& prng);
 
     // -------------------------------------------------------------- Selection
-    inline void set_selection_scheme(ae_selection_scheme sel_scheme);
+    inline void set_selection_scheme(SelectionScheme sel_scheme);
     inline void set_selection_pressure(double sel_pressure);
 
     // =================================================================
@@ -138,7 +138,7 @@ class Selection
     std::unique_ptr<JumpingMT> prng_;
 
     // -------------------------------------------------------------- Selection
-    ae_selection_scheme  _selection_scheme;
+    SelectionScheme _selection_scheme;
     double               _selection_pressure;
 
     // --------------------------- Probability of reproduction of each organism
@@ -154,7 +154,7 @@ class Selection
 //   return prng_;
 // }
 
-inline ae_selection_scheme Selection::get_selection_scheme(void) const
+inline SelectionScheme Selection::get_selection_scheme(void) const
 {
   return _selection_scheme;
 }
@@ -184,7 +184,7 @@ inline void Selection::set_prng(std::unique_ptr<JumpingMT>&& prng)
 }
 
 // -------------------------------------------------------------- Selection
-inline void Selection::set_selection_scheme(ae_selection_scheme sel_scheme)
+inline void Selection::set_selection_scheme(SelectionScheme sel_scheme)
 {
   _selection_scheme = sel_scheme;
 }

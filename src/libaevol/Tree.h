@@ -63,7 +63,7 @@ class Tree
     // =================================================================
     //                             Constructors
     // =================================================================
-    Tree(ExpManager * exp_m, ae_tree_mode tree_mode, int64_t tree_step);
+    Tree(ExpManager * exp_m, TreeMode tree_mode, int64_t tree_step);
     // To be used when we want to run a simulation.
     Tree(ExpManager * exp_m, char* tree_file_name);
     // To be used when we want to INSPECT a tree, 
@@ -78,7 +78,7 @@ class Tree
     //                        Accessors: getters
     // =================================================================
     inline int64_t       get_tree_step(void) const;
-    inline ae_tree_mode  get_tree_mode(void) const;
+    inline TreeMode get_tree_mode(void) const;
     
     // Precondition for the following 3 methods: 
     // the tree was emptied every TREE_STEP generations ==> it contains
@@ -145,7 +145,7 @@ class Tree
     ExpManager * _exp_m;
     
     int64_t       _tree_step;
-    ae_tree_mode  _tree_mode;
+    TreeMode _tree_mode;
     int32_t*      _nb_indivs;
     
     ReplicationReport *** _replics;
@@ -170,7 +170,7 @@ inline int64_t Tree::get_tree_step(void) const
   return _tree_step;
 }
 
-inline ae_tree_mode Tree::get_tree_mode(void) const
+inline TreeMode Tree::get_tree_mode(void) const
 {
   return _tree_mode;
 }

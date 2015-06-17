@@ -106,7 +106,7 @@ class MutationParams
     inline double get_inversion_proportion(void) const;
 
     // ------------------------------------------------------------ Alignements
-    inline ae_align_fun_shape get_align_fun_shape(void) const;
+    inline AlignmentFunctionShape get_align_fun_shape(void) const;
     inline double  get_align_sigm_lambda(void) const;
     inline int16_t get_align_sigm_mean(void) const;
     inline int16_t get_align_lin_min(void) const;
@@ -154,7 +154,7 @@ class MutationParams
     inline void set_inversion_proportion(double inversion_proportion);
 
     // ------------------------------------------------------------ Alignements
-    inline void set_align_fun_shape(ae_align_fun_shape align_fun_shape);
+    inline void set_align_fun_shape(AlignmentFunctionShape align_fun_shape);
     inline void set_align_sigm_lambda(double align_sigm_lambda);
     inline void set_align_sigm_mean(int16_t align_sigm_mean);
     inline void set_align_lin_min(int16_t align_lin_min);
@@ -236,7 +236,7 @@ class MutationParams
     double _inversion_proportion;
 
     // ------------------------------------------------------------ Alignements
-    ae_align_fun_shape _align_fun_shape;
+    AlignmentFunctionShape _align_fun_shape;
     double  _align_sigm_lambda;
     int16_t _align_sigm_mean;
     int16_t _align_lin_min;
@@ -358,7 +358,7 @@ inline double MutationParams::get_inversion_proportion(void) const
 }
 
 // ---------------------------------------------------------------- Alignements
-inline ae_align_fun_shape MutationParams::get_align_fun_shape(void) const
+inline AlignmentFunctionShape MutationParams::get_align_fun_shape(void) const
 {
  return _align_fun_shape;
 }
@@ -512,7 +512,8 @@ inline void MutationParams::set_inversion_proportion(double inversion_proportion
 }
 
 // ---------------------------------------------------------------- Alignements
-inline void MutationParams::set_align_fun_shape(ae_align_fun_shape align_fun_shape)
+inline void MutationParams::set_align_fun_shape(
+    AlignmentFunctionShape align_fun_shape)
 {
   _align_fun_shape = align_fun_shape;
 }

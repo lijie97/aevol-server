@@ -185,13 +185,13 @@ void OutputManager::load( gzFile setup_file, bool verbose, bool to_be_run  )
     gzread( setup_file, &tmp_tree_step, sizeof(tmp_tree_step) );
     int8_t tmp_tree_mode;
     gzread( setup_file, &tmp_tree_mode, sizeof(tmp_tree_mode) );
-    if ( (ae_tree_mode)tmp_tree_mode != LIGHT && (ae_tree_mode)tmp_tree_mode != NORMAL)
+    if ( (TreeMode)tmp_tree_mode != LIGHT && (TreeMode)tmp_tree_mode != NORMAL)
     {
       printf( "%s:%d: error: invalid tree mode\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
     }
     
-    _tree = new Tree( _exp_m, (ae_tree_mode) tmp_tree_mode, tmp_tree_step );
+    _tree = new Tree( _exp_m, (TreeMode) tmp_tree_mode, tmp_tree_step );
   }
   
   // Dumps
@@ -248,14 +248,14 @@ void OutputManager::load(FILE* setup_file, bool verbose, bool to_be_run)
     fscanf( setup_file, "TREE_STEP %" SCNd64 "\n", &tmp_tree_step );
     int8_t tmp_tree_mode;
     fscanf(setup_file, "TREE_MODE %" SCNd8 "\n", &tmp_tree_mode);
-    if ( (ae_tree_mode)tmp_tree_mode != LIGHT && (ae_tree_mode)tmp_tree_mode != NORMAL)
+    if ( (TreeMode)tmp_tree_mode != LIGHT && (TreeMode)tmp_tree_mode != NORMAL)
     {
         printf( "%s:%d: error: invalid tree mode\n", __FILE__, __LINE__ );
         assert( false );
         exit( EXIT_FAILURE );
     }
     
-    _tree = new Tree( _exp_m, (ae_tree_mode) tmp_tree_mode, tmp_tree_step );
+    _tree = new Tree( _exp_m, (TreeMode) tmp_tree_mode, tmp_tree_step );
   }
   
   // Dumps

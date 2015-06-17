@@ -132,9 +132,9 @@ class Individual
   int32_t          get_amount_of_dna() const;
   const GeneticUnit& get_genetic_unit(int16_t num_unit) const;
   GeneticUnit& get_genetic_unit_nonconst(int16_t num_unit);
-  double           get_dist_to_target_by_feature(ae_env_axis_feature feature) const;
+  double           get_dist_to_target_by_feature(PhenotypicFeature feature) const;
   double           get_fitness() const;
-  double           get_fitness_by_feature(ae_env_axis_feature feature) const;
+  double           get_fitness_by_feature(PhenotypicFeature feature) const;
   GridCell* get_grid_cell() const;
   bool             get_placed_in_population() const;
   std::shared_ptr<JumpingMT> get_mut_prng() const;
@@ -199,7 +199,7 @@ class Individual
 
   // ------------------------------------------------------------ Alignements
   bool  get_with_alignments() const;
-  ae_align_fun_shape get_align_fun_shape() const;
+  AlignmentFunctionShape get_align_fun_shape() const;
   double  get_align_sigm_lambda() const;
   int16_t get_align_sigm_mean() const;
   int16_t get_align_lin_min() const;
@@ -428,13 +428,13 @@ class Individual
   double* _dist_to_target_by_segment;
 
   // This array contains the aggregated area of the gap for each type of
-  // segment (ae_env_axis_feature).
+  // segment (PhenotypicFeature).
   // When the  phenotypic target is not segmented, the only meaningful value
   // will be held in _dist_to_target[METABOLISM]
   double* _dist_to_target_by_feature;
 
   // This array contains the fitness contribution for each type of segment
-  // (ae_env_axis_feature).
+  // (PhenotypicFeature).
   // For metabolic segment, this is the metabolic fitness contribution;
   // For secretion segment, this is the amount of compound that gets secreted
   // into the  phenotypic target;

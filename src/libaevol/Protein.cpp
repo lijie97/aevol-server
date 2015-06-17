@@ -92,7 +92,7 @@ Protein::Protein( GeneticUnit* gen_unit, const Protein &model )
 
 Protein::Protein(GeneticUnit* gen_unit,
                        std::list<Codon *> codon_list,
-                       ae_strand strand,
+                       Strand strand,
                        int32_t shine_dal_pos,
                        Rna * rna )
 {
@@ -334,7 +334,7 @@ Protein::Protein( gzFile backup_file )
   _gen_unit = NULL;
   int8_t tmp_strand;
   gzread( backup_file, &tmp_strand, sizeof(tmp_strand) );
-  _strand = (ae_strand) tmp_strand;
+  _strand = (Strand) tmp_strand;
   gzread( backup_file, &_shine_dal_pos,			    sizeof(_shine_dal_pos)        );
   gzread( backup_file, &_first_translated_pos, 	sizeof(_first_translated_pos) );
   gzread( backup_file, &_last_translated_pos,  	sizeof(_last_translated_pos)  );

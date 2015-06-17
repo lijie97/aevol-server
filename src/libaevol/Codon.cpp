@@ -72,7 +72,7 @@ Codon::Codon( int8_t value )
   _value = value;
 }
 
-Codon::Codon( Dna * dna, ae_strand strand, int32_t index )
+Codon::Codon( Dna * dna, Strand strand, int32_t index )
 {
   const char* gen = dna->get_data();
   int32_t     len = dna->get_length();

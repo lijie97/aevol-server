@@ -55,7 +55,7 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-VisAVis::VisAVis( const Dna * chrom_1, const Dna * chrom_2, int32_t i_1, int32_t i_2, ae_sense sense /*= DIRECT*/ )
+VisAVis::VisAVis( const Dna * chrom_1, const Dna * chrom_2, int32_t i_1, int32_t i_2, AlignmentSense sense /*= DIRECT*/ )
 {
   _chrom_1  = chrom_1;
   _chrom_2  = chrom_2;

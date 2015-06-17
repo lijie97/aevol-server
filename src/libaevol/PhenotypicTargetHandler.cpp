@@ -221,7 +221,7 @@ void PhenotypicTargetHandler::load(gzFile backup_file) {
   //  Retrieve variation data
   int8_t tmp_var_method;
   gzread(backup_file, &tmp_var_method, sizeof(tmp_var_method));
-  var_method_ = (ae_env_var) tmp_var_method;
+  var_method_ = (PhenotypicTargetVariationMethod) tmp_var_method;
 
   if (var_method_ != NO_VAR) {
     var_prng_ = std::make_shared<JumpingMT>(backup_file);
@@ -233,7 +233,7 @@ void PhenotypicTargetHandler::load(gzFile backup_file) {
   //  Retrieve noise data
   int8_t tmp_noise_method;
   gzread(backup_file, &tmp_noise_method, sizeof(tmp_noise_method));
-  noise_method_ = (ae_env_noise) tmp_noise_method;
+  noise_method_ = (PhenotypicTargetNoiseMethod) tmp_noise_method;
 
   if (noise_method_ != NO_NOISE) {
     int8_t tmp_cur_noise_saved;

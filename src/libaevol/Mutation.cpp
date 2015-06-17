@@ -519,7 +519,7 @@ void Mutation::report_insertion( int32_t pos, int32_t length, const char* seq )
   _seq[length] = '\0';
 }
 
-void Mutation::report_ins_HT(int32_t alignment_1_donor_pos_1, int32_t alignment_1_donor_pos_2, int32_t alignment_2_ind_pos, int32_t alignment_2_donor_pos, int32_t length, int16_t alignment_1_score, int16_t alignment_2_score, int32_t donor_id, ae_sense sense, const char* donor_seq)
+void Mutation::report_ins_HT(int32_t alignment_1_donor_pos_1, int32_t alignment_1_donor_pos_2, int32_t alignment_2_ind_pos, int32_t alignment_2_donor_pos, int32_t length, int16_t alignment_1_score, int16_t alignment_2_score, int32_t donor_id, AlignmentSense sense, const char* donor_seq)
 {
   _mut_type = INS_HT;
   _pos = new int32_t[4];
@@ -541,7 +541,7 @@ void Mutation::report_ins_HT(int32_t alignment_1_donor_pos_1, int32_t alignment_
   _sense = sense;
 }
 
-void Mutation::report_repl_HT(int32_t alignment_1_ind_pos, int32_t alignment_1_donor_pos, int32_t alignment_2_ind_pos, int32_t alignment_2_donor_pos, int32_t repl_seq_length, int32_t donor_seq_length, int16_t alignment_1_score, int16_t alignment_2_score, int32_t donor_id, ae_sense sense, const char* donor_seq)
+void Mutation::report_repl_HT(int32_t alignment_1_ind_pos, int32_t alignment_1_donor_pos, int32_t alignment_2_ind_pos, int32_t alignment_2_donor_pos, int32_t repl_seq_length, int32_t donor_seq_length, int16_t alignment_1_score, int16_t alignment_2_score, int32_t donor_id, AlignmentSense sense, const char* donor_seq)
 {
   _mut_type = REPL_HT;
   _pos = new int32_t[4];
@@ -919,7 +919,7 @@ void Mutation::get_sequence_insertion( char* seq ) const
   seq[_length[0]] = '\0';
 }
 
-void Mutation::get_infos_ins_HT( int32_t* pos1, int32_t* pos2, int32_t* pos3, int32_t* pos4, ae_sense* sense, int32_t* length ) const
+void Mutation::get_infos_ins_HT( int32_t* pos1, int32_t* pos2, int32_t* pos3, int32_t* pos4, AlignmentSense * sense, int32_t* length ) const
 {
   assert( _mut_type == INS_HT );
   *pos1    = _pos[0];
@@ -937,7 +937,7 @@ void Mutation::get_sequence_ins_HT( char* seq ) const
   seq[_length[0]] = '\0';
 }
 
-void Mutation::get_infos_repl_HT( int32_t* pos1, int32_t* pos2, int32_t* pos3, int32_t* pos4, ae_sense* sense, int32_t* length ) const
+void Mutation::get_infos_repl_HT( int32_t* pos1, int32_t* pos2, int32_t* pos3, int32_t* pos4, AlignmentSense * sense, int32_t* length ) const
 {
   assert( _mut_type == REPL_HT );
   *pos1    = _pos[0];

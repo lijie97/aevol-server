@@ -199,7 +199,7 @@ int main(int argc, char* argv[])
   bool start_to_record_tree = false;
   bool set_tree_step = false;
   int32_t tree_step = 100;
-  ae_tree_mode tree_mode = NORMAL;
+  TreeMode tree_mode = NORMAL;
   
   ParameterLine* line;
   int32_t cur_line = 0;
@@ -221,7 +221,7 @@ int main(int argc, char* argv[])
 //      env_axis_segment_boundaries[env_axis_nb_segments] = X_MAX;
 //
 //      // Set segment features
-//      ae_env_axis_feature* env_axis_features = new ae_env_axis_feature[env_axis_nb_segments];
+//      PhenotypicFeature* env_axis_features = new PhenotypicFeature[env_axis_nb_segments];
 //      for (int16_t i = 0 ; i < env_axis_nb_segments ; i++)
 //      {
 //        if (strcmp(line->words[2*i+1], "NEUTRAL") == 0)

@@ -68,7 +68,7 @@ class Rna
     Rna(void) = delete;
     Rna(const GeneticUnit&) = delete;
     Rna( GeneticUnit* gen_unit, const Rna &model );
-    Rna( GeneticUnit* gen_unit, ae_strand strand, int32_t index, int8_t diff );
+    Rna( GeneticUnit* gen_unit, Strand strand, int32_t index, int8_t diff );
     //Rna( Rna* parent );
 
     // =================================================================
@@ -87,8 +87,8 @@ class Rna
 
     inline const GeneticUnit * get_genetic_unit(void) const;
     inline void set_genetic_unit(const GeneticUnit*  gen_unit);
-    inline ae_strand  get_strand( void ) const;
-    inline void       set_strand( ae_strand strand );
+    inline Strand get_strand( void ) const;
+    inline void       set_strand( Strand strand );
     inline int32_t    get_promoter_pos( void ) const;
     inline void       set_promoter_pos( int32_t pos );
     inline double     get_basal_level( void ) const;
@@ -128,7 +128,7 @@ class Rna
     //                          Protected Attributes
     // =================================================================
     const GeneticUnit*  _gen_unit;
-    ae_strand         _strand;
+    Strand _strand;
     int32_t           _pos; // Index of the promoter on the genome.
                             // The promoter itself is NOT transcribed
                             // The terminator is transcribed.
@@ -152,12 +152,12 @@ inline void Rna::set_genetic_unit(const GeneticUnit*  gen_unit)
   _gen_unit = gen_unit;
 }
 
-inline ae_strand Rna::get_strand( void ) const
+inline Strand Rna::get_strand( void ) const
 {
   return _strand;
 }
 
-inline void Rna::set_strand( ae_strand strand )
+inline void Rna::set_strand( Strand strand )
 {
   _strand = strand;
 }

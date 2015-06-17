@@ -465,7 +465,7 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
 
       int32_t genlen = lengthOfGeneticUnit; // in bp
       int32_t pos0 = -1, pos1 = -1, pos2 = -1, pos2bis = -1, pos3 = -1, mutlength = -1;
-      // int32_t pos1donor = -1, pos2donor = -1, pos3donor = -1;  ae_sense sense = DIRECT;  // related to transfer (TO DO)
+      // int32_t pos1donor = -1, pos2donor = -1, pos3donor = -1;  AlignmentSense sense = DIRECT;  // related to transfer (TO DO)
       bool invert = false;
       MutationType type = mut->get_mut_type();
       switch(type)

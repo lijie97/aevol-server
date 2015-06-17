@@ -87,7 +87,7 @@ class Alignment
 
     static bool with_alignments;
 
-    static ae_align_fun_shape align_fun_shape;
+    static AlignmentFunctionShape align_fun_shape;
     
     static double  align_sigm_lambda;
     static int16_t align_sigm_mean;

@@ -103,7 +103,7 @@ class Dna : public ae_string
     inline GeneticUnit*   get_genetic_unit(void) const;
     inline Individual * get_indiv(void) const;
 
-    char* get_subsequence(int32_t from, int32_t to, ae_strand strand) const; // WARNING : creates a new char[...] (up to you to delete it!)
+    char* get_subsequence(int32_t from, int32_t to, Strand strand) const; // WARNING : creates a new char[...] (up to you to delete it!)
 
 
     // =================================================================
@@ -161,8 +161,8 @@ class Dna : public ae_string
     GeneticUnit*  copy_into_new_GU(int32_t pos_1, int32_t pos_2) const;
     void insert_GU(GeneticUnit* GU_to_insert, int32_t pos_B, int32_t pos_D, bool invert);
 
-    VisAVis * search_alignment(Dna * chrom2, int32_t& nb_pairs, ae_sense sense);
-    VisAVis * search_alignment_around_positions(Dna * chrom2, int32_t chrom1_pos_1, int32_t chrom1_pos_2, ae_sense sense, int8_t& research_sense);
+    VisAVis * search_alignment(Dna * chrom2, int32_t& nb_pairs, AlignmentSense sense);
+    VisAVis * search_alignment_around_positions(Dna * chrom2, int32_t chrom1_pos_1, int32_t chrom1_pos_2, AlignmentSense sense, int8_t& research_sense);
 
     void undergo_this_mutation(const Mutation * mut); // useful when we replay the evolution
 

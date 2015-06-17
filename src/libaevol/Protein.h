@@ -73,7 +73,7 @@ class Protein
     Protein( GeneticUnit* gen_unit, const Protein &model );
     Protein(GeneticUnit* gen_unit,
                const std::list<Codon *> codon_list,
-               ae_strand strand,
+               Strand strand,
                int32_t shine_dal,
                Rna * rna );
     //Protein( Protein* parent );
@@ -86,7 +86,7 @@ class Protein
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline ae_strand          get_strand( void )                const;
+    inline Strand get_strand( void )                const;
     inline const std::list<Rna *> get_rna_list()          const;
     inline int32_t            get_shine_dal_pos( void )         const;
     inline int32_t            get_first_translated_pos( void )  const;
@@ -125,7 +125,7 @@ class Protein
     //                          Protected Attributes
     // =================================================================
     GeneticUnit*  _gen_unit;
-    ae_strand         _strand;
+    Strand _strand;
     std::list<Rna *> rna_list;              // RNAs transcribing this protein
     int32_t           _shine_dal_pos;         // Index of the corresponding shine dalgarno sequence in the genome
     int32_t           _first_translated_pos;  // Index of the first base following the START codon
@@ -146,7 +146,7 @@ class Protein
 // =====================================================================
 //                          Accessors definitions
 // =====================================================================
-inline ae_strand Protein::get_strand( void ) const
+inline Strand Protein::get_strand( void ) const
 {
   return _strand;
 }

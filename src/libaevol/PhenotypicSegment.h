@@ -60,7 +60,7 @@ class PhenotypicSegment
     //                             Constructors
     // =================================================================
     PhenotypicSegment() = delete;
-    inline PhenotypicSegment(double start, double stop, ae_env_axis_feature feature);
+    inline PhenotypicSegment(double start, double stop, PhenotypicFeature feature);
     inline PhenotypicSegment(const PhenotypicSegment & source);
     inline PhenotypicSegment(gzFile backup_file);
   
@@ -84,7 +84,7 @@ class PhenotypicSegment
     // =================================================================
     double start;
     double stop;
-    ae_env_axis_feature feature;
+    PhenotypicFeature feature;
   
   
   
@@ -119,7 +119,7 @@ class PhenotypicSegment
   //~ feature = NEUTRAL;
 //~ }
 
-inline PhenotypicSegment::PhenotypicSegment(double start, double stop, ae_env_axis_feature feature)
+inline PhenotypicSegment::PhenotypicSegment(double start, double stop, PhenotypicFeature feature)
 {
   this->start   = start;
   this->stop    = stop;
@@ -166,7 +166,7 @@ inline void PhenotypicSegment::load(gzFile backup_file)
   gzread(backup_file, &stop,   sizeof(stop));
   int8_t tmp_feature;
   gzread(backup_file, &tmp_feature, sizeof(tmp_feature));
-  feature = (ae_env_axis_feature) tmp_feature;
+  feature = (PhenotypicFeature) tmp_feature;
 }
 
 // =================================================================

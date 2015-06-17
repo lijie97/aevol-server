@@ -71,7 +71,7 @@ class Codon
     Codon( void );
     Codon( const Codon &model );
     Codon( int8_t value );
-    Codon( Dna * genome, ae_strand strand, int32_t index );
+    Codon( Dna * genome, Strand strand, int32_t index );
     Codon( gzFile backup_file );
 
     // =================================================================

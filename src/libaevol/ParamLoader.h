@@ -141,17 +141,17 @@ class ParamLoader
   /// x-axis segment boundaries (sorted -- including MIN_X and MAX_X)
   double* _env_axis_segment_boundaries;
   /// x-axis segment features
-  ae_env_axis_feature* _env_axis_features;
+  PhenotypicFeature * _env_axis_features;
   /// Whether to automatically separate segments
   bool _env_axis_separate_segments;
 
   // ---------------------------------------------- Phenotypic target variation
-  ae_env_var  _env_var_method;
+  PhenotypicTargetVariationMethod _env_var_method;
   double      _env_var_sigma;
   int32_t     _env_var_tau;
 
   // -------------------------------------------------- Phenotypic target noise
-  ae_env_noise _env_noise_method;   // Method... TODO
+  PhenotypicTargetNoiseMethod _env_noise_method;   // Method... TODO
   double  _env_noise_alpha;         // Alpha value (variance coefficient)
   double  _env_noise_sigma;         // Variance of the noise
   double  _env_noise_prob;          // Probability of variation.
@@ -186,7 +186,7 @@ class ParamLoader
   double _inversion_proportion;
 
   // ------------------------------------------------------------ Alignements
-  ae_align_fun_shape _align_fun_shape;
+  AlignmentFunctionShape _align_fun_shape;
   double  _align_sigm_lambda;
   int16_t _align_sigm_mean;
   int16_t _align_lin_min;
@@ -201,7 +201,7 @@ class ParamLoader
   bool _with_stochasticity;
 
   // -------------------------------------------------------------- Selection
-  ae_selection_scheme  _selection_scheme;
+  SelectionScheme _selection_scheme;
   double               _selection_pressure;
 
   // ------------------------------------------------------ Spatial structure
@@ -258,7 +258,7 @@ class ParamLoader
   // Tree
   bool         _record_tree;
   int32_t      _tree_step;
-  ae_tree_mode _tree_mode;
+  TreeMode _tree_mode;
 
   // Dumps // TODO : explain
   bool    _make_dumps;
