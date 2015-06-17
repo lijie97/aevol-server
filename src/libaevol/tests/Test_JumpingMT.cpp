@@ -36,7 +36,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "Test_ae_jumping_mt.h"
+#include "Test_JumpingMT.h"
 
 namespace aevol {
 
@@ -49,10 +49,10 @@ namespace aevol {
 
 //############################################################################
 //                                                                           #
-//                         Class Test_ae_jumping_mt                          #
+//                         Class Test_JumpingMT                          #
 //                                                                           #
 //############################################################################
-CPPUNIT_TEST_SUITE_REGISTRATION( Test_ae_jumping_mt );
+CPPUNIT_TEST_SUITE_REGISTRATION( Test_JumpingMT );
 
 // ===========================================================================
 //                               Static attributes
@@ -61,14 +61,14 @@ CPPUNIT_TEST_SUITE_REGISTRATION( Test_ae_jumping_mt );
 // ===========================================================================
 //                                  Constructors
 // ===========================================================================
-Test_ae_jumping_mt::Test_ae_jumping_mt( void )
+Test_JumpingMT::Test_JumpingMT( void )
 {
 }
 
 // ===========================================================================
 //                                  Destructors
 // ===========================================================================
-Test_ae_jumping_mt::~Test_ae_jumping_mt( void )
+Test_JumpingMT::~Test_JumpingMT( void )
 {
 }
 
@@ -79,19 +79,19 @@ Test_ae_jumping_mt::~Test_ae_jumping_mt( void )
 // ===========================================================================
 //                                 Public Methods
 // ===========================================================================
-void Test_ae_jumping_mt::setUp( void )
+void Test_JumpingMT::setUp( void )
 {
-  obj1 = new ae_jumping_mt( 56873 );
-  obj2 = new ae_jumping_mt( *obj1 );
+  obj1 = new JumpingMT( 56873 );
+  obj2 = new JumpingMT( *obj1 );
 }
 
-void Test_ae_jumping_mt::tearDown( void )
+void Test_JumpingMT::tearDown( void )
 {
   delete obj1;
   delete obj2;
 }
 
-void Test_ae_jumping_mt::test1( void )
+void Test_JumpingMT::test1( void )
 {
   for ( int i = 0 ; i < 10 ; i++ )
   {
@@ -108,7 +108,7 @@ void Test_ae_jumping_mt::test1( void )
   CPPUNIT_ASSERT( obj1->gaussian_random() == obj2->gaussian_random() );
 }
 
-void Test_ae_jumping_mt::test2( void )
+void Test_JumpingMT::test2( void )
 {
   CPPUNIT_ASSERT( true );
 }

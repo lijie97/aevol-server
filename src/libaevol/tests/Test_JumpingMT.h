@@ -42,7 +42,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_jumping_mt.h"
+#include "JumpingMT.h"
 
 namespace aevol {
 
@@ -57,9 +57,9 @@ using namespace std;
 
 
 
-class Test_ae_jumping_mt : public TestFixture
+class Test_JumpingMT : public TestFixture
 {
-  CPPUNIT_TEST_SUITE( Test_ae_jumping_mt );
+  CPPUNIT_TEST_SUITE( Test_JumpingMT );
   CPPUNIT_TEST( test1 );
   CPPUNIT_TEST( test2 );
   CPPUNIT_TEST_SUITE_END();
@@ -74,12 +74,12 @@ class Test_ae_jumping_mt : public TestFixture
     // =======================================================================
     //                               Constructors
     // =======================================================================
-    Test_ae_jumping_mt( void );
+    Test_JumpingMT( void );
 
     // =======================================================================
     //                               Destructors
     // =======================================================================
-    virtual ~Test_ae_jumping_mt( void );
+    virtual ~Test_JumpingMT( void );
 
     // =======================================================================
     //                            Accessors: getters
@@ -112,12 +112,12 @@ class Test_ae_jumping_mt : public TestFixture
     // =======================================================================
     //                            Forbidden Constructors
     // =======================================================================
-    /*Test_ae_jumping_mt( void )
+    /*Test_JumpingMT( void )
     {
       printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
     };
-    Test_ae_jumping_mt( const Test_ae_jumping_mt &model )
+    Test_JumpingMT( const Test_JumpingMT &model )
     {
       printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
@@ -131,8 +131,8 @@ class Test_ae_jumping_mt : public TestFixture
     // =======================================================================
     //                             Protected Attributes
     // =======================================================================
-    ae_jumping_mt* obj1;
-    ae_jumping_mt* obj2;
+    JumpingMT* obj1;
+    JumpingMT* obj2;
 };
 
 

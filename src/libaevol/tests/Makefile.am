@@ -42,8 +42,8 @@ TESTS = $(check_PROGRAMS)
 
 run_tests_SOURCES = \
 	run_tests.cpp \
-	Test_ae_jumping_mt.h \
-	Test_ae_jumping_mt.cpp
+	Test_JumpingMT.h \
+	Test_JumpingMT.cpp
 run_tests_CPPFLAGS = $(AM_CPPFLAGS)
 
 
