@@ -247,6 +247,7 @@ void ExpManager::save_copy(char* dir, int32_t num_gener /*= 0*/) const
 /*!
   \brief Load an experiment with the provided files
  */
+// TODO <david.parsons@inria.fr> check verbose (what doas it do ?, is it consistent ?)
 void ExpManager::load(gzFile& exp_s_file,
                           gzFile& exp_backup_file,
                           gzFile& world_file,
@@ -278,6 +279,7 @@ void ExpManager::load(gzFile& exp_s_file,
 /*!
   \brief Load an experiment with default files from a given directory
  */
+// TODO <david.parsons@inria.fr> check verbose (what doas it do ?, is it consistent ?)
 void ExpManager::load(const char* dir,
     int64_t t0, bool verbose, bool to_be_run /*  = true */)
 {
@@ -317,6 +319,7 @@ void ExpManager::load(const char* dir,
 /**
  * \brief Load an experiment with the provided constitutive files
  */
+// TODO <david.parsons@inria.fr> check verbose (what doas it do ?, is it consistent ?)
 void ExpManager::load(int64_t t0,
                           char* exp_setup_file_name,
                           char* exp_backup_file_name,
