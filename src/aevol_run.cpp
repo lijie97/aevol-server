@@ -208,7 +208,7 @@ int main( int argc, char* argv[] )
     exp_manager = new ExpManager();
   #endif
   
-  exp_manager->load(num_gener, false, verbose);
+  exp_manager->load(num_gener, verbose, true);
   exp_manager->set_t_end(nb_gener);
   
  
