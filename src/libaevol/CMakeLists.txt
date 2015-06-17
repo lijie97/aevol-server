@@ -19,6 +19,7 @@ include_directories(".")
 # Add targets add their dependencies
 # ============================================================================
 add_library(aevol
+  aevol.h
   Alignment.cpp
   Alignment.h
   Codon.cpp
