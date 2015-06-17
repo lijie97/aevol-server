@@ -186,17 +186,9 @@ int main( int argc, char* argv[] )
   ExpManager* exp_manager = new ExpManager();
   exp_manager->load(num_gener, true, false);
 
-  // WRONG WRONG WRONG WRONG WRONG 
-  // WRONG WRONG WRONG WRONG WRONG
-  // WRONG WRONG WRONG WRONG WRONG
-  // vvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-
-  // int gridx = 0;
-  // int gridy = 0; // TODO vld: should it be read? In this case should be written beforehand.
-
   if (indiv_index == -1 && indiv_rank == -1)
   {
-    indiv = new Individual(*exp_manager->get_best_indiv(), false);
+    indiv = exp_manager->get_best_indiv();
   }
   else
   {
@@ -282,7 +274,6 @@ int main( int argc, char* argv[] )
 
 
 
-  delete indiv;
   delete exp_manager;
 
   return EXIT_SUCCESS;
