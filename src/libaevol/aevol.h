@@ -58,7 +58,7 @@
 #include "macros.h"
 #include "Mutation.h"
 #include "MutationParams.h"
-#include "non_coding_stats.h"
+#include "NonCodingStats.h"
 #include "OutputManager.h"
 #include "ParamLoader.h"
 #include "Phenotype.h"

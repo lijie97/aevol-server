@@ -48,7 +48,7 @@ namespace aevol {
 
 
 
-
+// TODO <david.parsons@inria.fr> Not used ?
 class NonCodingStats
 {
   friend Individual;

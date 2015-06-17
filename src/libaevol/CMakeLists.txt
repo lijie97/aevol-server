@@ -98,7 +98,7 @@ add_library(aevol
   Fuzzy.h
   indiv_stats.h
   macros.h
-  non_coding_stats.h
+  NonCodingStats.h
   ParamLoader.cpp
   ParamLoader.h
   PhenotypicTargetHandler.cpp

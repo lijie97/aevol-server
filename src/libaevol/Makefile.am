@@ -56,6 +56,7 @@ DnaReplicationReport.h \
 Rna.h \
 Stats.h \
 StatRecord.h \
+NonCodingStats.h \
 ae_string.h \
 Tree.h \
 ae_utils.h \
