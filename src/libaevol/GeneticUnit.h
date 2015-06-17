@@ -92,9 +92,7 @@ class GeneticUnit
   Fuzzy*    get_inhib_contribution( void )      const;
   Fuzzy*    get_phenotypic_contribution( void ) const;
 
-  // TODO: re constify
-  // TODO return as reference
-  /*const*/ Promoters2Strands get_rna_list() const;
+  const Promoters2Strands& get_rna_list() const;
   // TODO return as reference
   std::list<Protein>& get_protein_list(ae_strand strand);
   void clear_protein_list(ae_strand strand);

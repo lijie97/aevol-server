@@ -86,7 +86,7 @@ Dna * GeneticUnit::get_dna(void) const
   return _dna;
 }
 
-Promoters2Strands GeneticUnit::get_rna_list() const {
+const Promoters2Strands& GeneticUnit::get_rna_list() const {
   return _rna_list;
 }
 
