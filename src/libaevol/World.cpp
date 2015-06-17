@@ -301,8 +301,8 @@ void World::save(gzFile backup_file) const
 
 void World::load(gzFile backup_file, ExpManager * exp_man)
 {
+  // Retrieve PRNGs
   _prng = std::make_shared<JumpingMT>(backup_file);
-
   _mut_prng = std::make_shared<JumpingMT>(backup_file);
 
   int8_t tmp_with_stoch;
@@ -331,8 +331,8 @@ void World::load(gzFile backup_file, ExpManager * exp_man)
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++)
       grid_[x][y] = new GridCell(backup_file,
-                                     exp_man,
-                                     phenotypic_target_handler_);
+                                 exp_man,
+                                 phenotypic_target_handler_);
 
   gzread(backup_file, &x_best, sizeof(x_best));
   gzread(backup_file, &y_best, sizeof(y_best));

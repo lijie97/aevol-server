@@ -135,7 +135,7 @@ class Individual
   double           get_dist_to_target_by_feature(ae_env_axis_feature feature) const;
   double           get_fitness() const;
   double           get_fitness_by_feature(ae_env_axis_feature feature) const;
-  GridCell *    get_grid_cell() const;
+  GridCell* get_grid_cell() const;
   bool             get_placed_in_population() const;
   std::shared_ptr<JumpingMT> get_mut_prng() const;
   std::shared_ptr<JumpingMT> get_stoch_prng() const;
