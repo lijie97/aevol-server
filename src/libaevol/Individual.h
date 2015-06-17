@@ -56,7 +56,7 @@
 #include "MutationParams.h"
 #include "Fuzzy.h"
 #include "PhenotypicTarget.h"
-#include "habitat.h"
+#include "Habitat.h"
 
 
 namespace aevol {

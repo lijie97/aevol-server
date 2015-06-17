@@ -66,7 +66,7 @@ Selection.h \
 GeneTree.h \
 GeneTreeNode.h \
 GeneMutation.h \
-habitat.h \
+Habitat.h \
 ParamLoader.h \
 ParameterLine.h \
 Time.h \
@@ -105,7 +105,7 @@ GeneTree.cpp \
 GeneTreeNode.cpp \
 GeneMutation.cpp \
 Fuzzy.cpp \
-habitat.cpp \
+Habitat.cpp \
 ParamLoader.cpp \
 ParameterLine.cpp \
 Time.cpp \

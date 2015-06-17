@@ -47,7 +47,7 @@
 #include "GeneTree.h"
 #include "GeneTreeNode.h"
 #include "GridCell.h"
-#include "habitat.h"
+#include "Habitat.h"
 #include "IndividualFactory.h"
 #include "Individual.h"
 #include "Individual_X11.h"

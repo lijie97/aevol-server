@@ -45,7 +45,7 @@
 //                            Project Files
 // =================================================================
 #include "Individual.h"
-#include "habitat.h"
+#include "Habitat.h"
 
 namespace aevol {
 

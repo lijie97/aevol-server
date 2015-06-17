@@ -49,7 +49,7 @@
 #include "ae_enums.h"
 #include "Gaussian.h"
 #include "Point.h"
-#include "habitat.h"
+#include "Habitat.h"
 
 namespace aevol {
 // =================================================================

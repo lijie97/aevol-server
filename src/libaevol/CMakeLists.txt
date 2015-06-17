@@ -45,8 +45,8 @@ add_library(aevol
   GeneTreeNode.h
   GeneticUnit.cpp
   GeneticUnit.h
-  habitat.cpp
-  habitat.h
+  Habitat.cpp
+  Habitat.h
   GridCell.cpp
   GridCell.h
   Individual.cpp
