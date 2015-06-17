@@ -708,6 +708,11 @@ GridCell *Individual::get_grid_cell() const {
 }
 
 /// TODO
+const Habitat& Individual::habitat() const {
+  return _grid_cell->habitat();
+}
+
+/// TODO
 bool Individual::get_placed_in_population () const {
   return _placed_in_population;
 }

@@ -97,8 +97,10 @@ using namespace aevol;
 void print_help(char* prog_path);
 void print_version( void );
 
-void analyse_indiv( ae_individual* indiv, FILE* triangles_file, FILE* sequence_file, int16_t gu, Environment* env );
-void analyse_gu( GeneticUnit* gen_unit, int32_t gen_unit_number, FILE* triangles_file, Environment* env );
+void analyse_indiv(Individual* indiv, FILE* triangles_file, FILE* sequence_file,
+                   int16_t gu, const PhenotypicTarget& phenotypicTarget);
+void analyse_gu(GeneticUnit* gen_unit, int32_t gen_unit_number,
+                FILE* triangles_file, const PhenotypicTarget& phenotypicTarget);
 
 
 
@@ -114,11 +116,10 @@ int main( int argc, char* argv[] )
   int32_t num_gener = -1;
 
   // Define allowed options
-  const char * options_list = "hVp:r:t:s:bg:";
+  const char * options_list = "hVr:t:s:bg:";
   static struct option long_options_list[] = {
     {"help",      no_argument,        NULL, 'h'},
     {"version",   no_argument,        NULL, 'V'},
-    {"popfile",   required_argument,  NULL, 'p'},
     {"resume",    required_argument,  NULL, 'r'},
     {"triangles", required_argument,  NULL, 't'},
     {"sequence",  required_argument,  NULL, 's'},
@@ -143,10 +144,6 @@ int main( int argc, char* argv[] )
         print_version();
         exit( EXIT_SUCCESS );
       }
-      case 'p' :
-        pop_file_name = new char[strlen(optarg) + 1];
-        sprintf( pop_file_name, "%s", optarg );
-        break;
       case 'r':
         num_gener = atol( optarg );
         break;
@@ -180,36 +177,9 @@ int main( int argc, char* argv[] )
     sequence_file = fopen(sequence_file_name,"w");
   }
 
-  ae_population* pop = NULL;
-  Environment* env = NULL;
-  ae_exp_manager* exp_manager = new ae_exp_manager();
+  auto exp_manager = new ExpManager();
+  exp_manager->load(num_gener, false, false);
 
-  // Two possible sources: either the user provided a "full" simulation via a generation number (option '-r'), either he just provided a population file (option '-p').
-  if ( num_gener != -1 )
-  {
-    exp_manager->load(num_gener, false, false);
-    env = exp_manager->get_env();
-  }
-  else
-  {
-    if ( pop_file_name == NULL )
-    {
-      printf("You must specify either a generation number or a source population file");
-      exit(EXIT_FAILURE);
-    }
-
-    // Load the simulation from population file
-    pop = new ae_population(exp_manager);
-
-    gzFile pop_file = gzopen( pop_file_name, "r" );
-    if ( pop_file == Z_NULL )
-    {
-      printf( "%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, pop_file_name );
-      exit( EXIT_FAILURE );
-    }
-    pop->load( pop_file, false );
-    gzclose( pop_file );
-  }
 
   // The best individual is already known because it is the last in the list
   // Thus we do not need to know anything about the environment and to evaluate the individuals
@@ -217,15 +187,15 @@ int main( int argc, char* argv[] )
   // Parse the individuals
   if (best_only)
   {
-    ae_individual* best = pop->get_best();
+    Individual* best = exp_manager->get_best_indiv();
     best->do_transcription_translation_folding(); // We need to recompute proteins if not already done (ie if using a population file and not a full backup)
-    analyse_indiv(best, triangles_file, sequence_file, gu, env);
+    analyse_indiv(best, triangles_file, sequence_file, gu, best->habitat().phenotypic_target());
   }
   else
   {
-    for (const auto& indiv: pop->get_indivs()) {
+    for (const auto& indiv: exp_manager->get_indivs()) {
       indiv->do_transcription_translation_folding(); // We need to recompute proteins if not already done (ie if using a population file and not a full backup)
-      analyse_indiv(indiv, triangles_file, sequence_file, gu, env);
+      analyse_indiv(indiv, triangles_file, sequence_file, gu, indiv->habitat().phenotypic_target());
     }
   }
 
@@ -243,13 +213,14 @@ int main( int argc, char* argv[] )
   if (sequence_file_name != NULL) {delete [] sequence_file_name;}
 
   delete exp_manager;
-  if ((num_gener == -1)&&(pop!=NULL)) {delete pop;}
 
   return EXIT_SUCCESS;
 }
 
 // Parsing an individual
-inline void analyse_indiv( ae_individual* indiv, FILE* triangles_file, FILE* sequence_file, int16_t gu, Environment* env )
+inline void analyse_indiv(Individual* indiv, FILE* triangles_file,
+                          FILE* sequence_file, int16_t gu,
+                          const PhenotypicTarget & phenotypicTarget)
 {
   if ( gu == -1 ) // We want to treat all genetic units
   {
@@ -257,7 +228,7 @@ inline void analyse_indiv( ae_individual* indiv, FILE* triangles_file, FILE* seq
     for (auto& gen_unit: indiv->get_genetic_unit_list_nonconst()) {
       if ( triangles_file != NULL )
       {
-        analyse_gu(&gen_unit, gen_unit_number, triangles_file, env); // We call the triangle parser for each GU successively
+        analyse_gu(&gen_unit, gen_unit_number, triangles_file, phenotypicTarget); // We call the triangle parser for each GU successively
       }
       if ( sequence_file != NULL )
       {
@@ -274,7 +245,7 @@ inline void analyse_indiv( ae_individual* indiv, FILE* triangles_file, FILE* seq
     GeneticUnit* gen_unit = &indiv->get_genetic_unit_nonconst(gu);
     if ( triangles_file != NULL )
     {
-      analyse_gu(gen_unit, gu, triangles_file, env); // We call the triangle parser
+      analyse_gu(gen_unit, gu, triangles_file, phenotypicTarget); // We call the triangle parser
     }
     if ( sequence_file != NULL )
     {
@@ -296,7 +267,9 @@ inline void analyse_indiv( ae_individual* indiv, FILE* triangles_file, FILE* seq
 }
 
 // Parsing a GU
-inline void analyse_gu( GeneticUnit* gen_unit, int32_t gen_unit_number, FILE* triangles_file, Environment* env )
+inline void analyse_gu(GeneticUnit* gen_unit, int32_t gen_unit_number,
+                       FILE* triangles_file,
+                       const PhenotypicTarget& phenotypicTarget)
 {
   // Construct the list of all rnas
   auto llrnas = gen_unit->get_rna_list();
@@ -315,13 +288,13 @@ inline void analyse_gu( GeneticUnit* gen_unit, int32_t gen_unit_number, FILE* tr
       int32_t lpos = protein->get_last_translated_pos();
 
       int nfeat = -1;
+
       // Retrieving the feature of the protein also necessitates the an environment file.
-      if ( env != NULL )
-        for (size_t i = 0; i <= env->get_nb_segments() - 1; ++i)
-          if ((mean > env->get_segment_boundaries(i)) and (mean < env->get_segment_boundaries(i+1))) {
-            nfeat = env->get_axis_feature(i);
-            break;
-          }
+      for (size_t i = 0; i <= phenotypicTarget.nb_segments() - 1; ++i)
+        if ((mean > phenotypicTarget.segments()[i]->start) and (mean < phenotypicTarget.segments()[i]->stop)) {
+          nfeat = phenotypicTarget.segments()[i]->feature;
+          break;
+        }
 
       fprintf(triangles_file,
               "%f_%f_%f_%f_%d_%d_%i_%i_%d_%d ",
