@@ -53,7 +53,7 @@
 #include "JumpingMT.h"
 #include "Gaussian.h"
 #include "PhenotypicSegment.h"
-#include "point.h"
+#include "Point.h"
 #include "Alignment.h"
 #include "World.h"
 

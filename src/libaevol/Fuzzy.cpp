@@ -32,7 +32,7 @@
 #include <iostream>
 #include <algorithm>
 
-#include "point.h"
+#include "Point.h"
 #include "macros.h"
 
 using std::list;

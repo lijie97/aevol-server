@@ -24,7 +24,7 @@
 #include <list>
 
 #include "macros.h"
-#include "point.h"
+#include "Point.h"
 
 namespace aevol {
 

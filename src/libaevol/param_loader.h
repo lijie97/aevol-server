@@ -48,7 +48,7 @@
 #include "macros.h"
 #include "ae_enums.h"
 #include "Gaussian.h"
-#include "point.h"
+#include "Point.h"
 #include "habitat.h"
 
 namespace aevol {

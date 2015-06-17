@@ -47,7 +47,7 @@ MutationParams.h \
 Phenotype.h \
 PhenotypicTarget.h \
 PhenotypicTargetHandler.h \
-point.h \
+Point.h \
 Protein.h \
 JumpingMT.h \
 JumpPoly.h \
@@ -87,7 +87,7 @@ OutputManager.cpp \
 MutationParams.cpp \
 PhenotypicTarget.cpp \
 PhenotypicTargetHandler.cpp \
-point.cpp \
+Point.cpp \
 Protein.cpp \
 JumpingMT.cpp \
 ReplicationReport.cpp \

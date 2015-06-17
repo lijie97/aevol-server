@@ -42,7 +42,7 @@
 // =================================================================
 #include "ExpManager_X11.h"
 #include "World.h"
-#include "point.h"
+#include "Point.h"
 #include "Individual_X11.h"
 #include "X11Window.h"
 #include "Fuzzy.h"
