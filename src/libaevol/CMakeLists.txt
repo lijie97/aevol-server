@@ -66,7 +66,7 @@ add_library(aevol
   OutputManager.h
   MutationParams.cpp
   MutationParams.h
-  phenotype.h
+  Phenotype.h
   Protein.cpp
   Protein.h
   MersenneTwister.cpp

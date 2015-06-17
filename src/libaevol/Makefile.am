@@ -44,7 +44,7 @@ macros.h \
 Mutation.h \
 OutputManager.h \
 MutationParams.h \
-phenotype.h \
+Phenotype.h \
 phenotypic_target.h \
 phenotypic_target_handler.h \
 point.h \

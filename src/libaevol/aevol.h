@@ -61,7 +61,7 @@
 #include "non_coding_stats.h"
 #include "OutputManager.h"
 #include "param_loader.h"
-#include "phenotype.h"
+#include "Phenotype.h"
 #include "PhenotypicSegment.h"
 #include "phenotypic_target.h"
 #include "phenotypic_target_handler.h"

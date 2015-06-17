@@ -51,7 +51,7 @@
 #include "Dna.h"
 #include "Rna.h"
 #include "Protein.h"
-#include "phenotype.h"
+#include "Phenotype.h"
 #include "ReplicationReport.h"
 #include "MutationParams.h"
 #include "Fuzzy.h"
