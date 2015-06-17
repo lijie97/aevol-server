@@ -70,14 +70,14 @@ enum check_type
 void print_help(char* prog_path);
 void print_version( void );
 
-FILE* open_environment_stat_file( const char * prefix, const Environment * env );
-void write_environment_stats( int32_t t, const Environment * env, FILE* env_file);
+FILE* open_environment_stat_file( const char * prefix);
+void write_environment_stats( int32_t t, const Habitat* h, FILE* env_file);
 
 FILE* open_terminators_stat_file( const char * prefix );
 void write_terminators_stats( int32_t t,  ae_individual * indiv, FILE* terminator_file );
 
 FILE* open_zones_stat_file( const char * prefix );
-void write_zones_stats( int32_t t,  ae_individual * indiv, Environment * env, FILE* zone_file );
+void write_zones_stats( int32_t t,  ae_individual * indiv, Habitat* h, FILE* zone_file );
 
 FILE* open_operons_stat_file( const char * prefix );
 void write_operons_stats( int32_t t,  ae_individual * indiv, FILE* operon_file );
@@ -232,7 +232,9 @@ int main(int argc, char** argv)
   ae_exp_manager* exp_manager = new ae_exp_manager();
   
   exp_manager->load(t0, true, false);
-  Environment* env = new Environment(*(exp_manager->get_env())); // independent copy
+  // Environment* env = new Environment(*(exp_manager->get_env())); // independent copy
+  Habitat *h; // = ;
+  // exp_manager->InitializeWorld(x,y,
 
   int64_t backup_step = exp_manager->get_backup_step();
 
@@ -258,10 +260,10 @@ int main(int argc, char** argv)
   //mystats->write_headers();
 
   // Optional outputs
-  FILE* env_output_file = open_environment_stat_file(prefix, env);
+  FILE* env_output_file = open_environment_stat_file(prefix);
   FILE* term_output_file = open_terminators_stat_file(prefix);
   FILE* zones_output_file = NULL;
-  if(env->get_nb_segments() > 1)
+  if(h->phenotypic_target().nb_segments() > 1)
   {
     zones_output_file = open_zones_stat_file(prefix);
   }
@@ -271,8 +273,8 @@ int main(int argc, char** argv)
   // ==================================================
   //  Prepare the initial ancestor and write its stats
   // ==================================================
-  ae_individual * indiv = new ae_individual(exp_manager, lineage_file );
-  indiv->evaluate(env);
+  ae_individual *indiv = ae_individual::CreateIndividual(exp_manager, lineage_file );
+  indiv->Evaluate();
   indiv->compute_statistical_data();
   indiv->compute_non_coding();
 
@@ -280,11 +282,11 @@ int main(int argc, char** argv)
 
 
   // Optional outputs
-  write_environment_stats(t0, env, env_output_file);
+  write_environment_stats(t0, h, env_output_file);
   write_terminators_stats(t0, indiv, term_output_file);
-  if(env->get_nb_segments() > 1)
+  if(h->phenotypic_target().nb_segments() > 1)
   {
-    write_zones_stats( t0, indiv, env, zones_output_file );
+    write_zones_stats( t0, indiv, h, zones_output_file );
   }
   write_operons_stats( t0, indiv, operons_output_file );
 
@@ -309,7 +311,7 @@ int main(int argc, char** argv)
   int32_t index;
 
   ae_exp_manager* exp_manager_backup = NULL;
-  Environment* backup_env = NULL;
+  Habitat *backup_habitat = nullptr;
 
   bool check_now = false;
 
@@ -330,9 +332,10 @@ int main(int argc, char** argv)
             " (index %" PRId32 ")...", get_time(), index);
 
     // 1) Rebuild environment
-    env->build();
-    env->apply_variation();
-    indiv->reevaluate(env);
+    // TODO vld: re-enable following 2 lines with h replacing env ****************
+    // env->build();
+    // env->apply_variation();
+    indiv->reevaluate();
 
     // Check, and possibly update, the environment according to the backup files (update necessary if the env. was modified by aevol_modify at some point)
     if (ae_utils::mod(get_time(), backup_step) == 0)
@@ -340,8 +343,7 @@ int main(int argc, char** argv)
       char env_file_name[255];
       sprintf(env_file_name, "./" ENV_FNAME_FORMAT, get_time());
       gzFile env_file = gzopen(env_file_name, "r");
-      backup_env = new Environment();
-      backup_env->load( env_file );
+      backup_habitat = new Habitat(env_file, pth); // TODO vld: fix pth
 
       if ( ! env->is_identical_to(*backup_env, tolerance) )
       {
@@ -350,9 +352,9 @@ int main(int argc, char** argv)
         printf("         with tolerance of %lg\n", tolerance);
         printf("Replacing the replayed environment by the one stored in the backup.\n");
         delete env;
-        env = new Environment(*backup_env);
+        h = new Habitat(*backup_habitat);
       }
-      delete backup_env;
+      delete backup_habitat;
     }
 
 
@@ -452,11 +454,11 @@ int main(int argc, char** argv)
     mystats->write_statistics_of_this_indiv(indiv);
 
     // Optional outputs
-    write_environment_stats(get_time(), env, env_output_file);
+    write_environment_stats(get_time(), h, env_output_file);
     write_terminators_stats(get_time(), indiv, term_output_file);
-    if(env->get_nb_segments() > 1)
+    if(h->phenotypic_target().nb_segments() > 1)
     {
-      write_zones_stats(get_time(), indiv, env, zones_output_file);
+      write_zones_stats(get_time(), indiv, h, zones_output_file);
     }
     write_operons_stats(get_time(), indiv, operons_output_file);
 
@@ -475,27 +477,28 @@ int main(int argc, char** argv)
   }
 
   gzclose(lineage_file);
-  delete exp_manager;
-  delete mystats;
-  delete indiv;
-  delete env;
 
   // Optional outputs
   fclose( env_output_file );
   fclose( term_output_file );
-  if(env->get_nb_segments() > 1)
+  if(h->phenotypic_target().nb_segments() > 1)
   {
     fclose( zones_output_file );
   }
   fclose( operons_output_file );
 
+  delete exp_manager;
+  delete mystats;
+  delete indiv;
+  delete h;
+  
   exit(EXIT_SUCCESS);
 }
 
 
 
 
-FILE* open_environment_stat_file( const char * prefix, const Environment * env )
+FILE* open_environment_stat_file( const char * prefix)
 {
   // Open file
   char* env_output_file_name = new char[80];
@@ -504,24 +507,24 @@ FILE* open_environment_stat_file( const char * prefix, const Environment * env )
   delete env_output_file_name;
 
   // Write headers
-  if (env->gaussians_provided())
-    {
-      fprintf( env_output_file, "# Each line contains : Generation, and then, for each gaussian: M W H.\n" );
-    }
+  // TODO vld: was limited to "if environment->gaussians_provided"
+  // are gaussians always available now?
+  fprintf( env_output_file, "# Each line contains : Generation, and then, for each gaussian: M W H.\n" );
   fprintf( env_output_file, "#\n" );
 
   return env_output_file;
 }
 
 
-void write_environment_stats( int32_t t, const Environment * env, FILE*  env_output_file)
+void write_environment_stats( int32_t t, const Habitat *h, FILE*  env_output_file)
 {
   // Num gener
   fprintf( env_output_file, "%" PRId32, t );
 
-  if (env->gaussians_provided())
-    for (const ae_gaussian& g: env->get_gaussians())
-      fprintf(env_output_file, "     %.16f %.16f %.16f", g.get_mean(), g.get_width(), g.get_height());
+  // TODO vld: was limited to "if gaussians_provided"
+  // are gaussians always available now?
+  for (const ae_gaussian& g: h->phenotypic_target_handler->gaussians())
+    fprintf(env_output_file, "     %.16f %.16f %.16f", g.get_mean(), g.get_width(), g.get_height());
 
   fprintf( env_output_file, "\n" );
 }
@@ -575,13 +578,13 @@ FILE* open_zones_stat_file( const char * prefix  )
   return zones_output_file;
 }
 
-void write_zones_stats( int32_t t, ae_individual * indiv, Environment * env, FILE* zones_output_file )
+void write_zones_stats( int32_t t, ae_individual * indiv, Habitat *h, FILE* zones_output_file )
 {
-  assert( env->get_nb_segments() > 1 );
+  assert(h->phenotypic_target().nb_segments() > 1);
 
-  int16_t nb_segments = env->get_nb_segments();
+  int16_t nb_segments = h->phenotypic_target().nb_segments();
   int16_t num_segment = 0;
-  ae_env_segment** segments = env->get_segments();
+  ae_env_segment** segments = h->phenotypic_target()->segments();
 
   // Tables : index 0 for the 0 segment
   //                1 for the neutral segment

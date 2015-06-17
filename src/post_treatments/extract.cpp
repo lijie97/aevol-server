@@ -306,11 +306,11 @@ inline void analyse_gu( GeneticUnit* gen_unit, int32_t gen_unit_number, FILE* tr
   // Parse this list
   int rna_nb = 0;
   for (const auto& rna: lrnas) {
-    for (const auto& protein: rna->get_transcribed_proteins()) {
+    for (const auto& protein: rna.get_transcribed_proteins()) {
       double height = protein->get_height();
       double width = protein->get_width();
       double mean = protein->get_mean();
-      double concentration=rna->get_basal_level();
+      double concentration=rna.get_basal_level();
       int32_t fpos = protein->get_first_translated_pos();
       int32_t lpos = protein->get_last_translated_pos();
 
@@ -326,7 +326,7 @@ inline void analyse_gu( GeneticUnit* gen_unit, int32_t gen_unit_number, FILE* tr
       fprintf(triangles_file,
               "%f_%f_%f_%f_%d_%d_%i_%i_%d_%d ",
               mean, height, width, concentration,
-              rna_nb, rna->get_strand(),
+              rna_nb, rna.get_strand(),
               fpos, lpos,
               nfeat, gen_unit_number);
     }

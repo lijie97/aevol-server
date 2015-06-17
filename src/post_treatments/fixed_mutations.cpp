@@ -265,7 +265,7 @@ int main(int argc, char** argv)
   // ==============================
 
   ae_individual * indiv = new ae_individual(exp_manager, lineage_file );
-  indiv->evaluate( env );
+  indiv->evaluate(habitat);
   indiv->compute_statistical_data();
 
   if ( verbose )

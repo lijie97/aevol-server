@@ -61,8 +61,7 @@ int main( int argc, char* argv[] )
   }
 
   ae_exp_manager* exp_manager = new ae_exp_manager();
-  exp_manager->load( gener, false, true, false );
-  ae_population* pop = exp_manager->get_pop();
+  exp_manager->load(gener, true, false);
   // int32_t nb_indivs = exp_manager->get_nb_indivs();
 
   // Open output file and write the header
@@ -82,11 +81,11 @@ int main( int argc, char* argv[] )
 
   // Parse and treat the individuals
   if (!best_only){
-    for (ae_individual* indiv: pop->get_indivs())
+    for (ae_individual* indiv: exp_manager->world()->get_indivs())
       analyse_indiv(exp_manager, indiv, output, ndiv);
   }
   else{
-    ae_individual* indiv=pop->get_best();
+    ae_individual* indiv = exp_manager->world()->get_best_indiv();
     analyse_indiv(exp_manager, indiv, output, ndiv);
   }
 
