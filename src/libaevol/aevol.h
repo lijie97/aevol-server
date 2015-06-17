@@ -51,7 +51,7 @@
 #include "IndividualFactory.h"
 #include "Individual.h"
 #include "Individual_X11.h"
-#include "indiv_stats.h"
+#include "IndivStats.h"
 #include "JumpingMT.h"
 #include "JumpPoly.h"
 #include "Logging.h"

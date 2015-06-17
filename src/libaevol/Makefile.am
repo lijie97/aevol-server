@@ -57,6 +57,7 @@ Rna.h \
 Stats.h \
 StatRecord.h \
 NonCodingStats.h \
+IndivStats.h \
 ae_string.h \
 Tree.h \
 ae_utils.h \

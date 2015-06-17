@@ -45,7 +45,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "indiv_stats.h"
+#include "IndivStats.h"
 #include "NonCodingStats.h"
 #include "GeneticUnit.h"
 #include "Dna.h"

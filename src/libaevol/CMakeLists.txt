@@ -96,7 +96,7 @@ add_library(aevol
   ParameterLine.h
   Fuzzy.cpp
   Fuzzy.h
-  indiv_stats.h
+  IndivStats.h
   macros.h
   NonCodingStats.h
   ParamLoader.cpp
