@@ -87,7 +87,7 @@ add_library(aevol
   ae_string.h
   Tree.cpp
   Tree.h
-  ae_utils.h
+  Utils.h
   VisAVis.cpp
   VisAVis.h
   X11Window.cpp

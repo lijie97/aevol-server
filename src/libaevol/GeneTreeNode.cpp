@@ -491,7 +491,7 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
             mut->get_infos_duplication(&pos1, &pos2, &pos0);
             // pos2 is actually not included in the segment, the real end of the segment is pos2 - 1
             pos2bis = pos2;
-            pos2 = ae_utils::mod(pos2 - 1, genlen);
+            pos2 = Utils::mod(pos2 - 1, genlen);
             mutlength = mut->get_length();
             break;
           }
@@ -499,7 +499,7 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
           {
             mut->get_infos_deletion(&pos1, &pos2);
             pos2bis = pos2;
-            pos2 = ae_utils::mod(pos2 - 1, genlen);
+            pos2 = Utils::mod(pos2 - 1, genlen);
             mutlength = mut->get_length();
             break;
           }
@@ -507,7 +507,7 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
           {
             mut->get_infos_translocation(&pos1, &pos2, &pos3, &pos0, &invert); // TO DO: check whether the 4 positions are also in absolute coordinates when rearrangements with alignments
             pos2bis = pos2;
-            pos2 = ae_utils::mod(pos2 - 1, genlen);
+            pos2 = Utils::mod(pos2 - 1, genlen);
             mutlength = mut->get_length();
             break;
           }
@@ -515,7 +515,7 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
           {
             mut->get_infos_inversion(&pos1, &pos2);
             pos2bis = pos2;
-            pos2 = ae_utils::mod(pos2 - 1, genlen);
+            pos2 = Utils::mod(pos2 - 1, genlen);
             mutlength = mut->get_length();
             break;
           }
@@ -559,9 +559,9 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
                   position_furthest_prom = rna->get_promoter_pos();
                 }
           }
-          position_furthest_prom = ae_utils::mod(position_furthest_prom, genlen); // restore a positive value if necessary
+          position_furthest_prom = Utils::mod(position_furthest_prom, genlen); // restore a positive value if necessary
           first_upstream = position_furthest_prom;
-          last_upstream = ae_utils::mod(first_cds - 1, genlen);
+          last_upstream = Utils::mod(first_cds - 1, genlen);
         }
       else
         {
@@ -575,8 +575,8 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
                   position_furthest_prom = rna->get_promoter_pos();
                 }
           }
-          position_furthest_prom = ae_utils::mod(position_furthest_prom, genlen); // restore a value < genlen if necessary
-          first_upstream = ae_utils::mod(last_cds - 1, genlen);
+          position_furthest_prom = Utils::mod(position_furthest_prom, genlen); // restore a value < genlen if necessary
+          first_upstream = Utils::mod(last_cds - 1, genlen);
           last_upstream = position_furthest_prom;
         }
 
@@ -596,10 +596,10 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
             if (breakpoint_inside_segment(pos0, first_cds, last_cds)) _cds_possibly_modified = true;
             if (breakpoint_inside_segment(pos0, first_upstream, last_upstream)) _proms_possibly_modified = true;
 
-            if (_shine_dal_position >= pos0) _shine_dal_position = ae_utils::mod(_shine_dal_position + mutlength, genlen + mutlength);
+            if (_shine_dal_position >= pos0) _shine_dal_position = Utils::mod(_shine_dal_position + mutlength, genlen + mutlength);
             for (size_t i = 0; i < _nb_promoters; i++)
               {
-                if (_promoter_positions[i] >= pos0){ _promoter_positions[i] = ae_utils::mod(_promoter_positions[i] + mutlength, genlen + mutlength);}
+                if (_promoter_positions[i] >= pos0){ _promoter_positions[i] = Utils::mod(_promoter_positions[i] + mutlength, genlen + mutlength);}
               }
 
             break;
@@ -615,29 +615,29 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
               }
             else // mutlength > 1
               {
-                if (breakpoint_inside_segment(_protein_pointer->get_shine_dal_pos(), pos0, ae_utils::mod(pos0 + mutlength - 1, genlen))) _cds_completely_deleted = true;
+                if (breakpoint_inside_segment(_protein_pointer->get_shine_dal_pos(), pos0, Utils::mod(pos0 + mutlength - 1, genlen))) _cds_completely_deleted = true;
               }
 
             if (!(_cds_completely_deleted))
               {
-                if (breakpoint_inside_segment(pos0, ae_utils::mod(first_cds - mutlength, genlen), last_cds)) _cds_possibly_modified = true;
-                if (breakpoint_inside_segment(pos0, ae_utils::mod(first_upstream - mutlength, genlen), last_upstream)) _proms_possibly_modified = true;
+                if (breakpoint_inside_segment(pos0, Utils::mod(first_cds - mutlength, genlen), last_cds)) _cds_possibly_modified = true;
+                if (breakpoint_inside_segment(pos0, Utils::mod(first_upstream - mutlength, genlen), last_upstream)) _proms_possibly_modified = true;
 
                 if ( pos0 + mutlength <= genlen ) // the deletion does not contain the replication origin
                   {
-                    if (_shine_dal_position >= pos0) _shine_dal_position = ae_utils::mod(_shine_dal_position - mutlength, genlen - mutlength);
+                    if (_shine_dal_position >= pos0) _shine_dal_position = Utils::mod(_shine_dal_position - mutlength, genlen - mutlength);
                     for (size_t i = 0; i < _nb_promoters; i++)
                       {
-                        if (_promoter_positions[i] >= pos0){ _promoter_positions[i] = ae_utils::mod(_promoter_positions[i] - mutlength, genlen - mutlength);}
+                        if (_promoter_positions[i] >= pos0){ _promoter_positions[i] = Utils::mod(_promoter_positions[i] - mutlength, genlen - mutlength);}
                       }
                   }
                 else // the deletion contains the replication origin
                   {
                     int32_t nb_del_after_ori = mutlength - genlen + pos0;
-                    if (_shine_dal_position >= 0) _shine_dal_position = ae_utils::mod(_shine_dal_position - nb_del_after_ori, genlen - mutlength);
+                    if (_shine_dal_position >= 0) _shine_dal_position = Utils::mod(_shine_dal_position - nb_del_after_ori, genlen - mutlength);
                     for (size_t i = 0; i < _nb_promoters; i++)
                       {
-                        if (_promoter_positions[i] >= 0){ _promoter_positions[i] = ae_utils::mod(_promoter_positions[i] - nb_del_after_ori, genlen - mutlength);}
+                        if (_promoter_positions[i] >= 0){ _promoter_positions[i] = Utils::mod(_promoter_positions[i] - nb_del_after_ori, genlen - mutlength);}
                       }
                   }
               }
@@ -648,15 +648,16 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
             if (subsegment_totally_in_segment(pos1, pos2, first_cds, last_cds))
               {
                 _gene_possibly_duplicated = true;
-                _putative_position_for_the_duplicate = ae_utils::mod(ae_utils::mod(_shine_dal_position - pos1, genlen) + pos0, genlen + mutlength);
+                _putative_position_for_the_duplicate = Utils::mod(
+                    Utils::mod(_shine_dal_position - pos1, genlen) + pos0, genlen + mutlength);
               }
             if (breakpoint_inside_segment(pos0, first_cds, last_cds)) _cds_possibly_modified = true;
             if (breakpoint_inside_segment(pos0, first_upstream, last_upstream)) _proms_possibly_modified = true;
 
-            if (_shine_dal_position >= pos0) _shine_dal_position = ae_utils::mod(_shine_dal_position + mutlength, genlen + mutlength);
+            if (_shine_dal_position >= pos0) _shine_dal_position = Utils::mod(_shine_dal_position + mutlength, genlen + mutlength);
             for (size_t i = 0; i < _nb_promoters; i++)
               {
-                if (_promoter_positions[i] >= pos0){ _promoter_positions[i] = ae_utils::mod(_promoter_positions[i] + mutlength, genlen + mutlength);}
+                if (_promoter_positions[i] >= pos0){ _promoter_positions[i] = Utils::mod(_promoter_positions[i] + mutlength, genlen + mutlength);}
               }
 
             break;
@@ -682,18 +683,18 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
 
                 if ( pos1 < pos2bis ) // the deletion does not contain the replication origin
                   {
-                    if (_shine_dal_position >= pos1) _shine_dal_position = ae_utils::mod(_shine_dal_position - mutlength, genlen - mutlength);
+                    if (_shine_dal_position >= pos1) _shine_dal_position = Utils::mod(_shine_dal_position - mutlength, genlen - mutlength);
                     for (size_t i = 0; i < _nb_promoters; i++)
                       {
-                        if (_promoter_positions[i] >= pos1){ _promoter_positions[i] = ae_utils::mod(_promoter_positions[i] - mutlength, genlen - mutlength);}
+                        if (_promoter_positions[i] >= pos1){ _promoter_positions[i] = Utils::mod(_promoter_positions[i] - mutlength, genlen - mutlength);}
                       }
                   }
                 else  // the deletion contains the replication origin
                   {
-                    if (_shine_dal_position >= 0) _shine_dal_position = ae_utils::mod(_shine_dal_position - pos2bis, genlen - mutlength);
+                    if (_shine_dal_position >= 0) _shine_dal_position = Utils::mod(_shine_dal_position - pos2bis, genlen - mutlength);
                     for (size_t i = 0; i < _nb_promoters; i++)
                       {
-                        if (_promoter_positions[i] >= 0){ _promoter_positions[i] = ae_utils::mod(_promoter_positions[i] - pos2bis, genlen - mutlength);}
+                        if (_promoter_positions[i] >= 0){ _promoter_positions[i] = Utils::mod(_promoter_positions[i] - pos2bis, genlen - mutlength);}
                       }
                   }
               }
@@ -710,7 +711,7 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
             if (breakpoint_inside_segment(pos3, first_upstream, last_upstream)) _proms_possibly_modified = true;  // breakpoint inside the segment for the reinsertion
             if (breakpoint_inside_segment(pos0, first_upstream, last_upstream)) _proms_possibly_modified = true;  // reinsertion point in the genetic unit
 
-            int32_t pos_min = ae_utils::min( pos1, ae_utils::min( pos2bis, ae_utils::min( pos3, pos0 ) ) );
+            int32_t pos_min = Utils::min( pos1, Utils::min( pos2bis, Utils::min( pos3, pos0 ) ) );
             int32_t pos_B, pos_C, pos_D, pos_E;
             int32_t len_B, len_C, len_D;
             if ( ! invert )
@@ -722,14 +723,14 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
                 len_B = pos_C - pos_B;
                 len_C = pos_D - pos_C;
                 len_D = pos_E - pos_D;
-                if      ((_shine_dal_position >= pos_B) && (_shine_dal_position < pos_C))   _shine_dal_position = ae_utils::mod(_shine_dal_position + len_D + len_C, genlen);
-                else if ((_shine_dal_position >= pos_C) && (_shine_dal_position < pos_D))   _shine_dal_position = ae_utils::mod(_shine_dal_position + len_D - len_B, genlen);
-                else if ((_shine_dal_position >= pos_D) && (_shine_dal_position < pos_E))   _shine_dal_position = ae_utils::mod(_shine_dal_position - len_B - len_C, genlen);
+                if      ((_shine_dal_position >= pos_B) && (_shine_dal_position < pos_C))   _shine_dal_position = Utils::mod(_shine_dal_position + len_D + len_C, genlen);
+                else if ((_shine_dal_position >= pos_C) && (_shine_dal_position < pos_D))   _shine_dal_position = Utils::mod(_shine_dal_position + len_D - len_B, genlen);
+                else if ((_shine_dal_position >= pos_D) && (_shine_dal_position < pos_E))   _shine_dal_position = Utils::mod(_shine_dal_position - len_B - len_C, genlen);
                 for (size_t i = 0; i < _nb_promoters; i++)
                   {
-                    if      ((_promoter_positions[i] >= pos_B) && (_promoter_positions[i] < pos_C))  _promoter_positions[i] = ae_utils::mod(_promoter_positions[i] + len_D + len_C, genlen);
-                    else if ((_promoter_positions[i] >= pos_C) && (_promoter_positions[i] < pos_D))  _promoter_positions[i] = ae_utils::mod(_promoter_positions[i] + len_D - len_B, genlen);
-                    else if ((_promoter_positions[i] >= pos_D) && (_promoter_positions[i] < pos_E))  _promoter_positions[i] = ae_utils::mod(_promoter_positions[i] - len_B - len_C, genlen);
+                    if      ((_promoter_positions[i] >= pos_B) && (_promoter_positions[i] < pos_C))  _promoter_positions[i] = Utils::mod(_promoter_positions[i] + len_D + len_C, genlen);
+                    else if ((_promoter_positions[i] >= pos_C) && (_promoter_positions[i] < pos_D))  _promoter_positions[i] = Utils::mod(_promoter_positions[i] + len_D - len_B, genlen);
+                    else if ((_promoter_positions[i] >= pos_D) && (_promoter_positions[i] < pos_E))  _promoter_positions[i] = Utils::mod(_promoter_positions[i] - len_B - len_C, genlen);
                   }
               }
             else // invert
@@ -744,33 +745,33 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
                       {
                         if (_strand == LEADING) {_strand = LAGGING;} else {_strand = LEADING;}
                         _shine_dal_position = pos_B + pos_C - _shine_dal_position -1 ;
-                        _shine_dal_position = ae_utils::mod(_shine_dal_position + len_D, genlen);
+                        _shine_dal_position = Utils::mod(_shine_dal_position + len_D, genlen);
                       }
                     else if ((_shine_dal_position >= pos_C) && (_shine_dal_position < pos_D))
                       {
                         if (_strand == LEADING) {_strand = LAGGING;} else {_strand = LEADING;}
                         _shine_dal_position = pos_C + pos_D - _shine_dal_position - 1;
-                        _shine_dal_position = ae_utils::mod(_shine_dal_position + len_D, genlen);
+                        _shine_dal_position = Utils::mod(_shine_dal_position + len_D, genlen);
                       }
                     else if ((_shine_dal_position >= pos_D) && (_shine_dal_position < pos_E))
                       {
-                        _shine_dal_position = ae_utils::mod(_shine_dal_position - len_B - len_C, genlen);
+                        _shine_dal_position = Utils::mod(_shine_dal_position - len_B - len_C, genlen);
                       }
                     for (size_t i = 0; i < _nb_promoters; i++)
                       {
                         if  ((_promoter_positions[i] >= pos_B) && (_promoter_positions[i] < pos_C))
                           {
                             _promoter_positions[i] = pos_B + pos_C - _promoter_positions[i] - 1;
-                            _promoter_positions[i] = ae_utils::mod(_promoter_positions[i] + len_D, genlen);
+                            _promoter_positions[i] = Utils::mod(_promoter_positions[i] + len_D, genlen);
                           }
                         else if ((_promoter_positions[i] >= pos_C) && (_promoter_positions[i] < pos_D))
                           {
                             _promoter_positions[i] = pos_C + pos_D - _promoter_positions[i] - 1;
-                            _promoter_positions[i] = ae_utils::mod(_promoter_positions[i] + len_D, genlen);
+                            _promoter_positions[i] = Utils::mod(_promoter_positions[i] + len_D, genlen);
                           }
                         else if ((_promoter_positions[i] >= pos_D) && (_promoter_positions[i] < pos_E))
                           {
-                            _promoter_positions[i] = ae_utils::mod(_promoter_positions[i] - len_B - len_C, genlen);
+                            _promoter_positions[i] = Utils::mod(_promoter_positions[i] - len_B - len_C, genlen);
                           }
                       }
                   }
@@ -784,33 +785,33 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
                       {
                         if (_strand == LEADING) {_strand = LAGGING;} else {_strand = LEADING;}
                         _shine_dal_position = pos_B + pos_C - _shine_dal_position - 1;
-                        _shine_dal_position = ae_utils::mod(_shine_dal_position + len_D, genlen);
+                        _shine_dal_position = Utils::mod(_shine_dal_position + len_D, genlen);
                       }
                     else if ((_shine_dal_position >= pos_C) && (_shine_dal_position < pos_D))
                       {
                         if (_strand == LEADING) {_strand = LAGGING;} else {_strand = LEADING;}
                         _shine_dal_position = pos_C + pos_D - _shine_dal_position - 1;
-                        _shine_dal_position = ae_utils::mod(_shine_dal_position + len_D, genlen);
+                        _shine_dal_position = Utils::mod(_shine_dal_position + len_D, genlen);
                       }
                     else if ((_shine_dal_position >= pos_D) && (_shine_dal_position < pos_E))
                       {
-                        _shine_dal_position = ae_utils::mod(_shine_dal_position - len_B - len_C, genlen);
+                        _shine_dal_position = Utils::mod(_shine_dal_position - len_B - len_C, genlen);
                       }
                     for (size_t i = 0; i < _nb_promoters; i++)
                       {
                         if  ((_promoter_positions[i] >= pos_B) && (_promoter_positions[i] < pos_C))
                           {
                             _promoter_positions[i] = pos_B + pos_C - _promoter_positions[i] - 1;
-                            _promoter_positions[i] = ae_utils::mod(_promoter_positions[i] + len_D, genlen);
+                            _promoter_positions[i] = Utils::mod(_promoter_positions[i] + len_D, genlen);
                           }
                         else if ((_promoter_positions[i] >= pos_C) && (_promoter_positions[i] < pos_D))
                           {
                             _promoter_positions[i] = pos_C + pos_D - _promoter_positions[i] - 1;
-                            _promoter_positions[i] = ae_utils::mod(_promoter_positions[i] + len_D, genlen);
+                            _promoter_positions[i] = Utils::mod(_promoter_positions[i] + len_D, genlen);
                           }
                         else if ((_promoter_positions[i] >= pos_D) && (_promoter_positions[i] < pos_E))
                           {
-                            _promoter_positions[i] = ae_utils::mod(_promoter_positions[i] - len_B - len_C, genlen);
+                            _promoter_positions[i] = Utils::mod(_promoter_positions[i] - len_B - len_C, genlen);
                           }
                       }
                   }
@@ -822,35 +823,35 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
                     len_D = pos_E - pos_D;
                     if  ((_shine_dal_position >= pos_B) && (_shine_dal_position < pos_C))
                       {
-                        _shine_dal_position = ae_utils::mod(_shine_dal_position + len_C + len_D, genlen);
+                        _shine_dal_position = Utils::mod(_shine_dal_position + len_C + len_D, genlen);
                       }
                     else if ((_shine_dal_position >= pos_C) && (_shine_dal_position < pos_D))
                       {
                         if (_strand == LEADING) {_strand = LAGGING;} else {_strand = LEADING;}
                         _shine_dal_position = pos_C + pos_D - _shine_dal_position - 1;
-                        _shine_dal_position = ae_utils::mod(_shine_dal_position - len_B, genlen);
+                        _shine_dal_position = Utils::mod(_shine_dal_position - len_B, genlen);
                       }
                     else if ((_shine_dal_position >= pos_D) && (_shine_dal_position < pos_E))
                       {
                         if (_strand == LEADING) {_strand = LAGGING;} else {_strand = LEADING;}
                         _shine_dal_position = pos_D + pos_E - _shine_dal_position - 1;
-                        _shine_dal_position = ae_utils::mod(_shine_dal_position - len_B, genlen);
+                        _shine_dal_position = Utils::mod(_shine_dal_position - len_B, genlen);
                       }
                     for (size_t i = 0; i < _nb_promoters; i++)
                       {
                         if  ((_promoter_positions[i] >= pos_B) && (_promoter_positions[i] < pos_C))
                           {
-                            _promoter_positions[i] = ae_utils::mod(_promoter_positions[i] + len_C + len_D, genlen);
+                            _promoter_positions[i] = Utils::mod(_promoter_positions[i] + len_C + len_D, genlen);
                           }
                         else if ((_promoter_positions[i] >= pos_C) && (_promoter_positions[i] < pos_D))
                           {
                             _promoter_positions[i] = pos_C + pos_D - _promoter_positions[i] - 1;
-                            _promoter_positions[i] = ae_utils::mod(_promoter_positions[i] - len_B, genlen);
+                            _promoter_positions[i] = Utils::mod(_promoter_positions[i] - len_B, genlen);
                           }
                         else if ((_promoter_positions[i] >= pos_D) && (_promoter_positions[i] < pos_E))
                           {
                             _promoter_positions[i] = pos_D + pos_E - _promoter_positions[i] - 1;
-                            _promoter_positions[i] = ae_utils::mod(_promoter_positions[i] - len_B, genlen);
+                            _promoter_positions[i] = Utils::mod(_promoter_positions[i] - len_B, genlen);
                           }
                       }
 
@@ -863,35 +864,35 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
                     len_D = pos_E - pos_D;
                     if  ((_shine_dal_position >= pos_B) && (_shine_dal_position < pos_C))
                       {
-                        _shine_dal_position = ae_utils::mod(_shine_dal_position + len_C + len_D, genlen);
+                        _shine_dal_position = Utils::mod(_shine_dal_position + len_C + len_D, genlen);
                       }
                     else if ((_shine_dal_position >= pos_C) && (_shine_dal_position < pos_D))
                       {
                         if (_strand == LEADING) {_strand = LAGGING;} else {_strand = LEADING;}
                         _shine_dal_position = pos_C + pos_D - _shine_dal_position - 1;
-                        _shine_dal_position = ae_utils::mod(_shine_dal_position - len_B, genlen);
+                        _shine_dal_position = Utils::mod(_shine_dal_position - len_B, genlen);
                       }
                     else if ((_shine_dal_position >= pos_D) && (_shine_dal_position < pos_E))
                       {
                         if (_strand == LEADING) {_strand = LAGGING;} else {_strand = LEADING;}
                         _shine_dal_position = pos_D + pos_E - _shine_dal_position - 1;
-                        _shine_dal_position = ae_utils::mod(_shine_dal_position - len_B, genlen);
+                        _shine_dal_position = Utils::mod(_shine_dal_position - len_B, genlen);
                       }
                     for (size_t i = 0; i < _nb_promoters; i++)
                       {
                         if  ((_promoter_positions[i] >= pos_B) && (_promoter_positions[i] < pos_C))
                           {
-                            _promoter_positions[i] = ae_utils::mod(_promoter_positions[i] + len_C + len_D, genlen);
+                            _promoter_positions[i] = Utils::mod(_promoter_positions[i] + len_C + len_D, genlen);
                           }
                         else if ((_promoter_positions[i] >= pos_C) && (_promoter_positions[i] < pos_D))
                           {
                             _promoter_positions[i] = pos_C + pos_D - _promoter_positions[i] - 1;
-                            _promoter_positions[i] = ae_utils::mod(_promoter_positions[i] - len_B, genlen);
+                            _promoter_positions[i] = Utils::mod(_promoter_positions[i] - len_B, genlen);
                           }
                         else if ((_promoter_positions[i] >= pos_D) && (_promoter_positions[i] < pos_E))
                           {
                             _promoter_positions[i] = pos_D + pos_E - _promoter_positions[i] - 1;
-                            _promoter_positions[i] = ae_utils::mod(_promoter_positions[i] - len_B, genlen);
+                            _promoter_positions[i] = Utils::mod(_promoter_positions[i] - len_B, genlen);
                           }
                       }
                   }
@@ -909,7 +910,7 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
             if  ((_shine_dal_position >= pos1) && (_shine_dal_position < pos2bis))
               {
                 if (_strand == LEADING) {_strand = LAGGING;} else {_strand = LEADING;}
-                _shine_dal_position = ae_utils::mod(pos1 + pos2bis - _shine_dal_position - 1, genlen);
+                _shine_dal_position = Utils::mod(pos1 + pos2bis - _shine_dal_position - 1, genlen);
               }
             break;
           }

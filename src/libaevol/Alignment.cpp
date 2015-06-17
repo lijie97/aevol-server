@@ -37,7 +37,7 @@
 //                            Project Files
 // =================================================================
 #include "Alignment.h"
-#include "ae_utils.h"
+#include "Utils.h"
 #include "Individual.h"
 
 namespace aevol {
@@ -123,7 +123,7 @@ VisAVis *Alignment::search_alignment_direct( const Dna * chrom_1, const int32_t 
     }
     
     // A sequence against itself is not an alignment
-    if ( chrom_1 == chrom_2 && ae_utils::mod(cur_vav->_i_1, chrom_1->get_length()) == ae_utils::mod(cur_vav->_i_2, chrom_2->get_length()) )
+    if ( chrom_1 == chrom_2 && Utils::mod(cur_vav->_i_1, chrom_1->get_length()) == Utils::mod(cur_vav->_i_2, chrom_2->get_length()) )
     {
       delete cur_vav;
       continue;

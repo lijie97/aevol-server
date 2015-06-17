@@ -42,7 +42,7 @@
 
 #include "ExpManager.h"
 #include "ExpSetup.h"
-#include "ae_utils.h"
+#include "Utils.h"
 
 namespace aevol {
 
@@ -126,7 +126,7 @@ void Individual_X11::display_cdss(X11Window * win)
   else canvas_width = win->get_width();
   int16_t canvas_height = win->get_height();
 
-  int16_t canvas_size = ae_utils::min(canvas_width, canvas_width);
+  int16_t canvas_size = Utils::min(canvas_width, canvas_width);
   int16_t diam        = round(canvas_size * log((double)genome_length) / 16);
 
   // Prevent diameter from getting greater than 2/3 of the window size
@@ -170,16 +170,16 @@ void Individual_X11::display_cdss(X11Window * win)
     // nb_sect : "length" in degrees of the arc to be drawn
     alpha_first   = (int16_t) round( 360 * ((double)cds.get_first_translated_pos() / (double)genome_length));
     alpha_last    = (int16_t) round( 360 * ((double)cds.get_last_translated_pos()  / (double)genome_length));
-    theta_first   = ae_utils::mod(90 - alpha_first, 360);
-    // theta_last    = ae_utils::mod(90 - alpha_last, 360);
-    nb_sect       = ae_utils::mod(alpha_last - alpha_first + 1,  360);
+    theta_first   = Utils::mod(90 - alpha_first, 360);
+    // theta_last    = Utils::mod(90 - alpha_last, 360);
+    nb_sect       = Utils::mod(alpha_last - alpha_first + 1,  360);
 
     // These are the same as above but with a higher precision (1/64 degrees)
     alpha_first_64   = (int16_t) round(64 * 360 * ((double)cds.get_first_translated_pos() / (double)genome_length));
     alpha_last_64    = (int16_t) round(64 * 360 * ((double)cds.get_last_translated_pos() / (double)genome_length));
-    theta_first_64   = ae_utils::mod(64 * 90 - alpha_first_64, 64 * 360);
-    // theta_last_64    = ae_utils::mod(64 * 90 - alpha_last_64, 64 * 360);
-    nb_sect_64       = ae_utils::mod(alpha_last_64 - alpha_first_64 + 1,  64 * 360);
+    theta_first_64   = Utils::mod(64 * 90 - alpha_first_64, 64 * 360);
+    // theta_last_64    = Utils::mod(64 * 90 - alpha_last_64, 64 * 360);
+    nb_sect_64       = Utils::mod(alpha_last_64 - alpha_first_64 + 1,  64 * 360);
 
 
     // Look for the inmost layer that has all the sectors between
@@ -192,7 +192,7 @@ void Individual_X11::display_cdss(X11Window * win)
 
       for (int16_t rho = 0 ; rho < nb_sect ; rho++)
       {
-        if (_occupied_sectors[LEADING][layer][ae_utils::mod(theta_first-rho, 360)])
+        if (_occupied_sectors[LEADING][layer][Utils::mod(theta_first-rho, 360)])
         {
           sectors_free = false;
           break;
@@ -218,11 +218,11 @@ void Individual_X11::display_cdss(X11Window * win)
     // Mark sectors to be drawn as occupied
     for (int16_t rho = 0 ; rho < nb_sect ; rho++)
     {
-      _occupied_sectors[LEADING][layer][ae_utils::mod(theta_first-rho, 360)] = true;
+      _occupied_sectors[LEADING][layer][Utils::mod(theta_first-rho, 360)] = true;
     }
     // Mark flanking sectors as occupied
-    _occupied_sectors[LEADING][layer][ae_utils::mod(theta_first+1, 360)] = true;
-    _occupied_sectors[LEADING][layer][ae_utils::mod(theta_first-nb_sect, 360)] = true;
+    _occupied_sectors[LEADING][layer][Utils::mod(theta_first+1, 360)] = true;
+    _occupied_sectors[LEADING][layer][Utils::mod(theta_first-nb_sect, 360)] = true;
 
 
     // Draw
@@ -248,16 +248,16 @@ void Individual_X11::display_cdss(X11Window * win)
     // nb_sect : "length" in degrees of the arc to be drawn
     alpha_first   = (int16_t) round( 360 * ((double)cds.get_first_translated_pos() / (double)genome_length));
     alpha_last    = (int16_t) round( 360 * ((double)cds.get_last_translated_pos()  / (double)genome_length));
-    theta_first   = ae_utils::mod(90 - alpha_first, 360);
-    // theta_last    = ae_utils::mod(90 - alpha_last, 360);
-    nb_sect = ae_utils::mod(alpha_first - alpha_last + 1,  360);
+    theta_first   = Utils::mod(90 - alpha_first, 360);
+    // theta_last    = Utils::mod(90 - alpha_last, 360);
+    nb_sect = Utils::mod(alpha_first - alpha_last + 1,  360);
 
     // These are the same as above but with a higher precision (1/64 degrees)
     alpha_first_64   = (int16_t) round(64 * 360 * ((double)cds.get_first_translated_pos() / (double)genome_length));
     alpha_last_64    = (int16_t) round(64 * 360 * ((double)cds.get_last_translated_pos() / (double)genome_length));
-    theta_first_64   = ae_utils::mod(64 * 90 - alpha_first_64, 64 * 360);
-    // theta_last_64    = ae_utils::mod(64 * 90 - alpha_last_64, 64 * 360);
-    nb_sect_64 = ae_utils::mod(alpha_first_64 - alpha_last_64 + 1,  64 * 360);
+    theta_first_64   = Utils::mod(64 * 90 - alpha_first_64, 64 * 360);
+    // theta_last_64    = Utils::mod(64 * 90 - alpha_last_64, 64 * 360);
+    nb_sect_64 = Utils::mod(alpha_first_64 - alpha_last_64 + 1,  64 * 360);
 
 
     // Look for the inmost layer that has all the sectors between
@@ -270,7 +270,7 @@ void Individual_X11::display_cdss(X11Window * win)
 
       for (int16_t rho = 0 ; rho < nb_sect ; rho++)
       {
-        if (_occupied_sectors[LAGGING][layer][ae_utils::mod(theta_first+rho, 360)])
+        if (_occupied_sectors[LAGGING][layer][Utils::mod(theta_first+rho, 360)])
         {
           sectors_free = false;
           break;
@@ -296,11 +296,11 @@ void Individual_X11::display_cdss(X11Window * win)
     // Mark sectors to be drawn as occupied
     for (int16_t rho = 0 ; rho < nb_sect ; rho++)
     {
-      _occupied_sectors[LAGGING][layer][ae_utils::mod(theta_first+rho, 360)] = true;
+      _occupied_sectors[LAGGING][layer][Utils::mod(theta_first+rho, 360)] = true;
     }
     // Mark flanking sectors as occupied
-    _occupied_sectors[LAGGING][layer][ae_utils::mod(theta_first-1, 360)] = true;
-    _occupied_sectors[LAGGING][layer][ae_utils::mod(theta_first+nb_sect, 360)] = true;
+    _occupied_sectors[LAGGING][layer][Utils::mod(theta_first-1, 360)] = true;
+    _occupied_sectors[LAGGING][layer][Utils::mod(theta_first+nb_sect, 360)] = true;
 
 
     // Draw
@@ -346,7 +346,7 @@ void Individual_X11::display_cdss(X11Window * win)
     else
     {
       canvas_width  = win->get_width();
-      canvas_size   = ae_utils::min(canvas_width, canvas_width);
+      canvas_size   = Utils::min(canvas_width, canvas_width);
     }
     canvas_height = win->get_height();
 
@@ -394,16 +394,16 @@ void Individual_X11::display_cdss(X11Window * win)
       // nb_sect : "length" in degrees of the arc to be drawn
       alpha_first   = (int16_t) round( 360 * ((double)cds.get_first_translated_pos() / (double)genome_length));
       alpha_last    = (int16_t) round( 360 * ((double)cds.get_last_translated_pos()  / (double)genome_length));
-      theta_first   = ae_utils::mod(90 - alpha_first, 360);
-      // theta_last    = ae_utils::mod(90 - alpha_last, 360);
-      nb_sect       = ae_utils::mod(alpha_last - alpha_first + 1,  360);
+      theta_first   = Utils::mod(90 - alpha_first, 360);
+      // theta_last    = Utils::mod(90 - alpha_last, 360);
+      nb_sect       = Utils::mod(alpha_last - alpha_first + 1,  360);
 
       // These are the same as above but with a higher precision (1/64 degrees)
       alpha_first_64   = (int16_t) round(64 * 360 * ((double)cds.get_first_translated_pos() / (double)genome_length));
       alpha_last_64    = (int16_t) round(64 * 360 * ((double)cds.get_last_translated_pos() / (double)genome_length));
-      theta_first_64   = ae_utils::mod(64 * 90 - alpha_first_64, 64 * 360);
-      // theta_last_64    = ae_utils::mod(64 * 90 - alpha_last_64, 64 * 360);
-      nb_sect_64       = ae_utils::mod(alpha_last_64 - alpha_first_64 + 1,  64 * 360);
+      theta_first_64   = Utils::mod(64 * 90 - alpha_first_64, 64 * 360);
+      // theta_last_64    = Utils::mod(64 * 90 - alpha_last_64, 64 * 360);
+      nb_sect_64       = Utils::mod(alpha_last_64 - alpha_first_64 + 1,  64 * 360);
 
 
       // Look for the inmost layer that has all the sectors between
@@ -416,7 +416,7 @@ void Individual_X11::display_cdss(X11Window * win)
 
         for (int16_t rho = 0 ; rho < nb_sect ; rho++)
         {
-          if (_occupied_sectors[LEADING][layer][ae_utils::mod(theta_first-rho, 360)])
+          if (_occupied_sectors[LEADING][layer][Utils::mod(theta_first-rho, 360)])
           {
             sectors_free = false;
             break;
@@ -442,11 +442,11 @@ void Individual_X11::display_cdss(X11Window * win)
       // Mark sectors to be drawn as occupied
       for (int16_t rho = 0 ; rho < nb_sect ; rho++)
       {
-        _occupied_sectors[LEADING][layer][ae_utils::mod(theta_first-rho, 360)] = true;
+        _occupied_sectors[LEADING][layer][Utils::mod(theta_first-rho, 360)] = true;
       }
       // Mark flanking sectors as occupied
-      _occupied_sectors[LEADING][layer][ae_utils::mod(theta_first+1, 360)] = true;
-      _occupied_sectors[LEADING][layer][ae_utils::mod(theta_first-nb_sect, 360)] = true;
+      _occupied_sectors[LEADING][layer][Utils::mod(theta_first+1, 360)] = true;
+      _occupied_sectors[LEADING][layer][Utils::mod(theta_first-nb_sect, 360)] = true;
 
 
       // Draw
@@ -472,16 +472,16 @@ void Individual_X11::display_cdss(X11Window * win)
       // nb_sect : "length" in degrees of the arc to be drawn
       alpha_first   = (int16_t) round( 360 * ((double)cds.get_first_translated_pos() / (double)genome_length));
       alpha_last    = (int16_t) round( 360 * ((double)cds.get_last_translated_pos()  / (double)genome_length));
-      theta_first   = ae_utils::mod(90 - alpha_first, 360);
-      // theta_last    = ae_utils::mod(90 - alpha_last, 360);
-      nb_sect = ae_utils::mod(alpha_first - alpha_last + 1,  360);
+      theta_first   = Utils::mod(90 - alpha_first, 360);
+      // theta_last    = Utils::mod(90 - alpha_last, 360);
+      nb_sect = Utils::mod(alpha_first - alpha_last + 1,  360);
 
       // These are the same as above but with a higher precision (1/64 degrees)
       alpha_first_64   = (int16_t) round(64 * 360 * ((double)cds.get_first_translated_pos() / (double)genome_length));
       alpha_last_64    = (int16_t) round(64 * 360 * ((double)cds.get_last_translated_pos() / (double)genome_length));
-      theta_first_64   = ae_utils::mod(64 * 90 - alpha_first_64, 64 * 360);
-      // theta_last_64    = ae_utils::mod(64 * 90 - alpha_last_64, 64 * 360);
-      nb_sect_64 = ae_utils::mod(alpha_first_64 - alpha_last_64 + 1,  64 * 360);
+      theta_first_64   = Utils::mod(64 * 90 - alpha_first_64, 64 * 360);
+      // theta_last_64    = Utils::mod(64 * 90 - alpha_last_64, 64 * 360);
+      nb_sect_64 = Utils::mod(alpha_first_64 - alpha_last_64 + 1,  64 * 360);
 
 
       // Look for the inmost layer that has all the sectors between
@@ -494,7 +494,7 @@ void Individual_X11::display_cdss(X11Window * win)
 
         for (int16_t rho = 0 ; rho < nb_sect ; rho++)
         {
-          if (_occupied_sectors[LAGGING][layer][ae_utils::mod(theta_first+rho, 360)])
+          if (_occupied_sectors[LAGGING][layer][Utils::mod(theta_first+rho, 360)])
           {
             sectors_free = false;
             break;
@@ -520,11 +520,11 @@ void Individual_X11::display_cdss(X11Window * win)
       // Mark sectors to be drawn as occupied
       for (int16_t rho = 0 ; rho < nb_sect ; rho++)
       {
-        _occupied_sectors[LAGGING][layer][ae_utils::mod(theta_first+rho, 360)] = true;
+        _occupied_sectors[LAGGING][layer][Utils::mod(theta_first+rho, 360)] = true;
       }
       // Mark flanking sectors as occupied
-      _occupied_sectors[LAGGING][layer][ae_utils::mod(theta_first-1, 360)] = true;
-      _occupied_sectors[LAGGING][layer][ae_utils::mod(theta_first+nb_sect, 360)] = true;
+      _occupied_sectors[LAGGING][layer][Utils::mod(theta_first-1, 360)] = true;
+      _occupied_sectors[LAGGING][layer][Utils::mod(theta_first+nb_sect, 360)] = true;
 
 
       // Draw
@@ -556,7 +556,7 @@ void Individual_X11::display_rnas(X11Window * win)
   win->draw_string(15, 30, nb_rna);
 
   // Compute display diameter according to genome length and window size
-  int16_t win_size      = ae_utils::min(win->get_width(), win->get_height());
+  int16_t win_size      = Utils::min(win->get_width(), win->get_height());
   int16_t diam          = round(win_size * log((double)genome_length) / 16);
 
   // Prevent diameter from getting greater than 2/3 of the window size
@@ -601,16 +601,16 @@ void Individual_X11::display_rnas(X11Window * win)
     // nb_sect : "length" in degrees of the arc to be drawn
     alpha_first   = (int16_t) round( 360 * ((double)rna.get_first_transcribed_pos() / (double)genome_length));
     alpha_last    = (int16_t) round( 360 * ((double)rna.get_last_transcribed_pos() / (double)genome_length));
-    theta_first   = ae_utils::mod(90 - alpha_first, 360);
-    theta_last    = ae_utils::mod(90 - alpha_last, 360);
-    nb_sect       = ae_utils::mod(alpha_last - alpha_first + 1,  360);
+    theta_first   = Utils::mod(90 - alpha_first, 360);
+    theta_last    = Utils::mod(90 - alpha_last, 360);
+    nb_sect       = Utils::mod(alpha_last - alpha_first + 1,  360);
 
     // These are the same as above but with a higher precision (1/64 degrees)
     alpha_first_64   = (int16_t) round(64 * 360 * ((double)rna.get_first_transcribed_pos() / (double)genome_length));
     alpha_last_64    = (int16_t) round(64 * 360 * ((double)rna.get_last_transcribed_pos() / (double)genome_length));
-    theta_first_64   = ae_utils::mod(64 * 90 - alpha_first_64, 64 * 360);
-    theta_last_64    = ae_utils::mod(64 * 90 - alpha_last_64, 64 * 360);
-    nb_sect_64       = ae_utils::mod(alpha_last_64 - alpha_first_64 + 1,  64 * 360);
+    theta_first_64   = Utils::mod(64 * 90 - alpha_first_64, 64 * 360);
+    theta_last_64    = Utils::mod(64 * 90 - alpha_last_64, 64 * 360);
+    nb_sect_64       = Utils::mod(alpha_last_64 - alpha_first_64 + 1,  64 * 360);
 
     //~ printf("    LEADING RNA %"PRId32" => %"PRId32" :: %"PRId16" %"PRId16"\n", rna->get_first_transcribed_pos(), rna->get_last_transcribed_pos(), theta_first, theta_last);
 
@@ -625,7 +625,7 @@ void Individual_X11::display_rnas(X11Window * win)
 
       for (int16_t rho = 0 ; rho < nb_sect ; rho++)
       {
-        if (_occupied_sectors[LEADING][layer][ae_utils::mod(theta_first-rho, 360)])
+        if (_occupied_sectors[LEADING][layer][Utils::mod(theta_first-rho, 360)])
         {
           sectors_free = false;
           break;
@@ -651,11 +651,11 @@ void Individual_X11::display_rnas(X11Window * win)
     // Mark sectors to be drawn as occupied
     for (int16_t rho = 0 ; rho < nb_sect ; rho++)
     {
-      _occupied_sectors[LEADING][layer][ae_utils::mod(theta_first-rho, 360)] = true;
+      _occupied_sectors[LEADING][layer][Utils::mod(theta_first-rho, 360)] = true;
     }
     // Mark flanking sectors as occupied
-    _occupied_sectors[LEADING][layer][ae_utils::mod(theta_first+1, 360)] = true;
-    _occupied_sectors[LEADING][layer][ae_utils::mod(theta_first-nb_sect, 360)] = true;
+    _occupied_sectors[LEADING][layer][Utils::mod(theta_first+1, 360)] = true;
+    _occupied_sectors[LEADING][layer][Utils::mod(theta_first-nb_sect, 360)] = true;
 
 
     // Determine drawing color
@@ -685,7 +685,7 @@ void Individual_X11::display_rnas(X11Window * win)
     pos_x = (win->get_width() / 2.0) + (cos((theta_first_64 - nb_sect_64)/(64*180.0)*M_PI) * diam2 / 2.0) - (arrow_thick / 2.0);
     pos_y = (win->get_height() / 2.0) - (sin((theta_first_64 - nb_sect_64)/(64*180.0)*M_PI) * diam2 / 2.0) - (arrow_thick / 2.0);
 
-    win->fill_arc(pos_x, pos_y, arrow_thick, ae_utils::mod(180+theta_last, 360), 180, color);
+    win->fill_arc(pos_x, pos_y, arrow_thick, Utils::mod(180+theta_last, 360), 180, color);
 
     delete [] color;
   }
@@ -699,16 +699,16 @@ void Individual_X11::display_rnas(X11Window * win)
     // nb_sect : "length" in degrees of the arc to be drawn
     alpha_first   = (int16_t) round( 360 * ((double)rna.get_first_transcribed_pos() / (double)genome_length));
     alpha_last    = (int16_t) round( 360 * ((double)rna.get_last_transcribed_pos()  / (double)genome_length));
-    theta_first   = ae_utils::mod(90 - alpha_first, 360);
-    theta_last    = ae_utils::mod(90 - alpha_last, 360);
-    nb_sect = ae_utils::mod(alpha_first - alpha_last + 1,  360);
+    theta_first   = Utils::mod(90 - alpha_first, 360);
+    theta_last    = Utils::mod(90 - alpha_last, 360);
+    nb_sect = Utils::mod(alpha_first - alpha_last + 1,  360);
 
     // These are the same as above but with a higher precision (1/64 degrees)
     alpha_first_64   = (int16_t) round(64 * 360 * ((double)rna.get_first_transcribed_pos() / (double)genome_length));
     alpha_last_64    = (int16_t) round(64 * 360 * ((double)rna.get_last_transcribed_pos()  / (double)genome_length));
-    theta_first_64   = ae_utils::mod(64 * 90 - alpha_first_64, 64 * 360);
-    theta_last_64    = ae_utils::mod(64 * 90 - alpha_last_64, 64 * 360);
-    nb_sect_64 = ae_utils::mod(alpha_first_64 - alpha_last_64 + 1,  64 * 360);
+    theta_first_64   = Utils::mod(64 * 90 - alpha_first_64, 64 * 360);
+    theta_last_64    = Utils::mod(64 * 90 - alpha_last_64, 64 * 360);
+    nb_sect_64 = Utils::mod(alpha_first_64 - alpha_last_64 + 1,  64 * 360);
 
     //~ printf("    LAGGING RNA %"PRId32" => %"PRId32" :: %"PRId16" %"PRId16"\n", rna->get_first_transcribed_pos(), rna->get_last_transcribed_pos(), theta_first, theta_last);
 
@@ -723,7 +723,7 @@ void Individual_X11::display_rnas(X11Window * win)
 
       for (int16_t rho = 0 ; rho < nb_sect ; rho++)
       {
-        if (_occupied_sectors[LAGGING][layer][ae_utils::mod(theta_first+rho, 360)])
+        if (_occupied_sectors[LAGGING][layer][Utils::mod(theta_first+rho, 360)])
         {
           sectors_free = false;
           break;
@@ -749,11 +749,11 @@ void Individual_X11::display_rnas(X11Window * win)
     // Mark sectors to be drawn as occupied
     for (int16_t rho = 0 ; rho < nb_sect ; rho++)
     {
-      _occupied_sectors[LAGGING][layer][ae_utils::mod(theta_first+rho, 360)] = true;
+      _occupied_sectors[LAGGING][layer][Utils::mod(theta_first+rho, 360)] = true;
     }
     // Mark flanking sectors as occupied
-    _occupied_sectors[LAGGING][layer][ae_utils::mod(theta_first-1, 360)] = true;
-    _occupied_sectors[LAGGING][layer][ae_utils::mod(theta_first+nb_sect, 360)] = true;
+    _occupied_sectors[LAGGING][layer][Utils::mod(theta_first-1, 360)] = true;
+    _occupied_sectors[LAGGING][layer][Utils::mod(theta_first+nb_sect, 360)] = true;
 
 
     // Determine drawing color

@@ -46,7 +46,7 @@
 #include "GeneticUnit.h"
 #include "Individual.h"
 #include "Rna.h"
-#include "ae_utils.h"
+#include "Utils.h"
 #include "VisAVis.h"
 #include "Alignment.h"
 
@@ -166,8 +166,8 @@ char*Dna::get_subsequence(int32_t from, int32_t to, ae_strand strand) const
 {
   char* subseq = NULL;
 
-  from  = ae_utils::mod(from, _length);
-  to    = ae_utils::mod(to, _length);
+  from  = Utils::mod(from, _length);
+  to    = Utils::mod(to, _length);
 
   if (strand == LEADING)
   {
@@ -513,7 +513,7 @@ void Dna::do_rearrangements_with_align(void)
       if (rand1 < _indiv->get_duplication_proportion())
       {
         // Remember the length of the segment to be duplicated and of the genome before the duplication
-        int32_t segment_length  = ae_utils::mod(alignment->get_i_2() -
+        int32_t segment_length  = Utils::mod(alignment->get_i_2() -
                                                 alignment->get_i_1(),
                                                 _length);
         int32_t gu_size_before  = _length;
@@ -568,7 +568,7 @@ void Dna::do_rearrangements_with_align(void)
                        _indiv->get_deletion_proportion())
       {
         // Remember the length of the segment to be duplicated and of the genome before the deletion
-        int32_t segment_length  = ae_utils::mod(alignment->get_i_2() -
+        int32_t segment_length  = Utils::mod(alignment->get_i_2() -
                                                 alignment->get_i_1() - 1,
                                                 _length) + 1;
         int32_t gu_size_before  = _length;
@@ -630,7 +630,7 @@ void Dna::do_rearrangements_with_align(void)
         }
 
         // Remember the length of the segment to be translocated
-        int32_t segment_length = ae_utils::mod(alignment->get_i_2() - alignment->get_i_1(), _length);
+        int32_t segment_length = Utils::mod(alignment->get_i_2() - alignment->get_i_1(), _length);
 
         // Extract the segment to be translocated
         GeneticUnit* translocated_segment = extract_into_new_GU(alignment->get_i_1(), alignment->get_i_2());
@@ -752,7 +752,7 @@ void Dna::do_rearrangements_with_align(void)
       }
 
       // Remember the length of the segment to be duplicated
-      int32_t segment_length = ae_utils::mod(alignment->get_i_2() -
+      int32_t segment_length = Utils::mod(alignment->get_i_2() -
                                              alignment->get_i_1(),
                                              _length);
 
@@ -993,12 +993,12 @@ bool Dna::do_switch(int32_t pos)
   else                      _data[pos] = '0';
 
   // Remove promoters containing the switched base
-  _gen_unit->remove_promoters_around(pos, ae_utils::mod(pos + 1, _length));
+  _gen_unit->remove_promoters_around(pos, Utils::mod(pos + 1, _length));
 
   // Look for potential new promoters containing the switched base
   if (_length >= PROM_SIZE)
   {
-    _gen_unit->look_for_new_promoters_around(pos, ae_utils::mod(pos + 1, _length));
+    _gen_unit->look_for_new_promoters_around(pos, Utils::mod(pos + 1, _length));
   }
 
 
@@ -1029,7 +1029,7 @@ bool Dna::do_small_insertion(int32_t pos, int16_t nb_insert, char * seq)
     else
     {
       _gen_unit->move_all_promoters_after(pos, nb_insert);
-      _gen_unit->look_for_new_promoters_around(pos, ae_utils::mod(pos + nb_insert, _length));
+      _gen_unit->look_for_new_promoters_around(pos, Utils::mod(pos + nb_insert, _length));
     }
   }
 
@@ -1043,7 +1043,7 @@ bool Dna::do_small_deletion(int32_t pos, int16_t nb_del)
   assert(_indiv->get_amount_of_dna() - nb_del >= _indiv->get_min_genome_length());
 
   // Remove promoters containing at least one nucleotide from the sequence to delete
-  _gen_unit->remove_promoters_around(pos, ae_utils::mod(pos + nb_del, _length));
+  _gen_unit->remove_promoters_around(pos, Utils::mod(pos + nb_del, _length));
 
   // Do the deletion and update promoter list
   if (pos + nb_del <= _length) // the deletion does not contain the replication origin
@@ -1055,7 +1055,7 @@ bool Dna::do_small_deletion(int32_t pos, int16_t nb_del)
     if (_length >= PROM_SIZE)
     {
       _gen_unit->move_all_promoters_after(pos, -nb_del);
-      _gen_unit->look_for_new_promoters_around(ae_utils::mod(pos, _length));
+      _gen_unit->look_for_new_promoters_around(Utils::mod(pos, _length));
     }
   }
   else // the deletion contains the replication origin
@@ -1087,7 +1087,7 @@ Mutation *Dna::do_duplication(void)
   pos_3 = _indiv->_mut_prng->random(_length);
 
   // Remember the length of the segment to be duplicated and of the former genome
-  int32_t segment_length      = ae_utils::mod(pos_2 - pos_1 - 1, _length) + 1;
+  int32_t segment_length      = Utils::mod(pos_2 - pos_1 - 1, _length) + 1;
   int32_t gu_size_before  = _length;
   int32_t gu_size_after   = gu_size_before + segment_length;
   int32_t genome_size_before = _indiv->get_amount_of_dna();
@@ -1140,7 +1140,7 @@ Mutation *Dna::do_deletion(void)
   pos_2 = _indiv->_mut_prng->random(_length);
 
   // Remember the length of the segment to be deleted and of the genome before the deletion
-  int32_t segment_length  = ae_utils::mod(pos_2 - pos_1 - 1, _length) + 1;
+  int32_t segment_length  = Utils::mod(pos_2 - pos_1 - 1, _length) + 1;
   int32_t gu_size_before  = _length;
   int32_t gu_size_after   = gu_size_before - segment_length;
   int32_t genome_size_before = _indiv->get_amount_of_dna();
@@ -1212,9 +1212,9 @@ Mutation *Dna::do_translocation(void)
     pos_1_rel = _indiv->_mut_prng->random(_length);
     pos_2_rel = _indiv->_mut_prng->random(_length);
 
-    int32_t segment_length = ae_utils::mod(pos_2_rel - pos_1_rel, _length);
+    int32_t segment_length = Utils::mod(pos_2_rel - pos_1_rel, _length);
 
-    pos_3_rel = ae_utils::mod(pos_1_rel + _indiv->_mut_prng->random(segment_length), _length);
+    pos_3_rel = Utils::mod(pos_1_rel + _indiv->_mut_prng->random(segment_length), _length);
 
     if (_gen_unit == chromosome)
     {
@@ -1371,7 +1371,7 @@ Mutation *Dna::do_translocation(void)
     // As it will be seen in do_translocation(int32_t pos_1, int32_t pos_2, int32_t pos_3, int32_t pos_4, bool invert),
     // translocating segment [pos_1, pos_2] is the same as translocating segment  [pos_2, pos_1]
     // Since OriC must be at position 0, we will always translocate segment [pos_1, pos_2] with pos_1 < pos_2
-    if (pos_1 > pos_2) ae_utils::exchange(pos_1, pos_2);
+    if (pos_1 > pos_2) Utils::exchange(pos_1, pos_2);
 
     segment_length = pos_2 - pos_1;
 
@@ -1419,7 +1419,7 @@ Mutation *Dna::do_inversion(void)
   pos_2 = _indiv->_mut_prng->random(_length);
 
   if (pos_1 == pos_2) return NULL; // Invert everything <=> Invert nothing!
-  if (pos_1 >  pos_2) ae_utils::exchange(pos_1, pos_2); // Invert the segment that don't contain OriC
+  if (pos_1 >  pos_2) Utils::exchange(pos_1, pos_2); // Invert the segment that don't contain OriC
 
   segment_length = pos_2 - pos_1;
 
@@ -1675,7 +1675,7 @@ bool Dna::do_translocation(int32_t pos_1, int32_t pos_2, int32_t pos_3, int32_t 
   //
 
   // Determine which position comes first and do the corresponding rearrangement
-  int32_t pos_min = ae_utils::min(pos_1, ae_utils::min(pos_2, ae_utils::min(pos_3, pos_4)));
+  int32_t pos_min = Utils::min(pos_1, Utils::min(pos_2, Utils::min(pos_3, pos_4)));
 
   if (! invert)
   {
@@ -1722,7 +1722,7 @@ bool Dna::do_translocation(int32_t pos_1, int32_t pos_2, int32_t pos_3, int32_t 
 bool Dna::do_inter_GU_translocation(int32_t pos_1_rel, int32_t pos_2_rel, int32_t pos_3_rel, int32_t pos_4_rel, bool invert)
 {
   // TODO check GU lengths according to positions and size limit
-  int32_t segment_length = ae_utils::mod(pos_2_rel - pos_1_rel, _length);
+  int32_t segment_length = Utils::mod(pos_2_rel - pos_1_rel, _length);
 
   if (pos_1_rel == pos_2_rel) // TODO : should'nt that raise an error?
   {
@@ -1790,7 +1790,7 @@ bool Dna::do_inter_GU_translocation(int32_t pos_1_rel, int32_t pos_2_rel, int32_
   //~ //                                                                                  p4r+(_length-(p1r-p2r))
 
   // Determine which position comes first and do the corresponding rearrangement
-  // int32_t pos_min = ae_utils::min(pos_1, pos_2);
+  // int32_t pos_min = Utils::min(pos_1, pos_2);
 
   if (! invert)
   {
@@ -1816,7 +1816,7 @@ bool Dna::do_inter_GU_translocation(int32_t pos_1_rel, int32_t pos_2_rel, int32_
       //                   _indiv->get_amount_of_dna());
       //       }
 
-      segment_length = ae_utils::mod(pos_2_rel - pos_1_rel, _length);
+      segment_length = Utils::mod(pos_2_rel - pos_1_rel, _length);
       inter_GU_ABCDE_to_ACDBE(pos_1_rel, pos_2_rel, pos_4_rel);
     }
     else
@@ -1841,7 +1841,7 @@ bool Dna::do_inter_GU_translocation(int32_t pos_1_rel, int32_t pos_2_rel, int32_
       //                   _indiv->get_amount_of_dna());
       //       }
 
-      segment_length = ae_utils::mod(pos_1_rel - pos_2_rel, _length);
+      segment_length = Utils::mod(pos_1_rel - pos_2_rel, _length);
       inter_GU_ABCDE_to_BDCAE(pos_2_rel, pos_1_rel, pos_4_rel);
     }
   }
@@ -1849,13 +1849,13 @@ bool Dna::do_inter_GU_translocation(int32_t pos_1_rel, int32_t pos_2_rel, int32_
   {
     if (pos_1_rel < pos_2_rel)
     {
-      segment_length = ae_utils::mod(pos_2_rel - pos_1_rel, _length);
+      segment_length = Utils::mod(pos_2_rel - pos_1_rel, _length);
       do_inversion(pos_1_rel, pos_2_rel);
       inter_GU_ABCDE_to_ACDBE(pos_1_rel, pos_2_rel, pos_4_rel);
     }
     else // pos_1_rel > pos_2_rel
     {
-      segment_length = ae_utils::mod(pos_1_rel - pos_2_rel, _length);
+      segment_length = Utils::mod(pos_1_rel - pos_2_rel, _length);
       if (pos_2_rel != 0)       { do_inversion(0, pos_2_rel); }
       if (pos_1_rel != _length) { do_inversion(pos_1_rel, _length); }
       inter_GU_ABCDE_to_BDCAE(pos_2_rel, pos_1_rel, pos_4_rel);
@@ -2132,8 +2132,8 @@ Mutation *Dna::do_repl_HT(int32_t parent_id)
 //    if (alignment_2 != NULL)
 //    {
 //      int32_t gu_length_before  = _length;
-//      int32_t exogenote_length      = ae_utils::mod(alignment_2->get_i_2() - alignment_1->get_i_2() - 1, donor_dna->get_length()) + 1;
-//      int32_t replaced_seq_length   = ae_utils::mod(alignment_2->get_i_1() - alignment_1->get_i_1() - 1, gu_length_before) + 1;
+//      int32_t exogenote_length      = Utils::mod(alignment_2->get_i_2() - alignment_1->get_i_2() - 1, donor_dna->get_length()) + 1;
+//      int32_t replaced_seq_length   = Utils::mod(alignment_2->get_i_1() - alignment_1->get_i_1() - 1, gu_length_before) + 1;
 //      int32_t gu_length_after   = gu_length_before - replaced_seq_length + exogenote_length;
 //
 //      int32_t genome_length_before = _indiv->get_amount_of_dna();
@@ -2495,7 +2495,7 @@ GeneticUnit*Dna::extract_into_new_GU(int32_t pos_1, int32_t pos_2)
 */
 GeneticUnit*Dna::copy_into_new_GU(int32_t pos_1, int32_t pos_2) const
 {
-  int32_t seq_length = ae_utils::mod(pos_2 - pos_1, _length);
+  int32_t seq_length = Utils::mod(pos_2 - pos_1, _length);
   if (seq_length == 0) seq_length = _length;
 
   // ==================== Copy promoters from old sequence ====================
@@ -2818,15 +2818,15 @@ VisAVis *Dna::search_alignment_around_positions(Dna * chrom2, int32_t chrom1_pos
   {
     //printf("%d longueur genome %d\n",i, this->get_length());
     //printf("chrom1_pos_for_research : %d, chrom2_pos_for_research : %d\n", chrom1_pos_for_research, chrom1_pos_for_research);
-    chrom1_pos_for_research = ae_utils::mod(chrom1_pos_for_research + first_research_sense * size_between_two_alignments, this->get_length()) ;
+    chrom1_pos_for_research = Utils::mod(chrom1_pos_for_research + first_research_sense * size_between_two_alignments, this->get_length()) ;
     if (cur_sense == DIRECT)
     {
-      chrom2_pos_for_research = ae_utils::mod(chrom2_pos_for_research + first_research_sense * size_between_two_alignments, chrom2->get_length());
+      chrom2_pos_for_research = Utils::mod(chrom2_pos_for_research + first_research_sense * size_between_two_alignments, chrom2->get_length());
       tmp_alignment = Alignment::search_alignment_direct(this, chrom1_pos_for_research, chrom2, chrom2_pos_for_research, needed_score);
     }
     else // if (cur_sense = INDIRECT)
     {
-      chrom2_pos_for_research = ae_utils::mod(chrom2_pos_for_research - first_research_sense * size_between_two_alignments, chrom2->get_length());
+      chrom2_pos_for_research = Utils::mod(chrom2_pos_for_research - first_research_sense * size_between_two_alignments, chrom2->get_length());
       tmp_alignment = Alignment::search_alignment_indirect(this, chrom1_pos_for_research, chrom2, chrom2_pos_for_research, needed_score);
     }
     //printf("chrom1_pos_for_research : %d, chrom2_pos_for_research : %d\n", chrom1_pos_for_research, chrom1_pos_for_research);
@@ -2880,15 +2880,15 @@ VisAVis *Dna::search_alignment_around_positions(Dna * chrom2, int32_t chrom1_pos
   i = 0 ;
   while(_indiv->_mut_prng->random() < 1-_exp_m->get_repl_HT_detach_rate())
   {
-    chrom1_pos_for_research = ae_utils::mod(chrom1_pos_for_research + second_research_sense * size_between_two_alignments, this->get_length());
+    chrom1_pos_for_research = Utils::mod(chrom1_pos_for_research + second_research_sense * size_between_two_alignments, this->get_length());
     if (cur_sense == DIRECT)
     {
-      chrom2_pos_for_research = ae_utils::mod(chrom2_pos_for_research + second_research_sense * size_between_two_alignments, chrom2->get_length());
+      chrom2_pos_for_research = Utils::mod(chrom2_pos_for_research + second_research_sense * size_between_two_alignments, chrom2->get_length());
       tmp_alignment = Alignment::search_alignment_direct(this, chrom1_pos_for_research, chrom2, chrom2_pos_for_research, needed_score);
     }
     else // if (cur_sense = INDIRECT)
     {
-      chrom2_pos_for_research = ae_utils::mod(chrom2_pos_for_research - second_research_sense * size_between_two_alignments, chrom2->get_length());
+      chrom2_pos_for_research = Utils::mod(chrom2_pos_for_research - second_research_sense * size_between_two_alignments, chrom2->get_length());
       tmp_alignment = Alignment::search_alignment_indirect(this, chrom1_pos_for_research, chrom2, chrom2_pos_for_research, needed_score);
     }
 

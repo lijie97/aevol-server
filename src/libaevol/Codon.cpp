@@ -38,7 +38,7 @@
 //                            Project Files
 // =================================================================
 #include "Codon.h"
-#include "ae_utils.h"
+#include "Utils.h"
 
 namespace aevol {
 
@@ -83,7 +83,7 @@ Codon::Codon( Dna * dna, ae_strand strand, int32_t index )
   {
     for ( int8_t i = 0 ; i < CODON_SIZE ; i++ )
     {
-      if ( gen[ae_utils::mod((index+i),len)] == '1' )
+      if ( gen[Utils::mod((index+i),len)] == '1' )
       {
         //_value += pow( 2, CODON_SIZE - i - 1 );
         _value += 1 << ( CODON_SIZE - i - 1 );
@@ -94,7 +94,7 @@ Codon::Codon( Dna * dna, ae_strand strand, int32_t index )
   {
     for ( int8_t i = 0 ; i < CODON_SIZE ; i++ )
     {
-      if ( gen[ae_utils::mod((index-i),len)] != '1' ) // == and not != because we are on the complementary strand...
+      if ( gen[Utils::mod((index-i),len)] != '1' ) // == and not != because we are on the complementary strand...
       {
         //_value += pow( 2, CODON_SIZE - i - 1 );
         _value += 1 << ( CODON_SIZE - i - 1 );

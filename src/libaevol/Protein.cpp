@@ -43,7 +43,7 @@
 #include "Individual.h"
 #include "GeneticUnit.h"
 #include "Rna.h"
-#include "ae_utils.h"
+#include "Utils.h"
 
 namespace aevol {
 
@@ -128,13 +128,13 @@ Protein::Protein(GeneticUnit* gen_unit,
 
   if ( _strand == LEADING )
   {
-    _first_translated_pos = ae_utils::mod( _shine_dal_pos + (SHINE_DAL_SIZE + SHINE_START_SPACER + CODON_SIZE), _gen_unit->get_dna()->get_length() );
-    _last_translated_pos  = ae_utils::mod( _first_translated_pos + (_length * CODON_SIZE - 1), _gen_unit->get_dna()->get_length() );
+    _first_translated_pos = Utils::mod( _shine_dal_pos + (SHINE_DAL_SIZE + SHINE_START_SPACER + CODON_SIZE), _gen_unit->get_dna()->get_length() );
+    _last_translated_pos  = Utils::mod( _first_translated_pos + (_length * CODON_SIZE - 1), _gen_unit->get_dna()->get_length() );
   }
   else
   {
-    _first_translated_pos = ae_utils::mod( _shine_dal_pos - (SHINE_DAL_SIZE + SHINE_START_SPACER + CODON_SIZE), _gen_unit->get_dna()->get_length() );
-    _last_translated_pos = ae_utils::mod( _first_translated_pos - (_length * CODON_SIZE - 1), _gen_unit->get_dna()->get_length() );
+    _first_translated_pos = Utils::mod( _shine_dal_pos - (SHINE_DAL_SIZE + SHINE_START_SPACER + CODON_SIZE), _gen_unit->get_dna()->get_length() );
+    _last_translated_pos = Utils::mod( _first_translated_pos - (_length * CODON_SIZE - 1), _gen_unit->get_dna()->get_length() );
   }
 
 
@@ -370,11 +370,11 @@ int32_t Protein::get_last_STOP_base_pos( void ) const
 {
   if ( _strand == LEADING )
   {
-    return ae_utils::mod( _last_translated_pos + 3, _gen_unit->get_dna()->get_length() );
+    return Utils::mod( _last_translated_pos + 3, _gen_unit->get_dna()->get_length() );
   }
   else
   {
-    return ae_utils::mod( _last_translated_pos - 3, _gen_unit->get_dna()->get_length() );
+    return Utils::mod( _last_translated_pos - 3, _gen_unit->get_dna()->get_length() );
   }
 }
 

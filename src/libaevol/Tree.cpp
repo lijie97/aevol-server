@@ -42,7 +42,7 @@
 #include "ExpManager.h"
 #include "ExpSetup.h"
 #include "Individual.h"
-#include "ae_utils.h"
+#include "Utils.h"
 
 
 namespace aevol {
@@ -214,7 +214,7 @@ Tree::~Tree( void )
 
 int32_t Tree::get_nb_indivs(int64_t t) const
 {
-  return _nb_indivs[ae_utils::mod(t - 1, _tree_step)];
+  return _nb_indivs[Utils::mod(t - 1, _tree_step)];
 }
 
 
@@ -222,7 +222,7 @@ ReplicationReport *Tree::get_report_by_index(int64_t t, int32_t index) const
 {
   assert( _tree_mode == NORMAL );
 
-  return _replics[ae_utils::mod(t - 1, _tree_step)][index];
+  return _replics[Utils::mod(t - 1, _tree_step)][index];
 }
 
 
@@ -234,9 +234,9 @@ ReplicationReport *Tree::get_report_by_rank(int64_t t, int32_t rank) const
 
   for ( int32_t i = 0 ; i < nb_indivs ; i++ )
   {
-    if ( _replics[ae_utils::mod(t - 1, _tree_step)][i]->get_rank() == rank )
+    if ( _replics[Utils::mod(t - 1, _tree_step)][i]->get_rank() == rank )
     {
-      return _replics[ae_utils::mod(t - 1, _tree_step)][i];
+      return _replics[Utils::mod(t - 1, _tree_step)][i];
     }
   }
 
@@ -247,7 +247,7 @@ ReplicationReport *Tree::get_report_by_rank(int64_t t, int32_t rank) const
 
 void Tree::set_nb_indivs (int32_t nb_indivs, int64_t t)
 {
-  _nb_indivs[ae_utils::mod(t - 1, _tree_step)] = nb_indivs;
+  _nb_indivs[Utils::mod(t - 1, _tree_step)] = nb_indivs;
 }
 
 
@@ -263,7 +263,7 @@ void Tree::fill_tree_with_cur_gener(void)
       // generations n*TREE_STEP+1 --> (n+1)*_tree_step
       // (for _tree_step == 100, information on generations
       // 1 to 100, or 101 to 200, or 201 to 300, etc)
-      int64_t time_i = ae_utils::mod(Time::get_time() - 1, _tree_step);
+      int64_t time_i = Utils::mod(Time::get_time() - 1, _tree_step);
       _nb_indivs[time_i] = _exp_m->get_nb_indivs();
       _replics[time_i]   = new ReplicationReport * [_nb_indivs[time_i]];
 
@@ -282,7 +282,7 @@ void Tree::fill_tree_with_cur_gener(void)
       // TO CHECK !!
       // not sure that time_i should be used in this block...
 
-      // int32_t gener_i     = ae_utils::mod( _exp_m->get_num_gener() - 1, _tree_step );
+      // int32_t gener_i     = Utils::mod( _exp_m->get_num_gener() - 1, _tree_step );
       // _nb_indivs[gener_i] = _exp_m->get_nb_indivs();
       // _parent[gener_i] = new int32_t [_nb_indivs[gener_i]];
 
@@ -345,7 +345,7 @@ void Tree::set_replic_report(int32_t id, ReplicationReport * replic_report)
 {
   assert(_tree_mode == NORMAL);
 
-  int64_t t = ae_utils::mod(Time::get_time() - 1, _tree_step);
+  int64_t t = Utils::mod(Time::get_time() - 1, _tree_step);
 
   if (_replics[t] == NULL)
   {
@@ -366,7 +366,7 @@ void Tree::set_replic_report(int64_t t, int32_t id, ReplicationReport * replic_r
 {
   assert( _tree_mode == NORMAL );
 
-  t = ae_utils::mod(t - 1, _tree_step);
+  t = Utils::mod(t - 1, _tree_step);
 
   if (_replics[t] == NULL)
   {

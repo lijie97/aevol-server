@@ -45,7 +45,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "Dna.h"
-#include "ae_utils.h"
+#include "Utils.h"
 #include "Protein.h"
 
 namespace aevol {
@@ -206,7 +206,7 @@ void Rna::add_transcribed_protein( Protein * prot )
 
 void Rna::shift_position( int32_t delta_pos, int32_t genome_length )
 {
-  _pos = ae_utils::mod( _pos + delta_pos, genome_length );
+  _pos = Utils::mod( _pos + delta_pos, genome_length );
 }
 
 } // namespace aevol

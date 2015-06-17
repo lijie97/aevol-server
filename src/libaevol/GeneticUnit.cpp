@@ -422,8 +422,8 @@ void GeneticUnit::remove_promoters_around( int32_t pos )
 {
   if ( _dna->get_length() >= PROM_SIZE )
   {
-    remove_leading_promoters_starting_between( ae_utils::mod(pos - PROM_SIZE + 1, _dna->get_length()), pos );
-    remove_lagging_promoters_starting_between( pos, ae_utils::mod(pos + PROM_SIZE - 1, _dna->get_length()) );
+    remove_leading_promoters_starting_between( Utils::mod(pos - PROM_SIZE + 1, _dna->get_length()), pos );
+    remove_lagging_promoters_starting_between( pos, Utils::mod(pos + PROM_SIZE - 1, _dna->get_length()) );
   }
   else
   {
@@ -450,10 +450,10 @@ void GeneticUnit::remove_promoters_around( int32_t pos )
 */
 void GeneticUnit::remove_promoters_around( int32_t pos_1, int32_t pos_2 )
 {
-  if ( ae_utils::mod(pos_1 - pos_2, _dna->get_length()) >= PROM_SIZE )
+  if ( Utils::mod(pos_1 - pos_2, _dna->get_length()) >= PROM_SIZE )
   {
-    remove_leading_promoters_starting_between( ae_utils::mod(pos_1 - PROM_SIZE + 1, _dna->get_length()), pos_2 );
-    remove_lagging_promoters_starting_between( pos_1, ae_utils::mod(pos_2 + PROM_SIZE - 1, _dna->get_length()) );
+    remove_leading_promoters_starting_between( Utils::mod(pos_1 - PROM_SIZE + 1, _dna->get_length()), pos_2 );
+    remove_lagging_promoters_starting_between( pos_1, Utils::mod(pos_2 + PROM_SIZE - 1, _dna->get_length()) );
   }
   else
   {
@@ -482,11 +482,11 @@ void GeneticUnit::look_for_new_promoters_around(int32_t pos)
   if (_dna->get_length() >= PROM_SIZE)
   {
     look_for_new_leading_promoters_starting_between(
-        ae_utils::mod(pos - PROM_SIZE + 1, _dna->get_length()),
+        Utils::mod(pos - PROM_SIZE + 1, _dna->get_length()),
         pos);
     look_for_new_lagging_promoters_starting_between(
         pos,
-        ae_utils::mod(pos + PROM_SIZE - 1, _dna->get_length()));
+        Utils::mod(pos + PROM_SIZE - 1, _dna->get_length()));
   }
 }
 
@@ -508,15 +508,15 @@ void GeneticUnit::look_for_new_promoters_around(int32_t pos)
 /// \endverbatim
 void GeneticUnit::look_for_new_promoters_around( int32_t pos_1, int32_t pos_2 )
 {
-  //~ if ( ae_utils::mod( pos_1 - pos_2, _dna->get_length()) == PROM_SIZE - 1 )
+  //~ if ( Utils::mod( pos_1 - pos_2, _dna->get_length()) == PROM_SIZE - 1 )
   //~ {
   //~ // We have to look at every possible position on the genome.
   //~ locate_promoters();
   //~ }
   /*else*/ if ( _dna->get_length() >= PROM_SIZE )
   {
-    look_for_new_leading_promoters_starting_between( ae_utils::mod(pos_1 - PROM_SIZE + 1, _dna->get_length()), pos_2 );
-    look_for_new_lagging_promoters_starting_between( pos_1, ae_utils::mod(pos_2 + PROM_SIZE - 1, _dna->get_length()) );
+    look_for_new_leading_promoters_starting_between( Utils::mod(pos_1 - PROM_SIZE + 1, _dna->get_length()), pos_2 );
+    look_for_new_lagging_promoters_starting_between( pos_1, Utils::mod(pos_2 + PROM_SIZE - 1, _dna->get_length()) );
   }
 }
 
@@ -532,10 +532,10 @@ void GeneticUnit::copy_promoters_included_in(int32_t pos_1,
                                              int32_t pos_2,
                                              Promoters2Strands& new_promoter_lists )
 {
-  if ( ae_utils::mod( pos_2 - pos_1 - 1, _dna->get_length() ) + 1 >= PROM_SIZE )
+  if ( Utils::mod( pos_2 - pos_1 - 1, _dna->get_length() ) + 1 >= PROM_SIZE )
   {
-    copy_leading_promoters_starting_between( pos_1, ae_utils::mod( pos_2 - PROM_SIZE + 1, _dna->get_length() ), new_promoter_lists[LEADING] );
-    copy_lagging_promoters_starting_between( ae_utils::mod( pos_1 + PROM_SIZE - 1, _dna->get_length() ), pos_2, new_promoter_lists[LAGGING] );
+    copy_leading_promoters_starting_between( pos_1, Utils::mod( pos_2 - PROM_SIZE + 1, _dna->get_length() ), new_promoter_lists[LEADING] );
+    copy_lagging_promoters_starting_between( Utils::mod( pos_1 + PROM_SIZE - 1, _dna->get_length() ), pos_2, new_promoter_lists[LAGGING] );
   }
 }
 
@@ -1004,10 +1004,10 @@ void GeneticUnit::do_translation()
       for (int32_t i = 0;
            transcript_length - i >= SHINE_DAL_SIZE + SHINE_START_SPACER + 3 * CODON_SIZE;
            ++i) {
-        if (is_shine_dalgarno(strand, ae_utils::mod(transcript_start
+        if (is_shine_dalgarno(strand, Utils::mod(transcript_start
                                                     + (strand == LEADING ? i : -i), genome_length))
             and is_start(strand,
-                         ae_utils::mod(transcript_start
+                         Utils::mod(transcript_start
                                        + (strand == LEADING ? 1 : -1)
                                        * (i + SHINE_DAL_SIZE + SHINE_START_SPACER), genome_length))) {
           // We found a translation initiation, we can now build the
@@ -1020,7 +1020,7 @@ void GeneticUnit::do_translation()
           // In that case, we don't need to tranlate it again, we only
           // need to increase the protein's concentration according to
           // the promoter transcription level
-          int32_t shine_dal_pos = ae_utils::mod(transcript_start + (strand == LEADING ? i : -i), genome_length);
+          int32_t shine_dal_pos = Utils::mod(transcript_start + (strand == LEADING ? i : -i), genome_length);
           auto& protein_strand = _protein_list[strand];
           auto protein = find_if(protein_strand.begin(),
                                  protein_strand.end(),
@@ -1040,7 +1040,7 @@ void GeneticUnit::do_translation()
             while (transcript_length - j >= CODON_SIZE) {
               auto codon = new Codon(_dna,
                                         strand,
-                                        ae_utils::mod(transcript_start + (strand == LEADING ? j : -j),
+                                        Utils::mod(transcript_start + (strand == LEADING ? j : -j),
                                                       genome_length));
 
               if (codon->is_stop()) {
@@ -1348,7 +1348,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
       for ( int16_t i = 0 ; i < PROM_SIZE ; i++ )
       {
         //~ printf( "  i : %"PRId32" dist : %"PRId8"\n", i, dist );
-        if ( genome[ae_utils::mod((pos-i),len)] == PROM_SEQ[i] ) // == and not != because we are on the complementary strand...
+        if ( genome[Utils::mod((pos-i),len)] == PROM_SEQ[i] ) // == and not != because we are on the complementary strand...
         {
           dist++;
           if ( dist > PROM_MAX_DIFF )
@@ -1374,14 +1374,14 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     {
       for ( int16_t i = 0 ; i < TERM_STEM_SIZE ; i++ )
       {
-        if ( genome[ae_utils::mod(pos+i,len)] == genome[ae_utils::mod(pos+(TERM_SIZE-1)-i,len)] ) return false;
+        if ( genome[Utils::mod(pos+i,len)] == genome[Utils::mod(pos+(TERM_SIZE-1)-i,len)] ) return false;
       }
     }
     else // ( strand == LAGGING )
     {
       for ( int16_t i = 0 ; i < TERM_STEM_SIZE ; i++ )
       {
-        if ( genome[ae_utils::mod(pos-i,len)] == genome[ae_utils::mod(pos-(TERM_SIZE-1)+i,len)] ) return false;
+        if ( genome[Utils::mod(pos-i,len)] == genome[Utils::mod(pos-(TERM_SIZE-1)+i,len)] ) return false;
       }
     }
 
@@ -1397,7 +1397,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     {
       for ( int8_t i = 0 ; i < SHINE_DAL_SIZE ; i++ )
       {
-        if ( genome[ae_utils::mod((pos+i),len)] != SHINE_DAL_SEQ[i] )
+        if ( genome[Utils::mod((pos+i),len)] != SHINE_DAL_SEQ[i] )
         {
           return false;
         }
@@ -1407,7 +1407,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     {
       for ( int8_t i = 0 ; i < SHINE_DAL_SIZE ; i++ )
       {
-        if ( genome[ae_utils::mod((pos-i),len)] == SHINE_DAL_SEQ[i] ) // == and not != because we are on the complementary strand...
+        if ( genome[Utils::mod((pos-i),len)] == SHINE_DAL_SEQ[i] ) // == and not != because we are on the complementary strand...
         {
           return false;
         }
@@ -1427,7 +1427,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     {
       for ( int8_t i = 0 ; i < CODON_SIZE ; i++ )
       {
-        if ( genome[ae_utils::mod((pos+i),len)] == '1' )
+        if ( genome[Utils::mod((pos+i),len)] == '1' )
         {
           codon += 1 << ( CODON_SIZE - i - 1 ); //pow( 2, CODON_SIZE - i - 1 );
         }
@@ -1437,7 +1437,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     {
       for ( int8_t i = 0 ; i < CODON_SIZE ; i++ )
       {
-        if ( genome[ae_utils::mod((pos-i),len)] != '1' ) // == and not != because we are on the complementary strand...
+        if ( genome[Utils::mod((pos-i),len)] != '1' ) // == and not != because we are on the complementary strand...
         {
           codon += 1 << ( CODON_SIZE - i - 1 ); //pow( 2, CODON_SIZE - i - 1 );
         }
@@ -1551,18 +1551,18 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
           if ( strand == LEADING )
           {
             prom_first  = rna->get_promoter_pos();
-            prom_last   = ae_utils::mod( prom_first + PROM_SIZE - 1, _dna->get_length() );
+            prom_last   = Utils::mod( prom_first + PROM_SIZE - 1, _dna->get_length() );
             term_last   = rna->get_last_transcribed_pos();
-            term_first  = ae_utils::mod( term_last - TERM_SIZE + 1, _dna->get_length() );
+            term_first  = Utils::mod( term_last - TERM_SIZE + 1, _dna->get_length() );
             rna_first   = prom_first;
             rna_last    = term_last;
           }
           else
           {
             prom_last   = rna->get_promoter_pos();
-            prom_first  = ae_utils::mod( prom_last - PROM_SIZE + 1, _dna->get_length() );
+            prom_first  = Utils::mod( prom_last - PROM_SIZE + 1, _dna->get_length() );
             term_first  = rna->get_last_transcribed_pos();
-            term_last   = ae_utils::mod( term_first + TERM_SIZE - 1, _dna->get_length() );
+            term_last   = Utils::mod( term_first + TERM_SIZE - 1, _dna->get_length() );
             rna_first   = term_first;
             rna_last    = prom_last;
           }
@@ -3238,22 +3238,22 @@ void GeneticUnit::double_non_coding_bases(void)
       case DUPL:
         mut->get_infos_duplication(&pos1, &pos2, &pos0);
         // pos2 is actually not included in the segment, the real end of the segment is pos2 - 1
-        pos2 = ae_utils::mod(pos2 - 1, genlen);
+        pos2 = Utils::mod(pos2 - 1, genlen);
         mutlength = mut->get_length();
         break;
       case DEL:
         mut->get_infos_deletion(&pos1, &pos2);
-        pos2 = ae_utils::mod(pos2 - 1, genlen);
+        pos2 = Utils::mod(pos2 - 1, genlen);
         mutlength = mut->get_length();
         break;
       case TRANS:
         mut->get_infos_translocation(&pos1, &pos2, &pos3, &pos0, &invert);
-        pos2 = ae_utils::mod(pos2 - 1, genlen);
+        pos2 = Utils::mod(pos2 - 1, genlen);
         mutlength = mut->get_length();
         break;
       case INV:
         mut->get_infos_inversion(&pos1, &pos2);
-        pos2 = ae_utils::mod(pos2 - 1, genlen);
+        pos2 = Utils::mod(pos2 - 1, genlen);
         mutlength = mut->get_length();
         break;
       case INSERT: { // vld: removing block generates conflicts on variable names, TODO vld: clean
@@ -3297,7 +3297,7 @@ void GeneticUnit::double_non_coding_bases(void)
       }
       case REPL_HT: {
         mut->get_infos_repl_HT(&pos1, &pos1donor, &pos2, &pos2donor, &sense, &mutlength );
-        pos2 = ae_utils::mod(pos2 - 1, genlen);
+        pos2 = Utils::mod(pos2 - 1, genlen);
         seq = new char[mutlength+1];  // seq in the sequence in the donor
         mut->get_sequence_repl_HT(seq);
 
