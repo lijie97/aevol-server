@@ -42,7 +42,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "param_loader.h"
+#include "ParamLoader.h"
 
 #include "ExpManager.h"
 #include "ExpSetup.h"
@@ -67,7 +67,7 @@ namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                             Class param_loader                              #
+//                             Class ParamLoader                              #
 //                                                                             #
 //##############################################################################
 
@@ -82,7 +82,7 @@ static const int8_t STRAIN_NAME_LOGIN_SIZE    = 10;
 // =================================================================
 //                             Constructors
 // =================================================================
-param_loader::param_loader(const char* file_name)
+ParamLoader::ParamLoader(const char* file_name)
 {
   // Give default values to parameters
 
@@ -270,7 +270,7 @@ param_loader::param_loader(const char* file_name)
 // =================================================================
 //                             Destructor
 // =================================================================
-param_loader::~param_loader(void)
+ParamLoader::~ParamLoader(void)
 {
   free(_param_file_name);
   fclose(_param_file);
@@ -283,7 +283,7 @@ param_loader::~param_loader(void)
 // =================================================================
 //                            Public Methods
 // =================================================================
-void param_loader::interpret_line(ParameterLine * line, int32_t cur_line)
+void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
 {
   if (strcmp(line->words[0], "STRAIN_NAME") == 0)
   {
@@ -1113,7 +1113,7 @@ void param_loader::interpret_line(ParameterLine * line, int32_t cur_line)
   }
 }
 
-void param_loader::read_file(void)
+void ParamLoader::read_file(void)
 {
   // The rewind is only necessary when using multiple param files
   rewind(_param_file);
@@ -1129,7 +1129,7 @@ void param_loader::read_file(void)
   }
 }
 
-void param_loader::CheckConsistency() {
+void ParamLoader::CheckConsistency() {
   if (_allow_plasmids) {
     if (_plasmid_initial_gene != 1) { // the plasmid will be copied from the chromosome
       if (_plasmid_initial_length != -1) {
@@ -1181,7 +1181,7 @@ void param_loader::CheckConsistency() {
   }
 }
 
-void param_loader::load(ExpManager * exp_m, bool verbose,
+void ParamLoader::load(ExpManager * exp_m, bool verbose,
                         char* chromosome, int32_t lchromosome,
                         char* plasmid, int32_t lplasmid) {
   // Check consistency of min, max and initial length of chromosome and plasmid
@@ -1595,7 +1595,7 @@ void param_loader::load(ExpManager * exp_m, bool verbose,
   \param line original line in char*
   \param line_is_interpretable boolean with about the possible intrepretation of the line
 */
-void param_loader::format_line(ParameterLine * formated_line, char* line, bool* line_is_interpretable)
+void ParamLoader::format_line(ParameterLine * formated_line, char* line, bool* line_is_interpretable)
 {
   int16_t i = 0;
   int16_t j;
@@ -1635,7 +1635,7 @@ void param_loader::format_line(ParameterLine * formated_line, char* line, bool* 
 
   \see format_line(ParameterLine* formated_line, char* line, bool* line_is_interpretable)
 */
-ParameterLine * param_loader::get_line(int32_t* cur_line_ptr) // void
+ParameterLine *ParamLoader::get_line(int32_t* cur_line_ptr) // void
 {
   char line[255];
   ParameterLine * formated_line = new ParameterLine();
@@ -1664,7 +1664,7 @@ ParameterLine * param_loader::get_line(int32_t* cur_line_ptr) // void
   }
 }
 
-void param_loader::print_to_file(FILE* file)
+void ParamLoader::print_to_file(FILE* file)
 {
   // ------------------------------------------------------------ Constraints
   fprintf(file, "\nConstraints ---------------------------------------------\n");

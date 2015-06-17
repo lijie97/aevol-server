@@ -99,8 +99,8 @@ add_library(aevol
   indiv_stats.h
   macros.h
   non_coding_stats.h
-  param_loader.cpp
-  param_loader.h
+  ParamLoader.cpp
+  ParamLoader.h
   PhenotypicTargetHandler.cpp
   PhenotypicTargetHandler.h
   PhenotypicTarget.cpp

@@ -60,7 +60,7 @@
 #include "MutationParams.h"
 #include "non_coding_stats.h"
 #include "OutputManager.h"
-#include "param_loader.h"
+#include "ParamLoader.h"
 #include "Phenotype.h"
 #include "PhenotypicSegment.h"
 #include "PhenotypicTarget.h"

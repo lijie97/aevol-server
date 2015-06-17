@@ -59,16 +59,16 @@ class ExpManager;
 class Individual;
 
 
-class param_loader
+class ParamLoader
 {
  public :
   // =========================================================================
   //                          Constructors & Destructor
   // =========================================================================
-    param_loader(void) = delete;
-    param_loader(const param_loader&) = delete;
-    param_loader(const char* file_name);
-    virtual ~param_loader(void);
+    ParamLoader(void) = delete;
+    ParamLoader(const ParamLoader &) = delete;
+    ParamLoader(const char* file_name);
+    virtual ~ParamLoader(void);
 
   // =========================================================================
   //                                  Getters

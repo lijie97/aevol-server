@@ -45,7 +45,7 @@ const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 #endif
 
 #include "ExpManager.h"
-#include "libaevol/param_loader.h"
+#include "ParamLoader.h"
 
 
 using namespace aevol;
@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
 
 
   // 5) Create a param loader for the parameter file
-  param_loader* my_param_loader = new param_loader(param_file_name);
+  ParamLoader * my_param_loader = new ParamLoader(param_file_name);
   delete param_file_name;
 
 

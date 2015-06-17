@@ -50,7 +50,7 @@ const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 #else
   #include "ExpManager.h"
 #endif
-#include "param_loader.h"
+#include "ParamLoader.h"
 
 using namespace aevol;
 
