@@ -95,6 +95,14 @@ class World
   inline double** get_metabolic_fitness_grid(void) const;
   inline double** get_total_fitness_grid(void) const;
 
+  bool phenotypic_target_shared() const {
+    return phenotypic_target_shared_;
+  }
+  const std::shared_ptr<PhenotypicTargetHandler>&
+  phenotypic_target_handler() const {
+    return phenotypic_target_handler_;
+  }
+
   // =================================================================
   //                        Accessors: setters
   // =================================================================
