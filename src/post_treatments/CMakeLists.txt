@@ -24,6 +24,9 @@ target_link_libraries(create_eps PUBLIC aevol)
 add_executable(extract extract.cpp)
 target_link_libraries(extract PUBLIC aevol)
 
+add_executable(ancstats ancstats.cpp)
+target_link_libraries(ancstats PUBLIC aevol)
+
 
 # ============================================================================
 # Set behaviour on make install
