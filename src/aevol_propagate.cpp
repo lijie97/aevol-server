@@ -204,8 +204,8 @@ int main(int argc, char* argv[])
     {
       if (fscanf(lg_file, "%" PRId32 "\n", &num_gener) == EOF)
       {
-	printf("ERROR: failed to read last generation from file %s\n",lg_filename);
-	exit(EXIT_FAILURE);
+        printf("ERROR: failed to read last generation from file %s\n",lg_filename);
+        exit(EXIT_FAILURE);
       }
       fclose(lg_file);
     }
