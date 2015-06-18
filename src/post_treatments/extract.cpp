@@ -47,7 +47,6 @@ using namespace aevol;
 //                         Function declarations
 // =================================================================
 void print_help(char* prog_path);
-void print_version( void );
 
 void analyse_indiv(Individual* indiv, FILE* triangles_file, FILE* sequence_file,
                    int16_t gu, const PhenotypicTarget& phenotypicTarget);
@@ -93,7 +92,7 @@ int main( int argc, char* argv[] )
       }
       case 'V' :
       {
-        print_version();
+        Utils::PrintAevolVersion();
         exit( EXIT_SUCCESS );
       }
       case 'r':
@@ -323,14 +322,12 @@ void print_help(char* prog_path)
   printf("\n");
   printf("Usage : %s -h\n", prog_name);
   printf("   or : %s -V or --version\n", prog_name);
-  printf("   or :    %s [-r GENER | -p POP_FILE] [-t PHEN_FILE] [-s SEQ_FILE] [-g NUM_GU] [-b]\n", prog_name);
+  printf("   or :    %s [-r GENER] [-t PHEN_FILE] [-s SEQ_FILE] [-g NUM_GU] [-b]\n", prog_name);
   printf("\nOptions\n");
   printf("  -h, --help\n\tprint this help, then exit\n\n");
   printf("  -V, --version\n\tprint version number, then exit\n\n");
   printf("  -r GENER  :\n");
-  printf("\tread generation GENER from a full aevol backup\n");
-  printf("  -p POP_FILE:\n");
-  printf("\tread the population saved in population file POP_FILE\n");
+  printf("\tread generation GENER from a full aevol backup\n\t(default: reads from last_gener.txt)\n");
   printf("  -t PHEN_FILE:\n");
   printf("\textract and save some infos about the phenotypes of the individuals to file PHEN_FILE\n");
   printf("  -s SEQ_FILE:\n");
@@ -384,14 +381,4 @@ seq_020000_best :\n\
    extract -b -r 20000 -s seq_020000_best\n\
 or extract -b -p populations/pop_020000.ae -s seq_020000_best\n");
 
-}
-
-
-/*!
-  \brief Print aevol version number
-
-*/
-void print_version( void )
-{
-  printf( "aevol %s\n", VERSION );
 }

@@ -59,7 +59,6 @@ using namespace aevol;
 //                         Function declarations
 // =================================================================
 void print_help(char* prog_path);
-void print_version( void );
 
 
 // The height of each triangle is proportional to the product c*m, where c is the
@@ -136,7 +135,7 @@ int main( int argc, char* argv[] )
       }
       case 'V' :
       {
-        print_version();
+        Utils::PrintAevolVersion();
         exit( EXIT_SUCCESS );
       }
       case 'i' :
@@ -338,16 +337,6 @@ void print_help(char* prog_path)
   printf( "\t                  Create the EPS files for the chosen individual of \n" );
   printf( "\t                  generation GENER. \n" );
   printf( "\n" );
-}
-
-
-/*!
-  \brief Print aevol version number
-
-*/
-void print_version( void )
-{
-  printf( "aevol %s\n", VERSION );
 }
 
 
