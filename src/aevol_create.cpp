@@ -54,7 +54,6 @@ using namespace aevol;
 //                         Function declarations
 // =================================================================
 void print_help(char* prog_path);
-void print_version(void);
 
 
 
@@ -95,7 +94,7 @@ int main(int argc, char* argv[])
       }
       case 'V' :
       {
-        print_version();
+        Utils::PrintAevolVersion();
         exit(EXIT_SUCCESS);
       }
       case 'f' :
@@ -279,14 +278,4 @@ void print_help(char* prog_path)
   printf("  -o, --out OUTDIR\n\tspecify output directory (default \"./\")\n\n");
   printf("  -c, --chromosome CFILE\n\tload chromosome from given text file instead of generating it\n");
   printf("  -p, --plasmid PFILE\n\tload plasmid from given text file instead of generating it\n");
-}
-
-
-/*!
-  \brief Print aevol version number
-
-*/
-void print_version(void)
-{
-  printf("aevol %s\n", VERSION);
 }

@@ -27,6 +27,7 @@ int main( int argc, char* argv[] )
   int32_t plasmid_minimal_length = 40;
 
   // Define allowed options
+  // TODO <david.parsons@inria.fr> version
   const char * options_list = "hr:p:m:M:";
   static struct option long_options_list[] = {
     { "help", 1, NULL, 'h' },

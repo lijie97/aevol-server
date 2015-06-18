@@ -48,7 +48,6 @@ using namespace aevol;
 //                         Function declarations
 // =================================================================
 void print_help(char* prog_path);
-void print_version( void );
 
 
 
@@ -87,7 +86,7 @@ int main( int argc, char* argv[] )
       }
       case 'V' :
       {
-        print_version();
+        Utils::PrintAevolVersion();
         exit( EXIT_SUCCESS );
       }
       case 'o' :
@@ -172,14 +171,4 @@ void print_help(char* prog_path)
   printf( "  -V, --version\n\tprint version number, then exit\n\n" );
   printf( "  -o, --opt\n\toption with no argument\n" );
   printf( "  -a, --arg argument\n\toption with an argument\n" );
-}
-
-
-/*!
-  \brief Print aevol version number
-
-*/
-void print_version( void )
-{
-  printf( "aevol %s\n", VERSION );
 }

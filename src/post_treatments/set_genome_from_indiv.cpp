@@ -49,7 +49,6 @@ using namespace aevol;
 //                         Function declarations
 // =================================================================
 void print_help(char* prog_path);
-void print_version( void );
 
 
 
@@ -82,7 +81,7 @@ int main( int argc, char* argv[] )
       }
       case 'V' :
       {
-        print_version();
+        Utils::PrintAevolVersion();
         exit( EXIT_SUCCESS );
       }
       case 'f' :
@@ -181,14 +180,4 @@ Usage : set_genome_from_indiv -h\n\
    or : set_genome_from_indiv -f source\n\n\
 \t-h : Display this screen\n\
 \t--from source    : Create a new simulation from param.in then load the individual from the file 'source'\n");
-}
-
-
-/*!
-  \brief Print aevol version number
-
-*/
-void print_version( void )
-{
-  printf( "aevol %s\n", VERSION );
 }

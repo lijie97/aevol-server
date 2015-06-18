@@ -53,7 +53,6 @@ void catch_usr1( int sig_num );
 #endif
 
 void print_help( char* prog_path );
-void print_version( void );
 
 static ExpManager * exp_manager = NULL;
 
@@ -132,7 +131,7 @@ int main( int argc, char* argv[] )
       }
       case 'V' :
       {
-        print_version();
+        Utils::PrintAevolVersion();
         exit( EXIT_SUCCESS );
       }
       case 'n' :
@@ -290,13 +289,4 @@ void print_help( char* prog_path )
 	printf( "  -v, --verbose\n\tbe verbose\n\n" );
   printf( "  -w, --wait\n\tpause after loading\n\n" );
   printf( "  -x, --noX\n\tdon't display X outputs upon start\n\tsend SIGUSR1 to switch X output on/off\n" );
-}
-
-/*!
-  \brief 
-  
-*/
-void print_version( void ) 
-{
-	printf( "aevol %s\n", VERSION );
 }

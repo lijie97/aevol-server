@@ -68,19 +68,18 @@ enum check_type
 //                         Function declarations
 // =================================================================
 void print_help(char* prog_path);
-void print_version( void );
 
 FILE* open_environment_stat_file( const char * prefix);
 void write_environment_stats( int32_t t, const Habitat* h, FILE* env_file);
 
 FILE* open_terminators_stat_file( const char * prefix );
-void write_terminators_stats( int32_t t,  ae_individual * indiv, FILE* terminator_file );
+void write_terminators_stats( int32_t t,  Individual* indiv, FILE* terminator_file );
 
 FILE* open_zones_stat_file( const char * prefix );
-void write_zones_stats( int32_t t,  ae_individual * indiv, Habitat* h, FILE* zone_file );
+void write_zones_stats( int32_t t,  Individual* indiv, Habitat* h, FILE* zone_file );
 
 FILE* open_operons_stat_file( const char * prefix );
-void write_operons_stats( int32_t t,  ae_individual * indiv, FILE* operon_file );
+void write_operons_stats( int32_t t,  Individual* indiv, FILE* operon_file );
 
 
 double* dist_to_target_segment;
@@ -95,7 +94,7 @@ int main(int argc, char** argv)
   // - end gener                                                  (int64_t)
   // - final individual index                                     (int32_t)
   // - initial genome size                                        (int32_t)
-  // - initial ancestor (nb genetic units + sequences)            (ae_individual::write_to_backup)
+  // - initial ancestor (nb genetic units + sequences)            (Individual::write_to_backup)
   // - replication report of ancestor at time t0+1  (ae_replic_report::write_to_backup)
   // - replication report of ancestor at time t0+2  (ae_replic_report::write_to_backup)
   // - replication report of ancestor at time t0+3  (ae_replic_report::write_to_backup)
@@ -140,7 +139,7 @@ int main(int argc, char** argv)
       }
       case 'V' :
       {
-        print_version();
+        Utils::PrintAevolVersion();
         exit( EXIT_SUCCESS );
       }
       case 'v' : verbose = true;                    break;
@@ -224,19 +223,20 @@ int main(int argc, char** argv)
 
 
 
-  // =========================
+  // =============================
   //  Open the experience manager
-  // =========================
-
-
-  ae_exp_manager* exp_manager = new ae_exp_manager();
-  
+  // =============================
+  ExpManager* exp_manager = new ExpManager();
   exp_manager->load(t0, true, false);
-  // Environment* env = new Environment(*(exp_manager->get_env())); // independent copy
-  Habitat *h; // = ;
-  // exp_manager->InitializeWorld(x,y,
+
+  // The current version doesn't allow for phenotypic variation nor for
+  // different phenotypic targets among the grid
+  assert(exp_manager->world()->phenotypic_target_shared());
+  assert(exp_manager->world()->phenotypic_target_handler()->var_method() ==
+             NO_VAR);
 
   int64_t backup_step = exp_manager->get_backup_step();
+
 
   // =========================
   //  Open the output file(s)
@@ -256,7 +256,7 @@ int main(int argc, char** argv)
   bool best_indiv_only = true;
   bool addition_old_stats = false;
   bool delete_old_stats = true;
-  ae_stats * mystats = new ae_stats(exp_manager, t0, best_indiv_only, prefix, addition_old_stats, delete_old_stats);
+  Stats* mystats = new Stats(exp_manager, t0, best_indiv_only, prefix, addition_old_stats, delete_old_stats);
   //mystats->write_headers();
 
   // Optional outputs
@@ -273,7 +273,7 @@ int main(int argc, char** argv)
   // ==================================================
   //  Prepare the initial ancestor and write its stats
   // ==================================================
-  ae_individual *indiv = ae_individual::CreateIndividual(exp_manager, lineage_file );
+  Individual*indiv = Individual::CreateIndividual(exp_manager, lineage_file);
   indiv->Evaluate();
   indiv->compute_statistical_data();
   indiv->compute_non_coding();
@@ -301,16 +301,14 @@ int main(int argc, char** argv)
 
   // ===============================================================================
   //  Replay the mutations to get the successive ancestors and analyze them
-  //  (and, optionally, check that the rebuilt envir is correct each time a backup
-  //  is available)
   // ===============================================================================
-  ae_replication_report* rep = NULL;
+  ReplicationReport* rep = nullptr;
 
-  ae_individual* stored_indiv = NULL;
+  Individual* stored_indiv = nullptr;
 
   int32_t index;
 
-  ae_exp_manager* exp_manager_backup = NULL;
+  ExpManager* exp_manager_backup = nullptr;
   Habitat *backup_habitat = nullptr;
 
   bool check_now = false;
@@ -318,13 +316,13 @@ int main(int argc, char** argv)
   aevol::Time::plusplus();
   while (get_time() <= t_end)
   {
-    rep = new ae_replication_report( lineage_file, indiv );
+    rep = new ReplicationReport( lineage_file, indiv );
     index = rep->get_id(); // who we are building...
     indiv->set_replication_report( rep );
 
     // Check now?
-    check_now = ((check == FULL_CHECK && ae_utils::mod(get_time(), backup_step) == 0) ||
-                 (check == ENV_CHECK && ae_utils::mod(get_time(), backup_step) == 0) ||
+    check_now = ((check == FULL_CHECK && Utils::mod(get_time(), backup_step) == 0) ||
+                 (check == ENV_CHECK && Utils::mod(get_time(), backup_step) == 0) ||
                  (check == LIGHT_CHECK && get_time() == t_end));
 
     if (verbose)
@@ -337,25 +335,29 @@ int main(int argc, char** argv)
     // env->apply_variation();
     indiv->reevaluate();
 
-    // Check, and possibly update, the environment according to the backup files (update necessary if the env. was modified by aevol_modify at some point)
-    if (ae_utils::mod(get_time(), backup_step) == 0)
-    {
-      char env_file_name[255];
-      sprintf(env_file_name, "./" ENV_FNAME_FORMAT, get_time());
-      gzFile env_file = gzopen(env_file_name, "r");
-      backup_habitat = new Habitat(env_file, pth); // TODO vld: fix pth
+    // TODO <david.parsons@inria.fr> Check for phenotypic variation has to be
+    // done for all the grid cells, disable checking until coded
 
-      if ( ! env->is_identical_to(*backup_env, tolerance) )
-      {
-        printf("Warning: At get_time()=%" PRId64 ", the replayed environment is not the same\n", get_time());
-        printf("         as the one saved at get_time()=%" PRId64 "... \n", get_time() );
-        printf("         with tolerance of %lg\n", tolerance);
-        printf("Replacing the replayed environment by the one stored in the backup.\n");
-        delete env;
-        h = new Habitat(*backup_habitat);
-      }
-      delete backup_habitat;
-    }
+//    // Check, and possibly update, the environment according to the backup files
+//    // (update necessary if the env. was modified by aevol_modify at some point)
+//    if (Utils::mod(get_time(), backup_step) == 0)
+//    {
+//      char world_file_name[255];
+//      sprintf(world_file_name, "./" WORLD_FNAME_FORMAT, get_time());
+//      gzFile world_file = gzopen(world_file_name, "r");
+//      backup_habitat = new Habitat(world_file, pth); // TODO vld: fix pth
+//
+//      if ( ! env->is_identical_to(*backup_env, tolerance) )
+//      {
+//        printf("Warning: At get_time()=%" PRId64 ", the replayed environment is not the same\n", get_time());
+//        printf("         as the one saved at get_time()=%" PRId64 "... \n", get_time() );
+//        printf("         with tolerance of %lg\n", tolerance);
+//        printf("Replacing the replayed environment by the one stored in the backup.\n");
+//        delete env;
+//        h = new Habitat(*backup_habitat);
+//      }
+//      delete backup_habitat;
+//    }
 
 
     // Warning: this portion of code won'get_time() work if the number of units changes
@@ -374,10 +376,10 @@ int main(int argc, char** argv)
     std::list<GeneticUnit>::const_iterator storedunit;
     if (check_now)
     {
-      exp_manager_backup = new ae_exp_manager();
+      exp_manager_backup = new ExpManager();
       exp_manager_backup->load(get_time(), true, false);
       // TODO: disabled tmp
-      // stored_indiv = new ae_individual(*(ae_individual *)exp_manager_backup->get_indiv_by_id( index ), false);
+      // stored_indiv = new Individual(*(Individual*)exp_manager_backup->get_indiv_by_id( index ), false);
       storedunit = storedgulist.begin();
     }
 
@@ -548,7 +550,7 @@ FILE* open_terminators_stat_file( const char * prefix )
   return term_output_file;
 }
 
-void write_terminators_stats( int32_t t,  ae_individual * indiv, FILE* term_output_file  )
+void write_terminators_stats( int32_t t,  Individual* indiv, FILE* term_output_file  )
 {
   fprintf(  term_output_file, "%" PRId32 " %" PRId32 " %" PRId32 "\n",
             t,
@@ -578,7 +580,7 @@ FILE* open_zones_stat_file( const char * prefix  )
   return zones_output_file;
 }
 
-void write_zones_stats( int32_t t, ae_individual * indiv, Habitat *h, FILE* zones_output_file )
+void write_zones_stats( int32_t t, Individual* indiv, Habitat *h, FILE* zones_output_file )
 {
   assert(h->phenotypic_target().nb_segments() > 1);
 
@@ -606,7 +608,7 @@ void write_zones_stats( int32_t t, ae_individual * indiv, Habitat *h, FILE* zone
 
   Fuzzy* activ = NULL;
   Fuzzy* inhib = NULL;
-  ae_phenotype* phen  = NULL;
+  Phenotype* phen  = NULL;
 
 
 
@@ -689,7 +691,7 @@ FILE* open_operons_stat_file( const char * prefix  )
   return operons_output_file;
 }
 
-void write_operons_stats(int32_t t, ae_individual * indiv, FILE*  operons_output_file)
+void write_operons_stats(int32_t t, Individual* indiv, FILE*  operons_output_file)
 {
   int32_t nb_genes_per_rna[20];
   for ( int i = 0 ; i < 20 ; i++ )
@@ -783,14 +785,4 @@ void print_help(char* prog_path)
   printf( "\t-t tolerance or --tolerance tolerance : \n");
   printf( "\t                       Tolerance used to compare the replayed environment to environment in backup\n");
   printf( "\n" );
-}
-
-
-/*!
-  \brief Print aevol version number
-
-*/
-void print_version( void )
-{
-  printf( "aevol %s\n", VERSION );
 }

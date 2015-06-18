@@ -64,7 +64,6 @@ enum population_change_type
 };
 
 void print_help(char* prog_path);
-void print_version(void);
 
 ParameterLine* get_line(FILE* param_file);
 void format_line(ParameterLine* formated_line, char* line, bool* line_is_interpretable);
@@ -104,7 +103,7 @@ int main(int argc, char* argv[])
           }
         case 'V' :
           {
-            print_version();
+            Utils::PrintAevolVersion();
             exit(EXIT_SUCCESS);
           }
         case 'f' :
@@ -1002,13 +1001,4 @@ void print_help(char* prog_path)
   printf("  -V, --version\n\tprint version number, then exit\n\n");
   printf("  -g, --gener GENER\n\tspecify generation number\n\n");
   printf("  -f, --file param_file\n\tspecify parameter file (default: param.in)\n");
-}
-
-/*!
-  \brief 
-  
-*/
-void print_version(void) 
-{
-  printf("aevol %s\n", VERSION);
 }

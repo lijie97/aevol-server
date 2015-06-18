@@ -60,7 +60,6 @@ enum check_type
 //                         Function declarations
 // =================================================================
 void print_help(char* prog_path);
-void print_version( void );
 
 double* dist_to_target_segment;
 
@@ -124,7 +123,7 @@ int main(int argc, char** argv)
       }
       case 'V' :
       {
-        print_version();
+        Utils::PrintAevolVersion();
         exit( EXIT_SUCCESS );
       }
       case 'v' : verbose = true;                    break;
@@ -572,14 +571,4 @@ void print_help(char* prog_path)
   printf( "\t-t tolerance or --tolerance tolerance : \n");
   printf( "\t                       Tolerance used to compare the replayed environment to environment in backup\n");
   printf( "\n" );
-}
-
-
-/*!
-  \brief Print aevol version number
-
-*/
-void print_version( void )
-{
-  printf( "aevol %s\n", VERSION );
 }

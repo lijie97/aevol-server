@@ -25,7 +25,8 @@ int main( int argc, char* argv[] )
   int32_t gener = -1; // What generation to load
   char* output_file_name = NULL;
   bool best_only = false; // Treat only the best individual?
-  
+
+  // TODO <david.parsons@inria.fr> version
   const char * options_list = "hn:r:o:b";
   static struct option long_options_list[] = {
     { "help", 0, NULL, 'h' },

@@ -37,7 +37,6 @@ AM_CPPFLAGS += -D_FORTIFY_SOURCE=2
 bin_PROGRAMS = \
 aevol_misc_create_eps \
 aevol_misc_extract
-# aevol_misc_ancstats
 # aevol_misc_fixed_mutations
 # aevol_misc_gene_families
 # aevol_misc_lineage
@@ -54,7 +53,6 @@ aevol_misc_extract
 CLEANFILES = \
 aevol_misc_create_eps \
 aevol_misc_extract
-# aevol_misc_ancstats
 # aevol_misc_fixed_mutations
 # aevol_misc_gene_families
 # aevol_misc_lineage
@@ -65,7 +63,7 @@ aevol_misc_extract
 # aevol_misc_transform_plasmid
 # aevol_misc_view_generation
 
-# aevol_misc_ancstats_SOURCES = ancstats.cpp
+#aevol_misc_ancstats_SOURCES = ancstats.cpp
 aevol_misc_create_eps_SOURCES = create_eps.cpp
 aevol_misc_extract_SOURCES = extract.cpp
 # aevol_misc_fixed_mutations_SOURCES = fixed_mutations.cpp

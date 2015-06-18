@@ -58,7 +58,6 @@ using namespace aevol;
 //                         Function declarations
 // =================================================================
 void print_help(char* prog_path);
-void print_version(void);
 
 
 
@@ -110,7 +109,7 @@ int main(int argc, char* argv[])
       }
     case 'V' :
       {
-        print_version();
+        Utils::PrintAevolVersion();
         exit(EXIT_SUCCESS);
       }
     case 'g' :
@@ -380,13 +379,4 @@ void print_help(char* prog_path)
   printf("\tenvironmental variation.\n");
   printf("  -n, --env-noise-seed ENVNOISESEED\n\tspecify an integer as a seed for random numbers needed for \n");
   printf("\tenvironmental noise.\n");
-}
-
-/*!
-  \brief 
-  
-*/
-void print_version(void) 
-{
-	printf("aevol %s\n", VERSION);
 }
