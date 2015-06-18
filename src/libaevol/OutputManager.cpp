@@ -275,47 +275,38 @@ void OutputManager::load(FILE* setup_file, bool verbose, bool to_be_run)
 
 void OutputManager::write_current_generation_outputs( void ) const
 {
+  // Write stats
   _stats->write_current_generation_statistics();
-  
-  if (_record_tree)
-  {
-    if (Time::get_time() > 0)
-    {
-      _tree->fill_tree_with_cur_gener(); 
-    }
-  }
 
-  // Write backup and tree
-  if (_record_tree && (Time::get_time() % _tree->get_tree_step() == 0))
-  {
-    if (_tree->get_tree_mode() == NORMAL)
-    { 
+  // Manage tree
+  if (_record_tree && Time::get_time() > 0) {
+    _tree->fill_tree_with_cur_gener();
+
+    if ((Time::get_time() % _tree->get_tree_step() == 0) &&
+        (_tree->get_tree_mode() == NORMAL)) {
       write_tree();
     }
   }
-  
-  if (Time::get_time() % _backup_step == 0)
-  {
+
+  // Write backup
+  if (Time::get_time() % _backup_step == 0) {
     _stats->flush();
     _exp_m->save();
     
     // Update the LAST_GENER file
     FILE* last_gener_file = fopen(LAST_GENER_FNAME, "w");
-    if (last_gener_file != NULL)
-    {
+    if (last_gener_file != NULL) {
       fprintf(last_gener_file, "%" PRId64 "\n", Time::get_time());
       fclose(last_gener_file);
     }
-    else
-    {
+    else {
       printf( "Error : could not open file " LAST_GENER_FNAME "\n" );
     }
   }
 
-  if (_make_dumps)
-  {
-    if(Time::get_time() % _dump_step == 0)
-    {
+  // Write dumps
+  if (_make_dumps) {
+    if(Time::get_time() % _dump_step == 0) {
       _dump->write_current_generation_dump();
     }
   }
