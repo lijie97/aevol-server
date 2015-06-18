@@ -116,6 +116,16 @@ int main( int argc, char* argv[] )
     }
   }
 
+  // If num_gener is not provided, assume last gener
+  if (num_gener == -1) {
+    num_gener = OutputManager::get_last_gener();
+  }
+
+  if ( triangles_file_name == NULL && sequence_file_name == NULL ) {
+    Utils::ExitWithMsg("Use option -s or -t (-h for more info)",
+                       __FILE__, __LINE__);
+  }
+
   // Open the files
   FILE* triangles_file = NULL;
   FILE* sequence_file = NULL;
@@ -142,7 +152,7 @@ int main( int argc, char* argv[] )
     fprintf(triangles_file, "# %2.d RNA length (rna_len)\n", key++);
     fprintf(triangles_file, "# %2.d basal level (basal_level)\n", key++);
     fprintf(triangles_file, "\n");
-    fprintf(triangles_file, "id c_or_p trand pos len lpos sequence m w h c f prom_pos rna_len basal_level\n");
+    fprintf(triangles_file, "id c_or_p strand pos len lpos sequence m w h c f prom_pos rna_len basal_level\n");
   }
   if ( sequence_file_name != NULL )
   {
