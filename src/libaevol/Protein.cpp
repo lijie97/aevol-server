@@ -94,7 +94,8 @@ Protein::Protein(GeneticUnit* gen_unit,
                  const std::list<Codon*>& codon_list,
                  Strand strand,
                  int32_t shine_dal_pos,
-                 Rna* rna )
+                 Rna* rna,
+                 double w_max)
 {
   assert( shine_dal_pos >= 0 );
   assert( shine_dal_pos < gen_unit->get_seq_length() );
@@ -296,7 +297,7 @@ Protein::Protein(GeneticUnit* gen_unit,
   // w_min <= W <= w_max
   // h_min <= H <= h_max
   _mean   = (X_MAX - X_MIN) * _mean + X_MIN;
-  _width  = (get_indiv()->get_w_max() - W_MIN) * _width + W_MIN;
+  _width  = (w_max - W_MIN) * _width + W_MIN;
   _height = (H_MAX - H_MIN) * _height + H_MIN;
 
   if ( nb_m == 0 || nb_w == 0 || nb_h == 0 || _width == 0.0 || _height == 0.0 )

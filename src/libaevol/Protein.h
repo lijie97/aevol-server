@@ -70,12 +70,13 @@ class Protein
     // =================================================================
     Protein() = delete;
     Protein(const Protein &model) = delete;
-    Protein( GeneticUnit* gen_unit, const Protein &model );
+    Protein(GeneticUnit* gen_unit, const Protein &model);
     Protein(GeneticUnit* gen_unit,
                const std::list<Codon*>& codon_list,
                Strand strand,
-               int32_t shine_dal,
-               Rna * rna );
+               int32_t shine_dal_pos,
+               Rna * rna,
+               double w_max);
     //Protein( Protein* parent );
     Protein( gzFile backup_file );
     // =================================================================

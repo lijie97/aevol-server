@@ -1046,7 +1046,9 @@ void GeneticUnit::do_translation()
               if (codon->is_stop()) {
                 if (not codon_list.empty()) { // at least one amino-acid
                   // The protein is valid, create the corresponding object
-                  protein_strand.emplace_back(this, codon_list, strand, shine_dal_pos, &rna);
+                  protein_strand.emplace_back(this, codon_list, strand,
+                                              shine_dal_pos, &rna,
+                                              get_indiv()->get_w_max());
                   auto& protein = protein_strand.back();
                   codon_list.clear(); // has been copied into `protein`
                   rna.add_transcribed_protein(&protein);
