@@ -97,6 +97,9 @@ class PhenotypicTargetHandler
   const list<Gaussian>& gaussians() const {
     return initial_gaussians_;
   }
+  const PhenotypicTargetVariationMethod& var_method() const {
+    return var_method_;
+  }
 
   // ==========================================================================
   //                                 Setters
@@ -212,19 +215,6 @@ class PhenotypicTargetHandler
   /// Log2 of the number of points in the noise fuzzy_set
   int8_t noise_sampling_log_;
 };
-
-
-// ============================================================================
-//                           Getters' definitions
-// ============================================================================
-
-// ============================================================================
-//                           Setters' definitions
-// ============================================================================
-
-// ============================================================================
-//                          Operators' definitions
-// ============================================================================
 
 // ============================================================================
 //                       Inline functions' definition
