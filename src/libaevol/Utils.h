@@ -32,9 +32,18 @@
 // =================================================================
 //                              Libraries
 // =================================================================
-#include <inttypes.h>
-#include <assert.h>
+#include <cinttypes>
+#include <cassert>
+#include <cstdlib>
 
+#include <string>
+#include <iostream>
+
+
+
+using std::string;
+using std::cout;
+using std::endl;
 
 
 // =================================================================
@@ -52,21 +61,23 @@ namespace aevol {
 
 class Utils
 {
-  public :
-    static inline int32_t mod(int32_t a, int32_t b);
-    static inline int64_t mod(int64_t a, int64_t b);
-    static inline int32_t min(int32_t a, int32_t b);
-    static inline int32_t max(int32_t a, int32_t b);
-    static inline void    exchange(int32_t &a, int32_t &b);
-    static inline int16_t hamming(const char* str1, const char* str2);
+ public :
+  static inline int32_t mod(int32_t a, int32_t b);
+  static inline int64_t mod(int64_t a, int64_t b);
+  static inline int32_t min(int32_t a, int32_t b);
+  static inline int32_t max(int32_t a, int32_t b);
+  static inline void    exchange(int32_t &a, int32_t &b);
+  static inline int16_t hamming(const char* str1, const char* str2);
 
-  protected :
-    Utils( const Utils &model )
-    {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-  
+  static inline void ExitWithMsg(const string& msg,
+                                 const string& file, int line);
+
+ protected :
+  Utils( const Utils &model )
+  {
+    printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
+    exit( EXIT_FAILURE );
+  };
 };
 
 
@@ -106,5 +117,19 @@ inline void Utils::exchange(int32_t &a, int32_t &b)
   a = b;
   b = tmp;
 }
+
+/**
+ * Print an error message and exit (with error status)
+ *
+ * \param msg message to be printed
+ * \param file should be __FILE__
+ * \param line should be __LINE__
+ */
+inline void Utils::ExitWithMsg(const string& msg,
+                               const string& file, int line) {
+  cout << file << ":" << line << ": error: " << msg << endl;
+  exit(EXIT_FAILURE);
+}
+
 } // namespace aevol
 #endif // AEVOL_UTILS_H__
