@@ -83,10 +83,10 @@ class World
   std::list<Individual *> get_indivs(void) const;
   inline int32_t          get_nb_indivs(void) const;
   inline Individual *   get_best_indiv(void) const;
-  inline int16_t          width()  const {return width_;};
-  inline int16_t          height() const {return height_;};
+  int16_t          width()  const {return width_;};
+  int16_t          height() const {return height_;};
   inline int32_t          partial_mix_nb_permutations(void) const;
-  inline GridCell ***  grid(void) const {return grid_;};
+  GridCell ***  grid(void) const {return grid_;};
   inline GridCell *    grid(int16_t x, int16_t y) const;
   inline Individual *   get_indiv_at(int16_t x, int16_t y) const;
 
