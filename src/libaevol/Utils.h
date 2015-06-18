@@ -71,6 +71,7 @@ class Utils
 
   static inline void ExitWithMsg(const string& msg,
                                  const string& file, int line);
+  static inline void PrintAevolVersion();
 
  protected :
   Utils( const Utils &model )
@@ -129,6 +130,14 @@ inline void Utils::ExitWithMsg(const string& msg,
                                const string& file, int line) {
   cout << file << ":" << line << ": error: " << msg << endl;
   exit(EXIT_FAILURE);
+}
+
+/**
+ * Print aevol version number
+ */
+void Utils::PrintAevolVersion()
+{
+  printf( "aevol %s\n", VERSION );
 }
 
 } // namespace aevol
