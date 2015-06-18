@@ -82,7 +82,8 @@ void World::InitGrid(int16_t width, int16_t height,
   assert(share_phenotypic_target);
 
   if (share_phenotypic_target)
-    phenotypic_target_handler_ = std::make_shared<PhenotypicTargetHandler>(habitat.phenotypic_target_handler());
+    phenotypic_target_handler_ = std::make_shared<PhenotypicTargetHandler>
+        (habitat.phenotypic_target_handler());
 
   width_  = width;
   height_ = height;
@@ -276,11 +277,12 @@ void World::save(gzFile backup_file) const
   }
 
   // Manage shared or private phenotypic targets
-  int8_t tmp_phenotypic_target_shared = static_cast<int8_t>(phenotypic_target_shared ? 1 : 0);
+  int8_t tmp_phenotypic_target_shared = static_cast<int8_t>(phenotypic_target_shared_
+                                                            ? 1 : 0);
   gzwrite(backup_file,
           &tmp_phenotypic_target_shared,
           sizeof(tmp_phenotypic_target_shared));
-  if (phenotypic_target_shared)
+  if (phenotypic_target_shared_)
     phenotypic_target_handler_->save(backup_file);
 
   gzwrite(backup_file, &width_,   sizeof(width_));
@@ -288,7 +290,7 @@ void World::save(gzFile backup_file) const
 
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++)
-      grid_[x][y]->save(backup_file, phenotypic_target_shared);
+      grid_[x][y]->save(backup_file, phenotypic_target_shared_);
 
   gzwrite(backup_file, &x_best, sizeof(x_best));
   gzwrite(backup_file, &y_best, sizeof(y_best));
@@ -317,8 +319,8 @@ void World::load(gzFile backup_file, ExpManager * exp_man)
   gzread(backup_file,
           &tmp_phenotypic_target_shared,
           sizeof(tmp_phenotypic_target_shared));
-  phenotypic_target_shared = tmp_phenotypic_target_shared;
-  if (phenotypic_target_shared)
+  phenotypic_target_shared_ = tmp_phenotypic_target_shared;
+  if (phenotypic_target_shared_)
     phenotypic_target_handler_ =
         std::make_shared<PhenotypicTargetHandler>(backup_file);
   phenotypic_target_handler_->build_phenotypic_target();

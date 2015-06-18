@@ -175,7 +175,8 @@ class World
   bool is_well_mixed_ = false;
   int32_t partial_mix_nb_permutations_ = 0;
 
-  bool phenotypic_target_shared = true;
+ protected:
+  bool phenotypic_target_shared_ = true;
   std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler_ = nullptr;
 
   double  _secretion_diffusion_prop = -1;
