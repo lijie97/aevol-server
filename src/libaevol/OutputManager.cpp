@@ -321,6 +321,19 @@ void OutputManager::write_current_generation_outputs( void ) const
   }
 }
 
+// TODO <david.parsons@inria.fr> we need an input_dir attribute in this class !
+int32_t OutputManager::get_last_gener() {
+  int32_t num_gener;
+  FILE* lg_file = fopen(LAST_GENER_FNAME, "r");
+  if (lg_file != NULL) {
+    if (fscanf(lg_file, "%" PRId32 "\n", &num_gener) == EOF) {
+      Utils::ExitWithMsg("failed to read last generation", __FILE__, __LINE__);
+    }
+    fclose(lg_file);
+  }
+  return num_gener;
+}
+
 // =================================================================
 //                           Protected Methods
 // =================================================================

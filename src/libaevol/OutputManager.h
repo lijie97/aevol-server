@@ -121,6 +121,8 @@ class OutputManager
     void write_current_generation_outputs( void ) const;
     inline void flush( void );
 
+  static int32_t get_last_gener();
+
     // =================================================================
     //                           Public Attributes
     // =================================================================
