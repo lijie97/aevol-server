@@ -103,7 +103,10 @@ class Mutation
     //                        Accessors: Getters
     // =================================================================
     inline MutationType get_mut_type( void ) const;
-    inline int32_t          get_length( void ) const;
+    inline bool is_local_mut() const;
+    inline bool is_rear() const;
+    inline bool is_HT() const;
+    inline int32_t get_length( void ) const;
 
     void get_infos_point_mutation( int32_t* pos ) const;
     void get_infos_small_insertion( int32_t* pos, int32_t* length ) const; // everything except the sequence
@@ -192,6 +195,24 @@ class Mutation
 MutationType Mutation::get_mut_type( void ) const
 {
   return _mut_type;
+}
+
+bool Mutation::is_local_mut() const {
+  return (_mut_type == SWITCH or
+          _mut_type == S_INS or
+          _mut_type == S_DEL);
+}
+
+bool Mutation::is_rear() const {
+  return (_mut_type == DUPL or
+          _mut_type == DEL or
+          _mut_type == TRANS or
+          _mut_type == INV);
+}
+
+bool Mutation::is_HT() const {
+  return (_mut_type == INS_HT or
+          _mut_type == REPL_HT);
 }
 
 inline int32_t Mutation::get_length( void ) const
