@@ -771,17 +771,17 @@ int32_t Individual::get_total_genome_size() const {
 }
 
 /// TODO
-int32_t Individual::get_nb_coding_RNAs() const {
+int16_t Individual::get_nb_coding_RNAs() const {
   return stats_->nb_coding_RNAs();
 }
 
 /// TODO
-int32_t Individual::get_nb_non_coding_RNAs() const {
+int16_t Individual::get_nb_non_coding_RNAs() const {
   return stats_->nb_non_coding_RNAs();
 }
 
 /// TODO
-double Individual::get_overall_size_coding_RNAs() const {
+int32_t Individual::get_overall_size_coding_RNAs() const {
   return stats_->overall_size_coding_RNAs();
 }
 
@@ -794,7 +794,7 @@ double Individual::get_av_size_coding_RNAs() const {
 }
 
 /// TODO
-double Individual::get_overall_size_non_coding_RNAs() const {
+int32_t Individual::get_overall_size_non_coding_RNAs() const {
   return stats_->overall_size_non_coding_RNAs();
 }
 
@@ -807,27 +807,27 @@ double Individual::get_av_size_non_coding_RNAs() const {
 }
 
 /// TODO
-int32_t Individual::get_nb_genes_activ() const {
+int16_t Individual::get_nb_genes_activ() const {
   return stats_->nb_genes_activ();
 }
 
 /// TODO
-int32_t Individual::get_nb_genes_inhib() const {
+int16_t Individual::get_nb_genes_inhib() const {
   return stats_->nb_genes_inhib();
 }
 
 /// TODO
-int32_t Individual::get_nb_functional_genes() const {
+int16_t Individual::get_nb_functional_genes() const {
   return stats_->nb_functional_genes();
 }
 
 /// TODO
-int32_t Individual::get_nb_non_functional_genes() const {
+int16_t Individual::get_nb_non_functional_genes() const {
   return stats_->nb_non_functional_genes();
 }
 
 /// TODO
-double Individual::get_overall_size_functional_genes() const {
+int32_t Individual::get_overall_size_functional_genes() const {
   return stats_->overall_size_functional_genes();
 }
 
@@ -840,7 +840,7 @@ double Individual::get_av_size_functional_genes() const {
 }
 
 /// TODO
-double Individual::get_overall_size_non_functional_genes() const {
+int32_t Individual::get_overall_size_non_functional_genes() const {
   return stats_->overall_size_non_functional_genes();
 }
 

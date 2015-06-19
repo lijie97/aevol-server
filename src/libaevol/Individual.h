@@ -221,19 +221,19 @@ class Individual
 
   // Statistical data
   int32_t  get_total_genome_size() const; // TODO: duplicate with get_amount_of_dna?
-  int32_t  get_nb_coding_RNAs() const;
-  int32_t  get_nb_non_coding_RNAs() const;
-  double   get_overall_size_coding_RNAs() const;
+  int16_t get_nb_coding_RNAs() const;
+  int16_t get_nb_non_coding_RNAs() const;
+  int32_t get_overall_size_coding_RNAs() const;
   double   get_av_size_coding_RNAs() const;
-  double   get_overall_size_non_coding_RNAs() const;
+  int32_t get_overall_size_non_coding_RNAs() const;
   double   get_av_size_non_coding_RNAs() const;
-  int32_t  get_nb_genes_activ() const;
-  int32_t  get_nb_genes_inhib() const;
-  int32_t  get_nb_functional_genes() const;
-  int32_t  get_nb_non_functional_genes() const;
-  double   get_overall_size_functional_genes() const;
+  int16_t get_nb_genes_activ() const;
+  int16_t get_nb_genes_inhib() const;
+  int16_t get_nb_functional_genes() const;
+  int16_t get_nb_non_functional_genes() const;
+  int32_t get_overall_size_functional_genes() const;
   double   get_av_size_functional_genes() const;
-  double   get_overall_size_non_functional_genes() const;
+  int32_t get_overall_size_non_functional_genes() const;
   double   get_av_size_non_functional_genes() const;
 
   int32_t  get_nb_bases_in_0_CDS() const;

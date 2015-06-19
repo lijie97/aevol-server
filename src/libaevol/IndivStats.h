@@ -73,20 +73,20 @@ class IndivStats
   //                                 Getters
   // ==========================================================================
   int32_t total_genome_size() const {return total_genome_size_;};
-  int32_t nb_coding_RNAs() const {return nb_coding_RNAs_;};
-  int32_t nb_non_coding_RNAs() const {return nb_non_coding_RNAs_;};
-  double overall_size_coding_RNAs() const {return overall_size_coding_RNAs_;};
-  double overall_size_non_coding_RNAs() const {
+  int16_t nb_coding_RNAs() const {return nb_coding_RNAs_;};
+  int16_t nb_non_coding_RNAs() const {return nb_non_coding_RNAs_;};
+  int32_t overall_size_coding_RNAs() const {return overall_size_coding_RNAs_;};
+  int32_t overall_size_non_coding_RNAs() const {
     return overall_size_non_coding_RNAs_;
   };
-  int32_t nb_genes_activ() const {return nb_genes_activ_;};
-  int32_t nb_genes_inhib() const {return nb_genes_inhib_;};
-  int32_t nb_functional_genes() const {return nb_functional_genes_;};
-  int32_t nb_non_functional_genes() const {return nb_non_functional_genes_;};
-  double overall_size_functional_genes() const {
+  int16_t nb_genes_activ() const {return nb_genes_activ_;};
+  int16_t nb_genes_inhib() const {return nb_genes_inhib_;};
+  int16_t nb_functional_genes() const {return nb_functional_genes_;};
+  int16_t nb_non_functional_genes() const {return nb_non_functional_genes_;};
+  int32_t overall_size_functional_genes() const {
     return overall_size_functional_genes_;
   };
-  double overall_size_non_functional_genes() const {
+  int32_t overall_size_non_functional_genes() const {
     return overall_size_non_functional_genes_;
   };
 
@@ -118,25 +118,25 @@ class IndivStats
   /// Sum of sizes of the genetic units
   int32_t total_genome_size_ = 0;
   /// Number of coding RNAs (at least one gene on RNA)
-  int32_t nb_coding_RNAs_ = 0;
+  int16_t nb_coding_RNAs_ = 0;
   /// Number of non-coding-RNAs
-  int32_t nb_non_coding_RNAs_ = 0;
+  int16_t nb_non_coding_RNAs_ = 0;
   /// Cumulated size of all coding RNAs
-  double overall_size_coding_RNAs_ = 0.0;
+  int32_t overall_size_coding_RNAs_ = 0;
   /// Cumulated size of all non-coding RNAs
-  double overall_size_non_coding_RNAs_ = 0.0;
+  int32_t overall_size_non_coding_RNAs_ = 0;
   /// Number of genes realizing a function
-  int32_t nb_genes_activ_ = 0;
+  int16_t nb_genes_activ_ = 0;
   /// Number of genes inhibitting a function
-  int32_t nb_genes_inhib_ = 0;
+  int16_t nb_genes_inhib_ = 0;
   /// Number of functional genes
-  int32_t nb_functional_genes_ = 0;
+  int16_t nb_functional_genes_ = 0;
   /// Number of non-functional genes
-  int32_t nb_non_functional_genes_ = 0;
+  int16_t nb_non_functional_genes_ = 0;
   /// Cumulated size of all functional genes
-  double overall_size_functional_genes_ = 0.0;
+  int32_t overall_size_functional_genes_ = 0;
   /// Cumulated size of all non-functional genes
-  double overall_size_non_functional_genes_ = 0.0;
+  int32_t overall_size_non_functional_genes_ = 0;
 };
 
 
