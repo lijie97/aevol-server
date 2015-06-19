@@ -27,6 +27,9 @@ target_link_libraries(extract PUBLIC aevol)
 add_executable(ancstats ancstats.cpp)
 target_link_libraries(ancstats PUBLIC aevol)
 
+add_executable(lineage lineage.cpp)
+target_link_libraries(lineage PUBLIC aevol)
+
 
 # ============================================================================
 # Set behaviour on make install
