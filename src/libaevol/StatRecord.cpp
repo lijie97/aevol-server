@@ -137,9 +137,9 @@ StatRecord::StatRecord(const StatRecord &model)
 }
 
 StatRecord::StatRecord(ExpManager * exp_m,
-                               Individual * indiv,
-                               chrom_or_gen_unit chrom_or_gu,
-                               bool compute_non_coding)
+                       Individual* indiv,
+                       chrom_or_gen_unit chrom_or_gu,
+                       bool compute_non_coding)
 {
   _exp_m = exp_m;
   initialize_data();
@@ -160,7 +160,7 @@ StatRecord::StatRecord(ExpManager * exp_m,
     // -------------------------------------------------
     // Compute statistical data for the given individual
     // -------------------------------------------------
-    ReplicationReport * replic_report = indiv->get_replic_report(); // can be NULL under certain conditions
+    ReplicationReport * replic_report = indiv->get_replication_report(); // can be NULL under certain conditions
 
     GeneticUnit& gen_unit = *indiv->get_genetic_unit_list_nonconst().begin();
 
@@ -224,14 +224,14 @@ StatRecord::StatRecord(ExpManager * exp_m,
     // Mutation stats
     if (replic_report != NULL)
     {
-      _nb_mut    = gen_unit.get_dna()->get_replic_report()->get_nb(S_MUT);
-      _nb_rear   = gen_unit.get_dna()->get_replic_report()->get_nb(REARR);
-      _nb_switch = gen_unit.get_dna()->get_replic_report()->get_nb(SWITCH);
-      _nb_indels = gen_unit.get_dna()->get_replic_report()->get_nb(INDEL);
-      _nb_dupl   = gen_unit.get_dna()->get_replic_report()->get_nb(DUPL);
-      _nb_del    = gen_unit.get_dna()->get_replic_report()->get_nb(DEL);
-      _nb_trans  = gen_unit.get_dna()->get_replic_report()->get_nb(TRANS);
-      _nb_inv    = gen_unit.get_dna()->get_replic_report()->get_nb(INV);
+      _nb_mut    = indiv->get_replication_report()->get_nb(S_MUT);
+      _nb_rear   = indiv->get_replication_report()->get_nb(REARR);
+      _nb_switch = indiv->get_replication_report()->get_nb(SWITCH);
+      _nb_indels = indiv->get_replication_report()->get_nb(INDEL);
+      _nb_dupl   = indiv->get_replication_report()->get_nb(DUPL);
+      _nb_del    = indiv->get_replication_report()->get_nb(DEL);
+      _nb_trans  = indiv->get_replication_report()->get_nb(TRANS);
+      _nb_inv    = indiv->get_replication_report()->get_nb(INV);
 
       // Rearrangement rate stats
       int32_t parent_genome_size = replic_report->get_parent_genome_size();
@@ -260,7 +260,7 @@ StatRecord::StatRecord(ExpManager * exp_m,
     // -------------------------------------------------
     // Compute statistical data for the given individual
     // -------------------------------------------------
-    ReplicationReport * replic_report = indiv->get_replic_report(); // can be NULL under certain conditions
+    ReplicationReport * replic_report = indiv->get_replication_report(); // can be NULL under certain conditions
 
     // Metabolic error stats
     _metabolic_error = (double) indiv->get_dist_to_target_by_feature(METABOLISM);
@@ -316,18 +316,18 @@ StatRecord::StatRecord(ExpManager * exp_m,
         _nb_bases_non_essential                     += gen_unit.get_nb_bases_non_essential();
         _nb_bases_non_essential_including_nf_genes  += gen_unit.get_nb_bases_non_essential_including_nf_genes();
       }
-      
+
       // Mutation stats
-      if ((replic_report != NULL) && (gen_unit.get_dna()->get_replic_report()!=NULL))
+      if (replic_report != NULL)
       {
-        _nb_mut    += gen_unit.get_dna()->get_replic_report()->get_nb(S_MUT);
-        _nb_rear   += gen_unit.get_dna()->get_replic_report()->get_nb(REARR);
-        _nb_switch += gen_unit.get_dna()->get_replic_report()->get_nb(SWITCH);
-        _nb_indels += gen_unit.get_dna()->get_replic_report()->get_nb(INDEL);
-        _nb_dupl   += gen_unit.get_dna()->get_replic_report()->get_nb(DUPL);
-        _nb_del    += gen_unit.get_dna()->get_replic_report()->get_nb(DEL);
-        _nb_trans  += gen_unit.get_dna()->get_replic_report()->get_nb(TRANS);
-        _nb_inv    += gen_unit.get_dna()->get_replic_report()->get_nb(INV);
+        _nb_mut    += replic_report->get_nb(S_MUT);
+        _nb_rear   += replic_report->get_nb(REARR);
+        _nb_switch += replic_report->get_nb(SWITCH);
+        _nb_indels += replic_report->get_nb(INDEL);
+        _nb_dupl   += replic_report->get_nb(DUPL);
+        _nb_del    += replic_report->get_nb(DEL);
+        _nb_trans  += replic_report->get_nb(TRANS);
+        _nb_inv    += replic_report->get_nb(INV);
       }
     }
     
@@ -357,7 +357,7 @@ StatRecord::StatRecord(ExpManager * exp_m,
     // -------------------------------------------------
     // Compute statistical data for the given individual
     // -------------------------------------------------
-    ReplicationReport * replic_report = indiv->get_replic_report(); // can be NULL under certain conditions
+    ReplicationReport * replic_report = indiv->get_replication_report(); // can be NULL under certain conditions
     
     // Metabolic error stats
     _metabolic_error = (double) gen_unit.get_dist_to_target_by_feature(METABOLISM);
@@ -414,17 +414,18 @@ StatRecord::StatRecord(ExpManager * exp_m,
     }
     
     // Mutation stats
-    if (gen_unit.get_dna()->get_replic_report() != NULL)
-    {
-      _nb_mut    = gen_unit.get_dna()->get_replic_report()->get_nb(S_MUT);
-      _nb_rear   = gen_unit.get_dna()->get_replic_report()->get_nb(REARR);
-      _nb_switch = gen_unit.get_dna()->get_replic_report()->get_nb(SWITCH);
-      _nb_indels = gen_unit.get_dna()->get_replic_report()->get_nb(INDEL);
-      _nb_dupl   = gen_unit.get_dna()->get_replic_report()->get_nb(DUPL);
-      _nb_del    = gen_unit.get_dna()->get_replic_report()->get_nb(DEL);
-      _nb_trans  = gen_unit.get_dna()->get_replic_report()->get_nb(TRANS);
-      _nb_inv    = gen_unit.get_dna()->get_replic_report()->get_nb(INV);
-    }
+    // TODO <david.parsons@inria.fr> Disabled
+//    if (gen_unit.get_dna()->get_replication_report() != NULL)
+//    {
+//      _nb_mut    = gen_unit.get_dna()->get_replication_report()->get_nb(S_MUT);
+//      _nb_rear   = gen_unit.get_dna()->get_replication_report()->get_nb(REARR);
+//      _nb_switch = gen_unit.get_dna()->get_replication_report()->get_nb(SWITCH);
+//      _nb_indels = gen_unit.get_dna()->get_replication_report()->get_nb(INDEL);
+//      _nb_dupl   = gen_unit.get_dna()->get_replication_report()->get_nb(DUPL);
+//      _nb_del    = gen_unit.get_dna()->get_replication_report()->get_nb(DEL);
+//      _nb_trans  = gen_unit.get_dna()->get_replication_report()->get_nb(TRANS);
+//      _nb_inv    = gen_unit.get_dna()->get_replication_report()->get_nb(INV);
+//    }
     
     // Rearrangement rate stats
     if (replic_report != NULL)

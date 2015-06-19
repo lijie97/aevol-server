@@ -49,6 +49,7 @@
 #include "Utils.h"
 #include "VisAVis.h"
 #include "Alignment.h"
+#include "DnaReplicationReport.h"
 
 namespace aevol {
 
@@ -76,13 +77,10 @@ Dna::Dna(GeneticUnit* gen_unit,
   _gen_unit = gen_unit;
   _exp_m    = gen_unit->get_exp_m();
   _indiv    = gen_unit->get_indiv();
-
-  _replic_report  = NULL;
 }
 
 /**
  * Create a new piece of dna identical to the model but belonging to <gen_unit>
- * The replication report is copied if it exists
  */
 Dna::Dna(GeneticUnit* gen_unit, const Dna &model) :
     ae_string(model)
@@ -90,24 +88,17 @@ Dna::Dna(GeneticUnit* gen_unit, const Dna &model) :
   _gen_unit = gen_unit;
   _exp_m    = gen_unit->get_exp_m();
   _indiv    = gen_unit->get_indiv();
-
-  _replic_report = model._replic_report ?
-                   new DnaReplicReport(*(model._replic_report)) :
-                   NULL;
 }
 
 /**
  * Creates a new piece of dna identical to the parent's but belonging to <gen_unit>
- * The replication report is set to NULL
  */
 Dna::Dna(GeneticUnit* gen_unit, Dna * const parent_dna) :
 ae_string(parent_dna->_data, parent_dna->_length)
 {
-_gen_unit = gen_unit;
-_exp_m    = gen_unit->get_exp_m();
-_indiv    = gen_unit->get_indiv();
-
-_replic_report = NULL;
+  _gen_unit = gen_unit;
+  _exp_m    = gen_unit->get_exp_m();
+  _indiv    = gen_unit->get_indiv();
 }
 
 /**
@@ -122,34 +113,28 @@ Dna::Dna(GeneticUnit* gen_unit, char* seq, int32_t length) :
   _gen_unit = gen_unit;
   _exp_m    = gen_unit->get_exp_m();
   _indiv    = gen_unit->get_indiv();
-
-  _replic_report = NULL;
 }
 
 /**
  * Loads a piece of dna from <backup_file>
- * The replication report is set to NULL
  */
-Dna::Dna(GeneticUnit* gen_unit, gzFile backup_file) : ae_string(backup_file)
+Dna::Dna(GeneticUnit* gen_unit, gzFile backup_file) :
+    ae_string(backup_file)
 {
   _gen_unit = gen_unit;
   _exp_m    = gen_unit->get_exp_m();
   _indiv    = gen_unit->get_indiv();
-
-  _replic_report = NULL;
 }
 
 /**
  * Creates a dna sequence from a text file
- * The replication report is set to NULL
  */
-Dna::Dna(GeneticUnit* gen_unit, char* organism_file_name) : ae_string(organism_file_name)
+Dna::Dna(GeneticUnit* gen_unit, char* organism_file_name) :
+    ae_string(organism_file_name)
 {
   _gen_unit = gen_unit;
   _exp_m    = gen_unit->get_exp_m();
   _indiv    = gen_unit->get_indiv();
-
-  _replic_report  = NULL;
 }
 
 // =================================================================
@@ -221,11 +206,6 @@ char*Dna::get_subsequence(int32_t from, int32_t to, Strand strand) const
 // =================================================================
 void Dna::perform_mutations(int32_t parent_id)
 {
-  if (_exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL)
-  {
-    _replic_report = new DnaReplicReport();
-  }
-
   if(_indiv->get_with_HT())
   {
     do_transfer(parent_id);
@@ -320,7 +300,7 @@ void Dna::do_small_mutations(void)
     {
       if (mut != NULL)
       {
-        _replic_report->add_mut(*mut);
+        report_mutation(*mut);
       }
     }
     else
@@ -405,7 +385,7 @@ void Dna::do_rearrangements(void)
     {
       if (mut != NULL)
       {
-        _replic_report->add_rear(*mut);
+        report_mutation(*mut);
       }
     }
     else
@@ -801,7 +781,7 @@ void Dna::do_rearrangements_with_align(void)
     {
       if (_exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL)
       {
-        _replic_report->add_rear(*mut);
+        report_mutation(*mut);
         mut = NULL;
       }
       else
@@ -823,7 +803,7 @@ void Dna::do_transfer(int32_t parent_id)
     {
       if (mut != NULL)
       {
-        _replic_report->add_HT(*mut);
+        report_mutation(*mut);
       }
     }
     else
@@ -843,7 +823,7 @@ void Dna::do_transfer(int32_t parent_id)
     {
       if (mut != NULL)
       {
-        _replic_report->add_HT(*mut);
+        report_mutation(*mut);
       }
     }
     else
@@ -3393,4 +3373,9 @@ void Dna::inter_GU_ABCDE_to_BDCAE(int32_t pos_B, int32_t pos_C, int32_t pos_E)
   inter_GU_ABCDE_to_ACDBE(0, pos_B, pos_E);
   inter_GU_ABCDE_to_ACDBE(len_B, (len_B+len_C), len_DA);
 }
+
+void Dna::report_mutation(const Mutation& mut) const {
+//  _indiv->get_replic_report()->dna_replic_report().add_mut(mut);
+}
+
 } // namespace aevol

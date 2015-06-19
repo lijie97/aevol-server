@@ -63,11 +63,13 @@ class Tree
     // =================================================================
     //                             Constructors
     // =================================================================
-    Tree(ExpManager * exp_m, TreeMode tree_mode, int64_t tree_step);
+    Tree() = delete;
+    Tree(const Tree &model) = delete;
     // To be used when we want to run a simulation.
-    Tree(ExpManager * exp_m, char* tree_file_name);
-    // To be used when we want to INSPECT a tree, 
+    Tree(ExpManager* exp_m, TreeMode tree_mode, int64_t tree_step);
+    // To be used when we want to INSPECT a tree,
     // not when we want to run a simulation.
+    Tree(ExpManager* exp_m, char* tree_file_name);
     
     // =================================================================
     //                             Destructors
@@ -77,30 +79,26 @@ class Tree
     // =================================================================
     //                        Accessors: getters
     // =================================================================
-    inline int64_t       get_tree_step(void) const;
+    inline int64_t  get_tree_step(void) const;
     inline TreeMode get_tree_mode(void) const;
     
-    // Precondition for the following 3 methods: 
+    // Precondition for the following methods:
     // the tree was emptied every TREE_STEP generations ==> it contains
     // only the last generations since the last emptying ==> do not ask
-    // something about an older generation 
-    int32_t get_nb_indivs(int64_t t) const;
-    ReplicationReport * get_report_by_index(int64_t t, int32_t index) const;
-    ReplicationReport * get_report_by_rank(int64_t t, int32_t rank) const;
+    // something about an older generation
+    ReplicationReport** get_reports(int64_t t) const;
+    ReplicationReport* get_report_by_index(int64_t t, int32_t index) const;
+    ReplicationReport* get_report_by_rank(int64_t t, int32_t rank) const;
   
 
     // =================================================================
     //                        Accessors: setters
     // =================================================================
-    void set_replic_report(int32_t id, ReplicationReport * replic_report);
-    void set_replic_report(int64_t t, int32_t id, ReplicationReport * replic_report);
-    void set_nb_indivs(int32_t nb_indivs, int64_t t);
-    
     
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void fill_tree_with_cur_gener(void);
+    void signal_end_of_generation();
     void write_to_tree_file(gzFile tree_file);
     
     /** Returns the date of birth of the last common ancestor of individuals
@@ -120,21 +118,6 @@ class Tree
   
   
   protected :
-    
-    // =================================================================
-    //                         Forbidden Constructors
-    // =================================================================
-    Tree( void )
-    {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-    Tree( const Tree &model )
-    {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-    
     // =================================================================
     //                           Protected Methods
     // =================================================================
@@ -142,13 +125,12 @@ class Tree
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ExpManager * _exp_m;
+    ExpManager* _exp_m;
     
-    int64_t       _tree_step;
+    int64_t _tree_step;
     TreeMode _tree_mode;
-    int32_t*      _nb_indivs;
     
-    ReplicationReport *** _replics;
+    ReplicationReport*** _replics;
     // Two-dimensional table of ReplicationReport*
     //    dimension 1 (lines)   : generation
     //    dimension 2 (columns) : individual

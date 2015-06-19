@@ -29,11 +29,12 @@ namespace aevol {
 
 class Dna;
 
-class DnaReplicReport {
+class DnaReplicationReport {
   friend class Dna;
   
  public :
-  // Constructor, copy contructor and destructor are synthesized by compiler.
+  DnaReplicationReport() = default;
+  DnaReplicationReport(const DnaReplicationReport&) = delete;
 
   // Accessors
   const std::list<Mutation> get_mutations()      const { return mutations_; };
@@ -43,19 +44,17 @@ class DnaReplicReport {
 
   // Public Methods
   void compute_stats();  // useful when we inspect a tree file
-  void add_rear(const Mutation & rear);
-  void add_rear(Mutation && rear);
-  void add_mut(const Mutation & mut);
-  void add_mut(Mutation && mut);
-  void add_HT(const Mutation & HT);
-  void add_HT(Mutation && HT);
-
+  void add_mut(const Mutation& mut);
+  void add_local_mut(const Mutation& mut);
+  void add_rear(const Mutation& mut);
+  void add_HT(const Mutation& mut);
 
  protected :
   std::list<Mutation> mutations_;       // Lists of mutations, rearrangements and undergone
   std::list<Mutation> rearrangements_;  // by the genetic unit at last replication
   std::list<Mutation> ht_;
-  int32_t _nb_mut[10]; // Number of mutations/rearrangements/HT of each (simple) type undergone
+  // Number of mutations/rearrangements/HT of each (simple) type undergone
+  int32_t _nb_mut[10] = {0,0,0,0,0,0,0,0,0,0};
 };
 
 } // namespace aevol

@@ -55,16 +55,16 @@ namespace aevol {
  * // TODO <david.parsons@inria.fr>
  */
 Individual::Individual(ExpManager * exp_m,
-                             std::shared_ptr<JumpingMT> mut_prng,
-                             std::shared_ptr<JumpingMT> stoch_prng,
-                             std::shared_ptr<MutationParams> param_mut,
-                             double w_max,
-                             int32_t min_genome_length,
-                             int32_t max_genome_length,
-                             bool allow_plasmids,
-                             int32_t id,
-                             const char* strain_name,
-                             int32_t age)
+                       std::shared_ptr<JumpingMT> mut_prng,
+                       std::shared_ptr<JumpingMT> stoch_prng,
+                       std::shared_ptr<MutationParams> param_mut,
+                       double w_max,
+                       int32_t min_genome_length,
+                       int32_t max_genome_length,
+                       bool allow_plasmids,
+                       int32_t id,
+                       const char* strain_name,
+                       int32_t age)
 {
   // Experiment manager
   _exp_m = exp_m;
@@ -72,9 +72,6 @@ Individual::Individual(ExpManager * exp_m,
   // PRNGs
   _mut_prng   = mut_prng;
   _stoch_prng = stoch_prng;
-
-  // Replication Report
-  _replic_report = NULL;
 
   // ID and rank of the indiv ; name and "age" of the strain
   set_id(id);
@@ -242,13 +239,6 @@ Individual::Individual(ExpManager * exp_m, gzFile backup_file)
     _fitness_by_feature[i]        = 0.0;
   }
 
-
-  // Replication report, protein list and rna list initialization
-  _replic_report = NULL;  // We are reloading from a backup, the replication report for the loaded generation
-  // is already in the tree file corresponding to this generation and needs not be re-written.
-  // NB : If the replication report is needed in future development, it will have to be
-  // loaded from the tree file.
-
   // Initialize the computational state of the individual
   _evaluated                    = false;
   _transcribed                  = false;
@@ -344,20 +334,6 @@ Individual::Individual(const Individual & model,
 
   _modularity = model._modularity;
 
-
-  // Create a new replication report to store mutational events
-  if (replication_report_copy && _exp_m->get_output_m()->get_record_tree() && (_exp_m->get_output_m()->get_tree_mode() == NORMAL) && (model._replic_report != NULL))
-  {
-    _replic_report = new ReplicationReport(*model._replic_report);
-    _replic_report->set_indiv(this);
-    // TODO: remove this after checking it is the old way
-    //_exp_m->get_output_m()->get_tree()->set_replic_report(_id, _replic_report);
-  }
-  else
-  {
-    _replic_report = NULL;
-  }
-
   // Generic probes
   _int_probes     = new int32_t[5];
   _double_probes  = new double[5];
@@ -443,19 +419,6 @@ Individual::Individual(const Individual * parent, int32_t id,
     _fitness_by_feature[i]        = 0.0;
   }
 
-  // Create a new replication report to store mutational events
-  if (_exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL)
-  {
-    _replic_report = new ReplicationReport(this, parent);
-
-    // TODO: remove this after checking it is the old way
-    //_exp_m->get_output_m()->get_tree()->set_replic_report(_id, _replic_report);
-  }
-  else
-  {
-    _replic_report = NULL;
-  }
-
   // Generic probes
   _int_probes     = new int32_t[5];
   _double_probes  = new double[5];
@@ -477,8 +440,6 @@ Individual::Individual(const Individual * parent, int32_t id,
 
   // Initialize statistical data
   _modularity = -1;
-
-  //Evaluate();
 }
 
 Individual *Individual::CreateIndividual(ExpManager * exp_m,
@@ -525,15 +486,7 @@ Individual::~Individual()
 {
   delete [] _strain_name;
 
-  // The _replic_report pointer is destroyed, but not the report itself,
-  // it will be deleted later, when the tree is written on disk and emptied.
-
   // Proteins and RNAs are recycled, don't delete them.
-
-  // When the unit is destoyed, its dna is destroyed too, thus the pointer
-  // to the ae_dna_replication_report is destroyed. But the
-  // dna_replic_report object itself is not deleted, its address is
-  // still contained in the global replic_report object in the tree.
 
   delete _phenotype_activ;
   delete _phenotype_inhib;
@@ -549,11 +502,6 @@ Individual::~Individual()
   delete [] _double_probes;
 
   delete stats_;
-
-  /*if(_replic_report!= NULL)
-  {
-    delete _replic_report;
-  }*/
 }
 
 // =================================================================
@@ -748,11 +696,6 @@ Phenotype*Individual::get_phenotype() const {
 
 const PhenotypicTarget&Individual::phenotypic_target() const {
   return _grid_cell->phenotypic_target();
-}
-
-/// TODO
-ReplicationReport *Individual::get_replic_report() const {
-  return _replic_report;
 }
 
 /// TODO
@@ -1099,34 +1042,16 @@ void Individual::set_strain_name(char* name) {
 /// TODO
 void Individual::set_id(int32_t id) {
   _id = id;
-
-  if (_replic_report != NULL)
-  {
-    _replic_report->set_id(id);
-  }
 }
 
 /// TODO
 void Individual::set_rank(int32_t rank) {
   _rank = rank;
-
-  if (_replic_report != NULL)
-  {
-    _replic_report->set_rank(rank);
-  }
 }
 
 /// TODO
 void Individual::set_placed_in_population(bool placed_in_population) {
   _placed_in_population = placed_in_population;
-}
-
-/*!
-  Set the individual's replication report
-  To be used by post-treatment only
-*/
-void Individual::set_replication_report(ReplicationReport * rep) {
-  _replic_report = rep;
 }
 
 /// TODO
@@ -1679,11 +1604,9 @@ void Individual::compute_statistical_data() {
         gen_unit.get_overall_size_non_functional_genes();
   }
 
-  if (_replic_report != NULL)
-  {
-    // Finalize statistical data in the replication report
-    _replic_report->signal_end_of_replication();
-  }
+  // Finalize statistical data in the replication report
+  if (get_replication_report())
+    get_replication_report()->signal_end_of_replication(this);
 }
 
 void Individual::compute_non_coding() {
@@ -2033,6 +1956,12 @@ void Individual::make_rna_list() {
       for (auto& rna: rna_list[strand])
         _rna_list.push_back(&rna);
   }
+}
+
+ReplicationReport* Individual::get_replication_report() {
+  if (Time::get_time() == 0)
+    return NULL; // No replic report for initial individual
+  return _exp_m->get_tree()->get_report_by_index(Time::get_time(), _id);
 }
 
 } // namespace aevol

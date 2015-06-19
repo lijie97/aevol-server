@@ -97,8 +97,6 @@ class Dna : public ae_string
     //   inline const char*   get_data(void) const;
     //   inline       void    set_data(char* data, int32_t length = -1);
     //   inline       int32_t get_length(void) const;
-    inline DnaReplicReport*  get_replic_report(void) const;
-    inline void                   set_replic_report(DnaReplicReport * rep); // for post-treatment only
 
     inline GeneticUnit*   get_genetic_unit(void) const;
     inline Individual * get_indiv(void) const;
@@ -190,6 +188,8 @@ class Dna : public ae_string
     void inter_GU_ABCDE_to_ACDBE(int32_t pos_B, int32_t pos_C, int32_t pos_E);
     void inter_GU_ABCDE_to_BDCAE(int32_t pos_B, int32_t pos_C, int32_t pos_E);
 
+    void report_mutation(const Mutation & mut) const;
+
 
     // =================================================================
     //                          Protected Attributes
@@ -203,27 +203,15 @@ class Dna : public ae_string
 
     Individual * _indiv;
     GeneticUnit* _gen_unit; // Genetic unit which the dna sequence belongs to
-    DnaReplicReport* _replic_report;
 };
 
 
 // =====================================================================
 //                          Accessors definitions
 // =====================================================================
-inline DnaReplicReport*Dna::get_replic_report(void) const
-{
-  return _replic_report;
-}
-
 inline Individual *Dna::get_indiv(void) const
 {
   return _indiv;
-}
-
- // for post-treatment only
-inline void Dna::set_replic_report(DnaReplicReport * rep)
-{
-  _replic_report = rep;
 }
 
 inline GeneticUnit*Dna::get_genetic_unit(void) const

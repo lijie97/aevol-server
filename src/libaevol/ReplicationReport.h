@@ -66,9 +66,10 @@ class ReplicationReport
     // =================================================================
     //                             Constructors
     // =================================================================
-    ReplicationReport(Individual * indiv,
-                          const Individual * parent,
-                          Individual * donor = NULL);
+    ReplicationReport() = default;
+    ReplicationReport(Individual* indiv,
+                      const Individual* parent,
+                      Individual* donor = NULL);
 
     // Creates a completely independent copy of the original report
     ReplicationReport(const ReplicationReport & model);
@@ -78,16 +79,15 @@ class ReplicationReport
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ReplicationReport(void);
+    virtual ~ReplicationReport(void) = default;
 
     // =================================================================
     //                              Accessors
     // =================================================================
     inline Individual * get_indiv(void) const;
-    int32_t         get_id(void) const;
-    int32_t         get_rank(void) const;
+    int32_t id() { return _id; };
+    int32_t rank() { return _rank; };
     inline int32_t  get_genome_size(void) const;
-
     inline int32_t  get_parent_id(void) const;
     inline double   get_parent_metabolic_error(void) const;
     inline double   get_parent_secretion_error(void) const;
@@ -98,10 +98,17 @@ class ReplicationReport
     inline double   get_donor_metabolic_error(void) const;
     inline double   get_donor_secretion_error(void) const;
     inline int32_t  get_donor_genome_size(void) const;
+    int32_t get_nb(MutationType t) const {
+      return _dna_replic_report.get_nb(t);
+    }
+
+    // TODO <david.parsons@inria.fr> re-constify
+    // => const DnaReplicationReport& dna_replic_report() const
+    DnaReplicationReport& dna_replic_report() {
+      return _dna_replic_report;
+    }
      
     void            set_indiv(Individual * indiv);
-    void            set_id(int32_t id);
-    void            set_rank(int32_t rank);
     inline void     set_parent_id(int32_t parent_id);
     inline void     set_parent_metabolic_error(double parent_metabolic_error);
     inline void     set_parent_secretion_error(double parent_secretion_error);
@@ -110,14 +117,13 @@ class ReplicationReport
     inline void     set_donor_metabolic_error(double donor_metabolic_error);
     inline void     set_donor_secretion_error(double donor_secretion_error);
     inline void     set_donor_genome_size(int32_t donor_genome_size);
-  
-    inline const std::list<DnaReplicReport*> get_dna_replic_reports() const;
-    inline void add_dna_replic_report(DnaReplicReport* rep) { _dna_replic_reports.push_back(rep); }
 
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void signal_end_of_replication(void);
+    void init(Individual* offspring, Individual* parent);
+    void signal_end_of_replication(Individual* indiv);
+    void signal_end_of_generation();
     void write_to_tree_file(gzFile tree_file) const;
 
 
@@ -130,18 +136,6 @@ class ReplicationReport
 
 
   protected :
-
-    // =================================================================
-    //                         Forbidden Constructors
-    // =================================================================
-    ReplicationReport(void)
-    {
-      printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
-      exit(EXIT_FAILURE);
-    };
-
-
-
     // =================================================================
     //                           Protected Methods
     // =================================================================
@@ -149,36 +143,36 @@ class ReplicationReport
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    Individual *  _indiv;
+    Individual* _indiv = nullptr;
+    int32_t _id = -1;
+    int32_t _parent_id = -1;
+
+    int32_t _rank = -1;
+
+    int32_t _genome_size = -1;
+    double _metabolic_error = -1;
+    int16_t _nb_genes_activ = -1;
+    int16_t _nb_genes_inhib = -1;
+    int16_t _nb_non_fun_genes = -1;
+    int16_t _nb_coding_RNAs = -1;
+    int16_t _nb_non_coding_RNAs = -1;
+
+    // List of each genetic unit's replication report
+    DnaReplicationReport _dna_replic_report;
     
-    int32_t         _id;
-    int32_t         _rank;
-    int32_t         _parent_id;
+    double _parent_metabolic_error = -1;
+    double _parent_secretion_error = -1;
+    int32_t _parent_genome_size = -1;
     
-    int32_t         _genome_size;
-    double          _metabolic_error;
-    int16_t         _nb_genes_activ;
-    int16_t         _nb_genes_inhib;
-    int16_t         _nb_non_fun_genes;
-    int16_t         _nb_coding_RNAs;
-    int16_t         _nb_non_coding_RNAs;
-    
-    std::list<DnaReplicReport*>  _dna_replic_reports; // List of each genetic unit's replication report
-    
-    double          _parent_metabolic_error;
-    double          _parent_secretion_error;
-    int32_t         _parent_genome_size;
-    
-    int32_t			    _donor_id;
-    double          _donor_metabolic_error;
-    double          _donor_secretion_error;
-    int32_t         _donor_genome_size;
+    int32_t	_donor_id = -1;
+    double _donor_metabolic_error = -1;
+    double _donor_secretion_error = -1;
+    int32_t _donor_genome_size = -1;
     
     // CK: I think that the attributes below are obsolete 
     // (HT events are now stored in the ae_dna_replic_reports)
     
-    double          _mean_align_score;
-    
+    double _mean_align_score;
 };
 
 
@@ -188,16 +182,6 @@ class ReplicationReport
 inline Individual *ReplicationReport::get_indiv(void) const
 {
   return _indiv;
-}
-
-inline int32_t ReplicationReport::get_id(void) const
-{
-  return _id;
-}
-
-inline int32_t ReplicationReport::get_rank(void) const
-{
-  return _rank;
 }
 
 inline int32_t ReplicationReport::get_genome_size(void) const
@@ -247,23 +231,9 @@ inline double ReplicationReport::get_mean_align_score(void) const
   return _mean_align_score;
 }
 
-inline const std::list<DnaReplicReport*> ReplicationReport::get_dna_replic_reports() const {
-  return _dna_replic_reports;
-}
-
 inline void ReplicationReport::set_indiv(Individual * indiv)
 {
   _indiv = indiv;
-}
-
-inline void ReplicationReport::set_id(int32_t id)
-{
-  _id = id;
-}
-
-inline void ReplicationReport::set_rank(int32_t rank)
-{
-  _rank = rank;
 }
 
 void ReplicationReport::set_parent_id(int32_t parent_id)

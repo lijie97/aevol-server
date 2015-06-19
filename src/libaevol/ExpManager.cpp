@@ -412,9 +412,6 @@ void ExpManager::run_evolution(void)
 
     // Take one step in the evolutionary loop
     step_to_next_generation();
-
-    // Write statistical data and store phylogenetic data (tree)
-    _output_m->write_current_generation_outputs();
   }
 
   _output_m->flush();

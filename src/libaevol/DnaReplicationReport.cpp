@@ -28,7 +28,7 @@
 
 namespace aevol {
 
-int32_t DnaReplicReport::get_nb(MutationType t)  const {
+int32_t DnaReplicationReport::get_nb(MutationType t)  const {
   switch (t) {
     case S_MUT:
       assert(mutations_.size() ==
@@ -55,40 +55,39 @@ int32_t DnaReplicReport::get_nb(MutationType t)  const {
   };
 }
 
-void DnaReplicReport::add_mut(const Mutation & mut) {
-  mutations_.push_back(mut);
-  _nb_mut[mut.get_mut_type()]++;
+void DnaReplicationReport::add_mut(const Mutation& mut) {
+  if (mut.is_local_mut()) {
+    add_local_mut(mut);
+  }
+  else if (mut.is_rear()) {
+    add_rear(mut);
+  }
+  else if (mut.is_HT()) {
+    add_HT(mut);
+  }
 }
-
-void DnaReplicReport::add_mut(Mutation && mut) {
+void DnaReplicationReport::add_local_mut(const Mutation& mut) {
+  assert(mut.is_local_mut());
   mutations_.emplace_back(mut);
   _nb_mut[mut.get_mut_type()]++;
 }
 
-void DnaReplicReport::add_rear(Mutation && rear) {
-  rearrangements_.emplace_back(rear);
-  _nb_mut[rear.get_mut_type()]++;
+void DnaReplicationReport::add_rear(const Mutation& mut) {
+  assert(mut.is_rear());
+  rearrangements_.emplace_back(mut);
+  _nb_mut[mut.get_mut_type()]++;
 }
 
-void DnaReplicReport::add_rear(const Mutation & rear) {
-  rearrangements_.push_back(rear);
-  _nb_mut[rear.get_mut_type()]++;
-}
-
-void DnaReplicReport::add_HT(Mutation && HT) {
-  ht_.emplace_back(HT);
-  _nb_mut[HT.get_mut_type()]++;
-}
-
-void DnaReplicReport::add_HT(const Mutation & HT) {
-  ht_.push_back(HT);
-  _nb_mut[HT.get_mut_type()]++;
+void DnaReplicationReport::add_HT(const Mutation& mut) {
+  assert(mut.is_HT());
+  ht_.emplace_back(mut);
+  _nb_mut[mut.get_mut_type()]++;
 }
 
 
 /// Useful when we inspect a tree file
 /// because stats are not saved in the file.
-void DnaReplicReport::compute_stats( void )
+void DnaReplicationReport::compute_stats( void )
 {
   _nb_mut[SWITCH] = 0;
   _nb_mut[S_INS]  = 0;
@@ -105,7 +104,7 @@ void DnaReplicReport::compute_stats( void )
            event.get_mut_type() == REPL_HT);
     _nb_mut[event.get_mut_type()]++;
   }
-  
+
   for (const auto& event: rearrangements_) {
     assert(event.get_mut_type() == DUPL or
            event.get_mut_type() == DEL or
@@ -113,7 +112,7 @@ void DnaReplicReport::compute_stats( void )
            event.get_mut_type() == INV);
     _nb_mut[event.get_mut_type()]++;
   }
-  
+
   for (const auto& event: mutations_) {
     assert(event.get_mut_type() == SWITCH or
            event.get_mut_type() == S_INS or

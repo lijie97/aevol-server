@@ -670,7 +670,7 @@ GeneticUnit::GeneticUnit(Individual * indiv,
   Copies the DNA and recomputes all the rest.
   It is slower than copying as much as possible and regenerate only what is necessary but it works whatever the state of the model GU.
 */
-GeneticUnit::GeneticUnit(Individual * indiv, const GeneticUnit& model)
+GeneticUnit::GeneticUnit(Individual* indiv, const GeneticUnit& model)
 {
   _exp_m = indiv->get_exp_m();
   _indiv = indiv;
@@ -717,7 +717,7 @@ GeneticUnit::GeneticUnit(Individual * indiv, const GeneticUnit& model)
  * Create a new genetic unit copying the DNA sequence and the promoter list
  * from the provided `parent`
  */
-GeneticUnit::GeneticUnit(Individual * indiv, const GeneticUnit* parent)
+GeneticUnit::GeneticUnit(Individual* indiv, const GeneticUnit* parent)
 {
   _exp_m = indiv->get_exp_m();
   _indiv = indiv;

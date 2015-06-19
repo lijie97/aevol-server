@@ -279,13 +279,11 @@ void OutputManager::write_current_generation_outputs( void ) const
   _stats->write_current_generation_statistics();
 
   // Manage tree
-  if (_record_tree && Time::get_time() > 0) {
-    _tree->fill_tree_with_cur_gener();
-
-    if ((Time::get_time() % _tree->get_tree_step() == 0) &&
-        (_tree->get_tree_mode() == NORMAL)) {
-      write_tree();
-    }
+  if (_record_tree &&
+      _tree->get_tree_mode() == NORMAL &&
+      Time::get_time() > 0 &&
+      (Time::get_time() % _tree->get_tree_step() == 0)) {
+    write_tree();
   }
 
   // Write backup

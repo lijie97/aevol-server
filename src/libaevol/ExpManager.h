@@ -131,7 +131,7 @@ class ExpManager
 
     // Accessors to population stuff
     inline std::list<Individual *> get_indivs() const;
-    inline int32_t                  get_nb_indivs(void) const;
+    inline int32_t get_nb_indivs(void) const;
 
     inline Individual * get_best_indiv(void) const;
     // inline Individual* get_indiv_by_id(int32_t id) const;
@@ -143,7 +143,7 @@ class ExpManager
     inline bool         get_record_tree(void) const;
     inline int32_t      get_tree_step(void) const;
     inline TreeMode get_tree_mode(void) const;
-    inline Tree *     get_tree(void) const;
+    inline Tree*     get_tree(void) const;
 
     // =======================================================================
     //                          Accessors: setters
@@ -487,6 +487,8 @@ inline void ExpManager::step_to_next_generation(void) {
   // Create the corresponding new generation
   _exp_s->step_to_next_generation();
 
+  // Write statistical data and store phylogenetic data (tree)
+  _output_m->write_current_generation_outputs();
 }
 
 

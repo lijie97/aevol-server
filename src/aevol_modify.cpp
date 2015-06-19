@@ -175,8 +175,6 @@ int main(int argc, char* argv[])
     #endif
     
     tree = new Tree(exp_manager, tree_file_name);
-    for (auto& indiv: exp_manager->get_indivs())
-      indiv->set_replication_report(tree->get_report_by_index(num_gener, indiv->get_id()));
   }
 
  
@@ -697,7 +695,6 @@ int main(int argc, char* argv[])
   if (take_care_of_the_tree)
   {
     printf("Save the modified replication reports into tree...\t");
-    tree->fill_tree_with_cur_gener();
 
     #ifdef __REGUL
       sprintf(tree_file_name,"tree/tree_%06" PRId32 ".rae", num_gener);

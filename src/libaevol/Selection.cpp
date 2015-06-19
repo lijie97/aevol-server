@@ -226,6 +226,8 @@ void Selection::step_to_next_generation(void)
 
   // Update the best individual
   _exp_m->update_best();
+
+  _exp_m->get_tree()->signal_end_of_generation();
 }
 
 void Selection::PerformPlasmidTransfers(void)
@@ -522,7 +524,7 @@ void Selection::compute_local_prob_reprod(void )
   }
 }
 
-Individual *Selection::do_replication(Individual * parent, int32_t index, int16_t x /*= -1 */, int16_t y /*= -1 */ )
+Individual* Selection::do_replication(Individual* parent, int32_t index, int16_t x /*= -1 */, int16_t y /*= -1 */ )
 {
   Individual * new_indiv = NULL;
 
@@ -543,7 +545,10 @@ Individual *Selection::do_replication(Individual * parent, int32_t index, int16_
     #endif
   #endif
 
- 
+  // Initialize replication report
+  new_indiv->get_replication_report()->init(new_indiv, parent);
+
+
   // ===========================================================================
   //  2) Set the new individual's location on the grid
   // ===========================================================================
@@ -559,11 +564,6 @@ Individual *Selection::do_replication(Individual * parent, int32_t index, int16_
     const GeneticUnit* chromosome = &new_indiv->get_genetic_unit_list().front();
 
     chromosome->get_dna()->perform_mutations(parent->get_id());
-
-    if (new_indiv->get_replic_report() != NULL )
-    {
-      new_indiv->get_replic_report()->add_dna_replic_report(chromosome->get_dna()->get_replic_report());
-    }
   }
   else
   { // For each GU, apply mutations
@@ -573,16 +573,12 @@ Individual *Selection::do_replication(Individual * parent, int32_t index, int16_
     if (not inverse_order) { // Apply mutations in normal GU order
       for (const auto& gen_unit: new_indiv->get_genetic_unit_list()) {
         gen_unit.get_dna()->perform_mutations(parent->get_id() );
-        if (new_indiv->get_replic_report() != NULL )
-          new_indiv->get_replic_report()->add_dna_replic_report(gen_unit.get_dna()->get_replic_report());
       }
     }
     else { // Apply mutations in inverse GU order
       const auto& gul = new_indiv->get_genetic_unit_list();
       for (auto gen_unit = gul.crbegin(); gen_unit != gul.crend(); ++gen_unit) {
         gen_unit->get_dna()->perform_mutations(parent->get_id());
-        if (new_indiv->get_replic_report() != nullptr)
-          new_indiv->get_replic_report()->add_dna_replic_report(gen_unit->get_dna()->get_replic_report());
       }
     }
   }
