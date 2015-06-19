@@ -54,7 +54,11 @@ namespace aevol {
 
 
 
-
+/**
+ * The time value represents the step that is currently being computed
+ *
+ * e.g. when creating generation 1 from generation 0, time == 1
+ */
 class Time
 {
  public :
