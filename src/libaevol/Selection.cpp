@@ -210,12 +210,11 @@ void Selection::step_to_next_generation(void)
   }
 
   // Compute the rank of each individual
-  std::list<Individual *> sorted_indivs  = world->get_indivs();
-  sorted_indivs.sort([](Individual* lhs, Individual* rhs) {
+  new_generation.sort([](Individual* lhs, Individual* rhs) {
                        return lhs->get_fitness() < rhs->get_fitness();
                      });
   int rank = 1;
-  for (Individual* indiv : sorted_indivs) {
+  for (Individual* indiv : new_generation) {
     indiv->set_rank(rank++);
   }
 
