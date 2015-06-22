@@ -120,4 +120,41 @@ void DnaReplicationReport::compute_stats( void )
     _nb_mut[event.get_mut_type()]++;
   }
 }
+
+void DnaReplicationReport::write_to_tree_file(gzFile tree_file) const {
+  // Write the mutations and rearrangements undergone during replication
+  // Store HT
+  int32_t nb_HT = get_nb(HT);
+  gzwrite(tree_file, &nb_HT, sizeof(nb_HT));
+  for (const auto& HT: ht_)
+    HT.save(tree_file);
+
+  // Store rearrangements
+  int32_t nb_rears = get_nb(REARR);
+  gzwrite(tree_file, &nb_rears, sizeof(nb_rears));
+  for (const auto& rear: rearrangements_)
+    rear.save(tree_file);
+
+  // Store mutations
+  int32_t nb_muts = get_nb(S_MUT);
+  gzwrite(tree_file, &nb_muts, sizeof(nb_muts));
+  for (const auto& mutation: mutations_)
+    mutation.save(tree_file);
+}
+
+void DnaReplicationReport::read_from_tree_file(gzFile tree_file) {
+  int32_t nb_rears, nb_muts, nb_HT;
+
+  gzread(tree_file, &nb_HT, sizeof(nb_HT));
+  for (int i = 0 ; i < nb_HT ; i++)
+    add_HT(Mutation(tree_file));
+
+  gzread(tree_file, &nb_rears, sizeof(nb_rears));
+  for (int i = 0 ; i < nb_rears ; i++)
+    add_rear(Mutation(tree_file));
+
+  gzread(tree_file, &nb_muts, sizeof(nb_muts));
+  for(int i = 0 ; i < nb_muts ; i++)
+    add_mut(Mutation(tree_file));
+}
 } // namespace aevol

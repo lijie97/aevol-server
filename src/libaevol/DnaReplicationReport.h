@@ -49,6 +49,9 @@ class DnaReplicationReport {
   void add_rear(const Mutation& mut);
   void add_HT(const Mutation& mut);
 
+  void write_to_tree_file(gzFile tree_file) const;
+  void read_from_tree_file(gzFile tree_file);
+
  protected :
   std::list<Mutation> mutations_;       // Lists of mutations, rearrangements and undergone
   std::list<Mutation> rearrangements_;  // by the genetic unit at last replication

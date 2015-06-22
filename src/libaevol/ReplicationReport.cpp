@@ -143,21 +143,8 @@ ReplicationReport::ReplicationReport(gzFile tree_file, Individual * indiv)
   gzread(tree_file, &_nb_non_fun_genes,    sizeof(_nb_non_fun_genes));
   gzread(tree_file, &_nb_coding_RNAs,      sizeof(_nb_coding_RNAs));
   gzread(tree_file, &_nb_non_coding_RNAs,  sizeof(_nb_non_coding_RNAs));
-  
-  int32_t myevent;
-  int32_t nb_rears, nb_muts, nb_HT;
 
-  gzread(tree_file, &nb_HT, sizeof(nb_HT));
-  for (myevent  = 0 ; myevent < nb_HT ; myevent++)
-    _dna_replic_report.add_HT(std::move(Mutation(tree_file)));
-
-  gzread(tree_file, &nb_rears, sizeof(nb_rears));
-  for (myevent  = 0 ; myevent < nb_rears ; myevent++)
-    _dna_replic_report.add_rear(std::move(Mutation(tree_file)));
-
-  gzread(tree_file, &nb_muts, sizeof(nb_muts));
-  for(myevent  = 0 ; myevent < nb_muts ; myevent++)
-    _dna_replic_report.add_mut(std::move(Mutation(tree_file)));
+  _dna_replic_report.read_from_tree_file(tree_file);
 
   _dna_replic_report.compute_stats();
   
@@ -246,26 +233,9 @@ void ReplicationReport::write_to_tree_file(gzFile tree_file) const
   gzwrite(tree_file, &_nb_genes_inhib,      sizeof(_nb_genes_inhib));
   gzwrite(tree_file, &_nb_non_fun_genes,    sizeof(_nb_non_fun_genes));
   gzwrite(tree_file, &_nb_coding_RNAs,      sizeof(_nb_coding_RNAs));
-  gzwrite(tree_file, &_nb_non_coding_RNAs,  sizeof(_nb_non_coding_RNAs));  
-  
-  // Write the mutations and rearrangements undergone during replication
-  // Store HT
-  int32_t nb_HT = _dna_replic_report.get_nb(HT);
-  gzwrite(tree_file, &nb_HT, sizeof(nb_HT));
-  for (const auto& HT: _dna_replic_report.get_HT())
-    HT.save(tree_file);
+  gzwrite(tree_file, &_nb_non_coding_RNAs,  sizeof(_nb_non_coding_RNAs));
 
-  // Store rearrangements
-  int32_t nb_rears = _dna_replic_report.get_nb(REARR);
-  gzwrite(tree_file, &nb_rears, sizeof(nb_rears));
-  for (const auto& rear: _dna_replic_report.get_rearrangements())
-    rear.save(tree_file);
-
-  // Store mutations
-  int32_t nb_muts = _dna_replic_report.get_nb(S_MUT);
-  gzwrite(tree_file, &nb_muts, sizeof(nb_muts));
-  for (const auto& mutation: _dna_replic_report.get_mutations())
-    mutation.save(tree_file);
+  _dna_replic_report.write_to_tree_file(tree_file);
 }
 
 
