@@ -295,9 +295,11 @@ int main(int argc, char** argv)
   }
 
 
-  // Retreive the index of the first ancestor from the last replication report
+  // Retrieve the index of the first ancestor from the last replication report
   indices[t_end - t0 -1] = reports[t_end - t0 - 1]->get_parent_id();
 
+  // For each generation (going backwards), retrieve the index of the parent and
+  // the corresponding replication report
   for (int64_t i = t_end - t0 - 2 ; i >= 0 ; i--)
   {
     int64_t t = t0 + i + 1;
@@ -336,7 +338,7 @@ int main(int argc, char** argv)
 
 
   // =============================================================================
-  //  Get the intial genome from the backup file, and write it in the output file
+  //  Get the initial genome from the backup file and write it in the output file
   // =============================================================================
 
   if ( verbose )

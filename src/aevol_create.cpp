@@ -148,7 +148,7 @@ int main(int argc, char* argv[])
 
 
   // 7) Initialize the simulation from the parameter file
-  int32_t lchromosome=-1;
+  int32_t lchromosome = -1;
   char* chromosome;
 
   if (chromosome_file_name != NULL)
@@ -172,7 +172,7 @@ int main(int argc, char* argv[])
     fclose(chromosome_file);
   }
 
-  int32_t lplasmid=-1;
+  int32_t lplasmid = -1;
   char* plasmid;
 
   if (plasmid_file_name != NULL)

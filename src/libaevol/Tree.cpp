@@ -111,7 +111,7 @@ Tree::Tree(ExpManager* exp_m, TreeMode tree_mode, int64_t tree_step)
 
 
 /**
- * 
+ *
  */
 Tree::Tree(ExpManager * exp_m, char* tree_file_name)
 {
@@ -130,17 +130,17 @@ Tree::Tree(ExpManager * exp_m, char* tree_file_name)
         exit( EXIT_FAILURE );
       }
 
-      ReplicationReport * replic_report = NULL;
-
       _replics = new ReplicationReport** [_tree_step];
 
       for ( int64_t t = 0 ; t < _tree_step ; t++ )
       {
         _replics[t] = new ReplicationReport* [_exp_m->get_nb_indivs()];
-        for (int32_t indiv_i = 0 ; indiv_i < _exp_m->get_nb_indivs() ; indiv_i++)
-        {
-          // Retreive a replication report
-          replic_report = new ReplicationReport( tree_file, NULL );
+        for (int32_t indiv_i = 0 ;
+             indiv_i < _exp_m->get_nb_indivs() ;
+             indiv_i++) {
+          // Retrieve a replication report
+          ReplicationReport* replic_report =
+              new ReplicationReport(tree_file, nullptr);
 
           // Put it at its rightful position
           _replics[t][replic_report->id()] = replic_report;

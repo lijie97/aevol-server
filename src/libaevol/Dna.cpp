@@ -221,14 +221,6 @@ void Dna::perform_mutations(int32_t parent_id)
   }
 
   do_small_mutations();
-
-  // Store mutation events in replication report (temporary lists are emptied)
-  // TODO : next 2 lines
-  //~ new_indiv->_replic_report->set_parent_genome_size((this->_genome)->get_length());
-  // if crossover => please set also donor_index, donor_misadaptation_value and donor_genome_size
-
-  // TODO!!!
-  //~ new_indiv->_replic_report->compute_statistical_data();
 }
 
 void Dna::do_small_mutations(void)
