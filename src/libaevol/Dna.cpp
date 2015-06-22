@@ -3367,7 +3367,7 @@ void Dna::inter_GU_ABCDE_to_BDCAE(int32_t pos_B, int32_t pos_C, int32_t pos_E)
 }
 
 void Dna::report_mutation(const Mutation& mut) const {
-//  _indiv->get_replic_report()->dna_replic_report().add_mut(mut);
+  _indiv->get_replication_report()->dna_replic_report().add_mut(mut);
 }
 
 } // namespace aevol
