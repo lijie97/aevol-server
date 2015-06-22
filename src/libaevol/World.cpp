@@ -406,4 +406,19 @@ void World::set_stoch_prng(std::shared_ptr<JumpingMT> prng)
         indiv->set_stoch_prng(_stoch_prng);
     }
 }
+
+Individual* World::get_indiv_by_id(int32_t id) const {
+  Individual* indiv = grid_1d_[id]->get_individual();
+  // When the population isn't mixed at all, the individual with id n is in
+  // grid_1d_[n]. Try this first...
+  if (indiv->get_id() == id)
+    return indiv;
+  // ... If it isn't, do a basic search
+  int32_t nb_indivs = width_ * height_;
+  for (int32_t i = 0 ; i < nb_indivs ; i++) {
+    if (grid_1d_[i]->get_individual()->get_id() == id)
+      return grid_1d_[i]->get_individual();
+  }
+  return nullptr;
+}
 } // namespace aevol

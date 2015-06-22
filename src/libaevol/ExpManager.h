@@ -134,7 +134,7 @@ class ExpManager
     inline int32_t get_nb_indivs(void) const;
 
     inline Individual * get_best_indiv(void) const;
-    // inline Individual* get_indiv_by_id(int32_t id) const;
+    Individual* get_indiv_by_id(int32_t id) const;
     // inline Individual* get_indiv_by_rank(int32_t rank) const;
 
     // Accessors to output manager stuff
