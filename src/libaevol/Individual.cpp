@@ -1280,8 +1280,7 @@ void Individual::compute_distance_to_target(const PhenotypicTarget& target) {
 
   PhenotypicSegment ** segments = target.segments();
   _dist_to_target_by_segment = new double [target.nb_segments()];
-  for (size_t i = 0 ; i < target.nb_segments() ; i++) // TODO dpa suppress warning
-  {
+  for (size_t i = 0 ; i < static_cast<size_t>(target.nb_segments()) ; i++) {
     _dist_to_target_by_segment[i] = 0;
   }
 
@@ -1289,8 +1288,7 @@ void Individual::compute_distance_to_target(const PhenotypicTarget& target) {
   //   => We shouldn't parse the whole list of points on the left of the segment we are considering (we have
   //      already been through them!)
 
-  for (size_t i = 0 ; i < target.nb_segments() ; i++)// TODO dpa suppress warning
-  {
+  for (size_t i = 0 ; i < static_cast<size_t>(target.nb_segments()) ; i++) {
     _dist_to_target_by_segment[i] = delta->get_geometric_area(segments[i]->start, segments[i]->stop);
     _dist_to_target_by_feature[segments[i]->feature] += _dist_to_target_by_segment[i];
   }

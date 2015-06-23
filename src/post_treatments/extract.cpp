@@ -266,7 +266,7 @@ inline void analyse_gu(GeneticUnit* gen_unit, int32_t gen_unit_number,
       int nfeat = -1;
 
       // Retrieving the feature of the protein also necessitates the an environment file.
-      for (size_t i = 0; i <= phenotypicTarget.nb_segments() - 1; ++i)
+      for (size_t i = 0; i <= static_cast<size_t>(phenotypicTarget.nb_segments()) - 1; ++i)
         if ((mean > phenotypicTarget.segments()[i]->start) and (mean < phenotypicTarget.segments()[i]->stop)) {
           nfeat = phenotypicTarget.segments()[i]->feature;
           break;
