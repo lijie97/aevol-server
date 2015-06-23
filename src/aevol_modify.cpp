@@ -191,8 +191,8 @@ int main(int argc, char* argv[])
     exit(EXIT_FAILURE);
   }
   
-  bool env_change = false;
-  bool env_hasbeenmodified = false;
+  // bool env_change = false;
+  // bool env_hasbeenmodified = false;
   bool start_to_record_tree = false;
   bool set_tree_step = false;
   int32_t tree_step = 100;
