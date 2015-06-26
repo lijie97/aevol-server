@@ -88,6 +88,10 @@ ae_exp_setup::ae_exp_setup( ae_exp_manager* exp_m )
   _with_secretion = false;
   _secretion_contrib_to_fitness = 0.0;
   _secretion_cost               = 0.0;
+
+#ifdef __REGUL
+  _binding_matrix = NULL;
+#endif
 }
   
 
@@ -142,6 +146,26 @@ void ae_exp_setup::write_setup_file( gzFile exp_setup_file ) const
   gzwrite( exp_setup_file, &_secretion_cost, sizeof(_secretion_cost) );
   
   get_sel()->write_setup_file( exp_setup_file );
+
+#ifdef __REGUL
+  char* binding_matrix_file_name = new char[100];
+
+  sprintf( binding_matrix_file_name, "binding_matrix.rae" );
+
+  gzFile binding_matrix_file = gzopen( binding_matrix_file_name, "w" );
+
+  if ( binding_matrix_file == Z_NULL )
+  {
+    printf( "ERROR : Could not write binding matrix file %s\n", binding_matrix_file_name );
+    exit( EXIT_FAILURE );
+  }
+
+  write_binding_matrix_to_backup( binding_matrix_file );
+  gzclose( binding_matrix_file );
+
+  delete[] binding_matrix_file_name;
+#endif
+
 }
 
 void ae_exp_setup::write_setup_file( FILE* exp_setup_file ) const
@@ -198,6 +222,26 @@ void ae_exp_setup::load( gzFile setup_file, gzFile backup_file, bool verbose )
   gzread( setup_file, &_secretion_contrib_to_fitness, sizeof(_secretion_contrib_to_fitness) );
   gzread( setup_file, &_secretion_cost, sizeof(_secretion_cost) );
   
+#ifdef __REGUL
+  char* binding_matrix_file_name = new char[100];
+//    _binding_matrix = new double[MAX_QUADON][MAX_CODON];
+
+  sprintf( binding_matrix_file_name, "binding_matrix.rae" );
+
+  gzFile binding_matrix_file = gzopen( binding_matrix_file_name, "r" );
+
+  if ( binding_matrix_file == Z_NULL )
+  {
+    printf( "ERROR : Could not read binding matrix file %s\n", binding_matrix_file_name );
+    exit( EXIT_FAILURE );
+  }
+
+  read_binding_matrix_from_backup( binding_matrix_file );
+  gzclose( binding_matrix_file );
+
+  delete[] binding_matrix_file_name;
+#endif
+
   // ---------------------------------------------- Retrieve selection context
   get_sel()->load( setup_file, backup_file, verbose );
 }
@@ -208,7 +252,82 @@ void ae_exp_setup::load( FILE* setup_file, gzFile backup_file, bool verbose )
   exit( EXIT_FAILURE );
 }
 
+#ifdef __REGUL
+void ae_exp_setup::init_binding_matrix( bool random_binding_matrix, double binding_zeros_percentage,
+		std::shared_ptr<ae_jumping_mt> prng)
+{
+  if(random_binding_matrix==1)
+  {
+    _binding_matrix = new double[MAX_QUADON][MAX_CODON];
 
+    for( int8_t i = 0; i < MAX_QUADON; i++ )  // i for the quadons
+    {
+      for( int8_t j = 0; j < MAX_CODON; j++ )  // j for the codons
+      {
+        if( prng->random() > binding_zeros_percentage)
+        {
+        	_binding_matrix[i][j] = prng->random();
+        }
+        else
+        {
+        	_binding_matrix[i][j] = 0;
+        }
+//  	  printf("m[%d][%d] = %f\n",MAX_QUADON,MAX_CODON, _binding_matrix[i][j]);
+      }
+    }
+  }
+  else // random_binding_matrix == 0
+  {
+    char* binding_matrix_file_name = new char[100];
+//    _binding_matrix = new double[MAX_QUADON][MAX_CODON];
+
+    sprintf( binding_matrix_file_name, "binding_matrix.rae" );
+
+    gzFile binding_matrix_file = gzopen( binding_matrix_file_name, "r" );
+
+    if ( binding_matrix_file == Z_NULL )
+    {
+      printf( "ERROR : Could not read binding matrix file %s\n", binding_matrix_file_name );
+      exit( EXIT_FAILURE );
+    }
+
+    read_binding_matrix_from_backup( binding_matrix_file );
+    gzclose( binding_matrix_file );
+
+    delete[] binding_matrix_file_name;
+  }
+
+}
+
+void ae_exp_setup::read_binding_matrix_from_backup(gzFile binding_matrix_file) {
+	_binding_matrix = new double[MAX_QUADON][MAX_CODON];
+	for (int i=0; i < MAX_QUADON; i++)
+		for (int j=0; j < MAX_CODON; j++) {
+			gzread( binding_matrix_file, &(_binding_matrix[i][j]), sizeof(double) );
+		}
+}
+
+void ae_exp_setup::write_binding_matrix_to_backup(gzFile binding_matrix_file) {
+	double value;
+	for (int i=0; i < MAX_QUADON; i++)
+		for (int j=0; j < MAX_CODON; j++) {
+			value = _binding_matrix[i][j];
+			gzwrite( binding_matrix_file, &value, sizeof(double) );
+		}
+}
+
+void ae_exp_setup::write_binding_matrix_to_file( FILE* file )
+{
+  for( int16_t row = 0 ; row < MAX_QUADON ; row++ )
+  {
+    for( int16_t column = 0 ; column < MAX_CODON ; column++ )
+    {
+      fprintf( file, "\t%e", _binding_matrix[row][column] );
+    }
+    fprintf( file, "\n");
+  }
+}
+#endif
 
 
 // ===========================================================================

@@ -138,7 +138,18 @@ class ae_exp_setup
     
     inline void step_to_next_generation( void );
     
-    
+#ifdef __REGUL
+    // Regulation
+    void     init_binding_matrix( bool random_binding_matrix, double binding_zeros_percentage,
+    		       std::shared_ptr<ae_jumping_mt> prng);
+
+    void     read_binding_matrix_from_backup(gzFile binding_matrix_file);
+    void     write_binding_matrix_to_backup(gzFile binding_matrix_file);
+
+    void     write_binding_matrix_to_file(FILE* binding_matrix_file);
+
+    double** get_binding_matrix( void );
+#endif
     // =======================================================================
     //                           Public Attributes
     // =======================================================================
@@ -195,6 +206,11 @@ class ae_exp_setup
     bool    _with_secretion;
     double  _secretion_contrib_to_fitness;
     double  _secretion_cost;
+
+#ifdef __REGUL
+    // Binding matrix
+    double** _binding_matrix;
+#endif
 };
 
 
@@ -370,6 +386,13 @@ inline void ae_exp_setup::step_to_next_generation( void )
   // Make the individuals reproduce
   _sel->step_to_next_generation();
 }
+
+#ifdef __REGUL
+inline double** ae_exp_setup::get_binding_matrix( void )
+{
+  return _binding_matrix;
+}
+#endif
 
 } // namespace aevol
 
