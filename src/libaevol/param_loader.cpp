@@ -1260,6 +1260,10 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
   exp_s->set_secretion_cost(_secretion_cost);
 
 #ifdef __REGUL
+  exp_s->set_with_heredity(_with_heredity);
+  exp_s->set_degradation_rate(_degradation_rate);
+  exp_s->set_degradation_step(_degradation_step);
+
   exp_s->init_binding_matrix(_random_binding_matrix,_binding_zeros_percentage,_prng);
 #endif
 

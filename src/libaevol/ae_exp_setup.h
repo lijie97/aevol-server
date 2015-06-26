@@ -100,7 +100,11 @@ class ae_exp_setup
     inline double get_secretion_contrib_to_fitness( void ) const;
     inline double get_secretion_cost( void ) const;
   
-  
+#ifdef __REGUL
+    inline bool   get_with_heredity( void ) const;
+    inline double get_degradation_rate( void ) const;
+    inline double get_degradation_step( void ) const;
+#endif
     // =======================================================================
     //                         Accessors: setters
     // =======================================================================
@@ -126,7 +130,11 @@ class ae_exp_setup
     inline void set_secretion_contrib_to_fitness( double secretion_contrib );
     inline void set_secretion_cost( double secretion_cost );
   
-  
+#ifdef __REGUL
+    inline void set_with_heredity( bool with_heredity );
+    inline void set_degradation_rate( double degradation_rate );
+    inline void set_degradation_step( double degradation_step );
+#endif
     // =======================================================================
     //                            Public Methods
     // =======================================================================
@@ -210,6 +218,11 @@ class ae_exp_setup
 #ifdef __REGUL
     // Binding matrix
     double** _binding_matrix;
+
+    bool    _with_heredity;
+
+    double  _degradation_rate;
+    double  _degradation_step;
 #endif
 };
 
@@ -297,6 +310,24 @@ inline double ae_exp_setup::get_secretion_cost( void ) const
   return _secretion_cost;
 }
 
+#ifdef __REGUL
+inline bool ae_exp_setup::get_with_heredity( void ) const
+{
+  return _with_heredity;
+}
+
+inline double ae_exp_setup::get_degradation_rate( void ) const
+{
+  return _degradation_rate;
+}
+
+
+inline double ae_exp_setup::get_degradation_step( void ) const
+{
+  return _degradation_step;
+}
+#endif
+
 // =====================================================================
 //                           Setters' definitions
 // =====================================================================
@@ -377,6 +408,22 @@ inline void ae_exp_setup::set_secretion_cost( double secretion_cost )
   _secretion_cost = secretion_cost;
 }
 
+#ifdef __REGUL
+inline void ae_exp_setup::set_with_heredity( bool with_heredity )
+{
+  _with_heredity = with_heredity;
+}
+
+inline void ae_exp_setup::set_degradation_rate( double degradation_rate )
+{
+  _degradation_rate = degradation_rate;
+}
+
+inline void ae_exp_setup::set_degradation_step( double degradation_step )
+{
+  _degradation_step = degradation_step;
+}
+#endif
 
 // =====================================================================
 //                       Inline functions' definition
