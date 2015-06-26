@@ -271,8 +271,28 @@ class param_loader
   bool _more_stats;  // TODO : explain
 
   #ifdef __REGUL
-    // ------------------------------------------------------- Binding matrix
+    // Regulation factors
+    double  _hill_shape_n;
+    double  _hill_shape_theta;
+    double  _hill_shape;
+
+    // Degradation equation
+    double  _degradation_rate;
+    double  _degradation_step;
+
+    // Individual life
+    int16_t _individual_evaluation_nb;
+
+    // Binding matrix
     double _binding_zeros_percentage;
+    bool   _random_binding_matrix;
+
+    // Heredity
+    bool    _with_heredity;
+    double  _protein_presence_limit;
+
+    // Binding matrix
+    double _binding_matrix[MAX_QUADON][MAX_CODON];
   #endif
 
 

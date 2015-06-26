@@ -1067,20 +1067,20 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
     }
     else if (strcmp(line->words[0], "INDIVIDUAL_EVALUATION_DATES") == 0)
     {
-      _individual_evaluation_nbr = line->nb_words - 1;
-      if(_individual_evaluation_nbr == 0)
+      _individual_evaluation_nb = line->nb_words - 1;
+      if(_individual_evaluation_nb == 0)
       {
         printf("ERROR in param file \"%s\" on line %" PRId32 " : no evaluation dates provided\n",
                _param_file_name, cur_line);
         exit(EXIT_FAILURE);
       }
-      ae_array_short* individual_evaluation_dates  = new ae_array_short(_individual_evaluation_nbr);
-      for(int16_t i = 0 ; i < _individual_evaluation_nbr ; i++)
-      {
-        individual_evaluation_dates->set_value(i, atoi(line->words[1 + i]));
-      }
-      individual_evaluation_dates->sort();
-      _individual_evaluation_dates = individual_evaluation_dates;
+//      ae_array_short* individual_evaluation_dates  = new ae_array_short(_individual_evaluation_nbr);
+//      for(int16_t i = 0 ; i < _individual_evaluation_nbr ; i++)
+//      {
+//        individual_evaluation_dates->set_value(i, atoi(line->words[1 + i]));
+//      }
+//      individual_evaluation_dates->sort();
+//      _individual_evaluation_dates = individual_evaluation_dates;
     }
     else if (strcmp(line->words[0], "BINDING_ZEROS_PERCENTAGE") == 0)
     {
@@ -1781,6 +1781,18 @@ void param_loader::print_to_file(FILE* file)
   // ------------------------------------------------------- Translation cost
   fprintf(file, "\nTranslation cost ----------------------------------------\n");
   fprintf(file, "translation_cost :           %e\n",  _translation_cost          );
+
+#ifdef __REGUL
+  fprintf(file, "\nRegulation ----------------------------------------\n");
+  fprintf(file, "hill_shape_n :           %e\n",  _hill_shape_n          );
+  fprintf(file, "hill_shape_theta :           %e\n",  _hill_shape_theta          );
+  fprintf(file, "degradation_rate :           %e\n",  _degradation_rate          );
+  fprintf(file, "degradation_steph :           %e\n",  _degradation_step          );
+  fprintf(file, "individual_evaluation_dates :           %e\n",  _individual_evaluation_nb          );
+  fprintf(file, "binding_zeros_percentage :           %e\n",  _binding_zeros_percentage          );
+  fprintf(file, "with_heredity :           %s\n",  _with_heredity ? "true" : "false"  );
+  fprintf(file, "protein_presence_limit :           %e\n",  _protein_presence_limit          );
+#endif
 }
 
 } // namespace aevol
