@@ -34,8 +34,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_protein_R.h"
-#include "ae_influence_R.h"
+#include "ae_protein.h"
 #include "ae_codon.h"
 
 namespace aevol {
@@ -45,120 +44,149 @@ namespace aevol {
 //                           Class ae_protein_R                                #
 //                                                                             #
 //##############################################################################
+class ae_genetic_unit;
 
-// =================================================================
-//                             Constructors
-// =================================================================
-ae_protein_R::ae_protein_R( ae_genetic_unit* gen_unit, const ae_protein_R &model ) : ae_protein( gen_unit, model )
+class ae_protein_R : public ae_protein
 {
-  _delta_concentration  = model._delta_concentration;
-  _influence_list       = new ae_list();
-  _inherited            = false;
+  public :
+
+    // =================================================================
+    //                             Constructors
+    // =================================================================
+    ae_protein_R( GeneticUnit* gen_unit, const ae_protein_R &model );
+    ae_protein_R( GeneticUnit* gen_unit,
+    		const std::list<ae_codon*> codon_list,
+    		ae_strand strand,
+    		int32_t shine_dal_pos,
+    		ae_rna* rna ); // TODO ae_rna_R?
+    ae_protein_R( const std::list<ae_codon*> codon_list, double concentration);
+	ae_protein_R( gzFile backup_file );
+
+    // =================================================================
+    //                             Destructors
+    // =================================================================
+    ~ae_protein_R( void );
+
+    // =================================================================
+    //                              Accessors
+    // =================================================================
+//    inline std::vector<ae_influence_R*> get_influence_list( void );
+    inline void     set_inherited( bool is_inherited );
+    inline void     set_signal( bool is_signal);
+    inline bool     is_inherited( void );
+    inline bool     is_signal( void );
+
+    // =================================================================
+    //                            Public Methods
+    // =================================================================
+    //inline ae_protein_R* copy( void );
+    inline void    multiply_concentration( double factor );
+    inline void    set_concentration ( double concentration);
+    inline void    update_concentration( void );
+    inline void    reset_concentration( void );
+    inline void    set_initial_concentration( void );
+           void    compute_delta_concentration( void );
+           int8_t  get_codon( int32_t index );
+//           void    add_influence( ae_influence_R* influence );
+	         void    save( gzFile backup_file );
+//	         void    remove_influence( ae_influence_R* influence );
+
+
+    // =================================================================
+    //                           Public Attributes
+    // =================================================================
+	bool not_pure_TF;
+
+  protected :
+
+    // =================================================================
+    //                         Forbidden Constructors
+    // =================================================================
+    ae_protein_R( const ae_protein_R &model )
+    {
+      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
+      exit( EXIT_FAILURE );
+    };
+
+    // =================================================================
+    //                           Protected Methods
+    // =================================================================
+    void remove_influences( void );
+
+    // =================================================================
+    //                          Protected Attributes
+    // =================================================================
+    std::vector<ae_rna_R*>  _rna_R_list;
+    double    _delta_concentration;
+    bool      _inherited;
+    bool      _signal;
+    double    _initial_concentration; // concentration at cell birth
+};
+
+// =====================================================================
+//                          Accessors definitions
+// =====================================================================
+//std::vector<ae_influence_R*> ae_protein_R::get_influence_list( void )
+//{
+//  return _influence_list;
+//}
+
+// =====================================================================
+//                       Inline functions' definition
+// =====================================================================
+inline void ae_protein_R::update_concentration( void )
+{
+  _concentration += _delta_concentration;
 }
 
-ae_protein_R::ae_protein_R( ae_genetic_unit* gen_unit, ae_list* codon_list, ae_strand strand, int32_t shine_dal_pos,
-                            ae_rna* rna )  :
-  ae_protein( gen_unit, codon_list, strand, shine_dal_pos, rna )
+inline void ae_protein_R::set_inherited( bool is_inherited )
 {
-  _influence_list       = new ae_list();
-  _delta_concentration  = 0;
-  _inherited            = false;
+  _inherited = is_inherited;
+}
+
+inline void ae_protein_R::set_signal( bool is_signal )
+{
+  _signal = is_signal;
+}
+
+inline void ae_protein_R::reset_concentration( void )
+{
+  _concentration = _initial_concentration;
+}
+
+inline void ae_protein_R::set_initial_concentration( void )
+{
+  _initial_concentration = _concentration;
+}
+
+inline bool ae_protein_R::is_inherited( void )
+{
+  return _inherited;
+}
+
+inline bool ae_protein_R::is_signal( void )
+{
+  return _signal;
 }
 
 /*
-ae_protein_R::ae_protein_R( ae_protein_R* parent ) :
-ae_protein( parent )
+ae_protein_R* ae_protein_R::copy( void )
 {
-  //_delta_concentration  = parent->_delta_concentration;
-  _codon_list           = parent->_codon_list->copy();
-//  _rna_list             = parent->_rna_list->copy();
-  _rna_list             = new ae_list();
-  //_influence_list       = parent->_influence_list->copy();
-  _influence_list       = new ae_list();
+  ae_protein_R* new_prot = new ae_protein_R( this );
+  new_prot->_shine_dal_pos = -1;
+
+  return new_prot;
 }
 */
 
-ae_protein_R::ae_protein_R( gzFile backup_file ) : ae_protein::ae_protein( backup_file )
+inline void ae_protein_R::multiply_concentration( double factor )
 {
-  // the Influence list is re-calculate afterward, and then is not saved, nor use in this consctructor.
-  gzread( backup_file, &_delta_concentration,   			sizeof(_delta_concentration) );
-  gzread( backup_file, &_inherited,   			sizeof(_inherited) );
-
-  _influence_list       = new ae_list();
-}
- 
-// =================================================================
-//                             Destructors
-// =================================================================
-ae_protein_R::~ae_protein_R( void )
-{
-  remove_influences();
-  _influence_list->erase( NO_DELETE );
-  delete _influence_list;
+  _concentration *= factor;
 }
 
-// =================================================================
-//                            Public Methods
-// =================================================================
-void ae_protein_R::compute_delta_concentration( void )
+inline void ae_protein_R::set_concentration( double concentration )
 {
-  _delta_concentration = 0;
-
-  ae_list_node* rna_node  = _rna_list->get_first();
-  ae_rna_R*     rna       = NULL;
-
-  while ( rna_node != NULL )
-  {
-    assert( _inherited == false );
-    rna = (ae_rna_R*)rna_node->get_obj();
-
-    _delta_concentration += rna->get_synthesis_rate();
-
-    rna_node = rna_node->get_next();
-  }
-
-  //printf("degradation rate : %f \n", ae_common::degradation_rate);
-  _delta_concentration -= ae_common::degradation_rate * _concentration;
-  _delta_concentration *= ae_common::degradation_step;
-}
-
-int8_t ae_protein_R::get_codon( int32_t index )
-{
-  return dynamic_cast< ae_codon* >( _AA_list->get_object( index ) )->get_value();
-}
-
-void ae_protein_R::add_influence( ae_influence_R *influence )
-{
-  _influence_list->add( influence );
-}
-
-void ae_protein_R::save( gzFile backup_file ) 
-{
-  ae_protein::save( backup_file );
-
-  // the Influence list is re-calculate afterward, and then is not saved.
-  gzwrite( backup_file, &_delta_concentration,   	sizeof(_delta_concentration) );
-  gzwrite( backup_file, &_inherited,   			sizeof(_inherited) );
-}
-// =================================================================
-//                           Protected Methods
-// =================================================================
-void ae_protein_R::remove_influences( void )
-{
-  ae_list_node*   influence_node;
-  ae_influence_R* influence;
-  ae_rna_R*       rna;
-
-  influence_node = _influence_list->get_first();
-  while ( influence_node != NULL )
-  {
-    influence = (ae_influence_R*)influence_node->get_obj();
-    rna       = (ae_rna_R*)influence->get_rna();
-    rna->remove_influence( influence );
-
-    influence_node = influence_node->get_next();
-  }
-
+  _concentration = concentration;
 }
 
 } // namespace aevol

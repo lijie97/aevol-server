@@ -37,6 +37,7 @@
 #include "ae_protein_R.h"
 #include "ae_influence_R.h"
 #include "ae_codon.h"
+#include <algorithm>
 
 namespace aevol {
 
@@ -53,20 +54,42 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_protein_R::ae_protein_R( ae_genetic_unit* gen_unit, const ae_protein_R &model ) : ae_protein( gen_unit, model )
+
+ae_protein_R::ae_protein_R( GeneticUnit* gen_unit, const ae_protein_R &model ) : ae_protein( gen_unit, model )
 {
-  _delta_concentration  = model._delta_concentration;
-  _influence_list       = new ae_list();
-  _inherited            = false;
+  _concentration         = model._concentration;
+  _initial_concentration = model._concentration;
+  _delta_concentration   = model._delta_concentration;
+  _signal                = model._signal;
+  _inherited             = model._inherited;
+//  _influence_list        = new ae_list();
+  not_pure_TF			 = false;
 }
 
-ae_protein_R::ae_protein_R( ae_genetic_unit* gen_unit, ae_list* codon_list, ae_strand strand, int32_t shine_dal_pos,
+
+ae_protein_R::ae_protein_R( GeneticUnit* gen_unit, const std::list<ae_codon*> codon_list,
+		ae_strand strand, int32_t shine_dal_pos,
                             ae_rna* rna )  :
   ae_protein( gen_unit, codon_list, strand, shine_dal_pos, rna )
 {
-  _influence_list       = new ae_list();
+	_initial_concentration = 0;
+//  _influence_list       = new ae_list();
   _delta_concentration  = 0;
   _inherited            = false;
+  _signal               = false;
+  not_pure_TF			 = false;
+}
+
+//used to build the signal protein
+ae_protein_R::ae_protein_R( const std::list<ae_codon*> codon_list, double concentration)  :
+  ae_protein( codon_list, concentration )
+{
+//  _influence_list       = new ae_list();
+  _initial_concentration = 0;
+  _delta_concentration  = 0;
+  _inherited            = false;
+  _signal               = true;
+  not_pure_TF			 = false;
 }
 
 /*
@@ -84,11 +107,14 @@ ae_protein( parent )
 
 ae_protein_R::ae_protein_R( gzFile backup_file ) : ae_protein::ae_protein( backup_file )
 {
+	_initial_concentration = 0;
   // the Influence list is re-calculate afterward, and then is not saved, nor use in this consctructor.
-  gzread( backup_file, &_delta_concentration,   			sizeof(_delta_concentration) );
+  gzread( backup_file, &_delta_concentration,   	sizeof(_delta_concentration) );
   gzread( backup_file, &_inherited,   			sizeof(_inherited) );
+  gzread( backup_file, &_signal,   			sizeof(_signal) );
+  not_pure_TF			 = false;
 
-  _influence_list       = new ae_list();
+//  _influence_list       = new ae_list();
 }
  
 // =================================================================
@@ -96,9 +122,7 @@ ae_protein_R::ae_protein_R( gzFile backup_file ) : ae_protein::ae_protein( backu
 // =================================================================
 ae_protein_R::~ae_protein_R( void )
 {
-  remove_influences();
-  _influence_list->erase( NO_DELETE );
-  delete _influence_list;
+	_rna_R_list.clear();
 }
 
 // =================================================================
@@ -107,61 +131,41 @@ ae_protein_R::~ae_protein_R( void )
 void ae_protein_R::compute_delta_concentration( void )
 {
   _delta_concentration = 0;
-
-  ae_list_node<ae_rna_R*>* rna_node = _rna_list->get_first();
-  ae_rna_R* rna = NULL;
-
-  while ( rna_node != NULL )
+  if( _signal == 0 )
   {
-    assert( _inherited == false );
-    rna = rna_node->get_obj();
+	for (const auto& rna: rna_list)
+    {
+      assert( _inherited == false);
 
-    _delta_concentration += rna->get_synthesis_rate();
-
-    rna_node = rna_node->get_next();
+      _delta_concentration += ((ae_rna_R)rna).get_synthesis_rate();
+    }
+    _delta_concentration -= _gen_unit->get_exp_m()->get_exp_s()->get_degradation_rate() * _concentration;
+    _delta_concentration *= _gen_unit->get_exp_m()->get_exp_s()->get_degradation_step();
   }
-
-  //printf("degradation rate : %f \n", ae_common::degradation_rate);
-  _delta_concentration -= ae_common::degradation_rate * _concentration;
-  _delta_concentration *= ae_common::degradation_step;
 }
 
 int8_t ae_protein_R::get_codon( int32_t index )
 {
-  return dynamic_cast< ae_codon* >( _AA_list->get_object( index ) )->get_value();
+  return _AA_list[index];
 }
 
-void ae_protein_R::add_influence( ae_influence_R *influence )
-{
-  _influence_list->add( influence );
-}
-
-void ae_protein_R::save( gzFile backup_file ) 
+void ae_protein_R::save( gzFile backup_file )
 {
   ae_protein::save( backup_file );
 
   // the Influence list is re-calculate afterward, and then is not saved.
   gzwrite( backup_file, &_delta_concentration,   	sizeof(_delta_concentration) );
   gzwrite( backup_file, &_inherited,   			sizeof(_inherited) );
+  gzwrite( backup_file, &_signal,   			sizeof(_signal) );
 }
 // =================================================================
 //                           Protected Methods
 // =================================================================
 void ae_protein_R::remove_influences( void )
 {
-  ae_list_node<ae_influence_R*>* influence_node;
-  ae_influence_R* influence;
-  ae_rna_R*       rna;
+  printf("ALERTE la proteine veut détruire une influence !!!\n");
 
-  influence_node = _influence_list->get_first();
-  while ( influence_node != NULL )
-  {
-    influence = influence_node->get_obj();
-    rna       = influence->get_rna();
-    rna->remove_influence( influence );
-
-    influence_node = influence_node->get_next();
-  }
-
+  _rna_R_list.clear();
 }
+
 } // namespace aevol
