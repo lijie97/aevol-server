@@ -40,6 +40,7 @@
 #include "ae_individual.h"
 #include "ae_rna_R.h"
 #include "ae_protein_R.h"
+#include "habitat.h"
 
 namespace aevol {
 
@@ -70,7 +71,23 @@ class ae_individual_R : public virtual ae_individual
     // =================================================================
     //                            Public Methods
     // =================================================================
-    virtual void evaluate( Environment* envir );
+    /**
+      * Main evaluation method
+      */
+     virtual void Evaluate();
+     /**
+      * Evaluate within the provided context
+      */
+     virtual void EvaluateInContext(const Habitat& habitat);
+     virtual void reevaluate();
+     virtual void clear_everything_except_dna_and_promoters();
+     void do_transcription_translation_folding();
+     void do_transcription();
+     void do_translation();
+     void do_folding();
+     void compute_phenotype();
+     void compute_distance_to_target(const PhenotypicTarget& target);
+
     void    set_influences( void );
     void    update_concentrations( void );
     void    multiply_concentrations( double factor );
@@ -100,8 +117,8 @@ class ae_individual_R : public virtual ae_individual
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ae_list* _inherited_protein_list;
-    ae_list* _rna_list_coding;  // Please note that these RNAs are
+    std::vector<ae_protein_R*> _inherited_protein_list;
+    std::vector<ae_rna_R*> _rna_list_coding;   // Please note that these RNAs are
                                 // actually managed via genetic units.
 
 };
