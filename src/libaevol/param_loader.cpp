@@ -1082,6 +1082,23 @@ void param_loader::interpret_line(f_line* line, int32_t cur_line)
 //      individual_evaluation_dates->sort();
 //      _individual_evaluation_dates = individual_evaluation_dates;
     }
+    else if (strcmp(line->words[0], "RANDOM_BINDING_MATRIX") == 0)
+    {
+        if (strncmp(line->words[1], "true", 4) == 0)
+        {
+        	_random_binding_matrix = true;
+        }
+        else if (strncmp(line->words[1], "false", 5) == 0)
+        {
+        	_random_binding_matrix = false;
+        }
+        else
+        {
+          printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown more random_binding_matrix option (use true/false).\n",
+                 _param_file_name, cur_line);
+          exit(EXIT_FAILURE);
+        }
+    }
     else if (strcmp(line->words[0], "BINDING_ZEROS_PERCENTAGE") == 0)
     {
       _binding_zeros_percentage = atof(line->words[1]);
@@ -1242,6 +1259,9 @@ void param_loader::load(ae_exp_manager* exp_m, bool verbose,
   exp_s->set_secretion_contrib_to_fitness(_secretion_contrib_to_fitness);
   exp_s->set_secretion_cost(_secretion_cost);
 
+#ifdef __REGUL
+  exp_s->init_binding_matrix(_random_binding_matrix,_binding_zeros_percentage,_prng);
+#endif
 
   // 2) --------------------------------------------- Create and init a Habitat
   Habitat habitat;
@@ -1667,7 +1687,7 @@ f_line* param_loader::get_line(int32_t* cur_line_ptr) // void
   }
 }
 
-void param_loader::print_to_file(FILE* file)
+void param_loader::print_to_file(FILE* file, ae_exp_setup* exp_s)
 {
   // ------------------------------------------------------------ Constraints
   fprintf(file, "\nConstraints ---------------------------------------------\n");
@@ -1790,8 +1810,11 @@ void param_loader::print_to_file(FILE* file)
   fprintf(file, "degradation_steph :           %e\n",  _degradation_step          );
   fprintf(file, "individual_evaluation_dates :           %e\n",  _individual_evaluation_nb          );
   fprintf(file, "binding_zeros_percentage :           %e\n",  _binding_zeros_percentage          );
+  fprintf(file, "random_binding_matrix :           %s\n",  _random_binding_matrix ? "true" : "false"  );
   fprintf(file, "with_heredity :           %s\n",  _with_heredity ? "true" : "false"  );
   fprintf(file, "protein_presence_limit :           %e\n",  _protein_presence_limit          );
+  fprintf( file, "binding_matrix :\n");
+  exp_s->write_binding_matrix_to_file(file);
 #endif
 }
 

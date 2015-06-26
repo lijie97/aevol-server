@@ -87,9 +87,7 @@ class param_loader
 
   f_line* get_line( int32_t* );
 
-  void print_to_file( FILE* file );
-
-
+  void print_to_file( FILE* file, ae_exp_setup* exp_s );
 
 
  protected :
@@ -290,9 +288,6 @@ class param_loader
     // Heredity
     bool    _with_heredity;
     double  _protein_presence_limit;
-
-    // Binding matrix
-    double _binding_matrix[MAX_QUADON][MAX_CODON];
   #endif
 
 
