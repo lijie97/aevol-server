@@ -77,6 +77,8 @@ class ae_protein
                int32_t shine_dal,
                ae_rna* rna );
     //ae_protein( ae_protein* parent );
+    //used only for build the signals proteins
+    ae_protein( const std::list<ae_codon*> codon_list, double concentration);
     ae_protein( gzFile backup_file );
     // =================================================================
     //                             Destructors
