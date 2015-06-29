@@ -37,6 +37,9 @@
 */
 
 
+// =================================================================
+//                              Includes
+// =================================================================
 #ifndef AEVOL_EXP_MANAGER_H__
 #define AEVOL_EXP_MANAGER_H__
 
@@ -51,6 +54,8 @@
 #include "ExpSetup.h"
 #include "OutputManager.h"
 #include "World.h"
+#include "Observer.h"
+#include "ObservableEvent.h"
 
 
 namespace aevol {
@@ -61,11 +66,7 @@ namespace aevol {
 // =================================================================
 
 
-
-
-
-
-class ExpManager
+class ExpManager : public Observer
 {
   public :
     // =======================================================================
@@ -190,6 +191,10 @@ class ExpManager
     void FillGridWithClones(Individual & dolly) {
       world_->FillGridWithClones(dolly);
     }
+
+    void update(Observable& o, ObservableEvent e, void* arg) override {
+
+    };
 
 
 
