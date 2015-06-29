@@ -40,6 +40,8 @@
 #include "DnaReplicationReport.h"
 #include "Mutation.h"
 #include "Individual.h"
+#include "Time.h"
+#include "Observable.h"
 
 namespace aevol {
 
@@ -173,6 +175,8 @@ ReplicationReport::ReplicationReport(gzFile tree_file, Individual * indiv)
  */
 void ReplicationReport::init(Individual* offspring, Individual* parent)
 {
+  offspring->addObserver(this, REPLICATION);
+
   _indiv = offspring;
 
   _id = _indiv->get_id();
@@ -197,6 +201,8 @@ void ReplicationReport::init(Individual* offspring, Individual* parent)
  * Actions such as finalize the calculation of average values can be done here.
  */
 void ReplicationReport::signal_end_of_replication(Individual* indiv) {
+  if (indiv->get_id() == 0)
+    printf("%" PRId64 ": EOR 0x%x\n", Time::get_time(), indiv);
   // TODO <david.parsons@inria.fr> tmp patch
   if (_indiv == NULL) _indiv = indiv;
 
@@ -250,5 +256,7 @@ void ReplicationReport::write_to_tree_file(gzFile tree_file) const
 // =================================================================
 //                          Non inline accessors
 // =================================================================
-
+void ReplicationReport::update(Observable& o, void* arg) {
+  signal_end_of_replication(dynamic_cast<Individual*>(&o));
+}
 } // namespace aevol

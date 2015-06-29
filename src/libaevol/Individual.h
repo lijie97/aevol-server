@@ -49,7 +49,6 @@
 #include "Rna.h"
 #include "Protein.h"
 #include "Phenotype.h"
-#include "ReplicationReport.h"
 #include "MutationParams.h"
 #include "Fuzzy.h"
 #include "PhenotypicTarget.h"
@@ -64,6 +63,7 @@ namespace aevol {
 // =================================================================
 class ExpManager;
 class GridCell;
+class ReplicationReport;
 
 
 /// Models an individual cell.

@@ -42,6 +42,7 @@
 #include "DnaReplicationReport.h"
 #include "ae_enums.h"
 #include "Observer.h"
+#include "Individual.h"
 
 namespace aevol {
 
@@ -123,9 +124,7 @@ class ReplicationReport : public Observer
     void write_to_tree_file(gzFile tree_file) const;
 
 
-  void update(Observable& o, void* arg) override {
-
-  };
+  void update(Observable& o, void* arg) override;
 
 
 

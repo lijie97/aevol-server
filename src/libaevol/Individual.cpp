@@ -1602,9 +1602,8 @@ void Individual::compute_statistical_data() {
         gen_unit.get_overall_size_non_functional_genes();
   }
 
-  // Finalize statistical data in the replication report
-  if (get_replication_report())
-    get_replication_report()->signal_end_of_replication(this);
+  // Tell observers the replication is finished
+  notifyObservers(REPLICATION, nullptr);
 }
 
 void Individual::compute_non_coding() {

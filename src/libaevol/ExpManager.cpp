@@ -273,6 +273,13 @@ void ExpManager::load(gzFile& exp_s_file,
   fflush(stdout);
   _output_m->load(out_p_file, verbose, to_be_run);
   printf(" OK\n");
+
+  // -------------------------------------------- Link world and output profile
+  for (auto indiv : world_->get_indivs()) {
+    indiv->addObserver(
+        get_tree()->get_report_by_index(Time::get_time(), indiv->get_id()),
+        END_REPLICATION);
+  }
 }
 
 
