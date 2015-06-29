@@ -45,6 +45,7 @@
 //                            Project Files
 // =================================================================
 #include "World.h"
+#include "Observable.h"
 
 
 namespace aevol {
@@ -60,7 +61,7 @@ class ExpManager;
 
 
 
-class Selection
+class Selection : public Observable
 {
   public :
     // =================================================================
