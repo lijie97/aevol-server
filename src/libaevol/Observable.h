@@ -18,13 +18,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef OBSERVER_OBSERVABLE_H
-#define OBSERVER_OBSERVABLE_H
+#ifndef OBSERVER_OBSERVABLE_H__
+#define OBSERVER_OBSERVABLE_H__
 
 
 // ============================================================================
 //                                   Includes
 // ============================================================================
+#include "ObservableEvent.h"
 #include "Observer.h"
 
 #include <list>
@@ -98,4 +99,4 @@ enum ObservableEvent {
 };
 
 
-#endif //OBSERVER_OBSERVABLE_H
+#endif //OBSERVER_OBSERVABLE_H__

@@ -18,8 +18,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef OBSERVER_OBSERVER_H
-#define OBSERVER_OBSERVER_H
+#ifndef OBSERVER_OBSERVER_H__
+#define OBSERVER_OBSERVER_H__
 
 
 // ============================================================================
@@ -78,4 +78,4 @@ class Observer {
 };
 
 
-#endif //OBSERVER_OBSERVER_H
+#endif //OBSERVER_OBSERVER_H__
