@@ -30,7 +30,7 @@
 
 
 // =================================================================
-//                              Libraries
+//                              Includes
 // =================================================================
 #include <cinttypes>
 #include <cstdio>
@@ -42,9 +42,6 @@
 #include <list>
 #include <memory>
 
-// =================================================================
-//                            Project Files
-// =================================================================
 #include "IndivStats.h"
 #include "NonCodingStats.h"
 #include "GeneticUnit.h"
@@ -57,6 +54,7 @@
 #include "Fuzzy.h"
 #include "PhenotypicTarget.h"
 #include "Habitat.h"
+#include "Observable.h"
 
 
 namespace aevol {
@@ -72,7 +70,7 @@ class GridCell;
 ///
 /// Proteins and RNAs are shared with descent.
 /// Genetic units are an individual's own.
-class Individual
+class Individual : public Observable
 {
   friend class Dna;
 
