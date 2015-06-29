@@ -544,8 +544,11 @@ Individual* Selection::do_replication(Individual* parent, int32_t index, int16_t
     #endif
   #endif
 
-  // Initialize replication report
-  new_indiv->get_replication_report()->init(new_indiv, parent);
+  // Notify observers that a new indiv was created from <parent>
+  {
+    Individual* msg[2] = {new_indiv, parent};
+    notifyObservers(NEW_INDIV, msg);
+  }
 
 
   // ===========================================================================

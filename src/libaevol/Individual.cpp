@@ -1603,7 +1603,7 @@ void Individual::compute_statistical_data() {
   }
 
   // Tell observers the replication is finished
-  notifyObservers(REPLICATION, nullptr);
+  notifyObservers(END_REPLICATION, nullptr);
 }
 
 void Individual::compute_non_coding() {

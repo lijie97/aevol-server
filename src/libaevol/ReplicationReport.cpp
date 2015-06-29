@@ -175,8 +175,6 @@ ReplicationReport::ReplicationReport(gzFile tree_file, Individual * indiv)
  */
 void ReplicationReport::init(Individual* offspring, Individual* parent)
 {
-  offspring->addObserver(this, REPLICATION);
-
   _indiv = offspring;
 
   _id = _indiv->get_id();
@@ -194,6 +192,9 @@ void ReplicationReport::init(Individual* offspring, Individual* parent)
   _parent_secretion_error = parent->get_dist_to_target_by_feature(SECRETION);
   _parent_genome_size     = parent->get_total_genome_size();
   _mean_align_score       = 0.0;
+
+  // Set ourselves an observer of _indiv's END_REPLICATION
+  _indiv->addObserver(this, END_REPLICATION);
 }
 
 /**

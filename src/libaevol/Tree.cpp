@@ -277,6 +277,12 @@ void Tree::write_to_tree_file(gzFile tree_file)
   }
 }
 
+void Tree::update(Observable& o, void* arg) {
+  auto indivs = reinterpret_cast<Individual**>(arg);
+  get_report_by_index(Time::get_time(), indivs[0]->get_id())->init(indivs[0],
+                                                                   indivs[1]);
+}
+
 
 
 // =================================================================

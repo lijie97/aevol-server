@@ -38,7 +38,8 @@ using std::map;
  *
  */
 enum ObservableEvent {
-  REPLICATION,
+  NEW_INDIV,
+  END_REPLICATION,
   GENERATION
 };
 

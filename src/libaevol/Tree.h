@@ -103,9 +103,7 @@ class Tree : public Observer
      */
     inline int64_t get_LCA(int64_t t, int32_t a, int32_t b, int32_t *j);
 
-  void update(Observable& o, void* arg) override {
-
-  };
+  void update(Observable& o, void* arg) override;
     
 
     // =================================================================
