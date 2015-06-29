@@ -193,7 +193,8 @@ void ReplicationReport::init(Individual* offspring, Individual* parent)
   _parent_genome_size     = parent->get_total_genome_size();
   _mean_align_score       = 0.0;
 
-  // Set ourselves an observer of _indiv's END_REPLICATION
+  // Set ourselves an observer of _indiv's MUTATION and END_REPLICATION
+  _indiv->addObserver(this, MUTATION);
   _indiv->addObserver(this, END_REPLICATION);
 }
 
@@ -258,7 +259,13 @@ void ReplicationReport::write_to_tree_file(gzFile tree_file) const
 //                          Non inline accessors
 // =================================================================
 void ReplicationReport::update(Observable& o, ObservableEvent e, void* arg) {
-  assert(e == END_REPLICATION);
-  signal_end_of_replication(dynamic_cast<Individual*>(&o));
+  switch (e) {
+    case END_REPLICATION :
+      signal_end_of_replication(dynamic_cast<Individual*>(&o));
+      break;
+    case MUTATION :
+      _dna_replic_report.add_mut(*reinterpret_cast<Mutation*>(arg));
+  }
+
 }
 } // namespace aevol
