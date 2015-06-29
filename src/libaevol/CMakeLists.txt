@@ -113,7 +113,8 @@ add_library(aevol
   Time.cpp
   Time.h
   World.cpp
-  World.h)
+  World.h
+  ObservableEvent.h)
 
 
 # ============================================================================

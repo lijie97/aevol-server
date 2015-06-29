@@ -43,6 +43,7 @@ Logging.h \
 macros.h \
 Mutation.h \
 Observable.h \
+ObservableEvent.h \
 Observer.h \
 OutputManager.h \
 MutationParams.h \

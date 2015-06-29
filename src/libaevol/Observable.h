@@ -35,14 +35,6 @@ using std::list;
 using std::map;
 
 
-/**
- *
- */
-enum ObservableEvent {
-  NEW_INDIV,
-  END_REPLICATION,
-  GENERATION
-};
 
 
 /**
