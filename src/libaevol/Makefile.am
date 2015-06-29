@@ -42,6 +42,8 @@ IndividualFactory.h \
 Logging.h \
 macros.h \
 Mutation.h \
+Observable.h \
+Observer.h \
 OutputManager.h \
 MutationParams.h \
 Phenotype.h \
@@ -85,6 +87,7 @@ Individual.cpp \
 IndividualFactory.cpp \
 Logging.cpp \
 Mutation.cpp \
+Observable.cpp \
 OutputManager.cpp \
 MutationParams.cpp \
 PhenotypicTarget.cpp \

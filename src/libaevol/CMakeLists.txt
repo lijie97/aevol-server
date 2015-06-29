@@ -62,6 +62,9 @@ add_library(aevol
   Logging.h
   Mutation.cpp
   Mutation.h
+  Observable.cpp
+  Observable.h
+  Observer.h
   OutputManager.cpp
   OutputManager.h
   MutationParams.cpp
