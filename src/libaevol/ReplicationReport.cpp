@@ -257,7 +257,8 @@ void ReplicationReport::write_to_tree_file(gzFile tree_file) const
 // =================================================================
 //                          Non inline accessors
 // =================================================================
-void ReplicationReport::update(Observable& o, void* arg) {
+void ReplicationReport::update(Observable& o, ObservableEvent e, void* arg) {
+  assert(e == END_REPLICATION);
   signal_end_of_replication(dynamic_cast<Individual*>(&o));
 }
 } // namespace aevol

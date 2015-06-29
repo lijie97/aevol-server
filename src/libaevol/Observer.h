@@ -58,7 +58,7 @@ class Observer {
   //                              Public Methods
   // ==========================================================================
   /// This method is called whenever the observed object is changed.
-  virtual void update(Observable& o, void* arg) = 0;
+  virtual void update(Observable& o, ObservableEvent e, void* arg) = 0;
 
   // ==========================================================================
   //                                 Getters

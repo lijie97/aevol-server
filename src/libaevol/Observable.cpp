@@ -40,7 +40,7 @@
 // ============================================================================
 void Observable::notifyObservers(ObservableEvent e, void* arg) {
   for (auto& o : observers_[e]) {
-    o->update(*this, arg);
+    o->update(*this, e, arg);
   }
 }
 
