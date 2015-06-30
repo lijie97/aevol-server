@@ -55,7 +55,7 @@ namespace aevol {
 //                             Constructors
 // =================================================================
 
-ae_protein_R::ae_protein_R( GeneticUnit* gen_unit, const ae_protein_R &model ) : ae_protein( gen_unit, model )
+ae_protein_R::ae_protein_R( GeneticUnit* gen_unit, const ae_protein_R &model ) : Protein::Protein( gen_unit, model )
 {
   _concentration         = model._concentration;
   _initial_concentration = model._concentration;
@@ -68,9 +68,9 @@ ae_protein_R::ae_protein_R( GeneticUnit* gen_unit, const ae_protein_R &model ) :
 
 
 ae_protein_R::ae_protein_R( GeneticUnit* gen_unit, const std::list<ae_codon*> codon_list,
-		ae_strand strand, int32_t shine_dal_pos,
+							Strand strand, int32_t shine_dal_pos,
                             ae_rna* rna )  :
-  ae_protein( gen_unit, codon_list, strand, shine_dal_pos, rna )
+		Protein::Protein( gen_unit, codon_list, strand, shine_dal_pos, rna )
 {
 	_initial_concentration = 0;
 //  _influence_list       = new ae_list();
@@ -82,7 +82,7 @@ ae_protein_R::ae_protein_R( GeneticUnit* gen_unit, const std::list<ae_codon*> co
 
 //used to build the signal protein
 ae_protein_R::ae_protein_R( const std::list<ae_codon*> codon_list, double concentration)  :
-  ae_protein( codon_list, concentration )
+		Protein::Protein( codon_list, concentration )
 {
 //  _influence_list       = new ae_list();
   _initial_concentration = 0;
@@ -105,7 +105,7 @@ ae_protein( parent )
 }
 */
 
-ae_protein_R::ae_protein_R( gzFile backup_file ) : ae_protein::ae_protein( backup_file )
+ae_protein_R::ae_protein_R( gzFile backup_file ) : Protein::Protein( backup_file )
 {
 	_initial_concentration = 0;
   // the Influence list is re-calculate afterward, and then is not saved, nor use in this consctructor.
@@ -151,7 +151,7 @@ int8_t ae_protein_R::get_codon( int32_t index )
 
 void ae_protein_R::save( gzFile backup_file )
 {
-  ae_protein::save( backup_file );
+  Protein::save( backup_file );
 
   // the Influence list is re-calculate afterward, and then is not saved.
   gzwrite( backup_file, &_delta_concentration,   	sizeof(_delta_concentration) );
