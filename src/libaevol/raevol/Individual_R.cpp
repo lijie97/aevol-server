@@ -394,82 +394,31 @@ void Individual_R::set_influences( void )
 // As non-coding RNAs are completely inert, we don't care about their concentration
 // so we don't care if proteins activate or inhibit their transcription.
 {
-  ae_list_node<ae_rna_R*>* rna_node  = NULL;
-  ae_rna_R*     rna       = NULL;
-  
-  //
-  rna_node = _rna_list_coding->get_first();
-  while ( rna_node != NULL )
-  {
-    rna = rna_node->get_obj();
-
-    //~ printf( "%d proteins\n", _protein_list->get_nb_elts() );
-    rna->set_influences( _protein_list );
-
-    rna_node = rna_node->get_next();
-  }
+	  for (int i = 0; i < _rna_list_coding.size(); i++) {
+		_rna_list_coding[i]->set_influences( _protein_list );
+	  }
 }
 
 void Individual_R::update_concentrations( void )
 {
-  //_phenotype->print_points();
+	// Compute all the changes that will be applied to the concentrations
+	// Concentrations must not be changed at this stage
+	for (int i = 0; i < _protein_list.size(); i++) {
+		if (!((Protein_R*)_protein_list[i])->is_signal()) ((Protein_R*)_protein_list[i])->compute_delta_concentration();
+	}
 
-  ae_list_node<ae_protein_R*>* prot_node       = NULL;
-  ae_list_node>ae_protein_R*>* next_prot_node  = NULL;
-  ae_protein_R* prot            = NULL;
-
-  // Compute all the changes that will be applied to the concentrations
-  // Concentrations must not be changed at this stage
-  prot_node = _protein_list->get_first();
-  while ( prot_node != NULL )
-  {
-    prot = prot_node->get_obj();
-
-    prot->compute_delta_concentration();
-
-    prot_node = prot_node->get_next();
-  }
-
-  // Apply the changes in concentrations we have just computed
-  prot_node = _protein_list->get_first();
-  while ( prot_node != NULL )
-  {
-    prot = prot_node->get_obj();
-
-    prot->update_concentration();
-
-    // Keep track of the next node in the list, in case we need to remove the current one
-    next_prot_node = prot_node->get_next();
-
-    if( ae_common::with_heredity )
-    {
-      if( prot->is_inherited() && prot->get_concentration() < ae_common::protein_presence_limit )
-      {
-        // The protein has to be removed from both the individual's _protein_list and _inherited_proteins_list
-        _protein_list->remove( prot_node, DELETE_OBJ /*delete_node*/, NO_DELETE /*delete_obj*/ );
-        _inherited_protein_list->remove( prot, DELETE_OBJ /*delete_node*/, DELETE_OBJ /*delete_obj*/ );
-      }
-    }
-
-    // ready to study the next node
-    prot_node = next_prot_node;
-  }
+	// Apply the changes in concentrations we have just computed
+	for (int i = 0; i < _protein_list.size(); i++) {
+		if (!((Protein_R*)_protein_list[i])->is_signal()) ((Protein_R*)_protein_list[i])->update_concentration();
+	}
 }
 
 // Multiply the concentration of each protein by <factor>
 void Individual_R::multiply_concentrations( double factor )
 {
-  ae_list_node<ae_protein_R*>* prot_node = _protein_list->get_first();
-  ae_protein_R* prot      = NULL;
-  
-  while ( prot_node != NULL )
-  {
-    prot = prot_node->get_obj();
-
-    prot->multiply_concentration( factor );
-
-    prot_node = prot_node->get_next();
-  }
+	for (int i = 0; i < _protein_list.size(); i++) {
+	 	  ((Protein_R*)_protein_list[i])->multiply_concentration( factor );
+	}
 }
 
 int8_t Individual_R::get_quadon( GeneticUnit* gen_unit, Strand strand, int32_t pos )
@@ -504,24 +453,17 @@ int8_t Individual_R::get_quadon( GeneticUnit* gen_unit, Strand strand, int32_t p
 
 void Individual_R::save( gzFile backup_file )
 {
-  ae_individual::save( backup_file );
+  Individual::save( backup_file );
   // Test if there is heredity, and if the generation is the first one (no inherited protein list).
-  if (ae_common::with_heredity && _inherited_protein_list != NULL )
+  if (this->get_exp_m()->get_exp_s()->get_with_heredity() && !_inherited_protein_list.emplace() )
   {
     // Write inherited proteins
-    int16_t nb_inherited_proteins = _inherited_protein_list->get_nb_elts();
+    int16_t nb_inherited_proteins = _inherited_protein_list.size();
     gzwrite( backup_file, &nb_inherited_proteins,  sizeof(nb_inherited_proteins) );
-
-    ae_list_node<ae_protein_R*>*  inherited_protein_node = _inherited_protein_list->get_first();
-    ae_protein_R*  inherited_protein;
 
     for ( int16_t i = 0 ; i < nb_inherited_proteins ; i++ )
     {
-    inherited_protein = inherited_protein_node->get_obj();
-    
-    inherited_protein->save( backup_file );
-    
-    inherited_protein_node = inherited_protein_node->get_next();
+    	_inherited_protein_list[i]->save( backup_file );
     }
   }
 }
@@ -530,28 +472,28 @@ void Individual_R::save( gzFile backup_file )
 // =================================================================
 void Individual_R::make_protein_list( void )
 {
-  Individual::make_protein_list();
-  _protein_list->add_list( _inherited_protein_list );
+	  Individual::make_protein_list();
+	  for (int i = 0; i < _inherited_protein_list.size(); i++)
+		  _protein_list.push_back( _inherited_protein_list[i] );
 }
 
 void Individual_R::make_rna_list( void )
 {
   Individual::make_rna_list();
+  _rna_list_coding.clear();
   
   // Parse the newly created RNA list and copy the coding RNAs in _rna_list_coding.
-  ae_list_node<ae_rna*>* rna_node  = _rna_list->get_first();
-  ae_rna*       rna       = NULL;
-  
-  while ( rna_node != NULL )
+  for (const auto& gen_unit: _genetic_unit_list)
   {
-    rna = rna_node->get_obj();
-    
-    if ( rna->is_coding() == true )
-    {
-      _rna_list_coding->add( rna );
-    }
-    
-    rna_node = rna_node->get_next();
+    // Create proxies
+    const auto& rna_list = gen_unit.get_rna_list();
+    const auto& lead = rna_list[LEADING];
+    const auto& lagg = rna_list[LAGGING];
+
+    // append pointers to rna material to local _rna_list
+    for (auto& strand: {LEADING, LAGGING})
+      for (auto& rna: rna_list[strand])
+        _rna_list_coding.push_back(&rna);
   }
 }
 } // namespace aevol

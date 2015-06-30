@@ -56,7 +56,7 @@ class Rna_R : public Rna
 	Rna_R( GeneticUnit* gen_unit, const Rna_R &model );
 	Rna_R( void );
 	Rna_R( GeneticUnit* gen_unit );
-	Rna_R( GeneticUnit* gen_unit, ae_strand strand, int32_t index, int8_t diff );
+	Rna_R( GeneticUnit* gen_unit, Strand strand, int32_t index, int8_t diff );
 
     // =================================================================
     //                             Destructors
@@ -67,19 +67,19 @@ class Rna_R : public Rna
     //                              Accessors
     // =================================================================
 //    inline  ae_list*  get_influence_list( void );
-    inline std::vector<ae_protein*> get_protein_list( void );
+    inline std::list<Protein*> get_protein_list( void );
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void    set_influences( std::vector<ae_protein*> protein_list );
+    void    set_influences( std::list<Protein*> protein_list );
     double  get_synthesis_rate( void );
-    double  get_affinity_with_protein( int32_t index, ae_protein *protein );
+    double  get_affinity_with_protein( int32_t index, Protein *protein );
     int32_t get_enhancer_position( void );
     int32_t get_operator_position( void );
     // =================================================================
     //                           Public Attributes
     // =================================================================
-    std::vector<ae_protein*> _protein_list;
+    std::list<Protein*> _protein_list;
     std::vector<int> _enhancing_coef_list;
     std::vector<int> _operating_coef_list;
 
@@ -103,7 +103,7 @@ class Rna_R : public Rna
     //                           Protected Methods
     // =================================================================
     //inline  ae_rna_R* copy( void );
-    double    affinity_with_protein( int32_t index, ae_protein *protein );
+    double    affinity_with_protein( int32_t index, Protein *protein );
 
     // =================================================================
     //                          Protected Attributes

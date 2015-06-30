@@ -91,7 +91,7 @@ class Individual_R : public virtual Individual
     void    set_influences( void );
     void    update_concentrations( void );
     void    multiply_concentrations( double factor );
-    int8_t  get_quadon( GeneticUnit* gen_unit, ae_strand strand, int32_t pos );
+    int8_t  get_quadon( GeneticUnit* gen_unit, Strand strand, int32_t pos );
     void    save( gzFile backup_file );
 
     inline std::vector<Protein_R*> get_inherited_protein_list( void) const;
@@ -120,7 +120,7 @@ class Individual_R : public virtual Individual
     //                          Protected Attributes
     // =================================================================
     std::vector<Protein_R*> _inherited_protein_list;
-    std::vector<Rna_R*> _rna_list_coding;   // Please note that these RNAs are
+    std::vector<const Rna_R *> _rna_list_coding;   // Please note that these RNAs are
                                 // actually managed via genetic units.
 
 };

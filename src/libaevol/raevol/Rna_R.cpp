@@ -90,7 +90,7 @@ Rna_R::~Rna_R( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-void Rna_R::set_influences( std::vector<ae_protein*> protein_list )
+void Rna_R::set_influences( std::list<Protein*> protein_list )
 {
 	  int32_t enhancer_position = get_enhancer_position();
 	  int32_t operator_position = get_operator_position();
@@ -117,7 +117,7 @@ void Rna_R::set_influences( std::vector<ae_protein*> protein_list )
 	#endif
 	    //  printf ("set_influence - after affinity computation\n");
 	    if ( _enhancing_coef_list[i] != 0.0 || _operating_coef_list[i] != 0.0 )
-	    	((ae_protein_R*)protein_list[i])->not_pure_TF = true;
+	    	((Protein_R*)protein_list[i])->not_pure_TF = true;
 	  }
 }
 
@@ -170,7 +170,7 @@ int32_t Rna_R::get_operator_position( void )
   }
 }
 
-double Rna_R::affinity_with_protein( int32_t index, ae_protein *protein )
+double Rna_R::affinity_with_protein( int32_t index, Protein *protein )
 {
 	  double  max = 0;
 	  double  temp;
@@ -179,14 +179,14 @@ double Rna_R::affinity_with_protein( int32_t index, ae_protein *protein )
 	//  int32_t* codon_tab;
 	//  codon_tab = new int32_t[len];
 
-	  ae_individual_R*  indiv = NULL;
-	  ae_protein_R*     prot  = NULL;
+	  Individual_R*  indiv = NULL;
+	  Protein_R*     prot  = NULL;
 
 	  // printf("affinity_with_protein - len = %d\n",len);
 
 	  // Putting the quadons and the codons on local tab
-	  indiv = dynamic_cast< ae_individual_R* >( _gen_unit->get_indiv() );
-	  prot  = ( ae_protein_R* )( protein );
+	  indiv = dynamic_cast< Individual_R* >( _gen_unit->get_indiv() );
+	  prot  = ( Protein_R* )( protein );
 	#ifdef __TRACING__
 	  high_resolution_clock::time_point t1 = high_resolution_clock::now();
 	#endif
