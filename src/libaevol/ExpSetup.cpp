@@ -91,6 +91,11 @@ ExpSetup::ExpSetup( ExpManager * exp_m )
 
 #ifdef __REGUL
   _binding_matrix = NULL;
+
+  _protein_presence_limit = 1e-2;
+  _degradation_rate  = 1;
+  _degradation_step  = 0.1;
+  _with_heredity          = false;
 #endif
 }
   

@@ -103,6 +103,7 @@ class ExpSetup
     inline bool   get_with_heredity( void ) const;
     inline double get_degradation_rate( void ) const;
     inline double get_degradation_step( void ) const;
+    inline double get_protein_presence_limit( void ) const;
 #endif
     // =======================================================================
     //                         Accessors: setters
@@ -133,6 +134,7 @@ class ExpSetup
     inline void set_with_heredity( bool with_heredity );
     inline void set_degradation_rate( double degradation_rate );
     inline void set_degradation_step( double degradation_step );
+    inline void set_protein_presence_limit( double protein_presence_limit );
 #endif
     // =======================================================================
     //                            Public Methods
@@ -219,6 +221,7 @@ class ExpSetup
     double** _binding_matrix;
 
     bool    _with_heredity;
+    double  _protein_presence_limit;
 
     double  _degradation_rate;
     double  _degradation_step;
@@ -310,20 +313,25 @@ inline double ExpSetup::get_secretion_cost( void ) const
 }
 
 #ifdef __REGUL
-inline bool ae_exp_setup::get_with_heredity( void ) const
+inline bool ExpSetup::get_with_heredity( void ) const
 {
   return _with_heredity;
 }
 
-inline double ae_exp_setup::get_degradation_rate( void ) const
+inline double ExpSetup::get_degradation_rate( void ) const
 {
   return _degradation_rate;
 }
 
 
-inline double ae_exp_setup::get_degradation_step( void ) const
+inline double ExpSetup::get_degradation_step( void ) const
 {
   return _degradation_step;
+}
+
+inline double ExpSetup::get_protein_presence_limit( void ) const
+{
+  return _protein_presence_limit;
 }
 #endif
 
@@ -408,19 +416,24 @@ inline void ExpSetup::set_secretion_cost( double secretion_cost )
 }
 
 #ifdef __REGUL
-inline void ae_exp_setup::set_with_heredity( bool with_heredity )
+inline void ExpSetup::set_with_heredity( bool with_heredity )
 {
   _with_heredity = with_heredity;
 }
 
-inline void ae_exp_setup::set_degradation_rate( double degradation_rate )
+inline void ExpSetup::set_degradation_rate( double degradation_rate )
 {
   _degradation_rate = degradation_rate;
 }
 
-inline void ae_exp_setup::set_degradation_step( double degradation_step )
+inline void ExpSetup::set_degradation_step( double degradation_step )
 {
   _degradation_step = degradation_step;
+}
+
+inline void ExpSetup::set_protein_presence_limit( double protein_presence_limit )
+{
+  _protein_presence_limit = protein_presence_limit;
 }
 #endif
 
@@ -434,7 +447,7 @@ inline void ExpSetup::step_to_next_generation( void )
 }
 
 #ifdef __REGUL
-inline double** ae_exp_setup::get_binding_matrix( void )
+inline double** ExpSetup::get_binding_matrix( void )
 {
   return _binding_matrix;
 }
