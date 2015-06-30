@@ -62,7 +62,9 @@ class ExpSetup
     // =======================================================================
     //                             Constructors
     // =======================================================================
-    ExpSetup( ExpManager * exp_m );
+    ExpSetup() = delete;
+    ExpSetup(const ExpSetup&) = delete;
+    ExpSetup(ExpManager * exp_m);
   
   
     // =======================================================================
@@ -146,33 +148,18 @@ class ExpSetup
   
   
   protected :
-  
-    // =======================================================================
-    //                         Forbidden Constructors
-    // =======================================================================
-    ExpSetup( void )
-    {
-      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-    ExpSetup( const ExpSetup &model )
-    {
-      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-
     // =======================================================================
     //                           Protected Methods
     // =======================================================================
-    virtual void display( void ) {};
+    virtual void display() {};
   
     // =======================================================================
     //                          Protected Attributes
     // =======================================================================
-    ExpManager * _exp_m;
+    ExpManager* _exp_m;
       
     // ----------------------------------------------------- Selection context
-    Selection * _sel;
+    Selection* _sel;
     
     // --------------------------------------------------- Transfer parameters
     bool    _with_HT;

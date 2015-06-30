@@ -70,17 +70,17 @@ int compare_prot_pos(const void* pos, const void* prot) // This function has to 
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-ExpManager * GeneticUnit::get_exp_m(void) const
+ExpManager* GeneticUnit::get_exp_m() const
 {
   return _exp_m;
 }
 
-Individual * GeneticUnit::get_indiv(void) const
+Individual* GeneticUnit::get_indiv() const
 {
   return _indiv;
 }
 
-Dna * GeneticUnit::get_dna(void) const
+Dna* GeneticUnit::get_dna() const
 {
   assert(_dna->get_length() != 0);
   return _dna;
@@ -98,17 +98,17 @@ void GeneticUnit::clear_protein_list(Strand strand) {
   _protein_list[strand].clear();
 }
 
-Fuzzy* GeneticUnit::get_activ_contribution( void ) const
+Fuzzy* GeneticUnit::get_activ_contribution() const
 {
   return _activ_contribution;
 }
 
-Fuzzy* GeneticUnit::get_inhib_contribution( void ) const
+Fuzzy* GeneticUnit::get_inhib_contribution() const
 {
   return _inhib_contribution;
 }
 
-Fuzzy* GeneticUnit::get_phenotypic_contribution( void ) const
+Fuzzy* GeneticUnit::get_phenotypic_contribution() const
 {
   assert(_phenotypic_contribution != NULL);
   return _phenotypic_contribution;
@@ -879,7 +879,6 @@ GeneticUnit::~GeneticUnit( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-
 /// Look for promoters in the genome and create a new Rna in the
 /// corresponding strand's RNA list
 void GeneticUnit::locate_promoters( void )
@@ -1020,11 +1019,13 @@ void GeneticUnit::do_translation()
           // In that case, we don't need to tranlate it again, we only
           // need to increase the protein's concentration according to
           // the promoter transcription level
-          int32_t shine_dal_pos = Utils::mod(transcript_start + (strand == LEADING ? i : -i), genome_length);
+          int32_t shine_dal_pos = Utils::mod(transcript_start +
+                                                 (strand == LEADING ? i : -i),
+                                             genome_length);
           auto& protein_strand = _protein_list[strand];
           auto protein = find_if(protein_strand.begin(),
                                  protein_strand.end(),
-                                 [shine_dal_pos](Protein & p)
+                                 [shine_dal_pos](Protein& p)
                                  { return p.get_shine_dal_pos() == shine_dal_pos; });
 
           if (protein != protein_strand.end()) {
@@ -1035,7 +1036,7 @@ void GeneticUnit::do_translation()
             // Build codon list and make new protein when stop found
             int32_t j = i + SHINE_DAL_SIZE + SHINE_START_SPACER + CODON_SIZE; // next codon to examine
 
-            std::list<Codon *> codon_list;
+            std::list<Codon*> codon_list;
 
             while (transcript_length - j >= CODON_SIZE) {
               auto codon = new Codon(_dna,

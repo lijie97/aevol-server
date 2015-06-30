@@ -71,7 +71,7 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-Selection::Selection(ExpManager * exp_m )
+Selection::Selection(ExpManager* exp_m )
 {
   _exp_m = exp_m;
 

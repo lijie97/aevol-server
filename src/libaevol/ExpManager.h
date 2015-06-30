@@ -231,13 +231,13 @@ class ExpManager : public Observer
     //                             Protected Attributes
     // =======================================================================
     // ---------------------------------------------------- Experimental setup
-    ExpSetup * _exp_s;
+    ExpSetup* _exp_s;
 
     // ----------------------------------------------------- Spatial structure
     World* world_;
 
     // -------------------------------------------------------- Output manager
-    OutputManager * _output_m;
+    OutputManager* _output_m;
 
     // ----------------------------- Time step up to which we want to simulate
     int64_t t_end;

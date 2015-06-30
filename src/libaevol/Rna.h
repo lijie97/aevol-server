@@ -129,13 +129,14 @@ class Rna
     // =================================================================
     const GeneticUnit*  _gen_unit;
     Strand _strand;
-    int32_t           _pos; // Index of the promoter on the genome.
-                            // The promoter itself is NOT transcribed
-                            // The terminator is transcribed.
-    int32_t           _transcript_length;
-    double            _basal_level;
+    int32_t _pos; // Index of the promoter on the genome.
+                  // The promoter itself is NOT transcribed
+                  // The terminator is transcribed.
+    int32_t _transcript_length;
+    double _basal_level;
 
-    std::list<Protein *> transcribed_proteins;
+    // Access list to the proteins transcribed by this rna
+    std::list<Protein*> transcribed_proteins;
 };
 
 

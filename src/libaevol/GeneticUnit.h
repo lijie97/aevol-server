@@ -85,12 +85,12 @@ class GeneticUnit
   // =================================================================
   //                              Accessors
   // =================================================================
-  ExpManager *  get_exp_m( void ) const;
-  Individual *   get_indiv( void )                   const;
-  Dna *          get_dna( void )                     const;
-  Fuzzy*    get_activ_contribution( void )      const;
-  Fuzzy*    get_inhib_contribution( void )      const;
-  Fuzzy*    get_phenotypic_contribution( void ) const;
+  ExpManager* get_exp_m() const;
+  Individual* get_indiv() const;
+  Dna* get_dna() const;
+  Fuzzy* get_activ_contribution() const;
+  Fuzzy* get_inhib_contribution() const;
+  Fuzzy* get_phenotypic_contribution() const;
 
   const Promoters2Strands& get_rna_list() const;
   // TODO return as reference
@@ -294,10 +294,10 @@ class GeneticUnit
   // =================================================================
   //                          Protected Attributes
   // =================================================================
-  ExpManager * _exp_m;
+  ExpManager* _exp_m;
 
-  Individual *  _indiv;
-  Dna *         _dna;
+  Individual*  _indiv;
+  Dna*         _dna;
   Fuzzy*   _activ_contribution;
   Fuzzy*   _inhib_contribution;
   Fuzzy*   _phenotypic_contribution;

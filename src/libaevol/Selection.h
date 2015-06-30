@@ -68,9 +68,9 @@ class Selection : public Observable
     //                             Constructors
     // =================================================================
     Selection(void) = delete;
-    Selection(const Selection &) = delete;
-    Selection(ExpManager * exp_m);
-    Selection(ExpManager * exp_m, gzFile backup_file);
+    Selection(const Selection&) = delete;
+    Selection(ExpManager* exp_m);
+    Selection(ExpManager* exp_m, gzFile backup_file);
 
     // =================================================================
     //                             Destructors
@@ -109,10 +109,10 @@ class Selection : public Observable
     void save(gzFile& backup_file) const;
     void load(gzFile& exp_setup_file, gzFile& backup_file, bool verbose);
 
-    Individual * do_replication(Individual * parent,
-                                   int32_t index,
-                                   int16_t x = -1,
-                                   int16_t y = -1);
+    Individual* do_replication(Individual* parent,
+                               int32_t index,
+                               int16_t x = -1,
+                               int16_t y = -1);
     // =================================================================
     //                           Public Attributes
     // =================================================================
@@ -127,20 +127,19 @@ class Selection : public Observable
     // =================================================================
     void compute_prob_reprod(void);
     void compute_local_prob_reprod(void);
-    //Individual* do_replication(Individual* parent, int32_t index, int16_t x = -1, int16_t y = -1);
-    Individual * do_local_competition(int16_t x, int16_t y);
+    Individual* do_local_competition(int16_t x, int16_t y);
 
     // =======================================================================
     //                             Protected Attributes
     // =======================================================================
-    ExpManager * _exp_m;
+    ExpManager* _exp_m;
     
     // ----------------------------------------- Pseudo-random number generator
     std::unique_ptr<JumpingMT> prng_;
 
     // -------------------------------------------------------------- Selection
     SelectionScheme _selection_scheme;
-    double               _selection_pressure;
+    double _selection_pressure;
 
     // --------------------------- Probability of reproduction of each organism
     double* _prob_reprod;

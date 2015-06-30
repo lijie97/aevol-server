@@ -439,7 +439,7 @@ class Individual : public Observable
   double _fitness;
 
   // When using structured population, this is the cell the individual is in
-  GridCell * _grid_cell = NULL;
+  GridCell* _grid_cell = NULL;
   // int16_t x, y;
 
   // The chromosome and plasmids (if allowed)
@@ -447,8 +447,8 @@ class Individual : public Observable
 
   // Access lists to all the proteins/RNAs of the individual.
   // Please note that these proteins/RNAs are actually managed (i.e. newed and deleted) via genetic units.
-  std::list<Protein *> _protein_list;
-  std::list<const Rna *>     _rna_list;
+  std::list<Protein*> _protein_list;
+  std::list<const Rna*>     _rna_list;
 
   // Generic probes
   int32_t*  _int_probes;        // Array of 5 int32_t values to be used as one wishes
