@@ -760,8 +760,7 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
       {
         PhenotypicSegment ** segments = phenotypic_target.segments();
 
-        for (size_t i = 0 ; i < phenotypic_target.nb_segments() ; i++) // TODO <david.parsons@inria.fr> suppress warning
-        {
+        for (size_t i = 0 ; i < static_cast<size_t>(phenotypic_target.nb_segments()) ; i++) {
           if (segments[i]->feature != METABOLISM)
           {
             if (segments[i]->feature == NEUTRAL)
