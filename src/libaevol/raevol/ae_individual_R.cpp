@@ -54,63 +54,40 @@ namespace aevol {
 /*
  * Used at initialization
 */
-ae_individual_R::ae_individual_R( void ) : ae_individual()
+ae_individual_R::ae_individual_R( void ) : Individual()
 {
 
 }
 
 ae_individual_R::ae_individual_R( ae_individual_R* parent, int32_t id,
                                   ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng )
-        : ae_individual( parent, id, mut_prng, stoch_prng )
+        : Individual( parent, id, mut_prng, stoch_prng )
 {
   //~ printf( "ae_individual_R( parent ) : I have %d inherited proteins\n", parent->get_protein_list()->get_nb_elts() );
   
-  _rna_list_coding = new ae_list();
-  
-  if( ae_common::with_heredity )
-  {
-    _inherited_protein_list = new ae_list();
-    
-    // We copy all the proteins from parent
-    for ( int8_t strand = LEADING ; strand <= LAGGING ; strand++ )
+    for (int i = 0; i < parent->_protein_list.size(); i++)
     {
-      ae_list_node<ae_protein_R*>* prot_node = parent->_protein_list->get_first();
-      ae_protein_R* prot;
-      
-      while ( prot_node != NULL )
-      {
-        prot = prot_node->get_obj();
-        
-        ae_protein_R* inherited_prot = new ae_protein_R( NULL, *prot );
-        inherited_prot->set_inherited( true );
-        
-        _inherited_protein_list->add( inherited_prot );
-
-        prot_node = prot_node->get_next();
-      }
+    	if( parent->_protein_list[i]->get_concentration() > parent->get_exp_m()->get_exp_s()->get_protein_presence_limit() )
+    	{
+    		ae_protein_R* inherited_prot = new ae_protein_R( (ae_protein_R*)parent->_protein_list[i] );
+    		inherited_prot->set_inherited( true );
+    		_inherited_protein_list.push_back( inherited_prot );
+    	}
     }
-  }
-  else
-  {
-    _inherited_protein_list = NULL;
-  }
 }
 
-ae_individual_R::ae_individual_R( gzFile backup_file ) : ae_individual( backup_file )
+ae_individual_R::ae_individual_R( gzFile backup_file ) : Individual( backup_file )
 {
-  _rna_list_coding = new ae_list();
-  
-  _inherited_protein_list = NULL;
-  if( ae_common::with_heredity)
+  if( get_exp_m()->get_exp_s()->get_with_heredity() )
   {
     // Retreive inherited proteins
-    _inherited_protein_list = new ae_list();
+//    _inherited_protein_list = new ae_list();
     int16_t nb_inherited_proteins = 0;
     gzread( backup_file, &nb_inherited_proteins,  sizeof(nb_inherited_proteins) );
   
     for ( int16_t i = 0 ; i < nb_inherited_proteins ; i++ )
     {
-	  _inherited_protein_list->add( new ae_protein_R( backup_file ) );
+	  _inherited_protein_list.push_back( new ae_protein_R( backup_file ) );
     }
   }  
 }
@@ -120,21 +97,16 @@ ae_individual_R::ae_individual_R( gzFile backup_file ) : ae_individual( backup_f
 // =================================================================
 ae_individual_R::~ae_individual_R( void )
 {
-  assert( !ae_common::with_heredity || _inherited_protein_list != NULL );
+  assert( !get_exp_m()->get_exp_s()->get_with_heredity()  );
   
-  if ( _inherited_protein_list != NULL )
-  {
-    _inherited_protein_list->erase( DELETE_OBJ );
-    delete _inherited_protein_list;
-    _inherited_protein_list = NULL;
+  for (int i = 0; i < _inherited_protein_list.size(); i++) {
+	  ae_protein_R* dp = _inherited_protein_list[i];
+	  delete dp;
   }
-  
-  if ( _rna_list_coding != NULL )
-  {
-    _rna_list_coding->erase( NO_DELETE );
-    delete _rna_list_coding;
-    _rna_list_coding = NULL;
-  }
+
+  _inherited_protein_list.clear();
+
+  _rna_list_coding.clear();
 }
 
 // =================================================================

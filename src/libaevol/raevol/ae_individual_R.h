@@ -37,17 +37,17 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_individual.h"
+#include "Individual.h"
 #include "ae_rna_R.h"
 #include "ae_protein_R.h"
-#include "habitat.h"
+#include "Habitat.h"
 
 namespace aevol {
 
 // =================================================================
 //                          Class declarations
 // =================================================================
-class ae_individual_R : public virtual ae_individual
+class ae_individual_R : public virtual Individual
 {
   public :
 
