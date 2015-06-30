@@ -13,6 +13,7 @@ add_definitions(-DVERSION="${PROJECT_VERSION}")
 # Temporary stuff to be fully integrated into CMake
 add_definitions(-DSFMT_MEXP=607)
 add_definitions(-D__X11)
+add_definitions(-DDEBUG)
 
 FIND_PACKAGE ( X11 REQUIRED )
 IF ( X11_FOUND )
