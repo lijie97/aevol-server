@@ -35,9 +35,8 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_rna_R.h"
-#include "ae_influence_R.h"
-#include "ae_individual_R.h"
+#include "Rna_R.h"
+#include "Individual_R.h"
 namespace aevol {
 
 //##############################################################################
@@ -53,19 +52,19 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_rna_R::ae_rna_R( void ) : Rna()
+Rna_R::Rna_R( void ) : Rna()
 {
 }
 
-ae_rna_R::ae_rna_R( GeneticUnit* gen_unit, const ae_rna_R &model ) : Rna( gen_unit, model )
+Rna_R::Rna_R( GeneticUnit* gen_unit, const Rna_R &model ) : Rna( gen_unit, model )
 {
 }
 
-ae_rna_R::ae_rna_R( GeneticUnit* gen_unit ) : Rna( gen_unit )
+Rna_R::Rna_R( GeneticUnit* gen_unit ) : Rna( gen_unit )
 {
 }
 
-ae_rna_R::ae_rna_R( GeneticUnit* gen_unit, Strand strand, int32_t index, int8_t diff ) :
+Rna_R::Rna_R( GeneticUnit* gen_unit, Strand strand, int32_t index, int8_t diff ) :
 		Rna( gen_unit, strand, index, diff )
 {
 }
@@ -81,7 +80,7 @@ ae_rna( parent )
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_rna_R::~ae_rna_R( void )
+Rna_R::~Rna_R( void )
 {
 	_protein_list.clear();
 	_enhancing_coef_list.clear();
@@ -91,7 +90,7 @@ ae_rna_R::~ae_rna_R( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_rna_R::set_influences( std::vector<ae_protein*> protein_list )
+void Rna_R::set_influences( std::vector<ae_protein*> protein_list )
 {
 	  int32_t enhancer_position = get_enhancer_position();
 	  int32_t operator_position = get_operator_position();
@@ -122,7 +121,7 @@ void ae_rna_R::set_influences( std::vector<ae_protein*> protein_list )
 	  }
 }
 
-double ae_rna_R::get_synthesis_rate( void )
+double Rna_R::get_synthesis_rate( void )
 {
   double enhancer_activity  = 0;
   double operator_activity  = 0;
@@ -147,7 +146,7 @@ double ae_rna_R::get_synthesis_rate( void )
 // =================================================================
 //                           Protected Methods
 // =================================================================
-int32_t ae_rna_R::get_enhancer_position( void )
+int32_t Rna_R::get_enhancer_position( void )
 {
   if(_strand == LEADING)
   {
@@ -159,7 +158,7 @@ int32_t ae_rna_R::get_enhancer_position( void )
   }
 }
 
-int32_t ae_rna_R::get_operator_position( void )
+int32_t Rna_R::get_operator_position( void )
 {
   if(_strand == LEADING)
   {
@@ -171,7 +170,7 @@ int32_t ae_rna_R::get_operator_position( void )
   }
 }
 
-double ae_rna_R::affinity_with_protein( int32_t index, ae_protein *protein )
+double Rna_R::affinity_with_protein( int32_t index, ae_protein *protein )
 {
 	  double  max = 0;
 	  double  temp;

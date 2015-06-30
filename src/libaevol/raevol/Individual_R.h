@@ -38,8 +38,8 @@
 //                            Project Files
 // =================================================================
 #include "Individual.h"
-#include "ae_rna_R.h"
-#include "ae_protein_R.h"
+#include "Rna_R.h"
+#include "Protein_R.h"
 #include "Habitat.h"
 
 namespace aevol {
@@ -47,22 +47,22 @@ namespace aevol {
 // =================================================================
 //                          Class declarations
 // =================================================================
-class ae_individual_R : public virtual Individual
+class Individual_R : public virtual Individual
 {
   public :
 
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_individual_R( void );
-    ae_individual_R(  ae_individual_R* parent, int32_t id,
+	Individual_R( void );
+	Individual_R(  Individual_R* parent, int32_t id,
                       ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng  );
-    ae_individual_R( gzFile backup_file );
+	Individual_R( gzFile backup_file );
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_individual_R( void );
+    virtual ~Individual_R( void );
 
     // =================================================================
     //                              Accessors
@@ -94,7 +94,7 @@ class ae_individual_R : public virtual Individual
     int8_t  get_quadon( GeneticUnit* gen_unit, ae_strand strand, int32_t pos );
     void    save( gzFile backup_file );
 
-    inline std::vector<ae_protein_R*> get_inherited_protein_list( void) const;
+    inline std::vector<Protein_R*> get_inherited_protein_list( void) const;
     // =================================================================
     //                           Public Attributes
     // =================================================================
@@ -119,8 +119,8 @@ class ae_individual_R : public virtual Individual
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    std::vector<ae_protein_R*> _inherited_protein_list;
-    std::vector<ae_rna_R*> _rna_list_coding;   // Please note that these RNAs are
+    std::vector<Protein_R*> _inherited_protein_list;
+    std::vector<Rna_R*> _rna_list_coding;   // Please note that these RNAs are
                                 // actually managed via genetic units.
 
 };
@@ -128,7 +128,7 @@ class ae_individual_R : public virtual Individual
 // =====================================================================
 //                          Accessors definitions
 // =====================================================================
-inline std::vector<ae_protein_R*> ae_individual_R::get_inherited_protein_list( void ) const
+inline std::vector<Protein_R*> Individual_R::get_inherited_protein_list( void ) const
 {
   assert( _inherited_protein_list );
 

@@ -37,31 +37,31 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_individual_R.h"
-#include "ae_individual_X11.h"
+#include "Individual_R.h"
+#include "Individual_X11.h"
 
 namespace aevol {
 
 // =================================================================
 //                          Class declarations
 // =================================================================
-class ae_individual_R_X11 : public ae_individual_R, ae_individual_X11
+class Individual_R_X11 : public Individual_R, ae_individual_X11
 {
   public :
 
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_individual_R_X11( const ae_individual_R_X11 &model, bool replication_report_copy  );
-    ae_individual_R_X11( void );
-    ae_individual_R_X11(  ae_individual_R_X11* parent, int32_t id,
+	Individual_R_X11( const Individual_R_X11 &model, bool replication_report_copy  );
+	Individual_R_X11( void );
+	Individual_R_X11(  Individual_R_X11* parent, int32_t id,
                           ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng );
-    ae_individual_R_X11( gzFile backup_file );
+	Individual_R_X11( gzFile backup_file );
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_individual_R_X11( void );
+    virtual ~Individual_R_X11( void );
 
     // =================================================================
     //                              Accessors

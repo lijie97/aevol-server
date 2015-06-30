@@ -37,9 +37,8 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_rna.h"
-#include "ae_protein.h"
-#include "raevol/ae_influence_R.h"
+#include "Rna.h"
+#include "Protein.h"
 
 namespace aevol {
 
@@ -47,22 +46,22 @@ namespace aevol {
 //                          Class declarations
 // =================================================================
 
-class ae_rna_R : public ae_rna
+class Rna_R : public Rna
 {
   public :
 
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_rna_R( GeneticUnit* gen_unit, const ae_rna_R &model );
-    ae_rna_R( void );
-    ae_rna_R( GeneticUnit* gen_unit );
-    ae_rna_R( GeneticUnit* gen_unit, ae_strand strand, int32_t index, int8_t diff );
+	Rna_R( GeneticUnit* gen_unit, const Rna_R &model );
+	Rna_R( void );
+	Rna_R( GeneticUnit* gen_unit );
+	Rna_R( GeneticUnit* gen_unit, ae_strand strand, int32_t index, int8_t diff );
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_rna_R( void );
+    virtual ~Rna_R( void );
 
     // =================================================================
     //                              Accessors
@@ -94,7 +93,7 @@ class ae_rna_R : public ae_rna
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
       };*/
-    ae_rna_R( const ae_rna_R &model )
+    Rna_R( const Rna_R &model )
     {
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );

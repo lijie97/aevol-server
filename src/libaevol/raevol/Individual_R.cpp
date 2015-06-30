@@ -34,7 +34,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_individual_R.h"
+#include "Individual_R.h"
 namespace aevol {
 
 //##############################################################################
@@ -54,12 +54,12 @@ namespace aevol {
 /*
  * Used at initialization
 */
-ae_individual_R::ae_individual_R( void ) : Individual()
+Individual_R::Individual_R( void ) : Individual()
 {
 
 }
 
-ae_individual_R::ae_individual_R( ae_individual_R* parent, int32_t id,
+Individual_R::Individual_R( Individual_R* parent, int32_t id,
                                   ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng )
         : Individual( parent, id, mut_prng, stoch_prng )
 {
@@ -69,14 +69,14 @@ ae_individual_R::ae_individual_R( ae_individual_R* parent, int32_t id,
     {
     	if( parent->_protein_list[i]->get_concentration() > parent->get_exp_m()->get_exp_s()->get_protein_presence_limit() )
     	{
-    		ae_protein_R* inherited_prot = new ae_protein_R( (ae_protein_R*)parent->_protein_list[i] );
+    		Protein_R* inherited_prot = new Protein_R( (Protein_R*)parent->_protein_list[i] );
     		inherited_prot->set_inherited( true );
     		_inherited_protein_list.push_back( inherited_prot );
     	}
     }
 }
 
-ae_individual_R::ae_individual_R( gzFile backup_file ) : Individual( backup_file )
+Individual_R::Individual_R( gzFile backup_file ) : Individual( backup_file )
 {
   if( get_exp_m()->get_exp_s()->get_with_heredity() )
   {
@@ -87,7 +87,7 @@ ae_individual_R::ae_individual_R( gzFile backup_file ) : Individual( backup_file
   
     for ( int16_t i = 0 ; i < nb_inherited_proteins ; i++ )
     {
-	  _inherited_protein_list.push_back( new ae_protein_R( backup_file ) );
+	  _inherited_protein_list.push_back( new Protein_R( backup_file ) );
     }
   }  
 }
@@ -95,12 +95,12 @@ ae_individual_R::ae_individual_R( gzFile backup_file ) : Individual( backup_file
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_individual_R::~ae_individual_R( void )
+Individual_R::~Individual_R( void )
 {
   assert( !get_exp_m()->get_exp_s()->get_with_heredity()  );
   
   for (int i = 0; i < _inherited_protein_list.size(); i++) {
-	  ae_protein_R* dp = _inherited_protein_list[i];
+	  Protein_R* dp = _inherited_protein_list[i];
 	  delete dp;
   }
 
@@ -112,7 +112,7 @@ ae_individual_R::~ae_individual_R( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_individual_R::evaluate( Environment* envir )
+void Individual_R::evaluate( Environment* envir )
 {
 	  //protections
 	//  if ( _nb_env_list == 0 )
@@ -154,7 +154,7 @@ void ae_individual_R::evaluate( Environment* envir )
 	    delete _phenotype;
 	    _phenotype = NULL;
 	  }
-	  _phenotype = new ae_phenotype();
+	  _phenotype = new Phenotype();
 
 
 	  //----------------------------------------------------------------------------
@@ -389,7 +389,7 @@ void ae_individual_R::evaluate( Environment* envir )
 	#endif
 }
 
-void ae_individual_R::set_influences( void )
+void Individual_R::set_influences( void )
 // Compute the influence of each protein over each coding RNA
 // As non-coding RNAs are completely inert, we don't care about their concentration
 // so we don't care if proteins activate or inhibit their transcription.
@@ -410,7 +410,7 @@ void ae_individual_R::set_influences( void )
   }
 }
 
-void ae_individual_R::update_concentrations( void )
+void Individual_R::update_concentrations( void )
 {
   //_phenotype->print_points();
 
@@ -457,7 +457,7 @@ void ae_individual_R::update_concentrations( void )
 }
 
 // Multiply the concentration of each protein by <factor>
-void ae_individual_R::multiply_concentrations( double factor )
+void Individual_R::multiply_concentrations( double factor )
 {
   ae_list_node<ae_protein_R*>* prot_node = _protein_list->get_first();
   ae_protein_R* prot      = NULL;
@@ -472,7 +472,7 @@ void ae_individual_R::multiply_concentrations( double factor )
   }
 }
 
-int8_t ae_individual_R::get_quadon( GeneticUnit* gen_unit, Strand strand, int32_t pos )
+int8_t Individual_R::get_quadon( GeneticUnit* gen_unit, Strand strand, int32_t pos )
 {
   const char* dna = gen_unit->get_dna()->get_data();
   int32_t  len    = gen_unit->get_dna()->get_length();
@@ -502,7 +502,7 @@ int8_t ae_individual_R::get_quadon( GeneticUnit* gen_unit, Strand strand, int32_
   return quadon;
 }
 
-void ae_individual_R::save( gzFile backup_file )
+void Individual_R::save( gzFile backup_file )
 {
   ae_individual::save( backup_file );
   // Test if there is heredity, and if the generation is the first one (no inherited protein list).
@@ -528,15 +528,15 @@ void ae_individual_R::save( gzFile backup_file )
 // =================================================================
 //                           Protected Methods
 // =================================================================
-void ae_individual_R::make_protein_list( void )
+void Individual_R::make_protein_list( void )
 {
-  ae_individual::make_protein_list();
+  Individual::make_protein_list();
   _protein_list->add_list( _inherited_protein_list );
 }
 
-void ae_individual_R::make_rna_list( void )
+void Individual_R::make_rna_list( void )
 {
-  ae_individual::make_rna_list();
+  Individual::make_rna_list();
   
   // Parse the newly created RNA list and copy the coding RNAs in _rna_list_coding.
   ae_list_node<ae_rna*>* rna_node  = _rna_list->get_first();

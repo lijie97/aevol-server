@@ -34,8 +34,8 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_protein.h"
-#include "ae_codon.h"
+#include "Protein.h"
+#include "Codon.h"
 
 namespace aevol {
 
@@ -46,26 +46,26 @@ namespace aevol {
 //##############################################################################
 class ae_genetic_unit;
 
-class ae_protein_R : public Protein
+class Protein_R : public Protein
 {
   public :
 
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_protein_R( GeneticUnit* gen_unit, const ae_protein_R &model );
-    ae_protein_R( GeneticUnit* gen_unit,
+	Protein_R( GeneticUnit* gen_unit, const Protein_R &model );
+	Protein_R( GeneticUnit* gen_unit,
     		const std::list<ae_codon*> codon_list,
     		ae_strand strand,
     		int32_t shine_dal_pos,
     		ae_rna* rna ); // TODO ae_rna_R?
-    ae_protein_R( const std::list<ae_codon*> codon_list, double concentration);
-	ae_protein_R( gzFile backup_file );
+	Protein_R( const std::list<ae_codon*> codon_list, double concentration);
+	Protein_R( gzFile backup_file );
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    ~ae_protein_R( void );
+    ~Protein_R( void );
 
     // =================================================================
     //                              Accessors
@@ -116,7 +116,7 @@ class ae_protein_R : public Protein
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    std::vector<ae_rna_R*>  _rna_R_list;
+    std::vector<Rna_R*>  _rna_R_list;
     double    _delta_concentration;
     bool      _inherited;
     bool      _signal;
@@ -134,37 +134,37 @@ class ae_protein_R : public Protein
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-inline void ae_protein_R::update_concentration( void )
+inline void Protein_R::update_concentration( void )
 {
   _concentration += _delta_concentration;
 }
 
-inline void ae_protein_R::set_inherited( bool is_inherited )
+inline void Protein_R::set_inherited( bool is_inherited )
 {
   _inherited = is_inherited;
 }
 
-inline void ae_protein_R::set_signal( bool is_signal )
+inline void Protein_R::set_signal( bool is_signal )
 {
   _signal = is_signal;
 }
 
-inline void ae_protein_R::reset_concentration( void )
+inline void Protein_R::reset_concentration( void )
 {
   _concentration = _initial_concentration;
 }
 
-inline void ae_protein_R::set_initial_concentration( void )
+inline void Protein_R::set_initial_concentration( void )
 {
   _initial_concentration = _concentration;
 }
 
-inline bool ae_protein_R::is_inherited( void )
+inline bool Protein_R::is_inherited( void )
 {
   return _inherited;
 }
 
-inline bool ae_protein_R::is_signal( void )
+inline bool Protein_R::is_signal( void )
 {
   return _signal;
 }
@@ -179,12 +179,12 @@ ae_protein_R* ae_protein_R::copy( void )
 }
 */
 
-inline void ae_protein_R::multiply_concentration( double factor )
+inline void Protein_R::multiply_concentration( double factor )
 {
   _concentration *= factor;
 }
 
-inline void ae_protein_R::set_concentration( double concentration )
+inline void Protein_R::set_concentration( double concentration )
 {
   _concentration = concentration;
 }

@@ -34,9 +34,8 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_protein_R.h"
-#include "ae_influence_R.h"
-#include "ae_codon.h"
+#include "Protein_R.h"
+#include "Codon.h"
 #include <algorithm>
 
 namespace aevol {
@@ -55,7 +54,7 @@ namespace aevol {
 //                             Constructors
 // =================================================================
 
-ae_protein_R::ae_protein_R( GeneticUnit* gen_unit, const ae_protein_R &model ) : Protein::Protein( gen_unit, model )
+Protein_R::Protein_R( GeneticUnit* gen_unit, const Protein_R &model ) : Protein::Protein( gen_unit, model )
 {
   _concentration         = model._concentration;
   _initial_concentration = model._concentration;
@@ -67,7 +66,7 @@ ae_protein_R::ae_protein_R( GeneticUnit* gen_unit, const ae_protein_R &model ) :
 }
 
 
-ae_protein_R::ae_protein_R( GeneticUnit* gen_unit, const std::list<ae_codon*> codon_list,
+Protein_R::Protein_R( GeneticUnit* gen_unit, const std::list<Codon*> codon_list,
 							Strand strand, int32_t shine_dal_pos,
                             ae_rna* rna )  :
 		Protein::Protein( gen_unit, codon_list, strand, shine_dal_pos, rna )
@@ -81,7 +80,7 @@ ae_protein_R::ae_protein_R( GeneticUnit* gen_unit, const std::list<ae_codon*> co
 }
 
 //used to build the signal protein
-ae_protein_R::ae_protein_R( const std::list<ae_codon*> codon_list, double concentration)  :
+Protein_R::Protein_R( const std::list<ae_codon*> codon_list, double concentration)  :
 		Protein::Protein( codon_list, concentration )
 {
 //  _influence_list       = new ae_list();
@@ -105,7 +104,7 @@ ae_protein( parent )
 }
 */
 
-ae_protein_R::ae_protein_R( gzFile backup_file ) : Protein::Protein( backup_file )
+Protein_R::Protein_R( gzFile backup_file ) : Protein::Protein( backup_file )
 {
 	_initial_concentration = 0;
   // the Influence list is re-calculate afterward, and then is not saved, nor use in this consctructor.
@@ -120,7 +119,7 @@ ae_protein_R::ae_protein_R( gzFile backup_file ) : Protein::Protein( backup_file
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_protein_R::~ae_protein_R( void )
+Protein_R::~Protein_R( void )
 {
 	_rna_R_list.clear();
 }
@@ -128,7 +127,7 @@ ae_protein_R::~ae_protein_R( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_protein_R::compute_delta_concentration( void )
+void Protein_R::compute_delta_concentration( void )
 {
   _delta_concentration = 0;
   if( _signal == 0 )
@@ -144,12 +143,12 @@ void ae_protein_R::compute_delta_concentration( void )
   }
 }
 
-int8_t ae_protein_R::get_codon( int32_t index )
+int8_t Protein_R::get_codon( int32_t index )
 {
   return _AA_list[index];
 }
 
-void ae_protein_R::save( gzFile backup_file )
+void Protein_R::save( gzFile backup_file )
 {
   Protein::save( backup_file );
 
@@ -161,7 +160,7 @@ void ae_protein_R::save( gzFile backup_file )
 // =================================================================
 //                           Protected Methods
 // =================================================================
-void ae_protein_R::remove_influences( void )
+void Protein_R::remove_influences( void )
 {
   printf("ALERTE la proteine veut détruire une influence !!!\n");
 

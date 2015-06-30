@@ -34,7 +34,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_individual_R_X11.h"
+#include "Individual_R_X11.h"
 
 namespace aevol {
 
@@ -51,36 +51,36 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_individual_R_X11::ae_individual_R_X11( const ae_individual_R_X11 &model, bool replication_report_copy  ) :
-  ae_individual( model, replication_report_copy  ), ae_individual_R( model, replication_report_copy  ), ae_individual_X11( model, replication_report_copy  )
+Individual_R_X11::Individual_R_X11( const Individual_R_X11 &model, bool replication_report_copy  ) :
+  Individual( model, replication_report_copy  ), Individual_R( model, replication_report_copy  ), Individual_X11( model, replication_report_copy  )
 {
   //printf("ae_individual_R_X11( model )");
 }
 
-ae_individual_R_X11::ae_individual_R_X11( void )  :
-ae_individual(), ae_individual_R(), ae_individual_X11()
+Individual_R_X11::Individual_R_X11( void )  :
+Individual(), Individual_R(), Individual_X11()
 {
   //printf("ae_individual_R_X11( void )");
 }
 
-ae_individual_R_X11::ae_individual_R_X11( ae_individual_R_X11* parent, int32_t id,
+Individual_R_X11::Individual_R_X11( Individual_R_X11* parent, int32_t id,
                                           ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng ) :
-        ae_individual( parent, id, mut_prng, stoch_prng ),
-        ae_individual_R( parent, id, mut_prng, stoch_prng  ),
-        ae_individual_X11( parent, id, mut_prng, stoch_prng  )
+        Individual( parent, id, mut_prng, stoch_prng ),
+        Individual_R( parent, id, mut_prng, stoch_prng  ),
+        Individual_X11( parent, id, mut_prng, stoch_prng  )
 {
   //printf("ae_individual_R_X11( parent )");
 }
 
-ae_individual_R_X11::ae_individual_R_X11( gzFile backup_file ) :
-ae_individual( backup_file ), ae_individual_R( backup_file ), ae_individual_X11( backup_file )
+Individual_R_X11::Individual_R_X11( gzFile backup_file ) :
+Individual( backup_file ), Individual_R( backup_file ), Individual_X11( backup_file )
 {
 }
 
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_individual_R_X11::~ae_individual_R_X11( void )
+Individual_R_X11::~Individual_R_X11( void )
 {
 }
 
