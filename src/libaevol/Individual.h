@@ -246,8 +246,6 @@ class Individual : public Observable
   int32_t* get_int_probes () const;
   double* get_double_probes () const;
 
-  ReplicationReport* get_replication_report();
-
 
   // =================================================================
   //                        Accessors: Setters

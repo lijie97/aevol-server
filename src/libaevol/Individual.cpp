@@ -1955,10 +1955,4 @@ void Individual::make_rna_list() {
   }
 }
 
-ReplicationReport* Individual::get_replication_report() {
-  if (Time::get_time() == 0)
-    return NULL; // No replic report for initial individual
-  return _exp_m->get_tree()->get_report_by_index(Time::get_time(), _id);
-}
-
 } // namespace aevol
