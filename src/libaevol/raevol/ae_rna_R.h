@@ -67,17 +67,22 @@ class ae_rna_R : public ae_rna
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline  ae_list*  get_influence_list( void );
-
+//    inline  ae_list*  get_influence_list( void );
+    inline std::vector<ae_protein*> get_protein_list( void );
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void    set_influences( ae_list* protein_list );
+    void    set_influences( std::vector<ae_protein*> protein_list );
     double  get_synthesis_rate( void );
-    void    remove_influence( ae_influence_R* influence );
+    double  get_affinity_with_protein( int32_t index, ae_protein *protein );
+    int32_t get_enhancer_position( void );
+    int32_t get_operator_position( void );
     // =================================================================
     //                           Public Attributes
     // =================================================================
+    std::vector<ae_protein*> _protein_list;
+    std::vector<int> _enhancing_coef_list;
+    std::vector<int> _operating_coef_list;
 
   protected :
 
@@ -99,25 +104,18 @@ class ae_rna_R : public ae_rna
     //                           Protected Methods
     // =================================================================
     //inline  ae_rna_R* copy( void );
-            int32_t   get_enhancer_position( void );
-            int32_t   get_operator_position( void );
-            void      add_influence( ae_protein *protein, double enhancing_coef, double operating_coef );
-            double    affinity_with_protein( int32_t index, ae_protein *protein );
+    double    affinity_with_protein( int32_t index, ae_protein *protein );
 
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ae_list*  _influence_list;
+
 
 };
 
 // =====================================================================
 //                          Accessors definitions
 // =====================================================================
-ae_list* ae_rna_R::get_influence_list( void )
-{
-  return _influence_list;
-}
 
 // =====================================================================
 //                       Inline functions' definition

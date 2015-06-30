@@ -53,25 +53,21 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_rna_R::ae_rna_R( void ) : ae_rna()
+ae_rna_R::ae_rna_R( void ) : Rna()
 {
-  _influence_list = new ae_list();
 }
 
-ae_rna_R::ae_rna_R( GeneticUnit* gen_unit, const ae_rna_R &model ) : ae_rna( gen_unit, model )
+ae_rna_R::ae_rna_R( GeneticUnit* gen_unit, const ae_rna_R &model ) : Rna( gen_unit, model )
 {
-  _influence_list = new ae_list();
 }
 
-ae_rna_R::ae_rna_R( GeneticUnit* gen_unit ) : ae_rna( gen_unit )
+ae_rna_R::ae_rna_R( GeneticUnit* gen_unit ) : Rna( gen_unit )
 {
-  _influence_list = new ae_list();
 }
 
-ae_rna_R::ae_rna_R( GeneticUnit* gen_unit, ae_strand strand, int32_t index, int8_t diff ) :
-  ae_rna( gen_unit, strand, index, diff )
+ae_rna_R::ae_rna_R( GeneticUnit* gen_unit, Strand strand, int32_t index, int8_t diff ) :
+		Rna( gen_unit, strand, index, diff )
 {
-  _influence_list = new ae_list();
 }
 
 /*
@@ -87,38 +83,43 @@ ae_rna( parent )
 // =================================================================
 ae_rna_R::~ae_rna_R( void )
 {
-  //printf("nb_el = %ld\n", _influence_list->get_nb_elts());
-  _influence_list->erase( DELETE_OBJ );
-  delete _influence_list;
-
+	_protein_list.clear();
+	_enhancing_coef_list.clear();
+	_operating_coef_list.clear();
 }
 
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_rna_R::set_influences( ae_list* protein_list )
+void ae_rna_R::set_influences( std::vector<ae_protein*> protein_list )
 {
-  int32_t enhancer_position = get_enhancer_position();
-  int32_t operator_position = get_operator_position();
+	  int32_t enhancer_position = get_enhancer_position();
+	  int32_t operator_position = get_operator_position();
+	  _protein_list = protein_list;
+	  _enhancing_coef_list.resize(protein_list.size());
+	  _operating_coef_list.resize(protein_list.size());
 
-  ae_list_node<ae_protein*>* prot_node;
-  ae_protein* prot;
-
-  prot_node = protein_list->get_first();
-  while ( prot_node != NULL )
-  {
-    prot = prot_node->get_obj();
-    
-    double activation = affinity_with_protein( enhancer_position, prot );
-    double inhibition = affinity_with_protein( operator_position, prot );
-
-    if ( activation != 0.0 || inhibition != 0.0 )
-    {
-      add_influence(  prot, activation, inhibition );
-    }
-
-    prot_node = prot_node->get_next();
-  }
+	  for (int i = 0; i < protein_list.size(); i++) {
+	#ifdef __TRACING__
+		  high_resolution_clock::time_point t1 = high_resolution_clock::now();
+	#endif
+		  _enhancing_coef_list[i] = affinity_with_protein( enhancer_position, protein_list[i] );
+	#ifdef __TRACING__
+		  high_resolution_clock::time_point t2 = high_resolution_clock::now();
+		  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+		  ae_logger::addLog(AFFINITY_EN,duration);
+		  t1 = t2;
+	#endif
+		  _operating_coef_list[i] = affinity_with_protein( operator_position, protein_list[i] );
+	#ifdef __TRACING__
+		  t2 = high_resolution_clock::now();
+		  duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+		  ae_logger::addLog(AFFINITY_OP,duration);
+	#endif
+	    //  printf ("set_influence - after affinity computation\n");
+	    if ( _enhancing_coef_list[i] != 0.0 || _operating_coef_list[i] != 0.0 )
+	    	((ae_protein_R*)protein_list[i])->not_pure_TF = true;
+	  }
 }
 
 double ae_rna_R::get_synthesis_rate( void )
@@ -126,32 +127,21 @@ double ae_rna_R::get_synthesis_rate( void )
   double enhancer_activity  = 0;
   double operator_activity  = 0;
 
-  ae_list_node<ae_influence_R*>*   influence_node;
-  ae_influence_R* influence;
+//  ae_list_node*   influence_node;
+//  ae_influence_R* influence;
 
-  influence_node = _influence_list->get_first();
-  while ( influence_node != NULL )
-  {
-    influence = influence_node->get_obj();
-
-    enhancer_activity  += influence->get_enhancer_activity();
-    operator_activity  += influence->get_operator_activity();
-
-    influence_node = influence_node->get_next();
+  for (int i = 0; i < _enhancing_coef_list.size(); i++) {
+  	enhancer_activity  += _enhancing_coef_list[i];
+    operator_activity  += _operating_coef_list[i];
   }
 
-  double enhancer_activity_pow_n  = pow( enhancer_activity, ae_common::hill_shape_n );
-  double operator_activity_pow_n  = pow( operator_activity, ae_common::hill_shape_n );
+  double enhancer_activity_pow_n  = pow( enhancer_activity, _gen_unit->get_exp_m()->get_exp_s()->get_hill_shape_n() );
+  double operator_activity_pow_n  = pow( operator_activity, _gen_unit->get_exp_m()->get_exp_s()->get_hill_shape_n() );
 
   return   _basal_level
-        * (ae_common::hill_shape / (operator_activity_pow_n + ae_common::hill_shape))
-        * (1 + ((1 / _basal_level) - 1) * (enhancer_activity_pow_n / (enhancer_activity_pow_n + ae_common::hill_shape)));
-}
-
-void ae_rna_R::remove_influence( ae_influence_R* influence )
-{
-  //printf("remove_influence, rna = %p, nb_el = %ld\n", this, _influence_list->get_nb_elts());
-  _influence_list->remove( influence, DELETE_OBJ /*delete_node*/, DELETE_OBJ /*delete_obj*/ );
+        * (_gen_unit->get_exp_m()->get_exp_s()->get_hill_shape() / (operator_activity_pow_n + _gen_unit->get_exp_m()->get_exp_s()->get_hill_shape()))
+        * (1 + ((1 / _basal_level) - 1)
+	* (enhancer_activity_pow_n / (enhancer_activity_pow_n + _gen_unit->get_exp_m()->get_exp_s()->get_hill_shape())));
 }
 
 // =================================================================
@@ -161,11 +151,11 @@ int32_t ae_rna_R::get_enhancer_position( void )
 {
   if(_strand == LEADING)
   {
-    return utils::mod( (_pos - 20) , _gen_unit->get_dna()->get_length() );
+    return (_pos - 20)  % ( _gen_unit->get_dna()->get_length() );
   }
   else  // _strand = LAGGING
   {
-    return utils::mod( (_pos + 20) , _gen_unit->get_dna()->get_length() );
+    return (_pos + 20)  % ( _gen_unit->get_dna()->get_length() );
   }
 }
 
@@ -173,91 +163,80 @@ int32_t ae_rna_R::get_operator_position( void )
 {
   if(_strand == LEADING)
   {
-    return utils::mod( (_pos + PROM_SIZE) , _gen_unit->get_dna()->get_length() );
+    return (_pos + PROM_SIZE)  % ( _gen_unit->get_dna()->get_length() );
   }
   else  // _strand = LAGGING
   {
-    return utils::mod( (_pos - PROM_SIZE) , _gen_unit->get_dna()->get_length() );
+    return (_pos - PROM_SIZE)  % ( _gen_unit->get_dna()->get_length() );
   }
-}
-
-void ae_rna_R::add_influence( ae_protein *protein, double enhancing_coef, double operating_coef )
-{
-  ae_influence_R* influence = new ae_influence_R( this, protein, enhancing_coef, operating_coef );
-  //printf("add_influence, rna = %p, influence = %p\n", this, influence);
-  //printf("nb_el = %ld\n", _influence_list->get_nb_elts());
-  _influence_list->add( influence );
-  //printf("/ nb_el = %ld\n", _influence_list->get_nb_elts());
-  dynamic_cast< ae_protein_R* >( protein )->add_influence( influence );
 }
 
 double ae_rna_R::affinity_with_protein( int32_t index, ae_protein *protein )
 {
-  double  max = 0;
-  double  temp;
-  int32_t len = protein->get_length();
-  int32_t quadon_tab[5];
-  int32_t* codon_tab;
-  codon_tab = new int32_t[len];
+	  double  max = 0;
+	  double  temp;
+	  int32_t len = protein->get_length();
+	  int32_t quadon_tab[5];
+	//  int32_t* codon_tab;
+	//  codon_tab = new int32_t[len];
 
-  ae_individual_R*  indiv = NULL;
-  ae_protein_R*     prot  = NULL;
+	  ae_individual_R*  indiv = NULL;
+	  ae_protein_R*     prot  = NULL;
 
-  // Putting the quadons and the codons on local tab
-  indiv = dynamic_cast< ae_individual_R* >( _gen_unit->get_indiv() );
-  prot  = ( ae_protein_R* )( protein );
+	  // printf("affinity_with_protein - len = %d\n",len);
 
-  for ( int32_t i = 0 ; i < 5; i++ )
-  {
-    quadon_tab[i] = indiv->get_quadon( _gen_unit, _strand, (index+i) );
-  }
+	  // Putting the quadons and the codons on local tab
+	  indiv = dynamic_cast< ae_individual_R* >( _gen_unit->get_indiv() );
+	  prot  = ( ae_protein_R* )( protein );
+	#ifdef __TRACING__
+	  high_resolution_clock::time_point t1 = high_resolution_clock::now();
+	#endif
+	  for ( int32_t i = 0 ; i < 5; i++ )
+	  {
+	    quadon_tab[i] = indiv->get_quadon( _gen_unit, _strand, (index+i) );
+	  }
+	#ifdef __TRACING__
+	  	  high_resolution_clock::time_point t2 = high_resolution_clock::now();
+	  	  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+	  	  ae_logger::addLog(QUADON,duration);
+	  	  t1 = t2;
+	#endif
+	//  for (int32_t i = 0 ; i < len ; i++ )
+	//  {
+	//    codon_tab[i] = prot->get_codon(i);
+	//  }
+	//
+	//  t2 = high_resolution_clock::now();
+	//    	  duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+	//    	  ae_logger::addLog(CODON,duration);
+	//    	  t1 = t2;
 
-  for (int32_t i = 0 ; i < len ; i++ )
-  {
-    codon_tab[i] = prot->get_codon(i);
-  }
+	  // Calculate the affinity
+	  for ( int32_t i = 0 ; i < len - 4; i++ )
+	  {
+	    temp  = 1 *
+	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix()[quadon_tab[0]][prot->_AA_list[i]] *
+	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix()[quadon_tab[1]][prot->_AA_list[i+1]] *
+	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix()[quadon_tab[2]][prot->_AA_list[i+2]] *
+	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix()[quadon_tab[3]][prot->_AA_list[i+3]] *
+	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix()[quadon_tab[4]][prot->_AA_list[i+4]];
 
-  // Calculate the affinity
-  for ( int32_t i = 0 ; i < len - 4; i++ )
-  {
-    temp  = 1;
-    
-    for ( int32_t j = 0 ; j < 5 ; j++ )
-    {
-      temp *= ae_common::get_binding( quadon_tab[j] , codon_tab[i+j] );
+	//    for ( int32_t j = 0 ; j < 5 ; j++ )
+	//    {
+	//      temp *= ae_common::_binding_matrix[quadon_tab[j]][prot->_AA_list[i+j]];
+	//
+	//      if ( temp == 0.0 ) break;
+	//    }
 
-      if ( temp == 0.0 ) break;
-    }
-    
-    max = (max < temp) ? temp : max;
-  }
-
-  delete [] codon_tab;
-  return max;
-
-/*
-double  max = 0;
-  double  temp;
-  int32_t len = protein->get_length();
-
-  ae_individual_R*  indiv =           NULL;
-  ae_protein_R*     prot  =           NULL;
-
-  for ( int32_t i = 0 ; i < len - 4 ; i++ )
-  {
-    temp  = 1;
-    
-    for ( int32_t j = 0 ; (temp != 0.0) && (j < 5) ; j++ )
-    {
-      indiv = dynamic_cast< ae_individual_R* >( _gen_unit->get_indiv() );
-      prot  = ( ae_protein_R* )( protein );
-      temp *= ae_common::get_binding( indiv->get_quadon( _gen_unit, _strand, (index+j) ), prot->get_codon(i+j));
-    }
-    
-    max = (max < temp) ? temp : max;
-  }
-  
-  return max;
-*/
+	    max = (max < temp) ? temp : max;
+	  }
+	#ifdef __TRACING__
+	  t2 = high_resolution_clock::now();
+	    	  duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+	    	  ae_logger::addLog(AFFINITY,duration);
+	    	  t1 = t2;
+	#endif
+	//  delete [] codon_tab;
+	  return max;
 }
 } // namespace aevol
