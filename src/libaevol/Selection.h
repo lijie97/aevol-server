@@ -70,7 +70,6 @@ class Selection : public Observable
     Selection(void) = delete;
     Selection(const Selection&) = delete;
     Selection(ExpManager* exp_m);
-    Selection(ExpManager* exp_m, gzFile backup_file);
 
     // =================================================================
     //                             Destructors
