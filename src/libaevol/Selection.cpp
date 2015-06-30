@@ -226,7 +226,8 @@ void Selection::step_to_next_generation(void)
   // Update the best individual
   _exp_m->update_best();
 
-  _exp_m->get_tree()->signal_end_of_generation();
+  // Notify observers of the end of the generation
+  notifyObservers(END_GENERATION);
 }
 
 void Selection::PerformPlasmidTransfers(void)

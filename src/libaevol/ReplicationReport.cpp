@@ -266,6 +266,5 @@ void ReplicationReport::update(Observable& o, ObservableEvent e, void* arg) {
     case MUTATION :
       _dna_replic_report.add_mut(*reinterpret_cast<Mutation*>(arg));
   }
-
 }
 } // namespace aevol

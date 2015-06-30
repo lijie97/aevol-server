@@ -278,9 +278,20 @@ void Tree::write_to_tree_file(gzFile tree_file)
 }
 
 void Tree::update(Observable& o, ObservableEvent e, void* arg) {
-  auto indivs = reinterpret_cast<Individual**>(arg);
-  get_report_by_index(Time::get_time(), indivs[0]->get_id())->init(indivs[0],
-                                                                   indivs[1]);
+  switch (e) {
+    case NEW_INDIV : {
+      // Initialize the replication report corresponding to the new individual
+      auto indivs = reinterpret_cast<Individual**>(arg);
+      get_report_by_index(Time::get_time(), indivs[0]->get_id())->
+          init(indivs[0], indivs[1]);
+      break;
+    }
+    case END_GENERATION :
+      signal_end_of_generation();
+      break;
+    default :
+      Utils::ExitWithMsg("Event not handled", __FILE__, __LINE__);
+  }
 }
 
 
