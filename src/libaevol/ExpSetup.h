@@ -163,7 +163,7 @@ class ExpSetup
 
     void     write_binding_matrix_to_file(FILE* binding_matrix_file);
 
-    double** get_binding_matrix( void );
+    double** get_binding_matrix( void ) const;
 #endif
     // =======================================================================
     //                           Public Attributes
@@ -477,7 +477,7 @@ inline void ExpSetup::step_to_next_generation( void )
 }
 
 #ifdef __REGUL
-inline double** ExpSetup::get_binding_matrix( void )
+inline double** ExpSetup::get_binding_matrix( void ) const
 {
   return _binding_matrix;
 }
