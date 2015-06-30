@@ -104,6 +104,9 @@ class ExpSetup
     inline double get_degradation_rate( void ) const;
     inline double get_degradation_step( void ) const;
     inline double get_protein_presence_limit( void ) const;
+
+    inline double get_hill_shape( void ) const;
+    inline double get_hill_shape_n( void ) const;
 #endif
     // =======================================================================
     //                         Accessors: setters
@@ -135,6 +138,9 @@ class ExpSetup
     inline void set_degradation_rate( double degradation_rate );
     inline void set_degradation_step( double degradation_step );
     inline void set_protein_presence_limit( double protein_presence_limit );
+
+    inline void set_hill_shape( double hill_shape );
+    inline void set_hill_shape_n( double hill_shape_n );
 #endif
     // =======================================================================
     //                            Public Methods
@@ -225,6 +231,10 @@ class ExpSetup
 
     double  _degradation_rate;
     double  _degradation_step;
+
+    double _hill_shape_n;
+    double _hill_shape;
+
 #endif
 };
 
@@ -333,6 +343,16 @@ inline double ExpSetup::get_protein_presence_limit( void ) const
 {
   return _protein_presence_limit;
 }
+
+inline double ExpSetup::get_hill_shape( void ) const
+{
+  return _hill_shape;
+}
+
+inline double ExpSetup::get_hill_shape_n( void ) const
+{
+  return _hill_shape_n;
+}
 #endif
 
 // =====================================================================
@@ -434,6 +454,16 @@ inline void ExpSetup::set_degradation_step( double degradation_step )
 inline void ExpSetup::set_protein_presence_limit( double protein_presence_limit )
 {
   _protein_presence_limit = protein_presence_limit;
+}
+
+inline void ExpSetup::set_hill_shape( double hill_shape )
+{
+  _hill_shape = hill_shape;
+}
+
+inline void ExpSetup::set_hill_shape_n( double hill_shape_n )
+{
+  _hill_shape_n = hill_shape_n;
 }
 #endif
 

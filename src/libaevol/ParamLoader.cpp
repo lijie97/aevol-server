@@ -255,6 +255,10 @@ ParamLoader::ParamLoader(const char* file_name)
     _degradation_rate  = 1;
     _degradation_step  = 0.1;
     _with_heredity          = false;
+
+    _hill_shape_n      = 4;
+    _hill_shape_theta  = 0.5;
+    _hill_shape        = pow( _hill_shape_theta, _hill_shape_n );
   #endif
 
   // Read parameter file
@@ -1266,6 +1270,8 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   exp_s->set_degradation_rate(_degradation_rate);
   exp_s->set_degradation_step(_degradation_step);
   exp_s->set_protein_presence_limit(_protein_presence_limit);
+  exp_s->set_hill_shape(pow( _hill_shape_theta, _hill_shape_n ));
+  exp_s->set_hill_shape_n( _hill_shape_n );
 
   exp_s->init_binding_matrix(_random_binding_matrix,_binding_zeros_percentage,_prng);
 #endif
