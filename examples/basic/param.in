@@ -14,17 +14,17 @@ CHROMOSOME_INITIAL_LENGTH   5000
 SELECTION_SCHEME        fitness_proportionate   1000
 
 ##### 3. Mutation rates ###########
-POINT_MUTATION_RATE     5e-5
-SMALL_INSERTION_RATE    5e-5
-SMALL_DELETION_RATE     5e-5
+POINT_MUTATION_RATE     1e-6
+SMALL_INSERTION_RATE    1e-6
+SMALL_DELETION_RATE     1e-6
 MAX_INDEL_SIZE          6
 
 ##### 4. Rearrangement rates (w/o alignements)
 WITH_ALIGNMENTS         false
-DUPLICATION_RATE        5e-5
-DELETION_RATE           5e-5
-TRANSLOCATION_RATE      5e-5
-INVERSION_RATE          5e-5
+DUPLICATION_RATE        1e-5
+DELETION_RATE           1e-5
+TRANSLOCATION_RATE      1e-5
+INVERSION_RATE          1e-5
 
 
 ##### 5. Population Structure #####

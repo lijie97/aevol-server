@@ -11,9 +11,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include <ae_population.h>
-#include <ae_individual.h>
-#include <ae_exp_manager.h>
+#include "aevol.h"
 
 
 using namespace aevol;
@@ -29,6 +27,7 @@ int main( int argc, char* argv[] )
   int32_t plasmid_minimal_length = 40;
 
   // Define allowed options
+  // TODO <david.parsons@inria.fr> version
   const char * options_list = "hr:p:m:M:";
   static struct option long_options_list[] = {
     { "help", 1, NULL, 'h' },
@@ -66,8 +65,6 @@ int main( int argc, char* argv[] )
   }
 
   // Open the files
-
-  ae_population* pop = NULL;
   ae_exp_manager* exp_manager = new ae_exp_manager();
 
   // We need a full backup
@@ -77,7 +74,6 @@ int main( int argc, char* argv[] )
     exit(EXIT_FAILURE);
   }
   exp_manager->load( num_gener, false, false, false );
-  pop = exp_manager->get_pop();
 
   // And a plasmid
   if (plasmid_file_name==NULL)
@@ -101,7 +97,7 @@ int main( int argc, char* argv[] )
   exp_manager->get_output_m()->set_compute_phen_contrib_by_GU(true);
 
   // We parse the individuals and transform them
-  for (const auto& indiv: pop->get_indivs()) {
+  for (const auto& indiv: exp_manager->world()->get_indivs()) {
     char* plasmid=new char[lplasmid+1]; // Warning: will become the DNA of the first individual created -> no not delete, will be freed in ~ae_dna.
     strncpy(plasmid, rawplasmid, lplasmid);
     plasmid[lplasmid]='\0';

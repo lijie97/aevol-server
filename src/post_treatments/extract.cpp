@@ -26,54 +26,6 @@
 
 
 
-//
-// This program extracts some data about the individuals and write
-// them into text files easy to parse with e.g. matlab.
-//
-// Two kinds of data can be extracted :
-//
-//  * data about the phenotype (option -t) : write information about
-//    the proteins in a text file. A space delimits two proteins, a
-//    new line delimits two individuals. For each protein, the output
-//    is "m_h_w_c_r_s_f_l_z_g" where :
-//        * m, h, w and c are the mean, height, width and concentration of the
-//            protein
-//        * r is an identifier of the rna it belongs (usefull to
-//            know if several proteins are on the same rna)
-//        * s indicates the strand (LEADING/LAGGING)
-//        * f and l are the first and last translated base
-//        * z indicates the feature (at the center of the protein)
-//        * g indicates the genetic unit to which the protein belongs
-//            (0=chromosome, 1=plasmid)
-//
-//  * sequences of the individuals (option -s) : write the sequences
-//    in a text file. A new line delimits two individuals. In case
-//    there are several GU, they are separated by spaces.
-//
-// The option -b only treats the best individual
-//
-// The input can be either a generation number, in which case we
-// will attempt to load a full backup tree, or a population file,
-// in which case features of the proteins won't be outputed as we
-// need to know the environment to infer them.
-//
-// Examples :
-//
-// For generation 20000, write infos about the phenotypes of all the
-// individuals in phe_020000 and the sequences of all the
-// individuals in seq_020000 :
-//
-//    extract -r 20000 -t phe_020000 -s seq_020000
-//
-// For generation 20000, write the best individual's sequence in
-// seq_020000_best :
-//
-//    extract -b -r 20000 -s seq_020000_best
-// or extract -b -p populations/pop_020000.ae -s seq_020000_best
-//
-
-
-
 
 // =================================================================
 //                              Libraries
@@ -87,10 +39,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_population.h"
-#include "ae_individual.h"
-#include <environment.h>
-#include "ae_exp_manager.h"
+#include "aevol.h"
 
 using namespace aevol;
 
@@ -98,10 +47,11 @@ using namespace aevol;
 //                         Function declarations
 // =================================================================
 void print_help(char* prog_path);
-void print_version( void );
 
-void analyse_indiv( ae_individual* indiv, FILE* triangles_file, FILE* sequence_file, int16_t gu, Environment* env );
-void analyse_gu( GeneticUnit* gen_unit, int32_t gen_unit_number, FILE* triangles_file, Environment* env );
+void analyse_indiv(Individual* indiv, FILE* triangles_file, FILE* sequence_file,
+                   int16_t gu, const PhenotypicTarget& phenotypicTarget);
+void analyse_gu(GeneticUnit* gen_unit, int32_t gen_unit_number,
+                FILE* triangles_file, const PhenotypicTarget& phenotypicTarget);
 
 
 
@@ -117,17 +67,16 @@ int main( int argc, char* argv[] )
   int32_t num_gener = -1;
 
   // Define allowed options
-  const char * options_list = "hVp:r:t:s:bg:";
+  const char * options_list = "hVr:t:s:bg:";
   static struct option long_options_list[] = {
-    {"help",      no_argument,        NULL, 'h'},
-    {"version",   no_argument,        NULL, 'V'},
-    {"popfile",   required_argument,  NULL, 'p'},
-    {"resume",    required_argument,  NULL, 'r'},
-    {"triangles", required_argument,  NULL, 't'},
-    {"sequence",  required_argument,  NULL, 's'},
-    {"best",      no_argument,        NULL, 'b'},
-    {"gu",        required_argument,  NULL, 'g'},
-    {0, 0, 0, 0}
+      {"help",      no_argument,        NULL, 'h'},
+      {"version",   no_argument,        NULL, 'V'},
+      {"resume",    required_argument,  NULL, 'r'},
+      {"triangles", required_argument,  NULL, 't'},
+      {"sequence",  required_argument,  NULL, 's'},
+      {"best",      no_argument,        NULL, 'b'},
+      {"gu",        required_argument,  NULL, 'g'},
+      {0, 0, 0, 0}
   };
 
   // Get actual values of the command-line options
@@ -143,13 +92,9 @@ int main( int argc, char* argv[] )
       }
       case 'V' :
       {
-        print_version();
+        Utils::PrintAevolVersion();
         exit( EXIT_SUCCESS );
       }
-      case 'p' :
-        pop_file_name = new char[strlen(optarg) + 1];
-        sprintf( pop_file_name, "%s", optarg );
-        break;
       case 'r':
         num_gener = atol( optarg );
         break;
@@ -170,6 +115,16 @@ int main( int argc, char* argv[] )
     }
   }
 
+  // If num_gener is not provided, assume last gener
+  if (num_gener == -1) {
+    num_gener = OutputManager::get_last_gener();
+  }
+
+  if ( triangles_file_name == NULL && sequence_file_name == NULL ) {
+    Utils::ExitWithMsg("Use option -s or -t (-h for more info)",
+                       __FILE__, __LINE__);
+  }
+
   // Open the files
   FILE* triangles_file = NULL;
   FILE* sequence_file = NULL;
@@ -177,42 +132,35 @@ int main( int argc, char* argv[] )
   if ( triangles_file_name != NULL )
   {
     triangles_file = fopen(triangles_file_name,"w");
+
+    // Write file headers
+    int key = 1;
+    fprintf(triangles_file, "# %2.d individual's identifier (id)\n", key++);
+    fprintf(triangles_file, "# %2.d chromosome or plasmid (c_or_p)\n", key++);
+    fprintf(triangles_file, "# %2.d strand\n", key++);
+    fprintf(triangles_file, "# %2.d protein position (pos)\n", key++);
+    fprintf(triangles_file, "# %2.d length (len)\n", key++);
+    fprintf(triangles_file, "# %2.d position of last translated nucleotide (lpos)\n", key++);
+    fprintf(triangles_file, "# %2.d primary sequence (sequence)\n", key++);
+    fprintf(triangles_file, "# %2.d mean (m)\n", key++);
+    fprintf(triangles_file, "# %2.d width (w)\n", key++);
+    fprintf(triangles_file, "# %2.d height (h)\n", key++);
+    fprintf(triangles_file, "# %2.d concentration (c)\n", key++);
+    fprintf(triangles_file, "# %2.d feature (f)\n", key++);
+    fprintf(triangles_file, "# %2.d promoter position (prom_pos)\n", key++);
+    fprintf(triangles_file, "# %2.d RNA length (rna_len)\n", key++);
+    fprintf(triangles_file, "# %2.d basal level (basal_level)\n", key++);
+    fprintf(triangles_file, "\n");
+    fprintf(triangles_file, "id c_or_p strand pos len lpos sequence m w h c f prom_pos rna_len basal_level\n");
   }
   if ( sequence_file_name != NULL )
   {
     sequence_file = fopen(sequence_file_name,"w");
   }
 
-  ae_population* pop = NULL;
-  Environment* env = NULL;
-  ae_exp_manager* exp_manager = new ae_exp_manager();
+  auto exp_manager = new ExpManager();
+  exp_manager->load(num_gener, false, false);
 
-  // Two possible sources: either the user provided a "full" simulation via a generation number (option '-r'), either he just provided a population file (option '-p').
-  if ( num_gener != -1 )
-  {
-    exp_manager->load(num_gener, false, false);
-    env = exp_manager->get_env();
-  }
-  else
-  {
-    if ( pop_file_name == NULL )
-    {
-      printf("You must specify either a generation number or a source population file");
-      exit(EXIT_FAILURE);
-    }
-
-    // Load the simulation from population file
-    pop = new ae_population(exp_manager);
-
-    gzFile pop_file = gzopen( pop_file_name, "r" );
-    if ( pop_file == Z_NULL )
-    {
-      printf( "%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, pop_file_name );
-      exit( EXIT_FAILURE );
-    }
-    pop->load( pop_file, false );
-    gzclose( pop_file );
-  }
 
   // The best individual is already known because it is the last in the list
   // Thus we do not need to know anything about the environment and to evaluate the individuals
@@ -220,15 +168,15 @@ int main( int argc, char* argv[] )
   // Parse the individuals
   if (best_only)
   {
-    ae_individual* best = pop->get_best();
+    Individual* best = exp_manager->get_best_indiv();
     best->do_transcription_translation_folding(); // We need to recompute proteins if not already done (ie if using a population file and not a full backup)
-    analyse_indiv(best, triangles_file, sequence_file, gu, env);
+    analyse_indiv(best, triangles_file, sequence_file, gu, best->habitat().phenotypic_target());
   }
   else
   {
-    for (const auto& indiv: pop->get_indivs()) {
+    for (const auto& indiv: exp_manager->get_indivs()) {
       indiv->do_transcription_translation_folding(); // We need to recompute proteins if not already done (ie if using a population file and not a full backup)
-      analyse_indiv(indiv, triangles_file, sequence_file, gu, env);
+      analyse_indiv(indiv, triangles_file, sequence_file, gu, indiv->habitat().phenotypic_target());
     }
   }
 
@@ -246,13 +194,14 @@ int main( int argc, char* argv[] )
   if (sequence_file_name != NULL) {delete [] sequence_file_name;}
 
   delete exp_manager;
-  if ((num_gener == -1)&&(pop!=NULL)) {delete pop;}
 
   return EXIT_SUCCESS;
 }
 
 // Parsing an individual
-inline void analyse_indiv( ae_individual* indiv, FILE* triangles_file, FILE* sequence_file, int16_t gu, Environment* env )
+inline void analyse_indiv(Individual* indiv, FILE* triangles_file,
+                          FILE* sequence_file, int16_t gu,
+                          const PhenotypicTarget & phenotypicTarget)
 {
   if ( gu == -1 ) // We want to treat all genetic units
   {
@@ -260,7 +209,7 @@ inline void analyse_indiv( ae_individual* indiv, FILE* triangles_file, FILE* seq
     for (auto& gen_unit: indiv->get_genetic_unit_list_nonconst()) {
       if ( triangles_file != NULL )
       {
-        analyse_gu(&gen_unit, gen_unit_number, triangles_file, env); // We call the triangle parser for each GU successively
+        analyse_gu(&gen_unit, gen_unit_number, triangles_file, phenotypicTarget); // We call the triangle parser for each GU successively
       }
       if ( sequence_file != NULL )
       {
@@ -277,7 +226,7 @@ inline void analyse_indiv( ae_individual* indiv, FILE* triangles_file, FILE* seq
     GeneticUnit* gen_unit = &indiv->get_genetic_unit_nonconst(gu);
     if ( triangles_file != NULL )
     {
-      analyse_gu(gen_unit, gu, triangles_file, env); // We call the triangle parser
+      analyse_gu(gen_unit, gu, triangles_file, phenotypicTarget); // We call the triangle parser
     }
     if ( sequence_file != NULL )
     {
@@ -299,7 +248,9 @@ inline void analyse_indiv( ae_individual* indiv, FILE* triangles_file, FILE* seq
 }
 
 // Parsing a GU
-inline void analyse_gu( GeneticUnit* gen_unit, int32_t gen_unit_number, FILE* triangles_file, Environment* env )
+inline void analyse_gu(GeneticUnit* gen_unit, int32_t gen_unit_number,
+                       FILE* triangles_file,
+                       const PhenotypicTarget& phenotypicTarget)
 {
   // Construct the list of all rnas
   auto llrnas = gen_unit->get_rna_list();
@@ -309,29 +260,40 @@ inline void analyse_gu( GeneticUnit* gen_unit, int32_t gen_unit_number, FILE* tr
   // Parse this list
   int rna_nb = 0;
   for (const auto& rna: lrnas) {
-    for (const auto& protein: rna->get_transcribed_proteins()) {
-      double height = protein->get_height();
-      double width = protein->get_width();
+    for (const auto& protein: rna.get_transcribed_proteins()) {
       double mean = protein->get_mean();
-      double concentration=rna->get_basal_level();
-      int32_t fpos = protein->get_first_translated_pos();
-      int32_t lpos = protein->get_last_translated_pos();
 
       int nfeat = -1;
-      // Retrieving the feature of the protein also necessitates the an environment file.
-      if ( env != NULL )
-        for (size_t i = 0; i <= env->get_nb_segments() - 1; ++i)
-          if ((mean > env->get_segment_boundaries(i)) and (mean < env->get_segment_boundaries(i+1))) {
-            nfeat = env->get_axis_feature(i);
-            break;
-          }
 
+      // Retrieving the feature of the protein also necessitates the an environment file.
+      for (size_t i = 0; i <= phenotypicTarget.nb_segments() - 1; ++i)
+        if ((mean > phenotypicTarget.segments()[i]->start) and (mean < phenotypicTarget.segments()[i]->stop)) {
+          nfeat = phenotypicTarget.segments()[i]->feature;
+          break;
+        }
+
+      char *dummy;
       fprintf(triangles_file,
-              "%f_%f_%f_%f_%d_%d_%i_%i_%d_%d ",
-              mean, height, width, concentration,
-              rna_nb, rna->get_strand(),
-              fpos, lpos,
-              nfeat, gen_unit_number);
+              "%" PRId32 " %s %s %" PRId32 " %" PRId32 " %" PRId32
+                  " %s %f %f %f %f %d %" PRId32 " %" PRId32 " %f\n",
+              gen_unit->get_indiv()->get_id(),
+              gen_unit_number != 0 ? "PLASMID" :
+              "CHROM  ",
+              protein->get_strand() == LEADING ? "LEADING" :
+              "LAGGING",
+              protein->get_first_translated_pos(),
+              protein->get_length(),
+              protein->get_last_translated_pos(),
+              dummy = protein->get_AA_sequence('_'),
+              mean,
+              protein->get_width(),
+              protein->get_height(),
+              protein->get_concentration(),
+              nfeat,
+              rna.get_promoter_pos(),
+              rna.get_transcript_length(),
+              rna.get_basal_level());
+      delete dummy;
     }
     rna_nb++;
   }
@@ -360,14 +322,12 @@ void print_help(char* prog_path)
   printf("\n");
   printf("Usage : %s -h\n", prog_name);
   printf("   or : %s -V or --version\n", prog_name);
-  printf("   or :    %s [-r GENER | -p POP_FILE] [-t PHEN_FILE] [-s SEQ_FILE] [-g NUM_GU] [-b]\n", prog_name);
+  printf("   or :    %s [-r GENER] [-t PHEN_FILE] [-s SEQ_FILE] [-g NUM_GU] [-b]\n", prog_name);
   printf("\nOptions\n");
   printf("  -h, --help\n\tprint this help, then exit\n\n");
   printf("  -V, --version\n\tprint version number, then exit\n\n");
   printf("  -r GENER  :\n");
-  printf("\tread generation GENER from a full aevol backup\n");
-  printf("  -p POP_FILE:\n");
-  printf("\tread the population saved in population file POP_FILE\n");
+  printf("\tread generation GENER from a full aevol backup\n\t(default: reads from last_gener.txt)\n");
   printf("  -t PHEN_FILE:\n");
   printf("\textract and save some infos about the phenotypes of the individuals to file PHEN_FILE\n");
   printf("  -s SEQ_FILE:\n");
@@ -421,14 +381,4 @@ seq_020000_best :\n\
    extract -b -r 20000 -s seq_020000_best\n\
 or extract -b -p populations/pop_020000.ae -s seq_020000_best\n");
 
-}
-
-
-/*!
-  \brief Print aevol version number
-
-*/
-void print_version( void )
-{
-  printf( "aevol %s\n", VERSION );
 }

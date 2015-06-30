@@ -39,9 +39,9 @@
 //                            Project Files
 // =================================================================
 #ifdef __X11
-  #include "ae_exp_manager_X11.h"
+  #include "ExpManager_X11.h"
 #else
-  #include "ae_exp_manager.h"
+  #include "ExpManager.h"
 #endif
 
 #include "macros.h"
@@ -53,9 +53,8 @@ void catch_usr1( int sig_num );
 #endif
 
 void print_help( char* prog_path );
-void print_version( void );
 
-static ae_exp_manager* exp_manager = NULL;
+static ExpManager * exp_manager = NULL;
 
 
 
@@ -132,7 +131,7 @@ int main( int argc, char* argv[] )
       }
       case 'V' :
       {
-        print_version();
+        Utils::PrintAevolVersion();
         exit( EXIT_SUCCESS );
       }
       case 'n' :
@@ -203,12 +202,12 @@ int main( int argc, char* argv[] )
   //                          Load the simulation
   // =================================================================
   #ifndef __NO_X
-    exp_manager = new ae_exp_manager_X11();
+    exp_manager = new ExpManager_X11();
   #else
-    exp_manager = new ae_exp_manager();
+    exp_manager = new ExpManager();
   #endif
   
-  exp_manager->load(num_gener, false, verbose);
+  exp_manager->load(num_gener, verbose, true);
   exp_manager->set_t_end(nb_gener);
   
  
@@ -219,7 +218,7 @@ int main( int argc, char* argv[] )
   #ifndef __NO_X
     if ( show_display_on_startup )
     {
-      ((ae_exp_manager_X11*) exp_manager)->toggle_display_on_off();
+      ((ExpManager_X11 *) exp_manager)->toggle_display_on_off();
     }
   #endif
   
@@ -243,7 +242,7 @@ void catch_usr1( int sig_num )
   printf( "display on/off\n" );
   if ( exp_manager != NULL )
   {
-    ((ae_exp_manager_X11*) exp_manager)->toggle_display_on_off();
+    ((ExpManager_X11 *) exp_manager)->toggle_display_on_off();
   }
 }
 #endif
@@ -290,13 +289,4 @@ void print_help( char* prog_path )
 	printf( "  -v, --verbose\n\tbe verbose\n\n" );
   printf( "  -w, --wait\n\tpause after loading\n\n" );
   printf( "  -x, --noX\n\tdon't display X outputs upon start\n\tsend SIGUSR1 to switch X output on/off\n" );
-}
-
-/*!
-  \brief 
-  
-*/
-void print_version( void ) 
-{
-	printf( "aevol %s\n", VERSION );
 }

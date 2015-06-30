@@ -41,12 +41,12 @@
 
 #include <gtest/gtest.h>
 
-#include "ae_individual.h"
+#include "Individual.h"
 #include "macros.h"
-#include "genetic_unit.h"
-#include "ae_rna.h"
-#include "ae_protein.h"
-#include "ae_params_mut.h"
+#include "GeneticUnit.h"
+#include "Rna.h"
+#include "Protein.h"
+#include "MutationParams.h"
 #include "../libaevol/macros.h"
 
 
@@ -65,7 +65,7 @@ using std::endl;
 class TranscriptionTranslationTest : public testing::Test
 {
  protected:
-  ae_individual* indiv;
+  Individual* indiv;
 
   void check_genome(const string& dir, int generation);
 };
@@ -117,7 +117,7 @@ list<protein_line> analyse_gu(const GeneticUnit& gen_unit, int32_t gen_unit_numb
   Promoters2Strands llrnas = gen_unit.get_rna_list();
   for(auto lrnas : llrnas) {
     for (auto rna : lrnas) {
-      for (auto prot : rna->get_transcribed_proteins()) {
+      for (auto prot : rna.get_transcribed_proteins()) {
         double mean = prot->get_mean();
         int nfeat = -1;
         protein_line prot_line;
@@ -134,9 +134,9 @@ list<protein_line> analyse_gu(const GeneticUnit& gen_unit, int32_t gen_unit_numb
         prot_line.h = prot->get_height();
         prot_line.c = prot->get_concentration();
         prot_line.f = nfeat;
-        prot_line.prom_pos = rna->get_promoter_pos();
-        prot_line.rna_len = rna->get_transcript_length();
-        prot_line.basal_level = rna->get_basal_level();
+        prot_line.prom_pos = rna.get_promoter_pos();
+        prot_line.rna_len = rna.get_transcript_length();
+        prot_line.basal_level = rna.get_basal_level();
         
         proteins.push_back(prot_line);
       }
@@ -186,8 +186,8 @@ void TranscriptionTranslationTest::check_genome(const string& dir, int generatio
   fb.close();
 
   // Construct individual with the genome we've read
-  ae_params_mut params_mut;
-  indiv = new ae_individual(nullptr, nullptr, nullptr, std::make_shared<ae_params_mut>(params_mut), 0.1, 10, 1000, false, 1, "anon-strain-1", 0);
+  MutationParams params_mut;
+  indiv = new Individual(nullptr, nullptr, nullptr, std::make_shared<MutationParams>(params_mut), 0.1, 10, 1000, false, 1, "anon-strain-1", 0);
   char* raw_genome = new char[genome.size()+1];
   strcpy(raw_genome, genome.c_str());
   indiv->add_GU(raw_genome, genome.size());

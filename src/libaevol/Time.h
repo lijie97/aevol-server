@@ -25,8 +25,8 @@
 //*****************************************************************************
 
 
-#ifndef __AE_TIME_H__
-#define __AE_TIME_H__
+#ifndef AEVOL_TIME_H__
+#define AEVOL_TIME_H__
 
 
 // =================================================================
@@ -54,7 +54,11 @@ namespace aevol {
 
 
 
-
+/**
+ * The time value represents the step that is currently being computed
+ *
+ * e.g. when creating generation 1 from generation 0, time == 1
+ */
 class Time
 {
  public :
@@ -129,4 +133,4 @@ int64_t get_time(void);
 
 } // namespace aevol
 
-#endif // __AE_TIME_H__
+#endif // AEVOL_TIME_H__

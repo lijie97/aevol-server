@@ -40,7 +40,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "Test_ae_jumping_mt.h"
+#include "Test_JumpingMT.h"
 
 using namespace aevol;
 

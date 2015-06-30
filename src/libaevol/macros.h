@@ -20,8 +20,8 @@
 
 #include <cinttypes>
 
-#ifndef AEVOL_MACROS_H
-#define AEVOL_MACROS_H
+#ifndef AEVOL_MACROS_H__
+#define AEVOL_MACROS_H__
 
 constexpr int8_t NB_BASE = 2; // WARNING :  A lot of stuff has been optimized for binary genomes
                               //            Changing the value of NB_BASE implies verifying the existing code
@@ -98,4 +98,4 @@ constexpr double W_MIN = 0.0;
 constexpr int8_t SC_MATCH_BONUS   = 1;
 constexpr int8_t SC_MISMATCH_COST = 2;
 
-#endif // AEVOL_MACROS_H
+#endif // AEVOL_MACROS_H__

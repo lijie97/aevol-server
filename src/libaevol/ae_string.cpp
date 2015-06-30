@@ -39,7 +39,7 @@
 //                            Project Files
 // =================================================================
 #include "ae_string.h"
-#include "ae_exp_setup.h"
+#include "ExpSetup.h"
 
 namespace aevol {
 
@@ -76,7 +76,7 @@ ae_string::ae_string(const ae_string &model)
 /*!
   Creates a new random string with the given length.
 */
-ae_string::ae_string(int32_t length, std::shared_ptr<ae_jumping_mt> prng)
+ae_string::ae_string(int32_t length, std::shared_ptr<JumpingMT> prng)
 {
   _nb_blocks = nb_blocks(length);
   _length = length;

@@ -99,10 +99,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_common.h"
-#include "ae_population.h"
-#include "ae_individual.h"
-#include "ae_experiment.h"
+#include "aevol.h"
 
 using namespace aevol;
 
@@ -110,7 +107,6 @@ using namespace aevol;
 //                         Function declarations
 // =================================================================
 void print_help(char* prog_path);
-void print_version( void );
 
 // print information about the indivdual's genome to file
 void print_genome_info( ae_individual* indiv, FILE* output_file );
@@ -160,7 +156,7 @@ int main( int argc, char* argv[] )
       }
       case 'V' :
       {
-        print_version();
+        Utils::PrintAevolVersion();
         exit( EXIT_SUCCESS );
       }
       case 'f' :
@@ -332,14 +328,4 @@ Usage : genome_stats -h\n\
 \t--file source : read from the backup file source\n\
 \t--output of : extract and save some infos about the genomes of the individuals to file of\
 \t--best : only treat the best individual\n");
-}
-
-
-/*!
-  \brief Print aevol version number
-
-*/
-void print_version( void )
-{
-  printf( "aevol %s\n", VERSION );
 }

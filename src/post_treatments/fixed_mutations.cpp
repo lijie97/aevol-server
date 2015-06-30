@@ -42,14 +42,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_utils.h"
-#include "ae_exp_manager.h"
-#include "ae_individual.h"
-#include "genetic_unit.h"
-#include "ae_tree.h"
-#include "ae_replication_report.h"
-#include "dna_replic_report.h"
-#include "ae_mutation.h"
+#include "aevol.h"
 
 using namespace aevol;
 
@@ -67,7 +60,6 @@ enum check_type
 //                         Function declarations
 // =================================================================
 void print_help(char* prog_path);
-void print_version( void );
 
 double* dist_to_target_segment;
 
@@ -131,7 +123,7 @@ int main(int argc, char** argv)
       }
       case 'V' :
       {
-        print_version();
+        Utils::PrintAevolVersion();
         exit( EXIT_SUCCESS );
       }
       case 'v' : verbose = true;                    break;
@@ -272,7 +264,7 @@ int main(int argc, char** argv)
   // ==============================
 
   ae_individual * indiv = new ae_individual(exp_manager, lineage_file );
-  indiv->evaluate( env );
+  indiv->evaluate(habitat);
   indiv->compute_statistical_data();
 
   if ( verbose )
@@ -579,14 +571,4 @@ void print_help(char* prog_path)
   printf( "\t-t tolerance or --tolerance tolerance : \n");
   printf( "\t                       Tolerance used to compare the replayed environment to environment in backup\n");
   printf( "\n" );
-}
-
-
-/*!
-  \brief Print aevol version number
-
-*/
-void print_version( void )
-{
-  printf( "aevol %s\n", VERSION );
 }

@@ -56,16 +56,7 @@ namespace aevol {
 */
 ae_individual_R::ae_individual_R( void ) : ae_individual()
 {
-  _rna_list_coding = new ae_list();
-  
-  if( ae_common::with_heredity )
-  {
-    _inherited_protein_list = new ae_list();
-  }
-  else
-  {
-    _inherited_protein_list = NULL;
-  }
+
 }
 
 ae_individual_R::ae_individual_R( ae_individual_R* parent, int32_t id,

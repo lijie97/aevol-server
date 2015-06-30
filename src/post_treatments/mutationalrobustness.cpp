@@ -7,12 +7,11 @@
 */
 
 #include <getopt.h>
-#include "ae_exp_manager.h"
 #include <libgen.h>
 
 #include <list>
 
-#include "ae_individual.h"
+#include "aevol.h"
 
 using namespace aevol;
 
@@ -26,7 +25,8 @@ int main( int argc, char* argv[] )
   int32_t gener = -1; // What generation to load
   char* output_file_name = NULL;
   bool best_only = false; // Treat only the best individual?
-  
+
+  // TODO <david.parsons@inria.fr> version
   const char * options_list = "hn:r:o:b";
   static struct option long_options_list[] = {
     { "help", 0, NULL, 'h' },
@@ -62,8 +62,7 @@ int main( int argc, char* argv[] )
   }
 
   ae_exp_manager* exp_manager = new ae_exp_manager();
-  exp_manager->load( gener, false, true, false );
-  ae_population* pop = exp_manager->get_pop();
+  exp_manager->load(gener, true, false);
   // int32_t nb_indivs = exp_manager->get_nb_indivs();
 
   // Open output file and write the header
@@ -83,11 +82,11 @@ int main( int argc, char* argv[] )
 
   // Parse and treat the individuals
   if (!best_only){
-    for (ae_individual* indiv: pop->get_indivs())
+    for (ae_individual* indiv: exp_manager->world()->get_indivs())
       analyse_indiv(exp_manager, indiv, output, ndiv);
   }
   else{
-    ae_individual* indiv=pop->get_best();
+    ae_individual* indiv = exp_manager->world()->get_best_indiv();
     analyse_indiv(exp_manager, indiv, output, ndiv);
   }
 

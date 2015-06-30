@@ -45,16 +45,7 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "ae_utils.h"
-#include "ae_exp_manager.h"
-#include "ae_individual.h"
-#include "genetic_unit.h"
-#include "ae_tree.h"
-#include "ae_replication_report.h"
-#include "dna_replic_report.h"
-#include "ae_mutation.h"
-#include "ae_gene_tree.h"
-#include "ae_enums.h"
+#include "aevol.h"
 
 using namespace aevol;
 
@@ -81,7 +72,6 @@ enum check_type
 //                         Function declarations
 // =================================================================
 void print_help(char* prog_path);
-void print_version( void );
 
 void update_pointers_in_trees(std::list<ae_gene_tree>& gene_trees, GeneticUnit * unit);
 void anticipate_mutation_effect_on_genes_in_trees(std::list<ae_gene_tree>& gene_trees, const ae_mutation * mut, int32_t unitlen_before);
@@ -151,7 +141,7 @@ int main(int argc, char** argv)
       }
       case 'V' :
       {
-        print_version();
+        Utils::PrintAevolVersion();
         exit( EXIT_SUCCESS );
       }
       case 'v' : verbose = true;                    break;
@@ -735,14 +725,4 @@ void print_help(char* prog_path)
   printf( "\t-t tolerance or --tolerance tolerance : \n");
   printf( "\t                       Tolerance used to compare the replayed environment to environment in backup\n");
   printf( "\n" );
-}
-
-
-/*!
-  \brief Print aevol version number
-
-*/
-void print_version( void )
-{
-  printf( "aevol %s\n", VERSION );
 }

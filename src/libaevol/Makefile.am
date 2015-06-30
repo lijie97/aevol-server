@@ -25,99 +25,101 @@ noinst_LIBRARIES = libaevol.a
 AM_CPPFLAGS += -D__STDC_FORMAT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS
 
 common_headers = \
-ae_align.h \
-ae_codon.h \
-ae_dna.h \
-ae_dump.h \
+Alignment.h \
+Codon.h \
+Dna.h \
+Dump.h \
 ae_enums.h \
-ae_env_segment.h \
-ae_exp_manager.h \
-ae_exp_setup.h \
-fuzzy.h \
-ae_gaussian.h \
-genetic_unit.h \
-ae_grid_cell.h \
-ae_individual.h \
-individual_factory.h \
-ae_logs.h \
+PhenotypicSegment.h \
+ExpManager.h \
+ExpSetup.h \
+Fuzzy.h \
+Gaussian.h \
+GeneticUnit.h \
+GridCell.h \
+Individual.h \
+IndividualFactory.h \
+Logging.h \
 macros.h \
-ae_mutation.h \
-ae_output_manager.h \
-ae_params_mut.h \
-phenotype.h \
-phenotypic_target.h \
-phenotypic_target_handler.h \
-point.h \
-ae_protein.h \
-ae_jumping_mt.h \
-ae_jump_poly.h \
-ae_replication_report.h \
-dna_replic_report.h \
-ae_rna.h \
-ae_stats.h \
-ae_stat_record.h \
+Mutation.h \
+OutputManager.h \
+MutationParams.h \
+Phenotype.h \
+PhenotypicTarget.h \
+PhenotypicTargetHandler.h \
+Point.h \
+Protein.h \
+JumpingMT.h \
+JumpPoly.h \
+ReplicationReport.h \
+DnaReplicationReport.h \
+Rna.h \
+Stats.h \
+StatRecord.h \
+NonCodingStats.h \
+IndivStats.h \
 ae_string.h \
-ae_tree.h \
-ae_utils.h \
-ae_vis_a_vis.h \
-ae_selection.h \
-ae_gene_tree.h \
-ae_gene_tree_node.h \
-ae_gene_mutation.h \
-habitat.h \
-param_loader.h \
-f_line.h \
+Tree.h \
+Utils.h \
+VisAVis.h \
+Selection.h \
+GeneTree.h \
+GeneTreeNode.h \
+GeneMutation.h \
+Habitat.h \
+ParamLoader.h \
+ParameterLine.h \
 Time.h \
-world.h
+World.h
 
 common_sources = \
-ae_align.cpp \
-ae_codon.cpp \
-ae_dna.cpp \
-ae_dump.cpp \
-ae_exp_manager.cpp \
-ae_exp_setup.cpp \
-genetic_unit.cpp \
-ae_grid_cell.cpp \
-ae_individual.cpp \
-individual_factory.cpp \
-ae_logs.cpp \
-ae_mutation.cpp \
-ae_output_manager.cpp \
-ae_params_mut.cpp \
-phenotypic_target.cpp \
-phenotypic_target_handler.cpp \
-point.cpp \
-ae_protein.cpp \
-ae_jumping_mt.cpp \
-ae_replication_report.cpp \
-dna_replic_report.cpp \
-ae_rna.cpp \
-ae_stats.cpp \
-ae_stat_record.cpp \
+Alignment.cpp \
+Codon.cpp \
+Dna.cpp \
+Dump.cpp \
+ExpManager.cpp \
+ExpSetup.cpp \
+GeneticUnit.cpp \
+GridCell.cpp \
+Individual.cpp \
+IndividualFactory.cpp \
+Logging.cpp \
+Mutation.cpp \
+OutputManager.cpp \
+MutationParams.cpp \
+PhenotypicTarget.cpp \
+PhenotypicTargetHandler.cpp \
+Point.cpp \
+Protein.cpp \
+JumpingMT.cpp \
+ReplicationReport.cpp \
+DnaReplicationReport.cpp \
+Rna.cpp \
+Stats.cpp \
+StatRecord.cpp \
 ae_string.cpp \
-ae_tree.cpp \
-ae_vis_a_vis.cpp \
-ae_selection.cpp \
-ae_gene_tree.cpp \
-ae_gene_tree_node.cpp \
-ae_gene_mutation.cpp \
-fuzzy.cpp \
-habitat.cpp \
-param_loader.cpp \
-f_line.cpp \
+Tree.cpp \
+VisAVis.cpp \
+Selection.cpp \
+GeneTree.cpp \
+GeneTreeNode.cpp \
+GeneMutation.cpp \
+Fuzzy.cpp \
+Habitat.cpp \
+ParamLoader.cpp \
+ParameterLine.cpp \
 Time.cpp \
-world.cpp
+World.cpp
 
 X11_headers = \
-ae_individual_X11.h \
-ae_exp_manager_X11.h \
-ae_X11_window.h
+Individual_X11.h \
+ExpManager_X11.h \
+X11Window.h
 
 X11_sources = \
-ae_individual_X11.cpp \
-ae_exp_manager_X11.cpp \
-ae_X11_window.cpp
+Individual_X11.cpp \
+ExpManager_X11.cpp \
+X11Window.cpp
 
 # The target_CPPFLAGS for each target may look useless, it is here to force automake to create
 # prefixed object files so that we don't use an object file built for another set of macrodefinitions

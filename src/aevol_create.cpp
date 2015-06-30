@@ -39,13 +39,13 @@ const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 #include <getopt.h>
 
 #ifdef __X11
-  #include "ae_exp_manager_X11.h"
+  #include "ExpManager_X11.h"
 #else
-  #include "ae_exp_manager.h"
+  #include "ExpManager.h"
 #endif
 
-#include "libaevol/ae_exp_manager.h"
-#include "libaevol/param_loader.h"
+#include "ExpManager.h"
+#include "ParamLoader.h"
 
 
 using namespace aevol;
@@ -54,7 +54,6 @@ using namespace aevol;
 //                         Function declarations
 // =================================================================
 void print_help(char* prog_path);
-void print_version(void);
 
 
 
@@ -95,7 +94,7 @@ int main(int argc, char* argv[])
       }
       case 'V' :
       {
-        print_version();
+        Utils::PrintAevolVersion();
         exit(EXIT_SUCCESS);
       }
       case 'f' :
@@ -140,16 +139,16 @@ int main(int argc, char* argv[])
 
 
   // 5) Create a param loader for the parameter file
-  param_loader* my_param_loader = new param_loader(param_file_name);
+  ParamLoader * my_param_loader = new ParamLoader(param_file_name);
   delete param_file_name;
 
 
   // 6) Initialize the experiment manager
-  ae_exp_manager* exp_manager = new ae_exp_manager();
+  ExpManager * exp_manager = new ExpManager();
 
 
   // 7) Initialize the simulation from the parameter file
-  int32_t lchromosome=-1;
+  int32_t lchromosome = -1;
   char* chromosome;
 
   if (chromosome_file_name != NULL)
@@ -168,13 +167,12 @@ int main(int argc, char* argv[])
       exit(EXIT_FAILURE);
     }
     lchromosome = strlen(raw_chromosome)-1;
-    chromosome = new char[lchromosome]; // Warning: will become the DNA of the first individual created -> no not delete, will be freed in ~ae_dna.
-    strncpy(chromosome, raw_chromosome, lchromosome);
+    chromosome = new char[lchromosome]; // Warning: will become the DNA of the first individual created -> no not delete, will be freed in Dna   strncpy(chromosome, raw_chromosome, lchromosome);
     printf("Loading chromosome from text file %s (%" PRId32 " base pairs) \n",chromosome_file_name,lchromosome);
     fclose(chromosome_file);
   }
 
-  int32_t lplasmid=-1;
+  int32_t lplasmid = -1;
   char* plasmid;
 
   if (plasmid_file_name != NULL)
@@ -193,8 +191,7 @@ int main(int argc, char* argv[])
       exit(EXIT_FAILURE);
     }
     lplasmid = strlen(raw_plasmid)-1;
-    plasmid = new char[lplasmid]; // Warning: will become the DNA of the first individual created -> no not delete, will be freed in ~ae_dna.
-    strncpy(plasmid, raw_plasmid, lplasmid);
+    plasmid = new char[lplasmid]; // Warning: will become the DNA of the first individual created -> no not delete, will be freed in Dna   strncpy(plasmid, raw_plasmid, lplasmid);
     printf("Loading plasmid from text file %s (%" PRId32 " base pairs) \n",plasmid_file_name,lplasmid);
     fclose(plasmid_file);
   }
@@ -217,7 +214,7 @@ int main(int argc, char* argv[])
   delete my_param_loader;
 
 
-  //~ ((ae_exp_manager_X11*)exp_manager)->toggle_display_on_off();
+  //~ ((ExpManager_X11*)exp_manager)->toggle_display_on_off();
   //~ exp_manager->display();
   //~ getchar();
 
@@ -281,14 +278,4 @@ void print_help(char* prog_path)
   printf("  -o, --out OUTDIR\n\tspecify output directory (default \"./\")\n\n");
   printf("  -c, --chromosome CFILE\n\tload chromosome from given text file instead of generating it\n");
   printf("  -p, --plasmid PFILE\n\tload plasmid from given text file instead of generating it\n");
-}
-
-
-/*!
-  \brief Print aevol version number
-
-*/
-void print_version(void)
-{
-  printf("aevol %s\n", VERSION);
 }

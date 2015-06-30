@@ -93,6 +93,8 @@ class ae_individual_R : public virtual ae_individual
     void    multiply_concentrations( double factor );
     int8_t  get_quadon( GeneticUnit* gen_unit, ae_strand strand, int32_t pos );
     void    save( gzFile backup_file );
+
+    inline std::vector<ae_protein_R*> get_inherited_protein_list( void) const;
     // =================================================================
     //                           Public Attributes
     // =================================================================
@@ -126,6 +128,12 @@ class ae_individual_R : public virtual ae_individual
 // =====================================================================
 //                          Accessors definitions
 // =====================================================================
+inline std::vector<ae_protein_R*> ae_individual_R::get_inherited_protein_list( void ) const
+{
+  assert( _inherited_protein_list );
+
+  return _inherited_protein_list;
+}
 
 } // namespace aevol
 
