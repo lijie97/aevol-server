@@ -319,10 +319,10 @@ Individual::Individual(const Individual& other) {
   // Copy statistical data
   stats_ = other.stats_ ?
            new IndivStats(*other.stats_) :
-           NULL;
+           nullptr;
   nc_stats_ = other.nc_stats_ ?
               new NonCodingStats(*other.nc_stats_) :
-              NULL;
+              nullptr;
 
   _modularity = other._modularity;
 
@@ -489,6 +489,7 @@ Individual::~Individual()
   delete [] _double_probes;
 
   delete stats_;
+  delete nc_stats_;
 }
 
 // =================================================================
@@ -697,26 +698,31 @@ const std::list<const Rna *>&Individual::get_rna_list() const {
 
 /// TODO
 int32_t Individual::get_total_genome_size() const {
+  assert(stats_ != nullptr);
   return stats_->total_genome_size();
 }
 
 /// TODO
 int16_t Individual::get_nb_coding_RNAs() const {
+  assert(stats_ != nullptr);
   return stats_->nb_coding_RNAs();
 }
 
 /// TODO
 int16_t Individual::get_nb_non_coding_RNAs() const {
+  assert(stats_ != nullptr);
   return stats_->nb_non_coding_RNAs();
 }
 
 /// TODO
 int32_t Individual::get_overall_size_coding_RNAs() const {
+  assert(stats_ != nullptr);
   return stats_->overall_size_coding_RNAs();
 }
 
 /// TODO
 double Individual::get_av_size_coding_RNAs() const {
+  assert(stats_ != nullptr);
   return stats_->nb_coding_RNAs() == 0 ?
          0.0 :
          stats_->overall_size_coding_RNAs() /
@@ -725,11 +731,13 @@ double Individual::get_av_size_coding_RNAs() const {
 
 /// TODO
 int32_t Individual::get_overall_size_non_coding_RNAs() const {
+  assert(stats_ != nullptr);
   return stats_->overall_size_non_coding_RNAs();
 }
 
 /// TODO
 double Individual::get_av_size_non_coding_RNAs() const {
+  assert(stats_ != nullptr);
   return stats_->nb_non_coding_RNAs() == 0 ?
          0.0 :
          stats_->overall_size_non_coding_RNAs() /
@@ -738,31 +746,37 @@ double Individual::get_av_size_non_coding_RNAs() const {
 
 /// TODO
 int16_t Individual::get_nb_genes_activ() const {
+  assert(stats_ != nullptr);
   return stats_->nb_genes_activ();
 }
 
 /// TODO
 int16_t Individual::get_nb_genes_inhib() const {
+  assert(stats_ != nullptr);
   return stats_->nb_genes_inhib();
 }
 
 /// TODO
 int16_t Individual::get_nb_functional_genes() const {
+  assert(stats_ != nullptr);
   return stats_->nb_functional_genes();
 }
 
 /// TODO
 int16_t Individual::get_nb_non_functional_genes() const {
+  assert(stats_ != nullptr);
   return stats_->nb_non_functional_genes();
 }
 
 /// TODO
 int32_t Individual::get_overall_size_functional_genes() const {
+  assert(stats_ != nullptr);
   return stats_->overall_size_functional_genes();
 }
 
 /// TODO
 double Individual::get_av_size_functional_genes() const {
+  assert(stats_ != nullptr);
   return stats_->nb_functional_genes() == 0 ?
          0.0 :
          stats_->overall_size_functional_genes() /
@@ -771,11 +785,13 @@ double Individual::get_av_size_functional_genes() const {
 
 /// TODO
 int32_t Individual::get_overall_size_non_functional_genes() const {
+  assert(stats_ != nullptr);
   return stats_->overall_size_non_functional_genes();
 }
 
 /// TODO
 double Individual::get_av_size_non_functional_genes() const {
+  assert(stats_ != nullptr);
   return stats_->nb_non_functional_genes() == 0 ?
          0.0 :
          stats_->overall_size_non_functional_genes() /
@@ -784,41 +800,49 @@ double Individual::get_av_size_non_functional_genes() const {
 
 /// TODO
 int32_t Individual::get_nb_bases_in_0_CDS() const {
+  assert(nc_stats_ != nullptr);
   return nc_stats_->nb_bases_in_0_CDS();
 }
 
 /// TODO
 int32_t Individual::get_nb_bases_in_0_functional_CDS() const {
+  assert(nc_stats_ != nullptr);
   return nc_stats_->nb_bases_in_0_functional_CDS();
 }
 
 /// TODO
 int32_t Individual::get_nb_bases_in_0_non_functional_CDS() const {
+  assert(nc_stats_ != nullptr);
   return nc_stats_->nb_bases_in_0_non_functional_CDS();
 }
 
 /// TODO
 int32_t Individual::get_nb_bases_in_0_RNA() const {
+  assert(nc_stats_ != nullptr);
   return nc_stats_->nb_bases_in_0_RNA();
 }
 
 /// TODO
 int32_t Individual::get_nb_bases_in_0_coding_RNA() const {
+  assert(nc_stats_ != nullptr);
   return nc_stats_->nb_bases_in_0_coding_RNA();
 }
 
 /// TODO
 int32_t Individual::get_nb_bases_in_0_non_coding_RNA() const {
+  assert(nc_stats_ != nullptr);
   return nc_stats_->nb_bases_in_0_non_coding_RNA();
 }
 
 /// TODO
 int32_t Individual::get_nb_bases_in_neutral_regions() const {
+  assert(nc_stats_ != nullptr);
   return nc_stats_->nb_bases_in_neutral_regions();
 }
 
 /// TODO
 int32_t Individual::get_nb_neutral_regions() const {
+  assert(nc_stats_ != nullptr);
   return nc_stats_->nb_neutral_regions();
 }
 
@@ -1421,9 +1445,9 @@ void Individual::clear_everything_except_dna_and_promoters() {
 
   // Reset statistical data
   delete stats_;
-  stats_ = NULL;
+  stats_ = nullptr;
   delete nc_stats_;
-  nc_stats_ = NULL;
+  nc_stats_ = nullptr;
 
   _modularity = -1;
 }
@@ -1556,15 +1580,16 @@ void Individual::inject_2GUs(Individual * partner) {
 }
 
 void Individual::compute_statistical_data() {
-  if (stats_ != NULL) return; // Statistical data has already been computed, nothing to do.
-  stats_ = new IndivStats();
+  if (stats_ != nullptr) return; // Statistical data has already been computed,
+                                 // nothing to do.
 
+  stats_ = new IndivStats();
   if (not _phenotype_computed)
   {
     compute_phenotype();
   }
 
-  for (const auto& gen_unit: _genetic_unit_list) {
+  for (const auto& gen_unit : _genetic_unit_list) {
     stats_->total_genome_size_ +=
         gen_unit.get_dna()->get_length();
     stats_->nb_coding_RNAs_ +=

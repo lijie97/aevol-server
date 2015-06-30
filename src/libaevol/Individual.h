@@ -240,8 +240,8 @@ class Individual : public Observable
 
   double get_modularity(); // Not const
 
-  int32_t* get_int_probes () const;
-  double* get_double_probes () const;
+  int32_t* get_int_probes() const;
+  double* get_double_probes() const;
 
 
   // =================================================================
@@ -249,14 +249,14 @@ class Individual : public Observable
   // =================================================================
   void set_strain_name(char* name);
 
-  void set_exp_m(ExpManager * exp_m);
+  void set_exp_m(ExpManager* exp_m);
   void set_id(int32_t id);
   void set_rank(int32_t rank);
 
-  void set_grid_cell(GridCell * grid_cell);
+  void set_grid_cell(GridCell* grid_cell);
   void set_placed_in_population(bool placed_in_population);
 
-  void reset_dist_to_target_by_segment(double * dist_to_target_by_segment);
+  void reset_dist_to_target_by_segment(double* dist_to_target_by_segment);
 
   void set_w_max(double w_max);
 
@@ -349,9 +349,9 @@ class Individual : public Observable
   int32_t get_nb_terminators();
 
 #ifdef DEBUG
-    void assert_promoters();
-    void assert_promoters_order();
-  #endif
+  void assert_promoters();
+  void assert_promoters_order();
+#endif
 
   void compute_experimental_f_nu(int32_t nb_children, double* reproduction_statistics, double* offsprings_statistics = NULL, FILE* replication_file = NULL);
   double compute_theoritical_f_nu();
@@ -448,11 +448,11 @@ class Individual : public Observable
   // Access lists to all the proteins/RNAs of the individual.
   // Please note that these proteins/RNAs are actually managed (i.e. newed and deleted) via genetic units.
   std::list<Protein*> _protein_list;
-  std::list<const Rna*>     _rna_list;
+  std::list<const Rna*> _rna_list;
 
   // Generic probes
-  int32_t*  _int_probes;        // Array of 5 int32_t values to be used as one wishes
-  double*   _double_probes;     // Array of 5 double values to be used as one wishes
+  int32_t* _int_probes;        // Array of 5 int32_t values to be used as one wishes
+  double* _double_probes;     // Array of 5 double values to be used as one wishes
 
   // Mutation rates etc...
   std::shared_ptr<MutationParams> _mut_params;

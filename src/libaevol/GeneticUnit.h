@@ -246,7 +246,7 @@ class GeneticUnit
 
   void save( gzFile backup_file ) const;
 
-  int32_t get_nb_terminators( void );
+  int32_t get_nb_terminators();
 
   //~ // set the genetic unit of all promoters to the appropriate
   //~ void reasign_promoter_genetic_unit (void);

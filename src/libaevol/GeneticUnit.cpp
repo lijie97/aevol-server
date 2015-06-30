@@ -2751,67 +2751,51 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 ///                       ^
 ///                      pos
 /// \endverbatim
-  void GeneticUnit::copy_lagging_promoters_starting_between(int32_t pos_1,
-                                                            int32_t pos_2,
-                                                            Promoters1Strand& new_promoter_list) {
-    // Go to first RNA to copy
-    auto& strand = _rna_list[LAGGING];
-    const auto& first = find_if(strand.rbegin(),
-                                strand.rend(),
-                                [pos_1](Rna & r) { return r.get_promoter_pos() >= pos_1; });
+void GeneticUnit::copy_lagging_promoters_starting_between(int32_t pos_1,
+                                                          int32_t pos_2,
+                                                          Promoters1Strand& new_promoter_list) {
+  // Go to first RNA to copy
+  auto& strand = _rna_list[LAGGING];
+  const auto& first = find_if(strand.rbegin(),
+                              strand.rend(),
+                              [pos_1](Rna & r) { return r.get_promoter_pos() >= pos_1; });
 
-    // Copy RNAs
-    if (pos_1 < pos_2) {
-      // Copy from pos_1 to pos_2
-      for (auto rna = first; rna != strand.rend() and rna->get_promoter_pos() < pos_2 ; ++rna)
-        new_promoter_list.emplace_front(this, *rna);
-    }
-    else
-    {
-      // Copy from pos_1 to the beginning of the list (we are going backwards)
-      for (auto rna = first; rna != strand.rend(); ++rna)
-        new_promoter_list.emplace_front(this, *rna);
-
-      // Copy from the end of the list to pos_2 (we are going backwards)
-      for (auto rna = strand.rbegin(); rna != strand.rend() and rna->get_promoter_pos() < pos_2; ++rna)
-        new_promoter_list.emplace_front(this, *rna);
-    }
+  // Copy RNAs
+  if (pos_1 < pos_2) {
+    // Copy from pos_1 to pos_2
+    for (auto rna = first; rna != strand.rend() and rna->get_promoter_pos() < pos_2 ; ++rna)
+      new_promoter_list.emplace_front(this, *rna);
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  void GeneticUnit::save( gzFile backup_file ) const
+  else
   {
-    _dna->save( backup_file );
-    gzwrite( backup_file, &_min_gu_length, sizeof(_min_gu_length) );
-    gzwrite( backup_file, &_max_gu_length, sizeof(_max_gu_length) );
-  }
+    // Copy from pos_1 to the beginning of the list (we are going backwards)
+    for (auto rna = first; rna != strand.rend(); ++rna)
+      new_promoter_list.emplace_front(this, *rna);
 
-  int32_t GeneticUnit::get_nb_terminators( void ) {
-    int32_t nb_term = 0;
-    if (_dna->get_length() >= TERM_SIZE)
-      for (int32_t i = 0 ; i < _dna->get_length() ; i++)
-        if (is_terminator(LEADING, i))  // No need to count on both the
-          // LEADING and the LAGGING
-          // strand as terminators are
-          // "shared"
-          nb_term++;
-    return nb_term;
+    // Copy from the end of the list to pos_2 (we are going backwards)
+    for (auto rna = strand.rbegin(); rna != strand.rend() and rna->get_promoter_pos() < pos_2; ++rna)
+      new_promoter_list.emplace_front(this, *rna);
   }
+}
+
+void GeneticUnit::save(gzFile backup_file) const
+{
+  _dna->save(backup_file);
+  gzwrite(backup_file, &_min_gu_length, sizeof(_min_gu_length));
+  gzwrite(backup_file, &_max_gu_length, sizeof(_max_gu_length));
+}
+
+int32_t GeneticUnit::get_nb_terminators() {
+  int32_t nb_term = 0;
+  if (_dna->get_length() >= TERM_SIZE)
+    for (int32_t i = 0 ; i < _dna->get_length() ; i++)
+      if (is_terminator(LEADING, i))  // No need to count on both the
+        // LEADING and the LAGGING
+        // strand as terminators are
+        // "shared"
+        nb_term++;
+  return nb_term;
+}
 
 #ifdef DEBUG
 /// Compare current _rna_list with locate_promoters-generated _rna_list
@@ -2919,7 +2903,7 @@ void GeneticUnit::assert_promoters_order() {
 bool* GeneticUnit::is_belonging_to_coding_RNA( void ) {
   int32_t genome_length = _dna->get_length();
   bool* belongs_to_coding_RNA = new bool[genome_length];
-  memset( belongs_to_coding_RNA,0, genome_length );
+  memset(belongs_to_coding_RNA,0, genome_length);
 
   // Parse RNA lists and mark the corresponding bases as coding (only for the coding RNAs)
   for ( int8_t strand = LEADING ; strand <= LAGGING ; strand++ ) {

@@ -148,8 +148,8 @@ StatRecord::StatRecord(ExpManager* exp_m,
   // ---------------
   // Simulation data
   // ---------------
-  _pop_size = 0;  // The pop_size value is irrelevant when dealing with a single
-                  // individual. It is present for column alignment.
+  _pop_size = 0; // The pop_size value is irrelevant when dealing with a single
+                 // individual. It is present for column alignment.
   
   #ifdef __REGUL
     // TODO
