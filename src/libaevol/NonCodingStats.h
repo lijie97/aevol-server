@@ -37,6 +37,8 @@
 #include <cstdlib>
 #include <cassert>
 
+#include "GeneticUnit.h"
+
 
 namespace aevol {
 
@@ -69,14 +71,18 @@ class NonCodingStats
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
-  int32_t nb_bases_in_0_CDS() const {return nb_bases_in_0_CDS_;};
+  int32_t nb_bases_in_0_CDS() const {
+    return nb_bases_in_0_CDS_;
+  };
   int32_t nb_bases_in_0_functional_CDS() const {
     return nb_bases_in_0_functional_CDS_;
   };
   int32_t nb_bases_in_0_non_functional_CDS() const {
     return nb_bases_in_0_non_functional_CDS_;
   };
-  int32_t nb_bases_in_0_RNA() const {return nb_bases_in_0_RNA_;};
+  int32_t nb_bases_in_0_RNA() const {
+    return nb_bases_in_0_RNA_;
+  };
   int32_t nb_bases_in_0_coding_RNA() const {
     return nb_bases_in_0_coding_RNA_;
   };
@@ -86,7 +92,9 @@ class NonCodingStats
   int32_t nb_bases_in_neutral_regions() const {
     return nb_bases_in_neutral_regions_;
   };
-  int32_t nb_neutral_regions() const {return nb_neutral_regions_;};
+  int32_t nb_neutral_regions() const {
+    return nb_neutral_regions_;
+  };
 
   // ==========================================================================
   //                                 Setters
@@ -99,6 +107,7 @@ class NonCodingStats
   // ==========================================================================
   //                              Public Methods
   // ==========================================================================
+  inline void Accumulate(const GeneticUnit& gen_unit);
 
 
 
@@ -149,7 +158,17 @@ class NonCodingStats
 // ============================================================================
 //                       Inline functions' definition
 // ============================================================================
-
+void NonCodingStats::Accumulate(const GeneticUnit& gen_unit) {
+  nb_bases_in_0_CDS_ += gen_unit.get_nb_bases_in_0_CDS();
+  nb_bases_in_0_functional_CDS_ += gen_unit.get_nb_bases_in_0_functional_CDS();
+  nb_bases_in_0_non_functional_CDS_ +=
+      gen_unit.get_nb_bases_in_0_non_functional_CDS();
+  nb_bases_in_0_RNA_ += gen_unit.get_nb_bases_in_0_RNA();
+  nb_bases_in_0_coding_RNA_ += gen_unit.get_nb_bases_in_0_coding_RNA();
+  nb_bases_in_0_non_coding_RNA_ += gen_unit.get_nb_bases_in_0_non_coding_RNA();
+  nb_bases_in_neutral_regions_ += gen_unit.get_nb_bases_in_neutral_regions();
+  nb_neutral_regions_ += gen_unit.get_nb_neutral_regions();
+}
 } // namespace aevol
 
 #endif // AEVOL_NON_CODING_STATS_H__

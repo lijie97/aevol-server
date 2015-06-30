@@ -1584,59 +1584,22 @@ void Individual::compute_statistical_data() {
                                  // nothing to do.
 
   stats_ = new IndivStats();
+
   if (not _phenotype_computed)
-  {
     compute_phenotype();
-  }
 
   for (const auto& gen_unit : _genetic_unit_list) {
-    stats_->total_genome_size_ +=
-        gen_unit.get_dna()->get_length();
-    stats_->nb_coding_RNAs_ +=
-        gen_unit.get_nb_coding_RNAs();
-    stats_->nb_non_coding_RNAs_ +=
-        gen_unit.get_nb_non_coding_RNAs();
-    stats_->overall_size_coding_RNAs_ +=
-        gen_unit.get_overall_size_coding_RNAs();
-    stats_->overall_size_non_coding_RNAs_ +=
-        gen_unit.get_overall_size_non_coding_RNAs();
-    stats_->nb_genes_activ_ +=
-        gen_unit.get_nb_genes_activ();
-    stats_->nb_genes_inhib_ +=
-        gen_unit.get_nb_genes_inhib();
-    stats_->nb_functional_genes_ +=
-        gen_unit.get_nb_functional_genes();
-    stats_->nb_non_functional_genes_ +=
-        gen_unit.get_nb_non_functional_genes();
-    stats_->overall_size_functional_genes_ +=
-        gen_unit.get_overall_size_functional_genes();
-    stats_->overall_size_non_functional_genes_ +=
-        gen_unit.get_overall_size_non_functional_genes();
+    stats_->Accumulate(gen_unit);
   }
 }
 
 void Individual::compute_non_coding() {
-  if (nc_stats_ != NULL) return; // _non_coding has already been computed,
-  // nothing to do.
+  if (nc_stats_ != nullptr) return; // NC stats have already been computed,
+                                    // nothing to do.
   nc_stats_ = new NonCodingStats();
 
   for (auto& gen_unit: _genetic_unit_list) {
-    nc_stats_->nb_bases_in_0_CDS_ +=
-        gen_unit.get_nb_bases_in_0_CDS();
-    nc_stats_->nb_bases_in_0_functional_CDS_ +=
-        gen_unit.get_nb_bases_in_0_functional_CDS();
-    nc_stats_->nb_bases_in_0_non_functional_CDS_ +=
-        gen_unit.get_nb_bases_in_0_non_functional_CDS();
-    nc_stats_->nb_bases_in_0_RNA_ +=
-        gen_unit.get_nb_bases_in_0_RNA();
-    nc_stats_->nb_bases_in_0_coding_RNA_ +=
-        gen_unit.get_nb_bases_in_0_coding_RNA();
-    nc_stats_->nb_bases_in_0_non_coding_RNA_ +=
-        gen_unit.get_nb_bases_in_0_non_coding_RNA();
-    nc_stats_->nb_bases_in_neutral_regions_ +=
-        gen_unit.get_nb_bases_in_neutral_regions();
-    nc_stats_->nb_neutral_regions_ +=
-        gen_unit.get_nb_neutral_regions();
+    nc_stats_->Accumulate(gen_unit);
   }
 }
 

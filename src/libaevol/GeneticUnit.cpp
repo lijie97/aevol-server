@@ -216,93 +216,93 @@ double GeneticUnit::get_av_size_non_functional_genes( void ) const
   else return 0.0;
 }
 
-int32_t GeneticUnit::get_nb_bases_in_0_CDS( void )
+int32_t GeneticUnit::get_nb_bases_in_0_CDS() const
 {
-  if ( ! _non_coding_computed ) compute_non_coding();
+  assert (_non_coding_computed );
   return _nb_bases_in_0_CDS;
 }
 
-int32_t GeneticUnit::get_nb_bases_in_0_functional_CDS( void )
+int32_t GeneticUnit::get_nb_bases_in_0_functional_CDS() const
 {
-  if ( ! _non_coding_computed ) compute_non_coding();
+  assert (_non_coding_computed );
   return _nb_bases_in_0_functional_CDS;
 }
 
-int32_t GeneticUnit::get_nb_bases_in_0_non_functional_CDS( void )
+int32_t GeneticUnit::get_nb_bases_in_0_non_functional_CDS() const
 {
-  if ( ! _non_coding_computed ) compute_non_coding();
+  assert (_non_coding_computed );
   return _nb_bases_in_0_non_functional_CDS;
 }
 
-int32_t GeneticUnit::get_nb_bases_in_0_RNA( void )
+int32_t GeneticUnit::get_nb_bases_in_0_RNA() const
 {
-  if ( ! _non_coding_computed ) compute_non_coding();
+  assert (_non_coding_computed );
   return _nb_bases_in_0_RNA;
 }
 
-int32_t GeneticUnit::get_nb_bases_in_0_coding_RNA( void )
+int32_t GeneticUnit::get_nb_bases_in_0_coding_RNA() const
 {
-  if ( ! _non_coding_computed ) compute_non_coding();
+  assert (_non_coding_computed );
   return _nb_bases_in_0_coding_RNA;
 }
 
-int32_t GeneticUnit::get_nb_bases_in_0_non_coding_RNA( void )
+int32_t GeneticUnit::get_nb_bases_in_0_non_coding_RNA() const
 {
-  if ( ! _non_coding_computed ) compute_non_coding();
+  assert (_non_coding_computed );
   return _nb_bases_in_0_non_coding_RNA;
 }
 
-int32_t GeneticUnit::get_nb_bases_non_essential( void )
+int32_t GeneticUnit::get_nb_bases_non_essential() const
 {
-  if ( ! _non_coding_computed ) compute_non_coding();
+  assert (_non_coding_computed );
   return _nb_bases_non_essential;
 }
 
-int32_t GeneticUnit::get_nb_bases_non_essential_including_nf_genes( void )
+int32_t GeneticUnit::get_nb_bases_non_essential_including_nf_genes() const
 {
-  if ( ! _non_coding_computed ) compute_non_coding();
+  assert (_non_coding_computed );
   return _nb_bases_non_essential_including_nf_genes;
 }
 
-int32_t GeneticUnit::get_nb_bases_in_neutral_regions( void )
+int32_t GeneticUnit::get_nb_bases_in_neutral_regions() const
 {
-  if ( ! _non_coding_computed ) compute_non_coding();
+  assert (_non_coding_computed );
   return _nb_bases_in_neutral_regions;
 }
 
-int32_t GeneticUnit::get_nb_neutral_regions( void )
+int32_t GeneticUnit::get_nb_neutral_regions() const
 {
-  if ( ! _non_coding_computed ) compute_non_coding();
+  assert (_non_coding_computed );
   return _nb_neutral_regions;
 }
 
-int32_t* GeneticUnit::get_beginning_neutral_regions( void )
+int32_t* GeneticUnit::get_beginning_neutral_regions() const
 {
-  if ( ! _non_coding_computed ) compute_non_coding();
+  assert (_non_coding_computed );
   return _beginning_neutral_regions;
 }
 
-int32_t* GeneticUnit::get_end_neutral_regions( void )
+int32_t* GeneticUnit::get_end_neutral_regions() const
 {
-  if ( ! _non_coding_computed ) compute_non_coding();
+  assert (_non_coding_computed );
   return _end_neutral_regions;
 }
 
-double GeneticUnit::get_modularity( void ) const
+double GeneticUnit::get_modularity() const
 {
   return _modularity;
 }
 
 double GeneticUnit::get_dist_to_target_by_feature( PhenotypicFeature feature ) const
 {
-  assert( _distance_to_target_computed );
+  assert(_distance_to_target_computed);
 
   return _dist_to_target_by_feature[feature];
 }
 
-double GeneticUnit::get_fitness( void ) const
+double GeneticUnit::get_fitness() const
 {
-  assert( _fitness_computed );
+  assert(_fitness_computed);
 
   return _fitness;
 }

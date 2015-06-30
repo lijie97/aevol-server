@@ -491,13 +491,13 @@ class Individual : public Observable
   // ----------------------------------------
   // Statistical data
   // ----------------------------------------
-  IndivStats* stats_ = NULL;
-  NonCodingStats* nc_stats_ = NULL;
   // Genome, RNAs and genes size and stuff
+  IndivStats* stats_ = nullptr;
+  // Coding / non-coding
+  NonCodingStats* nc_stats_ = nullptr;
 
   // Mutation/Rearrangement statistics are managed in the replication report
 
-  // Coding / non-coding
 
   double _modularity; // Ratio between the pairwise distance between genes whose corresponding
   // phenotypic triangles overlap and the average intergenic distance

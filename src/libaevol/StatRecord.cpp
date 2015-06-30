@@ -216,6 +216,7 @@ StatRecord::StatRecord(ExpManager* exp_m,
     // Non coding stats
     if (compute_non_coding)
     {
+      gen_unit.compute_non_coding();
       _nb_bases_in_0_CDS                = gen_unit.get_nb_bases_in_0_CDS();
       _nb_bases_in_0_functional_CDS     = gen_unit.get_nb_bases_in_0_functional_CDS();
       _nb_bases_in_0_non_functional_CDS = gen_unit.get_nb_bases_in_0_non_functional_CDS();

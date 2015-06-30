@@ -118,26 +118,26 @@ class GeneticUnit
   double   get_overall_size_non_functional_genes( void ) const;
   double   get_av_size_non_functional_genes( void )      const;
 
-  int32_t  get_nb_bases_in_0_CDS( void );
-  int32_t  get_nb_bases_in_0_functional_CDS( void );
-  int32_t  get_nb_bases_in_0_non_functional_CDS( void );
-  int32_t  get_nb_bases_in_0_RNA( void );
-  int32_t  get_nb_bases_in_0_coding_RNA( void );
-  int32_t  get_nb_bases_in_0_non_coding_RNA( void );
+  int32_t  get_nb_bases_in_0_CDS() const;
+  int32_t  get_nb_bases_in_0_functional_CDS() const;
+  int32_t  get_nb_bases_in_0_non_functional_CDS() const;
+  int32_t  get_nb_bases_in_0_RNA() const;
+  int32_t  get_nb_bases_in_0_coding_RNA() const;
+  int32_t  get_nb_bases_in_0_non_coding_RNA() const;
 
-  int32_t  get_nb_bases_non_essential( void );
-  int32_t  get_nb_bases_non_essential_including_nf_genes( void );
+  int32_t  get_nb_bases_non_essential() const;
+  int32_t  get_nb_bases_non_essential_including_nf_genes() const;
 
-  int32_t  get_nb_bases_in_neutral_regions( void );
-  int32_t  get_nb_neutral_regions( void );
-  int32_t* get_beginning_neutral_regions( void );
-  int32_t* get_end_neutral_regions( void );
+  int32_t  get_nb_bases_in_neutral_regions() const;
+  int32_t  get_nb_neutral_regions() const;
+  int32_t* get_beginning_neutral_regions() const;
+  int32_t* get_end_neutral_regions() const;
 
-  double   get_modularity( void )                        const;
+  double   get_modularity() const;
 
-  double   get_dist_to_target_by_feature( PhenotypicFeature feature )  const;
-  double   get_fitness( void )                                           const;
-  double   get_fitness_by_feature( PhenotypicFeature feature )         const;
+  double   get_dist_to_target_by_feature(PhenotypicFeature feature) const;
+  double   get_fitness() const;
+  double   get_fitness_by_feature(PhenotypicFeature feature) const;
 
   int32_t  get_min_gu_length( void ) const;
   int32_t  get_max_gu_length( void ) const;
