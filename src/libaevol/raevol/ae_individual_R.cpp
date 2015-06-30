@@ -114,84 +114,279 @@ ae_individual_R::~ae_individual_R( void )
 // =================================================================
 void ae_individual_R::evaluate( Environment* envir )
 {
-  // ---------------------------------------------------------------------------
-  // 1) Transcription - Translation - Folding
-  // ---------------------------------------------------------------------------
-  ae_list_node<GeneticUnit*>*     gen_unit_node = _genetic_unit_list->get_first();
-  GeneticUnit*  gen_unit = NULL;
-  
-  while ( gen_unit_node != NULL )
-  {
-    gen_unit = gen_unit_node->get_obj();
-    
-    gen_unit->do_transcription();
-    gen_unit->do_translation();
-    gen_unit->compute_phenotypic_contribution(); // Compute basal levels
-    
-    gen_unit_node = gen_unit_node->get_next();
-  }
-  
-  //----------------------------------------------------------------------------
-  // 2) Make a list of all the proteins present in the individual
-  //----------------------------------------------------------------------------
-  make_protein_list();
-  make_rna_list();
+	  //protections
+	//  if ( _nb_env_list == 0 )
+	//  {
+	//    printf( "ERROR in ae_individual_R::evaluate env_list is empty\n " );
+	//    exit( EXIT_FAILURE );
+	//  }
 
-  //----------------------------------------------------------------------------
-  // 3) Create influence graph
-  //----------------------------------------------------------------------------
-  set_influences();
-
-  // Computes some statistical data about the individual
-  //~ _genome->compute_statistical_data();
-
-/*
-  printf("number of protein : inherited : %d \n",_inherited_protein_list->get_nb_elts());
-  printf("number of protein : leading : %d \n",_genetic_unit_list->get_first()->get_obj()->get_protein_list()[LEADING]->get_nb_elts());
-  printf("number of protein : lagging : %d \n",_genetic_unit_list->get_first()->get_obj()->get_protein_list()[LAGGING]->get_nb_elts());
-  printf("number of protein : total : %d \n",_protein_list->get_nb_elts());
-*/
-
-  //----------------------------------------------------------------------------
-  // 4) Make the individual "live its life" and compute partial phenotypes and 
-  //    fitnesses
-  //----------------------------------------------------------------------------
-  int16_t indiv_age   = 0;
-  double fitness_temp = 0;
-  
-  // Go from an evaluation date to the next
-  for( int16_t evaluation_index = 0 ; evaluation_index < ae_common::individual_evaluation_nbr ; evaluation_index++ )
-  {
-    // Let the individual evolve until the evaluation date
-    while( ( indiv_age < ae_common::individual_evaluation_dates->get_value( evaluation_index ) ) )
-    {
-	  //Updating the concentrations in order to respect the degradation step.
-	  for( int i = 0; i < 1/ae_common::degradation_step; i++ )
+	  // la protection est génante dans le cas de modification environnementale au cours de la simulation (overload)
+	  /*
+	  if (env_list->get_nb_elts() != ae_common::individual_environment_nbr)
 	  {
-        update_concentrations();
-        indiv_age++;
+	    printf( "ERROR in ae_individual_R::evaluate the number of elements in env_list does not match wich ae_common::individual_environment_nbr\n " );
+	    exit( EXIT_FAILURE );
 	  }
-    }
+	  */
+	  //debug
+	  //printf("évaluation de l'individu %d\n", _index_in_population);
 
-    // Evaluate the individual's phenotype
-    compute_phenotype();
-    compute_distance_to_target( envir );
-    compute_fitness( envir );
-    fitness_temp += _fitness;
-  }
+	  // ---------------------------------------------------------------------------
+	  // 1) Transcription - Translation - Folding - make_protein_list
+	  // ---------------------------------------------------------------------------
 
-  // The individual may have some years left to live
-  // TODO : Useless if no mutation during lifetime => commented
-  //~ while( indiv_age <= ae_common::individual_life_time )
-  //~ {
-    //~ update_concentrations();
-    //~ indiv_age++;
-  //~ }
+	  _transcribed = false;
+	  _translated = false;
+	  _folded = false;
 
-  //----------------------------------------------------------------------------
-  // 5) Compute final fitness
-  //----------------------------------------------------------------------------
-  _fitness = fitness_temp / (double)ae_common::individual_evaluation_nbr;
+
+	  //  printf("avant : do_transcription_translation_folding() \n");
+	  //contain make protein list
+	  do_transcription_translation_folding();
+
+	  // printf("taille liste _rna_list_coding : %d\n",_rna_list_coding->get_nb_elts());
+	  //printf("taille liste _protein_list : %d\n",_protein_list->get_nb_elts());
+
+
+	  if(_phenotype != NULL)
+	  {
+	    delete _phenotype;
+	    _phenotype = NULL;
+	  }
+	  _phenotype = new ae_phenotype();
+
+
+	  //----------------------------------------------------------------------------
+	  // 2) Make a list of all the rna present in the individual
+	  //    and initialise the concentrations of the proteins
+	  //----------------------------------------------------------------------------
+	#ifdef __TRACING__
+	  high_resolution_clock::time_point t1 = high_resolution_clock::now();
+	#endif
+	  make_rna_list();
+
+
+	//  ae_list_node* prot_node       = NULL;
+	//  ae_protein_R* prot            = NULL;
+
+	//  prot_node = _protein_list->get_first();
+	//  while ( prot_node != NULL )
+	//  {
+	//    prot = (ae_protein_R*)prot_node->get_obj();
+	  for (int i = 0; i < _protein_list.size(); i++) {
+		  ((ae_protein_R*)_protein_list[i])->set_initial_concentration();
+	//    prot_node = prot_node->get_next();
+	  }
+	#ifdef __TRACING__
+	  high_resolution_clock::time_point t2 = high_resolution_clock::now();
+	  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+	  ae_logger::addLog(MAKERNALIST,duration);
+	  t1 = t2;
+	#endif
+	  //----------------------------------------------------------------------------
+	  // 3) Create influence graph (including the signals)
+	  //----------------------------------------------------------------------------
+	//	ae_list* init_prot_list = new ae_list;
+	//  init_prot_list->add_list(_protein_list);
+	  ae_environment* envir = NULL;
+	  std::vector<ae_protein*> init_protein = _protein_list;
+	  std::vector<int> env_switch(env_list.size());
+	  std::map<int,std::vector<ae_protein_R*>*> _cloned_signals;
+	  ae_protein_R* cloned_signal = NULL;
+
+	  for(int i = 0; i < env_list.size(); i++)
+	  {
+	     envir = env_list[i];
+	     env_switch[i] = envir->get_id();
+	//     printf("Env at age %d : %d (%d)\n",i,envir->get_id(),env_list.size());
+
+	//     if (i > 0) printf("switch at %d\n",ae_common::individual_environment_dates->get_value(i-1));
+
+	     if (_cloned_signals.find(envir->get_id()) == _cloned_signals.end()) {
+	    	 std::vector<ae_protein_R*>* loc_signals = new std::vector<ae_protein_R*>();
+	    	 for ( int8_t j = 0; j < envir->get_signals().size(); j++)
+	    	 {
+	    			 cloned_signal = new ae_protein_R(NULL,*(envir->_signals[j]));
+	    			 cloned_signal->set_concentration(0.0);
+	    			 _protein_list.push_back(cloned_signal);
+	    			 loc_signals->push_back(cloned_signal);
+	    	 }
+	    	 _cloned_signals.insert(std::make_pair(envir->get_id(),loc_signals));
+	//    	 printf("Cloned signals for %d is %ld (or %ld)\n",
+	//    			 envir->get_id(),
+	//    			 loc_signals->size(),
+	//    			 _cloned_signals[envir->get_id()]->size());
+	     }
+	  }
+
+	  cloned_signal = NULL;
+	#ifdef __TRACING__
+	  t2 = high_resolution_clock::now();
+	  duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+	  ae_logger::addLog(CLONESIGNAL,duration);
+	  t1 = t2;
+	#endif
+
+	  set_influences();
+
+	#ifdef __TRACING__
+	  t2 = high_resolution_clock::now();
+	  duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+	  ae_logger::addLog(SETINFLUS,duration);
+	  t1 = t2;
+	#endif
+	  //----------------------------------------------------------------------------
+	  // 4) Make the individual "live its life" and compute partial phenotypes and
+	  //    fitnesses
+	  //----------------------------------------------------------------------------
+
+	  int16_t indiv_age     = 0;
+	  double dist_temp      = 0;
+	  int8_t compteur_env   = 0;
+	  //set envir to the first environment
+	  envir = env_list[compteur_env];
+	//  for ( auto it = _cloned_signals.begin(); it != _cloned_signals.end(); ++it ) {
+	//  	for ( int8_t i = 0; i < it->second->size(); i++)
+	//  	      {
+	//  	    	  printf("-- Concentration %d %d %d : %f\n",indiv_age,
+	//  	    			  it->first,i,it->second->at(i)->get_concentration());
+	//  	      }
+	//  }
+	  //Set the concentrations of the signals proteins
+	//  _signals = envir->get_signals();
+	  for ( int8_t i = 0; i < _cloned_signals[env_switch[compteur_env]]->size(); i++)
+	  {
+	    ((ae_protein_R*) _cloned_signals[env_switch[compteur_env]]->at(i))->set_concentration(0.9);
+	  }
+
+
+	  while( indiv_age < ae_common::individual_evaluation_dates->get_value( ae_common::individual_evaluation_nbr - 1) )
+	  {
+	#ifdef __TRACING__
+		  t1 = high_resolution_clock::now();
+	#endif
+	//	printf("ENV %d : %d / %d %d\n",indiv_age,env_switch[compteur_env],compteur_env,env_list.size());
+	    //Updating the concentrations in order to respect the degradation step.
+	    for( int16_t i = 0; i < 1/ae_common::degradation_step; i++ )
+	    {
+	      update_concentrations();
+	    }
+	    indiv_age++;
+
+	//    for ( auto it = _cloned_signals.begin(); it != _cloned_signals.end(); ++it ) {
+	//    	for ( int8_t i = 0; i < it->second->size(); i++)
+	//    	      {
+	//    	    	  printf("Concentration %d %d %d : %f\n",indiv_age,
+	//    	    			  it->first,i,it->second->at(i)->get_concentration());
+	//    	      }
+	//    }
+	#ifdef __TRACING__
+	    t2 = high_resolution_clock::now();
+	    duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+	    ae_logger::addLog(UPDATECONCENT,duration);
+	    t1 = t2;
+	#endif
+	    if( ae_common::individual_evaluation_dates->search(indiv_age) != -1)
+	    {
+	      // Evaluate the individual's phenotype
+	//    	printf("START Update Phenotype %d\n",this->_index_in_population);
+	      update_phenotype();
+	//      printf("END Update Phenotype %d\n",this->_index_in_population);
+	      _distance_to_target_computed = false;
+	      _phenotype_computed = true;
+	//      printf("START Compute DIST %d\n",this->_index_in_population);
+	      compute_distance_to_target( envir ); /// <<<<STILL ISSUE WITH ENVIR
+	//      printf("END Compute DIST %d\n",this->_index_in_population);
+	      dist_temp += _dist_to_target_by_feature[METABOLISM];
+	      //  printf("indiv_age : %d dist_to_target : %lf\n",indiv_age,_dist_to_target_by_feature[METABOLISM]);
+	    }
+
+	#ifdef __TRACING__
+	    t2 = high_resolution_clock::now();
+	    duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+	    ae_logger::addLog(UPDATEPHENO,duration);
+	    t1 = t2;
+	#endif
+
+	    if( ae_common::individual_environment_dates->search(indiv_age) != -1)
+	    {
+	      //Remove the signals of this environment
+	      for ( int8_t i = 0; i < _cloned_signals[env_switch[compteur_env]]->size(); i++)
+	      {
+	    	  _cloned_signals[env_switch[compteur_env]]->at(i)->set_concentration(0.);
+	      }
+
+	      // Change the environment at is next value
+	      compteur_env+=1;
+	      envir = env_list[compteur_env];
+
+	      // Add the signals of this new environment
+	//      _signals = envir->get_signals();
+	      for ( int8_t i = 0; i < _cloned_signals[env_switch[compteur_env]]->size(); i++)
+	      {
+	    	  _cloned_signals[env_switch[compteur_env]]->at(i)->set_concentration(0.9);
+	      }
+	    }
+
+	#ifdef __TRACING__
+	    t2 = high_resolution_clock::now();
+	    duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+	    ae_logger::addLog(CHANGEENV,duration);
+	    t1 = t2;
+	#endif
+	  }
+
+	  //Remove the signals of the last environment
+	  for ( int8_t i = 0; i < _cloned_signals[env_switch[compteur_env]]->size(); i++)
+	  {
+		  _cloned_signals[env_switch[compteur_env]]->at(i)->set_concentration(0.0);
+	  }
+
+
+	  //----------------------------------------------------------------------------
+	  // 5) Compute final fitness and final dist to target
+	  //----------------------------------------------------------------------------
+	#ifdef __TRACING__
+	  t1 = high_resolution_clock::now();
+	#endif
+	  // On devrait faire la somme du carré des erreurs afin d'éviter qu'elles puissent se compenser
+	  _dist_to_target_by_feature[METABOLISM] = dist_temp / (double)ae_common::individual_evaluation_nbr;
+	  _fitness_computed=false;
+	  // yoram attention il peut y avoir des soucis si on utilise des environnements segmentés ici
+	  compute_fitness( envir );
+	  // set _protein list to its standard value in order to not disturb...
+
+	  // TODO Delete all the signals !
+	  for ( auto it = _cloned_signals.begin(); it != _cloned_signals.end(); ++it )
+	//  for(int i = 0; i < env_list.size(); i++)
+	  {
+	//	  printf("Cloned signals for %d is %ld\n",it->first,((std::vector<ae_protein_R*>) it->second).size());
+		  for (int j = 0; j < ((std::vector<ae_protein_R*>*) it->second)->size(); j++) {
+			  ae_protein_R *to_delete = ((std::vector<ae_protein_R*>*) it->second)->at(j);
+	//		  printf("Cloned DELETE signal %p (%d)\n",to_delete,it->first);
+			  delete to_delete;
+		  }
+		  ((std::vector<ae_protein_R*>) it->first).clear();
+	  }
+	  _cloned_signals.clear();
+
+	  _protein_list.clear();
+	  _protein_list = init_protein;
+	  init_protein.clear();
+	//  _protein_list->add_list(init_prot_list);
+	//  delete init_prot_list;
+	//  init_prot_list = NULL;
+	  _phenotype_computed = true;
+
+	//  printf("Fitness %f\n",this->get_fitness());
+
+	#ifdef __TRACING__
+	  t2 = high_resolution_clock::now();
+	    duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+	    ae_logger::addLog(FITNESS,duration);
+	    t1 = t2;
+	#endif
 }
 
 void ae_individual_R::set_influences( void )
@@ -277,7 +472,7 @@ void ae_individual_R::multiply_concentrations( double factor )
   }
 }
 
-int8_t ae_individual_R::get_quadon( GeneticUnit* gen_unit, ae_strand strand, int32_t pos )
+int8_t ae_individual_R::get_quadon( GeneticUnit* gen_unit, Strand strand, int32_t pos )
 {
   const char* dna = gen_unit->get_dna()->get_data();
   int32_t  len    = gen_unit->get_dna()->get_length();
@@ -287,7 +482,7 @@ int8_t ae_individual_R::get_quadon( GeneticUnit* gen_unit, ae_strand strand, int
   {
     for ( int8_t i = 0 ; i < QUADON_SIZE ; i++ )
     {
-      if ( dna[utils::mod((pos+i),len)] == '1' )
+      if ( dna[(pos+i) % len] == '1' )
       {
         quadon += 1 << (QUADON_SIZE - i - 1);  //pow( 2, QUADON_SIZE - i - 1 );
       }
@@ -297,7 +492,7 @@ int8_t ae_individual_R::get_quadon( GeneticUnit* gen_unit, ae_strand strand, int
   {
     for ( int8_t i = 0 ; i < QUADON_SIZE ; i++ )
     {
-      if ( dna[utils::mod((pos-i),len)] != '1' ) // == and not != because we are on the complementary strand...
+      if ( dna[(pos-i) % len] != '1' ) // == and not != because we are on the complementary strand...
       {
         quadon += 1 << (QUADON_SIZE - i - 1);  //pow( 2, QUADON_SIZE - i - 1 );
       }
