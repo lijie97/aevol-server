@@ -253,57 +253,51 @@ Individual::Individual(ExpManager * exp_m, gzFile backup_file)
   //Evaluate();
 }
 
-// TODO: this is obsolete, check usage and amend accordingly 
-//   id and rank mustn't me copied
-//   state booleans must be either all copied or not at all
-//   evaluate is called at the end, is that really wanted behaviour ?
-Individual::Individual(const Individual & model,
-                             bool replication_report_copy)
-{
-  _exp_m = model._exp_m;
+/**
+ * Copy constructor
+ */
+Individual::Individual(const Individual& other) {
+  _exp_m = other._exp_m;
 
   // PRNGs
-  _mut_prng   = model._mut_prng;
-  _stoch_prng = model._stoch_prng;
+  _mut_prng   = other._mut_prng;
+  _stoch_prng = other._stoch_prng;
 
-  int strain_string_len = strlen(model._strain_name);
+  int strain_string_len = strlen(other._strain_name);
   _strain_name = new char[strain_string_len+1];
-  memcpy(_strain_name, model._strain_name, strain_string_len+1);
-  _age  = model._age;
+  memcpy(_strain_name, other._strain_name, strain_string_len+1);
+  _age  = other._age;
 
-  _id   = model._id;
-  _rank = model._rank;
+  _id   = other._id;
+  _rank = other._rank;
 
-  _evaluated                    = false;//model._evaluated;
-  _transcribed                  = false;//model._transcribed;
-  _translated                   = false;//model._translated;
-  _folded                       = false;//model._folded;
-  _phenotype_computed           = model._phenotype_computed;
+  _evaluated                    = other._evaluated;
+  _transcribed                  = other._transcribed;
+  _translated                   = other._translated;
+  _folded                       = other._folded;
+  _phenotype_computed           = other._phenotype_computed;
 
-  _with_stochasticity = model._with_stochasticity;
+  _with_stochasticity = other._with_stochasticity;
 
   // Artificial chemistry parameters
-  _w_max = model._w_max;
+  _w_max = other._w_max;
 
-  _distance_to_target_computed  = false;
-  _fitness_computed             = false;
+  _distance_to_target_computed  = other._distance_to_target_computed;
+  _fitness_computed             = other._fitness_computed;
+  _placed_in_population         = other._placed_in_population;
 
-  _placed_in_population         = false;
-
-  // Copy model's genetic units
+  // Copy genetic units from other
   // Should actually use GeneticUnit copy ctor which is disabled.
-  for (const auto& gu: model._genetic_unit_list)
+  for (const auto& gu: other._genetic_unit_list)
     _genetic_unit_list.emplace_back(this, gu);
 
   // Copy phenotype
-  if (_phenotype_computed)
-  {
-    _phenotype_activ  = new Fuzzy(*(model._phenotype_activ));
-    _phenotype_inhib  = new Fuzzy(*(model._phenotype_inhib));
-    _phenotype        = new Phenotype(*(model._phenotype));
+  if (_phenotype_computed) {
+    _phenotype_activ  = new Fuzzy(*(other._phenotype_activ));
+    _phenotype_inhib  = new Fuzzy(*(other._phenotype_inhib));
+    _phenotype        = new Phenotype(*(other._phenotype));
   }
-  else
-  {
+  else {
     _phenotype_activ  = NULL;
     _phenotype_inhib  = NULL;
     _phenotype        = NULL;
@@ -315,44 +309,40 @@ Individual::Individual(const Individual & model,
   _dist_to_target_by_feature  = new double [NB_FEATURES];
   _fitness_by_feature         = new double [NB_FEATURES];
 
-  for (int8_t i = 0 ; i < NB_FEATURES ; i++)
-  {
-    _dist_to_target_by_feature[i] = model._dist_to_target_by_feature[i];
-    _fitness_by_feature[i] = model._fitness_by_feature[i];
+  for (int8_t i = 0 ; i < NB_FEATURES ; i++) {
+    _dist_to_target_by_feature[i] = other._dist_to_target_by_feature[i];
+    _fitness_by_feature[i] = other._fitness_by_feature[i];
   }
 
-  _fitness = model._fitness;
-
+  _fitness = other._fitness;
 
   // Copy statistical data
-  stats_ = model.stats_ ?
-           new IndivStats(*model.stats_) :
+  stats_ = other.stats_ ?
+           new IndivStats(*other.stats_) :
            NULL;
-  nc_stats_ = model.nc_stats_ ?
-              new NonCodingStats(*model.nc_stats_) :
+  nc_stats_ = other.nc_stats_ ?
+              new NonCodingStats(*other.nc_stats_) :
               NULL;
 
-  _modularity = model._modularity;
+  _modularity = other._modularity;
 
   // Generic probes
   _int_probes     = new int32_t[5];
   _double_probes  = new double[5];
-  for (int8_t i = 0 ; i < 5 ; i++)
-  {
-    _int_probes[i]    = model._int_probes[i];
-    _double_probes[i] = model._double_probes[i];
+  for (int8_t i = 0 ; i < 5 ; i++) {
+    _int_probes[i]    = other._int_probes[i];
+    _double_probes[i] = other._double_probes[i];
   }
 
   // Mutation rates etc...
-  _mut_params = std::make_shared<MutationParams>(*(model._mut_params));
-
+  _mut_params = std::make_shared<MutationParams>(*(other._mut_params));
 
   // Genome size constraints
-  _min_genome_length = model._min_genome_length;
-  _max_genome_length = model._max_genome_length;
+  _min_genome_length = other._min_genome_length;
+  _max_genome_length = other._max_genome_length;
 
   // Plasmids settings
-  _allow_plasmids = model._allow_plasmids;
+  _allow_plasmids = other._allow_plasmids;
 }
 
 /**
@@ -442,9 +432,9 @@ Individual::Individual(const Individual * parent, int32_t id,
   _modularity = -1;
 }
 
-Individual *Individual::CreateIndividual(ExpManager * exp_m,
-                                               gzFile backup_file) {
-  Individual * indiv = NULL;
+Individual* Individual::CreateIndividual(ExpManager * exp_m,
+                                         gzFile backup_file) {
+  Individual* indiv = NULL;
 #ifdef __NO_X
     #ifndef __REGUL
       indiv = new Individual(exp_m, backup_file);
@@ -469,12 +459,9 @@ Individual *Individual::CreateIndividual(ExpManager * exp_m,
   \param id ID of the clone
   \return clone of dolly (not evaluated)
 */
-Individual *Individual::CreateClone(const Individual * dolly,
-                                          int32_t id)
-{
-  Individual * indiv = new Individual(*dolly, false);
+Individual* Individual::CreateClone(const Individual* dolly, int32_t id) {
+  Individual* indiv = new Individual(*dolly);
   indiv->set_id(id);
-
   return indiv;
 }
 

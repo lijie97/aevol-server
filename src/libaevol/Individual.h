@@ -63,7 +63,6 @@ namespace aevol {
 // =================================================================
 class ExpManager;
 class GridCell;
-class ReplicationReport;
 
 
 /// Models an individual cell.
@@ -80,7 +79,7 @@ class Individual : public Observable
   //                             Constructors
   // =================================================================
   Individual() = delete;
-  Individual(const Individual &) = delete;
+  Individual(const Individual& other);
   Individual(ExpManager * exp_m,
                 std::shared_ptr<JumpingMT> mut_prng,
                 std::shared_ptr<JumpingMT> stoch_prng,
@@ -93,10 +92,8 @@ class Individual : public Observable
                 const char* strain_name,
                 int32_t age);
 
-  Individual(ExpManager * exp_m, gzFile backup_file);
-  Individual(const Individual & model,
-                bool replication_report_copy);
-  Individual(const Individual * parent, int32_t id,
+  Individual(ExpManager* exp_m, gzFile backup_file);
+  Individual(const Individual* parent, int32_t id,
                 std::shared_ptr<JumpingMT> mut_prng,
                 std::shared_ptr<JumpingMT> stoch_prng);
   static Individual * CreateIndividual(ExpManager * exp_m,
