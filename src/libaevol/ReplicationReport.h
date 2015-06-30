@@ -94,7 +94,6 @@ class ReplicationReport : public Observer
     inline double   get_mean_align_score(void) const;
     inline int32_t	get_donor_id(void) const;
     inline double   get_donor_metabolic_error(void) const;
-    inline double   get_donor_secretion_error(void) const;
     inline int32_t  get_donor_genome_size(void) const;
     int32_t get_nb(MutationType t) const {
       return _dna_replic_report.get_nb(t);
