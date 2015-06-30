@@ -1599,6 +1599,7 @@ void Individual::compute_non_coding() {
   nc_stats_ = new NonCodingStats();
 
   for (auto& gen_unit: _genetic_unit_list) {
+    gen_unit.compute_non_coding();
     nc_stats_->Accumulate(gen_unit);
   }
 }

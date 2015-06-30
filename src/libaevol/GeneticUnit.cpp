@@ -1452,7 +1452,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 
   void GeneticUnit::compute_non_coding( void )
   {
-    if ( _non_coding_computed ) return;
+    if (_non_coding_computed) return;
     _non_coding_computed = true;
 
     // Create a table of <genome_length> bools initialized to false (non-coding)

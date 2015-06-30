@@ -166,11 +166,14 @@ StatRecord::StatRecord(ExpManager* exp_m,
       replic_report = _exp_m->get_tree()->get_report_by_index(Time::get_time(),
                                                               indiv->get_id());
 
-    GeneticUnit& gen_unit = *indiv->get_genetic_unit_list_nonconst().begin();
+    if (compute_non_coding)
+      indiv->compute_non_coding();
+
+    const GeneticUnit& gen_unit = *indiv->get_genetic_unit_list().begin();
 
     // Metabolic error stats
-    _metabolic_error = (double) indiv->get_dist_to_target_by_feature(METABOLISM);
-    _metabolic_fitness = (double) indiv->get_fitness_by_feature(METABOLISM);
+    _metabolic_error = indiv->get_dist_to_target_by_feature(METABOLISM);
+    _metabolic_fitness = indiv->get_fitness_by_feature(METABOLISM);
     _parent_metabolic_error = (replic_report != NULL) ?
                               replic_report->get_parent_metabolic_error() :
                               0.0;
@@ -181,9 +184,9 @@ StatRecord::StatRecord(ExpManager* exp_m,
     // Secretion stats
     if (_exp_m->get_with_secretion())
     {
-       _secretion_error   = (double) indiv->get_dist_to_target_by_feature(SECRETION);
-       _secretion_fitness = (double) indiv->get_fitness_by_feature(SECRETION);
-       _compound_amount   = (double) indiv->get_grid_cell()->compound_amount();
+       _secretion_error   = indiv->get_dist_to_target_by_feature(SECRETION);
+       _secretion_fitness = indiv->get_fitness_by_feature(SECRETION);
+       _compound_amount   = indiv->get_grid_cell()->compound_amount();
        _parent_secretion_error = 0.0;
 
       if (replic_report != NULL)
@@ -199,8 +202,6 @@ StatRecord::StatRecord(ExpManager* exp_m,
       _parent_secretion_error = 0.0;
     }
 
-
-
     // Genes and RNA stats
     _amount_of_dna               = gen_unit.get_dna()->get_length();
     _nb_coding_rnas              = gen_unit.get_nb_coding_RNAs();
@@ -212,11 +213,8 @@ StatRecord::StatRecord(ExpManager* exp_m,
     _av_size_functional_gene     = gen_unit.get_av_size_functional_genes();
     _av_size_non_functional_gene = gen_unit.get_av_size_non_functional_genes();
 
-
     // Non coding stats
-    if (compute_non_coding)
-    {
-      gen_unit.compute_non_coding();
+    if (compute_non_coding) {
       _nb_bases_in_0_CDS                = gen_unit.get_nb_bases_in_0_CDS();
       _nb_bases_in_0_functional_CDS     = gen_unit.get_nb_bases_in_0_functional_CDS();
       _nb_bases_in_0_non_functional_CDS = gen_unit.get_nb_bases_in_0_non_functional_CDS();
