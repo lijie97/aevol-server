@@ -28,7 +28,7 @@
 
 
 // =================================================================
-//                              Libraries
+//                              Includes
 // =================================================================
 #include <inttypes.h>
 #include <stdio.h>
@@ -37,9 +37,6 @@
 #include <list>
 #include <vector>
 
-// =================================================================
-//                            Project Files
-// =================================================================
 #include "ExpManager.h"
 #include "ExpSetup.h"
 #include "Dna.h"
@@ -49,13 +46,12 @@
 #include "Utils.h"
 #include "VisAVis.h"
 #include "Alignment.h"
-#include "DnaReplicationReport.h"
 
 namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                                Class Dna                                 #
+//                                  Class Dna                                  #
 //                                                                             #
 //##############################################################################
 
@@ -70,8 +66,8 @@ namespace aevol {
  * Create a random dna sequence of length <length> belonging to <gen_unit>.
  */
 Dna::Dna(GeneticUnit* gen_unit,
-               int32_t length,
-               std::shared_ptr<JumpingMT> prng) :
+         int32_t length,
+         std::shared_ptr<JumpingMT> prng) :
     ae_string(length, prng)
 {
   _gen_unit = gen_unit;
@@ -91,7 +87,8 @@ Dna::Dna(GeneticUnit* gen_unit, const Dna &model) :
 }
 
 /**
- * Creates a new piece of dna identical to the parent's but belonging to <gen_unit>
+ * Create a new piece of dna identical to the parent's but belonging to
+ * <gen_unit>
  */
 Dna::Dna(GeneticUnit* gen_unit, Dna * const parent_dna) :
 ae_string(parent_dna->_data, parent_dna->_length)
@@ -102,11 +99,11 @@ ae_string(parent_dna->_data, parent_dna->_length)
 }
 
 /**
- * Creates a new piece of dna with sequence <seq> (of length <length>).
- * WARNING : <seq> will be used directly as the new dna sequence (it will not be copied),
- *           which means the caller must not delete it.
- * The replication report is set to NULL
+ * Create a new piece of dna with sequence <seq> (of length <length>).
+ * WARNING : <seq> will be used directly as the new dna sequence (it will not
+ *           be copied), which means the caller must not delete it.
  */
+// TODO <david.parsons@inria.fr> make seq a rvalue ref and set it to NULL ?
 Dna::Dna(GeneticUnit* gen_unit, char* seq, int32_t length) :
     ae_string(seq, length, true)
 {
@@ -116,7 +113,7 @@ Dna::Dna(GeneticUnit* gen_unit, char* seq, int32_t length) :
 }
 
 /**
- * Loads a piece of dna from <backup_file>
+ * Load a piece of dna from <backup_file>
  */
 Dna::Dna(GeneticUnit* gen_unit, gzFile backup_file) :
     ae_string(backup_file)
@@ -127,7 +124,7 @@ Dna::Dna(GeneticUnit* gen_unit, gzFile backup_file) :
 }
 
 /**
- * Creates a dna sequence from a text file
+ * Create a dna sequence from a text file
  */
 Dna::Dna(GeneticUnit* gen_unit, char* organism_file_name) :
     ae_string(organism_file_name)
@@ -147,7 +144,7 @@ Dna::~Dna(void)
 // =================================================================
 //                         Non inline Accessors
 // =================================================================
-char*Dna::get_subsequence(int32_t from, int32_t to, Strand strand) const
+char* Dna::get_subsequence(int32_t from, int32_t to, Strand strand) const
 {
   char* subseq = NULL;
 
@@ -983,7 +980,8 @@ bool Dna::do_small_deletion(int32_t pos, int16_t nb_del)
   _gen_unit->remove_promoters_around(pos, Utils::mod(pos + nb_del, _length));
 
   // Do the deletion and update promoter list
-  if (pos + nb_del <= _length) // the deletion does not contain the replication origin
+  if (pos + nb_del <= _length) // the deletion does not contain the origin of
+                               // replication
   {
     // Do the deletion
     remove(pos, pos + nb_del);
@@ -995,7 +993,7 @@ bool Dna::do_small_deletion(int32_t pos, int16_t nb_del)
       _gen_unit->look_for_new_promoters_around(Utils::mod(pos, _length));
     }
   }
-  else // the deletion contains the replication origin
+  else // the deletion contains the origin of replication
   {
     // Do the deletion
     int32_t nb_del_at_pos_0 = nb_del - _length + pos;
@@ -1435,7 +1433,7 @@ bool Dna::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3)
   }
   else // if (pos_1 >= pos_2)
   {
-    // The segment to duplicate includes the replication origin.
+    // The segment to duplicate includes the origin of replication.
     // The copying process will be done in two steps.
     //
     //                                            ,->
@@ -1525,7 +1523,7 @@ bool Dna::do_deletion(int32_t pos_1, int32_t pos_2)
   }
   else // if (pos_1 >= pos_2)
   {
-    // The segment to delete includes the replication origin.
+    // The segment to delete includes the origin of replication.
     // The deletion process will be done in two steps.
     //
     //                                            ,->
@@ -2334,7 +2332,6 @@ void Dna::compute_statistical_data(void)
 //    Number of rearrangements
 {
   assert(false);
-  //~ ae_list_node<Mutation*>* mut_node  = _replic_report->_mutations->get_first();
   //~ Mutation*  mut;
 
   //~ while (mut_node != NULL)

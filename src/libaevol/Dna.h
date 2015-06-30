@@ -30,7 +30,7 @@
 
 
 // =================================================================
-//                              Libraries
+//                              Includes
 // =================================================================
 #include <cinttypes>
 #include <cstdlib>
@@ -41,10 +41,6 @@
 
 #include <zlib.h>
 
-// =================================================================
-//                            Project Files
-// =================================================================
-#include "DnaReplicationReport.h"
 #include "ae_enums.h"
 #include "Mutation.h"
 #include "ae_string.h"
@@ -110,11 +106,11 @@ class Dna : public ae_string
     // Perform all the mutations (local mutations, rearrangements and transfer)
     void perform_mutations(int32_t parent_id);
 
-    // Perform all the local mutations (point mutations and indels) of the replication
+    // Perform all the local mutations (point mutations and indels)
     void do_small_mutations(void);
 
-    // Perform all the chromosomic rearrangements (duplications, deletions, translocations and inversions)
-    // of the replication
+    // Perform all the chromosomal rearrangements (duplications, deletions,
+    // translocations and inversions)
     void do_rearrangements(void);
     void do_rearrangements_with_align(void);
 
@@ -192,14 +188,14 @@ class Dna : public ae_string
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ExpManager * _exp_m;
+    ExpManager* _exp_m;
 
     // From ae_string
     //   char*   _data;
     //   int32_t _length;
     //   int32_t _nb_blocks;
 
-    Individual * _indiv;
+    Individual* _indiv;
     GeneticUnit* _gen_unit; // Genetic unit which the dna sequence belongs to
 };
 
