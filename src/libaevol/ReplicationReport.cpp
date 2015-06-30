@@ -203,8 +203,6 @@ void ReplicationReport::init(Individual* offspring, Individual* parent)
  * Actions such as finalize the calculation of average values can be done here.
  */
 void ReplicationReport::signal_end_of_replication(Individual* indiv) {
-  if (indiv->get_id() == 0)
-    printf("%" PRId64 ": EOR 0x%x\n", Time::get_time(), indiv);
   // TODO <david.parsons@inria.fr> tmp patch
   if (_indiv == NULL) _indiv = indiv;
 
