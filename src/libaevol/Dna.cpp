@@ -223,8 +223,7 @@ void Dna::perform_mutations(int32_t parent_id)
   do_small_mutations();
 }
 
-void Dna::do_small_mutations(void)
-{
+void Dna::do_small_mutations(void) {
   // ==============================================================
   //  1. Compute how many rearrangements this genome will undertake
   // ==============================================================
@@ -263,42 +262,35 @@ void Dna::do_small_mutations(void)
   int32_t random_value;
   Mutation * mut = NULL;
 
-  for (int32_t i = nb_mut ; i >= 1 ; i--)
-  {
+  for (int32_t i = nb_mut ; i >= 1 ; i--) {
     random_value = _indiv->_mut_prng->random(i);
 
-    if (random_value < nb_swi)
-    {
+    if (random_value < nb_swi) {
       mut = do_switch();
       assert(mut != NULL || !(_exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL));
 
       nb_swi--;  // updating the urn (no replacement!)...
     }
-    else if (random_value < nb_swi + nb_ins)
-    {
+    else if (random_value < nb_swi + nb_ins) {
       mut = do_small_insertion();
 
       nb_ins--;
     }
-    else // (random_value >= nb_swi + nb_ins) => del
-    {
+    else { // (random_value >= nb_swi + nb_ins) => del
       mut = do_small_deletion();
 
       nb_del--;
     }
 
     // Record mutation in tree
-    if (_exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL)
-    {
-      if (mut != NULL)
-      {
-        report_mutation(*mut);
+    if (_exp_m->get_output_m()->get_record_tree() &&
+        _exp_m->get_output_m()->get_tree_mode() == NORMAL) {
+      if (mut != NULL) {
+        _indiv->notifyObservers(MUTATION, mut);
       }
     }
-    else
-    {
-      if (mut != NULL)
-      {
+    else {
+      if (mut != NULL) {
         delete mut;
         mut = NULL;
       }
@@ -306,8 +298,7 @@ void Dna::do_small_mutations(void)
   }
 }
 
-void Dna::do_rearrangements(void)
-{
+void Dna::do_rearrangements(void) {
   // ==============================================================
   //  1. Compute how many rearrangements this genome will undertake
   // ==============================================================
@@ -315,14 +306,11 @@ void Dna::do_rearrangements(void)
   // Given the rate p (by nucl.) of duplication - for instance -, the number of
   // duplications we perform on the genome follows a binomial law B(n, p), with
   // n = genome length.
-
-
   int32_t nb_dupl  = _indiv->_mut_prng->binomial_random(_length, _indiv->get_duplication_rate());
   int32_t nb_del   = _indiv->_mut_prng->binomial_random(_length, _indiv->get_deletion_rate());
   int32_t nb_trans = _indiv->_mut_prng->binomial_random(_length, _indiv->get_translocation_rate());
   int32_t nb_inv   = _indiv->_mut_prng->binomial_random(_length, _indiv->get_inversion_rate());
   int32_t nb_rear  = nb_dupl + nb_del + nb_trans + nb_inv;
-
 
   // ===================================================
   //  2. Perform those rearrangements in a random order
@@ -347,43 +335,35 @@ void Dna::do_rearrangements(void)
   int32_t random_value;
   Mutation * mut = NULL;
 
-  for (int32_t i = nb_rear ; i >= 1 ; i--)
-  {
+  for (int32_t i = nb_rear ; i >= 1 ; i--) {
     random_value = _indiv->_mut_prng->random(i);
 
-    if (random_value < nb_dupl)
-    {
+    if (random_value < nb_dupl) {
       mut = do_duplication();
       nb_dupl--;  // Updating the urn (no replacement!)...
     }
-    else if (random_value < nb_dupl + nb_del)
-    {
+    else if (random_value < nb_dupl + nb_del) {
       mut = do_deletion();
       nb_del--;
     }
-    else if (random_value < nb_dupl + nb_del + nb_trans)
-    {
+    else if (random_value < nb_dupl + nb_del + nb_trans) {
       mut = do_translocation();
       nb_trans--;
     }
-    else
-    {
+    else {
       mut = do_inversion();
       nb_inv--;
     }
 
     // Record rearrangement in tree
-    if (_exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL)
-    {
-      if (mut != NULL)
-      {
-        report_mutation(*mut);
+    if (_exp_m->get_output_m()->get_record_tree() &&
+        _exp_m->get_output_m()->get_tree_mode() == NORMAL) {
+      if (mut != NULL) {
+        _indiv->notifyObservers(MUTATION, mut);
       }
     }
-    else
-    {
-      if (mut != NULL)
-      {
+    else {
+      if (mut != NULL) {
         delete mut;
         mut = NULL;
       }
@@ -733,8 +713,7 @@ void Dna::do_rearrangements_with_align(void)
 
       // Report the inversion
       if (_exp_m->get_output_m()->get_record_tree() &&
-          _exp_m->get_output_m()->get_tree_mode() == NORMAL)
-      {
+          _exp_m->get_output_m()->get_tree_mode() == NORMAL) {
         mut = new Mutation();
         mut->report_inversion(alignment->get_i_1(),
                               alignment->get_i_2(),
@@ -742,8 +721,7 @@ void Dna::do_rearrangements_with_align(void)
       }
 
       // Write a line in rearrangement logfile
-      if (_exp_m->get_output_m()->is_logged(LOG_REAR))
-      {
+      if (_exp_m->get_output_m()->is_logged(LOG_REAR)) {
         fprintf(_exp_m->get_output_m()->get_log(LOG_REAR),
                 "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32
                     " %" PRId16 "\n",
@@ -759,8 +737,7 @@ void Dna::do_rearrangements_with_align(void)
     // 5) If there was a change in the chromosome's length,                     //
     //    update the individual's TTL and nb_pairs according to new genome size //
     //////////////////////////////////////////////////////////////////////////////
-    if (genome_size != _length)
-    {
+    if (genome_size != _length) {
       ttl = ((double)(nb_pairs-1)) / ((double)genome_size) / _indiv->get_neighbourhood_rate();
       genome_size = _length;
       nb_pairs = (int32_t)(ceil(ttl * _length * _indiv->get_neighbourhood_rate())) + 1;
@@ -769,15 +746,13 @@ void Dna::do_rearrangements_with_align(void)
     //////////////////////////////////////////////////////////////////////////////////////////
     // 6) If there was a rearrangement, we either save its record in the tree or delete it. //
     //////////////////////////////////////////////////////////////////////////////////////////
-    if (mut != NULL)
-    {
-      if (_exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL)
-      {
-        report_mutation(*mut);
+    if (mut != NULL) {
+      if (_exp_m->get_output_m()->get_record_tree() &&
+          _exp_m->get_output_m()->get_tree_mode() == NORMAL) {
+        _indiv->notifyObservers(MUTATION, mut);
         mut = NULL;
       }
-      else
-      {
+      else {
         delete mut;
         mut = NULL;
       }
@@ -785,43 +760,34 @@ void Dna::do_rearrangements_with_align(void)
   }
 }
 
-void Dna::do_transfer(int32_t parent_id)
-{
+void Dna::do_transfer(int32_t parent_id) {
   Mutation * mut = NULL;
-  if (_indiv->get_mut_prng()->random() < _indiv->get_HT_ins_rate())
-  {
+  if (_indiv->get_mut_prng()->random() < _indiv->get_HT_ins_rate()) {
     mut = do_ins_HT(parent_id);
-    if (_exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL)
-    {
-      if (mut != NULL)
-      {
-        report_mutation(*mut);
+    if (_exp_m->get_output_m()->get_record_tree() &&
+        _exp_m->get_output_m()->get_tree_mode() == NORMAL) {
+      if (mut != NULL) {
+        _indiv->notifyObservers(MUTATION, mut);
       }
     }
-    else
-    {
-      if (mut != NULL)
-      {
+    else {
+      if (mut != NULL) {
         delete mut;
         mut = NULL;
       }
     }
   }
 
-  if (_indiv->get_mut_prng()->random() < _indiv->get_HT_repl_rate())
-  {
+  if (_indiv->get_mut_prng()->random() < _indiv->get_HT_repl_rate()) {
     mut = do_repl_HT(parent_id);
-    if (_exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL)
-    {
-      if (mut != NULL)
-      {
-        report_mutation(*mut);
+    if (_exp_m->get_output_m()->get_record_tree() &&
+        _exp_m->get_output_m()->get_tree_mode() == NORMAL) {
+      if (mut != NULL) {
+        _indiv->notifyObservers(MUTATION, mut);
       }
     }
-    else
-    {
-      if (mut != NULL)
-      {
+    else {
+      if (mut != NULL) {
         delete mut;
         mut = NULL;
       }
@@ -829,8 +795,7 @@ void Dna::do_transfer(int32_t parent_id)
   }
 }
 
-Mutation *Dna::do_switch(void)
-{
+Mutation *Dna::do_switch(void) {
   Mutation * mut = NULL;
 
   int32_t pos = _indiv->_mut_prng->random(_length);
@@ -3364,10 +3329,6 @@ void Dna::inter_GU_ABCDE_to_BDCAE(int32_t pos_B, int32_t pos_C, int32_t pos_E)
 
   inter_GU_ABCDE_to_ACDBE(0, pos_B, pos_E);
   inter_GU_ABCDE_to_ACDBE(len_B, (len_B+len_C), len_DA);
-}
-
-void Dna::report_mutation(const Mutation& mut) const {
-  _indiv->notifyObservers(MUTATION, const_cast<void*>(static_cast<const void*>(&mut)));
 }
 
 } // namespace aevol
