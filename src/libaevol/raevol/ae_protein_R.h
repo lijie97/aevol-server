@@ -46,7 +46,7 @@ namespace aevol {
 //##############################################################################
 class ae_genetic_unit;
 
-class ae_protein_R : public ae_protein
+class ae_protein_R : public Protein
 {
   public :
 
