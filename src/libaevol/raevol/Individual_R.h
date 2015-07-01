@@ -33,7 +33,7 @@
 //                              Libraries
 // =================================================================
 #include <inttypes.h>
-
+#include <vector>
 // =================================================================
 //                            Project Files
 // =================================================================
@@ -87,6 +87,7 @@ class Individual_R : public virtual Individual
      void do_folding();
      void compute_phenotype();
      void compute_distance_to_target(const PhenotypicTarget& target);
+    void update_phenotype();
 
     void    set_influences( void );
     void    update_concentrations( void );
@@ -122,6 +123,9 @@ class Individual_R : public virtual Individual
     std::vector<Protein_R*> _inherited_protein_list;
     std::vector<const Rna_R *> _rna_list_coding;   // Please note that these RNAs are
                                 // actually managed via genetic units.
+    int _indiv_age;
+    bool _networked;
+    double _dist_sum;
 
 };
 

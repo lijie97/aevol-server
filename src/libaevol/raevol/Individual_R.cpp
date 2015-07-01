@@ -56,7 +56,9 @@ namespace aevol {
 */
 Individual_R::Individual_R( void ) : Individual()
 {
-
+    _indiv_age = 0;
+    _networked = false;
+    _dist_sum = 0;
 }
 
 Individual_R::Individual_R( Individual_R* parent, int32_t id,
@@ -64,7 +66,9 @@ Individual_R::Individual_R( Individual_R* parent, int32_t id,
         : Individual( parent, id, mut_prng, stoch_prng )
 {
   //~ printf( "ae_individual_R( parent ) : I have %d inherited proteins\n", parent->get_protein_list()->get_nb_elts() );
-  
+    _indiv_age = 0;
+    _networked = false;
+    _dist_sum = 0;
     for (int i = 0; i < parent->_protein_list.size(); i++)
     {
     	if( parent->_protein_list[i]->get_concentration() > parent->get_exp_m()->get_exp_s()->get_protein_presence_limit() )
@@ -78,6 +82,7 @@ Individual_R::Individual_R( Individual_R* parent, int32_t id,
 
 Individual_R::Individual_R( gzFile backup_file ) : Individual( backup_file )
 {
+    _indiv_age = 0;
   if( get_exp_m()->get_exp_s()->get_with_heredity() )
   {
     // Retreive inherited proteins
@@ -112,195 +117,89 @@ Individual_R::~Individual_R( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-void Individual_R::evaluate( Environment* envir )
-{
-	  //protections
-	//  if ( _nb_env_list == 0 )
-	//  {
-	//    printf( "ERROR in ae_individual_R::evaluate env_list is empty\n " );
-	//    exit( EXIT_FAILURE );
-	//  }
+void Individual_R::Evaluate() {
+		EvaluateInContext(_grid_cell->habitat());
+}
 
-	  // la protection est génante dans le cas de modification environnementale au cours de la simulation (overload)
-	  /*
-	  if (env_list->get_nb_elts() != ae_common::individual_environment_nbr)
-	  {
-	    printf( "ERROR in ae_individual_R::evaluate the number of elements in env_list does not match wich ae_common::individual_environment_nbr\n " );
-	    exit( EXIT_FAILURE );
-	  }
-	  */
-	  //debug
-	  //printf("évaluation de l'individu %d\n", _index_in_population);
+void Individual_R::EvaluateInContext(const Habitat& habitat) {
+	if (_evaluated == true) return; // Individual has already been evaluated, nothing to do.
 
-	  // ---------------------------------------------------------------------------
-	  // 1) Transcription - Translation - Folding - make_protein_list
-	  // ---------------------------------------------------------------------------
+    if (!_networked) {
+        // ---------------------------------------------------------------------------
+        // 1) Transcription - Translation - Folding - make_protein_list
+        // ---------------------------------------------------------------------------
 
-	  _transcribed = false;
-	  _translated = false;
-	  _folded = false;
+        _transcribed = false;
+        _translated = false;
+        _folded = false;
+
+        do_transcription_translation_folding();
+
+        if (_phenotype != NULL) {
+            delete _phenotype;
+            _phenotype = NULL;
+        }
+        _phenotype = new Phenotype();
 
 
-	  //  printf("avant : do_transcription_translation_folding() \n");
-	  //contain make protein list
-	  do_transcription_translation_folding();
+        //----------------------------------------------------------------------------
+        // 2) Make a list of all the rna present in the individual
+        //    and initialise the concentrations of the proteins
+        //----------------------------------------------------------------------------
+        #ifdef __TRACING__
+	    high_resolution_clock::time_point t1 = high_resolution_clock::now();
+	    #endif
 
-	  // printf("taille liste _rna_list_coding : %d\n",_rna_list_coding->get_nb_elts());
-	  //printf("taille liste _protein_list : %d\n",_protein_list->get_nb_elts());
+        make_rna_list();
 
+        for (int i = 0; i < _protein_list.size(); i++) {
+            ((ae_protein_R *) _protein_list[i])->set_initial_concentration();
+        }
 
-	  if(_phenotype != NULL)
-	  {
-	    delete _phenotype;
-	    _phenotype = NULL;
-	  }
-	  _phenotype = new Phenotype();
+        #ifdef __TRACING__
+          high_resolution_clock::time_point t2 = high_resolution_clock::now();
+          auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+          ae_logger::addLog(MAKERNALIST,duration);
+          t1 = t2;
+        #endif
+        //----------------------------------------------------------------------------
+        // 3) Create influence graph (including the signals)
+        //----------------------------------------------------------------------------
+        set_influences();
 
-
-	  //----------------------------------------------------------------------------
-	  // 2) Make a list of all the rna present in the individual
-	  //    and initialise the concentrations of the proteins
-	  //----------------------------------------------------------------------------
-	#ifdef __TRACING__
-	  high_resolution_clock::time_point t1 = high_resolution_clock::now();
-	#endif
-	  make_rna_list();
-
-
-	//  ae_list_node* prot_node       = NULL;
-	//  ae_protein_R* prot            = NULL;
-
-	//  prot_node = _protein_list->get_first();
-	//  while ( prot_node != NULL )
-	//  {
-	//    prot = (ae_protein_R*)prot_node->get_obj();
-	  for (int i = 0; i < _protein_list.size(); i++) {
-		  ((ae_protein_R*)_protein_list[i])->set_initial_concentration();
-	//    prot_node = prot_node->get_next();
-	  }
-	#ifdef __TRACING__
-	  high_resolution_clock::time_point t2 = high_resolution_clock::now();
-	  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-	  ae_logger::addLog(MAKERNALIST,duration);
-	  t1 = t2;
-	#endif
-	  //----------------------------------------------------------------------------
-	  // 3) Create influence graph (including the signals)
-	  //----------------------------------------------------------------------------
-	//	ae_list* init_prot_list = new ae_list;
-	//  init_prot_list->add_list(_protein_list);
-	  ae_environment* envir = NULL;
-	  std::vector<ae_protein*> init_protein = _protein_list;
-	  std::vector<int> env_switch(env_list.size());
-	  std::map<int,std::vector<ae_protein_R*>*> _cloned_signals;
-	  ae_protein_R* cloned_signal = NULL;
-
-	  for(int i = 0; i < env_list.size(); i++)
-	  {
-	     envir = env_list[i];
-	     env_switch[i] = envir->get_id();
-	//     printf("Env at age %d : %d (%d)\n",i,envir->get_id(),env_list.size());
-
-	//     if (i > 0) printf("switch at %d\n",ae_common::individual_environment_dates->get_value(i-1));
-
-	     if (_cloned_signals.find(envir->get_id()) == _cloned_signals.end()) {
-	    	 std::vector<ae_protein_R*>* loc_signals = new std::vector<ae_protein_R*>();
-	    	 for ( int8_t j = 0; j < envir->get_signals().size(); j++)
-	    	 {
-	    			 cloned_signal = new ae_protein_R(NULL,*(envir->_signals[j]));
-	    			 cloned_signal->set_concentration(0.0);
-	    			 _protein_list.push_back(cloned_signal);
-	    			 loc_signals->push_back(cloned_signal);
-	    	 }
-	    	 _cloned_signals.insert(std::make_pair(envir->get_id(),loc_signals));
-	//    	 printf("Cloned signals for %d is %ld (or %ld)\n",
-	//    			 envir->get_id(),
-	//    			 loc_signals->size(),
-	//    			 _cloned_signals[envir->get_id()]->size());
-	     }
-	  }
-
-	  cloned_signal = NULL;
-	#ifdef __TRACING__
-	  t2 = high_resolution_clock::now();
-	  duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-	  ae_logger::addLog(CLONESIGNAL,duration);
-	  t1 = t2;
-	#endif
-
-	  set_influences();
-
-	#ifdef __TRACING__
-	  t2 = high_resolution_clock::now();
+        _networked = true;
+        #ifdef __TRACING__
+	    t2 = high_resolution_clock::now();
 	  duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
 	  ae_logger::addLog(SETINFLUS,duration);
 	  t1 = t2;
-	#endif
-	  //----------------------------------------------------------------------------
-	  // 4) Make the individual "live its life" and compute partial phenotypes and
-	  //    fitnesses
-	  //----------------------------------------------------------------------------
+	    #endif
+    }
+    //----------------------------------------------------------------------------
+	// 4) Make the individual "live its life" and compute partial phenotypes and
+	//    fitnesses
+	//----------------------------------------------------------------------------
 
-	  int16_t indiv_age     = 0;
-	  double dist_temp      = 0;
-	  int8_t compteur_env   = 0;
-	  //set envir to the first environment
-	  envir = env_list[compteur_env];
-	//  for ( auto it = _cloned_signals.begin(); it != _cloned_signals.end(); ++it ) {
-	//  	for ( int8_t i = 0; i < it->second->size(); i++)
-	//  	      {
-	//  	    	  printf("-- Concentration %d %d %d : %f\n",indiv_age,
-	//  	    			  it->first,i,it->second->at(i)->get_concentration());
-	//  	      }
-	//  }
-	  //Set the concentrations of the signals proteins
-	//  _signals = envir->get_signals();
-	  for ( int8_t i = 0; i < _cloned_signals[env_switch[compteur_env]]->size(); i++)
-	  {
-	    ((ae_protein_R*) _cloned_signals[env_switch[compteur_env]]->at(i))->set_concentration(0.9);
-	  }
-
-
-	  while( indiv_age < ae_common::individual_evaluation_dates->get_value( ae_common::individual_evaluation_nbr - 1) )
-	  {
 	#ifdef __TRACING__
 		  t1 = high_resolution_clock::now();
 	#endif
-	//	printf("ENV %d : %d / %d %d\n",indiv_age,env_switch[compteur_env],compteur_env,env_list.size());
-	    //Updating the concentrations in order to respect the degradation step.
-	    for( int16_t i = 0; i < 1/ae_common::degradation_step; i++ )
-	    {
-	      update_concentrations();
-	    }
-	    indiv_age++;
 
-	//    for ( auto it = _cloned_signals.begin(); it != _cloned_signals.end(); ++it ) {
-	//    	for ( int8_t i = 0; i < it->second->size(); i++)
-	//    	      {
-	//    	    	  printf("Concentration %d %d %d : %f\n",indiv_age,
-	//    	    			  it->first,i,it->second->at(i)->get_concentration());
-	//    	      }
-	//    }
+  update_concentrations();
+
 	#ifdef __TRACING__
 	    t2 = high_resolution_clock::now();
 	    duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
 	    ae_logger::addLog(UPDATECONCENT,duration);
 	    t1 = t2;
 	#endif
-	    if( ae_common::individual_evaluation_dates->search(indiv_age) != -1)
-	    {
-	      // Evaluate the individual's phenotype
-	//    	printf("START Update Phenotype %d\n",this->_index_in_population);
-	      update_phenotype();
-	//      printf("END Update Phenotype %d\n",this->_index_in_population);
-	      _distance_to_target_computed = false;
-	      _phenotype_computed = true;
-	//      printf("START Compute DIST %d\n",this->_index_in_population);
-	      compute_distance_to_target( envir ); /// <<<<STILL ISSUE WITH ENVIR
-	//      printf("END Compute DIST %d\n",this->_index_in_population);
-	      dist_temp += _dist_to_target_by_feature[METABOLISM];
-	      //  printf("indiv_age : %d dist_to_target : %lf\n",indiv_age,_dist_to_target_by_feature[METABOLISM]);
-	    }
+  if (Time::get_time() % get_exp_m()->get_exp_s()->get_eval_step() == 0)
+	{
+    update_phenotype();
+	  _distance_to_target_computed = false;
+	  _phenotype_computed = true;
+	  compute_distance_to_target( habitat.phenotypic_target() );
+    _dist_sum += _dist_to_target_by_feature[METABOLISM];
+	}
 
 	#ifdef __TRACING__
 	    t2 = high_resolution_clock::now();
@@ -309,77 +208,20 @@ void Individual_R::evaluate( Environment* envir )
 	    t1 = t2;
 	#endif
 
-	    if( ae_common::individual_environment_dates->search(indiv_age) != -1)
-	    {
-	      //Remove the signals of this environment
-	      for ( int8_t i = 0; i < _cloned_signals[env_switch[compteur_env]]->size(); i++)
-	      {
-	    	  _cloned_signals[env_switch[compteur_env]]->at(i)->set_concentration(0.);
-	      }
 
-	      // Change the environment at is next value
-	      compteur_env+=1;
-	      envir = env_list[compteur_env];
+  //----------------------------------------------------------------------------
+	// 5) Compute final fitness and final dist to target
+	// ----------------------------------------------------------------------------
 
-	      // Add the signals of this new environment
-	//      _signals = envir->get_signals();
-	      for ( int8_t i = 0; i < _cloned_signals[env_switch[compteur_env]]->size(); i++)
-	      {
-	    	  _cloned_signals[env_switch[compteur_env]]->at(i)->set_concentration(0.9);
-	      }
-	    }
-
-	#ifdef __TRACING__
-	    t2 = high_resolution_clock::now();
-	    duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-	    ae_logger::addLog(CHANGEENV,duration);
-	    t1 = t2;
-	#endif
-	  }
-
-	  //Remove the signals of the last environment
-	  for ( int8_t i = 0; i < _cloned_signals[env_switch[compteur_env]]->size(); i++)
-	  {
-		  _cloned_signals[env_switch[compteur_env]]->at(i)->set_concentration(0.0);
-	  }
-
-
-	  //----------------------------------------------------------------------------
-	  // 5) Compute final fitness and final dist to target
-	  //----------------------------------------------------------------------------
-	#ifdef __TRACING__
-	  t1 = high_resolution_clock::now();
-	#endif
-	  // On devrait faire la somme du carré des erreurs afin d'éviter qu'elles puissent se compenser
-	  _dist_to_target_by_feature[METABOLISM] = dist_temp / (double)ae_common::individual_evaluation_nbr;
-	  _fitness_computed=false;
-	  // yoram attention il peut y avoir des soucis si on utilise des environnements segmentés ici
-	  compute_fitness( envir );
-	  // set _protein list to its standard value in order to not disturb...
-
-	  // TODO Delete all the signals !
-	  for ( auto it = _cloned_signals.begin(); it != _cloned_signals.end(); ++it )
-	//  for(int i = 0; i < env_list.size(); i++)
-	  {
-	//	  printf("Cloned signals for %d is %ld\n",it->first,((std::vector<ae_protein_R*>) it->second).size());
-		  for (int j = 0; j < ((std::vector<ae_protein_R*>*) it->second)->size(); j++) {
-			  ae_protein_R *to_delete = ((std::vector<ae_protein_R*>*) it->second)->at(j);
-	//		  printf("Cloned DELETE signal %p (%d)\n",to_delete,it->first);
-			  delete to_delete;
-		  }
-		  ((std::vector<ae_protein_R*>) it->first).clear();
-	  }
-	  _cloned_signals.clear();
-
-	  _protein_list.clear();
-	  _protein_list = init_protein;
-	  init_protein.clear();
-	//  _protein_list->add_list(init_prot_list);
-	//  delete init_prot_list;
-	//  init_prot_list = NULL;
-	  _phenotype_computed = true;
-
-	//  printf("Fitness %f\n",this->get_fitness());
+  if (Time::get_time() % get_exp_m()->get_exp_s()->get_nb_indiv_age() == 0)
+  {
+    // On devrait faire la somme du carré des erreurs afin d'éviter qu'elles puissent se compenser
+    _dist_to_target_by_feature[METABOLISM] = _dist_sum / (double) (get_exp_m()->get_exp_s()->get_nb_indiv_age() / get_exp_m()->get_exp_s()->get_eval_step());
+    _fitness_computed=false;
+    // yoram attention il peut y avoir des soucis si on utilise des environnements segmentés ici
+    compute_fitness(habitat.phenotypic_target());
+    _phenotype_computed = true;
+  }
 
 	#ifdef __TRACING__
 	  t2 = high_resolution_clock::now();
@@ -495,5 +337,46 @@ void Individual_R::make_rna_list( void )
       for (auto& rna: rna_list[strand])
         _rna_list_coding.push_back(&rna);
   }
+}
+
+void Individual_R::update_phenotype( void )
+{
+  // We will use two fuzzy sets :
+  //   * _phenotype_activ for the proteins realising a set of functions
+  //   * _phenotype_inhib for the proteins inhibitting a set of functions
+  // The phenotype will then be given by the sum of these 2 fuzzy sets
+
+  _phenotype_activ->initialize();
+  _phenotype_inhib->initialize();
+  _phenotype->initialize();
+  bool added=false;
+  for (int i = 0; i < _protein_list.size(); i++) {
+    if ( ((ae_protein_R*)_protein_list[i])->get_is_functional() )
+    {
+      if ( ((ae_protein_R*)_protein_list[i])->get_height() > 0 )
+      {
+//    	  added=true;
+        _phenotype_activ->add_triangle(  ((ae_protein_R*)_protein_list[i])->get_mean(),
+                                         ((ae_protein_R*)_protein_list[i])->get_width(),
+                                         ((ae_protein_R*)_protein_list[i])->get_height() * ((ae_protein_R*)_protein_list[i])->get_concentration() );
+      }
+      else
+      {
+        _phenotype_inhib->add_triangle(  ((ae_protein_R*)_protein_list[i])->get_mean(),
+                                         ((ae_protein_R*)_protein_list[i])->get_width(),
+                                         ((ae_protein_R*)_protein_list[i])->get_height() * ((ae_protein_R*)_protein_list[i])->get_concentration() );
+      }
+    }
+  }
+
+  _phenotype_activ->add_upper_bound( MAX_Y );
+  _phenotype_inhib->add_lower_bound( -MAX_Y );
+
+  _phenotype->add( _phenotype_activ );
+  _phenotype->add( _phenotype_inhib );
+  _phenotype->add_lower_bound( MIN_Y );
+
+//  if (added) {printf("PHENO: \n");_phenotype->print_points();}
+//  _phenotype->simplify();
 }
 } // namespace aevol
