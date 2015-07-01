@@ -35,13 +35,13 @@
 
 #ifdef __NO_X
   #ifdef __REGUL
-    #include "ae_individual_R.h"
+    #include "Individual_R.h"
   #else
     #include "Individual.h"
   #endif
 #elif defined __X11
   #ifdef __REGUL
-    #include "ae_individual_R_X11.h"
+    #include "Individual_R_X11.h"
   #else
     #include "Individual_X11.h"
   #endif
@@ -439,13 +439,13 @@ Individual* Individual::CreateIndividual(ExpManager * exp_m,
     #ifndef __REGUL
       indiv = new Individual(exp_m, backup_file);
     #else
-      indiv = new ae_individual_R(exp_m, backup_file);
+      indiv = new Individual_R(exp_m, backup_file);
     #endif
   #elif defined __X11
     #ifndef __REGUL
       indiv = new Individual_X11(exp_m, backup_file);
     #else
-      indiv = new ae_individual_R_X11(exp_m, backup_file);
+      indiv = new Individual_R_X11(exp_m, backup_file);
     #endif
   #endif
 

@@ -43,7 +43,7 @@
 #include "ae_enums.h"
 
 #ifdef __REGUL
-  #include "ae_individual_R.h"
+  #include "Individual_R.h"
 #else
 #include "Individual.h"
 #endif
@@ -742,7 +742,7 @@ GeneticUnit::GeneticUnit(Individual* indiv, const GeneticUnit* parent)
 #ifndef __REGUL
       _rna_list[strand].emplace_back(this, rna);
 #else
-      _rna_list[strand].emplace_back(this, (dynamic_cast<ae_rna_R>(rna)));
+      _rna_list[strand].emplace_back(this, (dynamic_cast<Rna_R>(rna)));
 #endif
     }
   }

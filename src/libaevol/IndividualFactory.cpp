@@ -79,7 +79,10 @@ Individual * IndividualFactory::create_random_individual(
     bool better_than_flat)
 {
   // Create a genome-less individual with the provided parameters
-  Individual * indiv = new Individual(exp_m,
+  Individual_R * indiv;
+#ifdef __NO_X
+  #ifndef __REGUL
+  indiv = new Individual(exp_m,
                                       mut_prng,
                                       stoch_prng,
                                       param_mut,
@@ -90,7 +93,46 @@ Individual * IndividualFactory::create_random_individual(
                                       id,
                                       strain_name,
                                       0);
-
+  #else
+  indiv = new Individual_R(exp_m,
+                                      mut_prng,
+                                      stoch_prng,
+                                      param_mut,
+                                      w_max,
+                                      min_genome_length,
+                                      max_genome_length,
+                                      allow_plasmids,
+                                      id,
+                                      strain_name,
+                                      0);
+  #endif
+#else
+  #ifndef __REGUL
+  indiv = new Individual_X11(exp_m,
+                         mut_prng,
+                         stoch_prng,
+                         param_mut,
+                         w_max,
+                         min_genome_length,
+                         max_genome_length,
+                         allow_plasmids,
+                         id,
+                         strain_name,
+                         0);
+  #else
+  indiv = new Individual_R_X11(exp_m,
+                                      mut_prng,
+                                      stoch_prng,
+                                      param_mut,
+                                      w_max,
+                                      min_genome_length,
+                                      max_genome_length,
+                                      allow_plasmids,
+                                      id,
+                                      strain_name,
+                                      0);
+  #endif
+#endif
   // Give it a randomly generated genome
   indiv->add_GU(indiv, chromosome_initial_length, local_prng);
 

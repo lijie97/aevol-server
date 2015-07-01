@@ -1401,7 +1401,11 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
     // Make the clones and add them to the list of individuals
     for (int32_t i = 1 ; i < _init_pop_size ; i++)
     {
+      #ifndef __REGUL
       Individual * clone = Individual::CreateClone(indiv, id_new_indiv++);
+      #else
+      Individual_R * clone = Individual_R::CreateClone(indiv, id_new_indiv++);
+      #endif
       clone->EvaluateInContext(habitat);
       indivs.push_back(clone);
     }
@@ -1453,7 +1457,11 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
       for (int32_t i = 1 ; i < _init_pop_size ; i++)
       {
         // Add new clone to the list
+        #ifndef __REGUL
         Individual * clone = Individual::CreateClone(indiv, id_new_indiv++);
+        #else
+        Individual_R * clone = Individual_R::CreateClone(indiv, id_new_indiv++);
+        #endif
         clone->EvaluateInContext(habitat);
         indivs.push_back(clone);
       }
@@ -1530,7 +1538,11 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
       for (int32_t i = 1 ; i < _init_pop_size ; i++)
       {
         // Add clone to the list
+        #ifndef __REGUL
         Individual * clone = Individual::CreateClone(indiv, id_new_indiv++);
+        #else
+        Individual_R * clone = Individual_R::CreateClone(indiv, id_new_indiv++);
+        #endif
         clone->EvaluateInContext(habitat);
         indivs.push_back(clone);
       }

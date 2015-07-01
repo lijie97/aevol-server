@@ -123,15 +123,25 @@ void World::FillGridWithClones(Individual & dolly)
   int32_t id_new_indiv = 0;
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++)
+      #ifndef __REGUL
       PlaceIndiv(Individual::CreateClone(&dolly, id_new_indiv++), x, y);
+      #else
+      PlaceIndiv(Individual_R::CreateClone(&dolly, id_new_indiv++), x, y);
+      #endif
 }
 
 void World::evaluate_individuals()
 {
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++) {
-      get_indiv_at(x, y)->Evaluate();
-      get_indiv_at(x, y)->compute_statistical_data();
+      #ifndef __REGUL
+      Individual* indiv       = get_indiv_at(x, y);
+      #else
+      Individual_R* indiv       = dynamic_cast <Individual_R*> (get_indiv_at(x, y));
+      #endif
+
+      indiv->Evaluate();
+      indiv->compute_statistical_data();
     }
 }
 

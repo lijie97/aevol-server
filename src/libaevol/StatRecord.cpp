@@ -152,7 +152,60 @@ StatRecord::StatRecord(ExpManager* exp_m,
                  // individual. It is present for column alignment.
   
   #ifdef __REGUL
-    // TODO
+  int32_t nb_activators = 0;
+  int32_t nb_operators = 0;
+  double mean_activator_activity = 0.0;
+  double mean_operator_activity = 0.0;
+
+  for (auto& rna: indiv->get_rna_list()) {
+    for (int i = 0; i < rna->_enhancing_coef_list.size(); i++) {
+      //compute the activity
+      if (rna->_enhancing_coef_list[i] > 0)
+      {
+        nb_activators++;
+	      mean_activator_activity += rna->_enhancing_coef_list[i];
+      }
+
+      if (rna->_operating_coef_list[i] > 0)
+      {
+	      nb_operators++;
+	      mean_operator_activity += rna->_operating_coef_list[i];
+      }
+    }
+  }
+
+
+  _nb_enhancing_influences       = nb_activators;
+  _nb_operating_influences       = nb_operators;
+  _nb_influences                 = _nb_operating_influences + _nb_enhancing_influences;
+  _av_value_influences           = ( mean_activator_activity + mean_operator_activity ) / double ( nb_activators + nb_operators);
+  _av_value_enhancing_influences = ( mean_activator_activity ) / double ( nb_activators );
+  _av_value_operating_influences = ( mean_operator_activity ) / double ( nb_operators);
+
+  //ajout raevol_yo_2
+  int32_t nb_TF = 0;
+  int32_t nb_pure_TF = 0;
+
+  for (int i = 0; i < indiv->get_protein_list().size(); i++) {
+    if(indiv->get_protein_list()[i]->get_is_functional())
+    {
+      if(!((Protein_R*)indiv->get_protein_list()[i])->not_pure_TF)
+      {
+				nb_TF+=1;
+      }
+    }
+    else
+    {
+      if(!((Protein_R*)indiv->get_protein_list()[i])->not_pure_TF)
+      {
+				nb_TF+=1;
+				nb_pure_TF+=1;
+      }
+    }
+  }
+
+	_nb_TF = nb_TF;
+	_nb_pure_TF = nb_pure_TF;
   #endif  
     
   // TODO : These conditions are not well managed!!!

@@ -668,6 +668,7 @@ void ExpManager_X11::draw_window(int8_t win_number)
 
     case 1:
     {
+#ifndef __REGUL
       cur_win->blacken();
 
       // Display colour bar
@@ -679,7 +680,7 @@ void ExpManager_X11::draw_window(int8_t win_number)
         cur_win->draw_line(i, cur_win->get_height() * 19 / 20, i, cur_win->get_height(), color);
         delete [] color;
       }
-
+#endif
       break;
     }
 
@@ -844,6 +845,28 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
       display_grid(cur_win, world()->get_secreted_amount_grid());
     }
     break;
+    case 7:
+    {
+      cur_win->blacken();
+#ifdef __REGUL
+      dynamic_cast<Individual_R_X11*>(_pop->get_best())->display_regulation( cur_win );
+#endif
+#ifndef __REGUL
+      dynamic_cast<Individual_X11*>(_pop->get_best())->display_regulation( cur_win );
+#endif
+      break;
+    }
+    case 8:
+    {
+      cur_win->blacken();
+#ifdef __REGUL
+      dynamic_cast<Individual_R_X11*>(_pop->get_best())->display_concentrations( cur_win, _env_list );
+#endif
+#ifndef __REGUL
+      dynamic_cast<Individual_X11*>(_pop->get_best())->display_concentrations( cur_win, _env_list );
+#endif
+      break;
+    }
   }
 
   XFlush(_display);

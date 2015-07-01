@@ -535,13 +535,13 @@ Individual* Selection::do_replication(Individual* parent, int32_t index, int16_t
     #ifndef __REGUL
       new_indiv = new Individual(parent, index, parent->get_mut_prng(), parent->get_stoch_prng() );
     #else
-      new_indiv = new ae_individual_R(dynamic_cast<ae_individual_R*>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
+      new_indiv = new Individual_R(dynamic_cast<Individual_R*>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
     #endif
   #elif defined __X11
     #ifndef __REGUL
       new_indiv = new Individual_X11(dynamic_cast<Individual_X11 *>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
     #else
-      new_indiv = new ae_individual_R_X11(dynamic_cast<ae_individual_R_X11*>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
+      new_indiv = new Individual_R_X11(dynamic_cast<Individual_R_X11*>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
     #endif
   #endif
 

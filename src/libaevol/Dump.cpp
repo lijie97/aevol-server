@@ -44,8 +44,7 @@
 #include "Individual.h"
 #include "GeneticUnit.h"
 #ifdef __REGUL
-  #include "ae_influence_R.h"
-  #include "ae_protein_R.h"
+  #include "Protein_R.h"
 #endif
 
 namespace aevol {
