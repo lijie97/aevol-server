@@ -40,6 +40,8 @@
 #include "DnaReplicationReport.h"
 #include "Mutation.h"
 #include "Individual.h"
+#include "Time.h"
+#include "Observable.h"
 
 namespace aevol {
 
@@ -190,6 +192,10 @@ void ReplicationReport::init(Individual* offspring, Individual* parent)
   _parent_secretion_error = parent->get_dist_to_target_by_feature(SECRETION);
   _parent_genome_size     = parent->get_total_genome_size();
   _mean_align_score       = 0.0;
+
+  // Set ourselves an observer of _indiv's MUTATION and END_REPLICATION
+  _indiv->addObserver(this, MUTATION);
+  _indiv->addObserver(this, END_REPLICATION);
 }
 
 /**
@@ -250,5 +256,13 @@ void ReplicationReport::write_to_tree_file(gzFile tree_file) const
 // =================================================================
 //                          Non inline accessors
 // =================================================================
-
+void ReplicationReport::update(Observable& o, ObservableEvent e, void* arg) {
+  switch (e) {
+    case END_REPLICATION :
+      signal_end_of_replication(dynamic_cast<Individual*>(&o));
+      break;
+    case MUTATION :
+      _dna_replic_report.add_mut(*reinterpret_cast<Mutation*>(arg));
+  }
+}
 } // namespace aevol

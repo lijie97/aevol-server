@@ -30,7 +30,7 @@
 
 
 // =================================================================
-//                              Libraries
+//                              Includes
 // =================================================================
 #include <cinttypes>
 #include <cstdio>
@@ -42,9 +42,6 @@
 #include <list>
 #include <memory>
 
-// =================================================================
-//                            Project Files
-// =================================================================
 #include "IndivStats.h"
 #include "NonCodingStats.h"
 #include "GeneticUnit.h"
@@ -52,11 +49,11 @@
 #include "Rna.h"
 #include "Protein.h"
 #include "Phenotype.h"
-#include "ReplicationReport.h"
 #include "MutationParams.h"
 #include "Fuzzy.h"
 #include "PhenotypicTarget.h"
 #include "Habitat.h"
+#include "Observable.h"
 
 
 namespace aevol {
@@ -72,7 +69,7 @@ class GridCell;
 ///
 /// Proteins and RNAs are shared with descent.
 /// Genetic units are an individual's own.
-class Individual
+class Individual : public Observable
 {
   friend class Dna;
 
@@ -82,7 +79,7 @@ class Individual
   //                             Constructors
   // =================================================================
   Individual() = delete;
-  Individual(const Individual &) = delete;
+  Individual(const Individual& other);
   Individual(ExpManager * exp_m,
                 std::shared_ptr<JumpingMT> mut_prng,
                 std::shared_ptr<JumpingMT> stoch_prng,
@@ -95,10 +92,8 @@ class Individual
                 const char* strain_name,
                 int32_t age);
 
-  Individual(ExpManager * exp_m, gzFile backup_file);
-  Individual(const Individual & model,
-                bool replication_report_copy);
-  Individual(const Individual * parent, int32_t id,
+  Individual(ExpManager* exp_m, gzFile backup_file);
+  Individual(const Individual* parent, int32_t id,
                 std::shared_ptr<JumpingMT> mut_prng,
                 std::shared_ptr<JumpingMT> stoch_prng);
   static Individual * CreateIndividual(ExpManager * exp_m,
@@ -245,10 +240,8 @@ class Individual
 
   double get_modularity(); // Not const
 
-  int32_t* get_int_probes () const;
-  double* get_double_probes () const;
-
-  ReplicationReport* get_replication_report();
+  int32_t* get_int_probes() const;
+  double* get_double_probes() const;
 
 
   // =================================================================
@@ -256,14 +249,14 @@ class Individual
   // =================================================================
   void set_strain_name(char* name);
 
-  void set_exp_m(ExpManager * exp_m);
+  void set_exp_m(ExpManager* exp_m);
   void set_id(int32_t id);
   void set_rank(int32_t rank);
 
-  void set_grid_cell(GridCell * grid_cell);
+  void set_grid_cell(GridCell* grid_cell);
   void set_placed_in_population(bool placed_in_population);
 
-  void reset_dist_to_target_by_segment(double * dist_to_target_by_segment);
+  void reset_dist_to_target_by_segment(double* dist_to_target_by_segment);
 
   void set_w_max(double w_max);
 
@@ -356,9 +349,9 @@ class Individual
   int32_t get_nb_terminators();
 
 #ifdef DEBUG
-    void assert_promoters();
-    void assert_promoters_order();
-  #endif
+  void assert_promoters();
+  void assert_promoters_order();
+#endif
 
   void compute_experimental_f_nu(int32_t nb_children, double* reproduction_statistics, double* offsprings_statistics = NULL, FILE* replication_file = NULL);
   double compute_theoritical_f_nu();
@@ -446,7 +439,7 @@ class Individual
   double _fitness;
 
   // When using structured population, this is the cell the individual is in
-  GridCell * _grid_cell = NULL;
+  GridCell* _grid_cell = NULL;
   // int16_t x, y;
 
   // The chromosome and plasmids (if allowed)
@@ -454,12 +447,12 @@ class Individual
 
   // Access lists to all the proteins/RNAs of the individual.
   // Please note that these proteins/RNAs are actually managed (i.e. newed and deleted) via genetic units.
-  std::list<Protein *> _protein_list;
-  std::list<const Rna *>     _rna_list;
+  std::list<Protein*> _protein_list;
+  std::list<const Rna*> _rna_list;
 
   // Generic probes
-  int32_t*  _int_probes;        // Array of 5 int32_t values to be used as one wishes
-  double*   _double_probes;     // Array of 5 double values to be used as one wishes
+  int32_t* _int_probes;        // Array of 5 int32_t values to be used as one wishes
+  double* _double_probes;     // Array of 5 double values to be used as one wishes
 
   // Mutation rates etc...
   std::shared_ptr<MutationParams> _mut_params;
@@ -498,13 +491,13 @@ class Individual
   // ----------------------------------------
   // Statistical data
   // ----------------------------------------
-  IndivStats* stats_ = NULL;
-  NonCodingStats* nc_stats_ = NULL;
   // Genome, RNAs and genes size and stuff
+  IndivStats* stats_ = nullptr;
+  // Coding / non-coding
+  NonCodingStats* nc_stats_ = nullptr;
 
   // Mutation/Rearrangement statistics are managed in the replication report
 
-  // Coding / non-coding
 
   double _modularity; // Ratio between the pairwise distance between genes whose corresponding
   // phenotypic triangles overlap and the average intergenic distance

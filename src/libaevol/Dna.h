@@ -30,7 +30,7 @@
 
 
 // =================================================================
-//                              Libraries
+//                              Includes
 // =================================================================
 #include <cinttypes>
 #include <cstdlib>
@@ -41,10 +41,6 @@
 
 #include <zlib.h>
 
-// =================================================================
-//                            Project Files
-// =================================================================
-#include "DnaReplicationReport.h"
 #include "ae_enums.h"
 #include "Mutation.h"
 #include "ae_string.h"
@@ -110,11 +106,11 @@ class Dna : public ae_string
     // Perform all the mutations (local mutations, rearrangements and transfer)
     void perform_mutations(int32_t parent_id);
 
-    // Perform all the local mutations (point mutations and indels) of the replication
+    // Perform all the local mutations (point mutations and indels)
     void do_small_mutations(void);
 
-    // Perform all the chromosomic rearrangements (duplications, deletions, translocations and inversions)
-    // of the replication
+    // Perform all the chromosomal rearrangements (duplications, deletions,
+    // translocations and inversions)
     void do_rearrangements(void);
     void do_rearrangements_with_align(void);
 
@@ -122,9 +118,9 @@ class Dna : public ae_string
     void do_transfer(int32_t parent_id);
 
     // Perform a single local mutation at a random position
-    Mutation * do_switch(void);
-    Mutation * do_small_insertion(void);
-    Mutation * do_small_deletion(void);
+    Mutation* do_switch(void);
+    Mutation* do_small_insertion(void);
+    Mutation* do_small_deletion(void);
 
     // Perform a single local mutation at a specified position (useful to replay the evolution)
     bool do_switch(int32_t pos);
@@ -132,12 +128,12 @@ class Dna : public ae_string
     bool do_small_deletion(int32_t pos, int16_t nb_del);
 
     // Perform a single rearrangement at random positions
-    Mutation * do_duplication(void);
-    Mutation * do_deletion(void);
-    Mutation * do_translocation(void);
-    Mutation * do_inter_GU_translocation(void);
-    Mutation * do_inversion(void);
-    Mutation * do_insertion(const char* seq_to_insert, int32_t seq_length = -1);
+    Mutation* do_duplication(void);
+    Mutation* do_deletion(void);
+    Mutation* do_translocation(void);
+    Mutation* do_inter_GU_translocation(void);
+    Mutation* do_inversion(void);
+    Mutation* do_insertion(const char* seq_to_insert, int32_t seq_length = -1);
 
     // Perform a single rearrangement at specified positions
     bool do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3);
@@ -148,8 +144,8 @@ class Dna : public ae_string
     bool do_insertion(int32_t pos, const char* seq_to_insert, int32_t seq_length);
 
     // Perform transfer with the search of alignments
-    Mutation * do_ins_HT(int32_t parent_id);
-    Mutation * do_repl_HT(int32_t parent_id);
+    Mutation* do_ins_HT(int32_t parent_id);
+    Mutation* do_repl_HT(int32_t parent_id);
 
     // Perform a single transfer at specified positions
     bool do_ins_HT(int32_t pos, const char* seq_to_insert, int32_t seq_length);
@@ -159,8 +155,8 @@ class Dna : public ae_string
     GeneticUnit*  copy_into_new_GU(int32_t pos_1, int32_t pos_2) const;
     void insert_GU(GeneticUnit* GU_to_insert, int32_t pos_B, int32_t pos_D, bool invert);
 
-    VisAVis * search_alignment(Dna * chrom2, int32_t& nb_pairs, AlignmentSense sense);
-    VisAVis * search_alignment_around_positions(Dna * chrom2, int32_t chrom1_pos_1, int32_t chrom1_pos_2, AlignmentSense sense, int8_t& research_sense);
+    VisAVis* search_alignment(Dna * chrom2, int32_t& nb_pairs, AlignmentSense sense);
+    VisAVis* search_alignment_around_positions(Dna * chrom2, int32_t chrom1_pos_1, int32_t chrom1_pos_2, AlignmentSense sense, int8_t& research_sense);
 
     void undergo_this_mutation(const Mutation * mut); // useful when we replay the evolution
 
@@ -188,20 +184,18 @@ class Dna : public ae_string
     void inter_GU_ABCDE_to_ACDBE(int32_t pos_B, int32_t pos_C, int32_t pos_E);
     void inter_GU_ABCDE_to_BDCAE(int32_t pos_B, int32_t pos_C, int32_t pos_E);
 
-    void report_mutation(const Mutation & mut) const;
-
 
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ExpManager * _exp_m;
+    ExpManager* _exp_m;
 
     // From ae_string
     //   char*   _data;
     //   int32_t _length;
     //   int32_t _nb_blocks;
 
-    Individual * _indiv;
+    Individual* _indiv;
     GeneticUnit* _gen_unit; // Genetic unit which the dna sequence belongs to
 };
 

@@ -253,57 +253,51 @@ Individual::Individual(ExpManager * exp_m, gzFile backup_file)
   //Evaluate();
 }
 
-// TODO: this is obsolete, check usage and amend accordingly 
-//   id and rank mustn't me copied
-//   state booleans must be either all copied or not at all
-//   evaluate is called at the end, is that really wanted behaviour ?
-Individual::Individual(const Individual & model,
-                             bool replication_report_copy)
-{
-  _exp_m = model._exp_m;
+/**
+ * Copy constructor
+ */
+Individual::Individual(const Individual& other) {
+  _exp_m = other._exp_m;
 
   // PRNGs
-  _mut_prng   = model._mut_prng;
-  _stoch_prng = model._stoch_prng;
+  _mut_prng   = other._mut_prng;
+  _stoch_prng = other._stoch_prng;
 
-  int strain_string_len = strlen(model._strain_name);
+  int strain_string_len = strlen(other._strain_name);
   _strain_name = new char[strain_string_len+1];
-  memcpy(_strain_name, model._strain_name, strain_string_len+1);
-  _age  = model._age;
+  memcpy(_strain_name, other._strain_name, strain_string_len+1);
+  _age  = other._age;
 
-  _id   = model._id;
-  _rank = model._rank;
+  _id   = other._id;
+  _rank = other._rank;
 
-  _evaluated                    = false;//model._evaluated;
-  _transcribed                  = false;//model._transcribed;
-  _translated                   = false;//model._translated;
-  _folded                       = false;//model._folded;
-  _phenotype_computed           = model._phenotype_computed;
+  _evaluated                    = other._evaluated;
+  _transcribed                  = other._transcribed;
+  _translated                   = other._translated;
+  _folded                       = other._folded;
+  _phenotype_computed           = other._phenotype_computed;
 
-  _with_stochasticity = model._with_stochasticity;
+  _with_stochasticity = other._with_stochasticity;
 
   // Artificial chemistry parameters
-  _w_max = model._w_max;
+  _w_max = other._w_max;
 
-  _distance_to_target_computed  = false;
-  _fitness_computed             = false;
+  _distance_to_target_computed  = other._distance_to_target_computed;
+  _fitness_computed             = other._fitness_computed;
+  _placed_in_population         = other._placed_in_population;
 
-  _placed_in_population         = false;
-
-  // Copy model's genetic units
+  // Copy genetic units from other
   // Should actually use GeneticUnit copy ctor which is disabled.
-  for (const auto& gu: model._genetic_unit_list)
+  for (const auto& gu: other._genetic_unit_list)
     _genetic_unit_list.emplace_back(this, gu);
 
   // Copy phenotype
-  if (_phenotype_computed)
-  {
-    _phenotype_activ  = new Fuzzy(*(model._phenotype_activ));
-    _phenotype_inhib  = new Fuzzy(*(model._phenotype_inhib));
-    _phenotype        = new Phenotype(*(model._phenotype));
+  if (_phenotype_computed) {
+    _phenotype_activ  = new Fuzzy(*(other._phenotype_activ));
+    _phenotype_inhib  = new Fuzzy(*(other._phenotype_inhib));
+    _phenotype        = new Phenotype(*(other._phenotype));
   }
-  else
-  {
+  else {
     _phenotype_activ  = NULL;
     _phenotype_inhib  = NULL;
     _phenotype        = NULL;
@@ -315,44 +309,40 @@ Individual::Individual(const Individual & model,
   _dist_to_target_by_feature  = new double [NB_FEATURES];
   _fitness_by_feature         = new double [NB_FEATURES];
 
-  for (int8_t i = 0 ; i < NB_FEATURES ; i++)
-  {
-    _dist_to_target_by_feature[i] = model._dist_to_target_by_feature[i];
-    _fitness_by_feature[i] = model._fitness_by_feature[i];
+  for (int8_t i = 0 ; i < NB_FEATURES ; i++) {
+    _dist_to_target_by_feature[i] = other._dist_to_target_by_feature[i];
+    _fitness_by_feature[i] = other._fitness_by_feature[i];
   }
 
-  _fitness = model._fitness;
-
+  _fitness = other._fitness;
 
   // Copy statistical data
-  stats_ = model.stats_ ?
-           new IndivStats(*model.stats_) :
-           NULL;
-  nc_stats_ = model.nc_stats_ ?
-              new NonCodingStats(*model.nc_stats_) :
-              NULL;
+  stats_ = other.stats_ ?
+           new IndivStats(*other.stats_) :
+           nullptr;
+  nc_stats_ = other.nc_stats_ ?
+              new NonCodingStats(*other.nc_stats_) :
+              nullptr;
 
-  _modularity = model._modularity;
+  _modularity = other._modularity;
 
   // Generic probes
   _int_probes     = new int32_t[5];
   _double_probes  = new double[5];
-  for (int8_t i = 0 ; i < 5 ; i++)
-  {
-    _int_probes[i]    = model._int_probes[i];
-    _double_probes[i] = model._double_probes[i];
+  for (int8_t i = 0 ; i < 5 ; i++) {
+    _int_probes[i]    = other._int_probes[i];
+    _double_probes[i] = other._double_probes[i];
   }
 
   // Mutation rates etc...
-  _mut_params = std::make_shared<MutationParams>(*(model._mut_params));
-
+  _mut_params = std::make_shared<MutationParams>(*(other._mut_params));
 
   // Genome size constraints
-  _min_genome_length = model._min_genome_length;
-  _max_genome_length = model._max_genome_length;
+  _min_genome_length = other._min_genome_length;
+  _max_genome_length = other._max_genome_length;
 
   // Plasmids settings
-  _allow_plasmids = model._allow_plasmids;
+  _allow_plasmids = other._allow_plasmids;
 }
 
 /**
@@ -442,9 +432,9 @@ Individual::Individual(const Individual * parent, int32_t id,
   _modularity = -1;
 }
 
-Individual *Individual::CreateIndividual(ExpManager * exp_m,
-                                               gzFile backup_file) {
-  Individual * indiv = NULL;
+Individual* Individual::CreateIndividual(ExpManager * exp_m,
+                                         gzFile backup_file) {
+  Individual* indiv = NULL;
 #ifdef __NO_X
     #ifndef __REGUL
       indiv = new Individual(exp_m, backup_file);
@@ -469,12 +459,9 @@ Individual *Individual::CreateIndividual(ExpManager * exp_m,
   \param id ID of the clone
   \return clone of dolly (not evaluated)
 */
-Individual *Individual::CreateClone(const Individual * dolly,
-                                          int32_t id)
-{
-  Individual * indiv = new Individual(*dolly, false);
+Individual* Individual::CreateClone(const Individual* dolly, int32_t id) {
+  Individual* indiv = new Individual(*dolly);
   indiv->set_id(id);
-
   return indiv;
 }
 
@@ -502,6 +489,7 @@ Individual::~Individual()
   delete [] _double_probes;
 
   delete stats_;
+  delete nc_stats_;
 }
 
 // =================================================================
@@ -710,26 +698,31 @@ const std::list<const Rna *>&Individual::get_rna_list() const {
 
 /// TODO
 int32_t Individual::get_total_genome_size() const {
+  assert(stats_ != nullptr);
   return stats_->total_genome_size();
 }
 
 /// TODO
 int16_t Individual::get_nb_coding_RNAs() const {
+  assert(stats_ != nullptr);
   return stats_->nb_coding_RNAs();
 }
 
 /// TODO
 int16_t Individual::get_nb_non_coding_RNAs() const {
+  assert(stats_ != nullptr);
   return stats_->nb_non_coding_RNAs();
 }
 
 /// TODO
 int32_t Individual::get_overall_size_coding_RNAs() const {
+  assert(stats_ != nullptr);
   return stats_->overall_size_coding_RNAs();
 }
 
 /// TODO
 double Individual::get_av_size_coding_RNAs() const {
+  assert(stats_ != nullptr);
   return stats_->nb_coding_RNAs() == 0 ?
          0.0 :
          stats_->overall_size_coding_RNAs() /
@@ -738,11 +731,13 @@ double Individual::get_av_size_coding_RNAs() const {
 
 /// TODO
 int32_t Individual::get_overall_size_non_coding_RNAs() const {
+  assert(stats_ != nullptr);
   return stats_->overall_size_non_coding_RNAs();
 }
 
 /// TODO
 double Individual::get_av_size_non_coding_RNAs() const {
+  assert(stats_ != nullptr);
   return stats_->nb_non_coding_RNAs() == 0 ?
          0.0 :
          stats_->overall_size_non_coding_RNAs() /
@@ -751,31 +746,37 @@ double Individual::get_av_size_non_coding_RNAs() const {
 
 /// TODO
 int16_t Individual::get_nb_genes_activ() const {
+  assert(stats_ != nullptr);
   return stats_->nb_genes_activ();
 }
 
 /// TODO
 int16_t Individual::get_nb_genes_inhib() const {
+  assert(stats_ != nullptr);
   return stats_->nb_genes_inhib();
 }
 
 /// TODO
 int16_t Individual::get_nb_functional_genes() const {
+  assert(stats_ != nullptr);
   return stats_->nb_functional_genes();
 }
 
 /// TODO
 int16_t Individual::get_nb_non_functional_genes() const {
+  assert(stats_ != nullptr);
   return stats_->nb_non_functional_genes();
 }
 
 /// TODO
 int32_t Individual::get_overall_size_functional_genes() const {
+  assert(stats_ != nullptr);
   return stats_->overall_size_functional_genes();
 }
 
 /// TODO
 double Individual::get_av_size_functional_genes() const {
+  assert(stats_ != nullptr);
   return stats_->nb_functional_genes() == 0 ?
          0.0 :
          stats_->overall_size_functional_genes() /
@@ -784,11 +785,13 @@ double Individual::get_av_size_functional_genes() const {
 
 /// TODO
 int32_t Individual::get_overall_size_non_functional_genes() const {
+  assert(stats_ != nullptr);
   return stats_->overall_size_non_functional_genes();
 }
 
 /// TODO
 double Individual::get_av_size_non_functional_genes() const {
+  assert(stats_ != nullptr);
   return stats_->nb_non_functional_genes() == 0 ?
          0.0 :
          stats_->overall_size_non_functional_genes() /
@@ -797,41 +800,49 @@ double Individual::get_av_size_non_functional_genes() const {
 
 /// TODO
 int32_t Individual::get_nb_bases_in_0_CDS() const {
+  assert(nc_stats_ != nullptr);
   return nc_stats_->nb_bases_in_0_CDS();
 }
 
 /// TODO
 int32_t Individual::get_nb_bases_in_0_functional_CDS() const {
+  assert(nc_stats_ != nullptr);
   return nc_stats_->nb_bases_in_0_functional_CDS();
 }
 
 /// TODO
 int32_t Individual::get_nb_bases_in_0_non_functional_CDS() const {
+  assert(nc_stats_ != nullptr);
   return nc_stats_->nb_bases_in_0_non_functional_CDS();
 }
 
 /// TODO
 int32_t Individual::get_nb_bases_in_0_RNA() const {
+  assert(nc_stats_ != nullptr);
   return nc_stats_->nb_bases_in_0_RNA();
 }
 
 /// TODO
 int32_t Individual::get_nb_bases_in_0_coding_RNA() const {
+  assert(nc_stats_ != nullptr);
   return nc_stats_->nb_bases_in_0_coding_RNA();
 }
 
 /// TODO
 int32_t Individual::get_nb_bases_in_0_non_coding_RNA() const {
+  assert(nc_stats_ != nullptr);
   return nc_stats_->nb_bases_in_0_non_coding_RNA();
 }
 
 /// TODO
 int32_t Individual::get_nb_bases_in_neutral_regions() const {
+  assert(nc_stats_ != nullptr);
   return nc_stats_->nb_bases_in_neutral_regions();
 }
 
 /// TODO
 int32_t Individual::get_nb_neutral_regions() const {
+  assert(nc_stats_ != nullptr);
   return nc_stats_->nb_neutral_regions();
 }
 
@@ -1434,9 +1445,9 @@ void Individual::clear_everything_except_dna_and_promoters() {
 
   // Reset statistical data
   delete stats_;
-  stats_ = NULL;
+  stats_ = nullptr;
   delete nc_stats_;
-  nc_stats_ = NULL;
+  nc_stats_ = nullptr;
 
   _modularity = -1;
 }
@@ -1569,66 +1580,27 @@ void Individual::inject_2GUs(Individual * partner) {
 }
 
 void Individual::compute_statistical_data() {
-  if (stats_ != NULL) return; // Statistical data has already been computed, nothing to do.
+  if (stats_ != nullptr) return; // Statistical data has already been computed,
+                                 // nothing to do.
+
   stats_ = new IndivStats();
 
   if (not _phenotype_computed)
-  {
     compute_phenotype();
-  }
 
-  for (const auto& gen_unit: _genetic_unit_list) {
-    stats_->total_genome_size_ +=
-        gen_unit.get_dna()->get_length();
-    stats_->nb_coding_RNAs_ +=
-        gen_unit.get_nb_coding_RNAs();
-    stats_->nb_non_coding_RNAs_ +=
-        gen_unit.get_nb_non_coding_RNAs();
-    stats_->overall_size_coding_RNAs_ +=
-        gen_unit.get_overall_size_coding_RNAs();
-    stats_->overall_size_non_coding_RNAs_ +=
-        gen_unit.get_overall_size_non_coding_RNAs();
-    stats_->nb_genes_activ_ +=
-        gen_unit.get_nb_genes_activ();
-    stats_->nb_genes_inhib_ +=
-        gen_unit.get_nb_genes_inhib();
-    stats_->nb_functional_genes_ +=
-        gen_unit.get_nb_functional_genes();
-    stats_->nb_non_functional_genes_ +=
-        gen_unit.get_nb_non_functional_genes();
-    stats_->overall_size_functional_genes_ +=
-        gen_unit.get_overall_size_functional_genes();
-    stats_->overall_size_non_functional_genes_ +=
-        gen_unit.get_overall_size_non_functional_genes();
+  for (const auto& gen_unit : _genetic_unit_list) {
+    stats_->Accumulate(gen_unit);
   }
-
-  // Finalize statistical data in the replication report
-  if (get_replication_report())
-    get_replication_report()->signal_end_of_replication(this);
 }
 
 void Individual::compute_non_coding() {
-  if (nc_stats_ != NULL) return; // _non_coding has already been computed,
-  // nothing to do.
+  if (nc_stats_ != nullptr) return; // NC stats have already been computed,
+                                    // nothing to do.
   nc_stats_ = new NonCodingStats();
 
   for (auto& gen_unit: _genetic_unit_list) {
-    nc_stats_->nb_bases_in_0_CDS_ +=
-        gen_unit.get_nb_bases_in_0_CDS();
-    nc_stats_->nb_bases_in_0_functional_CDS_ +=
-        gen_unit.get_nb_bases_in_0_functional_CDS();
-    nc_stats_->nb_bases_in_0_non_functional_CDS_ +=
-        gen_unit.get_nb_bases_in_0_non_functional_CDS();
-    nc_stats_->nb_bases_in_0_RNA_ +=
-        gen_unit.get_nb_bases_in_0_RNA();
-    nc_stats_->nb_bases_in_0_coding_RNA_ +=
-        gen_unit.get_nb_bases_in_0_coding_RNA();
-    nc_stats_->nb_bases_in_0_non_coding_RNA_ +=
-        gen_unit.get_nb_bases_in_0_non_coding_RNA();
-    nc_stats_->nb_bases_in_neutral_regions_ +=
-        gen_unit.get_nb_bases_in_neutral_regions();
-    nc_stats_->nb_neutral_regions_ +=
-        gen_unit.get_nb_neutral_regions();
+    gen_unit.compute_non_coding();
+    nc_stats_->Accumulate(gen_unit);
   }
 }
 
@@ -1954,12 +1926,6 @@ void Individual::make_rna_list() {
       for (auto& rna: rna_list[strand])
         _rna_list.push_back(&rna);
   }
-}
-
-ReplicationReport* Individual::get_replication_report() {
-  if (Time::get_time() == 0)
-    return NULL; // No replic report for initial individual
-  return _exp_m->get_tree()->get_report_by_index(Time::get_time(), _id);
 }
 
 } // namespace aevol

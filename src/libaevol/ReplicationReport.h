@@ -30,22 +30,20 @@
 
 
 // =================================================================
-//                              Libraries
+//                              Includes
 // =================================================================
 #include <inttypes.h>
 #include <zlib.h>
 
+#include <cstdio>
+#include <cstdlib>
+#include <cassert>
 
-
-// =================================================================
-//                            Project Files
-// =================================================================
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
 #include "DnaReplicationReport.h"
 #include "ae_enums.h"
+#include "Observer.h"
+#include "ObservableEvent.h"
+#include "Individual.h"
 
 namespace aevol {
 
@@ -59,7 +57,7 @@ class Individual;
 
 
 
-class ReplicationReport
+class ReplicationReport : public Observer
 {
   public :
 
@@ -96,7 +94,6 @@ class ReplicationReport
     inline double   get_mean_align_score(void) const;
     inline int32_t	get_donor_id(void) const;
     inline double   get_donor_metabolic_error(void) const;
-    inline double   get_donor_secretion_error(void) const;
     inline int32_t  get_donor_genome_size(void) const;
     int32_t get_nb(MutationType t) const {
       return _dna_replic_report.get_nb(t);
@@ -127,9 +124,7 @@ class ReplicationReport
     void write_to_tree_file(gzFile tree_file) const;
 
 
-    // =================================================================
-    //                           Public Attributes
-    // =================================================================
+  void update(Observable& o, ObservableEvent e, void* arg) override;
 
 
 

@@ -28,7 +28,7 @@
 
 
 // =================================================================
-//                              Libraries
+//                              Includes
 // =================================================================
 #include <inttypes.h>
 #include <stdio.h>
@@ -37,9 +37,6 @@
 #include <list>
 #include <vector>
 
-// =================================================================
-//                            Project Files
-// =================================================================
 #include "ExpManager.h"
 #include "ExpSetup.h"
 #include "Dna.h"
@@ -49,13 +46,12 @@
 #include "Utils.h"
 #include "VisAVis.h"
 #include "Alignment.h"
-#include "DnaReplicationReport.h"
 
 namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                                Class Dna                                 #
+//                                  Class Dna                                  #
 //                                                                             #
 //##############################################################################
 
@@ -70,8 +66,8 @@ namespace aevol {
  * Create a random dna sequence of length <length> belonging to <gen_unit>.
  */
 Dna::Dna(GeneticUnit* gen_unit,
-               int32_t length,
-               std::shared_ptr<JumpingMT> prng) :
+         int32_t length,
+         std::shared_ptr<JumpingMT> prng) :
     ae_string(length, prng)
 {
   _gen_unit = gen_unit;
@@ -91,7 +87,8 @@ Dna::Dna(GeneticUnit* gen_unit, const Dna &model) :
 }
 
 /**
- * Creates a new piece of dna identical to the parent's but belonging to <gen_unit>
+ * Create a new piece of dna identical to the parent's but belonging to
+ * <gen_unit>
  */
 Dna::Dna(GeneticUnit* gen_unit, Dna * const parent_dna) :
 ae_string(parent_dna->_data, parent_dna->_length)
@@ -102,11 +99,11 @@ ae_string(parent_dna->_data, parent_dna->_length)
 }
 
 /**
- * Creates a new piece of dna with sequence <seq> (of length <length>).
- * WARNING : <seq> will be used directly as the new dna sequence (it will not be copied),
- *           which means the caller must not delete it.
- * The replication report is set to NULL
+ * Create a new piece of dna with sequence <seq> (of length <length>).
+ * WARNING : <seq> will be used directly as the new dna sequence (it will not
+ *           be copied), which means the caller must not delete it.
  */
+// TODO <david.parsons@inria.fr> make seq a rvalue ref and set it to NULL ?
 Dna::Dna(GeneticUnit* gen_unit, char* seq, int32_t length) :
     ae_string(seq, length, true)
 {
@@ -116,7 +113,7 @@ Dna::Dna(GeneticUnit* gen_unit, char* seq, int32_t length) :
 }
 
 /**
- * Loads a piece of dna from <backup_file>
+ * Load a piece of dna from <backup_file>
  */
 Dna::Dna(GeneticUnit* gen_unit, gzFile backup_file) :
     ae_string(backup_file)
@@ -127,7 +124,7 @@ Dna::Dna(GeneticUnit* gen_unit, gzFile backup_file) :
 }
 
 /**
- * Creates a dna sequence from a text file
+ * Create a dna sequence from a text file
  */
 Dna::Dna(GeneticUnit* gen_unit, char* organism_file_name) :
     ae_string(organism_file_name)
@@ -147,7 +144,7 @@ Dna::~Dna(void)
 // =================================================================
 //                         Non inline Accessors
 // =================================================================
-char*Dna::get_subsequence(int32_t from, int32_t to, Strand strand) const
+char* Dna::get_subsequence(int32_t from, int32_t to, Strand strand) const
 {
   char* subseq = NULL;
 
@@ -223,8 +220,7 @@ void Dna::perform_mutations(int32_t parent_id)
   do_small_mutations();
 }
 
-void Dna::do_small_mutations(void)
-{
+void Dna::do_small_mutations(void) {
   // ==============================================================
   //  1. Compute how many rearrangements this genome will undertake
   // ==============================================================
@@ -263,42 +259,35 @@ void Dna::do_small_mutations(void)
   int32_t random_value;
   Mutation * mut = NULL;
 
-  for (int32_t i = nb_mut ; i >= 1 ; i--)
-  {
+  for (int32_t i = nb_mut ; i >= 1 ; i--) {
     random_value = _indiv->_mut_prng->random(i);
 
-    if (random_value < nb_swi)
-    {
+    if (random_value < nb_swi) {
       mut = do_switch();
       assert(mut != NULL || !(_exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL));
 
       nb_swi--;  // updating the urn (no replacement!)...
     }
-    else if (random_value < nb_swi + nb_ins)
-    {
+    else if (random_value < nb_swi + nb_ins) {
       mut = do_small_insertion();
 
       nb_ins--;
     }
-    else // (random_value >= nb_swi + nb_ins) => del
-    {
+    else { // (random_value >= nb_swi + nb_ins) => del
       mut = do_small_deletion();
 
       nb_del--;
     }
 
     // Record mutation in tree
-    if (_exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL)
-    {
-      if (mut != NULL)
-      {
-        report_mutation(*mut);
+    if (_exp_m->get_output_m()->get_record_tree() &&
+        _exp_m->get_output_m()->get_tree_mode() == NORMAL) {
+      if (mut != NULL) {
+        _indiv->notifyObservers(MUTATION, mut);
       }
     }
-    else
-    {
-      if (mut != NULL)
-      {
+    else {
+      if (mut != NULL) {
         delete mut;
         mut = NULL;
       }
@@ -306,8 +295,7 @@ void Dna::do_small_mutations(void)
   }
 }
 
-void Dna::do_rearrangements(void)
-{
+void Dna::do_rearrangements(void) {
   // ==============================================================
   //  1. Compute how many rearrangements this genome will undertake
   // ==============================================================
@@ -315,14 +303,11 @@ void Dna::do_rearrangements(void)
   // Given the rate p (by nucl.) of duplication - for instance -, the number of
   // duplications we perform on the genome follows a binomial law B(n, p), with
   // n = genome length.
-
-
   int32_t nb_dupl  = _indiv->_mut_prng->binomial_random(_length, _indiv->get_duplication_rate());
   int32_t nb_del   = _indiv->_mut_prng->binomial_random(_length, _indiv->get_deletion_rate());
   int32_t nb_trans = _indiv->_mut_prng->binomial_random(_length, _indiv->get_translocation_rate());
   int32_t nb_inv   = _indiv->_mut_prng->binomial_random(_length, _indiv->get_inversion_rate());
   int32_t nb_rear  = nb_dupl + nb_del + nb_trans + nb_inv;
-
 
   // ===================================================
   //  2. Perform those rearrangements in a random order
@@ -347,43 +332,35 @@ void Dna::do_rearrangements(void)
   int32_t random_value;
   Mutation * mut = NULL;
 
-  for (int32_t i = nb_rear ; i >= 1 ; i--)
-  {
+  for (int32_t i = nb_rear ; i >= 1 ; i--) {
     random_value = _indiv->_mut_prng->random(i);
 
-    if (random_value < nb_dupl)
-    {
+    if (random_value < nb_dupl) {
       mut = do_duplication();
       nb_dupl--;  // Updating the urn (no replacement!)...
     }
-    else if (random_value < nb_dupl + nb_del)
-    {
+    else if (random_value < nb_dupl + nb_del) {
       mut = do_deletion();
       nb_del--;
     }
-    else if (random_value < nb_dupl + nb_del + nb_trans)
-    {
+    else if (random_value < nb_dupl + nb_del + nb_trans) {
       mut = do_translocation();
       nb_trans--;
     }
-    else
-    {
+    else {
       mut = do_inversion();
       nb_inv--;
     }
 
     // Record rearrangement in tree
-    if (_exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL)
-    {
-      if (mut != NULL)
-      {
-        report_mutation(*mut);
+    if (_exp_m->get_output_m()->get_record_tree() &&
+        _exp_m->get_output_m()->get_tree_mode() == NORMAL) {
+      if (mut != NULL) {
+        _indiv->notifyObservers(MUTATION, mut);
       }
     }
-    else
-    {
-      if (mut != NULL)
-      {
+    else {
+      if (mut != NULL) {
         delete mut;
         mut = NULL;
       }
@@ -733,8 +710,7 @@ void Dna::do_rearrangements_with_align(void)
 
       // Report the inversion
       if (_exp_m->get_output_m()->get_record_tree() &&
-          _exp_m->get_output_m()->get_tree_mode() == NORMAL)
-      {
+          _exp_m->get_output_m()->get_tree_mode() == NORMAL) {
         mut = new Mutation();
         mut->report_inversion(alignment->get_i_1(),
                               alignment->get_i_2(),
@@ -742,8 +718,7 @@ void Dna::do_rearrangements_with_align(void)
       }
 
       // Write a line in rearrangement logfile
-      if (_exp_m->get_output_m()->is_logged(LOG_REAR))
-      {
+      if (_exp_m->get_output_m()->is_logged(LOG_REAR)) {
         fprintf(_exp_m->get_output_m()->get_log(LOG_REAR),
                 "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32
                     " %" PRId16 "\n",
@@ -759,8 +734,7 @@ void Dna::do_rearrangements_with_align(void)
     // 5) If there was a change in the chromosome's length,                     //
     //    update the individual's TTL and nb_pairs according to new genome size //
     //////////////////////////////////////////////////////////////////////////////
-    if (genome_size != _length)
-    {
+    if (genome_size != _length) {
       ttl = ((double)(nb_pairs-1)) / ((double)genome_size) / _indiv->get_neighbourhood_rate();
       genome_size = _length;
       nb_pairs = (int32_t)(ceil(ttl * _length * _indiv->get_neighbourhood_rate())) + 1;
@@ -769,15 +743,13 @@ void Dna::do_rearrangements_with_align(void)
     //////////////////////////////////////////////////////////////////////////////////////////
     // 6) If there was a rearrangement, we either save its record in the tree or delete it. //
     //////////////////////////////////////////////////////////////////////////////////////////
-    if (mut != NULL)
-    {
-      if (_exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL)
-      {
-        report_mutation(*mut);
+    if (mut != NULL) {
+      if (_exp_m->get_output_m()->get_record_tree() &&
+          _exp_m->get_output_m()->get_tree_mode() == NORMAL) {
+        _indiv->notifyObservers(MUTATION, mut);
         mut = NULL;
       }
-      else
-      {
+      else {
         delete mut;
         mut = NULL;
       }
@@ -785,43 +757,34 @@ void Dna::do_rearrangements_with_align(void)
   }
 }
 
-void Dna::do_transfer(int32_t parent_id)
-{
+void Dna::do_transfer(int32_t parent_id) {
   Mutation * mut = NULL;
-  if (_indiv->get_mut_prng()->random() < _indiv->get_HT_ins_rate())
-  {
+  if (_indiv->get_mut_prng()->random() < _indiv->get_HT_ins_rate()) {
     mut = do_ins_HT(parent_id);
-    if (_exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL)
-    {
-      if (mut != NULL)
-      {
-        report_mutation(*mut);
+    if (_exp_m->get_output_m()->get_record_tree() &&
+        _exp_m->get_output_m()->get_tree_mode() == NORMAL) {
+      if (mut != NULL) {
+        _indiv->notifyObservers(MUTATION, mut);
       }
     }
-    else
-    {
-      if (mut != NULL)
-      {
+    else {
+      if (mut != NULL) {
         delete mut;
         mut = NULL;
       }
     }
   }
 
-  if (_indiv->get_mut_prng()->random() < _indiv->get_HT_repl_rate())
-  {
+  if (_indiv->get_mut_prng()->random() < _indiv->get_HT_repl_rate()) {
     mut = do_repl_HT(parent_id);
-    if (_exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL)
-    {
-      if (mut != NULL)
-      {
-        report_mutation(*mut);
+    if (_exp_m->get_output_m()->get_record_tree() &&
+        _exp_m->get_output_m()->get_tree_mode() == NORMAL) {
+      if (mut != NULL) {
+        _indiv->notifyObservers(MUTATION, mut);
       }
     }
-    else
-    {
-      if (mut != NULL)
-      {
+    else {
+      if (mut != NULL) {
         delete mut;
         mut = NULL;
       }
@@ -829,8 +792,7 @@ void Dna::do_transfer(int32_t parent_id)
   }
 }
 
-Mutation *Dna::do_switch(void)
-{
+Mutation *Dna::do_switch(void) {
   Mutation * mut = NULL;
 
   int32_t pos = _indiv->_mut_prng->random(_length);
@@ -1018,7 +980,8 @@ bool Dna::do_small_deletion(int32_t pos, int16_t nb_del)
   _gen_unit->remove_promoters_around(pos, Utils::mod(pos + nb_del, _length));
 
   // Do the deletion and update promoter list
-  if (pos + nb_del <= _length) // the deletion does not contain the replication origin
+  if (pos + nb_del <= _length) // the deletion does not contain the origin of
+                               // replication
   {
     // Do the deletion
     remove(pos, pos + nb_del);
@@ -1030,7 +993,7 @@ bool Dna::do_small_deletion(int32_t pos, int16_t nb_del)
       _gen_unit->look_for_new_promoters_around(Utils::mod(pos, _length));
     }
   }
-  else // the deletion contains the replication origin
+  else // the deletion contains the origin of replication
   {
     // Do the deletion
     int32_t nb_del_at_pos_0 = nb_del - _length + pos;
@@ -1470,7 +1433,7 @@ bool Dna::do_duplication(int32_t pos_1, int32_t pos_2, int32_t pos_3)
   }
   else // if (pos_1 >= pos_2)
   {
-    // The segment to duplicate includes the replication origin.
+    // The segment to duplicate includes the origin of replication.
     // The copying process will be done in two steps.
     //
     //                                            ,->
@@ -1560,7 +1523,7 @@ bool Dna::do_deletion(int32_t pos_1, int32_t pos_2)
   }
   else // if (pos_1 >= pos_2)
   {
-    // The segment to delete includes the replication origin.
+    // The segment to delete includes the origin of replication.
     // The deletion process will be done in two steps.
     //
     //                                            ,->
@@ -2369,7 +2332,6 @@ void Dna::compute_statistical_data(void)
 //    Number of rearrangements
 {
   assert(false);
-  //~ ae_list_node<Mutation*>* mut_node  = _replic_report->_mutations->get_first();
   //~ Mutation*  mut;
 
   //~ while (mut_node != NULL)
@@ -3364,10 +3326,6 @@ void Dna::inter_GU_ABCDE_to_BDCAE(int32_t pos_B, int32_t pos_C, int32_t pos_E)
 
   inter_GU_ABCDE_to_ACDBE(0, pos_B, pos_E);
   inter_GU_ABCDE_to_ACDBE(len_B, (len_B+len_C), len_DA);
-}
-
-void Dna::report_mutation(const Mutation& mut) const {
-  _indiv->get_replication_report()->dna_replic_report().add_mut(mut);
 }
 
 } // namespace aevol

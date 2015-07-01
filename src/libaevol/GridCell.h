@@ -136,7 +136,7 @@ class GridCell
   int16_t y_;
 
   // Pointer to the individual in this cell
-  Individual * individual_ = NULL;
+  Individual* individual_ = NULL;
 
   std::unique_ptr<Habitat> habitat_;
 };

@@ -80,16 +80,16 @@ Individual * IndividualFactory::create_random_individual(
 {
   // Create a genome-less individual with the provided parameters
   Individual * indiv = new Individual(exp_m,
-                                           mut_prng,
-                                           stoch_prng,
-                                           param_mut,
-                                           w_max,
-                                           min_genome_length,
-                                           max_genome_length,
-                                           allow_plasmids,
-                                           id,
-                                           strain_name,
-                                           0);
+                                      mut_prng,
+                                      stoch_prng,
+                                      param_mut,
+                                      w_max,
+                                      min_genome_length,
+                                      max_genome_length,
+                                      allow_plasmids,
+                                      id,
+                                      strain_name,
+                                      0);
 
   // Give it a randomly generated genome
   indiv->add_GU(indiv, chromosome_initial_length, local_prng);

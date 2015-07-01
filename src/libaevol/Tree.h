@@ -30,20 +30,17 @@
 
 
 // =================================================================
-//                              Libraries
+//                              Includes
 // =================================================================
 #include <inttypes.h>
 
+#include <cstdio>
+#include <cstdlib>
+#include <cassert>
 
-
-// =================================================================
-//                            Project Files
-// =================================================================
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
 #include "ReplicationReport.h"
+#include "Observer.h"
+#include "ObservableEvent.h"
 #include "ae_enums.h"
 
 
@@ -56,7 +53,7 @@ namespace aevol {
 class ExpManager;
 
 
-class Tree
+class Tree : public Observer
 {  
   public :
     
@@ -106,6 +103,8 @@ class Tree
      * (not NULL)
      */
     inline int64_t get_LCA(int64_t t, int32_t a, int32_t b, int32_t *j);
+
+  void update(Observable& o, ObservableEvent e, void* arg) override;
     
 
     // =================================================================

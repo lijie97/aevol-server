@@ -38,6 +38,7 @@
 #include <cassert>
 
 #include "Individual.h"
+#include "GeneticUnit.h"
 
 
 namespace aevol {
@@ -72,17 +73,33 @@ class IndivStats
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
-  int32_t total_genome_size() const {return total_genome_size_;};
-  int16_t nb_coding_RNAs() const {return nb_coding_RNAs_;};
-  int16_t nb_non_coding_RNAs() const {return nb_non_coding_RNAs_;};
-  int32_t overall_size_coding_RNAs() const {return overall_size_coding_RNAs_;};
+  int32_t total_genome_size() const {
+    return total_genome_size_;
+  };
+  int16_t nb_coding_RNAs() const {
+    return nb_coding_RNAs_;
+  };
+  int16_t nb_non_coding_RNAs() const {
+    return nb_non_coding_RNAs_;
+  };
+  int32_t overall_size_coding_RNAs() const {
+    return overall_size_coding_RNAs_;
+  };
   int32_t overall_size_non_coding_RNAs() const {
     return overall_size_non_coding_RNAs_;
   };
-  int16_t nb_genes_activ() const {return nb_genes_activ_;};
-  int16_t nb_genes_inhib() const {return nb_genes_inhib_;};
-  int16_t nb_functional_genes() const {return nb_functional_genes_;};
-  int16_t nb_non_functional_genes() const {return nb_non_functional_genes_;};
+  int16_t nb_genes_activ() const {
+    return nb_genes_activ_;
+  };
+  int16_t nb_genes_inhib() const {
+    return nb_genes_inhib_;
+  };
+  int16_t nb_functional_genes() const {
+    return nb_functional_genes_;
+  };
+  int16_t nb_non_functional_genes() const {
+    return nb_non_functional_genes_;
+  };
   int32_t overall_size_functional_genes() const {
     return overall_size_functional_genes_;
   };
@@ -102,6 +119,7 @@ class IndivStats
   //                              Public Methods
   // ==========================================================================
   inline void Reset();
+  inline void Accumulate(const GeneticUnit& gen_unit);
 
 
 
@@ -168,6 +186,22 @@ void IndivStats::Reset() {
   overall_size_functional_genes_      = 0;
   overall_size_non_functional_genes_  = 0;
 }
+
+void IndivStats::Accumulate(const GeneticUnit& gen_unit) {
+  total_genome_size_ += gen_unit.get_dna()->get_length();
+  nb_coding_RNAs_ += gen_unit.get_nb_coding_RNAs();
+  nb_non_coding_RNAs_ += gen_unit.get_nb_non_coding_RNAs();
+  overall_size_coding_RNAs_ += gen_unit.get_overall_size_coding_RNAs();
+  overall_size_non_coding_RNAs_ += gen_unit.get_overall_size_non_coding_RNAs();
+  nb_genes_activ_ += gen_unit.get_nb_genes_activ();
+  nb_genes_inhib_ += gen_unit.get_nb_genes_inhib();
+  nb_functional_genes_ += gen_unit.get_nb_functional_genes();
+  nb_non_functional_genes_ += gen_unit.get_nb_non_functional_genes();
+  overall_size_functional_genes_ +=
+      gen_unit.get_overall_size_functional_genes();
+  overall_size_non_functional_genes_ +=
+      gen_unit.get_overall_size_non_functional_genes();
+};
 
 } // namespace aevol
 

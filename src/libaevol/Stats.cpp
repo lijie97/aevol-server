@@ -555,23 +555,30 @@ void Stats::write_headers( bool ancstats_stats /* = false */ )
 
 void Stats::write_current_generation_statistics( void )
 {
-  StatRecord ** stat_records;
+  StatRecord** stat_records;
   
   for (int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++)
   {
     if ((not _exp_m->get_output_m()->get_compute_phen_contrib_by_GU()) &&
         chrom_or_GU > ALL_GU) continue;
 
-    stat_records = new StatRecord * [NB_BEST_OR_GLOB];
+    stat_records = new StatRecord* [NB_BEST_OR_GLOB];
     
-    stat_records[BEST] = new StatRecord(_exp_m, _exp_m->get_best_indiv(),
-                                            (chrom_or_gen_unit) chrom_or_GU);
-    stat_records[GLOB] = new StatRecord(_exp_m, _exp_m->get_indivs(),
-                                            (chrom_or_gen_unit) chrom_or_GU);
-    stat_records[SDEV] = new StatRecord(_exp_m, _exp_m->get_indivs(),
-                                            stat_records[GLOB], (chrom_or_gen_unit) chrom_or_GU);
-    stat_records[SKEW] = new StatRecord(_exp_m, _exp_m->get_indivs(),
-                                            stat_records[GLOB], stat_records[SDEV], (chrom_or_gen_unit) chrom_or_GU );
+    stat_records[BEST] = new StatRecord(_exp_m,
+                                        _exp_m->get_best_indiv(),
+                                        (chrom_or_gen_unit) chrom_or_GU);
+    stat_records[GLOB] = new StatRecord(_exp_m,
+                                        _exp_m->get_indivs(),
+                                        (chrom_or_gen_unit) chrom_or_GU);
+    stat_records[SDEV] = new StatRecord(_exp_m,
+                                        _exp_m->get_indivs(),
+                                        stat_records[GLOB],
+                                        (chrom_or_gen_unit) chrom_or_GU);
+    stat_records[SKEW] = new StatRecord(_exp_m,
+                                        _exp_m->get_indivs(),
+                                        stat_records[GLOB],
+                                        stat_records[SDEV],
+                                        (chrom_or_gen_unit) chrom_or_GU);
     
     for ( int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++ )
     {

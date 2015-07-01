@@ -170,13 +170,12 @@ class World
   int16_t x_best = -1;
   int16_t y_best = -1;
 
-  GridCell *** grid_ = nullptr;
-  GridCell ** grid_1d_ = nullptr;
+  GridCell*** grid_ = nullptr;
+  GridCell** grid_1d_ = nullptr;
 
   bool is_well_mixed_ = false;
   int32_t partial_mix_nb_permutations_ = 0;
 
- protected:
   bool phenotypic_target_shared_ = true;
   std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler_ = nullptr;
 

@@ -69,33 +69,35 @@ class OutputManager
     // =================================================================
     //                             Constructors
     // =================================================================
-    OutputManager( ExpManager * exp_m );
+    OutputManager() = delete;
+    OutputManager(const OutputManager&) = delete;
+    OutputManager(ExpManager* exp_m);
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~OutputManager( void );
+    virtual ~OutputManager();
 
     // =================================================================
     //                        Accessors: getters
     // =================================================================
     
     // Backup
-    inline int64_t	get_backup_step(void) const;
-    inline int64_t	get_big_backup_step(void) const;
+    inline int64_t	get_backup_step() const;
+    inline int64_t	get_big_backup_step() const;
     
     // Tree
-    inline bool         get_record_tree( void ) const;
-    inline int64_t      get_tree_step( void ) const;
-    inline TreeMode get_tree_mode( void ) const;
-    inline Tree *     get_tree( void ) const;
+    inline bool get_record_tree() const;
+    inline int64_t get_tree_step() const;
+    inline TreeMode get_tree_mode() const;
+    inline Tree* get_tree() const;
   
     // Logs
-    inline FILE* get_log( LogType log_type )   const;
-    inline bool  is_logged( LogType log_type ) const;
+    inline FILE* get_log(LogType log_type) const;
+    inline bool is_logged(LogType log_type) const;
   
     // Stats
-    inline bool get_compute_phen_contrib_by_GU( void ) const;
+    inline bool get_compute_phen_contrib_by_GU() const;
 
     // =================================================================
     //                        Accessors: setters
@@ -132,22 +134,6 @@ class OutputManager
 
 
   protected :
-
-    // =================================================================
-    //                         Forbidden Constructors
-    // =================================================================
-    OutputManager( void )
-    {
-      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-    OutputManager( const OutputManager &model )
-    {
-      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-
-
     // =================================================================
     //                           Protected Methods
     // =================================================================
@@ -156,27 +142,27 @@ class OutputManager
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ExpManager * _exp_m;
+    ExpManager* _exp_m;
     
     // Backups
     int64_t _backup_step;
     int64_t _big_backup_step;
     
     // Stats
-    Stats * _stats;
-    bool      _compute_phen_contrib_by_GU;
+    Stats* _stats;
+    bool _compute_phen_contrib_by_GU;
   
     // Tree
-    bool      _record_tree;
-    Tree *  _tree;
+    bool _record_tree;
+    Tree* _tree;
     
     // Dumps
-    bool      _make_dumps;
-    int64_t   _dump_step;
-    Dump *  _dump;
+    bool _make_dumps;
+    int64_t _dump_step;
+    Dump* _dump;
     
     // Logs
-    Logging *  _logs;
+    Logging* _logs;
 };
 
 
@@ -185,33 +171,33 @@ class OutputManager
 // =====================================================================
 
 // Backup
-inline int64_t OutputManager::get_backup_step(void) const
+inline int64_t OutputManager::get_backup_step() const
 {
   return _backup_step;
 }
 
-inline int64_t OutputManager::get_big_backup_step(void) const
+inline int64_t OutputManager::get_big_backup_step() const
 {
   return _big_backup_step;
 }
 
 // Tree
-inline bool OutputManager::get_record_tree( void ) const
+inline bool OutputManager::get_record_tree() const
 {
   return _record_tree;
 }
 
-inline int64_t OutputManager::get_tree_step( void ) const
+inline int64_t OutputManager::get_tree_step() const
 {
   return _tree->get_tree_step();
 }
 
-inline TreeMode OutputManager::get_tree_mode( void ) const
+inline TreeMode OutputManager::get_tree_mode() const
 {
   return _tree->get_tree_mode();
 }
 
-inline Tree *OutputManager::get_tree( void ) const
+inline Tree *OutputManager::get_tree() const
 {
   return _tree;
 }
@@ -228,7 +214,7 @@ inline bool  OutputManager::is_logged( LogType log_type ) const
 }
 
 // Stats
-inline bool OutputManager::get_compute_phen_contrib_by_GU( void ) const
+inline bool OutputManager::get_compute_phen_contrib_by_GU() const
 {
   return _compute_phen_contrib_by_GU;
 }

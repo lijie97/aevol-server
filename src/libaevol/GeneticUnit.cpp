@@ -70,17 +70,17 @@ int compare_prot_pos(const void* pos, const void* prot) // This function has to 
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-ExpManager * GeneticUnit::get_exp_m(void) const
+ExpManager* GeneticUnit::get_exp_m() const
 {
   return _exp_m;
 }
 
-Individual * GeneticUnit::get_indiv(void) const
+Individual* GeneticUnit::get_indiv() const
 {
   return _indiv;
 }
 
-Dna * GeneticUnit::get_dna(void) const
+Dna* GeneticUnit::get_dna() const
 {
   assert(_dna->get_length() != 0);
   return _dna;
@@ -98,17 +98,17 @@ void GeneticUnit::clear_protein_list(Strand strand) {
   _protein_list[strand].clear();
 }
 
-Fuzzy* GeneticUnit::get_activ_contribution( void ) const
+Fuzzy* GeneticUnit::get_activ_contribution() const
 {
   return _activ_contribution;
 }
 
-Fuzzy* GeneticUnit::get_inhib_contribution( void ) const
+Fuzzy* GeneticUnit::get_inhib_contribution() const
 {
   return _inhib_contribution;
 }
 
-Fuzzy* GeneticUnit::get_phenotypic_contribution( void ) const
+Fuzzy* GeneticUnit::get_phenotypic_contribution() const
 {
   assert(_phenotypic_contribution != NULL);
   return _phenotypic_contribution;
@@ -216,93 +216,93 @@ double GeneticUnit::get_av_size_non_functional_genes( void ) const
   else return 0.0;
 }
 
-int32_t GeneticUnit::get_nb_bases_in_0_CDS( void )
+int32_t GeneticUnit::get_nb_bases_in_0_CDS() const
 {
-  if ( ! _non_coding_computed ) compute_non_coding();
+  assert (_non_coding_computed );
   return _nb_bases_in_0_CDS;
 }
 
-int32_t GeneticUnit::get_nb_bases_in_0_functional_CDS( void )
+int32_t GeneticUnit::get_nb_bases_in_0_functional_CDS() const
 {
-  if ( ! _non_coding_computed ) compute_non_coding();
+  assert (_non_coding_computed );
   return _nb_bases_in_0_functional_CDS;
 }
 
-int32_t GeneticUnit::get_nb_bases_in_0_non_functional_CDS( void )
+int32_t GeneticUnit::get_nb_bases_in_0_non_functional_CDS() const
 {
-  if ( ! _non_coding_computed ) compute_non_coding();
+  assert (_non_coding_computed );
   return _nb_bases_in_0_non_functional_CDS;
 }
 
-int32_t GeneticUnit::get_nb_bases_in_0_RNA( void )
+int32_t GeneticUnit::get_nb_bases_in_0_RNA() const
 {
-  if ( ! _non_coding_computed ) compute_non_coding();
+  assert (_non_coding_computed );
   return _nb_bases_in_0_RNA;
 }
 
-int32_t GeneticUnit::get_nb_bases_in_0_coding_RNA( void )
+int32_t GeneticUnit::get_nb_bases_in_0_coding_RNA() const
 {
-  if ( ! _non_coding_computed ) compute_non_coding();
+  assert (_non_coding_computed );
   return _nb_bases_in_0_coding_RNA;
 }
 
-int32_t GeneticUnit::get_nb_bases_in_0_non_coding_RNA( void )
+int32_t GeneticUnit::get_nb_bases_in_0_non_coding_RNA() const
 {
-  if ( ! _non_coding_computed ) compute_non_coding();
+  assert (_non_coding_computed );
   return _nb_bases_in_0_non_coding_RNA;
 }
 
-int32_t GeneticUnit::get_nb_bases_non_essential( void )
+int32_t GeneticUnit::get_nb_bases_non_essential() const
 {
-  if ( ! _non_coding_computed ) compute_non_coding();
+  assert (_non_coding_computed );
   return _nb_bases_non_essential;
 }
 
-int32_t GeneticUnit::get_nb_bases_non_essential_including_nf_genes( void )
+int32_t GeneticUnit::get_nb_bases_non_essential_including_nf_genes() const
 {
-  if ( ! _non_coding_computed ) compute_non_coding();
+  assert (_non_coding_computed );
   return _nb_bases_non_essential_including_nf_genes;
 }
 
-int32_t GeneticUnit::get_nb_bases_in_neutral_regions( void )
+int32_t GeneticUnit::get_nb_bases_in_neutral_regions() const
 {
-  if ( ! _non_coding_computed ) compute_non_coding();
+  assert (_non_coding_computed );
   return _nb_bases_in_neutral_regions;
 }
 
-int32_t GeneticUnit::get_nb_neutral_regions( void )
+int32_t GeneticUnit::get_nb_neutral_regions() const
 {
-  if ( ! _non_coding_computed ) compute_non_coding();
+  assert (_non_coding_computed );
   return _nb_neutral_regions;
 }
 
-int32_t* GeneticUnit::get_beginning_neutral_regions( void )
+int32_t* GeneticUnit::get_beginning_neutral_regions() const
 {
-  if ( ! _non_coding_computed ) compute_non_coding();
+  assert (_non_coding_computed );
   return _beginning_neutral_regions;
 }
 
-int32_t* GeneticUnit::get_end_neutral_regions( void )
+int32_t* GeneticUnit::get_end_neutral_regions() const
 {
-  if ( ! _non_coding_computed ) compute_non_coding();
+  assert (_non_coding_computed );
   return _end_neutral_regions;
 }
 
-double GeneticUnit::get_modularity( void ) const
+double GeneticUnit::get_modularity() const
 {
   return _modularity;
 }
 
 double GeneticUnit::get_dist_to_target_by_feature( PhenotypicFeature feature ) const
 {
-  assert( _distance_to_target_computed );
+  assert(_distance_to_target_computed);
 
   return _dist_to_target_by_feature[feature];
 }
 
-double GeneticUnit::get_fitness( void ) const
+double GeneticUnit::get_fitness() const
 {
-  assert( _fitness_computed );
+  assert(_fitness_computed);
 
   return _fitness;
 }
@@ -879,7 +879,6 @@ GeneticUnit::~GeneticUnit( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-
 /// Look for promoters in the genome and create a new Rna in the
 /// corresponding strand's RNA list
 void GeneticUnit::locate_promoters( void )
@@ -1020,11 +1019,13 @@ void GeneticUnit::do_translation()
           // In that case, we don't need to tranlate it again, we only
           // need to increase the protein's concentration according to
           // the promoter transcription level
-          int32_t shine_dal_pos = Utils::mod(transcript_start + (strand == LEADING ? i : -i), genome_length);
+          int32_t shine_dal_pos = Utils::mod(transcript_start +
+                                                 (strand == LEADING ? i : -i),
+                                             genome_length);
           auto& protein_strand = _protein_list[strand];
           auto protein = find_if(protein_strand.begin(),
                                  protein_strand.end(),
-                                 [shine_dal_pos](Protein & p)
+                                 [shine_dal_pos](Protein& p)
                                  { return p.get_shine_dal_pos() == shine_dal_pos; });
 
           if (protein != protein_strand.end()) {
@@ -1035,7 +1036,7 @@ void GeneticUnit::do_translation()
             // Build codon list and make new protein when stop found
             int32_t j = i + SHINE_DAL_SIZE + SHINE_START_SPACER + CODON_SIZE; // next codon to examine
 
-            std::list<Codon *> codon_list;
+            std::list<Codon*> codon_list;
 
             while (transcript_length - j >= CODON_SIZE) {
               auto codon = new Codon(_dna,
@@ -1451,7 +1452,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 
   void GeneticUnit::compute_non_coding( void )
   {
-    if ( _non_coding_computed ) return;
+    if (_non_coding_computed) return;
     _non_coding_computed = true;
 
     // Create a table of <genome_length> bools initialized to false (non-coding)
@@ -2750,67 +2751,51 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 ///                       ^
 ///                      pos
 /// \endverbatim
-  void GeneticUnit::copy_lagging_promoters_starting_between(int32_t pos_1,
-                                                            int32_t pos_2,
-                                                            Promoters1Strand& new_promoter_list) {
-    // Go to first RNA to copy
-    auto& strand = _rna_list[LAGGING];
-    const auto& first = find_if(strand.rbegin(),
-                                strand.rend(),
-                                [pos_1](Rna & r) { return r.get_promoter_pos() >= pos_1; });
+void GeneticUnit::copy_lagging_promoters_starting_between(int32_t pos_1,
+                                                          int32_t pos_2,
+                                                          Promoters1Strand& new_promoter_list) {
+  // Go to first RNA to copy
+  auto& strand = _rna_list[LAGGING];
+  const auto& first = find_if(strand.rbegin(),
+                              strand.rend(),
+                              [pos_1](Rna & r) { return r.get_promoter_pos() >= pos_1; });
 
-    // Copy RNAs
-    if (pos_1 < pos_2) {
-      // Copy from pos_1 to pos_2
-      for (auto rna = first; rna != strand.rend() and rna->get_promoter_pos() < pos_2 ; ++rna)
-        new_promoter_list.emplace_front(this, *rna);
-    }
-    else
-    {
-      // Copy from pos_1 to the beginning of the list (we are going backwards)
-      for (auto rna = first; rna != strand.rend(); ++rna)
-        new_promoter_list.emplace_front(this, *rna);
-
-      // Copy from the end of the list to pos_2 (we are going backwards)
-      for (auto rna = strand.rbegin(); rna != strand.rend() and rna->get_promoter_pos() < pos_2; ++rna)
-        new_promoter_list.emplace_front(this, *rna);
-    }
+  // Copy RNAs
+  if (pos_1 < pos_2) {
+    // Copy from pos_1 to pos_2
+    for (auto rna = first; rna != strand.rend() and rna->get_promoter_pos() < pos_2 ; ++rna)
+      new_promoter_list.emplace_front(this, *rna);
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  void GeneticUnit::save( gzFile backup_file ) const
+  else
   {
-    _dna->save( backup_file );
-    gzwrite( backup_file, &_min_gu_length, sizeof(_min_gu_length) );
-    gzwrite( backup_file, &_max_gu_length, sizeof(_max_gu_length) );
-  }
+    // Copy from pos_1 to the beginning of the list (we are going backwards)
+    for (auto rna = first; rna != strand.rend(); ++rna)
+      new_promoter_list.emplace_front(this, *rna);
 
-  int32_t GeneticUnit::get_nb_terminators( void ) {
-    int32_t nb_term = 0;
-    if (_dna->get_length() >= TERM_SIZE)
-      for (int32_t i = 0 ; i < _dna->get_length() ; i++)
-        if (is_terminator(LEADING, i))  // No need to count on both the
-          // LEADING and the LAGGING
-          // strand as terminators are
-          // "shared"
-          nb_term++;
-    return nb_term;
+    // Copy from the end of the list to pos_2 (we are going backwards)
+    for (auto rna = strand.rbegin(); rna != strand.rend() and rna->get_promoter_pos() < pos_2; ++rna)
+      new_promoter_list.emplace_front(this, *rna);
   }
+}
+
+void GeneticUnit::save(gzFile backup_file) const
+{
+  _dna->save(backup_file);
+  gzwrite(backup_file, &_min_gu_length, sizeof(_min_gu_length));
+  gzwrite(backup_file, &_max_gu_length, sizeof(_max_gu_length));
+}
+
+int32_t GeneticUnit::get_nb_terminators() {
+  int32_t nb_term = 0;
+  if (_dna->get_length() >= TERM_SIZE)
+    for (int32_t i = 0 ; i < _dna->get_length() ; i++)
+      if (is_terminator(LEADING, i))  // No need to count on both the
+        // LEADING and the LAGGING
+        // strand as terminators are
+        // "shared"
+        nb_term++;
+  return nb_term;
+}
 
 #ifdef DEBUG
 /// Compare current _rna_list with locate_promoters-generated _rna_list
@@ -2918,7 +2903,7 @@ void GeneticUnit::assert_promoters_order() {
 bool* GeneticUnit::is_belonging_to_coding_RNA( void ) {
   int32_t genome_length = _dna->get_length();
   bool* belongs_to_coding_RNA = new bool[genome_length];
-  memset( belongs_to_coding_RNA,0, genome_length );
+  memset(belongs_to_coding_RNA,0, genome_length);
 
   // Parse RNA lists and mark the corresponding bases as coding (only for the coding RNAs)
   for ( int8_t strand = LEADING ; strand <= LAGGING ; strand++ ) {

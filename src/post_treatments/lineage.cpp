@@ -354,7 +354,7 @@ int main(int argc, char** argv)
   // Copy the initial ancestor
   // NB : The list of individuals is sorted according to the index
   Individual* initial_ancestor_tmp = exp_manager->get_indiv_by_id(indices[0]);
-  Individual* initial_ancestor = new Individual(*initial_ancestor_tmp, false);
+  Individual* initial_ancestor = new Individual(*initial_ancestor_tmp);
 
 
   gzwrite(lineage_file, &t0, sizeof(t0));

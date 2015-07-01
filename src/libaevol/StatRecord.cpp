@@ -136,7 +136,7 @@ StatRecord::StatRecord(const StatRecord &model)
   #endif
 }
 
-StatRecord::StatRecord(ExpManager * exp_m,
+StatRecord::StatRecord(ExpManager* exp_m,
                        Individual* indiv,
                        chrom_or_gen_unit chrom_or_gu,
                        bool compute_non_coding)
@@ -148,7 +148,8 @@ StatRecord::StatRecord(ExpManager * exp_m,
   // ---------------
   // Simulation data
   // ---------------
-  _pop_size = 0; // The pop_size value is irrelevent when dealing with a single individual. It is present for column alignment.
+  _pop_size = 0; // The pop_size value is irrelevant when dealing with a single
+                 // individual. It is present for column alignment.
   
   #ifdef __REGUL
     // TODO
@@ -160,14 +161,22 @@ StatRecord::StatRecord(ExpManager * exp_m,
     // -------------------------------------------------
     // Compute statistical data for the given individual
     // -------------------------------------------------
-    ReplicationReport * replic_report = indiv->get_replication_report(); // can be NULL under certain conditions
+    ReplicationReport* replic_report = nullptr;
+    if (_exp_m->get_tree() != nullptr)
+      replic_report = _exp_m->get_tree()->get_report_by_index(Time::get_time(),
+                                                              indiv->get_id());
 
-    GeneticUnit& gen_unit = *indiv->get_genetic_unit_list_nonconst().begin();
+    if (compute_non_coding)
+      indiv->compute_non_coding();
+
+    const GeneticUnit& gen_unit = *indiv->get_genetic_unit_list().begin();
 
     // Metabolic error stats
-    _metabolic_error = (double) indiv->get_dist_to_target_by_feature(METABOLISM);
-    _metabolic_fitness = (double) indiv->get_fitness_by_feature(METABOLISM);
-    _parent_metabolic_error = (replic_report != NULL) ? replic_report->get_parent_metabolic_error() : 0.0;
+    _metabolic_error = indiv->get_dist_to_target_by_feature(METABOLISM);
+    _metabolic_fitness = indiv->get_fitness_by_feature(METABOLISM);
+    _parent_metabolic_error = (replic_report != NULL) ?
+                              replic_report->get_parent_metabolic_error() :
+                              0.0;
 
     // Fitness
     _fitness = indiv->get_fitness();
@@ -175,9 +184,9 @@ StatRecord::StatRecord(ExpManager * exp_m,
     // Secretion stats
     if (_exp_m->get_with_secretion())
     {
-       _secretion_error   = (double) indiv->get_dist_to_target_by_feature(SECRETION);
-       _secretion_fitness = (double) indiv->get_fitness_by_feature(SECRETION);
-       _compound_amount   = (double) indiv->get_grid_cell()->compound_amount();
+       _secretion_error   = indiv->get_dist_to_target_by_feature(SECRETION);
+       _secretion_fitness = indiv->get_fitness_by_feature(SECRETION);
+       _compound_amount   = indiv->get_grid_cell()->compound_amount();
        _parent_secretion_error = 0.0;
 
       if (replic_report != NULL)
@@ -193,8 +202,6 @@ StatRecord::StatRecord(ExpManager * exp_m,
       _parent_secretion_error = 0.0;
     }
 
-
-
     // Genes and RNA stats
     _amount_of_dna               = gen_unit.get_dna()->get_length();
     _nb_coding_rnas              = gen_unit.get_nb_coding_RNAs();
@@ -206,10 +213,8 @@ StatRecord::StatRecord(ExpManager * exp_m,
     _av_size_functional_gene     = gen_unit.get_av_size_functional_genes();
     _av_size_non_functional_gene = gen_unit.get_av_size_non_functional_genes();
 
-
     // Non coding stats
-    if (compute_non_coding)
-    {
+    if (compute_non_coding) {
       _nb_bases_in_0_CDS                = gen_unit.get_nb_bases_in_0_CDS();
       _nb_bases_in_0_functional_CDS     = gen_unit.get_nb_bases_in_0_functional_CDS();
       _nb_bases_in_0_non_functional_CDS = gen_unit.get_nb_bases_in_0_non_functional_CDS();
@@ -224,14 +229,14 @@ StatRecord::StatRecord(ExpManager * exp_m,
     // Mutation stats
     if (replic_report != NULL)
     {
-      _nb_mut    = indiv->get_replication_report()->get_nb(S_MUT);
-      _nb_rear   = indiv->get_replication_report()->get_nb(REARR);
-      _nb_switch = indiv->get_replication_report()->get_nb(SWITCH);
-      _nb_indels = indiv->get_replication_report()->get_nb(INDEL);
-      _nb_dupl   = indiv->get_replication_report()->get_nb(DUPL);
-      _nb_del    = indiv->get_replication_report()->get_nb(DEL);
-      _nb_trans  = indiv->get_replication_report()->get_nb(TRANS);
-      _nb_inv    = indiv->get_replication_report()->get_nb(INV);
+      _nb_mut    = replic_report->get_nb(S_MUT);
+      _nb_rear   = replic_report->get_nb(REARR);
+      _nb_switch = replic_report->get_nb(SWITCH);
+      _nb_indels = replic_report->get_nb(INDEL);
+      _nb_dupl   = replic_report->get_nb(DUPL);
+      _nb_del    = replic_report->get_nb(DEL);
+      _nb_trans  = replic_report->get_nb(TRANS);
+      _nb_inv    = replic_report->get_nb(INV);
 
       // Rearrangement rate stats
       int32_t parent_genome_size = replic_report->get_parent_genome_size();
@@ -260,7 +265,10 @@ StatRecord::StatRecord(ExpManager * exp_m,
     // -------------------------------------------------
     // Compute statistical data for the given individual
     // -------------------------------------------------
-    ReplicationReport * replic_report = indiv->get_replication_report(); // can be NULL under certain conditions
+    ReplicationReport* replic_report = nullptr;
+    if (_exp_m->get_tree() != nullptr)
+      replic_report = _exp_m->get_tree()->get_report_by_index(Time::get_time(),
+                                                              indiv->get_id());
 
     // Metabolic error stats
     _metabolic_error = (double) indiv->get_dist_to_target_by_feature(METABOLISM);
@@ -357,7 +365,10 @@ StatRecord::StatRecord(ExpManager * exp_m,
     // -------------------------------------------------
     // Compute statistical data for the given individual
     // -------------------------------------------------
-    ReplicationReport * replic_report = indiv->get_replication_report(); // can be NULL under certain conditions
+    ReplicationReport* replic_report = nullptr;
+    if (_exp_m->get_tree() != nullptr)
+      replic_report = _exp_m->get_tree()->get_report_by_index(Time::get_time(),
+                                                              indiv->get_id());
     
     // Metabolic error stats
     _metabolic_error = (double) gen_unit.get_dist_to_target_by_feature(METABOLISM);

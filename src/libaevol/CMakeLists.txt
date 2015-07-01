@@ -62,6 +62,9 @@ add_library(aevol
   Logging.h
   Mutation.cpp
   Mutation.h
+  Observable.cpp
+  Observable.h
+  Observer.h
   OutputManager.cpp
   OutputManager.h
   MutationParams.cpp
@@ -110,7 +113,8 @@ add_library(aevol
   Time.cpp
   Time.h
   World.cpp
-  World.h)
+  World.h
+  ObservableEvent.h)
 
 
 # ============================================================================

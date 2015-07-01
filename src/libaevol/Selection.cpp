@@ -71,7 +71,7 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-Selection::Selection(ExpManager * exp_m )
+Selection::Selection(ExpManager* exp_m )
 {
   _exp_m = exp_m;
 
@@ -226,7 +226,8 @@ void Selection::step_to_next_generation(void)
   // Update the best individual
   _exp_m->update_best();
 
-  _exp_m->get_tree()->signal_end_of_generation();
+  // Notify observers of the end of the generation
+  notifyObservers(END_GENERATION);
 }
 
 void Selection::PerformPlasmidTransfers(void)
@@ -525,7 +526,7 @@ void Selection::compute_local_prob_reprod(void )
 
 Individual* Selection::do_replication(Individual* parent, int32_t index, int16_t x /*= -1 */, int16_t y /*= -1 */ )
 {
-  Individual * new_indiv = NULL;
+  Individual* new_indiv = NULL;
 
   // ===========================================================================
   //  1) Copy parent
@@ -544,20 +545,16 @@ Individual* Selection::do_replication(Individual* parent, int32_t index, int16_t
     #endif
   #endif
 
-  // Initialize replication report
-  new_indiv->get_replication_report()->init(new_indiv, parent);
+  // Notify observers that a new individual was created from <parent>
+  {
+    Individual* msg[2] = {new_indiv, parent};
+    notifyObservers(NEW_INDIV, msg);
+  }
 
-
-  // ===========================================================================
-  //  2) Set the new individual's location on the grid
-  // ===========================================================================
+  // Set the new individual's location on the grid
   _exp_m->world()->PlaceIndiv(new_indiv, x, y);
 
-
-
-  // ===========================================================================
-  //  3) Perform transfer, rearrangements and mutations
-  // ===========================================================================
+  // Perform transfer, rearrangements and mutations
   if (not new_indiv->get_allow_plasmids())
   {
     const GeneticUnit* chromosome = &new_indiv->get_genetic_unit_list().front();
@@ -582,24 +579,14 @@ Individual* Selection::do_replication(Individual* parent, int32_t index, int16_t
     }
   }
 
-
-
-  // ===========================================================================
-  //  4) Evaluate new individual
-  // ===========================================================================
+  // Evaluate new individual
   new_indiv->Evaluate();
 
-
-  // ===========================================================================
-  //  5) Compute statistics
-  // ===========================================================================
+  // Compute statistics
   new_indiv->compute_statistical_data();
 
-
-  #ifdef BIG_DEBUG
-  //  new_indiv->assert_promoters();
-  #endif
-
+  // Tell observers the replication is finished
+  new_indiv->notifyObservers(END_REPLICATION, nullptr);
 
   return new_indiv;
 }

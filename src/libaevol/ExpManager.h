@@ -37,6 +37,9 @@
 */
 
 
+// =================================================================
+//                              Includes
+// =================================================================
 #ifndef AEVOL_EXP_MANAGER_H__
 #define AEVOL_EXP_MANAGER_H__
 
@@ -51,6 +54,8 @@
 #include "ExpSetup.h"
 #include "OutputManager.h"
 #include "World.h"
+#include "Observer.h"
+#include "ObservableEvent.h"
 
 
 namespace aevol {
@@ -61,11 +66,7 @@ namespace aevol {
 // =================================================================
 
 
-
-
-
-
-class ExpManager
+class ExpManager : public Observer
 {
   public :
     // =======================================================================
@@ -191,6 +192,10 @@ class ExpManager
       world_->FillGridWithClones(dolly);
     }
 
+    void update(Observable& o, ObservableEvent e, void* arg) override {
+
+    };
+
 
 
 
@@ -226,13 +231,13 @@ class ExpManager
     //                             Protected Attributes
     // =======================================================================
     // ---------------------------------------------------- Experimental setup
-    ExpSetup * _exp_s;
+    ExpSetup* _exp_s;
 
     // ----------------------------------------------------- Spatial structure
     World* world_;
 
     // -------------------------------------------------------- Output manager
-    OutputManager * _output_m;
+    OutputManager* _output_m;
 
     // ----------------------------- Time step up to which we want to simulate
     int64_t t_end;
