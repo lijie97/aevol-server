@@ -264,7 +264,6 @@ void Dna::do_small_mutations(void) {
 
     if (random_value < nb_swi) {
       mut = do_switch();
-      assert(mut != NULL || !(_exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL));
 
       nb_swi--;  // updating the urn (no replacement!)...
     }
@@ -280,18 +279,8 @@ void Dna::do_small_mutations(void) {
     }
 
     // Record mutation in tree
-    if (_exp_m->get_output_m()->get_record_tree() &&
-        _exp_m->get_output_m()->get_tree_mode() == NORMAL) {
-      if (mut != NULL) {
-        _indiv->notifyObservers(MUTATION, mut);
-      }
-    }
-    else {
-      if (mut != NULL) {
-        delete mut;
-        mut = NULL;
-      }
-    }
+    if (mut != NULL)
+      _indiv->notifyObservers(MUTATION, mut);
   }
 }
 
@@ -353,18 +342,8 @@ void Dna::do_rearrangements(void) {
     }
 
     // Record rearrangement in tree
-    if (_exp_m->get_output_m()->get_record_tree() &&
-        _exp_m->get_output_m()->get_tree_mode() == NORMAL) {
-      if (mut != NULL) {
-        _indiv->notifyObservers(MUTATION, mut);
-      }
-    }
-    else {
-      if (mut != NULL) {
-        delete mut;
-        mut = NULL;
-      }
-    }
+    if (mut != NULL)
+      _indiv->notifyObservers(MUTATION, mut);
   }
 }
 
@@ -491,16 +470,11 @@ void Dna::do_rearrangements_with_align(void)
                          alignment->get_i_2());
 
           // Report the duplication
-          if (_exp_m->get_output_m()->get_record_tree() &&
-              _exp_m->get_output_m()->get_tree_mode() == NORMAL)
-          {
-            // Report the insertion
-            mut = new Mutation();
-            mut->report_duplication(alignment->get_i_1(),
-                                    alignment->get_i_2(),
-                                    alignment->get_i_2(),
-                                    segment_length, needed_score);
-          }
+          mut = new Mutation();
+          mut->report_duplication(alignment->get_i_1(),
+                                  alignment->get_i_2(),
+                                  alignment->get_i_2(),
+                                  segment_length, needed_score);
 
           // Write a line in rearrangement logfile
           if (_exp_m->get_output_m()->is_logged(LOG_REAR))
@@ -544,15 +518,10 @@ void Dna::do_rearrangements_with_align(void)
           do_deletion(alignment->get_i_1(), alignment->get_i_2());
 
           // Report the deletion
-          if (_exp_m->get_output_m()->get_record_tree() &&
-              _exp_m->get_output_m()->get_tree_mode() == NORMAL)
-          {
-            // Report the insertion
-            mut = new Mutation();
-            mut->report_deletion(alignment->get_i_1(),
-                                 alignment->get_i_2(),
-                                 segment_length, needed_score);
-          }
+          mut = new Mutation();
+          mut->report_deletion(alignment->get_i_1(),
+                               alignment->get_i_2(),
+                               segment_length, needed_score);
 
           // Write a line in rearrangement logfile
           if (_exp_m->get_output_m()->is_logged(LOG_REAR))
@@ -635,18 +604,14 @@ void Dna::do_rearrangements_with_align(void)
                     (alignment_2->get_sense() == INDIRECT));
 
           // Report the translocation
-          if (_exp_m->get_output_m()->get_record_tree() &&
-              _exp_m->get_output_m()->get_tree_mode() == NORMAL)
-          {
-            mut = new Mutation();
-            mut->report_translocation(alignment->get_i_1(),
-                                      alignment->get_i_2(),
-                                      alignment_2->get_i_1(),
-                                      alignment_2->get_i_2(),
-                                      segment_length,
-                                      (alignment_2->get_sense() == INDIRECT),
-                                      needed_score, needed_score_2);
-          }
+          mut = new Mutation();
+          mut->report_translocation(alignment->get_i_1(),
+                                    alignment->get_i_2(),
+                                    alignment_2->get_i_1(),
+                                    alignment_2->get_i_2(),
+                                    segment_length,
+                                    (alignment_2->get_sense() == INDIRECT),
+                                    needed_score, needed_score_2);
 
           // Write a line in rearrangement logfile
           if (_exp_m->get_output_m()->is_logged(LOG_REAR))
@@ -709,13 +674,10 @@ void Dna::do_rearrangements_with_align(void)
       do_inversion(alignment->get_i_1(), alignment->get_i_2());
 
       // Report the inversion
-      if (_exp_m->get_output_m()->get_record_tree() &&
-          _exp_m->get_output_m()->get_tree_mode() == NORMAL) {
-        mut = new Mutation();
-        mut->report_inversion(alignment->get_i_1(),
-                              alignment->get_i_2(),
-                              segment_length, needed_score);
-      }
+      mut = new Mutation();
+      mut->report_inversion(alignment->get_i_1(),
+                            alignment->get_i_2(),
+                            segment_length, needed_score);
 
       // Write a line in rearrangement logfile
       if (_exp_m->get_output_m()->is_logged(LOG_REAR)) {
@@ -743,52 +705,24 @@ void Dna::do_rearrangements_with_align(void)
     //////////////////////////////////////////////////////////////////////////////////////////
     // 6) If there was a rearrangement, we either save its record in the tree or delete it. //
     //////////////////////////////////////////////////////////////////////////////////////////
-    if (mut != NULL) {
-      if (_exp_m->get_output_m()->get_record_tree() &&
-          _exp_m->get_output_m()->get_tree_mode() == NORMAL) {
-        _indiv->notifyObservers(MUTATION, mut);
-        mut = NULL;
-      }
-      else {
-        delete mut;
-        mut = NULL;
-      }
-    }
+    if (mut != NULL)
+      _indiv->notifyObservers(MUTATION, mut);
   }
 }
 
 void Dna::do_transfer(int32_t parent_id) {
-  Mutation * mut = NULL;
+  Mutation* mut = nullptr;
+
   if (_indiv->get_mut_prng()->random() < _indiv->get_HT_ins_rate()) {
     mut = do_ins_HT(parent_id);
-    if (_exp_m->get_output_m()->get_record_tree() &&
-        _exp_m->get_output_m()->get_tree_mode() == NORMAL) {
-      if (mut != NULL) {
-        _indiv->notifyObservers(MUTATION, mut);
-      }
-    }
-    else {
-      if (mut != NULL) {
-        delete mut;
-        mut = NULL;
-      }
-    }
+    if (mut != nullptr)
+      _indiv->notifyObservers(MUTATION, mut);
   }
 
   if (_indiv->get_mut_prng()->random() < _indiv->get_HT_repl_rate()) {
     mut = do_repl_HT(parent_id);
-    if (_exp_m->get_output_m()->get_record_tree() &&
-        _exp_m->get_output_m()->get_tree_mode() == NORMAL) {
-      if (mut != NULL) {
-        _indiv->notifyObservers(MUTATION, mut);
-      }
-    }
-    else {
-      if (mut != NULL) {
-        delete mut;
-        mut = NULL;
-      }
-    }
+    if (mut != nullptr)
+      _indiv->notifyObservers(MUTATION, mut);
   }
 }
 
@@ -797,14 +731,10 @@ Mutation *Dna::do_switch(void) {
 
   int32_t pos = _indiv->_mut_prng->random(_length);
 
-  if (do_switch(pos))
-  {
-    if (_exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL)
-    {
-      // Report the mutation
-      mut = new Mutation();
-      mut->report_point_mutation(pos);
-    }
+  if (do_switch(pos)) {
+    // Report the mutation
+    mut = new Mutation();
+    mut->report_point_mutation(pos);
   }
 
   return mut;
@@ -858,13 +788,9 @@ Mutation *Dna::do_small_insertion(void)
   // Proceed to the insertion and report it
   if (do_small_insertion(pos, nb_insert, inserted_seq))
   {
-    if (_exp_m->get_output_m()->get_record_tree() &&
-        _exp_m->get_output_m()->get_tree_mode() == NORMAL)
-    {
-      // Report the insertion
-      mut = new Mutation();
-      mut->report_small_insertion(pos, nb_insert, inserted_seq);
-    }
+    // Report the insertion
+    mut = new Mutation();
+    mut->report_small_insertion(pos, nb_insert, inserted_seq);
   }
 
   // Delete the sequence
@@ -905,16 +831,13 @@ Mutation *Dna::do_small_deletion(void)
               _indiv->get_amount_of_dna());
     }
 
-    return NULL;
+    return nullptr;
   }
 
   if (do_small_deletion(pos, nb_del))
   {
-    if (_exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL)
-    {
-      mut = new Mutation();
-      mut->report_small_deletion(pos, nb_del);
-    }
+    mut = new Mutation();
+    mut->report_small_deletion(pos, nb_del);
   }
 
   return mut;
@@ -924,17 +847,14 @@ bool Dna::do_switch(int32_t pos)
 {
   // Perform the mutation
   if (_data[pos] == '0')  _data[pos] = '1';
-  else                      _data[pos] = '0';
+  else                    _data[pos] = '0';
 
   // Remove promoters containing the switched base
   _gen_unit->remove_promoters_around(pos, Utils::mod(pos + 1, _length));
 
   // Look for potential new promoters containing the switched base
   if (_length >= PROM_SIZE)
-  {
     _gen_unit->look_for_new_promoters_around(pos, Utils::mod(pos + 1, _length));
-  }
-
 
   return true;
 }
@@ -1046,12 +966,8 @@ Mutation *Dna::do_duplication(void)
     do_duplication(pos_1, pos_2, pos_3);
 
     // Report the duplication
-    if (_exp_m->get_output_m()->get_record_tree() &&
-        _exp_m->get_output_m()->get_tree_mode() == NORMAL)
-    {
-      mut = new Mutation();
-      mut->report_duplication(pos_1, pos_2, pos_3, segment_length);
-    }
+    mut = new Mutation();
+    mut->report_duplication(pos_1, pos_2, pos_3, segment_length);
 
     // Write a line in rearrangement logfile
     if (_exp_m->get_output_m()->is_logged(LOG_REAR))
@@ -1101,12 +1017,8 @@ Mutation *Dna::do_deletion(void)
     do_deletion(pos_1, pos_2);
 
     // Report the deletion
-    if (_exp_m->get_output_m()->get_record_tree() &&
-        _exp_m->get_output_m()->get_tree_mode() == NORMAL)
-    {
-      mut = new Mutation();
-      mut->report_deletion(pos_1, pos_2, segment_length);
-    }
+    mut = new Mutation();
+    mut->report_deletion(pos_1, pos_2, segment_length);
 
     // Write a line in rearrangement logfile
     if (_exp_m->get_output_m()->is_logged(LOG_REAR))
@@ -1244,14 +1156,10 @@ Mutation *Dna::do_translocation(void)
                                     pos_3_rel, pos_4_rel, invert))
       {
         // Report the translocation
-        if (_exp_m->get_output_m()->get_record_tree() &&
-            _exp_m->get_output_m()->get_tree_mode() == NORMAL)
-        {
-          mut = new Mutation();
-          mut->report_translocation(pos_1_rel, pos_2_rel,
-                                    pos_3_rel, pos_4_rel,
-                                    segment_length, invert);
-        }
+        mut = new Mutation();
+        mut->report_translocation(pos_1_rel, pos_2_rel,
+                                  pos_3_rel, pos_4_rel,
+                                  segment_length, invert);
 
         // Write a line in rearrangement logfile
         if (_exp_m->get_output_m()->is_logged(LOG_REAR))
@@ -1276,15 +1184,10 @@ Mutation *Dna::do_translocation(void)
       //~ printf("  former pos : %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n", former_pos_1, former_pos_2, former_pos_3, former_pos_4);
       if (do_translocation(pos_1_rel, pos_2_rel, pos_3_rel, pos_4_rel, invert))
       {
-        // Report the translocation
-        if (_exp_m->get_output_m()->get_record_tree() &&
-            _exp_m->get_output_m()->get_tree_mode() == NORMAL)
-        {
-          mut = new Mutation();
-          mut->report_translocation(pos_1_rel, pos_2_rel,
-                                    pos_3_rel, pos_4_rel,
-                                    segment_length, invert);
-        }
+        mut = new Mutation();
+        mut->report_translocation(pos_1_rel, pos_2_rel,
+                                  pos_3_rel, pos_4_rel,
+                                  segment_length, invert);
 
         // Write a line in rearrangement logfile
         if (_exp_m->get_output_m()->is_logged(LOG_REAR))
@@ -1322,13 +1225,9 @@ Mutation *Dna::do_translocation(void)
     if (do_translocation(pos_1, pos_2, pos_3, pos_4, invert))
     {
       // Report the translocation
-      if (_exp_m->get_output_m()->get_record_tree() &&
-          _exp_m->get_output_m()->get_tree_mode() == NORMAL)
-      {
-        mut = new Mutation();
-        mut->report_translocation(pos_1, pos_2, pos_3, pos_4,
-                                  segment_length, invert);
-      }
+      mut = new Mutation();
+      mut->report_translocation(pos_1, pos_2, pos_3, pos_4,
+                                segment_length, invert);
 
       // Write a line in rearrangement logfile
       if (_exp_m->get_output_m()->is_logged(LOG_REAR))
@@ -1358,15 +1257,11 @@ Mutation *Dna::do_inversion(void)
 
   segment_length = pos_2 - pos_1;
 
-  if(do_inversion(pos_1, pos_2))
+  if (do_inversion(pos_1, pos_2))
   {
     // Report the inversion
-    if (_exp_m->get_output_m()->get_record_tree() &&
-        _exp_m->get_output_m()->get_tree_mode() == NORMAL)
-    {
-      mut = new Mutation();
-      mut->report_inversion(pos_1, pos_2, segment_length);
-    }
+    mut = new Mutation();
+    mut->report_inversion(pos_1, pos_2, segment_length);
 
     // Write a line in rearrangement logfile
     if (_exp_m->get_output_m()->is_logged(LOG_REAR))
@@ -1396,12 +1291,9 @@ Mutation *Dna::do_insertion(const char* seq_to_insert, int32_t seq_length /*= -1
 
   if (do_insertion(pos, seq_to_insert, seq_length))
   {
-    if (_exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL)
-    {
-      // Report the insertion
-      mut = new Mutation();
-      mut->report_insertion(pos, seq_length, seq_to_insert);
-    }
+    // Report the insertion
+    mut = new Mutation();
+    mut->report_insertion(pos, seq_length, seq_to_insert);
   }
 
   return mut;

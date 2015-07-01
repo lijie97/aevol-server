@@ -83,12 +83,6 @@ enum SelectionScheme
   FITTEST               = 3
 };
 
-enum TreeMode
-{
-  LIGHT   = 0,
-  NORMAL  = 1
-};
-
 enum LogType
 {
   LOG_TRANSFER  = 0x01,
