@@ -275,13 +275,14 @@ void ExpManager::load(gzFile& exp_s_file,
   printf(" OK\n");
 
   // -------------------------------------------- Link world and output profile
-  get_sel()->addObserver(get_tree(), NEW_INDIV);
-  get_sel()->addObserver(get_tree(), END_GENERATION);
-  if (get_record_tree())
+  if (get_record_tree()) {
+    get_sel()->addObserver(get_tree(), NEW_INDIV);
+    get_sel()->addObserver(get_tree(), END_GENERATION);
     for (auto indiv : world_->get_indivs())
       indiv->addObserver(
           get_tree()->get_report_by_index(Time::get_time(), indiv->get_id()),
           END_REPLICATION);
+  }
 }
 
 
