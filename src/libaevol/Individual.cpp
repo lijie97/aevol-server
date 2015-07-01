@@ -317,11 +317,11 @@ Individual::Individual(const Individual& other) {
   _fitness = other._fitness;
 
   // Copy statistical data
-  stats_ = other.stats_ ?
-           new IndivStats(*other.stats_) :
+  metrics_ = other.metrics_ ?
+           new Metrics(*other.metrics_) :
            nullptr;
-  nc_stats_ = other.nc_stats_ ?
-              new NonCodingStats(*other.nc_stats_) :
+  nc_metrics_ = other.nc_metrics_ ?
+              new NonCodingMetrics(*other.nc_metrics_) :
               nullptr;
 
   _modularity = other._modularity;
@@ -488,8 +488,8 @@ Individual::~Individual()
   delete [] _int_probes;
   delete [] _double_probes;
 
-  delete stats_;
-  delete nc_stats_;
+  delete metrics_;
+  delete nc_metrics_;
 }
 
 // =================================================================
@@ -600,9 +600,9 @@ void Individual::drop_nested_genetic_units() {
 }
 
 /// Returns genetic unit number `num_unit` (0 for main chromosome)
-const GeneticUnit&Individual::get_genetic_unit(int16_t num_unit) const {
+const GeneticUnit& Individual::get_genetic_unit(int16_t num_unit) const {
   assert(num_unit < static_cast<int32_t>(_genetic_unit_list.size()));
-  auto it = _genetic_unit_list.begin();
+  auto it = _genetic_unit_list.cbegin();
   std::advance(it, num_unit);
   return *it;
 }
@@ -610,7 +610,7 @@ const GeneticUnit&Individual::get_genetic_unit(int16_t num_unit) const {
 /// Returns genetic unit number `num_unit` (0 for main chromosome) as
 /// a non-constant reference. To be used when the purpose if to alter
 /// the individual.
-GeneticUnit&Individual::get_genetic_unit_nonconst(int16_t num_unit) {
+GeneticUnit& Individual::get_genetic_unit_nonconst(int16_t num_unit) {
   assert(num_unit < static_cast<int32_t>(_genetic_unit_list.size()));
   auto it = _genetic_unit_list.begin();
   std::advance(it, num_unit);
@@ -668,182 +668,182 @@ int32_t Individual::get_genetic_unit_seq_length(int16_t num_unit) const {
 }
 
 /// TODO
-Fuzzy*Individual::get_phenotype_activ() const {
+Fuzzy* Individual::get_phenotype_activ() const {
   return _phenotype_activ;
 }
 
 /// TODO
-Fuzzy*Individual::get_phenotype_inhib() const {
+Fuzzy* Individual::get_phenotype_inhib() const {
   return _phenotype_inhib;
 }
 
 /// TODO
-Phenotype*Individual::get_phenotype() const {
+Phenotype* Individual::get_phenotype() const {
   return _phenotype;
 }
 
-const PhenotypicTarget&Individual::phenotypic_target() const {
+const PhenotypicTarget& Individual::phenotypic_target() const {
   return _grid_cell->phenotypic_target();
 }
 
 /// TODO
-const std::list<Protein *>&Individual::get_protein_list() const {
+const std::list<Protein*>& Individual::get_protein_list() const {
   return _protein_list;
 }
 
 /// TODO
-const std::list<const Rna *>&Individual::get_rna_list() const {
+const std::list<const Rna*>& Individual::get_rna_list() const {
   return _rna_list;
 }
 
 /// TODO
 int32_t Individual::get_total_genome_size() const {
-  assert(stats_ != nullptr);
-  return stats_->total_genome_size();
+  assert(metrics_ != nullptr);
+  return metrics_->total_genome_size();
 }
 
 /// TODO
 int16_t Individual::get_nb_coding_RNAs() const {
-  assert(stats_ != nullptr);
-  return stats_->nb_coding_RNAs();
+  assert(metrics_ != nullptr);
+  return metrics_->nb_coding_RNAs();
 }
 
 /// TODO
 int16_t Individual::get_nb_non_coding_RNAs() const {
-  assert(stats_ != nullptr);
-  return stats_->nb_non_coding_RNAs();
+  assert(metrics_ != nullptr);
+  return metrics_->nb_non_coding_RNAs();
 }
 
 /// TODO
 int32_t Individual::get_overall_size_coding_RNAs() const {
-  assert(stats_ != nullptr);
-  return stats_->overall_size_coding_RNAs();
+  assert(metrics_ != nullptr);
+  return metrics_->overall_size_coding_RNAs();
 }
 
 /// TODO
 double Individual::get_av_size_coding_RNAs() const {
-  assert(stats_ != nullptr);
-  return stats_->nb_coding_RNAs() == 0 ?
+  assert(metrics_ != nullptr);
+  return metrics_->nb_coding_RNAs() == 0 ?
          0.0 :
-         stats_->overall_size_coding_RNAs() /
-         stats_->nb_coding_RNAs();
+         metrics_->overall_size_coding_RNAs() /
+         metrics_->nb_coding_RNAs();
 }
 
 /// TODO
 int32_t Individual::get_overall_size_non_coding_RNAs() const {
-  assert(stats_ != nullptr);
-  return stats_->overall_size_non_coding_RNAs();
+  assert(metrics_ != nullptr);
+  return metrics_->overall_size_non_coding_RNAs();
 }
 
 /// TODO
 double Individual::get_av_size_non_coding_RNAs() const {
-  assert(stats_ != nullptr);
-  return stats_->nb_non_coding_RNAs() == 0 ?
+  assert(metrics_ != nullptr);
+  return metrics_->nb_non_coding_RNAs() == 0 ?
          0.0 :
-         stats_->overall_size_non_coding_RNAs() /
-         stats_->nb_non_coding_RNAs();
+         metrics_->overall_size_non_coding_RNAs() /
+         metrics_->nb_non_coding_RNAs();
 }
 
 /// TODO
 int16_t Individual::get_nb_genes_activ() const {
-  assert(stats_ != nullptr);
-  return stats_->nb_genes_activ();
+  assert(metrics_ != nullptr);
+  return metrics_->nb_genes_activ();
 }
 
 /// TODO
 int16_t Individual::get_nb_genes_inhib() const {
-  assert(stats_ != nullptr);
-  return stats_->nb_genes_inhib();
+  assert(metrics_ != nullptr);
+  return metrics_->nb_genes_inhib();
 }
 
 /// TODO
 int16_t Individual::get_nb_functional_genes() const {
-  assert(stats_ != nullptr);
-  return stats_->nb_functional_genes();
+  assert(metrics_ != nullptr);
+  return metrics_->nb_functional_genes();
 }
 
 /// TODO
 int16_t Individual::get_nb_non_functional_genes() const {
-  assert(stats_ != nullptr);
-  return stats_->nb_non_functional_genes();
+  assert(metrics_ != nullptr);
+  return metrics_->nb_non_functional_genes();
 }
 
 /// TODO
 int32_t Individual::get_overall_size_functional_genes() const {
-  assert(stats_ != nullptr);
-  return stats_->overall_size_functional_genes();
+  assert(metrics_ != nullptr);
+  return metrics_->overall_size_functional_genes();
 }
 
 /// TODO
 double Individual::get_av_size_functional_genes() const {
-  assert(stats_ != nullptr);
-  return stats_->nb_functional_genes() == 0 ?
+  assert(metrics_ != nullptr);
+  return metrics_->nb_functional_genes() == 0 ?
          0.0 :
-         stats_->overall_size_functional_genes() /
-         stats_->nb_functional_genes();
+         metrics_->overall_size_functional_genes() /
+         metrics_->nb_functional_genes();
 }
 
 /// TODO
 int32_t Individual::get_overall_size_non_functional_genes() const {
-  assert(stats_ != nullptr);
-  return stats_->overall_size_non_functional_genes();
+  assert(metrics_ != nullptr);
+  return metrics_->overall_size_non_functional_genes();
 }
 
 /// TODO
 double Individual::get_av_size_non_functional_genes() const {
-  assert(stats_ != nullptr);
-  return stats_->nb_non_functional_genes() == 0 ?
+  assert(metrics_ != nullptr);
+  return metrics_->nb_non_functional_genes() == 0 ?
          0.0 :
-         stats_->overall_size_non_functional_genes() /
-         stats_->nb_non_functional_genes();
+         metrics_->overall_size_non_functional_genes() /
+         metrics_->nb_non_functional_genes();
 }
 
 /// TODO
 int32_t Individual::get_nb_bases_in_0_CDS() const {
-  assert(nc_stats_ != nullptr);
-  return nc_stats_->nb_bases_in_0_CDS();
+  assert(nc_metrics_ != nullptr);
+  return nc_metrics_->nb_bases_in_0_CDS();
 }
 
 /// TODO
 int32_t Individual::get_nb_bases_in_0_functional_CDS() const {
-  assert(nc_stats_ != nullptr);
-  return nc_stats_->nb_bases_in_0_functional_CDS();
+  assert(nc_metrics_ != nullptr);
+  return nc_metrics_->nb_bases_in_0_functional_CDS();
 }
 
 /// TODO
 int32_t Individual::get_nb_bases_in_0_non_functional_CDS() const {
-  assert(nc_stats_ != nullptr);
-  return nc_stats_->nb_bases_in_0_non_functional_CDS();
+  assert(nc_metrics_ != nullptr);
+  return nc_metrics_->nb_bases_in_0_non_functional_CDS();
 }
 
 /// TODO
 int32_t Individual::get_nb_bases_in_0_RNA() const {
-  assert(nc_stats_ != nullptr);
-  return nc_stats_->nb_bases_in_0_RNA();
+  assert(nc_metrics_ != nullptr);
+  return nc_metrics_->nb_bases_in_0_RNA();
 }
 
 /// TODO
 int32_t Individual::get_nb_bases_in_0_coding_RNA() const {
-  assert(nc_stats_ != nullptr);
-  return nc_stats_->nb_bases_in_0_coding_RNA();
+  assert(nc_metrics_ != nullptr);
+  return nc_metrics_->nb_bases_in_0_coding_RNA();
 }
 
 /// TODO
 int32_t Individual::get_nb_bases_in_0_non_coding_RNA() const {
-  assert(nc_stats_ != nullptr);
-  return nc_stats_->nb_bases_in_0_non_coding_RNA();
+  assert(nc_metrics_ != nullptr);
+  return nc_metrics_->nb_bases_in_0_non_coding_RNA();
 }
 
 /// TODO
 int32_t Individual::get_nb_bases_in_neutral_regions() const {
-  assert(nc_stats_ != nullptr);
-  return nc_stats_->nb_bases_in_neutral_regions();
+  assert(nc_metrics_ != nullptr);
+  return nc_metrics_->nb_bases_in_neutral_regions();
 }
 
 /// TODO
 int32_t Individual::get_nb_neutral_regions() const {
-  assert(nc_stats_ != nullptr);
-  return nc_stats_->nb_neutral_regions();
+  assert(nc_metrics_ != nullptr);
+  return nc_metrics_->nb_neutral_regions();
 }
 
 /// TODO
@@ -1444,10 +1444,10 @@ void Individual::clear_everything_except_dna_and_promoters() {
 
 
   // Reset statistical data
-  delete stats_;
-  stats_ = nullptr;
-  delete nc_stats_;
-  nc_stats_ = nullptr;
+  delete metrics_;
+  metrics_ = nullptr;
+  delete nc_metrics_;
+  nc_metrics_ = nullptr;
 
   _modularity = -1;
 }
@@ -1580,27 +1580,27 @@ void Individual::inject_2GUs(Individual * partner) {
 }
 
 void Individual::compute_statistical_data() {
-  if (stats_ != nullptr) return; // Statistical data has already been computed,
+  if (metrics_ != nullptr) return; // Statistical data has already been computed,
                                  // nothing to do.
 
-  stats_ = new IndivStats();
+  metrics_ = new Metrics();
 
   if (not _phenotype_computed)
     compute_phenotype();
 
   for (const auto& gen_unit : _genetic_unit_list) {
-    stats_->Accumulate(gen_unit);
+    metrics_->Accumulate(gen_unit);
   }
 }
 
 void Individual::compute_non_coding() {
-  if (nc_stats_ != nullptr) return; // NC stats have already been computed,
+  if (nc_metrics_ != nullptr) return; // NC stats have already been computed,
                                     // nothing to do.
-  nc_stats_ = new NonCodingStats();
+  nc_metrics_ = new NonCodingMetrics();
 
   for (auto& gen_unit: _genetic_unit_list) {
     gen_unit.compute_non_coding();
-    nc_stats_->Accumulate(gen_unit);
+    nc_metrics_->Accumulate(gen_unit);
   }
 }
 
@@ -1852,10 +1852,10 @@ void Individual::remove_non_coding_bases() {
     gen_unit.remove_non_coding_bases();
 
   // Delete the obsolete stats
-  delete stats_;
-  stats_ = NULL;
-  delete nc_stats_;
-  nc_stats_ = NULL;
+  delete metrics_;
+  metrics_ = NULL;
+  delete nc_metrics_;
+  nc_metrics_ = NULL;
 
 #ifdef DEBUG
     compute_statistical_data();
@@ -1869,17 +1869,17 @@ void Individual::remove_non_coding_bases() {
 /// Double the bases that are not in coding RNA by addition of random
 /// bases and test at each addition that fitness is not changed.
 void Individual::double_non_coding_bases(void) {
-  stats_->total_genome_size_ = 0;
+  metrics_->total_genome_size_ = 0;
   int32_t initial_non_coding_base_nb = get_nb_bases_in_0_coding_RNA();
 
   for (auto& gen_unit: _genetic_unit_list)
     gen_unit.double_non_coding_bases();
 
   // Delete the obsolete stats
-  delete stats_;
-  stats_ = NULL;
-  delete nc_stats_;
-  nc_stats_ = NULL;
+  delete metrics_;
+  metrics_ = NULL;
+  delete nc_metrics_;
+  nc_metrics_ = NULL;
 
 #ifdef DEBUG
     compute_statistical_data();

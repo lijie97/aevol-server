@@ -42,8 +42,8 @@
 #include <list>
 #include <memory>
 
-#include "IndivStats.h"
-#include "NonCodingStats.h"
+#include "Metrics.h"
+#include "NonCodingMetrics.h"
 #include "GeneticUnit.h"
 #include "Dna.h"
 #include "Rna.h"
@@ -492,9 +492,9 @@ class Individual : public Observable
   // Statistical data
   // ----------------------------------------
   // Genome, RNAs and genes size and stuff
-  IndivStats* stats_ = nullptr;
+  Metrics* metrics_ = nullptr;
   // Coding / non-coding
-  NonCodingStats* nc_stats_ = nullptr;
+  NonCodingMetrics* nc_metrics_ = nullptr;
 
   // Mutation/Rearrangement statistics are managed in the replication report
 

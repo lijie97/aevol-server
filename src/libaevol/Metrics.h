@@ -25,8 +25,8 @@
 //*****************************************************************************
 
 
-#ifndef AEVOL_NON_CODING_STATS_H__
-#define AEVOL_NON_CODING_STATS_H__
+#ifndef AEVOL_INDIV_STATS_H__
+#define AEVOL_INDIV_STATS_H__
 
 
 // ============================================================================
@@ -37,6 +37,7 @@
 #include <cstdlib>
 #include <cassert>
 
+#include "Individual.h"
 #include "GeneticUnit.h"
 
 
@@ -45,13 +46,14 @@ namespace aevol {
 // ============================================================================
 //                          Class declarations
 // ============================================================================
+class Individual;
 
 
 
 
 
-// TODO <david.parsons@inria.fr> Not used ?
-class NonCodingStats
+
+class Metrics
 {
   friend Individual;
 
@@ -59,41 +61,50 @@ class NonCodingStats
   // ==========================================================================
   //                               Constructors
   // ==========================================================================
-  NonCodingStats(void) = default; //< Default ctor
-  NonCodingStats(const NonCodingStats&) = default; //< Copy ctor
-  NonCodingStats(NonCodingStats&&) = default; //< Move ctor
+  Metrics(void) = default; //< Default ctor
+  Metrics(const Metrics&) = default; //< Copy ctor
+  Metrics(Metrics&&) = default; //< Move ctor
 
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~NonCodingStats(void) = default; //< Destructor
+  virtual ~Metrics(void) = default; //< Destructor
 
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
-  int32_t nb_bases_in_0_CDS() const {
-    return nb_bases_in_0_CDS_;
+  int32_t total_genome_size() const {
+    return total_genome_size_;
   };
-  int32_t nb_bases_in_0_functional_CDS() const {
-    return nb_bases_in_0_functional_CDS_;
+  int16_t nb_coding_RNAs() const {
+    return nb_coding_RNAs_;
   };
-  int32_t nb_bases_in_0_non_functional_CDS() const {
-    return nb_bases_in_0_non_functional_CDS_;
+  int16_t nb_non_coding_RNAs() const {
+    return nb_non_coding_RNAs_;
   };
-  int32_t nb_bases_in_0_RNA() const {
-    return nb_bases_in_0_RNA_;
+  int32_t overall_size_coding_RNAs() const {
+    return overall_size_coding_RNAs_;
   };
-  int32_t nb_bases_in_0_coding_RNA() const {
-    return nb_bases_in_0_coding_RNA_;
+  int32_t overall_size_non_coding_RNAs() const {
+    return overall_size_non_coding_RNAs_;
   };
-  int32_t nb_bases_in_0_non_coding_RNA() const {
-    return nb_bases_in_0_non_coding_RNA_;
+  int16_t nb_genes_activ() const {
+    return nb_genes_activ_;
   };
-  int32_t nb_bases_in_neutral_regions() const {
-    return nb_bases_in_neutral_regions_;
+  int16_t nb_genes_inhib() const {
+    return nb_genes_inhib_;
   };
-  int32_t nb_neutral_regions() const {
-    return nb_neutral_regions_;
+  int16_t nb_functional_genes() const {
+    return nb_functional_genes_;
+  };
+  int16_t nb_non_functional_genes() const {
+    return nb_non_functional_genes_;
+  };
+  int32_t overall_size_functional_genes() const {
+    return overall_size_functional_genes_;
+  };
+  int32_t overall_size_non_functional_genes() const {
+    return overall_size_non_functional_genes_;
   };
 
   // ==========================================================================
@@ -107,6 +118,7 @@ class NonCodingStats
   // ==========================================================================
   //                              Public Methods
   // ==========================================================================
+  inline void Reset();
   inline void Accumulate(const GeneticUnit& gen_unit);
 
 
@@ -121,25 +133,28 @@ class NonCodingStats
   // ==========================================================================
   //                               Attributes
   // ==========================================================================
-  /// Number of bases that are not included in any gene
-  int32_t nb_bases_in_0_CDS_;
-  /// Number of bases that are not included in any functional gene
-  int32_t nb_bases_in_0_functional_CDS_;
-  /// Number of bases that are not included in any degenerated gene
-  int32_t nb_bases_in_0_non_functional_CDS_;
-  /// Number of bases that are not included in any RNA
-  int32_t nb_bases_in_0_RNA_;
-  /// Number of bases that are not included in any coding RNA
-  /// (RNAs containing at least one CDS)
-  int32_t nb_bases_in_0_coding_RNA_;
-  /// Number of bases that are not included in any non coding RNA
-  int32_t nb_bases_in_0_non_coding_RNA_;
-  /// Number of bases that are in a neutral region
-  /// A base is considered neutral when neither itself NOR its corresponding base on the other
-  /// strand belongs to a coding promoter->terminator region (both included)
-  int32_t nb_bases_in_neutral_regions_;
-  /// Number of neutral regions
-  int32_t nb_neutral_regions_;
+  /// Sum of sizes of the genetic units
+  int32_t total_genome_size_ = 0;
+  /// Number of coding RNAs (at least one gene on RNA)
+  int16_t nb_coding_RNAs_ = 0;
+  /// Number of non-coding-RNAs
+  int16_t nb_non_coding_RNAs_ = 0;
+  /// Cumulated size of all coding RNAs
+  int32_t overall_size_coding_RNAs_ = 0;
+  /// Cumulated size of all non-coding RNAs
+  int32_t overall_size_non_coding_RNAs_ = 0;
+  /// Number of genes realizing a function
+  int16_t nb_genes_activ_ = 0;
+  /// Number of genes inhibitting a function
+  int16_t nb_genes_inhib_ = 0;
+  /// Number of functional genes
+  int16_t nb_functional_genes_ = 0;
+  /// Number of non-functional genes
+  int16_t nb_non_functional_genes_ = 0;
+  /// Cumulated size of all functional genes
+  int32_t overall_size_functional_genes_ = 0;
+  /// Cumulated size of all non-functional genes
+  int32_t overall_size_non_functional_genes_ = 0;
 };
 
 
@@ -158,17 +173,36 @@ class NonCodingStats
 // ============================================================================
 //                       Inline functions' definition
 // ============================================================================
-void NonCodingStats::Accumulate(const GeneticUnit& gen_unit) {
-  nb_bases_in_0_CDS_ += gen_unit.get_nb_bases_in_0_CDS();
-  nb_bases_in_0_functional_CDS_ += gen_unit.get_nb_bases_in_0_functional_CDS();
-  nb_bases_in_0_non_functional_CDS_ +=
-      gen_unit.get_nb_bases_in_0_non_functional_CDS();
-  nb_bases_in_0_RNA_ += gen_unit.get_nb_bases_in_0_RNA();
-  nb_bases_in_0_coding_RNA_ += gen_unit.get_nb_bases_in_0_coding_RNA();
-  nb_bases_in_0_non_coding_RNA_ += gen_unit.get_nb_bases_in_0_non_coding_RNA();
-  nb_bases_in_neutral_regions_ += gen_unit.get_nb_bases_in_neutral_regions();
-  nb_neutral_regions_ += gen_unit.get_nb_neutral_regions();
+void Metrics::Reset() {
+  total_genome_size_                  = 0;
+  nb_coding_RNAs_                     = 0;
+  nb_non_coding_RNAs_                 = 0;
+  overall_size_coding_RNAs_           = 0;
+  overall_size_non_coding_RNAs_       = 0;
+  nb_genes_activ_                     = 0;
+  nb_genes_inhib_                     = 0;
+  nb_functional_genes_                = 0;
+  nb_non_functional_genes_            = 0;
+  overall_size_functional_genes_      = 0;
+  overall_size_non_functional_genes_  = 0;
 }
+
+void Metrics::Accumulate(const GeneticUnit& gen_unit) {
+  total_genome_size_ += gen_unit.get_dna()->get_length();
+  nb_coding_RNAs_ += gen_unit.get_nb_coding_RNAs();
+  nb_non_coding_RNAs_ += gen_unit.get_nb_non_coding_RNAs();
+  overall_size_coding_RNAs_ += gen_unit.get_overall_size_coding_RNAs();
+  overall_size_non_coding_RNAs_ += gen_unit.get_overall_size_non_coding_RNAs();
+  nb_genes_activ_ += gen_unit.get_nb_genes_activ();
+  nb_genes_inhib_ += gen_unit.get_nb_genes_inhib();
+  nb_functional_genes_ += gen_unit.get_nb_functional_genes();
+  nb_non_functional_genes_ += gen_unit.get_nb_non_functional_genes();
+  overall_size_functional_genes_ +=
+      gen_unit.get_overall_size_functional_genes();
+  overall_size_non_functional_genes_ +=
+      gen_unit.get_overall_size_non_functional_genes();
+};
+
 } // namespace aevol
 
-#endif // AEVOL_NON_CODING_STATS_H__
+#endif // AEVOL_INDIV_STATS_H__

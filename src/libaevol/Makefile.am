@@ -59,8 +59,8 @@ DnaReplicationReport.h \
 Rna.h \
 Stats.h \
 StatRecord.h \
-NonCodingStats.h \
-IndivStats.h \
+NonCodingMetrics.h \
+Metrics.h \
 ae_string.h \
 Tree.h \
 Utils.h \
