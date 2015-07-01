@@ -96,6 +96,8 @@ ExpSetup::ExpSetup( ExpManager * exp_m )
   _degradation_rate  = 1;
   _degradation_step  = 0.1;
   _with_heredity          = false;
+  _nb_indiv_age      = 20;
+  _eval_step         = 5;
 #endif
 }
   

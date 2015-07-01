@@ -109,6 +109,9 @@ class ExpSetup
 
     inline double get_hill_shape( void ) const;
     inline double get_hill_shape_n( void ) const;
+
+    inline double get_eval_step( void ) const;
+    inline double get_nb_indiv_age( void ) const;
 #endif
     // =======================================================================
     //                         Accessors: setters
@@ -143,6 +146,9 @@ class ExpSetup
 
     inline void set_hill_shape( double hill_shape );
     inline void set_hill_shape_n( double hill_shape_n );
+
+    inline void set_eval_step( double eval_step );
+    inline void set_nb_indiv_age( double nb_indiv_age );
 #endif
     // =======================================================================
     //                            Public Methods
@@ -222,6 +228,8 @@ class ExpSetup
     double _hill_shape_n;
     double _hill_shape;
 
+    int    _nb_indiv_age;
+    int    _eval_step;
 #endif
 };
 
@@ -340,6 +348,16 @@ inline double ExpSetup::get_hill_shape_n( void ) const
 {
   return _hill_shape_n;
 }
+
+inline double ExpSetup::get_eval_step( void ) const
+{
+  return _eval_step;
+}
+
+inline double ExpSetup::get_nb_indiv_age( void ) const
+{
+  return _nb_indiv_age;
+}
 #endif
 
 // =====================================================================
@@ -451,6 +469,17 @@ inline void ExpSetup::set_hill_shape( double hill_shape )
 inline void ExpSetup::set_hill_shape_n( double hill_shape_n )
 {
   _hill_shape_n = hill_shape_n;
+}
+
+inline void ExpSetup::set_eval_step( double eval_step )
+{
+  _eval_step = eval_step;
+}
+
+
+inline void ExpSetup::set_nb_indiv_age( double nb_indiv_age )
+{
+  _nb_indiv_age = nb_indiv_age;
 }
 #endif
 
