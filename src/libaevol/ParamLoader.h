@@ -87,9 +87,6 @@ class ParamLoader
 
   ParameterLine * get_line( int32_t* );
 
-  void print_to_file( FILE* file, ae_exp_setup* exp_s );
-
-
  protected :
   // =========================================================================
   //                            Protected Methods

@@ -845,28 +845,20 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
       display_grid(cur_win, world()->get_secreted_amount_grid());
     }
     break;
+#ifdef __REGUL
     case 7:
     {
       cur_win->blacken();
-#ifdef __REGUL
-      dynamic_cast<Individual_R_X11*>(_pop->get_best())->display_regulation( cur_win );
-#endif
-#ifndef __REGUL
-      dynamic_cast<Individual_X11*>(_pop->get_best())->display_regulation( cur_win );
-#endif
+      dynamic_cast<Individual_R_X11*>(get_best_indiv())->display_regulation( cur_win );
       break;
     }
     case 8:
     {
       cur_win->blacken();
-#ifdef __REGUL
-      dynamic_cast<Individual_R_X11*>(_pop->get_best())->display_concentrations( cur_win, _env_list );
-#endif
-#ifndef __REGUL
-      dynamic_cast<Individual_X11*>(_pop->get_best())->display_concentrations( cur_win, _env_list );
-#endif
+      dynamic_cast<Individual_R_X11*>(get_best_indiv())->display_concentrations( cur_win );
       break;
     }
+#endif
   }
 
   XFlush(_display);

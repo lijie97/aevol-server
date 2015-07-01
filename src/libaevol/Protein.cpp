@@ -333,7 +333,7 @@ Protein::Protein( Protein* parent )
 
 //Constructor for the signal proteins
 //modif raevol_yo_3 : now we really copy the codon list
-Protein::Protein(const std::list<ae_codon*> codon_list, double concentration)
+Protein::Protein(const std::list<Codon*> codon_list, double concentration)
 {
   _gen_unit             = NULL;
   _strand               = LEADING;

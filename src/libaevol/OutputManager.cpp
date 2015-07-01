@@ -215,9 +215,10 @@ void OutputManager::load( gzFile setup_file, bool verbose, bool to_be_run  )
 
 void OutputManager::load(FILE* setup_file, bool verbose, bool to_be_run)
 {
+  int ret;
   // Write the backup steps
-  fscanf(setup_file, "BACKUP_STEP %" SCNd64 "\n", &_backup_step);
-  fscanf(setup_file, "BIG_BACKUP_STEP %" SCNd64 "\n", &_big_backup_step);
+  ret = fscanf(setup_file, "BACKUP_STEP %" SCNd64 "\n", &_backup_step);
+  ret = fscanf(setup_file, "BIG_BACKUP_STEP %" SCNd64 "\n", &_big_backup_step);
   
   // Stats
   if(to_be_run)
@@ -233,21 +234,21 @@ void OutputManager::load(FILE* setup_file, bool verbose, bool to_be_run)
   }
   {
     int tmp;
-    fscanf( setup_file, "COMPUTE_PHENOTYPIC_CONTRIBUTION_BY_GU %d\n", &tmp);
+    ret = fscanf( setup_file, "COMPUTE_PHENOTYPIC_CONTRIBUTION_BY_GU %d\n", &tmp);
     _compute_phen_contrib_by_GU = tmp;
   }
   
   char tmp[10];
   
   // Tree
-  fscanf(setup_file, "RECORD_TREE %s\n", tmp);
+  ret = fscanf(setup_file, "RECORD_TREE %s\n", tmp);
   _record_tree = ! strcmp( tmp, "true" );
   if ( _record_tree )
   {
     int64_t tmp_tree_step;
-    fscanf( setup_file, "TREE_STEP %" SCNd64 "\n", &tmp_tree_step );
+    ret = fscanf( setup_file, "TREE_STEP %" SCNd64 "\n", &tmp_tree_step );
     int8_t tmp_tree_mode;
-    fscanf(setup_file, "TREE_MODE %" SCNd8 "\n", &tmp_tree_mode);
+    ret = fscanf(setup_file, "TREE_MODE %" SCNd8 "\n", &tmp_tree_mode);
     if ( (TreeMode)tmp_tree_mode != LIGHT && (TreeMode)tmp_tree_mode != NORMAL)
     {
         printf( "%s:%d: error: invalid tree mode\n", __FILE__, __LINE__ );
@@ -259,9 +260,9 @@ void OutputManager::load(FILE* setup_file, bool verbose, bool to_be_run)
   }
   
   // Dumps
-  fscanf( setup_file, "MAKE_DUMPS %s\n", tmp );
+  ret = fscanf( setup_file, "MAKE_DUMPS %s\n", tmp );
   _make_dumps = ! strcmp( tmp, "true" );
-  fscanf( setup_file, "DUMP_STEP %" SCNd64 "\n", &_dump_step );
+  ret = fscanf( setup_file, "DUMP_STEP %" SCNd64 "\n", &_dump_step );
   if( _make_dumps == true)
   {
     _dump = new Dump(_exp_m);
@@ -269,7 +270,7 @@ void OutputManager::load(FILE* setup_file, bool verbose, bool to_be_run)
   
   // Logs
   int8_t logs;
-  fscanf(setup_file, "LOGS %" SCNd8 "\n", &logs);
+  ret = fscanf(setup_file, "LOGS %" SCNd8 "\n", &logs);
   _logs->load(logs, Time::get_time());
 }
 
