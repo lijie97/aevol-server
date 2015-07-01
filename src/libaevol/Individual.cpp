@@ -145,14 +145,14 @@ Individual::Individual(ExpManager * exp_m,
   _modularity = 0.0;
 }
 
-/*!
-  This constructor retrieves an individual from a backup file.
-
-  Since this generation has already been processed, no unnecessary calculation
-  (e.g. fitness) will be done.
-  No transcription, translation or other process of that kind is performed.
-*/
-Individual::Individual(ExpManager * exp_m, gzFile backup_file)
+/**
+ * This constructor retrieves an individual from a backup file.
+ *
+ * Since this generation has already been processed, no unnecessary calculation
+ * (e.g. fitness) will be done.
+ * No transcription, translation or other process of that kind is performed.
+ */
+Individual::Individual(ExpManager* exp_m, gzFile backup_file)
 {
   _exp_m = exp_m;
 
@@ -249,8 +249,6 @@ Individual::Individual(ExpManager * exp_m, gzFile backup_file)
   _fitness_computed             = false;
 
   _modularity = -1;
-
-  //Evaluate();
 }
 
 /**

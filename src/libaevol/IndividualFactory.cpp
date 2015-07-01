@@ -60,8 +60,8 @@ namespace aevol {
 /**
  * Create an individual with random sequences
  */
-Individual * IndividualFactory::create_random_individual(
-    ExpManager * exp_m,
+Individual* IndividualFactory::create_random_individual(
+    ExpManager* exp_m,
     int32_t id,
     std::shared_ptr<MutationParams> param_mut,
     std::shared_ptr<JumpingMT> mut_prng,
@@ -79,17 +79,17 @@ Individual * IndividualFactory::create_random_individual(
     bool better_than_flat)
 {
   // Create a genome-less individual with the provided parameters
-  Individual * indiv = new Individual(exp_m,
-                                      mut_prng,
-                                      stoch_prng,
-                                      param_mut,
-                                      w_max,
-                                      min_genome_length,
-                                      max_genome_length,
-                                      allow_plasmids,
-                                      id,
-                                      strain_name,
-                                      0);
+  Individual* indiv = new Individual(exp_m,
+                                     mut_prng,
+                                     stoch_prng,
+                                     param_mut,
+                                     w_max,
+                                     min_genome_length,
+                                     max_genome_length,
+                                     allow_plasmids,
+                                     id,
+                                     strain_name,
+                                     0);
 
   // Give it a randomly generated genome
   indiv->add_GU(indiv, chromosome_initial_length, local_prng);

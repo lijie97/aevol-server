@@ -451,8 +451,8 @@ class Individual : public Observable
   std::list<const Rna*> _rna_list;
 
   // Generic probes
-  int32_t* _int_probes;        // Array of 5 int32_t values to be used as one wishes
-  double* _double_probes;     // Array of 5 double values to be used as one wishes
+  int32_t* _int_probes; // Array of 5 int32_t values to be used as one wishes
+  double* _double_probes; // Array of 5 double values to be used as one wishes
 
   // Mutation rates etc...
   std::shared_ptr<MutationParams> _mut_params;
