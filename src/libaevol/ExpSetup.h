@@ -47,7 +47,7 @@ namespace aevol {
 // ===========================================================================
 //                          Class declarations
 // ===========================================================================
-class ae_param_loader;
+class ParamLoader;
 
 
 
@@ -164,12 +164,12 @@ class ExpSetup
 #ifdef __REGUL
     // Regulation
     void     init_binding_matrix( bool random_binding_matrix, double binding_zeros_percentage,
-    		       std::shared_ptr<ae_jumping_mt> prng);
+    		       std::shared_ptr<JumpingMT> prng);
 
     void     read_binding_matrix_from_backup(gzFile binding_matrix_file);
-    void     write_binding_matrix_to_backup(gzFile binding_matrix_file);
+    void     write_binding_matrix_to_backup(gzFile binding_matrix_file) const;
 
-    void     write_binding_matrix_to_file(FILE* binding_matrix_file);
+    void     write_binding_matrix_to_file(FILE* binding_matrix_file) const;
 
     double** get_binding_matrix( void ) const;
 #endif
@@ -217,7 +217,7 @@ class ExpSetup
 
 #ifdef __REGUL
     // Binding matrix
-    double** _binding_matrix;
+    double  _binding_matrix[MAX_QUADON][MAX_CODON];
 
     bool    _with_heredity;
     double  _protein_presence_limit;
@@ -495,7 +495,7 @@ inline void ExpSetup::step_to_next_generation( void )
 #ifdef __REGUL
 inline double** ExpSetup::get_binding_matrix( void ) const
 {
-  return _binding_matrix;
+  return (double**)_binding_matrix;
 }
 #endif
 

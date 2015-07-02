@@ -42,7 +42,7 @@
 //                            Project Files
 // =================================================================
 #include "ExpSetup.h"
-
+#include "JumpingMT.h"
 
 
 
@@ -90,8 +90,6 @@ ExpSetup::ExpSetup( ExpManager * exp_m )
   _secretion_cost               = 0.0;
 
 #ifdef __REGUL
-  _binding_matrix = NULL;
-
   _protein_presence_limit = 1e-2;
   _degradation_rate  = 1;
   _degradation_step  = 0.1;
@@ -260,13 +258,11 @@ void ExpSetup::load( FILE* setup_file, gzFile backup_file, bool verbose )
 }
 
 #ifdef __REGUL
-void ae_exp_setup::init_binding_matrix( bool random_binding_matrix, double binding_zeros_percentage,
-		std::shared_ptr<ae_jumping_mt> prng)
+void ExpSetup::init_binding_matrix( bool random_binding_matrix, double binding_zeros_percentage,
+		std::shared_ptr<JumpingMT> prng)
 {
   if(random_binding_matrix==1)
   {
-    _binding_matrix = new double[MAX_QUADON][MAX_CODON];
-
     for( int8_t i = 0; i < MAX_QUADON; i++ )  // i for the quadons
     {
       for( int8_t j = 0; j < MAX_CODON; j++ )  // j for the codons
@@ -306,15 +302,14 @@ void ae_exp_setup::init_binding_matrix( bool random_binding_matrix, double bindi
 
 }
 
-void ae_exp_setup::read_binding_matrix_from_backup(gzFile binding_matrix_file) {
-	_binding_matrix = new double[MAX_QUADON][MAX_CODON];
+void ExpSetup::read_binding_matrix_from_backup(gzFile binding_matrix_file) {
 	for (int i=0; i < MAX_QUADON; i++)
 		for (int j=0; j < MAX_CODON; j++) {
 			gzread( binding_matrix_file, &(_binding_matrix[i][j]), sizeof(double) );
 		}
 }
 
-void ae_exp_setup::write_binding_matrix_to_backup(gzFile binding_matrix_file) {
+void ExpSetup::write_binding_matrix_to_backup(gzFile binding_matrix_file) const {
 	double value;
 	for (int i=0; i < MAX_QUADON; i++)
 		for (int j=0; j < MAX_CODON; j++) {
@@ -323,7 +318,7 @@ void ae_exp_setup::write_binding_matrix_to_backup(gzFile binding_matrix_file) {
 		}
 }
 
-void ae_exp_setup::write_binding_matrix_to_file( FILE* file )
+void ExpSetup::write_binding_matrix_to_file( FILE* file ) const
 {
   for( int16_t row = 0 ; row < MAX_QUADON ; row++ )
   {

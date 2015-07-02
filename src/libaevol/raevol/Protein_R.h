@@ -36,6 +36,7 @@
 // =================================================================
 #include "Protein.h"
 #include "Codon.h"
+#include "Rna_R.h"
 
 namespace aevol {
 
@@ -44,7 +45,7 @@ namespace aevol {
 //                           Class ae_protein_R                                #
 //                                                                             #
 //##############################################################################
-class ae_genetic_unit;
+class GeneticUnit;
 
 class Protein_R : public Protein
 {
@@ -55,11 +56,11 @@ class Protein_R : public Protein
     // =================================================================
 	Protein_R( GeneticUnit* gen_unit, const Protein_R &model );
 	Protein_R( GeneticUnit* gen_unit,
-    		const std::list<ae_codon*> codon_list,
-    		ae_strand strand,
+    		const std::list<Codon*> codon_list,
+    		Strand strand,
     		int32_t shine_dal_pos,
-    		ae_rna* rna ); // TODO ae_rna_R?
-	Protein_R( const std::list<ae_codon*> codon_list, double concentration);
+    		Rna* rna ); // TODO Rna_R?
+	Protein_R( const std::list<Codon*> codon_list, double concentration);
 	Protein_R( gzFile backup_file );
 
     // =================================================================
@@ -102,11 +103,6 @@ class Protein_R : public Protein
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    ae_protein_R( const ae_protein_R &model )
-    {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
 
     // =================================================================
     //                           Protected Methods

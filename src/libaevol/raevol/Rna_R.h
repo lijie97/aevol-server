@@ -54,7 +54,6 @@ class Rna_R : public Rna
     //                             Constructors
     // =================================================================
 	Rna_R( GeneticUnit* gen_unit, const Rna_R &model );
-	Rna_R( void );
 	Rna_R( GeneticUnit* gen_unit );
 	Rna_R( GeneticUnit* gen_unit, Strand strand, int32_t index, int8_t diff );
 
@@ -93,11 +92,7 @@ class Rna_R : public Rna
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
       };*/
-    Rna_R( const Rna_R &model )
-    {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
+
 
     // =================================================================
     //                           Protected Methods

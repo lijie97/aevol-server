@@ -298,6 +298,21 @@ if test "x$enable_profiling" = "xyes" ; then
    AEVOLLDFLAGS+=" -pg"
 fi
 
+#  ************************* --with-raevol option *******************************
+#
+#  With this option, regulation is enabled (RAevol) and the __REGUL flag is defined
+#
+
+
+AC_MSG_CHECKING([whether to use raevol])
+AC_ARG_WITH(raevol, [--with-raevol to enable regulation], raevol=$withval, raevol=no)
+AC_MSG_RESULT($raevol)
+AM_CONDITIONAL(WITH_RAEVOL, test x"$raevol" != xno)
+if test "x$raevol" = "xyes" ; then
+   AC_DEFINE(__REGUL)
+fi
+
+
 #  ************************* back to GENERAL stuff *******************************
 
 AC_CONFIG_FILES([Makefile
