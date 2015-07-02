@@ -263,6 +263,9 @@ void ReplicationReport::update(Observable& o, ObservableEvent e, void* arg) {
       break;
     case MUTATION :
       _dna_replic_report.add_mut(*reinterpret_cast<Mutation*>(arg));
+      break;
+    default :
+      Utils::ExitWithMsg("Event not handled", __FILE__, __LINE__);
   }
 }
 } // namespace aevol

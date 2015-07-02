@@ -253,7 +253,7 @@ void PhenotypicTargetHandler::load(gzFile backup_file) {
   if (var_method_ != NO_VAR || noise_method_ != NO_NOISE) {
     size_t nb_gaussians = initial_gaussians_.size();
     gzread(backup_file, &nb_gaussians, sizeof(nb_gaussians));
-    for (const Gaussian & g: initial_gaussians_)
+    for (const Gaussian& g: initial_gaussians_)
       initial_gaussians_.push_back(Gaussian(backup_file));
   }
 

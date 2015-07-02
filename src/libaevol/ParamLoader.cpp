@@ -235,7 +235,6 @@ ParamLoader::ParamLoader(const char* file_name)
   // Tree
   _record_tree  = false;
   _tree_step    = 100;
-  _tree_mode    = NORMAL;
 
   // Dumps
   _make_dumps = false;
@@ -374,23 +373,10 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
   }
   else if (strcmp(line->words[0], "TREE_MODE") == 0)
   {
-    if (strcmp(line->words[1], "light") == 0)
-    {
-      printf("ERROR in param file \"%s\" on line %" PRId32 " : the \"light\" tree recording option is not implemented yet.\n",
-             _param_file_name, cur_line);
-      exit(EXIT_FAILURE);
-      // _tree_mode = LIGHT;
-    }
-    else if (strcmp(line->words[1], "normal") == 0)
-    {
-      _tree_mode = NORMAL;
-    }
-    else
-    {
-      printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown tree mode option (use normal/light).\n",
-             _param_file_name, cur_line);
-      exit(EXIT_FAILURE);
-    }
+    printf("ERROR in param file \"%s\" on line %" PRId32 ": "
+           "Tree mode management has been removed.\n",
+           _param_file_name, cur_line);
+    exit(EXIT_FAILURE);
   }
   else if (strcmp(line->words[0], "MORE_STATS") == 0)
   {
@@ -795,7 +781,7 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     }
     else
     {
-      printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown swap option (use true/false).\n",
+      printf("ERROR in param file \"%s\" on line %" PRId32 ": unknown swap option (use true/false).\n",
              _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
@@ -819,7 +805,8 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
   else if (strcmp(line->words[0], "ENV_ADD_POINT") == 0)
   {
     // custom_points
-    printf("%s:%d: error: Custom points management has been removed.\n", __FILE__, __LINE__);
+    printf("ERROR in param file \"%s\" on line %" PRId32 " : Custom points management has been removed.\n",
+        _param_file_name, cur_line);
     exit(EXIT_FAILURE);
   }
   else if ((strcmp(line->words[0], "ENV_ADD_GAUSSIAN") == 0) || (strcmp(line->words[0], "ENV_GAUSSIAN") == 0))
@@ -1621,7 +1608,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
 
   if (_record_tree)
   {
-    output_m->init_tree(exp_m, _tree_mode, _tree_step);
+    output_m->init_tree(exp_m, _tree_step);
   }
 
   if (_make_dumps)

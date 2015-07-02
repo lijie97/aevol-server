@@ -160,9 +160,8 @@ int main(int argc, char* argv[])
 
   // If relevant, load the tree information 
   char tree_file_name[50];
-  Tree * tree = NULL;
+  Tree* tree = nullptr;
   bool take_care_of_the_tree = exp_manager->get_record_tree() &&
-                               exp_manager->get_tree_mode() == NORMAL &&
                                get_time() > 0;
 
   if (take_care_of_the_tree)
@@ -196,7 +195,6 @@ int main(int argc, char* argv[])
   bool start_to_record_tree = false;
   bool set_tree_step = false;
   int32_t tree_step = 100;
-  TreeMode tree_mode = NORMAL;
   
   ParameterLine* line;
   int32_t cur_line = 0;
@@ -286,20 +284,8 @@ int main(int argc, char* argv[])
     }
     else if (strcmp(line->words[0], "TREE_MODE") == 0)
     {
-      if (strcmp(line->words[1], "light") == 0)
-      {
-        tree_mode = LIGHT;
-      }
-      else if (strcmp(line->words[1], "normal") == 0)
-      {
-        tree_mode = NORMAL;
-      }
-      else
-      {
-        printf("ERROR in param file \"%s\" on line %" PRId32" : unknown tree mode option (use normal/light).\n",
-               param_file_name, cur_line);
-        exit(EXIT_FAILURE);
-      }
+      printf("ERROR : Tree mode management has been removed.\n");
+      exit(EXIT_FAILURE);
     }
     else if (strcmp(line->words[0], "DUMP_STEP") == 0)
     {
@@ -689,7 +675,7 @@ int main(int argc, char* argv[])
           "be set to its default value even if you previously gave another "
           "value.\n");
     }
-    exp_manager->get_output_m()->init_tree(exp_manager, tree_mode, tree_step);
+    exp_manager->get_output_m()->init_tree(exp_manager, tree_step);
   }
 
   if (take_care_of_the_tree)

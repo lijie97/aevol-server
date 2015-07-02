@@ -150,12 +150,6 @@ int main(int argc, char** argv)
   ExpManager* exp_manager = new ExpManager();
   exp_manager->load(t_end, true, false);
 
-  if (exp_manager->get_tree_mode() == LIGHT)
-  {
-    printf("%s: error: The light tree mode is not managed", argv[0]);
-    exit(EXIT_FAILURE);
-  }
-
   int64_t tree_step = exp_manager->get_tree_step();
 
   //delete exp_manager;

@@ -251,9 +251,8 @@ class ParamLoader
   int32_t _big_backup_step;
 
   // Tree
-  bool         _record_tree;
-  int32_t      _tree_step;
-  TreeMode _tree_mode;
+  bool _record_tree;
+  int32_t _tree_step;
 
   // Dumps // TODO : explain
   bool    _make_dumps;
@@ -286,8 +285,6 @@ class ParamLoader
     bool    _with_heredity;
     double  _protein_presence_limit;
   #endif
-
-
 };
 
 } // namespace aevol

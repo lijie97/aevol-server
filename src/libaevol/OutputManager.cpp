@@ -101,10 +101,8 @@ void OutputManager::write_setup_file( gzFile setup_file ) const
   gzwrite( setup_file, &record_tree, sizeof(record_tree) );
   if ( _record_tree )
   {
-    int32_t tmp_tree_step = _tree->get_tree_step();
+    auto tmp_tree_step = _tree->get_tree_step();
     gzwrite( setup_file, &tmp_tree_step, sizeof(tmp_tree_step) );
-    int8_t tmp_tree_mode = (int8_t) _tree->get_tree_mode();
-    gzwrite( setup_file, &tmp_tree_mode, sizeof(tmp_tree_mode) );
   }
   
   // Dumps
@@ -129,22 +127,7 @@ void OutputManager::write_setup_file(FILE* setup_file) const
   // Tree
   fprintf(setup_file, "RECORD_TREE %s\n", _record_tree ? "true" : "false");
   if (_record_tree)
-  {
     fprintf(setup_file, "TREE_STEP %" PRId64 "\n", _tree->get_tree_step());
-    
-    if (_tree->get_tree_mode() == LIGHT)
-    {
-      fprintf(setup_file, "TREE_MODE LIGHT\n");
-    }
-    else if (_tree->get_tree_mode() == NORMAL)
-    {
-      fprintf(setup_file, "TREE_MODE NORMAL\n");
-    }
-    else
-    {
-      fprintf(setup_file, "TREE_MODE UNKNOWN\n");
-    }
-  }
   
   // Dumps
   fprintf(setup_file, "MAKE_DUMPS %s\n", _make_dumps ? "true" : "false");
@@ -183,15 +166,8 @@ void OutputManager::load( gzFile setup_file, bool verbose, bool to_be_run  )
   {
     int32_t tmp_tree_step;
     gzread( setup_file, &tmp_tree_step, sizeof(tmp_tree_step) );
-    int8_t tmp_tree_mode;
-    gzread( setup_file, &tmp_tree_mode, sizeof(tmp_tree_mode) );
-    if ( (TreeMode)tmp_tree_mode != LIGHT && (TreeMode)tmp_tree_mode != NORMAL)
-    {
-      printf( "%s:%d: error: invalid tree mode\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    }
     
-    _tree = new Tree( _exp_m, (TreeMode) tmp_tree_mode, tmp_tree_step );
+    _tree = new Tree( _exp_m, tmp_tree_step );
   }
   
   // Dumps
@@ -246,17 +222,11 @@ void OutputManager::load(FILE* setup_file, bool verbose, bool to_be_run)
   if ( _record_tree )
   {
     int64_t tmp_tree_step;
+
     ret = fscanf( setup_file, "TREE_STEP %" SCNd64 "\n", &tmp_tree_step );
-    int8_t tmp_tree_mode;
-    ret = fscanf(setup_file, "TREE_MODE %" SCNd8 "\n", &tmp_tree_mode);
-    if ( (TreeMode)tmp_tree_mode != LIGHT && (TreeMode)tmp_tree_mode != NORMAL)
-    {
-        printf( "%s:%d: error: invalid tree mode\n", __FILE__, __LINE__ );
-        assert( false );
-        exit( EXIT_FAILURE );
-    }
+
     
-    _tree = new Tree( _exp_m, (TreeMode) tmp_tree_mode, tmp_tree_step );
+    _tree = new Tree( _exp_m, tmp_tree_step );
   }
   
   // Dumps
@@ -281,7 +251,6 @@ void OutputManager::write_current_generation_outputs( void ) const
 
   // Manage tree
   if (_record_tree &&
-      _tree->get_tree_mode() == NORMAL &&
       Time::get_time() > 0 &&
       (Time::get_time() % _tree->get_tree_step() == 0)) {
     write_tree();

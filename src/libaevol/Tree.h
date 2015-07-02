@@ -63,7 +63,7 @@ class Tree : public Observer
     Tree() = delete;
     Tree(const Tree &model) = delete;
     // To be used when we want to run a simulation.
-    Tree(ExpManager* exp_m, TreeMode tree_mode, int64_t tree_step);
+    Tree(ExpManager* exp_m, int64_t tree_step);
     // To be used when we want to INSPECT a tree,
     // not when we want to run a simulation.
     Tree(ExpManager* exp_m, char* tree_file_name);
@@ -76,8 +76,9 @@ class Tree : public Observer
     // =================================================================
     //                        Accessors: getters
     // =================================================================
-    inline int64_t  get_tree_step(void) const;
-    inline TreeMode get_tree_mode(void) const;
+    inline int64_t  get_tree_step(void) const {
+      return _tree_step;
+    };
     
     // Precondition for the following methods:
     // the tree was emptied every TREE_STEP generations ==> it contains
@@ -97,12 +98,6 @@ class Tree : public Observer
     // =================================================================
     void signal_end_of_generation();
     void write_to_tree_file(gzFile tree_file);
-    
-    /** Returns the date of birth of the last common ancestor of individuals
-     * of index a and b at time t and stores its index in j if provided
-     * (not NULL)
-     */
-    inline int64_t get_LCA(int64_t t, int32_t a, int32_t b, int32_t *j);
 
   void update(Observable& o, ObservableEvent e, void* arg) override;
     
@@ -127,7 +122,6 @@ class Tree : public Observer
     ExpManager* _exp_m;
     
     int64_t _tree_step;
-    TreeMode _tree_mode;
     
     ReplicationReport*** _replics;
     // Two-dimensional table of ReplicationReport*
@@ -146,15 +140,6 @@ class Tree : public Observer
 // =====================================================================
 //                           Getters' definitions
 // =====================================================================
-inline int64_t Tree::get_tree_step(void) const
-{
-  return _tree_step;
-}
-
-inline TreeMode Tree::get_tree_mode(void) const
-{
-  return _tree_mode;
-}
 
 // =====================================================================
 //                           Setters' definitions
@@ -164,35 +149,6 @@ inline TreeMode Tree::get_tree_mode(void) const
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-inline int64_t Tree::get_LCA(int64_t t, int32_t a, int32_t b, int32_t* j = NULL)
-{
-  switch( _tree_mode )
-  {
-    case NORMAL :
-    {
-      // TODO
-      break;
-    }
-    case LIGHT :
-    {
-      while ( a != b )
-      {
-        a = _parent[t][a];
-        b = _parent[t][b];
-        t--;
-      }
-      
-      if (j != NULL)
-      {
-        *j = a;
-      }
-      
-      break;
-    }
-  }
-  
-  return t;
-}
 
 } // namespace aevol
 

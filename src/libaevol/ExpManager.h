@@ -143,7 +143,6 @@ class ExpManager : public Observer
     inline int64_t	get_big_backup_step(void) const;
     inline bool         get_record_tree(void) const;
     inline int32_t      get_tree_step(void) const;
-    inline TreeMode get_tree_mode(void) const;
     inline Tree*     get_tree(void) const;
 
     // =======================================================================
@@ -424,11 +423,6 @@ inline bool ExpManager::get_record_tree(void) const
 inline int32_t ExpManager::get_tree_step(void) const
 {
 	return get_output_m()->get_tree_step();
-}
-
-inline TreeMode ExpManager::get_tree_mode(void) const
-{
-	return get_output_m()->get_tree_mode();
 }
 
 inline Tree *ExpManager::get_tree(void) const

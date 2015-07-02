@@ -89,7 +89,6 @@ class OutputManager
     // Tree
     inline bool get_record_tree() const;
     inline int64_t get_tree_step() const;
-    inline TreeMode get_tree_mode() const;
     inline Tree* get_tree() const;
   
     // Logs
@@ -104,7 +103,7 @@ class OutputManager
     // =================================================================
     inline void set_backup_step(int64_t backup_step);
     inline void set_big_backup_step(int64_t big_backup_step);
-    inline void init_tree(ExpManager * exp_m, TreeMode _tree_mode, int64_t _tree_step);
+    inline void init_tree(ExpManager* exp_m, int64_t _tree_step);
     inline void set_dump_step(int64_t dump_step);
     inline void set_compute_phen_contrib_by_GU(bool compute_phen_contrib_by_GU);
     inline void set_logs (int8_t logs);
@@ -192,11 +191,6 @@ inline int64_t OutputManager::get_tree_step() const
   return _tree->get_tree_step();
 }
 
-inline TreeMode OutputManager::get_tree_mode() const
-{
-  return _tree->get_tree_mode();
-}
-
 inline Tree *OutputManager::get_tree() const
 {
   return _tree;
@@ -232,10 +226,10 @@ inline void OutputManager::set_big_backup_step(int64_t big_backup_step)
   _big_backup_step = big_backup_step;
 }
 
-inline void OutputManager::init_tree(ExpManager * exp_m, TreeMode _tree_mode, int64_t _tree_step)
+inline void OutputManager::init_tree(ExpManager * exp_m, int64_t _tree_step)
 {
   _record_tree = true;
-  _tree = new Tree( exp_m, _tree_mode, _tree_step );
+  _tree = new Tree( exp_m, _tree_step );
 }
 
 inline void OutputManager::set_dump_step(int64_t dump_step)

@@ -95,8 +95,8 @@ class IndividualFactory
   // ==========================================================================
   //                              Public Methods
   // ==========================================================================
-  static Individual * create_random_individual(
-      ExpManager * exp_m,
+  static Individual* create_random_individual(
+      ExpManager* exp_m,
       int32_t id,
       std::shared_ptr<MutationParams> param_mut,
       std::shared_ptr<JumpingMT> mut_prng,
