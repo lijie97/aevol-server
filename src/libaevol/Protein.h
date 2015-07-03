@@ -101,7 +101,8 @@ class Protein
     inline int32_t            get_length( void )                const; // Number of Amino-Acids (not including START and STOP)
     inline double             get_concentration( void )         const;
     inline  bool              get_is_functional( void )         const;
-    
+    GeneticUnit*       get_gen_unit( void )              const;
+
     Individual * get_indiv( void ) const;
 
     // =================================================================

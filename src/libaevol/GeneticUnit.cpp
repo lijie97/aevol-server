@@ -558,9 +558,6 @@ GeneticUnit::GeneticUnit(Individual * indiv,
 {
   _indiv = indiv;
   _exp_m = indiv->get_exp_m();
-  #ifdef __REGUL
-  _with_heredity = _exp_m->get_exp_s()->get_with_heredity();
-  #endif
 
   _transcribed                        = false;
   _translated                         = false;
@@ -616,9 +613,6 @@ GeneticUnit::GeneticUnit(Individual * indiv,
 {
   _exp_m = indiv->get_exp_m();
   _indiv = indiv;
-#ifdef __REGUL
-  _with_heredity = _exp_m->get_exp_s()->get_with_heredity();
-  #endif
 
   _transcribed                        = false;
   _translated                         = false;
@@ -680,9 +674,6 @@ GeneticUnit::GeneticUnit(Individual* indiv, const GeneticUnit& model)
 {
   _exp_m = indiv->get_exp_m();
   _indiv = indiv;
-#ifdef __REGUL
-  _with_heredity = _exp_m->get_exp_s()->get_with_heredity();
-  #endif
 
   _transcribed                        = false;
   _translated                         = false;
@@ -730,9 +721,6 @@ GeneticUnit::GeneticUnit(Individual* indiv, const GeneticUnit* parent)
 {
   _exp_m = indiv->get_exp_m();
   _indiv = indiv;
-#ifdef __REGUL
-  _with_heredity = _exp_m->get_exp_s()->get_with_heredity();
-  #endif
 
   _transcribed                        = false;
   _translated                         = false;
@@ -784,9 +772,6 @@ GeneticUnit::GeneticUnit( Individual * indiv, gzFile backup_file )
 {
   _exp_m = indiv->get_exp_m();
   _indiv = indiv;
-#ifdef __REGUL
-  _with_heredity = _exp_m->get_exp_s()->get_with_heredity();
-  #endif
 
   _transcribed                        = false;
   _translated                         = false;
@@ -835,9 +820,6 @@ GeneticUnit::GeneticUnit( Individual * indiv, char* organism_file_name )
 {
   _exp_m = indiv->get_exp_m();
   _indiv = indiv;
-  #ifdef __REGUL
-  _with_heredity = _exp_m->get_exp_s()->get_with_heredity();
-  #endif
 
   _transcribed                        = false;
   _translated                         = false;

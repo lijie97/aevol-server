@@ -55,7 +55,7 @@ class Individual_R : public virtual Individual
     //                             Constructors
     // =================================================================
 	Individual_R() = delete;
-  Individual_R(const Individual& other);
+  Individual_R(const Individual_R& other);
   Individual_R(ExpManager * exp_m,
               std::shared_ptr<JumpingMT> mut_prng,
               std::shared_ptr<JumpingMT> stoch_prng,
@@ -70,9 +70,9 @@ class Individual_R : public virtual Individual
 	Individual_R(  Individual_R* parent, int32_t id,
                  std::shared_ptr<JumpingMT> mut_prng,
                  std::shared_ptr<JumpingMT> stoch_prng);
-	Individual_R( gzFile backup_file );
+  Individual_R(ExpManager* exp_m, gzFile backup_file);
 
-  static Individual_R* CreateClone(const Individual* dolly, int32_t id);
+  static Individual_R* CreateClone(const Individual_R* dolly, int32_t id);
     // =================================================================
     //                             Destructors
     // =================================================================
@@ -135,7 +135,7 @@ class Individual_R : public virtual Individual
     //                          Protected Attributes
     // =================================================================
     std::vector<Protein_R*> _inherited_protein_list;
-    std::vector<const Rna_R *> _rna_list_coding;   // Please note that these RNAs are
+    std::vector<Rna_R *> _rna_list_coding;   // Please note that these RNAs are
                                 // actually managed via genetic units.
     int _indiv_age;
     bool _networked;

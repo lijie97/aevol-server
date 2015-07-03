@@ -1391,7 +1391,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
       #ifndef __REGUL
       Individual * clone = Individual::CreateClone(indiv, id_new_indiv++);
       #else
-      Individual_R * clone = Individual_R::CreateClone(indiv, id_new_indiv++);
+      Individual_R * clone = Individual_R::CreateClone(dynamic_cast<Individual_R*>(indiv), id_new_indiv++);
       #endif
       clone->EvaluateInContext(habitat);
       indivs.push_back(clone);
@@ -1447,7 +1447,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
         #ifndef __REGUL
         Individual * clone = Individual::CreateClone(indiv, id_new_indiv++);
         #else
-        Individual_R * clone = Individual_R::CreateClone(indiv, id_new_indiv++);
+        Individual_R * clone = Individual_R::CreateClone(dynamic_cast<Individual_R*>(indiv), id_new_indiv++);
         #endif
         clone->EvaluateInContext(habitat);
         indivs.push_back(clone);
@@ -1528,7 +1528,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
         #ifndef __REGUL
         Individual * clone = Individual::CreateClone(indiv, id_new_indiv++);
         #else
-        Individual_R * clone = Individual_R::CreateClone(indiv, id_new_indiv++);
+        Individual_R * clone = Individual_R::CreateClone(dynamic_cast<Individual_R*>(indiv), id_new_indiv++);
         #endif
         clone->EvaluateInContext(habitat);
         indivs.push_back(clone);

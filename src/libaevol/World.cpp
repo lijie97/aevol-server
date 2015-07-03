@@ -130,7 +130,7 @@ void World::FillGridWithClones(Individual & dolly)
       #ifndef __REGUL
       PlaceIndiv(Individual::CreateClone(&dolly, id_new_indiv++), x, y);
       #else
-      PlaceIndiv(Individual_R::CreateClone(&dolly, id_new_indiv++), x, y);
+      PlaceIndiv(Individual_R::CreateClone(dynamic_cast<Individual_R*>(&dolly), id_new_indiv++), x, y);
       #endif
 }
 

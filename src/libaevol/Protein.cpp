@@ -39,6 +39,7 @@
 // =================================================================
 #include "Protein.h"
 
+#include "ExpManager.h"
 #include "Codon.h"
 #include "Individual.h"
 #include "GeneticUnit.h"
@@ -110,7 +111,7 @@ Protein::Protein(GeneticUnit* gen_unit,
     _concentration  = rna->get_basal_level();
   #else
     // In Raevol, there is two case, depending on the heredity
-    if ( gen_unit->get_with_heredity() )
+    if ( _gen_unit->get_exp_m()->get_exp_s()->get_with_heredity() )
     {
       // With heredity the new protein has a concentration set at 0, because there are inherited proteins which allow the regulation
       _concentration = 0;
@@ -579,7 +580,7 @@ void Protein::add_RNA( Rna * rna )
 #ifndef __REGUL
   _concentration += rna->get_basal_level();
 #else
-	if ( _gen_unit->get_with_heredity() )
+	if ( _gen_unit->get_exp_m()->get_exp_s()->get_with_heredity() )
 	{
 	  // With heredity the new protein has a concentration set at 0, because there are inherited proteins which allow the regulation
 	  _concentration = 0;
@@ -683,5 +684,11 @@ void Protein::save( gzFile backup_file )
 Individual *Protein::get_indiv( void ) const
 {
   return _gen_unit->get_indiv();
+}
+
+
+GeneticUnit* Protein::get_gen_unit( void ) const
+{
+  return _gen_unit;
 }
 } // namespace aevol
