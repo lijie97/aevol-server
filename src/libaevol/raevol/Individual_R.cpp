@@ -54,15 +54,36 @@ namespace aevol {
 /*
  * Used at initialization
 */
-Individual_R::Individual_R( void ) : Individual()
+Individual_R::Individual_R(ExpManager* exp_m,
+                       std::shared_ptr<JumpingMT> mut_prng,
+                       std::shared_ptr<JumpingMT> stoch_prng,
+                       std::shared_ptr<MutationParams> param_mut,
+                       double w_max,
+                       int32_t min_genome_length,
+                       int32_t max_genome_length,
+                       bool allow_plasmids,
+                       int32_t id,
+                       const char* strain_name,
+                       int32_t age) : Individual(exp_m,mut_prng,stoch_prng,param_mut,w_max,min_genome_lenght,
+                                                 max_genome_length,allow_plasmids,id,strain_name,age) {
+
+  _indiv_age = 0;
+  _networked = false;
+  _dist_sum = 0;
+}
+
+Individual_R::Individual_R( const Individual_R* other )
+    : Individual( other )
 {
-    _indiv_age = 0;
-    _networked = false;
-    _dist_sum = 0;
+  _indiv_age = 0;
+  _networked = false;
+  _dist_sum = 0;
+  _inherited_protein_list = new std::vector<Protein_R*>(other->_inherited_protein_list);
 }
 
 Individual_R::Individual_R( Individual_R* parent, int32_t id,
-                                  ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng )
+                            std::shared_ptr<JumpingMT> mut_prng,
+                            std::shared_ptr<JumpingMT> stoch_prng)
         : Individual( parent, id, mut_prng, stoch_prng )
 {
   //~ printf( "ae_individual_R( parent ) : I have %d inherited proteins\n", parent->get_protein_list()->get_nb_elts() );
@@ -117,6 +138,12 @@ Individual_R::~Individual_R( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
+Individual_R* Individual_R::CreateClone(const Individual_R* dolly, int32_t id) {
+  Individual_R* indiv = new Individual_R(*dolly);
+  indiv->set_id(id);
+  return indiv;
+}
+
 void Individual_R::Evaluate() {
 		EvaluateInContext(_grid_cell->habitat());
 }

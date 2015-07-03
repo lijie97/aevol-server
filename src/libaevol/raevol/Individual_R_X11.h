@@ -45,7 +45,7 @@ namespace aevol {
 // =================================================================
 //                          Class declarations
 // =================================================================
-class Individual_R_X11 : public Individual_R, ae_individual_X11
+class Individual_R_X11 : public Individual_R, Individual_X11
 {
   public :
 
@@ -53,10 +53,21 @@ class Individual_R_X11 : public Individual_R, ae_individual_X11
     //                             Constructors
     // =================================================================
 	Individual_R_X11( const Individual_R_X11 &model, bool replication_report_copy  );
-	Individual_R_X11( void );
+  Individual_R_X11(ExpManager * exp_m,
+                   std::shared_ptr<JumpingMT> mut_prng,
+                   std::shared_ptr<JumpingMT> stoch_prng,
+                   std::shared_ptr<MutationParams> param_mut,
+                   double w_max,
+                   int32_t min_genome_length,
+                   int32_t max_genome_length,
+                   bool allow_plasmids,
+                   int32_t id,
+                   const char* strain_name,
+                   int32_t age);
 	Individual_R_X11(  Individual_R_X11* parent, int32_t id,
-                          ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng );
-	Individual_R_X11( gzFile backup_file );
+                     std::shared_ptr<JumpingMT> mut_prng,
+                     std::shared_ptr<JumpingMT> stoch_prng);
+	Individual_R_X11( ExpManager* exp_m, gzFile backup_file );
 
     // =================================================================
     //                             Destructors
@@ -70,7 +81,9 @@ class Individual_R_X11 : public Individual_R, ae_individual_X11
     // =================================================================
     //                            Public Methods
     // =================================================================
+    virtual void display_regulation( X11Window* win );
     virtual void display_concentrations( X11Window* win );
+    //virtual void display_phenotype( ae_X11_window* win );
     // =================================================================
     //                           Public Attributes
     // =================================================================

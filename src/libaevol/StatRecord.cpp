@@ -46,6 +46,10 @@
 #include "ReplicationReport.h"
 #include "DnaReplicationReport.h"
 
+#ifdef __REGUL
+#include "raevol/Rna_R.h"
+#include "raevol/Protein_R.h"
+#endif
 
 using std::list;
 
@@ -158,18 +162,18 @@ StatRecord::StatRecord(ExpManager* exp_m,
   double mean_operator_activity = 0.0;
 
   for (auto& rna: indiv->get_rna_list()) {
-    for (int i = 0; i < rna->_enhancing_coef_list.size(); i++) {
+    for (unsigned int i = 0; i < ((Rna_R*)rna)->_enhancing_coef_list.size(); i++) {
       //compute the activity
-      if (rna->_enhancing_coef_list[i] > 0)
+      if (((Rna_R*)rna)->_enhancing_coef_list[i] > 0)
       {
         nb_activators++;
-	      mean_activator_activity += rna->_enhancing_coef_list[i];
+	      mean_activator_activity += ((Rna_R*)rna)->_enhancing_coef_list[i];
       }
 
-      if (rna->_operating_coef_list[i] > 0)
+      if (((Rna_R*)rna)->_operating_coef_list[i] > 0)
       {
 	      nb_operators++;
-	      mean_operator_activity += rna->_operating_coef_list[i];
+	      mean_operator_activity += ((Rna_R*)rna)->_operating_coef_list[i];
       }
     }
   }
@@ -186,17 +190,17 @@ StatRecord::StatRecord(ExpManager* exp_m,
   int32_t nb_TF = 0;
   int32_t nb_pure_TF = 0;
 
-  for (int i = 0; i < indiv->get_protein_list().size(); i++) {
-    if(indiv->get_protein_list()[i]->get_is_functional())
+  for (auto& prot: indiv->get_protein_list()) {
+    if(prot->get_is_functional())
     {
-      if(!((Protein_R*)indiv->get_protein_list()[i])->not_pure_TF)
+      if(!((Protein_R*)prot)->not_pure_TF)
       {
 				nb_TF+=1;
       }
     }
     else
     {
-      if(!((Protein_R*)indiv->get_protein_list()[i])->not_pure_TF)
+      if(!((Protein_R*)prot)->not_pure_TF)
       {
 				nb_TF+=1;
 				nb_pure_TF+=1;

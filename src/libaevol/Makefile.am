@@ -73,7 +73,10 @@ Habitat.h \
 ParamLoader.h \
 ParameterLine.h \
 Time.h \
-World.h
+World.h \
+raevol/Individual_R.h \
+raevol/Protein_R.h \
+raevol/Rna_R.h
 
 common_sources = \
 Alignment.cpp \
@@ -113,17 +116,22 @@ Habitat.cpp \
 ParamLoader.cpp \
 ParameterLine.cpp \
 Time.cpp \
-World.cpp
+World.cpp \
+raevol/Individual_R.cpp \
+raevol/Protein_R.cpp \
+raevol/Rna_R.cpp
 
 X11_headers = \
 Individual_X11.h \
 ExpManager_X11.h \
-X11Window.h
+X11Window.h \
+raevol/Individual_R_X11.h
 
 X11_sources = \
 Individual_X11.cpp \
 ExpManager_X11.cpp \
-X11Window.cpp
+X11Window.cpp \
+raevol/Individual__R_X11.cpp
 
 # The target_CPPFLAGS for each target may look useless, it is here to force automake to create
 # prefixed object files so that we don't use an object file built for another set of macrodefinitions

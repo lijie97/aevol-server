@@ -43,9 +43,15 @@
 #include "ExpManager_X11.h"
 #include "World.h"
 #include "Point.h"
-#include "Individual_X11.h"
+
 #include "X11Window.h"
 #include "Fuzzy.h"
+
+#ifdef __REGUL
+#include "raevol/Individual_R_X11.h"
+#else
+#include "Individual_X11.h"
+#endif
 
 namespace aevol {
 

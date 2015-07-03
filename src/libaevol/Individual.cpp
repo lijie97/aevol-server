@@ -35,13 +35,13 @@
 
 #ifdef __NO_X
   #ifdef __REGUL
-    #include "Individual_R.h"
+    #include "raevol/Individual_R.h"
   #else
     #include "Individual.h"
   #endif
 #elif defined __X11
   #ifdef __REGUL
-    #include "Individual_R_X11.h"
+    #include "raevol/Individual_R_X11.h"
   #else
     #include "Individual_X11.h"
   #endif

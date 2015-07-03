@@ -35,6 +35,10 @@
 #include <list>
 #include <iostream>
 
+#ifdef __REGUL
+#include "raevol/Individual_R.h"
+#endif
+
 using std::cout;
 using std::endl;
 using std::list;

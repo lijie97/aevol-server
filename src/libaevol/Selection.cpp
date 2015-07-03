@@ -44,13 +44,13 @@
   #ifndef __REGUL
     #include "Individual.h"
   #else
-    #include "ae_individual_R.h"
+    #include "raevol/Individual_R.h"
   #endif
 #elif defined __X11
   #ifndef __REGUL
     #include "Individual_X11.h"
   #else
-    #include "ae_individual_R_X11.h"
+    #include "raevol/Individual_R_X11.h"
   #endif
 #endif
 

@@ -43,7 +43,7 @@
 #include "ae_enums.h"
 
 #ifdef __REGUL
-  #include "Individual_R.h"
+  #include "raevol/Individual_R.h"
 #else
 #include "Individual.h"
 #endif
@@ -558,6 +558,9 @@ GeneticUnit::GeneticUnit(Individual * indiv,
 {
   _indiv = indiv;
   _exp_m = indiv->get_exp_m();
+  #ifdef __REGUL
+  _with_heredity = _exp_m->get_exp_s()->get_with_heredity();
+  #endif
 
   _transcribed                        = false;
   _translated                         = false;
@@ -613,6 +616,9 @@ GeneticUnit::GeneticUnit(Individual * indiv,
 {
   _exp_m = indiv->get_exp_m();
   _indiv = indiv;
+#ifdef __REGUL
+  _with_heredity = _exp_m->get_exp_s()->get_with_heredity();
+  #endif
 
   _transcribed                        = false;
   _translated                         = false;
@@ -674,6 +680,9 @@ GeneticUnit::GeneticUnit(Individual* indiv, const GeneticUnit& model)
 {
   _exp_m = indiv->get_exp_m();
   _indiv = indiv;
+#ifdef __REGUL
+  _with_heredity = _exp_m->get_exp_s()->get_with_heredity();
+  #endif
 
   _transcribed                        = false;
   _translated                         = false;
@@ -721,6 +730,9 @@ GeneticUnit::GeneticUnit(Individual* indiv, const GeneticUnit* parent)
 {
   _exp_m = indiv->get_exp_m();
   _indiv = indiv;
+#ifdef __REGUL
+  _with_heredity = _exp_m->get_exp_s()->get_with_heredity();
+  #endif
 
   _transcribed                        = false;
   _translated                         = false;
@@ -742,7 +754,7 @@ GeneticUnit::GeneticUnit(Individual* indiv, const GeneticUnit* parent)
 #ifndef __REGUL
       _rna_list[strand].emplace_back(this, rna);
 #else
-      _rna_list[strand].emplace_back(this, (dynamic_cast<Rna_R>(rna)));
+      _rna_list[strand].push_back(Rna_R(this, rna));
 #endif
     }
   }
@@ -772,6 +784,9 @@ GeneticUnit::GeneticUnit( Individual * indiv, gzFile backup_file )
 {
   _exp_m = indiv->get_exp_m();
   _indiv = indiv;
+#ifdef __REGUL
+  _with_heredity = _exp_m->get_exp_s()->get_with_heredity();
+  #endif
 
   _transcribed                        = false;
   _translated                         = false;
@@ -820,6 +835,9 @@ GeneticUnit::GeneticUnit( Individual * indiv, char* organism_file_name )
 {
   _exp_m = indiv->get_exp_m();
   _indiv = indiv;
+  #ifdef __REGUL
+  _with_heredity = _exp_m->get_exp_s()->get_with_heredity();
+  #endif
 
   _transcribed                        = false;
   _translated                         = false;

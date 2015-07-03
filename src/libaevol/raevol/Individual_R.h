@@ -54,11 +54,25 @@ class Individual_R : public virtual Individual
     // =================================================================
     //                             Constructors
     // =================================================================
-	Individual_R( void );
+	Individual_R() = delete;
+  Individual_R(const Individual& other);
+  Individual_R(ExpManager * exp_m,
+              std::shared_ptr<JumpingMT> mut_prng,
+              std::shared_ptr<JumpingMT> stoch_prng,
+              std::shared_ptr<MutationParams> param_mut,
+              double w_max,
+              int32_t min_genome_length,
+              int32_t max_genome_length,
+              bool allow_plasmids,
+              int32_t id,
+              const char* strain_name,
+              int32_t age);
 	Individual_R(  Individual_R* parent, int32_t id,
-                      ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng  );
+                 std::shared_ptr<JumpingMT> mut_prng,
+                 std::shared_ptr<JumpingMT> stoch_prng);
 	Individual_R( gzFile backup_file );
 
+  static Individual_R* CreateClone(const Individual* dolly, int32_t id);
     // =================================================================
     //                             Destructors
     // =================================================================
@@ -134,8 +148,6 @@ class Individual_R : public virtual Individual
 // =====================================================================
 inline std::vector<Protein_R*> Individual_R::get_inherited_protein_list( void ) const
 {
-  assert( _inherited_protein_list );
-
   return _inherited_protein_list;
 }
 

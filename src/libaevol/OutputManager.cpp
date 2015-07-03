@@ -308,11 +308,8 @@ void OutputManager::write_tree( void ) const
   
   char tree_file_name[50];
   
-#ifdef __REGUL
-  sprintf tree_file_name, "tree/tree_%06" PRId64 ".rae", Time::get_time());
-#else
   sprintf(tree_file_name, "tree/tree_%06" PRId64 ".ae", Time::get_time());
-#endif
+
   
   gzFile tree_file = gzopen( tree_file_name, "w" );
   

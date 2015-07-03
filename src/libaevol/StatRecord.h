@@ -225,6 +225,8 @@ class StatRecord
       double  _av_value_influences;
       double  _av_value_enhancing_influences;
       double  _av_value_operating_influences;
+      double  _nb_TF;
+      double  _nb_pure_TF;
     #endif
 };
 

@@ -47,7 +47,7 @@
   #ifndef __REGUL
     #include <Individual_X11.h>
   #else
-    #include <Individual_R_X11.h>
+    #include <raevol/Individual_R_X11.h>
   #endif
 #endif
 

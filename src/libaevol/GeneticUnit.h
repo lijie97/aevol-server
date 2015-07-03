@@ -102,6 +102,10 @@ class GeneticUnit
   int32_t      get_seq_length( void ) const;
 
 
+  #ifdef __REGUL
+  inline bool  get_with_heredity( void ) const;
+  #endif
+
   // Statistical data
   int32_t  get_nb_coding_RNAs( void )                    const;
   int32_t  get_nb_non_coding_RNAs( void )                const;
@@ -368,7 +372,18 @@ class GeneticUnit
   bool _non_coding_computed;
   bool _distance_to_target_computed;
   bool _fitness_computed;
+
+  #ifdef __REGUL
+  bool _with_heredity;
+  #endif
 };
+
+#ifdef __REGUL
+bool  GeneticUnit::get_with_heredity( void ) const
+{
+  return _with_heredity;
+}
+#endif
 
 } // namespace aevol
 #endif // AEVOL_GENETIC_UNIT_H__
