@@ -295,7 +295,7 @@ void Individual_R::multiply_concentrations( double factor )
 	}
 }
 
-int8_t Individual_R::get_quadon( GeneticUnit* gen_unit, Strand strand, int32_t pos )
+int8_t Individual_R::get_quadon( const GeneticUnit* gen_unit, Strand strand, int32_t pos )
 {
   const char* dna = gen_unit->get_dna()->get_data();
   int32_t  len    = gen_unit->get_dna()->get_length();

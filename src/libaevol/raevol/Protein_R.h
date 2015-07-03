@@ -34,8 +34,8 @@
 // =================================================================
 //                            Project Files
 // =================================================================
-#include "Protein.h"
 #include "Codon.h"
+#include "Protein.h"
 #include "Rna_R.h"
 
 namespace aevol {
@@ -77,6 +77,8 @@ class Protein_R : public Protein
     inline void     set_signal( bool is_signal);
     inline bool     is_inherited( void );
     inline bool     is_signal( void );
+
+
 
     // =================================================================
     //                            Public Methods
@@ -186,6 +188,9 @@ inline void Protein_R::set_concentration( double concentration )
   _concentration = concentration;
 }
 
+
+
 } // namespace aevol
+
 
 #endif // AE_PROTEIN_R_H

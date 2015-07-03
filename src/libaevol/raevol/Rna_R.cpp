@@ -37,6 +37,8 @@
 // =================================================================
 #include "Rna_R.h"
 #include "Individual_R.h"
+#include "ExpManager.h"
+
 namespace aevol {
 
 //##############################################################################
@@ -53,10 +55,6 @@ namespace aevol {
 //                             Constructors
 // =================================================================
 Rna_R::Rna_R( GeneticUnit* gen_unit, const Rna &model ) : Rna( gen_unit, model )
-{
-}
-
-Rna_R::Rna_R( GeneticUnit* gen_unit ) : Rna( gen_unit )
 {
 }
 
@@ -94,18 +92,19 @@ void Rna_R::set_influences( std::list<Protein*> protein_list )
 	  _enhancing_coef_list.resize(protein_list.size());
 	  _operating_coef_list.resize(protein_list.size());
 
-	  for (int i = 0; i < protein_list.size(); i++) {
+    int i = 0;
+	  for (auto& prot : protein_list) {
 	#ifdef __TRACING__
 		  high_resolution_clock::time_point t1 = high_resolution_clock::now();
 	#endif
-		  _enhancing_coef_list[i] = affinity_with_protein( enhancer_position, protein_list[i] );
+		  _enhancing_coef_list[i] = affinity_with_protein( enhancer_position, prot );
 	#ifdef __TRACING__
 		  high_resolution_clock::time_point t2 = high_resolution_clock::now();
 		  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
 		  ae_logger::addLog(AFFINITY_EN,duration);
 		  t1 = t2;
 	#endif
-		  _operating_coef_list[i] = affinity_with_protein( operator_position, protein_list[i] );
+		  _operating_coef_list[i] = affinity_with_protein( operator_position, prot );
 	#ifdef __TRACING__
 		  t2 = high_resolution_clock::now();
 		  duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
@@ -113,7 +112,9 @@ void Rna_R::set_influences( std::list<Protein*> protein_list )
 	#endif
 	    //  printf ("set_influence - after affinity computation\n");
 	    if ( _enhancing_coef_list[i] != 0.0 || _operating_coef_list[i] != 0.0 )
-	    	((Protein_R*)protein_list[i])->not_pure_TF = true;
+	    	((Protein_R*)prot)->not_pure_TF = true;
+
+      i++;
 	  }
 }
 
@@ -125,7 +126,7 @@ double Rna_R::get_synthesis_rate( void )
 //  ae_list_node*   influence_node;
 //  ae_influence_R* influence;
 
-  for (int i = 0; i < _enhancing_coef_list.size(); i++) {
+  for (unsigned int i = 0; i < _enhancing_coef_list.size(); i++) {
   	enhancer_activity  += _enhancing_coef_list[i];
     operator_activity  += _operating_coef_list[i];
   }
@@ -210,11 +211,11 @@ double Rna_R::affinity_with_protein( int32_t index, Protein *protein )
 	  for ( int32_t i = 0 ; i < len - 4; i++ )
 	  {
 	    temp  = 1 *
-	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix()[quadon_tab[0]][prot->_AA_list[i]] *
-	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix()[quadon_tab[1]][prot->_AA_list[i+1]] *
-	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix()[quadon_tab[2]][prot->_AA_list[i+2]] *
-	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix()[quadon_tab[3]][prot->_AA_list[i+3]] *
-	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix()[quadon_tab[4]][prot->_AA_list[i+4]];
+	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix()[quadon_tab[0]][prot->get_AA_list()[i]->get_value()] *
+	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix()[quadon_tab[1]][prot->get_AA_list()[i+1]->get_value()] *
+	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix()[quadon_tab[2]][prot->get_AA_list()[i+2]->get_value()] *
+	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix()[quadon_tab[3]][prot->get_AA_list()[i+3]->get_value()] *
+	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix()[quadon_tab[4]][prot->get_AA_list()[i+4]->get_value()];
 
 	//    for ( int32_t j = 0 ; j < 5 ; j++ )
 	//    {

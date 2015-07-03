@@ -54,7 +54,6 @@ class Rna_R : public Rna
     //                             Constructors
     // =================================================================
   Rna_R( GeneticUnit* gen_unit, const Rna &model );
-	Rna_R( GeneticUnit* gen_unit );
 	Rna_R( GeneticUnit* gen_unit, Strand strand, int32_t index, int8_t diff );
 
     // =================================================================

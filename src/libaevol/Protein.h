@@ -102,6 +102,7 @@ class Protein
     inline double             get_concentration( void )         const;
     inline  bool              get_is_functional( void )         const;
     GeneticUnit*       get_gen_unit( void )              const;
+    inline std::vector<Codon*>     get_AA_list( void ) const;
 
     Individual * get_indiv( void ) const;
 
@@ -204,6 +205,10 @@ bool Protein::get_is_functional( void ) const
   return _is_functional;
 }
 
+
+std::vector<Codon*>     Protein::get_AA_list( void ) const {
+  return _AA_list;
+}
 
 // =====================================================================
 //                       Inline functions' definition
