@@ -52,10 +52,6 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-Rna_R::Rna_R( void ) : Rna()
-{
-}
-
 Rna_R::Rna_R( GeneticUnit* gen_unit, const Rna &model ) : Rna( gen_unit, model )
 {
 }
