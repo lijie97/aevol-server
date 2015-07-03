@@ -131,7 +131,7 @@ X11_sources = \
 Individual_X11.cpp \
 ExpManager_X11.cpp \
 X11Window.cpp \
-raevol/Individual__R_X11.cpp
+raevol/Individual_R_X11.cpp
 
 # The target_CPPFLAGS for each target may look useless, it is here to force automake to create
 # prefixed object files so that we don't use an object file built for another set of macrodefinitions
