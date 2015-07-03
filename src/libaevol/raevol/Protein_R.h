@@ -56,11 +56,12 @@ class Protein_R : public Protein
     // =================================================================
 	Protein_R( GeneticUnit* gen_unit, const Protein_R &model );
 	Protein_R( GeneticUnit* gen_unit,
-    		const std::list<Codon*> codon_list,
+    		const std::vector<Codon*> codon_list,
     		Strand strand,
     		int32_t shine_dal_pos,
-    		Rna* rna ); // TODO Rna_R?
-	Protein_R( const std::list<Codon*> codon_list, double concentration);
+    		Rna* rna,
+        double w_max ); // TODO Rna_R?
+	Protein_R( const std::vector<Codon*> codon_list, double concentration);
 	Protein_R( gzFile backup_file );
 
     // =================================================================

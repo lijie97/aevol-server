@@ -1036,7 +1036,7 @@ void GeneticUnit::do_translation()
             // Build codon list and make new protein when stop found
             int32_t j = i + SHINE_DAL_SIZE + SHINE_START_SPACER + CODON_SIZE; // next codon to examine
 
-            std::list<Codon*> codon_list;
+            std::vector<Codon*> codon_list;
 
             while (transcript_length - j >= CODON_SIZE) {
               auto codon = new Codon(_dna,

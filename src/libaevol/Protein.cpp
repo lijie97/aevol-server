@@ -92,7 +92,7 @@ Protein::Protein( GeneticUnit* gen_unit, const Protein &model )
 }
 
 Protein::Protein(GeneticUnit* gen_unit,
-                 const std::list<Codon*>& codon_list,
+                 const std::vector<Codon*>& codon_list,
                  Strand strand,
                  int32_t shine_dal_pos,
                  Rna* rna,
@@ -334,7 +334,7 @@ Protein::Protein( Protein* parent )
 
 //Constructor for the signal proteins
 //modif raevol_yo_3 : now we really copy the codon list
-Protein::Protein(const std::list<Codon*> codon_list, double concentration)
+Protein::Protein(const std::vector<Codon*> codon_list, double concentration)
 {
   _gen_unit             = NULL;
   _strand               = LEADING;

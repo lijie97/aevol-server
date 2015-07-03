@@ -73,12 +73,12 @@ class Protein
     Protein(const Protein &model) = delete;
     Protein(GeneticUnit* gen_unit, const Protein &model);
     Protein(GeneticUnit* gen_unit,
-               const std::list<Codon*>& codon_list,
+               const std::vector<Codon*>& codon_list,
                Strand strand,
                int32_t shine_dal_pos,
                Rna * rna,
                double w_max);
-    Protein( const std::list<Codon*> codon_list, double concentration);
+    Protein( const std::vector<Codon*> codon_list, double concentration);
     //Protein( Protein* parent );
     Protein( gzFile backup_file );
     // =================================================================
@@ -138,7 +138,7 @@ class Protein
     double            _concentration;
     bool              _is_functional;
     
-    std::list<Codon *> _AA_list;
+    std::vector<Codon *> _AA_list;
 
     // Phenotypic contribution (triangle) parameters
     double _mean;

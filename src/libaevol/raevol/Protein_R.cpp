@@ -36,13 +36,16 @@
 // =================================================================
 #include "Protein_R.h"
 #include "Codon.h"
+#include "GeneticUnit.h"
+#include "ExpManager.h"
+
 #include <algorithm>
 
 namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                           Class ae_protein_R                                #
+//                           Class Protein_R                                #
 //                                                                             #
 //##############################################################################
 
@@ -61,18 +64,16 @@ Protein_R::Protein_R( GeneticUnit* gen_unit, const Protein_R &model ) : Protein:
   _delta_concentration   = model._delta_concentration;
   _signal                = model._signal;
   _inherited             = model._inherited;
-//  _influence_list        = new ae_list();
   not_pure_TF			 = false;
 }
 
 
-Protein_R::Protein_R( GeneticUnit* gen_unit, const std::list<Codon*> codon_list,
+Protein_R::Protein_R( GeneticUnit* gen_unit, const std::vector<Codon*> codon_list,
 							Strand strand, int32_t shine_dal_pos,
-                            ae_rna* rna )  :
-		Protein::Protein( gen_unit, codon_list, strand, shine_dal_pos, rna )
+                            Rna* rna, double w_max )  :
+		Protein::Protein( gen_unit, codon_list, strand, shine_dal_pos, rna, w_max )
 {
 	_initial_concentration = 0;
-//  _influence_list       = new ae_list();
   _delta_concentration  = 0;
   _inherited            = false;
   _signal               = false;
@@ -80,29 +81,15 @@ Protein_R::Protein_R( GeneticUnit* gen_unit, const std::list<Codon*> codon_list,
 }
 
 //used to build the signal protein
-Protein_R::Protein_R( const std::list<ae_codon*> codon_list, double concentration)  :
+Protein_R::Protein_R( const std::vector<Codon*> codon_list, double concentration)  :
 		Protein::Protein( codon_list, concentration )
 {
-//  _influence_list       = new ae_list();
   _initial_concentration = 0;
   _delta_concentration  = 0;
   _inherited            = false;
   _signal               = true;
   not_pure_TF			 = false;
 }
-
-/*
-ae_protein_R::ae_protein_R( ae_protein_R* parent ) :
-ae_protein( parent )
-{
-  //_delta_concentration  = parent->_delta_concentration;
-  _codon_list           = parent->_codon_list->copy();
-//  _rna_list             = parent->_rna_list->copy();
-  _rna_list             = new ae_list();
-  //_influence_list       = parent->_influence_list->copy();
-  _influence_list       = new ae_list();
-}
-*/
 
 Protein_R::Protein_R( gzFile backup_file ) : Protein::Protein( backup_file )
 {
@@ -112,8 +99,6 @@ Protein_R::Protein_R( gzFile backup_file ) : Protein::Protein( backup_file )
   gzread( backup_file, &_inherited,   			sizeof(_inherited) );
   gzread( backup_file, &_signal,   			sizeof(_signal) );
   not_pure_TF			 = false;
-
-//  _influence_list       = new ae_list();
 }
  
 // =================================================================
@@ -132,11 +117,11 @@ void Protein_R::compute_delta_concentration( void )
   _delta_concentration = 0;
   if( _signal == 0 )
   {
-	for (const auto& rna: rna_list)
+	for (auto& rna: rna_list)
     {
       assert( _inherited == false);
 
-      _delta_concentration += ((ae_rna_R)rna).get_synthesis_rate();
+      _delta_concentration += (dynamic_cast<Rna_R*>(rna))->get_synthesis_rate();
     }
     _delta_concentration -= _gen_unit->get_exp_m()->get_exp_s()->get_degradation_rate() * _concentration;
     _delta_concentration *= _gen_unit->get_exp_m()->get_exp_s()->get_degradation_step();
@@ -145,7 +130,7 @@ void Protein_R::compute_delta_concentration( void )
 
 int8_t Protein_R::get_codon( int32_t index )
 {
-  return _AA_list[index];
+  return _AA_list[index]->get_value();
 }
 
 void Protein_R::save( gzFile backup_file )
