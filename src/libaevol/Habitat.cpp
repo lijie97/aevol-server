@@ -67,7 +67,8 @@ Habitat::Habitat(const Habitat& rhs, bool share_phenotypic_target) {
 }
 
 Habitat::Habitat(gzFile backup_file,
-                 std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler_) {
+                 std::shared_ptr<PhenotypicTargetHandler>
+                    phenotypic_target_handler_) {
   load(backup_file, phenotypic_target_handler_);
 }
 
@@ -86,7 +87,8 @@ void Habitat::save(gzFile backup_file,
 }
 
 void Habitat::load(gzFile backup_file,
-                   std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler) {
+                   std::shared_ptr<PhenotypicTargetHandler>
+                      phenotypic_target_handler) {
   gzread(backup_file, &compound_amount_, sizeof(compound_amount_));
   if (phenotypic_target_handler == nullptr)
     phenotypic_target_handler_ = std::make_shared<PhenotypicTargetHandler>(backup_file);
