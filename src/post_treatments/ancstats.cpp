@@ -70,13 +70,18 @@ enum check_type
 void print_help(char* prog_path);
 
 FILE* open_environment_stat_file( const char * prefix);
-void write_environment_stats( int32_t t, const Habitat* h, FILE* env_file);
+void write_environment_stats(int32_t t,
+                             const PhenotypicTargetHandler & pth,
+                             FILE* env_file);
 
 FILE* open_terminators_stat_file( const char * prefix );
 void write_terminators_stats( int32_t t,  Individual* indiv, FILE* terminator_file );
 
 FILE* open_zones_stat_file( const char * prefix );
-void write_zones_stats( int32_t t,  Individual* indiv, Habitat* h, FILE* zone_file );
+void write_zones_stats(int32_t t,
+                       Individual* indiv,
+                       PhenotypicTargetHandler& phenotypicTargetHandler,
+                       FILE* zone_file);
 
 FILE* open_operons_stat_file( const char * prefix );
 void write_operons_stats( int32_t t,  Individual* indiv, FILE* operon_file );
@@ -232,8 +237,9 @@ int main(int argc, char** argv)
   // The current version doesn't allow for phenotypic variation nor for
   // different phenotypic targets among the grid
   assert(exp_manager->world()->phenotypic_target_shared());
-  assert(exp_manager->world()->phenotypic_target_handler()->var_method() ==
-             NO_VAR);
+  auto phenotypicTargetHandler =
+      exp_manager->world()->phenotypic_target_handler();
+  assert(phenotypicTargetHandler->var_method() == NO_VAR);
 
   int64_t backup_step = exp_manager->get_backup_step();
 
@@ -263,7 +269,10 @@ int main(int argc, char** argv)
   FILE* env_output_file = open_environment_stat_file(prefix);
   FILE* term_output_file = open_terminators_stat_file(prefix);
   FILE* zones_output_file = NULL;
-  if(h->phenotypic_target().nb_segments() > 1)
+
+  // Next line patchy (specific for the constraints mentioned earlier, i.e.
+  // works only for shared and unvarying phenotypic target)
+  if (phenotypicTargetHandler->phenotypic_target().nb_segments() > 1)
   {
     zones_output_file = open_zones_stat_file(prefix);
   }
@@ -273,7 +282,9 @@ int main(int argc, char** argv)
   // ==================================================
   //  Prepare the initial ancestor and write its stats
   // ==================================================
-  Individual*indiv = Individual::CreateIndividual(exp_manager, lineage_file);
+  GridCell* grid_cell = new GridCell(lineage_file, exp_manager, nullptr);
+  // Individual*indiv = Individual::CreateIndividual(exp_manager, lineage_file);
+  auto* indiv = grid_cell->get_individual();
   indiv->Evaluate();
   indiv->compute_statistical_data();
   indiv->compute_non_coding();
@@ -282,11 +293,11 @@ int main(int argc, char** argv)
 
 
   // Optional outputs
-  write_environment_stats(t0, h, env_output_file);
+  write_environment_stats(t0, *phenotypicTargetHandler, env_output_file);
   write_terminators_stats(t0, indiv, term_output_file);
-  if(h->phenotypic_target().nb_segments() > 1)
+  if(phenotypicTargetHandler->phenotypic_target().nb_segments() > 1)
   {
-    write_zones_stats( t0, indiv, h, zones_output_file );
+    write_zones_stats( t0, indiv, *phenotypicTargetHandler, zones_output_file );
   }
   write_operons_stats( t0, indiv, operons_output_file );
 
@@ -299,12 +310,10 @@ int main(int argc, char** argv)
 
   //delete exp_manager;
 
-  // ===============================================================================
+  // ==========================================================================
   //  Replay the mutations to get the successive ancestors and analyze them
-  // ===============================================================================
+  // ==========================================================================
   ReplicationReport* rep = nullptr;
-
-  Individual* stored_indiv = nullptr;
 
   int32_t index;
 
@@ -316,9 +325,8 @@ int main(int argc, char** argv)
   aevol::Time::plusplus();
   while (get_time() <= t_end)
   {
-    rep = new ReplicationReport( lineage_file, indiv );
-    index = rep->get_id(); // who we are building...
-    indiv->set_replication_report( rep );
+    rep = new ReplicationReport(lineage_file, indiv);
+    index = rep->id(); // who we are building...
 
     // Check now?
     check_now = ((check == FULL_CHECK && Utils::mod(get_time(), backup_step) == 0) ||
@@ -329,10 +337,6 @@ int main(int argc, char** argv)
         printf("Rebuilding ancestor at generation %" PRId64
             " (index %" PRId32 ")...", get_time(), index);
 
-    // 1) Rebuild environment
-    // TODO vld: re-enable following 2 lines with h replacing env ****************
-    // env->build();
-    // env->apply_variation();
     indiv->reevaluate();
 
     // TODO <david.parsons@inria.fr> Check for phenotypic variation has to be
@@ -364,103 +368,85 @@ int main(int argc, char** argv)
     // during the evolution
 
     // 2) Replay replication (create current individual's child)
-    // VLD used to copy pointers to existing unit lists
-    // TODO vld: check if the correct behavior is preserved
-    std::list<GeneticUnit> gulist; // = indiv->get_genetic_unit_list_std();
-    for (auto& gu: indiv->get_genetic_unit_list_nonconst())
-      gulist.emplace_back(indiv, &gu);
-    std::list<GeneticUnit> storedgulist; // = stored_indiv->get_genetic_unit_list_std();
-    for (auto& gu: stored_indiv->get_genetic_unit_list_nonconst())
-      gulist.emplace_back(indiv, &gu);
+    GeneticUnit& gen_unit = indiv->get_genetic_unit_nonconst(0);
+    GeneticUnit* stored_gen_unit = nullptr;
+    Individual* stored_indiv = nullptr;
 
-    std::list<GeneticUnit>::const_iterator storedunit;
     if (check_now)
     {
       exp_manager_backup = new ExpManager();
       exp_manager_backup->load(get_time(), true, false);
-      // TODO: disabled tmp
-      // stored_indiv = new Individual(*(Individual*)exp_manager_backup->get_indiv_by_id( index ), false);
-      storedunit = storedgulist.begin();
+      stored_indiv = new Individual(
+          *(Individual*)exp_manager_backup->get_indiv_by_id(index));
+      stored_gen_unit = &(stored_indiv->get_genetic_unit_nonconst(0));
     }
 
     // For each genetic unit, replay the replication (undergo all mutations)
-    std::list<GeneticUnit>::const_iterator unit = gulist.begin();
-    for (const auto& dnarep: rep->get_dna_replic_reports()) {
-      assert(unit != gulist.end());
+    // TODO <david.parsons@inria.fr> disabled for multiple GUs
+    const auto& dnarep = rep->dna_replic_report();
 
-      unit->get_dna()->set_replic_report(dnarep);
+    for (const auto& mut: dnarep.get_HT())
+      gen_unit.get_dna()->undergo_this_mutation(*mut);
+    for (const auto& mut: dnarep.get_rearrangements())
+      gen_unit.get_dna()->undergo_this_mutation(*mut);
+    for (const auto& mut: dnarep.get_mutations())
+      gen_unit.get_dna()->undergo_this_mutation(*mut);
 
-      for (const auto& mut: dnarep->get_HT())
-        unit->get_dna()->undergo_this_mutation(&mut);
-
-      for (const auto& mut: dnarep->get_rearrangements())
-        unit->get_dna()->undergo_this_mutation(&mut);
-
-      for (const auto& mut: dnarep->get_mutations())
-        unit->get_dna()->undergo_this_mutation(&mut);
-
-      if ( check_now )
+    if ( check_now )
+    {
+      if ( verbose )
       {
-        if ( verbose )
-        {
-          printf("Checking the sequence of the unit...");
-          fflush(NULL);
-        }
+        printf("Checking the sequence of the unit...");
+        fflush(NULL);
+      }
 
-        assert(storedunit != storedgulist.end());
+      char * str1 = new char[gen_unit.get_dna()->get_length() + 1];
+      memcpy(str1, gen_unit.get_dna()->get_data(), \
+             gen_unit.get_dna()->get_length()*sizeof(char));
+      str1[gen_unit.get_dna()->get_length()] = '\0';
 
-        char * str1 = new char[unit->get_dna()->get_length() + 1];
-        memcpy(str1, unit->get_dna()->get_data(), \
-               unit->get_dna()->get_length()*sizeof(char));
-        str1[unit->get_dna()->get_length()] = '\0';
+      char * str2 = new char[(stored_gen_unit->get_dna())->get_length() + 1];
+      memcpy(str2, (stored_gen_unit->get_dna())->get_data(), (stored_gen_unit->get_dna())->get_length()*sizeof(char));
+      str2[(stored_gen_unit->get_dna())->get_length()] = '\0';
 
-        char * str2 = new char[(storedunit->get_dna())->get_length() + 1];
-        memcpy(str2, (storedunit->get_dna())->get_data(), (storedunit->get_dna())->get_length()*sizeof(char));
-        str2[(storedunit->get_dna())->get_length()] = '\0';
-
-        if (strncmp(str1, str2, storedunit->get_dna()->get_length()) == 0 and verbose)
+      if (strncmp(str1, str2, stored_gen_unit->get_dna()->get_length()) == 0) {
+        if (verbose)
           printf(" OK\n");
-        else
-        {
-          if ( verbose ) printf( " ERROR !\n" );
-          fprintf(stderr, "Error: the rebuilt genetic unit is not the same as \n");
-          fprintf(stderr, "the one saved at generation %" PRId64 "... ", get_time());
-          fprintf(stderr, "Rebuilt unit : %" PRId32 " bp\n %s\n", (int32_t)strlen(str1), str1);
-          fprintf(stderr, "Stored unit  : %" PRId32 " bp\n %s\n", (int32_t)strlen(str2), str2);
-
-          delete [] str1;
-          delete [] str2;
-          gzclose(lineage_file);
-          delete indiv;
-          delete stored_indiv;
-          delete exp_manager_backup;
-          delete exp_manager;
-          exit(EXIT_FAILURE);
-        }
+      }
+      else {
+        if ( verbose ) printf( " ERROR !\n" );
+        fprintf(stderr, "Error: the rebuilt genetic unit is not the same as \n");
+        fprintf(stderr, "the one saved at generation %" PRId64 "... ", get_time());
+        fprintf(stderr, "Rebuilt unit : %" PRId32 " bp\n %s\n", (int32_t)strlen(str1), str1);
+        fprintf(stderr, "Stored unit  : %" PRId32 " bp\n %s\n", (int32_t)strlen(str2), str2);
 
         delete [] str1;
         delete [] str2;
-
-        ++storedunit;
+        gzclose(lineage_file);
+        delete indiv;
+        delete stored_indiv;
+        delete exp_manager_backup;
+        delete exp_manager;
+        exit(EXIT_FAILURE);
       }
-      ++unit;
+
+      delete [] str1;
+      delete [] str2;
     }
 
-    assert(unit == gulist.end());
-
     // 3) All the mutations have been replayed, we can now evaluate the new individual
-    indiv->reevaluate(env);
+    indiv->reevaluate();
     indiv->compute_statistical_data();
     indiv->compute_non_coding();
 
     mystats->write_statistics_of_this_indiv(indiv);
 
     // Optional outputs
-    write_environment_stats(get_time(), h, env_output_file);
+    write_environment_stats(get_time(), *phenotypicTargetHandler, env_output_file);
     write_terminators_stats(get_time(), indiv, term_output_file);
-    if(h->phenotypic_target().nb_segments() > 1)
+    if(phenotypicTargetHandler->phenotypic_target().nb_segments() > 1)
     {
-      write_zones_stats(get_time(), indiv, h, zones_output_file);
+      write_zones_stats(get_time(), indiv, *phenotypicTargetHandler, zones_output_file);
     }
     write_operons_stats(get_time(), indiv, operons_output_file);
 
@@ -470,7 +456,6 @@ int main(int argc, char** argv)
 
     if ( check_now )
     {
-      assert(storedunit == storedgulist.end());
       delete stored_indiv;
       delete exp_manager_backup;
     }
@@ -483,7 +468,7 @@ int main(int argc, char** argv)
   // Optional outputs
   fclose( env_output_file );
   fclose( term_output_file );
-  if(h->phenotypic_target().nb_segments() > 1)
+  if(phenotypicTargetHandler->phenotypic_target().nb_segments() > 1)
   {
     fclose( zones_output_file );
   }
@@ -492,7 +477,6 @@ int main(int argc, char** argv)
   delete exp_manager;
   delete mystats;
   delete indiv;
-  delete h;
   
   exit(EXIT_SUCCESS);
 }
@@ -518,17 +502,19 @@ FILE* open_environment_stat_file( const char * prefix)
 }
 
 
-void write_environment_stats( int32_t t, const Habitat *h, FILE*  env_output_file)
+void write_environment_stats(int32_t t,
+                             const PhenotypicTargetHandler& pth,
+                             FILE* env_output_file)
 {
   // Num gener
-  fprintf( env_output_file, "%" PRId32, t );
+  fprintf(env_output_file, "%" PRId32, t);
 
-  // TODO vld: was limited to "if gaussians_provided"
-  // are gaussians always available now?
-  for (const ae_gaussian& g: h->phenotypic_target_handler->gaussians())
-    fprintf(env_output_file, "     %.16f %.16f %.16f", g.get_mean(), g.get_width(), g.get_height());
+  for (const Gaussian& g: pth.gaussians())
+    fprintf(env_output_file,
+            "     %.16f %.16f %.16f",
+            g.get_mean(), g.get_width(), g.get_height());
 
-  fprintf( env_output_file, "\n" );
+  fprintf(env_output_file, "\n");
 }
 
 
@@ -580,13 +566,17 @@ FILE* open_zones_stat_file( const char * prefix  )
   return zones_output_file;
 }
 
-void write_zones_stats( int32_t t, Individual* indiv, Habitat *h, FILE* zones_output_file )
+void write_zones_stats(int32_t t,
+                       Individual* indiv,
+                       PhenotypicTargetHandler& phenotypicTargetHandler,
+                       FILE* zones_output_file)
 {
-  assert(h->phenotypic_target().nb_segments() > 1);
+  assert(phenotypicTargetHandler.phenotypic_target().nb_segments() > 1);
 
-  int16_t nb_segments = h->phenotypic_target().nb_segments();
+  int16_t nb_segments = phenotypicTargetHandler.phenotypic_target().nb_segments();
   int16_t num_segment = 0;
-  ae_env_segment** segments = h->phenotypic_target()->segments();
+  PhenotypicSegment** segments =
+      phenotypicTargetHandler.phenotypic_target().segments();
 
   // Tables : index 0 for the 0 segment
   //                1 for the neutral segment
