@@ -41,7 +41,7 @@ class LocalMutation : public Mutation {
   //                                 Getters
   // ==========================================================================
   virtual MutationType get_mut_type() const override = 0;
-  virtual bool is_local_mut() const override { return true; };
+  virtual bool is_local_mut() const override final { return true; };
 
   // ==========================================================================
   //                                 Setters

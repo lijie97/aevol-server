@@ -41,7 +41,7 @@ class Rearrangement : public Mutation {
   //                                 Getters
   // ==========================================================================
   virtual MutationType get_mut_type() const override = 0;
-  bool is_rear() const override { return true; };
+  bool is_rear() const override final { return true; };
 
   // ==========================================================================
   //                                 Setters

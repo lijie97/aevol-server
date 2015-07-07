@@ -42,7 +42,7 @@ class HT : public Mutation {
   //                                 Getters
   // ==========================================================================
   virtual MutationType get_mut_type() const override = 0;
-  bool is_ht() const override { return true; };
+  bool is_ht() const override final { return true; };
 
   // ==========================================================================
   //                                 Setters
