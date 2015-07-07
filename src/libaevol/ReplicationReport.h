@@ -57,8 +57,7 @@ class Individual;
 
 
 
-class ReplicationReport : public Observer
-{
+class ReplicationReport : public Observer {
   public :
 
     // =================================================================
@@ -70,7 +69,7 @@ class ReplicationReport : public Observer
                       Individual* donor = NULL);
 
     // Creates a completely independent copy of the original report
-    ReplicationReport(const ReplicationReport & model);
+    ReplicationReport(const ReplicationReport& other);
 
     ReplicationReport(gzFile tree_file, Individual * indiv);
 

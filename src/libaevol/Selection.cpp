@@ -147,13 +147,13 @@ void Selection::step_to_next_generation(void)
   World* world = _exp_m->world();
   int16_t grid_width  = world->width();
   int16_t grid_height = world->height();
-  GridCell *** pop_grid = _exp_m->get_pop_grid();
+  GridCell*** pop_grid = _exp_m->get_pop_grid();
 
   // create a temporary grid to store the reproducers
   Individual *** reproducers = new Individual ** [grid_width];
   for (int16_t i = 0 ; i < grid_width ; i++ )
   {
-    reproducers[i] = new Individual * [grid_height];
+    reproducers[i] = new Individual* [grid_height];
   }
 
 

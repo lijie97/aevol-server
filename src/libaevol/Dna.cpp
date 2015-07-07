@@ -46,6 +46,16 @@
 #include "Utils.h"
 #include "VisAVis.h"
 #include "Alignment.h"
+#include "Mutation.h"
+#include "PointMutation.h"
+#include "SmallInsertion.h"
+#include "SmallDeletion.h"
+#include "Duplication.h"
+#include "Deletion.h"
+#include "Translocation.h"
+#include "Inversion.h"
+#include "InsertionHT.h"
+#include "ReplacementHT.h"
 
 namespace aevol {
 
@@ -470,11 +480,10 @@ void Dna::do_rearrangements_with_align(void)
                          alignment->get_i_2());
 
           // Report the duplication
-          mut = new Mutation();
-          mut->report_duplication(alignment->get_i_1(),
-                                  alignment->get_i_2(),
-                                  alignment->get_i_2(),
-                                  segment_length, needed_score);
+          mut = new Duplication(alignment->get_i_1(),
+                                alignment->get_i_2(),
+                                alignment->get_i_2(),
+                                segment_length, needed_score);
 
           // Write a line in rearrangement logfile
           if (_exp_m->get_output_m()->is_logged(LOG_REAR))
@@ -518,10 +527,9 @@ void Dna::do_rearrangements_with_align(void)
           do_deletion(alignment->get_i_1(), alignment->get_i_2());
 
           // Report the deletion
-          mut = new Mutation();
-          mut->report_deletion(alignment->get_i_1(),
-                               alignment->get_i_2(),
-                               segment_length, needed_score);
+          mut = new Deletion(alignment->get_i_1(),
+                             alignment->get_i_2(),
+                             segment_length, needed_score);
 
           // Write a line in rearrangement logfile
           if (_exp_m->get_output_m()->is_logged(LOG_REAR))
@@ -604,14 +612,13 @@ void Dna::do_rearrangements_with_align(void)
                     (alignment_2->get_sense() == INDIRECT));
 
           // Report the translocation
-          mut = new Mutation();
-          mut->report_translocation(alignment->get_i_1(),
-                                    alignment->get_i_2(),
-                                    alignment_2->get_i_1(),
-                                    alignment_2->get_i_2(),
-                                    segment_length,
-                                    (alignment_2->get_sense() == INDIRECT),
-                                    needed_score, needed_score_2);
+          mut = new Translocation(alignment->get_i_1(),
+                                  alignment->get_i_2(),
+                                  alignment_2->get_i_1(),
+                                  alignment_2->get_i_2(),
+                                  segment_length,
+                                  (alignment_2->get_sense() == INDIRECT),
+                                  needed_score, needed_score_2);
 
           // Write a line in rearrangement logfile
           if (_exp_m->get_output_m()->is_logged(LOG_REAR))
@@ -674,10 +681,9 @@ void Dna::do_rearrangements_with_align(void)
       do_inversion(alignment->get_i_1(), alignment->get_i_2());
 
       // Report the inversion
-      mut = new Mutation();
-      mut->report_inversion(alignment->get_i_1(),
-                            alignment->get_i_2(),
-                            segment_length, needed_score);
+      mut = new Inversion(alignment->get_i_1(),
+                          alignment->get_i_2(),
+                          segment_length, needed_score);
 
       // Write a line in rearrangement logfile
       if (_exp_m->get_output_m()->is_logged(LOG_REAR)) {
@@ -733,8 +739,7 @@ Mutation *Dna::do_switch(void) {
 
   if (do_switch(pos)) {
     // Report the mutation
-    mut = new Mutation();
-    mut->report_point_mutation(pos);
+    mut = new PointMutation(pos);
   }
 
   return mut;
@@ -789,8 +794,7 @@ Mutation *Dna::do_small_insertion(void)
   if (do_small_insertion(pos, nb_insert, inserted_seq))
   {
     // Report the insertion
-    mut = new Mutation();
-    mut->report_small_insertion(pos, nb_insert, inserted_seq);
+    mut = new SmallInsertion(pos, nb_insert, inserted_seq);
   }
 
   // Delete the sequence
@@ -836,8 +840,7 @@ Mutation *Dna::do_small_deletion(void)
 
   if (do_small_deletion(pos, nb_del))
   {
-    mut = new Mutation();
-    mut->report_small_deletion(pos, nb_del);
+    mut = new SmallDeletion(pos, nb_del);
   }
 
   return mut;
@@ -966,8 +969,7 @@ Mutation *Dna::do_duplication(void)
     do_duplication(pos_1, pos_2, pos_3);
 
     // Report the duplication
-    mut = new Mutation();
-    mut->report_duplication(pos_1, pos_2, pos_3, segment_length);
+    mut = new Duplication(pos_1, pos_2, pos_3, segment_length);
 
     // Write a line in rearrangement logfile
     if (_exp_m->get_output_m()->is_logged(LOG_REAR))
@@ -1017,8 +1019,7 @@ Mutation *Dna::do_deletion(void)
     do_deletion(pos_1, pos_2);
 
     // Report the deletion
-    mut = new Mutation();
-    mut->report_deletion(pos_1, pos_2, segment_length);
+    mut = new Deletion(pos_1, pos_2, segment_length);
 
     // Write a line in rearrangement logfile
     if (_exp_m->get_output_m()->is_logged(LOG_REAR))
@@ -1156,10 +1157,9 @@ Mutation *Dna::do_translocation(void)
                                     pos_3_rel, pos_4_rel, invert))
       {
         // Report the translocation
-        mut = new Mutation();
-        mut->report_translocation(pos_1_rel, pos_2_rel,
-                                  pos_3_rel, pos_4_rel,
-                                  segment_length, invert);
+        mut = new Translocation(pos_1_rel, pos_2_rel,
+                                pos_3_rel, pos_4_rel,
+                                segment_length, invert);
 
         // Write a line in rearrangement logfile
         if (_exp_m->get_output_m()->is_logged(LOG_REAR))
@@ -1184,10 +1184,9 @@ Mutation *Dna::do_translocation(void)
       //~ printf("  former pos : %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n", former_pos_1, former_pos_2, former_pos_3, former_pos_4);
       if (do_translocation(pos_1_rel, pos_2_rel, pos_3_rel, pos_4_rel, invert))
       {
-        mut = new Mutation();
-        mut->report_translocation(pos_1_rel, pos_2_rel,
-                                  pos_3_rel, pos_4_rel,
-                                  segment_length, invert);
+        mut = new Translocation(pos_1_rel, pos_2_rel,
+                                pos_3_rel, pos_4_rel,
+                                segment_length, invert);
 
         // Write a line in rearrangement logfile
         if (_exp_m->get_output_m()->is_logged(LOG_REAR))
@@ -1225,9 +1224,8 @@ Mutation *Dna::do_translocation(void)
     if (do_translocation(pos_1, pos_2, pos_3, pos_4, invert))
     {
       // Report the translocation
-      mut = new Mutation();
-      mut->report_translocation(pos_1, pos_2, pos_3, pos_4,
-                                segment_length, invert);
+      mut = new Translocation(pos_1, pos_2, pos_3, pos_4,
+                              segment_length, invert);
 
       // Write a line in rearrangement logfile
       if (_exp_m->get_output_m()->is_logged(LOG_REAR))
@@ -1260,8 +1258,7 @@ Mutation *Dna::do_inversion(void)
   if (do_inversion(pos_1, pos_2))
   {
     // Report the inversion
-    mut = new Mutation();
-    mut->report_inversion(pos_1, pos_2, segment_length);
+    mut = new Inversion(pos_1, pos_2, segment_length);
 
     // Write a line in rearrangement logfile
     if (_exp_m->get_output_m()->is_logged(LOG_REAR))
@@ -1280,21 +1277,23 @@ Mutation *Dna::do_insertion(const char* seq_to_insert, int32_t seq_length /*= -1
 {
   Mutation * mut = NULL;
 
-  // Compute seq_length if not known
-  if (seq_length == -1)
-  {
-    seq_length = strlen(seq_to_insert);
-  }
+  Utils::ExitWithMsg("Not implemented yet", __FILE__, __LINE__);
 
-  // Where to insert the sequence
-  int32_t pos = _indiv->_mut_prng->random(_length);
-
-  if (do_insertion(pos, seq_to_insert, seq_length))
-  {
-    // Report the insertion
-    mut = new Mutation();
-    mut->report_insertion(pos, seq_length, seq_to_insert);
-  }
+//  // Compute seq_length if not known
+//  if (seq_length == -1)
+//  {
+//    seq_length = strlen(seq_to_insert);
+//  }
+//
+//  // Where to insert the sequence
+//  int32_t pos = _indiv->_mut_prng->random(_length);
+//
+//  if (do_insertion(pos, seq_to_insert, seq_length))
+//  {
+//    // Report the insertion
+//    mut = new Mutation();
+//    mut->report_insertion(pos, seq_length, seq_to_insert);
+//  }
 
   return mut;
 }
@@ -2078,7 +2077,15 @@ Mutation *Dna::do_repl_HT(int32_t parent_id)
 //            donor_seq = exogenote->get_dna()->get_subsequence(0,exogenote->get_dna()->get_length(), LAGGING);
 //          }
 //          mut = new Mutation();
-//          mut->report_repl_HT(alignment_1->get_i_1(), alignment_1->get_i_2(), alignment_2->get_i_1(), alignment_2->get_i_2(), replaced_seq_length, exogenote->get_dna()->get_length(), alignment_1->get_score(),alignment_2->get_score(),  donor->get_id(), alignment_2->get_sense(),donor_seq);
+//          mut->report_repl_HT(alignment_1->get_i_1(), alignment_1->get_i_2(),
+//                              alignment_2->get_i_1(), alignment_2->get_i_2(),
+//                              replaced_seq_length,
+//                              exogenote->get_dna()->get_length(),
+//                              alignment_1->get_score(),
+//                              alignment_2->get_score(),
+//                              donor->get_id(),
+//                              alignment_2->get_sense(),
+//                              donor_seq);
 //          delete [] donor_seq;
 //        }
 //
@@ -2139,74 +2146,55 @@ bool Dna::do_repl_HT(int32_t pos1, int32_t pos2, const char* seq_to_insert, int3
   return true;
 }
 
-void Dna::undergo_this_mutation(const Mutation * mut)
+void Dna::undergo_this_mutation(const Mutation& mut)
 {
-  if(mut == NULL) return;
-
-  int32_t pos1, pos2, pos3, pos4;
-  int32_t length;
-  bool invert;
-  char *seq = NULL;
-  AlignmentSense sense;
-
-  switch(mut->get_mut_type())
+  switch(mut.get_mut_type())
   {
-    case SWITCH:
-      mut->get_infos_point_mutation(&pos1);
-      do_switch(pos1);
+    case SWITCH :
+      do_switch(dynamic_cast<const PointMutation&>(mut).pos());
       break;
-    case S_INS:
-      mut->get_infos_small_insertion(&pos1, &length);
-      seq = new char[length + 1];
-      mut->get_sequence_small_insertion(seq);
-      do_small_insertion(pos1, length, seq);
-      delete [] seq;
+    case S_INS : {
+      const auto& s_ins = dynamic_cast<const SmallInsertion&>(mut);
+      do_small_insertion(s_ins.pos(), s_ins.length(), s_ins.seq());
       break;
-    case S_DEL:
-      mut->get_infos_small_deletion(&pos1, &length);
-      do_small_deletion(pos1, length);
+    }
+    case S_DEL : {
+      const auto& s_del = dynamic_cast<const SmallDeletion&>(mut);
+      do_small_deletion(s_del.pos(), s_del.length());
       break;
-    case DUPL:
-      mut->get_infos_duplication(&pos1, &pos2, &pos3);
-      do_duplication(pos1, pos2, pos3);
+    }
+    case DUPL : {
+      const auto& dupl = dynamic_cast<const Duplication&>(mut);
+      do_duplication(dupl.pos1(), dupl.pos2(), dupl.pos3());
       break;
-    case DEL:
-      mut->get_infos_deletion(&pos1, &pos2);
-      do_deletion(pos1, pos2);
+    }
+    case DEL : {
+      const auto& del = dynamic_cast<const Deletion&>(mut);
+      do_deletion(del.pos1(), del.pos2());
       break;
-    case TRANS:
-      mut->get_infos_translocation(&pos1, &pos2, &pos3, &pos4, &invert);
-      if (_indiv->get_with_alignments())
-      {
-        // Extract the segment to be translocated
-        GeneticUnit* translocated_segment = extract_into_new_GU(pos1, pos2);
-
-        // Reinsert the segment
-        insert_GU(translocated_segment, pos3, pos4, invert);
-      }
-      else
-      {
-        do_translocation(pos1, pos2, pos3, pos4, invert);
-      }
+    }
+    case TRANS : {
+      const auto& trans = dynamic_cast<const Translocation&>(mut);
+      do_translocation(trans.pos1(), trans.pos2(), trans.pos3(), trans.pos4(),
+                       trans.invert());
       break;
-    case INV:
-      mut->get_infos_inversion(&pos1, &pos2);
-      do_inversion(pos1, pos2);
+    }
+    case INV : {
+      const auto& inv = dynamic_cast<const Inversion&>(mut);
+      do_inversion(inv.pos1(), inv.pos2());
       break;
-    case INS_HT:
-      mut->get_infos_ins_HT(&pos1, &pos2, &pos3, &pos4, &sense, &length);
-      seq = new char[length + 1];
-      mut->get_sequence_ins_HT(seq);
-      do_ins_HT(pos4, seq, length);
-      delete [] seq;
+    }
+    case INS_HT : {
+      const auto& ins_ht = dynamic_cast<const InsertionHT&>(mut);
+      do_ins_HT(ins_ht.receiver_pos(), ins_ht.seq(), ins_ht.length());
       break;
-    case REPL_HT:
-      mut->get_infos_repl_HT(&pos1, &pos2, &pos3, &pos4, &sense, &length);
-      seq = new char[length + 1];
-      mut->get_sequence_repl_HT(seq);
-      do_repl_HT(pos1, pos3, seq, length);
-      delete [] seq;
+    }
+    case REPL_HT : {
+      const auto& repl_ht = dynamic_cast<const ReplacementHT&>(mut);
+      do_repl_HT(repl_ht.receiver_pos1(), repl_ht.receiver_pos2(),
+                 repl_ht.seq(), repl_ht.length());
       break;
+    }
     default :
       fprintf(stderr, "ERROR, invalid mutation type in file %s:%d\n", __FILE__, __LINE__);
       exit(EXIT_FAILURE);

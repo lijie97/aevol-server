@@ -69,20 +69,21 @@ class VisAVis
     // =================================================================
     //                             Constructors
     // =================================================================
-    VisAVis( const Dna * chrom_1, const Dna * chrom_2, int32_t i_1, int32_t i_2, AlignmentSense sense = DIRECT );
-    VisAVis( const VisAVis & orig );
-    //~ VisAVis( const VisAVis * const orig );
+    VisAVis() = default;
+    VisAVis(const Dna * chrom_1, const Dna * chrom_2,
+            int32_t i_1, int32_t i_2, AlignmentSense sense = DIRECT);
+    VisAVis(const VisAVis & orig);
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~VisAVis( void );
+    virtual ~VisAVis(void);
 
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline const Dna *  get_chrom_1( void ) const;
-    inline const Dna *  get_chrom_2( void ) const;
+    inline const Dna*  get_chrom_1( void ) const;
+    inline const Dna*  get_chrom_2( void ) const;
     inline int32_t        get_i_1( void ) const;
     inline int32_t        get_i_2( void ) const;
     inline int16_t        get_score( void ) const;
@@ -120,24 +121,6 @@ class VisAVis
 
 
   protected :
-
-    // =================================================================
-    //                         Forbidden Constructors
-    // =================================================================
-  
-    //~ VisAVis( void )
-    //~ {
-      //~ _chrom_1 = _chrom_2 = new Dna(); // const members must be initialized
-      //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      //~ exit( EXIT_FAILURE );
-    //~ };
-    /*VisAVis( const VisAVis &model )
-    {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-      };*/
-
-
     // =================================================================
     //                           Protected Methods
     // =================================================================
@@ -145,12 +128,13 @@ class VisAVis
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    const Dna *  _chrom_1;
-    const Dna *  _chrom_2;
-    int32_t         _i_1; // Index on chrom_1
-    int32_t         _i_2; // Index on chrom_2
-    int16_t         _score;
-    AlignmentSense _sense; // Sense (DIRECT or INDIRECT) of the vis_a_vis (alignement)
+    const Dna* _chrom_1 = nullptr;
+    const Dna* _chrom_2 = nullptr;
+    int32_t _i_1 = -1; //< Index on chrom_1
+    int32_t _i_2 = -1; //< Index on chrom_2
+    int16_t _score = -1;
+    // Sense (DIRECT or INDIRECT) of the vis_a_vis (alignement)
+    AlignmentSense _sense = DIRECT;
     // Say we have the following sequences :
     //    0 1 2 3 4 5 6 7 8 9             0 1 2 3 4 5 6 7 8 9
     //    |a|b|c|d|e|f|g|h|i|j|           |a|b|c|d|e|f|g|h|i|j|

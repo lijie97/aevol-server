@@ -62,8 +62,7 @@ const int32_t Tree::NO_PARENT = -1;
 // =================================================================
 //                             Constructors
 // =================================================================
-Tree::Tree(ExpManager* exp_m, int64_t tree_step)
-{
+Tree::Tree(ExpManager* exp_m, int64_t tree_step) {
   _exp_m = exp_m;
   _tree_step = tree_step;
 
@@ -101,8 +100,8 @@ Tree::Tree(ExpManager* exp_m, char* tree_file_name) {
          indiv_i < _exp_m->get_nb_indivs() ;
          indiv_i++) {
       // Retrieve a replication report
-      ReplicationReport* replic_report =
-          new ReplicationReport(tree_file, nullptr);
+      ReplicationReport* replic_report = new ReplicationReport(tree_file,
+                                                               nullptr);
 
       // Put it at its rightful position
       _replics[t][replic_report->id()] = replic_report;
@@ -117,7 +116,7 @@ Tree::Tree(ExpManager* exp_m, char* tree_file_name) {
 // =================================================================
 //                             Destructors
 // =================================================================
-Tree::~Tree( void ) {
+Tree::~Tree() {
   if ( _replics != NULL )  {
     for (int32_t i = 0 ; i < _tree_step ; i++)
       if (_replics[i] != NULL) {
@@ -164,27 +163,20 @@ void Tree::signal_end_of_generation() {
   }
 }
 
-void Tree::write_to_tree_file(gzFile tree_file)
-{
+void Tree::write_to_tree_file(gzFile tree_file) {
   // Write the tree in the backup
-  for ( int64_t t = 0 ; t < _tree_step ; t++ )
-  {
-    for ( int32_t indiv_i = 0 ; indiv_i < _exp_m->get_nb_indivs() ; indiv_i++ )
-    {
+  for (int64_t t = 0 ; t < _tree_step ; t++)
+    for (int32_t indiv_i = 0 ; indiv_i < _exp_m->get_nb_indivs() ; indiv_i++) {
       assert(_replics[t][indiv_i] != NULL);
-      _replics[t][indiv_i]->write_to_tree_file( tree_file );
+      _replics[t][indiv_i]->write_to_tree_file(tree_file);
     }
-  }
 
   // Reinitialize the tree
-  for ( int32_t t = 0 ; t < _tree_step ; t++ )
-  {
-    for ( int32_t indiv_i = 0 ; indiv_i < _exp_m->get_nb_indivs() ; indiv_i++ )
-    {
+  for (int32_t t = 0 ; t < _tree_step ; t++)
+    for (int32_t indiv_i = 0 ; indiv_i < _exp_m->get_nb_indivs() ; indiv_i++) {
       delete _replics[t][indiv_i];
       _replics[t][indiv_i] = new ReplicationReport();
     }
-  }
 }
 
 void Tree::update(Observable& o, ObservableEvent e, void* arg) {
