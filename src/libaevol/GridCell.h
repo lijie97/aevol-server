@@ -138,7 +138,7 @@ class GridCell
   // Pointer to the individual in this cell
   Individual* individual_ = NULL;
 
-  std::unique_ptr<Habitat> habitat_;
+  std::unique_ptr<Habitat> habitat_ = nullptr;
 };
 
 
