@@ -347,16 +347,14 @@ int main(int argc, char** argv)
 
   // Copy the initial ancestor
   // NB : The list of individuals is sorted according to the index
-  Individual* initial_ancestor_tmp = exp_manager->get_indiv_by_id(indices[0]);
-  Individual* initial_ancestor = new Individual(*initial_ancestor_tmp);
-
+  const Individual* const initial_ancestor = exp_manager->get_indiv_by_id(indices[0]);
 
   gzwrite(lineage_file, &t0, sizeof(t0));
   gzwrite(lineage_file, &t_end, sizeof(t_end));
   gzwrite(lineage_file, &final_indiv_index, sizeof(final_indiv_index));
   gzwrite(lineage_file, &final_indiv_rank, sizeof(final_indiv_rank));
 
-  initial_ancestor->save(lineage_file);
+  initial_ancestor->get_grid_cell()->save(lineage_file);
 
 
   if (verbose)
@@ -463,12 +461,13 @@ int main(int argc, char** argv)
         if ( verbose ) printf( " ERROR !\n" );
         fprintf(stderr, "Error: the rebuilt unit is not the same as \n");
         fprintf(stderr, "the one stored in backup file at %" PRId64 "\n", t);
-        fprintf( stderr, "Rebuilt unit : %" PRId32 " bp\n %s\n", (int32_t)strlen(str1), str1 );
-        fprintf( stderr, "Stored unit  : %" PRId32 " bp\n %s\n", (int32_t)strlen(str2), str2 );
+        fprintf(stderr, "Rebuilt unit : %" PRId32 " bp\n %s\n",
+                (int32_t)strlen(str1), str1);
+        fprintf(stderr, "Stored unit  : %" PRId32 " bp\n %s\n",
+                (int32_t)strlen(str2), str2);
         delete [] str1;
         delete [] str2;
         gzclose( lineage_file );
-        delete initial_ancestor;
         delete exp_manager_backup;
         delete exp_manager;
         delete [] reports;
@@ -493,12 +492,10 @@ int main(int argc, char** argv)
 
 
   gzclose(lineage_file);
-  delete initial_ancestor;
   delete [] reports;
   delete exp_manager;
 
   exit(EXIT_SUCCESS);
-
 }
 
 /*!
