@@ -145,6 +145,7 @@ X11Window.cpp
 # e.g. We don't want to use an object file created with NO_X when building the X11 lib
 
 libaevol_a_CPPFLAGS = $(AM_CPPFLAGS)
+libaevol_a_CXXFLAGS = $(AM_CXXFLAGS) -fopenmp
 
 if WITH_X
 #libaevol_a_HEADERS = $(common_headers) $(X11_headers)

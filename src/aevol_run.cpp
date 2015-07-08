@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <signal.h>
 #include <sys/stat.h>
+#include <omp.h>
 
 // =================================================================
 //                            Project Files
@@ -49,27 +50,27 @@
 using namespace aevol;
 
 #ifndef __NO_X
-void catch_usr1( int sig_num );
+void catch_usr1(int sig_num);
 #endif
 
-void print_help( char* prog_path );
+void print_help(char* prog_path);
 
-static ExpManager * exp_manager = NULL;
-
-
+static ExpManager* exp_manager = NULL;
 
 
-int main( int argc, char* argv[] )
+
+
+int main(int argc, char* argv[])
 {
   // Set handlers for signals to be caught
   #ifndef __NO_X
-    signal( SIGUSR1, catch_usr1 );
+    signal(SIGUSR1, catch_usr1);
   #endif
   
   
   // Print warning for debug mode
   #ifdef DEBUG
-    printf( "aevol is being run in DEBUG mode\n" );
+    printf("aevol is being run in DEBUG mode\n");
   #endif
   
  
@@ -87,7 +88,6 @@ int main( int argc, char* argv[] )
   // -------------------------------------------------------------------------
   // 1) Initialize command-line option variables with default values
   // -------------------------------------------------------------------------
-  // bool use_text_files   = false;
   // bool pause_on_startup = false;
   bool verbose          = false;
   
@@ -97,21 +97,31 @@ int main( int argc, char* argv[] )
   #ifndef __NO_X
     bool show_display_on_startup = true;
   #endif
+
+  bool run_in_parallel = false;
   
   
   // -------------------------------------------------------------------------
   // 2) Define allowed options
   // -------------------------------------------------------------------------
-  const char * options_list = "hn:r:tvVwx";
+  const char * options_list = "hn:r:vVwxp:";
   static struct option long_options_list[] = {
+    // Print help
     { "help",     no_argument,        NULL, 'h' },
-    { "nbgener",  required_argument,  NULL, 'n' }, // Number of generations to be run
-    { "resume",   required_argument,  NULL, 'r' }, // Resume from generation X
-    { "text",     no_argument,        NULL, 't' }, // Use text files instead of gzipped binary files
-    { "verbose",  no_argument,        NULL, 'v' }, // Be verbose
+    // Number of generations to be run
+    { "nbgener",  required_argument,  NULL, 'n' },
+    // Resume from generation X (default: 0)
+    { "resume",   required_argument,  NULL, 'r' },
+    // Be verbose
+    { "verbose",  no_argument,        NULL, 'v' },
+    // Print version
     { "version",  no_argument,        NULL, 'V' },
-    { "wait",     no_argument,        NULL, 'w' }, // Pause after loading
-    { "noX",      no_argument,        NULL, 'x' }, // Don't display X outputs on start
+    // Pause after loading
+    { "wait",     no_argument,        NULL, 'w' },
+    // Don't display X outputs on start
+    { "noX",      no_argument,        NULL, 'x' },
+    // Run in parallel on x threads (0 or negative value yields system default)
+    { "parallel", required_argument,  NULL, 'p' },
     { 0, 0, 0, 0 }
   };
   
@@ -120,82 +130,73 @@ int main( int argc, char* argv[] )
   // 3) Get actual values of the command-line options
   // -------------------------------------------------------------------------
   int option;
-  while ( ( option = getopt_long(argc, argv, options_list, long_options_list, NULL) ) != -1 ) 
-  {
-    switch ( option ) 
-    {
-      case 'h' :
-      {
-        print_help( argv[0] );
-        exit( EXIT_SUCCESS );
+  while ((option =
+              getopt_long(argc, argv, options_list, long_options_list, NULL))
+         != -1) {
+    switch (option) {
+      case 'h' : {
+        print_help(argv[0]);
+        exit(EXIT_SUCCESS);
       }
-      case 'V' :
-      {
+      case 'V' : {
         Utils::PrintAevolVersion();
-        exit( EXIT_SUCCESS );
+        exit(EXIT_SUCCESS);
       }
-      case 'n' :
-      {
-        if ( strcmp( optarg, "" ) == 0 )
-        {
-          printf( "%s: error: Option -n or --nbgener : missing argument.\n", argv[0] );
-          exit( EXIT_FAILURE );
+      case 'n' : {
+        if (strcmp(optarg, "") == 0) {
+          printf("%s: error: Option -n or --nbgener : missing argument.\n",
+                 argv[0]);
+          exit(EXIT_FAILURE);
         }
         
-        nb_gener = atoi( optarg );
-        
+        nb_gener = atoi(optarg);
         break;
       }
-      case 'r' :
-      {
-        if ( strcmp( optarg, "" ) == 0 )
-        {
-          printf( "%s: error: Option -r or --resume : missing argument.\n", argv[0] );
-          exit( EXIT_FAILURE );
+      case 'r' : {
+        if (strcmp(optarg, "") == 0) {
+          printf("%s: error: Option -r or --resume : missing argument.\n",
+                 argv[0]);
+          exit(EXIT_FAILURE);
         }
         
-        num_gener = atol( optarg );
-		  
+        num_gener = atol(optarg);
         break;      
       }
-      case 't' :
-      {
-        // use_text_files = true;
-        printf( "%s: error: Option -t or --text not yet implemented.\n", argv[0] );
-        exit( EXIT_FAILURE );
-        
-        break;
-      }
-      case 'v' :
-      {
+      case 'v' : {
         verbose = true;
-        
         break;
       }
-      case 'w' :
-      {
+      case 'w' : {
         // pause_on_startup = true;
-        
         break;
       }
-      case 'x' :
-      {
+      case 'x' : {
         #ifdef __NO_X
-          printf( "%s: error: Program was compiled with __NO_X option, no visualisation available.\n", argv[0] );
-          exit( EXIT_FAILURE );
+          printf("%s: error: Program was compiled with __NO_X option, "
+                 "no visualisation available.\n", argv[0]);
+          exit(EXIT_FAILURE);
         #else
           show_display_on_startup = false;
         #endif
         
         break;
       }
-      default :
-      {
+      case 'p' : {
+        run_in_parallel = true;
+        if (atoi(optarg) > 0)
+          omp_set_num_threads(atoi(optarg));
+        break;
+      }
+      default : {
         // An error message is printed in getopt_long, we just need to exit
-        exit( EXIT_FAILURE );
+        exit(EXIT_FAILURE);
       }
     }
   }
+
+  // It the user didn't ask for a parallel run, set number of threads to 1
+  if (not run_in_parallel)
+    omp_set_num_threads(1);
   
   
   // =================================================================
@@ -216,7 +217,7 @@ int main( int argc, char* argv[] )
   // TODO (?)
 
   #ifndef __NO_X
-    if ( show_display_on_startup )
+    if (show_display_on_startup)
     {
       ((ExpManager_X11 *) exp_manager)->toggle_display_on_off();
     }
@@ -235,12 +236,12 @@ int main( int argc, char* argv[] )
 
 
 #ifndef __NO_X
-void catch_usr1( int sig_num )
+void catch_usr1(int sig_num)
 {
-  signal( SIGUSR1, catch_usr1 );
+  signal(SIGUSR1, catch_usr1);
   
-  printf( "display on/off\n" );
-  if ( exp_manager != NULL )
+  printf("display on/off\n");
+  if (exp_manager != NULL)
   {
     ((ExpManager_X11 *) exp_manager)->toggle_display_on_off();
   }
@@ -257,36 +258,36 @@ void catch_usr1( int sig_num )
   \brief 
   
 */
-void print_help( char* prog_path ) 
+void print_help(char* prog_path) 
 {
   // Get the program file-name in prog_name (strip prog_path of the path)
   char* prog_name; // No new, it will point to somewhere inside prog_path
-  if ( ( prog_name = strrchr( prog_path, '/' )) ) prog_name++;
+  if ((prog_name = strrchr(prog_path, '/'))) prog_name++;
   else prog_name = prog_path;
   
-	printf( "******************************************************************************\n" );
-	printf( "*                                                                            *\n" );
-	printf( "*                        aevol - Artificial Evolution                        *\n" );
-	printf( "*                                                                            *\n" );
-	printf( "* Aevol is a simulation platform that allows one to let populations of       *\n" );
-  printf( "* digital organisms evolve in different conditions and study experimentally  *\n" );
-  printf( "* the mechanisms responsible for the structuration of the genome and the     *\n" );
-  printf( "* transcriptome.                                                             *\n" );
-	printf( "*                                                                            *\n" );
-	printf( "******************************************************************************\n" );
-  printf( "\n" );
-	printf( "%s: run an aevol simulation.\n", prog_name );
-  printf( "\n" );
-	printf( "Usage : %s -h or --help\n", prog_name );
-	printf( "   or : %s -V or --version\n", prog_name );
-	printf( "   or : %s [-r GENER] [-n NB_GENER] [-tvwx]\n", prog_name );
-	printf( "\nOptions\n" );
-	printf( "  -h, --help\n\tprint this help, then exit\n\n" );
-	printf( "  -V, --version\n\tprint version number, then exit\n\n" );
-  printf( "  -r, --resume GENER\n\tspecify generation to resume simulation at (default 0)\n\n" );
-  printf( "  -n, --nbgener NB_GENER\n\tspecify number of generations to be run (default 1000)\n\n" );
-  printf( "  -t, --text\n\tuse text files instead of binary files when possible\n\n" );
-	printf( "  -v, --verbose\n\tbe verbose\n\n" );
-  printf( "  -w, --wait\n\tpause after loading\n\n" );
-  printf( "  -x, --noX\n\tdon't display X outputs upon start\n\tsend SIGUSR1 to switch X output on/off\n" );
+	printf("******************************************************************************\n");
+	printf("*                                                                            *\n");
+	printf("*                        aevol - Artificial Evolution                        *\n");
+	printf("*                                                                            *\n");
+	printf("* Aevol is a simulation platform that allows one to let populations of       *\n");
+  printf("* digital organisms evolve in different conditions and study experimentally  *\n");
+  printf("* the mechanisms responsible for the structuration of the genome and the     *\n");
+  printf("* transcriptome.                                                             *\n");
+	printf("*                                                                            *\n");
+	printf("******************************************************************************\n");
+  printf("\n");
+	printf("%s: run an aevol simulation.\n", prog_name);
+  printf("\n");
+	printf("Usage : %s -h or --help\n", prog_name);
+	printf("   or : %s -V or --version\n", prog_name);
+	printf("   or : %s [-r GENER] [-n NB_GENER] [-tvwx]\n", prog_name);
+	printf("\nOptions\n");
+	printf("  -h, --help\n\tprint this help, then exit\n\n");
+	printf("  -V, --version\n\tprint version number, then exit\n\n");
+  printf("  -r, --resume GENER\n\tspecify generation to resume simulation at (default 0)\n\n");
+  printf("  -n, --nbgener NB_GENER\n\tspecify number of generations to be run (default 1000)\n\n");
+  printf("  -t, --text\n\tuse text files instead of binary files when possible\n\n");
+	printf("  -v, --verbose\n\tbe verbose\n\n");
+  printf("  -w, --wait\n\tpause after loading\n\n");
+  printf("  -x, --noX\n\tdon't display X outputs upon start\n\tsend SIGUSR1 to switch X output on/off\n");
 }
