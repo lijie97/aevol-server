@@ -290,6 +290,14 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     _strain_name = new char[strlen(line->words[1])+1];
     strcpy(_strain_name, line->words[1]);
   }
+  else if (strcmp(line->words[0], "MIN_TRIANGLE_WIDTH") == 0)
+  {
+    printf("ERROR in param file \"%s\" on line %" PRId32
+               ": %s is no longer a valid option, "
+               "its value is fixed to 0.\n",
+           _param_file_name, cur_line, line->words[0]);
+    exit(EXIT_FAILURE);
+  }
   else if (strcmp(line->words[0], "MAX_TRIANGLE_WIDTH") == 0)
   {
     _w_max = atof(line->words[1]);
@@ -403,6 +411,23 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
   {
     _tree_step = atol(line->words[1]);
   }
+  else if (strcmp(line->words[0], "NB_GENER") == 0)
+  {
+    printf("ERROR in param file \"%s\" on line %" PRId32
+               ": %s is no longer a valid option, "
+               "use command line arguments of aevol_run instead.\n",
+           _param_file_name, cur_line, line->words[0]);
+    exit(EXIT_FAILURE);
+  }
+  else if (strcmp(line->words[0], "INITIAL_GENOME_LENGTH") == 0)
+  {
+    printf("ERROR in param file \"%s\" on line %" PRId32
+               ": %s is no longer a valid option, "
+               "use CHROMOSOME_INITIAL_LENGTH (and optionally "
+               "PLASMID_INITIAL_LENGTH) instead.\n",
+           _param_file_name, cur_line, line->words[0]);
+    exit(EXIT_FAILURE);
+  }
   else if (strcmp(line->words[0], "CHROMOSOME_INITIAL_LENGTH") == 0)
   {
     _chromosome_initial_length = atol(line->words[1]);
@@ -446,16 +471,20 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
   }
   else if (strcmp(line->words[0], "POP_STRUCTURE") == 0)
   {
-    if (strcmp(line->words[1], "grid") == 0)
-    {
-      _grid_width = atoi(line->words[2]);
-      _grid_height = atoi(line->words[3]);
-    }
-    else
-    {
-      printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown population structure.\n", _param_file_name, cur_line);
-      exit(EXIT_FAILURE);
-    }
+    printf("ERROR in param file \"%s\" on line %" PRId32
+               ": %s is no longer a valid option, "
+               "use WORLD_SIZE <width> <height> instead.\n",
+           _param_file_name, cur_line, line->words[0]);
+    exit(EXIT_FAILURE);
+  }
+  else if (strcmp(line->words[0], "MIGRATION_NUMBER") == 0)
+  {
+    printf("ERROR in param file \"%s\" on line %" PRId32
+               ": %s is no longer a valid option, "
+               "use INDIV_MIXING instead.\n",
+           _param_file_name, cur_line, line->words[0]);
+    printf("usage: INDIV_MIXING WELL_MIXED|NONE|PARTIAL <n>\n");
+    exit(EXIT_FAILURE);
   }
   else if (strcmp(line->words[0], "INDIV_MIXING") == 0)
   {
@@ -468,6 +497,7 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     else {
       printf("ERROR in param file \"%s\" on line %" PRId32
                  " : unknown mixing option.\n", _param_file_name, cur_line);
+      printf("usage: INDIV_MIXING WELL_MIXED|NONE|PARTIAL <n>\n");
       exit(EXIT_FAILURE);
     }
   }
@@ -814,7 +844,8 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     static bool env_var_already_set = false;
     if (env_var_already_set)
     {
-      printf("ERROR in param file \"%s\" on line %" PRId32 " : duplicate entry for %s.\n",
+      printf("ERROR in param file \"%s\" on line %" PRId32 " : "
+                 "duplicate entry for %s.\n",
              _param_file_name, cur_line, line->words[0]);
       exit(EXIT_FAILURE);
     }
@@ -1193,9 +1224,9 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   auto world_prng = std::make_shared<JumpingMT>(_prng->random(1000000));
 
   // Create aliases
-  ExpSetup * exp_s = exp_m->get_exp_s();
-  Selection * sel = exp_m->get_sel();
-  OutputManager * output_m  = exp_m->get_output_m();
+  ExpSetup* exp_s = exp_m->get_exp_s();
+  Selection* sel = exp_m->get_sel();
+  OutputManager* output_m  = exp_m->get_output_m();
 
   // 1) ------------------------------------- Initialize the experimental setup
   sel->set_prng(std::make_unique<JumpingMT>(_prng->random(1000000)));
