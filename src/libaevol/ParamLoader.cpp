@@ -1100,16 +1100,16 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
   }
 }
 
-void ParamLoader::read_file(void)
+void ParamLoader::read_file()
 {
   // The rewind is only necessary when using multiple param files
   rewind(_param_file);
 
   int32_t cur_line = 0;
-  ParameterLine * line;
+  ParameterLine* line;
 
-
-  while ((line = get_line(&cur_line)) != NULL) // TODO : write line = new ParameterLine(_param_file) => ParameterLine::ParameterLine(char*)
+  // TODO : write line = new ParameterLine(_param_file) => ParameterLine::ParameterLine(char*)
+  while ((line = get_line(&cur_line)) != NULL)
   {
     interpret_line(line, cur_line);
     delete line;

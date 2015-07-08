@@ -59,16 +59,32 @@ class ExpManager;
 class Individual;
 
 
-class ParamLoader
-{
+class ParamLoader {
  public :
   // =========================================================================
   //                          Constructors & Destructor
   // =========================================================================
-    ParamLoader(void) = delete;
-    ParamLoader(const ParamLoader &) = delete;
+    ParamLoader(void) = delete; //< Default ctor
+    ParamLoader(const ParamLoader&) = delete; //< Copy ctor
+    ParamLoader(ParamLoader&&) = delete; //< Move ctor
     ParamLoader(const char* file_name);
-    virtual ~ParamLoader(void);
+    virtual ~ParamLoader(void); //< Destructor
+
+  // ==========================================================================
+  //                                Operators
+  // ==========================================================================
+  /// Copy assignment
+  ParamLoader& operator=(const ParamLoader& other) = delete;
+  /// Move assignment
+  ParamLoader& operator=(ParamLoader&& other) = delete;
+
+  // =========================================================================
+  //                             Public Methods
+  // =========================================================================
+  void load(ExpManager * exp_m, bool verbose = false,
+            char* chromosome = NULL, int32_t lchromosome = 0,
+            char* plasmid = NULL, int32_t lplasmid = 0);
+  void print_to_file(FILE* file);
 
   // =========================================================================
   //                                  Getters
@@ -78,27 +94,15 @@ class ParamLoader
   //                                  Setters
   // =========================================================================
 
-  // =========================================================================
-  //                             Public Methods
-  // =========================================================================
-  void read_file(void);
-  void load(ExpManager * exp_m, bool verbose = false, char* chromosome = NULL, int32_t lchromosome = 0, char* plasmid = NULL, int32_t lplasmid = 0 );
-
-
-  ParameterLine * get_line( int32_t* );
-
-  void print_to_file( FILE* file );
-
-
-
-
  protected :
   // =========================================================================
   //                            Protected Methods
   // =========================================================================
   void CheckConsistency();
-  static void format_line( ParameterLine *, char*, bool* );
-  void interpret_line( ParameterLine * line, int32_t cur_line );
+  void read_file();
+  ParameterLine* get_line(int32_t*);
+  static void format_line(ParameterLine *, char*, bool*);
+  void interpret_line(ParameterLine * line, int32_t cur_line);
 
   // =========================================================================
   //                               Attributes
