@@ -89,6 +89,10 @@ GridCell::~GridCell(void)
 // =================================================================
 //                            Public Methods
 // =================================================================
+void GridCell::ApplyHabitatVariation() {
+  habitat_->ApplyVariation();
+}
+
 void GridCell::save(gzFile backup_file,
                         bool skip_phenotypic_target /*=false*/) const
 {

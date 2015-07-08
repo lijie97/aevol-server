@@ -109,19 +109,12 @@ class GridCell
   // =================================================================
   //                            Public Methods
   // =================================================================
+  void ApplyHabitatVariation();
   void save(gzFile backup_file,
             bool skip_phenotypic_target = false) const;
   void load(gzFile backup_file,
             ExpManager * exp_m,
             std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler);
-
-  // =================================================================
-  //                           Public Attributes
-  // =================================================================
-
-
-
-
 
  protected :
   // =================================================================

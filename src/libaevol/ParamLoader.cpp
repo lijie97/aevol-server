@@ -1302,7 +1302,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   }
 
   // Build the phenotypic target
-  phenotypic_target_handler.build_phenotypic_target();
+  phenotypic_target_handler.BuildPhenotypicTarget();
 
   if (verbose)
     printf("Entire geometric area of the phenotypic target : %f\n",

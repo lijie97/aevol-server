@@ -83,6 +83,19 @@ class PhenotypicTargetHandler
   virtual ~PhenotypicTargetHandler(void); //< Destructor
 
   // ==========================================================================
+  //                                Operators
+  // ==========================================================================
+
+  // ==========================================================================
+  //                              Public Methods
+  // ==========================================================================
+  void BuildPhenotypicTarget();
+  void ApplyVariation();
+
+  void save(gzFile backup_file) const;
+  void load(gzFile backup_file);
+
+  // ==========================================================================
   //                                 Getters
   // ==========================================================================
   const PhenotypicTarget& phenotypic_target() const {
@@ -115,9 +128,9 @@ class PhenotypicTargetHandler
                         PhenotypicFeature * features,
                         bool separate_segments = false) {
     phenotypic_target_->set_segmentation(nb_segments,
-        boundaries,
-        features,
-        separate_segments);
+                                         boundaries,
+                                         features,
+                                         separate_segments);
   };
   void set_var_method(PhenotypicTargetVariationMethod var_method) {
     var_method_ = var_method;
@@ -154,25 +167,12 @@ class PhenotypicTargetHandler
     noise_sampling_log_ = sampling_log;
   }
 
-  // ==========================================================================
-  //                                Operators
-  // ==========================================================================
-
-  // ==========================================================================
-  //                              Public Methods
-  // ==========================================================================
-  void build_phenotypic_target();
-
-  void save(gzFile backup_file) const;
-  void load(gzFile backup_file);
-
-
-
-
  protected :
   // ==========================================================================
   //                            Protected Methods
   // ==========================================================================
+  void ApplyAutoregressiveMeanVariation();
+  void ApplyAutoregressiveHeightVariation();
 
   // ==========================================================================
   //                               Attributes

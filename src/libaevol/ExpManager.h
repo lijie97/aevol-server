@@ -202,7 +202,7 @@ class ExpManager : public Observer
     // =======================================================================
     //                              Protected Methods
     // =======================================================================
-    inline void step_to_next_generation(void);
+    void step_to_next_generation();
 
     void load(gzFile& exp_s_file,
               gzFile& exp_backup_file,
@@ -477,20 +477,6 @@ inline void ExpManager::set_repl_HT_detach_rate(double repl_HT_detach_rate)
 // ===========================================================================
 //                         Inline methods' definition
 // ===========================================================================
-inline void ExpManager::step_to_next_generation(void) {
-  // TODO <david.parsons@inria.fr> Apply phenotypic target  variation and noise
-
-  // Take a step in time
-  Time::plusplus();
-
-  // Create the corresponding new generation
-  _exp_s->step_to_next_generation();
-
-  // Write statistical data and store phylogenetic data (tree)
-  _output_m->write_current_generation_outputs();
-}
-
-
 /*!
   \brief Load an experiment with default files from the current directory
  */

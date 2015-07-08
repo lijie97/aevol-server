@@ -79,6 +79,10 @@ Habitat::Habitat(gzFile backup_file,
 // ============================================================================
 //                                   Methods
 // ============================================================================
+void Habitat::ApplyVariation() {
+  phenotypic_target_handler_->ApplyVariation();
+}
+
 void Habitat::save(gzFile backup_file,
                    bool skip_phenotypic_target /*=false*/) const {
   gzwrite(backup_file, &compound_amount_, sizeof(compound_amount_));
@@ -99,4 +103,5 @@ void Habitat::load(gzFile backup_file,
 // ============================================================================
 //                            Non inline accessors
 // ============================================================================
+
 } // namespace aevol

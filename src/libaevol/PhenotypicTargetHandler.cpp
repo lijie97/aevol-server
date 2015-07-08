@@ -31,6 +31,7 @@
 //                                   Includes
 // ============================================================================
 #include "PhenotypicTargetHandler.h"
+#include "Utils.h"
 
 #include <iostream>
 
@@ -120,7 +121,7 @@ PhenotypicTargetHandler::~PhenotypicTargetHandler() {
 // ============================================================================
 //                                   Methods
 // ============================================================================
-void PhenotypicTargetHandler::build_phenotypic_target() {
+void PhenotypicTargetHandler::BuildPhenotypicTarget() {
   // NB : Extreme points (at abscissa X_MIN and X_MAX) will be generated, we need to erase the list first
   phenotypic_target_->points.clear();
 
@@ -142,6 +143,77 @@ void PhenotypicTargetHandler::build_phenotypic_target() {
 
   // Compute areas (total and by feature)
   phenotypic_target_->ComputeArea();
+}
+
+void PhenotypicTargetHandler::ApplyVariation() {
+  switch (var_method_) {
+    case NO_VAR :
+      return;
+    case AUTOREGRESSIVE_MEAN_VAR :
+      ApplyAutoregressiveMeanVariation();
+      break;
+    case AUTOREGRESSIVE_HEIGHT_VAR :
+      ApplyAutoregressiveHeightVariation();
+      break;
+    default :
+      Utils::ExitWithMsg("Unknown variation method", __FILE__, __LINE__);
+  }
+
+  // Phenotypic target has changed, recompute its area
+  phenotypic_target_->ComputeArea();
+}
+
+void PhenotypicTargetHandler::ApplyAutoregressiveMeanVariation() {
+  // For each gaussian :
+  // current_mean = ref_mean + delta_m, where
+  // delta_m follows an autoregressive stochastic process
+  // with the parameters _var_sigma and _var_tau
+  for (auto cur_gaussian = current_gaussians_.begin(),
+           initial_gaussian = initial_gaussians_.begin() ;
+       cur_gaussian != current_gaussians_.end() ;
+       cur_gaussian++, initial_gaussian++) {
+    // Find the current delta_mean = current_mean - ref_mean
+    double delta_mean = cur_gaussian->get_mean() - initial_gaussian->get_mean();
+
+    // Compute the next value :
+    // Dm(t+1) = Dm(t)*(1-1/tau) + ssd/tau*sqrt(2*tau-1)*normal_random()
+    Utils::ApplyAutoregressiveStochasticProcess(delta_mean,
+                                                var_sigma_,
+                                                var_tau_,
+                                                *var_prng_);
+
+    // Deduce the new value of the mean : ref_mean + delta_m
+    cur_gaussian->set_mean(initial_gaussian->get_mean() + delta_mean );
+  }
+
+  BuildPhenotypicTarget();
+}
+
+void PhenotypicTargetHandler::ApplyAutoregressiveHeightVariation() {
+  // For each gaussian :
+  // current_height = ref_height + delta_h, where
+  // delta_h follows an autoregressive stochastic process
+  // with the parameters _var_sigma and _var_tau
+  for (auto cur_gaussian = current_gaussians_.begin(),
+           initial_gaussian = initial_gaussians_.begin() ;
+       cur_gaussian != current_gaussians_.end() ;
+       cur_gaussian++, initial_gaussian++) {
+    // Find the current delta_height = current_height - ref_height
+    double delta_height = cur_gaussian->get_height() -
+        initial_gaussian->get_height();
+
+    // Compute the next value :
+    // Dm(t+1) = Dm(t)*(1-1/tau) + ssd/tau*sqrt(2*tau-1)*normal_random()
+    Utils::ApplyAutoregressiveStochasticProcess(delta_height,
+                                                var_sigma_,
+                                                var_tau_,
+                                                *var_prng_);
+
+    // Deduce the new value of the height : ref_height + delta_h
+    cur_gaussian->set_height(initial_gaussian->get_height() + delta_height);
+  }
+
+  BuildPhenotypicTarget();
 }
 
 void PhenotypicTargetHandler::save(gzFile backup_file) const {
@@ -251,18 +323,19 @@ void PhenotypicTargetHandler::load(gzFile backup_file) {
   // --------------------------------------------------------------------------
   //  If needed, retrieve a copy of the initial state of the gaussians
   if (var_method_ != NO_VAR || noise_method_ != NO_NOISE) {
-    size_t nb_gaussians = initial_gaussians_.size();
+    size_t nb_gaussians;
     gzread(backup_file, &nb_gaussians, sizeof(nb_gaussians));
-    for (const Gaussian& g: initial_gaussians_)
-      initial_gaussians_.push_back(Gaussian(backup_file));
+    for (size_t i = 0 ; i < nb_gaussians ; i++)
+      initial_gaussians_.emplace_back(backup_file);
   }
 
   // --------------------------------------------------------------------------
   //  Build the phenotypic target
-  build_phenotypic_target();
+  BuildPhenotypicTarget();
 }
 
 // ============================================================================
 //                            Non inline accessors
 // ============================================================================
+
 } // namespace aevol

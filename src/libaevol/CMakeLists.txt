@@ -90,6 +90,7 @@ add_library(aevol
   ae_string.h
   Tree.cpp
   Tree.h
+  Utils.cpp
   Utils.h
   VisAVis.cpp
   VisAVis.h
@@ -114,7 +115,30 @@ add_library(aevol
   Time.h
   World.cpp
   World.h
-  ObservableEvent.h NewCppClass.cpp NewCppClass.h PointMutation.cpp PointMutation.h SmallInsertion.cpp SmallInsertion.h SmallDeletion.cpp SmallDeletion.h LocalMutation.cpp LocalMutation.h Rearrangement.h Duplication.cpp Duplication.h Deletion.cpp Deletion.h Translocation.cpp Translocation.h Inversion.cpp Inversion.h HT.cpp HT.h InsertionHT.cpp InsertionHT.h ReplacementHT.cpp ReplacementHT.h)
+  ObservableEvent.h
+  PointMutation.cpp
+  PointMutation.h
+  SmallInsertion.cpp
+  SmallInsertion.h
+  SmallDeletion.cpp
+  SmallDeletion.h
+  LocalMutation.cpp
+  LocalMutation.h
+  Rearrangement.h
+  Duplication.cpp
+  Duplication.h
+  Deletion.cpp
+  Deletion.h
+  Translocation.cpp
+  Translocation.h
+  Inversion.cpp
+  Inversion.h
+  HT.cpp
+  HT.h
+  InsertionHT.cpp
+  InsertionHT.h
+  ReplacementHT.cpp
+  ReplacementHT.h)
 
 
 # ============================================================================

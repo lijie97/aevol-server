@@ -243,6 +243,19 @@ void ExpManager::save_copy(char* dir, int32_t num_gener /*= 0*/) const
   close_backup_files(sel_file, world_file);
 }
 
+void ExpManager::step_to_next_generation() {
+  // TODO <david.parsons@inria.fr> Apply phenotypic target variation and noise
+  world_->ApplyHabitatVariation();
+
+  // Take a step in time
+  Time::plusplus();
+
+  // Create the corresponding new generation
+  _exp_s->step_to_next_generation();
+
+  // Write statistical data and store phylogenetic data (tree)
+  _output_m->write_current_generation_outputs();
+}
 
 /*!
   \brief Load an experiment with the provided files
