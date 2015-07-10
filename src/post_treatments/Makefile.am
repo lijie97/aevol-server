@@ -30,9 +30,6 @@ AM_CPPFLAGS += -D__STDC_FORMAT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MA
 # length-limited ones (required for debian and not a bad idea anyway).
 AM_CPPFLAGS += -D_FORTIFY_SOURCE=2
 
-## Openmp
-AM_LDFLAGS += -fopenmp
-
 
 ############################################
 #           Set programs to build          #

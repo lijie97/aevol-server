@@ -145,9 +145,6 @@ X11Window.cpp
 # prefixed object files so that we don't use an object file built for another set of macrodefinitions
 # e.g. We don't want to use an object file created with NO_X when building the X11 lib
 
-libaevol_a_CPPFLAGS = $(AM_CPPFLAGS)
-libaevol_a_CXXFLAGS = $(AM_CXXFLAGS) -fopenmp
-
 if WITH_X
 #libaevol_a_HEADERS = $(common_headers) $(X11_headers)
   libaevol_a_SOURCES = $(common_sources) $(X11_sources)

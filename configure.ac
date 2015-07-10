@@ -7,6 +7,9 @@ AC_PREREQ([2.65])
 # Provide FULL-PACKAGE-NAME, VERSION and BUG-REPORT-ADDRESS
 AC_INIT([AEVOL], [5.0], [aevol-bugs@lists.gforge.inria.fr], , [www.aevol.fr])
 
+# Set C++ as the main language
+AC_LANG([C++])
+
 # Specify the location of additional local Autoconf macros
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -26,16 +29,17 @@ if test "$test_CXXFLAGS" != set; then
 fi
 
 # Checks for programs
-AC_PROG_CXX
 AC_PROG_CC
+AC_PROG_CXX
 AC_PROG_INSTALL
 AC_PROG_RANLIB
+AC_OPENMP
 AM_PROG_CC_C_O
 
 # Initialize configure-time defined flags
 AC_SUBST(AEVOLCPPFLAGS, "") # C PreProcessor flags
-AC_SUBST(AEVOLCXXFLAGS, "-std=c++14") # C++ Compile flags
-AC_SUBST(AEVOLLDFLAGS, "")  # Linker flags
+AC_SUBST(AEVOLCXXFLAGS, "-std=c++14 $OPENMP_CXXFLAGS") # C++ Compile flags
+AC_SUBST(AEVOLLDFLAGS, "$OPENMP_CXXFLAGS")  # Linker flags
 
 # Checks for libraries.
 AC_CHECK_LIB([m], [cos], , [AC_MSG_ERROR([PACKAGE_NAME requires the math library, please install it.])])
