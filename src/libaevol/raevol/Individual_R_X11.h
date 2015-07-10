@@ -52,7 +52,7 @@ class Individual_R_X11 : public Individual_R, Individual_X11
     // =================================================================
     //                             Constructors
     // =================================================================
-	Individual_R_X11( const Individual_R_X11 &model, bool replication_report_copy  );
+	Individual_R_X11( const Individual_R_X11 &model  );
   Individual_R_X11(ExpManager * exp_m,
                    std::shared_ptr<JumpingMT> mut_prng,
                    std::shared_ptr<JumpingMT> stoch_prng,

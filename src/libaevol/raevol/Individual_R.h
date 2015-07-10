@@ -93,15 +93,15 @@ class Individual_R : public virtual Individual
       * Evaluate within the provided context
       */
      virtual void EvaluateInContext(const Habitat& habitat);
-     virtual void reevaluate();
-     virtual void clear_everything_except_dna_and_promoters();
-     void do_transcription_translation_folding();
-     void do_transcription();
-     void do_translation();
-     void do_folding();
-     void compute_phenotype();
-     void compute_distance_to_target(const PhenotypicTarget& target);
-    void update_phenotype();
+     //virtual void reevaluate();
+     //virtual void clear_everything_except_dna_and_promoters();
+     //void do_transcription_translation_folding();
+    // void do_transcription();
+     //void do_translation();
+     //void do_folding();
+     //void compute_phenotype();
+     //void compute_distance_to_target(const PhenotypicTarget& target);
+    //void update_phenotype();
 
     void    set_influences( void );
     void    update_concentrations( void );
@@ -130,6 +130,7 @@ class Individual_R : public virtual Individual
     // =================================================================
     virtual void make_protein_list( void );
     virtual void make_rna_list( void );
+    void update_phenotype( void );
 
     // =================================================================
     //                          Protected Attributes
