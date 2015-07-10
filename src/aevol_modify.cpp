@@ -131,11 +131,26 @@ int main(int argc, char* argv[])
     }  
   
   // 4) Set undefined command line parameters to default values
-  if (param_file_name == NULL)
-    {
-      param_file_name = new char[strlen(DEFAULT_PARAM_FILE_NAME)+1];
-      sprintf(param_file_name, "%s", DEFAULT_PARAM_FILE_NAME);
+  if (param_file_name == NULL) {
+    param_file_name = new char[strlen(DEFAULT_PARAM_FILE_NAME)+1];
+    sprintf(param_file_name, "%s", DEFAULT_PARAM_FILE_NAME);
+  }
+  if (num_gener == -1) {
+    // Set num_gener to the content of the LAST_GENER file if it exists.
+    // If it doesn't, print help and exit
+    FILE* lg_file = fopen(LAST_GENER_FNAME, "r");
+    if (lg_file != NULL) {
+      if (fscanf(lg_file, "%" PRId32 "\n", &num_gener) == EOF) {
+        Utils::ExitWithUsrMsg(
+            std::string("failed to read last generation from file ") +
+            LAST_GENER_FNAME);
+        exit(EXIT_FAILURE);
+      }
+      fclose(lg_file);
     }
+    else
+      Utils::ExitWithUsrMsg("you must provide a generation number");
+  }
   
   // 5) Check the consistancy of the command-line options
   if (num_gener == -1)
