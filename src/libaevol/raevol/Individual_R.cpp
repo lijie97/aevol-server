@@ -169,10 +169,16 @@ void Individual_R::EvaluateInContext(const Habitat& habitat) {
 
       if (_phenotype != NULL) {
         delete _phenotype;
+        delete _phenotype_activ;
+        delete _phenotype_inhib;
+
         _phenotype = NULL;
+        _phenotype_activ = NULL;
+        _phenotype_inhib = NULL;
       }
       _phenotype = new Phenotype();
-
+      _phenotype_activ = new Phenotype();
+      _phenotype_inhib = new Phenotype();
 
       //----------------------------------------------------------------------------
       // 2) Make a list of all the rna present in the individual
@@ -355,7 +361,8 @@ void Individual_R::make_rna_list( void )
 {
   Individual::make_rna_list();
   _rna_list_coding.clear();
-  
+  _rna_list_coding.reserve(_rna_list.size());
+
   // Parse the newly created RNA list and copy the coding RNAs in _rna_list_coding.
   for (const auto& gen_unit: _genetic_unit_list) {
     // Create proxies
@@ -366,7 +373,8 @@ void Individual_R::make_rna_list( void )
     // append pointers to rna material to local _rna_list
     for (auto& strand: {LEADING, LAGGING})
       for (auto& rna: rna_list[strand]) {
-        _rna_list_coding.push_back(dynamic_cast<Rna_R*>(const_cast<Rna*>(&rna)));
+        //TODO Ugly fix, change it to avoid memory usage double
+        _rna_list_coding.push_back(new Rna_R(const_cast<GeneticUnit*>(&gen_unit), rna));
     }
   }
 }

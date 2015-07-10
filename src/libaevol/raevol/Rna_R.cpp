@@ -86,7 +86,7 @@ Rna_R::~Rna_R( void )
 // =================================================================
 void Rna_R::set_influences( std::list<Protein*> protein_list )
 {
-	  int32_t enhancer_position = get_enhancer_position();
+    int32_t enhancer_position = get_enhancer_position();
 	  int32_t operator_position = get_operator_position();
 	  _protein_list = protein_list;
 	  _enhancing_coef_list.resize(protein_list.size());
