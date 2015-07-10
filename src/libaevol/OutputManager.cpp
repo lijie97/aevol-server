@@ -138,7 +138,7 @@ void OutputManager::write_setup_file(FILE* setup_file) const
   fprintf(setup_file, "LOGS %" PRId8 "\n", logs);
 }
 
-void OutputManager::load( gzFile setup_file, bool verbose, bool to_be_run  )
+void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run)
 {
   // Write the backup steps
   gzread( setup_file, &_backup_step,      sizeof(_backup_step) );
@@ -147,6 +147,7 @@ void OutputManager::load( gzFile setup_file, bool verbose, bool to_be_run  )
   // Stats
   if (to_be_run)
   {
+    delete _stats;
     if (Time::get_time() > 0)
     {
       _stats = new Stats(_exp_m, Time::get_time());
@@ -198,6 +199,7 @@ void OutputManager::load(FILE* setup_file, bool verbose, bool to_be_run)
   // Stats
   if(to_be_run)
   {
+    delete _stats;
     if (Time::get_time() > 0)
     {
       _stats = new Stats(_exp_m, Time::get_time());
