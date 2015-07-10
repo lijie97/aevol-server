@@ -38,7 +38,7 @@ SmallInsertion::SmallInsertion(int32_t pos, int32_t length, const char* seq) :
 //                                 Destructor
 // ============================================================================
 SmallInsertion::~SmallInsertion() {
-  delete seq_;
+  delete [] seq_;
 }
 
 // ============================================================================
