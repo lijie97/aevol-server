@@ -163,6 +163,12 @@ int main(int argc, char** argv)
   ExpManager* exp_manager = new ExpManager();
   exp_manager->load(t_end, true, false);
 
+  // Check that the tree was recorded
+  if (not exp_manager->get_record_tree()) {
+    Utils::ExitWithUsrMsg("The phylogenetic tree wasn't recorded during "
+                              "evolution, could not reconstruct the lineage");
+  }
+
   int64_t tree_step = exp_manager->get_tree_step();
 
   //delete exp_manager;
