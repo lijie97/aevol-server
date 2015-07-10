@@ -266,13 +266,9 @@ int main(int argc, char* argv[])
         std::make_shared<JumpingMT>(prng->random(1000000)));
     exp_manager->world()->set_stoch_prng(
         std::make_shared<JumpingMT>(prng->random(1000000)));
-    // TODO <david.parsons@inria.fr> adapt to new organization
-    printf("%s:%d: error: feature has to be adapted to the new organization.\n", __FILE__, __LINE__);
-    exit(EXIT_FAILURE);
-//    exp_manager->get_env()->set_var_prng(
-//        std::make_shared<JumpingMT>(prng->random(1000000)));
-//    exp_manager->get_env()->set_noise_prng(
-//        std::make_shared<JumpingMT>(prng->random(1000000)));
+    exp_manager->world()->set_phen_target_prngs(
+        std::make_shared<JumpingMT>(prng->random(1000000)),
+        std::make_shared<JumpingMT>(prng->random(1000000)));
   }
   else
   {

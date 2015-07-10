@@ -139,6 +139,9 @@ class World
   void save(gzFile backup_file) const;
   void load(gzFile backup_file, ExpManager * exp_man);
 
+  void set_phen_target_prngs(std::shared_ptr<JumpingMT> var_prng,
+                             std::shared_ptr<JumpingMT> noise_prng);
+
  protected :
   // =================================================================
   //                           Protected Methods
@@ -151,7 +154,7 @@ class World
   // =================================================================
   //                          Protected Attributes
   // =================================================================
-  std::shared_ptr<JumpingMT> _prng = NULL;
+  std::shared_ptr<JumpingMT> _prng = nullptr;
 
   std::shared_ptr<JumpingMT> _mut_prng = nullptr;
   std::shared_ptr<JumpingMT> _stoch_prng = nullptr;

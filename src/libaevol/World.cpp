@@ -413,6 +413,13 @@ void World::set_stoch_prng(std::shared_ptr<JumpingMT> prng)
     }
 }
 
+void World::set_phen_target_prngs(std::shared_ptr<JumpingMT> var_prng,
+                                  std::shared_ptr<JumpingMT> noise_prng) {
+  assert(phenotypic_target_shared_);
+  phenotypic_target_handler_->set_var_prng(var_prng);
+  phenotypic_target_handler_->set_noise_prng(noise_prng);
+}
+
 Individual* World::get_indiv_by_id(int32_t id) const {
   Individual* indiv = grid_1d_[id]->get_individual();
   // When the population isn't mixed at all, the individual with id n is in
@@ -427,5 +434,4 @@ Individual* World::get_indiv_by_id(int32_t id) const {
   }
   return nullptr;
 }
-
 } // namespace aevol
