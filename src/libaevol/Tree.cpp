@@ -192,7 +192,7 @@ void Tree::update(Observable& o, ObservableEvent e, void* arg) {
       signal_end_of_generation();
       break;
     default :
-      Utils::ExitWithMsg("Event not handled", __FILE__, __LINE__);
+      Utils::ExitWithDevMsg("Event not handled", __FILE__, __LINE__);
   }
 }
 

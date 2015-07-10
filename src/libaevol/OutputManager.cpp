@@ -285,7 +285,8 @@ int32_t OutputManager::get_last_gener() {
   FILE* lg_file = fopen(LAST_GENER_FNAME, "r");
   if (lg_file != NULL) {
     if (fscanf(lg_file, "%" PRId32 "\n", &num_gener) == EOF) {
-      Utils::ExitWithMsg("failed to read last generation", __FILE__, __LINE__);
+      Utils::ExitWithDevMsg("failed to read last generation", __FILE__,
+                            __LINE__);
     }
     fclose(lg_file);
   }

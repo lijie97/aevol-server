@@ -61,8 +61,9 @@ class Utils
                                                    JumpingMT& prng);
   static int16_t hamming(const char* str1, const char* str2);
 
-  static void ExitWithMsg(const std::string& msg,
-                          const std::string& file, int line);
+  static void ExitWithUsrMsg(const std::string& msg);
+  static void ExitWithDevMsg(const std::string& msg,
+                             const std::string& file, int line);
   static void PrintAevolVersion();
 };
 } // namespace aevol

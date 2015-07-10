@@ -121,8 +121,8 @@ int main( int argc, char* argv[] )
   }
 
   if ( triangles_file_name == NULL && sequence_file_name == NULL ) {
-    Utils::ExitWithMsg("Use option -s or -t (-h for more info)",
-                       __FILE__, __LINE__);
+    Utils::ExitWithDevMsg("Use option -s or -t (-h for more info)",
+                          __FILE__, __LINE__);
   }
 
   // Open the files

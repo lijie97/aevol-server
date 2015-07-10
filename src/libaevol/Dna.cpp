@@ -1277,7 +1277,7 @@ Mutation *Dna::do_insertion(const char* seq_to_insert, int32_t seq_length /*= -1
 {
   Mutation * mut = NULL;
 
-  Utils::ExitWithMsg("Not implemented yet", __FILE__, __LINE__);
+  Utils::ExitWithDevMsg("Not implemented yet", __FILE__, __LINE__);
 
 //  // Compute seq_length if not known
 //  if (seq_length == -1)

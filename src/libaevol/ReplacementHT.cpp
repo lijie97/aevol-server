@@ -37,11 +37,11 @@ ReplacementHT::~ReplacementHT() {
 //                                   Methods
 // ============================================================================
 void ReplacementHT::save(gzFile backup_file) const {
-  Utils::ExitWithMsg("Not implemented yet", __FILE__, __LINE__);
+  Utils::ExitWithDevMsg("Not implemented yet", __FILE__, __LINE__);
 }
 
 void ReplacementHT::load(gzFile backup_file) {
-  Utils::ExitWithMsg("Not implemented yet", __FILE__, __LINE__);
+  Utils::ExitWithDevMsg("Not implemented yet", __FILE__, __LINE__);
 }
 
 void ReplacementHT::get_generic_description_string(char* str) const {

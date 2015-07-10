@@ -119,9 +119,20 @@ void Utils::ApplyAutoregressiveStochasticProcess(double& value,
  * \param file should be __FILE__
  * \param line should be __LINE__
  */
-void Utils::ExitWithMsg(const string& msg,
-                        const string& file, int line) {
+void Utils::ExitWithDevMsg(const std::string& msg,
+                           const std::string& file, int line) {
   cout << file << ":" << line << ": error: " << msg << endl;
+  exit(EXIT_FAILURE);
+}
+
+/**
+ * Print an error message and exit (with error status)
+ *
+ * \param msg message to be printed
+ * \param bin the binary that caused the error
+ */
+void Utils::ExitWithUsrMsg(const string& msg) {
+  cout << "error: " << msg << endl;
   exit(EXIT_FAILURE);
 }
 

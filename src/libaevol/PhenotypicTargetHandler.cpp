@@ -156,7 +156,7 @@ void PhenotypicTargetHandler::ApplyVariation() {
       ApplyAutoregressiveHeightVariation();
       break;
     default :
-      Utils::ExitWithMsg("Unknown variation method", __FILE__, __LINE__);
+      Utils::ExitWithDevMsg("Unknown variation method", __FILE__, __LINE__);
   }
 
   // Phenotypic target has changed, recompute its area

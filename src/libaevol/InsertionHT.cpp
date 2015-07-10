@@ -36,11 +36,11 @@ InsertionHT::~InsertionHT() {
 //                                   Methods
 // ============================================================================
 void InsertionHT::save(gzFile backup_file) const {
-  Utils::ExitWithMsg("Not implemented yet", __FILE__, __LINE__);
+  Utils::ExitWithDevMsg("Not implemented yet", __FILE__, __LINE__);
 }
 
 void InsertionHT::load(gzFile backup_file) {
-  Utils::ExitWithMsg("Not implemented yet", __FILE__, __LINE__);
+  Utils::ExitWithDevMsg("Not implemented yet", __FILE__, __LINE__);
 }
 
 void InsertionHT::get_generic_description_string(char* str) const {
