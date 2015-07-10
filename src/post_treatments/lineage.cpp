@@ -140,10 +140,23 @@ int main(int argc, char** argv)
     }
   }
 
-  if (t_end == -1)
-  {
-    printf("%s: error: You must provide a generation number.\n", argv[0]);
-    exit(EXIT_FAILURE);
+  // Set undefined command line parameters to default values
+  if (t_end == -1) {
+    // Set t_end to the content of the LAST_GENER file if it exists.
+    // If it doesn't, print help and exit
+    FILE* lg_file = fopen(LAST_GENER_FNAME, "r");
+    if (lg_file != NULL) {
+      if (fscanf(lg_file, "%" PRId32 "\n", &t_end) == EOF) {
+        printf("ERROR: failed to read last generation from file %s\n",
+               LAST_GENER_FNAME);
+        exit(EXIT_FAILURE);
+      }
+      fclose(lg_file);
+    }
+    else {
+      printf("%s: error: You must provide a generation number.\n", argv[0]);
+      exit(EXIT_FAILURE);
+    }
   }
 
   // Load the simulation
@@ -595,5 +608,6 @@ void print_help(char* prog_path)
   printf("\n");
   printf("\t-e end_gener or --end end_gener : \n");
   printf("\t                  Retrieve the lineage of the individual of end_gener \n");
+  printf("\t                  (default: that contained in file last_gener.txt, if any)\n");
   printf("\n");
 }
