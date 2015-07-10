@@ -343,7 +343,8 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
       }
       else
       {
-        printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown axis feature \"%s\".\n",
+        printf("ERROR in param file \"%s\" on line %" PRId32
+                   ": unknown axis feature \"%s\".\n",
                _param_file_name, cur_line, line->words[2*i+1]);
         exit(EXIT_FAILURE);
       }
@@ -365,7 +366,8 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     }
     else
     {
-      printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown tree recording option (use true/false).\n",
+      printf("ERROR in param file \"%s\" on line %" PRId32
+                 ": unknown tree recording option (use true/false).\n",
              _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
@@ -389,10 +391,19 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     }
     else
     {
-      printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown more stats option (use true/false).\n",
+      printf("ERROR in param file \"%s\" on line %" PRId32
+                 ": unknown more stats option (use true/false).\n",
              _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
+  }
+  else if (strcmp(line->words[0], "DUMP_PERIOD") == 0)
+  {
+    printf("ERROR in param file \"%s\" on line %" PRId32
+               ": %s is no longer a valid option, "
+               "use DUMP_STEP instead.\n",
+           _param_file_name, cur_line, line->words[0]);
+    exit(EXIT_FAILURE);
   }
   else if (strcmp(line->words[0], "DUMP_STEP") == 0)
   {
@@ -496,7 +507,7 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
       partial_mix_nb_permutations = atol(line->words[2]);
     else {
       printf("ERROR in param file \"%s\" on line %" PRId32
-                 " : unknown mixing option.\n", _param_file_name, cur_line);
+                 ": unknown mixing option.\n", _param_file_name, cur_line);
       printf("usage: INDIV_MIXING WELL_MIXED|NONE|PARTIAL <n>\n");
       exit(EXIT_FAILURE);
     }
@@ -519,7 +530,8 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
       }
       else
       {
-        printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown initialization method %s.\n",
+        printf("ERROR in param file \"%s\" on line %" PRId32
+                   ": unknown initialization method %s.\n",
                _param_file_name, cur_line, line->words[1]);
         exit(EXIT_FAILURE);
       }
@@ -581,7 +593,8 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
   {
     if (line->nb_words != 2 && line->nb_words != 4)
     {
-      printf("ERROR in param file \"%s\" on line %" PRId32 " : incorrect number of parameters for keyword \"%s\".\n",
+      printf("ERROR in param file \"%s\" on line %" PRId32
+                 ": incorrect number of parameters for keyword \"%s\".\n",
              _param_file_name, cur_line, line->words[0]);
       exit(EXIT_FAILURE);
     }
@@ -608,7 +621,8 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     }
     else
     {
-      printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown align function shape \"%s\".\n",
+      printf("ERROR in param file \"%s\" on line %" PRId32
+                 ": unknown align function shape \"%s\".\n",
              _param_file_name, cur_line, line->words[1]);
       exit(EXIT_FAILURE);
     }
@@ -642,7 +656,8 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     {
       if (line->nb_words != 3)
       {
-        printf("ERROR in param file \"%s\" on line %" PRId32 " : selection pressure parameter is missing.\n",
+        printf("ERROR in param file \"%s\" on line %" PRId32
+                   ": selection pressure parameter is missing.\n",
                _param_file_name, cur_line);
         exit(EXIT_FAILURE);
       }
@@ -654,7 +669,8 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     {
       if (line->nb_words != 3)
       {
-        printf("ERROR in param file \"%s\" on line %" PRId32 " : selection pressure parameter is missing.\n",
+        printf("ERROR in param file \"%s\" on line %" PRId32
+                   ": selection pressure parameter is missing.\n",
                _param_file_name, cur_line);
         exit(EXIT_FAILURE);
       }
@@ -666,7 +682,8 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     {
       if (line->nb_words != 3)
       {
-        printf("ERROR in param file \"%s\" on line %" PRId32 " : selection pressure parameter is missing.\n",
+        printf("ERROR in param file \"%s\" on line %" PRId32
+                   ": selection pressure parameter is missing.\n",
                _param_file_name, cur_line);
         exit(EXIT_FAILURE);
       }
@@ -680,7 +697,8 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     }
     else
     {
-      printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown selection scheme \"%s\".\n",
+      printf("ERROR in param file \"%s\" on line %" PRId32
+                 ": unknown selection scheme \"%s\".\n",
              _param_file_name, cur_line, line->words[1]);
       exit(EXIT_FAILURE);
     }
@@ -690,7 +708,8 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     static bool seed_already_set = false;
     if (seed_already_set)
     {
-      printf("ERROR in param file \"%s\" on line %" PRId32 " : duplicate entry for SEED.\n",
+      printf("ERROR in param file \"%s\" on line %" PRId32
+                 ": duplicate entry for SEED.\n",
              _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
@@ -702,7 +721,8 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     static bool mut_seed_already_set = false;
     if (mut_seed_already_set)
     {
-      printf("ERROR in param file \"%s\" on line %" PRId32 " : duplicate entry for MUT_SEED.\n",
+      printf("ERROR in param file \"%s\" on line %" PRId32
+                 ": duplicate entry for MUT_SEED.\n",
              _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
@@ -714,7 +734,8 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     static bool stoch_seed_already_set = false;
     if (stoch_seed_already_set)
     {
-      printf("ERROR in param file \"%s\" on line %" PRId32 " : duplicate entry for STOCH_SEED.\n",
+      printf("ERROR in param file \"%s\" on line %" PRId32
+                 ": duplicate entry for STOCH_SEED.\n",
              _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
@@ -734,7 +755,8 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     }
     else
     {
-      printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown 4pts_trans option (use true/false).\n",
+      printf("ERROR in param file \"%s\" on line %" PRId32
+                 ": unknown 4pts_trans option (use true/false).\n",
              _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
@@ -751,7 +773,8 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     }
     else
     {
-      printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown alignement option (use true/false).\n",
+      printf("ERROR in param file \"%s\" on line %" PRId32
+                 ": unknown alignement option (use true/false).\n",
              _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
@@ -768,7 +791,8 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     }
     else
     {
-      printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown transfer option (use true/false).\n",
+      printf("ERROR in param file \"%s\" on line %" PRId32
+                 ": unknown transfer option (use true/false).\n",
              _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
@@ -785,7 +809,8 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     }
     else
     {
-      printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown transfer option (use true/false).\n",
+      printf("ERROR in param file \"%s\" on line %" PRId32
+                 ": unknown transfer option (use true/false).\n",
              _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
@@ -802,7 +827,8 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     }
     else
     {
-      printf("ERROR in param file \"%s\" on line %" PRId32 ": unknown swap option (use true/false).\n",
+      printf("ERROR in param file \"%s\" on line %" PRId32
+                 ": unknown swap option (use true/false).\n",
              _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
@@ -826,11 +852,13 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
   else if (strcmp(line->words[0], "ENV_ADD_POINT") == 0)
   {
     // custom_points
-    printf("ERROR in param file \"%s\" on line %" PRId32 " : Custom points management has been removed.\n",
+    printf("ERROR in param file \"%s\" on line %" PRId32
+               ": Custom points management has been removed.\n",
         _param_file_name, cur_line);
     exit(EXIT_FAILURE);
   }
-  else if ((strcmp(line->words[0], "ENV_ADD_GAUSSIAN") == 0) || (strcmp(line->words[0], "ENV_GAUSSIAN") == 0))
+  else if ((strcmp(line->words[0], "ENV_ADD_GAUSSIAN") == 0) ||
+      (strcmp(line->words[0], "ENV_GAUSSIAN") == 0))
   {
     std_env_gaussians.push_back(
         Gaussian(atof(line->words[1]), atof(line->words[2]), atof(line->words[3])));
@@ -853,12 +881,25 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
 
     if (strcmp(line->words[1], "none") == 0)
     {
-      assert(line->nb_words == 2);
+      if (line->nb_words != 2) {
+        printf("ERROR in param file \"%s\" on line %" PRId32
+                   ": wrong number of parameters.\n",
+               _param_file_name, cur_line);
+        printf("usage: %s %s\n", line->words[0], line->words[1]);
+        exit(EXIT_FAILURE);
+      }
       _env_var_method = NO_VAR;
     }
     else if (strcmp(line->words[1], "autoregressive_mean_variation") == 0)
     {
-      assert(line->nb_words == 5);
+      if (line->nb_words != 5) {
+        printf("ERROR in param file \"%s\" on line %" PRId32
+                   ": wrong number of parameters.\n",
+               _param_file_name, cur_line);
+        printf("usage: %s %s sigma tau prng_seed\n",
+               line->words[0], line->words[1]);
+        exit(EXIT_FAILURE);
+      }
       _env_var_method = AUTOREGRESSIVE_MEAN_VAR;
       _env_var_sigma = atof(line->words[2]);
       _env_var_tau = atol(line->words[3]);
@@ -866,7 +907,14 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     }
     else if (strcmp(line->words[1], "autoregressive_height_variation") == 0)
     {
-      assert(line->nb_words == 5);
+      if (line->nb_words != 5) {
+        printf("ERROR in param file \"%s\" on line %" PRId32
+                   ": wrong number of parameters.\n",
+               _param_file_name, cur_line);
+        printf("usage: %s %s sigma tau prng_seed\n",
+               line->words[0], line->words[1]);
+        exit(EXIT_FAILURE);
+      }
       _env_var_method = AUTOREGRESSIVE_HEIGHT_VAR;
       _env_var_sigma = atof(line->words[2]);
       _env_var_tau = atol(line->words[3]);
@@ -874,7 +922,14 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     }
     else if (strcmp(line->words[1], "add_local_gaussians") == 0)
     {
-      assert(line->nb_words == 3);
+      if (line->nb_words != 3) {
+        printf("ERROR in param file \"%s\" on line %" PRId32
+                   ": wrong number of parameters.\n",
+               _param_file_name, cur_line);
+        printf("usage: %s %s prng_seed\n",
+               line->words[0], line->words[1]);
+        exit(EXIT_FAILURE);
+      }
       _env_var_method = LOCAL_GAUSSIANS_VAR;
       _env_var_seed = atoi(line->words[2]);
     }
@@ -922,6 +977,14 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
       exit(EXIT_FAILURE);
     }
   }
+  else if (strcmp(line->words[0], "SECRETION_FITNESS_CONTRIB") == 0)
+  {
+    printf("ERROR in param file \"%s\" on line %" PRId32
+               ": %s is no longer a valid option, "
+               "use SECRETION_CONTRIB_TO_FITNESS instead.\n",
+           _param_file_name, cur_line, line->words[0]);
+    exit(EXIT_FAILURE);
+  }
   else if (strcmp(line->words[0], "SECRETION_CONTRIB_TO_FITNESS") == 0)
   {
     _secretion_contrib_to_fitness = atof(line->words[1]);
@@ -935,7 +998,8 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     _secretion_degradation_prop = atof(line->words[1]);
     if (_secretion_degradation_prop > 1 || _secretion_degradation_prop < 0)
     {
-      printf("ERROR in param file \"%s\" on line %" PRId32 " : degradation must be in (0,1).\n",
+      printf("ERROR in param file \"%s\" on line %" PRId32
+                 ": degradation must be in (0,1).\n",
              _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
@@ -960,7 +1024,8 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     }
     else
     {
-      printf("ERROR in param file \"%s\" on line %" PRId32 " : unknown allow_plasmids option (use true/false).\n",
+      printf("ERROR in param file \"%s\" on line %" PRId32
+                 ": unknown allow_plasmids option (use true/false).\n",
              _param_file_name, cur_line);
       exit(EXIT_FAILURE);
     }
@@ -988,6 +1053,14 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
   else if (strcmp(line->words[0], "CHROMOSOME_MAXIMAL_LENGTH") == 0)
   {
     _chromosome_maximal_length = atoi(line->words[1]);
+  }
+  else if (strcmp(line->words[0], "PROB_HORIZONTAL_TRANS") == 0)
+  {
+    printf("ERROR in param file \"%s\" on line %" PRId32
+               ": %s is no longer a valid option, "
+               "did you mean PROB_PLASMID_HT ?.\n",
+           _param_file_name, cur_line, line->words[0]);
+    exit(EXIT_FAILURE);
   }
   else if (strcmp(line->words[0], "PROB_PLASMID_HT") == 0)
   {
