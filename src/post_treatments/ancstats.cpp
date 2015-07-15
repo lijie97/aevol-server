@@ -236,10 +236,14 @@ int main(int argc, char** argv)
 
   // The current version doesn't allow for phenotypic variation nor for
   // different phenotypic targets among the grid
-  assert(exp_manager->world()->phenotypic_target_shared());
+  if (not exp_manager->world()->phenotypic_target_shared())
+    Utils::ExitWithUsrMsg("sorry, ancestor stats has not yet been implemented "
+                              "for per grid-cell phenotypic target");
   auto phenotypicTargetHandler =
       exp_manager->world()->phenotypic_target_handler();
-  assert(phenotypicTargetHandler->var_method() == NO_VAR);
+  if (not phenotypicTargetHandler->var_method() == NO_VAR)
+    Utils::ExitWithUsrMsg("sorry, ancestor stats has not yet been implemented "
+                              "for variable phenotypic targets");
 
   int64_t backup_step = exp_manager->get_backup_step();
 
