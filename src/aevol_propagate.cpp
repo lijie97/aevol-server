@@ -66,7 +66,7 @@ void print_help(char* prog_path);
 int main(int argc, char* argv[])
 {
   // 1) Initialize command-line option variables with default values
-  int32_t num_gener      = -1;
+  int64_t num_gener      = -1;
   int32_t generalseed    = -1;
   int32_t selseed        = -1;
   int32_t mutseed        = -1;
@@ -192,27 +192,22 @@ int main(int argc, char* argv[])
     output_dir = new char[255];
     sprintf(output_dir, "%s", "output");
   }
-  if (num_gener == -1)
-  {
+  if (num_gener == -1) {
     // Set num_gener to the content of the LAST_GENER file if it exists.
     // If it doesn't, print help and exit
     char lg_filename[300];
     sprintf(lg_filename, "%s/%s", input_dir, LAST_GENER_FNAME);
     FILE* lg_file = fopen(lg_filename, "r");
-    if (lg_file != NULL)
-    {
-      if (fscanf(lg_file, "%" PRId32 "\n", &num_gener) == EOF)
-      {
-        printf("ERROR: failed to read last generation from file %s\n",lg_filename);
+    if (lg_file != NULL) {
+      if (fscanf(lg_file, "%" PRId64 "\n", &num_gener) == EOF) {
+        printf("ERROR: failed to read last generation from file %s\n",
+               lg_filename);
         exit(EXIT_FAILURE);
       }
       fclose(lg_file);
     }
-    else
-    {
-      printf("aevol_propagate: no generation number provided.\n");
-      print_help(argv[0]);
-      exit(EXIT_FAILURE);
+    else {
+      Utils::ExitWithUsrMsg("You must provide a generation number");
     }
   }
   

@@ -384,7 +384,7 @@ int main(int argc, char** argv)
 
 
         mut->get_generic_description_string( mut_descr_string );
-        fprintf( output, "%"PRId32 " %"PRId32 " %s %"PRId32 " %.15f  %"PRId32 " %"PRId32 " %"PRId32 " \n",\
+        fprintf( output, "%"PRId64 " %"PRId32 " %s %"PRId32 " %.15f  %"PRId32 " %"PRId32 " %"PRId32 " \n",\
                  get_time(), genetic_unit_number, \
                  mut_descr_string, unitlen_before, \
                  impact_on_metabolic_error, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment );

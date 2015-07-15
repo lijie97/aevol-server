@@ -146,7 +146,7 @@ int main(int argc, char** argv)
     // If it doesn't, print help and exit
     FILE* lg_file = fopen(LAST_GENER_FNAME, "r");
     if (lg_file != NULL) {
-      if (fscanf(lg_file, "%" PRId32 "\n", &t_end) == EOF) {
+      if (fscanf(lg_file, "%" PRId64, &t_end) == EOF) {
         printf("ERROR: failed to read last generation from file %s\n",
                LAST_GENER_FNAME);
         exit(EXIT_FAILURE);

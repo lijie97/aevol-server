@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
   // 1) Initialize command-line option variables with default values
   char* param_file_name = NULL;
   bool verbose          = false;
-  int32_t num_gener = -1;  
+  int64_t num_gener = -1;
   
   // 2) Define allowed options
   const char * options_list = "hf:g:V";
@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
     // If it doesn't, print help and exit
     FILE* lg_file = fopen(LAST_GENER_FNAME, "r");
     if (lg_file != NULL) {
-      if (fscanf(lg_file, "%" PRId32 "\n", &num_gener) == EOF) {
+      if (fscanf(lg_file, "%" PRId64 "\n", &num_gener) == EOF) {
         Utils::ExitWithUsrMsg(
             std::string("failed to read last generation from file ") +
             LAST_GENER_FNAME);
@@ -183,9 +183,9 @@ int main(int argc, char* argv[])
   {
     // If a tree is available, assign the replication reports to the individuals
     #ifdef __REGUL
-      sprintf(tree_file_name,"tree/tree_%06" PRId32 ".rae", num_gener);
+      sprintf(tree_file_name,"tree/tree_%06" PRId64 ".rae", num_gener);
     #else
-      sprintf(tree_file_name,"tree/tree_%06" PRId32 ".ae", num_gener);
+      sprintf(tree_file_name,"tree/tree_%06" PRId64 ".ae", num_gener);
     #endif
     
     tree = new Tree(exp_manager, tree_file_name);
@@ -698,9 +698,9 @@ int main(int argc, char* argv[])
     printf("Save the modified replication reports into tree...\t");
 
     #ifdef __REGUL
-      sprintf(tree_file_name,"tree/tree_%06" PRId32 ".rae", num_gener);
+      sprintf(tree_file_name,"tree/tree_%06" PRId64 ".rae", num_gener);
     #else
-      sprintf(tree_file_name,"tree/tree_%06" PRId32 ".ae", num_gener);
+      sprintf(tree_file_name,"tree/tree_%06" PRId64 ".ae", num_gener);
     #endif
     gzFile tree_file = gzopen(tree_file_name, "w");
     tree->write_to_tree_file(tree_file);
