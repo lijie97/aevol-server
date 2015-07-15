@@ -187,7 +187,6 @@ void Selection::step_to_next_generation(void)
   // Create the new generation
   std::list<Individual*> old_generation = _exp_m->get_indivs();;
   std::list<Individual*> new_generation;
-  int32_t index_new_indiv = 0;
 
   #pragma omp parallel for collapse(2) schedule(dynamic)
   for (int16_t x = 0 ; x < grid_width ; x++)

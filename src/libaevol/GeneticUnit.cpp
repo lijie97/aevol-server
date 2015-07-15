@@ -3214,11 +3214,9 @@ void GeneticUnit::double_non_coding_bases(void)
     int32_t genlen = get_seq_length(); // length of the genetic unit, in bp
 
     int32_t pos0 = -1, pos1 = -1, pos2 = -1, pos3 = -1, mutlength = -1;
-    int32_t pos1donor = -1, pos2donor = -1, pos3donor = -1;
+    int32_t pos3donor = -1;
     char * seq = NULL;
     int32_t first, last;
-    bool invert = false;
-    AlignmentSense sense = DIRECT;
     MutationType type = mut->get_mut_type();
     switch(type) {
       case SWITCH:
@@ -3257,7 +3255,6 @@ void GeneticUnit::double_non_coding_bases(void)
         pos2 = Utils::mod(trans->pos2() - 1, genlen);
         pos3 = trans->pos3();
         pos0 = trans->pos4();
-        invert = trans->invert();
         mutlength = trans->length();
         break;
       }
@@ -3270,11 +3267,8 @@ void GeneticUnit::double_non_coding_bases(void)
       }
       case INS_HT: {
         const auto& ins_ht = dynamic_cast<const InsertionHT*>(mut);
-        pos1donor = ins_ht->donor_pos1();
-        pos2donor = ins_ht->donor_pos2();
         pos0 = ins_ht->exogenote_pos();// TODO <david.parsons@inria.fr> weird !
         pos3donor = ins_ht->receiver_pos();// TODO <david.parsons@inria.fr> weird !
-        sense = ins_ht->sense();
         mutlength = ins_ht->length();
         seq = ins_ht->seq();
 
@@ -3302,10 +3296,7 @@ void GeneticUnit::double_non_coding_bases(void)
       case REPL_HT: {
         const auto& repl_ht = dynamic_cast<const ReplacementHT*>(mut);
         pos1 = repl_ht->receiver_pos1();
-        pos1donor = repl_ht->donor_pos1();
         pos2 = Utils::mod(repl_ht->receiver_pos2() - 1, genlen);
-        pos2donor = repl_ht->donor_pos2();
-        sense = repl_ht->sense();
         mutlength = repl_ht->length();
         seq = repl_ht->seq();
 
