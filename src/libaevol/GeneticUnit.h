@@ -95,7 +95,8 @@ class GeneticUnit
   const Promoters2Strands& get_rna_list() const;
   // TODO return as reference
   std::list<Protein>& get_protein_list(Strand strand);
-  void clear_protein_list(Strand strand);
+  void clear_transcribed_proteins();
+
 
   // Direct DNA access
   const char*  get_sequence( void ) const;

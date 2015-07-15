@@ -103,10 +103,6 @@ std::list<Protein>& GeneticUnit::get_protein_list(Strand strand) {
   return _protein_list[strand];
 }
 
-void GeneticUnit::clear_protein_list(Strand strand) {
-  _protein_list[strand].clear();
-}
-
 Fuzzy* GeneticUnit::get_activ_contribution() const
 {
   return _activ_contribution;
@@ -3424,4 +3420,11 @@ void GeneticUnit::double_non_coding_bases(void)
     _end_neutral_regions = NULL;
   }
 
+void GeneticUnit::clear_transcribed_proteins() {
+  for (auto strand: {LEADING, LAGGING}) {
+    for (auto& rna: _rna_list[strand])
+      rna.clear_transcribed_proteins();
+    _protein_list[strand].clear();
+  }
+}
 } // namespace aevol
