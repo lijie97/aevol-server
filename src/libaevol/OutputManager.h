@@ -116,21 +116,13 @@ class OutputManager
     //                            Public Methods
     // =================================================================
     void write_setup_file( gzFile setup_file ) const;
-    void write_setup_file( FILE* setup_file ) const;
+    void WriteLastGenerFile(const std::string& input_dir = ".") const;
     void load( gzFile file, bool verbose, bool to_be_run  );
     void load( FILE* file, bool verbose, bool to_be_run );
     void write_current_generation_outputs( void ) const;
     inline void flush( void );
 
-  static int32_t get_last_gener();
-
-    // =================================================================
-    //                           Public Attributes
-    // =================================================================
-
-
-
-
+    static int32_t get_last_gener();
 
   protected :
     // =================================================================

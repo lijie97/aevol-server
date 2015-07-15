@@ -28,20 +28,21 @@
 
 
 // =================================================================
-//                              Libraries
+//                              Includes
 // =================================================================
+#include "OutputManager.h"
+
 #include <err.h>
 #include <errno.h>
 #include <sys/stat.h>
+#include <fstream>
+#include <string>
 
-
-
-// =================================================================
-//                            Project Files
-// =================================================================
-#include "OutputManager.h"
 #include "ExpManager.h"
 #include "Time.h"
+
+using std::string;
+using std::endl;
 
 namespace aevol {
 
@@ -113,29 +114,6 @@ void OutputManager::write_setup_file( gzFile setup_file ) const
   // Logs
   int8_t logs = _logs->get_logs();
   gzwrite( setup_file, &logs,  sizeof(logs) );
-}
-
-void OutputManager::write_setup_file(FILE* setup_file) const
-{
-  // Write the backup steps
-  fprintf(setup_file, "BACKUP_STEP %" PRId64 "\n", _backup_step);
-  fprintf(setup_file, "BIG_BACKUP_STEP %" PRId64 "\n", _big_backup_step);
-  
-  // Stats
-  fprintf(setup_file, "COMPUTE_PHENOTYPIC_CONTRIBUTION_BY_GU %" PRId8 "\n", (int8_t) _compute_phen_contrib_by_GU );
-  
-  // Tree
-  fprintf(setup_file, "RECORD_TREE %s\n", _record_tree ? "true" : "false");
-  if (_record_tree)
-    fprintf(setup_file, "TREE_STEP %" PRId64 "\n", _tree->get_tree_step());
-  
-  // Dumps
-  fprintf(setup_file, "MAKE_DUMPS %s\n", _make_dumps ? "true" : "false");
-  fprintf(setup_file, "DUMP_STEP %" PRId64 "\n", _dump_step);
-  
-  // Logs
-  int8_t logs = _logs->get_logs();
-  fprintf(setup_file, "LOGS %" PRId8 "\n", logs);
 }
 
 void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run)
@@ -259,16 +237,8 @@ void OutputManager::write_current_generation_outputs( void ) const
   if (Time::get_time() % _backup_step == 0) {
     _stats->flush();
     _exp_m->save();
-    
-    // Update the LAST_GENER file
-    FILE* last_gener_file = fopen(LAST_GENER_FNAME, "w");
-    if (last_gener_file != NULL) {
-      fprintf(last_gener_file, "%" PRId64 "\n", Time::get_time());
-      fclose(last_gener_file);
-    }
-    else {
-      printf( "Error : could not open file " LAST_GENER_FNAME "\n" );
-    }
+
+    WriteLastGenerFile();
   }
 
   // Write dumps
@@ -276,6 +246,19 @@ void OutputManager::write_current_generation_outputs( void ) const
     if(Time::get_time() % _dump_step == 0) {
       _dump->write_current_generation_dump();
     }
+  }
+}
+
+// TODO <david.parsons@inria.fr> we need an output_dir attribute in this class !
+void OutputManager::WriteLastGenerFile(const string& output_dir) const {
+  std::ofstream last_gener_file(output_dir + "/" + LAST_GENER_FNAME,
+                                std::ofstream::out);
+  if (last_gener_file.fail()) {
+    Utils::ExitWithUsrMsg(string("could not open file ") + LAST_GENER_FNAME);
+  }
+  else {
+    last_gener_file << Time::get_time() << endl;
+    last_gener_file.close();
   }
 }
 

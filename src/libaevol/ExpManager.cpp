@@ -220,8 +220,11 @@ void ExpManager::save(void) const
   \see write_setup_files(void)
   \see save(void)
 */
-void ExpManager::save_copy(char* dir, int32_t num_gener /*= 0*/) const
+void ExpManager::save_copy(char* dir, int64_t num_gener /*= 0*/) const
 {
+  // Set time to num_gener
+  Time::set_time(num_gener);
+
   // Create missing directories
   create_missing_directories(dir);
 
@@ -241,6 +244,9 @@ void ExpManager::save_copy(char* dir, int32_t num_gener /*= 0*/) const
   // Close setup and backup files
   close_setup_files(exp_s_file, out_p_file);
   close_backup_files(sel_file, world_file);
+
+  // Write last gener file
+  _output_m->WriteLastGenerFile(dir);
 }
 
 void ExpManager::step_to_next_generation() {
