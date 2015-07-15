@@ -122,7 +122,6 @@ add_library(aevol
   SmallInsertion.h
   SmallDeletion.cpp
   SmallDeletion.h
-  LocalMutation.cpp
   LocalMutation.h
   Rearrangement.h
   Duplication.cpp
@@ -133,7 +132,6 @@ add_library(aevol
   Translocation.h
   Inversion.cpp
   Inversion.h
-  HT.cpp
   HT.h
   InsertionHT.cpp
   InsertionHT.h
