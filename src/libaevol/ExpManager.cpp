@@ -290,12 +290,19 @@ void ExpManager::load(gzFile& exp_s_file,
   // -------------------------------------------- Link world and output profile
   if (get_record_tree()) {
     get_sel()->addObserver(get_tree(), NEW_INDIV);
-    get_sel()->addObserver(get_tree(), END_GENERATION);
     for (auto indiv : world_->get_indivs())
       indiv->addObserver(
           get_tree()->get_report_by_index(Time::get_time(), indiv->get_id()),
           END_REPLICATION);
+    get_sel()->addObserver(get_tree(), END_GENERATION);
   }
+
+  // --------------------------------------------------- Recompute unsaved data
+  world_->evaluate_individuals();
+
+  // ---------------- If we are starting a new experiment, write outputs at t=0
+  if (Time::get_time() == 0)
+    _output_m->write_current_generation_outputs();
 }
 
 
@@ -391,13 +398,6 @@ void ExpManager::load(int64_t t0,
   gzclose(exp_backup_file);
   gzclose(world_file);
   gzclose(out_prof_file);
-
-
-  // ---------------------------------------------------------------------------
-  // 5) Recompute unsaved data
-  // ---------------------------------------------------------------------------
-  // Evaluate individuals
-  world_->evaluate_individuals();
 }
 
 /**
@@ -408,9 +408,6 @@ void ExpManager::run_evolution(void)
   // We are running a simulation.
   // Save the setup files to keep track of the setup history
   write_setup_files();
-
-  // Dump the initial state of the population; useful for restarts
-  _output_m->write_current_generation_outputs();
 
   // For each generation
   while (true) { // termination condition is into the loop
