@@ -708,8 +708,8 @@ int main(int argc, char* argv[])
     printf("OK\n");
   }
   printf("Save the modified experiment into backup...\t");
-  exp_manager->write_setup_files();
-  exp_manager->save();
+  exp_manager->WriteSetupFiles();
+  exp_manager->WriteDynamicFiles();
   printf("OK\n");
 
   delete exp_manager;

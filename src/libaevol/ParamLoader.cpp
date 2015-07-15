@@ -1273,8 +1273,8 @@ void ParamLoader::CheckConsistency() {
 }
 
 void ParamLoader::load(ExpManager * exp_m, bool verbose,
-                        char* chromosome, int32_t lchromosome,
-                        char* plasmid, int32_t lplasmid) {
+                       char* chromosome, int32_t lchromosome,
+                       char* plasmid, int32_t lplasmid) {
   // Check consistency of min, max and initial length of chromosome and plasmid
   // Default for by GU minimal or maximal size is -1.
   // If equal to -1, maximal sizes of each GU will be replaced by total maximal size for the whole genome
@@ -1299,7 +1299,8 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   // Create aliases
   ExpSetup* exp_s = exp_m->get_exp_s();
   Selection* sel = exp_m->get_sel();
-  OutputManager* output_m  = exp_m->get_output_m();
+  OutputManager* output_m = exp_m->get_output_m();
+  output_m->InitStats();
 
   // 1) ------------------------------------- Initialize the experimental setup
   sel->set_prng(std::make_unique<JumpingMT>(_prng->random(1000000)));

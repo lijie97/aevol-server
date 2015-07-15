@@ -72,12 +72,12 @@ class ExpManager : public Observer
     // =======================================================================
     //                                Constructors
     // =======================================================================
-    ExpManager(void);
+    ExpManager();
 
     // =======================================================================
     //                                Destructors
     // =======================================================================
-    virtual ~ExpManager(void);
+    virtual ~ExpManager();
 
     // =======================================================================
     //                                 Algorithms
@@ -169,8 +169,9 @@ class ExpManager : public Observer
                          std::shared_ptr<JumpingMT> prng,
                          const Habitat& habitat,
                          bool share_phenotypic_target);
-    void write_setup_files(void);
-    void save(void) const;
+    void Save() const;
+    void WriteSetupFiles() const;
+    void WriteDynamicFiles() const;
     void save_copy(char* dir, int64_t num_gener = 0) const;
     inline void load(int32_t first_gener,
         bool verbose = false, bool to_be_run = true);

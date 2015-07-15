@@ -61,13 +61,13 @@ namespace aevol {
 // ===========================================================================
 //                                 Constructors
 // ===========================================================================
-ExpManager::ExpManager(void)
+ExpManager::ExpManager()
 {
   // ------------------------------------------------------ Experimental setup
   _exp_s = new ExpSetup(this);
 
   // ------------------------------------------------------------------- World
-  world_ = NULL;
+  world_ = nullptr;
 
   // ---------------------------------------------------------- Output manager
   _output_m = new OutputManager(this);
@@ -84,7 +84,7 @@ ExpManager::ExpManager(void)
 // ===========================================================================
 //                                  Destructor
 // ===========================================================================
-ExpManager::~ExpManager(void)
+ExpManager::~ExpManager()
 {
   delete _exp_s;
   delete _output_m;
@@ -115,6 +115,15 @@ void ExpManager::InitializeWorld(int16_t grid_width,
 }
 
 /*!
+  \brief Save the experiment
+*/
+void ExpManager::Save() const
+{
+  WriteSetupFiles();
+  _output_m->write_current_generation_outputs();
+}
+
+/*!
   \brief Save all the static data (the data that is constant throughout
   a simulation)
 
@@ -135,10 +144,10 @@ void ExpManager::InitializeWorld(int16_t grid_width,
             char* sel_file_name,
             char* world_file_name,
             bool verbose)
-  \see save(void)
+  \see WriteDynamicFiles(void)
   \see save_copy(char* dir, int64_t t)
 */
-void ExpManager::write_setup_files(void)
+void ExpManager::WriteSetupFiles() const
 {
   // 1) Create missing directories
   create_missing_directories();
@@ -176,10 +185,10 @@ void ExpManager::write_setup_files(void)
             char* sel_file_name,
             char* world_file_name,
             bool verbose)
-  \see write_setup_files(void)
+  \see WriteSetupFiles(void)
   \see save_copy(char* dir, int64_t t)
 */
-void ExpManager::save(void) const
+void ExpManager::WriteDynamicFiles(void) const
 {
   // Create missing directories
   create_missing_directories();
@@ -217,8 +226,8 @@ void ExpManager::save(void) const
              char* sel_file_name,
              char* world_file_name,
              bool verbose)
-  \see write_setup_files(void)
-  \see save(void)
+  \see WriteSetupFiles(void)
+  \see WriteDynamicFiles(void)
 */
 void ExpManager::save_copy(char* dir, int64_t num_gener /*= 0*/) const
 {
@@ -305,10 +314,6 @@ void ExpManager::load(gzFile& exp_s_file,
 
   // --------------------------------------------------- Recompute unsaved data
   world_->evaluate_individuals();
-
-  // ---------------- If we are starting a new experiment, write outputs at t=0
-  if (Time::get_time() == 0)
-    _output_m->write_current_generation_outputs();
 }
 
 
@@ -413,7 +418,7 @@ void ExpManager::run_evolution(void)
 {
   // We are running a simulation.
   // Save the setup files to keep track of the setup history
-  write_setup_files();
+  WriteSetupFiles();
 
   // For each generation
   while (true) { // termination condition is into the loop

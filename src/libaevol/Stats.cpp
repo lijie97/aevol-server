@@ -87,11 +87,11 @@ Stats::Stats(ExpManager * exp_m,
   Create a stat manager to append existing stats
  */
 Stats::Stats(ExpManager * exp_m,
-                   int64_t time,
-                   bool best_indiv_only,
-                   const char * prefix /* = "stat" */,
-                   bool addition_old_stats /* = true */,
-                   bool delete_old_stats /* = true */)
+             int64_t time,
+             bool best_indiv_only,
+             const char * prefix /* = "stat" */,
+             bool addition_old_stats /* = true */,
+             bool delete_old_stats /* = true */)
 {
   _exp_m = exp_m;
   init_data();
@@ -152,7 +152,7 @@ Stats::Stats(ExpManager * exp_m,
             {
               // TODO check for error
             }
-            while ((int32_t)atol(line) < time && !feof(old_file) )
+            while ((int32_t)atol(line) <= time && !feof(old_file) )
             {
               fputs(line, cur_file);
               if (fgets(line, 500, old_file))

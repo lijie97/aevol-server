@@ -64,9 +64,9 @@ namespace aevol {
 OutputManager::OutputManager(ExpManager * exp_m)
 {
   _exp_m  = exp_m;
-  _stats  = new Stats(exp_m);;
-  _tree   = NULL;
-  _dump   = NULL;
+  _stats  = nullptr;
+  _tree   = nullptr;
+  _dump   = nullptr;
   _compute_phen_contrib_by_GU = false;
   _record_tree = false;
   _make_dumps = false;
@@ -88,7 +88,11 @@ OutputManager::~OutputManager( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-void OutputManager::write_setup_file( gzFile setup_file ) const
+void OutputManager::InitStats() {
+  _stats = new Stats(_exp_m);
+}
+
+void OutputManager::write_setup_file(gzFile setup_file) const
 {
   // Write the backup steps
   gzwrite( setup_file, &_backup_step,      sizeof(_backup_step) );
@@ -126,14 +130,7 @@ void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run)
   if (to_be_run)
   {
     delete _stats;
-    if (Time::get_time() > 0)
-    {
-      _stats = new Stats(_exp_m, Time::get_time());
-    }
-    else
-    {
-      _stats = new Stats(_exp_m);
-    }
+    _stats = new Stats(_exp_m, Time::get_time());
   }
   gzread( setup_file, &_compute_phen_contrib_by_GU,  sizeof(_compute_phen_contrib_by_GU) );
   
@@ -168,59 +165,6 @@ void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run)
   }
 }
 
-void OutputManager::load(FILE* setup_file, bool verbose, bool to_be_run)
-{
-  // Write the backup steps
-  fscanf(setup_file, "BACKUP_STEP %" SCNd64 "\n", &_backup_step);
-  fscanf(setup_file, "BIG_BACKUP_STEP %" SCNd64 "\n", &_big_backup_step);
-  
-  // Stats
-  if(to_be_run)
-  {
-    delete _stats;
-    if (Time::get_time() > 0)
-    {
-      _stats = new Stats(_exp_m, Time::get_time());
-    }
-    else
-    {
-      _stats = new Stats(_exp_m);
-    }
-  }
-  {
-    int tmp;
-    fscanf( setup_file, "COMPUTE_PHENOTYPIC_CONTRIBUTION_BY_GU %d\n", &tmp);
-    _compute_phen_contrib_by_GU = tmp;
-  }
-  
-  char tmp[10];
-  
-  // Tree
-  fscanf(setup_file, "RECORD_TREE %s\n", tmp);
-  _record_tree = ! strcmp( tmp, "true" );
-  if ( _record_tree )
-  {
-    int64_t tmp_tree_step;
-    fscanf( setup_file, "TREE_STEP %" SCNd64 "\n", &tmp_tree_step );
-    
-    _tree = new Tree( _exp_m, tmp_tree_step );
-  }
-  
-  // Dumps
-  fscanf( setup_file, "MAKE_DUMPS %s\n", tmp );
-  _make_dumps = ! strcmp( tmp, "true" );
-  fscanf( setup_file, "DUMP_STEP %" SCNd64 "\n", &_dump_step );
-  if( _make_dumps == true)
-  {
-    _dump = new Dump(_exp_m);
-  }
-  
-  // Logs
-  int8_t logs;
-  fscanf(setup_file, "LOGS %" SCNd8 "\n", &logs);
-  _logs->load(logs, Time::get_time());
-}
-
 void OutputManager::write_current_generation_outputs( void ) const
 {
   // Write stats
@@ -236,7 +180,7 @@ void OutputManager::write_current_generation_outputs( void ) const
   // Write backup
   if (Time::get_time() % _backup_step == 0) {
     _stats->flush();
-    _exp_m->save();
+    _exp_m->WriteDynamicFiles();
 
     WriteLastGenerFile();
   }

@@ -75,16 +75,16 @@ class Stats
     Stats(void) = delete;
     Stats(const Stats &) = delete;
     Stats(ExpManager * exp_m,
-             bool best_indiv_only = false,
-             const char* prefix = "stat",
-             bool with_plasmids = false,
-             bool compute_phen_contrib_by_GU = false);
+          bool best_indiv_only = false,
+          const char* prefix = "stat",
+          bool with_plasmids = false,
+          bool compute_phen_contrib_by_GU = false);
     Stats(ExpManager * exp_m,
-             int64_t time,
-             bool best_indiv_only = false,
-             const char * prefix = "stat",
-             bool addition_old_stats = true,
-             bool delete_old_stats = true);
+          int64_t time,
+          bool best_indiv_only = false,
+          const char * prefix = "stat",
+          bool addition_old_stats = true,
+          bool delete_old_stats = true);
 
  
     // =================================================================
@@ -104,13 +104,12 @@ class Stats
     // =================================================================
     //                            Public Methods
     // =================================================================
-
     void write_current_generation_statistics(void);
     void write_statistics_of_this_indiv(Individual * indiv);
     
     void flush( void );
 
-    void write_headers( bool ancstats_stats = false );
+    void write_headers(bool ancstats_stats = false);
 
 
 
