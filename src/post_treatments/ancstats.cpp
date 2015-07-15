@@ -693,7 +693,6 @@ void write_operons_stats(int64_t t, Individual* indiv, FILE*  operons_output_fil
     if (rna->get_transcribed_proteins().size() >= 20)
     {
       printf("Found operon with 20 genes or more : %zu\n", rna->get_transcribed_proteins().size());
-      getchar();
     }
 
     nb_genes_per_rna[rna->get_transcribed_proteins().size()]++;
