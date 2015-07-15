@@ -302,7 +302,7 @@ void ExpManager::load(gzFile& exp_s_file,
 /*!
   \brief Load an experiment with default files from a given directory
  */
-// TODO <david.parsons@inria.fr> check verbose (what doas it do ?, is it consistent ?)
+// TODO <david.parsons@inria.fr> check verbose (what does it do ?, is it consistent ?)
 void ExpManager::load(const char* dir,
     int64_t t0, bool verbose, bool to_be_run /*  = true */)
 {
@@ -329,20 +329,13 @@ void ExpManager::load(const char* dir,
   // -------------------------------------------------------------------------
   close_setup_files(exp_s_file, out_p_file);
   close_backup_files(exp_backup_file, world_file);
-
-
-  // ---------------------------------------------------------------------------
-  // Recompute unsaved data
-  // ---------------------------------------------------------------------------
-  // Evaluate individuals
-  world_->evaluate_individuals();
 }
 
 
 /**
  * \brief Load an experiment with the provided constitutive files
  */
-// TODO <david.parsons@inria.fr> check verbose (what doas it do ?, is it consistent ?)
+// TODO <david.parsons@inria.fr> check verbose (what does it do ?, is it consistent ?)
 void ExpManager::load(int64_t t0,
                           char* exp_setup_file_name,
                           char* exp_backup_file_name,
