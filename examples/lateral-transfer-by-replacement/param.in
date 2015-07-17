@@ -4,6 +4,7 @@
 
 ##### 1. Initial setup ############
 SEED                    7250909
+WORLD_SIZE              25 20
 INIT_POP_SIZE           500
 INIT_METHOD             ONE_GOOD_GENE CLONE
 CHROMOSOME_INITIAL_LENGTH  5000
@@ -35,7 +36,6 @@ MAX_TRIANGLE_WIDTH  0.005
 
 ##### 7. Recording ################
 RECORD_TREE             true
-TREE_MODE               normal
 TREE_STEP               50
 MORE_STATS              false
 DUMP_STEP               0

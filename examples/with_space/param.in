@@ -5,6 +5,8 @@
 ##### 1. Initial setup ############
 SEED                    7250909
 INIT_POP_SIZE           1000
+WORLD_SIZE              25 40
+INDIV_MIXING            NONE
 INIT_METHOD             ONE_GOOD_GENE CLONE
 CHROMOSOME_INITIAL_LENGTH   5000
 
@@ -23,9 +25,6 @@ DELETION_RATE           5e-5
 TRANSLOCATION_RATE      5e-5
 INVERSION_RATE          5e-5
 
-##### 5. Population Structure #####
-POP_STRUCTURE           grid 25 40
-MIGRATION_NUMBER        0
 
 ##### 6. Target function ##########
 ENV_SAMPLING      300
@@ -37,7 +36,6 @@ ENV_ADD_GAUSSIAN  0.3   0.8   0.04
 
 ##### 7. Recording ################
 RECORD_TREE             false
-TREE_MODE               normal
 MORE_STATS              false
 DUMP_STEP               0
 BACKUP_STEP             100
