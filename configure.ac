@@ -311,6 +311,5 @@ AC_CONFIG_FILES([Makefile
                  src/libaevol/tests/Makefile
                  src/tests/Makefile
                  src/post_treatments/Makefile
-                 tests/Makefile
                  doc/Makefile])
 AC_OUTPUT

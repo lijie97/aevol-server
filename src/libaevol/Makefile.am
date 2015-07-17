@@ -25,6 +25,7 @@ noinst_LIBRARIES = libaevol.a
 AM_CPPFLAGS += -D__STDC_FORMAT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS
 
 common_headers = \
+aevol.h \
 Alignment.h \
 Codon.h \
 Dna.h \
