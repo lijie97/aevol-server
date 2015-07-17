@@ -727,9 +727,6 @@ void Stats::CreateTmpFiles(int64_t time) {
             }
           }
 
-          // Copy the empty line between the header and the values
-          fputs(line, new_file);
-
           // Copy stats until time (included)
           if (fgets(line, 500, old_file) == NULL)
           {

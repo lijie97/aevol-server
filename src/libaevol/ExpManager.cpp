@@ -491,6 +491,13 @@ void ExpManager::create_missing_directories(const char* dir /*= "."*/) const
   {
     err(EXIT_FAILURE, cur_dir_name, errno);
   }
+  // Stats
+  sprintf(cur_dir_name, "%s/" STATS_DIR, dir);
+  status = mkdir(cur_dir_name, 0755);
+  if (status == -1 && errno != EEXIST)
+  {
+    err(EXIT_FAILURE, cur_dir_name, errno);
+  }
 }
 
 void ExpManager::open_backup_files(gzFile& exp_backup_file,

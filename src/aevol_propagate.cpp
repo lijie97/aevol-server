@@ -247,7 +247,7 @@ int main(int argc, char* argv[])
     ExpManager* exp_manager = new ExpManager();
   #endif
   
-  exp_manager->load(input_dir, num_gener, verbose, false);
+  exp_manager->load(input_dir, num_gener, verbose, true);
 
   if (generalseed != -1)
   {
