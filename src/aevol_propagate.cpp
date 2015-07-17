@@ -79,11 +79,12 @@ int main(int argc, char* argv[])
   bool  verbose     = false;
   
   // 2) Define allowed options
-  const char * options_list = "g:hi:o:vVS:s:m:t:e:n:";
+//  const char * options_list = "g:hi:o:vVS:s:m:t:e:n:";
+  const char * options_list = "g:ho:vVS:s:m:t:e:n:";
   static struct option long_options_list[] = {
     { "gener",    required_argument,  NULL, 'g' },
     { "help",     no_argument,        NULL, 'h' },
-    { "in",       required_argument,  NULL, 'i' },
+//    { "in",       required_argument,  NULL, 'i' },
     { "out",      required_argument,  NULL, 'o' },
     { "verbose",  no_argument,        NULL, 'v' },
     { "version",  no_argument,        NULL, 'V' },
@@ -352,7 +353,7 @@ void print_help(char* prog_path)
   printf("  -v, --verbose\n\tbe verbose\n\n");
   printf("  -g, --gener GENER\n\tspecify generation number\n");
   printf("\t(default: that contained in file last_gener.txt, if any)\n\n");
-  printf("  -i, --in INDIR\n\tspecify input directory (default \".\")\n\n");
+//  printf("  -i, --in INDIR\n\tspecify input directory (default \".\")\n\n");
   printf("  -o, --out OUTDIR\n\tspecify output directory (default \"./output\")\n\n");
   printf("  -S, --general-seed GENERALSEED\n\tspecify an integer to be used as a seed for random numbers.\n");
   printf("\tIf you use %s repeatedly to initialize several simulations, you should specify a different\n", prog_name);
