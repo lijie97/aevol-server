@@ -14,6 +14,7 @@ add_definitions(-DVERSION="${PROJECT_VERSION}")
 add_definitions(-DSFMT_MEXP=607)
 add_definitions(-D__X11)
 add_definitions(-DDEBUG)
+add_definitions(-D__REGUL)
 
 FIND_PACKAGE ( X11 REQUIRED )
 IF ( X11_FOUND )

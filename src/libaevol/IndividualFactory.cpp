@@ -80,10 +80,8 @@ Individual* IndividualFactory::create_random_individual(
 {
   // Create a genome-less individual with the provided parameters
 
-  Individual * indiv;
-
   #ifndef __REGUL
-  indiv = new Individual(exp_m,
+  Individual *indiv = new Individual(exp_m,
                          mut_prng,
                          stoch_prng,
                          param_mut,
@@ -95,7 +93,7 @@ Individual* IndividualFactory::create_random_individual(
                          strain_name,
                          0);
   #else
-  indiv = new Individual_R(exp_m,
+  Individual_R* indiv = new Individual_R(exp_m,
                                      mut_prng,
                                      stoch_prng,
                                      param_mut,
@@ -120,16 +118,36 @@ Individual* IndividualFactory::create_random_individual(
         area_by_feature(METABOLISM);
 
     indiv->EvaluateInContext(habitat);
+    printf("Starting with a clonal population of individual with metabolic error %f (%f -- %ld) "
+               "and secretion error %f \n",indiv->get_dist_to_target_by_feature(METABOLISM),
+           env_metabolic_area,
+           indiv->get_protein_list().size(),
+           indiv->get_dist_to_target_by_feature(SECRETION));
 
     while (indiv->get_dist_to_target_by_feature(METABOLISM) >=
         env_metabolic_area) {
+      #ifdef __REGUL
+      indiv->set_networked(false);
+      #endif
       // Replace the former chromosome by a new random one and re-evaluate the
       // individual
       indiv->remove_GU(0);
       indiv->add_GU(indiv, chromosome_initial_length, local_prng);
       indiv->EvaluateInContext(habitat);
+
+      printf("Starting with a clonal population of individual with metabolic error %f (%f -- %ld) "
+                 "and secretion error %f \n",indiv->get_dist_to_target_by_feature(METABOLISM),
+             env_metabolic_area,
+             indiv->get_protein_list().size(),
+             indiv->get_dist_to_target_by_feature(SECRETION));
     }
   }
+
+  printf("Starting with a clonal population of individual with metabolic error %f (%f -- %ld) "
+             "and secretion error %f \n",indiv->get_dist_to_target_by_feature(METABOLISM),
+         env_metabolic_area,
+         indiv->get_protein_list().size(),
+         indiv->get_dist_to_target_by_feature(SECRETION));
 
   if (allow_plasmids) // We create a plasmid
   {

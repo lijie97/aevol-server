@@ -288,11 +288,10 @@ void Individual_R_X11::display_regulation( X11Window* win )
 
   // search for max and min regulation values (in order to scale colors)
 
-  for (const auto& rn: _rna_list) {
+  for (const auto& rna: _rna_list_coding) {
     // ---------------
     //  Draw each regulation link
     // ---------------
-    Rna_R* rna = dynamic_cast<Rna_R*>(const_cast<Rna*>(rn));
 
     for (unsigned int i = 0; i < rna->_protein_list.size(); i++) {
       //compute the activity
@@ -333,8 +332,7 @@ void Individual_R_X11::display_regulation( X11Window* win )
   // end search for max
 
   // begin links drawing procedure
-  for (const auto& rn: _rna_list) {
-    Rna_R* rna = dynamic_cast<Rna_R*>(const_cast<Rna*>(rn));
+  for (const auto& rna: _rna_list_coding) {
 
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)

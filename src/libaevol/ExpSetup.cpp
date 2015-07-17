@@ -92,9 +92,9 @@ ExpSetup::ExpSetup( ExpManager * exp_m )
 #ifdef __REGUL
   _protein_presence_limit = 1e-2;
   _degradation_rate  = 1;
-  _degradation_step  = 0.1;
+  _degradation_step  = 10;
   _with_heredity          = false;
-  _nb_indiv_age      = 20;
+  _nb_indiv_age      = 20*_degradation_step;
   _eval_step         = 5;
 #endif
 }
@@ -327,6 +327,17 @@ void ExpSetup::write_binding_matrix_to_file( FILE* file ) const
       fprintf( file, "\t%e", _binding_matrix[row][column] );
     }
     fprintf( file, "\n");
+  }
+}
+
+void ExpSetup::print_binding_matrix()
+{
+  for( int16_t row = 0 ; row < MAX_QUADON ; row++ )
+  {
+    for( int16_t column = 0 ; column < MAX_CODON ; column++ )
+    {
+      printf("M[%d][%d] = %e\n", row, column, _binding_matrix[row][column] );
+    }
   }
 }
 #endif

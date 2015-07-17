@@ -81,6 +81,7 @@ class Individual_R : public virtual Individual
     // =================================================================
     //                              Accessors
     // =================================================================
+    inline std::vector<Rna_R *> get_rna_list_coding( void ) const;
 
     // =================================================================
     //                            Public Methods
@@ -93,6 +94,11 @@ class Individual_R : public virtual Individual
       * Evaluate within the provided context
       */
      virtual void EvaluateInContext(const Habitat& habitat);
+
+     virtual void init_indiv( void );
+     virtual void one_step( void );
+     virtual void eval_step(const Habitat& habitat);
+     virtual void final_step(const Habitat& habitat);
      //virtual void reevaluate();
      //virtual void clear_everything_except_dna_and_promoters();
      //void do_transcription_translation_folding();
@@ -108,8 +114,10 @@ class Individual_R : public virtual Individual
     void    multiply_concentrations( double factor );
     int8_t  get_quadon( const GeneticUnit* gen_unit, Strand strand, int32_t pos );
     void    save( gzFile backup_file );
+    void    clear_everything_except_dna_and_promoters();
 
     inline std::vector<Protein_R*> get_inherited_protein_list( void) const;
+    inline void set_networked( bool networked );
     // =================================================================
     //                           Public Attributes
     // =================================================================
@@ -150,6 +158,16 @@ class Individual_R : public virtual Individual
 inline std::vector<Protein_R*> Individual_R::get_inherited_protein_list( void ) const
 {
   return _inherited_protein_list;
+}
+
+inline std::vector<Rna_R *> Individual_R::get_rna_list_coding( void ) const
+{
+  return _rna_list_coding;
+}
+
+inline void Individual_R::set_networked( bool networked )
+{
+  _networked = networked;
 }
 
 } // namespace aevol

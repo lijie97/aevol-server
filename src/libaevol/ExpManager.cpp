@@ -42,6 +42,9 @@
 #include "ExpManager.h"
 #include "Individual.h"
 
+#ifdef __REGUL
+#include "raevol/Individual_R.h"
+#endif
 
 using std::cout;
 using std::endl;
@@ -408,6 +411,7 @@ void ExpManager::run_evolution(void)
 
   // For each generation
   while (true) { // termination condition is into the loop
+    #ifndef __REGUL
     printf("============================== %" PRId64 " ==============================\n",
            Time::get_time());
     printf("  Best individual's distance to target (metabolic) : %f\n",
@@ -422,6 +426,46 @@ void ExpManager::run_evolution(void)
 
     // Take one step in the evolutionary loop
     step_to_next_generation();
+    #else
+    if (Time::get_time() >= t_end*get_exp_s()->get_nb_indiv_age()
+        or quit_signal_received())
+        break;
+
+
+
+    Time::plusplus();
+    //printf("Step %" PRId64 "\n",Time::get_time());
+
+    for (const auto& indiv : this->get_indivs()) {
+        Individual_R* indiv_r = dynamic_cast<Individual_R*>(indiv);
+        indiv_r->Evaluate();
+      printf("Indiv %d (at %d) : %d\n",indiv_r->get_id(),Time::get_time(),indiv_r->get_protein_list().size());
+
+    }
+/*
+    if (std::fmod(((double)Time::get_time()),
+                  get_exp_s()->get_eval_step()) == 0.0) {
+      printf("Individual Eval Step %" PRId64 "\n", Time::get_time());
+    }
+*/
+
+    if (std::fmod(((double)Time::get_time()),
+                  get_exp_s()->get_nb_indiv_age()) == 0.0) {
+      //printf("Individual Life Step %" PRId64 "\n",Time::get_time());
+        step_to_next_generation();
+
+      printf("============================== %" PRId64 " ==============================\n",
+             Time::get_time());
+      printf("  Best individual's distance to target (metabolic) : %f\n",
+             get_best_indiv()->get_dist_to_target_by_feature(METABOLISM));
+
+
+    }
+
+#ifdef __X11
+    display();
+#endif
+    #endif
   }
 
   _output_m->flush();

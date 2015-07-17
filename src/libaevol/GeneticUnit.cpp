@@ -90,9 +90,15 @@ const Promoters2Strands& GeneticUnit::get_rna_list() const {
   return _rna_list;
 }
 
+#ifndef __REGUL
 std::list<Protein>& GeneticUnit::get_protein_list(Strand strand) {
   return _protein_list[strand];
 }
+#else
+std::list<Protein_R>& GeneticUnit::get_protein_list(Strand strand) {
+  return _protein_list[strand];
+}
+#endif
 
 void GeneticUnit::clear_protein_list(Strand strand) {
   _protein_list[strand].clear();
@@ -903,10 +909,15 @@ void GeneticUnit::locate_promoters( void )
     if (is_promoter(LAGGING, _dna->get_length() - i - 1, dist))
       _rna_list[LAGGING].emplace_back(this, LAGGING, _dna->get_length() - i - 1, dist);
 #else
-    if (is_promoter(LEADING, i, dist))
-      _rna_list[LEADING].emplace_back(this, LEADING, i, dist);
-    if (is_promoter(LAGGING, _dna->get_length() - i - 1, dist))
-      _rna_list[LAGGING].emplace_back(this, LAGGING, _dna->get_length() - i - 1, dist);
+    if (is_promoter(LEADING, i, dist)) {
+      Rna_R rna(this, LEADING, i, dist);
+      _rna_list[LEADING].push_back(rna);
+    }
+    if (is_promoter(LAGGING, _dna->get_length() - i - 1, dist)) {
+      Rna_R rna(this, LAGGING, _dna->get_length() - i - 1,
+                dist);
+      _rna_list[LAGGING].push_back(rna);
+    }
 #endif
   }
 }
@@ -1908,8 +1919,12 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     for (auto& strand: {LEADING, LAGGING}) {
       for (auto& rna: retrieved_promoters[strand]) {
         // Make a copy of current RNA inside container
+        #ifndef __REGUL
         duplicated_promoters[strand].emplace_back(this, rna);
-
+        #else
+        Rna_R rna_r(this, rna);
+        duplicated_promoters[strand].push_back(rna_r);
+        #endif
         // Set RNA's position as it's position on the duplicated segment
         duplicated_promoters[strand].back().shift_position(-pos_1, _dna->get_length());
       }
@@ -2718,19 +2733,36 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     // 2) Copy RNAs
     if ( pos_1 < pos_2 ) {
       // Copy from pos_1 to pos_2
-      for (auto rna = first; rna != strand.end() and rna->get_promoter_pos() < pos_2; ++rna)
+      for (auto rna = first; rna != strand.end() and rna->get_promoter_pos() < pos_2; ++rna) {
+        #ifndef __REGUL
         new_promoter_list.emplace_back(this, *rna);
+        #else
+        Rna_R rna_r(this, *rna);
+        new_promoter_list.push_back(rna_r);
+        #endif
+      }
     }
     else {
       // Copy from pos_1 to the end of the list
-      for (auto rna = first; rna != strand.end(); ++rna)
+      for (auto rna = first; rna != strand.end(); ++rna) {
+        #ifndef __REGUL
         new_promoter_list.emplace_back(this, *rna);
+        #else
+        Rna_R rna_r(this, *rna);
+        new_promoter_list.push_back(rna_r);
+        #endif
+      }
 
       // Copy from the beginning of the list to pos_2
       for (auto& rna: strand) {
         if (rna.get_promoter_pos() >= pos_2)
           break;
+        #ifndef __REGUL
         new_promoter_list.emplace_back(this, rna);
+        #else
+        Rna_R rna_r(this, rna);
+        new_promoter_list.push_back(rna_r);
+        #endif
       }
     }
   }

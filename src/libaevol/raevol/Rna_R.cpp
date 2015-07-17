@@ -88,28 +88,36 @@ void Rna_R::set_influences( std::list<Protein*> protein_list )
 {
     int32_t enhancer_position = get_enhancer_position();
 	  int32_t operator_position = get_operator_position();
+
 	  _protein_list = protein_list;
-	  _enhancing_coef_list.resize(protein_list.size());
-	  _operating_coef_list.resize(protein_list.size());
+    _enhancing_coef_list.clear();
+	  _enhancing_coef_list.reserve(protein_list.size());
+    _operating_coef_list.clear();
+	  _operating_coef_list.reserve(protein_list.size());
 
     int i = 0;
 	  for (auto& prot : protein_list) {
 	#ifdef __TRACING__
 		  high_resolution_clock::time_point t1 = high_resolution_clock::now();
 	#endif
+
 		  _enhancing_coef_list[i] = affinity_with_protein( enhancer_position, prot );
+
 	#ifdef __TRACING__
 		  high_resolution_clock::time_point t2 = high_resolution_clock::now();
 		  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
 		  ae_logger::addLog(AFFINITY_EN,duration);
 		  t1 = t2;
 	#endif
+
 		  _operating_coef_list[i] = affinity_with_protein( operator_position, prot );
+
 	#ifdef __TRACING__
 		  t2 = high_resolution_clock::now();
 		  duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
 		  ae_logger::addLog(AFFINITY_OP,duration);
 	#endif
+
 	    //  printf ("set_influence - after affinity computation\n");
 	    if ( _enhancing_coef_list[i] != 0.0 || _operating_coef_list[i] != 0.0 )
 	    	((Protein_R*)prot)->not_pure_TF = true;
@@ -211,11 +219,11 @@ double Rna_R::affinity_with_protein( int32_t index, Protein *protein )
 	  for ( int32_t i = 0 ; i < len - 4; i++ )
 	  {
 	    temp  = 1 *
-	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix()[quadon_tab[0]][prot->get_AA_list()[i]->get_value()] *
-	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix()[quadon_tab[1]][prot->get_AA_list()[i+1]->get_value()] *
-	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix()[quadon_tab[2]][prot->get_AA_list()[i+2]->get_value()] *
-	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix()[quadon_tab[3]][prot->get_AA_list()[i+3]->get_value()] *
-	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix()[quadon_tab[4]][prot->get_AA_list()[i+4]->get_value()];
+	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix(quadon_tab[0],prot->get_AA_list()[i]->get_value()) *
+	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix(quadon_tab[1],prot->get_AA_list()[i+1]->get_value()) *
+	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix(quadon_tab[2],prot->get_AA_list()[i+2]->get_value()) *
+	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix(quadon_tab[3],prot->get_AA_list()[i+3]->get_value()) *
+	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix(quadon_tab[4],prot->get_AA_list()[i+4]->get_value());
 
 	//    for ( int32_t j = 0 ; j < 5 ; j++ )
 	//    {

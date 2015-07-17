@@ -49,6 +49,7 @@
 #ifdef __REGUL
 #include "raevol/Rna_R.h"
 #include "raevol/Protein_R.h"
+#include "raevol/Individual_R.h"
 #endif
 
 using std::list;
@@ -161,7 +162,9 @@ StatRecord::StatRecord(ExpManager* exp_m,
   double mean_activator_activity = 0.0;
   double mean_operator_activity = 0.0;
 
-  for (auto& rna: indiv->get_rna_list()) {
+  Individual_R* indiv_r = dynamic_cast<Individual_R*>(indiv);
+
+  for (auto& rna: indiv_r->get_rna_list_coding()) {
     for (unsigned int i = 0; i < ((Rna_R*)rna)->_enhancing_coef_list.size(); i++) {
       //compute the activity
       if (((Rna_R*)rna)->_enhancing_coef_list[i] > 0)
@@ -190,7 +193,7 @@ StatRecord::StatRecord(ExpManager* exp_m,
   int32_t nb_TF = 0;
   int32_t nb_pure_TF = 0;
 
-  for (auto& prot: indiv->get_protein_list()) {
+  for (auto& prot: indiv_r->get_protein_list()) {
     if(prot->get_is_functional())
     {
       if(!((Protein_R*)prot)->not_pure_TF)

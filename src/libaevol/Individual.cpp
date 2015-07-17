@@ -1391,6 +1391,8 @@ void Individual::clear_everything_except_dna_and_promoters() {
   _distance_to_target_computed  = false;
   _fitness_computed             = false;
 
+  _protein_list.clear();
+
   for (auto& gen_unit: _genetic_unit_list)
     gen_unit.reset_expression();
 

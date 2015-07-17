@@ -170,8 +170,9 @@ class ExpSetup
     void     write_binding_matrix_to_backup(gzFile binding_matrix_file) const;
 
     void     write_binding_matrix_to_file(FILE* binding_matrix_file) const;
+    void     print_binding_matrix( void );
 
-    double** get_binding_matrix( void ) const;
+    double get_binding_matrix( int row, int column ) const;
 #endif
     // =======================================================================
     //                           Public Attributes
@@ -454,6 +455,7 @@ inline void ExpSetup::set_degradation_rate( double degradation_rate )
 inline void ExpSetup::set_degradation_step( double degradation_step )
 {
   _degradation_step = degradation_step;
+  _nb_indiv_age = 20 * _degradation_step;
 }
 
 inline void ExpSetup::set_protein_presence_limit( double protein_presence_limit )
@@ -493,9 +495,9 @@ inline void ExpSetup::step_to_next_generation( void )
 }
 
 #ifdef __REGUL
-inline double** ExpSetup::get_binding_matrix( void ) const
+inline double ExpSetup::get_binding_matrix( int row, int column ) const
 {
-  return (double**)_binding_matrix;
+  return _binding_matrix[row][column];
 }
 #endif
 

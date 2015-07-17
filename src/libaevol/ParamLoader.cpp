@@ -252,7 +252,7 @@ ParamLoader::ParamLoader(const char* file_name)
 
     _protein_presence_limit = 1e-2;
     _degradation_rate  = 1;
-    _degradation_step  = 0.1;
+    _degradation_step  = 10;
     _with_heredity          = false;
 
     _hill_shape_n      = 4;
@@ -1049,31 +1049,6 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     else if (strcmp(line->words[0], "DEGRADATION_STEP") == 0)
     {
       _degradation_step = atof(line->words[1]);
-      // Check that 1/degradation_step is an integer
-      if(1/_degradation_step != ((int) 1/_degradation_step))
-      {
-        printf("ERROR in param file \"%s\" on line %" PRId32 " : DEGRADATION STEP\n",
-               _param_file_name, cur_line);
-        printf("This step has to divide 1.\n");
-        exit(EXIT_FAILURE);
-      }
-    }
-    else if (strcmp(line->words[0], "INDIVIDUAL_EVALUATION_DATES") == 0)
-    {
-      _individual_evaluation_nb = line->nb_words - 1;
-      if(_individual_evaluation_nb == 0)
-      {
-        printf("ERROR in param file \"%s\" on line %" PRId32 " : no evaluation dates provided\n",
-               _param_file_name, cur_line);
-        exit(EXIT_FAILURE);
-      }
-//      ae_array_short* individual_evaluation_dates  = new ae_array_short(_individual_evaluation_nbr);
-//      for(int16_t i = 0 ; i < _individual_evaluation_nbr ; i++)
-//      {
-//        individual_evaluation_dates->set_value(i, atoi(line->words[1 + i]));
-//      }
-//      individual_evaluation_dates->sort();
-//      _individual_evaluation_dates = individual_evaluation_dates;
     }
     else if (strcmp(line->words[0], "RANDOM_BINDING_MATRIX") == 0)
     {
@@ -1256,6 +1231,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   exp_s->set_with_heredity(_with_heredity);
   exp_s->set_degradation_rate(_degradation_rate);
   exp_s->set_degradation_step(_degradation_step);
+  exp_s->set_nb_indiv_age(20*_degradation_step);
   exp_s->set_protein_presence_limit(_protein_presence_limit);
   exp_s->set_hill_shape(pow( _hill_shape_theta, _hill_shape_n ));
   exp_s->set_hill_shape_n( _hill_shape_n );
@@ -1436,6 +1412,10 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
       }
 
       indiv->set_with_stochasticity(_with_stochasticity);
+      printf("Starting with a clonal population of individual with metabolic error %f (%d) "
+                 "and secretion error %f \n",indiv->get_dist_to_target_by_feature(METABOLISM),
+             indiv->get_protein_list().size(),
+             indiv->get_dist_to_target_by_feature(SECRETION));
 
       // Add it to the list
       indivs.push_back(indiv);

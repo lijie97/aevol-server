@@ -45,6 +45,9 @@
 #include "Utils.h"
 #include "PhenotypicTarget.h"
 
+#ifdef __REGUL
+#include "raevol/Protein_R.h"
+#endif
 
 using std::vector;
 using std::list;
@@ -94,7 +97,11 @@ class GeneticUnit
 
   const Promoters2Strands& get_rna_list() const;
   // TODO return as reference
+  #ifndef __REGUL
   std::list<Protein>& get_protein_list(Strand strand);
+  #else
+  std::list<Protein_R>& get_protein_list(Strand strand);
+  #endif
   void clear_protein_list(Strand strand);
 
   // Direct DNA access
@@ -305,7 +312,11 @@ class GeneticUnit
   // _rna_list always has 2 elements: make it an std::array
   Promoters2Strands _rna_list = {{},{}};
   // _protein_list always has 2 elements: make it an std::array
+  #ifndef __REGUL
   std::array<std::list<Protein>, 2> _protein_list; // = {{},{}};
+  #else
+  std::array<std::list<Protein_R>, 2> _protein_list; // = {{},{}};
+  #endif
 
   // DM: For plasmid work, we sometimes *need* all the data (e.g. fitness, secretion) calculated for each GU
   double* _dist_to_target_per_segment;

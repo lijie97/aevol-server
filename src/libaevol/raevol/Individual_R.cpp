@@ -156,43 +156,64 @@ void Individual_R::Evaluate() {
 void Individual_R::EvaluateInContext(const Habitat& habitat) {
 	if (_evaluated == true) return; // Individual has already been evaluated, nothing to do.
 
-    if (!_networked) {
-      // ---------------------------------------------------------------------------
-      // 1) Transcription - Translation - Folding - make_protein_list
-      // ---------------------------------------------------------------------------
+  if (!_networked) {
+    init_indiv();
+  }
 
-      _transcribed = false;
-      _translated = false;
-      _folded = false;
+  for (int i = 1; i <= get_exp_m()->get_exp_s()->get_nb_indiv_age(); i++) {
+//    printf("Update step %d\n",i);
+    if (std::fmod(i, get_exp_m()->get_exp_s()->get_eval_step()) == 0.0)
+    {
+//      printf("Eval\n");
+      eval_step(habitat);
+    }
+    if (std::fmod(i,
+                  get_exp_m()->get_exp_s()->get_nb_indiv_age()) == 0.0)
+    {
+//      printf("Final Step\n");
+      final_step(habitat);
+    }
+  }
+}
 
-      do_transcription_translation_folding();
+void Individual_R::init_indiv( void )
+{
+  // ---------------------------------------------------------------------------
+  // 1) Transcription - Translation - Folding - make_protein_list
+  // ---------------------------------------------------------------------------
 
-      if (_phenotype != NULL) {
-        delete _phenotype;
-        delete _phenotype_activ;
-        delete _phenotype_inhib;
+  _transcribed = false;
+  _translated = false;
+  _folded = false;
 
-        _phenotype = NULL;
-        _phenotype_activ = NULL;
-        _phenotype_inhib = NULL;
-      }
-      _phenotype = new Phenotype();
-      _phenotype_activ = new Phenotype();
-      _phenotype_inhib = new Phenotype();
+  do_transcription_translation_folding();
 
-      //----------------------------------------------------------------------------
-      // 2) Make a list of all the rna present in the individual
-      //    and initialise the concentrations of the proteins
-      //----------------------------------------------------------------------------
+  if (_phenotype != NULL) {
+    delete _phenotype;
+    delete _phenotype_activ;
+    delete _phenotype_inhib;
+
+    _phenotype = NULL;
+    _phenotype_activ = NULL;
+    _phenotype_inhib = NULL;
+  }
+  _phenotype = new Phenotype();
+  _phenotype_activ = new Phenotype();
+  _phenotype_inhib = new Phenotype();
+
+  //----------------------------------------------------------------------------
+  // 2) Make a list of all the rna present in the individual
+  //    and initialise the concentrations of the proteins
+  //----------------------------------------------------------------------------
 #ifdef __TRACING__
 	    high_resolution_clock::time_point t1 = high_resolution_clock::now();
 	    #endif
 
-      make_rna_list();
+  make_rna_list();
 
-      for (const auto& prot : _protein_list) {
-        ((Protein_R*) prot)->set_initial_concentration();
-      }
+  for (const auto& prot : _protein_list) {
+    ((Protein_R*) prot)->set_initial_concentration();
+  }
 
 #ifdef __TRACING__
           high_resolution_clock::time_point t2 = high_resolution_clock::now();
@@ -200,73 +221,56 @@ void Individual_R::EvaluateInContext(const Habitat& habitat) {
           ae_logger::addLog(MAKERNALIST,duration);
           t1 = t2;
         #endif
-      //----------------------------------------------------------------------------
-      // 3) Create influence graph (including the signals)
-      //----------------------------------------------------------------------------
-      set_influences();
+  //----------------------------------------------------------------------------
+  // 3) Create influence graph (including the signals)
+  //----------------------------------------------------------------------------
+  set_influences();
 
-      _networked = true;
+  _networked = true;
 #ifdef __TRACING__
 	    t2 = high_resolution_clock::now();
 	  duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
 	  ae_logger::addLog(SETINFLUS,duration);
 	  t1 = t2;
 	    #endif
-    }
-    //----------------------------------------------------------------------------
-	// 4) Make the individual "live its life" and compute partial phenotypes and
-	//    fitnesses
-	//----------------------------------------------------------------------------
+}
 
-	#ifdef __TRACING__
+void Individual_R::one_step( void )
+{
+  //----------------------------------------------------------------------------
+  // 4) Make the individual "live its life" and compute partial phenotypes and
+  //    fitnesses
+  //----------------------------------------------------------------------------
+
+#ifdef __TRACING__
 		  t1 = high_resolution_clock::now();
 	#endif
 
   update_concentrations();
 
-	#ifdef __TRACING__
+#ifdef __TRACING__
 	    t2 = high_resolution_clock::now();
 	    duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
 	    ae_logger::addLog(UPDATECONCENT,duration);
 	    t1 = t2;
 	#endif
-  if (std::fmod(((double)Time::get_time()), get_exp_m()->get_exp_s()->get_eval_step()) == 0.0)
-	{
-    update_phenotype();
-	  _distance_to_target_computed = false;
-	  _phenotype_computed = true;
-	  compute_distance_to_target( habitat.phenotypic_target() );
-    _dist_sum += _dist_to_target_by_feature[METABOLISM];
-	}
+}
 
-	#ifdef __TRACING__
-	    t2 = high_resolution_clock::now();
-	    duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-	    ae_logger::addLog(UPDATEPHENO,duration);
-	    t1 = t2;
-	#endif
+void Individual_R::eval_step( const Habitat& habitat ) {
+  update_phenotype();
+  _distance_to_target_computed = false;
+  _phenotype_computed = true;
+  compute_distance_to_target( habitat.phenotypic_target() );
+  _dist_sum += _dist_to_target_by_feature[METABOLISM];
+}
 
-
-  //----------------------------------------------------------------------------
-	// 5) Compute final fitness and final dist to target
-	// ----------------------------------------------------------------------------
-
-  if (std::fmod(((double)Time::get_time()), get_exp_m()->get_exp_s()->get_nb_indiv_age()) == 0.0)
-  {
-    // On devrait faire la somme du carré des erreurs afin d'éviter qu'elles puissent se compenser
-    _dist_to_target_by_feature[METABOLISM] = _dist_sum / (double) (get_exp_m()->get_exp_s()->get_nb_indiv_age() / get_exp_m()->get_exp_s()->get_eval_step());
-    _fitness_computed=false;
-    // yoram attention il peut y avoir des soucis si on utilise des environnements segmentés ici
-    compute_fitness(habitat.phenotypic_target());
-    _phenotype_computed = true;
-  }
-
-	#ifdef __TRACING__
-	  t2 = high_resolution_clock::now();
-	    duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-	    ae_logger::addLog(FITNESS,duration);
-	    t1 = t2;
-	#endif
+void Individual_R::final_step( const Habitat& habitat ) {
+  // On devrait faire la somme du carré des erreurs afin d'éviter qu'elles puissent se compenser
+  _dist_to_target_by_feature[METABOLISM] = _dist_sum / (double) (get_exp_m()->get_exp_s()->get_nb_indiv_age() / get_exp_m()->get_exp_s()->get_eval_step());
+  _fitness_computed=false;
+  // yoram attention il peut y avoir des soucis si on utilise des environnements segmentés ici
+  compute_fitness(habitat.phenotypic_target());
+  _phenotype_computed = true;
 }
 
 void Individual_R::set_influences( void )
@@ -306,6 +310,8 @@ int8_t Individual_R::get_quadon( const GeneticUnit* gen_unit, Strand strand, int
   const char* dna = gen_unit->get_dna()->get_data();
   int32_t  len    = gen_unit->get_dna()->get_length();
   int8_t quadon   = 0;
+
+//  printf("Length %d : %s\n\n",len,dna);
 
   if ( strand == LEADING )
   {
@@ -419,4 +425,13 @@ void Individual_R::update_phenotype( void )
 //  if (added) {printf("PHENO: \n");_phenotype->print_points();}
 //  _phenotype->simplify();
 }
+
+void    Individual_R::clear_everything_except_dna_and_promoters() {
+    _networked = false;
+    _rna_list_coding.clear();
+    _dist_sum = 0.0;
+
+    Individual::clear_everything_except_dna_and_promoters();
+}
+
 } // namespace aevol

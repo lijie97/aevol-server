@@ -72,7 +72,11 @@ static Bool AlwaysTruePredicate (Display*, XEvent*, char*) { return True; }
 // =================================================================
 //                    Definition of static attributes
 // =================================================================
+#ifdef __REGUL
+#define NB_WIN INT32_C(9) // Number of windows that can be showed => CDS, RNA, phenotype, ...
+#else
 #define NB_WIN INT32_C(7) // Number of windows that can be showed => CDS, RNA, phenotype, ...
+#endif
 
 // =================================================================
 //                             Constructors
@@ -619,11 +623,19 @@ void ExpManager_X11::initialize(bool with_grid /*= false*/, bool with_plasmids /
   // Visible windows at the beginning of the run
   if (with_grid)
   {
+    #ifdef __REGUL
+    _show_window  = 0x01FF;
+    #else
     _show_window  = 0x007F; // hex for bin 1111111  => show first 7 windows
+    #endif
   }
   else
   {
+    #ifdef __REGUL
+    _show_window  = 0x01E3;
+    #else
     _show_window  = 0x000F;   // hex for bin 1111   => show first 4 windows
+    #endif
   }
   _new_show_window = _show_window;
 
@@ -638,6 +650,8 @@ void ExpManager_X11::initialize(bool with_grid /*= false*/, bool with_plasmids /
   _win_name[4] = (char*) "Secreted compound present";
   _win_name[5] = (char*) "Metabolic fitness";
   _win_name[6] = (char*) "Current secretion";
+  _win_name[7] = (char*) "Regulation network";
+  _win_name[8] = (char*) "Protein concentrations";
 
   compute_colormap();
 }
@@ -674,7 +688,6 @@ void ExpManager_X11::draw_window(int8_t win_number)
 
     case 1:
     {
-#ifndef __REGUL
       cur_win->blacken();
 
       // Display colour bar
@@ -686,7 +699,7 @@ void ExpManager_X11::draw_window(int8_t win_number)
         cur_win->draw_line(i, cur_win->get_height() * 19 / 20, i, cur_win->get_height(), color);
         delete [] color;
       }
-#endif
+
       break;
     }
 
@@ -789,16 +802,32 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
       // Display all the phenotypes (blue)
       for (const auto& indiv: get_indivs())
       {
+        #ifndef __REGUL
         display(cur_win, *(indiv->get_phenotype()), BLUE);
         if (indiv->get_allow_plasmids())
         {
           display(cur_win, *(indiv->get_genetic_unit(0).get_phenotypic_contribution()), YELLOW);
           display(cur_win, *(indiv->get_genetic_unit(1).get_phenotypic_contribution()), GREEN);
         }
+        #else
+        Individual_R_X11* indiv_r = dynamic_cast<Individual_R_X11*>(indiv);
+
+        display(cur_win, *(indiv_r->get_phenotype()), BLUE);
+        if (indiv_r->get_allow_plasmids())
+        {
+          display(cur_win, *(indiv_r->get_genetic_unit(0).get_phenotypic_contribution()), YELLOW);
+          display(cur_win, *(indiv_r->get_genetic_unit(1).get_phenotypic_contribution()), GREEN);
+        }
+        #endif
       }
 
       // Display best indiv's phenotype (white)
+      #ifndef __REGUL
       display(cur_win, *(get_best_indiv()->get_phenotype()), WHITE, true);
+      #else
+      Individual_R_X11* indiv_r = dynamic_cast<Individual_R_X11*>(get_best_indiv());
+      display(cur_win, *(indiv_r->get_phenotype()), WHITE, true);
+      #endif
 
       // Display phenotypic target (red)
       display(cur_win, phenotypic_target, RED, false, true);
