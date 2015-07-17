@@ -158,7 +158,7 @@ void ExpManager::WriteSetupFiles() const
 
   // 4) Write setup data
   _exp_s->write_setup_file(exp_s_file);
-  _output_m->write_setup_file(out_p_file);
+  _output_m->WriteSetupFile(out_p_file);
 
   // 5) Close setup files
   close_setup_files(exp_s_file, out_p_file);
@@ -229,22 +229,22 @@ void ExpManager::WriteDynamicFiles(void) const
   \see WriteSetupFiles(void)
   \see WriteDynamicFiles(void)
 */
-void ExpManager::save_copy(char* dir, int64_t num_gener /*= 0*/) const
+void ExpManager::save_copy(char* dir, int64_t time) const
 {
-  // Set time to num_gener
-  Time::set_time(num_gener);
+  // Set time to time
+  Time::set_time(time);
 
   // Create missing directories
   create_missing_directories(dir);
 
   // Open setup files and backup files
   gzFile exp_s_file, out_p_file, sel_file, world_file;
-  open_setup_files(exp_s_file, out_p_file, num_gener, "w", dir);
-  open_backup_files(sel_file, world_file, num_gener, "w", dir);
+  open_setup_files(exp_s_file, out_p_file, time, "w", dir);
+  open_backup_files(sel_file, world_file, time, "w", dir);
 
   // Write setup data
   _exp_s->write_setup_file(exp_s_file);
-  _output_m->write_setup_file(out_p_file);
+  _output_m->WriteSetupFile(out_p_file);
 
   // Write the state of selection and world into the backups
   get_sel()->save(sel_file);
@@ -253,6 +253,9 @@ void ExpManager::save_copy(char* dir, int64_t num_gener /*= 0*/) const
   // Close setup and backup files
   close_setup_files(exp_s_file, out_p_file);
   close_backup_files(sel_file, world_file);
+
+  // Copy stats
+  _output_m->CopyStats(dir, time);
 
   // Write last gener file
   _output_m->WriteLastGenerFile(dir);

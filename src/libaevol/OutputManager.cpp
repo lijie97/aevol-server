@@ -92,7 +92,7 @@ void OutputManager::InitStats() {
   _stats = new Stats(_exp_m);
 }
 
-void OutputManager::write_setup_file(gzFile setup_file) const
+void OutputManager::WriteSetupFile(gzFile setup_file) const
 {
   // Write the backup steps
   gzwrite( setup_file, &_backup_step,      sizeof(_backup_step) );
@@ -118,6 +118,11 @@ void OutputManager::write_setup_file(gzFile setup_file) const
   // Logs
   int8_t logs = _logs->get_logs();
   gzwrite( setup_file, &logs,  sizeof(logs) );
+}
+
+void OutputManager::CopyStats(const std::string& outdir, int64_t time) const {
+  _stats->CreateTmpFiles(time);
+  _stats->MoveTmpFiles(outdir);
 }
 
 void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run)

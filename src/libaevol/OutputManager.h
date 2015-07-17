@@ -115,9 +115,10 @@ class OutputManager {
     //                            Public Methods
     // =================================================================
     void InitStats();
-    void write_setup_file( gzFile setup_file ) const;
+    void WriteSetupFile(gzFile setup_file) const;
     void WriteLastGenerFile(const std::string& input_dir = ".") const;
-    void load( gzFile file, bool verbose, bool to_be_run  );
+    void CopyStats(const std::string& outdir, int64_t time) const;
+    void load(gzFile file, bool verbose, bool to_be_run);
     void write_current_generation_outputs( void ) const;
     inline void flush( void );
 

@@ -111,17 +111,11 @@ class Stats
 
     void write_headers(bool ancstats_stats = false);
 
+    void CreateTmpFiles(int64_t time);
+    void MoveTmpFiles(const std::string& destdir);
+    void PromoteTmpFiles();
 
-
-    // =================================================================
-    //                           Public Attributes
-    // =================================================================
-  
-  
-  
-  
-  
-  protected :
+ protected :
     // =================================================================
     //                           Protected Methods
     // =================================================================
