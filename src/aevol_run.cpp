@@ -91,8 +91,8 @@ int main(int argc, char* argv[])
   // bool pause_on_startup = false;
   bool verbose          = false;
   
-  int64_t num_gener = 0;
-  int64_t nb_gener  = 1000;
+  int64_t t0 = -1;
+  int64_t t_end = -1;
   
   #ifndef __NO_X
     bool show_display_on_startup = true;
@@ -104,12 +104,12 @@ int main(int argc, char* argv[])
   // -------------------------------------------------------------------------
   // 2) Define allowed options
   // -------------------------------------------------------------------------
-  const char * options_list = "hn:r:vVwxp:";
+  const char * options_list = "he:r:vVwxp:";
   static struct option long_options_list[] = {
     // Print help
     { "help",     no_argument,        NULL, 'h' },
-    // Number of generations to be run
-    { "nbgener",  required_argument,  NULL, 'n' },
+    // time up to which to simulate
+    { "end",  required_argument,  NULL, 'e' },
     // Resume from generation X (default: 0)
     { "resume",   required_argument,  NULL, 'r' },
     // Be verbose
@@ -142,14 +142,14 @@ int main(int argc, char* argv[])
         Utils::PrintAevolVersion();
         exit(EXIT_SUCCESS);
       }
-      case 'n' : {
+      case 'e' : {
         if (strcmp(optarg, "") == 0) {
-          printf("%s: error: Option -n or --nbgener : missing argument.\n",
+          printf("%s: error: Option -e or --end : missing argument.\n",
                  argv[0]);
           exit(EXIT_FAILURE);
         }
         
-        nb_gener = atoi(optarg);
+        t_end = atol(optarg);
         break;
       }
       case 'r' : {
@@ -159,7 +159,7 @@ int main(int argc, char* argv[])
           exit(EXIT_FAILURE);
         }
         
-        num_gener = atol(optarg);
+        t0 = atol(optarg);
         break;      
       }
       case 'v' : {
@@ -194,6 +194,14 @@ int main(int argc, char* argv[])
     }
   }
 
+  // If t0 wasn't provided, use default
+  if (t0 < 0)
+    t0 = OutputManager::get_last_gener();
+
+  // If t_end wasn't provided, run for 1000 timesteps
+  if (t_end < 0)
+    t_end = t0 + 1000;
+
   // It the user didn't ask for a parallel run, set number of threads to 1
   if (not run_in_parallel)
     omp_set_num_threads(1);
@@ -208,8 +216,8 @@ int main(int argc, char* argv[])
     exp_manager = new ExpManager();
   #endif
   
-  exp_manager->load(num_gener, verbose, true);
-  exp_manager->set_t_end(nb_gener);
+  exp_manager->load(t0, verbose, true);
+  exp_manager->set_t_end(t_end);
   
  
 
@@ -284,8 +292,8 @@ void print_help(char* prog_path)
 	printf("\nOptions\n");
 	printf("  -h, --help\n\tprint this help, then exit\n\n");
 	printf("  -V, --version\n\tprint version number, then exit\n\n");
-  printf("  -r, --resume GENER\n\tspecify generation to resume simulation at (default 0)\n\n");
-  printf("  -n, --nbgener NB_GENER\n\tspecify number of generations to be run (default 1000)\n\n");
+  printf("  -r, --resume TIME\n\tspecify time t0 to resume simulation at (default value read in last_gener.txt)\n\n");
+  printf("  -e, --end NB_GENER\n\tspecify time of the end of the simulation (default t0 + 1000)\n\n");
   printf("  -t, --text\n\tuse text files instead of binary files when possible\n\n");
 	printf("  -v, --verbose\n\tbe verbose\n\n");
   printf("  -w, --wait\n\tpause after loading\n\n");
