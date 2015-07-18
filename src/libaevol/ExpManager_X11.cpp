@@ -451,7 +451,7 @@ void ExpManager_X11::display_grid(X11Window * win, double** cell_grid)
   char t[40];
   int nb_colors = 50; 
   
-  sprintf(t, "Generation = %" PRId64, Time::get_time());
+  sprintf(t, "Generation = %" PRId64, AeTime::get_time());
   win->draw_string(15, 15, t);
   
   

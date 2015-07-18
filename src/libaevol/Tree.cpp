@@ -157,7 +157,7 @@ ReplicationReport* Tree::get_report_by_rank(int64_t t, int32_t rank) const {
 }
 
 void Tree::signal_end_of_generation() {
-  auto cur_reports = get_reports(Time::get_time());
+  auto cur_reports = get_reports(AeTime::get_time());
   for (int32_t i = 0; i < _exp_m->get_nb_indivs(); i++) {
     cur_reports[i]->signal_end_of_generation();
   }
@@ -184,7 +184,7 @@ void Tree::update(Observable& o, ObservableEvent e, void* arg) {
     case NEW_INDIV : {
       // Initialize the replication report corresponding to the new individual
       auto indivs = reinterpret_cast<Individual**>(arg);
-      get_report_by_index(Time::get_time(), indivs[0]->get_id())->
+      get_report_by_index(AeTime::get_time(), indivs[0]->get_id())->
           init(indivs[0], indivs[1]);
       break;
     }

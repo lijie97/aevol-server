@@ -154,7 +154,7 @@ void ExpManager::WriteSetupFiles() const
 
   // 2) Open setup files (experimental setup and output profile)
   gzFile exp_s_file, out_p_file;
-  open_setup_files(exp_s_file, out_p_file, Time::get_time(), "w");
+  open_setup_files(exp_s_file, out_p_file, AeTime::get_time(), "w");
 
   // 4) Write setup data
   _exp_s->write_setup_file(exp_s_file);
@@ -195,7 +195,7 @@ void ExpManager::WriteDynamicFiles(void) const
 
   // Open backup files
   gzFile sel_file, world_file;
-  open_backup_files(sel_file, world_file, Time::get_time(), "w");
+  open_backup_files(sel_file, world_file, AeTime::get_time(), "w");
 
   // Save experiment
   get_sel()->save(sel_file);
@@ -232,7 +232,7 @@ void ExpManager::WriteDynamicFiles(void) const
 void ExpManager::save_copy(char* dir, int64_t time) const
 {
   // Set time to time
-  Time::set_time(time);
+  AeTime::set_time(time);
 
   // Create missing directories
   create_missing_directories(dir);
@@ -266,7 +266,7 @@ void ExpManager::step_to_next_generation() {
   world_->ApplyHabitatVariation();
 
   // Take a step in time
-  Time::plusplus();
+  AeTime::plusplus();
 
   // Create the corresponding new generation
   _exp_s->step_to_next_generation();
@@ -310,7 +310,7 @@ void ExpManager::load(gzFile& exp_s_file,
     get_sel()->addObserver(get_tree(), NEW_INDIV);
     for (auto indiv : world_->get_indivs())
       indiv->addObserver(
-          get_tree()->get_report_by_index(Time::get_time(), indiv->get_id()),
+          get_tree()->get_report_by_index(AeTime::get_time(), indiv->get_id()),
           END_REPLICATION);
     get_sel()->addObserver(get_tree(), END_GENERATION);
   }
@@ -327,7 +327,7 @@ void ExpManager::load(gzFile& exp_s_file,
 void ExpManager::load(const char* dir,
     int64_t t0, bool verbose, bool to_be_run /*  = true */)
 {
-  Time::set_time(t0);
+  AeTime::set_time(t0);
 
   // -------------------------------------------------------------------------
   // Open setup files and backup files
@@ -365,7 +365,7 @@ void ExpManager::load(int64_t t0,
                           bool verbose /*= false*/,
                           bool to_be_run /*= true*/)
 {
-  Time::set_time(t0);
+  AeTime::set_time(t0);
 
   // ---------------------------------------------------------------------------
   // Open files and check them
@@ -426,11 +426,11 @@ void ExpManager::run_evolution(void)
   // For each generation
   while (true) { // termination condition is into the loop
     printf("============================== %" PRId64 " ==============================\n",
-           Time::get_time());
+           AeTime::get_time());
     printf("  Best individual's distance to target (metabolic) : %f\n",
            get_best_indiv()->get_dist_to_target_by_feature(METABOLISM));
 
-    if (Time::get_time() >= t_end or quit_signal_received())
+    if (AeTime::get_time() >= t_end or quit_signal_received())
       break;
 
 #ifdef __X11

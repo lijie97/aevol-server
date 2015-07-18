@@ -82,7 +82,7 @@ Selection.h \
 Habitat.h \
 ParamLoader.h \
 ParameterLine.h \
-Time.h \
+AeTime.h \
 World.h
 
 common_sources = \
@@ -129,7 +129,7 @@ Fuzzy.cpp \
 Habitat.cpp \
 ParamLoader.cpp \
 ParameterLine.cpp \
-Time.cpp \
+AeTime.cpp \
 World.cpp
 
 X11_headers = \

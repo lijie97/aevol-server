@@ -326,7 +326,7 @@ int main(int argc, char** argv)
 
   bool check_now = false;
 
-  aevol::Time::plusplus();
+  aevol::AeTime::plusplus();
   while (get_time() <= t_end)
   {
     rep = new ReplicationReport(lineage_file, indiv);
@@ -464,7 +464,7 @@ int main(int argc, char** argv)
       delete exp_manager_backup;
     }
 
-    aevol::Time::plusplus();
+    aevol::AeTime::plusplus();
   }
 
   gzclose(lineage_file);

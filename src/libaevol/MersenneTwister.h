@@ -100,7 +100,7 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <time.h>
+#include "AeTime.h"
 #include <math.h>
 #include <zlib.h>
 #include "macros.h"

@@ -39,7 +39,7 @@
 #include <string>
 
 #include "ExpManager.h"
-#include "Time.h"
+#include "AeTime.h"
 
 using std::string;
 using std::endl;
@@ -135,7 +135,7 @@ void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run)
   if (to_be_run)
   {
     delete _stats;
-    _stats = new Stats(_exp_m, Time::get_time());
+    _stats = new Stats(_exp_m, AeTime::get_time());
   }
   gzread( setup_file, &_compute_phen_contrib_by_GU,  sizeof(_compute_phen_contrib_by_GU) );
   
@@ -166,7 +166,7 @@ void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run)
   gzread(setup_file, &logs, sizeof(logs));
   if (to_be_run)
   {
-    _logs->load(logs, Time::get_time());
+    _logs->load(logs, AeTime::get_time());
   }
 }
 
@@ -177,13 +177,13 @@ void OutputManager::write_current_generation_outputs( void ) const
 
   // Manage tree
   if (_record_tree &&
-      Time::get_time() > 0 &&
-      (Time::get_time() % _tree->get_tree_step() == 0)) {
+      AeTime::get_time() > 0 &&
+      (AeTime::get_time() % _tree->get_tree_step() == 0)) {
     write_tree();
   }
 
   // Write backup
-  if (Time::get_time() % _backup_step == 0) {
+  if (AeTime::get_time() % _backup_step == 0) {
     _stats->flush();
     _exp_m->WriteDynamicFiles();
 
@@ -192,7 +192,7 @@ void OutputManager::write_current_generation_outputs( void ) const
 
   // Write dumps
   if (_make_dumps) {
-    if(Time::get_time() % _dump_step == 0) {
+    if(AeTime::get_time() % _dump_step == 0) {
       _dump->write_current_generation_dump();
     }
   }
@@ -206,7 +206,7 @@ void OutputManager::WriteLastGenerFile(const string& output_dir) const {
     Utils::ExitWithUsrMsg(string("could not open file ") + LAST_GENER_FNAME);
   }
   else {
-    last_gener_file << Time::get_time() << endl;
+    last_gener_file << AeTime::get_time() << endl;
     last_gener_file.close();
   }
 }
@@ -241,9 +241,9 @@ void OutputManager::write_tree( void ) const
   char tree_file_name[50];
   
 #ifdef __REGUL
-  sprintf tree_file_name, "tree/tree_%06" PRId64 ".rae", Time::get_time());
+  sprintf tree_file_name, "tree/tree_%06" PRId64 ".rae", AeTime::get_time());
 #else
-  sprintf(tree_file_name, "tree/tree_%06" PRId64 ".ae", Time::get_time());
+  sprintf(tree_file_name, "tree/tree_%06" PRId64 ".ae", AeTime::get_time());
 #endif
   
   gzFile tree_file = gzopen( tree_file_name, "w" );

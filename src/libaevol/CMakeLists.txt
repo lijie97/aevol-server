@@ -111,8 +111,8 @@ add_library(aevol
   PhenotypicTarget.h
   Point.cpp
   Point.h
-  Time.cpp
-  Time.h
+  AeTime.cpp
+  AeTime.h
   World.cpp
   World.h
   ObservableEvent.h
