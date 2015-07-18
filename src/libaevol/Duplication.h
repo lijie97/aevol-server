@@ -11,7 +11,7 @@
 // ============================================================================
 
 #include "Rearrangement.h"
-#include "../../../../../../usr/include/x86_64-linux-gnu/sys/types.h"
+#include "sys/types.h"
 
 namespace aevol {
 

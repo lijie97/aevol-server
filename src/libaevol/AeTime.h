@@ -59,20 +59,20 @@ namespace aevol {
  *
  * e.g. when creating generation 1 from generation 0, time == 1
  */
-class Time
+class AeTime
 {
  public :
   // =================================================================
   //                             Constructors
   // =================================================================
-  Time(void) = delete; //< Default ctor
-  Time(const Time&) = delete; //< Copy ctor
-  Time(Time&&) = delete; //< Move ctor
+  AeTime(void) = delete; //< Default ctor
+  AeTime(const AeTime &) = delete; //< Copy ctor
+  AeTime(AeTime &&) = delete; //< Move ctor
 
   // =================================================================
   //                             Destructors
   // =================================================================
-  virtual ~Time(void) = delete;
+  virtual ~AeTime(void) = delete;
 
   // =================================================================
   //                        Accessors: getters
