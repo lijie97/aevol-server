@@ -36,6 +36,7 @@
 #include <stdio.h>
 
 #include <memory>
+#include <array>
 
 #include "Dna.h"
 #include "Rna.h"
