@@ -5,7 +5,7 @@
 AC_PREREQ([2.65])
 
 # Provide FULL-PACKAGE-NAME, VERSION and BUG-REPORT-ADDRESS
-AC_INIT([AEVOL], [5.0-beta1], [aevol-bugs@lists.gforge.inria.fr], , [www.aevol.fr])
+AC_INIT([AEVOL], [5.0-beta2], [aevol-bugs@lists.gforge.inria.fr], , [www.aevol.fr])
 
 # Set C++ as the main language
 AC_LANG([C++])
