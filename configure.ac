@@ -226,7 +226,6 @@ fi
 #  This enables developers' features:
 #    adds a call to make clean at the end of the configure script.
 #    enables doxygen if available
-#    enforces use of cppunit
 #
 
 AC_MSG_CHECKING([whether to use devel features])
@@ -245,22 +244,6 @@ if test "x$enable_devel" = "xyes" ; then
      then AC_MSG_WARN([Doxygen not found - continuing without Doxygen support])
   fi
 
-  # Check for CppUnit
-    # AC_CHECK_LIB does not work with C++ libraries, this is why we use AM_PATH_CPPUNIT
-    # This macro will check whether a Cppunit version >= 1.10.2 is installed
-    # and, if, yes, will define CPPUNIT_CFLAGS and CPPUNIT_LIBS.
-    # This macro is defined in the cppunit.m4 file provided by the cppunit package
-    # when it is installed. Hence aclocal must be run before autoconf to have the
-    # macro known by autoconf.  If cppunit is installed in a non-standard
-    # directory, you need to specify where to find cppunit.m4. For example, if
-    # cppunit is installed under /usr/local, run:
-    #   ACLOCAL="aclocal -I /usr/local/share/aclocal" autoreconf -if
-  cppunit_missing=no
-  AM_PATH_CPPUNIT(1.10.2, , cppunit_missing=yes)
-  if test "x$cppunit_missing" != xno ; then
-    AC_MSG_ERROR([cppunit not found, make will fail - please install cppunit.])
-  fi
-
   # Add GTest
   # Tell autoconf to run a separate configure script in gtest's dir
   AC_CONFIG_SUBDIRS([src/tests/gtest-1.7.0])
@@ -269,7 +252,6 @@ else
   AC_CONFIG_COMMANDS([user_warning], [AC_MSG_NOTICE([Consider using make clean if you are re-configuring.])])
 fi
 AM_CONDITIONAL([WANT_DOXYGEN], [test -n "$HAVE_DOXYGEN"])
-AM_CONDITIONAL([WITH_CPPUNIT], [test -n "$cppunit_missing"])
 
 
 #  ******************* --enable-debug option ***************************
@@ -310,7 +292,6 @@ AC_CONFIG_FILES([Makefile
                  src/Makefile
                  src/libaevol/Makefile
                  src/libaevol/SFMT-src-1.4/Makefile
-                 src/libaevol/tests/Makefile
                  src/tests/Makefile
                  src/post_treatments/Makefile
                  doc/Makefile])

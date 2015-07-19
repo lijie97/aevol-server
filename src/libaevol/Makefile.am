@@ -5,11 +5,7 @@ AM_CPPFLAGS = $(AEVOLCPPFLAGS)
 AM_CXXFLAGS = $(AEVOLCXXFLAGS)
 AM_LDFLAGS = $(AEVOLLDFLAGS)
 
-if WITH_CPPUNIT
-  SUBDIRS = SFMT-src-1.4 . tests
-else # WITHOUT_CPPUNIT
-  SUBDIRS = SFMT-src-1.4 .
-endif
+SUBDIRS = SFMT-src-1.4 .
 
 ########################
 # Set library to build #
