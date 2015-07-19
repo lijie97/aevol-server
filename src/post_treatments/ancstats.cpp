@@ -241,7 +241,7 @@ int main(int argc, char** argv)
                               "for per grid-cell phenotypic target");
   auto phenotypicTargetHandler =
       exp_manager->world()->phenotypic_target_handler();
-  if (not phenotypicTargetHandler->var_method() == NO_VAR)
+  if (not (phenotypicTargetHandler->var_method() == NO_VAR))
     Utils::ExitWithUsrMsg("sorry, ancestor stats has not yet been implemented "
                               "for variable phenotypic targets");
 
