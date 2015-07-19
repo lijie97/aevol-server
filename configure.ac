@@ -29,7 +29,7 @@ if test "$test_CXXFLAGS" != set; then
 fi
 
 # Checks for programs
-AC_PROG_CXX
+AC_PROG_CXX([clang-omp++ clang g++])
 AC_PROG_INSTALL
 AC_PROG_RANLIB
 AC_OPENMP
