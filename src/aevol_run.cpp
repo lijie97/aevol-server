@@ -34,7 +34,10 @@
 #include <stdio.h>
 #include <signal.h>
 #include <sys/stat.h>
+
+#ifdef _OPENMP
 #include <omp.h>
+#endif
 
 // =================================================================
 //                            Project Files
@@ -182,9 +185,11 @@ int main(int argc, char* argv[])
         break;
       }
       case 'p' : {
+        #ifdef _OPENMP
         run_in_parallel = true;
         if (atoi(optarg) > 0)
           omp_set_num_threads(atoi(optarg));
+        #endif
         break;
       }
       default : {
@@ -203,9 +208,10 @@ int main(int argc, char* argv[])
     t_end = t0 + 1000;
 
   // It the user didn't ask for a parallel run, set number of threads to 1
+  #ifdef _OPENMP
   if (not run_in_parallel)
     omp_set_num_threads(1);
-  
+  #endif
   
   // =================================================================
   //                          Load the simulation

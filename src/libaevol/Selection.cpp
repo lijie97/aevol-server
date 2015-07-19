@@ -33,7 +33,10 @@
 #include "Selection.h"
 
 #include <math.h>
+
+#ifdef _OPENMP
 #include <omp.h>
+#endif
 
 #include "ExpManager.h"
 #include "VisAVis.h"
@@ -188,7 +191,9 @@ void Selection::step_to_next_generation(void)
   std::list<Individual*> old_generation = _exp_m->get_indivs();;
   std::list<Individual*> new_generation;
 
+  #ifdef _OPENMP
   #pragma omp parallel for collapse(2) schedule(dynamic)
+  #endif
   for (int16_t x = 0 ; x < grid_width ; x++)
     for (int16_t y = 0 ; y < grid_height ; y++)
       do_replication(reproducers[x][y], x * grid_height + y, x, y);
