@@ -471,52 +471,52 @@ int main(int argc, char* argv[])
     else if (strcmp(line->words[0], "ENV_VARIATION") == 0)
     {
       // TODO <david.parsons@inria.fr> adapt to new organization
-      printf("%s:%d: error: ENV_VARIATION has to be adapted to the new organization.\n", __FILE__, __LINE__);
-      exit(EXIT_FAILURE);
-//      static bool env_var_already_set = false;
-//      if (env_var_already_set)
-//      {
-//        printf("%s:%d: ERROR in param file : duplicate entry for %s.\n", __FILE__, __LINE__, line->words[0]);
-//        exit(EXIT_FAILURE);
-//      }
-//      env_var_already_set = true;
-//
-//      if (strcmp(line->words[1], "none") == 0)
-//      {
-//        assert(line->nb_words == 2);
-//        env->set_var_method(NO_VAR);
-//        printf("\tNo more environmental variation\n");
-//      }
-//      else if (strcmp(line->words[1], "autoregressive_mean_variation") == 0)
-//      {
-//        assert(line->nb_words == 5);
-//        env->set_var_method(AUTOREGRESSIVE_MEAN_VAR);
-//        env->set_var_sigma(atof(line->words[2]));
-//        env->set_var_tau(atol(line->words[3]));
-//        env->set_var_prng(std::make_shared<JumpingMT>(atoi(line->words[4])));
-//        printf("\tChange of environmental variation to a autoregressive mean variation with sigma=%f, tau=%ld and seed=%d\n", atof(line->words[2]),atol(line->words[3]),atoi(line->words[4]));
-//      }
-//      else if (strcmp(line->words[1], "autoregressive_height_variation") == 0)
-//      {
-//        assert(line->nb_words == 5);
-//        env->set_var_method(AUTOREGRESSIVE_HEIGHT_VAR);
-//        env->set_var_sigma(atof(line->words[2]));
-//        env->set_var_tau(atol(line->words[3]));
-//        env->set_var_prng(std::make_shared<JumpingMT>(atoi(line->words[4])));
-//        printf("\tChange of environmental variation to a autoregressive height variation with sigma=%f, tau=%ld and seed=%d\n", atof(line->words[2]),atol(line->words[3]),atoi(line->words[4]));
-//      }
-//      else if (strcmp(line->words[1], "add_local_gaussians") == 0)
-//      {
-//        assert(line->nb_words == 3);
-//        env->set_var_method(LOCAL_GAUSSIANS_VAR);
-//        env->set_var_prng(std::make_shared<JumpingMT>(atoi(line->words[2])));
-//        printf("\tChange of environmental variation to a local gaussians variation with seed=%d\n", atoi(line->words[2]));
-//      }
-//      else
-//      {
-//        printf("%s:%d: ERROR in param file : unknown environment variation method.\n", __FILE__, __LINE__);
-//        exit(EXIT_FAILURE);
-//      }
+//      printf("%s:%d: error: ENV_VARIATION has to be adapted to the new organization.\n", __FILE__, __LINE__);
+//      exit(EXIT_FAILURE);
+
+      static bool env_var_already_set = false;
+      if (env_var_already_set)
+      {
+        printf("%s:%d: ERROR in param file : duplicate entry for %s.\n", __FILE__, __LINE__, line->words[0]);
+        exit(EXIT_FAILURE);
+      }
+      env_var_already_set = true;
+
+      if (strcmp(line->words[1], "none") == 0) {
+        assert(line->nb_words == 2);
+          exp_manager->world()->phenotypic_target_handler()->set_var_method(NO_VAR);
+        printf("\tNo more environmental variation\n");
+      }
+      else if (strcmp(line->words[1], "autoregressive_mean_variation") == 0) {
+        assert(line->nb_words == 5);
+        auto pt_handler = exp_manager->world()->phenotypic_target_handler();
+        pt_handler->set_var_method(AUTOREGRESSIVE_MEAN_VAR);
+        pt_handler->set_var_sigma_tau(atof(line->words[2]),
+                                      atol(line->words[3]));
+        pt_handler->set_var_prng(
+            std::make_shared<JumpingMT>(atoi(line->words[4])));
+        printf("\tChange of environmental variation to a autoregressive mean variation with sigma=%f, tau=%ld and seed=%d\n", atof(line->words[2]),atol(line->words[3]),atoi(line->words[4]));
+      }
+      else if (strcmp(line->words[1], "autoregressive_height_variation") == 0) {
+        assert(line->nb_words == 5);
+        auto pt_handler = exp_manager->world()->phenotypic_target_handler();
+        pt_handler->set_var_method(AUTOREGRESSIVE_HEIGHT_VAR);
+        pt_handler->set_var_sigma_tau(atof(line->words[2]),
+                                      atol(line->words[3]));
+        pt_handler->set_var_prng(
+            std::make_shared<JumpingMT>(atoi(line->words[4])));
+        printf("\tChange of environmental variation to a autoregressive height variation with sigma=%f, tau=%ld and seed=%d\n", atof(line->words[2]),atol(line->words[3]),atoi(line->words[4]));
+      }
+      else if (strcmp(line->words[1], "add_local_gaussians") == 0) {
+        assert(line->nb_words == 3);
+        auto pt_handler = exp_manager->world()->phenotypic_target_handler();
+        pt_handler->set_var_method(LOCAL_GAUSSIANS_VAR);
+        pt_handler->set_var_prng(std::make_shared<JumpingMT>(atoi(line->words[2])));
+        printf("\tChange of environmental variation to a local gaussians variation with seed=%d\n", atoi(line->words[2]));
+      }
+      else {
+        Utils::ExitWithUsrMsg("unknown environment variation method");
+      }
     }
     else if (strcmp(line->words[0], "SECRETION_CONTRIB_TO_FITNESS") == 0)
     {
