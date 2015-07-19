@@ -36,7 +36,7 @@ AC_OPENMP
 AM_PROG_CC_C_O
 
 # Print warning if openmp not found
-AC_CHECK_FILE([omp.h], , [AC_MSG_WARN([openmp not found - continuing without openmp support])])
+AC_CHECK_HEADER([omp.h], , [AC_MSG_WARN([openmp not found - continuing without openmp support])])
 
 # Initialize configure-time defined flags
 AC_SUBST(AEVOLCPPFLAGS, "") # C PreProcessor flags
