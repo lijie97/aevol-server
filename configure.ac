@@ -29,12 +29,14 @@ if test "$test_CXXFLAGS" != set; then
 fi
 
 # Checks for programs
-AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_INSTALL
 AC_PROG_RANLIB
 AC_OPENMP
 AM_PROG_CC_C_O
+
+# Print warning if openmp not found
+AC_CHECK_FILE([omp.h], , [AC_MSG_WARN([openmp not found - continuing without openmp support])])
 
 # Initialize configure-time defined flags
 AC_SUBST(AEVOLCPPFLAGS, "") # C PreProcessor flags
