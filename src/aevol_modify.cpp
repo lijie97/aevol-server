@@ -204,9 +204,9 @@ int main(int argc, char* argv[])
     printf("%s:%d: error: could not open parameter file %s\n", __FILE__, __LINE__, param_file_name);
     exit(EXIT_FAILURE);
   }
-  
-  // bool env_change = false;
-  // bool env_hasbeenmodified = false;
+
+  std::list<Gaussian> new_gaussians;
+  bool phen_target_change = false;
   bool start_to_record_tree = false;
   bool set_tree_step = false;
   int32_t tree_step = 100;
@@ -452,22 +452,15 @@ int main(int argc, char* argv[])
     else if ((strcmp(line->words[0], "ENV_ADD_GAUSSIAN") == 0) || (strcmp(line->words[0], "ENV_GAUSSIAN") == 0))
     {
       // TODO <david.parsons@inria.fr> adapt to new organization
-      printf("%s:%d: error: ENV_ADD_GAUSSIAN has to be adapted to the new organization.\n", __FILE__, __LINE__);
-      exit(EXIT_FAILURE);
-//      if (env_change)
-//      {
-//        env->add_gaussian(atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
-//        printf("\tAddition of a gaussian with %f, %f, %f \n",atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
-//      }
-//      else
-//      {
-//        env->clear_gaussians();
-//        env->clear_initial_gaussians();
-//        env->add_gaussian(atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
-//        printf("\tChange of the environment: first gaussian with %f, %f, %f \n",atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
-//        env_change = true;
-//      }
-//      env_hasbeenmodified = true;
+//      printf("%s:%d: error: ENV_ADD_GAUSSIAN has to be adapted to the new organization.\n", __FILE__, __LINE__);
+//      exit(EXIT_FAILURE);
+
+      new_gaussians.emplace_back(atof(line->words[1]),
+                                 atof(line->words[2]),
+                                 atof(line->words[3]));
+      printf("\tAdding a gaussian with %f, %f, %f \n",
+             atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
+      phen_target_change = true;
     }
     else if (strcmp(line->words[0], "ENV_ADD_POINT") == 0) 
     {
@@ -675,10 +668,17 @@ int main(int argc, char* argv[])
 
   printf("OK\n");
 
-//  if (env_hasbeenmodified)
-//  {
-//    env->build();
-//  }
+  if (phen_target_change) {
+      // The current version doesn't allow for phenotypic variation nor for
+      // different phenotypic targets among the grid
+      if (not exp_manager->world()->phenotypic_target_shared())
+          Utils::ExitWithUsrMsg("sorry, aevol_modify has not yet been implemented "
+                                        "for per grid-cell phenotypic target");
+      auto phenotypicTargetHandler =
+              exp_manager->world()->phenotypic_target_handler();
+      phenotypicTargetHandler->set_gaussians(new_gaussians);
+      phenotypicTargetHandler->BuildPhenotypicTarget();
+  }
 
   // 9) Save the modified experiment
   if (start_to_record_tree)
