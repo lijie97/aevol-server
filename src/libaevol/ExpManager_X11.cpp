@@ -780,15 +780,15 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
       }
 
       // Display all the phenotypes (blue)
-      for (const auto& indiv: get_indivs())
-      {
-        display(cur_win, *(indiv->get_phenotype()), BLUE);
-        if (indiv->get_allow_plasmids())
-        {
-          display(cur_win, *(indiv->get_genetic_unit(0).get_phenotypic_contribution()), YELLOW);
-          display(cur_win, *(indiv->get_genetic_unit(1).get_phenotypic_contribution()), GREEN);
-        }
-      }
+//      for (const auto& indiv: get_indivs())
+//      {
+//        display(cur_win, *(indiv->get_phenotype()), BLUE);
+//        if (indiv->get_allow_plasmids())
+//        {
+//          display(cur_win, *(indiv->get_genetic_unit(0).get_phenotypic_contribution()), YELLOW);
+//          display(cur_win, *(indiv->get_genetic_unit(1).get_phenotypic_contribution()), GREEN);
+//        }
+//      }
 
       // Display best indiv's phenotype (white)
       display(cur_win, *(get_best_indiv()->get_phenotype()), WHITE, true);
