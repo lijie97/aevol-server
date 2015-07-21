@@ -96,6 +96,7 @@ int main(int argc, char* argv[])
   
   int64_t t0 = -1;
   int64_t t_end = -1;
+  int64_t nb_steps = -1;
   
   #ifndef __NO_X
     bool show_display_on_startup = true;
@@ -107,12 +108,14 @@ int main(int argc, char* argv[])
   // -------------------------------------------------------------------------
   // 2) Define allowed options
   // -------------------------------------------------------------------------
-  const char * options_list = "he:r:vVwxp:";
+  const char * options_list = "he:n:r:vVwxp:";
   static struct option long_options_list[] = {
     // Print help
     { "help",     no_argument,        NULL, 'h' },
-    // time up to which to simulate
+    // time up to which to simulate (use either -e or -n)
     { "end",  required_argument,  NULL, 'e' },
+    // Number of generations to be run (use either -e or -n)
+    { "nsteps",  required_argument,  NULL, 'n' },
     // Resume from generation X (default: 0)
     { "resume",   required_argument,  NULL, 'r' },
     // Be verbose
@@ -146,22 +149,20 @@ int main(int argc, char* argv[])
         exit(EXIT_SUCCESS);
       }
       case 'e' : {
-        if (strcmp(optarg, "") == 0) {
-          printf("%s: error: Option -e or --end : missing argument.\n",
-                 argv[0]);
-          exit(EXIT_FAILURE);
-        }
-        
+        if (nb_steps != -1)
+          Utils::ExitWithUsrMsg("use either option -n or -e, not both");
+
         t_end = atol(optarg);
         break;
       }
+      case 'n' : {
+        if (t_end != -1)
+          Utils::ExitWithUsrMsg("use either option -n or -e, not both");
+
+        nb_steps = atol(optarg);
+        break;
+      }
       case 'r' : {
-        if (strcmp(optarg, "") == 0) {
-          printf("%s: error: Option -r or --resume : missing argument.\n",
-                 argv[0]);
-          exit(EXIT_FAILURE);
-        }
-        
         t0 = atol(optarg);
         break;      
       }
@@ -203,9 +204,13 @@ int main(int argc, char* argv[])
   if (t0 < 0)
     t0 = OutputManager::get_last_gener();
 
-  // If t_end wasn't provided, run for 1000 timesteps
+  // If t_end wasn't provided, set it according to nb_steps or use default (run
+  // for 1000 timesteps)
   if (t_end < 0)
-    t_end = t0 + 1000;
+    if (nb_steps >= 0)
+      t_end = t0 + nb_steps;
+    else
+      t_end = t0 + 1000;
 
   // It the user didn't ask for a parallel run, set number of threads to 1
   #ifdef _OPENMP
@@ -294,12 +299,13 @@ void print_help(char* prog_path)
   printf("\n");
 	printf("Usage : %s -h or --help\n", prog_name);
 	printf("   or : %s -V or --version\n", prog_name);
-	printf("   or : %s [-r GENER] [-n NB_GENER] [-tvwx]\n", prog_name);
+	printf("   or : %s [-r TIME] [-e TIME|-n NB_TIMESTEPS] [-tvwx]\n", prog_name);
 	printf("\nOptions\n");
 	printf("  -h, --help\n\tprint this help, then exit\n\n");
 	printf("  -V, --version\n\tprint version number, then exit\n\n");
   printf("  -r, --resume TIME\n\tspecify time t0 to resume simulation at (default value read in last_gener.txt)\n\n");
-  printf("  -e, --end NB_GENER\n\tspecify time of the end of the simulation (default t0 + 1000)\n\n");
+  printf("  -e, --end TIME\n\tspecify time of the end of the simulation\n\n");
+  printf("  -n, --nsteps NB_TIMESTEPS\n\tspecify number of timesteps to be simulated (default 1000)\n\n");
   printf("  -t, --text\n\tuse text files instead of binary files when possible\n\n");
 	printf("  -v, --verbose\n\tbe verbose\n\n");
   printf("  -w, --wait\n\tpause after loading\n\n");
