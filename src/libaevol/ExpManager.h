@@ -173,8 +173,8 @@ class ExpManager : public Observer
     void WriteSetupFiles() const;
     void WriteDynamicFiles() const;
     void save_copy(char* dir, int64_t time = 0) const;
-    inline void load(int32_t first_gener,
-        bool verbose = false, bool to_be_run = true);
+    inline void load(int64_t first_gener,
+                     bool verbose = false, bool to_be_run = true);
     void load(const char* dir, int64_t t0,
         bool verbose = false, bool to_be_run = true);
     void load(int64_t t0,
@@ -481,9 +481,9 @@ inline void ExpManager::set_repl_HT_detach_rate(double repl_HT_detach_rate)
 /*!
   \brief Load an experiment with default files from the current directory
  */
-inline void ExpManager::load(int32_t first_gener,
-                                 bool verbose /*= false*/,
-                                 bool to_be_run /*= true*/)
+inline void ExpManager::load(int64_t first_gener,
+                             bool verbose /*= false*/,
+                             bool to_be_run /*= true*/)
 {
   load(".", first_gener, verbose, to_be_run);
 }
