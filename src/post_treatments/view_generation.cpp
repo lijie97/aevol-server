@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
   // =================================================================
   //
   // 1) Initialize command-line option variables with default values
-  int64_t gener = 0;
+  int64_t time = 0;
 
   // 2) Define allowed options
   const char * options_list = "hVg:";
@@ -101,7 +101,7 @@ int main(int argc, char* argv[])
     		  exit(EXIT_FAILURE);
     		}
 
-	      gener = atol(optarg);
+	      time = atol(optarg);
         break;
       }
     }
@@ -109,14 +109,14 @@ int main(int argc, char* argv[])
 
 
 
-  printf("Displaying generation %" PRId64 "...\n", gener);
+  printf("Displaying generation %" PRId64 "...\n", time);
 
   // =================================================================
   //                       Read the backup file
   // =================================================================
   // Load simulation from backup
-  ae_exp_manager_X11* exp_manager = new ae_exp_manager_X11();
-  exp_manager->load(gener, false, true, false);
+  ExpManager_X11* exp_manager = new ExpManager_X11();
+  exp_manager->load(time, false, true);
 
 
 
