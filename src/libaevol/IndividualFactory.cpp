@@ -118,11 +118,6 @@ Individual* IndividualFactory::create_random_individual(
         area_by_feature(METABOLISM);
 
     indiv->EvaluateInContext(habitat);
-    printf("Starting with a clonal population of individual with metabolic error %f (%f -- %ld) "
-               "and secretion error %f \n",indiv->get_dist_to_target_by_feature(METABOLISM),
-           env_metabolic_area,
-           indiv->get_protein_list().size(),
-           indiv->get_dist_to_target_by_feature(SECRETION));
 
     while (indiv->get_dist_to_target_by_feature(METABOLISM) >=
         env_metabolic_area) {
@@ -135,20 +130,8 @@ Individual* IndividualFactory::create_random_individual(
       indiv->add_GU(indiv, chromosome_initial_length, local_prng);
       indiv->EvaluateInContext(habitat);
 
-      printf("Starting with a clonal population of individual with metabolic error %f (%f -- %ld) "
-                 "and secretion error %f \n",indiv->get_dist_to_target_by_feature(METABOLISM),
-             env_metabolic_area,
-             indiv->get_protein_list().size(),
-             indiv->get_dist_to_target_by_feature(SECRETION));
     }
   }
-
-  printf("Starting with a clonal population of individual with metabolic error %f (%f -- %ld) "
-             "and secretion error %f \n",indiv->get_dist_to_target_by_feature(METABOLISM),
-         env_metabolic_area,
-         indiv->get_protein_list().size(),
-         indiv->get_dist_to_target_by_feature(SECRETION));
-
   if (allow_plasmids) // We create a plasmid
   {
     if (plasmid_initial_gene) {

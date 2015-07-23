@@ -260,6 +260,11 @@ void Individual_R::eval_step( const Habitat& habitat ) {
   update_phenotype();
   _distance_to_target_computed = false;
   _phenotype_computed = true;
+
+  for (int i=0; i<NB_FEATURES; i++) {
+    _dist_to_target_by_feature[i] = 0;
+  }
+
   compute_distance_to_target( habitat.phenotypic_target() );
   _dist_sum += _dist_to_target_by_feature[METABOLISM];
 }
@@ -267,6 +272,8 @@ void Individual_R::eval_step( const Habitat& habitat ) {
 void Individual_R::final_step( const Habitat& habitat ) {
   // On devrait faire la somme du carré des erreurs afin d'éviter qu'elles puissent se compenser
   _dist_to_target_by_feature[METABOLISM] = _dist_sum / (double) (get_exp_m()->get_exp_s()->get_nb_indiv_age() / get_exp_m()->get_exp_s()->get_eval_step());
+
+
   _fitness_computed=false;
   // yoram attention il peut y avoir des soucis si on utilise des environnements segmentés ici
   compute_fitness(habitat.phenotypic_target());
@@ -405,22 +412,36 @@ void Individual_R::update_phenotype( void )
         _phenotype_activ->add_triangle(  ((Protein_R*)prot)->get_mean(),
                                          ((Protein_R*)prot)->get_width(),
                                          ((Protein_R*)prot)->get_height() * ((Protein_R*)prot)->get_concentration() );
+
+        /*printf("Add triangle ACTIV %f %f %f (%f %f)\n",((Protein_R*)prot)->get_mean(),
+               ((Protein_R*)prot)->get_width(),
+               ((Protein_R*)prot)->get_height() * ((Protein_R*)prot)->get_concentration(),
+               ((Protein_R*)prot)->get_height(), ((Protein_R*)prot)->get_concentration() );*/
       }
       else
       {
         _phenotype_inhib->add_triangle(  ((Protein_R*)prot)->get_mean(),
                                          ((Protein_R*)prot)->get_width(),
                                          ((Protein_R*)prot)->get_height() * ((Protein_R*)prot)->get_concentration() );
+
+        /*printf("Add triangle INHIB %f %f %f (%f %f)\n",((Protein_R*)prot)->get_mean(),
+               ((Protein_R*)prot)->get_width(),
+               ((Protein_R*)prot)->get_height() * ((Protein_R*)prot)->get_concentration(),
+               ((Protein_R*)prot)->get_height(), ((Protein_R*)prot)->get_concentration() );*/
       }
     }
   }
 
-  _phenotype_activ->clip(Fuzzy::max, Y_MAX );
-  _phenotype_inhib->clip(Fuzzy::min,  -Y_MAX );
 
-  _phenotype->add( *_phenotype_activ );
-  _phenotype->add( *_phenotype_inhib );
-  _phenotype->clip(Fuzzy::min,  Y_MIN );
+    _phenotype_activ->clip(Fuzzy::max,   Y_MAX);
+    _phenotype_inhib->clip(Fuzzy::min, - Y_MAX);
+
+    _phenotype = new Phenotype();
+    _phenotype->add(*_phenotype_activ);
+    _phenotype->add(*_phenotype_inhib);
+    _phenotype->clip(Fuzzy::min, Y_MIN);
+    _phenotype->simplify();
+
 
 //  if (added) {printf("PHENO: \n");_phenotype->print_points();}
 //  _phenotype->simplify();

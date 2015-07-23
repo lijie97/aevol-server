@@ -1412,11 +1412,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
       }
 
       indiv->set_with_stochasticity(_with_stochasticity);
-      printf("Starting with a clonal population of individual with metabolic error %f (%d) "
-                 "and secretion error %f \n",indiv->get_dist_to_target_by_feature(METABOLISM),
-             indiv->get_protein_list().size(),
-             indiv->get_dist_to_target_by_feature(SECRETION));
-
+     
       // Add it to the list
       indivs.push_back(indiv);
 

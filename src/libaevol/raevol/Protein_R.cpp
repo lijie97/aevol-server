@@ -74,7 +74,6 @@ Protein_R::Protein_R( GeneticUnit* gen_unit, const std::vector<Codon*> codon_lis
 		Protein::Protein( gen_unit, codon_list, strand, shine_dal_pos, rna, w_max )
 {
 	_initial_concentration = 0;
-  _concentration         = 0;
   _delta_concentration   = 0;
   _inherited             = false;
   _signal                = false;
@@ -87,7 +86,6 @@ Protein_R::Protein_R( const std::vector<Codon*> codon_list, double concentration
 {
   _initial_concentration = 0;
   _delta_concentration  = 0;
-  _concentration         = 0;
   _inherited            = false;
   _signal               = true;
   not_pure_TF			 = false;
@@ -95,8 +93,6 @@ Protein_R::Protein_R( const std::vector<Codon*> codon_list, double concentration
 
 Protein_R::Protein_R( gzFile backup_file ) : Protein::Protein( backup_file )
 {
-	_initial_concentration = 0;
-  _concentration         = 0;
   // the Influence list is re-calculate afterward, and then is not saved, nor use in this consctructor.
   gzread( backup_file, &_delta_concentration,   	sizeof(_delta_concentration) );
   gzread( backup_file, &_inherited,   			sizeof(_inherited) );
