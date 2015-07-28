@@ -2260,11 +2260,19 @@ void Dna::compute_statistical_data(void)
   //~ }
 }
 
+#ifndef __REGUL
 void Dna::set_GU(std::vector<std::list<Rna>> rna_list, const GeneticUnit* GU) {
   for (auto& strand: {LEADING, LAGGING})
     for (auto& rna: rna_list[strand])
       rna.set_genetic_unit(GU);
 }
+#else
+void Dna::set_GU(std::vector<std::list<Rna_R>> rna_list, const GeneticUnit* GU) {
+  for (auto& strand: {LEADING, LAGGING})
+    for (auto& rna: rna_list[strand])
+      rna.set_genetic_unit(GU);
+}
+#endif
 
 GeneticUnit*Dna::extract_into_new_GU(int32_t pos_1, int32_t pos_2)
 {

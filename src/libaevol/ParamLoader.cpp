@@ -257,7 +257,8 @@ ParamLoader::ParamLoader(const char* file_name)
 
     _hill_shape_n      = 4;
     _hill_shape_theta  = 0.5;
-    _hill_shape        = pow( _hill_shape_theta, _hill_shape_n );
+    _hill_shape        = std::pow( _hill_shape_theta, _hill_shape_n );
+
   #endif
 
   // Read parameter file
@@ -1412,7 +1413,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
       }
 
       indiv->set_with_stochasticity(_with_stochasticity);
-     
+
       // Add it to the list
       indivs.push_back(indiv);
 

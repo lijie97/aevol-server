@@ -54,7 +54,12 @@ using std::list;
 
 namespace aevol {
 
+#ifndef __REGUL
 using Promoters1Strand = std::list<Rna>;
+#else
+using Promoters1Strand = std::list<Rna_R>;
+#endif
+
 using Promoters2Strands = std::vector<Promoters1Strand>;
 
 class ExpManager;

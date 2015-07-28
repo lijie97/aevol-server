@@ -526,22 +526,20 @@ void Selection::compute_local_prob_reprod(void )
 
 Individual* Selection::do_replication(Individual* parent, int32_t index, int16_t x /*= -1 */, int16_t y /*= -1 */ )
 {
-  Individual* new_indiv = NULL;
-
   // ===========================================================================
   //  1) Copy parent
   // ===========================================================================
   #ifdef __NO_X
     #ifndef __REGUL
-      new_indiv = new Individual(parent, index, parent->get_mut_prng(), parent->get_stoch_prng() );
+      Individual* new_indiv = new Individual(parent, index, parent->get_mut_prng(), parent->get_stoch_prng() );
     #else
-      new_indiv = new Individual_R(dynamic_cast<Individual_R*>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
+      Individual_R* new_indiv = new Individual_R(dynamic_cast<Individual_R*>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
     #endif
   #elif defined __X11
     #ifndef __REGUL
-      new_indiv = new Individual_X11(dynamic_cast<Individual_X11 *>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
+      Individual_X11* new_indiv = new Individual_X11(dynamic_cast<Individual_X11 *>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
     #else
-      new_indiv = new Individual_R_X11(dynamic_cast<Individual_R_X11*>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
+      Individual_R_X11* new_indiv = new Individual_R_X11(dynamic_cast<Individual_R_X11*>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng() );
     #endif
   #endif
 

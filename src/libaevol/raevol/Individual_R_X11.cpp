@@ -157,7 +157,7 @@ void Individual_R_X11::display_concentrations( X11Window* win )
   }
 
   // compute steps
-  double x_step = 0.8 * win->get_width() / (double)(life_time / _exp_m->get_exp_s()->get_degradation_step());
+  double x_step = 0.8 * win->get_width() / (double)(life_time * _exp_m->get_exp_s()->get_degradation_step());
   double y_step = 0.7 * win->get_height();
 
   for(int16_t indiv_age = 0 ; indiv_age < life_time ; indiv_age+=0 )
@@ -382,14 +382,21 @@ void Individual_R_X11::display_regulation( X11Window* win )
 
       if ( merged_influence > 0 )
       {
-        if (max_merged_activator_activity > 0) sprintf( color, "#%02x%02x%02x", 0,(int)((255 * merged_influence) / max_merged_activator_activity),0);
-
-        //    printf("%lf %lf %d\n", merged_influence, max_merged_activator_activity,(int)((255 * merged_influence) / max_merged_activator_activity));
-
+        if (max_merged_activator_activity > 0) {
+          //printf("ONE %lf %lf %d\n", merged_influence, max_merged_activator_activity,(int)((255 * merged_influence) / max_merged_activator_activity));
+          //printf("COLOR : #%02x%02x%02x\n", 0,(int)((255 * merged_influence) / max_merged_activator_activity),0);
+          //sprintf( color, "#%02x%02x%02x", 0,(int)((255 * merged_influence) / max_merged_activator_activity),0);
+        }
       }
       else
       {
-        if (max_merged_activator_activity > 0) sprintf( color, "#%02x%02x%02x", (int)((255 * merged_influence) / max_merged_operator_activity),0,0);
+        if (max_merged_activator_activity > 0) {
+          //printf("TWO %lf %lf %d\n", merged_influence, max_merged_activator_activity,(int)((255 * merged_influence) / max_merged_activator_activity));
+          //printf("COLOR : #%02x%02x%02x\n", (int)((255 * merged_influence) / max_merged_operator_activity),0,0);
+          //sprintf( color, "#%02x%02x%02x", (int)((255 * merged_influence) / max_merged_operator_activity),0,0);
+
+        }
+
       }
 
 

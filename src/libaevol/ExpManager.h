@@ -480,10 +480,8 @@ inline void ExpManager::set_repl_HT_detach_rate(double repl_HT_detach_rate)
 inline void ExpManager::step_to_next_generation(void) {
   // TODO <david.parsons@inria.fr> Apply phenotypic target  variation and noise
 
-  #ifndef __REGUL
   // Take a step in time
   Time::plusplus();
-  #endif
 
   // Create the corresponding new generation
   _exp_s->step_to_next_generation();

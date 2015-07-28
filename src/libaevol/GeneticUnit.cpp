@@ -748,7 +748,7 @@ GeneticUnit::GeneticUnit(Individual* indiv, const GeneticUnit* parent)
 #ifndef __REGUL
       _rna_list[strand].emplace_back(this, rna);
 #else
-      _rna_list[strand].push_back(Rna_R(this, rna));
+      _rna_list[strand].emplace_back(this, rna);
 #endif
     }
   }

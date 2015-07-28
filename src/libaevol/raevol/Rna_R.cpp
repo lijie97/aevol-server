@@ -54,8 +54,9 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-Rna_R::Rna_R( GeneticUnit* gen_unit, const Rna &model ) : Rna( gen_unit, model )
+Rna_R::Rna_R( GeneticUnit* gen_unit, const Rna_R &model ) : Rna( gen_unit, model )
 {
+  _protein_list = model._protein_list;
 }
 
 Rna_R::Rna_R( GeneticUnit* gen_unit, Strand strand, int32_t index, int8_t diff ) :
@@ -91,9 +92,9 @@ void Rna_R::set_influences( std::list<Protein*> protein_list )
 
 	  _protein_list = protein_list;
     _enhancing_coef_list.clear();
-	  _enhancing_coef_list.reserve(protein_list.size());
+	  _enhancing_coef_list.resize(protein_list.size());
     _operating_coef_list.clear();
-	  _operating_coef_list.reserve(protein_list.size());
+	  _operating_coef_list.resize(protein_list.size());
 
     int i = 0;
 	  for (auto& prot : protein_list) {
@@ -118,21 +119,18 @@ void Rna_R::set_influences( std::list<Protein*> protein_list )
 		  ae_logger::addLog(AFFINITY_OP,duration);
 	#endif
 
-	    //  printf ("set_influence - after affinity computation\n");
 	    if ( _enhancing_coef_list[i] != 0.0 || _operating_coef_list[i] != 0.0 )
 	    	((Protein_R*)prot)->not_pure_TF = true;
 
       i++;
 	  }
+
 }
 
 double Rna_R::get_synthesis_rate( void )
 {
   double enhancer_activity  = 0;
   double operator_activity  = 0;
-
-//  ae_list_node*   influence_node;
-//  ae_influence_R* influence;
 
   for (unsigned int i = 0; i < _enhancing_coef_list.size(); i++) {
   	enhancer_activity  += _enhancing_coef_list[i];
@@ -143,9 +141,11 @@ double Rna_R::get_synthesis_rate( void )
   double operator_activity_pow_n  = pow( operator_activity, _gen_unit->get_exp_m()->get_exp_s()->get_hill_shape_n() );
 
   return   _basal_level
-        * (_gen_unit->get_exp_m()->get_exp_s()->get_hill_shape() / (operator_activity_pow_n + _gen_unit->get_exp_m()->get_exp_s()->get_hill_shape()))
-        * (1 + ((1 / _basal_level) - 1)
-	* (enhancer_activity_pow_n / (enhancer_activity_pow_n + _gen_unit->get_exp_m()->get_exp_s()->get_hill_shape())));
+           * (_gen_unit->get_exp_m()->get_exp_s()->get_hill_shape()
+              / (operator_activity_pow_n + _gen_unit->get_exp_m()->get_exp_s()->get_hill_shape()))
+           * (1 + ((1 / _basal_level) - 1)
+                  * (enhancer_activity_pow_n /
+                     (enhancer_activity_pow_n + _gen_unit->get_exp_m()->get_exp_s()->get_hill_shape())));
 }
 
 // =================================================================

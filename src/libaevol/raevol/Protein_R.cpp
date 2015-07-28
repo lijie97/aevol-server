@@ -73,6 +73,8 @@ Protein_R::Protein_R( GeneticUnit* gen_unit, const std::vector<Codon*> codon_lis
                             Rna* rna, double w_max )  :
 		Protein::Protein( gen_unit, codon_list, strand, shine_dal_pos, rna, w_max )
 {
+  _rna_R_list.push_back((Rna_R*)rna);
+
 	_initial_concentration = 0;
   _delta_concentration   = 0;
   _inherited             = false;
@@ -114,16 +116,19 @@ Protein_R::~Protein_R( void )
 void Protein_R::compute_delta_concentration( void )
 {
   _delta_concentration = 0;
-  if( _signal == 0 )
+  if( _signal == false )
   {
-	for (auto& rna: rna_list)
+	for (auto& rna: _rna_R_list)
     {
       assert( _inherited == false);
 
-      _delta_concentration += (dynamic_cast<Rna_R*>(rna))->get_synthesis_rate();
+      _delta_concentration += rna->get_synthesis_rate();
+
     }
+
     _delta_concentration -= _gen_unit->get_exp_m()->get_exp_s()->get_degradation_rate() * _concentration;
-    _delta_concentration *= _gen_unit->get_exp_m()->get_exp_s()->get_degradation_step();
+    _delta_concentration *= 1/_gen_unit->get_exp_m()->get_exp_s()->get_degradation_step();
+
   }
 }
 
@@ -149,6 +154,13 @@ void Protein_R::remove_influences( void )
   printf("ALERTE la proteine veut détruire une influence !!!\n");
 
   _rna_R_list.clear();
+}
+
+
+void Protein_R::add_RNA( Rna * rna )
+{
+  Protein::add_RNA(rna);
+  _rna_R_list.push_back((Rna_R*)rna);
 }
 
 } // namespace aevol

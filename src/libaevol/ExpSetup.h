@@ -109,6 +109,7 @@ class ExpSetup
 
     inline double get_hill_shape( void ) const;
     inline double get_hill_shape_n( void ) const;
+    inline double get_hill_shape_theta( void ) const;
 
     inline double get_eval_step( void ) const;
     inline double get_nb_indiv_age( void ) const;
@@ -146,6 +147,7 @@ class ExpSetup
 
     inline void set_hill_shape( double hill_shape );
     inline void set_hill_shape_n( double hill_shape_n );
+    inline void set_hill_shape_theta( double hill_shape_theta );
 
     inline void set_eval_step( double eval_step );
     inline void set_nb_indiv_age( double nb_indiv_age );
@@ -228,6 +230,7 @@ class ExpSetup
 
     double _hill_shape_n;
     double _hill_shape;
+    double _hill_shape_theta;
 
     int    _nb_indiv_age;
     int    _eval_step;
@@ -350,6 +353,11 @@ inline double ExpSetup::get_hill_shape_n( void ) const
   return _hill_shape_n;
 }
 
+inline double ExpSetup::get_hill_shape_theta( void ) const
+{
+  return _hill_shape_theta;
+}
+
 inline double ExpSetup::get_eval_step( void ) const
 {
   return _eval_step;
@@ -466,6 +474,11 @@ inline void ExpSetup::set_protein_presence_limit( double protein_presence_limit 
 inline void ExpSetup::set_hill_shape( double hill_shape )
 {
   _hill_shape = hill_shape;
+}
+
+inline void ExpSetup::set_hill_shape_theta( double hill_shape_theta )
+{
+  _hill_shape_theta = hill_shape_theta;
 }
 
 inline void ExpSetup::set_hill_shape_n( double hill_shape_n )

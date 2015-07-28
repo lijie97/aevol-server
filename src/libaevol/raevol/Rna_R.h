@@ -53,7 +53,7 @@ class Rna_R : public Rna
     // =================================================================
     //                             Constructors
     // =================================================================
-  Rna_R( GeneticUnit* gen_unit, const Rna &model );
+  Rna_R( GeneticUnit* gen_unit, const Rna_R &model );
 	Rna_R( GeneticUnit* gen_unit, Strand strand, int32_t index, int8_t diff );
 
     // =================================================================
@@ -78,7 +78,7 @@ class Rna_R : public Rna
     //                           Public Attributes
     // =================================================================
     std::list<Protein*> _protein_list;
-    std::vector<int> _enhancing_coef_list;
+    std::vector<double> _enhancing_coef_list;
     std::vector<int> _operating_coef_list;
 
   protected :

@@ -95,6 +95,8 @@ class Protein_R : public Protein
 	         void    save( gzFile backup_file );
 //	         void    remove_influence( ae_influence_R* influence );
 
+    void  add_RNA( Rna * rna );
+
 
     // =================================================================
     //                           Public Attributes

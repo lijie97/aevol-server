@@ -58,6 +58,7 @@ class Individual;
 class GeneticUnit;
 class VisAVis;
 class Rna;
+class Rna_R;
 
 
 
@@ -163,8 +164,11 @@ class Dna : public ae_string
     void compute_statistical_data(void);
 
     // TODO vld rna_list should be passed by reference
+    #ifndef __REGUL
     static void set_GU(std::vector<std::list<Rna>> rna_list, const GeneticUnit* GU);
-
+    #else
+    static void set_GU(std::vector<std::list<Rna_R>> rna_list, const GeneticUnit* GU);
+    #endif
 
     // =================================================================
     //                           Public Attributes

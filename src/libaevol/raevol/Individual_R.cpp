@@ -161,7 +161,6 @@ void Individual_R::EvaluateInContext(const Habitat& habitat) {
   }
 
   for (int i = 1; i <= get_exp_m()->get_exp_s()->get_nb_indiv_age(); i++) {
-//    printf("Update step %d\n",i);
     if (std::fmod(i, get_exp_m()->get_exp_s()->get_eval_step()) == 0.0)
     {
 //      printf("Eval\n");
@@ -181,7 +180,6 @@ void Individual_R::init_indiv( void )
   // ---------------------------------------------------------------------------
   // 1) Transcription - Translation - Folding - make_protein_list
   // ---------------------------------------------------------------------------
-
   _transcribed = false;
   _translated = false;
   _folded = false;
@@ -211,6 +209,7 @@ void Individual_R::init_indiv( void )
 
   make_rna_list();
 
+
   for (const auto& prot : _protein_list) {
     ((Protein_R*) prot)->set_initial_concentration();
   }
@@ -225,6 +224,8 @@ void Individual_R::init_indiv( void )
   // 3) Create influence graph (including the signals)
   //----------------------------------------------------------------------------
   set_influences();
+
+
 
   _networked = true;
 #ifdef __TRACING__
@@ -295,7 +296,7 @@ void Individual_R::update_concentrations( void )
 	// Compute all the changes that will be applied to the concentrations
 	// Concentrations must not be changed at this stage
   for (auto& prot : _protein_list) {
-		if (!((Protein_R*)prot)->is_signal()) ((Protein_R*)prot)->compute_delta_concentration();
+    if (!((Protein_R*)prot)->is_signal()) ((Protein_R*)prot)->compute_delta_concentration();
 	}
 
 	// Apply the changes in concentrations we have just computed
@@ -366,8 +367,10 @@ void Individual_R::make_protein_list( void )
 {
 	  Individual::make_protein_list();
 
-	  for (auto& prot : _inherited_protein_list)
-		  _protein_list.push_back( prot );
+    if (this->get_exp_m()->get_exp_s()->get_with_heredity()) {
+      for (auto& prot : _inherited_protein_list)
+        _protein_list.push_back(prot);
+    }
 }
 
 void Individual_R::make_rna_list( void )
