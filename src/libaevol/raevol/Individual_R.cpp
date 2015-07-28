@@ -80,7 +80,11 @@ Individual_R::Individual_R(const Individual_R& other)
   _indiv_age = 0;
   _networked = false;
   _dist_sum = 0;
-  _inherited_protein_list = std::vector<Protein_R*>(other._inherited_protein_list);
+
+  if (get_exp_m()->get_exp_s()->get_with_heredity()) {
+    _inherited_protein_list = std::vector<Protein_R*>(
+        other._inherited_protein_list);
+  }
 }
 
 Individual_R::Individual_R( Individual_R* parent, int32_t id,
@@ -93,21 +97,24 @@ Individual_R::Individual_R( Individual_R* parent, int32_t id,
     _networked = false;
     _dist_sum = 0;
 
-    for (const auto& prot : parent->_protein_list)
-    {
-    	if( prot->get_concentration() > parent->get_exp_m()->get_exp_s()->get_protein_presence_limit() )
-    	{
-    		Protein_R* inherited_prot = new Protein_R( prot->get_gen_unit(),
-                                                   (Protein_R&)*prot);
-    		inherited_prot->set_inherited( true );
-    		_inherited_protein_list.push_back( inherited_prot );
-    	}
+  if (get_exp_m()->get_exp_s()->get_with_heredity()) {
+    for (const auto& prot : parent->_protein_list) {
+      if (prot->get_concentration() >
+          parent->get_exp_m()->get_exp_s()->get_protein_presence_limit()) {
+        Protein_R* inherited_prot = new Protein_R(prot->get_gen_unit(),
+                                                  (Protein_R&) *prot);
+        inherited_prot->set_inherited(true);
+        _inherited_protein_list.push_back(inherited_prot);
+      }
     }
+  }
 }
 
 Individual_R::Individual_R(ExpManager* exp_m, gzFile backup_file) : Individual( exp_m, backup_file )
 {
     _indiv_age = 0;
+  _networked = false;
+
   if( get_exp_m()->get_exp_s()->get_with_heredity() )
   {
     // Retreive inherited proteins
@@ -127,7 +134,7 @@ Individual_R::Individual_R(ExpManager* exp_m, gzFile backup_file) : Individual( 
 // =================================================================
 Individual_R::~Individual_R( void )
 {
-  assert( !get_exp_m()->get_exp_s()->get_with_heredity()  );
+//  assert( !get_exp_m()->get_exp_s()->get_with_heredity()  );
 
   /*
   for (const auto& prot : parent->_protein_list)
@@ -135,7 +142,15 @@ Individual_R::~Individual_R( void )
 	  delete dp;
   }*/
 
-  _inherited_protein_list.clear();
+  if (get_exp_m()->get_exp_s()->get_with_heredity()) {
+    for (unsigned int i = 0; i < _inherited_protein_list.size(); i++)
+      delete _inherited_protein_list[i];
+
+    _inherited_protein_list.clear();
+  }
+
+  for (unsigned int i = 0; i < _rna_list_coding.size(); i++)
+    delete _rna_list_coding[i];
 
   _rna_list_coding.clear();
 }
@@ -376,11 +391,11 @@ void Individual_R::make_protein_list( void )
 void Individual_R::make_rna_list( void )
 {
   Individual::make_rna_list();
-  _rna_list_coding.clear();
-  _rna_list_coding.reserve(_rna_list.size());
+  _rna_list_coding = {};
 
   // Parse the newly created RNA list and copy the coding RNAs in _rna_list_coding.
   for (const auto& gen_unit: _genetic_unit_list) {
+    GeneticUnit* genu = const_cast<GeneticUnit*>(&gen_unit);
     // Create proxies
     const auto& rna_list = gen_unit.get_rna_list();
     const auto& lead = rna_list[LEADING];
@@ -390,8 +405,9 @@ void Individual_R::make_rna_list( void )
     for (auto& strand: {LEADING, LAGGING})
       for (auto& rna: rna_list[strand]) {
         //TODO Ugly fix, change it to avoid memory usage double
-        _rna_list_coding.push_back(new Rna_R(const_cast<GeneticUnit*>(&gen_unit), rna));
+        _rna_list_coding.push_back(new Rna_R(genu, rna));
     }
+
   }
 }
 
@@ -439,7 +455,6 @@ void Individual_R::update_phenotype( void )
     _phenotype_activ->clip(Fuzzy::max,   Y_MAX);
     _phenotype_inhib->clip(Fuzzy::min, - Y_MAX);
 
-    _phenotype = new Phenotype();
     _phenotype->add(*_phenotype_activ);
     _phenotype->add(*_phenotype_inhib);
     _phenotype->clip(Fuzzy::min, Y_MIN);

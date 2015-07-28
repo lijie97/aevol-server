@@ -1288,7 +1288,9 @@ void Individual::compute_distance_to_target(const PhenotypicTarget& target) {
   delta->sub(target);
 
   PhenotypicSegment ** segments = target.segments();
+  delete [] _dist_to_target_by_segment;
   _dist_to_target_by_segment = new double [target.nb_segments()];
+
   for (size_t i = 0 ; i < static_cast<size_t>(target.nb_segments()) ; i++) {
     _dist_to_target_by_segment[i] = 0;
   }

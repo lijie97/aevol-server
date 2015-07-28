@@ -85,12 +85,13 @@ Rna_R::~Rna_R( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-void Rna_R::set_influences( std::list<Protein*> protein_list )
+void Rna_R::set_influences( const std::list<Protein*> protein_list )
 {
     int32_t enhancer_position = get_enhancer_position();
 	  int32_t operator_position = get_operator_position();
 
-	  _protein_list = protein_list;
+	  _protein_list.clear();
+    _protein_list.resize(protein_list.size());
     _enhancing_coef_list.clear();
 	  _enhancing_coef_list.resize(protein_list.size());
     _operating_coef_list.clear();
@@ -101,6 +102,8 @@ void Rna_R::set_influences( std::list<Protein*> protein_list )
 	#ifdef __TRACING__
 		  high_resolution_clock::time_point t1 = high_resolution_clock::now();
 	#endif
+
+      _protein_list[i] = (Protein_R*) prot;
 
 		  _enhancing_coef_list[i] = affinity_with_protein( enhancer_position, prot );
 

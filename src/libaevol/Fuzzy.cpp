@@ -404,10 +404,11 @@ bool Fuzzy::is_increasing() const {
 void Fuzzy::reset() {
   // assert(invariant());
 
-  points.clear();
+  /*points.clear();
+  points.resize(2);
   points.push_back(Point(X_MIN, 0.0));
-  points.push_back(Point(X_MAX, 0.0));
-
+  points.push_back(Point(X_MAX, 0.0));*/
+  points = {Point(X_MIN, 0.0), Point(X_MAX, 0.0)};
 
   // assert(invariant());
 }

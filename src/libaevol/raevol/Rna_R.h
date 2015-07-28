@@ -38,7 +38,7 @@
 //                            Project Files
 // =================================================================
 #include "Rna.h"
-#include "Protein.h"
+#include "Protein_R.h"
 
 namespace aevol {
 
@@ -46,6 +46,7 @@ namespace aevol {
 //                          Class declarations
 // =================================================================
 
+class Protein_R;
 class Rna_R : public Rna
 {
   public :
@@ -53,8 +54,8 @@ class Rna_R : public Rna
     // =================================================================
     //                             Constructors
     // =================================================================
-  Rna_R( GeneticUnit* gen_unit, const Rna_R &model );
-	Rna_R( GeneticUnit* gen_unit, Strand strand, int32_t index, int8_t diff );
+    Rna_R( GeneticUnit* gen_unit, const Rna_R &model );
+	  Rna_R( GeneticUnit* gen_unit, Strand strand, int32_t index, int8_t diff );
 
     // =================================================================
     //                             Destructors
@@ -65,11 +66,11 @@ class Rna_R : public Rna
     //                              Accessors
     // =================================================================
 //    inline  ae_list*  get_influence_list( void );
-    inline std::list<Protein*> get_protein_list( void );
+    inline std::vector<Protein_R*> get_protein_list( void );
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void    set_influences( std::list<Protein*> protein_list );
+    void    set_influences( const std::list<Protein*> protein_list );
     double  get_synthesis_rate( void );
     double  get_affinity_with_protein( int32_t index, Protein *protein );
     int32_t get_enhancer_position( void );
@@ -77,7 +78,7 @@ class Rna_R : public Rna
     // =================================================================
     //                           Public Attributes
     // =================================================================
-    std::list<Protein*> _protein_list;
+    std::vector<Protein_R*> _protein_list;
     std::vector<double> _enhancing_coef_list;
     std::vector<int> _operating_coef_list;
 

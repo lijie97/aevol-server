@@ -80,7 +80,7 @@ ae_string::ae_string(int32_t length, std::shared_ptr<JumpingMT> prng)
 {
   _nb_blocks = nb_blocks(length);
   _length = length;
-  _data = new char[_nb_blocks * BLOCK_SIZE];
+  _data = new char[_nb_blocks * BLOCK_SIZE * sizeof(char)];
 
   // Generate a random genome
   for (int32_t i = 0 ; i < _length ; i++)
@@ -97,7 +97,7 @@ ae_string::ae_string(const char* seq, int32_t length)
 {
   _length = length;
   _nb_blocks = nb_blocks(length);
-  _data = new char[_nb_blocks * BLOCK_SIZE];
+  _data = new char[_nb_blocks * BLOCK_SIZE * sizeof(char)];
   memcpy(_data, seq, (length+1) * sizeof(char));
 }
 
@@ -117,8 +117,8 @@ ae_string::ae_string(char* seq, int32_t length, bool use_seq)
 ae_string::ae_string(gzFile backup_file)
 {
   gzread(backup_file, &_nb_blocks,  sizeof(_nb_blocks));
-  //~ printf("read %d bytes (_nb_blocks : %ld)\n", sizeof(_nb_blocks), _nb_blocks);
-  _data = new char[_nb_blocks * BLOCK_SIZE];
+  //printf("read %d bytes (_nb_blocks : %ld)\n", sizeof(_nb_blocks), _nb_blocks);
+  _data = new char[_nb_blocks * BLOCK_SIZE * sizeof(char)];
   gzread(backup_file, &_length,     sizeof(_length));
   //~ printf("read %d bytes (_length : %ld)\n", sizeof(_length), _length);
   gzread(backup_file, _data,        (_length + 1) * sizeof(*_data));
@@ -139,7 +139,7 @@ ae_string::ae_string(char* organism_file_name)
     
     _nb_blocks = nb_blocks(length);
     _length = length;
-    _data = new char[_nb_blocks * BLOCK_SIZE];
+    _data = new char[_nb_blocks * BLOCK_SIZE * sizeof(char)];
     for (int32_t i = 0 ; i < _length -1 ; i++)
     {
       _data[i] = fgetc (org_file);
@@ -171,7 +171,7 @@ void ae_string::remove(int32_t pos_1, int32_t pos_2)
   // Compute size of new genome
   int32_t new_length    = _length - (pos_2 - pos_1);
   int32_t new_nb_blocks = nb_blocks(new_length);
-  char*   new_genome    = new char[new_nb_blocks * BLOCK_SIZE];
+  char*   new_genome    = new char[new_nb_blocks * BLOCK_SIZE * sizeof(char)];
 
   // Copy the remaining of the genome in tmp (preceeding and following parts)
   memcpy(new_genome, _data, pos_1 * sizeof(char));
@@ -203,7 +203,7 @@ void ae_string::insert(int32_t pos, const char* seq, int32_t seq_length)
   // Compute size of new genome
   int32_t new_length    = _length + seq_length;
   int32_t new_nb_blocks = nb_blocks(new_length);
-  char*   new_genome    = new char[new_nb_blocks * BLOCK_SIZE];
+  char*   new_genome    = new char[new_nb_blocks * BLOCK_SIZE * sizeof(char)];
 
   // Build new genome from previous genome and sequence to insert
   memcpy(new_genome,                   _data,        pos             * sizeof(char));

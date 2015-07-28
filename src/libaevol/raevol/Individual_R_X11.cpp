@@ -352,9 +352,7 @@ void Individual_R_X11::display_regulation( X11Window* win )
     // ---------------
     nb_signals = 0;
     int i = 0;
-    for (const auto& pro: rna->_protein_list) {
-      Protein_R* prot = dynamic_cast<Protein_R*>(const_cast<Protein*>(pro));
-
+    for (const auto& prot: rna->_protein_list) {
       if ( !(prot->is_signal()) )
       {
         alpha_prot_first   = (int16_t) round(  360 * ((double)prot->get_first_translated_pos() / (double)genome_length ));
