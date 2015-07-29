@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
   // =================================================================
   //
   // 1) Initialize command-line option variables with default values
-  int64_t time = 0;
+  int64_t time = -1;
 
   // 2) Define allowed options
   const char * options_list = "hVg:";
@@ -104,6 +104,25 @@ int main(int argc, char* argv[])
 	      time = atol(optarg);
         break;
       }
+    }
+  }
+
+  // Set undefined command line parameters to default values
+  if (time == -1) {
+    // Set t_end to the content of the LAST_GENER file if it exists.
+    // If it doesn't, print help and exit
+    FILE* lg_file = fopen(LAST_GENER_FNAME, "r");
+    if (lg_file != NULL) {
+      if (fscanf(lg_file, "%" PRId64, &time) == EOF) {
+        printf("ERROR: failed to read last generation from file %s\n",
+               LAST_GENER_FNAME);
+        exit(EXIT_FAILURE);
+      }
+      fclose(lg_file);
+    }
+    else {
+      printf("%s: error: You must provide a generation number.\n", argv[0]);
+      exit(EXIT_FAILURE);
     }
   }
 
