@@ -961,8 +961,6 @@ void GeneticUnit::do_transcription( void )
             auto delta_pos = abs(rna2->get_promoter_pos() - rna->get_promoter_pos());
             if (delta_pos <= i) {
               rna2->set_transcript_length(i - delta_pos + TERM_SIZE);
-              // Step forward in RNA list
-              rna = rna2;
             } else {
               // The promoter of rna_2 is after (or contains a part of) the terminator of rna,
               // we will need to search its own terminator
