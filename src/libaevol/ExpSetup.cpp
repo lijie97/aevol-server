@@ -89,6 +89,8 @@ ExpSetup::ExpSetup( ExpManager * exp_m )
   _secretion_contrib_to_fitness = 0.0;
   _secretion_cost               = 0.0;
 
+  _fuzzy_flavor                 = 0;
+
 #ifdef __REGUL
   _protein_presence_limit = 1e-2;
   _degradation_rate  = 1;
@@ -155,6 +157,8 @@ void ExpSetup::write_setup_file( gzFile exp_setup_file ) const
   gzwrite( exp_setup_file, &_secretion_cost, sizeof(_secretion_cost) );
   
   get_sel()->write_setup_file( exp_setup_file );
+
+  gzwrite( exp_setup_file, &_fuzzy_flavor, sizeof(_fuzzy_flavor) );
 
 #ifdef __REGUL
   gzwrite( exp_setup_file, &_hill_shape,  sizeof(_hill_shape) );
@@ -247,6 +251,8 @@ void ExpSetup::load( gzFile setup_file, gzFile backup_file, bool verbose )
 
   // ---------------------------------------------- Retrieve selection context
   get_sel()->load( setup_file, backup_file, verbose );
+
+  gzread( setup_file, &_fuzzy_flavor, sizeof(_fuzzy_flavor) );
 
 #ifdef __REGUL
   gzread( setup_file, &_hill_shape,  sizeof(_hill_shape) );

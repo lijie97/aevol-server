@@ -100,6 +100,8 @@ class ExpSetup
     inline bool   get_with_secretion( void ) const;
     inline double get_secretion_contrib_to_fitness( void ) const;
     inline double get_secretion_cost( void ) const;
+
+    inline int    get_fuzzy_flavor( void ) const;
   
 #ifdef __REGUL
     inline bool   get_with_heredity( void ) const;
@@ -138,6 +140,7 @@ class ExpSetup
     inline void set_with_secretion( bool with_secretion );
     inline void set_secretion_contrib_to_fitness( double secretion_contrib );
     inline void set_secretion_cost( double secretion_cost );
+    inline void set_fuzzy_flavor( int fuzzy_flavor );
   
 #ifdef __REGUL
     inline void set_with_heredity( bool with_heredity );
@@ -217,6 +220,8 @@ class ExpSetup
     bool    _with_secretion;
     double  _secretion_contrib_to_fitness;
     double  _secretion_cost;
+
+    int     _fuzzy_flavor;
 
 #ifdef __REGUL
     // Binding matrix
@@ -319,6 +324,11 @@ inline double ExpSetup::get_secretion_contrib_to_fitness( void ) const
 inline double ExpSetup::get_secretion_cost( void ) const
 {
   return _secretion_cost;
+}
+
+inline int ExpSetup::get_fuzzy_flavor( void ) const
+{
+  return _fuzzy_flavor;
 }
 
 #ifdef __REGUL
@@ -447,6 +457,11 @@ inline void ExpSetup::set_secretion_contrib_to_fitness( double secretion_contrib
 inline void ExpSetup::set_secretion_cost( double secretion_cost )
 {
   _secretion_cost = secretion_cost;
+}
+
+inline void ExpSetup::set_fuzzy_flavor( int fuzzy_flavor )
+{
+  _fuzzy_flavor = fuzzy_flavor;
 }
 
 #ifdef __REGUL

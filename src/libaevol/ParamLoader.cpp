@@ -246,6 +246,8 @@ ParamLoader::ParamLoader(const char* file_name)
   // Other
   _more_stats = false;
 
+  _fuzzy_flavor = 0;
+
 #ifdef __REGUL
     // ------------------------------------------------------- Binding matrix
     _binding_zeros_percentage = 75;
@@ -1033,6 +1035,10 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
       }
     }
   }
+  else if (strcmp(line->words[0], "FUZZY_FLAVOR") == 0)
+  {
+    _fuzzy_flavor = atoi(line->words[1]);
+  }
 
 #ifdef __REGUL
     else if (strcmp(line->words[0], "HILL_SHAPE_N") == 0)
@@ -1227,6 +1233,8 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   exp_s->set_with_secretion(_with_secretion);
   exp_s->set_secretion_contrib_to_fitness(_secretion_contrib_to_fitness);
   exp_s->set_secretion_cost(_secretion_cost);
+
+  exp_s->set_fuzzy_flavor(_fuzzy_flavor);
 
 #ifdef __REGUL
   exp_s->set_with_heredity(_with_heredity);

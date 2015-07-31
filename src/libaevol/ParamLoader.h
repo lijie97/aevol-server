@@ -261,6 +261,9 @@ class ParamLoader
   // Logs
   int8_t _logs;
 
+  // Fuzzy set flavor
+  int _fuzzy_flavor;
+
   // Other
   bool _more_stats;  // TODO : explain
 

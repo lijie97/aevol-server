@@ -25,6 +25,7 @@
 
 #include "macros.h"
 #include "Point.h"
+#include "AbstractFuzzy.h"
 
 namespace aevol {
 
@@ -67,7 +68,7 @@ namespace aevol {
 /// \invariant{`points.begin()->x == X_MIN`}
 /// \invariant{`prev(points.end())->x == X_MAX`}
 /// \invariant{`is_increasing()`}
-class Fuzzy
+class Fuzzy : public AbstractFuzzy
 {
  public:
   // ==========================================================================
@@ -90,11 +91,9 @@ class Fuzzy
   void reset();
   void simplify();
   void add_triangle(double mean, double width, double height);
-  void add(const Fuzzy& f);
-  void sub(const Fuzzy& f);
+  void add(const AbstractFuzzy& f);
+  void sub(const AbstractFuzzy& f);
 
-  /// `clipping_direction` is only used for `clip` function's keyword.
-  enum clipping_direction: bool {min, max};
   void clip(clipping_direction direction, double bound);
   // TODO: should be made protected
   std::list<Point>::iterator create_interpolated_point(double x);
@@ -113,7 +112,7 @@ class Fuzzy
   double get_y(double x) const;
   // get_x should be moved out of fuzzy class as it really applies to pair of points
   double get_x(const Point& left, const Point& right, double y) const;
-  bool is_identical_to(const Fuzzy& fs, double tolerance) const;
+  bool is_identical_to(const AbstractFuzzy& fs, double tolerance) const;
 
   // ==========================================================================
   //                                 Setters

@@ -192,7 +192,8 @@ void Fuzzy::add_triangle(double mean, double width, double height) {
 /// Semantically speaking, we deal with fuzzy sets over the same
 /// range. So adding two fuzzy sets sums up to adding the probability
 /// functions.
-void Fuzzy::add(const Fuzzy& fs) {
+void Fuzzy::add(const AbstractFuzzy& f) {
+  const Fuzzy fs = (Fuzzy&)(f);
   // assert(invariant());
 
   // Add interpolated points to current fuzzy set so that
@@ -211,7 +212,8 @@ void Fuzzy::add(const Fuzzy& fs) {
 /// Substract to the current fuzzy set.
 ///
 /// TODO: Dumb version (?), to be completed.
-void Fuzzy::sub(const Fuzzy& fs) {
+void Fuzzy::sub(const AbstractFuzzy& f) {
+  const Fuzzy fs = (Fuzzy&)(f);
   // assert(invariant());
 
   for (const Point& q: fs.points)
@@ -321,7 +323,8 @@ void Fuzzy::clip(clipping_direction direction, double bound) {
 }
 
 
-bool Fuzzy::is_identical_to(const Fuzzy& fs, double tolerance ) const {
+bool Fuzzy::is_identical_to(const AbstractFuzzy& f, double tolerance ) const {
+  const Fuzzy fs = (Fuzzy&)(f);
   // Since list::size() has constant complexity since C++ 11, checking
   // size is an inexpensive first step.
   if (points.size() != fs.points.size()) 

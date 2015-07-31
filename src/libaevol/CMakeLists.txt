@@ -114,7 +114,7 @@ add_library(aevol
   Time.h
   World.cpp
   World.h
-  ObservableEvent.h)
+  ObservableEvent.h FuzzyFactory.h FuzzyFactory.cpp AbstractFuzzy.h AbstractFuzzy.cpp HybridFuzzy.h HybridFuzzy.cpp)
 
 
 # ============================================================================
