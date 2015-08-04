@@ -312,6 +312,22 @@ if test "x$raevol" = "xyes" ; then
    AC_DEFINE(__REGUL)
 fi
 
+#  ************************* --with-blas option *******************************
+#
+#  With this option, BLAS matrix/vector manipulation is enabled, __BLAS__ flag is defined and -lopenblas added
+#
+
+
+AC_MSG_CHECKING([whether to use BLAS library])
+AC_ARG_WITH(blas, [--with-blas to the use of BLAS library], blas=$withval, blas=no)
+AC_MSG_RESULT($blas)
+AM_CONDITIONAL(WITH_BLAS, test x"$blas" != xno)
+if test "x$blas" = "xyes" ; then
+   AC_DEFINE(__BLAS__)
+   AEVOLCXXFLAGS+=" -lopenblas"
+   AEVOLLDFLAGS+=" -lopenblas"
+fi
+
 
 #  ************************* back to GENERAL stuff *******************************
 

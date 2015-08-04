@@ -36,6 +36,8 @@
 #include <list>
 #include <algorithm>
 
+
+#include "FuzzyFactory.h"
 #include "ExpManager.h"
 #include "ExpSetup.h"
 #include "Codon.h"
@@ -48,7 +50,6 @@
 #include "Individual.h"
 #endif
 
-#include "Fuzzy.h"
 
 namespace aevol {
 
@@ -104,17 +105,17 @@ void GeneticUnit::clear_protein_list(Strand strand) {
   _protein_list[strand].clear();
 }
 
-Fuzzy* GeneticUnit::get_activ_contribution() const
+AbstractFuzzy* GeneticUnit::get_activ_contribution() const
 {
   return _activ_contribution;
 }
 
-Fuzzy* GeneticUnit::get_inhib_contribution() const
+AbstractFuzzy* GeneticUnit::get_inhib_contribution() const
 {
   return _inhib_contribution;
 }
 
-Fuzzy* GeneticUnit::get_phenotypic_contribution() const
+AbstractFuzzy* GeneticUnit::get_phenotypic_contribution() const
 {
   assert(_phenotypic_contribution != NULL);
   return _phenotypic_contribution;
@@ -578,8 +579,8 @@ GeneticUnit::GeneticUnit(Individual * indiv,
   _dna = new Dna( this, length, prng );
 
   // Create empty fuzzy sets for the phenotypic contributions
-  _activ_contribution = new Fuzzy();
-  _inhib_contribution = new Fuzzy();
+  _activ_contribution = FuzzyFactory::fuzzyFactory->create_fuzzy();
+  _inhib_contribution = FuzzyFactory::fuzzyFactory->create_fuzzy();
   _phenotypic_contribution = NULL;
   // NB : _phenotypic_contribution is only an indicative value,
   //      it is not used for the whole phenotype computation
@@ -645,8 +646,8 @@ GeneticUnit::GeneticUnit(Individual * indiv,
   }
 
   // Create empty fuzzy sets for the phenotypic contributions
-  _activ_contribution = new Fuzzy();
-  _inhib_contribution = new Fuzzy();
+  _activ_contribution = FuzzyFactory::fuzzyFactory->create_fuzzy();
+  _inhib_contribution = FuzzyFactory::fuzzyFactory->create_fuzzy();
   _phenotypic_contribution = NULL;
   // NB : _phenotypic_contribution is only an indicative value,
   //      it is not used for the whole phenotype computation
@@ -695,8 +696,8 @@ GeneticUnit::GeneticUnit(Individual* indiv, const GeneticUnit& model)
   _dna = new Dna( this, *(model._dna) );
 
   // Create empty fuzzy sets for the phenotypic contributions
-  _activ_contribution = new Fuzzy();
-  _inhib_contribution = new Fuzzy();
+  _activ_contribution = FuzzyFactory::fuzzyFactory->create_fuzzy();
+  _inhib_contribution = FuzzyFactory::fuzzyFactory->create_fuzzy();
   _phenotypic_contribution = NULL;
   // NB : _phenotypic_contribution is only an indicative value, not used for the whole phenotype computation
   _dist_to_target_per_segment = NULL;
@@ -754,8 +755,8 @@ GeneticUnit::GeneticUnit(Individual* indiv, const GeneticUnit* parent)
   }
 
   // Create empty fuzzy sets for the phenotypic contributions
-  _activ_contribution = new Fuzzy();
-  _inhib_contribution = new Fuzzy();
+  _activ_contribution = FuzzyFactory::fuzzyFactory->create_fuzzy();
+  _inhib_contribution = FuzzyFactory::fuzzyFactory->create_fuzzy();
   _phenotypic_contribution = NULL;
   // NB : _phenotypic_contribution is only an indicative value, not used for the whole phenotype computation
 
@@ -792,8 +793,8 @@ GeneticUnit::GeneticUnit( Individual * indiv, gzFile backup_file )
   gzread( backup_file, &_max_gu_length, sizeof(_max_gu_length) );
 
   // Create empty fuzzy sets for the phenotypic contributions
-  _activ_contribution = new Fuzzy();
-  _inhib_contribution = new Fuzzy();
+  _activ_contribution = FuzzyFactory::fuzzyFactory->create_fuzzy();
+  _inhib_contribution = FuzzyFactory::fuzzyFactory->create_fuzzy();
   _phenotypic_contribution = NULL;
   // NB : _phenotypic_contribution is only an indicative value, not used for the whole phenotype computation
 
@@ -837,8 +838,8 @@ GeneticUnit::GeneticUnit( Individual * indiv, char* organism_file_name )
   _dna = new Dna( this, organism_file_name );
 
   // Create empty fuzzy sets for the phenotypic contributions
-  _activ_contribution = new Fuzzy();
-  _inhib_contribution = new Fuzzy();
+  _activ_contribution = FuzzyFactory::fuzzyFactory->create_fuzzy();
+  _inhib_contribution = FuzzyFactory::fuzzyFactory->create_fuzzy();
   _phenotypic_contribution = NULL;
   // NB : _phenotypic_contribution is only an indicative value,
   //      it is not used for the whole phenotype computation
@@ -1140,7 +1141,7 @@ void GeneticUnit::compute_phenotypic_contribution( void )
 
   if ( _exp_m->get_output_m()->get_compute_phen_contrib_by_GU() )
   {
-    _phenotypic_contribution = new Phenotype();
+    _phenotypic_contribution = FuzzyFactory::fuzzyFactory->create_fuzzy();
     _phenotypic_contribution->add( *_activ_contribution );
     _phenotypic_contribution->add( *_inhib_contribution );
     _phenotypic_contribution->simplify();
@@ -1159,8 +1160,8 @@ void GeneticUnit::compute_distance_to_target(const PhenotypicTarget& target) {
   compute_phenotypic_contribution();
 
   // Compute the difference between the (whole) phenotype and the environment
-  Fuzzy* delta = new Fuzzy( *_phenotypic_contribution );
-  delta->sub( target );
+  AbstractFuzzy* delta = FuzzyFactory::fuzzyFactory->create_fuzzy(*_phenotypic_contribution);
+  delta->sub( *(target.fuzzy()) );
 
   PhenotypicSegment ** segments = target.segments();
 
@@ -1282,13 +1283,13 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     if ( _activ_contribution != NULL )
     {
       delete _activ_contribution;
-      _activ_contribution = new Fuzzy();
+      _activ_contribution = FuzzyFactory::fuzzyFactory->create_fuzzy();
     }
 
     if ( _inhib_contribution != NULL )
     {
       delete _inhib_contribution;
-      _inhib_contribution = new Fuzzy();
+      _inhib_contribution = FuzzyFactory::fuzzyFactory->create_fuzzy();
     }
 
     if ( _phenotypic_contribution != NULL )

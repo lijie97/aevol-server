@@ -29,7 +29,7 @@ class HybridFuzzy : public AbstractFuzzy
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~HybridFuzzy() {};
+  virtual ~HybridFuzzy();
 
   // ==========================================================================
   //                              Public Methods
@@ -41,6 +41,7 @@ class HybridFuzzy : public AbstractFuzzy
   void add_triangle(double mean, double width, double height);
   void add(const AbstractFuzzy& f);
   void sub(const AbstractFuzzy& f);
+  void add_point(double x, double y);
 
   void clip(clipping_direction direction, double bound);
 
@@ -59,6 +60,9 @@ class HybridFuzzy : public AbstractFuzzy
   bool is_identical_to(const AbstractFuzzy& fs, double tolerance) const;
 
   int get_pheno_size() const { return _pheno_size; };
+
+  void print();
+  inline void clear()  {reset();};
   // ==========================================================================
   //                                 Setters
   // ==========================================================================

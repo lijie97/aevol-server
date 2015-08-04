@@ -93,6 +93,7 @@ class Fuzzy : public AbstractFuzzy
   void add_triangle(double mean, double width, double height);
   void add(const AbstractFuzzy& f);
   void sub(const AbstractFuzzy& f);
+  void add_point(double x, double y);
 
   void clip(clipping_direction direction, double bound);
   // TODO: should be made protected
@@ -113,7 +114,8 @@ class Fuzzy : public AbstractFuzzy
   // get_x should be moved out of fuzzy class as it really applies to pair of points
   double get_x(const Point& left, const Point& right, double y) const;
   bool is_identical_to(const AbstractFuzzy& fs, double tolerance) const;
-
+  void print();
+  void clear();
   // ==========================================================================
   //                                 Setters
   // ==========================================================================

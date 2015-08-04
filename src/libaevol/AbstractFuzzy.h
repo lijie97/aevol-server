@@ -26,7 +26,7 @@ class AbstractFuzzy
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-//  virtual ~AbstractFuzzy() {};
+  virtual ~AbstractFuzzy() {};
 
   // ==========================================================================
   //                              Public Methods
@@ -38,6 +38,7 @@ class AbstractFuzzy
   virtual void add_triangle(double mean, double width, double height)  = 0;
   virtual void add(const AbstractFuzzy& f)  = 0;
   virtual void sub(const AbstractFuzzy& f) = 0;
+  virtual void add_point(double x, double y) = 0;
 
   /// `clipping_direction` is only used for `clip` function's keyword.
   enum clipping_direction: bool {min, max};
@@ -51,6 +52,10 @@ class AbstractFuzzy
   virtual double get_geometric_area(double start_segment, double end_segment) const = 0;
 
   virtual bool is_identical_to(const AbstractFuzzy& fs, double tolerance) const = 0;
+
+  virtual void print() = 0;
+
+  virtual void clear() = 0;
 
   // ==========================================================================
   //                                 Setters

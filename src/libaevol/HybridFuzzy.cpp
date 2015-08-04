@@ -5,13 +5,11 @@
 
 #include <math.h>
 
-#define __BLAS__
 #ifdef __BLAS__
 #include <cblas.h>
-#include <iostream>
-
 #endif
 
+#include <iostream>
 #include "HybridFuzzy.h"
 
 namespace aevol {
@@ -80,9 +78,6 @@ void HybridFuzzy::add_triangle( double mean, double width, double height )
   double x0 = mean - width;
   double x1 = mean;
   double x2 = mean + width;
-  //~ double y0 = 0.0;
-  double y1 = height;
-  //~ double y2 = 0.0;
 
   int ix0 = (int) (x0 * _pheno_size);
   int ix1 = (int) (x1 * _pheno_size);
@@ -117,10 +112,10 @@ void HybridFuzzy::add( const AbstractFuzzy& f )
 {
   const HybridFuzzy to_add = (HybridFuzzy&)(f);
 #ifdef __BLAS__
-  cblas_daxpy(_pheno_size, 1.0, to_add->_points, 1, _points, 1);
+  cblas_daxpy(_pheno_size, 1.0, to_add.get_points(), 1, _points, 1);
 #else
 		for (int i = 0; i < _pheno_size; i++) {
-			if (to_add->_points[i] != 0) _points[i] = _points[i] + to_add->_points[i];
+			if (to_add._points[i] != 0) _points[i] = _points[i] + to_add._points[i];
 		}
 #endif
 }
@@ -129,10 +124,10 @@ void HybridFuzzy::sub( const AbstractFuzzy& f )
 {
   const HybridFuzzy to_sub = (HybridFuzzy&)(f);
 #ifdef __BLAS__
-  cblas_daxpy(_pheno_size, -1.0, to_sub->_points, 1, _points, 1);
+  cblas_daxpy(_pheno_size, -1.0, to_sub.get_points(), 1, _points, 1);
 #else
 		for (int i = 0; i < _pheno_size; i++) {
-			if (to_sub->_points[i] !=0 ) _points[i] = _points[i] - to_sub->_points[i];
+			if (to_sub._points[i] !=0 ) _points[i] = _points[i] - to_sub._points[i];
 		}
 #endif
 }
@@ -152,7 +147,7 @@ double HybridFuzzy::get_geometric_area( double start_segment, double end_segment
   if (istart_segment < 0) istart_segment = 0; else if (istart_segment > (_pheno_size-1)) istart_segment = _pheno_size-1;
   if (iend_segment < 0) iend_segment = 0; else if (iend_segment > (_pheno_size-1)) iend_segment = _pheno_size-1;
   for (int i = istart_segment; i < iend_segment; i++) {
-    area+=((fabs(_points[i]) + fabs(_points[i+1])) / (2.0*PHENO_SIZE));
+    area+=((fabs(_points[i]) + fabs(_points[i+1])) / (2.0*_pheno_size));
   }
 
   return area;
@@ -205,19 +200,27 @@ void HybridFuzzy::clip(clipping_direction direction, double bound) {
   }
 }
 
+void HybridFuzzy::add_point(double x, double y) {
+  int ix = (int) ( x * _pheno_size);
+  _points[ix] = y;
+}
+
 // =================================================================
 //                           Protected Methods
 // =================================================================
 double HybridFuzzy::get_y( double x ) const
 {
-  assert( x >= X_MIN && x <= X_MAX );
-
-  int ix = (int) ( x / _pheno_size);
+  int ix = (int) ( x * _pheno_size);
 
   double retValue = _points[ix];
 
   return retValue;
 }
 
-
+void HybridFuzzy::print()
+{
+  for (int i = 0; i < _pheno_size; i++)
+    printf("[%d : %f] ",i,_points[i]);
+  printf("\n");
+}
 }

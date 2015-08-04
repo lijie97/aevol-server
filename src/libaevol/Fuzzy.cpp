@@ -415,4 +415,25 @@ void Fuzzy::reset() {
 
   // assert(invariant());
 }
+
+void Fuzzy::clear() {
+  points.clear();
+}
+
+void Fuzzy::add_point(double x, double y)
+{
+  list<Point>::iterator p = find_if(points.begin(), points.end(), [x](Point& q){return q.x > x;});
+  if (prev(p)->x == x) {
+    prev(p)->y += y;
+  } else {
+    points.insert(p,Point(x,y));
+  }
+}
+
+void Fuzzy::print()
+{
+  for (const Point& p : points)
+    printf("[%f : %f] ",p.x,p.y);
+  printf("\n");
+}
 } // namespace aevol

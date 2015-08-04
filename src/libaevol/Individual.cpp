@@ -291,9 +291,9 @@ Individual::Individual(const Individual& other) {
 
   // Copy phenotype
   if (_phenotype_computed) {
-    _phenotype_activ  = new Fuzzy(*(other._phenotype_activ));
-    _phenotype_inhib  = new Fuzzy(*(other._phenotype_inhib));
-    _phenotype        = new Phenotype(*(other._phenotype));
+    _phenotype_activ  = FuzzyFactory::fuzzyFactory->create_fuzzy((*(other._phenotype_activ)));
+    _phenotype_inhib  = FuzzyFactory::fuzzyFactory->create_fuzzy((*(other._phenotype_inhib)));
+    _phenotype        = FuzzyFactory::fuzzyFactory->create_fuzzy((*(other._phenotype)));
   }
   else {
     _phenotype_activ  = NULL;
@@ -666,12 +666,12 @@ int32_t Individual::get_genetic_unit_seq_length(int16_t num_unit) const {
 }
 
 /// TODO
-Fuzzy* Individual::get_phenotype_activ() const {
+AbstractFuzzy* Individual::get_phenotype_activ() const {
   return _phenotype_activ;
 }
 
 /// TODO
-Fuzzy* Individual::get_phenotype_inhib() const {
+AbstractFuzzy* Individual::get_phenotype_inhib() const {
   return _phenotype_inhib;
 }
 
@@ -1254,21 +1254,21 @@ void Individual::compute_phenotype() {
   //   * _phenotype_activ for the proteins realising a set of functions
   //   * _phenotype_inhib for the proteins inhibiting a set of functions
   // The phenotype will then be given by the sum of these 2 fuzzy sets
-  _phenotype_activ = new Fuzzy();
-  _phenotype_inhib = new Fuzzy();
+  _phenotype_activ = FuzzyFactory::fuzzyFactory->create_fuzzy();
+  _phenotype_inhib = FuzzyFactory::fuzzyFactory->create_fuzzy();
 
   for (const auto& gen_unit: _genetic_unit_list) {
     _phenotype_activ->add(*gen_unit.get_activ_contribution());
     _phenotype_inhib->add(*gen_unit.get_inhib_contribution());
   }
 
-  _phenotype_activ->clip(Fuzzy::max,   Y_MAX);
-  _phenotype_inhib->clip(Fuzzy::min, - Y_MAX);
+  _phenotype_activ->clip(AbstractFuzzy::max,   Y_MAX);
+  _phenotype_inhib->clip(AbstractFuzzy::min, - Y_MAX);
 
-  _phenotype = new Phenotype();
+  _phenotype = FuzzyFactory::fuzzyFactory->create_fuzzy();
   _phenotype->add(*_phenotype_activ);
   _phenotype->add(*_phenotype_inhib);
-  _phenotype->clip(Fuzzy::min, Y_MIN);
+  _phenotype->clip(AbstractFuzzy::min, Y_MIN);
   _phenotype->simplify();
 }
 
@@ -1284,8 +1284,8 @@ void Individual::compute_distance_to_target(const PhenotypicTarget& target) {
     compute_phenotype();
 
   // Compute the difference between the (whole) phenotype and the target
-  Fuzzy* delta = new Fuzzy(*_phenotype);
-  delta->sub(target);
+  AbstractFuzzy* delta = FuzzyFactory::fuzzyFactory->create_fuzzy(*_phenotype);
+  delta->sub(*(target.fuzzy()));
 
   PhenotypicSegment ** segments = target.segments();
   delete [] _dist_to_target_by_segment;

@@ -40,7 +40,8 @@
 #include "Dna.h"
 #include "Rna.h"
 #include "Protein.h"
-#include "Fuzzy.h"
+#include "AbstractFuzzy.h"
+#include "FuzzyFactory.h"
 #include "JumpingMT.h"
 #include "Utils.h"
 #include "PhenotypicTarget.h"
@@ -96,9 +97,9 @@ class GeneticUnit
   ExpManager* get_exp_m() const;
   Individual* get_indiv() const;
   Dna* get_dna() const;
-  Fuzzy* get_activ_contribution() const;
-  Fuzzy* get_inhib_contribution() const;
-  Fuzzy* get_phenotypic_contribution() const;
+  AbstractFuzzy* get_activ_contribution() const;
+  AbstractFuzzy* get_inhib_contribution() const;
+  AbstractFuzzy* get_phenotypic_contribution() const;
 
   const Promoters2Strands& get_rna_list() const;
   // TODO return as reference
@@ -309,9 +310,9 @@ class GeneticUnit
 
   Individual*  _indiv;
   Dna*         _dna;
-  Fuzzy*   _activ_contribution;
-  Fuzzy*   _inhib_contribution;
-  Fuzzy*   _phenotypic_contribution;
+  AbstractFuzzy*   _activ_contribution;
+  AbstractFuzzy*   _inhib_contribution;
+  AbstractFuzzy*   _phenotypic_contribution;
   // NB : _phenotypic_contribution is only an indicative value, not used for the whole phenotype computation
 
   // _rna_list always has 2 elements: make it an std::array

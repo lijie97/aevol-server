@@ -44,11 +44,16 @@
 // =================================================================
 #include "ParamLoader.h"
 
-#include "ExpManager.h"
-#include "ExpSetup.h"
-#include "OutputManager.h"
-#include "Individual.h"
+#include "FuzzyFactory.h"
 #include "IndividualFactory.h"
+#include "ExpManager.h"
+
+
+#ifdef __REGUL
+#include "raevol/Individual_R.h"
+#endif
+
+
 
 #include "JumpingMT.h"
 #include "Gaussian.h"
@@ -1176,6 +1181,8 @@ void ParamLoader::CheckConsistency() {
   }
 }
 
+FuzzyFactory* FuzzyFactory::fuzzyFactory = NULL;
+
 void ParamLoader::load(ExpManager * exp_m, bool verbose,
                         char* chromosome, int32_t lchromosome,
                         char* plasmid, int32_t lplasmid) {
@@ -1204,6 +1211,9 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   ExpSetup * exp_s = exp_m->get_exp_s();
   Selection * sel = exp_m->get_sel();
   OutputManager * output_m  = exp_m->get_output_m();
+
+  if (FuzzyFactory::fuzzyFactory == NULL)
+    FuzzyFactory::fuzzyFactory = new FuzzyFactory(exp_s);
 
   // 1) ------------------------------------- Initialize the experimental setup
   sel->set_prng(std::make_unique<JumpingMT>(_prng->random(1000000)));

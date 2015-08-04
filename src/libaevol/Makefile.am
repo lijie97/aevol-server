@@ -25,6 +25,7 @@ noinst_LIBRARIES = libaevol.a
 AM_CPPFLAGS += -D__STDC_FORMAT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS
 
 common_headers = \
+AbstractFuzzy.h \
 Alignment.h \
 Codon.h \
 Dna.h \
@@ -34,9 +35,11 @@ PhenotypicSegment.h \
 ExpManager.h \
 ExpSetup.h \
 Fuzzy.h \
+FuzzyFactory.h \
 Gaussian.h \
 GeneticUnit.h \
 GridCell.h \
+HybridFuzzy.h \
 Individual.h \
 IndividualFactory.h \
 Logging.h \
@@ -111,6 +114,9 @@ Selection.cpp \
 GeneTree.cpp \
 GeneTreeNode.cpp \
 GeneMutation.cpp \
+AbstractFuzzy.cpp \
+HybridFuzzy.cpp \
+FuzzyFactory.cpp \
 Fuzzy.cpp \
 Habitat.cpp \
 ParamLoader.cpp \

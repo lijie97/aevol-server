@@ -32,6 +32,7 @@
 // ============================================================================
 #include "IndividualFactory.h"
 
+#include <limits>
 
 namespace aevol {
 
@@ -119,8 +120,10 @@ Individual* IndividualFactory::create_random_individual(
 
     indiv->EvaluateInContext(habitat);
 
-    while (indiv->get_dist_to_target_by_feature(METABOLISM) >=
-        env_metabolic_area) {
+    // TODO: Find a more elegant way of doing it
+    double r_compare = round((indiv->get_dist_to_target_by_feature(METABOLISM)-env_metabolic_area) * 1E10) / 1E10;
+
+    while (r_compare >= 0.0) {
       #ifdef __REGUL
       indiv->set_networked(false);
       #endif
@@ -129,8 +132,10 @@ Individual* IndividualFactory::create_random_individual(
       indiv->remove_GU(0);
       indiv->add_GU(indiv, chromosome_initial_length, local_prng);
       indiv->EvaluateInContext(habitat);
-
+      r_compare = round((indiv->get_dist_to_target_by_feature(METABOLISM)-env_metabolic_area) * 1E10) / 1E10;
     }
+
+
   }
   if (allow_plasmids) // We create a plasmid
   {

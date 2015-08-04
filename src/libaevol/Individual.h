@@ -148,8 +148,8 @@ class Individual : public Observable
   int32_t get_rank() const;
 
 
-  Fuzzy* get_phenotype_activ() const;
-  Fuzzy* get_phenotype_inhib() const;
+  AbstractFuzzy* get_phenotype_activ() const;
+  AbstractFuzzy* get_phenotype_inhib() const;
   Phenotype* get_phenotype()       const;
   const PhenotypicTarget& phenotypic_target() const;
 
@@ -407,8 +407,8 @@ class Individual : public Observable
   int32_t  _rank; // [1 ; POP_SIZE]
 
   // Total activation (resp. inhibition) of metabolic functions
-  Fuzzy* _phenotype_activ;
-  Fuzzy* _phenotype_inhib;
+  AbstractFuzzy* _phenotype_activ;
+  AbstractFuzzy* _phenotype_inhib;
 
   // The phenotype, roughly corresponding to the sum of activ and inhib
   Phenotype* _phenotype;

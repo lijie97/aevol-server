@@ -1,10 +1,3 @@
-//
-// Created by arrouan on 30/07/15.
-//
-
-#ifndef AEVOL_FUZZYFACTORY_H
-#define AEVOL_FUZZYFACTORY_H
-
 // ****************************************************************************
 //
 //          Aevol - An in silico experimental evolution platform
@@ -32,8 +25,8 @@
 //*****************************************************************************
 
 
-#ifndef AEVOL_INDIVIDUAL_FACTORY_H__
-#define AEVOL_INDIVIDUAL_FACTORY_H__
+#ifndef AEVOL_FUZZY_FACTORY_H__
+#define AEVOL_FUZZY_FACTORY_H__
 
 
 // ============================================================================
@@ -45,13 +38,13 @@
 #include <cassert>
 
 #include "AbstractFuzzy.h"
-#include "ExpSetup.h"
 
 namespace aevol {
 
 // ============================================================================
 //                          Class declarations
 // ============================================================================
+class ExpSetup;
 
 class FuzzyFactory
 {
@@ -59,12 +52,12 @@ class FuzzyFactory
   // ==========================================================================
   //                               Constructors
   // ==========================================================================
-  FuzzyFactory(void) = default; //< Default ctor
+  FuzzyFactory(ExpSetup* exp_s) {_exp_s = exp_s;}; //< Default ctor
 
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~FuzzyFactory(void) = default; //< Destructor
+  virtual ~FuzzyFactory(void) {}; //< Destructor
 
   // ==========================================================================
   //                                 Getters
@@ -81,8 +74,15 @@ class FuzzyFactory
   // ==========================================================================
   //                              Public Methods
   // ==========================================================================
-  static AbstractFuzzy* create_fuzzy(ExpSetup* exp_s);
+/*  static AbstractFuzzy* create_fuzzy(ExpSetup* exp_s);
+  static AbstractFuzzy* create_fuzzy(ExpSetup* exp_s, const AbstractFuzzy& copy);
+  static AbstractFuzzy* create_fuzzy(ExpSetup* exp_s, const gzFile backup);*/
 
+  AbstractFuzzy* create_fuzzy();
+  AbstractFuzzy* create_fuzzy(const AbstractFuzzy& copy);
+  AbstractFuzzy* create_fuzzy(const gzFile backup);
+
+  static FuzzyFactory* fuzzyFactory;
  protected :
   // ==========================================================================
   //                            Protected Methods
@@ -91,7 +91,9 @@ class FuzzyFactory
   // ==========================================================================
   //                               Attributes
   // ==========================================================================
+  ExpSetup* _exp_s;
 };
+
 
 
 // ============================================================================

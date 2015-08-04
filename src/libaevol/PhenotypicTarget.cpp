@@ -31,6 +31,7 @@
 //                                   Includes
 // ============================================================================
 #include "PhenotypicTarget.h"
+#include "FuzzyFactory.h"
 
 #include <cstring>
 
@@ -51,14 +52,16 @@ namespace aevol {
 // ============================================================================
 //                                Constructors
 // ============================================================================
-PhenotypicTarget::PhenotypicTarget() : Fuzzy() {
+PhenotypicTarget::PhenotypicTarget() {
+  fuzzy_ = FuzzyFactory::fuzzyFactory->create_fuzzy();
   nb_segments_     = 1;
   segments_        = new PhenotypicSegment * [1];
   segments_[0]     = new PhenotypicSegment(X_MIN, X_MAX, METABOLISM);
   area_by_feature_ = new double [NB_FEATURES];
 }
 
-PhenotypicTarget::PhenotypicTarget(const PhenotypicTarget& rhs) : Fuzzy(rhs) {
+PhenotypicTarget::PhenotypicTarget(const PhenotypicTarget& rhs) {
+  fuzzy_ = FuzzyFactory::fuzzyFactory->create_fuzzy(*(rhs.fuzzy()));
   nb_segments_     = rhs.nb_segments_;
   segments_        = new PhenotypicSegment * [nb_segments_];
   for (int8_t i = 0 ; i < nb_segments_ ; i++)
@@ -79,6 +82,7 @@ PhenotypicTarget::~PhenotypicTarget() {
     delete [] segments_;
   }
   delete [] area_by_feature_;
+  delete fuzzy_;
 }
 
 // ============================================================================
@@ -112,7 +116,7 @@ void PhenotypicTarget::ComputeArea() {
   //      already been through them!)
   for (int8_t i = 0 ; i < nb_segments_ ; i++) {
     area_by_feature_[segments_[i]->feature] +=
-        get_geometric_area(segments_[i]->start, segments_[i]->stop);
+        fuzzy_->get_geometric_area(segments_[i]->start, segments_[i]->stop);
   }
 }
 

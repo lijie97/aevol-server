@@ -144,7 +144,7 @@ class ExpManager_X11 : public ExpManager
     void toggle_display_on_off(void);
     void handle_events(void);
     bool quit_signal_received(void);
-    void display(X11Window * win, const Fuzzy& fuzzy, color_map color,
+    void display(X11Window * win, const AbstractFuzzy& fuzzy, color_map color,
         bool fill = false, bool bold = false);
     void display_grid(X11Window * win, double** cell_grid);
 

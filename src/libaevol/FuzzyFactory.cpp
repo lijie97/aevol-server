@@ -31,6 +31,8 @@
 //                                   Includes
 // ============================================================================
 #include "FuzzyFactory.h"
+#include "Fuzzy.h"
+#include "HybridFuzzy.h"
 #include "ExpSetup.h"
 
 namespace aevol {
@@ -60,7 +62,7 @@ namespace aevol {
 /**
  * Create an individual with random sequences
  */
-AbstractFuzzy* FuzzyFactory::create_fuzzy(ExpSetup* exp_s)
+/*static AbstractFuzzy* FuzzyFactory::create_fuzzy(ExpSetup* exp_s)
 {
   AbstractFuzzy* fuzzy;
 
@@ -68,6 +70,71 @@ AbstractFuzzy* FuzzyFactory::create_fuzzy(ExpSetup* exp_s)
     fuzzy = new Fuzzy();
   } else {
     fuzzy = new HybridFuzzy();
+  }
+
+  return fuzzy;
+}
+
+static AbstractFuzzy* FuzzyFactory::create_fuzzy(ExpSetup* exp_s, const AbstractFuzzy& copy)
+{
+  AbstractFuzzy* fuzzy;
+
+  if (exp_s->get_fuzzy_flavor() == 0) {
+    fuzzy = new Fuzzy((Fuzzy&)(copy));
+  } else {
+    fuzzy = new HybridFuzzy((HybridFuzzy&)(copy));
+  }
+
+  return fuzzy;
+}
+
+static AbstractFuzzy* FuzzyFactory::create_fuzzy(ExpSetup* exp_s, const gzFile backup)
+{
+  AbstractFuzzy* fuzzy;
+
+  if (exp_s->get_fuzzy_flavor() == 0) {
+    fuzzy = new Fuzzy(backup);
+  } else {
+    fuzzy = new HybridFuzzy(backup);
+  }
+
+  return fuzzy;
+}*/
+
+AbstractFuzzy* FuzzyFactory::create_fuzzy()
+{
+  AbstractFuzzy* fuzzy;
+
+  if (_exp_s->get_fuzzy_flavor() == 0) {
+    fuzzy = new Fuzzy();
+  } else {
+    fuzzy = new HybridFuzzy();
+  }
+
+  return fuzzy;
+}
+
+AbstractFuzzy* FuzzyFactory::create_fuzzy(const AbstractFuzzy& copy)
+{
+  AbstractFuzzy* fuzzy;
+
+  if (_exp_s->get_fuzzy_flavor() == 0) {
+    fuzzy = new Fuzzy((Fuzzy&)(copy));
+  } else {
+    fuzzy = new HybridFuzzy((HybridFuzzy&)(copy));
+  }
+
+  return fuzzy;
+}
+
+AbstractFuzzy* FuzzyFactory::create_fuzzy(const gzFile backup)
+{
+  AbstractFuzzy* fuzzy;
+
+  if (_exp_s->get_fuzzy_flavor() == 0) {
+    fuzzy = new Fuzzy(backup);
+  } else {
+    fuzzy = new HybridFuzzy(backup);
   }
 
   return fuzzy;

@@ -298,6 +298,9 @@ void ExpManager::load(const char* dir,
 {
   Time::set_time(t0);
 
+  if (FuzzyFactory::fuzzyFactory == NULL)
+    FuzzyFactory::fuzzyFactory = new FuzzyFactory(_exp_s);
+
   // -------------------------------------------------------------------------
   // Open setup files and backup files
   // -------------------------------------------------------------------------

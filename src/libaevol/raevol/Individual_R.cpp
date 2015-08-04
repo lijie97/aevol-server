@@ -210,9 +210,9 @@ void Individual_R::init_indiv( void )
     _phenotype_activ = NULL;
     _phenotype_inhib = NULL;
   }
-  _phenotype = new Phenotype();
-  _phenotype_activ = new Phenotype();
-  _phenotype_inhib = new Phenotype();
+  _phenotype = FuzzyFactory::fuzzyFactory->create_fuzzy();
+  _phenotype_activ = FuzzyFactory::fuzzyFactory->create_fuzzy();
+  _phenotype_inhib = FuzzyFactory::fuzzyFactory->create_fuzzy();
 
   //----------------------------------------------------------------------------
   // 2) Make a list of all the rna present in the individual
@@ -293,6 +293,7 @@ void Individual_R::final_step( const Habitat& habitat ) {
   _fitness_computed=false;
   // yoram attention il peut y avoir des soucis si on utilise des environnements segmentés ici
   compute_fitness(habitat.phenotypic_target());
+
   _phenotype_computed = true;
 }
 
@@ -432,7 +433,7 @@ void Individual_R::update_phenotype( void )
                                          ((Protein_R*)prot)->get_width(),
                                          ((Protein_R*)prot)->get_height() * ((Protein_R*)prot)->get_concentration() );
 
-        /*printf("Add triangle ACTIV %f %f %f (%f %f)\n",((Protein_R*)prot)->get_mean(),
+/*        printf("Add triangle ACTIV %f %f %f (%f %f)\n",((Protein_R*)prot)->get_mean(),
                ((Protein_R*)prot)->get_width(),
                ((Protein_R*)prot)->get_height() * ((Protein_R*)prot)->get_concentration(),
                ((Protein_R*)prot)->get_height(), ((Protein_R*)prot)->get_concentration() );*/
@@ -443,7 +444,7 @@ void Individual_R::update_phenotype( void )
                                          ((Protein_R*)prot)->get_width(),
                                          ((Protein_R*)prot)->get_height() * ((Protein_R*)prot)->get_concentration() );
 
-        /*printf("Add triangle INHIB %f %f %f (%f %f)\n",((Protein_R*)prot)->get_mean(),
+  /*      printf("Add triangle INHIB %f %f %f (%f %f)\n",((Protein_R*)prot)->get_mean(),
                ((Protein_R*)prot)->get_width(),
                ((Protein_R*)prot)->get_height() * ((Protein_R*)prot)->get_concentration(),
                ((Protein_R*)prot)->get_height(), ((Protein_R*)prot)->get_concentration() );*/
@@ -452,16 +453,14 @@ void Individual_R::update_phenotype( void )
   }
 
 
-    _phenotype_activ->clip(Fuzzy::max,   Y_MAX);
-    _phenotype_inhib->clip(Fuzzy::min, - Y_MAX);
+    _phenotype_activ->clip(AbstractFuzzy::max,   Y_MAX);
+    _phenotype_inhib->clip(AbstractFuzzy::min, - Y_MAX);
 
     _phenotype->add(*_phenotype_activ);
     _phenotype->add(*_phenotype_inhib);
-    _phenotype->clip(Fuzzy::min, Y_MIN);
+    _phenotype->clip(AbstractFuzzy::min, Y_MIN);
     _phenotype->simplify();
 
-
-//  if (added) {printf("PHENO: \n");_phenotype->print_points();}
 //  _phenotype->simplify();
 }
 

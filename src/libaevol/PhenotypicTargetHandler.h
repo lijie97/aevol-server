@@ -44,7 +44,7 @@
 #include "Gaussian.h"
 #include "ae_enums.h"
 #include "JumpingMT.h"
-#include "Fuzzy.h"
+#include "AbstractFuzzy.h"
 
 using std::list;
 
@@ -54,7 +54,6 @@ namespace aevol {
 // ============================================================================
 //                          Class declarations
 // ============================================================================
-
 
 
 
@@ -89,7 +88,7 @@ class PhenotypicTargetHandler
     return *phenotypic_target_;
   };
   double get_geometric_area() const {
-    return phenotypic_target_->get_geometric_area();
+    return phenotypic_target_->fuzzy()->get_geometric_area();
   };
   double area_by_feature(int8_t feature) const {
     return phenotypic_target_->area_by_feature(feature);
@@ -202,7 +201,7 @@ class PhenotypicTargetHandler
 
   // -------------------------------------------------------------------- Noise
   /// Current noise (pure noise that is added to the phenotypic target)
-  Fuzzy* cur_noise_ = NULL;
+  AbstractFuzzy* cur_noise_ = NULL;
   /// PRNG used for noise
   std::shared_ptr<JumpingMT> noise_prng_;
   PhenotypicTargetNoiseMethod noise_method_;

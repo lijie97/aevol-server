@@ -31,6 +31,7 @@
 //                                   Includes
 // ============================================================================
 #include "PhenotypicTargetHandler.h"
+#include "ExpSetup.h"
 
 #include <iostream>
 
@@ -122,7 +123,7 @@ PhenotypicTargetHandler::~PhenotypicTargetHandler() {
 // ============================================================================
 void PhenotypicTargetHandler::build_phenotypic_target() {
   // NB : Extreme points (at abscissa X_MIN and X_MAX) will be generated, we need to erase the list first
-  phenotypic_target_->points.clear();
+  phenotypic_target_->fuzzy()->reset();
 
   // Generate sample points from gaussians
   if (not current_gaussians_.empty())
@@ -130,15 +131,15 @@ void PhenotypicTargetHandler::build_phenotypic_target() {
       Point new_point = Point(X_MIN + (double)i * (X_MAX - X_MIN) / (double)sampling_, 0.0);
       for (const Gaussian & g: current_gaussians_)
         new_point.y += g.compute_y(new_point.x);
-      phenotypic_target_->points.push_back(new_point);
+      phenotypic_target_->fuzzy()->add_point(new_point.x, new_point.y);
     }
 
   // Add lower and upper bounds
-  phenotypic_target_->clip(Fuzzy::min, Y_MIN);
-  phenotypic_target_->clip(Fuzzy::max, Y_MAX);
+  phenotypic_target_->fuzzy()->clip(AbstractFuzzy::min, Y_MIN);
+  phenotypic_target_->fuzzy()->clip(AbstractFuzzy::max, Y_MAX);
 
   // Simplify (get rid of useless points)
-  phenotypic_target_->simplify();
+  phenotypic_target_->fuzzy()->simplify();
 
   // Compute areas (total and by feature)
   phenotypic_target_->ComputeArea();
@@ -239,7 +240,7 @@ void PhenotypicTargetHandler::load(gzFile backup_file) {
     int8_t tmp_cur_noise_saved;
     gzread(backup_file, &tmp_cur_noise_saved,  sizeof(tmp_cur_noise_saved));
     if (tmp_cur_noise_saved)
-      cur_noise_ = new Fuzzy(backup_file);
+      cur_noise_ = FuzzyFactory::fuzzyFactory->create_fuzzy(backup_file);
 
     noise_prng_ = std::make_shared<JumpingMT>(backup_file);
     gzread(backup_file, &noise_alpha_, sizeof(noise_alpha_));
