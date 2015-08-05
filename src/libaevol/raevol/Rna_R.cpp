@@ -222,11 +222,11 @@ double Rna_R::affinity_with_protein( int32_t index, Protein *protein )
 	  for ( int32_t i = 0 ; i < len - 4; i++ )
 	  {
 	    temp  = 1 *
-	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix(quadon_tab[0],prot->get_AA_list()[i]->get_value()) *
-	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix(quadon_tab[1],prot->get_AA_list()[i+1]->get_value()) *
-	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix(quadon_tab[2],prot->get_AA_list()[i+2]->get_value()) *
-	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix(quadon_tab[3],prot->get_AA_list()[i+3]->get_value()) *
-	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix(quadon_tab[4],prot->get_AA_list()[i+4]->get_value());
+	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix(quadon_tab[0],prot->get_cod_tab(i)) *
+	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix(quadon_tab[1],prot->get_cod_tab(i+1)) *
+	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix(quadon_tab[2],prot->get_cod_tab(i+2)) *
+	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix(quadon_tab[3],prot->get_cod_tab(i+3)) *
+	    		_gen_unit->get_exp_m()->get_exp_s()->get_binding_matrix(quadon_tab[4],prot->get_cod_tab(i+4));
 
 	//    for ( int32_t j = 0 ; j < 5 ; j++ )
 	//    {

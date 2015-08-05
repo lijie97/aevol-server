@@ -94,6 +94,7 @@ class Protein_R : public Protein
 //           void    add_influence( ae_influence_R* influence );
 	         void    save( gzFile backup_file );
 //	         void    remove_influence( ae_influence_R* influence );
+    inline int8_t  get_cod_tab(int32_t index) const;
 
     void  add_RNA( Rna * rna );
 
@@ -118,6 +119,7 @@ class Protein_R : public Protein
     //                          Protected Attributes
     // =================================================================
     std::vector<Rna_R*>  _rna_R_list;
+    int8_t*   _cod_tab;
     double    _delta_concentration;
     bool      _inherited;
     bool      _signal;
@@ -190,7 +192,10 @@ inline void Protein_R::set_concentration( double concentration )
   _concentration = concentration;
 }
 
-
+inline int8_t Protein_R::get_cod_tab(int32_t index) const
+{
+  return _cod_tab[index];
+}
 
 } // namespace aevol
 

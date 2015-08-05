@@ -57,14 +57,22 @@ namespace aevol {
 //                             Constructors
 // =================================================================
 
-Protein_R::Protein_R( GeneticUnit* gen_unit, const Protein_R &model ) : Protein::Protein( gen_unit, model )
-{
-  _concentration         = model._concentration;
+Protein_R::Protein_R( GeneticUnit* gen_unit, const Protein_R &model ) : Protein::Protein( gen_unit, model ) {
+  _concentration = model._concentration;
   _initial_concentration = model._concentration;
-  _delta_concentration   = model._delta_concentration;
-  _signal                = model._signal;
-  _inherited             = model._inherited;
-  not_pure_TF			 = false;
+  _delta_concentration = model._delta_concentration;
+  _signal = model._signal;
+  _inherited = model._inherited;
+  not_pure_TF = false;
+
+  if (!_AA_list.empty()) {
+    _cod_tab = new int8_t[_AA_list.size()];
+    int i = 0;
+    for (auto cod : _AA_list) {
+      _cod_tab[i] = cod->get_value();
+      i++;
+    }
+  }
 }
 
 
@@ -80,6 +88,15 @@ Protein_R::Protein_R( GeneticUnit* gen_unit, const std::vector<Codon*> codon_lis
   _inherited             = false;
   _signal                = false;
   not_pure_TF			       = false;
+
+  if (!_AA_list.empty()) {
+    _cod_tab = new int8_t[_AA_list.size()];
+    int i = 0;
+    for (auto cod : _AA_list) {
+      _cod_tab[i] = cod->get_value();
+      i++;
+    }
+  }
 }
 
 //used to build the signal protein
@@ -91,6 +108,15 @@ Protein_R::Protein_R( const std::vector<Codon*> codon_list, double concentration
   _inherited            = false;
   _signal               = true;
   not_pure_TF			 = false;
+
+  if (!_AA_list.empty()) {
+    _cod_tab = new int8_t[_AA_list.size()];
+    int i = 0;
+    for (auto cod : _AA_list) {
+      _cod_tab[i] = cod->get_value();
+      i++;
+    }
+  }
 }
 
 Protein_R::Protein_R( gzFile backup_file ) : Protein::Protein( backup_file )
@@ -100,6 +126,15 @@ Protein_R::Protein_R( gzFile backup_file ) : Protein::Protein( backup_file )
   gzread( backup_file, &_inherited,   			sizeof(_inherited) );
   gzread( backup_file, &_signal,   			sizeof(_signal) );
   not_pure_TF			 = false;
+
+  if (!_AA_list.empty()) {
+    _cod_tab = new int8_t[_AA_list.size()];
+    int i = 0;
+    for (auto cod : _AA_list) {
+      _cod_tab[i] = cod->get_value();
+      i++;
+    }
+  }
 }
  
 // =================================================================
