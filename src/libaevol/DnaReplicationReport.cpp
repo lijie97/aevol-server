@@ -24,17 +24,27 @@
 #include <cassert>
 
 #include "DnaReplicationReport.h"
+#include "InsertionHT.h"
+#include "ReplacementHT.h"
+
 #include "Mutation.h"
+#include "Duplication.h"
+#include "Translocation.h"
+#include "Inversion.h"
+#include "Deletion.h"
+#include "SmallDeletion.h"
+#include "PointMutation.h"
+#include "SmallInsertion.h"
 
 namespace aevol {
 
 DnaReplicationReport::DnaReplicationReport(const DnaReplicationReport& other) {
   for (auto& ht : other.ht_)
-    add_HT(*ht->Clone());
+    add_HT(ht->Clone());
   for (auto& rear : other.rearrangements_)
-    add_rear(*rear->Clone());
+    add_rear(rear->Clone());
   for (auto& mut : other.mutations_)
-    add_local_mut(*mut->Clone());
+    add_local_mut(mut->Clone());
 }
 
 int32_t DnaReplicationReport::get_nb(MutationType t)  const {
@@ -52,7 +62,7 @@ int32_t DnaReplicationReport::get_nb(MutationType t)  const {
                                  _nb_mut[TRANS] +
                                  _nb_mut[INV]));
       return rearrangements_.size();
-    case HT:
+    case H_T:
       assert(ht_.size() ==
              static_cast<size_t>(_nb_mut[INS_HT] +
                                  _nb_mut[REPL_HT]));
@@ -64,33 +74,72 @@ int32_t DnaReplicationReport::get_nb(MutationType t)  const {
   };
 }
 
-void DnaReplicationReport::add_mut(const Mutation& mut) {
-  if (mut.is_local_mut()) {
+void DnaReplicationReport::add_mut(Mutation* mut) {
+  if (mut->is_local_mut()) {
     add_local_mut(mut);
   }
-  else if (mut.is_rear()) {
+  else if (mut->is_rear()) {
     add_rear(mut);
   }
-  else if (mut.is_ht()) {
+  else if (mut->is_ht()) {
     add_HT(mut);
   }
 }
-void DnaReplicationReport::add_local_mut(const Mutation& mut) {
-  assert(mut.is_local_mut());
-  mutations_.emplace_back(&mut);
-  _nb_mut[mut.get_mut_type()]++;
+
+void DnaReplicationReport::add_local_mut(Mutation* mut) {
+  assert(mut->is_local_mut());
+  std::unique_ptr<const LocalMutation> cmut = nullptr;
+  switch(mut->get_mut_type()) {
+    case SWITCH:
+      cmut = std::make_unique<const PointMutation>(static_cast<PointMutation&>(*mut));
+      break;
+    case S_DEL:
+      cmut = std::make_unique<const SmallDeletion>(static_cast<SmallDeletion&>(*mut));
+      break;
+    case S_INS:
+      cmut = std::make_unique<const SmallInsertion>(static_cast<SmallInsertion&>(*mut));
+      break;
+  }
+  mutations_.push_back(std::move(cmut));
+  _nb_mut[mut->get_mut_type()]++;
 }
 
-void DnaReplicationReport::add_rear(const Mutation& mut) {
-  assert(mut.is_rear());
-  rearrangements_.emplace_back(&mut);
-  _nb_mut[mut.get_mut_type()]++;
+void DnaReplicationReport::add_rear(Mutation* mut) {
+  assert(mut->is_rear());
+
+  std::unique_ptr<const Rearrangement> cmut = nullptr;
+  switch(mut->get_mut_type()) {
+    case DUPL:
+      cmut = std::make_unique<const Duplication>(static_cast<Duplication&>(*mut));
+      break;
+    case DEL:
+      cmut = std::make_unique<const Deletion>(static_cast<Deletion&>(*mut));
+      break;
+    case TRANS:
+      cmut = std::make_unique<const Translocation>(static_cast<Translocation&>(*mut));
+      break;
+    case INV:
+      cmut = std::make_unique<const Inversion>(static_cast<Inversion&>(*mut));
+      break;
+  }
+  rearrangements_.push_back(std::move(cmut));
+  _nb_mut[mut->get_mut_type()]++;
 }
 
-void DnaReplicationReport::add_HT(const Mutation& mut) {
-  assert(mut.is_ht());
-  ht_.emplace_back(&mut);
-  _nb_mut[mut.get_mut_type()]++;
+void DnaReplicationReport::add_HT(Mutation* mut) {
+  assert(mut->is_ht());
+
+  std::unique_ptr<const HT> cmut = nullptr;
+  switch(mut->get_mut_type()) {
+    case INS_HT:
+      cmut = std::make_unique<const InsertionHT>(static_cast<InsertionHT&>(*mut));
+      break;
+    case REPL_HT:
+      cmut = std::make_unique<const ReplacementHT>(static_cast<ReplacementHT&>(*mut));
+      break;
+  }
+  ht_.push_back(std::move(cmut));
+  _nb_mut[mut->get_mut_type()]++;
 }
 
 
@@ -133,22 +182,55 @@ void DnaReplicationReport::compute_stats( void )
 void DnaReplicationReport::write_to_tree_file(gzFile tree_file) const {
   // Write the mutations and rearrangements undergone during replication
   // Store HT
-  int32_t nb_HT = get_nb(HT);
+  int32_t nb_HT = get_nb(H_T);
   gzwrite(tree_file, &nb_HT, sizeof(nb_HT));
-  for (const auto& ht : ht_)
-    ht->save(tree_file);
+  for (const auto& ht : ht_) {
+    switch(ht->get_mut_type()) {
+      case INS_HT:
+        ht->save(tree_file);
+        break;
+      case REPL_HT:
+        ht->save(tree_file);
+        break;
+    }
+  }
+
 
   // Store rearrangements
   int32_t nb_rears = get_nb(REARR);
   gzwrite(tree_file, &nb_rears, sizeof(nb_rears));
-  for (const auto& rear : rearrangements_)
-    rear->save(tree_file);
+  for (const auto& rear : rearrangements_) {
+    switch(rear->get_mut_type()) {
+      case DUPL:
+        rear->save(tree_file);
+        break;
+      case DEL:
+        rear->save(tree_file);
+        break;
+      case TRANS:
+        rear->save(tree_file);
+        break;
+      case INV:
+        rear->save(tree_file);
+        break;
+    }
+  }
 
   // Store mutations
   int32_t nb_muts = get_nb(S_MUT);
   gzwrite(tree_file, &nb_muts, sizeof(nb_muts));
   for (const auto& mut : mutations_)
-    mut->save(tree_file);
+    switch(mut->get_mut_type()) {
+      case SWITCH:
+        mut->save(tree_file);
+        break;
+      case S_DEL:
+        mut->save(tree_file);
+        break;
+      case S_INS:
+        mut->save(tree_file);
+        break;
+    }
 }
 
 void DnaReplicationReport::read_from_tree_file(gzFile tree_file) {
@@ -156,14 +238,14 @@ void DnaReplicationReport::read_from_tree_file(gzFile tree_file) {
 
   gzread(tree_file, &nb_HT, sizeof(nb_HT));
   for (int i = 0 ; i < nb_HT ; i++)
-    add_HT(*Mutation::Load(tree_file));
+    add_HT(Mutation::Load(tree_file));
 
   gzread(tree_file, &nb_rears, sizeof(nb_rears));
   for (int i = 0 ; i < nb_rears ; i++)
-    add_rear(*Mutation::Load(tree_file));
+    add_rear(Mutation::Load(tree_file));
 
   gzread(tree_file, &nb_muts, sizeof(nb_muts));
   for(int i = 0 ; i < nb_muts ; i++)
-    add_mut(*Mutation::Load(tree_file));
+    add_mut(Mutation::Load(tree_file));
 }
 } // namespace aevol

@@ -267,7 +267,7 @@ void Dna::do_small_mutations(void) {
 
 
   int32_t random_value;
-  Mutation * mut = NULL;
+  Mutation* mut = nullptr;
 
   for (int32_t i = nb_mut ; i >= 1 ; i--) {
     random_value = _indiv->_mut_prng->random(i);
@@ -289,8 +289,10 @@ void Dna::do_small_mutations(void) {
     }
 
     // Record mutation in tree
-    if (mut != NULL)
+    if (mut != NULL) {
       _indiv->notifyObservers(MUTATION, mut);
+      delete mut;
+    }
   }
 }
 
@@ -329,7 +331,7 @@ void Dna::do_rearrangements(void) {
   // Given this position, we know what kind of rearrangement we have drawn.
 
   int32_t random_value;
-  Mutation * mut = NULL;
+  Mutation* mut = nullptr;
 
   for (int32_t i = nb_rear ; i >= 1 ; i--) {
     random_value = _indiv->_mut_prng->random(i);
@@ -352,8 +354,10 @@ void Dna::do_rearrangements(void) {
     }
 
     // Record rearrangement in tree
-    if (mut != NULL)
+    if (mut != NULL) {
       _indiv->notifyObservers(MUTATION, mut);
+      delete mut;
+    }
   }
 }
 
@@ -368,7 +372,7 @@ void Dna::do_rearrangements_with_align(void)
   int32_t nb_pairs; // Number of pairs of sequences we will try to align
   int32_t genome_size = _length; // Keep trace of the original length of the genome
 
-  Mutation * mut = NULL;
+  Mutation* mut = nullptr;
   VisAVis * alignment = NULL;
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -711,8 +715,10 @@ void Dna::do_rearrangements_with_align(void)
     //////////////////////////////////////////////////////////////////////////////////////////
     // 6) If there was a rearrangement, we either save its record in the tree or delete it. //
     //////////////////////////////////////////////////////////////////////////////////////////
-    if (mut != NULL)
+    if (mut != NULL) {
       _indiv->notifyObservers(MUTATION, mut);
+      delete mut;
+    }
   }
 }
 
@@ -721,19 +727,23 @@ void Dna::do_transfer(int32_t parent_id) {
 
   if (_indiv->get_mut_prng()->random() < _indiv->get_HT_ins_rate()) {
     mut = do_ins_HT(parent_id);
-    if (mut != nullptr)
+    if (mut != nullptr) {
       _indiv->notifyObservers(MUTATION, mut);
+      delete mut;
+    }
   }
 
   if (_indiv->get_mut_prng()->random() < _indiv->get_HT_repl_rate()) {
     mut = do_repl_HT(parent_id);
-    if (mut != nullptr)
+    if (mut != nullptr) {
       _indiv->notifyObservers(MUTATION, mut);
+      delete mut;
+    }
   }
 }
 
-Mutation *Dna::do_switch(void) {
-  Mutation * mut = NULL;
+Mutation* Dna::do_switch(void) {
+  Mutation* mut = nullptr;
 
   int32_t pos = _indiv->_mut_prng->random(_length);
 
@@ -745,9 +755,9 @@ Mutation *Dna::do_switch(void) {
   return mut;
 }
 
-Mutation *Dna::do_small_insertion(void)
+Mutation* Dna::do_small_insertion(void)
 {
-  Mutation * mut = NULL;
+  Mutation* mut = nullptr;
 
   // Determine the position and size of the small insertion
   int32_t pos = _indiv->_mut_prng->random(_length);
@@ -803,9 +813,9 @@ Mutation *Dna::do_small_insertion(void)
   return mut;
 }
 
-Mutation *Dna::do_small_deletion(void)
+Mutation* Dna::do_small_deletion(void)
 {
-  Mutation * mut = NULL;
+  Mutation* mut = nullptr;
 
   // Determine the position and size of the small deletion
   int32_t pos = _indiv->_mut_prng->random(_length);
@@ -935,9 +945,9 @@ bool Dna::do_small_deletion(int32_t pos, int16_t nb_del)
   return true;
 }
 
-Mutation *Dna::do_duplication(void)
+Mutation* Dna::do_duplication(void)
 {
-  Mutation * mut = NULL;
+  Mutation* mut = nullptr;
 
   int32_t pos_1, pos_2, pos_3;
   pos_1 = _indiv->_mut_prng->random(_length);
@@ -984,9 +994,9 @@ Mutation *Dna::do_duplication(void)
   return mut;
 }
 
-Mutation *Dna::do_deletion(void)
+Mutation* Dna::do_deletion(void)
 {
-  Mutation * mut = NULL;
+  Mutation* mut = nullptr;
 
   int32_t pos_1, pos_2;
   pos_1 = _indiv->_mut_prng->random(_length);
@@ -1034,10 +1044,10 @@ Mutation *Dna::do_deletion(void)
   return mut;
 }
 
-Mutation *Dna::do_translocation(void)
+Mutation* Dna::do_translocation(void)
 {
 
-  Mutation * mut = NULL;
+  Mutation* mut = nullptr;
 
   int32_t pos_1, pos_2, pos_3, pos_4;
   int32_t segment_length;
@@ -1241,9 +1251,9 @@ Mutation *Dna::do_translocation(void)
   return mut;
 }
 
-Mutation *Dna::do_inversion(void)
+Mutation* Dna::do_inversion(void)
 {
-  Mutation * mut = NULL;
+  Mutation* mut = nullptr;
 
   int32_t pos_1, pos_2;
   int32_t segment_length;
@@ -1273,9 +1283,9 @@ Mutation *Dna::do_inversion(void)
   return mut;
 }
 
-Mutation *Dna::do_insertion(const char* seq_to_insert, int32_t seq_length /*= -1*/)
+Mutation* Dna::do_insertion(const char* seq_to_insert, int32_t seq_length /*= -1*/)
 {
-  Mutation * mut = NULL;
+  Mutation* mut = nullptr;
 
   Utils::ExitWithDevMsg("Not implemented yet", __FILE__, __LINE__);
 
@@ -1760,9 +1770,9 @@ bool Dna::do_insertion(int32_t pos, const char* seq_to_insert, int32_t seq_lengt
 }
 
 
-Mutation *Dna::do_ins_HT(int32_t parent_id)
+Mutation* Dna::do_ins_HT(int32_t parent_id)
 {
-  Mutation * mut = NULL;
+  Mutation* mut = nullptr;
 
   // TODO <david.parsons@inria.fr> disabled
 //  int32_t nb_indivs = _exp_m->get_pop()->get_nb_indivs();
@@ -1885,9 +1895,9 @@ Mutation *Dna::do_ins_HT(int32_t parent_id)
   return mut;
 }
 
-Mutation *Dna::do_repl_HT(int32_t parent_id)
+Mutation* Dna::do_repl_HT(int32_t parent_id)
 {
-  Mutation * mut = NULL;
+  Mutation* mut = nullptr;
 
   // TODO <david.parsons@inria.fr> disabled
 //  int32_t nb_indivs = _exp_m->get_pop()->get_nb_indivs();

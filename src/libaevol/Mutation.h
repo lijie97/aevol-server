@@ -75,7 +75,7 @@ enum MutationType {
   // C++ enums can't be inherited directly.
   S_MUT, // SWITCH or S_INS or S_DEL
   REARR, // DUPL or DEL or TRANS or INV
-  HT,    // INS_HT or REPL_HT
+  H_T,    // INS_HT or REPL_HT
   INDEL  // S_INS or S_DEL
 };
 

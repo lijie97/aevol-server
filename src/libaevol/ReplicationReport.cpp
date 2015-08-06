@@ -261,7 +261,7 @@ void ReplicationReport::update(Observable& o, ObservableEvent e, void* arg) {
       signal_end_of_replication(dynamic_cast<Individual*>(&o));
       break;
     case MUTATION :
-      _dna_replic_report.add_mut(*reinterpret_cast<Mutation*>(arg));
+      _dna_replic_report.add_mut(reinterpret_cast<Mutation*>(arg));
       break;
     default :
       Utils::ExitWithDevMsg("Event not handled", __FILE__, __LINE__);
