@@ -102,7 +102,7 @@ void Dump::write_fitness_total(void)
 {
   sprintf(filename_buffer,
       "stats/dump/fitness_total_%06" PRId64 ".out",
-      Time::get_time());
+      AeTime::get_time());
   current_file = fopen( filename_buffer, "w+" );
   double** map = _exp_m->world()->get_total_fitness_grid();
   fprintf( current_file, "#\tX\tY\tfitness_total(X, Y)\n" );
@@ -130,7 +130,7 @@ void Dump::write_secreted_amount ( void )
 {
   sprintf(filename_buffer,
       "stats/dump/secreted_amount_%06" PRId64 ".out",
-      Time::get_time()) ;
+      AeTime::get_time()) ;
   current_file = fopen(filename_buffer, "w+");
   
   double** map = _exp_m->world()->get_secreted_amount_grid();
@@ -156,7 +156,7 @@ void Dump::write_fitness_metabolic ( void )
 {
   sprintf( filename_buffer,
       "stats/dump/fitness_metabolic_%06" PRId64 ".out",
-      Time::get_time());
+      AeTime::get_time());
   current_file = fopen( filename_buffer, "w+" );
   
   double** map = _exp_m->world()->get_metabolic_fitness_grid();
@@ -182,7 +182,7 @@ void Dump::write_secretion_present ( void )
 {
   sprintf(filename_buffer,
       "stats/dump/secretion_present_%06" PRId64 ".out",
-      Time::get_time());
+      AeTime::get_time());
   current_file = fopen( filename_buffer, "w+" );
   
   double** map = _exp_m->world()->get_secretion_present_grid();
@@ -209,7 +209,7 @@ void Dump::write_individual_probes( void )
 {
   sprintf(filename_buffer,
       "stats/dump/individual_probes_%06" PRId64 ".out",
-      Time::get_time());
+      AeTime::get_time());
   current_file = fopen( filename_buffer, "w" );
   
   fprintf(current_file, "Id\tInt_Probe_1\tInt_Probe_2\tInt_Probe_3\tInt_Probe_4\tInt_Probe_5\tDouble_Probe_1\tDouble_Probe_2\tDouble_Probe_3\tDouble_Probe_4\tDouble_Probe_5\n");

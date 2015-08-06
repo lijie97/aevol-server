@@ -221,11 +221,7 @@ int main(int argc, char* argv[])
   // 8) Save the experiment
   if (output_dir == NULL)
   {
-    // Create the static setup files (experimental setup and output profile)
-    exp_manager->write_setup_files();
-
-    // Create the initial backups
-    exp_manager->save();
+    exp_manager->Save();
   }
   else
   {

@@ -56,7 +56,7 @@ void analyse_gu(GeneticUnit* gen_unit, int32_t gen_unit_number,
 
 
 
-int main( int argc, char* argv[] )
+int main(int argc, char* argv[])
 {
   // Initialize command-line option variables with default values
   char* pop_file_name  = NULL;
@@ -81,33 +81,33 @@ int main( int argc, char* argv[] )
 
   // Get actual values of the command-line options
   int option;
-  while ( ( option = getopt_long(argc, argv, options_list, long_options_list, NULL) ) != -1 )
+  while ((option = getopt_long(argc, argv, options_list, long_options_list, NULL)) != -1)
   {
-    switch ( option )
+    switch (option)
     {
       case 'h' :
       {
         print_help(argv[0]);
-        exit( EXIT_SUCCESS );
+        exit(EXIT_SUCCESS);
       }
       case 'V' :
       {
         Utils::PrintAevolVersion();
-        exit( EXIT_SUCCESS );
+        exit(EXIT_SUCCESS);
       }
       case 'r':
-        num_gener = atol( optarg );
+        num_gener = atol(optarg);
         break;
       case 't' :
         triangles_file_name = new char[strlen(optarg) + 1];
-        sprintf( triangles_file_name, "%s", optarg );
+        sprintf(triangles_file_name, "%s", optarg);
         break;
       case 's' :
         sequence_file_name = new char[strlen(optarg) + 1];
-        sprintf( sequence_file_name, "%s", optarg );
+        sprintf(sequence_file_name, "%s", optarg);
         break;
       case 'g' :
-        gu = atoi( optarg );
+        gu = atoi(optarg);
         break;
       case 'b' :
         best_only = true;
@@ -120,16 +120,16 @@ int main( int argc, char* argv[] )
     num_gener = OutputManager::get_last_gener();
   }
 
-  if ( triangles_file_name == NULL && sequence_file_name == NULL ) {
-    Utils::ExitWithMsg("Use option -s or -t (-h for more info)",
-                       __FILE__, __LINE__);
+  if (triangles_file_name == NULL && sequence_file_name == NULL) {
+    Utils::ExitWithDevMsg("Use option -s or -t (-h for more info)",
+                          __FILE__, __LINE__);
   }
 
   // Open the files
   FILE* triangles_file = NULL;
   FILE* sequence_file = NULL;
 
-  if ( triangles_file_name != NULL )
+  if (triangles_file_name != NULL)
   {
     triangles_file = fopen(triangles_file_name,"w");
 
@@ -153,7 +153,7 @@ int main( int argc, char* argv[] )
     fprintf(triangles_file, "\n");
     fprintf(triangles_file, "id c_or_p strand pos len lpos sequence m w h c f prom_pos rna_len basal_level\n");
   }
-  if ( sequence_file_name != NULL )
+  if (sequence_file_name != NULL)
   {
     sequence_file = fopen(sequence_file_name,"w");
   }
@@ -203,15 +203,15 @@ inline void analyse_indiv(Individual* indiv, FILE* triangles_file,
                           FILE* sequence_file, int16_t gu,
                           const PhenotypicTarget & phenotypicTarget)
 {
-  if ( gu == -1 ) // We want to treat all genetic units
+  if (gu == -1) // We want to treat all genetic units
   {
     int32_t gen_unit_number = 0;
     for (auto& gen_unit: indiv->get_genetic_unit_list_nonconst()) {
-      if ( triangles_file != NULL )
+      if (triangles_file != NULL)
       {
         analyse_gu(&gen_unit, gen_unit_number, triangles_file, phenotypicTarget); // We call the triangle parser for each GU successively
       }
-      if ( sequence_file != NULL )
+      if (sequence_file != NULL)
       {
         const char* dna = gen_unit.get_dna()->get_data();
         int32_t length = gen_unit.get_dna()->get_length();
@@ -224,11 +224,11 @@ inline void analyse_indiv(Individual* indiv, FILE* triangles_file,
   else // User specified a genetic unit
   {
     GeneticUnit* gen_unit = &indiv->get_genetic_unit_nonconst(gu);
-    if ( triangles_file != NULL )
+    if (triangles_file != NULL)
     {
       analyse_gu(gen_unit, gu, triangles_file, phenotypicTarget); // We call the triangle parser
     }
-    if ( sequence_file != NULL )
+    if (sequence_file != NULL)
     {
       const char* dna = gen_unit->get_dna()->get_data();
       int32_t length = gen_unit->get_dna()->get_length();
@@ -237,11 +237,11 @@ inline void analyse_indiv(Individual* indiv, FILE* triangles_file,
   }
 
   // We go to next line in each file
-  if ( triangles_file != NULL )
+  if (triangles_file != NULL)
   {
     fprintf(triangles_file,"\n");
   }
-  if ( sequence_file != NULL )
+  if (sequence_file != NULL)
   {
     fprintf(sequence_file,"\n");
   }

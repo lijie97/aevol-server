@@ -51,6 +51,17 @@
 #endif
 
 
+#include "Fuzzy.h"
+#include "PointMutation.h"
+#include "SmallDeletion.h"
+#include "SmallInsertion.h"
+#include "Duplication.h"
+#include "Deletion.h"
+#include "Translocation.h"
+#include "Inversion.h"
+#include "InsertionHT.h"
+#include "ReplacementHT.h"
+
 namespace aevol {
 
 // =================================================================
@@ -968,8 +979,6 @@ void GeneticUnit::do_transcription( void )
             auto delta_pos = abs(rna2->get_promoter_pos() - rna->get_promoter_pos());
             if (delta_pos <= i) {
               rna2->set_transcript_length(i - delta_pos + TERM_SIZE);
-              // Step forward in RNA list
-              rna = rna2;
             } else {
               // The promoter of rna_2 is after (or contains a part of) the terminator of rna,
               // we will need to search its own terminator
@@ -3238,61 +3247,63 @@ void GeneticUnit::double_non_coding_bases(void)
     int32_t genlen = get_seq_length(); // length of the genetic unit, in bp
 
     int32_t pos0 = -1, pos1 = -1, pos2 = -1, pos3 = -1, mutlength = -1;
-    int32_t pos1donor = -1, pos2donor = -1, pos3donor = -1;
+    int32_t pos3donor = -1;
     char * seq = NULL;
     int32_t first, last;
-    bool invert = false;
-    AlignmentSense sense = DIRECT;
     MutationType type = mut->get_mut_type();
     switch(type) {
       case SWITCH:
-        mut->get_infos_point_mutation(&pos0);
+        pos0 = dynamic_cast<const PointMutation*>(mut)->pos();
         mutlength = 1;
         break;
-      case S_INS:
-        mut->get_infos_small_insertion(&pos0, &mutlength);
+      case S_INS : {
+        const auto* s_ins = dynamic_cast<const SmallInsertion*>(mut);
+        pos0 = s_ins->pos();
+        mutlength = s_ins->length();
         break;
-      case S_DEL:
-        mut->get_infos_small_deletion(&pos0, &mutlength);
+      }
+      case S_DEL : {
+        const auto* s_del = dynamic_cast<const SmallDeletion*>(mut);
+        pos0 = s_del->pos();
+        mutlength = s_del->length();
         break;
-      case DUPL:
-        mut->get_infos_duplication(&pos1, &pos2, &pos0);
-        // pos2 is actually not included in the segment, the real end of the segment is pos2 - 1
-        pos2 = Utils::mod(pos2 - 1, genlen);
-        mutlength = mut->get_length();
+      }
+      case DUPL : {
+        const auto& dupl = dynamic_cast<const Duplication*>(mut);
+        pos1 = dupl->pos1();
+        pos2 = Utils::mod(dupl->pos2() - 1, genlen);
+        pos0 = dupl->pos3();
+        mutlength = dupl->length();
+      }
+      case DEL : {
+        const auto& del = dynamic_cast<const Deletion*>(mut);
+        pos1 = del->pos1();
+        pos2 = Utils::mod(del->pos2() - 1, genlen);
+        mutlength = del->length();
         break;
-      case DEL:
-        mut->get_infos_deletion(&pos1, &pos2);
-        pos2 = Utils::mod(pos2 - 1, genlen);
-        mutlength = mut->get_length();
+      }
+      case TRANS : {
+        const auto& trans = dynamic_cast<const Translocation*>(mut);
+        pos1 = trans->pos1();
+        pos2 = Utils::mod(trans->pos2() - 1, genlen);
+        pos3 = trans->pos3();
+        pos0 = trans->pos4();
+        mutlength = trans->length();
         break;
-      case TRANS:
-        mut->get_infos_translocation(&pos1, &pos2, &pos3, &pos0, &invert);
-        pos2 = Utils::mod(pos2 - 1, genlen);
-        mutlength = mut->get_length();
-        break;
-      case INV:
-        mut->get_infos_inversion(&pos1, &pos2);
-        pos2 = Utils::mod(pos2 - 1, genlen);
-        mutlength = mut->get_length();
-        break;
-      case INSERT: { // vld: removing block generates conflicts on variable names, TODO vld: clean
-        mut->get_infos_insertion(&pos0, &mutlength);
-        seq = new char[mutlength+1];
-        mut->get_sequence_insertion(seq);
-        // Make a temporary genetic unit and translate it to count how many genes are on the inserted segment
-        GeneticUnit * tmpunit = new GeneticUnit( _indiv, seq, mutlength);
-        tmpunit->do_transcription();
-        tmpunit->do_translation();
-        nb_genes_in_segment = tmpunit->get_nb_coding_RNAs();
-        delete tmpunit;
-        seq = NULL;
+      }
+      case INV : {
+        const auto& inv = dynamic_cast<const Inversion*>(mut);
+        pos1 = inv->pos1();
+        pos2 = Utils::mod(inv->pos2() - 1, genlen);
+        mutlength = inv->length();
         break;
       }
       case INS_HT: {
-        mut->get_infos_ins_HT(&pos1donor, &pos2donor, &pos0, &pos3donor, &sense, &mutlength );
-        seq = new char[mutlength+1];
-        mut->get_sequence_ins_HT(seq);
+        const auto& ins_ht = dynamic_cast<const InsertionHT*>(mut);
+        pos0 = ins_ht->exogenote_pos();// TODO <david.parsons@inria.fr> weird !
+        pos3donor = ins_ht->receiver_pos();// TODO <david.parsons@inria.fr> weird !
+        mutlength = ins_ht->length();
+        seq = ins_ht->seq();
 
         // Make a temporary genetic unit and translate it to count how many genes were on the exogenote
         GeneticUnit * tmpunit = new GeneticUnit( _indiv, seq, mutlength);
@@ -3316,10 +3327,11 @@ void GeneticUnit::double_non_coding_bases(void)
         break;
       }
       case REPL_HT: {
-        mut->get_infos_repl_HT(&pos1, &pos1donor, &pos2, &pos2donor, &sense, &mutlength );
-        pos2 = Utils::mod(pos2 - 1, genlen);
-        seq = new char[mutlength+1];  // seq in the sequence in the donor
-        mut->get_sequence_repl_HT(seq);
+        const auto& repl_ht = dynamic_cast<const ReplacementHT*>(mut);
+        pos1 = repl_ht->receiver_pos1();
+        pos2 = Utils::mod(repl_ht->receiver_pos2() - 1, genlen);
+        mutlength = repl_ht->length();
+        seq = repl_ht->seq();
 
         // Make a temporary genetic unit and translate it to count how many genes were on the donor segment
         GeneticUnit * tmpunit = new GeneticUnit( _indiv, seq, mutlength);
@@ -3445,4 +3457,11 @@ void GeneticUnit::double_non_coding_bases(void)
     _end_neutral_regions = NULL;
   }
 
+void GeneticUnit::clear_transcribed_proteins() {
+  for (auto strand: {LEADING, LAGGING}) {
+    for (auto& rna: _rna_list[strand])
+      rna.clear_transcribed_proteins();
+    _protein_list[strand].clear();
+  }
+}
 } // namespace aevol

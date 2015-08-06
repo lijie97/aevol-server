@@ -74,6 +74,19 @@ class Habitat
   virtual ~Habitat(void) = default; //< Destructor
 
   // ==========================================================================
+  //                                Operators
+  // ==========================================================================
+
+  // ==========================================================================
+  //                              Public Methods
+  // ==========================================================================
+  void ApplyVariation();
+  void save(gzFile backup_file,
+            bool skip_phenotypic_target = false) const;
+  void load(gzFile backup_file,
+            std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler);
+
+  // ==========================================================================
   //                                 Getters
   // ==========================================================================
   double compound_amount(void) const {return compound_amount_;};
@@ -93,22 +106,6 @@ class Habitat
   void set_compound_amount(double compound_amount) {
     compound_amount_ = compound_amount;
   };
-
-  // ==========================================================================
-  //                                Operators
-  // ==========================================================================
-
-  // ==========================================================================
-  //                              Public Methods
-  // ==========================================================================
-  void save(gzFile backup_file,
-            bool skip_phenotypic_target = false) const;
-  void load(gzFile backup_file,
-            std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler);
-
-
-
-
 
  protected :
   // ==========================================================================

@@ -159,7 +159,9 @@ class Dna : public ae_string
     VisAVis* search_alignment(Dna * chrom2, int32_t& nb_pairs, AlignmentSense sense);
     VisAVis* search_alignment_around_positions(Dna * chrom2, int32_t chrom1_pos_1, int32_t chrom1_pos_2, AlignmentSense sense, int8_t& research_sense);
 
-    void undergo_this_mutation(const Mutation * mut); // useful when we replay the evolution
+    // Undergo a specific mutation
+    // useful when we replay the evolution
+    void undergo_this_mutation(const Mutation& mut);
 
     void compute_statistical_data(void);
 

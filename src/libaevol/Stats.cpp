@@ -28,20 +28,18 @@
 
 
 // =================================================================
-//                              Libraries
+//                              Includes
 // =================================================================
+#include "Stats.h"
+
+#include <string>
+
 #include <err.h>
 #include <errno.h>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
-
-
-// =================================================================
-//                            Project Files
-// =================================================================
-#include "Stats.h"
 #include "StatRecord.h"
 #include "ExpManager.h"
 #include "ExpSetup.h"
@@ -50,6 +48,8 @@
 #ifdef __REGUL
   #include "raevol/Protein_R.h"
 #endif
+
+using std::string;
 
 namespace aevol {
 
@@ -86,96 +86,20 @@ Stats::Stats(ExpManager * exp_m,
   Create a stat manager to append existing stats
  */
 Stats::Stats(ExpManager * exp_m,
-                   int64_t time,
-                   bool best_indiv_only,
-                   const char * prefix /* = "stat" */,
-                   bool addition_old_stats /* = true */,
-                   bool delete_old_stats /* = true */)
-{
+             int64_t time,
+             bool best_indiv_only,
+             const char * prefix /* = "stat" */,
+             bool addition_old_stats /* = true */,
+             bool delete_old_stats /* = true */) {
   _exp_m = exp_m;
   init_data();
   set_file_names(prefix, best_indiv_only);
-  
-  // ---------------------------------------------------------------------------
-  //  Make a backup copy (named <original_name>.old) of each file
-  //  and copy its content into the new stat file untill <time> is reached
-  // ---------------------------------------------------------------------------
-  if(addition_old_stats)
-  {
-    char* old_file_name = new char[100];
-    FILE* old_file;
-    char* cur_file_name;  // Syntaxic sugar for _stat_files_names[][][]
-    FILE* cur_file;       // Syntaxic sugar for _stat_files[][][]
-    char  line[500];
-    
-    for (int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++)
-    { 
-      for (int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++)
-      {
-        for (int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++)
-        {
-          cur_file_name = _stat_files_names[chrom_or_GU][best_or_glob][stat_type];
-          if (cur_file_name != NULL)
-          {
-            sprintf(old_file_name, "%s.old", cur_file_name);
-            int8_t exist_file = rename(cur_file_name, old_file_name);
-            if (exist_file != 0)
-            {
-              printf("ERROR : Could not rename %s as %s.\n", cur_file_name, old_file_name);
-              exit(EXIT_FAILURE);
-            }
-            
-            old_file = fopen(old_file_name, "r");
-            cur_file = fopen(cur_file_name, "w");
-            
-            // Copy file header
-            if (fgets(line, 500, old_file) == NULL)
-            {
-              // TODO check for error
-            }
 
-            while (!feof( old_file ) && line[0] == '#')
-            {
-              fputs(line, cur_file);
-              if (fgets(line, 500, old_file) == NULL)
-              {
-                // TODO check for error
-              }
-            }
-            
-            // Copy the empty line between the header and the values
-            fputs(line, cur_file);
-            
-            // Copy stats until time (included)
-            if (fgets(line, 500, old_file) == NULL)
-            {
-              // TODO check for error
-            }
-            while ((int32_t)atol(line) < time && !feof(old_file) )
-            {
-              fputs(line, cur_file);
-              if (fgets(line, 500, old_file))
-              {
-                // TODO check for error
-              }
-            }
-            
-            fclose(old_file);
-            
-            _stat_files[chrom_or_GU][best_or_glob][stat_type] = cur_file;
-            
-            if (delete_old_stats)
-            {
-              remove(old_file_name);
-            }
-          }
-        }
-      }
-    }
-    delete [] old_file_name;
+  if (addition_old_stats) {
+    CreateTmpFiles(time);
+    PromoteTmpFiles();
   }
-  else // ancstat case
-  {
+  else { // ancstat case
     open_files();
     write_headers(true);
   }
@@ -626,10 +550,10 @@ void Stats::flush( void )
     {
       for ( int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++ )
       {
-        if ( _stat_files_names[chrom_or_GU][best_or_glob][stat_type] != NULL )
+        if (_stat_files_names[chrom_or_GU][best_or_glob][stat_type] != NULL)
         {
-          assert( _stat_files[chrom_or_GU][best_or_glob][stat_type] != NULL );
-          fflush( _stat_files[chrom_or_GU][best_or_glob][stat_type] );
+          assert(_stat_files[chrom_or_GU][best_or_glob][stat_type] != NULL);
+          fflush(_stat_files[chrom_or_GU][best_or_glob][stat_type]);
         }
       }
     }
@@ -755,7 +679,137 @@ void Stats::open_files( void )
       {
         if ( _stat_files_names[chrom_or_GU][best_or_glob][stat_type] != NULL )
         {
-          _stat_files[chrom_or_GU][best_or_glob][stat_type] = fopen( _stat_files_names[chrom_or_GU][best_or_glob][stat_type], "w" );
+          _stat_files[chrom_or_GU][best_or_glob][stat_type] =
+              fopen(_stat_files_names[chrom_or_GU][best_or_glob][stat_type], "w");
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Create partial copies (up to a given timestamp) of all stat files
+ */
+void Stats::CreateTmpFiles(int64_t time) {
+  char* old_file_name;  // Syntaxic sugar for _stat_files_names[][][]
+  FILE* old_file;
+  char* new_file_name = new char[100];
+  FILE* new_file;
+  char  line[500];
+
+  for (int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++)
+  {
+    for (int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++)
+    {
+      for (int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++)
+      {
+        old_file_name = _stat_files_names[chrom_or_GU][best_or_glob][stat_type];
+        if (old_file_name != NULL)
+        {
+          sprintf(new_file_name, "%s.tmp", old_file_name);
+
+          old_file = fopen(old_file_name, "r");
+          new_file = fopen(new_file_name, "w");
+
+          // Copy file header
+          if (fgets(line, 500, old_file) == NULL)
+          {
+            // TODO check for error
+          }
+
+          while (!feof( old_file ) && line[0] == '#')
+          {
+            fputs(line, new_file);
+            if (fgets(line, 500, old_file) == NULL)
+            {
+              // TODO check for error
+            }
+          }
+
+          // Copy stats until time (included)
+          if (fgets(line, 500, old_file) == NULL)
+          {
+            // TODO check for error
+          }
+          while ((int64_t)atol(line) <= time && !feof(old_file) )
+          {
+            fputs(line, new_file);
+            if (fgets(line, 500, old_file))
+            {
+              // TODO check for error
+            }
+          }
+
+          fclose(old_file);
+          fclose(new_file);
+        }
+      }
+    }
+  }
+
+  delete [] new_file_name;
+}
+
+/**
+ * Replace all the stat files by their tmp counterpart
+ */
+void Stats::PromoteTmpFiles() {
+  char* cur_file_name;  // Syntaxic sugar for _stat_files_names[][][]
+  char* tmp_file_name = new char[100];
+
+  for (int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++)
+  {
+    for (int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++)
+    {
+      for (int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++)
+      {
+        cur_file_name = _stat_files_names[chrom_or_GU][best_or_glob][stat_type];
+        if (cur_file_name != NULL)
+        {
+          sprintf(tmp_file_name, "%s.tmp", cur_file_name);
+
+          remove(cur_file_name);
+          int renameOK = rename(tmp_file_name, cur_file_name);
+          if (renameOK != 0)
+            Utils::ExitWithUsrMsg(string("could not rename file ") +
+                                      tmp_file_name + " into " +
+                                      cur_file_name);
+
+          // Reopen file
+          if (_stat_files[chrom_or_GU][best_or_glob][stat_type] != NULL)
+            fclose(_stat_files[chrom_or_GU][best_or_glob][stat_type]);
+          _stat_files[chrom_or_GU][best_or_glob][stat_type] =
+              fopen(cur_file_name, "a");
+        }
+      }
+    }
+  }
+
+  delete [] tmp_file_name;
+}
+
+void Stats::MoveTmpFiles(const std::string& destdir) {
+  char* cur_file_name;  // Syntaxic sugar for _stat_files_names[][][]
+  string tmp_file_name;
+  string dest_file_name;
+
+  for (int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++)
+  {
+    for (int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++)
+    {
+      for (int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++)
+      {
+        cur_file_name = _stat_files_names[chrom_or_GU][best_or_glob][stat_type];
+        if (cur_file_name != NULL)
+        {
+          tmp_file_name = string(cur_file_name) + ".tmp";
+          dest_file_name = destdir + "/" + cur_file_name;
+          int renameOK = rename(tmp_file_name.c_str(),
+                                dest_file_name.c_str());
+          if (renameOK != 0)
+            Utils::ExitWithUsrMsg(string("could not rename file ") +
+                                      tmp_file_name + " into " +
+                                      dest_file_name);
         }
       }
     }

@@ -105,19 +105,19 @@ int main(int argc, char** argv)
   };
 
   int option;
-  while( (option = getopt_long(argc, argv, short_options, long_options, NULL)) != -1 )
+  while((option = getopt_long(argc, argv, short_options, long_options, NULL)) != -1)
   {
-    switch( option )
+    switch(option)
     {
       case 'h' :
       {
         print_help(argv[0]);
-        exit( EXIT_SUCCESS );
+        exit(EXIT_SUCCESS);
       }
       case 'V' :
       {
         Utils::PrintAevolVersion();
-        exit( EXIT_SUCCESS );
+        exit(EXIT_SUCCESS);
       }
       case 'v' : verbose = true;                    break;
       case 'n' : check_genome = NO_CHECK;           break;
@@ -127,10 +127,10 @@ int main(int argc, char** argv)
       case 'r' : final_indiv_rank  = atol(optarg);  break;
       case 'e' :
       {
-        if (strcmp( optarg, "" ) == 0)
+        if (strcmp(optarg, "") == 0)
         {
-          printf( "%s: error: Option -e or --end : missing argument.\n", argv[0] );
-          exit( EXIT_FAILURE );
+          printf("%s: error: Option -e or --end : missing argument.\n", argv[0]);
+          exit(EXIT_FAILURE);
         }
 
         t_end = atol(optarg);
@@ -140,15 +140,34 @@ int main(int argc, char** argv)
     }
   }
 
-  if ( t_end == -1 )
-  {
-    printf("%s: error: You must provide a generation number.\n", argv[0]);
-    exit(EXIT_FAILURE);
+  // Set undefined command line parameters to default values
+  if (t_end == -1) {
+    // Set t_end to the content of the LAST_GENER file if it exists.
+    // If it doesn't, print help and exit
+    FILE* lg_file = fopen(LAST_GENER_FNAME, "r");
+    if (lg_file != NULL) {
+      if (fscanf(lg_file, "%" PRId64, &t_end) == EOF) {
+        printf("ERROR: failed to read last generation from file %s\n",
+               LAST_GENER_FNAME);
+        exit(EXIT_FAILURE);
+      }
+      fclose(lg_file);
+    }
+    else {
+      printf("%s: error: You must provide a generation number.\n", argv[0]);
+      exit(EXIT_FAILURE);
+    }
   }
 
   // Load the simulation
   ExpManager* exp_manager = new ExpManager();
   exp_manager->load(t_end, true, false);
+
+  // Check that the tree was recorded
+  if (not exp_manager->get_record_tree()) {
+    Utils::ExitWithUsrMsg("The phylogenetic tree wasn't recorded during "
+                              "evolution, could not reconstruct the lineage");
+  }
 
   int64_t tree_step = exp_manager->get_tree_step();
 
@@ -218,19 +237,19 @@ int main(int argc, char** argv)
   // ============================================================================
   //  Find the index of the final individual and retrieve its replication report
   // ============================================================================
-  if ( final_indiv_index != -1 )
+  if (final_indiv_index != -1)
   {
     // The index was directly provided, get the replication report and update the indices and ranks tables
     reports[t_end - t0 - 1] =
         new ReplicationReport(*(tree->get_report_by_index(t_end,
-                                                              final_indiv_index)));
+                                                          final_indiv_index)));
     final_indiv_rank = reports[t_end - t0 - 1]->rank();
 
     indices[t_end - t0]  = final_indiv_index;
   }
   else
   {
-    if ( final_indiv_rank == -1 )
+    if (final_indiv_rank == -1)
     {
       // No index nor rank was given in the command line.
       // By default, we construct the lineage of the best individual, the rank of which
@@ -239,14 +258,14 @@ int main(int argc, char** argv)
     }
 
     // Retrieve the replication report of the individual of interest (at t_end)
-    reports[t_end - t0 - 1] = new ReplicationReport( *(tree->get_report_by_rank(t_end, final_indiv_rank)) );
+    reports[t_end - t0 - 1] = new ReplicationReport(*(tree->get_report_by_rank(t_end, final_indiv_rank)));
     final_indiv_index = reports[t_end - t0 - 1]->id();
 
     indices[t_end - t0]  = final_indiv_index;
     //~ ranks[end_gener - begin_gener]    = final_indiv_rank;
   }
 
-  if ( verbose ) printf( "The final individual has the index %" PRId32 " (rank %" PRId32 ")\n", final_indiv_index, final_indiv_rank );
+  if (verbose) printf("The final individual has the index %" PRId32 " (rank %" PRId32 ")\n", final_indiv_index, final_indiv_rank);
 
 
   // =======================
@@ -265,7 +284,7 @@ int main(int argc, char** argv)
   #endif
 
   gzFile lineage_file = gzopen(output_file_name, "w");
-  if ( lineage_file == NULL )
+  if (lineage_file == NULL)
   {
     fprintf(stderr, "File %s could not be created, exiting.\n", output_file_name);
     fprintf(stderr, "Please check your permissions in this directory.\n");
@@ -279,7 +298,7 @@ int main(int argc, char** argv)
   //  Retrieve the replication reports of the ancestors
   // ===================================================
 
-  if ( verbose )
+  if (verbose)
   {
     printf("\n\n\n");
     printf("======================================================================\n");
@@ -333,7 +352,7 @@ int main(int argc, char** argv)
   //  Get the initial genome from the backup file and write it in the output file
   // =============================================================================
 
-  if ( verbose )
+  if (verbose)
   {
     printf("\n\n\n");
     printf("=============================================== \n");
@@ -347,16 +366,14 @@ int main(int argc, char** argv)
 
   // Copy the initial ancestor
   // NB : The list of individuals is sorted according to the index
-  Individual* initial_ancestor_tmp = exp_manager->get_indiv_by_id(indices[0]);
-  Individual* initial_ancestor = new Individual(*initial_ancestor_tmp);
-
+  const Individual* const initial_ancestor = exp_manager->get_indiv_by_id(indices[0]);
 
   gzwrite(lineage_file, &t0, sizeof(t0));
   gzwrite(lineage_file, &t_end, sizeof(t_end));
   gzwrite(lineage_file, &final_indiv_index, sizeof(final_indiv_index));
   gzwrite(lineage_file, &final_indiv_rank, sizeof(final_indiv_rank));
 
-  initial_ancestor->save(lineage_file);
+  initial_ancestor->get_grid_cell()->save(lineage_file);
 
 
   if (verbose)
@@ -372,7 +389,7 @@ int main(int argc, char** argv)
   //  is available)
   // ===============================================================================
 
-  if ( verbose )
+  if (verbose)
   {
     printf("\n\n\n");
     printf("============================================================ \n");
@@ -408,11 +425,11 @@ int main(int argc, char** argv)
       printf("Writing the replication report for t= %" PRId64 " (built from indiv %" PRId32 " at t= %" PRId64 ")\n",
              t, indices[i], t-1);
     }
-    reports[i]->write_to_tree_file( lineage_file );
-    if ( verbose ) printf( " OK\n" );
+    reports[i]->write_to_tree_file(lineage_file);
+    if (verbose) printf(" OK\n");
 
 
-    if ( check_genome_now )
+    if (check_genome_now)
     {
       // Load the simulation
       exp_manager_backup = new ExpManager();
@@ -430,49 +447,53 @@ int main(int argc, char** argv)
     // Replay the mutations stored in the current replication report on the
     // current genome
     unit = initial_ancestor->get_genetic_unit_list().cbegin();
-    for (const auto& mut: reports[i]->dna_replic_report().get_HT())
-      (unit->get_dna())->undergo_this_mutation(&mut);
-    for (const auto& mut: reports[i]->dna_replic_report().get_rearrangements())
-      (unit->get_dna())->undergo_this_mutation(&mut);
-    for (const auto& mut: reports[i]->dna_replic_report().get_mutations())
-      unit->get_dna()->undergo_this_mutation(&mut);
+    for (const auto& mut: reports[i]->dna_replic_report().get_HT()) {
+      (unit->get_dna())->undergo_this_mutation(*mut);
+    }
+    for (const auto& mut: reports[i]->dna_replic_report().get_rearrangements()) {
+      (unit->get_dna())->undergo_this_mutation(*mut);
+    }
+    for (const auto& mut: reports[i]->dna_replic_report().get_mutations()) {
+      unit->get_dna()->undergo_this_mutation(*mut);
+    }
 
-    if ( check_genome_now )
+    if (check_genome_now)
     {
-      if ( verbose )
+      if (verbose)
       {
-        printf( "Checking the sequence of the unit..." );
-        fflush( stdout );
+        printf("Checking the sequence of the unit...");
+        fflush(stdout);
       }
       assert(stored_gen_unit != stored_indiv->get_genetic_unit_list().cend());
 
       char * str1 = new char[unit->get_dna()->get_length() + 1];
-      memcpy( str1, unit->get_dna()->get_data(), unit->get_dna()->get_length() * sizeof(char) );
+      memcpy(str1, unit->get_dna()->get_data(), unit->get_dna()->get_length() * sizeof(char));
       str1[unit->get_dna()->get_length()] = '\0';
 
       char * str2 = new char[stored_gen_unit->get_dna()->get_length() + 1];
       memcpy(str2, stored_gen_unit->get_dna()->get_data(), stored_gen_unit->get_dna()->get_length() * sizeof(char));
       str2[stored_gen_unit->get_dna()->get_length()] = '\0';
 
-      if ( strncmp( str1, str2, stored_gen_unit->get_dna()->get_length() ) == 0 )
+      if (strncmp(str1, str2, stored_gen_unit->get_dna()->get_length()) == 0)
       {
-        if ( verbose ) printf( " OK\n" );
+        if (verbose) printf(" OK\n");
       }
       else
       {
-        if ( verbose ) printf( " ERROR !\n" );
+        if (verbose) printf(" ERROR !\n");
         fprintf(stderr, "Error: the rebuilt unit is not the same as \n");
         fprintf(stderr, "the one stored in backup file at %" PRId64 "\n", t);
-        fprintf( stderr, "Rebuilt unit : %" PRId32 " bp\n %s\n", (int32_t)strlen(str1), str1 );
-        fprintf( stderr, "Stored unit  : %" PRId32 " bp\n %s\n", (int32_t)strlen(str2), str2 );
+        fprintf(stderr, "Rebuilt unit : %" PRId32 " bp\n %s\n",
+                (int32_t)strlen(str1), str1);
+        fprintf(stderr, "Stored unit  : %" PRId32 " bp\n %s\n",
+                (int32_t)strlen(str2), str2);
         delete [] str1;
         delete [] str2;
         gzclose( lineage_file );
-        delete initial_ancestor;
         delete exp_manager_backup;
         delete exp_manager;
         delete [] reports;
-        fflush( stdout );
+        fflush(stdout);
         exit(EXIT_FAILURE);
       }
 
@@ -484,7 +505,7 @@ int main(int argc, char** argv)
     ++unit;
 
     assert(unit == initial_ancestor->get_genetic_unit_list().cend());
-    if ( check_genome_now )
+    if (check_genome_now)
     {
       assert(stored_gen_unit == stored_indiv->get_genetic_unit_list().cend());
       delete exp_manager_backup;
@@ -493,12 +514,10 @@ int main(int argc, char** argv)
 
 
   gzclose(lineage_file);
-  delete initial_ancestor;
   delete [] reports;
   delete exp_manager;
 
   exit(EXIT_SUCCESS);
-
 }
 
 /*!
@@ -515,85 +534,86 @@ void print_help(char* prog_path)
 
   // not relevant if crossover
 
-  printf( "\n" );
-  printf( "*********************** aevol - Artificial Evolution ******************* \n" );
-  printf( "*                                                                      * \n" );
-  printf( "*                      Lineage post-treatment program                  * \n" );
-  printf( "*                                                                      * \n" );
-  printf( "************************************************************************ \n" );
-  printf( "\n\n" );
-  printf( "This program is Free Software. No Warranty.\n" );
-  printf( "Copyright (C) 2009  LIRIS.\n" );
-  printf( "\n" );
+  printf("\n");
+  printf("*********************** aevol - Artificial Evolution ******************* \n");
+  printf("*                                                                      * \n");
+  printf("*                      Lineage post-treatment program                  * \n");
+  printf("*                                                                      * \n");
+  printf("************************************************************************ \n");
+  printf("\n\n");
+  printf("This program is Free Software. No Warranty.\n");
+  printf("Copyright (C) 2009  LIRIS.\n");
+  printf("\n");
 #ifdef __REGUL
-  printf( "Usage : rlineage -h\n");
-  printf( "or :    rlineage [-vn] [-i index | -r rank] [-b gener1] -e end_gener \n" );
+  printf("Usage : rlineage -h\n");
+  printf("or :    rlineage [-vn] [-i index | -r rank] [-b gener1] -e end_gener \n");
 #else
-  printf( "Usage : lineage -h\n");
-  printf( "or :    lineage [-vn] [-i index | -r rank] [-b gener1] -e end_gener \n" );
+  printf("Usage : lineage -h\n");
+  printf("or :    lineage [-vn] [-i index | -r rank] [-b gener1] -e end_gener \n");
 #endif
-  printf( "\n" );
+  printf("\n");
 #ifdef __REGUL
-  printf( "This program retrieves the ancestral lineage of an individual and writes \n" );
-  printf( "it in an output file called lineage.rae. Specifically, it retrieves the \n");
-  printf( "lineage of the individual of end_gener whose index is index, going \n" );
-  printf( "back in time up to gener1. This program requires at least one population backup\n" );
-  printf( "file (for the generation gener1), one environment backup file (for the generation gener1)\n" );
-  printf( "and all tree files for generations gener1 to end_gener.\n" );
+  printf("This program retrieves the ancestral lineage of an individual and writes \n");
+  printf("it in an output file called lineage.rae. Specifically, it retrieves the \n");
+  printf("lineage of the individual of end_gener whose index is index, going \n");
+  printf("back in time up to gener1. This program requires at least one population backup\n");
+  printf("file (for the generation gener1), one environment backup file (for the generation gener1)\n");
+  printf("and all tree files for generations gener1 to end_gener.\n");
 #else
-  printf( "This program retrieves the ancestral lineage of an individual and writes \n" );
-  printf( "it in an output file called lineage.ae. Specifically, it retrieves the \n");
-  printf( "lineage of the individual of end_gener whose index is index, going \n" );
-  printf( "back in time up to gener1. This program requires at least one population backup\n" );
-  printf( "file (for the generation gener1), one environment backup file (for the generation gener1)\n" );
-  printf( "and all tree files for generations gener1 to end_gener.\n" );
+  printf("This program retrieves the ancestral lineage of an individual and writes \n");
+  printf("it in an output file called lineage.ae. Specifically, it retrieves the \n");
+  printf("lineage of the individual of end_gener whose index is index, going \n");
+  printf("back in time up to gener1. This program requires at least one population backup\n");
+  printf("file (for the generation gener1), one environment backup file (for the generation gener1)\n");
+  printf("and all tree files for generations gener1 to end_gener.\n");
 #endif
-  printf( "\n" );
-  printf( "WARNING: This program should not be used for simulations run with lateral\n" );
-  printf( "transfer. When an individual has more than one parent, the notion of lineage\n" );
-  printf( "used here is not relevant.\n" );
-  printf( "\n" );
-  printf( "\t-h or --help    : Display this help.\n" );
-  printf( "\n" );
-  printf( "\t-v or --verbose : Be verbose, listing generations as they are \n" );
-  printf( "\t                  treated.\n" );
-  printf( "\n" );
-  printf( "\t-n or --nocheck    : Disable genome sequence checking. Makes the \n");
-  printf( "\t                       program faster, but it is not recommended. \n");
-  printf( "\t                       It is better to let the program check that \n");
-  printf( "\t                       when we rebuild the genomes of the ancestors\n");
-  printf( "\t                       from the lineage file, we get the same sequences\n");
-  printf( "\t                       as those stored in the backup files.\n" );
-  printf( "\n" );
-  printf( "\t-c or --fullcheck  : Will perform the genome checks every <BACKUP_STEP>\n" );
-  printf( "\t                       generations. Default behaviour is lighter as it\n" );
-  printf( "\t                       only performs these checks at the ending generation.\n" );
-  printf( "\n" );
-  printf( "\t-i index or --index index : \n" );
-  printf( "\t                  Retrieve the lineage of the individual whose\n" );
-  printf( "\t                  index is index. The index must be comprised \n" );
-  printf( "\t                  between 0 and N-1, with N the size of the \n" );
-  printf( "\t                  population at the ending generation. If neither\n" );
-  printf( "\t                  index nor rank are specified, the program computes \n" );
-  printf( "\t                  the lineage of the best individual of the ending \n" );
-  printf( "\t                  generation.\n");
-  printf( "\n" );
-  printf( "\t-r rank or --rank rank : \n" );
-  printf( "\t                  Retrieve the lineage of the individual whose\n" );
-  printf( "\t                  rank is rank. The rank must be comprised \n" );
-  printf( "\t                  between 1 and N, with N the size of the \n" );
-  printf( "\t                  population at the endind generation. If neither\n" );
-  printf( "\t                  index nor rank are specified, the program computes \n" );
-  printf( "\t                  the lineage of the best individual of the ending \n" );
-  printf( "\t                  generation.\n");
-  printf( "\n" );
-  printf( "\t-b gener1 or --begin gener1 : \n" );
-  printf( "\t                  Retrieve the lineage up to generation gener1.\n" );
-  printf( "\t                  There must be a genome backup file for this\n" );
-  printf( "\t                  generation. If not specified, the program \n" );
-  printf( "\t                  retrieves the lineage up to generation 0.\n");
-  printf( "\n" );
-  printf( "\t-e end_gener or --end end_gener : \n" );
-  printf( "\t                  Retrieve the lineage of the individual of end_gener \n" );
-  printf( "\n" );
+  printf("\n");
+  printf("WARNING: This program should not be used for simulations run with lateral\n");
+  printf("transfer. When an individual has more than one parent, the notion of lineage\n");
+  printf("used here is not relevant.\n");
+  printf("\n");
+  printf("\t-h or --help    : Display this help.\n");
+  printf("\n");
+  printf("\t-v or --verbose : Be verbose, listing generations as they are \n");
+  printf("\t                  treated.\n");
+  printf("\n");
+  printf("\t-n or --nocheck    : Disable genome sequence checking. Makes the \n");
+  printf("\t                       program faster, but it is not recommended. \n");
+  printf("\t                       It is better to let the program check that \n");
+  printf("\t                       when we rebuild the genomes of the ancestors\n");
+  printf("\t                       from the lineage file, we get the same sequences\n");
+  printf("\t                       as those stored in the backup files.\n");
+  printf("\n");
+  printf("\t-c or --fullcheck  : Will perform the genome checks every <BACKUP_STEP>\n");
+  printf("\t                       generations. Default behaviour is lighter as it\n");
+  printf("\t                       only performs these checks at the ending generation.\n");
+  printf("\n");
+  printf("\t-i index or --index index : \n");
+  printf("\t                  Retrieve the lineage of the individual whose\n");
+  printf("\t                  index is index. The index must be comprised \n");
+  printf("\t                  between 0 and N-1, with N the size of the \n");
+  printf("\t                  population at the ending generation. If neither\n");
+  printf("\t                  index nor rank are specified, the program computes \n");
+  printf("\t                  the lineage of the best individual of the ending \n");
+  printf("\t                  generation.\n");
+  printf("\n");
+  printf("\t-r rank or --rank rank : \n");
+  printf("\t                  Retrieve the lineage of the individual whose\n");
+  printf("\t                  rank is rank. The rank must be comprised \n");
+  printf("\t                  between 1 and N, with N the size of the \n");
+  printf("\t                  population at the endind generation. If neither\n");
+  printf("\t                  index nor rank are specified, the program computes \n");
+  printf("\t                  the lineage of the best individual of the ending \n");
+  printf("\t                  generation.\n");
+  printf("\n");
+  printf("\t-b gener1 or --begin gener1 : \n");
+  printf("\t                  Retrieve the lineage up to generation gener1.\n");
+  printf("\t                  There must be a genome backup file for this\n");
+  printf("\t                  generation. If not specified, the program \n");
+  printf("\t                  retrieves the lineage up to generation 0.\n");
+  printf("\n");
+  printf("\t-e end_gener or --end end_gener : \n");
+  printf("\t                  Retrieve the lineage of the individual of end_gener \n");
+  printf("\t                  (default: that contained in file last_gener.txt, if any)\n");
+  printf("\n");
 }

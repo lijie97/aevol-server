@@ -223,7 +223,7 @@ StatRecord::StatRecord(ExpManager* exp_m,
     // -------------------------------------------------
     ReplicationReport* replic_report = nullptr;
     if (_exp_m->get_tree() != nullptr)
-      replic_report = _exp_m->get_tree()->get_report_by_index(Time::get_time(),
+      replic_report = _exp_m->get_tree()->get_report_by_index(AeTime::get_time(),
                                                               indiv->get_id());
 
     if (compute_non_coding)
@@ -327,7 +327,7 @@ StatRecord::StatRecord(ExpManager* exp_m,
     // -------------------------------------------------
     ReplicationReport* replic_report = nullptr;
     if (_exp_m->get_tree() != nullptr)
-      replic_report = _exp_m->get_tree()->get_report_by_index(Time::get_time(),
+      replic_report = _exp_m->get_tree()->get_report_by_index(AeTime::get_time(),
                                                               indiv->get_id());
 
     // Metabolic error stats
@@ -427,7 +427,7 @@ StatRecord::StatRecord(ExpManager* exp_m,
     // -------------------------------------------------
     ReplicationReport* replic_report = nullptr;
     if (_exp_m->get_tree() != nullptr)
-      replic_report = _exp_m->get_tree()->get_report_by_index(Time::get_time(),
+      replic_report = _exp_m->get_tree()->get_report_by_index(AeTime::get_time(),
                                                               indiv->get_id());
     
     // Metabolic error stats
@@ -685,7 +685,7 @@ void StatRecord::write_to_file(FILE* stat_file, stats_type stat_type_to_print) c
     {
       fprintf(stat_file,
           "%" PRId64 " %" PRId32 " %e %" PRId32 " %e %e %e %e %e %e %e",
-          Time::get_time(),
+          AeTime::get_time(),
           _pop_size,
           _fitness,
           _amount_of_dna,
@@ -711,7 +711,7 @@ void StatRecord::write_to_file(FILE* stat_file, stats_type stat_type_to_print) c
     {
       fprintf(stat_file,
           "%" PRId64 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "",
-          Time::get_time(),
+          AeTime::get_time(),
           _nb_mut,
           _nb_rear,
           _nb_switch,
@@ -725,7 +725,7 @@ void StatRecord::write_to_file(FILE* stat_file, stats_type stat_type_to_print) c
     {
       fprintf(stat_file,
           "%" PRId64 " %" PRId32 " %" PRId32 " %f %f %" PRId32 " %" PRId32 " %f %f ",
-          Time::get_time(),
+          AeTime::get_time(),
           _nb_coding_rnas,
           _nb_non_coding_rnas,
           _av_size_coding_rnas,
@@ -739,7 +739,7 @@ void StatRecord::write_to_file(FILE* stat_file, stats_type stat_type_to_print) c
     {
       fprintf(stat_file,
           "%" PRId64 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "",
-          Time::get_time(),
+          AeTime::get_time(),
           _nb_bases_in_0_CDS,
           _nb_bases_in_0_functional_CDS,
           _nb_bases_in_0_non_functional_CDS,
@@ -753,7 +753,7 @@ void StatRecord::write_to_file(FILE* stat_file, stats_type stat_type_to_print) c
     {
       fprintf(stat_file,
           "%" PRId64 " %e %e %e %e %f",
-          Time::get_time(),
+          AeTime::get_time(),
           _dupl_rate,
           _del_rate,
           _trans_rate,
@@ -767,7 +767,7 @@ void StatRecord::write_to_file(FILE* stat_file, stats_type stat_type_to_print) c
     {
       fprintf(stat_file,
           "%" PRId64 " %" PRId32 " %e %" PRId32 " %e %e %e %e %e %e %e",
-          Time::get_time(),
+          AeTime::get_time(),
           _pop_size,
           _fitness,              
           _amount_of_dna, 
@@ -795,7 +795,7 @@ void StatRecord::write_to_file(FILE* stat_file, stats_type stat_type_to_print) c
       fprintf(stat_file,
           "%" PRId64 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32
           " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "",
-          Time::get_time(),
+          AeTime::get_time(),
           _nb_mut,
           _nb_rear,
           _nb_switch,
@@ -811,7 +811,7 @@ void StatRecord::write_to_file(FILE* stat_file, stats_type stat_type_to_print) c
       fprintf(stat_file,
           "%" PRId64 " %" PRId32 " %" PRId32 " %f %f %" PRId32 " %" PRId32
           " %f %f",
-          Time::get_time(),
+          AeTime::get_time(),
           _nb_coding_rnas,
           _nb_non_coding_rnas,
           _av_size_coding_rnas,
@@ -826,7 +826,7 @@ void StatRecord::write_to_file(FILE* stat_file, stats_type stat_type_to_print) c
      // TO DO (if needed) : base-pair stats for all individuals, not just for the best one. 
      //
      // fprintf( stat_file, "%" PRId64 " %f %f %f %f %f %f %f %f",
-     //         Time::get_time(),
+     //         AeTime::get_time(),
      //         _nb_bases_in_0_CDS,
      //         _nb_bases_in_0_functional_CDS,
      //         _nb_bases_in_0_non_functional_CDS,
@@ -840,7 +840,7 @@ void StatRecord::write_to_file(FILE* stat_file, stats_type stat_type_to_print) c
     {
       fprintf(stat_file,
           "%" PRId64 " %e %e %e %e %f",
-          Time::get_time(),
+          AeTime::get_time(),
           _dupl_rate,
           _del_rate,
           _trans_rate,

@@ -71,9 +71,9 @@ GridCell::GridCell(int16_t x, int16_t y,
 }
 
 GridCell::GridCell(gzFile backup_file,
-                           ExpManager * exp_m,
-                           std::shared_ptr<PhenotypicTargetHandler>
-                              phenotypic_target_handler_)
+                   ExpManager* exp_m,
+                   std::shared_ptr<PhenotypicTargetHandler>
+                      phenotypic_target_handler_)
 {
   load(backup_file, exp_m, phenotypic_target_handler_);
 }
@@ -89,6 +89,10 @@ GridCell::~GridCell(void)
 // =================================================================
 //                            Public Methods
 // =================================================================
+void GridCell::ApplyHabitatVariation() {
+  habitat_->ApplyVariation();
+}
+
 void GridCell::save(gzFile backup_file,
                         bool skip_phenotypic_target /*=false*/) const
 {

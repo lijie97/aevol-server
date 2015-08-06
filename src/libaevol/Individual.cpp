@@ -1429,21 +1429,16 @@ void Individual::clear_everything_except_dna_and_promoters() {
     _fitness_by_feature[i]        = 0.0;
   }
 
+
   // For each RNA / individual / genetic_unit delete proteins it knows
   // Deleting the protein itself is made only once
 
-  for (auto& gen_unit: _genetic_unit_list) {
-    for (auto strand: {LEADING, LAGGING}) {
-      auto gu_list = gen_unit.get_rna_list();
-      // TODO vld: strange bug if `gen_unit.get_rna_list()[strand]`
-      // instead of `gu_list[strand]`
-      for (auto& rna: gu_list[strand])
-        rna.clear_transcribed_proteins();
-      gen_unit.clear_protein_list(strand);
-    }
-  }
+  for (auto& gen_unit: _genetic_unit_list)
+    gen_unit.clear_transcribed_proteins();
 
-
+  // Clear RNA and proteins
+  _rna_list.clear();
+  _protein_list.clear();
 
   // Reset statistical data
   delete metrics_;

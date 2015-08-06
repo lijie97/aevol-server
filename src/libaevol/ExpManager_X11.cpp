@@ -550,7 +550,7 @@ void ExpManager_X11::display_grid(X11Window * win, double** cell_grid)
   char t[40];
   int nb_colors = 50; 
   
-  sprintf(t, "Generation = %" PRId64, Time::get_time());
+  sprintf(t, "Generation = %" PRId64, AeTime::get_time());
   win->draw_string(15, 15, t);
   
   
@@ -889,6 +889,7 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
       }
 
       // Display all the phenotypes (blue)
+
       for (const auto& indiv: get_indivs())
       {
         #ifndef __REGUL

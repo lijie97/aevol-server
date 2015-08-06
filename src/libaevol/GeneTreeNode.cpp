@@ -30,22 +30,26 @@
 
 
 // =================================================================
-//                              Libraries
+//                              Includes
 // =================================================================
 #include <cassert>
 #include <list>
 #include <algorithm>
 #include <memory>
 
-// =================================================================
-//                            Project Files
-// =================================================================
 #include "GeneTreeNode.h"
 #include "GeneMutation.h"
 #include "GeneticUnit.h"
+#include "PointMutation.h"
+#include "SmallInsertion.h"
+#include "SmallDeletion.h"
+#include "Duplication.h"
+#include "Deletion.h"
+#include "Translocation.h"
+#include "Inversion.h"
 
 
- using std::list;
+using std::list;
 
 
 namespace aevol {
@@ -469,76 +473,76 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
       bool invert = false;
       MutationType type = mut->get_mut_type();
       switch(type)
-        {
-        case SWITCH:
-          {
-            mut->get_infos_point_mutation(&pos0);
-            mutlength = 1;
-            break;
-          }
-        case S_INS:
-          {
-            mut->get_infos_small_insertion(&pos0, &mutlength);
-            break;
-          }
-        case S_DEL:
-          {
-            mut->get_infos_small_deletion(&pos0, &mutlength);
-            break;
-          }
-        case DUPL:
-          {
-            mut->get_infos_duplication(&pos1, &pos2, &pos0);
-            // pos2 is actually not included in the segment, the real end of the segment is pos2 - 1
-            pos2bis = pos2;
-            pos2 = Utils::mod(pos2 - 1, genlen);
-            mutlength = mut->get_length();
-            break;
-          }
-        case DEL:
-          {
-            mut->get_infos_deletion(&pos1, &pos2);
-            pos2bis = pos2;
-            pos2 = Utils::mod(pos2 - 1, genlen);
-            mutlength = mut->get_length();
-            break;
-          }
-        case TRANS:
-          {
-            mut->get_infos_translocation(&pos1, &pos2, &pos3, &pos0, &invert); // TO DO: check whether the 4 positions are also in absolute coordinates when rearrangements with alignments
-            pos2bis = pos2;
-            pos2 = Utils::mod(pos2 - 1, genlen);
-            mutlength = mut->get_length();
-            break;
-          }
-        case INV:
-          {
-            mut->get_infos_inversion(&pos1, &pos2);
-            pos2bis = pos2;
-            pos2 = Utils::mod(pos2 - 1, genlen);
-            mutlength = mut->get_length();
-            break;
-          }
-        case INSERT:
-          {
-            // TO DO
-            break;
-          }
-        case INS_HT:
-          {
-            // TO DO
-            break;
-          }
-        case REPL_HT:
-          {
-            // TO DO
-            break;
-          }
-        default:
-          {
-            fprintf(stderr, "Error: unknown mutation type in GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree.\n");
-          }
+      {
+        case SWITCH : {
+          pos0 = dynamic_cast<const PointMutation*>(mut)->pos();
+          mutlength = 1;
+          break;
         }
+        case S_INS : {
+          const auto* s_ins = dynamic_cast<const SmallInsertion*>(mut);
+          pos0 = s_ins->pos();
+          mutlength = s_ins->length();
+          break;
+        }
+        case S_DEL : {
+          const auto* s_del = dynamic_cast<const SmallDeletion*>(mut);
+          pos0 = s_del->pos();
+          mutlength = s_del->length();
+          break;
+        }
+        case DUPL : {
+          const auto& dupl = dynamic_cast<const Duplication*>(mut);
+          pos1 = dupl->pos1();
+          pos2 = Utils::mod(dupl->pos2() - 1, genlen);
+          pos2bis = dupl->pos2();
+          pos0 = dupl->pos3();
+          mutlength = dupl->get_length();
+          break;
+        }
+        case DEL : {
+          const auto& del = dynamic_cast<const Deletion*>(mut);
+          pos1 = del->pos1();
+          pos2 = Utils::mod(del->pos2() - 1, genlen);
+          pos2bis = del->pos2();
+          mutlength = del->get_length();
+          break;
+        }
+        case TRANS : {
+          const auto& trans = dynamic_cast<const Translocation*>(mut);
+          pos1 = trans->pos1();
+          pos2 = Utils::mod(trans->pos2() - 1, genlen);
+          pos2bis = trans->pos2();
+          pos3 = trans->pos3();
+          pos0 = trans->pos4();
+          invert = trans->invert();
+          mutlength = trans->get_length();
+          break;
+        }
+        case INV : {
+          const auto& inv = dynamic_cast<const Inversion*>(mut);
+          pos1 = inv->pos1();
+          pos2 = Utils::mod(inv->pos2() - 1, genlen);
+          pos2bis = inv->pos2();
+          mutlength = inv->get_length();
+          break;
+        }
+        case INSERT : {
+          // TO DO
+          break;
+        }
+        case INS_HT : {
+          // TO DO
+          break;
+        }
+        case REPL_HT : {
+          // TO DO
+          break;
+        }
+        default : {
+          fprintf(stderr, "Error: unknown mutation type in GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree.\n");
+        }
+      }
 
 
       int32_t first_cds, last_cds;

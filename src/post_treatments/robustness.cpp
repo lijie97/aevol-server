@@ -65,7 +65,7 @@ void print_help(char* prog_path);
 // =====================================================================
 
 
-int main( int argc, char* argv[] )
+int main(int argc, char* argv[])
 {
   // ----------------------------------------
   //     command-line option parsing
@@ -73,7 +73,7 @@ int main( int argc, char* argv[] )
   int32_t nb_children     = 1000;
   int32_t wanted_rank     = -1;
   int32_t wanted_index    = -1;
-  int32_t num_gener       = 0;
+  int64_t num_gener       = 0;
 
   const char * options_list = "hVg:n:r:i:";
   static struct option long_options_list[] = {
@@ -96,22 +96,22 @@ int main( int argc, char* argv[] )
         case 'h' :
           {
             print_help(argv[0]);
-            exit( EXIT_SUCCESS );
+            exit(EXIT_SUCCESS);
           }
         case 'V' :
           {
             Utils::PrintAevolVersion();
-            exit( EXIT_SUCCESS );
+            exit(EXIT_SUCCESS);
           }
         case 'g' :
           {
-            if ( strcmp( optarg, "" ) == 0 )
+            if (strcmp(optarg, "") == 0)
               {
-                printf( "%s: error: Option -g or --gener : missing argument.\n", argv[0] );
-                exit( EXIT_FAILURE );
+                printf("%s: error: Option -g or --gener : missing argument.\n", argv[0]);
+                exit(EXIT_FAILURE);
               }
 
-            num_gener = atol( optarg );
+            num_gener = atol(optarg);
             break;
           }
         case 'n' :
@@ -120,8 +120,8 @@ int main( int argc, char* argv[] )
         case 'r' :
           if (index_already_set) 
             {
-              fprintf( stderr, "%s: error: Options -r and -i are incompatible. Please choose one of them only.\n", argv[0] );
-              exit( EXIT_FAILURE );
+              fprintf(stderr, "%s: error: Options -r and -i are incompatible. Please choose one of them only.\n", argv[0]);
+              exit(EXIT_FAILURE);
             }
           wanted_rank = atol(optarg);
           rank_already_set = true;
@@ -129,9 +129,9 @@ int main( int argc, char* argv[] )
         case 'i' :
           if (rank_already_set) 
             {
-              fprintf( stderr, "%s: error: Options -r and -i are incompatible. Please choose one of them only.\n", argv[0] );
-              fprintf( stderr, "           Use %s --help for more information.\n", argv[0] );
-              exit( EXIT_FAILURE );
+              fprintf(stderr, "%s: error: Options -r and -i are incompatible. Please choose one of them only.\n", argv[0]);
+              fprintf(stderr, "           Use %s --help for more information.\n", argv[0]);
+              exit(EXIT_FAILURE);
             }
           wanted_index = atol(optarg);
           index_already_set = true;
@@ -148,7 +148,7 @@ int main( int argc, char* argv[] )
   ae_exp_manager* exp_manager = new ae_exp_manager();
   exp_manager->load(num_gener, true, false);
 
-  if ( (wanted_rank == -1) && (wanted_index == -1) ) 
+  if ((wanted_rank == -1) && (wanted_index == -1)) 
     {
       wanted_rank = exp_manager->get_nb_indivs();  // the best one has rank N
     }
@@ -190,41 +190,44 @@ int main( int argc, char* argv[] )
   // ----------------------
 
   char directory_name[64];
-  sprintf( directory_name, "analysis-generation%06" PRId32, num_gener );
+  sprintf(directory_name, "analysis-generation%06" PRId64, num_gener);
   
   // Check whether the directory already exists and is writable
-  if ( access( directory_name, F_OK ) == 0 )
+  if (access(directory_name, F_OK) == 0)
     {
-      if ( access( directory_name, X_OK | W_OK) != 0 )
+      if (access(directory_name, X_OK | W_OK) != 0)
         {
           fprintf(stderr, "Error: cannot enter or write in directory %s.\n", directory_name);
-          exit( EXIT_FAILURE );
+          exit(EXIT_FAILURE);
         }
     }
   else
     {
       // Create the directory with permissions : rwx r-x r-x
-      if ( mkdir( directory_name, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) != 0 )
+      if (mkdir(directory_name, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) != 0)
         {
           fprintf(stderr, "Error: cannot create directory %s.\n", directory_name);
-          exit( EXIT_FAILURE );
+          exit(EXIT_FAILURE);
         }
     }
   
 
   char filename[256];
-  snprintf(  filename, 255, "%s/robustness-allindivs-g%06" PRId32 ".out", directory_name, num_gener );
-  FILE * outputfile_wholepop = fopen( filename, "w" );
+  snprintf( filename, 255, "%s/robustness-allindivs-g%06" PRId64 ".out", directory_name, num_gener);
+  FILE * outputfile_wholepop = fopen(filename, "w");
   
-  snprintf(  filename, 255, "%s/robustness-singleindiv-details-g%06" PRId32 "-i%" PRId32 "-r%" PRId32 ".out", directory_name, num_gener, wanted_index, wanted_rank );
-  FILE * outputfile_details = fopen( filename, "w" );
+  snprintf(filename, 255,
+           "%s/robustness-singleindiv-details-g%06" PRId64
+               "-i%" PRId32 "-r%" PRId32 ".out",
+           directory_name, num_gener, wanted_index, wanted_rank);
+  FILE * outputfile_details = fopen(filename, "w");
 
 
   //  Write headers
 
-  fprintf(outputfile_wholepop, "# ######################################################################\n" );
-  fprintf(outputfile_wholepop, "# Robustness data of individuals at generation %" PRId32 "\n",num_gener );
-  fprintf(outputfile_wholepop, "# ######################################################################\n" );
+  fprintf(outputfile_wholepop, "# ######################################################################\n");
+  fprintf(outputfile_wholepop, "# Robustness data of individuals at generation %" PRId64 "\n",num_gener);
+  fprintf(outputfile_wholepop, "# ######################################################################\n");
   fprintf(outputfile_wholepop, "#  1.  Rank\n");
   fprintf(outputfile_wholepop, "#  2.  Index\n");
   fprintf(outputfile_wholepop, "#  3.  Fitness\n");
@@ -242,12 +245,12 @@ int main( int argc, char* argv[] )
   fprintf(outputfile_wholepop, "#  15. Genome size variance of offsprings\n");
   fprintf(outputfile_wholepop, "#  16. Functional gene number mean of offsprings\n");
   fprintf(outputfile_wholepop, "#  17. Functional gene number variance of offsprings\n");
-  fprintf(outputfile_wholepop, "# ######################################################################\n" );
+  fprintf(outputfile_wholepop, "# ######################################################################\n");
   
-  fprintf(outputfile_details, "# #######################################################################################################\n" );
-  fprintf(outputfile_details, "#  Offspring details of individual with rank %" PRId32 " and index %" PRId32 " at generation %" PRId32 " \n", \
-          wanted_rank, wanted_index, num_gener );
-  fprintf(outputfile_details, "# #######################################################################################################\n" );
+  fprintf(outputfile_details, "# #######################################################################################################\n");
+  fprintf(outputfile_details, "#  Offspring details of individual with rank %" PRId32 " and index %" PRId32 " at generation %" PRId64 " \n", \
+          wanted_rank, wanted_index, num_gener);
+  fprintf(outputfile_details, "# #######################################################################################################\n");
   fprintf(outputfile_details, "#  1.  Fitness\n");
   fprintf(outputfile_details, "#  2.  Metabolic error\n");
   fprintf(outputfile_details, "#  3.  Genome size\n");
@@ -255,7 +258,7 @@ int main( int argc, char* argv[] )
   fprintf(outputfile_details, "#  5.  Number of coding bases\n");
   fprintf(outputfile_details, "#  6.  Number of transcribed but not translated bases\n");
   fprintf(outputfile_details, "#  7.  Number of non transcribed bases\n");
-  fprintf(outputfile_details, "# #######################################################################################################\n" );
+  fprintf(outputfile_details, "# #######################################################################################################\n");
 
 
 
@@ -312,14 +315,14 @@ int main( int argc, char* argv[] )
               offsprings_statistics[3],
               offsprings_statistics[4],
               offsprings_statistics[5]
-              );
+             );
     }
   }
 
 
 
-  fclose( outputfile_wholepop );
-  fclose( outputfile_details ); 
+  fclose(outputfile_wholepop);
+  fclose(outputfile_details); 
   delete exp_manager;
 
   
@@ -337,54 +340,54 @@ void print_help(char* prog_path)
 {
   // Get the program file-name in prog_name (strip prog_path of the path)
   char* prog_name; // No new, it will point to somewhere inside prog_path
-  if ( ( prog_name = strrchr( prog_path, '/' )) ) prog_name++;
+  if ((prog_name = strrchr(prog_path, '/'))) prog_name++;
   else prog_name = prog_path;
 
-  printf( "\n" );
-  printf( "*********************** aevol - Artificial Evolution ******************* \n" );
-  printf( "*                                                                      * \n" );
-  printf( "*                     Robustness post-treatment program                * \n" );
-  printf( "*                                                                      * \n" );
-  printf( "************************************************************************ \n" );
-  printf( "\n\n" );
-  printf( "This program is Free Software. No Warranty.\n" );
-  printf( "\n" );
-  printf( "Usage : %s -h\n", prog_name);
-  printf( "   or : %s -V or --version\n", prog_name );
-  printf( "   or : %s -g GENER [-n NBCHILDREN] [-r RANK | -i INDEX]\n", prog_name);
-  printf( "\n" );
-  printf( "This program computes the replication statistics of all the individuals of a given generation,\n");
-  printf( "like the proportion of neutral, beneficial, deleterious offsprings. This is done by simulating\n");
-  printf( "NBCHILDREN replications for each individual, with its mutation, rearrangement and transfer rates.\n" );
-  printf( "Depending on those rates and genome size, there can be several events per replication.\n" );
-  printf( "Those statistics are written in analysis-generationGENER/robustness-allindivs-gGENER.out, with one \n" );
-  printf( "line per individual in the specified generation. \n\n" );
-  printf( "The program also outputs detailed statistics for one of the individuals (the best one by default). \n");
-  printf( "The detailed statistics for this individual are written in the file called \n");
-  printf( "analysis-generationGENER/robustness-singleindiv-details-gGENER-iINDEX-rRANK.out, with one line per simulated\n");
-  printf( "child of this particular individual.\n");
-  printf( "\n" );
-  printf( "\n" );
-  printf( "\t-h or --help    : Display this help, then exit\n" );
-  printf( "\n" );
-  printf( "\t-V or --version : Print version number, then exit\n" );
-  printf( "\n" );
-  printf( "\t-g GENER or --gener GENER : \n" );
-  printf( "\t                  Generation at which the statistics are computed\n" );
-  printf( "\n" );
-  printf( "\t-i INDEX or --index INDEX : \n" );
-  printf( "\t                  Index of individual of interest. Should be comprised between 0 and N-1, where\n" );
-  printf( "\t                  N is the size of the population.\n" );
-  printf( "\n" );
-  printf( "\t-r RANK or --rank RANK : \n" );
-  printf( "\t                  Rank of individual of interest. Should be comprised between 1 and N, where\n" );
-  printf( "\t                  N is the size of the population. Default = N (fittest individual).\n" );
-  printf( "\n" );
-  printf( "\t-n NBCHILDREN or --nb-children NBCHILDREN : \n" );
-  printf( "\t                  Perform NBCHILDREN replications per individual to compute its statistics. \n" );
-  printf( "\t                  Default = 1000.\n" );
-  printf( "\n" );
+  printf("\n");
+  printf("*********************** aevol - Artificial Evolution ******************* \n");
+  printf("*                                                                      * \n");
+  printf("*                     Robustness post-treatment program                * \n");
+  printf("*                                                                      * \n");
+  printf("************************************************************************ \n");
+  printf("\n\n");
+  printf("This program is Free Software. No Warranty.\n");
+  printf("\n");
+  printf("Usage : %s -h\n", prog_name);
+  printf("   or : %s -V or --version\n", prog_name);
+  printf("   or : %s -g GENER [-n NBCHILDREN] [-r RANK | -i INDEX]\n", prog_name);
+  printf("\n");
+  printf("This program computes the replication statistics of all the individuals of a given generation,\n");
+  printf("like the proportion of neutral, beneficial, deleterious offsprings. This is done by simulating\n");
+  printf("NBCHILDREN replications for each individual, with its mutation, rearrangement and transfer rates.\n");
+  printf("Depending on those rates and genome size, there can be several events per replication.\n");
+  printf("Those statistics are written in analysis-generationGENER/robustness-allindivs-gGENER.out, with one \n");
+  printf("line per individual in the specified generation. \n\n");
+  printf("The program also outputs detailed statistics for one of the individuals (the best one by default). \n");
+  printf("The detailed statistics for this individual are written in the file called \n");
+  printf("analysis-generationGENER/robustness-singleindiv-details-gGENER-iINDEX-rRANK.out, with one line per simulated\n");
+  printf("child of this particular individual.\n");
+  printf("\n");
+  printf("\n");
+  printf("\t-h or --help    : Display this help, then exit\n");
+  printf("\n");
+  printf("\t-V or --version : Print version number, then exit\n");
+  printf("\n");
+  printf("\t-g GENER or --gener GENER : \n");
+  printf("\t                  Generation at which the statistics are computed\n");
+  printf("\n");
+  printf("\t-i INDEX or --index INDEX : \n");
+  printf("\t                  Index of individual of interest. Should be comprised between 0 and N-1, where\n");
+  printf("\t                  N is the size of the population.\n");
+  printf("\n");
+  printf("\t-r RANK or --rank RANK : \n");
+  printf("\t                  Rank of individual of interest. Should be comprised between 1 and N, where\n");
+  printf("\t                  N is the size of the population. Default = N (fittest individual).\n");
+  printf("\n");
+  printf("\t-n NBCHILDREN or --nb-children NBCHILDREN : \n");
+  printf("\t                  Perform NBCHILDREN replications per individual to compute its statistics. \n");
+  printf("\t                  Default = 1000.\n");
+  printf("\n");
 
 
-  printf( "\n" );
+  printf("\n");
 }

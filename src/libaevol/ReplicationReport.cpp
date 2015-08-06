@@ -40,7 +40,7 @@
 #include "DnaReplicationReport.h"
 #include "Mutation.h"
 #include "Individual.h"
-#include "Time.h"
+#include "AeTime.h"
 #include "Observable.h"
 
 namespace aevol {
@@ -101,35 +101,34 @@ ReplicationReport::ReplicationReport(Individual* indiv,
 
 
 // Creates an independent copy of the original report
-ReplicationReport::ReplicationReport(const ReplicationReport &model)
+ReplicationReport::ReplicationReport(const ReplicationReport& other) :
+    _dna_replic_report(other._dna_replic_report)
 {
-  _parent_id  = model._parent_id;
-  _donor_id   = model._donor_id;
+  _parent_id  = other._parent_id;
+  _donor_id   = other._donor_id;
 
-  _id   = model._id;
-  _rank = model._rank;
-    
-  _genome_size        = model._genome_size;
-  _metabolic_error    = model._metabolic_error;
-  _nb_genes_activ     = model._nb_genes_activ;
-  _nb_genes_inhib     = model._nb_genes_inhib;
-  _nb_non_fun_genes   = model._nb_non_fun_genes;
-  _nb_coding_RNAs     = model._nb_coding_RNAs;
-  _nb_non_coding_RNAs = model._nb_non_coding_RNAs;
+  _id   = other._id;
+  _rank = other._rank;
 
-  _parent_metabolic_error = model._parent_metabolic_error;
-  _parent_secretion_error = model._parent_secretion_error;
-  _donor_metabolic_error  = model._donor_metabolic_error;
-  _donor_secretion_error  = model._donor_secretion_error;
-  _parent_genome_size     = model._parent_genome_size;
-  _donor_genome_size      = model._donor_genome_size;
-  _mean_align_score       = model._mean_align_score;
+  _genome_size        = other._genome_size;
+  _metabolic_error    = other._metabolic_error;
+  _nb_genes_activ     = other._nb_genes_activ;
+  _nb_genes_inhib     = other._nb_genes_inhib;
+  _nb_non_fun_genes   = other._nb_non_fun_genes;
+  _nb_coding_RNAs     = other._nb_coding_RNAs;
+  _nb_non_coding_RNAs = other._nb_non_coding_RNAs;
 
-  _dna_replic_report = model._dna_replic_report;
+  _parent_metabolic_error = other._parent_metabolic_error;
+  _parent_secretion_error = other._parent_secretion_error;
+  _donor_metabolic_error  = other._donor_metabolic_error;
+  _donor_secretion_error  = other._donor_secretion_error;
+  _parent_genome_size     = other._parent_genome_size;
+  _donor_genome_size      = other._donor_genome_size;
+  _mean_align_score       = other._mean_align_score;
 }
 
 
-ReplicationReport::ReplicationReport(gzFile tree_file, Individual * indiv)
+ReplicationReport::ReplicationReport(gzFile tree_file, Individual* indiv)
 {
   _indiv = indiv;
     
@@ -262,10 +261,10 @@ void ReplicationReport::update(Observable& o, ObservableEvent e, void* arg) {
       signal_end_of_replication(dynamic_cast<Individual*>(&o));
       break;
     case MUTATION :
-      _dna_replic_report.add_mut(*reinterpret_cast<Mutation*>(arg));
+      _dna_replic_report.add_mut(reinterpret_cast<Mutation*>(arg));
       break;
     default :
-      Utils::ExitWithMsg("Event not handled", __FILE__, __LINE__);
+      Utils::ExitWithDevMsg("Event not handled", __FILE__, __LINE__);
   }
 }
 } // namespace aevol

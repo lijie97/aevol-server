@@ -66,7 +66,7 @@ void print_help(char* prog_path);
 int main(int argc, char* argv[])
 {
   // 1) Initialize command-line option variables with default values
-  int32_t num_gener      = -1;
+  int64_t num_gener      = -1;
   int32_t generalseed    = -1;
   int32_t selseed        = -1;
   int32_t mutseed        = -1;
@@ -79,11 +79,12 @@ int main(int argc, char* argv[])
   bool  verbose     = false;
   
   // 2) Define allowed options
-  const char * options_list = "g:hi:o:vVS:s:m:t:e:n:";
+//  const char * options_list = "g:hi:o:vVS:s:m:t:e:n:";
+  const char * options_list = "g:ho:vVS:s:m:t:e:n:";
   static struct option long_options_list[] = {
     { "gener",    required_argument,  NULL, 'g' },
     { "help",     no_argument,        NULL, 'h' },
-    { "in",       required_argument,  NULL, 'i' },
+//    { "in",       required_argument,  NULL, 'i' },
     { "out",      required_argument,  NULL, 'o' },
     { "verbose",  no_argument,        NULL, 'v' },
     { "version",  no_argument,        NULL, 'V' },
@@ -192,27 +193,22 @@ int main(int argc, char* argv[])
     output_dir = new char[255];
     sprintf(output_dir, "%s", "output");
   }
-  if (num_gener == -1)
-  {
+  if (num_gener == -1) {
     // Set num_gener to the content of the LAST_GENER file if it exists.
     // If it doesn't, print help and exit
     char lg_filename[300];
     sprintf(lg_filename, "%s/%s", input_dir, LAST_GENER_FNAME);
     FILE* lg_file = fopen(lg_filename, "r");
-    if (lg_file != NULL)
-    {
-      if (fscanf(lg_file, "%" PRId32 "\n", &num_gener) == EOF)
-      {
-        printf("ERROR: failed to read last generation from file %s\n",lg_filename);
+    if (lg_file != NULL) {
+      if (fscanf(lg_file, "%" PRId64 "\n", &num_gener) == EOF) {
+        printf("ERROR: failed to read last generation from file %s\n",
+               lg_filename);
         exit(EXIT_FAILURE);
       }
       fclose(lg_file);
     }
-    else
-    {
-      printf("aevol_propagate: no generation number provided.\n");
-      print_help(argv[0]);
-      exit(EXIT_FAILURE);
+    else {
+      Utils::ExitWithUsrMsg("You must provide a generation number");
     }
   }
   
@@ -252,7 +248,7 @@ int main(int argc, char* argv[])
     ExpManager* exp_manager = new ExpManager();
   #endif
   
-  exp_manager->load(input_dir, num_gener, verbose, false);
+  exp_manager->load(input_dir, num_gener, verbose, true);
 
   if (generalseed != -1)
   {
@@ -266,13 +262,9 @@ int main(int argc, char* argv[])
         std::make_shared<JumpingMT>(prng->random(1000000)));
     exp_manager->world()->set_stoch_prng(
         std::make_shared<JumpingMT>(prng->random(1000000)));
-    // TODO <david.parsons@inria.fr> adapt to new organization
-    printf("%s:%d: error: feature has to be adapted to the new organization.\n", __FILE__, __LINE__);
-    exit(EXIT_FAILURE);
-//    exp_manager->get_env()->set_var_prng(
-//        std::make_shared<JumpingMT>(prng->random(1000000)));
-//    exp_manager->get_env()->set_noise_prng(
-//        std::make_shared<JumpingMT>(prng->random(1000000)));
+    exp_manager->world()->set_phen_target_prngs(
+        std::make_shared<JumpingMT>(prng->random(1000000)),
+        std::make_shared<JumpingMT>(prng->random(1000000)));
   }
   else
   {
@@ -361,7 +353,7 @@ void print_help(char* prog_path)
   printf("  -v, --verbose\n\tbe verbose\n\n");
   printf("  -g, --gener GENER\n\tspecify generation number\n");
   printf("\t(default: that contained in file last_gener.txt, if any)\n\n");
-  printf("  -i, --in INDIR\n\tspecify input directory (default \".\")\n\n");
+//  printf("  -i, --in INDIR\n\tspecify input directory (default \".\")\n\n");
   printf("  -o, --out OUTDIR\n\tspecify output directory (default \"./output\")\n\n");
   printf("  -S, --general-seed GENERALSEED\n\tspecify an integer to be used as a seed for random numbers.\n");
   printf("\tIf you use %s repeatedly to initialize several simulations, you should specify a different\n", prog_name);

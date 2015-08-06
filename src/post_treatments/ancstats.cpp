@@ -69,17 +69,22 @@ enum check_type
 // =================================================================
 void print_help(char* prog_path);
 
-FILE* open_environment_stat_file( const char * prefix);
-void write_environment_stats( int32_t t, const Habitat* h, FILE* env_file);
+FILE* open_environment_stat_file(const char * prefix);
+void write_environment_stats(int64_t t,
+                             const PhenotypicTargetHandler & pth,
+                             FILE* env_file);
 
-FILE* open_terminators_stat_file( const char * prefix );
-void write_terminators_stats( int32_t t,  Individual* indiv, FILE* terminator_file );
+FILE* open_terminators_stat_file(const char * prefix);
+void write_terminators_stats(int64_t t,  Individual* indiv, FILE* terminator_file);
 
-FILE* open_zones_stat_file( const char * prefix );
-void write_zones_stats( int32_t t,  Individual* indiv, Habitat* h, FILE* zone_file );
+FILE* open_zones_stat_file(const char * prefix);
+void write_zones_stats(int64_t t,
+                       Individual* indiv,
+                       PhenotypicTargetHandler& phenotypicTargetHandler,
+                       FILE* zone_file);
 
-FILE* open_operons_stat_file( const char * prefix );
-void write_operons_stats( int32_t t,  Individual* indiv, FILE* operon_file );
+FILE* open_operons_stat_file(const char * prefix);
+void write_operons_stats(int64_t t, Individual* indiv, FILE* operon_file);
 
 
 double* dist_to_target_segment;
@@ -128,40 +133,40 @@ int main(int argc, char** argv)
   };
 
   int option;
-  while ( (option = getopt_long(argc, argv, short_options, long_options, NULL)) != -1 )
+  while ((option = getopt_long(argc, argv, short_options, long_options, NULL)) != -1)
   {
-    switch( option )
+    switch(option)
     {
       case 'h' :
       {
         print_help(argv[0]);
-        exit( EXIT_SUCCESS );
+        exit(EXIT_SUCCESS);
       }
       case 'V' :
       {
         Utils::PrintAevolVersion();
-        exit( EXIT_SUCCESS );
+        exit(EXIT_SUCCESS);
       }
       case 'v' : verbose = true;                    break;
       case 'n' : check = NO_CHECK;                  break;
       case 'c' : check = FULL_CHECK;                break;
       case 'f' :
       {
-        if ( strcmp( optarg, "" ) == 0 )
+        if (strcmp(optarg, "") == 0)
         {
-          fprintf( stderr, "ERROR : Option -f or --file : missing argument.\n" );
-          exit( EXIT_FAILURE );
+          fprintf(stderr, "ERROR : Option -f or --file : missing argument.\n");
+          exit(EXIT_FAILURE);
         }
         lineage_file_name = new char[strlen(optarg) + 1];
-        sprintf( lineage_file_name, "%s", optarg );
+        sprintf(lineage_file_name, "%s", optarg);
         break;
       }
       case 't' :
       {
-        if ( strcmp( optarg, "" ) == 0 )
+        if (strcmp(optarg, "") == 0)
         {
-          fprintf( stderr, "ERROR : Option -t or --tolerance : missing argument.\n" );
-          exit( EXIT_FAILURE );
+          fprintf(stderr, "ERROR : Option -t or --tolerance : missing argument.\n");
+          exit(EXIT_FAILURE);
         }
         check = ENV_CHECK;
         tolerance = atof(optarg);
@@ -169,35 +174,35 @@ int main(int argc, char** argv)
       }
       default :
       {
-        fprintf( stderr, "ERROR : Unknown option, check your syntax.\n" );
+        fprintf(stderr, "ERROR : Unknown option, check your syntax.\n");
         print_help(argv[0]);
-        exit( EXIT_FAILURE );
+        exit(EXIT_FAILURE);
       }
     }
   }
 
 
 
-  if ( lineage_file_name == NULL )
+  if (lineage_file_name == NULL)
   {
-    fprintf( stderr, "ERROR : Option -f or --file missing. \n" );
-    exit( EXIT_FAILURE );
+    fprintf(stderr, "ERROR : Option -f or --file missing. \n");
+    exit(EXIT_FAILURE);
   }
 
 
   printf("\n");
-  printf( "WARNING : Parameter change during simulation is not managed in general.\n" );
-  printf( "          Only changes in environmental target done with aevol_modify are handled.\n" );
+  printf("WARNING : Parameter change during simulation is not managed in general.\n");
+  printf("          Only changes in environmental target done with aevol_modify are handled.\n");
   printf("\n");
 
   // =======================
   //  Open the lineage file
   // =======================
-  gzFile lineage_file = gzopen( lineage_file_name, "r" );
-  if ( lineage_file == Z_NULL )
+  gzFile lineage_file = gzopen(lineage_file_name, "r");
+  if (lineage_file == Z_NULL)
   {
-    fprintf( stderr, "ERROR : Could not read the lineage file %s\n", lineage_file_name );
-    exit( EXIT_FAILURE );
+    fprintf(stderr, "ERROR : Could not read the lineage file %s\n", lineage_file_name);
+    exit(EXIT_FAILURE);
   }
 
   int64_t t0 = 0;
@@ -211,13 +216,13 @@ int main(int argc, char** argv)
   gzread(lineage_file, &final_indiv_index, sizeof(final_indiv_index));
   gzread(lineage_file, &final_indiv_rank,  sizeof(final_indiv_rank));
 
-  if ( verbose )
+  if (verbose)
   {
     printf("\n\n");
-    printf( "===============================================================================\n" );
+    printf("===============================================================================\n");
     printf(" Statistics of the ancestors of indiv. %" PRId32
            " (rank %" PRId32 ") from time %" PRId64 " to %" PRId64 "\n",
-           final_indiv_index, final_indiv_rank, t0, t_end );
+           final_indiv_index, final_indiv_rank, t0, t_end);
     printf("================================================================================\n");
   }
 
@@ -231,9 +236,14 @@ int main(int argc, char** argv)
 
   // The current version doesn't allow for phenotypic variation nor for
   // different phenotypic targets among the grid
-  assert(exp_manager->world()->phenotypic_target_shared());
-  assert(exp_manager->world()->phenotypic_target_handler()->var_method() ==
-             NO_VAR);
+  if (not exp_manager->world()->phenotypic_target_shared())
+    Utils::ExitWithUsrMsg("sorry, ancestor stats has not yet been implemented "
+                              "for per grid-cell phenotypic target");
+  auto phenotypicTargetHandler =
+      exp_manager->world()->phenotypic_target_handler();
+  if (not (phenotypicTargetHandler->var_method() == NO_VAR))
+    Utils::ExitWithUsrMsg("sorry, ancestor stats has not yet been implemented "
+                              "for variable phenotypic targets");
 
   int64_t backup_step = exp_manager->get_backup_step();
 
@@ -263,7 +273,10 @@ int main(int argc, char** argv)
   FILE* env_output_file = open_environment_stat_file(prefix);
   FILE* term_output_file = open_terminators_stat_file(prefix);
   FILE* zones_output_file = NULL;
-  if(h->phenotypic_target().nb_segments() > 1)
+
+  // Next line patchy (specific for the constraints mentioned earlier, i.e.
+  // works only for shared and unvarying phenotypic target)
+  if (phenotypicTargetHandler->phenotypic_target().nb_segments() > 1)
   {
     zones_output_file = open_zones_stat_file(prefix);
   }
@@ -273,7 +286,9 @@ int main(int argc, char** argv)
   // ==================================================
   //  Prepare the initial ancestor and write its stats
   // ==================================================
-  Individual*indiv = Individual::CreateIndividual(exp_manager, lineage_file);
+  GridCell* grid_cell = new GridCell(lineage_file, exp_manager, nullptr);
+  // Individual*indiv = Individual::CreateIndividual(exp_manager, lineage_file);
+  auto* indiv = grid_cell->get_individual();
   indiv->Evaluate();
   indiv->compute_statistical_data();
   indiv->compute_non_coding();
@@ -282,16 +297,16 @@ int main(int argc, char** argv)
 
 
   // Optional outputs
-  write_environment_stats(t0, h, env_output_file);
+  write_environment_stats(t0, *phenotypicTargetHandler, env_output_file);
   write_terminators_stats(t0, indiv, term_output_file);
-  if(h->phenotypic_target().nb_segments() > 1)
+  if(phenotypicTargetHandler->phenotypic_target().nb_segments() > 1)
   {
-    write_zones_stats( t0, indiv, h, zones_output_file );
+    write_zones_stats(t0, indiv, *phenotypicTargetHandler, zones_output_file);
   }
-  write_operons_stats( t0, indiv, operons_output_file );
+  write_operons_stats(t0, indiv, operons_output_file);
 
 
-  if ( verbose )
+  if (verbose)
   {
     printf("Initial fitness     = %f\n", indiv->get_fitness());
     printf("Initial genome size = %" PRId32 "\n", indiv->get_total_genome_size());
@@ -299,12 +314,10 @@ int main(int argc, char** argv)
 
   //delete exp_manager;
 
-  // ===============================================================================
+  // ==========================================================================
   //  Replay the mutations to get the successive ancestors and analyze them
-  // ===============================================================================
+  // ==========================================================================
   ReplicationReport* rep = nullptr;
-
-  Individual* stored_indiv = nullptr;
 
   int32_t index;
 
@@ -313,12 +326,11 @@ int main(int argc, char** argv)
 
   bool check_now = false;
 
-  aevol::Time::plusplus();
+  aevol::AeTime::plusplus();
   while (get_time() <= t_end)
   {
-    rep = new ReplicationReport( lineage_file, indiv );
-    index = rep->get_id(); // who we are building...
-    indiv->set_replication_report( rep );
+    rep = new ReplicationReport(lineage_file, indiv);
+    index = rep->id(); // who we are building...
 
     // Check now?
     check_now = ((check == FULL_CHECK && Utils::mod(get_time(), backup_step) == 0) ||
@@ -329,10 +341,6 @@ int main(int argc, char** argv)
         printf("Rebuilding ancestor at generation %" PRId64
             " (index %" PRId32 ")...", get_time(), index);
 
-    // 1) Rebuild environment
-    // TODO vld: re-enable following 2 lines with h replacing env ****************
-    // env->build();
-    // env->apply_variation();
     indiv->reevaluate();
 
     // TODO <david.parsons@inria.fr> Check for phenotypic variation has to be
@@ -347,10 +355,10 @@ int main(int argc, char** argv)
 //      gzFile world_file = gzopen(world_file_name, "r");
 //      backup_habitat = new Habitat(world_file, pth); // TODO vld: fix pth
 //
-//      if ( ! env->is_identical_to(*backup_env, tolerance) )
+//      if (! env->is_identical_to(*backup_env, tolerance))
 //      {
 //        printf("Warning: At get_time()=%" PRId64 ", the replayed environment is not the same\n", get_time());
-//        printf("         as the one saved at get_time()=%" PRId64 "... \n", get_time() );
+//        printf("         as the one saved at get_time()=%" PRId64 "... \n", get_time());
 //        printf("         with tolerance of %lg\n", tolerance);
 //        printf("Replacing the replayed environment by the one stored in the backup.\n");
 //        delete env;
@@ -364,135 +372,115 @@ int main(int argc, char** argv)
     // during the evolution
 
     // 2) Replay replication (create current individual's child)
-    // VLD used to copy pointers to existing unit lists
-    // TODO vld: check if the correct behavior is preserved
-    std::list<GeneticUnit> gulist; // = indiv->get_genetic_unit_list_std();
-    for (auto& gu: indiv->get_genetic_unit_list_nonconst())
-      gulist.emplace_back(indiv, &gu);
-    std::list<GeneticUnit> storedgulist; // = stored_indiv->get_genetic_unit_list_std();
-    for (auto& gu: stored_indiv->get_genetic_unit_list_nonconst())
-      gulist.emplace_back(indiv, &gu);
+    GeneticUnit& gen_unit = indiv->get_genetic_unit_nonconst(0);
+    GeneticUnit* stored_gen_unit = nullptr;
+    Individual* stored_indiv = nullptr;
 
-    std::list<GeneticUnit>::const_iterator storedunit;
     if (check_now)
     {
       exp_manager_backup = new ExpManager();
       exp_manager_backup->load(get_time(), true, false);
-      // TODO: disabled tmp
-      // stored_indiv = new Individual(*(Individual*)exp_manager_backup->get_indiv_by_id( index ), false);
-      storedunit = storedgulist.begin();
+      stored_indiv = new Individual(
+          *(Individual*)exp_manager_backup->get_indiv_by_id(index));
+      stored_gen_unit = &(stored_indiv->get_genetic_unit_nonconst(0));
     }
 
     // For each genetic unit, replay the replication (undergo all mutations)
-    std::list<GeneticUnit>::const_iterator unit = gulist.begin();
-    for (const auto& dnarep: rep->get_dna_replic_reports()) {
-      assert(unit != gulist.end());
+    // TODO <david.parsons@inria.fr> disabled for multiple GUs
+    const auto& dnarep = rep->dna_replic_report();
 
-      unit->get_dna()->set_replic_report(dnarep);
+    for (const auto& mut: dnarep.get_HT())
+      gen_unit.get_dna()->undergo_this_mutation(*mut);
+    for (const auto& mut: dnarep.get_rearrangements())
+      gen_unit.get_dna()->undergo_this_mutation(*mut);
+    for (const auto& mut: dnarep.get_mutations())
+      gen_unit.get_dna()->undergo_this_mutation(*mut);
 
-      for (const auto& mut: dnarep->get_HT())
-        unit->get_dna()->undergo_this_mutation(&mut);
-
-      for (const auto& mut: dnarep->get_rearrangements())
-        unit->get_dna()->undergo_this_mutation(&mut);
-
-      for (const auto& mut: dnarep->get_mutations())
-        unit->get_dna()->undergo_this_mutation(&mut);
-
-      if ( check_now )
+    if (check_now)
+    {
+      if (verbose)
       {
-        if ( verbose )
-        {
-          printf("Checking the sequence of the unit...");
-          fflush(NULL);
-        }
+        printf("Checking the sequence of the unit...");
+        fflush(NULL);
+      }
 
-        assert(storedunit != storedgulist.end());
+      char * str1 = new char[gen_unit.get_dna()->get_length() + 1];
+      memcpy(str1, gen_unit.get_dna()->get_data(), \
+             gen_unit.get_dna()->get_length()*sizeof(char));
+      str1[gen_unit.get_dna()->get_length()] = '\0';
 
-        char * str1 = new char[unit->get_dna()->get_length() + 1];
-        memcpy(str1, unit->get_dna()->get_data(), \
-               unit->get_dna()->get_length()*sizeof(char));
-        str1[unit->get_dna()->get_length()] = '\0';
+      char * str2 = new char[(stored_gen_unit->get_dna())->get_length() + 1];
+      memcpy(str2, (stored_gen_unit->get_dna())->get_data(), (stored_gen_unit->get_dna())->get_length()*sizeof(char));
+      str2[(stored_gen_unit->get_dna())->get_length()] = '\0';
 
-        char * str2 = new char[(storedunit->get_dna())->get_length() + 1];
-        memcpy(str2, (storedunit->get_dna())->get_data(), (storedunit->get_dna())->get_length()*sizeof(char));
-        str2[(storedunit->get_dna())->get_length()] = '\0';
-
-        if (strncmp(str1, str2, storedunit->get_dna()->get_length()) == 0 and verbose)
+      if (strncmp(str1, str2, stored_gen_unit->get_dna()->get_length()) == 0) {
+        if (verbose)
           printf(" OK\n");
-        else
-        {
-          if ( verbose ) printf( " ERROR !\n" );
-          fprintf(stderr, "Error: the rebuilt genetic unit is not the same as \n");
-          fprintf(stderr, "the one saved at generation %" PRId64 "... ", get_time());
-          fprintf(stderr, "Rebuilt unit : %" PRId32 " bp\n %s\n", (int32_t)strlen(str1), str1);
-          fprintf(stderr, "Stored unit  : %" PRId32 " bp\n %s\n", (int32_t)strlen(str2), str2);
-
-          delete [] str1;
-          delete [] str2;
-          gzclose(lineage_file);
-          delete indiv;
-          delete stored_indiv;
-          delete exp_manager_backup;
-          delete exp_manager;
-          exit(EXIT_FAILURE);
-        }
+      }
+      else {
+        if (verbose) printf(" ERROR !\n");
+        fprintf(stderr, "Error: the rebuilt genetic unit is not the same as \n");
+        fprintf(stderr, "the one saved at generation %" PRId64 "... ", get_time());
+        fprintf(stderr, "Rebuilt unit : %" PRId32 " bp\n %s\n", (int32_t)strlen(str1), str1);
+        fprintf(stderr, "Stored unit  : %" PRId32 " bp\n %s\n", (int32_t)strlen(str2), str2);
 
         delete [] str1;
         delete [] str2;
-
-        ++storedunit;
+        gzclose(lineage_file);
+        delete indiv;
+        delete stored_indiv;
+        delete exp_manager_backup;
+        delete exp_manager;
+        exit(EXIT_FAILURE);
       }
-      ++unit;
+
+      delete [] str1;
+      delete [] str2;
     }
 
-    assert(unit == gulist.end());
-
     // 3) All the mutations have been replayed, we can now evaluate the new individual
-    indiv->reevaluate(env);
+    indiv->reevaluate();
     indiv->compute_statistical_data();
     indiv->compute_non_coding();
 
     mystats->write_statistics_of_this_indiv(indiv);
 
     // Optional outputs
-    write_environment_stats(get_time(), h, env_output_file);
+    write_environment_stats(get_time(), *phenotypicTargetHandler, env_output_file);
     write_terminators_stats(get_time(), indiv, term_output_file);
-    if(h->phenotypic_target().nb_segments() > 1)
+    if(phenotypicTargetHandler->phenotypic_target().nb_segments() > 1)
     {
-      write_zones_stats(get_time(), indiv, h, zones_output_file);
+      write_zones_stats(get_time(), indiv, *phenotypicTargetHandler, zones_output_file);
     }
     write_operons_stats(get_time(), indiv, operons_output_file);
 
-    if ( verbose ) printf(" OK\n");
+    if (verbose) printf(" OK\n");
 
     delete rep;
 
-    if ( check_now )
+    if (check_now)
     {
-      assert(storedunit == storedgulist.end());
       delete stored_indiv;
       delete exp_manager_backup;
     }
 
-    aevol::Time::plusplus();
+    aevol::AeTime::plusplus();
   }
 
   gzclose(lineage_file);
 
   // Optional outputs
-  fclose( env_output_file );
-  fclose( term_output_file );
-  if(h->phenotypic_target().nb_segments() > 1)
+  fclose(env_output_file);
+  fclose(term_output_file);
+  if(phenotypicTargetHandler->phenotypic_target().nb_segments() > 1)
   {
-    fclose( zones_output_file );
+    fclose(zones_output_file);
   }
-  fclose( operons_output_file );
+  fclose(operons_output_file);
 
   delete exp_manager;
   delete mystats;
   delete indiv;
-  delete h;
   
   exit(EXIT_SUCCESS);
 }
@@ -500,93 +488,99 @@ int main(int argc, char** argv)
 
 
 
-FILE* open_environment_stat_file( const char * prefix)
+FILE* open_environment_stat_file(const char * prefix)
 {
   // Open file
   char* env_output_file_name = new char[80];
-  sprintf( env_output_file_name, "stats/%s_envir.out",prefix );
-  FILE* env_output_file = fopen( env_output_file_name, "w" );
+  sprintf(env_output_file_name, "stats/%s_envir.out",prefix);
+  FILE* env_output_file = fopen(env_output_file_name, "w");
   delete env_output_file_name;
 
   // Write headers
   // TODO vld: was limited to "if environment->gaussians_provided"
   // are gaussians always available now?
-  fprintf( env_output_file, "# Each line contains : Generation, and then, for each gaussian: M W H.\n" );
-  fprintf( env_output_file, "#\n" );
+  fprintf(env_output_file, "# Each line contains : Generation, and then, for each gaussian: M W H.\n");
+  fprintf(env_output_file, "#\n");
 
   return env_output_file;
 }
 
 
-void write_environment_stats( int32_t t, const Habitat *h, FILE*  env_output_file)
+void write_environment_stats(int64_t t,
+                             const PhenotypicTargetHandler& pth,
+                             FILE* env_output_file)
 {
   // Num gener
-  fprintf( env_output_file, "%" PRId32, t );
+  fprintf(env_output_file, "%" PRId64, t);
 
-  // TODO vld: was limited to "if gaussians_provided"
-  // are gaussians always available now?
-  for (const ae_gaussian& g: h->phenotypic_target_handler->gaussians())
-    fprintf(env_output_file, "     %.16f %.16f %.16f", g.get_mean(), g.get_width(), g.get_height());
+  for (const Gaussian& g: pth.gaussians())
+    fprintf(env_output_file,
+            "     %.16f %.16f %.16f",
+            g.get_mean(), g.get_width(), g.get_height());
 
-  fprintf( env_output_file, "\n" );
+  fprintf(env_output_file, "\n");
 }
 
 
 
-FILE* open_terminators_stat_file( const char * prefix )
+FILE* open_terminators_stat_file(const char * prefix)
 {
   char* term_output_file_name = new char[80];
-  sprintf( term_output_file_name, "stats/%s_nb_term.out",prefix );
-  FILE* term_output_file = fopen( term_output_file_name, "w" );
+  sprintf(term_output_file_name, "stats/%s_nb_term.out",prefix);
+  FILE* term_output_file = fopen(term_output_file_name, "w");
   delete [] term_output_file_name;
 
   // Write headers
-  fprintf( term_output_file, "# Each line contains : \n" );
-  fprintf( term_output_file, "#   * Generation\n" );
-  fprintf( term_output_file, "#   * Genome size\n" );
-  fprintf( term_output_file, "#   * Terminator number\n");
-  fprintf( term_output_file, "#\n" );
+  fprintf(term_output_file, "# Each line contains : \n");
+  fprintf(term_output_file, "#   * Generation\n");
+  fprintf(term_output_file, "#   * Genome size\n");
+  fprintf(term_output_file, "#   * Terminator number\n");
+  fprintf(term_output_file, "#\n");
 
   return term_output_file;
 }
 
-void write_terminators_stats( int32_t t,  Individual* indiv, FILE* term_output_file  )
+void write_terminators_stats(int64_t t,  Individual* indiv, FILE* term_output_file )
 {
-  fprintf(  term_output_file, "%" PRId32 " %" PRId32 " %" PRId32 "\n",
+  fprintf( term_output_file, "%" PRId64 " %" PRId32 " %" PRId32 "\n",
             t,
             indiv->get_total_genome_size(),
-            indiv->get_nb_terminators() );
+            indiv->get_nb_terminators());
 }
 
 
 
-FILE* open_zones_stat_file( const char * prefix  )
+FILE* open_zones_stat_file(const char * prefix )
 {
   // Open file
   char* zones_output_file_name = new char[80];
-  sprintf( zones_output_file_name, "stats/%s_zones.out",prefix );
-  FILE* zones_output_file = fopen( zones_output_file_name, "w" );
+  sprintf(zones_output_file_name, "stats/%s_zones.out",prefix);
+  FILE* zones_output_file = fopen(zones_output_file_name, "w");
   delete [] zones_output_file_name;
 
   // Write headers
-  fprintf( zones_output_file, "# Each line contains : Generation, and then, for each zone:\n" );
-  fprintf( zones_output_file, "#   * Number of activation genes\n" );
-  fprintf( zones_output_file, "#   * Number of inhibition genes\n" );
-  fprintf( zones_output_file, "#   * Geometric area of the activation genes\n" );
-  fprintf( zones_output_file, "#   * Geometric area of the inhibition genes\n" );
-  fprintf( zones_output_file, "#   * Geometric area of the resulting phenotype\n" );
-  fprintf( zones_output_file, "#\n" );
+  fprintf(zones_output_file, "# Each line contains : Generation, and then, for each zone:\n");
+  fprintf(zones_output_file, "#   * Number of activation genes\n");
+  fprintf(zones_output_file, "#   * Number of inhibition genes\n");
+  fprintf(zones_output_file, "#   * Geometric area of the activation genes\n");
+  fprintf(zones_output_file, "#   * Geometric area of the inhibition genes\n");
+  fprintf(zones_output_file, "#   * Geometric area of the resulting phenotype\n");
+  fprintf(zones_output_file, "#\n");
 
   return zones_output_file;
 }
 
-void write_zones_stats( int32_t t, Individual* indiv, Habitat *h, FILE* zones_output_file )
+void write_zones_stats(int64_t t,
+                       Individual* indiv,
+                       PhenotypicTargetHandler& phenotypicTargetHandler,
+                       FILE* zones_output_file)
 {
-  assert(h->phenotypic_target().nb_segments() > 1);
+  assert(phenotypicTargetHandler.phenotypic_target().nb_segments() > 1);
 
-  int16_t nb_segments = h->phenotypic_target().nb_segments();
+  int16_t nb_segments = phenotypicTargetHandler.phenotypic_target().nb_segments();
   int16_t num_segment = 0;
-  ae_env_segment** segments = h->phenotypic_target()->segments();
+  PhenotypicSegment** segments =
+      phenotypicTargetHandler.phenotypic_target().segments();
 
   // Tables : index 0 for the 0 segment
   //                1 for the neutral segment
@@ -596,7 +590,7 @@ void write_zones_stats( int32_t t, Individual* indiv, Habitat *h, FILE* zones_ou
   double  geom_area_inhib[nb_segments];
   double  geom_area_phen[nb_segments];
 
-  for ( num_segment = 0 ; num_segment < nb_segments ; num_segment++ )
+  for (num_segment = 0 ; num_segment < nb_segments ; num_segment++)
   {
     nb_genes_activ[num_segment]   = 0;
     nb_genes_inhib[num_segment]   = 0;
@@ -616,31 +610,31 @@ void write_zones_stats( int32_t t, Individual* indiv, Habitat *h, FILE* zones_ou
   for (const auto& prot: indiv->get_protein_list()) {
     // Go to the corresponding segment
     num_segment = 0;
-    while ( prot->get_mean() > segments[num_segment]->stop )
+    while (prot->get_mean() > segments[num_segment]->stop)
     {
       num_segment++;
     }
 
     // Add a genes (activ or inhib)
-    if ( prot->get_is_functional() )
+    if (prot->get_is_functional())
     {
-      if ( prot->get_height() > 0 )
+      if (prot->get_height() > 0)
       {
         nb_genes_activ[num_segment]++;
       }
-      else if ( prot->get_height() < 0 )
+      else if (prot->get_height() < 0)
       {
         nb_genes_inhib[num_segment]++;
       }
 
       // It the gene is exactly at the frontier between 2 zones, mark it in both
-      if ( prot->get_mean() == segments[num_segment]->stop && num_segment < nb_segments - 1 )
+      if (prot->get_mean() == segments[num_segment]->stop && num_segment < nb_segments - 1)
       {
-        if ( prot->get_height() > 0 )
+        if (prot->get_height() > 0)
         {
           nb_genes_activ[num_segment+1]++;
         }
-        else if ( prot->get_height() < 0 )
+        else if (prot->get_height() < 0)
         {
           nb_genes_inhib[num_segment+1]++;
         }
@@ -653,48 +647,48 @@ void write_zones_stats( int32_t t, Individual* indiv, Habitat *h, FILE* zones_ou
   inhib = indiv->get_phenotype_inhib();
   phen  = indiv->get_phenotype();
 
-  for ( num_segment = 0 ; num_segment < nb_segments ; num_segment++ )
+  for (num_segment = 0 ; num_segment < nb_segments ; num_segment++)
   {
-    geom_area_activ[num_segment]  = activ->get_geometric_area( segments[num_segment]->start, segments[num_segment]->stop );
-    geom_area_inhib[num_segment]  = inhib->get_geometric_area( segments[num_segment]->start, segments[num_segment]->stop );
-    geom_area_phen[num_segment]   = phen->get_geometric_area(  segments[num_segment]->start, segments[num_segment]->stop );
+    geom_area_activ[num_segment]  = activ->get_geometric_area(segments[num_segment]->start, segments[num_segment]->stop);
+    geom_area_inhib[num_segment]  = inhib->get_geometric_area(segments[num_segment]->start, segments[num_segment]->stop);
+    geom_area_phen[num_segment]   = phen->get_geometric_area( segments[num_segment]->start, segments[num_segment]->stop);
   }
 
 
   // Print stats to file
-  fprintf(  zones_output_file, "%" PRId32, t );
+  fprintf( zones_output_file, "%" PRId64, t);
 
-  for ( num_segment = 0 ; num_segment < nb_segments ; num_segment++ )
+  for (num_segment = 0 ; num_segment < nb_segments ; num_segment++)
   {
-    fprintf(  zones_output_file, "     %" PRId32 " %" PRId32 " %lf %lf %lf",
+    fprintf( zones_output_file, "     %" PRId32 " %" PRId32 " %lf %lf %lf",
               nb_genes_activ[num_segment],
               nb_genes_inhib[num_segment],
               geom_area_activ[num_segment],
               geom_area_inhib[num_segment],
-              geom_area_phen[num_segment] );
+              geom_area_phen[num_segment]);
   }
 
-  fprintf(  zones_output_file, "\n" );
+  fprintf( zones_output_file, "\n");
 }
 
 
 
-FILE* open_operons_stat_file( const char * prefix  )
+FILE* open_operons_stat_file(const char * prefix )
 {
   char* operons_output_file_name = new char[80];
-  sprintf( operons_output_file_name, "stats/%s_operons.out",prefix);
-  FILE* operons_output_file = fopen( operons_output_file_name, "w" );
+  sprintf(operons_output_file_name, "stats/%s_operons.out",prefix);
+  FILE* operons_output_file = fopen(operons_output_file_name, "w");
   delete [] operons_output_file_name,
 
   // Write headers
-  fprintf( operons_output_file, "# Each line contains : Generation, and then, for 20 RNA, the number of genes inside the RNA\n" );
+  fprintf(operons_output_file, "# Each line contains : Generation, and then, for 20 RNA, the number of genes inside the RNA\n");
   return operons_output_file;
 }
 
-void write_operons_stats(int32_t t, Individual* indiv, FILE*  operons_output_file)
+void write_operons_stats(int64_t t, Individual* indiv, FILE*  operons_output_file)
 {
   int32_t nb_genes_per_rna[20];
-  for ( int i = 0 ; i < 20 ; i++ )
+  for (int i = 0 ; i < 20 ; i++)
   {
     nb_genes_per_rna[i] = 0;
   }
@@ -703,13 +697,12 @@ void write_operons_stats(int32_t t, Individual* indiv, FILE*  operons_output_fil
     if (rna->get_transcribed_proteins().size() >= 20)
     {
       printf("Found operon with 20 genes or more : %zu\n", rna->get_transcribed_proteins().size());
-      getchar();
     }
 
     nb_genes_per_rna[rna->get_transcribed_proteins().size()]++;
   }
 
-  fprintf(  operons_output_file, "%" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n",
+  fprintf( operons_output_file, "%" PRId64 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n",
             t,
             nb_genes_per_rna[0],
             nb_genes_per_rna[1],
@@ -730,7 +723,7 @@ void write_operons_stats(int32_t t, Individual* indiv, FILE*  operons_output_fil
             nb_genes_per_rna[16],
             nb_genes_per_rna[17],
             nb_genes_per_rna[18],
-            nb_genes_per_rna[19] );
+            nb_genes_per_rna[19]);
 }
 
 
@@ -742,47 +735,47 @@ void write_operons_stats(int32_t t, Individual* indiv, FILE*  operons_output_fil
 */
 void print_help(char* prog_path)
 {
-  printf( "\n" );
-  printf( "*********************** aevol - Artificial Evolution ******************* \n" );
-  printf( "*                                                                      * \n" );
-  printf( "*                      Ancstats post-treatment program                 * \n" );
-  printf( "*                                                                      * \n" );
-  printf( "************************************************************************ \n" );
-  printf( "\n\n" );
-  printf( "This program is Free Software. No Warranty.\n" );
-  printf( "Copyright (C) 2009  LIRIS.\n" );
-  printf( "\n" );
+  printf("\n");
+  printf("*********************** aevol - Artificial Evolution ******************* \n");
+  printf("*                                                                      * \n");
+  printf("*                      Ancstats post-treatment program                 * \n");
+  printf("*                                                                      * \n");
+  printf("************************************************************************ \n");
+  printf("\n\n");
+  printf("This program is Free Software. No Warranty.\n");
+  printf("Copyright (C) 2009  LIRIS.\n");
+  printf("\n");
 #ifdef __REGUL
-  printf( "Usage : rancstats -h\n");
-  printf( "or :    rancstats [-vn] -f lineage_file \n" );
+  printf("Usage : rancstats -h\n");
+  printf("or :    rancstats [-vn] -f lineage_file \n");
 #else
-  printf( "Usage : ancstats -h\n");
-  printf( "or :    ancstats [-vn] -f lineage_file \n" );
+  printf("Usage : ancstats -h\n");
+  printf("or :    ancstats [-vn] -f lineage_file \n");
 #endif
-  printf( "\n" );
-  printf( "This program compute some statistics for the individuals within lineage_file.\n" );
-  printf( "\n" );
-  printf( "\n" );
-  printf( "\t-h or --help       : Display this help.\n" );
-  printf( "\n" );
-  printf( "\t-v or --verbose    : Be verbose, listing generations as they are \n" );
-  printf( "\t                       treated.\n" );
-  printf( "\n" );
-  printf( "\t-n or --nocheck    : Disable genome sequence checking. Makes the \n");
-  printf( "\t                       program faster, but it is not recommended. \n");
-  printf( "\t                       It is better to let the program check that \n");
-  printf( "\t                       when we rebuild the genomes of the ancestors\n");
-  printf( "\t                       from the lineage file, we get the same sequences\n");
-  printf( "\t                       as those stored in the backup files.\n" );
-  printf( "\n" );
-  printf( "\t-c or --fullcheck  : Will perform the genome and environment checks every\n" );
-  printf( "\t                       <BACKUP_STEP> generations. Default behaviour is\n" );
-  printf( "\t                       lighter as it only perform sthese checks at the\n" );
-  printf( "\t                       ending generation.\n" );
-  printf( "\n" );
-  printf( "\t-f lineage_file or --file lineage_file : \n" );
-  printf( "\t                       Compute the statistics for the individuals within lineage_file.\n" );
-  printf( "\t-t tolerance or --tolerance tolerance : \n");
-  printf( "\t                       Tolerance used to compare the replayed environment to environment in backup\n");
-  printf( "\n" );
+  printf("\n");
+  printf("This program compute some statistics for the individuals within lineage_file.\n");
+  printf("\n");
+  printf("\n");
+  printf("\t-h or --help       : Display this help.\n");
+  printf("\n");
+  printf("\t-v or --verbose    : Be verbose, listing generations as they are \n");
+  printf("\t                       treated.\n");
+  printf("\n");
+  printf("\t-n or --nocheck    : Disable genome sequence checking. Makes the \n");
+  printf("\t                       program faster, but it is not recommended. \n");
+  printf("\t                       It is better to let the program check that \n");
+  printf("\t                       when we rebuild the genomes of the ancestors\n");
+  printf("\t                       from the lineage file, we get the same sequences\n");
+  printf("\t                       as those stored in the backup files.\n");
+  printf("\n");
+  printf("\t-c or --fullcheck  : Will perform the genome and environment checks every\n");
+  printf("\t                       <BACKUP_STEP> generations. Default behaviour is\n");
+  printf("\t                       lighter as it only perform sthese checks at the\n");
+  printf("\t                       ending generation.\n");
+  printf("\n");
+  printf("\t-f lineage_file or --file lineage_file : \n");
+  printf("\t                       Compute the statistics for the individuals within lineage_file.\n");
+  printf("\t-t tolerance or --tolerance tolerance : \n");
+  printf("\t                       Tolerance used to compare the replayed environment to environment in backup\n");
+  printf("\n");
 }

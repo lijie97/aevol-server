@@ -57,7 +57,7 @@ void print_help(char* prog_path);
 
 
 
-int main( int argc, char* argv[] )
+int main(int argc, char* argv[])
 {
 
 
@@ -67,7 +67,7 @@ int main( int argc, char* argv[] )
   // =================================================================
   //
   // 1) Initialize command-line option variables with default values
-  int32_t gener = 0;
+  int64_t time = -1;
 
   // 2) Define allowed options
   const char * options_list = "hVg:";
@@ -79,44 +79,63 @@ int main( int argc, char* argv[] )
 
   // 3) Get actual values of the command-line options
   int option;
-  while ( ( option = getopt_long(argc, argv, options_list, long_options_list, NULL) ) != -1 )
+  while ((option = getopt_long(argc, argv, options_list, long_options_list, NULL)) != -1)
   {
-  switch ( option )
+  switch (option)
     {
       case 'h' :
       {
         print_help(argv[0]);
-        exit( EXIT_SUCCESS );
+        exit(EXIT_SUCCESS);
       }
       case 'V' :
       {
         Utils::PrintAevolVersion();
-        exit( EXIT_SUCCESS );
+        exit(EXIT_SUCCESS);
       }
       case 'g' :
       {
-	      if ( strcmp( optarg, "" ) == 0 )
+	      if (strcmp(optarg, "") == 0)
     		{
-    		  printf( "%s: error: Option -g or --gener : missing argument.\n", argv[0] );
-    		  exit( EXIT_FAILURE );
+    		  printf("%s: error: Option -g or --gener : missing argument.\n", argv[0]);
+    		  exit(EXIT_FAILURE);
     		}
 
-	      gener = atol( optarg );
+	      time = atol(optarg);
         break;
       }
     }
   }
 
+  // Set undefined command line parameters to default values
+  if (time == -1) {
+    // Set t_end to the content of the LAST_GENER file if it exists.
+    // If it doesn't, print help and exit
+    FILE* lg_file = fopen(LAST_GENER_FNAME, "r");
+    if (lg_file != NULL) {
+      if (fscanf(lg_file, "%" PRId64, &time) == EOF) {
+        printf("ERROR: failed to read last generation from file %s\n",
+               LAST_GENER_FNAME);
+        exit(EXIT_FAILURE);
+      }
+      fclose(lg_file);
+    }
+    else {
+      printf("%s: error: You must provide a generation number.\n", argv[0]);
+      exit(EXIT_FAILURE);
+    }
+  }
 
 
-  printf( "Displaying generation %" PRId32 "...\n", gener );
+
+  printf("Displaying generation %" PRId64 "...\n", time);
 
   // =================================================================
   //                       Read the backup file
   // =================================================================
   // Load simulation from backup
-  ae_exp_manager_X11* exp_manager = new ae_exp_manager_X11();
-  exp_manager->load( gener, false, true, false );
+  ExpManager_X11* exp_manager = new ExpManager_X11();
+  exp_manager->load(time, false, true);
 
 
 
@@ -127,7 +146,7 @@ int main( int argc, char* argv[] )
 
   exp_manager->toggle_display_on_off();
   exp_manager->display();
-  while ( exp_manager->quit_signal_received() == false )
+  while (exp_manager->quit_signal_received() == false)
   {
     exp_manager->handle_events();
   }
@@ -142,11 +161,11 @@ int main( int argc, char* argv[] )
 
 void print_help(char* prog_name)
 {
-  printf( "\n************* aevol - Artificial Evolution ************* \n\n" );
-  printf( "This program is Free Software. No Warranty.\n" );
-  printf( "Copyright (C) 2009  LIRIS.\n" );
-  printf( "Usage : %s -h\n", prog_name );
-  printf( "   or : %s -f file.ae\n", prog_name );
-  printf( "\t-h : Display this screen\n" );
-  printf( "\t-g or --gener n    : Display the population at generation n\n" );
+  printf("\n************* aevol - Artificial Evolution ************* \n\n");
+  printf("This program is Free Software. No Warranty.\n");
+  printf("Copyright (C) 2009  LIRIS.\n");
+  printf("Usage : %s -h\n", prog_name);
+  printf("   or : %s -f file.ae\n", prog_name);
+  printf("\t-h : Display this screen\n");
+  printf("\t-g or --gener n    : Display the population at generation n\n");
 }

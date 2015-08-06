@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
   // 1) Initialize command-line option variables with default values
   char* param_file_name = NULL;
   bool verbose          = false;
-  int32_t num_gener = -1;  
+  int64_t num_gener = -1;
   
   // 2) Define allowed options
   const char * options_list = "hf:g:V";
@@ -131,11 +131,26 @@ int main(int argc, char* argv[])
     }  
   
   // 4) Set undefined command line parameters to default values
-  if (param_file_name == NULL)
-    {
-      param_file_name = new char[strlen(DEFAULT_PARAM_FILE_NAME)+1];
-      sprintf(param_file_name, "%s", DEFAULT_PARAM_FILE_NAME);
+  if (param_file_name == NULL) {
+    param_file_name = new char[strlen(DEFAULT_PARAM_FILE_NAME)+1];
+    sprintf(param_file_name, "%s", DEFAULT_PARAM_FILE_NAME);
+  }
+  if (num_gener == -1) {
+    // Set num_gener to the content of the LAST_GENER file if it exists.
+    // If it doesn't, print help and exit
+    FILE* lg_file = fopen(LAST_GENER_FNAME, "r");
+    if (lg_file != NULL) {
+      if (fscanf(lg_file, "%" PRId64 "\n", &num_gener) == EOF) {
+        Utils::ExitWithUsrMsg(
+            std::string("failed to read last generation from file ") +
+            LAST_GENER_FNAME);
+        exit(EXIT_FAILURE);
+      }
+      fclose(lg_file);
     }
+    else
+      Utils::ExitWithUsrMsg("you must provide a generation number");
+  }
   
   // 5) Check the consistancy of the command-line options
   if (num_gener == -1)
@@ -168,9 +183,9 @@ int main(int argc, char* argv[])
   {
     // If a tree is available, assign the replication reports to the individuals
     #ifdef __REGUL
-      sprintf(tree_file_name,"tree/tree_%06" PRId32 ".rae", num_gener);
+      sprintf(tree_file_name,"tree/tree_%06" PRId64 ".rae", num_gener);
     #else
-      sprintf(tree_file_name,"tree/tree_%06" PRId32 ".ae", num_gener);
+      sprintf(tree_file_name,"tree/tree_%06" PRId64 ".ae", num_gener);
     #endif
     
     tree = new Tree(exp_manager, tree_file_name);
@@ -189,9 +204,9 @@ int main(int argc, char* argv[])
     printf("%s:%d: error: could not open parameter file %s\n", __FILE__, __LINE__, param_file_name);
     exit(EXIT_FAILURE);
   }
-  
-  // bool env_change = false;
-  // bool env_hasbeenmodified = false;
+
+  std::list<Gaussian> new_gaussians;
+  bool phen_target_change = false;
   bool start_to_record_tree = false;
   bool set_tree_step = false;
   int32_t tree_step = 100;
@@ -437,22 +452,15 @@ int main(int argc, char* argv[])
     else if ((strcmp(line->words[0], "ENV_ADD_GAUSSIAN") == 0) || (strcmp(line->words[0], "ENV_GAUSSIAN") == 0))
     {
       // TODO <david.parsons@inria.fr> adapt to new organization
-      printf("%s:%d: error: ENV_ADD_GAUSSIAN has to be adapted to the new organization.\n", __FILE__, __LINE__);
-      exit(EXIT_FAILURE);
-//      if (env_change)
-//      {
-//        env->add_gaussian(atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
-//        printf("\tAddition of a gaussian with %f, %f, %f \n",atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
-//      }
-//      else
-//      {
-//        env->clear_gaussians();
-//        env->clear_initial_gaussians();
-//        env->add_gaussian(atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
-//        printf("\tChange of the environment: first gaussian with %f, %f, %f \n",atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
-//        env_change = true;
-//      }
-//      env_hasbeenmodified = true;
+//      printf("%s:%d: error: ENV_ADD_GAUSSIAN has to be adapted to the new organization.\n", __FILE__, __LINE__);
+//      exit(EXIT_FAILURE);
+
+      new_gaussians.emplace_back(atof(line->words[1]),
+                                 atof(line->words[2]),
+                                 atof(line->words[3]));
+      printf("\tAdding a gaussian with %f, %f, %f \n",
+             atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
+      phen_target_change = true;
     }
     else if (strcmp(line->words[0], "ENV_ADD_POINT") == 0) 
     {
@@ -463,52 +471,52 @@ int main(int argc, char* argv[])
     else if (strcmp(line->words[0], "ENV_VARIATION") == 0)
     {
       // TODO <david.parsons@inria.fr> adapt to new organization
-      printf("%s:%d: error: ENV_VARIATION has to be adapted to the new organization.\n", __FILE__, __LINE__);
-      exit(EXIT_FAILURE);
-//      static bool env_var_already_set = false;
-//      if (env_var_already_set)
-//      {
-//        printf("%s:%d: ERROR in param file : duplicate entry for %s.\n", __FILE__, __LINE__, line->words[0]);
-//        exit(EXIT_FAILURE);
-//      }
-//      env_var_already_set = true;
-//
-//      if (strcmp(line->words[1], "none") == 0)
-//      {
-//        assert(line->nb_words == 2);
-//        env->set_var_method(NO_VAR);
-//        printf("\tNo more environmental variation\n");
-//      }
-//      else if (strcmp(line->words[1], "autoregressive_mean_variation") == 0)
-//      {
-//        assert(line->nb_words == 5);
-//        env->set_var_method(AUTOREGRESSIVE_MEAN_VAR);
-//        env->set_var_sigma(atof(line->words[2]));
-//        env->set_var_tau(atol(line->words[3]));
-//        env->set_var_prng(std::make_shared<JumpingMT>(atoi(line->words[4])));
-//        printf("\tChange of environmental variation to a autoregressive mean variation with sigma=%f, tau=%ld and seed=%d\n", atof(line->words[2]),atol(line->words[3]),atoi(line->words[4]));
-//      }
-//      else if (strcmp(line->words[1], "autoregressive_height_variation") == 0)
-//      {
-//        assert(line->nb_words == 5);
-//        env->set_var_method(AUTOREGRESSIVE_HEIGHT_VAR);
-//        env->set_var_sigma(atof(line->words[2]));
-//        env->set_var_tau(atol(line->words[3]));
-//        env->set_var_prng(std::make_shared<JumpingMT>(atoi(line->words[4])));
-//        printf("\tChange of environmental variation to a autoregressive height variation with sigma=%f, tau=%ld and seed=%d\n", atof(line->words[2]),atol(line->words[3]),atoi(line->words[4]));
-//      }
-//      else if (strcmp(line->words[1], "add_local_gaussians") == 0)
-//      {
-//        assert(line->nb_words == 3);
-//        env->set_var_method(LOCAL_GAUSSIANS_VAR);
-//        env->set_var_prng(std::make_shared<JumpingMT>(atoi(line->words[2])));
-//        printf("\tChange of environmental variation to a local gaussians variation with seed=%d\n", atoi(line->words[2]));
-//      }
-//      else
-//      {
-//        printf("%s:%d: ERROR in param file : unknown environment variation method.\n", __FILE__, __LINE__);
-//        exit(EXIT_FAILURE);
-//      }
+//      printf("%s:%d: error: ENV_VARIATION has to be adapted to the new organization.\n", __FILE__, __LINE__);
+//      exit(EXIT_FAILURE);
+
+      static bool env_var_already_set = false;
+      if (env_var_already_set)
+      {
+        printf("%s:%d: ERROR in param file : duplicate entry for %s.\n", __FILE__, __LINE__, line->words[0]);
+        exit(EXIT_FAILURE);
+      }
+      env_var_already_set = true;
+
+      if (strcmp(line->words[1], "none") == 0) {
+        assert(line->nb_words == 2);
+          exp_manager->world()->phenotypic_target_handler()->set_var_method(NO_VAR);
+        printf("\tNo more environmental variation\n");
+      }
+      else if (strcmp(line->words[1], "autoregressive_mean_variation") == 0) {
+        assert(line->nb_words == 5);
+        auto pt_handler = exp_manager->world()->phenotypic_target_handler();
+        pt_handler->set_var_method(AUTOREGRESSIVE_MEAN_VAR);
+        pt_handler->set_var_sigma_tau(atof(line->words[2]),
+                                      atol(line->words[3]));
+        pt_handler->set_var_prng(
+            std::make_shared<JumpingMT>(atoi(line->words[4])));
+        printf("\tChange of environmental variation to a autoregressive mean variation with sigma=%f, tau=%ld and seed=%d\n", atof(line->words[2]),atol(line->words[3]),atoi(line->words[4]));
+      }
+      else if (strcmp(line->words[1], "autoregressive_height_variation") == 0) {
+        assert(line->nb_words == 5);
+        auto pt_handler = exp_manager->world()->phenotypic_target_handler();
+        pt_handler->set_var_method(AUTOREGRESSIVE_HEIGHT_VAR);
+        pt_handler->set_var_sigma_tau(atof(line->words[2]),
+                                      atol(line->words[3]));
+        pt_handler->set_var_prng(
+            std::make_shared<JumpingMT>(atoi(line->words[4])));
+        printf("\tChange of environmental variation to a autoregressive height variation with sigma=%f, tau=%ld and seed=%d\n", atof(line->words[2]),atol(line->words[3]),atoi(line->words[4]));
+      }
+      else if (strcmp(line->words[1], "add_local_gaussians") == 0) {
+        assert(line->nb_words == 3);
+        auto pt_handler = exp_manager->world()->phenotypic_target_handler();
+        pt_handler->set_var_method(LOCAL_GAUSSIANS_VAR);
+        pt_handler->set_var_prng(std::make_shared<JumpingMT>(atoi(line->words[2])));
+        printf("\tChange of environmental variation to a local gaussians variation with seed=%d\n", atoi(line->words[2]));
+      }
+      else {
+        Utils::ExitWithUsrMsg("unknown environment variation method");
+      }
     }
     else if (strcmp(line->words[0], "SECRETION_CONTRIB_TO_FITNESS") == 0)
     {
@@ -660,10 +668,17 @@ int main(int argc, char* argv[])
 
   printf("OK\n");
 
-//  if (env_hasbeenmodified)
-//  {
-//    env->build();
-//  }
+  if (phen_target_change) {
+      // The current version doesn't allow for phenotypic variation nor for
+      // different phenotypic targets among the grid
+      if (not exp_manager->world()->phenotypic_target_shared())
+          Utils::ExitWithUsrMsg("sorry, aevol_modify has not yet been implemented "
+                                        "for per grid-cell phenotypic target");
+      auto phenotypicTargetHandler =
+              exp_manager->world()->phenotypic_target_handler();
+      phenotypicTargetHandler->set_gaussians(new_gaussians);
+      phenotypicTargetHandler->BuildPhenotypicTarget();
+  }
 
   // 9) Save the modified experiment
   if (start_to_record_tree)
@@ -683,9 +698,9 @@ int main(int argc, char* argv[])
     printf("Save the modified replication reports into tree...\t");
 
     #ifdef __REGUL
-      sprintf(tree_file_name,"tree/tree_%06" PRId32 ".rae", num_gener);
+      sprintf(tree_file_name,"tree/tree_%06" PRId64 ".rae", num_gener);
     #else
-      sprintf(tree_file_name,"tree/tree_%06" PRId32 ".ae", num_gener);
+      sprintf(tree_file_name,"tree/tree_%06" PRId64 ".ae", num_gener);
     #endif
     gzFile tree_file = gzopen(tree_file_name, "w");
     tree->write_to_tree_file(tree_file);
@@ -693,8 +708,8 @@ int main(int argc, char* argv[])
     printf("OK\n");
   }
   printf("Save the modified experiment into backup...\t");
-  exp_manager->write_setup_files();
-  exp_manager->save();
+  exp_manager->WriteSetupFiles();
+  exp_manager->WriteDynamicFiles();
   printf("OK\n");
 
   delete exp_manager;

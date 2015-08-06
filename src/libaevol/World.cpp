@@ -256,14 +256,20 @@ void World::update_best(void)
   double fit_best = get_indiv_at(0, 0)->get_fitness();
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++)
-  {
-    if (get_indiv_at(x, y)->get_fitness() > fit_best)
-    {
-      x_best = x;
-      y_best = y;
-      fit_best = get_indiv_at(x, y)->get_fitness();
-    }
-  }
+      if (get_indiv_at(x, y)->get_fitness() > fit_best) {
+        x_best = x;
+        y_best = y;
+        fit_best = get_indiv_at(x, y)->get_fitness();
+      }
+}
+
+void World::ApplyHabitatVariation() {
+  if (phenotypic_target_shared_)
+    phenotypic_target_handler_->ApplyVariation();
+  else
+    for (int16_t x = 0 ; x < width_ ; x++)
+      for (int16_t y = 0 ; y < height_ ; y++)
+        grid_[x][y]->ApplyHabitatVariation();
 }
 
 void World::save(gzFile backup_file) const
@@ -337,7 +343,7 @@ void World::load(gzFile backup_file, ExpManager * exp_man)
   if (phenotypic_target_shared_)
     phenotypic_target_handler_ =
         std::make_shared<PhenotypicTargetHandler>(backup_file);
-  phenotypic_target_handler_->build_phenotypic_target();
+  phenotypic_target_handler_->BuildPhenotypicTarget();
 
   gzread(backup_file, &width_,  sizeof(width_));
   gzread(backup_file, &height_, sizeof(height_));
@@ -419,6 +425,13 @@ void World::set_stoch_prng(std::shared_ptr<JumpingMT> prng)
       if ((indiv = get_indiv_at(x, y)))
         indiv->set_stoch_prng(_stoch_prng);
     }
+}
+
+void World::set_phen_target_prngs(std::shared_ptr<JumpingMT> var_prng,
+                                  std::shared_ptr<JumpingMT> noise_prng) {
+  assert(phenotypic_target_shared_);
+  phenotypic_target_handler_->set_var_prng(var_prng);
+  phenotypic_target_handler_->set_noise_prng(noise_prng);
 }
 
 Individual* World::get_indiv_by_id(int32_t id) const {

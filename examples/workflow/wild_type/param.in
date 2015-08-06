@@ -4,13 +4,14 @@
 
 ##### 1. Initial setup ############
 SEED                    486343
-INIT_POP_SIZE           1000
+INIT_POP_SIZE           400
+WORLD_SIZE              20 20
 INIT_METHOD             ONE_GOOD_GENE CLONE
 MAX_TRIANGLE_WIDTH  	0.01
 CHROMOSOME_INITIAL_LENGTH   5000
 
 ##### 2. Selection ################
-SELECTION_SCHEME        exponential_ranking    0.998
+SELECTION_SCHEME        fitness_proportionate   1000
 
 ##### 3. Mutation rates ###########
 POINT_MUTATION_RATE     5e-6
@@ -34,7 +35,6 @@ ENV_GAUSSIAN  0.5   0.8   0.05
 
 ##### 7. Recording ################
 RECORD_TREE             true
-TREE_MODE               normal
 TREE_STEP               100
 MORE_STATS              false
 DUMP_STEP               0

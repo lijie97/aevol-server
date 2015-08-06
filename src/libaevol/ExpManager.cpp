@@ -64,13 +64,13 @@ namespace aevol {
 // ===========================================================================
 //                                 Constructors
 // ===========================================================================
-ExpManager::ExpManager(void)
+ExpManager::ExpManager()
 {
   // ------------------------------------------------------ Experimental setup
   _exp_s = new ExpSetup(this);
 
   // ------------------------------------------------------------------- World
-  world_ = NULL;
+  world_ = nullptr;
 
   // ---------------------------------------------------------- Output manager
   _output_m = new OutputManager(this);
@@ -87,7 +87,7 @@ ExpManager::ExpManager(void)
 // ===========================================================================
 //                                  Destructor
 // ===========================================================================
-ExpManager::~ExpManager(void)
+ExpManager::~ExpManager()
 {
   delete _exp_s;
   delete _output_m;
@@ -118,6 +118,15 @@ void ExpManager::InitializeWorld(int16_t grid_width,
 }
 
 /*!
+  \brief Save the experiment
+*/
+void ExpManager::Save() const
+{
+  WriteSetupFiles();
+  _output_m->write_current_generation_outputs();
+}
+
+/*!
   \brief Save all the static data (the data that is constant throughout
   a simulation)
 
@@ -138,21 +147,21 @@ void ExpManager::InitializeWorld(int16_t grid_width,
             char* sel_file_name,
             char* world_file_name,
             bool verbose)
-  \see save(void)
+  \see WriteDynamicFiles(void)
   \see save_copy(char* dir, int64_t t)
 */
-void ExpManager::write_setup_files(void)
+void ExpManager::WriteSetupFiles() const
 {
   // 1) Create missing directories
   create_missing_directories();
 
   // 2) Open setup files (experimental setup and output profile)
   gzFile exp_s_file, out_p_file;
-  open_setup_files(exp_s_file, out_p_file, Time::get_time(), "w");
+  open_setup_files(exp_s_file, out_p_file, AeTime::get_time(), "w");
 
   // 4) Write setup data
   _exp_s->write_setup_file(exp_s_file);
-  _output_m->write_setup_file(out_p_file);
+  _output_m->WriteSetupFile(out_p_file);
 
   // 5) Close setup files
   close_setup_files(exp_s_file, out_p_file);
@@ -179,17 +188,17 @@ void ExpManager::write_setup_files(void)
             char* sel_file_name,
             char* world_file_name,
             bool verbose)
-  \see write_setup_files(void)
+  \see WriteSetupFiles(void)
   \see save_copy(char* dir, int64_t t)
 */
-void ExpManager::save(void) const
+void ExpManager::WriteDynamicFiles(void) const
 {
   // Create missing directories
   create_missing_directories();
 
   // Open backup files
   gzFile sel_file, world_file;
-  open_backup_files(sel_file, world_file, Time::get_time(), "w");
+  open_backup_files(sel_file, world_file, AeTime::get_time(), "w");
 
   // Save experiment
   get_sel()->save(sel_file);
@@ -220,22 +229,25 @@ void ExpManager::save(void) const
              char* sel_file_name,
              char* world_file_name,
              bool verbose)
-  \see write_setup_files(void)
-  \see save(void)
+  \see WriteSetupFiles(void)
+  \see WriteDynamicFiles(void)
 */
-void ExpManager::save_copy(char* dir, int32_t num_gener /*= 0*/) const
+void ExpManager::save_copy(char* dir, int64_t time) const
 {
+  // Set time to time
+  AeTime::set_time(time);
+
   // Create missing directories
   create_missing_directories(dir);
 
   // Open setup files and backup files
   gzFile exp_s_file, out_p_file, sel_file, world_file;
-  open_setup_files(exp_s_file, out_p_file, num_gener, "w", dir);
-  open_backup_files(sel_file, world_file, num_gener, "w", dir);
+  open_setup_files(exp_s_file, out_p_file, time, "w", dir);
+  open_backup_files(sel_file, world_file, time, "w", dir);
 
   // Write setup data
   _exp_s->write_setup_file(exp_s_file);
-  _output_m->write_setup_file(out_p_file);
+  _output_m->WriteSetupFile(out_p_file);
 
   // Write the state of selection and world into the backups
   get_sel()->save(sel_file);
@@ -244,8 +256,27 @@ void ExpManager::save_copy(char* dir, int32_t num_gener /*= 0*/) const
   // Close setup and backup files
   close_setup_files(exp_s_file, out_p_file);
   close_backup_files(sel_file, world_file);
+
+  // Copy stats
+  _output_m->CopyStats(dir, time);
+
+  // Write last gener file
+  _output_m->WriteLastGenerFile(dir);
 }
 
+void ExpManager::step_to_next_generation() {
+  // TODO <david.parsons@inria.fr> Apply phenotypic target variation and noise
+  world_->ApplyHabitatVariation();
+
+  // Take a step in time
+  AeTime::plusplus();
+
+  // Create the corresponding new generation
+  _exp_s->step_to_next_generation();
+
+  // Write statistical data and store phylogenetic data (tree)
+  _output_m->write_current_generation_outputs();
+}
 
 /*!
   \brief Load an experiment with the provided files
@@ -280,23 +311,26 @@ void ExpManager::load(gzFile& exp_s_file,
   // -------------------------------------------- Link world and output profile
   if (get_record_tree()) {
     get_sel()->addObserver(get_tree(), NEW_INDIV);
-    get_sel()->addObserver(get_tree(), END_GENERATION);
     for (auto indiv : world_->get_indivs())
       indiv->addObserver(
-          get_tree()->get_report_by_index(Time::get_time(), indiv->get_id()),
+          get_tree()->get_report_by_index(AeTime::get_time(), indiv->get_id()),
           END_REPLICATION);
+    get_sel()->addObserver(get_tree(), END_GENERATION);
   }
+
+  // --------------------------------------------------- Recompute unsaved data
+  world_->evaluate_individuals();
 }
 
 
 /*!
   \brief Load an experiment with default files from a given directory
  */
-// TODO <david.parsons@inria.fr> check verbose (what doas it do ?, is it consistent ?)
+// TODO <david.parsons@inria.fr> check verbose (what does it do ?, is it consistent ?)
 void ExpManager::load(const char* dir,
     int64_t t0, bool verbose, bool to_be_run /*  = true */)
 {
-  Time::set_time(t0);
+  AeTime::set_time(t0);
 
   if (FuzzyFactory::fuzzyFactory == NULL)
     FuzzyFactory::fuzzyFactory = new FuzzyFactory(_exp_s);
@@ -322,20 +356,13 @@ void ExpManager::load(const char* dir,
   // -------------------------------------------------------------------------
   close_setup_files(exp_s_file, out_p_file);
   close_backup_files(exp_backup_file, world_file);
-
-
-  // ---------------------------------------------------------------------------
-  // Recompute unsaved data
-  // ---------------------------------------------------------------------------
-  // Evaluate individuals
-  world_->evaluate_individuals();
 }
 
 
 /**
  * \brief Load an experiment with the provided constitutive files
  */
-// TODO <david.parsons@inria.fr> check verbose (what doas it do ?, is it consistent ?)
+// TODO <david.parsons@inria.fr> check verbose (what does it do ?, is it consistent ?)
 void ExpManager::load(int64_t t0,
                           char* exp_setup_file_name,
                           char* exp_backup_file_name,
@@ -344,7 +371,7 @@ void ExpManager::load(int64_t t0,
                           bool verbose /*= false*/,
                           bool to_be_run /*= true*/)
 {
-  Time::set_time(t0);
+  AeTime::set_time(t0);
 
   // ---------------------------------------------------------------------------
   // Open files and check them
@@ -391,13 +418,6 @@ void ExpManager::load(int64_t t0,
   gzclose(exp_backup_file);
   gzclose(world_file);
   gzclose(out_prof_file);
-
-
-  // ---------------------------------------------------------------------------
-  // 5) Recompute unsaved data
-  // ---------------------------------------------------------------------------
-  // Evaluate individuals
-  world_->evaluate_individuals();
 }
 
 /**
@@ -407,20 +427,17 @@ void ExpManager::run_evolution(void)
 {
   // We are running a simulation.
   // Save the setup files to keep track of the setup history
-  write_setup_files();
-
-  // Dump the initial state of the population; useful for restarts
-  _output_m->write_current_generation_outputs();
+  WriteSetupFiles();
 
   // For each generation
   while (true) { // termination condition is into the loop
 
     printf("============================== %" PRId64 " ==============================\n",
-           Time::get_time());
+           AeTime::get_time());
     printf("  Best individual's distance to target (metabolic) : %f\n",
            get_best_indiv()->get_dist_to_target_by_feature(METABOLISM));
 
-    if (Time::get_time() >= t_end or quit_signal_received())
+    if (AeTime::get_time() >= t_end or quit_signal_received())
       break;
 
 #ifdef __X11
@@ -500,6 +517,13 @@ void ExpManager::create_missing_directories(const char* dir /*= "."*/) const
   }
   // World
   sprintf(cur_dir_name, "%s/" WORLD_DIR, dir);
+  status = mkdir(cur_dir_name, 0755);
+  if (status == -1 && errno != EEXIST)
+  {
+    err(EXIT_FAILURE, cur_dir_name, errno);
+  }
+  // Stats
+  sprintf(cur_dir_name, "%s/" STATS_DIR, dir);
   status = mkdir(cur_dir_name, 0755);
   if (status == -1 && errno != EEXIST)
   {

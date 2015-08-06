@@ -36,6 +36,7 @@
 #include <stdio.h>
 
 #include <memory>
+#include <array>
 
 #include "Dna.h"
 #include "Rna.h"
@@ -109,6 +110,8 @@ class GeneticUnit
   std::list<Protein_R>& get_protein_list(Strand strand);
   #endif
   void clear_protein_list(Strand strand);
+  void clear_transcribed_proteins();
+
 
   // Direct DNA access
   const char*  get_sequence( void ) const;

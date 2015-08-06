@@ -90,6 +90,7 @@ add_library(aevol
   ae_string.h
   Tree.cpp
   Tree.h
+  Utils.cpp
   Utils.h
   VisAVis.cpp
   VisAVis.h
@@ -110,11 +111,38 @@ add_library(aevol
   PhenotypicTarget.h
   Point.cpp
   Point.h
-  Time.cpp
-  Time.h
+  AeTime.cpp
+  AeTime.h
   World.cpp
   World.h
-  ObservableEvent.h FuzzyFactory.h FuzzyFactory.cpp AbstractFuzzy.h AbstractFuzzy.cpp HybridFuzzy.h HybridFuzzy.cpp)
+  ObservableEvent.h
+  FuzzyFactory.h
+  FuzzyFactory.cpp
+  AbstractFuzzy.h
+  AbstractFuzzy.cpp
+  HybridFuzzy.h
+  HybridFuzzy.cpp
+  PointMutation.cpp
+  PointMutation.h
+  SmallInsertion.cpp
+  SmallInsertion.h
+  SmallDeletion.cpp
+  SmallDeletion.h
+  LocalMutation.h
+  Rearrangement.h
+  Duplication.cpp
+  Duplication.h
+  Deletion.cpp
+  Deletion.h
+  Translocation.cpp
+  Translocation.h
+  Inversion.cpp
+  Inversion.h
+  HT.h
+  InsertionHT.cpp
+  InsertionHT.h
+  ReplacementHT.cpp
+  ReplacementHT.h)
 
 
 # ============================================================================

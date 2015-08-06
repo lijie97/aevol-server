@@ -28,15 +28,16 @@
 
 
 // =================================================================
-//                              Libraries
-// =================================================================
-#include <math.h>
-
-
-// =================================================================
-//                            Project Files
+//                              Includes
 // =================================================================
 #include "Selection.h"
+
+#include <math.h>
+
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 #include "ExpManager.h"
 #include "VisAVis.h"
 
@@ -147,13 +148,13 @@ void Selection::step_to_next_generation(void)
   World* world = _exp_m->world();
   int16_t grid_width  = world->width();
   int16_t grid_height = world->height();
-  GridCell *** pop_grid = _exp_m->get_pop_grid();
+  GridCell*** pop_grid = _exp_m->get_pop_grid();
 
   // create a temporary grid to store the reproducers
   Individual *** reproducers = new Individual ** [grid_width];
   for (int16_t i = 0 ; i < grid_width ; i++ )
   {
-    reproducers[i] = new Individual * [grid_height];
+    reproducers[i] = new Individual* [grid_height];
   }
 
 
@@ -187,17 +188,19 @@ void Selection::step_to_next_generation(void)
 
 
   // Create the new generation
-  std::list<Individual *> old_generation = _exp_m->get_indivs();;
-  std::list<Individual *> new_generation;
-  int32_t index_new_indiv = 0;
+  std::list<Individual*> old_generation = _exp_m->get_indivs();;
+  std::list<Individual*> new_generation;
+
+  #ifdef _OPENMP
+  #pragma omp parallel for collapse(2) schedule(dynamic)
+  #endif
   for (int16_t x = 0 ; x < grid_width ; x++)
-  {
     for (int16_t y = 0 ; y < grid_height ; y++)
-    {
-      do_replication(reproducers[x][y], index_new_indiv++, x, y);
+      do_replication(reproducers[x][y], x * grid_height + y, x, y);
+
+  for (int16_t x = 0 ; x < grid_width ; x++)
+    for (int16_t y = 0 ; y < grid_height ; y++)
       new_generation.emplace_back(pop_grid[x][y]->get_individual());
-    }
-  }
 
   // delete the temporary grid and the parental generation
   for (int16_t x = 0 ; x < grid_width ; x++ )

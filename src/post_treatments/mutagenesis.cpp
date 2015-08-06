@@ -72,7 +72,7 @@ void print_help(char* prog_path);
 
 
 
-int main( int argc, char* argv[] )
+int main(int argc, char* argv[])
 {
   // ----------------------------------------
   //     command-line option parsing
@@ -80,7 +80,7 @@ int main( int argc, char* argv[] )
 
   int32_t wanted_rank     = -1;
   int32_t wanted_index    = -1;
-  int32_t num_gener       = 0;
+  int64_t num_gener       = 0;
   int32_t mutation_type   = 0;
   // bool exhaustive_mutagenesis = true;
   int32_t nb_mutants      = -1; // used if mutagenesis cannot be exhaustive, i.e. for all mutation types other than point mutations
@@ -101,36 +101,36 @@ int main( int argc, char* argv[] )
   int option = -1;
   bool rank_already_set = false;
   bool index_already_set = false;
-  while ( ( option = getopt_long( argc, argv, options_list, long_options_list, NULL ) ) != -1 )
+  while ((option = getopt_long(argc, argv, options_list, long_options_list, NULL)) != -1)
     {
       switch(option)
         {
         case 'h' :
           {
             print_help(argv[0]);
-            exit( EXIT_SUCCESS );
+            exit(EXIT_SUCCESS);
           }
         case 'V' :
           {
             Utils::PrintAevolVersion();
-            exit( EXIT_SUCCESS );
+            exit(EXIT_SUCCESS);
           }
         case 'g' :
           {
-            if ( strcmp( optarg, "" ) == 0 )
+            if (strcmp(optarg, "") == 0)
               {
-                fprintf( stderr, "%s: error: Option -g or --gener : missing argument.\n", argv[0] );
-                exit( EXIT_FAILURE );
+                fprintf(stderr, "%s: error: Option -g or --gener : missing argument.\n", argv[0]);
+                exit(EXIT_FAILURE);
               }
-            num_gener = atol( optarg );
+            num_gener = atol(optarg);
             break;
           }
         case 'r' :
           {
             if (index_already_set)
               {
-                fprintf( stderr, "%s: error: Options -r and -i are incompatible. Please choose one of them only.\n", argv[0] );
-                exit( EXIT_FAILURE );
+                fprintf(stderr, "%s: error: Options -r and -i are incompatible. Please choose one of them only.\n", argv[0]);
+                exit(EXIT_FAILURE);
               }
             wanted_rank = atol(optarg);
             rank_already_set = true;
@@ -140,9 +140,9 @@ int main( int argc, char* argv[] )
           {
             if (rank_already_set)
               {
-                fprintf( stderr, "%s: error: Options -r and -i are incompatible. Please choose one of them only.\n", argv[0] );
-                fprintf( stderr, "           Use %s --help for more information.\n", argv[0] );
-                exit( EXIT_FAILURE );
+                fprintf(stderr, "%s: error: Options -r and -i are incompatible. Please choose one of them only.\n", argv[0]);
+                fprintf(stderr, "           Use %s --help for more information.\n", argv[0]);
+                exit(EXIT_FAILURE);
               }
             wanted_index = atol(optarg);
             index_already_set = true;
@@ -162,10 +162,10 @@ int main( int argc, char* argv[] )
               }
             else
               {
-                fprintf( stderr, "%s: error: So far, mutagenesis is implemented only for point mutations, small insertions, \n", argv[0] );
-                fprintf( stderr, "           small deletions, duplications, deletions, translocations or inversions. ");
-                fprintf( stderr, "           It is not available yet for lateral transfer. ");
-                exit( EXIT_FAILURE );
+                fprintf(stderr, "%s: error: So far, mutagenesis is implemented only for point mutations, small insertions, \n", argv[0]);
+                fprintf(stderr, "           small deletions, duplications, deletions, translocations or inversions. ");
+                fprintf(stderr, "           It is not available yet for lateral transfer. ");
+                exit(EXIT_FAILURE);
               }
             break;
           }
@@ -174,8 +174,8 @@ int main( int argc, char* argv[] )
             nb_mutants = atol(optarg);
             if (nb_mutants <= 0)
               {
-                fprintf( stderr, "%s: error: The number of mutants (option -n) must be positive.\n", argv[0] );
-                exit( EXIT_FAILURE );
+                fprintf(stderr, "%s: error: The number of mutants (option -n) must be positive.\n", argv[0]);
+                exit(EXIT_FAILURE);
               }
             break;
           }
@@ -183,16 +183,16 @@ int main( int argc, char* argv[] )
     }
 
 
-  if ( (mutation_type == SWITCH) && (nb_mutants != -1) )
+  if ((mutation_type == SWITCH) && (nb_mutants != -1))
     {
-      printf( "For point mutations, the mutagenesis will be exhaustive, the number of \n");
-      printf( "mutants will be ignored.\n" );
+      printf("For point mutations, the mutagenesis will be exhaustive, the number of \n");
+      printf("mutants will be ignored.\n");
     }
-  else if ( (mutation_type != SWITCH) && (nb_mutants == -1) )
+  else if ((mutation_type != SWITCH) && (nb_mutants == -1))
     {
       nb_mutants = 1000;
-      printf( "Mutagenesis cannot be exhaustive in a reasonable time for mutations \n" );
-      printf( "other than point mutations. A sample of %" PRId32 " mutants will be generated.\n", nb_mutants );
+      printf("Mutagenesis cannot be exhaustive in a reasonable time for mutations \n");
+      printf("other than point mutations. A sample of %" PRId32 " mutants will be generated.\n", nb_mutants);
     }
 
 
@@ -203,16 +203,16 @@ int main( int argc, char* argv[] )
   ae_exp_manager* exp_manager = new ae_exp_manager();
   exp_manager->load(num_gener, true, false);
 
-  if ( exp_manager->get_output_m()->get_record_tree() == false )
+  if (exp_manager->get_output_m()->get_record_tree() == false)
     {
       // The following instruction is needed to ensure that methods
       // like ae_dna::do_deletion, ae_dna::do_inversion, etc
       // will create ae_mutation objects (otherwise they return NULL)
-      exp_manager->get_output_m()->init_tree( exp_manager, NORMAL, 100 );
+      exp_manager->get_output_m()->init_tree(exp_manager, NORMAL, 100);
     }
 
 
-  if ( (wanted_rank == -1) && (wanted_index == -1) )
+  if ((wanted_rank == -1) && (wanted_index == -1))
     {
       wanted_rank = exp_manager->get_nb_indivs();  // the best one has rank N
     }
@@ -259,37 +259,37 @@ int main( int argc, char* argv[] )
     {
     case SWITCH:
       {
-        snprintf( mutation_type_name, 23, "point-mutation" );
+        snprintf(mutation_type_name, 23, "point-mutation");
         break;
       }
     case S_INS:
       {
-        snprintf( mutation_type_name, 23, "small-insertion" );
+        snprintf(mutation_type_name, 23, "small-insertion");
         break;
       }
     case S_DEL:
       {
-        snprintf( mutation_type_name, 23, "small-deletion" );
+        snprintf(mutation_type_name, 23, "small-deletion");
         break;
       }
     case DUPL:
       {
-        snprintf( mutation_type_name, 23, "duplication" );
+        snprintf(mutation_type_name, 23, "duplication");
         break;
       }
    case DEL:
       {
-        snprintf( mutation_type_name, 23, "large-deletion" );
+        snprintf(mutation_type_name, 23, "large-deletion");
         break;
       }
    case TRANS:
       {
-        snprintf( mutation_type_name, 23, "translocation" );
+        snprintf(mutation_type_name, 23, "translocation");
         break;
       }
    case INV:
       {
-        snprintf( mutation_type_name, 23, "inversion" );
+        snprintf(mutation_type_name, 23, "inversion");
         break;
       }
     default:
@@ -300,37 +300,37 @@ int main( int argc, char* argv[] )
     }
 
   char directory_name[64];
-  snprintf( directory_name, 63, "analysis-generation%06" PRId32, num_gener );
+  snprintf(directory_name, 63, "analysis-generation%06" PRId64, num_gener);
 
   // Check whether the directory already exists and is writable
-  if ( access( directory_name, F_OK ) == 0 )
+  if (access(directory_name, F_OK) == 0)
   {
-    if ( access( directory_name, X_OK | W_OK) != 0 )
+    if (access(directory_name, X_OK | W_OK) != 0)
       {
         fprintf(stderr, "Error: cannot enter or write in directory %s.\n", directory_name);
-        exit( EXIT_FAILURE );
+        exit(EXIT_FAILURE);
       }
   }
   else
     {
       // Create the directory with permissions : rwx r-x r-x
-      if ( mkdir( directory_name, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) != 0 )
+      if (mkdir(directory_name, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) != 0)
         {
           fprintf(stderr, "Error: cannot create directory %s.\n", directory_name);
-          exit( EXIT_FAILURE );
+          exit(EXIT_FAILURE);
         }
     }
 
 
   char output_file_name[256];
-  snprintf( output_file_name, 255, "%s/mutagenesis-g%06" PRId32 "-i%" PRId32 "-r%" PRId32 "-%s.out", \
-            directory_name, num_gener, wanted_index, wanted_rank, mutation_type_name  );
+  snprintf(output_file_name, 255, "%s/mutagenesis-g%06" PRId64 "-i%" PRId32 "-r%" PRId32 "-%s.out", \
+            directory_name, num_gener, wanted_index, wanted_rank, mutation_type_name );
 
-  FILE * output = fopen( output_file_name, "w" );
-  if ( output == NULL )
+  FILE * output = fopen(output_file_name, "w");
+  if (output == NULL)
   {
-    fprintf( stderr, "ERROR : Could not create the output file %s\n", output_file_name );
-    exit( EXIT_FAILURE );
+    fprintf(stderr, "ERROR : Could not create the output file %s\n", output_file_name);
+    exit(EXIT_FAILURE);
   }
 
 
@@ -338,171 +338,171 @@ int main( int argc, char* argv[] )
 
   int16_t col = 1;
 
-  fprintf( output, "# ####################################################################################################\n" );
-  fprintf( output, "#   Single %s mutants of individual %" PRId32 " (rank %" PRId32 ") at generation %" PRId32 "\n", mutation_type_name, wanted_index, wanted_rank, num_gener );
-  fprintf( output, "# ####################################################################################################\n" );
-  fprintf( output, "#  %" PRId16 ".  Mutation type    (0: switch, 1: smallins, 2: smalldel, 3:dupl, 4: del, 5:trans, 6:inv) \n", col ); col++;
-  fprintf( output, "#  %" PRId16 ".  Genetic unit which underwent the mutation (0 = chromosome) \n", col ); col++;
-  fprintf( output, "#  %" PRId16 ".  Length of this genetic unit before the event \n", col ); col++;
+  fprintf(output, "# ####################################################################################################\n");
+  fprintf(output, "#   Single %s mutants of individual %" PRId32 " (rank %" PRId32 ") at generation %" PRId64 "\n", mutation_type_name, wanted_index, wanted_rank, num_gener);
+  fprintf(output, "# ####################################################################################################\n");
+  fprintf(output, "#  %" PRId16 ".  Mutation type    (0: switch, 1: smallins, 2: smalldel, 3:dupl, 4: del, 5:trans, 6:inv) \n", col); col++;
+  fprintf(output, "#  %" PRId16 ".  Genetic unit which underwent the mutation (0 = chromosome) \n", col); col++;
+  fprintf(output, "#  %" PRId16 ".  Length of this genetic unit before the event \n", col); col++;
 
-  switch ( mutation_type )
+  switch (mutation_type)
     {
     case SWITCH:
       {
         // Even though not all five columns are relevant for point mutations, we still write them all
         // to make the statistical analysis easier if other types of mutants are to be generated.
         // This way, for a given experiment, the number of columns will be the same for all types of mutants.
-        fprintf( output, "#  %" PRId16 ".  pos0            (position of the point mutation on the genetic unit) \n", col ); col++;
-        fprintf( output, "#  %" PRId16 ".  pos1            (irrelevant for point mutations) \n", col ); col ++;
-        fprintf( output, "#  %" PRId16 ".  pos2            (irrelevant for point mutations) \n", col ); col++;
-        fprintf( output, "#  %" PRId16 ".  pos3            (irrelevant for point mutations) \n", col ); col++;
-        fprintf( output, "#  %" PRId16 ".  invert          (irrelevant for point mutations) \n", col ); col++;
+        fprintf(output, "#  %" PRId16 ".  pos0            (position of the point mutation on the genetic unit) \n", col); col++;
+        fprintf(output, "#  %" PRId16 ".  pos1            (irrelevant for point mutations) \n", col); col ++;
+        fprintf(output, "#  %" PRId16 ".  pos2            (irrelevant for point mutations) \n", col); col++;
+        fprintf(output, "#  %" PRId16 ".  pos3            (irrelevant for point mutations) \n", col); col++;
+        fprintf(output, "#  %" PRId16 ".  invert          (irrelevant for point mutations) \n", col); col++;
         break;
       }
     case S_INS:
       {
-        fprintf( output, "#  %" PRId16 ".  pos0            (position of the small insertion on the genetic unit) \n", col ); col++;
-        fprintf( output, "#  %" PRId16 ".  pos1            (irrelevant for small insertions) \n", col ); col ++;
-        fprintf( output, "#  %" PRId16 ".  pos2            (irrelevant for small insertions) \n", col ); col++;
-        fprintf( output, "#  %" PRId16 ".  pos3            (irrelevant for small insertions) \n", col ); col++;
-        fprintf( output, "#  %" PRId16 ".  invert          (irrelevant for small insertions) \n", col ); col++;
+        fprintf(output, "#  %" PRId16 ".  pos0            (position of the small insertion on the genetic unit) \n", col); col++;
+        fprintf(output, "#  %" PRId16 ".  pos1            (irrelevant for small insertions) \n", col); col ++;
+        fprintf(output, "#  %" PRId16 ".  pos2            (irrelevant for small insertions) \n", col); col++;
+        fprintf(output, "#  %" PRId16 ".  pos3            (irrelevant for small insertions) \n", col); col++;
+        fprintf(output, "#  %" PRId16 ".  invert          (irrelevant for small insertions) \n", col); col++;
         break;
       }
     case S_DEL:
       {
-        fprintf( output, "#  %" PRId16 ".  pos0            (position of the small deletion on the genetic unit) \n", col ); col++;
-        fprintf( output, "#  %" PRId16 ".  pos1            (irrelevant for small deletions) \n", col ); col ++;
-        fprintf( output, "#  %" PRId16 ".  pos2            (irrelevant for small deletions) \n", col ); col++;
-        fprintf( output, "#  %" PRId16 ".  pos3            (irrelevant for small deletions) \n", col ); col++;
-        fprintf( output, "#  %" PRId16 ".  invert          (irrelevant for small deletions) \n", col ); col++;
+        fprintf(output, "#  %" PRId16 ".  pos0            (position of the small deletion on the genetic unit) \n", col); col++;
+        fprintf(output, "#  %" PRId16 ".  pos1            (irrelevant for small deletions) \n", col); col ++;
+        fprintf(output, "#  %" PRId16 ".  pos2            (irrelevant for small deletions) \n", col); col++;
+        fprintf(output, "#  %" PRId16 ".  pos3            (irrelevant for small deletions) \n", col); col++;
+        fprintf(output, "#  %" PRId16 ".  invert          (irrelevant for small deletions) \n", col); col++;
         break;
       }
     case DUPL:
       {
-        fprintf( output, "#  %" PRId16 ".  pos0            (begin of the duplicated segment) \n", col ); col++;
-        fprintf( output, "#  %" PRId16 ".  pos1            (end of the duplicated segment) \n", col ); col ++;
-        fprintf( output, "#  %" PRId16 ".  pos2            (reinsertion point of the duplicate in the genetic unit) \n", col ); col++;
-        fprintf( output, "#  %" PRId16 ".  pos3            (irrelevant for duplications) \n", col ); col++;
-        fprintf( output, "#  %" PRId16 ".  invert          (irrelevant for duplications) \n", col ); col++;
+        fprintf(output, "#  %" PRId16 ".  pos0            (begin of the duplicated segment) \n", col); col++;
+        fprintf(output, "#  %" PRId16 ".  pos1            (end of the duplicated segment) \n", col); col ++;
+        fprintf(output, "#  %" PRId16 ".  pos2            (reinsertion point of the duplicate in the genetic unit) \n", col); col++;
+        fprintf(output, "#  %" PRId16 ".  pos3            (irrelevant for duplications) \n", col); col++;
+        fprintf(output, "#  %" PRId16 ".  invert          (irrelevant for duplications) \n", col); col++;
         break;
       }
     case DEL:
       {
-        fprintf( output, "#  %" PRId16 ".  pos0            (begin of the deleted segment) \n", col ); col++;
-        fprintf( output, "#  %" PRId16 ".  pos1            (end of the deleted segment) \n", col ); col ++;
-        fprintf( output, "#  %" PRId16 ".  pos2            (irrelevant for large deletions) \n", col ); col++;
-        fprintf( output, "#  %" PRId16 ".  pos3            (irrelevant for large deletions) \n", col ); col++;
-        fprintf( output, "#  %" PRId16 ".  invert          (irrelevant for large deletions) \n", col ); col++;
+        fprintf(output, "#  %" PRId16 ".  pos0            (begin of the deleted segment) \n", col); col++;
+        fprintf(output, "#  %" PRId16 ".  pos1            (end of the deleted segment) \n", col); col ++;
+        fprintf(output, "#  %" PRId16 ".  pos2            (irrelevant for large deletions) \n", col); col++;
+        fprintf(output, "#  %" PRId16 ".  pos3            (irrelevant for large deletions) \n", col); col++;
+        fprintf(output, "#  %" PRId16 ".  invert          (irrelevant for large deletions) \n", col); col++;
         break;
       }
     case TRANS:
       {
-        fprintf( output, "#  %" PRId16 ".  pos0            (begin of the excised segment) \n", col ); col++;
-        fprintf( output, "#  %" PRId16 ".  pos1            (end of the excised segment) \n", col ); col ++;
-        fprintf( output, "#  %" PRId16 ".  pos2            (cutting point in the excised segment when reinserted) \n", col ); col++;
-        fprintf( output, "#  %" PRId16 ".  pos3            (reinsertion point of the segment in the genetic unit) \n", col ); col++;
-        fprintf( output, "#  %" PRId16 ".  invert          (was the segment inverted when reinserted (0: no, 1: yes)) \n", col ); col++;
+        fprintf(output, "#  %" PRId16 ".  pos0            (begin of the excised segment) \n", col); col++;
+        fprintf(output, "#  %" PRId16 ".  pos1            (end of the excised segment) \n", col); col ++;
+        fprintf(output, "#  %" PRId16 ".  pos2            (cutting point in the excised segment when reinserted) \n", col); col++;
+        fprintf(output, "#  %" PRId16 ".  pos3            (reinsertion point of the segment in the genetic unit) \n", col); col++;
+        fprintf(output, "#  %" PRId16 ".  invert          (was the segment inverted when reinserted (0: no, 1: yes)) \n", col); col++;
         break;
       }
     case INV:
       {
-        fprintf( output, "#  %" PRId16 ".  pos0            (begin of the inverted segment) \n", col ); col++;
-        fprintf( output, "#  %" PRId16 ".  pos1            (end of the inverted segment) \n", col ); col ++;
-        fprintf( output, "#  %" PRId16 ".  pos2            (irrelevant for inversions) \n", col ); col++;
-        fprintf( output, "#  %" PRId16 ".  pos3            (irrelevant for inversions) \n", col ); col++;
-        fprintf( output, "#  %" PRId16 ".  invert          (irrelevant for inversions) \n", col ); col++;
+        fprintf(output, "#  %" PRId16 ".  pos0            (begin of the inverted segment) \n", col); col++;
+        fprintf(output, "#  %" PRId16 ".  pos1            (end of the inverted segment) \n", col); col ++;
+        fprintf(output, "#  %" PRId16 ".  pos2            (irrelevant for inversions) \n", col); col++;
+        fprintf(output, "#  %" PRId16 ".  pos3            (irrelevant for inversions) \n", col); col++;
+        fprintf(output, "#  %" PRId16 ".  invert          (irrelevant for inversions) \n", col); col++;
         break;
       }
     default:
       {
-        fprintf( stderr, "Error: unexpected mutation type.\n");
-        exit( EXIT_FAILURE );
+        fprintf(stderr, "Error: unexpected mutation type.\n");
+        exit(EXIT_FAILURE);
       }
     }
 
 
-  if ( initial_indiv->get_with_alignments() )
+  if (initial_indiv->get_with_alignments())
     {
-      fprintf( output, "#  %" PRId16 ".  align_score1    (score that was needed for the rearrangement to occur)\n", col ); col++;
-      fprintf( output, "#  %" PRId16 ".  align_score2    (score for the reinsertion for translocations)\n", col ); col++;
+      fprintf(output, "#  %" PRId16 ".  align_score1    (score that was needed for the rearrangement to occur)\n", col); col++;
+      fprintf(output, "#  %" PRId16 ".  align_score2    (score for the reinsertion for translocations)\n", col); col++;
     }
 
 
-  fprintf( output, "#  %" PRId16 ".  Length of the {inserted, deleted, duplicated, translocated, inverted} segment \n", col ); col++;
-  fprintf( output, "#  %" PRId16 ".  Number of coding RNAs possibly disrupted by the breakpoint(s) \n", col ); col++;
-  fprintf( output, "#  %" PRId16 ".  Number of coding RNAs completely included in the segment \n", col ); col++;
-  fprintf( output, "#  %" PRId16 ".  Metabolic error after the mutation \n", col ); col++;
+  fprintf(output, "#  %" PRId16 ".  Length of the {inserted, deleted, duplicated, translocated, inverted} segment \n", col); col++;
+  fprintf(output, "#  %" PRId16 ".  Number of coding RNAs possibly disrupted by the breakpoint(s) \n", col); col++;
+  fprintf(output, "#  %" PRId16 ".  Number of coding RNAs completely included in the segment \n", col); col++;
+  fprintf(output, "#  %" PRId16 ".  Metabolic error after the mutation \n", col); col++;
 
   if (exp_manager->get_with_secretion())
     {
-      fprintf( output, "#  %" PRId16 ".  Secretion error after the mutation \n", col ); col++;
+      fprintf(output, "#  %" PRId16 ".  Secretion error after the mutation \n", col); col++;
     }
 
-  if ( (exp_manager->get_with_plasmids()) && (exp_manager->get_tune_donor_ability() != 0.0) )
+  if ((exp_manager->get_with_plasmids()) && (exp_manager->get_tune_donor_ability() != 0.0))
     {
-      fprintf( output, "#  %" PRId16 ".  Error on the donor ability after the mutation \n", col ); col++;
+      fprintf(output, "#  %" PRId16 ".  Error on the donor ability after the mutation \n", col); col++;
     }
 
-  if ( (exp_manager->get_with_plasmids()) && (exp_manager->get_tune_recipient_ability() != 0.0) )
+  if ((exp_manager->get_with_plasmids()) && (exp_manager->get_tune_recipient_ability() != 0.0))
     {
-      fprintf( output, "#  %" PRId16 ".  Error on the recipient ability after the mutation \n", col ); col++;
+      fprintf(output, "#  %" PRId16 ".  Error on the recipient ability after the mutation \n", col); col++;
     }
 
-  fprintf( output, "#  %" PRId16 ".  Total genome size after the mutation \n", col); col++;
-  fprintf( output, "#  %" PRId16 ".  Number of coding RNAs after the mutation \n", col); col++;
-  fprintf( output, "#  %" PRId16 ".  Number of non coding RNAs after the mutation \n", col); col++;
-  fprintf( output, "#  %" PRId16 ".  Number of functional coding sequences after the mutation \n", col); col++;
-  fprintf( output, "#  %" PRId16 ".  Number of non functional coding sequences after the mutation \n", col); col++;
-  fprintf( output, "#  %" PRId16 ".  Number of coding bases after the mutation \n", col); col++;
-  fprintf( output, "#  %" PRId16 ".  Number of transcribed but not translated bases after the mutation\n", col); col++;
-  fprintf( output, "#  %" PRId16 ".  Number of non transcribed bases after the mutation \n", col); col++;
-  fprintf( output, "#  %" PRId16 ".  Number of bases belonging to at least one coding RNA, after the mutation \n", col); col++;
-  fprintf( output, "#  %" PRId16 ".  Number of bases not belonging to any coding RNA, after the mutation \n", col); col++;
-  fprintf( output, "####################################################################################################################\n" );
-  fprintf( output, "#  Values for the initial individual [irr = irrelevant]: \n" );
-  fprintf( output, "####################################################################################################################\n" );
-  fprintf( output, "#  ");
-  fprintf( output, "irr ");
-  fprintf( output, "irr "); // genetic unit number (0 for the chromosome)
-  fprintf( output, "irr ");
-  fprintf( output, "irr ");
-  fprintf( output, "irr ");
-  fprintf( output, "irr ");
-  fprintf( output, "irr ");
-  fprintf( output, "irr ");
-   if ( initial_indiv->get_with_alignments() )
+  fprintf(output, "#  %" PRId16 ".  Total genome size after the mutation \n", col); col++;
+  fprintf(output, "#  %" PRId16 ".  Number of coding RNAs after the mutation \n", col); col++;
+  fprintf(output, "#  %" PRId16 ".  Number of non coding RNAs after the mutation \n", col); col++;
+  fprintf(output, "#  %" PRId16 ".  Number of functional coding sequences after the mutation \n", col); col++;
+  fprintf(output, "#  %" PRId16 ".  Number of non functional coding sequences after the mutation \n", col); col++;
+  fprintf(output, "#  %" PRId16 ".  Number of coding bases after the mutation \n", col); col++;
+  fprintf(output, "#  %" PRId16 ".  Number of transcribed but not translated bases after the mutation\n", col); col++;
+  fprintf(output, "#  %" PRId16 ".  Number of non transcribed bases after the mutation \n", col); col++;
+  fprintf(output, "#  %" PRId16 ".  Number of bases belonging to at least one coding RNA, after the mutation \n", col); col++;
+  fprintf(output, "#  %" PRId16 ".  Number of bases not belonging to any coding RNA, after the mutation \n", col); col++;
+  fprintf(output, "####################################################################################################################\n");
+  fprintf(output, "#  Values for the initial individual [irr = irrelevant]: \n");
+  fprintf(output, "####################################################################################################################\n");
+  fprintf(output, "#  ");
+  fprintf(output, "irr ");
+  fprintf(output, "irr "); // genetic unit number (0 for the chromosome)
+  fprintf(output, "irr ");
+  fprintf(output, "irr ");
+  fprintf(output, "irr ");
+  fprintf(output, "irr ");
+  fprintf(output, "irr ");
+  fprintf(output, "irr ");
+   if (initial_indiv->get_with_alignments())
     {
-      fprintf( output, "irr ");
-      fprintf( output, "irr ");
+      fprintf(output, "irr ");
+      fprintf(output, "irr ");
     }
-  fprintf( output, "irr ");
-  fprintf( output, "irr ");
-  fprintf( output, "irr ");
-  fprintf( output, "%e ", initial_indiv->get_dist_to_target_by_feature( METABOLISM ));
+  fprintf(output, "irr ");
+  fprintf(output, "irr ");
+  fprintf(output, "irr ");
+  fprintf(output, "%e ", initial_indiv->get_dist_to_target_by_feature(METABOLISM));
   if (exp_manager->get_with_secretion())
     {
-      fprintf( output, "%e ", initial_indiv->get_dist_to_target_by_feature( SECRETION ));
+      fprintf(output, "%e ", initial_indiv->get_dist_to_target_by_feature(SECRETION));
     }
-  if ( (exp_manager->get_with_plasmids()) && (exp_manager->get_tune_donor_ability() != 0.0) )
+  if ((exp_manager->get_with_plasmids()) && (exp_manager->get_tune_donor_ability() != 0.0))
     {
-      fprintf( output, "%e ", initial_indiv->get_dist_to_target_by_feature( DONOR ));
+      fprintf(output, "%e ", initial_indiv->get_dist_to_target_by_feature(DONOR));
     }
-  if ( (exp_manager->get_with_plasmids()) && (exp_manager->get_tune_recipient_ability() != 0.0) )
+  if ((exp_manager->get_with_plasmids()) && (exp_manager->get_tune_recipient_ability() != 0.0))
     {
-      fprintf( output, "%e ", initial_indiv->get_dist_to_target_by_feature( RECIPIENT ));
+      fprintf(output, "%e ", initial_indiv->get_dist_to_target_by_feature(RECIPIENT));
     }
-  fprintf( output, "%" PRId32 " ", initial_indiv->get_total_genome_size());
-  fprintf( output, "%" PRId32 " ", initial_indiv->get_nb_coding_RNAs());
-  fprintf( output, "%" PRId32 " ", initial_indiv->get_nb_non_coding_RNAs());
-  fprintf( output, "%" PRId32 " ", initial_indiv->get_nb_functional_genes());
-  fprintf( output, "%" PRId32 " ", initial_indiv->get_nb_non_functional_genes());
-  fprintf( output, "%" PRId32 " ", initial_indiv->get_total_genome_size() - initial_indiv->get_nb_bases_in_0_CDS()); // coding bp
-  fprintf( output, "%" PRId32 " ", initial_indiv->get_total_genome_size() - initial_indiv->get_nb_bases_in_0_RNA() - (initial_indiv->get_total_genome_size() - initial_indiv->get_nb_bases_in_0_CDS())); // transcribed but not translated bp
-  fprintf( output, "%" PRId32 " ", initial_indiv->get_nb_bases_in_0_RNA()); // not transcribed bp
-  fprintf( output, "%" PRId32 " ", initial_indiv->get_total_genome_size() - initial_indiv->get_nb_bases_in_0_coding_RNA());
-  fprintf( output, "%" PRId32 " ", initial_indiv->get_nb_bases_in_0_coding_RNA());
-  fprintf( output, "\n");
-  fprintf( output, "####################################################################################################################\n" );
+  fprintf(output, "%" PRId32 " ", initial_indiv->get_total_genome_size());
+  fprintf(output, "%" PRId32 " ", initial_indiv->get_nb_coding_RNAs());
+  fprintf(output, "%" PRId32 " ", initial_indiv->get_nb_non_coding_RNAs());
+  fprintf(output, "%" PRId32 " ", initial_indiv->get_nb_functional_genes());
+  fprintf(output, "%" PRId32 " ", initial_indiv->get_nb_non_functional_genes());
+  fprintf(output, "%" PRId32 " ", initial_indiv->get_total_genome_size() - initial_indiv->get_nb_bases_in_0_CDS()); // coding bp
+  fprintf(output, "%" PRId32 " ", initial_indiv->get_total_genome_size() - initial_indiv->get_nb_bases_in_0_RNA() - (initial_indiv->get_total_genome_size() - initial_indiv->get_nb_bases_in_0_CDS())); // transcribed but not translated bp
+  fprintf(output, "%" PRId32 " ", initial_indiv->get_nb_bases_in_0_RNA()); // not transcribed bp
+  fprintf(output, "%" PRId32 " ", initial_indiv->get_total_genome_size() - initial_indiv->get_nb_bases_in_0_coding_RNA());
+  fprintf(output, "%" PRId32 " ", initial_indiv->get_nb_bases_in_0_coding_RNA());
+  fprintf(output, "\n");
+  fprintf(output, "####################################################################################################################\n");
 
   // ---------------------------------------
   //  Create the mutants and evaluate them
@@ -527,7 +527,7 @@ int main( int argc, char* argv[] )
   int32_t nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment;
   double metabolic_error_after = -1.0, secretion_error_after = -1.0;
 
-  if ( mutation_type == SWITCH )
+  if (mutation_type == SWITCH)
     {
       // *********************************  Exhaustive mutagenesis  *************************************
 
@@ -543,8 +543,8 @@ int main( int argc, char* argv[] )
 
           for (pos = 0; pos < initial_len; pos++)
             {
-              mutant = new ae_individual( *initial_indiv, false );
-              mutant->get_genetic_unit(u).get_dna()->do_switch( pos );
+              mutant = new ae_individual(*initial_indiv, false);
+              mutant->get_genetic_unit(u).get_dna()->do_switch(pos);
               mut = new ae_mutation();
               mut->report_point_mutation(pos);
               mut_length = 1;
@@ -557,50 +557,50 @@ int main( int argc, char* argv[] )
               mutant->compute_statistical_data();
               mutant->compute_non_coding();
 
-              metabolic_error_after = mutant->get_dist_to_target_by_feature( METABOLISM );
-              if( exp_manager->get_with_secretion()) { secretion_error_after = mutant->get_dist_to_target_by_feature( SECRETION ); }
+              metabolic_error_after = mutant->get_dist_to_target_by_feature(METABOLISM);
+              if(exp_manager->get_with_secretion()) { secretion_error_after = mutant->get_dist_to_target_by_feature(SECRETION); }
 
               // Write the description of the mutant in the output file
-              fprintf( output, "%" PRId32 " ", mutation_type);
-              fprintf( output, "%" PRId32 " ", u); // genetic unit number (0 for the chromosome)
-              fprintf( output, "%" PRId32 " ", initial_indiv->get_genetic_unit(u).get_dna()->get_length()); // Length of GU before the event
-              fprintf( output, "%" PRId32 " ", pos0);
-              fprintf( output, "%" PRId32 " ", pos1);
-              fprintf( output, "%" PRId32 " ", pos2);
-              fprintf( output, "%" PRId32 " ", pos3);
-              if (invert) fprintf( output, "1 "); else fprintf( output, "0 ");
-              if (mutant->get_with_alignments() )
+              fprintf(output, "%" PRId32 " ", mutation_type);
+              fprintf(output, "%" PRId32 " ", u); // genetic unit number (0 for the chromosome)
+              fprintf(output, "%" PRId32 " ", initial_indiv->get_genetic_unit(u).get_dna()->get_length()); // Length of GU before the event
+              fprintf(output, "%" PRId32 " ", pos0);
+              fprintf(output, "%" PRId32 " ", pos1);
+              fprintf(output, "%" PRId32 " ", pos2);
+              fprintf(output, "%" PRId32 " ", pos3);
+              if (invert) fprintf(output, "1 "); else fprintf(output, "0 ");
+              if (mutant->get_with_alignments())
                 {
-                  fprintf( output, "%" PRId16 " ", align_score1);
-                  fprintf( output, "%" PRId16 " ", align_score2);
+                  fprintf(output, "%" PRId16 " ", align_score1);
+                  fprintf(output, "%" PRId16 " ", align_score2);
                 }
-              fprintf( output, "%" PRId32 " ", mut_length);
-              fprintf( output, "%" PRId32 " ", nb_genes_at_breakpoints);
-              fprintf( output, "%" PRId32 " ", nb_genes_in_segment);
-              fprintf( output, "%e ",        metabolic_error_after);
+              fprintf(output, "%" PRId32 " ", mut_length);
+              fprintf(output, "%" PRId32 " ", nb_genes_at_breakpoints);
+              fprintf(output, "%" PRId32 " ", nb_genes_in_segment);
+              fprintf(output, "%e ",        metabolic_error_after);
               if (exp_manager->get_with_secretion())
                 {
-                  fprintf( output, "%e ",        secretion_error_after);
+                  fprintf(output, "%e ",        secretion_error_after);
                 }
-              if ( (exp_manager->get_with_plasmids()) && (exp_manager->get_tune_donor_ability() != 0.0) )
+              if ((exp_manager->get_with_plasmids()) && (exp_manager->get_tune_donor_ability() != 0.0))
                 {
-                  fprintf( output, "%e ", mutant->get_dist_to_target_by_feature( DONOR ));
+                  fprintf(output, "%e ", mutant->get_dist_to_target_by_feature(DONOR));
                 }
-              if ( (exp_manager->get_with_plasmids()) && (exp_manager->get_tune_recipient_ability() != 0.0) )
+              if ((exp_manager->get_with_plasmids()) && (exp_manager->get_tune_recipient_ability() != 0.0))
                 {
-                  fprintf( output, "%e ", mutant->get_dist_to_target_by_feature( RECIPIENT ));
+                  fprintf(output, "%e ", mutant->get_dist_to_target_by_feature(RECIPIENT));
                 }
-              fprintf( output, "%" PRId32 " ", mutant->get_total_genome_size());
-              fprintf( output, "%" PRId32 " ", mutant->get_nb_coding_RNAs());
-              fprintf( output, "%" PRId32 " ", mutant->get_nb_non_coding_RNAs());
-              fprintf( output, "%" PRId32 " ", mutant->get_nb_functional_genes());
-              fprintf( output, "%" PRId32 " ", mutant->get_nb_non_functional_genes());
-              fprintf( output, "%" PRId32 " ", mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_CDS()); // coding bp
-              fprintf( output, "%" PRId32 " ", mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_RNA() - (mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_CDS())); // transcribed but not translated bp
-              fprintf( output, "%" PRId32 " ", mutant->get_nb_bases_in_0_RNA()); // not transcribed bp
-              fprintf( output, "%" PRId32 " ", mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_coding_RNA());
-              fprintf( output, "%" PRId32 " ", mutant->get_nb_bases_in_0_coding_RNA());
-              fprintf( output, "\n");
+              fprintf(output, "%" PRId32 " ", mutant->get_total_genome_size());
+              fprintf(output, "%" PRId32 " ", mutant->get_nb_coding_RNAs());
+              fprintf(output, "%" PRId32 " ", mutant->get_nb_non_coding_RNAs());
+              fprintf(output, "%" PRId32 " ", mutant->get_nb_functional_genes());
+              fprintf(output, "%" PRId32 " ", mutant->get_nb_non_functional_genes());
+              fprintf(output, "%" PRId32 " ", mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_CDS()); // coding bp
+              fprintf(output, "%" PRId32 " ", mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_RNA() - (mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_CDS())); // transcribed but not translated bp
+              fprintf(output, "%" PRId32 " ", mutant->get_nb_bases_in_0_RNA()); // not transcribed bp
+              fprintf(output, "%" PRId32 " ", mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_coding_RNA());
+              fprintf(output, "%" PRId32 " ", mutant->get_nb_bases_in_0_coding_RNA());
+              fprintf(output, "\n");
 
               delete mutant;
               delete mut;
@@ -620,9 +620,9 @@ int main( int argc, char* argv[] )
         relative_lengths_genetic_units[u++] =
             gu.get_dna()->get_length() / static_cast<double>(initial_indiv->get_total_genome_size());
 
-      for ( int32_t i = 0; i < nb_mutants; i++)
+      for (int32_t i = 0; i < nb_mutants; i++)
         {
-          mutant = new ae_individual( *initial_indiv, false );
+          mutant = new ae_individual(*initial_indiv, false);
 
           // Pick the genetic unit which will undergo the mutation
           alea = mutant->get_mut_prng()->random();
@@ -657,7 +657,7 @@ int main( int argc, char* argv[] )
                     mut =  mutant->get_genetic_unit(u).get_dna()->do_small_insertion();
                   }
                 while (mut == NULL);
-                mut->get_infos_small_insertion( &pos0, &mut_length );
+                mut->get_infos_small_insertion(&pos0, &mut_length);
                 break;
               }
             case S_DEL:
@@ -667,12 +667,12 @@ int main( int argc, char* argv[] )
                     mut =  mutant->get_genetic_unit(u).get_dna()->do_small_deletion();
                   }
                 while (mut == NULL);
-                mut->get_infos_small_deletion( &pos0, &mut_length );
+                mut->get_infos_small_deletion(&pos0, &mut_length);
                 break;
               }
             case DUPL:
               {
-                if ( mutant->get_with_alignments() )
+                if (mutant->get_with_alignments())
                   {
                     rear_done = false;
                     do
@@ -680,15 +680,15 @@ int main( int argc, char* argv[] )
                         do
                           {
                             nb_pairs = initial_len;
-                            alignment_1 = initial_dna->search_alignment( initial_dna, nb_pairs, DIRECT );
+                            alignment_1 = initial_dna->search_alignment(initial_dna, nb_pairs, DIRECT);
                           }
-                        while ( alignment_1 == NULL );
-                        mut_length = ae_utils::mod( alignment_1->get_i_2() - alignment_1->get_i_1(), initial_len );
-                        rear_done = mutant->get_genetic_unit(u).get_dna()->do_duplication( alignment_1->get_i_1(), alignment_1->get_i_2(), alignment_1->get_i_2() );
-                      } while ( !rear_done );
+                        while (alignment_1 == NULL);
+                        mut_length = ae_utils::mod(alignment_1->get_i_2() - alignment_1->get_i_1(), initial_len);
+                        rear_done = mutant->get_genetic_unit(u).get_dna()->do_duplication(alignment_1->get_i_1(), alignment_1->get_i_2(), alignment_1->get_i_2());
+                      } while (!rear_done);
 
                     mut = new ae_mutation();
-                    mut->report_duplication( alignment_1->get_i_1(), alignment_1->get_i_2(), alignment_1->get_i_2(), mut_length, alignment_1->get_score() );
+                    mut->report_duplication(alignment_1->get_i_1(), alignment_1->get_i_2(), alignment_1->get_i_2(), mut_length, alignment_1->get_score());
                   }
                 else
                   {
@@ -699,12 +699,12 @@ int main( int argc, char* argv[] )
                     while (mut == NULL);
                   }
 
-                mut->get_infos_duplication( &pos0, &pos1, &pos2, &align_score1 );
+                mut->get_infos_duplication(&pos0, &pos1, &pos2, &align_score1);
                 break;
               }
             case DEL:
               {
-                if ( mutant->get_with_alignments() )
+                if (mutant->get_with_alignments())
                   {
                     rear_done = false;
                     do
@@ -712,15 +712,15 @@ int main( int argc, char* argv[] )
                         do
                           {
                             nb_pairs = initial_len;
-                            alignment_1 = initial_dna->search_alignment( initial_dna, nb_pairs, DIRECT );
+                            alignment_1 = initial_dna->search_alignment(initial_dna, nb_pairs, DIRECT);
                           }
-                        while ( alignment_1 == NULL );
-                        mut_length = ae_utils::mod( alignment_1->get_i_2() - alignment_1->get_i_1(), initial_len );
-                        rear_done = mutant->get_genetic_unit(u).get_dna()->do_deletion( alignment_1->get_i_1(), alignment_1->get_i_2() );
-                      } while ( !rear_done );
+                        while (alignment_1 == NULL);
+                        mut_length = ae_utils::mod(alignment_1->get_i_2() - alignment_1->get_i_1(), initial_len);
+                        rear_done = mutant->get_genetic_unit(u).get_dna()->do_deletion(alignment_1->get_i_1(), alignment_1->get_i_2());
+                      } while (!rear_done);
 
                     mut = new ae_mutation();
-                    mut->report_deletion( alignment_1->get_i_1(), alignment_1->get_i_2(), mut_length, alignment_1->get_score() );
+                    mut->report_deletion(alignment_1->get_i_1(), alignment_1->get_i_2(), mut_length, alignment_1->get_score());
                   }
                 else
                   {
@@ -731,7 +731,7 @@ int main( int argc, char* argv[] )
                     while (mut == NULL);
                   }
 
-                mut->get_infos_deletion( &pos0, &pos1, &align_score1 );
+                mut->get_infos_deletion(&pos0, &pos1, &align_score1);
                 break;
               }
             case TRANS:
@@ -739,7 +739,7 @@ int main( int argc, char* argv[] )
                 // TO DO: problems might arise because the ae_mutation does not
                 //        record whether it was an intra- or interGU translocation
 
-                if ( mutant->get_with_alignments() )
+                if (mutant->get_with_alignments())
                   {
                     rear_done = false;
                     do
@@ -747,35 +747,35 @@ int main( int argc, char* argv[] )
                         do
                           {
                             nb_pairs = initial_len;
-                            alignment_1 = initial_dna->search_alignment( initial_dna, nb_pairs, DIRECT );
+                            alignment_1 = initial_dna->search_alignment(initial_dna, nb_pairs, DIRECT);
                           }
-                        while ( alignment_1 == NULL );
+                        while (alignment_1 == NULL);
                         // Make sure the segment to be translocated doesn't contain OriC TODO : is that still necessary?
-                        if ( alignment_1->get_i_1() > alignment_1->get_i_2() )
+                        if (alignment_1->get_i_1() > alignment_1->get_i_2())
                           {
                             alignment_1->swap();
                           }
-                        mut_length = ae_utils::mod( alignment_1->get_i_2() - alignment_1->get_i_1(), initial_len );
+                        mut_length = ae_utils::mod(alignment_1->get_i_2() - alignment_1->get_i_1(), initial_len);
 
                         // Extract the segment to be translocated
-                        GeneticUnit* tmp_segment = mutant->get_genetic_unit(u).get_dna()->extract_into_new_GU( alignment_1->get_i_1(), alignment_1->get_i_2() );
+                        GeneticUnit* tmp_segment = mutant->get_genetic_unit(u).get_dna()->extract_into_new_GU(alignment_1->get_i_1(), alignment_1->get_i_2());
                         // Look for a "new" alignment between this segment and the remaining of the chromosome
                         do
                           {
                             nb_pairs = initial_len;
-                            alignment_2 = tmp_segment->get_dna()->search_alignment( mutant->get_genetic_unit(u).get_dna(), nb_pairs, BOTH_SENSES );
+                            alignment_2 = tmp_segment->get_dna()->search_alignment(mutant->get_genetic_unit(u).get_dna(), nb_pairs, BOTH_SENSES);
                           }
-                        while ( alignment_2 == NULL );
+                        while (alignment_2 == NULL);
                         invert = (alignment_2->get_sense() == INDIRECT);
                         // Reinsert the segment into the genetic unit
-                        mutant->get_genetic_unit(u).get_dna()->insert_GU( tmp_segment, alignment_2->get_i_2(), alignment_2->get_i_1(), invert);
+                        mutant->get_genetic_unit(u).get_dna()->insert_GU(tmp_segment, alignment_2->get_i_2(), alignment_2->get_i_1(), invert);
                         rear_done = true;
                         delete tmp_segment;
-                      } while ( !rear_done );
+                      } while (!rear_done);
 
                     mut = new ae_mutation();
-                    mut->report_translocation( alignment_1->get_i_1(), alignment_1->get_i_2(), alignment_2->get_i_1(), alignment_2->get_i_2(),
-                                               mut_length, invert, alignment_1->get_score(), alignment_2->get_score() );
+                    mut->report_translocation(alignment_1->get_i_1(), alignment_1->get_i_2(), alignment_2->get_i_1(), alignment_2->get_i_2(),
+                                               mut_length, invert, alignment_1->get_score(), alignment_2->get_score());
                   }
                 else
                   {
@@ -785,12 +785,12 @@ int main( int argc, char* argv[] )
                       }
                     while (mut == NULL);
                   }
-                mut->get_infos_translocation( &pos0, &pos1, &pos2, &pos3, &invert, &align_score1, &align_score2);
+                mut->get_infos_translocation(&pos0, &pos1, &pos2, &pos3, &invert, &align_score1, &align_score2);
                 break;
               }
             case INV:
               {
-                if ( mutant->get_with_alignments() )
+                if (mutant->get_with_alignments())
                   {
                     rear_done = false;
                     do
@@ -798,18 +798,18 @@ int main( int argc, char* argv[] )
                         do
                           {
                             nb_pairs = initial_len;
-                            alignment_1 = initial_dna->search_alignment( initial_dna, nb_pairs, INDIRECT );
-                          } while ( alignment_1 == NULL );
+                            alignment_1 = initial_dna->search_alignment(initial_dna, nb_pairs, INDIRECT);
+                          } while (alignment_1 == NULL);
                         // Make sure the segment to be inverted doesn't contain OriC
-                        if ( alignment_1->get_i_1() > alignment_1->get_i_2() )
+                        if (alignment_1->get_i_1() > alignment_1->get_i_2())
                           {
                             alignment_1->swap();
                           }
-                        mut_length = ae_utils::mod( alignment_1->get_i_2() - alignment_1->get_i_1(), initial_len );
-                        rear_done = mutant->get_genetic_unit(u).get_dna()->do_inversion( alignment_1->get_i_1(), alignment_1->get_i_2() );
-                      } while ( !rear_done );
+                        mut_length = ae_utils::mod(alignment_1->get_i_2() - alignment_1->get_i_1(), initial_len);
+                        rear_done = mutant->get_genetic_unit(u).get_dna()->do_inversion(alignment_1->get_i_1(), alignment_1->get_i_2());
+                      } while (!rear_done);
                     mut = new ae_mutation();
-                    mut->report_inversion( alignment_1->get_i_1(), alignment_1->get_i_2(), mut_length, alignment_1->get_score() );
+                    mut->report_inversion(alignment_1->get_i_1(), alignment_1->get_i_2(), mut_length, alignment_1->get_score());
                   }
                 else
                   {
@@ -820,7 +820,7 @@ int main( int argc, char* argv[] )
                     while (mut == NULL);
                   }
 
-                mut->get_infos_inversion( &pos0, &pos1, &align_score1 );
+                mut->get_infos_inversion(&pos0, &pos1, &align_score1);
                 break;
               }
             default:
@@ -840,50 +840,50 @@ int main( int argc, char* argv[] )
           mutant->compute_statistical_data();
           mutant->compute_non_coding();
 
-          metabolic_error_after = mutant->get_dist_to_target_by_feature( METABOLISM );
-          if( exp_manager->get_with_secretion()) { secretion_error_after = mutant->get_dist_to_target_by_feature( SECRETION ); }
+          metabolic_error_after = mutant->get_dist_to_target_by_feature(METABOLISM);
+          if(exp_manager->get_with_secretion()) { secretion_error_after = mutant->get_dist_to_target_by_feature(SECRETION); }
 
           // Write the description of the mutant in the output file
-          fprintf( output, "%" PRId32 " ", mutation_type);
-          fprintf( output, "%" PRId32 " ", u); // genetic unit number (0 for the chromosome)
-          fprintf( output, "%" PRId32 " ", initial_indiv->get_genetic_unit(u).get_dna()->get_length()); // Length of GU before the event
-          fprintf( output, "%" PRId32 " ", pos0);
-          fprintf( output, "%" PRId32 " ", pos1);
-          fprintf( output, "%" PRId32 " ", pos2);
-          fprintf( output, "%" PRId32 " ", pos3);
-          if ( invert ) fprintf( output, "1 "); else fprintf( output, "0 ");
-          if ( mutant->get_with_alignments() )
+          fprintf(output, "%" PRId32 " ", mutation_type);
+          fprintf(output, "%" PRId32 " ", u); // genetic unit number (0 for the chromosome)
+          fprintf(output, "%" PRId32 " ", initial_indiv->get_genetic_unit(u).get_dna()->get_length()); // Length of GU before the event
+          fprintf(output, "%" PRId32 " ", pos0);
+          fprintf(output, "%" PRId32 " ", pos1);
+          fprintf(output, "%" PRId32 " ", pos2);
+          fprintf(output, "%" PRId32 " ", pos3);
+          if (invert) fprintf(output, "1 "); else fprintf(output, "0 ");
+          if (mutant->get_with_alignments())
             {
-              fprintf( output, "%" PRId16 " ", align_score1);
-              fprintf( output, "%" PRId16 " ", align_score2);
+              fprintf(output, "%" PRId16 " ", align_score1);
+              fprintf(output, "%" PRId16 " ", align_score2);
             }
-          fprintf( output, "%" PRId32 " ", mut_length);
-          fprintf( output, "%" PRId32 " ", nb_genes_at_breakpoints);
-          fprintf( output, "%" PRId32 " ", nb_genes_in_segment);
-          fprintf( output, "%e ",        metabolic_error_after);
-          if ( exp_manager->get_with_secretion() )
+          fprintf(output, "%" PRId32 " ", mut_length);
+          fprintf(output, "%" PRId32 " ", nb_genes_at_breakpoints);
+          fprintf(output, "%" PRId32 " ", nb_genes_in_segment);
+          fprintf(output, "%e ",        metabolic_error_after);
+          if (exp_manager->get_with_secretion())
             {
-              fprintf( output, "%e ",        secretion_error_after);
+              fprintf(output, "%e ",        secretion_error_after);
             }
-          if ( (exp_manager->get_with_plasmids()) && (exp_manager->get_tune_donor_ability() != 0.0) )
+          if ((exp_manager->get_with_plasmids()) && (exp_manager->get_tune_donor_ability() != 0.0))
             {
-              fprintf( output, "%e ", mutant->get_dist_to_target_by_feature( DONOR ));
+              fprintf(output, "%e ", mutant->get_dist_to_target_by_feature(DONOR));
             }
-          if ( (exp_manager->get_with_plasmids()) && (exp_manager->get_tune_recipient_ability() != 0.0) )
+          if ((exp_manager->get_with_plasmids()) && (exp_manager->get_tune_recipient_ability() != 0.0))
             {
-              fprintf( output, "%e ", mutant->get_dist_to_target_by_feature( RECIPIENT ));
+              fprintf(output, "%e ", mutant->get_dist_to_target_by_feature(RECIPIENT));
             }
-          fprintf( output, "%" PRId32 " ", mutant->get_total_genome_size());
-          fprintf( output, "%" PRId32 " ", mutant->get_nb_coding_RNAs());
-          fprintf( output, "%" PRId32 " ", mutant->get_nb_non_coding_RNAs());
-          fprintf( output, "%" PRId32 " ", mutant->get_nb_functional_genes());
-          fprintf( output, "%" PRId32 " ", mutant->get_nb_non_functional_genes());
-          fprintf( output, "%" PRId32 " ", mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_CDS()); // coding bp
-          fprintf( output, "%" PRId32 " ", mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_RNA() - (mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_CDS())); // transcribed but not translated bp
-          fprintf( output, "%" PRId32 " ", mutant->get_nb_bases_in_0_RNA()); // not transcribed bp
-          fprintf( output, "%" PRId32 " ", mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_coding_RNA());
-          fprintf( output, "%" PRId32 " ", mutant->get_nb_bases_in_0_coding_RNA());
-          fprintf( output, "\n");
+          fprintf(output, "%" PRId32 " ", mutant->get_total_genome_size());
+          fprintf(output, "%" PRId32 " ", mutant->get_nb_coding_RNAs());
+          fprintf(output, "%" PRId32 " ", mutant->get_nb_non_coding_RNAs());
+          fprintf(output, "%" PRId32 " ", mutant->get_nb_functional_genes());
+          fprintf(output, "%" PRId32 " ", mutant->get_nb_non_functional_genes());
+          fprintf(output, "%" PRId32 " ", mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_CDS()); // coding bp
+          fprintf(output, "%" PRId32 " ", mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_RNA() - (mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_CDS())); // transcribed but not translated bp
+          fprintf(output, "%" PRId32 " ", mutant->get_nb_bases_in_0_RNA()); // not transcribed bp
+          fprintf(output, "%" PRId32 " ", mutant->get_total_genome_size() - mutant->get_nb_bases_in_0_coding_RNA());
+          fprintf(output, "%" PRId32 " ", mutant->get_nb_bases_in_0_coding_RNA());
+          fprintf(output, "\n");
 
 
 
@@ -912,63 +912,63 @@ void print_help(char* prog_path)
 {
   // Get the program file-name in prog_name (strip prog_path of the path)
   char* prog_name; // No new, it will point to somewhere inside prog_path
-  if ( ( prog_name = strrchr( prog_path, '/' )) ) prog_name++;
+  if ((prog_name = strrchr(prog_path, '/'))) prog_name++;
   else prog_name = prog_path;
 
-  printf( "\n" );
-  printf( "*********************** aevol - Artificial Evolution ******************* \n" );
-  printf( "*                                                                      * \n" );
-  printf( "*                    Mutagenesis post-treatment program                * \n" );
-  printf( "*                                                                      * \n" );
-  printf( "************************************************************************ \n" );
-  printf( "\n\n" );
-  printf( "This program is Free Software. No Warranty.\n" );
-  printf( "\n" );
-  printf( "Usage : %s -h\n", prog_name);
-  printf( "   or : %s -V or --version\n", prog_name );
-  printf( "   or : %s -g NUMGENER [-r RANK | -i INDEX] [-m MUTATIONTYPE] [-n NBMUTANTS]\n", prog_name);
-  printf( "\n" );
-  printf( "This program creates and evaluates single mutants of an individual saved in a backup, \n");
-  printf( "by default the best of its generation. Use either the -r or the -i option to\n");
-  printf( "select another individual than the best one: with -i, you have to provide the\n");
-  printf( "ID of the individual, and with -r the rank (1 for the individual with the lowest\n");
-  printf( "fitness, N for the fittest one). \n\n");
-  printf( "The type of mutations to perform must be specified with the -m option. \n");
-  printf( "Choose 0 to create mutants with a point mutation, 1 for a small insertion, \n" );
-  printf( "2 for a small deletion, 3 for a duplication, 4 for a large deletion, \n" );
-  printf( "5 for a translocation or 6 for an inversion. \n\n" );
-  printf( "For the point mutations, all single mutants will be created and evaluated. For the\n" );
-  printf( "other mutation types, an exhaustive mutagenesis would be too long, hence only a\n");
-  printf( "sample of mutants (1000 by default) will be generated. Use option -n to specify\n");
-  printf( "another sample size.\n\n");
-  printf( "The output file will be placed in a subdirectory called analysis-generationNUMGENER.\n");
-  printf( "\n" );
-  printf( "\n" );
-  printf( "\t-h or --help    : Display this help, then exit\n" );
-  printf( "\n" );
-  printf( "\t-V or --version : Print version number, then exit\n" );
-  printf( "\n" );
-  printf( "\t-g NUMGENER or --gener NUMGENER : \n" );
-  printf( "\t                  Generation of the backup containing the individual of interest\n" );
-  printf( "\n" );
-  printf( "\t-i INDEX or --index INDEX : \n" );
-  printf( "\t                  Index of individual of interest. Should be comprised between 0 and N-1, where\n" );
-  printf( "\t                  N is the size of the population.\n" );
-  printf( "\n" );
-  printf( "\t-r RANK or --rank RANK : \n" );
-  printf( "\t                  Rank of individual of interest. Should be comprised between 1 and N, where\n" );
-  printf( "\t                  N is the size of the population. Default = N (fittest individual).\n" );
-  printf( "\n" );
-  printf( "\t-m MUTATIONTYPE or --mutation-type MUTATIONTYPE : \n" );
-  printf( "\t                  Integer type of the mutation carried by each mutant: 0 for a point mutation, 1 for a \n" );
-  printf( "\t                  small insertion, 2 for small deletions, 3 for a duplication, 4 for a large deletion, \n" );
-  printf( "\t                  5 for a translocation or 6 for an inversion. \n" );
-  printf( "\n" );
-  printf( "\t-n NBMUTANTS or --nb-mutants NBMUTANTS : \n" );
-  printf( "\t                  Number of single mutants to create and evaluate. Default = 1000. Note that this option\n" );
-  printf( "\t                  is ignored in the case of point mutations, where all single mutants are created \n" );
-  printf( "\t                  (exhaustive mutagenesis). \n" );
-  printf( "\n" );
+  printf("\n");
+  printf("*********************** aevol - Artificial Evolution ******************* \n");
+  printf("*                                                                      * \n");
+  printf("*                    Mutagenesis post-treatment program                * \n");
+  printf("*                                                                      * \n");
+  printf("************************************************************************ \n");
+  printf("\n\n");
+  printf("This program is Free Software. No Warranty.\n");
+  printf("\n");
+  printf("Usage : %s -h\n", prog_name);
+  printf("   or : %s -V or --version\n", prog_name);
+  printf("   or : %s -g NUMGENER [-r RANK | -i INDEX] [-m MUTATIONTYPE] [-n NBMUTANTS]\n", prog_name);
+  printf("\n");
+  printf("This program creates and evaluates single mutants of an individual saved in a backup, \n");
+  printf("by default the best of its generation. Use either the -r or the -i option to\n");
+  printf("select another individual than the best one: with -i, you have to provide the\n");
+  printf("ID of the individual, and with -r the rank (1 for the individual with the lowest\n");
+  printf("fitness, N for the fittest one). \n\n");
+  printf("The type of mutations to perform must be specified with the -m option. \n");
+  printf("Choose 0 to create mutants with a point mutation, 1 for a small insertion, \n");
+  printf("2 for a small deletion, 3 for a duplication, 4 for a large deletion, \n");
+  printf("5 for a translocation or 6 for an inversion. \n\n");
+  printf("For the point mutations, all single mutants will be created and evaluated. For the\n");
+  printf("other mutation types, an exhaustive mutagenesis would be too long, hence only a\n");
+  printf("sample of mutants (1000 by default) will be generated. Use option -n to specify\n");
+  printf("another sample size.\n\n");
+  printf("The output file will be placed in a subdirectory called analysis-generationNUMGENER.\n");
+  printf("\n");
+  printf("\n");
+  printf("\t-h or --help    : Display this help, then exit\n");
+  printf("\n");
+  printf("\t-V or --version : Print version number, then exit\n");
+  printf("\n");
+  printf("\t-g NUMGENER or --gener NUMGENER : \n");
+  printf("\t                  Generation of the backup containing the individual of interest\n");
+  printf("\n");
+  printf("\t-i INDEX or --index INDEX : \n");
+  printf("\t                  Index of individual of interest. Should be comprised between 0 and N-1, where\n");
+  printf("\t                  N is the size of the population.\n");
+  printf("\n");
+  printf("\t-r RANK or --rank RANK : \n");
+  printf("\t                  Rank of individual of interest. Should be comprised between 1 and N, where\n");
+  printf("\t                  N is the size of the population. Default = N (fittest individual).\n");
+  printf("\n");
+  printf("\t-m MUTATIONTYPE or --mutation-type MUTATIONTYPE : \n");
+  printf("\t                  Integer type of the mutation carried by each mutant: 0 for a point mutation, 1 for a \n");
+  printf("\t                  small insertion, 2 for small deletions, 3 for a duplication, 4 for a large deletion, \n");
+  printf("\t                  5 for a translocation or 6 for an inversion. \n");
+  printf("\n");
+  printf("\t-n NBMUTANTS or --nb-mutants NBMUTANTS : \n");
+  printf("\t                  Number of single mutants to create and evaluate. Default = 1000. Note that this option\n");
+  printf("\t                  is ignored in the case of point mutations, where all single mutants are created \n");
+  printf("\t                  (exhaustive mutagenesis). \n");
+  printf("\n");
 
-  printf( "\n" );
+  printf("\n");
 }

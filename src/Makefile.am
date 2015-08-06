@@ -43,10 +43,7 @@ AM_CPPFLAGS += -D_FORTIFY_SOURCE=2
 #  LDADD = -laevol
 #####  #####
 
-
 LDADD = $(top_srcdir)/src/libaevol/libaevol.a $(top_srcdir)/src/libaevol/SFMT-src-1.4/libsfmt.a
-
-
 
 
 bin_PROGRAMS = aevol_run aevol_create aevol_modify aevol_propagate

@@ -30,7 +30,7 @@
 
 
 // =================================================================
-//                              Libraries
+//                              Includes
 // =================================================================
 #include <cinttypes>
 #include <cassert>
@@ -40,105 +40,31 @@
 #include <iostream>
 
 
-
-using std::string;
-using std::cout;
-using std::endl;
-
-
-// =================================================================
-//                            Project Files
-// =================================================================
-
-
-
-
-// =================================================================
-//                          Class declarations
-// =================================================================
-
 namespace aevol {
+class JumpingMT;
 
 class Utils
 {
  public :
-  static inline int32_t mod(int32_t a, int32_t b);
-  static inline int64_t mod(int64_t a, int64_t b);
-  static inline int32_t min(int32_t a, int32_t b);
-  static inline int32_t max(int32_t a, int32_t b);
-  static inline void    exchange(int32_t &a, int32_t &b);
-  static inline int16_t hamming(const char* str1, const char* str2);
+  Utils() = delete;
+  Utils(const Utils&) = delete;
+  Utils(Utils&&) = delete;
+  ~Utils() = delete;
+  static int32_t mod(int32_t a, int32_t b);
+  static int64_t mod(int64_t a, int64_t b);
+  static int32_t min(int32_t a, int32_t b);
+  static int32_t max(int32_t a, int32_t b);
+  static void exchange(int32_t& a, int32_t& b);
+  static void ApplyAutoregressiveStochasticProcess(double& value,
+                                                   double sigma,
+                                                   int16_t tau,
+                                                   JumpingMT& prng);
+  static int16_t hamming(const char* str1, const char* str2);
 
-  static inline void ExitWithMsg(const string& msg,
-                                 const string& file, int line);
-  static inline void PrintAevolVersion();
-
- protected :
-  Utils( const Utils &model )
-  {
-    printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-    exit( EXIT_FAILURE );
-  };
+  static void ExitWithUsrMsg(const std::string& msg);
+  static void ExitWithDevMsg(const std::string& msg,
+                             const std::string& file, int line);
+  static void PrintAevolVersion();
 };
-
-
-inline int32_t Utils::mod(int32_t a, int32_t b)
-{
-  assert(b > 0);
-  
-  while (a < 0)  a += b;
-  while (a >= b) a -= b;
-  
-  return a;
-}
-
-inline int64_t Utils::mod(int64_t a, int64_t b)
-{
-  assert(b > 0);
-  
-  while (a < 0)  a += b;
-  while (a >= b) a -= b;
-  
-  return a;
-}
-
-inline int32_t Utils::min(int32_t a, int32_t b)
-{
-  return ((a < b)? a : b);
-}
-
-inline int32_t Utils::max(int32_t a, int32_t b)
-{
-  return ((a > b)? a : b);
-}
-
-inline void Utils::exchange(int32_t &a, int32_t &b)
-{
-  int32_t tmp = a;
-  a = b;
-  b = tmp;
-}
-
-/**
- * Print an error message and exit (with error status)
- *
- * \param msg message to be printed
- * \param file should be __FILE__
- * \param line should be __LINE__
- */
-inline void Utils::ExitWithMsg(const string& msg,
-                               const string& file, int line) {
-  cout << file << ":" << line << ": error: " << msg << endl;
-  exit(EXIT_FAILURE);
-}
-
-/**
- * Print aevol version number
- */
-void Utils::PrintAevolVersion()
-{
-  printf( "aevol %s\n", VERSION );
-}
-
 } // namespace aevol
 #endif // AEVOL_UTILS_H__

@@ -71,6 +71,18 @@ class PhenotypicTarget
   virtual ~PhenotypicTarget(void); //< Destructor
 
   // ==========================================================================
+  //                                Operators
+  // ==========================================================================
+
+  // ==========================================================================
+  //                              Public Methods
+  // ==========================================================================
+  void ComputeArea();
+
+  void SaveSegmentation(gzFile backup_file) const;
+  void LoadSegmentation(gzFile backup_file);
+
+  // ==========================================================================
   //                                 Getters
   // ==========================================================================
   double area_by_feature(int8_t feature) const {
@@ -93,18 +105,6 @@ class PhenotypicTarget
                         double* boundaries,
                         PhenotypicFeature * features,
                         bool separate_segments);
-
-  // ==========================================================================
-  //                                Operators
-  // ==========================================================================
-
-  // ==========================================================================
-  //                              Public Methods
-  // ==========================================================================
-  void ComputeArea();
-
-  void SaveSegmentation(gzFile backup_file) const;
-  void LoadSegmentation(gzFile backup_file);
 
 
 

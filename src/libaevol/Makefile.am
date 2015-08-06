@@ -5,11 +5,7 @@ AM_CPPFLAGS = $(AEVOLCPPFLAGS)
 AM_CXXFLAGS = $(AEVOLCXXFLAGS)
 AM_LDFLAGS = $(AEVOLLDFLAGS)
 
-if WITH_CPPUNIT
-  SUBDIRS = SFMT-src-1.4 . tests
-else # WITHOUT_CPPUNIT
-  SUBDIRS = SFMT-src-1.4 .
-endif
+SUBDIRS = SFMT-src-1.4 .
 
 ########################
 # Set library to build #
@@ -26,6 +22,7 @@ AM_CPPFLAGS += -D__STDC_FORMAT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MA
 
 common_headers = \
 AbstractFuzzy.h \
+aevol.h \
 Alignment.h \
 Codon.h \
 Dna.h \
@@ -45,6 +42,18 @@ IndividualFactory.h \
 Logging.h \
 macros.h \
 Mutation.h \
+LocalMutation.h \
+PointMutation.h \
+SmallInsertion.h \
+SmallDeletion.h \
+Rearrangement.h \
+Duplication.h \
+Deletion.h \
+Translocation.h \
+Inversion.h \
+HT.h \
+InsertionHT.h \
+ReplacementHT.h \
 Observable.h \
 ObservableEvent.h \
 Observer.h \
@@ -69,17 +78,15 @@ Tree.h \
 Utils.h \
 VisAVis.h \
 Selection.h \
-GeneTree.h \
-GeneTreeNode.h \
-GeneMutation.h \
 Habitat.h \
 ParamLoader.h \
 ParameterLine.h \
-Time.h \
 World.h \
 raevol/Individual_R.h \
 raevol/Protein_R.h \
-raevol/Rna_R.h
+raevol/Rna_R.h \
+AeTime.h \
+World.h
 
 common_sources = \
 Alignment.cpp \
@@ -94,6 +101,15 @@ Individual.cpp \
 IndividualFactory.cpp \
 Logging.cpp \
 Mutation.cpp \
+PointMutation.cpp \
+SmallInsertion.cpp \
+SmallDeletion.cpp \
+Duplication.cpp \
+Deletion.cpp \
+Translocation.cpp \
+Inversion.cpp \
+InsertionHT.cpp \
+ReplacementHT.cpp \
 Observable.cpp \
 OutputManager.cpp \
 MutationParams.cpp \
@@ -109,6 +125,7 @@ Stats.cpp \
 StatRecord.cpp \
 ae_string.cpp \
 Tree.cpp \
+Utils.cpp \
 VisAVis.cpp \
 Selection.cpp \
 GeneTree.cpp \
@@ -121,11 +138,11 @@ Fuzzy.cpp \
 Habitat.cpp \
 ParamLoader.cpp \
 ParameterLine.cpp \
-Time.cpp \
-World.cpp \
 raevol/Individual_R.cpp \
 raevol/Protein_R.cpp \
-raevol/Rna_R.cpp
+raevol/Rna_R.cpp \
+AeTime.cpp \
+World.cpp
 
 X11_headers = \
 Individual_X11.h \
@@ -142,8 +159,6 @@ raevol/Individual_R_X11.cpp
 # The target_CPPFLAGS for each target may look useless, it is here to force automake to create
 # prefixed object files so that we don't use an object file built for another set of macrodefinitions
 # e.g. We don't want to use an object file created with NO_X when building the X11 lib
-
-libaevol_a_CPPFLAGS = $(AM_CPPFLAGS)
 
 if WITH_X
 #libaevol_a_HEADERS = $(common_headers) $(X11_headers)

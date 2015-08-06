@@ -22,8 +22,12 @@
 #define AEVOL_DNA_REPLICATION_REPORT_H__
 
 #include <list>
+#include <memory>
 
 #include "Mutation.h"
+#include "LocalMutation.h"
+#include "HT.h"
+#include "Rearrangement.h"
 
 namespace aevol {
 
@@ -33,29 +37,54 @@ class DnaReplicationReport {
   friend class Dna;
   
  public :
+
+  // =================================================================
+  //                             Constructors
+  // =================================================================
   DnaReplicationReport() = default;
-  DnaReplicationReport(const DnaReplicationReport&) = delete;
+  DnaReplicationReport(const DnaReplicationReport&);
+  DnaReplicationReport(DnaReplicationReport&&) = delete;
+
+  // =================================================================
+  //                             Destructor
+  // =================================================================
+  ~DnaReplicationReport() = default;
+
+  // ==========================================================================
+  //                                Operators
+  // ==========================================================================
+  /// Copy assignment
+  DnaReplicationReport& operator=(const DnaReplicationReport& other) = delete;
+  /// Move assignment
+  DnaReplicationReport& operator=(DnaReplicationReport&& other) = delete;
 
   // Accessors
-  const std::list<Mutation> get_mutations()      const { return mutations_; };
-  const std::list<Mutation> get_rearrangements() const { return rearrangements_; };
-  const std::list<Mutation> get_HT()             const { return ht_; };
+  const std::list<std::unique_ptr<const LocalMutation>>& get_mutations() const {
+    return mutations_;
+  };
+  const std::list<std::unique_ptr<const Rearrangement>>& get_rearrangements() const {
+    return rearrangements_;
+  };
+  const std::list<std::unique_ptr<const HT>>& get_HT() const {
+    return ht_;
+  };
   int32_t get_nb(MutationType t) const;
 
   // Public Methods
   void compute_stats();  // useful when we inspect a tree file
-  void add_mut(const Mutation& mut);
-  void add_local_mut(const Mutation& mut);
-  void add_rear(const Mutation& mut);
-  void add_HT(const Mutation& mut);
+  void add_mut(Mutation* mut);
+  void add_local_mut(Mutation* mut);
+  void add_rear(Mutation* mut);
+  void add_HT(Mutation* mut);
 
   void write_to_tree_file(gzFile tree_file) const;
   void read_from_tree_file(gzFile tree_file);
 
  protected :
-  std::list<Mutation> mutations_;       // Lists of mutations, rearrangements and undergone
-  std::list<Mutation> rearrangements_;  // by the genetic unit at last replication
-  std::list<Mutation> ht_;
+  /// Lists of mutations, rearrangements and undergone
+  std::list<std::unique_ptr<const LocalMutation>> mutations_;
+  std::list<std::unique_ptr<const Rearrangement>> rearrangements_;
+  std::list<std::unique_ptr<const HT>> ht_;
   // Number of mutations/rearrangements/HT of each (simple) type undergone
   int32_t _nb_mut[10] = {0,0,0,0,0,0,0,0,0,0};
 };

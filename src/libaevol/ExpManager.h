@@ -49,7 +49,7 @@
 #include <cassert>
 #include <list>
 
-#include "Time.h"
+#include "AeTime.h"
 #include "JumpingMT.h"
 #include "ExpSetup.h"
 #include "OutputManager.h"
@@ -72,12 +72,12 @@ class ExpManager : public Observer
     // =======================================================================
     //                                Constructors
     // =======================================================================
-    ExpManager(void);
+    ExpManager();
 
     // =======================================================================
     //                                Destructors
     // =======================================================================
-    virtual ~ExpManager(void);
+    virtual ~ExpManager();
 
     // =======================================================================
     //                                 Algorithms
@@ -169,11 +169,12 @@ class ExpManager : public Observer
                          std::shared_ptr<JumpingMT> prng,
                          const Habitat& habitat,
                          bool share_phenotypic_target);
-    void write_setup_files(void);
-    void save(void) const;
-    void save_copy(char* dir, int32_t num_gener = 0) const;
-    inline void load(int32_t first_gener,
-        bool verbose = false, bool to_be_run = true);
+    void Save() const;
+    void WriteSetupFiles() const;
+    void WriteDynamicFiles() const;
+    void save_copy(char* dir, int64_t time = 0) const;
+    inline void load(int64_t first_gener,
+                     bool verbose = false, bool to_be_run = true);
     void load(const char* dir, int64_t t0,
         bool verbose = false, bool to_be_run = true);
     void load(int64_t t0,
@@ -202,7 +203,7 @@ class ExpManager : public Observer
     // =======================================================================
     //                              Protected Methods
     // =======================================================================
-    inline void step_to_next_generation(void);
+    void step_to_next_generation();
 
     void load(gzFile& exp_s_file,
               gzFile& exp_backup_file,
@@ -477,26 +478,12 @@ inline void ExpManager::set_repl_HT_detach_rate(double repl_HT_detach_rate)
 // ===========================================================================
 //                         Inline methods' definition
 // ===========================================================================
-inline void ExpManager::step_to_next_generation(void) {
-  // TODO <david.parsons@inria.fr> Apply phenotypic target  variation and noise
-
-  // Take a step in time
-  Time::plusplus();
-
-  // Create the corresponding new generation
-  _exp_s->step_to_next_generation();
-
-  // Write statistical data and store phylogenetic data (tree)
-  _output_m->write_current_generation_outputs();
-}
-
-
 /*!
   \brief Load an experiment with default files from the current directory
  */
-inline void ExpManager::load(int32_t first_gener,
-                                 bool verbose /*= false*/,
-                                 bool to_be_run /*= true*/)
+inline void ExpManager::load(int64_t first_gener,
+                             bool verbose /*= false*/,
+                             bool to_be_run /*= true*/)
 {
   load(".", first_gener, verbose, to_be_run);
 }
