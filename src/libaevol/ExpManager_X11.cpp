@@ -462,6 +462,7 @@ void ExpManager_X11::display(X11Window * win,
   } else {
     const HybridFuzzy fuzzy = (HybridFuzzy&)(fuzz);
     double hi,hi1;
+
     for (int i = 0; i < fuzzy.get_pheno_size() - 1; i++) {
       hi= (((double)i) / fuzzy.get_pheno_size());
       hi1= (((double)i+1) / fuzzy.get_pheno_size());
@@ -470,7 +471,6 @@ void ExpManager_X11::display(X11Window * win,
       cur_y   = ( 1 - ((fuzzy.get_points()[i] -  y_min) / delta_y) ) * win->get_height();
       next_x  = (      ((hi1) - X_MIN) / delta_x  ) * win->get_width();
       next_y  = ( 1 - ((fuzzy.get_points()[i+1] - y_min) / delta_y) ) * win->get_height();
-
 
       if (fuzzy.get_points()[i] >= 0 && fuzzy.get_points()[i+1] >= 0) {
         win->draw_line( cur_x, cur_y, next_x, next_y, color, bold );
@@ -483,6 +483,7 @@ void ExpManager_X11::display(X11Window * win,
             fill_color = X11Window::get_color( ((double)i / win->get_width()) * (X_MAX - X_MIN) );
             win->draw_line( i, ( 1 - ((0 -  y_min) / delta_y) ) * win->get_height(),
                             i, cur_y + (((i - cur_x) * (next_y - cur_y)) / (next_x - cur_x)) , fill_color );
+
             delete [] fill_color;
           }
         }
@@ -497,6 +498,7 @@ void ExpManager_X11::display(X11Window * win,
             fill_color = X11Window::get_color( ((double)i / win->get_width()) * (X_MAX - X_MIN) );
             win->draw_line( i, ( 1 - ((0 -  y_min) / delta_y) ) * win->get_height(),
                             i, cur_y + (((i - cur_x) * (next_y - cur_y)) / (next_x - cur_x)) , fill_color );
+
             delete [] fill_color;
           }
         }
@@ -509,8 +511,6 @@ void ExpManager_X11::display(X11Window * win,
         else if (fuzzy.get_points()[i+1] == 0.0) x_at_0 = hi1;
         else x_at_0 = ( (- d1) / p1 );
 
-//   		if (color == RED) printf("S1 %d %d %d %d\n",cur_x, cur_y, x_at_0, 0);
-//   		if (color == RED) printf("S2 %d %d %d %d\n",x_at_0, 0, next_x, next_y);
         win->draw_line( cur_x, cur_y, x_at_0, 0, color, bold );
 
         if ( fill )

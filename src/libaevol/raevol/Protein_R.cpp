@@ -143,6 +143,8 @@ Protein_R::Protein_R( gzFile backup_file ) : Protein::Protein( backup_file )
 Protein_R::~Protein_R( void )
 {
 	_rna_R_list.clear();
+
+  delete [] _cod_tab;
 }
 
 // =================================================================
@@ -151,6 +153,7 @@ Protein_R::~Protein_R( void )
 void Protein_R::compute_delta_concentration( void )
 {
   _delta_concentration = 0;
+
   if( _signal == false )
   {
 	for (auto& rna: _rna_R_list)

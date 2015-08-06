@@ -53,7 +53,7 @@ class AbstractFuzzy
 
   virtual bool is_identical_to(const AbstractFuzzy& fs, double tolerance) const = 0;
 
-  virtual void print() = 0;
+  virtual void print() const = 0;
 
   virtual void clear() = 0;
 

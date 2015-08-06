@@ -140,6 +140,10 @@ AbstractFuzzy* FuzzyFactory::create_fuzzy(const gzFile backup)
   return fuzzy;
 }
 
+int FuzzyFactory::get_fuzzy_flavor()
+{
+  return _exp_s->get_fuzzy_flavor();
+}
 // ============================================================================
 //                            Non inline accessors
 // ============================================================================

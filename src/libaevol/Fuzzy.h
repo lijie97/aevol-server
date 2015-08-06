@@ -114,7 +114,7 @@ class Fuzzy : public AbstractFuzzy
   // get_x should be moved out of fuzzy class as it really applies to pair of points
   double get_x(const Point& left, const Point& right, double y) const;
   bool is_identical_to(const AbstractFuzzy& fs, double tolerance) const;
-  void print();
+  void print() const;
   void clear();
   // ==========================================================================
   //                                 Setters

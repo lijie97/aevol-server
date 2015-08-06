@@ -32,6 +32,7 @@
 // ============================================================================
 #include "PhenotypicTargetHandler.h"
 #include "ExpSetup.h"
+#include "HybridFuzzy.h"
 
 #include <iostream>
 
@@ -126,13 +127,46 @@ void PhenotypicTargetHandler::build_phenotypic_target() {
   phenotypic_target_->fuzzy()->reset();
 
   // Generate sample points from gaussians
-  if (not current_gaussians_.empty())
-    for (int16_t i = 0 ; i <= sampling_ ; i++) {
-      Point new_point = Point(X_MIN + (double)i * (X_MAX - X_MIN) / (double)sampling_, 0.0);
-      for (const Gaussian & g: current_gaussians_)
+  if (not current_gaussians_.empty()) {
+    for (int16_t i = 0; i <= sampling_; i++) {
+      Point new_point = Point(
+          X_MIN + (double) i * (X_MAX - X_MIN) / (double) sampling_, 0.0);
+      for (const Gaussian& g: current_gaussians_)
         new_point.y += g.compute_y(new_point.x);
       phenotypic_target_->fuzzy()->add_point(new_point.x, new_point.y);
     }
+
+    if (FuzzyFactory::fuzzyFactory->get_fuzzy_flavor() == 1) {
+      HybridFuzzy* fuz = (HybridFuzzy*) phenotypic_target_->fuzzy();
+
+      for (int i = 1; i < fuz->get_pheno_size(); i++) {
+        if (fuz->get_points()[i] == 0.0) {
+          int minL = i - 1;
+          int maxL = i + 1;
+          int dist = 1;
+
+          while (fuz->get_points()[maxL] == 0.0) {
+            maxL++;
+            dist++;
+          }
+          double inc = 0.0;
+          if (fuz->get_points()[maxL] > fuz->get_points()[minL]) {
+            inc = (fuz->get_points()[maxL] - fuz->get_points()[minL]) / dist;
+          } else {
+            inc = (fuz->get_points()[minL] - fuz->get_points()[maxL]) / dist;
+            minL = maxL;
+          }
+
+          for (int j = i; j < maxL; j++) {
+            fuz->get_points()[j] = fuz->get_points()[minL] + inc;
+            inc += inc;
+          }
+
+        }
+      }
+    }
+  }
+
 
   // Add lower and upper bounds
   phenotypic_target_->fuzzy()->clip(AbstractFuzzy::min, Y_MIN);

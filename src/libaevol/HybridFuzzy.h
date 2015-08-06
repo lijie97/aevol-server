@@ -61,7 +61,7 @@ class HybridFuzzy : public AbstractFuzzy
 
   int get_pheno_size() const { return _pheno_size; };
 
-  void print();
+  void print() const;
   inline void clear()  {reset();};
   // ==========================================================================
   //                                 Setters

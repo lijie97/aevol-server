@@ -430,7 +430,7 @@ void Fuzzy::add_point(double x, double y)
   }
 }
 
-void Fuzzy::print()
+void Fuzzy::print() const
 {
   for (const Point& p : points)
     printf("[%f : %f] ",p.x,p.y);
