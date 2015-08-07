@@ -41,7 +41,7 @@
   #ifndef __REGUL
     #include <Individual.h>
   #else
-    #include <Individual_R.h>
+    #include <raevol/Individual_R.h>
   #endif
 #elif defined __X11
   #ifndef __REGUL

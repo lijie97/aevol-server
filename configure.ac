@@ -298,6 +298,7 @@ AC_MSG_RESULT($raevol)
 AM_CONDITIONAL(WITH_RAEVOL, test x"$raevol" != xno)
 if test "x$raevol" = "xyes" ; then
    AC_DEFINE(__REGUL)
+   AM_INIT_AUTOMAKE([subdir-objects])
 fi
 
 #  ************************* --with-blas option *******************************
@@ -312,7 +313,6 @@ AC_MSG_RESULT($blas)
 AM_CONDITIONAL(WITH_BLAS, test x"$blas" != xno)
 if test "x$blas" = "xyes" ; then
    AC_DEFINE(__BLAS__)
-   AEVOLCXXFLAGS+=" -lopenblas"
    AEVOLLDFLAGS+=" -lopenblas"
 fi
 

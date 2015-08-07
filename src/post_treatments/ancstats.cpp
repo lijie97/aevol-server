@@ -600,8 +600,8 @@ void write_zones_stats(int64_t t,
   }
 
 
-  Fuzzy* activ = NULL;
-  Fuzzy* inhib = NULL;
+  AbstractFuzzy* activ = NULL;
+  AbstractFuzzy* inhib = NULL;
   Phenotype* phen  = NULL;
 
 

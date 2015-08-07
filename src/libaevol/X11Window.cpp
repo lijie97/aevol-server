@@ -160,7 +160,6 @@ X11Window::X11Window( Display* display, int8_t screen, Atom* atoms,
   _display  = display;
   _screen   = screen;
 
-
   XSetWindowAttributes win_attributes;
   win_attributes.event_mask = StructureNotifyMask | ExposureMask | KeyPressMask;
   win_attributes.background_pixel = XBlackPixel( _display, _screen );

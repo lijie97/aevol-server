@@ -95,7 +95,6 @@ class ParamLoader {
   // =========================================================================
 
   void read_file(void);
-  void load(ExpManager * exp_m, bool verbose = false, char* chromosome = NULL, int32_t lchromosome = 0, char* plasmid = NULL, int32_t lplasmid = 0 );
 
 
   ParameterLine * get_line( int32_t* );
@@ -105,8 +104,6 @@ class ParamLoader {
   //                            Protected Methods
   // =========================================================================
   void CheckConsistency();
-  void read_file();
-  ParameterLine* get_line(int32_t*);
   static void format_line(ParameterLine *, char*, bool*);
   void interpret_line(ParameterLine * line, int32_t cur_line);
 

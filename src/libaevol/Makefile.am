@@ -82,9 +82,6 @@ Habitat.h \
 ParamLoader.h \
 ParameterLine.h \
 World.h \
-raevol/Individual_R.h \
-raevol/Protein_R.h \
-raevol/Rna_R.h \
 AeTime.h \
 World.h
 
@@ -128,9 +125,6 @@ Tree.cpp \
 Utils.cpp \
 VisAVis.cpp \
 Selection.cpp \
-GeneTree.cpp \
-GeneTreeNode.cpp \
-GeneMutation.cpp \
 AbstractFuzzy.cpp \
 HybridFuzzy.cpp \
 FuzzyFactory.cpp \
@@ -138,34 +132,57 @@ Fuzzy.cpp \
 Habitat.cpp \
 ParamLoader.cpp \
 ParameterLine.cpp \
-raevol/Individual_R.cpp \
-raevol/Protein_R.cpp \
-raevol/Rna_R.cpp \
 AeTime.cpp \
 World.cpp
+
+raevol_headers = \
+raevol/Individual_R.h \
+raevol/Protein_R.h \
+raevol/Rna_R.h
+
+raevol_sources = \
+raevol/Individual_R.cpp \
+raevol/Protein_R.cpp \
+raevol/Rna_R.cpp
+
+raevol_X11_headers = \
+raevol/Individual_R_X11.h
+
+raevol_X11_sources = \
+raevol/Individual_R_X11.cpp
 
 X11_headers = \
 Individual_X11.h \
 ExpManager_X11.h \
-X11Window.h \
-raevol/Individual_R_X11.h
+X11Window.h 
 
 X11_sources = \
 Individual_X11.cpp \
 ExpManager_X11.cpp \
-X11Window.cpp \
-raevol/Individual_R_X11.cpp
+X11Window.cpp
 
 # The target_CPPFLAGS for each target may look useless, it is here to force automake to create
 # prefixed object files so that we don't use an object file built for another set of macrodefinitions
 # e.g. We don't want to use an object file created with NO_X when building the X11 lib
 
 if WITH_X
+if WITH_RAEVOL
+#libaevol_a_HEADERS += $(common_headers) $(X11_headers) $(raevol_headers) $(raevol_X11_headers)
+  libaevol_a_SOURCES = $(common_sources) $(X11_sources) $(raevol_sources) $(raevol_X11_sources)
+  libaevol_a_SOURCES += $(common_headers) $(X11_headers) $(raevol_headers) $(raevol_X11_headers)
+else
 #libaevol_a_HEADERS = $(common_headers) $(X11_headers)
   libaevol_a_SOURCES = $(common_sources) $(X11_sources)
   libaevol_a_SOURCES += $(common_headers) $(X11_headers)
+endif
 else # WITHOUT_X
+if WITH_RAEVOL
+#libaevol_a_HEADERS = $(common_headers) $(raevol_headers)
+  libaevol_a_SOURCES = $(common_sources) $(raevol_sources)
+  libaevol_a_SOURCES += $(common_headers) $(raevol_headers)
+else
 #libaevol_a_HEADERS = $(common_headers)
   libaevol_a_SOURCES = $(common_sources)
   libaevol_a_SOURCES += $(common_headers)
+endif
 endif # X

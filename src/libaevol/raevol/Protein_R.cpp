@@ -172,7 +172,7 @@ void Protein_R::compute_delta_concentration( void )
 
 int8_t Protein_R::get_codon( int32_t index )
 {
-  return _AA_list[index]->get_value();
+  return _cod_tab[index];
 }
 
 void Protein_R::save( gzFile backup_file )

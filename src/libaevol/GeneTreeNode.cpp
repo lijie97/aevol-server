@@ -497,7 +497,7 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
           pos2 = Utils::mod(dupl->pos2() - 1, genlen);
           pos2bis = dupl->pos2();
           pos0 = dupl->pos3();
-          mutlength = dupl->get_length();
+          mutlength = dupl->length();
           break;
         }
         case DEL : {
@@ -505,7 +505,7 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
           pos1 = del->pos1();
           pos2 = Utils::mod(del->pos2() - 1, genlen);
           pos2bis = del->pos2();
-          mutlength = del->get_length();
+          mutlength = del->length();
           break;
         }
         case TRANS : {
@@ -516,7 +516,7 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
           pos3 = trans->pos3();
           pos0 = trans->pos4();
           invert = trans->invert();
-          mutlength = trans->get_length();
+          mutlength = trans->length();
           break;
         }
         case INV : {
@@ -524,7 +524,7 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
           pos1 = inv->pos1();
           pos2 = Utils::mod(inv->pos2() - 1, genlen);
           pos2bis = inv->pos2();
-          mutlength = inv->get_length();
+          mutlength = inv->length();
           break;
         }
         case INSERT : {

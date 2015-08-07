@@ -166,66 +166,10 @@ void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run)
   gzread(setup_file, &logs, sizeof(logs));
   if (to_be_run)
   {
-<<<<<<< HEAD
-    _logs->load(logs, Time::get_time());
-  }
-}
-
-void OutputManager::load(FILE* setup_file, bool verbose, bool to_be_run)
-{
-  int ret;
-  // Write the backup steps
-  ret = fscanf(setup_file, "BACKUP_STEP %" SCNd64 "\n", &_backup_step);
-  ret = fscanf(setup_file, "BIG_BACKUP_STEP %" SCNd64 "\n", &_big_backup_step);
-  
-  // Stats
-  if(to_be_run)
-  {
-    if (Time::get_time() > 0)
-    {
-      _stats = new Stats(_exp_m, Time::get_time());
-    }
-    else
-    {
-      _stats = new Stats(_exp_m);
-    }
-  }
-  {
-    int tmp;
-    ret = fscanf( setup_file, "COMPUTE_PHENOTYPIC_CONTRIBUTION_BY_GU %d\n", &tmp);
-    _compute_phen_contrib_by_GU = tmp;
-  }
-  
-  char tmp[10];
-  
-  // Tree
-  ret = fscanf(setup_file, "RECORD_TREE %s\n", tmp);
-  _record_tree = ! strcmp( tmp, "true" );
-  if ( _record_tree )
-  {
-    int64_t tmp_tree_step;
-
-    ret = fscanf( setup_file, "TREE_STEP %" SCNd64 "\n", &tmp_tree_step );
-
-    
-    _tree = new Tree( _exp_m, tmp_tree_step );
-  }
-  
-  // Dumps
-  ret = fscanf( setup_file, "MAKE_DUMPS %s\n", tmp );
-  _make_dumps = ! strcmp( tmp, "true" );
-  ret = fscanf( setup_file, "DUMP_STEP %" SCNd64 "\n", &_dump_step );
-  if( _make_dumps == true)
-  {
-    _dump = new Dump(_exp_m);
-  }
-  
-  // Logs
-  int8_t logs;
-  ret = fscanf(setup_file, "LOGS %" SCNd8 "\n", &logs);
     _logs->load(logs, AeTime::get_time());
   }
 }
+
 
 void OutputManager::write_current_generation_outputs( void ) const
 {

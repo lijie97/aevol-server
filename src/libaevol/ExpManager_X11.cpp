@@ -46,6 +46,7 @@
 
 #include "X11Window.h"
 #include "Fuzzy.h"
+#include "HybridFuzzy.h"
 
 #ifdef __REGUL
 #include "raevol/Individual_R_X11.h"
@@ -77,7 +78,7 @@ static Bool AlwaysTruePredicate (Display*, XEvent*, char*) { return True; }
 #ifdef __REGUL
 #define NB_WIN INT32_C(9) // Number of windows that can be showed => CDS, RNA, phenotype, ...
 #else
-#define NB_WIN INT32_C(7) // Number of windows that can be showed => CDS, RNA, phenotype, ...
+#define NB_WIN INT32_C(9) // Number of windows that can be showed => CDS, RNA, phenotype, ...
 #endif
 
 // =================================================================
@@ -160,6 +161,7 @@ void ExpManager_X11::display(void)
   if (_display_on) handle_events();
 
 
+
   // --------------------------------------------------
   // 2) Handle signal that toggle the display on or off
   // --------------------------------------------------
@@ -189,7 +191,6 @@ void ExpManager_X11::display(void)
 
           _win_pos[num_win][0] = dest_x_return - x_return;
           _win_pos[num_win][1] = dest_y_return - y_return;
-
           // 2) Delete window
           delete _win[num_win];
           _win[num_win] = NULL;
@@ -206,9 +207,8 @@ void ExpManager_X11::display(void)
     {
       _show_window |= 1;
       _new_show_window = _show_window;
-
       // If it's the first time the display is switched on, initialize it.
-      if (_win == NULL) initialize();
+      if (_win == NULL) initialize(true,this->get_exp_s()->get_with_plasmids());
 
       for (int8_t i = 0 ; i < NB_WIN ; i++)
       {
@@ -219,11 +219,9 @@ void ExpManager_X11::display(void)
               _win_size[i][0], _win_size[i][1], _win_name[i]);
         }
       }
-
       _display_on = true;
     }
   }
-
 
   // ----------
   // 3) Display
@@ -710,6 +708,7 @@ void ExpManager_X11::initialize(bool with_grid /*= false*/, bool with_plasmids /
 
 
   // Visible windows at the beginning of the run
+
   if (with_grid)
   {
     #ifdef __REGUL
