@@ -323,7 +323,7 @@ AC_MSG_RESULT($blas)
 AM_CONDITIONAL(WITH_BLAS, test x"$blas" != xno)
 if test "x$blas" = "xyes" ; then
    AC_DEFINE(__BLAS__)
-   AEVOLLDFLAGS+=" -lopenblas"
+   LIBS+=" -lopenblas"
 fi
 
 
