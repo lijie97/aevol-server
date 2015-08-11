@@ -136,7 +136,7 @@ add_library(aevol
   InsertionHT.cpp
   InsertionHT.h
   ReplacementHT.cpp
-  ReplacementHT.h)
+  ReplacementHT.h make_unique.h)
 
 
 # ============================================================================

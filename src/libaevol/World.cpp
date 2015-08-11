@@ -32,6 +32,10 @@
 // =================================================================
 #include "World.h"
 
+#if __cplusplus == 201103L
+#include "make_unique.h"
+#endif
+
 #include <list>
 #include <iostream>
 
@@ -96,8 +100,13 @@ void World::InitGrid(int16_t width, int16_t height,
       if (share_phenotypic_target)
         grid_[x][y] =
             new GridCell(x, y,
+#if __cplusplus == 201103L
+                             make_unique<Habitat>
+                                 (habitat, share_phenotypic_target),
+#else
                              std::make_unique<Habitat>
                                  (habitat, share_phenotypic_target),
+#endif
                              NULL);
     }
 }
@@ -357,7 +366,11 @@ void World::load(gzFile backup_file, ExpManager * exp_man)
 void World::backup_stoch_prng(void)
 {
   // Store a copy of _stoch_prng in _stoch_prng_bak
+#if __cplusplus == 201103L
+  _stoch_prng_bak = make_unique<JumpingMT>(*_stoch_prng);
+#else
   _stoch_prng_bak = std::make_unique<JumpingMT>(*_stoch_prng);
+#endif
 }
 
 // =================================================================

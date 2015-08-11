@@ -16,6 +16,16 @@ AC_CONFIG_MACRO_DIR([m4])
 # We want to use automake
 AM_INIT_AUTOMAKE
 
+# Detect C++11 or C++14
+AX_CXX_COMPILE_STDCXX_14([noext])
+if test -z "$HAVE_CXX14" ; then
+   AX_CXX_COMPILE_STDCXX_11([noext])
+fi
+
+
+#if test -z "$HAVE_CXX14";
+#fi
+ 
 # Check the existance of an arbitrary source file
 AC_CONFIG_SRCDIR([src/aevol_run.cpp])
 
@@ -40,7 +50,7 @@ AC_CHECK_HEADER([omp.h], , [AC_MSG_WARN([openmp not found - continuing without o
 
 # Initialize configure-time defined flags
 AC_SUBST(AEVOLCPPFLAGS, "") # C PreProcessor flags
-AC_SUBST(AEVOLCXXFLAGS, "-std=c++14 $OPENMP_CXXFLAGS") # C++ Compile flags
+AC_SUBST(AEVOLCXXFLAGS, "$OPENMP_CXXFLAGS") # C++ Compile flags
 AC_SUBST(AEVOLLDFLAGS, "$OPENMP_CXXFLAGS")  # Linker flags
 
 # Checks for libraries.

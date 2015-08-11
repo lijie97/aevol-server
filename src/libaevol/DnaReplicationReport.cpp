@@ -23,6 +23,10 @@
 #include <cstdlib>
 #include <cassert>
 
+#if __cplusplus == 201103L
+#include "make_unique.h"
+#endif
+
 #include "DnaReplicationReport.h"
 #include "InsertionHT.h"
 #include "ReplacementHT.h"
@@ -91,13 +95,32 @@ void DnaReplicationReport::add_local_mut(Mutation* mut) {
   std::unique_ptr<const LocalMutation> cmut = nullptr;
   switch(mut->get_mut_type()) {
     case SWITCH:
+#if __cplusplus == 201103L
+      cmut = make_unique<const PointMutation>(static_cast<PointMutation&>(*mut));
+#else
       cmut = std::make_unique<const PointMutation>(static_cast<PointMutation&>(*mut));
+#endif
       break;
     case S_DEL:
+#if __cplusplus == 201103L
+      cmut = make_unique<const SmallDeletion>(static_cast<SmallDeletion&>(*mut));
+#else
       cmut = std::make_unique<const SmallDeletion>(static_cast<SmallDeletion&>(*mut));
+#endif
       break;
     case S_INS:
+#if __cplusplus == 201103L
+      cmut = make_unique<const SmallInsertion>(static_cast<SmallInsertion&>(*mut));
+#else
       cmut = std::make_unique<const SmallInsertion>(static_cast<SmallInsertion&>(*mut));
+#endif
+      break;
+    default:
+#if __cplusplus == 201103L
+      cmut = make_unique<const SmallInsertion>(static_cast<SmallInsertion&>(*mut));
+#else
+      cmut = std::make_unique<const SmallInsertion>(static_cast<SmallInsertion&>(*mut));
+#endif
       break;
   }
   mutations_.push_back(std::move(cmut));
@@ -110,16 +133,39 @@ void DnaReplicationReport::add_rear(Mutation* mut) {
   std::unique_ptr<const Rearrangement> cmut = nullptr;
   switch(mut->get_mut_type()) {
     case DUPL:
+#if __cplusplus == 201103L
+      cmut = make_unique<const Duplication>(static_cast<Duplication&>(*mut));
+#else
       cmut = std::make_unique<const Duplication>(static_cast<Duplication&>(*mut));
+#endif
       break;
     case DEL:
+#if __cplusplus == 201103L
+      cmut = make_unique<const Deletion>(static_cast<Deletion&>(*mut));
+#else
       cmut = std::make_unique<const Deletion>(static_cast<Deletion&>(*mut));
+#endif
       break;
     case TRANS:
+#if __cplusplus == 201103L
+      cmut = make_unique<const Translocation>(static_cast<Translocation&>(*mut));
+#else
       cmut = std::make_unique<const Translocation>(static_cast<Translocation&>(*mut));
+#endif
       break;
     case INV:
+#if __cplusplus == 201103L
+      cmut = make_unique<const Inversion>(static_cast<Inversion&>(*mut));
+#else
       cmut = std::make_unique<const Inversion>(static_cast<Inversion&>(*mut));
+#endif
+      break;
+    default:
+#if __cplusplus == 201103L
+      cmut = make_unique<const Inversion>(static_cast<Inversion&>(*mut));
+#else
+      cmut = std::make_unique<const Inversion>(static_cast<Inversion&>(*mut));
+#endif
       break;
   }
   rearrangements_.push_back(std::move(cmut));
@@ -132,10 +178,25 @@ void DnaReplicationReport::add_HT(Mutation* mut) {
   std::unique_ptr<const HT> cmut = nullptr;
   switch(mut->get_mut_type()) {
     case INS_HT:
+#if __cplusplus == 201103L
+      cmut = make_unique<const InsertionHT>(static_cast<InsertionHT&>(*mut));
+#else
       cmut = std::make_unique<const InsertionHT>(static_cast<InsertionHT&>(*mut));
+#endif
       break;
     case REPL_HT:
+#if __cplusplus == 201103L
+      cmut = make_unique<const ReplacementHT>(static_cast<ReplacementHT&>(*mut));
+#else
       cmut = std::make_unique<const ReplacementHT>(static_cast<ReplacementHT&>(*mut));
+#endif
+      break;
+    default:
+#if __cplusplus == 201103L
+      cmut = make_unique<const ReplacementHT>(static_cast<ReplacementHT&>(*mut));
+#else
+      cmut = std::make_unique<const ReplacementHT>(static_cast<ReplacementHT&>(*mut));
+#endif
       break;
   }
   ht_.push_back(std::move(cmut));
@@ -192,6 +253,9 @@ void DnaReplicationReport::write_to_tree_file(gzFile tree_file) const {
       case REPL_HT:
         ht->save(tree_file);
         break;
+      default:
+        ht->save(tree_file);
+        break;
     }
   }
 
@@ -213,6 +277,9 @@ void DnaReplicationReport::write_to_tree_file(gzFile tree_file) const {
       case INV:
         rear->save(tree_file);
         break;
+      default:
+        rear->save(tree_file);
+        break;
     }
   }
 
@@ -228,6 +295,9 @@ void DnaReplicationReport::write_to_tree_file(gzFile tree_file) const {
         mut->save(tree_file);
         break;
       case S_INS:
+        mut->save(tree_file);
+        break;
+      default:
         mut->save(tree_file);
         break;
     }

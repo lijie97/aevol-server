@@ -79,7 +79,8 @@ Habitat.h \
 ParamLoader.h \
 ParameterLine.h \
 AeTime.h \
-World.h
+World.h \
+make_unique.h
 
 common_sources = \
 Alignment.cpp \

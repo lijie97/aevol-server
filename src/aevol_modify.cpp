@@ -39,6 +39,10 @@ const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 
 #include <list>
 
+#if __cplusplus == 201103L
+#include "make_unique.h"
+#endif
+
 #include "ParameterLine.h"
 #ifdef __X11
 #include "ExpManager_X11.h"
@@ -592,8 +596,13 @@ int main(int argc, char* argv[])
       int32_t seed = atoi(line->words[1]);
   
       // Change prngs
+#if __cplusplus == 201103L
+      sel->set_prng(make_unique<JumpingMT>(seed));
+      world->set_prng(make_unique<JumpingMT>(seed));
+#else
       sel->set_prng(std::make_unique<JumpingMT>(seed));
       world->set_prng(std::make_unique<JumpingMT>(seed));
+#endif
   
       printf("\tChange of the seed to %d in selection and world \n",atoi(line->words[1]));
     }

@@ -45,6 +45,10 @@ const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 // =================================================================
 //                            Project Files
 // =================================================================
+#if __cplusplus == 201103L
+#include "make_unique.h"
+#endif
+
 #ifdef __X11
   #include "ExpManager_X11.h"
 #else
@@ -252,12 +256,22 @@ int main(int argc, char* argv[])
 
   if (generalseed != -1)
   {
+#if __cplusplus == 201103L
+    auto prng = make_unique<JumpingMT>(generalseed);
+
+    exp_manager->get_sel()->set_prng(
+        make_unique<JumpingMT>(prng->random(1000000)));
+    exp_manager->world()->set_prng(
+        make_unique<JumpingMT>(prng->random(1000000)));
+#else
     auto prng = std::make_unique<JumpingMT>(generalseed);
 
     exp_manager->get_sel()->set_prng(
         std::make_unique<JumpingMT>(prng->random(1000000)));
     exp_manager->world()->set_prng(
         std::make_unique<JumpingMT>(prng->random(1000000)));
+
+#endif
     exp_manager->world()->set_mut_prng(
         std::make_shared<JumpingMT>(prng->random(1000000)));
     exp_manager->world()->set_stoch_prng(
@@ -270,10 +284,17 @@ int main(int argc, char* argv[])
   {
     if (selseed != -1)
     {
+#if __cplusplus == 201103L
+      exp_manager->world()->set_prng(
+          make_unique<JumpingMT>(selseed));
+      exp_manager->get_sel()->set_prng(
+          make_unique<JumpingMT>(selseed));
+#else
       exp_manager->world()->set_prng(
           std::make_unique<JumpingMT>(selseed));
       exp_manager->get_sel()->set_prng(
           std::make_unique<JumpingMT>(selseed));
+#endif
     }
 
     if (mutseed != -1)
