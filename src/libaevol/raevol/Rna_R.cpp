@@ -99,28 +99,10 @@ void Rna_R::set_influences( const std::list<Protein*> protein_list )
 
     int i = 0;
 	  for (auto& prot : protein_list) {
-	#ifdef __TRACING__
-		  high_resolution_clock::time_point t1 = high_resolution_clock::now();
-	#endif
-
       _protein_list[i] = (Protein_R*) prot;
 
 		  _enhancing_coef_list[i] = affinity_with_protein( enhancer_position, prot );
-
-	#ifdef __TRACING__
-		  high_resolution_clock::time_point t2 = high_resolution_clock::now();
-		  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-		  ae_logger::addLog(AFFINITY_EN,duration);
-		  t1 = t2;
-	#endif
-
 		  _operating_coef_list[i] = affinity_with_protein( operator_position, prot );
-
-	#ifdef __TRACING__
-		  t2 = high_resolution_clock::now();
-		  duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-		  ae_logger::addLog(AFFINITY_OP,duration);
-	#endif
 
 	    if ( _enhancing_coef_list[i] != 0.0 || _operating_coef_list[i] != 0.0 )
 	    	((Protein_R*)prot)->not_pure_TF = true;
@@ -195,19 +177,10 @@ double Rna_R::affinity_with_protein( int32_t index, Protein *protein )
 	  // Putting the quadons and the codons on local tab
 	  indiv = dynamic_cast< Individual_R* >( _gen_unit->get_indiv() );
 	  prot  = ( Protein_R* )( protein );
-	#ifdef __TRACING__
-	  high_resolution_clock::time_point t1 = high_resolution_clock::now();
-	#endif
 	  for ( int32_t i = 0 ; i < 5; i++ )
 	  {
 	    quadon_tab[i] = indiv->get_quadon( _gen_unit, _strand, (index+i) );
 	  }
-	#ifdef __TRACING__
-	  	  high_resolution_clock::time_point t2 = high_resolution_clock::now();
-	  	  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-	  	  ae_logger::addLog(QUADON,duration);
-	  	  t1 = t2;
-	#endif
 	//  for (int32_t i = 0 ; i < len ; i++ )
 	//  {
 	//    codon_tab[i] = prot->get_codon(i);
@@ -237,12 +210,6 @@ double Rna_R::affinity_with_protein( int32_t index, Protein *protein )
 
 	    max = (max < temp) ? temp : max;
 	  }
-	#ifdef __TRACING__
-	  t2 = high_resolution_clock::now();
-	    	  duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-	    	  ae_logger::addLog(AFFINITY,duration);
-	    	  t1 = t2;
-	#endif
 	//  delete [] codon_tab;
 	  return max;
 }

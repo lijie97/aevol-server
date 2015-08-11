@@ -84,7 +84,8 @@ ParameterLine.h \
 World.h \
 AeTime.h \
 World.h \
-make_unique.h
+make_unique.h \
+ae_logger.h
 
 common_sources = \
 Alignment.cpp \

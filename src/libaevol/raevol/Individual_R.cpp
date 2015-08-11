@@ -218,23 +218,12 @@ void Individual_R::init_indiv( void )
   // 2) Make a list of all the rna present in the individual
   //    and initialise the concentrations of the proteins
   //----------------------------------------------------------------------------
-#ifdef __TRACING__
-	    high_resolution_clock::time_point t1 = high_resolution_clock::now();
-	    #endif
-
   make_rna_list();
 
 
   for (const auto& prot : _protein_list) {
     ((Protein_R*) prot)->set_initial_concentration();
   }
-
-#ifdef __TRACING__
-          high_resolution_clock::time_point t2 = high_resolution_clock::now();
-          auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-          ae_logger::addLog(MAKERNALIST,duration);
-          t1 = t2;
-        #endif
   //----------------------------------------------------------------------------
   // 3) Create influence graph (including the signals)
   //----------------------------------------------------------------------------
@@ -243,12 +232,6 @@ void Individual_R::init_indiv( void )
 
 
   _networked = true;
-#ifdef __TRACING__
-	    t2 = high_resolution_clock::now();
-	  duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-	  ae_logger::addLog(SETINFLUS,duration);
-	  t1 = t2;
-	    #endif
 }
 
 void Individual_R::one_step( void )
@@ -258,18 +241,7 @@ void Individual_R::one_step( void )
   //    fitnesses
   //----------------------------------------------------------------------------
 
-#ifdef __TRACING__
-		  t1 = high_resolution_clock::now();
-	#endif
-
   update_concentrations();
-
-#ifdef __TRACING__
-	    t2 = high_resolution_clock::now();
-	    duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-	    ae_logger::addLog(UPDATECONCENT,duration);
-	    t1 = t2;
-	#endif
 }
 
 void Individual_R::eval_step( const Habitat& habitat ) {

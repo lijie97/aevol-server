@@ -46,6 +46,17 @@
 #include "raevol/Individual_R.h"
 #endif
 
+#ifdef __TRACING__
+#include "ae_logger.h"
+#include<chrono>
+
+using namespace std::chrono;
+
+unordered_map<int,unordered_multiset<string>> ae_logger::logMap;
+string ae_logger::logFile = "logger_csv.log";
+spin_mutex ae_logger::loggerMtx;
+#endif
+
 using std::cout;
 using std::endl;
 
@@ -429,6 +440,19 @@ void ExpManager::run_evolution(void)
   // Save the setup files to keep track of the setup history
   WriteSetupFiles();
 
+#ifdef __TRACING__
+    ae_logger::init("logger_csv.log");
+
+    printf("Launching TRACING...\n");
+#else
+  printf("Launching NOT TRACING...\n");
+#endif
+
+  #ifdef __TRACING__
+	  high_resolution_clock::time_point t_t1 = high_resolution_clock::now();
+	  high_resolution_clock::time_point t_t2,t1,t2;
+	#endif
+
   // For each generation
   while (true) { // termination condition is into the loop
 
@@ -444,34 +468,24 @@ void ExpManager::run_evolution(void)
     display();
 #endif
 
+#ifdef __TRACING__
+	  t1 = high_resolution_clock::now();
+#endif
     // Take one step in the evolutionary loop
     step_to_next_generation();
-/*    #else
-    printf("============================== %" PRId64 " ==============================\n",
-           Time::get_time());
-    printf("  Best individual's distance to target (metabolic) : %f\n",
-           get_best_indiv()->get_dist_to_target_by_feature(METABOLISM));
-
-    if (Time::get_time() >= t_end or quit_signal_received())
-      break;
-
-#ifdef __X11
-    display();
+#ifdef __TRACING__
+	  	  t2 = high_resolution_clock::now();
+	  	  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+	  	  ae_logger::addLog(SELECTION,duration);
+	  	  ae_logger::flush(AeTime::get_time());
 #endif
-
-    Time::plusplus();
-
-    // Take one step in the evolutionary loop
-    int i=0;
-    for (const auto& indiv : this->get_indivs()) {
-        Individual_R* indiv_r = dynamic_cast<Individual_R*>(indiv);
-        indiv_r->Evaluate();
-      i++;
-    }
-    printf("Nb eval %d\n",i);
-    #endif*/
   }
-
+#ifdef __TRACING__
+	  	  t_t2 = high_resolution_clock::now();
+	  	  auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t_t2 - t_t1 ).count();
+	  	  ae_logger::addLog(TOTAL,duration);
+	  	  ae_logger::flush(AeTime::get_time());
+#endif
   _output_m->flush();
   printf("================================================================\n");
   printf("  The run is finished. \n");

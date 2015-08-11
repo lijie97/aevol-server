@@ -142,7 +142,7 @@ add_library(aevol
   InsertionHT.cpp
   InsertionHT.h
   ReplacementHT.cpp
-  ReplacementHT.h make_unique.h)
+  ReplacementHT.h make_unique.h ae_logger.h)
 
 
 # ============================================================================

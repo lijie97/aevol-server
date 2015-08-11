@@ -326,6 +326,35 @@ if test "x$blas" = "xyes" ; then
    LIBS+=" -lopenblas"
 fi
 
+#  ************************* --with-tbb option *******************************
+#
+#  With this option, Intel TBB local parallelization is enabled, __TBB flag is defined and -ltbb added
+#
+
+
+AC_MSG_CHECKING([whether to use TBB library])
+AC_ARG_WITH(tbb, [--with-tbb to the use of TBB library], tbb=$withval, tbb=no)
+AC_MSG_RESULT($tbb)
+AM_CONDITIONAL(WITH_TBB, test x"$tbb" != xno)
+if test "x$tbb" = "xyes" ; then
+   AC_DEFINE(__TBB)
+   LIBS+=" -ltbb"
+fi
+
+#  ************************* --with-tracing option *******************************
+#
+#  With this option, tracing is enabled and the __TRACING__ flag is defined
+#
+
+
+AC_MSG_CHECKING([whether to use tracing])
+AC_ARG_WITH(tracing, [--with-tracing to enable tracing], tracing=$withval, tracing=no)
+AC_MSG_RESULT($tracing)
+AM_CONDITIONAL(WITH_TRACING, test x"$tracing" != xno)
+if test "x$tracing" = "xyes" ; then
+   AC_DEFINE(__TRACING__)
+fi
+
 
 #  ************************* back to GENERAL stuff *******************************
 
