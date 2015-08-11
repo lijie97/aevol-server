@@ -818,6 +818,16 @@ void ExpManager_X11::draw_window(int8_t win_number)
     {
       break;
     }
+#ifdef __REGUL
+    case 7:
+    {
+      break;
+    }
+    case 8:
+    {
+      break;
+    }
+#endif
   }
 
   refresh_window(win_number);

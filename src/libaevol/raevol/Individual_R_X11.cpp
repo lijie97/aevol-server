@@ -157,7 +157,7 @@ void Individual_R_X11::display_concentrations( X11Window* win )
   }
 
   // compute steps
-  double x_step = 0.8 * win->get_width() / (double)(life_time * _exp_m->get_exp_s()->get_degradation_step());
+  double x_step = 0.8 * win->get_width() / (double)(get_exp_m()->get_exp_s()->get_nb_indiv_age());
   double y_step = 0.7 * win->get_height();
 
   for (int indiv_age = 1; indiv_age <= get_exp_m()->get_exp_s()->get_nb_indiv_age(); indiv_age++) {
@@ -179,9 +179,9 @@ void Individual_R_X11::display_concentrations( X11Window* win )
           strcpy( color2, "#FFFFFF" );
         }
 
-        win->draw_line( (int16_t)((win->get_width() / 10) + (((indiv_age/_exp_m->get_exp_s()->get_nb_indiv_age())+i)*x_step))  ,
-                        (int16_t)(( 9 * win->get_height() / 10)-(concentrations[proti]*y_step)) ,
-                        (int16_t)((win->get_width() / 10) + ((((indiv_age / _exp_m->get_exp_s()->get_nb_indiv_age())+i) + 1) * x_step)) ,
+        win->draw_line( (int16_t)((win->get_width() / 10) + (indiv_age*x_step)),
+                        (int16_t)(( 9 * win->get_height() / 10)-(concentrations[proti]*y_step)),
+                        (int16_t)((win->get_width() / 10) + (( indiv_age + 1)  * x_step)),
                         (int16_t)((9 * win->get_height() / 10)-(((Protein_R*)prot)->get_concentration()*y_step)) ,color2);
         concentrations[proti]=((Protein_R*)prot)->get_concentration();
 
