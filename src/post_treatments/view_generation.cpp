@@ -135,7 +135,7 @@ int main(int argc, char* argv[])
   // =================================================================
   // Load simulation from backup
   ExpManager_X11* exp_manager = new ExpManager_X11();
-  exp_manager->load(time, false, true);
+  exp_manager->load(time, false, false);
 
 
 

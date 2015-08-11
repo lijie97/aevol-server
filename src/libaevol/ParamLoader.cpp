@@ -45,6 +45,15 @@
 #include "ParamLoader.h"
 
 #include "FuzzyFactory.h"
+
+#if __cplusplus == 201103L
+#include "make_unique.h"
+#endif
+
+#include "ExpManager.h"
+#include "ExpSetup.h"
+#include "OutputManager.h"
+#include "Individual.h"
 #include "IndividualFactory.h"
 #include "ExpManager.h"
 
@@ -1321,7 +1330,11 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
     FuzzyFactory::fuzzyFactory = new FuzzyFactory(exp_s);
 
   // 1) ------------------------------------- Initialize the experimental setup
+#if __cplusplus == 201103L
+  sel->set_prng(make_unique<JumpingMT>(_prng->random(1000000)));
+#else
   sel->set_prng(std::make_unique<JumpingMT>(_prng->random(1000000)));
+#endif
 
   // ---------------------------------------------------------------- Selection
   sel->set_selection_scheme(_selection_scheme);

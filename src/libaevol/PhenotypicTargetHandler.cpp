@@ -30,6 +30,10 @@
 // ============================================================================
 //                                   Includes
 // ============================================================================
+#if __cplusplus == 201103L
+#include "make_unique.h"
+#endif
+
 #include "PhenotypicTargetHandler.h"
 #include "ExpSetup.h"
 #include "HybridFuzzy.h"
@@ -60,7 +64,11 @@ namespace aevol {
 // ============================================================================
 PhenotypicTargetHandler::PhenotypicTargetHandler() {
   // The phenotypic target
+#if __cplusplus == 201103L
+  phenotypic_target_ = make_unique<PhenotypicTarget>();
+#else
   phenotypic_target_ = std::make_unique<PhenotypicTarget>();
+#endif
 
   // Sampling
   sampling_ = 0;
@@ -84,7 +92,11 @@ PhenotypicTargetHandler::PhenotypicTargetHandler() {
 PhenotypicTargetHandler::PhenotypicTargetHandler(
     const PhenotypicTargetHandler& rhs) {
   // ------------------------------------------------ Current Phenotypic Target
+#if __cplusplus == 201103L
+  phenotypic_target_ = make_unique<PhenotypicTarget>(*(rhs.phenotypic_target_));
+#else
   phenotypic_target_ = std::make_unique<PhenotypicTarget>(*(rhs.phenotypic_target_));
+#endif
 
   // ---------------------------------------------------------------- Gaussians
   initial_gaussians_ = rhs.initial_gaussians_;
@@ -310,7 +322,12 @@ void PhenotypicTargetHandler::save(gzFile backup_file) const {
 void PhenotypicTargetHandler::load(gzFile backup_file) {
   // --------------------------------------------------------------------------
   //  Retrieve phenotypic target segmentation
+#if __cplusplus == 201103L
+  phenotypic_target_ = make_unique<PhenotypicTarget>();
+#else
   phenotypic_target_ = std::make_unique<PhenotypicTarget>();
+#endif
+
   phenotypic_target_->LoadSegmentation(backup_file);
 
   // --------------------------------------------------------------------------

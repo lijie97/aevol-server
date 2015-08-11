@@ -38,6 +38,10 @@
 #include <omp.h>
 #endif
 
+#if __cplusplus == 201103L
+#include "make_unique.h"
+#endif
+
 #include "ExpManager.h"
 #include "VisAVis.h"
 
@@ -368,7 +372,11 @@ void Selection::load(gzFile& exp_setup_file,
   gzread(exp_setup_file, &_selection_pressure, sizeof(_selection_pressure) );
 
   // ----------------------------------------- Pseudo-random number generator
+#if __cplusplus == 201103L
+  prng_ = make_unique<JumpingMT>(backup_file);
+#else
   prng_ = std::make_unique<JumpingMT>(backup_file);
+#endif
 }
 
 

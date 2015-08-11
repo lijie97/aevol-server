@@ -83,7 +83,8 @@ ParamLoader.h \
 ParameterLine.h \
 World.h \
 AeTime.h \
-World.h
+World.h \
+make_unique.h
 
 common_sources = \
 Alignment.cpp \
