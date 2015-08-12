@@ -76,7 +76,7 @@ class ReplicationReport : public Observer {
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ReplicationReport(void) = default;
+    virtual ~ReplicationReport(void) noexcept = default;
 
     // =================================================================
     //                              Accessors

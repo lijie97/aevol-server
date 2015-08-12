@@ -104,7 +104,7 @@ class GeneMutation : public Mutation
   //                             Destructors
   // =================================================================
   
-  virtual ~GeneMutation();
+  virtual ~GeneMutation() noexcept;
   
   // =================================================================
   //                              Accessors

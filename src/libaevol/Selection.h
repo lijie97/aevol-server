@@ -74,7 +74,7 @@ class Selection : public Observable
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~Selection(void);
+    virtual ~Selection(void) noexcept;
 
     // =================================================================
     //                        Accessors: getters

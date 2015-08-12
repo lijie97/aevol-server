@@ -113,7 +113,7 @@ ExpManager_X11::ExpManager_X11(void) : ExpManager()
 // =================================================================
 //                             Destructor
 // =================================================================
-ExpManager_X11::~ExpManager_X11(void)
+ExpManager_X11::~ExpManager_X11(void) noexcept
 {
   delete [] _key_codes;
   delete [] _atoms;

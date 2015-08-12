@@ -29,7 +29,7 @@ ReplacementHT::ReplacementHT(const VisAVis& align1, const VisAVis& align2,
 // ============================================================================
 //                                 Destructor
 // ============================================================================
-ReplacementHT::~ReplacementHT() {
+ReplacementHT::~ReplacementHT() noexcept {
   delete seq_;
 }
 

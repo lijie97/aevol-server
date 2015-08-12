@@ -98,7 +98,7 @@ ExpManager::ExpManager()
 // ===========================================================================
 //                                  Destructor
 // ===========================================================================
-ExpManager::~ExpManager()
+ExpManager::~ExpManager() noexcept
 {
   delete _exp_s;
   delete _output_m;

@@ -116,7 +116,7 @@ Tree::Tree(ExpManager* exp_m, char* tree_file_name) {
 // =================================================================
 //                             Destructors
 // =================================================================
-Tree::~Tree() {
+Tree::~Tree() noexcept {
   if ( _replics != NULL )  {
     for (int32_t i = 0 ; i < _tree_step ; i++)
       if (_replics[i] != NULL) {

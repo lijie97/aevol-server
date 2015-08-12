@@ -113,7 +113,7 @@ class Individual : public Observable
   // =================================================================
   //                             Destructors
   // =================================================================
-  virtual ~Individual();
+  virtual ~Individual() noexcept(true);
 
   // =================================================================
   //                        Accessors: Getters

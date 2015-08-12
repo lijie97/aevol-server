@@ -123,7 +123,7 @@ class ExpManager_X11 : public ExpManager
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ExpManager_X11(void);
+    virtual ~ExpManager_X11(void) noexcept;
   
     // =================================================================
     //                              Accessors

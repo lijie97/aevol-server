@@ -34,7 +34,7 @@ class SmallDeletion : public LocalMutation {
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~SmallDeletion() = default; //< Destructor
+  virtual ~SmallDeletion() noexcept = default; //< Destructor
 
   // ==========================================================================
   //                                Operators

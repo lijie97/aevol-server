@@ -39,8 +39,10 @@
 #include <iostream>
 
 #include "Individual.h"
-#include "Individual_X11.h"
 
+#ifdef __X11
+#include "Individual_X11.h"
+#endif
 
 using std::cout;
 using std::endl;

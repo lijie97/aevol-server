@@ -76,7 +76,7 @@ class Individual_R : public virtual Individual
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~Individual_R( void );
+    virtual ~Individual_R( void ) noexcept;
 
     // =================================================================
     //                              Accessors

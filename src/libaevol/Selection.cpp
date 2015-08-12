@@ -99,7 +99,7 @@ Selection::Selection(ExpManager* exp_m )
 // =================================================================
 //                             Destructors
 // =================================================================
-Selection::~Selection(void)
+Selection::~Selection(void) noexcept
 {
   delete [] _prob_reprod;
 }

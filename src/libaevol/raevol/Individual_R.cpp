@@ -132,7 +132,7 @@ Individual_R::Individual_R(ExpManager* exp_m, gzFile backup_file) : Individual( 
 // =================================================================
 //                             Destructors
 // =================================================================
-Individual_R::~Individual_R( void )
+Individual_R::~Individual_R( void ) noexcept
 {
 //  assert( !get_exp_m()->get_exp_s()->get_with_heredity()  );
 

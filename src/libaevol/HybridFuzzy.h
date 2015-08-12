@@ -8,7 +8,6 @@
 #define PHENO_SIZE 300
 
 #include <vector>
-#include <bits/unique_ptr.h>
 
 #include "macros.h"
 #include "Point.h"

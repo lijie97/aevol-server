@@ -98,7 +98,7 @@ init_occupied_sectors();
 // =================================================================
 //                             Destructors
 // =================================================================
-Individual_X11::~Individual_X11(void)
+Individual_X11::~Individual_X11(void) noexcept
 {
   for (int16_t layer = 0 ; layer < _outmost_layer ; layer++)
   {

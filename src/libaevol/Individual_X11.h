@@ -85,7 +85,7 @@ class Individual_X11 : public virtual Individual
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~Individual_X11(void);
+    virtual ~Individual_X11(void) noexcept;
 
     // =================================================================
     //                              Accessors

@@ -97,7 +97,7 @@ Individual( exp_m, backup_file ), Individual_R( exp_m, backup_file ), Individual
 // =================================================================
 //                             Destructors
 // =================================================================
-Individual_R_X11::~Individual_R_X11( void )
+Individual_R_X11::~Individual_R_X11( void ) noexcept
 {
 }
 

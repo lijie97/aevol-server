@@ -467,7 +467,7 @@ Individual* Individual::CreateClone(const Individual* dolly, int32_t id) {
 // =================================================================
 //                             Destructor
 // =================================================================
-Individual::~Individual()
+Individual::~Individual() noexcept
 {
   delete [] _strain_name;
 

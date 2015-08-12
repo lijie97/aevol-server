@@ -34,7 +34,7 @@ class Inversion : public Rearrangement{
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~Inversion() = default; //< Destructor
+  virtual ~Inversion() noexcept = default; //< Destructor
 
   // ==========================================================================
   //                                Operators
