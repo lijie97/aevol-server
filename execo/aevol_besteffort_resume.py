@@ -5,6 +5,7 @@ import os, time, datetime
 from tempfile import mkstemp
 import copy
 import hashlib
+import shutil
 
 from threading import Thread
 from execo import Put, Remote, Get, sleep, default_connection_params, Host, format_date, format_duration, SshProcess
@@ -257,7 +258,7 @@ class raevol_matrix(Engine):
         try:
 	    self.export = "source ~/aevol_binary/intel_libs/tbb/bin/tbbvars.sh intel64; source ~/aevol_binary/intel_libs/mkl/bin/mklvars.sh intel64; "
 	    
-	    bucketname = self.working_dir+'/'+self.options.use_dir+'/'+slugify(comb)+'/'
+	    bucketname = self.working_dir+'/perf_exp/'+slugify(comb)+'/'
       
 	    binary_directory = comb['experiment']+'_'+comb['compilator']+'_'+comb['parallel']
 	      
@@ -271,11 +272,11 @@ class raevol_matrix(Engine):
 	      
 	      logger.info(thread_name + "Resuming AEVOL Run from "+last_gen)
 	      if comb['parallel'] == 'openmp':
-	        Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_binary/'+binary_directory+'/src/aevol_run -n -p 16'
+	        Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_binary/'+binary_directory+'/aevol_run -n -p 16'
 		      +str(comb['number_of_generation'])+' -r '+last_gen+' >> aevol_run.log',
 			  [host]).run()
 	      else:
-		Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_binary/'+binary_directory+'/src/aevol_run -n '
+		Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_binary/'+binary_directory+'/aevol_run -n '
 		      +str(comb['number_of_generation'])+' -r '+last_gen+' >> aevol_run.log',
 			  [host]).run()
 	    else:
@@ -322,15 +323,15 @@ class raevol_matrix(Engine):
 			  [host]).run()
 		
 	      logger.info(thread_name + "Launching AEVOL Create")
-	      Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_binary/'+binary_directory+'/src/aevol_create > aevol_create.log',
+	      Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_binary/'+binary_directory+'/aevol_create > aevol_create.log',
 			  [host]).run()
 	      
 	      logger.info(thread_name + "Launching AEVOL Run")
 	      if comb['parallel'] == 'openmp':
-		Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_binary/'+binary_directory+'/src/aevol_run -p 16 -n '+str(comb['number_of_generation'])+' > aevol_run.log',
+		Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_binary/'+binary_directory+'/aevol_run -p 16 -n '+str(comb['number_of_generation'])+' > aevol_run.log',
 			  [host]).run()
 	      else:
-		Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_binary/'+binary_directory+'/src/aevol_run -n '+str(comb['number_of_generation'])+' > aevol_run.log',
+		Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_binary/'+binary_directory+'/aevol_run -n '+str(comb['number_of_generation'])+' > aevol_run.log',
 			  [host]).run()
             
 	    logger.info(thread_name + 'Get results ' + comb_dir + "/" + slugify(comb))
@@ -340,10 +341,14 @@ class raevol_matrix(Engine):
             except:
                 logger.warning(thread_name +
                     '%s already exists, removing existing files', comb_dir + "/" + slugify(comb))
-                for f in os.listdir(comb_dir+ "/" + slugify(comb)):
-                    os.remove(comb_dir + "/" + slugify(comb) + "/" + f)
+		shutil.rmtree(comb_dir+ "/" + slugify(comb))
+		try:
+		  os.mkdir(comb_dir + "/" + slugify(comb))
+		except:
+		  logger.warning(thread_name +
+                    '%s already exists, recreating directory', comb_dir + "/" + slugify(comb))
 
-            get_results = Get([host], [bucketname+ "/aevol_create.log", bucketname+ "/aevol_run.log", bucketname+'/stats/', bucketname+'/logger_csv.log'],
+	    get_results = Get([host], [bucketname+ "/aevol_create.log", bucketname+ "/aevol_run.log", bucketname+'/stats/', bucketname+'/logger_csv.log'],
                             local_location=comb_dir + "/" + slugify(comb)).run()
 
             for p in get_results.processes:
@@ -353,11 +358,11 @@ class raevol_matrix(Engine):
                         slugify(comb))
                     exit()
 
-	    os.remove(bucketname)
             comb_ok = True
         finally:
             if comb_ok:
                 self.sweeper.done(comb)
+		shutil.rmtree(bucketname)
                 logger.info(thread_name + ': ' + slugify(comb) + \
                              ' has been done')
             else:
