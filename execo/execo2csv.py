@@ -52,11 +52,12 @@ def main(argv):
 	  i = iter(k)
 	  params = dict(zip(i,i))
 	  
-	  with open(result_dir+'/'+comb_dir+"/logger_csv.log") as f:
-	      for line in f:
-		if line.split(",")[0] == 'SELECTION':
-		  csvwriter.writerow([params['seed'],params['experiment'],params['fuzzy'],params['compilator']
-			params['parallel'],params['number_of_generation'],line.split(",")[2]])
+	  if os.path.isfile(result_dir+'/'+comb_dir+"/logger_csv.log"):
+	    with open(result_dir+'/'+comb_dir+"/logger_csv.log") as f:
+		for line in f:
+		  if line.split(",")[0] == 'SELECTION' and len(line.split(",")) == 3:
+		    csvwriter.writerow([params['seed'],params['experiment'],params['fuzzy'],params['compilator'],
+			  params['parallel'],params['number_of_generation'],int(line.split(",")[1]),int(line.split(",")[2])])
 	    
 	    
 if __name__ == "__main__":

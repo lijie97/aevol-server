@@ -326,6 +326,38 @@ if test "x$blas" = "xyes" ; then
    LIBS+=" -lopenblas"
 fi
 
+#  ************************* --with-mkl option *******************************
+#
+#  With this option, MKL library is enabled, __BLAS__ flag is defined and -lmkl.. added
+#
+
+
+AC_MSG_CHECKING([whether to use MKL library])
+AC_ARG_WITH(mkl, [--with-mkl to the use of MKL library], mkl=$withval, mkl=no)
+AC_MSG_RESULT($mkl)
+AM_CONDITIONAL(WITH_MKL, test x"$mkl" != xno)
+if test "x$mkl" = "xyes" ; then
+   AC_DEFINE(__BLAS__)
+   LIBS+=" -lmkl_intel_ilp64 -lmkl_core -lmkl_sequential"
+fi
+
+#  ************************* --with-atlas option *******************************
+#
+#  With this option, ATLAS library is enabled, __BLAS__ flag is defined and -latlas added
+#
+
+
+AC_MSG_CHECKING([whether to use ATLAS library])
+AC_ARG_WITH(atlas, [--with-atlas to the use of ATLAS library], atlas=$withval, atlas=no)
+AC_MSG_RESULT($atlas)
+AM_CONDITIONAL(WITH_ATLAS, test x"$atlas" != xno)
+if test "xatlas" = "xyes" ; then
+   AC_DEFINE(__BLAS__)
+   LIBS+=" -lcblas -latlas"
+fi
+
+
+
 #  ************************* --with-tbb option *******************************
 #
 #  With this option, Intel TBB local parallelization is enabled, __TBB flag is defined and -ltbb added
