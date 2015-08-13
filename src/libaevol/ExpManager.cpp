@@ -54,7 +54,7 @@ using namespace std::chrono;
 
 unordered_map<int,unordered_multiset<string>> ae_logger::logMap;
 string ae_logger::logFile = "logger_csv.log";
-spin_mutex ae_logger::loggerMtx;
+mutex ae_logger::loggerMtx;
 #endif
 
 using std::cout;

@@ -15,9 +15,8 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
-#include <tbb/spin_mutex.h>
+#include <mutex>
 
-using namespace tbb;
 using namespace std;
 
 enum logger_category {
@@ -34,7 +33,7 @@ class ae_logger
 	static inline void flush(int generation);
 	static unordered_map<int,unordered_multiset<string>> logMap;
 	static string logFile;
-	static spin_mutex loggerMtx;
+	static std::mutex loggerMtx;
 };
 
 //int cpt = 0;
@@ -75,12 +74,14 @@ void ae_logger::flush(int generation) {
         logMap[i].clear();
         break;
       case TOTAL:
-        loggerFile << "TOTAL," << generation;
-        for (auto it = logMap[i].begin(); it != logMap[i].end(); ++it) {
-          loggerFile << "," << *it;
+        if (logMap[i].size() > 0) {
+          loggerFile << "TOTAL," << generation;
+          for (auto it = logMap[i].begin(); it != logMap[i].end(); ++it) {
+            loggerFile << "," << *it;
+          }
+          loggerFile << endl;
+          logMap[i].clear();
         }
-        loggerFile << endl;
-        logMap[i].clear();
         break;
     }
   }
