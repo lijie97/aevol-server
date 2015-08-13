@@ -161,8 +161,9 @@ class raevol_matrix(Engine):
         """ """
         parameters = {
 	  'seed' : [51456165, 33263658, 7158785, 456847894, 1223144],
-	  'experiment' : ['aevol','raevol'],
-	  'fuzzy' : ['classic','hybrid'],
+	  'blas' : ['mkl','atlas','openblas'],
+	  'experiment' : ['raevol'], # 'aevol',
+	  'fuzzy' : ['hybrid'], # 'classic',
 	  'compilator' : ['gcc'],
 	  'parallel' : ['openmp','tbb'],
 	  'number_of_generation' : [1000,10000,1000000]

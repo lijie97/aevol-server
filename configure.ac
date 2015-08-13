@@ -16,6 +16,9 @@ AC_CONFIG_MACRO_DIR([m4])
 # We want to use automake
 AM_INIT_AUTOMAKE
 
+# Define C++ compilator
+AC_PROG_CXX([gcc,icc])
+
 # Detect C++11 or C++14
 AX_CXX_COMPILE_STDCXX_14([noext],[optional])
 if test -z "$HAVE_CXX14" ; then
