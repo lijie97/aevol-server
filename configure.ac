@@ -21,9 +21,7 @@ AC_PROG_CXX([gcc,icc])
 
 # Detect C++11 or C++14
 AX_CXX_COMPILE_STDCXX_14([noext],[optional])
-if test -z "$HAVE_CXX14" ; then
-   AX_CXX_COMPILE_STDCXX_11([noext])
-fi
+AX_CXX_COMPILE_STDCXX_11([noext])
 
 
 #if test -z "$HAVE_CXX14";
@@ -354,7 +352,7 @@ AC_MSG_CHECKING([whether to use ATLAS library])
 AC_ARG_WITH(atlas, [--with-atlas to the use of ATLAS library], atlas=$withval, atlas=no)
 AC_MSG_RESULT($atlas)
 AM_CONDITIONAL(WITH_ATLAS, test x"$atlas" != xno)
-if test "xatlas" = "xyes" ; then
+if test "x$atlas" = "xyes" ; then
    AC_DEFINE(__BLAS__)
    LIBS+=" -lcblas -latlas"
 fi
