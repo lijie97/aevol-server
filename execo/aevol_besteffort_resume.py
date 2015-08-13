@@ -164,7 +164,7 @@ class raevol_matrix(Engine):
 	  'blas' : ['mkl','atlas','openblas'],
 	  'experiment' : ['raevol'], # 'aevol',
 	  'fuzzy' : ['hybrid'], # 'classic',
-	  'compilator' : ['gcc'],
+	  'compilator' : ['gcc','intel'],
 	  'parallel' : ['openmp','tbb'],
 	  'number_of_generation' : [1000,10000,1000000]
             }
