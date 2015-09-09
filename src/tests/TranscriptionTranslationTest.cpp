@@ -48,7 +48,7 @@
 #include "Protein.h"
 #include "MutationParams.h"
 #include "../libaevol/macros.h"
-
+#include "ExpSetup.h"
 
 using namespace aevol;
 
@@ -171,64 +171,78 @@ void expect_equal(const list<protein_line> expected_proteins,
 }
 
 void TranscriptionTranslationTest::check_genome(const string& dir, int generation) {
-  // Read genome from input file
-  std::filebuf fb;
-  string genome;
-  std::ostringstream ostr;
-  ostr << std::setfill('0') << std::setw(6) << generation;
-  string gener = ostr.str();
 
-  fb.open(dir + "/sequence_" + gener, std::ios::in);
-  ASSERT_TRUE(fb.is_open());
+  ExpSetup* exp_s = new ExpSetup(nullptr);
+  for (int i = 0; i <= 1; i++) {
+    exp_s->set_fuzzy_flavor(i);
 
-  istream genome_file(&fb);
-  std::getline(genome_file, genome);
-  fb.close();
+    if (FuzzyFactory::fuzzyFactory == NULL)
+      FuzzyFactory::fuzzyFactory = new FuzzyFactory(exp_s);
+    else {
+      delete FuzzyFactory::fuzzyFactory;
+      FuzzyFactory::fuzzyFactory = new FuzzyFactory(exp_s);
+    }
+    // Read genome from input file
+    std::filebuf fb;
+    string genome;
+    std::ostringstream ostr;
+    ostr << std::setfill('0') << std::setw(6) << generation;
+    string gener = ostr.str();
 
-  // Construct individual with the genome we've read
-  MutationParams params_mut;
-  indiv = new Individual(nullptr, nullptr, nullptr, std::make_shared<MutationParams>(params_mut), 0.1, 10, 1000, false, 1, "anon-strain-1", 0);
-  char* raw_genome = new char[genome.size()+1];
-  strcpy(raw_genome, genome.c_str());
-  indiv->add_GU(raw_genome, genome.size());
+    fb.open(dir + "/sequence_" + gener, std::ios::in);
+    ASSERT_TRUE(fb.is_open());
 
-  // Do transcription and translation
-  indiv->do_transcription();
-  indiv->do_translation();
+    istream genome_file(&fb);
+    std::getline(genome_file, genome);
+    fb.close();
 
-  auto actual_proteins = analyse_gu(indiv->get_genetic_unit(0), 0);
+    // Construct individual with the genome we've read
+    MutationParams params_mut;
+    indiv = new Individual(nullptr, nullptr, nullptr,
+                           std::make_shared<MutationParams>(params_mut), 0.1,
+                           10, 1000, false, 1, "anon-strain-1", 0);
+    char* raw_genome = new char[genome.size() + 1];
+    strcpy(raw_genome, genome.c_str());
+    indiv->add_GU(raw_genome, genome.size());
+
+    // Do transcription and translation
+    indiv->do_transcription();
+    indiv->do_translation();
+
+    auto actual_proteins = analyse_gu(indiv->get_genetic_unit(0), 0);
 
 
-  // Read the expected results
-  list<protein_line> expected_proteins;
-  fb.open(dir + "/proteins_" + gener, std::ios::in);
-  ASSERT_TRUE(fb.is_open());
+    // Read the expected results
+    list<protein_line> expected_proteins;
+    fb.open(dir + "/proteins_" + gener, std::ios::in);
+    ASSERT_TRUE(fb.is_open());
 
-  string buffer;
-  istream proteins_file(&fb);
-  // Flush header
-  do std::getline(proteins_file, buffer);
-  while (buffer[0] != 'i');
+    string buffer;
+    istream proteins_file(&fb);
+    // Flush header
+    do std::getline(proteins_file, buffer);
+    while (buffer[0] != 'i');
 
-  protein_line prot_line;
-  while (proteins_file) {
-    proteins_file >> prot_line;
-    expected_proteins.push_back(prot_line);
+    protein_line prot_line;
+    while (proteins_file) {
+      proteins_file >> prot_line;
+      expected_proteins.push_back(prot_line);
+    }
+    // (very dirty) Get rid of last line (added twice)
+    expected_proteins.pop_back();
+
+
+    // cout << "*************** EXPECTED ********************" << endl;
+    // for (auto prot_line : expected_proteins) {
+    //   cout << prot_line << endl;
+    // }
+    // cout << "**************** ACTUAL *********************" << endl;
+    // for (auto prot_line : actual_proteins) {
+    //   cout << prot_line << endl;
+    // }
+
+    expect_equal(expected_proteins, actual_proteins);
   }
-  // (very dirty) Get rid of last line (added twice)
-  expected_proteins.pop_back();
-  
-
-  // cout << "*************** EXPECTED ********************" << endl;  
-  // for (auto prot_line : expected_proteins) {
-  //   cout << prot_line << endl;
-  // }
-  // cout << "**************** ACTUAL *********************" << endl;  
-  // for (auto prot_line : actual_proteins) {
-  //   cout << prot_line << endl;
-  // }
-
-  expect_equal(expected_proteins, actual_proteins);
 }
 
 TEST_F(TranscriptionTranslationTest, TestIndivVirus6) {
