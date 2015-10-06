@@ -341,14 +341,6 @@ void Selection::write_setup_file(gzFile exp_setup_file ) const
 
 /*!
 */
-void Selection::write_setup_file(FILE* exp_setup_file ) const
-{
-  // TODO
-}
-
-
-/*!
-*/
 void Selection::save(gzFile& backup_file ) const
 {
   if (prng_ == NULL )

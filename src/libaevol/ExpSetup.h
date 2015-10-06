@@ -132,10 +132,8 @@ class ExpSetup
     //                            Public Methods
     // =======================================================================
     void write_setup_file( gzFile exp_setup_file ) const;
-    void write_setup_file( FILE* exp_setup_file ) const;
     void save( gzFile backup_file ) const;
     void load( gzFile setup_file, gzFile backup_file, bool verbose );
-    void load( FILE*  setup_file, gzFile backup_file, bool verbose );
     
     inline void step_to_next_generation( void );
     

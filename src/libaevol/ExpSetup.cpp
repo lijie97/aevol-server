@@ -144,17 +144,6 @@ void ExpSetup::write_setup_file( gzFile exp_setup_file ) const
   get_sel()->write_setup_file( exp_setup_file );
 }
 
-void ExpSetup::write_setup_file( FILE* exp_setup_file ) const
-{
-  // --------------------------------------------------------------- Transfer
-  //...
-  
-  // -------------------------------------------------------------- Secretion
-  //...
-  
-  get_sel()->write_setup_file( exp_setup_file );
-}
-
 void ExpSetup::load( gzFile setup_file, gzFile backup_file, bool verbose )
 {
   // -------------------------------------------- Retrieve transfer parameters
@@ -200,12 +189,6 @@ void ExpSetup::load( gzFile setup_file, gzFile backup_file, bool verbose )
   
   // ---------------------------------------------- Retrieve selection context
   get_sel()->load( setup_file, backup_file, verbose );
-}
-
-void ExpSetup::load( FILE* setup_file, gzFile backup_file, bool verbose )
-{
-  printf( "Plain text setup file support not implemented yet (sorry)\n" );
-  exit( EXIT_FAILURE );
 }
 
 

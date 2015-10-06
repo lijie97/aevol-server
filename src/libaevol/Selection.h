@@ -104,7 +104,6 @@ class Selection : public Observable
     void step_to_next_generation(void);
     void PerformPlasmidTransfers(void);
     void write_setup_file(gzFile setup_file) const;
-    void write_setup_file(FILE* setup_file) const;
     void save(gzFile& backup_file) const;
     void load(gzFile& exp_setup_file, gzFile& backup_file, bool verbose);
 
