@@ -43,8 +43,7 @@
 namespace aevol {
 class JumpingMT;
 
-class Utils
-{
+class Utils {
  public :
   Utils() = delete;
   Utils(const Utils&) = delete;
