@@ -27,14 +27,8 @@
 #ifndef AEVOL_GENETIC_UNIT_H__
 #define AEVOL_GENETIC_UNIT_H__
 
-
-
-// =================================================================
-//                              Includes
-// =================================================================
-#include <inttypes.h>
-#include <stdio.h>
-
+#include <cinttypes>
+#include <cstdio>
 #include <memory>
 #include <array>
 
