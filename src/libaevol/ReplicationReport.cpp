@@ -192,7 +192,7 @@ void ReplicationReport::init(Individual* offspring, Individual* parent)
   _parent_genome_size     = parent->get_total_genome_size();
   _mean_align_score       = 0.0;
 
-  // Set ourselves an observer of _indiv's MUTATION and END_REPLICATION
+  // Set ourselves an observer of indiv_'s MUTATION and END_REPLICATION
   _indiv->addObserver(this, MUTATION);
   _indiv->addObserver(this, END_REPLICATION);
 }

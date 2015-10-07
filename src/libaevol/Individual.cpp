@@ -847,8 +847,8 @@ int32_t Individual::get_nb_neutral_regions() const {
 /// TODO
 double Individual::get_modularity() {
   printf("\n  WARNING : modularity measure not yet implemented.\n");
-  //~ if (_modularity < 0) compute_modularity();
-  //~ return _modularity;
+  //~ if (modularity_ < 0) compute_modularity();
+  //~ return modularity_;
   return 0;
 }
 
@@ -1321,30 +1321,30 @@ void Individual::compute_fitness(const PhenotypicTarget& target) {
     {
       if (envir->get_area_by_feature(i)==0.)
       {
-        _fitness_by_feature[i] = 0.;
+        fitness_by_feature_[i] = 0.;
       }
       else
       {
-        _fitness_by_feature[i] =  (envir->get_area_by_feature(i) - _dist_to_target_by_feature[i]) / envir->get_area_by_feature(i);
-        if ((_fitness_by_feature[i] < 0.) && (i != METABOLISM)) // non-metabolic fitness can NOT be lower than zero (we do not want individual to secrete a negative quantity of public good)
+        fitness_by_feature_[i] =  (envir->get_area_by_feature(i) - dist_to_target_by_feature_[i]) / envir->get_area_by_feature(i);
+        if ((fitness_by_feature_[i] < 0.) && (i != METABOLISM)) // non-metabolic fitness can NOT be lower than zero (we do not want individual to secrete a negative quantity of public good)
         {
-          _fitness_by_feature[i] = 0.;
+          fitness_by_feature_[i] = 0.;
         }
       }
     }
 
-    if ((! _placed_in_population) || (! _exp_m->get_with_secretion()))
+    if ((! _placed_in_population) || (! exp_m_->get_with_secretion()))
     {
-      _fitness = _fitness_by_feature[METABOLISM];
+      fitness_ = fitness_by_feature_[METABOLISM];
     }
     else
     {
-      _fitness =  _fitness_by_feature[METABOLISM] * (1 + _exp_m->get_secretion_contrib_to_fitness() * (_grid_cell->compound_amount() - _exp_m->get_secretion_cost() * _fitness_by_feature[SECRETION]));
+      fitness_ =  fitness_by_feature_[METABOLISM] * (1 + exp_m_->get_secretion_contrib_to_fitness() * (_grid_cell->compound_amount() - exp_m_->get_secretion_cost() * fitness_by_feature_[SECRETION]));
     }
 
-    if (_exp_m->get_selection_scheme() == FITNESS_PROPORTIONATE) // Then the exponential selection is integrated inside the fitness value
+    if (exp_m_->get_selection_scheme() == FITNESS_PROPORTIONATE) // Then the exponential selection is integrated inside the fitness value
     {
-      _fitness = exp(-_exp_m->get_selection_pressure() * (1 - _fitness));
+      fitness_ = exp(-exp_m_->get_selection_pressure() * (1 - fitness_));
     }
   #else
   for (int8_t i = 0 ; i < NB_FEATURES ; i++)
@@ -1504,7 +1504,7 @@ void Individual::do_translation() {
 
   for (auto& gen_unit: _genetic_unit_list) {
     gen_unit.do_translation();
-    // append all proteins from `gen_unit` to `_protein_list`
+    // append all proteins from `gen_unit` to `protein_list_`
     for (auto& strand_id: {LEADING, LAGGING}) {
       auto& strand = gen_unit.get_protein_list(strand_id);
       for (auto& p: strand)
@@ -1893,7 +1893,7 @@ void Individual::make_protein_list() {
   // Make a copy of each genetic unit's protein list
   for (auto& gen_unit: _genetic_unit_list)
   {
-    // append all proteins from `gen_unit` to `_protein_list`
+    // append all proteins from `gen_unit` to `protein_list_`
     for (auto& strand_id: {LEADING, LAGGING}) {
       auto& strand = gen_unit.get_protein_list(strand_id);
       for (auto& p: strand)
@@ -1914,7 +1914,7 @@ void Individual::make_rna_list() {
     const auto& lead = rna_list[LEADING];
     const auto& lagg = rna_list[LAGGING];
 
-    // append pointers to rna material to local _rna_list
+    // append pointers to rna material to local rna_list_
     for (auto& strand: {LEADING, LAGGING})
       for (auto& rna: rna_list[strand])
         _rna_list.push_back(&rna);

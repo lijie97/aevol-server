@@ -1296,7 +1296,7 @@ Mutation* Dna::do_insertion(const char* seq_to_insert, int32_t seq_length /*= -1
 //  }
 //
 //  // Where to insert the sequence
-//  int32_t pos = _indiv->_mut_prng->random(_length);
+//  int32_t pos = indiv_->_mut_prng->random(_length);
 //
 //  if (do_insertion(pos, seq_to_insert, seq_length))
 //  {
@@ -1632,24 +1632,24 @@ bool Dna::do_inter_GU_translocation(int32_t pos_1_rel, int32_t pos_2_rel, int32_
   {
     if (pos_1_rel < pos_2_rel)
     {
-      // if (_gen_unit == _indiv->get_genetic_unit(0) /*chromosome*/)
+      // if (_gen_unit == indiv_->get_genetic_unit(0) /*chromosome*/)
       //      {
       //           printf("do_inter_GU_translocation(%"PRId32", %"PRId32", %"PRId32", %"PRId32", %s) (sizes : %"PRId32" %"PRId32" %"PRId32")\n",
       //                   pos_1_rel, pos_2_rel, pos_3_rel, pos_4_rel + _length, invert?"invert":"plain",
-      //                   _indiv->get_genetic_unit(0)->get_dna()->get_length(),
-      //                   _indiv->get_genetic_unit(1)->get_dna()->get_length(),
-      //                   _indiv->get_amount_of_dna());
+      //                   indiv_->get_genetic_unit(0)->get_dna()->get_length(),
+      //                   indiv_->get_genetic_unit(1)->get_dna()->get_length(),
+      //                   indiv_->get_amount_of_dna());
       //       }
       //       else
       //       {
       //           printf("do_inter_GU_translocation(%"PRId32", %"PRId32", %"PRId32", %"PRId32", %s) (sizes : %"PRId32" %"PRId32" %"PRId32")\n",
-      //                   pos_1_rel + _indiv->get_genetic_unit(0)->get_dna()->get_length(),
-      //                   pos_2_rel + _indiv->get_genetic_unit(0)->get_dna()->get_length(),
-      //                   pos_3_rel + _indiv->get_genetic_unit(0)->get_dna()->get_length(),
+      //                   pos_1_rel + indiv_->get_genetic_unit(0)->get_dna()->get_length(),
+      //                   pos_2_rel + indiv_->get_genetic_unit(0)->get_dna()->get_length(),
+      //                   pos_3_rel + indiv_->get_genetic_unit(0)->get_dna()->get_length(),
       //                   pos_4_rel, invert?"invert":"plain",
-      //                   _indiv->get_genetic_unit(0)->get_dna()->get_length(),
-      //                   _indiv->get_genetic_unit(1)->get_dna()->get_length(),
-      //                   _indiv->get_amount_of_dna());
+      //                   indiv_->get_genetic_unit(0)->get_dna()->get_length(),
+      //                   indiv_->get_genetic_unit(1)->get_dna()->get_length(),
+      //                   indiv_->get_amount_of_dna());
       //       }
 
       segment_length = Utils::mod(pos_2_rel - pos_1_rel, _length);
@@ -1657,24 +1657,24 @@ bool Dna::do_inter_GU_translocation(int32_t pos_1_rel, int32_t pos_2_rel, int32_
     }
     else
     {
-      //       if (_gen_unit == _indiv->get_genetic_unit(0) /*chromosome*/)
+      //       if (_gen_unit == indiv_->get_genetic_unit(0) /*chromosome*/)
       //       {
       //           printf("do_inter_GU_translocation(%"PRId32", %"PRId32", %"PRId32", %"PRId32", %s) (sizes : %"PRId32" %"PRId32" %"PRId32")\n",
       //                   pos_1_rel, pos_2_rel, pos_3_rel, pos_4_rel + _length, invert?"invert":"plain",
-      //                   _indiv->get_genetic_unit(0)->get_dna()->get_length(),
-      //                   _indiv->get_genetic_unit(1)->get_dna()->get_length(),
-      //                   _indiv->get_amount_of_dna());
+      //                   indiv_->get_genetic_unit(0)->get_dna()->get_length(),
+      //                   indiv_->get_genetic_unit(1)->get_dna()->get_length(),
+      //                   indiv_->get_amount_of_dna());
       //       }
       //       else
       //       {
       //           printf("do_inter_GU_translocation(%"PRId32", %"PRId32", %"PRId32", %"PRId32", %s) (sizes : %"PRId32" %"PRId32" %"PRId32")\n",
-      //                   pos_1_rel + _indiv->get_genetic_unit(0)->get_dna()->get_length(),
-      //                   pos_2_rel + _indiv->get_genetic_unit(0)->get_dna()->get_length(),
-      //                   pos_3_rel + _indiv->get_genetic_unit(0)->get_dna()->get_length(),
+      //                   pos_1_rel + indiv_->get_genetic_unit(0)->get_dna()->get_length(),
+      //                   pos_2_rel + indiv_->get_genetic_unit(0)->get_dna()->get_length(),
+      //                   pos_3_rel + indiv_->get_genetic_unit(0)->get_dna()->get_length(),
       //                   pos_4_rel, invert?"invert":"plain",
-      //                   _indiv->get_genetic_unit(0)->get_dna()->get_length(),
-      //                   _indiv->get_genetic_unit(1)->get_dna()->get_length(),
-      //                   _indiv->get_amount_of_dna());
+      //                   indiv_->get_genetic_unit(0)->get_dna()->get_length(),
+      //                   indiv_->get_genetic_unit(1)->get_dna()->get_length(),
+      //                   indiv_->get_amount_of_dna());
       //       }
 
       segment_length = Utils::mod(pos_1_rel - pos_2_rel, _length);
@@ -1775,7 +1775,7 @@ Mutation* Dna::do_ins_HT(int32_t parent_id)
   Mutation* mut = nullptr;
 
   // TODO <david.parsons@inria.fr> disabled
-//  int32_t nb_indivs = _exp_m->get_pop()->get_nb_indivs();
+//  int32_t nb_indivs = exp_m_->get_pop()->get_nb_indivs();
 //
 //  // Insertion transfer
 //  // Requirements:
@@ -1785,13 +1785,13 @@ Mutation* Dna::do_ins_HT(int32_t parent_id)
 //  // 1) Draw a random donor (uniform drawing).
 //  // We use the rank because indivs are sorted by rank (1 for the worst, POP_SIZE for the best).
 //  Individual * donor = NULL;
-//  do donor = _exp_m->get_pop()->get_indiv_by_rank(_exp_m->get_sel()->get_prng()->random(nb_indivs) + 1);
+//  do donor = exp_m_->get_pop()->get_indiv_by_rank(exp_m_->get_sel()->get_prng()->random(nb_indivs) + 1);
 //  while (donor->get_id() == parent_id);
 //
 //  // 2) Look for an alignment within the donor genome
 //  VisAVis* alignment_1   = NULL;
 //  Dna*       donor_dna     = donor->get_genetic_unit(0).get_dna();
-//  int32_t       nb_pairs_1    = (int32_t)(ceil(donor_dna->get_length() * _indiv->get_neighbourhood_rate()));
+//  int32_t       nb_pairs_1    = (int32_t)(ceil(donor_dna->get_length() * indiv_->get_neighbourhood_rate()));
 //
 //  alignment_1 = donor_dna->search_alignment(donor_dna, nb_pairs_1, DIRECT);
 //
@@ -1802,7 +1802,7 @@ Mutation* Dna::do_ins_HT(int32_t parent_id)
 //
 //      // 4) Look for an alignments between the exogenote and the endogenote
 //      VisAVis* alignment_2 = NULL;
-//      int32_t       nb_pairs_2  = (int32_t)(ceil(get_length() * _indiv->get_neighbourhood_rate()));
+//      int32_t       nb_pairs_2  = (int32_t)(ceil(get_length() * indiv_->get_neighbourhood_rate()));
 //
 //      alignment_2 = exogenote->get_dna()->search_alignment(this, nb_pairs_2, BOTH_SENSES);
 //
@@ -1810,20 +1810,20 @@ Mutation* Dna::do_ins_HT(int32_t parent_id)
 //      {
 //        int32_t gu_length_before  = _length;
 //        int32_t gu_length_after   = gu_length_before + exogenote->get_dna()->get_length();
-//        int32_t genome_length_before = _indiv->get_amount_of_dna();
+//        int32_t genome_length_before = indiv_->get_amount_of_dna();
 //        int32_t genome_length_after = genome_length_before + exogenote->get_dna()->get_length();
 //
-//        if ((genome_length_after > _indiv->get_max_genome_length()) ||
+//        if ((genome_length_after > indiv_->get_max_genome_length()) ||
 //            (gu_length_after > _gen_unit->get_max_gu_length()))
 //        {
-//          if (_exp_m->get_output_m()->is_logged(LOG_BARRIER))
+//          if (exp_m_->get_output_m()->is_logged(LOG_BARRIER))
 //          {
 //            // Write an entry in the barrier log file
-//            fprintf(_exp_m->get_output_m()->get_log(LOG_BARRIER),
+//            fprintf(exp_m_->get_output_m()->get_log(LOG_BARRIER),
 //                "%" PRId64 " %" PRId32 " INS_TRANSFER %" PRId32 " %" PRId32
 //                " %" PRId32 " %" PRId32 "\n",
 //                AeTime::get_time(),
-//                _indiv->get_id(),
+//                indiv_->get_id(),
 //                exogenote->get_dna()->get_length(),
 //                0,
 //                gu_length_before,
@@ -1839,15 +1839,15 @@ Mutation* Dna::do_ins_HT(int32_t parent_id)
 //          //~ fflush(logfile);
 //
 //          // Write a line in transfer logfile
-//          if (_exp_m->get_output_m()->is_logged(LOG_TRANSFER))
+//          if (exp_m_->get_output_m()->is_logged(LOG_TRANSFER))
 //          {
-//            fprintf(_exp_m->get_output_m()->get_log(LOG_TRANSFER),
+//            fprintf(exp_m_->get_output_m()->get_log(LOG_TRANSFER),
 //                    "%" PRId64 " %" PRId32 " %" PRId32 " 0 %" PRId32
 //                    " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32
 //                    " %" PRId32 " %" PRId16 " %" PRId32 " %" PRId32
 //                    " %" PRId16 "\n",
 //                    AeTime::get_time(),
-//                    _indiv->get_id(),
+//                    indiv_->get_id(),
 //                    donor->get_id(),
 //                    exogenote->get_dna()->get_length(),
 //                    0,
@@ -1863,11 +1863,11 @@ Mutation* Dna::do_ins_HT(int32_t parent_id)
 //
 //          #ifdef BIG_DEBUG
 //            ae_common::sim->get_logs()->flush();
-//            _indiv->assert_promoters();
-//            _indiv->assert_promoters_order();
+//            indiv_->assert_promoters();
+//            indiv_->assert_promoters_order();
 //          #endif
 //
-//          if (_exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL)
+//          if (exp_m_->get_output_m()->get_record_tree() && exp_m_->get_output_m()->get_tree_mode() == NORMAL)
 //          {
 //            char* donor_seq;
 //            if(alignment_2->get_sense() == DIRECT)
@@ -1900,7 +1900,7 @@ Mutation* Dna::do_repl_HT(int32_t parent_id)
   Mutation* mut = nullptr;
 
   // TODO <david.parsons@inria.fr> disabled
-//  int32_t nb_indivs = _exp_m->get_pop()->get_nb_indivs();
+//  int32_t nb_indivs = exp_m_->get_pop()->get_nb_indivs();
 //
 //  // Replacement transfer
 //  // Requirements:
@@ -1910,23 +1910,23 @@ Mutation* Dna::do_repl_HT(int32_t parent_id)
 //  // 1) Draw a random donor (uniform drawing).
 //  // We use the rank because indivs are sorted by rank (1 for the worst, POP_SIZE for the best).
 //  Individual * donor = NULL;
-//  do donor = _exp_m->get_pop()->get_indiv_by_rank(_exp_m->get_sel()->get_prng()->random(nb_indivs) + 1);
+//  do donor = exp_m_->get_pop()->get_indiv_by_rank(exp_m_->get_sel()->get_prng()->random(nb_indivs) + 1);
 //  while (donor->get_id() == parent_id);
 //
 //  // 2) Look for an alignment between the parent genome and the donor genome
 //  VisAVis* alignment_1   = NULL;
 //  VisAVis* alignment_2   = NULL;
 //  Dna*       donor_dna     = donor->get_genetic_unit(0).get_dna();
-//  AlignmentSense      sense         = (_exp_m->get_sel()->get_prng()->random() < 0.5) ? DIRECT : INDIRECT;
-//  int32_t       nb_pairs_1    = (int32_t)(ceil(get_length() * _indiv->get_neighbourhood_rate()));
-//  int32_t       nb_pairs_2    = (int32_t)(ceil(get_length() * _indiv->get_neighbourhood_rate()));
+//  AlignmentSense      sense         = (exp_m_->get_sel()->get_prng()->random() < 0.5) ? DIRECT : INDIRECT;
+//  int32_t       nb_pairs_1    = (int32_t)(ceil(get_length() * indiv_->get_neighbourhood_rate()));
+//  int32_t       nb_pairs_2    = (int32_t)(ceil(get_length() * indiv_->get_neighbourhood_rate()));
 //  int8_t        research_sense = 0;
 //
 //  alignment_1 = search_alignment(donor_dna, nb_pairs_1, sense);
 //  if (alignment_1 != NULL)
 //  {
 //    //printf("\talignement 1: %d %d\n", alignment_1->get_i_1(), alignment_1->get_i_2());
-//    if(_exp_m->get_repl_HT_with_close_points())
+//    if(exp_m_->get_repl_HT_with_close_points())
 //    {
 //      //printf("Id: %d\n",new_indiv->get_id());
 //
@@ -1972,22 +1972,22 @@ Mutation* Dna::do_repl_HT(int32_t parent_id)
 //      int32_t replaced_seq_length   = Utils::mod(alignment_2->get_i_1() - alignment_1->get_i_1() - 1, gu_length_before) + 1;
 //      int32_t gu_length_after   = gu_length_before - replaced_seq_length + exogenote_length;
 //
-//      int32_t genome_length_before = _indiv->get_amount_of_dna();
+//      int32_t genome_length_before = indiv_->get_amount_of_dna();
 //      int32_t genome_length_after = genome_length_before - replaced_seq_length + exogenote_length;
 //
-//      if (genome_length_after < _indiv->get_min_genome_length() ||
-//          genome_length_after > _indiv->get_max_genome_length() ||
+//      if (genome_length_after < indiv_->get_min_genome_length() ||
+//          genome_length_after > indiv_->get_max_genome_length() ||
 //          gu_length_after < _gen_unit->get_min_gu_length() ||
 //          gu_length_after > _gen_unit->get_max_gu_length())
 //      {
-//        if (_exp_m->get_output_m()->is_logged(LOG_BARRIER))
+//        if (exp_m_->get_output_m()->is_logged(LOG_BARRIER))
 //        {
 //          // Write an entry in the barrier log file
-//          fprintf(_exp_m->get_output_m()->get_log(LOG_BARRIER),
+//          fprintf(exp_m_->get_output_m()->get_log(LOG_BARRIER),
 //              "%" PRId64 " %" PRId32 " REPL_TRANSFER %" PRId32 " %" PRId32
 //              " %" PRId32 " %" PRId32 "\n",
 //              AeTime::get_time(),
-//              _indiv->get_id(),
+//              indiv_->get_id(),
 //              exogenote_length,
 //              replaced_seq_length,
 //              gu_length_before,
@@ -2011,21 +2011,21 @@ Mutation* Dna::do_repl_HT(int32_t parent_id)
 //        char* alignment2_parent_dna = nullptr;
 //        char* alignment1_donor_dna  = nullptr;
 //        char* alignment2_donor_dna  = nullptr;
-//        if (_exp_m->get_output_m()->is_logged(LOG_TRANSFER) == true)
+//        if (exp_m_->get_output_m()->is_logged(LOG_TRANSFER) == true)
 //        {
 //          if(sense  == DIRECT)
 //          {
-//            alignment1_parent_dna = get_subsequence(alignment_1->get_i_1(), alignment_1->get_i_1() + 2*_indiv->get_align_w_zone_h_len() + _indiv->get_align_max_shift(), LEADING);
-//            alignment2_parent_dna = get_subsequence(alignment_2->get_i_1(), alignment_2->get_i_1() + 2*_indiv->get_align_w_zone_h_len() + _indiv->get_align_max_shift(), LEADING);
-//            alignment1_donor_dna = donor_dna->get_subsequence(alignment_1->get_i_2(), alignment_1->get_i_2() + 2*_indiv->get_align_w_zone_h_len() + _indiv->get_align_max_shift(), LEADING);
-//            alignment2_donor_dna = donor_dna->get_subsequence(alignment_2->get_i_2(), alignment_2->get_i_2() + 2*_indiv->get_align_w_zone_h_len() + _indiv->get_align_max_shift(), LEADING);
+//            alignment1_parent_dna = get_subsequence(alignment_1->get_i_1(), alignment_1->get_i_1() + 2*indiv_->get_align_w_zone_h_len() + indiv_->get_align_max_shift(), LEADING);
+//            alignment2_parent_dna = get_subsequence(alignment_2->get_i_1(), alignment_2->get_i_1() + 2*indiv_->get_align_w_zone_h_len() + indiv_->get_align_max_shift(), LEADING);
+//            alignment1_donor_dna = donor_dna->get_subsequence(alignment_1->get_i_2(), alignment_1->get_i_2() + 2*indiv_->get_align_w_zone_h_len() + indiv_->get_align_max_shift(), LEADING);
+//            alignment2_donor_dna = donor_dna->get_subsequence(alignment_2->get_i_2(), alignment_2->get_i_2() + 2*indiv_->get_align_w_zone_h_len() + indiv_->get_align_max_shift(), LEADING);
 //          }
 //          else
 //          {
-//            alignment1_parent_dna = get_subsequence(alignment_1->get_i_1(), alignment_1->get_i_1() + 2*_indiv->get_align_w_zone_h_len() + _indiv->get_align_max_shift(), LEADING);
-//            alignment2_parent_dna = get_subsequence(alignment_2->get_i_1(), alignment_2->get_i_1() + 2*_indiv->get_align_w_zone_h_len() + _indiv->get_align_max_shift(), LEADING);
-//            alignment1_donor_dna = donor_dna->get_subsequence(alignment_1->get_i_2(), alignment_1->get_i_2() - 2*_indiv->get_align_w_zone_h_len() - _indiv->get_align_max_shift(), LAGGING);
-//            alignment2_donor_dna = donor_dna->get_subsequence(alignment_2->get_i_2(), alignment_2->get_i_2() - 2*_indiv->get_align_w_zone_h_len() - _indiv->get_align_max_shift(), LAGGING);
+//            alignment1_parent_dna = get_subsequence(alignment_1->get_i_1(), alignment_1->get_i_1() + 2*indiv_->get_align_w_zone_h_len() + indiv_->get_align_max_shift(), LEADING);
+//            alignment2_parent_dna = get_subsequence(alignment_2->get_i_1(), alignment_2->get_i_1() + 2*indiv_->get_align_w_zone_h_len() + indiv_->get_align_max_shift(), LEADING);
+//            alignment1_donor_dna = donor_dna->get_subsequence(alignment_1->get_i_2(), alignment_1->get_i_2() - 2*indiv_->get_align_w_zone_h_len() - indiv_->get_align_max_shift(), LAGGING);
+//            alignment2_donor_dna = donor_dna->get_subsequence(alignment_2->get_i_2(), alignment_2->get_i_2() - 2*indiv_->get_align_w_zone_h_len() - indiv_->get_align_max_shift(), LAGGING);
 //          }
 //        }
 //
@@ -2041,14 +2041,14 @@ Mutation* Dna::do_repl_HT(int32_t parent_id)
 //        }
 //
 //        // Write a line in transfer logfile
-//        if (_exp_m->get_output_m()->is_logged(LOG_TRANSFER))
+//        if (exp_m_->get_output_m()->is_logged(LOG_TRANSFER))
 //        {
-//          fprintf(_exp_m->get_output_m()->get_log(LOG_TRANSFER),
+//          fprintf(exp_m_->get_output_m()->get_log(LOG_TRANSFER),
 //              "%" PRId64 " %" PRId32 " %" PRId32 " 1 %" PRId32 " %" PRId32
 //              " %" PRId32 " %" PRId32 " %" PRId16 " %" PRId32 " %" PRId32
 //              " %" PRId16 " %" PRId32 " %" PRId32 " %" PRId16 " %" PRId16 "\n",
 //              AeTime::get_time(),
-//              _indiv->get_id(),
+//              indiv_->get_id(),
 //              donor->get_id(),
 //              exogenote->get_dna()->get_length(),
 //              replaced_seq_length,
@@ -2063,7 +2063,7 @@ Mutation* Dna::do_repl_HT(int32_t parent_id)
 //              alignment_2->get_score() ,
 //              (int16_t) research_sense);
 //
-//        fprintf(_exp_m->get_output_m()->get_log(LOG_TRANSFER),
+//        fprintf(exp_m_->get_output_m()->get_log(LOG_TRANSFER),
 //            "\tAlignment 1:\n\t\t%s\n\t\t%s\n\tAlignment 2:\n\t\t%s\n\t\t%s\n",
 //            alignment1_parent_dna, alignment1_donor_dna,
 //            alignment2_parent_dna, alignment2_donor_dna);
@@ -2074,7 +2074,7 @@ Mutation* Dna::do_repl_HT(int32_t parent_id)
 //            delete [] alignment2_donor_dna;
 //        }
 //
-//        if (_exp_m->get_output_m()->get_record_tree() && _exp_m->get_output_m()->get_tree_mode() == NORMAL)
+//        if (exp_m_->get_output_m()->get_record_tree() && exp_m_->get_output_m()->get_tree_mode() == NORMAL)
 //        {
 //          // Report the transfer
 //          char* donor_seq;

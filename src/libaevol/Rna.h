@@ -82,7 +82,7 @@ class Rna
 
     // <DEBUG>
     void check( GeneticUnit* gen_unit ) { assert( gen_unit == _gen_unit ); };
-    //~ void* get_indiv( void ) const { return (void*)_indiv; };
+    //~ void* get_indiv( void ) const { return (void*)indiv_; };
     // </DEBUG>
 
     inline const GeneticUnit * get_genetic_unit(void) const;

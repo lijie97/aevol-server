@@ -767,14 +767,14 @@ void StatRecord::write_to_file(FILE* stat_file, stats_type stat_type_to_print) c
      //
      // fprintf( stat_file, "%" PRId64 " %f %f %f %f %f %f %f %f",
      //         AeTime::get_time(),
-     //         _nb_bases_in_0_CDS,
-     //         _nb_bases_in_0_functional_CDS,
-     //         _nb_bases_in_0_non_functional_CDS,
-     //         _nb_bases_in_0_RNA,
-     //         _nb_bases_in_0_coding_RNA,
-     //         _nb_bases_in_0_non_coding_RNA,
-     //         _nb_bases_non_essential,
-     //         _nb_bases_non_essential_including_nf_genes);
+     //         nb_bases_in_0_CDS_,
+     //         nb_bases_in_0_functional_CDS_,
+     //         nb_bases_in_0_non_functional_CDS_,
+     //         nb_bases_in_0_RNA_,
+     //         nb_bases_in_0_coding_RNA_,
+     //         nb_bases_in_0_non_coding_RNA_,
+     //         nb_bases_non_essential_,
+     //         nb_bases_non_essential_including_nf_genes_);
     }
     if (stat_type_to_print == REAR_STATS)
     {

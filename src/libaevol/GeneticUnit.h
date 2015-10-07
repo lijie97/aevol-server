@@ -296,63 +296,63 @@ class GeneticUnit
   // =================================================================
   //                          Protected Attributes
   // =================================================================
-  ExpManager* _exp_m;
+  ExpManager* exp_m_;
 
-  Individual*  _indiv;
-  Dna*         _dna;
-  Fuzzy*   _activ_contribution;
-  Fuzzy*   _inhib_contribution;
-  Fuzzy*   _phenotypic_contribution;
-  // NB : _phenotypic_contribution is only an indicative value, not used for the whole phenotype computation
+  Individual* indiv_;
+  Dna* dna_;
+  Fuzzy* activ_contribution_;
+  Fuzzy* inhib_contribution_;
+  Fuzzy* phenotypic_contribution_;
+  // NB : phenotypic_contribution_ is only an indicative value, not used for the whole phenotype computation
 
-  // _rna_list always has 2 elements: make it an std::array
-  Promoters2Strands _rna_list = {{},{}};
-  // _protein_list always has 2 elements: make it an std::array
-  std::array<std::list<Protein>, 2> _protein_list; // = {{},{}};
+  // rna_list_ always has 2 elements: make it an std::array
+  Promoters2Strands rna_list_ = {{},{}};
+  // protein_list_ always has 2 elements: make it an std::array
+  std::array<std::list<Protein>, 2> protein_list_; // = {{},{}};
 
   // DM: For plasmid work, we sometimes *need* all the data (e.g. fitness, secretion) calculated for each GU
-  double* _dist_to_target_per_segment;
-  double* _dist_to_target_by_feature;
-  double* _fitness_by_feature;
-  double  _fitness;
+  double* dist_to_target_per_segment_;
+  double* dist_to_target_by_feature_;
+  double* fitness_by_feature_;
+  double fitness_;
 
   // Statistical data (intrinsic for this genetic unit)
-  int32_t _nb_coding_RNAs;                // Number of coding RNAs (at least one gene on RNA)
-  int32_t _nb_non_coding_RNAs;            // Number of non-coding-RNAs
-  double  _overall_size_coding_RNAs;      // Average size of coding RNAs
-  double  _overall_size_non_coding_RNAs;  // Average size of non-coding RNAs
-  int32_t _nb_genes_activ;                // Number of genes realizing a function
-  int32_t _nb_genes_inhib;                // Number of genes inhibitting a function
-  int32_t _nb_fun_genes;                  // Number of functional genes
-  int32_t _nb_non_fun_genes;              // Number of non-functional genes
-  double  _overall_size_fun_genes;        // Average size of functional genes
-  double  _overall_size_non_fun_genes;    // Average size of non-functional genes
+  int32_t nb_coding_RNAs_;                // Number of coding RNAs (at least one gene on RNA)
+  int32_t nb_non_coding_RNAs_;            // Number of non-coding-RNAs
+  double overall_size_coding_RNAs_;      // Average size of coding RNAs
+  double overall_size_non_coding_RNAs_;  // Average size of non-coding RNAs
+  int32_t nb_genes_activ_;                // Number of genes realizing a function
+  int32_t nb_genes_inhib_;                // Number of genes inhibitting a function
+  int32_t nb_fun_genes_;                  // Number of functional genes
+  int32_t nb_non_fun_genes_;              // Number of non-functional genes
+  double overall_size_fun_genes_;        // Average size of functional genes
+  double overall_size_non_fun_genes_;    // Average size of non-functional genes
 
 
-  int32_t _nb_bases_in_0_CDS;                // Number of bases that are not included in any gene
-  int32_t _nb_bases_in_0_functional_CDS;     // Number of bases that are not included in any non-degenerated gene
-  int32_t _nb_bases_in_0_non_functional_CDS; // Number of bases that are not included in any degenerated gene
+  int32_t nb_bases_in_0_CDS_;                // Number of bases that are not included in any gene
+  int32_t nb_bases_in_0_functional_CDS_;     // Number of bases that are not included in any non-degenerated gene
+  int32_t nb_bases_in_0_non_functional_CDS_; // Number of bases that are not included in any degenerated gene
 
-  int32_t _nb_bases_in_0_RNA;                // Number of bases that are not included in any RNA
-  int32_t _nb_bases_in_0_coding_RNA;         // Number of bases that are not included in any coding RNA
+  int32_t nb_bases_in_0_RNA_;                // Number of bases that are not included in any RNA
+  int32_t nb_bases_in_0_coding_RNA_;         // Number of bases that are not included in any coding RNA
   // (RNAs containing at least one CDS)
-  int32_t _nb_bases_in_0_non_coding_RNA;     // Number of bases that are not included in any non coding RNA
+  int32_t nb_bases_in_0_non_coding_RNA_;     // Number of bases that are not included in any non coding RNA
 
-  int32_t _nb_bases_non_essential;                    // Number of bases that are not included in any non-degenerated gene or involved in its expression
-  int32_t _nb_bases_non_essential_including_nf_genes; // Number of bases that are not included in any gene or involved in its expression
-  int32_t _nb_bases_in_neutral_regions;   // Number of bases that are not included in a neutral region
+  int32_t nb_bases_non_essential_;                    // Number of bases that are not included in any non-degenerated gene or involved in its expression
+  int32_t nb_bases_non_essential_including_nf_genes_; // Number of bases that are not included in any gene or involved in its expression
+  int32_t nb_bases_in_neutral_regions_;   // Number of bases that are not included in a neutral region
   // A base is considered neutral when neither itself NOR its corresponding base on the other
   // strand belongs to a coding promoter->terminator region (both included)
-  int32_t _nb_neutral_regions;            // Number of neutral regions
-  int32_t* _beginning_neutral_regions;    // Beginning of neutral regions
-  int32_t* _end_neutral_regions;          // Corresponding ends of neutral regions
+  int32_t nb_neutral_regions_;            // Number of neutral regions
+  int32_t* beginning_neutral_regions_;    // Beginning of neutral regions
+  int32_t* end_neutral_regions_;          // Corresponding ends of neutral regions
 
-  double  _modularity;  // Ratio between the pairwise distance between genes whose corresponding
+  double modularity_;  // Ratio between the pairwise distance between genes whose corresponding
   // phenotypic triangles overlap and the average intergenic distance
   // (ignoring non-functional genes)
 
-  int32_t _min_gu_length;
-  int32_t _max_gu_length;
+  int32_t min_gu_length_;
+  int32_t max_gu_length_;
 
   // TODO : check and comment what it is for
   //~ int32_t _nb_promoters[2];
@@ -364,12 +364,12 @@ class GeneticUnit
   //~ double  _clustering;
 
   // We keep trace of what we have already computed to avoid double computation (mainly in post-treaments)
-  bool _transcribed;
-  bool _translated;
-  bool _phenotypic_contributions_computed;
-  bool _non_coding_computed;
-  bool _distance_to_target_computed;
-  bool _fitness_computed;
+  bool transcribed_;
+  bool translated_;
+  bool phenotypic_contributions_computed_;
+  bool non_coding_computed_;
+  bool distance_to_target_computed_;
+  bool fitness_computed_;
 };
 
 } // namespace aevol

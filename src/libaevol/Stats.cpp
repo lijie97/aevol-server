@@ -78,7 +78,7 @@ Stats::Stats(ExpManager * exp_m,
 {
   _exp_m = exp_m;
   init_data();
-  set_file_names(prefix, best_indiv_only, with_plasmids, compute_phen_contrib_by_GU);// _exp_m->get_with_plasmids(), _exp_m->get_output_m()->get_compute_phen_contrib_by_GU());
+  set_file_names(prefix, best_indiv_only, with_plasmids, compute_phen_contrib_by_GU);// exp_m_->get_with_plasmids(), exp_m_->get_output_m()->get_compute_phen_contrib_by_GU());
   open_files();
   write_headers();
 }
@@ -614,7 +614,7 @@ void Stats::set_file_names(const char* prefix,
   
   const char* chrom_or_gu_name[NB_CHROM_OR_GU]    = { "", "_chromosome", "_plasmids" };
   const char* best_or_glob_name[NB_BEST_OR_GLOB]  = { "_best", "_glob", "_sdev", "_skew" };
-  const char* stat_type_name[NB_STATS_TYPES]      = { "_fitness", "_mutation", "_genes", "_bp", "_rear"};
+  const char* stat_type_name[NB_STATS_TYPES]      = { "fitness_", "_mutation", "_genes", "_bp", "_rear"};
   
   for ( int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++ )
   {
@@ -634,7 +634,7 @@ void Stats::set_file_names(const char* prefix,
       for ( int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++ )
       {
         //~ // We don't want REAR_STATS when rearrangements are done without alignments
-        //~ if ( stat_type == REAR_STATS && ! _exp_m->get_with_alignments() ) continue;
+        //~ if ( stat_type == REAR_STATS && ! exp_m_->get_with_alignments() ) continue;
         
         // For now, we only want sdev and skew for fitness data
         if ( best_or_glob > GLOB && stat_type > FITNESS_STATS) continue; 
