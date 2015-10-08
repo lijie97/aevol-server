@@ -104,7 +104,7 @@ class Fuzzy
   // ==========================================================================
   const std::list<Point>& get_points() const {return points;};
   // TODO: should be made protected or removed (looks like implementation specific)
-  const std::list<Point>& get_points(void) {return points;};
+  const std::list<Point>& get_points() {return points;};
   double get_geometric_area() const;
   double get_geometric_area(std::list<Point>::const_iterator begin,
                             std::list<Point>::const_iterator end) const;

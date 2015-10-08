@@ -46,6 +46,7 @@ using std::list;
 
 namespace aevol {
 
+// TODO vld: check types
 using Promoters1Strand = std::list<Rna>;
 using Promoters2Strands = std::vector<Promoters1Strand>;
 
@@ -75,7 +76,7 @@ class GeneticUnit
   // =================================================================
   //                             Destructors
   // =================================================================
-  virtual ~GeneticUnit( void );
+  virtual ~GeneticUnit();
 
   // =================================================================
   //                              Accessors
@@ -94,25 +95,25 @@ class GeneticUnit
 
 
   // Direct DNA access
-  const char*  get_sequence( void ) const;
-  int32_t      get_seq_length( void ) const;
+  const char*  get_sequence() const;
+  int32_t      get_seq_length() const;
 
 
   // Statistical data
-  int32_t  get_nb_coding_RNAs( void )                    const;
-  int32_t  get_nb_non_coding_RNAs( void )                const;
-  double   get_overall_size_coding_RNAs( void )          const;
-  double   get_av_size_coding_RNAs( void )               const;
-  double   get_overall_size_non_coding_RNAs( void )      const;
-  double   get_av_size_non_coding_RNAs( void )           const;
-  int32_t  get_nb_genes_activ( void )                    const;
-  int32_t  get_nb_genes_inhib( void )                    const;
-  int32_t  get_nb_functional_genes( void )               const;
-  int32_t  get_nb_non_functional_genes( void )           const;
-  double   get_overall_size_functional_genes( void )     const;
-  double   get_av_size_functional_genes( void )          const;
-  double   get_overall_size_non_functional_genes( void ) const;
-  double   get_av_size_non_functional_genes( void )      const;
+  int32_t  get_nb_coding_RNAs()                    const;
+  int32_t  get_nb_non_coding_RNAs()                const;
+  double   get_overall_size_coding_RNAs()          const;
+  double   get_av_size_coding_RNAs()               const;
+  double   get_overall_size_non_coding_RNAs()      const;
+  double   get_av_size_non_coding_RNAs()           const;
+  int32_t  get_nb_genes_activ()                    const;
+  int32_t  get_nb_genes_inhib()                    const;
+  int32_t  get_nb_functional_genes()               const;
+  int32_t  get_nb_non_functional_genes()           const;
+  double   get_overall_size_functional_genes()     const;
+  double   get_av_size_functional_genes()          const;
+  double   get_overall_size_non_functional_genes() const;
+  double   get_av_size_non_functional_genes()      const;
 
   int32_t  get_nb_bases_in_0_CDS() const;
   int32_t  get_nb_bases_in_0_functional_CDS() const;
@@ -135,8 +136,8 @@ class GeneticUnit
   double   get_fitness() const;
   double   get_fitness_by_feature(PhenotypicFeature feature) const;
 
-  int32_t  get_min_gu_length( void ) const;
-  int32_t  get_max_gu_length( void ) const;
+  int32_t  get_min_gu_length() const;
+  int32_t  get_max_gu_length() const;
 
 
   void set_min_gu_length( int32_t min_gu_length );
@@ -148,12 +149,12 @@ class GeneticUnit
   // =================================================================
   //                            Public Methods
   // =================================================================
-  void locate_promoters( void );
-  void do_transcription( void );
-  void do_translation( void );
-  void compute_phenotypic_contribution( void );
+  void locate_promoters();
+  void do_transcription();
+  void do_translation();
+  void compute_phenotypic_contribution();
 
-  void take_ownership_of_all_rnas(void) { Dna::set_GU(get_rna_list(), this); };
+  void take_ownership_of_all_rnas() { Dna::set_GU(get_rna_list(), this); };
 
 
 
@@ -162,7 +163,7 @@ class GeneticUnit
   void compute_distance_to_target(const PhenotypicTarget& target);
   void compute_fitness(const PhenotypicTarget& target);
 
-  void reset_expression( void ); // useful for post-treatment programs
+  void reset_expression(); // useful for post-treatment programs
 
   void print_rnas() const;
   void print_coding_rnas();
@@ -177,7 +178,7 @@ class GeneticUnit
   bool is_stop( Strand strand, int32_t pos ) const;
   int8_t      get_codon( Strand strand, int32_t pos ) const;
 
-  void compute_non_coding( void );
+  void compute_non_coding();
 
 
   // these functions are called once, they should likely not be public methods
@@ -226,7 +227,7 @@ class GeneticUnit
 
   void remove_promoters_around( int32_t pos );
   void remove_promoters_around( int32_t pos_1, int32_t pos_2 );
-  void remove_all_promoters( void );
+  void remove_all_promoters();
 
   void look_for_new_promoters_around( int32_t pos );
   void look_for_new_promoters_around( int32_t pos_1, int32_t pos_2 );
@@ -245,14 +246,14 @@ class GeneticUnit
   int32_t get_nb_terminators();
 
   //~ // set the genetic unit of all promoters to the appropriate
-  //~ void reasign_promoter_genetic_unit (void);
+  //~ void reasign_promoter_genetic_unit ();
 
-  void assert_promoters( void );
-  void assert_promoters_order( void );
+  void assert_promoters();
+  void assert_promoters_order();
 
-  bool* is_belonging_to_coding_RNA(void);
-  void remove_non_coding_bases( void);
-  void double_non_coding_bases(void);
+  bool* is_belonging_to_coding_RNA();
+  void remove_non_coding_bases();
+  void double_non_coding_bases();
 
   // WARNING: The method below works properly only in the case of a single genetic unit (no plasmid).
   // Translocations between different genetic units is not managed.
@@ -270,7 +271,7 @@ class GeneticUnit
   // =================================================================
   //                           Protected Methods
   // =================================================================
-  void init_statistical_data( void );
+  void init_statistical_data();
 
   void remove_leading_promoters_starting_between( int32_t pos_1, int32_t pos_2 );
   void remove_lagging_promoters_starting_between( int32_t pos_1, int32_t pos_2 );
