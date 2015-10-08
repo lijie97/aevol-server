@@ -1,0 +1,48 @@
+# -*- mode: org -*-
+# Best read with emacs's org-mode
+
+#+TITLE: Aevol's code blog
+
+This file is a simple brain dump of coding ideas floating around
+Aevol. Let's try to keep the items short and to the point.
+
+* cout vs printf
+2015-10-08 vld
+
+It is often reported that C++ streams are slow. I don't exactly know
+what is meant by this. But I break it down to the question of 'cout'
+and the 'endl' stream manipulator.
+
+** 'endl'
+'endl' is indeed slower than a mere '\n' because it produces a flush
+on top of it. The consequence is that 'endl' should only be used when
+explicitely intending to emit a flush.
+
+http://en.cppreference.com/w/cpp/io/manip/endl
+
+** 'cout'
+'cout' on the other hand is not slow, it's rather faster than 'printf'
+
+See Hexagon's comment on:
+http://stackoverflow.com/questions/896654/cout-or-printf-which-of-the-two-has-a-faster-execution-speed-c
+
+** further investigations
+*** Better practices?
+From http://stackoverflow.com/questions/213907/c-stdendl-vs-n:
+@legends2k: There is an old wives tale that C++ streams are not as
+performant as C printf(). Though true to an extent the main difference
+in speed is caused by people using C++ streams
+incorrectly. stackoverflow.com/a/1042121/14065 In C++ remember to
+unsync iostreams with C-streams sync_with_stdio(false) and don't flush
+your output continuously. Let the library work out when to do
+it. stackoverflow.com/a/1926432/14065 – Loki Astari Jan 22 '14 at
+19:53
+
+*** Quoting Technical Report on C++ Performance (2006)
+See beldaz's comment:
+http://stackoverflow.com/questions/4340396/does-the-c-standard-mandate-poor-performance-for-iostreams-or-am-i-just-deali
+Which quotes the following document (ftr):
+http://www.open-std.org/jtc1/sc22/wg21/docs/TR18015.pdf
+
+*** An alternative to C++'s 'iostream's
+http://www.fastformat.org/
