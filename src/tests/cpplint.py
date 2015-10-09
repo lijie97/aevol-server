@@ -5798,11 +5798,11 @@ def CheckRedundantVirtual(filename, clean_lines, linenum, error):
   # (possibly on the next few lines).
   for i in xrange(end_line, min(end_line + 3, clean_lines.NumLines())):
     line = clean_lines.elided[i][end_col:]
-    match = Search(r'\b(override|final)\b', line)
-    if match:
-      error(filename, linenum, 'readability/inheritance', 4,
-            ('"virtual" is redundant since function is '
-             'already declared as "%s"' % match.group(1)))
+    # match = Search(r'\b(override|final)\b', line)
+    # if match:
+    #   error(filename, linenum, 'readability/inheritance', 4,
+    #         ('"virtual" is redundant since function is '
+    #          'already declared as "%s"' % match.group(1)))
 
     # Set end_col to check whole lines after we are done with the
     # first line.
@@ -5834,10 +5834,10 @@ def CheckRedundantOverrideOrFinal(filename, clean_lines, linenum, error):
       return
 
   # Check that at most one of "override" or "final" is present, not both
-  if Search(r'\boverride\b', fragment) and Search(r'\bfinal\b', fragment):
-    error(filename, linenum, 'readability/inheritance', 4,
-          ('"override" is redundant since function is '
-           'already declared as "final"'))
+  # if Search(r'\boverride\b', fragment) and Search(r'\bfinal\b', fragment):
+  #   error(filename, linenum, 'readability/inheritance', 4,
+  #         ('"override" is redundant since function is '
+  #          'already declared as "final"'))
 
 
 
