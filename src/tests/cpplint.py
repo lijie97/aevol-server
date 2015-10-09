@@ -4418,12 +4418,13 @@ def CheckStyle(filename, clean_lines, linenum, file_extension, nesting_state,
   cleansed_line = clean_lines.elided[linenum]
   while initial_spaces < len(line) and line[initial_spaces] == ' ':
     initial_spaces += 1
-  if line and line[-1].isspace():
-    error(filename, linenum, 'whitespace/end_of_line', 4,
-          'Line ends in whitespace.  Consider deleting these extra spaces.')
-  # There are certain situations we allow one space, notably for
-  # section labels, and also lines containing multi-line raw strings.
-  elif ((initial_spaces == 1 or initial_spaces == 3) and
+  # if line and line[-1].isspace():
+  #   error(filename, linenum, 'whitespace/end_of_line', 4,
+  #         'Line ends in whitespace.  Consider deleting these extra spaces.')
+  # # There are certain situations we allow one space, notably for
+  # # section labels, and also lines containing multi-line raw strings.
+  # elif ((initial_spaces == 1 or initial_spaces == 3) and
+  if ((initial_spaces == 1 or initial_spaces == 3) and
         not Match(scope_or_label_pattern, cleansed_line) and
         not (clean_lines.raw_lines[linenum] != line and
              Match(r'^\s*""', line))):
