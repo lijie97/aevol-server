@@ -53,6 +53,9 @@ import sys
 import unicodedata
 
 
+_PROJECT_NAME = "Aevol"
+
+
 _USAGE = """
 Syntax: cpplint.py [--verbose=#] [--output=vs7] [--filter=-x,+y,...]
                    [--counting=total|toplevel|detailed] [--root=subdir]
@@ -1666,12 +1669,11 @@ def GetHeaderGuardCPPVariable(filename):
   filename = re.sub(r'/\.flymake/([^/]*)$', r'/\1', filename)
   # Replace 'c++' with 'cpp'.
   filename = filename.replace('C++', 'cpp').replace('c++', 'cpp')
-  
+
   fileinfo = FileInfo(filename)
-  file_path_from_root = fileinfo.RepositoryName()
-  if _root:
-    file_path_from_root = re.sub('^' + _root + os.sep, '', file_path_from_root)
-  return re.sub(r'[^a-zA-Z0-9]', '_', file_path_from_root).upper() + '_'
+  return _PROJECT_NAME.upper() + '_' + \
+        re.sub(r'[^a-zA-Z0-9]', '_', \
+               fileinfo.BaseName() + fileinfo.Extension()).upper() + '_'
 
 
 def CheckForHeaderGuard(filename, clean_lines, error):
