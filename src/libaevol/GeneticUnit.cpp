@@ -3420,9 +3420,9 @@ void GeneticUnit::double_non_coding_bases(void)
 
 void GeneticUnit::clear_transcribed_proteins() {
   for (auto strand: {LEADING, LAGGING}) {
-    for (auto& rna: _rna_list[strand])
+    for (auto& rna: rna_list_[strand])
       rna.clear_transcribed_proteins();
-    _protein_list[strand].clear();
+    protein_list_[strand].clear();
   }
 }
 } // namespace aevol
