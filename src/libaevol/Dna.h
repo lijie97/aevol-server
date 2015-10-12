@@ -90,9 +90,9 @@ class Dna : public ae_string
     //                              Accessors
     // =================================================================
     // From ae_string
-    //   inline const char*   get_data(void) const;
+    //   inline const char*   data(void) const;
     //   inline       void    set_data(char* data, int32_t length = -1);
-    //   inline       int32_t get_length(void) const;
+    //   inline       int32_t length(void) const;
 
     inline GeneticUnit*   get_genetic_unit(void) const;
     inline Individual * get_indiv(void) const;
@@ -193,9 +193,9 @@ class Dna : public ae_string
     ExpManager* _exp_m;
 
     // From ae_string
-    //   char*   _data;
-    //   int32_t _length;
-    //   int32_t _nb_blocks;
+    //   char*   data_;
+    //   int32_t length_;
+    //   int32_t nb_blocks_;
 
     Individual* _indiv;
     GeneticUnit* _gen_unit; // Genetic unit which the dna sequence belongs to

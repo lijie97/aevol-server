@@ -466,15 +466,17 @@ int main(int argc, char** argv)
       }
       assert(stored_gen_unit != stored_indiv->get_genetic_unit_list().cend());
 
-      char * str1 = new char[unit->get_dna()->get_length() + 1];
-      memcpy(str1, unit->get_dna()->get_data(), unit->get_dna()->get_length() * sizeof(char));
-      str1[unit->get_dna()->get_length()] = '\0';
+      char * str1 = new char[unit->get_dna()->length() + 1];
+      memcpy(str1, unit->get_dna()->data(),
+             unit->get_dna()->length() * sizeof(char));
+      str1[unit->get_dna()->length()] = '\0';
 
-      char * str2 = new char[stored_gen_unit->get_dna()->get_length() + 1];
-      memcpy(str2, stored_gen_unit->get_dna()->get_data(), stored_gen_unit->get_dna()->get_length() * sizeof(char));
-      str2[stored_gen_unit->get_dna()->get_length()] = '\0';
+      char * str2 = new char[stored_gen_unit->get_dna()->length() + 1];
+      memcpy(str2, stored_gen_unit->get_dna()->data(),
+             stored_gen_unit->get_dna()->length() * sizeof(char));
+      str2[stored_gen_unit->get_dna()->length()] = '\0';
 
-      if (strncmp(str1, str2, stored_gen_unit->get_dna()->get_length()) == 0)
+      if (strncmp(str1, str2, stored_gen_unit->get_dna()->length()) == 0)
       {
         if (verbose) printf(" OK\n");
       }

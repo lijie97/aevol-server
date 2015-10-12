@@ -25,26 +25,18 @@
 // ****************************************************************************
 
 
-#ifndef AEVOL_CODON_H__
-#define AEVOL_CODON_H__
+#ifndef AEVOL_CODON_H_
+#define AEVOL_CODON_H_
 
 
 // =================================================================
-//                              Libraries
+//                              Includes
 // =================================================================
-#include <inttypes.h>
+#include <cinttypes>
+#include <cstdio>
+#include <cstdlib>
+#include <cassert>
 
-
-
-
-
-// =================================================================
-//                            Project Files
-// =================================================================
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
 #include "Dna.h"
 #include "macros.h"
 
@@ -61,97 +53,58 @@ namespace aevol {
 
 
 
-class Codon
-{
-  public :
+class Codon {
+ public :
+  // =================================================================
+  //                             Constructors
+  // =================================================================
+  Codon();
+  explicit Codon(const Codon &model);
+  explicit Codon(int8_t value);
+  Codon(Dna* genome, Strand strand, int32_t index);
+  explicit Codon(gzFile backup_file);
 
-    // =================================================================
-    //                             Constructors
-    // =================================================================
-    Codon( void );
-    Codon( const Codon &model );
-    Codon( int8_t value );
-    Codon( Dna * genome, Strand strand, int32_t index );
-    Codon( gzFile backup_file );
+  // =================================================================
+  //                             Destructors
+  // =================================================================
+  virtual ~Codon();
 
-    // =================================================================
-    //                             Destructors
-    // =================================================================
-    virtual ~Codon( void );
+  // =================================================================
+  //                              Accessors
+  // =================================================================
+  inline int8_t get_value() {return value_;}
 
-    // =================================================================
-    //                              Accessors
-    // =================================================================
-    inline int8_t get_value( void );
-
-    // =================================================================
-    //                            Public Methods
-    // =================================================================
-    inline bool is_start( void );
-    inline bool is_stop( void );
-    inline Codon * copy( void );
-    void   save( gzFile backup_file );
-
-    // =================================================================
-    //                           Public Attributes
-    // =================================================================
+  // =================================================================
+  //                            Public Methods
+  // =================================================================
+  inline bool is_start() {return value_ == CODON_START;}
+  inline bool is_stop() {return value_ == CODON_STOP;}
+  inline Codon* copy();
+  void   save(gzFile backup_file);
 
 
+ protected :
+  // =================================================================
+  //                           Protected Methods
+  // =================================================================
 
-
-
-  protected :
-
-    // =================================================================
-    //                         Forbidden Constructors
-    // =================================================================
-    //~ Codon( void )
-    //~ {
-      //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      //~ exit( EXIT_FAILURE );
-    //~ };
-    //~ Codon( const Codon &model )
-    //~ {
-      //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      //~ exit( EXIT_FAILURE );
-    //~ };
-
-    // =================================================================
-    //                           Protected Methods
-    // =================================================================
-
-    // =================================================================
-    //                          Protected Attributes
-    // =================================================================
-    int8_t _value;
+  // =================================================================
+  //                          Protected Attributes
+  // =================================================================
+  int8_t value_;
 };
 
 
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-int8_t Codon::get_value( void )
-{
-  return _value;
-}
-
-bool Codon::is_start( void )
-{
-  return _value == CODON_START;
-}
-
-bool Codon::is_stop( void )
-{
-  return _value == CODON_STOP;
-}
 
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-Codon *Codon::copy( void )
-{
-  return new Codon( _value );
+Codon* Codon::copy() { // TODO <david.parsons@inria.fr> use copy ctor instead !
+  return new Codon(value_);
 }
 
 } // namespace aevol
-#endif // AEVOL_CODON_H__
+#endif // AEVOL_CODON_H_

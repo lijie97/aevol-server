@@ -25,19 +25,17 @@
 // ****************************************************************************
 
 
-#ifndef AEVOL_ENUMS_H__
-#define AEVOL_ENUMS_H__
+#ifndef AEVOL_ENUMS_H_
+#define AEVOL_ENUMS_H_
 
 namespace aevol {
 
-enum AlignmentFunctionShape
-{
+enum AlignmentFunctionShape {
   LINEAR  = 0,
   SIGMOID = 1
 };
 
-enum PhenotypicFeature
-{
+enum PhenotypicFeature {
   NEUTRAL     = 0,
   METABOLISM  = 1,
   SECRETION   = 2,
@@ -45,54 +43,50 @@ enum PhenotypicFeature
   RECIPIENT   = 4
 };
 
-#define NB_FEATURES 5 // This is used to know how many possible features exist to make them easy to parse.
+// This is used to know how many possible features exist to make them easy to
+// parse
+// TODO <david.parsons@inria.fr> This is bad !!!
+#define NB_FEATURES 5
 
-enum PhenotypicTargetVariationMethod
-{
+enum PhenotypicTargetVariationMethod {
   NO_VAR                    = 0,
   AUTOREGRESSIVE_MEAN_VAR   = 1,
   AUTOREGRESSIVE_HEIGHT_VAR = 2,
   LOCAL_GAUSSIANS_VAR       = 3
 };
 
-enum PhenotypicTargetNoiseMethod
-{
+enum PhenotypicTargetNoiseMethod {
   NO_NOISE  = 0,
   FRACTAL   = 1
 };
 
-enum GenomeInitializationMethod
-{
+enum GenomeInitializationMethod {
   ONE_GOOD_GENE   = 0x01,
   CLONE           = 0x02,
   WITH_INS_SEQ    = 0x04
 };
 
-enum AlignmentSense
-{
+enum AlignmentSense {
   DIRECT      = 0,
   INDIRECT    = 1,
   BOTH_SENSES = 2
 };
-  
-enum SelectionScheme
-{
+
+enum SelectionScheme {
   RANK_LINEAR           = 0,
   RANK_EXPONENTIAL      = 1,
   FITNESS_PROPORTIONATE = 2,
   FITTEST               = 3
 };
 
-enum LogType
-{
+enum LogType {
   LOG_TRANSFER  = 0x01,
   LOG_REAR      = 0x02,
   LOG_BARRIER   = 0x04,
-  //LOG_LOADS     = 0x08
+  LOG_LOADS     = 0x08
 };
 
-enum Strand
-{
+enum Strand {
   LEADING = 0,
   LAGGING = 1
 };
@@ -110,4 +104,4 @@ enum Position {
 
 } // namespace aevol
 
-#endif // AEVOL_ENUMS_H__
+#endif // AEVOL_ENUMS_H_

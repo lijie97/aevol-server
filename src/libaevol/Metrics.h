@@ -188,7 +188,7 @@ void Metrics::Reset() {
 }
 
 void Metrics::Accumulate(const GeneticUnit& gen_unit) {
-  total_genome_size_ += gen_unit.get_dna()->get_length();
+  total_genome_size_ += gen_unit.get_dna()->length();
   nb_coding_RNAs_ += gen_unit.get_nb_coding_RNAs();
   nb_non_coding_RNAs_ += gen_unit.get_nb_non_coding_RNAs();
   overall_size_coding_RNAs_ += gen_unit.get_overall_size_coding_RNAs();

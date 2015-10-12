@@ -693,7 +693,7 @@ void draw_phenotype(Individual* indiv, const PhenotypicTarget& target, char* dir
 void draw_genetic_unit_with_CDS(GeneticUnit* gen_unit, char * directoryName)
 {
   const uint8_t bbsize = 200;  // a4 paper: 595*842
-  int32_t gen_length = (gen_unit->get_dna())->get_length();
+  int32_t gen_length = (gen_unit->get_dna())->length();
   double r = 0.35;
   double scale = 2*M_PI*r/gen_length;
 
@@ -975,7 +975,7 @@ void draw_genetic_unit_with_CDS(GeneticUnit* gen_unit, char * directoryName)
 void draw_genetic_unit_with_mRNAs(GeneticUnit* gen_unit, char * directoryName)
 {
   const uint8_t bbsize = 200;  // a4 paper: 595*842
-  int32_t gen_length = (gen_unit->get_dna())->get_length();
+  int32_t gen_length = (gen_unit->get_dna())->length();
   double r = 0.35;
   double scale = 2*M_PI*r/gen_length;
 

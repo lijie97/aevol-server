@@ -111,11 +111,11 @@ int32_t Rna::get_first_transcribed_pos( void ) const
 {
   if ( _strand == LEADING )
   {
-    return Utils::mod( _pos + PROM_SIZE, _gen_unit->get_dna()->get_length() );
+    return Utils::mod( _pos + PROM_SIZE, _gen_unit->get_dna()->length() );
   }
   else
   {
-    return Utils::mod( _pos - PROM_SIZE, _gen_unit->get_dna()->get_length() );
+    return Utils::mod( _pos - PROM_SIZE, _gen_unit->get_dna()->length() );
   }
 }
 
@@ -123,11 +123,13 @@ int32_t Rna::get_last_transcribed_pos( void ) const
 {
   if ( _strand == LEADING )
   {
-    return Utils::mod( _pos +  PROM_SIZE + _transcript_length - 1, _gen_unit->get_dna()->get_length() );
+    return Utils::mod( _pos +  PROM_SIZE + _transcript_length - 1,
+                       _gen_unit->get_dna()->length() );
   }
   else
   {
-    return Utils::mod( _pos - (PROM_SIZE + _transcript_length - 1), _gen_unit->get_dna()->get_length() );
+    return Utils::mod( _pos - (PROM_SIZE + _transcript_length - 1),
+                       _gen_unit->get_dna()->length() );
   }
 }
 

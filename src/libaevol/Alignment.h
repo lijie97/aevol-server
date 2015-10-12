@@ -30,19 +30,13 @@
 
 
 // =================================================================
-//                              Libraries
+//                              Includes
 // =================================================================
-#include <inttypes.h>
+#include <cinttypes>
+#include <cstdio>
+#include <cstdlib>
+#include <cassert>
 
-
-
-// =================================================================
-//                            Project Files
-// =================================================================
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
 #include "VisAVis.h"
 
 namespace aevol {
@@ -57,80 +51,72 @@ class Dna;
 
 
 
-class Alignment
-{
-  public :
+class Alignment {
+ public :
 
-    // =================================================================
-    //                             Constructors
-    // =================================================================
+  // =================================================================
+  //                             Constructors
+  // =================================================================
+  Alignment() = delete;
+  Alignment(const Alignment&) = delete;
 
-    // =================================================================
-    //                             Destructors
-    // =================================================================
+  // =================================================================
+  //                             Destructors
+  // =================================================================
 
-    // =================================================================
-    //                              Accessors
-    // =================================================================
+  // =================================================================
+  //                              Accessors
+  // =================================================================
 
-    // =================================================================
-    //                            Public Methods
-    // =================================================================
-    static VisAVis * search_alignment_direct( const Dna * chrom1, const int32_t seed1,
-                                                  const Dna * chrom2, const int32_t seed2, int16_t needed_score );
-    static VisAVis * search_alignment_indirect( const Dna * chrom1, const int32_t seed1,
-                                                    const Dna * chrom2, const int32_t seed2, int16_t needed_score );
+  // =================================================================
+  //                            Public Methods
+  // =================================================================
+  static VisAVis* search_alignment_direct(const Dna * chrom1,
+                                          const int32_t seed1,
+                                          const Dna* chrom2,
+                                          const int32_t seed2,
+                                          int16_t needed_score);
+  static VisAVis* search_alignment_indirect(const Dna* chrom1,
+                                            const int32_t seed1,
+                                            const Dna* chrom2,
+                                            const int32_t seed2,
+                                            int16_t needed_score);
 
-    // =================================================================
-    //                           Public Attributes
-    // =================================================================
+  // =================================================================
+  //                           Public Attributes
+  // =================================================================
 
-    static bool with_alignments;
+  static bool with_alignments;
 
-    static AlignmentFunctionShape align_fun_shape;
-    
-    static double  align_sigm_lambda;
-    static int16_t align_sigm_mean;
-    static int16_t align_lin_min;
-    static int16_t align_lin_max;
-    
-    // Maximum shift of one seq on the other
-    static int16_t align_max_shift;
-    // Work zone half length
-    static int16_t align_w_zone_h_len;
-    // Corresponding residues match bonus
-    static int16_t align_match_bonus;
-    // Corresponding residues mismatch cost
-    static int16_t align_mismatch_cost;
+  static AlignmentFunctionShape align_fun_shape;
 
+  static double  align_sigm_lambda;
+  static int16_t align_sigm_mean;
+  static int16_t align_lin_min;
+  static int16_t align_lin_max;
 
-
-
-
-  protected :
-
-    // =================================================================
-    //                         Forbidden Constructors
-    // =================================================================
-    Alignment( void )
-    {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-    Alignment( const Alignment &model )
-    {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
+  // Maximum shift of one seq on the other
+  static int16_t align_max_shift;
+  // Work zone half length
+  static int16_t align_w_zone_h_len;
+  // Corresponding residues match bonus
+  static int16_t align_match_bonus;
+  // Corresponding residues mismatch cost
+  static int16_t align_mismatch_cost;
 
 
-    // =================================================================
-    //                           Protected Methods
-    // =================================================================
 
-    // =================================================================
-    //                          Protected Attributes
-    // =================================================================
+
+
+ protected :
+
+  // =================================================================
+  //                           Protected Methods
+  // =================================================================
+
+  // =================================================================
+  //                          Protected Attributes
+  // =================================================================
 };
 
 

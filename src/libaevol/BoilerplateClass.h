@@ -25,8 +25,8 @@
 //*****************************************************************************
 
 
-#ifndef AEVOL_BOILERPLATE_CLASS_H__
-#define AEVOL_BOILERPLATE_CLASS_H__
+#ifndef AEVOL_BOILERPLATECLASS_H_
+#define AEVOL_BOILERPLATECLASS_H_
 
 
 // ============================================================================
@@ -49,8 +49,7 @@ namespace aevol {
 
 
 
-class BoilerplateClass
-{
+class BoilerplateClass {
  public :
   // ==========================================================================
   //                               Constructors
@@ -113,4 +112,4 @@ class BoilerplateClass
 
 } // namespace aevol
 
-#endif // AEVOL_BOILERPLATE_CLASS_H__
+#endif // AEVOL_BOILERPLATECLASS_H_

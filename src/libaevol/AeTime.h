@@ -25,24 +25,18 @@
 //*****************************************************************************
 
 
-#ifndef AEVOL_TIME_H__
-#define AEVOL_TIME_H__
+#ifndef AEVOL_TIME_H_
+#define AEVOL_TIME_H_
 
 
 // =================================================================
-//                              Libraries
+//                              Includes
 // =================================================================
-#include <inttypes.h>
+#include <cinttypes>
+#include <cstdio>
+#include <cstdlib>
+#include <cassert>
 
-
-
-// =================================================================
-//                            Project Files
-// =================================================================
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
 
 namespace aevol {
 
@@ -59,8 +53,7 @@ namespace aevol {
  *
  * e.g. when creating generation 1 from generation 0, time == 1
  */
-class AeTime
-{
+class AeTime {
  public :
   // =================================================================
   //                             Constructors
@@ -77,12 +70,12 @@ class AeTime
   // =================================================================
   //                        Accessors: getters
   // =================================================================
-  static inline int64_t get_time(void) { return time; };
+  static inline int64_t get_time(void) {return time;}
 
   // =================================================================
   //                        Accessors: setters
   // =================================================================
-  static inline void set_time(int64_t t) { time = t; };
+  static inline void set_time(int64_t t) {time = t;}
 
   // =================================================================
   //                              Operators
@@ -91,7 +84,7 @@ class AeTime
   // =================================================================
   //                            Public Methods
   // =================================================================
-  static inline void plusplus(void) { time++; };
+  static inline void plusplus(void) {time++;}
 
   // =================================================================
   //                           Public Attributes
@@ -133,4 +126,4 @@ int64_t get_time(void);
 
 } // namespace aevol
 
-#endif // AEVOL_TIME_H__
+#endif // AEVOL_TIME_H_

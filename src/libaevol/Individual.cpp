@@ -573,7 +573,7 @@ int32_t Individual::get_nb_plasmids() const {
 int32_t Individual::get_amount_of_dna() const {
   int32_t amount = 0;
   for (const auto& gen_unit: _genetic_unit_list)
-    amount += gen_unit.get_dna()->get_length();
+    amount += gen_unit.get_dna()->length();
   return amount;
 }
 
@@ -1779,7 +1779,7 @@ double Individual::compute_theoritical_f_nu() {
   // Please notice that compared to the formula we have the beginning
   // and ends of neutral regions instead of 'functional regions'
   GeneticUnit& chromosome = _genetic_unit_list.front();
-  int32_t L       = chromosome.get_dna()->get_length();
+  int32_t L       = chromosome.get_dna()->length();
   int32_t N_G     = chromosome.get_nb_neutral_regions(); // which is not exactly Carole's original definition
   int32_t* b_i    = chromosome.get_beginning_neutral_regions();
   int32_t* e_i    = chromosome.get_end_neutral_regions();
