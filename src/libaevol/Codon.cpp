@@ -28,27 +28,23 @@
 
 
 // =================================================================
-//                              Libraries
-// =================================================================
-#include <math.h>
-
-
-
-// =================================================================
-//                            Project Files
+//                              Includes
 // =================================================================
 #include "Codon.h"
+
+#include <cmath>
+
 #include "Utils.h"
 
 namespace aevol {
 
 
 
-//##############################################################################
-//                                                                             #
-//                                Class Codon                               #
-//                                                                             #
-//##############################################################################
+// ############################################################################
+//
+//                                Class Codon
+//
+// ############################################################################
 
 // =================================================================
 //                    Definition of static attributes
@@ -57,70 +53,54 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-Codon::Codon( void )
-{
-  _value = -1;
+Codon::Codon() {
+  value_ = -1;
 }
 
-Codon::Codon( const Codon &model )
-{
-  _value = model._value;
+Codon::Codon(const Codon &model) {
+  value_ = model.value_;
 }
 
-Codon::Codon( int8_t value )
-{
-  _value = value;
+Codon::Codon(int8_t value) {
+  value_ = value;
 }
 
-Codon::Codon( Dna * dna, Strand strand, int32_t index )
-{
-  const char* gen = dna->get_data();
-  int32_t     len = dna->get_length();
+Codon::Codon(Dna * dna, Strand strand, int32_t index) {
+  const char* gen = dna->data();
+  int32_t     len = dna->length();
 
-  _value = 0;
+  value_ = 0;
 
-  if ( strand == LEADING )
-  {
-    for ( int8_t i = 0 ; i < CODON_SIZE ; i++ )
-    {
-      if ( gen[Utils::mod((index+i),len)] == '1' )
-      {
-        //_value += pow( 2, CODON_SIZE - i - 1 );
-        _value += 1 << ( CODON_SIZE - i - 1 );
+  if (strand == LEADING) {
+    for (int8_t i = 0 ; i < CODON_SIZE ; i++) {
+      if (gen[Utils::mod((index+i), len)] == '1') {
+        value_ += 1 << (CODON_SIZE - i - 1);
       }
     }
   }
-  else // ( strand == LAGGING )
-  {
-    for ( int8_t i = 0 ; i < CODON_SIZE ; i++ )
-    {
-      if ( gen[Utils::mod((index-i),len)] != '1' ) // == and not != because we are on the complementary strand...
-      {
-        //_value += pow( 2, CODON_SIZE - i - 1 );
-        _value += 1 << ( CODON_SIZE - i - 1 );
+  else { // (strand == LAGGING)
+    for (int8_t i = 0 ; i < CODON_SIZE ; i++) {
+      if (gen[Utils::mod((index-i), len)] != '1') {
+        value_ += 1 << (CODON_SIZE - i - 1);
       }
     }
   }
 }
 
-Codon::Codon( gzFile backup_file )
-{
-  gzread( backup_file, &_value,   			sizeof(_value) );
+Codon::Codon(gzFile backup_file) {
+  gzread(backup_file, &value_, sizeof(value_));
 }
 
 // =================================================================
 //                             Destructors
 // =================================================================
-Codon::~Codon( void )
-{
-}
+Codon::~Codon() = default;
 
 // =================================================================
 //                            Public Methods
 // =================================================================
-void Codon::save( gzFile backup_file )
-{
-  gzwrite( backup_file, &_value,   			sizeof(_value) );
+void Codon::save(gzFile backup_file) {
+  gzwrite(backup_file, &value_, sizeof(value_));
 }
 // =================================================================
 //                           Protected Methods

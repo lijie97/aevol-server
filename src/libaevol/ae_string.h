@@ -25,10 +25,10 @@
 //*****************************************************************************
 
 
-#ifndef AEVOL_STRING_H__
-#define AEVOL_STRING_H__
- 
- 
+#ifndef AEVOL_STRING_H_
+#define AEVOL_STRING_H_
+
+
 // =================================================================
 //                              Libraries
 // =================================================================
@@ -63,33 +63,32 @@ namespace aevol {
 
 
 #define BLOCK_SIZE INT32_C(1024)
- 
-class ae_string
-{  
+
+class ae_string {
  public :
 
   // =================================================================
   //                             Constructors
   // =================================================================
-  ae_string(void);
+  ae_string();
   ae_string(const ae_string &model);
   ae_string(int32_t length, std::shared_ptr<JumpingMT> prng);
   ae_string(const char* seq, int32_t length);
   ae_string(char* seq, int32_t length, bool use_seq);
-  ae_string(gzFile backup_file);
-  ae_string(char* organism_file_name);
+  explicit ae_string(gzFile backup_file);
+  explicit ae_string(char* organism_file_name);
 
   // =================================================================
   //                             Destructors
   // =================================================================
-  virtual ~ae_string(void);
+  virtual ~ae_string();
 
   // =================================================================
   //                              Accessors
   // =================================================================
-  inline const char*   get_data(void) const;
-  inline       void    set_data(char* data, int32_t length = -1);
-  inline       int32_t get_length(void) const;
+  const char* data() const {return data_;}
+  int32_t length() const {return length_;}
+  inline void set_data(char* data, int32_t length = -1);
 
   // =================================================================
   //                            Public Methods
@@ -113,46 +112,33 @@ class ae_string
   // =================================================================
   //                          Protected Attributes
   // =================================================================
-  char*   _data;
-  int32_t _length;
-  int32_t _nb_blocks;
+  char* data_;
+  int32_t length_;
+  int32_t nb_blocks_;
 };
 
 
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-inline const char* ae_string::get_data(void) const
-{
-  return _data;
-}
-
-inline void ae_string::set_data(char* data, int32_t length /* = -1 */)
-{
-  if (_data != NULL)
-  {
-    delete [] _data;
-    _data = NULL;
+void ae_string::set_data(char* data, int32_t length /* = -1 */) {
+  if (data_ != NULL) {
+    delete [] data_;
+    data_ = NULL;
   }
   
-  _data       = data;
-  _length     = (length != -1) ? length : strlen(_data);
-  _nb_blocks  = nb_blocks(_length);
-}
-
-inline int32_t ae_string::get_length(void) const
-{
-  return _length;
+  data_ = data;
+  length_ = (length != -1) ? length : strlen(data_);
+  nb_blocks_ = nb_blocks(length_);
 }
 
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-int32_t ae_string::nb_blocks(int32_t length)
-{
+int32_t ae_string::nb_blocks(int32_t length) {
   return length/BLOCK_SIZE + 1;
 }
 
 } // namespace aevol
 
-#endif // AEVOL_STRING_H__
+#endif // AEVOL_STRING_H_

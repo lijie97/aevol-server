@@ -109,7 +109,7 @@ void Individual_X11::display_cdss(X11Window * win)
 {
   // Retreive the genetic unit corresponding to the main chromosome
   GeneticUnit* gen_unit = &_genetic_unit_list.front();
-  int32_t genome_length = gen_unit->get_dna()->get_length();
+  int32_t genome_length = gen_unit->get_dna()->length();
 
   // Display the number of CDSs
   char display_string[40];
@@ -331,7 +331,7 @@ void Individual_X11::display_cdss(X11Window * win)
     GeneticUnit* gen_unit = &*std::next(_genetic_unit_list.begin());
     if (gen_unit == NULL) return;
 
-    int32_t genome_length = gen_unit->get_dna()->get_length();
+    int32_t genome_length = gen_unit->get_dna()->length();
 
 
     // Compute display diameter according to genome length and window size
@@ -546,7 +546,7 @@ void Individual_X11::display_rnas(X11Window * win)
 {
   // Retreive the genetic unit corresponding to the main chromosome
   const GeneticUnit* gen_unit = &_genetic_unit_list.front();
-  int32_t genome_length = gen_unit->get_dna()->get_length();
+  int32_t genome_length = gen_unit->get_dna()->length();
 
   // Display the number of RNAs
   char nb_rna[40];

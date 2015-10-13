@@ -203,7 +203,7 @@ StatRecord::StatRecord(ExpManager* exp_m,
     }
 
     // Genes and RNA stats
-    _amount_of_dna               = gen_unit.get_dna()->get_length();
+    _amount_of_dna               = gen_unit.get_dna()->length();
     _nb_coding_rnas              = gen_unit.get_nb_coding_RNAs();
     _nb_non_coding_rnas          = gen_unit.get_nb_non_coding_RNAs();
     _av_size_coding_rnas         = gen_unit.get_av_size_coding_RNAs();
@@ -301,7 +301,7 @@ StatRecord::StatRecord(ExpManager* exp_m,
 
     for (auto& gen_unit: indiv->get_genetic_unit_list_nonconst()) {
       // Genes and RNA stats
-      _amount_of_dna               += gen_unit.get_dna()->get_length();
+      _amount_of_dna               += gen_unit.get_dna()->length();
       _nb_coding_rnas              += gen_unit.get_nb_coding_RNAs();
       _nb_non_coding_rnas          += gen_unit.get_nb_non_coding_RNAs();
       _av_size_coding_rnas         += gen_unit.get_av_size_coding_RNAs();
@@ -400,7 +400,7 @@ StatRecord::StatRecord(ExpManager* exp_m,
     }
     
       // Genes and RNA stats
-    _amount_of_dna               = gen_unit.get_dna()->get_length();
+    _amount_of_dna               = gen_unit.get_dna()->length();
     _nb_coding_rnas              = gen_unit.get_nb_coding_RNAs();
     _nb_non_coding_rnas          = gen_unit.get_nb_non_coding_RNAs();
     _av_size_coding_rnas         = gen_unit.get_av_size_coding_RNAs();

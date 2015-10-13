@@ -213,8 +213,8 @@ inline void analyse_indiv(Individual* indiv, FILE* triangles_file,
       }
       if (sequence_file != NULL)
       {
-        const char* dna = gen_unit.get_dna()->get_data();
-        int32_t length = gen_unit.get_dna()->get_length();
+        const char* dna = gen_unit.get_dna()->data();
+        int32_t length = gen_unit.get_dna()->length();
         fprintf(sequence_file,"%.*s ",length,dna); // We output the sequences of each GU separated by a space
       }
 
@@ -230,8 +230,8 @@ inline void analyse_indiv(Individual* indiv, FILE* triangles_file,
     }
     if (sequence_file != NULL)
     {
-      const char* dna = gen_unit->get_dna()->get_data();
-      int32_t length = gen_unit->get_dna()->get_length();
+      const char* dna = gen_unit->get_dna()->data();
+      int32_t length = gen_unit->get_dna()->length();
       fprintf(sequence_file,"%.*s",length,dna); // We output the sequence
     }
   }

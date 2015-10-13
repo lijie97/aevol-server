@@ -404,16 +404,17 @@ int main(int argc, char** argv)
         fflush(NULL);
       }
 
-      char * str1 = new char[gen_unit.get_dna()->get_length() + 1];
-      memcpy(str1, gen_unit.get_dna()->get_data(), \
-             gen_unit.get_dna()->get_length()*sizeof(char));
-      str1[gen_unit.get_dna()->get_length()] = '\0';
+      char * str1 = new char[gen_unit.get_dna()->length() + 1];
+      memcpy(str1, gen_unit.get_dna()->data(), \
+             gen_unit.get_dna()->length()*sizeof(char));
+      str1[gen_unit.get_dna()->length()] = '\0';
 
-      char * str2 = new char[(stored_gen_unit->get_dna())->get_length() + 1];
-      memcpy(str2, (stored_gen_unit->get_dna())->get_data(), (stored_gen_unit->get_dna())->get_length()*sizeof(char));
-      str2[(stored_gen_unit->get_dna())->get_length()] = '\0';
+      char * str2 = new char[(stored_gen_unit->get_dna())->length() + 1];
+      memcpy(str2, (stored_gen_unit->get_dna())->data(),
+             (stored_gen_unit->get_dna())->length()*sizeof(char));
+      str2[(stored_gen_unit->get_dna())->length()] = '\0';
 
-      if (strncmp(str1, str2, stored_gen_unit->get_dna()->get_length()) == 0) {
+      if (strncmp(str1, str2, stored_gen_unit->get_dna()->length()) == 0) {
         if (verbose)
           printf(" OK\n");
       }

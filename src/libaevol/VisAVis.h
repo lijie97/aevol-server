@@ -214,7 +214,8 @@ inline bool VisAVis::match( void )
 {
   if ( _sense == DIRECT )
   {
-    return ( _chrom_1->get_data()[Utils::mod(_i_1, _chrom_1->get_length())] == _chrom_2->get_data()[Utils::mod(_i_2, _chrom_2->get_length())] );
+    return (_chrom_1->data()[Utils::mod(_i_1, _chrom_1->length())] ==
+        _chrom_2->data()[Utils::mod(_i_2, _chrom_2->length())] );
   }
   else // ( _sense == INDIRECT )
   {
@@ -226,7 +227,8 @@ inline bool VisAVis::match( void )
     //      9 8 7 6 5 4 3 2 1 0
     //
     // The breakpoint F-5 puts into a vis_a_vis the nucleotide at index F on seq1 and that at index 4 (not 5!!!) on seq2
-    return ( _chrom_1->get_data()[Utils::mod(_i_1, _chrom_1->get_length())] != _chrom_2->get_data()[Utils::mod(_i_2-1, _chrom_2->get_length())] );
+    return (_chrom_1->data()[Utils::mod(_i_1, _chrom_1->length())] !=
+        _chrom_2->data()[Utils::mod(_i_2-1, _chrom_2->length())] );
   }
 }
 
@@ -338,8 +340,8 @@ inline void VisAVis::copy( VisAVis * source )
 
 inline void VisAVis::check_indices( void )
 {
-  _i_1 = Utils::mod( _i_1, _chrom_1->get_length() );
-  _i_2 = Utils::mod( _i_2, _chrom_2->get_length() );
+  _i_1 = Utils::mod( _i_1, _chrom_1->length() );
+  _i_2 = Utils::mod( _i_2, _chrom_2->length() );
 }
 } // namespace aevol
 

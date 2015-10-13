@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef AEVOL_INCLUDE_AEVOL_H__
-#define AEVOL_INCLUDE_AEVOL_H__
+#ifndef AEVOL_AEVOL_H_
+#define AEVOL_AEVOL_H_
 
 #include "ae_enums.h"
 #include "ae_string.h"
@@ -75,4 +75,4 @@
 #include "World.h"
 #include "X11Window.h"
 
-#endif  // AEVOL_INCLUDE_AEVOL_H__
+#endif // AEVOL_AEVOL_H_
