@@ -4344,10 +4344,10 @@ def CheckAltTokens(filename, clean_lines, linenum, error):
   if line.find('/*') >= 0 or line.find('*/') >= 0:
     return
 
-  for match in _ALT_TOKEN_REPLACEMENT_PATTERN.finditer(line):
-    error(filename, linenum, 'readability/alt_tokens', 2,
-          'Use operator %s instead of %s' % (
-              _ALT_TOKEN_REPLACEMENT[match.group(1)], match.group(1)))
+  # for match in _ALT_TOKEN_REPLACEMENT_PATTERN.finditer(line):
+  #   error(filename, linenum, 'readability/alt_tokens', 2,
+  #         'Use operator %s instead of %s' % (
+  #             _ALT_TOKEN_REPLACEMENT[match.group(1)], match.group(1)))
 
 
 def GetLineWidth(line):
