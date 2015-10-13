@@ -42,11 +42,11 @@ namespace aevol {
 
 
 
-//##############################################################################
-//                                                                             #
-//                              Class VisAVis                             #
-//                                                                             #
-//##############################################################################
+// ############################################################################
+//
+//                              Class VisAVis
+//
+// ############################################################################
 
 // =================================================================
 //                    Definition of static attributes
@@ -55,8 +55,8 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-VisAVis::VisAVis( const Dna * chrom_1, const Dna * chrom_2, int32_t i_1, int32_t i_2, AlignmentSense sense /*= DIRECT*/ )
-{
+VisAVis::VisAVis(const Dna* chrom_1, const Dna* chrom_2,
+                 int32_t i_1, int32_t i_2, AlignmentSense sense /*= DIRECT*/) {
   _chrom_1  = chrom_1;
   _chrom_2  = chrom_2;
   _i_1      = i_1;
@@ -65,8 +65,7 @@ VisAVis::VisAVis( const Dna * chrom_1, const Dna * chrom_2, int32_t i_1, int32_t
   _score    = 0;
 }
 
-VisAVis::VisAVis( const VisAVis & orig )
-{
+VisAVis::VisAVis(const VisAVis & orig) {
   _chrom_1  = orig._chrom_1;
   _chrom_2  = orig._chrom_2;
   _i_1      = orig._i_1;
@@ -75,7 +74,7 @@ VisAVis::VisAVis( const VisAVis & orig )
   _score    = orig._score;
 }
 
-//~ VisAVis::VisAVis( const VisAVis * orig )
+//~ VisAVis::VisAVis(const VisAVis* orig)
 //~ {
   //~ _chrom_1  = orig->_chrom_1;
   //~ _chrom_2  = orig->_chrom_2;
@@ -87,8 +86,7 @@ VisAVis::VisAVis( const VisAVis & orig )
 // =================================================================
 //                             Destructors
 // =================================================================
-VisAVis::~VisAVis( void )
-{
+VisAVis::~VisAVis() {
 }
 
 // =================================================================

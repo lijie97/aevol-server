@@ -171,13 +171,16 @@ void World::update_secretion_grid(void)
           cur_y = (y + j + height_) % height_;
 
           // add the diffusion from the neighboring cells
-          new_secretion[x][y] += grid_[cur_x][cur_y]->compound_amount() * _secretion_diffusion_prop;
+          new_secretion[x][y] +=
+              grid_[cur_x][cur_y]->compound_amount() *
+                  _secretion_diffusion_prop;
         }
       }
     }
   }
 
-  // substract what has diffused from each cell, and calculate the compound degradation
+  // Substract what has diffused from each cell, and calculate the
+  // compound degradation
   for (int16_t x = 0 ; x < width_ ; x++)
   {
     for (int16_t y = 0 ; y < height_ ; y++)
@@ -292,8 +295,8 @@ void World::save(gzFile backup_file) const
   }
 
   // Manage shared or private phenotypic targets
-  int8_t tmp_phenotypic_target_shared = static_cast<int8_t>(phenotypic_target_shared_
-                                                            ? 1 : 0);
+  int8_t tmp_phenotypic_target_shared =
+      static_cast<int8_t>(phenotypic_target_shared_ ? 1 : 0);
   gzwrite(backup_file,
           &tmp_phenotypic_target_shared,
           sizeof(tmp_phenotypic_target_shared));
@@ -310,10 +313,14 @@ void World::save(gzFile backup_file) const
   gzwrite(backup_file, &x_best, sizeof(x_best));
   gzwrite(backup_file, &y_best, sizeof(y_best));
 
-  gzwrite(backup_file, &is_well_mixed_,               sizeof(is_well_mixed_));
-  gzwrite(backup_file, &partial_mix_nb_permutations_, sizeof(partial_mix_nb_permutations_));
-  gzwrite(backup_file, &_secretion_diffusion_prop,    sizeof(_secretion_diffusion_prop));
-  gzwrite(backup_file, &_secretion_degradation_prop,  sizeof(_secretion_degradation_prop));
+  gzwrite(backup_file, &is_well_mixed_,
+          sizeof(is_well_mixed_));
+  gzwrite(backup_file, &partial_mix_nb_permutations_,
+          sizeof(partial_mix_nb_permutations_));
+  gzwrite(backup_file, &_secretion_diffusion_prop,
+          sizeof(_secretion_diffusion_prop));
+  gzwrite(backup_file, &_secretion_degradation_prop,
+          sizeof(_secretion_degradation_prop));
 }
 
 void World::load(gzFile backup_file, ExpManager * exp_man)
@@ -354,10 +361,14 @@ void World::load(gzFile backup_file, ExpManager * exp_man)
   gzread(backup_file, &x_best, sizeof(x_best));
   gzread(backup_file, &y_best, sizeof(y_best));
 
-  gzread(backup_file, &is_well_mixed_,               sizeof(is_well_mixed_));
-  gzread(backup_file, &partial_mix_nb_permutations_, sizeof(partial_mix_nb_permutations_));
-  gzread(backup_file, &_secretion_diffusion_prop,    sizeof(_secretion_diffusion_prop));
-  gzread(backup_file, &_secretion_degradation_prop,  sizeof(_secretion_degradation_prop));
+  gzread(backup_file, &is_well_mixed_,
+         sizeof(is_well_mixed_));
+  gzread(backup_file, &partial_mix_nb_permutations_,
+         sizeof(partial_mix_nb_permutations_));
+  gzread(backup_file, &_secretion_diffusion_prop,
+         sizeof(_secretion_diffusion_prop));
+  gzread(backup_file, &_secretion_degradation_prop,
+         sizeof(_secretion_degradation_prop));
 }
 
 // =================================================================
