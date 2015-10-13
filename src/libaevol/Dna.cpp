@@ -143,7 +143,7 @@ Dna::Dna(GeneticUnit* gen_unit, char* organism_file_name) :
 // =================================================================
 //                             Destructors
 // =================================================================
-Dna::~Dna(void) = default;
+Dna::~Dna() = default;
 
 // =================================================================
 //                         Non inline Accessors
@@ -210,7 +210,7 @@ void Dna::perform_mutations(int32_t parent_id) {
   do_small_mutations();
 }
 
-void Dna::do_small_mutations(void) {
+void Dna::do_small_mutations() {
   // ==============================================================
   //  1. Compute how many rearrangements this genome will undertake
   // ==============================================================
@@ -280,7 +280,7 @@ void Dna::do_small_mutations(void) {
   }
 }
 
-void Dna::do_rearrangements(void) {
+void Dna::do_rearrangements() {
   // ==============================================================
   //  1. Compute how many rearrangements this genome will undertake
   // ==============================================================
@@ -349,7 +349,7 @@ void Dna::do_rearrangements(void) {
   }
 }
 
-void Dna::do_rearrangements_with_align(void) {
+void Dna::do_rearrangements_with_align() {
   // Whether we look for a direct or indirect alignment
   bool direct_sense;
   // Determines the type of rearrangement that will be done if an alignment
@@ -751,7 +751,7 @@ void Dna::do_transfer(int32_t parent_id) {
   }
 }
 
-Mutation* Dna::do_switch(void) {
+Mutation* Dna::do_switch() {
   Mutation* mut = nullptr;
 
   int32_t pos = _indiv->_mut_prng->random(length_);
@@ -764,7 +764,7 @@ Mutation* Dna::do_switch(void) {
   return mut;
 }
 
-Mutation* Dna::do_small_insertion(void) {
+Mutation* Dna::do_small_insertion() {
   Mutation* mut = nullptr;
 
   // Determine the position and size of the small insertion
@@ -815,7 +815,7 @@ Mutation* Dna::do_small_insertion(void) {
   return mut;
 }
 
-Mutation* Dna::do_small_deletion(void) {
+Mutation* Dna::do_small_deletion() {
   Mutation* mut = nullptr;
 
   // Determine the position and size of the small deletion
@@ -939,7 +939,7 @@ bool Dna::do_small_deletion(int32_t pos, int16_t nb_del) {
   return true;
 }
 
-Mutation* Dna::do_duplication(void) {
+Mutation* Dna::do_duplication() {
   Mutation* mut = nullptr;
 
   int32_t pos_1, pos_2, pos_3;
@@ -984,7 +984,7 @@ Mutation* Dna::do_duplication(void) {
   return mut;
 }
 
-Mutation* Dna::do_deletion(void) {
+Mutation* Dna::do_deletion() {
   Mutation* mut = nullptr;
 
   int32_t pos_1, pos_2;
@@ -1030,7 +1030,7 @@ Mutation* Dna::do_deletion(void) {
   return mut;
 }
 
-Mutation* Dna::do_translocation(void) {
+Mutation* Dna::do_translocation() {
   Mutation* mut = nullptr;
 
   int32_t pos_1, pos_2, pos_3, pos_4;
@@ -1198,7 +1198,7 @@ Mutation* Dna::do_translocation(void) {
   return mut;
 }
 
-Mutation* Dna::do_inversion(void) {
+Mutation* Dna::do_inversion() {
   Mutation* mut = nullptr;
 
   int32_t pos_1, pos_2;
@@ -2566,7 +2566,7 @@ VisAVis* Dna::search_alignment_around_positions(Dna* chrom2,
                                                 int32_t chrom1_pos_1,
                                                 int32_t chrom2_pos_1,
                                                 AlignmentSense sense,
-                                                int8_t& research_sense) {
+                                                int8_t& search_sense) {
   VisAVis * alignment = NULL;
   VisAVis * tmp_alignment = NULL;
   // Which sense (direct or indirect)
@@ -2651,7 +2651,7 @@ VisAVis* Dna::search_alignment_around_positions(Dna* chrom2,
 
     if (tmp_alignment == NULL) {
       if (alignment != NULL) {
-        research_sense = first_research_sense;
+        search_sense = first_research_sense;
         return alignment;
       }
       else {
@@ -2673,7 +2673,7 @@ VisAVis* Dna::search_alignment_around_positions(Dna* chrom2,
   }
 
   if (alignment != NULL) {
-    research_sense = first_research_sense;
+    search_sense = first_research_sense;
     return alignment;
   }
 
@@ -2713,7 +2713,7 @@ VisAVis* Dna::search_alignment_around_positions(Dna* chrom2,
 
     if (tmp_alignment == NULL) {
       if (alignment != NULL) {
-        research_sense = second_research_sense;
+        search_sense = second_research_sense;
         return alignment;
       }
       else {
@@ -2734,7 +2734,7 @@ VisAVis* Dna::search_alignment_around_positions(Dna* chrom2,
     i++;
   }
   if (alignment != NULL) {
-    research_sense = second_research_sense;
+    search_sense = second_research_sense;
     return alignment;
   }
 
