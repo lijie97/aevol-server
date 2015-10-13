@@ -112,7 +112,7 @@ ae_string(parent_dna->data_, parent_dna->length_) {
  * WARNING : <seq> will be used directly as the new dna sequence (it will not
  *           be copied), which means the caller must not delete it.
  */
-// TODO <david.parsons@inria.fr> make seq a rvalue ref and set it to NULL ?
+// TODO(dpa) make seq a rvalue ref and set it to NULL ?
 Dna::Dna(GeneticUnit* gen_unit, char* seq, int32_t length) :
     ae_string(seq, length, true) {
   _gen_unit = gen_unit;
@@ -551,7 +551,7 @@ void Dna::do_rearrangements_with_align() {
 
         // Perform TRANSLOCATION
         // Make sure the segment to be translocated doesn't contain OriC
-        // TODO <david.parsons@inria.fr> is that still necessary?
+        // TODO(dpa) is that still necessary?
         if (alignment->get_i_1() > alignment->get_i_2()) {
           alignment->swap();
         }
@@ -1489,7 +1489,7 @@ bool Dna::do_translocation(int32_t pos_1, int32_t pos_2, int32_t pos_3,
 
 
   // Determine which position comes first and do the corresponding rearrangement
-  // TODO <david.parsons@inria.fr> use min from std
+  // TODO(dpa) use min from std
   int32_t pos_min = Utils::min(pos_1,
                                Utils::min(pos_2, Utils::min(pos_3, pos_4)));
 
@@ -1528,10 +1528,10 @@ bool Dna::do_translocation(int32_t pos_1, int32_t pos_2, int32_t pos_3,
 bool Dna::do_inter_GU_translocation(int32_t pos_1_rel, int32_t pos_2_rel,
                                     int32_t pos_3_rel, int32_t pos_4_rel,
                                     bool invert) {
-  // TODO check GU lengths according to positions and size limit
+  // TODO(???) check GU lengths according to positions and size limit
   int32_t segment_length = Utils::mod(pos_2_rel - pos_1_rel, length_);
 
-  if (pos_1_rel == pos_2_rel) { // TODO : shouldn't that raise an error?
+  if (pos_1_rel == pos_2_rel) { // TODO(???) shouldn't that raise an error?
     return false;
   }
 
@@ -1552,7 +1552,7 @@ bool Dna::do_inter_GU_translocation(int32_t pos_1_rel, int32_t pos_2_rel,
   //
   const GeneticUnit& chromosome = _indiv->get_genetic_unit(0);
   const GeneticUnit& plasmid    = _indiv->get_genetic_unit(1);
-  // TODO vld (2015-02-23): check if this == is sound
+  // TODO(vld) (2015-02-23): check if this == is sound
   const GeneticUnit& destination_GU = (_gen_unit == &chromosome) ?
                                       plasmid :
                                       chromosome;
@@ -1704,7 +1704,7 @@ bool Dna::do_insertion(int32_t pos, const char* seq_to_insert,
 Mutation* Dna::do_ins_HT(int32_t parent_id) {
   Mutation* mut = nullptr;
 
-  // TODO <david.parsons@inria.fr> disabled
+  // TODO(dpa) disabled
 //  int32_t nb_indivs = _exp_m->get_pop()->get_nb_indivs();
 //
 //  // Insertion transfer
@@ -1845,7 +1845,7 @@ Mutation* Dna::do_ins_HT(int32_t parent_id) {
 Mutation* Dna::do_repl_HT(int32_t parent_id) {
   Mutation* mut = nullptr;
 
-  // TODO <david.parsons@inria.fr> disabled
+  // TODO(dpa) disabled
 //  int32_t nb_indivs = _exp_m->get_pop()->get_nb_indivs();
 //
 //  // Replacement transfer
@@ -2375,7 +2375,7 @@ void Dna::insert_GU(GeneticUnit* GU_to_insert, int32_t pos_B, int32_t pos_D,
     seq_Dp[len_D] = '\0';
 
     // Insert Cp and DP
-    // TODO : Maybe we should construct Cp and Dp directly at their rightful
+    // TODO(???) Maybe we should construct Cp and Dp directly at their rightful
     // place...
     memcpy(&new_seq[len_A],        seq_Cp, len_C * sizeof(char));
     memcpy(&new_seq[len_A+len_C],  seq_Dp, len_D * sizeof(char));
@@ -2423,7 +2423,7 @@ void Dna::insert_GU(GeneticUnit* GU_to_insert, int32_t pos_B, int32_t pos_D,
   Promoters2Strands proms_D = {{}, {}};
 
   if (pos_D != 0) {
-    // TODO : Manage this in the different functions? with a parameter
+    // TODO(???) : Manage this in the different functions? with a parameter
     // WholeGenomeEventHandling ?
     GU_to_insert->extract_promoters_starting_between(0, pos_D, proms_C);
   }
@@ -2756,7 +2756,7 @@ void Dna::ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   //
   // Segments are identified by pos_x values as shown below.
   //
-  // TODO <david.parsons@inria.fr> CHECK THIS !!!
+  // TODO(dpa) CHECK THIS !!!
   // WARNING : Segment C includes nucleotide at pos_D // NOTE : WTF???
   //
   //         A      B        C       D       E
@@ -2851,7 +2851,7 @@ void Dna::ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   //
   // Segments are identified by pos_x values as shown below.
   //
-  // TODO <david.parsons@inria.fr> CHECK THIS !!!
+  // TODO(dpa) CHECK THIS !!!
   // WARNING : Segment C includes nucleotide at pos_D // NOTE : WTF???
   //
   //         A      B        C       D        E
@@ -2982,7 +2982,7 @@ void Dna::ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
   //
   // Segments are identified by pos_x values as shown below.
   //
-  // TODO <david.parsons@inria.fr> CHECK THIS !!!
+  // TODO(dpa) CHECK THIS !!!
   // WARNING : Segment D includes nucleotide at pos_E // NOTE : WTF???
   //
   //         A      B        C       D       E
