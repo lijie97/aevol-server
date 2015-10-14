@@ -2874,7 +2874,7 @@ void GeneticUnit::assert_promoters() {
         printf( "  %" PRId32 " (%s) : %f    vs    %" PRId32 " (%s) : %f\n",
                 node_old->get_promoter_pos(), StrandName[strand], node_old->get_basal_level(),
                 node_new->get_promoter_pos(), StrandName[strand], node_new->get_basal_level() );
-        printf( "  genome length : %" PRId32 "\n", _dna->length() );
+        printf( "  genome length : %" PRId32 "\n", dna_->length() );
         assert( node_old->get_promoter_pos() == node_new->get_promoter_pos()  );
       }
 
