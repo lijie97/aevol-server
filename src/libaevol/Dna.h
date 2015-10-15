@@ -43,6 +43,13 @@
 
 #include "ae_enums.h"
 #include "Mutation.h"
+#include "PointMutation.h"
+#include "SmallInsertion.h"
+#include "SmallDeletion.h"
+#include "Duplication.h"
+#include "Deletion.h"
+#include "Translocation.h"
+#include "Inversion.h"
 #include "ae_string.h"
 #include "JumpingMT.h"
 
@@ -113,9 +120,9 @@ class Dna : public ae_string {
   void do_transfer(int32_t parent_id);
 
   // Perform a single local mutation at a random position
-  Mutation* do_switch();
-  Mutation* do_small_insertion();
-  Mutation* do_small_deletion();
+  PointMutation* do_switch();
+  SmallInsertion* do_small_insertion();
+  SmallDeletion* do_small_deletion();
 
   // Perform a single local mutation at a specified position
   // (useful to replay the evolution)
@@ -124,11 +131,11 @@ class Dna : public ae_string {
   bool do_small_deletion(int32_t pos, int16_t nb_del);
 
   // Perform a single rearrangement at random positions
-  Mutation* do_duplication();
-  Mutation* do_deletion();
-  Mutation* do_translocation();
+  Duplication* do_duplication();
+  Deletion* do_deletion();
+  Translocation* do_translocation();
   Mutation* do_inter_GU_translocation();
-  Mutation* do_inversion();
+  Inversion* do_inversion();
   Mutation* do_insertion(const char* seq_to_insert, int32_t seq_length = -1);
 
   // Perform a single rearrangement at specified positions

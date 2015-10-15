@@ -751,8 +751,8 @@ void Dna::do_transfer(int32_t parent_id) {
   }
 }
 
-Mutation* Dna::do_switch() {
-  Mutation* mut = nullptr;
+PointMutation* Dna::do_switch() {
+  PointMutation* mut = nullptr;
 
   int32_t pos = _indiv->_mut_prng->random(length_);
 
@@ -764,8 +764,8 @@ Mutation* Dna::do_switch() {
   return mut;
 }
 
-Mutation* Dna::do_small_insertion() {
-  Mutation* mut = nullptr;
+SmallInsertion* Dna::do_small_insertion() {
+  SmallInsertion* mut = nullptr;
 
   // Determine the position and size of the small insertion
   int32_t pos = _indiv->_mut_prng->random(length_);
@@ -815,8 +815,8 @@ Mutation* Dna::do_small_insertion() {
   return mut;
 }
 
-Mutation* Dna::do_small_deletion() {
-  Mutation* mut = nullptr;
+SmallDeletion* Dna::do_small_deletion() {
+  SmallDeletion* mut = nullptr;
 
   // Determine the position and size of the small deletion
   int32_t pos = _indiv->_mut_prng->random(length_);
@@ -939,8 +939,8 @@ bool Dna::do_small_deletion(int32_t pos, int16_t nb_del) {
   return true;
 }
 
-Mutation* Dna::do_duplication() {
-  Mutation* mut = nullptr;
+Duplication* Dna::do_duplication() {
+  Duplication* mut = nullptr;
 
   int32_t pos_1, pos_2, pos_3;
   pos_1 = _indiv->_mut_prng->random(length_);
@@ -984,8 +984,8 @@ Mutation* Dna::do_duplication() {
   return mut;
 }
 
-Mutation* Dna::do_deletion() {
-  Mutation* mut = nullptr;
+Deletion* Dna::do_deletion() {
+  Deletion* mut = nullptr;
 
   int32_t pos_1, pos_2;
   pos_1 = _indiv->_mut_prng->random(length_);
@@ -1030,8 +1030,8 @@ Mutation* Dna::do_deletion() {
   return mut;
 }
 
-Mutation* Dna::do_translocation() {
-  Mutation* mut = nullptr;
+Translocation* Dna::do_translocation() {
+  Translocation* mut = nullptr;
 
   int32_t pos_1, pos_2, pos_3, pos_4;
   int32_t segment_length;
@@ -1198,8 +1198,8 @@ Mutation* Dna::do_translocation() {
   return mut;
 }
 
-Mutation* Dna::do_inversion() {
-  Mutation* mut = nullptr;
+Inversion* Dna::do_inversion() {
+  Inversion* mut = nullptr;
 
   int32_t pos_1, pos_2;
   int32_t segment_length;
@@ -2091,7 +2091,7 @@ Mutation* Dna::do_repl_HT(int32_t parent_id) {
 //    }
 //    delete alignment_1;
 //  }
-//  return mut;
+  return mut;
 }
 
 bool Dna::do_ins_HT(int32_t pos, const char* seq_to_insert, int32_t seq_length)
