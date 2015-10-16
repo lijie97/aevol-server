@@ -30,6 +30,9 @@ target_link_libraries(ancstats PUBLIC aevol)
 add_executable(lineage lineage.cpp)
 target_link_libraries(lineage PUBLIC aevol)
 
+add_executable(mutagenesis mutagenesis.cpp)
+target_link_libraries(mutagenesis PUBLIC aevol)
+
 
 # ============================================================================
 # Set behaviour on make install
