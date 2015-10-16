@@ -513,45 +513,45 @@ class Individual : public Observable {
   // =================================================================
   //                          Protected Attributes
   // =================================================================
-  ExpManager* _exp_m;
+  ExpManager* exp_m_;
 
   // Name and "Age" of the strain
-  char* _strain_name;
-  int32_t _age;
+  char* strain_name_;
+  int32_t age_;
 
   // Random number generators
   // These are shared pointers because depending on the configuration,
   // they can either be exclusive to the individual or grid cell, or they
   // can be mutualized (shared) for all or part of the population
-  std::shared_ptr<JumpingMT> _mut_prng;
-  std::shared_ptr<JumpingMT> _stoch_prng;
+  std::shared_ptr<JumpingMT> mut_prng_;
+  std::shared_ptr<JumpingMT> stoch_prng_;
 
   // Individual ID and rank of the individual in the population
   // WARNING : The ID is no longer corresponding to the rank of the individual.
   //           The reason for this change is that we now need an identifier for the individuals
   //           as soon as they are created (the rank is only known when all the individuals have been evaluated).
   //           The rank will now be handled in a specific new attribute. (1 for the worst indiv, POP_SIZE for the best)
-  int32_t _id;   // [0 ; POP_SIZE[
-  int32_t _rank; // [1 ; POP_SIZE]
+  int32_t id_;   // [0 ; POP_SIZE[
+  int32_t rank_; // [1 ; POP_SIZE]
 
   // Total activation (resp. inhibition) of metabolic functions
-  Fuzzy* _phenotype_activ;
-  Fuzzy* _phenotype_inhib;
+  Fuzzy* phenotype_activ_;
+  Fuzzy* phenotype_inhib_;
 
   // The phenotype, roughly corresponding to the sum of activ and inhib
-  Phenotype* _phenotype;
+  Phenotype* phenotype_;
 
   // Array containing the partial area of the "gap" (difference between the
   // phenotype and the target) for each phenotypic target segment.
   // Note: if the  phenotypic target is not segmented, there will be a single
   // cell in this array
-  double* _dist_to_target_by_segment;
+  double* dist_to_target_by_segment_;
 
   // This array contains the aggregated area of the gap for each type of
   // segment (PhenotypicFeature).
   // When the  phenotypic target is not segmented, the only meaningful value
   // will be held in _dist_to_target[METABOLISM]
-  double* _dist_to_target_by_feature;
+  double* dist_to_target_by_feature_;
 
   // This array contains the fitness contribution for each type of segment
   // (PhenotypicFeature).
@@ -561,57 +561,57 @@ class Individual : public Observable {
   // Note: total fitness is the combination of metabolic fitness and the amount
   // of compound present in the habitat, not the amount of compound secreted by
   // the individual.
-  double* _fitness_by_feature;
+  double* fitness_by_feature_;
 
   // THE fitness
-  double _fitness;
+  double fitness_;
 
   // When using structured population, this is the cell the individual is in
-  GridCell* _grid_cell = NULL;
+  GridCell* grid_cell_ = NULL;
   // int16_t x, y;
 
   // The chromosome and plasmids (if allowed)
-  std::list<GeneticUnit> _genetic_unit_list;
+  std::list<GeneticUnit> genetic_unit_list_;
 
   // Access lists to all the proteins/RNAs of the individual.
   // Please note that these proteins/RNAs are actually managed (i.e. newed and deleted) via genetic units.
-  std::list<Protein*> _protein_list;
-  std::list<const Rna*> _rna_list;
+  std::list<Protein*> protein_list_;
+  std::list<const Rna*> rna_list_;
 
   // Generic probes
-  int32_t* _int_probes; // Array of 5 int32_t values to be used as one wishes
-  double* _double_probes; // Array of 5 double values to be used as one wishes
+  int32_t* int_probes_; // Array of 5 int32_t values to be used as one wishes
+  double* double_probes_; // Array of 5 double values to be used as one wishes
 
   // Mutation rates etc...
-  std::shared_ptr<MutationParams> _mut_params;
+  std::shared_ptr<MutationParams> mut_params_;
 
   // ----------------------------------------------- Phenotypic stochasticity
-  bool _with_stochasticity;
+  bool with_stochasticity_;
 
   // Artificial chemistry
-  double _w_max;
+  double w_max_;
 
   // Genome size constraints
-  int32_t _min_genome_length;
-  int32_t _max_genome_length;
+  int32_t min_genome_length_;
+  int32_t max_genome_length_;
 
   // Plasmids settings
-  bool _allow_plasmids;
+  bool allow_plasmids_;
 
 
   // --------------------------------------------------
   // "State" of the individual
   // --------------------------------------------------
   // We keep trace of what we have already computed to avoid double computation (mainly in post-treaments)
-  bool _evaluated;
-  bool _transcribed;
-  bool _translated;
-  bool _folded;
-  bool _phenotype_computed;
-  bool _distance_to_target_computed;
-  bool _fitness_computed;
+  bool evaluated_;
+  bool transcribed_;
+  bool translated_;
+  bool folded_;
+  bool phenotype_computed_;
+  bool distance_to_target_computed_;
+  bool fitness_computed_;
 
-  bool _placed_in_population; // TODO: spatial ?
+  bool placed_in_population_; // TODO: spatial ?
 
 
 

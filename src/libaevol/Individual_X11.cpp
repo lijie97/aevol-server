@@ -108,7 +108,7 @@ void Individual_X11::display(void)
 void Individual_X11::display_cdss(X11Window * win)
 {
   // Retreive the genetic unit corresponding to the main chromosome
-  GeneticUnit* gen_unit = &_genetic_unit_list.front();
+  GeneticUnit* gen_unit = &genetic_unit_list_.front();
   int32_t genome_length = gen_unit->get_dna()->length();
 
   // Display the number of CDSs
@@ -122,7 +122,7 @@ void Individual_X11::display_cdss(X11Window * win)
 
   // Compute display diameter according to genome length and window size
   int16_t canvas_width;
-  if (_allow_plasmids) canvas_width = win->get_width() / 2;
+  if (allow_plasmids_) canvas_width = win->get_width() / 2;
   else canvas_width = win->get_width();
   int16_t canvas_height = win->get_height();
 
@@ -325,10 +325,10 @@ void Individual_X11::display_cdss(X11Window * win)
 
 
   // --------------------------------------------------------------------------This is temporary, it is a big copy-paste of what's above.
-  if (_allow_plasmids)
+  if (allow_plasmids_)
   {
-    // Retreive the genetic unit corresponding to the plasmid (i.e. index 1 in _genetic_unit_list)
-    GeneticUnit* gen_unit = &*std::next(_genetic_unit_list.begin());
+    // Retreive the genetic unit corresponding to the plasmid (i.e. index 1 in genetic_unit_list_)
+    GeneticUnit* gen_unit = &*std::next(genetic_unit_list_.begin());
     if (gen_unit == NULL) return;
 
     int32_t genome_length = gen_unit->get_dna()->length();
@@ -338,7 +338,7 @@ void Individual_X11::display_cdss(X11Window * win)
     int16_t canvas_width;
     int16_t canvas_height;
     int16_t canvas_size ;
-    if (_allow_plasmids)
+    if (allow_plasmids_)
     {
       canvas_width  = win->get_width() / 2;
       canvas_size   = canvas_width;
@@ -545,7 +545,7 @@ void Individual_X11::display_cdss(X11Window * win)
 void Individual_X11::display_rnas(X11Window * win)
 {
   // Retreive the genetic unit corresponding to the main chromosome
-  const GeneticUnit* gen_unit = &_genetic_unit_list.front();
+  const GeneticUnit* gen_unit = &genetic_unit_list_.front();
   int32_t genome_length = gen_unit->get_dna()->length();
 
   // Display the number of RNAs

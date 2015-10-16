@@ -111,7 +111,7 @@ class ExpManager : public Observer
     inline double get_HT_repl_rate(void) const;
     inline double get_repl_HT_detach_rate(void) const;
 
-    // The ability to own a plasmid is a property of the individuals (_allow_plasmids) because it is used during mutations
+    // The ability to own a plasmid is a property of the individuals (allow_plasmids_) because it is used during mutations
     // However there is also a property of the experimental setup (_with_plasmids) that indicates whether plasmids are used because we need this during replication and during loading/writting
     // For now when plasmids are used each individual has one and only one plasmid (so these variables should always be equals), however this may change in the future
     // There is no longer property _with_plasmids_HT because the ability to transfer is evolvable and thus may depend on the plasmid itself
