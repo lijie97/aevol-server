@@ -1445,7 +1445,7 @@ void Individual::clear_everything_except_dna_and_promoters() {
   _modularity = -1;
 }
 
-void Individual::reevaluate() {
+void Individual::Reevaluate() {
   // useful for post-treatment programs that replay mutations
   // on a single individual playing the role of the successive
   // ancestors
