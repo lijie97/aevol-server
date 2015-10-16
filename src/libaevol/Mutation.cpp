@@ -97,6 +97,7 @@ Mutation* Mutation::Load(gzFile backup_file) {
       break;
     default :
       Utils::ExitWithDevMsg("invalid mutation type ", __FILE__, __LINE__);
+      exit(-1); // Superfluous but suppresses a warning
   }
 
   // Load from backup file
