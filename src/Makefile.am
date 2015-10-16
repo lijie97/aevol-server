@@ -7,11 +7,6 @@ AM_LDFLAGS = $(AEVOLLDFLAGS)
 
 SUBDIRS = libaevol post_treatments
 
-if WITH_GTEST
-  SUBDIRS += tests
-endif # WITH_GTEST
-
-
 AM_CPPFLAGS += -I$(top_srcdir)/src/libaevol
 
 ############################################
