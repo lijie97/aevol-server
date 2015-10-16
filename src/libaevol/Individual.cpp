@@ -1588,7 +1588,7 @@ void Individual::compute_statistical_data() {
 
 void Individual::compute_non_coding() {
   if (nc_metrics_ != nullptr) return; // NC stats have already been computed,
-                                    // nothing to do.
+                                      // nothing to do.
   nc_metrics_ = new NonCodingMetrics();
 
   for (auto& gen_unit: _genetic_unit_list) {
@@ -1920,5 +1920,4 @@ void Individual::make_rna_list() {
         _rna_list.push_back(&rna);
   }
 }
-
 } // namespace aevol
