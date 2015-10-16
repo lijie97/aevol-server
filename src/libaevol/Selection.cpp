@@ -297,7 +297,7 @@ void Selection::PerformPlasmidTransfers(void) {
         bool reevaluate = (world->get_indiv_at(x, y)->get_nb_genetic_units() > 2);
         world->get_indiv_at(x, y)->drop_nested_genetic_units();
         if (reevaluate)
-          world->get_indiv_at(x, y)->reevaluate();
+          world->get_indiv_at(x, y)->Reevaluate();
       }
     }
   }

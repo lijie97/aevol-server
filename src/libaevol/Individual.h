@@ -433,7 +433,7 @@ class Individual : public Observable {
   /**
    * Reset expression, proteins, phenotype and so on and evaluate
    */
-  virtual void reevaluate();
+  virtual void Reevaluate();
 
   virtual void clear_everything_except_dna_and_promoters();
 

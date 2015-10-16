@@ -341,7 +341,7 @@ int main(int argc, char** argv)
         printf("Rebuilding ancestor at generation %" PRId64
             " (index %" PRId32 ")...", get_time(), index);
 
-    indiv->reevaluate();
+    indiv->Reevaluate();
 
     // TODO <david.parsons@inria.fr> Check for phenotypic variation has to be
     // done for all the grid cells, disable checking until coded
@@ -440,7 +440,7 @@ int main(int argc, char** argv)
     }
 
     // 3) All the mutations have been replayed, we can now evaluate the new individual
-    indiv->reevaluate();
+    indiv->Reevaluate();
     indiv->compute_statistical_data();
     indiv->compute_non_coding();
 
