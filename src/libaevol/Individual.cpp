@@ -1454,6 +1454,15 @@ void Individual::Reevaluate() {
   Evaluate();
 }
 
+void Individual::ReevaluateInContext(const Habitat& habitat) {
+  // useful for post-treatment programs that replay mutations
+  // on a single individual playing the role of the successive
+  // ancestors
+
+  clear_everything_except_dna_and_promoters();
+  EvaluateInContext(habitat);
+}
+
 
 void Individual::add_GU(char * &sequence, int32_t length) {
   clear_everything_except_dna_and_promoters();

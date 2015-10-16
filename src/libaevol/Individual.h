@@ -435,6 +435,11 @@ class Individual : public Observable {
    */
   virtual void Reevaluate();
 
+  /**
+   * Reset expression, proteins, phenotype and so on and evaluate in context
+   */
+  virtual void ReevaluateInContext(const Habitat& habitat);
+
   virtual void clear_everything_except_dna_and_promoters();
 
   void do_transcription_translation_folding();
