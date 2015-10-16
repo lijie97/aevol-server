@@ -200,30 +200,30 @@ inline bool OutputManager::get_compute_phen_contrib_by_GU() const {
 // =====================================================================
 //                           Setters' definitions
 // =====================================================================
-inline void OutputManager::set_backup_step(int64_t backup_step) {
+void OutputManager::set_backup_step(int64_t backup_step) {
   _backup_step = backup_step;
 }
 
-inline void OutputManager::set_big_backup_step(int64_t big_backup_step) {
+void OutputManager::set_big_backup_step(int64_t big_backup_step) {
   _big_backup_step = big_backup_step;
 }
 
-inline void OutputManager::init_tree(ExpManager * exp_m, int64_t _tree_step) {
+void OutputManager::init_tree(ExpManager* exp_m, int64_t _tree_step) {
   _record_tree = true;
   _tree = new Tree(exp_m, _tree_step);
 }
 
-inline void OutputManager::set_dump_step(int64_t dump_step) {
+void OutputManager::set_dump_step(int64_t dump_step) {
   _make_dumps = true;
   _dump_step  = dump_step;
 }
 
-inline void OutputManager::set_compute_phen_contrib_by_GU(
+void OutputManager::set_compute_phen_contrib_by_GU(
     bool compute_phen_contrib_by_GU) {
   _compute_phen_contrib_by_GU = compute_phen_contrib_by_GU;
 }
 
-inline void OutputManager::set_logs (int8_t logs) {
+void OutputManager::set_logs(int8_t logs) {
   _logs->set_logs(logs);
 }
 
