@@ -54,7 +54,7 @@ namespace aevol {
 /**
  * // TODO <david.parsons@inria.fr>
  */
-Individual::Individual(ExpManager * exp_m,
+Individual::Individual(ExpManager* exp_m,
                        std::shared_ptr<JumpingMT> mut_prng,
                        std::shared_ptr<JumpingMT> stoch_prng,
                        std::shared_ptr<MutationParams> param_mut,
@@ -64,33 +64,31 @@ Individual::Individual(ExpManager * exp_m,
                        bool allow_plasmids,
                        int32_t id,
                        const char* strain_name,
-                       int32_t age)
-{
+                       int32_t age) {
   // Experiment manager
   _exp_m = exp_m;
 
   // PRNGs
-  _mut_prng   = mut_prng;
+  _mut_prng = mut_prng;
   _stoch_prng = stoch_prng;
 
   // ID and rank of the indiv ; name and "age" of the strain
   set_id(id);
   _rank = -1; // TODO: UNRANKED
   _age = age;
-  _strain_name = new char[strlen(strain_name)+1];
+  _strain_name = new char[strlen(strain_name) + 1];
   strcpy(_strain_name, strain_name);
 
-  _phenotype_activ  = NULL;
-  _phenotype_inhib  = NULL;
-  _phenotype        = NULL;
+  _phenotype_activ = NULL;
+  _phenotype_inhib = NULL;
+  _phenotype = NULL;
 
-  _dist_to_target_by_segment  = NULL;
-  _dist_to_target_by_feature  = new double [NB_FEATURES];
-  _fitness_by_feature = new double [NB_FEATURES];
-  for (int i=0; i<NB_FEATURES; i++)
-  {
-    _dist_to_target_by_feature[i]=0;
-    _fitness_by_feature[i]=0;
+  _dist_to_target_by_segment = NULL;
+  _dist_to_target_by_feature = new double[NB_FEATURES];
+  _fitness_by_feature = new double[NB_FEATURES];
+  for (int i = 0; i < NB_FEATURES; i++) {
+    _dist_to_target_by_feature[i] = 0;
+    _fitness_by_feature[i] = 0;
   }
 
   _fitness = 0.0;
@@ -103,11 +101,10 @@ Individual::Individual(ExpManager * exp_m,
   // TODO <david.parsons@inria.fr> ???
 
   // Generic probes
-  _int_probes     = new int32_t[5];
-  _double_probes  = new double[5];
-  for (int8_t i = 0 ; i < 5 ; i++)
-  {
-    _int_probes[i]    = 0;
+  _int_probes = new int32_t[5];
+  _double_probes = new double[5];
+  for (int8_t i = 0; i < 5; i++) {
+    _int_probes[i] = 0;
     _double_probes[i] = 0.0;
   }
 
@@ -128,14 +125,14 @@ Individual::Individual(ExpManager * exp_m,
   // --------------------------------------------------
   // "State" of the individual
   // --------------------------------------------------
-  _evaluated                    = false;
-  _transcribed                  = false;
-  _translated                   = false;
-  _folded                       = false;
-  _phenotype_computed           = false;
-  _distance_to_target_computed  = false;
-  _fitness_computed             = false;
-  _placed_in_population         = false;
+  _evaluated = false;
+  _transcribed = false;
+  _translated = false;
+  _folded = false;
+  _phenotype_computed = false;
+  _distance_to_target_computed = false;
+  _fitness_computed = false;
+  _placed_in_population = false;
 
 
 
@@ -152,36 +149,33 @@ Individual::Individual(ExpManager * exp_m,
  * (e.g. fitness) will be done.
  * No transcription, translation or other process of that kind is performed.
  */
-Individual::Individual(ExpManager* exp_m, gzFile backup_file)
-{
+Individual::Individual(ExpManager* exp_m, gzFile backup_file) {
   _exp_m = exp_m;
 
   // Retrieve the name and "age" of the strain
   int8_t strain_string_len;
   gzread(backup_file, &strain_string_len, sizeof(strain_string_len));
-  _strain_name = new char[strain_string_len+1];
-  gzread(backup_file, _strain_name, strain_string_len+1);
+  _strain_name = new char[strain_string_len + 1];
+  gzread(backup_file, _strain_name, strain_string_len + 1);
   gzread(backup_file, &_age, sizeof(_age));
 
   // Retrieve the PRNGs
-  if (exp_m == NULL)
-  {
+  if (exp_m == NULL) {
     // Detached mode
-    _mut_prng   = NULL;
+    _mut_prng = NULL;
     _stoch_prng = NULL;
   }
-  else
-  {
+  else {
     // TODO: => prngs as parameters
-    _mut_prng   = exp_m->world()->get_mut_prng();
+    _mut_prng = exp_m->world()->get_mut_prng();
     _stoch_prng = exp_m->world()->get_stoch_prng();
     assert(_mut_prng);
     assert(_stoch_prng);
   }
 
   // Retrieve id and rank
-  gzread(backup_file, &_id,    sizeof(_id));
-  gzread(backup_file, &_rank,  sizeof(_rank));
+  gzread(backup_file, &_id, sizeof(_id));
+  gzread(backup_file, &_rank, sizeof(_rank));
 
   // Retrieve spatial coordinates
   // gzread(backup_file, &x, sizeof(x));
@@ -189,10 +183,10 @@ Individual::Individual(ExpManager* exp_m, gzFile backup_file)
   _placed_in_population = false;
 
   // Retrieve generic probes
-  _int_probes     = new int32_t[5];
-  _double_probes  = new double[5];
-  gzread(backup_file, _int_probes,     5 * sizeof(*_int_probes));
-  gzread(backup_file, _double_probes,  5 * sizeof(*_double_probes));
+  _int_probes = new int32_t[5];
+  _double_probes = new double[5];
+  gzread(backup_file, _int_probes, 5 * sizeof(*_int_probes));
+  gzread(backup_file, _double_probes, 5 * sizeof(*_double_probes));
 
   // Retrieve mutational parameters
   _mut_params = std::make_shared<MutationParams>(backup_file);
@@ -214,9 +208,9 @@ Individual::Individual(ExpManager* exp_m, gzFile backup_file)
 
   // Retrieve genetic units
   int16_t nb_gen_units;
-  gzread(backup_file, &nb_gen_units,  sizeof(nb_gen_units));
+  gzread(backup_file, &nb_gen_units, sizeof(nb_gen_units));
 
-  for (int16_t i = 0 ; i < nb_gen_units ; i++)
+  for (int16_t i = 0; i < nb_gen_units; i++)
     _genetic_unit_list.emplace_back(this, backup_file);
 
   // --------------------------------------------------------------------------
@@ -225,28 +219,27 @@ Individual::Individual(ExpManager* exp_m, gzFile backup_file)
   // --------------------------------------------------------------------------
 
   // Create empty fuzzy sets for activation and inhibition
-  _phenotype_activ  = NULL;
-  _phenotype_inhib  = NULL;
-  _phenotype        = NULL;
+  _phenotype_activ = NULL;
+  _phenotype_inhib = NULL;
+  _phenotype = NULL;
 
-  _dist_to_target_by_segment  = NULL;
-  _dist_to_target_by_feature  = new double [NB_FEATURES];
-  _fitness_by_feature         = new double [NB_FEATURES];
+  _dist_to_target_by_segment = NULL;
+  _dist_to_target_by_feature = new double[NB_FEATURES];
+  _fitness_by_feature = new double[NB_FEATURES];
 
-  for (int8_t i = 0 ; i < NB_FEATURES ; i++)
-  {
+  for (int8_t i = 0; i < NB_FEATURES; i++) {
     _dist_to_target_by_feature[i] = 0.0;
-    _fitness_by_feature[i]        = 0.0;
+    _fitness_by_feature[i] = 0.0;
   }
 
   // Initialize the computational state of the individual
-  _evaluated                    = false;
-  _transcribed                  = false;
-  _translated                   = false;
-  _folded                       = false;
-  _phenotype_computed           = false;
-  _distance_to_target_computed  = false;
-  _fitness_computed             = false;
+  _evaluated = false;
+  _transcribed = false;
+  _translated = false;
+  _folded = false;
+  _phenotype_computed = false;
+  _distance_to_target_computed = false;
+  _fitness_computed = false;
 
   _modularity = -1;
 }
@@ -258,31 +251,31 @@ Individual::Individual(const Individual& other) {
   _exp_m = other._exp_m;
 
   // PRNGs
-  _mut_prng   = other._mut_prng;
+  _mut_prng = other._mut_prng;
   _stoch_prng = other._stoch_prng;
 
   int strain_string_len = strlen(other._strain_name);
-  _strain_name = new char[strain_string_len+1];
-  memcpy(_strain_name, other._strain_name, strain_string_len+1);
-  _age  = other._age;
+  _strain_name = new char[strain_string_len + 1];
+  memcpy(_strain_name, other._strain_name, strain_string_len + 1);
+  _age = other._age;
 
-  _id   = other._id;
+  _id = other._id;
   _rank = other._rank;
 
-  _evaluated                    = other._evaluated;
-  _transcribed                  = other._transcribed;
-  _translated                   = other._translated;
-  _folded                       = other._folded;
-  _phenotype_computed           = other._phenotype_computed;
+  _evaluated = other._evaluated;
+  _transcribed = other._transcribed;
+  _translated = other._translated;
+  _folded = other._folded;
+  _phenotype_computed = other._phenotype_computed;
 
   _with_stochasticity = other._with_stochasticity;
 
   // Artificial chemistry parameters
   _w_max = other._w_max;
 
-  _distance_to_target_computed  = other._distance_to_target_computed;
-  _fitness_computed             = other._fitness_computed;
-  _placed_in_population         = other._placed_in_population;
+  _distance_to_target_computed = other._distance_to_target_computed;
+  _fitness_computed = other._fitness_computed;
+  _placed_in_population = other._placed_in_population;
 
   // Copy genetic units from other
   // Should actually use GeneticUnit copy ctor which is disabled.
@@ -291,23 +284,23 @@ Individual::Individual(const Individual& other) {
 
   // Copy phenotype
   if (_phenotype_computed) {
-    _phenotype_activ  = new Fuzzy(*(other._phenotype_activ));
-    _phenotype_inhib  = new Fuzzy(*(other._phenotype_inhib));
-    _phenotype        = new Phenotype(*(other._phenotype));
+    _phenotype_activ = new Fuzzy(*(other._phenotype_activ));
+    _phenotype_inhib = new Fuzzy(*(other._phenotype_inhib));
+    _phenotype = new Phenotype(*(other._phenotype));
   }
   else {
-    _phenotype_activ  = NULL;
-    _phenotype_inhib  = NULL;
-    _phenotype        = NULL;
+    _phenotype_activ = NULL;
+    _phenotype_inhib = NULL;
+    _phenotype = NULL;
   }
 
 
   // Copy fitness-related stuff
-  _dist_to_target_by_segment  = NULL;
-  _dist_to_target_by_feature  = new double [NB_FEATURES];
-  _fitness_by_feature         = new double [NB_FEATURES];
+  _dist_to_target_by_segment = NULL;
+  _dist_to_target_by_feature = new double[NB_FEATURES];
+  _fitness_by_feature = new double[NB_FEATURES];
 
-  for (int8_t i = 0 ; i < NB_FEATURES ; i++) {
+  for (int8_t i = 0; i < NB_FEATURES; i++) {
     _dist_to_target_by_feature[i] = other._dist_to_target_by_feature[i];
     _fitness_by_feature[i] = other._fitness_by_feature[i];
   }
@@ -316,19 +309,19 @@ Individual::Individual(const Individual& other) {
 
   // Copy statistical data
   metrics_ = other.metrics_ ?
-           new Metrics(*other.metrics_) :
-           nullptr;
+             new Metrics(*other.metrics_) :
+             nullptr;
   nc_metrics_ = other.nc_metrics_ ?
-              new NonCodingMetrics(*other.nc_metrics_) :
-              nullptr;
+                new NonCodingMetrics(*other.nc_metrics_) :
+                nullptr;
 
   _modularity = other._modularity;
 
   // Generic probes
-  _int_probes     = new int32_t[5];
-  _double_probes  = new double[5];
-  for (int8_t i = 0 ; i < 5 ; i++) {
-    _int_probes[i]    = other._int_probes[i];
+  _int_probes = new int32_t[5];
+  _double_probes = new double[5];
+  for (int8_t i = 0; i < 5; i++) {
+    _int_probes[i] = other._int_probes[i];
     _double_probes[i] = other._double_probes[i];
   }
 
@@ -352,31 +345,30 @@ Individual::Individual(const Individual& other) {
  *
  * The phenotype and the fitness are not set, neither is the statistical data.
 */
-Individual::Individual(const Individual * parent, int32_t id,
-                             std::shared_ptr<JumpingMT> mut_prng,
-                             std::shared_ptr<JumpingMT> stoch_prng)
-{
+Individual::Individual(const Individual* parent, int32_t id,
+                       std::shared_ptr<JumpingMT> mut_prng,
+                       std::shared_ptr<JumpingMT> stoch_prng) {
   _exp_m = parent->_exp_m;
 
   // PRNGs
-  _mut_prng   = mut_prng;
+  _mut_prng = mut_prng;
   _stoch_prng = stoch_prng;
 
   int strain_string_len = strlen(parent->_strain_name);
-  _strain_name = new char[strain_string_len+1];
-  memcpy(_strain_name, parent->_strain_name, strain_string_len+1);
-  _age  = parent->_age + 1;
+  _strain_name = new char[strain_string_len + 1];
+  memcpy(_strain_name, parent->_strain_name, strain_string_len + 1);
+  _age = parent->_age + 1;
 
-  _id   = id;
+  _id = id;
   _rank = -1;
 
-  _evaluated                    = false;
-  _transcribed                  = false;
-  _translated                   = false;
-  _folded                       = false;
-  _phenotype_computed           = false;
-  _distance_to_target_computed  = false;
-  _fitness_computed             = false;
+  _evaluated = false;
+  _transcribed = false;
+  _translated = false;
+  _folded = false;
+  _phenotype_computed = false;
+  _distance_to_target_computed = false;
+  _fitness_computed = false;
 
   _placed_in_population = false;
   // x = y = -1;
@@ -392,27 +384,25 @@ Individual::Individual(const Individual * parent, int32_t id,
   for (auto& gu: parent->_genetic_unit_list)
     _genetic_unit_list.emplace_back(this, &gu);
 
-  _phenotype_activ  = NULL;
-  _phenotype_inhib  = NULL;
-  _phenotype        = NULL;
+  _phenotype_activ = NULL;
+  _phenotype_inhib = NULL;
+  _phenotype = NULL;
 
   // Initialize all the fitness-related stuff
-  _dist_to_target_by_segment  = NULL;
-  _dist_to_target_by_feature  = new double [NB_FEATURES];
-  _fitness_by_feature         = new double [NB_FEATURES];
+  _dist_to_target_by_segment = NULL;
+  _dist_to_target_by_feature = new double[NB_FEATURES];
+  _fitness_by_feature = new double[NB_FEATURES];
 
-  for (int8_t i = 0 ; i < NB_FEATURES ; i++)
-  {
+  for (int8_t i = 0; i < NB_FEATURES; i++) {
     _dist_to_target_by_feature[i] = 0.0;
-    _fitness_by_feature[i]        = 0.0;
+    _fitness_by_feature[i] = 0.0;
   }
 
   // Generic probes
-  _int_probes     = new int32_t[5];
-  _double_probes  = new double[5];
-  for (int8_t i = 0 ; i < 5 ; i++)
-  {
-    _int_probes[i]    = parent->_int_probes[i];
+  _int_probes = new int32_t[5];
+  _double_probes = new double[5];
+  for (int8_t i = 0; i < 5; i++) {
+    _int_probes[i] = parent->_int_probes[i];
     _double_probes[i] = parent->_double_probes[i];
   }
 
@@ -430,10 +420,10 @@ Individual::Individual(const Individual * parent, int32_t id,
   _modularity = -1;
 }
 
-Individual* Individual::CreateIndividual(ExpManager * exp_m,
+Individual* Individual::CreateIndividual(ExpManager* exp_m,
                                          gzFile backup_file) {
   Individual* indiv = NULL;
-#ifdef __NO_X
+  #ifdef __NO_X
     #ifndef __REGUL
       indiv = new Individual(exp_m, backup_file);
     #else
@@ -467,9 +457,8 @@ Individual* Individual::CreateClone(const Individual* dolly, int32_t id) {
 // =================================================================
 //                             Destructor
 // =================================================================
-Individual::~Individual()
-{
-  delete [] _strain_name;
+Individual::~Individual() {
+  delete[] _strain_name;
 
   // Proteins and RNAs are recycled, don't delete them.
 
@@ -477,14 +466,14 @@ Individual::~Individual()
   delete _phenotype_inhib;
   delete _phenotype;
 
-  if (_dist_to_target_by_segment != NULL) delete [] _dist_to_target_by_segment;
-  delete [] _dist_to_target_by_feature;
+  if (_dist_to_target_by_segment != NULL) delete[] _dist_to_target_by_segment;
+  delete[] _dist_to_target_by_feature;
 
-  delete [] _fitness_by_feature;
+  delete[] _fitness_by_feature;
 
   // Generic probes
-  delete [] _int_probes;
-  delete [] _double_probes;
+  delete[] _int_probes;
+  delete[] _double_probes;
 
   delete metrics_;
   delete nc_metrics_;
@@ -493,7 +482,7 @@ Individual::~Individual()
 // =================================================================
 //                        Non-inline Accessors
 // =================================================================
-void Individual::set_exp_m(ExpManager * exp_m) {
+void Individual::set_exp_m(ExpManager* exp_m) {
   _exp_m = exp_m;
 
   // Update pointer to exp_manager in each GU
@@ -502,18 +491,18 @@ void Individual::set_exp_m(ExpManager * exp_m) {
 }
 
 /// TODO
-void Individual::set_grid_cell(GridCell * grid_cell)
-{
+void Individual::set_grid_cell(GridCell* grid_cell) {
   _grid_cell = grid_cell;
   _placed_in_population = true;
   // x = grid_cell->get_x();
   // y = grid_cell->get_y();
-  if (grid_cell->get_individual() != this)
+  if (grid_cell->get_individual() != this) {
     grid_cell->set_individual(this);
+  }
 }
 
 /// TODO
-const char*Individual::get_strain_name() const {
+const char* Individual::get_strain_name() const {
   return _strain_name;
 }
 
@@ -528,7 +517,7 @@ int32_t Individual::get_id() const {
 }
 
 /// TODO
-double*Individual::get_dist_to_target_by_segment() const {
+double* Individual::get_dist_to_target_by_segment() const {
   return _dist_to_target_by_segment;
 }
 
@@ -542,7 +531,7 @@ int32_t Individual::get_rank() const {
 }
 
 /// TODO
-ExpManager *Individual::get_exp_m() const {
+ExpManager* Individual::get_exp_m() const {
   return _exp_m;
 }
 
@@ -578,19 +567,20 @@ int32_t Individual::get_amount_of_dna() const {
 }
 
 /// Return the list of genetic units.
-const std::list<GeneticUnit>&Individual::get_genetic_unit_list() const {
+const std::list<GeneticUnit>& Individual::get_genetic_unit_list() const {
   return _genetic_unit_list;
 }
 
-std::list<GeneticUnit>&Individual::get_genetic_unit_list_nonconst() {
+std::list<GeneticUnit>& Individual::get_genetic_unit_list_nonconst() {
   return _genetic_unit_list;
 }
 
 /// Remove all the elements from the GU list except the firt and the
 /// last ones. If the GU list has less that 2 elements, do nothing.
 void Individual::drop_nested_genetic_units() {
-  if (_genetic_unit_list.size() <= 2)
+  if (_genetic_unit_list.size() <= 2) {
     return;
+  }
 
   _genetic_unit_list.erase(std::next(_genetic_unit_list.begin()),
                            std::prev(_genetic_unit_list.end()));
@@ -616,7 +606,8 @@ GeneticUnit& Individual::get_genetic_unit_nonconst(int16_t num_unit) {
 }
 
 /// TODO
-double Individual::get_dist_to_target_by_feature(PhenotypicFeature feature) const {
+double Individual::get_dist_to_target_by_feature(
+    PhenotypicFeature feature) const {
   assert(_distance_to_target_computed);
 
   return _dist_to_target_by_feature[feature];
@@ -637,7 +628,7 @@ double Individual::get_fitness_by_feature(PhenotypicFeature feature) const {
 }
 
 /// TODO
-GridCell *Individual::get_grid_cell() const {
+GridCell* Individual::get_grid_cell() const {
   return _grid_cell;
 }
 
@@ -647,14 +638,14 @@ const Habitat& Individual::habitat() const {
 }
 
 /// TODO
-bool Individual::get_placed_in_population () const {
+bool Individual::get_placed_in_population() const {
   return _placed_in_population;
 }
 
 /*!
   Returns the sequence of genetic unit number <num_unit> (0 for main chromosome)
 */
-const char*Individual::get_genetic_unit_sequence(int16_t num_unit) const {
+const char* Individual::get_genetic_unit_sequence(int16_t num_unit) const {
   return get_genetic_unit(num_unit).get_sequence();
 }
 
@@ -998,7 +989,7 @@ bool Individual::get_with_stochasticity() const {
 }
 
 void Individual::set_allow_plasmids(bool allow_plasmids) {
-  _allow_plasmids=allow_plasmids;
+  _allow_plasmids = allow_plasmids;
 }
 
 // Genome size constraints
@@ -1023,7 +1014,7 @@ bool Individual::get_allow_plasmids() const {
 
   \return _int_probes
 */
-int32_t*Individual::get_int_probes () const {
+int32_t* Individual::get_int_probes() const {
   return _int_probes;
 }
 
@@ -1032,7 +1023,7 @@ int32_t*Individual::get_int_probes () const {
 
   \return _double_probes
 */
-double*Individual::get_double_probes (void) const {
+double* Individual::get_double_probes(void) const {
   return _double_probes;
 }
 
@@ -1043,9 +1034,9 @@ double*Individual::get_double_probes (void) const {
 void Individual::set_strain_name(char* name) {
   assert(name && strlen(name) < INT8_MAX); // Conservative, could be <=
   int8_t name_len = strlen(name);
-  delete [] _strain_name;
-  _strain_name = new char[name_len+1];
-  memcpy(_strain_name, name, name_len+1);
+  delete[] _strain_name;
+  _strain_name = new char[name_len + 1];
+  memcpy(_strain_name, name, name_len + 1);
 }
 
 /// TODO
@@ -1067,7 +1058,6 @@ void Individual::set_placed_in_population(bool placed_in_population) {
 void Individual::set_w_max(double w_max) {
   _w_max = w_max;
 }
-
 
 
 // Genome size constraints
@@ -1180,7 +1170,7 @@ void Individual::set_mut_prng(std::shared_ptr<JumpingMT> prng) {
 
   \param int_probes 5 int32_t* that constitute a probe
 */
-void Individual::set_int_probes (int32_t* int_probes) {
+void Individual::set_int_probes(int32_t* int_probes) {
   _int_probes = int_probes;
 }
 
@@ -1189,7 +1179,7 @@ void Individual::set_int_probes (int32_t* int_probes) {
 
   \param double_probes 5 double* that constitute a probe
 */
-void Individual::set_double_probes (double* double_probes) {
+void Individual::set_double_probes(double* double_probes) {
   _double_probes = double_probes;
 }
 
@@ -1197,20 +1187,21 @@ void Individual::set_double_probes (double* double_probes) {
 //                       functions' definition
 // =====================================================================
 
-void Individual::reset_dist_to_target_by_segment(double* dist_to_target_by_segment) {
-  if (_dist_to_target_by_segment != NULL) delete [] _dist_to_target_by_segment;
+void Individual::reset_dist_to_target_by_segment(
+    double* dist_to_target_by_segment) {
+  if (_dist_to_target_by_segment != NULL) delete[] _dist_to_target_by_segment;
   _dist_to_target_by_segment = dist_to_target_by_segment;
 }
 
 void Individual::renew_dist_to_target_by_feature() {
-  if (_dist_to_target_by_feature != NULL) delete [] _dist_to_target_by_feature;
-  _dist_to_target_by_feature = new double [NB_FEATURES];
+  if (_dist_to_target_by_feature != NULL) delete[] _dist_to_target_by_feature;
+  _dist_to_target_by_feature = new double[NB_FEATURES];
 }
 
 
 void Individual::renew_fitness_by_feature() {
-  if (_fitness_by_feature != NULL) delete [] _fitness_by_feature;
-  _fitness_by_feature = new double [NB_FEATURES];
+  if (_fitness_by_feature != NULL) delete[] _fitness_by_feature;
+  _fitness_by_feature = new double[NB_FEATURES];
 }
 
 void Individual::do_transcription_translation_folding() {
@@ -1224,19 +1215,19 @@ void Individual::do_transcription_translation_folding() {
 }
 
 #ifdef DEBUG
-  void Individual::assert_promoters()
-  {
-    // Perform assertion for each genetic unit
-    // for (auto& gen_unit: _genetic_unit_list)
-    //   gen_unit.assert_promoters();
-  }
 
-  void Individual::assert_promoters_order()
-  {
-    // Perform assertion for each genetic unit
-    // for (auto& gen_unit: _genetic_unit_list)
-    //   gen_unit.assert_promoters_order();
-  }
+void Individual::assert_promoters() {
+  // Perform assertion for each genetic unit
+  // for (auto& gen_unit: _genetic_unit_list)
+  //   gen_unit.assert_promoters();
+}
+
+void Individual::assert_promoters_order() {
+  // Perform assertion for each genetic unit
+  // for (auto& gen_unit: _genetic_unit_list)
+  //   gen_unit.assert_promoters_order();
+}
+
 #endif
 
 // =================================================================
@@ -1262,8 +1253,8 @@ void Individual::compute_phenotype() {
     _phenotype_inhib->add(*gen_unit.get_inhib_contribution());
   }
 
-  _phenotype_activ->clip(Fuzzy::max,   Y_MAX);
-  _phenotype_inhib->clip(Fuzzy::min, - Y_MAX);
+  _phenotype_activ->clip(Fuzzy::max, Y_MAX);
+  _phenotype_inhib->clip(Fuzzy::min, -Y_MAX);
 
   _phenotype = new Phenotype();
   _phenotype->add(*_phenotype_activ);
@@ -1275,8 +1266,9 @@ void Individual::compute_phenotype() {
 void Individual::compute_distance_to_target(const PhenotypicTarget& target) {
 // Compute the areas between the phenotype and the target for each segment
 // If the target is not segmented, the total area is computed
-  if (_distance_to_target_computed)
-    return; // _distance_to_target has already been computed, nothing to do.
+  if (_distance_to_target_computed) {
+    return;
+  } // _distance_to_target has already been computed, nothing to do.
 
   _distance_to_target_computed = true;
 
@@ -1287,9 +1279,9 @@ void Individual::compute_distance_to_target(const PhenotypicTarget& target) {
   Fuzzy* delta = new Fuzzy(*_phenotype);
   delta->sub(target);
 
-  PhenotypicSegment ** segments = target.segments();
-  _dist_to_target_by_segment = new double [target.nb_segments()];
-  for (size_t i = 0 ; i < static_cast<size_t>(target.nb_segments()) ; i++) {
+  PhenotypicSegment** segments = target.segments();
+  _dist_to_target_by_segment = new double[target.nb_segments()];
+  for (size_t i = 0; i < static_cast<size_t>(target.nb_segments()); i++) {
     _dist_to_target_by_segment[i] = 0;
   }
 
@@ -1297,8 +1289,9 @@ void Individual::compute_distance_to_target(const PhenotypicTarget& target) {
   //   => We shouldn't parse the whole list of points on the left of the segment we are considering (we have
   //      already been through them!)
 
-  for (size_t i = 0 ; i < static_cast<size_t>(target.nb_segments()) ; i++) {
-    _dist_to_target_by_segment[i] = delta->get_geometric_area(segments[i]->start, segments[i]->stop);
+  for (size_t i = 0; i < static_cast<size_t>(target.nb_segments()); i++) {
+    _dist_to_target_by_segment[i] = delta->get_geometric_area(
+        segments[i]->start, segments[i]->stop);
     _dist_to_target_by_feature[segments[i]->feature] += _dist_to_target_by_segment[i];
   }
 
@@ -1317,112 +1310,101 @@ void Individual::compute_fitness(const PhenotypicTarget& target) {
   _fitness_computed = true;
 
 #ifdef NORMALIZED_FITNESS
-    for (int8_t i = 0 ; i < NB_FEATURES ; i++)
-    {
-      if (envir->get_area_by_feature(i)==0.)
+  for (int8_t i = 0 ; i < NB_FEATURES ; i++) {
+    if (envir->get_area_by_feature(i)==0.) {
+      fitness_by_feature_[i] = 0.;
+    }
+    else {
+      fitness_by_feature_[i] =  (envir->get_area_by_feature(i) - dist_to_target_by_feature_[i]) / envir->get_area_by_feature(i);
+      if ((fitness_by_feature_[i] < 0.) && (i != METABOLISM)) // non-metabolic fitness can NOT be lower than zero (we do not want individual to secrete a negative quantity of public good)
       {
         fitness_by_feature_[i] = 0.;
       }
-      else
-      {
-        fitness_by_feature_[i] =  (envir->get_area_by_feature(i) - dist_to_target_by_feature_[i]) / envir->get_area_by_feature(i);
-        if ((fitness_by_feature_[i] < 0.) && (i != METABOLISM)) // non-metabolic fitness can NOT be lower than zero (we do not want individual to secrete a negative quantity of public good)
-        {
-          fitness_by_feature_[i] = 0.;
-        }
-      }
     }
+  }
 
-    if ((! _placed_in_population) || (! exp_m_->get_with_secretion()))
-    {
-      fitness_ = fitness_by_feature_[METABOLISM];
-    }
-    else
-    {
-      fitness_ =  fitness_by_feature_[METABOLISM] * (1 + exp_m_->get_secretion_contrib_to_fitness() * (_grid_cell->compound_amount() - exp_m_->get_secretion_cost() * fitness_by_feature_[SECRETION]));
-    }
+  if ((! _placed_in_population) || (! exp_m_->get_with_secretion())) {
+    fitness_ = fitness_by_feature_[METABOLISM];
+  }
+  else {
+    fitness_ =  fitness_by_feature_[METABOLISM] * (1 + exp_m_->get_secretion_contrib_to_fitness() * (_grid_cell->compound_amount() - exp_m_->get_secretion_cost() * fitness_by_feature_[SECRETION]));
+  }
 
-    if (exp_m_->get_selection_scheme() == FITNESS_PROPORTIONATE) // Then the exponential selection is integrated inside the fitness value
-    {
-      fitness_ = exp(-exp_m_->get_selection_pressure() * (1 - fitness_));
-    }
-  #else
-  for (int8_t i = 0 ; i < NB_FEATURES ; i++)
+  if (exp_m_->get_selection_scheme() == FITNESS_PROPORTIONATE) // Then the exponential selection is integrated inside the fitness value
   {
-    if (i == SECRETION)
-    {
-      _fitness_by_feature[SECRETION] =  exp(- _exp_m->get_selection_pressure() * _dist_to_target_by_feature[SECRETION])
-                                        - exp(- _exp_m->get_selection_pressure() * target.area_by_feature(SECRETION));
+    fitness_ = exp(-exp_m_->get_selection_pressure() * (1 - fitness_));
+  }
+#else
+  for (int8_t i = 0; i < NB_FEATURES; i++) {
+    if (i == SECRETION) {
+      _fitness_by_feature[SECRETION] = exp(-_exp_m->get_selection_pressure() *
+                                           _dist_to_target_by_feature[SECRETION])
+                                       - exp(-_exp_m->get_selection_pressure() *
+                                             target.area_by_feature(SECRETION));
 
-      if (_fitness_by_feature[i] < 0)
-      {
+      if (_fitness_by_feature[i] < 0) {
         _fitness_by_feature[i] = 0;
       }
     }
-    else
-    {
-        _fitness_by_feature[i] = exp(- _exp_m->get_selection_pressure() * _dist_to_target_by_feature[i]);
+    else {
+      _fitness_by_feature[i] = exp(
+          -_exp_m->get_selection_pressure() * _dist_to_target_by_feature[i]);
     }
   }
 
   // Calculate combined, total fitness here!
   // Multiply the contribution of metabolism and the amount of compound in the
   // habitat
-  if ((! _placed_in_population) || (! _exp_m->get_with_secretion()))
-  {
-    _fitness =  _fitness_by_feature[METABOLISM] ;
+  if ((!_placed_in_population) || (!_exp_m->get_with_secretion())) {
+    _fitness = _fitness_by_feature[METABOLISM];
   }
-  else
-  {
-    _fitness =  _fitness_by_feature[METABOLISM]
-                *  (1 + _exp_m->get_secretion_contrib_to_fitness() * get_grid_cell()->compound_amount()
-                    - _exp_m->get_secretion_cost() * _fitness_by_feature[SECRETION]);
+  else {
+    _fitness = _fitness_by_feature[METABOLISM]
+               * (1 + _exp_m->get_secretion_contrib_to_fitness() *
+                      get_grid_cell()->compound_amount()
+                  - _exp_m->get_secretion_cost() *
+                    _fitness_by_feature[SECRETION]);
   }
 #endif
 }
 
 
 void Individual::clear_everything_except_dna_and_promoters() {
-  _evaluated                    = false;
-  _transcribed                  = false;
-  _translated                   = false;
-  _folded                       = false;
-  _phenotype_computed           = false;
-  _distance_to_target_computed  = false;
-  _fitness_computed             = false;
+  _evaluated = false;
+  _transcribed = false;
+  _translated = false;
+  _folded = false;
+  _phenotype_computed = false;
+  _distance_to_target_computed = false;
+  _fitness_computed = false;
 
   for (auto& gen_unit: _genetic_unit_list)
     gen_unit.reset_expression();
 
-  if (_phenotype_activ != NULL)
-  {
+  if (_phenotype_activ != NULL) {
     delete _phenotype_activ;
     _phenotype_activ = NULL;
   }
 
-  if (_phenotype_inhib != NULL)
-  {
+  if (_phenotype_inhib != NULL) {
     delete _phenotype_inhib;
     _phenotype_inhib = NULL;
   }
 
-  if (_phenotype != NULL)
-  {
+  if (_phenotype != NULL) {
     delete _phenotype;
     _phenotype = NULL;
   }
 
   // Initialize all the fitness-related stuff
-  if (_dist_to_target_by_segment != NULL)
-  {
-    delete [] _dist_to_target_by_segment;
-    _dist_to_target_by_segment  = NULL;
+  if (_dist_to_target_by_segment != NULL) {
+    delete[] _dist_to_target_by_segment;
+    _dist_to_target_by_segment = NULL;
   }
 
-  for (int8_t i = 0 ; i < NB_FEATURES ; i++)
-  {
+  for (int8_t i = 0; i < NB_FEATURES; i++) {
     _dist_to_target_by_feature[i] = 0.0;
-    _fitness_by_feature[i]        = 0.0;
+    _fitness_by_feature[i] = 0.0;
   }
 
 
@@ -1464,22 +1446,21 @@ void Individual::ReevaluateInContext(const Habitat& habitat) {
 }
 
 
-void Individual::add_GU(char * &sequence, int32_t length) {
+void Individual::add_GU(char*& sequence, int32_t length) {
   clear_everything_except_dna_and_promoters();
   _genetic_unit_list.emplace_back(this, sequence, length);
 }
 
 /// Overloaded version to prevent the use of GeneticUnit disabled
 /// copy ctor. Forwards arguments to GeneticUnit's ctor.
-void Individual::add_GU(Individual * indiv,
-                           int32_t chromosome_length,
-                           std::shared_ptr<JumpingMT> prng) {
+void Individual::add_GU(Individual* indiv,
+                        int32_t chromosome_length,
+                        std::shared_ptr<JumpingMT> prng) {
   clear_everything_except_dna_and_promoters();
   _genetic_unit_list.emplace_back(indiv, chromosome_length, prng);
 }
 
-void Individual::remove_GU(int16_t num_unit)
-{
+void Individual::remove_GU(int16_t num_unit) {
   clear_everything_except_dna_and_promoters();
   auto it = _genetic_unit_list.begin();
   std::advance(it, num_unit);
@@ -1487,10 +1468,10 @@ void Individual::remove_GU(int16_t num_unit)
 }
 
 
-
 void Individual::do_transcription() {
-  if (_transcribed)
-    return; // Transcription has already been performed, nothing to do.
+  if (_transcribed) {
+    return;
+  } // Transcription has already been performed, nothing to do.
   _transcribed = true;
 
   for (auto& gen_unit: _genetic_unit_list) {
@@ -1504,8 +1485,9 @@ void Individual::do_transcription() {
 }
 
 void Individual::do_translation() {
-  if (_translated)
-    return; // ARNs have already been translated, nothing to do.
+  if (_translated) {
+    return;
+  } // ARNs have already been translated, nothing to do.
   _translated = true;
 
   if (not _transcribed)
@@ -1523,8 +1505,9 @@ void Individual::do_translation() {
 }
 
 void Individual::do_folding() {
-  if (_folded)
-    return; // Proteins have already been folded, nothing to do.
+  if (_folded) {
+    return;
+  } // Proteins have already been folded, nothing to do.
   _folded = true;
 
   if (not _translated)
@@ -1539,7 +1522,9 @@ void Individual::Evaluate() {
 }
 
 void Individual::EvaluateInContext(const Habitat& habitat) {
-  if (_evaluated == true) return; // Individual has already been evaluated, nothing to do.
+  if (_evaluated == true) {
+    return;
+  } // Individual has already been evaluated, nothing to do.
   _evaluated = true;
 
   // ----------------------------------------------------------------------
@@ -1562,13 +1547,12 @@ void Individual::EvaluateInContext(const Habitat& habitat) {
 }
 
 
-
-void Individual::inject_GU(Individual * donor) {
+void Individual::inject_GU(Individual* donor) {
   // Add the GU at the end of the list
   _genetic_unit_list.emplace_back(this, donor->_genetic_unit_list.back());
 }
 
-void Individual::inject_2GUs(Individual * partner) {
+void Individual::inject_2GUs(Individual* partner) {
   // We swap GUs from the end of the list.
 
   // TODO vld: As far as I understood the old code (47b27578), the
@@ -1576,14 +1560,20 @@ void Individual::inject_2GUs(Individual * partner) {
   // lists. Error?  Original author (Dule, commit 47b27578), asked for
   // clarification by e-mail on 2015-02-23.
 
-  const auto& gu_list_back_it = std::prev(_genetic_unit_list.end()); // initial last cell from _genetic_unit_list
-  _genetic_unit_list.splice(_genetic_unit_list.end(), partner->_genetic_unit_list, std::prev(partner->_genetic_unit_list.end()));
-  partner->_genetic_unit_list.splice(partner->_genetic_unit_list.end(), _genetic_unit_list, gu_list_back_it);
+  const auto& gu_list_back_it = std::prev(
+      _genetic_unit_list.end()); // initial last cell from _genetic_unit_list
+  _genetic_unit_list.splice(_genetic_unit_list.end(),
+                            partner->_genetic_unit_list,
+                            std::prev(partner->_genetic_unit_list.end()));
+  partner->_genetic_unit_list.splice(partner->_genetic_unit_list.end(),
+                                     _genetic_unit_list, gu_list_back_it);
 }
 
 void Individual::compute_statistical_data() {
-  if (metrics_ != nullptr) return; // Statistical data has already been computed,
-                                 // nothing to do.
+  if (metrics_ != nullptr) {
+    return;
+  } // Statistical data has already been computed,
+  // nothing to do.
 
   metrics_ = new Metrics();
 
@@ -1597,7 +1587,7 @@ void Individual::compute_statistical_data() {
 
 void Individual::compute_non_coding() {
   if (nc_metrics_ != nullptr) return; // NC stats have already been computed,
-                                      // nothing to do.
+  // nothing to do.
   nc_metrics_ = new NonCodingMetrics();
 
   for (auto& gen_unit: _genetic_unit_list) {
@@ -1610,11 +1600,11 @@ void Individual::save(gzFile backup_file) const {
   // Write the name and "age" of the strain
   int8_t strain_string_len = strlen(_strain_name);
   gzwrite(backup_file, &strain_string_len, sizeof(strain_string_len));
-  gzwrite(backup_file, _strain_name, strain_string_len+1);
+  gzwrite(backup_file, _strain_name, strain_string_len + 1);
   gzwrite(backup_file, &_age, sizeof(_age));
 
   // Write id and rank
-  gzwrite(backup_file, &_id,   sizeof(_id));
+  gzwrite(backup_file, &_id, sizeof(_id));
   gzwrite(backup_file, &_rank, sizeof(_rank));
 
   // Write the position of the individual
@@ -1622,7 +1612,7 @@ void Individual::save(gzFile backup_file) const {
   // gzwrite(backup_file, &y, sizeof(y));
 
   // Write generic probes
-  gzwrite(backup_file, _int_probes,    5 * sizeof(*_int_probes));
+  gzwrite(backup_file, _int_probes, 5 * sizeof(*_int_probes));
   gzwrite(backup_file, _double_probes, 5 * sizeof(*_double_probes));
 
   // Write mutational parameters
@@ -1644,7 +1634,7 @@ void Individual::save(gzFile backup_file) const {
 
   // Write genetic units
   int16_t nb_gen_units = _genetic_unit_list.size();
-  gzwrite(backup_file, &nb_gen_units,  sizeof(nb_gen_units));
+  gzwrite(backup_file, &nb_gen_units, sizeof(nb_gen_units));
 
   for (const auto& gen_unit: _genetic_unit_list)
     gen_unit.save(backup_file);
@@ -1673,22 +1663,23 @@ int32_t Individual::get_nb_terminators() {
   \param replication_file         file with information about each children of the current individual (fitness, genome_size, nb of functional genes, number of coding bases,
                                     number of transcribed but not translated bases, number of non transcribed bases) if not null
 */
-void Individual::compute_experimental_f_nu(int32_t nb_children, double* reproduction_statistics, double* offsprings_statistics, FILE* replication_file) {
+void Individual::compute_experimental_f_nu(int32_t nb_children,
+                                           double* reproduction_statistics,
+                                           double* offsprings_statistics,
+                                           FILE* replication_file) {
   double initial_fitness = get_fitness();
 
-  if(reproduction_statistics != NULL)
-  {
+  if (reproduction_statistics != NULL) {
     reproduction_statistics[0] = 0; // proportion of neutral offsprings
     reproduction_statistics[1] = 0; // proportion of beneficial offsprings
     reproduction_statistics[2] = 0; // proportion of deleterious offsprings
   }
-  else
-  {
-    printf("%s:%d: error: reproduction_statistics was not initialized\n", __FILE__, __LINE__);
+  else {
+    printf("%s:%d: error: reproduction_statistics was not initialized\n",
+           __FILE__, __LINE__);
     exit(EXIT_FAILURE);
   }
-  if(offsprings_statistics != NULL)
-  {
+  if (offsprings_statistics != NULL) {
     offsprings_statistics[0] = 0; // offspring fitness mean
     offsprings_statistics[1] = 0; // offspring fitness variance
     offsprings_statistics[2] = 0; // offspring size mean
@@ -1705,29 +1696,26 @@ void Individual::compute_experimental_f_nu(int32_t nb_children, double* reproduc
   double metabolic_error_child = 0.0;
 
   // replicate this individual to create 'nb_children' children
-  Individual * child = NULL;
+  Individual* child = NULL;
 
   int32_t genome_size = 0;
   int32_t nb_functional_genes = 0;
   int32_t nb_bases_in_0_functional_CDS = 0;
   int32_t nb_bases_in_0_coding_RNA = 0;
 
-  for (int i = 0; i < nb_children; i++)
-  {
+  for (int i = 0; i < nb_children; i++) {
     child = _exp_m->get_exp_s()->get_sel()->do_replication(this, _id);
     fitness_child = child->get_fitness();
     metabolic_error_child = child->get_dist_to_target_by_feature(METABOLISM);
 
-    if (fabs(initial_fitness - fitness_child) < 1e-10*std::max(initial_fitness, fitness_child))
-    {
+    if (fabs(initial_fitness - fitness_child) <
+        1e-10 * std::max(initial_fitness, fitness_child)) {
       reproduction_statistics[0] += 1;
     }
-    else if (fitness_child > initial_fitness)
-    {
+    else if (fitness_child > initial_fitness) {
       reproduction_statistics[1] += 1;
     }
-    else
-    {
+    else {
       reproduction_statistics[2] += 1;
     }
 
@@ -1736,19 +1724,22 @@ void Individual::compute_experimental_f_nu(int32_t nb_children, double* reproduc
     nb_bases_in_0_functional_CDS = child->get_nb_bases_in_0_functional_CDS();
     nb_bases_in_0_coding_RNA = child->get_nb_bases_in_0_coding_RNA();
 
-    if(offsprings_statistics != NULL)
-    {
+    if (offsprings_statistics != NULL) {
       offsprings_statistics[0] += fitness_child;
-      offsprings_statistics[1] += pow(fitness_child,2);
-      offsprings_statistics[2] += (double)genome_size;
-      offsprings_statistics[3] += pow((double)genome_size,2);
-      offsprings_statistics[4] += (double)nb_functional_genes;
-      offsprings_statistics[5] += pow((double)nb_functional_genes,2);
+      offsprings_statistics[1] += pow(fitness_child, 2);
+      offsprings_statistics[2] += (double) genome_size;
+      offsprings_statistics[3] += pow((double) genome_size, 2);
+      offsprings_statistics[4] += (double) nb_functional_genes;
+      offsprings_statistics[5] += pow((double) nb_functional_genes, 2);
     }
 
-    if(replication_file != NULL)
-    {
-      fprintf(replication_file, "%le %le %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n", fitness_child, metabolic_error_child, genome_size, nb_functional_genes, genome_size-nb_bases_in_0_functional_CDS, nb_bases_in_0_functional_CDS-nb_bases_in_0_coding_RNA, nb_bases_in_0_coding_RNA);
+    if (replication_file != NULL) {
+      fprintf(replication_file,
+              "%le %le %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n",
+              fitness_child, metabolic_error_child, genome_size,
+              nb_functional_genes, genome_size - nb_bases_in_0_functional_CDS,
+              nb_bases_in_0_functional_CDS - nb_bases_in_0_coding_RNA,
+              nb_bases_in_0_coding_RNA);
     }
 
     delete child;
@@ -1759,8 +1750,7 @@ void Individual::compute_experimental_f_nu(int32_t nb_children, double* reproduc
   reproduction_statistics[1] /= (double) nb_children;
   reproduction_statistics[2] /= (double) nb_children;
 
-  if(offsprings_statistics != NULL)
-  {
+  if (offsprings_statistics != NULL) {
     offsprings_statistics[0] /= (double) nb_children;
     offsprings_statistics[1] /= (double) nb_children;
     offsprings_statistics[2] /= (double) nb_children;
@@ -1768,9 +1758,9 @@ void Individual::compute_experimental_f_nu(int32_t nb_children, double* reproduc
     offsprings_statistics[4] /= (double) nb_children;
     offsprings_statistics[5] /= (double) nb_children;
 
-    offsprings_statistics[1] -= pow(offsprings_statistics[0],2);
-    offsprings_statistics[3] -= pow(offsprings_statistics[2],2);
-    offsprings_statistics[5] -= pow(offsprings_statistics[4],2);
+    offsprings_statistics[1] -= pow(offsprings_statistics[0], 2);
+    offsprings_statistics[3] -= pow(offsprings_statistics[2], 2);
+    offsprings_statistics[5] -= pow(offsprings_statistics[4], 2);
   }
 }
 
@@ -1788,29 +1778,29 @@ double Individual::compute_theoritical_f_nu() {
   // Please notice that compared to the formula we have the beginning
   // and ends of neutral regions instead of 'functional regions'
   GeneticUnit& chromosome = _genetic_unit_list.front();
-  int32_t L       = chromosome.get_dna()->length();
-  int32_t N_G     = chromosome.get_nb_neutral_regions(); // which is not exactly Carole's original definition
-  int32_t* b_i    = chromosome.get_beginning_neutral_regions();
-  int32_t* e_i    = chromosome.get_end_neutral_regions();
-  int32_t lambda  = chromosome.get_nb_bases_in_neutral_regions();
-  int32_t l       = L - lambda; // nb bases in 'functional regions'
+  int32_t L = chromosome.get_dna()->length();
+  int32_t N_G = chromosome.get_nb_neutral_regions(); // which is not exactly Carole's original definition
+  int32_t* b_i = chromosome.get_beginning_neutral_regions();
+  int32_t* e_i = chromosome.get_end_neutral_regions();
+  int32_t lambda = chromosome.get_nb_bases_in_neutral_regions();
+  int32_t l = L - lambda; // nb bases in 'functional regions'
 
   int32_t* lambda_i = NULL;  // nb bases in ith neutral region
   if (N_G > 0) // all the chromosome may be functional
   {
-    lambda_i = new int32_t [ N_G ];
+    lambda_i = new int32_t[N_G];
 
-    for (int32_t i = 0; i < N_G - 1; i++)
-    {
+    for (int32_t i = 0; i < N_G - 1; i++) {
       lambda_i[i] = e_i[i] - b_i[i] + 1;
     }
-    if (b_i[N_G-1] > e_i[N_G-1]) // last neutral region is overlapping on the beginning of chromosome
+    if (b_i[N_G - 1] > e_i[N_G -
+                           1]) // last neutral region is overlapping on the beginning of chromosome
     {
-      lambda_i[N_G-1] = (e_i[N_G-1] + L) - b_i[N_G-1] + 1;
+      lambda_i[N_G - 1] = (e_i[N_G - 1] + L) - b_i[N_G - 1] + 1;
     }
     else // no overlap
     {
-      lambda_i[N_G-1] = e_i[N_G-1] - b_i[N_G-1] + 1;
+      lambda_i[N_G - 1] = e_i[N_G - 1] - b_i[N_G - 1] + 1;
     }
   }
 
@@ -1819,28 +1809,32 @@ double Individual::compute_theoritical_f_nu() {
   double Fv = 1;
 
   // mutation + insertion + deletion
-  double nu_local_mutation = 1 - ((double) l)/L;
-  Fv  = pow(1 - get_point_mutation_rate()  * (1 - nu_local_mutation), L);
+  double nu_local_mutation = 1 - ((double) l) / L;
+  Fv = pow(1 - get_point_mutation_rate() * (1 - nu_local_mutation), L);
   Fv *= pow(1 - get_small_insertion_rate() * (1 - nu_local_mutation), L);
-  Fv *= pow(1 - get_small_deletion_rate()  * (1 - nu_local_mutation), L);
+  Fv *= pow(1 - get_small_deletion_rate() * (1 - nu_local_mutation), L);
 
   // inversion ~ two local mutations
   double nu_inversion = nu_local_mutation * nu_local_mutation;
-  Fv *= pow(1 - get_inversion_rate()       * (1 - nu_inversion)     , L);
+  Fv *= pow(1 - get_inversion_rate() * (1 - nu_inversion), L);
 
   // translocation ~ inversion + insertion (mathematically)
-  Fv *= pow(1 - get_translocation_rate()   * (1 - nu_inversion * nu_local_mutation), L);
+  Fv *= pow(
+      1 - get_translocation_rate() * (1 - nu_inversion * nu_local_mutation), L);
 
   // long deletion
   double nu_deletion = 0; // if N_G == 0, a deletion is always not neutral
-  for (int32_t i = 0; i < N_G; i++) { nu_deletion += lambda_i[i] * (lambda_i[i] + 1); }
-  nu_deletion /= ((double) 2*L*L);
-  Fv *= pow(1 - get_deletion_rate()        * (1 - nu_deletion)      , L);
+  for (int32_t i = 0; i < N_G; i++) {
+    nu_deletion += lambda_i[i] * (lambda_i[i] + 1);
+  }
+  nu_deletion /= ((double) 2 * L * L);
+  Fv *= pow(1 - get_deletion_rate() * (1 - nu_deletion), L);
 
   // duplication ~ big deletion + insertion
-  Fv *= pow(1 - get_duplication_rate()     * (1 - nu_deletion * nu_local_mutation), L);
+  Fv *= pow(1 - get_duplication_rate() * (1 - nu_deletion * nu_local_mutation),
+            L);
 
-  if (lambda_i != NULL) delete [] lambda_i;
+  if (lambda_i != NULL) delete[] lambda_i;
 
   return Fv;
 }
@@ -1860,10 +1854,10 @@ void Individual::remove_non_coding_bases() {
   nc_metrics_ = NULL;
 
 #ifdef DEBUG
-    compute_statistical_data();
-    compute_non_coding();
-    assert(get_nb_bases_in_0_coding_RNA() == 0);
-  #endif
+  compute_statistical_data();
+  compute_non_coding();
+  assert(get_nb_bases_in_0_coding_RNA() == 0);
+#endif
 }
 
 /// Double the bases that are not in coding RNA.
@@ -1884,10 +1878,10 @@ void Individual::double_non_coding_bases(void) {
   nc_metrics_ = NULL;
 
 #ifdef DEBUG
-    compute_statistical_data();
-    compute_non_coding();
-    assert(get_nb_bases_in_0_coding_RNA() == 2 * initial_non_coding_base_nb);
-  #endif
+  compute_statistical_data();
+  compute_non_coding();
+  assert(get_nb_bases_in_0_coding_RNA() == 2 * initial_non_coding_base_nb);
+#endif
 }
 
 // =================================================================
@@ -1900,8 +1894,7 @@ void Individual::make_protein_list() {
   _protein_list.clear();
 
   // Make a copy of each genetic unit's protein list
-  for (auto& gen_unit: _genetic_unit_list)
-  {
+  for (auto& gen_unit: _genetic_unit_list) {
     // append all proteins from `gen_unit` to `protein_list_`
     for (auto& strand_id: {LEADING, LAGGING}) {
       auto& strand = gen_unit.get_protein_list(strand_id);
@@ -1916,8 +1909,7 @@ void Individual::make_rna_list() {
   _rna_list.clear();
 
   // Make a copy of each genetic unit's rna list
-  for (const auto& gen_unit: _genetic_unit_list)
-  {
+  for (const auto& gen_unit: _genetic_unit_list) {
     // Create proxies
     const auto& rna_list = gen_unit.get_rna_list();
     const auto& lead = rna_list[LEADING];
