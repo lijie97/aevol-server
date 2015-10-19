@@ -8,10 +8,11 @@ RELEASE HowTo
 2) Write an entry in the NEWS file for users
    and in ChangeLog for developers.
 
-3) [TEMPORAIRE tant que les tests sont quasi inexistants]
-  -> Virer les tests (répertoires et références dans configure.ac, src/Makefile.am
+3) [TEMPRORARY as long as tests are scarce]
+  -> Remove tests directories
+  -> Remove references to tests in configure.ac, src/Makefile.am
 
-3') Nettoyer les exemples : supprimer résultats
+3') Clean up examples: remove all computed data files
 
 4) Run the following commands (from aevol root dir)
   -> autoreconf
