@@ -139,7 +139,7 @@ void ExpManager::Save() const
             char* sel_file_name,
             char* world_file_name,
             bool verbose)
-  \see WriteDynamicFiles(void)
+  \see WriteDynamicFiles()
   \see save_copy(char* dir, int64_t t)
 */
 void ExpManager::WriteSetupFiles() const
@@ -180,7 +180,7 @@ void ExpManager::WriteSetupFiles() const
             char* sel_file_name,
             char* world_file_name,
             bool verbose)
-  \see WriteSetupFiles(void)
+  \see WriteSetupFiles()
   \see save_copy(char* dir, int64_t t)
 */
 void ExpManager::WriteDynamicFiles() const
@@ -221,8 +221,8 @@ void ExpManager::WriteDynamicFiles() const
              char* sel_file_name,
              char* world_file_name,
              bool verbose)
-  \see WriteSetupFiles(void)
-  \see WriteDynamicFiles(void)
+  \see WriteSetupFiles()
+  \see WriteDynamicFiles()
 */
 void ExpManager::save_copy(char* dir, int64_t time) const
 {
@@ -412,7 +412,7 @@ void ExpManager::load(int64_t t0,
 /**
  * Run the simulation
  */
-void ExpManager::run_evolution(void)
+void ExpManager::run_evolution()
 {
   // We are running a simulation.
   // Save the setup files to keep track of the setup history
@@ -445,7 +445,7 @@ void ExpManager::run_evolution(void)
   fclose(org_file);
 }
 
-void ExpManager::update_best(void)
+void ExpManager::update_best()
 {
   world_->update_best();
 }
