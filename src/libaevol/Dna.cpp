@@ -1718,7 +1718,7 @@ Mutation* Dna::do_ins_HT(int32_t parent_id) {
 //  Individual * donor = NULL;
 //  do {
 //    donor = exp_m_->get_pop()->
-//        get_indiv_by_rank(_exp_m->get_sel()->get_prng()->random(nb_indivs) +
+//        get_indiv_by_rank(exp_m_->get_sel()->get_prng()->random(nb_indivs) +
 //                              1);
 //  }
 //  while (donor->get_id() == parent_id);
@@ -1859,7 +1859,7 @@ Mutation* Dna::do_repl_HT(int32_t parent_id) {
 //  Individual * donor = NULL;
 //  do {
 //    donor = exp_m_->get_pop()->
-//        get_indiv_by_rank(_exp_m->get_sel()->get_prng()->random(nb_indivs)
+//        get_indiv_by_rank(exp_m_->get_sel()->get_prng()->random(nb_indivs)
 //            + 1);
 //  }
 //  while (donor->get_id() == parent_id);
@@ -1878,7 +1878,7 @@ Mutation* Dna::do_repl_HT(int32_t parent_id) {
 //
 //  alignment_1 = search_alignment(donor_dna, nb_pairs_1, sense);
 //  if (alignment_1 != NULL) {
-//    if (_exp_m->get_repl_HT_with_close_points()) {
+//    if (exp_m_->get_repl_HT_with_close_points()) {
 //      alignment_2 =
 //          search_alignment_around_positions(donor_dna,
 //                                            alignment_1->get_i_1(),
