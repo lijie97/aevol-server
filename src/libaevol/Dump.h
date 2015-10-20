@@ -49,7 +49,7 @@ namespace aevol {
 // =================================================================
 class ExpManager;
 
-#define _AE_DUMP_FILENAME_BUFSIZE INT32_C(256)
+constexpr int32_t _AE_DUMP_FILENAME_BUFSIZE = 256;
 
 class Dump
 {  
