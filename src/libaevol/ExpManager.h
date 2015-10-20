@@ -77,12 +77,10 @@ class ExpManager : public Observer {
   Selection* sel() const { return exp_s()->get_sel(); }
   OutputManager* output_m() const { return output_m_; }
   bool quit_signal_received() const { return quit_signal_received_; }
-  SelectionScheme selection_scheme() const { return sel()->get_selection_scheme(); }
   double selection_pressure() const { return sel()->get_selection_pressure(); }
 
   // Spatial structure
   World* world() const { return world_; }
-  GridCell* grid_cell(int16_t x, int16_t y) const { return world()->grid(x, y); }
   int16_t grid_width() const { return world()->width(); }
   int16_t grid_height() const { return world()->height(); }
   GridCell*** grid() const { return world()->grid(); }
