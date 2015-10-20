@@ -183,7 +183,7 @@ void ExpManager::WriteSetupFiles() const
   \see WriteSetupFiles(void)
   \see save_copy(char* dir, int64_t t)
 */
-void ExpManager::WriteDynamicFiles(void) const
+void ExpManager::WriteDynamicFiles() const
 {
   // Create missing directories
   create_missing_directories();
