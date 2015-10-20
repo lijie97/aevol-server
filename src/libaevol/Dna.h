@@ -86,8 +86,8 @@ class Dna : public ae_string {
   // =================================================================
   //                              Accessors
   // =================================================================
-  inline GeneticUnit* get_genetic_unit() const;
-  inline Individual* get_indiv() const;
+  GeneticUnit* get_genetic_unit() const { return gen_unit_; }
+  Individual* get_indiv() const { return indiv_; }
 
   // WARNING : creates a new char[...] (up to you to delete it!)
   char* get_subsequence(int32_t from, int32_t to, Strand strand) const;
@@ -194,13 +194,6 @@ class Dna : public ae_string {
 // =====================================================================
 //                          Accessors definitions
 // =====================================================================
-Individual *Dna::get_indiv() const {
-  return indiv_;
-}
-
-GeneticUnit*Dna::get_genetic_unit() const {
-  return gen_unit_;
-}
 
 // =====================================================================
 //                       Inline functions' definition
