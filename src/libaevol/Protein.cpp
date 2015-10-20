@@ -168,7 +168,7 @@ Protein::Protein(GeneticUnit* gen_unit,
   bool bin_h = false;
 
   for (const auto& codon: codon_list) {
-    switch ( codon->get_value() )
+    switch (codon->value())
     {
       case CODON_M0 :
       {
@@ -396,7 +396,7 @@ char* Protein::get_AA_sequence(char separator /*= ' '*/) const
   int32_t i = 0;
   for (const auto& codon: _AA_list) {
     if ( i != 0 ) seq[i++] = separator;
-    switch ( codon->get_value() )
+    switch (codon->value())
     {
       case CODON_START :
       {
