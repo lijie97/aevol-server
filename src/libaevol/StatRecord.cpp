@@ -162,8 +162,8 @@ StatRecord::StatRecord(ExpManager* exp_m,
     // Compute statistical data for the given individual
     // -------------------------------------------------
     ReplicationReport* replic_report = nullptr;
-    if (_exp_m->get_tree() != nullptr)
-      replic_report = _exp_m->get_tree()->get_report_by_index(AeTime::get_time(),
+    if (_exp_m->tree() != nullptr)
+      replic_report = _exp_m->tree()->get_report_by_index(AeTime::get_time(),
                                                               indiv->get_id());
 
     if (compute_non_coding)
@@ -182,7 +182,7 @@ StatRecord::StatRecord(ExpManager* exp_m,
     _fitness = indiv->get_fitness();
 
     // Secretion stats
-    if (_exp_m->get_with_secretion())
+    if (_exp_m->with_secretion())
     {
        _secretion_error   = indiv->get_dist_to_target_by_feature(SECRETION);
        _secretion_fitness = indiv->get_fitness_by_feature(SECRETION);
@@ -266,8 +266,8 @@ StatRecord::StatRecord(ExpManager* exp_m,
     // Compute statistical data for the given individual
     // -------------------------------------------------
     ReplicationReport* replic_report = nullptr;
-    if (_exp_m->get_tree() != nullptr)
-      replic_report = _exp_m->get_tree()->get_report_by_index(AeTime::get_time(),
+    if (_exp_m->tree() != nullptr)
+      replic_report = _exp_m->tree()->get_report_by_index(AeTime::get_time(),
                                                               indiv->get_id());
 
     // Metabolic error stats
@@ -279,7 +279,7 @@ StatRecord::StatRecord(ExpManager* exp_m,
     _fitness = indiv->get_fitness();
 
     // Secretion stats
-    if (_exp_m->get_with_secretion())
+    if (_exp_m->with_secretion())
     {
        _secretion_error = (double) indiv->get_dist_to_target_by_feature(SECRETION);
        _secretion_fitness = (double) indiv->get_fitness_by_feature(SECRETION);
@@ -366,8 +366,8 @@ StatRecord::StatRecord(ExpManager* exp_m,
     // Compute statistical data for the given individual
     // -------------------------------------------------
     ReplicationReport* replic_report = nullptr;
-    if (_exp_m->get_tree() != nullptr)
-      replic_report = _exp_m->get_tree()->get_report_by_index(AeTime::get_time(),
+    if (_exp_m->tree() != nullptr)
+      replic_report = _exp_m->tree()->get_report_by_index(AeTime::get_time(),
                                                               indiv->get_id());
     
     // Metabolic error stats
@@ -379,7 +379,7 @@ StatRecord::StatRecord(ExpManager* exp_m,
     _fitness = indiv->get_fitness();
   
     // Secretion stats
-    if (_exp_m->get_with_secretion())
+    if (_exp_m->with_secretion())
     {
        _secretion_error = (double) gen_unit.get_dist_to_target_by_feature(SECRETION);
        _secretion_fitness = (double) gen_unit.get_fitness_by_feature(SECRETION);

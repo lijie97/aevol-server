@@ -193,7 +193,7 @@ void ExpManager::WriteDynamicFiles() const
   open_backup_files(sel_file, world_file, AeTime::get_time(), "w");
 
   // Save experiment
-  get_sel()->save(sel_file);
+  sel()->save(sel_file);
   world_->save(world_file);
 
   // Close backup files
@@ -242,7 +242,7 @@ void ExpManager::save_copy(char* dir, int64_t time) const
   output_m_->WriteSetupFile(out_p_file);
 
   // Write the state of selection and world into the backups
-  get_sel()->save(sel_file);
+  sel()->save(sel_file);
   world_->save(world_file);
 
   // Close setup and backup files
@@ -301,13 +301,13 @@ void ExpManager::load(gzFile& exp_s_file,
   printf(" OK\n");
 
   // -------------------------------------------- Link world and output profile
-  if (get_record_tree()) {
-    get_sel()->addObserver(get_tree(), NEW_INDIV);
+  if (record_tree()) {
+    sel()->addObserver(tree(), NEW_INDIV);
     for (auto indiv : world_->get_indivs())
       indiv->addObserver(
-          get_tree()->get_report_by_index(AeTime::get_time(), indiv->get_id()),
+        tree()->get_report_by_index(AeTime::get_time(), indiv->get_id()),
           END_REPLICATION);
-    get_sel()->addObserver(get_tree(), END_GENERATION);
+    sel()->addObserver(tree(), END_GENERATION);
   }
 
   // --------------------------------------------------- Recompute unsaved data
@@ -423,7 +423,7 @@ void ExpManager::run_evolution()
     printf("============================== %" PRId64 " ==============================\n",
            AeTime::get_time());
     printf("  Best individual's distance to target (metabolic) : %f\n",
-           get_best_indiv()->get_dist_to_target_by_feature(METABOLISM));
+           best_indiv()->get_dist_to_target_by_feature(METABOLISM));
 
     if (AeTime::get_time() >= t_end_ or quit_signal_received())
       break;
@@ -441,7 +441,7 @@ void ExpManager::run_evolution()
   printf("  The run is finished. \n");
   printf("  Printing the final best individual into " BEST_LAST_ORG_FNAME "\n");
   FILE* org_file = fopen(BEST_LAST_ORG_FNAME, "w");
-  fputs(get_best_indiv()->get_genetic_unit_sequence(0), org_file);
+  fputs(best_indiv()->get_genetic_unit_sequence(0), org_file);
   fclose(org_file);
 }
 
@@ -587,7 +587,7 @@ void ExpManager::close_setup_files(gzFile& exp_s_file,
 // ===========================================================================
 //                               Non inline accessors
 // ===========================================================================
-Individual* ExpManager::get_indiv_by_id(int32_t id) const {
+Individual* ExpManager::indiv_by_id(int32_t id) const {
   return world_->get_indiv_by_id(id);
 }
 } // namespace aevol

@@ -266,7 +266,7 @@ int main(int argc, char* argv[])
 #else
     auto prng = std::make_unique<JumpingMT>(generalseed);
 
-    exp_manager->get_sel()->set_prng(
+    exp_manager->sel()->set_prng(
         std::make_unique<JumpingMT>(prng->random(1000000)));
     exp_manager->world()->set_prng(
         std::make_unique<JumpingMT>(prng->random(1000000)));
@@ -292,7 +292,7 @@ int main(int argc, char* argv[])
 #else
       exp_manager->world()->set_prng(
           std::make_unique<JumpingMT>(selseed));
-      exp_manager->get_sel()->set_prng(
+      exp_manager->sel()->set_prng(
           std::make_unique<JumpingMT>(selseed));
 #endif
     }

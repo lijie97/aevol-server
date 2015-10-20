@@ -197,16 +197,16 @@ int main(int argc, char* argv[]) {
   ExpManager* exp_manager = new ExpManager();
   exp_manager->load(num_gener, true, false);
 
-  if (exp_manager->get_output_m()->get_record_tree() == false) {
+  if (exp_manager->output_m()->get_record_tree() == false) {
     // The following instruction is needed to ensure that methods
     // like ae_dna::do_deletion, ae_dna::do_inversion, etc
     // will create ae_mutation objects (otherwise they return NULL)
-    exp_manager->get_output_m()->init_tree(exp_manager, 100);
+    exp_manager->output_m()->init_tree(exp_manager, 100);
   }
 
 
   if ((wanted_rank == -1) && (wanted_index == -1)) {
-    wanted_rank = exp_manager->get_nb_indivs();  // the best one has rank N
+    wanted_rank = exp_manager->nb_indivs();  // the best one has rank N
   }
 
   // TODO: factor with duplicated code in robustness.cpp
@@ -216,7 +216,7 @@ int main(int argc, char* argv[]) {
     bool found = false;
     int32_t current_rank = -1;
     int32_t current_index = -1;
-    list<Individual*> indivs = exp_manager->get_indivs();
+    list<Individual*> indivs = exp_manager->indivs();
     for (auto indiv = indivs.rbegin();
          not found and indiv != indivs.rend(); ++indiv) {
       current_index = (*indiv)->get_id();
@@ -547,22 +547,22 @@ int main(int argc, char* argv[]) {
           col);
   col++;
 
-  if (exp_manager->get_with_secretion()) {
+  if (exp_manager->with_secretion()) {
     fprintf(output, "#  %" PRId16 ".  Secretion error after the mutation \n",
             col);
     col++;
   }
 
-  if ((exp_manager->get_with_plasmids()) &&
-      (exp_manager->get_tune_donor_ability() != 0.0)) {
+  if ((exp_manager->with_plasmids()) &&
+      (exp_manager->tune_donor_ability() != 0.0)) {
     fprintf(output,
             "#  %" PRId16 ".  Error on the donor ability after the mutation \n",
             col);
     col++;
   }
 
-  if ((exp_manager->get_with_plasmids()) &&
-      (exp_manager->get_tune_recipient_ability() != 0.0)) {
+  if ((exp_manager->with_plasmids()) &&
+      (exp_manager->tune_recipient_ability() != 0.0)) {
     fprintf(output,
             "#  %" PRId16 ".  Error on the recipient ability after the mutation \n",
             col);
@@ -630,16 +630,16 @@ int main(int argc, char* argv[]) {
   fprintf(output, "irr ");
   fprintf(output, "%e ",
           initial_indiv->get_dist_to_target_by_feature(METABOLISM));
-  if (exp_manager->get_with_secretion()) {
+  if (exp_manager->with_secretion()) {
     fprintf(output, "%e ",
             initial_indiv->get_dist_to_target_by_feature(SECRETION));
   }
-  if ((exp_manager->get_with_plasmids()) &&
-      (exp_manager->get_tune_donor_ability() != 0.0)) {
+  if ((exp_manager->with_plasmids()) &&
+      (exp_manager->tune_donor_ability() != 0.0)) {
     fprintf(output, "%e ", initial_indiv->get_dist_to_target_by_feature(DONOR));
   }
-  if ((exp_manager->get_with_plasmids()) &&
-      (exp_manager->get_tune_recipient_ability() != 0.0)) {
+  if ((exp_manager->with_plasmids()) &&
+      (exp_manager->tune_recipient_ability() != 0.0)) {
     fprintf(output, "%e ",
             initial_indiv->get_dist_to_target_by_feature(RECIPIENT));
   }
@@ -720,7 +720,7 @@ int main(int argc, char* argv[]) {
 
         metabolic_error_after = mutant->get_dist_to_target_by_feature(
             METABOLISM);
-        if (exp_manager->get_with_secretion()) {
+        if (exp_manager->with_secretion()) {
           secretion_error_after = mutant->get_dist_to_target_by_feature(
               SECRETION);
         }
@@ -744,15 +744,15 @@ int main(int argc, char* argv[]) {
         fprintf(output, "%" PRId32 " ", nb_genes_at_breakpoints);
         fprintf(output, "%" PRId32 " ", nb_genes_in_segment);
         fprintf(output, "%e ", metabolic_error_after);
-        if (exp_manager->get_with_secretion()) {
+        if (exp_manager->with_secretion()) {
           fprintf(output, "%e ", secretion_error_after);
         }
-        if ((exp_manager->get_with_plasmids()) &&
-            (exp_manager->get_tune_donor_ability() != 0.0)) {
+        if ((exp_manager->with_plasmids()) &&
+            (exp_manager->tune_donor_ability() != 0.0)) {
           fprintf(output, "%e ", mutant->get_dist_to_target_by_feature(DONOR));
         }
-        if ((exp_manager->get_with_plasmids()) &&
-            (exp_manager->get_tune_recipient_ability() != 0.0)) {
+        if ((exp_manager->with_plasmids()) &&
+            (exp_manager->tune_recipient_ability() != 0.0)) {
           fprintf(output, "%e ",
                   mutant->get_dist_to_target_by_feature(RECIPIENT));
         }
@@ -1048,7 +1048,7 @@ int main(int argc, char* argv[]) {
       mutant->compute_non_coding();
 
       metabolic_error_after = mutant->get_dist_to_target_by_feature(METABOLISM);
-      if (exp_manager->get_with_secretion()) {
+      if (exp_manager->with_secretion()) {
         secretion_error_after = mutant->get_dist_to_target_by_feature(
             SECRETION);
       }
@@ -1072,15 +1072,15 @@ int main(int argc, char* argv[]) {
       fprintf(output, "%" PRId32 " ", nb_genes_at_breakpoints);
       fprintf(output, "%" PRId32 " ", nb_genes_in_segment);
       fprintf(output, "%e ", metabolic_error_after);
-      if (exp_manager->get_with_secretion()) {
+      if (exp_manager->with_secretion()) {
         fprintf(output, "%e ", secretion_error_after);
       }
-      if ((exp_manager->get_with_plasmids()) &&
-          (exp_manager->get_tune_donor_ability() != 0.0)) {
+      if ((exp_manager->with_plasmids()) &&
+          (exp_manager->tune_donor_ability() != 0.0)) {
         fprintf(output, "%e ", mutant->get_dist_to_target_by_feature(DONOR));
       }
-      if ((exp_manager->get_with_plasmids()) &&
-          (exp_manager->get_tune_recipient_ability() != 0.0)) {
+      if ((exp_manager->with_plasmids()) &&
+          (exp_manager->tune_recipient_ability() != 0.0)) {
         fprintf(output, "%e ",
                 mutant->get_dist_to_target_by_feature(RECIPIENT));
       }

@@ -187,7 +187,7 @@ int main(int argc, char* argv[])
 
   if (indiv_index == -1 && indiv_rank == -1)
   {
-    indiv = exp_manager->get_best_indiv();
+    indiv = exp_manager->best_indiv();
   }
   else
   {
@@ -196,7 +196,7 @@ int main(int argc, char* argv[])
 //       indiv = new Individual(*exp_manager->get_indiv_by_rank(indiv_rank), false);
 //     }
 //     else {
-//       indiv = new Individual(*exp_manager->get_indiv_by_id(indiv_index), false);
+//       indiv = new Individual(*exp_manager->indiv_by_id(indiv_index), false);
 //     }
   }
 

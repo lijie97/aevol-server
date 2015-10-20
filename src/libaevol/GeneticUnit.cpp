@@ -1105,7 +1105,7 @@ void GeneticUnit::compute_phenotypic_contribution(void) {
   activ_contribution_->simplify();
   inhib_contribution_->simplify();
 
-  if (exp_m_->get_output_m()->get_compute_phen_contrib_by_GU()) {
+  if (exp_m_->output_m()->get_compute_phen_contrib_by_GU()) {
     phenotypic_contribution_ = new Phenotype();
     phenotypic_contribution_->add(*activ_contribution_);
     phenotypic_contribution_->add(*inhib_contribution_);
@@ -1192,9 +1192,9 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target) {
 
   for (int8_t i = 0; i < NB_FEATURES; i++) {
     if (i == SECRETION) {
-      fitness_by_feature_[SECRETION] = exp(-exp_m_->get_selection_pressure() *
+      fitness_by_feature_[SECRETION] = exp(-exp_m_->selection_pressure() *
                                            dist_to_target_by_feature_[SECRETION])
-                                       - exp(-exp_m_->get_selection_pressure() *
+                                       - exp(-exp_m_->selection_pressure() *
                                              target.area_by_feature(SECRETION));
 
       if (fitness_by_feature_[i] < 0) {
@@ -1203,22 +1203,22 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target) {
     }
     else {
       fitness_by_feature_[i] = exp(
-          -exp_m_->get_selection_pressure() * dist_to_target_by_feature_[i]);
+          -exp_m_->selection_pressure() * dist_to_target_by_feature_[i]);
     }
   }
 
   // Calculate combined, total fitness here!
   // Multiply the contribution of metabolism and the amount of compound in the environment
   if ((!indiv_->get_placed_in_population()) ||
-      (!exp_m_->get_with_secretion())) {
+      (!exp_m_->with_secretion())) {
     fitness_ = fitness_by_feature_[METABOLISM];
   }
   else {
     fitness_ = fitness_by_feature_[METABOLISM] *
-               (1 + exp_m_->get_secretion_contrib_to_fitness() *
+               (1 + exp_m_->secretion_contrib_to_fitness() *
                     indiv_->get_grid_cell()->compound_amount()
                 -
-                exp_m_->get_secretion_cost() * fitness_by_feature_[SECRETION]);
+                 exp_m_->secretion_cost() * fitness_by_feature_[SECRETION]);
   }
 
 #endif
@@ -2942,7 +2942,7 @@ void GeneticUnit::remove_non_coding_bases(void) {
 //  distance_to_target_computed_        = false;
 //  fitness_computed_                   = false;
 //  compute_phenotypic_contribution();
-//  if(exp_m_->get_output_m()->get_compute_phen_contrib_by_GU())
+//  if(exp_m_->output_m()->get_compute_phen_contrib_by_GU())
 //  {
 //    compute_distance_to_target(env);
 //  }
@@ -2974,7 +2974,7 @@ void GeneticUnit::remove_non_coding_bases(void) {
 //      distance_to_target_computed_        = false;
 //      fitness_computed_                   = false;
 //      compute_phenotypic_contribution();
-//      if(exp_m_->get_output_m()->get_compute_phen_contrib_by_GU())
+//      if(exp_m_->output_m()->get_compute_phen_contrib_by_GU())
 //      {
 //        compute_distance_to_target(env);
 //      }
@@ -2991,7 +2991,7 @@ void GeneticUnit::remove_non_coding_bases(void) {
 //  distance_to_target_computed_        = false;
 //  fitness_computed_                   = false;
 //  compute_phenotypic_contribution();
-//  if(exp_m_->get_output_m()->get_compute_phen_contrib_by_GU())
+//  if(exp_m_->output_m()->get_compute_phen_contrib_by_GU())
 //  {
 //    compute_distance_to_target(env);
 //  }
@@ -3019,7 +3019,7 @@ void GeneticUnit::double_non_coding_bases() {
 //  distance_to_target_computed_        = false;
 //  fitness_computed_                   = false;
 //  compute_phenotypic_contribution();
-//  if(exp_m_->get_output_m()->get_compute_phen_contrib_by_GU())
+//  if(exp_m_->output_m()->get_compute_phen_contrib_by_GU())
 //  {
 //    compute_distance_to_target(env);
 //  }
@@ -3074,7 +3074,7 @@ void GeneticUnit::double_non_coding_bases() {
 //        distance_to_target_computed_        = false;
 //        fitness_computed_                   = false;
 //        compute_phenotypic_contribution();
-//        if(exp_m_->get_output_m()->get_compute_phen_contrib_by_GU())
+//        if(exp_m_->output_m()->get_compute_phen_contrib_by_GU())
 //        {
 //          compute_distance_to_target(env);
 //        }
@@ -3106,7 +3106,7 @@ void GeneticUnit::double_non_coding_bases() {
 //  distance_to_target_computed_        = false;
 //  fitness_computed_                   = false;
 //  compute_phenotypic_contribution();
-//  if(exp_m_->get_output_m()->get_compute_phen_contrib_by_GU())
+//  if(exp_m_->output_m()->get_compute_phen_contrib_by_GU())
 //  {
 //    compute_distance_to_target(env);
 //  }

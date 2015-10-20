@@ -455,10 +455,10 @@ void ExpManager_X11::display_grid(X11Window * win, double** cell_grid)
   win->draw_string(15, 15, t);
   
   
-  const int grid_width  = get_grid_width();
-  const int grid_height = get_grid_height();
+  const int grid_width_ = grid_width();
+  const int grid_height_ = grid_height();
 
-  int nb_slots_in_a_row = (int) grid_height;
+  int nb_slots_in_a_row = (int) grid_height_;
   int slot_width = 200/nb_slots_in_a_row;
   int x1 = 50 + 50 + slot_width/2;
   int y1 = 75 + 50 + slot_width/2;
@@ -467,7 +467,7 @@ void ExpManager_X11::display_grid(X11Window * win, double** cell_grid)
   int cell_size = 5;
 
   // draw the color scale for fitness
-  int y_step_size = grid_height*cell_size/nb_colors;
+  int y_step_size = grid_height_ *cell_size/nb_colors;
   for (int i = 0; i  < nb_colors; i++)
   {
     win->fill_rectangle(x1 - 30, y1 - 80 + y_step_size * i,
@@ -478,9 +478,9 @@ void ExpManager_X11::display_grid(X11Window * win, double** cell_grid)
   // find min/max of the matrix
   double grid_max = 0;
   double grid_min = 1000000;
-  for (int x = 0 ; x < grid_width ; x++)
+  for (int x = 0 ; x < grid_width_; x++)
   {
-    for (int y = 0 ; y < grid_height ; y++)
+    for (int y = 0 ; y < grid_height_; y++)
     {
        if (cell_grid[x][y] > grid_max) {grid_max = cell_grid[x][y];}
        if (cell_grid[x][y] < grid_min) {grid_min = cell_grid[x][y];}
@@ -492,11 +492,11 @@ void ExpManager_X11::display_grid(X11Window * win, double** cell_grid)
   sprintf(scale_txt,"%.2e", grid_max);
   win->draw_string(x1-80, y1-80,scale_txt);
   sprintf(scale_txt,"%.2e", grid_min);
-  win->draw_string(x1-80, y1-80+grid_height*cell_size,scale_txt);
+  win->draw_string(x1-80, y1-80+ grid_height_ *cell_size,scale_txt);
 
-  for (int x = 0; x < grid_width; x++)
+  for (int x = 0; x < grid_width_; x++)
   {
-    for (int y = 0; y < grid_height; y++)
+    for (int y = 0; y < grid_height_; y++)
     {
       char * col_string;
       // calculate the color
@@ -738,7 +738,7 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
       display_grid(cur_win, grid);
 
       // Has been allocated in ae_spatial_structure::get_total_fitness_grid()
-      for (int16_t x = 0 ; x < get_grid_width() ; x++)
+      for (int16_t x = 0 ; x < grid_width() ; x++)
       {
         delete [] grid[x];
       }
@@ -753,7 +753,7 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
       cur_win->fill_rectangle(0, 0, cur_win->get_width(), cur_win->get_height() * 19 / 20, BLACK);
 
       // Get phenotypic target shorthand
-      const PhenotypicTarget& phenotypic_target = get_best_indiv()->phenotypic_target();
+      const PhenotypicTarget& phenotypic_target = best_indiv()->phenotypic_target();
 
       // Mark all the non-metabolic segments (paint them in grey)
       if (phenotypic_target.nb_segments() > 1)
@@ -780,7 +780,7 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
       }
 
       // Display all the phenotypes (blue)
-//      for (const auto& indiv: get_indivs())
+//      for (const auto& indiv: indivs())
 //      {
 //        display(cur_win, *(indiv->get_phenotype()), BLUE);
 //        if (indiv->get_allow_plasmids())
@@ -791,7 +791,7 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
 //      }
 
       // Display best indiv's phenotype (white)
-      display(cur_win, *(get_best_indiv()->get_phenotype()), WHITE, true);
+      display(cur_win, *(best_indiv()->get_phenotype()), WHITE, true);
 
       // Display phenotypic target (red)
       display(cur_win, phenotypic_target, RED, false, true);
@@ -803,7 +803,7 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
     {
       cur_win->blacken();
 
-      Individual_X11 * indiv = dynamic_cast<Individual_X11 *>(get_best_indiv());
+      Individual_X11 * indiv = dynamic_cast<Individual_X11 *>(best_indiv());
       indiv->display_cdss(cur_win);
     }
     break;
@@ -813,7 +813,7 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
     {
       cur_win->blacken();
 
-      Individual_X11 * indiv = dynamic_cast<Individual_X11 *>(get_best_indiv());
+      Individual_X11 * indiv = dynamic_cast<Individual_X11 *>(best_indiv());
       indiv->display_rnas(cur_win);
     }
     break;

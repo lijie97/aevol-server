@@ -245,7 +245,7 @@ int main(int argc, char** argv)
     Utils::ExitWithUsrMsg("sorry, ancestor stats has not yet been implemented "
                               "for variable phenotypic targets");
 
-  int64_t backup_step = exp_manager->get_backup_step();
+  int64_t backup_step = exp_manager->backup_step();
 
 
   // =========================
@@ -381,7 +381,7 @@ int main(int argc, char** argv)
       exp_manager_backup = new ExpManager();
       exp_manager_backup->load(get_time(), true, false);
       stored_indiv = new Individual(
-          *(Individual*)exp_manager_backup->get_indiv_by_id(index));
+          *(Individual*) exp_manager_backup->indiv_by_id(index));
       stored_gen_unit = &(stored_indiv->get_genetic_unit_nonconst(0));
     }
 

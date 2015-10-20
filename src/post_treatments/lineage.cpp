@@ -164,12 +164,12 @@ int main(int argc, char** argv)
   exp_manager->load(t_end, true, false);
 
   // Check that the tree was recorded
-  if (not exp_manager->get_record_tree()) {
+  if (not exp_manager->record_tree()) {
     Utils::ExitWithUsrMsg("The phylogenetic tree wasn't recorded during "
                               "evolution, could not reconstruct the lineage");
   }
 
-  int64_t tree_step = exp_manager->get_tree_step();
+  int64_t tree_step = exp_manager->tree_step();
 
   //delete exp_manager;
 
@@ -208,7 +208,7 @@ int main(int argc, char** argv)
   }
 
 
-  // Example for ae_common::rec_params->get_tree_step() == 100 :
+  // Example for ae_common::rec_params->tree_step() == 100 :
   //
   // tree_000100.ae ==>  generations   1 to 100.
   // tree_000200.ae ==>  generations 101 to 200.
@@ -216,8 +216,8 @@ int main(int argc, char** argv)
   // etc.
   //
   // Thus, the information for generation end_gener are located
-  // in the file called (end_gener/ae_common::rec_params->get_tree_step() + 1) * ae_common::rec_params->get_tree_step(),
-  // except if end_gener%ae_common::rec_params->get_tree_step()==0.
+  // in the file called (end_gener/ae_common::rec_params->get_tree_step() + 1) * ae_common::rec_params->tree_step(),
+  // except if end_gener%ae_common::rec_params->tree_step()==0.
 
   #ifdef __REGUL
     sprintf(tree_file_name,"tree/tree_%06" PRId64 ".rae", t_end_);
@@ -254,7 +254,7 @@ int main(int argc, char** argv)
       // No index nor rank was given in the command line.
       // By default, we construct the lineage of the best individual, the rank of which
       // is simply the number of individuals in the population.
-      final_indiv_rank = exp_manager->get_nb_indivs();
+      final_indiv_rank = exp_manager->nb_indivs();
     }
 
     // Retrieve the replication report of the individual of interest (at t_end_)
@@ -366,7 +366,7 @@ int main(int argc, char** argv)
 
   // Copy the initial ancestor
   // NB : The list of individuals is sorted according to the index
-  const Individual* const initial_ancestor = exp_manager->get_indiv_by_id(indices[0]);
+  const Individual* const initial_ancestor = exp_manager->indiv_by_id(indices[0]);
 
   gzwrite(lineage_file, &t0, sizeof(t0));
   gzwrite(lineage_file, &t_end, sizeof(t_end));
@@ -416,7 +416,7 @@ int main(int argc, char** argv)
 
     // Do we need to check the genome now?
     check_genome_now = ((check_genome == FULL_CHECK &&
-        Utils::mod(t, exp_manager->get_backup_step()) == 0) ||
+        Utils::mod(t, exp_manager->backup_step()) == 0) ||
         (check_genome == LIGHT_CHECK && t == t_end));
 
     // Write the replication report of the ancestor for current generation
@@ -436,7 +436,7 @@ int main(int argc, char** argv)
       exp_manager_backup->load(t, true, false);
 
       // Copy the ancestor from the backup
-      stored_indiv = exp_manager_backup->get_indiv_by_id(indices[i+1]);
+      stored_indiv = exp_manager_backup->indiv_by_id(indices[i + 1]);
       stored_gen_unit = stored_indiv->get_genetic_unit_list().cbegin();
     }
 

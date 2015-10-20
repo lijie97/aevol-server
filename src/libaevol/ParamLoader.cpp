@@ -1301,9 +1301,9 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   auto world_prng = std::make_shared<JumpingMT>(_prng->random(1000000));
 
   // Create aliases
-  ExpSetup* exp_s = exp_m->get_exp_s();
-  Selection* sel = exp_m->get_sel();
-  OutputManager* output_m = exp_m->get_output_m();
+  ExpSetup* exp_s = exp_m->exp_s();
+  Selection* sel = exp_m->sel();
+  OutputManager* output_m = exp_m->output_m();
   output_m->InitStats();
 
   // 1) ------------------------------------- Initialize the experimental setup
@@ -1651,8 +1651,8 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
 
   // Set each individual's position on the grid
   int16_t x, y;
-  int16_t x_max = exp_m->get_grid_width();
-  int16_t y_max = exp_m->get_grid_height();
+  int16_t x_max = exp_m->grid_width();
+  int16_t y_max = exp_m->grid_height();
 
   for (const auto& indiv: indivs) {
     do {

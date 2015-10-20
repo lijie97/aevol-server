@@ -471,9 +471,9 @@ void Dna::do_rearrangements_with_align() {
 
         if ((genome_size_after > indiv_->get_max_genome_length()) ||
             (gu_size_after > gen_unit_->get_max_gu_length())) {
-          if (exp_m_->get_output_m()->is_logged(LOG_BARRIER)) {
+          if (exp_m_->output_m()->is_logged(LOG_BARRIER)) {
             // Write an entry in the barrier log file
-            fprintf(exp_m_->get_output_m()->get_log(LOG_BARRIER),
+            fprintf(exp_m_->output_m()->get_log(LOG_BARRIER),
                     "%" PRId64 " %" PRId32 " DUPLICATION %" PRId32 " %" PRId32
                         " %" PRId32 " %" PRId32 "\n",
                     AeTime::get_time(), indiv_->get_id(), segment_length, 0,
@@ -493,8 +493,8 @@ void Dna::do_rearrangements_with_align() {
                                 segment_length, needed_score);
 
           // Write a line in rearrangement logfile
-          if (exp_m_->get_output_m()->is_logged(LOG_REAR)) {
-            fprintf(exp_m_->get_output_m()->get_log(LOG_REAR),
+          if (exp_m_->output_m()->is_logged(LOG_REAR)) {
+            fprintf(exp_m_->output_m()->get_log(LOG_REAR),
                     "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32
                         " %" PRId16 "\n",
                     AeTime::get_time(), indiv_->get_id(), int8_t(DUPL),
@@ -516,9 +516,9 @@ void Dna::do_rearrangements_with_align() {
 
         if ((genome_size_after < indiv_->get_min_genome_length()) ||
             (gu_size_after < gen_unit_->get_min_gu_length())) {
-          if (exp_m_->get_output_m()->is_logged(LOG_BARRIER)) {
+          if (exp_m_->output_m()->is_logged(LOG_BARRIER)) {
             // Write an entry in the barrier log file
-            fprintf(exp_m_->get_output_m()->get_log(LOG_BARRIER),
+            fprintf(exp_m_->output_m()->get_log(LOG_BARRIER),
                     "%" PRId64 " %" PRId32 " DELETION %" PRId32 " %" PRId32
                         " %" PRId32 " %" PRId32 "\n",
                     AeTime::get_time(), indiv_->get_id(), segment_length, 0,
@@ -535,8 +535,8 @@ void Dna::do_rearrangements_with_align() {
                              segment_length, needed_score);
 
           // Write a line in rearrangement logfile
-          if (exp_m_->get_output_m()->is_logged(LOG_REAR)) {
-            fprintf(exp_m_->get_output_m()->get_log(LOG_REAR),
+          if (exp_m_->output_m()->is_logged(LOG_REAR)) {
+            fprintf(exp_m_->output_m()->get_log(LOG_REAR),
                     "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32
                         " %" PRId16 "\n",
                     AeTime::get_time(), indiv_->get_id(), int8_t(DEL),
@@ -633,8 +633,8 @@ void Dna::do_rearrangements_with_align() {
                                   needed_score, needed_score_2);
 
           // Write a line in rearrangement logfile
-          if (exp_m_->get_output_m()->is_logged(LOG_REAR)) {
-            fprintf(exp_m_->get_output_m()->get_log(LOG_REAR),
+          if (exp_m_->output_m()->is_logged(LOG_REAR)) {
+            fprintf(exp_m_->output_m()->get_log(LOG_REAR),
                     "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32
                         " %" PRId16 "\n",
                     AeTime::get_time(), indiv_->get_id(), int8_t(TRANS),
@@ -695,8 +695,8 @@ void Dna::do_rearrangements_with_align() {
                           segment_length, needed_score);
 
       // Write a line in rearrangement logfile
-      if (exp_m_->get_output_m()->is_logged(LOG_REAR)) {
-        fprintf(exp_m_->get_output_m()->get_log(LOG_REAR),
+      if (exp_m_->output_m()->is_logged(LOG_REAR)) {
+        fprintf(exp_m_->output_m()->get_log(LOG_REAR),
                 "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32
                     " %" PRId16 "\n",
                 AeTime::get_time(), indiv_->get_id(), int8_t(INV),
@@ -782,9 +782,9 @@ SmallInsertion* Dna::do_small_insertion() {
   if ((indiv_->get_amount_of_dna() + nb_insert >
        indiv_->get_max_genome_length()) ||
       (length_ + nb_insert > gen_unit_->get_max_gu_length())) {
-    if (exp_m_->get_output_m()->is_logged(LOG_BARRIER)) {
+    if (exp_m_->output_m()->is_logged(LOG_BARRIER)) {
       // Write an entry in the barrier log file
-      fprintf(exp_m_->get_output_m()->get_log(LOG_BARRIER),
+      fprintf(exp_m_->output_m()->get_log(LOG_BARRIER),
               "%" PRId64 " %" PRId32 " S_INS %" PRId32 " %" PRId32 " %" PRId32
                   " %" PRId32 "\n",
               AeTime::get_time(), indiv_->get_id(), nb_insert, 0, length_,
@@ -834,9 +834,9 @@ SmallDeletion* Dna::do_small_deletion() {
   if ((indiv_->get_amount_of_dna() - nb_del <
        indiv_->get_min_genome_length()) ||
       (length_ - nb_del < gen_unit_->get_min_gu_length())) {
-    if (exp_m_->get_output_m()->is_logged(LOG_BARRIER)) {
+    if (exp_m_->output_m()->is_logged(LOG_BARRIER)) {
       // Write an entry in the barrier log file
-      fprintf(exp_m_->get_output_m()->get_log(LOG_BARRIER),
+      fprintf(exp_m_->output_m()->get_log(LOG_BARRIER),
               "%" PRId64 " %" PRId32 " S_DEL %" PRId32 " %" PRId32
                   " %" PRId32 " %" PRId32 "\n",
               AeTime::get_time(), indiv_->get_id(), nb_del, 0, length_,
@@ -956,9 +956,9 @@ Duplication* Dna::do_duplication() {
   int32_t genome_size_after = genome_size_before + segment_length;
   if ((gu_size_after > gen_unit_->get_max_gu_length()) ||
       (genome_size_after > indiv_->get_max_genome_length())) {
-    if (exp_m_->get_output_m()->is_logged(LOG_BARRIER)) {
+    if (exp_m_->output_m()->is_logged(LOG_BARRIER)) {
       // Write an entry in the barrier log file
-      fprintf(exp_m_->get_output_m()->get_log(LOG_BARRIER),
+      fprintf(exp_m_->output_m()->get_log(LOG_BARRIER),
               "%" PRId64 " %" PRId32 " DUPLICATION %" PRId32 " %" PRId32
                   " %" PRId32 " %" PRId32 "\n",
               AeTime::get_time(), indiv_->get_id(), segment_length, 0,
@@ -973,8 +973,8 @@ Duplication* Dna::do_duplication() {
     mut = new Duplication(pos_1, pos_2, pos_3, segment_length);
 
     // Write a line in rearrangement logfile
-    if (exp_m_->get_output_m()->is_logged(LOG_REAR)) {
-      fprintf(exp_m_->get_output_m()->get_log(LOG_REAR),
+    if (exp_m_->output_m()->is_logged(LOG_REAR)) {
+      fprintf(exp_m_->output_m()->get_log(LOG_REAR),
               "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32 "\n",
               AeTime::get_time(), indiv_->get_id(), int8_t(DUPL),
               segment_length, genome_size_before);
@@ -1002,9 +1002,9 @@ Deletion* Dna::do_deletion() {
 
   if ((gu_size_after < gen_unit_->get_min_gu_length()) ||
       (genome_size_after < indiv_->get_min_genome_length())) {
-    if (exp_m_->get_output_m()->is_logged(LOG_BARRIER)) {
+    if (exp_m_->output_m()->is_logged(LOG_BARRIER)) {
       // Write an entry in the barrier log file
-      fprintf(exp_m_->get_output_m()->get_log(LOG_BARRIER),
+      fprintf(exp_m_->output_m()->get_log(LOG_BARRIER),
               "%" PRId64 " %" PRId32 " DELETION %" PRId32 " %" PRId32
                   " %" PRId32 " %" PRId32 "\n",
               AeTime::get_time(), indiv_->get_id(), segment_length, 0,
@@ -1019,8 +1019,8 @@ Deletion* Dna::do_deletion() {
     mut = new Deletion(pos_1, pos_2, segment_length);
 
     // Write a line in rearrangement logfile
-    if (exp_m_->get_output_m()->is_logged(LOG_REAR)) {
-      fprintf(exp_m_->get_output_m()->get_log(LOG_REAR),
+    if (exp_m_->output_m()->is_logged(LOG_REAR)) {
+      fprintf(exp_m_->output_m()->get_log(LOG_REAR),
               "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32 "\n",
               AeTime::get_time(), indiv_->get_id(), int8_t(DEL), segment_length,
               genome_size_before);
@@ -1130,8 +1130,8 @@ Translocation* Dna::do_translocation() {
                                 segment_length, invert);
 
         // Write a line in rearrangement logfile
-        if (exp_m_->get_output_m()->is_logged(LOG_REAR)) {
-          fprintf(exp_m_->get_output_m()->get_log(LOG_REAR),
+        if (exp_m_->output_m()->is_logged(LOG_REAR)) {
+          fprintf(exp_m_->output_m()->get_log(LOG_REAR),
                   "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32
                       "\n",
                   AeTime::get_time(), indiv_->get_id(), int8_t(TRANS),
@@ -1147,8 +1147,8 @@ Translocation* Dna::do_translocation() {
                                 segment_length, invert);
 
         // Write a line in rearrangement logfile
-        if (exp_m_->get_output_m()->is_logged(LOG_REAR)) {
-          fprintf(exp_m_->get_output_m()->get_log(LOG_REAR),
+        if (exp_m_->output_m()->is_logged(LOG_REAR)) {
+          fprintf(exp_m_->output_m()->get_log(LOG_REAR),
                   "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32
                       "\n",
                   AeTime::get_time(), indiv_->get_id(), int8_t(TRANS),
@@ -1186,8 +1186,8 @@ Translocation* Dna::do_translocation() {
                               segment_length, invert);
 
       // Write a line in rearrangement logfile
-      if (exp_m_->get_output_m()->is_logged(LOG_REAR)) {
-        fprintf(exp_m_->get_output_m()->get_log(LOG_REAR),
+      if (exp_m_->output_m()->is_logged(LOG_REAR)) {
+        fprintf(exp_m_->output_m()->get_log(LOG_REAR),
                 "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32 "\n",
                 AeTime::get_time(), indiv_->get_id(), int8_t(TRANS),
                 segment_length, length_);
@@ -1218,8 +1218,8 @@ Inversion* Dna::do_inversion() {
     mut = new Inversion(pos_1, pos_2, segment_length);
 
     // Write a line in rearrangement logfile
-    if (exp_m_->get_output_m()->is_logged(LOG_REAR)) {
-      fprintf(exp_m_->get_output_m()->get_log(LOG_REAR),
+    if (exp_m_->output_m()->is_logged(LOG_REAR)) {
+      fprintf(exp_m_->output_m()->get_log(LOG_REAR),
               "%" PRId64 " %" PRId32 " %" PRId8 " %" PRId32 " %" PRId32 "\n",
               AeTime::get_time(), indiv_->get_id(), int8_t(INV),
               segment_length, length_);
@@ -1538,9 +1538,9 @@ bool Dna::do_inter_GU_translocation(int32_t pos_1_rel, int32_t pos_2_rel,
   // Do not allow translocation if it would decrease the size of the origin
   // GU below a given threshold
   if ((length_ - segment_length) < gen_unit_->get_min_gu_length()) {
-    if (exp_m_->get_output_m()->is_logged(LOG_BARRIER)) {
+    if (exp_m_->output_m()->is_logged(LOG_BARRIER)) {
       // Write an entry in the barrier log file
-      fprintf(exp_m_->get_output_m()->get_log(LOG_BARRIER),
+      fprintf(exp_m_->output_m()->get_log(LOG_BARRIER),
               "%" PRId64 " %" PRId32 " TRANS %" PRId32 " %" PRId32 " %" PRId32
                   " %" PRId32 "\n",
               AeTime::get_time(), indiv_->get_id(), segment_length, 0, length_,
@@ -1563,9 +1563,9 @@ bool Dna::do_inter_GU_translocation(int32_t pos_1_rel, int32_t pos_2_rel,
   // GU above a given threshold
   if (dest_gu_size_before + segment_length >
       destination_GU.get_max_gu_length()) {
-    if (exp_m_->get_output_m()->is_logged(LOG_BARRIER)) {
+    if (exp_m_->output_m()->is_logged(LOG_BARRIER)) {
       // Write an entry in the barrier log file
-      fprintf(exp_m_->get_output_m()->get_log(LOG_BARRIER),
+      fprintf(exp_m_->output_m()->get_log(LOG_BARRIER),
               "%" PRId64 " %" PRId32 " TRANS %" PRId32 " %" PRId32 " %" PRId32
                   " %" PRId32 "\n",
               AeTime::get_time(), indiv_->get_id(), segment_length, 0,
@@ -1705,7 +1705,7 @@ Mutation* Dna::do_ins_HT(int32_t parent_id) {
   Mutation* mut = nullptr;
 
   // TODO(dpa) disabled
-//  int32_t nb_indivs = exp_m_->get_pop()->get_nb_indivs();
+//  int32_t nb_indivs = exp_m_->get_pop()->nb_indivs();
 //
 //  // Insertion transfer
 //  // Requirements:
@@ -1718,7 +1718,7 @@ Mutation* Dna::do_ins_HT(int32_t parent_id) {
 //  Individual * donor = NULL;
 //  do {
 //    donor = exp_m_->get_pop()->
-//        get_indiv_by_rank(exp_m_->get_sel()->get_prng()->random(nb_indivs) +
+//        get_indiv_by_rank(exp_m_->sel()->get_prng()->random(nb_indivs) +
 //                              1);
 //  }
 //  while (donor->get_id() == parent_id);
@@ -1757,9 +1757,9 @@ Mutation* Dna::do_ins_HT(int32_t parent_id) {
 //
 //        if ((genome_length_after > indiv_->get_max_genome_length()) ||
 //            (gu_length_after > gen_unit_->get_max_gu_length())) {
-//          if (exp_m_->get_output_m()->is_logged(LOG_BARRIER)) {
+//          if (exp_m_->output_m()->is_logged(LOG_BARRIER)) {
 //            // Write an entry in the barrier log file
-//            fprintf(exp_m_->get_output_m()->get_log(LOG_BARRIER),
+//            fprintf(exp_m_->output_m()->get_log(LOG_BARRIER),
 //                "%" PRId64 " %" PRId32 " INS_TRANSFER %" PRId32 " %" PRId32
 //                " %" PRId32 " %" PRId32 "\n",
 //                AeTime::get_time(),
@@ -1778,8 +1778,8 @@ Mutation* Dna::do_ins_HT(int32_t parent_id) {
 //          //~ fflush(logfile);
 //
 //          // Write a line in transfer logfile
-//          if (exp_m_->get_output_m()->is_logged(LOG_TRANSFER)) {
-//            fprintf(exp_m_->get_output_m()->get_log(LOG_TRANSFER),
+//          if (exp_m_->output_m()->is_logged(LOG_TRANSFER)) {
+//            fprintf(exp_m_->output_m()->get_log(LOG_TRANSFER),
 //                    "%" PRId64 " %" PRId32 " %" PRId32 " 0 %" PRId32
 //                    " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32
 //                    " %" PRId32 " %" PRId16 " %" PRId32 " %" PRId32
@@ -1805,8 +1805,8 @@ Mutation* Dna::do_ins_HT(int32_t parent_id) {
 //            indiv_->assert_promoters_order();
 //          #endif
 //
-//          if (exp_m_->get_output_m()->get_record_tree() &&
-//              exp_m_->get_output_m()->get_tree_mode() == NORMAL) {
+//          if (exp_m_->output_m()->record_tree() &&
+//              exp_m_->output_m()->get_tree_mode() == NORMAL) {
 //            char* donor_seq;
 //            if (alignment_2->get_sense() == DIRECT) {
 //              donor_seq = exogenote->get_dna()->
@@ -1846,7 +1846,7 @@ Mutation* Dna::do_repl_HT(int32_t parent_id) {
   Mutation* mut = nullptr;
 
   // TODO(dpa) disabled
-//  int32_t nb_indivs = exp_m_->get_pop()->get_nb_indivs();
+//  int32_t nb_indivs = exp_m_->get_pop()->nb_indivs();
 //
 //  // Replacement transfer
 //  // Requirements:
@@ -1859,7 +1859,7 @@ Mutation* Dna::do_repl_HT(int32_t parent_id) {
 //  Individual * donor = NULL;
 //  do {
 //    donor = exp_m_->get_pop()->
-//        get_indiv_by_rank(exp_m_->get_sel()->get_prng()->random(nb_indivs)
+//        get_indiv_by_rank(exp_m_->sel()->get_prng()->random(nb_indivs)
 //            + 1);
 //  }
 //  while (donor->get_id() == parent_id);
@@ -1868,7 +1868,7 @@ Mutation* Dna::do_repl_HT(int32_t parent_id) {
 //  VisAVis* alignment_1   = NULL;
 //  VisAVis* alignment_2   = NULL;
 //  Dna* donor_dna = donor->get_genetic_unit(0).get_dna();
-//  AlignmentSense sense = (exp_m_->get_sel()->get_prng()->random() < 0.5) ?
+//  AlignmentSense sense = (exp_m_->sel()->get_prng()->random() < 0.5) ?
 //                         DIRECT : INDIRECT;
 //  int32_t nb_pairs_1 = static_cast<int32_t>(
 //      ceil(length() * indiv_->get_neighbourhood_rate()));
@@ -1936,9 +1936,9 @@ Mutation* Dna::do_repl_HT(int32_t parent_id) {
 //          genome_length_after > indiv_->get_max_genome_length() ||
 //          gu_length_after < gen_unit_->get_min_gu_length() ||
 //          gu_length_after > gen_unit_->get_max_gu_length()) {
-//        if (exp_m_->get_output_m()->is_logged(LOG_BARRIER)) {
+//        if (exp_m_->output_m()->is_logged(LOG_BARRIER)) {
 //          // Write an entry in the barrier log file
-//          fprintf(exp_m_->get_output_m()->get_log(LOG_BARRIER),
+//          fprintf(exp_m_->output_m()->get_log(LOG_BARRIER),
 //              "%" PRId64 " %" PRId32 " REPL_TRANSFER %" PRId32 " %" PRId32
 //              " %" PRId32 " %" PRId32 "\n",
 //              AeTime::get_time(),
@@ -1965,7 +1965,7 @@ Mutation* Dna::do_repl_HT(int32_t parent_id) {
 //        char* alignment2_parent_dna = nullptr;
 //        char* alignment1_donor_dna  = nullptr;
 //        char* alignment2_donor_dna  = nullptr;
-//        if (exp_m_->get_output_m()->is_logged(LOG_TRANSFER) == true) {
+//        if (exp_m_->output_m()->is_logged(LOG_TRANSFER) == true) {
 //          if (sense  == DIRECT) {
 //            alignment1_parent_dna =
 //                get_subsequence(alignment_1->get_i_1(),
@@ -2026,8 +2026,8 @@ Mutation* Dna::do_repl_HT(int32_t parent_id) {
 //        }
 //
 //        // Write a line in transfer logfile
-//        if (exp_m_->get_output_m()->is_logged(LOG_TRANSFER)) {
-//          fprintf(exp_m_->get_output_m()->get_log(LOG_TRANSFER),
+//        if (exp_m_->output_m()->is_logged(LOG_TRANSFER)) {
+//          fprintf(exp_m_->output_m()->get_log(LOG_TRANSFER),
 //              "%" PRId64 " %" PRId32 " %" PRId32 " 1 %" PRId32 " %" PRId32
 //              " %" PRId32 " %" PRId32 " %" PRId16 " %" PRId32 " %" PRId32
 //              " %" PRId16 " %" PRId32 " %" PRId32 " %" PRId16
@@ -2048,7 +2048,7 @@ Mutation* Dna::do_repl_HT(int32_t parent_id) {
 //              alignment_2->get_score() ,
 //              (int16_t) search_sense);
 //
-//        fprintf(exp_m_->get_output_m()->get_log(LOG_TRANSFER),
+//        fprintf(exp_m_->output_m()->get_log(LOG_TRANSFER),
 //            "\tAlignment 1:\n\t\t%s\n\t\t%s\n"
 //            "\tAlignment 2:\n\t\t%s\n\t\t%s\n",
 //            alignment1_parent_dna, alignment1_donor_dna,
@@ -2060,8 +2060,8 @@ Mutation* Dna::do_repl_HT(int32_t parent_id) {
 //            delete [] alignment2_donor_dna;
 //        }
 //
-//        if (exp_m_->get_output_m()->get_record_tree() &&
-//            exp_m_->get_output_m()->get_tree_mode() == NORMAL) {
+//        if (exp_m_->output_m()->record_tree() &&
+//            exp_m_->output_m()->get_tree_mode() == NORMAL) {
 //          // Report the transfer
 //          char* donor_seq;
 //          if (alignment_2->get_sense() == DIRECT) {
@@ -2623,7 +2623,7 @@ VisAVis* Dna::search_alignment_around_positions(Dna* chrom2,
   chrom2_pos_for_research = chrom2_pos_1;
   int16_t i = 0;
 
-  while (indiv_->mut_prng_->random() < 1- exp_m_->get_repl_HT_detach_rate()) {
+  while (indiv_->mut_prng_->random() < 1- exp_m_->repl_HT_detach_rate()) {
     chrom1_pos_for_research =
         Utils::mod(chrom1_pos_for_research +
                        first_research_sense * size_between_two_alignments,
@@ -2685,7 +2685,7 @@ VisAVis* Dna::search_alignment_around_positions(Dna* chrom2,
   chrom1_pos_for_research = chrom1_pos_1;
   chrom2_pos_for_research = chrom2_pos_1;
   i = 0;
-  while (indiv_->mut_prng_->random() < 1- exp_m_->get_repl_HT_detach_rate()) {
+  while (indiv_->mut_prng_->random() < 1- exp_m_->repl_HT_detach_rate()) {
     chrom1_pos_for_research =
         Utils::mod(chrom1_pos_for_research +
                        second_research_sense * size_between_two_alignments,

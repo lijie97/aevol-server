@@ -146,7 +146,7 @@ void Selection::step_to_next_generation(void) {
   World* world = _exp_m->world();
   int16_t grid_width  = world->width();
   int16_t grid_height = world->height();
-  GridCell*** pop_grid = _exp_m->get_pop_grid();
+  GridCell*** pop_grid = _exp_m->grid();
 
   // create a temporary grid to store the reproducers
   Individual *** reproducers = new Individual ** [grid_width];
@@ -165,7 +165,7 @@ void Selection::step_to_next_generation(void) {
 
   // TODO : Why is that not *after* the creation of the new population ?
   // Add the compound secreted by the individuals
-  if (_exp_m->get_with_secretion()) {
+  if (_exp_m->with_secretion()) {
     for (int16_t x = 0 ; x < grid_width ; x++) {
       for (int16_t y = 0 ; y < grid_height ; y++) {
         pop_grid[x][y]->set_compound_amount(
@@ -180,7 +180,7 @@ void Selection::step_to_next_generation(void) {
 
 
   // Create the new generation
-  std::list<Individual*> old_generation = _exp_m->get_indivs();;
+  std::list<Individual*> old_generation = _exp_m->indivs();;
   std::list<Individual*> new_generation;
 
   #ifdef _OPENMP
@@ -225,10 +225,10 @@ void Selection::step_to_next_generation(void) {
 }
 
 void Selection::PerformPlasmidTransfers(void) {
-  if (_exp_m->get_with_plasmids() &&
-      ((_exp_m->get_prob_plasmid_HT() != 0.0) ||
-        (_exp_m->get_tune_donor_ability() != 0.0) ||
-        (_exp_m->get_tune_recipient_ability() != 0.0))) {
+  if (_exp_m->with_plasmids() &&
+      ((_exp_m->prob_plasmid_HT() != 0.0) ||
+        (_exp_m->tune_donor_ability() != 0.0) ||
+        (_exp_m->tune_recipient_ability() != 0.0))) {
     // Create proxies
     World* world = _exp_m->world();
     int16_t grid_width  = world->width();
@@ -268,11 +268,12 @@ void Selection::PerformPlasmidTransfers(void) {
         new_y = (y+y_offset+grid_height) % grid_height;
 
         if ((new_x != x)||(new_y != y)) {
-          double ptransfer = _exp_m->get_prob_plasmid_HT() + _exp_m->get_tune_donor_ability()
+          double ptransfer = _exp_m->prob_plasmid_HT() + _exp_m->tune_donor_ability()
                             * world->get_indiv_at(x, y)->get_fitness_by_feature(DONOR)
-                            + _exp_m->get_tune_recipient_ability() * world->get_indiv_at(new_x, new_y)->get_fitness_by_feature(RECIPIENT) ;
+                            +
+            _exp_m->tune_recipient_ability() * world->get_indiv_at(new_x, new_y)->get_fitness_by_feature(RECIPIENT) ;
           if (prng_->random() < ptransfer) { // will x give a plasmid to n ?
-            if (_exp_m->get_swap_GUs()) {
+            if (_exp_m->swap_GUs()) {
               world->get_indiv_at(new_x, new_y)->inject_2GUs(world->get_indiv_at(x, y));
             }
             else {
@@ -350,7 +351,7 @@ void Selection::compute_prob_reprod(void) { // non spatially structured only
     delete [] _prob_reprod;
   }
 
-  int32_t nb_indivs = _exp_m->get_nb_indivs();
+  int32_t nb_indivs = _exp_m->nb_indivs();
   _prob_reprod = new double[nb_indivs];
 
   if (_selection_scheme == RANK_LINEAR) {
@@ -412,7 +413,7 @@ void Selection::compute_prob_reprod(void) { // non spatially structured only
     double  sum       = 0;
 
     size_t i = 0;
-    for (const auto& indiv: _exp_m->get_indivs()) {
+    for (const auto& indiv: _exp_m->indivs()) {
       fitnesses[i] = indiv->get_fitness();
       sum += fitnesses[i];
       ++i;

@@ -168,13 +168,13 @@ int main(int argc, char* argv[])
   // Parse the individuals
   if (best_only)
   {
-    Individual* best = exp_manager->get_best_indiv();
+    Individual* best = exp_manager->best_indiv();
     best->do_transcription_translation_folding(); // We need to recompute proteins if not already done (ie if using a population file and not a full backup)
     analyse_indiv(best, triangles_file, sequence_file, gu, best->habitat().phenotypic_target());
   }
   else
   {
-    for (const auto& indiv: exp_manager->get_indivs()) {
+    for (const auto& indiv: exp_manager->indivs()) {
       indiv->do_transcription_translation_folding(); // We need to recompute proteins if not already done (ie if using a population file and not a full backup)
       analyse_indiv(indiv, triangles_file, sequence_file, gu, indiv->habitat().phenotypic_target());
     }

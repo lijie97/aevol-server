@@ -73,22 +73,22 @@ class ExpManager : public Observer {
   // =======================================================================
   //                           Accessors: getters
   // =======================================================================
-  ExpSetup* get_exp_s() const { return exp_s_; }
-  Selection* get_sel() const { return get_exp_s()->get_sel(); }
-  OutputManager* get_output_m() const { return output_m_; }
+  ExpSetup* exp_s() const { return exp_s_; }
+  Selection* sel() const { return exp_s()->get_sel(); }
+  OutputManager* output_m() const { return output_m_; }
   bool quit_signal_received() const { return quit_signal_received_; }
-  SelectionScheme get_selection_scheme() const { return get_sel()->get_selection_scheme(); }
-  double get_selection_pressure() const { return get_sel()->get_selection_pressure(); }
+  SelectionScheme selection_scheme() const { return sel()->get_selection_scheme(); }
+  double selection_pressure() const { return sel()->get_selection_pressure(); }
 
   // Spatial structure
   World* world() const { return world_; }
-  GridCell* get_grid_cell(int16_t x, int16_t y) const { return world()->grid(x, y); }
-  int16_t get_grid_width() const { return world()->width(); }
-  int16_t get_grid_height() const { return world()->height(); }
-  GridCell*** get_pop_grid() const { return world()->grid(); }
+  GridCell* grid_cell(int16_t x, int16_t y) const { return world()->grid(x, y); }
+  int16_t grid_width() const { return world()->width(); }
+  int16_t grid_height() const { return world()->height(); }
+  GridCell*** grid() const { return world()->grid(); }
 
   // Global settings
-  double get_repl_HT_detach_rate() const { return get_exp_s()->get_repl_HT_detach_rate();}
+  double repl_HT_detach_rate() const { return exp_s()->get_repl_HT_detach_rate();}
 
   // The ability to own a plasmid is a property of the individuals (allow_plasmids_) because it is used during mutations.
   // However, the experimental setup's member variable _with_plasmids indicates whether plasmids are used
@@ -98,26 +98,26 @@ class ExpManager : public Observer {
   // Member variable _with_plasmids_HT has been removed because the ability to transfer is evolvable and may thus depend
   // on the plasmid itself
 
-  bool   get_with_plasmids() const { return get_exp_s()->get_with_plasmids(); }
-  double get_prob_plasmid_HT() const { return get_exp_s()->get_prob_plasmid_HT(); }
-  double get_tune_donor_ability() const { return get_exp_s()->get_tune_donor_ability(); }
-  double get_tune_recipient_ability() const { return get_exp_s()->get_tune_recipient_ability(); }
-  bool   get_swap_GUs() const { return get_exp_s()->get_swap_GUs(); }
-  bool   get_with_secretion() const { return get_exp_s()->get_with_secretion(); }
-  double get_secretion_contrib_to_fitness() const { return get_exp_s()->get_secretion_contrib_to_fitness(); }
-  double get_secretion_cost() const { return get_exp_s()->get_secretion_cost(); }
+  bool with_plasmids() const { return exp_s()->get_with_plasmids(); }
+  double prob_plasmid_HT() const { return exp_s()->get_prob_plasmid_HT(); }
+  double tune_donor_ability() const { return exp_s()->get_tune_donor_ability(); }
+  double tune_recipient_ability() const { return exp_s()->get_tune_recipient_ability(); }
+  bool swap_GUs() const { return exp_s()->get_swap_GUs(); }
+  bool with_secretion() const { return exp_s()->get_with_secretion(); }
+  double secretion_contrib_to_fitness() const { return exp_s()->get_secretion_contrib_to_fitness(); }
+  double secretion_cost() const { return exp_s()->get_secretion_cost(); }
 
   // Accessors to population stuff
-  std::list<Individual*> get_indivs() const { return world()->get_indivs(); }
-  int32_t get_nb_indivs() const { return world()->get_nb_indivs(); }
-  Individual* get_best_indiv() const { return world()->get_best_indiv(); }
-  Individual* get_indiv_by_id(int32_t id) const;
+  std::list<Individual*> indivs() const { return world()->get_indivs(); }
+  int32_t nb_indivs() const { return world()->get_nb_indivs(); }
+  Individual* best_indiv() const { return world()->get_best_indiv(); }
+  Individual* indiv_by_id(int32_t id) const;
 
   // Accessors to output manager stuff
-  int64_t	get_backup_step() const { return get_output_m()->get_backup_step(); }
-  bool get_record_tree() const { return get_output_m()->get_record_tree(); }
-  int32_t get_tree_step() const { return static_cast<int32_t>(get_output_m()->get_tree_step()); }
-  Tree* get_tree() const { return get_output_m()->get_tree(); }
+  int64_t	backup_step() const { return output_m()->get_backup_step(); }
+  bool record_tree() const { return output_m()->get_record_tree(); }
+  int32_t tree_step() const { return static_cast<int32_t>(output_m()->get_tree_step()); }
+  Tree* tree() const { return output_m()->get_tree(); }
 
   // =======================================================================
   //                          Accessors: setters

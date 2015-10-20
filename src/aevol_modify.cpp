@@ -173,14 +173,14 @@ int main(int argc, char* argv[])
 
   // 7) Define syntaxic sugars for the population, the environment, the selection...  
 //  Environment* env = exp_manager->get_env();
-  Selection* sel = exp_manager->get_sel();
+  Selection* sel = exp_manager->sel();
   World* world = exp_manager->world();
 
 
   // If relevant, load the tree information 
   char tree_file_name[50];
   Tree* tree = nullptr;
-  bool take_care_of_the_tree = exp_manager->get_record_tree() &&
+  bool take_care_of_the_tree = exp_manager->record_tree() &&
                                get_time() > 0;
 
   if (take_care_of_the_tree)
@@ -248,7 +248,7 @@ int main(int argc, char* argv[])
 //        }
 //        else if (strcmp(line->words[2*i+1], "SECRETION") == 0)
 //        {
-//          exp_manager->get_exp_s()->set_with_secretion(true);
+//          exp_manager->exp_s()->set_with_secretion(true);
 //          env_axis_features[i] = SECRETION;
 //        }
 //        else if (strcmp(line->words[2*i+1], "DONOR") == 0)
@@ -290,7 +290,7 @@ int main(int argc, char* argv[])
                param_file_name, cur_line);
         exit(EXIT_FAILURE);
       }
-      if (exp_manager->get_output_m()->get_record_tree())
+      if (exp_manager->output_m()->get_record_tree())
       {
         printf("ERROR modification of already existing tree not impemented yet\n");
         exit(EXIT_FAILURE);
@@ -311,16 +311,16 @@ int main(int argc, char* argv[])
       int step = atoi(line->words[1]);
       if (step>0)
       {
-        exp_manager->get_output_m()->set_dump_step(step);
+        exp_manager->output_m()->set_dump_step(step);
       }
     }
     else if (strcmp(line->words[0], "BACKUP_STEP") == 0)
     {
-      exp_manager->get_output_m()->set_backup_step(atol(line->words[1]));
+      exp_manager->output_m()->set_backup_step(atol(line->words[1]));
     }
     else if (strcmp(line->words[0], "BIG_BACKUP_STEP") == 0)
     {
-      exp_manager->get_output_m()->set_big_backup_step(atol(line->words[1]));
+      exp_manager->output_m()->set_big_backup_step(atol(line->words[1]));
     }
     else if (strcmp(line->words[0], "POPULATION_SIZE") == 0)
     {
@@ -384,63 +384,63 @@ int main(int argc, char* argv[])
     else if (strcmp(line->words[0], "POINT_MUTATION_RATE") == 0)
     {
       double point_mutation_rate = atof(line->words[1]);
-      for (auto& indiv: exp_manager->get_indivs())
+      for (auto& indiv: exp_manager->indivs())
         indiv->set_point_mutation_rate(point_mutation_rate);
       printf("\tChange of overall point mutation rate to %f\n", point_mutation_rate);
     }
     else if (strcmp(line->words[0], "SMALL_INSERTION_RATE") == 0)
     {
       double small_insertion_rate = atof(line->words[1]);
-      for (auto& indiv: exp_manager->get_indivs())
+      for (auto& indiv: exp_manager->indivs())
         indiv->set_small_insertion_rate(small_insertion_rate);
       printf("\tChange of overall small insertion rate to %f\n", small_insertion_rate);
     }
     else if (strcmp(line->words[0], "SMALL_DELETION_RATE") == 0)
     {
       double small_deletion_rate = atof(line->words[1]);
-      for (auto& indiv: exp_manager->get_indivs())
+      for (auto& indiv: exp_manager->indivs())
         indiv->set_small_deletion_rate(small_deletion_rate);
       printf("\tChange of overall small deletion rate to %f\n", small_deletion_rate);
     }
     else if (strcmp(line->words[0], "MAX_INDEL_SIZE") == 0)
     {
       int16_t max_indel_size = atol(line->words[1]);
-      for (auto& indiv: exp_manager->get_indivs())
+      for (auto& indiv: exp_manager->indivs())
         indiv->set_max_indel_size(max_indel_size);
       printf("\tChange of overall maximum indel size to %d\n", max_indel_size);
     }
     else if (strcmp(line->words[0], "DUPLICATION_RATE") == 0)
     {
       double duplication_rate = atof(line->words[1]);
-      for (auto& indiv: exp_manager->get_indivs())
+      for (auto& indiv: exp_manager->indivs())
         indiv->set_duplication_rate(duplication_rate);
       printf("\tChange of overall duplication rate to %f\n", duplication_rate);
     }
     else if (strcmp(line->words[0], "DELETION_RATE") == 0)
     {
       double deletion_rate = atof(line->words[1]);
-      for (auto& indiv: exp_manager->get_indivs())
+      for (auto& indiv: exp_manager->indivs())
         indiv->set_deletion_rate(deletion_rate);
       printf("\tChange of overall deletion rate to %f\n", deletion_rate);
     }
     else if (strcmp(line->words[0], "TRANSLOCATION_RATE") == 0)
     {
       double translocation_rate = atof(line->words[1]);
-      for (auto& indiv: exp_manager->get_indivs())
+      for (auto& indiv: exp_manager->indivs())
         indiv->set_translocation_rate(translocation_rate);
       printf("\tChange of overall translocation rate to %f\n", translocation_rate);
     }
     else if (strcmp(line->words[0], "INVERSION_RATE") == 0)
     {
       double inversion_rate = atof(line->words[1]);
-      for (auto& indiv: exp_manager->get_indivs())
+      for (auto& indiv: exp_manager->indivs())
         indiv->set_inversion_rate(inversion_rate);
       printf("\tChange of overall inversion to %f\n", inversion_rate);
     }
     else if (strcmp(line->words[0], "TRANSFER_INS_RATE") == 0)
     {
       double transfer_ins_rate = atof(line->words[1]);
-      for (auto& indiv: exp_manager->get_indivs())
+      for (auto& indiv: exp_manager->indivs())
         indiv->set_HT_ins_rate(transfer_ins_rate);
       exp_manager->set_HT_ins_rate(transfer_ins_rate);
       printf("\tChange of overall transfer insertion rate to %f\n", transfer_ins_rate);
@@ -448,7 +448,7 @@ int main(int argc, char* argv[])
     else if (strcmp(line->words[0], "TRANSFER_REPL_RATE") == 0)
     {
       double transfer_repl_rate = atof(line->words[1]);
-      for (auto& indiv: exp_manager->get_indivs())
+      for (auto& indiv: exp_manager->indivs())
         indiv->set_HT_repl_rate(transfer_repl_rate);
       exp_manager->set_HT_repl_rate(transfer_repl_rate);
       printf("\tChange of overall transfer replacement rate to %f\n", transfer_repl_rate);
@@ -524,21 +524,21 @@ int main(int argc, char* argv[])
     }
     else if (strcmp(line->words[0], "SECRETION_CONTRIB_TO_FITNESS") == 0)
     {
-      exp_manager->get_exp_s()->set_secretion_contrib_to_fitness(atof(line->words[1]));
+      exp_manager->exp_s()->set_secretion_contrib_to_fitness(atof(line->words[1]));
     }
     else if (strcmp(line->words[0], "SECRETION_COST") == 0)
     {
-      exp_manager->get_exp_s()->set_secretion_cost(atof(line->words[1]));
+      exp_manager->exp_s()->set_secretion_cost(atof(line->words[1]));
     }
     else if (strcmp(line->words[0], "PLASMID_MINIMAL_LENGTH") == 0)
     {
-      if (not exp_manager->get_with_plasmids())
+      if (not exp_manager->with_plasmids())
       {
         printf("ERROR: option PLASMID_MINIMAL_LENGTH has no sense because there are no plasmids in this population.\n");
         exit(EXIT_FAILURE);
       }
       int32_t plasmid_minimal_length = atoi(line->words[1]);
-      for (const auto& indiv: exp_manager->get_indivs())
+      for (const auto& indiv: exp_manager->indivs())
       {
         if (indiv->get_genetic_unit(1).get_seq_length()<plasmid_minimal_length)
         {
@@ -550,13 +550,13 @@ int main(int argc, char* argv[])
     }
     else if (strcmp(line->words[0], "PLASMID_MAXIMAL_LENGTH") == 0)
     {
-      if (!exp_manager->get_with_plasmids())
+      if (!exp_manager->with_plasmids())
       {
         printf("ERROR: option PLASMID_MAXIMAL_LENGTH has no sense because there are no plasmids in this population.\n");
         exit(EXIT_FAILURE);
       }
       int32_t plasmid_maximal_length = atoi(line->words[1]);
-      for (const auto& indiv: exp_manager->get_indivs())
+      for (const auto& indiv: exp_manager->indivs())
       {
         if (indiv->get_genetic_unit_nonconst(1).get_seq_length()>plasmid_maximal_length)
         {
@@ -569,7 +569,7 @@ int main(int argc, char* argv[])
     else if (strcmp(line->words[0], "CHROMOSOME_MINIMAL_LENGTH") == 0)
     {
       int32_t chromosome_minimal_length = atoi(line->words[1]);
-      for (const auto& indiv: exp_manager->get_indivs())
+      for (const auto& indiv: exp_manager->indivs())
       {
         if (indiv->get_genetic_unit_nonconst(0).get_seq_length()<chromosome_minimal_length)
         {
@@ -582,7 +582,7 @@ int main(int argc, char* argv[])
     else if (strcmp(line->words[0], "CHROMOSOME_MAXIMAL_LENGTH") == 0)
     {
       int32_t chromosome_maximal_length = atoi(line->words[1]);
-      for (const auto& indiv: exp_manager->get_indivs()) {
+      for (const auto& indiv: exp_manager->indivs()) {
         if (indiv->get_genetic_unit_nonconst(0).get_seq_length()>chromosome_maximal_length)
         {
           printf("ERROR: there is one genetic unit with a higher length than the new maximum.\n");
@@ -624,44 +624,44 @@ int main(int argc, char* argv[])
     }
     else if (strcmp(line->words[0], "CLONE_BEST") == 0)
     {
-      exp_manager->FillGridWithClones(*(exp_manager->get_best_indiv()));
+      exp_manager->FillGridWithClones(*(exp_manager->best_indiv()));
       printf("\tChange of the population for a population with %" PRId32
           " individuals, all clones of the best one\n",
-          exp_manager->get_nb_indivs());
+             exp_manager->nb_indivs());
     }
     // TODO: re-enable these options
     // else if (strcmp(line->words[0], "CREATE_3_SUBPOPULATIONS_BASED_ON_NON_CODING_BASES") == 0)
     // {
     //   change_based_on_non_coding_bases_of_best_individual(pop, exp_manager, SUBPOPULATIONS_BASED_ON_NON_CODING_BASES);
-    //   printf("\tChange of the population for a population with %" PRId32 " individuals in 3 equal subpopulations (A: clones of the previous best individual, B: clones of the previous best individual without any non coding bases, C: clones of the previous best individual with twice non bases\n",pop->get_nb_indivs());
+    //   printf("\tChange of the population for a population with %" PRId32 " individuals in 3 equal subpopulations (A: clones of the previous best individual, B: clones of the previous best individual without any non coding bases, C: clones of the previous best individual with twice non bases\n",pop->nb_indivs());
     //   printf("WARNING: lineage will not work properly if called with \n");
     //   printf("         a begin generation anterior to this modification \n");
     // }
     // else if (strcmp(line->words[0], "REMOVE_NON_CODING_BASES_BEST") == 0)
     // {
     //   change_based_on_non_coding_bases_of_best_individual(pop, exp_manager, REMOVE_NON_CODING_BASES_BEST_IND);
-    //   printf("\tChange of the population for a population with %" PRId32 " clones of the best individual ancestor without any non coding bases\n",pop->get_nb_indivs());
+    //   printf("\tChange of the population for a population with %" PRId32 " clones of the best individual ancestor without any non coding bases\n",pop->nb_indivs());
     //   printf("WARNING: lineage will not work properly if called with \n");
     //   printf("         a begin generation anterior to this modification \n");
     // }
     // else if (strcmp(line->words[0], "REMOVE_NON_CODING_BASES_POP") == 0)
     // {
     //   change_based_on_non_coding_bases_in_population(pop, exp_manager,  REMOVE_NON_CODING_BASES_POPULATION);
-    //   printf("\tChange of the population for a population with %" PRId32 " individuals without any non coding bases\n",pop->get_nb_indivs());
+    //   printf("\tChange of the population for a population with %" PRId32 " individuals without any non coding bases\n",pop->nb_indivs());
     //   printf("WARNING: lineage will not work properly if called with \n");
     //   printf("         a begin generation anterior to this modification \n");
     // }
     // else if (strcmp(line->words[0], "DOUBLE_NON_CODING_BASES_BEST") == 0)
     // {
     //   change_based_on_non_coding_bases_of_best_individual(pop, exp_manager,  DOUBLE_NON_CODING_BASES_BEST_IND);
-    //   printf("\tChange of the population for a population with %" PRId32 " clones of the best individual ancestor with twice the non coding bases number \n",pop->get_nb_indivs());
+    //   printf("\tChange of the population for a population with %" PRId32 " clones of the best individual ancestor with twice the non coding bases number \n",pop->nb_indivs());
     //   printf("WARNING: lineage will not work properly if called with \n");
     //   printf("         a begin generation anterior to this modification \n");
     // }
     // else if (strcmp(line->words[0], "DOUBLE_NON_CODING_BASES_POP") == 0)
     // {
     //   change_based_on_non_coding_bases_in_population(pop, exp_manager, DOUBLE_NON_CODING_BASES_POPULATION);
-    //   printf("\tChange of the population for a population with %" PRId32 " individuals with twice the non coding bases number\n",pop->get_nb_indivs());
+    //   printf("\tChange of the population for a population with %" PRId32 " individuals with twice the non coding bases number\n",pop->nb_indivs());
     //   printf("WARNING: lineage will not work properly if called with \n");
     //   printf("         a begin generation anterior to this modification \n");
     // }
@@ -699,7 +699,7 @@ int main(int argc, char* argv[])
           "be set to its default value even if you previously gave another "
           "value.\n");
     }
-    exp_manager->get_output_m()->init_tree(exp_manager, tree_step);
+    exp_manager->output_m()->init_tree(exp_manager, tree_step);
   }
 
   if (take_care_of_the_tree)
@@ -834,10 +834,10 @@ void format_line(ParameterLine* formated_line, char* line, bool* line_is_interpr
 //   if(type == SUBPOPULATIONS_BASED_ON_NON_CODING_BASES || type == REMOVE_NON_CODING_BASES_BEST_IND || type == DOUBLE_NON_CODING_BASES_BEST_IND)
 //     {
 //       // 1) Compute the population size
-//       int32_t subpopulation_size = (int)floor(pop->get_nb_indivs()/3);
+//       int32_t subpopulation_size = (int)floor(pop->nb_indivs()/3);
   
 //       // 2) Get the best individual
-//       ae_individual* best_indiv = exp_m->get_best_indiv();
+//       ae_individual* best_indiv = exp_m->best_indiv();
 
     
 //       // 3) Create the new population 
@@ -896,7 +896,7 @@ void format_line(ParameterLine* formated_line, char* line, bool* line_is_interpr
 //           }
 //         case REMOVE_NON_CODING_BASES_BEST_IND:
 //           {
-//             for (int32_t i = 0 ; i < pop->get_nb_indivs() ; i++)
+//             for (int32_t i = 0 ; i < pop->nb_indivs() ; i++)
 //               {
 //                 new_generation.push_back(create_clone(only_coding_indiv, i));
 //               }
@@ -904,7 +904,7 @@ void format_line(ParameterLine* formated_line, char* line, bool* line_is_interpr
 //           }
 //         case DOUBLE_NON_CODING_BASES_BEST_IND:
 //           {
-//             for (int32_t i = 0 ; i < pop->get_nb_indivs() ; i++)
+//             for (int32_t i = 0 ; i < pop->nb_indivs() ; i++)
 //               {
 //                 new_generation.push_back(create_clone(twice_non_coding_indiv, i));
 //               }
@@ -957,7 +957,7 @@ void format_line(ParameterLine* formated_line, char* line, bool* line_is_interpr
 // {
 //   if(type == REMOVE_NON_CODING_BASES_POPULATION || type == DOUBLE_NON_CODING_BASES_POPULATION)
 //     {
-//       for (auto& indiv: pop->get_indivs())
+//       for (auto& indiv: pop->indivs())
 //         if (type == REMOVE_NON_CODING_BASES_POPULATION)
 //           indiv->remove_non_coding_bases();
 //         else

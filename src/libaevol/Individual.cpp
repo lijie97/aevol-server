@@ -1337,9 +1337,9 @@ void Individual::compute_fitness(const PhenotypicTarget& target) {
 #else
   for (int8_t i = 0; i < NB_FEATURES; i++) {
     if (i == SECRETION) {
-      fitness_by_feature_[SECRETION] = exp(-exp_m_->get_selection_pressure() *
+      fitness_by_feature_[SECRETION] = exp(-exp_m_->selection_pressure() *
                                            dist_to_target_by_feature_[SECRETION])
-                                       - exp(-exp_m_->get_selection_pressure() *
+                                       - exp(-exp_m_->selection_pressure() *
                                              target.area_by_feature(SECRETION));
 
       if (fitness_by_feature_[i] < 0) {
@@ -1348,21 +1348,21 @@ void Individual::compute_fitness(const PhenotypicTarget& target) {
     }
     else {
       fitness_by_feature_[i] = exp(
-          -exp_m_->get_selection_pressure() * dist_to_target_by_feature_[i]);
+          -exp_m_->selection_pressure() * dist_to_target_by_feature_[i]);
     }
   }
 
   // Calculate combined, total fitness here!
   // Multiply the contribution of metabolism and the amount of compound in the
   // habitat
-  if ((!placed_in_population_) || (!exp_m_->get_with_secretion())) {
+  if ((!placed_in_population_) || (!exp_m_->with_secretion())) {
     fitness_ = fitness_by_feature_[METABOLISM];
   }
   else {
     fitness_ = fitness_by_feature_[METABOLISM]
-               * (1 + exp_m_->get_secretion_contrib_to_fitness() *
+               * (1 + exp_m_->secretion_contrib_to_fitness() *
                       get_grid_cell()->compound_amount()
-                  - exp_m_->get_secretion_cost() *
+                  - exp_m_->secretion_cost() *
                     fitness_by_feature_[SECRETION]);
   }
 #endif
@@ -1539,7 +1539,7 @@ void Individual::EvaluateInContext(const Habitat& habitat) {
   compute_distance_to_target(habitat.phenotypic_target());
   compute_fitness(habitat.phenotypic_target());
 
-  if (exp_m_->get_output_m()->get_compute_phen_contrib_by_GU())
+  if (exp_m_->output_m()->get_compute_phen_contrib_by_GU())
     for (auto& gen_unit: genetic_unit_list_) {
       gen_unit.compute_distance_to_target(habitat.phenotypic_target());
       gen_unit.compute_fitness(habitat.phenotypic_target());
@@ -1704,7 +1704,7 @@ void Individual::compute_experimental_f_nu(int32_t nb_children,
   int32_t nb_bases_in_0_coding_RNA = 0;
 
   for (int i = 0; i < nb_children; i++) {
-    child = exp_m_->get_exp_s()->get_sel()->do_replication(this, id_);
+    child = exp_m_->exp_s()->get_sel()->do_replication(this, id_);
     fitness_child = child->get_fitness();
     metabolic_error_child = child->get_dist_to_target_by_feature(METABOLISM);
 

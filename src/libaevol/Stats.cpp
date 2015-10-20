@@ -78,7 +78,7 @@ Stats::Stats(ExpManager * exp_m,
 {
   _exp_m = exp_m;
   init_data();
-  set_file_names(prefix, best_indiv_only, with_plasmids, compute_phen_contrib_by_GU);// exp_m_->get_with_plasmids(), exp_m_->get_output_m()->get_compute_phen_contrib_by_GU());
+  set_file_names(prefix, best_indiv_only, with_plasmids, compute_phen_contrib_by_GU);// exp_m_->with_plasmids(), exp_m_->output_m()->get_compute_phen_contrib_by_GU());
   open_files();
   write_headers();
 }
@@ -480,23 +480,23 @@ void Stats::write_current_generation_statistics()
   
   for (int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++)
   {
-    if ((not _exp_m->get_output_m()->get_compute_phen_contrib_by_GU()) &&
+    if ((not _exp_m->output_m()->get_compute_phen_contrib_by_GU()) &&
         chrom_or_GU > ALL_GU) continue;
 
     stat_records = new StatRecord* [NB_BEST_OR_GLOB];
     
     stat_records[BEST] = new StatRecord(_exp_m,
-                                        _exp_m->get_best_indiv(),
+                                        _exp_m->best_indiv(),
                                         (chrom_or_gen_unit) chrom_or_GU);
     stat_records[GLOB] = new StatRecord(_exp_m,
-                                        _exp_m->get_indivs(),
+                                        _exp_m->indivs(),
                                         (chrom_or_gen_unit) chrom_or_GU);
     stat_records[SDEV] = new StatRecord(_exp_m,
-                                        _exp_m->get_indivs(),
+                                        _exp_m->indivs(),
                                         stat_records[GLOB],
                                         (chrom_or_gen_unit) chrom_or_GU);
     stat_records[SKEW] = new StatRecord(_exp_m,
-                                        _exp_m->get_indivs(),
+                                        _exp_m->indivs(),
                                         stat_records[GLOB],
                                         stat_records[SDEV],
                                         (chrom_or_gen_unit) chrom_or_GU);
