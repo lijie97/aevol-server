@@ -27,7 +27,6 @@
 #ifndef AEVOL_DELETION_H_
 #define AEVOL_DELETION_H_
 
-
 // ============================================================================
 //                                   Includes
 // ============================================================================
@@ -77,10 +76,10 @@ class Deletion : public Rearrangement {
   // ==========================================================================
   virtual MutationType get_mut_type() const override {return DEL;}
 
-  int32_t pos1() const {return pos1_;}
-  int32_t pos2() const {return pos2_;}
-  int32_t length() const {return length_;}
-  int16_t align_score() const {return align_score_;}
+  int32_t pos1() const { return pos1_; }
+  int32_t pos2() const { return pos2_; }
+  int32_t length() const { return length_; }
+  int16_t align_score() const { return align_score_; }
 
   // ==========================================================================
   //                                 Setters
