@@ -23,8 +23,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // 
 // ****************************************************************************
- 
- 
+
 #ifndef AEVOL_DUMP_H_
 #define AEVOL_DUMP_H_
 
@@ -51,7 +50,7 @@ class Dump
   // =================================================================
   //                             Constructors
   // =================================================================
-  Dump( ExpManager * exp_m );
+  Dump(ExpManager* exp_m);
   
   // =================================================================
   //                             Destructors
@@ -65,17 +64,16 @@ class Dump
   // =================================================================
   //                            Public Methods
   // =================================================================
-  void write_current_generation_dump( void );
-  void write_fitness_total( void );
-  void write_secretion_present( void );
-  void write_fitness_metabolic( void );
-  void write_secreted_amount( void );
-  void write_individual_probes( void );
+  void write_current_generation_dump();
+  void write_fitness_total();
+  void write_secretion_present();
+  void write_fitness_metabolic();
+  void write_secreted_amount();
+  void write_individual_probes();
 
   // =================================================================
   //                           Public Attributes
   // =================================================================
-
  protected:
   FILE* current_file;
   char  filename_buffer[_AE_DUMP_FILENAME_BUFSIZE];
