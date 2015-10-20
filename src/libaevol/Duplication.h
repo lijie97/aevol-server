@@ -24,9 +24,8 @@
 //
 // ****************************************************************************
 
-#ifndef AEVOL_DUPLICATION_H__
-#define AEVOL_DUPLICATION_H__
-
+#ifndef AEVOL_DUPLICATION_H_
+#define AEVOL_DUPLICATION_H_
 
 // ============================================================================
 //                                   Includes
@@ -41,7 +40,6 @@ namespace aevol {
  *
  */
 class Duplication : public Rearrangement {
-
  public :
   // ==========================================================================
   //                               Constructors
@@ -120,4 +118,4 @@ class Duplication : public Rearrangement {
 };
 
 } // namespace aevol
-#endif //AEVOL_DUPLICATION_H__
+#endif //AEVOL_DUPLICATION_H_
