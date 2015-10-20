@@ -24,10 +24,8 @@
 //
 // ****************************************************************************
 
-
-#ifndef AEVOL_DNA_H__
-#define AEVOL_DNA_H__
-
+#ifndef AEVOL_DNA_H_
+#define AEVOL_DNA_H_
 
 // =================================================================
 //                              Includes
@@ -53,9 +51,7 @@
 #include "ae_string.h"
 #include "JumpingMT.h"
 
-
 namespace aevol {
-
 
 // =================================================================
 //                          Class declarations
@@ -65,11 +61,6 @@ class Individual;
 class GeneticUnit;
 class VisAVis;
 class Rna;
-
-
-
-
-
 
 class Dna : public ae_string {
  public :
@@ -178,7 +169,6 @@ class Dna : public ae_string {
   static void set_GU(std::vector<std::list<Rna>> rna_list,
                      const GeneticUnit* GU);
 
-
  protected :
   // =================================================================
   //                           Protected Methods
@@ -202,7 +192,6 @@ class Dna : public ae_string {
   GeneticUnit* _gen_unit; // Genetic unit which the dna sequence belongs to
 };
 
-
 // =====================================================================
 //                          Accessors definitions
 // =====================================================================
@@ -214,10 +203,9 @@ GeneticUnit*Dna::get_genetic_unit() const {
   return _gen_unit;
 }
 
-
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
 
 } // namespace aevol
-#endif // AEVOL_DNA_H__
+#endif // AEVOL_DNA_H_
