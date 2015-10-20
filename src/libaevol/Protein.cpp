@@ -321,7 +321,7 @@ Protein::Protein(GeneticUnit* gen_unit,
 /*
 Protein::Protein( Protein* parent )
 {
-  _gen_unit             = parent->_gen_unit;
+  gen_unit_             = parent->gen_unit_;
   _strand               = parent->_strand;
   _shine_dal_pos        = parent->_shine_dal_pos;
   _first_translated_pos = parent->_first_translated_pos;

@@ -89,7 +89,7 @@ Rna::Rna( GeneticUnit* gen_unit, Strand strand, int32_t pos, int8_t diff )
 /*
 Rna::Rna( Rna* parent )
 {
-  _gen_unit           = parent->_gen_unit;
+  gen_unit_           = parent->gen_unit_;
   _strand             = parent->_strand;
   _pos                = parent->_pos;
   _transcript_length  = parent->_transcript_length;

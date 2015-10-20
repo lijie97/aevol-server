@@ -186,21 +186,20 @@ class Dna : public ae_string {
   // =================================================================
   //                          Protected Attributes
   // =================================================================
-  ExpManager* _exp_m;
-
-  Individual* _indiv;
-  GeneticUnit* _gen_unit; // Genetic unit which the dna sequence belongs to
+  ExpManager* exp_m_;
+  Individual* indiv_;
+  GeneticUnit* gen_unit_; // Genetic unit which the dna sequence belongs to
 };
 
 // =====================================================================
 //                          Accessors definitions
 // =====================================================================
 Individual *Dna::get_indiv() const {
-  return _indiv;
+  return indiv_;
 }
 
 GeneticUnit*Dna::get_genetic_unit() const {
-  return _gen_unit;
+  return gen_unit_;
 }
 
 // =====================================================================
