@@ -142,7 +142,7 @@ int main(int argc, char** argv)
 
   // Set undefined command line parameters to default values
   if (t_end == -1) {
-    // Set t_end to the content of the LAST_GENER file if it exists.
+    // Set t_end_ to the content of the LAST_GENER file if it exists.
     // If it doesn't, print help and exit
     FILE* lg_file = fopen(LAST_GENER_FNAME, "r");
     if (lg_file != NULL) {
@@ -220,7 +220,7 @@ int main(int argc, char** argv)
   // except if end_gener%ae_common::rec_params->get_tree_step()==0.
 
   #ifdef __REGUL
-    sprintf(tree_file_name,"tree/tree_%06" PRId64 ".rae", t_end);
+    sprintf(tree_file_name,"tree/tree_%06" PRId64 ".rae", t_end_);
   #else
     sprintf(tree_file_name,"tree/tree_%06" PRId64 ".ae", t_end);
   #endif
@@ -257,7 +257,7 @@ int main(int argc, char** argv)
       final_indiv_rank = exp_manager->get_nb_indivs();
     }
 
-    // Retrieve the replication report of the individual of interest (at t_end)
+    // Retrieve the replication report of the individual of interest (at t_end_)
     reports[t_end - t0 - 1] = new ReplicationReport(*(tree->get_report_by_rank(t_end, final_indiv_rank)));
     final_indiv_index = reports[t_end - t0 - 1]->id();
 
@@ -276,7 +276,7 @@ int main(int argc, char** argv)
   #ifdef __REGUL
     snprintf(output_file_name, 100,
         "lineage-b%06" PRId64 "-e%06" PRId64 "-i%" PRId32 "-r%" PRId32 ".rae",
-        t0, t_end, final_indiv_index, final_indiv_rank);
+        t0, t_end_, final_indiv_index, final_indiv_rank);
   #else
     snprintf(output_file_name, 100,
         "lineage-b%06" PRId64 "-e%06" PRId64 "-i%" PRId32 "-r%" PRId32 ".ae",

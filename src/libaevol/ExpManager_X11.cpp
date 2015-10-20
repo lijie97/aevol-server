@@ -137,7 +137,7 @@ ExpManager_X11::~ExpManager_X11(void)
 
 bool ExpManager_X11::quit_signal_received(void)
 {
-  return _quit_signal_received;
+  return quit_signal_received_;
 }
 
 void ExpManager_X11::display(void)
@@ -379,7 +379,7 @@ void ExpManager_X11::handle_events(void)
         else if ((event.xkey.state & ControlMask) && (event.xkey.keycode == _key_codes[KEY_Q]))
         {
           printf(" Q U I T   R E Q U E S T E D\n");
-          _quit_signal_received = true;
+          quit_signal_received_ = true;
           // We do not exit here, because it is cleaner to let the main program
           // interpret the signal and call the destructor of the simulation.
           // This ensures that the connection to the X server will be closed

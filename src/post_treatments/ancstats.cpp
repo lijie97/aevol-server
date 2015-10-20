@@ -104,7 +104,7 @@ int main(int argc, char** argv)
   // - replication report of ancestor at time t0+2  (ae_replic_report::write_to_backup)
   // - replication report of ancestor at time t0+3  (ae_replic_report::write_to_backup)
   // - ...
-  // - replication report of ancestor at time t_end (ae_replic_report::write_to_backup)
+  // - replication report of ancestor at time t_end_ (ae_replic_report::write_to_backup)
 
 
 

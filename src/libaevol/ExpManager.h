@@ -73,10 +73,10 @@ class ExpManager : public Observer {
   // =======================================================================
   //                           Accessors: getters
   // =======================================================================
-  ExpSetup* get_exp_s(void) const { return _exp_s; }
+  ExpSetup* get_exp_s(void) const { return exp_s_; }
   Selection* get_sel(void) const { return get_exp_s()->get_sel(); }
-  OutputManager* get_output_m(void) const { return _output_m; }
-  bool quit_signal_received(void) const { return _quit_signal_received; }
+  OutputManager* get_output_m(void) const { return output_m_; }
+  bool quit_signal_received(void) const { return quit_signal_received_; }
   SelectionScheme get_selection_scheme(void) const { return get_sel()->get_selection_scheme(); }
   double get_selection_pressure(void) const { return get_sel()->get_selection_pressure(); }
 
@@ -122,9 +122,9 @@ class ExpManager : public Observer {
   // =======================================================================
   //                          Accessors: setters
   // =======================================================================
-  void set_t_end(int64_t _t_end) { t_end = _t_end; }
-  void set_HT_ins_rate(double HT_ins_rate) { _exp_s->set_HT_ins_rate(HT_ins_rate); }
-  void set_HT_repl_rate(double HT_repl_rate) { _exp_s->set_HT_repl_rate(HT_repl_rate); }
+  void set_t_end(int64_t _t_end) { t_end_ = _t_end; }
+  void set_HT_ins_rate(double HT_ins_rate) { exp_s_->set_HT_ins_rate(HT_ins_rate); }
+  void set_HT_repl_rate(double HT_repl_rate) { exp_s_->set_HT_repl_rate(HT_repl_rate); }
 
   // =======================================================================
   //                                 Operators
@@ -166,7 +166,6 @@ class ExpManager : public Observer {
             gzFile& out_p_file,
             bool verbose = false,
             bool to_be_run = true);
-
   void create_missing_directories(const char* dir = ".") const;
   void open_backup_files(gzFile& sel_file,
                          gzFile& sp_struct_file,
@@ -186,20 +185,20 @@ class ExpManager : public Observer {
   //                             Protected Attributes
   // =======================================================================
   /// Experimental setup
-  ExpSetup* _exp_s;
+  ExpSetup* exp_s_;
 
   /// Spatial structure
   World* world_;
 
   /// Output manager
-  OutputManager* _output_m;
+  OutputManager*output_m_;
 
   /// Time step up to which we want to simulate
-  int64_t t_end;
+  int64_t t_end_;
 
-  // Set to true when ctrl-Q is received. Will cause the simulation
-  // to be ended after the current time step is completed
-  bool _quit_signal_received;
+  /// Should the simulation be stopped? Set to true when ctrl-Q is received.
+  /// Will cause the simulation to be ended after the current time step is completed.
+  bool quit_signal_received_;
 };
 
 // ===========================================================================

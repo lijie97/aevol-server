@@ -64,21 +64,21 @@ namespace aevol {
 ExpManager::ExpManager()
 {
   // ------------------------------------------------------ Experimental setup
-  _exp_s = new ExpSetup(this);
+  exp_s_ = new ExpSetup(this);
 
   // ------------------------------------------------------------------- World
   world_ = nullptr;
 
   // ---------------------------------------------------------- Output manager
-  _output_m = new OutputManager(this);
+  output_m_ = new OutputManager(this);
 
 
   // -------------------------------- Timestep up to which we want to simulate
-  t_end = 0;
+  t_end_ = 0;
 
 
   // ------------------------------------------------------------- Quit signal
-  _quit_signal_received = false;
+  quit_signal_received_ = false;
 }
 
 // ===========================================================================
@@ -86,8 +86,8 @@ ExpManager::ExpManager()
 // ===========================================================================
 ExpManager::~ExpManager()
 {
-  delete _exp_s;
-  delete _output_m;
+  delete exp_s_;
+  delete output_m_;
   delete world_;
 }
 
@@ -115,7 +115,7 @@ void ExpManager::InitializeWorld(int16_t grid_width,
 void ExpManager::Save() const
 {
   WriteSetupFiles();
-  _output_m->write_current_generation_outputs();
+  output_m_->write_current_generation_outputs();
 }
 
 /*!
@@ -152,8 +152,8 @@ void ExpManager::WriteSetupFiles() const
   open_setup_files(exp_s_file, out_p_file, AeTime::get_time(), "w");
 
   // 4) Write setup data
-  _exp_s->write_setup_file(exp_s_file);
-  _output_m->WriteSetupFile(out_p_file);
+  exp_s_->write_setup_file(exp_s_file);
+  output_m_->WriteSetupFile(out_p_file);
 
   // 5) Close setup files
   close_setup_files(exp_s_file, out_p_file);
@@ -238,8 +238,8 @@ void ExpManager::save_copy(char* dir, int64_t time) const
   open_backup_files(sel_file, world_file, time, "w", dir);
 
   // Write setup data
-  _exp_s->write_setup_file(exp_s_file);
-  _output_m->WriteSetupFile(out_p_file);
+  exp_s_->write_setup_file(exp_s_file);
+  output_m_->WriteSetupFile(out_p_file);
 
   // Write the state of selection and world into the backups
   get_sel()->save(sel_file);
@@ -250,10 +250,10 @@ void ExpManager::save_copy(char* dir, int64_t time) const
   close_backup_files(sel_file, world_file);
 
   // Copy stats
-  _output_m->CopyStats(dir, time);
+  output_m_->CopyStats(dir, time);
 
   // Write last gener file
-  _output_m->WriteLastGenerFile(dir);
+  output_m_->WriteLastGenerFile(dir);
 }
 
 void ExpManager::step_to_next_generation() {
@@ -264,10 +264,10 @@ void ExpManager::step_to_next_generation() {
   AeTime::plusplus();
 
   // Create the corresponding new generation
-  _exp_s->step_to_next_generation();
+  exp_s_->step_to_next_generation();
 
   // Write statistical data and store phylogenetic data (tree)
-  _output_m->write_current_generation_outputs();
+  output_m_->write_current_generation_outputs();
 }
 
 /*!
@@ -284,7 +284,7 @@ void ExpManager::load(gzFile& exp_s_file,
   // ---------------------------------------- Retrieve experimental setup data
   printf("  Loading experimental setup...");
   fflush(stdout);
-  _exp_s->load(exp_s_file, exp_backup_file, verbose);
+  exp_s_->load(exp_s_file, exp_backup_file, verbose);
   printf(" OK\n");
 
   // ---------------------------------------------------------- Retrieve world
@@ -297,7 +297,7 @@ void ExpManager::load(gzFile& exp_s_file,
   // --------------------------------------------- Retrieve output profile data
   printf("  Loading output profile...");
   fflush(stdout);
-  _output_m->load(out_p_file, verbose, to_be_run);
+  output_m_->load(out_p_file, verbose, to_be_run);
   printf(" OK\n");
 
   // -------------------------------------------- Link world and output profile
@@ -425,7 +425,7 @@ void ExpManager::run_evolution(void)
     printf("  Best individual's distance to target (metabolic) : %f\n",
            get_best_indiv()->get_dist_to_target_by_feature(METABOLISM));
 
-    if (AeTime::get_time() >= t_end or quit_signal_received())
+    if (AeTime::get_time() >= t_end_ or quit_signal_received())
       break;
 
 #ifdef __X11
@@ -436,7 +436,7 @@ void ExpManager::run_evolution(void)
     step_to_next_generation();
   }
 
-  _output_m->flush();
+  output_m_->flush();
   printf("================================================================\n");
   printf("  The run is finished. \n");
   printf("  Printing the final best individual into " BEST_LAST_ORG_FNAME "\n");
