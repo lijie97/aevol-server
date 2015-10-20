@@ -54,7 +54,6 @@ namespace aevol {
 /// An experiment manager allows one to... manage an experiment.
 /// It owns a population and an experimental_setup that can be loaded from a
 /// pair of aevol binary files (pop and exp_setup)
-
 class ExpManager : public Observer {
  public:
   // =======================================================================
@@ -91,10 +90,13 @@ class ExpManager : public Observer {
   // Global settings
   double get_repl_HT_detach_rate(void) const { return get_exp_s()->get_repl_HT_detach_rate();}
 
-  // The ability to own a plasmid is a property of the individuals (allow_plasmids_) because it is used during mutations
-  // However there is also a property of the experimental setup (_with_plasmids) that indicates whether plasmids are used because we need this during replication and during loading/writting
-  // For now when plasmids are used each individual has one and only one plasmid (so these variables should always be equals), however this may change in the future
-  // There is no longer property _with_plasmids_HT because the ability to transfer is evolvable and thus may depend on the plasmid itself
+  // The ability to own a plasmid is a property of the individuals (allow_plasmids_) because it is used during mutations.
+  // However, the experimental setup's member variable _with_plasmids indicates whether plasmids are used
+  // because the replication and loading/writting processes need this information.
+  // For now when plasmids are used each individual has one and only one plasmid (so these variables should always be
+  // equal), this may change in the future, though.
+  // Member variable _with_plasmids_HT has been removed because the ability to transfer is evolvable and may thus depend
+  // on the plasmid itself
 
   bool   get_with_plasmids(void) const { return get_exp_s()->get_with_plasmids(); }
   double get_prob_plasmid_HT(void) const { return get_exp_s()->get_prob_plasmid_HT(); }
