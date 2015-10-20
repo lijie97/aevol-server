@@ -24,10 +24,8 @@
 // 
 // ****************************************************************************
 
-
 #ifndef AEVOL_CODON_H_
 #define AEVOL_CODON_H_
-
 
 // =================================================================
 //                              Includes
@@ -40,18 +38,11 @@
 #include "Dna.h"
 #include "macros.h"
 
-
 namespace aevol {
-
 
 // =================================================================
 //                          Class declarations
 // =================================================================
-
-
-
-
-
 
 class Codon {
  public :
@@ -72,16 +63,15 @@ class Codon {
   // =================================================================
   //                              Accessors
   // =================================================================
-  inline int8_t get_value() {return value_;}
+  int8_t get_value() {return value_;}
 
   // =================================================================
   //                            Public Methods
   // =================================================================
-  inline bool is_start() {return value_ == CODON_START;}
-  inline bool is_stop() {return value_ == CODON_STOP;}
-  inline Codon* copy();
-  void   save(gzFile backup_file);
-
+  bool is_start() { return value_ == CODON_START; }
+  bool is_stop() { return value_ == CODON_STOP; }
+  Codon* copy() { return new Codon(value_); } // TODO(dpa) use copy ctor instead!
+  void save(gzFile backup_file);
 
  protected :
   // =================================================================
@@ -94,7 +84,6 @@ class Codon {
   int8_t value_;
 };
 
-
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
@@ -102,9 +91,6 @@ class Codon {
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-Codon* Codon::copy() { // TODO <david.parsons@inria.fr> use copy ctor instead !
-  return new Codon(value_);
-}
 
 } // namespace aevol
 #endif // AEVOL_CODON_H_
