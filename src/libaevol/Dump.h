@@ -81,11 +81,7 @@ class Dump
   // =================================================================
   //                         Forbidden Constructors
   // =================================================================
-  Dump( const Dump &model )
-  {
-    printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
-    exit(EXIT_FAILURE);
-  };
+  Dump(const Dump &model) = delete;
 
   // =================================================================
   //                           Protected Methods
