@@ -94,11 +94,6 @@ ExpManager::~ExpManager()
 // ===========================================================================
 //                                   Algorithms
 // ===========================================================================
-// void ExpManager::foreach_indiv(void (*processor)(Individual& indiv)) const
-// {
-//   for (const auto& indiv: get_indivs_std())
-//     processor(*indiv);
-// }
 
 // ===========================================================================
 //                                 Public Methods

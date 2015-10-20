@@ -82,8 +82,6 @@ class ExpManager : public Observer
     // =======================================================================
     //                                 Algorithms
     // =======================================================================
-    // TODO: tmp disabled
-    // void foreach_indiv(void (*processor)(Individual& indiv)) const;
 
     // =======================================================================
     //                           Accessors: getters
