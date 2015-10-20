@@ -92,7 +92,6 @@ class Dna : public ae_string {
   // WARNING : creates a new char[...] (up to you to delete it!)
   char* get_subsequence(int32_t from, int32_t to, Strand strand) const;
 
-
   // =================================================================
   //                            Public Methods
   // =================================================================
@@ -173,15 +172,11 @@ class Dna : public ae_string {
   // =================================================================
   //                           Protected Methods
   // =================================================================
-  void ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
-                      int32_t pos_E);
-  void ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
-                        int32_t pos_E);
-  void ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D,
-                        int32_t pos_E);
+  void ABCDE_to_ADCBE(int32_t pos_B, int32_t pos_C, int32_t pos_D, int32_t pos_E);
+  void ABCDE_to_ADBpCpE(int32_t pos_B, int32_t pos_C, int32_t pos_D, int32_t pos_E);
+  void ABCDE_to_ACpDpBE(int32_t pos_B, int32_t pos_C, int32_t pos_D, int32_t pos_E);
   void inter_GU_ABCDE_to_ACDBE(int32_t pos_B, int32_t pos_C, int32_t pos_E);
   void inter_GU_ABCDE_to_BDCAE(int32_t pos_B, int32_t pos_C, int32_t pos_E);
-
 
   // =================================================================
   //                          Protected Attributes
