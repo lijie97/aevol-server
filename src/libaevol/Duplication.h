@@ -47,8 +47,7 @@ class Duplication : public Rearrangement {
   Duplication() = default; //< Default ctor
   Duplication(const Duplication&) = default; //< Copy ctor
   Duplication(Duplication&&) = delete; //< Move ctor
-  Duplication(int32_t pos1, int32_t pos2, int32_t pos3,
-              int32_t length, int16_t align_score = -1);
+  Duplication(int32_t pos1, int32_t pos2, int32_t pos3, int32_t length, int16_t align_score = -1);
 
   virtual Mutation* Clone() const override { return new Duplication(*this); };
 
@@ -76,29 +75,12 @@ class Duplication : public Rearrangement {
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
-  virtual MutationType get_mut_type() const override {
-    return DUPL;
-  };
-
-  int32_t pos1() const {
-    return pos1_;
-  }
-
-  int32_t pos2() const {
-    return pos2_;
-  }
-
-  int32_t pos3() const {
-    return pos3_;
-  }
-
-  int32_t length() const {
-    return length_;
-  }
-
-  int16_t align_score() const {
-    return align_score_;
-  }
+  virtual MutationType get_mut_type() const override { return DUPL; };
+  int32_t pos1() const { return pos1_; }
+  int32_t pos2() const { return pos2_; }
+  int32_t pos3() const { return pos3_; }
+  int32_t length() const { return length_; }
+  int16_t align_score() const { return align_score_; }
 
   // ==========================================================================
   //                                 Setters
