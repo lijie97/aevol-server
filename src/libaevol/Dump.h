@@ -31,16 +31,10 @@
 // =================================================================
 //                              Libraries
 // =================================================================
-#include <inttypes.h>
-#include <stdio.h>
-
-// =================================================================
-//                            Project Files
-// =================================================================
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
+#include <cinttypes>
+#include <cstdio>
+#include <cstdlib>
+#include <cassert>
 
 namespace aevol {
 
@@ -91,8 +85,8 @@ class Dump
   // =================================================================
   Dump( const Dump &model )
   {
-    printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-    exit( EXIT_FAILURE );
+    printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
+    exit(EXIT_FAILURE);
   };
 
   // =================================================================
