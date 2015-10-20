@@ -24,8 +24,8 @@
 //
 // ****************************************************************************
 
-#ifndef AEVOL_DNA_REPLICATION_REPORT_H__
-#define AEVOL_DNA_REPLICATION_REPORT_H__
+#ifndef AEVOL_DNA_REPLICATION_REPORT_H_
+#define AEVOL_DNA_REPLICATION_REPORT_H_
 
 #include <list>
 #include <memory>
@@ -96,4 +96,4 @@ class DnaReplicationReport {
 };
 
 } // namespace aevol
-#endif // AEVOL_DNA_REPLICATION_REPORT_H__
+#endif // AEVOL_DNA_REPLICATION_REPORT_H_
