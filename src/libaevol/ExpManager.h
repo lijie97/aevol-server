@@ -116,7 +116,7 @@ class ExpManager : public Observer {
   // Accessors to output manager stuff
   int64_t	get_backup_step() const { return get_output_m()->get_backup_step(); }
   bool get_record_tree() const { return get_output_m()->get_record_tree(); }
-  int32_t get_tree_step() const { return get_output_m()->get_tree_step(); }
+  int32_t get_tree_step() const { return static_cast<int32_t>(get_output_m()->get_tree_step()); }
   Tree* get_tree() const { return get_output_m()->get_tree(); }
 
   // =======================================================================
