@@ -105,10 +105,10 @@ void ExpSetup::load( gzFile setup_file, gzFile backup_file, bool verbose )
   // -------------------------------------------- Retrieve transfer parameters
   int8_t tmp_with_HT;
   gzread( setup_file, &tmp_with_HT, sizeof(tmp_with_HT) );
-  with_HT_ = tmp_with_HT ? 1 : 0;
+  with_HT_ = static_cast<bool>(tmp_with_HT);
   int8_t tmp_repl_HT_with_close_points;
   gzread( setup_file, &tmp_repl_HT_with_close_points, sizeof(tmp_repl_HT_with_close_points) );
-  repl_HT_with_close_points_ = tmp_repl_HT_with_close_points ? 1 : 0;
+  repl_HT_with_close_points_ = static_cast<bool>(tmp_repl_HT_with_close_points);
   if (with_HT_)
   {
     gzread( setup_file, &HT_ins_rate_,  sizeof(HT_ins_rate_) );
@@ -123,7 +123,7 @@ void ExpSetup::load( gzFile setup_file, gzFile backup_file, bool verbose )
   // -------------------------------------------- Retrieve plasmid parameters
   int8_t tmp_with_plasmids;
   gzread( setup_file, &tmp_with_plasmids, sizeof(tmp_with_plasmids) );
-  with_plasmids_ = tmp_with_plasmids ? 1 : 0;
+  with_plasmids_ = static_cast<bool>(tmp_with_plasmids);
   if (with_plasmids_)
   {
     gzread( setup_file, &prob_plasmid_HT_,  sizeof(prob_plasmid_HT_) );
@@ -133,13 +133,13 @@ void ExpSetup::load( gzFile setup_file, gzFile backup_file, bool verbose )
     gzread( setup_file, &recipient_cost_,  sizeof(recipient_cost_) );
     int8_t tmp_swap_GUs;
     gzread( setup_file, &tmp_swap_GUs, sizeof(tmp_swap_GUs) );
-    swap_GUs_ = tmp_swap_GUs ? 1 : 0;
+    swap_GUs_ = static_cast<bool>(tmp_swap_GUs);
   }
   
   // ------------------------------------------ Retrieve secretion parameters
   int8_t tmp_with_secretion;
   gzread( setup_file, &tmp_with_secretion, sizeof(tmp_with_secretion) );
-  with_secretion_ = tmp_with_secretion ? true : false;
+  with_secretion_ = static_cast<bool>(tmp_with_secretion);
   gzread( setup_file, &secretion_contrib_to_fitness_, sizeof(secretion_contrib_to_fitness_) );
   gzread( setup_file, &secretion_cost_, sizeof(secretion_cost_) );
   
