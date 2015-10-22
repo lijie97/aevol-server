@@ -61,30 +61,29 @@ class ExpSetup {
     // =======================================================================
     //                             Destructors
     // =======================================================================
-    virtual ~ExpSetup(void);
+    virtual ~ExpSetup();
 
     // =======================================================================
     //                         Accessors: getters
     // =======================================================================
     // ----------------------------------------------------- Selection context
-    Selection * get_sel(void) const { return _sel; }
+    Selection * get_sel() const { return _sel; }
   
     // --------------------------------------------------------------- Transfer
-    double get_repl_HT_detach_rate(void) const { return _repl_HT_detach_rate; }
+    double get_repl_HT_detach_rate() const { return _repl_HT_detach_rate; }
     
     // --------------------------------------------------------------- Plasmids
     // See comments in ExpManager.h on how plasmids are handled
-    bool   get_with_plasmids(void) const { return _with_plasmids; }
-    double get_prob_plasmid_HT(void) const { return _prob_plasmid_HT; }
-    double get_tune_donor_ability(void) const { return _tune_donor_ability; }
-    double get_tune_recipient_ability(void) const { return _tune_recipient_ability; }
-    bool   get_swap_GUs(void) const { return _swap_GUs; }
+    bool   get_with_plasmids() const { return _with_plasmids; }
+    double get_prob_plasmid_HT() const { return _prob_plasmid_HT; }
+    double get_tune_donor_ability() const { return _tune_donor_ability; }
+    double get_tune_recipient_ability() const { return _tune_recipient_ability; }
+    bool   get_swap_GUs() const { return _swap_GUs; }
     
     // -------------------------------------------------------------- Secretion
-    bool   get_with_secretion(void) const { return _with_secretion; }
-    double get_secretion_contrib_to_fitness(void) const { return _secretion_contrib_to_fitness; }
-    double get_secretion_cost(void) const { return _secretion_cost; }
-  
+    bool   get_with_secretion() const { return _with_secretion; }
+    double get_secretion_contrib_to_fitness() const { return _secretion_contrib_to_fitness; }
+    double get_secretion_cost() const { return _secretion_cost; }
   
     // =======================================================================
     //                         Accessors: setters
@@ -117,7 +116,7 @@ class ExpSetup {
     void save(gzFile backup_file) const;
     void load(gzFile setup_file, gzFile backup_file, bool verbose);
     /// Make the individuals reproduce
-    void step_to_next_generation(void) { _sel->step_to_next_generation(); }
+    void step_to_next_generation() { _sel->step_to_next_generation(); }
 
     // =======================================================================
     //                           Public Attributes
