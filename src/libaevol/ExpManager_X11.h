@@ -51,8 +51,7 @@ namespace aevol {
 class ExpSetup;
 class X11Window;
 
-enum key_map
-{
+enum key_map {
   KEY_ESCAPE = 0,
   KEY_F1 = 1,
   KEY_F2 = 2,
@@ -103,15 +102,14 @@ enum key_map
   KEY_9 = 49
 };
 
-class ExpManager_X11 : public ExpManager
-{
- friend class ExpSetup;
+class ExpManager_X11 : public ExpManager {
+  friend class ExpSetup;
 
  public:
   // =================================================================
   //                             Constructors
   // =================================================================
-  ExpManager_X11(());
+  ExpManager_X11();
 
   // =================================================================
   //                             Destructors
@@ -121,8 +119,8 @@ class ExpManager_X11 : public ExpManager
   // =================================================================
   //                              Accessors
   // =================================================================
-  bool get_show_window(int8_t win) { return static_cast<bool>((_show_window >> win) & 1); }
-  bool get_new_show_window(int8_t win) { return static_cast<bool>((_new_show_window >> win) & 1); }
+  bool get_show_window(int8_t win) { return static_cast<bool>((show_window_ >> win) & 1); }
+  bool get_new_show_window(int8_t win) { return static_cast<bool>((new_show_window_ >> win) & 1); }
 
   // =================================================================
   //                            Public Methods
@@ -131,8 +129,7 @@ class ExpManager_X11 : public ExpManager
   void toggle_display_on_off();
   void handle_events();
   bool quit_signal_received();
-  void display(X11Window * win, const Fuzzy& fuzzy, color_map color,
-               bool fill = false, bool bold = false);
+  void display(X11Window * win, const Fuzzy& fuzzy, color_map color, bool fill = false, bool bold = false);
   void display_grid(X11Window * win, double** cell_grid);
 
   // =================================================================
@@ -140,7 +137,6 @@ class ExpManager_X11 : public ExpManager
   // =================================================================
 
  protected:
-
   // =================================================================
   //                         Forbidden Constructors
   // =================================================================
@@ -160,27 +156,25 @@ class ExpManager_X11 : public ExpManager
   void draw_window(int8_t win_number);
   void refresh_window(int8_t win_number);
 
-
   // =================================================================
   //                          Protected Attributes
   // =================================================================
-  bool      _display_on;
-  bool      _handle_display_on_off;
-  uint32_t  _show_window;     // (bitmap) windows that have to be displayed (user switches value pressing F1, F2, ...)
-  uint32_t  _new_show_window; // (bitmap) windows that have to be displayed but were not displayed at the last refresh
-  Display*  _display;
-  int8_t    _screen;
-  Atom*     _atoms;
-  KeyCode*  _key_codes;
+  bool     display_on_;
+  bool     handle_display_on_off_;
+  uint32_t show_window_;     // (bitmap) windows that have to be displayed (user switches value pressing F1, F2, ...)
+  uint32_t new_show_window_; // (bitmap) windows that have to be displayed but were not displayed at the last refresh
+  Display* display_;
+  int8_t   screen_;
+  Atom*    atoms_;
+  KeyCode* key_codes_;
 
-  X11Window ** _win;       // Table containing the <nb_windows> windows
-  char **         _win_name;  // window names
-  unsigned int**  _win_size;  // window sizes
-  int**           _win_pos;   // window positions
+  X11Window**    win_;      // Table containing the <nb_windows> windows
+  char**         win_name_; // window names
+  unsigned int** win_size_; // window sizes
+  int**          win_pos_;  // window positions
 
   std::vector<char*> _col_map;
 };
-
 
 // =====================================================================
 //                          Accessors' definitions
