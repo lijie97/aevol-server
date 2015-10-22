@@ -139,11 +139,7 @@ class ExpManager_X11 : public ExpManager {
   // =================================================================
   //                         Forbidden Constructors
   // =================================================================
-  ExpManager_X11(const ExpManager_X11& model)
-  {
-    printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-    exit( EXIT_FAILURE );
-  };
+  ExpManager_X11(const ExpManager_X11& model) = delete;
 
   // =================================================================
   //                           Protected Methods
