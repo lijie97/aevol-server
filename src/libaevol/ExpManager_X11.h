@@ -25,8 +25,8 @@
 // ****************************************************************************
  
  
-#ifndef AEVOL_EXP_SETUP_X11_H__
-#define AEVOL_EXP_SETUP_X11_H__
+#ifndef AEVOL_EXP_SETUP_X11_H_
+#define AEVOL_EXP_SETUP_X11_H_
  
  
 // =================================================================
@@ -252,4 +252,4 @@ X11Window *ExpManager_X11::get_window( int8_t win )
 
 } // namespace aevol
 
-#endif // AEVOL_EXP_SETUP_X11_H__
+#endif // AEVOL_EXP_SETUP_X11_H_
