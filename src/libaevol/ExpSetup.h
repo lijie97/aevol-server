@@ -24,8 +24,8 @@
 // 
 // ****************************************************************************
 
-#ifndef AEVOL_EXP_SETUP_H__
-#define AEVOL_EXP_SETUP_H__
+#ifndef AEVOL_EXP_SETUP_H_
+#define AEVOL_EXP_SETUP_H_
 
 // =================================================================
 //                              Includes
@@ -173,4 +173,4 @@ class ExpSetup {
 
 } // namespace aevol
 
-#endif // AEVOL_EXP_SETUP_H__
+#endif // AEVOL_EXP_SETUP_H_
