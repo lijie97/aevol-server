@@ -23,12 +23,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // 
 // ****************************************************************************
- 
- 
+
 #ifndef AEVOL_EXP_SETUP_X11_H_
 #define AEVOL_EXP_SETUP_X11_H_
- 
- 
+
 // =================================================================
 //                              Libraries
 // =================================================================
@@ -105,84 +103,76 @@ enum key_map
   KEY_9 = 49
 };
 
-
-
-
- 
 class ExpManager_X11 : public ExpManager
 {
-  friend class ExpSetup;
-  
-  public :
-    
-    // =================================================================
-    //                             Constructors
-    // =================================================================
-    ExpManager_X11(void);
-  
-    // =================================================================
-    //                             Destructors
-    // =================================================================
-    virtual ~ExpManager_X11(void);
-  
-    // =================================================================
-    //                              Accessors
-    // =================================================================
-    inline bool             get_display_on(void);
-    inline Display *        get_display(void);
-    inline int8_t           get_screen(void);
-    inline Atom *           get_atoms (void);
-    inline bool             get_show_window(int8_t win);
-    inline bool             get_new_show_window(int8_t win);
-    inline X11Window *  get_window(int8_t win);
-  
-    // =================================================================
-    //                            Public Methods
-    // =================================================================
-    KeyCode* get_key_codes(void)  { return _key_codes;  };
-    virtual void display(void);
-    void toggle_display_on_off(void);
-    void handle_events(void);
-    bool quit_signal_received(void);
-    void display(X11Window * win, const Fuzzy& fuzzy, color_map color,
-        bool fill = false, bool bold = false);
-    void display_grid(X11Window * win, double** cell_grid);
+ friend class ExpSetup;
 
-    // =================================================================
-    //                           Public Attributes
-    // =================================================================
-  
-  
-  
-  
-  
-    protected :
-  
-    // =================================================================
-    //                         Forbidden Constructors
-    // =================================================================
-    //~ ExpManager_X11(void)
-    //~ {
-      //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      //~ exit( EXIT_FAILURE );
-    //~ };
-    ExpManager_X11( const ExpManager_X11 &model )
-    {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
-    };
-  
+ public:
+
+  // =================================================================
+  //                             Constructors
+  // =================================================================
+  ExpManager_X11(void);
+
+  // =================================================================
+  //                             Destructors
+  // =================================================================
+  virtual ~ExpManager_X11(void);
+
+  // =================================================================
+  //                              Accessors
+  // =================================================================
+  inline bool             get_display_on(void);
+  inline Display *        get_display(void);
+  inline int8_t           get_screen(void);
+  inline Atom *           get_atoms (void);
+  inline bool             get_show_window(int8_t win);
+  inline bool             get_new_show_window(int8_t win);
+  inline X11Window *  get_window(int8_t win);
+
+  // =================================================================
+  //                            Public Methods
+  // =================================================================
+  KeyCode* get_key_codes(void)  { return _key_codes;  };
+  virtual void display(void);
+  void toggle_display_on_off(void);
+  void handle_events(void);
+  bool quit_signal_received(void);
+  void display(X11Window * win, const Fuzzy& fuzzy, color_map color,
+               bool fill = false, bool bold = false);
+  void display_grid(X11Window * win, double** cell_grid);
+
+  // =================================================================
+  //                           Public Attributes
+  // =================================================================
+
+ protected:
+
+  // =================================================================
+  //                         Forbidden Constructors
+  // =================================================================
+  //~ ExpManager_X11(void)
+  //~ {
+  //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
+  //~ exit( EXIT_FAILURE );
+  //~ };
+  ExpManager_X11(const ExpManager_X11 &model)
+  {
+    printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
+    exit( EXIT_FAILURE );
+  };
+
   // =================================================================
   //                           Protected Methods
   // =================================================================
   void initialize(bool with_grid = false, bool with_plasmids = false);
-  void compute_colormap(void);  
+  void compute_colormap(void);
   void set_codes(void);
   int8_t identify_window(Window winID);
   void draw_window(int8_t win_number);
   void refresh_window(int8_t win_number);
 
-  
+
   // =================================================================
   //                          Protected Attributes
   // =================================================================
@@ -194,7 +184,7 @@ class ExpManager_X11 : public ExpManager
   int8_t    _screen;
   Atom*     _atoms;
   KeyCode*  _key_codes;
-  
+
   X11Window ** _win;       // Table containing the <nb_windows> windows
   char **         _win_name;  // window names
   unsigned int**  _win_size;  // window sizes
