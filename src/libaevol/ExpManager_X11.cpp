@@ -668,7 +668,7 @@ void ExpManager_X11::draw_window(int8_t win_number)
       for (int16_t i = 0 ; i < cur_win->get_width() ; i++)
       {
         color = X11Window::get_color(((double)i / cur_win->get_width()) * (X_MAX - X_MIN));
-        //~ cur_win->draw_line(i, 0, i, cur_win->get_height() / 20, color);
+        //~ cur_win->draw_line(i, 0, i, cur_win->height() / 20, color);
         cur_win->draw_line(i, cur_win->get_height() * 19 / 20, i, cur_win->get_height(), color);
         delete [] color;
       }

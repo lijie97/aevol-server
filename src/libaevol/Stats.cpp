@@ -348,7 +348,7 @@ void Stats::write_headers(bool ancstats_stats /* = false */)
         write_header(_stat_files[chrom_or_GU][best_or_glob][GENES_STATS], "Average size of coding RNAs (at least one gene on RNA)", key++);
         write_header(_stat_files[chrom_or_GU][best_or_glob][GENES_STATS], "Average size of non-coding RNAs", key++);
         write_header(_stat_files[chrom_or_GU][best_or_glob][GENES_STATS], "Number of functional genes", key++);
-        // Non functional genes are those with _width == 0 or _height == 0 or those that lack one kind of codons (M, W or H)
+        // Non functional genes are those with width_ == 0 or height_ == 0 or those that lack one kind of codons (M, W or H)
         write_header(_stat_files[chrom_or_GU][best_or_glob][GENES_STATS], "Nb of non functional genes", key++);
         write_header(_stat_files[chrom_or_GU][best_or_glob][GENES_STATS], "Average size of functional genes", key++);
         write_header(_stat_files[chrom_or_GU][best_or_glob][GENES_STATS], "Average size of non functional genes (WARNING : bias towards 0)", key++);

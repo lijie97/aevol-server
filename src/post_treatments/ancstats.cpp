@@ -517,7 +517,7 @@ void write_environment_stats(int64_t t,
   for (const Gaussian& g: pth.gaussians())
     fprintf(env_output_file,
             "     %.16f %.16f %.16f",
-            g.get_mean(), g.get_width(), g.get_height());
+            g.mean(), g.width(), g.height());
 
   fprintf(env_output_file, "\n");
 }

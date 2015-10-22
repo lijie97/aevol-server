@@ -328,9 +328,9 @@ Protein::Protein( Protein* parent )
   _last_translated_pos  = parent->_last_translated_pos;
   _length               = parent->_length;
   _concentration        = parent->_concentration;
-  _mean                 = parent->_mean;
-  _width                = parent->_width;
-  _height               = parent->_height;
+  mean_                 = parent->mean_;
+  width_                = parent->width_;
+  height_               = parent->height_;
 }
 */
 

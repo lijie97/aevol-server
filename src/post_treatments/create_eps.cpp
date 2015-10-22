@@ -769,7 +769,7 @@ void draw_genetic_unit_with_CDS(GeneticUnit* gen_unit, char * directoryName)
   for (const auto& prot: gen_unit->get_protein_list(LEADING)) {
     first = prot.get_first_translated_pos();
     last = prot.get_last_translated_pos();
-    // h = prot.get_height() * prot.get_concentration();
+    // h = prot.height() * prot.get_concentration();
 
     alpha_first   = (int16_t) round( (double)(360 * first) / (double)gen_length);  //  == sect1 == alphaB
     alpha_last    = (int16_t) round( (double)(360 * last)  / (double)gen_length);  //  == sect2 == alphaA
@@ -865,7 +865,7 @@ void draw_genetic_unit_with_CDS(GeneticUnit* gen_unit, char * directoryName)
   for (const auto& prot: gen_unit->get_protein_list(LAGGING)) {
     first = prot.get_first_translated_pos();
     last = prot.get_last_translated_pos();
-    // h = prot.get_height() * prot.get_concentration();
+    // h = prot.height() * prot.get_concentration();
 
     alpha_first   = (int16_t) round( (double)(360 * first) / (double)gen_length);
     alpha_last    = (int16_t) round( (double)(360 * last)  / (double)gen_length);

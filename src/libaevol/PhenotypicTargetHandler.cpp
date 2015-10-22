@@ -185,7 +185,7 @@ void PhenotypicTargetHandler::ApplyAutoregressiveMeanVariation() {
        cur_gaussian != current_gaussians_.end() ;
        cur_gaussian++, initial_gaussian++) {
     // Find the current delta_mean = current_mean - ref_mean
-    double delta_mean = cur_gaussian->get_mean() - initial_gaussian->get_mean();
+    double delta_mean = cur_gaussian->mean() - initial_gaussian->mean();
 
     // Compute the next value :
     // Dm(t+1) = Dm(t)*(1-1/tau) + ssd/tau*sqrt(2*tau-1)*normal_random()
@@ -195,7 +195,7 @@ void PhenotypicTargetHandler::ApplyAutoregressiveMeanVariation() {
                                                 *var_prng_);
 
     // Deduce the new value of the mean : ref_mean + delta_m
-    cur_gaussian->set_mean(initial_gaussian->get_mean() + delta_mean );
+    cur_gaussian->set_mean(initial_gaussian->mean() + delta_mean );
   }
 
   BuildPhenotypicTarget();
@@ -211,8 +211,8 @@ void PhenotypicTargetHandler::ApplyAutoregressiveHeightVariation() {
        cur_gaussian != current_gaussians_.end() ;
        cur_gaussian++, initial_gaussian++) {
     // Find the current delta_height = current_height - ref_height
-    double delta_height = cur_gaussian->get_height() -
-        initial_gaussian->get_height();
+    double delta_height = cur_gaussian->height() -
+      initial_gaussian->height();
 
     // Compute the next value :
     // Dm(t+1) = Dm(t)*(1-1/tau) + ssd/tau*sqrt(2*tau-1)*normal_random()
@@ -222,7 +222,7 @@ void PhenotypicTargetHandler::ApplyAutoregressiveHeightVariation() {
                                                 *var_prng_);
 
     // Deduce the new value of the height : ref_height + delta_h
-    cur_gaussian->set_height(initial_gaussian->get_height() + delta_height);
+    cur_gaussian->set_height(initial_gaussian->height() + delta_height);
   }
 
   BuildPhenotypicTarget();

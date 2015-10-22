@@ -1089,14 +1089,14 @@ void GeneticUnit::compute_phenotypic_contribution(void) {
                            prot.get_width(),
                            prot.get_height() * prot.get_concentration());
       }
-  // if ( prot->get_height() > 0 )
-  //   activ_contribution_->add_triangle(prot->get_mean(),
-  //                                     prot->get_width(),
-  //                                     prot->get_height() * prot->get_concentration() );
+  // if ( prot->height() > 0 )
+  //   activ_contribution_->add_triangle(prot->mean(),
+  //                                     prot->width(),
+  //                                     prot->height() * prot->get_concentration() );
   // else
-  //   inhib_contribution_->add_triangle(prot->get_mean(),
-  //                                     prot->get_width(),
-  //                                     prot->get_height() * prot->get_concentration() );
+  //   inhib_contribution_->add_triangle(prot->mean(),
+  //                                     prot->width(),
+  //                                     prot->height() * prot->get_concentration() );
 
   // It is not necessary to add a lower bound to activ_contribution_ as there can be no negative y
   // The same goes for the upper bound for inhib_contribution_

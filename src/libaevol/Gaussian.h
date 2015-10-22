@@ -51,8 +51,8 @@ class Gaussian {
     // =================================================================
     //                             Constructors
     // =================================================================
-    Gaussian(double height, double mean, double width) : _height{height}, _mean{mean}, _width{width} {}
-    Gaussian(const Gaussian& model) : _height{model._height}, _mean{model._mean}, _width{model._width} {}
+    Gaussian(double height, double mean, double width) : height_{height}, mean_{mean}, width_{width} {}
+    Gaussian(const Gaussian& model) : height_{model.height_}, mean_{model.mean_}, width_{model.width_} {}
     Gaussian(gzFile backup_file);
 
     // =================================================================
@@ -63,17 +63,17 @@ class Gaussian {
     // =================================================================
     //                              Accessors
     // =================================================================
-    double get_height() const { return _height; }
-    double get_mean() const { return _mean; }
-    double get_width() const { return _width; }
-    void   set_height(double height) { _height = height; }
-    void   set_mean(double mean) { _mean = mean; }
-    void   set_width(double width) { _width = width; }
+    double height() const { return height_; }
+    double mean() const { return mean_; }
+    double width() const { return width_; }
+    void   set_height(double height) { height_ = height; }
+    void   set_mean(double mean) { mean_ = mean; }
+    void   set_width(double width) { width_ = width; }
   
     // =================================================================
     //                            Public Methods
     // =================================================================
-    double compute_y(double x) const { return _height * exp(-(x-_mean)*(x-_mean) / (2*_width*_width)); }
+    double compute_y(double x) const { return height_ * exp(-(x- mean_)*(x- mean_) / (2* width_ * width_)); }
     void save(gzFile backup_file) const;
   
     // =================================================================
@@ -93,9 +93,9 @@ class Gaussian {
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    double _height;
-    double _mean;
-    double _width; // In fact half-width to the inflexion points
+    double height_;
+    double mean_;
+    double width_; // In fact half-width to the inflexion points
 };
 
 
@@ -103,9 +103,9 @@ class Gaussian {
 //                               Constructors
 // =====================================================================
 inline Gaussian::Gaussian(gzFile backup_file) {
-  gzread(backup_file, &_height,  sizeof(_height));
-  gzread(backup_file, &_mean,    sizeof(_mean));
-  gzread(backup_file, &_width,   sizeof(_width));
+  gzread(backup_file, &height_,  sizeof(height_));
+  gzread(backup_file, &mean_,    sizeof(mean_));
+  gzread(backup_file, &width_,   sizeof(width_));
 }
 
 // =====================================================================
@@ -120,9 +120,9 @@ inline Gaussian::Gaussian(gzFile backup_file) {
 //                       functions' definition
 // =====================================================================
 inline void Gaussian::save(gzFile backup_file) const {
-  gzwrite(backup_file, &_height, sizeof(_height));
-  gzwrite(backup_file, &_mean, sizeof(_mean));
-  gzwrite(backup_file, &_width, sizeof(_width));
+  gzwrite(backup_file, &height_, sizeof(height_));
+  gzwrite(backup_file, &mean_, sizeof(mean_));
+  gzwrite(backup_file, &width_, sizeof(width_));
 }
 
 } // namespace aevol
