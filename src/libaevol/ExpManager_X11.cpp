@@ -71,7 +71,7 @@ static Bool AlwaysTruePredicate (Display*, XEvent*, char*) { return True; }
 // =================================================================
 //                             Constructors
 // =================================================================
-ExpManager_X11::ExpManager_X11(void) : ExpManager()
+ExpManager_X11::ExpManager_X11() : ExpManager()
 {
   // Basic initializations
   _win      = NULL;
@@ -100,7 +100,7 @@ ExpManager_X11::ExpManager_X11(void) : ExpManager()
 // =================================================================
 //                             Destructor
 // =================================================================
-ExpManager_X11::~ExpManager_X11(void)
+ExpManager_X11::~ExpManager_X11()
 {
   delete [] _key_codes;
   delete [] _atoms;
@@ -135,12 +135,12 @@ ExpManager_X11::~ExpManager_X11(void)
 // =================================================================
 
 
-bool ExpManager_X11::quit_signal_received(void)
+bool ExpManager_X11::quit_signal_received()
 {
   return quit_signal_received_;
 }
 
-void ExpManager_X11::display(void)
+void ExpManager_X11::display()
 {
   // ---------------------
   // 1) Handle user events
@@ -238,7 +238,7 @@ void ExpManager_X11::display(void)
   }
 }
 
-void ExpManager_X11::handle_events(void)
+void ExpManager_X11::handle_events()
 {
   XEvent event;
   int8_t win_number;
@@ -398,7 +398,7 @@ void ExpManager_X11::handle_events(void)
   }
 }
 
-void ExpManager_X11::toggle_display_on_off(void)
+void ExpManager_X11::toggle_display_on_off()
 {
   // Mark action to be done
   _handle_display_on_off = true;
@@ -849,11 +849,7 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
   XFlush(_display);
 }
 
-
-
-
-
-void ExpManager_X11::set_codes(void) {
+void ExpManager_X11::set_codes() {
   _key_codes = new KeyCode[50];
   assert(_key_codes);
 
@@ -907,8 +903,7 @@ void ExpManager_X11::set_codes(void) {
   _key_codes[KEY_9]       = XKeysymToKeycode(_display, XK_9);
 }
 
-
-void ExpManager_X11::compute_colormap(void) {
+void ExpManager_X11::compute_colormap() {
   _col_map = {
     (char*)"RGBi:1.0/0.0/0.0",
     (char*)"RGBi:1.0/0.1/0.0",   

@@ -111,32 +111,26 @@ class ExpManager_X11 : public ExpManager
   // =================================================================
   //                             Constructors
   // =================================================================
-  ExpManager_X11(void);
+  ExpManager_X11(());
 
   // =================================================================
   //                             Destructors
   // =================================================================
-  virtual ~ExpManager_X11(void);
+  virtual ~ExpManager_X11();
 
   // =================================================================
   //                              Accessors
   // =================================================================
-  bool get_display_on(void) { return _display_on; }
-  Display* get_display(void) { return _display; }
-  int8_t get_screen(void) { return _screen; }
-  Atom* get_atoms (void) { return _atoms; }
   bool get_show_window(int8_t win) { return static_cast<bool>((_show_window >> win) & 1); }
   bool get_new_show_window(int8_t win) { return static_cast<bool>((_new_show_window >> win) & 1); }
-  X11Window* get_window(int8_t win) { return _win[win]; };
 
   // =================================================================
   //                            Public Methods
   // =================================================================
-  KeyCode* get_key_codes(void) { return _key_codes; }
-  virtual void display(void);
-  void toggle_display_on_off(void);
-  void handle_events(void);
-  bool quit_signal_received(void);
+  virtual void display();
+  void toggle_display_on_off();
+  void handle_events();
+  bool quit_signal_received();
   void display(X11Window * win, const Fuzzy& fuzzy, color_map color,
                bool fill = false, bool bold = false);
   void display_grid(X11Window * win, double** cell_grid);
@@ -150,11 +144,6 @@ class ExpManager_X11 : public ExpManager
   // =================================================================
   //                         Forbidden Constructors
   // =================================================================
-  //~ ExpManager_X11(void)
-  //~ {
-  //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-  //~ exit( EXIT_FAILURE );
-  //~ };
   ExpManager_X11(const ExpManager_X11 &model)
   {
     printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
@@ -165,8 +154,8 @@ class ExpManager_X11 : public ExpManager
   //                           Protected Methods
   // =================================================================
   void initialize(bool with_grid = false, bool with_plasmids = false);
-  void compute_colormap(void);
-  void set_codes(void);
+  void compute_colormap();
+  void set_codes();
   int8_t identify_window(Window winID);
   void draw_window(int8_t win_number);
   void refresh_window(int8_t win_number);
