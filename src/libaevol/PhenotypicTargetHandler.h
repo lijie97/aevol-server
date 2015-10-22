@@ -102,7 +102,7 @@ class PhenotypicTargetHandler
     return *phenotypic_target_;
   };
   double get_geometric_area() const {
-    return phenotypic_target_->get_geometric_area();
+    return phenotypic_target_->geometric_area();
   };
   double area_by_feature(int8_t feature) const {
     return phenotypic_target_->area_by_feature(feature);

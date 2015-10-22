@@ -61,11 +61,11 @@ namespace aevol {
 ///            X_MIN x1        x2    x3 x4 x5    x6      x7    x8  x9  x10 X_MAX
 /// \\endcode
 /// \endverbatim
-/// fs.points would hold the list {(X_MIN,0),(x1,y1),...,(x10,y10)(X_MAX,0)}
+/// fs.points_ would hold the list {(X_MIN,0),(x1,y1),...,(x10,y10)(X_MAX,0)}
 ///
-/// \invariant{`points.size()` ≥ 2}
-/// \invariant{`points.begin()->x == X_MIN`}
-/// \invariant{`prev(points.end())->x == X_MAX`}
+/// \invariant{`points_.size()` ≥ 2}
+/// \invariant{`points_.begin()->x == X_MIN`}
+/// \invariant{`prev(points_.end())->x == X_MAX`}
 /// \invariant{`is_increasing()`}
 class Fuzzy
 {
@@ -73,8 +73,8 @@ class Fuzzy
   // ==========================================================================
   //                               Constructors
   // ==========================================================================
-  Fuzzy(): points({Point(X_MIN, 0.0), Point(X_MAX, 0.0)}) {};
-  Fuzzy(const Fuzzy& f): points(f.points) {};
+  Fuzzy(): points_({Point(X_MIN, 0.0), Point(X_MAX, 0.0)}) {};
+  Fuzzy(const Fuzzy& f): points_(f.points_) {};
   Fuzzy(const gzFile backup) { load(backup); };
 
   // ==========================================================================
@@ -102,17 +102,17 @@ class Fuzzy
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
-  const std::list<Point>& get_points() const {return points;};
+  const std::list<Point>& points() const {return points_;}
   // TODO: should be made protected or removed (looks like implementation specific)
-  const std::list<Point>& get_points() {return points;};
-  double get_geometric_area() const;
-  double get_geometric_area(std::list<Point>::const_iterator begin,
-                            std::list<Point>::const_iterator end) const;
-  double get_geometric_area(double start_segment, double end_segment) const;
-  double get_y(double x, std::list<Point>::const_iterator begin) const;
-  double get_y(double x) const;
-  // get_x should be moved out of fuzzy class as it really applies to pair of points
-  double get_x(const Point& left, const Point& right, double y) const;
+  const std::list<Point>& points() { return points_; }
+  double geometric_area() const;
+  double geometric_area(std::list<Point>::const_iterator begin,
+                        std::list<Point>::const_iterator end) const;
+  double geometric_area(double start_segment, double end_segment) const;
+  double y(double x, std::list<Point>::const_iterator begin) const;
+  double y(double x) const;
+  // x() should be moved out of fuzzy class as it really applies to pair of points_
+  double x(const Point& left, const Point& right, double y) const;
   bool is_identical_to(const Fuzzy& fs, double tolerance) const;
 
   // ==========================================================================
@@ -129,9 +129,9 @@ class Fuzzy
   // ==========================================================================
   bool invariant() const {
     return
-        points.size() >= 2             and
-        points.begin()->x == X_MIN     and
-        prev(points.end())->x == X_MAX and
+        points_.size() >= 2             and
+        points_.begin()->x == X_MIN     and
+        prev(points_.end())->x == X_MAX and
         is_increasing();
   };
   bool is_increasing() const;
@@ -140,7 +140,7 @@ class Fuzzy
   // ==========================================================================
   //                               Attributes
   // ==========================================================================
-  std::list<Point> points;
+  std::list<Point> points_;
 
   std::list<Point>::iterator create_interpolated_point(
           double x,

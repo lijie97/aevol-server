@@ -754,7 +754,7 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     }
     else if (strncmp(line->words[1], "false", 5) == 0)
     {
-      printf("ERROR: 3 points translocation hasn't been implemented yet\n");
+      printf("ERROR: 3 points_ translocation hasn't been implemented yet\n");
       exit(EXIT_FAILURE);
     }
     else

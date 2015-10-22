@@ -650,9 +650,9 @@ void write_zones_stats(int64_t t,
 
   for (num_segment = 0 ; num_segment < nb_segments ; num_segment++)
   {
-    geom_area_activ[num_segment]  = activ->get_geometric_area(segments[num_segment]->start, segments[num_segment]->stop);
-    geom_area_inhib[num_segment]  = inhib->get_geometric_area(segments[num_segment]->start, segments[num_segment]->stop);
-    geom_area_phen[num_segment]   = phen->get_geometric_area( segments[num_segment]->start, segments[num_segment]->stop);
+    geom_area_activ[num_segment]  = activ->geometric_area(segments[num_segment]->start, segments[num_segment]->stop);
+    geom_area_inhib[num_segment]  = inhib->geometric_area(segments[num_segment]->start, segments[num_segment]->stop);
+    geom_area_phen[num_segment]   = phen->geometric_area(segments[num_segment]->start, segments[num_segment]->stop);
   }
 
 

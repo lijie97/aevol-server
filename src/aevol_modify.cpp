@@ -469,7 +469,7 @@ int main(int argc, char* argv[])
     else if (strcmp(line->words[0], "ENV_ADD_POINT") == 0) 
     {
       // custom_points
-      printf("%s:%d: error: Custom points management has been removed.\n", __FILE__, __LINE__);
+      printf("%s:%d: error: Custom points_ management has been removed.\n", __FILE__, __LINE__);
       exit(EXIT_FAILURE);
     }
     else if (strcmp(line->words[0], "ENV_VARIATION") == 0)

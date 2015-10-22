@@ -415,7 +415,7 @@ void ExpManager_X11::display(X11Window * win,
   int16_t next_x;
   int16_t next_y;
   
-  for (list<Point>::const_iterator p = fuzzy.get_points().begin() ; p != prev(fuzzy.get_points().end()) ; ++p) {
+  for (list<Point>::const_iterator p = fuzzy.points().begin() ; p != prev(fuzzy.points().end()) ; ++p) {
     list<Point>::const_iterator q = next(p);
     
     // Display segment [p, q]

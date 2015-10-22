@@ -544,7 +544,7 @@ void draw_pos_neg_profiles(Individual * indiv, const PhenotypicTarget& target, c
   fprintf(drawingfile, "0.002 setlinewidth\n");
   fprintf(drawingfile, "%lf %lf moveto\n", margin, 0.5);
 
-  for (const auto& p: indiv->get_phenotype_activ()->get_points())
+  for (const auto& p: indiv->get_phenotype_activ()->points())
     fprintf(drawingfile, "%lf %lf lineto\n", margin + scale * p.x, 0.5 + scale * p.y);
   fprintf(drawingfile, "stroke\n");
 
@@ -557,7 +557,7 @@ void draw_pos_neg_profiles(Individual * indiv, const PhenotypicTarget& target, c
   fprintf(drawingfile, "0.002 setlinewidth\n");
   fprintf(drawingfile, "%lf %lf moveto\n", margin, 0.5);
 
-  for (const auto& p: indiv->get_phenotype_inhib()->get_points())
+  for (const auto& p: indiv->get_phenotype_inhib()->points())
     fprintf(drawingfile, "%lf %lf lineto\n", margin + scale * p.x, 0.5 + scale * p.y);
   fprintf(drawingfile, "stroke\n");
 
@@ -662,7 +662,7 @@ void draw_phenotype(Individual* indiv, const PhenotypicTarget& target, char* dir
   fprintf(drawingfile,"[ ] 0 setdash\n");
   fprintf(drawingfile, "0.002 setlinewidth\n");
   fprintf(drawingfile, "%lf %lf moveto\n", margin, margin);
-  for (const auto& p: indiv->get_phenotype()->get_points())
+  for (const auto& p: indiv->get_phenotype()->points())
     fprintf(drawingfile, "%lf %lf lineto\n", margin + scale * p.x, margin + scale * p.y);
   fprintf(drawingfile, "stroke\n");
 
@@ -673,7 +673,7 @@ void draw_phenotype(Individual* indiv, const PhenotypicTarget& target, char* dir
   fprintf(drawingfile,"[ ] 0 setdash\n");
   fprintf(drawingfile, "0.001 setlinewidth\n");
   fprintf(drawingfile, "%lf %lf moveto\n", margin, margin);
-  for (const auto& p: target.get_points())
+  for (const auto& p: target.points())
     fprintf(drawingfile, "%lf %lf lineto\n", margin + scale * p.x, margin + scale * p.y);
   fprintf(drawingfile, "stroke\n");
 

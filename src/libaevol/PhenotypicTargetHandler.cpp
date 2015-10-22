@@ -135,7 +135,7 @@ PhenotypicTargetHandler::~PhenotypicTargetHandler() {
 // ============================================================================
 void PhenotypicTargetHandler::BuildPhenotypicTarget() {
   // NB : Extreme points (at abscissa X_MIN and X_MAX) will be generated, we need to erase the list first
-  phenotypic_target_->points.clear();
+  phenotypic_target_->points_.clear();
 
   // Generate sample points from gaussians
   if (not current_gaussians_.empty())
@@ -143,7 +143,7 @@ void PhenotypicTargetHandler::BuildPhenotypicTarget() {
       Point new_point = Point(X_MIN + (double)i * (X_MAX - X_MIN) / (double)sampling_, 0.0);
       for (const Gaussian & g: current_gaussians_)
         new_point.y += g.compute_y(new_point.x);
-      phenotypic_target_->points.push_back(new_point);
+      phenotypic_target_->points_.push_back(new_point);
     }
 
   // Add lower and upper bounds

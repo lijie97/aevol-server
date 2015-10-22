@@ -1138,8 +1138,8 @@ void GeneticUnit::compute_distance_to_target(const PhenotypicTarget& target) {
     dist_to_target_per_segment_ = new double[target.nb_segments()]; // Can not be allocated in constructor because number of segments is then unknow
   }
   for (int8_t i = 0; i < target.nb_segments(); i++) {
-    dist_to_target_per_segment_[i] = delta->get_geometric_area(
-        segments[i]->start, segments[i]->stop);
+    dist_to_target_per_segment_[i] = delta->geometric_area(
+      segments[i]->start, segments[i]->stop);
     dist_to_target_by_feature_[segments[i]->feature] += dist_to_target_per_segment_[i];
   }
 

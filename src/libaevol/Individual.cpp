@@ -494,8 +494,8 @@ void Individual::set_exp_m(ExpManager* exp_m) {
 void Individual::set_grid_cell(GridCell* grid_cell) {
   grid_cell_ = grid_cell;
   placed_in_population_ = true;
-  // x = grid_cell->get_x();
-  // y = grid_cell->get_y();
+  // x = grid_cell->x();
+  // y = grid_cell->y();
   if (grid_cell->get_individual() != this) {
     grid_cell->set_individual(this);
   }
@@ -1290,8 +1290,8 @@ void Individual::compute_distance_to_target(const PhenotypicTarget& target) {
   //      already been through them!)
 
   for (size_t i = 0; i < static_cast<size_t>(target.nb_segments()); i++) {
-    dist_to_target_by_segment_[i] = delta->get_geometric_area(
-        segments[i]->start, segments[i]->stop);
+    dist_to_target_by_segment_[i] = delta->geometric_area(
+      segments[i]->start, segments[i]->stop);
     dist_to_target_by_feature_[segments[i]->feature] += dist_to_target_by_segment_[i];
   }
 
