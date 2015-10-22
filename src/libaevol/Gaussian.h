@@ -68,8 +68,7 @@ class Gaussian {
     double width() const { return width_; }
     void   set_height(double height) { height_ = height; }
     void   set_mean(double mean) { mean_ = mean; }
-    void   set_width(double width) { width_ = width; }
-  
+
     // =================================================================
     //                            Public Methods
     // =================================================================
