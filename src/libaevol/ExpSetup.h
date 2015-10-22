@@ -49,113 +49,113 @@ class ae_param_loader;
 
 class ExpSetup {
   friend class ExpManager;
-  
-  public:
-    // =======================================================================
-    //                             Constructors
-    // =======================================================================
-    ExpSetup() = delete;
-    ExpSetup(const ExpSetup&) = delete;
-    ExpSetup(ExpManager * exp_m);
 
-    // =======================================================================
-    //                             Destructors
-    // =======================================================================
-    virtual ~ExpSetup();
+ public:
+  // =======================================================================
+  //                             Constructors
+  // =======================================================================
+  ExpSetup() = delete;
+  ExpSetup(const ExpSetup&) = delete;
+  ExpSetup(ExpManager * exp_m);
 
-    // =======================================================================
-    //                         Accessors: getters
-    // =======================================================================
-    // ----------------------------------------------------- Selection context
-    Selection * get_sel() const { return sel_; }
-  
-    // --------------------------------------------------------------- Transfer
-    double get_repl_HT_detach_rate() const { return repl_HT_detach_rate_; }
-    
-    // --------------------------------------------------------------- Plasmids
-    // See comments in ExpManager.h on how plasmids are handled
-    bool   with_plasmids() const { return with_plasmids_; }
-    double prob_plasmid_HT() const { return prob_plasmid_HT_; }
-    double tune_donor_ability() const { return tune_donor_ability_; }
-    double tune_recipient_ability() const { return tune_recipient_ability_; }
-    bool   swap_GUs() const { return swap_GUs_; }
-    
-    // -------------------------------------------------------------- Secretion
-    bool   with_secretion() const { return with_secretion_; }
-    double secretion_contrib_to_fitness() const { return secretion_contrib_to_fitness_; }
-    double secretion_cost() const { return secretion_cost_; }
-  
-    // =======================================================================
-    //                         Accessors: setters
-    // =======================================================================
-    // --------------------------------------------------------------- Transfer
-    void set_with_HT(bool with_HT) { with_HT_ = with_HT; }
-    void set_repl_HT_with_close_points(bool repl_HT_with_close_points) { repl_HT_with_close_points_ = repl_HT_with_close_points; }
-    void set_HT_ins_rate(double HT_ins_rate) { HT_ins_rate_ = HT_ins_rate; }
-    void set_HT_repl_rate(double HT_repl_rate) { HT_repl_rate_ = HT_repl_rate; }
-    void set_repl_HT_detach_rate(double repl_HT_detach_rate) { repl_HT_detach_rate_ = repl_HT_detach_rate; }
-  
-    // --------------------------------------------------------------- Plasmids
-    void set_with_plasmids(bool with_p) { with_plasmids_ = with_p; }
-    void set_prob_plasmid_HT(double prob_p_HT) { prob_plasmid_HT_ = prob_p_HT; }
-    void set_tune_donor_ability(double tune_donor_ability) { tune_donor_ability_ = tune_donor_ability; }
-    void set_tune_recipient_ability(double tune_recipient_ability) { tune_recipient_ability_ = tune_recipient_ability; }
-    void set_donor_cost(double donor_cost) { donor_cost_ = donor_cost; }
-    void set_recipient_cost(double recipient_cost) { recipient_cost_ = recipient_cost; }
-    void set_swap_GUs(bool swap_GUs) { swap_GUs_ = swap_GUs; }
-    
-    // -------------------------------------------------------------- Secretion
-    void set_with_secretion(bool with_secretion) { with_secretion_ = with_secretion; }
-    void set_secretion_contrib_to_fitness(double secretion_contrib) { secretion_contrib_to_fitness_ = secretion_contrib; }
-    void set_secretion_cost(double secretion_cost) { secretion_cost_ = secretion_cost; }
+  // =======================================================================
+  //                             Destructors
+  // =======================================================================
+  virtual ~ExpSetup();
 
-    // =======================================================================
-    //                            Public Methods
-    // =======================================================================
-    void write_setup_file(gzFile exp_setup_file) const;
-    void save(gzFile backup_file) const;
-    void load(gzFile setup_file, gzFile backup_file, bool verbose);
-    /// Make the individuals reproduce
-    void step_to_next_generation() { sel_->step_to_next_generation(); }
+  // =======================================================================
+  //                         Accessors: getters
+  // =======================================================================
+  // ----------------------------------------------------- Selection context
+  Selection * get_sel() const { return sel_; }
 
-    // =======================================================================
-    //                           Public Attributes
-    // =======================================================================
-  
-  protected :
-    // =======================================================================
-    //                           Protected Methods
-    // =======================================================================
-    virtual void display() {};
-  
-    // =======================================================================
-    //                          Protected Attributes
-    // =======================================================================
-    ExpManager* exp_m_;
-      
-    // ----------------------------------------------------- Selection context
-    Selection* sel_;
-    
-    // --------------------------------------------------- Transfer parameters
-    bool   with_HT_;
-    bool   repl_HT_with_close_points_;
-    double HT_ins_rate_;
-    double HT_repl_rate_;
-    double repl_HT_detach_rate_;
-  
-    // --------------------------------------------------- Plasmids parameters
-    bool   with_plasmids_;
-    double prob_plasmid_HT_; // Base transfer ability independent of evolvable donor and recipient ability
-    double tune_donor_ability_; // How much the individuals can tune their ability to send plasmids
-    double tune_recipient_ability_; // How much the individuals can tune their ability to receive plasmids
-    double donor_cost_;
-    double recipient_cost_;
-    bool   swap_GUs_; // Whether plasmid HT is uni- or bidirectional
-    
-    // -------------------------------------------------- Secretion parameters
-    bool   with_secretion_;
-    double secretion_contrib_to_fitness_;
-    double secretion_cost_;
+  // --------------------------------------------------------------- Transfer
+  double get_repl_HT_detach_rate() const { return repl_HT_detach_rate_; }
+
+  // --------------------------------------------------------------- Plasmids
+  // See comments in ExpManager.h on how plasmids are handled
+  bool   with_plasmids() const { return with_plasmids_; }
+  double prob_plasmid_HT() const { return prob_plasmid_HT_; }
+  double tune_donor_ability() const { return tune_donor_ability_; }
+  double tune_recipient_ability() const { return tune_recipient_ability_; }
+  bool   swap_GUs() const { return swap_GUs_; }
+
+  // -------------------------------------------------------------- Secretion
+  bool   with_secretion() const { return with_secretion_; }
+  double secretion_contrib_to_fitness() const { return secretion_contrib_to_fitness_; }
+  double secretion_cost() const { return secretion_cost_; }
+
+  // =======================================================================
+  //                         Accessors: setters
+  // =======================================================================
+  // --------------------------------------------------------------- Transfer
+  void set_with_HT(bool with_HT) { with_HT_ = with_HT; }
+  void set_repl_HT_with_close_points(bool repl_HT_with_close_points) { repl_HT_with_close_points_ = repl_HT_with_close_points; }
+  void set_HT_ins_rate(double HT_ins_rate) { HT_ins_rate_ = HT_ins_rate; }
+  void set_HT_repl_rate(double HT_repl_rate) { HT_repl_rate_ = HT_repl_rate; }
+  void set_repl_HT_detach_rate(double repl_HT_detach_rate) { repl_HT_detach_rate_ = repl_HT_detach_rate; }
+
+  // --------------------------------------------------------------- Plasmids
+  void set_with_plasmids(bool with_p) { with_plasmids_ = with_p; }
+  void set_prob_plasmid_HT(double prob_p_HT) { prob_plasmid_HT_ = prob_p_HT; }
+  void set_tune_donor_ability(double tune_donor_ability) { tune_donor_ability_ = tune_donor_ability; }
+  void set_tune_recipient_ability(double tune_recipient_ability) { tune_recipient_ability_ = tune_recipient_ability; }
+  void set_donor_cost(double donor_cost) { donor_cost_ = donor_cost; }
+  void set_recipient_cost(double recipient_cost) { recipient_cost_ = recipient_cost; }
+  void set_swap_GUs(bool swap_GUs) { swap_GUs_ = swap_GUs; }
+
+  // -------------------------------------------------------------- Secretion
+  void set_with_secretion(bool with_secretion) { with_secretion_ = with_secretion; }
+  void set_secretion_contrib_to_fitness(double secretion_contrib) { secretion_contrib_to_fitness_ = secretion_contrib; }
+  void set_secretion_cost(double secretion_cost) { secretion_cost_ = secretion_cost; }
+
+  // =======================================================================
+  //                            Public Methods
+  // =======================================================================
+  void write_setup_file(gzFile exp_setup_file) const;
+  void save(gzFile backup_file) const;
+  void load(gzFile setup_file, gzFile backup_file, bool verbose);
+  /// Make the individuals reproduce
+  void step_to_next_generation() { sel_->step_to_next_generation(); }
+
+  // =======================================================================
+  //                           Public Attributes
+  // =======================================================================
+
+ protected :
+  // =======================================================================
+  //                           Protected Methods
+  // =======================================================================
+  virtual void display() {};
+
+  // =======================================================================
+  //                          Protected Attributes
+  // =======================================================================
+  ExpManager* exp_m_;
+
+  // ----------------------------------------------------- Selection context
+  Selection* sel_;
+
+  // --------------------------------------------------- Transfer parameters
+  bool   with_HT_;
+  bool   repl_HT_with_close_points_;
+  double HT_ins_rate_;
+  double HT_repl_rate_;
+  double repl_HT_detach_rate_;
+
+  // --------------------------------------------------- Plasmids parameters
+  bool   with_plasmids_;
+  double prob_plasmid_HT_; // Base transfer ability independent of evolvable donor and recipient ability
+  double tune_donor_ability_; // How much the individuals can tune their ability to send plasmids
+  double tune_recipient_ability_; // How much the individuals can tune their ability to receive plasmids
+  double donor_cost_;
+  double recipient_cost_;
+  bool   swap_GUs_; // Whether plasmid HT is uni- or bidirectional
+
+  // -------------------------------------------------- Secretion parameters
+  bool   with_secretion_;
+  double secretion_contrib_to_fitness_;
+  double secretion_cost_;
 };
 
 
