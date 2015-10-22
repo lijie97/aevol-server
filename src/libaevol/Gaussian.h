@@ -51,10 +51,10 @@ class Gaussian {
     // =================================================================
     //                             Constructors
     // =================================================================
-    Gaussian(double heigth, double mean, double width);
-    Gaussian(const Gaussian& model);
+    Gaussian(double height, double mean, double width) : _height{height}, _mean{mean}, _width{width} {}
+    Gaussian(const Gaussian& model) : _height{model._height}, _mean{model._mean}, _width{model._width} {}
     Gaussian(gzFile backup_file);
-  
+
     // =================================================================
     //                             Destructor
     // =================================================================
@@ -102,18 +102,6 @@ class Gaussian {
 // =====================================================================
 //                               Constructors
 // =====================================================================
-inline Gaussian::Gaussian(double height, double mean, double width) {
-  _height = height;
-  _mean   = mean;
-  _width  = width;
-}
-
-inline Gaussian::Gaussian(const Gaussian &model) {
-  _height = model._height;
-  _mean   = model._mean;
-  _width  = model._width;
-}
-
 inline Gaussian::Gaussian(gzFile backup_file) {
   gzread(backup_file, &_height,  sizeof(_height));
   gzread(backup_file, &_mean,    sizeof(_mean));
