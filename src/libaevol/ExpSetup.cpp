@@ -63,10 +63,10 @@ namespace aevol {
 // ===========================================================================
 ExpSetup::ExpSetup( ExpManager * exp_m )
 {
-  _exp_m  = exp_m;
+  exp_m_ = exp_m;
   
   // -------------------------------------------------------------- Selection
-  _sel = new Selection( exp_m );
+  sel_ = new Selection( exp_m );
   
   // --------------------------------------------------------------- Transfer
   with_HT_ = false;
@@ -96,7 +96,7 @@ ExpSetup::ExpSetup( ExpManager * exp_m )
 // ===========================================================================
 ExpSetup::~ExpSetup( void )
 {
-  delete _sel;
+  delete sel_;
 }
 
 // ===========================================================================

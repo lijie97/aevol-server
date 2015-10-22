@@ -67,7 +67,7 @@ class ExpSetup {
     //                         Accessors: getters
     // =======================================================================
     // ----------------------------------------------------- Selection context
-    Selection * get_sel() const { return _sel; }
+    Selection * get_sel() const { return sel_; }
   
     // --------------------------------------------------------------- Transfer
     double get_repl_HT_detach_rate() const { return repl_HT_detach_rate_; }
@@ -116,7 +116,7 @@ class ExpSetup {
     void save(gzFile backup_file) const;
     void load(gzFile setup_file, gzFile backup_file, bool verbose);
     /// Make the individuals reproduce
-    void step_to_next_generation() { _sel->step_to_next_generation(); }
+    void step_to_next_generation() { sel_->step_to_next_generation(); }
 
     // =======================================================================
     //                           Public Attributes
@@ -131,10 +131,10 @@ class ExpSetup {
     // =======================================================================
     //                          Protected Attributes
     // =======================================================================
-    ExpManager* _exp_m;
+    ExpManager* exp_m_;
       
     // ----------------------------------------------------- Selection context
-    Selection* _sel;
+    Selection* sel_;
     
     // --------------------------------------------------- Transfer parameters
     bool   with_HT_;
