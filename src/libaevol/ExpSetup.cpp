@@ -61,35 +61,6 @@ namespace aevol {
 // ===========================================================================
 //                                  Constructors
 // ===========================================================================
-ExpSetup::ExpSetup( ExpManager * exp_m )
-{
-  exp_m_ = exp_m;
-
-  // -------------------------------------------------------------- Selection
-  sel_ = new Selection( exp_m );
-
-  // --------------------------------------------------------------- Transfer
-  with_HT_ = false;
-  repl_HT_with_close_points_ = false;
-  HT_ins_rate_ = 0.0;
-  HT_repl_rate_ = 0.0;
-  repl_HT_detach_rate_ = 0.0;
-
-  // --------------------------------------------------------------- Plasmids
-  with_plasmids_ = false;
-  prob_plasmid_HT_ = 0.0;
-  tune_donor_ability_ = 0.0;
-  tune_recipient_ability_ = 0.0;
-  donor_cost_ = 0.0;
-  recipient_cost_ = 0.0;
-  swap_GUs_ = false;
-
-  // -------------------------------------------------------------- Secretion
-  with_secretion_ = false;
-  secretion_contrib_to_fitness_ = 0.0;
-  secretion_cost_ = 0.0;
-}
-
 
 // ===========================================================================
 //                                 Destructor
