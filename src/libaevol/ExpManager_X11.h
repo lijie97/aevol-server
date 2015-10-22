@@ -108,7 +108,6 @@ class ExpManager_X11 : public ExpManager
  friend class ExpSetup;
 
  public:
-
   // =================================================================
   //                             Constructors
   // =================================================================
@@ -122,18 +121,18 @@ class ExpManager_X11 : public ExpManager
   // =================================================================
   //                              Accessors
   // =================================================================
-  inline bool             get_display_on(void);
-  inline Display *        get_display(void);
-  inline int8_t           get_screen(void);
-  inline Atom *           get_atoms (void);
-  inline bool             get_show_window(int8_t win);
-  inline bool             get_new_show_window(int8_t win);
-  inline X11Window *  get_window(int8_t win);
+  bool get_display_on(void) { return _display_on; }
+  Display* get_display(void) { return _display; }
+  int8_t get_screen(void) { return _screen; }
+  Atom* get_atoms (void) { return _atoms; }
+  bool get_show_window(int8_t win) { return static_cast<bool>((_show_window >> win) & 1); }
+  bool get_new_show_window(int8_t win) { return static_cast<bool>((_new_show_window >> win) & 1); }
+  X11Window* get_window(int8_t win) { return _win[win]; };
 
   // =================================================================
   //                            Public Methods
   // =================================================================
-  KeyCode* get_key_codes(void)  { return _key_codes;  };
+  KeyCode* get_key_codes(void) { return _key_codes; }
   virtual void display(void);
   void toggle_display_on_off(void);
   void handle_events(void);
@@ -197,44 +196,6 @@ class ExpManager_X11 : public ExpManager
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-bool ExpManager_X11::get_display_on(void)
-{
-  return _display_on;
-}
-
-Display *ExpManager_X11::get_display(void)
-{
-  return _display;
-}
-
-
-bool ExpManager_X11::get_show_window( int8_t win )
-{
-  return ( (_show_window >> win) & 1 );
-}
-
-bool ExpManager_X11::get_new_show_window( int8_t win )
-{
-  return ( (_new_show_window >> win) & 1 );
-}
-
-
-int8_t ExpManager_X11::get_screen(void)
-{
-  return _screen;
-}
-
-
-Atom*ExpManager_X11::get_atoms(void)
-{
-  return _atoms;
-}
-
-
-X11Window *ExpManager_X11::get_window( int8_t win )
-{
-  return _win[win];
-}
 
 // =====================================================================
 //                       Inline functions' definition
