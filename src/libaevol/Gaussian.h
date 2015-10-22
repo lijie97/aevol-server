@@ -45,56 +45,56 @@ namespace aevol {
 //                          Class declarations
 // =================================================================
 
-class Gaussian {  
-  public :
-  
-    // =================================================================
-    //                             Constructors
-    // =================================================================
-    Gaussian(double height, double mean, double width) : height_{height}, mean_{mean}, width_{width} {}
-    Gaussian(const Gaussian& model) : height_{model.height_}, mean_{model.mean_}, width_{model.width_} {}
-    Gaussian(gzFile backup_file);
+class Gaussian {
+ public :
 
-    // =================================================================
-    //                             Destructor
-    // =================================================================
-    virtual ~Gaussian() {}
-  
-    // =================================================================
-    //                              Accessors
-    // =================================================================
-    double height() const { return height_; }
-    double mean() const { return mean_; }
-    double width() const { return width_; }
-    void   set_height(double height) { height_ = height; }
-    void   set_mean(double mean) { mean_ = mean; }
+  // =================================================================
+  //                             Constructors
+  // =================================================================
+  Gaussian(double height, double mean, double width) : height_{height}, mean_{mean}, width_{width} {}
+  Gaussian(const Gaussian& model) : height_{model.height_}, mean_{model.mean_}, width_{model.width_} {}
+  Gaussian(gzFile backup_file);
 
-    // =================================================================
-    //                            Public Methods
-    // =================================================================
-    double compute_y(double x) const { return height_ * exp(-(x- mean_)*(x- mean_) / (2* width_ * width_)); }
-    void save(gzFile backup_file) const;
-  
-    // =================================================================
-    //                           Public Attributes
-    // =================================================================
+  // =================================================================
+  //                             Destructor
+  // =================================================================
+  virtual ~Gaussian() {}
 
-  protected :
-    // =================================================================
-    //                         Forbidden Constructors
-    // =================================================================
-    Gaussian() = delete;
+  // =================================================================
+  //                              Accessors
+  // =================================================================
+  double height() const { return height_; }
+  double mean() const { return mean_; }
+  double width() const { return width_; }
+  void   set_height(double height) { height_ = height; }
+  void   set_mean(double mean) { mean_ = mean; }
 
-    // =================================================================
-    //                           Protected Methods
-    // =================================================================
+  // =================================================================
+  //                            Public Methods
+  // =================================================================
+  double compute_y(double x) const { return height_ * exp(-(x- mean_)*(x- mean_) / (2* width_ * width_)); }
+  void save(gzFile backup_file) const;
 
-    // =================================================================
-    //                          Protected Attributes
-    // =================================================================
-    double height_;
-    double mean_;
-    double width_; // In fact half-width to the inflexion points
+  // =================================================================
+  //                           Public Attributes
+  // =================================================================
+
+ protected :
+  // =================================================================
+  //                         Forbidden Constructors
+  // =================================================================
+  Gaussian() = delete;
+
+  // =================================================================
+  //                           Protected Methods
+  // =================================================================
+
+  // =================================================================
+  //                          Protected Attributes
+  // =================================================================
+  double height_;
+  double mean_;
+  double width_; // In fact half-width to the inflexion points
 };
 
 
