@@ -56,12 +56,12 @@ class ExpSetup {
   // =======================================================================
   ExpSetup() = delete;
   ExpSetup(const ExpSetup&) = delete;
-  ExpSetup(ExpManager * exp_m);
+  ExpSetup(ExpManager* exp_m);
 
   // =======================================================================
   //                             Destructors
   // =======================================================================
-  virtual ~ExpSetup();
+  virtual ~ExpSetup() { delete sel_; }
 
   // =======================================================================
   //                         Accessors: getters
