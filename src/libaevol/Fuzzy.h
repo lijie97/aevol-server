@@ -18,8 +18,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef AEVOL_FUZZY_H__
-#define AEVOL_FUZZY_H__
+#ifndef AEVOL_FUZZY_H_
+#define AEVOL_FUZZY_H_
 
 #include <list>
 
@@ -149,4 +149,4 @@ class Fuzzy
 
 double trapezoid_area(const Point& p1, const Point& p2);
 } // namespace aevol
-#endif // AEVOL_FUZZY_H__
+#endif // AEVOL_FUZZY_H_
