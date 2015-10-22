@@ -200,7 +200,7 @@ void ExpManager_X11::display()
 
       for (int8_t i = 0 ; i < NB_WIN ; i++)
       {
-        if (get_show_window(i))
+        if (show_window(i))
         {
           win_[i] = new X11Window(display_, screen_, atoms_,
               win_pos_[i][0], win_pos_[i][1],
@@ -220,9 +220,9 @@ void ExpManager_X11::display()
   {
     for (int8_t i = 0 ; i < NB_WIN ; i++)
     {
-      if (get_show_window(i))
+      if (show_window(i))
       {
-        if (get_new_show_window(i))
+        if (new_show_window(i))
         {
           draw_window(i);
         }
@@ -333,7 +333,7 @@ void ExpManager_X11::handle_events()
           else if (event.xkey.keycode == key_codes_[KEY_F5]) num_win = 5;
           else  num_win = 6; // case where (event.xkey.keycode == key_codes_[KEY_F6])
 
-          if (get_show_window(num_win))
+          if (show_window(num_win))
           {
             // 1) Save current window position and size
             Window aWindow; // Unused

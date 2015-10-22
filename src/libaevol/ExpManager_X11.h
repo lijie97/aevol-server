@@ -119,8 +119,8 @@ class ExpManager_X11 : public ExpManager {
   // =================================================================
   //                              Accessors
   // =================================================================
-  bool get_show_window(int8_t win) { return static_cast<bool>((show_window_ >> win) & 1); }
-  bool get_new_show_window(int8_t win) { return static_cast<bool>((new_show_window_ >> win) & 1); }
+  bool show_window(int8_t win) { return static_cast<bool>((show_window_ >> win) & 1); }
+  bool new_show_window(int8_t win) { return static_cast<bool>((new_show_window_ >> win) & 1); }
 
   // =================================================================
   //                            Public Methods
@@ -129,8 +129,8 @@ class ExpManager_X11 : public ExpManager {
   void toggle_display_on_off();
   void handle_events();
   bool quit_signal_received();
-  void display(X11Window * win, const Fuzzy& fuzzy, color_map color, bool fill = false, bool bold = false);
-  void display_grid(X11Window * win, double** cell_grid);
+  void display(X11Window* win, const Fuzzy& fuzzy, color_map color, bool fill = false, bool bold = false);
+  void display_grid(X11Window* win, double** cell_grid);
 
   // =================================================================
   //                           Public Attributes
@@ -140,7 +140,7 @@ class ExpManager_X11 : public ExpManager {
   // =================================================================
   //                         Forbidden Constructors
   // =================================================================
-  ExpManager_X11(const ExpManager_X11 &model)
+  ExpManager_X11(const ExpManager_X11& model)
   {
     printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
     exit( EXIT_FAILURE );
