@@ -133,13 +133,6 @@ ExpManager_X11::~ExpManager_X11()
 // =================================================================
 //                            Public Methods
 // =================================================================
-
-
-bool ExpManager_X11::quit_signal_received()
-{
-  return quit_signal_received_;
-}
-
 void ExpManager_X11::display()
 {
   // ---------------------
