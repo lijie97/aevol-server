@@ -70,44 +70,44 @@ class ExpSetup {
     Selection * get_sel() const { return _sel; }
   
     // --------------------------------------------------------------- Transfer
-    double get_repl_HT_detach_rate() const { return _repl_HT_detach_rate; }
+    double get_repl_HT_detach_rate() const { return repl_HT_detach_rate_; }
     
     // --------------------------------------------------------------- Plasmids
     // See comments in ExpManager.h on how plasmids are handled
-    bool   get_with_plasmids() const { return _with_plasmids; }
-    double get_prob_plasmid_HT() const { return _prob_plasmid_HT; }
-    double get_tune_donor_ability() const { return _tune_donor_ability; }
-    double get_tune_recipient_ability() const { return _tune_recipient_ability; }
-    bool   get_swap_GUs() const { return _swap_GUs; }
+    bool   get_with_plasmids() const { return with_plasmids_; }
+    double get_prob_plasmid_HT() const { return prob_plasmid_HT_; }
+    double get_tune_donor_ability() const { return tune_donor_ability_; }
+    double get_tune_recipient_ability() const { return tune_recipient_ability_; }
+    bool   get_swap_GUs() const { return swap_GUs_; }
     
     // -------------------------------------------------------------- Secretion
-    bool   get_with_secretion() const { return _with_secretion; }
-    double get_secretion_contrib_to_fitness() const { return _secretion_contrib_to_fitness; }
-    double get_secretion_cost() const { return _secretion_cost; }
+    bool   get_with_secretion() const { return with_secretion_; }
+    double get_secretion_contrib_to_fitness() const { return secretion_contrib_to_fitness_; }
+    double get_secretion_cost() const { return secretion_cost_; }
   
     // =======================================================================
     //                         Accessors: setters
     // =======================================================================
     // --------------------------------------------------------------- Transfer
-    void set_with_HT(bool with_HT) { _with_HT = with_HT; }
-    void set_repl_HT_with_close_points(bool repl_HT_with_close_points) { _repl_HT_with_close_points = repl_HT_with_close_points; }
-    void set_HT_ins_rate(double HT_ins_rate) { _HT_ins_rate = HT_ins_rate; }
-    void set_HT_repl_rate(double HT_repl_rate) { _HT_repl_rate = HT_repl_rate; }
-    void set_repl_HT_detach_rate(double repl_HT_detach_rate) { _repl_HT_detach_rate = repl_HT_detach_rate; }
+    void set_with_HT(bool with_HT) { with_HT_ = with_HT; }
+    void set_repl_HT_with_close_points(bool repl_HT_with_close_points) { repl_HT_with_close_points_ = repl_HT_with_close_points; }
+    void set_HT_ins_rate(double HT_ins_rate) { HT_ins_rate_ = HT_ins_rate; }
+    void set_HT_repl_rate(double HT_repl_rate) { HT_repl_rate_ = HT_repl_rate; }
+    void set_repl_HT_detach_rate(double repl_HT_detach_rate) { repl_HT_detach_rate_ = repl_HT_detach_rate; }
   
     // --------------------------------------------------------------- Plasmids
-    void set_with_plasmids(bool with_p) { _with_plasmids = with_p; }
-    void set_prob_plasmid_HT(double prob_p_HT) { _prob_plasmid_HT = prob_p_HT; }
-    void set_tune_donor_ability(double tune_donor_ability) { _tune_donor_ability = tune_donor_ability; }
-    void set_tune_recipient_ability(double tune_recipient_ability) { _tune_recipient_ability = tune_recipient_ability; }
-    void set_donor_cost(double donor_cost) { _donor_cost = donor_cost; }
-    void set_recipient_cost(double recipient_cost) { _recipient_cost = recipient_cost; }
-    void set_swap_GUs(bool swap_GUs) { _swap_GUs = swap_GUs; }
+    void set_with_plasmids(bool with_p) { with_plasmids_ = with_p; }
+    void set_prob_plasmid_HT(double prob_p_HT) { prob_plasmid_HT_ = prob_p_HT; }
+    void set_tune_donor_ability(double tune_donor_ability) { tune_donor_ability_ = tune_donor_ability; }
+    void set_tune_recipient_ability(double tune_recipient_ability) { tune_recipient_ability_ = tune_recipient_ability; }
+    void set_donor_cost(double donor_cost) { donor_cost_ = donor_cost; }
+    void set_recipient_cost(double recipient_cost) { recipient_cost_ = recipient_cost; }
+    void set_swap_GUs(bool swap_GUs) { swap_GUs_ = swap_GUs; }
     
     // -------------------------------------------------------------- Secretion
-    void set_with_secretion(bool with_secretion) { _with_secretion = with_secretion; }
-    void set_secretion_contrib_to_fitness(double secretion_contrib) { _secretion_contrib_to_fitness = secretion_contrib; }
-    void set_secretion_cost(double secretion_cost) { _secretion_cost = secretion_cost; }
+    void set_with_secretion(bool with_secretion) { with_secretion_ = with_secretion; }
+    void set_secretion_contrib_to_fitness(double secretion_contrib) { secretion_contrib_to_fitness_ = secretion_contrib; }
+    void set_secretion_cost(double secretion_cost) { secretion_cost_ = secretion_cost; }
 
     // =======================================================================
     //                            Public Methods
@@ -137,25 +137,25 @@ class ExpSetup {
     Selection* _sel;
     
     // --------------------------------------------------- Transfer parameters
-    bool    _with_HT;
-    bool    _repl_HT_with_close_points;
-    double  _HT_ins_rate;
-    double  _HT_repl_rate;
-    double  _repl_HT_detach_rate;
+    bool   with_HT_;
+    bool   repl_HT_with_close_points_;
+    double HT_ins_rate_;
+    double HT_repl_rate_;
+    double repl_HT_detach_rate_;
   
     // --------------------------------------------------- Plasmids parameters
-    bool    _with_plasmids;
-    double  _prob_plasmid_HT; // Base transfer ability independent of evolvable donor and recipient ability
-    double  _tune_donor_ability; // How much the individuals can tune their ability to send plasmids
-    double  _tune_recipient_ability; // How much the individuals can tune their ability to receive plasmids
-    double  _donor_cost;
-    double  _recipient_cost;
-    bool    _swap_GUs; // Whether plasmid HT is uni- or bidirectional
+    bool   with_plasmids_;
+    double prob_plasmid_HT_; // Base transfer ability independent of evolvable donor and recipient ability
+    double tune_donor_ability_; // How much the individuals can tune their ability to send plasmids
+    double tune_recipient_ability_; // How much the individuals can tune their ability to receive plasmids
+    double donor_cost_;
+    double recipient_cost_;
+    bool   swap_GUs_; // Whether plasmid HT is uni- or bidirectional
     
     // -------------------------------------------------- Secretion parameters
-    bool    _with_secretion;
-    double  _secretion_contrib_to_fitness;
-    double  _secretion_cost;
+    bool   with_secretion_;
+    double secretion_contrib_to_fitness_;
+    double secretion_cost_;
 };
 
 

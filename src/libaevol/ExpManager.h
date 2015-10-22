@@ -89,7 +89,7 @@ class ExpManager : public Observer {
   double repl_HT_detach_rate() const { return exp_s()->get_repl_HT_detach_rate();}
 
   // The ability to own a plasmid is a property of the individuals (allow_plasmids_) because it is used during mutations.
-  // However, the experimental setup's member variable _with_plasmids indicates whether plasmids are used
+  // However, the experimental setup's member variable with_plasmids_ indicates whether plasmids are used
   // because the replication and loading/writting processes need this information.
   // For now when plasmids are used each individual has one and only one plasmid (so these variables should always be
   // equal), this may change in the future, though.

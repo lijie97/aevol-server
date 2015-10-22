@@ -69,25 +69,25 @@ ExpSetup::ExpSetup( ExpManager * exp_m )
   _sel = new Selection( exp_m );
   
   // --------------------------------------------------------------- Transfer
-  _with_HT                    = false;
-  _repl_HT_with_close_points  = false;
-  _HT_ins_rate                = 0.0;
-  _HT_repl_rate               = 0.0;
-  _repl_HT_detach_rate         = 0.0;
+  with_HT_ = false;
+  repl_HT_with_close_points_ = false;
+  HT_ins_rate_ = 0.0;
+  HT_repl_rate_ = 0.0;
+  repl_HT_detach_rate_ = 0.0;
   
   // --------------------------------------------------------------- Plasmids
-  _with_plasmids    = false;
-  _prob_plasmid_HT  = 0.0;
-  _tune_donor_ability     = 0.0;
-  _tune_recipient_ability = 0.0;
-  _donor_cost       = 0.0;
-  _recipient_cost   = 0.0;
-  _swap_GUs         = false;
+  with_plasmids_ = false;
+  prob_plasmid_HT_ = 0.0;
+  tune_donor_ability_ = 0.0;
+  tune_recipient_ability_ = 0.0;
+  donor_cost_ = 0.0;
+  recipient_cost_ = 0.0;
+  swap_GUs_ = false;
   
   // -------------------------------------------------------------- Secretion
-  _with_secretion = false;
-  _secretion_contrib_to_fitness = 0.0;
-  _secretion_cost               = 0.0;
+  with_secretion_ = false;
+  secretion_contrib_to_fitness_ = 0.0;
+  secretion_cost_ = 0.0;
 }
   
 
@@ -107,18 +107,18 @@ ExpSetup::~ExpSetup( void )
 void ExpSetup::write_setup_file( gzFile exp_setup_file ) const
 {
   // --------------------------------------------------------------- Transfer
-  int8_t tmp_with_HT = _with_HT;
+  int8_t tmp_with_HT = with_HT_;
   gzwrite( exp_setup_file, &tmp_with_HT, sizeof(tmp_with_HT) );
-  int8_t tmp_repl_HT_with_close_points = _repl_HT_with_close_points;
+  int8_t tmp_repl_HT_with_close_points = repl_HT_with_close_points_;
   gzwrite( exp_setup_file, &tmp_repl_HT_with_close_points, sizeof(tmp_repl_HT_with_close_points) );
-  if ( _with_HT )
+  if (with_HT_)
   {
-    gzwrite( exp_setup_file, &_HT_ins_rate,  sizeof(_HT_ins_rate) );
-    gzwrite( exp_setup_file, &_HT_repl_rate, sizeof(_HT_repl_rate) );
+    gzwrite( exp_setup_file, &HT_ins_rate_,  sizeof(HT_ins_rate_) );
+    gzwrite( exp_setup_file, &HT_repl_rate_, sizeof(HT_repl_rate_) );
   }
-  if(_repl_HT_with_close_points)
+  if(repl_HT_with_close_points_)
   {
-    gzwrite( exp_setup_file, &_repl_HT_detach_rate,  sizeof(_repl_HT_detach_rate) );
+    gzwrite( exp_setup_file, &repl_HT_detach_rate_,  sizeof(repl_HT_detach_rate_) );
   }
   
   // --------------------------------------------------------------- Plasmids
@@ -126,20 +126,20 @@ void ExpSetup::write_setup_file( gzFile exp_setup_file ) const
   gzwrite( exp_setup_file, &tmp_with_plasmids, sizeof(tmp_with_plasmids) );
   if ( tmp_with_plasmids )
   {
-    gzwrite( exp_setup_file, &_prob_plasmid_HT,  sizeof(_prob_plasmid_HT) );
-    gzwrite( exp_setup_file, &_tune_donor_ability,  sizeof(_tune_donor_ability) );
-    gzwrite( exp_setup_file, &_tune_recipient_ability,  sizeof(_tune_recipient_ability) );
-    gzwrite( exp_setup_file, &_donor_cost,  sizeof(_donor_cost) );
-    gzwrite( exp_setup_file, &_recipient_cost,  sizeof(_recipient_cost) );
-    int8_t tmp_swap_GUs = _swap_GUs;
+    gzwrite( exp_setup_file, &prob_plasmid_HT_,  sizeof(prob_plasmid_HT_) );
+    gzwrite( exp_setup_file, &tune_donor_ability_,  sizeof(tune_donor_ability_) );
+    gzwrite( exp_setup_file, &tune_recipient_ability_,  sizeof(tune_recipient_ability_) );
+    gzwrite( exp_setup_file, &donor_cost_,  sizeof(donor_cost_) );
+    gzwrite( exp_setup_file, &recipient_cost_,  sizeof(recipient_cost_) );
+    int8_t tmp_swap_GUs = swap_GUs_;
     gzwrite( exp_setup_file, &tmp_swap_GUs, sizeof(tmp_swap_GUs) );
   }
   
   // -------------------------------------------------------------- Secretion
-  int8_t tmp_with_secretion = _with_secretion;
+  int8_t tmp_with_secretion = with_secretion_;
   gzwrite( exp_setup_file, &tmp_with_secretion, sizeof(tmp_with_secretion) );
-  gzwrite( exp_setup_file, &_secretion_contrib_to_fitness, sizeof(_secretion_contrib_to_fitness) );
-  gzwrite( exp_setup_file, &_secretion_cost, sizeof(_secretion_cost) );
+  gzwrite( exp_setup_file, &secretion_contrib_to_fitness_, sizeof(secretion_contrib_to_fitness_) );
+  gzwrite( exp_setup_file, &secretion_cost_, sizeof(secretion_cost_) );
   
   get_sel()->write_setup_file( exp_setup_file );
 }
@@ -149,43 +149,43 @@ void ExpSetup::load( gzFile setup_file, gzFile backup_file, bool verbose )
   // -------------------------------------------- Retrieve transfer parameters
   int8_t tmp_with_HT;
   gzread( setup_file, &tmp_with_HT, sizeof(tmp_with_HT) );
-  _with_HT = tmp_with_HT ? 1 : 0;
+  with_HT_ = tmp_with_HT ? 1 : 0;
   int8_t tmp_repl_HT_with_close_points;
   gzread( setup_file, &tmp_repl_HT_with_close_points, sizeof(tmp_repl_HT_with_close_points) );
-  _repl_HT_with_close_points = tmp_repl_HT_with_close_points ? 1 : 0;
-  if ( _with_HT )
+  repl_HT_with_close_points_ = tmp_repl_HT_with_close_points ? 1 : 0;
+  if (with_HT_)
   {
-    gzread( setup_file, &_HT_ins_rate,  sizeof(_HT_ins_rate) );
-    gzread( setup_file, &_HT_repl_rate, sizeof(_HT_repl_rate) );
+    gzread( setup_file, &HT_ins_rate_,  sizeof(HT_ins_rate_) );
+    gzread( setup_file, &HT_repl_rate_, sizeof(HT_repl_rate_) );
   }
-   if(_repl_HT_with_close_points)
+   if(repl_HT_with_close_points_)
   {
-    gzread( setup_file, &_repl_HT_detach_rate,  sizeof(_repl_HT_detach_rate) );
+    gzread( setup_file, &repl_HT_detach_rate_,  sizeof(repl_HT_detach_rate_) );
   }
   
   
   // -------------------------------------------- Retrieve plasmid parameters
   int8_t tmp_with_plasmids;
   gzread( setup_file, &tmp_with_plasmids, sizeof(tmp_with_plasmids) );
-  _with_plasmids = tmp_with_plasmids ? 1 : 0;
-  if ( _with_plasmids )
+  with_plasmids_ = tmp_with_plasmids ? 1 : 0;
+  if (with_plasmids_)
   {
-    gzread( setup_file, &_prob_plasmid_HT,  sizeof(_prob_plasmid_HT) );
-    gzread( setup_file, &_tune_donor_ability,  sizeof(_tune_donor_ability) );
-    gzread( setup_file, &_tune_recipient_ability,  sizeof(_tune_recipient_ability) );
-    gzread( setup_file, &_donor_cost,  sizeof(_donor_cost) );
-    gzread( setup_file, &_recipient_cost,  sizeof(_recipient_cost) );
+    gzread( setup_file, &prob_plasmid_HT_,  sizeof(prob_plasmid_HT_) );
+    gzread( setup_file, &tune_donor_ability_,  sizeof(tune_donor_ability_) );
+    gzread( setup_file, &tune_recipient_ability_,  sizeof(tune_recipient_ability_) );
+    gzread( setup_file, &donor_cost_,  sizeof(donor_cost_) );
+    gzread( setup_file, &recipient_cost_,  sizeof(recipient_cost_) );
     int8_t tmp_swap_GUs;
     gzread( setup_file, &tmp_swap_GUs, sizeof(tmp_swap_GUs) );
-    _swap_GUs = tmp_swap_GUs ? 1 : 0;
+    swap_GUs_ = tmp_swap_GUs ? 1 : 0;
   }
   
   // ------------------------------------------ Retrieve secretion parameters
   int8_t tmp_with_secretion;
   gzread( setup_file, &tmp_with_secretion, sizeof(tmp_with_secretion) );
-  _with_secretion = tmp_with_secretion ? true : false;
-  gzread( setup_file, &_secretion_contrib_to_fitness, sizeof(_secretion_contrib_to_fitness) );
-  gzread( setup_file, &_secretion_cost, sizeof(_secretion_cost) );
+  with_secretion_ = tmp_with_secretion ? true : false;
+  gzread( setup_file, &secretion_contrib_to_fitness_, sizeof(secretion_contrib_to_fitness_) );
+  gzread( setup_file, &secretion_cost_, sizeof(secretion_cost_) );
   
   // ---------------------------------------------- Retrieve selection context
   get_sel()->load( setup_file, backup_file, verbose );
