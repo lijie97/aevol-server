@@ -96,14 +96,14 @@ class ExpManager : public Observer {
   // Member variable _with_plasmids_HT has been removed because the ability to transfer is evolvable and may thus depend
   // on the plasmid itself
 
-  bool with_plasmids() const { return exp_s()->get_with_plasmids(); }
-  double prob_plasmid_HT() const { return exp_s()->get_prob_plasmid_HT(); }
-  double tune_donor_ability() const { return exp_s()->get_tune_donor_ability(); }
-  double tune_recipient_ability() const { return exp_s()->get_tune_recipient_ability(); }
-  bool swap_GUs() const { return exp_s()->get_swap_GUs(); }
-  bool with_secretion() const { return exp_s()->get_with_secretion(); }
-  double secretion_contrib_to_fitness() const { return exp_s()->get_secretion_contrib_to_fitness(); }
-  double secretion_cost() const { return exp_s()->get_secretion_cost(); }
+  bool with_plasmids() const { return exp_s()->with_plasmids(); }
+  double prob_plasmid_HT() const { return exp_s()->prob_plasmid_HT(); }
+  double tune_donor_ability() const { return exp_s()->tune_donor_ability(); }
+  double tune_recipient_ability() const { return exp_s()->tune_recipient_ability(); }
+  bool swap_GUs() const { return exp_s()->swap_GUs(); }
+  bool with_secretion() const { return exp_s()->with_secretion(); }
+  double secretion_contrib_to_fitness() const { return exp_s()->secretion_contrib_to_fitness(); }
+  double secretion_cost() const { return exp_s()->secretion_cost(); }
 
   // Accessors to population stuff
   std::list<Individual*> indivs() const { return world()->get_indivs(); }

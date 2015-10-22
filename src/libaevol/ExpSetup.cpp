@@ -122,7 +122,7 @@ void ExpSetup::write_setup_file( gzFile exp_setup_file ) const
   }
   
   // --------------------------------------------------------------- Plasmids
-  int8_t tmp_with_plasmids = get_with_plasmids();
+  int8_t tmp_with_plasmids = with_plasmids();
   gzwrite( exp_setup_file, &tmp_with_plasmids, sizeof(tmp_with_plasmids) );
   if ( tmp_with_plasmids )
   {

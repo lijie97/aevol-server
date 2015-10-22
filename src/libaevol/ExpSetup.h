@@ -74,16 +74,16 @@ class ExpSetup {
     
     // --------------------------------------------------------------- Plasmids
     // See comments in ExpManager.h on how plasmids are handled
-    bool   get_with_plasmids() const { return with_plasmids_; }
-    double get_prob_plasmid_HT() const { return prob_plasmid_HT_; }
-    double get_tune_donor_ability() const { return tune_donor_ability_; }
-    double get_tune_recipient_ability() const { return tune_recipient_ability_; }
-    bool   get_swap_GUs() const { return swap_GUs_; }
+    bool   with_plasmids() const { return with_plasmids_; }
+    double prob_plasmid_HT() const { return prob_plasmid_HT_; }
+    double tune_donor_ability() const { return tune_donor_ability_; }
+    double tune_recipient_ability() const { return tune_recipient_ability_; }
+    bool   swap_GUs() const { return swap_GUs_; }
     
     // -------------------------------------------------------------- Secretion
-    bool   get_with_secretion() const { return with_secretion_; }
-    double get_secretion_contrib_to_fitness() const { return secretion_contrib_to_fitness_; }
-    double get_secretion_cost() const { return secretion_cost_; }
+    bool   with_secretion() const { return with_secretion_; }
+    double secretion_contrib_to_fitness() const { return secretion_contrib_to_fitness_; }
+    double secretion_cost() const { return secretion_cost_; }
   
     // =======================================================================
     //                         Accessors: setters
