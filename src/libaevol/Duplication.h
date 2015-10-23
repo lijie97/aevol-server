@@ -47,7 +47,8 @@ class Duplication : public Rearrangement {
   Duplication() = default; //< Default ctor
   Duplication(const Duplication&) = default; //< Copy ctor
   Duplication(Duplication&&) = delete; //< Move ctor
-  Duplication(int32_t pos1, int32_t pos2, int32_t pos3, int32_t length, int16_t align_score = -1);
+  Duplication(int32_t pos1, int32_t pos2, int32_t pos3, int32_t length, int16_t align_score = -1) :
+               pos1_{pos1},  pos2_{pos2},  pos3_{pos3},length_{length}, align_score_{align_score} {}
 
   virtual Mutation* Clone() const override { return new Duplication(*this); };
 

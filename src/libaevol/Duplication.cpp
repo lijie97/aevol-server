@@ -16,12 +16,6 @@ namespace aevol {
 // ============================================================================
 //                                Constructors
 // ============================================================================
-Duplication::Duplication(int32_t pos1, int32_t pos2, int32_t pos3,
-                         int32_t length, int16_t align_score) :
-    pos1_(pos1), pos2_(pos2), pos3_(pos3),
-    length_(length), align_score_(align_score) {
-}
-
 
 // ============================================================================
 //                                 Destructor
