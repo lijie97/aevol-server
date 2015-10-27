@@ -201,8 +201,9 @@ int main(int argc, char* argv[])
   }
 
   // If t0 wasn't provided, use default
-  if (t0 < 0)
+  if (t0 < 0) {
     t0 = OutputManager::get_last_gener();
+  }
 
   // If t_end_ wasn't provided, set it according to nb_steps or use default (run
   // for 1000 timesteps)

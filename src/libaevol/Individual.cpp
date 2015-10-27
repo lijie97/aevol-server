@@ -1918,8 +1918,6 @@ void Individual::make_rna_list() {
   for (const auto& gen_unit: genetic_unit_list_) {
     // Create proxies
     const auto& rna_list = gen_unit.get_rna_list();
-    const auto& lead = rna_list[LEADING];
-    const auto& lagg = rna_list[LAGGING];
 
     // append pointers to rna material to local rna_list_
     for (auto& strand: {LEADING, LAGGING})
