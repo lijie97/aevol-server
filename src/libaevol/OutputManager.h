@@ -119,8 +119,8 @@ class OutputManager {
   void WriteLastGenerFile(const std::string& input_dir = ".") const;
   void CopyStats(const std::string& outdir, int64_t time) const;
   void load(gzFile file, bool verbose, bool to_be_run);
-  void write_current_generation_outputs(void) const;
-  inline void flush(void);
+  void write_current_generation_outputs() const;
+  inline void flush();
 
   static int64_t get_last_gener();
 
@@ -128,7 +128,7 @@ class OutputManager {
   // =================================================================
   //                           Protected Methods
   // =================================================================
-  void write_tree(void) const;
+  void write_tree() const;
 
   // =================================================================
   //                          Protected Attributes
@@ -234,7 +234,7 @@ void OutputManager::set_logs(int8_t logs) {
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-inline void OutputManager::flush(void) {
+inline void OutputManager::flush() {
   stats_->flush();
 }
 

@@ -121,79 +121,79 @@ Fuzzy* GeneticUnit::get_phenotypic_contribution() const {
 /*!
   Returns the DNA sequence
 */
-const char* GeneticUnit::get_sequence(void) const {
+const char* GeneticUnit::get_sequence() const {
   return dna_->data();
 }
 
 /*!
   Returns the DNA sequence length
 */
-int32_t GeneticUnit::get_seq_length(void) const {
+int32_t GeneticUnit::get_seq_length() const {
   return dna_->length();
 }
 
-int32_t GeneticUnit::get_nb_coding_RNAs(void) const {
+int32_t GeneticUnit::get_nb_coding_RNAs() const {
   return nb_coding_RNAs_;
 }
 
-int32_t GeneticUnit::get_nb_non_coding_RNAs(void) const {
+int32_t GeneticUnit::get_nb_non_coding_RNAs() const {
   return nb_non_coding_RNAs_;
 }
 
-double GeneticUnit::get_overall_size_coding_RNAs(void) const {
+double GeneticUnit::get_overall_size_coding_RNAs() const {
   return overall_size_coding_RNAs_;
 }
 
-double GeneticUnit::get_av_size_coding_RNAs(void) const {
+double GeneticUnit::get_av_size_coding_RNAs() const {
   if (nb_coding_RNAs_ != 0) {
     return overall_size_coding_RNAs_ / nb_coding_RNAs_;
   }
   else { return 0.0; }
 }
 
-double GeneticUnit::get_overall_size_non_coding_RNAs(void) const {
+double GeneticUnit::get_overall_size_non_coding_RNAs() const {
   return overall_size_non_coding_RNAs_;
 }
 
-double GeneticUnit::get_av_size_non_coding_RNAs(void) const {
+double GeneticUnit::get_av_size_non_coding_RNAs() const {
   if (nb_non_coding_RNAs_ != 0) {
     return overall_size_non_coding_RNAs_ / nb_non_coding_RNAs_;
   }
   else { return 0.0; }
 }
 
-int32_t GeneticUnit::get_nb_genes_activ(void) const {
+int32_t GeneticUnit::get_nb_genes_activ() const {
   return nb_genes_activ_;
 }
 
-int32_t GeneticUnit::get_nb_genes_inhib(void) const {
+int32_t GeneticUnit::get_nb_genes_inhib() const {
   return nb_genes_inhib_;
 }
 
-int32_t GeneticUnit::get_nb_functional_genes(void) const {
+int32_t GeneticUnit::get_nb_functional_genes() const {
   return nb_fun_genes_;
 }
 
-int32_t GeneticUnit::get_nb_non_functional_genes(void) const {
+int32_t GeneticUnit::get_nb_non_functional_genes() const {
   return nb_non_fun_genes_;
 }
 
-double GeneticUnit::get_overall_size_functional_genes(void) const {
+double GeneticUnit::get_overall_size_functional_genes() const {
   return overall_size_fun_genes_;
 }
 
-double GeneticUnit::get_av_size_functional_genes(void) const {
+double GeneticUnit::get_av_size_functional_genes() const {
   if (nb_fun_genes_ != 0) {
     return overall_size_fun_genes_ / nb_fun_genes_;
   }
   else { return 0.0; }
 }
 
-double GeneticUnit::get_overall_size_non_functional_genes(void) const {
+double GeneticUnit::get_overall_size_non_functional_genes() const {
   return overall_size_non_fun_genes_;
 }
 
-double GeneticUnit::get_av_size_non_functional_genes(void) const {
+double GeneticUnit::get_av_size_non_functional_genes() const {
   if (nb_non_fun_genes_ != 0) {
     return overall_size_non_fun_genes_ / nb_non_fun_genes_;
   }
@@ -283,11 +283,11 @@ double GeneticUnit::get_fitness_by_feature(PhenotypicFeature feature) const {
   return fitness_by_feature_[feature];
 }
 
-int32_t GeneticUnit::get_min_gu_length(void) const {
+int32_t GeneticUnit::get_min_gu_length() const {
   return min_gu_length_;
 }
 
-int32_t GeneticUnit::get_max_gu_length(void) const {
+int32_t GeneticUnit::get_max_gu_length() const {
   return max_gu_length_;
 }
 
@@ -334,7 +334,7 @@ bool GeneticUnit::is_stop(Strand strand, int32_t index) const {
   return (get_codon(strand, index) == CODON_STOP);
 }
 
-void GeneticUnit::remove_all_promoters(void) {
+void GeneticUnit::remove_all_promoters() {
   rna_list_[LEADING].clear();
   rna_list_[LAGGING].clear();
 }
@@ -817,7 +817,7 @@ GeneticUnit::GeneticUnit(Individual* indiv, char* organism_file_name) {
 // =================================================================
 //                             Destructors
 // =================================================================
-GeneticUnit::~GeneticUnit(void) {
+GeneticUnit::~GeneticUnit() {
   delete dna_;
   delete activ_contribution_;
   delete inhib_contribution_;
@@ -839,7 +839,7 @@ GeneticUnit::~GeneticUnit(void) {
 // =================================================================
 /// Look for promoters in the genome and create a new Rna in the
 /// corresponding strand's RNA list
-void GeneticUnit::locate_promoters(void) {
+void GeneticUnit::locate_promoters() {
 
   // TODO vld 2015-04-14: make it return the generated rna-list rather
   // than alter the current one?
@@ -873,7 +873,7 @@ void GeneticUnit::locate_promoters(void) {
   }
 }
 
-void GeneticUnit::do_transcription(void) {
+void GeneticUnit::do_transcription() {
   if (transcribed_) return;
   transcribed_ = true;
 
@@ -1076,7 +1076,7 @@ void GeneticUnit::do_translation() {
   }
 }
 
-void GeneticUnit::compute_phenotypic_contribution(void) {
+void GeneticUnit::compute_phenotypic_contribution() {
   if (phenotypic_contributions_computed_) return;
   phenotypic_contributions_computed_ = true;
   if (!translated_) do_translation();
@@ -1226,7 +1226,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target) {
 }
 
 
-void GeneticUnit::reset_expression(void) {
+void GeneticUnit::reset_expression() {
   // useful if the DNA sequence has changed (cf post-treatment programs
   // which replay mutations)
 
@@ -1274,7 +1274,7 @@ void GeneticUnit::print_coding_rnas() {
   }
 }
 
-void GeneticUnit::print_proteins(void) const {
+void GeneticUnit::print_proteins() const {
   printf("  LEADING ( %" PRId32 " )\n",
          static_cast<int32_t>(protein_list_[LEADING].size()));
   for (const auto& prot: protein_list_[LEADING])
@@ -1417,7 +1417,7 @@ int8_t GeneticUnit::get_codon(Strand strand, int32_t pos) const {
   return codon;
 }
 
-void GeneticUnit::compute_non_coding(void) {
+void GeneticUnit::compute_non_coding() {
   if (non_coding_computed_) return;
   non_coding_computed_ = true;
 
@@ -2886,7 +2886,7 @@ void GeneticUnit::assert_promoters_order() {
 /// Retrieve for each base if it belongs or not to coding RNA.
 ///
 /// \return Boolean table of sequence length size with for each base if it belongs or not to coding RNA
-bool* GeneticUnit::is_belonging_to_coding_RNA(void) {
+bool* GeneticUnit::is_belonging_to_coding_RNA() {
   int32_t genome_length = dna_->length();
   bool* belongs_to_coding_RNA = new bool[genome_length];
   memset(belongs_to_coding_RNA, 0, genome_length);
@@ -2933,7 +2933,7 @@ bool* GeneticUnit::is_belonging_to_coding_RNA(void) {
  *
  * Remove the bases that are not in coding RNA and test at each loss that fitness is not changed
  */
-void GeneticUnit::remove_non_coding_bases(void) {
+void GeneticUnit::remove_non_coding_bases() {
   // TODO <david.parsons@inria.fr> Restore method (deal with checking that the fitness remains untouched)
 //  Environment* env = exp_m_->get_env() ;
 //

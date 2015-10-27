@@ -51,14 +51,14 @@ using std::map;
   // ==========================================================================
   //                               Constructors
   // ==========================================================================
-  Observable(void) = default; //< Default ctor
+  Observable() = default; //< Default ctor
   Observable(const Observable&) = delete; //< Copy ctor
   Observable(Observable&&) = delete; //< Move ctor
 
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~Observable(void) = default; //< Destructor
+  virtual ~Observable() = default; //< Destructor
 
   // ==========================================================================
   //                                Operators

@@ -77,7 +77,7 @@ OutputManager::OutputManager(ExpManager * exp_m)
 // =================================================================
 //                             Destructors
 // =================================================================
-OutputManager::~OutputManager( void )
+OutputManager::~OutputManager()
 {
   delete stats_;
   delete tree_;
@@ -170,7 +170,7 @@ void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run)
   }
 }
 
-void OutputManager::write_current_generation_outputs( void ) const
+void OutputManager::write_current_generation_outputs() const
 {
   // Write stats
   stats_->write_current_generation_statistics();
@@ -228,7 +228,7 @@ int64_t OutputManager::get_last_gener() {
 // =================================================================
 //                           Protected Methods
 // =================================================================
-void OutputManager::write_tree( void ) const
+void OutputManager::write_tree() const
 {
   // Create the tree directory if it doesn't exist
   int status;

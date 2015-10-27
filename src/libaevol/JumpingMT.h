@@ -77,7 +77,7 @@ class JumpingMT
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~JumpingMT(void);
+    virtual ~JumpingMT();
 
     // =================================================================
     //                        Accessors: getters
@@ -94,18 +94,18 @@ class JumpingMT
     // =================================================================
     //                            Public Methods
     // =================================================================
-    inline double   random(void);         // Double in [0, 1[ (uniform distribution)
+    inline double   random();         // Double in [0, 1[ (uniform distribution)
     inline int8_t   random(int8_t max);   // ~
     inline int16_t  random(int16_t max);  // ~
     inline int32_t  random(int32_t max);  // ~ > Integer in [0, max[ (uniform distribution)
     inline int64_t  random(int64_t max);  // ~
     int32_t         binomial_random(int32_t nb, double prob); // Binomial drawing of parameters (nb, prob)
-    double          gaussian_random(void);                    // Double following a Standard Normal distribution
+    double          gaussian_random();                    // Double following a Standard Normal distribution
     int8_t          roulette_random(double* probs, int8_t nb_elts); // Roulette selection
     void            multinomial_drawing (int32_t* destination, double* source, int32_t nb_drawings, int32_t colors);
     // Multinomial drawing of parameters (nb, {source[0], source[1], ... source[colors-1]})
     
-    void jump(void);
+    void jump();
     
     void save(gzFile backup_file) const;
 
@@ -124,7 +124,7 @@ class JumpingMT
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    JumpingMT(void)
+    JumpingMT()
     {
       printf("%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__);
       exit(EXIT_FAILURE);
@@ -166,7 +166,7 @@ class JumpingMT
 /*!
   Draw a double precision real-number in [0, 1) with a uniform distribution
  */
-inline double JumpingMT::random(void)
+inline double JumpingMT::random()
 {
   return sfmt_genrand_real2(sfmt_);
 }

@@ -72,7 +72,7 @@ class PhenotypicTargetHandler
   // ==========================================================================
   //                               Constructors
   // ==========================================================================
-  PhenotypicTargetHandler(void); //< Default ctor
+  PhenotypicTargetHandler(); //< Default ctor
   PhenotypicTargetHandler(const PhenotypicTargetHandler&); //< Copy ctor
   PhenotypicTargetHandler(PhenotypicTargetHandler&&) = delete; //< Move ctor
   PhenotypicTargetHandler(gzFile backup_file);
@@ -80,7 +80,7 @@ class PhenotypicTargetHandler
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~PhenotypicTargetHandler(void); //< Destructor
+  virtual ~PhenotypicTargetHandler(); //< Destructor
 
   // ==========================================================================
   //                                Operators

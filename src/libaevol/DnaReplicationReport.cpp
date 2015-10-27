@@ -212,7 +212,7 @@ void DnaReplicationReport::add_HT(Mutation* mut) {
 
 /// Useful when we inspect a tree file
 /// because stats are not saved in the file.
-void DnaReplicationReport::compute_stats( void )
+void DnaReplicationReport::compute_stats()
 {
   nb_mut_[SWITCH] = 0;
   nb_mut_[S_INS]  = 0;

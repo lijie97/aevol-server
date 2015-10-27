@@ -549,14 +549,14 @@ StatRecord::StatRecord(ExpManager * exp_m,
 // =================================================================
 //                             Destructors
 // =================================================================
-StatRecord::~StatRecord(void)
+StatRecord::~StatRecord()
 {
 }
 
 // =================================================================
 //                            Public Methods
 // =================================================================
-void StatRecord::initialize_data(void)
+void StatRecord::initialize_data()
 {
   pop_size_  = 0.0;
   

@@ -53,7 +53,7 @@ class ae_individual_R : public virtual ae_individual
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_individual_R( void );
+    ae_individual_R();
     ae_individual_R(  ae_individual_R* parent, int32_t id,
                       ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng  );
     ae_individual_R( gzFile backup_file );
@@ -61,7 +61,7 @@ class ae_individual_R : public virtual ae_individual
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_individual_R( void );
+    virtual ~ae_individual_R();
 
     // =================================================================
     //                              Accessors
@@ -71,8 +71,8 @@ class ae_individual_R : public virtual ae_individual
     //                            Public Methods
     // =================================================================
     virtual void evaluate( Environment* envir );
-    void    set_influences( void );
-    void    update_concentrations( void );
+    void    set_influences();
+    void    update_concentrations();
     void    multiply_concentrations( double factor );
     int8_t  get_quadon( GeneticUnit* gen_unit, ae_strand strand, int32_t pos );
     void    save( gzFile backup_file );
@@ -94,8 +94,8 @@ class ae_individual_R : public virtual ae_individual
     // =================================================================
     //                           Protected Methods
     // =================================================================
-    virtual void make_protein_list( void );
-    virtual void make_rna_list( void );
+    virtual void make_protein_list();
+    virtual void make_rna_list();
 
     // =================================================================
     //                          Protected Attributes

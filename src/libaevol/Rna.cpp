@@ -100,14 +100,14 @@ Rna::Rna( Rna* parent )
 // =================================================================
 //                             Destructors
 // =================================================================
-Rna::~Rna( void )
+Rna::~Rna()
 {
 }
 
 // =================================================================
 //                            Public Methods
 // =================================================================
-int32_t Rna::get_first_transcribed_pos( void ) const
+int32_t Rna::get_first_transcribed_pos() const
 {
   if ( strand_ == LEADING )
   {
@@ -119,7 +119,7 @@ int32_t Rna::get_first_transcribed_pos( void ) const
   }
 }
 
-int32_t Rna::get_last_transcribed_pos( void ) const
+int32_t Rna::get_last_transcribed_pos() const
 {
   if ( strand_ == LEADING )
   {

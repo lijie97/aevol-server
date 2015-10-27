@@ -64,37 +64,37 @@ class World
   // =================================================================
   //                             Constructors
   // =================================================================
-  World(void) = default;
+  World() = default;
   World(const World &) = delete;
 
   // =================================================================
   //                             Destructors
   // =================================================================
-  virtual ~World(void);
+  virtual ~World();
 
   // =================================================================
   //                        Accessors: getters
   // =================================================================
   // PRNGs
-  std::shared_ptr<JumpingMT> get_prng(void) const;
-  std::shared_ptr<JumpingMT> get_mut_prng(void) const;
-  std::shared_ptr<JumpingMT> get_stoch_prng(void) const;
+  std::shared_ptr<JumpingMT> get_prng() const;
+  std::shared_ptr<JumpingMT> get_mut_prng() const;
+  std::shared_ptr<JumpingMT> get_stoch_prng() const;
 
-  std::list<Individual *> get_indivs(void) const;
-  inline int32_t          get_nb_indivs(void) const;
-  inline Individual *   get_best_indiv(void) const;
+  std::list<Individual *> get_indivs() const;
+  inline int32_t          get_nb_indivs() const;
+  inline Individual *   get_best_indiv() const;
   int16_t          width()  const {return width_;};
   int16_t          height() const {return height_;};
-  inline int32_t          partial_mix_nb_permutations(void) const;
-  GridCell ***  grid(void) const {return grid_;};
+  inline int32_t          partial_mix_nb_permutations() const;
+  GridCell ***  grid() const {return grid_;};
   inline GridCell*    grid(int16_t x, int16_t y) const;
   inline Individual*   get_indiv_at(int16_t x, int16_t y) const;
   Individual* get_indiv_by_id(int32_t id) const;
 
-  inline double** get_secretion_present_grid(void) const;
-  inline double** get_secreted_amount_grid(void) const;
-  inline double** get_metabolic_fitness_grid(void) const;
-  inline double** get_total_fitness_grid(void) const;
+  inline double** get_secretion_present_grid() const;
+  inline double** get_secreted_amount_grid() const;
+  inline double** get_metabolic_fitness_grid() const;
+  inline double** get_total_fitness_grid() const;
 
   bool phenotypic_target_shared() const {
     return phenotypic_target_shared_;
@@ -131,9 +131,9 @@ class World
   void PlaceIndiv(Individual * indiv, int16_t x, int16_t y);
   void FillGridWithClones(Individual & dolly);
   void evaluate_individuals();
-  void update_secretion_grid(void);
-  void MixIndivs(void);
-  void update_best(void);
+  void update_secretion_grid();
+  void MixIndivs();
+  void update_best();
   void ApplyHabitatVariation();
 
   void save(gzFile backup_file) const;
@@ -146,10 +146,10 @@ class World
   // =================================================================
   //                           Protected Methods
   // =================================================================
-  void MallocGrid(void);
-  void WellMixIndivs(void);
-  void PartiallyMixIndivs(void);
-  void backup_stoch_prng(void);
+  void MallocGrid();
+  void WellMixIndivs();
+  void PartiallyMixIndivs();
+  void backup_stoch_prng();
 
   // =================================================================
   //                          Protected Attributes
@@ -183,17 +183,17 @@ class World
 // =====================================================================
 //                           Getters' definitions
 // =====================================================================
-inline int32_t World::get_nb_indivs(void) const
+inline int32_t World::get_nb_indivs() const
 {
   return width_ * height_;
 }
 
-inline Individual *World::get_best_indiv(void) const
+inline Individual *World::get_best_indiv() const
 {
   return grid_[x_best][y_best]->get_individual();
 }
 
-inline int32_t World::partial_mix_nb_permutations(void) const
+inline int32_t World::partial_mix_nb_permutations() const
 {
   return partial_mix_nb_permutations_;
 }
@@ -208,7 +208,7 @@ inline Individual *World::get_indiv_at(int16_t x, int16_t y) const
   return grid_[x][y]->get_individual();
 }
 
-inline double**World::get_secretion_present_grid(void) const
+inline double**World::get_secretion_present_grid() const
 {
   double** ret = new double*[width_];
   
@@ -224,7 +224,7 @@ inline double**World::get_secretion_present_grid(void) const
   return ret;
 }
 
-inline double**World::get_secreted_amount_grid(void) const
+inline double**World::get_secreted_amount_grid() const
 {
   double** ret = new double*[width_];
   for (int16_t x = 0 ; x < width_ ; x++)
@@ -239,7 +239,7 @@ inline double**World::get_secreted_amount_grid(void) const
   return ret;
 }
 
-inline double**World::get_metabolic_fitness_grid(void) const
+inline double**World::get_metabolic_fitness_grid() const
 {
   double** ret = new double*[width_];
   for (int16_t x = 0 ; x < width_ ; x++)
@@ -254,7 +254,7 @@ inline double**World::get_metabolic_fitness_grid(void) const
   return ret;
 }
 
-inline double**World::get_total_fitness_grid(void) const
+inline double**World::get_total_fitness_grid() const
 {
   double** ret = new double*[width_];
   for (int16_t x = 0 ; x < width_ ; x++)

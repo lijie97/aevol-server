@@ -54,7 +54,7 @@ namespace aevol {
 /*
  * Used at initialization
 */
-ae_individual_R::ae_individual_R( void ) : ae_individual()
+ae_individual_R::ae_individual_R() : ae_individual()
 {
   rna_list_coding_ = new ae_list();
   
@@ -127,7 +127,7 @@ ae_individual_R::ae_individual_R( gzFile backup_file ) : ae_individual( backup_f
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_individual_R::~ae_individual_R( void )
+ae_individual_R::~ae_individual_R()
 {
   assert( !ae_common::with_heredity || inherited_protein_list_ != NULL );
   
@@ -231,7 +231,7 @@ void ae_individual_R::evaluate( Environment* envir )
   fitness_ = fitness_temp / (double)ae_common::individual_evaluation_nbr;
 }
 
-void ae_individual_R::set_influences( void )
+void ae_individual_R::set_influences()
 // Compute the influence of each protein over each coding RNA
 // As non-coding RNAs are completely inert, we don't care about their concentration
 // so we don't care if proteins activate or inhibit their transcription.
@@ -252,7 +252,7 @@ void ae_individual_R::set_influences( void )
   }
 }
 
-void ae_individual_R::update_concentrations( void )
+void ae_individual_R::update_concentrations()
 {
   //phenotype_->print_points();
 
@@ -370,13 +370,13 @@ void ae_individual_R::save( gzFile backup_file )
 // =================================================================
 //                           Protected Methods
 // =================================================================
-void ae_individual_R::make_protein_list( void )
+void ae_individual_R::make_protein_list()
 {
   ae_individual::make_protein_list();
   protein_list_->add_list( inherited_protein_list_ );
 }
 
-void ae_individual_R::make_rna_list( void )
+void ae_individual_R::make_rna_list()
 {
   ae_individual::make_rna_list();
   

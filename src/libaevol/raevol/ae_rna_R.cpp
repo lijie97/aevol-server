@@ -53,7 +53,7 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-ae_rna_R::ae_rna_R( void ) : ae_rna()
+ae_rna_R::ae_rna_R() : ae_rna()
 {
   influence_list_ = new ae_list();
 }
@@ -85,7 +85,7 @@ ae_rna( parent )
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_rna_R::~ae_rna_R( void )
+ae_rna_R::~ae_rna_R()
 {
   //printf("nb_el = %ld\n", influence_list_->get_nb_elts());
   influence_list_->erase( DELETE_OBJ );
@@ -121,7 +121,7 @@ void ae_rna_R::set_influences( ae_list* protein_list )
   }
 }
 
-double ae_rna_R::get_synthesis_rate( void )
+double ae_rna_R::get_synthesis_rate()
 {
   double enhancer_activity  = 0;
   double operator_activity  = 0;
@@ -157,7 +157,7 @@ void ae_rna_R::remove_influence( ae_influence_R* influence )
 // =================================================================
 //                           Protected Methods
 // =================================================================
-int32_t ae_rna_R::get_enhancer_position( void )
+int32_t ae_rna_R::get_enhancer_position()
 {
   if(strand_ == LEADING)
   {
@@ -169,7 +169,7 @@ int32_t ae_rna_R::get_enhancer_position( void )
   }
 }
 
-int32_t ae_rna_R::get_operator_position( void )
+int32_t ae_rna_R::get_operator_position()
 {
   if(strand_ == LEADING)
   {

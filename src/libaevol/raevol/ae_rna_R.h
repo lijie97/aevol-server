@@ -55,25 +55,25 @@ class ae_rna_R : public ae_rna
     //                             Constructors
     // =================================================================
     ae_rna_R( GeneticUnit* gen_unit, const ae_rna_R &model );
-    ae_rna_R( void );
+    ae_rna_R();
     ae_rna_R( GeneticUnit* gen_unit );
     ae_rna_R( GeneticUnit* gen_unit, ae_strand strand, int32_t index, int8_t diff );
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_rna_R( void );
+    virtual ~ae_rna_R();
 
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline  ae_list*  get_influence_list( void );
+    inline  ae_list*  get_influence_list();
 
     // =================================================================
     //                            Public Methods
     // =================================================================
     void    set_influences( ae_list* protein_list );
-    double  get_synthesis_rate( void );
+    double  get_synthesis_rate();
     void    remove_influence( ae_influence_R* influence );
     // =================================================================
     //                           Public Attributes
@@ -84,7 +84,7 @@ class ae_rna_R : public ae_rna
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    /*    ae_rna( void )
+    /*    ae_rna()
     {
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
@@ -98,9 +98,9 @@ class ae_rna_R : public ae_rna
     // =================================================================
     //                           Protected Methods
     // =================================================================
-    //inline  ae_rna_R* copy( void );
-            int32_t   get_enhancer_position( void );
-            int32_t   get_operator_position( void );
+    //inline  ae_rna_R* copy();
+            int32_t   get_enhancer_position();
+            int32_t   get_operator_position();
             void      add_influence( ae_protein *protein, double enhancing_coef, double operating_coef );
             double    affinity_with_protein( int32_t index, ae_protein *protein );
 
@@ -114,7 +114,7 @@ class ae_rna_R : public ae_rna
 // =====================================================================
 //                          Accessors definitions
 // =====================================================================
-ae_list* ae_rna_R::get_influence_list( void )
+ae_list* ae_rna_R::get_influence_list()
 {
   return influence_list_;
 }
@@ -123,7 +123,7 @@ ae_list* ae_rna_R::get_influence_list( void )
 //                       Inline functions' definition
 // =====================================================================
 /*
-ae_rna_R* ae_rna_R::copy( void )
+ae_rna_R* ae_rna_R::copy()
 {
   return new ae_rna_R( this );
 }

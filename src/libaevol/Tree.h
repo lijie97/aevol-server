@@ -76,7 +76,7 @@ class Tree : public Observer
     // =================================================================
     //                        Accessors: getters
     // =================================================================
-    inline int64_t  get_tree_step(void) const {
+    inline int64_t  get_tree_step() const {
       return tree_step_;
     };
     

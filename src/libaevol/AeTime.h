@@ -58,19 +58,19 @@ class AeTime {
   // =================================================================
   //                             Constructors
   // =================================================================
-  AeTime(void) = delete; //< Default ctor
+  AeTime() = delete; //< Default ctor
   AeTime(const AeTime &) = delete; //< Copy ctor
   AeTime(AeTime &&) = delete; //< Move ctor
 
   // =================================================================
   //                             Destructors
   // =================================================================
-  virtual ~AeTime(void) = delete;
+  virtual ~AeTime() = delete;
 
   // =================================================================
   //                        Accessors: getters
   // =================================================================
-  static inline int64_t get_time(void) {return time;}
+  static inline int64_t get_time() {return time;}
 
   // =================================================================
   //                        Accessors: setters
@@ -84,7 +84,7 @@ class AeTime {
   // =================================================================
   //                            Public Methods
   // =================================================================
-  static inline void plusplus(void) {time++;}
+  static inline void plusplus() {time++;}
 
   // =================================================================
   //                           Public Attributes
@@ -122,7 +122,7 @@ class AeTime {
 //                       Inline functions' definition
 // =====================================================================
 
-int64_t get_time(void);
+int64_t get_time();
 
 } // namespace aevol
 

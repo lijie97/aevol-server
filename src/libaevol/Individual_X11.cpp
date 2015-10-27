@@ -89,7 +89,7 @@ Individual_X11::Individual_X11(Individual_X11 * const parent,
 // =================================================================
 //                             Destructors
 // =================================================================
-Individual_X11::~Individual_X11(void)
+Individual_X11::~Individual_X11()
 {
   for (int16_t layer = 0 ; layer < outmost_layer_ ; layer++)
   {
@@ -101,7 +101,7 @@ Individual_X11::~Individual_X11(void)
 // =================================================================
 //                            Public Methods
 // =================================================================
-void Individual_X11::display(void)
+void Individual_X11::display()
 {
 }
 
@@ -792,7 +792,7 @@ void Individual_X11::display_rnas(X11Window * win)
 // =================================================================
 //                           Protected Methods
 // =================================================================
-void Individual_X11::add_layer(void)
+void Individual_X11::add_layer()
 {
   occupied_sectors_[LEADING][outmost_layer_] = new bool[360];
   occupied_sectors_[LAGGING][outmost_layer_] = new bool[360];
@@ -806,7 +806,7 @@ void Individual_X11::add_layer(void)
   outmost_layer_++;
 }
 
-void Individual_X11::init_occupied_sectors(void)
+void Individual_X11::init_occupied_sectors()
 {
   outmost_layer_ = 1;
 
@@ -817,7 +817,7 @@ void Individual_X11::init_occupied_sectors(void)
   }
 }
 
-void Individual_X11::reset_sectors(void)
+void Individual_X11::reset_sectors()
 {
   for (int16_t layer = 0 ; layer < outmost_layer_ ; layer++)
   {

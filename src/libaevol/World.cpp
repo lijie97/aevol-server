@@ -64,7 +64,7 @@ namespace aevol {
 // =================================================================
 //                             Destructor
 // =================================================================
-World::~World(void)
+World::~World()
 {
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++)
@@ -111,7 +111,7 @@ void World::InitGrid(int16_t width, int16_t height,
     }
 }
 
-void World::MallocGrid(void)
+void World::MallocGrid()
 {
   // Although grid_ is a 2D array, we want all its cells to be contiguous
   // in memory. However, we also want it to be 2D-accessible i.e. we want to
@@ -144,7 +144,7 @@ void World::evaluate_individuals()
     }
 }
 
-void World::update_secretion_grid(void)
+void World::update_secretion_grid()
 {
   int16_t cur_x, cur_y;
 
@@ -204,7 +204,7 @@ void World::update_secretion_grid(void)
  * Depending on parameters this can either well-mix or partially-mix
  * the population
  */
-void World::MixIndivs(void)
+void World::MixIndivs()
 {
   if (is_well_mixed_)
     WellMixIndivs();
@@ -215,7 +215,7 @@ void World::MixIndivs(void)
 /*
  * Suffle individuals randomly using Fisher-Yates shuffle
  */
-void World::WellMixIndivs(void)
+void World::WellMixIndivs()
 {
   for (int16_t i = width_ * height_ - 1 ; i > 0 ; i--) {
     int16_t j = prng_->random(i + 1); // random in [0, 1]
@@ -232,7 +232,7 @@ void World::WellMixIndivs(void)
  *
  * The number of permutations is given by partial_mix_nb_permutations_
  */
-void World::PartiallyMixIndivs(void)
+void World::PartiallyMixIndivs()
 {
   for (int32_t i = 0 ; i < partial_mix_nb_permutations_ ; i++)
   {
@@ -248,7 +248,7 @@ void World::PartiallyMixIndivs(void)
   }
 }
 
-void World::update_best(void)
+void World::update_best()
 {
   x_best = y_best = 0;
   double fit_best = get_indiv_at(0, 0)->get_fitness();
@@ -374,7 +374,7 @@ void World::load(gzFile backup_file, ExpManager * exp_man)
 // =================================================================
 //                           Protected Methods
 // =================================================================
-void World::backup_stoch_prng(void)
+void World::backup_stoch_prng()
 {
   // Store a copy of stoch_prng_ in stoch_prng_bak_
 #if __cplusplus == 201103L
@@ -387,22 +387,22 @@ void World::backup_stoch_prng(void)
 // =================================================================
 //                          Non inline accessors
 // =================================================================
-std::shared_ptr<JumpingMT> World::get_prng(void) const
+std::shared_ptr<JumpingMT> World::get_prng() const
 {
   return prng_;
 }
 
-std::shared_ptr<JumpingMT> World::get_mut_prng(void) const
+std::shared_ptr<JumpingMT> World::get_mut_prng() const
 {
   return mut_prng_;
 }
 
-std::shared_ptr<JumpingMT> World::get_stoch_prng(void) const
+std::shared_ptr<JumpingMT> World::get_stoch_prng() const
 {
   return stoch_prng_;
 }
 
-list<Individual *> World::get_indivs(void) const
+list<Individual *> World::get_indivs() const
 {
   list<Individual *> r;
 

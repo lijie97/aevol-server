@@ -55,7 +55,7 @@ namespace aevol {
 //                             Constructors
 // =================================================================
 
-Logging::Logging( void )
+Logging::Logging()
 {
   logs_ = 0;
   
@@ -68,7 +68,7 @@ Logging::Logging( void )
 // =================================================================
 //                             Destructors
 // =================================================================
-Logging::~Logging( void )
+Logging::~Logging()
 {
   if ( logs_ & LOG_TRANSFER )
   {
@@ -332,7 +332,7 @@ void Logging::set_logs( int8_t logs )
   this->write_headers();
 }
 
-void Logging::flush( void )
+void Logging::flush()
 {
   if ( logs_ & LOG_TRANSFER )
   {
@@ -355,7 +355,7 @@ void Logging::flush( void )
 // =================================================================
 //                           Protected Methods
 // =================================================================
-void Logging::write_headers( void ) const
+void Logging::write_headers() const
 {
   // ========== TRANSFER LOG ==========
   if ( logs_ & LOG_TRANSFER )

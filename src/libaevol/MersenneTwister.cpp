@@ -78,7 +78,7 @@ MersenneTwister::MersenneTwister( const MersenneTwister & model )
 // =================================================================
 //                             Destructors
 // =================================================================
-MersenneTwister::~MersenneTwister( void )
+MersenneTwister::~MersenneTwister()
 {
 }
 
@@ -169,7 +169,7 @@ int32_t MersenneTwister::binomial_random( int32_t nb_drawings, double prob )
   return nb_success;
 }
 
-double MersenneTwister::gaussian_random( void )
+double MersenneTwister::gaussian_random()
 {
   double x1, x2;
   double r = 0;

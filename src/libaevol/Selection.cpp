@@ -93,14 +93,14 @@ Selection::Selection(ExpManager* exp_m) {
 // =================================================================
 //                             Destructors
 // =================================================================
-Selection::~Selection(void) {
+Selection::~Selection() {
   delete [] prob_reprod_;
 }
 
 // =================================================================
 //                            Public Methods
 // =================================================================
-void Selection::step_to_next_generation(void) {
+void Selection::step_to_next_generation() {
   // To create the new generation, we must create nb_indivs new individuals
   // (offspring) and "kill" the existing ones.
   // The number of offspring on a given individual will be given by a stochastic
@@ -224,7 +224,7 @@ void Selection::step_to_next_generation(void) {
   notifyObservers(END_GENERATION);
 }
 
-void Selection::PerformPlasmidTransfers(void) {
+void Selection::PerformPlasmidTransfers() {
   if (exp_m_->with_plasmids() &&
       ((exp_m_->prob_plasmid_HT() != 0.0) ||
         (exp_m_->tune_donor_ability() != 0.0) ||
@@ -346,7 +346,7 @@ void Selection::load(gzFile& exp_setup_file,
 // =================================================================
 //                           Protected Methods
 // =================================================================
-void Selection::compute_prob_reprod(void) { // non spatially structured only
+void Selection::compute_prob_reprod() { // non spatially structured only
   if (prob_reprod_ != NULL) { // TODO <david.parsons@inria.fr> remove
     delete [] prob_reprod_;
   }
@@ -435,7 +435,7 @@ void Selection::compute_prob_reprod(void) { // non spatially structured only
   }
 }
 
-void Selection::compute_local_prob_reprod(void) {
+void Selection::compute_local_prob_reprod() {
   int16_t neighborhood_size = 9;
 
   if (prob_reprod_ != NULL) {

@@ -54,14 +54,14 @@ class BoilerplateClass {
   // ==========================================================================
   //                               Constructors
   // ==========================================================================
-  BoilerplateClass(void) = default; //< Default ctor
+  BoilerplateClass() = default; //< Default ctor
   BoilerplateClass(const BoilerplateClass&) = delete; //< Copy ctor
   BoilerplateClass(BoilerplateClass&&) = delete; //< Move ctor
 
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~BoilerplateClass(void) = default; //< Destructor
+  virtual ~BoilerplateClass() = default; //< Destructor
 
   // ==========================================================================
   //                                 Getters

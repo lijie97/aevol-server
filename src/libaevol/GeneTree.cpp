@@ -63,7 +63,7 @@ namespace aevol {
 //                             Constructors
 // =================================================================
 
-GeneTree::GeneTree( void )
+GeneTree::GeneTree()
 {
   root_ = NULL;
   begin_gener_ = 0;
@@ -100,7 +100,7 @@ GeneTree::GeneTree( int32_t nodeCreationDate, Protein * protein, const Mutation 
 //                             Destructors
 // =================================================================
 
-GeneTree::~GeneTree( void )
+GeneTree::~GeneTree()
 {
   delete root_;
 }
@@ -187,7 +187,7 @@ GeneTreeNode *GeneTree::search_in_leaves(const Protein * protein)
 }
  
 
-void GeneTree::print_to_screen(void)
+void GeneTree::print_to_screen()
 {
   root_->print_subtree_to_screen();
   printf("\n");

@@ -45,14 +45,14 @@ class Observer {
   // ==========================================================================
   //                               Constructors
   // ==========================================================================
-  Observer(void) = default; //< Default ctor
+  Observer() = default; //< Default ctor
   Observer(const Observer&) = delete; //< Copy ctor
   Observer(Observer&&) = delete; //< Move ctor
 
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~Observer(void) = default; //< Destructor
+  virtual ~Observer() = default; //< Destructor
 
   // ==========================================================================
   //                                Operators

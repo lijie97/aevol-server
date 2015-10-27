@@ -273,7 +273,7 @@ ParamLoader::ParamLoader(const char* file_name)
 // =================================================================
 //                             Destructor
 // =================================================================
-ParamLoader::~ParamLoader(void)
+ParamLoader::~ParamLoader()
 {
   free(param_file_name_);
   fclose(param_file_);

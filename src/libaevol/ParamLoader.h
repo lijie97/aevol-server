@@ -64,11 +64,11 @@ class ParamLoader {
   // =========================================================================
   //                          Constructors & Destructor
   // =========================================================================
-    ParamLoader(void) = delete; //< Default ctor
+    ParamLoader() = delete; //< Default ctor
     ParamLoader(const ParamLoader&) = delete; //< Copy ctor
     ParamLoader(ParamLoader&&) = delete; //< Move ctor
     ParamLoader(const char* file_name);
-    virtual ~ParamLoader(void); //< Destructor
+    virtual ~ParamLoader(); //< Destructor
 
   // ==========================================================================
   //                                Operators

@@ -129,7 +129,7 @@ class GeneMutation : public Mutation
   //                         Forbidden Constructors
   // =================================================================
   
-  GeneMutation( void )
+  GeneMutation()
     {
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );

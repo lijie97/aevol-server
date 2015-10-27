@@ -58,14 +58,14 @@ class IndividualFactory
   // ==========================================================================
   //                               Constructors
   // ==========================================================================
-  IndividualFactory(void) = default; //< Default ctor
+  IndividualFactory() = default; //< Default ctor
   IndividualFactory(const IndividualFactory&) = delete; //< Copy ctor
   IndividualFactory(IndividualFactory&&) = delete; //< Move ctor
 
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~IndividualFactory(void) = default; //< Destructor
+  virtual ~IndividualFactory() = default; //< Destructor
 
   // ==========================================================================
   //                                 Getters

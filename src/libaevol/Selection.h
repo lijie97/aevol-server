@@ -67,22 +67,22 @@ class Selection : public Observable
     // =================================================================
     //                             Constructors
     // =================================================================
-    Selection(void) = delete;
+    Selection() = delete;
     Selection(const Selection&) = delete;
     Selection(ExpManager* exp_m);
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~Selection(void);
+    virtual ~Selection();
 
     // =================================================================
     //                        Accessors: getters
     // =================================================================
-    inline SelectionScheme get_selection_scheme(void) const;
-    inline double               get_selection_pressure(void) const;
-    inline double*              get_prob_reprod(void) const;
-    // inline std::unique_ptr<JumpingMT> get_prng(void) const;
+    inline SelectionScheme get_selection_scheme() const;
+    inline double               get_selection_pressure() const;
+    inline double*              get_prob_reprod() const;
+    // inline std::unique_ptr<JumpingMT> get_prng() const;
 
     // =================================================================
     //                        Accessors: setters
@@ -101,8 +101,8 @@ class Selection : public Observable
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void step_to_next_generation(void);
-    void PerformPlasmidTransfers(void);
+    void step_to_next_generation();
+    void PerformPlasmidTransfers();
     void write_setup_file(gzFile setup_file) const;
     void save(gzFile& backup_file) const;
     void load(gzFile& exp_setup_file, gzFile& backup_file, bool verbose);
@@ -123,8 +123,8 @@ class Selection : public Observable
     // =================================================================
     //                           Protected Methods
     // =================================================================
-    void compute_prob_reprod(void);
-    void compute_local_prob_reprod(void);
+    void compute_prob_reprod();
+    void compute_local_prob_reprod();
     Individual* do_local_competition(int16_t x, int16_t y);
 
     // =======================================================================
@@ -147,22 +147,22 @@ class Selection : public Observable
 // =====================================================================
 //                           Getters' definitions
 // =====================================================================
-// inline std::unique_ptr<JumpingMT> Selection::get_prng(void) const
+// inline std::unique_ptr<JumpingMT> Selection::get_prng() const
 // {
 //   return prng_;
 // }
 
-inline SelectionScheme Selection::get_selection_scheme(void) const
+inline SelectionScheme Selection::get_selection_scheme() const
 {
   return selection_scheme_;
 }
 
-inline double Selection::get_selection_pressure(void) const
+inline double Selection::get_selection_pressure() const
 {
   return selection_pressure_;
 }
 
-inline double*Selection::get_prob_reprod(void) const
+inline double*Selection::get_prob_reprod() const
 {
   if (prob_reprod_ == NULL)
   {

@@ -54,7 +54,7 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-MutationParams::MutationParams( void )
+MutationParams::MutationParams()
 {
   // --------------------------------------------------------- Mutation rates
   point_mutation_rate_  = 0.0;
@@ -204,7 +204,7 @@ MutationParams::MutationParams( gzFile backup_file )
 // =================================================================
 //                             Destructors
 // =================================================================
-MutationParams::~MutationParams( void )
+MutationParams::~MutationParams()
 {
 }
 

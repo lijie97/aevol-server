@@ -72,7 +72,7 @@ class Stats
     // =================================================================
     //                             Constructors
     // =================================================================
-    Stats(void) = delete;
+    Stats() = delete;
     Stats(const Stats &) = delete;
     Stats(ExpManager * exp_m,
           bool best_indiv_only = false,
@@ -90,7 +90,7 @@ class Stats
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~Stats(void);
+    virtual ~Stats();
 
     // =================================================================
     //                        Accessors: getters
@@ -104,10 +104,10 @@ class Stats
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void write_current_generation_statistics(void);
+    void write_current_generation_statistics();
     void write_statistics_of_this_indiv(Individual * indiv);
     
-    void flush( void );
+    void flush();
 
     void write_headers(bool ancstats_stats = false);
 
@@ -119,12 +119,12 @@ class Stats
     // =================================================================
     //                           Protected Methods
     // =================================================================
-    void init_data( void );
+    void init_data();
     void set_file_names(const char* prefix,
                         bool one_lambda_indiv_only,
                         bool with_plasmids = false,
                         bool compute_phen_contrib_by_GU = false);
-    void open_files( void );
+    void open_files();
     
     inline void write_header( FILE* file_name, const char* header );
     inline void write_header( FILE* file_name, const char* header, int8_t key );

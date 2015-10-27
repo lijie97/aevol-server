@@ -59,7 +59,7 @@ namespace aevol {
 // =================================================================
 
 
-ParameterLine::ParameterLine( void )
+ParameterLine::ParameterLine()
 {
   nb_words = 0;
 }

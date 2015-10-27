@@ -362,7 +362,7 @@ Protein::Protein( gzFile backup_file )
 // =================================================================
 //                             Destructors
 // =================================================================
-Protein::~Protein( void )
+Protein::~Protein()
 {
   for (const auto& AA: AA_list_)
     delete AA;
@@ -371,7 +371,7 @@ Protein::~Protein( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-int32_t Protein::get_last_STOP_base_pos( void ) const
+int32_t Protein::get_last_STOP_base_pos() const
 {
   if ( strand_ == LEADING )
   {
@@ -477,7 +477,7 @@ void Protein::save( gzFile backup_file )
 // =================================================================
 //                          Non inline accessors
 // =================================================================
-Individual *Protein::get_indiv( void ) const
+Individual *Protein::get_indiv() const
 {
   return gen_unit_->get_indiv();
 }

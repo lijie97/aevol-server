@@ -61,14 +61,14 @@ class PhenotypicTarget : public Fuzzy
   // ==========================================================================
   //                               Constructors
   // ==========================================================================
-  PhenotypicTarget(void); //< Default ctor
+  PhenotypicTarget(); //< Default ctor
   PhenotypicTarget(const PhenotypicTarget&); //< Copy ctor
   PhenotypicTarget(PhenotypicTarget&&) = delete; //< Move ctor
 
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~PhenotypicTarget(void); //< Destructor
+  virtual ~PhenotypicTarget(); //< Destructor
 
   // ==========================================================================
   //                                Operators

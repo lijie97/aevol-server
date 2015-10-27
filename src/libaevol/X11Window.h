@@ -80,7 +80,7 @@ class X11Window
     // =================================================================
     //                             Constructors
     // =================================================================
-    X11Window( void );
+    X11Window();
     X11Window(  Display* display, int8_t screen, Atom * atoms,
                     uint16_t pos_x, uint16_t pos_y, 
                     uint16_t width, uint16_t height,
@@ -89,34 +89,34 @@ class X11Window
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~X11Window( void );
+    virtual ~X11Window();
   
     // =================================================================
     //                              Accessors
     // =================================================================
-    GC get_gc_white( void )     { return gcWhite_;      };
-    GC get_gc_black( void )     { return gcBlack_;      };
-    GC getGCBlue( void )        { return gcBlue_;       };
-    GC getGCRed( void )         { return gcRed_;        };
-    GC getGCLightGrey( void )   { return gcLightGrey_;  };
-    GC getGCDarkGrey( void )    { return gcDarkGrey_;   };
-    GC getGCDarkerGrey( void )  { return gcDarkerGrey_; };
-    GC getGCGrey( void )        { return gcGrey_;       };
-    GC getGCGreen( void )       { return gcGreen_;      };
-    GC getGCOrange( void )      { return gcOrange_;     };
-    GC getGCYellow( void )      { return gcYellow_;     };
+    GC get_gc_white()     { return gcWhite_;      };
+    GC get_gc_black()     { return gcBlack_;      };
+    GC getGCBlue()        { return gcBlue_;       };
+    GC getGCRed()         { return gcRed_;        };
+    GC getGCLightGrey()   { return gcLightGrey_;  };
+    GC getGCDarkGrey()    { return gcDarkGrey_;   };
+    GC getGCDarkerGrey()  { return gcDarkerGrey_; };
+    GC getGCGrey()        { return gcGrey_;       };
+    GC getGCGreen()       { return gcGreen_;      };
+    GC getGCOrange()      { return gcOrange_;     };
+    GC getGCYellow()      { return gcYellow_;     };
 
-    uint16_t  get_width( void )         { return width_;   };
-    uint16_t  get_height( void )        { return height_;  };
-    Window        get_window( void )    { return window_;  };
-    Display *     get_display( void )   { return display_; };
+    uint16_t  get_width()         { return width_;   };
+    uint16_t  get_height()        { return height_;  };
+    Window        get_window()    { return window_;  };
+    Display *     get_display()   { return display_; };
   
     // =================================================================
     //                            Public Methods
     // =================================================================
 
     void resize( unsigned int width, unsigned int height );
-    inline void blacken( void );
+    inline void blacken();
     void draw_string( int16_t x, int16_t y, char* str );
     void draw_line( int16_t x1, int16_t y1, int16_t x2, int16_t y2, color_map color, bool bold = false );
     void draw_line( int16_t x1, int16_t y1, int16_t x2, int16_t y2, char* color, bool bold = false );
@@ -147,7 +147,7 @@ class X11Window
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    //~ X11Window( void )
+    //~ X11Window()
     //~ {
       //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       //~ exit( EXIT_FAILURE );
@@ -162,7 +162,7 @@ class X11Window
     //                           Protected Methods
     // =================================================================
     uint32_t get_pixel( Display *display, int8_t screen, char *color_name, uint32_t default_color );
-    void set_codes( void );
+    void set_codes();
   
     // =================================================================
     //                          Protected Attributes
@@ -198,7 +198,7 @@ class X11Window
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-void X11Window::blacken( void )
+void X11Window::blacken()
 {
   fill_rectangle( 0, 0, width_, height_, BLACK );
 }

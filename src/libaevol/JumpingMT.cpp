@@ -95,7 +95,7 @@ JumpingMT::JumpingMT( gzFile backup_file )
 // =================================================================
 //                             Destructors
 // =================================================================
-JumpingMT::~JumpingMT( void )
+JumpingMT::~JumpingMT()
 {
   delete sfmt_;
 }
@@ -106,7 +106,7 @@ JumpingMT::~JumpingMT( void )
 /*!
   Jump Ahead by a predefined jump length
  */
-void JumpingMT::jump( void )
+void JumpingMT::jump()
 {
   //~ clock_t start, end;
   //~ start = clock();
@@ -218,7 +218,7 @@ int32_t JumpingMT::binomial_random( int32_t nb_drawings, double prob )
   return nb_success;
 }
 
-double JumpingMT::gaussian_random( void )
+double JumpingMT::gaussian_random()
 {
   double x1, x2;
   double r = 0;

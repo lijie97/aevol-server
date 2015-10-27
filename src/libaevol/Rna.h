@@ -65,7 +65,7 @@ class Rna
     // =================================================================
     //                             Constructors
     // =================================================================
-    Rna(void) = delete;
+    Rna() = delete;
     Rna(const GeneticUnit&) = delete;
     Rna( GeneticUnit* gen_unit, const Rna &model );
     Rna( GeneticUnit* gen_unit, Strand strand, int32_t index, int8_t diff );
@@ -74,7 +74,7 @@ class Rna
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~Rna( void );
+    virtual ~Rna();
 
     // =================================================================
     //                              Accessors
@@ -82,19 +82,19 @@ class Rna
 
     // <DEBUG>
     void check( GeneticUnit* gen_unit ) { assert( gen_unit == gen_unit_ ); };
-    //~ void* get_indiv( void ) const { return (void*)indiv_; };
+    //~ void* get_indiv() const { return (void*)indiv_; };
     // </DEBUG>
 
-    inline const GeneticUnit * get_genetic_unit(void) const;
+    inline const GeneticUnit * get_genetic_unit() const;
     inline void set_genetic_unit(const GeneticUnit*  gen_unit);
-    inline Strand get_strand( void ) const;
+    inline Strand get_strand() const;
     inline void       set_strand( Strand strand );
-    inline int32_t    get_promoter_pos( void ) const;
+    inline int32_t    get_promoter_pos() const;
     inline void       set_promoter_pos( int32_t pos );
-    inline double     get_basal_level( void ) const;
-    inline int32_t    get_transcript_length( void ) const; // The promoter is NOT transcribed.
+    inline double     get_basal_level() const;
+    inline int32_t    get_transcript_length() const; // The promoter is NOT transcribed.
     inline void       set_transcript_length( int32_t length );
-    inline bool       is_coding( void ) const;
+    inline bool       is_coding() const;
 
     inline const std::list<Protein *>& get_transcribed_proteins() const;
     inline void clear_transcribed_proteins() { transcribed_proteins.clear(); };
@@ -102,8 +102,8 @@ class Rna
     // =================================================================
     //                            Public Methods
     // =================================================================
-    int32_t get_first_transcribed_pos( void ) const;   // The promoter is NOT transcribed.
-    int32_t get_last_transcribed_pos( void ) const;    // The terminator is transcribed.
+    int32_t get_first_transcribed_pos() const;   // The promoter is NOT transcribed.
+    int32_t get_last_transcribed_pos() const;    // The terminator is transcribed.
     inline void add_transcribed_protein( Protein * prot );
     inline void shift_position( int32_t delta_pos, int32_t genome_length );
 
@@ -143,7 +143,7 @@ class Rna
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-inline const GeneticUnit*Rna::get_genetic_unit( void ) const
+inline const GeneticUnit*Rna::get_genetic_unit() const
 {
   return gen_unit_;
 }
@@ -153,7 +153,7 @@ inline void Rna::set_genetic_unit(const GeneticUnit*  gen_unit)
   gen_unit_ = gen_unit;
 }
 
-inline Strand Rna::get_strand( void ) const
+inline Strand Rna::get_strand() const
 {
   return strand_;
 }
@@ -168,17 +168,17 @@ void Rna::set_promoter_pos( int32_t pos )
   pos_ = pos;
 }
 
-inline int32_t Rna::get_promoter_pos( void ) const
+inline int32_t Rna::get_promoter_pos() const
 {
   return pos_;
 }
 
-inline double Rna::get_basal_level( void ) const
+inline double Rna::get_basal_level() const
 {
   return basal_level_;
 }
 
-inline int32_t Rna::get_transcript_length( void ) const
+inline int32_t Rna::get_transcript_length() const
 {
   return transcript_length_;
 }
@@ -192,7 +192,7 @@ inline const std::list<Protein *>&Rna::get_transcribed_proteins() const {
   return transcribed_proteins;
 }
 
-inline bool Rna::is_coding( void ) const
+inline bool Rna::is_coding() const
 {
   return (not transcribed_proteins.empty());
 }

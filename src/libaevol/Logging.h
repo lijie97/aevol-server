@@ -61,12 +61,12 @@ class Logging
     // =================================================================
     //                             Constructors
     // =================================================================
-    Logging( void );
+    Logging();
 
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~Logging( void );
+    virtual ~Logging();
 
     // =================================================================
     //                              Accessors
@@ -87,7 +87,7 @@ class Logging
     void print_to_file( FILE* file ) const;
     
     void set_logs( int8_t logs );
-    void flush( void );
+    void flush();
 
     // =================================================================
     //                           Public Attributes
@@ -102,7 +102,7 @@ class Logging
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    /*    Logging( void )
+    /*    Logging()
     {
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
@@ -117,7 +117,7 @@ class Logging
     // =================================================================
     //                           Protected Methods
     // =================================================================
-    void write_headers( void ) const;
+    void write_headers() const;
 
     // =================================================================
     //                          Protected Attributes

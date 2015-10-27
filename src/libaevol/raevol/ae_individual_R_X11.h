@@ -53,7 +53,7 @@ class ae_individual_R_X11 : public ae_individual_R, ae_individual_X11
     //                             Constructors
     // =================================================================
     ae_individual_R_X11( const ae_individual_R_X11 &model, bool replication_report_copy  );
-    ae_individual_R_X11( void );
+    ae_individual_R_X11();
     ae_individual_R_X11(  ae_individual_R_X11* parent, int32_t id,
                           ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng );
     ae_individual_R_X11( gzFile backup_file );
@@ -61,7 +61,7 @@ class ae_individual_R_X11 : public ae_individual_R, ae_individual_X11
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_individual_R_X11( void );
+    virtual ~ae_individual_R_X11();
 
     // =================================================================
     //                              Accessors

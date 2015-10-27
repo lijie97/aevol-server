@@ -106,7 +106,7 @@ class StatRecord
     // =================================================================
     //                             Constructors
     // =================================================================
-    StatRecord(void) = delete;
+    StatRecord() = delete;
     StatRecord(ExpManager * exp_m);
     StatRecord(const StatRecord &model);
     StatRecord(ExpManager * exp_m,
@@ -129,7 +129,7 @@ class StatRecord
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~StatRecord(void);
+    virtual ~StatRecord();
 
     // =================================================================
     //                              Accessors
@@ -138,7 +138,7 @@ class StatRecord
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void initialize_data( void );
+    void initialize_data();
     void write_to_file( FILE* stat_file, stats_type stat_type_to_print ) const;
     
     void divide( double divisor );

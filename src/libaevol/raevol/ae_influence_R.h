@@ -60,21 +60,21 @@ class ae_influence_R
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~ae_influence_R( void );
+    virtual ~ae_influence_R();
 
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline ae_rna* get_rna( void );
-    inline double  get_enhancing_coef( void );
-    inline double  get_operating_coef( void );
+    inline ae_rna* get_rna();
+    inline double  get_enhancing_coef();
+    inline double  get_operating_coef();
 
     // =================================================================
     //                            Public Methods
     // =================================================================
-    inline double           get_enhancer_activity( void );
-    inline double           get_operator_activity( void );
-    //inline ae_influence_R*  copy( void );
+    inline double           get_enhancer_activity();
+    inline double           get_operator_activity();
+    //inline ae_influence_R*  copy();
 
     // =================================================================
     //                           Public Attributes
@@ -107,17 +107,17 @@ class ae_influence_R
 // =====================================================================
 //                          Accessors definitions
 // =====================================================================
-ae_rna* ae_influence_R::get_rna( void )
+ae_rna* ae_influence_R::get_rna()
 {
   return rna_;
 }
 
-double ae_influence_R::get_enhancing_coef( void )
+double ae_influence_R::get_enhancing_coef()
 {
   return enhancing_coef_;
 }
 
-double ae_influence_R::get_operating_coef( void )
+double ae_influence_R::get_operating_coef()
 {
   return operating_coef_;
 }
@@ -125,18 +125,18 @@ double ae_influence_R::get_operating_coef( void )
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-double ae_influence_R::get_enhancer_activity( void )
+double ae_influence_R::get_enhancer_activity()
 {
   return protein_->get_concentration() * enhancing_coef_;
 }
 
-double ae_influence_R::get_operator_activity( void )
+double ae_influence_R::get_operator_activity()
 {
   return protein_->get_concentration() * operating_coef_;
 }
 
 /*
-ae_influence_R* ae_influence_R::copy( void )
+ae_influence_R* ae_influence_R::copy()
 {
   return new ae_influence_R( rna_, protein_, enhancing_coef_, operating_coef_ );
 }

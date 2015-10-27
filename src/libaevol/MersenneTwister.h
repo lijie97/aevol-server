@@ -130,18 +130,18 @@ class MersenneTwister
     MersenneTwister( const MersenneTwister & model );
   
     // Destructors
-    virtual ~MersenneTwister( void );
+    virtual ~MersenneTwister();
     
     // Main generator
-    inline uint32_t rand_next( void ); // Draw a 32-bit-long integer in [0, 2e32[
+    inline uint32_t rand_next(); // Draw a 32-bit-long integer in [0, 2e32[
   
     // AEvol wrappers
-    inline double   random( void );         // Double in [0, 1[ (uniform distribution)
+    inline double   random();         // Double in [0, 1[ (uniform distribution)
     inline int8_t   random( int8_t max );   // ~
     inline int16_t  random( int16_t max );  // ~ > Integer in [0, max[ (uniform distribution)
     inline int32_t  random( int32_t max );  // ~
     int32_t         binomial_random( int32_t nb, double prob ); // Binomial drawing of parameters (nb, prob)
-    double          gaussian_random( void );
+    double          gaussian_random();
     void            multinomial_drawing( int32_t* destination, double* source, int32_t nb_drawings, int32_t colors );
     void            multinomial_roulette( int32_t* destination, double* source, int32_t nb_drawings, int32_t colors );
     // Multinomial drawing of parameters ( nb, {source[0], source[1], ... source[colors-1]} )
@@ -159,7 +159,7 @@ class MersenneTwister
     inline void write_to_backup( gzFile backup_file ) const;
 
   protected:
-    MersenneTwister( void )
+    MersenneTwister()
     {
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
       exit( EXIT_FAILURE );
@@ -195,7 +195,7 @@ inline uint32_t MersenneTwister::rand_next()
   return ( s1 ^ (s1 >> 18) );
 }
 
-inline double MersenneTwister::random( void )  // Double in [0, 1) (uniform distribution)
+inline double MersenneTwister::random()  // Double in [0, 1) (uniform distribution)
 {
   return ((double)rand_next()) / MT_RAND_MAX_PLUS_1;
 }

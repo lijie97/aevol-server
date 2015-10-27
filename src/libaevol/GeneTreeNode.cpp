@@ -110,7 +110,7 @@ GeneTreeNode::GeneTreeNode( int32_t nodeCreationDate, Protein * protein)
 //                             Destructors
 // =================================================================
 
-GeneTreeNode::~GeneTreeNode( void )
+GeneTreeNode::~GeneTreeNode()
 {
   if (left_child_ != NULL) delete left_child_;
   if (right_child_ != NULL) delete right_child_;
@@ -154,7 +154,7 @@ GeneTreeNode *GeneTreeNode::search_in_subtree_leaves(const Protein * protein)
 }
 
 
-void GeneTreeNode::print_subtree_to_screen(void)
+void GeneTreeNode::print_subtree_to_screen()
 {
   // Postorder tree traversal
 

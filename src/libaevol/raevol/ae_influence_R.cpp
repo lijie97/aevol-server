@@ -63,7 +63,7 @@ ae_influence_R::ae_influence_R( ae_rna* rna, ae_protein *protein, double enhanci
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_influence_R::~ae_influence_R( void )
+ae_influence_R::~ae_influence_R()
 {
   //printf("delete influence %p\n", this);
 }

@@ -85,7 +85,7 @@ GridCell::GridCell(gzFile backup_file,
 // =================================================================
 //                             Destructors
 // =================================================================
-GridCell::~GridCell(void)
+GridCell::~GridCell()
 {
   delete individual_;
 }

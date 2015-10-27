@@ -84,13 +84,13 @@ class GeneTreeNode
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~GeneTreeNode( void );
+    virtual ~GeneTreeNode();
   
     // =================================================================
     //                            Public Methods
     // =================================================================
     GeneTreeNode * search_in_subtree_leaves(const Protein * protein);
-    void print_subtree_to_screen(void); // for debug purposes
+    void print_subtree_to_screen(); // for debug purposes
     void write_subtree_to_files(FILE * topologyFile, FILE * nodeAttributesFile, int32_t end_gener);
     void write_subtree_nodes_in_tabular_file(int32_t treeID, FILE *f); // f must already be open
     void update_pointers_in_subtree_leaves(GeneticUnit * unit);
@@ -102,7 +102,7 @@ class GeneTreeNode
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    GeneTreeNode( void )
+    GeneTreeNode()
       {
         printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
         exit( EXIT_FAILURE );

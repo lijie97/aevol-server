@@ -67,7 +67,7 @@ class PhenotypicSegment
     // =================================================================
     //                             Destructors
     // =================================================================
-    inline virtual ~PhenotypicSegment(void);
+    inline virtual ~PhenotypicSegment();
   
     // =================================================================
     //                              Accessors
@@ -112,7 +112,7 @@ class PhenotypicSegment
 // =================================================================
 //                             Constructors
 // =================================================================
-//~ inline PhenotypicSegment::PhenotypicSegment(void)
+//~ inline PhenotypicSegment::PhenotypicSegment()
 //~ {
   //~ start   = X_MIN;
   //~ stop    = X_MAX;
@@ -141,7 +141,7 @@ inline PhenotypicSegment::PhenotypicSegment(gzFile backup_file)
 // =================================================================
 //                             Destructors
 // =================================================================
-inline PhenotypicSegment::~PhenotypicSegment(void)
+inline PhenotypicSegment::~PhenotypicSegment()
 {
 }
 

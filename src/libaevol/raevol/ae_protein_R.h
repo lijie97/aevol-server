@@ -90,7 +90,7 @@ ae_protein_R::ae_protein_R( gzFile backup_file ) : ae_protein::ae_protein( backu
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_protein_R::~ae_protein_R( void )
+ae_protein_R::~ae_protein_R()
 {
   remove_influences();
   influence_list_->erase( NO_DELETE );
@@ -100,7 +100,7 @@ ae_protein_R::~ae_protein_R( void )
 // =================================================================
 //                            Public Methods
 // =================================================================
-void ae_protein_R::compute_delta_concentration( void )
+void ae_protein_R::compute_delta_concentration()
 {
   delta_concentration_ = 0;
 
@@ -143,7 +143,7 @@ void ae_protein_R::save( gzFile backup_file )
 // =================================================================
 //                           Protected Methods
 // =================================================================
-void ae_protein_R::remove_influences( void )
+void ae_protein_R::remove_influences()
 {
   ae_list_node*   influence_node;
   ae_influence_R* influence;

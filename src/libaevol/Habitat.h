@@ -61,7 +61,7 @@ class Habitat
   // ==========================================================================
   //                               Constructors
   // ==========================================================================
-  Habitat(void); //< Default ctor
+  Habitat(); //< Default ctor
   Habitat(const Habitat&) = delete; //< Copy ctor
   Habitat(Habitat&&) = delete; //< Move ctor
   Habitat(const Habitat&, bool share_phenotypic_target);
@@ -71,7 +71,7 @@ class Habitat
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~Habitat(void) = default; //< Destructor
+  virtual ~Habitat() = default; //< Destructor
 
   // ==========================================================================
   //                                Operators
@@ -89,7 +89,7 @@ class Habitat
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
-  double compound_amount(void) const {return compound_amount_;};
+  double compound_amount() const {return compound_amount_;};
   const PhenotypicTarget& phenotypic_target() const {
     return phenotypic_target_handler_->phenotypic_target();
   }

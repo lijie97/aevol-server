@@ -73,7 +73,7 @@ class Individual_X11 : public virtual Individual
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~Individual_X11(void);
+    virtual ~Individual_X11();
 
     // =================================================================
     //                              Accessors
@@ -82,7 +82,7 @@ class Individual_X11 : public virtual Individual
     // =================================================================
     //                            Public Methods
     // =================================================================
-    virtual void display(void);
+    virtual void display();
     virtual void display_cdss(X11Window * win);
     virtual void display_rnas(X11Window * win);
 
@@ -98,9 +98,9 @@ class Individual_X11 : public virtual Individual
     // =================================================================
     //                           Protected Methods
     // =================================================================
-    void reset_sectors(void);
-    void add_layer(void);
-    void init_occupied_sectors(void);
+    void reset_sectors();
+    void add_layer();
+    void init_occupied_sectors();
 
     // =================================================================
     //                          Protected Attributes

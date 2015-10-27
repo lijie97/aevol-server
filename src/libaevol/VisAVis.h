@@ -77,17 +77,17 @@ class VisAVis
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~VisAVis(void);
+    virtual ~VisAVis();
 
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline const Dna*  get_chrom_1( void ) const;
-    inline const Dna*  get_chrom_2( void ) const;
-    inline int32_t        get_i_1( void ) const;
-    inline int32_t        get_i_2( void ) const;
-    inline int16_t        get_score( void ) const;
-    inline AlignmentSense get_sense( void ) const;
+    inline const Dna*  get_chrom_1() const;
+    inline const Dna*  get_chrom_2() const;
+    inline int32_t        get_i_1() const;
+    inline int32_t        get_i_2() const;
+    inline int16_t        get_score() const;
+    inline AlignmentSense get_sense() const;
 
     // =================================================================
     //                              Operators
@@ -100,17 +100,17 @@ class VisAVis
     // =================================================================
     //                            Public Methods
     // =================================================================
-    inline bool match( void );
-    inline void step_fwd( void );
-    inline void step_back( void );
+    inline bool match();
+    inline void step_fwd();
+    inline void step_back();
     inline void add( int common_inc );
     inline void add( int inc_1, int inc_2 );
     inline void sub( int common_inc );
     inline void sub( int inc_1, int inc_2 );
-    inline void swap( void );
+    inline void swap();
     
     inline void copy( VisAVis * source );
-    inline void check_indices( void );
+    inline void check_indices();
 
     // =================================================================
     //                           Public Attributes
@@ -151,32 +151,32 @@ class VisAVis
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-inline const Dna *VisAVis::get_chrom_1( void ) const
+inline const Dna *VisAVis::get_chrom_1() const
 {
   return chrom_1_;
 }
 
-inline const Dna *VisAVis::get_chrom_2( void ) const
+inline const Dna *VisAVis::get_chrom_2() const
 {
   return chrom_2_;
 }
 
-inline int32_t VisAVis::get_i_1( void ) const
+inline int32_t VisAVis::get_i_1() const
 {
   return i_1_;
 }
 
-inline int32_t VisAVis::get_i_2( void ) const
+inline int32_t VisAVis::get_i_2() const
 {
   return i_2_;
 }
 
-inline int16_t VisAVis::get_score( void ) const
+inline int16_t VisAVis::get_score() const
 {
   return score_;
 }
 
-inline AlignmentSense VisAVis::get_sense( void ) const
+inline AlignmentSense VisAVis::get_sense() const
 {
   return sense_;
 }
@@ -210,7 +210,7 @@ inline bool VisAVis::operator >= ( VisAVis &cmp )
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-inline bool VisAVis::match( void )
+inline bool VisAVis::match()
 {
   if ( sense_ == DIRECT )
   {
@@ -232,7 +232,7 @@ inline bool VisAVis::match( void )
   }
 }
 
-inline void VisAVis::step_fwd( void )
+inline void VisAVis::step_fwd()
 {
   if ( sense_ == DIRECT )
   {
@@ -246,7 +246,7 @@ inline void VisAVis::step_fwd( void )
   }
 }
 
-inline void VisAVis::step_back( void )
+inline void VisAVis::step_back()
 {
   if ( sense_ == DIRECT )
   {
@@ -316,7 +316,7 @@ inline void VisAVis::sub( int inc_1, int inc_2 )
   }
 }
 
-inline void VisAVis::swap( void )
+inline void VisAVis::swap()
 {
   const Dna *  tmp_chrom = chrom_1_;
   int32_t         tmp_i     = i_1_;
@@ -338,7 +338,7 @@ inline void VisAVis::copy( VisAVis * source )
   score_ = source->score_;
 }
 
-inline void VisAVis::check_indices( void )
+inline void VisAVis::check_indices()
 {
   i_1_ = Utils::mod( i_1_, chrom_1_->length() );
   i_2_ = Utils::mod( i_2_, chrom_2_->length() );

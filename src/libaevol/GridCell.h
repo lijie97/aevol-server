@@ -66,7 +66,7 @@ class GridCell
   // =================================================================
   //                             Constructors
   // =================================================================
-  GridCell(void) = delete;
+  GridCell() = delete;
   GridCell(const GridCell &) = delete;
   GridCell(int16_t x, int16_t y,
                std::unique_ptr<Habitat>&& habitat,
@@ -78,7 +78,7 @@ class GridCell
   // =================================================================
   //                             Destructors
   // =================================================================
-  virtual ~GridCell(void);
+  virtual ~GridCell();
 
 
   // =================================================================
@@ -86,12 +86,12 @@ class GridCell
   // =================================================================
   inline int16_t x() const {return x_;};
   inline int16_t y() const {return y_;};
-  inline double compound_amount(void) const;
-  inline Individual * get_individual(void) const;
+  inline double compound_amount() const;
+  inline Individual * get_individual() const;
 
-  inline double get_secreted_amount(void) const;
-  inline double get_metabolic_fitness(void) const;
-  inline double get_total_fitness(void) const;
+  inline double get_secreted_amount() const;
+  inline double get_metabolic_fitness() const;
+  inline double get_total_fitness() const;
 
   const Habitat& habitat() const {
     return *habitat_;
@@ -138,27 +138,27 @@ class GridCell
 // =====================================================================
 //                           Getters' definitions
 // =====================================================================
-inline double GridCell::compound_amount(void) const
+inline double GridCell::compound_amount() const
 {
   return habitat_->compound_amount();
 }
 
-inline Individual *GridCell::get_individual(void) const
+inline Individual *GridCell::get_individual() const
 {
   return individual_;
 }
 
-inline double GridCell::get_secreted_amount(void) const
+inline double GridCell::get_secreted_amount() const
 {
   return individual_->get_fitness_by_feature(SECRETION);
 }
 
-inline double GridCell::get_metabolic_fitness(void) const
+inline double GridCell::get_metabolic_fitness() const
 {
   return individual_->get_fitness_by_feature(METABOLISM);
 }
 
-inline double GridCell::get_total_fitness(void) const
+inline double GridCell::get_total_fitness() const
 {
   return individual_->get_fitness();
 }

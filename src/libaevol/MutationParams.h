@@ -63,7 +63,7 @@ class MutationParams
     // =================================================================
     //                             Constructors
     // =================================================================
-    MutationParams(void);
+    MutationParams();
     MutationParams(const MutationParams & model);
     MutationParams(gzFile backup_file);
 
@@ -71,55 +71,55 @@ class MutationParams
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~MutationParams(void);
+    virtual ~MutationParams();
 
     // =================================================================
     //                        Accessors: getters
     // =================================================================
 
     // --------------------------------------------------------- Mutation rates
-    inline double   get_point_mutation_rate(void) const;
-    inline double   get_small_insertion_rate(void) const;
-    inline double   get_small_deletion_rate(void) const;
-    inline int16_t  get_max_indel_size(void) const;
+    inline double   get_point_mutation_rate() const;
+    inline double   get_small_insertion_rate() const;
+    inline double   get_small_deletion_rate() const;
+    inline int16_t  get_max_indel_size() const;
 
     // -------------------------------------------- Rearrangements and Transfer
-    inline bool   get_with_4pts_trans(void) const;
-    inline bool   get_with_alignments(void) const;
-    inline bool   get_with_HT(void) const;
-    inline bool   get_repl_HT_with_close_points(void) const;
-    inline double get_HT_ins_rate(void) const;
-    inline double get_HT_repl_rate(void) const;
-    inline double get_repl_HT_detach_rate(void) const;
+    inline bool   get_with_4pts_trans() const;
+    inline bool   get_with_alignments() const;
+    inline bool   get_with_HT() const;
+    inline bool   get_repl_HT_with_close_points() const;
+    inline double get_HT_ins_rate() const;
+    inline double get_HT_repl_rate() const;
+    inline double get_repl_HT_detach_rate() const;
 
     // ------------------------------ Rearrangement rates (without alignements)
-    inline double get_duplication_rate(void) const;
-    inline double get_deletion_rate(void) const;
-    inline double get_translocation_rate(void) const;
-    inline double get_inversion_rate(void) const;
+    inline double get_duplication_rate() const;
+    inline double get_deletion_rate() const;
+    inline double get_translocation_rate() const;
+    inline double get_inversion_rate() const;
 
     // --------------------------------- Rearrangement rates (with alignements)
-    inline double get_neighbourhood_rate(void) const;
-    inline double get_duplication_proportion(void) const;
-    inline double get_deletion_proportion(void) const;
-    inline double get_translocation_proportion(void) const;
-    inline double get_inversion_proportion(void) const;
+    inline double get_neighbourhood_rate() const;
+    inline double get_duplication_proportion() const;
+    inline double get_deletion_proportion() const;
+    inline double get_translocation_proportion() const;
+    inline double get_inversion_proportion() const;
 
     // ------------------------------------------------------------ Alignements
-    inline AlignmentFunctionShape get_align_fun_shape(void) const;
-    inline double  get_align_sigm_lambda(void) const;
-    inline int16_t get_align_sigm_mean(void) const;
-    inline int16_t get_align_lin_min(void) const;
-    inline int16_t get_align_lin_max(void) const;
+    inline AlignmentFunctionShape get_align_fun_shape() const;
+    inline double  get_align_sigm_lambda() const;
+    inline int16_t get_align_sigm_mean() const;
+    inline int16_t get_align_lin_min() const;
+    inline int16_t get_align_lin_max() const;
     
     // Maximum shift of one seq on the other
-    inline int16_t get_align_max_shift(void) const;
+    inline int16_t get_align_max_shift() const;
     // Work zone half length
-    inline int16_t get_align_w_zone_h_len(void) const;
+    inline int16_t get_align_w_zone_h_len() const;
     // Corresponding residues match bonus
-    inline int16_t get_align_match_bonus(void) const;
+    inline int16_t get_align_match_bonus() const;
     // Corresponding residues mismatch cost
-    inline int16_t get_align_mismatch_cost(void) const;
+    inline int16_t get_align_mismatch_cost() const;
 
     // =================================================================
     //                        Accessors: setters
@@ -187,7 +187,7 @@ class MutationParams
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    /*MutationParams(void)
+    /*MutationParams()
     {
       printf("%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__);
       exit(EXIT_FAILURE);
@@ -254,151 +254,151 @@ class MutationParams
 // =====================================================================
 
 // ------------------------------------------------------------- Mutation rates
-inline double MutationParams::get_point_mutation_rate(void) const
+inline double MutationParams::get_point_mutation_rate() const
 {
   return point_mutation_rate_;
 }
 
-inline double MutationParams::get_small_insertion_rate(void) const
+inline double MutationParams::get_small_insertion_rate() const
 {
   return small_insertion_rate_;
 }
 
-inline double MutationParams::get_small_deletion_rate(void) const
+inline double MutationParams::get_small_deletion_rate() const
 {
   return small_deletion_rate_;
 }
 
-inline int16_t MutationParams::get_max_indel_size(void) const
+inline int16_t MutationParams::get_max_indel_size() const
 {
   return max_indel_size_;
 }
 
 // ------------------------------------------------ Rearrangements and Transfer
-inline bool MutationParams::get_with_4pts_trans(void) const
+inline bool MutationParams::get_with_4pts_trans() const
 {
   return with_4pts_trans_;
 }
 
-inline bool MutationParams::get_with_alignments(void) const
+inline bool MutationParams::get_with_alignments() const
 {
   return with_alignments_;
 }
 
-inline bool MutationParams::get_with_HT(void) const
+inline bool MutationParams::get_with_HT() const
 {
   return with_HT_;
 }
 
-inline bool MutationParams::get_repl_HT_with_close_points(void) const
+inline bool MutationParams::get_repl_HT_with_close_points() const
 {
   return repl_HT_with_close_points_;
 }
 
-inline double MutationParams::get_HT_ins_rate(void) const
+inline double MutationParams::get_HT_ins_rate() const
 {
   return HT_ins_rate_;
 }
 
-inline double MutationParams::get_HT_repl_rate(void) const
+inline double MutationParams::get_HT_repl_rate() const
 {
   return HT_repl_rate_;
 }
 
-inline double MutationParams::get_repl_HT_detach_rate(void) const
+inline double MutationParams::get_repl_HT_detach_rate() const
 {
   return repl_HT_detach_rate_;
 }
 
 // ---------------------------------- Rearrangement rates (without alignements)
-inline double MutationParams::get_duplication_rate(void) const
+inline double MutationParams::get_duplication_rate() const
 {
   return duplication_rate_;
 }
 
-inline double MutationParams::get_deletion_rate(void) const
+inline double MutationParams::get_deletion_rate() const
 {
   return deletion_rate_;
 }
 
-inline double MutationParams::get_translocation_rate(void) const
+inline double MutationParams::get_translocation_rate() const
 {
   return translocation_rate_;
 }
 
-inline double MutationParams::get_inversion_rate(void) const
+inline double MutationParams::get_inversion_rate() const
 {
   return inversion_rate_;
 }
 
 // ------------------------------------- Rearrangement rates (with alignements)
-inline double MutationParams::get_neighbourhood_rate(void) const
+inline double MutationParams::get_neighbourhood_rate() const
 {
   return neighbourhood_rate_;
 }
 
-inline double MutationParams::get_duplication_proportion(void) const
+inline double MutationParams::get_duplication_proportion() const
 {
   return duplication_proportion_;
 }
 
-inline double MutationParams::get_deletion_proportion(void) const
+inline double MutationParams::get_deletion_proportion() const
 {
   return deletion_proportion_;
 }
 
-inline double MutationParams::get_translocation_proportion(void) const
+inline double MutationParams::get_translocation_proportion() const
 {
   return translocation_proportion_;
 }
 
-inline double MutationParams::get_inversion_proportion(void) const
+inline double MutationParams::get_inversion_proportion() const
 {
   return inversion_proportion_;
 }
 
 // ---------------------------------------------------------------- Alignements
-inline AlignmentFunctionShape MutationParams::get_align_fun_shape(void) const
+inline AlignmentFunctionShape MutationParams::get_align_fun_shape() const
 {
  return align_fun_shape_;
 }
 
-inline double MutationParams::get_align_sigm_lambda(void) const
+inline double MutationParams::get_align_sigm_lambda() const
 {
  return align_sigm_lambda_;
 }
 
-inline int16_t MutationParams::get_align_sigm_mean(void) const
+inline int16_t MutationParams::get_align_sigm_mean() const
 {
  return align_sigm_mean_;
 }
 
-inline int16_t MutationParams::get_align_lin_min(void) const
+inline int16_t MutationParams::get_align_lin_min() const
 {
  return align_lin_min_;
 }
 
-inline int16_t MutationParams::get_align_lin_max(void) const
+inline int16_t MutationParams::get_align_lin_max() const
 {
  return align_lin_max_;
 }
 
-inline int16_t MutationParams::get_align_max_shift(void) const
+inline int16_t MutationParams::get_align_max_shift() const
 {
  return align_max_shift_;
 }
 
-inline int16_t MutationParams::get_align_w_zone_h_len(void) const
+inline int16_t MutationParams::get_align_w_zone_h_len() const
 {
  return align_w_zone_h_len_;
 }
 
-inline int16_t MutationParams::get_align_match_bonus(void) const
+inline int16_t MutationParams::get_align_match_bonus() const
 {
  return align_match_bonus_;
 }
 
-inline int16_t MutationParams::get_align_mismatch_cost(void) const
+inline int16_t MutationParams::get_align_mismatch_cost() const
 {
  return align_mismatch_cost_;
 }

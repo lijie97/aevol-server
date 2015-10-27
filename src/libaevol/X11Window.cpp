@@ -146,7 +146,7 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-X11Window::X11Window( void )
+X11Window::X11Window()
 {
 }
 
@@ -244,7 +244,7 @@ X11Window::X11Window( Display* display, int8_t screen, Atom* atoms,
 //                             Destructors
 // =================================================================
 
-X11Window::~X11Window( void )
+X11Window::~X11Window()
 {
   XFreeGC( display_, gcWhite_ );
   XFreeGC( display_, gcBlack_ );

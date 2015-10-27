@@ -59,14 +59,14 @@ class NonCodingMetrics
   // ==========================================================================
   //                               Constructors
   // ==========================================================================
-  NonCodingMetrics(void) = default; //< Default ctor
+  NonCodingMetrics() = default; //< Default ctor
   NonCodingMetrics(const NonCodingMetrics&) = default; //< Copy ctor
   NonCodingMetrics(NonCodingMetrics&&) = default; //< Move ctor
 
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~NonCodingMetrics(void) = default; //< Destructor
+  virtual ~NonCodingMetrics() = default; //< Destructor
 
   // ==========================================================================
   //                                 Getters

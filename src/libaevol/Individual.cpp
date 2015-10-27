@@ -1029,7 +1029,7 @@ int32_t* Individual::get_int_probes() const {
 
   \return double_probes_
 */
-double* Individual::get_double_probes(void) const {
+double* Individual::get_double_probes() const {
   return double_probes_;
 }
 
@@ -1870,7 +1870,7 @@ void Individual::remove_non_coding_bases() {
 ///
 /// Double the bases that are not in coding RNA by addition of random
 /// bases and test at each addition that fitness is not changed.
-void Individual::double_non_coding_bases(void) {
+void Individual::double_non_coding_bases() {
   metrics_->total_genome_size_ = 0;
   int32_t initial_non_coding_base_nb = get_nb_bases_in_0_coding_RNA();
 

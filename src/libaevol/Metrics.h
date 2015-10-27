@@ -61,14 +61,14 @@ class Metrics
   // ==========================================================================
   //                               Constructors
   // ==========================================================================
-  Metrics(void) = default; //< Default ctor
+  Metrics() = default; //< Default ctor
   Metrics(const Metrics&) = default; //< Copy ctor
   Metrics(Metrics&&) = default; //< Move ctor
 
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~Metrics(void) = default; //< Destructor
+  virtual ~Metrics() = default; //< Destructor
 
   // ==========================================================================
   //                                 Getters

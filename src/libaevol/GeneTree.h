@@ -85,7 +85,7 @@ class GeneTree
     // =================================================================
     //                             Constructors
     // =================================================================
-    GeneTree( void );
+    GeneTree();
     GeneTree( int32_t nodeCreationDate, Protein * protein, const Mutation * mut = NULL ); // Creates a tree with just a root node.
    
 
@@ -93,7 +93,7 @@ class GeneTree
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~GeneTree( void );
+    virtual ~GeneTree();
   
     // =================================================================
     //                              Accessors
@@ -122,7 +122,7 @@ class GeneTree
     /* void report_gene_loss(GeneTreeNode * node, int32_t geneLossDate, ae_gene_loss_type geneLossType); */
 
     GeneTreeNode * search_in_leaves(const Protein * protein); // Returns NULL if not found
-    void print_to_screen(void); // for debug purposes
+    void print_to_screen(); // for debug purposes
     void write_to_files(const char * topologyFileName, const char * nodeAttributesFileName, int32_t end_gener); // Newick format for the topology file
     void write_nodes_in_tabular_file(int32_t treeID, FILE * f);  // f must already be open 
 

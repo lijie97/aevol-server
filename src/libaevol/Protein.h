@@ -82,25 +82,25 @@ class Protein
     // =================================================================
     //                             Destructors
     // =================================================================
-    virtual ~Protein( void );
+    virtual ~Protein();
 
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline Strand get_strand( void )                const;
+    inline Strand get_strand()                const;
     inline const std::list<Rna *> get_rna_list()          const;
-    inline int32_t            get_shine_dal_pos( void )         const;
-    inline int32_t            get_first_translated_pos( void )  const;
-    inline int32_t            get_last_translated_pos( void )   const;
-           int32_t            get_last_STOP_base_pos( void )    const;
-    inline double             get_mean( void )                  const;
-    inline double             get_width( void )                 const; // returns the half-width
-    inline double             get_height( void )                const;
-    inline int32_t            get_length( void )                const; // Number of Amino-Acids (not including START and STOP)
-    inline double             get_concentration( void )         const;
-    inline  bool              get_is_functional( void )         const;
+    inline int32_t            get_shine_dal_pos()         const;
+    inline int32_t            get_first_translated_pos()  const;
+    inline int32_t            get_last_translated_pos()   const;
+           int32_t            get_last_STOP_base_pos()    const;
+    inline double             get_mean()                  const;
+    inline double             get_width()                 const; // returns the half-width
+    inline double             get_height()                const;
+    inline int32_t            get_length()                const; // Number of Amino-Acids (not including START and STOP)
+    inline double             get_concentration()         const;
+    inline  bool              get_is_functional()         const;
     
-    Individual * get_indiv( void ) const;
+    Individual * get_indiv() const;
 
     // =================================================================
     //                            Public Methods
@@ -147,7 +147,7 @@ class Protein
 // =====================================================================
 //                          Accessors definitions
 // =====================================================================
-inline Strand Protein::get_strand( void ) const
+inline Strand Protein::get_strand() const
 {
   return strand_;
 }
@@ -156,47 +156,47 @@ inline const std::list<Rna *> Protein::get_rna_list() const {
   return rna_list;
 }
 
-int32_t Protein::get_shine_dal_pos( void ) const
+int32_t Protein::get_shine_dal_pos() const
 {
   return shine_dal_pos_;
 }
 
-int32_t Protein::get_first_translated_pos( void ) const
+int32_t Protein::get_first_translated_pos() const
 {
   return first_translated_pos_;
 }
 
-int32_t Protein::get_last_translated_pos( void ) const
+int32_t Protein::get_last_translated_pos() const
 {
   return last_translated_pos_;
 }
 
-double Protein::get_mean( void ) const
+double Protein::get_mean() const
 {
   return mean_;
 }
 
-double Protein::get_width( void ) const
+double Protein::get_width() const
 {
   return width_;
 }
 
-double Protein::get_height( void ) const
+double Protein::get_height() const
 {
   return height_;
 }
 
-int32_t Protein::get_length( void ) const
+int32_t Protein::get_length() const
 {
   return length_;
 }
 
-double Protein::get_concentration( void ) const
+double Protein::get_concentration() const
 {
   return concentration_;
 }
 
-bool Protein::get_is_functional( void ) const
+bool Protein::get_is_functional() const
 {
   return is_functional_;
 }

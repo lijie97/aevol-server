@@ -55,7 +55,7 @@ namespace aevol {
 // ============================================================================
 //                                Constructors
 // ============================================================================
-Habitat::Habitat(void) {
+Habitat::Habitat() {
   compound_amount_ = 0.0;
   phenotypic_target_handler_ = std::make_shared<PhenotypicTargetHandler>();
 }

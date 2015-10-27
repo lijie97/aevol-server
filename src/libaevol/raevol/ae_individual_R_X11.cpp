@@ -57,10 +57,10 @@ ae_individual_R_X11::ae_individual_R_X11( const ae_individual_R_X11 &model, bool
   //printf("ae_individual_R_X11( model )");
 }
 
-ae_individual_R_X11::ae_individual_R_X11( void )  :
+ae_individual_R_X11::ae_individual_R_X11()  :
 ae_individual(), ae_individual_R(), ae_individual_X11()
 {
-  //printf("ae_individual_R_X11( void )");
+  //printf("ae_individual_R_X11()");
 }
 
 ae_individual_R_X11::ae_individual_R_X11( ae_individual_R_X11* parent, int32_t id,
@@ -80,7 +80,7 @@ ae_individual( backup_file ), ae_individual_R( backup_file ), ae_individual_X11(
 // =================================================================
 //                             Destructors
 // =================================================================
-ae_individual_R_X11::~ae_individual_R_X11( void )
+ae_individual_R_X11::~ae_individual_R_X11()
 {
 }
 
