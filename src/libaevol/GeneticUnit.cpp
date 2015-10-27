@@ -866,9 +866,9 @@ void GeneticUnit::locate_promoters(void) {
     }
 #else
     if (is_promoter(LEADING, i, dist))
-      _rna_list[LEADING].emplace_back(this, LEADING, i, dist);
-    if (is_promoter(LAGGING, _dna->length() - i - 1, dist))
-      _rna_list[LAGGING].emplace_back(this, LAGGING, _dna->length() - i - 1, dist);
+      rna_list_[LEADING].emplace_back(this, LEADING, i, dist);
+    if (is_promoter(LAGGING, dna_->length() - i - 1, dist))
+      rna_list_[LAGGING].emplace_back(this, LAGGING, dna_->length() - i - 1, dist);
 #endif
   }
 }
@@ -2377,8 +2377,8 @@ void GeneticUnit::look_for_new_leading_promoters_starting_between(int32_t pos_1,
          pos_2 < dna_->length());
 
   // When pos_1 > pos_2, we will perform the search in 2 steps.
-  // As positions  0 and _dna->length() are equivalent, it's preferable to
-  // keep 0 for pos_1 and _dna->length() for pos_2.
+  // As positions  0 and dna_->length() are equivalent, it's preferable to
+  // keep 0 for pos_1 and dna_->length() for pos_2.
 
   if (pos_1 >= pos_2) {
     look_for_new_leading_promoters_starting_after(pos_1);

@@ -120,7 +120,7 @@ class ExpManager : public Observer {
   // =======================================================================
   //                          Accessors: setters
   // =======================================================================
-  void set_t_end(int64_t _t_end) { t_end_ = _t_end; }
+  void set_t_end(int64_t t_end) { t_end_ = t_end; }
   void set_HT_ins_rate(double HT_ins_rate) { exp_s_->set_HT_ins_rate(HT_ins_rate); }
   void set_HT_repl_rate(double HT_repl_rate) { exp_s_->set_HT_repl_rate(HT_repl_rate); }
 
