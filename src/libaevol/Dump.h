@@ -42,7 +42,7 @@ namespace aevol {
 // =================================================================
 class ExpManager;
 
-constexpr int32_t _AE_DUMP_FILENAME_BUFSIZE = 256;
+constexpr int32_t AE_DUMP_FILENAME_BUFSIZE_ = 256;
 
 class Dump
 {  
@@ -76,7 +76,7 @@ class Dump
   // =================================================================
  protected:
   FILE* current_file;
-  char  filename_buffer[_AE_DUMP_FILENAME_BUFSIZE];
+  char  filename_buffer[AE_DUMP_FILENAME_BUFSIZE_];
 
   // =================================================================
   //                         Forbidden Constructors

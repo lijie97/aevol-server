@@ -550,7 +550,7 @@ class Individual : public Observable {
   // This array contains the aggregated area of the gap for each type of
   // segment (PhenotypicFeature).
   // When the  phenotypic target is not segmented, the only meaningful value
-  // will be held in _dist_to_target[METABOLISM]
+  // will be held in dist_to_target_[METABOLISM]
   double* dist_to_target_by_feature_;
 
   // This array contains the fitness contribution for each type of segment
@@ -626,7 +626,7 @@ class Individual : public Observable {
   // Mutation/Rearrangement statistics are managed in the replication report
 
 
-  double _modularity; // Ratio between the pairwise distance between genes whose corresponding
+  double modularity_; // Ratio between the pairwise distance between genes whose corresponding
   // phenotypic triangles overlap and the average intergenic distance
   // (ignoring non-functional genes)void compute_phenotype();
 };

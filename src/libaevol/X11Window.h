@@ -94,22 +94,22 @@ class X11Window
     // =================================================================
     //                              Accessors
     // =================================================================
-    GC get_gc_white( void )     { return _gcWhite;      };
-    GC get_gc_black( void )     { return _gcBlack;      };
-    GC getGCBlue( void )        { return _gcBlue;       };
-    GC getGCRed( void )         { return _gcRed;        };
-    GC getGCLightGrey( void )   { return _gcLightGrey;  };
-    GC getGCDarkGrey( void )    { return _gcDarkGrey;   };
-    GC getGCDarkerGrey( void )  { return _gcDarkerGrey; };
-    GC getGCGrey( void )        { return _gcGrey;       };
-    GC getGCGreen( void )       { return _gcGreen;      };
-    GC getGCOrange( void )      { return _gcOrange;     };
-    GC getGCYellow( void )      { return _gcYellow;     };
+    GC get_gc_white( void )     { return gcWhite_;      };
+    GC get_gc_black( void )     { return gcBlack_;      };
+    GC getGCBlue( void )        { return gcBlue_;       };
+    GC getGCRed( void )         { return gcRed_;        };
+    GC getGCLightGrey( void )   { return gcLightGrey_;  };
+    GC getGCDarkGrey( void )    { return gcDarkGrey_;   };
+    GC getGCDarkerGrey( void )  { return gcDarkerGrey_; };
+    GC getGCGrey( void )        { return gcGrey_;       };
+    GC getGCGreen( void )       { return gcGreen_;      };
+    GC getGCOrange( void )      { return gcOrange_;     };
+    GC getGCYellow( void )      { return gcYellow_;     };
 
-    uint16_t  get_width( void )         { return _width;   };
-    uint16_t  get_height( void )        { return _height;  };
-    Window        get_window( void )    { return _window;  };
-    Display *     get_display( void )   { return _display; };
+    uint16_t  get_width( void )         { return width_;   };
+    uint16_t  get_height( void )        { return height_;  };
+    Window        get_window( void )    { return window_;  };
+    Display *     get_display( void )   { return display_; };
   
     // =================================================================
     //                            Public Methods
@@ -167,27 +167,27 @@ class X11Window
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    Display * _display;
-    int8_t    _screen;
-    Window    _window;
-    Cursor    _cursor;
+    Display * display_;
+    int8_t    screen_;
+    Window    window_;
+    Cursor    cursor_;
     
-    uint16_t _width;
-    uint16_t _height;
+    uint16_t width_;
+    uint16_t height_;
 
   
     // Graphic Contexts
-    GC _gcWhite;
-    GC _gcBlack;
-    GC _gcRed;
-    GC _gcGreen;
-    GC _gcBlue;
-    GC _gcOrange;
-    GC _gcYellow;
-    GC _gcGrey;
-    GC _gcLightGrey;
-    GC _gcDarkGrey;
-    GC _gcDarkerGrey;
+    GC gcWhite_;
+    GC gcBlack_;
+    GC gcRed_;
+    GC gcGreen_;
+    GC gcBlue_;
+    GC gcOrange_;
+    GC gcYellow_;
+    GC gcGrey_;
+    GC gcLightGrey_;
+    GC gcDarkGrey_;
+    GC gcDarkerGrey_;
 };
 
 
@@ -200,7 +200,7 @@ class X11Window
 // =====================================================================
 void X11Window::blacken( void )
 {
-  fill_rectangle( 0, 0, _width, _height, BLACK );
+  fill_rectangle( 0, 0, width_, height_, BLACK );
 }
 
 } // namespace aevol

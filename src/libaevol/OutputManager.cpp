@@ -63,15 +63,15 @@ namespace aevol {
 // =================================================================
 OutputManager::OutputManager(ExpManager * exp_m)
 {
-  _exp_m  = exp_m;
-  _stats  = nullptr;
-  _tree   = nullptr;
-  _dump   = nullptr;
-  _compute_phen_contrib_by_GU = false;
-  _record_tree = false;
-  _make_dumps = false;
-  _dump_step = 0;
-  _logs  = new Logging();
+  exp_m_  = exp_m;
+  stats_  = nullptr;
+  tree_   = nullptr;
+  dump_   = nullptr;
+  compute_phen_contrib_by_GU_ = false;
+  record_tree_ = false;
+  make_dumps_ = false;
+  dump_step_ = 0;
+  logs_  = new Logging();
 }
 
 // =================================================================
@@ -79,86 +79,86 @@ OutputManager::OutputManager(ExpManager * exp_m)
 // =================================================================
 OutputManager::~OutputManager( void )
 {
-  delete _stats;
-  delete _tree;
-  delete _dump;
-  delete _logs;
+  delete stats_;
+  delete tree_;
+  delete dump_;
+  delete logs_;
 }
 
 // =================================================================
 //                            Public Methods
 // =================================================================
 void OutputManager::InitStats() {
-  _stats = new Stats(_exp_m);
+  stats_ = new Stats(exp_m_);
 }
 
 void OutputManager::WriteSetupFile(gzFile setup_file) const
 {
   // Write the backup steps
-  gzwrite( setup_file, &_backup_step,      sizeof(_backup_step) );
-  gzwrite( setup_file, &_big_backup_step,  sizeof(_big_backup_step) );
+  gzwrite( setup_file, &backup_step_,      sizeof(backup_step_) );
+  gzwrite( setup_file, &big_backup_step_,  sizeof(big_backup_step_) );
   
   // Stats
-  gzwrite( setup_file, &_compute_phen_contrib_by_GU,  sizeof(_compute_phen_contrib_by_GU) );
+  gzwrite( setup_file, &compute_phen_contrib_by_GU_,  sizeof(compute_phen_contrib_by_GU_) );
   
   // Tree
-  int8_t record_tree = _record_tree;
+  int8_t record_tree = record_tree_;
   gzwrite( setup_file, &record_tree, sizeof(record_tree) );
-  if ( _record_tree )
+  if ( record_tree_ )
   {
-    auto tmp_tree_step = _tree->get_tree_step();
+    auto tmp_tree_step = tree_->get_tree_step();
     gzwrite( setup_file, &tmp_tree_step, sizeof(tmp_tree_step) );
   }
   
   // Dumps
-  int8_t make_dumps = _make_dumps;
+  int8_t make_dumps = make_dumps_;
   gzwrite( setup_file, &make_dumps,  sizeof(make_dumps) );
-  gzwrite( setup_file, &_dump_step,  sizeof(_dump_step) );
+  gzwrite( setup_file, &dump_step_,  sizeof(dump_step_) );
   
   // Logs
-  int8_t logs = _logs->get_logs();
+  int8_t logs = logs_->get_logs();
   gzwrite( setup_file, &logs,  sizeof(logs) );
 }
 
 void OutputManager::CopyStats(const std::string& outdir, int64_t time) const {
-  _stats->CreateTmpFiles(time);
-  _stats->MoveTmpFiles(outdir);
+  stats_->CreateTmpFiles(time);
+  stats_->MoveTmpFiles(outdir);
 }
 
 void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run)
 {
   // Write the backup steps
-  gzread( setup_file, &_backup_step,      sizeof(_backup_step) );
-  gzread( setup_file, &_big_backup_step,  sizeof(_big_backup_step) );
+  gzread( setup_file, &backup_step_,      sizeof(backup_step_) );
+  gzread( setup_file, &big_backup_step_,  sizeof(big_backup_step_) );
   
   // Stats
   if (to_be_run)
   {
-    delete _stats;
-    _stats = new Stats(_exp_m, AeTime::get_time());
+    delete stats_;
+    stats_ = new Stats(exp_m_, AeTime::get_time());
   }
-  gzread( setup_file, &_compute_phen_contrib_by_GU,  sizeof(_compute_phen_contrib_by_GU) );
+  gzread( setup_file, &compute_phen_contrib_by_GU_,  sizeof(compute_phen_contrib_by_GU_) );
   
   // Tree
   int8_t record_tree;
   gzread( setup_file, &record_tree, sizeof(record_tree) );
-  _record_tree = record_tree;
-  if ( _record_tree )
+  record_tree_ = record_tree;
+  if ( record_tree_ )
   {
     int32_t tmp_tree_step;
     gzread( setup_file, &tmp_tree_step, sizeof(tmp_tree_step) );
     
-    _tree = new Tree( _exp_m, tmp_tree_step );
+    tree_ = new Tree( exp_m_, tmp_tree_step );
   }
   
   // Dumps
   int8_t make_dumps;
   gzread( setup_file, &make_dumps, sizeof(make_dumps) );
-  _make_dumps = make_dumps;
-  gzread( setup_file, &_dump_step,  sizeof(_dump_step) );
-  if( _make_dumps == true)
+  make_dumps_ = make_dumps;
+  gzread( setup_file, &dump_step_,  sizeof(dump_step_) );
+  if( make_dumps_ == true)
   {
-    _dump = new Dump(_exp_m);
+    dump_ = new Dump(exp_m_);
   }
   
   // Logs
@@ -166,34 +166,34 @@ void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run)
   gzread(setup_file, &logs, sizeof(logs));
   if (to_be_run)
   {
-    _logs->load(logs, AeTime::get_time());
+    logs_->load(logs, AeTime::get_time());
   }
 }
 
 void OutputManager::write_current_generation_outputs( void ) const
 {
   // Write stats
-  _stats->write_current_generation_statistics();
+  stats_->write_current_generation_statistics();
 
   // Manage tree
-  if (_record_tree &&
+  if (record_tree_ &&
       AeTime::get_time() > 0 &&
-      (AeTime::get_time() % _tree->get_tree_step() == 0)) {
+      (AeTime::get_time() % tree_->get_tree_step() == 0)) {
     write_tree();
   }
 
   // Write backup
-  if (AeTime::get_time() % _backup_step == 0) {
-    _stats->flush();
-    _exp_m->WriteDynamicFiles();
+  if (AeTime::get_time() % backup_step_ == 0) {
+    stats_->flush();
+    exp_m_->WriteDynamicFiles();
 
     WriteLastGenerFile();
   }
 
   // Write dumps
-  if (_make_dumps) {
-    if(AeTime::get_time() % _dump_step == 0) {
-      _dump->write_current_generation_dump();
+  if (make_dumps_) {
+    if(AeTime::get_time() % dump_step_ == 0) {
+      dump_->write_current_generation_dump();
     }
   }
 }
@@ -249,7 +249,7 @@ void OutputManager::write_tree( void ) const
   gzFile tree_file = gzopen( tree_file_name, "w" );
   
   // Write phylogenetic data (tree)
-  _tree->write_to_tree_file( tree_file );
+  tree_->write_to_tree_file( tree_file );
   
   gzclose( tree_file );
 }

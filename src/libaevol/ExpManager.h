@@ -93,7 +93,7 @@ class ExpManager : public Observer {
   // because the replication and loading/writting processes need this information.
   // For now when plasmids are used each individual has one and only one plasmid (so these variables should always be
   // equal), this may change in the future, though.
-  // Member variable _with_plasmids_HT has been removed because the ability to transfer is evolvable and may thus depend
+  // Member variable with_plasmids_HT_ has been removed because the ability to transfer is evolvable and may thus depend
   // on the plasmid itself
 
   bool with_plasmids() const { return exp_s()->with_plasmids(); }

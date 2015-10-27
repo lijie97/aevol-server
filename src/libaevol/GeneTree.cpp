@@ -65,32 +65,32 @@ namespace aevol {
 
 GeneTree::GeneTree( void )
 {
-  _root = NULL;
-  _begin_gener = 0;
-  _end_gener = 0;
-  _total_nb_nodes = 0;
-  _nb_internal_nodes = 0;
-  _nb_leaves = 0;
-  _nb_active_leaves = 0;
-  _creation_type = INITIALIZATION;
+  root_ = NULL;
+  begin_gener_ = 0;
+  end_gener_ = 0;
+  total_nb_nodes_ = 0;
+  nb_internal_nodes_ = 0;
+  nb_leaves_ = 0;
+  nb_active_leaves_ = 0;
+  creation_type_ = INITIALIZATION;
 }
 
 // Creates a tree with just a root node.
 GeneTree::GeneTree( int32_t nodeCreationDate, Protein * protein, const Mutation * mut /* = NULL */ )
 {
-  _root = new GeneTreeNode(nodeCreationDate, protein);
-  if (mut == NULL)  _creation_type = INITIALIZATION;
-  else if ((mut->get_mut_type() == SWITCH) || (mut->get_mut_type() == S_INS) || (mut->get_mut_type() == S_DEL)) _creation_type = LOCAL_MUTATION;
-  else if ((mut->get_mut_type() == DUPL) || (mut->get_mut_type() == DEL) || (mut->get_mut_type() == TRANS) || (mut->get_mut_type() == INV) ) _creation_type = REARRANGEMENT;
-  else _creation_type = TRANSFER;
+  root_ = new GeneTreeNode(nodeCreationDate, protein);
+  if (mut == NULL)  creation_type_ = INITIALIZATION;
+  else if ((mut->get_mut_type() == SWITCH) || (mut->get_mut_type() == S_INS) || (mut->get_mut_type() == S_DEL)) creation_type_ = LOCAL_MUTATION;
+  else if ((mut->get_mut_type() == DUPL) || (mut->get_mut_type() == DEL) || (mut->get_mut_type() == TRANS) || (mut->get_mut_type() == INV) ) creation_type_ = REARRANGEMENT;
+  else creation_type_ = TRANSFER;
  
     
-  _begin_gener = nodeCreationDate;
-  _end_gener = nodeCreationDate;
-  _total_nb_nodes = 1;
-  _nb_internal_nodes = 0;
-  _nb_leaves = 1;
-  if (protein != NULL) _nb_active_leaves = 1; else _nb_active_leaves = 0;
+  begin_gener_ = nodeCreationDate;
+  end_gener_ = nodeCreationDate;
+  total_nb_nodes_ = 1;
+  nb_internal_nodes_ = 0;
+  nb_leaves_ = 1;
+  if (protein != NULL) nb_active_leaves_ = 1; else nb_active_leaves_ = 0;
 }
 
 
@@ -102,7 +102,7 @@ GeneTree::GeneTree( int32_t nodeCreationDate, Protein * protein, const Mutation 
 
 GeneTree::~GeneTree( void )
 {
-  delete _root;
+  delete root_;
 }
 
 
@@ -112,84 +112,84 @@ GeneTree::~GeneTree( void )
 
 void GeneTree::set_end_gener_if_active_leaves(int32_t gener)
 {
-  if (_nb_active_leaves > 0) _end_gener = gener;
+  if (nb_active_leaves_ > 0) end_gener_ = gener;
 }
 
 void GeneTree::update_pointers_in_tree_leaves(GeneticUnit * unit)
 {
-  _root->update_pointers_in_subtree_leaves(unit);
+  root_->update_pointers_in_subtree_leaves(unit);
 }
 
 void GeneTree::anticipate_mutation_effect_on_genes_in_tree_leaves(const Mutation * mut, int32_t lengthOfGeneticUnit)
 {
-  _root->anticipate_mutation_effect_on_genes_in_subtree_leaves(mut, lengthOfGeneticUnit);
+  root_->anticipate_mutation_effect_on_genes_in_subtree_leaves(mut, lengthOfGeneticUnit);
 }
 
 void GeneTree::register_actual_mutation_effect_on_genes_in_tree_leaves(const Mutation * mut, GeneticUnit * unit, int32_t gener, double impact_on_metabolic_error)
 {
-  _root->register_actual_mutation_effect_on_genes_in_subtree_leaves( this, mut, unit, gener, impact_on_metabolic_error);
+  root_->register_actual_mutation_effect_on_genes_in_subtree_leaves( this, mut, unit, gener, impact_on_metabolic_error);
 }
 
 // void GeneTree::duplicate_this_gene( GeneTreeNode * node, int32_t duplicDate, Protein * newProtein )
 // {
-//   if (newProtein == node->_protein_pointer) {fprintf(stderr, "Error, duplication with the same protein\n"); exit(EXIT_FAILURE);}
+//   if (newProtein == node->protein_pointer_) {fprintf(stderr, "Error, duplication with the same protein\n"); exit(EXIT_FAILURE);}
 
 //   // Create a new node for the "old" DNA segment
-//   node->_left_child = new GeneTreeNode(duplicDate, node->_protein_pointer);
-//   node->_left_child->_node_creation_date = duplicDate;
-//   node->_left_child->_dna_creation_date = node->_dna_creation_date;
-//   node->_left_child->_parent_node = node;
+//   node->left_child_ = new GeneTreeNode(duplicDate, node->protein_pointer_);
+//   node->left_child_->node_creation_date_ = duplicDate;
+//   node->left_child_->dna_creation_date_ = node->dna_creation_date_;
+//   node->left_child_->parent_node_ = node;
 
 //   // Create a new node for the "new" DNA segment
-//   node->_right_child = new GeneTreeNode(duplicDate, newProtein);
-//   node->_right_child->_node_creation_date = duplicDate;
-//   node->_right_child->_dna_creation_date = duplicDate;
-//   node->_right_child->_parent_node = node;
+//   node->right_child_ = new GeneTreeNode(duplicDate, newProtein);
+//   node->right_child_->node_creation_date_ = duplicDate;
+//   node->right_child_->dna_creation_date_ = duplicDate;
+//   node->right_child_->parent_node_ = node;
   
 //   // This node becomes internal, it represents an ancestral (obsolete) state of the gene
-//   node->_protein_pointer = NULL;
-//   for (int32_t i = 0; i < node->_nb_promoters; i++) {node->_rna_pointers[i] = NULL;}
-//   node->_gene_loss_type = DUPLICATED; 
-//   node->_gene_loss_date = duplicDate;
+//   node->protein_pointer_ = NULL;
+//   for (int32_t i = 0; i < node->nb_promoters_; i++) {node->rna_pointers_[i] = NULL;}
+//   node->gene_loss_type_ = DUPLICATED; 
+//   node->gene_loss_date_ = duplicDate;
 
 //   // Update tree statistics
-//   _total_nb_nodes += 2;
-//   _nb_internal_nodes ++;
-//   _nb_leaves ++;  // - 1 + 2 (the ex-leaf becomes an internal node, 2 leaves are created)
-//   if (newProtein != NULL) _nb_active_leaves ++;
-//   if (duplicDate > _end_gener) _end_gener = duplicDate;
+//   total_nb_nodes_ += 2;
+//   nb_internal_nodes_ ++;
+//   nb_leaves_ ++;  // - 1 + 2 (the ex-leaf becomes an internal node, 2 leaves are created)
+//   if (newProtein != NULL) nb_active_leaves_ ++;
+//   if (duplicDate > end_gener_) end_gener_ = duplicDate;
 // }
 
 
 // void GeneTree::report_gene_mutation( GeneTreeNode * node, GeneMutation * geneMut)
 // {
-//   node->_mutation_list->add(geneMut);
-//   if (geneMut->get_generation() > _end_gener) _end_gener = geneMut->get_generation();
+//   node->mutation_list_->add(geneMut);
+//   if (geneMut->get_generation() > end_gener_) end_gener_ = geneMut->get_generation();
 // }
  
 
 
 // void GeneTree::report_gene_loss( GeneTreeNode * node, int32_t geneLossDate, ae_gene_loss_type geneLossType)
 // {
-//   node->_gene_loss_date = geneLossDate;
-//   node->_gene_loss_type = geneLossType;
-//   node->_protein_pointer = NULL;
-//   for (int32_t i = 0; i < node->_nb_promoters; i++) {node->_rna_pointers[i] = NULL;}
-//   if (geneLossDate > _end_gener) _end_gener = geneLossDate;
-//   _nb_active_leaves --;
+//   node->gene_loss_date_ = geneLossDate;
+//   node->gene_loss_type_ = geneLossType;
+//   node->protein_pointer_ = NULL;
+//   for (int32_t i = 0; i < node->nb_promoters_; i++) {node->rna_pointers_[i] = NULL;}
+//   if (geneLossDate > end_gener_) end_gener_ = geneLossDate;
+//   nb_active_leaves_ --;
 // }
   
 
 
 GeneTreeNode *GeneTree::search_in_leaves(const Protein * protein)
 {
-  return _root->search_in_subtree_leaves(protein);
+  return root_->search_in_subtree_leaves(protein);
 }
  
 
 void GeneTree::print_to_screen(void)
 {
-  _root->print_subtree_to_screen();
+  root_->print_subtree_to_screen();
   printf("\n");
 }
 
@@ -211,7 +211,7 @@ void GeneTree::write_to_files(const char * topologyFileName, const char * nodeAt
     }  
 
 
-  _root->write_subtree_to_files(topology_file, node_attributes_file, end_gener);
+  root_->write_subtree_to_files(topology_file, node_attributes_file, end_gener);
   fprintf(topology_file, ";");
 
   fclose(topology_file);
@@ -222,7 +222,7 @@ void GeneTree::write_to_files(const char * topologyFileName, const char * nodeAt
 // f must already be open 
 void GeneTree::write_nodes_in_tabular_file(int32_t treeID, FILE * f)
 {
-  _root->write_subtree_nodes_in_tabular_file(treeID, f);
+  root_->write_subtree_nodes_in_tabular_file(treeID, f);
 }
 
 

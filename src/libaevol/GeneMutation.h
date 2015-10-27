@@ -148,10 +148,10 @@ class GeneMutation : public Mutation
   //                          Protected Attributes
   // =================================================================
   
-  int32_t*  _position_relative_to_shine_dal; /* array of positions similar to the _pos array of the Mutation class (size 1 for the switch, 2 for an inversion, etc.) */
-  int32_t   _generation;
-  double    _impact_on_metabolic_error;
-  ae_gene_mutation_region _region;
+  int32_t*  position_relative_to_shine_dal_; /* array of positions similar to the pos_ array of the Mutation class (size 1 for the switch, 2 for an inversion, etc.) */
+  int32_t   generation_;
+  double    impact_on_metabolic_error_;
+  ae_gene_mutation_region region_;
   
 };
 
@@ -165,25 +165,25 @@ class GeneMutation : public Mutation
 
 inline int32_t GeneMutation::get_generation() const
 {
-  return _generation;
+  return generation_;
 }
 
 inline double GeneMutation::get_impact_on_metabolic_error() const
 {
-  return _impact_on_metabolic_error;
+  return impact_on_metabolic_error_;
 
 }
 
 
 inline void GeneMutation::set_impact_on_metabolic_error(double impact)
 {
-  _impact_on_metabolic_error = impact;
+  impact_on_metabolic_error_ = impact;
 }
 
 
 inline ae_gene_mutation_region GeneMutation::get_region()
 {
-  return _region;
+  return region_;
 }
 
 // =====================================================================

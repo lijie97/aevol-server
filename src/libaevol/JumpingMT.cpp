@@ -65,8 +65,8 @@ double  JumpingMT::jump_time  = 0;
  */
 JumpingMT::JumpingMT( const uint32_t& simple_seed )
 {
-  _sfmt = new sfmt_t();
-  sfmt_init_gen_rand( _sfmt, simple_seed );
+  sfmt_ = new sfmt_t();
+  sfmt_init_gen_rand( sfmt_, simple_seed );
   
   // Jump to get rid of the initializatino skew
   jump();
@@ -77,9 +77,9 @@ JumpingMT::JumpingMT( const uint32_t& simple_seed )
  */
 JumpingMT::JumpingMT( const JumpingMT & model )
 {
-  _sfmt = new sfmt_t();
-  memcpy(_sfmt->state, model._sfmt->state, SFMT_N*sizeof(_sfmt->state[0]));
-  _sfmt->idx = model._sfmt->idx;
+  sfmt_ = new sfmt_t();
+  memcpy(sfmt_->state, model.sfmt_->state, SFMT_N*sizeof(sfmt_->state[0]));
+  sfmt_->idx = model.sfmt_->idx;
 }
 
 /*!
@@ -87,9 +87,9 @@ JumpingMT::JumpingMT( const JumpingMT & model )
  */
 JumpingMT::JumpingMT( gzFile backup_file )
 {
-  _sfmt = new sfmt_t();
-  gzread( backup_file, _sfmt->state, SFMT_N * sizeof( _sfmt->state[0] ) );
-  gzread( backup_file, &(_sfmt->idx), sizeof( _sfmt->idx ) );
+  sfmt_ = new sfmt_t();
+  gzread( backup_file, sfmt_->state, SFMT_N * sizeof( sfmt_->state[0] ) );
+  gzread( backup_file, &(sfmt_->idx), sizeof( sfmt_->idx ) );
 }
 
 // =================================================================
@@ -97,7 +97,7 @@ JumpingMT::JumpingMT( gzFile backup_file )
 // =================================================================
 JumpingMT::~JumpingMT( void )
 {
-  delete _sfmt;
+  delete sfmt_;
 }
 
 // =================================================================
@@ -114,17 +114,17 @@ void JumpingMT::jump( void )
   #ifdef TRIVIAL_METHOD_JUMP_SIZE
     for ( int i = 0 ; i < TRIVIAL_METHOD_JUMP_SIZE ; i++ )
     {
-      sfmt_genrand_real2( _sfmt );
+      sfmt_genrand_real2( sfmt_ );
     }
   #else
-    SFMT_jump( _sfmt, jump_poly );
+    SFMT_jump( sfmt_, jump_poly );
   #endif
     
     
   //~ int nb_sup_steps = 100 * (double)rand() / ((double)RAND_MAX + 1);
   //~ for ( int i = 0 ; i < nb_sup_steps ; i++ )
   //~ {
-    //~ sfmt_genrand_real2( _sfmt );
+    //~ sfmt_genrand_real2( sfmt_ );
   //~ }
     
   
@@ -330,8 +330,8 @@ void JumpingMT::multinomial_drawing( int32_t* destination, double* source, int32
 
 void JumpingMT::save( gzFile backup_file ) const
 {
-  gzwrite( backup_file, _sfmt->state, SFMT_N * sizeof( _sfmt->state[0] ) );
-  gzwrite( backup_file, &(_sfmt->idx), sizeof( _sfmt->idx ) );
+  gzwrite( backup_file, sfmt_->state, SFMT_N * sizeof( sfmt_->state[0] ) );
+  gzwrite( backup_file, &(sfmt_->idx), sizeof( sfmt_->idx ) );
 }
 
 

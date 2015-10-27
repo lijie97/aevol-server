@@ -168,7 +168,7 @@ class ExpManager_X11 : public ExpManager {
   unsigned int** win_size_; // window sizes
   int**          win_pos_;  // window positions
 
-  std::vector<char*> _col_map;
+  std::vector<char*> col_map_;
 };
 
 // =====================================================================

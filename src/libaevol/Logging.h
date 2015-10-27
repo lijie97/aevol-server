@@ -122,11 +122,11 @@ class Logging
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    int8_t  _logs; // Which logs are "turned on" (bitmap)
-    FILE*   _transfer_log;
-    FILE*   _rear_log;
-    FILE*   _barrier_log;
-    //FILE*   _param_modification_log;
+    int8_t  logs_; // Which logs are "turned on" (bitmap)
+    FILE*   transfer_log_;
+    FILE*   rear_log_;
+    FILE*   barrier_log_;
+    //FILE*   param_modification_log_;
 };
 
 
@@ -139,19 +139,19 @@ inline FILE*Logging::get_log( LogType log_type ) const
   {
     case LOG_TRANSFER :
     {
-      return _transfer_log;
+      return transfer_log_;
     }
     case LOG_REAR :
     {
-      return _rear_log;
+      return rear_log_;
     }
     case LOG_BARRIER :
     {
-      return _barrier_log;
+      return barrier_log_;
     }
     /*case LOG_LOADS :
     {
-      return _param_modification_log;
+      return param_modification_log_;
     }*/
     default:
     {
@@ -163,7 +163,7 @@ inline FILE*Logging::get_log( LogType log_type ) const
 
 inline int8_t Logging::get_logs() const
 {
-  return _logs;
+  return logs_;
 }
 
 inline bool Logging::is_logged( LogType log_type ) const
@@ -172,19 +172,19 @@ inline bool Logging::is_logged( LogType log_type ) const
   {
     case LOG_TRANSFER :
     {
-      return ( _logs & LOG_TRANSFER );
+      return ( logs_ & LOG_TRANSFER );
     }
     case LOG_REAR :
     {
-      return ( _logs & LOG_REAR );
+      return ( logs_ & LOG_REAR );
     }
     case LOG_BARRIER :
     {
-      return ( _logs & LOG_BARRIER );
+      return ( logs_ & LOG_BARRIER );
     }
     /*case LOG_LOADS :
     {
-      return ( _logs & LOG_LOADS );
+      return ( logs_ & LOG_LOADS );
     }*/
     default:
     {

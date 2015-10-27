@@ -77,7 +77,7 @@ class Tree : public Observer
     //                        Accessors: getters
     // =================================================================
     inline int64_t  get_tree_step(void) const {
-      return _tree_step;
+      return tree_step_;
     };
     
     // Precondition for the following methods:
@@ -119,11 +119,11 @@ class Tree : public Observer
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ExpManager* _exp_m;
+    ExpManager* exp_m_;
     
-    int64_t _tree_step;
+    int64_t tree_step_;
     
-    ReplicationReport*** _replics;
+    ReplicationReport*** replics_;
     // Two-dimensional table of ReplicationReport*
     //    dimension 1 (lines)   : generation
     //    dimension 2 (columns) : individual
@@ -133,7 +133,7 @@ class Tree : public Observer
     // replication that created the indiv with index c of generation l+1
     
     // light tree representation
-    int32_t** _parent;
+    int32_t** parent_;
 };
 
 

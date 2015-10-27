@@ -130,17 +130,17 @@ class Selection : public Observable
     // =======================================================================
     //                             Protected Attributes
     // =======================================================================
-    ExpManager* _exp_m;
+    ExpManager* exp_m_;
     
     // ----------------------------------------- Pseudo-random number generator
     std::unique_ptr<JumpingMT> prng_;
 
     // -------------------------------------------------------------- Selection
-    SelectionScheme _selection_scheme;
-    double _selection_pressure;
+    SelectionScheme selection_scheme_;
+    double selection_pressure_;
 
     // --------------------------- Probability of reproduction of each organism
-    double* _prob_reprod;
+    double* prob_reprod_;
 };
 
 
@@ -154,22 +154,22 @@ class Selection : public Observable
 
 inline SelectionScheme Selection::get_selection_scheme(void) const
 {
-  return _selection_scheme;
+  return selection_scheme_;
 }
 
 inline double Selection::get_selection_pressure(void) const
 {
-  return _selection_pressure;
+  return selection_pressure_;
 }
 
 inline double*Selection::get_prob_reprod(void) const
 {
-  if (_prob_reprod == NULL)
+  if (prob_reprod_ == NULL)
   {
-    printf("ERROR, _prob_reprod has not been computed %s:%d\n", __FILE__, __LINE__);
+    printf("ERROR, prob_reprod_ has not been computed %s:%d\n", __FILE__, __LINE__);
     exit(EXIT_FAILURE);
   }
-  return _prob_reprod;
+  return prob_reprod_;
 }
 
 // =====================================================================
@@ -184,12 +184,12 @@ inline void Selection::set_prng(std::unique_ptr<JumpingMT>&& prng)
 // -------------------------------------------------------------- Selection
 inline void Selection::set_selection_scheme(SelectionScheme sel_scheme)
 {
-  _selection_scheme = sel_scheme;
+  selection_scheme_ = sel_scheme;
 }
 
 inline void Selection::set_selection_pressure(double sel_pressure)
 {
-  _selection_pressure = sel_pressure;
+  selection_pressure_ = sel_pressure;
 }
 
 

@@ -57,30 +57,30 @@ namespace aevol {
 // =================================================================
 VisAVis::VisAVis(const Dna* chrom_1, const Dna* chrom_2,
                  int32_t i_1, int32_t i_2, AlignmentSense sense /*= DIRECT*/) {
-  _chrom_1  = chrom_1;
-  _chrom_2  = chrom_2;
-  _i_1      = i_1;
-  _i_2      = i_2;
-  _sense    = sense;
-  _score    = 0;
+  chrom_1_  = chrom_1;
+  chrom_2_  = chrom_2;
+  i_1_      = i_1;
+  i_2_      = i_2;
+  sense_    = sense;
+  score_    = 0;
 }
 
 VisAVis::VisAVis(const VisAVis & orig) {
-  _chrom_1  = orig._chrom_1;
-  _chrom_2  = orig._chrom_2;
-  _i_1      = orig._i_1;
-  _i_2      = orig._i_2;
-  _sense    = orig._sense;
-  _score    = orig._score;
+  chrom_1_  = orig.chrom_1_;
+  chrom_2_  = orig.chrom_2_;
+  i_1_      = orig.i_1_;
+  i_2_      = orig.i_2_;
+  sense_    = orig.sense_;
+  score_    = orig.score_;
 }
 
 //~ VisAVis::VisAVis(const VisAVis* orig)
 //~ {
-  //~ _chrom_1  = orig->_chrom_1;
-  //~ _chrom_2  = orig->_chrom_2;
-  //~ _i_1      = orig->_i_1;
-  //~ _i_2      = orig->_i_2;
-  //~ _sense    = orig->_sense;
+  //~ chrom_1_  = orig->chrom_1_;
+  //~ chrom_2_  = orig->chrom_2_;
+  //~ i_1_      = orig->i_1_;
+  //~ i_2_      = orig->i_2_;
+  //~ sense_    = orig->sense_;
 //~ }
 
 // =================================================================

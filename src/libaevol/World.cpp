@@ -173,7 +173,7 @@ void World::update_secretion_grid(void)
           // add the diffusion from the neighboring cells
           new_secretion[x][y] +=
               grid_[cur_x][cur_y]->compound_amount() *
-                  _secretion_diffusion_prop;
+                  secretion_diffusion_prop_;
         }
       }
     }
@@ -186,9 +186,9 @@ void World::update_secretion_grid(void)
     for (int16_t y = 0 ; y < height_ ; y++)
     {
       grid_[x][y]->set_compound_amount(new_secretion[x][y] -
-          9 * grid_[x][y]->compound_amount() * _secretion_diffusion_prop);
+          9 * grid_[x][y]->compound_amount() * secretion_diffusion_prop_);
       grid_[x][y]->set_compound_amount(grid_[x][y]->compound_amount() *
-          (1 - _secretion_degradation_prop));
+          (1 - secretion_degradation_prop_));
     }
   }
   for (int16_t x = 0 ; x < width_ ; x++)
@@ -218,7 +218,7 @@ void World::MixIndivs(void)
 void World::WellMixIndivs(void)
 {
   for (int16_t i = width_ * height_ - 1 ; i > 0 ; i--) {
-    int16_t j = _prng->random(i + 1); // random in [0, 1]
+    int16_t j = prng_->random(i + 1); // random in [0, 1]
 
     // Swap individuals btw cells i and j
     Individual * tmp = grid_1d_[i]->get_individual();
@@ -236,10 +236,10 @@ void World::PartiallyMixIndivs(void)
 {
   for (int32_t i = 0 ; i < partial_mix_nb_permutations_ ; i++)
   {
-    int16_t old_x = _prng->random(width_);
-    int16_t old_y = _prng->random(height_);
-    int16_t new_x = _prng->random(width_);
-    int16_t new_y = _prng->random(height_);
+    int16_t old_x = prng_->random(width_);
+    int16_t old_y = prng_->random(height_);
+    int16_t new_x = prng_->random(width_);
+    int16_t new_y = prng_->random(height_);
 
     // Swap the individuals in these grid cells...
     Individual * tmp_swap = grid_[old_x][old_y]->get_individual();
@@ -272,21 +272,21 @@ void World::ApplyHabitatVariation() {
 
 void World::save(gzFile backup_file) const
 {
-  if (_prng == nullptr)
+  if (prng_ == nullptr)
   {
     printf("%s:%d: error: PRNG not initialized.\n", __FILE__, __LINE__);
     exit(EXIT_FAILURE);
   }
 
-  _prng->save(backup_file);
+  prng_->save(backup_file);
 
-  _mut_prng->save(backup_file);
+  mut_prng_->save(backup_file);
 
-  int8_t tmp_with_stoch = static_cast<int8_t>(_stoch_prng == nullptr ? 0 : 1);
+  int8_t tmp_with_stoch = static_cast<int8_t>(stoch_prng_ == nullptr ? 0 : 1);
   gzwrite(backup_file, &tmp_with_stoch, sizeof(tmp_with_stoch));
   if (tmp_with_stoch)
   {
-    _stoch_prng->save(backup_file);
+    stoch_prng_->save(backup_file);
   }
   if (grid_ == nullptr)
   {
@@ -317,23 +317,23 @@ void World::save(gzFile backup_file) const
           sizeof(is_well_mixed_));
   gzwrite(backup_file, &partial_mix_nb_permutations_,
           sizeof(partial_mix_nb_permutations_));
-  gzwrite(backup_file, &_secretion_diffusion_prop,
-          sizeof(_secretion_diffusion_prop));
-  gzwrite(backup_file, &_secretion_degradation_prop,
-          sizeof(_secretion_degradation_prop));
+  gzwrite(backup_file, &secretion_diffusion_prop_,
+          sizeof(secretion_diffusion_prop_));
+  gzwrite(backup_file, &secretion_degradation_prop_,
+          sizeof(secretion_degradation_prop_));
 }
 
 void World::load(gzFile backup_file, ExpManager * exp_man)
 {
   // Retrieve PRNGs
-  _prng = std::make_shared<JumpingMT>(backup_file);
-  _mut_prng = std::make_shared<JumpingMT>(backup_file);
+  prng_ = std::make_shared<JumpingMT>(backup_file);
+  mut_prng_ = std::make_shared<JumpingMT>(backup_file);
 
   int8_t tmp_with_stoch;
   gzread(backup_file, &tmp_with_stoch, sizeof(tmp_with_stoch));
   if (tmp_with_stoch)
   {
-    _stoch_prng = std::make_shared<JumpingMT>(backup_file);
+    stoch_prng_ = std::make_shared<JumpingMT>(backup_file);
   }
 
   // Manage shared or private phenotypic targets
@@ -365,10 +365,10 @@ void World::load(gzFile backup_file, ExpManager * exp_man)
          sizeof(is_well_mixed_));
   gzread(backup_file, &partial_mix_nb_permutations_,
          sizeof(partial_mix_nb_permutations_));
-  gzread(backup_file, &_secretion_diffusion_prop,
-         sizeof(_secretion_diffusion_prop));
-  gzread(backup_file, &_secretion_degradation_prop,
-         sizeof(_secretion_degradation_prop));
+  gzread(backup_file, &secretion_diffusion_prop_,
+         sizeof(secretion_diffusion_prop_));
+  gzread(backup_file, &secretion_degradation_prop_,
+         sizeof(secretion_degradation_prop_));
 }
 
 // =================================================================
@@ -376,11 +376,11 @@ void World::load(gzFile backup_file, ExpManager * exp_man)
 // =================================================================
 void World::backup_stoch_prng(void)
 {
-  // Store a copy of _stoch_prng in _stoch_prng_bak
+  // Store a copy of stoch_prng_ in stoch_prng_bak_
 #if __cplusplus == 201103L
-  _stoch_prng_bak = make_unique<JumpingMT>(*_stoch_prng);
+  stoch_prng_bak_ = make_unique<JumpingMT>(*stoch_prng_);
 #else
-  _stoch_prng_bak = std::make_unique<JumpingMT>(*_stoch_prng);
+  stoch_prng_bak_ = std::make_unique<JumpingMT>(*stoch_prng_);
 #endif
 }
 
@@ -389,17 +389,17 @@ void World::backup_stoch_prng(void)
 // =================================================================
 std::shared_ptr<JumpingMT> World::get_prng(void) const
 {
-  return _prng;
+  return prng_;
 }
 
 std::shared_ptr<JumpingMT> World::get_mut_prng(void) const
 {
-  return _mut_prng;
+  return mut_prng_;
 }
 
 std::shared_ptr<JumpingMT> World::get_stoch_prng(void) const
 {
-  return _stoch_prng;
+  return stoch_prng_;
 }
 
 list<Individual *> World::get_indivs(void) const
@@ -415,25 +415,25 @@ list<Individual *> World::get_indivs(void) const
 
 void World::set_mut_prng(std::shared_ptr<JumpingMT> prng)
 {
-  _mut_prng = prng;
+  mut_prng_ = prng;
 
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++) {
       Individual * indiv;
       if ((indiv = get_indiv_at(x, y)))
-        indiv->set_mut_prng(_mut_prng);
+        indiv->set_mut_prng(mut_prng_);
     }
 }
 
 void World::set_stoch_prng(std::shared_ptr<JumpingMT> prng)
 {
-  _stoch_prng = prng;
+  stoch_prng_ = prng;
 
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++) {
       Individual * indiv;
       if ((indiv = get_indiv_at(x, y)))
-        indiv->set_stoch_prng(_stoch_prng);
+        indiv->set_stoch_prng(stoch_prng_);
     }
 }
 

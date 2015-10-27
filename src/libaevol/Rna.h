@@ -81,7 +81,7 @@ class Rna
     // =================================================================
 
     // <DEBUG>
-    void check( GeneticUnit* gen_unit ) { assert( gen_unit == _gen_unit ); };
+    void check( GeneticUnit* gen_unit ) { assert( gen_unit == gen_unit_ ); };
     //~ void* get_indiv( void ) const { return (void*)indiv_; };
     // </DEBUG>
 
@@ -127,13 +127,13 @@ class Rna
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    const GeneticUnit*  _gen_unit;
-    Strand _strand;
-    int32_t _pos; // Index of the promoter on the genome.
+    const GeneticUnit*  gen_unit_;
+    Strand strand_;
+    int32_t pos_; // Index of the promoter on the genome.
                   // The promoter itself is NOT transcribed
                   // The terminator is transcribed.
-    int32_t _transcript_length;
-    double _basal_level;
+    int32_t transcript_length_;
+    double basal_level_;
 
     // Access list to the proteins transcribed by this rna
     std::list<Protein*> transcribed_proteins;
@@ -145,47 +145,47 @@ class Rna
 // =====================================================================
 inline const GeneticUnit*Rna::get_genetic_unit( void ) const
 {
-  return _gen_unit;
+  return gen_unit_;
 }
 
 inline void Rna::set_genetic_unit(const GeneticUnit*  gen_unit)
 {
-  _gen_unit = gen_unit;
+  gen_unit_ = gen_unit;
 }
 
 inline Strand Rna::get_strand( void ) const
 {
-  return _strand;
+  return strand_;
 }
 
 inline void Rna::set_strand( Strand strand )
 {
-  _strand = strand;
+  strand_ = strand;
 }
 
 void Rna::set_promoter_pos( int32_t pos )
 {
-  _pos = pos;
+  pos_ = pos;
 }
 
 inline int32_t Rna::get_promoter_pos( void ) const
 {
-  return _pos;
+  return pos_;
 }
 
 inline double Rna::get_basal_level( void ) const
 {
-  return _basal_level;
+  return basal_level_;
 }
 
 inline int32_t Rna::get_transcript_length( void ) const
 {
-  return _transcript_length;
+  return transcript_length_;
 }
 
 inline void Rna::set_transcript_length( int32_t transcript_length )
 {
-  _transcript_length = transcript_length;
+  transcript_length_ = transcript_length;
 }
 
 inline const std::list<Protein *>&Rna::get_transcribed_proteins() const {
@@ -207,7 +207,7 @@ void Rna::add_transcribed_protein( Protein * prot )
 
 void Rna::shift_position( int32_t delta_pos, int32_t genome_length )
 {
-  _pos = Utils::mod( _pos + delta_pos, genome_length );
+  pos_ = Utils::mod( pos_ + delta_pos, genome_length );
 }
 
 } // namespace aevol

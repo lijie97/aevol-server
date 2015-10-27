@@ -154,11 +154,11 @@ class World
   // =================================================================
   //                          Protected Attributes
   // =================================================================
-  std::shared_ptr<JumpingMT> _prng = nullptr;
+  std::shared_ptr<JumpingMT> prng_ = nullptr;
 
-  std::shared_ptr<JumpingMT> _mut_prng = nullptr;
-  std::shared_ptr<JumpingMT> _stoch_prng = nullptr;
-  std::unique_ptr<JumpingMT> _stoch_prng_bak = nullptr;
+  std::shared_ptr<JumpingMT> mut_prng_ = nullptr;
+  std::shared_ptr<JumpingMT> stoch_prng_ = nullptr;
+  std::unique_ptr<JumpingMT> stoch_prng_bak_ = nullptr;
 
   int16_t width_  = -1;
   int16_t height_ = -1;
@@ -175,8 +175,8 @@ class World
   bool phenotypic_target_shared_ = true;
   std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler_ = nullptr;
 
-  double  _secretion_diffusion_prop = -1;
-  double  _secretion_degradation_prop = -1;
+  double  secretion_diffusion_prop_ = -1;
+  double  secretion_degradation_prop_ = -1;
 };
 
 
@@ -273,7 +273,7 @@ inline double**World::get_total_fitness_grid(void) const
 //                           Setters' definitions
 // =====================================================================
 inline void World::set_prng(std::shared_ptr<JumpingMT> prng) {
-  _prng = prng;
+  prng_ = prng;
 }
 
 inline void World::set_is_well_mixed(bool is_well_mixed) {
@@ -285,11 +285,11 @@ inline void World::set_partial_mix_nb_permutations(int32_t nb_permutations) {
 }
 
 inline void World::set_secretion_degradation_prop(double degradation_prop) {
-  _secretion_degradation_prop=degradation_prop;
+  secretion_degradation_prop_=degradation_prop;
 }
 
 inline void World::set_secretion_diffusion_prop(double diffusion_prop) {
-  _secretion_diffusion_prop=diffusion_prop;
+  secretion_diffusion_prop_=diffusion_prop;
 }
 
 inline void World::set_best(int16_t x, int16_t y) {

@@ -60,12 +60,12 @@ namespace aevol {
 Rna::Rna( GeneticUnit* gen_unit, const Rna &model )
 {
   // Copy "trivial" attributes
-  _gen_unit  = gen_unit;
+  gen_unit_  = gen_unit;
   
-  _strand             = model._strand;
-  _pos                = model._pos;
-  _transcript_length  = model._transcript_length;
-  _basal_level        = model._basal_level;
+  strand_             = model.strand_;
+  pos_                = model.pos_;
+  transcript_length_  = model.transcript_length_;
+  basal_level_        = model.basal_level_;
   
   // Copy transcribed proteins
   // WARNING : Since this list do not "own" the proteins (they will not be deleted)
@@ -78,22 +78,22 @@ Rna::Rna( GeneticUnit* gen_unit, const Rna &model )
 
 Rna::Rna( GeneticUnit* gen_unit, Strand strand, int32_t pos, int8_t diff )
 {
-  _gen_unit  = gen_unit;
-  _strand = strand;
-  _pos    = pos;
+  gen_unit_  = gen_unit;
+  strand_ = strand;
+  pos_    = pos;
 
-  _transcript_length  = -1;
-  _basal_level        = 1 - (double)diff / (PROM_MAX_DIFF + 1);
+  transcript_length_  = -1;
+  basal_level_        = 1 - (double)diff / (PROM_MAX_DIFF + 1);
 }
 
 /*
 Rna::Rna( Rna* parent )
 {
   gen_unit_           = parent->gen_unit_;
-  _strand             = parent->_strand;
-  _pos                = parent->_pos;
-  _transcript_length  = parent->_transcript_length;
-  _basal_level        = parent->_basal_level;
+  strand_             = parent->strand_;
+  pos_                = parent->pos_;
+  transcript_length_  = parent->transcript_length_;
+  basal_level_        = parent->basal_level_;
 }
 */
 
@@ -109,27 +109,27 @@ Rna::~Rna( void )
 // =================================================================
 int32_t Rna::get_first_transcribed_pos( void ) const
 {
-  if ( _strand == LEADING )
+  if ( strand_ == LEADING )
   {
-    return Utils::mod( _pos + PROM_SIZE, _gen_unit->get_dna()->length() );
+    return Utils::mod( pos_ + PROM_SIZE, gen_unit_->get_dna()->length() );
   }
   else
   {
-    return Utils::mod( _pos - PROM_SIZE, _gen_unit->get_dna()->length() );
+    return Utils::mod( pos_ - PROM_SIZE, gen_unit_->get_dna()->length() );
   }
 }
 
 int32_t Rna::get_last_transcribed_pos( void ) const
 {
-  if ( _strand == LEADING )
+  if ( strand_ == LEADING )
   {
-    return Utils::mod( _pos +  PROM_SIZE + _transcript_length - 1,
-                       _gen_unit->get_dna()->length() );
+    return Utils::mod( pos_ +  PROM_SIZE + transcript_length_ - 1,
+                       gen_unit_->get_dna()->length() );
   }
   else
   {
-    return Utils::mod( _pos - (PROM_SIZE + _transcript_length - 1),
-                       _gen_unit->get_dna()->length() );
+    return Utils::mod( pos_ - (PROM_SIZE + transcript_length_ - 1),
+                       gen_unit_->get_dna()->length() );
   }
 }
 

@@ -179,7 +179,7 @@ void PhenotypicTargetHandler::ApplyAutoregressiveMeanVariation() {
   // For each gaussian :
   // current_mean = ref_mean + delta_m, where
   // delta_m follows an autoregressive stochastic process
-  // with the parameters _var_sigma and _var_tau
+  // with the parameters var_sigma_ and var_tau_
   for (auto cur_gaussian = current_gaussians_.begin(),
            initial_gaussian = initial_gaussians_.begin() ;
        cur_gaussian != current_gaussians_.end() ;
@@ -205,7 +205,7 @@ void PhenotypicTargetHandler::ApplyAutoregressiveHeightVariation() {
   // For each gaussian :
   // current_height = ref_height + delta_h, where
   // delta_h follows an autoregressive stochastic process
-  // with the parameters _var_sigma and _var_tau
+  // with the parameters var_sigma_ and var_tau_
   for (auto cur_gaussian = current_gaussians_.begin(),
            initial_gaussian = initial_gaussians_.begin() ;
        cur_gaussian != current_gaussians_.end() ;

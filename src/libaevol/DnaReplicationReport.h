@@ -92,7 +92,7 @@ class DnaReplicationReport {
   std::list<std::unique_ptr<const Rearrangement>> rearrangements_;
   std::list<std::unique_ptr<const HT>> ht_;
   // Number of mutations/rearrangements/HT of each (simple) type undergone
-  int32_t _nb_mut[10] = {0,0,0,0,0,0,0,0,0,0};
+  int32_t nb_mut_[10] = {0,0,0,0,0,0,0,0,0,0};
 };
 
 } // namespace aevol

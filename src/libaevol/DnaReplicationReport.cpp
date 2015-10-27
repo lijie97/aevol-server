@@ -55,26 +55,26 @@ int32_t DnaReplicationReport::get_nb(MutationType t)  const {
   switch (t) {
     case S_MUT:
       assert(mutations_.size() ==
-             static_cast<size_t>(_nb_mut[SWITCH] +
-                                 _nb_mut[S_INS] +
-                                 _nb_mut[S_DEL]));
+             static_cast<size_t>(nb_mut_[SWITCH] +
+                                 nb_mut_[S_INS] +
+                                 nb_mut_[S_DEL]));
       return mutations_.size();
     case REARR:
       assert(rearrangements_.size() ==
-             static_cast<size_t>(_nb_mut[DUPL] +
-                                 _nb_mut[DEL] +
-                                 _nb_mut[TRANS] +
-                                 _nb_mut[INV]));
+             static_cast<size_t>(nb_mut_[DUPL] +
+                                 nb_mut_[DEL] +
+                                 nb_mut_[TRANS] +
+                                 nb_mut_[INV]));
       return rearrangements_.size();
     case H_T:
       assert(ht_.size() ==
-             static_cast<size_t>(_nb_mut[INS_HT] +
-                                 _nb_mut[REPL_HT]));
+             static_cast<size_t>(nb_mut_[INS_HT] +
+                                 nb_mut_[REPL_HT]));
       return ht_.size();
     case INDEL:
-      return _nb_mut[S_INS] + _nb_mut[S_DEL];
+      return nb_mut_[S_INS] + nb_mut_[S_DEL];
     default: // Simple mutation type.
-      return _nb_mut[t];
+      return nb_mut_[t];
   };
 }
 
@@ -124,7 +124,7 @@ void DnaReplicationReport::add_local_mut(Mutation* mut) {
       break;
   }
   mutations_.push_back(std::move(cmut));
-  _nb_mut[mut->get_mut_type()]++;
+  nb_mut_[mut->get_mut_type()]++;
 }
 
 void DnaReplicationReport::add_rear(Mutation* mut) {
@@ -169,7 +169,7 @@ void DnaReplicationReport::add_rear(Mutation* mut) {
       break;
   }
   rearrangements_.push_back(std::move(cmut));
-  _nb_mut[mut->get_mut_type()]++;
+  nb_mut_[mut->get_mut_type()]++;
 }
 
 void DnaReplicationReport::add_HT(Mutation* mut) {
@@ -200,7 +200,7 @@ void DnaReplicationReport::add_HT(Mutation* mut) {
       break;
   }
   ht_.push_back(std::move(cmut));
-  _nb_mut[mut->get_mut_type()]++;
+  nb_mut_[mut->get_mut_type()]++;
 }
 
 
@@ -208,20 +208,20 @@ void DnaReplicationReport::add_HT(Mutation* mut) {
 /// because stats are not saved in the file.
 void DnaReplicationReport::compute_stats( void )
 {
-  _nb_mut[SWITCH] = 0;
-  _nb_mut[S_INS]  = 0;
-  _nb_mut[S_DEL]  = 0;
-  _nb_mut[DUPL]   = 0;
-  _nb_mut[DEL]    = 0;
-  _nb_mut[TRANS]  = 0;
-  _nb_mut[INV]    = 0;
-  _nb_mut[INS_HT] = 0;
-  _nb_mut[REPL_HT]= 0;
+  nb_mut_[SWITCH] = 0;
+  nb_mut_[S_INS]  = 0;
+  nb_mut_[S_DEL]  = 0;
+  nb_mut_[DUPL]   = 0;
+  nb_mut_[DEL]    = 0;
+  nb_mut_[TRANS]  = 0;
+  nb_mut_[INV]    = 0;
+  nb_mut_[INS_HT] = 0;
+  nb_mut_[REPL_HT]= 0;
   
   for (const auto& ht : ht_) {
     assert(ht->get_mut_type() == INS_HT or
            ht->get_mut_type() == REPL_HT);
-    _nb_mut[ht->get_mut_type()]++;
+    nb_mut_[ht->get_mut_type()]++;
   }
 
   for (const auto& rear : rearrangements_) {
@@ -229,14 +229,14 @@ void DnaReplicationReport::compute_stats( void )
            rear->get_mut_type() == DEL or
            rear->get_mut_type() == TRANS or
            rear->get_mut_type() == INV);
-    _nb_mut[rear->get_mut_type()]++;
+    nb_mut_[rear->get_mut_type()]++;
   }
 
   for (const auto& mut : mutations_) {
     assert(mut->get_mut_type() == SWITCH or
            mut->get_mut_type() == S_INS or
            mut->get_mut_type() == S_DEL);
-    _nb_mut[mut->get_mut_type()]++;
+    nb_mut_[mut->get_mut_type()]++;
   }
 }
 

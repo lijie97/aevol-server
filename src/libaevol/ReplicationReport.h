@@ -82,8 +82,8 @@ class ReplicationReport : public Observer {
     //                              Accessors
     // =================================================================
     inline Individual * get_indiv(void) const;
-    int32_t id() { return _id; };
-    int32_t rank() { return _rank; };
+    int32_t id() { return id_; };
+    int32_t rank() { return rank_; };
     inline int32_t  get_genome_size(void) const;
     inline int32_t  get_parent_id(void) const;
     inline double   get_parent_metabolic_error(void) const;
@@ -95,13 +95,13 @@ class ReplicationReport : public Observer {
     inline double   get_donor_metabolic_error(void) const;
     inline int32_t  get_donor_genome_size(void) const;
     int32_t get_nb(MutationType t) const {
-      return _dna_replic_report.get_nb(t);
+      return dna_replic_report_.get_nb(t);
     }
 
     // TODO <david.parsons@inria.fr> re-constify
     // => const DnaReplicationReport& dna_replic_report() const
     DnaReplicationReport& dna_replic_report() {
-      return _dna_replic_report;
+      return dna_replic_report_;
     }
      
     void            set_indiv(Individual * indiv);
@@ -137,36 +137,36 @@ class ReplicationReport : public Observer {
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    Individual* _indiv = nullptr;
-    int32_t _id = -1;
-    int32_t _parent_id = -1;
+    Individual* indiv_ = nullptr;
+    int32_t id_ = -1;
+    int32_t parent_id_ = -1;
 
-    int32_t _rank = -1;
+    int32_t rank_ = -1;
 
-    int32_t _genome_size = -1;
-    double _metabolic_error = -1;
-    int16_t _nb_genes_activ = -1;
-    int16_t _nb_genes_inhib = -1;
-    int16_t _nb_non_fun_genes = -1;
-    int16_t _nb_coding_RNAs = -1;
-    int16_t _nb_non_coding_RNAs = -1;
+    int32_t genome_size_ = -1;
+    double metabolic_error_ = -1;
+    int16_t nb_genes_activ_ = -1;
+    int16_t nb_genes_inhib_ = -1;
+    int16_t nb_non_fun_genes_ = -1;
+    int16_t nb_coding_RNAs_ = -1;
+    int16_t nb_non_coding_RNAs_ = -1;
 
     // List of each genetic unit's replication report
-    DnaReplicationReport _dna_replic_report;
+    DnaReplicationReport dna_replic_report_;
     
-    double _parent_metabolic_error = -1;
-    double _parent_secretion_error = -1;
-    int32_t _parent_genome_size = -1;
+    double parent_metabolic_error_ = -1;
+    double parent_secretion_error_ = -1;
+    int32_t parent_genome_size_ = -1;
     
-    int32_t	_donor_id = -1;
-    double _donor_metabolic_error = -1;
-    double _donor_secretion_error = -1;
-    int32_t _donor_genome_size = -1;
+    int32_t	donor_id_ = -1;
+    double donor_metabolic_error_ = -1;
+    double donor_secretion_error_ = -1;
+    int32_t donor_genome_size_ = -1;
     
     // CK: I think that the attributes below are obsolete 
     // (HT events are now stored in the ae_dna_replic_reports)
     
-    double _mean_align_score;
+    double mean_align_score_;
 };
 
 
@@ -175,99 +175,99 @@ class ReplicationReport : public Observer {
 // =====================================================================
 inline Individual *ReplicationReport::get_indiv(void) const
 {
-  return _indiv;
+  return indiv_;
 }
 
 inline int32_t ReplicationReport::get_genome_size(void) const
 {
-  return _genome_size;
+  return genome_size_;
 }
 
 int32_t ReplicationReport::get_parent_id(void) const
 {
-  return _parent_id;
+  return parent_id_;
 }
 
 double ReplicationReport::get_parent_metabolic_error(void) const
 {
-  return _parent_metabolic_error;
+  return parent_metabolic_error_;
 }
 
 double ReplicationReport::get_parent_secretion_error(void) const
 {
-  return _parent_secretion_error;
+  return parent_secretion_error_;
 }
 
 int32_t ReplicationReport::get_parent_genome_size(void) const
 {
-  return _parent_genome_size;
+  return parent_genome_size_;
 }
 
 inline int32_t	ReplicationReport::get_donor_id(void) const
 {
-  return _donor_id;
+  return donor_id_;
 }
 
 inline double   ReplicationReport::get_donor_metabolic_error(void) const
 {
-  return _donor_metabolic_error;
+  return donor_metabolic_error_;
 }
 
 inline int32_t  ReplicationReport::get_donor_genome_size(void) const
 {
-  return _donor_genome_size;
+  return donor_genome_size_;
 }
 
 
 
 inline double ReplicationReport::get_mean_align_score(void) const
 {
-  return _mean_align_score;
+  return mean_align_score_;
 }
 
 inline void ReplicationReport::set_indiv(Individual * indiv)
 {
-  _indiv = indiv;
+  indiv_ = indiv;
 }
 
 void ReplicationReport::set_parent_id(int32_t parent_id)
 {
-  _parent_id = parent_id;
+  parent_id_ = parent_id;
 }
 
 void ReplicationReport::set_parent_metabolic_error(double parent_metabolic_error)
 {
-  _parent_metabolic_error = parent_metabolic_error;
+  parent_metabolic_error_ = parent_metabolic_error;
 }
 
 void ReplicationReport::set_parent_secretion_error(double parent_secretion_error)
 {
-  _parent_secretion_error = parent_secretion_error;
+  parent_secretion_error_ = parent_secretion_error;
 }
 
 void ReplicationReport::set_parent_genome_size(int32_t parent_genome_size)
 {
-  _parent_genome_size = parent_genome_size;
+  parent_genome_size_ = parent_genome_size;
 }
 
 inline void ReplicationReport::set_donor_id(int32_t donor_id)
 {
-  _donor_id = donor_id;
+  donor_id_ = donor_id;
 }
 
 inline void  ReplicationReport::set_donor_metabolic_error(double donor_metabolic_error)
 {
-  _donor_metabolic_error = donor_metabolic_error;
+  donor_metabolic_error_ = donor_metabolic_error;
 }
 
 inline void ReplicationReport::set_donor_secretion_error(double donor_secretion_error)
 {
-  _donor_secretion_error = donor_secretion_error;
+  donor_secretion_error_ = donor_secretion_error;
 }
 
 inline void ReplicationReport::set_donor_genome_size(int32_t donor_genome_size)
 {
-  _donor_genome_size = donor_genome_size;
+  donor_genome_size_ = donor_genome_size;
 }
 
 } // namespace aevol

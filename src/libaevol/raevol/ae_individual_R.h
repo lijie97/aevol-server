@@ -100,8 +100,8 @@ class ae_individual_R : public virtual ae_individual
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ae_list* _inherited_protein_list;
-    ae_list* _rna_list_coding;  // Please note that these RNAs are
+    ae_list* inherited_protein_list_;
+    ae_list* rna_list_coding_;  // Please note that these RNAs are
                                 // actually managed via genetic units.
 
 };

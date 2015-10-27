@@ -91,10 +91,10 @@ Individual_X11::Individual_X11(Individual_X11 * const parent,
 // =================================================================
 Individual_X11::~Individual_X11(void)
 {
-  for (int16_t layer = 0 ; layer < _outmost_layer ; layer++)
+  for (int16_t layer = 0 ; layer < outmost_layer_ ; layer++)
   {
-    delete [] _occupied_sectors[LEADING][layer];
-    delete [] _occupied_sectors[LAGGING][layer];
+    delete [] occupied_sectors_[LEADING][layer];
+    delete [] occupied_sectors_[LAGGING][layer];
   }
 }
 
@@ -192,7 +192,7 @@ void Individual_X11::display_cdss(X11Window * win)
 
       for (int16_t rho = 0 ; rho < nb_sect ; rho++)
       {
-        if (_occupied_sectors[LEADING][layer][Utils::mod(theta_first-rho, 360)])
+        if (occupied_sectors_[LEADING][layer][Utils::mod(theta_first-rho, 360)])
         {
           sectors_free = false;
           break;
@@ -207,7 +207,7 @@ void Individual_X11::display_cdss(X11Window * win)
       {
         layer++;
 
-        if (layer >= _outmost_layer)
+        if (layer >= outmost_layer_)
         {
           add_layer();
           break; // An added layer is necessarily free, no need to look further
@@ -218,11 +218,11 @@ void Individual_X11::display_cdss(X11Window * win)
     // Mark sectors to be drawn as occupied
     for (int16_t rho = 0 ; rho < nb_sect ; rho++)
     {
-      _occupied_sectors[LEADING][layer][Utils::mod(theta_first-rho, 360)] = true;
+      occupied_sectors_[LEADING][layer][Utils::mod(theta_first-rho, 360)] = true;
     }
     // Mark flanking sectors as occupied
-    _occupied_sectors[LEADING][layer][Utils::mod(theta_first+1, 360)] = true;
-    _occupied_sectors[LEADING][layer][Utils::mod(theta_first-nb_sect, 360)] = true;
+    occupied_sectors_[LEADING][layer][Utils::mod(theta_first+1, 360)] = true;
+    occupied_sectors_[LEADING][layer][Utils::mod(theta_first-nb_sect, 360)] = true;
 
 
     // Draw
@@ -270,7 +270,7 @@ void Individual_X11::display_cdss(X11Window * win)
 
       for (int16_t rho = 0 ; rho < nb_sect ; rho++)
       {
-        if (_occupied_sectors[LAGGING][layer][Utils::mod(theta_first+rho, 360)])
+        if (occupied_sectors_[LAGGING][layer][Utils::mod(theta_first+rho, 360)])
         {
           sectors_free = false;
           break;
@@ -285,7 +285,7 @@ void Individual_X11::display_cdss(X11Window * win)
       {
         layer++;
 
-        if (layer >= _outmost_layer)
+        if (layer >= outmost_layer_)
         {
           add_layer();
           break; // An added layer is necessarily free, no need to look further
@@ -296,11 +296,11 @@ void Individual_X11::display_cdss(X11Window * win)
     // Mark sectors to be drawn as occupied
     for (int16_t rho = 0 ; rho < nb_sect ; rho++)
     {
-      _occupied_sectors[LAGGING][layer][Utils::mod(theta_first+rho, 360)] = true;
+      occupied_sectors_[LAGGING][layer][Utils::mod(theta_first+rho, 360)] = true;
     }
     // Mark flanking sectors as occupied
-    _occupied_sectors[LAGGING][layer][Utils::mod(theta_first-1, 360)] = true;
-    _occupied_sectors[LAGGING][layer][Utils::mod(theta_first+nb_sect, 360)] = true;
+    occupied_sectors_[LAGGING][layer][Utils::mod(theta_first-1, 360)] = true;
+    occupied_sectors_[LAGGING][layer][Utils::mod(theta_first+nb_sect, 360)] = true;
 
 
     // Draw
@@ -416,7 +416,7 @@ void Individual_X11::display_cdss(X11Window * win)
 
         for (int16_t rho = 0 ; rho < nb_sect ; rho++)
         {
-          if (_occupied_sectors[LEADING][layer][Utils::mod(theta_first-rho, 360)])
+          if (occupied_sectors_[LEADING][layer][Utils::mod(theta_first-rho, 360)])
           {
             sectors_free = false;
             break;
@@ -431,7 +431,7 @@ void Individual_X11::display_cdss(X11Window * win)
         {
           layer++;
 
-          if (layer >= _outmost_layer)
+          if (layer >= outmost_layer_)
           {
             add_layer();
             break; // An added layer is necessarily free, no need to look further
@@ -442,11 +442,11 @@ void Individual_X11::display_cdss(X11Window * win)
       // Mark sectors to be drawn as occupied
       for (int16_t rho = 0 ; rho < nb_sect ; rho++)
       {
-        _occupied_sectors[LEADING][layer][Utils::mod(theta_first-rho, 360)] = true;
+        occupied_sectors_[LEADING][layer][Utils::mod(theta_first-rho, 360)] = true;
       }
       // Mark flanking sectors as occupied
-      _occupied_sectors[LEADING][layer][Utils::mod(theta_first+1, 360)] = true;
-      _occupied_sectors[LEADING][layer][Utils::mod(theta_first-nb_sect, 360)] = true;
+      occupied_sectors_[LEADING][layer][Utils::mod(theta_first+1, 360)] = true;
+      occupied_sectors_[LEADING][layer][Utils::mod(theta_first-nb_sect, 360)] = true;
 
 
       // Draw
@@ -494,7 +494,7 @@ void Individual_X11::display_cdss(X11Window * win)
 
         for (int16_t rho = 0 ; rho < nb_sect ; rho++)
         {
-          if (_occupied_sectors[LAGGING][layer][Utils::mod(theta_first+rho, 360)])
+          if (occupied_sectors_[LAGGING][layer][Utils::mod(theta_first+rho, 360)])
           {
             sectors_free = false;
             break;
@@ -509,7 +509,7 @@ void Individual_X11::display_cdss(X11Window * win)
         {
           layer++;
 
-          if (layer >= _outmost_layer)
+          if (layer >= outmost_layer_)
           {
             add_layer();
             break; // An added layer is necessarily free, no need to look further
@@ -520,11 +520,11 @@ void Individual_X11::display_cdss(X11Window * win)
       // Mark sectors to be drawn as occupied
       for (int16_t rho = 0 ; rho < nb_sect ; rho++)
       {
-        _occupied_sectors[LAGGING][layer][Utils::mod(theta_first+rho, 360)] = true;
+        occupied_sectors_[LAGGING][layer][Utils::mod(theta_first+rho, 360)] = true;
       }
       // Mark flanking sectors as occupied
-      _occupied_sectors[LAGGING][layer][Utils::mod(theta_first-1, 360)] = true;
-      _occupied_sectors[LAGGING][layer][Utils::mod(theta_first+nb_sect, 360)] = true;
+      occupied_sectors_[LAGGING][layer][Utils::mod(theta_first-1, 360)] = true;
+      occupied_sectors_[LAGGING][layer][Utils::mod(theta_first+nb_sect, 360)] = true;
 
 
       // Draw
@@ -625,7 +625,7 @@ void Individual_X11::display_rnas(X11Window * win)
 
       for (int16_t rho = 0 ; rho < nb_sect ; rho++)
       {
-        if (_occupied_sectors[LEADING][layer][Utils::mod(theta_first-rho, 360)])
+        if (occupied_sectors_[LEADING][layer][Utils::mod(theta_first-rho, 360)])
         {
           sectors_free = false;
           break;
@@ -640,7 +640,7 @@ void Individual_X11::display_rnas(X11Window * win)
       {
         layer++;
 
-        if (layer >= _outmost_layer)
+        if (layer >= outmost_layer_)
         {
           add_layer();
           break; // An added layer is necessarily free, no need to look further
@@ -651,11 +651,11 @@ void Individual_X11::display_rnas(X11Window * win)
     // Mark sectors to be drawn as occupied
     for (int16_t rho = 0 ; rho < nb_sect ; rho++)
     {
-      _occupied_sectors[LEADING][layer][Utils::mod(theta_first-rho, 360)] = true;
+      occupied_sectors_[LEADING][layer][Utils::mod(theta_first-rho, 360)] = true;
     }
     // Mark flanking sectors as occupied
-    _occupied_sectors[LEADING][layer][Utils::mod(theta_first+1, 360)] = true;
-    _occupied_sectors[LEADING][layer][Utils::mod(theta_first-nb_sect, 360)] = true;
+    occupied_sectors_[LEADING][layer][Utils::mod(theta_first+1, 360)] = true;
+    occupied_sectors_[LEADING][layer][Utils::mod(theta_first-nb_sect, 360)] = true;
 
 
     // Determine drawing color
@@ -723,7 +723,7 @@ void Individual_X11::display_rnas(X11Window * win)
 
       for (int16_t rho = 0 ; rho < nb_sect ; rho++)
       {
-        if (_occupied_sectors[LAGGING][layer][Utils::mod(theta_first+rho, 360)])
+        if (occupied_sectors_[LAGGING][layer][Utils::mod(theta_first+rho, 360)])
         {
           sectors_free = false;
           break;
@@ -738,7 +738,7 @@ void Individual_X11::display_rnas(X11Window * win)
       {
         layer++;
 
-        if (layer >= _outmost_layer)
+        if (layer >= outmost_layer_)
         {
           add_layer();
           break; // An added layer is necessarily free, no need to look further
@@ -749,11 +749,11 @@ void Individual_X11::display_rnas(X11Window * win)
     // Mark sectors to be drawn as occupied
     for (int16_t rho = 0 ; rho < nb_sect ; rho++)
     {
-      _occupied_sectors[LAGGING][layer][Utils::mod(theta_first+rho, 360)] = true;
+      occupied_sectors_[LAGGING][layer][Utils::mod(theta_first+rho, 360)] = true;
     }
     // Mark flanking sectors as occupied
-    _occupied_sectors[LAGGING][layer][Utils::mod(theta_first-1, 360)] = true;
-    _occupied_sectors[LAGGING][layer][Utils::mod(theta_first+nb_sect, 360)] = true;
+    occupied_sectors_[LAGGING][layer][Utils::mod(theta_first-1, 360)] = true;
+    occupied_sectors_[LAGGING][layer][Utils::mod(theta_first+nb_sect, 360)] = true;
 
 
     // Determine drawing color
@@ -794,37 +794,37 @@ void Individual_X11::display_rnas(X11Window * win)
 // =================================================================
 void Individual_X11::add_layer(void)
 {
-  _occupied_sectors[LEADING][_outmost_layer] = new bool[360];
-  _occupied_sectors[LAGGING][_outmost_layer] = new bool[360];
+  occupied_sectors_[LEADING][outmost_layer_] = new bool[360];
+  occupied_sectors_[LAGGING][outmost_layer_] = new bool[360];
 
   for (int16_t angle = 0 ; angle < 360 ; angle++)
   {
-    _occupied_sectors[LEADING][_outmost_layer][angle] = false;
-    _occupied_sectors[LAGGING][_outmost_layer][angle] = false;
+    occupied_sectors_[LEADING][outmost_layer_][angle] = false;
+    occupied_sectors_[LAGGING][outmost_layer_][angle] = false;
   }
 
-  _outmost_layer++;
+  outmost_layer_++;
 }
 
 void Individual_X11::init_occupied_sectors(void)
 {
-  _outmost_layer = 1;
+  outmost_layer_ = 1;
 
-  for (int16_t layer = 0 ; layer < _outmost_layer ; layer++)
+  for (int16_t layer = 0 ; layer < outmost_layer_ ; layer++)
   {
-    _occupied_sectors[LEADING][layer] = new bool[360];
-    _occupied_sectors[LAGGING][layer] = new bool[360];
+    occupied_sectors_[LEADING][layer] = new bool[360];
+    occupied_sectors_[LAGGING][layer] = new bool[360];
   }
 }
 
 void Individual_X11::reset_sectors(void)
 {
-  for (int16_t layer = 0 ; layer < _outmost_layer ; layer++)
+  for (int16_t layer = 0 ; layer < outmost_layer_ ; layer++)
   {
     for (int16_t angle = 0 ; angle < 360 ; angle++)
     {
-      _occupied_sectors[LEADING][layer][angle] = false;
-      _occupied_sectors[LAGGING][layer][angle] = false;
+      occupied_sectors_[LEADING][layer][angle] = false;
+      occupied_sectors_[LAGGING][layer][angle] = false;
     }
   }
 }

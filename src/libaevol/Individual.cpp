@@ -139,7 +139,7 @@ Individual::Individual(ExpManager* exp_m,
   // ----------------------------------------
   // Statistical data
   // ----------------------------------------
-  _modularity = 0.0;
+  modularity_ = 0.0;
 }
 
 /**
@@ -241,7 +241,7 @@ Individual::Individual(ExpManager* exp_m, gzFile backup_file) {
   distance_to_target_computed_ = false;
   fitness_computed_ = false;
 
-  _modularity = -1;
+  modularity_ = -1;
 }
 
 /**
@@ -315,7 +315,7 @@ Individual::Individual(const Individual& other) {
                 new NonCodingMetrics(*other.nc_metrics_) :
                 nullptr;
 
-  _modularity = other._modularity;
+  modularity_ = other.modularity_;
 
   // Generic probes
   int_probes_ = new int32_t[5];
@@ -417,7 +417,7 @@ Individual::Individual(const Individual* parent, int32_t id,
   allow_plasmids_ = parent->allow_plasmids_;
 
   // Initialize statistical data
-  _modularity = -1;
+  modularity_ = -1;
 }
 
 Individual* Individual::CreateIndividual(ExpManager* exp_m,
@@ -1268,7 +1268,7 @@ void Individual::compute_distance_to_target(const PhenotypicTarget& target) {
 // If the target is not segmented, the total area is computed
   if (distance_to_target_computed_) {
     return;
-  } // _distance_to_target has already been computed, nothing to do.
+  } // distance_to_target_ has already been computed, nothing to do.
 
   distance_to_target_computed_ = true;
 
@@ -1424,7 +1424,7 @@ void Individual::clear_everything_except_dna_and_promoters() {
   delete nc_metrics_;
   nc_metrics_ = nullptr;
 
-  _modularity = -1;
+  modularity_ = -1;
 }
 
 void Individual::Reevaluate() {

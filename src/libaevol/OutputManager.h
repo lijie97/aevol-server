@@ -102,7 +102,7 @@ class OutputManager {
   // =================================================================
   inline void set_backup_step(int64_t backup_step);
   inline void set_big_backup_step(int64_t big_backup_step);
-  inline void init_tree(ExpManager* exp_m, int64_t _tree_step);
+  inline void init_tree(ExpManager* exp_m, int64_t tree_step_);
   inline void set_dump_step(int64_t dump_step);
   inline void set_compute_phen_contrib_by_GU(bool compute_phen_contrib_by_GU);
   inline void set_logs (int8_t logs);
@@ -133,27 +133,27 @@ class OutputManager {
   // =================================================================
   //                          Protected Attributes
   // =================================================================
-  ExpManager* _exp_m;
+  ExpManager* exp_m_;
   
   // Backups
-  int64_t _backup_step;
-  int64_t _big_backup_step;
+  int64_t backup_step_;
+  int64_t big_backup_step_;
   
   // Stats
-  Stats* _stats;
-  bool _compute_phen_contrib_by_GU;
+  Stats* stats_;
+  bool compute_phen_contrib_by_GU_;
 
   // Tree
-  bool _record_tree;
-  Tree* _tree;
+  bool record_tree_;
+  Tree* tree_;
   
   // Dumps
-  bool _make_dumps;
-  int64_t _dump_step;
-  Dump* _dump;
+  bool make_dumps_;
+  int64_t dump_step_;
+  Dump* dump_;
   
   // Logs
-  Logging* _logs;
+  Logging* logs_;
 };
 
 
@@ -163,68 +163,68 @@ class OutputManager {
 
 // Backup
 inline int64_t OutputManager::get_backup_step() const {
-  return _backup_step;
+  return backup_step_;
 }
 
 inline int64_t OutputManager::get_big_backup_step() const {
-  return _big_backup_step;
+  return big_backup_step_;
 }
 
 // Tree
 inline bool OutputManager::get_record_tree() const {
-  return _record_tree;
+  return record_tree_;
 }
 
 inline int64_t OutputManager::get_tree_step() const {
-  return _tree->get_tree_step();
+  return tree_->get_tree_step();
 }
 
 inline Tree *OutputManager::get_tree() const {
-  return _tree;
+  return tree_;
 }
 
 // Logs
 inline FILE* OutputManager::get_log(LogType log_type) const {
-  return _logs->get_log(log_type);
+  return logs_->get_log(log_type);
 }
 
 inline bool  OutputManager::is_logged(LogType log_type) const {
-  return _logs->is_logged(log_type);
+  return logs_->is_logged(log_type);
 }
 
 // Stats
 inline bool OutputManager::get_compute_phen_contrib_by_GU() const {
-  return _compute_phen_contrib_by_GU;
+  return compute_phen_contrib_by_GU_;
 }
 
 // =====================================================================
 //                           Setters' definitions
 // =====================================================================
 void OutputManager::set_backup_step(int64_t backup_step) {
-  _backup_step = backup_step;
+  backup_step_ = backup_step;
 }
 
 void OutputManager::set_big_backup_step(int64_t big_backup_step) {
-  _big_backup_step = big_backup_step;
+  big_backup_step_ = big_backup_step;
 }
 
-void OutputManager::init_tree(ExpManager* exp_m, int64_t _tree_step) {
-  _record_tree = true;
-  _tree = new Tree(exp_m, _tree_step);
+void OutputManager::init_tree(ExpManager* exp_m, int64_t tree_step_) {
+  record_tree_ = true;
+  tree_ = new Tree(exp_m, tree_step_);
 }
 
 void OutputManager::set_dump_step(int64_t dump_step) {
-  _make_dumps = true;
-  _dump_step  = dump_step;
+  make_dumps_ = true;
+  dump_step_  = dump_step;
 }
 
 void OutputManager::set_compute_phen_contrib_by_GU(
     bool compute_phen_contrib_by_GU) {
-  _compute_phen_contrib_by_GU = compute_phen_contrib_by_GU;
+  compute_phen_contrib_by_GU_ = compute_phen_contrib_by_GU;
 }
 
 void OutputManager::set_logs(int8_t logs) {
-  _logs->set_logs(logs);
+  logs_->set_logs(logs);
 }
 
 // =====================================================================
@@ -235,7 +235,7 @@ void OutputManager::set_logs(int8_t logs) {
 //                       Inline functions' definition
 // =====================================================================
 inline void OutputManager::flush(void) {
-  _stats->flush();
+  stats_->flush();
 }
 
 } // namespace aevol

@@ -237,12 +237,12 @@ int main( int argc, char* argv[] )
   {
     if (ae_common::pop_structure)
     {
-      ae_grid_cell*** _pop_grid = ae_common::pop->get_pop_grid();
+      ae_grid_cell*** pop_grid_ = ae_common::pop->get_pop_grid();
       for ( int16_t x = 0 ; x < ae_common::grid_x ; x++ )
       {
         for ( int16_t y = 0 ; y < ae_common::grid_y ; y++ )
         {
-          ae_individual* indiv = (_pop_grid[x][y]->get_individual());
+          ae_individual* indiv = (pop_grid_[x][y]->get_individual());
 	  if ( main_output != NULL)           { print_genome_info(indiv, main_output); }
 	  if ( neutral_region_output != NULL) { print_neutral_regions(indiv, neutral_region_output); }
           i++;

@@ -98,10 +98,10 @@ class ae_influence_R
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ae_protein* _protein;
-    ae_rna*     _rna;
-    double      _enhancing_coef;
-    double      _operating_coef;
+    ae_protein* protein_;
+    ae_rna*     rna_;
+    double      enhancing_coef_;
+    double      operating_coef_;
 };
 
 // =====================================================================
@@ -109,17 +109,17 @@ class ae_influence_R
 // =====================================================================
 ae_rna* ae_influence_R::get_rna( void )
 {
-  return _rna;
+  return rna_;
 }
 
 double ae_influence_R::get_enhancing_coef( void )
 {
-  return _enhancing_coef;
+  return enhancing_coef_;
 }
 
 double ae_influence_R::get_operating_coef( void )
 {
-  return _operating_coef;
+  return operating_coef_;
 }
 
 // =====================================================================
@@ -127,18 +127,18 @@ double ae_influence_R::get_operating_coef( void )
 // =====================================================================
 double ae_influence_R::get_enhancer_activity( void )
 {
-  return _protein->get_concentration() * _enhancing_coef;
+  return protein_->get_concentration() * enhancing_coef_;
 }
 
 double ae_influence_R::get_operator_activity( void )
 {
-  return _protein->get_concentration() * _operating_coef;
+  return protein_->get_concentration() * operating_coef_;
 }
 
 /*
 ae_influence_R* ae_influence_R::copy( void )
 {
-  return new ae_influence_R( _rna, _protein, _enhancing_coef, _operating_coef );
+  return new ae_influence_R( rna_, protein_, enhancing_coef_, operating_coef_ );
 }
 */
 } // namespace aevol

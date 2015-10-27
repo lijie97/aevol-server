@@ -132,7 +132,7 @@ class Stats
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ExpManager * _exp_m;
+    ExpManager * exp_m_;
     
     // 3D tables of stat files (FILE*) and their names (char*)
     // Dimensions are given by:
@@ -141,8 +141,8 @@ class Stats
     //    * stat type (FITNESS_STATS, MUTATION_STATS, GENES_STATS, BP_STATS or REAR_STATS)
     // Files that are not wanted MUST have their name set to NULL.
     // The files themselves are also NULL because we don't fopen() them.
-    FILE**** _stat_files;
-    char**** _stat_files_names;
+    FILE**** stat_files_;
+    char**** stat_files_names_;
 };
 
 
@@ -155,7 +155,7 @@ class Stats
 // =====================================================================
 inline void Stats::set_exp_m( ExpManager * exp_m)
 {
-  _exp_m = exp_m;
+  exp_m_ = exp_m;
 }
 
 inline void Stats::write_header( FILE* file_name, const char* header )

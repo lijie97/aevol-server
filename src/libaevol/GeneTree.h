@@ -157,14 +157,14 @@ class GeneTree
     //                          Protected Attributes
     // =================================================================
      
-    GeneTreeNode * _root;
-    ae_gene_creation_type _creation_type;
-    int32_t _begin_gener;
-    int32_t _end_gener;
-    int32_t _total_nb_nodes;
-    int32_t _nb_internal_nodes;
-    int32_t _nb_leaves;
-    int32_t _nb_active_leaves;
+    GeneTreeNode * root_;
+    ae_gene_creation_type creation_type_;
+    int32_t begin_gener_;
+    int32_t end_gener_;
+    int32_t total_nb_nodes_;
+    int32_t nb_internal_nodes_;
+    int32_t nb_leaves_;
+    int32_t nb_active_leaves_;
     
 };
 
@@ -175,37 +175,37 @@ class GeneTree
 
 inline ae_gene_creation_type GeneTree::get_creation_type() const
 {
-  return _creation_type;
+  return creation_type_;
 }
 
 inline int32_t GeneTree::get_begin_gener() const
 {
-  return _begin_gener;
+  return begin_gener_;
 }
 
 inline int32_t GeneTree::get_end_gener() const
 {
-  return _end_gener;
+  return end_gener_;
 }
 
 inline int32_t GeneTree::get_total_nb_nodes() const
 {
-  return _total_nb_nodes;
+  return total_nb_nodes_;
 }
 
 inline int32_t GeneTree::get_nb_internal_nodes() const
 {
-  return _nb_internal_nodes;
+  return nb_internal_nodes_;
 }
 
 inline int32_t GeneTree::get_nb_leaves() const
 {
-  return _nb_leaves;
+  return nb_leaves_;
 }
 
 inline int32_t GeneTree::get_nb_active_leaves() const
 {
-  return _nb_active_leaves;
+  return nb_active_leaves_;
 }
 
 // =====================================================================

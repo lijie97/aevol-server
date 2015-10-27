@@ -51,40 +51,40 @@ namespace aevol {
 // =================================================================
 ae_protein_R::ae_protein_R( ae_genetic_unit* gen_unit, const ae_protein_R &model ) : ae_protein( gen_unit, model )
 {
-  _delta_concentration  = model._delta_concentration;
-  _influence_list       = new ae_list();
-  _inherited            = false;
+  delta_concentration_  = model.delta_concentration_;
+  influence_list_       = new ae_list();
+  inherited_            = false;
 }
 
 ae_protein_R::ae_protein_R( ae_genetic_unit* gen_unit, ae_list* codon_list, ae_strand strand, int32_t shine_dal_pos,
                             ae_rna* rna )  :
   ae_protein( gen_unit, codon_list, strand, shine_dal_pos, rna )
 {
-  _influence_list       = new ae_list();
-  _delta_concentration  = 0;
-  _inherited            = false;
+  influence_list_       = new ae_list();
+  delta_concentration_  = 0;
+  inherited_            = false;
 }
 
 /*
 ae_protein_R::ae_protein_R( ae_protein_R* parent ) :
 ae_protein( parent )
 {
-  //_delta_concentration  = parent->_delta_concentration;
-  _codon_list           = parent->_codon_list->copy();
-//  _rna_list             = parent->_rna_list->copy();
-  _rna_list             = new ae_list();
-  //_influence_list       = parent->_influence_list->copy();
-  _influence_list       = new ae_list();
+  //delta_concentration_  = parent->delta_concentration_;
+  codon_list_           = parent->codon_list_->copy();
+//  rna_list_             = parent->rna_list_->copy();
+  rna_list_             = new ae_list();
+  //influence_list_       = parent->influence_list_->copy();
+  influence_list_       = new ae_list();
 }
 */
 
 ae_protein_R::ae_protein_R( gzFile backup_file ) : ae_protein::ae_protein( backup_file )
 {
   // the Influence list is re-calculate afterward, and then is not saved, nor use in this consctructor.
-  gzread( backup_file, &_delta_concentration,   			sizeof(_delta_concentration) );
-  gzread( backup_file, &_inherited,   			sizeof(_inherited) );
+  gzread( backup_file, &delta_concentration_,   			sizeof(delta_concentration_) );
+  gzread( backup_file, &inherited_,   			sizeof(inherited_) );
 
-  _influence_list       = new ae_list();
+  influence_list_       = new ae_list();
 }
  
 // =================================================================
@@ -93,8 +93,8 @@ ae_protein_R::ae_protein_R( gzFile backup_file ) : ae_protein::ae_protein( backu
 ae_protein_R::~ae_protein_R( void )
 {
   remove_influences();
-  _influence_list->erase( NO_DELETE );
-  delete _influence_list;
+  influence_list_->erase( NO_DELETE );
+  delete influence_list_;
 }
 
 // =================================================================
@@ -102,34 +102,34 @@ ae_protein_R::~ae_protein_R( void )
 // =================================================================
 void ae_protein_R::compute_delta_concentration( void )
 {
-  _delta_concentration = 0;
+  delta_concentration_ = 0;
 
-  ae_list_node* rna_node  = _rna_list->get_first();
+  ae_list_node* rna_node  = rna_list_->get_first();
   ae_rna_R*     rna       = NULL;
 
   while ( rna_node != NULL )
   {
-    assert( _inherited == false );
+    assert( inherited_ == false );
     rna = (ae_rna_R*)rna_node->get_obj();
 
-    _delta_concentration += rna->get_synthesis_rate();
+    delta_concentration_ += rna->get_synthesis_rate();
 
     rna_node = rna_node->get_next();
   }
 
   //printf("degradation rate : %f \n", ae_common::degradation_rate);
-  _delta_concentration -= ae_common::degradation_rate * _concentration;
-  _delta_concentration *= ae_common::degradation_step;
+  delta_concentration_ -= ae_common::degradation_rate * concentration_;
+  delta_concentration_ *= ae_common::degradation_step;
 }
 
 int8_t ae_protein_R::get_codon( int32_t index )
 {
-  return dynamic_cast< ae_codon* >( _AA_list->get_object( index ) )->get_value();
+  return dynamic_cast< ae_codon* >( AA_list_->get_object( index ) )->get_value();
 }
 
 void ae_protein_R::add_influence( ae_influence_R *influence )
 {
-  _influence_list->add( influence );
+  influence_list_->add( influence );
 }
 
 void ae_protein_R::save( gzFile backup_file ) 
@@ -137,8 +137,8 @@ void ae_protein_R::save( gzFile backup_file )
   ae_protein::save( backup_file );
 
   // the Influence list is re-calculate afterward, and then is not saved.
-  gzwrite( backup_file, &_delta_concentration,   	sizeof(_delta_concentration) );
-  gzwrite( backup_file, &_inherited,   			sizeof(_inherited) );
+  gzwrite( backup_file, &delta_concentration_,   	sizeof(delta_concentration_) );
+  gzwrite( backup_file, &inherited_,   			sizeof(inherited_) );
 }
 // =================================================================
 //                           Protected Methods
@@ -149,7 +149,7 @@ void ae_protein_R::remove_influences( void )
   ae_influence_R* influence;
   ae_rna_R*       rna;
 
-  influence_node = _influence_list->get_first();
+  influence_node = influence_list_->get_first();
   while ( influence_node != NULL )
   {
     influence = (ae_influence_R*)influence_node->get_obj();

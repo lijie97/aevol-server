@@ -257,7 +257,7 @@ void ExpManager_X11::handle_events()
       case ConfigureNotify :
       {
         win_[win_number]->resize(event.xconfigure.width, event.xconfigure.height);
-        //~ _win[win_number]->repos(event.xconfigure.x, event.xconfigure.y);
+        //~ win_[win_number]->repos(event.xconfigure.x, event.xconfigure.y);
 
         // Mark window as having to be entirely redrawn
         new_show_window_ |= 1 << win_number;
@@ -465,7 +465,7 @@ void ExpManager_X11::display_grid(X11Window * win, double** cell_grid)
   {
     win->fill_rectangle(x1 - 30, y1 - 80 + y_step_size * i,
                          cell_size * 5, y_step_size,
-                         _col_map[nb_colors-1-i]);
+                         col_map_[nb_colors-1-i]);
   }
 
   // find min/max of the matrix
@@ -502,7 +502,7 @@ void ExpManager_X11::display_grid(X11Window * win, double** cell_grid)
       {
         new_col = (int) floor((cell_grid[x][y] - grid_min) / col_sec_interval);
       }
-      col_string = _col_map[new_col];
+      col_string = col_map_[new_col];
 
       // draw a colored rectangle for each cell
       win->fill_rectangle(x1 + 50 + x*cell_size, y1 - 80 + y*cell_size, cell_size, cell_size, col_string);
@@ -897,7 +897,7 @@ void ExpManager_X11::set_codes() {
 }
 
 void ExpManager_X11::compute_colormap() {
-  _col_map = {
+  col_map_ = {
     (char*)"RGBi:1.0/0.0/0.0",
     (char*)"RGBi:1.0/0.1/0.0",   
     (char*)"RGBi:1.0/0.2/0.0",

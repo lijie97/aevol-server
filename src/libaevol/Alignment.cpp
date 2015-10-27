@@ -116,8 +116,8 @@ VisAVis* Alignment::search_alignment_direct(const Dna* chrom_1,
     
     // A sequence against itself is not an alignment
     if (chrom_1 == chrom_2 &&
-        Utils::mod(cur_vav->_i_1, chrom_1->length()) ==
-            Utils::mod(cur_vav->_i_2, chrom_2->length())) {
+        Utils::mod(cur_vav->i_1_, chrom_1->length()) ==
+            Utils::mod(cur_vav->i_2_, chrom_2->length())) {
       delete cur_vav;
       continue;
     }
@@ -125,7 +125,7 @@ VisAVis* Alignment::search_alignment_direct(const Dna* chrom_1,
     cur_score = 0;
     
     // Parse current diagonal
-    while (cur_vav->_i_1 <= w_zone_1_last || cur_vav->_i_2 <= w_zone_2_last) {
+    while (cur_vav->i_1_ <= w_zone_1_last || cur_vav->i_2_ <= w_zone_2_last) {
       // Re-initialize score and potential alignment starting point if
       // score <= 0
       if (cur_score <= 0) {
@@ -147,7 +147,7 @@ VisAVis* Alignment::search_alignment_direct(const Dna* chrom_1,
           delete cur_vav;
           best_alignment->check_indices();
           
-          best_alignment->_score = cur_score;
+          best_alignment->score_ = cur_score;
           return best_alignment;
         }
       }
@@ -265,7 +265,7 @@ VisAVis* Alignment::search_alignment_indirect(const Dna* chrom_1,
     
     
     // Parse diagonal
-    while (cur_vav->_i_1 <= w_zone_1_last || cur_vav->_i_2 >= w_zone_2_last) {
+    while (cur_vav->i_1_ <= w_zone_1_last || cur_vav->i_2_ >= w_zone_2_last) {
       // Re-initialize score and potential alignment starting point if
       // score <= 0
       if (cur_score <= 0) {
@@ -287,7 +287,7 @@ VisAVis* Alignment::search_alignment_indirect(const Dna* chrom_1,
           delete cur_vav;
           best_alignment->check_indices();
           
-          best_alignment->_score = cur_score;
+          best_alignment->score_ = cur_score;
           return best_alignment;
         }
       }

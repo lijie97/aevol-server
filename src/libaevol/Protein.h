@@ -125,22 +125,22 @@ class Protein
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    GeneticUnit*  _gen_unit;
-    Strand _strand;
+    GeneticUnit*  gen_unit_;
+    Strand strand_;
     std::list<Rna *> rna_list;              // RNAs transcribing this protein
-    int32_t           _shine_dal_pos;         // Index of the corresponding shine dalgarno sequence in the genome
-    int32_t           _first_translated_pos;  // Index of the first base following the START codon
-    int32_t           _last_translated_pos;   // Index of the last base before the STOP codon
-    int32_t           _length;                // Number of Amino-Acids (START and STOP codon do NOT produce AAs)
-    double            _concentration;
-    bool              _is_functional;
+    int32_t           shine_dal_pos_;         // Index of the corresponding shine dalgarno sequence in the genome
+    int32_t           first_translated_pos_;  // Index of the first base following the START codon
+    int32_t           last_translated_pos_;   // Index of the last base before the STOP codon
+    int32_t           length_;                // Number of Amino-Acids (START and STOP codon do NOT produce AAs)
+    double            concentration_;
+    bool              is_functional_;
     
-    std::list<Codon *> _AA_list;
+    std::list<Codon *> AA_list_;
 
     // Phenotypic contribution (triangle) parameters
-    double _mean;
-    double _width;   // in fact, half-width
-    double _height;
+    double mean_;
+    double width_;   // in fact, half-width
+    double height_;
 };
 
 
@@ -149,7 +149,7 @@ class Protein
 // =====================================================================
 inline Strand Protein::get_strand( void ) const
 {
-  return _strand;
+  return strand_;
 }
 
 inline const std::list<Rna *> Protein::get_rna_list() const {
@@ -158,47 +158,47 @@ inline const std::list<Rna *> Protein::get_rna_list() const {
 
 int32_t Protein::get_shine_dal_pos( void ) const
 {
-  return _shine_dal_pos;
+  return shine_dal_pos_;
 }
 
 int32_t Protein::get_first_translated_pos( void ) const
 {
-  return _first_translated_pos;
+  return first_translated_pos_;
 }
 
 int32_t Protein::get_last_translated_pos( void ) const
 {
-  return _last_translated_pos;
+  return last_translated_pos_;
 }
 
 double Protein::get_mean( void ) const
 {
-  return _mean;
+  return mean_;
 }
 
 double Protein::get_width( void ) const
 {
-  return _width;
+  return width_;
 }
 
 double Protein::get_height( void ) const
 {
-  return _height;
+  return height_;
 }
 
 int32_t Protein::get_length( void ) const
 {
-  return _length;
+  return length_;
 }
 
 double Protein::get_concentration( void ) const
 {
-  return _concentration;
+  return concentration_;
 }
 
 bool Protein::get_is_functional( void ) const
 {
-  return _is_functional;
+  return is_functional_;
 }
 
 

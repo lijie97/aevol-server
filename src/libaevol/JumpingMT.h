@@ -144,7 +144,7 @@ class JumpingMT
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    sfmt_t* _sfmt;
+    sfmt_t* sfmt_;
 };
 
 
@@ -168,7 +168,7 @@ class JumpingMT
  */
 inline double JumpingMT::random(void)
 {
-  return sfmt_genrand_real2(_sfmt);
+  return sfmt_genrand_real2(sfmt_);
 }
 
 /*!
@@ -176,7 +176,7 @@ inline double JumpingMT::random(void)
  */
 inline int8_t JumpingMT::random(int8_t max)
 {
-  return (int8_t) floor(((double)max) * sfmt_genrand_real2(_sfmt));
+  return (int8_t) floor(((double)max) * sfmt_genrand_real2(sfmt_));
 }
 
 /*!
@@ -184,7 +184,7 @@ inline int8_t JumpingMT::random(int8_t max)
  */
 inline int16_t JumpingMT::random(int16_t max)
 {
-  return (int16_t) floor(((double)max) * sfmt_genrand_real2(_sfmt));
+  return (int16_t) floor(((double)max) * sfmt_genrand_real2(sfmt_));
 }
 
 /*!
@@ -192,7 +192,7 @@ inline int16_t JumpingMT::random(int16_t max)
  */
 inline int32_t JumpingMT::random(int32_t max)
 {
-  return (int32_t) floor(((double)max) * sfmt_genrand_real2(_sfmt));
+  return (int32_t) floor(((double)max) * sfmt_genrand_real2(sfmt_));
 }
 
 /*!
@@ -200,7 +200,7 @@ inline int32_t JumpingMT::random(int32_t max)
  */
 inline int64_t JumpingMT::random(int64_t max)
 {
-  return (int64_t) floor(((double)max) * sfmt_genrand_real2(_sfmt));
+  return (int64_t) floor(((double)max) * sfmt_genrand_real2(sfmt_));
 }
 
 } // namespace aevol

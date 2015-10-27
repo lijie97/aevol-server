@@ -116,34 +116,34 @@ class GeneTreeNode
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-      static int32_t     _nextID;
+      static int32_t     nextID_;
     
-    int32_t             _ID;
-    int32_t             _dna_creation_date;   // generation when the DNA of this gene copy was created. For left nodes, equals the creation date of the parent node. 
-    int32_t             _node_creation_date;  // generation when this node was created. For right nodes, equals the dna creation date. 
-    int32_t             _gene_loss_date;      // generation when the gene was lost: became a pseudogene, or was deleted, or was broken by a rearrangement
-    ae_gene_loss_type   _gene_loss_type;      // NOT_LOST_YET or LOST_BY_LOCAL_MUTATION or DELETED or BROKEN_BY_REAR
-    Strand _strand;
-    int32_t             _shine_dal_position;
-    size_t             _nb_promoters;
-    int32_t *           _promoter_positions;
-    Protein *        _protein_pointer;     // for a leaf (current state of a gene), points to the potein object
+    int32_t             ID_;
+    int32_t             dna_creation_date_;   // generation when the DNA of this gene copy was created. For left nodes, equals the creation date of the parent node. 
+    int32_t             node_creation_date_;  // generation when this node was created. For right nodes, equals the dna creation date. 
+    int32_t             gene_loss_date_;      // generation when the gene was lost: became a pseudogene, or was deleted, or was broken by a rearrangement
+    ae_gene_loss_type   gene_loss_type_;      // NOT_LOST_YET or LOST_BY_LOCAL_MUTATION or DELETED or BROKEN_BY_REAR
+    Strand strand_;
+    int32_t             shine_dal_position_;
+    size_t             nb_promoters_;
+    int32_t *           promoter_positions_;
+    Protein *        protein_pointer_;     // for a leaf (current state of a gene), points to the potein object
                                               // for an internal node (ancestral state of a gene), points to NULL
-                                              Rna **           _rna_pointers;         // for a leaf (current state of a gene), points to the RNA object
+                                              Rna **           rna_pointers_;         // for a leaf (current state of a gene), points to the RNA object
                                               // for an internal node (ancestral state of a gene), points to NULL
     std::list<GeneMutation *> mutation_list;       // list of ae_gene_mutations since the creation date of the node, i.e. since the last duplication
 
 
-    GeneTreeNode * _left_child;    // NULL until the gene is duplicated, then points to the copy lying on the original DNA segment
-    GeneTreeNode * _right_child;   // NULL until the gene is duplicated, then points to the copy lying on the duplicated DNA segment
+    GeneTreeNode * left_child_;    // NULL until the gene is duplicated, then points to the copy lying on the original DNA segment
+    GeneTreeNode * right_child_;   // NULL until the gene is duplicated, then points to the copy lying on the duplicated DNA segment
                                         // (which was reinserted elsewhere in the genome, possibly on another genetic unit)
-                                        GeneTreeNode * _parent_node;   // points to the node that corresponds to the state of the gene before the last duplication (NULL for the root of the gene tree)
+                                        GeneTreeNode * parent_node_;   // points to the node that corresponds to the state of the gene before the last duplication (NULL for the root of the gene tree)
 
-    bool _cds_possibly_modified;
-    bool _cds_completely_deleted;
-    bool _proms_possibly_modified;
-    bool _gene_possibly_duplicated;
-    int32_t _putative_position_for_the_duplicate;
+    bool cds_possibly_modified_;
+    bool cds_completely_deleted_;
+    bool proms_possibly_modified_;
+    bool gene_possibly_duplicated_;
+    int32_t putative_position_for_the_duplicate_;
     
     
 };

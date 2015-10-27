@@ -106,8 +106,8 @@ class Individual_X11 : public virtual Individual
     //                          Protected Attributes
     // =================================================================
     // These are used to manage overlapping CDS and RNA display
-    int16_t _outmost_layer;
-    bool*   _occupied_sectors[2][100];  // TODO : find a way to manage this table's size properly?
+    int16_t outmost_layer_;
+    bool*   occupied_sectors_[2][100];  // TODO : find a way to manage this table's size properly?
 };
 
 

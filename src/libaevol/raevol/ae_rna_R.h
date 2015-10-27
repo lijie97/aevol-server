@@ -107,7 +107,7 @@ class ae_rna_R : public ae_rna
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ae_list*  _influence_list;
+    ae_list*  influence_list_;
 
 };
 
@@ -116,7 +116,7 @@ class ae_rna_R : public ae_rna
 // =====================================================================
 ae_list* ae_rna_R::get_influence_list( void )
 {
-  return _influence_list;
+  return influence_list_;
 }
 
 // =====================================================================

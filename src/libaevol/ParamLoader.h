@@ -107,175 +107,175 @@ class ParamLoader {
   // =========================================================================
   //                               Attributes
   // =========================================================================
-  std::shared_ptr<JumpingMT> _prng;
+  std::shared_ptr<JumpingMT> prng_;
 
-  char*   _param_file_name;
-  FILE*   _param_file;
+  char*   param_file_name_;
+  FILE*   param_file_;
 
   // ----------------------------------------- PseudoRandom Number Generators
   // Seed for the selection random generator
-  int32_t _seed;
+  int32_t seed_;
   // Seed for the mutations random generator
-  int32_t _mut_seed;
+  int32_t mut_seed_;
   // Seed for the stochasticity random generator
-  int32_t _stoch_seed;
+  int32_t stoch_seed_;
   // Seed for the phenotypic target variation random generator
-  int32_t _env_var_seed;
+  int32_t env_var_seed_;
   // Seed for the phenotypic target noise random generator
-  int32_t _env_noise_seed;
+  int32_t env_noise_seed_;
 
   // ------------------------------------------------------------ Constraints
-  int32_t _min_genome_length;
-  int32_t _max_genome_length;
-  double  _w_max;
+  int32_t min_genome_length_;
+  int32_t max_genome_length_;
+  double  w_max_;
 
   // ----------------------------------------------------- Initial conditions
-  int32_t  _chromosome_initial_length;
-  int8_t   _init_method;
-  int32_t  _init_pop_size;
-  char*    _strain_name;
+  int32_t  chromosome_initial_length_;
+  int8_t   init_method_;
+  int32_t  init_pop_size_;
+  char*    strain_name_;
 
   // -------------------------------------------------------- Phenotypic target
   std::list<Gaussian> std_env_gaussians;
-  int16_t  _env_sampling;
+  int16_t  env_sampling_;
 
   // ------------------------------------ Phenotypic target x-axis segmentation
   /// Number of x-axis segments
-  int16_t _env_axis_nb_segments;
+  int16_t env_axis_nb_segments_;
   /// x-axis segment boundaries (sorted -- including MIN_X and MAX_X)
-  double* _env_axis_segment_boundaries;
+  double* env_axis_segment_boundaries_;
   /// x-axis segment features
-  PhenotypicFeature * _env_axis_features;
+  PhenotypicFeature * env_axis_features_;
   /// Whether to automatically separate segments
-  bool _env_axis_separate_segments;
+  bool env_axis_separate_segments_;
 
   // ---------------------------------------------- Phenotypic target variation
-  PhenotypicTargetVariationMethod _env_var_method;
-  double      _env_var_sigma;
-  int32_t     _env_var_tau;
+  PhenotypicTargetVariationMethod env_var_method_;
+  double      env_var_sigma_;
+  int32_t     env_var_tau_;
 
   // -------------------------------------------------- Phenotypic target noise
-  PhenotypicTargetNoiseMethod _env_noise_method;   // Method... TODO
-  double  _env_noise_alpha;         // Alpha value (variance coefficient)
-  double  _env_noise_sigma;         // Variance of the noise
-  double  _env_noise_prob;          // Probability of variation.
-  int32_t _env_noise_sampling_log;  // Log2 of the number of points in the noise fuzzy_set
+  PhenotypicTargetNoiseMethod env_noise_method_;   // Method... TODO
+  double  env_noise_alpha_;         // Alpha value (variance coefficient)
+  double  env_noise_sigma_;         // Variance of the noise
+  double  env_noise_prob_;          // Probability of variation.
+  int32_t env_noise_sampling_log_;  // Log2 of the number of points in the noise fuzzy_set
 
   // --------------------------------------------------------- Mutation rates
-  double  _point_mutation_rate;
-  double  _small_insertion_rate;
-  double  _small_deletion_rate;
-  int16_t _max_indel_size;
+  double  point_mutation_rate_;
+  double  small_insertion_rate_;
+  double  small_deletion_rate_;
+  int16_t max_indel_size_;
 
   // -------------------------------------------- Rearrangements and Transfer
-  bool    _with_4pts_trans;
-  bool    _with_alignments;
-  bool    _with_HT;
-  bool    _repl_HT_with_close_points;
-  double  _HT_ins_rate;
-  double  _HT_repl_rate;
-  double  _repl_HT_detach_rate;
+  bool    with_4pts_trans_;
+  bool    with_alignments_;
+  bool    with_HT_;
+  bool    repl_HT_with_close_points_;
+  double  HT_ins_rate_;
+  double  HT_repl_rate_;
+  double  repl_HT_detach_rate_;
 
   // ------------------------------ Rearrangement rates (without alignements)
-  double _duplication_rate;
-  double _deletion_rate;
-  double _translocation_rate;
-  double _inversion_rate;
+  double duplication_rate_;
+  double deletion_rate_;
+  double translocation_rate_;
+  double inversion_rate_;
 
   // --------------------------------- Rearrangement rates (with alignements)
-  double _neighbourhood_rate;
-  double _duplication_proportion;
-  double _deletion_proportion;
-  double _translocation_proportion;
-  double _inversion_proportion;
+  double neighbourhood_rate_;
+  double duplication_proportion_;
+  double deletion_proportion_;
+  double translocation_proportion_;
+  double inversion_proportion_;
 
   // ------------------------------------------------------------ Alignements
-  AlignmentFunctionShape _align_fun_shape;
-  double  _align_sigm_lambda;
-  int16_t _align_sigm_mean;
-  int16_t _align_lin_min;
-  int16_t _align_lin_max;
+  AlignmentFunctionShape align_fun_shape_;
+  double  align_sigm_lambda_;
+  int16_t align_sigm_mean_;
+  int16_t align_lin_min_;
+  int16_t align_lin_max_;
 
-  int16_t _align_max_shift;     // Maximum shift of one seq on the other
-  int16_t _align_w_zone_h_len;  // Work zone half length
-  int16_t _align_match_bonus;   // Corresponding residues match bonus
-  int16_t _align_mismatch_cost; // Corresponding residues mismatch cost
+  int16_t align_max_shift_;     // Maximum shift of one seq on the other
+  int16_t align_w_zone_h_len_;  // Work zone half length
+  int16_t align_match_bonus_;   // Corresponding residues match bonus
+  int16_t align_mismatch_cost_; // Corresponding residues mismatch cost
 
   // ----------------------------------------------- Phenotypic Stochasticity
-  bool _with_stochasticity;
+  bool with_stochasticity_;
 
   // -------------------------------------------------------------- Selection
-  SelectionScheme _selection_scheme;
-  double               _selection_pressure;
+  SelectionScheme selection_scheme_;
+  double               selection_pressure_;
 
   // ------------------------------------------------------ Spatial structure
-  int16_t _grid_width  = 32;
-  int16_t _grid_height = 32;
+  int16_t grid_width_  = 32;
+  int16_t grid_height_ = 32;
   bool    well_mixed = false;
   int32_t partial_mix_nb_permutations = 0;
 
   // -------------------------------------------------------------- Secretion
-  bool   _with_secretion;
+  bool   with_secretion_;
   // Proportion of the fitness contributed by secretion
-  double _secretion_contrib_to_fitness;      // (0,1)
+  double secretion_contrib_to_fitness_;      // (0,1)
   // Proportion that diffuses into each cell, every generation
   // (0 for no diffusion)
-  double _secretion_diffusion_prop;
+  double secretion_diffusion_prop_;
   // Proportion of secreted substance that degrades every generation
-  double _secretion_degradation_prop;
+  double secretion_degradation_prop_;
   // Cost of secreting the compound, as a proportion of the amount secreted
-  double _secretion_cost;
+  double secretion_cost_;
   // Starting configuration of secretion grid
   // 0, all are 0; 1, point source of secreted compund
-  double _secretion_init;
+  double secretion_init_;
 
   // --------------------------------------------------------------- Plasmids
-  bool      _allow_plasmids;
-  int32_t   _plasmid_initial_length;
-  int32_t   _plasmid_initial_gene;
-  int32_t   _plasmid_minimal_length;
-  int32_t   _plasmid_maximal_length;
-  int32_t   _chromosome_minimal_length;
-  int32_t   _chromosome_maximal_length;
-  double    _prob_plasmid_HT;
-  double    _tune_donor_ability;
-  double    _tune_recipient_ability;
-  double    _donor_cost;
-  double    _recipient_cost;
-  bool      _compute_phen_contrib_by_GU;
-  bool      _swap_GUs;
+  bool      allow_plasmids_;
+  int32_t   plasmid_initial_length_;
+  int32_t   plasmid_initial_gene_;
+  int32_t   plasmid_minimal_length_;
+  int32_t   plasmid_maximal_length_;
+  int32_t   chromosome_minimal_length_;
+  int32_t   chromosome_maximal_length_;
+  double    prob_plasmid_HT_;
+  double    tune_donor_ability_;
+  double    tune_recipient_ability_;
+  double    donor_cost_;
+  double    recipient_cost_;
+  bool      compute_phen_contrib_by_GU_;
+  bool      swap_GUs_;
 
   // ------------------------------------------------------- Translation cost
-  double _translation_cost;
+  double translation_cost_;
 
   // ---------------------------------------------------------------- Outputs
   // Stats
-  int8_t _stats;
+  int8_t stats_;
   // Whether to delete the existing statistics file
   // (otherwise kept with the suffix ".old")
-  bool _delete_old_stats;
+  bool delete_old_stats_;
 
   // Backups
-  int32_t _backup_step;
-  int32_t _big_backup_step;
+  int32_t backup_step_;
+  int32_t big_backup_step_;
 
   // Tree
-  bool _record_tree;
-  int32_t _tree_step;
+  bool record_tree_;
+  int32_t tree_step_;
 
   // Dumps // TODO : explain
-  bool    _make_dumps;
-  int32_t _dump_step;
+  bool    make_dumps_;
+  int32_t dump_step_;
 
   // Logs
-  int8_t _logs;
+  int8_t logs_;
 
   // Other
-  bool _more_stats;  // TODO : explain
+  bool more_stats_;  // TODO : explain
 
   #ifdef __REGUL
     // ------------------------------------------------------- Binding matrix
-    double _binding_zeros_percentage;
+    double binding_zeros_percentage_;
   #endif
 };
 

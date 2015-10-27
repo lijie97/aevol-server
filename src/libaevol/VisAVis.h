@@ -128,21 +128,21 @@ class VisAVis
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    const Dna* _chrom_1 = nullptr;
-    const Dna* _chrom_2 = nullptr;
-    int32_t _i_1 = -1; //< Index on chrom_1
-    int32_t _i_2 = -1; //< Index on chrom_2
-    int16_t _score = -1;
+    const Dna* chrom_1_ = nullptr;
+    const Dna* chrom_2_ = nullptr;
+    int32_t i_1_ = -1; //< Index on chrom_1
+    int32_t i_2_ = -1; //< Index on chrom_2
+    int16_t score_ = -1;
     // Sense (DIRECT or INDIRECT) of the vis_a_vis (alignement)
-    AlignmentSense _sense = DIRECT;
+    AlignmentSense sense_ = DIRECT;
     // Say we have the following sequences :
     //    0 1 2 3 4 5 6 7 8 9             0 1 2 3 4 5 6 7 8 9
     //    |a|b|c|d|e|f|g|h|i|j|           |a|b|c|d|e|f|g|h|i|j|
     //
-    // The DIRECT vis_a_vis between _i_1 = 3 and _i_2 = 7 is 'd' with 'h' (caracters at indices 3 and 7 resp.).
+    // The DIRECT vis_a_vis between i_1_ = 3 and i_2_ = 7 is 'd' with 'h' (caracters at indices 3 and 7 resp.).
     //   The corresponding alignment would be "defgh" with "hijkl"
     //
-    // WARNING! The INDIRECT vis_a_vis between the same _i_1 = 3 and i_2 = 7 is 'd' with 'g' (and not 'h'!).
+    // WARNING! The INDIRECT vis_a_vis between the same i_1_ = 3 and i_2 = 7 is 'd' with 'g' (and not 'h'!).
     // This is because we are reading backwards (towards the left). Directly left to index 7 is 'g' which corresponds to index 6.
     //   The corresponding alignment would hence be "defgh" with "!g!f!e!d!c" ("!x" means "complementary of x")
 };
@@ -153,32 +153,32 @@ class VisAVis
 // =====================================================================
 inline const Dna *VisAVis::get_chrom_1( void ) const
 {
-  return _chrom_1;
+  return chrom_1_;
 }
 
 inline const Dna *VisAVis::get_chrom_2( void ) const
 {
-  return _chrom_2;
+  return chrom_2_;
 }
 
 inline int32_t VisAVis::get_i_1( void ) const
 {
-  return _i_1;
+  return i_1_;
 }
 
 inline int32_t VisAVis::get_i_2( void ) const
 {
-  return _i_2;
+  return i_2_;
 }
 
 inline int16_t VisAVis::get_score( void ) const
 {
-  return _score;
+  return score_;
 }
 
 inline AlignmentSense VisAVis::get_sense( void ) const
 {
-  return _sense;
+  return sense_;
 }
 
 
@@ -188,22 +188,22 @@ inline AlignmentSense VisAVis::get_sense( void ) const
 // =====================================================================
 inline bool VisAVis::operator < ( VisAVis &cmp )
 {
-  return ( _i_1 < cmp._i_1 );
+  return ( i_1_ < cmp.i_1_ );
 }
 
 inline bool VisAVis::operator <= ( VisAVis &cmp )
 {
-  return ( _i_1 <= cmp._i_1 );
+  return ( i_1_ <= cmp.i_1_ );
 }
 
 inline bool VisAVis::operator > ( VisAVis &cmp )
 {
-  return ( _i_1 > cmp._i_1 );
+  return ( i_1_ > cmp.i_1_ );
 }
 
 inline bool VisAVis::operator >= ( VisAVis &cmp )
 {
-  return ( _i_1 >= cmp._i_1 );
+  return ( i_1_ >= cmp.i_1_ );
 }
 
 
@@ -212,12 +212,12 @@ inline bool VisAVis::operator >= ( VisAVis &cmp )
 // =====================================================================
 inline bool VisAVis::match( void )
 {
-  if ( _sense == DIRECT )
+  if ( sense_ == DIRECT )
   {
-    return (_chrom_1->data()[Utils::mod(_i_1, _chrom_1->length())] ==
-        _chrom_2->data()[Utils::mod(_i_2, _chrom_2->length())] );
+    return (chrom_1_->data()[Utils::mod(i_1_, chrom_1_->length())] ==
+        chrom_2_->data()[Utils::mod(i_2_, chrom_2_->length())] );
   }
-  else // ( _sense == INDIRECT )
+  else // ( sense_ == INDIRECT )
   {
     // Note that we are reading the sequence backwards, The nucleotide corresponding to a breakpoint at point <i>
     // is hence stored at index <i-1>
@@ -227,121 +227,121 @@ inline bool VisAVis::match( void )
     //      9 8 7 6 5 4 3 2 1 0
     //
     // The breakpoint F-5 puts into a vis_a_vis the nucleotide at index F on seq1 and that at index 4 (not 5!!!) on seq2
-    return (_chrom_1->data()[Utils::mod(_i_1, _chrom_1->length())] !=
-        _chrom_2->data()[Utils::mod(_i_2-1, _chrom_2->length())] );
+    return (chrom_1_->data()[Utils::mod(i_1_, chrom_1_->length())] !=
+        chrom_2_->data()[Utils::mod(i_2_-1, chrom_2_->length())] );
   }
 }
 
 inline void VisAVis::step_fwd( void )
 {
-  if ( _sense == DIRECT )
+  if ( sense_ == DIRECT )
   {
-    _i_1++;
-    _i_2++;
+    i_1_++;
+    i_2_++;
   }
-  else // ( _sense == INDIRECT )
+  else // ( sense_ == INDIRECT )
   {
-    _i_1++;
-    _i_2--;
+    i_1_++;
+    i_2_--;
   }
 }
 
 inline void VisAVis::step_back( void )
 {
-  if ( _sense == DIRECT )
+  if ( sense_ == DIRECT )
   {
-    _i_1--;
-    _i_2--;
+    i_1_--;
+    i_2_--;
   }
-  else // ( _sense == INDIRECT )
+  else // ( sense_ == INDIRECT )
   {
-    _i_1--;
-    _i_2++;
+    i_1_--;
+    i_2_++;
   }
 }
 
 inline void VisAVis::add( int common_inc )
 {
-  if ( _sense == DIRECT )
+  if ( sense_ == DIRECT )
   {
-    _i_1 += common_inc;
-    _i_2 += common_inc;
+    i_1_ += common_inc;
+    i_2_ += common_inc;
   }
-  else // ( _sense == INDIRECT )
+  else // ( sense_ == INDIRECT )
   {
-    _i_1 += common_inc;
-    _i_2 -= common_inc;
+    i_1_ += common_inc;
+    i_2_ -= common_inc;
   }
 }
 
 inline void VisAVis::add( int inc_1, int inc_2 )
 {
-  if ( _sense == DIRECT )
+  if ( sense_ == DIRECT )
   {
-    _i_1 += inc_1;
-    _i_2 += inc_2;
+    i_1_ += inc_1;
+    i_2_ += inc_2;
   }
-  else // ( _sense == INDIRECT )
+  else // ( sense_ == INDIRECT )
   {
-    _i_1 += inc_1;
-    _i_2 -= inc_2;
+    i_1_ += inc_1;
+    i_2_ -= inc_2;
   }
 }
 
 inline void VisAVis::sub( int common_inc )
 {
-  if ( _sense == DIRECT )
+  if ( sense_ == DIRECT )
   {
-    _i_1 -= common_inc;
-    _i_2 -= common_inc;
+    i_1_ -= common_inc;
+    i_2_ -= common_inc;
   }
-  else // ( _sense == INDIRECT )
+  else // ( sense_ == INDIRECT )
   {
-    _i_1 -= common_inc;
-    _i_2 += common_inc;
+    i_1_ -= common_inc;
+    i_2_ += common_inc;
   }
 }
 
 inline void VisAVis::sub( int inc_1, int inc_2 )
 {
-  if ( _sense == DIRECT )
+  if ( sense_ == DIRECT )
   {
-    _i_1 -= inc_1;
-    _i_2 -= inc_2;
+    i_1_ -= inc_1;
+    i_2_ -= inc_2;
   }
-  else // ( _sense == INDIRECT )
+  else // ( sense_ == INDIRECT )
   {
-    _i_1 -= inc_1;
-    _i_2 += inc_2;
+    i_1_ -= inc_1;
+    i_2_ += inc_2;
   }
 }
 
 inline void VisAVis::swap( void )
 {
-  const Dna *  tmp_chrom = _chrom_1;
-  int32_t         tmp_i     = _i_1;
+  const Dna *  tmp_chrom = chrom_1_;
+  int32_t         tmp_i     = i_1_;
   
-  _chrom_1  = _chrom_2;
-  _i_1      = _i_2;
+  chrom_1_  = chrom_2_;
+  i_1_      = i_2_;
   
-  _chrom_2  = tmp_chrom;
-  _i_2      = tmp_i;
+  chrom_2_  = tmp_chrom;
+  i_2_      = tmp_i;
 }
 
 inline void VisAVis::copy( VisAVis * source )
 {
-  _i_1 = source->_i_1;
-  _i_2 = source->_i_2;
-  _chrom_1 = source->_chrom_1;
-  _chrom_2 = source->_chrom_2;
-  _sense = source->_sense;
-  _score = source->_score;
+  i_1_ = source->i_1_;
+  i_2_ = source->i_2_;
+  chrom_1_ = source->chrom_1_;
+  chrom_2_ = source->chrom_2_;
+  sense_ = source->sense_;
+  score_ = source->score_;
 }
 
 inline void VisAVis::check_indices( void )
 {
-  _i_1 = Utils::mod( _i_1, _chrom_1->length() );
-  _i_2 = Utils::mod( _i_2, _chrom_2->length() );
+  i_1_ = Utils::mod( i_1_, chrom_1_->length() );
+  i_2_ = Utils::mod( i_2_, chrom_2_->length() );
 }
 } // namespace aevol
 

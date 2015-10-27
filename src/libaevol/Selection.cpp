@@ -77,24 +77,24 @@ namespace aevol {
 //                             Constructors
 // =================================================================
 Selection::Selection(ExpManager* exp_m) {
-  _exp_m = exp_m;
+  exp_m_ = exp_m;
 
   // ----------------------------------------- Pseudo-random number generator
   prng_ = NULL;
 
   // -------------------------------------------------------------- Selection
-  _selection_scheme   = RANK_EXPONENTIAL;
-  _selection_pressure = 0.998;
+  selection_scheme_   = RANK_EXPONENTIAL;
+  selection_pressure_ = 0.998;
 
   // --------------------------- Probability of reproduction of each organism
-  _prob_reprod = NULL;
+  prob_reprod_ = NULL;
 }
 
 // =================================================================
 //                             Destructors
 // =================================================================
 Selection::~Selection(void) {
-  delete [] _prob_reprod;
+  delete [] prob_reprod_;
 }
 
 // =================================================================
@@ -129,10 +129,10 @@ void Selection::step_to_next_generation(void) {
     #error this method is not ready for variable population size
     compute_local_prob_reprod();
   #else
-    // The function compute_local_prob_reprod creates and fills the array _prob_reprod, which is telling us the probability of being picked for reproduction according to the rank of an individual in its neighboorhood.
+    // The function compute_local_prob_reprod creates and fills the array prob_reprod_, which is telling us the probability of being picked for reproduction according to the rank of an individual in its neighboorhood.
     // It is only usefull when selection is rank based. When selection scheme is FITNESS_PROPORTIONATE, we do not need to call it.
-    // It shoud only be called once in the simulation and not at each generation. So if _prob_reprod already exists we do not need to call it.
-    if ((_selection_scheme != FITNESS_PROPORTIONATE) && (_prob_reprod == NULL)) {
+    // It shoud only be called once in the simulation and not at each generation. So if prob_reprod_ already exists we do not need to call it.
+    if ((selection_scheme_ != FITNESS_PROPORTIONATE) && (prob_reprod_ == NULL)) {
       compute_local_prob_reprod();
     }
   #endif
@@ -143,10 +143,10 @@ void Selection::step_to_next_generation(void) {
   }
 
   // Create proxies
-  World* world = _exp_m->world();
+  World* world = exp_m_->world();
   int16_t grid_width  = world->width();
   int16_t grid_height = world->height();
-  GridCell*** pop_grid = _exp_m->grid();
+  GridCell*** pop_grid = exp_m_->grid();
 
   // create a temporary grid to store the reproducers
   Individual *** reproducers = new Individual ** [grid_width];
@@ -165,7 +165,7 @@ void Selection::step_to_next_generation(void) {
 
   // TODO : Why is that not *after* the creation of the new population ?
   // Add the compound secreted by the individuals
-  if (_exp_m->with_secretion()) {
+  if (exp_m_->with_secretion()) {
     for (int16_t x = 0 ; x < grid_width ; x++) {
       for (int16_t y = 0 ; y < grid_height ; y++) {
         pop_grid[x][y]->set_compound_amount(
@@ -180,7 +180,7 @@ void Selection::step_to_next_generation(void) {
 
 
   // Create the new generation
-  std::list<Individual*> old_generation = _exp_m->indivs();;
+  std::list<Individual*> old_generation = exp_m_->indivs();;
   std::list<Individual*> new_generation;
 
   #ifdef _OPENMP
@@ -218,19 +218,19 @@ void Selection::step_to_next_generation(void) {
   PerformPlasmidTransfers();
 
   // Update the best individual
-  _exp_m->update_best();
+  exp_m_->update_best();
 
   // Notify observers of the end of the generation
   notifyObservers(END_GENERATION);
 }
 
 void Selection::PerformPlasmidTransfers(void) {
-  if (_exp_m->with_plasmids() &&
-      ((_exp_m->prob_plasmid_HT() != 0.0) ||
-        (_exp_m->tune_donor_ability() != 0.0) ||
-        (_exp_m->tune_recipient_ability() != 0.0))) {
+  if (exp_m_->with_plasmids() &&
+      ((exp_m_->prob_plasmid_HT() != 0.0) ||
+        (exp_m_->tune_donor_ability() != 0.0) ||
+        (exp_m_->tune_recipient_ability() != 0.0))) {
     // Create proxies
-    World* world = _exp_m->world();
+    World* world = exp_m_->world();
     int16_t grid_width  = world->width();
     int16_t grid_height = world->height();
   
@@ -268,12 +268,12 @@ void Selection::PerformPlasmidTransfers(void) {
         new_y = (y+y_offset+grid_height) % grid_height;
 
         if ((new_x != x)||(new_y != y)) {
-          double ptransfer = _exp_m->prob_plasmid_HT() + _exp_m->tune_donor_ability()
+          double ptransfer = exp_m_->prob_plasmid_HT() + exp_m_->tune_donor_ability()
                             * world->get_indiv_at(x, y)->get_fitness_by_feature(DONOR)
                             +
-            _exp_m->tune_recipient_ability() * world->get_indiv_at(new_x, new_y)->get_fitness_by_feature(RECIPIENT) ;
+            exp_m_->tune_recipient_ability() * world->get_indiv_at(new_x, new_y)->get_fitness_by_feature(RECIPIENT) ;
           if (prng_->random() < ptransfer) { // will x give a plasmid to n ?
-            if (_exp_m->swap_GUs()) {
+            if (exp_m_->swap_GUs()) {
               world->get_indiv_at(new_x, new_y)->inject_2GUs(world->get_indiv_at(x, y));
             }
             else {
@@ -308,9 +308,9 @@ void Selection::PerformPlasmidTransfers(void) {
 */
 void Selection::write_setup_file(gzFile exp_setup_file) const {
   // ---------------------------------------------------- Selection Parameters
-  int8_t tmp_sel_scheme = _selection_scheme;
+  int8_t tmp_sel_scheme = selection_scheme_;
   gzwrite(exp_setup_file, &tmp_sel_scheme,      sizeof(tmp_sel_scheme));
-  gzwrite(exp_setup_file, &_selection_pressure, sizeof(_selection_pressure));
+  gzwrite(exp_setup_file, &selection_pressure_, sizeof(selection_pressure_));
 }
 
 /*!
@@ -331,8 +331,8 @@ void Selection::load(gzFile& exp_setup_file,
   // ---------------------------------------------------- Selection parameters
   int8_t tmp_sel_scheme;
   gzread(exp_setup_file, &tmp_sel_scheme, sizeof(tmp_sel_scheme));
-  _selection_scheme = (SelectionScheme) tmp_sel_scheme;
-  gzread(exp_setup_file, &_selection_pressure, sizeof(_selection_pressure));
+  selection_scheme_ = (SelectionScheme) tmp_sel_scheme;
+  gzread(exp_setup_file, &selection_pressure_, sizeof(selection_pressure_));
 
   // ----------------------------------------- Pseudo-random number generator
 #if __cplusplus == 201103L
@@ -347,14 +347,14 @@ void Selection::load(gzFile& exp_setup_file,
 //                           Protected Methods
 // =================================================================
 void Selection::compute_prob_reprod(void) { // non spatially structured only
-  if (_prob_reprod != NULL) { // TODO <david.parsons@inria.fr> remove
-    delete [] _prob_reprod;
+  if (prob_reprod_ != NULL) { // TODO <david.parsons@inria.fr> remove
+    delete [] prob_reprod_;
   }
 
-  int32_t nb_indivs = _exp_m->nb_indivs();
-  _prob_reprod = new double[nb_indivs];
+  int32_t nb_indivs = exp_m_->nb_indivs();
+  prob_reprod_ = new double[nb_indivs];
 
-  if (_selection_scheme == RANK_LINEAR) {
+  if (selection_scheme_ == RANK_LINEAR) {
     // The probability of reproduction for an individual is given by
     // (2-SP + 2 * (SP-1) * (R-1)/(N-1)) / N
     // With :
@@ -368,16 +368,16 @@ void Selection::compute_prob_reprod(void) { // non spatially structured only
     // probs[0] will hence be given by (2-SP)/N
     // probs[i+1] can then be expressed by probs[i] + (2*(SP-1)) / (N*(N-1))
 
-    double increment = (2 * (_selection_pressure-1)) / (nb_indivs * (nb_indivs-1));
-    _prob_reprod[0]  = (2 - _selection_pressure) / nb_indivs;
+    double increment = (2 * (selection_pressure_-1)) / (nb_indivs * (nb_indivs-1));
+    prob_reprod_[0]  = (2 - selection_pressure_) / nb_indivs;
 
     for (int32_t i = 1 ; i < nb_indivs ; i++) {
-      _prob_reprod[i] = _prob_reprod[i-1] + increment;
+      prob_reprod_[i] = prob_reprod_[i-1] + increment;
     }
 
     // No need to normalize: The sum is always 1 for linear ranking
   }
-  else if (_selection_scheme == RANK_EXPONENTIAL) {
+  else if (selection_scheme_ == RANK_EXPONENTIAL) {
     // The probability of reproduction for an individual is given by
     // ((SP-1) * SP^(N-R)) / (SP^N - 1)
     // Which is equivalent to
@@ -393,17 +393,17 @@ void Selection::compute_prob_reprod(void) { // non spatially structured only
     // probs[i+1] can hence be expressed as (probs[i] / SP)
     // We will hence compute probs[0] with the original formula and infer the remaining values
 
-    double SP_N = pow(_selection_pressure, nb_indivs); // SP^N
-    _prob_reprod[0] = ((_selection_pressure - 1) * SP_N) /
-                      ((SP_N - 1) * _selection_pressure);
+    double SP_N = pow(selection_pressure_, nb_indivs); // SP^N
+    prob_reprod_[0] = ((selection_pressure_ - 1) * SP_N) /
+                      ((SP_N - 1) * selection_pressure_);
 
     for (int32_t i = 1 ; i < nb_indivs ; i++) {
-      _prob_reprod[i] = _prob_reprod[i-1] / _selection_pressure;
+      prob_reprod_[i] = prob_reprod_[i-1] / selection_pressure_;
     }
 
     // No need to normalize: We don't allow ex-aequo
   }
-  else if (_selection_scheme == FITNESS_PROPORTIONATE) {
+  else if (selection_scheme_ == FITNESS_PROPORTIONATE) {
     // The probability of reproduction for an individual is given by
     // exp(-SP * gap) / sum of this measure on all individuals
     //    SP : selective pressure. Fitness proportionate allows values of SP in ]0, +inf[
@@ -413,19 +413,19 @@ void Selection::compute_prob_reprod(void) { // non spatially structured only
     double  sum       = 0;
 
     size_t i = 0;
-    for (const auto& indiv: _exp_m->indivs()) {
+    for (const auto& indiv: exp_m_->indivs()) {
       fitnesses[i] = indiv->get_fitness();
       sum += fitnesses[i];
       ++i;
     }
 
     for (int32_t i = 0 ; i < nb_indivs ; i++) {
-      _prob_reprod[i] = fitnesses[i] / sum;
+      prob_reprod_[i] = fitnesses[i] / sum;
     }
 
     delete [] fitnesses;
   }
-  else if (_selection_scheme == FITTEST) {
+  else if (selection_scheme_ == FITTEST) {
     printf("ERROR, fittest selection scheme is meant to be used for spatially structured populations %s:%d\n", __FILE__, __LINE__);
     exit(EXIT_FAILURE);
   }
@@ -438,37 +438,37 @@ void Selection::compute_prob_reprod(void) { // non spatially structured only
 void Selection::compute_local_prob_reprod(void) {
   int16_t neighborhood_size = 9;
 
-  if (_prob_reprod != NULL) {
+  if (prob_reprod_ != NULL) {
     printf ("Warning, already defined %s:%d\n", __FILE__, __LINE__);
-    delete [] _prob_reprod;
+    delete [] prob_reprod_;
   }
 
-  _prob_reprod = new double[neighborhood_size];
+  prob_reprod_ = new double[neighborhood_size];
 
-  if (_selection_scheme == RANK_LINEAR) {
-    double increment = (2 * (_selection_pressure-1)) / (neighborhood_size * (neighborhood_size-1));
-    double init_prob = (2 - _selection_pressure) / neighborhood_size;
+  if (selection_scheme_ == RANK_LINEAR) {
+    double increment = (2 * (selection_pressure_-1)) / (neighborhood_size * (neighborhood_size-1));
+    double init_prob = (2 - selection_pressure_) / neighborhood_size;
 
     for (int16_t i = 0 ; i < neighborhood_size ; i++) {
-      _prob_reprod[i] = init_prob + increment * i;
+      prob_reprod_[i] = init_prob + increment * i;
     }
   }
-  else if (_selection_scheme == RANK_EXPONENTIAL) {
-    double SP_N = pow(_selection_pressure, neighborhood_size);
-    _prob_reprod[0] = ((_selection_pressure - 1) * SP_N) /
-    ((SP_N - 1) * _selection_pressure);
+  else if (selection_scheme_ == RANK_EXPONENTIAL) {
+    double SP_N = pow(selection_pressure_, neighborhood_size);
+    prob_reprod_[0] = ((selection_pressure_ - 1) * SP_N) /
+    ((SP_N - 1) * selection_pressure_);
 
     for (int16_t i = 1 ; i < neighborhood_size ; i++) {
-      _prob_reprod[i] =  _prob_reprod[i-1] /  _selection_pressure;
+      prob_reprod_[i] =  prob_reprod_[i-1] /  selection_pressure_;
     }
   }
-  else if (_selection_scheme == FITTEST) {
+  else if (selection_scheme_ == FITTEST) {
     for (int16_t i = 0 ; i < neighborhood_size-1 ; i++) {
-      _prob_reprod[i] = 0.;
+      prob_reprod_[i] = 0.;
     }
-    _prob_reprod[neighborhood_size-1] = 1.;
+    prob_reprod_[neighborhood_size-1] = 1.;
   }
-  else if (_selection_scheme == FITNESS_PROPORTIONATE) {
+  else if (selection_scheme_ == FITNESS_PROPORTIONATE) {
     printf("ERROR, this function is not intented to be use with this selection scheme %s:%d\n", __FILE__, __LINE__);
     exit(EXIT_FAILURE);
   }
@@ -508,7 +508,7 @@ Individual* Selection::do_replication(Individual* parent, int32_t index,
   }
 
   // Set the new individual's location on the grid
-  _exp_m->world()->PlaceIndiv(new_indiv, x, y);
+  exp_m_->world()->PlaceIndiv(new_indiv, x, y);
 
   // Perform transfer, rearrangements and mutations
   if (not new_indiv->get_allow_plasmids()) {
@@ -546,14 +546,14 @@ Individual* Selection::do_replication(Individual* parent, int32_t index,
 }
 
 Individual *Selection::do_local_competition (int16_t x, int16_t y) {
-  // This function uses the array _prob_reprod when selection scheme is
+  // This function uses the array prob_reprod_ when selection scheme is
   // RANK_LINEAR, RANK_EXPONENTIAL, or FITTEST. For these selection schemes,
-  // the function compute_local_prob_reprod (creating the array _prob_reprod)
+  // the function compute_local_prob_reprod (creating the array prob_reprod_)
   // must have been called before.
   // When selection scheme is FITNESS_PROPORTIONATE, this function only uses
   // the fitness values
 
-  World* world = _exp_m->world();
+  World* world = exp_m_->world();
 
   int16_t neighborhood_size = 9;
   int16_t grid_width  = world->width();
@@ -588,11 +588,11 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
   // 4. Fittest individual
 
   // Any rank based selection
-  switch (_selection_scheme) {
+  switch (selection_scheme_) {
     case RANK_LINEAR :
     case RANK_EXPONENTIAL :
     case FITTEST : {
-      assert(_prob_reprod);
+      assert(prob_reprod_);
       // First we sort the local fitness values using bubble sort :
       // we sort by increasing order, so the first element will have the worst fitness.
       bool swaped = true;
@@ -622,7 +622,7 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
 
       // Then we use the already computed probabilities
       for (int16_t i = 0 ; i < neighborhood_size ; i++) {
-        probs[initial_location[i]] = _prob_reprod[i];
+        probs[initial_location[i]] = prob_reprod_[i];
       }
 
       break;

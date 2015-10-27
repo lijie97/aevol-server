@@ -233,7 +233,7 @@ void Dna::do_small_mutations() {
   //  2. Perform those small mutations in a random order
   // ====================================================
   //
-  // We put the '_nb_small_mutations' mutation events in an "urn".
+  // We put the 'nb_small_mutations_' mutation events in an "urn".
   // Then we repeat a random drawing of one mutation event in this urn,
   // without replacement, until no mutation event is left in the urn.
   // Here is the "urn" we use at the beginning:
@@ -1970,7 +1970,7 @@ Mutation* Dna::do_repl_HT(int32_t parent_id) {
 //            alignment1_parent_dna =
 //                get_subsequence(alignment_1->get_i_1(),
 //                                alignment_1->get_i_1() +
-//                                    2 * _indiv->get_align_w_zone_h_len() +
+//                                    2 * indiv_->get_align_w_zone_h_len() +
 //                                    indiv_->get_align_max_shift(), LEADING);
 //            alignment2_parent_dna =
 //                get_subsequence(alignment_2->get_i_1(),
@@ -1994,25 +1994,25 @@ Mutation* Dna::do_repl_HT(int32_t parent_id) {
 //            alignment1_parent_dna =
 //                get_subsequence(alignment_1->get_i_1(),
 //                                alignment_1->get_i_1() +
-//                                    2 * _indiv->get_align_w_zone_h_len() +
-//                                    _indiv->get_align_max_shift(), LEADING);
+//                                    2 * indiv_->get_align_w_zone_h_len() +
+//                                    indiv_->get_align_max_shift(), LEADING);
 //            alignment2_parent_dna =
 //                get_subsequence(alignment_2->get_i_1(),
 //                                alignment_2->get_i_1() +
-//                                    2 * _indiv->get_align_w_zone_h_len() +
-//                                    _indiv->get_align_max_shift(), LEADING);
+//                                    2 * indiv_->get_align_w_zone_h_len() +
+//                                    indiv_->get_align_max_shift(), LEADING);
 //            alignment1_donor_dna =
 //                donor_dna->get_subsequence(
 //                    alignment_1->get_i_2(),
 //                    alignment_1->get_i_2() -
-//                        2 * _indiv->get_align_w_zone_h_len() -
-//                        _indiv->get_align_max_shift(), LAGGING);
+//                        2 * indiv_->get_align_w_zone_h_len() -
+//                        indiv_->get_align_max_shift(), LAGGING);
 //            alignment2_donor_dna =
 //                donor_dna->get_subsequence(
 //                    alignment_2->get_i_2(),
 //                    alignment_2->get_i_2() -
-//                        2 * _indiv->get_align_w_zone_h_len() -
-//                        _indiv->get_align_max_shift(), LAGGING);
+//                        2 * indiv_->get_align_w_zone_h_len() -
+//                        indiv_->get_align_max_shift(), LAGGING);
 //          }
 //        }
 //

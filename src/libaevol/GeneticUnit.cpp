@@ -1119,7 +1119,7 @@ void GeneticUnit::compute_phenotypic_contribution(void) {
   If the environment is not segmented, the total area is computed
 */
 void GeneticUnit::compute_distance_to_target(const PhenotypicTarget& target) {
-  if (distance_to_target_computed_) return; // _distance_to_target has already been computed, nothing to do.
+  if (distance_to_target_computed_) return; // distance_to_target_ has already been computed, nothing to do.
   distance_to_target_computed_ = true;
 
   compute_phenotypic_contribution();
@@ -1240,7 +1240,7 @@ void GeneticUnit::reset_expression(void) {
 
   // I do not erase the RNA lists, because they were updated
   // during the mutations (cf Dna::undergo_this_mutation)
-  // TODO : Reinitialize _transcribed proteins ?
+  // TODO : Reinitialize transcribed_ proteins ?
 
   if (activ_contribution_ != NULL) {
     delete activ_contribution_;
@@ -2981,7 +2981,7 @@ void GeneticUnit::remove_non_coding_bases(void) {
 //      compute_fitness(env);
 //      assert(get_fitness()==initial_fitness);
 //
-//      _non_coding_computed = false;
+//      non_coding_computed_ = false;
 //      non_coding_bases_nb = get_nb_bases_in_0_coding_RNA();
 //    }
 //  }
@@ -2998,7 +2998,7 @@ void GeneticUnit::remove_non_coding_bases(void) {
 //  compute_fitness(env);
 //  assert(get_fitness()==initial_fitness);
 //
-//  _non_coding_computed = false;
+//  non_coding_computed_ = false;
 //  non_coding_bases_nb = get_nb_bases_in_0_coding_RNA();
 //  assert(non_coding_bases_nb==0);
 //
@@ -3029,7 +3029,7 @@ void GeneticUnit::double_non_coding_bases() {
 //  int32_t genome_length = dna_->length();
 //  bool* belongs_to_coding_RNA = is_belonging_to_coding_RNA();
 //
-//  _non_coding_computed = false;
+//  non_coding_computed_ = false;
 //  int32_t inital_non_coding_bases_nb = get_nb_bases_in_0_coding_RNA();
 //  int32_t start = 0;
 //  int32_t end = 0;
@@ -3066,7 +3066,7 @@ void GeneticUnit::double_non_coding_bases() {
 //        pos = indiv_->get_mut_prng()->random( length )+start;
 //        dna_->insert(pos, random_portion);
 //
-//        _non_coding_computed = false;
+//        non_coding_computed_ = false;
 //        non_coding_bases_nb_before_fitness = get_nb_bases_in_0_coding_RNA();
 //
 //        locate_promoters();
@@ -3081,7 +3081,7 @@ void GeneticUnit::double_non_coding_bases() {
 //        compute_fitness(env);
 //        assert(get_fitness()==initial_fitness);
 //
-//        _non_coding_computed = false;
+//        non_coding_computed_ = false;
 //        non_coding_bases_nb_after_fitness = get_nb_bases_in_0_coding_RNA();
 //
 //        if (non_coding_bases_nb_before_fitness != non_coding_bases_nb_after_fitness)
@@ -3094,7 +3094,7 @@ void GeneticUnit::double_non_coding_bases() {
 //        }
 //
 //      }
-//      _non_coding_computed = false;
+//      non_coding_computed_ = false;
 //
 //      delete [] random_portion;
 //      random_portion = NULL;
@@ -3113,7 +3113,7 @@ void GeneticUnit::double_non_coding_bases() {
 //  compute_fitness(env);
 //  assert(get_fitness()==initial_fitness);
 //
-//  _non_coding_computed = false;
+//  non_coding_computed_ = false;
 //  non_coding_bases_nb = get_nb_bases_in_0_coding_RNA();
 //  assert(non_coding_bases_nb == 2*inital_non_coding_bases_nb);
 //
@@ -3396,14 +3396,14 @@ void GeneticUnit::compute_nb_of_affected_genes(const Mutation* mut,
 void GeneticUnit::init_statistical_data(
     void) // TODO : integrate into compute_statistical_data
 {
-  //~ _nb_promoters[LEADING]        = 0;
-  //~ _nb_promoters[LAGGING]        = 0;
-  //~ _nb_genes[LEADING]            = 0;
-  //~ _nb_genes[LAGGING]            = 0;
-  //~ _average_gene_size            = 0;
-  //~ _average_functional_gene_size = 0;
-  //~ _nb_coding_bp                 = 0;
-  //~ _clustering                   = 0;
+  //~ nb_promoters_[LEADING]        = 0;
+  //~ nb_promoters_[LAGGING]        = 0;
+  //~ nb_genes_[LEADING]            = 0;
+  //~ nb_genes_[LAGGING]            = 0;
+  //~ average_gene_size_            = 0;
+  //~ average_functional_gene_size_ = 0;
+  //~ nb_coding_bp_                 = 0;
+  //~ clustering_                   = 0;
 
   nb_coding_RNAs_ = 0;
   nb_non_coding_RNAs_ = 0;

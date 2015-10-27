@@ -54,10 +54,10 @@ namespace aevol {
 
 ae_influence_R::ae_influence_R( ae_rna* rna, ae_protein *protein, double enhancing_coef, double operating_coef )
 {
-  _enhancing_coef = enhancing_coef;
-  _operating_coef = operating_coef;
-  _protein        = protein;
-  _rna            = rna;
+  enhancing_coef_ = enhancing_coef;
+  operating_coef_ = operating_coef;
+  protein_        = protein;
+  rna_            = rna;
 }
 
 // =================================================================

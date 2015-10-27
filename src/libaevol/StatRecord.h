@@ -163,68 +163,68 @@ class StatRecord
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-    ExpManager * _exp_m;
+    ExpManager * exp_m_;
     
     // NB : All the attributes are doubles because they will be used to
     //      compute averages over the population.
-    indiv_or_pop _record_type;
+    indiv_or_pop record_type_;
     
-    int32_t _pop_size;
+    int32_t pop_size_;
 
-    double  _fitness;
+    double  fitness_;
 
-    double  _metabolic_error;
-    double  _parent_metabolic_error;
-    double  _metabolic_fitness;
+    double  metabolic_error_;
+    double  parent_metabolic_error_;
+    double  metabolic_fitness_;
 
-    double  _secretion_error;
-    double  _parent_secretion_error;
-    double  _secretion_fitness;
+    double  secretion_error_;
+    double  parent_secretion_error_;
+    double  secretion_fitness_;
   
-    double  _compound_amount;
+    double  compound_amount_;
     
-    int32_t  _amount_of_dna;
-    int32_t  _nb_coding_rnas;
-    int32_t  _nb_non_coding_rnas;
-    double  _av_size_coding_rnas;      // NOT including promoter but including terminator
-    double  _av_size_non_coding_rnas;  // NOT including promoter but including terminator
-    int32_t  _nb_functional_genes;
-    int32_t  _nb_non_functional_genes;
-    double  _av_size_functional_gene;     // NOT including START and STOP codons
-    double  _av_size_non_functional_gene; // NOT including START and STOP codons
+    int32_t  amount_of_dna_;
+    int32_t  nb_coding_rnas_;
+    int32_t  nb_non_coding_rnas_;
+    double  av_size_coding_rnas_;      // NOT including promoter but including terminator
+    double  av_size_non_coding_rnas_;  // NOT including promoter but including terminator
+    int32_t  nb_functional_genes_;
+    int32_t  nb_non_functional_genes_;
+    double  av_size_functional_gene_;     // NOT including START and STOP codons
+    double  av_size_non_functional_gene_; // NOT including START and STOP codons
 
-    int32_t  _nb_mut;
-    int32_t  _nb_rear;
-    int32_t  _nb_switch;
-    int32_t  _nb_indels;
-    int32_t  _nb_dupl;
-    int32_t  _nb_del;
-    int32_t  _nb_trans;
-    int32_t  _nb_inv;
+    int32_t  nb_mut_;
+    int32_t  nb_rear_;
+    int32_t  nb_switch_;
+    int32_t  nb_indels_;
+    int32_t  nb_dupl_;
+    int32_t  nb_del_;
+    int32_t  nb_trans_;
+    int32_t  nb_inv_;
     
-    double  _dupl_rate;
-    double  _del_rate;
-    double  _trans_rate;
-    double  _inv_rate;
-    double  _mean_align_score;
+    double  dupl_rate_;
+    double  del_rate_;
+    double  trans_rate_;
+    double  inv_rate_;
+    double  mean_align_score_;
     
-    int32_t  _nb_bases_in_0_CDS;
-    int32_t  _nb_bases_in_0_functional_CDS;
-    int32_t  _nb_bases_in_0_non_functional_CDS;
-    int32_t  _nb_bases_in_0_RNA;
-    int32_t  _nb_bases_in_0_coding_RNA;
-    int32_t  _nb_bases_in_0_non_coding_RNA;
+    int32_t  nb_bases_in_0_CDS_;
+    int32_t  nb_bases_in_0_functional_CDS_;
+    int32_t  nb_bases_in_0_non_functional_CDS_;
+    int32_t  nb_bases_in_0_RNA_;
+    int32_t  nb_bases_in_0_coding_RNA_;
+    int32_t  nb_bases_in_0_non_coding_RNA_;
     
-    int32_t  _nb_bases_non_essential;
-    int32_t  _nb_bases_non_essential_including_nf_genes;
+    int32_t  nb_bases_non_essential_;
+    int32_t  nb_bases_non_essential_including_nf_genes_;
     
     #ifdef __REGUL
-      int32_t  _nb_influences;
-      int32_t  _nb_enhancing_influences;
-      int32_t  _nb_operating_influences;
-      double  _av_value_influences;
-      double  _av_value_enhancing_influences;
-      double  _av_value_operating_influences;
+      int32_t  nb_influences_;
+      int32_t  nb_enhancing_influences_;
+      int32_t  nb_operating_influences_;
+      double  av_value_influences_;
+      double  av_value_enhancing_influences_;
+      double  av_value_operating_influences_;
     #endif
 };
 
