@@ -81,7 +81,7 @@ class Selection : public Observable
     // =================================================================
     inline SelectionScheme get_selection_scheme() const;
     inline double               get_selection_pressure() const;
-    inline double*              get_prob_reprod() const;
+    inline double*              prob_reprod() const;
     // inline std::unique_ptr<JumpingMT> get_prng() const;
 
     // =================================================================
@@ -162,7 +162,7 @@ inline double Selection::get_selection_pressure() const
   return selection_pressure_;
 }
 
-inline double*Selection::get_prob_reprod() const
+inline double*Selection::prob_reprod() const
 {
   if (prob_reprod_ == NULL)
   {

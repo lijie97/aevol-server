@@ -230,7 +230,7 @@ int8_t GeneMutation::type_of_event()
 
 
 // str must be at least of size 60
-void GeneMutation::get_description_string_for_gene_mut(char * str)
+void GeneMutation::description_string_for_gene_mut(char * str)
 { 
    switch ( mut_type_ )
   {

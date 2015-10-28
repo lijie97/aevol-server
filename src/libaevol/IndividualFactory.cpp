@@ -104,7 +104,7 @@ Individual* IndividualFactory::create_random_individual(
 
     indiv->EvaluateInContext(habitat);
 
-    while (indiv->get_dist_to_target_by_feature(METABOLISM) >=
+    while (indiv->dist_to_target_by_feature(METABOLISM) >=
         env_metabolic_area) {
       // Replace the former chromosome by a new random one and re-evaluate the
       // individual
@@ -124,7 +124,7 @@ Individual* IndividualFactory::create_random_individual(
         indiv->EvaluateInContext(habitat);
 
         while (indiv->get_genetic_unit(1).
-            get_dist_to_target_by_feature(METABOLISM) >= env_metabolic_area) {
+            dist_to_target_by_feature(METABOLISM) >= env_metabolic_area) {
           indiv->remove_GU(1);
           indiv->add_GU(indiv, plasmid_initial_length, local_prng);
           indiv->EvaluateInContext(habitat);
@@ -135,7 +135,7 @@ Individual* IndividualFactory::create_random_individual(
       // The plasmid is a copy of the chromosome
       char* plasmid_genome = new char[chromosome_initial_length + 1];
       strncpy(plasmid_genome,
-              indiv->get_genetic_unit_list().back().get_sequence(),
+              indiv->genetic_unit_list().back().get_sequence(),
               chromosome_initial_length + 1);
       indiv->add_GU(plasmid_genome, chromosome_initial_length);
     }

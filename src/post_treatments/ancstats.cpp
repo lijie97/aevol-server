@@ -372,7 +372,7 @@ int main(int argc, char** argv)
     // during the evolution
 
     // 2) Replay replication (create current individual's child)
-    GeneticUnit& gen_unit = indiv->get_genetic_unit_nonconst(0);
+    GeneticUnit& gen_unit = indiv->genetic_unit_nonconst(0);
     GeneticUnit* stored_gen_unit = nullptr;
     Individual* stored_indiv = nullptr;
 
@@ -382,7 +382,7 @@ int main(int argc, char** argv)
       exp_manager_backup->load(get_time(), true, false);
       stored_indiv = new Individual(
           *(Individual*) exp_manager_backup->indiv_by_id(index));
-      stored_gen_unit = &(stored_indiv->get_genetic_unit_nonconst(0));
+      stored_gen_unit = &(stored_indiv->genetic_unit_nonconst(0));
     }
 
     // For each genetic unit, replay the replication (undergo all mutations)
@@ -546,7 +546,7 @@ void write_terminators_stats(int64_t t,  Individual* indiv, FILE* term_output_fi
   fprintf( term_output_file, "%" PRId64 " %" PRId32 " %" PRId32 "\n",
             t,
             indiv->get_total_genome_size(),
-            indiv->get_nb_terminators());
+            indiv->nb_terminators());
 }
 
 
@@ -617,7 +617,7 @@ void write_zones_stats(int64_t t,
     }
 
     // Add a genes (activ or inhib)
-    if (prot->get_is_functional())
+    if (prot->is_functional())
     {
       if (prot->get_height() > 0)
       {
@@ -644,8 +644,8 @@ void write_zones_stats(int64_t t,
   }
 
   // Compute the geometric areas
-  activ = indiv->get_phenotype_activ();
-  inhib = indiv->get_phenotype_inhib();
+  activ = indiv->phenotype_activ();
+  inhib = indiv->phenotype_inhib();
   phen  = indiv->get_phenotype();
 
   for (num_segment = 0 ; num_segment < nb_segments ; num_segment++)

@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
   // for (i=0;i<nb_indivs;i++)
   // {
   //   ae_individual* new_indiv = new ae_individual(*indiv);
-  //   ae_individual* old_indiv = (ae_individual*) indiv_node->get_obj();
+  //   ae_individual* old_indiv = (ae_individual*) indiv_node->obj();
   //   delete old_indiv;
   //   indiv_node->set_obj(new_indiv);
   //   indiv_node = indiv_node->get_next();
@@ -139,7 +139,7 @@ int main(int argc, char* argv[])
   //   {
   //     for (int16_t y = 0 ; y < ae_common::grid_y ; y++)
   //     {
-  //       pop_grid_[x][y]->set_individual((ae_individual*) indiv_node->get_obj());
+  //       pop_grid_[x][y]->set_individual((ae_individual*) indiv_node->obj());
   //       pop_grid_[x][y]->get_individual()->set_grid_cell(pop_grid_[x][y]);
   //       indiv_node = indiv_node->get_next();
   //     }

@@ -88,7 +88,7 @@ ae_individual_R::ae_individual_R( ae_individual_R* parent, int32_t id,
       
       while ( prot_node != NULL )
       {
-        prot = prot_node->get_obj();
+        prot = prot_node->obj();
         
         ae_protein_R* inherited_prot = new ae_protein_R( NULL, *prot );
         inherited_prot->set_inherited( true );
@@ -159,7 +159,7 @@ void ae_individual_R::evaluate( Environment* envir )
   
   while ( gen_unit_node != NULL )
   {
-    gen_unit = gen_unit_node->get_obj();
+    gen_unit = gen_unit_node->obj();
     
     gen_unit->do_transcription();
     gen_unit->do_translation();
@@ -184,8 +184,8 @@ void ae_individual_R::evaluate( Environment* envir )
 
 /*
   printf("number of protein : inherited : %d \n",inherited_protein_list_->get_nb_elts());
-  printf("number of protein : leading : %d \n",genetic_unit_list_->get_first()->get_obj()->get_protein_list()[LEADING]->get_nb_elts());
-  printf("number of protein : lagging : %d \n",genetic_unit_list_->get_first()->get_obj()->get_protein_list()[LAGGING]->get_nb_elts());
+  printf("number of protein : leading : %d \n",genetic_unit_list_->get_first()->obj()->get_protein_list()[LEADING]->get_nb_elts());
+  printf("number of protein : lagging : %d \n",genetic_unit_list_->get_first()->obj()->get_protein_list()[LAGGING]->get_nb_elts());
   printf("number of protein : total : %d \n",protein_list_->get_nb_elts());
 */
 
@@ -243,7 +243,7 @@ void ae_individual_R::set_influences()
   rna_node = rna_list_coding_->get_first();
   while ( rna_node != NULL )
   {
-    rna = rna_node->get_obj();
+    rna = rna_node->obj();
 
     //~ printf( "%d proteins\n", protein_list_->get_nb_elts() );
     rna->set_influences( protein_list_ );
@@ -265,7 +265,7 @@ void ae_individual_R::update_concentrations()
   prot_node = protein_list_->get_first();
   while ( prot_node != NULL )
   {
-    prot = prot_node->get_obj();
+    prot = prot_node->obj();
 
     prot->compute_delta_concentration();
 
@@ -276,7 +276,7 @@ void ae_individual_R::update_concentrations()
   prot_node = protein_list_->get_first();
   while ( prot_node != NULL )
   {
-    prot = prot_node->get_obj();
+    prot = prot_node->obj();
 
     prot->update_concentration();
 
@@ -306,7 +306,7 @@ void ae_individual_R::multiply_concentrations( double factor )
   
   while ( prot_node != NULL )
   {
-    prot = prot_node->get_obj();
+    prot = prot_node->obj();
 
     prot->multiply_concentration( factor );
 
@@ -359,7 +359,7 @@ void ae_individual_R::save( gzFile backup_file )
 
     for ( int16_t i = 0 ; i < nb_inherited_proteins ; i++ )
     {
-    inherited_protein = inherited_protein_node->get_obj();
+    inherited_protein = inherited_protein_node->obj();
     
     inherited_protein->save( backup_file );
     
@@ -386,7 +386,7 @@ void ae_individual_R::make_rna_list()
   
   while ( rna_node != NULL )
   {
-    rna = rna_node->get_obj();
+    rna = rna_node->obj();
     
     if ( rna->is_coding() == true )
     {

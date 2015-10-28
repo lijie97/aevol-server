@@ -90,15 +90,15 @@ class Protein
     inline Strand get_strand()                const;
     inline const std::list<Rna *> get_rna_list()          const;
     inline int32_t            get_shine_dal_pos()         const;
-    inline int32_t            get_first_translated_pos()  const;
-    inline int32_t            get_last_translated_pos()   const;
-           int32_t            get_last_STOP_base_pos()    const;
+    inline int32_t            first_translated_pos()  const;
+    inline int32_t            last_translated_pos()   const;
+           int32_t            last_STOP_base_pos()    const;
     inline double             get_mean()                  const;
     inline double             get_width()                 const; // returns the half-width
     inline double             get_height()                const;
     inline int32_t            get_length()                const; // Number of Amino-Acids (not including START and STOP)
     inline double             get_concentration()         const;
-    inline  bool              get_is_functional()         const;
+    inline  bool              is_functional()         const;
     
     Individual * get_indiv() const;
 
@@ -106,7 +106,7 @@ class Protein
     //                            Public Methods
     // =================================================================
     void  add_RNA( Rna * rna );
-    char* get_AA_sequence(char separator = ' ') const; // WARNING : creates a new char[...] (up to you to delete it!)
+    char* AA_sequence(char separator = ' ') const; // WARNING : creates a new char[...] (up to you to delete it!)
     virtual void  save( gzFile backup_file );
 
     // =================================================================
@@ -161,12 +161,12 @@ int32_t Protein::get_shine_dal_pos() const
   return shine_dal_pos_;
 }
 
-int32_t Protein::get_first_translated_pos() const
+int32_t Protein::first_translated_pos() const
 {
   return first_translated_pos_;
 }
 
-int32_t Protein::get_last_translated_pos() const
+int32_t Protein::last_translated_pos() const
 {
   return last_translated_pos_;
 }
@@ -196,7 +196,7 @@ double Protein::get_concentration() const
   return concentration_;
 }
 
-bool Protein::get_is_functional() const
+bool Protein::is_functional() const
 {
   return is_functional_;
 }

@@ -89,7 +89,7 @@ GeneTreeNode::GeneTreeNode( int32_t nodeCreationDate, Protein * protein)
   int32_t i = 0;
   for (const auto& rna: protein->get_rna_list()) {
     rna_pointers_[i] = rna;
-    promoter_positions_[i] = rna->get_promoter_pos();
+    promoter_positions_[i] = rna->promoter_pos();
     i++;
   }
   // printf(" \n "); //debug
@@ -194,7 +194,7 @@ void GeneTreeNode::print_subtree_to_screen()
   for (const auto& mutation: mutation_list) {
     // TODO vld: simplify
     char str[128];
-    mutation->get_description_string_for_gene_mut(str);
+    mutation->description_string_for_gene_mut(str);
     printf("  %s\n", str);
   }
   printf("\n\n");
@@ -252,7 +252,7 @@ void GeneTreeNode::write_subtree_to_files(FILE * topologyFile, FILE * nodeAttrib
   for (const auto& mutation: mutation_list) {
     // TODO vld: simplify
     char str[128];
-    mutation->get_description_string_for_gene_mut(str);
+    mutation->description_string_for_gene_mut(str);
     fprintf(nodeAttributesFile, "  %s", str);
     fprintf(nodeAttributesFile, "\n");
   }
@@ -261,7 +261,7 @@ void GeneTreeNode::write_subtree_to_files(FILE * topologyFile, FILE * nodeAttrib
     {
       assert( protein_pointer_ != NULL );
       fprintf(nodeAttributesFile, "  Shine-Dalgarno pos:%" PRId32 ", Stop pos: %" PRId32 ", M: %.8f, W: %.8f, H: %.8f, nb promoters: %" PRId32 ", conc: %.8f \n", \
-              protein_pointer_->get_shine_dal_pos(), protein_pointer_->get_last_STOP_base_pos(), \
+              protein_pointer_->get_shine_dal_pos(), protein_pointer_->last_STOP_base_pos(), \
               protein_pointer_->get_mean(), protein_pointer_->get_width(), protein_pointer_->get_height(),  \
               static_cast<int32_t>(protein_pointer_->get_rna_list().size()), protein_pointer_->get_concentration() );
     }
@@ -441,7 +441,7 @@ void GeneTreeNode::update_pointers_in_subtree_leaves(GeneticUnit * unit)
       size_t i = 0;
       for (const auto& rna: protein->get_rna_list()) {
         rna_pointers_[i] = rna;
-        promoter_positions_[i] = rna->get_promoter_pos();
+        promoter_positions_[i] = rna->promoter_pos();
         i++;
       }
     }
@@ -554,13 +554,13 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
       if (protein_pointer_->get_strand() == LEADING)
         {
           first_cds = protein_pointer_->get_shine_dal_pos();
-          last_cds = protein_pointer_->get_last_STOP_base_pos( );
+          last_cds = protein_pointer_->last_STOP_base_pos( );
           for (const auto& rna: protein_pointer_->get_rna_list()) {
-              currentprompos = rna->get_promoter_pos();
+              currentprompos = rna->promoter_pos();
               if (currentprompos > first_cds) currentprompos = currentprompos - genlen; // negative value for promoters on the other side of ori
               if ((position_furthest_prom == -1) || (position_furthest_prom < currentprompos)) // we need the smallest promoter position
                 {
-                  position_furthest_prom = rna->get_promoter_pos();
+                  position_furthest_prom = rna->promoter_pos();
                 }
           }
           position_furthest_prom = Utils::mod(position_furthest_prom, genlen); // restore a positive value if necessary
@@ -569,14 +569,14 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
         }
       else
         {
-          first_cds = protein_pointer_->get_last_STOP_base_pos( );
+          first_cds = protein_pointer_->last_STOP_base_pos( );
           last_cds = protein_pointer_->get_shine_dal_pos();
           for (const auto& rna: protein_pointer_->get_rna_list()) {
-              currentprompos = rna->get_promoter_pos();
+              currentprompos = rna->promoter_pos();
               if (currentprompos < last_cds) currentprompos = currentprompos + genlen; // value larger than genlen for promoters on the other side of ori
               if ((position_furthest_prom == -1) || (position_furthest_prom > currentprompos)) // we need the largest promoter position
                 {
-                  position_furthest_prom = rna->get_promoter_pos();
+                  position_furthest_prom = rna->promoter_pos();
                 }
           }
           position_furthest_prom = Utils::mod(position_furthest_prom, genlen); // restore a value < genlen if necessary
@@ -1001,7 +1001,7 @@ void GeneTreeNode::register_actual_mutation_effect_on_genes_in_subtree_leaves(
             size_t i = 0;
             for (const auto& rna: protein->get_rna_list()) {
               rna_pointers_[i] = rna;
-              promoter_positions_[i] = rna->get_promoter_pos();
+              promoter_positions_[i] = rna->promoter_pos();
               i++;
             }
           }
@@ -1009,7 +1009,7 @@ void GeneTreeNode::register_actual_mutation_effect_on_genes_in_subtree_leaves(
             {
               fprintf(stderr, "Error: cannot find a protein that should have survived.\n");
               char str[100];
-              mut->get_generic_description_string(str);
+              mut->generic_description_string(str);
               printf("Mutation : %s\n", str);
               printf("CDS should be at %d ", shine_dal_position_);
               if (strand_ == LEADING) printf("LEADING\n");
@@ -1048,7 +1048,7 @@ void GeneTreeNode::register_actual_mutation_effect_on_genes_in_subtree_leaves(
             size_t i = 0;
             for (const auto& rna: protein->get_rna_list()) {
               rna_pointers_[i] = rna;
-              promoter_positions_[i] = rna->get_promoter_pos();
+              promoter_positions_[i] = rna->promoter_pos();
               i++;
             }
           }

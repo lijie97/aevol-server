@@ -88,13 +88,13 @@ class World
   inline int32_t          partial_mix_nb_permutations() const;
   GridCell ***  grid() const {return grid_;};
   inline GridCell*    grid(int16_t x, int16_t y) const;
-  inline Individual*   get_indiv_at(int16_t x, int16_t y) const;
+  inline Individual*   indiv_at(int16_t x, int16_t y) const;
   Individual* get_indiv_by_id(int32_t id) const;
 
-  inline double** get_secretion_present_grid() const;
-  inline double** get_secreted_amount_grid() const;
-  inline double** get_metabolic_fitness_grid() const;
-  inline double** get_total_fitness_grid() const;
+  inline double** secretion_present_grid() const;
+  inline double** secreted_amount_grid() const;
+  inline double** metabolic_fitness_grid() const;
+  inline double** total_fitness_grid() const;
 
   bool phenotypic_target_shared() const {
     return phenotypic_target_shared_;
@@ -203,12 +203,12 @@ inline GridCell *World::grid(int16_t x, int16_t y) const
   return grid_[x][y];
 }
 
-inline Individual *World::get_indiv_at(int16_t x, int16_t y) const
+inline Individual *World::indiv_at(int16_t x, int16_t y) const
 {
   return grid_[x][y]->get_individual();
 }
 
-inline double**World::get_secretion_present_grid() const
+inline double**World::secretion_present_grid() const
 {
   double** ret = new double*[width_];
   
@@ -224,7 +224,7 @@ inline double**World::get_secretion_present_grid() const
   return ret;
 }
 
-inline double**World::get_secreted_amount_grid() const
+inline double**World::secreted_amount_grid() const
 {
   double** ret = new double*[width_];
   for (int16_t x = 0 ; x < width_ ; x++)
@@ -232,14 +232,14 @@ inline double**World::get_secreted_amount_grid() const
     ret[x] = new double[height_];
     for (int16_t y = 0; y < height_ ; y++)
     {
-      ret[x][y] = grid_[x][y]->get_secreted_amount();
+      ret[x][y] = grid_[x][y]->secreted_amount();
     }
   }
   
   return ret;
 }
 
-inline double**World::get_metabolic_fitness_grid() const
+inline double**World::metabolic_fitness_grid() const
 {
   double** ret = new double*[width_];
   for (int16_t x = 0 ; x < width_ ; x++)
@@ -247,14 +247,14 @@ inline double**World::get_metabolic_fitness_grid() const
     ret[x] = new double[height_];
     for (int16_t y = 0; y < height_ ; y++)
     {
-      ret[x][y] = grid_[x][y]->get_metabolic_fitness();
+      ret[x][y] = grid_[x][y]->metabolic_fitness();
     }
   }
   
   return ret;
 }
 
-inline double**World::get_total_fitness_grid() const
+inline double**World::total_fitness_grid() const
 {
   double** ret = new double*[width_];
   for (int16_t x = 0 ; x < width_ ; x++)
@@ -262,7 +262,7 @@ inline double**World::get_total_fitness_grid() const
     ret[x] = new double[height_];
     for (int16_t y = 0; y < height_ ; y++)
     {
-      ret[x][y] = grid_[x][y]->get_total_fitness();
+      ret[x][y] = grid_[x][y]->total_fitness();
     }
   }
   

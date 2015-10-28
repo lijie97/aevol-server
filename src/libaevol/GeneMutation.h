@@ -119,7 +119,7 @@ class GeneMutation : public Mutation
   // =================================================================
   //                            Public Methods
   // =================================================================
-  void get_description_string_for_gene_mut(char * str); // str must be at least of size 60
+  void description_string_for_gene_mut(char * str); // str must be at least of size 60
   int8_t type_of_event(); // 0 if local mut, 1 if rearrangement, 2 if transfer
 
      

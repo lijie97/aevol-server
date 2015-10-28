@@ -727,10 +727,10 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
     {
       cur_win->blacken();
 
-      double** grid = world()->get_total_fitness_grid();
+      double** grid = world()->total_fitness_grid();
       display_grid(cur_win, grid);
 
-      // Has been allocated in ae_spatial_structure::get_total_fitness_grid()
+      // Has been allocated in ae_spatial_structure::total_fitness_grid()
       for (int16_t x = 0 ; x < grid_width() ; x++)
       {
         delete [] grid[x];
@@ -778,8 +778,8 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
 //        display(cur_win, *(indiv->get_phenotype()), BLUE);
 //        if (indiv->get_allow_plasmids())
 //        {
-//          display(cur_win, *(indiv->get_genetic_unit(0).get_phenotypic_contribution()), YELLOW);
-//          display(cur_win, *(indiv->get_genetic_unit(1).get_phenotypic_contribution()), GREEN);
+//          display(cur_win, *(indiv->get_genetic_unit(0).phenotypic_contribution()), YELLOW);
+//          display(cur_win, *(indiv->get_genetic_unit(1).phenotypic_contribution()), GREEN);
 //        }
 //      }
 
@@ -816,7 +816,7 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
     {
       cur_win->blacken();
 
-      display_grid(cur_win, world()->get_secretion_present_grid());
+      display_grid(cur_win, world()->secretion_present_grid());
     }
     break;
 
@@ -825,7 +825,7 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
     {
       cur_win->blacken();
 
-      display_grid(cur_win, world()->get_metabolic_fitness_grid());
+      display_grid(cur_win, world()->metabolic_fitness_grid());
     }
     break;
 
@@ -834,7 +834,7 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
     {
       cur_win->blacken();
 
-      display_grid(cur_win, world()->get_secreted_amount_grid());
+      display_grid(cur_win, world()->secreted_amount_grid());
     }
     break;
   }

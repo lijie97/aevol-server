@@ -170,7 +170,7 @@ void Selection::step_to_next_generation() {
       for (int16_t y = 0 ; y < grid_height ; y++) {
         pop_grid[x][y]->set_compound_amount(
             pop_grid[x][y]->compound_amount() +
-            pop_grid[x][y]->get_individual()->get_fitness_by_feature(SECRETION));
+            pop_grid[x][y]->get_individual()->fitness_by_feature(SECRETION));
       }
     }
 
@@ -269,15 +269,15 @@ void Selection::PerformPlasmidTransfers() {
 
         if ((new_x != x)||(new_y != y)) {
           double ptransfer = exp_m_->prob_plasmid_HT() + exp_m_->tune_donor_ability()
-                            * world->get_indiv_at(x, y)->get_fitness_by_feature(DONOR)
+                            * world->indiv_at(x, y)->fitness_by_feature(DONOR)
                             +
-            exp_m_->tune_recipient_ability() * world->get_indiv_at(new_x, new_y)->get_fitness_by_feature(RECIPIENT) ;
+            exp_m_->tune_recipient_ability() * world->indiv_at(new_x, new_y)->fitness_by_feature(RECIPIENT) ;
           if (prng_->random() < ptransfer) { // will x give a plasmid to n ?
             if (exp_m_->swap_GUs()) {
-              world->get_indiv_at(new_x, new_y)->inject_2GUs(world->get_indiv_at(x, y));
+              world->indiv_at(new_x, new_y)->inject_2GUs(world->indiv_at(x, y));
             }
             else {
-              world->get_indiv_at(new_x, new_y)->inject_GU(world->get_indiv_at(x, y));
+              world->indiv_at(new_x, new_y)->inject_GU(world->indiv_at(x, y));
             }
           }
         }
@@ -295,10 +295,10 @@ void Selection::PerformPlasmidTransfers() {
     // and re-evaluate the individual
     for (int16_t x = 0 ; x < grid_width ; x++) {
       for (int16_t y = 0 ; y < grid_height ; y++) {
-        bool reevaluate = (world->get_indiv_at(x, y)->get_nb_genetic_units() > 2);
-        world->get_indiv_at(x, y)->drop_nested_genetic_units();
+        bool reevaluate = (world->indiv_at(x, y)->get_nb_genetic_units() > 2);
+        world->indiv_at(x, y)->drop_nested_genetic_units();
         if (reevaluate)
-          world->get_indiv_at(x, y)->Reevaluate();
+          world->indiv_at(x, y)->Reevaluate();
       }
     }
   }
@@ -512,7 +512,7 @@ Individual* Selection::do_replication(Individual* parent, int32_t index,
 
   // Perform transfer, rearrangements and mutations
   if (not new_indiv->get_allow_plasmids()) {
-    const GeneticUnit* chromosome = &new_indiv->get_genetic_unit_list().front();
+    const GeneticUnit* chromosome = &new_indiv->genetic_unit_list().front();
 
     chromosome->get_dna()->perform_mutations(parent->get_id());
   }
@@ -521,12 +521,12 @@ Individual* Selection::do_replication(Individual* parent, int32_t index,
     bool inverse_order = (prng_->random((int32_t) 2) < 0.5);
 
     if (not inverse_order) { // Apply mutations in normal GU order
-      for (const auto& gen_unit: new_indiv->get_genetic_unit_list()) {
+      for (const auto& gen_unit: new_indiv->genetic_unit_list()) {
         gen_unit.get_dna()->perform_mutations(parent->get_id());
       }
     }
     else { // Apply mutations in inverse GU order
-      const auto& gul = new_indiv->get_genetic_unit_list();
+      const auto& gul = new_indiv->genetic_unit_list();
       for (auto gen_unit = gul.crbegin(); gen_unit != gul.crend(); ++gen_unit) {
         gen_unit->get_dna()->perform_mutations(parent->get_id());
       }
@@ -573,7 +573,7 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
     for (int8_t j = -1 ; j < 2 ; j++) {
       cur_x = (x + i + grid_width)  % grid_width;
       cur_y = (y + j + grid_height) % grid_height;
-      local_fit_array[count]  = world->get_indiv_at(cur_x, cur_y)->get_fitness();
+      local_fit_array[count]  = world->indiv_at(cur_x, cur_y)->get_fitness();
       sort_fit_array[count]   = local_fit_array[count];
       initial_location[count] = count;
       sum_local_fit += local_fit_array[count];
@@ -653,7 +653,7 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
   delete [] initial_location;
   delete [] probs;
 
-  return world->get_indiv_at((x+x_offset+grid_width)  % grid_width,
+  return world->indiv_at((x+x_offset+grid_width)  % grid_width,
                              (y+y_offset+grid_height) % grid_height);
 }
 

@@ -129,11 +129,11 @@ int main( int argc, char* argv[] )
     plasmid[lplasmid]='\0';
     indiv->add_GU(plasmid,lplasmid);
     indiv->set_allow_plasmids( true );
-    indiv->get_genetic_unit_nonconst(1).set_min_gu_length(plasmid_minimal_length);
-    indiv->get_genetic_unit_nonconst(1).set_max_gu_length(plasmid_maximal_length);
+    indiv->genetic_unit_nonconst(1).set_min_gu_length(plasmid_minimal_length);
+    indiv->genetic_unit_nonconst(1).set_max_gu_length(plasmid_maximal_length);
     indiv->set_replication_report(NULL); // plasmid's DNA should not have replic reports otherwise stat_record will try to access it.
-    indiv->get_genetic_unit_nonconst(1).get_dna()->set_replic_report(NULL);
-    indiv->get_genetic_unit_nonconst(1).compute_phenotypic_contribution();
+    indiv->genetic_unit_nonconst(1).get_dna()->set_replic_report(NULL);
+    indiv->genetic_unit_nonconst(1).compute_phenotypic_contribution();
     indiv->reevaluate();
   }
 

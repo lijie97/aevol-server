@@ -85,8 +85,8 @@ class Tree : public Observer
     // only the last generations since the last emptying ==> do not ask
     // something about an older generation
     ReplicationReport** get_reports(int64_t t) const;
-    ReplicationReport* get_report_by_index(int64_t t, int32_t index) const;
-    ReplicationReport* get_report_by_rank(int64_t t, int32_t rank) const;
+    ReplicationReport* report_by_index(int64_t t, int32_t index) const;
+    ReplicationReport* report_by_rank(int64_t t, int32_t rank) const;
   
 
     // =================================================================

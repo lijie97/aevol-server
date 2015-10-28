@@ -89,9 +89,9 @@ class GridCell
   inline double compound_amount() const;
   inline Individual * get_individual() const;
 
-  inline double get_secreted_amount() const;
-  inline double get_metabolic_fitness() const;
-  inline double get_total_fitness() const;
+  inline double secreted_amount() const;
+  inline double metabolic_fitness() const;
+  inline double total_fitness() const;
 
   const Habitat& habitat() const {
     return *habitat_;
@@ -148,17 +148,17 @@ inline Individual *GridCell::get_individual() const
   return individual_;
 }
 
-inline double GridCell::get_secreted_amount() const
+inline double GridCell::secreted_amount() const
 {
-  return individual_->get_fitness_by_feature(SECRETION);
+  return individual_->fitness_by_feature(SECRETION);
 }
 
-inline double GridCell::get_metabolic_fitness() const
+inline double GridCell::metabolic_fitness() const
 {
-  return individual_->get_fitness_by_feature(METABOLISM);
+  return individual_->fitness_by_feature(METABOLISM);
 }
 
-inline double GridCell::get_total_fitness() const
+inline double GridCell::total_fitness() const
 {
   return individual_->get_fitness();
 }

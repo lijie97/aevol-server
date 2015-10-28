@@ -129,19 +129,19 @@ class Individual : public Observable {
 
   int16_t get_nb_genetic_units() const;
 
-  int32_t get_nb_plasmids() const;
+  int32_t nb_plasmids() const;
 
-  int32_t get_amount_of_dna() const;
+  int32_t amount_of_dna() const;
 
   const GeneticUnit& get_genetic_unit(int16_t num_unit) const;
 
-  GeneticUnit& get_genetic_unit_nonconst(int16_t num_unit);
+  GeneticUnit& genetic_unit_nonconst(int16_t num_unit);
 
-  double get_dist_to_target_by_feature(PhenotypicFeature feature) const;
+  double dist_to_target_by_feature(PhenotypicFeature feature) const;
 
   double get_fitness() const;
 
-  double get_fitness_by_feature(PhenotypicFeature feature) const;
+  double fitness_by_feature(PhenotypicFeature feature) const;
 
   GridCell* get_grid_cell() const;
 
@@ -153,25 +153,25 @@ class Individual : public Observable {
 
   std::shared_ptr<JumpingMT> get_stoch_prng() const;
 
-  const std::list<GeneticUnit>& get_genetic_unit_list() const;
+  const std::list<GeneticUnit>& genetic_unit_list() const;
 
-  std::list<GeneticUnit>& get_genetic_unit_list_nonconst();
+  std::list<GeneticUnit>& genetic_unit_list_nonconst();
 
   /// Keep only the first (main chromosome) and the last chromosomes from the GU.
   void drop_nested_genetic_units();
 
-  const char* get_genetic_unit_sequence(int16_t num_unit) const;
+  const char* genetic_unit_sequence(int16_t num_unit) const;
 
-  int32_t get_genetic_unit_seq_length(int16_t num_unit) const;
+  int32_t genetic_unit_seq_length(int16_t num_unit) const;
 
   int32_t get_id() const;
 
   int32_t get_rank() const;
 
 
-  Fuzzy* get_phenotype_activ() const;
+  Fuzzy* phenotype_activ() const;
 
-  Fuzzy* get_phenotype_inhib() const;
+  Fuzzy* phenotype_inhib() const;
 
   Phenotype* get_phenotype() const;
 
@@ -260,7 +260,7 @@ class Individual : public Observable {
 
 
   // ----------------------------------------------- Phenotypic stochasticity
-  bool get_with_stochasticity() const;
+  bool with_stochasticity() const;
 
   // Statistical data
   int32_t get_total_genome_size() const; // TODO: duplicate with get_amount_of_dna?
@@ -270,11 +270,11 @@ class Individual : public Observable {
 
   int32_t get_overall_size_coding_RNAs() const;
 
-  double get_av_size_coding_RNAs() const;
+  double av_size_coding_RNAs() const;
 
   int32_t get_overall_size_non_coding_RNAs() const;
 
-  double get_av_size_non_coding_RNAs() const;
+  double av_size_non_coding_RNAs() const;
 
   int16_t get_nb_genes_activ() const;
 
@@ -286,11 +286,11 @@ class Individual : public Observable {
 
   int32_t get_overall_size_functional_genes() const;
 
-  double get_av_size_functional_genes() const;
+  double av_size_functional_genes() const;
 
   int32_t get_overall_size_non_functional_genes() const;
 
-  double get_av_size_non_functional_genes() const;
+  double av_size_non_functional_genes() const;
 
   int32_t get_nb_bases_in_0_CDS() const;
 
@@ -465,7 +465,7 @@ class Individual : public Observable {
 
   virtual void save(gzFile backup_file) const;
 
-  int32_t get_nb_terminators();
+  int32_t nb_terminators();
 
 #ifdef DEBUG
 

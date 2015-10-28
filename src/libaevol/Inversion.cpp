@@ -67,7 +67,7 @@ void Inversion::load(gzFile backup_file) {
   gzread(backup_file, &align_score_, sizeof(align_score_));
 }
 
-void Inversion::get_generic_description_string(char* str) const {
+void Inversion::generic_description_string(char* str) const {
   sprintf(str, "%" PRId8 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32
       " %" PRId8 " %" PRId16 " %" PRId16 " %" PRId32 " %" PRId32,
           get_mut_type(), pos1(), pos2(), -1, -1,

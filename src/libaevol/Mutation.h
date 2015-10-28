@@ -110,7 +110,7 @@ class Mutation {
   // =================================================================
   virtual void save(gzFile backup_file) const = 0;
   virtual void load(gzFile backup_file) = 0;
-  virtual void get_generic_description_string(char* str) const = 0;
+  virtual void generic_description_string(char* str) const = 0;
 
   // =================================================================
   //                        Accessors: Getters

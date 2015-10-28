@@ -163,17 +163,17 @@ StatRecord::StatRecord(ExpManager* exp_m,
     // -------------------------------------------------
     ReplicationReport* replic_report = nullptr;
     if (exp_m_->tree() != nullptr)
-      replic_report = exp_m_->tree()->get_report_by_index(AeTime::get_time(),
+      replic_report = exp_m_->tree()->report_by_index(AeTime::get_time(),
                                                               indiv->get_id());
 
     if (compute_non_coding)
       indiv->compute_non_coding();
 
-    const GeneticUnit& gen_unit = *indiv->get_genetic_unit_list().begin();
+    const GeneticUnit& gen_unit = *indiv->genetic_unit_list().begin();
 
     // Metabolic error stats
-    metabolic_error_ = indiv->get_dist_to_target_by_feature(METABOLISM);
-    metabolic_fitness_ = indiv->get_fitness_by_feature(METABOLISM);
+    metabolic_error_ = indiv->dist_to_target_by_feature(METABOLISM);
+    metabolic_fitness_ = indiv->fitness_by_feature(METABOLISM);
     parent_metabolic_error_ = (replic_report != NULL) ?
                               replic_report->get_parent_metabolic_error() :
                               0.0;
@@ -184,8 +184,8 @@ StatRecord::StatRecord(ExpManager* exp_m,
     // Secretion stats
     if (exp_m_->with_secretion())
     {
-       secretion_error_   = indiv->get_dist_to_target_by_feature(SECRETION);
-       secretion_fitness_ = indiv->get_fitness_by_feature(SECRETION);
+       secretion_error_   = indiv->dist_to_target_by_feature(SECRETION);
+       secretion_fitness_ = indiv->fitness_by_feature(SECRETION);
        compound_amount_   = indiv->get_grid_cell()->compound_amount();
        parent_secretion_error_ = 0.0;
 
@@ -206,12 +206,12 @@ StatRecord::StatRecord(ExpManager* exp_m,
     amount_of_dna_               = gen_unit.get_dna()->length();
     nb_coding_rnas_              = gen_unit.get_nb_coding_RNAs();
     nb_non_coding_rnas_          = gen_unit.get_nb_non_coding_RNAs();
-    av_size_coding_rnas_         = gen_unit.get_av_size_coding_RNAs();
-    av_size_non_coding_rnas_     = gen_unit.get_av_size_non_coding_RNAs();
+    av_size_coding_rnas_         = gen_unit.av_size_coding_RNAs();
+    av_size_non_coding_rnas_     = gen_unit.av_size_non_coding_RNAs();
     nb_functional_genes_         = gen_unit.get_nb_functional_genes();
     nb_non_functional_genes_     = gen_unit.get_nb_non_functional_genes();
-    av_size_functional_gene_     = gen_unit.get_av_size_functional_genes();
-    av_size_non_functional_gene_ = gen_unit.get_av_size_non_functional_genes();
+    av_size_functional_gene_     = gen_unit.av_size_functional_genes();
+    av_size_non_functional_gene_ = gen_unit.av_size_non_functional_genes();
 
     // Non coding stats
     if (compute_non_coding) {
@@ -222,8 +222,8 @@ StatRecord::StatRecord(ExpManager* exp_m,
       nb_bases_in_0_coding_RNA_         = gen_unit.get_nb_bases_in_0_coding_RNA();
       nb_bases_in_0_non_coding_RNA_     = gen_unit.get_nb_bases_in_0_non_coding_RNA();
 
-      nb_bases_non_essential_                     = gen_unit.get_nb_bases_non_essential();
-      nb_bases_non_essential_including_nf_genes_  = gen_unit.get_nb_bases_non_essential_including_nf_genes();
+      nb_bases_non_essential_                     = gen_unit.nb_bases_non_essential();
+      nb_bases_non_essential_including_nf_genes_  = gen_unit.nb_bases_non_essential_including_nf_genes();
     }
 
     // Mutation stats
@@ -257,7 +257,7 @@ StatRecord::StatRecord(ExpManager* exp_m,
       //~ }
       //~ // </DEBUG>
 
-      mean_align_score_ = replic_report->get_mean_align_score();
+      mean_align_score_ = replic_report->mean_align_score();
     }
   }
   else if (chrom_or_gu == ALL_GU)
@@ -267,12 +267,12 @@ StatRecord::StatRecord(ExpManager* exp_m,
     // -------------------------------------------------
     ReplicationReport* replic_report = nullptr;
     if (exp_m_->tree() != nullptr)
-      replic_report = exp_m_->tree()->get_report_by_index(AeTime::get_time(),
+      replic_report = exp_m_->tree()->report_by_index(AeTime::get_time(),
                                                               indiv->get_id());
 
     // Metabolic error stats
-    metabolic_error_ = (double) indiv->get_dist_to_target_by_feature(METABOLISM);
-    metabolic_fitness_ = (double) indiv->get_fitness_by_feature(METABOLISM);
+    metabolic_error_ = (double) indiv->dist_to_target_by_feature(METABOLISM);
+    metabolic_fitness_ = (double) indiv->fitness_by_feature(METABOLISM);
     parent_metabolic_error_ = (replic_report != NULL) ? replic_report->get_parent_metabolic_error() : 0.0;
 
     // Fitness
@@ -281,8 +281,8 @@ StatRecord::StatRecord(ExpManager* exp_m,
     // Secretion stats
     if (exp_m_->with_secretion())
     {
-       secretion_error_ = (double) indiv->get_dist_to_target_by_feature(SECRETION);
-       secretion_fitness_ = (double) indiv->get_fitness_by_feature(SECRETION);
+       secretion_error_ = (double) indiv->dist_to_target_by_feature(SECRETION);
+       secretion_fitness_ = (double) indiv->fitness_by_feature(SECRETION);
        compound_amount_   = (double) indiv->get_grid_cell()->compound_amount();
        parent_secretion_error_ = 0.0;
 
@@ -299,17 +299,17 @@ StatRecord::StatRecord(ExpManager* exp_m,
       parent_secretion_error_ = 0.0;
     }
 
-    for (auto& gen_unit: indiv->get_genetic_unit_list_nonconst()) {
+    for (auto& gen_unit: indiv->genetic_unit_list_nonconst()) {
       // Genes and RNA stats
       amount_of_dna_               += gen_unit.get_dna()->length();
       nb_coding_rnas_              += gen_unit.get_nb_coding_RNAs();
       nb_non_coding_rnas_          += gen_unit.get_nb_non_coding_RNAs();
-      av_size_coding_rnas_         += gen_unit.get_av_size_coding_RNAs();
-      av_size_non_coding_rnas_     += gen_unit.get_av_size_non_coding_RNAs();
+      av_size_coding_rnas_         += gen_unit.av_size_coding_RNAs();
+      av_size_non_coding_rnas_     += gen_unit.av_size_non_coding_RNAs();
       nb_functional_genes_         += gen_unit.get_nb_functional_genes();
       nb_non_functional_genes_     += gen_unit.get_nb_non_functional_genes();
-      av_size_functional_gene_     += gen_unit.get_av_size_functional_genes();
-      av_size_non_functional_gene_ += gen_unit.get_av_size_non_functional_genes();
+      av_size_functional_gene_     += gen_unit.av_size_functional_genes();
+      av_size_non_functional_gene_ += gen_unit.av_size_non_functional_genes();
 
       // Non coding stats
       if (compute_non_coding)
@@ -321,8 +321,8 @@ StatRecord::StatRecord(ExpManager* exp_m,
         nb_bases_in_0_coding_RNA_         += gen_unit.get_nb_bases_in_0_coding_RNA();
         nb_bases_in_0_non_coding_RNA_     += gen_unit.get_nb_bases_in_0_non_coding_RNA();
         
-        nb_bases_non_essential_                     += gen_unit.get_nb_bases_non_essential();
-        nb_bases_non_essential_including_nf_genes_  += gen_unit.get_nb_bases_non_essential_including_nf_genes();
+        nb_bases_non_essential_                     += gen_unit.nb_bases_non_essential();
+        nb_bases_non_essential_including_nf_genes_  += gen_unit.nb_bases_non_essential_including_nf_genes();
       }
 
       // Mutation stats
@@ -347,7 +347,7 @@ StatRecord::StatRecord(ExpManager* exp_m,
       del_rate_   = nb_del_   / parent_genome_size;
       trans_rate_ = nb_trans_ / parent_genome_size;
       inv_rate_   = nb_inv_   / parent_genome_size;
-      mean_align_score_ = replic_report->get_mean_align_score();
+      mean_align_score_ = replic_report->mean_align_score();
     }
   }
   else // => We have a multi-GU individual and we want only the main chromosome or only the plasmids
@@ -359,20 +359,20 @@ StatRecord::StatRecord(ExpManager* exp_m,
     }
 
     GeneticUnit& gen_unit = (chrom_or_gu == PLASMIDS) ?
-        *std::next(indiv->get_genetic_unit_list_nonconst().begin()) :
-        indiv->get_genetic_unit_list_nonconst().front();
+        *std::next(indiv->genetic_unit_list_nonconst().begin()) :
+        indiv->genetic_unit_list_nonconst().front();
 
     // -------------------------------------------------
     // Compute statistical data for the given individual
     // -------------------------------------------------
     ReplicationReport* replic_report = nullptr;
     if (exp_m_->tree() != nullptr)
-      replic_report = exp_m_->tree()->get_report_by_index(AeTime::get_time(),
+      replic_report = exp_m_->tree()->report_by_index(AeTime::get_time(),
                                                               indiv->get_id());
     
     // Metabolic error stats
-    metabolic_error_ = (double) gen_unit.get_dist_to_target_by_feature(METABOLISM);
-    metabolic_fitness_ = (double) gen_unit.get_fitness_by_feature(METABOLISM);
+    metabolic_error_ = (double) gen_unit.dist_to_target_by_feature(METABOLISM);
+    metabolic_fitness_ = (double) gen_unit.fitness_by_feature(METABOLISM);
     parent_metabolic_error_ = (replic_report != NULL) ? replic_report->get_parent_metabolic_error() : 0.0;
     
     // Fitness
@@ -381,8 +381,8 @@ StatRecord::StatRecord(ExpManager* exp_m,
     // Secretion stats
     if (exp_m_->with_secretion())
     {
-       secretion_error_ = (double) gen_unit.get_dist_to_target_by_feature(SECRETION);
-       secretion_fitness_ = (double) gen_unit.get_fitness_by_feature(SECRETION);
+       secretion_error_ = (double) gen_unit.dist_to_target_by_feature(SECRETION);
+       secretion_fitness_ = (double) gen_unit.fitness_by_feature(SECRETION);
        compound_amount_   = (double) indiv->get_grid_cell()->compound_amount();
        parent_secretion_error_ = 0.0;
   
@@ -403,12 +403,12 @@ StatRecord::StatRecord(ExpManager* exp_m,
     amount_of_dna_               = gen_unit.get_dna()->length();
     nb_coding_rnas_              = gen_unit.get_nb_coding_RNAs();
     nb_non_coding_rnas_          = gen_unit.get_nb_non_coding_RNAs();
-    av_size_coding_rnas_         = gen_unit.get_av_size_coding_RNAs();
-    av_size_non_coding_rnas_     = gen_unit.get_av_size_non_coding_RNAs();
+    av_size_coding_rnas_         = gen_unit.av_size_coding_RNAs();
+    av_size_non_coding_rnas_     = gen_unit.av_size_non_coding_RNAs();
     nb_functional_genes_         = gen_unit.get_nb_functional_genes();
     nb_non_functional_genes_     = gen_unit.get_nb_non_functional_genes();
-    av_size_functional_gene_     = gen_unit.get_av_size_functional_genes();
-    av_size_non_functional_gene_ = gen_unit.get_av_size_non_functional_genes();
+    av_size_functional_gene_     = gen_unit.av_size_functional_genes();
+    av_size_non_functional_gene_ = gen_unit.av_size_non_functional_genes();
     
       // Non coding stats
     if (compute_non_coding)
@@ -420,8 +420,8 @@ StatRecord::StatRecord(ExpManager* exp_m,
       nb_bases_in_0_coding_RNA_           = gen_unit.get_nb_bases_in_0_coding_RNA();
       nb_bases_in_0_non_coding_RNA_       = gen_unit.get_nb_bases_in_0_non_coding_RNA();
       
-      nb_bases_non_essential_                     = gen_unit.get_nb_bases_non_essential();
-      nb_bases_non_essential_including_nf_genes_  = gen_unit.get_nb_bases_non_essential_including_nf_genes();
+      nb_bases_non_essential_                     = gen_unit.nb_bases_non_essential();
+      nb_bases_non_essential_including_nf_genes_  = gen_unit.nb_bases_non_essential_including_nf_genes();
     }
     
     // Mutation stats
@@ -446,7 +446,7 @@ StatRecord::StatRecord(ExpManager* exp_m,
       del_rate_   = nb_del_   / parent_genome_size;
       trans_rate_ = nb_trans_ / parent_genome_size;
       inv_rate_   = nb_inv_   / parent_genome_size;
-      mean_align_score_ = replic_report->get_mean_align_score();
+      mean_align_score_ = replic_report->mean_align_score();
     }
   }
 }

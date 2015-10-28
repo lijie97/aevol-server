@@ -94,8 +94,8 @@ class X11Window
     // =================================================================
     //                              Accessors
     // =================================================================
-    GC get_gc_white()     { return gcWhite_;      };
-    GC get_gc_black()     { return gcBlack_;      };
+    GC gc_white()     { return gcWhite_;      };
+    GC gc_black()     { return gcBlack_;      };
     GC getGCBlue()        { return gcBlue_;       };
     GC getGCRed()         { return gcRed_;        };
     GC getGCLightGrey()   { return gcLightGrey_;  };

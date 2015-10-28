@@ -114,9 +114,9 @@ void ae_protein_R::compute_delta_concentration()
   while ( rna_node != NULL )
   {
     assert( inherited_ == false );
-    rna = rna_node->get_obj();
+    rna = rna_node->obj();
 
-    delta_concentration_ += rna->get_synthesis_rate();
+    delta_concentration_ += rna->synthesis_rate();
 
     rna_node = rna_node->get_next();
   }
@@ -156,7 +156,7 @@ void ae_protein_R::remove_influences()
   influence_node = influence_list_->get_first();
   while ( influence_node != NULL )
   {
-    influence = influence_node->get_obj();
+    influence = influence_node->obj();
     rna       = influence->get_rna();
     rna->remove_influence( influence );
 

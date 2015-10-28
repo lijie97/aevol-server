@@ -67,13 +67,13 @@ class ae_rna_R : public ae_rna
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline  ae_list*  get_influence_list();
+    inline  ae_list*  influence_list();
 
     // =================================================================
     //                            Public Methods
     // =================================================================
     void    set_influences( ae_list* protein_list );
-    double  get_synthesis_rate();
+    double  synthesis_rate();
     void    remove_influence( ae_influence_R* influence );
     // =================================================================
     //                           Public Attributes
@@ -114,7 +114,7 @@ class ae_rna_R : public ae_rna
 // =====================================================================
 //                          Accessors definitions
 // =====================================================================
-ae_list* ae_rna_R::get_influence_list()
+ae_list* ae_rna_R::influence_list()
 {
   return influence_list_;
 }

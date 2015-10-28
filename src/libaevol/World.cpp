@@ -139,8 +139,8 @@ void World::evaluate_individuals()
 {
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++) {
-      get_indiv_at(x, y)->Evaluate();
-      get_indiv_at(x, y)->compute_statistical_data();
+      indiv_at(x, y)->Evaluate();
+      indiv_at(x, y)->compute_statistical_data();
     }
 }
 
@@ -251,13 +251,13 @@ void World::PartiallyMixIndivs()
 void World::update_best()
 {
   x_best = y_best = 0;
-  double fit_best = get_indiv_at(0, 0)->get_fitness();
+  double fit_best = indiv_at(0, 0)->get_fitness();
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++)
-      if (get_indiv_at(x, y)->get_fitness() > fit_best) {
+      if (indiv_at(x, y)->get_fitness() > fit_best) {
         x_best = x;
         y_best = y;
-        fit_best = get_indiv_at(x, y)->get_fitness();
+        fit_best = indiv_at(x, y)->get_fitness();
       }
 }
 
@@ -408,7 +408,7 @@ list<Individual *> World::get_indivs() const
 
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++)
-      r.push_back(get_indiv_at(x, y));
+      r.push_back(indiv_at(x, y));
 
   return r;
 }
@@ -420,7 +420,7 @@ void World::set_mut_prng(std::shared_ptr<JumpingMT> prng)
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++) {
       Individual * indiv;
-      if ((indiv = get_indiv_at(x, y)))
+      if ((indiv = indiv_at(x, y)))
         indiv->set_mut_prng(mut_prng_);
     }
 }
@@ -432,7 +432,7 @@ void World::set_stoch_prng(std::shared_ptr<JumpingMT> prng)
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++) {
       Individual * indiv;
-      if ((indiv = get_indiv_at(x, y)))
+      if ((indiv = indiv_at(x, y)))
         indiv->set_stoch_prng(stoch_prng_);
     }
 }

@@ -89,7 +89,7 @@ class Rna
     inline void set_genetic_unit(const GeneticUnit*  gen_unit);
     inline Strand get_strand() const;
     inline void       set_strand( Strand strand );
-    inline int32_t    get_promoter_pos() const;
+    inline int32_t    promoter_pos() const;
     inline void       set_promoter_pos( int32_t pos );
     inline double     get_basal_level() const;
     inline int32_t    get_transcript_length() const; // The promoter is NOT transcribed.
@@ -102,8 +102,8 @@ class Rna
     // =================================================================
     //                            Public Methods
     // =================================================================
-    int32_t get_first_transcribed_pos() const;   // The promoter is NOT transcribed.
-    int32_t get_last_transcribed_pos() const;    // The terminator is transcribed.
+    int32_t first_transcribed_pos() const;   // The promoter is NOT transcribed.
+    int32_t last_transcribed_pos() const;    // The terminator is transcribed.
     inline void add_transcribed_protein( Protein * prot );
     inline void shift_position( int32_t delta_pos, int32_t genome_length );
 
@@ -168,7 +168,7 @@ void Rna::set_promoter_pos( int32_t pos )
   pos_ = pos;
 }
 
-inline int32_t Rna::get_promoter_pos() const
+inline int32_t Rna::promoter_pos() const
 {
   return pos_;
 }

@@ -58,7 +58,7 @@ void PointMutation::load(gzFile backup_file) {
   gzread(backup_file, &pos_, sizeof(pos_));
 }
 
-void PointMutation::get_generic_description_string(char* str) const {
+void PointMutation::generic_description_string(char* str) const {
   sprintf(str, "%" PRId8 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32
       " %" PRId8 " %" PRId16 " %" PRId16 " %" PRId32 " %" PRId32,
           get_mut_type(), pos_, -1, -1, -1, -1, -1, -1, -1, -1);

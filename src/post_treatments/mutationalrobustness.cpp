@@ -125,8 +125,8 @@ int main( int argc, char* argv[] )
 // Treatment of one individual
 void analyse_indiv(ae_exp_manager* exp, ae_individual* initial_indiv, FILE* output, int32_t ndiv ){
   Environment* env = exp->get_env();
-  double initial_metabolic_error = initial_indiv->get_dist_to_target_by_feature( METABOLISM );
-  double initial_secretion_error = initial_indiv->get_dist_to_target_by_feature( SECRETION );
+  double initial_metabolic_error = initial_indiv->dist_to_target_by_feature( METABOLISM );
+  double initial_secretion_error = initial_indiv->dist_to_target_by_feature( SECRETION );
   double final_metabolic_error      = 0.0;
   double impact_on_metabolic_error  = 0.0;
   double final_secretion_error      = 0.0;
@@ -145,9 +145,9 @@ void analyse_indiv(ae_exp_manager* exp, ae_individual* initial_indiv, FILE* outp
     indiv = exp->get_sel()->do_replication( initial_indiv, -1 );
 
     indiv->reevaluate(env);
-    final_metabolic_error     = indiv->get_dist_to_target_by_feature( METABOLISM );
+    final_metabolic_error     = indiv->dist_to_target_by_feature( METABOLISM );
     impact_on_metabolic_error = final_metabolic_error - initial_metabolic_error;
-    final_secretion_error     = indiv->get_dist_to_target_by_feature( SECRETION );
+    final_secretion_error     = indiv->dist_to_target_by_feature( SECRETION );
     impact_on_secretion_error = final_secretion_error - initial_secretion_error;
 
     fprintf( output, "%+.15f %+.15f \n",impact_on_metabolic_error, impact_on_secretion_error );

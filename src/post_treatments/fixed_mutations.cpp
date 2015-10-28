@@ -342,7 +342,7 @@ int main(int argc, char** argv)
 
     genetic_unit_number = 0;
     std::list<DnaReplicReport*>::const_iterator dnareport = rep->get_dna_replic_reports().begin();
-    std::list<GeneticUnit>::iterator unit = indiv->get_genetic_unit_list_nonconst().begin();
+    std::list<GeneticUnit>::iterator unit = indiv->genetic_unit_list_nonconst().begin();
 
     if (check_now && ae_utils::mod(get_time(), backup_step) == 0)
     {
@@ -351,12 +351,12 @@ int main(int argc, char** argv)
       exp_manager_backup->load(get_time(), true, false);
       // TODO: disabled tmp
       // stored_indiv = new ae_individual( * (ae_individual *)exp_manager_backup->get_indiv_by_id( index ), false );
-      stored_unit = stored_indiv->get_genetic_unit_list().begin();
+      stored_unit = stored_indiv->genetic_unit_list().begin();
     }
 
     while (dnareport != rep->get_dna_replic_reports().end())
     {
-      assert(unit != indiv->get_genetic_unit_list().end());
+      assert(unit != indiv->genetic_unit_list().end());
 
       unit->get_dna()->set_replic_report(*dnareport);
 
@@ -365,7 +365,7 @@ int main(int argc, char** argv)
       // ***************************************
 
       for (const auto& mutation: (*dnareport)->get_HT()) {
-        metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
+        metabolic_error_before = indiv->dist_to_target_by_feature( METABOLISM );
         unitlen_before = unit->get_dna()->get_length();
         unit->compute_nb_of_affected_genes(&mutation, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
 
@@ -374,11 +374,11 @@ int main(int argc, char** argv)
         indiv->reevaluate(env);
 
 
-        metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
+        metabolic_error_after = indiv->dist_to_target_by_feature( METABOLISM );
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
 
-        mutation.get_generic_description_string( mut_descr_string );
+        mutation.generic_description_string( mut_descr_string );
         fprintf(output,
             "%" PRId64 " %" PRId32 " %s %" PRId32 " %.15f  %" PRId32
             " %" PRId32 " %" PRId32 " \n",
@@ -392,17 +392,17 @@ int main(int argc, char** argv)
       // ***************************************
 
       for (const auto& mutation: (*dnareport)->get_rearrangements()) {
-        metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
+        metabolic_error_before = indiv->dist_to_target_by_feature( METABOLISM );
         unitlen_before = unit->get_dna()->get_length();
         unit->compute_nb_of_affected_genes(&mutation, nb_genes_at_breakpoints, nb_genes_in_segment,  nb_genes_in_replaced_segment);
 
         unit->get_dna()->undergo_this_mutation(&mutation);
 
         indiv->reevaluate(env);
-        metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
+        metabolic_error_after = indiv->dist_to_target_by_feature( METABOLISM );
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
-        mutation.get_generic_description_string( mut_descr_string );
+        mutation.generic_description_string( mut_descr_string );
         fprintf(output,
             "%" PRId64 " %" PRId32 " %s %" PRId32 " %.15f %" PRId32
             " %" PRId32 " %" PRId32 " \n",
@@ -417,17 +417,17 @@ int main(int argc, char** argv)
       // ***************************************
 
       for (const auto& mutation: (*dnareport)->get_mutations()) {
-        metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
+        metabolic_error_before = indiv->dist_to_target_by_feature( METABOLISM );
         unitlen_before = unit->get_dna()->get_length();
         unit->compute_nb_of_affected_genes(&mutation, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
 
         unit->get_dna()->undergo_this_mutation(&mutation);
 
         indiv->reevaluate(env);
-        metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
+        metabolic_error_after = indiv->dist_to_target_by_feature( METABOLISM );
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
-        mutation.get_generic_description_string( mut_descr_string );
+        mutation.generic_description_string( mut_descr_string );
         fprintf(output,
             "%" PRId64 " %" PRId32 " %s %" PRId32 " %.15f %" PRId32
             " %" PRId32 " %" PRId32 " \n",
@@ -444,7 +444,7 @@ int main(int argc, char** argv)
           fflush(NULL);
         }
 
-        assert(stored_unit != stored_indiv->get_genetic_unit_list().end());
+        assert(stored_unit != stored_indiv->genetic_unit_list().end());
 
         char * str1 = new char[unit->get_dna()->get_length() + 1];
         memcpy(str1, unit->get_dna()->get_data(), \
@@ -488,7 +488,7 @@ int main(int argc, char** argv)
       genetic_unit_number++;
     }
 
-    assert(unit == indiv->get_genetic_unit_list().end());
+    assert(unit == indiv->genetic_unit_list().end());
 
 
     if ( verbose ) printf(" OK\n");
@@ -497,7 +497,7 @@ int main(int argc, char** argv)
 
     if (check_now && ae_utils::mod(get_time(), backup_step) == 0)
     {
-      assert(stored_unit == stored_indiv->get_genetic_unit_list().end());
+      assert(stored_unit == stored_indiv->genetic_unit_list().end());
       delete stored_indiv;
       delete exp_manager_backup;
     }

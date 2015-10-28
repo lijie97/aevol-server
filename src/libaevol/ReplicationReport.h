@@ -90,7 +90,7 @@ class ReplicationReport : public Observer {
     inline double   get_parent_secretion_error() const;
     inline int32_t  get_parent_genome_size() const;
 
-    inline double   get_mean_align_score() const;
+    inline double   mean_align_score() const;
     inline int32_t	get_donor_id() const;
     inline double   get_donor_metabolic_error() const;
     inline int32_t  get_donor_genome_size() const;
@@ -220,7 +220,7 @@ inline int32_t  ReplicationReport::get_donor_genome_size() const
 
 
 
-inline double ReplicationReport::get_mean_align_score() const
+inline double ReplicationReport::mean_align_score() const
 {
   return mean_align_score_;
 }

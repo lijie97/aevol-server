@@ -1435,8 +1435,8 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
                                              0);
 
     indiv->add_GU(chromosome, lchromosome);
-    indiv->get_genetic_unit_nonconst(0).set_min_gu_length(chromosome_minimal_length_);
-    indiv->get_genetic_unit_nonconst(0).set_max_gu_length(chromosome_maximal_length_);
+    indiv->genetic_unit_nonconst(0).set_min_gu_length(chromosome_minimal_length_);
+    indiv->genetic_unit_nonconst(0).set_max_gu_length(chromosome_maximal_length_);
 
     if (plasmid != NULL)
     {
@@ -1447,8 +1447,8 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
         exit(EXIT_FAILURE);
       }
       indiv->add_GU(plasmid, lplasmid);
-      indiv->get_genetic_unit_nonconst(1).set_min_gu_length(plasmid_minimal_length_);
-      indiv->get_genetic_unit_nonconst(1).set_max_gu_length(plasmid_maximal_length_);
+      indiv->genetic_unit_nonconst(1).set_min_gu_length(plasmid_minimal_length_);
+      indiv->genetic_unit_nonconst(1).set_max_gu_length(plasmid_maximal_length_);
     }
     else if (allow_plasmids_)
     {
@@ -1459,7 +1459,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
     indiv->set_with_stochasticity(with_stochasticity_);
     indiv->compute_statistical_data();
     indiv->EvaluateInContext(habitat);
-    printf("Starting with a clonal population of individual with metabolic error %f and secretion error %f \n",indiv->get_dist_to_target_by_feature(METABOLISM),indiv->get_dist_to_target_by_feature(SECRETION));
+    printf("Starting with a clonal population of individual with metabolic error %f and secretion error %f \n",indiv->dist_to_target_by_feature(METABOLISM),indiv->dist_to_target_by_feature(SECRETION));
     indivs.push_back(indiv);
 
     // Make the clones and add them to the list of individuals
@@ -1499,13 +1499,13 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
           strain_name_,
           prng_,
           true);
-      indiv->get_genetic_unit_nonconst(0).set_min_gu_length(chromosome_minimal_length_);
-      indiv->get_genetic_unit_nonconst(0).set_max_gu_length(chromosome_maximal_length_);
+      indiv->genetic_unit_nonconst(0).set_min_gu_length(chromosome_minimal_length_);
+      indiv->genetic_unit_nonconst(0).set_max_gu_length(chromosome_maximal_length_);
 
       if (allow_plasmids_)
       {
-        indiv->get_genetic_unit_nonconst(1).set_min_gu_length(plasmid_minimal_length_);
-        indiv->get_genetic_unit_nonconst(1).set_max_gu_length(plasmid_maximal_length_);
+        indiv->genetic_unit_nonconst(1).set_min_gu_length(plasmid_minimal_length_);
+        indiv->genetic_unit_nonconst(1).set_max_gu_length(plasmid_maximal_length_);
       }
 
       indiv->set_with_stochasticity(with_stochasticity_);
@@ -1544,12 +1544,12 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
             strain_name_,
             prng_,
             true);
-        indiv->get_genetic_unit_nonconst(0).set_min_gu_length(chromosome_minimal_length_);
-        indiv->get_genetic_unit_nonconst(0).set_max_gu_length(chromosome_maximal_length_);
+        indiv->genetic_unit_nonconst(0).set_min_gu_length(chromosome_minimal_length_);
+        indiv->genetic_unit_nonconst(0).set_max_gu_length(chromosome_maximal_length_);
         if (allow_plasmids_)
         {
-          indiv->get_genetic_unit_nonconst(1).set_min_gu_length(plasmid_minimal_length_);
-          indiv->get_genetic_unit_nonconst(1).set_max_gu_length(plasmid_maximal_length_);
+          indiv->genetic_unit_nonconst(1).set_min_gu_length(plasmid_minimal_length_);
+          indiv->genetic_unit_nonconst(1).set_max_gu_length(plasmid_maximal_length_);
         }
 
         // Add it to the list
@@ -1579,12 +1579,12 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
           strain_name_,
           prng_,
           false);
-      indiv->get_genetic_unit_nonconst(0).set_min_gu_length(chromosome_minimal_length_);
-      indiv->get_genetic_unit_nonconst(0).set_max_gu_length(chromosome_maximal_length_);
+      indiv->genetic_unit_nonconst(0).set_min_gu_length(chromosome_minimal_length_);
+      indiv->genetic_unit_nonconst(0).set_max_gu_length(chromosome_maximal_length_);
       if (allow_plasmids_)
       {
-        indiv->get_genetic_unit_nonconst(1).set_min_gu_length(plasmid_minimal_length_);
-        indiv->get_genetic_unit_nonconst(1).set_max_gu_length(plasmid_maximal_length_);
+        indiv->genetic_unit_nonconst(1).set_min_gu_length(plasmid_minimal_length_);
+        indiv->genetic_unit_nonconst(1).set_max_gu_length(plasmid_maximal_length_);
       }
 
       // Add it to the list
@@ -1621,12 +1621,12 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
             strain_name_,
             prng_,
             false);
-        indiv->get_genetic_unit_nonconst(0).set_min_gu_length(chromosome_minimal_length_);
-        indiv->get_genetic_unit_nonconst(0).set_max_gu_length(chromosome_maximal_length_);
+        indiv->genetic_unit_nonconst(0).set_min_gu_length(chromosome_minimal_length_);
+        indiv->genetic_unit_nonconst(0).set_max_gu_length(chromosome_maximal_length_);
         if (allow_plasmids_)
         {
-          indiv->get_genetic_unit_nonconst(1).set_min_gu_length(plasmid_minimal_length_);
-          indiv->get_genetic_unit_nonconst(1).set_max_gu_length(plasmid_maximal_length_);
+          indiv->genetic_unit_nonconst(1).set_min_gu_length(plasmid_minimal_length_);
+          indiv->genetic_unit_nonconst(1).set_max_gu_length(plasmid_maximal_length_);
         }
 
         // Add it to the list
@@ -1658,7 +1658,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
     do {
       x = exp_m->world()->get_prng()->random(x_max);
       y = exp_m->world()->get_prng()->random(y_max);
-    } while (world->get_indiv_at(x, y) != NULL);
+    } while (world->indiv_at(x, y) != NULL);
 
     world->PlaceIndiv(indiv, x, y);
   }

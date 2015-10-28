@@ -65,7 +65,7 @@ void InsertionHT::load(gzFile backup_file) {
   Utils::ExitWithDevMsg("Not implemented yet", __FILE__, __LINE__);
 }
 
-void InsertionHT::get_generic_description_string(char* str) const {
+void InsertionHT::generic_description_string(char* str) const {
   sprintf(str, "%" PRId8 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32
       " %" PRId8 " %" PRId16 " %" PRId16 " %" PRId32 " %" PRId32,
           get_mut_type(),

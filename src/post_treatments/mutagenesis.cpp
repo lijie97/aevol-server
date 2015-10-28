@@ -629,19 +629,19 @@ int main(int argc, char* argv[]) {
   fprintf(output, "irr ");
   fprintf(output, "irr ");
   fprintf(output, "%e ",
-          initial_indiv->get_dist_to_target_by_feature(METABOLISM));
+          initial_indiv->dist_to_target_by_feature(METABOLISM));
   if (exp_manager->with_secretion()) {
     fprintf(output, "%e ",
-            initial_indiv->get_dist_to_target_by_feature(SECRETION));
+            initial_indiv->dist_to_target_by_feature(SECRETION));
   }
   if ((exp_manager->with_plasmids()) &&
       (exp_manager->tune_donor_ability() != 0.0)) {
-    fprintf(output, "%e ", initial_indiv->get_dist_to_target_by_feature(DONOR));
+    fprintf(output, "%e ", initial_indiv->dist_to_target_by_feature(DONOR));
   }
   if ((exp_manager->with_plasmids()) &&
       (exp_manager->tune_recipient_ability() != 0.0)) {
     fprintf(output, "%e ",
-            initial_indiv->get_dist_to_target_by_feature(RECIPIENT));
+            initial_indiv->dist_to_target_by_feature(RECIPIENT));
   }
   fprintf(output, "%" PRId32 " ", initial_indiv->get_total_genome_size());
   fprintf(output, "%" PRId32 " ", initial_indiv->get_nb_coding_RNAs());
@@ -698,7 +698,7 @@ int main(int argc, char* argv[]) {
     metabolic_error_after = -1.0;
     secretion_error_after = -1.0;
 
-    for (const auto& gu: initial_indiv->get_genetic_unit_list()) {
+    for (const auto& gu: initial_indiv->genetic_unit_list()) {
       initial_len = gu.get_dna()->length();
 
       for (pos = 0; pos < initial_len; pos++) {
@@ -708,7 +708,7 @@ int main(int argc, char* argv[]) {
         mut_length = 1;
         pos0 = pos;
 
-        initial_indiv->get_genetic_unit_nonconst(
+        initial_indiv->genetic_unit_nonconst(
             u).compute_nb_of_affected_genes(mut, nb_genes_at_breakpoints,
                                             nb_genes_in_segment,
                                             nb_genes_in_replaced_segment);
@@ -718,10 +718,10 @@ int main(int argc, char* argv[]) {
         mutant->compute_statistical_data();
         mutant->compute_non_coding();
 
-        metabolic_error_after = mutant->get_dist_to_target_by_feature(
+        metabolic_error_after = mutant->dist_to_target_by_feature(
             METABOLISM);
         if (exp_manager->with_secretion()) {
-          secretion_error_after = mutant->get_dist_to_target_by_feature(
+          secretion_error_after = mutant->dist_to_target_by_feature(
               SECRETION);
         }
 
@@ -749,12 +749,12 @@ int main(int argc, char* argv[]) {
         }
         if ((exp_manager->with_plasmids()) &&
             (exp_manager->tune_donor_ability() != 0.0)) {
-          fprintf(output, "%e ", mutant->get_dist_to_target_by_feature(DONOR));
+          fprintf(output, "%e ", mutant->dist_to_target_by_feature(DONOR));
         }
         if ((exp_manager->with_plasmids()) &&
             (exp_manager->tune_recipient_ability() != 0.0)) {
           fprintf(output, "%e ",
-                  mutant->get_dist_to_target_by_feature(RECIPIENT));
+                  mutant->dist_to_target_by_feature(RECIPIENT));
         }
         fprintf(output, "%" PRId32 " ", mutant->get_total_genome_size());
         fprintf(output, "%" PRId32 " ", mutant->get_nb_coding_RNAs());
@@ -787,7 +787,7 @@ int main(int argc, char* argv[]) {
 
     relative_lengths_genetic_units = new double[nb_genetic_units];
 
-    for (const auto& gu: initial_indiv->get_genetic_unit_list())
+    for (const auto& gu: initial_indiv->genetic_unit_list())
       relative_lengths_genetic_units[u++] =
           gu.get_dna()->length() /
           static_cast<double>(initial_indiv->get_total_genome_size());
@@ -1037,7 +1037,7 @@ int main(int argc, char* argv[]) {
 
       // TO DO: improve this method to make it work also with
       // interGU translocations
-      initial_indiv->get_genetic_unit_nonconst(u).compute_nb_of_affected_genes(
+      initial_indiv->genetic_unit_nonconst(u).compute_nb_of_affected_genes(
           mut, nb_genes_at_breakpoints, nb_genes_in_segment,
           nb_genes_in_replaced_segment);
 
@@ -1047,9 +1047,9 @@ int main(int argc, char* argv[]) {
       mutant->compute_statistical_data();
       mutant->compute_non_coding();
 
-      metabolic_error_after = mutant->get_dist_to_target_by_feature(METABOLISM);
+      metabolic_error_after = mutant->dist_to_target_by_feature(METABOLISM);
       if (exp_manager->with_secretion()) {
-        secretion_error_after = mutant->get_dist_to_target_by_feature(
+        secretion_error_after = mutant->dist_to_target_by_feature(
             SECRETION);
       }
 
@@ -1077,12 +1077,12 @@ int main(int argc, char* argv[]) {
       }
       if ((exp_manager->with_plasmids()) &&
           (exp_manager->tune_donor_ability() != 0.0)) {
-        fprintf(output, "%e ", mutant->get_dist_to_target_by_feature(DONOR));
+        fprintf(output, "%e ", mutant->dist_to_target_by_feature(DONOR));
       }
       if ((exp_manager->with_plasmids()) &&
           (exp_manager->tune_recipient_ability() != 0.0)) {
         fprintf(output, "%e ",
-                mutant->get_dist_to_target_by_feature(RECIPIENT));
+                mutant->dist_to_target_by_feature(RECIPIENT));
       }
       fprintf(output, "%" PRId32 " ", mutant->get_total_genome_size());
       fprintf(output, "%" PRId32 " ", mutant->get_nb_coding_RNAs());

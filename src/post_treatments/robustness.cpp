@@ -272,7 +272,7 @@ int main(int argc, char* argv[])
   double th_fv;
   
   // exp_manager->get_exp_s()->get_sel()->compute_prob_reprod();
-  // double* tmp_reprod = exp_manager->get_exp_s()->get_sel()->get_prob_reprod();
+  // double* tmp_reprod = exp_manager->get_exp_s()->get_sel()->prob_reprod();
 
   { // (local scope for `indivs` used as a shorthand)
     list<ae_individual*> indivs = exp_manager->get_indivs();
@@ -302,7 +302,7 @@ int main(int argc, char* argv[])
               current_rank,
               current_index,
               indiv->get_fitness(),
-              indiv->get_dist_to_target_by_feature(METABOLISM),
+              indiv->dist_to_target_by_feature(METABOLISM),
               indiv->get_total_genome_size(),
               indiv->get_nb_functional_genes(),
               reproduction_statistics[0],

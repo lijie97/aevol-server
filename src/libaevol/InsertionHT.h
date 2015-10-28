@@ -73,7 +73,7 @@ class InsertionHT : public HT {
   // ==========================================================================
   virtual void save(gzFile backup_file) const override;
   virtual void load(gzFile backup_file) override;
-  void get_generic_description_string(char* str) const override;
+  void generic_description_string(char* str) const override;
 
   // ==========================================================================
   //                                 Getters

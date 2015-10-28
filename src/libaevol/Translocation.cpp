@@ -77,7 +77,7 @@ void Translocation::load(gzFile backup_file) {
   gzread(backup_file, &align_score_2_, sizeof(align_score_2_));
 }
 
-void Translocation::get_generic_description_string(char* str) const {
+void Translocation::generic_description_string(char* str) const {
   sprintf(str, "%" PRId8 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32
       " %" PRId8 " %" PRId16 " %" PRId16 " %" PRId32 " %" PRId32,
           get_mut_type(), pos1(), pos2(), pos3(), pos4(),

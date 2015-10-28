@@ -371,7 +371,7 @@ Protein::~Protein()
 // =================================================================
 //                            Public Methods
 // =================================================================
-int32_t Protein::get_last_STOP_base_pos() const
+int32_t Protein::last_STOP_base_pos() const
 {
   if ( strand_ == LEADING )
   {
@@ -389,7 +389,7 @@ void Protein::add_RNA( Rna * rna )
   concentration_ += rna->get_basal_level();
 }
 
-char* Protein::get_AA_sequence(char separator /*= ' '*/) const
+char* Protein::AA_sequence(char separator /*= ' '*/) const
 {
   char* seq = new char[3*length_]; // + 1 (for the '\0')  - 1 (length_ - 1 spaces)
 

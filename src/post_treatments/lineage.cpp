@@ -241,7 +241,7 @@ int main(int argc, char** argv)
   {
     // The index was directly provided, get the replication report and update the indices and ranks tables
     reports[t_end - t0 - 1] =
-        new ReplicationReport(*(tree->get_report_by_index(t_end,
+        new ReplicationReport(*(tree->report_by_index(t_end,
                                                           final_indiv_index)));
     final_indiv_rank = reports[t_end - t0 - 1]->rank();
 
@@ -258,7 +258,7 @@ int main(int argc, char** argv)
     }
 
     // Retrieve the replication report of the individual of interest (at t_end_)
-    reports[t_end - t0 - 1] = new ReplicationReport(*(tree->get_report_by_rank(t_end, final_indiv_rank)));
+    reports[t_end - t0 - 1] = new ReplicationReport(*(tree->report_by_rank(t_end, final_indiv_rank)));
     final_indiv_index = reports[t_end - t0 - 1]->id();
 
     indices[t_end - t0]  = final_indiv_index;
@@ -337,7 +337,7 @@ int main(int argc, char** argv)
     }
 
     // Copy the replication report of the ancestor
-    reports[i] = new ReplicationReport(*(tree->get_report_by_index(t, indices[i + 1])));
+    reports[i] = new ReplicationReport(*(tree->report_by_index(t, indices[i + 1])));
 
     // Retreive the index and rank of the next ancestor from the report
     indices[i] = reports[i]->get_parent_id();
@@ -437,7 +437,7 @@ int main(int argc, char** argv)
 
       // Copy the ancestor from the backup
       stored_indiv = exp_manager_backup->indiv_by_id(indices[i + 1]);
-      stored_gen_unit = stored_indiv->get_genetic_unit_list().cbegin();
+      stored_gen_unit = stored_indiv->genetic_unit_list().cbegin();
     }
 
 
@@ -446,7 +446,7 @@ int main(int argc, char** argv)
 
     // Replay the mutations stored in the current replication report on the
     // current genome
-    unit = initial_ancestor->get_genetic_unit_list().cbegin();
+    unit = initial_ancestor->genetic_unit_list().cbegin();
     for (const auto& mut: reports[i]->dna_replic_report().get_HT()) {
       (unit->get_dna())->undergo_this_mutation(*mut);
     }
@@ -464,7 +464,7 @@ int main(int argc, char** argv)
         printf("Checking the sequence of the unit...");
         fflush(stdout);
       }
-      assert(stored_gen_unit != stored_indiv->get_genetic_unit_list().cend());
+      assert(stored_gen_unit != stored_indiv->genetic_unit_list().cend());
 
       char * str1 = new char[unit->get_dna()->length() + 1];
       memcpy(str1, unit->get_dna()->data(),
@@ -506,10 +506,10 @@ int main(int argc, char** argv)
     }
     ++unit;
 
-    assert(unit == initial_ancestor->get_genetic_unit_list().cend());
+    assert(unit == initial_ancestor->genetic_unit_list().cend());
     if (check_genome_now)
     {
-      assert(stored_gen_unit == stored_indiv->get_genetic_unit_list().cend());
+      assert(stored_gen_unit == stored_indiv->genetic_unit_list().cend());
       delete exp_manager_backup;
     }
   }

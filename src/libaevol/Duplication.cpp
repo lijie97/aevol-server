@@ -64,7 +64,7 @@ void Duplication::load(gzFile backup_file) {
   gzread(backup_file, &align_score_, sizeof(align_score_));
 }
 
-void Duplication::get_generic_description_string(char* str) const {
+void Duplication::generic_description_string(char* str) const {
   sprintf(str, "%" PRId8 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32
       " %" PRId8 " %" PRId16 " %" PRId16 " %" PRId32 " %" PRId32,
           get_mut_type(), pos1(), pos2(), pos3(), -1, -1,

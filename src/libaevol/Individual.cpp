@@ -560,12 +560,12 @@ int16_t Individual::get_nb_genetic_units() const {
 
 /// Get the number of plasmids. That is, the number of genetic units
 /// minus one DNA-based genetic unit.
-int32_t Individual::get_nb_plasmids() const {
+int32_t Individual::nb_plasmids() const {
   return genetic_unit_list_.size() - 1;
 }
 
 /// TODO
-int32_t Individual::get_amount_of_dna() const {
+int32_t Individual::amount_of_dna() const {
   int32_t amount = 0;
   for (const auto& gen_unit: genetic_unit_list_)
     amount += gen_unit.get_dna()->length();
@@ -573,11 +573,11 @@ int32_t Individual::get_amount_of_dna() const {
 }
 
 /// Return the list of genetic units.
-const std::list<GeneticUnit>& Individual::get_genetic_unit_list() const {
+const std::list<GeneticUnit>& Individual::genetic_unit_list() const {
   return genetic_unit_list_;
 }
 
-std::list<GeneticUnit>& Individual::get_genetic_unit_list_nonconst() {
+std::list<GeneticUnit>& Individual::genetic_unit_list_nonconst() {
   return genetic_unit_list_;
 }
 
@@ -604,7 +604,7 @@ const GeneticUnit& Individual::get_genetic_unit(int16_t num_unit) const {
 /// Returns genetic unit number `num_unit` (0 for main chromosome) as
 /// a non-constant reference. To be used when the purpose if to alter
 /// the individual.
-GeneticUnit& Individual::get_genetic_unit_nonconst(int16_t num_unit) {
+GeneticUnit& Individual::genetic_unit_nonconst(int16_t num_unit) {
   assert(num_unit < static_cast<int32_t>(genetic_unit_list_.size()));
   auto it = genetic_unit_list_.begin();
   std::advance(it, num_unit);
@@ -612,7 +612,7 @@ GeneticUnit& Individual::get_genetic_unit_nonconst(int16_t num_unit) {
 }
 
 /// TODO
-double Individual::get_dist_to_target_by_feature(
+double Individual::dist_to_target_by_feature(
     PhenotypicFeature feature) const {
   assert(distance_to_target_computed_);
 
@@ -627,7 +627,7 @@ double Individual::get_fitness() const {
 }
 
 /// TODO
-double Individual::get_fitness_by_feature(PhenotypicFeature feature) const {
+double Individual::fitness_by_feature(PhenotypicFeature feature) const {
   assert(fitness_computed_);
 
   return fitness_by_feature_[feature];
@@ -651,24 +651,24 @@ bool Individual::get_placed_in_population() const {
 /*!
   Returns the sequence of genetic unit number <num_unit> (0 for main chromosome)
 */
-const char* Individual::get_genetic_unit_sequence(int16_t num_unit) const {
+const char* Individual::genetic_unit_sequence(int16_t num_unit) const {
   return get_genetic_unit(num_unit).get_sequence();
 }
 
 /*!
   Returns the sequence length of genetic unit number <num_unit> (0 for main chromosome)
 */
-int32_t Individual::get_genetic_unit_seq_length(int16_t num_unit) const {
+int32_t Individual::genetic_unit_seq_length(int16_t num_unit) const {
   return get_genetic_unit(num_unit).get_seq_length();
 }
 
 /// TODO
-Fuzzy* Individual::get_phenotype_activ() const {
+Fuzzy* Individual::phenotype_activ() const {
   return phenotype_activ_;
 }
 
 /// TODO
-Fuzzy* Individual::get_phenotype_inhib() const {
+Fuzzy* Individual::phenotype_inhib() const {
   return phenotype_inhib_;
 }
 
@@ -716,7 +716,7 @@ int32_t Individual::get_overall_size_coding_RNAs() const {
 }
 
 /// TODO
-double Individual::get_av_size_coding_RNAs() const {
+double Individual::av_size_coding_RNAs() const {
   assert(metrics_ != nullptr);
   return metrics_->nb_coding_RNAs() == 0 ?
          0.0 :
@@ -731,7 +731,7 @@ int32_t Individual::get_overall_size_non_coding_RNAs() const {
 }
 
 /// TODO
-double Individual::get_av_size_non_coding_RNAs() const {
+double Individual::av_size_non_coding_RNAs() const {
   assert(metrics_ != nullptr);
   return metrics_->nb_non_coding_RNAs() == 0 ?
          0.0 :
@@ -770,7 +770,7 @@ int32_t Individual::get_overall_size_functional_genes() const {
 }
 
 /// TODO
-double Individual::get_av_size_functional_genes() const {
+double Individual::av_size_functional_genes() const {
   assert(metrics_ != nullptr);
   return metrics_->nb_functional_genes() == 0 ?
          0.0 :
@@ -785,7 +785,7 @@ int32_t Individual::get_overall_size_non_functional_genes() const {
 }
 
 /// TODO
-double Individual::get_av_size_non_functional_genes() const {
+double Individual::av_size_non_functional_genes() const {
   assert(metrics_ != nullptr);
   return metrics_->nb_non_functional_genes() == 0 ?
          0.0 :
@@ -990,7 +990,7 @@ int16_t Individual::get_align_mismatch_cost() const {
 }
 
 /// TODO
-bool Individual::get_with_stochasticity() const {
+bool Individual::with_stochasticity() const {
   return with_stochasticity_;
 }
 
@@ -1255,8 +1255,8 @@ void Individual::compute_phenotype() {
   phenotype_inhib_ = new Fuzzy();
 
   for (const auto& gen_unit: genetic_unit_list_) {
-    phenotype_activ_->add(*gen_unit.get_activ_contribution());
-    phenotype_inhib_->add(*gen_unit.get_inhib_contribution());
+    phenotype_activ_->add(*gen_unit.activ_contribution());
+    phenotype_inhib_->add(*gen_unit.inhib_contribution());
   }
 
   phenotype_activ_->clip(Fuzzy::max, Y_MAX);
@@ -1646,10 +1646,10 @@ void Individual::save(gzFile backup_file) const {
     gen_unit.save(backup_file);
 }
 
-int32_t Individual::get_nb_terminators() {
+int32_t Individual::nb_terminators() {
   int32_t nb_term = 0;
   for (auto& gen_unit: genetic_unit_list_)
-    nb_term += gen_unit.get_nb_terminators();
+    nb_term += gen_unit.nb_terminators();
   return nb_term;
 }
 
@@ -1712,7 +1712,7 @@ void Individual::compute_experimental_f_nu(int32_t nb_children,
   for (int i = 0; i < nb_children; i++) {
     child = exp_m_->exp_s()->get_sel()->do_replication(this, id_);
     fitness_child = child->get_fitness();
-    metabolic_error_child = child->get_dist_to_target_by_feature(METABOLISM);
+    metabolic_error_child = child->dist_to_target_by_feature(METABOLISM);
 
     if (fabs(initial_fitness - fitness_child) <
         1e-10 * std::max(initial_fitness, fitness_child)) {
@@ -1786,8 +1786,8 @@ double Individual::compute_theoritical_f_nu() {
   GeneticUnit& chromosome = genetic_unit_list_.front();
   int32_t L = chromosome.get_dna()->length();
   int32_t N_G = chromosome.get_nb_neutral_regions(); // which is not exactly Carole's original definition
-  int32_t* b_i = chromosome.get_beginning_neutral_regions();
-  int32_t* e_i = chromosome.get_end_neutral_regions();
+  int32_t* b_i = chromosome.beginning_neutral_regions();
+  int32_t* e_i = chromosome.end_neutral_regions();
   int32_t lambda = chromosome.get_nb_bases_in_neutral_regions();
   int32_t l = L - lambda; // nb bases in 'functional regions'
 

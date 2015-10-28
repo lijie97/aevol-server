@@ -243,7 +243,7 @@ int main(int argc, char* argv[])
   //                  Write the data in the EPS files
   // =================================================================
 
-  GeneticUnit*  indiv_main_genome = &indiv->get_genetic_unit_nonconst(0);
+  GeneticUnit*  indiv_main_genome = &indiv->genetic_unit_nonconst(0);
 
   printf("Creating the EPS file with the triangles of the chosen individual... ");
   fflush(stdout);
@@ -430,7 +430,7 @@ void draw_triangles(Individual* indiv, const PhenotypicTarget& target, char * di
 
   double h;
 
-  for (auto& gu: indiv->get_genetic_unit_list_nonconst()) { // should use const version
+  for (auto& gu: indiv->genetic_unit_list_nonconst()) { // should use const version
     for (const auto& prot: gu.get_protein_list(LEADING)) {
       h = prot.get_height() * prot.get_concentration();
       fprintf(drawingfile, "%lf %lf moveto\n", margin, 0.5);
@@ -544,7 +544,7 @@ void draw_pos_neg_profiles(Individual * indiv, const PhenotypicTarget& target, c
   fprintf(drawingfile, "0.002 setlinewidth\n");
   fprintf(drawingfile, "%lf %lf moveto\n", margin, 0.5);
 
-  for (const auto& p: indiv->get_phenotype_activ()->points())
+  for (const auto& p: indiv->phenotype_activ()->points())
     fprintf(drawingfile, "%lf %lf lineto\n", margin + scale * p.x, 0.5 + scale * p.y);
   fprintf(drawingfile, "stroke\n");
 
@@ -557,7 +557,7 @@ void draw_pos_neg_profiles(Individual * indiv, const PhenotypicTarget& target, c
   fprintf(drawingfile, "0.002 setlinewidth\n");
   fprintf(drawingfile, "%lf %lf moveto\n", margin, 0.5);
 
-  for (const auto& p: indiv->get_phenotype_inhib()->points())
+  for (const auto& p: indiv->phenotype_inhib()->points())
     fprintf(drawingfile, "%lf %lf lineto\n", margin + scale * p.x, 0.5 + scale * p.y);
   fprintf(drawingfile, "stroke\n");
 
@@ -767,8 +767,8 @@ void draw_genetic_unit_with_CDS(GeneticUnit* gen_unit, char * directoryName)
 
   // printf("LEADING\n");
   for (const auto& prot: gen_unit->get_protein_list(LEADING)) {
-    first = prot.get_first_translated_pos();
-    last = prot.get_last_translated_pos();
+    first = prot.first_translated_pos();
+    last = prot.last_translated_pos();
     // h = prot.height() * prot.get_concentration();
 
     alpha_first   = (int16_t) round( (double)(360 * first) / (double)gen_length);  //  == sect1 == alphaB
@@ -863,8 +863,8 @@ void draw_genetic_unit_with_CDS(GeneticUnit* gen_unit, char * directoryName)
 
   // printf("LAGGING\n");
   for (const auto& prot: gen_unit->get_protein_list(LAGGING)) {
-    first = prot.get_first_translated_pos();
-    last = prot.get_last_translated_pos();
+    first = prot.first_translated_pos();
+    last = prot.last_translated_pos();
     // h = prot.height() * prot.get_concentration();
 
     alpha_first   = (int16_t) round( (double)(360 * first) / (double)gen_length);
@@ -1049,8 +1049,8 @@ void draw_genetic_unit_with_mRNAs(GeneticUnit* gen_unit, char * directoryName)
 
 
   for (const auto& rna: gen_unit->get_rna_list()[LEADING]) {
-    first = rna.get_first_transcribed_pos();
-    last = rna.get_last_transcribed_pos();
+    first = rna.first_transcribed_pos();
+    last = rna.last_transcribed_pos();
 
 
     alpha_first   = (int16_t) round( (double)(360 * first) / (double)gen_length);  //  == sect1 == alphaB
@@ -1145,8 +1145,8 @@ void draw_genetic_unit_with_mRNAs(GeneticUnit* gen_unit, char * directoryName)
 
 
   for (const auto& rna: gen_unit->get_rna_list()[LAGGING]) {
-    first = rna.get_first_transcribed_pos();
-    last = rna.get_last_transcribed_pos();
+    first = rna.first_transcribed_pos();
+    last = rna.last_transcribed_pos();
 
 
     alpha_first   = (int16_t) round( (double)(360 * first) / (double)gen_length);

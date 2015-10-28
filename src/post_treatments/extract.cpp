@@ -206,7 +206,7 @@ inline void analyse_indiv(Individual* indiv, FILE* triangles_file,
   if (gu == -1) // We want to treat all genetic units
   {
     int32_t gen_unit_number = 0;
-    for (auto& gen_unit: indiv->get_genetic_unit_list_nonconst()) {
+    for (auto& gen_unit: indiv->genetic_unit_list_nonconst()) {
       if (triangles_file != NULL)
       {
         analyse_gu(&gen_unit, gen_unit_number, triangles_file, phenotypicTarget); // We call the triangle parser for each GU successively
@@ -223,7 +223,7 @@ inline void analyse_indiv(Individual* indiv, FILE* triangles_file,
   }
   else // User specified a genetic unit
   {
-    GeneticUnit* gen_unit = &indiv->get_genetic_unit_nonconst(gu);
+    GeneticUnit* gen_unit = &indiv->genetic_unit_nonconst(gu);
     if (triangles_file != NULL)
     {
       analyse_gu(gen_unit, gu, triangles_file, phenotypicTarget); // We call the triangle parser
@@ -281,16 +281,16 @@ inline void analyse_gu(GeneticUnit* gen_unit, int32_t gen_unit_number,
               "CHROM  ",
               protein->get_strand() == LEADING ? "LEADING" :
               "LAGGING",
-              protein->get_first_translated_pos(),
+              protein->first_translated_pos(),
               protein->get_length(),
-              protein->get_last_translated_pos(),
-              dummy = protein->get_AA_sequence('_'),
+              protein->last_translated_pos(),
+              dummy = protein->AA_sequence('_'),
               mean,
               protein->get_width(),
               protein->get_height(),
               protein->get_concentration(),
               nfeat,
-              rna.get_promoter_pos(),
+              rna.promoter_pos(),
               rna.get_transcript_length(),
               rna.get_basal_level());
       delete dummy;

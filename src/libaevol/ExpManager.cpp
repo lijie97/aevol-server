@@ -305,7 +305,7 @@ void ExpManager::load(gzFile& exp_s_file,
     sel()->addObserver(tree(), NEW_INDIV);
     for (auto indiv : world_->get_indivs())
       indiv->addObserver(
-        tree()->get_report_by_index(AeTime::get_time(), indiv->get_id()),
+        tree()->report_by_index(AeTime::get_time(), indiv->get_id()),
           END_REPLICATION);
     sel()->addObserver(tree(), END_GENERATION);
   }
@@ -423,7 +423,7 @@ void ExpManager::run_evolution()
     printf("============================== %" PRId64 " ==============================\n",
            AeTime::get_time());
     printf("  Best individual's distance to target (metabolic) : %f\n",
-           best_indiv()->get_dist_to_target_by_feature(METABOLISM));
+           best_indiv()->dist_to_target_by_feature(METABOLISM));
 
     if (AeTime::get_time() >= t_end_ or quit_signal_received())
       break;
@@ -441,7 +441,7 @@ void ExpManager::run_evolution()
   printf("  The run is finished. \n");
   printf("  Printing the final best individual into " BEST_LAST_ORG_FNAME "\n");
   FILE* org_file = fopen(BEST_LAST_ORG_FNAME, "w");
-  fputs(best_indiv()->get_genetic_unit_sequence(0), org_file);
+  fputs(best_indiv()->genetic_unit_sequence(0), org_file);
   fclose(org_file);
 }
 

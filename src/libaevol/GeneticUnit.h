@@ -94,11 +94,11 @@ class GeneticUnit {
 
   Dna* get_dna() const;
 
-  Fuzzy* get_activ_contribution() const;
+  Fuzzy* activ_contribution() const;
 
-  Fuzzy* get_inhib_contribution() const;
+  Fuzzy* inhib_contribution() const;
 
-  Fuzzy* get_phenotypic_contribution() const;
+  Fuzzy* phenotypic_contribution() const;
 
   const Promoters2Strands& get_rna_list() const;
 
@@ -121,11 +121,11 @@ class GeneticUnit {
 
   double get_overall_size_coding_RNAs() const;
 
-  double get_av_size_coding_RNAs() const;
+  double av_size_coding_RNAs() const;
 
   double get_overall_size_non_coding_RNAs() const;
 
-  double get_av_size_non_coding_RNAs() const;
+  double av_size_non_coding_RNAs() const;
 
   int32_t get_nb_genes_activ() const;
 
@@ -137,11 +137,11 @@ class GeneticUnit {
 
   double get_overall_size_functional_genes() const;
 
-  double get_av_size_functional_genes() const;
+  double av_size_functional_genes() const;
 
   double get_overall_size_non_functional_genes() const;
 
-  double get_av_size_non_functional_genes() const;
+  double av_size_non_functional_genes() const;
 
   int32_t get_nb_bases_in_0_CDS() const;
 
@@ -155,25 +155,25 @@ class GeneticUnit {
 
   int32_t get_nb_bases_in_0_non_coding_RNA() const;
 
-  int32_t get_nb_bases_non_essential() const;
+  int32_t nb_bases_non_essential() const;
 
-  int32_t get_nb_bases_non_essential_including_nf_genes() const;
+  int32_t nb_bases_non_essential_including_nf_genes() const;
 
   int32_t get_nb_bases_in_neutral_regions() const;
 
   int32_t get_nb_neutral_regions() const;
 
-  int32_t* get_beginning_neutral_regions() const;
+  int32_t* beginning_neutral_regions() const;
 
-  int32_t* get_end_neutral_regions() const;
+  int32_t* end_neutral_regions() const;
 
   double get_modularity() const;
 
-  double get_dist_to_target_by_feature(PhenotypicFeature feature) const;
+  double dist_to_target_by_feature(PhenotypicFeature feature) const;
 
   double get_fitness() const;
 
-  double get_fitness_by_feature(PhenotypicFeature feature) const;
+  double fitness_by_feature(PhenotypicFeature feature) const;
 
   int32_t get_min_gu_length() const;
 
@@ -238,7 +238,7 @@ class GeneticUnit {
                                        int32_t pos_2,
                                        Promoters2Strands& duplicated_promoters);
 
-  void get_promoters_included_in(int32_t pos_1,
+  void promoters_included_in(int32_t pos_1,
                                  int32_t pos_2,
                                  Promoters2Strands& promoters);
 
@@ -314,7 +314,7 @@ class GeneticUnit {
 
   void save(gzFile backup_file) const;
 
-  int32_t get_nb_terminators();
+  int32_t nb_terminators();
 
   //~ // set the genetic unit of all promoters to the appropriate
   //~ void reasign_promoter_genetic_unit ();

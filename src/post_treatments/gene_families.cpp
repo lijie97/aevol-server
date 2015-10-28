@@ -259,7 +259,7 @@ int main(int argc, char** argv)
 
   std::list<ae_gene_tree> gene_trees;
 
-  for (const auto& unit: indiv->get_genetic_unit_list())
+  for (const auto& unit: indiv->genetic_unit_list())
   {
     for (const auto& prot: unit.get_protein_list(LEADING))
       gene_trees.emplace_back(t0, prot);
@@ -341,7 +341,7 @@ int main(int argc, char** argv)
     // during the evolution, or if some translocations occurred between different genetic units
 
     genetic_unit_number = 0;
-    auto unit = indiv->get_genetic_unit_list_nonconst().begin();
+    auto unit = indiv->genetic_unit_list_nonconst().begin();
 
 
     if ( check_now )
@@ -350,12 +350,12 @@ int main(int argc, char** argv)
       exp_manager_backup->load(get_time(), true, false);
       // TODO: disabled tmp
       // stored_indiv = new ae_individual( * (ae_individual *)exp_manager_backup->get_indiv_by_id( index ), false );
-      stored_unit = stored_indiv->get_genetic_unit_list().begin();
+      stored_unit = stored_indiv->genetic_unit_list().begin();
     }
 
 
     for (const auto& dnarep: rep->get_dna_replic_reports()) {
-      assert(unit != indiv->get_genetic_unit_list().cend());
+      assert(unit != indiv->genetic_unit_list().cend());
       unit->get_dna()->set_replic_report( dnarep );
       update_pointers_in_trees(gene_trees, &*unit); // because of the reevaluate at each new generation (envir. variation possible)
 
@@ -368,9 +368,9 @@ int main(int argc, char** argv)
       mnode = dnarep->get_HT()->get_first();
       while ( mnode != NULL )
       {
-        mut = (ae_mutation *) mnode->get_obj();
+        mut = (ae_mutation *) mnode->obj();
 
-        metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
+        metabolic_error_before = indiv->dist_to_target_by_feature( METABOLISM );
         unitlen_before = unit.get_dna()->get_length();
         unit.compute_nb_of_affected_genes(mut, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
 
@@ -379,11 +379,11 @@ int main(int argc, char** argv)
         indiv->reevaluate(env);
 
 
-        metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
+        metabolic_error_after = indiv->dist_to_target_by_feature( METABOLISM );
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
 
-        mut->get_generic_description_string( mut_descr_string );
+        mut->generic_description_string( mut_descr_string );
         fprintf( output, "%"PRId64 " %"PRId32 " %s %"PRId32 " %.15f  %"PRId32 " %"PRId32 " %"PRId32 " \n",\
                  get_time(), genetic_unit_number, \
                  mut_descr_string, unitlen_before, \
@@ -400,14 +400,14 @@ int main(int argc, char** argv)
       // ***************************************
 
       for (const auto& mut: dnarep->get_rearrangements()) {
-        metabolic_error_before = indiv->get_dist_to_target_by_feature( METABOLISM );
+        metabolic_error_before = indiv->dist_to_target_by_feature( METABOLISM );
         unitlen_before = unit->get_dna()->get_length();
         anticipate_mutation_effect_on_genes_in_trees(gene_trees, &mut, unitlen_before);
 
         unit->get_dna()->undergo_this_mutation(&mut);
 
         indiv->reevaluate(env);
-        metabolic_error_after = indiv->get_dist_to_target_by_feature( METABOLISM );
+        metabolic_error_after = indiv->dist_to_target_by_feature( METABOLISM );
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
         register_actual_mutation_effect_on_genes_in_trees(gene_trees, &mut, &*unit, get_time(), impact_on_metabolic_error);
@@ -433,13 +433,13 @@ int main(int argc, char** argv)
       // ***************************************
 
       for (const auto& mut: dnarep->get_mutations()) {
-        metabolic_error_before = indiv->get_dist_to_target_by_feature(METABOLISM);
+        metabolic_error_before = indiv->dist_to_target_by_feature(METABOLISM);
         unitlen_before = unit->get_dna()->get_length();
         anticipate_mutation_effect_on_genes_in_trees(gene_trees, &mut, unitlen_before);
         unit->get_dna()->undergo_this_mutation(&mut);
 
         indiv->reevaluate(env);
-        metabolic_error_after = indiv->get_dist_to_target_by_feature(METABOLISM);
+        metabolic_error_after = indiv->dist_to_target_by_feature(METABOLISM);
         impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
         register_actual_mutation_effect_on_genes_in_trees(gene_trees, &mut, &*unit, get_time(), impact_on_metabolic_error);
@@ -465,7 +465,7 @@ int main(int argc, char** argv)
           fflush(NULL);
         }
 
-        assert(stored_unit != stored_indiv->get_genetic_unit_list().end());
+        assert(stored_unit != stored_indiv->genetic_unit_list().end());
 
         char * str1 = new char[unit->get_dna()->get_length() + 1];
         memcpy(str1, unit->get_dna()->get_data(), \
@@ -506,7 +506,7 @@ int main(int argc, char** argv)
       genetic_unit_number ++;
     }
 
-    assert(unit ==  indiv->get_genetic_unit_list().cend());
+    assert(unit ==  indiv->genetic_unit_list().cend());
 
 
     if ( verbose ) printf(" OK\n");
@@ -515,7 +515,7 @@ int main(int argc, char** argv)
 
     if ( check_now && ae_utils::mod(get_time(), backup_step) == 0 )
     {
-      assert(stored_unit == stored_indiv->get_genetic_unit_list().end());
+      assert(stored_unit == stored_indiv->genetic_unit_list().end());
       delete stored_indiv;
       delete exp_manager_backup;
     }
@@ -653,11 +653,11 @@ void write_gene_trees_to_files(std::list<ae_gene_tree>& gene_trees, int32_t end_
 
   for (auto& n: gene_trees) {
       fprintf(tree_statistics_file, "%" PRId32 " ", tree_number);
-      if (n.get_creation_type() == INITIALIZATION)  fprintf(tree_statistics_file, "INITIALIZATION ");
-      else if (n.get_creation_type() == LOCAL_MUTATION)  fprintf(tree_statistics_file, "LOCAL_MUTATION ");
-      else if (n.get_creation_type() == REARRANGEMENT)  fprintf(tree_statistics_file, "REARRANGEMENT ");
+      if (n.creation_type() == INITIALIZATION)  fprintf(tree_statistics_file, "INITIALIZATION ");
+      else if (n.creation_type() == LOCAL_MUTATION)  fprintf(tree_statistics_file, "LOCAL_MUTATION ");
+      else if (n.creation_type() == REARRANGEMENT)  fprintf(tree_statistics_file, "REARRANGEMENT ");
       else fprintf(tree_statistics_file, "TRANSFER ");
-      fprintf(tree_statistics_file, "%" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n", n.get_begin_gener(), n.get_end_gener(), n.get_total_nb_nodes(), n.get_nb_internal_nodes(), n.get_nb_leaves(), n.get_nb_active_leaves());
+      fprintf(tree_statistics_file, "%" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n", n.get_begin_gener(), n.get_end_gener(), n.total_nb_nodes(), n.nb_internal_nodes(), n.nb_leaves(), n.nb_active_leaves());
       sprintf(topol_file_name, "gene_trees/genetree%06" PRId32 "-topology.tre", tree_number);
       sprintf(node_attr_file_name, "gene_trees/genetree%06" PRId32 "-nodeattr.txt", tree_number);
       n.write_to_files(topol_file_name, node_attr_file_name, end_gener);

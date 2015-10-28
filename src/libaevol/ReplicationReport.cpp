@@ -78,8 +78,8 @@ ReplicationReport::ReplicationReport(Individual* indiv,
   nb_coding_RNAs_     = 0;
   nb_non_coding_RNAs_ = 0;
   
-  parent_metabolic_error_ = parent->get_dist_to_target_by_feature(METABOLISM);
-  parent_secretion_error_ = parent->get_dist_to_target_by_feature(SECRETION);
+  parent_metabolic_error_ = parent->dist_to_target_by_feature(METABOLISM);
+  parent_secretion_error_ = parent->dist_to_target_by_feature(SECRETION);
   parent_genome_size_     = parent->get_total_genome_size();
   mean_align_score_       = 0.0;
   
@@ -93,8 +93,8 @@ ReplicationReport::ReplicationReport(Individual* indiv,
   else
   {
     donor_id_              = donor->get_id();
-    donor_metabolic_error_ = donor->get_dist_to_target_by_feature(METABOLISM);
-    donor_secretion_error_ = donor->get_dist_to_target_by_feature(SECRETION);
+    donor_metabolic_error_ = donor->dist_to_target_by_feature(METABOLISM);
+    donor_secretion_error_ = donor->dist_to_target_by_feature(SECRETION);
     donor_genome_size_     = donor->get_total_genome_size();
   }
 }
@@ -187,8 +187,8 @@ void ReplicationReport::init(Individual* offspring, Individual* parent)
   nb_coding_RNAs_     = 0;
   nb_non_coding_RNAs_ = 0;
 
-  parent_metabolic_error_ = parent->get_dist_to_target_by_feature(METABOLISM);
-  parent_secretion_error_ = parent->get_dist_to_target_by_feature(SECRETION);
+  parent_metabolic_error_ = parent->dist_to_target_by_feature(METABOLISM);
+  parent_secretion_error_ = parent->dist_to_target_by_feature(SECRETION);
   parent_genome_size_     = parent->get_total_genome_size();
   mean_align_score_       = 0.0;
 
@@ -207,7 +207,7 @@ void ReplicationReport::signal_end_of_replication(Individual* indiv) {
 
   // Retrieve data from the individual
   genome_size_        = indiv_->get_total_genome_size();
-  metabolic_error_    = indiv_->get_dist_to_target_by_feature(METABOLISM);
+  metabolic_error_    = indiv_->dist_to_target_by_feature(METABOLISM);
   nb_genes_activ_     = indiv_->get_nb_genes_activ();
   nb_genes_inhib_     = indiv_->get_nb_genes_inhib();
   nb_non_fun_genes_   = indiv_->get_nb_functional_genes();

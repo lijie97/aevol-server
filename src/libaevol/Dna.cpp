@@ -466,7 +466,7 @@ void Dna::do_rearrangements_with_align() {
                                              length_);
         int32_t gu_size_before  = length_;
         int32_t gu_size_after   = gu_size_before + segment_length;
-        int32_t genome_size_before = indiv_->get_amount_of_dna();
+        int32_t genome_size_before = indiv_->amount_of_dna();
         int32_t genome_size_after = genome_size_before + segment_length;
 
         if ((genome_size_after > indiv_->get_max_genome_length()) ||
@@ -511,7 +511,7 @@ void Dna::do_rearrangements_with_align() {
                                              length_) + 1;
         int32_t gu_size_before  = length_;
         int32_t gu_size_after   = gu_size_before - segment_length;
-        int32_t genome_size_before = indiv_->get_amount_of_dna();
+        int32_t genome_size_before = indiv_->amount_of_dna();
         int32_t genome_size_after = genome_size_before - length_;
 
         if ((genome_size_after < indiv_->get_min_genome_length()) ||
@@ -779,7 +779,7 @@ SmallInsertion* Dna::do_small_insertion() {
   }
 
   // Check that the insertion won't throw the genome size over the limit
-  if ((indiv_->get_amount_of_dna() + nb_insert >
+  if ((indiv_->amount_of_dna() + nb_insert >
        indiv_->get_max_genome_length()) ||
       (length_ + nb_insert > gen_unit_->get_max_gu_length())) {
     if (exp_m_->output_m()->is_logged(LOG_BARRIER)) {
@@ -788,7 +788,7 @@ SmallInsertion* Dna::do_small_insertion() {
               "%" PRId64 " %" PRId32 " S_INS %" PRId32 " %" PRId32 " %" PRId32
                   " %" PRId32 "\n",
               AeTime::get_time(), indiv_->get_id(), nb_insert, 0, length_,
-              indiv_->get_amount_of_dna());
+              indiv_->amount_of_dna());
     }
 
     return NULL;
@@ -831,7 +831,7 @@ SmallDeletion* Dna::do_small_deletion() {
 
   // Check that the insertion will shrink neither the genome nor the GU size
   // under their respective limit
-  if ((indiv_->get_amount_of_dna() - nb_del <
+  if ((indiv_->amount_of_dna() - nb_del <
        indiv_->get_min_genome_length()) ||
       (length_ - nb_del < gen_unit_->get_min_gu_length())) {
     if (exp_m_->output_m()->is_logged(LOG_BARRIER)) {
@@ -840,7 +840,7 @@ SmallDeletion* Dna::do_small_deletion() {
               "%" PRId64 " %" PRId32 " S_DEL %" PRId32 " %" PRId32
                   " %" PRId32 " %" PRId32 "\n",
               AeTime::get_time(), indiv_->get_id(), nb_del, 0, length_,
-              indiv_->get_amount_of_dna());
+              indiv_->amount_of_dna());
     }
 
     return nullptr;
@@ -871,7 +871,7 @@ bool Dna::do_switch(int32_t pos) {
 bool Dna::do_small_insertion(int32_t pos, int16_t nb_insert, char * seq) {
   // Check genome size limit
   assert(length_ + nb_insert <= gen_unit_->get_max_gu_length());
-  assert(indiv_->get_amount_of_dna() + nb_insert <=
+  assert(indiv_->amount_of_dna() + nb_insert <=
              indiv_->get_max_genome_length());
 
   // Remove the promoters that will be broken
@@ -903,7 +903,7 @@ bool Dna::do_small_insertion(int32_t pos, int16_t nb_insert, char * seq) {
 bool Dna::do_small_deletion(int32_t pos, int16_t nb_del) {
   // Check genome size limit
   assert(length_ - nb_del >= gen_unit_->get_min_gu_length());
-  assert(indiv_->get_amount_of_dna() - nb_del >=
+  assert(indiv_->amount_of_dna() - nb_del >=
              indiv_->get_min_genome_length());
 
   // Remove promoters containing at least one nucleotide from the sequence to
@@ -952,7 +952,7 @@ Duplication* Dna::do_duplication() {
   int32_t segment_length      = Utils::mod(pos_2 - pos_1 - 1, length_) + 1;
   int32_t gu_size_before  = length_;
   int32_t gu_size_after   = gu_size_before + segment_length;
-  int32_t genome_size_before = indiv_->get_amount_of_dna();
+  int32_t genome_size_before = indiv_->amount_of_dna();
   int32_t genome_size_after = genome_size_before + segment_length;
   if ((gu_size_after > gen_unit_->get_max_gu_length()) ||
       (genome_size_after > indiv_->get_max_genome_length())) {
@@ -996,7 +996,7 @@ Deletion* Dna::do_deletion() {
   int32_t segment_length  = Utils::mod(pos_2 - pos_1 - 1, length_) + 1;
   int32_t gu_size_before  = length_;
   int32_t gu_size_after   = gu_size_before - segment_length;
-  int32_t genome_size_before = indiv_->get_amount_of_dna();
+  int32_t genome_size_before = indiv_->amount_of_dna();
   int32_t genome_size_after = genome_size_before - segment_length;
 
 
@@ -1044,11 +1044,11 @@ Translocation* Dna::do_translocation() {
     int32_t pos_1_rel, pos_2_rel, pos_3_rel, pos_4_rel;
 
     Individual * indiv = indiv_;
-    const GeneticUnit* chromosome = &indiv->get_genetic_unit_list().front();
+    const GeneticUnit* chromosome = &indiv->genetic_unit_list().front();
     const GeneticUnit* plasmid =
-        &*std::next(indiv->get_genetic_unit_list().begin());
+        &*std::next(indiv->genetic_unit_list().begin());
     int32_t chrom_length        = chromosome->get_dna()->length();
-    int32_t total_amount_of_dna = indiv->get_amount_of_dna();
+    int32_t total_amount_of_dna = indiv->amount_of_dna();
 
     // 1) What sequence are we translocating?
     pos_1_rel = indiv_->mut_prng_->random(length_);
@@ -1544,7 +1544,7 @@ bool Dna::do_inter_GU_translocation(int32_t pos_1_rel, int32_t pos_2_rel,
               "%" PRId64 " %" PRId32 " TRANS %" PRId32 " %" PRId32 " %" PRId32
                   " %" PRId32 "\n",
               AeTime::get_time(), indiv_->get_id(), segment_length, 0, length_,
-              indiv_->get_amount_of_dna());
+              indiv_->amount_of_dna());
     }
     return false;
   }
@@ -1569,7 +1569,7 @@ bool Dna::do_inter_GU_translocation(int32_t pos_1_rel, int32_t pos_2_rel,
               "%" PRId64 " %" PRId32 " TRANS %" PRId32 " %" PRId32 " %" PRId32
                   " %" PRId32 "\n",
               AeTime::get_time(), indiv_->get_id(), segment_length, 0,
-              dest_gu_size_before, indiv_->get_amount_of_dna());
+              dest_gu_size_before, indiv_->amount_of_dna());
     }
     return false;
   }
@@ -1751,7 +1751,7 @@ Mutation* Dna::do_ins_HT(int32_t parent_id) {
 //        int32_t gu_length_before = length_;
 //        int32_t gu_length_after =
 //            gu_length_before + exogenote->get_dna()->length();
-//        int32_t genome_length_before = indiv_->get_amount_of_dna();
+//        int32_t genome_length_before = indiv_->amount_of_dna();
 //        int32_t genome_length_after =
 //            genome_length_before + exogenote->get_dna()->length();
 //
@@ -1928,7 +1928,7 @@ Mutation* Dna::do_repl_HT(int32_t parent_id) {
 //      int32_t gu_length_after =
 //          gu_length_before - replaced_seq_length + exogenote_length;
 //
-//      int32_t genome_length_before = indiv_->get_amount_of_dna();
+//      int32_t genome_length_before = indiv_->amount_of_dna();
 //      int32_t genome_length_after =
 //          genome_length_before - replaced_seq_length + exogenote_length;
 //
@@ -3118,8 +3118,8 @@ void Dna::inter_GU_ABCDE_to_ACDBE(int32_t pos_B, int32_t pos_C, int32_t pos_E) {
   if (pos_B != pos_C) {
     // Useful values
     Individual * indiv            = indiv_;
-    GeneticUnit& chromosome     = indiv->get_genetic_unit_nonconst(0);
-    GeneticUnit& plasmid        = indiv->get_genetic_unit_nonconst(1);
+    GeneticUnit& chromosome     = indiv->genetic_unit_nonconst(0);
+    GeneticUnit& plasmid        = indiv->genetic_unit_nonconst(1);
     GeneticUnit& destination_GU = (gen_unit_ == &chromosome) ?
                                   plasmid : chromosome;
 

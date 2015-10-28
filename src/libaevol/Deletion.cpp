@@ -67,7 +67,7 @@ void Deletion::load(gzFile backup_file) {
   gzread(backup_file, &align_score_, sizeof(align_score_));
 }
 
-void Deletion::get_generic_description_string(char* str) const {
+void Deletion::generic_description_string(char* str) const {
   // TODO <david.parsons@inria.fr> Use snprintf to avoid buffer overflow
   sprintf(str, "%" PRId8 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32
       " %" PRId8 " %" PRId16 " %" PRId16 " %" PRId32 " %" PRId32,
