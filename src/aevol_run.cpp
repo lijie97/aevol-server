@@ -201,17 +201,17 @@ int main(int argc, char* argv[])
   }
 
   // If t0 wasn't provided, use default
-  if (t0 < 0) {
+  if (t0 < 0)
     t0 = OutputManager::get_last_gener();
-  }
 
   // If t_end_ wasn't provided, set it according to nb_steps or use default (run
   // for 1000 timesteps)
-  if (t_end < 0)
+  if (t_end < 0) {
     if (nb_steps >= 0)
       t_end = t0 + nb_steps;
     else
       t_end = t0 + 1000;
+  }
 
   // It the user didn't ask for a parallel run, set number of threads to 1
   #ifdef _OPENMP
