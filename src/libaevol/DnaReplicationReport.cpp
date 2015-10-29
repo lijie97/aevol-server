@@ -181,7 +181,7 @@ void DnaReplicationReport::add_rear(Mutation* mut) {
 void DnaReplicationReport::add_HT(Mutation* mut) {
   assert(mut->is_ht());
 
-  std::unique_ptr<const HT> cmut = nullptr;
+  std::unique_ptr<const HorizontalTransfer> cmut = nullptr;
   switch(mut->get_mut_type()) {
     case INS_HT:
 #if __cplusplus == 201103L

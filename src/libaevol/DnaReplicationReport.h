@@ -32,7 +32,7 @@
 
 #include "Mutation.h"
 #include "LocalMutation.h"
-#include "HT.h"
+#include "HorizontalTransfer.h"
 #include "Rearrangement.h"
 
 namespace aevol {
@@ -71,7 +71,7 @@ class DnaReplicationReport {
   const std::list<std::unique_ptr<const Rearrangement>>& get_rearrangements() const {
     return rearrangements_;
   };
-  const std::list<std::unique_ptr<const HT>>& get_HT() const {
+  const std::list<std::unique_ptr<const HorizontalTransfer>>& get_HT() const {
     return ht_;
   };
   int32_t get_nb(MutationType t) const;
@@ -90,7 +90,7 @@ class DnaReplicationReport {
   /// Lists of mutations, rearrangements and undergone
   std::list<std::unique_ptr<const LocalMutation>> mutations_;
   std::list<std::unique_ptr<const Rearrangement>> rearrangements_;
-  std::list<std::unique_ptr<const HT>> ht_;
+  std::list<std::unique_ptr<const HorizontalTransfer>> ht_;
   // Number of mutations/rearrangements/HT of each (simple) type undergone
   int32_t nb_mut_[10] = {0,0,0,0,0,0,0,0,0,0};
 };

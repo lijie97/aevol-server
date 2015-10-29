@@ -32,7 +32,7 @@
 //                                   Includes
 // ============================================================================
 
-#include "HT.h"
+#include "HorizontalTransfer.h"
 #include "VisAVis.h"
 
 namespace aevol {
@@ -40,7 +40,7 @@ namespace aevol {
 /**
  *
  */
-class ReplacementHT : public HT {
+class ReplacementHT : public HorizontalTransfer {
 
  public :
   // ==========================================================================

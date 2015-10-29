@@ -39,7 +39,7 @@ namespace aevol {
 /**
  *
  */
-class HT : public Mutation {
+class HorizontalTransfer : public Mutation {
 
  public :
   // ==========================================================================

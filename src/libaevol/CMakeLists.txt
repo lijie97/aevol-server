@@ -132,7 +132,7 @@ add_library(aevol
   Translocation.h
   Inversion.cpp
   Inversion.h
-  HT.h
+  HorizontalTransfer.h
   InsertionHT.cpp
   InsertionHT.h
   ReplacementHT.cpp
