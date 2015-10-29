@@ -72,8 +72,8 @@ Rna::Rna( GeneticUnit* gen_unit, const Rna &model )
   //            proteins must NOT be CREATED here.
 
   // TODO : Not needed for the moment...
-  // for (const auto& protein: model.transcribed_proteins)
-  //   transcribed_proteins.push_back(protein);
+  // for (const auto& protein: model.transcribed_proteins_)
+  //   transcribed_proteins_.push_back(protein);
 }
 
 Rna::Rna( GeneticUnit* gen_unit, Strand strand, int32_t pos, int8_t diff )

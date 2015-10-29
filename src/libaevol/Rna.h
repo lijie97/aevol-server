@@ -97,7 +97,7 @@ class Rna
     inline bool       is_coding() const;
 
     inline const std::list<Protein *>& get_transcribed_proteins() const;
-    inline void clear_transcribed_proteins() { transcribed_proteins.clear(); };
+    inline void clear_transcribed_proteins() { transcribed_proteins_.clear(); };
 
     // =================================================================
     //                            Public Methods
@@ -136,7 +136,7 @@ class Rna
     double basal_level_;
 
     // Access list to the proteins transcribed by this rna
-    std::list<Protein*> transcribed_proteins;
+    std::list<Protein*> transcribed_proteins_;
 };
 
 
@@ -189,12 +189,12 @@ inline void Rna::set_transcript_length( int32_t transcript_length )
 }
 
 inline const std::list<Protein *>&Rna::get_transcribed_proteins() const {
-  return transcribed_proteins;
+  return transcribed_proteins_;
 }
 
 inline bool Rna::is_coding() const
 {
-  return (not transcribed_proteins.empty());
+  return (not transcribed_proteins_.empty());
 }
 
 // =====================================================================
@@ -202,7 +202,7 @@ inline bool Rna::is_coding() const
 // =====================================================================
 void Rna::add_transcribed_protein( Protein * prot )
 {
-  transcribed_proteins.push_back(prot);
+  transcribed_proteins_.push_back(prot);
 }
 
 void Rna::shift_position( int32_t delta_pos, int32_t genome_length )
