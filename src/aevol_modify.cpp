@@ -69,7 +69,7 @@ enum population_change_type
 
 void print_help(char* prog_path);
 
-ParameterLine* line_guard(FILE* param_file);
+ParameterLine* get_line(FILE* param_file);
 void format_line(ParameterLine* formated_line, char* line, bool* line_is_interpretable);
 // void change_by_cloning_best(ae_population* pop, ae_exp_manager* exp_m);
 // void change_based_on_non_coding_bases_of_best_individual(ae_population* pop, ae_exp_manager* exp_m, population_change_type type);
@@ -217,7 +217,7 @@ int main(int argc, char* argv[])
   
   ParameterLine* line;
   int32_t cur_line = 0;
-  while ((line = line_guard(param_file)) != NULL)
+  while ((line = get_line(param_file)) != NULL)
   {
     cur_line++;
     if (strcmp(line->words[0], "ENV_AXIS_FEATURES") == 0)
@@ -733,7 +733,7 @@ int main(int argc, char* argv[])
   
   \see format_line(ParameterLine* formated_line, char* line, bool* line_is_interpretable)
 */
-ParameterLine* line_guard(FILE* param_file)
+ParameterLine* get_line(FILE* param_file)
 {
   char line[255];
   ParameterLine* formated_line = new ParameterLine();
