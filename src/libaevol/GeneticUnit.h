@@ -88,11 +88,11 @@ class GeneticUnit {
   // =================================================================
   //                              Accessors
   // =================================================================
-  ExpManager* get_exp_m() const;
+  ExpManager* exp_m() const;
 
-  Individual* get_indiv() const;
+  Individual* indiv() const;
 
-  Dna* get_dna() const;
+  Dna* dna() const;
 
   Fuzzy* activ_contribution() const;
 
@@ -100,84 +100,84 @@ class GeneticUnit {
 
   Fuzzy* phenotypic_contribution() const;
 
-  const Promoters2Strands& get_rna_list() const;
+  const Promoters2Strands& rna_list() const;
 
   // TODO return as reference
-  std::list<Protein>& get_protein_list(Strand strand);
+  std::list<Protein>& protein_list(Strand strand);
 
   void clear_transcribed_proteins();
 
 
   // Direct DNA access
-  const char* get_sequence() const;
+  const char* sequence() const;
 
-  int32_t get_seq_length() const;
+  int32_t seq_length() const;
 
 
   // Statistical data
-  int32_t get_nb_coding_RNAs() const;
+  int32_t nb_coding_RNAs() const;
 
-  int32_t get_nb_non_coding_RNAs() const;
+  int32_t nb_non_coding_RNAs() const;
 
-  double get_overall_size_coding_RNAs() const;
+  double overall_size_coding_RNAs() const;
 
   double av_size_coding_RNAs() const;
 
-  double get_overall_size_non_coding_RNAs() const;
+  double overall_size_non_coding_RNAs() const;
 
   double av_size_non_coding_RNAs() const;
 
-  int32_t get_nb_genes_activ() const;
+  int32_t nb_genes_activ() const;
 
-  int32_t get_nb_genes_inhib() const;
+  int32_t nb_genes_inhib() const;
 
-  int32_t get_nb_functional_genes() const;
+  int32_t nb_functional_genes() const;
 
-  int32_t get_nb_non_functional_genes() const;
+  int32_t nb_non_functional_genes() const;
 
-  double get_overall_size_functional_genes() const;
+  double overall_size_functional_genes() const;
 
   double av_size_functional_genes() const;
 
-  double get_overall_size_non_functional_genes() const;
+  double overall_size_non_functional_genes() const;
 
   double av_size_non_functional_genes() const;
 
-  int32_t get_nb_bases_in_0_CDS() const;
+  int32_t nb_bases_in_0_CDS() const;
 
-  int32_t get_nb_bases_in_0_functional_CDS() const;
+  int32_t nb_bases_in_0_functional_CDS() const;
 
-  int32_t get_nb_bases_in_0_non_functional_CDS() const;
+  int32_t nb_bases_in_0_non_functional_CDS() const;
 
-  int32_t get_nb_bases_in_0_RNA() const;
+  int32_t nb_bases_in_0_RNA() const;
 
-  int32_t get_nb_bases_in_0_coding_RNA() const;
+  int32_t nb_bases_in_0_coding_RNA() const;
 
-  int32_t get_nb_bases_in_0_non_coding_RNA() const;
+  int32_t nb_bases_in_0_non_coding_RNA() const;
 
   int32_t nb_bases_non_essential() const;
 
   int32_t nb_bases_non_essential_including_nf_genes() const;
 
-  int32_t get_nb_bases_in_neutral_regions() const;
+  int32_t nb_bases_in_neutral_regions() const;
 
-  int32_t get_nb_neutral_regions() const;
+  int32_t nb_neutral_regions() const;
 
   int32_t* beginning_neutral_regions() const;
 
   int32_t* end_neutral_regions() const;
 
-  double get_modularity() const;
+  double modularity() const;
 
   double dist_to_target_by_feature(PhenotypicFeature feature) const;
 
-  double get_fitness() const;
+  double fitness() const;
 
   double fitness_by_feature(PhenotypicFeature feature) const;
 
-  int32_t get_min_gu_length() const;
+  int32_t min_gu_length() const;
 
-  int32_t get_max_gu_length() const;
+  int32_t max_gu_length() const;
 
 
   void set_min_gu_length(int32_t min_gu_length);
@@ -198,7 +198,7 @@ class GeneticUnit {
 
   void compute_phenotypic_contribution();
 
-  void take_ownership_of_all_rnas() { Dna::set_GU(get_rna_list(), this); };
+  void take_ownership_of_all_rnas() { Dna::set_GU(rna_list(), this); };
 
 
   // DM: these two are identical to functions from Individual
@@ -228,7 +228,7 @@ class GeneticUnit {
 
   bool is_stop(Strand strand, int32_t pos) const;
 
-  int8_t get_codon(Strand strand, int32_t pos) const;
+  int8_t codon(Strand strand, int32_t pos) const;
 
   void compute_non_coding();
 
@@ -242,7 +242,7 @@ class GeneticUnit {
                                  int32_t pos_2,
                                  Promoters2Strands& promoters_list);
 
-  void get_promoters(Strand strand_id,
+  void promoters(Strand strand_id,
                      Position start,
                      int32_t pos1,
                      int32_t pos2,

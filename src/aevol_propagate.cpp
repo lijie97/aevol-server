@@ -259,7 +259,7 @@ int main(int argc, char* argv[])
 #if __cplusplus == 201103L
     auto prng = make_unique<JumpingMT>(generalseed);
 
-    exp_manager->get_sel()->set_prng(
+    exp_manager->sel()->set_prng(
         make_unique<JumpingMT>(prng->random(1000000)));
     exp_manager->world()->set_prng(
         make_unique<JumpingMT>(prng->random(1000000)));
@@ -287,7 +287,7 @@ int main(int argc, char* argv[])
 #if __cplusplus == 201103L
       exp_manager->world()->set_prng(
           make_unique<JumpingMT>(selseed));
-      exp_manager->get_sel()->set_prng(
+      exp_manager->sel()->set_prng(
           make_unique<JumpingMT>(selseed));
 #else
       exp_manager->world()->set_prng(
@@ -314,7 +314,7 @@ int main(int argc, char* argv[])
       // TODO <david.parsons@inria.fr> adapt to new organization
       printf("%s:%d: error: feature has to be adapted to the new organization.\n", __FILE__, __LINE__);
       exit(EXIT_FAILURE);
-//      exp_manager->get_env()->set_var_prng(
+//      exp_manager->env()->set_var_prng(
 //          std::make_shared<JumpingMT>(envvarseed));
     }
 
@@ -323,7 +323,7 @@ int main(int argc, char* argv[])
       // TODO <david.parsons@inria.fr> adapt to new organization
       printf("%s:%d: error: feature has to be adapted to the new organization.\n", __FILE__, __LINE__);
       exit(EXIT_FAILURE);
-//      exp_manager->get_env()->set_noise_prng(
+//      exp_manager->env()->set_noise_prng(
 //          std::make_shared<JumpingMT>(envnoiseseed));
     }
   }

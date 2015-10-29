@@ -101,7 +101,7 @@ class PhenotypicTargetHandler
   const PhenotypicTarget& phenotypic_target() const {
     return *phenotypic_target_;
   };
-  double get_geometric_area() const {
+  double geometric_area() const {
     return phenotypic_target_->geometric_area();
   };
   double area_by_feature(int8_t feature) const {

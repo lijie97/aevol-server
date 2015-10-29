@@ -76,7 +76,7 @@ class Duplication : public Rearrangement {
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
-  virtual MutationType get_mut_type() const override { return DUPL; };
+  virtual MutationType mut_type() const override { return DUPL; };
   int32_t pos1() const { return pos1_; }
   int32_t pos2() const { return pos2_; }
   int32_t pos3() const { return pos3_; }

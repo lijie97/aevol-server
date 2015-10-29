@@ -71,8 +71,8 @@ class Logging
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline FILE* get_log( LogType log_type )   const;
-    inline int8_t get_logs() const;
+    inline FILE* log( LogType log_type )   const;
+    inline int8_t logs() const;
     inline bool  is_logged( LogType log_type ) const;
 
     // =================================================================
@@ -133,7 +133,7 @@ class Logging
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-inline FILE*Logging::get_log( LogType log_type ) const
+inline FILE*Logging::log( LogType log_type ) const
 {
   switch ( log_type )
   {
@@ -161,7 +161,7 @@ inline FILE*Logging::get_log( LogType log_type ) const
   }
 }
 
-inline int8_t Logging::get_logs() const
+inline int8_t Logging::logs() const
 {
   return logs_;
 }

@@ -79,10 +79,10 @@ class Selection : public Observable
     // =================================================================
     //                        Accessors: getters
     // =================================================================
-    inline SelectionScheme get_selection_scheme() const;
-    inline double               get_selection_pressure() const;
+    inline SelectionScheme selection_scheme() const;
+    inline double               selection_pressure() const;
     inline double*              prob_reprod() const;
-    // inline std::unique_ptr<JumpingMT> get_prng() const;
+    // inline std::unique_ptr<JumpingMT> prng() const;
 
     // =================================================================
     //                        Accessors: setters
@@ -147,17 +147,17 @@ class Selection : public Observable
 // =====================================================================
 //                           Getters' definitions
 // =====================================================================
-// inline std::unique_ptr<JumpingMT> Selection::get_prng() const
+// inline std::unique_ptr<JumpingMT> Selection::prng() const
 // {
 //   return prng_;
 // }
 
-inline SelectionScheme Selection::get_selection_scheme() const
+inline SelectionScheme Selection::selection_scheme() const
 {
   return selection_scheme_;
 }
 
-inline double Selection::get_selection_pressure() const
+inline double Selection::selection_pressure() const
 {
   return selection_pressure_;
 }

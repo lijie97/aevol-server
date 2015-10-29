@@ -82,21 +82,21 @@ class Rna
 
     // <DEBUG>
     void check( GeneticUnit* gen_unit ) { assert( gen_unit == gen_unit_ ); };
-    //~ void* get_indiv() const { return (void*)indiv_; };
+    //~ void* indiv() const { return (void*)indiv_; };
     // </DEBUG>
 
-    inline const GeneticUnit * get_genetic_unit() const;
+    inline const GeneticUnit * genetic_unit() const;
     inline void set_genetic_unit(const GeneticUnit*  gen_unit);
-    inline Strand get_strand() const;
+    inline Strand strand() const;
     inline void       set_strand( Strand strand );
     inline int32_t    promoter_pos() const;
     inline void       set_promoter_pos( int32_t pos );
-    inline double     get_basal_level() const;
-    inline int32_t    get_transcript_length() const; // The promoter is NOT transcribed.
+    inline double     basal_level() const;
+    inline int32_t    transcript_length() const; // The promoter is NOT transcribed.
     inline void       set_transcript_length( int32_t length );
     inline bool       is_coding() const;
 
-    inline const std::list<Protein *>& get_transcribed_proteins() const;
+    inline const std::list<Protein *>& transcribed_proteins() const;
     inline void clear_transcribed_proteins() { transcribed_proteins_.clear(); };
 
     // =================================================================
@@ -143,7 +143,7 @@ class Rna
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-inline const GeneticUnit*Rna::get_genetic_unit() const
+inline const GeneticUnit*Rna::genetic_unit() const
 {
   return gen_unit_;
 }
@@ -153,7 +153,7 @@ inline void Rna::set_genetic_unit(const GeneticUnit*  gen_unit)
   gen_unit_ = gen_unit;
 }
 
-inline Strand Rna::get_strand() const
+inline Strand Rna::strand() const
 {
   return strand_;
 }
@@ -173,12 +173,12 @@ inline int32_t Rna::promoter_pos() const
   return pos_;
 }
 
-inline double Rna::get_basal_level() const
+inline double Rna::basal_level() const
 {
   return basal_level_;
 }
 
-inline int32_t Rna::get_transcript_length() const
+inline int32_t Rna::transcript_length() const
 {
   return transcript_length_;
 }
@@ -188,7 +188,7 @@ inline void Rna::set_transcript_length( int32_t transcript_length )
   transcript_length_ = transcript_length;
 }
 
-inline const std::list<Protein *>&Rna::get_transcribed_proteins() const {
+inline const std::list<Protein *>&Rna::transcribed_proteins() const {
   return transcribed_proteins_;
 }
 

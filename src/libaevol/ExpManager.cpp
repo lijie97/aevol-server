@@ -149,7 +149,7 @@ void ExpManager::WriteSetupFiles() const
 
   // 2) Open setup files (experimental setup and output profile)
   gzFile exp_s_file, out_p_file;
-  open_setup_files(exp_s_file, out_p_file, AeTime::get_time(), "w");
+  open_setup_files(exp_s_file, out_p_file, AeTime::time(), "w");
 
   // 4) Write setup data
   exp_s_->write_setup_file(exp_s_file);
@@ -190,7 +190,7 @@ void ExpManager::WriteDynamicFiles() const
 
   // Open backup files
   gzFile sel_file, world_file;
-  open_backup_files(sel_file, world_file, AeTime::get_time(), "w");
+  open_backup_files(sel_file, world_file, AeTime::time(), "w");
 
   // Save experiment
   sel()->save(sel_file);
@@ -303,9 +303,9 @@ void ExpManager::load(gzFile& exp_s_file,
   // -------------------------------------------- Link world and output profile
   if (record_tree()) {
     sel()->addObserver(tree(), NEW_INDIV);
-    for (auto indiv : world_->get_indivs())
+    for (auto indiv : world_->indivs())
       indiv->addObserver(
-        tree()->report_by_index(AeTime::get_time(), indiv->get_id()),
+        tree()->report_by_index(AeTime::time(), indiv->id()),
           END_REPLICATION);
     sel()->addObserver(tree(), END_GENERATION);
   }
@@ -421,11 +421,11 @@ void ExpManager::run_evolution()
   // For each generation
   while (true) { // termination condition is into the loop
     printf("============================== %" PRId64 " ==============================\n",
-           AeTime::get_time());
+           AeTime::time());
     printf("  Best individual's distance to target (metabolic) : %f\n",
            best_indiv()->dist_to_target_by_feature(METABOLISM));
 
-    if (AeTime::get_time() >= t_end_ or quit_signal_received())
+    if (AeTime::time() >= t_end_ or quit_signal_received())
       break;
 
 #ifdef __X11
@@ -588,6 +588,6 @@ void ExpManager::close_setup_files(gzFile& exp_s_file,
 //                               Non inline accessors
 // ===========================================================================
 Individual* ExpManager::indiv_by_id(int32_t id) const {
-  return world_->get_indiv_by_id(id);
+  return world_->indiv_by_id(id);
 }
 } // namespace aevol

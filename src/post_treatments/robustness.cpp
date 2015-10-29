@@ -150,7 +150,7 @@ int main(int argc, char* argv[])
 
   if ((wanted_rank == -1) && (wanted_index == -1)) 
     {
-      wanted_rank = exp_manager->get_nb_indivs();  // the best one has rank N
+      wanted_rank = exp_manager->nb_indivs();  // the best one has rank N
     }
 
   // TODO: factor with duplicated code in mutagenesis.cpp
@@ -159,10 +159,10 @@ int main(int argc, char* argv[])
     bool found = false;
     int32_t current_rank = -1;
     int32_t current_index = -1;
-    std::list<ae_individual*> indivs = exp_manager->get_indivs();
+    std::list<ae_individual*> indivs = exp_manager->indivs();
     for (auto indiv = indivs.rbegin(); not found and indiv != indivs.rend(); ++indiv) {
-      current_index = (*indiv)->get_id();
-      current_rank = (*indiv)->get_rank();
+      current_index = (*indiv)->id();
+      current_rank = (*indiv)->rank();
 
       if (wanted_index != -1 and current_index == wanted_index) {
         found = true;
@@ -271,15 +271,15 @@ int main(int argc, char* argv[])
   double offsprings_statistics[6];
   double th_fv;
   
-  // exp_manager->get_exp_s()->get_sel()->compute_prob_reprod();
-  // double* tmp_reprod = exp_manager->get_exp_s()->get_sel()->prob_reprod();
+  // exp_manager->exp_s()->sel()->compute_prob_reprod();
+  // double* tmp_reprod = exp_manager->exp_s()->sel()->prob_reprod();
 
   { // (local scope for `indivs` used as a shorthand)
-    list<ae_individual*> indivs = exp_manager->get_indivs();
+    list<ae_individual*> indivs = exp_manager->indivs();
     for (auto indiv : indivs)
     {
-      int32_t current_index = indiv->get_id();
-      int32_t current_rank = indiv->get_rank();
+      int32_t current_index = indiv->id();
+      int32_t current_rank = indiv->rank();
 
       // Compute Fv ----------------------------------------------------------------
       th_fv = indiv->compute_theoritical_f_nu();
@@ -301,10 +301,10 @@ int main(int argc, char* argv[])
               " %le %le %le %le %le %le %le %le %le %le\n",
               current_rank,
               current_index,
-              indiv->get_fitness(),
+              indiv->fitness(),
               indiv->dist_to_target_by_feature(METABOLISM),
-              indiv->get_total_genome_size(),
-              indiv->get_nb_functional_genes(),
+              indiv->total_genome_size(),
+              indiv->nb_functional_genes(),
               reproduction_statistics[0],
               reproduction_statistics[1],
               reproduction_statistics[2],

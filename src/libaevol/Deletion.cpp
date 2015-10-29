@@ -71,7 +71,7 @@ void Deletion::generic_description_string(char* str) const {
   // TODO <david.parsons@inria.fr> Use snprintf to avoid buffer overflow
   sprintf(str, "%" PRId8 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32
       " %" PRId8 " %" PRId16 " %" PRId16 " %" PRId32 " %" PRId32,
-          get_mut_type(), pos1(), pos2(), -1, -1, -1,
+          mut_type(), pos1(), pos2(), -1, -1, -1,
           align_score(), -1, length_, -1);
   }
 

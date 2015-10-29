@@ -219,17 +219,17 @@ int main( int argc, char* argv[] )
   fflush( stdout );
 
   // Evaluate the individuals
-  ae_common::pop->evaluate_individuals(ae_common::sim->get_env());
+  ae_common::pop->evaluate_individuals(ae_common::sim->env());
 
   int i = 0;
-  int nb_indiv = ae_common::pop->get_nb_indivs();
+  int nb_indiv = ae_common::pop->nb_indivs();
 
   // --------------------------------
   //         Parse individuals
   // --------------------------------
   if (best_only)
   {
-    ae_individual* best = ae_common::pop->get_best();
+    ae_individual* best = ae_common::pop->best();
     if ( main_output != NULL)           { print_genome_info(best, main_output); }
     if ( neutral_region_output != NULL) { print_neutral_regions(best, neutral_region_output); }
   }
@@ -237,12 +237,12 @@ int main( int argc, char* argv[] )
   {
     if (ae_common::pop_structure)
     {
-      ae_grid_cell*** pop_grid_ = ae_common::pop->get_pop_grid();
+      ae_grid_cell*** pop_grid_ = ae_common::pop->pop_grid();
       for ( int16_t x = 0 ; x < ae_common::grid_x ; x++ )
       {
         for ( int16_t y = 0 ; y < ae_common::grid_y ; y++ )
         {
-          ae_individual* indiv = (pop_grid_[x][y]->get_individual());
+          ae_individual* indiv = (pop_grid_[x][y]->individual());
 	  if ( main_output != NULL)           { print_genome_info(indiv, main_output); }
 	  if ( neutral_region_output != NULL) { print_neutral_regions(indiv, neutral_region_output); }
           i++;
@@ -251,7 +251,7 @@ int main( int argc, char* argv[] )
     }
     else
     {
-      for (const auto& indiv: pop->get_indivs()) {
+      for (const auto& indiv: pop->indivs()) {
         if ( main_output != NULL)           { print_genome_info(indiv, main_output); }
 	if ( neutral_region_output != NULL) { print_neutral_regions(indiv, neutral_region_output); }
       }
@@ -278,14 +278,14 @@ int main( int argc, char* argv[] )
 // The export fonction
 inline void print_genome_info( ae_individual* indiv, FILE* output_file )
 {
-  int32_t nb_bases = indiv->get_total_genome_size();
-  int32_t nb_bases_in_neutral_regions = indiv->get_nb_bases_in_neutral_regions();
-  int32_t nb_bases_in_0_CDS = indiv->get_nb_bases_in_0_CDS();
-  int32_t nb_bases_in_0_functional_CDS = indiv->get_nb_bases_in_0_functional_CDS();
-  int32_t nb_bases_in_0_non_functional_CDS = indiv->get_nb_bases_in_0_non_functional_CDS();
-  int32_t nb_bases_in_0_RNA = indiv->get_nb_bases_in_0_RNA();
-  int32_t nb_bases_in_0_coding_RNA = indiv->get_nb_bases_in_0_coding_RNA();
-  int32_t nb_bases_in_0_non_coding_RNA = indiv->get_nb_bases_in_0_non_coding_RNA();
+  int32_t nb_bases = indiv->total_genome_size();
+  int32_t nb_bases_in_neutral_regions = indiv->nb_bases_in_neutral_regions();
+  int32_t nb_bases_in_0_CDS = indiv->nb_bases_in_0_CDS();
+  int32_t nb_bases_in_0_functional_CDS = indiv->nb_bases_in_0_functional_CDS();
+  int32_t nb_bases_in_0_non_functional_CDS = indiv->nb_bases_in_0_non_functional_CDS();
+  int32_t nb_bases_in_0_RNA = indiv->nb_bases_in_0_RNA();
+  int32_t nb_bases_in_0_coding_RNA = indiv->nb_bases_in_0_coding_RNA();
+  int32_t nb_bases_in_0_non_coding_RNA = indiv->nb_bases_in_0_non_coding_RNA();
   if ( output_file != NULL )
   {
     fprintf( output_file, "%"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n",
@@ -301,9 +301,9 @@ inline void print_neutral_regions( ae_individual* indiv, FILE* output_file )
 
   //header
   GeneticUnit* chromosome = *indiv->genetic_unit_list().begin();
-  int32_t nb_neutral_regions  = chromosome->get_nb_neutral_regions();
+  int32_t nb_neutral_regions  = chromosome->nb_neutral_regions();
   fprintf( output_file, "# chromosome length: %"PRId32", %"PRId32" neutral bases, %"PRId32" neutral regions\n",
-	   chromosome->get_dna()->get_length(), chromosome->get_nb_bases_in_neutral_regions(), nb_neutral_regions);
+	   chromosome->dna()->length(), chromosome->nb_bases_in_neutral_regions(), nb_neutral_regions);
 
   //neutral regions
   if ( nb_neutral_regions > 0)

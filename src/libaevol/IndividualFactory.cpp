@@ -123,7 +123,7 @@ Individual* IndividualFactory::create_random_individual(
       if (better_than_flat) {
         indiv->EvaluateInContext(habitat);
 
-        while (indiv->get_genetic_unit(1).
+        while (indiv->genetic_unit(1).
             dist_to_target_by_feature(METABOLISM) >= env_metabolic_area) {
           indiv->remove_GU(1);
           indiv->add_GU(indiv, plasmid_initial_length, local_prng);
@@ -135,14 +135,14 @@ Individual* IndividualFactory::create_random_individual(
       // The plasmid is a copy of the chromosome
       char* plasmid_genome = new char[chromosome_initial_length + 1];
       strncpy(plasmid_genome,
-              indiv->genetic_unit_list().back().get_sequence(),
+              indiv->genetic_unit_list().back().sequence(),
               chromosome_initial_length + 1);
       indiv->add_GU(plasmid_genome, chromosome_initial_length);
     }
   }
 
   // Insert a few IS in the sequence
-  /*if (ae_common::init_params->get_init_method() & WITH_INS_SEQ)
+  /*if (ae_common::init_params->init_method() & WITH_INS_SEQ)
   {
     // Create a random sequence
     int32_t seq_len = 50;
@@ -161,7 +161,7 @@ Individual* IndividualFactory::create_random_individual(
     Mutation* mut1 = NULL;
     for (int16_t i = 0 ; i < nb_insert ; i++)
     {
-      mut1 = indiv->get_genetic_unit(0)->get_dna()->do_insertion(ins_seq, seq_len);
+      mut1 = indiv->genetic_unit(0)->dna()->do_insertion(ins_seq, seq_len);
       delete mut1;
     }
 
@@ -176,7 +176,7 @@ Individual* IndividualFactory::create_random_individual(
 
     for (int16_t i = 0 ; i < nb_invert ; i++)
     {
-      mut1 = indiv->get_genetic_unit(0)->get_dna()->do_insertion(inverted_seq, seq_len);
+      mut1 = indiv->genetic_unit(0)->dna()->do_insertion(inverted_seq, seq_len);
       delete mut1;
     }
 

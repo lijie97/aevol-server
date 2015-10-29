@@ -82,12 +82,12 @@ class VisAVis
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline const Dna*  get_chrom_1() const;
-    inline const Dna*  get_chrom_2() const;
-    inline int32_t        get_i_1() const;
-    inline int32_t        get_i_2() const;
-    inline int16_t        get_score() const;
-    inline AlignmentSense get_sense() const;
+    inline const Dna*  chrom_1() const;
+    inline const Dna*  chrom_2() const;
+    inline int32_t        i_1() const;
+    inline int32_t        i_2() const;
+    inline int16_t        score() const;
+    inline AlignmentSense sense() const;
 
     // =================================================================
     //                              Operators
@@ -151,32 +151,32 @@ class VisAVis
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-inline const Dna *VisAVis::get_chrom_1() const
+inline const Dna *VisAVis::chrom_1() const
 {
   return chrom_1_;
 }
 
-inline const Dna *VisAVis::get_chrom_2() const
+inline const Dna *VisAVis::chrom_2() const
 {
   return chrom_2_;
 }
 
-inline int32_t VisAVis::get_i_1() const
+inline int32_t VisAVis::i_1() const
 {
   return i_1_;
 }
 
-inline int32_t VisAVis::get_i_2() const
+inline int32_t VisAVis::i_2() const
 {
   return i_2_;
 }
 
-inline int16_t VisAVis::get_score() const
+inline int16_t VisAVis::score() const
 {
   return score_;
 }
 
-inline AlignmentSense VisAVis::get_sense() const
+inline AlignmentSense VisAVis::sense() const
 {
   return sense_;
 }

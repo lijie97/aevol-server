@@ -131,7 +131,7 @@ Tree::~Tree() {
 // =================================================================
 //                            Public Methods
 // =================================================================
-ReplicationReport** Tree::get_reports(int64_t t) const {
+ReplicationReport** Tree::reports(int64_t t) const {
   return replics_[Utils::mod(t - 1, tree_step_)];
 }
 
@@ -157,7 +157,7 @@ ReplicationReport* Tree::report_by_rank(int64_t t, int32_t rank) const {
 }
 
 void Tree::signal_end_of_generation() {
-  auto cur_reports = get_reports(AeTime::get_time());
+  auto cur_reports = reports(AeTime::time());
   for (int32_t i = 0; i < exp_m_->nb_indivs(); i++) {
     cur_reports[i]->signal_end_of_generation();
   }
@@ -184,7 +184,7 @@ void Tree::update(Observable& o, ObservableEvent e, void* arg) {
     case NEW_INDIV : {
       // Initialize the replication report corresponding to the new individual
       auto indivs = reinterpret_cast<Individual**>(arg);
-      report_by_index(AeTime::get_time(), indivs[0]->get_id())->
+      report_by_index(AeTime::time(), indivs[0]->id())->
           init(indivs[0], indivs[1]);
       break;
     }

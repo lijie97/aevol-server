@@ -56,7 +56,7 @@ using namespace aevol;
 //                         Function declarations
 // =================================================================
 void print_help( char* prog_name );
-f_line* get_line_guard(FILE* param_file);
+f_line* line_guard(FILE* param_file);
 void format_line( f_line* formated_line, char* line, bool* line_is_interpretable );
 
 int main( int argc, char* argv[] )
@@ -181,7 +181,7 @@ int main( int argc, char* argv[] )
     exp_manager->set_first_gener( num_gener );
   }
   exp_manager->load_experiment( exp_setup_file_name, out_prof_file_name, env_file_name, pop_file_name, sp_struct_file_name, true );
-  printf("Generation : %"PRId32"\n", exp_manager->get_num_gener());
+  printf("Generation : %"PRId32"\n", exp_manager->num_gener());
     
   // 6) Interpret and apply changes
   printf("Interpret and apply changes\n");
@@ -193,7 +193,7 @@ int main( int argc, char* argv[] )
   }
   
   f_line* line;
-  while ( ( line = get_line(param_file) ) != NULL ) 
+  while ( ( line = line(param_file) ) != NULL ) 
   {
     if ( strcmp( line->words[0], "SEED" ) == 0 )
     {
@@ -204,13 +204,13 @@ int main( int argc, char* argv[] )
       
       // Change prng in ae_exp_manager, ae_selection and ae_spatial_structure
       printf("Change of the seed in ae_exp_nanager, ae_selection and ae_spatial_structure\t");
-      ae_selection* sel = exp_manager->get_exp_s()->get_sel();
-      //printf("\n%.5f ", sel->get_prng()->random());
+      ae_selection* sel = exp_manager->exp_s()->sel();
+      //printf("\n%.5f ", sel->prng()->random());
       sel->set_prng( new ae_jumping_mt(*prng) );
-      //printf("%.5f\n", sel->get_prng()->random());
+      //printf("%.5f\n", sel->prng()->random());
       if ( sel->is_spatially_structured() )
       {
-        sel->get_spatial_structure()->set_prng( new ae_jumping_mt(*prng) );
+        sel->spatial_structure()->set_prng( new ae_jumping_mt(*prng) );
       }
       printf("Ok\n");
       
@@ -221,7 +221,7 @@ int main( int argc, char* argv[] )
         exit( EXIT_FAILURE );
       }
       printf("Loading the backup population\t");
-      ae_population* pop = exp_manager->get_pop();
+      ae_population* pop = exp_manager->pop();
       gzFile pop_file = gzopen( pop_file_name, "r" );
       if ( pop_file == Z_NULL )
       {
@@ -262,7 +262,7 @@ int main( int argc, char* argv[] )
 
 
 
-f_line* get_line_guard(FILE* param_file)
+f_line* line_guard(FILE* param_file)
 {
   char line[255];
   f_line* formated_line = new f_line();

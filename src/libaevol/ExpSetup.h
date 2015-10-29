@@ -84,10 +84,10 @@ class ExpSetup {
   //                         Accessors: getters
   // =======================================================================
   // ----------------------------------------------------- Selection context
-  Selection * get_sel() const { return sel_; }
+  Selection * sel() const { return sel_; }
 
   // --------------------------------------------------------------- Transfer
-  double get_repl_HT_detach_rate() const { return repl_HT_detach_rate_; }
+  double repl_HT_detach_rate() const { return repl_HT_detach_rate_; }
 
   // --------------------------------------------------------------- Plasmids
   // See comments in ExpManager.h on how plasmids are handled

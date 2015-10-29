@@ -100,7 +100,7 @@ class ParamLoader {
   // =========================================================================
   void CheckConsistency();
   void read_file();
-  ParameterLine* get_line(int32_t*);
+  ParameterLine* line(int32_t*);
   static void format_line(ParameterLine *, char*, bool*);
   void interpret_line(ParameterLine * line, int32_t cur_line);
 

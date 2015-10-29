@@ -89,7 +89,7 @@ int main( int argc, char* argv[] )
 
   ae_exp_manager* exp_manager = new ae_exp_manager();
   exp_manager->load(gener, true, false);
-  // int32_t nb_indivs = exp_manager->get_nb_indivs();
+  // int32_t nb_indivs = exp_manager->nb_indivs();
 
   // Open output file and write the header
   FILE * output = fopen(output_file_name, "w");
@@ -108,11 +108,11 @@ int main( int argc, char* argv[] )
 
   // Parse and treat the individuals
   if (!best_only){
-    for (ae_individual* indiv: exp_manager->world()->get_indivs())
+    for (ae_individual* indiv: exp_manager->world()->indivs())
       analyse_indiv(exp_manager, indiv, output, ndiv);
   }
   else{
-    ae_individual* indiv = exp_manager->world()->get_best_indiv();
+    ae_individual* indiv = exp_manager->world()->best_indiv();
     analyse_indiv(exp_manager, indiv, output, ndiv);
   }
 
@@ -124,7 +124,7 @@ int main( int argc, char* argv[] )
 
 // Treatment of one individual
 void analyse_indiv(ae_exp_manager* exp, ae_individual* initial_indiv, FILE* output, int32_t ndiv ){
-  Environment* env = exp->get_env();
+  Environment* env = exp->env();
   double initial_metabolic_error = initial_indiv->dist_to_target_by_feature( METABOLISM );
   double initial_secretion_error = initial_indiv->dist_to_target_by_feature( SECRETION );
   double final_metabolic_error      = 0.0;
@@ -142,7 +142,7 @@ void analyse_indiv(ae_exp_manager* exp, ae_individual* initial_indiv, FILE* outp
       fflush(stdout);
     }
 
-    indiv = exp->get_sel()->do_replication( initial_indiv, -1 );
+    indiv = exp->sel()->do_replication( initial_indiv, -1 );
 
     indiv->reevaluate(env);
     final_metabolic_error     = indiv->dist_to_target_by_feature( METABOLISM );

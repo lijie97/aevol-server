@@ -100,8 +100,8 @@ class GeneTree
     // =================================================================
     
     inline ae_gene_creation_type creation_type() const;
-    inline int32_t get_begin_gener() const;
-    inline int32_t get_end_gener() const;
+    inline int32_t begin_gener() const;
+    inline int32_t end_gener() const;
     inline int32_t total_nb_nodes() const;
     inline int32_t nb_internal_nodes() const;
     inline int32_t nb_leaves() const;
@@ -178,12 +178,12 @@ inline ae_gene_creation_type GeneTree::creation_type() const
   return creation_type_;
 }
 
-inline int32_t GeneTree::get_begin_gener() const
+inline int32_t GeneTree::begin_gener() const
 {
   return begin_gener_;
 }
 
-inline int32_t GeneTree::get_end_gener() const
+inline int32_t GeneTree::end_gener() const
 {
   return end_gener_;
 }

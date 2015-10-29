@@ -79,15 +79,15 @@ GeneTreeNode::GeneTreeNode( int32_t nodeCreationDate, Protein * protein)
   gene_loss_type_  = NOT_LOST_YET;
 
   protein_pointer_ = protein;
-  shine_dal_position_ = protein->get_shine_dal_pos();
-  strand_ = protein->get_strand();
+  shine_dal_position_ = protein->shine_dal_pos();
+  strand_ = protein->strand();
 
-  nb_promoters_ = protein->get_rna_list().size();
+  nb_promoters_ = protein->rna_list().size();
   //printf("%d promoters at positions", nb_promoters_); // debug
   promoter_positions_ = new int32_t[nb_promoters_];
   rna_pointers_ = new Rna *[nb_promoters_];
   int32_t i = 0;
-  for (const auto& rna: protein->get_rna_list()) {
+  for (const auto& rna: protein->rna_list()) {
     rna_pointers_[i] = rna;
     promoter_positions_[i] = rna->promoter_pos();
     i++;
@@ -261,9 +261,9 @@ void GeneTreeNode::write_subtree_to_files(FILE * topologyFile, FILE * nodeAttrib
     {
       assert( protein_pointer_ != NULL );
       fprintf(nodeAttributesFile, "  Shine-Dalgarno pos:%" PRId32 ", Stop pos: %" PRId32 ", M: %.8f, W: %.8f, H: %.8f, nb promoters: %" PRId32 ", conc: %.8f \n", \
-              protein_pointer_->get_shine_dal_pos(), protein_pointer_->last_STOP_base_pos(), \
-              protein_pointer_->get_mean(), protein_pointer_->get_width(), protein_pointer_->get_height(),  \
-              static_cast<int32_t>(protein_pointer_->get_rna_list().size()), protein_pointer_->get_concentration() );
+              protein_pointer_->shine_dal_pos(), protein_pointer_->last_STOP_base_pos(), \
+              protein_pointer_->mean(), protein_pointer_->width(), protein_pointer_->height(),  \
+              static_cast<int32_t>(protein_pointer_->rna_list().size()), protein_pointer_->concentration() );
     }
   fprintf(nodeAttributesFile, "\n\n");
 }
@@ -307,8 +307,8 @@ void GeneTreeNode::write_subtree_nodes_in_tabular_file(int32_t treeID, FILE * f)
     {
       assert( protein_pointer_ != NULL );
       fprintf(f, "%.8f %.8f %.8f %.8f ", \
-              protein_pointer_->get_mean(), protein_pointer_->get_width(), protein_pointer_->get_height(),  \
-              protein_pointer_->get_concentration() );
+              protein_pointer_->mean(), protein_pointer_->width(), protein_pointer_->height(),  \
+              protein_pointer_->concentration() );
     }
   else {fprintf(f, "-1 -1 -1 -1 ");}
 
@@ -324,27 +324,27 @@ void GeneTreeNode::write_subtree_nodes_in_tabular_file(int32_t treeID, FILE * f)
         break;
 
     if (mutation->type_of_event() == 0) {
-      if (mutation->get_region() == UPSTREAM) {
-        if      (mutation->get_impact_on_metabolic_error() == 0.0) nb_localmut_upstream_neutral++;
-        else if (mutation->get_impact_on_metabolic_error() < 0.0)  nb_localmut_upstream_benef++;
-        else if (mutation->get_impact_on_metabolic_error() > 0.0)  nb_localmut_upstream_delet++;
+      if (mutation->region() == UPSTREAM) {
+        if      (mutation->impact_on_metabolic_error() == 0.0) nb_localmut_upstream_neutral++;
+        else if (mutation->impact_on_metabolic_error() < 0.0)  nb_localmut_upstream_benef++;
+        else if (mutation->impact_on_metabolic_error() > 0.0)  nb_localmut_upstream_delet++;
       }
       else {
-        if      (mutation->get_impact_on_metabolic_error() == 0.0) nb_localmut_cds_neutral++;
-        else if (mutation->get_impact_on_metabolic_error() < 0.0)  nb_localmut_cds_benef++;
-        else if (mutation->get_impact_on_metabolic_error() > 0.0)  nb_localmut_cds_delet++;
+        if      (mutation->impact_on_metabolic_error() == 0.0) nb_localmut_cds_neutral++;
+        else if (mutation->impact_on_metabolic_error() < 0.0)  nb_localmut_cds_benef++;
+        else if (mutation->impact_on_metabolic_error() > 0.0)  nb_localmut_cds_delet++;
       }
     }
     else {
-      if (mutation->get_region() == UPSTREAM) {
-        if      (mutation->get_impact_on_metabolic_error() == 0.0) nb_rear_upstream_neutral++;
-        else if (mutation->get_impact_on_metabolic_error() < 0.0)  nb_rear_upstream_benef++;
-        else if (mutation->get_impact_on_metabolic_error() > 0.0)  nb_rear_upstream_delet++;
+      if (mutation->region() == UPSTREAM) {
+        if      (mutation->impact_on_metabolic_error() == 0.0) nb_rear_upstream_neutral++;
+        else if (mutation->impact_on_metabolic_error() < 0.0)  nb_rear_upstream_benef++;
+        else if (mutation->impact_on_metabolic_error() > 0.0)  nb_rear_upstream_delet++;
       }
       else {
-        if      (mutation->get_impact_on_metabolic_error() == 0.0) nb_rear_cds_neutral++;
-        else if (mutation->get_impact_on_metabolic_error() < 0.0)  nb_rear_cds_benef++;
-        else if (mutation->get_impact_on_metabolic_error() > 0.0)  nb_rear_cds_delet++;
+        if      (mutation->impact_on_metabolic_error() == 0.0) nb_rear_cds_neutral++;
+        else if (mutation->impact_on_metabolic_error() < 0.0)  nb_rear_cds_benef++;
+        else if (mutation->impact_on_metabolic_error() > 0.0)  nb_rear_cds_delet++;
       }
     }
   }
@@ -425,21 +425,21 @@ void GeneTreeNode::update_pointers_in_subtree_leaves(GeneticUnit * unit)
       return;
 
     // TODO vld: refactor DUPLICATED CODE (ref dc1)
-    auto& pl = unit->get_protein_list(strand_); // shorthand
+    auto& pl = unit->protein_list(strand_); // shorthand
     auto protein =
         find_if(pl.begin(), pl.end(),
                 [this](Protein & p)
-                {return p.get_shine_dal_pos() == shine_dal_position_;});
+                {return p.shine_dal_pos() == shine_dal_position_;});
     if (protein != pl.end()) {
       /* The strand and shine dal position are correct */
       /* Update the protein and rna pointers and positions */
-      nb_promoters_ = protein->get_rna_list().size();
+      nb_promoters_ = protein->rna_list().size();
       if (promoter_positions_ != NULL) delete [] promoter_positions_;
       if (rna_pointers_ != NULL) delete [] rna_pointers_;
       promoter_positions_ = new int32_t[nb_promoters_];
       rna_pointers_ = new Rna *[nb_promoters_];
       size_t i = 0;
-      for (const auto& rna: protein->get_rna_list()) {
+      for (const auto& rna: protein->rna_list()) {
         rna_pointers_[i] = rna;
         promoter_positions_[i] = rna->promoter_pos();
         i++;
@@ -471,7 +471,7 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
       int32_t pos0 = -1, pos1 = -1, pos2 = -1, pos2bis = -1, pos3 = -1, mutlength = -1;
       // int32_t pos1donor = -1, pos2donor = -1, pos3donor = -1;  AlignmentSense sense = DIRECT;  // related to transfer (TO DO)
       bool invert = false;
-      MutationType type = mut->get_mut_type();
+      MutationType type = mut->mut_type();
       switch(type)
       {
         case SWITCH : {
@@ -497,7 +497,7 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
           pos2 = Utils::mod(dupl->pos2() - 1, genlen);
           pos2bis = dupl->pos2();
           pos0 = dupl->pos3();
-          mutlength = dupl->get_length();
+          mutlength = dupl->length();
           break;
         }
         case DEL : {
@@ -505,7 +505,7 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
           pos1 = del->pos1();
           pos2 = Utils::mod(del->pos2() - 1, genlen);
           pos2bis = del->pos2();
-          mutlength = del->get_length();
+          mutlength = del->length();
           break;
         }
         case TRANS : {
@@ -516,7 +516,7 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
           pos3 = trans->pos3();
           pos0 = trans->pos4();
           invert = trans->invert();
-          mutlength = trans->get_length();
+          mutlength = trans->length();
           break;
         }
         case INV : {
@@ -524,7 +524,7 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
           pos1 = inv->pos1();
           pos2 = Utils::mod(inv->pos2() - 1, genlen);
           pos2bis = inv->pos2();
-          mutlength = inv->get_length();
+          mutlength = inv->length();
           break;
         }
         case INSERT : {
@@ -547,15 +547,15 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
 
       int32_t first_cds, last_cds;
       int32_t first_upstream, last_upstream; // "upstream region" is the segment between the furthest promoter and the Shine-Dalgarno sequence
-      int32_t nbprom = protein_pointer_->get_rna_list().size();
+      int32_t nbprom = protein_pointer_->rna_list().size();
       assert(nbprom != 0);
       assert(nbprom == static_cast<int32_t>(nb_promoters_));
       int32_t position_furthest_prom = -1, currentprompos = -1;
-      if (protein_pointer_->get_strand() == LEADING)
+      if (protein_pointer_->strand() == LEADING)
         {
-          first_cds = protein_pointer_->get_shine_dal_pos();
+          first_cds = protein_pointer_->shine_dal_pos();
           last_cds = protein_pointer_->last_STOP_base_pos( );
-          for (const auto& rna: protein_pointer_->get_rna_list()) {
+          for (const auto& rna: protein_pointer_->rna_list()) {
               currentprompos = rna->promoter_pos();
               if (currentprompos > first_cds) currentprompos = currentprompos - genlen; // negative value for promoters on the other side of ori
               if ((position_furthest_prom == -1) || (position_furthest_prom < currentprompos)) // we need the smallest promoter position
@@ -570,8 +570,8 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
       else
         {
           first_cds = protein_pointer_->last_STOP_base_pos( );
-          last_cds = protein_pointer_->get_shine_dal_pos();
-          for (const auto& rna: protein_pointer_->get_rna_list()) {
+          last_cds = protein_pointer_->shine_dal_pos();
+          for (const auto& rna: protein_pointer_->rna_list()) {
               currentprompos = rna->promoter_pos();
               if (currentprompos < last_cds) currentprompos = currentprompos + genlen; // value larger than genlen for promoters on the other side of ori
               if ((position_furthest_prom == -1) || (position_furthest_prom > currentprompos)) // we need the largest promoter position
@@ -615,11 +615,11 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
             // and we cannot predict the position of a bp that was deleted: we lose track of the gene)
             if (mutlength == 1)
               {
-                if (protein_pointer_->get_shine_dal_pos() == pos0)  cds_completely_deleted_ = true;
+                if (protein_pointer_->shine_dal_pos() == pos0)  cds_completely_deleted_ = true;
               }
             else // mutlength > 1
               {
-                if (breakpoint_inside_segment(protein_pointer_->get_shine_dal_pos(), pos0, Utils::mod(pos0 + mutlength - 1, genlen))) cds_completely_deleted_ = true;
+                if (breakpoint_inside_segment(protein_pointer_->shine_dal_pos(), pos0, Utils::mod(pos0 + mutlength - 1, genlen))) cds_completely_deleted_ = true;
               }
 
             if (!(cds_completely_deleted_))
@@ -673,11 +673,11 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
             // and we cannot predict the position of a bp that was deleted: we lose track of the gene)
            if (mutlength == 1)
               {
-                if (protein_pointer_->get_shine_dal_pos() == pos1)  cds_completely_deleted_ = true;
+                if (protein_pointer_->shine_dal_pos() == pos1)  cds_completely_deleted_ = true;
               }
             else // mutlength > 1
               {
-                if (breakpoint_inside_segment(protein_pointer_->get_shine_dal_pos(), pos1, pos2)) cds_completely_deleted_ = true;
+                if (breakpoint_inside_segment(protein_pointer_->shine_dal_pos(), pos1, pos2)) cds_completely_deleted_ = true;
               }
 
             if (!(cds_completely_deleted_))
@@ -985,21 +985,21 @@ void GeneTreeNode::register_actual_mutation_effect_on_genes_in_subtree_leaves(
           // Just make sure that we have correctly predicted the positions of the SD sequence and of the promoters.
 
           // TODO vld: refactor DUPLICATED CODE (ref dc1)
-          auto& pl = unit->get_protein_list(strand_);
+          auto& pl = unit->protein_list(strand_);
           auto protein =
               find_if(pl.begin(), pl.end(),
                       [this](Protein & p)
-                      { return p.get_shine_dal_pos() == shine_dal_position_; });
+                      { return p.shine_dal_pos() == shine_dal_position_; });
           if (protein != pl.end()) {
             /* The strand and shine dal position are correct */
             /* Update the protein and rna pointers and positions */
-            nb_promoters_ = protein->get_rna_list().size();
+            nb_promoters_ = protein->rna_list().size();
             if (promoter_positions_ != NULL) delete [] promoter_positions_;
             if (rna_pointers_ != NULL) delete [] rna_pointers_;
             promoter_positions_ = new int32_t[nb_promoters_];
             rna_pointers_ = new Rna *[nb_promoters_];
             size_t i = 0;
-            for (const auto& rna: protein->get_rna_list()) {
+            for (const auto& rna: protein->rna_list()) {
               rna_pointers_[i] = rna;
               promoter_positions_[i] = rna->promoter_pos();
               i++;
@@ -1032,21 +1032,21 @@ void GeneTreeNode::register_actual_mutation_effect_on_genes_in_subtree_leaves(
 
           /* Check whether the protein survived the event */
           // TODO vld: refactor DUPLICATED CODE (ref dc1)
-          auto& pl = unit->get_protein_list(strand_); // shorthand
+          auto& pl = unit->protein_list(strand_); // shorthand
           auto protein =
               find_if(pl.begin(), pl.end(),
                       [this](Protein & p)
-                      { return p.get_shine_dal_pos() == shine_dal_position_; });
+                      { return p.shine_dal_pos() == shine_dal_position_; });
           if (protein != pl.end()) {
             /* The strand and shine dal position are correct */
             /* Update the protein and rna pointers and positions */
-            nb_promoters_ = protein->get_rna_list().size();
+            nb_promoters_ = protein->rna_list().size();
             if (promoter_positions_ != NULL) delete [] promoter_positions_;
             if (rna_pointers_ != NULL) delete [] rna_pointers_;
             promoter_positions_ = new int32_t[nb_promoters_];
             rna_pointers_ = new Rna *[nb_promoters_];
             size_t i = 0;
-            for (const auto& rna: protein->get_rna_list()) {
+            for (const auto& rna: protein->rna_list()) {
               rna_pointers_[i] = rna;
               promoter_positions_[i] = rna->promoter_pos();
               i++;
@@ -1056,8 +1056,8 @@ void GeneTreeNode::register_actual_mutation_effect_on_genes_in_subtree_leaves(
             {
               /* The protein does not exist anymore, the gene was killed by the event */
               gene_loss_date_ = gener;
-              if ((mut->get_mut_type() == SWITCH) || (mut->get_mut_type() == S_INS) || (mut->get_mut_type() == S_DEL)) gene_loss_type_ = LOST_BY_LOCAL_MUTATION;
-              else if ((mut->get_mut_type() == DUPL) || (mut->get_mut_type() == DEL) || (mut->get_mut_type() == TRANS) || (mut->get_mut_type() == INV)) gene_loss_type_ = BROKEN_BY_REAR;
+              if ((mut->mut_type() == SWITCH) || (mut->mut_type() == S_INS) || (mut->mut_type() == S_DEL)) gene_loss_type_ = LOST_BY_LOCAL_MUTATION;
+              else if ((mut->mut_type() == DUPL) || (mut->mut_type() == DEL) || (mut->mut_type() == TRANS) || (mut->mut_type() == INV)) gene_loss_type_ = BROKEN_BY_REAR;
               protein_pointer_ = NULL;
               for (size_t i = 0; i < nb_promoters_; i++) {rna_pointers_[i] = NULL;}
               if (gener > tree->end_gener_) (tree->end_gener_) = gener;
@@ -1072,11 +1072,11 @@ void GeneTreeNode::register_actual_mutation_effect_on_genes_in_subtree_leaves(
         /* Check whether the duplicated CDS found a promoter */
         /* It should be on the same strand as myself, at the putative_position_for_the_duplicate_ */
 
-        auto& pl = unit->get_protein_list(strand_); // shorthand
+        auto& pl = unit->protein_list(strand_); // shorthand
         auto protein =
             find_if(pl.begin(), pl.end(),
                     [this](Protein & p)
-                    { return p.get_shine_dal_pos() == putative_position_for_the_duplicate_; });
+                    { return p.shine_dal_pos() == putative_position_for_the_duplicate_; });
 
         if (protein != pl.end()) {
           if (protein_pointer_ != NULL) {

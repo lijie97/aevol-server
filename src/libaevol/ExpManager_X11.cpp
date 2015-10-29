@@ -161,11 +161,11 @@ void ExpManager_X11::display()
           int x_return, y_return;
           int dest_x_return, dest_y_return;
           unsigned int border_width_return, depth_return; // Unused
-          XGetGeometry(display_, win_[num_win]->get_window(), &aWindow,
+          XGetGeometry(display_, win_[num_win]->window(), &aWindow,
               &x_return, &y_return,
               &win_size_[num_win][0], &win_size_[num_win][1],
               &border_width_return, &depth_return);
-          XTranslateCoordinates(display_, win_[num_win]->get_window(),
+          XTranslateCoordinates(display_, win_[num_win]->window(),
               DefaultRootWindow(display_), 0, 0, &dest_x_return, &dest_y_return, &aWindow);
 
           win_pos_[num_win][0] = dest_x_return - x_return;
@@ -286,9 +286,9 @@ void ExpManager_X11::handle_events()
           int x_return, y_return;
           int dest_x_return, dest_y_return;
           unsigned int border_width_return, depth_return; // Unused
-          XGetGeometry(display_, win_[win_number]->get_window(), &aWindow, &x_return, &y_return,
+          XGetGeometry(display_, win_[win_number]->window(), &aWindow, &x_return, &y_return,
                         &win_size_[win_number][0], &win_size_[win_number][1], &border_width_return, &depth_return);
-          XTranslateCoordinates(display_, win_[win_number]->get_window(), DefaultRootWindow(display_), 0, 0, &dest_x_return, &dest_y_return, &aWindow);
+          XTranslateCoordinates(display_, win_[win_number]->window(), DefaultRootWindow(display_), 0, 0, &dest_x_return, &dest_y_return, &aWindow);
 
           win_pos_[win_number][0] = dest_x_return - x_return;
           win_pos_[win_number][1] = dest_y_return - y_return;
@@ -333,9 +333,9 @@ void ExpManager_X11::handle_events()
             int x_return, y_return;
             int dest_x_return, dest_y_return;
             unsigned int border_width_return, depth_return; // Unused
-            XGetGeometry(display_, win_[num_win]->get_window(), &aWindow, &x_return, &y_return,
+            XGetGeometry(display_, win_[num_win]->window(), &aWindow, &x_return, &y_return,
                           &win_size_[num_win][0], &win_size_[num_win][1], &border_width_return, &depth_return);
-            XTranslateCoordinates(display_, win_[num_win]->get_window(), DefaultRootWindow(display_), 0, 0, &dest_x_return, &dest_y_return, &aWindow);
+            XTranslateCoordinates(display_, win_[num_win]->window(), DefaultRootWindow(display_), 0, 0, &dest_x_return, &dest_y_return, &aWindow);
 
             win_pos_[num_win][0] = dest_x_return - x_return;
             win_pos_[num_win][1] = dest_y_return - y_return;
@@ -419,16 +419,16 @@ void ExpManager_X11::display(X11Window * win,
     list<Point>::const_iterator q = next(p);
     
     // Display segment [p, q]
-    cur_x   = (     (p->x -  X_MIN) / delta_x ) * win->get_width();
-    cur_y   = (1 - ((p->y -  y_min) / delta_y)) * win->get_height();
-    next_x  = (     (q->x - X_MIN) / delta_x ) * win->get_width();
-    next_y  = (1 - ((q->y - y_min) / delta_y)) * win->get_height();
+    cur_x   = (     (p->x -  X_MIN) / delta_x ) * win->width();
+    cur_y   = (1 - ((p->y -  y_min) / delta_y)) * win->height();
+    next_x  = (     (q->x - X_MIN) / delta_x ) * win->width();
+    next_y  = (1 - ((q->y - y_min) / delta_y)) * win->height();
     
     if (fill) {
       char* fill_color;
       for (int16_t i = cur_x ; i < next_x ; i++) {
-        fill_color = X11Window::get_color(((double)i / win->get_width()) * (X_MAX - X_MIN));
-        win->draw_line(i, (1 - ((0 -  y_min) / delta_y)) * win->get_height(),
+        fill_color = X11Window::color(((double)i / win->width()) * (X_MAX - X_MIN));
+        win->draw_line(i, (1 - ((0 -  y_min) / delta_y)) * win->height(),
                         i, cur_y + (((i - cur_x) * (next_y - cur_y)) / (next_x - cur_x)) , fill_color);
         delete [] fill_color;
       }
@@ -444,7 +444,7 @@ void ExpManager_X11::display_grid(X11Window * win, double** cell_grid)
   char t[40];
   int nb_colors = 50; 
   
-  sprintf(t, "Generation = %" PRId64, AeTime::get_time());
+  sprintf(t, "Generation = %" PRId64, AeTime::time());
   win->draw_string(15, 15, t);
   
   
@@ -635,7 +635,7 @@ int8_t ExpManager_X11::identify_window(Window winID)
   {
     if (win_[i] != NULL)
     {
-      if (win_[i]->get_window() == winID) return i;
+      if (win_[i]->window() == winID) return i;
     }
   }
 
@@ -665,11 +665,11 @@ void ExpManager_X11::draw_window(int8_t win_number)
 
       // Display colour bar
       char* color;
-      for (int16_t i = 0 ; i < cur_win->get_width() ; i++)
+      for (int16_t i = 0 ; i < cur_win->width() ; i++)
       {
-        color = X11Window::get_color(((double)i / cur_win->get_width()) * (X_MAX - X_MIN));
+        color = X11Window::color(((double)i / cur_win->width()) * (X_MAX - X_MIN));
         //~ cur_win->draw_line(i, 0, i, cur_win->height() / 20, color);
-        cur_win->draw_line(i, cur_win->get_height() * 19 / 20, i, cur_win->get_height(), color);
+        cur_win->draw_line(i, cur_win->height() * 19 / 20, i, cur_win->height(), color);
         delete [] color;
       }
 
@@ -743,7 +743,7 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
     case 1 :
     {
       // Blacken all the window except the colour bar
-      cur_win->fill_rectangle(0, 0, cur_win->get_width(), cur_win->get_height() * 19 / 20, BLACK);
+      cur_win->fill_rectangle(0, 0, cur_win->width(), cur_win->height() * 19 / 20, BLACK);
 
       // Get phenotypic target shorthand
       const PhenotypicTarget& phenotypic_target = best_indiv()->phenotypic_target();
@@ -758,15 +758,15 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
           {
             if (segments[i]->feature == NEUTRAL)
             {
-              cur_win->fill_rectangle( cur_win->get_width() * segments[i]->start / (X_MAX-X_MIN), 0.0,
-                                        cur_win->get_width() * (segments[i]->stop - segments[i]->start) / (X_MAX-X_MIN),
-                                        cur_win->get_height() * 19 / 20, DARKER_GREY);
+              cur_win->fill_rectangle( cur_win->width() * segments[i]->start / (X_MAX-X_MIN), 0.0,
+                                        cur_win->width() * (segments[i]->stop - segments[i]->start) / (X_MAX-X_MIN),
+                                        cur_win->height() * 19 / 20, DARKER_GREY);
             }
             else
             {
-              cur_win->fill_rectangle( cur_win->get_width() * segments[i]->start / (X_MAX-X_MIN), 0.0,
-                                        cur_win->get_width() * (segments[i]->stop - segments[i]->start) / (X_MAX-X_MIN),
-                                        cur_win->get_height() * 19 / 20, GREY);
+              cur_win->fill_rectangle( cur_win->width() * segments[i]->start / (X_MAX-X_MIN), 0.0,
+                                        cur_win->width() * (segments[i]->stop - segments[i]->start) / (X_MAX-X_MIN),
+                                        cur_win->height() * 19 / 20, GREY);
             }
           }
         }
@@ -775,16 +775,16 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
       // Display all the phenotypes (blue)
 //      for (const auto& indiv: indivs())
 //      {
-//        display(cur_win, *(indiv->get_phenotype()), BLUE);
-//        if (indiv->get_allow_plasmids())
+//        display(cur_win, *(indiv->phenotype()), BLUE);
+//        if (indiv->allow_plasmids())
 //        {
-//          display(cur_win, *(indiv->get_genetic_unit(0).phenotypic_contribution()), YELLOW);
-//          display(cur_win, *(indiv->get_genetic_unit(1).phenotypic_contribution()), GREEN);
+//          display(cur_win, *(indiv->genetic_unit(0).phenotypic_contribution()), YELLOW);
+//          display(cur_win, *(indiv->genetic_unit(1).phenotypic_contribution()), GREEN);
 //        }
 //      }
 
       // Display best indiv's phenotype (white)
-      display(cur_win, *(best_indiv()->get_phenotype()), WHITE, true);
+      display(cur_win, *(best_indiv()->phenotype()), WHITE, true);
 
       // Display phenotypic target (red)
       display(cur_win, phenotypic_target, RED, false, true);

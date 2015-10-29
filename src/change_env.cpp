@@ -55,7 +55,7 @@ using namespace aevol;
 //                         Function declarations
 // =================================================================
 void print_help( char* prog_name );
-f_line* get_line_guard(FILE* param_file);
+f_line* line_guard(FILE* param_file);
 void format_line( f_line* formated_line, char* line, bool* line_is_interpretable );
 
 int main( int argc, char* argv[] )
@@ -146,7 +146,7 @@ int main( int argc, char* argv[] )
   }
   
   f_line* line;
-  while ( ( line = get_line(param_file) ) != NULL ) 
+  while ( ( line = line(param_file) ) != NULL ) 
   {
     if ( strcmp( line->words[0], "ENV_ADD_GAUSSIAN" ) == 0 )
     {
@@ -217,7 +217,7 @@ int main( int argc, char* argv[] )
 
 
 
-f_line* get_line_guard(FILE* param_file)
+f_line* line_guard(FILE* param_file)
 {
   char line[255];
   f_line* formated_line = new f_line();

@@ -74,7 +74,7 @@ class ae_individual_R : public virtual ae_individual
     void    set_influences();
     void    update_concentrations();
     void    multiply_concentrations( double factor );
-    int8_t  get_quadon( GeneticUnit* gen_unit, ae_strand strand, int32_t pos );
+    int8_t  quadon( GeneticUnit* gen_unit, ae_strand strand, int32_t pos );
     void    save( gzFile backup_file );
     // =================================================================
     //                           Public Attributes

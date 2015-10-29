@@ -170,7 +170,7 @@ void Selection::step_to_next_generation() {
       for (int16_t y = 0 ; y < grid_height ; y++) {
         pop_grid[x][y]->set_compound_amount(
             pop_grid[x][y]->compound_amount() +
-            pop_grid[x][y]->get_individual()->fitness_by_feature(SECRETION));
+            pop_grid[x][y]->individual()->fitness_by_feature(SECRETION));
       }
     }
 
@@ -192,7 +192,7 @@ void Selection::step_to_next_generation() {
 
   for (int16_t x = 0 ; x < grid_width ; x++)
     for (int16_t y = 0 ; y < grid_height ; y++)
-      new_generation.emplace_back(pop_grid[x][y]->get_individual());
+      new_generation.emplace_back(pop_grid[x][y]->individual());
 
   // delete the temporary grid and the parental generation
   for (int16_t x = 0 ; x < grid_width ; x++) {
@@ -205,7 +205,7 @@ void Selection::step_to_next_generation() {
 
   // Compute the rank of each individual
   new_generation.sort([](Individual* lhs, Individual* rhs) {
-                       return lhs->get_fitness() < rhs->get_fitness();
+                       return lhs->fitness() < rhs->fitness();
                      });
   int rank = 1;
   for (Individual* indiv : new_generation) {
@@ -295,7 +295,7 @@ void Selection::PerformPlasmidTransfers() {
     // and re-evaluate the individual
     for (int16_t x = 0 ; x < grid_width ; x++) {
       for (int16_t y = 0 ; y < grid_height ; y++) {
-        bool reevaluate = (world->indiv_at(x, y)->get_nb_genetic_units() > 2);
+        bool reevaluate = (world->indiv_at(x, y)->nb_genetic_units() > 2);
         world->indiv_at(x, y)->drop_nested_genetic_units();
         if (reevaluate)
           world->indiv_at(x, y)->Reevaluate();
@@ -414,7 +414,7 @@ void Selection::compute_prob_reprod() { // non spatially structured only
 
     size_t i = 0;
     for (const auto& indiv: exp_m_->indivs()) {
-      fitnesses[i] = indiv->get_fitness();
+      fitnesses[i] = indiv->fitness();
       sum += fitnesses[i];
       ++i;
     }
@@ -487,17 +487,17 @@ Individual* Selection::do_replication(Individual* parent, int32_t index,
   // ===========================================================================
   #ifdef __NO_X
     #ifndef __REGUL
-      new_indiv = new Individual(parent, index, parent->get_mut_prng(), parent->get_stoch_prng());
+      new_indiv = new Individual(parent, index, parent->mut_prng(), parent->stoch_prng());
     #else
-      new_indiv = new ae_individual_R(dynamic_cast<ae_individual_R*>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng());
+      new_indiv = new ae_individual_R(dynamic_cast<ae_individual_R*>(parent), index, parent->mut_prng(), parent->stoch_prng());
     #endif
   #elif defined __X11
     #ifndef __REGUL
       new_indiv = new Individual_X11(dynamic_cast<Individual_X11 *>(parent),
-                                     index, parent->get_mut_prng(),
-                                     parent->get_stoch_prng());
+                                     index, parent->mut_prng(),
+                                     parent->stoch_prng());
     #else
-      new_indiv = new ae_individual_R_X11(dynamic_cast<ae_individual_R_X11*>(parent), index, parent->get_mut_prng(), parent->get_stoch_prng());
+      new_indiv = new ae_individual_R_X11(dynamic_cast<ae_individual_R_X11*>(parent), index, parent->mut_prng(), parent->stoch_prng());
     #endif
   #endif
 
@@ -511,10 +511,10 @@ Individual* Selection::do_replication(Individual* parent, int32_t index,
   exp_m_->world()->PlaceIndiv(new_indiv, x, y);
 
   // Perform transfer, rearrangements and mutations
-  if (not new_indiv->get_allow_plasmids()) {
+  if (not new_indiv->allow_plasmids()) {
     const GeneticUnit* chromosome = &new_indiv->genetic_unit_list().front();
 
-    chromosome->get_dna()->perform_mutations(parent->get_id());
+    chromosome->dna()->perform_mutations(parent->id());
   }
   else { // For each GU, apply mutations
     // Randomly determine the order in which the GUs will undergo mutations
@@ -522,13 +522,13 @@ Individual* Selection::do_replication(Individual* parent, int32_t index,
 
     if (not inverse_order) { // Apply mutations in normal GU order
       for (const auto& gen_unit: new_indiv->genetic_unit_list()) {
-        gen_unit.get_dna()->perform_mutations(parent->get_id());
+        gen_unit.dna()->perform_mutations(parent->id());
       }
     }
     else { // Apply mutations in inverse GU order
       const auto& gul = new_indiv->genetic_unit_list();
       for (auto gen_unit = gul.crbegin(); gen_unit != gul.crend(); ++gen_unit) {
-        gen_unit->get_dna()->perform_mutations(parent->get_id());
+        gen_unit->dna()->perform_mutations(parent->id());
       }
     }
   }
@@ -573,7 +573,7 @@ Individual *Selection::do_local_competition (int16_t x, int16_t y) {
     for (int8_t j = -1 ; j < 2 ; j++) {
       cur_x = (x + i + grid_width)  % grid_width;
       cur_y = (y + j + grid_height) % grid_height;
-      local_fit_array[count]  = world->indiv_at(cur_x, cur_y)->get_fitness();
+      local_fit_array[count]  = world->indiv_at(cur_x, cur_y)->fitness();
       sort_fit_array[count]   = local_fit_array[count];
       initial_location[count] = count;
       sum_local_fit += local_fit_array[count];

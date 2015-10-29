@@ -98,7 +98,7 @@ Protein::Protein(GeneticUnit* gen_unit,
                  double w_max)
 {
   assert( shine_dal_pos >= 0 );
-  assert( shine_dal_pos < gen_unit->get_seq_length() );
+  assert( shine_dal_pos < gen_unit->seq_length() );
 
   gen_unit_       = gen_unit;
   strand_         = strand;
@@ -107,7 +107,7 @@ Protein::Protein(GeneticUnit* gen_unit,
 
   #ifndef __REGUL
     // In Aevol the concentration of a new protein is set at the basal level
-    concentration_  = rna->get_basal_level();
+    concentration_  = rna->basal_level();
   #else
     // In Raevol, there is two case, depending on the heredity
     if ( ae_common::with_heredity )
@@ -118,7 +118,7 @@ Protein::Protein(GeneticUnit* gen_unit,
     else
     {
       // Without heredity, we use the same concentration as in Aevol (No inherited proteins)
-      concentration_ = rna->get_basal_level();
+      concentration_ = rna->basal_level();
     }
   #endif
 
@@ -130,16 +130,16 @@ Protein::Protein(GeneticUnit* gen_unit,
   if ( strand_ == LEADING )
   {
     first_translated_pos_ = Utils::mod( shine_dal_pos_ + (SHINE_DAL_SIZE + SHINE_START_SPACER + CODON_SIZE),
-                                        gen_unit_->get_dna()->length() );
+                                        gen_unit_->dna()->length() );
     last_translated_pos_  = Utils::mod( first_translated_pos_ + (length_ * CODON_SIZE - 1),
-                                        gen_unit_->get_dna()->length() );
+                                        gen_unit_->dna()->length() );
   }
   else
   {
     first_translated_pos_ = Utils::mod( shine_dal_pos_ - (SHINE_DAL_SIZE + SHINE_START_SPACER + CODON_SIZE),
-                                        gen_unit_->get_dna()->length() );
+                                        gen_unit_->dna()->length() );
     last_translated_pos_ = Utils::mod( first_translated_pos_ - (length_ * CODON_SIZE - 1),
-                                       gen_unit_->get_dna()->length() );
+                                       gen_unit_->dna()->length() );
   }
 
 
@@ -314,7 +314,7 @@ Protein::Protein(GeneticUnit* gen_unit,
   }
 
   assert( mean_ >= X_MIN && mean_ <= X_MAX );
-  assert( width_ >= W_MIN && width_ <= get_indiv()->get_w_max() );
+  assert( width_ >= W_MIN && width_ <= indiv()->w_max() );
   assert( height_ >= H_MIN && height_ <= H_MAX );
 }
 
@@ -375,18 +375,18 @@ int32_t Protein::last_STOP_base_pos() const
 {
   if ( strand_ == LEADING )
   {
-    return Utils::mod( last_translated_pos_ + 3, gen_unit_->get_dna()->length() );
+    return Utils::mod( last_translated_pos_ + 3, gen_unit_->dna()->length() );
   }
   else
   {
-    return Utils::mod( last_translated_pos_ - 3, gen_unit_->get_dna()->length() );
+    return Utils::mod( last_translated_pos_ - 3, gen_unit_->dna()->length() );
   }
 }
 
 void Protein::add_RNA( Rna * rna )
 {
   rna_list_.push_back(rna);
-  concentration_ += rna->get_basal_level();
+  concentration_ += rna->basal_level();
 }
 
 char* Protein::AA_sequence(char separator /*= ' '*/) const
@@ -477,8 +477,8 @@ void Protein::save( gzFile backup_file )
 // =================================================================
 //                          Non inline accessors
 // =================================================================
-Individual *Protein::get_indiv() const
+Individual *Protein::indiv() const
 {
-  return gen_unit_->get_indiv();
+  return gen_unit_->indiv();
 }
 } // namespace aevol

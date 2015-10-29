@@ -69,7 +69,7 @@ enum population_change_type
 
 void print_help(char* prog_path);
 
-ParameterLine* get_line_guard(FILE* param_file);
+ParameterLine* line_guard(FILE* param_file);
 void format_line(ParameterLine* formated_line, char* line, bool* line_is_interpretable);
 // void change_by_cloning_best(ae_population* pop, ae_exp_manager* exp_m);
 // void change_based_on_non_coding_bases_of_best_individual(ae_population* pop, ae_exp_manager* exp_m, population_change_type type);
@@ -172,7 +172,7 @@ int main(int argc, char* argv[])
   exp_manager->load(num_gener, false, verbose);
 
   // 7) Define syntaxic sugars for the population, the environment, the selection...  
-//  Environment* env = exp_manager->get_env();
+//  Environment* env = exp_manager->env();
   Selection* sel = exp_manager->sel();
   World* world = exp_manager->world();
 
@@ -181,7 +181,7 @@ int main(int argc, char* argv[])
   char tree_file_name[50];
   Tree* tree = nullptr;
   bool take_care_of_the_tree = exp_manager->record_tree() &&
-                               get_time() > 0;
+                               time() > 0;
 
   if (take_care_of_the_tree)
   {
@@ -217,7 +217,7 @@ int main(int argc, char* argv[])
   
   ParameterLine* line;
   int32_t cur_line = 0;
-  while ((line = get_line_guard(param_file)) != NULL)
+  while ((line = line_guard(param_file)) != NULL)
   {
     cur_line++;
     if (strcmp(line->words[0], "ENV_AXIS_FEATURES") == 0)
@@ -290,7 +290,7 @@ int main(int argc, char* argv[])
                param_file_name, cur_line);
         exit(EXIT_FAILURE);
       }
-      if (exp_manager->output_m()->get_record_tree())
+      if (exp_manager->output_m()->record_tree())
       {
         printf("ERROR modification of already existing tree not impemented yet\n");
         exit(EXIT_FAILURE);
@@ -540,7 +540,7 @@ int main(int argc, char* argv[])
       int32_t plasmid_minimal_length = atoi(line->words[1]);
       for (const auto& indiv: exp_manager->indivs())
       {
-        if (indiv->get_genetic_unit(1).get_seq_length()<plasmid_minimal_length)
+        if (indiv->genetic_unit(1).seq_length()<plasmid_minimal_length)
         {
           printf("ERROR: there is one genetic unit with a smaller length than the new minimum.\n");
           exit(EXIT_FAILURE);
@@ -558,7 +558,7 @@ int main(int argc, char* argv[])
       int32_t plasmid_maximal_length = atoi(line->words[1]);
       for (const auto& indiv: exp_manager->indivs())
       {
-        if (indiv->genetic_unit_nonconst(1).get_seq_length()>plasmid_maximal_length)
+        if (indiv->genetic_unit_nonconst(1).seq_length()>plasmid_maximal_length)
         {
           printf("ERROR: there is one genetic unit with a higher length than the new maximum.\n");
           exit(EXIT_FAILURE);
@@ -571,7 +571,7 @@ int main(int argc, char* argv[])
       int32_t chromosome_minimal_length = atoi(line->words[1]);
       for (const auto& indiv: exp_manager->indivs())
       {
-        if (indiv->genetic_unit_nonconst(0).get_seq_length()<chromosome_minimal_length)
+        if (indiv->genetic_unit_nonconst(0).seq_length()<chromosome_minimal_length)
         {
           printf("ERROR: there is one genetic unit with a smaller length than the new minimum.\n");
           exit(EXIT_FAILURE);
@@ -583,7 +583,7 @@ int main(int argc, char* argv[])
     {
       int32_t chromosome_maximal_length = atoi(line->words[1]);
       for (const auto& indiv: exp_manager->indivs()) {
-        if (indiv->genetic_unit_nonconst(0).get_seq_length()>chromosome_maximal_length)
+        if (indiv->genetic_unit_nonconst(0).seq_length()>chromosome_maximal_length)
         {
           printf("ERROR: there is one genetic unit with a higher length than the new maximum.\n");
           exit(EXIT_FAILURE);
@@ -733,7 +733,7 @@ int main(int argc, char* argv[])
   
   \see format_line(ParameterLine* formated_line, char* line, bool* line_is_interpretable)
 */
-ParameterLine* get_line_guard(FILE* param_file)
+ParameterLine* line_guard(FILE* param_file)
 {
   char line[255];
   ParameterLine* formated_line = new ParameterLine();
@@ -930,7 +930,7 @@ void format_line(ParameterLine* formated_line, char* line, bool* line_is_interpr
 //       // if the population size has changed (which is likely given that we do not 
 //       // generally used population size that are multiple of 3)
 
-//       pop->evaluate_individuals(exp_m->get_env());
+//       pop->evaluate_individuals(exp_m->env());
 //       pop->sort_individuals();
 //     }
 //   else

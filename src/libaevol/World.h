@@ -76,20 +76,20 @@ class World
   //                        Accessors: getters
   // =================================================================
   // PRNGs
-  std::shared_ptr<JumpingMT> get_prng() const;
-  std::shared_ptr<JumpingMT> get_mut_prng() const;
-  std::shared_ptr<JumpingMT> get_stoch_prng() const;
+  std::shared_ptr<JumpingMT> prng() const;
+  std::shared_ptr<JumpingMT> mut_prng() const;
+  std::shared_ptr<JumpingMT> stoch_prng() const;
 
-  std::list<Individual *> get_indivs() const;
-  inline int32_t          get_nb_indivs() const;
-  inline Individual *   get_best_indiv() const;
+  std::list<Individual *> indivs() const;
+  inline int32_t          nb_indivs() const;
+  inline Individual *   best_indiv() const;
   int16_t          width()  const {return width_;};
   int16_t          height() const {return height_;};
   inline int32_t          partial_mix_nb_permutations() const;
   GridCell ***  grid() const {return grid_;};
   inline GridCell*    grid(int16_t x, int16_t y) const;
   inline Individual*   indiv_at(int16_t x, int16_t y) const;
-  Individual* get_indiv_by_id(int32_t id) const;
+  Individual* indiv_by_id(int32_t id) const;
 
   inline double** secretion_present_grid() const;
   inline double** secreted_amount_grid() const;
@@ -183,14 +183,14 @@ class World
 // =====================================================================
 //                           Getters' definitions
 // =====================================================================
-inline int32_t World::get_nb_indivs() const
+inline int32_t World::nb_indivs() const
 {
   return width_ * height_;
 }
 
-inline Individual *World::get_best_indiv() const
+inline Individual *World::best_indiv() const
 {
-  return grid_[x_best][y_best]->get_individual();
+  return grid_[x_best][y_best]->individual();
 }
 
 inline int32_t World::partial_mix_nb_permutations() const
@@ -205,7 +205,7 @@ inline GridCell *World::grid(int16_t x, int16_t y) const
 
 inline Individual *World::indiv_at(int16_t x, int16_t y) const
 {
-  return grid_[x][y]->get_individual();
+  return grid_[x][y]->individual();
 }
 
 inline double**World::secretion_present_grid() const

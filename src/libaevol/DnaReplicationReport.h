@@ -65,16 +65,16 @@ class DnaReplicationReport {
   DnaReplicationReport& operator=(DnaReplicationReport&& other) = delete;
 
   // Accessors
-  const std::list<std::unique_ptr<const LocalMutation>>& get_mutations() const {
+  const std::list<std::unique_ptr<const LocalMutation>>& mutations() const {
     return mutations_;
   };
-  const std::list<std::unique_ptr<const Rearrangement>>& get_rearrangements() const {
+  const std::list<std::unique_ptr<const Rearrangement>>& rearrangements() const {
     return rearrangements_;
   };
-  const std::list<std::unique_ptr<const HorizontalTransfer>>& get_HT() const {
+  const std::list<std::unique_ptr<const HorizontalTransfer>>& HT() const {
     return ht_;
   };
-  int32_t get_nb(MutationType t) const;
+  int32_t nb(MutationType t) const;
 
   // Public Methods
   void compute_stats();  // useful when we inspect a tree file

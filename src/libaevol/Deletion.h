@@ -74,7 +74,7 @@ class Deletion : public Rearrangement {
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
-  virtual MutationType get_mut_type() const override {return DEL;}
+  virtual MutationType mut_type() const override {return DEL;}
 
   int32_t pos1() const { return pos1_; }
   int32_t pos2() const { return pos2_; }

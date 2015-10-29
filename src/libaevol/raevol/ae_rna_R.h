@@ -99,8 +99,8 @@ class ae_rna_R : public ae_rna
     //                           Protected Methods
     // =================================================================
     //inline  ae_rna_R* copy();
-            int32_t   get_enhancer_position();
-            int32_t   get_operator_position();
+            int32_t   enhancer_position();
+            int32_t   operator_position();
             void      add_influence( ae_protein *protein, double enhancing_coef, double operating_coef );
             double    affinity_with_protein( int32_t index, ae_protein *protein );
 

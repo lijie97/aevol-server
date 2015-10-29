@@ -78,28 +78,28 @@ class InsertionHT : public HorizontalTransfer {
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
-  virtual MutationType get_mut_type() const override {
+  virtual MutationType mut_type() const override {
     return INS_HT;
   };
 
   int32_t donor_pos1() const {
-    return donor_donor_align_.get_i_1();
+    return donor_donor_align_.i_1();
   }
 
   int32_t donor_pos2() const {
-    return donor_donor_align_.get_i_2();
+    return donor_donor_align_.i_2();
   }
 
   int32_t exogenote_pos() const {
-    return exo_recv_align_.get_i_1();
+    return exo_recv_align_.i_1();
   }
 
   int32_t receiver_pos() const {
-    return exo_recv_align_.get_i_2();
+    return exo_recv_align_.i_2();
   }
 
   AlignmentSense sense() const {
-    return exo_recv_align_.get_sense();
+    return exo_recv_align_.sense();
   }
 
   int32_t length() const {

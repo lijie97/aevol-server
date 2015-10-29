@@ -109,22 +109,22 @@ void Individual_X11::display_cdss(X11Window * win)
 {
   // Retreive the genetic unit corresponding to the main chromosome
   GeneticUnit* gen_unit = &genetic_unit_list_.front();
-  int32_t genome_length = gen_unit->get_dna()->length();
+  int32_t genome_length = gen_unit->dna()->length();
 
   // Display the number of CDSs
   char display_string[40];
   sprintf(display_string, "Main chromosome size : %" PRId32 "bp", genome_length);
   win->draw_string(15, 25, display_string);
-  sprintf(display_string, "Leading : %" PRId32 " CDSs", static_cast<int32_t>(gen_unit->get_protein_list(LEADING).size()));
+  sprintf(display_string, "Leading : %" PRId32 " CDSs", static_cast<int32_t>(gen_unit->protein_list(LEADING).size()));
   win->draw_string(15, 40, display_string);
-  sprintf(display_string, "Lagging : %" PRId32 " CDSs", static_cast<int32_t>(gen_unit->get_protein_list(LAGGING).size()));
+  sprintf(display_string, "Lagging : %" PRId32 " CDSs", static_cast<int32_t>(gen_unit->protein_list(LAGGING).size()));
   win->draw_string(15, 55, display_string);
 
   // Compute display diameter according to genome length and window size
   int16_t canvas_width;
-  if (allow_plasmids_) canvas_width = win->get_width() / 2;
-  else canvas_width = win->get_width();
-  int16_t canvas_height = win->get_height();
+  if (allow_plasmids_) canvas_width = win->width() / 2;
+  else canvas_width = win->width();
+  int16_t canvas_height = win->height();
 
   int16_t canvas_size = Utils::min(canvas_width, canvas_width);
   int16_t diam        = round(canvas_size * log((double)genome_length) / 16);
@@ -163,7 +163,7 @@ void Individual_X11::display_cdss(X11Window * win)
   // ----------------
   //  LEADING strand
   // ----------------
-  for (const auto& cds: gen_unit->get_protein_list(LEADING))
+  for (const auto& cds: gen_unit->protein_list(LEADING))
   {
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)
@@ -233,7 +233,7 @@ void Individual_X11::display_cdss(X11Window * win)
     pos_x         = (int16_t) round((double)(canvas_width  - diam2) / 2.0);
     pos_y         = (int16_t) round((double)(canvas_height - diam2) / 2.0);
 
-    char* color = X11Window::get_color(cds.get_mean());
+    char* color = X11Window::color(cds.mean());
     win->draw_arc_64(pos_x, pos_y, diam2, theta_first_64 - nb_sect_64, nb_sect_64, color);
     delete [] color;
   }
@@ -241,7 +241,7 @@ void Individual_X11::display_cdss(X11Window * win)
   // ----------------
   //  LAGGING strand
   // ----------------
-  for (const auto& cds: gen_unit->get_protein_list(LAGGING))
+  for (const auto& cds: gen_unit->protein_list(LAGGING))
   {
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)
@@ -311,7 +311,7 @@ void Individual_X11::display_cdss(X11Window * win)
     pos_x         = (int16_t) round((double)(canvas_width  - diam2) / 2.0);
     pos_y         = (int16_t) round((double)(canvas_height - diam2) / 2.0);
 
-    char* color = X11Window::get_color(cds.get_mean());
+    char* color = X11Window::color(cds.mean());
     win->draw_arc_64(pos_x, pos_y, diam2, theta_first_64, nb_sect_64, color);
     delete [] color;
   }
@@ -331,7 +331,7 @@ void Individual_X11::display_cdss(X11Window * win)
     GeneticUnit* gen_unit = &*std::next(genetic_unit_list_.begin());
     if (gen_unit == NULL) return;
 
-    int32_t genome_length = gen_unit->get_dna()->length();
+    int32_t genome_length = gen_unit->dna()->length();
 
 
     // Compute display diameter according to genome length and window size
@@ -340,15 +340,15 @@ void Individual_X11::display_cdss(X11Window * win)
     int16_t canvas_size ;
     if (allow_plasmids_)
     {
-      canvas_width  = win->get_width() / 2;
+      canvas_width  = win->width() / 2;
       canvas_size   = canvas_width;
     }
     else
     {
-      canvas_width  = win->get_width();
+      canvas_width  = win->width();
       canvas_size   = Utils::min(canvas_width, canvas_width);
     }
-    canvas_height = win->get_height();
+    canvas_height = win->height();
 
     int16_t diam  = round(canvas_size * log((double)genome_length) / 16);
 
@@ -387,7 +387,7 @@ void Individual_X11::display_cdss(X11Window * win)
     // ----------------
     //  LEADING strand
     // ----------------
-    for (const auto& cds: gen_unit->get_protein_list(LEADING))
+    for (const auto& cds: gen_unit->protein_list(LEADING))
     {
       // Alpha : angles from OriC (in degrees)
       // Theta : angles on the trigonometric circle (in degrees)
@@ -457,7 +457,7 @@ void Individual_X11::display_cdss(X11Window * win)
       pos_x         = canvas_width + (int16_t) round((double)(canvas_width  - diam2) / 2.0);
       pos_y         = (int16_t) round((double)(canvas_height - diam2) / 2.0);
 
-      char* color = X11Window::get_color(cds.get_mean());
+      char* color = X11Window::color(cds.mean());
       win->draw_arc_64(pos_x, pos_y, diam2, theta_first_64 - nb_sect_64, nb_sect_64, color);
       delete [] color;
     }
@@ -465,7 +465,7 @@ void Individual_X11::display_cdss(X11Window * win)
     // ----------------
     //  LAGGING strand
     // ----------------
-    for (const auto& cds: gen_unit->get_protein_list(LAGGING))
+    for (const auto& cds: gen_unit->protein_list(LAGGING))
     {
       // Alpha : angles from OriC (in degrees)
       // Theta : angles on the trigonometric circle (in degrees)
@@ -535,7 +535,7 @@ void Individual_X11::display_cdss(X11Window * win)
       pos_x         = canvas_width + (int16_t) round((double)(canvas_width  - diam2) / 2.0);
       pos_y         = (int16_t) round((double)(canvas_height - diam2) / 2.0);
 
-      char* color = X11Window::get_color(cds.get_mean());
+      char* color = X11Window::color(cds.mean());
       win->draw_arc_64(pos_x, pos_y, diam2, theta_first_64, nb_sect_64, color);
       delete [] color;
     }
@@ -546,17 +546,17 @@ void Individual_X11::display_rnas(X11Window * win)
 {
   // Retreive the genetic unit corresponding to the main chromosome
   const GeneticUnit* gen_unit = &genetic_unit_list_.front();
-  int32_t genome_length = gen_unit->get_dna()->length();
+  int32_t genome_length = gen_unit->dna()->length();
 
   // Display the number of RNAs
   char nb_rna[40];
-  sprintf(nb_rna, "Leading : %" PRId32 " RNAs", static_cast<int32_t>(gen_unit->get_rna_list()[LEADING].size()));
+  sprintf(nb_rna, "Leading : %" PRId32 " RNAs", static_cast<int32_t>(gen_unit->rna_list()[LEADING].size()));
   win->draw_string(15, 15, nb_rna);
-  sprintf(nb_rna, "Lagging : %" PRId32 " RNAs", static_cast<int32_t>(gen_unit->get_rna_list()[LAGGING].size()));
+  sprintf(nb_rna, "Lagging : %" PRId32 " RNAs", static_cast<int32_t>(gen_unit->rna_list()[LAGGING].size()));
   win->draw_string(15, 30, nb_rna);
 
   // Compute display diameter according to genome length and window size
-  int16_t win_size      = Utils::min(win->get_width(), win->get_height());
+  int16_t win_size      = Utils::min(win->width(), win->height());
   int16_t diam          = round(win_size * log((double)genome_length) / 16);
 
   // Prevent diameter from getting greater than 2/3 of the window size
@@ -566,8 +566,8 @@ void Individual_X11::display_rnas(X11Window * win)
   }
 
   // Compute coordinates of the upper-left corner of the containing square
-  int16_t pos_x = (win->get_width() - diam) / 2;
-  int16_t pos_y = (win->get_height() - diam) / 2;
+  int16_t pos_x = (win->width() - diam) / 2;
+  int16_t pos_y = (win->height() - diam) / 2;
 
   // Draw main circle
   win->draw_circle(pos_x, pos_y, diam);
@@ -593,7 +593,7 @@ void Individual_X11::display_rnas(X11Window * win)
   // ----------------
   //  LEADING strand
   // ----------------
-  const auto& rna_lists = gen_unit->get_rna_list();
+  const auto& rna_lists = gen_unit->rna_list();
   for (const auto& rna: rna_lists[LEADING])
   {
     // Alpha : angles from OriC (in degrees)
@@ -662,7 +662,7 @@ void Individual_X11::display_rnas(X11Window * win)
     char* color;
     if (rna.is_coding())
     {
-      color = X11Window::get_color(rna.get_basal_level());
+      color = X11Window::color(rna.basal_level());
     }
     else
     {
@@ -675,15 +675,15 @@ void Individual_X11::display_rnas(X11Window * win)
     layer++; // index starting at 0 but needed to start at 1
 
     int16_t diam2 = diam + (layer * 2 * rna_layer_spacing);
-    pos_x         = (int16_t) round((double)(win->get_width()  - diam2) / 2.0);
-    pos_y         = (int16_t) round((double)(win->get_height() - diam2) / 2.0);
+    pos_x         = (int16_t) round((double)(win->width()  - diam2) / 2.0);
+    pos_y         = (int16_t) round((double)(win->height() - diam2) / 2.0);
 
     win->draw_arc_64(pos_x, pos_y, diam2, theta_first_64 - nb_sect_64, nb_sect_64, color);
 
     // Draw arrow head
     int8_t arrow_thick = 6; // Must be an even value
-    pos_x = (win->get_width() / 2.0) + (cos((theta_first_64 - nb_sect_64)/(64*180.0)*M_PI) * diam2 / 2.0) - (arrow_thick / 2.0);
-    pos_y = (win->get_height() / 2.0) - (sin((theta_first_64 - nb_sect_64)/(64*180.0)*M_PI) * diam2 / 2.0) - (arrow_thick / 2.0);
+    pos_x = (win->width() / 2.0) + (cos((theta_first_64 - nb_sect_64)/(64*180.0)*M_PI) * diam2 / 2.0) - (arrow_thick / 2.0);
+    pos_y = (win->height() / 2.0) - (sin((theta_first_64 - nb_sect_64)/(64*180.0)*M_PI) * diam2 / 2.0) - (arrow_thick / 2.0);
 
     win->fill_arc(pos_x, pos_y, arrow_thick, Utils::mod(180+theta_last, 360), 180, color);
 
@@ -760,7 +760,7 @@ void Individual_X11::display_rnas(X11Window * win)
     char* color;
     if (rna.is_coding())
     {
-      color = X11Window::get_color(rna.get_basal_level());
+      color = X11Window::color(rna.basal_level());
     }
     else
     {
@@ -773,15 +773,15 @@ void Individual_X11::display_rnas(X11Window * win)
     layer++; // index starting at 0 but needed to start at 1
 
     int16_t diam2 = diam - (layer * 2 * rna_layer_spacing);
-    pos_x         = (int16_t) round((double)(win->get_width()  - diam2) / 2.0);
-    pos_y         = (int16_t) round((double)(win->get_height() - diam2) / 2.0);
+    pos_x         = (int16_t) round((double)(win->width()  - diam2) / 2.0);
+    pos_y         = (int16_t) round((double)(win->height() - diam2) / 2.0);
 
     win->draw_arc_64(pos_x, pos_y, diam2, theta_first_64, nb_sect_64, color);
 
     // Draw arrow head
     int8_t arrow_thick = 6; // Must be an even value
-    pos_x = (win->get_width() / 2.0) + (cos((theta_last_64+1)/(64*180.0)*M_PI) * diam2 / 2.0) - (arrow_thick / 2.0);
-    pos_y = (win->get_height() / 2.0) - (sin((theta_last_64+1)/(64*180.0)*M_PI) * diam2 / 2.0) - (arrow_thick / 2.0);
+    pos_x = (win->width() / 2.0) + (cos((theta_last_64+1)/(64*180.0)*M_PI) * diam2 / 2.0) - (arrow_thick / 2.0);
+    pos_y = (win->height() / 2.0) - (sin((theta_last_64+1)/(64*180.0)*M_PI) * diam2 / 2.0) - (arrow_thick / 2.0);
 
     win->fill_arc(pos_x, pos_y, arrow_thick, theta_last, 180, color);
 

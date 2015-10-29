@@ -81,21 +81,21 @@ class ReplicationReport : public Observer {
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline Individual * get_indiv() const;
+    inline Individual * indiv() const;
     int32_t id() { return id_; };
     int32_t rank() { return rank_; };
-    inline int32_t  get_genome_size() const;
-    inline int32_t  get_parent_id() const;
-    inline double   get_parent_metabolic_error() const;
-    inline double   get_parent_secretion_error() const;
-    inline int32_t  get_parent_genome_size() const;
+    inline int32_t  genome_size() const;
+    inline int32_t  parent_id() const;
+    inline double   parent_metabolic_error() const;
+    inline double   parent_secretion_error() const;
+    inline int32_t  parent_genome_size() const;
 
     inline double   mean_align_score() const;
-    inline int32_t	get_donor_id() const;
-    inline double   get_donor_metabolic_error() const;
-    inline int32_t  get_donor_genome_size() const;
-    int32_t get_nb(MutationType t) const {
-      return dna_replic_report_.get_nb(t);
+    inline int32_t	donor_id() const;
+    inline double   donor_metabolic_error() const;
+    inline int32_t  donor_genome_size() const;
+    int32_t nb(MutationType t) const {
+      return dna_replic_report_.nb(t);
     }
 
     // TODO <david.parsons@inria.fr> re-constify
@@ -173,47 +173,47 @@ class ReplicationReport : public Observer {
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-inline Individual *ReplicationReport::get_indiv() const
+inline Individual *ReplicationReport::indiv() const
 {
   return indiv_;
 }
 
-inline int32_t ReplicationReport::get_genome_size() const
+inline int32_t ReplicationReport::genome_size() const
 {
   return genome_size_;
 }
 
-int32_t ReplicationReport::get_parent_id() const
+int32_t ReplicationReport::parent_id() const
 {
   return parent_id_;
 }
 
-double ReplicationReport::get_parent_metabolic_error() const
+double ReplicationReport::parent_metabolic_error() const
 {
   return parent_metabolic_error_;
 }
 
-double ReplicationReport::get_parent_secretion_error() const
+double ReplicationReport::parent_secretion_error() const
 {
   return parent_secretion_error_;
 }
 
-int32_t ReplicationReport::get_parent_genome_size() const
+int32_t ReplicationReport::parent_genome_size() const
 {
   return parent_genome_size_;
 }
 
-inline int32_t	ReplicationReport::get_donor_id() const
+inline int32_t	ReplicationReport::donor_id() const
 {
   return donor_id_;
 }
 
-inline double   ReplicationReport::get_donor_metabolic_error() const
+inline double   ReplicationReport::donor_metabolic_error() const
 {
   return donor_metabolic_error_;
 }
 
-inline int32_t  ReplicationReport::get_donor_genome_size() const
+inline int32_t  ReplicationReport::donor_genome_size() const
 {
   return donor_genome_size_;
 }

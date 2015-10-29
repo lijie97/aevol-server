@@ -57,7 +57,7 @@ DnaReplicationReport::DnaReplicationReport(const DnaReplicationReport& other) {
     add_local_mut(mut->Clone());
 }
 
-int32_t DnaReplicationReport::get_nb(MutationType t)  const {
+int32_t DnaReplicationReport::nb(MutationType t)  const {
   switch (t) {
     case S_MUT:
       assert(mutations_.size() ==
@@ -99,7 +99,7 @@ void DnaReplicationReport::add_mut(Mutation* mut) {
 void DnaReplicationReport::add_local_mut(Mutation* mut) {
   assert(mut->is_local_mut());
   std::unique_ptr<const LocalMutation> cmut = nullptr;
-  switch(mut->get_mut_type()) {
+  switch(mut->mut_type()) {
     case SWITCH:
 #if __cplusplus == 201103L
       cmut = make_unique<const PointMutation>(static_cast<PointMutation&>(*mut));
@@ -130,14 +130,14 @@ void DnaReplicationReport::add_local_mut(Mutation* mut) {
       break;
   }
   mutations_.push_back(std::move(cmut));
-  nb_mut_[mut->get_mut_type()]++;
+  nb_mut_[mut->mut_type()]++;
 }
 
 void DnaReplicationReport::add_rear(Mutation* mut) {
   assert(mut->is_rear());
 
   std::unique_ptr<const Rearrangement> cmut = nullptr;
-  switch(mut->get_mut_type()) {
+  switch(mut->mut_type()) {
     case DUPL:
 #if __cplusplus == 201103L
       cmut = make_unique<const Duplication>(static_cast<Duplication&>(*mut));
@@ -175,14 +175,14 @@ void DnaReplicationReport::add_rear(Mutation* mut) {
       break;
   }
   rearrangements_.push_back(std::move(cmut));
-  nb_mut_[mut->get_mut_type()]++;
+  nb_mut_[mut->mut_type()]++;
 }
 
 void DnaReplicationReport::add_HT(Mutation* mut) {
   assert(mut->is_ht());
 
   std::unique_ptr<const HorizontalTransfer> cmut = nullptr;
-  switch(mut->get_mut_type()) {
+  switch(mut->mut_type()) {
     case INS_HT:
 #if __cplusplus == 201103L
       cmut = make_unique<const InsertionHT>(static_cast<InsertionHT&>(*mut));
@@ -206,7 +206,7 @@ void DnaReplicationReport::add_HT(Mutation* mut) {
       break;
   }
   ht_.push_back(std::move(cmut));
-  nb_mut_[mut->get_mut_type()]++;
+  nb_mut_[mut->mut_type()]++;
 }
 
 
@@ -225,34 +225,34 @@ void DnaReplicationReport::compute_stats()
   nb_mut_[REPL_HT]= 0;
   
   for (const auto& ht : ht_) {
-    assert(ht->get_mut_type() == INS_HT or
-           ht->get_mut_type() == REPL_HT);
-    nb_mut_[ht->get_mut_type()]++;
+    assert(ht->mut_type() == INS_HT or
+           ht->mut_type() == REPL_HT);
+    nb_mut_[ht->mut_type()]++;
   }
 
   for (const auto& rear : rearrangements_) {
-    assert(rear->get_mut_type() == DUPL or
-           rear->get_mut_type() == DEL or
-           rear->get_mut_type() == TRANS or
-           rear->get_mut_type() == INV);
-    nb_mut_[rear->get_mut_type()]++;
+    assert(rear->mut_type() == DUPL or
+           rear->mut_type() == DEL or
+           rear->mut_type() == TRANS or
+           rear->mut_type() == INV);
+    nb_mut_[rear->mut_type()]++;
   }
 
   for (const auto& mut : mutations_) {
-    assert(mut->get_mut_type() == SWITCH or
-           mut->get_mut_type() == S_INS or
-           mut->get_mut_type() == S_DEL);
-    nb_mut_[mut->get_mut_type()]++;
+    assert(mut->mut_type() == SWITCH or
+           mut->mut_type() == S_INS or
+           mut->mut_type() == S_DEL);
+    nb_mut_[mut->mut_type()]++;
   }
 }
 
 void DnaReplicationReport::write_to_tree_file(gzFile tree_file) const {
   // Write the mutations and rearrangements undergone during replication
   // Store HT
-  int32_t nb_HT = get_nb(H_T);
+  int32_t nb_HT = nb(H_T);
   gzwrite(tree_file, &nb_HT, sizeof(nb_HT));
   for (const auto& ht : ht_) {
-    switch(ht->get_mut_type()) {
+    switch(ht->mut_type()) {
       case INS_HT:
         ht->save(tree_file);
         break;
@@ -267,10 +267,10 @@ void DnaReplicationReport::write_to_tree_file(gzFile tree_file) const {
 
 
   // Store rearrangements
-  int32_t nb_rears = get_nb(REARR);
+  int32_t nb_rears = nb(REARR);
   gzwrite(tree_file, &nb_rears, sizeof(nb_rears));
   for (const auto& rear : rearrangements_) {
-    switch(rear->get_mut_type()) {
+    switch(rear->mut_type()) {
       case DUPL:
         rear->save(tree_file);
         break;
@@ -290,10 +290,10 @@ void DnaReplicationReport::write_to_tree_file(gzFile tree_file) const {
   }
 
   // Store mutations
-  int32_t nb_muts = get_nb(S_MUT);
+  int32_t nb_muts = nb(S_MUT);
   gzwrite(tree_file, &nb_muts, sizeof(nb_muts));
   for (const auto& mut : mutations_)
-    switch(mut->get_mut_type()) {
+    switch(mut->mut_type()) {
       case SWITCH:
         mut->save(tree_file);
         break;

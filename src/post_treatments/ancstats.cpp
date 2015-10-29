@@ -288,7 +288,7 @@ int main(int argc, char** argv)
   // ==================================================
   GridCell* grid_cell = new GridCell(lineage_file, exp_manager, nullptr);
   // Individual*indiv = Individual::CreateIndividual(exp_manager, lineage_file);
-  auto* indiv = grid_cell->get_individual();
+  auto* indiv = grid_cell->individual();
   indiv->Evaluate();
   indiv->compute_statistical_data();
   indiv->compute_non_coding();
@@ -308,8 +308,8 @@ int main(int argc, char** argv)
 
   if (verbose)
   {
-    printf("Initial fitness     = %f\n", indiv->get_fitness());
-    printf("Initial genome size = %" PRId32 "\n", indiv->get_total_genome_size());
+    printf("Initial fitness     = %f\n", indiv->fitness());
+    printf("Initial genome size = %" PRId32 "\n", indiv->total_genome_size());
   }
 
   //delete exp_manager;
@@ -327,19 +327,19 @@ int main(int argc, char** argv)
   bool check_now = false;
 
   aevol::AeTime::plusplus();
-  while (get_time() <= t_end)
+  while (time() <= t_end)
   {
     rep = new ReplicationReport(lineage_file, indiv);
     index = rep->id(); // who we are building...
 
     // Check now?
-    check_now = ((check == FULL_CHECK && Utils::mod(get_time(), backup_step) == 0) ||
-                 (check == ENV_CHECK && Utils::mod(get_time(), backup_step) == 0) ||
-                 (check == LIGHT_CHECK && get_time() == t_end));
+    check_now = ((check == FULL_CHECK && Utils::mod(time(), backup_step) == 0) ||
+                 (check == ENV_CHECK && Utils::mod(time(), backup_step) == 0) ||
+                 (check == LIGHT_CHECK && time() == t_end));
 
     if (verbose)
         printf("Rebuilding ancestor at generation %" PRId64
-            " (index %" PRId32 ")...", get_time(), index);
+            " (index %" PRId32 ")...", time(), index);
 
     indiv->Reevaluate();
 
@@ -348,17 +348,17 @@ int main(int argc, char** argv)
 
 //    // Check, and possibly update, the environment according to the backup files
 //    // (update necessary if the env. was modified by aevol_modify at some point)
-//    if (Utils::mod(get_time(), backup_step) == 0)
+//    if (Utils::mod(time(), backup_step) == 0)
 //    {
 //      char world_file_name[255];
-//      sprintf(world_file_name, "./" WORLD_FNAME_FORMAT, get_time());
+//      sprintf(world_file_name, "./" WORLD_FNAME_FORMAT, time());
 //      gzFile world_file = gzopen(world_file_name, "r");
 //      backup_habitat = new Habitat(world_file, pth); // TODO vld: fix pth
 //
 //      if (! env->is_identical_to(*backup_env, tolerance))
 //      {
-//        printf("Warning: At get_time()=%" PRId64 ", the replayed environment is not the same\n", get_time());
-//        printf("         as the one saved at get_time()=%" PRId64 "... \n", get_time());
+//        printf("Warning: At time()=%" PRId64 ", the replayed environment is not the same\n", time());
+//        printf("         as the one saved at time()=%" PRId64 "... \n", time());
 //        printf("         with tolerance of %lg\n", tolerance);
 //        printf("Replacing the replayed environment by the one stored in the backup.\n");
 //        delete env;
@@ -368,7 +368,7 @@ int main(int argc, char** argv)
 //    }
 
 
-    // Warning: this portion of code won'get_time() work if the number of units changes
+    // Warning: this portion of code won'time() work if the number of units changes
     // during the evolution
 
     // 2) Replay replication (create current individual's child)
@@ -379,7 +379,7 @@ int main(int argc, char** argv)
     if (check_now)
     {
       exp_manager_backup = new ExpManager();
-      exp_manager_backup->load(get_time(), true, false);
+      exp_manager_backup->load(time(), true, false);
       stored_indiv = new Individual(
           *(Individual*) exp_manager_backup->indiv_by_id(index));
       stored_gen_unit = &(stored_indiv->genetic_unit_nonconst(0));
@@ -389,12 +389,12 @@ int main(int argc, char** argv)
     // TODO <david.parsons@inria.fr> disabled for multiple GUs
     const auto& dnarep = rep->dna_replic_report();
 
-    for (const auto& mut: dnarep.get_HT())
-      gen_unit.get_dna()->undergo_this_mutation(*mut);
-    for (const auto& mut: dnarep.get_rearrangements())
-      gen_unit.get_dna()->undergo_this_mutation(*mut);
-    for (const auto& mut: dnarep.get_mutations())
-      gen_unit.get_dna()->undergo_this_mutation(*mut);
+    for (const auto& mut: dnarep.HT())
+      gen_unit.dna()->undergo_this_mutation(*mut);
+    for (const auto& mut: dnarep.rearrangements())
+      gen_unit.dna()->undergo_this_mutation(*mut);
+    for (const auto& mut: dnarep.mutations())
+      gen_unit.dna()->undergo_this_mutation(*mut);
 
     if (check_now)
     {
@@ -404,24 +404,24 @@ int main(int argc, char** argv)
         fflush(NULL);
       }
 
-      char * str1 = new char[gen_unit.get_dna()->length() + 1];
-      memcpy(str1, gen_unit.get_dna()->data(), \
-             gen_unit.get_dna()->length()*sizeof(char));
-      str1[gen_unit.get_dna()->length()] = '\0';
+      char * str1 = new char[gen_unit.dna()->length() + 1];
+      memcpy(str1, gen_unit.dna()->data(), \
+             gen_unit.dna()->length()*sizeof(char));
+      str1[gen_unit.dna()->length()] = '\0';
 
-      char * str2 = new char[(stored_gen_unit->get_dna())->length() + 1];
-      memcpy(str2, (stored_gen_unit->get_dna())->data(),
-             (stored_gen_unit->get_dna())->length()*sizeof(char));
-      str2[(stored_gen_unit->get_dna())->length()] = '\0';
+      char * str2 = new char[(stored_gen_unit->dna())->length() + 1];
+      memcpy(str2, (stored_gen_unit->dna())->data(),
+             (stored_gen_unit->dna())->length()*sizeof(char));
+      str2[(stored_gen_unit->dna())->length()] = '\0';
 
-      if (strncmp(str1, str2, stored_gen_unit->get_dna()->length()) == 0) {
+      if (strncmp(str1, str2, stored_gen_unit->dna()->length()) == 0) {
         if (verbose)
           printf(" OK\n");
       }
       else {
         if (verbose) printf(" ERROR !\n");
         fprintf(stderr, "Error: the rebuilt genetic unit is not the same as \n");
-        fprintf(stderr, "the one saved at generation %" PRId64 "... ", get_time());
+        fprintf(stderr, "the one saved at generation %" PRId64 "... ", time());
         fprintf(stderr, "Rebuilt unit : %" PRId32 " bp\n %s\n", (int32_t)strlen(str1), str1);
         fprintf(stderr, "Stored unit  : %" PRId32 " bp\n %s\n", (int32_t)strlen(str2), str2);
 
@@ -447,13 +447,13 @@ int main(int argc, char** argv)
     mystats->write_statistics_of_this_indiv(indiv);
 
     // Optional outputs
-    write_environment_stats(get_time(), *phenotypicTargetHandler, env_output_file);
-    write_terminators_stats(get_time(), indiv, term_output_file);
+    write_environment_stats(time(), *phenotypicTargetHandler, env_output_file);
+    write_terminators_stats(time(), indiv, term_output_file);
     if(phenotypicTargetHandler->phenotypic_target().nb_segments() > 1)
     {
-      write_zones_stats(get_time(), indiv, *phenotypicTargetHandler, zones_output_file);
+      write_zones_stats(time(), indiv, *phenotypicTargetHandler, zones_output_file);
     }
-    write_operons_stats(get_time(), indiv, operons_output_file);
+    write_operons_stats(time(), indiv, operons_output_file);
 
     if (verbose) printf(" OK\n");
 
@@ -545,7 +545,7 @@ void write_terminators_stats(int64_t t,  Individual* indiv, FILE* term_output_fi
 {
   fprintf( term_output_file, "%" PRId64 " %" PRId32 " %" PRId32 "\n",
             t,
-            indiv->get_total_genome_size(),
+            indiv->total_genome_size(),
             indiv->nb_terminators());
 }
 
@@ -608,10 +608,10 @@ void write_zones_stats(int64_t t,
 
 
   // Compute number of genes in each segment
-  for (const auto& prot: indiv->get_protein_list()) {
+  for (const auto& prot: indiv->protein_list()) {
     // Go to the corresponding segment
     num_segment = 0;
-    while (prot->get_mean() > segments[num_segment]->stop)
+    while (prot->mean() > segments[num_segment]->stop)
     {
       num_segment++;
     }
@@ -619,23 +619,23 @@ void write_zones_stats(int64_t t,
     // Add a genes (activ or inhib)
     if (prot->is_functional())
     {
-      if (prot->get_height() > 0)
+      if (prot->height() > 0)
       {
         nb_genes_activ[num_segment]++;
       }
-      else if (prot->get_height() < 0)
+      else if (prot->height() < 0)
       {
         nb_genes_inhib[num_segment]++;
       }
 
       // It the gene is exactly at the frontier between 2 zones, mark it in both
-      if (prot->get_mean() == segments[num_segment]->stop && num_segment < nb_segments - 1)
+      if (prot->mean() == segments[num_segment]->stop && num_segment < nb_segments - 1)
       {
-        if (prot->get_height() > 0)
+        if (prot->height() > 0)
         {
           nb_genes_activ[num_segment+1]++;
         }
-        else if (prot->get_height() < 0)
+        else if (prot->height() < 0)
         {
           nb_genes_inhib[num_segment+1]++;
         }
@@ -646,7 +646,7 @@ void write_zones_stats(int64_t t,
   // Compute the geometric areas
   activ = indiv->phenotype_activ();
   inhib = indiv->phenotype_inhib();
-  phen  = indiv->get_phenotype();
+  phen  = indiv->phenotype();
 
   for (num_segment = 0 ; num_segment < nb_segments ; num_segment++)
   {
@@ -694,13 +694,13 @@ void write_operons_stats(int64_t t, Individual* indiv, FILE*  operons_output_fil
     nb_genes_per_rna[i] = 0;
   }
 
-  for (const auto& rna: indiv->get_rna_list()) {
-    if (rna->get_transcribed_proteins().size() >= 20)
+  for (const auto& rna: indiv->rna_list()) {
+    if (rna->transcribed_proteins().size() >= 20)
     {
-      printf("Found operon with 20 genes or more : %zu\n", rna->get_transcribed_proteins().size());
+      printf("Found operon with 20 genes or more : %zu\n", rna->transcribed_proteins().size());
     }
 
-    nb_genes_per_rna[rna->get_transcribed_proteins().size()]++;
+    nb_genes_per_rna[rna->transcribed_proteins().size()]++;
   }
 
   fprintf( operons_output_file, "%" PRId64 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n",

@@ -184,49 +184,49 @@ X11Window::X11Window( Display* display, int8_t screen, Atom* atoms,
   XGCValues values;
   values.line_width = 1;
 
-  values.foreground = get_pixel( display_, screen_, (char*)"white", whiteColor );
-  values.background = get_pixel( display_, screen_, (char*)"black", whiteColor );
+  values.foreground = pixel( display_, screen_, (char*)"white", whiteColor );
+  values.background = pixel( display_, screen_, (char*)"black", whiteColor );
   gcWhite_ = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
 
 
-  values.foreground = get_pixel( display_, screen_, (char*)"black",whiteColor );
-  values.background = get_pixel( display_, screen_, (char*)"white",whiteColor );
+  values.foreground = pixel( display_, screen_, (char*)"black",whiteColor );
+  values.background = pixel( display_, screen_, (char*)"white",whiteColor );
   gcBlack_ = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
 
-  values.foreground = get_pixel( display_, screen_, (char*)"red",  whiteColor );
-  values.background = get_pixel( display_, screen_, (char*)"black",whiteColor );
+  values.foreground = pixel( display_, screen_, (char*)"red",  whiteColor );
+  values.background = pixel( display_, screen_, (char*)"black",whiteColor );
   gcRed_ = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
 
-  values.foreground = get_pixel( display_, screen_, (char*)"green",whiteColor );
-  values.background = get_pixel( display_, screen_, (char*)"green",whiteColor );
+  values.foreground = pixel( display_, screen_, (char*)"green",whiteColor );
+  values.background = pixel( display_, screen_, (char*)"green",whiteColor );
   gcGreen_ = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
 
-  values.foreground = get_pixel( display_, screen_, (char*)"blue", whiteColor );
-  values.background = get_pixel( display_, screen_, (char*)"black",whiteColor );
+  values.foreground = pixel( display_, screen_, (char*)"blue", whiteColor );
+  values.background = pixel( display_, screen_, (char*)"black",whiteColor );
   gcBlue_ = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
 
-  values.foreground = get_pixel( display_, screen_, (char*)"orange",whiteColor );
-  values.background = get_pixel( display_, screen_, (char*)"orange",whiteColor );
+  values.foreground = pixel( display_, screen_, (char*)"orange",whiteColor );
+  values.background = pixel( display_, screen_, (char*)"orange",whiteColor );
   gcOrange_ = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
 
-  values.foreground = get_pixel( display_, screen_, (char*)"yellow",whiteColor );
-  values.background = get_pixel( display_, screen_, (char*)"yellow",whiteColor );
+  values.foreground = pixel( display_, screen_, (char*)"yellow",whiteColor );
+  values.background = pixel( display_, screen_, (char*)"yellow",whiteColor );
   gcYellow_ = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
 
-  values.foreground = get_pixel( display_, screen_, (char*)"lightgrey",whiteColor );
-  values.background = get_pixel( display_, screen_, (char*)"lightgrey",whiteColor );
+  values.foreground = pixel( display_, screen_, (char*)"lightgrey",whiteColor );
+  values.background = pixel( display_, screen_, (char*)"lightgrey",whiteColor );
   gcLightGrey_ = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
 
-  values.foreground = get_pixel( display_, screen_, (char*)"darkgrey", whiteColor );
-  values.background = get_pixel( display_, screen_, (char*)"darkgrey", whiteColor );
+  values.foreground = pixel( display_, screen_, (char*)"darkgrey", whiteColor );
+  values.background = pixel( display_, screen_, (char*)"darkgrey", whiteColor );
   gcDarkGrey_ = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
 
-  values.foreground = get_pixel( display_, screen_, (char*)"grey15", whiteColor );
-  values.background = get_pixel( display_, screen_, (char*)"grey15", whiteColor );
+  values.foreground = pixel( display_, screen_, (char*)"grey15", whiteColor );
+  values.background = pixel( display_, screen_, (char*)"grey15", whiteColor );
   gcDarkerGrey_ = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
 
-  values.foreground = get_pixel( display_, screen_, (char*)"grey",whiteColor );
-  values.background = get_pixel( display_, screen_, (char*)"grey",whiteColor );
+  values.foreground = pixel( display_, screen_, (char*)"grey",whiteColor );
+  values.background = pixel( display_, screen_, (char*)"grey",whiteColor );
   gcGrey_ = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
 
 
@@ -335,8 +335,8 @@ void X11Window::draw_line( int16_t x1, int16_t y1, int16_t x2, int16_t y2, char*
 {
   // Create custom GC
   XGCValues values;
-  values.foreground = get_pixel( display_, screen_, color, WhitePixel(display_,screen_) );
-  values.background = get_pixel( display_, screen_, color, WhitePixel(display_,screen_) );
+  values.foreground = pixel( display_, screen_, color, WhitePixel(display_,screen_) );
+  values.background = pixel( display_, screen_, color, WhitePixel(display_,screen_) );
   GC tmp_gc = XCreateGC( display_, window_, GCForeground|GCBackground, &values );
 
   // Draw line (lines if bold)
@@ -364,8 +364,8 @@ void X11Window::draw_arc( int16_t x, int16_t y, int16_t diam, int16_t angle1, in
 {
   XGCValues values;
   values.line_width = 2;
-  values.foreground = get_pixel( display_, screen_, color, WhitePixel(display_,screen_) );
-  values.background = get_pixel( display_, screen_, color, WhitePixel(display_,screen_) );
+  values.foreground = pixel( display_, screen_, color, WhitePixel(display_,screen_) );
+  values.background = pixel( display_, screen_, color, WhitePixel(display_,screen_) );
   GC tmp_gc = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
 
   XDrawArc( display_, window_, tmp_gc, x, y, diam, diam, 64*angle1, 64*angle2 );
@@ -382,8 +382,8 @@ void X11Window::draw_arc_64( int16_t x, int16_t y, int16_t diam, int16_t angle1,
 {
   XGCValues values;
   values.line_width = 2;
-  values.foreground = get_pixel( display_, screen_, color, WhitePixel(display_,screen_) );
-  values.background = get_pixel( display_, screen_, color, WhitePixel(display_,screen_) );
+  values.foreground = pixel( display_, screen_, color, WhitePixel(display_,screen_) );
+  values.background = pixel( display_, screen_, color, WhitePixel(display_,screen_) );
   GC tmp_gc = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
 
   XDrawArc( display_, window_, tmp_gc, x, y, diam, diam, angle1, angle2 );
@@ -400,8 +400,8 @@ void X11Window::fill_arc( int16_t x, int16_t y, int16_t diam, int16_t angle1, in
 {
   XGCValues values;
   values.line_width = 2;
-  values.foreground = get_pixel( display_, screen_, color, WhitePixel(display_,screen_) );
-  values.background = get_pixel( display_, screen_, color, WhitePixel(display_,screen_) );
+  values.foreground = pixel( display_, screen_, color, WhitePixel(display_,screen_) );
+  values.background = pixel( display_, screen_, color, WhitePixel(display_,screen_) );
   GC tmp_gc = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
 
   XFillArc( display_, window_, tmp_gc, x, y, diam, diam, 64*angle1, 64*angle2 );
@@ -418,8 +418,8 @@ void X11Window::fill_arc_64( int16_t x, int16_t y, int16_t diam, int16_t angle1,
 {
   XGCValues values;
   values.line_width = 2;
-  values.foreground = get_pixel( display_, screen_, color, WhitePixel(display_,screen_) );
-  values.background = get_pixel( display_, screen_, color, WhitePixel(display_,screen_) );
+  values.foreground = pixel( display_, screen_, color, WhitePixel(display_,screen_) );
+  values.background = pixel( display_, screen_, color, WhitePixel(display_,screen_) );
   GC tmp_gc = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
 
   XFillArc( display_, window_, tmp_gc, x, y, diam, diam, angle1, angle2 );
@@ -470,8 +470,8 @@ void X11Window::fill_rectangle( int16_t x, int16_t y, int16_t width, int16_t hei
 void X11Window::fill_rectangle( int16_t x, int16_t y, int16_t width, int16_t height, char* color )
 {
   XGCValues values;
-  values.foreground = get_pixel( display_, screen_, color, WhitePixel(display_,screen_) );
-  values.background = get_pixel( display_, screen_, color, WhitePixel(display_,screen_) );
+  values.foreground = pixel( display_, screen_, color, WhitePixel(display_,screen_) );
+  values.background = pixel( display_, screen_, color, WhitePixel(display_,screen_) );
   GC tmp_gc = XCreateGC( display_, window_, GCForeground|GCBackground, &values );
 
   XFillRectangle( display_, window_, tmp_gc, x, y, width, height );
@@ -479,7 +479,7 @@ void X11Window::fill_rectangle( int16_t x, int16_t y, int16_t width, int16_t hei
   XFreeGC( display_, tmp_gc );
 }
 
-char*X11Window::get_color( double mean )
+char*X11Window::color( double mean )
 {
   int16_t red, green, blue;
 
@@ -530,7 +530,7 @@ char*X11Window::get_color( double mean )
 //                           Protected Methods
 // =================================================================
 
-uint32_t X11Window::get_pixel(Display *display, int8_t screen, char *color_name, uint32_t default_color)
+uint32_t X11Window::pixel(Display *display, int8_t screen, char *color_name, uint32_t default_color)
 {
   // hacked on 2014-12-05 because XQuarz and Yosemite make XAllocColor veeery slow
   // dirty memoization workaround: display and screen are assumed to be constant

@@ -87,20 +87,20 @@ class Protein
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline Strand get_strand()                const;
-    inline const std::list<Rna *> get_rna_list()          const;
-    inline int32_t            get_shine_dal_pos()         const;
+    inline Strand strand()                const;
+    inline const std::list<Rna *> rna_list()          const;
+    inline int32_t            shine_dal_pos()         const;
     inline int32_t            first_translated_pos()  const;
     inline int32_t            last_translated_pos()   const;
            int32_t            last_STOP_base_pos()    const;
-    inline double             get_mean()                  const;
-    inline double             get_width()                 const; // returns the half-width
-    inline double             get_height()                const;
-    inline int32_t            get_length()                const; // Number of Amino-Acids (not including START and STOP)
-    inline double             get_concentration()         const;
+    inline double             mean()                  const;
+    inline double             width()                 const; // returns the half-width
+    inline double             height()                const;
+    inline int32_t            length()                const; // Number of Amino-Acids (not including START and STOP)
+    inline double             concentration()         const;
     inline  bool              is_functional()         const;
     
-    Individual * get_indiv() const;
+    Individual * indiv() const;
 
     // =================================================================
     //                            Public Methods
@@ -147,16 +147,16 @@ class Protein
 // =====================================================================
 //                          Accessors definitions
 // =====================================================================
-inline Strand Protein::get_strand() const
+inline Strand Protein::strand() const
 {
   return strand_;
 }
 
-inline const std::list<Rna *> Protein::get_rna_list() const {
+inline const std::list<Rna *> Protein::rna_list() const {
   return rna_list_;
 }
 
-int32_t Protein::get_shine_dal_pos() const
+int32_t Protein::shine_dal_pos() const
 {
   return shine_dal_pos_;
 }
@@ -171,27 +171,27 @@ int32_t Protein::last_translated_pos() const
   return last_translated_pos_;
 }
 
-double Protein::get_mean() const
+double Protein::mean() const
 {
   return mean_;
 }
 
-double Protein::get_width() const
+double Protein::width() const
 {
   return width_;
 }
 
-double Protein::get_height() const
+double Protein::height() const
 {
   return height_;
 }
 
-int32_t Protein::get_length() const
+int32_t Protein::length() const
 {
   return length_;
 }
 
-double Protein::get_concentration() const
+double Protein::concentration() const
 {
   return concentration_;
 }

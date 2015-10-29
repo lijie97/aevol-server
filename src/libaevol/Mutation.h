@@ -115,7 +115,7 @@ class Mutation {
   // =================================================================
   //                        Accessors: Getters
   // =================================================================
-  virtual MutationType get_mut_type() const = 0;
+  virtual MutationType mut_type() const = 0;
   virtual bool is_local_mut() const { return false; };
   virtual bool is_rear() const { return false; };
   virtual bool is_ht() const { return false; };

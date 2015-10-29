@@ -121,37 +121,37 @@ class Individual : public Observable {
   // =================================================================
   //                        Accessors: Getters
   // =================================================================
-  const char* get_strain_name() const;
+  const char* strain_name() const;
 
-  int32_t get_age() const;
+  int32_t age() const;
 
-  ExpManager* get_exp_m() const;
+  ExpManager* exp_m() const;
 
-  int16_t get_nb_genetic_units() const;
+  int16_t nb_genetic_units() const;
 
   int32_t nb_plasmids() const;
 
   int32_t amount_of_dna() const;
 
-  const GeneticUnit& get_genetic_unit(int16_t num_unit) const;
+  const GeneticUnit& genetic_unit(int16_t num_unit) const;
 
   GeneticUnit& genetic_unit_nonconst(int16_t num_unit);
 
   double dist_to_target_by_feature(PhenotypicFeature feature) const;
 
-  double get_fitness() const;
+  double fitness() const;
 
   double fitness_by_feature(PhenotypicFeature feature) const;
 
-  GridCell* get_grid_cell() const;
+  GridCell* grid_cell() const;
 
   const Habitat& habitat() const;
 
-  bool get_placed_in_population() const;
+  bool placed_in_population() const;
 
-  std::shared_ptr<JumpingMT> get_mut_prng() const;
+  std::shared_ptr<JumpingMT> mut_prng() const;
 
-  std::shared_ptr<JumpingMT> get_stoch_prng() const;
+  std::shared_ptr<JumpingMT> stoch_prng() const;
 
   const std::list<GeneticUnit>& genetic_unit_list() const;
 
@@ -164,155 +164,155 @@ class Individual : public Observable {
 
   int32_t genetic_unit_seq_length(int16_t num_unit) const;
 
-  int32_t get_id() const;
+  int32_t id() const;
 
-  int32_t get_rank() const;
+  int32_t rank() const;
 
 
   Fuzzy* phenotype_activ() const;
 
   Fuzzy* phenotype_inhib() const;
 
-  Phenotype* get_phenotype() const;
+  Phenotype* phenotype() const;
 
   const PhenotypicTarget& phenotypic_target() const;
 
-  double* get_dist_to_target_by_segment() const;
+  double* dist_to_target_by_segment() const;
 
-  const std::list<Protein*>& get_protein_list() const;
+  const std::list<Protein*>& protein_list() const;
 
-  const std::list<const Rna*>& get_rna_list() const;
+  const std::list<const Rna*>& rna_list() const;
 
-  double get_w_max() const;
+  double w_max() const;
 
   // Genome size constraints
-  int32_t get_min_genome_length() const;
+  int32_t min_genome_length() const;
 
-  int32_t get_max_genome_length() const;
+  int32_t max_genome_length() const;
 
   // Plasmids settings
-  bool get_allow_plasmids() const;
+  bool allow_plasmids() const;
 
   // Mutation rates etc...
-  double get_point_mutation_rate() const;
+  double point_mutation_rate() const;
 
-  double get_small_insertion_rate() const;
+  double small_insertion_rate() const;
 
-  double get_small_deletion_rate() const;
+  double small_deletion_rate() const;
 
-  int16_t get_max_indel_size() const;
+  int16_t max_indel_size() const;
 
-  double get_duplication_rate() const;
+  double duplication_rate() const;
 
-  double get_deletion_rate() const;
+  double deletion_rate() const;
 
-  double get_translocation_rate() const;
+  double translocation_rate() const;
 
-  double get_inversion_rate() const;
+  double inversion_rate() const;
 
-  double get_neighbourhood_rate() const;
+  double neighbourhood_rate() const;
 
-  double get_duplication_proportion() const;
+  double duplication_proportion() const;
 
-  double get_deletion_proportion() const;
+  double deletion_proportion() const;
 
-  double get_translocation_proportion() const;
+  double translocation_proportion() const;
 
-  double get_inversion_proportion() const;
+  double inversion_proportion() const;
 
   // Transfer
-  bool get_with_4pts_trans() const;
+  bool with_4pts_trans() const;
 
-  bool get_with_HT() const;
+  bool with_HT() const;
 
-  bool get_repl_HT_with_close_points() const;
+  bool repl_HT_with_close_points() const;
 
-  double get_HT_ins_rate() const;
+  double HT_ins_rate() const;
 
-  double get_HT_repl_rate() const;
+  double HT_repl_rate() const;
 
-  double get_repl_HT_detach_rate() const;
+  double repl_HT_detach_rate() const;
 
   // ------------------------------------------------------------ Alignements
-  bool get_with_alignments() const;
+  bool with_alignments() const;
 
-  AlignmentFunctionShape get_align_fun_shape() const;
+  AlignmentFunctionShape align_fun_shape() const;
 
-  double get_align_sigm_lambda() const;
+  double align_sigm_lambda() const;
 
-  int16_t get_align_sigm_mean() const;
+  int16_t align_sigm_mean() const;
 
-  int16_t get_align_lin_min() const;
+  int16_t align_lin_min() const;
 
-  int16_t get_align_lin_max() const;
+  int16_t align_lin_max() const;
 
   // Maximum shift of one seq on the other
-  int16_t get_align_max_shift() const;
+  int16_t align_max_shift() const;
 
   // Work zone half length
-  int16_t get_align_w_zone_h_len() const;
+  int16_t align_w_zone_h_len() const;
 
   // Corresponding residues match bonus
-  int16_t get_align_match_bonus() const;
+  int16_t align_match_bonus() const;
 
   // Corresponding residues mismatch cost
-  int16_t get_align_mismatch_cost() const;
+  int16_t align_mismatch_cost() const;
 
 
   // ----------------------------------------------- Phenotypic stochasticity
   bool with_stochasticity() const;
 
   // Statistical data
-  int32_t get_total_genome_size() const; // TODO: duplicate with get_amount_of_dna?
-  int16_t get_nb_coding_RNAs() const;
+  int32_t total_genome_size() const; // TODO: duplicate with amount_of_dna?
+  int16_t nb_coding_RNAs() const;
 
-  int16_t get_nb_non_coding_RNAs() const;
+  int16_t nb_non_coding_RNAs() const;
 
-  int32_t get_overall_size_coding_RNAs() const;
+  int32_t overall_size_coding_RNAs() const;
 
   double av_size_coding_RNAs() const;
 
-  int32_t get_overall_size_non_coding_RNAs() const;
+  int32_t overall_size_non_coding_RNAs() const;
 
   double av_size_non_coding_RNAs() const;
 
-  int16_t get_nb_genes_activ() const;
+  int16_t nb_genes_activ() const;
 
-  int16_t get_nb_genes_inhib() const;
+  int16_t nb_genes_inhib() const;
 
-  int16_t get_nb_functional_genes() const;
+  int16_t nb_functional_genes() const;
 
-  int16_t get_nb_non_functional_genes() const;
+  int16_t nb_non_functional_genes() const;
 
-  int32_t get_overall_size_functional_genes() const;
+  int32_t overall_size_functional_genes() const;
 
   double av_size_functional_genes() const;
 
-  int32_t get_overall_size_non_functional_genes() const;
+  int32_t overall_size_non_functional_genes() const;
 
   double av_size_non_functional_genes() const;
 
-  int32_t get_nb_bases_in_0_CDS() const;
+  int32_t nb_bases_in_0_CDS() const;
 
-  int32_t get_nb_bases_in_0_functional_CDS() const;
+  int32_t nb_bases_in_0_functional_CDS() const;
 
-  int32_t get_nb_bases_in_0_non_functional_CDS() const;
+  int32_t nb_bases_in_0_non_functional_CDS() const;
 
-  int32_t get_nb_bases_in_0_RNA() const;
+  int32_t nb_bases_in_0_RNA() const;
 
-  int32_t get_nb_bases_in_0_coding_RNA() const;
+  int32_t nb_bases_in_0_coding_RNA() const;
 
-  int32_t get_nb_bases_in_0_non_coding_RNA() const;
+  int32_t nb_bases_in_0_non_coding_RNA() const;
 
-  int32_t get_nb_bases_in_neutral_regions() const;
+  int32_t nb_bases_in_neutral_regions() const;
 
-  int32_t get_nb_neutral_regions() const;
+  int32_t nb_neutral_regions() const;
 
-  double get_modularity(); // Not const
+  double modularity(); // Not const
 
-  int32_t* get_int_probes() const;
+  int32_t* int_probes() const;
 
-  double* get_double_probes() const;
+  double* double_probes() const;
 
 
   // =================================================================

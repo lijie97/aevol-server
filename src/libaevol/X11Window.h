@@ -106,10 +106,10 @@ class X11Window
     GC getGCOrange()      { return gcOrange_;     };
     GC getGCYellow()      { return gcYellow_;     };
 
-    uint16_t  get_width()         { return width_;   };
-    uint16_t  get_height()        { return height_;  };
-    Window        get_window()    { return window_;  };
-    Display *     get_display()   { return display_; };
+    uint16_t  width()         { return width_;   };
+    uint16_t  height()        { return height_;  };
+    Window        window()    { return window_;  };
+    Display *     display()   { return display_; };
   
     // =================================================================
     //                            Public Methods
@@ -132,7 +132,7 @@ class X11Window
     void fill_rectangle( int16_t x, int16_t y, int16_t width, int16_t height, color_map color );
     void fill_rectangle( int16_t x, int16_t y, int16_t width, int16_t height, char* color );
     
-    static char* get_color( double mean );
+    static char* color( double mean );
   
     // =================================================================
     //                           Public Attributes
@@ -161,7 +161,7 @@ class X11Window
     // =================================================================
     //                           Protected Methods
     // =================================================================
-    uint32_t get_pixel( Display *display, int8_t screen, char *color_name, uint32_t default_color );
+    uint32_t pixel( Display *display, int8_t screen, char *color_name, uint32_t default_color );
     void set_codes();
   
     // =================================================================

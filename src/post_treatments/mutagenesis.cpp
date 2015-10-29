@@ -197,7 +197,7 @@ int main(int argc, char* argv[]) {
   ExpManager* exp_manager = new ExpManager();
   exp_manager->load(num_gener, true, false);
 
-  if (exp_manager->output_m()->get_record_tree() == false) {
+  if (exp_manager->output_m()->record_tree() == false) {
     // The following instruction is needed to ensure that methods
     // like ae_dna::do_deletion, ae_dna::do_inversion, etc
     // will create ae_mutation objects (otherwise they return NULL)
@@ -219,8 +219,8 @@ int main(int argc, char* argv[]) {
     list<Individual*> indivs = exp_manager->indivs();
     for (auto indiv = indivs.rbegin();
          not found and indiv != indivs.rend(); ++indiv) {
-      current_index = (*indiv)->get_id();
-      current_rank = (*indiv)->get_rank();
+      current_index = (*indiv)->id();
+      current_rank = (*indiv)->rank();
 
       if (wanted_index != -1 and current_index == wanted_index) {
         found = true;
@@ -519,7 +519,7 @@ int main(int argc, char* argv[]) {
   }
 
 
-  if (initial_indiv->get_with_alignments()) {
+  if (initial_indiv->with_alignments()) {
     fprintf(output,
             "#  %" PRId16 ".  align_score1    (score that was needed for the rearrangement to occur)\n",
             col);
@@ -621,7 +621,7 @@ int main(int argc, char* argv[]) {
   fprintf(output, "irr ");
   fprintf(output, "irr ");
   fprintf(output, "irr ");
-  if (initial_indiv->get_with_alignments()) {
+  if (initial_indiv->with_alignments()) {
     fprintf(output, "irr ");
     fprintf(output, "irr ");
   }
@@ -643,23 +643,23 @@ int main(int argc, char* argv[]) {
     fprintf(output, "%e ",
             initial_indiv->dist_to_target_by_feature(RECIPIENT));
   }
-  fprintf(output, "%" PRId32 " ", initial_indiv->get_total_genome_size());
-  fprintf(output, "%" PRId32 " ", initial_indiv->get_nb_coding_RNAs());
-  fprintf(output, "%" PRId32 " ", initial_indiv->get_nb_non_coding_RNAs());
-  fprintf(output, "%" PRId32 " ", initial_indiv->get_nb_functional_genes());
-  fprintf(output, "%" PRId32 " ", initial_indiv->get_nb_non_functional_genes());
-  fprintf(output, "%" PRId32 " ", initial_indiv->get_total_genome_size() -
-                                  initial_indiv->get_nb_bases_in_0_CDS()); // coding bp
-  fprintf(output, "%" PRId32 " ", initial_indiv->get_total_genome_size() -
-                                  initial_indiv->get_nb_bases_in_0_RNA() -
-                                  (initial_indiv->get_total_genome_size() -
-                                   initial_indiv->get_nb_bases_in_0_CDS())); // transcribed but not translated bp
+  fprintf(output, "%" PRId32 " ", initial_indiv->total_genome_size());
+  fprintf(output, "%" PRId32 " ", initial_indiv->nb_coding_RNAs());
+  fprintf(output, "%" PRId32 " ", initial_indiv->nb_non_coding_RNAs());
+  fprintf(output, "%" PRId32 " ", initial_indiv->nb_functional_genes());
+  fprintf(output, "%" PRId32 " ", initial_indiv->nb_non_functional_genes());
+  fprintf(output, "%" PRId32 " ", initial_indiv->total_genome_size() -
+                                  initial_indiv->nb_bases_in_0_CDS()); // coding bp
+  fprintf(output, "%" PRId32 " ", initial_indiv->total_genome_size() -
+                                  initial_indiv->nb_bases_in_0_RNA() -
+                                  (initial_indiv->total_genome_size() -
+                                   initial_indiv->nb_bases_in_0_CDS())); // transcribed but not translated bp
   fprintf(output, "%" PRId32 " ",
-          initial_indiv->get_nb_bases_in_0_RNA()); // not transcribed bp
-  fprintf(output, "%" PRId32 " ", initial_indiv->get_total_genome_size() -
-                                  initial_indiv->get_nb_bases_in_0_coding_RNA());
+          initial_indiv->nb_bases_in_0_RNA()); // not transcribed bp
+  fprintf(output, "%" PRId32 " ", initial_indiv->total_genome_size() -
+                                  initial_indiv->nb_bases_in_0_coding_RNA());
   fprintf(output, "%" PRId32 " ",
-          initial_indiv->get_nb_bases_in_0_coding_RNA());
+          initial_indiv->nb_bases_in_0_coding_RNA());
   fprintf(output, "\n");
   fprintf(output,
           "####################################################################################################################\n");
@@ -670,7 +670,7 @@ int main(int argc, char* argv[]) {
 
   Individual* mutant = NULL;
   Mutation* mut = NULL;
-  int32_t nb_genetic_units = initial_indiv->get_nb_genetic_units();
+  int32_t nb_genetic_units = initial_indiv->nb_genetic_units();
   double* relative_lengths_genetic_units = NULL;
   int32_t u = 0;
   double alea, cumul;
@@ -699,11 +699,11 @@ int main(int argc, char* argv[]) {
     secretion_error_after = -1.0;
 
     for (const auto& gu: initial_indiv->genetic_unit_list()) {
-      initial_len = gu.get_dna()->length();
+      initial_len = gu.dna()->length();
 
       for (pos = 0; pos < initial_len; pos++) {
         mutant = new Individual(*initial_indiv);
-        mutant->get_genetic_unit(u).get_dna()->do_switch(pos);
+        mutant->genetic_unit(u).dna()->do_switch(pos);
         mut = new PointMutation(pos);
         mut_length = 1;
         pos0 = pos;
@@ -729,14 +729,14 @@ int main(int argc, char* argv[]) {
         fprintf(output, "%" PRId32 " ", mutation_type);
         fprintf(output, "%" PRId32 " ",
                 u); // genetic unit number (0 for the chromosome)
-        fprintf(output, "%" PRId32 " ", initial_indiv->get_genetic_unit(
-            u).get_dna()->length()); // Length of GU before the event
+        fprintf(output, "%" PRId32 " ", initial_indiv->genetic_unit(
+            u).dna()->length()); // Length of GU before the event
         fprintf(output, "%" PRId32 " ", pos0);
         fprintf(output, "%" PRId32 " ", pos1);
         fprintf(output, "%" PRId32 " ", pos2);
         fprintf(output, "%" PRId32 " ", pos3);
         if (invert) fprintf(output, "1 "); else fprintf(output, "0 ");
-        if (mutant->get_with_alignments()) {
+        if (mutant->with_alignments()) {
           fprintf(output, "%" PRId16 " ", align_score1);
           fprintf(output, "%" PRId16 " ", align_score2);
         }
@@ -756,22 +756,22 @@ int main(int argc, char* argv[]) {
           fprintf(output, "%e ",
                   mutant->dist_to_target_by_feature(RECIPIENT));
         }
-        fprintf(output, "%" PRId32 " ", mutant->get_total_genome_size());
-        fprintf(output, "%" PRId32 " ", mutant->get_nb_coding_RNAs());
-        fprintf(output, "%" PRId32 " ", mutant->get_nb_non_coding_RNAs());
-        fprintf(output, "%" PRId32 " ", mutant->get_nb_functional_genes());
-        fprintf(output, "%" PRId32 " ", mutant->get_nb_non_functional_genes());
-        fprintf(output, "%" PRId32 " ", mutant->get_total_genome_size() -
-                                        mutant->get_nb_bases_in_0_CDS()); // coding bp
-        fprintf(output, "%" PRId32 " ", mutant->get_total_genome_size() -
-                                        mutant->get_nb_bases_in_0_RNA() -
-                                        (mutant->get_total_genome_size() -
-                                         mutant->get_nb_bases_in_0_CDS())); // transcribed but not translated bp
+        fprintf(output, "%" PRId32 " ", mutant->total_genome_size());
+        fprintf(output, "%" PRId32 " ", mutant->nb_coding_RNAs());
+        fprintf(output, "%" PRId32 " ", mutant->nb_non_coding_RNAs());
+        fprintf(output, "%" PRId32 " ", mutant->nb_functional_genes());
+        fprintf(output, "%" PRId32 " ", mutant->nb_non_functional_genes());
+        fprintf(output, "%" PRId32 " ", mutant->total_genome_size() -
+                                        mutant->nb_bases_in_0_CDS()); // coding bp
+        fprintf(output, "%" PRId32 " ", mutant->total_genome_size() -
+                                        mutant->nb_bases_in_0_RNA() -
+                                        (mutant->total_genome_size() -
+                                         mutant->nb_bases_in_0_CDS())); // transcribed but not translated bp
         fprintf(output, "%" PRId32 " ",
-                mutant->get_nb_bases_in_0_RNA()); // not transcribed bp
-        fprintf(output, "%" PRId32 " ", mutant->get_total_genome_size() -
-                                        mutant->get_nb_bases_in_0_coding_RNA());
-        fprintf(output, "%" PRId32 " ", mutant->get_nb_bases_in_0_coding_RNA());
+                mutant->nb_bases_in_0_RNA()); // not transcribed bp
+        fprintf(output, "%" PRId32 " ", mutant->total_genome_size() -
+                                        mutant->nb_bases_in_0_coding_RNA());
+        fprintf(output, "%" PRId32 " ", mutant->nb_bases_in_0_coding_RNA());
         fprintf(output, "\n");
 
         delete mutant;
@@ -789,14 +789,14 @@ int main(int argc, char* argv[]) {
 
     for (const auto& gu: initial_indiv->genetic_unit_list())
       relative_lengths_genetic_units[u++] =
-          gu.get_dna()->length() /
-          static_cast<double>(initial_indiv->get_total_genome_size());
+          gu.dna()->length() /
+          static_cast<double>(initial_indiv->total_genome_size());
 
     for (int32_t i = 0; i < nb_mutants; i++) {
       mutant = new Individual(*initial_indiv);
 
       // Pick the genetic unit which will undergo the mutation
-      alea = mutant->get_mut_prng()->random();
+      alea = mutant->mut_prng()->random();
       u = 0;
       cumul = relative_lengths_genetic_units[0];
       while (alea > cumul) {
@@ -813,7 +813,7 @@ int main(int argc, char* argv[]) {
 
       alignment_1 = NULL;
       alignment_2 = NULL;
-      initial_dna = initial_indiv->get_genetic_unit(u).get_dna();
+      initial_dna = initial_indiv->genetic_unit(u).dna();
       initial_len = initial_dna->length();
       metabolic_error_after = -1.0;
       secretion_error_after = -1.0;
@@ -827,7 +827,7 @@ int main(int argc, char* argv[]) {
           // cf. comment at top of switch statement
           SmallInsertion* small_ins;
           do {
-            mut = small_ins = mutant->get_genetic_unit(u).get_dna()->
+            mut = small_ins = mutant->genetic_unit(u).dna()->
                 do_small_insertion();
           } while (mut == NULL);
           pos0 = small_ins->pos();
@@ -838,7 +838,7 @@ int main(int argc, char* argv[]) {
           // cf. comment at top of switch statement
           SmallDeletion* small_del;
           do {
-            mut = small_del = mutant->get_genetic_unit(u).get_dna()->
+            mut = small_del = mutant->genetic_unit(u).dna()->
                 do_small_deletion();
           } while (mut == NULL);
           pos0 = small_del->pos();
@@ -848,7 +848,7 @@ int main(int argc, char* argv[]) {
         case DUPL: {
           // cf. comment at top of switch statement
           Duplication* duplication;
-          if (mutant->get_with_alignments()) {
+          if (mutant->with_alignments()) {
             // TODO(dpa) Encapsulate in method do_duplication_align()
             rear_done = false;
             do {
@@ -858,21 +858,21 @@ int main(int argc, char* argv[]) {
                                                             nb_pairs, DIRECT);
               } while (alignment_1 == NULL);
               mut_length = Utils::mod(
-                  alignment_1->get_i_2() - alignment_1->get_i_1(), initial_len);
-              rear_done = mutant->get_genetic_unit(u).get_dna()->do_duplication(
-                  alignment_1->get_i_1(), alignment_1->get_i_2(),
-                  alignment_1->get_i_2());
+                  alignment_1->i_2() - alignment_1->i_1(), initial_len);
+              rear_done = mutant->genetic_unit(u).dna()->do_duplication(
+                  alignment_1->i_1(), alignment_1->i_2(),
+                  alignment_1->i_2());
             } while (!rear_done);
 
-            mut = duplication = new Duplication(alignment_1->get_i_1(),
-                                                alignment_1->get_i_2(),
-                                                alignment_1->get_i_2(),
+            mut = duplication = new Duplication(alignment_1->i_1(),
+                                                alignment_1->i_2(),
+                                                alignment_1->i_2(),
                                                 mut_length,
-                                                alignment_1->get_score());
+                                                alignment_1->score());
           }
           else {
             do {
-              mut = duplication = mutant->get_genetic_unit(u).get_dna()->
+              mut = duplication = mutant->genetic_unit(u).dna()->
                   do_duplication();
             } while (mut == NULL);
           }
@@ -887,7 +887,7 @@ int main(int argc, char* argv[]) {
         case DEL: {
           // cf. comment at top of switch statement
           Deletion* deletion;
-          if (mutant->get_with_alignments()) {
+          if (mutant->with_alignments()) {
             rear_done = false;
             do {
               do {
@@ -896,19 +896,19 @@ int main(int argc, char* argv[]) {
                                                             nb_pairs, DIRECT);
               } while (alignment_1 == NULL);
               mut_length = Utils::mod(
-                  alignment_1->get_i_2() - alignment_1->get_i_1(), initial_len);
-              rear_done = mutant->get_genetic_unit(u).get_dna()->do_deletion(
-                  alignment_1->get_i_1(), alignment_1->get_i_2());
+                  alignment_1->i_2() - alignment_1->i_1(), initial_len);
+              rear_done = mutant->genetic_unit(u).dna()->do_deletion(
+                  alignment_1->i_1(), alignment_1->i_2());
             } while (!rear_done);
 
-            mut = deletion = new Deletion(alignment_1->get_i_1(),
-                                          alignment_1->get_i_2(),
+            mut = deletion = new Deletion(alignment_1->i_1(),
+                                          alignment_1->i_2(),
                                           mut_length,
-                                          alignment_1->get_score());
+                                          alignment_1->score());
           }
           else {
             do {
-              mut = deletion = mutant->get_genetic_unit(u).get_dna()->
+              mut = deletion = mutant->genetic_unit(u).dna()->
                   do_deletion();
             } while (mut == NULL);
           }
@@ -925,7 +925,7 @@ int main(int argc, char* argv[]) {
           // TO DO: problems might arise because the ae_mutation does not
           //        record whether it was an intra- or interGU translocation
 
-          if (mutant->get_with_alignments()) {
+          if (mutant->with_alignments()) {
             // TODO(dpa) Encapsulate in method do_duplication_align()
             rear_done = false;
             do {
@@ -936,44 +936,44 @@ int main(int argc, char* argv[]) {
               } while (alignment_1 == NULL);
               // Make sure the segment to be translocated doesn't contain OriC
               // TODO(dpa) is that still necessary?
-              if (alignment_1->get_i_1() > alignment_1->get_i_2()) {
+              if (alignment_1->i_1() > alignment_1->i_2()) {
                 alignment_1->swap();
               }
               mut_length = Utils::mod(
-                  alignment_1->get_i_2() - alignment_1->get_i_1(), initial_len);
+                  alignment_1->i_2() - alignment_1->i_1(), initial_len);
 
               // Extract the segment to be translocated
-              GeneticUnit* tmp_segment = mutant->get_genetic_unit(
-                  u).get_dna()->extract_into_new_GU(alignment_1->get_i_1(),
-                                                    alignment_1->get_i_2());
+              GeneticUnit* tmp_segment = mutant->genetic_unit(
+                  u).dna()->extract_into_new_GU(alignment_1->i_1(),
+                                                    alignment_1->i_2());
               // Look for a "new" alignment between this segment and the
               // remaining of the chromosome
               do {
                 nb_pairs = initial_len;
-                alignment_2 = tmp_segment->get_dna()->search_alignment(
-                    mutant->get_genetic_unit(u).get_dna(), nb_pairs,
+                alignment_2 = tmp_segment->dna()->search_alignment(
+                    mutant->genetic_unit(u).dna(), nb_pairs,
                     BOTH_SENSES);
               } while (alignment_2 == NULL);
-              invert = (alignment_2->get_sense() == INDIRECT);
+              invert = (alignment_2->sense() == INDIRECT);
               // Reinsert the segment into the genetic unit
-              mutant->get_genetic_unit(u).get_dna()->
-                  insert_GU(tmp_segment, alignment_2->get_i_2(),
-                            alignment_2->get_i_1(), invert);
+              mutant->genetic_unit(u).dna()->
+                  insert_GU(tmp_segment, alignment_2->i_2(),
+                            alignment_2->i_1(), invert);
               rear_done = true;
               delete tmp_segment;
             } while (!rear_done);
 
-            mut = translocation = new Translocation(alignment_1->get_i_1(),
-                                                    alignment_1->get_i_2(),
-                                                    alignment_2->get_i_1(),
-                                                    alignment_2->get_i_2(),
+            mut = translocation = new Translocation(alignment_1->i_1(),
+                                                    alignment_1->i_2(),
+                                                    alignment_2->i_1(),
+                                                    alignment_2->i_2(),
                                                     mut_length, invert,
-                                                    alignment_1->get_score(),
-                                                    alignment_2->get_score());
+                                                    alignment_1->score(),
+                                                    alignment_2->score());
           }
           else {
             do {
-              mut = translocation = mutant->get_genetic_unit(u).get_dna()->
+              mut = translocation = mutant->genetic_unit(u).dna()->
                   do_translocation();
             }
             while (mut == NULL);
@@ -992,7 +992,7 @@ int main(int argc, char* argv[]) {
         case INV: {
           // cf. comment at top of switch statement
           Inversion* inversion;
-          if (mutant->get_with_alignments()) {
+          if (mutant->with_alignments()) {
             // TODO(dpa) Encapsulate in method do_duplication_align()
             rear_done = false;
             do {
@@ -1002,22 +1002,22 @@ int main(int argc, char* argv[]) {
                                                             nb_pairs, INDIRECT);
               } while (alignment_1 == NULL);
               // Make sure the segment to be inverted doesn't contain OriC
-              if (alignment_1->get_i_1() > alignment_1->get_i_2()) {
+              if (alignment_1->i_1() > alignment_1->i_2()) {
                 alignment_1->swap();
               }
               mut_length = Utils::mod(
-                  alignment_1->get_i_2() - alignment_1->get_i_1(), initial_len);
-              rear_done = mutant->get_genetic_unit(u).get_dna()->do_inversion(
-                  alignment_1->get_i_1(), alignment_1->get_i_2());
+                  alignment_1->i_2() - alignment_1->i_1(), initial_len);
+              rear_done = mutant->genetic_unit(u).dna()->do_inversion(
+                  alignment_1->i_1(), alignment_1->i_2());
             } while (!rear_done);
-            mut = inversion = new Inversion(alignment_1->get_i_1(),
-                                            alignment_1->get_i_2(),
+            mut = inversion = new Inversion(alignment_1->i_1(),
+                                            alignment_1->i_2(),
                                             mut_length,
-                                            alignment_1->get_score());
+                                            alignment_1->score());
           }
           else {
             do {
-              mut = inversion = mutant->get_genetic_unit(u).get_dna()->
+              mut = inversion = mutant->genetic_unit(u).dna()->
                   do_inversion();
             }
             while (mut == NULL);
@@ -1057,14 +1057,14 @@ int main(int argc, char* argv[]) {
       fprintf(output, "%" PRId32 " ", mutation_type);
       fprintf(output, "%" PRId32 " ",
               u); // genetic unit number (0 for the chromosome)
-      fprintf(output, "%" PRId32 " ", initial_indiv->get_genetic_unit(
-          u).get_dna()->length()); // Length of GU before the event
+      fprintf(output, "%" PRId32 " ", initial_indiv->genetic_unit(
+          u).dna()->length()); // Length of GU before the event
       fprintf(output, "%" PRId32 " ", pos0);
       fprintf(output, "%" PRId32 " ", pos1);
       fprintf(output, "%" PRId32 " ", pos2);
       fprintf(output, "%" PRId32 " ", pos3);
       if (invert) fprintf(output, "1 "); else fprintf(output, "0 ");
-      if (mutant->get_with_alignments()) {
+      if (mutant->with_alignments()) {
         fprintf(output, "%" PRId16 " ", align_score1);
         fprintf(output, "%" PRId16 " ", align_score2);
       }
@@ -1084,22 +1084,22 @@ int main(int argc, char* argv[]) {
         fprintf(output, "%e ",
                 mutant->dist_to_target_by_feature(RECIPIENT));
       }
-      fprintf(output, "%" PRId32 " ", mutant->get_total_genome_size());
-      fprintf(output, "%" PRId32 " ", mutant->get_nb_coding_RNAs());
-      fprintf(output, "%" PRId32 " ", mutant->get_nb_non_coding_RNAs());
-      fprintf(output, "%" PRId32 " ", mutant->get_nb_functional_genes());
-      fprintf(output, "%" PRId32 " ", mutant->get_nb_non_functional_genes());
-      fprintf(output, "%" PRId32 " ", mutant->get_total_genome_size() -
-                                      mutant->get_nb_bases_in_0_CDS()); // coding bp
-      fprintf(output, "%" PRId32 " ", mutant->get_total_genome_size() -
-                                      mutant->get_nb_bases_in_0_RNA() -
-                                      (mutant->get_total_genome_size() -
-                                       mutant->get_nb_bases_in_0_CDS())); // transcribed but not translated bp
+      fprintf(output, "%" PRId32 " ", mutant->total_genome_size());
+      fprintf(output, "%" PRId32 " ", mutant->nb_coding_RNAs());
+      fprintf(output, "%" PRId32 " ", mutant->nb_non_coding_RNAs());
+      fprintf(output, "%" PRId32 " ", mutant->nb_functional_genes());
+      fprintf(output, "%" PRId32 " ", mutant->nb_non_functional_genes());
+      fprintf(output, "%" PRId32 " ", mutant->total_genome_size() -
+                                      mutant->nb_bases_in_0_CDS()); // coding bp
+      fprintf(output, "%" PRId32 " ", mutant->total_genome_size() -
+                                      mutant->nb_bases_in_0_RNA() -
+                                      (mutant->total_genome_size() -
+                                       mutant->nb_bases_in_0_CDS())); // transcribed but not translated bp
       fprintf(output, "%" PRId32 " ",
-              mutant->get_nb_bases_in_0_RNA()); // not transcribed bp
-      fprintf(output, "%" PRId32 " ", mutant->get_total_genome_size() -
-                                      mutant->get_nb_bases_in_0_coding_RNA());
-      fprintf(output, "%" PRId32 " ", mutant->get_nb_bases_in_0_coding_RNA());
+              mutant->nb_bases_in_0_RNA()); // not transcribed bp
+      fprintf(output, "%" PRId32 " ", mutant->total_genome_size() -
+                                      mutant->nb_bases_in_0_coding_RNA());
+      fprintf(output, "%" PRId32 " ", mutant->nb_bases_in_0_coding_RNA());
       fprintf(output, "\n");
 
 

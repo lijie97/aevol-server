@@ -72,8 +72,8 @@ int64_t AeTime::time_ = 0;
 // =================================================================
 //                          Non inline accessors
 // =================================================================
-int64_t get_time() {
-  return AeTime::get_time();
+int64_t time() {
+  return AeTime::time();
 }
 
 } // namespace aevol

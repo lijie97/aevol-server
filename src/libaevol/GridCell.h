@@ -87,7 +87,7 @@ class GridCell
   inline int16_t x() const {return x_;};
   inline int16_t y() const {return y_;};
   inline double compound_amount() const;
-  inline Individual * get_individual() const;
+  inline Individual * individual() const;
 
   inline double secreted_amount() const;
   inline double metabolic_fitness() const;
@@ -143,7 +143,7 @@ inline double GridCell::compound_amount() const
   return habitat_->compound_amount();
 }
 
-inline Individual *GridCell::get_individual() const
+inline Individual *GridCell::individual() const
 {
   return individual_;
 }
@@ -160,7 +160,7 @@ inline double GridCell::metabolic_fitness() const
 
 inline double GridCell::total_fitness() const
 {
-  return individual_->get_fitness();
+  return individual_->fitness();
 }
 
 // =====================================================================
@@ -174,7 +174,7 @@ inline void GridCell::set_compound_amount(double compound_amount)
 inline void GridCell::set_individual(Individual * indiv)
 {
   individual_ = indiv;
-  if (individual_->get_grid_cell() != this)
+  if (individual_->grid_cell() != this)
   {
     individual_->set_grid_cell(this);
   }

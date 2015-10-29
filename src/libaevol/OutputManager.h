@@ -82,20 +82,20 @@ class OutputManager {
   // =================================================================
   
   // Backup
-  inline int64_t	get_backup_step() const;
-  inline int64_t	get_big_backup_step() const;
+  inline int64_t	backup_step() const;
+  inline int64_t	big_backup_step() const;
   
   // Tree
-  inline bool get_record_tree() const;
-  inline int64_t get_tree_step() const;
-  inline Tree* get_tree() const;
+  inline bool record_tree() const;
+  inline int64_t tree_step() const;
+  inline Tree* tree() const;
 
   // Logs
-  inline FILE* get_log(LogType log_type) const;
+  inline FILE* log(LogType log_type) const;
   inline bool is_logged(LogType log_type) const;
 
   // Stats
-  inline bool get_compute_phen_contrib_by_GU() const;
+  inline bool compute_phen_contrib_by_GU() const;
 
   // =================================================================
   //                        Accessors: setters
@@ -122,7 +122,7 @@ class OutputManager {
   void write_current_generation_outputs() const;
   inline void flush();
 
-  static int64_t get_last_gener();
+  static int64_t last_gener();
 
  protected :
   // =================================================================
@@ -162,30 +162,30 @@ class OutputManager {
 // =====================================================================
 
 // Backup
-inline int64_t OutputManager::get_backup_step() const {
+inline int64_t OutputManager::backup_step() const {
   return backup_step_;
 }
 
-inline int64_t OutputManager::get_big_backup_step() const {
+inline int64_t OutputManager::big_backup_step() const {
   return big_backup_step_;
 }
 
 // Tree
-inline bool OutputManager::get_record_tree() const {
+inline bool OutputManager::record_tree() const {
   return record_tree_;
 }
 
-inline int64_t OutputManager::get_tree_step() const {
-  return tree_->get_tree_step();
+inline int64_t OutputManager::tree_step() const {
+  return tree_->tree_step();
 }
 
-inline Tree *OutputManager::get_tree() const {
+inline Tree *OutputManager::tree() const {
   return tree_;
 }
 
 // Logs
-inline FILE* OutputManager::get_log(LogType log_type) const {
-  return logs_->get_log(log_type);
+inline FILE* OutputManager::log(LogType log_type) const {
+  return logs_->log(log_type);
 }
 
 inline bool  OutputManager::is_logged(LogType log_type) const {
@@ -193,7 +193,7 @@ inline bool  OutputManager::is_logged(LogType log_type) const {
 }
 
 // Stats
-inline bool OutputManager::get_compute_phen_contrib_by_GU() const {
+inline bool OutputManager::compute_phen_contrib_by_GU() const {
   return compute_phen_contrib_by_GU_;
 }
 

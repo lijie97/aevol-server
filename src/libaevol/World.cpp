@@ -221,8 +221,8 @@ void World::WellMixIndivs()
     int16_t j = prng_->random(i + 1); // random in [0, 1]
 
     // Swap individuals btw cells i and j
-    Individual * tmp = grid_1d_[i]->get_individual();
-    grid_1d_[i]->set_individual(grid_1d_[j]->get_individual());
+    Individual * tmp = grid_1d_[i]->individual();
+    grid_1d_[i]->set_individual(grid_1d_[j]->individual());
     grid_1d_[j]->set_individual(tmp);
   }
 }
@@ -242,8 +242,8 @@ void World::PartiallyMixIndivs()
     int16_t new_y = prng_->random(height_);
 
     // Swap the individuals in these grid cells...
-    Individual * tmp_swap = grid_[old_x][old_y]->get_individual();
-    grid_[old_x][old_y]->set_individual(grid_[new_x][new_y]->get_individual());
+    Individual * tmp_swap = grid_[old_x][old_y]->individual();
+    grid_[old_x][old_y]->set_individual(grid_[new_x][new_y]->individual());
     grid_[new_x][new_y]->set_individual(tmp_swap);
   }
 }
@@ -251,13 +251,13 @@ void World::PartiallyMixIndivs()
 void World::update_best()
 {
   x_best = y_best = 0;
-  double fit_best = indiv_at(0, 0)->get_fitness();
+  double fit_best = indiv_at(0, 0)->fitness();
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++)
-      if (indiv_at(x, y)->get_fitness() > fit_best) {
+      if (indiv_at(x, y)->fitness() > fit_best) {
         x_best = x;
         y_best = y;
-        fit_best = indiv_at(x, y)->get_fitness();
+        fit_best = indiv_at(x, y)->fitness();
       }
 }
 
@@ -387,22 +387,22 @@ void World::backup_stoch_prng()
 // =================================================================
 //                          Non inline accessors
 // =================================================================
-std::shared_ptr<JumpingMT> World::get_prng() const
+std::shared_ptr<JumpingMT> World::prng() const
 {
   return prng_;
 }
 
-std::shared_ptr<JumpingMT> World::get_mut_prng() const
+std::shared_ptr<JumpingMT> World::mut_prng() const
 {
   return mut_prng_;
 }
 
-std::shared_ptr<JumpingMT> World::get_stoch_prng() const
+std::shared_ptr<JumpingMT> World::stoch_prng() const
 {
   return stoch_prng_;
 }
 
-list<Individual *> World::get_indivs() const
+list<Individual *> World::indivs() const
 {
   list<Individual *> r;
 
@@ -444,17 +444,17 @@ void World::set_phen_target_prngs(std::shared_ptr<JumpingMT> var_prng,
   phenotypic_target_handler_->set_noise_prng(noise_prng);
 }
 
-Individual* World::get_indiv_by_id(int32_t id) const {
-  Individual* indiv = grid_1d_[id]->get_individual();
+Individual* World::indiv_by_id(int32_t id) const {
+  Individual* indiv = grid_1d_[id]->individual();
   // When the population isn't mixed at all, the individual with id n is in
   // grid_1d_[n]. Try this first...
-  if (indiv->get_id() == id)
+  if (indiv->id() == id)
     return indiv;
   // ... If it isn't, do a basic search
   int32_t nb_indivs = width_ * height_;
   for (int32_t i = 0 ; i < nb_indivs ; i++) {
-    if (grid_1d_[i]->get_individual()->get_id() == id)
-      return grid_1d_[i]->get_individual();
+    if (grid_1d_[i]->individual()->id() == id)
+      return grid_1d_[i]->individual();
   }
   return nullptr;
 }

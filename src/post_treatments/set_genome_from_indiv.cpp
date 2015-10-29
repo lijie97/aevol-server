@@ -117,10 +117,10 @@ int main(int argc, char* argv[])
   printf("Closing the file.\n");
   gzclose(init_file);
 
-  // ae_list* list_indivs = NULL;//sim1->get_pop()->get_indivs();
-  // int32_t nb_indivs = NULL;//sim1->get_pop()->get_nb_indivs();
+  // ae_list* list_indivs = NULL;//sim1->pop()->indivs();
+  // int32_t nb_indivs = NULL;//sim1->pop()->nb_indivs();
 
-  // ae_list_node*  indiv_node = list_indivs->get_first();
+  // ae_list_node*  indiv_node = list_indivs->first();
   // int i;
   // for (i=0;i<nb_indivs;i++)
   // {
@@ -128,27 +128,27 @@ int main(int argc, char* argv[])
   //   ae_individual* old_indiv = (ae_individual*) indiv_node->obj();
   //   delete old_indiv;
   //   indiv_node->set_obj(new_indiv);
-  //   indiv_node = indiv_node->get_next();
+  //   indiv_node = indiv_node->next();
   // }
 
   // if (ae_common::pop_structure == true)
   // {
-  //   ae_list_node*  indiv_node = list_indivs->get_first();
-  //   ae_grid_cell*** pop_grid_ = NULL;//sim1->get_pop()->get_pop_grid();
+  //   ae_list_node*  indiv_node = list_indivs->first();
+  //   ae_grid_cell*** pop_grid_ = NULL;//sim1->pop()->pop_grid();
   //   for (int16_t x = 0 ; x < ae_common::grid_x ; x++)
   //   {
   //     for (int16_t y = 0 ; y < ae_common::grid_y ; y++)
   //     {
   //       pop_grid_[x][y]->set_individual((ae_individual*) indiv_node->obj());
-  //       pop_grid_[x][y]->get_individual()->set_grid_cell(pop_grid_[x][y]);
-  //       indiv_node = indiv_node->get_next();
+  //       pop_grid_[x][y]->individual()->set_grid_cell(pop_grid_[x][y]);
+  //       indiv_node = indiv_node->next();
   //     }
   //   }
   // }
 
   // Evaluate the new individuals
   ae_population* pop = NULL;
-  /*sim1->get_pop()*/pop->evaluate_individuals(sim1->get_env());
+  /*sim1->pop()*/pop->evaluate_individuals(sim1->env());
 
   // Delete the backup files created by the ae_experiment constructor
   char backup_file_name[50];

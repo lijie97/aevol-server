@@ -188,19 +188,19 @@ void Metrics::Reset() {
 }
 
 void Metrics::Accumulate(const GeneticUnit& gen_unit) {
-  total_genome_size_ += gen_unit.get_dna()->length();
-  nb_coding_RNAs_ += gen_unit.get_nb_coding_RNAs();
-  nb_non_coding_RNAs_ += gen_unit.get_nb_non_coding_RNAs();
-  overall_size_coding_RNAs_ += gen_unit.get_overall_size_coding_RNAs();
-  overall_size_non_coding_RNAs_ += gen_unit.get_overall_size_non_coding_RNAs();
-  nb_genes_activ_ += gen_unit.get_nb_genes_activ();
-  nb_genes_inhib_ += gen_unit.get_nb_genes_inhib();
-  nb_functional_genes_ += gen_unit.get_nb_functional_genes();
-  nb_non_functional_genes_ += gen_unit.get_nb_non_functional_genes();
+  total_genome_size_ += gen_unit.dna()->length();
+  nb_coding_RNAs_ += gen_unit.nb_coding_RNAs();
+  nb_non_coding_RNAs_ += gen_unit.nb_non_coding_RNAs();
+  overall_size_coding_RNAs_ += gen_unit.overall_size_coding_RNAs();
+  overall_size_non_coding_RNAs_ += gen_unit.overall_size_non_coding_RNAs();
+  nb_genes_activ_ += gen_unit.nb_genes_activ();
+  nb_genes_inhib_ += gen_unit.nb_genes_inhib();
+  nb_functional_genes_ += gen_unit.nb_functional_genes();
+  nb_non_functional_genes_ += gen_unit.nb_non_functional_genes();
   overall_size_functional_genes_ +=
-      gen_unit.get_overall_size_functional_genes();
+      gen_unit.overall_size_functional_genes();
   overall_size_non_functional_genes_ +=
-      gen_unit.get_overall_size_non_functional_genes();
+      gen_unit.overall_size_non_functional_genes();
 };
 
 } // namespace aevol

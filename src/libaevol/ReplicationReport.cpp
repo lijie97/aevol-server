@@ -64,10 +64,10 @@ ReplicationReport::ReplicationReport(Individual* indiv,
 {
   indiv_ = indiv;
 
-  id_   = indiv->get_id();
-  rank_ = indiv->get_rank();
+  id_   = indiv->id();
+  rank_ = indiv->rank();
   
-  parent_id_ = parent->get_id();
+  parent_id_ = parent->id();
   // donor_id_ is set further down
     
   genome_size_        = 0;
@@ -80,7 +80,7 @@ ReplicationReport::ReplicationReport(Individual* indiv,
   
   parent_metabolic_error_ = parent->dist_to_target_by_feature(METABOLISM);
   parent_secretion_error_ = parent->dist_to_target_by_feature(SECRETION);
-  parent_genome_size_     = parent->get_total_genome_size();
+  parent_genome_size_     = parent->total_genome_size();
   mean_align_score_       = 0.0;
   
   if (donor == NULL)
@@ -92,10 +92,10 @@ ReplicationReport::ReplicationReport(Individual* indiv,
   }
   else
   {
-    donor_id_              = donor->get_id();
+    donor_id_              = donor->id();
     donor_metabolic_error_ = donor->dist_to_target_by_feature(METABOLISM);
     donor_secretion_error_ = donor->dist_to_target_by_feature(SECRETION);
-    donor_genome_size_     = donor->get_total_genome_size();
+    donor_genome_size_     = donor->total_genome_size();
   }
 }
 
@@ -176,8 +176,8 @@ void ReplicationReport::init(Individual* offspring, Individual* parent)
 {
   indiv_ = offspring;
 
-  id_ = indiv_->get_id();
-  parent_id_ = parent->get_id();
+  id_ = indiv_->id();
+  parent_id_ = parent->id();
 
   genome_size_        = 0;
   metabolic_error_    = 0.0;
@@ -189,7 +189,7 @@ void ReplicationReport::init(Individual* offspring, Individual* parent)
 
   parent_metabolic_error_ = parent->dist_to_target_by_feature(METABOLISM);
   parent_secretion_error_ = parent->dist_to_target_by_feature(SECRETION);
-  parent_genome_size_     = parent->get_total_genome_size();
+  parent_genome_size_     = parent->total_genome_size();
   mean_align_score_       = 0.0;
 
   // Set ourselves an observer of indiv_'s MUTATION and END_REPLICATION
@@ -206,13 +206,13 @@ void ReplicationReport::signal_end_of_replication(Individual* indiv) {
   if (indiv_ == NULL) indiv_ = indiv;
 
   // Retrieve data from the individual
-  genome_size_        = indiv_->get_total_genome_size();
+  genome_size_        = indiv_->total_genome_size();
   metabolic_error_    = indiv_->dist_to_target_by_feature(METABOLISM);
-  nb_genes_activ_     = indiv_->get_nb_genes_activ();
-  nb_genes_inhib_     = indiv_->get_nb_genes_inhib();
-  nb_non_fun_genes_   = indiv_->get_nb_functional_genes();
-  nb_coding_RNAs_     = indiv_->get_nb_coding_RNAs();
-  nb_non_coding_RNAs_ = indiv_->get_nb_non_coding_RNAs();
+  nb_genes_activ_     = indiv_->nb_genes_activ();
+  nb_genes_inhib_     = indiv_->nb_genes_inhib();
+  nb_non_fun_genes_   = indiv_->nb_functional_genes();
+  nb_coding_RNAs_     = indiv_->nb_coding_RNAs();
+  nb_non_coding_RNAs_ = indiv_->nb_non_coding_RNAs();
 }
 
 /**
@@ -220,7 +220,7 @@ void ReplicationReport::signal_end_of_replication(Individual* indiv) {
  * Actions such as update the individuals' ranks can be done here.
  */
 void ReplicationReport::signal_end_of_generation() {
-  rank_ = indiv_->get_rank();
+  rank_ = indiv_->rank();
 }
 
 void ReplicationReport::write_to_tree_file(gzFile tree_file) const

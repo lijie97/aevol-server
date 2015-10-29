@@ -80,8 +80,8 @@ GeneTree::GeneTree( int32_t nodeCreationDate, Protein * protein, const Mutation 
 {
   root_ = new GeneTreeNode(nodeCreationDate, protein);
   if (mut == NULL)  creation_type_ = INITIALIZATION;
-  else if ((mut->get_mut_type() == SWITCH) || (mut->get_mut_type() == S_INS) || (mut->get_mut_type() == S_DEL)) creation_type_ = LOCAL_MUTATION;
-  else if ((mut->get_mut_type() == DUPL) || (mut->get_mut_type() == DEL) || (mut->get_mut_type() == TRANS) || (mut->get_mut_type() == INV) ) creation_type_ = REARRANGEMENT;
+  else if ((mut->mut_type() == SWITCH) || (mut->mut_type() == S_INS) || (mut->mut_type() == S_DEL)) creation_type_ = LOCAL_MUTATION;
+  else if ((mut->mut_type() == DUPL) || (mut->mut_type() == DEL) || (mut->mut_type() == TRANS) || (mut->mut_type() == INV) ) creation_type_ = REARRANGEMENT;
   else creation_type_ = TRANSFER;
  
     
@@ -164,7 +164,7 @@ void GeneTree::register_actual_mutation_effect_on_genes_in_tree_leaves(const Mut
 // void GeneTree::report_gene_mutation( GeneTreeNode * node, GeneMutation * geneMut)
 // {
 //   node->mutation_list_->add(geneMut);
-//   if (geneMut->get_generation() > end_gener_) end_gener_ = geneMut->get_generation();
+//   if (geneMut->generation() > end_gener_) end_gener_ = geneMut->generation();
 // }
  
 

@@ -69,11 +69,11 @@ void ReplacementHT::load(gzFile backup_file) {
 void ReplacementHT::generic_description_string(char* str) const {
   sprintf(str, "%" PRId8 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32
       " %" PRId8 " %" PRId16 " %" PRId16 " %" PRId32 " %" PRId32 " ",
-          get_mut_type(),
+          mut_type(),
           donor_pos1(), donor_pos2(),
           receiver_pos1(), receiver_pos2(),
           sense(),
-          align1_.get_score(), align2_.get_score(),
+          align1_.score(), align2_.score(),
           length_, replaced_seq_length_);
 }
 

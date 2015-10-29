@@ -97,7 +97,7 @@ void ExpSetup::write_setup_file( gzFile exp_setup_file ) const
   gzwrite( exp_setup_file, &secretion_contrib_to_fitness_, sizeof(secretion_contrib_to_fitness_) );
   gzwrite( exp_setup_file, &secretion_cost_, sizeof(secretion_cost_) );
   
-  get_sel()->write_setup_file( exp_setup_file );
+  sel()->write_setup_file( exp_setup_file );
 }
 
 void ExpSetup::load( gzFile setup_file, gzFile backup_file, bool verbose )
@@ -144,7 +144,7 @@ void ExpSetup::load( gzFile setup_file, gzFile backup_file, bool verbose )
   gzread( setup_file, &secretion_cost_, sizeof(secretion_cost_) );
   
   // ---------------------------------------------- Retrieve selection context
-  get_sel()->load( setup_file, backup_file, verbose );
+  sel()->load( setup_file, backup_file, verbose );
 }
 
 

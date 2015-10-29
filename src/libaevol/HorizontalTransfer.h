@@ -63,7 +63,7 @@ class HorizontalTransfer : public Mutation {
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
-  virtual MutationType get_mut_type() const override = 0;
+  virtual MutationType mut_type() const override = 0;
   bool is_ht() const override final { return true; };
 
   // ==========================================================================

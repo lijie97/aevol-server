@@ -193,7 +193,7 @@ int main(int argc, char* argv[])
   {
     // TODO <david.parsons@inria.fr> tmp disabled
 //     if (indiv_rank != -1) {
-//       indiv = new Individual(*exp_manager->get_indiv_by_rank(indiv_rank), false);
+//       indiv = new Individual(*exp_manager->indiv_by_rank(indiv_rank), false);
 //     }
 //     else {
 //       indiv = new Individual(*exp_manager->indiv_by_id(indiv_index), false);
@@ -431,22 +431,22 @@ void draw_triangles(Individual* indiv, const PhenotypicTarget& target, char * di
   double h;
 
   for (auto& gu: indiv->genetic_unit_list_nonconst()) { // should use const version
-    for (const auto& prot: gu.get_protein_list(LEADING)) {
-      h = prot.get_height() * prot.get_concentration();
+    for (const auto& prot: gu.protein_list(LEADING)) {
+      h = prot.height() * prot.concentration();
       fprintf(drawingfile, "%lf %lf moveto\n", margin, 0.5);
-      fprintf(drawingfile, "%lf %lf lineto\n", margin + scalex*(prot.get_mean() - prot.get_width()), 0.5);
-      fprintf(drawingfile, "%lf %lf lineto\n", margin + scalex*(prot.get_mean()), 0.5 + scaley*(h));
-      fprintf(drawingfile, "%lf %lf lineto\n", margin + scalex*(prot.get_mean() + prot.get_width()), 0.5);
+      fprintf(drawingfile, "%lf %lf lineto\n", margin + scalex*(prot.mean() - prot.width()), 0.5);
+      fprintf(drawingfile, "%lf %lf lineto\n", margin + scalex*(prot.mean()), 0.5 + scaley*(h));
+      fprintf(drawingfile, "%lf %lf lineto\n", margin + scalex*(prot.mean() + prot.width()), 0.5);
       fprintf(drawingfile, "%lf %lf moveto\n", margin + scalex*(1), 0.5);
       fprintf(drawingfile, "stroke\n");
     }
 
-    for (const auto& prot: gu.get_protein_list(LAGGING)) {
-      h = prot.get_height() * prot.get_concentration();
+    for (const auto& prot: gu.protein_list(LAGGING)) {
+      h = prot.height() * prot.concentration();
       fprintf(drawingfile, "%lf %lf moveto\n", margin, 0.5);
-      fprintf(drawingfile, "%lf %lf lineto\n", margin + scalex*(prot.get_mean() - prot.get_width()), 0.5);
-      fprintf(drawingfile, "%lf %lf lineto\n", margin + scalex*(prot.get_mean()), 0.5 + scaley*(h));
-      fprintf(drawingfile, "%lf %lf lineto\n", margin + scalex*(prot.get_mean() + prot.get_width()), 0.5);
+      fprintf(drawingfile, "%lf %lf lineto\n", margin + scalex*(prot.mean() - prot.width()), 0.5);
+      fprintf(drawingfile, "%lf %lf lineto\n", margin + scalex*(prot.mean()), 0.5 + scaley*(h));
+      fprintf(drawingfile, "%lf %lf lineto\n", margin + scalex*(prot.mean() + prot.width()), 0.5);
       fprintf(drawingfile, "%lf %lf moveto\n", margin + scalex*(1), 0.5);
       fprintf(drawingfile, "stroke\n");
     }
@@ -662,7 +662,7 @@ void draw_phenotype(Individual* indiv, const PhenotypicTarget& target, char* dir
   fprintf(drawingfile,"[ ] 0 setdash\n");
   fprintf(drawingfile, "0.002 setlinewidth\n");
   fprintf(drawingfile, "%lf %lf moveto\n", margin, margin);
-  for (const auto& p: indiv->get_phenotype()->points())
+  for (const auto& p: indiv->phenotype()->points())
     fprintf(drawingfile, "%lf %lf lineto\n", margin + scale * p.x, margin + scale * p.y);
   fprintf(drawingfile, "stroke\n");
 
@@ -693,7 +693,7 @@ void draw_phenotype(Individual* indiv, const PhenotypicTarget& target, char* dir
 void draw_genetic_unit_with_CDS(GeneticUnit* gen_unit, char * directoryName)
 {
   const uint8_t bbsize = 200;  // a4 paper: 595*842
-  int32_t gen_length = (gen_unit->get_dna())->length();
+  int32_t gen_length = (gen_unit->dna())->length();
   double r = 0.35;
   double scale = 2*M_PI*r/gen_length;
 
@@ -766,10 +766,10 @@ void draw_genetic_unit_with_CDS(GeneticUnit* gen_unit, char * directoryName)
 
 
   // printf("LEADING\n");
-  for (const auto& prot: gen_unit->get_protein_list(LEADING)) {
+  for (const auto& prot: gen_unit->protein_list(LEADING)) {
     first = prot.first_translated_pos();
     last = prot.last_translated_pos();
-    // h = prot.height() * prot.get_concentration();
+    // h = prot.height() * prot.concentration();
 
     alpha_first   = (int16_t) round( (double)(360 * first) / (double)gen_length);  //  == sect1 == alphaB
     alpha_last    = (int16_t) round( (double)(360 * last)  / (double)gen_length);  //  == sect2 == alphaA
@@ -862,10 +862,10 @@ void draw_genetic_unit_with_CDS(GeneticUnit* gen_unit, char * directoryName)
 
 
   // printf("LAGGING\n");
-  for (const auto& prot: gen_unit->get_protein_list(LAGGING)) {
+  for (const auto& prot: gen_unit->protein_list(LAGGING)) {
     first = prot.first_translated_pos();
     last = prot.last_translated_pos();
-    // h = prot.height() * prot.get_concentration();
+    // h = prot.height() * prot.concentration();
 
     alpha_first   = (int16_t) round( (double)(360 * first) / (double)gen_length);
     alpha_last    = (int16_t) round( (double)(360 * last)  / (double)gen_length);
@@ -975,7 +975,7 @@ void draw_genetic_unit_with_CDS(GeneticUnit* gen_unit, char * directoryName)
 void draw_genetic_unit_with_mRNAs(GeneticUnit* gen_unit, char * directoryName)
 {
   const uint8_t bbsize = 200;  // a4 paper: 595*842
-  int32_t gen_length = (gen_unit->get_dna())->length();
+  int32_t gen_length = (gen_unit->dna())->length();
   double r = 0.35;
   double scale = 2*M_PI*r/gen_length;
 
@@ -1048,7 +1048,7 @@ void draw_genetic_unit_with_mRNAs(GeneticUnit* gen_unit, char * directoryName)
 
 
 
-  for (const auto& rna: gen_unit->get_rna_list()[LEADING]) {
+  for (const auto& rna: gen_unit->rna_list()[LEADING]) {
     first = rna.first_transcribed_pos();
     last = rna.last_transcribed_pos();
 
@@ -1144,7 +1144,7 @@ void draw_genetic_unit_with_mRNAs(GeneticUnit* gen_unit, char * directoryName)
 
 
 
-  for (const auto& rna: gen_unit->get_rna_list()[LAGGING]) {
+  for (const auto& rna: gen_unit->rna_list()[LAGGING]) {
     first = rna.first_transcribed_pos();
     last = rna.last_transcribed_pos();
 

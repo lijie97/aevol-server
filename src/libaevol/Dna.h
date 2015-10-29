@@ -86,11 +86,11 @@ class Dna : public ae_string {
   // =================================================================
   //                              Accessors
   // =================================================================
-  GeneticUnit* get_genetic_unit() const { return gen_unit_; }
-  Individual* get_indiv() const { return indiv_; }
+  GeneticUnit* genetic_unit() const { return gen_unit_; }
+  Individual* indiv() const { return indiv_; }
 
   // WARNING : creates a new char[...] (up to you to delete it!)
-  char* get_subsequence(int32_t from, int32_t to, Strand strand) const;
+  char* subsequence(int32_t from, int32_t to, Strand strand) const;
 
   // =================================================================
   //                            Public Methods

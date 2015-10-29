@@ -104,7 +104,7 @@ void ae_protein_R::compute_delta_concentration()
 {
   delta_concentration_ = 0;
 
-  ae_list_node* rna_node  = rna_list_->get_first();
+  ae_list_node* rna_node  = rna_list_->first();
   ae_rna_R*     rna       = NULL;
 
   while ( rna_node != NULL )
@@ -114,7 +114,7 @@ void ae_protein_R::compute_delta_concentration()
 
     delta_concentration_ += rna->synthesis_rate();
 
-    rna_node = rna_node->get_next();
+    rna_node = rna_node->next();
   }
 
   //printf("degradation rate : %f \n", ae_common::degradation_rate);
@@ -122,9 +122,9 @@ void ae_protein_R::compute_delta_concentration()
   delta_concentration_ *= ae_common::degradation_step;
 }
 
-int8_t ae_protein_R::get_codon( int32_t index )
+int8_t ae_protein_R::codon( int32_t index )
 {
-  return dynamic_cast< ae_codon* >( AA_list_->get_object( index ) )->get_value();
+  return dynamic_cast< ae_codon* >( AA_list_->object( index ) )->value();
 }
 
 void ae_protein_R::add_influence( ae_influence_R *influence )
@@ -149,14 +149,14 @@ void ae_protein_R::remove_influences()
   ae_influence_R* influence;
   ae_rna_R*       rna;
 
-  influence_node = influence_list_->get_first();
+  influence_node = influence_list_->first();
   while ( influence_node != NULL )
   {
     influence = (ae_influence_R*)influence_node->obj();
-    rna       = (ae_rna_R*)influence->get_rna();
+    rna       = (ae_rna_R*)influence->rna();
     rna->remove_influence( influence );
 
-    influence_node = influence_node->get_next();
+    influence_node = influence_node->next();
   }
 
 }

@@ -1217,7 +1217,7 @@ void ParamLoader::read_file()
   ParameterLine* parameter_line;
 
   // TODO : write parameter_line = new ParameterLine(param_file_) => ParameterLine::ParameterLine(char*)
-  while ((parameter_line = get_line(&cur_line)) != NULL)
+  while ((parameter_line = line(&cur_line)) != NULL)
   {
     interpret_line(parameter_line, cur_line);
     delete parameter_line;
@@ -1388,7 +1388,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
 
   if (verbose)
     printf("Entire geometric area of the phenotypic target : %f\n",
-           phenotypic_target_handler.get_geometric_area());
+           phenotypic_target_handler.geometric_area());
 
 
   // 3) --------------------------------------------- Create the new population
@@ -1656,8 +1656,8 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
 
   for (const auto& indiv: indivs) {
     do {
-      x = exp_m->world()->get_prng()->random(x_max);
-      y = exp_m->world()->get_prng()->random(y_max);
+      x = exp_m->world()->prng()->random(x_max);
+      y = exp_m->world()->prng()->random(y_max);
     } while (world->indiv_at(x, y) != NULL);
 
     world->PlaceIndiv(indiv, x, y);
@@ -1735,7 +1735,7 @@ void ParamLoader::format_line(ParameterLine * formated_line, char* line, bool* l
 
   \see format_line(ParameterLine* formated_line, char* line, bool* line_is_interpretable)
 */
-ParameterLine *ParamLoader::get_line(int32_t* cur_line_ptr) // void
+ParameterLine *ParamLoader::line(int32_t* cur_line_ptr) // void
 {
   char line[255];
   ParameterLine * formated_line = new ParameterLine();

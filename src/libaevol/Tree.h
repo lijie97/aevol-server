@@ -76,7 +76,7 @@ class Tree : public Observer
     // =================================================================
     //                        Accessors: getters
     // =================================================================
-    inline int64_t  get_tree_step() const {
+    inline int64_t  tree_step() const {
       return tree_step_;
     };
     
@@ -84,7 +84,7 @@ class Tree : public Observer
     // the tree was emptied every TREE_STEP generations ==> it contains
     // only the last generations since the last emptying ==> do not ask
     // something about an older generation
-    ReplicationReport** get_reports(int64_t t) const;
+    ReplicationReport** reports(int64_t t) const;
     ReplicationReport* report_by_index(int64_t t, int32_t index) const;
     ReplicationReport* report_by_rank(int64_t t, int32_t rank) const;
   

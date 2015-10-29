@@ -70,7 +70,7 @@ class AeTime {
   // =================================================================
   //                        Accessors: getters
   // =================================================================
-  static inline int64_t get_time() {return time_;}
+  static inline int64_t time() {return time_;}
 
   // =================================================================
   //                        Accessors: setters
@@ -122,7 +122,7 @@ class AeTime {
 //                       Inline functions' definition
 // =====================================================================
 
-int64_t get_time();
+int64_t time();
 
 } // namespace aevol
 

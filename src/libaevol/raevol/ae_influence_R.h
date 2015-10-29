@@ -65,15 +65,15 @@ class ae_influence_R
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline ae_rna* get_rna();
-    inline double  get_enhancing_coef();
-    inline double  get_operating_coef();
+    inline ae_rna* rna();
+    inline double  enhancing_coef();
+    inline double  operating_coef();
 
     // =================================================================
     //                            Public Methods
     // =================================================================
-    inline double           get_enhancer_activity();
-    inline double           get_operator_activity();
+    inline double           enhancer_activity();
+    inline double           operator_activity();
     //inline ae_influence_R*  copy();
 
     // =================================================================
@@ -107,17 +107,17 @@ class ae_influence_R
 // =====================================================================
 //                          Accessors definitions
 // =====================================================================
-ae_rna* ae_influence_R::get_rna()
+ae_rna* ae_influence_R::rna()
 {
   return rna_;
 }
 
-double ae_influence_R::get_enhancing_coef()
+double ae_influence_R::enhancing_coef()
 {
   return enhancing_coef_;
 }
 
-double ae_influence_R::get_operating_coef()
+double ae_influence_R::operating_coef()
 {
   return operating_coef_;
 }
@@ -125,14 +125,14 @@ double ae_influence_R::get_operating_coef()
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-double ae_influence_R::get_enhancer_activity()
+double ae_influence_R::enhancer_activity()
 {
-  return protein_->get_concentration() * enhancing_coef_;
+  return protein_->concentration() * enhancing_coef_;
 }
 
-double ae_influence_R::get_operator_activity()
+double ae_influence_R::operator_activity()
 {
-  return protein_->get_concentration() * operating_coef_;
+  return protein_->concentration() * operating_coef_;
 }
 
 /*

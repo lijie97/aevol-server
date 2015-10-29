@@ -106,7 +106,7 @@ void OutputManager::WriteSetupFile(gzFile setup_file) const
   gzwrite( setup_file, &record_tree, sizeof(record_tree) );
   if ( record_tree_ )
   {
-    auto tmp_tree_step = tree_->get_tree_step();
+    auto tmp_tree_step = tree_->tree_step();
     gzwrite( setup_file, &tmp_tree_step, sizeof(tmp_tree_step) );
   }
   
@@ -116,7 +116,7 @@ void OutputManager::WriteSetupFile(gzFile setup_file) const
   gzwrite( setup_file, &dump_step_,  sizeof(dump_step_) );
   
   // Logs
-  int8_t logs = logs_->get_logs();
+  int8_t logs = logs_->logs();
   gzwrite( setup_file, &logs,  sizeof(logs) );
 }
 
@@ -135,7 +135,7 @@ void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run)
   if (to_be_run)
   {
     delete stats_;
-    stats_ = new Stats(exp_m_, AeTime::get_time());
+    stats_ = new Stats(exp_m_, AeTime::time());
   }
   gzread( setup_file, &compute_phen_contrib_by_GU_,  sizeof(compute_phen_contrib_by_GU_) );
   
@@ -166,7 +166,7 @@ void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run)
   gzread(setup_file, &logs, sizeof(logs));
   if (to_be_run)
   {
-    logs_->load(logs, AeTime::get_time());
+    logs_->load(logs, AeTime::time());
   }
 }
 
@@ -177,13 +177,13 @@ void OutputManager::write_current_generation_outputs() const
 
   // Manage tree
   if (record_tree_ &&
-      AeTime::get_time() > 0 &&
-      (AeTime::get_time() % tree_->get_tree_step() == 0)) {
+      AeTime::time() > 0 &&
+      (AeTime::time() % tree_->tree_step() == 0)) {
     write_tree();
   }
 
   // Write backup
-  if (AeTime::get_time() % backup_step_ == 0) {
+  if (AeTime::time() % backup_step_ == 0) {
     stats_->flush();
     exp_m_->WriteDynamicFiles();
 
@@ -192,7 +192,7 @@ void OutputManager::write_current_generation_outputs() const
 
   // Write dumps
   if (make_dumps_) {
-    if(AeTime::get_time() % dump_step_ == 0) {
+    if(AeTime::time() % dump_step_ == 0) {
       dump_->write_current_generation_dump();
     }
   }
@@ -206,13 +206,13 @@ void OutputManager::WriteLastGenerFile(const string& output_dir) const {
     Utils::ExitWithUsrMsg(string("could not open file ") + LAST_GENER_FNAME);
   }
   else {
-    last_gener_file << AeTime::get_time() << endl;
+    last_gener_file << AeTime::time() << endl;
     last_gener_file.close();
   }
 }
 
 // TODO <david.parsons@inria.fr> we need an input_dir attribute in this class !
-int64_t OutputManager::get_last_gener() {
+int64_t OutputManager::last_gener() {
   int64_t time;
   FILE* lg_file = fopen(LAST_GENER_FNAME, "r");
   if (lg_file != NULL) {
@@ -241,9 +241,9 @@ void OutputManager::write_tree() const
   char tree_file_name[50];
   
 #ifdef __REGUL
-  sprintf tree_file_name, "tree/tree_%06" PRId64 ".rae", AeTime::get_time());
+  sprintf tree_file_name, "tree/tree_%06" PRId64 ".rae", AeTime::time());
 #else
-  sprintf(tree_file_name, "tree/tree_%06" PRId64 ".ae", AeTime::get_time());
+  sprintf(tree_file_name, "tree/tree_%06" PRId64 ".ae", AeTime::time());
 #endif
   
   gzFile tree_file = gzopen( tree_file_name, "w" );

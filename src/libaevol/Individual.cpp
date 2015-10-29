@@ -173,8 +173,8 @@ Individual::Individual(ExpManager* exp_m, gzFile backup_file) {
   }
   else {
     // TODO: => prngs as parameters
-    mut_prng_ = exp_m->world()->get_mut_prng();
-    stoch_prng_ = exp_m->world()->get_stoch_prng();
+    mut_prng_ = exp_m->world()->mut_prng();
+    stoch_prng_ = exp_m->world()->stoch_prng();
     assert(mut_prng_);
     assert(stoch_prng_);
   }
@@ -502,59 +502,59 @@ void Individual::set_grid_cell(GridCell* grid_cell) {
   placed_in_population_ = true;
   // x = grid_cell->x();
   // y = grid_cell->y();
-  if (grid_cell->get_individual() != this) {
+  if (grid_cell->individual() != this) {
     grid_cell->set_individual(this);
   }
 }
 
 /// TODO
-const char* Individual::get_strain_name() const {
+const char* Individual::strain_name() const {
   return strain_name_;
 }
 
 /// TODO
-int32_t Individual::get_age() const {
+int32_t Individual::age() const {
   return age_;
 }
 
 /// TODO
-int32_t Individual::get_id() const {
+int32_t Individual::id() const {
   return id_;
 }
 
 /// TODO
-double* Individual::get_dist_to_target_by_segment() const {
+double* Individual::dist_to_target_by_segment() const {
   return dist_to_target_by_segment_;
 }
 
 /*!
   Get the individual's rank in the population (1 for the worst indiv, POP_SIZE for the best)
 
-  Warning: be sure you call sort_individuals() before using get_rank_in_population
+  Warning: be sure you call sort_individuals() before using rank_in_population
 */
-int32_t Individual::get_rank() const {
+int32_t Individual::rank() const {
   return rank_;
 }
 
 /// TODO
-ExpManager* Individual::get_exp_m() const {
+ExpManager* Individual::exp_m() const {
   return exp_m_;
 }
 
 /// TODO
-std::shared_ptr<JumpingMT> Individual::get_mut_prng() const {
+std::shared_ptr<JumpingMT> Individual::mut_prng() const {
   return mut_prng_;
 }
 
 /// TODO
-std::shared_ptr<JumpingMT> Individual::get_stoch_prng() const {
+std::shared_ptr<JumpingMT> Individual::stoch_prng() const {
   return stoch_prng_;
 }
 
 /*!
   Returns the number of genetic units
 */
-int16_t Individual::get_nb_genetic_units() const {
+int16_t Individual::nb_genetic_units() const {
   return genetic_unit_list_.size();
 }
 
@@ -568,7 +568,7 @@ int32_t Individual::nb_plasmids() const {
 int32_t Individual::amount_of_dna() const {
   int32_t amount = 0;
   for (const auto& gen_unit: genetic_unit_list_)
-    amount += gen_unit.get_dna()->length();
+    amount += gen_unit.dna()->length();
   return amount;
 }
 
@@ -594,7 +594,7 @@ void Individual::drop_nested_genetic_units() {
 }
 
 /// Returns genetic unit number `num_unit` (0 for main chromosome)
-const GeneticUnit& Individual::get_genetic_unit(int16_t num_unit) const {
+const GeneticUnit& Individual::genetic_unit(int16_t num_unit) const {
   assert(num_unit < static_cast<int32_t>(genetic_unit_list_.size()));
   auto it = genetic_unit_list_.cbegin();
   std::advance(it, num_unit);
@@ -620,7 +620,7 @@ double Individual::dist_to_target_by_feature(
 }
 
 /// TODO
-double Individual::get_fitness() const {
+double Individual::fitness() const {
   assert(fitness_computed_);
 
   return fitness_;
@@ -634,7 +634,7 @@ double Individual::fitness_by_feature(PhenotypicFeature feature) const {
 }
 
 /// TODO
-GridCell* Individual::get_grid_cell() const {
+GridCell* Individual::grid_cell() const {
   return grid_cell_;
 }
 
@@ -644,7 +644,7 @@ const Habitat& Individual::habitat() const {
 }
 
 /// TODO
-bool Individual::get_placed_in_population() const {
+bool Individual::placed_in_population() const {
   return placed_in_population_;
 }
 
@@ -652,14 +652,14 @@ bool Individual::get_placed_in_population() const {
   Returns the sequence of genetic unit number <num_unit> (0 for main chromosome)
 */
 const char* Individual::genetic_unit_sequence(int16_t num_unit) const {
-  return get_genetic_unit(num_unit).get_sequence();
+  return genetic_unit(num_unit).sequence();
 }
 
 /*!
   Returns the sequence length of genetic unit number <num_unit> (0 for main chromosome)
 */
 int32_t Individual::genetic_unit_seq_length(int16_t num_unit) const {
-  return get_genetic_unit(num_unit).get_seq_length();
+  return genetic_unit(num_unit).seq_length();
 }
 
 /// TODO
@@ -673,7 +673,7 @@ Fuzzy* Individual::phenotype_inhib() const {
 }
 
 /// TODO
-Phenotype* Individual::get_phenotype() const {
+Phenotype* Individual::phenotype() const {
   return phenotype_;
 }
 
@@ -682,35 +682,35 @@ const PhenotypicTarget& Individual::phenotypic_target() const {
 }
 
 /// TODO
-const std::list<Protein*>& Individual::get_protein_list() const {
+const std::list<Protein*>& Individual::protein_list() const {
   return protein_list_;
 }
 
 /// TODO
-const std::list<const Rna*>& Individual::get_rna_list() const {
+const std::list<const Rna*>& Individual::rna_list() const {
   return rna_list_;
 }
 
 /// TODO
-int32_t Individual::get_total_genome_size() const {
+int32_t Individual::total_genome_size() const {
   assert(metrics_ != nullptr);
   return metrics_->total_genome_size();
 }
 
 /// TODO
-int16_t Individual::get_nb_coding_RNAs() const {
+int16_t Individual::nb_coding_RNAs() const {
   assert(metrics_ != nullptr);
   return metrics_->nb_coding_RNAs();
 }
 
 /// TODO
-int16_t Individual::get_nb_non_coding_RNAs() const {
+int16_t Individual::nb_non_coding_RNAs() const {
   assert(metrics_ != nullptr);
   return metrics_->nb_non_coding_RNAs();
 }
 
 /// TODO
-int32_t Individual::get_overall_size_coding_RNAs() const {
+int32_t Individual::overall_size_coding_RNAs() const {
   assert(metrics_ != nullptr);
   return metrics_->overall_size_coding_RNAs();
 }
@@ -725,7 +725,7 @@ double Individual::av_size_coding_RNAs() const {
 }
 
 /// TODO
-int32_t Individual::get_overall_size_non_coding_RNAs() const {
+int32_t Individual::overall_size_non_coding_RNAs() const {
   assert(metrics_ != nullptr);
   return metrics_->overall_size_non_coding_RNAs();
 }
@@ -740,31 +740,31 @@ double Individual::av_size_non_coding_RNAs() const {
 }
 
 /// TODO
-int16_t Individual::get_nb_genes_activ() const {
+int16_t Individual::nb_genes_activ() const {
   assert(metrics_ != nullptr);
   return metrics_->nb_genes_activ();
 }
 
 /// TODO
-int16_t Individual::get_nb_genes_inhib() const {
+int16_t Individual::nb_genes_inhib() const {
   assert(metrics_ != nullptr);
   return metrics_->nb_genes_inhib();
 }
 
 /// TODO
-int16_t Individual::get_nb_functional_genes() const {
+int16_t Individual::nb_functional_genes() const {
   assert(metrics_ != nullptr);
   return metrics_->nb_functional_genes();
 }
 
 /// TODO
-int16_t Individual::get_nb_non_functional_genes() const {
+int16_t Individual::nb_non_functional_genes() const {
   assert(metrics_ != nullptr);
   return metrics_->nb_non_functional_genes();
 }
 
 /// TODO
-int32_t Individual::get_overall_size_functional_genes() const {
+int32_t Individual::overall_size_functional_genes() const {
   assert(metrics_ != nullptr);
   return metrics_->overall_size_functional_genes();
 }
@@ -779,7 +779,7 @@ double Individual::av_size_functional_genes() const {
 }
 
 /// TODO
-int32_t Individual::get_overall_size_non_functional_genes() const {
+int32_t Individual::overall_size_non_functional_genes() const {
   assert(metrics_ != nullptr);
   return metrics_->overall_size_non_functional_genes();
 }
@@ -794,55 +794,55 @@ double Individual::av_size_non_functional_genes() const {
 }
 
 /// TODO
-int32_t Individual::get_nb_bases_in_0_CDS() const {
+int32_t Individual::nb_bases_in_0_CDS() const {
   assert(nc_metrics_ != nullptr);
   return nc_metrics_->nb_bases_in_0_CDS();
 }
 
 /// TODO
-int32_t Individual::get_nb_bases_in_0_functional_CDS() const {
+int32_t Individual::nb_bases_in_0_functional_CDS() const {
   assert(nc_metrics_ != nullptr);
   return nc_metrics_->nb_bases_in_0_functional_CDS();
 }
 
 /// TODO
-int32_t Individual::get_nb_bases_in_0_non_functional_CDS() const {
+int32_t Individual::nb_bases_in_0_non_functional_CDS() const {
   assert(nc_metrics_ != nullptr);
   return nc_metrics_->nb_bases_in_0_non_functional_CDS();
 }
 
 /// TODO
-int32_t Individual::get_nb_bases_in_0_RNA() const {
+int32_t Individual::nb_bases_in_0_RNA() const {
   assert(nc_metrics_ != nullptr);
   return nc_metrics_->nb_bases_in_0_RNA();
 }
 
 /// TODO
-int32_t Individual::get_nb_bases_in_0_coding_RNA() const {
+int32_t Individual::nb_bases_in_0_coding_RNA() const {
   assert(nc_metrics_ != nullptr);
   return nc_metrics_->nb_bases_in_0_coding_RNA();
 }
 
 /// TODO
-int32_t Individual::get_nb_bases_in_0_non_coding_RNA() const {
+int32_t Individual::nb_bases_in_0_non_coding_RNA() const {
   assert(nc_metrics_ != nullptr);
   return nc_metrics_->nb_bases_in_0_non_coding_RNA();
 }
 
 /// TODO
-int32_t Individual::get_nb_bases_in_neutral_regions() const {
+int32_t Individual::nb_bases_in_neutral_regions() const {
   assert(nc_metrics_ != nullptr);
   return nc_metrics_->nb_bases_in_neutral_regions();
 }
 
 /// TODO
-int32_t Individual::get_nb_neutral_regions() const {
+int32_t Individual::nb_neutral_regions() const {
   assert(nc_metrics_ != nullptr);
   return nc_metrics_->nb_neutral_regions();
 }
 
 /// TODO
-double Individual::get_modularity() {
+double Individual::modularity() {
   printf("\n  WARNING : modularity measure not yet implemented.\n");
   //~ if (modularity_ < 0) compute_modularity();
   //~ return modularity_;
@@ -850,143 +850,143 @@ double Individual::get_modularity() {
 }
 
 /// TODO
-double Individual::get_w_max() const {
+double Individual::w_max() const {
   return w_max_;
 }
 
 // ------------------------------------------------------------- Mutation rates
 /// TODO
-double Individual::get_point_mutation_rate() const {
-  return mut_params_->get_point_mutation_rate();
+double Individual::point_mutation_rate() const {
+  return mut_params_->point_mutation_rate();
 }
 
 /// TODO
-double Individual::get_small_insertion_rate() const {
-  return mut_params_->get_small_insertion_rate();
+double Individual::small_insertion_rate() const {
+  return mut_params_->small_insertion_rate();
 }
 
 /// TODO
-double Individual::get_small_deletion_rate() const {
-  return mut_params_->get_small_deletion_rate();
+double Individual::small_deletion_rate() const {
+  return mut_params_->small_deletion_rate();
 }
 
 /// TODO
-int16_t Individual::get_max_indel_size() const {
-  return mut_params_->get_max_indel_size();
+int16_t Individual::max_indel_size() const {
+  return mut_params_->max_indel_size();
 }
 
 // ---------------------------------- Rearrangement rates (without alignements)
 /// TODO
-double Individual::get_duplication_rate() const {
-  return mut_params_->get_duplication_rate();
+double Individual::duplication_rate() const {
+  return mut_params_->duplication_rate();
 }
 
 /// TODO
-double Individual::get_deletion_rate() const {
-  return mut_params_->get_deletion_rate();
+double Individual::deletion_rate() const {
+  return mut_params_->deletion_rate();
 }
 
 /// TODO
-double Individual::get_translocation_rate() const {
-  return mut_params_->get_translocation_rate();
+double Individual::translocation_rate() const {
+  return mut_params_->translocation_rate();
 }
 
 /// TODO
-double Individual::get_inversion_rate() const {
-  return mut_params_->get_inversion_rate();
+double Individual::inversion_rate() const {
+  return mut_params_->inversion_rate();
 }
 
 // ------------------------------------- Rearrangement rates (with alignements)
 /// TODO
-double Individual::get_neighbourhood_rate() const {
-  return mut_params_->get_neighbourhood_rate();
+double Individual::neighbourhood_rate() const {
+  return mut_params_->neighbourhood_rate();
 }
 
 /// TODO
-double Individual::get_duplication_proportion() const {
-  return mut_params_->get_duplication_proportion();
+double Individual::duplication_proportion() const {
+  return mut_params_->duplication_proportion();
 }
 
 /// TODO
-double Individual::get_deletion_proportion() const {
-  return mut_params_->get_deletion_proportion();
+double Individual::deletion_proportion() const {
+  return mut_params_->deletion_proportion();
 }
 
 /// TODO
-double Individual::get_translocation_proportion() const {
-  return mut_params_->get_translocation_proportion();
+double Individual::translocation_proportion() const {
+  return mut_params_->translocation_proportion();
 }
 
 /// TODO
-double Individual::get_inversion_proportion() const {
-  return mut_params_->get_inversion_proportion();
+double Individual::inversion_proportion() const {
+  return mut_params_->inversion_proportion();
 }
 
 // ---------------------------------------------------------------- Transfer
-bool Individual::get_with_4pts_trans() const {
-  return mut_params_->get_with_4pts_trans();
+bool Individual::with_4pts_trans() const {
+  return mut_params_->with_4pts_trans();
 }
 
-bool Individual::get_with_HT() const {
-  return mut_params_->get_with_HT();
+bool Individual::with_HT() const {
+  return mut_params_->with_HT();
 }
 
-bool Individual::get_repl_HT_with_close_points() const {
-  return mut_params_->get_repl_HT_with_close_points();
+bool Individual::repl_HT_with_close_points() const {
+  return mut_params_->repl_HT_with_close_points();
 }
 
-double Individual::get_HT_ins_rate() const {
-  return mut_params_->get_HT_ins_rate();
+double Individual::HT_ins_rate() const {
+  return mut_params_->HT_ins_rate();
 }
 
-double Individual::get_HT_repl_rate() const {
-  return mut_params_->get_HT_repl_rate();
+double Individual::HT_repl_rate() const {
+  return mut_params_->HT_repl_rate();
 }
 
-double Individual::get_repl_HT_detach_rate() const {
-  return mut_params_->get_repl_HT_detach_rate();
+double Individual::repl_HT_detach_rate() const {
+  return mut_params_->repl_HT_detach_rate();
 }
 
 
 // ---------------------------------------------------------------- Alignements
-bool Individual::get_with_alignments() const {
-  return mut_params_->get_with_alignments();
+bool Individual::with_alignments() const {
+  return mut_params_->with_alignments();
 }
 
-AlignmentFunctionShape Individual::get_align_fun_shape() const {
-  return mut_params_->get_align_fun_shape();
+AlignmentFunctionShape Individual::align_fun_shape() const {
+  return mut_params_->align_fun_shape();
 }
 
-double Individual::get_align_sigm_lambda() const {
-  return mut_params_->get_align_sigm_lambda();
+double Individual::align_sigm_lambda() const {
+  return mut_params_->align_sigm_lambda();
 }
 
-int16_t Individual::get_align_sigm_mean() const {
-  return mut_params_->get_align_sigm_mean();
+int16_t Individual::align_sigm_mean() const {
+  return mut_params_->align_sigm_mean();
 }
 
-int16_t Individual::get_align_lin_min() const {
-  return mut_params_->get_align_lin_min();
+int16_t Individual::align_lin_min() const {
+  return mut_params_->align_lin_min();
 }
 
-int16_t Individual::get_align_lin_max() const {
-  return mut_params_->get_align_lin_max();
+int16_t Individual::align_lin_max() const {
+  return mut_params_->align_lin_max();
 }
 
-int16_t Individual::get_align_max_shift() const {
-  return mut_params_->get_align_max_shift();
+int16_t Individual::align_max_shift() const {
+  return mut_params_->align_max_shift();
 }
 
-int16_t Individual::get_align_w_zone_h_len() const {
-  return mut_params_->get_align_w_zone_h_len();
+int16_t Individual::align_w_zone_h_len() const {
+  return mut_params_->align_w_zone_h_len();
 }
 
-int16_t Individual::get_align_match_bonus() const {
-  return mut_params_->get_align_match_bonus();
+int16_t Individual::align_match_bonus() const {
+  return mut_params_->align_match_bonus();
 }
 
-int16_t Individual::get_align_mismatch_cost() const {
-  return mut_params_->get_align_mismatch_cost();
+int16_t Individual::align_mismatch_cost() const {
+  return mut_params_->align_mismatch_cost();
 }
 
 /// TODO
@@ -1000,18 +1000,18 @@ void Individual::set_allow_plasmids(bool allow_plasmids) {
 
 // Genome size constraints
 /// TODO
-int32_t Individual::get_min_genome_length() const {
+int32_t Individual::min_genome_length() const {
   return min_genome_length_;
 }
 
 /// TODO
-int32_t Individual::get_max_genome_length() const {
+int32_t Individual::max_genome_length() const {
   return max_genome_length_;
 }
 
 // Plasmids settings
 /// TODO
-bool Individual::get_allow_plasmids() const {
+bool Individual::allow_plasmids() const {
   return allow_plasmids_;
 }
 
@@ -1020,7 +1020,7 @@ bool Individual::get_allow_plasmids() const {
 
   \return int_probes_
 */
-int32_t* Individual::get_int_probes() const {
+int32_t* Individual::int_probes() const {
   return int_probes_;
 }
 
@@ -1029,7 +1029,7 @@ int32_t* Individual::get_int_probes() const {
 
   \return double_probes_
 */
-double* Individual::get_double_probes() const {
+double* Individual::double_probes() const {
   return double_probes_;
 }
 
@@ -1317,11 +1317,11 @@ void Individual::compute_fitness(const PhenotypicTarget& target) {
 
 #ifdef NORMALIZED_FITNESS
   for (int8_t i = 0 ; i < NB_FEATURES ; i++) {
-    if (envir->get_area_by_feature(i)==0.) {
+    if (envir->area_by_feature(i)==0.) {
       fitness_by_feature_[i] = 0.;
     }
     else {
-      fitness_by_feature_[i] =  (envir->get_area_by_feature(i) - dist_to_target_by_feature_[i]) / envir->get_area_by_feature(i);
+      fitness_by_feature_[i] =  (envir->area_by_feature(i) - dist_to_target_by_feature_[i]) / envir->area_by_feature(i);
       if ((fitness_by_feature_[i] < 0.) && (i != METABOLISM)) // non-metabolic fitness can NOT be lower than zero (we do not want individual to secrete a negative quantity of public good)
       {
         fitness_by_feature_[i] = 0.;
@@ -1329,16 +1329,16 @@ void Individual::compute_fitness(const PhenotypicTarget& target) {
     }
   }
 
-  if ((! placed_in_population_) || (! exp_m_->get_with_secretion())) {
+  if ((! placed_in_population_) || (! exp_m_->with_secretion())) {
     fitness_ = fitness_by_feature_[METABOLISM];
   }
   else {
-    fitness_ =  fitness_by_feature_[METABOLISM] * (1 + exp_m_->get_secretion_contrib_to_fitness() * (grid_cell_->compound_amount() - exp_m_->get_secretion_cost() * fitness_by_feature_[SECRETION]));
+    fitness_ =  fitness_by_feature_[METABOLISM] * (1 + exp_m_->secretion_contrib_to_fitness() * (grid_cell_->compound_amount() - exp_m_->secretion_cost() * fitness_by_feature_[SECRETION]));
   }
 
-  if (exp_m_->get_selection_scheme() == FITNESS_PROPORTIONATE) // Then the exponential selection is integrated inside the fitness value
+  if (exp_m_->selection_scheme() == FITNESS_PROPORTIONATE) // Then the exponential selection is integrated inside the fitness value
   {
-    fitness_ = exp(-exp_m_->get_selection_pressure() * (1 - fitness_));
+    fitness_ = exp(-exp_m_->selection_pressure() * (1 - fitness_));
   }
 #else
   for (int8_t i = 0; i < NB_FEATURES; i++) {
@@ -1367,7 +1367,7 @@ void Individual::compute_fitness(const PhenotypicTarget& target) {
   else {
     fitness_ = fitness_by_feature_[METABOLISM]
                * (1 + exp_m_->secretion_contrib_to_fitness() *
-                      get_grid_cell()->compound_amount()
+                      grid_cell()->compound_amount()
                   - exp_m_->secretion_cost() *
                     fitness_by_feature_[SECRETION]);
   }
@@ -1482,7 +1482,7 @@ void Individual::do_transcription() {
 
   for (auto& gen_unit: genetic_unit_list_) {
     gen_unit.do_transcription();
-    const auto& rna_list = gen_unit.get_rna_list();
+    const auto& rna_list = gen_unit.rna_list();
     for (auto& strand: {LEADING, LAGGING}) {
       for (auto& rna: rna_list[strand])
         rna_list_.push_back(&rna);
@@ -1503,7 +1503,7 @@ void Individual::do_translation() {
     gen_unit.do_translation();
     // append all proteins from `gen_unit` to `protein_list_`
     for (auto& strand_id: {LEADING, LAGGING}) {
-      auto& strand = gen_unit.get_protein_list(strand_id);
+      auto& strand = gen_unit.protein_list(strand_id);
       for (auto& p: strand)
         protein_list_.push_back(&p);
     }
@@ -1545,7 +1545,7 @@ void Individual::EvaluateInContext(const Habitat& habitat) {
   compute_distance_to_target(habitat.phenotypic_target());
   compute_fitness(habitat.phenotypic_target());
 
-  if (exp_m_->output_m()->get_compute_phen_contrib_by_GU())
+  if (exp_m_->output_m()->compute_phen_contrib_by_GU())
     for (auto& gen_unit: genetic_unit_list_) {
       gen_unit.compute_distance_to_target(habitat.phenotypic_target());
       gen_unit.compute_fitness(habitat.phenotypic_target());
@@ -1673,7 +1673,7 @@ void Individual::compute_experimental_f_nu(int32_t nb_children,
                                            double* reproduction_statistics,
                                            double* offsprings_statistics,
                                            FILE* replication_file) {
-  double initial_fitness = get_fitness();
+  double initial_fitness = fitness();
 
   if (reproduction_statistics != NULL) {
     reproduction_statistics[0] = 0; // proportion of neutral offsprings
@@ -1710,8 +1710,8 @@ void Individual::compute_experimental_f_nu(int32_t nb_children,
   int32_t nb_bases_in_0_coding_RNA = 0;
 
   for (int i = 0; i < nb_children; i++) {
-    child = exp_m_->exp_s()->get_sel()->do_replication(this, id_);
-    fitness_child = child->get_fitness();
+    child = exp_m_->exp_s()->sel()->do_replication(this, id_);
+    fitness_child = child->fitness();
     metabolic_error_child = child->dist_to_target_by_feature(METABOLISM);
 
     if (fabs(initial_fitness - fitness_child) <
@@ -1725,10 +1725,10 @@ void Individual::compute_experimental_f_nu(int32_t nb_children,
       reproduction_statistics[2] += 1;
     }
 
-    genome_size = child->get_total_genome_size();
-    nb_functional_genes = child->get_nb_functional_genes();
-    nb_bases_in_0_functional_CDS = child->get_nb_bases_in_0_functional_CDS();
-    nb_bases_in_0_coding_RNA = child->get_nb_bases_in_0_coding_RNA();
+    genome_size = child->total_genome_size();
+    nb_functional_genes = child->nb_functional_genes();
+    nb_bases_in_0_functional_CDS = child->nb_bases_in_0_functional_CDS();
+    nb_bases_in_0_coding_RNA = child->nb_bases_in_0_coding_RNA();
 
     if (offsprings_statistics != NULL) {
       offsprings_statistics[0] += fitness_child;
@@ -1784,11 +1784,11 @@ double Individual::compute_theoritical_f_nu() {
   // Please notice that compared to the formula we have the beginning
   // and ends of neutral regions instead of 'functional regions'
   GeneticUnit& chromosome = genetic_unit_list_.front();
-  int32_t L = chromosome.get_dna()->length();
-  int32_t N_G = chromosome.get_nb_neutral_regions(); // which is not exactly Carole's original definition
+  int32_t L = chromosome.dna()->length();
+  int32_t N_G = chromosome.nb_neutral_regions(); // which is not exactly Carole's original definition
   int32_t* b_i = chromosome.beginning_neutral_regions();
   int32_t* e_i = chromosome.end_neutral_regions();
-  int32_t lambda = chromosome.get_nb_bases_in_neutral_regions();
+  int32_t lambda = chromosome.nb_bases_in_neutral_regions();
   int32_t l = L - lambda; // nb bases in 'functional regions'
 
   int32_t* lambda_i = NULL;  // nb bases in ith neutral region
@@ -1816,17 +1816,17 @@ double Individual::compute_theoritical_f_nu() {
 
   // mutation + insertion + deletion
   double nu_local_mutation = 1 - ((double) l) / L;
-  Fv = pow(1 - get_point_mutation_rate() * (1 - nu_local_mutation), L);
-  Fv *= pow(1 - get_small_insertion_rate() * (1 - nu_local_mutation), L);
-  Fv *= pow(1 - get_small_deletion_rate() * (1 - nu_local_mutation), L);
+  Fv = pow(1 - point_mutation_rate() * (1 - nu_local_mutation), L);
+  Fv *= pow(1 - small_insertion_rate() * (1 - nu_local_mutation), L);
+  Fv *= pow(1 - small_deletion_rate() * (1 - nu_local_mutation), L);
 
   // inversion ~ two local mutations
   double nu_inversion = nu_local_mutation * nu_local_mutation;
-  Fv *= pow(1 - get_inversion_rate() * (1 - nu_inversion), L);
+  Fv *= pow(1 - inversion_rate() * (1 - nu_inversion), L);
 
   // translocation ~ inversion + insertion (mathematically)
   Fv *= pow(
-      1 - get_translocation_rate() * (1 - nu_inversion * nu_local_mutation), L);
+      1 - translocation_rate() * (1 - nu_inversion * nu_local_mutation), L);
 
   // long deletion
   double nu_deletion = 0; // if N_G == 0, a deletion is always not neutral
@@ -1834,10 +1834,10 @@ double Individual::compute_theoritical_f_nu() {
     nu_deletion += lambda_i[i] * (lambda_i[i] + 1);
   }
   nu_deletion /= ((double) 2 * L * L);
-  Fv *= pow(1 - get_deletion_rate() * (1 - nu_deletion), L);
+  Fv *= pow(1 - deletion_rate() * (1 - nu_deletion), L);
 
   // duplication ~ big deletion + insertion
-  Fv *= pow(1 - get_duplication_rate() * (1 - nu_deletion * nu_local_mutation),
+  Fv *= pow(1 - duplication_rate() * (1 - nu_deletion * nu_local_mutation),
             L);
 
   if (lambda_i != NULL) delete[] lambda_i;
@@ -1862,7 +1862,7 @@ void Individual::remove_non_coding_bases() {
 #ifdef DEBUG
   compute_statistical_data();
   compute_non_coding();
-  assert(get_nb_bases_in_0_coding_RNA() == 0);
+  assert(nb_bases_in_0_coding_RNA() == 0);
 #endif
 }
 
@@ -1872,7 +1872,7 @@ void Individual::remove_non_coding_bases() {
 /// bases and test at each addition that fitness is not changed.
 void Individual::double_non_coding_bases() {
   metrics_->total_genome_size_ = 0;
-  int32_t initial_non_coding_base_nb = get_nb_bases_in_0_coding_RNA();
+  int32_t initial_non_coding_base_nb = nb_bases_in_0_coding_RNA();
 
   for (auto& gen_unit: genetic_unit_list_)
     gen_unit.double_non_coding_bases();
@@ -1886,7 +1886,7 @@ void Individual::double_non_coding_bases() {
 #ifdef DEBUG
   compute_statistical_data();
   compute_non_coding();
-  assert(get_nb_bases_in_0_coding_RNA() == 2 * initial_non_coding_base_nb);
+  assert(nb_bases_in_0_coding_RNA() == 2 * initial_non_coding_base_nb);
 #endif
 }
 
@@ -1903,7 +1903,7 @@ void Individual::make_protein_list() {
   for (auto& gen_unit: genetic_unit_list_) {
     // append all proteins from `gen_unit` to `protein_list_`
     for (auto& strand_id: {LEADING, LAGGING}) {
-      auto& strand = gen_unit.get_protein_list(strand_id);
+      auto& strand = gen_unit.protein_list(strand_id);
       for (auto& p: strand)
         protein_list_.push_back(&p);
     }
@@ -1917,7 +1917,7 @@ void Individual::make_rna_list() {
   // Make a copy of each genetic unit's rna list
   for (const auto& gen_unit: genetic_unit_list_) {
     // Create proxies
-    const auto& rna_list = gen_unit.get_rna_list();
+    const auto& rna_list = gen_unit.rna_list();
 
     // append pointers to rna material to local rna_list_
     for (auto& strand: {LEADING, LAGGING})

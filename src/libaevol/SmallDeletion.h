@@ -77,7 +77,7 @@ class SmallDeletion : public LocalMutation {
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
-  virtual MutationType get_mut_type() const override {
+  virtual MutationType mut_type() const override {
     return S_DEL;
   };
 

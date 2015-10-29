@@ -119,11 +119,11 @@ int main( int argc, char* argv[] )
   fclose(plasmid_file);
 
   // We know need to make several changes in experiment so it 'accepts' this new plasmid
-  exp_manager->get_exp_s()->set_with_plasmids( true ); // We need to change the allow_plasmid parameter, otherwise aevol_run will crash
-  exp_manager->get_output_m()->set_compute_phen_contrib_by_GU(true);
+  exp_manager->exp_s()->set_with_plasmids( true ); // We need to change the allow_plasmid parameter, otherwise aevol_run will crash
+  exp_manager->output_m()->set_compute_phen_contrib_by_GU(true);
 
   // We parse the individuals and transform them
-  for (const auto& indiv: exp_manager->world()->get_indivs()) {
+  for (const auto& indiv: exp_manager->world()->indivs()) {
     char* plasmid=new char[lplasmid+1]; // Warning: will become the DNA of the first individual created -> no not delete, will be freed in ~ae_dna.
     strncpy(plasmid, rawplasmid, lplasmid);
     plasmid[lplasmid]='\0';
@@ -132,7 +132,7 @@ int main( int argc, char* argv[] )
     indiv->genetic_unit_nonconst(1).set_min_gu_length(plasmid_minimal_length);
     indiv->genetic_unit_nonconst(1).set_max_gu_length(plasmid_maximal_length);
     indiv->set_replication_report(NULL); // plasmid's DNA should not have replic reports otherwise stat_record will try to access it.
-    indiv->genetic_unit_nonconst(1).get_dna()->set_replic_report(NULL);
+    indiv->genetic_unit_nonconst(1).dna()->set_replic_report(NULL);
     indiv->genetic_unit_nonconst(1).compute_phenotypic_contribution();
     indiv->reevaluate();
   }

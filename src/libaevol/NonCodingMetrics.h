@@ -159,15 +159,15 @@ class NonCodingMetrics
 //                       Inline functions' definition
 // ============================================================================
 void NonCodingMetrics::Accumulate(const GeneticUnit& gen_unit) {
-  nb_bases_in_0_CDS_ += gen_unit.get_nb_bases_in_0_CDS();
-  nb_bases_in_0_functional_CDS_ += gen_unit.get_nb_bases_in_0_functional_CDS();
+  nb_bases_in_0_CDS_ += gen_unit.nb_bases_in_0_CDS();
+  nb_bases_in_0_functional_CDS_ += gen_unit.nb_bases_in_0_functional_CDS();
   nb_bases_in_0_non_functional_CDS_ +=
-      gen_unit.get_nb_bases_in_0_non_functional_CDS();
-  nb_bases_in_0_RNA_ += gen_unit.get_nb_bases_in_0_RNA();
-  nb_bases_in_0_coding_RNA_ += gen_unit.get_nb_bases_in_0_coding_RNA();
-  nb_bases_in_0_non_coding_RNA_ += gen_unit.get_nb_bases_in_0_non_coding_RNA();
-  nb_bases_in_neutral_regions_ += gen_unit.get_nb_bases_in_neutral_regions();
-  nb_neutral_regions_ += gen_unit.get_nb_neutral_regions();
+      gen_unit.nb_bases_in_0_non_functional_CDS();
+  nb_bases_in_0_RNA_ += gen_unit.nb_bases_in_0_RNA();
+  nb_bases_in_0_coding_RNA_ += gen_unit.nb_bases_in_0_coding_RNA();
+  nb_bases_in_0_non_coding_RNA_ += gen_unit.nb_bases_in_0_non_coding_RNA();
+  nb_bases_in_neutral_regions_ += gen_unit.nb_bases_in_neutral_regions();
+  nb_neutral_regions_ += gen_unit.nb_neutral_regions();
 }
 } // namespace aevol
 

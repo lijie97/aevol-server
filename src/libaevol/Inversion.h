@@ -77,7 +77,7 @@ class Inversion : public Rearrangement{
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
-  virtual MutationType get_mut_type() const override {
+  virtual MutationType mut_type() const override {
     return INV;
   };
 

@@ -78,7 +78,7 @@ Stats::Stats(ExpManager * exp_m,
 {
   exp_m_ = exp_m;
   init_data();
-  set_file_names(prefix, best_indiv_only, with_plasmids, compute_phen_contrib_by_GU);// exp_m_->with_plasmids(), exp_m_->output_m()->get_compute_phen_contrib_by_GU());
+  set_file_names(prefix, best_indiv_only, with_plasmids, compute_phen_contrib_by_GU);// exp_m_->with_plasmids(), exp_m_->output_m()->compute_phen_contrib_by_GU());
   open_files();
   write_headers();
 }
@@ -480,7 +480,7 @@ void Stats::write_current_generation_statistics()
   
   for (int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++)
   {
-    if ((not exp_m_->output_m()->get_compute_phen_contrib_by_GU()) &&
+    if ((not exp_m_->output_m()->compute_phen_contrib_by_GU()) &&
         chrom_or_GU > ALL_GU) continue;
 
     stat_records = new StatRecord* [NB_BEST_OR_GLOB];
@@ -632,7 +632,7 @@ void Stats::set_file_names(const char* prefix,
       for (int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++) {
         // // We don't want REAR_STATS when rearrangements are done without
         // alignments
-        // if (stat_type == REAR_STATS && ! exp_m_->get_with_alignments())
+        // if (stat_type == REAR_STATS && ! exp_m_->with_alignments())
         //   continue;
         
         // For now, we only want sdev and skew for fitness data

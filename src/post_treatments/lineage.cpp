@@ -216,7 +216,7 @@ int main(int argc, char** argv)
   // etc.
   //
   // Thus, the information for generation end_gener are located
-  // in the file called (end_gener/ae_common::rec_params->get_tree_step() + 1) * ae_common::rec_params->tree_step(),
+  // in the file called (end_gener/ae_common::rec_params->tree_step() + 1) * ae_common::rec_params->tree_step(),
   // except if end_gener%ae_common::rec_params->tree_step()==0.
 
   #ifdef __REGUL
@@ -308,7 +308,7 @@ int main(int argc, char** argv)
 
 
   // Retrieve the index of the first ancestor from the last replication report
-  indices[t_end - t0 -1] = reports[t_end - t0 - 1]->get_parent_id();
+  indices[t_end - t0 -1] = reports[t_end - t0 - 1]->parent_id();
 
   // For each generation (going backwards), retrieve the index of the parent and
   // the corresponding replication report
@@ -340,7 +340,7 @@ int main(int argc, char** argv)
     reports[i] = new ReplicationReport(*(tree->report_by_index(t, indices[i + 1])));
 
     // Retreive the index and rank of the next ancestor from the report
-    indices[i] = reports[i]->get_parent_id();
+    indices[i] = reports[i]->parent_id();
   }
   delete exp_manager;
 
@@ -373,7 +373,7 @@ int main(int argc, char** argv)
   gzwrite(lineage_file, &final_indiv_index, sizeof(final_indiv_index));
   gzwrite(lineage_file, &final_indiv_rank, sizeof(final_indiv_rank));
 
-  initial_ancestor->get_grid_cell()->save(lineage_file);
+  initial_ancestor->grid_cell()->save(lineage_file);
 
 
   if (verbose)
@@ -447,14 +447,14 @@ int main(int argc, char** argv)
     // Replay the mutations stored in the current replication report on the
     // current genome
     unit = initial_ancestor->genetic_unit_list().cbegin();
-    for (const auto& mut: reports[i]->dna_replic_report().get_HT()) {
-      (unit->get_dna())->undergo_this_mutation(*mut);
+    for (const auto& mut: reports[i]->dna_replic_report().HT()) {
+      (unit->dna())->undergo_this_mutation(*mut);
     }
-    for (const auto& mut: reports[i]->dna_replic_report().get_rearrangements()) {
-      (unit->get_dna())->undergo_this_mutation(*mut);
+    for (const auto& mut: reports[i]->dna_replic_report().rearrangements()) {
+      (unit->dna())->undergo_this_mutation(*mut);
     }
-    for (const auto& mut: reports[i]->dna_replic_report().get_mutations()) {
-      unit->get_dna()->undergo_this_mutation(*mut);
+    for (const auto& mut: reports[i]->dna_replic_report().mutations()) {
+      unit->dna()->undergo_this_mutation(*mut);
     }
 
     if (check_genome_now)
@@ -466,17 +466,17 @@ int main(int argc, char** argv)
       }
       assert(stored_gen_unit != stored_indiv->genetic_unit_list().cend());
 
-      char * str1 = new char[unit->get_dna()->length() + 1];
-      memcpy(str1, unit->get_dna()->data(),
-             unit->get_dna()->length() * sizeof(char));
-      str1[unit->get_dna()->length()] = '\0';
+      char * str1 = new char[unit->dna()->length() + 1];
+      memcpy(str1, unit->dna()->data(),
+             unit->dna()->length() * sizeof(char));
+      str1[unit->dna()->length()] = '\0';
 
-      char * str2 = new char[stored_gen_unit->get_dna()->length() + 1];
-      memcpy(str2, stored_gen_unit->get_dna()->data(),
-             stored_gen_unit->get_dna()->length() * sizeof(char));
-      str2[stored_gen_unit->get_dna()->length()] = '\0';
+      char * str2 = new char[stored_gen_unit->dna()->length() + 1];
+      memcpy(str2, stored_gen_unit->dna()->data(),
+             stored_gen_unit->dna()->length() * sizeof(char));
+      str2[stored_gen_unit->dna()->length()] = '\0';
 
-      if (strncmp(str1, str2, stored_gen_unit->get_dna()->length()) == 0)
+      if (strncmp(str1, str2, stored_gen_unit->dna()->length()) == 0)
       {
         if (verbose) printf(" OK\n");
       }

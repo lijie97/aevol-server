@@ -110,9 +110,9 @@ class GeneMutation : public Mutation
   //                              Accessors
   // =================================================================
   
-  inline int32_t get_generation() const;
-  inline double get_impact_on_metabolic_error() const;
-  inline ae_gene_mutation_region get_region();
+  inline int32_t generation() const;
+  inline double impact_on_metabolic_error() const;
+  inline ae_gene_mutation_region region();
   inline void set_impact_on_metabolic_error(double impact);
   
  
@@ -163,12 +163,12 @@ class GeneMutation : public Mutation
 //                         Inline Accessors' definitions
 // =====================================================================
 
-inline int32_t GeneMutation::get_generation() const
+inline int32_t GeneMutation::generation() const
 {
   return generation_;
 }
 
-inline double GeneMutation::get_impact_on_metabolic_error() const
+inline double GeneMutation::impact_on_metabolic_error() const
 {
   return impact_on_metabolic_error_;
 
@@ -181,7 +181,7 @@ inline void GeneMutation::set_impact_on_metabolic_error(double impact)
 }
 
 
-inline ae_gene_mutation_region GeneMutation::get_region()
+inline ae_gene_mutation_region GeneMutation::region()
 {
   return region_;
 }

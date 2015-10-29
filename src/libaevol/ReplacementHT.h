@@ -79,28 +79,28 @@ class ReplacementHT : public HorizontalTransfer {
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
-  virtual MutationType get_mut_type() const override {
+  virtual MutationType mut_type() const override {
     return REPL_HT;
   };
 
   int32_t donor_pos1() const {
-    return align1_.get_i_2();
+    return align1_.i_2();
   }
 
   int32_t donor_pos2() const {
-    return align2_.get_i_2();
+    return align2_.i_2();
   }
 
   int32_t receiver_pos1() const {
-    return align1_.get_i_1();
+    return align1_.i_1();
   }
 
   int32_t receiver_pos2() const {
-    return align2_.get_i_1();
+    return align2_.i_1();
   }
 
   AlignmentSense sense() const {
-    return align2_.get_sense();
+    return align2_.sense();
   }
 
   char* seq() const {

@@ -209,9 +209,9 @@ int main(int argc, char** argv)
   // Open the experiment manager
   ae_exp_manager* exp_manager = new ae_exp_manager();
   exp_manager->load(t0, true, false);
-  Environment* env = new Environment(*(exp_manager->get_env())); // independent copy
+  Environment* env = new Environment(*(exp_manager->env())); // independent copy
 
-  int64_t backup_step = exp_manager->get_backup_step();
+  int64_t backup_step = exp_manager->backup_step();
 
 
   // =========================
@@ -269,8 +269,8 @@ int main(int argc, char** argv)
 
   if ( verbose )
   {
-    printf("Initial fitness     = %f\n", indiv->get_fitness());
-    printf("Initial genome size = %" PRId32 "\n", indiv->get_total_genome_size());
+    printf("Initial fitness     = %f\n", indiv->fitness());
+    printf("Initial genome size = %" PRId32 "\n", indiv->total_genome_size());
   }
 
 
@@ -295,39 +295,39 @@ int main(int argc, char** argv)
   bool check_now = false;
 
   aevol::Time::plusplus();
-  while (get_time() <= t_end)
+  while (time() <= t_end)
   {
     ae_replication_report* rep = new ae_replication_report( lineage_file, indiv );
-    index = rep->get_id(); // who are we building...
+    index = rep->id(); // who are we building...
     indiv->set_replication_report(rep);
 
     // Check now?
-    check_now = ((check == FULL_CHECK && ae_utils::mod(get_time(), backup_step) == 0) ||
-                 (check == ENV_CHECK && ae_utils::mod(get_time(), backup_step) == 0) ||
-                 (check == LIGHT_CHECK && get_time() == t_end));
+    check_now = ((check == FULL_CHECK && ae_utils::mod(time(), backup_step) == 0) ||
+                 (check == ENV_CHECK && ae_utils::mod(time(), backup_step) == 0) ||
+                 (check == LIGHT_CHECK && time() == t_end));
 
 
     if ( verbose )
       printf("Rebuilding ancestor at generation %" PRId64 " (index %" PRId32 ")...",
-          get_time(), index);
+          time(), index);
 
     env->build();
     env->apply_variation();
     indiv->reevaluate(env);
 
     // Check, and possibly update, the environment according to the backup files (update necessary if the env. was modified by aevol_modify at some point)
-    if (ae_utils::mod(get_time(), backup_step) == 0)
+    if (ae_utils::mod(time(), backup_step) == 0)
       {
         char env_file_name[255];
-        sprintf(env_file_name, "./" ENV_FNAME_FORMAT, get_time());
+        sprintf(env_file_name, "./" ENV_FNAME_FORMAT, time());
         gzFile env_file = gzopen(env_file_name, "r");
         backup_env = new Environment();
         backup_env->load(env_file);
 
         if ( ! env->is_identical_to(*backup_env, tolerance) )
           {
-            printf("Warning: At t=%" PRId64 ", the replayed environment is not the same\n", get_time());
-            printf("         as the one saved at generation %" PRId64 "... \n", get_time());
+            printf("Warning: At t=%" PRId64 ", the replayed environment is not the same\n", time());
+            printf("         as the one saved at generation %" PRId64 "... \n", time());
             printf("         with tolerance of %lg\n", tolerance);
             printf("Replacing the replayed environment by the one stored in the backup.\n");
             delete env;
@@ -341,36 +341,36 @@ int main(int argc, char** argv)
     // during the evolution, or if some translocations occurred between different genetic units
 
     genetic_unit_number = 0;
-    std::list<DnaReplicReport*>::const_iterator dnareport = rep->get_dna_replic_reports().begin();
+    std::list<DnaReplicReport*>::const_iterator dnareport = rep->dna_replic_reports().begin();
     std::list<GeneticUnit>::iterator unit = indiv->genetic_unit_list_nonconst().begin();
 
-    if (check_now && ae_utils::mod(get_time(), backup_step) == 0)
+    if (check_now && ae_utils::mod(time(), backup_step) == 0)
     {
 
       exp_manager_backup = new ae_exp_manager();
-      exp_manager_backup->load(get_time(), true, false);
+      exp_manager_backup->load(time(), true, false);
       // TODO: disabled tmp
-      // stored_indiv = new ae_individual( * (ae_individual *)exp_manager_backup->get_indiv_by_id( index ), false );
+      // stored_indiv = new ae_individual( * (ae_individual *)exp_manager_backup->indiv_by_id( index ), false );
       stored_unit = stored_indiv->genetic_unit_list().begin();
     }
 
-    while (dnareport != rep->get_dna_replic_reports().end())
+    while (dnareport != rep->dna_replic_reports().end())
     {
       assert(unit != indiv->genetic_unit_list().end());
 
-      unit->get_dna()->set_replic_report(*dnareport);
+      unit->dna()->set_replic_report(*dnareport);
 
       // ***************************************
       //             Transfer events
       // ***************************************
 
-      for (const auto& mutation: (*dnareport)->get_HT()) {
+      for (const auto& mutation: (*dnareport)->HT()) {
         metabolic_error_before = indiv->dist_to_target_by_feature( METABOLISM );
-        unitlen_before = unit->get_dna()->get_length();
+        unitlen_before = unit->dna()->length();
         unit->compute_nb_of_affected_genes(&mutation, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
 
 
-        unit->get_dna()->undergo_this_mutation(&mutation);
+        unit->dna()->undergo_this_mutation(&mutation);
         indiv->reevaluate(env);
 
 
@@ -382,7 +382,7 @@ int main(int argc, char** argv)
         fprintf(output,
             "%" PRId64 " %" PRId32 " %s %" PRId32 " %.15f  %" PRId32
             " %" PRId32 " %" PRId32 " \n",
-            get_time(), genetic_unit_number, mut_descr_string, unitlen_before,
+            time(), genetic_unit_number, mut_descr_string, unitlen_before,
             impact_on_metabolic_error, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
       }
 
@@ -391,12 +391,12 @@ int main(int argc, char** argv)
       //           Rearrangement events
       // ***************************************
 
-      for (const auto& mutation: (*dnareport)->get_rearrangements()) {
+      for (const auto& mutation: (*dnareport)->rearrangements()) {
         metabolic_error_before = indiv->dist_to_target_by_feature( METABOLISM );
-        unitlen_before = unit->get_dna()->get_length();
+        unitlen_before = unit->dna()->length();
         unit->compute_nb_of_affected_genes(&mutation, nb_genes_at_breakpoints, nb_genes_in_segment,  nb_genes_in_replaced_segment);
 
-        unit->get_dna()->undergo_this_mutation(&mutation);
+        unit->dna()->undergo_this_mutation(&mutation);
 
         indiv->reevaluate(env);
         metabolic_error_after = indiv->dist_to_target_by_feature( METABOLISM );
@@ -406,7 +406,7 @@ int main(int argc, char** argv)
         fprintf(output,
             "%" PRId64 " %" PRId32 " %s %" PRId32 " %.15f %" PRId32
             " %" PRId32 " %" PRId32 " \n",
-            get_time(), genetic_unit_number, mut_descr_string, unitlen_before,
+            time(), genetic_unit_number, mut_descr_string, unitlen_before,
             impact_on_metabolic_error, nb_genes_at_breakpoints, nb_genes_in_segment,
             nb_genes_in_replaced_segment);
       }
@@ -416,12 +416,12 @@ int main(int argc, char** argv)
       // Local events (point mutations & small indels)
       // ***************************************
 
-      for (const auto& mutation: (*dnareport)->get_mutations()) {
+      for (const auto& mutation: (*dnareport)->mutations()) {
         metabolic_error_before = indiv->dist_to_target_by_feature( METABOLISM );
-        unitlen_before = unit->get_dna()->get_length();
+        unitlen_before = unit->dna()->length();
         unit->compute_nb_of_affected_genes(&mutation, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
 
-        unit->get_dna()->undergo_this_mutation(&mutation);
+        unit->dna()->undergo_this_mutation(&mutation);
 
         indiv->reevaluate(env);
         metabolic_error_after = indiv->dist_to_target_by_feature( METABOLISM );
@@ -431,12 +431,12 @@ int main(int argc, char** argv)
         fprintf(output,
             "%" PRId64 " %" PRId32 " %s %" PRId32 " %.15f %" PRId32
             " %" PRId32 " %" PRId32 " \n",
-            get_time(), genetic_unit_number, mut_descr_string, unitlen_before,
+            time(), genetic_unit_number, mut_descr_string, unitlen_before,
             impact_on_metabolic_error, nb_genes_at_breakpoints, nb_genes_in_segment,
             nb_genes_in_replaced_segment);
       }
 
-      if (check_now && ae_utils::mod(get_time(), backup_step) == 0)
+      if (check_now && ae_utils::mod(time(), backup_step) == 0)
       {
         if (verbose)
         {
@@ -446,16 +446,16 @@ int main(int argc, char** argv)
 
         assert(stored_unit != stored_indiv->genetic_unit_list().end());
 
-        char * str1 = new char[unit->get_dna()->get_length() + 1];
-        memcpy(str1, unit->get_dna()->get_data(), \
-               unit->get_dna()->get_length()*sizeof(char));
-        str1[unit->get_dna()->get_length()] = '\0';
+        char * str1 = new char[unit->dna()->length() + 1];
+        memcpy(str1, unit->dna()->data(), \
+               unit->dna()->length()*sizeof(char));
+        str1[unit->dna()->length()] = '\0';
 
-        char * str2 = new char[(stored_unit->get_dna())->get_length() + 1];
-        memcpy(str2, (stored_unit->get_dna())->get_data(), (stored_unit->get_dna())->get_length()*sizeof(char));
-        str2[(stored_unit->get_dna())->get_length()] = '\0';
+        char * str2 = new char[(stored_unit->dna())->length() + 1];
+        memcpy(str2, (stored_unit->dna())->data(), (stored_unit->dna())->length()*sizeof(char));
+        str2[(stored_unit->dna())->length()] = '\0';
 
-        if(strncmp(str1,str2, (stored_unit->get_dna())->get_length())==0)
+        if(strncmp(str1,str2, (stored_unit->dna())->length())==0)
         {
           if ( verbose ) printf(" OK\n");
         }
@@ -463,7 +463,7 @@ int main(int argc, char** argv)
         {
           if ( verbose ) printf( " ERROR !\n" );
           fprintf( stderr, "Error: the rebuilt unit is not the same as \n");
-          fprintf( stderr, "the one saved at generation %" PRId64 "... ", get_time());
+          fprintf( stderr, "the one saved at generation %" PRId64 "... ", time());
           fprintf( stderr, "Rebuilt unit : %zu bp\n %s\n", strlen(str1), str1 );
           fprintf( stderr, "Stored unit  : %zu bp\n %s\n", strlen(str2), str2 );
           delete [] str1;
@@ -495,7 +495,7 @@ int main(int argc, char** argv)
 
     delete rep;
 
-    if (check_now && ae_utils::mod(get_time(), backup_step) == 0)
+    if (check_now && ae_utils::mod(time(), backup_step) == 0)
     {
       assert(stored_unit == stored_indiv->genetic_unit_list().end());
       delete stored_indiv;

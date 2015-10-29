@@ -74,10 +74,10 @@ class ExpManager : public Observer {
   //                           Accessors: getters
   // =======================================================================
   ExpSetup* exp_s() const { return exp_s_; }
-  Selection* sel() const { return exp_s()->get_sel(); }
+  Selection* sel() const { return exp_s()->sel(); }
   OutputManager* output_m() const { return output_m_; }
   bool quit_signal_received() const { return quit_signal_received_; }
-  double selection_pressure() const { return sel()->get_selection_pressure(); }
+  double selection_pressure() const { return sel()->selection_pressure(); }
 
   // Spatial structure
   World* world() const { return world_; }
@@ -86,7 +86,7 @@ class ExpManager : public Observer {
   GridCell*** grid() const { return world()->grid(); }
 
   // Global settings
-  double repl_HT_detach_rate() const { return exp_s()->get_repl_HT_detach_rate();}
+  double repl_HT_detach_rate() const { return exp_s()->repl_HT_detach_rate();}
 
   // The ability to own a plasmid is a property of the individuals (allow_plasmids_) because it is used during mutations.
   // However, the experimental setup's member variable with_plasmids_ indicates whether plasmids are used
@@ -106,16 +106,16 @@ class ExpManager : public Observer {
   double secretion_cost() const { return exp_s()->secretion_cost(); }
 
   // Accessors to population stuff
-  std::list<Individual*> indivs() const { return world()->get_indivs(); }
-  int32_t nb_indivs() const { return world()->get_nb_indivs(); }
-  Individual* best_indiv() const { return world()->get_best_indiv(); }
+  std::list<Individual*> indivs() const { return world()->indivs(); }
+  int32_t nb_indivs() const { return world()->nb_indivs(); }
+  Individual* best_indiv() const { return world()->best_indiv(); }
   Individual* indiv_by_id(int32_t id) const;
 
   // Accessors to output manager stuff
-  int64_t	backup_step() const { return output_m()->get_backup_step(); }
-  bool record_tree() const { return output_m()->get_record_tree(); }
-  int32_t tree_step() const { return static_cast<int32_t>(output_m()->get_tree_step()); }
-  Tree* tree() const { return output_m()->get_tree(); }
+  int64_t	backup_step() const { return output_m()->backup_step(); }
+  bool record_tree() const { return output_m()->record_tree(); }
+  int32_t tree_step() const { return static_cast<int32_t>(output_m()->tree_step()); }
+  Tree* tree() const { return output_m()->tree(); }
 
   // =======================================================================
   //                          Accessors: setters
