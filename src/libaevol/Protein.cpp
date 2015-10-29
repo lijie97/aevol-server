@@ -125,7 +125,7 @@ Protein::Protein(GeneticUnit* gen_unit,
   // TODO : make this cleaner...
   AA_list_ = codon_list;
 
-  rna_list.push_back(rna);
+  rna_list_.push_back(rna);
 
   if ( strand_ == LEADING )
   {
@@ -385,7 +385,7 @@ int32_t Protein::last_STOP_base_pos() const
 
 void Protein::add_RNA( Rna * rna )
 {
-  rna_list.push_back(rna);
+  rna_list_.push_back(rna);
   concentration_ += rna->get_basal_level();
 }
 
@@ -449,7 +449,7 @@ char* Protein::AA_sequence(char separator /*= ' '*/) const
 
 void Protein::save( gzFile backup_file )
 {
-  // The rna_list is not write because there is no need to, it is an empty list.
+  // The rna_list_ is not write because there is no need to, it is an empty list.
   int8_t tmp_strand = strand_;
   gzwrite( backup_file, &tmp_strand,            sizeof(tmp_strand)            );
   gzwrite( backup_file, &shine_dal_pos_,        sizeof(shine_dal_pos_)        );

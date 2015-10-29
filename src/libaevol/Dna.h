@@ -164,7 +164,7 @@ class Dna : public ae_string {
 
   void compute_statistical_data();
 
-  // TODO(vld) rna_list should be passed by reference
+  // TODO(vld) rna_list_ should be passed by reference
   static void set_GU(std::vector<std::list<Rna>> rna_list,
                      const GeneticUnit* GU);
 

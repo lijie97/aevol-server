@@ -127,7 +127,7 @@ class Protein
     // =================================================================
     GeneticUnit*  gen_unit_;
     Strand strand_;
-    std::list<Rna *> rna_list;              // RNAs transcribing this protein
+    std::list<Rna *>  rna_list_;              // RNAs transcribing this protein
     int32_t           shine_dal_pos_;         // Index of the corresponding shine dalgarno sequence in the genome
     int32_t           first_translated_pos_;  // Index of the first base following the START codon
     int32_t           last_translated_pos_;   // Index of the last base before the STOP codon
@@ -153,7 +153,7 @@ inline Strand Protein::get_strand() const
 }
 
 inline const std::list<Rna *> Protein::get_rna_list() const {
-  return rna_list;
+  return rna_list_;
 }
 
 int32_t Protein::get_shine_dal_pos() const
