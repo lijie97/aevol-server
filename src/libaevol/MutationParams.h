@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef AEVOL_MUTATION_PARAMS_H__
-#define AEVOL_MUTATION_PARAMS_H__
+#ifndef AEVOL_MUTATION_PARAMS_H_
+#define AEVOL_MUTATION_PARAMS_H_
 
 
 // =================================================================
@@ -568,4 +568,4 @@ inline void MutationParams::set_align_mismatch_cost(int16_t align_mismatch_cost)
 
 } // namespace aevol
 
-#endif // AEVOL_MUTATION_PARAMS_H__
+#endif // AEVOL_MUTATION_PARAMS_H_

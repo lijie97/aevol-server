@@ -24,8 +24,8 @@
 //
 // ****************************************************************************
 
-#ifndef AEVOL_POINTMUTATION_H__
-#define AEVOL_POINTMUTATION_H__
+#ifndef AEVOL_POINTMUTATION_H_
+#define AEVOL_POINTMUTATION_H_
 
 
 // ============================================================================
@@ -100,4 +100,4 @@ class PointMutation : public LocalMutation {
 };
 
 } // namespace aevol
-#endif //AEVOL_POINTMUTATION_H__
+#endif //AEVOL_POINTMUTATION_H_

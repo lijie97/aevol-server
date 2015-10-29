@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef AEVOL_INDIVIDUAL_H__
-#define AEVOL_INDIVIDUAL_H__
+#ifndef AEVOL_INDIVIDUAL_H_
+#define AEVOL_INDIVIDUAL_H_
 
 
 // =================================================================
@@ -633,4 +633,4 @@ class Individual : public Observable {
 
 } // namespace aevol
 
-#endif // AEVOL_INDIVIDUAL_H__
+#endif // AEVOL_INDIVIDUAL_H_

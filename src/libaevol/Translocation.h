@@ -24,8 +24,8 @@
 //
 // ****************************************************************************
 
-#ifndef AEVOL_TRANSLOCATION_H__
-#define AEVOL_TRANSLOCATION_H__
+#ifndef AEVOL_TRANSLOCATION_H_
+#define AEVOL_TRANSLOCATION_H_
 
 
 // ============================================================================
@@ -136,4 +136,4 @@ class Translocation : public Rearrangement {
 };
 
 } // namespace aevol
-#endif //AEVOL_TRANSLOCATION_H__
+#endif //AEVOL_TRANSLOCATION_H_

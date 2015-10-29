@@ -24,8 +24,8 @@
 //
 // ****************************************************************************
 
-#ifndef AEVOL_OBSERVABLEEVENT_H__
-#define AEVOL_OBSERVABLEEVENT_H__
+#ifndef AEVOL_OBSERVABLEEVENT_H_
+#define AEVOL_OBSERVABLEEVENT_H_
 
 /**
  *
@@ -37,4 +37,4 @@ enum ObservableEvent {
   END_GENERATION
 };
 
-#endif //AEVOL_OBSERVABLEEVENT_H__
+#endif //AEVOL_OBSERVABLEEVENT_H_

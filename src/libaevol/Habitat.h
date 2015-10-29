@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef AEVOL_HABITAT_H__
-#define AEVOL_HABITAT_H__
+#ifndef AEVOL_HABITAT_H_
+#define AEVOL_HABITAT_H_
 
 
 // ============================================================================
@@ -141,4 +141,4 @@ class Habitat
 
 } // namespace aevol
 
-#endif // AEVOL_HABITAT_H__
+#endif // AEVOL_HABITAT_H_

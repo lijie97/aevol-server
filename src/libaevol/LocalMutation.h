@@ -24,8 +24,8 @@
 //
 // ****************************************************************************
 
-#ifndef AEVOL_LOCALMUTATION_H__
-#define AEVOL_LOCALMUTATION_H__
+#ifndef AEVOL_LOCALMUTATION_H_
+#define AEVOL_LOCALMUTATION_H_
 
 
 // ============================================================================
@@ -80,4 +80,4 @@ class LocalMutation : public Mutation {
 };
 
 } // namespace aevol
-#endif //AEVOL_LOCALMUTATION_H__
+#endif //AEVOL_LOCALMUTATION_H_

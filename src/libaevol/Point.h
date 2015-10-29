@@ -24,8 +24,8 @@
 //
 // ****************************************************************************
 
-#ifndef AEVOL_POINT_H__
-#define AEVOL_POINT_H__
+#ifndef AEVOL_POINT_H_
+#define AEVOL_POINT_H_
  
 #include <zlib.h>
 #include <utility>
@@ -44,4 +44,4 @@ Point readpoint(const gzFile backup_file);
 void writepoint(const Point& p, gzFile backup_file);
 
 } // namespace aevol
-#endif // AEVOL_POINT_H__
+#endif // AEVOL_POINT_H_

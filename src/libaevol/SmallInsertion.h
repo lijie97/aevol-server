@@ -24,8 +24,8 @@
 //
 // ****************************************************************************
 
-#ifndef AEVOL_SMALLINSERTION_H__
-#define AEVOL_SMALLINSERTION_H__
+#ifndef AEVOL_SMALLINSERTION_H_
+#define AEVOL_SMALLINSERTION_H_
 
 
 // ============================================================================
@@ -111,4 +111,4 @@ class SmallInsertion : public LocalMutation {
 };
 
 } // namespace aevol
-#endif //AEVOL_SMALLINSERTION_H__
+#endif //AEVOL_SMALLINSERTION_H_

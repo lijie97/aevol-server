@@ -24,8 +24,8 @@
 //
 // ****************************************************************************
 
-#ifndef AEVOL_SMALLDELETION_H__
-#define AEVOL_SMALLDELETION_H__
+#ifndef AEVOL_SMALLDELETION_H_
+#define AEVOL_SMALLDELETION_H_
 
 
 // ============================================================================
@@ -106,4 +106,4 @@ class SmallDeletion : public LocalMutation {
 };
 
 } // namespace aevol
-#endif //AEVOL_SMALLDELETION_H__
+#endif //AEVOL_SMALLDELETION_H_

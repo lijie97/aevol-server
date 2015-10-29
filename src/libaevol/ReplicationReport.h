@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef AEVOL_REPLICATION_REPORT_H__
-#define AEVOL_REPLICATION_REPORT_H__
+#ifndef AEVOL_REPLICATION_REPORT_H_
+#define AEVOL_REPLICATION_REPORT_H_
 
 
 // =================================================================
@@ -272,4 +272,4 @@ inline void ReplicationReport::set_donor_genome_size(int32_t donor_genome_size)
 
 } // namespace aevol
 
-#endif // AEVOL_REPLICATION_REPORT_H__
+#endif // AEVOL_REPLICATION_REPORT_H_

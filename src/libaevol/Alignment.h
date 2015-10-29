@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef AEVOL_ALIGNMENT_H__
-#define AEVOL_ALIGNMENT_H__
+#ifndef AEVOL_ALIGNMENT_H_
+#define AEVOL_ALIGNMENT_H_
 
 
 // =================================================================
@@ -130,4 +130,4 @@ class Alignment {
 
 } // namespace aevol
 
-#endif // AEVOL_ALIGNMENT_H__
+#endif // AEVOL_ALIGNMENT_H_

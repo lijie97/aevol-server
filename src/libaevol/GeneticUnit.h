@@ -24,8 +24,8 @@
 //
 // ****************************************************************************
 
-#ifndef AEVOL_GENETIC_UNIT_H__
-#define AEVOL_GENETIC_UNIT_H__
+#ifndef AEVOL_GENETIC_UNIT_H_
+#define AEVOL_GENETIC_UNIT_H_
 
 #include <cinttypes>
 #include <cstdio>
@@ -543,4 +543,4 @@ class GeneticUnit {
 };
 
 } // namespace aevol
-#endif // AEVOL_GENETIC_UNIT_H__
+#endif // AEVOL_GENETIC_UNIT_H_

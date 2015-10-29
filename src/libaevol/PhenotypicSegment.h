@@ -25,8 +25,8 @@
 // ****************************************************************************
  
  
-#ifndef AEVOL_PHENOTYPIC_SEGMENT_H__
-#define AEVOL_PHENOTYPIC_SEGMENT_H__
+#ifndef AEVOL_PHENOTYPIC_SEGMENT_H_
+#define AEVOL_PHENOTYPIC_SEGMENT_H_
  
  
 // =================================================================
@@ -175,4 +175,4 @@ inline void PhenotypicSegment::load(gzFile backup_file)
 
 
 } // namespace aevol
-#endif // AEVOL_PHENOTYPIC_SEGMENT_H__
+#endif // AEVOL_PHENOTYPIC_SEGMENT_H_

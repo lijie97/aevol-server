@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef AEVOL_INDIV_STATS_H__
-#define AEVOL_INDIV_STATS_H__
+#ifndef AEVOL_INDIV_STATS_H_
+#define AEVOL_INDIV_STATS_H_
 
 
 // ============================================================================
@@ -205,4 +205,4 @@ void Metrics::Accumulate(const GeneticUnit& gen_unit) {
 
 } // namespace aevol
 
-#endif // AEVOL_INDIV_STATS_H__
+#endif // AEVOL_INDIV_STATS_H_

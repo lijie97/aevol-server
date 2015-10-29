@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef AEVOL_NON_CODING_STATS_H__
-#define AEVOL_NON_CODING_STATS_H__
+#ifndef AEVOL_NON_CODING_STATS_H_
+#define AEVOL_NON_CODING_STATS_H_
 
 
 // ============================================================================
@@ -171,4 +171,4 @@ void NonCodingMetrics::Accumulate(const GeneticUnit& gen_unit) {
 }
 } // namespace aevol
 
-#endif // AEVOL_NON_CODING_STATS_H__
+#endif // AEVOL_NON_CODING_STATS_H_

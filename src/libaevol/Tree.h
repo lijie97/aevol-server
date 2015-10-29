@@ -25,8 +25,8 @@
 // ****************************************************************************
  
  
-#ifndef AEVOL_TREE_H__
-#define AEVOL_TREE_H__
+#ifndef AEVOL_TREE_H_
+#define AEVOL_TREE_H_
 
 
 // =================================================================
@@ -152,4 +152,4 @@ class Tree : public Observer
 
 } // namespace aevol
 
-#endif // AEVOL_TREE_H__
+#endif // AEVOL_TREE_H_

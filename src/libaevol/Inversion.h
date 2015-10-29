@@ -24,8 +24,8 @@
 //
 // ****************************************************************************
 
-#ifndef AEVOL_INVERSION_H__
-#define AEVOL_INVERSION_H__
+#ifndef AEVOL_INVERSION_H_
+#define AEVOL_INVERSION_H_
 
 
 // ============================================================================
@@ -115,4 +115,4 @@ class Inversion : public Rearrangement{
 };
 
 } // namespace aevol
-#endif //AEVOL_INVERSION_H__
+#endif //AEVOL_INVERSION_H_

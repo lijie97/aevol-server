@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef AEVOL_STAT_RECORD_H__
-#define AEVOL_STAT_RECORD_H__
+#ifndef AEVOL_STAT_RECORD_H_
+#define AEVOL_STAT_RECORD_H_
 
 
 // =================================================================
@@ -239,4 +239,4 @@ class StatRecord
 
 } // namespace aevol
 
-#endif // AEVOL_STAT_RECORD_H__
+#endif // AEVOL_STAT_RECORD_H_

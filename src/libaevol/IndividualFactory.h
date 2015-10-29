@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef AEVOL_INDIVIDUAL_FACTORY_H__
-#define AEVOL_INDIVIDUAL_FACTORY_H__
+#ifndef AEVOL_INDIVIDUAL_FACTORY_H_
+#define AEVOL_INDIVIDUAL_FACTORY_H_
 
 
 // ============================================================================
@@ -133,4 +133,4 @@ class IndividualFactory
 
 } // namespace aevol
 
-#endif // AEVOL_INDIVIDUAL_FACTORY_H__
+#endif // AEVOL_INDIVIDUAL_FACTORY_H_

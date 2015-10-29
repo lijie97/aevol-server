@@ -25,8 +25,8 @@
 // ****************************************************************************
  
  
-#ifndef AEVOL_PHENOTYPE_H__
-#define AEVOL_PHENOTYPE_H__
+#ifndef AEVOL_PHENOTYPE_H_
+#define AEVOL_PHENOTYPE_H_
  
  
 // =================================================================
@@ -48,4 +48,4 @@ using Phenotype = Fuzzy;
 
 } // namespace aevol
 
-#endif // AEVOL_PHENOTYPE_H__
+#endif // AEVOL_PHENOTYPE_H_

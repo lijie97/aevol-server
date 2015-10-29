@@ -25,8 +25,8 @@
 // ****************************************************************************
  
  
-#ifndef  AEVOL_X11_WINDOW_H__
-#define  AEVOL_X11_WINDOW_H__
+#ifndef  AEVOL_X11_WINDOW_H_
+#define  AEVOL_X11_WINDOW_H_
  
  
 // =================================================================
@@ -204,4 +204,4 @@ void X11Window::blacken()
 }
 
 } // namespace aevol
-#endif // AEVOL_X11_WINDOW_H__
+#endif // AEVOL_X11_WINDOW_H_

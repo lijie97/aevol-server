@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef AEVOL_WORLD_H__
-#define AEVOL_WORLD_H__
+#ifndef AEVOL_WORLD_H_
+#define AEVOL_WORLD_H_
 
 
 // ============================================================================
@@ -307,4 +307,4 @@ inline void World::set_best(int16_t x, int16_t y) {
 // =====================================================================
 
 } // namespace aevol
-#endif // AEVOL_WORLD_H__
+#endif // AEVOL_WORLD_H_

@@ -27,8 +27,8 @@
 
 
 
-#ifndef AEVOL_JUMP_POLY_H__
-#define AEVOL_JUMP_POLY_H__
+#ifndef AEVOL_JUMP_POLY_H_
+#define AEVOL_JUMP_POLY_H_
 
 namespace aevol {
 
@@ -59,4 +59,4 @@ constexpr const char* jump_poly = "fabdf682938a008933e7f552cdb0c935af57be5a1b9ad
 
 } // namespace aevol
 
-#endif // AEVOL_JUMP_POLY_H__
+#endif // AEVOL_JUMP_POLY_H_

@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef AEVOL_JUMPING_MT_H__
-#define AEVOL_JUMPING_MT_H__
+#ifndef AEVOL_JUMPING_MT_H_
+#define AEVOL_JUMPING_MT_H_
 
 
 // =================================================================
@@ -205,4 +205,4 @@ inline int64_t JumpingMT::random(int64_t max)
 
 } // namespace aevol
 
-#endif // AEVOL_JUMPING_MT_H__
+#endif // AEVOL_JUMPING_MT_H_

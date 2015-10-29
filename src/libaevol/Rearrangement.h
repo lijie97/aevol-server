@@ -24,8 +24,8 @@
 //
 // ****************************************************************************
 
-#ifndef AEVOL_REARRANGEMENT_H__
-#define AEVOL_REARRANGEMENT_H__
+#ifndef AEVOL_REARRANGEMENT_H_
+#define AEVOL_REARRANGEMENT_H_
 
 
 // ============================================================================
@@ -80,4 +80,4 @@ class Rearrangement : public Mutation {
 };
 
 } // namespace aevol
-#endif //AEVOL_REARRANGEMENT_H__
+#endif //AEVOL_REARRANGEMENT_H_

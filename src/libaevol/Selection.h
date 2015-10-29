@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef AEVOL_SELECTION_H__
-#define AEVOL_SELECTION_H__
+#ifndef AEVOL_SELECTION_H_
+#define AEVOL_SELECTION_H_
 
 
 // =================================================================
@@ -202,4 +202,4 @@ inline void Selection::set_selection_pressure(double sel_pressure)
 // =====================================================================
 
 } // namespace aevol
-#endif // AEVOL_SELECTION_H__
+#endif // AEVOL_SELECTION_H_

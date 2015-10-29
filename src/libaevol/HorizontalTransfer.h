@@ -24,8 +24,8 @@
 //
 // ****************************************************************************
 
-#ifndef AEVOL_HT_H__
-#define AEVOL_HT_H__
+#ifndef AEVOL_HT_H_
+#define AEVOL_HT_H_
 
 
 // ============================================================================
@@ -81,4 +81,4 @@ class HorizontalTransfer : public Mutation {
 };
 
 } // namespace aevol
-#endif //AEVOL_HT_H__
+#endif //AEVOL_HT_H_

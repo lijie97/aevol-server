@@ -81,8 +81,8 @@
 // when you write.
 
 
-#ifndef AEVOL_MERSENNE_TWISTER_H__
-#define AEVOL_MERSENNE_TWISTER_H__
+#ifndef AEVOL_MERSENNE_TWISTER_H_
+#define AEVOL_MERSENNE_TWISTER_H_
 
 
 #include <inttypes.h>

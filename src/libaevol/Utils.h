@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef AEVOL_UTILS_H__
-#define AEVOL_UTILS_H__
+#ifndef AEVOL_UTILS_H_
+#define AEVOL_UTILS_H_
 
 
 // =================================================================
@@ -66,4 +66,4 @@ class Utils {
   static void PrintAevolVersion();
 };
 } // namespace aevol
-#endif // AEVOL_UTILS_H__
+#endif // AEVOL_UTILS_H_

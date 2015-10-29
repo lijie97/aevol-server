@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef AEVOL_PARAM_LOADER_H__
-#define AEVOL_PARAM_LOADER_H__
+#ifndef AEVOL_PARAM_LOADER_H_
+#define AEVOL_PARAM_LOADER_H_
 
 
 // =================================================================
@@ -280,4 +280,4 @@ class ParamLoader {
 };
 
 } // namespace aevol
-#endif // AEVOL_PARAM_LOADER_H__
+#endif // AEVOL_PARAM_LOADER_H_

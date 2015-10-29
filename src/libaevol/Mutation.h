@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef AEVOL_MUTATION_H__
-#define AEVOL_MUTATION_H__
+#ifndef AEVOL_MUTATION_H_
+#define AEVOL_MUTATION_H_
 
 
 // =================================================================
@@ -143,4 +143,4 @@ class Mutation {
 // =====================================================================
 
 } // namespace aevol
-#endif // AEVOL_MUTATION_H__
+#endif // AEVOL_MUTATION_H_

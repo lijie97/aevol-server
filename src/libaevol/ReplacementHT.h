@@ -24,8 +24,8 @@
 //
 // ****************************************************************************
 
-#ifndef AEVOL_REPLACEMENT_HT_H__
-#define AEVOL_REPLACEMENT_HT_H__
+#ifndef AEVOL_REPLACEMENT_HT_H_
+#define AEVOL_REPLACEMENT_HT_H_
 
 
 // ============================================================================
@@ -138,4 +138,4 @@ class ReplacementHT : public HorizontalTransfer {
 };
 
 } // namespace aevol
-#endif //AEVOL_REPLACEMENT_HT_H__
+#endif //AEVOL_REPLACEMENT_HT_H_
