@@ -1214,13 +1214,13 @@ void ParamLoader::read_file()
   rewind(param_file_);
 
   int32_t cur_line = 0;
-  ParameterLine* line;
+  ParameterLine* parameter_line;
 
-  // TODO : write line = new ParameterLine(param_file_) => ParameterLine::ParameterLine(char*)
-  while ((line = get_line(&cur_line)) != NULL)
+  // TODO : write parameter_line = new ParameterLine(param_file_) => ParameterLine::ParameterLine(char*)
+  while ((parameter_line = get_line(&cur_line)) != NULL)
   {
-    interpret_line(line, cur_line);
-    delete line;
+    interpret_line(parameter_line, cur_line);
+    delete parameter_line;
   }
 }
 
