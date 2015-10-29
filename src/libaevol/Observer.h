@@ -24,8 +24,8 @@
 //
 // ****************************************************************************
 
-#ifndef OBSERVER_OBSERVER_H__
-#define OBSERVER_OBSERVER_H__
+#ifndef AEVOL_OBSERVER_H_
+#define AEVOL_OBSERVER_H_
 
 
 // ============================================================================
@@ -85,4 +85,4 @@ class Observer {
 };
 
 
-#endif //OBSERVER_OBSERVER_H__
+#endif // AEVOL_OBSERVER_H_

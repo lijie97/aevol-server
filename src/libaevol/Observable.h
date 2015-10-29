@@ -24,8 +24,8 @@
 //
 // ****************************************************************************
 
-#ifndef OBSERVER_OBSERVABLE_H__
-#define OBSERVER_OBSERVABLE_H__
+#ifndef AEVOL_OBSERVABLE_H_
+#define AEVOL_OBSERVABLE_H_
 
 
 // ============================================================================
@@ -97,4 +97,4 @@ using std::map;
 };
 
 
-#endif //OBSERVER_OBSERVABLE_H__
+#endif // AEVOL_OBSERVABLE_H_
