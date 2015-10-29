@@ -126,7 +126,7 @@ ParamLoader::ParamLoader(const char* file_name)
   // Append with a hyphen and a series of random digits
   int strain_name_len = strlen(strain_name_);
   strain_name_[strain_name_len++] = '-';
-  srand(time(NULL));
+  srand(std::time(nullptr));
   while (strain_name_len < STRAIN_NAME_DEFAULT_SIZE)
   {
     // Don't care for uniform distrib, using simple and ugly rand() % X
