@@ -1842,7 +1842,7 @@ void GeneticUnit::duplicate_promoters_included_in(int32_t pos_1,
 
 void GeneticUnit::promoters_included_in(int32_t pos_1,
                                             int32_t pos_2,
-                                            Promoters2Strands& promoters) {
+                                            Promoters2Strands& promoters_list) {
   assert(pos_1 >= 0 && pos_1 <= dna_->length() && pos_2 >= 0 &&
          pos_2 <= dna_->length());
 
@@ -1851,9 +1851,9 @@ void GeneticUnit::promoters_included_in(int32_t pos_1,
 
     if (seg_length >= PROM_SIZE) {
       get_promoters(LEADING, BETWEEN, pos_1, pos_2 - PROM_SIZE + 1,
-                    promoters[LEADING]);
+                    promoters_list[LEADING]);
       get_promoters(LAGGING, BETWEEN, pos_2, pos_1 + PROM_SIZE - 1,
-                    promoters[LAGGING]);
+                    promoters_list[LAGGING]);
     }
   }
   else {
@@ -1864,43 +1864,43 @@ void GeneticUnit::promoters_included_in(int32_t pos_1,
       bool is_near_beginning_of_genome = (pos_2 - PROM_SIZE < 0);
 
       if (!is_near_end_of_genome && !is_near_beginning_of_genome) {
-        get_promoters(LEADING, AFTER, pos_1, -1, promoters[LEADING]);
+        get_promoters(LEADING, AFTER, pos_1, -1, promoters_list[LEADING]);
         get_promoters(LEADING, BEFORE, -1, pos_2 - PROM_SIZE + 1,
-                      promoters[LEADING]);
-        get_promoters(LAGGING, AFTER, pos_2, -1, promoters[LAGGING]);
+                      promoters_list[LEADING]);
+        get_promoters(LAGGING, AFTER, pos_2, -1, promoters_list[LAGGING]);
         get_promoters(LAGGING, BEFORE, -1, pos_1 + PROM_SIZE - 1,
-                      promoters[LAGGING]);
+                      promoters_list[LAGGING]);
       }
       else if (!is_near_end_of_genome) // => && is_near_beginning_of_genome
       {
         // get_promoters(leading, between, pos_1, pos_2 + dna_->length() - PROM_SIZE + 1,
-        //                                         promoters[LEADING] );
+        //                                         promoters_list[LEADING] );
         get_promoters(LEADING, BETWEEN, pos_1, pos_2 - PROM_SIZE + 1 +
                                                dna_->length(),
-                      promoters[LEADING]);
-        get_promoters(LAGGING, AFTER, pos_2, -1, promoters[LAGGING]);
+                      promoters_list[LEADING]);
+        get_promoters(LAGGING, AFTER, pos_2, -1, promoters_list[LAGGING]);
         get_promoters(LAGGING, BEFORE, -1, pos_1 + PROM_SIZE - 1,
-                      promoters[LAGGING]);
+                      promoters_list[LAGGING]);
       }
       else if (!is_near_beginning_of_genome) // => && is_near_end_of_genome
       {
-        get_promoters(LEADING, AFTER, pos_1, -1, promoters[LEADING]);
+        get_promoters(LEADING, AFTER, pos_1, -1, promoters_list[LEADING]);
         get_promoters(LEADING, BEFORE, -1, pos_2 - PROM_SIZE + 1,
-                      promoters[LEADING]);
+                      promoters_list[LEADING]);
         get_promoters(LAGGING, BETWEEN, pos_2, pos_1 + PROM_SIZE - 1 -
                                                dna_->length(),
-                      promoters[LAGGING]);
+                      promoters_list[LAGGING]);
       }
       else // is_near_end_of_genome && is_near_beginning_of_genome
       {
         // get_promoters(leading, between, pos_1, pos_2 + dna_->length() - PROM_SIZE + 1,
-        //                                         promoters[LEADING] );
+        //                                         promoters_list[LEADING] );
         get_promoters(LEADING, BETWEEN, pos_1, pos_2 - PROM_SIZE + 1 +
                                                dna_->length(),
-                      promoters[LEADING]);
+                      promoters_list[LEADING]);
         get_promoters(LAGGING, BETWEEN, pos_2, pos_1 + PROM_SIZE - 1 -
                                                dna_->length(),
-                      promoters[LAGGING]);
+                      promoters_list[LAGGING]);
       }
     }
   }

@@ -240,7 +240,7 @@ class GeneticUnit {
 
   void promoters_included_in(int32_t pos_1,
                                  int32_t pos_2,
-                                 Promoters2Strands& promoters);
+                                 Promoters2Strands& promoters_list);
 
   void get_promoters(Strand strand_id,
                      Position start,
