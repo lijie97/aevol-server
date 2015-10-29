@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
- #ifndef __AE_INDIVIDUAL_R_X11_H__
-#define  __AE_INDIVIDUAL_R_X11_H__
+ #ifndef AEVOL_INDIVIDUAL_R_X11_H_
+#define  AEVOL_INDIVIDUAL_R_X11_H_
 
 
 // =================================================================
@@ -100,4 +100,4 @@ class ae_individual_R_X11 : public ae_individual_R, ae_individual_X11
 //                          Accessors definitions
 // =====================================================================
 } // namespace aevol
-#endif // __AE_INDIVIDUAL_R_X11_H__
+#endif // AEVOL_INDIVIDUAL_R_X11_H_

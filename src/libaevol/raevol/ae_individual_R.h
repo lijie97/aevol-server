@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef __AE_INDIVIDUAL_R_H__
-#define  __AE_INDIVIDUAL_R_H__
+#ifndef AEVOL_INDIVIDUAL_R_H_
+#define  AEVOL_INDIVIDUAL_R_H_
 
 
 // =================================================================
@@ -112,4 +112,4 @@ class ae_individual_R : public virtual ae_individual
 
 } // namespace aevol
 
-#endif // __AE_INDIVIDUAL_R_H__
+#endif // AEVOL_INDIVIDUAL_R_H_

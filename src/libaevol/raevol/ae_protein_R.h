@@ -24,8 +24,8 @@
 //
 // ****************************************************************************
 
-#ifndef AE_PROTEIN_R_H
-#define AE_PROTEIN_R_H
+#ifndef AEVOL_PROTEIN_R_H_
+#define AEVOL_PROTEIN_R_H_
 
 // =================================================================
 //                              Libraries
@@ -163,4 +163,4 @@ void ae_protein_R::remove_influences()
 
 } // namespace aevol
 
-#endif // AE_PROTEIN_R_H
+#endif // AEVOL_PROTEIN_R_H_

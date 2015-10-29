@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef __AE_INFLUENCE_R_H__
-#define  __AE_INFLUENCE_R_H__
+#ifndef AEVOL_INFLUENCE_R_H_
+#define  AEVOL_INFLUENCE_R_H_
 
 
 // =================================================================
@@ -142,4 +142,4 @@ ae_influence_R* ae_influence_R::copy()
 }
 */
 } // namespace aevol
-#endif // __AE_INFLUENCE_R_H__
+#endif // AEVOL_INFLUENCE_R_H_

@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef  __AE_RNA_R_H__
-#define  __AE_RNA_R_H__
+#ifndef  AEVOL_RNA_R_H_
+#define  AEVOL_RNA_R_H_
 
 
 // =================================================================
@@ -131,4 +131,4 @@ ae_rna_R* ae_rna_R::copy()
 
 } // namespace aevol
 
-#endif // __AE_RNA_R_H__
+#endif // AEVOL_RNA_R_H_

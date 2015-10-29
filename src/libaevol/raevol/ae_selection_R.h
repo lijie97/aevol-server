@@ -25,8 +25,8 @@
 // ****************************************************************************
 
 
-#ifndef __AE_TEMPLATE_H__
-#define __AE_TEMPLATE_H__
+#ifndef AEVOL_TEMPLATE_H_
+#define AEVOL_TEMPLATE_H_
 
 
 // =================================================================
@@ -137,4 +137,4 @@ class ae_template
 
 } // namespace aevol
 
-#endif // __AE_TEMPLATE_H__
+#endif // AEVOL_TEMPLATE_H_
