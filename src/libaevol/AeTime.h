@@ -49,9 +49,9 @@ namespace aevol {
 
 
 /**
- * The time value represents the step that is currently being computed
+ * The time_ value represents the step that is currently being computed
  *
- * e.g. when creating generation 1 from generation 0, time == 1
+ * e.g. when creating generation 1 from generation 0, time_ == 1
  */
 class AeTime {
  public :
@@ -70,12 +70,12 @@ class AeTime {
   // =================================================================
   //                        Accessors: getters
   // =================================================================
-  static inline int64_t get_time() {return time;}
+  static inline int64_t get_time() {return time_;}
 
   // =================================================================
   //                        Accessors: setters
   // =================================================================
-  static inline void set_time(int64_t t) {time = t;}
+  static inline void set_time(int64_t t) { time_ = t;}
 
   // =================================================================
   //                              Operators
@@ -84,7 +84,7 @@ class AeTime {
   // =================================================================
   //                            Public Methods
   // =================================================================
-  static inline void plusplus() {time++;}
+  static inline void plusplus() { time_++;}
 
   // =================================================================
   //                           Public Attributes
@@ -102,7 +102,7 @@ class AeTime {
   // =================================================================
   //                          Protected Attributes
   // =================================================================
-  static int64_t time;
+  static int64_t time_;
 };
 
 
