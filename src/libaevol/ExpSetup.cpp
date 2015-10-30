@@ -70,7 +70,7 @@ void ExpSetup::write_setup_file(gzFile exp_setup_file) const
 {
   // --------------------------------------------------------------- Transfer
   int8_t tmp_with_HT = with_HT_;
-  gzwrite(exp_setup_file, &tmp_with_HT, sizeof(tmp_with_HT));
+  gzwrite(exp_setup_file, tmp_with_HT);
   int8_t tmp_repl_HT_with_close_points = repl_HT_with_close_points_;
   gzwrite(exp_setup_file, &tmp_repl_HT_with_close_points, sizeof(tmp_repl_HT_with_close_points));
   if (with_HT_)
