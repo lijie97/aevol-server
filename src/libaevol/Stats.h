@@ -126,8 +126,8 @@ class Stats
                         bool compute_phen_contrib_by_GU = false);
     void open_files();
 
-    inline void write_header( FILE* file_name, const char* header );
-    inline void write_header( FILE* file_name, const char* header, int8_t key );
+    inline void write_header(FILE* file_name, const char* header);
+    inline void write_header(FILE* file_name, const char* header, int8_t key);
 
     // =================================================================
     //                          Protected Attributes
@@ -153,19 +153,19 @@ class Stats
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-inline void Stats::set_exp_m( ExpManager * exp_m)
+inline void Stats::set_exp_m(ExpManager * exp_m)
 {
   exp_m_ = exp_m;
 }
 
-inline void Stats::write_header( FILE* file_name, const char* header )
+inline void Stats::write_header(FILE* file_name, const char* header)
 {
-  if ( file_name != NULL) fprintf( file_name, "# %s\n", header );
+  if (file_name != NULL) fprintf(file_name, "# %s\n", header);
 }
 
-inline void Stats::write_header( FILE* file_name, const char* header, int8_t key )
+inline void Stats::write_header(FILE* file_name, const char* header, int8_t key)
 {
-  if ( file_name != NULL) fprintf( file_name, "# %2d. %s\n", key, header );
+  if (file_name != NULL) fprintf(file_name, "# %2d. %s\n", key, header);
 }
 
 

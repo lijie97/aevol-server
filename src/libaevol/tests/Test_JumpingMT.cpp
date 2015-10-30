@@ -52,7 +52,7 @@ namespace aevol {
 //                         Class Test_JumpingMT                          #
 //                                                                           #
 //############################################################################
-CPPUNIT_TEST_SUITE_REGISTRATION( Test_JumpingMT );
+CPPUNIT_TEST_SUITE_REGISTRATION(Test_JumpingMT);
 
 // ===========================================================================
 //                               Static attributes
@@ -61,14 +61,14 @@ CPPUNIT_TEST_SUITE_REGISTRATION( Test_JumpingMT );
 // ===========================================================================
 //                                  Constructors
 // ===========================================================================
-Test_JumpingMT::Test_JumpingMT( void )
+Test_JumpingMT::Test_JumpingMT(void)
 {
 }
 
 // ===========================================================================
 //                                  Destructors
 // ===========================================================================
-Test_JumpingMT::~Test_JumpingMT( void )
+Test_JumpingMT::~Test_JumpingMT(void)
 {
 }
 
@@ -79,38 +79,38 @@ Test_JumpingMT::~Test_JumpingMT( void )
 // ===========================================================================
 //                                 Public Methods
 // ===========================================================================
-void Test_JumpingMT::setUp( void )
+void Test_JumpingMT::setUp(void)
 {
-  obj1 = new JumpingMT( 56873 );
-  obj2 = new JumpingMT( *obj1 );
+  obj1 = new JumpingMT(56873);
+  obj2 = new JumpingMT(*obj1);
 }
 
-void Test_JumpingMT::tearDown( void )
+void Test_JumpingMT::tearDown(void)
 {
   delete obj1;
   delete obj2;
 }
 
-void Test_JumpingMT::test1( void )
+void Test_JumpingMT::test1(void)
 {
-  for ( int i = 0 ; i < 10 ; i++ )
+  for (int i = 0 ; i < 10 ; i++)
   {
     obj1->random();
     obj2->random();
   }
 
-  CPPUNIT_ASSERT( obj1->random() == obj2->random() );
-  CPPUNIT_ASSERT( obj1->random( (int8_t) INT8_MAX ) == obj2->random( (int8_t) INT8_MAX ) );
-  CPPUNIT_ASSERT( obj1->random( (int16_t) INT16_MAX ) == obj2->random( (int16_t) INT16_MAX ) );
-  CPPUNIT_ASSERT( obj1->random( (int32_t) INT32_MAX ) == obj2->random( (int32_t) INT32_MAX ) );
-  CPPUNIT_ASSERT( obj1->random( (int64_t) INT64_MAX ) == obj2->random( (int64_t) INT64_MAX ) );
-  CPPUNIT_ASSERT( obj1->binomial_random( 435, 0.5 ) == obj2->binomial_random( 435, 0.5 ) );
-  CPPUNIT_ASSERT( obj1->gaussian_random() == obj2->gaussian_random() );
+  CPPUNIT_ASSERT(obj1->random() == obj2->random());
+  CPPUNIT_ASSERT(obj1->random((int8_t) INT8_MAX) == obj2->random((int8_t) INT8_MAX));
+  CPPUNIT_ASSERT(obj1->random((int16_t) INT16_MAX) == obj2->random((int16_t) INT16_MAX));
+  CPPUNIT_ASSERT(obj1->random((int32_t) INT32_MAX) == obj2->random((int32_t) INT32_MAX));
+  CPPUNIT_ASSERT(obj1->random((int64_t) INT64_MAX) == obj2->random((int64_t) INT64_MAX));
+  CPPUNIT_ASSERT(obj1->binomial_random(435, 0.5) == obj2->binomial_random(435, 0.5));
+  CPPUNIT_ASSERT(obj1->gaussian_random() == obj2->gaussian_random());
 }
 
-void Test_JumpingMT::test2( void )
+void Test_JumpingMT::test2(void)
 {
-  CPPUNIT_ASSERT( true );
+  CPPUNIT_ASSERT(true);
 }
 
 // ===========================================================================

@@ -81,10 +81,10 @@ class X11Window
     //                             Constructors
     // =================================================================
     X11Window();
-    X11Window(  Display* display, int8_t screen, Atom * atoms,
+    X11Window(Display* display, int8_t screen, Atom * atoms,
                     uint16_t pos_x, uint16_t pos_y,
                     uint16_t width, uint16_t height,
-                    const char* caption );
+                    const char* caption);
 
     // =================================================================
     //                             Destructors
@@ -115,24 +115,24 @@ class X11Window
     //                            Public Methods
     // =================================================================
 
-    void resize( unsigned int width, unsigned int height );
+    void resize(unsigned int width, unsigned int height);
     inline void blacken();
-    void draw_string( int16_t x, int16_t y, char* str );
-    void draw_line( int16_t x1, int16_t y1, int16_t x2, int16_t y2, color_map color, bool bold = false );
-    void draw_line( int16_t x1, int16_t y1, int16_t x2, int16_t y2, char* color, bool bold = false );
-    void draw_circle( int16_t x, int16_t y, int16_t diam );
-    void draw_arc( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2 );
-    void draw_arc( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2, char* color );
-    void draw_arc_64( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2 );
-    void draw_arc_64( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2, char* color );
-    void fill_arc( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2 );
-    void fill_arc( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2, char* color );
-    void fill_arc_64( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2 );
-    void fill_arc_64( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2, char* color );
-    void fill_rectangle( int16_t x, int16_t y, int16_t width, int16_t height, color_map color );
-    void fill_rectangle( int16_t x, int16_t y, int16_t width, int16_t height, char* color );
+    void draw_string(int16_t x, int16_t y, char* str);
+    void draw_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2, color_map color, bool bold = false);
+    void draw_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2, char* color, bool bold = false);
+    void draw_circle(int16_t x, int16_t y, int16_t diam);
+    void draw_arc(int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2);
+    void draw_arc(int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2, char* color);
+    void draw_arc_64(int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2);
+    void draw_arc_64(int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2, char* color);
+    void fill_arc(int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2);
+    void fill_arc(int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2, char* color);
+    void fill_arc_64(int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2);
+    void fill_arc_64(int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2, char* color);
+    void fill_rectangle(int16_t x, int16_t y, int16_t width, int16_t height, color_map color);
+    void fill_rectangle(int16_t x, int16_t y, int16_t width, int16_t height, char* color);
 
-    static char* color( double mean );
+    static char* color(double mean);
 
     // =================================================================
     //                           Public Attributes
@@ -149,19 +149,19 @@ class X11Window
     // =================================================================
     //~ X11Window()
     //~ {
-      //~ printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      //~ exit( EXIT_FAILURE );
+      //~ printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
+      //~ exit(EXIT_FAILURE);
     //~ };
-    X11Window( const X11Window &model )
+    X11Window(const X11Window &model)
     {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
     };
 
     // =================================================================
     //                           Protected Methods
     // =================================================================
-    uint32_t pixel( Display *display, int8_t screen, char *color_name, uint32_t default_color );
+    uint32_t pixel(Display *display, int8_t screen, char *color_name, uint32_t default_color);
     void set_codes();
 
     // =================================================================
@@ -200,7 +200,7 @@ class X11Window
 // =====================================================================
 void X11Window::blacken()
 {
-  fill_rectangle( 0, 0, width_, height_, BLACK );
+  fill_rectangle(0, 0, width_, height_, BLACK);
 }
 
 } // namespace aevol

@@ -765,7 +765,7 @@ void StatRecord::write_to_file(FILE* stat_file, stats_type stat_type_to_print) c
     {
      // TO DO (if needed) : base-pair stats for all individuals, not just for the best one.
      //
-     // fprintf( stat_file, "%" PRId64 " %f %f %f %f %f %f %f %f",
+     // fprintf(stat_file, "%" PRId64 " %f %f %f %f %f %f %f %f",
      //         AeTime::time(),
      //         nb_bases_in_0_CDS_,
      //         nb_bases_in_0_functional_CDS_,

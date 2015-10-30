@@ -1352,7 +1352,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   phenotypic_target_handler.set_sampling(env_sampling_);
 
   // Set phenotypic target segmentation
-  if((env_axis_features_ != NULL) && (env_axis_segment_boundaries_ != NULL) ) {
+  if((env_axis_features_ != NULL) && (env_axis_segment_boundaries_ != NULL)) {
     // if param.in contained a line starting with ENV_AXIS_FEATURES,
     // we use the values indicated on this line
     phenotypic_target_handler.set_segmentation(env_axis_nb_segments_,
@@ -1380,7 +1380,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
     phenotypic_target_handler.set_noise_prng(std::make_shared<JumpingMT>(env_noise_seed_));
     phenotypic_target_handler.set_noise_alpha(env_noise_alpha_);
     phenotypic_target_handler.set_noise_sigma(env_noise_sigma_);
-    phenotypic_target_handler.set_noise_prob(env_noise_prob_ );
+    phenotypic_target_handler.set_noise_prob(env_noise_prob_);
   }
 
   // Build the phenotypic target
@@ -1768,23 +1768,23 @@ void ParamLoader::print_to_file(FILE* file)
 {
   // ------------------------------------------------------------ Constraints
   fprintf(file, "\nConstraints ---------------------------------------------\n");
-  fprintf(file, "min_genome_length :          %" PRId32 "\n", min_genome_length_      );
-  fprintf(file, "max_genome_length :          %" PRId32 "\n", max_genome_length_      );
-  fprintf(file, "W_MAX :                      %f\n",        w_max_                  );
+  fprintf(file, "min_genome_length :          %" PRId32 "\n", min_genome_length_);
+  fprintf(file, "max_genome_length :          %" PRId32 "\n", max_genome_length_);
+  fprintf(file, "W_MAX :                      %f\n",        w_max_);
 
   // --------------------------------------------------------- Mutation rates
   fprintf(file, "\nMutation rates ------------------------------------------\n");
-  fprintf(file, "point_mutation_rate :        %e\n",  point_mutation_rate_       );
-  fprintf(file, "small_insertion_rate :       %e\n",  small_insertion_rate_      );
-  fprintf(file, "small_deletion_rate :        %e\n",  small_deletion_rate_       );
-  fprintf(file, "max_indel_size :             %" PRId16 "\n", max_indel_size_      );
+  fprintf(file, "point_mutation_rate :        %e\n",  point_mutation_rate_);
+  fprintf(file, "small_insertion_rate :       %e\n",  small_insertion_rate_);
+  fprintf(file, "small_deletion_rate :        %e\n",  small_deletion_rate_);
+  fprintf(file, "max_indel_size :             %" PRId16 "\n", max_indel_size_);
 
   // -------------------------------------------- Rearrangements and Transfer
   fprintf(file, "\nRearrangements and Transfer -----------------------------\n");
   fprintf(file, "with_4pts_trans :            %s\n",  with_4pts_trans_? "true" : "false");
   fprintf(file, "with_alignments :            %s\n",  with_alignments_? "true" : "false");
-  fprintf(file, "with_HT :                    %s\n",  with_HT_? "true" : "false"  );
-  fprintf(file, "repl_HT_with_close_points :  %s\n",  repl_HT_with_close_points_? "true" : "false"  );
+  fprintf(file, "with_HT :                    %s\n",  with_HT_? "true" : "false");
+  fprintf(file, "repl_HT_with_close_points :  %s\n",  repl_HT_with_close_points_? "true" : "false");
   fprintf(file, "HT_ins_rate :                %e\n",  HT_ins_rate_);
   fprintf(file, "HT_repl_rate :               %e\n",  HT_repl_rate_);
 
@@ -1792,32 +1792,32 @@ void ParamLoader::print_to_file(FILE* file)
   if (with_alignments_)
   {
     fprintf(file, "\nRearrangement rates (with alignements) ------------------\n");
-    fprintf(file, "neighbourhood_rate :         %e\n",  neighbourhood_rate_        );
-    fprintf(file, "duplication_proportion :     %e\n",  duplication_proportion_    );
-    fprintf(file, "deletion_proportion :        %e\n",  deletion_proportion_       );
-    fprintf(file, "translocation_proportion :   %e\n",  translocation_proportion_  );
-    fprintf(file, "inversion_proportion :       %e\n",  inversion_proportion_      );
+    fprintf(file, "neighbourhood_rate :         %e\n",  neighbourhood_rate_);
+    fprintf(file, "duplication_proportion :     %e\n",  duplication_proportion_);
+    fprintf(file, "deletion_proportion :        %e\n",  deletion_proportion_);
+    fprintf(file, "translocation_proportion :   %e\n",  translocation_proportion_);
+    fprintf(file, "inversion_proportion :       %e\n",  inversion_proportion_);
   }
   else
   {
     fprintf(file, "\nRearrangement rates (without alignements) ----------------\n");
-    fprintf(file, "duplication_rate :           %e\n",  duplication_rate_          );
-    fprintf(file, "deletion_rate :              %e\n",  deletion_rate_             );
-    fprintf(file, "translocation_rate :         %e\n",  translocation_rate_        );
-    fprintf(file, "inversion_rate :             %e\n",  inversion_rate_            );
+    fprintf(file, "duplication_rate :           %e\n",  duplication_rate_);
+    fprintf(file, "deletion_rate :              %e\n",  deletion_rate_);
+    fprintf(file, "translocation_rate :         %e\n",  translocation_rate_);
+    fprintf(file, "inversion_rate :             %e\n",  inversion_rate_);
   }
 
   // ------------------------------------------------------------ Alignements
   fprintf(file, "\nAlignements ---------------------------------------------\n");
-  fprintf(file, "align_fun_shape :            %" PRId16 "\n", (int16_t) align_fun_shape_      );
-  fprintf(file, "align_sigm_lambda :          %f\n",        align_sigm_lambda_    );
-  fprintf(file, "align_sigm_mean :            %" PRId16 "\n", align_sigm_mean_      );
-  fprintf(file, "align_lin_min :              %" PRId16 "\n", align_lin_min_        );
-  fprintf(file, "align_lin_max :              %" PRId16 "\n", align_lin_max_        );
-  fprintf(file, "align_max_shift :            %" PRId16 "\n", align_max_shift_      );
-  fprintf(file, "align_w_zone_h_len :         %" PRId16 "\n", align_w_zone_h_len_   );
-  fprintf(file, "align_match_bonus :          %" PRId16 "\n", align_match_bonus_    );
-  fprintf(file, "align_mismatch_cost :        %" PRId16 "\n", align_mismatch_cost_  );
+  fprintf(file, "align_fun_shape :            %" PRId16 "\n", (int16_t) align_fun_shape_);
+  fprintf(file, "align_sigm_lambda :          %f\n",        align_sigm_lambda_);
+  fprintf(file, "align_sigm_mean :            %" PRId16 "\n", align_sigm_mean_);
+  fprintf(file, "align_lin_min :              %" PRId16 "\n", align_lin_min_);
+  fprintf(file, "align_lin_max :              %" PRId16 "\n", align_lin_max_);
+  fprintf(file, "align_max_shift :            %" PRId16 "\n", align_max_shift_);
+  fprintf(file, "align_w_zone_h_len :         %" PRId16 "\n", align_w_zone_h_len_);
+  fprintf(file, "align_match_bonus :          %" PRId16 "\n", align_match_bonus_);
+  fprintf(file, "align_mismatch_cost :        %" PRId16 "\n", align_mismatch_cost_);
 
   // -------------------------------------------------------------- Selection
   fprintf(file, "\nSelection -----------------------------------------------\n");
@@ -1855,29 +1855,29 @@ void ParamLoader::print_to_file(FILE* file)
   // -------------------------------------------------------------- Secretion
   fprintf(file, "\nSecretion -----------------------------------------------\n");
   fprintf(file, "with_secretion :                %s\n", with_secretion_? "true" : "false");
-  fprintf(file, "secretion_contrib_to_fitness :  %e\n", secretion_contrib_to_fitness_   );
-  fprintf(file, "secretion_diffusion_prop :      %e\n", secretion_diffusion_prop_       );
-  fprintf(file, "secretion_degradation_prop :    %e\n", secretion_degradation_prop_     );
-  fprintf(file, "secretion_cost :                %e\n", secretion_cost_                 );
+  fprintf(file, "secretion_contrib_to_fitness :  %e\n", secretion_contrib_to_fitness_);
+  fprintf(file, "secretion_diffusion_prop :      %e\n", secretion_diffusion_prop_);
+  fprintf(file, "secretion_degradation_prop :    %e\n", secretion_degradation_prop_);
+  fprintf(file, "secretion_cost :                %e\n", secretion_cost_);
 
   // --------------------------------------------------------------- Plasmids
   fprintf(file, "\nPlasmids ------------------------------------------------\n");
-  fprintf(file, "allow_plasmids :             %s\n", allow_plasmids_? "true" : "false"             );
-  fprintf(file, "plasmid_minimal_length :     %" PRId32 "\n", plasmid_minimal_length_                );
-  fprintf(file, "plasmid_maximal_length :     %" PRId32 "\n", plasmid_maximal_length_                );
-  fprintf(file, "chromosome_minimal_length :  %" PRId32 "\n", chromosome_minimal_length_             );
-  fprintf(file, "chromosome_maximal_length :  %" PRId32 "\n", chromosome_maximal_length_             );
-  fprintf(file, "prob_plasmid_HT :            %e\n", prob_plasmid_HT_                              );
-  fprintf(file, "tune_donor_ability :         %e\n", tune_donor_ability_                           );
-  fprintf(file, "tune_recipient_ability :     %e\n", tune_recipient_ability_                       );
-  fprintf(file, "donor_cost :                 %e\n", donor_cost_                                   );
-  fprintf(file, "recipient_cost :             %e\n", recipient_cost_                               );
-  fprintf(file, "compute_phen_contrib_by_GU : %s\n", compute_phen_contrib_by_GU_? "true" : "false" );
-  fprintf(file, "swap_GUs :                   %s\n",  swap_GUs_? "true" : "false"  );
+  fprintf(file, "allow_plasmids :             %s\n", allow_plasmids_? "true" : "false");
+  fprintf(file, "plasmid_minimal_length :     %" PRId32 "\n", plasmid_minimal_length_);
+  fprintf(file, "plasmid_maximal_length :     %" PRId32 "\n", plasmid_maximal_length_);
+  fprintf(file, "chromosome_minimal_length :  %" PRId32 "\n", chromosome_minimal_length_);
+  fprintf(file, "chromosome_maximal_length :  %" PRId32 "\n", chromosome_maximal_length_);
+  fprintf(file, "prob_plasmid_HT :            %e\n", prob_plasmid_HT_);
+  fprintf(file, "tune_donor_ability :         %e\n", tune_donor_ability_);
+  fprintf(file, "tune_recipient_ability :     %e\n", tune_recipient_ability_);
+  fprintf(file, "donor_cost :                 %e\n", donor_cost_);
+  fprintf(file, "recipient_cost :             %e\n", recipient_cost_);
+  fprintf(file, "compute_phen_contrib_by_GU : %s\n", compute_phen_contrib_by_GU_? "true" : "false");
+  fprintf(file, "swap_GUs :                   %s\n",  swap_GUs_? "true" : "false");
 
   // ------------------------------------------------------- Translation cost
   fprintf(file, "\nTranslation cost ----------------------------------------\n");
-  fprintf(file, "translation_cost :           %e\n",  translation_cost_          );
+  fprintf(file, "translation_cost :           %e\n",  translation_cost_);
 }
 
 } // namespace aevol

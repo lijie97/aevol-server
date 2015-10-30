@@ -139,13 +139,13 @@ class StatRecord
     //                            Public Methods
     // =================================================================
     void initialize_data();
-    void write_to_file( FILE* stat_file, stats_type stat_type_to_print ) const;
+    void write_to_file(FILE* stat_file, stats_type stat_type_to_print) const;
 
-    void divide( double divisor );
-    void divide_record( StatRecord const * means, double power );
+    void divide(double divisor);
+    void divide_record(StatRecord const * means, double power);
 
-    void add( StatRecord * to_add, int32_t index );
-    void substract_power( StatRecord const * means, StatRecord const * to_substract, double power );
+    void add(StatRecord * to_add, int32_t index);
+    void substract_power(StatRecord const * means, StatRecord const * to_substract, double power);
 
     // =================================================================
     //                           Public Attributes

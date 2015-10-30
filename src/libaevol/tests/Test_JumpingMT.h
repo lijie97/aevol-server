@@ -59,9 +59,9 @@ using namespace std;
 
 class Test_JumpingMT : public TestFixture
 {
-  CPPUNIT_TEST_SUITE( Test_JumpingMT );
-  CPPUNIT_TEST( test1 );
-  CPPUNIT_TEST( test2 );
+  CPPUNIT_TEST_SUITE(Test_JumpingMT);
+  CPPUNIT_TEST(test1);
+  CPPUNIT_TEST(test2);
   CPPUNIT_TEST_SUITE_END();
 
 
@@ -74,12 +74,12 @@ class Test_JumpingMT : public TestFixture
     // =======================================================================
     //                               Constructors
     // =======================================================================
-    Test_JumpingMT( void );
+    Test_JumpingMT(void);
 
     // =======================================================================
     //                               Destructors
     // =======================================================================
-    virtual ~Test_JumpingMT( void );
+    virtual ~Test_JumpingMT(void);
 
     // =======================================================================
     //                            Accessors: getters
@@ -96,10 +96,10 @@ class Test_JumpingMT : public TestFixture
     // =======================================================================
     //                              Public Methods
     // =======================================================================
-    void setUp( void );
-    void tearDown( void );
-    void test1( void );
-    void test2( void );
+    void setUp(void);
+    void tearDown(void);
+    void test1(void);
+    void test2(void);
 
     // =======================================================================
     //                             Public Attributes
@@ -112,15 +112,15 @@ class Test_JumpingMT : public TestFixture
     // =======================================================================
     //                            Forbidden Constructors
     // =======================================================================
-    /*Test_JumpingMT( void )
+    /*Test_JumpingMT(void)
     {
-      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
     };
-    Test_JumpingMT( const Test_JumpingMT &model )
+    Test_JumpingMT(const Test_JumpingMT &model)
     {
-      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
     };*/
 
 

@@ -96,9 +96,9 @@ class GeneMutation : public Mutation
 
   // Creates a copy of the mutation mut, but enriched with the generation when it occured
   // and the position where it occurred in the RNA, relative to the first bp of the promoter
-  GeneMutation(Mutation const & mut, int32_t gener, int32_t cdsPosBefore, Strand strandBefore, ae_gene_mutation_region region );
+  GeneMutation(Mutation const & mut, int32_t gener, int32_t cdsPosBefore, Strand strandBefore, ae_gene_mutation_region region);
 
-  GeneMutation( const GeneMutation &model );
+  GeneMutation(const GeneMutation &model);
 
   // =================================================================
   //                             Destructors
@@ -131,13 +131,13 @@ class GeneMutation : public Mutation
 
   GeneMutation()
     {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
     };
-  /* GeneMutation( const GeneMutation &model ) */
+  /* GeneMutation(const GeneMutation &model) */
   /*   { */
-  /*     printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ ); */
-  /*     exit( EXIT_FAILURE ); */
+  /*     printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__); */
+  /*     exit(EXIT_FAILURE); */
   /*   }; */
 
   // =================================================================

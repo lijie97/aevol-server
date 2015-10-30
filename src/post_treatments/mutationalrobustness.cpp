@@ -41,10 +41,10 @@
 
 using namespace aevol;
 
-void print_help( char* prog_name );
-void analyse_indiv( ae_exp_manager*, ae_individual*, FILE*, int32_t );
+void print_help(char* prog_name);
+void analyse_indiv(ae_exp_manager*, ae_individual*, FILE*, int32_t);
 
-int main( int argc, char* argv[] )
+int main(int argc, char* argv[])
 {
   // Load parameters from command line
   int32_t ndiv = 100000; // Default number of mutants per individual
@@ -64,17 +64,17 @@ int main( int argc, char* argv[] )
   };
 
   int option;
-  while ( ( option = getopt_long(argc, argv, options_list, long_options_list, NULL) ) != -1 )
+  while ((option = getopt_long(argc, argv, options_list, long_options_list, NULL)) != -1)
   {
-    switch ( option )
+    switch (option)
     {
-      case 'h' : print_help(basename(argv[0])); exit( EXIT_SUCCESS ); break;
-      case 'n' : ndiv = atol( optarg ); break;
-      case 'r' : gener = atol( optarg ); break;
+      case 'h' : print_help(basename(argv[0])); exit(EXIT_SUCCESS); break;
+      case 'n' : ndiv = atol(optarg); break;
+      case 'r' : gener = atol(optarg); break;
       case 'o' :
       {
         output_file_name = new char[strlen(optarg) + 1];
-        sprintf( output_file_name, "%s", optarg );
+        sprintf(output_file_name, "%s", optarg);
         break;
       }
       case 'b' : best_only = true; break;
@@ -82,7 +82,7 @@ int main( int argc, char* argv[] )
   }
 
   // Load the population from the backup file
-  if ( gener == -1 ){
+  if (gener == -1){
     printf("You must specify a generation number. Please use the option -r or --generation.\n");
     exit(EXIT_FAILURE);
   }
@@ -93,18 +93,18 @@ int main( int argc, char* argv[] )
 
   // Open output file and write the header
   FILE * output = fopen(output_file_name, "w");
-  if ( output == NULL ){
-    fprintf( stderr, "ERROR : Could not create the output file %s\n", output_file_name );
-    exit( EXIT_FAILURE );
+  if (output == NULL){
+    fprintf(stderr, "ERROR : Could not create the output file %s\n", output_file_name);
+    exit(EXIT_FAILURE);
   }
 
   // Positive impact means
-  fprintf( output, "# #################################################################\n" );
-  fprintf( output, "#              Mutations produced by mutationalrobustness\n" );
-  fprintf( output, "# #################################################################\n" );
-  fprintf( output, "# Number of replicate per individual : %" PRId32 " \n",ndiv );
-  fprintf( output, "# Impact on metabolism SPACE impact on secretion\n" );
-  fprintf( output, "#\n" );
+  fprintf(output, "# #################################################################\n");
+  fprintf(output, "#              Mutations produced by mutationalrobustness\n");
+  fprintf(output, "# #################################################################\n");
+  fprintf(output, "# Number of replicate per individual : %" PRId32 " \n",ndiv);
+  fprintf(output, "# Impact on metabolism SPACE impact on secretion\n");
+  fprintf(output, "#\n");
 
   // Parse and treat the individuals
   if (!best_only){
@@ -123,10 +123,10 @@ int main( int argc, char* argv[] )
 }
 
 // Treatment of one individual
-void analyse_indiv(ae_exp_manager* exp, ae_individual* initial_indiv, FILE* output, int32_t ndiv ){
+void analyse_indiv(ae_exp_manager* exp, ae_individual* initial_indiv, FILE* output, int32_t ndiv){
   Environment* env = exp->env();
-  double initial_metabolic_error = initial_indiv->dist_to_target_by_feature( METABOLISM );
-  double initial_secretion_error = initial_indiv->dist_to_target_by_feature( SECRETION );
+  double initial_metabolic_error = initial_indiv->dist_to_target_by_feature(METABOLISM);
+  double initial_secretion_error = initial_indiv->dist_to_target_by_feature(SECRETION);
   double final_metabolic_error      = 0.0;
   double impact_on_metabolic_error  = 0.0;
   double final_secretion_error      = 0.0;
@@ -136,30 +136,30 @@ void analyse_indiv(ae_exp_manager* exp, ae_individual* initial_indiv, FILE* outp
   int32_t i;
 
   // Perform ndiv reproductions with mutations
-  for ( i = 0; i < ndiv; i++ ){
-    if ( i % 1000 == 0 ){
-      printf( "*" );
+  for (i = 0; i < ndiv; i++){
+    if (i % 1000 == 0){
+      printf("*");
       fflush(stdout);
     }
 
-    indiv = exp->sel()->do_replication( initial_indiv, -1 );
+    indiv = exp->sel()->do_replication(initial_indiv, -1);
 
     indiv->reevaluate(env);
-    final_metabolic_error     = indiv->dist_to_target_by_feature( METABOLISM );
+    final_metabolic_error     = indiv->dist_to_target_by_feature(METABOLISM);
     impact_on_metabolic_error = final_metabolic_error - initial_metabolic_error;
-    final_secretion_error     = indiv->dist_to_target_by_feature( SECRETION );
+    final_secretion_error     = indiv->dist_to_target_by_feature(SECRETION);
     impact_on_secretion_error = final_secretion_error - initial_secretion_error;
 
-    fprintf( output, "%+.15f %+.15f \n",impact_on_metabolic_error, impact_on_secretion_error );
+    fprintf(output, "%+.15f %+.15f \n",impact_on_metabolic_error, impact_on_secretion_error);
 
     delete indiv;
   }
-  fprintf( output, "\n" );
+  fprintf(output, "\n");
 }
 
 // Print help
-void print_help( char* prog_name ){
-  printf( "\n\
+void print_help(char* prog_name){
+  printf("\n\
 %s is a post-treatment that generates and analyses a large quantity of mutants for all individuals in a backup. For each mutants we record the phenotypic effect on metabolism and on secretion.\n\n\
 Usage: %s [-h] -r num_generation -o output_file_name -n num_mutants [-b] \n\
 \t-h : display this screen\n\

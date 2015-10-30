@@ -327,7 +327,7 @@ void Fuzzy::clip(clipping_direction direction, double bound) {
 }
 
 
-bool Fuzzy::is_identical_to(const Fuzzy& fs, double tolerance ) const {
+bool Fuzzy::is_identical_to(const Fuzzy& fs, double tolerance) const {
   // Since list::size() has constant complexity since C++ 11, checking
   // size is an inexpensive first step.
   if (points_.size() != fs.points_.size())
@@ -378,10 +378,10 @@ list<Point>::iterator Fuzzy::create_interpolated_point(double x) {
 /// idempotent: creating existing point returns existing point
 list<Point>::iterator Fuzzy::create_interpolated_point(double x, std::list<Point>::iterator start) {
   // assert(invariant());
-  assert(x >= X_MIN and x <= X_MAX );
+  assert(x >= X_MIN and x <= X_MAX);
 
   // TODO: probably denotes a logic error
-  if (start->x <= x )
+  if (start->x <= x)
     start = points_.begin();
 
   // get first point with abscissa stricly greater than x

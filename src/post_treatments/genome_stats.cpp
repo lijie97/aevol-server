@@ -109,17 +109,17 @@ using namespace aevol;
 void print_help(char* prog_path);
 
 // print information about the indivdual's genome to file
-void print_genome_info( ae_individual* indiv, FILE* output_file );
+void print_genome_info(ae_individual* indiv, FILE* output_file);
 
 // print information about the indivdual's neutral regions to file
-void print_neutral_regions( ae_individual* indiv, FILE* output_file);
+void print_neutral_regions(ae_individual* indiv, FILE* output_file);
 
 
 // =================================================================
 //                         Main Function
 // =================================================================
 
-int main( int argc, char* argv[] )
+int main(int argc, char* argv[])
 {
   // ---------------------------------------
   //      command-line option parsing
@@ -145,31 +145,31 @@ int main( int argc, char* argv[] )
 
   // Get actual values of the command-line options
   int option;
-  while ( ( option = getopt_long(argc, argv, options_list, long_options_list, NULL) ) != -1 )
+  while ((option = getopt_long(argc, argv, options_list, long_options_list, NULL)) != -1)
   {
-    switch ( option )
+    switch (option)
     {
       case 'h' :
       {
         print_help(argv[0]);
-        exit( EXIT_SUCCESS );
+        exit(EXIT_SUCCESS);
       }
       case 'V' :
       {
         Utils::PrintAevolVersion();
-        exit( EXIT_SUCCESS );
+        exit(EXIT_SUCCESS);
       }
       case 'f' :
         backup_file_name = new char[strlen(optarg) + 1];
-        sprintf( backup_file_name, "%s", optarg );
+        sprintf(backup_file_name, "%s", optarg);
         break;
       case 'o' :
         main_output_name = new char[strlen(optarg) + 1];
-        sprintf( main_output_name, "%s", optarg );
+        sprintf(main_output_name, "%s", optarg);
         break;
       case 'n' :
         neutral_region_output_name = new char[strlen(optarg) + 1];
-        sprintf( neutral_region_output_name, "%s", optarg );
+        sprintf(neutral_region_output_name, "%s", optarg);
         break;
       case 'b' :
         best_only = true;
@@ -183,40 +183,40 @@ int main( int argc, char* argv[] )
   FILE* main_output           = NULL;
   FILE* neutral_region_output = NULL;
 
-  if ( backup_file_name == NULL )
+  if (backup_file_name == NULL)
   {
     printf("You must specify a backup file. Please use the option -f or --file.\n");
     exit(EXIT_FAILURE);
   }
-  if ( main_output_name != NULL )
+  if (main_output_name != NULL)
   {
     main_output = fopen(main_output_name,"w");
-    if ( main_output == NULL)
+    if (main_output == NULL)
     {
-      fprintf( stderr, "Warning: Could not open file %s.\n", main_output_name );
+      fprintf(stderr, "Warning: Could not open file %s.\n", main_output_name);
     }
   }
-  if ( neutral_region_output_name != NULL )
+  if (neutral_region_output_name != NULL)
   {
     neutral_region_output = fopen(neutral_region_output_name,"w");
-    if ( neutral_region_output == NULL)
+    if (neutral_region_output == NULL)
     {
-      fprintf( stderr, "Warning: Could not open file %s.\n", neutral_region_output_name );
+      fprintf(stderr, "Warning: Could not open file %s.\n", neutral_region_output_name);
     }
   }
-  fflush( stderr );
+  fflush(stderr);
 
-  printf( "Reading backup file <%s>... \n", backup_file_name );
-  fflush( stdout );
+  printf("Reading backup file <%s>... \n", backup_file_name);
+  fflush(stdout);
 
   // Load the simulation from backup
   ae_common::sim = new ae_experiment();
-  ae_common::sim->load_backup( backup_file_name, false, NULL );
+  ae_common::sim->load_backup(backup_file_name, false, NULL);
   printf("done\n");
   delete [] backup_file_name;
 
-  printf( "Computing phenotypes... \n" );
-  fflush( stdout );
+  printf("Computing phenotypes... \n");
+  fflush(stdout);
 
   // Evaluate the individuals
   ae_common::pop->evaluate_individuals(ae_common::sim->env());
@@ -230,21 +230,21 @@ int main( int argc, char* argv[] )
   if (best_only)
   {
     ae_individual* best = ae_common::pop->best();
-    if ( main_output != NULL)           { print_genome_info(best, main_output); }
-    if ( neutral_region_output != NULL) { print_neutral_regions(best, neutral_region_output); }
+    if (main_output != NULL)           { print_genome_info(best, main_output); }
+    if (neutral_region_output != NULL) { print_neutral_regions(best, neutral_region_output); }
   }
   else
   {
     if (ae_common::pop_structure)
     {
       ae_grid_cell*** pop_grid_ = ae_common::pop->pop_grid();
-      for ( int16_t x = 0 ; x < ae_common::grid_x ; x++ )
+      for (int16_t x = 0 ; x < ae_common::grid_x ; x++)
       {
-        for ( int16_t y = 0 ; y < ae_common::grid_y ; y++ )
+        for (int16_t y = 0 ; y < ae_common::grid_y ; y++)
         {
           ae_individual* indiv = (pop_grid_[x][y]->individual());
-	  if ( main_output != NULL)           { print_genome_info(indiv, main_output); }
-	  if ( neutral_region_output != NULL) { print_neutral_regions(indiv, neutral_region_output); }
+	  if (main_output != NULL)           { print_genome_info(indiv, main_output); }
+	  if (neutral_region_output != NULL) { print_neutral_regions(indiv, neutral_region_output); }
           i++;
         }
       }
@@ -252,17 +252,17 @@ int main( int argc, char* argv[] )
     else
     {
       for (const auto& indiv: pop->indivs()) {
-        if ( main_output != NULL)           { print_genome_info(indiv, main_output); }
-	if ( neutral_region_output != NULL) { print_neutral_regions(indiv, neutral_region_output); }
+        if (main_output != NULL)           { print_genome_info(indiv, main_output); }
+	if (neutral_region_output != NULL) { print_neutral_regions(indiv, neutral_region_output); }
       }
     }
   }
 
-  if ( main_output != NULL ) { fclose(main_output); }
-  if ( neutral_region_output != NULL ) { fclose(neutral_region_output); }
+  if (main_output != NULL) { fclose(main_output); }
+  if (neutral_region_output != NULL) { fclose(neutral_region_output); }
 
-  if ( main_output_name != NULL )           { delete [] main_output_name; }
-  if ( neutral_region_output_name != NULL ) { delete [] neutral_region_output_name; }
+  if (main_output_name != NULL)           { delete [] main_output_name; }
+  if (neutral_region_output_name != NULL) { delete [] neutral_region_output_name; }
 
   ae_common::clean();
 
@@ -276,7 +276,7 @@ int main( int argc, char* argv[] )
 
 
 // The export fonction
-inline void print_genome_info( ae_individual* indiv, FILE* output_file )
+inline void print_genome_info(ae_individual* indiv, FILE* output_file)
 {
   int32_t nb_bases = indiv->total_genome_size();
   int32_t nb_bases_in_neutral_regions = indiv->nb_bases_in_neutral_regions();
@@ -286,27 +286,27 @@ inline void print_genome_info( ae_individual* indiv, FILE* output_file )
   int32_t nb_bases_in_0_RNA = indiv->nb_bases_in_0_RNA();
   int32_t nb_bases_in_0_coding_RNA = indiv->nb_bases_in_0_coding_RNA();
   int32_t nb_bases_in_0_non_coding_RNA = indiv->nb_bases_in_0_non_coding_RNA();
-  if ( output_file != NULL )
+  if (output_file != NULL)
   {
-    fprintf( output_file, "%"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n",
+    fprintf(output_file, "%"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32" %"PRId32"\n",
 	     nb_bases_in_neutral_regions, nb_bases_in_0_CDS, nb_bases_in_0_functional_CDS,
 	     nb_bases_in_0_non_functional_CDS, nb_bases_in_0_RNA, nb_bases_in_0_coding_RNA,
 	     nb_bases_in_0_non_coding_RNA, nb_bases);
   }
 }
 
-inline void print_neutral_regions( ae_individual* indiv, FILE* output_file )
+inline void print_neutral_regions(ae_individual* indiv, FILE* output_file)
 {
-  if ( output_file == NULL ) return;
+  if (output_file == NULL) return;
 
   //header
   GeneticUnit* chromosome = *indiv->genetic_unit_list().begin();
   int32_t nb_neutral_regions  = chromosome->nb_neutral_regions();
-  fprintf( output_file, "# chromosome length: %"PRId32", %"PRId32" neutral bases, %"PRId32" neutral regions\n",
+  fprintf(output_file, "# chromosome length: %"PRId32", %"PRId32" neutral bases, %"PRId32" neutral regions\n",
 	   chromosome->dna()->length(), chromosome->nb_bases_in_neutral_regions(), nb_neutral_regions);
 
   //neutral regions
-  if ( nb_neutral_regions > 0)
+  if (nb_neutral_regions > 0)
   {
     int32_t* beginning_nr = chromosome->beginning_neutral_regions();
     int32_t* end_nr = chromosome->end_neutral_regions();
@@ -321,7 +321,7 @@ inline void print_neutral_regions( ae_individual* indiv, FILE* output_file )
 // TODO: update
 void print_help(char* prog_name)
 {
-  printf( "\n\
+  printf("\n\
 Usage : genome_stats -h\n\
    or : genome_stats -f source [-o output_file] [-b] \n\n\
 \t-h : display this screen\n\

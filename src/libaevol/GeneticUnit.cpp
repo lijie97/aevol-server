@@ -317,7 +317,7 @@ void GeneticUnit::print_rnas() const {
 
 /* static */ void GeneticUnit::print_rnas(const Promoters1Strand& rnas,
                                           Strand strand) {
-  printf("  %s ( %" PRId32 " )\n", strand == LEADING ? " LEADING " : "LAGGING",
+  printf("  %s (%" PRId32 ")\n", strand == LEADING ? " LEADING " : "LAGGING",
          static_cast<int32_t>(rnas.size()));
   for (auto& rna: rnas) {
     assert(rna.strand() == strand);
@@ -473,7 +473,7 @@ void GeneticUnit::look_for_new_promoters_around(int32_t pos) {
 ///   0                 pos_1               pos_2
 /// \endverbatim
 void GeneticUnit::look_for_new_promoters_around(int32_t pos_1, int32_t pos_2) {
-  //~ if ( Utils::mod( pos_1 - pos_2, dna_->length()) == PROM_SIZE - 1 )
+  //~ if (Utils::mod(pos_1 - pos_2, dna_->length()) == PROM_SIZE - 1)
   //~ {
   //~ // We have to look at every possible position on the genome.
   //~ locate_promoters();
@@ -1089,14 +1089,14 @@ void GeneticUnit::compute_phenotypic_contribution() {
                            prot.width(),
                            prot.height() * prot.concentration());
       }
-  // if ( prot->height() > 0 )
+  // if (prot->height() > 0)
   //   activ_contribution_->add_triangle(prot->mean(),
   //                                     prot->width(),
-  //                                     prot->height() * prot->concentration() );
+  //                                     prot->height() * prot->concentration());
   // else
   //   inhib_contribution_->add_triangle(prot->mean(),
   //                                     prot->width(),
-  //                                     prot->height() * prot->concentration() );
+  //                                     prot->height() * prot->concentration());
 
   // It is not necessary to add a lower bound to activ_contribution_ as there can be no negative y
   // The same goes for the upper bound for inhib_contribution_
@@ -1158,7 +1158,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target) {
 
 #ifdef NORMALIZED_FITNESS
 
-  for ( int8_t i = 0 ; i < NB_FEATURES ; i++ )
+  for (int8_t i = 0 ; i < NB_FEATURES ; i++)
   {
     if (target.area_by_feature(i)==0.)
     {
@@ -1166,26 +1166,26 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target) {
     }
     else
     {
-      fitness_by_feature_[i] =  ( target.area_by_feature(i) - dist_to_target_by_feature_[i] ) / target.area_by_feature(i);
-      if ( (fitness_by_feature_[i] < 0.) && (i != METABOLISM) ) // non-metabolic fitness can NOT be lower than zero (we do not want individual to secrete a negative quantity of public good)
+      fitness_by_feature_[i] =  (target.area_by_feature(i) - dist_to_target_by_feature_[i]) / target.area_by_feature(i);
+      if ((fitness_by_feature_[i] < 0.) && (i != METABOLISM)) // non-metabolic fitness can NOT be lower than zero (we do not want individual to secrete a negative quantity of public good)
       {
         fitness_by_feature_[i] = 0.;
       }
     }
   }
 
-  if ((! indiv_->placed_in_population()) || (! exp_m_->with_secretion() ))
+  if ((! indiv_->placed_in_population()) || (! exp_m_->with_secretion()))
   {
     fitness_ = fitness_by_feature_[METABOLISM];
   }
   else
   {
-    fitness_ =  fitness_by_feature_[METABOLISM] * ( 1 + exp_m_->secretion_contrib_to_fitness() * ( indiv_->grid_cell()->compound_amount() - exp_m_->secretion_cost() * fitness_by_feature_[SECRETION] ) );
+    fitness_ =  fitness_by_feature_[METABOLISM] * (1 + exp_m_->secretion_contrib_to_fitness() * (indiv_->grid_cell()->compound_amount() - exp_m_->secretion_cost() * fitness_by_feature_[SECRETION]));
   }
 
-  if ( exp_m_->selection_scheme() == FITNESS_PROPORTIONATE ) // Then the exponential selection is integrated inside the fitness value
+  if (exp_m_->selection_scheme() == FITNESS_PROPORTIONATE) // Then the exponential selection is integrated inside the fitness value
   {
-    fitness_ = exp( -exp_m_->selection_pressure() * (1 - fitness_) );
+    fitness_ = exp(-exp_m_->selection_pressure() * (1 - fitness_));
   }
 
 #else
@@ -1275,7 +1275,7 @@ void GeneticUnit::print_coding_rnas() {
 }
 
 void GeneticUnit::print_proteins() const {
-  printf("  LEADING ( %" PRId32 " )\n",
+  printf("  LEADING (%" PRId32 ")\n",
          static_cast<int32_t>(protein_list_[LEADING].size()));
   for (const auto& prot: protein_list_[LEADING])
     printf(
@@ -1286,7 +1286,7 @@ void GeneticUnit::print_proteins() const {
         prot.is_functional() ? "functional" : "non functional");
 
 
-  printf("  LAGGING ( %" PRId32 " )\n",
+  printf("  LAGGING (%" PRId32 ")\n",
          static_cast<int32_t>(protein_list_[LAGGING].size()));
   for (const auto& prot: protein_list_[LAGGING])
     printf(
@@ -1298,8 +1298,8 @@ void GeneticUnit::print_proteins() const {
 }
 
 bool GeneticUnit::is_promoter(Strand strand, int32_t pos, int8_t& dist) const {
-  //~ printf( "=============================================== is_promoter\n" );
-  //~ printf( "pos : %" PRId32 "\n", pos );
+  //~ printf("=============================================== is_promoter\n");
+  //~ printf("pos : %" PRId32 "\n", pos);
 
   const char* genome = dna_->data();
   int32_t len = dna_->length();
@@ -1307,29 +1307,29 @@ bool GeneticUnit::is_promoter(Strand strand, int32_t pos, int8_t& dist) const {
   dist = 0;
 
   if (strand == LEADING) {
-    //~ printf( "LEADING\n" );
+    //~ printf("LEADING\n");
     for (int16_t i = 0; i < PROM_SIZE; i++) {
-      //~ printf( "  i : %" PRId32 " dist : %"PRId8"\n", i, dist );
+      //~ printf("  i : %" PRId32 " dist : %"PRId8"\n", i, dist);
       if (genome[(pos + i) % len] != PROM_SEQ[i]) {
         dist++;
         if (dist > PROM_MAX_DIFF) {
-          //~ printf( "=============================================== END is_promoter\n" );
+          //~ printf("=============================================== END is_promoter\n");
           return false;
         }
       }
     }
   }
-  else // ( strand == LAGGING )
+  else // (strand == LAGGING)
   {
-    //~ printf( "LAGGING\n" );
+    //~ printf("LAGGING\n");
     for (int16_t i = 0; i < PROM_SIZE; i++) {
-      //~ printf( "  i : %"PRId32" dist : %"PRId8"\n", i, dist );
+      //~ printf("  i : %"PRId32" dist : %"PRId8"\n", i, dist);
       if (genome[Utils::mod((pos - i), len)] ==
           PROM_SEQ[i]) // == and not != because we are on the complementary strand...
       {
         dist++;
         if (dist > PROM_MAX_DIFF) {
-          //~ printf( "=============================================== END is_promoter\n" );
+          //~ printf("=============================================== END is_promoter\n");
           return false;
         }
       }
@@ -1337,7 +1337,7 @@ bool GeneticUnit::is_promoter(Strand strand, int32_t pos, int8_t& dist) const {
   }
 
 
-  //~ printf( "=============================================== END is_promoter\n" );
+  //~ printf("=============================================== END is_promoter\n");
   return true;
 }
 
@@ -1353,7 +1353,7 @@ bool GeneticUnit::is_terminator(Strand strand, int32_t pos) const {
       }
     }
   }
-  else // ( strand == LAGGING )
+  else // (strand == LAGGING)
   {
     for (int16_t i = 0; i < TERM_STEM_SIZE; i++) {
       if (genome[Utils::mod(pos - i, len)] ==
@@ -1377,7 +1377,7 @@ bool GeneticUnit::is_shine_dalgarno(Strand strand, int32_t pos) const {
       }
     }
   }
-  else // ( strand == LAGGING )
+  else // (strand == LAGGING)
   {
     for (int8_t i = 0; i < SHINE_DAL_SIZE; i++) {
       if (genome[Utils::mod((pos - i), len)] ==
@@ -1399,17 +1399,17 @@ int8_t GeneticUnit::codon(Strand strand, int32_t pos) const {
   if (strand == LEADING) {
     for (int8_t i = 0; i < CODON_SIZE; i++) {
       if (genome[Utils::mod((pos + i), len)] == '1') {
-        codon += 1 << (CODON_SIZE - i - 1); //pow( 2, CODON_SIZE - i - 1 );
+        codon += 1 << (CODON_SIZE - i - 1); //pow(2, CODON_SIZE - i - 1);
       }
     }
   }
-  else // ( strand == LAGGING )
+  else // (strand == LAGGING)
   {
     for (int8_t i = 0; i < CODON_SIZE; i++) {
       if (genome[Utils::mod((pos - i), len)] !=
           '1') // == and not != because we are on the complementary strand...
       {
-        codon += 1 << (CODON_SIZE - i - 1); //pow( 2, CODON_SIZE - i - 1 );
+        codon += 1 << (CODON_SIZE - i - 1); //pow(2, CODON_SIZE - i - 1);
       }
     }
   }
@@ -1543,46 +1543,46 @@ void GeneticUnit::compute_non_coding() {
         // ...and go on with essential DNA
         if (prom_first <= prom_last) {
           for (int32_t i = prom_first; i <= prom_last; i++) {
-            //~ printf( "%ld ", i );
+            //~ printf("%ld ", i);
             if (prot.is_functional()) is_essential_DNA[i] = true;
             is_essential_DNA_including_nf_genes[i] = true;
           }
         }
         else {
           for (int32_t i = prom_first; i < genome_length; i++) {
-            //~ printf( "%ld ", i );
+            //~ printf("%ld ", i);
             if (prot.is_functional()) is_essential_DNA[i] = true;
             is_essential_DNA_including_nf_genes[i] = true;
           }
           for (int32_t i = 0; i <= prom_last; i++) {
-            //~ printf( "%ld ", i );
+            //~ printf("%ld ", i);
             if (prot.is_functional()) is_essential_DNA[i] = true;
             is_essential_DNA_including_nf_genes[i] = true;
           }
         }
-        //~ printf( "\n" );
+        //~ printf("\n");
 
-        //~ printf( "term " );
+        //~ printf("term ");
         if (term_first <= term_last) {
           for (int32_t i = term_first; i <= term_last; i++) {
-            //~ printf( "%ld ", i );
+            //~ printf("%ld ", i);
             if (prot.is_functional()) is_essential_DNA[i] = true;
             is_essential_DNA_including_nf_genes[i] = true;
           }
         }
         else {
           for (int32_t i = term_first; i < genome_length; i++) {
-            //~ printf( "%ld ", i );
+            //~ printf("%ld ", i);
             if (prot.is_functional()) is_essential_DNA[i] = true;
             is_essential_DNA_including_nf_genes[i] = true;
           }
           for (int32_t i = 0; i <= term_last; i++) {
-            //~ printf( "%ld ", i );
+            //~ printf("%ld ", i);
             if (prot.is_functional()) is_essential_DNA[i] = true;
             is_essential_DNA_including_nf_genes[i] = true;
           }
         }
-        //~ printf( "\n" );
+        //~ printf("\n");
         //~ getchar();
       }
 
@@ -1633,7 +1633,7 @@ void GeneticUnit::compute_non_coding() {
         first = rna.promoter_pos();
         last = rna.last_transcribed_pos();
       }
-      else { // ( strand == LAGGING )
+      else { // (strand == LAGGING)
         first = rna.last_transcribed_pos();
         last = rna.promoter_pos();
       }
@@ -1874,7 +1874,7 @@ void GeneticUnit::promoters_included_in(int32_t pos_1,
       else if (!is_near_end_of_genome) // => && is_near_beginning_of_genome
       {
         // promoters(leading, between, pos_1, pos_2 + dna_->length() - PROM_SIZE + 1,
-        //                                         promoters_list[LEADING] );
+        //                                         promoters_list[LEADING]);
         promoters(LEADING, BETWEEN, pos_1, pos_2 - PROM_SIZE + 1 +
                                                dna_->length(),
                       promoters_list[LEADING]);
@@ -1894,7 +1894,7 @@ void GeneticUnit::promoters_included_in(int32_t pos_1,
       else // is_near_end_of_genome && is_near_beginning_of_genome
       {
         // promoters(leading, between, pos_1, pos_2 + dna_->length() - PROM_SIZE + 1,
-        //                                         promoters_list[LEADING] );
+        //                                         promoters_list[LEADING]);
         promoters(LEADING, BETWEEN, pos_1, pos_2 - PROM_SIZE + 1 +
                                                dna_->length(),
                       promoters_list[LEADING]);
@@ -2392,8 +2392,8 @@ void GeneticUnit::look_for_new_leading_promoters_starting_between(int32_t pos_1,
                     dist)) // dist takes the hamming distance of the sequence from the consensus
     {
       //~ char tmp[255];
-      //~ memcpy( tmp, &dna_->data()[i], PROM_SIZE * sizeof(char) );
-      //~ printf( "new promoter found on the LEADING strand at position %"PRId32" : %s\n", i, tmp );
+      //~ memcpy(tmp, &dna_->data()[i], PROM_SIZE * sizeof(char));
+      //~ printf("new promoter found on the LEADING strand at position %"PRId32" : %s\n", i, tmp);
 
       // Look for the right place to insert the new promoter in the list
       auto& strand = rna_list_[LEADING];
@@ -2901,7 +2901,7 @@ bool* GeneticUnit::is_belonging_to_coding_RNA() {
         first = rna.promoter_pos();
         last = rna.last_transcribed_pos();
       }
-      else // ( strand == LAGGING )
+      else // (strand == LAGGING)
       {
         last = rna.promoter_pos();
         first = rna.last_transcribed_pos();
@@ -2957,12 +2957,12 @@ void GeneticUnit::remove_non_coding_bases() {
 //  int32_t end = 0;
 //
 //
-//  for ( int32_t i = genome_length-1 ; i >= 0 ; i-- )
+//  for (int32_t i = genome_length-1 ; i >= 0 ; i--)
 //  {
-//    if ( belongs_to_coding_RNA[i] == false )
+//    if (belongs_to_coding_RNA[i] == false)
 //    {
 //      end = i+1;
-//      while((i-1) >=0 && belongs_to_coding_RNA[(i-1)] == false )
+//      while((i-1) >=0 && belongs_to_coding_RNA[(i-1)] == false)
 //      {
 //        i--;
 //      }
@@ -3042,12 +3042,12 @@ void GeneticUnit::double_non_coding_bases() {
 //
 //  int32_t non_coding_bases_nb = nb_bases_in_0_coding_RNA();
 //
-//  for ( int32_t i = genome_length-1 ; i >= 0 ; i-- )
+//  for (int32_t i = genome_length-1 ; i >= 0 ; i--)
 //  {
-//    if ( belongs_to_coding_RNA[i] == false )
+//    if (belongs_to_coding_RNA[i] == false)
 //    {
 //      end = i+1;
-//      while((i-1) >=0 && belongs_to_coding_RNA[(i-1)] == false )
+//      while((i-1) >=0 && belongs_to_coding_RNA[(i-1)] == false)
 //      {
 //        i--;
 //      }
@@ -3058,12 +3058,12 @@ void GeneticUnit::double_non_coding_bases() {
 //      while(not insertion_ok)
 //      {
 //        random_portion = new char [length+1];
-//        for ( int32_t j = 0 ; j < length ; j++ )
+//        for (int32_t j = 0 ; j < length ; j++)
 //        {
-//          random_portion[j] = '0' + indiv_->mut_prng()->random( NB_BASE );
+//          random_portion[j] = '0' + indiv_->mut_prng()->random(NB_BASE);
 //        }
 //        random_portion[length] = 0;
-//        pos = indiv_->mut_prng()->random( length )+start;
+//        pos = indiv_->mut_prng()->random(length)+start;
 //        dna_->insert(pos, random_portion);
 //
 //        non_coding_computed_ = false;

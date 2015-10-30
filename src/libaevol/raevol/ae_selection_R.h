@@ -99,13 +99,13 @@ class ae_template
     // =================================================================
     /*ae_template()
     {
-      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
     };
-    ae_template( const ae_template &model )
+    ae_template(const ae_template &model)
     {
-      printf( "%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("%s:%d: error: call to forbidden constructor.\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
     };*/
 
 

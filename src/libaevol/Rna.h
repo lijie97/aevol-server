@@ -67,9 +67,9 @@ class Rna
     // =================================================================
     Rna() = delete;
     Rna(const GeneticUnit&) = delete;
-    Rna( GeneticUnit* gen_unit, const Rna &model );
-    Rna( GeneticUnit* gen_unit, Strand strand, int32_t index, int8_t diff );
-    //Rna( Rna* parent );
+    Rna(GeneticUnit* gen_unit, const Rna &model);
+    Rna(GeneticUnit* gen_unit, Strand strand, int32_t index, int8_t diff);
+    //Rna(Rna* parent);
 
     // =================================================================
     //                             Destructors
@@ -81,19 +81,19 @@ class Rna
     // =================================================================
 
     // <DEBUG>
-    void check( GeneticUnit* gen_unit ) { assert( gen_unit == gen_unit_ ); };
+    void check(GeneticUnit* gen_unit) { assert(gen_unit == gen_unit_); };
     //~ void* indiv() const { return (void*)indiv_; };
     // </DEBUG>
 
     inline const GeneticUnit * genetic_unit() const;
     inline void set_genetic_unit(const GeneticUnit*  gen_unit);
     inline Strand strand() const;
-    inline void       set_strand( Strand strand );
+    inline void       set_strand(Strand strand);
     inline int32_t    promoter_pos() const;
-    inline void       set_promoter_pos( int32_t pos );
+    inline void       set_promoter_pos(int32_t pos);
     inline double     basal_level() const;
     inline int32_t    transcript_length() const; // The promoter is NOT transcribed.
-    inline void       set_transcript_length( int32_t length );
+    inline void       set_transcript_length(int32_t length);
     inline bool       is_coding() const;
 
     inline const std::list<Protein *>& transcribed_proteins() const;
@@ -104,8 +104,8 @@ class Rna
     // =================================================================
     int32_t first_transcribed_pos() const;   // The promoter is NOT transcribed.
     int32_t last_transcribed_pos() const;    // The terminator is transcribed.
-    inline void add_transcribed_protein( Protein * prot );
-    inline void shift_position( int32_t delta_pos, int32_t genome_length );
+    inline void add_transcribed_protein(Protein * prot);
+    inline void shift_position(int32_t delta_pos, int32_t genome_length);
 
     // =================================================================
     //                           Public Attributes
@@ -158,12 +158,12 @@ inline Strand Rna::strand() const
   return strand_;
 }
 
-inline void Rna::set_strand( Strand strand )
+inline void Rna::set_strand(Strand strand)
 {
   strand_ = strand;
 }
 
-void Rna::set_promoter_pos( int32_t pos )
+void Rna::set_promoter_pos(int32_t pos)
 {
   pos_ = pos;
 }
@@ -183,7 +183,7 @@ inline int32_t Rna::transcript_length() const
   return transcript_length_;
 }
 
-inline void Rna::set_transcript_length( int32_t transcript_length )
+inline void Rna::set_transcript_length(int32_t transcript_length)
 {
   transcript_length_ = transcript_length;
 }
@@ -200,14 +200,14 @@ inline bool Rna::is_coding() const
 // =====================================================================
 //                       Inline functions' definition
 // =====================================================================
-void Rna::add_transcribed_protein( Protein * prot )
+void Rna::add_transcribed_protein(Protein * prot)
 {
   transcribed_proteins_.push_back(prot);
 }
 
-void Rna::shift_position( int32_t delta_pos, int32_t genome_length )
+void Rna::shift_position(int32_t delta_pos, int32_t genome_length)
 {
-  pos_ = Utils::mod( pos_ + delta_pos, genome_length );
+  pos_ = Utils::mod(pos_ + delta_pos, genome_length);
 }
 
 } // namespace aevol

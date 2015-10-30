@@ -112,7 +112,7 @@ void IndividualTest::SetUp(void)
 
   // Construct a gene with these arbitrary sequences
   char* genome = new char[1024];
-  sprintf( genome, "%s%s%s%s%s%s%s%s%s", as[0], prom[0], as[1], gene, as[2],
+  sprintf(genome, "%s%s%s%s%s%s%s%s%s", as[0], prom[0], as[1], gene, as[2],
            term, as[3], prom[1], as[4]);
 
   // Build indiv1
@@ -143,7 +143,7 @@ void IndividualTest::SetUp(void)
 
   // Build indiv3
   genome = new char[1024];
-  sprintf( genome, "%s%s%s%s%s%s%s", as[0], gene, as[1], term, as[2], prom[1], as[3]);
+  sprintf(genome, "%s%s%s%s%s%s%s", as[0], gene, as[1], term, as[2], prom[1], as[3]);
   indiv3 = new Individual(nullptr, nullptr, nullptr, std::make_shared<MutationParams>(params_mut), 1.0, 10, 1000, false, 1, "anon-strain-3", 0);
   indiv3->add_GU(genome, strlen(genome));
   genome = NULL;
@@ -213,11 +213,11 @@ TEST_F(IndividualTest, TestIndiv1)
 
   // Check genome size
   EXPECT_EQ(109, indiv1->get_amount_of_dna());
-  EXPECT_EQ(109, indiv1->get_genetic_unit_seq_length(0) );
+  EXPECT_EQ(109, indiv1->get_genetic_unit_seq_length(0));
 
   // Check RNA list
   list<const Rna*> rna_list = indiv1->get_rna_list();
-  EXPECT_EQ(2, rna_list.size() );
+  EXPECT_EQ(2, rna_list.size());
   const Rna* rna = rna_list.front();
   EXPECT_EQ(LEADING, rna->get_strand());
   EXPECT_EQ(4, rna->get_promoter_pos());

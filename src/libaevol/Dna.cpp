@@ -387,7 +387,7 @@ void Dna::do_rearrangements_with_align() {
   /////////////////////////////////////////////////////////////////////////////
   nb_pairs = static_cast<int32_t>(
       ceil(ttl * length_ * indiv_->neighbourhood_rate()));
-  for ( ; nb_pairs > 0 ; nb_pairs--) {
+  for (; nb_pairs > 0 ; nb_pairs--) {
     /////////////////////////////////////////////////
     // 1) Draw a random sense (direct or indirect) //
     /////////////////////////////////////////////////
@@ -572,7 +572,7 @@ void Dna::do_rearrangements_with_align() {
         int32_t seed1, seed2;
         nb_pairs = static_cast<int32_t>(
             ceil(ttl * length_ * indiv_->neighbourhood_rate()));
-        for ( ; nb_pairs > 0 ; nb_pairs--) {
+        for (; nb_pairs > 0 ; nb_pairs--) {
           direct_sense = (indiv_->mut_prng_->random() < 0.5);
 
           if (indiv_->align_fun_shape() == LINEAR) {

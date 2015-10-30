@@ -97,8 +97,8 @@ namespace aevol {
 // with the same options. Thus, we would initialize a graphical context, set the
 // desired options, and pass this GC structure to all drawing functions.
 // Allocating a new GC is done using the XCreateGC() function.
-//    GC XCreateGC( Display *display, Drawable d, uint32_t valuemask,
-//                  XGCValues *values )
+//    GC XCreateGC(Display *display, Drawable d, uint32_t valuemask,
+//                  XGCValues *values)
 // Since a graphics context has zillions of attributes, and since often we want
 // to define only few of them, we need to be able to tell the XCreateGC() which
 // attributes we want to set. This is what the "valuemask" variable is for.
@@ -151,9 +151,9 @@ X11Window::X11Window()
 }
 
 
-X11Window::X11Window( Display* display, int8_t screen, Atom* atoms,
+X11Window::X11Window(Display* display, int8_t screen, Atom* atoms,
                               uint16_t x, uint16_t y, uint16_t width, uint16_t height,
-                              const char* caption )
+                              const char* caption)
 {
   width_    = width;
   height_   = height;
@@ -163,80 +163,80 @@ X11Window::X11Window( Display* display, int8_t screen, Atom* atoms,
 
   XSetWindowAttributes win_attributes;
   win_attributes.event_mask = StructureNotifyMask | ExposureMask | KeyPressMask;
-  win_attributes.background_pixel = XBlackPixel( display_, screen_ );
+  win_attributes.background_pixel = XBlackPixel(display_, screen_);
 
-  window_ = XCreateWindow(  display_, DefaultRootWindow(display_), x, y, width_, height_, 0,
+  window_ = XCreateWindow(display_, DefaultRootWindow(display_), x, y, width_, height_, 0,
                             CopyFromParent, CopyFromParent, CopyFromParent,
-                            CWBackPixel|CWEventMask, &win_attributes );
+                            CWBackPixel|CWEventMask, &win_attributes);
   // NB: the 7th parameter is the width of the window's border, it has nothing to do with
   // the border appended by the window manager, so this is most often set to zero.
 
   // Define the title & iconname of the window
-  XSetStandardProperties( display_, window_, caption, caption, None, NULL, 0, NULL );
+  XSetStandardProperties(display_, window_, caption, caption, None, NULL, 0, NULL);
 
 
   // We want to get MapNotify events, KeyPress events...
-  XSelectInput( display_, window_, StructureNotifyMask | ExposureMask | KeyPressMask );
+  XSelectInput(display_, window_, StructureNotifyMask | ExposureMask | KeyPressMask);
 
 
   // Create graphical contexts
-  uint32_t whiteColor = WhitePixel( display_, screen_ );
+  uint32_t whiteColor = WhitePixel(display_, screen_);
   XGCValues values;
   values.line_width = 1;
 
-  values.foreground = pixel( display_, screen_, (char*)"white", whiteColor );
-  values.background = pixel( display_, screen_, (char*)"black", whiteColor );
-  gcWhite_ = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
+  values.foreground = pixel(display_, screen_, (char*)"white", whiteColor);
+  values.background = pixel(display_, screen_, (char*)"black", whiteColor);
+  gcWhite_ = XCreateGC(display_, window_, GCForeground|GCBackground|GCLineWidth, &values);
 
 
-  values.foreground = pixel( display_, screen_, (char*)"black",whiteColor );
-  values.background = pixel( display_, screen_, (char*)"white",whiteColor );
-  gcBlack_ = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
+  values.foreground = pixel(display_, screen_, (char*)"black",whiteColor);
+  values.background = pixel(display_, screen_, (char*)"white",whiteColor);
+  gcBlack_ = XCreateGC(display_, window_, GCForeground|GCBackground|GCLineWidth, &values);
 
-  values.foreground = pixel( display_, screen_, (char*)"red",  whiteColor );
-  values.background = pixel( display_, screen_, (char*)"black",whiteColor );
-  gcRed_ = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
+  values.foreground = pixel(display_, screen_, (char*)"red",  whiteColor);
+  values.background = pixel(display_, screen_, (char*)"black",whiteColor);
+  gcRed_ = XCreateGC(display_, window_, GCForeground|GCBackground|GCLineWidth, &values);
 
-  values.foreground = pixel( display_, screen_, (char*)"green",whiteColor );
-  values.background = pixel( display_, screen_, (char*)"green",whiteColor );
-  gcGreen_ = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
+  values.foreground = pixel(display_, screen_, (char*)"green",whiteColor);
+  values.background = pixel(display_, screen_, (char*)"green",whiteColor);
+  gcGreen_ = XCreateGC(display_, window_, GCForeground|GCBackground|GCLineWidth, &values);
 
-  values.foreground = pixel( display_, screen_, (char*)"blue", whiteColor );
-  values.background = pixel( display_, screen_, (char*)"black",whiteColor );
-  gcBlue_ = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
+  values.foreground = pixel(display_, screen_, (char*)"blue", whiteColor);
+  values.background = pixel(display_, screen_, (char*)"black",whiteColor);
+  gcBlue_ = XCreateGC(display_, window_, GCForeground|GCBackground|GCLineWidth, &values);
 
-  values.foreground = pixel( display_, screen_, (char*)"orange",whiteColor );
-  values.background = pixel( display_, screen_, (char*)"orange",whiteColor );
-  gcOrange_ = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
+  values.foreground = pixel(display_, screen_, (char*)"orange",whiteColor);
+  values.background = pixel(display_, screen_, (char*)"orange",whiteColor);
+  gcOrange_ = XCreateGC(display_, window_, GCForeground|GCBackground|GCLineWidth, &values);
 
-  values.foreground = pixel( display_, screen_, (char*)"yellow",whiteColor );
-  values.background = pixel( display_, screen_, (char*)"yellow",whiteColor );
-  gcYellow_ = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
+  values.foreground = pixel(display_, screen_, (char*)"yellow",whiteColor);
+  values.background = pixel(display_, screen_, (char*)"yellow",whiteColor);
+  gcYellow_ = XCreateGC(display_, window_, GCForeground|GCBackground|GCLineWidth, &values);
 
-  values.foreground = pixel( display_, screen_, (char*)"lightgrey",whiteColor );
-  values.background = pixel( display_, screen_, (char*)"lightgrey",whiteColor );
-  gcLightGrey_ = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
+  values.foreground = pixel(display_, screen_, (char*)"lightgrey",whiteColor);
+  values.background = pixel(display_, screen_, (char*)"lightgrey",whiteColor);
+  gcLightGrey_ = XCreateGC(display_, window_, GCForeground|GCBackground|GCLineWidth, &values);
 
-  values.foreground = pixel( display_, screen_, (char*)"darkgrey", whiteColor );
-  values.background = pixel( display_, screen_, (char*)"darkgrey", whiteColor );
-  gcDarkGrey_ = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
+  values.foreground = pixel(display_, screen_, (char*)"darkgrey", whiteColor);
+  values.background = pixel(display_, screen_, (char*)"darkgrey", whiteColor);
+  gcDarkGrey_ = XCreateGC(display_, window_, GCForeground|GCBackground|GCLineWidth, &values);
 
-  values.foreground = pixel( display_, screen_, (char*)"grey15", whiteColor );
-  values.background = pixel( display_, screen_, (char*)"grey15", whiteColor );
-  gcDarkerGrey_ = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
+  values.foreground = pixel(display_, screen_, (char*)"grey15", whiteColor);
+  values.background = pixel(display_, screen_, (char*)"grey15", whiteColor);
+  gcDarkerGrey_ = XCreateGC(display_, window_, GCForeground|GCBackground|GCLineWidth, &values);
 
-  values.foreground = pixel( display_, screen_, (char*)"grey",whiteColor );
-  values.background = pixel( display_, screen_, (char*)"grey",whiteColor );
-  gcGrey_ = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
+  values.foreground = pixel(display_, screen_, (char*)"grey",whiteColor);
+  values.background = pixel(display_, screen_, (char*)"grey",whiteColor);
+  gcGrey_ = XCreateGC(display_, window_, GCForeground|GCBackground|GCLineWidth, &values);
 
 
-  XMapWindow( display_, window_ );
-  XMoveWindow( display_, window_, x, y );
-  XFlush( display_ );
+  XMapWindow(display_, window_);
+  XMoveWindow(display_, window_, x, y);
+  XFlush(display_);
 
 
   // Necessary to handle window closing
-  XSetWMProtocols( display_, window_, atoms, 2 );
+  XSetWMProtocols(display_, window_, atoms, 2);
 }
 
 
@@ -246,19 +246,19 @@ X11Window::X11Window( Display* display, int8_t screen, Atom* atoms,
 
 X11Window::~X11Window()
 {
-  XFreeGC( display_, gcWhite_ );
-  XFreeGC( display_, gcBlack_ );
-  XFreeGC( display_, gcRed_ );
-  XFreeGC( display_, gcGreen_ );
-  XFreeGC( display_, gcBlue_ );
-  XFreeGC( display_, gcOrange_ );
-  XFreeGC( display_, gcYellow_ );
-  XFreeGC( display_, gcGrey_ );
-  XFreeGC( display_, gcLightGrey_ );
-  XFreeGC( display_, gcDarkGrey_ );
-  XFreeGC( display_, gcDarkerGrey_ );
+  XFreeGC(display_, gcWhite_);
+  XFreeGC(display_, gcBlack_);
+  XFreeGC(display_, gcRed_);
+  XFreeGC(display_, gcGreen_);
+  XFreeGC(display_, gcBlue_);
+  XFreeGC(display_, gcOrange_);
+  XFreeGC(display_, gcYellow_);
+  XFreeGC(display_, gcGrey_);
+  XFreeGC(display_, gcLightGrey_);
+  XFreeGC(display_, gcDarkGrey_);
+  XFreeGC(display_, gcDarkerGrey_);
 
-  XDestroyWindow( display_, window_ );
+  XDestroyWindow(display_, window_);
 }
 
 // =================================================================
@@ -267,24 +267,24 @@ X11Window::~X11Window()
 
 
 
-void X11Window::resize( unsigned int width, unsigned int height )
+void X11Window::resize(unsigned int width, unsigned int height)
 {
   width_  = width;
   height_ = height;
 }
 
 
-void X11Window::draw_string( int16_t x, int16_t y, char * str )
+void X11Window::draw_string(int16_t x, int16_t y, char * str)
 {
-  XDrawImageString( display_, window_, gcWhite_, x, y, str, strlen(str) );
+  XDrawImageString(display_, window_, gcWhite_, x, y, str, strlen(str));
 }
 
-void X11Window::draw_line( int16_t x1, int16_t y1, int16_t x2, int16_t y2, color_map color, bool bold /*= false*/ )
+void X11Window::draw_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2, color_map color, bool bold /*= false*/)
 {
   GC* gc = NULL;
 
   // Determine which GC to use
-  switch ( color )
+  switch (color)
   {
     case WHITE :
       gc = &gcWhite_;
@@ -323,163 +323,163 @@ void X11Window::draw_line( int16_t x1, int16_t y1, int16_t x2, int16_t y2, color
 
 
   // Draw line (lines if bold)
-  XDrawLine( display_, window_, *gc, x1, y1, x2, y2 );
-  if ( bold )
+  XDrawLine(display_, window_, *gc, x1, y1, x2, y2);
+  if (bold)
   {
-    XDrawLine( display_, window_, *gc, x1-1, y1, x2-1, y2 );
-    XDrawLine( display_, window_, *gc, x1+1, y1, x2+1, y2 );
+    XDrawLine(display_, window_, *gc, x1-1, y1, x2-1, y2);
+    XDrawLine(display_, window_, *gc, x1+1, y1, x2+1, y2);
   }
 }
 
-void X11Window::draw_line( int16_t x1, int16_t y1, int16_t x2, int16_t y2, char* color, bool bold /*= false*/ )
+void X11Window::draw_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2, char* color, bool bold /*= false*/)
 {
   // Create custom GC
   XGCValues values;
-  values.foreground = pixel( display_, screen_, color, WhitePixel(display_,screen_) );
-  values.background = pixel( display_, screen_, color, WhitePixel(display_,screen_) );
-  GC tmp_gc = XCreateGC( display_, window_, GCForeground|GCBackground, &values );
+  values.foreground = pixel(display_, screen_, color, WhitePixel(display_,screen_));
+  values.background = pixel(display_, screen_, color, WhitePixel(display_,screen_));
+  GC tmp_gc = XCreateGC(display_, window_, GCForeground|GCBackground, &values);
 
   // Draw line (lines if bold)
-  XDrawLine( display_, window_, tmp_gc, x1, y1, x2, y2 );
-  if ( bold )
+  XDrawLine(display_, window_, tmp_gc, x1, y1, x2, y2);
+  if (bold)
   {
-    XDrawLine( display_, window_, tmp_gc, x1-1, y1, x2-1, y2 );
-    XDrawLine( display_, window_, tmp_gc, x1+1, y1, x2+1, y2 );
+    XDrawLine(display_, window_, tmp_gc, x1-1, y1, x2-1, y2);
+    XDrawLine(display_, window_, tmp_gc, x1+1, y1, x2+1, y2);
   }
 
-  XFreeGC( display_, tmp_gc );
+  XFreeGC(display_, tmp_gc);
 }
 
-void X11Window::draw_circle( int16_t x, int16_t y, int16_t diam )
+void X11Window::draw_circle(int16_t x, int16_t y, int16_t diam)
 {
-  XDrawArc( display_, window_, gcWhite_, x, y, diam, diam, 0, 64*360 );
+  XDrawArc(display_, window_, gcWhite_, x, y, diam, diam, 0, 64*360);
 }
 
-void X11Window::draw_arc( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2 )
+void X11Window::draw_arc(int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2)
 {
-  XDrawArc( display_, window_, gcWhite_, x, y, diam, diam, 64*angle1, 64*angle2 );
+  XDrawArc(display_, window_, gcWhite_, x, y, diam, diam, 64*angle1, 64*angle2);
 }
 
-void X11Window::draw_arc( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2, char* color )
-{
-  XGCValues values;
-  values.line_width = 2;
-  values.foreground = pixel( display_, screen_, color, WhitePixel(display_,screen_) );
-  values.background = pixel( display_, screen_, color, WhitePixel(display_,screen_) );
-  GC tmp_gc = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
-
-  XDrawArc( display_, window_, tmp_gc, x, y, diam, diam, 64*angle1, 64*angle2 );
-
-  XFreeGC( display_, tmp_gc );
-}
-
-void X11Window::draw_arc_64( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2 )
-{
-  XDrawArc( display_, window_, gcWhite_, x, y, diam, diam, angle1, angle2 );
-}
-
-void X11Window::draw_arc_64( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2, char* color )
+void X11Window::draw_arc(int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2, char* color)
 {
   XGCValues values;
   values.line_width = 2;
-  values.foreground = pixel( display_, screen_, color, WhitePixel(display_,screen_) );
-  values.background = pixel( display_, screen_, color, WhitePixel(display_,screen_) );
-  GC tmp_gc = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
+  values.foreground = pixel(display_, screen_, color, WhitePixel(display_,screen_));
+  values.background = pixel(display_, screen_, color, WhitePixel(display_,screen_));
+  GC tmp_gc = XCreateGC(display_, window_, GCForeground|GCBackground|GCLineWidth, &values);
 
-  XDrawArc( display_, window_, tmp_gc, x, y, diam, diam, angle1, angle2 );
+  XDrawArc(display_, window_, tmp_gc, x, y, diam, diam, 64*angle1, 64*angle2);
 
-  XFreeGC( display_, tmp_gc );
+  XFreeGC(display_, tmp_gc);
 }
 
-void X11Window::fill_arc( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2 )
+void X11Window::draw_arc_64(int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2)
 {
-  XFillArc( display_, window_, gcWhite_, x, y, diam, diam, 64*angle1, 64*angle2 );
+  XDrawArc(display_, window_, gcWhite_, x, y, diam, diam, angle1, angle2);
 }
 
-void X11Window::fill_arc( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2, char* color )
-{
-  XGCValues values;
-  values.line_width = 2;
-  values.foreground = pixel( display_, screen_, color, WhitePixel(display_,screen_) );
-  values.background = pixel( display_, screen_, color, WhitePixel(display_,screen_) );
-  GC tmp_gc = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
-
-  XFillArc( display_, window_, tmp_gc, x, y, diam, diam, 64*angle1, 64*angle2 );
-
-  XFreeGC( display_, tmp_gc );
-}
-
-void X11Window::fill_arc_64( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2 )
-{
-  XFillArc( display_, window_, gcWhite_, x, y, diam, diam, angle1, angle2 );
-}
-
-void X11Window::fill_arc_64( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2, char* color )
+void X11Window::draw_arc_64(int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2, char* color)
 {
   XGCValues values;
   values.line_width = 2;
-  values.foreground = pixel( display_, screen_, color, WhitePixel(display_,screen_) );
-  values.background = pixel( display_, screen_, color, WhitePixel(display_,screen_) );
-  GC tmp_gc = XCreateGC( display_, window_, GCForeground|GCBackground|GCLineWidth, &values );
+  values.foreground = pixel(display_, screen_, color, WhitePixel(display_,screen_));
+  values.background = pixel(display_, screen_, color, WhitePixel(display_,screen_));
+  GC tmp_gc = XCreateGC(display_, window_, GCForeground|GCBackground|GCLineWidth, &values);
 
-  XFillArc( display_, window_, tmp_gc, x, y, diam, diam, angle1, angle2 );
+  XDrawArc(display_, window_, tmp_gc, x, y, diam, diam, angle1, angle2);
 
-  XFreeGC( display_, tmp_gc );
+  XFreeGC(display_, tmp_gc);
 }
 
-void X11Window::fill_rectangle( int16_t x, int16_t y, int16_t width, int16_t height, color_map color )
+void X11Window::fill_arc(int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2)
 {
-  switch ( color )
+  XFillArc(display_, window_, gcWhite_, x, y, diam, diam, 64*angle1, 64*angle2);
+}
+
+void X11Window::fill_arc(int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2, char* color)
+{
+  XGCValues values;
+  values.line_width = 2;
+  values.foreground = pixel(display_, screen_, color, WhitePixel(display_,screen_));
+  values.background = pixel(display_, screen_, color, WhitePixel(display_,screen_));
+  GC tmp_gc = XCreateGC(display_, window_, GCForeground|GCBackground|GCLineWidth, &values);
+
+  XFillArc(display_, window_, tmp_gc, x, y, diam, diam, 64*angle1, 64*angle2);
+
+  XFreeGC(display_, tmp_gc);
+}
+
+void X11Window::fill_arc_64(int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2)
+{
+  XFillArc(display_, window_, gcWhite_, x, y, diam, diam, angle1, angle2);
+}
+
+void X11Window::fill_arc_64(int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2, char* color)
+{
+  XGCValues values;
+  values.line_width = 2;
+  values.foreground = pixel(display_, screen_, color, WhitePixel(display_,screen_));
+  values.background = pixel(display_, screen_, color, WhitePixel(display_,screen_));
+  GC tmp_gc = XCreateGC(display_, window_, GCForeground|GCBackground|GCLineWidth, &values);
+
+  XFillArc(display_, window_, tmp_gc, x, y, diam, diam, angle1, angle2);
+
+  XFreeGC(display_, tmp_gc);
+}
+
+void X11Window::fill_rectangle(int16_t x, int16_t y, int16_t width, int16_t height, color_map color)
+{
+  switch (color)
   {
     case WHITE :
-      XFillRectangle( display_, window_, gcWhite_, x, y, width, height );
+      XFillRectangle(display_, window_, gcWhite_, x, y, width, height);
       break;
     case BLACK :
-      XFillRectangle( display_, window_, gcBlack_, x, y, width, height );
+      XFillRectangle(display_, window_, gcBlack_, x, y, width, height);
       break;
     case RED :
-      XFillRectangle( display_, window_, gcRed_, x, y, width, height );
+      XFillRectangle(display_, window_, gcRed_, x, y, width, height);
       break;
     case GREEN :
-      XFillRectangle( display_, window_, gcGreen_, x, y, width, height );
+      XFillRectangle(display_, window_, gcGreen_, x, y, width, height);
       break;
     case BLUE :
-      XFillRectangle( display_, window_, gcBlue_, x, y, width, height );
+      XFillRectangle(display_, window_, gcBlue_, x, y, width, height);
       break;
     case ORANGE :
-      XFillRectangle( display_, window_, gcOrange_, x, y, width, height );
+      XFillRectangle(display_, window_, gcOrange_, x, y, width, height);
       break;
     case YELLOW :
-      XFillRectangle( display_, window_, gcYellow_, x, y, width, height );
+      XFillRectangle(display_, window_, gcYellow_, x, y, width, height);
       break;
     case GREY :
-      XFillRectangle( display_, window_, gcGrey_, x, y, width, height );
+      XFillRectangle(display_, window_, gcGrey_, x, y, width, height);
       break;
     case LIGHT_GREY :
-      XFillRectangle( display_, window_, gcLightGrey_, x, y, width, height );
+      XFillRectangle(display_, window_, gcLightGrey_, x, y, width, height);
       break;
     case DARK_GREY :
-      XFillRectangle( display_, window_, gcDarkGrey_, x, y, width, height );
+      XFillRectangle(display_, window_, gcDarkGrey_, x, y, width, height);
       break;
     case DARKER_GREY :
-      XFillRectangle( display_, window_, gcDarkerGrey_, x, y, width, height );
+      XFillRectangle(display_, window_, gcDarkerGrey_, x, y, width, height);
       break;
   }
 }
 
-void X11Window::fill_rectangle( int16_t x, int16_t y, int16_t width, int16_t height, char* color )
+void X11Window::fill_rectangle(int16_t x, int16_t y, int16_t width, int16_t height, char* color)
 {
   XGCValues values;
-  values.foreground = pixel( display_, screen_, color, WhitePixel(display_,screen_) );
-  values.background = pixel( display_, screen_, color, WhitePixel(display_,screen_) );
-  GC tmp_gc = XCreateGC( display_, window_, GCForeground|GCBackground, &values );
+  values.foreground = pixel(display_, screen_, color, WhitePixel(display_,screen_));
+  values.background = pixel(display_, screen_, color, WhitePixel(display_,screen_));
+  GC tmp_gc = XCreateGC(display_, window_, GCForeground|GCBackground, &values);
 
-  XFillRectangle( display_, window_, tmp_gc, x, y, width, height );
+  XFillRectangle(display_, window_, tmp_gc, x, y, width, height);
 
-  XFreeGC( display_, tmp_gc );
+  XFreeGC(display_, tmp_gc);
 }
 
-char*X11Window::color( double mean )
+char*X11Window::color(double mean)
 {
   int16_t red, green, blue;
 
@@ -489,39 +489,39 @@ char*X11Window::color( double mean )
   double  mean_range_3_5 = X_MIN + 3 * mean_range / 5;
   double  mean_range_4_5 = X_MIN + 4 * mean_range / 5;
 
-  if ( mean < mean_range_5 )
+  if (mean < mean_range_5)
   {
     red   = 0;
-    green = 255 * ( 1.0 - ( (mean_range_5 - mean) / mean_range_5 ) );
+    green = 255 * (1.0 - ((mean_range_5 - mean) / mean_range_5));
     blue  = 255;
   }
-  else if ( mean < mean_range_2_5 )
+  else if (mean < mean_range_2_5)
   {
     red   = 0;
     green = 255;
-    blue  = 255 * ( (mean_range_2_5 - mean) / mean_range_5 );
+    blue  = 255 * ((mean_range_2_5 - mean) / mean_range_5);
   }
-  else if ( mean < mean_range_3_5 )
+  else if (mean < mean_range_3_5)
   {
-    red   = 255 * ( 1.0 - ( (mean_range_3_5 - mean) / mean_range_5 ) );
+    red   = 255 * (1.0 - ((mean_range_3_5 - mean) / mean_range_5));
     green = 255;
     blue  = 0;
   }
-  else if ( mean < mean_range_4_5 )
+  else if (mean < mean_range_4_5)
   {
     red   = 255;
-    green = 255 * ( (mean_range_4_5 - mean) / mean_range_5 );
+    green = 255 * ((mean_range_4_5 - mean) / mean_range_5);
     blue  = 0;
   }
   else
   {
     red   = 255;
     green = 0;
-    blue  = 255 * ( 1.0 - ( (mean_range - mean) / mean_range_5 ) );
+    blue  = 255 * (1.0 - ((mean_range - mean) / mean_range_5));
   }
 
   char* color = new char[8];
-  sprintf( color, "#%02x%02x%02x", red, green, blue );
+  sprintf(color, "#%02x%02x%02x", red, green, blue);
   return color;
 }
 

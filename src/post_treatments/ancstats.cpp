@@ -541,9 +541,9 @@ FILE* open_terminators_stat_file(const char * prefix)
   return term_output_file;
 }
 
-void write_terminators_stats(int64_t t,  Individual* indiv, FILE* term_output_file )
+void write_terminators_stats(int64_t t,  Individual* indiv, FILE* term_output_file)
 {
-  fprintf( term_output_file, "%" PRId64 " %" PRId32 " %" PRId32 "\n",
+  fprintf(term_output_file, "%" PRId64 " %" PRId32 " %" PRId32 "\n",
             t,
             indiv->total_genome_size(),
             indiv->nb_terminators());
@@ -551,7 +551,7 @@ void write_terminators_stats(int64_t t,  Individual* indiv, FILE* term_output_fi
 
 
 
-FILE* open_zones_stat_file(const char * prefix )
+FILE* open_zones_stat_file(const char * prefix)
 {
   // Open file
   char* zones_output_file_name = new char[80];
@@ -657,11 +657,11 @@ void write_zones_stats(int64_t t,
 
 
   // Print stats to file
-  fprintf( zones_output_file, "%" PRId64, t);
+  fprintf(zones_output_file, "%" PRId64, t);
 
   for (num_segment = 0 ; num_segment < nb_segments ; num_segment++)
   {
-    fprintf( zones_output_file, "     %" PRId32 " %" PRId32 " %lf %lf %lf",
+    fprintf(zones_output_file, "     %" PRId32 " %" PRId32 " %lf %lf %lf",
               nb_genes_activ[num_segment],
               nb_genes_inhib[num_segment],
               geom_area_activ[num_segment],
@@ -669,12 +669,12 @@ void write_zones_stats(int64_t t,
               geom_area_phen[num_segment]);
   }
 
-  fprintf( zones_output_file, "\n");
+  fprintf(zones_output_file, "\n");
 }
 
 
 
-FILE* open_operons_stat_file(const char * prefix )
+FILE* open_operons_stat_file(const char * prefix)
 {
   char* operons_output_file_name = new char[80];
   sprintf(operons_output_file_name, "stats/%s_operons.out",prefix);
@@ -703,7 +703,7 @@ void write_operons_stats(int64_t t, Individual* indiv, FILE*  operons_output_fil
     nb_genes_per_rna[rna->transcribed_proteins().size()]++;
   }
 
-  fprintf( operons_output_file, "%" PRId64 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n",
+  fprintf(operons_output_file, "%" PRId64 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 "\n",
             t,
             nb_genes_per_rna[0],
             nb_genes_per_rna[1],

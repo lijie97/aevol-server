@@ -419,9 +419,9 @@ void ExpManager_X11::display(X11Window * win,
     list<Point>::const_iterator q = next(p);
 
     // Display segment [p, q]
-    cur_x   = (     (p->x -  X_MIN) / delta_x ) * win->width();
+    cur_x   = ((p->x -  X_MIN) / delta_x) * win->width();
     cur_y   = (1 - ((p->y -  y_min) / delta_y)) * win->height();
-    next_x  = (     (q->x - X_MIN) / delta_x ) * win->width();
+    next_x  = ((q->x - X_MIN) / delta_x) * win->width();
     next_y  = (1 - ((q->y - y_min) / delta_y)) * win->height();
 
     if (fill) {
@@ -758,13 +758,13 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
           {
             if (segments[i]->feature == NEUTRAL)
             {
-              cur_win->fill_rectangle( cur_win->width() * segments[i]->start / (X_MAX-X_MIN), 0.0,
+              cur_win->fill_rectangle(cur_win->width() * segments[i]->start / (X_MAX-X_MIN), 0.0,
                                         cur_win->width() * (segments[i]->stop - segments[i]->start) / (X_MAX-X_MIN),
                                         cur_win->height() * 19 / 20, DARKER_GREY);
             }
             else
             {
-              cur_win->fill_rectangle( cur_win->width() * segments[i]->start / (X_MAX-X_MIN), 0.0,
+              cur_win->fill_rectangle(cur_win->width() * segments[i]->start / (X_MAX-X_MIN), 0.0,
                                         cur_win->width() * (segments[i]->stop - segments[i]->start) / (X_MAX-X_MIN),
                                         cur_win->height() * 19 / 20, GREY);
             }

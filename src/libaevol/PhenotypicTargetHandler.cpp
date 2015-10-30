@@ -195,7 +195,7 @@ void PhenotypicTargetHandler::ApplyAutoregressiveMeanVariation() {
                                                 *var_prng_);
 
     // Deduce the new value of the mean : ref_mean + delta_m
-    cur_gaussian->set_mean(initial_gaussian->mean() + delta_mean );
+    cur_gaussian->set_mean(initial_gaussian->mean() + delta_mean);
   }
 
   BuildPhenotypicTarget();

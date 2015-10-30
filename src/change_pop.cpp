@@ -53,11 +53,11 @@ using namespace aevol;
 // =================================================================
 //                         Function declarations
 // =================================================================
-void print_help( char* prog_name );
+void print_help(char* prog_name);
 f_line* get_line(FILE* param_file);
-void format_line( f_line* formated_line, char* line, bool* line_is_interpretable );
+void format_line(f_line* formated_line, char* line, bool* line_is_interpretable);
 
-int main( int argc, char* argv[] )
+int main(int argc, char* argv[])
 {
   // 1) Initialize command-line option variables with default values
   char* param_file_name = NULL;
@@ -75,21 +75,21 @@ int main( int argc, char* argv[] )
 
   // 3) Get actual values of the command-line options
   int option;
-  while ( ( option = getopt_long(argc, argv, options_list, long_options_list, NULL) ) != -1 )
+  while ((option = getopt_long(argc, argv, options_list, long_options_list, NULL)) != -1)
   {
-    switch ( option )
+    switch (option)
     {
       case 'h' :
       {
-        print_help( argv[0] );
-        exit( EXIT_SUCCESS );
+        print_help(argv[0]);
+        exit(EXIT_SUCCESS);
       }
       case 'f' :
       {
-        if ( strcmp( optarg, "" ) == 0 )
+        if (strcmp(optarg, "") == 0)
         {
-          printf( "%s: error: Option -f or --file : missing argument.\n", argv[0] );
-          exit( EXIT_FAILURE );
+          printf("%s: error: Option -f or --file : missing argument.\n", argv[0]);
+          exit(EXIT_FAILURE);
         }
 
         param_file_name = optarg;
@@ -97,30 +97,30 @@ int main( int argc, char* argv[] )
       }
       case 'p' :
       {
-        if ( strcmp( optarg, "" ) == 0 )
+        if (strcmp(optarg, "") == 0)
         {
-          printf( "%s: error: Option -p or --pop : missing argument.\n", argv[0] );
-          exit( EXIT_FAILURE );
+          printf("%s: error: Option -p or --pop : missing argument.\n", argv[0]);
+          exit(EXIT_FAILURE);
         }
 
         pop_file_name = optarg;/*new char[strlen(optarg)+1];
-        memcpy( pop_file_name, optarg, strlen(optarg)+1 );*/
+        memcpy(pop_file_name, optarg, strlen(optarg)+1);*/
 
         break;
       }
       default :
       {
         // An error message is printed in getopt_long, we just need to exit
-        exit( EXIT_FAILURE );
+        exit(EXIT_FAILURE);
       }
     }
   }
 
   // 4) Check the consistancy of the command-line options
-  if ( param_file_name == NULL || pop_file_name == NULL )
+  if (param_file_name == NULL || pop_file_name == NULL)
   {
-    printf( "%s: error: You must provide both a parameter file and a population backup.\n", argv[0] );
-    exit( EXIT_FAILURE );
+    printf("%s: error: You must provide both a parameter file and a population backup.\n", argv[0]);
+    exit(EXIT_FAILURE);
   }
 
   // 5) Initialize an empty experiment manager
@@ -133,71 +133,71 @@ int main( int argc, char* argv[] )
   // 6) Initialize an empty population then load the backup population
   printf("Loading the backup population\t");
   ae_population* pop = new ae_population(exp_manager);
-  gzFile pop_file = gzopen( pop_file_name, "r" );
-  if ( pop_file == Z_NULL )
+  gzFile pop_file = gzopen(pop_file_name, "r");
+  if (pop_file == Z_NULL)
   {
-    printf( "%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, pop_file_name );
-    exit( EXIT_FAILURE );
+    printf("%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, pop_file_name);
+    exit(EXIT_FAILURE);
   }
-  pop->load( pop_file, verbose );
+  pop->load(pop_file, verbose);
   printf("Ok\n");
 
   // 7) Interpret and apply changes
   printf("Interpret and apply changes\n");
-  FILE* param_file  = fopen( param_file_name,  "r" );
-  if ( param_file == NULL )
+  FILE* param_file  = fopen(param_file_name,  "r");
+  if (param_file == NULL)
   {
-    printf( "%s:%d: error: could not open parameter file %s\n", __FILE__, __LINE__, param_file_name );
-    exit( EXIT_FAILURE );
+    printf("%s:%d: error: could not open parameter file %s\n", __FILE__, __LINE__, param_file_name);
+    exit(EXIT_FAILURE);
   }
 
   f_line* line;
-  while ( ( line = line(param_file) ) != NULL )
+  while ((line = line(param_file)) != NULL)
   {
-    if ( strcmp( line->words[0], "POINT_MUTATION_RATE" ) == 0 )
+    if (strcmp(line->words[0], "POINT_MUTATION_RATE") == 0)
     {
-      pop->set_overall_point_mutation_rate( atof( line->words[1] ) );
-      printf("\tChange of overall point mutation rate to %f\n",atof( line->words[1] ));
+      pop->set_overall_point_mutation_rate(atof(line->words[1]));
+      printf("\tChange of overall point mutation rate to %f\n",atof(line->words[1]));
     }
-    else if ( strcmp( line->words[0], "SMALL_INSERTION_RATE" ) == 0 )
+    else if (strcmp(line->words[0], "SMALL_INSERTION_RATE") == 0)
     {
-      pop->set_overall_small_insertion_rate( atof( line->words[1] ) );
-      printf("\tChange of overall small insertion rate to %f\n",atof( line->words[1] ));
+      pop->set_overall_small_insertion_rate(atof(line->words[1]));
+      printf("\tChange of overall small insertion rate to %f\n",atof(line->words[1]));
     }
-    else if ( strcmp( line->words[0], "SMALL_DELETION_RATE" ) == 0 )
+    else if (strcmp(line->words[0], "SMALL_DELETION_RATE") == 0)
     {
-      pop->set_overall_small_deletion_rate( atof( line->words[1] ) );
-      printf("\tChange of overall small deletion rate to %f\n",atof( line->words[1] ));
+      pop->set_overall_small_deletion_rate(atof(line->words[1]));
+      printf("\tChange of overall small deletion rate to %f\n",atof(line->words[1]));
     }
-    else if ( strcmp( line->words[0], "MAX_INDEL_SIZE" ) == 0 )
+    else if (strcmp(line->words[0], "MAX_INDEL_SIZE") == 0)
     {
-      pop->set_overall_max_indel_size( atol( line->words[1] ) );
-      printf("\tChange of overall maximum indel size to %f\n",atof( line->words[1] ));
+      pop->set_overall_max_indel_size(atol(line->words[1]));
+      printf("\tChange of overall maximum indel size to %f\n",atof(line->words[1]));
     }
-    else if ( strcmp( line->words[0], "DUPLICATION_RATE" ) == 0 )
+    else if (strcmp(line->words[0], "DUPLICATION_RATE") == 0)
     {
-      pop->set_overall_duplication_rate( atof( line->words[1] ) );
-      printf("\tChange of overall duplication rate to %f\n",atof( line->words[1] ));
+      pop->set_overall_duplication_rate(atof(line->words[1]));
+      printf("\tChange of overall duplication rate to %f\n",atof(line->words[1]));
     }
-    else if ( strcmp( line->words[0], "DELETION_RATE" ) == 0 )
+    else if (strcmp(line->words[0], "DELETION_RATE") == 0)
     {
-      pop->set_overall_deletion_rate( atof( line->words[1] ) );
-      printf("\tChange of overall deletion rate to %f\n",atof( line->words[1] ));
+      pop->set_overall_deletion_rate(atof(line->words[1]));
+      printf("\tChange of overall deletion rate to %f\n",atof(line->words[1]));
     }
-    else if ( strcmp( line->words[0], "TRANSLOCATION_RATE" ) == 0 )
+    else if (strcmp(line->words[0], "TRANSLOCATION_RATE") == 0)
     {
-      pop->set_overall_translocation_rate( atof( line->words[1] ) );
-      printf("\tChange of overall translocation rate to %f\n",atof( line->words[1] ));
+      pop->set_overall_translocation_rate(atof(line->words[1]));
+      printf("\tChange of overall translocation rate to %f\n",atof(line->words[1]));
     }
-    else if ( strcmp( line->words[0], "INVERSION_RATE" ) == 0 )
+    else if (strcmp(line->words[0], "INVERSION_RATE") == 0)
     {
-      pop->set_overall_inversion_rate( atof( line->words[1] ) );
-      printf("\tChange of overall inversion to %f\n",atof( line->words[1] ));
+      pop->set_overall_inversion_rate(atof(line->words[1]));
+      printf("\tChange of overall inversion to %f\n",atof(line->words[1]));
     }
 
     delete line;
   }
-  fclose( param_file );
+  fclose(param_file);
   printf("Ok\n");
 
   // 8) Save the changed population in a new population file (similar name with _changed)
@@ -205,14 +205,14 @@ int main( int argc, char* argv[] )
   char* new_pop_file_name   = NULL;
   new_pop_file_name = new char[strlen(pop_file_name)-3+strlen("_changed.ae")+1];
   sprintf(new_pop_file_name, "%s_changed.ae",strtok(pop_file_name, "."));
-  gzFile new_pop_file = gzopen( new_pop_file_name, "w" );
-  if ( new_pop_file == Z_NULL )
+  gzFile new_pop_file = gzopen(new_pop_file_name, "w");
+  if (new_pop_file == Z_NULL)
   {
-    printf( "%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, new_pop_file_name );
-    exit( EXIT_FAILURE );
+    printf("%s:%d: error: could not open backup file %s\n", __FILE__, __LINE__, new_pop_file_name);
+    exit(EXIT_FAILURE);
   }
-  pop->save( new_pop_file );
-  gzclose( new_pop_file );
+  pop->save(new_pop_file);
+  gzclose(new_pop_file);
   printf("Ok\n");
 }
 
@@ -225,17 +225,17 @@ f_line* get_line(FILE* param_file)
 
   bool found_interpretable_line = false;
 
-  while ( !feof( param_file ) && !found_interpretable_line )
+  while (!feof(param_file) && !found_interpretable_line)
   {
-    if ( !fgets( line, 255, param_file ) )
+    if (!fgets(line, 255, param_file))
     {
       delete formated_line;
       return NULL;
     }
-    format_line( formated_line, line, &found_interpretable_line );
+    format_line(formated_line, line, &found_interpretable_line);
   }
 
-  if ( found_interpretable_line )
+  if (found_interpretable_line)
   {
     return formated_line;
   }
@@ -246,33 +246,33 @@ f_line* get_line(FILE* param_file)
   }
 }
 
-void format_line( f_line* formated_line, char* line, bool* line_is_interpretable )
+void format_line(f_line* formated_line, char* line, bool* line_is_interpretable)
 {
   int16_t i = 0;
   int16_t j;
 
   // Parse line
-  while ( line[i] != '\n' && line[i] != '\0' && line[i] != '\r' )
+  while (line[i] != '\n' && line[i] != '\0' && line[i] != '\r')
   {
     j = 0;
 
     // Flush white spaces and tabs
-    while ( line[i] == ' ' || line[i] == 0x09 ) i++; // 0x09 is the ASCII code for TAB
+    while (line[i] == ' ' || line[i] == 0x09) i++; // 0x09 is the ASCII code for TAB
 
     // Check comments
-    if ( line[i] == '#' ) break;
+    if (line[i] == '#') break;
 
     // If we got this far, there is content in the line
     *line_is_interpretable = true;
 
     // Parse word
-    while ( line[i] != ' '  && line[i] != '\n' && line[i] != '\0' && line[i] != '\r' )
+    while (line[i] != ' '  && line[i] != '\n' && line[i] != '\0' && line[i] != '\r')
     {
       formated_line->words[formated_line->nb_words][j++] = line[i++];
     }
 
     // Add '\0' at end of word if it's not empty (line ending with space or tab)
-    if ( j != 0 )
+    if (j != 0)
     {
       formated_line->words[formated_line->nb_words++][j] = '\0';
     }
@@ -280,16 +280,16 @@ void format_line( f_line* formated_line, char* line, bool* line_is_interpretable
 }
 
 
-void print_help( char* prog_name )
+void print_help(char* prog_name)
 {
-	printf( "******************************************************************************\n" );
-	printf( "*                        aevol - Artificial Evolution                        *\n" );
-	printf( "******************************************************************************\n" );
-	printf( "Usage : change_pop -h\n" );
-	printf( "   or : change_pop [-f param_file -p pop_file]\n" );
-	printf( "  -h, --help  Display this screen\n" );
-	printf( "  -p, --pop  Specify population to change\n" );
-	printf( "  -f, --file  Specify file with parameters to change\n" );
-	printf( "Change a population file as specified in the parameter file.\n" );
-    printf( "(default: param_to_change.in)\n\n" );
+	printf("******************************************************************************\n");
+	printf("*                        aevol - Artificial Evolution                        *\n");
+	printf("******************************************************************************\n");
+	printf("Usage : change_pop -h\n");
+	printf("   or : change_pop [-f param_file -p pop_file]\n");
+	printf("  -h, --help  Display this screen\n");
+	printf("  -p, --pop  Specify population to change\n");
+	printf("  -f, --file  Specify file with parameters to change\n");
+	printf("Change a population file as specified in the parameter file.\n");
+    printf("(default: param_to_change.in)\n\n");
 }

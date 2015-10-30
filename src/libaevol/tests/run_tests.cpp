@@ -57,7 +57,7 @@ using namespace CppUnit;
 
 
 
-int main( int argc, char* argv[] )
+int main(int argc, char* argv[])
 {
   // Print message
   cout << "Running regression tests";
@@ -67,10 +67,10 @@ int main( int argc, char* argv[] )
 
   // Adds the test to the list of test to run
   TextUi::TestRunner runner;
-  runner.addTest( suite );
+  runner.addTest(suite);
 
   // Change the default outputter to a compiler error format outputter
-  runner.setOutputter( new CompilerOutputter( &runner.result(), cerr ) );
+  runner.setOutputter(new CompilerOutputter(&runner.result(), cerr));
 
   // Run the tests.
   bool wasSucessful = runner.run();

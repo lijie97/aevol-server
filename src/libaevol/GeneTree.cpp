@@ -76,12 +76,12 @@ GeneTree::GeneTree()
 }
 
 // Creates a tree with just a root node.
-GeneTree::GeneTree( int32_t nodeCreationDate, Protein * protein, const Mutation * mut /* = NULL */ )
+GeneTree::GeneTree(int32_t nodeCreationDate, Protein * protein, const Mutation * mut /* = NULL */)
 {
   root_ = new GeneTreeNode(nodeCreationDate, protein);
   if (mut == NULL)  creation_type_ = INITIALIZATION;
   else if ((mut->mut_type() == SWITCH) || (mut->mut_type() == S_INS) || (mut->mut_type() == S_DEL)) creation_type_ = LOCAL_MUTATION;
-  else if ((mut->mut_type() == DUPL) || (mut->mut_type() == DEL) || (mut->mut_type() == TRANS) || (mut->mut_type() == INV) ) creation_type_ = REARRANGEMENT;
+  else if ((mut->mut_type() == DUPL) || (mut->mut_type() == DEL) || (mut->mut_type() == TRANS) || (mut->mut_type() == INV)) creation_type_ = REARRANGEMENT;
   else creation_type_ = TRANSFER;
 
 
@@ -127,10 +127,10 @@ void GeneTree::anticipate_mutation_effect_on_genes_in_tree_leaves(const Mutation
 
 void GeneTree::register_actual_mutation_effect_on_genes_in_tree_leaves(const Mutation * mut, GeneticUnit * unit, int32_t gener, double impact_on_metabolic_error)
 {
-  root_->register_actual_mutation_effect_on_genes_in_subtree_leaves( this, mut, unit, gener, impact_on_metabolic_error);
+  root_->register_actual_mutation_effect_on_genes_in_subtree_leaves(this, mut, unit, gener, impact_on_metabolic_error);
 }
 
-// void GeneTree::duplicate_this_gene( GeneTreeNode * node, int32_t duplicDate, Protein * newProtein )
+// void GeneTree::duplicate_this_gene(GeneTreeNode * node, int32_t duplicDate, Protein * newProtein)
 // {
 //   if (newProtein == node->protein_pointer_) {fprintf(stderr, "Error, duplication with the same protein\n"); exit(EXIT_FAILURE);}
 
@@ -161,7 +161,7 @@ void GeneTree::register_actual_mutation_effect_on_genes_in_tree_leaves(const Mut
 // }
 
 
-// void GeneTree::report_gene_mutation( GeneTreeNode * node, GeneMutation * geneMut)
+// void GeneTree::report_gene_mutation(GeneTreeNode * node, GeneMutation * geneMut)
 // {
 //   node->mutation_list_->add(geneMut);
 //   if (geneMut->generation() > end_gener_) end_gener_ = geneMut->generation();
@@ -169,7 +169,7 @@ void GeneTree::register_actual_mutation_effect_on_genes_in_tree_leaves(const Mut
 
 
 
-// void GeneTree::report_gene_loss( GeneTreeNode * node, int32_t geneLossDate, ae_gene_loss_type geneLossType)
+// void GeneTree::report_gene_loss(GeneTreeNode * node, int32_t geneLossDate, ae_gene_loss_type geneLossType)
 // {
 //   node->gene_loss_date_ = geneLossDate;
 //   node->gene_loss_type_ = geneLossType;

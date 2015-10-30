@@ -54,9 +54,9 @@ class ae_individual_R : public virtual ae_individual
     //                             Constructors
     // =================================================================
     ae_individual_R();
-    ae_individual_R(  ae_individual_R* parent, int32_t id,
-                      ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng  );
-    ae_individual_R( gzFile backup_file );
+    ae_individual_R(ae_individual_R* parent, int32_t id,
+                      ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng);
+    ae_individual_R(gzFile backup_file);
 
     // =================================================================
     //                             Destructors
@@ -70,12 +70,12 @@ class ae_individual_R : public virtual ae_individual
     // =================================================================
     //                            Public Methods
     // =================================================================
-    virtual void evaluate( Environment* envir );
+    virtual void evaluate(Environment* envir);
     void    set_influences();
     void    update_concentrations();
-    void    multiply_concentrations( double factor );
-    int8_t  quadon( GeneticUnit* gen_unit, ae_strand strand, int32_t pos );
-    void    save( gzFile backup_file );
+    void    multiply_concentrations(double factor);
+    int8_t  quadon(GeneticUnit* gen_unit, ae_strand strand, int32_t pos);
+    void    save(gzFile backup_file);
     // =================================================================
     //                           Public Attributes
     // =================================================================
@@ -85,10 +85,10 @@ class ae_individual_R : public virtual ae_individual
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    /*    ae_individual_R( const ae_individual &model )
+    /*    ae_individual_R(const ae_individual &model)
     {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
       };*/
 
     // =================================================================

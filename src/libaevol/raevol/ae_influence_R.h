@@ -55,7 +55,7 @@ class ae_influence_R
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_influence_R( ae_rna* rna, ae_protein *protein, double enhancing_coef, double operating_coef );
+    ae_influence_R(ae_rna* rna, ae_protein *protein, double enhancing_coef, double operating_coef);
 
     // =================================================================
     //                             Destructors
@@ -85,10 +85,10 @@ class ae_influence_R
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    /*    ae_influence_R( const ae_influence_R &model )
+    /*    ae_influence_R(const ae_influence_R &model)
     {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
       };*/
 
     // =================================================================
@@ -138,7 +138,7 @@ double ae_influence_R::operator_activity()
 /*
 ae_influence_R* ae_influence_R::copy()
 {
-  return new ae_influence_R( rna_, protein_, enhancing_coef_, operating_coef_ );
+  return new ae_influence_R(rna_, protein_, enhancing_coef_, operating_coef_);
 }
 */
 } // namespace aevol

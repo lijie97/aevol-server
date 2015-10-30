@@ -491,7 +491,7 @@ int main(int argc, char** argv)
                 (int32_t)strlen(str2), str2);
         delete [] str1;
         delete [] str2;
-        gzclose( lineage_file );
+        gzclose(lineage_file);
         delete exp_manager_backup;
         delete exp_manager;
         delete [] reports;

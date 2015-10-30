@@ -68,7 +68,7 @@ namespace aevol {
 // =================================================================
 int32_t GeneTreeNode::nextID_ = 0;
 
-GeneTreeNode::GeneTreeNode( int32_t nodeCreationDate, Protein * protein)
+GeneTreeNode::GeneTreeNode(int32_t nodeCreationDate, Protein * protein)
 {
   ID_ = GeneTreeNode::nextID_;
   GeneTreeNode::nextID_ ++;
@@ -184,7 +184,7 @@ void GeneTreeNode::print_subtree_to_screen()
     default: break;
     }
   printf("Protein pointer: %p, Shine-Dalgarno position: %" PRId32 "\n", protein_pointer_, shine_dal_position_);
-  if( strand_ == LEADING) printf("Strand: LEADING\n");
+  if(strand_ == LEADING) printf("Strand: LEADING\n");
   else                    printf("Strand: LAGGING\n");
   for(size_t i = 0; i < nb_promoters_; i++)
     {
@@ -241,7 +241,7 @@ void GeneTreeNode::write_subtree_to_files(FILE * topologyFile, FILE * nodeAttrib
     case DUPLICATED:              fprintf(nodeAttributesFile, "Node status:    DUPLICATED\n"); fprintf(nodeAttributesFile, "Duplication date: %" PRId32 "\n", gene_loss_date_); break;
     default: break;
     }
-  if( strand_ == LEADING) fprintf(nodeAttributesFile, "Strand: LEADING\n");
+  if(strand_ == LEADING) fprintf(nodeAttributesFile, "Strand: LEADING\n");
   else                    fprintf(nodeAttributesFile, "Strand: LAGGING\n");
   fprintf(nodeAttributesFile, "Shine-Dalgarno position: %" PRId32 "\n", shine_dal_position_);
   for (size_t i= 0; i < nb_promoters_; i++)
@@ -259,11 +259,11 @@ void GeneTreeNode::write_subtree_to_files(FILE * topologyFile, FILE * nodeAttrib
 
   if (gene_loss_type_ == NOT_LOST_YET)
     {
-      assert( protein_pointer_ != NULL );
+      assert(protein_pointer_ != NULL);
       fprintf(nodeAttributesFile, "  Shine-Dalgarno pos:%" PRId32 ", Stop pos: %" PRId32 ", M: %.8f, W: %.8f, H: %.8f, nb promoters: %" PRId32 ", conc: %.8f \n", \
               protein_pointer_->shine_dal_pos(), protein_pointer_->last_STOP_base_pos(), \
               protein_pointer_->mean(), protein_pointer_->width(), protein_pointer_->height(),  \
-              static_cast<int32_t>(protein_pointer_->rna_list().size()), protein_pointer_->concentration() );
+              static_cast<int32_t>(protein_pointer_->rna_list().size()), protein_pointer_->concentration());
     }
   fprintf(nodeAttributesFile, "\n\n");
 }
@@ -305,10 +305,10 @@ void GeneTreeNode::write_subtree_nodes_in_tabular_file(int32_t treeID, FILE * f)
   fprintf(f, "%" PRId32 " ", static_cast<int32_t>(nb_promoters_));
   if (gene_loss_type_ == NOT_LOST_YET)
     {
-      assert( protein_pointer_ != NULL );
+      assert(protein_pointer_ != NULL);
       fprintf(f, "%.8f %.8f %.8f %.8f ", \
               protein_pointer_->mean(), protein_pointer_->width(), protein_pointer_->height(),  \
-              protein_pointer_->concentration() );
+              protein_pointer_->concentration());
     }
   else {fprintf(f, "-1 -1 -1 -1 ");}
 
@@ -369,12 +369,12 @@ static bool breakpoint_inside_segment(int32_t pos_brkpt, int32_t first, int32_t 
 {
   if (first < last) // most frequent case
     {
-      if( (first <= pos_brkpt) && (pos_brkpt <= last)) {return true;}
+      if((first <= pos_brkpt) && (pos_brkpt <= last)) {return true;}
       else {return false;}
     }
   else // special case where the segment overlaps ori
     {
-      if( (first <= pos_brkpt) || (pos_brkpt <= last) ) {return true;}
+      if((first <= pos_brkpt) || (pos_brkpt <= last)) {return true;}
       else {return false;}
     }
 }
@@ -386,20 +386,20 @@ static bool breakpoint_inside_segment(int32_t pos_brkpt, int32_t first, int32_t 
 // go from 'pos1' to 'pos2' in the clockwise sense.
 static bool subsegment_totally_in_segment(int32_t pos1, int32_t pos2, int32_t first, int32_t last)
 {
-  if ( (first < last)  && (pos1 <= pos2) )
+  if ((first < last)  && (pos1 <= pos2))
     {
-      if ( ((first >= pos1) && (first <= pos2)) && ((last >= pos1) && (last <= pos2)) ) {return true; }
+      if (((first >= pos1) && (first <= pos2)) && ((last >= pos1) && (last <= pos2))) {return true; }
       else {return false;}
     }
-  else if ( (first < last) && (pos1 > pos2) )  // mut seg in 2 pieces but not the gene
+  else if ((first < last) && (pos1 > pos2))  // mut seg in 2 pieces but not the gene
     {
-      if ( (first >= pos1) || (last <= pos2) )  // the gene is either completely in [pos1, genlen-1] or completely in [0, pos2]
+      if ((first >= pos1) || (last <= pos2))  // the gene is either completely in [pos1, genlen-1] or completely in [0, pos2]
         {
           return true;
         }
       else return false;
     }
-  else if ( (first > last) && (pos1 <= pos2) )  // gene in two pieces but not mut seg, the gene cannot be totally included
+  else if ((first > last) && (pos1 <= pos2))  // gene in two pieces but not mut seg, the gene cannot be totally included
     {
       return false;
     }
@@ -554,7 +554,7 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
       if (protein_pointer_->strand() == LEADING)
         {
           first_cds = protein_pointer_->shine_dal_pos();
-          last_cds = protein_pointer_->last_STOP_base_pos( );
+          last_cds = protein_pointer_->last_STOP_base_pos();
           for (const auto& rna: protein_pointer_->rna_list()) {
               currentprompos = rna->promoter_pos();
               if (currentprompos > first_cds) currentprompos = currentprompos - genlen; // negative value for promoters on the other side of ori
@@ -569,7 +569,7 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
         }
       else
         {
-          first_cds = protein_pointer_->last_STOP_base_pos( );
+          first_cds = protein_pointer_->last_STOP_base_pos();
           last_cds = protein_pointer_->shine_dal_pos();
           for (const auto& rna: protein_pointer_->rna_list()) {
               currentprompos = rna->promoter_pos();
@@ -627,7 +627,7 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
                 if (breakpoint_inside_segment(pos0, Utils::mod(first_cds - mutlength, genlen), last_cds)) cds_possibly_modified_ = true;
                 if (breakpoint_inside_segment(pos0, Utils::mod(first_upstream - mutlength, genlen), last_upstream)) proms_possibly_modified_ = true;
 
-                if ( pos0 + mutlength <= genlen ) // the deletion does not contain the replication origin
+                if (pos0 + mutlength <= genlen) // the deletion does not contain the replication origin
                   {
                     if (shine_dal_position_ >= pos0) shine_dal_position_ = Utils::mod(shine_dal_position_ - mutlength, genlen - mutlength);
                     for (size_t i = 0; i < nb_promoters_; i++)
@@ -685,7 +685,7 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
                 if (breakpoint_inside_segment(pos1, first_cds, last_cds) || breakpoint_inside_segment(pos2, first_cds, last_cds)) cds_possibly_modified_ = true;
                 if (breakpoint_inside_segment(pos1, first_upstream, last_upstream) || breakpoint_inside_segment(pos2, first_upstream, last_upstream)) proms_possibly_modified_ = true;
 
-                if ( pos1 < pos2bis ) // the deletion does not contain the replication origin
+                if (pos1 < pos2bis) // the deletion does not contain the replication origin
                   {
                     if (shine_dal_position_ >= pos1) shine_dal_position_ = Utils::mod(shine_dal_position_ - mutlength, genlen - mutlength);
                     for (size_t i = 0; i < nb_promoters_; i++)
@@ -715,15 +715,15 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
             if (breakpoint_inside_segment(pos3, first_upstream, last_upstream)) proms_possibly_modified_ = true;  // breakpoint inside the segment for the reinsertion
             if (breakpoint_inside_segment(pos0, first_upstream, last_upstream)) proms_possibly_modified_ = true;  // reinsertion point in the genetic unit
 
-            int32_t pos_min = Utils::min( pos1, Utils::min( pos2bis, Utils::min( pos3, pos0 ) ) );
+            int32_t pos_min = Utils::min(pos1, Utils::min(pos2bis, Utils::min(pos3, pos0)));
             int32_t pos_B, pos_C, pos_D, pos_E;
             int32_t len_B, len_C, len_D;
-            if ( ! invert )
+            if (! invert)
               {
-                if ( pos_min == pos1 )          { pos_B = pos1; pos_C = pos3; pos_D = pos2bis; pos_E = pos0; }
-                else if ( pos_min == pos2bis )  { pos_B = pos2bis; pos_C = pos0; pos_D = pos1; pos_E = pos3; }
-                else if ( pos_min == pos3 )     { pos_B = pos3; pos_C = pos2bis; pos_D = pos0; pos_E = pos1; }
-                else                            { pos_B = pos0; pos_C = pos1; pos_D = pos3; pos_E = pos2bis; } // if ( pos_min == pos0 )
+                if (pos_min == pos1)          { pos_B = pos1; pos_C = pos3; pos_D = pos2bis; pos_E = pos0; }
+                else if (pos_min == pos2bis)  { pos_B = pos2bis; pos_C = pos0; pos_D = pos1; pos_E = pos3; }
+                else if (pos_min == pos3)     { pos_B = pos3; pos_C = pos2bis; pos_D = pos0; pos_E = pos1; }
+                else                            { pos_B = pos0; pos_C = pos1; pos_D = pos3; pos_E = pos2bis; } // if (pos_min == pos0)
                 len_B = pos_C - pos_B;
                 len_C = pos_D - pos_C;
                 len_D = pos_E - pos_D;
@@ -739,7 +739,7 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
               }
             else // invert
               {
-                if ( pos_min == pos1 )
+                if (pos_min == pos1)
                   {
                     pos_B = pos1; pos_C = pos3; pos_D = pos2bis; pos_E = pos0;
                     len_B = pos_C - pos_B;
@@ -779,7 +779,7 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
                           }
                       }
                   }
-                else if ( pos_min == pos2bis )
+                else if (pos_min == pos2bis)
                   {
                     pos_B = pos2bis; pos_C = pos0; pos_D = pos1; pos_E = pos3;
                     len_B = pos_C - pos_B;
@@ -819,7 +819,7 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
                           }
                       }
                   }
-                else if ( pos_min == pos3 )
+                else if (pos_min == pos3)
                   {
                     pos_B = pos3; pos_C = pos2bis; pos_D = pos0; pos_E = pos1;
                     len_B = pos_C - pos_B;
@@ -860,7 +860,7 @@ void GeneTreeNode::anticipate_mutation_effect_on_genes_in_subtree_leaves(const M
                       }
 
                   }
-                else // if ( pos_min == pos0 )
+                else // if (pos_min == pos0)
                   {
                     pos_B = pos0; pos_C = pos1; pos_D = pos3; pos_E = pos2bis;
                     len_B = pos_C - pos_B;
@@ -948,8 +948,8 @@ void GeneTreeNode::register_actual_mutation_effect_on_genes_in_subtree_leaves(
 {
   if ((left_child_ != NULL) || (right_child_ != NULL)) // I am a internal node, just delegate work to others
     {
-      if (left_child_ != NULL)   left_child_->register_actual_mutation_effect_on_genes_in_subtree_leaves( tree, mut, unit, gener, impact_on_metabolic_error);
-      if (right_child_ != NULL)  right_child_->register_actual_mutation_effect_on_genes_in_subtree_leaves( tree, mut, unit, gener, impact_on_metabolic_error);
+      if (left_child_ != NULL)   left_child_->register_actual_mutation_effect_on_genes_in_subtree_leaves(tree, mut, unit, gener, impact_on_metabolic_error);
+      if (right_child_ != NULL)  right_child_->register_actual_mutation_effect_on_genes_in_subtree_leaves(tree, mut, unit, gener, impact_on_metabolic_error);
     }
   else // no child => I am a leaf => there is work to do for me !
     {
@@ -979,7 +979,7 @@ void GeneTreeNode::register_actual_mutation_effect_on_genes_in_subtree_leaves(
         }
 
 
-      if ( (!cds_completely_deleted_) && (!cds_possibly_modified_) && (!proms_possibly_modified_) )
+      if ((!cds_completely_deleted_) && (!cds_possibly_modified_) && (!proms_possibly_modified_))
         {
           // This CDS was not affected by the mutation (it could have be moved or duplicated however).
           // Just make sure that we have correctly predicted the positions of the SD sequence and of the promoters.

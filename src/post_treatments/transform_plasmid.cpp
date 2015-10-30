@@ -42,9 +42,9 @@
 
 using namespace aevol;
 
-void print_help( char* prog_name );
+void print_help(char* prog_name);
 
-int main( int argc, char* argv[] )
+int main(int argc, char* argv[])
 {
   // Initialize command-line option variables with default values
   char* plasmid_file_name  = NULL;
@@ -66,26 +66,26 @@ int main( int argc, char* argv[] )
 
   // Get actual values of the command-line options
   int option;
-  while ( ( option = getopt_long(argc, argv, options_list, long_options_list, NULL) ) != -1 )
+  while ((option = getopt_long(argc, argv, options_list, long_options_list, NULL)) != -1)
   {
-    switch ( option )
+    switch (option)
     {
       case 'h' :
-        print_help( argv[0] );
-        exit( EXIT_SUCCESS );
+        print_help(argv[0]);
+        exit(EXIT_SUCCESS);
         break;
       case 'r':
-        num_gener = atol( optarg );
+        num_gener = atol(optarg);
         break;
       case 'p':
         plasmid_file_name = new char [strlen(optarg)+1];
-        strcpy( plasmid_file_name, optarg );
+        strcpy(plasmid_file_name, optarg);
         break;
       case 'm':
-        plasmid_minimal_length = atol( optarg );
+        plasmid_minimal_length = atol(optarg);
         break;
       case 'M':
-        plasmid_maximal_length = atol( optarg );
+        plasmid_maximal_length = atol(optarg);
         break;
     }
   }
@@ -94,12 +94,12 @@ int main( int argc, char* argv[] )
   ae_exp_manager* exp_manager = new ae_exp_manager();
 
   // We need a full backup
-  if ( num_gener == -1 )
+  if (num_gener == -1)
   {
     printf("You must specify a generation number");
     exit(EXIT_FAILURE);
   }
-  exp_manager->load( num_gener, false, false, false );
+  exp_manager->load(num_gener, false, false, false);
 
   // And a plasmid
   if (plasmid_file_name==NULL)
@@ -119,7 +119,7 @@ int main( int argc, char* argv[] )
   fclose(plasmid_file);
 
   // We know need to make several changes in experiment so it 'accepts' this new plasmid
-  exp_manager->exp_s()->set_with_plasmids( true ); // We need to change the allow_plasmid parameter, otherwise aevol_run will crash
+  exp_manager->exp_s()->set_with_plasmids(true); // We need to change the allow_plasmid parameter, otherwise aevol_run will crash
   exp_manager->output_m()->set_compute_phen_contrib_by_GU(true);
 
   // We parse the individuals and transform them
@@ -128,7 +128,7 @@ int main( int argc, char* argv[] )
     strncpy(plasmid, rawplasmid, lplasmid);
     plasmid[lplasmid]='\0';
     indiv->add_GU(plasmid,lplasmid);
-    indiv->set_allow_plasmids( true );
+    indiv->set_allow_plasmids(true);
     indiv->genetic_unit_nonconst(1).set_min_gu_length(plasmid_minimal_length);
     indiv->genetic_unit_nonconst(1).set_max_gu_length(plasmid_maximal_length);
     indiv->set_replication_report(NULL); // plasmid's DNA should not have replic reports otherwise stat_record will try to access it.
@@ -146,9 +146,9 @@ int main( int argc, char* argv[] )
   return EXIT_SUCCESS;
 }
 
-void print_help( char* prog_name )
+void print_help(char* prog_name)
 {
-  printf( "\n");
+  printf("\n");
   printf("Add a plasmid to each individual \n");
   printf("Usage : transform_indiv -h\n");
   printf("or :    transform_indiv -r ng -p plasmid_file \n");

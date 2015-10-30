@@ -67,14 +67,14 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-Dump::Dump( ExpManager * exp_m )
+Dump::Dump(ExpManager * exp_m)
 {
   exp_m_ = exp_m;
   int status;
-  status = mkdir( "stats/dump/", 0755 );
-  if ( (status == -1) && (errno != EEXIST) )
+  status = mkdir("stats/dump/", 0755);
+  if ((status == -1) && (errno != EEXIST))
   {
-    err( EXIT_FAILURE, "stats/dump/" );
+    err(EXIT_FAILURE, "stats/dump/");
   }
 }
 
@@ -104,23 +104,23 @@ void Dump::write_fitness_total()
   sprintf(filename_buffer,
       "stats/dump/fitness_total_%06" PRId64 ".out",
       AeTime::time());
-  current_file = fopen( filename_buffer, "w+" );
+  current_file = fopen(filename_buffer, "w+");
   double** map = exp_m_->world()->total_fitness_grid();
-  fprintf( current_file, "#\tX\tY\tfitness_total(X, Y)\n" );
+  fprintf(current_file, "#\tX\tY\tfitness_total(X, Y)\n");
 
-  for( int16_t x = 0 ; x < exp_m_->grid_width() ; x++ )
+  for(int16_t x = 0 ; x < exp_m_->grid_width() ; x++)
   {
-    for( int16_t y = 0 ; y < exp_m_->grid_height() ; y++ )
+    for(int16_t y = 0 ; y < exp_m_->grid_height() ; y++)
     {
-      fprintf( current_file, DUMP_FORMAT, x, y, map [x][y] );
+      fprintf(current_file, DUMP_FORMAT, x, y, map [x][y]);
     }
-    fprintf( current_file, "\n" );
+    fprintf(current_file, "\n");
   }
-  fflush( current_file );
-  fclose( current_file );
+  fflush(current_file);
+  fclose(current_file);
 
   // Has been allocated in World::total_fitness_grid()
-  for ( int16_t x = 0 ; x < exp_m_->grid_width() ; x++ )
+  for (int16_t x = 0 ; x < exp_m_->grid_width() ; x++)
   {
     delete [] map[x];
   }
@@ -135,18 +135,18 @@ void Dump::write_secreted_amount()
   current_file = fopen(filename_buffer, "w+");
 
   double** map = exp_m_->world()->secreted_amount_grid();
-  fprintf( current_file, "#\tX\tY\tsecreted_amount(X, Y)\n" );
-  for( int16_t x = 0 ; x < exp_m_->grid_width() ; x++ )
+  fprintf(current_file, "#\tX\tY\tsecreted_amount(X, Y)\n");
+  for(int16_t x = 0 ; x < exp_m_->grid_width() ; x++)
   {
-    for( int16_t y = 0 ; y < exp_m_->grid_height() ; y++ )
+    for(int16_t y = 0 ; y < exp_m_->grid_height() ; y++)
     {
-      fprintf( current_file, DUMP_FORMAT, x, y, map [x][y] );
+      fprintf(current_file, DUMP_FORMAT, x, y, map [x][y]);
     }
-    fprintf( current_file, "\n" );
+    fprintf(current_file, "\n");
   }
-  fflush( current_file );
-  fclose( current_file );
-  for ( int16_t x = 0; x < exp_m_->grid_width() ; x++ )
+  fflush(current_file);
+  fclose(current_file);
+  for (int16_t x = 0; x < exp_m_->grid_width() ; x++)
   {
     delete [] map[x];
   }
@@ -155,24 +155,24 @@ void Dump::write_secreted_amount()
 
 void Dump::write_fitness_metabolic()
 {
-  sprintf( filename_buffer,
+  sprintf(filename_buffer,
       "stats/dump/fitness_metabolic_%06" PRId64 ".out",
       AeTime::time());
-  current_file = fopen( filename_buffer, "w+" );
+  current_file = fopen(filename_buffer, "w+");
 
   double** map = exp_m_->world()->metabolic_fitness_grid();
-  fprintf( current_file, "#\tX\tY\tfitness_metabolic(X, Y)\n" );
-  for( int16_t x = 0 ; x < exp_m_->grid_width() ; x++ )
+  fprintf(current_file, "#\tX\tY\tfitness_metabolic(X, Y)\n");
+  for(int16_t x = 0 ; x < exp_m_->grid_width() ; x++)
   {
-    for( int16_t y = 0 ; y < exp_m_->grid_height() ; y++ )
+    for(int16_t y = 0 ; y < exp_m_->grid_height() ; y++)
     {
-      fprintf( current_file, DUMP_FORMAT, x, y, map [x][y] );
+      fprintf(current_file, DUMP_FORMAT, x, y, map [x][y]);
     }
-    fprintf( current_file, "\n" );
+    fprintf(current_file, "\n");
   }
-  fflush( current_file );
-  fclose( current_file );
-  for ( int16_t x = 0; x < exp_m_->grid_width() ; x++ )
+  fflush(current_file);
+  fclose(current_file);
+  for (int16_t x = 0; x < exp_m_->grid_width() ; x++)
   {
     delete [] map[x];
   }
@@ -184,19 +184,19 @@ void Dump::write_secretion_present()
   sprintf(filename_buffer,
       "stats/dump/secretion_present_%06" PRId64 ".out",
       AeTime::time());
-  current_file = fopen( filename_buffer, "w+" );
+  current_file = fopen(filename_buffer, "w+");
 
   double** map = exp_m_->world()->secretion_present_grid();
-  fprintf( current_file, "#\tX\tY\tsecretion_present(X, Y)\n" );
-  for( int16_t x = 0 ; x < exp_m_->grid_width() ; x++ )
+  fprintf(current_file, "#\tX\tY\tsecretion_present(X, Y)\n");
+  for(int16_t x = 0 ; x < exp_m_->grid_width() ; x++)
   {
-    for( int16_t y = 0 ; y < exp_m_->grid_height() ; y++ )
-      fprintf( current_file, DUMP_FORMAT, x, y, map [x][y] );
-    fprintf( current_file, "\n" );
+    for(int16_t y = 0 ; y < exp_m_->grid_height() ; y++)
+      fprintf(current_file, DUMP_FORMAT, x, y, map [x][y]);
+    fprintf(current_file, "\n");
   }
-  fflush( current_file );
-  fclose( current_file );
-  for ( int16_t x = 0; x < exp_m_->grid_width() ; x++ )
+  fflush(current_file);
+  fclose(current_file);
+  for (int16_t x = 0; x < exp_m_->grid_width() ; x++)
   {
     delete [] map[x];
   }
@@ -211,13 +211,13 @@ void Dump::write_individual_probes()
   sprintf(filename_buffer,
       "stats/dump/individual_probes_%06" PRId64 ".out",
       AeTime::time());
-  current_file = fopen( filename_buffer, "w" );
+  current_file = fopen(filename_buffer, "w");
 
   fprintf(current_file, "Id\tInt_Probe_1\tInt_Probe_2\tInt_Probe_3\tInt_Probe_4\tInt_Probe_5\tDouble_Probe_1\tDouble_Probe_2\tDouble_Probe_3\tDouble_Probe_4\tDouble_Probe_5\n");
 
-  for( int16_t x = 0 ; x < exp_m_->grid_width() ; x++ )
+  for(int16_t x = 0 ; x < exp_m_->grid_width() ; x++)
   {
-    for( int16_t y = 0 ; y < exp_m_->grid_height() ; y++ )
+    for(int16_t y = 0 ; y < exp_m_->grid_height() ; y++)
     {
       fprintf(current_file, "%" PRId32,
           exp_m_->world()->indiv_at(x,y)->id());
@@ -225,9 +225,9 @@ void Dump::write_individual_probes()
           exp_m_->world()->indiv_at(x,y)->int_probes();
       double* double_probes =
           exp_m_->world()->indiv_at(x,y)->double_probes();
-      for( int16_t i=0; i<5; i++)
+      for(int16_t i=0; i<5; i++)
         fprintf(current_file, "\t%" PRId32, int_probes[i]);
-      for( int16_t i=0; i<5; i++)
+      for(int16_t i=0; i<5; i++)
         fprintf(current_file, "\t%f", double_probes[i]);
       fprintf(current_file, "\n");
     }

@@ -168,8 +168,8 @@ void Individual_X11::display_cdss(X11Window * win)
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)
     // nb_sect : "length" in degrees of the arc to be drawn
-    alpha_first   = (int16_t) round( 360 * ((double)cds.first_translated_pos() / (double)genome_length));
-    alpha_last    = (int16_t) round( 360 * ((double)cds.last_translated_pos()  / (double)genome_length));
+    alpha_first   = (int16_t) round(360 * ((double)cds.first_translated_pos() / (double)genome_length));
+    alpha_last    = (int16_t) round(360 * ((double)cds.last_translated_pos()  / (double)genome_length));
     theta_first   = Utils::mod(90 - alpha_first, 360);
     // theta_last    = Utils::mod(90 - alpha_last, 360);
     nb_sect       = Utils::mod(alpha_last - alpha_first + 1,  360);
@@ -246,8 +246,8 @@ void Individual_X11::display_cdss(X11Window * win)
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)
     // nb_sect : "length" in degrees of the arc to be drawn
-    alpha_first   = (int16_t) round( 360 * ((double)cds.first_translated_pos() / (double)genome_length));
-    alpha_last    = (int16_t) round( 360 * ((double)cds.last_translated_pos()  / (double)genome_length));
+    alpha_first   = (int16_t) round(360 * ((double)cds.first_translated_pos() / (double)genome_length));
+    alpha_last    = (int16_t) round(360 * ((double)cds.last_translated_pos()  / (double)genome_length));
     theta_first   = Utils::mod(90 - alpha_first, 360);
     // theta_last    = Utils::mod(90 - alpha_last, 360);
     nb_sect = Utils::mod(alpha_first - alpha_last + 1,  360);
@@ -392,8 +392,8 @@ void Individual_X11::display_cdss(X11Window * win)
       // Alpha : angles from OriC (in degrees)
       // Theta : angles on the trigonometric circle (in degrees)
       // nb_sect : "length" in degrees of the arc to be drawn
-      alpha_first   = (int16_t) round( 360 * ((double)cds.first_translated_pos() / (double)genome_length));
-      alpha_last    = (int16_t) round( 360 * ((double)cds.last_translated_pos()  / (double)genome_length));
+      alpha_first   = (int16_t) round(360 * ((double)cds.first_translated_pos() / (double)genome_length));
+      alpha_last    = (int16_t) round(360 * ((double)cds.last_translated_pos()  / (double)genome_length));
       theta_first   = Utils::mod(90 - alpha_first, 360);
       // theta_last    = Utils::mod(90 - alpha_last, 360);
       nb_sect       = Utils::mod(alpha_last - alpha_first + 1,  360);
@@ -470,8 +470,8 @@ void Individual_X11::display_cdss(X11Window * win)
       // Alpha : angles from OriC (in degrees)
       // Theta : angles on the trigonometric circle (in degrees)
       // nb_sect : "length" in degrees of the arc to be drawn
-      alpha_first   = (int16_t) round( 360 * ((double)cds.first_translated_pos() / (double)genome_length));
-      alpha_last    = (int16_t) round( 360 * ((double)cds.last_translated_pos()  / (double)genome_length));
+      alpha_first   = (int16_t) round(360 * ((double)cds.first_translated_pos() / (double)genome_length));
+      alpha_last    = (int16_t) round(360 * ((double)cds.last_translated_pos()  / (double)genome_length));
       theta_first   = Utils::mod(90 - alpha_first, 360);
       // theta_last    = Utils::mod(90 - alpha_last, 360);
       nb_sect = Utils::mod(alpha_first - alpha_last + 1,  360);
@@ -599,8 +599,8 @@ void Individual_X11::display_rnas(X11Window * win)
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)
     // nb_sect : "length" in degrees of the arc to be drawn
-    alpha_first   = (int16_t) round( 360 * ((double)rna.first_transcribed_pos() / (double)genome_length));
-    alpha_last    = (int16_t) round( 360 * ((double)rna.last_transcribed_pos() / (double)genome_length));
+    alpha_first   = (int16_t) round(360 * ((double)rna.first_transcribed_pos() / (double)genome_length));
+    alpha_last    = (int16_t) round(360 * ((double)rna.last_transcribed_pos() / (double)genome_length));
     theta_first   = Utils::mod(90 - alpha_first, 360);
     theta_last    = Utils::mod(90 - alpha_last, 360);
     nb_sect       = Utils::mod(alpha_last - alpha_first + 1,  360);
@@ -697,8 +697,8 @@ void Individual_X11::display_rnas(X11Window * win)
     // Alpha : angles from OriC (in degrees)
     // Theta : angles on the trigonometric circle (in degrees)
     // nb_sect : "length" in degrees of the arc to be drawn
-    alpha_first   = (int16_t) round( 360 * ((double)rna.first_transcribed_pos() / (double)genome_length));
-    alpha_last    = (int16_t) round( 360 * ((double)rna.last_transcribed_pos()  / (double)genome_length));
+    alpha_first   = (int16_t) round(360 * ((double)rna.first_transcribed_pos() / (double)genome_length));
+    alpha_last    = (int16_t) round(360 * ((double)rna.last_transcribed_pos()  / (double)genome_length));
     theta_first   = Utils::mod(90 - alpha_first, 360);
     theta_last    = Utils::mod(90 - alpha_last, 360);
     nb_sect = Utils::mod(alpha_first - alpha_last + 1,  360);

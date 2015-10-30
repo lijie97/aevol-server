@@ -92,10 +92,10 @@ class VisAVis
     // =================================================================
     //                              Operators
     // =================================================================
-    inline bool operator <  ( VisAVis &cmp );
-    inline bool operator <= ( VisAVis &cmp );
-    inline bool operator >  ( VisAVis &cmp );
-    inline bool operator >= ( VisAVis &cmp );
+    inline bool operator <  (VisAVis &cmp);
+    inline bool operator <= (VisAVis &cmp);
+    inline bool operator >  (VisAVis &cmp);
+    inline bool operator >= (VisAVis &cmp);
 
     // =================================================================
     //                            Public Methods
@@ -103,13 +103,13 @@ class VisAVis
     inline bool match();
     inline void step_fwd();
     inline void step_back();
-    inline void add( int common_inc );
-    inline void add( int inc_1, int inc_2 );
-    inline void sub( int common_inc );
-    inline void sub( int inc_1, int inc_2 );
+    inline void add(int common_inc);
+    inline void add(int inc_1, int inc_2);
+    inline void sub(int common_inc);
+    inline void sub(int inc_1, int inc_2);
     inline void swap();
 
-    inline void copy( VisAVis * source );
+    inline void copy(VisAVis * source);
     inline void check_indices();
 
     // =================================================================
@@ -186,24 +186,24 @@ inline AlignmentSense VisAVis::sense() const
 // =====================================================================
 //                          Operators' definitions
 // =====================================================================
-inline bool VisAVis::operator < ( VisAVis &cmp )
+inline bool VisAVis::operator < (VisAVis &cmp)
 {
-  return ( i_1_ < cmp.i_1_ );
+  return (i_1_ < cmp.i_1_);
 }
 
-inline bool VisAVis::operator <= ( VisAVis &cmp )
+inline bool VisAVis::operator <= (VisAVis &cmp)
 {
-  return ( i_1_ <= cmp.i_1_ );
+  return (i_1_ <= cmp.i_1_);
 }
 
-inline bool VisAVis::operator > ( VisAVis &cmp )
+inline bool VisAVis::operator > (VisAVis &cmp)
 {
-  return ( i_1_ > cmp.i_1_ );
+  return (i_1_ > cmp.i_1_);
 }
 
-inline bool VisAVis::operator >= ( VisAVis &cmp )
+inline bool VisAVis::operator >= (VisAVis &cmp)
 {
-  return ( i_1_ >= cmp.i_1_ );
+  return (i_1_ >= cmp.i_1_);
 }
 
 
@@ -212,12 +212,12 @@ inline bool VisAVis::operator >= ( VisAVis &cmp )
 // =====================================================================
 inline bool VisAVis::match()
 {
-  if ( sense_ == DIRECT )
+  if (sense_ == DIRECT)
   {
     return (chrom_1_->data()[Utils::mod(i_1_, chrom_1_->length())] ==
-        chrom_2_->data()[Utils::mod(i_2_, chrom_2_->length())] );
+        chrom_2_->data()[Utils::mod(i_2_, chrom_2_->length())]);
   }
-  else // ( sense_ == INDIRECT )
+  else // (sense_ == INDIRECT)
   {
     // Note that we are reading the sequence backwards, The nucleotide corresponding to a breakpoint at point <i>
     // is hence stored at index <i-1>
@@ -228,18 +228,18 @@ inline bool VisAVis::match()
     //
     // The breakpoint F-5 puts into a vis_a_vis the nucleotide at index F on seq1 and that at index 4 (not 5!!!) on seq2
     return (chrom_1_->data()[Utils::mod(i_1_, chrom_1_->length())] !=
-        chrom_2_->data()[Utils::mod(i_2_-1, chrom_2_->length())] );
+        chrom_2_->data()[Utils::mod(i_2_-1, chrom_2_->length())]);
   }
 }
 
 inline void VisAVis::step_fwd()
 {
-  if ( sense_ == DIRECT )
+  if (sense_ == DIRECT)
   {
     i_1_++;
     i_2_++;
   }
-  else // ( sense_ == INDIRECT )
+  else // (sense_ == INDIRECT)
   {
     i_1_++;
     i_2_--;
@@ -248,68 +248,68 @@ inline void VisAVis::step_fwd()
 
 inline void VisAVis::step_back()
 {
-  if ( sense_ == DIRECT )
+  if (sense_ == DIRECT)
   {
     i_1_--;
     i_2_--;
   }
-  else // ( sense_ == INDIRECT )
+  else // (sense_ == INDIRECT)
   {
     i_1_--;
     i_2_++;
   }
 }
 
-inline void VisAVis::add( int common_inc )
+inline void VisAVis::add(int common_inc)
 {
-  if ( sense_ == DIRECT )
+  if (sense_ == DIRECT)
   {
     i_1_ += common_inc;
     i_2_ += common_inc;
   }
-  else // ( sense_ == INDIRECT )
+  else // (sense_ == INDIRECT)
   {
     i_1_ += common_inc;
     i_2_ -= common_inc;
   }
 }
 
-inline void VisAVis::add( int inc_1, int inc_2 )
+inline void VisAVis::add(int inc_1, int inc_2)
 {
-  if ( sense_ == DIRECT )
+  if (sense_ == DIRECT)
   {
     i_1_ += inc_1;
     i_2_ += inc_2;
   }
-  else // ( sense_ == INDIRECT )
+  else // (sense_ == INDIRECT)
   {
     i_1_ += inc_1;
     i_2_ -= inc_2;
   }
 }
 
-inline void VisAVis::sub( int common_inc )
+inline void VisAVis::sub(int common_inc)
 {
-  if ( sense_ == DIRECT )
+  if (sense_ == DIRECT)
   {
     i_1_ -= common_inc;
     i_2_ -= common_inc;
   }
-  else // ( sense_ == INDIRECT )
+  else // (sense_ == INDIRECT)
   {
     i_1_ -= common_inc;
     i_2_ += common_inc;
   }
 }
 
-inline void VisAVis::sub( int inc_1, int inc_2 )
+inline void VisAVis::sub(int inc_1, int inc_2)
 {
-  if ( sense_ == DIRECT )
+  if (sense_ == DIRECT)
   {
     i_1_ -= inc_1;
     i_2_ -= inc_2;
   }
-  else // ( sense_ == INDIRECT )
+  else // (sense_ == INDIRECT)
   {
     i_1_ -= inc_1;
     i_2_ += inc_2;
@@ -328,7 +328,7 @@ inline void VisAVis::swap()
   i_2_      = tmp_i;
 }
 
-inline void VisAVis::copy( VisAVis * source )
+inline void VisAVis::copy(VisAVis * source)
 {
   i_1_ = source->i_1_;
   i_2_ = source->i_2_;
@@ -340,8 +340,8 @@ inline void VisAVis::copy( VisAVis * source )
 
 inline void VisAVis::check_indices()
 {
-  i_1_ = Utils::mod( i_1_, chrom_1_->length() );
-  i_2_ = Utils::mod( i_2_, chrom_2_->length() );
+  i_1_ = Utils::mod(i_1_, chrom_1_->length());
+  i_2_ = Utils::mod(i_2_, chrom_2_->length());
 }
 } // namespace aevol
 

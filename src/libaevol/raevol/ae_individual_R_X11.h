@@ -52,11 +52,11 @@ class ae_individual_R_X11 : public ae_individual_R, ae_individual_X11
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_individual_R_X11( const ae_individual_R_X11 &model, bool replication_report_copy  );
+    ae_individual_R_X11(const ae_individual_R_X11 &model, bool replication_report_copy);
     ae_individual_R_X11();
-    ae_individual_R_X11(  ae_individual_R_X11* parent, int32_t id,
-                          ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng );
-    ae_individual_R_X11( gzFile backup_file );
+    ae_individual_R_X11(ae_individual_R_X11* parent, int32_t id,
+                          ae_jumping_mt* mut_prng, ae_jumping_mt* stoch_prng);
+    ae_individual_R_X11(gzFile backup_file);
 
     // =================================================================
     //                             Destructors
@@ -80,10 +80,10 @@ class ae_individual_R_X11 : public ae_individual_R, ae_individual_X11
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
-    /*    ae_individual_R_X11( const ae_individual &model )
+    /*    ae_individual_R_X11(const ae_individual &model)
     {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
       };*/
 
     // =================================================================

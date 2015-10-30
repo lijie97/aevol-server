@@ -54,10 +54,10 @@ class ae_rna_R : public ae_rna
     // =================================================================
     //                             Constructors
     // =================================================================
-    ae_rna_R( GeneticUnit* gen_unit, const ae_rna_R &model );
+    ae_rna_R(GeneticUnit* gen_unit, const ae_rna_R &model);
     ae_rna_R();
-    ae_rna_R( GeneticUnit* gen_unit );
-    ae_rna_R( GeneticUnit* gen_unit, ae_strand strand, int32_t index, int8_t diff );
+    ae_rna_R(GeneticUnit* gen_unit);
+    ae_rna_R(GeneticUnit* gen_unit, ae_strand strand, int32_t index, int8_t diff);
 
     // =================================================================
     //                             Destructors
@@ -72,9 +72,9 @@ class ae_rna_R : public ae_rna
     // =================================================================
     //                            Public Methods
     // =================================================================
-    void    set_influences( ae_list* protein_list );
+    void    set_influences(ae_list* protein_list);
     double  synthesis_rate();
-    void    remove_influence( ae_influence_R* influence );
+    void    remove_influence(ae_influence_R* influence);
     // =================================================================
     //                           Public Attributes
     // =================================================================
@@ -86,13 +86,13 @@ class ae_rna_R : public ae_rna
     // =================================================================
     /*    ae_rna()
     {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
       };*/
-    ae_rna_R( const ae_rna_R &model )
+    ae_rna_R(const ae_rna_R &model)
     {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
     };
 
     // =================================================================
@@ -101,8 +101,8 @@ class ae_rna_R : public ae_rna
     //inline  ae_rna_R* copy();
             int32_t   enhancer_position();
             int32_t   operator_position();
-            void      add_influence( ae_protein *protein, double enhancing_coef, double operating_coef );
-            double    affinity_with_protein( int32_t index, ae_protein *protein );
+            void      add_influence(ae_protein *protein, double enhancing_coef, double operating_coef);
+            double    affinity_with_protein(int32_t index, ae_protein *protein);
 
     // =================================================================
     //                          Protected Attributes
@@ -125,7 +125,7 @@ ae_list* ae_rna_R::influence_list()
 /*
 ae_rna_R* ae_rna_R::copy()
 {
-  return new ae_rna_R( this );
+  return new ae_rna_R(this);
 }
 */
 

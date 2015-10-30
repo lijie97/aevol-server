@@ -213,7 +213,7 @@ int main(int argc, char* argv[])
 
 
   char filename[256];
-  snprintf( filename, 255, "%s/robustness-allindivs-g%06" PRId64 ".out", directory_name, num_gener);
+  snprintf(filename, 255, "%s/robustness-allindivs-g%06" PRId64 ".out", directory_name, num_gener);
   FILE * outputfile_wholepop = fopen(filename, "w");
 
   snprintf(filename, 255,
@@ -315,7 +315,7 @@ int main(int argc, char* argv[])
               offsprings_statistics[3],
               offsprings_statistics[4],
               offsprings_statistics[5]
-             );
+);
     }
   }
 

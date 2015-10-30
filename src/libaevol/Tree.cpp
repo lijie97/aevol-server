@@ -86,10 +86,10 @@ Tree::Tree(ExpManager* exp_m, char* tree_file_name) {
   exp_m_ = exp_m;
   tree_step_ = exp_m_->tree_step();
 
-  gzFile tree_file = gzopen( tree_file_name, "r" );
+  gzFile tree_file = gzopen(tree_file_name, "r");
   if (tree_file == Z_NULL) {
-    printf( "ERROR : Could not read tree file %s\n", tree_file_name );
-    exit( EXIT_FAILURE );
+    printf("ERROR : Could not read tree file %s\n", tree_file_name);
+    exit(EXIT_FAILURE);
   }
 
   replics_ = new ReplicationReport** [tree_step_];
@@ -107,7 +107,7 @@ Tree::Tree(ExpManager* exp_m, char* tree_file_name) {
       replics_[t][replic_report->id()] = replic_report;
     }
   }
-  gzclose( tree_file );
+  gzclose(tree_file);
 }
 
 
@@ -117,7 +117,7 @@ Tree::Tree(ExpManager* exp_m, char* tree_file_name) {
 //                             Destructors
 // =================================================================
 Tree::~Tree() {
-  if ( replics_ != NULL )  {
+  if (replics_ != NULL)  {
     for (int32_t i = 0 ; i < tree_step_ ; i++)
       if (replics_[i] != NULL) {
         for (int32_t j = 0 ; j < exp_m_->nb_indivs() ; j++)

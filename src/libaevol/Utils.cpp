@@ -141,7 +141,7 @@ void Utils::ExitWithUsrMsg(const string& msg) {
  */
 void Utils::PrintAevolVersion()
 {
-  printf( "aevol %s\n", VERSION );
+  printf("aevol %s\n", VERSION);
 }
 
 // ============================================================================

@@ -63,10 +63,10 @@ double  JumpingMT::jump_time  = 0;
 /*!
   Create a generator initialized with a simple uint32_t
  */
-JumpingMT::JumpingMT( const uint32_t& simple_seed )
+JumpingMT::JumpingMT(const uint32_t& simple_seed)
 {
   sfmt_ = new sfmt_t();
-  sfmt_init_gen_rand( sfmt_, simple_seed );
+  sfmt_init_gen_rand(sfmt_, simple_seed);
 
   // Jump to get rid of the initializatino skew
   jump();
@@ -75,7 +75,7 @@ JumpingMT::JumpingMT( const uint32_t& simple_seed )
 /*!
   Create a copy of an existing generator
  */
-JumpingMT::JumpingMT( const JumpingMT & model )
+JumpingMT::JumpingMT(const JumpingMT & model)
 {
   sfmt_ = new sfmt_t();
   memcpy(sfmt_->state, model.sfmt_->state, SFMT_N*sizeof(sfmt_->state[0]));
@@ -85,11 +85,11 @@ JumpingMT::JumpingMT( const JumpingMT & model )
 /*!
   Load a generator from a gz backup file
  */
-JumpingMT::JumpingMT( gzFile backup_file )
+JumpingMT::JumpingMT(gzFile backup_file)
 {
   sfmt_ = new sfmt_t();
-  gzread( backup_file, sfmt_->state, SFMT_N * sizeof( sfmt_->state[0] ) );
-  gzread( backup_file, &(sfmt_->idx), sizeof( sfmt_->idx ) );
+  gzread(backup_file, sfmt_->state, SFMT_N * sizeof(sfmt_->state[0]));
+  gzread(backup_file, &(sfmt_->idx), sizeof(sfmt_->idx));
 }
 
 // =================================================================
@@ -112,19 +112,19 @@ void JumpingMT::jump()
   //~ start = clock();
 
   #ifdef TRIVIAL_METHOD_JUMP_SIZE
-    for ( int i = 0 ; i < TRIVIAL_METHOD_JUMP_SIZE ; i++ )
+    for (int i = 0 ; i < TRIVIAL_METHOD_JUMP_SIZE ; i++)
     {
-      sfmt_genrand_real2( sfmt_ );
+      sfmt_genrand_real2(sfmt_);
     }
   #else
-    SFMT_jump( sfmt_, jump_poly );
+    SFMT_jump(sfmt_, jump_poly);
   #endif
 
 
   //~ int nb_sup_steps = 100 * (double)rand() / ((double)RAND_MAX + 1);
-  //~ for ( int i = 0 ; i < nb_sup_steps ; i++ )
+  //~ for (int i = 0 ; i < nb_sup_steps ; i++)
   //~ {
-    //~ sfmt_genrand_real2( sfmt_ );
+    //~ sfmt_genrand_real2(sfmt_);
   //~ }
 
 
@@ -139,7 +139,7 @@ void JumpingMT::jump()
 
   Number of successes out of nb_drawings trials each of probability prob.
  */
-int32_t JumpingMT::binomial_random( int32_t nb_drawings, double prob )
+int32_t JumpingMT::binomial_random(int32_t nb_drawings, double prob)
 {
   int32_t nb_success;
 
@@ -147,37 +147,37 @@ int32_t JumpingMT::binomial_random( int32_t nb_drawings, double prob )
   // ProbSuccess to 1-ProbSuccess, if we also change the answer to
   // NbTrials minus itself; we ll remember to do this below.
   double p;
-  if ( prob <= 0.5 ) p = prob;
+  if (prob <= 0.5) p = prob;
   else p = 1.0 - prob;
 
   // mean of the deviate to be produced
   double mean = nb_drawings * p;
 
 
-  if ( nb_drawings < 25 )
+  if (nb_drawings < 25)
   // Use the direct method while NbTrials is not too large.
   // This can require up to 25 calls to the uniform random.
   {
     nb_success = 0;
-    for ( int32_t j = 1 ; j <= nb_drawings ; j++ )
+    for (int32_t j = 1 ; j <= nb_drawings ; j++)
     {
-      if ( random() < p ) nb_success++;
+      if (random() < p) nb_success++;
     }
   }
-  else if ( mean < 1.0 )
+  else if (mean < 1.0)
   // If fewer than one event is expected out of 25 or more trials,
   // then the distribution is quite accurately Poisson. Use direct Poisson method.
   {
-    double g = exp( -mean );
+    double g = exp(-mean);
     double t = 1.0;
     int32_t j;
-    for ( j = 0; j <= nb_drawings ; j++ )
+    for (j = 0; j <= nb_drawings ; j++)
     {
       t = t * random();
-      if ( t < g ) break;
+      if (t < g) break;
     }
 
-    if ( j <= nb_drawings ) nb_success = j;
+    if (j <= nb_drawings) nb_success = j;
     else nb_success = nb_drawings;
   }
 
@@ -185,35 +185,35 @@ int32_t JumpingMT::binomial_random( int32_t nb_drawings, double prob )
   // Use the rejection method.
   {
     double en     = nb_drawings;
-    double oldg   = gammln( en + 1.0 );
+    double oldg   = gammln(en + 1.0);
     double pc     = 1.0 - p;
-    double plog   = log( p );
-    double pclog  = log( pc );
+    double plog   = log(p);
+    double pclog  = log(pc);
 
     // rejection method with a Lorentzian comparison function.
-    double sq = sqrt( 2.0 * mean * pc );
+    double sq = sqrt(2.0 * mean * pc);
     double angle, y, em, t;
     do
     {
       do
       {
         angle = M_PI * random();
-        y = tan( angle );
+        y = tan(angle);
         em = sq*y + mean;
-      } while ( em < 0.0 || em >= (en + 1.0) ); // Reject.
+      } while (em < 0.0 || em >= (en + 1.0)); // Reject.
 
-      em = floor( em ); // Trick for integer-valued distribution.
+      em = floor(em); // Trick for integer-valued distribution.
       t = 1.2 * sq * (1.0 + y*y)
-              * exp( oldg - gammln(em + 1.0) - gammln(en - em + 1.0) + em * plog + (en - em) * pclog );
+              * exp(oldg - gammln(em + 1.0) - gammln(en - em + 1.0) + em * plog + (en - em) * pclog);
 
-    } while ( random() > t ); // Reject. This happens about 1.5 times per deviate, on average.
+    } while (random() > t); // Reject. This happens about 1.5 times per deviate, on average.
 
-    nb_success = (int32_t) rint( em );
+    nb_success = (int32_t) rint(em);
   }
 
 
   // Undo the symmetry transformation.
-  if ( p != prob ) nb_success = nb_drawings - nb_success;
+  if (p != prob) nb_success = nb_drawings - nb_success;
 
   return nb_success;
 }
@@ -229,17 +229,17 @@ double JumpingMT::gaussian_random()
 
     r = x1*x1 + x2*x2; // (x1,x2) must be in the unit circle
   }
-  while ( (r >= 1.0) || (r == 0) );
+  while ((r >= 1.0) || (r == 0));
 
-  r = sqrt( (-2.0 * log(r)) / r ); // Box-muller transformation
+  r = sqrt((-2.0 * log(r)) / r); // Box-muller transformation
 
   return x1 * r;
 }
 
-int8_t JumpingMT::roulette_random( double* probs, int8_t nb_elts )
+int8_t JumpingMT::roulette_random(double* probs, int8_t nb_elts)
 {
   double pick_one = 0.0;
-  while ( pick_one == 0 )
+  while (pick_one == 0)
   {
     pick_one = random();
   }
@@ -247,7 +247,7 @@ int8_t JumpingMT::roulette_random( double* probs, int8_t nb_elts )
   int8_t found_org = 0;
 
   pick_one -= probs[0];
-  while ( pick_one > 0 )
+  while (pick_one > 0)
   {
     assert(found_org<nb_elts-1);
     pick_one -= probs[++found_org];
@@ -255,7 +255,7 @@ int8_t JumpingMT::roulette_random( double* probs, int8_t nb_elts )
   return found_org;
 }
 
-void JumpingMT::multinomial_drawing( int32_t* destination, double* source, int32_t nb_drawings, int32_t nb_colors )
+void JumpingMT::multinomial_drawing(int32_t* destination, double* source, int32_t nb_drawings, int32_t nb_colors)
 {
   //    This function generates a vector of random variates, each with the
   //    binomial distribution (source code from http://www.agner.org/random/).
@@ -273,42 +273,42 @@ void JumpingMT::multinomial_drawing( int32_t* destination, double* source, int32
   //    nb_colors:      The number of possible colors.
 
 
-  if ( nb_drawings < 0 || nb_colors < 0 )
+  if (nb_drawings < 0 || nb_colors < 0)
   {
-    printf( "%s:%d: error: Negative parameter in multinomial function.\n", __FILE__, __LINE__ );
-    assert( false );
-    exit( EXIT_FAILURE );
+    printf("%s:%d: error: Negative parameter in multinomial function.\n", __FILE__, __LINE__);
+    assert(false);
+    exit(EXIT_FAILURE);
   }
-  if ( nb_colors == 0 ) return;
+  if (nb_colors == 0) return;
 
   // compute sum of probabilities
   double sum = 0.0;
   double p;
-  for ( int32_t i = 0 ; i < nb_colors ; i++ )
+  for (int32_t i = 0 ; i < nb_colors ; i++)
   {
     p = source[i];
-    if ( p < 0 )
+    if (p < 0)
     {
-      printf( "%s:%d: error: Negative parameter in multinomial function.\n", __FILE__, __LINE__ );
-      assert( false );
-      exit( EXIT_FAILURE );
+      printf("%s:%d: error: Negative parameter in multinomial function.\n", __FILE__, __LINE__);
+      assert(false);
+      exit(EXIT_FAILURE);
     }
     sum += p;
   }
-  if ( sum == 0 && nb_drawings > 0 )
+  if (sum == 0 && nb_drawings > 0)
   {
-    printf( "Zero sum in multinomial function\n" );
-    assert( false );
-    exit( EXIT_FAILURE );
+    printf("Zero sum in multinomial function\n");
+    assert(false);
+    exit(EXIT_FAILURE);
   }
 
   int32_t x;
   int32_t n = nb_drawings;
-  for ( int32_t i = 0 ; i < nb_colors - 1 ; i++ )
+  for (int32_t i = 0 ; i < nb_colors - 1 ; i++)
   {
     // generate output by calling binomial (nb_colors-1) times
     p = source[i];
-    if ( sum <= p )
+    if (sum <= p)
     {
       // this fixes two problems:
       // 1. prevent division by 0 when sum = 0
@@ -317,7 +317,7 @@ void JumpingMT::multinomial_drawing( int32_t* destination, double* source, int32
     }
     else
     {
-      x = binomial_random( n, p/sum );
+      x = binomial_random(n, p/sum);
     }
     n = n - x;
     sum = sum - p;
@@ -328,17 +328,17 @@ void JumpingMT::multinomial_drawing( int32_t* destination, double* source, int32
   destination[nb_colors-1] = n;
 }
 
-void JumpingMT::save( gzFile backup_file ) const
+void JumpingMT::save(gzFile backup_file) const
 {
-  gzwrite( backup_file, sfmt_->state, SFMT_N * sizeof( sfmt_->state[0] ) );
-  gzwrite( backup_file, &(sfmt_->idx), sizeof( sfmt_->idx ) );
+  gzwrite(backup_file, sfmt_->state, SFMT_N * sizeof(sfmt_->state[0]));
+  gzwrite(backup_file, &(sfmt_->idx), sizeof(sfmt_->idx));
 }
 
 
 // =================================================================
 //                           Protected Methods
 // =================================================================
-double JumpingMT::gammln( double X )
+double JumpingMT::gammln(double X)
 // Returns the value ln[gamma(X)] for X.
 // The gamma function is defined by the integral  gamma(z) = int(0, +inf, t^(z-1).e^(-t)dt).
 // When the argument z is an integer, the gamma function is just the familiar factorial
@@ -357,7 +357,7 @@ double JumpingMT::gammln( double X )
   tmp -= (x+0.5) * log(tmp);
   ser = 1.000000000190015;
 
-  for ( int8_t j = 0 ; j <= 5 ; j++ )
+  for (int8_t j = 0 ; j <= 5 ; j++)
   {
     ser += cof[j] / ++y;
   }

@@ -644,7 +644,7 @@ void Stats::set_file_names(const char* prefix,
 
         // Construct the correct name
         if (one_lambda_indiv_only) {
-          sprintf( stat_files_names_[chrom_or_GU][best_or_glob][stat_type],
+          sprintf(stat_files_names_[chrom_or_GU][best_or_glob][stat_type],
                     STATS_DIR"/%s%s%s.out",
                     prefix,
                     stat_type_name[stat_type],
@@ -652,7 +652,7 @@ void Stats::set_file_names(const char* prefix,
         }
         else
         {
-          sprintf( stat_files_names_[chrom_or_GU][best_or_glob][stat_type],
+          sprintf(stat_files_names_[chrom_or_GU][best_or_glob][stat_type],
                     STATS_DIR"/%s%s%s%s.out",
                     prefix,
                     stat_type_name[stat_type],

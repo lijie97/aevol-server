@@ -78,7 +78,7 @@ class GeneTreeNode
     // =================================================================
     //                             Constructors
     // =================================================================
-    GeneTreeNode( int32_t nodeCreationDate, Protein * protein);
+    GeneTreeNode(int32_t nodeCreationDate, Protein * protein);
 
 
     // =================================================================
@@ -104,13 +104,13 @@ class GeneTreeNode
     // =================================================================
     GeneTreeNode()
       {
-        printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-        exit( EXIT_FAILURE );
+        printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
       };
-    GeneTreeNode( const GeneTreeNode &model )
+    GeneTreeNode(const GeneTreeNode &model)
       {
-        printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-        exit( EXIT_FAILURE );
+        printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
       };
 
     // =================================================================

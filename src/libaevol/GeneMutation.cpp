@@ -68,7 +68,7 @@ namespace aevol {
 
 // Creates a copy of the mutation mut, but enriched with the generation when it occured
 // and the position where it occurred in the RNA, relative to the first bp of the promoter
-GeneMutation::GeneMutation(Mutation const & mut, int32_t gener, int32_t cdsPosBefore, Strand strandBefore, ae_gene_mutation_region region  ) : Mutation(mut)
+GeneMutation::GeneMutation(Mutation const & mut, int32_t gener, int32_t cdsPosBefore, Strand strandBefore, ae_gene_mutation_region region) : Mutation(mut)
 {
   generation_ = gener;
   impact_on_metabolic_error_ = 0.0; /* should be set to its real value when known */
@@ -76,21 +76,21 @@ GeneMutation::GeneMutation(Mutation const & mut, int32_t gener, int32_t cdsPosBe
 
   /* Compute position_relative_to_shine_dal_ */
 
-  switch ( mut_type_ )
+  switch (mut_type_)
     {
     case SWITCH :
       position_relative_to_shine_dal_ = new int32_t;
-      if ( strandBefore == LEADING  ) {position_relative_to_shine_dal_[0] = pos_[0] - cdsPosBefore;}
+      if (strandBefore == LEADING) {position_relative_to_shine_dal_[0] = pos_[0] - cdsPosBefore;}
       else                              {position_relative_to_shine_dal_[0] = cdsPosBefore - pos_[0];}
       break;
     case S_INS :
       position_relative_to_shine_dal_ = new int32_t;
-      if ( strandBefore == LEADING  ) {position_relative_to_shine_dal_[0] = pos_[0] - cdsPosBefore;}
+      if (strandBefore == LEADING) {position_relative_to_shine_dal_[0] = pos_[0] - cdsPosBefore;}
       else                              {position_relative_to_shine_dal_[0] = cdsPosBefore - pos_[0];}
       break;
     case S_DEL :
       position_relative_to_shine_dal_ = new int32_t;
-      if ( strandBefore == LEADING  ) {position_relative_to_shine_dal_[0] = pos_[0] - cdsPosBefore;}
+      if (strandBefore == LEADING) {position_relative_to_shine_dal_[0] = pos_[0] - cdsPosBefore;}
       else                              {position_relative_to_shine_dal_[0] = cdsPosBefore - pos_[0];}
       break;
     case DUPL :
@@ -100,7 +100,7 @@ GeneMutation::GeneMutation(Mutation const & mut, int32_t gener, int32_t cdsPosBe
       */
       /* We should enter here only in case (1). Note that in this case, the relative positions for beginseg and endseg may be outside the gene */
       position_relative_to_shine_dal_ = new int32_t[3];
-      if ( strandBefore == LEADING  )
+      if (strandBefore == LEADING)
         {
           position_relative_to_shine_dal_[0] = pos_[0] - cdsPosBefore;
           position_relative_to_shine_dal_[1] = pos_[1] - cdsPosBefore;
@@ -115,7 +115,7 @@ GeneMutation::GeneMutation(Mutation const & mut, int32_t gener, int32_t cdsPosBe
       break;
     case DEL :
       position_relative_to_shine_dal_ = new int32_t[2];
-      if ( strandBefore == LEADING  )
+      if (strandBefore == LEADING)
         {
           position_relative_to_shine_dal_[0] = pos_[0] - cdsPosBefore;
           position_relative_to_shine_dal_[1] = pos_[1] - cdsPosBefore;
@@ -128,7 +128,7 @@ GeneMutation::GeneMutation(Mutation const & mut, int32_t gener, int32_t cdsPosBe
       break;
     case TRANS :
       position_relative_to_shine_dal_ = new int32_t[4];
-      if ( strandBefore == LEADING  )
+      if (strandBefore == LEADING)
         {
           position_relative_to_shine_dal_[0] = pos_[0] - cdsPosBefore;
           position_relative_to_shine_dal_[1] = pos_[1] - cdsPosBefore;
@@ -145,7 +145,7 @@ GeneMutation::GeneMutation(Mutation const & mut, int32_t gener, int32_t cdsPosBe
       break;
     case INV :
       position_relative_to_shine_dal_ = new int32_t[2];
-      if ( strandBefore == LEADING  )
+      if (strandBefore == LEADING)
         {
           position_relative_to_shine_dal_[0] = pos_[0] - cdsPosBefore;
           position_relative_to_shine_dal_[1] = pos_[1] - cdsPosBefore;
@@ -158,12 +158,12 @@ GeneMutation::GeneMutation(Mutation const & mut, int32_t gener, int32_t cdsPosBe
       break;
     case INSERT :
       position_relative_to_shine_dal_ = new int32_t;
-      if ( strandBefore == LEADING  ) position_relative_to_shine_dal_[0] = pos_[0] - cdsPosBefore;
+      if (strandBefore == LEADING) position_relative_to_shine_dal_[0] = pos_[0] - cdsPosBefore;
       else                                 position_relative_to_shine_dal_[0] = cdsPosBefore - pos_[0];
       break;
     default :
-      fprintf( stderr, "ERROR, invalid mutation type \"%d\" in file %s:%d.\n", mut_type_, __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      fprintf(stderr, "ERROR, invalid mutation type \"%d\" in file %s:%d.\n", mut_type_, __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
       break;
     }
 }
@@ -176,7 +176,7 @@ GeneMutation::GeneMutation(Mutation const & mut, int32_t gener, int32_t cdsPosBe
 GeneMutation::~GeneMutation()
 {
   /* Mutation::Mutationwill be called automatically by the compiler for the other attributes */
-  switch ( mut_type_ )
+  switch (mut_type_)
   {
   case SWITCH :
     delete position_relative_to_shine_dal_;
@@ -203,8 +203,8 @@ GeneMutation::~GeneMutation()
     delete position_relative_to_shine_dal_;
       break;
   default :
-    fprintf( stderr, "ERROR, invalid mutation type \"%d\" in file %s:%d.\n" , mut_type_, __FILE__, __LINE__ );
-    exit( EXIT_FAILURE );
+    fprintf(stderr, "ERROR, invalid mutation type \"%d\" in file %s:%d.\n" , mut_type_, __FILE__, __LINE__);
+    exit(EXIT_FAILURE);
     break;
   }
 
@@ -232,52 +232,52 @@ int8_t GeneMutation::type_of_event()
 // str must be at least of size 60
 void GeneMutation::description_string_for_gene_mut(char * str)
 {
-   switch ( mut_type_ )
+   switch (mut_type_)
   {
     case SWITCH :
     {
-      sprintf( str, "%" PRId32 " SWITCH %" PRId32 " %.10f " , generation_, position_relative_to_shine_dal_[0], impact_on_metabolic_error_ );
+      sprintf(str, "%" PRId32 " SWITCH %" PRId32 " %.10f " , generation_, position_relative_to_shine_dal_[0], impact_on_metabolic_error_);
       break;
     }
     case S_INS :
     {
-      sprintf( str, "%" PRId32 " SMALL_INS %" PRId32 " %" PRId32 " %s %.10f " , generation_, position_relative_to_shine_dal_[0], length_[0], seq_, impact_on_metabolic_error_ );
+      sprintf(str, "%" PRId32 " SMALL_INS %" PRId32 " %" PRId32 " %s %.10f " , generation_, position_relative_to_shine_dal_[0], length_[0], seq_, impact_on_metabolic_error_);
       break;
     }
     case S_DEL :
     {
-      sprintf( str, "%" PRId32 " SMALL_DEL %" PRId32 " %" PRId32 " %.10f " , generation_, position_relative_to_shine_dal_[0], length_[0], impact_on_metabolic_error_ );
+      sprintf(str, "%" PRId32 " SMALL_DEL %" PRId32 " %" PRId32 " %.10f " , generation_, position_relative_to_shine_dal_[0], length_[0], impact_on_metabolic_error_);
       break;
     }
     case DUPL :
     {
-      sprintf( str, "%" PRId32 " INSERTION_OF_DUPLICATED_DNA %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %.10f " , generation_, position_relative_to_shine_dal_[0], position_relative_to_shine_dal_[1], position_relative_to_shine_dal_[2], length_[0], impact_on_metabolic_error_);
+      sprintf(str, "%" PRId32 " INSERTION_OF_DUPLICATED_DNA %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %.10f " , generation_, position_relative_to_shine_dal_[0], position_relative_to_shine_dal_[1], position_relative_to_shine_dal_[2], length_[0], impact_on_metabolic_error_);
       break;
     }
     case DEL :
     {
-      sprintf( str, "%" PRId32 " LARGE_DEL %" PRId32 " %" PRId32 " %" PRId32 " %.10f " , generation_, position_relative_to_shine_dal_[0], position_relative_to_shine_dal_[1], length_[0], impact_on_metabolic_error_ );
+      sprintf(str, "%" PRId32 " LARGE_DEL %" PRId32 " %" PRId32 " %" PRId32 " %.10f " , generation_, position_relative_to_shine_dal_[0], position_relative_to_shine_dal_[1], length_[0], impact_on_metabolic_error_);
       break;
     }
     case TRANS :
     {
-      sprintf( str, "%" PRId32 " TRANSLOC %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %.10f " , generation_, position_relative_to_shine_dal_[0], position_relative_to_shine_dal_[1],  position_relative_to_shine_dal_[2],  position_relative_to_shine_dal_[3], length_[0], impact_on_metabolic_error_ );
+      sprintf(str, "%" PRId32 " TRANSLOC %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %.10f " , generation_, position_relative_to_shine_dal_[0], position_relative_to_shine_dal_[1],  position_relative_to_shine_dal_[2],  position_relative_to_shine_dal_[3], length_[0], impact_on_metabolic_error_);
       break;
     }
     case INV :
     {
-      sprintf( str, "%" PRId32 " INV %" PRId32 " %" PRId32 " %" PRId32 " %.10f " , generation_, position_relative_to_shine_dal_[0], position_relative_to_shine_dal_[1], length_[0], impact_on_metabolic_error_ );
+      sprintf(str, "%" PRId32 " INV %" PRId32 " %" PRId32 " %" PRId32 " %.10f " , generation_, position_relative_to_shine_dal_[0], position_relative_to_shine_dal_[1], length_[0], impact_on_metabolic_error_);
       break;
     }
    case INSERT :
     {
-      sprintf( str, "%" PRId32 " INSERTION_OF_FOREIGN_DNA %" PRId32 " %" PRId32 " %.10f " , generation_, position_relative_to_shine_dal_[0], length_[0], impact_on_metabolic_error_ );
+      sprintf(str, "%" PRId32 " INSERTION_OF_FOREIGN_DNA %" PRId32 " %" PRId32 " %.10f " , generation_, position_relative_to_shine_dal_[0], length_[0], impact_on_metabolic_error_);
       break;
     }
     default :
     {
-      fprintf( stderr, "ERROR, invalid mutation type \"%d\" in file %s:%d.\n" , mut_type_, __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      fprintf(stderr, "ERROR, invalid mutation type \"%d\" in file %s:%d.\n" , mut_type_, __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
       break;
     }
   }

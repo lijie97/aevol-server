@@ -57,7 +57,7 @@ namespace aevol {
 // =================================================================
 //                             Constructors
 // =================================================================
-Rna::Rna( GeneticUnit* gen_unit, const Rna &model )
+Rna::Rna(GeneticUnit* gen_unit, const Rna &model)
 {
   // Copy "trivial" attributes
   gen_unit_  = gen_unit;
@@ -76,7 +76,7 @@ Rna::Rna( GeneticUnit* gen_unit, const Rna &model )
   //   transcribed_proteins_.push_back(protein);
 }
 
-Rna::Rna( GeneticUnit* gen_unit, Strand strand, int32_t pos, int8_t diff )
+Rna::Rna(GeneticUnit* gen_unit, Strand strand, int32_t pos, int8_t diff)
 {
   gen_unit_  = gen_unit;
   strand_ = strand;
@@ -87,7 +87,7 @@ Rna::Rna( GeneticUnit* gen_unit, Strand strand, int32_t pos, int8_t diff )
 }
 
 /*
-Rna::Rna( Rna* parent )
+Rna::Rna(Rna* parent)
 {
   gen_unit_           = parent->gen_unit_;
   strand_             = parent->strand_;
@@ -109,27 +109,27 @@ Rna::~Rna()
 // =================================================================
 int32_t Rna::first_transcribed_pos() const
 {
-  if ( strand_ == LEADING )
+  if (strand_ == LEADING)
   {
-    return Utils::mod( pos_ + PROM_SIZE, gen_unit_->dna()->length() );
+    return Utils::mod(pos_ + PROM_SIZE, gen_unit_->dna()->length());
   }
   else
   {
-    return Utils::mod( pos_ - PROM_SIZE, gen_unit_->dna()->length() );
+    return Utils::mod(pos_ - PROM_SIZE, gen_unit_->dna()->length());
   }
 }
 
 int32_t Rna::last_transcribed_pos() const
 {
-  if ( strand_ == LEADING )
+  if (strand_ == LEADING)
   {
-    return Utils::mod( pos_ +  PROM_SIZE + transcript_length_ - 1,
-                       gen_unit_->dna()->length() );
+    return Utils::mod(pos_ +  PROM_SIZE + transcript_length_ - 1,
+                       gen_unit_->dna()->length());
   }
   else
   {
-    return Utils::mod( pos_ - (PROM_SIZE + transcript_length_ - 1),
-                       gen_unit_->dna()->length() );
+    return Utils::mod(pos_ - (PROM_SIZE + transcript_length_ - 1),
+                       gen_unit_->dna()->length());
   }
 }
 

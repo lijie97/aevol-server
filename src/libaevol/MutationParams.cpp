@@ -98,7 +98,7 @@ MutationParams::MutationParams()
   align_mismatch_cost_  = 2;
 }
 
-MutationParams::MutationParams( const MutationParams & model )
+MutationParams::MutationParams(const MutationParams & model)
 {
   // --------------------------------------------------------- Mutation rates
   point_mutation_rate_  = model.point_mutation_rate_;
@@ -142,52 +142,52 @@ MutationParams::MutationParams( const MutationParams & model )
   align_mismatch_cost_  = model.align_mismatch_cost_;
 }
 
-MutationParams::MutationParams( gzFile backup_file )
+MutationParams::MutationParams(gzFile backup_file)
 {
   // --------------------------------------------------------- Mutation rates
-  gzread( backup_file, &point_mutation_rate_,  sizeof(point_mutation_rate_) );
-  gzread( backup_file, &small_insertion_rate_, sizeof(small_insertion_rate_) );
-  gzread( backup_file, &small_deletion_rate_,  sizeof(small_deletion_rate_) );
-  gzread( backup_file, &max_indel_size_,       sizeof(max_indel_size_) );
+  gzread(backup_file, &point_mutation_rate_,  sizeof(point_mutation_rate_));
+  gzread(backup_file, &small_insertion_rate_, sizeof(small_insertion_rate_));
+  gzread(backup_file, &small_deletion_rate_,  sizeof(small_deletion_rate_));
+  gzread(backup_file, &max_indel_size_,       sizeof(max_indel_size_));
 
   // -------------------------------------------- Rearrangements and Transfer
   int8_t tmp;
-  gzread( backup_file, &tmp, sizeof(tmp) );
+  gzread(backup_file, &tmp, sizeof(tmp));
   with_4pts_trans_ = (tmp != 0);
-  gzread( backup_file, &tmp, sizeof(tmp) );
+  gzread(backup_file, &tmp, sizeof(tmp));
   with_alignments_ = (tmp != 0);
-  gzread( backup_file, &tmp, sizeof(tmp) );
+  gzread(backup_file, &tmp, sizeof(tmp));
   with_HT_ = (tmp != 0);
-  gzread( backup_file, &tmp, sizeof(tmp) );
+  gzread(backup_file, &tmp, sizeof(tmp));
   repl_HT_with_close_points_ = (tmp != 0);
-  gzread( backup_file, &HT_ins_rate_,  sizeof(HT_ins_rate_) );
-  gzread( backup_file, &HT_repl_rate_, sizeof(HT_repl_rate_) );
-  gzread( backup_file, &repl_HT_detach_rate_, sizeof(repl_HT_detach_rate_) );
+  gzread(backup_file, &HT_ins_rate_,  sizeof(HT_ins_rate_));
+  gzread(backup_file, &HT_repl_rate_, sizeof(HT_repl_rate_));
+  gzread(backup_file, &repl_HT_detach_rate_, sizeof(repl_HT_detach_rate_));
 
   // ------------------------------ Rearrangement rates (without alignements)
-  gzread( backup_file, &duplication_rate_,   sizeof(duplication_rate_) );
-  gzread( backup_file, &deletion_rate_,      sizeof(deletion_rate_) );
-  gzread( backup_file, &translocation_rate_, sizeof(translocation_rate_) );
-  gzread( backup_file, &inversion_rate_,     sizeof(inversion_rate_) );
+  gzread(backup_file, &duplication_rate_,   sizeof(duplication_rate_));
+  gzread(backup_file, &deletion_rate_,      sizeof(deletion_rate_));
+  gzread(backup_file, &translocation_rate_, sizeof(translocation_rate_));
+  gzread(backup_file, &inversion_rate_,     sizeof(inversion_rate_));
 
   // --------------------------------- Rearrangement rates (with alignements)
-  gzread( backup_file, &neighbourhood_rate_,       sizeof(neighbourhood_rate_) );
-  gzread( backup_file, &duplication_proportion_,   sizeof(duplication_proportion_) );
-  gzread( backup_file, &deletion_proportion_,      sizeof(deletion_proportion_) );
-  gzread( backup_file, &translocation_proportion_, sizeof(translocation_proportion_) );
-  gzread( backup_file, &inversion_proportion_,     sizeof(inversion_proportion_) );
+  gzread(backup_file, &neighbourhood_rate_,       sizeof(neighbourhood_rate_));
+  gzread(backup_file, &duplication_proportion_,   sizeof(duplication_proportion_));
+  gzread(backup_file, &deletion_proportion_,      sizeof(deletion_proportion_));
+  gzread(backup_file, &translocation_proportion_, sizeof(translocation_proportion_));
+  gzread(backup_file, &inversion_proportion_,     sizeof(inversion_proportion_));
 
   // ------------------------------------------------------------ Alignements
-  gzread( backup_file, &align_fun_shape_,     sizeof(align_fun_shape_) );
-  gzread( backup_file, &align_sigm_lambda_,   sizeof(align_sigm_lambda_) );
-  gzread( backup_file, &align_sigm_mean_,     sizeof(align_sigm_mean_) );
-  gzread( backup_file, &align_lin_min_,       sizeof(align_lin_min_) );
-  gzread( backup_file, &align_lin_max_,       sizeof(align_lin_max_) );
+  gzread(backup_file, &align_fun_shape_,     sizeof(align_fun_shape_));
+  gzread(backup_file, &align_sigm_lambda_,   sizeof(align_sigm_lambda_));
+  gzread(backup_file, &align_sigm_mean_,     sizeof(align_sigm_mean_));
+  gzread(backup_file, &align_lin_min_,       sizeof(align_lin_min_));
+  gzread(backup_file, &align_lin_max_,       sizeof(align_lin_max_));
 
-  gzread( backup_file, &align_max_shift_,     sizeof(align_max_shift_) );
-  gzread( backup_file, &align_w_zone_h_len_,  sizeof(align_w_zone_h_len_) );
-  gzread( backup_file, &align_match_bonus_,   sizeof(align_match_bonus_) );
-  gzread( backup_file, &align_mismatch_cost_, sizeof(align_mismatch_cost_) );
+  gzread(backup_file, &align_max_shift_,     sizeof(align_max_shift_));
+  gzread(backup_file, &align_w_zone_h_len_,  sizeof(align_w_zone_h_len_));
+  gzread(backup_file, &align_match_bonus_,   sizeof(align_match_bonus_));
+  gzread(backup_file, &align_mismatch_cost_, sizeof(align_mismatch_cost_));
 
   //Alignment::align_fun_shape     = align_fun_shape_;
   //Alignment::align_sigm_lambda   = align_sigm_lambda_;
@@ -211,51 +211,51 @@ MutationParams::~MutationParams()
 // =================================================================
 //                            Public Methods
 // =================================================================
-void MutationParams::save( gzFile backup_file ) const
+void MutationParams::save(gzFile backup_file) const
 {
   // --------------------------------------------------------- Mutation rates
-  gzwrite( backup_file, &point_mutation_rate_,  sizeof(point_mutation_rate_) );
-  gzwrite( backup_file, &small_insertion_rate_, sizeof(small_insertion_rate_) );
-  gzwrite( backup_file, &small_deletion_rate_,  sizeof(small_deletion_rate_) );
-  gzwrite( backup_file, &max_indel_size_,       sizeof(max_indel_size_) );
+  gzwrite(backup_file, &point_mutation_rate_,  sizeof(point_mutation_rate_));
+  gzwrite(backup_file, &small_insertion_rate_, sizeof(small_insertion_rate_));
+  gzwrite(backup_file, &small_deletion_rate_,  sizeof(small_deletion_rate_));
+  gzwrite(backup_file, &max_indel_size_,       sizeof(max_indel_size_));
 
   // -------------------------------------------- Rearrangements and Transfer
   int8_t tmp = with_4pts_trans_ ? 1 : 0;
-  gzwrite( backup_file, &tmp,  sizeof(tmp) );
+  gzwrite(backup_file, &tmp,  sizeof(tmp));
   tmp = with_alignments_ ? 1 : 0;
-  gzwrite( backup_file, &tmp,  sizeof(tmp) );
+  gzwrite(backup_file, &tmp,  sizeof(tmp));
   tmp = with_HT_ ? 1 : 0;
-  gzwrite( backup_file, &tmp,  sizeof(tmp) );
+  gzwrite(backup_file, &tmp,  sizeof(tmp));
   tmp = repl_HT_with_close_points_ ? 1 : 0;
-  gzwrite( backup_file, &tmp,  sizeof(tmp) );
-  gzwrite( backup_file, &HT_ins_rate_,  sizeof(HT_ins_rate_) );
-  gzwrite( backup_file, &HT_repl_rate_, sizeof(HT_repl_rate_) );
-  gzwrite( backup_file, &repl_HT_detach_rate_, sizeof(repl_HT_detach_rate_) );
+  gzwrite(backup_file, &tmp,  sizeof(tmp));
+  gzwrite(backup_file, &HT_ins_rate_,  sizeof(HT_ins_rate_));
+  gzwrite(backup_file, &HT_repl_rate_, sizeof(HT_repl_rate_));
+  gzwrite(backup_file, &repl_HT_detach_rate_, sizeof(repl_HT_detach_rate_));
 
   // ------------------------------ Rearrangement rates (without alignements)
-  gzwrite( backup_file, &duplication_rate_,   sizeof(duplication_rate_) );
-  gzwrite( backup_file, &deletion_rate_,      sizeof(deletion_rate_) );
-  gzwrite( backup_file, &translocation_rate_, sizeof(translocation_rate_) );
-  gzwrite( backup_file, &inversion_rate_,     sizeof(inversion_rate_) );
+  gzwrite(backup_file, &duplication_rate_,   sizeof(duplication_rate_));
+  gzwrite(backup_file, &deletion_rate_,      sizeof(deletion_rate_));
+  gzwrite(backup_file, &translocation_rate_, sizeof(translocation_rate_));
+  gzwrite(backup_file, &inversion_rate_,     sizeof(inversion_rate_));
 
   // --------------------------------- Rearrangement rates (with alignements)
-  gzwrite( backup_file, &neighbourhood_rate_,       sizeof(neighbourhood_rate_) );
-  gzwrite( backup_file, &duplication_proportion_,   sizeof(duplication_proportion_) );
-  gzwrite( backup_file, &deletion_proportion_,      sizeof(deletion_proportion_) );
-  gzwrite( backup_file, &translocation_proportion_, sizeof(translocation_proportion_) );
-  gzwrite( backup_file, &inversion_proportion_,     sizeof(inversion_proportion_) );
+  gzwrite(backup_file, &neighbourhood_rate_,       sizeof(neighbourhood_rate_));
+  gzwrite(backup_file, &duplication_proportion_,   sizeof(duplication_proportion_));
+  gzwrite(backup_file, &deletion_proportion_,      sizeof(deletion_proportion_));
+  gzwrite(backup_file, &translocation_proportion_, sizeof(translocation_proportion_));
+  gzwrite(backup_file, &inversion_proportion_,     sizeof(inversion_proportion_));
 
   // ------------------------------------------------------------ Alignements
-  gzwrite( backup_file, &align_fun_shape_,     sizeof(align_fun_shape_) );
-  gzwrite( backup_file, &align_sigm_lambda_,   sizeof(align_sigm_lambda_) );
-  gzwrite( backup_file, &align_sigm_mean_,     sizeof(align_sigm_mean_) );
-  gzwrite( backup_file, &align_lin_min_,       sizeof(align_lin_min_) );
-  gzwrite( backup_file, &align_lin_max_,       sizeof(align_lin_max_) );
+  gzwrite(backup_file, &align_fun_shape_,     sizeof(align_fun_shape_));
+  gzwrite(backup_file, &align_sigm_lambda_,   sizeof(align_sigm_lambda_));
+  gzwrite(backup_file, &align_sigm_mean_,     sizeof(align_sigm_mean_));
+  gzwrite(backup_file, &align_lin_min_,       sizeof(align_lin_min_));
+  gzwrite(backup_file, &align_lin_max_,       sizeof(align_lin_max_));
 
-  gzwrite( backup_file, &align_max_shift_,     sizeof(align_max_shift_) );
-  gzwrite( backup_file, &align_w_zone_h_len_,  sizeof(align_w_zone_h_len_) );
-  gzwrite( backup_file, &align_match_bonus_,   sizeof(align_match_bonus_) );
-  gzwrite( backup_file, &align_mismatch_cost_, sizeof(align_mismatch_cost_) );
+  gzwrite(backup_file, &align_max_shift_,     sizeof(align_max_shift_));
+  gzwrite(backup_file, &align_w_zone_h_len_,  sizeof(align_w_zone_h_len_));
+  gzwrite(backup_file, &align_match_bonus_,   sizeof(align_match_bonus_));
+  gzwrite(backup_file, &align_mismatch_cost_, sizeof(align_mismatch_cost_));
 }
 
 // =================================================================

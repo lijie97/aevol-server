@@ -86,7 +86,7 @@ class GeneTree
     //                             Constructors
     // =================================================================
     GeneTree();
-    GeneTree( int32_t nodeCreationDate, Protein * protein, const Mutation * mut = NULL ); // Creates a tree with just a root node.
+    GeneTree(int32_t nodeCreationDate, Protein * protein, const Mutation * mut = NULL); // Creates a tree with just a root node.
 
 
 
@@ -141,10 +141,10 @@ class GeneTree
     //                         Forbidden Constructors
     // =================================================================
 
-    GeneTree( const GeneTree &model )
+    GeneTree(const GeneTree &model)
       {
-        printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-        exit( EXIT_FAILURE );
+        printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
       };
 
 

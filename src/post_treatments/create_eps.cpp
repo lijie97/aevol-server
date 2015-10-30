@@ -576,7 +576,7 @@ void draw_phenotype(Individual* indiv, const PhenotypicTarget& target, char* dir
 
 
   char filename[128];
-  snprintf( filename, 127, "%s/best_phenotype.eps", directoryName);
+  snprintf(filename, 127, "%s/best_phenotype.eps", directoryName);
   FILE * drawingfile = fopen(filename, "w");
 
   if (drawingfile == NULL)
@@ -698,7 +698,7 @@ void draw_genetic_unit_with_CDS(GeneticUnit* gen_unit, char * directoryName)
   double scale = 2*M_PI*r/gen_length;
 
   char filename[128];
-  snprintf( filename, 127, "%s/best_genome_with_CDS.eps", directoryName);
+  snprintf(filename, 127, "%s/best_genome_with_CDS.eps", directoryName);
   FILE * drawingfile = fopen(filename, "w");
 
   fprintf(drawingfile, "%%!PS-Adobe-3.0 EPSF-3.0\n");
@@ -771,8 +771,8 @@ void draw_genetic_unit_with_CDS(GeneticUnit* gen_unit, char * directoryName)
     last = prot.last_translated_pos();
     // h = prot.height() * prot.concentration();
 
-    alpha_first   = (int16_t) round( (double)(360 * first) / (double)gen_length);  //  == sect1 == alphaB
-    alpha_last    = (int16_t) round( (double)(360 * last)  / (double)gen_length);  //  == sect2 == alphaA
+    alpha_first   = (int16_t) round((double)(360 * first) / (double)gen_length);  //  == sect1 == alphaB
+    alpha_last    = (int16_t) round((double)(360 * last)  / (double)gen_length);  //  == sect2 == alphaA
     theta_first   = Utils::mod(90 - alpha_first, 360);  //  == tetaB
     theta_last    = Utils::mod(90 - alpha_last, 360);  //   == tetaA
     if (theta_first == theta_last) theta_first = Utils::mod(theta_first + 1, 360);
@@ -867,8 +867,8 @@ void draw_genetic_unit_with_CDS(GeneticUnit* gen_unit, char * directoryName)
     last = prot.last_translated_pos();
     // h = prot.height() * prot.concentration();
 
-    alpha_first   = (int16_t) round( (double)(360 * first) / (double)gen_length);
-    alpha_last    = (int16_t) round( (double)(360 * last)  / (double)gen_length);
+    alpha_first   = (int16_t) round((double)(360 * first) / (double)gen_length);
+    alpha_last    = (int16_t) round((double)(360 * last)  / (double)gen_length);
     theta_first   = Utils::mod(90 - alpha_first, 360);
     theta_last    = Utils::mod(90 - alpha_last, 360);
     if (theta_first == theta_last) theta_last = Utils::mod(theta_last + 1, 360);
@@ -980,7 +980,7 @@ void draw_genetic_unit_with_mRNAs(GeneticUnit* gen_unit, char * directoryName)
   double scale = 2*M_PI*r/gen_length;
 
   char filename[128];
-  snprintf( filename, 127, "%s/best_genome_with_mRNAs.eps", directoryName);
+  snprintf(filename, 127, "%s/best_genome_with_mRNAs.eps", directoryName);
   FILE * drawingfile = fopen(filename, "w");
 
   fprintf(drawingfile, "%%!PS-Adobe-3.0 EPSF-3.0\n");
@@ -1053,8 +1053,8 @@ void draw_genetic_unit_with_mRNAs(GeneticUnit* gen_unit, char * directoryName)
     last = rna.last_transcribed_pos();
 
 
-    alpha_first   = (int16_t) round( (double)(360 * first) / (double)gen_length);  //  == sect1 == alphaB
-    alpha_last    = (int16_t) round( (double)(360 * last)  / (double)gen_length);  //  == sect2 == alphaA
+    alpha_first   = (int16_t) round((double)(360 * first) / (double)gen_length);  //  == sect1 == alphaB
+    alpha_last    = (int16_t) round((double)(360 * last)  / (double)gen_length);  //  == sect2 == alphaA
     theta_first   = Utils::mod(90 - alpha_first, 360);  //  == tetaB
     theta_last    = Utils::mod(90 - alpha_last, 360);  //   == tetaA
     if (theta_first == theta_last) theta_first = Utils::mod(theta_first + 1, 360);
@@ -1149,8 +1149,8 @@ void draw_genetic_unit_with_mRNAs(GeneticUnit* gen_unit, char * directoryName)
     last = rna.last_transcribed_pos();
 
 
-    alpha_first   = (int16_t) round( (double)(360 * first) / (double)gen_length);
-    alpha_last    = (int16_t) round( (double)(360 * last)  / (double)gen_length);
+    alpha_first   = (int16_t) round((double)(360 * first) / (double)gen_length);
+    alpha_last    = (int16_t) round((double)(360 * last)  / (double)gen_length);
     theta_first   = Utils::mod(90 - alpha_first, 360);
     theta_last    = Utils::mod(90 - alpha_last, 360);
     nb_sect = Utils::mod(alpha_first - alpha_last + 1,  360);

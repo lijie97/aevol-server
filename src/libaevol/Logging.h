@@ -71,9 +71,9 @@ class Logging
     // =================================================================
     //                              Accessors
     // =================================================================
-    inline FILE* log( LogType log_type )   const;
+    inline FILE* log(LogType log_type)   const;
     inline int8_t logs() const;
-    inline bool  is_logged( LogType log_type ) const;
+    inline bool  is_logged(LogType log_type) const;
 
     // =================================================================
     //                              Operators
@@ -82,11 +82,11 @@ class Logging
     // =================================================================
     //                            Public Methods
     // =================================================================
-    //void save( gzFile backup_file ) const;
-    void load( int8_t logs, int32_t num_gener  );
-    void print_to_file( FILE* file ) const;
+    //void save(gzFile backup_file) const;
+    void load(int8_t logs, int32_t num_gener);
+    void print_to_file(FILE* file) const;
 
-    void set_logs( int8_t logs );
+    void set_logs(int8_t logs);
     void flush();
 
     // =================================================================
@@ -104,13 +104,13 @@ class Logging
     // =================================================================
     /*    Logging()
     {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
     };
-    Logging( const Logging &model )
+    Logging(const Logging &model)
     {
-      printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
     };*/
 
 
@@ -133,9 +133,9 @@ class Logging
 // =====================================================================
 //                          Accessors' definitions
 // =====================================================================
-inline FILE*Logging::log( LogType log_type ) const
+inline FILE*Logging::log(LogType log_type) const
 {
-  switch ( log_type )
+  switch (log_type)
   {
     case LOG_TRANSFER :
     {
@@ -155,8 +155,8 @@ inline FILE*Logging::log( LogType log_type ) const
     }*/
     default:
     {
-      printf( "ERROR: unknown log_type in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("ERROR: unknown log_type in file %s : l%d\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
     }
   }
 }
@@ -166,30 +166,30 @@ inline int8_t Logging::logs() const
   return logs_;
 }
 
-inline bool Logging::is_logged( LogType log_type ) const
+inline bool Logging::is_logged(LogType log_type) const
 {
-  switch ( log_type )
+  switch (log_type)
   {
     case LOG_TRANSFER :
     {
-      return ( logs_ & LOG_TRANSFER );
+      return (logs_ & LOG_TRANSFER);
     }
     case LOG_REAR :
     {
-      return ( logs_ & LOG_REAR );
+      return (logs_ & LOG_REAR);
     }
     case LOG_BARRIER :
     {
-      return ( logs_ & LOG_BARRIER );
+      return (logs_ & LOG_BARRIER);
     }
     /*case LOG_LOADS :
     {
-      return ( logs_ & LOG_LOADS );
+      return (logs_ & LOG_LOADS);
     }*/
     default:
     {
-      printf( "ERROR: unknown log_type in file %s : l%d\n", __FILE__, __LINE__ );
-      exit( EXIT_FAILURE );
+      printf("ERROR: unknown log_type in file %s : l%d\n", __FILE__, __LINE__);
+      exit(EXIT_FAILURE);
     }
   }
 }

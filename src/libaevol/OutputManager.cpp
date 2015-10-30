@@ -95,29 +95,29 @@ void OutputManager::InitStats() {
 void OutputManager::WriteSetupFile(gzFile setup_file) const
 {
   // Write the backup steps
-  gzwrite( setup_file, &backup_step_,      sizeof(backup_step_) );
-  gzwrite( setup_file, &big_backup_step_,  sizeof(big_backup_step_) );
+  gzwrite(setup_file, &backup_step_,      sizeof(backup_step_));
+  gzwrite(setup_file, &big_backup_step_,  sizeof(big_backup_step_));
 
   // Stats
-  gzwrite( setup_file, &compute_phen_contrib_by_GU_,  sizeof(compute_phen_contrib_by_GU_) );
+  gzwrite(setup_file, &compute_phen_contrib_by_GU_,  sizeof(compute_phen_contrib_by_GU_));
 
   // Tree
   int8_t record_tree = record_tree_;
-  gzwrite( setup_file, &record_tree, sizeof(record_tree) );
-  if ( record_tree_ )
+  gzwrite(setup_file, &record_tree, sizeof(record_tree));
+  if (record_tree_)
   {
     auto tmp_tree_step = tree_->tree_step();
-    gzwrite( setup_file, &tmp_tree_step, sizeof(tmp_tree_step) );
+    gzwrite(setup_file, &tmp_tree_step, sizeof(tmp_tree_step));
   }
 
   // Dumps
   int8_t make_dumps = make_dumps_;
-  gzwrite( setup_file, &make_dumps,  sizeof(make_dumps) );
-  gzwrite( setup_file, &dump_step_,  sizeof(dump_step_) );
+  gzwrite(setup_file, &make_dumps,  sizeof(make_dumps));
+  gzwrite(setup_file, &dump_step_,  sizeof(dump_step_));
 
   // Logs
   int8_t logs = logs_->logs();
-  gzwrite( setup_file, &logs,  sizeof(logs) );
+  gzwrite(setup_file, &logs,  sizeof(logs));
 }
 
 void OutputManager::CopyStats(const std::string& outdir, int64_t time) const {
@@ -128,8 +128,8 @@ void OutputManager::CopyStats(const std::string& outdir, int64_t time) const {
 void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run)
 {
   // Write the backup steps
-  gzread( setup_file, &backup_step_,      sizeof(backup_step_) );
-  gzread( setup_file, &big_backup_step_,  sizeof(big_backup_step_) );
+  gzread(setup_file, &backup_step_,      sizeof(backup_step_));
+  gzread(setup_file, &big_backup_step_,  sizeof(big_backup_step_));
 
   // Stats
   if (to_be_run)
@@ -137,26 +137,26 @@ void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run)
     delete stats_;
     stats_ = new Stats(exp_m_, AeTime::time());
   }
-  gzread( setup_file, &compute_phen_contrib_by_GU_,  sizeof(compute_phen_contrib_by_GU_) );
+  gzread(setup_file, &compute_phen_contrib_by_GU_,  sizeof(compute_phen_contrib_by_GU_));
 
   // Tree
   int8_t record_tree;
-  gzread( setup_file, &record_tree, sizeof(record_tree) );
+  gzread(setup_file, &record_tree, sizeof(record_tree));
   record_tree_ = record_tree;
-  if ( record_tree_ )
+  if (record_tree_)
   {
     int32_t tmp_tree_step;
-    gzread( setup_file, &tmp_tree_step, sizeof(tmp_tree_step) );
+    gzread(setup_file, &tmp_tree_step, sizeof(tmp_tree_step));
 
-    tree_ = new Tree( exp_m_, tmp_tree_step );
+    tree_ = new Tree(exp_m_, tmp_tree_step);
   }
 
   // Dumps
   int8_t make_dumps;
-  gzread( setup_file, &make_dumps, sizeof(make_dumps) );
+  gzread(setup_file, &make_dumps, sizeof(make_dumps));
   make_dumps_ = make_dumps;
-  gzread( setup_file, &dump_step_,  sizeof(dump_step_) );
-  if( make_dumps_ == true)
+  gzread(setup_file, &dump_step_,  sizeof(dump_step_));
+  if(make_dumps_ == true)
   {
     dump_ = new Dump(exp_m_);
   }
@@ -232,10 +232,10 @@ void OutputManager::write_tree() const
 {
   // Create the tree directory if it doesn't exist
   int status;
-  status = mkdir( TREE_DIR, 0755 );
-  if ( (status == -1) && (errno != EEXIST) )
+  status = mkdir(TREE_DIR, 0755);
+  if ((status == -1) && (errno != EEXIST))
   {
-    err( EXIT_FAILURE, "Impossible to create the directory %s", TREE_DIR );
+    err(EXIT_FAILURE, "Impossible to create the directory %s", TREE_DIR);
   }
 
   char tree_file_name[50];
@@ -246,12 +246,12 @@ void OutputManager::write_tree() const
   sprintf(tree_file_name, "tree/tree_%06" PRId64 ".ae", AeTime::time());
 #endif
 
-  gzFile tree_file = gzopen( tree_file_name, "w" );
+  gzFile tree_file = gzopen(tree_file_name, "w");
 
   // Write phylogenetic data (tree)
-  tree_->write_to_tree_file( tree_file );
+  tree_->write_to_tree_file(tree_file);
 
-  gzclose( tree_file );
+  gzclose(tree_file);
 }
 
 // =================================================================

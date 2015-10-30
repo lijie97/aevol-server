@@ -132,10 +132,10 @@ ReplicationReport::ReplicationReport(gzFile tree_file, Individual* indiv)
 {
   indiv_ = indiv;
 
-  gzread(tree_file, &id_,        sizeof(id_)        );
-  gzread(tree_file, &rank_,      sizeof(rank_)      );
-  gzread(tree_file, &parent_id_, sizeof(parent_id_) );
-  gzread(tree_file, &donor_id_,  sizeof(donor_id_)  );
+  gzread(tree_file, &id_,        sizeof(id_));
+  gzread(tree_file, &rank_,      sizeof(rank_));
+  gzread(tree_file, &parent_id_, sizeof(parent_id_));
+  gzread(tree_file, &donor_id_,  sizeof(donor_id_));
 
   gzread(tree_file, &genome_size_,         sizeof(genome_size_));
   gzread(tree_file, &metabolic_error_,     sizeof(metabolic_error_));
@@ -226,11 +226,11 @@ void ReplicationReport::signal_end_of_generation() {
 void ReplicationReport::write_to_tree_file(gzFile tree_file) const
 {
   // Store individual identifiers and rank
-  gzwrite(tree_file, &id_,         sizeof(id_)        );
+  gzwrite(tree_file, &id_,         sizeof(id_));
   assert(rank_ != -1);
-  gzwrite(tree_file, &rank_,       sizeof(rank_)      );
-  gzwrite(tree_file, &parent_id_,  sizeof(parent_id_) );
-  gzwrite(tree_file, &donor_id_,   sizeof(donor_id_)  );
+  gzwrite(tree_file, &rank_,       sizeof(rank_));
+  gzwrite(tree_file, &parent_id_,  sizeof(parent_id_));
+  gzwrite(tree_file, &donor_id_,   sizeof(donor_id_));
 
   gzwrite(tree_file, &genome_size_,         sizeof(genome_size_));
   gzwrite(tree_file, &metabolic_error_,     sizeof(metabolic_error_));
