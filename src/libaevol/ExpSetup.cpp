@@ -36,7 +36,6 @@
 #include "GzHelpers.h"
 
 namespace aevol {
-
 //##############################################################################
 //                                                                             #
 //                              Class ExpSetup                                 #
@@ -57,8 +56,7 @@ namespace aevol {
 
 /*!
 */
-void ExpSetup::write_setup_file(gzFile exp_setup_file) const
-{
+void ExpSetup::write_setup_file(gzFile exp_setup_file) const {
   // --------------------------------------------------------------- Transfer
   gzwrite(exp_setup_file,
           static_cast<int8_t>(with_HT_),
@@ -92,8 +90,7 @@ void ExpSetup::write_setup_file(gzFile exp_setup_file) const
   sel()->write_setup_file(exp_setup_file);
 }
 
-void ExpSetup::load(gzFile setup_file, gzFile backup_file, bool verbose)
-{
+void ExpSetup::load(gzFile setup_file, gzFile backup_file, bool verbose) {
   // -------------------------------------------- Retrieve transfer parameters
   int8_t tmp_with_HT;
   int8_t tmp_repl_HT_with_close_points;
@@ -139,9 +136,6 @@ void ExpSetup::load(gzFile setup_file, gzFile backup_file, bool verbose)
   // ---------------------------------------------- Retrieve selection context
   sel()->load(setup_file, backup_file, verbose);
 }
-
-
-
 
 // ===========================================================================
 //                                Protected Methods
