@@ -59,7 +59,7 @@ namespace aevol {
 //                                 Public Methods
 // ===========================================================================
 
-// begin variadic template
+// begin variadic template gzwrite(...)
 
 // Base case for the next template.
 // Useless by itself. Not intented to be called directly.
@@ -79,46 +79,41 @@ void gzwrite(gzFile file, Field field, Args... fields_list) {
   ::gzwrite(file, &field, sizeof(field)); // actual call to library's gzwrite
   gzwrite(file, fields_list...); // recurse template for the remaining fields
 }
-// end variadic template
+// end variadic template gzwrite
 
 /*!
 */
 void ExpSetup::write_setup_file(gzFile exp_setup_file) const
 {
   // --------------------------------------------------------------- Transfer
-  int8_t tmp_with_HT = with_HT_;
-  gzwrite(exp_setup_file, tmp_with_HT);
-  int8_t tmp_repl_HT_with_close_points = repl_HT_with_close_points_;
-  gzwrite(exp_setup_file, tmp_repl_HT_with_close_points);
+  gzwrite(exp_setup_file,
+          static_cast<int8_t>(with_HT_),
+          static_cast<int8_t>(repl_HT_with_close_points_));
   if (with_HT_)
-  {
-    gzwrite(exp_setup_file, HT_ins_rate_);
-    gzwrite(exp_setup_file, HT_repl_rate_);
-  }
+    gzwrite(exp_setup_file,
+            HT_ins_rate_,
+            HT_repl_rate_);
   if(repl_HT_with_close_points_)
-  {
-    gzwrite(exp_setup_file, repl_HT_detach_rate_);
-  }
+    gzwrite(exp_setup_file,
+            repl_HT_detach_rate_);
 
   // --------------------------------------------------------------- Plasmids
   int8_t tmp_with_plasmids = with_plasmids();
   gzwrite(exp_setup_file, tmp_with_plasmids);
   if (tmp_with_plasmids)
-  {
-    gzwrite(exp_setup_file, prob_plasmid_HT_);
-    gzwrite(exp_setup_file, tune_donor_ability_);
-    gzwrite(exp_setup_file, tune_recipient_ability_);
-    gzwrite(exp_setup_file, donor_cost_);
-    gzwrite(exp_setup_file, recipient_cost_);
-    int8_t tmp_swap_GUs = swap_GUs_;
-    gzwrite(exp_setup_file, tmp_swap_GUs);
-  }
+    gzwrite(exp_setup_file,
+            prob_plasmid_HT_,
+            tune_donor_ability_,
+            tune_recipient_ability_,
+            donor_cost_,
+            recipient_cost_,
+            static_cast<int8_t>(swap_GUs_));
 
   // -------------------------------------------------------------- Secretion
-  int8_t tmp_with_secretion = with_secretion_;
-  gzwrite(exp_setup_file, tmp_with_secretion);
-  gzwrite(exp_setup_file, secretion_contrib_to_fitness_);
-  gzwrite(exp_setup_file, secretion_cost_);
+  gzwrite(exp_setup_file,
+          static_cast<int8_t>(with_secretion_),
+          secretion_contrib_to_fitness_,
+          secretion_cost_);
 
   sel()->write_setup_file(exp_setup_file);
 }
