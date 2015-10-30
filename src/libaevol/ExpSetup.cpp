@@ -58,51 +58,50 @@ namespace aevol {
 // ===========================================================================
 //                                 Public Methods
 // ===========================================================================
+enum class GzAction {READ, WRITE};
 
 // begin variadic template gzwrite(...)
 
 // Base case for the next template.
 // Useless by itself. Not intented to be called directly.
-void gzwrite(gzFile file) {
+void gz(GzAction action, gzFile file) {
   return;
 }
 
-/// Write variables to gzip file
+/// Read/write variables to gzip file
+/// \param `action` tells whether to read or write
 /// \param `file` an open gzip file
 /// \param `field` the field to be written
 /// \param `fields_list` the remaining fields
-/// The function is simply called like: `gzwrite(file, x, y, z, t)`.
+/// The function is simply called like: `gz(action, file, x, y, z, t)`.
 /// Warning: as it is currently written, this template overrides any
 /// call to gzwrite, which causes writing the length of the field to the file.
 template<typename Field, typename... Args>
-void gzwrite(gzFile file, Field field, Args... fields_list) {
-  ::gzwrite(file, &field, sizeof(field)); // actual call to library's gzwrite
-  gzwrite(file, fields_list...); // recurse template for the remaining fields
+void gz(GzAction action, gzFile file, Field& field, Args... fields_list) {
+  // This switch is unfortunate especially since the alternatives are pretty much the same.
+  // But there is a subtle difference that prevented me from a trivial factorization:
+  // gzwrite takes a _const_ void pointer as second argument.
+  switch (action) {
+    case GzAction::READ:
+      ::gzread(file, &field, sizeof(field));
+      break;
+    case GzAction::WRITE:
+      ::gzwrite(file, &field, sizeof(field));
+      break;
+  }
+  gz(action, file, fields_list...);
 }
 // end variadic template gzwrite
 
-// begin variadic template gzread()
-
-// Base case for the next template.
-// Useless by itself. Not intented to be called directly.
-void gzread(gzFile file) {
-  printf("plop\n");
-  return;
+template<typename... Args>
+void gzwrite(Args... args) {
+  gz(GzAction::WRITE, args...);
 }
 
-/// Write variables to gzip file
-/// \param `file` an open gzip file
-/// \param `field` the field to be written
-/// \param `fields_list` the remaining fields
-/// The function is simply called like: `gzwrite(file, x, y, z, t)`.
-/// Warning: as it is currently written, this template overrides any
-/// call to gzwrite, which causes writing the length of the field to the file.
-template<typename Field, typename... Args>
-void gzread(gzFile file, Field& field, Args... fields_list) {
-  ::gzread(file, &field, sizeof(field)); // actual call to library's gzwrite
-  gzread(file, fields_list...); // recurse template for the remaining fields
+template<typename... Args>
+void gzread(Args&&... args) {
+  gz(GzAction::READ, args...);
 }
-// end variadic template gzread
 
 /*!
 */
