@@ -81,6 +81,29 @@ void gzwrite(gzFile file, Field field, Args... fields_list) {
 }
 // end variadic template gzwrite
 
+// begin variadic template gzread()
+
+// Base case for the next template.
+// Useless by itself. Not intented to be called directly.
+void gzread(gzFile file) {
+  printf("plop\n");
+  return;
+}
+
+/// Write variables to gzip file
+/// \param `file` an open gzip file
+/// \param `field` the field to be written
+/// \param `fields_list` the remaining fields
+/// The function is simply called like: `gzwrite(file, x, y, z, t)`.
+/// Warning: as it is currently written, this template overrides any
+/// call to gzwrite, which causes writing the length of the field to the file.
+template<typename Field, typename... Args>
+void gzread(gzFile file, Field& field, Args... fields_list) {
+  ::gzread(file, &field, sizeof(field)); // actual call to library's gzwrite
+  gzread(file, fields_list...); // recurse template for the remaining fields
+}
+// end variadic template gzread
+
 /*!
 */
 void ExpSetup::write_setup_file(gzFile exp_setup_file) const
@@ -122,44 +145,44 @@ void ExpSetup::load(gzFile setup_file, gzFile backup_file, bool verbose)
 {
   // -------------------------------------------- Retrieve transfer parameters
   int8_t tmp_with_HT;
-  gzread(setup_file, &tmp_with_HT, sizeof(tmp_with_HT));
+  gzread(setup_file, tmp_with_HT);
   with_HT_ = static_cast<bool>(tmp_with_HT);
   int8_t tmp_repl_HT_with_close_points;
-  gzread(setup_file, &tmp_repl_HT_with_close_points, sizeof(tmp_repl_HT_with_close_points));
+  gzread(setup_file, tmp_repl_HT_with_close_points);
   repl_HT_with_close_points_ = static_cast<bool>(tmp_repl_HT_with_close_points);
   if (with_HT_)
   {
-    gzread(setup_file, &HT_ins_rate_,  sizeof(HT_ins_rate_));
-    gzread(setup_file, &HT_repl_rate_, sizeof(HT_repl_rate_));
+    gzread(setup_file, HT_ins_rate_);
+    gzread(setup_file, HT_repl_rate_);
   }
    if(repl_HT_with_close_points_)
   {
-    gzread(setup_file, &repl_HT_detach_rate_,  sizeof(repl_HT_detach_rate_));
+    gzread(setup_file, repl_HT_detach_rate_);
   }
 
 
   // -------------------------------------------- Retrieve plasmid parameters
   int8_t tmp_with_plasmids;
-  gzread(setup_file, &tmp_with_plasmids, sizeof(tmp_with_plasmids));
+  gzread(setup_file, tmp_with_plasmids);
   with_plasmids_ = static_cast<bool>(tmp_with_plasmids);
   if (with_plasmids_)
   {
-    gzread(setup_file, &prob_plasmid_HT_,  sizeof(prob_plasmid_HT_));
-    gzread(setup_file, &tune_donor_ability_,  sizeof(tune_donor_ability_));
-    gzread(setup_file, &tune_recipient_ability_,  sizeof(tune_recipient_ability_));
-    gzread(setup_file, &donor_cost_,  sizeof(donor_cost_));
-    gzread(setup_file, &recipient_cost_,  sizeof(recipient_cost_));
+    gzread(setup_file, prob_plasmid_HT_);
+    gzread(setup_file, tune_donor_ability_);
+    gzread(setup_file, tune_recipient_ability_);
+    gzread(setup_file, donor_cost_);
+    gzread(setup_file, recipient_cost_);
     int8_t tmp_swap_GUs;
-    gzread(setup_file, &tmp_swap_GUs, sizeof(tmp_swap_GUs));
+    gzread(setup_file, tmp_swap_GUs);
     swap_GUs_ = static_cast<bool>(tmp_swap_GUs);
   }
 
   // ------------------------------------------ Retrieve secretion parameters
   int8_t tmp_with_secretion;
-  gzread(setup_file, &tmp_with_secretion, sizeof(tmp_with_secretion));
+  gzread(setup_file, tmp_with_secretion);
   with_secretion_ = static_cast<bool>(tmp_with_secretion);
-  gzread(setup_file, &secretion_contrib_to_fitness_, sizeof(secretion_contrib_to_fitness_));
-  gzread(setup_file, &secretion_cost_, sizeof(secretion_cost_));
+  gzread(setup_file, secretion_contrib_to_fitness_);
+  gzread(setup_file, secretion_cost_);
 
   // ---------------------------------------------- Retrieve selection context
   sel()->load(setup_file, backup_file, verbose);
