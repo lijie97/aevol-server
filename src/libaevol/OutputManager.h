@@ -80,11 +80,11 @@ class OutputManager {
   // =================================================================
   //                        Accessors: getters
   // =================================================================
-  
+
   // Backup
   inline int64_t	backup_step() const;
   inline int64_t	big_backup_step() const;
-  
+
   // Tree
   inline bool record_tree() const;
   inline int64_t tree_step() const;
@@ -134,11 +134,11 @@ class OutputManager {
   //                          Protected Attributes
   // =================================================================
   ExpManager* exp_m_;
-  
+
   // Backups
   int64_t backup_step_;
   int64_t big_backup_step_;
-  
+
   // Stats
   Stats* stats_;
   bool compute_phen_contrib_by_GU_;
@@ -146,12 +146,12 @@ class OutputManager {
   // Tree
   bool record_tree_;
   Tree* tree_;
-  
+
   // Dumps
   bool make_dumps_;
   int64_t dump_step_;
   Dump* dump_;
-  
+
   // Logs
   Logging* logs_;
 };

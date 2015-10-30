@@ -64,7 +64,7 @@ int main( int argc, char* argv[] )
   char* param_file_name = NULL;
   char* env_file_name   = NULL;
   bool verbose          = false;
-  
+
   // 2) Define allowed options
   const char * options_list = "he:f:";
   static struct option long_options_list[] = {
@@ -73,12 +73,12 @@ int main( int argc, char* argv[] )
     { "file", required_argument,  NULL, 'f' }, // Provide file with environment parameters to change
     { 0, 0, 0, 0 }
   };
-      
+
   // 3) Get actual values of the command-line options
   int option;
-  while ( ( option = getopt_long(argc, argv, options_list, long_options_list, NULL) ) != -1 ) 
+  while ( ( option = getopt_long(argc, argv, options_list, long_options_list, NULL) ) != -1 )
   {
-    switch ( option ) 
+    switch ( option )
     {
       case 'h' :
       {
@@ -92,7 +92,7 @@ int main( int argc, char* argv[] )
           printf( "%s: error: Option -f or --file : missing argument.\n", argv[0] );
           exit( EXIT_FAILURE );
         }
-        
+
         param_file_name = optarg;
         break;
       }
@@ -103,9 +103,9 @@ int main( int argc, char* argv[] )
           printf( "%s: error: Option -e or --env : missing argument.\n", argv[0] );
           exit( EXIT_FAILURE );
         }
-        
+
         env_file_name = optarg;
-        
+
         break;
       }
       default :
@@ -115,14 +115,14 @@ int main( int argc, char* argv[] )
       }
     }
   }
-  
+
   // 4) Check the consistancy of the command-line options
   if ( param_file_name == NULL || env_file_name == NULL )
   {
     printf( "%s: error: You must provide both a parameter file and a environment backup.\n", argv[0] );
     exit( EXIT_FAILURE );
   }
-  
+
 
   // 5) Initialize an empty environment then load the backup environment
   printf("Loading the backup environment\t");
@@ -135,7 +135,7 @@ int main( int argc, char* argv[] )
   }
   env->load( env_file);
   printf("Ok\n");
-    
+
   // 6) Interpret and apply changes
   printf("Interpret and apply changes\n");
   FILE* param_file = fopen( param_file_name,  "r" );
@@ -144,9 +144,9 @@ int main( int argc, char* argv[] )
     printf( "%s:%d: error: could not open parameter file %s\n", __FILE__, __LINE__, param_file_name );
     exit( EXIT_FAILURE );
   }
-  
+
   f_line* line;
-  while ( ( line = line(param_file) ) != NULL ) 
+  while ( ( line = line(param_file) ) != NULL )
   {
     if ( strcmp( line->words[0], "ENV_ADD_GAUSSIAN" ) == 0 )
     {
@@ -163,7 +163,7 @@ int main( int argc, char* argv[] )
         exit( EXIT_FAILURE );
       }
       env_var_already_set = true;
-      
+
       if ( strcmp( line->words[1], "none" ) == 0 )
       {
         assert( line->nb_words == 2 );
@@ -192,12 +192,12 @@ int main( int argc, char* argv[] )
         exit( EXIT_FAILURE );
       }
     }
- 
+
     delete line;
   }
   fclose( param_file );
   printf("Ok\n");
-  
+
   // 7) Save the changed environment in a new environment file (similar name with _changed)
   printf("Save the changed environment\t");
   char* new_env_file_name   = NULL;
@@ -222,7 +222,7 @@ f_line* get_line(FILE* param_file)
   char line[255];
   f_line* formated_line = new f_line();
 
-  bool found_interpretable_line = false; 
+  bool found_interpretable_line = false;
 
   while ( !feof( param_file ) && !found_interpretable_line )
   {
@@ -279,7 +279,7 @@ void format_line( f_line* formated_line, char* line, bool* line_is_interpretable
 }
 
 
-void print_help( char* prog_name ) 
+void print_help( char* prog_name )
 {
 	printf( "******************************************************************************\n" );
 	printf( "*                        aevol - Artificial Evolution                        *\n" );

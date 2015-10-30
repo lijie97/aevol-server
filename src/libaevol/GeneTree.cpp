@@ -83,8 +83,8 @@ GeneTree::GeneTree( int32_t nodeCreationDate, Protein * protein, const Mutation 
   else if ((mut->mut_type() == SWITCH) || (mut->mut_type() == S_INS) || (mut->mut_type() == S_DEL)) creation_type_ = LOCAL_MUTATION;
   else if ((mut->mut_type() == DUPL) || (mut->mut_type() == DEL) || (mut->mut_type() == TRANS) || (mut->mut_type() == INV) ) creation_type_ = REARRANGEMENT;
   else creation_type_ = TRANSFER;
- 
-    
+
+
   begin_gener_ = nodeCreationDate;
   end_gener_ = nodeCreationDate;
   total_nb_nodes_ = 1;
@@ -145,11 +145,11 @@ void GeneTree::register_actual_mutation_effect_on_genes_in_tree_leaves(const Mut
 //   node->right_child_->node_creation_date_ = duplicDate;
 //   node->right_child_->dna_creation_date_ = duplicDate;
 //   node->right_child_->parent_node_ = node;
-  
+
 //   // This node becomes internal, it represents an ancestral (obsolete) state of the gene
 //   node->protein_pointer_ = NULL;
 //   for (int32_t i = 0; i < node->nb_promoters_; i++) {node->rna_pointers_[i] = NULL;}
-//   node->gene_loss_type_ = DUPLICATED; 
+//   node->gene_loss_type_ = DUPLICATED;
 //   node->gene_loss_date_ = duplicDate;
 
 //   // Update tree statistics
@@ -166,7 +166,7 @@ void GeneTree::register_actual_mutation_effect_on_genes_in_tree_leaves(const Mut
 //   node->mutation_list_->add(geneMut);
 //   if (geneMut->generation() > end_gener_) end_gener_ = geneMut->generation();
 // }
- 
+
 
 
 // void GeneTree::report_gene_loss( GeneTreeNode * node, int32_t geneLossDate, ae_gene_loss_type geneLossType)
@@ -178,14 +178,14 @@ void GeneTree::register_actual_mutation_effect_on_genes_in_tree_leaves(const Mut
 //   if (geneLossDate > end_gener_) end_gener_ = geneLossDate;
 //   nb_active_leaves_ --;
 // }
-  
+
 
 
 GeneTreeNode *GeneTree::search_in_leaves(const Protein * protein)
 {
   return root_->search_in_subtree_leaves(protein);
 }
- 
+
 
 void GeneTree::print_to_screen()
 {
@@ -208,7 +208,7 @@ void GeneTree::write_to_files(const char * topologyFileName, const char * nodeAt
     {
       fprintf(stderr, "Error: cannot create file %s.\n", topologyFileName);
       exit(EXIT_FAILURE);
-    }  
+    }
 
 
   root_->write_subtree_to_files(topology_file, node_attributes_file, end_gener);
@@ -219,7 +219,7 @@ void GeneTree::write_to_files(const char * topologyFileName, const char * nodeAt
 }
 
 
-// f must already be open 
+// f must already be open
 void GeneTree::write_nodes_in_tabular_file(int32_t treeID, FILE * f)
 {
   root_->write_subtree_nodes_in_tabular_file(treeID, f);

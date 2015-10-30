@@ -64,17 +64,17 @@ VisAVis* Alignment::search_alignment_direct(const Dna* chrom_1,
                                             const int32_t seed_2,
                                             const int16_t needed_score) {
   VisAVis* best_alignment = NULL;
-  
+
   int16_t nb_diags = 2 * chrom_1->indiv()->align_max_shift() + 1;
   VisAVis* cur_vav = NULL;
-  
+
   // TODO <david.parsons@inria.fr>: As VisAVis now contains its score, we
   // should adapt the code to make it more integrated
-  int16_t cur_score;  
-  
+  int16_t cur_score;
+
   // Zone 1 (Index on the chromosome)
   // First base in working zone 1
-  int32_t w_zone_1_first = 
+  int32_t w_zone_1_first =
       seed_1 - chrom_1->indiv()->align_w_zone_h_len();
   // Last  base in working zone 1
   int32_t w_zone_1_last =
@@ -82,7 +82,7 @@ VisAVis* Alignment::search_alignment_direct(const Dna* chrom_1,
   // First base in extended zone 1
   int32_t x_zone_1_first =
       w_zone_1_first - chrom_1->indiv()->align_max_shift();
-  
+
   // Zone 2 (Index on the chromosome)
   // First base in working zone 2
   int32_t w_zone_2_first =
@@ -94,9 +94,9 @@ VisAVis* Alignment::search_alignment_direct(const Dna* chrom_1,
   // This doesn't represent any point of interest
   // in the sequence but will spare some calculation
   int32_t w_zone_2_shifted_first =
-      w_zone_2_first + chrom_2->indiv()->align_max_shift(); 
-  
-  
+      w_zone_2_first + chrom_2->indiv()->align_max_shift();
+
+
   // Parse diagonals
   for (int16_t cur_diag = 0 ; cur_diag < nb_diags ; cur_diag++) {
     // Initialize cur_vav according to the diagonal we are on
@@ -113,7 +113,7 @@ VisAVis* Alignment::search_alignment_direct(const Dna* chrom_1,
       cur_vav = new VisAVis(chrom_1, chrom_2, w_zone_1_first, w_zone_2_first,
                             DIRECT);
     }
-    
+
     // A sequence against itself is not an alignment
     if (chrom_1 == chrom_2 &&
         Utils::mod(cur_vav->i_1_, chrom_1->length()) ==
@@ -121,9 +121,9 @@ VisAVis* Alignment::search_alignment_direct(const Dna* chrom_1,
       delete cur_vav;
       continue;
     }
-    
+
     cur_score = 0;
-    
+
     // Parse current diagonal
     while (cur_vav->i_1_ <= w_zone_1_last || cur_vav->i_2_ <= w_zone_2_last) {
       // Re-initialize score and potential alignment starting point if
@@ -137,16 +137,16 @@ VisAVis* Alignment::search_alignment_direct(const Dna* chrom_1,
           best_alignment = new VisAVis(*cur_vav);
         }
       }
-      
+
       // Update Score
       if (cur_vav->match()) {
         cur_score += chrom_1->indiv()->align_match_bonus();
-        
+
         // Check whether score is high enough to rearrange
         if (cur_score >= needed_score) {
           delete cur_vav;
           best_alignment->check_indices();
-          
+
           best_alignment->score_ = cur_score;
           return best_alignment;
         }
@@ -154,19 +154,19 @@ VisAVis* Alignment::search_alignment_direct(const Dna* chrom_1,
       else {
         cur_score -= chrom_1->indiv()->align_mismatch_cost();
       }
-      
+
       // Step forward
       cur_vav->step_fwd();
     }
-    
+
     delete cur_vav;
   }
-  
-  
+
+
   if (best_alignment != NULL) {
     delete best_alignment;
   }
-  
+
   return NULL; // Didn't find any alignment with sufficient score.
 }
 
@@ -177,11 +177,11 @@ VisAVis* Alignment::search_alignment_indirect(const Dna* chrom_1,
                                               const int32_t seed_2,
                                               const int16_t needed_score) {
   VisAVis * best_alignment = NULL;
-  
+
   int16_t nb_diags = 2 * chrom_1->indiv()->align_max_shift() + 1;
   int16_t cur_score;
   VisAVis * cur_vav = NULL;
-  
+
   // Zone 1 (Indice on the chromosome)
   // First base in working zone 1
   int32_t w_zone_1_first =
@@ -192,7 +192,7 @@ VisAVis* Alignment::search_alignment_indirect(const Dna* chrom_1,
   // First base in extended zone 1
   int32_t x_zone_1_first =
       w_zone_1_first - chrom_1->indiv()->align_max_shift();
-  
+
   // Zone 2 (Indice on the chromosome)
   // ********** WARNING **********
   // Because we are reading backwards, every read is shifted by -1.
@@ -241,8 +241,8 @@ VisAVis* Alignment::search_alignment_indirect(const Dna* chrom_1,
   // in the sequence but will spare some calculation
   int32_t w_zone_2_shifted_first =
       w_zone_2_first - chrom_2->indiv()->align_max_shift();
-  
-  
+
+
   // Parse diagonals
   for (int16_t cur_diag = 0 ; cur_diag < nb_diags ; cur_diag++) {
     // Initialize cur_vav according to the diagonal we are on
@@ -260,10 +260,10 @@ VisAVis* Alignment::search_alignment_indirect(const Dna* chrom_1,
       cur_vav = new VisAVis(chrom_1, chrom_2, w_zone_1_first, w_zone_2_first,
                             INDIRECT);
     }
-    
+
     cur_score = 0;
-    
-    
+
+
     // Parse diagonal
     while (cur_vav->i_1_ <= w_zone_1_last || cur_vav->i_2_ >= w_zone_2_last) {
       // Re-initialize score and potential alignment starting point if
@@ -277,16 +277,16 @@ VisAVis* Alignment::search_alignment_indirect(const Dna* chrom_1,
           best_alignment = new VisAVis(*cur_vav);
         }
       }
-      
+
       // Update Score
       if (cur_vav->match()) {
         cur_score += chrom_1->indiv()->align_match_bonus();
-        
+
         // Check whether score is high enough to rearrange
         if (cur_score >= needed_score) {
           delete cur_vav;
           best_alignment->check_indices();
-          
+
           best_alignment->score_ = cur_score;
           return best_alignment;
         }
@@ -294,19 +294,19 @@ VisAVis* Alignment::search_alignment_indirect(const Dna* chrom_1,
       else {
         cur_score -= chrom_1->indiv()->align_mismatch_cost();
       }
-      
+
       // Step forward
       cur_vav->step_fwd();
     }
-    
+
     delete cur_vav;
   }
-  
-  
+
+
   if (best_alignment != NULL) {
     delete best_alignment;
   }
-  
+
   return NULL; // Didn't find any alignment with sufficient score.
 }
 

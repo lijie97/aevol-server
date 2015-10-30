@@ -24,10 +24,10 @@
 //
 // ****************************************************************************
 
- 
+
 const char* DEFAULT_PARAM_FILE_NAME = "param.in";
- 
- 
+
+
 // =================================================================
 //                              Includes
 // =================================================================
@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
   char* param_file_name = NULL;
   bool verbose          = false;
   int64_t num_gener = -1;
-  
+
   // 2) Define allowed options
   const char * options_list = "hf:g:V";
   static struct option long_options_list[] = {
@@ -93,12 +93,12 @@ int main(int argc, char* argv[])
     { "version",  no_argument,        NULL, 'V' },
     { 0, 0, 0, 0 }
   };
-      
+
   // 3) Get actual values of the command-line options
   int option;
-  while ((option = getopt_long(argc, argv, options_list, long_options_list, NULL)) != -1) 
+  while ((option = getopt_long(argc, argv, options_list, long_options_list, NULL)) != -1)
     {
-      switch (option) 
+      switch (option)
         {
         case 'h' :
           {
@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
                 printf("%s: error: Option -f or --file : missing argument.\n", argv[0]);
                 exit(EXIT_FAILURE);
               }
-        
+
             param_file_name = optarg;
             break;
           }
@@ -132,8 +132,8 @@ int main(int argc, char* argv[])
             exit(EXIT_FAILURE);
           }
         }
-    }  
-  
+    }
+
   // 4) Set undefined command line parameters to default values
   if (param_file_name == NULL) {
     param_file_name = new char[strlen(DEFAULT_PARAM_FILE_NAME)+1];
@@ -155,14 +155,14 @@ int main(int argc, char* argv[])
     else
       Utils::ExitWithUsrMsg("you must provide a generation number");
   }
-  
+
   // 5) Check the consistancy of the command-line options
   if (num_gener == -1)
     {
       printf("%s: error: You must provide a generation number.\n", argv[0]);
       exit(EXIT_FAILURE);
     }
-  
+
   // 6) Initialize the experiment manager
 #ifndef __NO_X
   ExpManager* exp_manager = new ExpManager_X11();
@@ -171,13 +171,13 @@ int main(int argc, char* argv[])
 #endif
   exp_manager->load(num_gener, false, verbose);
 
-  // 7) Define syntaxic sugars for the population, the environment, the selection...  
+  // 7) Define syntaxic sugars for the population, the environment, the selection...
 //  Environment* env = exp_manager->env();
   Selection* sel = exp_manager->sel();
   World* world = exp_manager->world();
 
 
-  // If relevant, load the tree information 
+  // If relevant, load the tree information
   char tree_file_name[50];
   Tree* tree = nullptr;
   bool take_care_of_the_tree = exp_manager->record_tree() &&
@@ -191,11 +191,11 @@ int main(int argc, char* argv[])
     #else
       sprintf(tree_file_name,"tree/tree_%06" PRId64 ".ae", num_gener);
     #endif
-    
+
     tree = new Tree(exp_manager, tree_file_name);
   }
 
- 
+
 
 
 
@@ -214,7 +214,7 @@ int main(int argc, char* argv[])
   bool start_to_record_tree = false;
   bool set_tree_step = false;
   int32_t tree_step = 100;
-  
+
   ParameterLine* line;
   int32_t cur_line = 0;
   while ((line = get_line(param_file)) != NULL)
@@ -466,7 +466,7 @@ int main(int argc, char* argv[])
              atof(line->words[1]), atof(line->words[2]), atof(line->words[3]));
       phen_target_change = true;
     }
-    else if (strcmp(line->words[0], "ENV_ADD_POINT") == 0) 
+    else if (strcmp(line->words[0], "ENV_ADD_POINT") == 0)
     {
       // custom_points
       printf("%s:%d: error: Custom points_ management has been removed.\n", __FILE__, __LINE__);
@@ -594,7 +594,7 @@ int main(int argc, char* argv[])
     else if (strcmp(line->words[0], "SEED") == 0)
     {
       int32_t seed = atoi(line->words[1]);
-  
+
       // Change prngs
 #if __cplusplus == 201103L
       sel->set_prng(make_unique<JumpingMT>(seed));
@@ -603,13 +603,13 @@ int main(int argc, char* argv[])
       sel->set_prng(std::make_unique<JumpingMT>(seed));
       world->set_prng(std::make_unique<JumpingMT>(seed));
 #endif
-  
+
       printf("\tChange of the seed to %d in selection and world \n",atoi(line->words[1]));
     }
     else if (strcmp(line->words[0], "MUT_SEED") == 0)
     {
       int32_t mut_seed = atoi(line->words[1]);
-  
+
       // Change mutation prng
       world->set_mut_prng(std::make_shared<JumpingMT>(mut_seed));
       printf("\tChange of the seed to %d in mutations \n",atoi(line->words[1]));
@@ -617,7 +617,7 @@ int main(int argc, char* argv[])
     else if (strcmp(line->words[0], "STOCH_SEED") == 0)
     {
       int32_t stoch_seed = atoi(line->words[1]);
-  
+
       // Change stochasticity prng
       world->set_stoch_prng(std::make_shared<JumpingMT>(stoch_seed));
       printf("\tChange of the seed to %d in individuals' stochasticity \n",atoi(line->words[1]));
@@ -727,10 +727,10 @@ int main(int argc, char* argv[])
 
 /*!
   \brief Get a line in a file and format it
-  
+
   \param param_file file with param in which a line is reading
   \return line (pointer)
-  
+
   \see format_line(ParameterLine* formated_line, char* line, bool* line_is_interpretable)
 */
 ParameterLine* get_line(FILE* param_file)
@@ -738,7 +738,7 @@ ParameterLine* get_line(FILE* param_file)
   char line[255];
   ParameterLine* formated_line = new ParameterLine();
 
-  bool found_interpretable_line = false; 
+  bool found_interpretable_line = false;
 
   while (!feof(param_file) && !found_interpretable_line)
     {
@@ -763,7 +763,7 @@ ParameterLine* get_line(FILE* param_file)
 
 /*!
   \brief Format a line by parsing it and the words inside
-  
+
   \param formated_line the resulted formated line
   \param line original line in char*
   \param line_is_interpretable boolean with about the possible intrepretation of the line
@@ -777,10 +777,10 @@ void format_line(ParameterLine* formated_line, char* line, bool* line_is_interpr
   while (line[i] != '\n' && line[i] != '\0' && line[i] != '\r')
     {
       j = 0;
-    
+
       // Flush white spaces and tabs
       while (line[i] == ' ' || line[i] == 0x09) i++; // 0x09 is the ASCII code for TAB
-    
+
       // Check comments
       if (line[i] == '#') break;
 
@@ -808,23 +808,23 @@ void format_line(ParameterLine* formated_line, char* line, bool* line_is_interpr
 
 // /*!
 //   \brief Change in the population based on non coding bases on the best individual. 3 types of changes
-  
+
 //   SUBPOPULATIONS_BASED_ON_NON_CODING_BASES:
 //   Create the 3 subpopulations in the population. The definition of 3 subpopulations is based on non coding bases.
-    
+
 //   The subpopulation are clonal and based on the ancestor of best individual of pop at begin.
-//   The individuals in first subpopulation are clones of the best individual. 
-//   The individuals in second subpopulation are clones of the best individual without any bases that are not in coding RNA.  
+//   The individuals in first subpopulation are clones of the best individual.
+//   The individuals in second subpopulation are clones of the best individual without any bases that are not in coding RNA.
 //   The individuals in third subpopulation are clones of the best individual with addition of bases that are not in coding RNA to double them.
-    
+
 //   pop is changed into the new population with the 3 subpopulations
-    
-//   REMOVE_NON_CODING_BASES_BEST_IND: 
-//   The individuals of the new population are clones of the best individual but without any bases that are not in coding RNA.  
-    
+
+//   REMOVE_NON_CODING_BASES_BEST_IND:
+//   The individuals of the new population are clones of the best individual but without any bases that are not in coding RNA.
+
 //   DOUBLE_NON_CODING_BASES_BEST_IND:
 //   The individuals of the new population are clones of the best individual but with addition of bases that are not in coding RNA to double them.
-    
+
 //   \param pop population to change
 //   \param exp_m global exp_manager
 //   \param type type of change in the population
@@ -835,25 +835,25 @@ void format_line(ParameterLine* formated_line, char* line, bool* line_is_interpr
 //     {
 //       // 1) Compute the population size
 //       int32_t subpopulation_size = (int)floor(pop->nb_indivs()/3);
-  
+
 //       // 2) Get the best individual
 //       ae_individual* best_indiv = exp_m->best_indiv();
 
-    
-//       // 3) Create the new population 
 
-   
+//       // 3) Create the new population
+
+
 //       std::list<ae_individual*> new_generation;
 
 //       ae_individual* indiv = create_clone(best_indiv, -1);
-            
+
 //       ae_individual* only_coding_indiv = create_clone(best_indiv, -1); //one individual being the clone of the chosen individual but without any non coding bases
 //       only_coding_indiv->remove_non_coding_bases();
-    
+
 //       ae_individual* twice_non_coding_indiv = create_clone(best_indiv, -1); //one individual being the clone of the chosen individual but without any non coding bases
 //       twice_non_coding_indiv->double_non_coding_bases();
-    
-    
+
+
 //       int32_t* probe_A = new int32_t[5];
 //       int32_t* probe_B = new int32_t[5];
 //       int32_t* probe_C = new int32_t[5];
@@ -866,7 +866,7 @@ void format_line(ParameterLine* formated_line, char* line, bool* line_is_interpr
 //       indiv->set_int_probes(probe_A);
 //       only_coding_indiv->set_int_probes(probe_B);
 //       twice_non_coding_indiv->set_int_probes(probe_C);
-    
+
 //       double* probe_double_A = new double[5];
 //       double* probe_double_B = new double[5];
 //       double* probe_double_C = new double[5];
@@ -879,7 +879,7 @@ void format_line(ParameterLine* formated_line, char* line, bool* line_is_interpr
 //       indiv->set_double_probes(probe_double_A);
 //       only_coding_indiv->set_double_probes(probe_double_B);
 //       twice_non_coding_indiv->set_double_probes(probe_double_C);
-      
+
 
 //       switch(type)
 //         {
@@ -917,17 +917,17 @@ void format_line(ParameterLine* formated_line, char* line, bool* line_is_interpr
 //             break;
 //           }
 //         }
-      
+
 //       //  4) Replace the current population by the new one
 //       //     -> Useless since it is done by replace_population.
 //       pop->replace_population(std::move(new_generation));
-    
-    
+
+
 
 //       // TODO
 //       // If the population is spatially structured, set each individual's position
 //       // There will be a problem however for the "3 subpopulations" type of change,
-//       // if the population size has changed (which is likely given that we do not 
+//       // if the population size has changed (which is likely given that we do not
 //       // generally used population size that are multiple of 3)
 
 //       pop->evaluate_individuals(exp_m->env());
@@ -942,13 +942,13 @@ void format_line(ParameterLine* formated_line, char* line, bool* line_is_interpr
 
 // /*!
 //   \brief Change in the population based on non coding bases. 2 types of changes
-  
+
 //   REMOVE_NON_CODING_BASES_POPULATION:
 //   The individual of the new population are the individuals without any bases that are not in coding RNA.
-    
+
 //   DOUBLE_NON_CODING_BASES_POPULATION:
 //   The individual of the new population are the individuals with addition of bases that are not in coding RNA to double them.
-    
+
 //   \param pop population to change
 //   \param exp_m global exp_manager
 //   \param type type of change in the population
@@ -977,16 +977,16 @@ void format_line(ParameterLine* formated_line, char* line, bool* line_is_interpr
 
 
 /*!
-  \brief 
-  
+  \brief
+
 */
-void print_help(char* prog_path) 
+void print_help(char* prog_path)
 {
   // Get the program file-name in prog_name (strip prog_path of the path)
   char* prog_name; // No new, it will point to somewhere inside prog_path
   if ((prog_name = strrchr(prog_path, '/'))) prog_name++;
   else prog_name = prog_path;
-  
+
   printf("******************************************************************************\n");
   printf("*                                                                            *\n");
   printf("*                        aevol - Artificial Evolution                        *\n");

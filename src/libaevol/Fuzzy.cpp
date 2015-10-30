@@ -57,7 +57,7 @@ namespace aevol {
 /// return it ordinate. Otherwise interpolate surrounding points.
 ///
 /// TODO: use it! (vld, 2014-12-19)
-/// 
+///
 double Fuzzy::y(double x, list<Point>::const_iterator begin) const {
   assert(x >= X_MIN and x <= X_MAX);
   assert(points_.size() >= 2);
@@ -67,7 +67,7 @@ double Fuzzy::y(double x, list<Point>::const_iterator begin) const {
     find_if(begin, points_.end(),
             [x](const Point& m){return m.x >= x;});
   assert(p2 != points_.end());
-  
+
   if (p2->x == x) // If p2 has abscissa x, he's the guy
     return p2->y;
   else { // Otherwise interpolate
@@ -168,7 +168,7 @@ void Fuzzy::add_triangle(double mean, double width, double height) {
   list<Point>::iterator p0, p1, p2;
   p0 = p1 = points_.begin();
   p2 = prev(points_.end());
-  
+
   double x0 = mean - width;
   double x1 = mean;
   double x2 = mean + width;
@@ -182,7 +182,7 @@ void Fuzzy::add_triangle(double mean, double width, double height) {
   // Update points with abscissas in (x0;x1)
   for (list<Point>::iterator p = p0 ; p != p1 ; ++p)
     p->y += (p->x - x0) / (x1 - x0) * height;
-  
+
   // Update points with abscissas in (x0;x1)
   for (list<Point>::iterator p = p1 ; p != p2 ; ++p)
     p->y += height * (x2 - p->x) / (x2 - x1);
@@ -383,7 +383,7 @@ list<Point>::iterator Fuzzy::create_interpolated_point(double x, std::list<Point
   // TODO: probably denotes a logic error
   if (start->x <= x )
     start = points_.begin();
-  
+
   // get first point with abscissa stricly greater than x
   list<Point>::iterator p = find_if(start, points_.end(), [x](Point& q){return q.x > x;});
   if (prev(p)->x == x) {

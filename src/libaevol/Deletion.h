@@ -49,7 +49,7 @@ class Deletion : public Rearrangement {
            int32_t length, int16_t align_score = -1);
 
   virtual Mutation* Clone() const override {return new Deletion(*this);}
-  
+
   // ==========================================================================
   //                                Destructor
   // ==========================================================================

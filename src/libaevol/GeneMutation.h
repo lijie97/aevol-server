@@ -30,12 +30,12 @@
          enriched with the generation when it occurred and the position where it occurred in the coding RNA
          (relative to the first bp of the promoter).
 */
- 
- 
+
+
  #ifndef AEVOL_GENE_MUTATION_H_
 #define  AEVOL_GENE_MUTATION_H_
- 
- 
+
+
 // =================================================================
 //                              Libraries
 // =================================================================
@@ -87,48 +87,48 @@ enum ae_gene_mutation_region
 class GeneMutation : public Mutation
 {
   friend class GeneTreeNode;
-  
+
  public :
 
   // =================================================================
   //                             Constructors
   // =================================================================
-  
+
   // Creates a copy of the mutation mut, but enriched with the generation when it occured
   // and the position where it occurred in the RNA, relative to the first bp of the promoter
   GeneMutation(Mutation const & mut, int32_t gener, int32_t cdsPosBefore, Strand strandBefore, ae_gene_mutation_region region );
-  
+
   GeneMutation( const GeneMutation &model );
-  
+
   // =================================================================
   //                             Destructors
   // =================================================================
-  
+
   virtual ~GeneMutation();
-  
+
   // =================================================================
   //                              Accessors
   // =================================================================
-  
+
   inline int32_t generation() const;
   inline double impact_on_metabolic_error() const;
   inline ae_gene_mutation_region region();
   inline void set_impact_on_metabolic_error(double impact);
-  
- 
+
+
   // =================================================================
   //                            Public Methods
   // =================================================================
   void description_string_for_gene_mut(char * str); // str must be at least of size 60
   int8_t type_of_event(); // 0 if local mut, 1 if rearrangement, 2 if transfer
 
-     
+
  protected :
-  
+
   // =================================================================
   //                         Forbidden Constructors
   // =================================================================
-  
+
   GeneMutation()
     {
       printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
@@ -139,20 +139,20 @@ class GeneMutation : public Mutation
   /*     printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ ); */
   /*     exit( EXIT_FAILURE ); */
   /*   }; */
-  
+
   // =================================================================
   //                           Protected Methods
   // =================================================================
-  
+
   // =================================================================
   //                          Protected Attributes
   // =================================================================
-  
+
   int32_t*  position_relative_to_shine_dal_; /* array of positions similar to the pos_ array of the Mutation class (size 1 for the switch, 2 for an inversion, etc.) */
   int32_t   generation_;
   double    impact_on_metabolic_error_;
   ae_gene_mutation_region region_;
-  
+
 };
 
 

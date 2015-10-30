@@ -76,7 +76,7 @@ void ExpSetup::write_setup_file( gzFile exp_setup_file ) const
   {
     gzwrite( exp_setup_file, &repl_HT_detach_rate_,  sizeof(repl_HT_detach_rate_) );
   }
-  
+
   // --------------------------------------------------------------- Plasmids
   int8_t tmp_with_plasmids = with_plasmids();
   gzwrite( exp_setup_file, &tmp_with_plasmids, sizeof(tmp_with_plasmids) );
@@ -90,13 +90,13 @@ void ExpSetup::write_setup_file( gzFile exp_setup_file ) const
     int8_t tmp_swap_GUs = swap_GUs_;
     gzwrite( exp_setup_file, &tmp_swap_GUs, sizeof(tmp_swap_GUs) );
   }
-  
+
   // -------------------------------------------------------------- Secretion
   int8_t tmp_with_secretion = with_secretion_;
   gzwrite( exp_setup_file, &tmp_with_secretion, sizeof(tmp_with_secretion) );
   gzwrite( exp_setup_file, &secretion_contrib_to_fitness_, sizeof(secretion_contrib_to_fitness_) );
   gzwrite( exp_setup_file, &secretion_cost_, sizeof(secretion_cost_) );
-  
+
   sel()->write_setup_file( exp_setup_file );
 }
 
@@ -118,8 +118,8 @@ void ExpSetup::load( gzFile setup_file, gzFile backup_file, bool verbose )
   {
     gzread( setup_file, &repl_HT_detach_rate_,  sizeof(repl_HT_detach_rate_) );
   }
-  
-  
+
+
   // -------------------------------------------- Retrieve plasmid parameters
   int8_t tmp_with_plasmids;
   gzread( setup_file, &tmp_with_plasmids, sizeof(tmp_with_plasmids) );
@@ -135,14 +135,14 @@ void ExpSetup::load( gzFile setup_file, gzFile backup_file, bool verbose )
     gzread( setup_file, &tmp_swap_GUs, sizeof(tmp_swap_GUs) );
     swap_GUs_ = static_cast<bool>(tmp_swap_GUs);
   }
-  
+
   // ------------------------------------------ Retrieve secretion parameters
   int8_t tmp_with_secretion;
   gzread( setup_file, &tmp_with_secretion, sizeof(tmp_with_secretion) );
   with_secretion_ = static_cast<bool>(tmp_with_secretion);
   gzread( setup_file, &secretion_contrib_to_fitness_, sizeof(secretion_contrib_to_fitness_) );
   gzread( setup_file, &secretion_cost_, sizeof(secretion_cost_) );
-  
+
   // ---------------------------------------------- Retrieve selection context
   sel()->load( setup_file, backup_file, verbose );
 }

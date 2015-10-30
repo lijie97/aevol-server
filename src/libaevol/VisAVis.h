@@ -63,7 +63,7 @@ namespace aevol {
 class VisAVis
 {
   friend class Alignment;
-  
+
   public :
 
     // =================================================================
@@ -108,7 +108,7 @@ class VisAVis
     inline void sub( int common_inc );
     inline void sub( int inc_1, int inc_2 );
     inline void swap();
-    
+
     inline void copy( VisAVis * source );
     inline void check_indices();
 
@@ -320,10 +320,10 @@ inline void VisAVis::swap()
 {
   const Dna *  tmp_chrom = chrom_1_;
   int32_t         tmp_i     = i_1_;
-  
+
   chrom_1_  = chrom_2_;
   i_1_      = i_2_;
-  
+
   chrom_2_  = tmp_chrom;
   i_2_      = tmp_i;
 }

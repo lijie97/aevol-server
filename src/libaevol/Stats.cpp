@@ -120,35 +120,35 @@ Stats::~Stats() {
       for (int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++) {
         if(stat_files_names_[chrom_or_GU][best_or_glob][stat_type] != NULL) {
           assert(stat_files_[chrom_or_GU][best_or_glob][stat_type] != NULL);
-          
+
           fclose(stat_files_[chrom_or_GU][best_or_glob][stat_type]);
           stat_files_[chrom_or_GU][best_or_glob][stat_type] = NULL;
-          
+
           delete [] stat_files_names_[chrom_or_GU][best_or_glob][stat_type];
           stat_files_names_[chrom_or_GU][best_or_glob][stat_type] = NULL;
         }
       }
-      
+
       delete [] stat_files_[chrom_or_GU][best_or_glob];
       stat_files_[chrom_or_GU][best_or_glob] = NULL;
-      
+
       delete [] stat_files_names_[chrom_or_GU][best_or_glob];
       stat_files_names_[chrom_or_GU][best_or_glob] = NULL;
     }
-    
+
     delete [] stat_files_[chrom_or_GU];
     stat_files_[chrom_or_GU] = NULL;
-    
+
     delete [] stat_files_names_[chrom_or_GU];
     stat_files_names_[chrom_or_GU] = NULL;
   }
-  
+
   delete [] stat_files_;
   stat_files_ = NULL;
-  
+
   delete [] stat_files_names_;
   stat_files_names_ = NULL;
-}   
+}
 
 
 // =================================================================
@@ -170,7 +170,7 @@ void Stats::write_headers(bool ancstats_stats /* = false */)
 {
   // Column key in the stat files
   int8_t key;
-  
+
   // --------------------------------------
   //  Write headers in FITNESS_STATS files
   // --------------------------------------
@@ -199,7 +199,7 @@ void Stats::write_headers(bool ancstats_stats /* = false */)
         write_header(stat_files_[chrom_or_GU][GLOB][FITNESS_STATS], "------------------------------------------------");
         write_header(stat_files_[chrom_or_GU][GLOB][FITNESS_STATS], "");
       }
-      
+
       if (stat_files_names_[chrom_or_GU][SDEV][FITNESS_STATS] != NULL)
       {
         write_header(stat_files_[chrom_or_GU][SDEV][FITNESS_STATS], "------------------------------------------------------------");
@@ -207,7 +207,7 @@ void Stats::write_headers(bool ancstats_stats /* = false */)
         write_header(stat_files_[chrom_or_GU][SDEV][FITNESS_STATS], "------------------------------------------------------------");
         write_header(stat_files_[chrom_or_GU][SDEV][FITNESS_STATS], "");
       }
-      
+
       if (stat_files_names_[chrom_or_GU][SKEW][FITNESS_STATS] != NULL)
       {
         write_header(stat_files_[chrom_or_GU][SKEW][FITNESS_STATS], "--------------------------------------------------");
@@ -216,15 +216,15 @@ void Stats::write_headers(bool ancstats_stats /* = false */)
         write_header(stat_files_[chrom_or_GU][SKEW][FITNESS_STATS], "");
       }
     }
-    
-    
+
+
     for (int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++)
     {
       if (stat_files_names_[chrom_or_GU][best_or_glob][FITNESS_STATS] != NULL)
       {
         assert(stat_files_[chrom_or_GU][best_or_glob][FITNESS_STATS] != NULL);
         key = 1;
-        
+
         write_header(stat_files_[chrom_or_GU][best_or_glob][FITNESS_STATS], "Generation", key++);
         write_header(stat_files_[chrom_or_GU][best_or_glob][FITNESS_STATS], "Population size", key++);
         write_header(stat_files_[chrom_or_GU][best_or_glob][FITNESS_STATS], "Fitness", key++);
@@ -247,12 +247,12 @@ void Stats::write_headers(bool ancstats_stats /* = false */)
           write_header(stat_files_[chrom_or_GU][best_or_glob][FITNESS_STATS], "Average value of positive links in the regulation graph", key++);
           write_header(stat_files_[chrom_or_GU][best_or_glob][FITNESS_STATS], "Average value of negative links in the regulation graph", key++);
         #endif
-        
-        write_header(stat_files_[chrom_or_GU][best_or_glob][FITNESS_STATS], ""); 
+
+        write_header(stat_files_[chrom_or_GU][best_or_glob][FITNESS_STATS], "");
       }
     }
   }
-  
+
   // ---------------------------------------
   //  Write headers in MUTATION_STATS files
   // ---------------------------------------
@@ -282,14 +282,14 @@ void Stats::write_headers(bool ancstats_stats /* = false */)
         write_header(stat_files_[chrom_or_GU][GLOB][MUTATION_STATS], "");
       }
     }
-    
+
     for (int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++)
     {
       if (stat_files_names_[chrom_or_GU][best_or_glob][MUTATION_STATS] != NULL)
       {
         assert(stat_files_[chrom_or_GU][best_or_glob][MUTATION_STATS] != NULL);
         key = 1;
-        
+
         write_header(stat_files_[chrom_or_GU][best_or_glob][MUTATION_STATS], "Generation", key++);
         write_header(stat_files_[chrom_or_GU][best_or_glob][MUTATION_STATS], "Number of local mutations undergone", key++);
         write_header(stat_files_[chrom_or_GU][best_or_glob][MUTATION_STATS], "Number of chromosomic rearrangements undergone", key++);
@@ -299,12 +299,12 @@ void Stats::write_headers(bool ancstats_stats /* = false */)
         write_header(stat_files_[chrom_or_GU][best_or_glob][MUTATION_STATS], "Number of deletions undergone", key++);
         write_header(stat_files_[chrom_or_GU][best_or_glob][MUTATION_STATS], "Number of translocations undergone", key++);
         write_header(stat_files_[chrom_or_GU][best_or_glob][MUTATION_STATS], "Number of inversions undergone", key++);
-        
-        write_header(stat_files_[chrom_or_GU][best_or_glob][MUTATION_STATS], ""); 
+
+        write_header(stat_files_[chrom_or_GU][best_or_glob][MUTATION_STATS], "");
       }
     }
   }
-  
+
   // ---------------------------------------
   //  Write headers in GENES_STATS files
   // ---------------------------------------
@@ -334,14 +334,14 @@ void Stats::write_headers(bool ancstats_stats /* = false */)
         write_header(stat_files_[chrom_or_GU][GLOB][GENES_STATS], "");
       }
     }
-    
+
     for (int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++)
     {
       if (stat_files_names_[chrom_or_GU][best_or_glob][GENES_STATS] != NULL)
       {
         assert(stat_files_[chrom_or_GU][best_or_glob][GENES_STATS] != NULL);
         key = 1;
-        
+
         write_header(stat_files_[chrom_or_GU][best_or_glob][GENES_STATS], "Generation", key++);
         write_header(stat_files_[chrom_or_GU][best_or_glob][GENES_STATS], "Number of coding RNAs (at least one gene on RNA)", key++);
         write_header(stat_files_[chrom_or_GU][best_or_glob][GENES_STATS], "Number of non-coding RNAs", key++);
@@ -352,12 +352,12 @@ void Stats::write_headers(bool ancstats_stats /* = false */)
         write_header(stat_files_[chrom_or_GU][best_or_glob][GENES_STATS], "Nb of non functional genes", key++);
         write_header(stat_files_[chrom_or_GU][best_or_glob][GENES_STATS], "Average size of functional genes", key++);
         write_header(stat_files_[chrom_or_GU][best_or_glob][GENES_STATS], "Average size of non functional genes (WARNING : bias towards 0)", key++);
-        
-        write_header(stat_files_[chrom_or_GU][best_or_glob][GENES_STATS], ""); 
+
+        write_header(stat_files_[chrom_or_GU][best_or_glob][GENES_STATS], "");
       }
     }
   }
-  
+
   // ---------------------------------------
   //  Write headers in BP_STATS files
   // ---------------------------------------
@@ -385,10 +385,10 @@ void Stats::write_headers(bool ancstats_stats /* = false */)
         write_header(stat_files_[chrom_or_GU][GLOB][BP_STATS], " Average non-coding statistics over the population ");
         write_header(stat_files_[chrom_or_GU][GLOB][BP_STATS], "---------------------------------------------------");
         write_header(stat_files_[chrom_or_GU][GLOB][BP_STATS], "");
-        write_header(stat_files_[chrom_or_GU][GLOB][BP_STATS], " This data is not available"); 
+        write_header(stat_files_[chrom_or_GU][GLOB][BP_STATS], " This data is not available");
         write_header(stat_files_[chrom_or_GU][GLOB][BP_STATS], " Computing bp stats for all individuals is extremely costly computationaly");
         write_header(stat_files_[chrom_or_GU][GLOB][BP_STATS], "");
-        
+
         // Mark file as "not to be written into" and close it
         delete [] stat_files_names_[chrom_or_GU][GLOB][BP_STATS];
         stat_files_names_[chrom_or_GU][GLOB][BP_STATS] = NULL;
@@ -396,14 +396,14 @@ void Stats::write_headers(bool ancstats_stats /* = false */)
         stat_files_[chrom_or_GU][GLOB][BP_STATS] = NULL;
       }
     }
-    
+
     for (int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++)
     {
       if (stat_files_names_[chrom_or_GU][best_or_glob][BP_STATS] != NULL)
       {
         assert(stat_files_[chrom_or_GU][best_or_glob][BP_STATS] != NULL);
         key = 1;
-        
+
         write_header(stat_files_[chrom_or_GU][best_or_glob][BP_STATS], "Generation", key++);
         write_header(stat_files_[chrom_or_GU][best_or_glob][BP_STATS], "Number of bp not included in any CDS", key++);
         write_header(stat_files_[chrom_or_GU][best_or_glob][BP_STATS], "Number of bp not included in any functional CDS", key++);
@@ -421,7 +421,7 @@ void Stats::write_headers(bool ancstats_stats /* = false */)
       }
     }
   }
-  
+
   // ---------------------------------------
   //  Write headers in REAR_STATS files
   // ---------------------------------------
@@ -451,40 +451,40 @@ void Stats::write_headers(bool ancstats_stats /* = false */)
         write_header(stat_files_[chrom_or_GU][GLOB][REAR_STATS], "");
       }
     }
-    
+
     for (int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++)
     {
       if (stat_files_names_[chrom_or_GU][best_or_glob][REAR_STATS] != NULL)
       {
         assert(stat_files_[chrom_or_GU][best_or_glob][REAR_STATS] != NULL);
         key = 1;
-        
+
         write_header(stat_files_[chrom_or_GU][best_or_glob][REAR_STATS], "Generation", key++);
         write_header(stat_files_[chrom_or_GU][best_or_glob][REAR_STATS], "Actual duplication rate", key++);
         write_header(stat_files_[chrom_or_GU][best_or_glob][REAR_STATS], "Actual deletion rate", key++);
         write_header(stat_files_[chrom_or_GU][best_or_glob][REAR_STATS], "Actual translocation rate", key++);
         write_header(stat_files_[chrom_or_GU][best_or_glob][REAR_STATS], "Actual inversion rate", key++);
         write_header(stat_files_[chrom_or_GU][best_or_glob][REAR_STATS], "Average alignment score (needed score)", key++);
-        
-        write_header(stat_files_[chrom_or_GU][best_or_glob][REAR_STATS], ""); 
+
+        write_header(stat_files_[chrom_or_GU][best_or_glob][REAR_STATS], "");
       }
     }
   }
-  
+
   flush();
 }
 
 void Stats::write_current_generation_statistics()
 {
   StatRecord** stat_records;
-  
+
   for (int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++)
   {
     if ((not exp_m_->output_m()->compute_phen_contrib_by_GU()) &&
         chrom_or_GU > ALL_GU) continue;
 
     stat_records = new StatRecord* [NB_BEST_OR_GLOB];
-    
+
     stat_records[BEST] = new StatRecord(exp_m_,
                                         exp_m_->best_indiv(),
                                         (chrom_or_gen_unit) chrom_or_GU);
@@ -500,7 +500,7 @@ void Stats::write_current_generation_statistics()
                                         stat_records[GLOB],
                                         stat_records[SDEV],
                                         (chrom_or_gen_unit) chrom_or_GU);
-    
+
     for (int8_t best_or_glob = 0 ; best_or_glob < NB_BEST_OR_GLOB ; best_or_glob++)
     {
       for (int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++)
@@ -510,10 +510,10 @@ void Stats::write_current_generation_statistics()
           stat_records[best_or_glob]->write_to_file(stat_files_[chrom_or_GU][best_or_glob][stat_type], (stats_type) stat_type);
         }
       }
-      
+
       delete stat_records[best_or_glob];
     }
-    
+
     delete [] stat_records;
   }
 }
@@ -521,22 +521,22 @@ void Stats::write_current_generation_statistics()
 void Stats::write_statistics_of_this_indiv(Individual * indiv)
 {
   StatRecord * stat_record;
-  
+
   for (int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++)
   {
     stat_record = new StatRecord(exp_m_, indiv, (chrom_or_gen_unit) chrom_or_GU, true);
-    
+
     for (int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++)
     {
       if (stat_files_names_[chrom_or_GU][BEST][stat_type] != NULL)
       {
         assert(stat_files_[chrom_or_GU][BEST][stat_type] != NULL);
-        
+
         stat_record->write_to_file(stat_files_[chrom_or_GU][BEST][stat_type],
                                    (stats_type) stat_type);
       }
     }
-    
+
     delete stat_record;
   }
 }
@@ -565,17 +565,17 @@ void Stats::flush() {
 void Stats::init_data() {
   stat_files_       = new FILE***[NB_CHROM_OR_GU];
   stat_files_names_ = new char***[NB_CHROM_OR_GU];
-  
+
   for (int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++) {
     stat_files_[chrom_or_GU]        = new FILE**[NB_BEST_OR_GLOB];
     stat_files_names_[chrom_or_GU]  = new char**[NB_BEST_OR_GLOB];
-    
+
     for (int8_t best_or_glob = 0 ;
          best_or_glob < NB_BEST_OR_GLOB ;
          best_or_glob++) {
       stat_files_[chrom_or_GU][best_or_glob] = new FILE*[NB_STATS_TYPES];
       stat_files_names_[chrom_or_GU][best_or_glob] = new char*[NB_STATS_TYPES];
-      
+
       for (int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++) {
         stat_files_[chrom_or_GU][best_or_glob][stat_type]       = NULL;
         stat_files_names_[chrom_or_GU][best_or_glob][stat_type] = NULL;
@@ -605,14 +605,14 @@ void Stats::set_file_names(const char* prefix,
   if ((status == -1) && (errno != EEXIST)) {
     err(EXIT_FAILURE, STATS_DIR);
   }
-  
+
   const char* chrom_or_gu_name[NB_CHROM_OR_GU] =
       {"", "chromosome_", "plasmids_"};
   const char* best_or_glob_name[NB_BEST_OR_GLOB] =
       {"best_", "glob_", "sdev_", "skew_"};
   const char* stat_type_name[NB_STATS_TYPES] =
       {"fitness_", "mutation_", "genes_", "bp_", "rear_"};
-  
+
   for (int8_t chrom_or_GU = 0 ; chrom_or_GU < NB_CHROM_OR_GU ; chrom_or_GU++) {
     // If plasmids are not allowed, don't issue "chromosome" and
     // "plasmids" files
@@ -628,20 +628,20 @@ void Stats::set_file_names(const char* prefix,
          best_or_glob < NB_BEST_OR_GLOB ;
          best_or_glob++) {
       if (one_lambda_indiv_only && best_or_glob != BEST) continue;
-      
+
       for (int8_t stat_type = 0 ; stat_type < NB_STATS_TYPES ; stat_type++) {
         // // We don't want REAR_STATS when rearrangements are done without
         // alignments
         // if (stat_type == REAR_STATS && ! exp_m_->with_alignments())
         //   continue;
-        
+
         // For now, we only want sdev and skew for fitness data
-        if (best_or_glob > GLOB && stat_type > FITNESS_STATS) continue; 
+        if (best_or_glob > GLOB && stat_type > FITNESS_STATS) continue;
         if ((chrom_or_GU != ALL_GU || best_or_glob != GLOB) &&
             stat_type > REAR_STATS) continue;
-        
+
         stat_files_names_[chrom_or_GU][best_or_glob][stat_type] = new char[255];
-        
+
         // Construct the correct name
         if (one_lambda_indiv_only) {
           sprintf( stat_files_names_[chrom_or_GU][best_or_glob][stat_type],
@@ -659,10 +659,10 @@ void Stats::set_file_names(const char* prefix,
                     chrom_or_gu_name[chrom_or_GU],
                     best_or_glob_name[best_or_glob]);
         }
-        
+
       }
     }
-    
+
   }
 }
 

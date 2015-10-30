@@ -103,7 +103,7 @@ class ReplicationReport : public Observer {
     DnaReplicationReport& dna_replic_report() {
       return dna_replic_report_;
     }
-     
+
     void            set_indiv(Individual * indiv);
     inline void     set_parent_id(int32_t parent_id);
     inline void     set_parent_metabolic_error(double parent_metabolic_error);
@@ -153,19 +153,19 @@ class ReplicationReport : public Observer {
 
     // List of each genetic unit's replication report
     DnaReplicationReport dna_replic_report_;
-    
+
     double parent_metabolic_error_ = -1;
     double parent_secretion_error_ = -1;
     int32_t parent_genome_size_ = -1;
-    
+
     int32_t	donor_id_ = -1;
     double donor_metabolic_error_ = -1;
     double donor_secretion_error_ = -1;
     int32_t donor_genome_size_ = -1;
-    
-    // CK: I think that the attributes below are obsolete 
+
+    // CK: I think that the attributes below are obsolete
     // (HT events are now stored in the ae_dna_replic_reports)
-    
+
     double mean_align_score_;
 };
 

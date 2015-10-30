@@ -24,7 +24,7 @@
 //
 // ****************************************************************************
 
- 
+
 const char* DEFAULT_PARAM_FILE_NAME = "param.in";
 
 
@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
   char* input_dir   = NULL;
   char* output_dir  = NULL;
   bool  verbose     = false;
-  
+
   // 2) Define allowed options
 //  const char * options_list = "g:hi:o:vVS:s:m:t:e:n:";
   const char * options_list = "g:ho:vVS:s:m:t:e:n:";
@@ -100,12 +100,12 @@ int main(int argc, char* argv[])
     { "env-noise-seed",    required_argument,  NULL, 'n' },
     { 0, 0, 0, 0 }
   };
-      
+
   // 3) Get actual values of the command-line options
   int option;
-  while ((option = getopt_long(argc, argv, options_list, long_options_list, NULL)) != -1) 
+  while ((option = getopt_long(argc, argv, options_list, long_options_list, NULL)) != -1)
   {
-    switch (option) 
+    switch (option)
     {
     case 'h' :
       {
@@ -185,7 +185,7 @@ int main(int argc, char* argv[])
       exit(EXIT_FAILURE);
     }
 
-  
+
   // 4) Set undefined command line parameters to default values
   if (input_dir == NULL)
   {
@@ -215,8 +215,8 @@ int main(int argc, char* argv[])
       Utils::ExitWithUsrMsg("You must provide a generation number");
     }
   }
-  
-  
+
+
   // 5) Check whether the output directory is missing
   struct stat stat_buf;
   if ((stat(output_dir, &stat_buf) == -1) && (errno == ENOENT))
@@ -232,17 +232,17 @@ int main(int argc, char* argv[])
     // char flush = answer;
     // while(flush != '\n' && flush != EOF) flush = getchar(); // "flush" stdin
     // if (answer == '\n') answer = 'y';
-    
+
     // if (answer == 'n') exit(EXIT_SUCCESS);
-    
+
     if (mkdir(output_dir, 0755))
     {
       err(EXIT_FAILURE, output_dir, errno);
     }
   }
-  
-  
-  
+
+
+
   // =================================================================
   //                    Load the model experiment
   // =================================================================
@@ -251,7 +251,7 @@ int main(int argc, char* argv[])
   #else
     ExpManager* exp_manager = new ExpManager();
   #endif
-  
+
   exp_manager->load(input_dir, num_gener, verbose, true);
 
   if (generalseed != -1)
@@ -339,16 +339,16 @@ int main(int argc, char* argv[])
 
 
 /*!
-  \brief 
-  
+  \brief
+
 */
-void print_help(char* prog_path) 
+void print_help(char* prog_path)
 {
   // Get the program file-name in prog_name (strip prog_path of the path)
   char* prog_name; // No new, it will point to somewhere inside prog_path
   if ((prog_name = strrchr(prog_path, '/'))) prog_name++;
   else prog_name = prog_path;
-  
+
   printf("******************************************************************************\n");
   printf("*                                                                            *\n");
   printf("*                        aevol - Artificial Evolution                        *\n");

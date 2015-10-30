@@ -52,83 +52,83 @@ namespace aevol {
 //
 // THE DISPLAY
 //
-// The major notion of using Xlib is the X display. This is a structure 
-// representing the connection we have open with a given X server. It 
-// hides a queue of messages coming from the server, and a queue of 
-// pending requests that our client intends to send to the server. 
-// In Xlib, this structure is named 'Display'. When we open a connection 
-// to an X server, the library returns a pointer to such a structure. 
-// Later, we supply this pointer to any Xlib function that should send 
+// The major notion of using Xlib is the X display. This is a structure
+// representing the connection we have open with a given X server. It
+// hides a queue of messages coming from the server, and a queue of
+// pending requests that our client intends to send to the server.
+// In Xlib, this structure is named 'Display'. When we open a connection
+// to an X server, the library returns a pointer to such a structure.
+// Later, we supply this pointer to any Xlib function that should send
 // messages to the X server or receive messages from this server.
-// 
+//
 //
 // THE WINDOWS
 //
 // X11 relies on a hierarchical model of rectangular areas called "Windows".
 //
 // 1. Each Window can be included in another Window (its parent) and may include
-//    other Windows (its children). Windows sharing the same owner are called 
+//    other Windows (its children). Windows sharing the same owner are called
 //    siblings.
 // 2. The screen itself is a Window (the Root Window) that contains all Windows.
 // 3. A window can be above or behind a sibling Window. The Window which is above
 //    hides partly or completely the other one.
-// 4. Any drawing made in a Window is automatically "cut", meaning that only the 
+// 4. Any drawing made in a Window is automatically "cut", meaning that only the
 //    part of the drawing which is inside the Window is drawn.
 // 5. A Window can be hidden or displayed ("mapped"). The drawing instructions
-//    made on an unmapped Window are ignored. By default, newly created windows 
-//    are not mapped on the screen - they are invisible. In order to make a 
+//    made on an unmapped Window are ignored. By default, newly created windows
+//    are not mapped on the screen - they are invisible. In order to make a
 //    window visible, we must use the XMapWindow() function.
 // 6. Each event (keyboard, mouse) is aimed at a specific Window.
-// 7. A Window does not memorize its content. Each time it must be re-displayed, 
+// 7. A Window does not memorize its content. Each time it must be re-displayed,
 //    it gets an Expose event, and the content must be redrawn as a response to
-//    this event. 
+//    this event.
 //
 //
 // THE GC (GRAPHICS CONTEXT)
 //
-// When we perform various drawing operations (graphics, text, etc), we may 
-// specify various options for controlling how the data will be drawn - what 
-// foreground and background colors to use, how line edges will be connected, 
-// what font to use when drawing some text, etc). In order to avoid the need 
-// to supply zillions of parameters to each drawing function, a graphical context 
-// structure, of type 'GC' is used. We set the various drawing options in this 
-// structure, and then pass a pointer to this structure to any drawing routines. 
-// This is rather handy, as we often needs to perform several drawing requests 
-// with the same options. Thus, we would initialize a graphical context, set the 
-// desired options, and pass this GC structure to all drawing functions. 
-// Allocating a new GC is done using the XCreateGC() function. 
-//    GC XCreateGC( Display *display, Drawable d, uint32_t valuemask, 
+// When we perform various drawing operations (graphics, text, etc), we may
+// specify various options for controlling how the data will be drawn - what
+// foreground and background colors to use, how line edges will be connected,
+// what font to use when drawing some text, etc). In order to avoid the need
+// to supply zillions of parameters to each drawing function, a graphical context
+// structure, of type 'GC' is used. We set the various drawing options in this
+// structure, and then pass a pointer to this structure to any drawing routines.
+// This is rather handy, as we often needs to perform several drawing requests
+// with the same options. Thus, we would initialize a graphical context, set the
+// desired options, and pass this GC structure to all drawing functions.
+// Allocating a new GC is done using the XCreateGC() function.
+//    GC XCreateGC( Display *display, Drawable d, uint32_t valuemask,
 //                  XGCValues *values )
-// Since a graphics context has zillions of attributes, and since often we want 
-// to define only few of them, we need to be able to tell the XCreateGC() which 
-// attributes we want to set. This is what the "valuemask" variable is for. 
-// We then use the "values" variable to specify actual values for the attributes 
-// we defined in the "valuesmask". The rest of the attributes of this GC will 
-// be set to their default values. Once we created a graphics context, we can 
-// use it in drawing functions. We can also modify its parameters using various 
+// Since a graphics context has zillions of attributes, and since often we want
+// to define only few of them, we need to be able to tell the XCreateGC() which
+// attributes we want to set. This is what the "valuemask" variable is for.
+// We then use the "values" variable to specify actual values for the attributes
+// we defined in the "valuesmask". The rest of the attributes of this GC will
+// be set to their default values. Once we created a graphics context, we can
+// use it in drawing functions. We can also modify its parameters using various
 // functions (e.g. XSetForeground to change the foreground color of the GC).
 //
 //
 // THE EVENTS
 //
-// A structure of type 'XEvent' is used to pass events received from the X server. 
-// Xlib supports a large amount of event types. The XEvent structure contains the 
-// type of event received, as well as the data associated with the event (e.g. 
-// position on the screen where the event was generated, mouse button associated 
-// with the event, region of screen associated with a 'redraw' event, etc). The way 
-// to read the event's data depends on the event type. Thus, an XEvent structure 
-// contains a C language union of all possible event types (if you're not sure what 
-// C unions are, it is time to check your favourite C language manual...). Thus, 
+// A structure of type 'XEvent' is used to pass events received from the X server.
+// Xlib supports a large amount of event types. The XEvent structure contains the
+// type of event received, as well as the data associated with the event (e.g.
+// position on the screen where the event was generated, mouse button associated
+// with the event, region of screen associated with a 'redraw' event, etc). The way
+// to read the event's data depends on the event type. Thus, an XEvent structure
+// contains a C language union of all possible event types (if you're not sure what
+// C unions are, it is time to check your favourite C language manual...). Thus,
 // we could have an XExpose event, an XButton event, an XMotion event, etc.
-// After a program creates a window (or several windows), it should tell the X 
-// server what types of events it wishes to receive for this window. By default, 
+// After a program creates a window (or several windows), it should tell the X
+// server what types of events it wishes to receive for this window. By default,
 // no events are sent to the program. This is done for optimizing the server-to-client
-// connection (i.e. why send a program (that might even be running at the other 
-// side of the globe) an event it is not interested in?). It may register for 
+// connection (i.e. why send a program (that might even be running at the other
+// side of the globe) an event it is not interested in?). It may register for
 // various mouse (also called "pointer") events, keyboard events, expose events, etc.
-// In Xlib, we use the XSelectInput() function to register for events. This function 
-// accepts 3 parameters - the display structure, an ID of a window, and a mask of 
-// the event types it wishes to get. 
+// In Xlib, we use the XSelectInput() function to register for events. This function
+// accepts 3 parameters - the display structure, an ID of a window, and a mask of
+// the event types it wishes to get.
 
 
 
@@ -164,14 +164,14 @@ X11Window::X11Window( Display* display, int8_t screen, Atom* atoms,
   XSetWindowAttributes win_attributes;
   win_attributes.event_mask = StructureNotifyMask | ExposureMask | KeyPressMask;
   win_attributes.background_pixel = XBlackPixel( display_, screen_ );
-  
+
   window_ = XCreateWindow(  display_, DefaultRootWindow(display_), x, y, width_, height_, 0,
                             CopyFromParent, CopyFromParent, CopyFromParent,
                             CWBackPixel|CWEventMask, &win_attributes );
-  // NB: the 7th parameter is the width of the window's border, it has nothing to do with 
-  // the border appended by the window manager, so this is most often set to zero. 
+  // NB: the 7th parameter is the width of the window's border, it has nothing to do with
+  // the border appended by the window manager, so this is most often set to zero.
 
-  // Define the title & iconname of the window 
+  // Define the title & iconname of the window
   XSetStandardProperties( display_, window_, caption, caption, None, NULL, 0, NULL );
 
 
@@ -282,7 +282,7 @@ void X11Window::draw_string( int16_t x, int16_t y, char * str )
 void X11Window::draw_line( int16_t x1, int16_t y1, int16_t x2, int16_t y2, color_map color, bool bold /*= false*/ )
 {
   GC* gc = NULL;
-  
+
   // Determine which GC to use
   switch ( color )
   {
@@ -320,8 +320,8 @@ void X11Window::draw_line( int16_t x1, int16_t y1, int16_t x2, int16_t y2, color
       gc = & gcDarkerGrey_;
       break;
   }
-  
-  
+
+
   // Draw line (lines if bold)
   XDrawLine( display_, window_, *gc, x1, y1, x2, y2 );
   if ( bold )
@@ -538,7 +538,7 @@ uint32_t X11Window::pixel(Display *display, int8_t screen, char *color_name, uin
   static std::unordered_map <std::string, unsigned long> color_memo;
 
   // if color_name is already recorded, compute and record it
-  if (color_memo.find(color_name) == color_memo.end()) { 
+  if (color_memo.find(color_name) == color_memo.end()) {
     XColor color;
     if (XParseColor(display, DefaultColormap(display,screen), color_name, &color) == 0) {
       fprintf(stderr, "Invalid color: %s\n", color_name);

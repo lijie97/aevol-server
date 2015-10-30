@@ -93,12 +93,12 @@ GeneMutation::GeneMutation(Mutation const & mut, int32_t gener, int32_t cdsPosBe
       if ( strandBefore == LEADING  ) {position_relative_to_shine_dal_[0] = pos_[0] - cdsPosBefore;}
       else                              {position_relative_to_shine_dal_[0] = cdsPosBefore - pos_[0];}
       break;
-    case DUPL : 
+    case DUPL :
       /* A duplication can affect a gene in two ways:
          1) The reinsertion point of the duplicated segment is located within the gene => stored
-         2) The gene is partly or completely duplicated, but this does not change its sequence => nothing to store       
+         2) The gene is partly or completely duplicated, but this does not change its sequence => nothing to store
       */
-      /* We should enter here only in case (1). Note that in this case, the relative positions for beginseg and endseg may be outside the gene */ 
+      /* We should enter here only in case (1). Note that in this case, the relative positions for beginseg and endseg may be outside the gene */
       position_relative_to_shine_dal_ = new int32_t[3];
       if ( strandBefore == LEADING  )
         {
@@ -106,21 +106,21 @@ GeneMutation::GeneMutation(Mutation const & mut, int32_t gener, int32_t cdsPosBe
           position_relative_to_shine_dal_[1] = pos_[1] - cdsPosBefore;
           position_relative_to_shine_dal_[2] = pos_[2] - cdsPosBefore;
         }
-      else    
+      else
         {
           position_relative_to_shine_dal_[0] = cdsPosBefore - pos_[0];
           position_relative_to_shine_dal_[1] = cdsPosBefore - pos_[1];
           position_relative_to_shine_dal_[2] = cdsPosBefore - pos_[2];
         }
       break;
-    case DEL : 
+    case DEL :
       position_relative_to_shine_dal_ = new int32_t[2];
       if ( strandBefore == LEADING  )
         {
           position_relative_to_shine_dal_[0] = pos_[0] - cdsPosBefore;
           position_relative_to_shine_dal_[1] = pos_[1] - cdsPosBefore;
         }
-      else    
+      else
         {
           position_relative_to_shine_dal_[0] = cdsPosBefore - pos_[0];
           position_relative_to_shine_dal_[1] = cdsPosBefore - pos_[1];
@@ -135,7 +135,7 @@ GeneMutation::GeneMutation(Mutation const & mut, int32_t gener, int32_t cdsPosBe
           position_relative_to_shine_dal_[2] = pos_[2] - cdsPosBefore;
           position_relative_to_shine_dal_[3] = pos_[3] - cdsPosBefore;
         }
-      else    
+      else
         {
           position_relative_to_shine_dal_[0] = cdsPosBefore - pos_[0];
           position_relative_to_shine_dal_[1] = cdsPosBefore - pos_[1];
@@ -150,7 +150,7 @@ GeneMutation::GeneMutation(Mutation const & mut, int32_t gener, int32_t cdsPosBe
           position_relative_to_shine_dal_[0] = pos_[0] - cdsPosBefore;
           position_relative_to_shine_dal_[1] = pos_[1] - cdsPosBefore;
         }
-      else    
+      else
         {
           position_relative_to_shine_dal_[0] = cdsPosBefore - pos_[0];
           position_relative_to_shine_dal_[1] = cdsPosBefore - pos_[1];
@@ -207,7 +207,7 @@ GeneMutation::~GeneMutation()
     exit( EXIT_FAILURE );
     break;
   }
-  
+
 } ;
 
 
@@ -223,7 +223,7 @@ int8_t GeneMutation::type_of_event()
   if ((mut_type_ == SWITCH) || (mut_type_ == S_INS) || (mut_type_ == S_DEL)) return 0;
   else if ((mut_type_ == DUPL) || (mut_type_ == DEL) || (mut_type_ == TRANS) || (mut_type_ == INV)) return 1;
   else return 2;
-    
+
 
 }
 
@@ -231,7 +231,7 @@ int8_t GeneMutation::type_of_event()
 
 // str must be at least of size 60
 void GeneMutation::description_string_for_gene_mut(char * str)
-{ 
+{
    switch ( mut_type_ )
   {
     case SWITCH :
@@ -261,7 +261,7 @@ void GeneMutation::description_string_for_gene_mut(char * str)
     }
     case TRANS :
     {
-      sprintf( str, "%" PRId32 " TRANSLOC %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %.10f " , generation_, position_relative_to_shine_dal_[0], position_relative_to_shine_dal_[1],  position_relative_to_shine_dal_[2],  position_relative_to_shine_dal_[3], length_[0], impact_on_metabolic_error_ );    
+      sprintf( str, "%" PRId32 " TRANSLOC %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32 " %.10f " , generation_, position_relative_to_shine_dal_[0], position_relative_to_shine_dal_[1],  position_relative_to_shine_dal_[2],  position_relative_to_shine_dal_[3], length_[0], impact_on_metabolic_error_ );
       break;
     }
     case INV :

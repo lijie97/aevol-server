@@ -66,10 +66,10 @@ ReplicationReport::ReplicationReport(Individual* indiv,
 
   id_   = indiv->id();
   rank_ = indiv->rank();
-  
+
   parent_id_ = parent->id();
   // donor_id_ is set further down
-    
+
   genome_size_        = 0;
   metabolic_error_    = 0.0;
   nb_genes_activ_     = 0;
@@ -77,12 +77,12 @@ ReplicationReport::ReplicationReport(Individual* indiv,
   nb_non_fun_genes_   = 0;
   nb_coding_RNAs_     = 0;
   nb_non_coding_RNAs_ = 0;
-  
+
   parent_metabolic_error_ = parent->dist_to_target_by_feature(METABOLISM);
   parent_secretion_error_ = parent->dist_to_target_by_feature(SECRETION);
   parent_genome_size_     = parent->total_genome_size();
   mean_align_score_       = 0.0;
-  
+
   if (donor == NULL)
   {
     donor_id_               = -1;
@@ -131,12 +131,12 @@ ReplicationReport::ReplicationReport(const ReplicationReport& other) :
 ReplicationReport::ReplicationReport(gzFile tree_file, Individual* indiv)
 {
   indiv_ = indiv;
-    
+
   gzread(tree_file, &id_,        sizeof(id_)        );
   gzread(tree_file, &rank_,      sizeof(rank_)      );
   gzread(tree_file, &parent_id_, sizeof(parent_id_) );
   gzread(tree_file, &donor_id_,  sizeof(donor_id_)  );
-  
+
   gzread(tree_file, &genome_size_,         sizeof(genome_size_));
   gzread(tree_file, &metabolic_error_,     sizeof(metabolic_error_));
   gzread(tree_file, &nb_genes_activ_,      sizeof(nb_genes_activ_));
@@ -148,7 +148,7 @@ ReplicationReport::ReplicationReport(gzFile tree_file, Individual* indiv)
   dna_replic_report_.read_from_tree_file(tree_file);
 
   dna_replic_report_.compute_stats();
-  
+
   parent_metabolic_error_ = -1;
   parent_secretion_error_ = -1;
   donor_metabolic_error_  = -1;
@@ -231,7 +231,7 @@ void ReplicationReport::write_to_tree_file(gzFile tree_file) const
   gzwrite(tree_file, &rank_,       sizeof(rank_)      );
   gzwrite(tree_file, &parent_id_,  sizeof(parent_id_) );
   gzwrite(tree_file, &donor_id_,   sizeof(donor_id_)  );
-  
+
   gzwrite(tree_file, &genome_size_,         sizeof(genome_size_));
   gzwrite(tree_file, &metabolic_error_,     sizeof(metabolic_error_));
   gzwrite(tree_file, &nb_genes_activ_,      sizeof(nb_genes_activ_));

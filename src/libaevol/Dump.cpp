@@ -107,7 +107,7 @@ void Dump::write_fitness_total()
   current_file = fopen( filename_buffer, "w+" );
   double** map = exp_m_->world()->total_fitness_grid();
   fprintf( current_file, "#\tX\tY\tfitness_total(X, Y)\n" );
-  
+
   for( int16_t x = 0 ; x < exp_m_->grid_width() ; x++ )
   {
     for( int16_t y = 0 ; y < exp_m_->grid_height() ; y++ )
@@ -118,7 +118,7 @@ void Dump::write_fitness_total()
   }
   fflush( current_file );
   fclose( current_file );
-      
+
   // Has been allocated in World::total_fitness_grid()
   for ( int16_t x = 0 ; x < exp_m_->grid_width() ; x++ )
   {
@@ -133,7 +133,7 @@ void Dump::write_secreted_amount()
       "stats/dump/secreted_amount_%06" PRId64 ".out",
       AeTime::time()) ;
   current_file = fopen(filename_buffer, "w+");
-  
+
   double** map = exp_m_->world()->secreted_amount_grid();
   fprintf( current_file, "#\tX\tY\tsecreted_amount(X, Y)\n" );
   for( int16_t x = 0 ; x < exp_m_->grid_width() ; x++ )
@@ -159,7 +159,7 @@ void Dump::write_fitness_metabolic()
       "stats/dump/fitness_metabolic_%06" PRId64 ".out",
       AeTime::time());
   current_file = fopen( filename_buffer, "w+" );
-  
+
   double** map = exp_m_->world()->metabolic_fitness_grid();
   fprintf( current_file, "#\tX\tY\tfitness_metabolic(X, Y)\n" );
   for( int16_t x = 0 ; x < exp_m_->grid_width() ; x++ )
@@ -185,7 +185,7 @@ void Dump::write_secretion_present()
       "stats/dump/secretion_present_%06" PRId64 ".out",
       AeTime::time());
   current_file = fopen( filename_buffer, "w+" );
-  
+
   double** map = exp_m_->world()->secretion_present_grid();
   fprintf( current_file, "#\tX\tY\tsecretion_present(X, Y)\n" );
   for( int16_t x = 0 ; x < exp_m_->grid_width() ; x++ )
@@ -212,7 +212,7 @@ void Dump::write_individual_probes()
       "stats/dump/individual_probes_%06" PRId64 ".out",
       AeTime::time());
   current_file = fopen( filename_buffer, "w" );
-  
+
   fprintf(current_file, "Id\tInt_Probe_1\tInt_Probe_2\tInt_Probe_3\tInt_Probe_4\tInt_Probe_5\tDouble_Probe_1\tDouble_Probe_2\tDouble_Probe_3\tDouble_Probe_4\tDouble_Probe_5\n");
 
   for( int16_t x = 0 ; x < exp_m_->grid_width() ; x++ )

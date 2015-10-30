@@ -233,7 +233,7 @@ void Selection::PerformPlasmidTransfers() {
     World* world = exp_m_->world();
     int16_t grid_width  = world->width();
     int16_t grid_height = world->height();
-  
+
     int16_t x_offset, y_offset, new_x, new_y;
 
     // Shuffle the grid:

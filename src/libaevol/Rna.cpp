@@ -61,12 +61,12 @@ Rna::Rna( GeneticUnit* gen_unit, const Rna &model )
 {
   // Copy "trivial" attributes
   gen_unit_  = gen_unit;
-  
+
   strand_             = model.strand_;
   pos_                = model.pos_;
   transcript_length_  = model.transcript_length_;
   basal_level_        = model.basal_level_;
-  
+
   // Copy transcribed proteins
   // WARNING : Since this list do not "own" the proteins (they will not be deleted)
   //            proteins must NOT be CREATED here.

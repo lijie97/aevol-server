@@ -409,21 +409,21 @@ void ExpManager_X11::display(X11Window * win,
   double y_max = Y_MAX * 1.1;         // Yields a top margin
   double delta_x = X_MAX - X_MIN;
   double delta_y = y_max - y_min;
-  
+
   int16_t cur_x;
   int16_t cur_y;
   int16_t next_x;
   int16_t next_y;
-  
+
   for (list<Point>::const_iterator p = fuzzy.points().begin() ; p != prev(fuzzy.points().end()) ; ++p) {
     list<Point>::const_iterator q = next(p);
-    
+
     // Display segment [p, q]
     cur_x   = (     (p->x -  X_MIN) / delta_x ) * win->width();
     cur_y   = (1 - ((p->y -  y_min) / delta_y)) * win->height();
     next_x  = (     (q->x - X_MIN) / delta_x ) * win->width();
     next_y  = (1 - ((q->y - y_min) / delta_y)) * win->height();
-    
+
     if (fill) {
       char* fill_color;
       for (int16_t i = cur_x ; i < next_x ; i++) {
@@ -442,12 +442,12 @@ void ExpManager_X11::display_grid(X11Window * win, double** cell_grid)
 {
   // printf("display grid\n");
   char t[40];
-  int nb_colors = 50; 
-  
+  int nb_colors = 50;
+
   sprintf(t, "Generation = %" PRId64, AeTime::time());
   win->draw_string(15, 15, t);
-  
-  
+
+
   const int grid_width_ = grid_width();
   const int grid_height_ = grid_height();
 
@@ -899,7 +899,7 @@ void ExpManager_X11::set_codes() {
 void ExpManager_X11::compute_colormap() {
   col_map_ = {
     (char*)"RGBi:1.0/0.0/0.0",
-    (char*)"RGBi:1.0/0.1/0.0",   
+    (char*)"RGBi:1.0/0.1/0.0",
     (char*)"RGBi:1.0/0.2/0.0",
     (char*)"RGBi:1.0/0.3/0.0",
     (char*)"RGBi:1.0/0.4/0.0",

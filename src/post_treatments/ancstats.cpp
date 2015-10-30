@@ -482,7 +482,7 @@ int main(int argc, char** argv)
   delete exp_manager;
   delete mystats;
   delete indiv;
-  
+
   exit(EXIT_SUCCESS);
 }
 

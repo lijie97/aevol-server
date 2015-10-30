@@ -97,10 +97,10 @@ void OutputManager::WriteSetupFile(gzFile setup_file) const
   // Write the backup steps
   gzwrite( setup_file, &backup_step_,      sizeof(backup_step_) );
   gzwrite( setup_file, &big_backup_step_,  sizeof(big_backup_step_) );
-  
+
   // Stats
   gzwrite( setup_file, &compute_phen_contrib_by_GU_,  sizeof(compute_phen_contrib_by_GU_) );
-  
+
   // Tree
   int8_t record_tree = record_tree_;
   gzwrite( setup_file, &record_tree, sizeof(record_tree) );
@@ -109,12 +109,12 @@ void OutputManager::WriteSetupFile(gzFile setup_file) const
     auto tmp_tree_step = tree_->tree_step();
     gzwrite( setup_file, &tmp_tree_step, sizeof(tmp_tree_step) );
   }
-  
+
   // Dumps
   int8_t make_dumps = make_dumps_;
   gzwrite( setup_file, &make_dumps,  sizeof(make_dumps) );
   gzwrite( setup_file, &dump_step_,  sizeof(dump_step_) );
-  
+
   // Logs
   int8_t logs = logs_->logs();
   gzwrite( setup_file, &logs,  sizeof(logs) );
@@ -130,7 +130,7 @@ void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run)
   // Write the backup steps
   gzread( setup_file, &backup_step_,      sizeof(backup_step_) );
   gzread( setup_file, &big_backup_step_,  sizeof(big_backup_step_) );
-  
+
   // Stats
   if (to_be_run)
   {
@@ -138,7 +138,7 @@ void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run)
     stats_ = new Stats(exp_m_, AeTime::time());
   }
   gzread( setup_file, &compute_phen_contrib_by_GU_,  sizeof(compute_phen_contrib_by_GU_) );
-  
+
   // Tree
   int8_t record_tree;
   gzread( setup_file, &record_tree, sizeof(record_tree) );
@@ -147,10 +147,10 @@ void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run)
   {
     int32_t tmp_tree_step;
     gzread( setup_file, &tmp_tree_step, sizeof(tmp_tree_step) );
-    
+
     tree_ = new Tree( exp_m_, tmp_tree_step );
   }
-  
+
   // Dumps
   int8_t make_dumps;
   gzread( setup_file, &make_dumps, sizeof(make_dumps) );
@@ -160,7 +160,7 @@ void OutputManager::load(gzFile setup_file, bool verbose, bool to_be_run)
   {
     dump_ = new Dump(exp_m_);
   }
-  
+
   // Logs
   int8_t logs;
   gzread(setup_file, &logs, sizeof(logs));
@@ -237,20 +237,20 @@ void OutputManager::write_tree() const
   {
     err( EXIT_FAILURE, "Impossible to create the directory %s", TREE_DIR );
   }
-  
+
   char tree_file_name[50];
-  
+
 #ifdef __REGUL
   sprintf tree_file_name, "tree/tree_%06" PRId64 ".rae", AeTime::time());
 #else
   sprintf(tree_file_name, "tree/tree_%06" PRId64 ".ae", AeTime::time());
 #endif
-  
+
   gzFile tree_file = gzopen( tree_file_name, "w" );
-  
+
   // Write phylogenetic data (tree)
   tree_->write_to_tree_file( tree_file );
-  
+
   gzclose( tree_file );
 }
 

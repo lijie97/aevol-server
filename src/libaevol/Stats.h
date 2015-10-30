@@ -28,12 +28,12 @@
 /*! \class Stats
     \brief Manage statistics files
 */
- 
- 
+
+
 #ifndef AEVOL_STATS_H_
 #define AEVOL_STATS_H_
- 
- 
+
+
 // =================================================================
 //                              Libraries
 // =================================================================
@@ -64,11 +64,11 @@ class ExpManager;
 
 
 
- 
+
 class Stats
-{  
+{
   public :
-  
+
     // =================================================================
     //                             Constructors
     // =================================================================
@@ -86,7 +86,7 @@ class Stats
           bool addition_old_stats = true,
           bool delete_old_stats = true);
 
- 
+
     // =================================================================
     //                             Destructors
     // =================================================================
@@ -100,13 +100,13 @@ class Stats
     //                        Accessors: setters
     // =================================================================
     inline void set_exp_m(ExpManager * exp_m);
-    
+
     // =================================================================
     //                            Public Methods
     // =================================================================
     void write_current_generation_statistics();
     void write_statistics_of_this_indiv(Individual * indiv);
-    
+
     void flush();
 
     void write_headers(bool ancstats_stats = false);
@@ -125,15 +125,15 @@ class Stats
                         bool with_plasmids = false,
                         bool compute_phen_contrib_by_GU = false);
     void open_files();
-    
+
     inline void write_header( FILE* file_name, const char* header );
     inline void write_header( FILE* file_name, const char* header, int8_t key );
-  
+
     // =================================================================
     //                          Protected Attributes
     // =================================================================
     ExpManager * exp_m_;
-    
+
     // 3D tables of stat files (FILE*) and their names (char*)
     // Dimensions are given by:
     //    * genetic unit (ALL_GU, CHROM or PLASMIDS)
@@ -167,7 +167,7 @@ inline void Stats::write_header( FILE* file_name, const char* header, int8_t key
 {
   if ( file_name != NULL) fprintf( file_name, "# %2d. %s\n", key, header );
 }
-        
+
 
 } // namespace aevol
 #endif // AEVOL_STATS_H_

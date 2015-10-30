@@ -140,13 +140,13 @@ class StatRecord
     // =================================================================
     void initialize_data();
     void write_to_file( FILE* stat_file, stats_type stat_type_to_print ) const;
-    
+
     void divide( double divisor );
     void divide_record( StatRecord const * means, double power );
 
     void add( StatRecord * to_add, int32_t index );
     void substract_power( StatRecord const * means, StatRecord const * to_substract, double power );
-    
+
     // =================================================================
     //                           Public Attributes
     // =================================================================
@@ -164,11 +164,11 @@ class StatRecord
     //                          Protected Attributes
     // =================================================================
     ExpManager * exp_m_;
-    
+
     // NB : All the attributes are doubles because they will be used to
     //      compute averages over the population.
     indiv_or_pop record_type_;
-    
+
     int32_t pop_size_;
 
     double  fitness_;
@@ -180,9 +180,9 @@ class StatRecord
     double  secretion_error_;
     double  parent_secretion_error_;
     double  secretion_fitness_;
-  
+
     double  compound_amount_;
-    
+
     int32_t  amount_of_dna_;
     int32_t  nb_coding_rnas_;
     int32_t  nb_non_coding_rnas_;
@@ -201,23 +201,23 @@ class StatRecord
     int32_t  nb_del_;
     int32_t  nb_trans_;
     int32_t  nb_inv_;
-    
+
     double  dupl_rate_;
     double  del_rate_;
     double  trans_rate_;
     double  inv_rate_;
     double  mean_align_score_;
-    
+
     int32_t  nb_bases_in_0_CDS_;
     int32_t  nb_bases_in_0_functional_CDS_;
     int32_t  nb_bases_in_0_non_functional_CDS_;
     int32_t  nb_bases_in_0_RNA_;
     int32_t  nb_bases_in_0_coding_RNA_;
     int32_t  nb_bases_in_0_non_coding_RNA_;
-    
+
     int32_t  nb_bases_non_essential_;
     int32_t  nb_bases_non_essential_including_nf_genes_;
-    
+
     #ifdef __REGUL
       int32_t  nb_influences_;
       int32_t  nb_enhancing_influences_;

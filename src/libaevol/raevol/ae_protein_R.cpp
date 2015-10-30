@@ -90,7 +90,7 @@ ae_protein_R::ae_protein_R( gzFile backup_file ) : ae_protein::ae_protein( backu
 
   influence_list_       = new ae_list();
 }
- 
+
 // =================================================================
 //                             Destructors
 // =================================================================
@@ -136,7 +136,7 @@ void ae_protein_R::add_influence( ae_influence_R *influence )
   influence_list_->add( influence );
 }
 
-void ae_protein_R::save( gzFile backup_file ) 
+void ae_protein_R::save( gzFile backup_file )
 {
   ae_protein::save( backup_file );
 

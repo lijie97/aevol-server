@@ -41,7 +41,7 @@ class Dna;
 
 class DnaReplicationReport {
   friend class Dna;
-  
+
  public :
 
   // =================================================================

@@ -102,7 +102,7 @@ ae_string::ae_string(const char* seq, int32_t length) {
  */
 ae_string::ae_string(char* seq, int32_t length, bool use_seq) {
   assert(use_seq);
-  
+
   length_ = length;
   nb_blocks_ = nb_blocks(length);
   data_ = seq;
@@ -119,7 +119,7 @@ ae_string::ae_string(gzFile backup_file) {
 ae_string::ae_string(char* organism_file_name) {
   FILE* org_file = fopen(organism_file_name, "r");
   int32_t length;
-  
+
   if (org_file == NULL) {
     printf("Error opening organism file\n");
   }
@@ -127,17 +127,17 @@ ae_string::ae_string(char* organism_file_name) {
     fseek(org_file , 0 , SEEK_END);
     length = ftell(org_file);
     rewind(org_file);
-    
+
     nb_blocks_ = nb_blocks(length);
     length_ = length;
     data_ = new char[nb_blocks_ * BLOCK_SIZE];
     for (int32_t i = 0 ; i < length_ -1 ; i++) {
       data_[i] = static_cast<char>(fgetc(org_file));
     }
-    
+
     data_[length_] = '\0';
   }
-  
+
   fclose(org_file);
 }
 
@@ -220,7 +220,7 @@ void ae_string::replace(int32_t pos, char* seq, int32_t seq_length) {
   if (seq_length == -1) {
     seq_length = strlen(seq);
   }
-  
+
   // Check that the sequence is contiguous
   assert(pos + seq_length <= length_);
 

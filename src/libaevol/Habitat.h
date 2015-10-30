@@ -115,7 +115,7 @@ class Habitat
   // ==========================================================================
   //                               Attributes
   // ==========================================================================
-  // Amount of secreted compound currently present in the grid cell 
+  // Amount of secreted compound currently present in the grid cell
   double compound_amount_;
 
   /** Handler for the phenotypic target and its "evolution" over time */

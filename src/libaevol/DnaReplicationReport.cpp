@@ -223,7 +223,7 @@ void DnaReplicationReport::compute_stats()
   nb_mut_[INV]    = 0;
   nb_mut_[INS_HT] = 0;
   nb_mut_[REPL_HT]= 0;
-  
+
   for (const auto& ht : ht_) {
     assert(ht->mut_type() == INS_HT or
            ht->mut_type() == REPL_HT);

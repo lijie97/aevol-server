@@ -23,12 +23,12 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 // ****************************************************************************
- 
- 
+
+
 #ifndef  AEVOL_X11_WINDOW_H_
 #define  AEVOL_X11_WINDOW_H_
- 
- 
+
+
 // =================================================================
 //                              Libraries
 // =================================================================
@@ -72,25 +72,25 @@ enum color_map
 
 
 
- 
+
 class X11Window
-{  
+{
   public :
-  
+
     // =================================================================
     //                             Constructors
     // =================================================================
     X11Window();
     X11Window(  Display* display, int8_t screen, Atom * atoms,
-                    uint16_t pos_x, uint16_t pos_y, 
+                    uint16_t pos_x, uint16_t pos_y,
                     uint16_t width, uint16_t height,
                     const char* caption );
-  
+
     // =================================================================
     //                             Destructors
     // =================================================================
     virtual ~X11Window();
-  
+
     // =================================================================
     //                              Accessors
     // =================================================================
@@ -110,7 +110,7 @@ class X11Window
     uint16_t  height()        { return height_;  };
     Window        window()    { return window_;  };
     Display *     display()   { return display_; };
-  
+
     // =================================================================
     //                            Public Methods
     // =================================================================
@@ -131,19 +131,19 @@ class X11Window
     void fill_arc_64( int16_t x, int16_t y, int16_t diam, int16_t angle1, int16_t angle2, char* color );
     void fill_rectangle( int16_t x, int16_t y, int16_t width, int16_t height, color_map color );
     void fill_rectangle( int16_t x, int16_t y, int16_t width, int16_t height, char* color );
-    
+
     static char* color( double mean );
-  
+
     // =================================================================
     //                           Public Attributes
     // =================================================================
-  
-  
-  
-  
-  
+
+
+
+
+
   protected :
-  
+
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
@@ -163,7 +163,7 @@ class X11Window
     // =================================================================
     uint32_t pixel( Display *display, int8_t screen, char *color_name, uint32_t default_color );
     void set_codes();
-  
+
     // =================================================================
     //                          Protected Attributes
     // =================================================================
@@ -171,11 +171,11 @@ class X11Window
     int8_t    screen_;
     Window    window_;
     Cursor    cursor_;
-    
+
     uint16_t width_;
     uint16_t height_;
 
-  
+
     // Graphic Contexts
     GC gcWhite_;
     GC gcBlack_;

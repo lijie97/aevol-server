@@ -63,7 +63,7 @@ int main( int argc, char* argv[] )
   char* param_file_name = NULL;
   char* pop_file_name   = NULL;
   bool verbose          = false;
-  
+
   // 2) Define allowed options
   const char * options_list = "hp:f:";
   static struct option long_options_list[] = {
@@ -72,12 +72,12 @@ int main( int argc, char* argv[] )
     { "file", required_argument,  NULL, 'f' }, // Provide file with population parameters to change
     { 0, 0, 0, 0 }
   };
-      
+
   // 3) Get actual values of the command-line options
   int option;
-  while ( ( option = getopt_long(argc, argv, options_list, long_options_list, NULL) ) != -1 ) 
+  while ( ( option = getopt_long(argc, argv, options_list, long_options_list, NULL) ) != -1 )
   {
-    switch ( option ) 
+    switch ( option )
     {
       case 'h' :
       {
@@ -91,7 +91,7 @@ int main( int argc, char* argv[] )
           printf( "%s: error: Option -f or --file : missing argument.\n", argv[0] );
           exit( EXIT_FAILURE );
         }
-        
+
         param_file_name = optarg;
         break;
       }
@@ -102,10 +102,10 @@ int main( int argc, char* argv[] )
           printf( "%s: error: Option -p or --pop : missing argument.\n", argv[0] );
           exit( EXIT_FAILURE );
         }
-        
+
         pop_file_name = optarg;/*new char[strlen(optarg)+1];
         memcpy( pop_file_name, optarg, strlen(optarg)+1 );*/
-        
+
         break;
       }
       default :
@@ -115,14 +115,14 @@ int main( int argc, char* argv[] )
       }
     }
   }
-  
+
   // 4) Check the consistancy of the command-line options
   if ( param_file_name == NULL || pop_file_name == NULL )
   {
     printf( "%s: error: You must provide both a parameter file and a population backup.\n", argv[0] );
     exit( EXIT_FAILURE );
   }
-  
+
   // 5) Initialize an empty experiment manager
   #ifndef __NO_X
     ae_exp_manager* exp_manager = new ae_exp_manager_X11();
@@ -141,7 +141,7 @@ int main( int argc, char* argv[] )
   }
   pop->load( pop_file, verbose );
   printf("Ok\n");
-    
+
   // 7) Interpret and apply changes
   printf("Interpret and apply changes\n");
   FILE* param_file  = fopen( param_file_name,  "r" );
@@ -150,9 +150,9 @@ int main( int argc, char* argv[] )
     printf( "%s:%d: error: could not open parameter file %s\n", __FILE__, __LINE__, param_file_name );
     exit( EXIT_FAILURE );
   }
-  
+
   f_line* line;
-  while ( ( line = line(param_file) ) != NULL ) 
+  while ( ( line = line(param_file) ) != NULL )
   {
     if ( strcmp( line->words[0], "POINT_MUTATION_RATE" ) == 0 )
     {
@@ -194,12 +194,12 @@ int main( int argc, char* argv[] )
       pop->set_overall_inversion_rate( atof( line->words[1] ) );
       printf("\tChange of overall inversion to %f\n",atof( line->words[1] ));
     }
-  
+
     delete line;
   }
   fclose( param_file );
   printf("Ok\n");
-  
+
   // 8) Save the changed population in a new population file (similar name with _changed)
   printf("Save the changed population\t");
   char* new_pop_file_name   = NULL;
@@ -223,7 +223,7 @@ f_line* get_line(FILE* param_file)
   char line[255];
   f_line* formated_line = new f_line();
 
-  bool found_interpretable_line = false; 
+  bool found_interpretable_line = false;
 
   while ( !feof( param_file ) && !found_interpretable_line )
   {
@@ -280,7 +280,7 @@ void format_line( f_line* formated_line, char* line, bool* line_is_interpretable
 }
 
 
-void print_help( char* prog_name ) 
+void print_help( char* prog_name )
 {
 	printf( "******************************************************************************\n" );
 	printf( "*                        aevol - Artificial Evolution                        *\n" );

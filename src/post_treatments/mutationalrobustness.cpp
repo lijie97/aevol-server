@@ -26,9 +26,9 @@
 
 /*
  This post-treatment loads a population and create a large number of mutants of
- each individual in the same way they would be created during reproduction of 
+ each individual in the same way they would be created during reproduction of
  the individual. For each mutant we report the phenotypic effect of the mutation
- on metabolism and on secretion. This allows to infer the mutational landscape 
+ on metabolism and on secretion. This allows to infer the mutational landscape
  of a population.
 */
 
@@ -64,9 +64,9 @@ int main( int argc, char* argv[] )
   };
 
   int option;
-  while ( ( option = getopt_long(argc, argv, options_list, long_options_list, NULL) ) != -1 ) 
+  while ( ( option = getopt_long(argc, argv, options_list, long_options_list, NULL) ) != -1 )
   {
-    switch ( option ) 
+    switch ( option )
     {
       case 'h' : print_help(basename(argv[0])); exit( EXIT_SUCCESS ); break;
       case 'n' : ndiv = atol( optarg ); break;

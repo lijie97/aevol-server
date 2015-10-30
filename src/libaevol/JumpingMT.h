@@ -104,9 +104,9 @@ class JumpingMT
     int8_t          roulette_random(double* probs, int8_t nb_elts); // Roulette selection
     void            multinomial_drawing (int32_t* destination, double* source, int32_t nb_drawings, int32_t colors);
     // Multinomial drawing of parameters (nb, {source[0], source[1], ... source[colors-1]})
-    
+
     void jump();
-    
+
     void save(gzFile backup_file) const;
 
     // =================================================================
@@ -120,7 +120,7 @@ class JumpingMT
 
 
   protected :
-    
+
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================

@@ -57,7 +57,7 @@ namespace aevol {
 ae_individual_R::ae_individual_R() : ae_individual()
 {
   rna_list_coding_ = new ae_list();
-  
+
   if( ae_common::with_heredity )
   {
     inherited_protein_list_ = new ae_list();
@@ -73,26 +73,26 @@ ae_individual_R::ae_individual_R( ae_individual_R* parent, int32_t id,
         : ae_individual( parent, id, mut_prng, stoch_prng )
 {
   //~ printf( "ae_individual_R( parent ) : I have %d inherited proteins\n", parent->protein_list()->nb_elts() );
-  
+
   rna_list_coding_ = new ae_list();
-  
+
   if( ae_common::with_heredity )
   {
     inherited_protein_list_ = new ae_list();
-    
+
     // We copy all the proteins from parent
     for ( int8_t strand = LEADING ; strand <= LAGGING ; strand++ )
     {
       ae_list_node<ae_protein_R*>* prot_node = parent->protein_list_->first();
       ae_protein_R* prot;
-      
+
       while ( prot_node != NULL )
       {
         prot = prot_node->obj();
-        
+
         ae_protein_R* inherited_prot = new ae_protein_R( NULL, *prot );
         inherited_prot->set_inherited( true );
-        
+
         inherited_protein_list_->add( inherited_prot );
 
         prot_node = prot_node->next();
@@ -108,7 +108,7 @@ ae_individual_R::ae_individual_R( ae_individual_R* parent, int32_t id,
 ae_individual_R::ae_individual_R( gzFile backup_file ) : ae_individual( backup_file )
 {
   rna_list_coding_ = new ae_list();
-  
+
   inherited_protein_list_ = NULL;
   if( ae_common::with_heredity)
   {
@@ -116,12 +116,12 @@ ae_individual_R::ae_individual_R( gzFile backup_file ) : ae_individual( backup_f
     inherited_protein_list_ = new ae_list();
     int16_t nb_inherited_proteins = 0;
     gzread( backup_file, &nb_inherited_proteins,  sizeof(nb_inherited_proteins) );
-  
+
     for ( int16_t i = 0 ; i < nb_inherited_proteins ; i++ )
     {
 	  inherited_protein_list_->add( new ae_protein_R( backup_file ) );
     }
-  }  
+  }
 }
 
 // =================================================================
@@ -130,14 +130,14 @@ ae_individual_R::ae_individual_R( gzFile backup_file ) : ae_individual( backup_f
 ae_individual_R::~ae_individual_R()
 {
   assert( !ae_common::with_heredity || inherited_protein_list_ != NULL );
-  
+
   if ( inherited_protein_list_ != NULL )
   {
     inherited_protein_list_->erase( DELETE_OBJ );
     delete inherited_protein_list_;
     inherited_protein_list_ = NULL;
   }
-  
+
   if ( rna_list_coding_ != NULL )
   {
     rna_list_coding_->erase( NO_DELETE );
@@ -156,18 +156,18 @@ void ae_individual_R::evaluate( Environment* envir )
   // ---------------------------------------------------------------------------
   ae_list_node<GeneticUnit*>*     gen_unit_node = genetic_unit_list_->first();
   GeneticUnit*  gen_unit = NULL;
-  
+
   while ( gen_unit_node != NULL )
   {
     gen_unit = gen_unit_node->obj();
-    
+
     gen_unit->do_transcription();
     gen_unit->do_translation();
     gen_unit->compute_phenotypic_contribution(); // Compute basal levels
-    
+
     gen_unit_node = gen_unit_node->next();
   }
-  
+
   //----------------------------------------------------------------------------
   // 2) Make a list of all the proteins present in the individual
   //----------------------------------------------------------------------------
@@ -190,12 +190,12 @@ void ae_individual_R::evaluate( Environment* envir )
 */
 
   //----------------------------------------------------------------------------
-  // 4) Make the individual "live its life" and compute partial phenotypes and 
+  // 4) Make the individual "live its life" and compute partial phenotypes and
   //    fitnesses
   //----------------------------------------------------------------------------
   int16_t indiv_age   = 0;
   double fitness_temp = 0;
-  
+
   // Go from an evaluation date to the next
   for( int16_t evaluation_index = 0 ; evaluation_index < ae_common::individual_evaluation_nbr ; evaluation_index++ )
   {
@@ -238,7 +238,7 @@ void ae_individual_R::set_influences()
 {
   ae_list_node<ae_rna_R*>* rna_node  = NULL;
   ae_rna_R*     rna       = NULL;
-  
+
   //
   rna_node = rna_list_coding_->first();
   while ( rna_node != NULL )
@@ -303,7 +303,7 @@ void ae_individual_R::multiply_concentrations( double factor )
 {
   ae_list_node<ae_protein_R*>* prot_node = protein_list_->first();
   ae_protein_R* prot      = NULL;
-  
+
   while ( prot_node != NULL )
   {
     prot = prot_node->obj();
@@ -360,9 +360,9 @@ void ae_individual_R::save( gzFile backup_file )
     for ( int16_t i = 0 ; i < nb_inherited_proteins ; i++ )
     {
     inherited_protein = inherited_protein_node->obj();
-    
+
     inherited_protein->save( backup_file );
-    
+
     inherited_protein_node = inherited_protein_node->next();
     }
   }
@@ -379,20 +379,20 @@ void ae_individual_R::make_protein_list()
 void ae_individual_R::make_rna_list()
 {
   ae_individual::make_rna_list();
-  
+
   // Parse the newly created RNA list and copy the coding RNAs in rna_list_coding_.
   ae_list_node<ae_rna*>* rna_node  = rna_list_->first();
   ae_rna*       rna       = NULL;
-  
+
   while ( rna_node != NULL )
   {
     rna = rna_node->obj();
-    
+
     if ( rna->is_coding() == true )
     {
       rna_list_coding_->add( rna );
     }
-    
+
     rna_node = rna_node->next();
   }
 }

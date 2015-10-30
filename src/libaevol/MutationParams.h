@@ -111,7 +111,7 @@ class MutationParams
     inline int16_t align_sigm_mean() const;
     inline int16_t align_lin_min() const;
     inline int16_t align_lin_max() const;
-    
+
     // Maximum shift of one seq on the other
     inline int16_t align_max_shift() const;
     // Work zone half length
@@ -159,7 +159,7 @@ class MutationParams
     inline void set_align_sigm_mean(int16_t align_sigm_mean);
     inline void set_align_lin_min(int16_t align_lin_min);
     inline void set_align_lin_max(int16_t align_lin_max);
-    
+
     inline void set_align_max_shift(int16_t align_max_shift);
     inline void set_align_w_zone_h_len(int16_t align_w_zone_h_len);
     inline void set_align_match_bonus(int16_t align_match_bonus);
@@ -241,7 +241,7 @@ class MutationParams
     int16_t align_sigm_mean_;
     int16_t align_lin_min_;
     int16_t align_lin_max_;
-    
+
     int16_t align_max_shift_;     // Maximum shift of one seq on the other
     int16_t align_w_zone_h_len_;  // Work zone half length
     int16_t align_match_bonus_;   // Corresponding residues match bonus

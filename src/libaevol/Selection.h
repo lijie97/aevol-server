@@ -131,7 +131,7 @@ class Selection : public Observable
     //                             Protected Attributes
     // =======================================================================
     ExpManager* exp_m_;
-    
+
     // ----------------------------------------- Pseudo-random number generator
     std::unique_ptr<JumpingMT> prng_;
 

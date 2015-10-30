@@ -28,15 +28,15 @@
  *  \brief Currently used only by post-treatments, on a specific lineage, to monitor the fate of paralogs.
  *         Each node corresponds to a coding RNA. When it is duplicated, two new nodes are added in the tree,
  *         as children of the ancestral version. The left child corresponds to the original DNA segment, while
- *         the right child corresponds to the copy that was reinserted elsewhere, possibly in another genetic 
- *         unit.  
+ *         the right child corresponds to the copy that was reinserted elsewhere, possibly in another genetic
+ *         unit.
  */
- 
- 
+
+
  #ifndef AEVOL_GENE_TREE_NODE_H_
 #define  AEVOL_GENE_TREE_NODE_H_
- 
- 
+
+
 // =================================================================
 //                              Libraries
 // =================================================================
@@ -68,24 +68,24 @@ namespace aevol {
 
 
 
- 
+
 class GeneTreeNode
-{  
+{
   friend class GeneTree;
 
   public :
-  
+
     // =================================================================
     //                             Constructors
     // =================================================================
     GeneTreeNode( int32_t nodeCreationDate, Protein * protein);
 
-  
+
     // =================================================================
     //                             Destructors
     // =================================================================
     virtual ~GeneTreeNode();
-  
+
     // =================================================================
     //                            Public Methods
     // =================================================================
@@ -96,9 +96,9 @@ class GeneTreeNode
     void update_pointers_in_subtree_leaves(GeneticUnit * unit);
     void anticipate_mutation_effect_on_genes_in_subtree_leaves(const Mutation * mut, int32_t lengthOfGeneticUnit);
     void register_actual_mutation_effect_on_genes_in_subtree_leaves(GeneTree * tree, const Mutation * mut, GeneticUnit* unit, int32_t gener, double impact_on_metabolic_error);
-  
+
   protected :
-  
+
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
@@ -117,10 +117,10 @@ class GeneTreeNode
     //                          Protected Attributes
     // =================================================================
       static int32_t     nextID_;
-    
+
     int32_t             ID_;
-    int32_t             dna_creation_date_;   // generation when the DNA of this gene copy was created. For left nodes, equals the creation date of the parent node. 
-    int32_t             node_creation_date_;  // generation when this node was created. For right nodes, equals the dna creation date. 
+    int32_t             dna_creation_date_;   // generation when the DNA of this gene copy was created. For left nodes, equals the creation date of the parent node.
+    int32_t             node_creation_date_;  // generation when this node was created. For right nodes, equals the dna creation date.
     int32_t             gene_loss_date_;      // generation when the gene was lost: became a pseudogene, or was deleted, or was broken by a rearrangement
     ae_gene_loss_type   gene_loss_type_;      // NOT_LOST_YET or LOST_BY_LOCAL_MUTATION or DELETED or BROKEN_BY_REAR
     Strand strand_;
@@ -144,8 +144,8 @@ class GeneTreeNode
     bool proms_possibly_modified_;
     bool gene_possibly_duplicated_;
     int32_t putative_position_for_the_duplicate_;
-    
-    
+
+
 };
 } // namespace aevol
 

@@ -43,7 +43,7 @@
 
 // Copyright (C) 1997 - 2002, Makoto Matsumoto and Takuji Nishimura,
 // Copyright (C) 2000 - 2003, Richard J. Wagner
-// All rights reserved.                          
+// All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -56,8 +56,8 @@
 //      notice, this list of conditions and the following disclaimer in the
 //      documentation and/or other materials provided with the distribution.
 //
-//   3. The names of its contributors may not be used to endorse or promote 
-//      products derived from this software without specific prior written 
+//   3. The names of its contributors may not be used to endorse or promote
+//      products derived from this software without specific prior written
 //      permission.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -116,7 +116,7 @@ class MersenneTwister
 
   protected:
     enum { M = 397 };  // period parameter
-    
+
     uint32_t state[N];   // internal state
     uint32_t *pNext;     // next value to get from state
     int16_t  left;       // number of values left before reload needed
@@ -128,13 +128,13 @@ class MersenneTwister
     MersenneTwister( const uint32_t& oneSeed );  // initialize with a simple uint32_t
     MersenneTwister( gzFile backup_file );      // Load from a gz backup file
     MersenneTwister( const MersenneTwister & model );
-  
+
     // Destructors
     virtual ~MersenneTwister();
-    
+
     // Main generator
     inline uint32_t rand_next(); // Draw a 32-bit-long integer in [0, 2e32[
-  
+
     // AEvol wrappers
     inline double   random();         // Double in [0, 1[ (uniform distribution)
     inline int8_t   random( int8_t max );   // ~
@@ -146,13 +146,13 @@ class MersenneTwister
     void            multinomial_roulette( int32_t* destination, double* source, int32_t nb_drawings, int32_t colors );
     // Multinomial drawing of parameters ( nb, {source[0], source[1], ... source[colors-1]} )
     // WARNING : The roulette implementation as it is, is 40 times slower that the other implementation
-  
+
     //~ inline int32_t   norm_geometric_random( double p, int32_t max_nb_trials );
-  
-    
+
+
     // Re-seeding functions with same behavior as initializers
     inline void seed( const uint32_t oneSeed );
-    
+
     // Saving and loading generator state
     inline void save( uint32_t* saveArray ) const;  // to array of size SAVE
     inline void load( uint32_t *const loadArray );  // from such array
@@ -183,10 +183,10 @@ inline uint32_t MersenneTwister::rand_next()
 {
   // Pull a 32-bit integer from the generator state
   // Every other access function simply transforms the numbers extracted here
-  
+
   if( left == 0 ) reload();
   --left;
-    
+
   register uint32_t s1;
   s1 = *pNext++;
   s1 ^= (s1 >> 11);
@@ -309,5 +309,5 @@ void MersenneTwister::write_to_backup( gzFile backup_file ) const
   gzwrite( backup_file, saveArray, SAVE * sizeof( saveArray[0] ) );
 }
 } // namespace aevol
-  
+
 #endif

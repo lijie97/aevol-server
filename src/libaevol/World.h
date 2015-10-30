@@ -211,16 +211,16 @@ inline Individual *World::indiv_at(int16_t x, int16_t y) const
 inline double**World::secretion_present_grid() const
 {
   double** ret = new double*[width_];
-  
+
   for (int16_t x = 0; x < width_ ; x++)
   {
     ret[x] = new double[height_];
     for (int16_t y = 0; y < height_ ; y++)
-    { 
-      ret[x][y] = grid_[x][y]->compound_amount(); 
+    {
+      ret[x][y] = grid_[x][y]->compound_amount();
     }
   }
-  
+
   return ret;
 }
 
@@ -235,7 +235,7 @@ inline double**World::secreted_amount_grid() const
       ret[x][y] = grid_[x][y]->secreted_amount();
     }
   }
-  
+
   return ret;
 }
 
@@ -250,7 +250,7 @@ inline double**World::metabolic_fitness_grid() const
       ret[x][y] = grid_[x][y]->metabolic_fitness();
     }
   }
-  
+
   return ret;
 }
 
@@ -265,7 +265,7 @@ inline double**World::total_fitness_grid() const
       ret[x][y] = grid_[x][y]->total_fitness();
     }
   }
-  
+
   return ret;
 }
 

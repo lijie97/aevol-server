@@ -27,7 +27,7 @@
 #include "Point.h"
 
 namespace aevol {
-  
+
 Point readpoint(gzFile backup_file) {
   Point p;
   gzread(backup_file, &p.x, sizeof(p.x));

@@ -26,7 +26,7 @@
 
 #ifndef AEVOL_POINT_H_
 #define AEVOL_POINT_H_
- 
+
 #include <zlib.h>
 #include <utility>
 

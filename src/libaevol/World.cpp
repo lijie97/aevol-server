@@ -69,7 +69,7 @@ World::~World()
   for (int16_t x = 0 ; x < width_ ; x++)
     for (int16_t y = 0 ; y < height_ ; y++)
       delete grid_[x][y];
-  
+
   // grid_ is 2D accessible but 1D allocated, there were only 2 new
   // statements and these are the corresponding deletes
   delete [] grid_1d_;

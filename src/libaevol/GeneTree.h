@@ -28,15 +28,15 @@
  *  \brief Currently used only by post-treatments, on a specific lineage, to monitor the fate of paralogs.
  *         Each node corresponds to a coding RNA. When it is duplicated, two new nodes are added in the tree,
  *         as children of the ancestral version. The left child corresponds to the original DNA segment, while
- *         the right child corresponds to the copy that was reinserted elsewhere, possibly in another genetic 
- *         unit.  
+ *         the right child corresponds to the copy that was reinserted elsewhere, possibly in another genetic
+ *         unit.
  */
- 
- 
+
+
  #ifndef AEVOL_GENE_TREE_H_
 #define  AEVOL_GENE_TREE_H_
- 
- 
+
+
 // =================================================================
 //                              Libraries
 // =================================================================
@@ -75,30 +75,30 @@ enum ae_gene_creation_type
 
 class GeneTreeNode;
 
- 
+
 class GeneTree
-{  
+{
   friend class GeneTreeNode;
 
   public :
-  
+
     // =================================================================
     //                             Constructors
     // =================================================================
     GeneTree();
     GeneTree( int32_t nodeCreationDate, Protein * protein, const Mutation * mut = NULL ); // Creates a tree with just a root node.
-   
 
-  
+
+
     // =================================================================
     //                             Destructors
     // =================================================================
     virtual ~GeneTree();
-  
+
     // =================================================================
     //                              Accessors
     // =================================================================
-    
+
     inline ae_gene_creation_type creation_type() const;
     inline int32_t begin_gener() const;
     inline int32_t end_gener() const;
@@ -106,7 +106,7 @@ class GeneTree
     inline int32_t nb_internal_nodes() const;
     inline int32_t nb_leaves() const;
     inline int32_t nb_active_leaves() const;
-  
+
 
     // =================================================================
     //                            Public Methods
@@ -124,19 +124,19 @@ class GeneTree
     GeneTreeNode * search_in_leaves(const Protein * protein); // Returns NULL if not found
     void print_to_screen(); // for debug purposes
     void write_to_files(const char * topologyFileName, const char * nodeAttributesFileName, int32_t end_gener); // Newick format for the topology file
-    void write_nodes_in_tabular_file(int32_t treeID, FILE * f);  // f must already be open 
+    void write_nodes_in_tabular_file(int32_t treeID, FILE * f);  // f must already be open
 
-  
+
     // =================================================================
     //                           Public Attributes
     // =================================================================
-  
-  
-  
-  
-  
+
+
+
+
+
   protected :
-  
+
     // =================================================================
     //                         Forbidden Constructors
     // =================================================================
@@ -146,17 +146,17 @@ class GeneTree
         printf( "ERROR : Call to forbidden constructor in file %s : l%d\n", __FILE__, __LINE__ );
         exit( EXIT_FAILURE );
       };
-    
-  
+
+
     // =================================================================
     //                           Protected Methods
     // =================================================================
 
-  
+
     // =================================================================
     //                          Protected Attributes
     // =================================================================
-     
+
     GeneTreeNode * root_;
     ae_gene_creation_type creation_type_;
     int32_t begin_gener_;
@@ -165,7 +165,7 @@ class GeneTree
     int32_t nb_internal_nodes_;
     int32_t nb_leaves_;
     int32_t nb_active_leaves_;
-    
+
 };
 
 

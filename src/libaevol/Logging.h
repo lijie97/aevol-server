@@ -85,7 +85,7 @@ class Logging
     //void save( gzFile backup_file ) const;
     void load( int8_t logs, int32_t num_gener  );
     void print_to_file( FILE* file ) const;
-    
+
     void set_logs( int8_t logs );
     void flush();
 

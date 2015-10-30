@@ -58,7 +58,7 @@ namespace aevol {
 Logging::Logging()
 {
   logs_ = 0;
-  
+
   transfer_log_         = NULL;
   rear_log_             = NULL;
   barrier_log_          = NULL;
@@ -99,9 +99,9 @@ Logging::~Logging()
 void Logging::load( int8_t logs, int32_t num_gener )
 {
   char* line = new char[500];
-  
+
   logs_ = logs;
-  
+
   // Prepare required log files
   if ( logs_ & LOG_TRANSFER )
   {
@@ -112,14 +112,14 @@ void Logging::load( int8_t logs, int32_t num_gener )
       printf( "Error: Failed to open file \"log_transfer.out.old\"\n" );
       exit( EXIT_FAILURE );
     }
-    
+
     transfer_log_ = fopen( "log_transfer.out", "w" );
     if ( transfer_log_ == NULL )
     {
       printf( "Error: Failed to open file \"log_transfer.out\"\n" );
       exit( EXIT_FAILURE );
     }
-    
+
     // Copy file headers
     if (fgets(line, 500, old_transfer_log) == NULL) {
       // TODO check for error
@@ -133,7 +133,7 @@ void Logging::load( int8_t logs, int32_t num_gener )
     }
     // This is the empty line between the header and the values
     //fputs( line, transfer_log_ );
-    
+
     // Copy log entries until num_gener (excluded)
     while ( (int32_t)atol(line) < num_gener && !feof(old_transfer_log) )
     {
@@ -149,7 +149,7 @@ void Logging::load( int8_t logs, int32_t num_gener )
 	}
       }
     }
-    
+
     fclose( old_transfer_log );
     remove( "log_transfer.out.old" );
   }
@@ -162,14 +162,14 @@ void Logging::load( int8_t logs, int32_t num_gener )
       printf( "Error: Failed to open file \"log_rear.out.old\"\n" );
       exit( EXIT_FAILURE );
     }
-    
+
     rear_log_ = fopen( "log_rear.out", "w" );
     if ( rear_log_ == NULL )
     {
       printf( "Error: Failed to open file \"log_rear.out\"\n" );
       exit( EXIT_FAILURE );
     }
-    
+
     // Copy file headers
     if (fgets(line, 500, old_rear_log) == NULL) {
       // TODO check for error
@@ -183,7 +183,7 @@ void Logging::load( int8_t logs, int32_t num_gener )
     }
     // This is the empty line between the header and the values
     //fputs( line, rear_log_ );
-    
+
     // Copy log entries until num_gener (excluded)
     while ( (int32_t)atol(line) < num_gener && !feof(old_rear_log) )
     {
@@ -192,7 +192,7 @@ void Logging::load( int8_t logs, int32_t num_gener )
 	// TODO check for error
       }
     }
-    
+
     fclose( old_rear_log );
     remove( "log_rear.out.old" );
   }
@@ -205,14 +205,14 @@ void Logging::load( int8_t logs, int32_t num_gener )
       printf( "Error: Failed to open file \"log_barrier.out.old\"\n" );
       exit( EXIT_FAILURE );
     }
-    
+
     barrier_log_ = fopen( "log_barrier.out", "w" );
     if ( barrier_log_ == NULL )
     {
       printf( "Error: Failed to open file \"log_barrier.out\"\n" );
       exit( EXIT_FAILURE );
     }
-    
+
     // Copy file headers
     if (fgets(line, 500, old_barrier_log) == NULL) {
       // TODO check for error
@@ -226,7 +226,7 @@ void Logging::load( int8_t logs, int32_t num_gener )
     }
     // This is the empty line between the header and the values
     //fputs( line, barrier_log_ );
-    
+
     // Copy log entries until num_gener (excluded)
     while ( (int32_t)atol(line) < num_gener && !feof(old_barrier_log) )
     {
@@ -235,7 +235,7 @@ void Logging::load( int8_t logs, int32_t num_gener )
 	// TODO check for error
       }
     }
-    
+
     fclose( old_barrier_log );
     remove( "log_barrier.out.old" );
   }
@@ -248,14 +248,14 @@ void Logging::load( int8_t logs, int32_t num_gener )
       printf( "Error: Failed to open file \"log_param_modification.out.old\"\n" );
       exit( EXIT_FAILURE );
     }
-    
+
     param_modification_log_ = fopen( "log_param_modification.out", "w" );
     if ( param_modification_log_ == NULL )
     {
       printf( "Error: Failed to open file \"log_param_modification.out\"\n" );
       exit( EXIT_FAILURE );
     }
-    
+
     //Copy file headers
     ret = fgets( line, 500, old_param_modification_log );
     while ( !feof( old_param_modification_log ) && line[0] == '#' )
@@ -265,18 +265,18 @@ void Logging::load( int8_t logs, int32_t num_gener )
     }
     // This is the empty line between the header and the values
     //fputs( line, param_modification_log_ );
-    
+
     // Copy log entries until num_gener (excluded)
     while ( (int32_t)atol(line) < num_gener && !feof(old_param_modification_log) )
     {
       fputs( line, param_modification_log_ );
       ret = fgets( line, 500, old_param_modification_log );
     }
-    
+
     fclose( old_param_modification_log );
     remove( "log_param_modification.out.old" );
   }*/
-  
+
   delete [] line;
 }
 
@@ -288,7 +288,7 @@ void Logging::print_to_file( FILE* file ) const
 void Logging::set_logs( int8_t logs )
 {
   logs_ = logs;
-    
+
   // Open required log files
   if ( logs_ & LOG_TRANSFER )
   {
@@ -311,7 +311,7 @@ void Logging::set_logs( int8_t logs )
   if ( logs_ & LOG_BARRIER )
   {
     barrier_log_ = fopen( "log_barrier.out", "w" );
-    
+
     if ( barrier_log_ == NULL )
     {
       printf( "Error: Failed to open file \"log_barrier.out\"\n" );
@@ -321,14 +321,14 @@ void Logging::set_logs( int8_t logs )
   /*if ( logs_ & LOG_LOADS )
   {
     param_modification_log_ = fopen( "log_param_modification.out", "w" );
-    
+
     if ( param_modification_log_ == NULL )
     {
       printf( "Error: Failed to open file \"log_param_modification.out\"\n" );
       exit( EXIT_FAILURE );
     }
   }*/
-  
+
   this->write_headers();
 }
 
@@ -386,7 +386,7 @@ void Logging::write_headers() const
     fprintf( transfer_log_, "gener recepient donor t_type seg_len replaced_len size_before size_after align1_pt1 align1_pt2 score1 align2_pt1 align2_pt2 score2\n" );
     fprintf( transfer_log_, "#\n" );
   }
-  
+
   // ========== REAR LOG ==========
   if ( logs_ & LOG_REAR )
   {
@@ -410,7 +410,7 @@ void Logging::write_headers() const
     fprintf( rear_log_, "gener indiv r_type seg_len genome_size score1 score2\n" );
     fprintf( rear_log_, "#\n" );
   }
-  
+
   // ========== BARRIER LOG ==========
   if ( logs_ & LOG_BARRIER )
   {
@@ -430,10 +430,10 @@ void Logging::write_headers() const
     fprintf( barrier_log_, "# 7. Genome size (before the event)\n" );
     fprintf( barrier_log_, "#\n" );
     fprintf( barrier_log_, "######################################################################\n" );
-  
+
   }
-  
-  // ========== LOADS LOG ==========     
+
+  // ========== LOADS LOG ==========
   /*if ( logs_ & LOG_LOADS )
   {
     fprintf( param_modification_log_, "######################################################################\n" );

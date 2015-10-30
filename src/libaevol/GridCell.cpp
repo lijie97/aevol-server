@@ -69,7 +69,7 @@ GridCell::GridCell(int16_t x, int16_t y,
 {
   x_ = x;
   y_ = y;
-  
+
   individual_ = indiv;
   habitat_ = std::move(habitat);
 }

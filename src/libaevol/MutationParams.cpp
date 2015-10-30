@@ -79,19 +79,19 @@ MutationParams::MutationParams()
 
   // --------------------------------- Rearrangement rates (with alignements)
   neighbourhood_rate_ = 0.0;
-  
+
   duplication_proportion_   = 0.0;
   deletion_proportion_      = 0.0;
   translocation_proportion_ = 0.0;
   inversion_proportion_     = 0.0;
-  
+
   // ------------------------------------------------------------ Alignements
   align_fun_shape_    = SIGMOID;
   align_sigm_lambda_  = 4;
   align_sigm_mean_    = 50;
   align_lin_min_      = 0;
   align_lin_max_      = 100;
-  
+
   align_max_shift_      = 20;
   align_w_zone_h_len_   = 50;
   align_match_bonus_    = 1;
@@ -123,19 +123,19 @@ MutationParams::MutationParams( const MutationParams & model )
 
   // --------------------------------- Rearrangement rates (with alignements)
   neighbourhood_rate_ = model.neighbourhood_rate_;
-  
+
   duplication_proportion_   = model.duplication_proportion_;
   deletion_proportion_      = model.deletion_proportion_;
   translocation_proportion_ = model.translocation_proportion_;
   inversion_proportion_     = model.inversion_proportion_;
-  
+
   // ------------------------------------------------------------ Alignements
   align_fun_shape_    = model.align_fun_shape_;
   align_sigm_lambda_  = model.align_sigm_lambda_;
   align_sigm_mean_    = model.align_sigm_mean_;
   align_lin_min_      = model.align_lin_min_;
   align_lin_max_      = model.align_lin_max_;
-  
+
   align_max_shift_      = model.align_max_shift_;
   align_w_zone_h_len_   = model.align_w_zone_h_len_;
   align_match_bonus_    = model.align_match_bonus_;
@@ -176,25 +176,25 @@ MutationParams::MutationParams( gzFile backup_file )
   gzread( backup_file, &deletion_proportion_,      sizeof(deletion_proportion_) );
   gzread( backup_file, &translocation_proportion_, sizeof(translocation_proportion_) );
   gzread( backup_file, &inversion_proportion_,     sizeof(inversion_proportion_) );
-  
+
   // ------------------------------------------------------------ Alignements
   gzread( backup_file, &align_fun_shape_,     sizeof(align_fun_shape_) );
   gzread( backup_file, &align_sigm_lambda_,   sizeof(align_sigm_lambda_) );
   gzread( backup_file, &align_sigm_mean_,     sizeof(align_sigm_mean_) );
   gzread( backup_file, &align_lin_min_,       sizeof(align_lin_min_) );
   gzread( backup_file, &align_lin_max_,       sizeof(align_lin_max_) );
-  
+
   gzread( backup_file, &align_max_shift_,     sizeof(align_max_shift_) );
   gzread( backup_file, &align_w_zone_h_len_,  sizeof(align_w_zone_h_len_) );
   gzread( backup_file, &align_match_bonus_,   sizeof(align_match_bonus_) );
   gzread( backup_file, &align_mismatch_cost_, sizeof(align_mismatch_cost_) );
-  
+
   //Alignment::align_fun_shape     = align_fun_shape_;
   //Alignment::align_sigm_lambda   = align_sigm_lambda_;
   //Alignment::align_sigm_mean     = align_sigm_mean_;
   //Alignment::align_lin_min       = align_lin_min_;
   //Alignment::align_lin_max       = align_lin_max_;
-  
+
   //Alignment::align_max_shift     = align_max_shift_;
   //Alignment::align_w_zone_h_len  = align_w_zone_h_len_;
   //Alignment::align_match_bonus   = align_match_bonus_;
@@ -244,14 +244,14 @@ void MutationParams::save( gzFile backup_file ) const
   gzwrite( backup_file, &deletion_proportion_,      sizeof(deletion_proportion_) );
   gzwrite( backup_file, &translocation_proportion_, sizeof(translocation_proportion_) );
   gzwrite( backup_file, &inversion_proportion_,     sizeof(inversion_proportion_) );
-  
+
   // ------------------------------------------------------------ Alignements
   gzwrite( backup_file, &align_fun_shape_,     sizeof(align_fun_shape_) );
   gzwrite( backup_file, &align_sigm_lambda_,   sizeof(align_sigm_lambda_) );
   gzwrite( backup_file, &align_sigm_mean_,     sizeof(align_sigm_mean_) );
   gzwrite( backup_file, &align_lin_min_,       sizeof(align_lin_min_) );
   gzwrite( backup_file, &align_lin_max_,       sizeof(align_lin_max_) );
-  
+
   gzwrite( backup_file, &align_max_shift_,     sizeof(align_max_shift_) );
   gzwrite( backup_file, &align_w_zone_h_len_,  sizeof(align_w_zone_h_len_) );
   gzwrite( backup_file, &align_match_bonus_,   sizeof(align_match_bonus_) );

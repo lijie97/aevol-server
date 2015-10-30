@@ -23,12 +23,12 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 // ****************************************************************************
- 
- 
+
+
 #ifndef AEVOL_PHENOTYPIC_SEGMENT_H_
 #define AEVOL_PHENOTYPIC_SEGMENT_H_
- 
- 
+
+
 // =================================================================
 //                              Includes
 // =================================================================
@@ -51,11 +51,11 @@ namespace aevol {
 
 
 
- 
+
 class PhenotypicSegment
-{  
+{
   public :
-  
+
     // =================================================================
     //                             Constructors
     // =================================================================
@@ -63,38 +63,38 @@ class PhenotypicSegment
     inline PhenotypicSegment(double start, double stop, PhenotypicFeature feature);
     inline PhenotypicSegment(const PhenotypicSegment & source);
     inline PhenotypicSegment(gzFile backup_file);
-  
+
     // =================================================================
     //                             Destructors
     // =================================================================
     inline virtual ~PhenotypicSegment();
-  
+
     // =================================================================
     //                              Accessors
     // =================================================================
-  
+
     // =================================================================
     //                            Public Methods
     // =================================================================
     inline void save(gzFile backup_file) const;
     inline void load(gzFile backup_file);
-  
+
     // =================================================================
     //                           Public Attributes
     // =================================================================
     double start;
     double stop;
     PhenotypicFeature feature;
-  
-  
-  
-  
-  
-  protected :  
+
+
+
+
+
+  protected :
     // =================================================================
     //                           Protected Methods
     // =================================================================
-  
+
     // =================================================================
     //                          Protected Attributes
     // =================================================================

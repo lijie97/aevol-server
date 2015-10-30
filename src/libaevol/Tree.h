@@ -23,8 +23,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 // ****************************************************************************
- 
- 
+
+
 #ifndef AEVOL_TREE_H_
 #define AEVOL_TREE_H_
 
@@ -54,9 +54,9 @@ class ExpManager;
 
 
 class Tree : public Observer
-{  
+{
   public :
-    
+
     // =================================================================
     //                             Constructors
     // =================================================================
@@ -67,7 +67,7 @@ class Tree : public Observer
     // To be used when we want to INSPECT a tree,
     // not when we want to run a simulation.
     Tree(ExpManager* exp_m, char* tree_file_name);
-    
+
     // =================================================================
     //                             Destructors
     // =================================================================
@@ -79,7 +79,7 @@ class Tree : public Observer
     inline int64_t  tree_step() const {
       return tree_step_;
     };
-    
+
     // Precondition for the following methods:
     // the tree was emptied every TREE_STEP generations ==> it contains
     // only the last generations since the last emptying ==> do not ask
@@ -87,12 +87,12 @@ class Tree : public Observer
     ReplicationReport** reports(int64_t t) const;
     ReplicationReport* report_by_index(int64_t t, int32_t index) const;
     ReplicationReport* report_by_rank(int64_t t, int32_t rank) const;
-  
+
 
     // =================================================================
     //                        Accessors: setters
     // =================================================================
-    
+
     // =================================================================
     //                            Public Methods
     // =================================================================
@@ -100,29 +100,29 @@ class Tree : public Observer
     void write_to_tree_file(gzFile tree_file);
 
   void update(Observable& o, ObservableEvent e, void* arg) override;
-    
+
 
     // =================================================================
     //                           Public Attributes
     // =================================================================
     static const int32_t NO_PARENT;
-    
-  
-  
-  
-  
+
+
+
+
+
   protected :
     // =================================================================
     //                           Protected Methods
     // =================================================================
-    
+
     // =================================================================
     //                          Protected Attributes
     // =================================================================
     ExpManager* exp_m_;
-    
+
     int64_t tree_step_;
-    
+
     ReplicationReport*** replics_;
     // Two-dimensional table of ReplicationReport*
     //    dimension 1 (lines)   : generation
@@ -131,7 +131,7 @@ class Tree : public Observer
     // !!!!! WARNING !!!!!
     // The report at line l, column c is for the
     // replication that created the indiv with index c of generation l+1
-    
+
     // light tree representation
     int32_t** parent_;
 };

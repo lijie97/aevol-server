@@ -99,7 +99,7 @@ class Protein
     inline int32_t            length()                const; // Number of Amino-Acids (not including START and STOP)
     inline double             concentration()         const;
     inline  bool              is_functional()         const;
-    
+
     Individual * indiv() const;
 
     // =================================================================
@@ -134,7 +134,7 @@ class Protein
     int32_t           length_;                // Number of Amino-Acids (START and STOP codon do NOT produce AAs)
     double            concentration_;
     bool              is_functional_;
-    
+
     std::list<Codon *> AA_list_;
 
     // Phenotypic contribution (triangle) parameters

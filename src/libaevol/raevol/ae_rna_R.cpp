@@ -108,7 +108,7 @@ void ae_rna_R::set_influences( ae_list* protein_list )
   while ( prot_node != NULL )
   {
     prot = prot_node->obj();
-    
+
     double activation = affinity_with_protein( enhancer_position, prot );
     double inhibition = affinity_with_protein( operator_position, prot );
 
@@ -221,14 +221,14 @@ double ae_rna_R::affinity_with_protein( int32_t index, ae_protein *protein )
   for ( int32_t i = 0 ; i < len - 4; i++ )
   {
     temp  = 1;
-    
+
     for ( int32_t j = 0 ; j < 5 ; j++ )
     {
       temp *= ae_common::binding( quadon_tab[j] , codon_tab[i+j] );
 
       if ( temp == 0.0 ) break;
     }
-    
+
     max = (max < temp) ? temp : max;
   }
 
@@ -246,17 +246,17 @@ double  max = 0;
   for ( int32_t i = 0 ; i < len - 4 ; i++ )
   {
     temp  = 1;
-    
+
     for ( int32_t j = 0 ; (temp != 0.0) && (j < 5) ; j++ )
     {
       indiv = dynamic_cast< ae_individual_R* >( gen_unit_->indiv() );
       prot  = ( ae_protein_R* )( protein );
       temp *= ae_common::binding( indiv->quadon( gen_unit_, strand_, (index+j) ), prot->codon(i+j));
     }
-    
+
     max = (max < temp) ? temp : max;
   }
-  
+
   return max;
 */
 }

@@ -96,13 +96,13 @@ class ae_string {
   void remove(int32_t first, int32_t last);
   void insert(int32_t pos, const char* seq, int32_t seq_length = -1);
   void replace(int32_t pos, char* seq, int32_t seq_length = -1);
-  
+
   void save(gzFile backup_file);
-  
-  
-  
-  
-  
+
+
+
+
+
  protected :
   // =================================================================
   //                           Protected Methods
@@ -126,7 +126,7 @@ void ae_string::set_data(char* data, int32_t length /* = -1 */) {
     delete [] data_;
     data_ = NULL;
   }
-  
+
   data_ = data;
   length_ = (length != -1) ? length : strlen(data_);
   nb_blocks_ = nb_blocks(length_);
