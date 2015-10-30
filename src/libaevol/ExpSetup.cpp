@@ -58,6 +58,12 @@ namespace aevol {
 // ===========================================================================
 //                                 Public Methods
 // ===========================================================================
+
+template<typename Field>
+void gzwrite(gzFile file, Field field) {
+  gzwrite(file, &field, static_cast<unsigned>(sizeof(field)));
+}
+
 /*!
 */
 void ExpSetup::write_setup_file(gzFile exp_setup_file) const
