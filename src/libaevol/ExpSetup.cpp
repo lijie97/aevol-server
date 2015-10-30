@@ -59,10 +59,27 @@ namespace aevol {
 //                                 Public Methods
 // ===========================================================================
 
-template<typename Field>
-void gzwrite(gzFile file, Field field) {
-  gzwrite(file, &field, static_cast<unsigned>(sizeof(field)));
+// begin variadic template
+
+// Base case for the next template.
+// Useless by itself. Not intented to be called directly.
+void gzwrite(gzFile file) {
+  return;
 }
+
+/// Write variables to gzip file
+/// \param `file` an open gzip file
+/// \param `field` the field to be written
+/// \param `fields_list` the remaining fields
+/// The function is simply called like: `gzwrite(file, x, y, z, t)`.
+/// Warning: as it is currently written, this template overrides any
+/// call to gzwrite, which causes writing the length of the field to the file.
+template<typename Field, typename... Args>
+void gzwrite(gzFile file, Field field, Args... fields_list) {
+  ::gzwrite(file, &field, sizeof(field)); // actual call to library's gzwrite
+  gzwrite(file, fields_list...); // recurse template for the remaining fields
+}
+// end variadic template
 
 /*!
 */
