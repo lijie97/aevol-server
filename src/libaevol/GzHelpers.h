@@ -27,6 +27,8 @@
 #ifndef AEVOL_GZHELPERS_H_
 #define AEVOL_GZHELPERS_H_
 
+#include <zlib.h>
+
 // ===========================================================================
 //                                 Public Methods
 // ===========================================================================
@@ -73,7 +75,5 @@ template<typename... Args>
 void gzread(Args&&... args) {
   gz(GzAction::READ, args...);
 }
-
-#include <zlib.h>
 
 #endif //AEVOL_GZHELPERS_H_
