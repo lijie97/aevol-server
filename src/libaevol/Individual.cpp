@@ -602,7 +602,7 @@ const GeneticUnit& Individual::genetic_unit(int16_t num_unit) const {
 }
 
 /// Returns genetic unit number `num_unit` (0 for main chromosome) as
-/// a non-constant reference. To be used when the purpose if to alter
+/// a non-constant reference. To be used when the purpose is to alter
 /// the individual.
 GeneticUnit& Individual::genetic_unit_nonconst(int16_t num_unit) {
   assert(num_unit < static_cast<int32_t>(genetic_unit_list_.size()));
