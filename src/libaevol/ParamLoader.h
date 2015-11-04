@@ -287,10 +287,10 @@ class ParamLoader {
 
     // Degradation equation
     double  _degradation_rate;
-    double  _degradation_step;
+    int     _nb_degradation_step;
 
     // Individual life
-    int16_t _individual_evaluation_nb;
+    int     _nb_indiv_age;
 
     // Binding matrix
     double _binding_zeros_percentage;

@@ -167,7 +167,7 @@ void Individual_R_X11::display_concentrations( X11Window* win )
       //prot_index = 0;
       int proti = 0;
       for (const auto& prot : _protein_list) {
-
+        printf("%d -- %f | ",proti,((Protein_R*)prot)->get_mean());
         // morceau ajouté pour colorer les protéines en fonctions de leur paramètres
         if ( ((Protein_R*)prot)->get_is_functional() )
         {
@@ -188,6 +188,7 @@ void Individual_R_X11::display_concentrations( X11Window* win )
         delete[] color2;
         proti++;
       }
+    printf("\n");
   }
 
   _protein_list.clear();

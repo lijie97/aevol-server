@@ -106,7 +106,7 @@ class ExpSetup
 #ifdef __REGUL
     inline bool   get_with_heredity( void ) const;
     inline double get_degradation_rate( void ) const;
-    inline double get_degradation_step( void ) const;
+    inline int    get_nb_degradation_step( void ) const;
     inline double get_protein_presence_limit( void ) const;
 
     inline double get_hill_shape( void ) const;
@@ -145,7 +145,7 @@ class ExpSetup
 #ifdef __REGUL
     inline void set_with_heredity( bool with_heredity );
     inline void set_degradation_rate( double degradation_rate );
-    inline void set_degradation_step( double degradation_step );
+    inline void set_nb_degradation_step( int nb_degradation_step );
     inline void set_protein_presence_limit( double protein_presence_limit );
 
     inline void set_hill_shape( double hill_shape );
@@ -343,7 +343,7 @@ inline double ExpSetup::get_degradation_rate( void ) const
 }
 
 
-inline double ExpSetup::get_degradation_step( void ) const
+inline int ExpSetup::get_nb_degradation_step( void ) const
 {
   return _degradation_step;
 }
@@ -475,10 +475,9 @@ inline void ExpSetup::set_degradation_rate( double degradation_rate )
   _degradation_rate = degradation_rate;
 }
 
-inline void ExpSetup::set_degradation_step( double degradation_step )
+inline void ExpSetup::set_nb_degradation_step( int degradation_step )
 {
   _degradation_step = degradation_step;
-  _nb_indiv_age = 20 * _degradation_step;
 }
 
 inline void ExpSetup::set_protein_presence_limit( double protein_presence_limit )
