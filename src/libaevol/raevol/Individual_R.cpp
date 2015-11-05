@@ -176,11 +176,12 @@ void Individual_R::EvaluateInContext(const Habitat& habitat) {
   }
 
   for (int i = 1; i <= get_exp_m()->get_exp_s()->get_nb_indiv_age(); i++) {
+    update_concentrations();
     if (std::fmod(i, get_exp_m()->get_exp_s()->get_eval_step()) == 0.0)
     {
 //      printf("Eval\n");
       eval_step(habitat);
-    }
+    } 
     if (std::fmod(i,
                   get_exp_m()->get_exp_s()->get_nb_indiv_age()) == 0.0)
     {
@@ -258,7 +259,6 @@ void Individual_R::eval_step( const Habitat& habitat ) {
 }
 
 void Individual_R::final_step( const Habitat& habitat ) {
-  // On devrait faire la somme du carré des erreurs afin d'éviter qu'elles puissent se compenser
   _dist_to_target_by_feature[METABOLISM] = _dist_sum / (double) (get_exp_m()->get_exp_s()->get_nb_indiv_age() / get_exp_m()->get_exp_s()->get_eval_step());
 
 

@@ -292,7 +292,7 @@ void ExpManager::step_to_next_generation() {
 /*!
   \brief Load an experiment with the provided files
  */
-// TODO <david.parsons@inria.fr> check verbose (what doas it do ?, is it consistent ?)
+// TODO <david.parsons@inria.fr> check verbose (what does it do ?, is it consistent ?)
 void ExpManager::load(gzFile& exp_s_file,
                           gzFile& exp_backup_file,
                           gzFile& world_file,

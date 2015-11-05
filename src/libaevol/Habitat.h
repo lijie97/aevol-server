@@ -89,7 +89,9 @@ class Habitat
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
-  double compound_amount(void) const {return compound_amount_;};
+  double compound_amount(void) const {
+    return compound_amount_;
+  }
   const PhenotypicTarget& phenotypic_target() const {
     return phenotypic_target_handler_->phenotypic_target();
   }
