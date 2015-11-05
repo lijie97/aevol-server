@@ -9,7 +9,7 @@ INIT_POP_SIZE           1024
 WORLD_SIZE              32 32
 INIT_METHOD             ONE_GOOD_GENE CLONE
 CHROMOSOME_INITIAL_LENGTH   5000
-FUZZY_FLAVOR   1
+FUZZY_FLAVOR   0
 
 ##### 2. Selection ################
 SELECTION_SCHEME        fitness_proportionate   1000
@@ -68,4 +68,7 @@ BINDING_ZEROS_PERCENTAGE       0.75
 RANDOM_BINDING_MATRIX          true
 WITH_HEREDITY                  false
 PROTEIN_PRESENCE_LIMIT         1e-2
+NB_INDIV_AGE                   20
+NB_DEGRADATION_STEP            10
+
 

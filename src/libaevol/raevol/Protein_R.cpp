@@ -83,7 +83,7 @@ Protein_R::Protein_R( GeneticUnit* gen_unit, const std::vector<Codon*> codon_lis
 {
   _rna_R_list.push_back((Rna_R*)rna);
 
-	_initial_concentration = 0;
+	_initial_concentration = _concentration;
   _delta_concentration   = 0;
   _inherited             = false;
   _signal                = false;
@@ -165,7 +165,7 @@ void Protein_R::compute_delta_concentration( void )
     }
 
     _delta_concentration -= _gen_unit->get_exp_m()->get_exp_s()->get_degradation_rate() * _concentration;
-    _delta_concentration *= 1/_gen_unit->get_exp_m()->get_exp_s()->get_degradation_step();
+    _delta_concentration *= 1/_gen_unit->get_exp_m()->get_exp_s()->get_nb_degradation_step();
 
   }
 }

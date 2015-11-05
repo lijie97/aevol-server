@@ -268,7 +268,8 @@ ParamLoader::ParamLoader(const char* file_name)
 
     _protein_presence_limit = 1e-2;
     _degradation_rate  = 1;
-    _degradation_step  = 10;
+    _nb_degradation_step  = 10;
+    _nb_indiv_age         = 20;
     _with_heredity          = false;
 
     _hill_shape_n      = 4;
@@ -1171,9 +1172,13 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     {
       _degradation_rate = atof(line->words[1]);
     }
-    else if (strcmp(line->words[0], "DEGRADATION_STEP") == 0)
+    else if (strcmp(line->words[0], "NB_DEGRADATION_STEP") == 0)
     {
-      _degradation_step = atof(line->words[1]);
+      _nb_degradation_step = atof(line->words[1]);
+    }
+        else if (strcmp(line->words[0], "NB_INDIV_AGE") == 0)
+    {
+      _nb_indiv_age = atof(line->words[1]);
     }
     else if (strcmp(line->words[0], "RANDOM_BINDING_MATRIX") == 0)
     {
@@ -1367,8 +1372,8 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
 #ifdef __REGUL
   exp_s->set_with_heredity(_with_heredity);
   exp_s->set_degradation_rate(_degradation_rate);
-  exp_s->set_degradation_step(_degradation_step);
-  exp_s->set_nb_indiv_age(20*_degradation_step);
+  exp_s->set_nb_degradation_step(_nb_degradation_step);
+  exp_s->set_nb_indiv_age(_nb_indiv_age);
   exp_s->set_protein_presence_limit(_protein_presence_limit);
   exp_s->set_hill_shape(pow( _hill_shape_theta, _hill_shape_n ));
   exp_s->set_hill_shape_n( _hill_shape_n );

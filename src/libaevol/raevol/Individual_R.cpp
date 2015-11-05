@@ -175,20 +175,19 @@ void Individual_R::EvaluateInContext(const Habitat& habitat) {
     init_indiv();
   }
 
+  // i is thus the age of the individual
   for (int i = 1; i <= get_exp_m()->get_exp_s()->get_nb_indiv_age(); i++) {
-    update_concentrations();
+    for (int j = 0; j < get_exp_m()->get_exp_s()->get_nb_degradation_step(); j++) {
+      one_step();
+    }
+
     if (std::fmod(i, get_exp_m()->get_exp_s()->get_eval_step()) == 0.0)
     {
-//      printf("Eval\n");
       eval_step(habitat);
-    } 
-    if (std::fmod(i,
-                  get_exp_m()->get_exp_s()->get_nb_indiv_age()) == 0.0)
-    {
-//      printf("Final Step\n");
-      final_step(habitat);
     }
   }
+
+  final_step(habitat);
 }
 
 void Individual_R::init_indiv( void )
@@ -221,16 +220,10 @@ void Individual_R::init_indiv( void )
   //----------------------------------------------------------------------------
   make_rna_list();
 
-
-  for (const auto& prot : _protein_list) {
-    ((Protein_R*) prot)->set_initial_concentration();
-  }
   //----------------------------------------------------------------------------
   // 3) Create influence graph (including the signals)
   //----------------------------------------------------------------------------
   set_influences();
-
-
 
   _networked = true;
 }
