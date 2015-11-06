@@ -175,17 +175,19 @@ void Individual_R::EvaluateInContext(const Habitat& habitat) {
     init_indiv();
   }
 
+  std::set<int>* eval = get_exp_m()->get_exp_s()->get_list_eval_step();
+
   for (int i = 1; i <= get_exp_m()->get_exp_s()->get_nb_indiv_age(); i++) {
     for (int j = 0; j < get_exp_m()->get_exp_s()->get_nb_degradation_step(); j++)
       one_step();
 
-    if (std::fmod(i, get_exp_m()->get_exp_s()->get_eval_step()) == 0.0)
+    if (eval->find(i) != eval->end())
     {
       eval_step(habitat);
     }
   }
 
-  final_step(habitat);
+  final_step(habitat,eval);
 }
 
 void Individual_R::init_indiv( void )
@@ -249,9 +251,9 @@ void Individual_R::eval_step( const Habitat& habitat ) {
   _dist_sum += _dist_to_target_by_feature[METABOLISM];
 }
 
-void Individual_R::final_step( const Habitat& habitat ) {
+void Individual_R::final_step( const Habitat& habitat, std::set<int>* eval ) {
   // On devrait faire la somme du carré des erreurs afin d'éviter qu'elles puissent se compenser
-  _dist_to_target_by_feature[METABOLISM] = _dist_sum / (double) (get_exp_m()->get_exp_s()->get_nb_indiv_age() / get_exp_m()->get_exp_s()->get_eval_step());
+  _dist_to_target_by_feature[METABOLISM] = _dist_sum / (double) (eval->size());
 
 
   _fitness_computed=false;

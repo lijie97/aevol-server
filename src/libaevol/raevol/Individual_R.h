@@ -34,6 +34,7 @@
 // =================================================================
 #include <inttypes.h>
 #include <vector>
+#include <set>
 // =================================================================
 //                            Project Files
 // =================================================================
@@ -98,7 +99,7 @@ class Individual_R : public virtual Individual
      virtual void init_indiv( void );
      virtual void one_step( void );
      virtual void eval_step(const Habitat& habitat);
-     virtual void final_step(const Habitat& habitat);
+     virtual void final_step(const Habitat& habitat, std::set<int>* eval);
      //virtual void reevaluate();
      //virtual void clear_everything_except_dna_and_promoters();
      //void do_transcription_translation_folding();

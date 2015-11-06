@@ -34,7 +34,7 @@
 #include <zlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-
+#include <set>
 
 
 
@@ -102,6 +102,8 @@ ExpSetup::ExpSetup( ExpManager * exp_m )
   _hill_shape_n      = 4;
   _hill_shape_theta  = 0.5;
   _hill_shape        = std::pow( _hill_shape_theta, _hill_shape_n );
+
+  _list_eval_step    = new std::set<int>();
 #endif
 }
   
@@ -191,6 +193,13 @@ void ExpSetup::write_setup_file( gzFile exp_setup_file ) const
   gzclose( binding_matrix_file );
 
   delete[] binding_matrix_file_name;
+
+  unsigned int eval_step_size = _list_eval_step->size();
+  gzwrite(exp_setup_file, &eval_step_size,  sizeof(eval_step_size));
+
+  for(auto eval_step : *_list_eval_step) {
+    gzwrite(exp_setup_file, &eval_step,  sizeof(eval_step));
+  }
 #endif
 
 }
@@ -286,6 +295,16 @@ void ExpSetup::load( gzFile setup_file, gzFile backup_file, bool verbose )
   gzclose( binding_matrix_file );
 
   delete[] binding_matrix_file_name;
+
+  unsigned int eval_step_size;
+  gzread(setup_file, &eval_step_size,  sizeof(eval_step_size));
+
+  int eval_val;
+  for(unsigned int i = 0; i < eval_step_size; i++) {
+    gzread(setup_file, &eval_val,  sizeof(eval_val));
+    _list_eval_step->insert(eval_val);
+  }
+
 #endif
 
 }
@@ -338,6 +357,9 @@ void ExpSetup::init_binding_matrix( bool random_binding_matrix, double binding_z
 
     delete[] binding_matrix_file_name;
   }
+
+
+
 
 }
 

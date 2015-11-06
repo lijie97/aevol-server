@@ -36,10 +36,10 @@ class raevol_matrix(Engine):
         self.options_parser.add_option("-w", dest="walltime",
                     help="walltime for the reservation",
                     type="string",
-                    default="05:00:00")
+                    default="02:00:00")
         self.options_parser.add_option("-j", dest="oargrid_job_id",
                     help="oargrid_job_id to relaunch an engine",
-                    type=int)
+                    type=int, default=None)
         self.options_parser.add_option("-k", dest="keep_alive",
                     help="keep reservation alive ..",
                     action="store_true")
@@ -54,11 +54,9 @@ class raevol_matrix(Engine):
                     help="storage5k_job_id to store the data",
                     type=int)
 
-        self.poolname = 'jorouzaudcornabas_aevol_virus'
-
     def run(self):
         """ """
-        if self.options.oargrid_job_id:
+        if self.options.oargrid_job_id is not None:
             self.oar_job_id = self.options.oargrid_job_id
         else:
             self.oar_job_id = None
@@ -160,13 +158,10 @@ class raevol_matrix(Engine):
     def define_parameters(self):
         """ """
         parameters = {
-	  'seed' : [51456165, 33263658, 7158785, 456847894, 1223144],
-	  'blas' : ['mkl','atlas','openblas'],
-	  'experiment' : ['raevol'], # 'aevol',
-	  'fuzzy' : ['hybrid'], # 'classic',
-	  'compilator' : ['gcc','intel'],
-	  'parallel' : ['openmp','tbb'],
-	  'number_of_generation' : [1000,10000,1000000]
+	  'seed' : [51456165, 33263658, 7158785, 456847894, 1223144, 878944, 121145, 3587842],
+	  'fuzzy' : ['0','1'],
+	  'height' : [0.1, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8],
+	  'move' : [0, 1]
             }
         sweeps = sweep(parameters)
         self.sweeper = ParamSweeper(os.path.join(self.result_dir, "sweeps"), sweeps)
@@ -185,7 +180,7 @@ class raevol_matrix(Engine):
                                                     selected_cluster]
         actual_resources = distribute_hosts(resources, wanted)
 
-        job_specs = get_jobs_specs(actual_resources, name='AEVol_on_MIC')
+        job_specs = get_jobs_specs(actual_resources, name='Aevol_diff_area')
         logger.info("try to reserve " + str(actual_resources))
         self.oargrid_job_id , _= oargridsub(job_specs,
                           walltime = end_date - start_date,
@@ -259,9 +254,7 @@ class raevol_matrix(Engine):
         try:
 	    self.export = "source ~/aevol_binary/intel_libs/tbb/bin/tbbvars.sh intel64; source ~/aevol_binary/intel_libs/mkl/bin/mklvars.sh intel64; "
 	    
-	    bucketname = self.working_dir+'/perf_exp/'+slugify(comb)+'/'
-      
-	    binary_directory = comb['experiment']+'_'+comb['compilator']+'_'+comb['parallel']
+	    bucketname = self.working_dir+'/area_diff/'+slugify(comb)+'/'
 	      
 	    if os.path.isdir(bucketname) and os.path.exists(bucketname+'/last_gener.txt'):
 	      logger.info(thread_name + "Resuming AEVOL from NFS backup")
@@ -272,38 +265,31 @@ class raevol_matrix(Engine):
 	      last_gen = lastGen.stdout.strip()
 	      
 	      logger.info(thread_name + "Resuming AEVOL Run from "+last_gen)
-	      if comb['parallel'] == 'openmp':
-	        Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_binary/'+binary_directory+'/aevol_run -n -p 16'
-		      +str(comb['number_of_generation'])+' -r '+last_gen+' >> aevol_run.log',
+	      Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_diff_area/aevol/src/aevol_run -p 16'
+		      + ' -n 500000 -r '+last_gen+' >> aevol_run.log',
 			  [host]).run()
-	      else:
-		Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_binary/'+binary_directory+'/aevol_run -n '
-		      +str(comb['number_of_generation'])+' -r '+last_gen+' >> aevol_run.log',
-			  [host]).run()
+
 	    else:
 	      Remote('mkdir -p '+bucketname,[host]).run()
 		
-	      param_file = 'basic_param.in'
-	      if comb['experiment'] == 'aevol':
-		param_file = 'basic_param.in'
-	      elif comb['experiment'] == 'raevol':
-		param_file = 'basic_param_regul.in'
+	      param_file = '/home/jorouzaudcornabas/aevol_diff_area/param_tmpl.in'
 	      
 	      logger.info(thread_name + 'Generate config file ' + param_file)
 	      
 	      f_template = open(param_file)
-	      fd, outfile = mkstemp(dir='/tmp/', prefix=comb['experiment']+'_'+comb['fuzzy']+'_'+comb['compilator']+'_'+comb['parallel'] + '_')
+	      fd, outfile = mkstemp(dir='/tmp/', prefix=slugify(comb) + '_param')
 	      f = os.fdopen(fd, 'w')
-		      
-	      fuzzy_vers = '0'
-	      if comb['fuzzy'] == 'classic':
-		fuzzy_vers = '0'
-	      else:
-		fuzzy_vers = '1'
 		
 	      for line in f_template:
 		line = line.replace('SEED_NUMBER',str(comb['seed']))
-		line = line.replace('FUZZY_VERSION',fuzzy_vers)
+		line = line.replace('FUZZY_VERSION',str(comb['fuzzy']))
+		if comb['move']:
+                    line = line.replace('FIRST_GAUSSIAN_MEDIAN','0.25') 
+                    line = line.replace('THIRD_GAUSSIAN_MEDIAN','0.65') 
+                else:
+                    line = line.replace('FIRST_GAUSSIAN_MEDIAN','0.2') 
+                    line = line.replace('THIRD_GAUSSIAN_MEDIAN','0.6')
+                line = line.replace('GAUSSIAN_HEIGHT',str(comb['height']))
 		f.write(line)
 		
 	      f_template.close()
@@ -313,26 +299,17 @@ class raevol_matrix(Engine):
 	      if not put_file.ok:
 		exit()
 		
-	      if comb['experiment'] == 'raevol':
-		put_file = Put([host], ['binding_matrix.rae'],remote_location=bucketname).run()
-	        if not put_file.ok:
-		  exit()
-	      
 	      os.remove(outfile)
 	      
 	      Remote('cd '+bucketname+'; cp ' + outfile.split('/')[-1] + ' param.in',
 			  [host]).run()
 		
 	      logger.info(thread_name + "Launching AEVOL Create")
-	      Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_binary/'+binary_directory+'/aevol_create > aevol_create.log',
+	      Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_diff_area/aevol/src/aevol_create > aevol_create.log',
 			  [host]).run()
 	      
 	      logger.info(thread_name + "Launching AEVOL Run")
-	      if comb['parallel'] == 'openmp':
-		Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_binary/'+binary_directory+'/aevol_run -p 16 -n '+str(comb['number_of_generation'])+' > aevol_run.log',
-			  [host]).run()
-	      else:
-		Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_binary/'+binary_directory+'/aevol_run -n '+str(comb['number_of_generation'])+' > aevol_run.log',
+	      Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_diff_area/aevol/src/aevol_run -p 16 -n 500000 > aevol_run.log',
 			  [host]).run()
             
 	    logger.info(thread_name + 'Get results ' + comb_dir + "/" + slugify(comb))
@@ -375,6 +352,9 @@ class raevol_matrix(Engine):
 
     def is_job_alive(self):
         rez=get_oar_job_info(self.oar_job_id)
+        if rez['state'] == 'Error':
+          return False
+
         if (rez["start_date"]+rez["walltime"] > time.time()):
             return True
         else:

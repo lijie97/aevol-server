@@ -38,6 +38,7 @@
 #include <cassert>
 
 #include <list>
+#include <set>
 #include <memory>
 
 #include <zlib.h>
@@ -291,6 +292,9 @@ class ParamLoader {
 
     // Individual life
     int     _nb_indiv_age;
+
+    // List of evaluation step
+    std::set<int>  _list_eval_step;
 
     // Binding matrix
     double _binding_zeros_percentage;

@@ -276,6 +276,7 @@ ParamLoader::ParamLoader(const char* file_name)
     _hill_shape_theta  = 0.5;
     _hill_shape        = std::pow( _hill_shape_theta, _hill_shape_n );
 
+    _list_eval_step.insert(_nb_indiv_age);
   #endif
 
   // Read parameter file
@@ -1174,11 +1175,11 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     }
     else if (strcmp(line->words[0], "NB_DEGRADATION_STEP") == 0)
     {
-      _nb_degradation_step = atof(line->words[1]);
+      _nb_degradation_step = atoi(line->words[1]);
     }
-        else if (strcmp(line->words[0], "NB_INDIV_AGE") == 0)
+    else if (strcmp(line->words[0], "NB_INDIV_AGE") == 0)
     {
-      _nb_indiv_age = atof(line->words[1]);
+      _nb_indiv_age = atoi(line->words[1]);
     }
     else if (strcmp(line->words[0], "RANDOM_BINDING_MATRIX") == 0)
     {
@@ -1200,6 +1201,11 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     else if (strcmp(line->words[0], "BINDING_ZEROS_PERCENTAGE") == 0)
     {
       _binding_zeros_percentage = atof(line->words[1]);
+    }
+    else if (strcmp(line->words[0], "INDIVIDUAL_EVALUATION_AGES") == 0)
+    {
+      _list_eval_step.clear();
+      for (int i = 1; i < line->nb_words; i++) _list_eval_step.insert(atoi(line->words[i]));
     }
     else if (strcmp(line->words[0], "WITH_HEREDITY") == 0)
     {
@@ -1374,6 +1380,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   exp_s->set_degradation_rate(_degradation_rate);
   exp_s->set_nb_degradation_step(_nb_degradation_step);
   exp_s->set_nb_indiv_age(_nb_indiv_age);
+  exp_s->set_list_eval_step(_list_eval_step);
   exp_s->set_protein_presence_limit(_protein_presence_limit);
   exp_s->set_hill_shape(pow( _hill_shape_theta, _hill_shape_n ));
   exp_s->set_hill_shape_n( _hill_shape_n );

@@ -34,6 +34,7 @@
 // =================================================================
 #include <cinttypes>
 #include <cstdlib>
+#include <set>
 
 #include "Selection.h"
 #include "Stats.h"
@@ -115,6 +116,9 @@ class ExpSetup
 
     inline double get_eval_step( void ) const;
     inline double get_nb_indiv_age( void ) const;
+    std::set<int>* get_list_eval_step( void ) const {
+      return _list_eval_step;
+    }
 #endif
     // =======================================================================
     //                         Accessors: setters
@@ -154,6 +158,8 @@ class ExpSetup
 
     inline void set_eval_step( double eval_step );
     inline void set_nb_indiv_age( double nb_indiv_age );
+
+    inline void set_list_eval_step(std::set<int> list_eval_step);
 #endif
     // =======================================================================
     //                            Public Methods
@@ -239,6 +245,8 @@ class ExpSetup
 
     int    _nb_indiv_age;
     int    _eval_step;
+
+    std::set<int>* _list_eval_step;
 #endif
 };
 
@@ -509,6 +517,11 @@ inline void ExpSetup::set_eval_step( double eval_step )
 inline void ExpSetup::set_nb_indiv_age( double nb_indiv_age )
 {
   _nb_indiv_age = nb_indiv_age;
+}
+
+inline void ExpSetup::set_list_eval_step( std::set<int> list_eval_step )
+{
+  _list_eval_step = new std::set<int>(list_eval_step);
 }
 #endif
 
