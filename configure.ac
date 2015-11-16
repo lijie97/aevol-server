@@ -23,9 +23,10 @@ AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
 
 # Detect C++11 or C++14
-AX_CXX_COMPILE_STDCXX_14([noext])
 if test -z "$HAVE_CXX14" ; then
    AX_CXX_COMPILE_STDCXX_11([noext])
+else
+   AX_CXX_COMPILE_STDCXX_14([noext])
 fi
 
 #if test -z "$HAVE_CXX14";

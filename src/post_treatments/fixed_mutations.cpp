@@ -24,190 +24,151 @@
 //
 // ****************************************************************************
 
-
-
-
-// =================================================================
-//                              Libraries
-// =================================================================
-#include <inttypes.h>
-#include <getopt.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <zlib.h>
+/// The input file (lineage.ae or lineage.rae) must contain the following information:
+///
+/// - common data                                                (ae_common::write_to_backup)
+/// - begin gener                                                (int32_t)
+/// - end gener                                                  (int32_t)
+/// - final individual index                                     (int32_t)
+/// - initial genome size                                        (int32_t)
+/// - initial ancestor (nb genetic units + sequences)            (ae_individual::write_to_backup)
+/// - replication report of ancestor at generation begin_gener+1 (ae_replic_report::write_to_backup)
+/// - replication report of ancestor at generation begin_gener+2 (ae_replic_report::write_to_backup)
+/// - replication report of ancestor at generation begin_gener+3 (ae_replic_report::write_to_backup)
+/// - ...
+/// - replication report of ancestor at generation end_gener     (ae_replic_report::write_to_backup)
 
 #include <list>
+#include <cstdlib>
+#include <string>
+#include <cinttypes>
+#include <cstring>
+#include <iostream>
+#include <exception>
+#include <getopt.h>
 
-// =================================================================
-//                            Project Files
-// =================================================================
 #include "aevol.h"
+#include "GzHelpers.h"
+
+using std::string;
+using std::list;
+using std::cout;
+using std::cerr;
+using std::endl;
+using std::exit;
+using std::ofstream;
+using std::to_string;
 
 using namespace aevol;
 
-enum check_type
-{
-  FULL_CHECK  = 0,
-  LIGHT_CHECK = 1,
-  ENV_CHECK   = 2,
-  NO_CHECK    = 3
+/// At each generation, the mutations are recorded on the one hand
+/// and the resulting generation is recorded on the other hand.
+/// This enum determines when both recordings match.
+enum class Check {
+  FULL,  ///< at every generation: fail early, for debugging purposes
+  LIGHT, ///< only at the last generation: sanity check, for when things should go well
+  ENV,   ///< when environment changed
+  NONE   ///< never: for the believers
 };
 
-
-
-// =================================================================
-//                         Function declarations
-// =================================================================
 void print_help(char* prog_path);
 
-double* dist_to_target_segment;
-
-
-
-
-
-
-int main(int argc, char** argv)
-{
-  // The input file (lineage.ae or lineage.rae) must contain the following information:
-  //
-  // - common data                                                (ae_common::write_to_backup)
-  // - begin gener                                                (int32_t)
-  // - end gener                                                  (int32_t)
-  // - final individual index                                     (int32_t)
-  // - initial genome size                                        (int32_t)
-  // - initial ancestor (nb genetic units + sequences)            (ae_individual::write_to_backup)
-  // - replication report of ancestor at generation begin_gener+1 (ae_replic_report::write_to_backup)
-  // - replication report of ancestor at generation begin_gener+2 (ae_replic_report::write_to_backup)
-  // - replication report of ancestor at generation begin_gener+3 (ae_replic_report::write_to_backup)
-  // - ...
-  // - replication report of ancestor at generation end_gener     (ae_replic_report::write_to_backup)
-
-
-
-
+int main(int argc, char** argv) {
   // =====================
   //  Parse command line
   // =====================
 
   // Default values
-  check_type  check               = LIGHT_CHECK;
-  char*       lineage_file_name   = NULL;
-  bool        verbose             = false;
-  double      tolerance           = 0;
+  Check check(Check::LIGHT);
+  string lineage_file_name;
+  bool verbose(false);
+  double tolerance(0.0);
 
-
-  const char * short_options = "hVvncf:t:";
-  static struct option long_options[] =
-  {
-    {"help",      no_argument,       NULL, 'h'},
-    {"version",   no_argument,       NULL, 'V' },
-    {"verbose",   no_argument,       NULL, 'v'},
-    {"nocheck",   no_argument,       NULL, 'n'},
-    {"fullcheck", no_argument,       NULL, 'c'},
-    {"file",      required_argument, NULL, 'f'},
-    {"tolerance",   required_argument, NULL, 't'},
+  const char* short_options = "hVvncf:t:";
+  static struct option long_options[] = {
+    {"help",      no_argument,       nullptr, 'h'},
+    {"version",   no_argument,       nullptr, 'V'},
+    {"verbose",   no_argument,       nullptr, 'v'},
+    {"nocheck",   no_argument,       nullptr, 'n'},
+    {"fullcheck", no_argument,       nullptr, 'c'},
+    {"file",      required_argument, nullptr, 'f'},
+    {"tolerance", required_argument, nullptr, 't'},
     {0, 0, 0, 0}
   };
 
-  int option;
-  while((option = getopt_long(argc, argv, short_options, long_options, NULL)) != -1)
-  {
-    switch(option)
-    {
-      case 'h' :
-      {
+  while((int option = getopt_long(argc, argv, short_options, long_options, nullptr)) != -1) {
+    switch(option) {
+      case 'h':
         print_help(argv[0]);
         exit(EXIT_SUCCESS);
-      }
-      case 'V' :
-      {
+      case 'V':
         Utils::PrintAevolVersion();
         exit(EXIT_SUCCESS);
-      }
-      case 'v' : verbose = true;                    break;
-      case 'n' : check = NO_CHECK;                  break;
-      case 'c' : check = FULL_CHECK;                break;
-      case 'f' :
-      {
-        if (strcmp(optarg, "") == 0)
-        {
-          fprintf(stderr, "ERROR : Option -f or --file : missing argument.\n");
-          exit(EXIT_FAILURE);
-        }
-
-        lineage_file_name = new char[strlen(optarg) + 1];
-        sprintf(lineage_file_name, "%s", optarg);
+      case 'v':
+        verbose = true;
         break;
-      }
-      case 't' :
-      {
+      case 'n':
+        check = Check::NONE;
+        break;
+      case 'c':
+        check = Check::FULL;
+        break;
+      case 'f':
         if (strcmp(optarg, "") == 0)
-        {
-          fprintf(stderr, "ERROR : Option -t or --tolerance : missing argument.\n");
-          exit(EXIT_FAILURE);
-        }
-        check = ENV_CHECK;
+          throw std::invalid_argument("Option -f or --file missing argument.");
+        lineage_file_name = optarg;
+        break;
+      case 't':
+        if (strcmp(optarg, "") == 0)
+          throw std::invalid_argument("Option -t or --tolerance missing argument.");
+        check = Check::ENV;
         tolerance = atof(optarg);
         break;
-      }
-      default :
-      {
-        fprintf(stderr, "ERROR : Unknown option, check your syntax.\n");
+      default:
+        cerr << "ERROR: Unknown option provided." << endl;
         print_help(argv[0]);
         exit(EXIT_FAILURE);
-      }
     }
   }
 
-  if (lineage_file_name == NULL)
-  {
-    fprintf(stderr, "ERROR : Option -f or --file missing. \n");
+  if (lineage_file_name.empty()) {
+    cerr << "ERROR : Option -f or --file missing." << endl;
     exit(EXIT_FAILURE);
   }
 
-  printf("\n");
-  printf("WARNING : Parameter change during simulation is not managed in general.\n");
-  printf("          Only changes in environmental target done with aevol_modify are handled.\n");
-  printf("\n");
-
+  cout << "\n"
+          "WARNING : Parameter change during simulation is not managed in general.\n"
+          "          Only changes in environmental target done with aevol_modify are handled.\n"
+          "\n";
 
   // =======================
   //  Open the lineage file
   // =======================
 
-  gzFile lineage_file = gzopen(lineage_file_name, "r");
-  if (lineage_file == Z_NULL)
-  {
-    fprintf(stderr, "ERROR : Could not read the lineage file %s\n", lineage_file_name);
+  gzFile lineage_file = gzopen(lineage_file_name.c_str(), "r");
+  if (lineage_file == Z_NULL) {
+    cerr << "ERROR: Could not read the lineage file " << lineage_file_name << endl;
     exit(EXIT_FAILURE);
   }
 
   int64_t t0;
   int64_t t_end;
-  int32_t final_index, final_indiv_rank;
-  gzread(lineage_file, &t0, sizeof(t0));
-  gzread(lineage_file, &t_end, sizeof(t_end));
-  gzread(lineage_file, &final_index, sizeof(final_index));
-  gzread(lineage_file, &final_indiv_rank,   sizeof(final_indiv_rank));
+  int32_t final_index;
+  int32_t final_indiv_rank;
+  gzread(lineage_file, t0, t_end, final_index, final_indiv_rank);
 
   if (verbose)
-  {
-    printf("\n\n");
-    printf("================================================================================\n");
-    printf(" Statistics of the ancestors of indiv. #%" PRId32 " (t=%" PRId64 " to %" PRId64 ")\n",
-            final_index, t0, t_end);
-    printf("================================================================================\n");
-  }
-
+    cout << "\n\n"
+            "================================================================================\n"
+            " Statistics of the ancestors of indiv. #" << final_index << " (t=" << t0 << " to " << t_end << ")\n"
+            "================================================================================\n";
 
   // =========================
   //  Open the experience manager
   // =========================
 
   // Open the experiment manager
-  ae_exp_manager* exp_manager = new ae_exp_manager();
+  auto exp_manager = new ExpManager();
   exp_manager->load(t0, true, false);
   Environment* env = new Environment(*(exp_manager->env())); // independent copy
 
@@ -217,16 +178,15 @@ int main(int argc, char** argv)
   // =========================
   //  Open the output file(s)
   // =========================
-
   char output_file_name[60];
-  snprintf(output_file_name, 60,
-      "stats/fixedmut-b%06" PRId64 "-e%06" PRId64 "-i%" PRId32 "-r%" PRId32 ".out",
-      t0, t_end, final_index, final_indiv_rank);
+  snprintf(output_file_name,
+           60,
+           "stats/fixedmut-b%06" PRId64 "-e%06" PRId64 "-i%" PRId32 "-r%" PRId32 ".out",
+           t0, t_end, final_index, final_indiv_rank);
 
-  FILE * output = fopen(output_file_name, "w");
-  if (output == NULL)
-  {
-    fprintf(stderr, "ERROR : Could not create the output file %s\n", output_file_name);
+  ofstream output(output_file_name);
+  if (not output.is_open()) {
+    cerr << "ERROR: Could not create the output file " << output_file_name << endl;
     exit(EXIT_FAILURE);
   }
 
@@ -257,14 +217,12 @@ int main(int argc, char** argv)
   fprintf(output, "# Header for R\n");
   fprintf(output, "gener gen_unit mut_type pos_0 pos_1 pos_2 pos_3 invert align_score align_score_2 seg_len repl_seg_len GU_len impact nbgenesatbreak nbgenesinseg nbgenesinreplseg\n");
 
-
-
   // ==============================
   //  Prepare the initial ancestor
   // ==============================
 
-  ae_individual * indiv = new ae_individual(exp_manager, lineage_file);
-  indiv->evaluate(habitat);
+  auto indiv = new Individual(exp_manager, lineage_file);
+  indiv->Evaluate(habitat);
   indiv->compute_statistical_data();
 
   if (verbose)
@@ -281,51 +239,43 @@ int main(int argc, char** argv)
   //   time a backup is available)
   // ===============================================================================
 
-  ae_individual* stored_indiv = NULL;
-  std::list<GeneticUnit>::const_iterator stored_unit;
+  Individual* stored_indiv = NULL;
+  list<GeneticUnit>::const_iterator stored_unit;
 
   int32_t index, genetic_unit_number, unitlen_before;
   int32_t nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment;
   double metabolic_error_before, metabolic_error_after, impact_on_metabolic_error;
   char mut_descr_string[80];
 
-  ae_exp_manager* exp_manager_backup = NULL;
-  Environment* backup_env = NULL;
+  ExpManager* exp_manager_backup = nullptr;
+  Environment* backup_env = nullptr;
 
-  bool check_now = false;
-
-  aevol::Time::plusplus();
-  while (time() <= t_end)
-  {
-    ae_replication_report* rep = new ae_replication_report(lineage_file, indiv);
-    index = rep->id(); // who are we building...
-    indiv->set_replication_report(rep);
+  for (AeTime::plusplus(); time() <= t_end; AeTime::plusplus()) {
+    ReplicationReport report(lineage_file, indiv);
+    index = report.id(); // who are we building...
+    indiv->set_replication_report(report);
 
     // Check now?
-    check_now = ((check == FULL_CHECK && ae_utils::mod(time(), backup_step) == 0) ||
-                 (check == ENV_CHECK && ae_utils::mod(time(), backup_step) == 0) ||
-                 (check == LIGHT_CHECK && time() == t_end));
+    bool check_now = ((check == Check::FULL or check == Check::ENV) and Utils::mod(time(), backup_step) == 0) or
+                      (check == Check::LIGHT and time() == t_end);
 
 
-    if (verbose)
-      printf("Rebuilding ancestor at generation %" PRId64 " (index %" PRId32 ")...",
-          time(), index);
+    if ( verbose )
+      printf("Rebuilding ancestor at generation %" PRId64 " (index %" PRId32 ")...", get_time(), index);
 
     env->build();
     env->apply_variation();
-    indiv->reevaluate(env);
+    indiv->Reevaluate();
 
     // Check, and possibly update, the environment according to the backup files (update necessary if the env. was modified by aevol_modify at some point)
-    if (ae_utils::mod(time(), backup_step) == 0)
-      {
+    if (Utils::mod(time(), backup_step) == 0) {
         char env_file_name[255];
         sprintf(env_file_name, "./" ENV_FNAME_FORMAT, time());
         gzFile env_file = gzopen(env_file_name, "r");
         backup_env = new Environment();
         backup_env->load(env_file);
 
-        if (! env->is_identical_to(*backup_env, tolerance))
-          {
+        if (! env->is_identical_to(*backup_env, tolerance)) {
             printf("Warning: At t=%" PRId64 ", the replayed environment is not the same\n", time());
             printf("         as the one saved at generation %" PRId64 "... \n", time());
             printf("         with tolerance of %lg\n", tolerance);
@@ -341,133 +291,70 @@ int main(int argc, char** argv)
     // during the evolution, or if some translocations occurred between different genetic units
 
     genetic_unit_number = 0;
-    std::list<DnaReplicReport*>::const_iterator dnareport = rep->dna_replic_reports().begin();
-    std::list<GeneticUnit>::iterator unit = indiv->genetic_unit_list_nonconst().begin();
+    auto unit = indiv->genetic_unit_list_nonconst().begin();
 
-    if (check_now && ae_utils::mod(time(), backup_step) == 0)
-    {
-
-      exp_manager_backup = new ae_exp_manager();
+    if (check_now and Utils::mod(time(), backup_step) == 0) { // TODO vld: redundant with check_now definition?
+      exp_manager_backup = new ExpManager();
       exp_manager_backup->load(time(), true, false);
       // TODO: disabled tmp
       // stored_indiv = new ae_individual(* (ae_individual *)exp_manager_backup->indiv_by_id(index), false);
       stored_unit = stored_indiv->genetic_unit_list().begin();
     }
 
-    while (dnareport != rep->dna_replic_reports().end())
-    {
+    for (const auto& dnareport: report.dna_replic_report()) {
       assert(unit != indiv->genetic_unit_list().end());
 
-      unit->dna()->set_replic_report(*dnareport);
+      unit->dna()->set_replic_report(dnareport);
 
-      // ***************************************
-      //             Transfer events
-      // ***************************************
-
-      for (const auto& mutation: (*dnareport)->HT()) {
-        metabolic_error_before = indiv->dist_to_target_by_feature(METABOLISM);
-        unitlen_before = unit->dna()->length();
-        unit->compute_nb_of_affected_genes(&mutation, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
-
-
-        unit->dna()->undergo_this_mutation(&mutation);
-        indiv->reevaluate(env);
+      // because the reports are stored in 3 different member-lists,
+      // iterate among the DnaReplicationReport getters:
+      // - horizontal transfer events (HT);
+      // - rearrangements events (rearrangements);
+      // - local  events (point mutations & small indels) (mutations).
+      for (auto mutation_getter: dnareport->HT, dnareport->rearrangements, dnareport->mutations)
+        for (const auto& mutation: mutation_getter()) {
+          metabolic_error_before = indiv->dist_to_target_by_feature(METABOLISM);
+          unitlen_before = unit->dna()->length();
+          unit->compute_nb_of_affected_genes(&mutation, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
 
 
-        metabolic_error_after = indiv->dist_to_target_by_feature(METABOLISM);
-        impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
+          unit->dna()->undergo_this_mutation(&mutation);
+          indiv->reevaluate(env);
 
 
-        mutation.generic_description_string(mut_descr_string);
-        fprintf(output,
-            "%" PRId64 " %" PRId32 " %s %" PRId32 " %.15f  %" PRId32
-            " %" PRId32 " %" PRId32 " \n",
-            time(), genetic_unit_number, mut_descr_string, unitlen_before,
-            impact_on_metabolic_error, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
-      }
+          metabolic_error_after = indiv->dist_to_target_by_feature(METABOLISM);
+          impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
 
 
-      // ***************************************
-      //           Rearrangement events
-      // ***************************************
+          mutation.generic_description_string(mut_descr_string);
+          fprintf(output,
+                  "%" PRId64 " %" PRId32 " %s %" PRId32 " %.15f  %" PRId32
+                    " %" PRId32 " %" PRId32 " \n",
+                  time(), genetic_unit_number, mut_descr_string, unitlen_before,
+                  impact_on_metabolic_error, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
+        }
 
-      for (const auto& mutation: (*dnareport)->rearrangements()) {
-        metabolic_error_before = indiv->dist_to_target_by_feature(METABOLISM);
-        unitlen_before = unit->dna()->length();
-        unit->compute_nb_of_affected_genes(&mutation, nb_genes_at_breakpoints, nb_genes_in_segment,  nb_genes_in_replaced_segment);
-
-        unit->dna()->undergo_this_mutation(&mutation);
-
-        indiv->reevaluate(env);
-        metabolic_error_after = indiv->dist_to_target_by_feature(METABOLISM);
-        impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
-
-        mutation.generic_description_string(mut_descr_string);
-        fprintf(output,
-            "%" PRId64 " %" PRId32 " %s %" PRId32 " %.15f %" PRId32
-            " %" PRId32 " %" PRId32 " \n",
-            time(), genetic_unit_number, mut_descr_string, unitlen_before,
-            impact_on_metabolic_error, nb_genes_at_breakpoints, nb_genes_in_segment,
-            nb_genes_in_replaced_segment);
-      }
-
-
-      // ***************************************
-      // Local events (point mutations & small indels)
-      // ***************************************
-
-      for (const auto& mutation: (*dnareport)->mutations()) {
-        metabolic_error_before = indiv->dist_to_target_by_feature(METABOLISM);
-        unitlen_before = unit->dna()->length();
-        unit->compute_nb_of_affected_genes(&mutation, nb_genes_at_breakpoints, nb_genes_in_segment, nb_genes_in_replaced_segment);
-
-        unit->dna()->undergo_this_mutation(&mutation);
-
-        indiv->reevaluate(env);
-        metabolic_error_after = indiv->dist_to_target_by_feature(METABOLISM);
-        impact_on_metabolic_error = metabolic_error_after - metabolic_error_before;
-
-        mutation.generic_description_string(mut_descr_string);
-        fprintf(output,
-            "%" PRId64 " %" PRId32 " %s %" PRId32 " %.15f %" PRId32
-            " %" PRId32 " %" PRId32 " \n",
-            time(), genetic_unit_number, mut_descr_string, unitlen_before,
-            impact_on_metabolic_error, nb_genes_at_breakpoints, nb_genes_in_segment,
-            nb_genes_in_replaced_segment);
-      }
-
-      if (check_now && ae_utils::mod(time(), backup_step) == 0)
-      {
-        if (verbose)
-        {
+      if (check_now && Utils::mod(time(), backup_step) == 0) {
+        if (verbose) {
           printf("Checking the sequence of the unit...");
           fflush(NULL);
         }
 
         assert(stored_unit != stored_indiv->genetic_unit_list().end());
 
-        char * str1 = new char[unit->dna()->length() + 1];
-        memcpy(str1, unit->dna()->data(), \
-               unit->dna()->length()*sizeof(char));
-        str1[unit->dna()->length()] = '\0';
+        string dna_computed(unit->dna()->data(), static_cast<size_t>(unit->dna()->length()));
+        string dna_backuped((stored_unit->dna())->data(), static_cast<size_t>((stored_unit->dna())->length()));
 
-        char * str2 = new char[(stored_unit->dna())->length() + 1];
-        memcpy(str2, (stored_unit->dna())->data(), (stored_unit->dna())->length()*sizeof(char));
-        str2[(stored_unit->dna())->length()] = '\0';
-
-        if(strncmp(str1,str2, (stored_unit->dna())->length())==0)
-        {
-          if (verbose) printf(" OK\n");
-        }
-        else
-        {
-          if (verbose) printf(" ERROR !\n");
+        if (dna_computed == dna_backuped) { // TODO(vld): why does static analyzer state that condition is always true?
+          if (verbose)
+            printf(" OK\n");
+        } else {
+          if (verbose)
+            printf(" ERROR!\n");
           fprintf(stderr, "Error: the rebuilt unit is not the same as \n");
           fprintf(stderr, "the one saved at generation %" PRId64 "... ", time());
-          fprintf(stderr, "Rebuilt unit : %zu bp\n %s\n", strlen(str1), str1);
-          fprintf(stderr, "Stored unit  : %zu bp\n %s\n", strlen(str2), str2);
-          delete [] str1;
-          delete [] str2;
+          fprintf(stderr, "Rebuilt unit : %zu bp\n %s\n", strlen(dna_computed), dna_computed.c_str());
+          fprintf(stderr, "Stored unit  : %zu bp\n %s\n", strlen(dna_backuped), dna_backuped.c_str());
           gzclose(lineage_file);
           delete indiv;
           delete stored_indiv;
@@ -476,52 +363,35 @@ int main(int argc, char** argv)
           exit(EXIT_FAILURE);
         }
 
-        delete [] str1;
-        delete [] str2;
-
         ++stored_unit;
       }
 
-
-      ++dnareport;
       ++unit;
-      genetic_unit_number++;
+      ++genetic_unit_number;
     }
 
     assert(unit == indiv->genetic_unit_list().end());
 
 
-    if (verbose) printf(" OK\n");
+    if (verbose)
+      printf(" OK\n");
 
-    delete rep;
-
-    if (check_now && ae_utils::mod(time(), backup_step) == 0)
-    {
-      assert(stored_unit == stored_indiv->genetic_unit_list().end());
+    if (check_now and Utils::mod(get_time(), backup_step) == 0) {
+      assert(stored_unit == stored_indiv->get_genetic_unit_list().end());
       delete stored_indiv;
       delete exp_manager_backup;
     }
-
-    aevol::Time::plusplus();
   }
 
   gzclose(lineage_file);
-  fclose(output);
+  output.close();
   delete exp_manager;
   delete indiv;
   delete env;
 
-  exit(EXIT_SUCCESS);
-
+  return EXIT_SUCCESS;
 }
 
-
-
-
-/*!
-  \brief
-
-*/
 void print_help(char* prog_path)
 {
   printf("\n");

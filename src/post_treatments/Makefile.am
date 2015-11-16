@@ -39,8 +39,8 @@ aevol_misc_ancstats \
 aevol_misc_create_eps \
 aevol_misc_extract \
 aevol_misc_lineage \
-aevol_misc_mutagenesis
-# aevol_misc_fixed_mutations
+aevol_misc_mutagenesis \
+aevol_misc_fixed_mutations
 # aevol_misc_gene_families
 # aevol_misc_mutational_robustness
 # aevol_misc_robustness
