@@ -168,7 +168,7 @@ void Individual_R::Evaluate() {
 		EvaluateInContext(_grid_cell->habitat());
 }
 
-void Individual_R::EvaluateInContext(const Habitat& habitat) {
+void Individual_R::EvaluateInContext(const Habitat_R& habitat) {
 	if (_evaluated == true) return; // Individual has already been evaluated, nothing to do.
 
   if (!_networked) {
@@ -176,18 +176,18 @@ void Individual_R::EvaluateInContext(const Habitat& habitat) {
   }
 
   // i is thus the age of the individual
-  for (int i = 1; i <= get_exp_m()->get_exp_s()->get_nb_indiv_age(); i++) {
+  for (int8_t i = 1; i <= get_exp_m()->get_exp_s()->get_nb_indiv_age(); i++) {
     for (int j = 0; j < get_exp_m()->get_exp_s()->get_nb_degradation_step(); j++) {
       one_step();
     }
 
     if (std::fmod(i, get_exp_m()->get_exp_s()->get_eval_step()) == 0.0)
     {
-      eval_step(habitat);
+      eval_step(habitat, i);
     }
   }
 
-  final_step(habitat);
+  final_step(habitat, i);
 }
 
 void Individual_R::init_indiv( void )
@@ -238,7 +238,7 @@ void Individual_R::one_step( void )
   update_concentrations();
 }
 
-void Individual_R::eval_step( const Habitat& habitat ) {
+void Individual_R::eval_step( const Habitat_R& habitat, int8_t age ) {
   update_phenotype();
   _distance_to_target_computed = false;
   _phenotype_computed = true;
@@ -247,17 +247,17 @@ void Individual_R::eval_step( const Habitat& habitat ) {
     _dist_to_target_by_feature[i] = 0;
   }
 
-  compute_distance_to_target( habitat.phenotypic_target() );
+  compute_distance_to_target( habitat.phenotypic_target( age ) );
   _dist_sum += _dist_to_target_by_feature[METABOLISM];
 }
 
-void Individual_R::final_step( const Habitat& habitat ) {
+void Individual_R::final_step( const Habitat_R& habitat, int8_t age ) {
   _dist_to_target_by_feature[METABOLISM] = _dist_sum / (double) (get_exp_m()->get_exp_s()->get_nb_indiv_age() / get_exp_m()->get_exp_s()->get_eval_step());
 
 
   _fitness_computed=false;
   // yoram attention il peut y avoir des soucis si on utilise des environnements segmentés ici
-  compute_fitness(habitat.phenotypic_target());
+  compute_fitness(habitat.phenotypic_target( age ));
 
   _phenotype_computed = true;
 }

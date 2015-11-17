@@ -95,7 +95,7 @@ class Habitat
   const PhenotypicTarget& phenotypic_target() const {
     return phenotypic_target_handler_->phenotypic_target();
   }
-  const PhenotypicTargetHandler& phenotypic_target_handler() const {
+  virtual const PhenotypicTargetHandler& phenotypic_target_handler() const {
     return *phenotypic_target_handler_;
   }
   PhenotypicTargetHandler& phenotypic_target_handler_nonconst() const {

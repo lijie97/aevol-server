@@ -141,23 +141,60 @@ void PhenotypicTargetHandler_R::ApplyVariation( const Habitat_R& habitat ) {
     case NO_VAR :
       return;
     case AUTOREGRESSIVE_MEAN_VAR :
-      printf("Not implemented yet\n");
-      exit(EXIT_FAILURE);
+      Utils::ExitWithDevMsg("Not implemented yet", __FILE__, __LINE__);
       //ApplyAutoregressiveMeanVariation();
       break;
     case AUTOREGRESSIVE_HEIGHT_VAR :
-      printf("Not implemented yet\n");
-      exit(EXIT_FAILURE);
-      ApplyAutoregressiveHeightVariation();
+      Utils::ExitWithDevMsg("Not implemented yet", __FILE__, __LINE__);
+      //ApplyAutoregressiveHeightVariation();
       break;
     case SWITH_IN_A_LIST :
-      //TODO
+      // Yoram : reprise du code que j'avais rajouté dans Raevol 3
+      // Pour l'instant les signaux ne sont pas gérés, mais j'aimerais ne pas avoir à les gérer manuellement
+
+      // A security in order to preserve the program from an infinite loop : while( id_new_env == id_old_env )
+      if ( nb_env_in_list <= 1 )
+      {
+        break;
+      }
+
+      //reset the vector of phenotypic targets keeping only the last environment
+      habitat.resetPhenotypicTargets();
+
+      // Shortcuts used :
+      int8_t nb_env_in_list = phenotypic_target_models_.size();
+      int8_t last_age = get_exp_m()->get_exp_s()->get_nb_indiv_age();
+      PhenotypicTarget_R* actual_env = habitat.phenotypic_target(0);
+      env_switch_probability = get_exp_m()->get_exp_s()->get_env_switch_probability();
+      int8_t id_old_env = actual_env->get_id();
+      int8_t id_new_env = 0;
+
+      // At each age we have to add the environment of this age to habitat
+      for (int8_t i = 0; i < last_age ; i++)
+      {
+        id_new_env = id_old_env;
+
+        // if we have to change of environment :
+        if ( var_prng_->random() < env_switch_probability)
+        {         
+          //we have to change to a new env that have an id different from the old one
+          while( id_new_env == id_old_env )
+          {
+            id_new_env = var_prng_->random(nb_env_in_list);
+          }
+          //The environment has changed
+          id_old_env = id_new_env;
+        }
+        habitat.addEnv(id_new_env);
+      }
+
       break;
     default :
       Utils::ExitWithDevMsg("Unknown variation method", __FILE__, __LINE__);
   }
 
   // Phenotypic target has changed, recompute its area
+  // Yoram : il faudra vérifier ce que ça fait et si on en a besoin
   phenotypic_target_->ComputeArea();
 }
 

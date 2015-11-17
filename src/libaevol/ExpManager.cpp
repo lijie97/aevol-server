@@ -640,4 +640,5 @@ void ExpManager::close_setup_files(gzFile& exp_s_file,
 Individual* ExpManager::get_indiv_by_id(int32_t id) const {
   return world_->get_indiv_by_id(id);
 }
+
 } // namespace aevol

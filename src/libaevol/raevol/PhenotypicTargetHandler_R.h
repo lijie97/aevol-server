@@ -40,11 +40,8 @@
 #include <memory>
 #include <list>
 
-#include "PhenotypicTarget.h"
-#include "Gaussian.h"
-#include "ae_enums.h"
-#include "JumpingMT.h"
-#include "AbstractFuzzy.h"
+#include "PhenotypicTargetHandler.h"
+//#include "Habitat_R.h"
 
 using std::list;
 
@@ -54,7 +51,7 @@ namespace aevol {
 // ============================================================================
 //                          Class declarations
 // ============================================================================
-
+class Habitat_R;
 
 
 
@@ -97,7 +94,9 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
-
+  PhenotypicTarget_R* model_pointer(int8_t env_id) {
+    return &phenotypic_target_models_.at(env_id);
+  }
 
   // ==========================================================================
   //                                 Setters
@@ -113,7 +112,7 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
   // ==========================================================================
   //                               Attributes
   // ==========================================================================
-  std::vector<<PhenotypicTarget> > phenotypic_target_models_;
+  std::vector<PhenotypicTarget_R> phenotypic_target_models_;
 };
 
 // ============================================================================

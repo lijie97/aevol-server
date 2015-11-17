@@ -140,12 +140,18 @@ World.cpp
 raevol_headers = \
 raevol/Individual_R.h \
 raevol/Protein_R.h \
-raevol/Rna_R.h
+raevol/Rna_R.h \
+raevol/PhenotypicTargetHandler_R.h \
+raevol/Habitat_R.h \
+raevol/PhenotypicTarget_R.h
 
 raevol_sources = \
 raevol/Individual_R.cpp \
 raevol/Protein_R.cpp \
-raevol/Rna_R.cpp
+raevol/Rna_R.cpp \
+raevol/PhenotypicTargetHandler_R.cpp \
+raevol/Habitat_R.cpp \
+raevol/PhenotypicTarget_R.cpp
 
 raevol_X11_headers = \
 raevol/Individual_R_X11.h

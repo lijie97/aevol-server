@@ -25,8 +25,8 @@
 //*****************************************************************************
 
 
-#ifndef AEVOL_HABITAT_R_H__
-#define AEVOL_HABITAT_R_H__
+#ifndef AEVOL_PHENOTYPIC_TARGET_R_H__
+#define AEVOL_PHENOTYPIC_TARGET_R_H__
 
 
 // ============================================================================
@@ -37,12 +37,9 @@
 #include <cstdlib>
 #include <cassert>
 
-#include <memory>
-
-#include <zlib.h>
-
-#include "PhenotypicTargetHandler_R.h"
-#include "Habitat.h"
+#include "Fuzzy.h"
+#include "PhenotypicSegment.h"
+#include "ae_enums.h"
 
 
 namespace aevol {
@@ -56,23 +53,23 @@ namespace aevol {
 
 
 
-class Habitat_R : public virtual Habitat
+class PhenotypicTarget_R : public PhenotypicTarget
 {
+  // Faut il le laisser ?
+  friend class PhenotypicTargetHandler;
+
  public :
   // ==========================================================================
   //                               Constructors
   // ==========================================================================
-  Habitat_R(void); //< Default ctor
-  Habitat_R(const Habitat_R&) = delete; //< Copy ctor
-  Habitat_R(Habitat_R&&) = delete; //< Move ctor
-  Habitat_R(const Habitat_R&, bool share_phenotypic_target);
-  Habitat_R(gzFile backup_file,
-          std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler_);
+  PhenotypicTarget_R(void); //< Default ctor
+  PhenotypicTarget_R(const PhenotypicTarget&); //< Copy ctor
+  PhenotypicTarget_R(PhenotypicTarget&&) = delete; //< Move ctor
 
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~Habitat_R(void) = default; //< Destructor
+  virtual ~PhenotypicTarget_R(void); //< Destructor
 
   // ==========================================================================
   //                                Operators
@@ -81,26 +78,18 @@ class Habitat_R : public virtual Habitat
   // ==========================================================================
   //                              Public Methods
   // ==========================================================================
-  virtual void ApplyVariation();
-  virtual void load(gzFile backup_file,
-            std::shared_ptr<PhenotypicTargetHandler_R> phenotypic_target_handler);
+
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
-  virtual const PhenotypicTarget& phenotypic_target() const {
-    Utils::ExitWithDevMsg("You should not call a phenotypic target without age id in RAevol", __FILE__, __LINE__);
+  int8_t get_id() const {
+    return id_;
   }
 
-  const PhenotypicTarget_R& phenotypic_target(  int8_t age ) const {
-    return *phenotypic_targets_.at(age);
-  }
-
-  // ==========================================================================
+// ==========================================================================
   //                                 Setters
   // ==========================================================================
-  // This function keep only the last element of the vector
-  void resetPhenotypicTargets();
-  void addEnv( int8_t env_id );
+
 
  protected :
   // ==========================================================================
@@ -110,9 +99,10 @@ class Habitat_R : public virtual Habitat
   // ==========================================================================
   //                               Attributes
   // ==========================================================================
- // idée d'opti : pourquoi pas un simple tableau ? après tout on connait la taille
- // et cette taille ne change pas
-  std::vector<<PhenotypicTarget_R*> > phenotypic_targets_;
+  // An identifier used to know the position of this Phenotypic target in PhenotypicTargetHandler
+  int8_t id_;
+  std::list<Protein_R> signals_;
+
 };
 
 
@@ -134,4 +124,4 @@ class Habitat_R : public virtual Habitat
 
 } // namespace aevol
 
-#endif // AEVOL_HABITAT_R_H__
+#endif // AEVOL_PHENOTYPIC_TARGET_R_H__
