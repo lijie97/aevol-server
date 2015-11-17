@@ -201,7 +201,7 @@ void PhenotypicTargetHandler_R::ApplyVariation( Habitat_R& habitat ) {
   //phenotypic_target_->ComputeArea();
 }
 
-void PhenotypicTargetHandler::save(gzFile backup_file) const {
+void PhenotypicTargetHandler_R::save(gzFile backup_file) const {
   // --------------------------------------------------------------------------
   //  Write phenotypic target segmentation
   phenotypic_target_->SaveSegmentation(backup_file);
@@ -257,7 +257,7 @@ void PhenotypicTargetHandler::save(gzFile backup_file) const {
   }
 }
 
-void PhenotypicTargetHandler::load(gzFile backup_file) {
+void PhenotypicTargetHandler_R::load(gzFile backup_file) {
   // --------------------------------------------------------------------------
   //  Retrieve phenotypic target segmentation
 #if __cplusplus == 201103L
@@ -321,7 +321,7 @@ void PhenotypicTargetHandler::load(gzFile backup_file) {
 
   // --------------------------------------------------------------------------
   //  Build the phenotypic target
-  BuildPhenotypicTarget();
+  PhenotypicTargetHandler::BuildPhenotypicTarget();
 }
 
 // ============================================================================

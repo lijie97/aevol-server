@@ -313,10 +313,10 @@ int8_t Individual_R::get_quadon( const GeneticUnit* gen_unit, Strand strand, int
   {
     //for ( int8_t i = 0 ; i < QUADON_SIZE ; i++ )
     //{
-    quadron_1 += (dna[(pos+0) % len] == '1') ? 1 << (QUADON_SIZE - 0 - 1) : 0;
-    quadron_2 += (dna[(pos+1) % len] == '1') ? 1 << (QUADON_SIZE - 1 - 1) : 0;
-    quadron_3 += (dna[(pos+2) % len] == '1') ? 1 << (QUADON_SIZE - 2 - 1) : 0;
-    quadron_4 += (dna[(pos+3) % len] == '1') ? 1 << (QUADON_SIZE - 3 - 1) : 0;
+    quadon_1 += (dna[(pos+0) % len] == '1') ? 1 << (QUADON_SIZE - 0 - 1) : 0;
+    quadon_2 += (dna[(pos+1) % len] == '1') ? 1 << (QUADON_SIZE - 1 - 1) : 0;
+    quadon_3 += (dna[(pos+2) % len] == '1') ? 1 << (QUADON_SIZE - 2 - 1) : 0;
+    quadon_4 += (dna[(pos+3) % len] == '1') ? 1 << (QUADON_SIZE - 3 - 1) : 0;
       //if ( dna[(pos+i) % len] == '1' )
       //{
       //  quadon += 1 << (QUADON_SIZE - i - 1);  //pow( 2, QUADON_SIZE - i - 1 );
@@ -332,10 +332,10 @@ int8_t Individual_R::get_quadon( const GeneticUnit* gen_unit, Strand strand, int
         quadon += 1 << (QUADON_SIZE - i - 1);  //pow( 2, QUADON_SIZE - i - 1 );
       }
     }*/
-    quadron_1 += (dna[(pos-0) % len] != '1') ? 1 << (QUADON_SIZE - 0 - 1) : 0;
-    quadron_2 += (dna[(pos-1) % len] != '1') ? 1 << (QUADON_SIZE - 1 - 1) : 0;
-    quadron_3 += (dna[(pos-2) % len] != '1') ? 1 << (QUADON_SIZE - 2 - 1) : 0;
-    quadron_4 += (dna[(pos-3) % len] != '1') ? 1 << (QUADON_SIZE - 3 - 1) : 0;
+    quadon_1 += (dna[(pos-0) % len] != '1') ? 1 << (QUADON_SIZE - 0 - 1) : 0;
+    quadon_2 += (dna[(pos-1) % len] != '1') ? 1 << (QUADON_SIZE - 1 - 1) : 0;
+    quadon_3 += (dna[(pos-2) % len] != '1') ? 1 << (QUADON_SIZE - 2 - 1) : 0;
+    quadon_4 += (dna[(pos-3) % len] != '1') ? 1 << (QUADON_SIZE - 3 - 1) : 0;
   }
 
   return quadon_1+quadon_2+quadon_3+quadon_4;
