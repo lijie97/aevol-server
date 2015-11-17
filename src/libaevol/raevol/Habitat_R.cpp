@@ -30,7 +30,8 @@
 // ============================================================================
 //                                   Includes
 // ============================================================================
-#include "Habitat.h"
+#include "Habitat_R.h"
+#include "PhenotypicTargetHandler_R.h"
 
 #include <iostream>
 
@@ -60,7 +61,7 @@ Habitat_R::Habitat_R(void) : phenotypic_targets_(0){
   phenotypic_target_handler_ = std::make_shared<PhenotypicTargetHandler_R>();
 }
 
-Habitat_R::Habitat_R(const Habitat& rhs, bool share_phenotypic_target) :
+Habitat_R::Habitat_R(const Habitat_R& rhs, bool share_phenotypic_target) :
 Habitat(rhs, share_phenotypic_target), phenotypic_targets_(0){
 }
 
@@ -87,7 +88,9 @@ Habitat_R::Habitat_R(gzFile backup_file,
   }
 
   void Habitat_R::addEnv( int8_t env_id ) {
-    phenotypic_targets_.push_back(dynamic_cast <phenotypic_target_handler_R> (phenotypic_target_handler()).model_pointer( env_id ));
+    PhenotypicTargetHandler_R* handler = dynamic_cast <PhenotypicTargetHandler_R*> (&(phenotypic_target_handler()));
+    PhenotypicTarget_R* env_to_add = handler->model_pointer( env_id );
+    phenotypic_targets_.push_back(env_to_add);
   }
 
 
@@ -96,7 +99,7 @@ Habitat_R::Habitat_R(gzFile backup_file,
 //                                   Methods
 // ============================================================================
 void Habitat_R::ApplyVariation() {
-  phenotypic_target_handler_->ApplyVariation( this );
+  phenotypic_target_handler_->ApplyVariation( *this );
 }
 
 void Habitat_R::load(gzFile backup_file,

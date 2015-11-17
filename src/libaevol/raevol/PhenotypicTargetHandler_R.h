@@ -38,12 +38,15 @@
 #include <cassert>
 
 #include <memory>
-#include <list>
+//#include <list>
+#include <vector>
 
 #include "PhenotypicTargetHandler.h"
+#include "PhenotypicTarget_R.h"
+#include "../Utils.h"
 //#include "Habitat_R.h"
 
-using std::list;
+//using std::list;
 
 
 namespace aevol {
@@ -86,7 +89,7 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
   //                              Public Methods
   // ==========================================================================
   void BuildPhenotypicTarget();
-  void ApplyVariation( const Habitat_R& habitat );
+  void ApplyVariation( Habitat_R& habitat );
 
   void save(gzFile backup_file) const;
   void load(gzFile backup_file);
@@ -95,7 +98,7 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
   //                                 Getters
   // ==========================================================================
   PhenotypicTarget_R* model_pointer(int8_t env_id) {
-    return &phenotypic_target_models_.at(env_id);
+    return phenotypic_target_models_.at(env_id);
   }
 
   // ==========================================================================
@@ -112,7 +115,8 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
   // ==========================================================================
   //                               Attributes
   // ==========================================================================
-  std::vector<PhenotypicTarget_R> phenotypic_target_models_;
+  std::vector<PhenotypicTarget_R*> phenotypic_target_models_;
+  double env_switch_probability_;
 };
 
 // ============================================================================

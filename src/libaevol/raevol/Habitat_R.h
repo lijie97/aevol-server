@@ -67,7 +67,7 @@ class Habitat_R : public virtual Habitat
   Habitat_R(Habitat_R&&) = delete; //< Move ctor
   Habitat_R(const Habitat_R&, bool share_phenotypic_target);
   Habitat_R(gzFile backup_file,
-          std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler_);
+          std::shared_ptr<PhenotypicTargetHandler_R> phenotypic_target_handler_);
 
   // ==========================================================================
   //                                Destructor
@@ -95,6 +95,10 @@ class Habitat_R : public virtual Habitat
     return *phenotypic_targets_.at(age);
   }
 
+  int8_t number_of_phenotypic_targets() const {
+    return phenotypic_targets_.size();
+  }
+
   // ==========================================================================
   //                                 Setters
   // ==========================================================================
@@ -110,9 +114,8 @@ class Habitat_R : public virtual Habitat
   // ==========================================================================
   //                               Attributes
   // ==========================================================================
- // idée d'opti : pourquoi pas un simple tableau ? après tout on connait la taille
- // et cette taille ne change pas
-  std::vector<<PhenotypicTarget_R*> > phenotypic_targets_;
+  std::vector<PhenotypicTarget_R*> phenotypic_targets_;
+  std::shared_ptr<PhenotypicTargetHandler_R> phenotypic_target_handler_;
 };
 
 

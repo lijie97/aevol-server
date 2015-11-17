@@ -37,9 +37,8 @@
 #include <cstdlib>
 #include <cassert>
 
-#include "Fuzzy.h"
-#include "PhenotypicSegment.h"
-#include "ae_enums.h"
+#include "PhenotypicTarget.h"
+#include "Protein_R.h"
 
 
 namespace aevol {
@@ -47,7 +46,7 @@ namespace aevol {
 // ============================================================================
 //                          Class declarations
 // ============================================================================
-
+//class Protein_R;
 
 
 
@@ -56,15 +55,15 @@ namespace aevol {
 class PhenotypicTarget_R : public PhenotypicTarget
 {
   // Faut il le laisser ?
-  friend class PhenotypicTargetHandler;
+  //friend class PhenotypicTargetHandler;
 
  public :
   // ==========================================================================
   //                               Constructors
   // ==========================================================================
   PhenotypicTarget_R(void); //< Default ctor
-  PhenotypicTarget_R(const PhenotypicTarget&); //< Copy ctor
-  PhenotypicTarget_R(PhenotypicTarget&&) = delete; //< Move ctor
+  PhenotypicTarget_R(const PhenotypicTarget_R&); //< Copy ctor
+  PhenotypicTarget_R(PhenotypicTarget_R&&) = delete; //< Move ctor
 
   // ==========================================================================
   //                                Destructor
@@ -101,7 +100,7 @@ class PhenotypicTarget_R : public PhenotypicTarget
   // ==========================================================================
   // An identifier used to know the position of this Phenotypic target in PhenotypicTargetHandler
   int8_t id_;
-  std::list<Protein_R> signals_;
+  std::list<Protein_R*> signals_;
 
 };
 

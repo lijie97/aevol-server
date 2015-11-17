@@ -34,7 +34,8 @@
 #include "make_unique.h"
 #endif
 
-#include "PhenotypicTargetHandler.h"
+#include "PhenotypicTargetHandler_R.h"
+#include "Habitat_R.h"
 #include "ExpSetup.h"
 #include "HybridFuzzy.h"
 #include "Utils.h"
@@ -90,7 +91,7 @@ PhenotypicTargetHandler_R::PhenotypicTargetHandler_R() {
 }
 
 PhenotypicTargetHandler_R::PhenotypicTargetHandler_R(
-    const PhenotypicTargetHandler& rhs) {
+    const PhenotypicTargetHandler_R& rhs) {
   // ------------------------------------------------ Current Phenotypic Target
 #if __cplusplus == 201103L
   phenotypic_target_ = make_unique<PhenotypicTarget>(*(rhs.phenotypic_target_));
@@ -136,7 +137,7 @@ PhenotypicTargetHandler_R::~PhenotypicTargetHandler_R() {
 //                                   Methods
 // ============================================================================
 
-void PhenotypicTargetHandler_R::ApplyVariation( const Habitat_R& habitat ) {
+void PhenotypicTargetHandler_R::ApplyVariation( Habitat_R& habitat ) {
   switch (var_method_) {
     case NO_VAR :
       return;
@@ -148,11 +149,13 @@ void PhenotypicTargetHandler_R::ApplyVariation( const Habitat_R& habitat ) {
       Utils::ExitWithDevMsg("Not implemented yet", __FILE__, __LINE__);
       //ApplyAutoregressiveHeightVariation();
       break;
-    case SWITH_IN_A_LIST :
+    case SWITCH_IN_A_LIST : {
       // Yoram : reprise du code que j'avais rajouté dans Raevol 3
       // Pour l'instant les signaux ne sont pas gérés, mais j'aimerais ne pas avoir à les gérer manuellement
 
       // A security in order to preserve the program from an infinite loop : while( id_new_env == id_old_env )
+      int8_t nb_env_in_list = phenotypic_target_models_.size();
+      int8_t last_age = habitat.number_of_phenotypic_targets();
       if ( nb_env_in_list <= 1 )
       {
         break;
@@ -162,12 +165,11 @@ void PhenotypicTargetHandler_R::ApplyVariation( const Habitat_R& habitat ) {
       habitat.resetPhenotypicTargets();
 
       // Shortcuts used :
-      int8_t nb_env_in_list = phenotypic_target_models_.size();
-      int8_t last_age = get_exp_m()->get_exp_s()->get_nb_indiv_age();
-      PhenotypicTarget_R* actual_env = habitat.phenotypic_target(0);
-      env_switch_probability = get_exp_m()->get_exp_s()->get_env_switch_probability();
-      int8_t id_old_env = actual_env->get_id();
+      PhenotypicTarget_R actual_env = habitat.phenotypic_target(0);
+      int8_t id_old_env = actual_env.get_id();
       int8_t id_new_env = 0;
+
+
 
       // At each age we have to add the environment of this age to habitat
       for (int8_t i = 0; i < last_age ; i++)
@@ -175,7 +177,7 @@ void PhenotypicTargetHandler_R::ApplyVariation( const Habitat_R& habitat ) {
         id_new_env = id_old_env;
 
         // if we have to change of environment :
-        if ( var_prng_->random() < env_switch_probability)
+        if ( var_prng_->random() < env_switch_probability_)
         {         
           //we have to change to a new env that have an id different from the old one
           while( id_new_env == id_old_env )
@@ -188,14 +190,15 @@ void PhenotypicTargetHandler_R::ApplyVariation( const Habitat_R& habitat ) {
         habitat.addEnv(id_new_env);
       }
 
-      break;
+      break; }
     default :
       Utils::ExitWithDevMsg("Unknown variation method", __FILE__, __LINE__);
+      break;
   }
 
   // Phenotypic target has changed, recompute its area
   // Yoram : il faudra vérifier ce que ça fait et si on en a besoin
-  phenotypic_target_->ComputeArea();
+  //phenotypic_target_->ComputeArea();
 }
 
 void PhenotypicTargetHandler::save(gzFile backup_file) const {

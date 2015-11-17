@@ -40,7 +40,7 @@
 #include <memory>
 #include <list>
 
-#include "PhenotypicTarget_R.h"
+#include "PhenotypicTarget.h"
 #include "Gaussian.h"
 #include "ae_enums.h"
 #include "JumpingMT.h"

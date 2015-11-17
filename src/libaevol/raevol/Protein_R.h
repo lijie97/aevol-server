@@ -54,6 +54,8 @@ class Protein_R : public Protein
     // =================================================================
     //                             Constructors
     // =================================================================
+  Protein_R() = delete;
+  Protein_R(const Protein_R &model) = delete;
 	Protein_R( GeneticUnit* gen_unit, const Protein_R &model );
 	Protein_R( GeneticUnit* gen_unit,
     		const std::vector<Codon*> codon_list,

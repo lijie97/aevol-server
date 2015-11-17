@@ -52,7 +52,8 @@ enum PhenotypicTargetVariationMethod
   NO_VAR                    = 0,
   AUTOREGRESSIVE_MEAN_VAR   = 1,
   AUTOREGRESSIVE_HEIGHT_VAR = 2,
-  LOCAL_GAUSSIANS_VAR       = 3
+  LOCAL_GAUSSIANS_VAR       = 3,
+  SWITCH_IN_A_LIST          = 4
 };
 
 enum PhenotypicTargetNoiseMethod
