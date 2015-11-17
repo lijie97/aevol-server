@@ -189,7 +189,11 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat) {
     }
   }
 
-  final_step(habitat, i);
+  final_step(habitat, get_exp_m()->get_exp_s()->get_nb_indiv_age());
+}
+
+void Individual_R::EvaluateInContext(const Habitat& habitat) {
+  EvaluateInContext(dynamic_cast<const Habitat_R&> (habitat));
 }
 
 void Individual_R::init_indiv( void )

@@ -95,6 +95,7 @@ class Individual_R : public virtual Individual
       * Evaluate within the provided context
       */
      virtual void EvaluateInContext(const Habitat_R& habitat);
+     virtual void EvaluateInContext(const Habitat& habitat);
 
      virtual void init_indiv( void );
      virtual void one_step( void );
