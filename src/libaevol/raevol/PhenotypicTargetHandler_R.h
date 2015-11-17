@@ -25,8 +25,8 @@
 //*****************************************************************************
 
 
-#ifndef AEVOL_HABITAT_H__
-#define AEVOL_HABITAT_H__
+#ifndef AEVOL_PHENOTYPIC_TARGET_HANDLER_R_H__
+#define AEVOL_PHENOTYPIC_TARGET_HANDLER_R_H__
 
 
 // ============================================================================
@@ -38,10 +38,12 @@
 #include <cassert>
 
 #include <memory>
-
-#include <zlib.h>
+#include <list>
 
 #include "PhenotypicTargetHandler.h"
+//#include "Habitat_R.h"
+
+using std::list;
 
 
 namespace aevol {
@@ -49,29 +51,32 @@ namespace aevol {
 // ============================================================================
 //                          Class declarations
 // ============================================================================
+class Habitat_R;
 
 
 
-
-
-
-class Habitat
+/**
+ * Manages a phenotypic target and its "evolution" over time
+ *
+ * Handles a phenotypic target, the variation and/or noise that may be applied
+ * to it as well as the set of possible phenotypic targets and the rules that
+ * define how and when we switch from one to another
+ */
+class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
 {
  public :
   // ==========================================================================
   //                               Constructors
   // ==========================================================================
-  Habitat(void); //< Default ctor
-  Habitat(const Habitat&) = delete; //< Copy ctor
-  Habitat(Habitat&&) = delete; //< Move ctor
-  Habitat(const Habitat&, bool share_phenotypic_target);
-  Habitat(gzFile backup_file,
-          std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler_);
+  PhenotypicTargetHandler_R(void); //< Default ctor
+  PhenotypicTargetHandler_R(const PhenotypicTargetHandler_R&); //< Copy ctor
+  PhenotypicTargetHandler_R(PhenotypicTargetHandler_R&&) = delete; //< Move ctor
+  PhenotypicTargetHandler_R(gzFile backup_file);
 
   // ==========================================================================
   //                                Destructor
   // ==========================================================================
-  virtual ~Habitat(void) = default; //< Destructor
+  virtual ~PhenotypicTargetHandler_R(void); //< Destructor
 
   // ==========================================================================
   //                                Operators
@@ -80,62 +85,35 @@ class Habitat
   // ==========================================================================
   //                              Public Methods
   // ==========================================================================
-  void ApplyVariation();
-  void save(gzFile backup_file,
-            bool skip_phenotypic_target = false) const;
-  void load(gzFile backup_file,
-            std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler);
+  void BuildPhenotypicTarget();
+  void ApplyVariation( const Habitat_R& habitat );
+
+  void save(gzFile backup_file) const;
+  void load(gzFile backup_file);
 
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
-  double compound_amount(void) const {
-    return compound_amount_;
-  }
-  const PhenotypicTarget& phenotypic_target() const {
-    return phenotypic_target_handler_->phenotypic_target();
-  }
-  virtual const PhenotypicTargetHandler& phenotypic_target_handler() const {
-    return *phenotypic_target_handler_;
-  }
-  PhenotypicTargetHandler& phenotypic_target_handler_nonconst() const {
-    return *phenotypic_target_handler_;
+  PhenotypicTarget_R* model_pointer(int8_t env_id) {
+    return &phenotypic_target_models_.at(env_id);
   }
 
   // ==========================================================================
   //                                 Setters
   // ==========================================================================
-  void set_compound_amount(double compound_amount) {
-    compound_amount_ = compound_amount;
-  };
+
 
  protected :
   // ==========================================================================
   //                            Protected Methods
   // ==========================================================================
 
+
   // ==========================================================================
   //                               Attributes
   // ==========================================================================
-  // Amount of secreted compound currently present in the grid cell 
-  double compound_amount_;
-
-  /** Handler for the phenotypic target and its "evolution" over time */
-  std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler_;
+  std::vector<PhenotypicTarget_R> phenotypic_target_models_;
 };
-
-
-// ============================================================================
-//                           Getters' definitions
-// ============================================================================
-
-// ============================================================================
-//                           Setters' definitions
-// ============================================================================
-
-// ============================================================================
-//                          Operators' definitions
-// ============================================================================
 
 // ============================================================================
 //                       Inline functions' definition
@@ -143,4 +121,4 @@ class Habitat
 
 } // namespace aevol
 
-#endif // AEVOL_HABITAT_H__
+#endif // AEVOL_PHENOTYPIC_TARGET_HANDLER_R_H__

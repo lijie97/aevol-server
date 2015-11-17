@@ -541,6 +541,145 @@ void ExpManager_X11::display(X11Window * win,
   }
 }
 
+
+void ExpManager_X11::display_3D(X11Window * win,
+                             const AbstractFuzzy& fuzz, color_map color, int x0 , int y0, bool fill /*= false*/ )
+{
+  double y_min = Y_MIN - 0.1 * Y_MAX; // Yields a bottom margin
+  double y_max = Y_MAX * 1.1;         // Yields a top margin
+  double delta_x = X_MAX - X_MIN;
+  double delta_y = y_max - y_min;
+
+  int16_t cur_x;
+  int16_t cur_y;
+  int16_t next_x;
+  int16_t next_y;
+
+  if (get_exp_s()->get_fuzzy_flavor() == 0) {
+    const Fuzzy fuzzy = (Fuzzy&)(fuzz);
+    for (list<Point>::const_iterator p = fuzzy.get_points().begin();
+         p != prev(fuzzy.get_points().end()); ++p) {
+      list<Point>::const_iterator q = next(p);
+
+      // Display segment [p, q]
+      cur_x = ((p->x - X_MIN) / delta_x) * win->get_width();
+      cur_y = (1 - ((p->y - y_min) / delta_y)) * win->get_height();
+      next_x = ((q->x - X_MIN) / delta_x) * win->get_width();
+      next_y = (1 - ((q->y - y_min) / delta_y)) * win->get_height();
+
+      if (fill) {
+        char* fill_color;
+        for (int16_t i = cur_x; i < next_x; i++) {
+          fill_color = X11Window::get_color(
+              ((double) i / win->get_width()) * (X_MAX - X_MIN));
+          win->draw_line(i, (1 - ((0 - y_min) / delta_y)) * win->get_height(),
+                         i, cur_y + (((i - cur_x) * (next_y - cur_y)) /
+                                     (next_x - cur_x)), fill_color);
+          delete[] fill_color;
+        }
+      }
+      win->draw_line(cur_x, cur_y, next_x, next_y, color);
+    }
+  } else {
+    //  ae_list_node* node        = _points->get_first();
+    //  ae_point_2d*  cur_point   = NULL;
+    //  ae_point_2d*  next_point  = NULL;
+
+
+    double hi;
+    double hi1;
+    const HybridFuzzy fuzzy = (HybridFuzzy&)(fuzz);
+    int pheno_size = fuzzy.get_pheno_size();
+
+    for (int j = 0; j < (pheno_size - 1); j++) {
+      hi = (((double) j) / pheno_size);
+      hi1 = (((double) j + 1) / pheno_size);
+      // Display segment [cur_point, next_point]
+      cur_x = ((hi - X_MIN) / delta_x) * win->get_width();
+      cur_y = (1 - ((fuzzy.get_points()[j] - y_min) / delta_y)) * win->get_height();
+      next_x = (((hi1) - X_MIN) / delta_x) * win->get_width();
+      next_y = (1 - ((fuzzy.get_points()[j + 1] - y_min) / delta_y)) * win->get_height();
+
+
+      if (fuzzy.get_points()[j] >= 0 && fuzzy.get_points()[j + 1] >= 0) {
+        if (fill) {
+          char* fill_color;
+          for (int16_t i = cur_x; i < next_x; i++) {
+            fill_color = X11Window::get_color(
+                ((double) i / win->get_width()) * (X_MAX - X_MIN));
+            win->draw_line(i + x0,
+                           (1 - ((0 - y_min) / delta_y)) * win->get_height() +
+                           y0,
+                           i + x0, y0 + cur_y +
+                                        (((i - cur_x) * (next_y - cur_y)) /
+                                         (next_x - cur_x)), fill_color);
+            delete[] fill_color;
+          }
+        }
+
+        win->draw_line(cur_x + x0, cur_y + y0, next_x + x0, next_y + y0, color);
+      } else if (fuzzy.get_points()[j] < 0 && fuzzy.get_points()[j + 1] < 0) {
+        if (fill) {
+          char* fill_color;
+          for (int16_t i = cur_x; i < next_x; i++) {
+            fill_color = X11Window::get_color(
+                ((double) i / win->get_width()) * (X_MAX - X_MIN));
+            win->draw_line(i + x0,
+                           (1 - ((0 - y_min) / delta_y)) * win->get_height() +
+                           y0,
+                           i + x0, y0 + cur_y +
+                                        (((i - cur_x) * (next_y - cur_y)) /
+                                         (next_x - cur_x)), fill_color);
+            delete[] fill_color;
+          }
+        }
+
+        win->draw_line(cur_x + x0, cur_y + y0, next_x + x0, next_y + y0, color);
+      } else {
+        double p1 = (fuzzy.get_points()[j + 1] - fuzzy.get_points()[j]) / (hi1 - hi);
+        double d1 = fuzzy.get_points()[j] - (p1 * hi);
+
+        double x_at_0 = 0;
+        if (fuzzy.get_points()[j] == 0.0) x_at_0 = hi;
+        else if (fuzzy.get_points()[j + 1] == 0.0) x_at_0 = hi1;
+        else x_at_0 = ((-d1) / p1);
+
+        if (fill) {
+          char* fill_color;
+          for (int16_t i = cur_x; i < x_at_0; i++) {
+            fill_color = X11Window::get_color(
+                ((double) i / win->get_width()) * (X_MAX - X_MIN));
+            win->draw_line(i + x0,
+                           (1 - ((0 - y_min) / delta_y)) * win->get_height() +
+                           y0,
+                           i + x0, y0 + cur_y + (((i - cur_x) * (0 - cur_y)) /
+                                                 (x_at_0 - cur_x)), fill_color);
+            delete[] fill_color;
+          }
+        }
+
+        win->draw_line(cur_x + x0, cur_y + y0, x_at_0 + x0, y0, color);
+
+        if (fill) {
+          char* fill_color;
+          for (int16_t i = x_at_0; i < next_x; i++) {
+            fill_color = X11Window::get_color(
+                ((double) i / win->get_width()) * (X_MAX - X_MIN));
+            win->draw_line(i + x0,
+                           (1 - ((0 - y_min) / delta_y)) * win->get_height() +
+                           y0,
+                           i + x0, y0 + 0 + (((i - x_at_0) * (next_y - 0)) /
+                                             (next_x - x_at_0)), fill_color);
+            delete[] fill_color;
+          }
+        }
+
+        win->draw_line(x_at_0 + x0, y0, next_x + x0, next_y + y0, color);
+      }
+    }
+  }
+}
+
 // Display a grid of values
 void ExpManager_X11::display_grid(X11Window * win, double** cell_grid)
 {
@@ -923,13 +1062,15 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
       // Display best indiv's phenotype (white)
       #ifndef __REGUL
       display(cur_win, *(get_best_indiv()->get_phenotype()), WHITE, true);
+      display(cur_win, *(phenotypic_target.fuzzy()), RED, false, true);
       #else
       Individual_R_X11* indiv_r = dynamic_cast<Individual_R_X11*>(get_best_indiv());
-      display(cur_win, *(indiv_r->get_phenotype()), WHITE, true);
+      indiv_r->display_phenotype(cur_win);
+      //display_3D(cur_win, *(indiv_r->get_phenotype()), WHITE, true);
       #endif
 
       // Display phenotypic target (red)
-      display(cur_win, *(phenotypic_target.fuzzy()), RED, false, true);
+
     }
     break;
 

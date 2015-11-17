@@ -30,17 +30,10 @@
 // ============================================================================
 //                                   Includes
 // ============================================================================
-#if __cplusplus == 201103L
-#include "make_unique.h"
-#endif
+#include "PhenotypicTarget_R.h"
+#include "FuzzyFactory.h"
 
-#include "Habitat.h"
-
-#include <iostream>
-
-
-using std::cout;
-using std::endl;
+#include <cstring>
 
 
 namespace aevol {
@@ -48,7 +41,7 @@ namespace aevol {
 
 //##############################################################################
 //                                                                             #
-//                                Class Habitat                                #
+//                           Class PhenotypicTarget                            #
 //                                                                             #
 //##############################################################################
 
@@ -59,53 +52,30 @@ namespace aevol {
 // ============================================================================
 //                                Constructors
 // ============================================================================
-Habitat::Habitat(void) {
-  compound_amount_ = 0.0;
-  phenotypic_target_handler_ = std::make_shared<PhenotypicTargetHandler>();
+PhenotypicTarget_R::PhenotypicTarget_R() {
+  id_ =
+  signals =
 }
 
-Habitat::Habitat(const Habitat& rhs, bool share_phenotypic_target) {
-  assert(share_phenotypic_target);
-  compound_amount_ = rhs.compound_amount_;
-  phenotypic_target_handler_ = rhs.phenotypic_target_handler_;
-}
-
-Habitat::Habitat(gzFile backup_file,
-                 std::shared_ptr<PhenotypicTargetHandler>
-                    phenotypic_target_handler_) {
-  load(backup_file, phenotypic_target_handler_);
+PhenotypicTarget_R::PhenotypicTarget_R(const PhenotypicTarget& rhs) {
+  id_ = rhs.id_
+  // WARNING MEMOIRE A GERER
+  signals = 
 }
 
 // ============================================================================
 //                                 Destructor
 // ============================================================================
+PhenotypicTarget_R::~PhenotypicTarget_R() {
+//TODO : handle signals
+}
 
 // ============================================================================
 //                                   Methods
 // ============================================================================
-void Habitat::ApplyVariation() {
-  phenotypic_target_handler_->ApplyVariation();
-}
 
-void Habitat::save(gzFile backup_file,
-                   bool skip_phenotypic_target /*=false*/) const {
-  gzwrite(backup_file, &compound_amount_, sizeof(compound_amount_));
-  if (not skip_phenotypic_target)
-    phenotypic_target_handler_->save(backup_file);
-}
-
-void Habitat::load(gzFile backup_file,
-                   std::shared_ptr<PhenotypicTargetHandler>
-                      phenotypic_target_handler) {
-  gzread(backup_file, &compound_amount_, sizeof(compound_amount_));
-  if (phenotypic_target_handler == nullptr)
-    phenotypic_target_handler_ = std::make_shared<PhenotypicTargetHandler>(backup_file);
-  else
-    phenotypic_target_handler_ = phenotypic_target_handler;
-}
 
 // ============================================================================
 //                            Non inline accessors
 // ============================================================================
-
 } // namespace aevol

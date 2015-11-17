@@ -292,7 +292,7 @@ void ExpManager::step_to_next_generation() {
 /*!
   \brief Load an experiment with the provided files
  */
-// TODO <david.parsons@inria.fr> check verbose (what doas it do ?, is it consistent ?)
+// TODO <david.parsons@inria.fr> check verbose (what does it do ?, is it consistent ?)
 void ExpManager::load(gzFile& exp_s_file,
                           gzFile& exp_backup_file,
                           gzFile& world_file,
@@ -640,4 +640,5 @@ void ExpManager::close_setup_files(gzFile& exp_s_file,
 Individual* ExpManager::get_indiv_by_id(int32_t id) const {
   return world_->get_indiv_by_id(id);
 }
+
 } // namespace aevol

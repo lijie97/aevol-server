@@ -41,7 +41,7 @@
 #include "Individual.h"
 #include "Rna_R.h"
 #include "Protein_R.h"
-#include "Habitat.h"
+#include "Habitat_R.h"
 
 namespace aevol {
 
@@ -94,12 +94,12 @@ class Individual_R : public virtual Individual
      /**
       * Evaluate within the provided context
       */
-     virtual void EvaluateInContext(const Habitat& habitat);
+     virtual void EvaluateInContext(const Habitat_R& habitat);
 
      virtual void init_indiv( void );
      virtual void one_step( void );
-     virtual void eval_step(const Habitat& habitat);
-     virtual void final_step(const Habitat& habitat, std::set<int>* eval);
+     virtual void eval_step(const Habitat_R& habitat, int8_t age);
+     virtual void final_step(const Habitat_R& habitat, int8_t age);
      //virtual void reevaluate();
      //virtual void clear_everything_except_dna_and_promoters();
      //void do_transcription_translation_folding();

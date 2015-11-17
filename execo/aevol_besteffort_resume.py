@@ -60,6 +60,8 @@ class raevol_matrix(Engine):
             self.oar_job_id = self.options.oargrid_job_id
         else:
             self.oar_job_id = None
+            
+        self.list_of_clusters = ['parasilo','paravance','parapluie','paranoia']
 
         try:
             # Creation of the main iterator which is used for the first control loop.
@@ -71,9 +73,10 @@ class raevol_matrix(Engine):
             while len(self.sweeper.get_remaining()) > 0:
                 # If no job, we make a reservation and prepare the hosts for the experiments
                 if self.oar_job_id is None:
-                    self.make_reservation_local()
+                    self.submit_all_available_best_effort(self.list_of_clusters, self.options.walltime)
+                    # self.make_reservation_local()
                 # Wait that the job starts
-                logger.info('Waiting that the job start')
+                logger.info('Waiting that the job start '+str(self.oar_job_id))
                 wait_oar_job_start(self.oar_job_id)
                 # Retrieving the hosts and subnets parameters
                 self.hosts = get_oar_job_nodes(self.oar_job_id)
@@ -100,7 +103,7 @@ class raevol_matrix(Engine):
                 if  not os.path.exists(comb_dir):
 					os.mkdir(comb_dir)
 
-                logger.info("Starting the thread")
+                logger.info("Starting the thread "+str(self.is_job_alive())+" "+str(len(threads.keys())))
                 # Checking that the job is running and not in Error
                 while self.is_job_alive() or len(threads.keys()) > 0:
                     job_is_dead = False
@@ -264,8 +267,9 @@ class raevol_matrix(Engine):
 	      
 	      last_gen = lastGen.stdout.strip()
 	      
-	      logger.info(thread_name + "Resuming AEVOL Run from "+last_gen)
-	      Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_diff_area/aevol/src/aevol_run -p 16'
+	      if int(last_gen) < 500000:
+                logger.info(thread_name + "Resuming AEVOL Run from "+last_gen)
+                Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_diff_area/aevol/src/aevol_run -p 16'
 		      + ' -n 500000 -r '+last_gen+' >> aevol_run.log',
 			  [host]).run()
 
@@ -314,33 +318,33 @@ class raevol_matrix(Engine):
             
 	    logger.info(thread_name + 'Get results ' + comb_dir + "/" + slugify(comb))
   
-            try:
-                os.mkdir(comb_dir + "/" + slugify(comb))
-            except:
-                logger.warning(thread_name +
-                    '%s already exists, removing existing files', comb_dir + "/" + slugify(comb))
-		shutil.rmtree(comb_dir+ "/" + slugify(comb))
-		try:
-		  os.mkdir(comb_dir + "/" + slugify(comb))
-		except:
-		  logger.warning(thread_name +
-                    '%s already exists, recreating directory', comb_dir + "/" + slugify(comb))
+            #try:
+                #os.mkdir(comb_dir + "/" + slugify(comb))
+            #except:
+                #logger.warning(thread_name +
+                    #'%s already exists, removing existing files', comb_dir + "/" + slugify(comb))
+		#shutil.rmtree(comb_dir+ "/" + slugify(comb))
+		#try:
+		  #os.mkdir(comb_dir + "/" + slugify(comb))
+		#except:
+		  #logger.warning(thread_name +
+                    #'%s already exists, recreating directory', comb_dir + "/" + slugify(comb))
 
-	    get_results = Get([host], [bucketname+ "/aevol_create.log", bucketname+ "/aevol_run.log", bucketname+'/stats/', bucketname+'/logger_csv.log'],
-                            local_location=comb_dir + "/" + slugify(comb)).run()
+	    #get_results = Get([host], [bucketname+ "/aevol_create.log", bucketname+ "/aevol_run.log", bucketname+'/stats/'],
+                            #local_location=comb_dir + "/" + slugify(comb)).run()
 
-            for p in get_results.processes:
-                if not p.ok:
-                    logger.error(thread_name +
-                        ': Unable to retrieve the files for combination %s',
-                        slugify(comb))
-                    exit()
+            #for p in get_results.processes:
+                #if not p.ok:
+                    #logger.error(thread_name +
+                        #': Unable to retrieve the files for combination %s',
+                        #slugify(comb))
+                    #exit()
 
             comb_ok = True
         finally:
             if comb_ok:
                 self.sweeper.done(comb)
-		shutil.rmtree(bucketname)
+		# shutil.rmtree(bucketname)
                 logger.info(thread_name + ': ' + slugify(comb) + \
                              ' has been done')
             else:
@@ -359,6 +363,28 @@ class raevol_matrix(Engine):
             return True
         else:
             return False
+        
+    def get_immediately_available_nodes(self,list_of_clusters, walltime, ignore_besteffort = False):
+        planning = get_planning(list_of_clusters, ignore_besteffort=False)
+        slots = compute_slots(planning, walltime)
+        wanted = { cluster: 0 for cluster in list_of_clusters }
+        start_date, end_date, resources = find_first_slot(slots, wanted)
+        actual_resources = { resource: n_nodes
+                            for resource, n_nodes in resources.iteritems()
+                            if resource in list_of_clusters and n_nodes > 0 }
+        return start_date, end_date, actual_resources
+
+    def submit_all_available_best_effort(self,list_of_clusters, walltime):
+        start_date, end_date, resources = self.get_immediately_available_nodes(list_of_clusters, walltime, ignore_besteffort = False)
+        job_specs = get_jobs_specs(resources)
+        for j,f in job_specs:
+            j.job_type = "besteffort"
+            j.additional_options = "-t allow_classic_ssh"
+        #jobs = oarsub(job_specs)
+        (self.oar_job_id, self.frontend) = oarsub(job_specs)[0]
+        print job_specs
+        return self.oar_job_id
+
 
 if __name__ == "__main__":
     engine = raevol_matrix()

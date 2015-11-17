@@ -36,7 +36,7 @@
 // =================================================================
 #include "Individual_R_X11.h"
 #include "../ExpManager.h"
-
+#include "../ExpManager_X11.h"
 namespace aevol {
 
 //##############################################################################
@@ -144,7 +144,7 @@ void Individual_R_X11::display_concentrations( X11Window* win )
   win->draw_line( 9 * win->get_width() / 10 , 2 * win->get_height() / 10 , 9 * win->get_width() / 10 , 9 * win->get_height() / 10 ,color);
 
   // save the initial list of proteins
-  std::list<Protein*> init_prot_list = _protein_list;
+  //std::list<Protein*> init_prot_list = _protein_list;
 
   //set the concentrations of proteins to their initial value
   double* concentrations = new double[_protein_list.size()]; // initialise le tableau de concentrations.
@@ -160,14 +160,15 @@ void Individual_R_X11::display_concentrations( X11Window* win )
   double x_step = 0.8 * win->get_width() / (double)(get_exp_m()->get_exp_s()->get_nb_indiv_age());
   double y_step = 0.7 * win->get_height();
 
-  for (int indiv_age = 1; indiv_age <= get_exp_m()->get_exp_s()->get_nb_indiv_age(); indiv_age++) {
+  for (int i = 1; i <= get_exp_m()->get_exp_s()->get_nb_indiv_age(); i++) {
+    for (int j = 0; j < get_exp_m()->get_exp_s()->get_nb_degradation_step(); j++)
       update_concentrations();
 
       //affichage des points n+1 dans la concentration
       //prot_index = 0;
       int proti = 0;
       for (const auto& prot : _protein_list) {
-        printf("%d -- %f | ",proti,((Protein_R*)prot)->get_mean());
+
         // morceau ajouté pour colorer les protéines en fonctions de leur paramètres
         if ( ((Protein_R*)prot)->get_is_functional() )
         {
@@ -179,11 +180,12 @@ void Individual_R_X11::display_concentrations( X11Window* win )
           strcpy( color2, "#FFFFFF" );
         }
 
-        win->draw_line( (int16_t)((win->get_width() / 10) + (indiv_age*x_step)),
+        win->draw_line( (int16_t)((win->get_width() / 10) + (i*x_step)),
                         (int16_t)(( 9 * win->get_height() / 10)-(concentrations[proti]*y_step)),
-                        (int16_t)((win->get_width() / 10) + (( indiv_age + 1)  * x_step)),
+                        (int16_t)((win->get_width() / 10) + (( i + 1)  * x_step)),
                         (int16_t)((9 * win->get_height() / 10)-(((Protein_R*)prot)->get_concentration()*y_step)) ,color2);
         concentrations[proti]=((Protein_R*)prot)->get_concentration();
+        printf("%d -- %f (%f) | ",proti,((Protein_R*)prot)->get_concentration(),((Protein_R*)prot)->get_mean());
 
         delete[] color2;
         proti++;
@@ -191,9 +193,9 @@ void Individual_R_X11::display_concentrations( X11Window* win )
     printf("\n");
   }
 
-  _protein_list.clear();
-  _protein_list = init_prot_list;
-  init_prot_list.clear();
+  //_protein_list.clear();
+  //_protein_list = init_prot_list;
+  //init_prot_list.clear();
 
   delete[] concentrations;
   delete[] color;
@@ -421,6 +423,164 @@ void Individual_R_X11::display_regulation( X11Window* win )
 
   delete[] color;
 }
+
+void Individual_R_X11::display_phenotype( X11Window* win )
+{
+  double dist_temp = 0;
+  char* color = new char[8];
+  char* color2 = NULL;
+  int nb_eval = 0;
+  strcpy( color, "#FFFFFF" );
+
+  //variable qui sert à stocker du texte à afficher
+  char display_string[40];
+  int16_t nb_prot = 0;
+  int16_t life_time = get_exp_m()->get_exp_s()->get_nb_indiv_age();
+
+  //deux pointeurs utilisés pour défiler dans la liste de protéines
+  //  ae_list_node* prot_node  = NULL;
+  //  ae_protein_R* prot       = NULL;
+
+  // save the initial list of proteins
+  //  ae_list* init_prot_list = new ae_list;
+  //  init_prot_list->add_list(_protein_list);
+  // Add the signals to the list of proteins
+  //ae_environment* envir = NULL;
+  //std::vector<ae_protein*> init_protein = _protein_list;
+  //std::unordered_map<int,std::vector<ae_protein_R*>> _cloned_signals;
+
+
+  //for(int i = 0; i < env_list.size(); i++)
+  //{
+    //envir = env_list[i];
+    //    _signals = envir->get_signals();
+    //initialise all concentrations of signals to 0
+    //std::vector<ae_protein_R*> loc_signals;
+    //for ( int8_t j = 0; j < envir->get_signals().size(); j++)
+    //{
+    //  ae_protein_R* cloned_signal = new ae_protein_R(NULL,*envir->get_signals()[j]);
+     // cloned_signal->set_concentration(0.0);
+     // _protein_list.push_back(cloned_signal);
+     // loc_signals.push_back(cloned_signal);
+      //      ((ae_protein_R*)  envir->get_signals()[j])->set_concentration(0.);
+      //      _protein_list->add(new ae_list_node(_signals[j]));
+    //}
+    //_cloned_signals.insert(std::make_pair(envir->get_id(),loc_signals));
+    //    _protein_list->add_list(_signals);
+  //}
+
+  //set the concentrations of proteins to their initial value
+  double* concentrations = new double[_protein_list.size()]; // initialise le tableau de concentrations.
+  int16_t prot_index = 0;
+  for (auto& prot : _protein_list) {
+    ((Protein_R*)prot)->reset_concentration();
+    //    printf("prot %d : concentration initiale : %e\n",prot_index,prot->get_concentration());
+    concentrations[prot_index++] = ((Protein_R*)prot)->get_concentration();
+    //    prot_node = prot_node->get_next();
+  }
+
+  // compute steps
+  double x_step = 0.8 * win->get_width() / (double)(life_time * get_exp_m()->get_exp_s()->get_nb_degradation_step());
+  double y_step = 0.7 * win->get_height();
+
+  // Go from an evaluation date to the next
+  //int8_t compteur_env   = 0;
+  //envir = env_list[compteur_env];
+  //int16_t nb_signals = 0;
+
+  //Add the signals protein to the individual
+  //  _signals = envir->get_signals();
+  //for ( int8_t i = 0; i < _cloned_signals[compteur_env].size(); i++)
+  //{
+  //  ((ae_protein_R*) _cloned_signals[compteur_env][i])->set_concentration(0.9);
+  //}
+
+  std::set<int>* eval = get_exp_m()->get_exp_s()->get_list_eval_step();
+
+  for (int i = 1; i <= get_exp_m()->get_exp_s()->get_nb_indiv_age(); i++) {
+    for (int j = 0; j < get_exp_m()->get_exp_s()->get_nb_degradation_step(); j++)
+      update_concentrations();
+
+    update_phenotype();
+
+    //  if (!(indiv_age % 2))
+    dynamic_cast<ExpManager_X11*>(get_exp_m())->display_3D(win, *_phenotype, WHITE, (life_time * 5) - (5 * i), (life_time * -3) + (3 * i),true);
+    dynamic_cast<ExpManager_X11*>(get_exp_m())->display_3D(win, *(habitat().phenotypic_target().fuzzy()), RED, (life_time * 5) - (5 * i), (life_time * -3) + (3 * i), false);
+    // if we have to change of environment
+    /*if( ae_common::individual_environment_dates->search(indiv_age) != -1)
+    {
+      //Remove the signals of this environment
+      for ( int8_t i = 0; i < _cloned_signals[compteur_env].size(); i++)
+      {
+        _cloned_signals[compteur_env][i]->set_concentration(0.);
+      }
+      // Change the environment at is next value
+      compteur_env+=1;
+      envir = env_list[compteur_env];
+
+      // Add the signals of this new environment
+      for ( int8_t i = 0; i < _cloned_signals[compteur_env].size(); i++)
+      {
+        _cloned_signals[compteur_env][i]->set_concentration(0.9);
+      }
+    }*/
+
+    // if its an evaluation date
+    if (eval->find(i) != eval->end()) {
+      //  printf("indiv_age : %d\n",indiv_age);
+      dynamic_cast<ExpManager_X11*>(get_exp_m())->display_3D(win, *_phenotype, RED,  (life_time * 5) - (5 * i), (life_time * -3) + (3 * i),false);
+      //    compute_distance_to_target( envir );
+
+      // Compute the difference between the (whole) phenotype and the environment
+      AbstractFuzzy* delta = FuzzyFactory::fuzzyFactory->create_fuzzy( *_phenotype );
+      delta->sub( *(habitat().phenotypic_target().fuzzy()) );
+      double dist_to_target = 0;
+
+      if ( habitat().phenotypic_target().nb_segments() == 1 )
+      {
+        dist_to_target = delta->get_geometric_area();
+      } else {
+        PhenotypicSegment ** segments = habitat().phenotypic_target().segments();
+        for (size_t i = 0 ; i < static_cast<size_t>(habitat().phenotypic_target().nb_segments()) ; i++) {
+          if (segments[i]->feature == METABOLISM) {
+            dist_to_target += delta->get_geometric_area(
+                segments[i]->start, segments[i]->stop);
+          }
+        }
+      }
+
+      delete delta;
+
+      dist_temp += dist_to_target;
+      nb_eval++;
+
+      //Draw the intermediate evaluation result
+      sprintf( display_string, " t = %" PRId32 ", dist_to_target =  %lf",i,dist_to_target);
+      win->draw_string( 15, 15*nb_eval, display_string );
+    }
+  }
+
+  //Draw the evaluation result
+  sprintf( display_string, "Mean dist_to_target =  %lf",dist_temp/(double)nb_eval);
+  win->draw_string( 15, 15*(nb_eval + 1), display_string );
+
+  //Remove the signals of the last environment
+  /*for ( int8_t i = 0; i < _cloned_signals[compteur_env].size(); i++)
+  {
+    _cloned_signals[compteur_env][i]->set_concentration(0.0);
+  }*/
+
+  //  _protein_list->erase(NO_DELETE);
+  //  _protein_list->add_list(init_prot_list);
+  //_protein_list.clear();
+  //_protein_list = init_protein;
+  //init_protein.clear();
+  delete[] concentrations;
+  //  delete init_prot_list;
+  delete[] color;
+}
+
+
 // =================================================================
 //                           Protected Methods
 // =================================================================

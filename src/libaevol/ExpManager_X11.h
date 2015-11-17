@@ -146,6 +146,9 @@ class ExpManager_X11 : public ExpManager
     bool quit_signal_received(void);
     void display(X11Window * win, const AbstractFuzzy& fuzzy, color_map color,
         bool fill = false, bool bold = false);
+    void display_3D(X11Window * win,
+                                  const AbstractFuzzy& fuzz, color_map color,
+                    int x0 , int y0, bool fill /*= false*/ );
     void display_grid(X11Window * win, double** cell_grid);
 
     // =================================================================

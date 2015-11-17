@@ -1372,7 +1372,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
       for ( int16_t i = 0 ; i < PROM_SIZE ; i++ )
       {
         //~ printf( "  i : %"PRId32" dist : %"PRId8"\n", i, dist );
-        if ( genome[Utils::mod((pos-i),len)] == PROM_SEQ[i] ) // == and not != because we are on the complementary strand...
+        if ( genome[abs(pos-i)%len] == PROM_SEQ[i] ) // == and not != because we are on the complementary strand...
         {
           dist++;
           if ( dist > PROM_MAX_DIFF )

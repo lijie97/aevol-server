@@ -30,10 +30,6 @@
 // ============================================================================
 //                                   Includes
 // ============================================================================
-#if __cplusplus == 201103L
-#include "make_unique.h"
-#endif
-
 #include "Habitat.h"
 
 #include <iostream>
@@ -59,21 +55,19 @@ namespace aevol {
 // ============================================================================
 //                                Constructors
 // ============================================================================
-Habitat::Habitat(void) {
+Habitat_R::Habitat_R(void) : phenotypic_targets_(0){
   compound_amount_ = 0.0;
-  phenotypic_target_handler_ = std::make_shared<PhenotypicTargetHandler>();
+  phenotypic_target_handler_ = std::make_shared<PhenotypicTargetHandler_R>();
 }
 
-Habitat::Habitat(const Habitat& rhs, bool share_phenotypic_target) {
-  assert(share_phenotypic_target);
-  compound_amount_ = rhs.compound_amount_;
-  phenotypic_target_handler_ = rhs.phenotypic_target_handler_;
+Habitat_R::Habitat_R(const Habitat& rhs, bool share_phenotypic_target) :
+Habitat(rhs, share_phenotypic_target), phenotypic_targets_(0){
 }
 
-Habitat::Habitat(gzFile backup_file,
-                 std::shared_ptr<PhenotypicTargetHandler>
-                    phenotypic_target_handler_) {
-  load(backup_file, phenotypic_target_handler_);
+Habitat_R::Habitat_R(gzFile backup_file,
+                 std::shared_ptr<PhenotypicTargetHandler_R>
+                    phenotypic_target_handler) : phenotypic_targets_(0) {
+  load(backup_file, phenotypic_target_handler);
 }
 
 // ============================================================================
@@ -81,29 +75,39 @@ Habitat::Habitat(gzFile backup_file,
 // ============================================================================
 
 // ============================================================================
+//                           Setters' definitions
+// ============================================================================
+  void Habitat_R::resetPhenotypicTargets() {
+    PhenotypicTarget_R* last_env = phenotypic_targets_.back();
+    int8_t size = phenotypic_targets_.size();
+    phenotypic_targets_.clear();
+    phenotypic_targets_.resize(1);
+    phenotypic_targets_.at(0) = last_env;
+    phenotypic_targets_.reserve(size);
+  }
+
+  void Habitat_R::addEnv( int8_t env_id ) {
+    phenotypic_targets_.push_back(dynamic_cast <phenotypic_target_handler_R> (phenotypic_target_handler()).model_pointer( env_id ));
+  }
+
+
+
+// ============================================================================
 //                                   Methods
 // ============================================================================
-void Habitat::ApplyVariation() {
-  phenotypic_target_handler_->ApplyVariation();
+void Habitat_R::ApplyVariation() {
+  phenotypic_target_handler_->ApplyVariation( this );
 }
 
-void Habitat::save(gzFile backup_file,
-                   bool skip_phenotypic_target /*=false*/) const {
-  gzwrite(backup_file, &compound_amount_, sizeof(compound_amount_));
-  if (not skip_phenotypic_target)
-    phenotypic_target_handler_->save(backup_file);
-}
-
-void Habitat::load(gzFile backup_file,
-                   std::shared_ptr<PhenotypicTargetHandler>
+void Habitat_R::load(gzFile backup_file,
+                   std::shared_ptr<PhenotypicTargetHandler_R>
                       phenotypic_target_handler) {
   gzread(backup_file, &compound_amount_, sizeof(compound_amount_));
   if (phenotypic_target_handler == nullptr)
-    phenotypic_target_handler_ = std::make_shared<PhenotypicTargetHandler>(backup_file);
+    phenotypic_target_handler_ = std::make_shared<PhenotypicTargetHandler_R>(backup_file);
   else
     phenotypic_target_handler_ = phenotypic_target_handler;
 }
-
 // ============================================================================
 //                            Non inline accessors
 // ============================================================================
