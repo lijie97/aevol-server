@@ -78,10 +78,9 @@ GridCell::GridCell(int16_t x, int16_t y,
 
 GridCell::GridCell(gzFile backup_file,
                    ExpManager* exp_m,
-                   std::shared_ptr<PhenotypicTargetHandler>
-                      phenotypic_target_handler_)
+                   PhenotypicTargetHandler* phenotypic_target_handler)
 {
-  load(backup_file, exp_m, phenotypic_target_handler_);
+  load(backup_file, exp_m, phenotypic_target_handler);
 }
 
 // =================================================================
@@ -112,8 +111,7 @@ void GridCell::save(gzFile backup_file,
 
 void GridCell::load(gzFile backup_file,
                         ExpManager * exp_m,
-                        std::shared_ptr<PhenotypicTargetHandler>
-                            phenotypic_target_handler)
+                        PhenotypicTargetHandler* phenotypic_target_handler)
 {
   gzread(backup_file, &x_, sizeof(x_));
   gzread(backup_file, &y_, sizeof(y_));

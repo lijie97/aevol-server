@@ -277,6 +277,7 @@ ParamLoader::ParamLoader(const char* file_name)
     _hill_shape        = std::pow( _hill_shape_theta, _hill_shape_n );
 
     _list_eval_step.insert(_nb_indiv_age);
+    _env_switch_probability = 0.1;
   #endif
 
   // Read parameter file
@@ -888,8 +889,26 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
   else if ((strcmp(line->words[0], "ENV_ADD_GAUSSIAN") == 0) ||
       (strcmp(line->words[0], "ENV_GAUSSIAN") == 0))
   {
-    std_env_gaussians.push_back(
+    #ifdef __REGUL
+      // le premier chiffre est l'indice d'environment en convention humaine ( le premier a 1)
+      // On vérifie que cet indice n'est pas trop élevé ni négatif pour éviter les crash
+
+      if ( atoi(line->words[1]) - 1 < _env_gaussians_list.size() && atoi(line->words[1]) > 0)
+      {
+        (_env_gaussians_list.at( atoi(line->words[1]) - 1)).push_back
+        ( Gaussian(  atof( line->words[2] ), atof( line->words[3] ), atof( line->words[4] ) ) );
+      }
+      else
+      {
+        printf( " ERROR in param file \"%s\" on line %" PRId32 " : There is only %" PRId16 " environment.\n",
+         _param_file_name, cur_line, _env_gaussians_list.size() );
+        exit( EXIT_FAILURE );
+      }
+      
+    #else
+          std_env_gaussians.push_back(
         Gaussian(atof(line->words[1]), atof(line->words[2]), atof(line->words[3])));
+    #endif
   }
   else if (strcmp(line->words[0], "ENV_SAMPLING") == 0)
   {
@@ -960,6 +979,19 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
       }
       _env_var_method = LOCAL_GAUSSIANS_VAR;
       _env_var_seed = atoi(line->words[2]);
+    }
+    else if (strcmp(line->words[1], "switch_in_a_list") == 0)
+    {
+      if (line->nb_words != 3) {
+        printf("ERROR in param file \"%s\" on line %" PRId32
+                   ": wrong number of parameters.\n",
+               _param_file_name, cur_line);
+        printf("usage: %s %s probability to switch between different environments\n",
+               line->words[0], line->words[1]);
+        exit(EXIT_FAILURE);
+      }
+      _env_var_method = SWITCH_IN_A_LIST;
+      _env_switch_probability = atof(line->words[2]);
     }
     else
     {
@@ -1228,6 +1260,37 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
     {
       _protein_presence_limit = atof(line->words[1]);
     }
+    else if (strcmp(line->words[0], "NB_ENVIRONMENTS") == 0)
+    {
+      int16_t nb_env = atoi( line->words[1] );
+      
+      if( nb_env < 1 )
+      {
+        printf( "ERROR in param file \"%s\" on line %" PRId32 " : you must have at least one environment\n", _param_file_name, cur_line );
+        printf("you put %" PRId16 "\n", nb_env);
+        exit( EXIT_FAILURE );
+      }
+
+      // Utile uniquement en cas de reprise sur backup
+      // Je ne sais pas comment ça va se passer avec cette version ...
+      if( _env_gaussians_list.size() > 0 )
+      {
+        _env_gaussians_list.clear();
+      }
+
+      /*
+      if( _env_signals_list.size() > 0 )
+      {
+        _env_signals_list.clear();
+      }
+      */
+
+      for( int16_t i = 0; i < nb_env; i++)
+      {
+        _env_gaussians_list.push_back(std::list<Gaussian>());
+        //_env_signals_list.push_back(std::list<Protein_R>());
+      }
+    }
   #endif
 
   else
@@ -1394,16 +1457,28 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   #else
   Habitat_R habitat;
   #endif
+
   // Shorthand for phenotypic target handler
+  #ifndef __REGUL
   PhenotypicTargetHandler& phenotypic_target_handler =
       habitat.phenotypic_target_handler_nonconst();
+  #else
+  PhenotypicTargetHandler_R& phenotypic_target_handler =
+      habitat.phenotypic_target_handler_nonconst();
+  #endif
+
   // Move the gaussian list from the parameters to the phen target handler
+  #ifndef __REGUL  
   phenotypic_target_handler.set_gaussians(std_env_gaussians);
+  #else
+  phenotypic_target_handler.set_gaussians(_env_gaussians_list);
+  #endif
 
   // Copy the sampling
   phenotypic_target_handler.set_sampling(_env_sampling);
 
   // Set phenotypic target segmentation
+  // Il y a ici des modifs à prévoir dans le cas d'environnements multiples segmentés
   if((_env_axis_features != NULL) && (_env_axis_segment_boundaries != NULL) ) {
     // if param.in contained a line starting with ENV_AXIS_FEATURES,
     // we use the values indicated on this line
@@ -1422,6 +1497,9 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
     phenotypic_target_handler.set_var_method(_env_var_method);
     phenotypic_target_handler.set_var_prng(std::make_shared<JumpingMT>(_env_var_seed));
     phenotypic_target_handler.set_var_sigma_tau(_env_var_sigma, _env_var_tau);
+    #ifdef __REGUL
+    phenotypic_target_handler.set_switch_probability(_env_switch_probability);
+    #endif
   }
 
   // Set phenotypic target noise
@@ -1436,7 +1514,11 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   }
 
   // Build the phenotypic target
+  #ifndef __REGUL
   phenotypic_target_handler.BuildPhenotypicTarget();
+  #else
+  phenotypic_target_handler.BuildPhenotypicTargets();
+  #endif
 
   if (verbose)
     printf("Entire geometric area of the phenotypic target : %f\n",

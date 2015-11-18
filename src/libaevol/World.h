@@ -99,7 +99,7 @@ class World
   bool phenotypic_target_shared() const {
     return phenotypic_target_shared_;
   }
-  const std::shared_ptr<PhenotypicTargetHandler>&
+  PhenotypicTargetHandler*
   phenotypic_target_handler() const {
     return phenotypic_target_handler_;
   }
@@ -173,7 +173,8 @@ class World
   int32_t partial_mix_nb_permutations_ = 0;
 
   bool phenotypic_target_shared_ = true;
-  std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler_ = nullptr;
+  PhenotypicTargetHandler* phenotypic_target_handler_ = NULL;
+
 
   double  _secretion_diffusion_prop = -1;
   double  _secretion_degradation_prop = -1;

@@ -66,7 +66,7 @@ class Habitat
   Habitat(Habitat&&) = delete; //< Move ctor
   Habitat(const Habitat&, bool share_phenotypic_target);
   Habitat(gzFile backup_file,
-          std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler_);
+          PhenotypicTargetHandler* phenotypic_target_handler);
 
   // ==========================================================================
   //                                Destructor
@@ -84,7 +84,7 @@ class Habitat
   void save(gzFile backup_file,
             bool skip_phenotypic_target = false) const;
   void load(gzFile backup_file,
-            std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler);
+            PhenotypicTargetHandler* phenotypic_target_handler);
 
   // ==========================================================================
   //                                 Getters
@@ -95,10 +95,10 @@ class Habitat
   const PhenotypicTarget& phenotypic_target() const {
     return phenotypic_target_handler_->phenotypic_target();
   }
-  PhenotypicTargetHandler& phenotypic_target_handler() const {
+  virtual const PhenotypicTargetHandler& phenotypic_target_handler() const {
     return *phenotypic_target_handler_;
   }
-  PhenotypicTargetHandler& phenotypic_target_handler_nonconst() const {
+  virtual PhenotypicTargetHandler& phenotypic_target_handler_nonconst() const {
     return *phenotypic_target_handler_;
   }
 
@@ -121,7 +121,7 @@ class Habitat
   double compound_amount_;
 
   /** Handler for the phenotypic target and its "evolution" over time */
-  std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler_;
+  PhenotypicTargetHandler* phenotypic_target_handler_;
 };
 
 

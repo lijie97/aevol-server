@@ -89,10 +89,10 @@ void World::InitGrid(int16_t width, int16_t height,
 {
   assert(share_phenotypic_target);
 
-  if (share_phenotypic_target)
-    phenotypic_target_handler_ = std::make_shared<PhenotypicTargetHandler>
-        (habitat.phenotypic_target_handler());
-
+  if (share_phenotypic_target) {
+    phenotypic_target_handler_ = new PhenotypicTargetHandler(habitat.phenotypic_target_handler());
+  }
+  
   width_  = width;
   height_ = height;
 
@@ -351,7 +351,7 @@ void World::load(gzFile backup_file, ExpManager * exp_man)
   phenotypic_target_shared_ = tmp_phenotypic_target_shared;
   if (phenotypic_target_shared_)
     phenotypic_target_handler_ =
-        std::make_shared<PhenotypicTargetHandler>(backup_file);
+        new PhenotypicTargetHandler(backup_file);
   phenotypic_target_handler_->BuildPhenotypicTarget();
 
   gzread(backup_file, &width_,  sizeof(width_));

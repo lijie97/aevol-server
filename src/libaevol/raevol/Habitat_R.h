@@ -67,7 +67,7 @@ class Habitat_R : public virtual Habitat
   Habitat_R(Habitat_R&&) = delete; //< Move ctor
   Habitat_R(const Habitat_R&, bool share_phenotypic_target);
   Habitat_R(gzFile backup_file,
-          std::shared_ptr<PhenotypicTargetHandler_R> phenotypic_target_handler_);
+            PhenotypicTargetHandler_R* phenotypic_target_handler_);
 
   // ==========================================================================
   //                                Destructor
@@ -83,7 +83,7 @@ class Habitat_R : public virtual Habitat
   // ==========================================================================
   virtual void ApplyVariation();
   virtual void load(gzFile backup_file,
-            std::shared_ptr<PhenotypicTargetHandler_R> phenotypic_target_handler);
+                    PhenotypicTargetHandler_R* phenotypic_target_handler);
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
@@ -97,6 +97,13 @@ class Habitat_R : public virtual Habitat
 
   int8_t number_of_phenotypic_targets() const {
     return phenotypic_targets_.size();
+  }
+
+  virtual const PhenotypicTargetHandler_R& phenotypic_target_handler() const {
+    return *(dynamic_cast<PhenotypicTargetHandler_R*> (phenotypic_target_handler_));
+  }
+  virtual PhenotypicTargetHandler_R& phenotypic_target_handler_nonconst() const {
+    return *(dynamic_cast<PhenotypicTargetHandler_R*> (phenotypic_target_handler_));;
   }
 
   // ==========================================================================
@@ -115,7 +122,6 @@ class Habitat_R : public virtual Habitat
   //                               Attributes
   // ==========================================================================
   std::vector<PhenotypicTarget_R*> phenotypic_targets_;
-  std::shared_ptr<PhenotypicTargetHandler_R> phenotypic_target_handler_;
 };
 
 

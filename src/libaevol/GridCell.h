@@ -45,7 +45,11 @@
 //                            Project Files
 // =================================================================
 #include "Individual.h"
+#ifndef __REGUL
 #include "Habitat.h"
+#else
+#include "raevol/Habitat_R.h"
+#endif
 
 namespace aevol {
 
@@ -73,7 +77,7 @@ class GridCell
                Individual * indiv);
   GridCell(gzFile backup_file,
                ExpManager * exp_m,
-               std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler_);
+               PhenotypicTargetHandler* phenotypic_target_handler);
 
   // =================================================================
   //                             Destructors
@@ -114,7 +118,7 @@ class GridCell
             bool skip_phenotypic_target = false) const;
   void load(gzFile backup_file,
             ExpManager * exp_m,
-            std::shared_ptr<PhenotypicTargetHandler> phenotypic_target_handler);
+            PhenotypicTargetHandler* phenotypic_target_handler);
 
  protected :
   // =================================================================

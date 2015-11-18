@@ -63,63 +63,16 @@ namespace aevol {
 // ============================================================================
 //                                Constructors
 // ============================================================================
-PhenotypicTargetHandler_R::PhenotypicTargetHandler_R() {
-  // The phenotypic target
-#if __cplusplus == 201103L
-  phenotypic_target_ = make_unique<PhenotypicTarget>();
-#else
-  phenotypic_target_ = std::make_unique<PhenotypicTarget>();
-#endif
-
-  // Sampling
-  sampling_ = 0;
-
-  // Variation
-  var_prng_   = NULL;
-  var_method_ = NO_VAR;
-  var_sigma_  = 0.0;
-  var_tau_    = 0;
-
-  // Noise
-  cur_noise_          = NULL;
-  noise_method_       = NO_NOISE;
-  noise_prng_         = NULL;
-  noise_prob_         = 0.0;
-  noise_alpha_        = 0.0;
-  noise_sigma_        = 0.0;
-  noise_sampling_log_ = 8;
+PhenotypicTargetHandler_R::PhenotypicTargetHandler_R() : PhenotypicTargetHandler(), phenotypic_target_models_(0) {
+  env_switch_probability_ = 0.1;
 }
 
 PhenotypicTargetHandler_R::PhenotypicTargetHandler_R(
-    const PhenotypicTargetHandler_R& rhs) {
-  // ------------------------------------------------ Current Phenotypic Target
-#if __cplusplus == 201103L
-  phenotypic_target_ = make_unique<PhenotypicTarget>(*(rhs.phenotypic_target_));
-#else
-  phenotypic_target_ = std::make_unique<PhenotypicTarget>(*(rhs.phenotypic_target_));
-#endif
+    const PhenotypicTargetHandler_R& rhs) : PhenotypicTargetHandler(rhs) {
 
-  // ---------------------------------------------------------------- Gaussians
-  initial_gaussians_ = rhs.initial_gaussians_;
-  current_gaussians_ = rhs.current_gaussians_;
 
-  // ----------------------------------------------------------------- Sampling
-  sampling_ = rhs.sampling_;
-
-  // ---------------------------------------------------------------- Variation
-  var_method_ = rhs.var_method_;
-  var_prng_ = rhs.var_prng_;
-  var_sigma_ = rhs.var_sigma_;
-  var_tau_ = rhs.var_tau_;
-
-  // -------------------------------------------------------------------- Noise
-  cur_noise_ = rhs.cur_noise_;
-  noise_prng_ = rhs.noise_prng_;
-  noise_method_ = rhs.noise_method_;
-  noise_alpha_ = rhs.noise_alpha_;
-  noise_sigma_ = rhs.noise_sigma_;
-  noise_prob_ = rhs.noise_prob_;
-  noise_sampling_log_ = rhs.noise_sampling_log_;
+  // TODO : copier phenotypic_target_models_
+  env_switch_probability_ = rhs.env_switch_probability_;
 }
 
 PhenotypicTargetHandler_R::PhenotypicTargetHandler_R(gzFile backup_file) {
@@ -201,123 +154,79 @@ void PhenotypicTargetHandler_R::ApplyVariation( Habitat_R& habitat ) {
   //phenotypic_target_->ComputeArea();
 }
 
+void PhenotypicTargetHandler_R::BuildPhenotypicTargets() {
+  for (int8_t i = 0; i < phenotypic_target_models_.size() ; i++) {
+    BuildPhenotypicTarget(i);
+  }
+
+}
+
+void PhenotypicTargetHandler_R::BuildPhenotypicTarget( int8_t id) {
+  // NB : Extreme points (at abscissa X_MIN and X_MAX) will be generated, we need to erase the list first
+  PhenotypicTarget_R* phenotypic_target = phenotypic_target_models_.at(id);
+  phenotypic_target->fuzzy()->reset();
+
+  // Generate sample points from gaussians
+  if (not env_gaussians_list_.empty()) {
+    for (int16_t i = 0; i <= sampling_; i++) {
+      Point new_point = Point(
+          X_MIN + (double) i * (X_MAX - X_MIN) / (double) sampling_, 0.0);
+      for (const Gaussian& g: env_gaussians_list_.at(id))
+        new_point.y += g.compute_y(new_point.x);
+      phenotypic_target->fuzzy()->add_point(new_point.x, new_point.y);
+    }
+
+    if (FuzzyFactory::fuzzyFactory->get_fuzzy_flavor() == 1) {
+      HybridFuzzy* fuz = (HybridFuzzy*) phenotypic_target->fuzzy();
+
+      for (int i = 1; i < fuz->get_pheno_size(); i++) {
+        if (fuz->get_points()[i] == 0.0) {
+          int minL = i - 1;
+          int maxL = i + 1;
+          int dist = 1;
+
+          while (fuz->get_points()[maxL] == 0.0) {
+            maxL++;
+            dist++;
+          }
+          double inc = 0.0;
+          if (fuz->get_points()[maxL] > fuz->get_points()[minL]) {
+            inc = (fuz->get_points()[maxL] - fuz->get_points()[minL]) / dist;
+          } else {
+            inc = (fuz->get_points()[minL] - fuz->get_points()[maxL]) / dist;
+            minL = maxL;
+          }
+
+          for (int j = i; j < maxL; j++) {
+            fuz->get_points()[j] = fuz->get_points()[minL] + inc;
+            inc += inc;
+          }
+
+        }
+      }
+    }
+  }
+
+
+  // Add lower and upper bounds
+  phenotypic_target->fuzzy()->clip(AbstractFuzzy::min, Y_MIN);
+  phenotypic_target->fuzzy()->clip(AbstractFuzzy::max, Y_MAX);
+
+  // Simplify (get rid of useless points)
+  phenotypic_target->fuzzy()->simplify();
+
+  // Compute areas (total and by feature)
+  phenotypic_target->ComputeArea();
+}
+
 void PhenotypicTargetHandler_R::save(gzFile backup_file) const {
-  // --------------------------------------------------------------------------
-  //  Write phenotypic target segmentation
-  phenotypic_target_->SaveSegmentation(backup_file);
-
-  // --------------------------------------------------------------------------
-  //  Write current gaussians (initial gaussians will be stored later if
-  // necessary)
-  int8_t nb_gaussians = current_gaussians_.size();
-  gzwrite(backup_file, &nb_gaussians, sizeof(nb_gaussians));
-  for (const Gaussian & g: current_gaussians_)
-    g.save(backup_file);
-
-  // --------------------------------------------------------------------------
-  //  Write sampling
-  gzwrite(backup_file, &sampling_, sizeof(sampling_));
-
-  // --------------------------------------------------------------------------
-  //  Write variation data
-  int8_t tmp_var_method = var_method_;
-  gzwrite(backup_file, &tmp_var_method,  sizeof(tmp_var_method));
-
-  if (var_method_ != NO_VAR) {
-    var_prng_->save(backup_file);
-    gzwrite(backup_file, &var_sigma_, sizeof(var_sigma_));
-    gzwrite(backup_file, &var_tau_,   sizeof(var_tau_));
-  }
-
-  // --------------------------------------------------------------------------
-  //  Write noise data
-  int8_t tmp_noise_method = noise_method_;
-  gzwrite(backup_file, &tmp_noise_method, sizeof(tmp_noise_method));
-
-  if (noise_method_ != NO_NOISE) {
-    int8_t tmp_save_cur_noise = (cur_noise_ != NULL);
-    gzwrite(backup_file, &tmp_save_cur_noise,  sizeof(tmp_save_cur_noise));
-    if (tmp_save_cur_noise) cur_noise_->save(backup_file);
-
-    noise_prng_->save(backup_file);
-    gzwrite(backup_file, &noise_alpha_,  sizeof(noise_alpha_));
-    gzwrite(backup_file, &noise_sigma_,  sizeof(noise_sigma_));
-    gzwrite(backup_file, &noise_prob_,   sizeof(noise_prob_));
-    gzwrite(backup_file, &noise_sampling_log_, sizeof(noise_sampling_log_));
-  }
-
-  // ---------------------------------------------------------------
-  //  If needed, keep a copy of the initial state of the gaussians
-  // ---------------------------------------------------------------
-  if (var_method_ != NO_VAR || noise_method_ != NO_NOISE) {
-    size_t nb_gaussians = initial_gaussians_.size();
-    gzwrite(backup_file, &nb_gaussians, sizeof(nb_gaussians));
-    for (const Gaussian & g: initial_gaussians_)
-      g.save(backup_file);
-  }
+  PhenotypicTargetHandler::save(backup_file);
+  // Sauvegarde en plus
 }
 
 void PhenotypicTargetHandler_R::load(gzFile backup_file) {
-  // --------------------------------------------------------------------------
-  //  Retrieve phenotypic target segmentation
-#if __cplusplus == 201103L
-  phenotypic_target_ = make_unique<PhenotypicTarget>();
-#else
-  phenotypic_target_ = std::make_unique<PhenotypicTarget>();
-#endif
-
-  phenotypic_target_->LoadSegmentation(backup_file);
-
-  // --------------------------------------------------------------------------
-  //  Retrieve current gaussians
-  int8_t nb_gaussians;
-  gzread(backup_file, &nb_gaussians, sizeof(nb_gaussians));
-  for (int8_t i = 0 ; i < nb_gaussians ; i++)
-    current_gaussians_.push_back(Gaussian(backup_file));
-
-  // --------------------------------------------------------------------------
-  //  Retrieve sampling
-  gzread(backup_file, &sampling_, sizeof(sampling_));
-
-  // --------------------------------------------------------------------------
-  //  Retrieve variation data
-  int8_t tmp_var_method;
-  gzread(backup_file, &tmp_var_method, sizeof(tmp_var_method));
-  var_method_ = (PhenotypicTargetVariationMethod) tmp_var_method;
-
-  if (var_method_ != NO_VAR) {
-    var_prng_ = std::make_shared<JumpingMT>(backup_file);
-    gzread(backup_file, &var_sigma_, sizeof(var_sigma_));
-    gzread(backup_file, &var_tau_, sizeof(var_tau_));
-  }
-
-  // --------------------------------------------------------------------------
-  //  Retrieve noise data
-  int8_t tmp_noise_method;
-  gzread(backup_file, &tmp_noise_method, sizeof(tmp_noise_method));
-  noise_method_ = (PhenotypicTargetNoiseMethod) tmp_noise_method;
-
-  if (noise_method_ != NO_NOISE) {
-    int8_t tmp_cur_noise_saved;
-    gzread(backup_file, &tmp_cur_noise_saved,  sizeof(tmp_cur_noise_saved));
-    if (tmp_cur_noise_saved)
-      cur_noise_ = FuzzyFactory::fuzzyFactory->create_fuzzy(backup_file);
-
-    noise_prng_ = std::make_shared<JumpingMT>(backup_file);
-    gzread(backup_file, &noise_alpha_, sizeof(noise_alpha_));
-    gzread(backup_file, &noise_sigma_, sizeof(noise_sigma_));
-    gzread(backup_file, &noise_prob_,  sizeof(noise_prob_));
-    gzread(backup_file, &noise_sampling_log_, sizeof(noise_sampling_log_));
-  }
-
-  // --------------------------------------------------------------------------
-  //  If needed, retrieve a copy of the initial state of the gaussians
-  if (var_method_ != NO_VAR || noise_method_ != NO_NOISE) {
-    size_t nb_gaussians;
-    gzread(backup_file, &nb_gaussians, sizeof(nb_gaussians));
-    for (size_t i = 0 ; i < nb_gaussians ; i++)
-      initial_gaussians_.emplace_back(backup_file);
-  }
+  PhenotypicTargetHandler::load(backup_file);
+  // Chargement en plus
 
   // --------------------------------------------------------------------------
   //  Build the phenotypic target

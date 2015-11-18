@@ -88,7 +88,7 @@ class PhenotypicTargetHandler
   // ==========================================================================
   //                              Public Methods
   // ==========================================================================
-  void BuildPhenotypicTarget();
+  virtual void BuildPhenotypicTarget();
   void ApplyVariation();
 
   void save(gzFile backup_file) const;

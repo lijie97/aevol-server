@@ -38,6 +38,7 @@
 #include <cassert>
 
 #include <list>
+#include <vector>
 #include <set>
 #include <memory>
 
@@ -303,6 +304,10 @@ class ParamLoader {
     // Heredity
     bool    _with_heredity;
     double  _protein_presence_limit;
+
+    //Specific variatio method
+    double _env_switch_probability;
+    std::vector<std::list<Gaussian>> _env_gaussians_list;
   #endif
 };
 

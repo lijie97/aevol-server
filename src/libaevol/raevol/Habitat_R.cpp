@@ -58,15 +58,17 @@ namespace aevol {
 // ============================================================================
 Habitat_R::Habitat_R(void) : phenotypic_targets_(0){
   compound_amount_ = 0.0;
-  phenotypic_target_handler_ = std::make_shared<PhenotypicTargetHandler_R>();
+  phenotypic_target_handler_ = new PhenotypicTargetHandler_R();
 }
 
-Habitat_R::Habitat_R(const Habitat_R& rhs, bool share_phenotypic_target) :
-Habitat(rhs, share_phenotypic_target), phenotypic_targets_(0){
+Habitat_R::Habitat_R(const Habitat_R& rhs, bool share_phenotypic_target) : phenotypic_targets_(0){
+  assert(share_phenotypic_target);
+  compound_amount_ = rhs.compound_amount_;
+  phenotypic_target_handler_ = rhs.phenotypic_target_handler_;
 }
 
 Habitat_R::Habitat_R(gzFile backup_file,
-                 std::shared_ptr<PhenotypicTargetHandler_R>
+                 PhenotypicTargetHandler_R*
                     phenotypic_target_handler) : phenotypic_targets_(0) {
   load(backup_file, phenotypic_target_handler);
 }
@@ -88,8 +90,7 @@ Habitat_R::Habitat_R(gzFile backup_file,
   }
 
   void Habitat_R::addEnv( int8_t env_id ) {
-    PhenotypicTargetHandler_R* handler = dynamic_cast <PhenotypicTargetHandler_R*> (&(phenotypic_target_handler()));
-    PhenotypicTarget_R* env_to_add = handler->model_pointer( env_id );
+    PhenotypicTarget_R* env_to_add = phenotypic_target_handler().model_pointer( env_id );
     phenotypic_targets_.push_back(env_to_add);
   }
 
@@ -99,15 +100,14 @@ Habitat_R::Habitat_R(gzFile backup_file,
 //                                   Methods
 // ============================================================================
 void Habitat_R::ApplyVariation() {
-  phenotypic_target_handler_->ApplyVariation( *this );
+  dynamic_cast<PhenotypicTargetHandler_R*>(phenotypic_target_handler_)->ApplyVariation( *this );
 }
 
-void Habitat_R::load(gzFile backup_file,
-                   std::shared_ptr<PhenotypicTargetHandler_R>
-                      phenotypic_target_handler) {
+void Habitat_R::load(gzFile backup_file, 
+                     PhenotypicTargetHandler_R* phenotypic_target_handler) {
   gzread(backup_file, &compound_amount_, sizeof(compound_amount_));
-  if (phenotypic_target_handler == nullptr)
-    phenotypic_target_handler_ = std::make_shared<PhenotypicTargetHandler_R>(backup_file);
+  if (phenotypic_target_handler == NULL)
+    phenotypic_target_handler_ = new PhenotypicTargetHandler_R(backup_file);
   else
     phenotypic_target_handler_ = phenotypic_target_handler;
 }

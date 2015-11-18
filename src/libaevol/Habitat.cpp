@@ -61,7 +61,7 @@ namespace aevol {
 // ============================================================================
 Habitat::Habitat(void) {
   compound_amount_ = 0.0;
-  phenotypic_target_handler_ = std::make_shared<PhenotypicTargetHandler>();
+  phenotypic_target_handler_ = new PhenotypicTargetHandler();
 }
 
 Habitat::Habitat(const Habitat& rhs, bool share_phenotypic_target) {
@@ -71,9 +71,8 @@ Habitat::Habitat(const Habitat& rhs, bool share_phenotypic_target) {
 }
 
 Habitat::Habitat(gzFile backup_file,
-                 std::shared_ptr<PhenotypicTargetHandler>
-                    phenotypic_target_handler_) {
-  load(backup_file, phenotypic_target_handler_);
+                 PhenotypicTargetHandler* phenotypic_target_handler) {
+  load(backup_file, phenotypic_target_handler);
 }
 
 // ============================================================================
@@ -95,11 +94,10 @@ void Habitat::save(gzFile backup_file,
 }
 
 void Habitat::load(gzFile backup_file,
-                   std::shared_ptr<PhenotypicTargetHandler>
-                      phenotypic_target_handler) {
+                   PhenotypicTargetHandler* phenotypic_target_handler) {
   gzread(backup_file, &compound_amount_, sizeof(compound_amount_));
   if (phenotypic_target_handler == nullptr)
-    phenotypic_target_handler_ = std::make_shared<PhenotypicTargetHandler>(backup_file);
+    phenotypic_target_handler_ = new PhenotypicTargetHandler(backup_file);
   else
     phenotypic_target_handler_ = phenotypic_target_handler;
 }

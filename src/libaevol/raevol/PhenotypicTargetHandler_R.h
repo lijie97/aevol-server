@@ -88,23 +88,32 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
   // ==========================================================================
   //                              Public Methods
   // ==========================================================================
-  void BuildPhenotypicTarget();
   void ApplyVariation( Habitat_R& habitat );
-
+  void BuildPhenotypicTargets();
+  void BuildPhenotypicTarget( int8_t id);
+  virtual void BuildPhenotypicTarget() {
+      Utils::ExitWithDevMsg("You should not call a phenotypic target without age id in RAevol", __FILE__, __LINE__);
+  }
   void save(gzFile backup_file) const;
   void load(gzFile backup_file);
 
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
-  PhenotypicTarget_R* model_pointer(int8_t env_id) {
+  PhenotypicTarget_R* model_pointer(int8_t env_id) const{
     return phenotypic_target_models_.at(env_id);
   }
 
   // ==========================================================================
   //                                 Setters
   // ==========================================================================
+  void set_gaussians(const std::vector<std::list<Gaussian>>& gaussians_list) {
+    env_gaussians_list_ = gaussians_list;
+  }
 
+  void set_switch_probability(double p) {
+    env_switch_probability_ = p;
+  }
 
  protected :
   // ==========================================================================
@@ -116,6 +125,7 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
   //                               Attributes
   // ==========================================================================
   std::vector<PhenotypicTarget_R*> phenotypic_target_models_;
+  std::vector<std::list<Gaussian>> env_gaussians_list_;
   double env_switch_probability_;
 };
 
