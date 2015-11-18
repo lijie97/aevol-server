@@ -1389,7 +1389,11 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
 #endif
 
   // 2) --------------------------------------------- Create and init a Habitat
+  #ifndef __REGUL
   Habitat habitat;
+  #else
+  Habitat_R habitat;
+  #endif
   // Shorthand for phenotypic target handler
   PhenotypicTargetHandler& phenotypic_target_handler =
       habitat.phenotypic_target_handler_nonconst();
