@@ -52,17 +52,17 @@ namespace aevol {
 // ============================================================================
 //                                Constructors
 // ============================================================================
-PhenotypicTarget_R::PhenotypicTarget_R() {
+PhenotypicTarget_R::PhenotypicTarget_R() : PhenotypicTarget() {
   id_ = 0;
   //signals_ = NULL;
 }
 
-PhenotypicTarget_R::PhenotypicTarget_R( int8_t id) {
+PhenotypicTarget_R::PhenotypicTarget_R( int8_t id) : PhenotypicTarget() {
   id_ = id;
   //signals_ = NULL;
 }
 
-PhenotypicTarget_R::PhenotypicTarget_R(const PhenotypicTarget_R& rhs) {
+PhenotypicTarget_R::PhenotypicTarget_R(const PhenotypicTarget_R& rhs) : PhenotypicTarget(rhs) {
   id_ = rhs.id_;
   // WARNING MEMOIRE A GERER
   //signals_ = NULL;

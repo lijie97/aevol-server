@@ -366,10 +366,17 @@ void World::load(gzFile backup_file, ExpManager * exp_man)
           &tmp_phenotypic_target_shared,
           sizeof(tmp_phenotypic_target_shared));
   phenotypic_target_shared_ = tmp_phenotypic_target_shared;
-  if (phenotypic_target_shared_)
+  if (phenotypic_target_shared_) {
     phenotypic_target_handler_ =
+    #ifndef __REGUL
         new PhenotypicTargetHandler(backup_file);
-  phenotypic_target_handler_->BuildPhenotypicTarget();
+    #else 
+        new PhenotypicTargetHandler_R(backup_file);
+    #endif
+  }
+  
+  // A priori useless car déjà fait dans le constructeur de reprise sur backup
+  //phenotypic_target_handler_->BuildPhenotypicTarget();
 
   gzread(backup_file, &width_,  sizeof(width_));
   gzread(backup_file, &height_, sizeof(height_));

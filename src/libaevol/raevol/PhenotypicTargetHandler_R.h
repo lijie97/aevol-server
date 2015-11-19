@@ -92,9 +92,9 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
   void BuildPhenotypicTargets();
   void InitPhenotypicTargets();
   void BuildPhenotypicTarget( int8_t id);
-  virtual void BuildPhenotypicTarget() {
+  /*virtual void BuildPhenotypicTarget() {
       Utils::ExitWithDevMsg("You should not call a phenotypic target without age id in RAevol", __FILE__, __LINE__);
-  }
+  }*/
   void print_geometric_areas();
   virtual void save(gzFile backup_file) const;
   virtual void load(gzFile backup_file);
