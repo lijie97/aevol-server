@@ -84,13 +84,16 @@ World::~World(void)
 //                            Public Methods
 // =================================================================
 void World::InitGrid(int16_t width, int16_t height,
-                     const Habitat& habitat,
-                     bool share_phenotypic_target)
-{
+                     Habitat& habitat,
+                     bool share_phenotypic_target) {
   assert(share_phenotypic_target);
 
   if (share_phenotypic_target) {
+    #ifndef __REGUL
     phenotypic_target_handler_ = new PhenotypicTargetHandler(habitat.phenotypic_target_handler());
+    #else
+    phenotypic_target_handler_ = new PhenotypicTargetHandler_R((dynamic_cast<Habitat_R&>(habitat)).phenotypic_target_handler());
+    #endif
   }
   
   width_  = width;
@@ -104,12 +107,22 @@ void World::InitGrid(int16_t width, int16_t height,
       if (share_phenotypic_target)
         grid_[x][y] =
             new GridCell(x, y,
+#ifndef __REGUL
 #if __cplusplus == 201103L
                              make_unique<Habitat>
                                  (habitat, share_phenotypic_target),
 #else
                              std::make_unique<Habitat>
                                  (habitat, share_phenotypic_target),
+#endif
+#else
+#if __cplusplus == 201103L
+                             make_unique<Habitat_R>
+                                 (dynamic_cast<Habitat_R&>(habitat), share_phenotypic_target),
+#else
+                             std::make_unique<Habitat_R>
+                                 (dynamic_cast<Habitat_R&>(habitat), share_phenotypic_target),
+#endif
 #endif
                              NULL);
     }

@@ -122,7 +122,7 @@ class PhenotypicTargetHandler
   void set_sampling(int16_t val){
     sampling_ = val;
   }
-  void set_segmentation(int8_t nb_segments,
+  virtual void set_segmentation(int8_t nb_segments,
                         double* boundaries,
                         PhenotypicFeature * features,
                         bool separate_segments = false) {

@@ -78,7 +78,8 @@ class PhenotypicTarget_R : public PhenotypicTarget
   // ==========================================================================
   //                              Public Methods
   // ==========================================================================
-
+  void save(gzFile backup_file) const;
+  void load(gzFile backup_file);
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
@@ -101,7 +102,7 @@ class PhenotypicTarget_R : public PhenotypicTarget
   // ==========================================================================
   // An identifier used to know the position of this Phenotypic target in PhenotypicTargetHandler
   int8_t id_;
-  std::list<Protein_R*> signals_;
+  //std::list<Protein_R*> signals_;
 
 };
 

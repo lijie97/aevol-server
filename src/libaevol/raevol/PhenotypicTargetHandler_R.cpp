@@ -69,9 +69,8 @@ PhenotypicTargetHandler_R::PhenotypicTargetHandler_R() : PhenotypicTargetHandler
 
 PhenotypicTargetHandler_R::PhenotypicTargetHandler_R(
     const PhenotypicTargetHandler_R& rhs) : PhenotypicTargetHandler(rhs) {
-
-
-  // TODO : copier phenotypic_target_models_
+  phenotypic_target_models_ = rhs.phenotypic_target_models_;
+  env_gaussians_list_ = rhs.env_gaussians_list_;
   env_switch_probability_ = rhs.env_switch_probability_;
 }
 
@@ -172,10 +171,21 @@ void PhenotypicTargetHandler_R::BuildPhenotypicTargets() {
   //debug
   //printf("PhenotypicTargetHandler_R::BuildPhenotypicTargets : we have %d env\n", nb_models);
   for (int8_t i = 0; i < nb_models ; i++) {
-    phenotypic_target_models_.push_back(new PhenotypicTarget_R( i ));
     BuildPhenotypicTarget(i);
   }
 }
+
+void PhenotypicTargetHandler_R::InitPhenotypicTargets() {
+  // First of all we have to know how many models do we have :
+  int8_t nb_models = env_gaussians_list_.size();
+  //debug
+  //printf("PhenotypicTargetHandler_R::BuildPhenotypicTargets : we have %d env\n", nb_models);
+  for (int8_t i = 0; i < nb_models ; i++) {
+    phenotypic_target_models_.push_back(new PhenotypicTarget_R( i ));
+  }
+}
+
+
 
 void PhenotypicTargetHandler_R::BuildPhenotypicTarget( int8_t id) {
   // NB : Extreme points (at abscissa X_MIN and X_MAX) will be generated, we need to erase the list first
@@ -246,20 +256,67 @@ void PhenotypicTargetHandler_R::print_geometric_areas() {
 
 void PhenotypicTargetHandler_R::save(gzFile backup_file) const {
   PhenotypicTargetHandler::save(backup_file);
+  printf("Appel a la sauvegarde de PhenotypicTargetHandler_R\n");
   // Sauvegarde en plus
+  gzwrite(backup_file, &env_switch_probability_, sizeof(env_switch_probability_));
+
+  // Save gaussians :
+  int8_t nb_gaussian_list = env_gaussians_list_.size();
+  int8_t nb_gaussians = 0;
+  gzwrite(backup_file, &nb_gaussian_list, sizeof(nb_gaussian_list));
+  for (const std::list<Gaussian>& gaussian_list: env_gaussians_list_) {
+    nb_gaussians = gaussian_list.size();
+    gzwrite(backup_file, &nb_gaussians, sizeof(nb_gaussians));
+    for (const Gaussian & g: gaussian_list) {
+      g.save(backup_file);
+    }
+  }
+
+  // Save segmentation :
+  int8_t nb_models = phenotypic_target_models_.size();
+  gzwrite(backup_file, &nb_models, sizeof(nb_models));
+  for (PhenotypicTarget_R* model: phenotypic_target_models_) {
+    model->save( backup_file);
+  }
 }
 
 void PhenotypicTargetHandler_R::load(gzFile backup_file) {
   PhenotypicTargetHandler::load(backup_file);
+  printf("Appel au chargement de PhenotypicTargetHandler_R\n");
   // Chargement en plus
+  gzread(backup_file, &env_switch_probability_, sizeof(env_switch_probability_));
 
-  // --------------------------------------------------------------------------
-  //  Build the phenotypic target
-  PhenotypicTargetHandler::BuildPhenotypicTarget();
+  //Load gaussians :
+  int8_t nb_gaussian_list = 0;
+  int8_t nb_gaussians = 0;
+  std::list<Gaussian> current_gaussians;
+  gzread(backup_file, &nb_gaussian_list, sizeof(nb_gaussian_list));
+  for( int8_t i = 0; i<nb_gaussian_list; i++) {
+    env_gaussians_list_.push_back( std::list<Gaussian>());
+    current_gaussians = env_gaussians_list_.back();
+    gzread(backup_file, &nb_gaussians, sizeof(nb_gaussians));
+    for (int8_t i = 0 ; i < nb_gaussians ; i++) {
+      current_gaussians.push_back(Gaussian(backup_file));
+    }
+  }
+
+  // Now that gaussians are loader we can build our PhenotypicTargets
+  InitPhenotypicTargets();
+
+  //load segmentation :
+  int8_t nb_models = 0;
+  gzread(backup_file, &nb_models, sizeof(nb_models));
+  for (int8_t i = 0 ; i < nb_models ; i++) {
+    phenotypic_target_models_.at(i)->load( backup_file );
+  }
+
+  BuildPhenotypicTargets();
 }
 
 // ============================================================================
 //                            Non inline accessors
 // ============================================================================
+
+
 
 } // namespace aevol

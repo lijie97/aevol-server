@@ -90,6 +90,7 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
   // ==========================================================================
   void ApplyVariation( Habitat_R& habitat );
   void BuildPhenotypicTargets();
+  void InitPhenotypicTargets();
   void BuildPhenotypicTarget( int8_t id);
   virtual void BuildPhenotypicTarget() {
       Utils::ExitWithDevMsg("You should not call a phenotypic target without age id in RAevol", __FILE__, __LINE__);
@@ -115,6 +116,17 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
   void set_switch_probability(double p) {
     env_switch_probability_ = p;
   }
+
+  virtual void set_segmentation(int8_t nb_segments,
+                        double* boundaries,
+                        PhenotypicFeature * features,
+                        bool separate_segments = false) {
+    for(PhenotypicTarget_R* phenotypic_target : phenotypic_target_models_)
+    phenotypic_target->set_segmentation(nb_segments,
+                                         boundaries,
+                                         features,
+                                         separate_segments);
+  };
 
  protected :
   // ==========================================================================

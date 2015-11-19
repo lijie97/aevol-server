@@ -1480,7 +1480,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   phenotypic_target_handler.set_sampling(_env_sampling);
 
   // Set phenotypic target segmentation
-  // Il y a ici des modifs à prévoir dans le cas d'environnements multiples segmentés
+  // Il y a ici des modifs à prévoir dans le cas d'environnements multiples segmentés différemment
   if((_env_axis_features != NULL) && (_env_axis_segment_boundaries != NULL) ) {
     // if param.in contained a line starting with ENV_AXIS_FEATURES,
     // we use the values indicated on this line
@@ -1519,8 +1519,9 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   #ifndef __REGUL
   phenotypic_target_handler.BuildPhenotypicTarget();
   #else
+  phenotypic_target_handler.InitPhenotypicTargets();
   phenotypic_target_handler.BuildPhenotypicTargets();
-  habitat.initializePhenotypicTargets( _nb_indiv_age);
+  habitat.initializePhenotypicTargets( _nb_indiv_age );
   #endif
 
   if (verbose) {
@@ -1565,6 +1566,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   if (chromosome != NULL)
   {
     printf("Option -c is used: chromosome will be loaded from a text file\n");
+    #ifndef __REGUL
     Individual * indiv = new Individual(exp_m,
                                              mut_prng,
                                              stoch_prng,
@@ -1576,6 +1578,20 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
                                              id_new_indiv++,
                                              _strain_name,
                                              0);
+    #else
+    Individual_R * indiv = new Individual_R(exp_m,
+                                         mut_prng,
+                                         stoch_prng,
+                                         param_mut,
+                                         _w_max,
+                                         _min_genome_length,
+                                         _max_genome_length,
+                                         _allow_plasmids,
+                                         id_new_indiv++,
+                                         _strain_name,
+                                         0);
+
+    #endif
 
     indiv->add_GU(chromosome, lchromosome);
     indiv->get_genetic_unit_nonconst(0).set_min_gu_length(_chromosome_minimal_length);
@@ -1611,7 +1627,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
       #ifndef __REGUL
       Individual * clone = Individual::CreateClone(indiv, id_new_indiv++);
       #else
-      Individual_R * clone = Individual_R::CreateClone(dynamic_cast<Individual_R*>(indiv), id_new_indiv++);
+      Individual_R * clone = Individual_R::CreateClone(indiv, id_new_indiv++);
       #endif
       clone->EvaluateInContext(habitat);
       indivs.push_back(clone);

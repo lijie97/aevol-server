@@ -115,7 +115,7 @@ class Individual_R : public virtual Individual
     void    update_concentrations( void );
     void    multiply_concentrations( double factor );
     int8_t  get_quadon( const GeneticUnit* gen_unit, Strand strand, int32_t pos );
-    void    save( gzFile backup_file );
+    virtual void    save( gzFile backup_file );
     void    clear_everything_except_dna_and_promoters();
 
     inline std::vector<Protein_R*> get_inherited_protein_list( void) const;

@@ -44,6 +44,11 @@
 #include "Individual_X11.h"
 #endif
 
+#ifdef __REGUL
+#include "raevol/Individual_R.h"
+#include "raevol/Habitat_R.h"
+#endif
+
 using std::cout;
 using std::endl;
 
@@ -66,8 +71,8 @@ namespace aevol {
 //                             Constructors
 // =================================================================
 GridCell::GridCell(int16_t x, int16_t y,
-                           std::unique_ptr<Habitat>&& habitat,
-                           Individual * indiv)
+                   std::unique_ptr<Habitat>&& habitat,
+                   Individual* indiv)
 {
   x_ = x;
   y_ = y;
@@ -104,9 +109,13 @@ void GridCell::save(gzFile backup_file,
   gzwrite(backup_file, &x_, sizeof(x_));
   gzwrite(backup_file, &y_, sizeof(y_));
 
+  #ifndef __REGUL
   habitat_->save(backup_file, skip_phenotypic_target);
-
   individual_->save(backup_file);
+  #else
+  (dynamic_cast<Habitat_R*> (habitat_.get()))->save(backup_file, skip_phenotypic_target);
+  (dynamic_cast<Individual_R*> (individual_))->save(backup_file);
+  #endif
 }
 
 void GridCell::load(gzFile backup_file,

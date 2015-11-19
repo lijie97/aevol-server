@@ -82,6 +82,8 @@ class Habitat_R : public virtual Habitat
   //                              Public Methods
   // ==========================================================================
   virtual void ApplyVariation();
+  virtual void save(gzFile backup_file,
+                    bool skip_phenotypic_target = false) const;
   virtual void load(gzFile backup_file,
                     PhenotypicTargetHandler_R* phenotypic_target_handler);
   // ==========================================================================

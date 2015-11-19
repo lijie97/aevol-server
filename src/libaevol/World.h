@@ -126,7 +126,7 @@ class World
   //                            Public Methods
   // =================================================================
   void InitGrid(int16_t width, int16_t height,
-                const Habitat& habitat,
+                Habitat& habitat,
                 bool share_phenotypic_target);
   void PlaceIndiv(Individual * indiv, int16_t x, int16_t y);
   void FillGridWithClones(Individual & dolly);
