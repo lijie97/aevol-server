@@ -155,10 +155,14 @@ void PhenotypicTargetHandler_R::ApplyVariation( Habitat_R& habitat ) {
 }
 
 void PhenotypicTargetHandler_R::BuildPhenotypicTargets() {
-  for (int8_t i = 0; i < phenotypic_target_models_.size() ; i++) {
+  // First of all we have to know how many models do we have :
+  int8_t nb_models = env_gaussians_list_.size();
+  //debug
+  printf("PhenotypicTargetHandler_R::BuildPhenotypicTargets : we have %d env\n", nb_models);
+  for (int8_t i = 0; i < nb_models ; i++) {
+    phenotypic_target_models_.push_back(new PhenotypicTarget_R());
     BuildPhenotypicTarget(i);
   }
-
 }
 
 void PhenotypicTargetHandler_R::BuildPhenotypicTarget( int8_t id) {
@@ -217,6 +221,15 @@ void PhenotypicTargetHandler_R::BuildPhenotypicTarget( int8_t id) {
 
   // Compute areas (total and by feature)
   phenotypic_target->ComputeArea();
+}
+
+void PhenotypicTargetHandler_R::print_geometric_areas() {
+  double area = 0.0;
+  for (int8_t i = 0; i < phenotypic_target_models_.size() ; i++) {
+    area = phenotypic_target_models_.at(i)->fuzzy()->get_geometric_area();
+    printf("Entire geometric area of the phenotypic target %d: %f\n", i,
+           area);
+  }
 }
 
 void PhenotypicTargetHandler_R::save(gzFile backup_file) const {

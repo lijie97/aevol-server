@@ -111,6 +111,7 @@ class Habitat_R : public virtual Habitat
   // ==========================================================================
   // This function keep only the last element of the vector
   void resetPhenotypicTargets();
+  void initializePhenotypicTargets(int nb_indiv_age);
   void addEnv( int8_t env_id );
 
  protected :

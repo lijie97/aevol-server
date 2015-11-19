@@ -89,6 +89,16 @@ Habitat_R::Habitat_R(gzFile backup_file,
     phenotypic_targets_.reserve(size);
   }
 
+  void Habitat_R::initializePhenotypicTargets(int nb_indiv_age) {
+    phenotypic_targets_.reserve(nb_indiv_age);
+    PhenotypicTarget_R* env_to_add;
+    for (int i = 0; i < nb_indiv_age; ++i) {
+      PhenotypicTarget_R* env_to_add = phenotypic_target_handler().model_pointer( 0 );
+      phenotypic_targets_.push_back(env_to_add);
+    }
+    ApplyVariation();  
+  }
+
   void Habitat_R::addEnv( int8_t env_id ) {
     PhenotypicTarget_R* env_to_add = phenotypic_target_handler().model_pointer( env_id );
     phenotypic_targets_.push_back(env_to_add);

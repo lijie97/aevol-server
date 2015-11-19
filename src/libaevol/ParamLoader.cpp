@@ -1518,11 +1518,18 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   phenotypic_target_handler.BuildPhenotypicTarget();
   #else
   phenotypic_target_handler.BuildPhenotypicTargets();
+  habitat.initializePhenotypicTargets( _nb_indiv_age);
   #endif
 
-  if (verbose)
+  if (verbose) {
+    #ifndef __REGUL 
     printf("Entire geometric area of the phenotypic target : %f\n",
            phenotypic_target_handler.get_geometric_area());
+    #else
+    phenotypic_target_handler.print_geometric_areas();
+    #endif
+  }
+    
 
 
   // 3) --------------------------------------------- Create the new population
@@ -1782,6 +1789,8 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   }
 
   // -------------------------------------------------------- Spatial structure
+  //debug
+  printf("Juste avant initialize world\n");
   exp_m->InitializeWorld(_grid_width, _grid_height,
                          world_prng,
                          habitat,
