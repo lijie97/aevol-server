@@ -255,8 +255,9 @@ void PhenotypicTargetHandler_R::print_geometric_areas() {
 }
 
 void PhenotypicTargetHandler_R::save(gzFile backup_file) const {
-  PhenotypicTargetHandler::save(backup_file);
   printf("Appel a la sauvegarde de PhenotypicTargetHandler_R\n");
+  PhenotypicTargetHandler::save(backup_file);
+  
   // Sauvegarde en plus
   gzwrite(backup_file, &env_switch_probability_, sizeof(env_switch_probability_));
 

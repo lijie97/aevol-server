@@ -324,8 +324,12 @@ void World::save(gzFile backup_file) const
   gzwrite(backup_file,
           &tmp_phenotypic_target_shared,
           sizeof(tmp_phenotypic_target_shared));
-  if (phenotypic_target_shared_)
+  if (phenotypic_target_shared_) {
+    printf("On est dans le cas d'un phenotypic target handler partagé\n");
     phenotypic_target_handler_->save(backup_file);
+    printf("Juste après sauvegarde de ce phenotypic_target_handler_\n");
+  }
+    
 
   gzwrite(backup_file, &width_,   sizeof(width_));
   gzwrite(backup_file, &height_,  sizeof(height_));

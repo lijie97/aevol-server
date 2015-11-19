@@ -89,10 +89,10 @@ class PhenotypicTargetHandler
   //                              Public Methods
   // ==========================================================================
   virtual void BuildPhenotypicTarget();
-  void ApplyVariation();
+  virtual void ApplyVariation();
 
-  void save(gzFile backup_file) const;
-  void load(gzFile backup_file);
+  virtual void save(gzFile backup_file) const;
+  virtual void load(gzFile backup_file);
 
   // ==========================================================================
   //                                 Getters

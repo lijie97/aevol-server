@@ -88,7 +88,7 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
   // ==========================================================================
   //                              Public Methods
   // ==========================================================================
-  void ApplyVariation( Habitat_R& habitat );
+  virtual void ApplyVariation( Habitat_R& habitat );
   void BuildPhenotypicTargets();
   void InitPhenotypicTargets();
   void BuildPhenotypicTarget( int8_t id);
@@ -96,8 +96,8 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
       Utils::ExitWithDevMsg("You should not call a phenotypic target without age id in RAevol", __FILE__, __LINE__);
   }
   void print_geometric_areas();
-  void save(gzFile backup_file) const;
-  void load(gzFile backup_file);
+  virtual void save(gzFile backup_file) const;
+  virtual void load(gzFile backup_file);
 
   // ==========================================================================
   //                                 Getters
