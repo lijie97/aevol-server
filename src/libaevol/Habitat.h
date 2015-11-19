@@ -102,6 +102,10 @@ class Habitat
     return *phenotypic_target_handler_;
   }
 
+  virtual double mean_environmental_area() const {
+    return phenotypic_target_handler_->phenotypic_target().area_by_feature(METABOLISM);
+  }
+
   // ==========================================================================
   //                                 Setters
   // ==========================================================================

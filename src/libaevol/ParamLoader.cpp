@@ -1792,7 +1792,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
 
   // -------------------------------------------------------- Spatial structure
   //debug
-  printf("Juste avant initialize world\n");
+  //printf("Juste avant initialize world\n");
   exp_m->InitializeWorld(_grid_width, _grid_height,
                          world_prng,
                          habitat,

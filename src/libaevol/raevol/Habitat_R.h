@@ -107,6 +107,15 @@ class Habitat_R : public virtual Habitat
     return *(dynamic_cast<PhenotypicTargetHandler_R*> (phenotypic_target_handler_));;
   }
 
+  virtual double mean_environmental_area() const{
+    double total_dist = 0.0;
+    for(int8_t i = 0; i<phenotypic_targets_.size(); i++) {
+      total_dist += phenotypic_targets_.at(i)->area_by_feature(METABOLISM);
+    }
+
+    return total_dist/(double) phenotypic_targets_.size();
+  }
+
   // ==========================================================================
   //                                 Setters
   // ==========================================================================

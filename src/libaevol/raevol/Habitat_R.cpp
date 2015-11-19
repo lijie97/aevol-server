@@ -87,19 +87,19 @@ Habitat_R::Habitat_R(gzFile backup_file,
     phenotypic_targets_.resize(1);
     phenotypic_targets_.at(0) = last_env;
     phenotypic_targets_.reserve(size);
-    printf("Taille de l'habitat après reset : %d\n", phenotypic_targets_.size());
+    //printf("Taille de l'habitat après reset : %d\n", phenotypic_targets_.size());
   }
 
   void Habitat_R::initializePhenotypicTargets(int nb_indiv_age) {
     phenotypic_targets_.clear();
-    printf("Taille de l'habitat après le clear dans initialize... : %d\n", phenotypic_targets_.size());
+    //printf("Taille de l'habitat après le clear dans initialize... : %d\n", phenotypic_targets_.size());
     phenotypic_targets_.reserve(nb_indiv_age);
     PhenotypicTarget_R* env_to_add;
     for (int i = 0; i < nb_indiv_age; ++i) {
       PhenotypicTarget_R* env_to_add = phenotypic_target_handler().model_pointer( 0 );
       phenotypic_targets_.push_back(env_to_add);
     }
-    printf("Taille de l'habitat avant applyvariation : %d\n", phenotypic_targets_.size());
+    //printf("Taille de l'habitat avant applyvariation : %d\n", phenotypic_targets_.size());
     ApplyVariation();  
   }
 

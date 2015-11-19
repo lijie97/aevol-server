@@ -109,7 +109,7 @@ void PhenotypicTargetHandler_R::ApplyVariation( Habitat_R& habitat ) {
       // A security in order to preserve the program from an infinite loop : while( id_new_env == id_old_env )
       int8_t nb_env_in_list = phenotypic_target_models_.size();
       int8_t last_age = habitat.number_of_phenotypic_targets();
-      printf("last_age = %d\n", last_age);
+      //printf("last_age = %d\n", last_age);
       if ( nb_env_in_list <= 1 )
       {
         break;
@@ -170,7 +170,7 @@ void PhenotypicTargetHandler_R::BuildPhenotypicTargets() {
   // First of all we have to know how many models do we have :
   int8_t nb_models = env_gaussians_list_.size();
   //debug
-  printf("PhenotypicTargetHandler_R::BuildPhenotypicTargets : we have %d env\n", nb_models);
+  //printf("PhenotypicTargetHandler_R::BuildPhenotypicTargets : we have %d env\n", nb_models);
   for (int8_t i = 0; i < nb_models ; i++) {
     phenotypic_target_models_.push_back(new PhenotypicTarget_R( i ));
     BuildPhenotypicTarget(i);
