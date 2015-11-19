@@ -109,6 +109,7 @@ void PhenotypicTargetHandler_R::ApplyVariation( Habitat_R& habitat ) {
       // A security in order to preserve the program from an infinite loop : while( id_new_env == id_old_env )
       int8_t nb_env_in_list = phenotypic_target_models_.size();
       int8_t last_age = habitat.number_of_phenotypic_targets();
+      printf("last_age = %d\n", last_age);
       if ( nb_env_in_list <= 1 )
       {
         break;
@@ -118,14 +119,25 @@ void PhenotypicTargetHandler_R::ApplyVariation( Habitat_R& habitat ) {
       habitat.resetPhenotypicTargets();
 
       // Shortcuts used :
-      PhenotypicTarget_R actual_env = habitat.phenotypic_target(0);
+      PhenotypicTarget_R actual_env = habitat.phenotypic_target(1);
       int8_t id_old_env = actual_env.get_id();
       int8_t id_new_env = 0;
 
-
+      //Special case for the first env that may change also :
+      if ( var_prng_->random() < env_switch_probability_)
+      {         
+        //we have to change to a new env that have an id different from the old one
+        while( id_new_env == id_old_env )
+        {
+          id_new_env = var_prng_->random(nb_env_in_list);
+        }
+        //The environment has changed
+        id_old_env = id_new_env;
+        habitat.changeEnv(0,id_new_env);
+      }
 
       // At each age we have to add the environment of this age to habitat
-      for (int8_t i = 0; i < last_age ; i++)
+      for (int8_t i = 1; i < last_age ; i++)
       {
         id_new_env = id_old_env;
 
@@ -160,7 +172,7 @@ void PhenotypicTargetHandler_R::BuildPhenotypicTargets() {
   //debug
   printf("PhenotypicTargetHandler_R::BuildPhenotypicTargets : we have %d env\n", nb_models);
   for (int8_t i = 0; i < nb_models ; i++) {
-    phenotypic_target_models_.push_back(new PhenotypicTarget_R());
+    phenotypic_target_models_.push_back(new PhenotypicTarget_R( i ));
     BuildPhenotypicTarget(i);
   }
 }

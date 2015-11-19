@@ -62,6 +62,7 @@ class PhenotypicTarget_R : public PhenotypicTarget
   //                               Constructors
   // ==========================================================================
   PhenotypicTarget_R(void); //< Default ctor
+  PhenotypicTarget_R(int8_t id);
   PhenotypicTarget_R(const PhenotypicTarget_R&); //< Copy ctor
   PhenotypicTarget_R(PhenotypicTarget_R&&) = delete; //< Move ctor
 

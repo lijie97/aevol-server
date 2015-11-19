@@ -57,6 +57,11 @@ PhenotypicTarget_R::PhenotypicTarget_R() {
   //signals_ = NULL;
 }
 
+PhenotypicTarget_R::PhenotypicTarget_R( int8_t id) {
+  id_ = id;
+  //signals_ = NULL;
+}
+
 PhenotypicTarget_R::PhenotypicTarget_R(const PhenotypicTarget_R& rhs) {
   id_ = rhs.id_;
   // WARNING MEMOIRE A GERER

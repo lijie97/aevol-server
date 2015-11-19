@@ -92,7 +92,8 @@ class Habitat_R : public virtual Habitat
   }
 
   const PhenotypicTarget_R& phenotypic_target(  int8_t age ) const {
-    return *phenotypic_targets_.at(age);
+    assert(age > 0 && age <= phenotypic_targets_.size);
+    return *phenotypic_targets_.at(age-1);
   }
 
   int8_t number_of_phenotypic_targets() const {
@@ -113,6 +114,7 @@ class Habitat_R : public virtual Habitat
   void resetPhenotypicTargets();
   void initializePhenotypicTargets(int nb_indiv_age);
   void addEnv( int8_t env_id );
+  void changeEnv( int8_t ind, int8_t env_id );
 
  protected :
   // ==========================================================================

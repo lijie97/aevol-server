@@ -176,6 +176,9 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat) {
   }
 
   std::set<int>* eval = get_exp_m()->get_exp_s()->get_list_eval_step();
+  printf("Nombre d'env dans l'habitat : %d\n", habitat.number_of_phenotypic_targets());
+
+  int8_t id = 0;
 
   // i is thus the age of the individual
   for (int8_t i = 1; i <= get_exp_m()->get_exp_s()->get_nb_indiv_age(); i++) {
@@ -183,9 +186,14 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat) {
       one_step();
     }
 
+    id = habitat.phenotypic_target(i).get_id();
+    printf("Id de l'env à l'instant %d : %d\n", i, id);
+
+
     if (eval->find(i) != eval->end())
     {
-      eval_step(habitat, i);
+      printf("Evaluation à l'age %d\n", i);
+      eval_step(habitat, i); 
     }
   }
 
@@ -254,11 +262,13 @@ void Individual_R::eval_step( const Habitat_R& habitat, int8_t age ) {
   }
 
   compute_distance_to_target( habitat.phenotypic_target( age ) );
+  printf("Dist to target à l'age %d du nouveau clone : %f\n", age, _dist_to_target_by_feature[METABOLISM]);
   _dist_sum += _dist_to_target_by_feature[METABOLISM];
 }
 
 
 void Individual_R::final_step( const Habitat_R& habitat, int8_t age ) {
+  printf("Nombre final d'évaluations : %d\n", get_exp_m()->get_exp_s()->get_list_eval_step()->size());
   _dist_to_target_by_feature[METABOLISM] = _dist_sum / (double) (get_exp_m()->get_exp_s()->get_list_eval_step()->size());
 
 
