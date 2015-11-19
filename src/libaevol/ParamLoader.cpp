@@ -980,6 +980,7 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
       _env_var_method = LOCAL_GAUSSIANS_VAR;
       _env_var_seed = atoi(line->words[2]);
     }
+      #ifdef __REGUL
     else if (strcmp(line->words[1], "switch_in_a_list") == 0)
     {
       if (line->nb_words != 3) {
@@ -993,6 +994,7 @@ void ParamLoader::interpret_line(ParameterLine * line, int32_t cur_line)
       _env_var_method = SWITCH_IN_A_LIST;
       _env_switch_probability = atof(line->words[2]);
     }
+    #endif
     else
     {
       printf("ERROR in param file \"%s\" on line %" PRId32
