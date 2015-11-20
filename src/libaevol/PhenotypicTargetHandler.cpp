@@ -264,7 +264,7 @@ void PhenotypicTargetHandler::ApplyAutoregressiveHeightVariation() {
 }
 
 void PhenotypicTargetHandler::save(gzFile backup_file) const {
-  printf("Appel a la sauvegarde de PhenotypicTargetHandler\n");
+  //printf("Appel a la sauvegarde de PhenotypicTargetHandler\n");
   // --------------------------------------------------------------------------
   //  Write phenotypic target segmentation
   phenotypic_target_->SaveSegmentation(backup_file);
@@ -321,7 +321,7 @@ void PhenotypicTargetHandler::save(gzFile backup_file) const {
 }
 
 void PhenotypicTargetHandler::load(gzFile backup_file) {
-  printf("Appel au chargement de PhenotypicTargetHandler\n");
+  //printf("Appel au chargement de PhenotypicTargetHandler\n");
   // --------------------------------------------------------------------------
   //  Retrieve phenotypic target segmentation
 #if __cplusplus == 201103L

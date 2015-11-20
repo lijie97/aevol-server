@@ -103,7 +103,7 @@ void PhenotypicTargetHandler_R::ApplyVariation() {
       //ApplyAutoregressiveHeightVariation();
       break;
     case SWITCH_IN_A_LIST : {
-      printf("ApplyVariation SWITCH_IN_A_LIST\n");
+      //printf("ApplyVariation SWITCH_IN_A_LIST\n");
       // Yoram : reprise du code que j'avais rajouté dans Raevol 3
       // Pour l'instant les signaux ne sont pas gérés, mais j'aimerais ne pas avoir à les gérer manuellement
 
@@ -170,8 +170,7 @@ void PhenotypicTargetHandler_R::print_geometric_areas() {
   double area = 0.0;
   for (int8_t i = 0; i < phenotypic_target_models_.size() ; i++) {
     area = phenotypic_target_models_.at(i)->fuzzy()->get_geometric_area();
-    printf("Entire geometric area of the phenotypic target %d: %f\n", i,
-           area);
+    printf("Entire geometric area of the phenotypic target %d: %f\n", i, area);
   }
 }
 
@@ -221,18 +220,24 @@ void PhenotypicTargetHandler_R::load(gzFile backup_file) {
   //Load gaussians :
   int8_t nb_gaussian_list = 0;
   int8_t nb_gaussians = 0;
-  std::list<Gaussian> current_gaussians;
   gzread(backup_file, &nb_gaussian_list, sizeof(nb_gaussian_list));
+  //printf("Loading %d gaussians list\n", nb_gaussian_list);
   for( int8_t i = 0; i<nb_gaussian_list; i++) {
     env_gaussians_list_.push_back( std::list<Gaussian>());
-    current_gaussians = env_gaussians_list_.back();
     gzread(backup_file, &nb_gaussians, sizeof(nb_gaussians));
-    for (int8_t i = 0 ; i < nb_gaussians ; i++) {
-      current_gaussians.push_back(Gaussian(backup_file));
+    //printf("There are %d gaussian in gaussians list %d\n", nb_gaussians, i);
+    for (int8_t j = 0 ; j < nb_gaussians ; j++) {
+      env_gaussians_list_.back().push_back(Gaussian(backup_file));
+      //printf("Nb gaussians in current_gaussians : %d\n", env_gaussians_list_.back().size());
+      /*printf("Gaussian %d. Height = %f, Mean = %f, width = %f\n",j, 
+       env_gaussians_list_.back().back().get_height(),
+       env_gaussians_list_.back().back().get_mean(),
+       env_gaussians_list_.back().back().get_width()
+        );*/
     }
   }
 
-  // Now that gaussians are loader we can build our PhenotypicTargetsModels
+  // Now that gaussians are loaded we can build our PhenotypicTargetsModels
   InitPhenotypicTargetsModels();
 
   //load segmentation :
@@ -264,7 +269,7 @@ void PhenotypicTargetHandler_R::InitPhenotypicTargetsModels() {
   // First of all we have to know how many models do we have :
   int8_t nb_models = env_gaussians_list_.size();
   //debug
-  //printf("PhenotypicTargetHandler_R::BuildPhenotypicTargets : we have %d env\n", nb_models);
+  //printf("PhenotypicTargetHandler_R::InitPhenotypicTargets : we have %d env\n", nb_models);
   for (int8_t i = 0; i < nb_models ; i++) {
     phenotypic_target_models_.push_back(new PhenotypicTarget_R( i ));
   }
@@ -281,9 +286,12 @@ void PhenotypicTargetHandler_R::BuildPhenotypicTargetsModels() {
 }
 
 void PhenotypicTargetHandler_R::BuildPhenotypicTargetModel( int8_t id) {
+  //printf("Appel a BuildPhenotypicTargetModel avec id = %d\n", id);
   // NB : Extreme points (at abscissa X_MIN and X_MAX) will be generated, we need to erase the list first
   PhenotypicTarget_R* phenotypic_target = phenotypic_target_models_.at(id);
   phenotypic_target->fuzzy()->reset();
+
+  //printf("On a %d gaussiennes\n", env_gaussians_list_.at(id).size());
 
   // Generate sample points from gaussians
   if (not env_gaussians_list_.at(id).empty()) {
@@ -292,6 +300,7 @@ void PhenotypicTargetHandler_R::BuildPhenotypicTargetModel( int8_t id) {
           X_MIN + (double) i * (X_MAX - X_MIN) / (double) sampling_, 0.0);
       for (const Gaussian& g: env_gaussians_list_.at(id))
         new_point.y += g.compute_y(new_point.x);
+      //printf("Ajout du point x = %f, y = %f\n", new_point.x, new_point.y);
       phenotypic_target->fuzzy()->add_point(new_point.x, new_point.y);
     }
 
@@ -334,6 +343,8 @@ void PhenotypicTargetHandler_R::BuildPhenotypicTargetModel( int8_t id) {
 
   // Compute areas (total and by feature)
   phenotypic_target->ComputeArea();
+  double area = phenotypic_target->fuzzy()->get_geometric_area();
+    //printf("Entire geometric area of the phenotypic target %d: %f\n", id, area);
 }
 
 void PhenotypicTargetHandler_R::ResetPhenotypicTargets() {

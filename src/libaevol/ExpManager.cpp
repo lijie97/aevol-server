@@ -134,9 +134,9 @@ void ExpManager::InitializeWorld(int16_t grid_width,
 void ExpManager::Save() const
 {
   WriteSetupFiles();
-  printf("Appel a _output_m->write_current_generation_outputs\n");
+  //printf("Appel a _output_m->write_current_generation_outputs\n");
   _output_m->write_current_generation_outputs();
-  printf("Après _output_m->write_current_generation_outputs\n");
+  //printf("Après _output_m->write_current_generation_outputs\n");
 }
 
 /*!
@@ -173,11 +173,11 @@ void ExpManager::WriteSetupFiles() const
   open_setup_files(exp_s_file, out_p_file, AeTime::get_time(), "w");
 
   // 4) Write setup data
-  printf("Appel a _exp_s->write_setup_file\n");
+  //printf("Appel a _exp_s->write_setup_file\n");
   _exp_s->write_setup_file(exp_s_file);
-  printf("Appel a _output_m->WriteSetupFile\n");
+  //printf("Appel a _output_m->WriteSetupFile\n");
   _output_m->WriteSetupFile(out_p_file);
-  printf("Après _output_m->WriteSetupFile\n");
+  //printf("Après _output_m->WriteSetupFile\n");
   // 5) Close setup files
   close_setup_files(exp_s_file, out_p_file);
 }

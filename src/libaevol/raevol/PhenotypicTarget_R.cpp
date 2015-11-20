@@ -79,18 +79,17 @@ PhenotypicTarget_R::~PhenotypicTarget_R() {
 //                                   Methods
 // ============================================================================
   void PhenotypicTarget_R::save(gzFile backup_file) const {
-    printf("Appel a la sauvegarde de PhenotypicTarget_R\n");
+    //printf("Appel a la sauvegarde de PhenotypicTarget_R\n");
     SaveSegmentation(backup_file);
     // Backup id
     gzwrite(backup_file, &id_, sizeof(id_));
   }
 
   void PhenotypicTarget_R::load(gzFile backup_file) {
-    printf("Appel au chargement de PhenotypicTarget_R\n");
+    //printf("Appel au chargement de PhenotypicTarget_R\n");
     LoadSegmentation(backup_file);
     //  Retrieve id
     gzread(backup_file, &id_, sizeof(id_));
-
   }
 
 // ============================================================================
