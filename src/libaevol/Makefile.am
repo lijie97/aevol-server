@@ -85,7 +85,8 @@ World.h \
 AeTime.h \
 World.h \
 make_unique.h \
-ae_logger.h
+ae_logger.h \
+HabitatFactory.h
 
 common_sources = \
 Alignment.cpp \
@@ -135,7 +136,8 @@ Habitat.cpp \
 ParamLoader.cpp \
 ParameterLine.cpp \
 AeTime.cpp \
-World.cpp
+World.cpp \
+HabitatFactory.cpp
 
 raevol_headers = \
 raevol/Individual_R.h \
