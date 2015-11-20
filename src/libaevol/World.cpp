@@ -31,6 +31,7 @@
 //                              Includes
 // =================================================================
 #include "World.h"
+#include "HabitatFactory.h"
 
 #if __cplusplus == 201103L
 #include "make_unique.h"
@@ -107,23 +108,7 @@ void World::InitGrid(int16_t width, int16_t height,
       if (share_phenotypic_target)
         grid_[x][y] =
             new GridCell(x, y,
-#ifndef __REGUL
-#if __cplusplus == 201103L
-                             make_unique<Habitat>
-                                 (habitat, share_phenotypic_target),
-#else
-                             std::make_unique<Habitat>
-                                 (habitat, share_phenotypic_target),
-#endif
-#else
-#if __cplusplus == 201103L
-                             make_unique<Habitat_R>
-                                 (dynamic_cast<Habitat_R&>(habitat), share_phenotypic_target),
-#else
-                             std::make_unique<Habitat_R>
-                                 (dynamic_cast<Habitat_R&>(habitat), share_phenotypic_target),
-#endif
-#endif
+                HabitatFactory::create_unique_habitat(habitat,share_phenotypic_target),
                              NULL);
     }
 }
