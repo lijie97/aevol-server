@@ -125,12 +125,14 @@ void GridCell::load(gzFile backup_file,
   gzread(backup_file, &x_, sizeof(x_));
   gzread(backup_file, &y_, sizeof(y_));
 
+
 #if __cplusplus == 201103L
   habitat_ = make_unique<Habitat>(backup_file, phenotypic_target_handler);
 #else
   habitat_ = std::make_unique<Habitat>(backup_file, phenotypic_target_handler);
 #endif
 
+  // Create individual se charge de retourner un individual_R pour RAevol
   individual_ = Individual::CreateIndividual(exp_m, backup_file);
 
   individual_->set_grid_cell(this);

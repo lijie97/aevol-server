@@ -193,7 +193,7 @@ void PhenotypicTargetHandler_R::BuildPhenotypicTarget( int8_t id) {
   phenotypic_target->fuzzy()->reset();
 
   // Generate sample points from gaussians
-  if (not env_gaussians_list_.empty()) {
+  if (not env_gaussians_list_.at(id).empty()) {
     for (int16_t i = 0; i <= sampling_; i++) {
       Point new_point = Point(
           X_MIN + (double) i * (X_MAX - X_MIN) / (double) sampling_, 0.0);
