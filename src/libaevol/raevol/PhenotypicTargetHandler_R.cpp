@@ -232,8 +232,6 @@ void PhenotypicTargetHandler_R::BuildPhenotypicTarget( int8_t id) {
       }
     }
   }
-
-
   // Add lower and upper bounds
   phenotypic_target->fuzzy()->clip(AbstractFuzzy::min, Y_MIN);
   phenotypic_target->fuzzy()->clip(AbstractFuzzy::max, Y_MAX);
@@ -255,8 +253,9 @@ void PhenotypicTargetHandler_R::print_geometric_areas() {
 }
 
 void PhenotypicTargetHandler_R::save(gzFile backup_file) const {
-  PhenotypicTargetHandler::save(backup_file);
   printf("Appel a la sauvegarde de PhenotypicTargetHandler_R\n");
+  PhenotypicTargetHandler::save(backup_file);
+  
   // Sauvegarde en plus
   gzwrite(backup_file, &env_switch_probability_, sizeof(env_switch_probability_));
 
@@ -281,8 +280,8 @@ void PhenotypicTargetHandler_R::save(gzFile backup_file) const {
 }
 
 void PhenotypicTargetHandler_R::load(gzFile backup_file) {
-  PhenotypicTargetHandler::load(backup_file);
   printf("Appel au chargement de PhenotypicTargetHandler_R\n");
+  PhenotypicTargetHandler::load(backup_file);
   // Chargement en plus
   gzread(backup_file, &env_switch_probability_, sizeof(env_switch_probability_));
 
