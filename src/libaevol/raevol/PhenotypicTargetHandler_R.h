@@ -89,13 +89,7 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
   //                              Public Methods
   // ==========================================================================
   virtual void ApplyVariation();
-  void ApplyVariation( Habitat_R& habitat );
-  void BuildPhenotypicTargets();
-  void InitPhenotypicTargets();
-  void BuildPhenotypicTarget( int8_t id);
-  /*virtual void BuildPhenotypicTarget() {
-      Utils::ExitWithDevMsg("You should not call a phenotypic target without age id in RAevol", __FILE__, __LINE__);
-  }*/
+  void InitPhenotypicTargetsAndModels(int8_t nb_indiv_age);
   void print_geometric_areas();
   virtual void save(gzFile backup_file) const;
   virtual void load(gzFile backup_file);
@@ -103,8 +97,31 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
   // ==========================================================================
   //                                 Getters
   // ==========================================================================
-  PhenotypicTarget_R* model_pointer(int8_t env_id) const{
-    return phenotypic_target_models_.at(env_id);
+  const std::vector<PhenotypicTarget_R*>& phenotypic_targets() const {
+    return phenotypic_targets_;
+  }
+
+  const PhenotypicTarget_R& phenotypic_target_model(int8_t env_id) const {
+    assert(env_id > 0 && env_id <= phenotypic_target_models_.size());
+    return *(phenotypic_target_models_.at(env_id));
+  }
+
+  const PhenotypicTarget_R& phenotypic_target(int8_t age) const {
+    assert(age > 0 && age <= phenotypic_targets_.size());
+    return *(phenotypic_targets_.at(age-1));
+  }
+
+  int8_t number_of_phenotypic_targets() const {
+    return phenotypic_targets_.size();
+  }
+
+  virtual double mean_environmental_area() const {
+    double total_dist = 0.0;
+    for(int8_t i = 0; i<phenotypic_targets_.size(); i++) {
+      total_dist += phenotypic_targets_.at(i)->area_by_feature(METABOLISM);
+    }
+
+    return total_dist/(double) phenotypic_targets_.size();
   }
 
   // ==========================================================================
@@ -122,23 +139,32 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
                         double* boundaries,
                         PhenotypicFeature * features,
                         bool separate_segments = false) {
-    for(PhenotypicTarget_R* phenotypic_target : phenotypic_target_models_)
-    phenotypic_target->set_segmentation(nb_segments,
+    for(PhenotypicTarget_R* phenotypic_target : phenotypic_target_models_) {
+      phenotypic_target->set_segmentation(nb_segments,
                                          boundaries,
                                          features,
                                          separate_segments);
-  };
+    }
+  }
 
  protected :
   // ==========================================================================
   //                            Protected Methods
   // ==========================================================================
-
+  void InitPhenotypicTargetsModels();
+  void BuildPhenotypicTargetsModels();
+  void BuildPhenotypicTargetModel( int8_t id);
+  // This function keep only the last element of the vector
+  void ResetPhenotypicTargets();
+  void InitPhenotypicTargets(int8_t nb_indiv_age);
+  void addEnv( int8_t env_id );
+  void changeEnv( int8_t ind, int8_t env_id );
 
   // ==========================================================================
   //                               Attributes
   // ==========================================================================
   std::vector<PhenotypicTarget_R*> phenotypic_target_models_;
+  std::vector<PhenotypicTarget_R*> phenotypic_targets_;
   std::vector<std::list<Gaussian>> env_gaussians_list_;
   double env_switch_probability_;
 };

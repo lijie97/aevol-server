@@ -118,7 +118,7 @@ Individual_R::Individual_R(ExpManager* exp_m, gzFile backup_file) : Individual( 
   if( get_exp_m()->get_exp_s()->get_with_heredity() )
   {
     // Retreive inherited proteins
-//    _inherited_protein_list = new ae_list();
+    // _inherited_protein_list = new ae_list();
     int16_t nb_inherited_proteins = 0;
     gzread( backup_file, &nb_inherited_proteins,  sizeof(nb_inherited_proteins) );
   
@@ -353,7 +353,7 @@ int8_t Individual_R::get_quadon( const GeneticUnit* gen_unit, Strand strand, int
 
 void Individual_R::save( gzFile backup_file )
 {
-  printf("Appel à la sauvegarde de Individual_R\n");
+  //printf("Appel à la sauvegarde de Individual_R\n");
   Individual::save( backup_file );
   // Test if there is heredity, and if the generation is the first one (no inherited protein list).
   if (this->get_exp_m()->get_exp_s()->get_with_heredity() && !_inherited_protein_list.empty() )

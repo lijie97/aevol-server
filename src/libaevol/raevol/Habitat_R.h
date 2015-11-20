@@ -94,12 +94,11 @@ class Habitat_R : public virtual Habitat
   }
 
   const PhenotypicTarget_R& phenotypic_target(  int8_t age ) const {
-    assert(age > 0 && age <= phenotypic_targets_.size);
-    return *phenotypic_targets_.at(age-1);
+    return (dynamic_cast<PhenotypicTargetHandler_R*>(phenotypic_target_handler_))->phenotypic_target( age );
   }
 
   int8_t number_of_phenotypic_targets() const {
-    return phenotypic_targets_.size();
+    return (dynamic_cast<PhenotypicTargetHandler_R*>(phenotypic_target_handler_))->number_of_phenotypic_targets();
   }
 
   virtual const PhenotypicTargetHandler_R& phenotypic_target_handler() const {
@@ -109,23 +108,10 @@ class Habitat_R : public virtual Habitat
     return *(dynamic_cast<PhenotypicTargetHandler_R*> (phenotypic_target_handler_));;
   }
 
-  virtual double mean_environmental_area() const{
-    double total_dist = 0.0;
-    for(int8_t i = 0; i<phenotypic_targets_.size(); i++) {
-      total_dist += phenotypic_targets_.at(i)->area_by_feature(METABOLISM);
-    }
-
-    return total_dist/(double) phenotypic_targets_.size();
-  }
-
   // ==========================================================================
   //                                 Setters
   // ==========================================================================
-  // This function keep only the last element of the vector
-  void resetPhenotypicTargets();
-  void initializePhenotypicTargets(int nb_indiv_age);
-  void addEnv( int8_t env_id );
-  void changeEnv( int8_t ind, int8_t env_id );
+
 
  protected :
   // ==========================================================================
@@ -135,7 +121,6 @@ class Habitat_R : public virtual Habitat
   // ==========================================================================
   //                               Attributes
   // ==========================================================================
-  std::vector<PhenotypicTarget_R*> phenotypic_targets_;
 };
 
 

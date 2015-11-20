@@ -1602,7 +1602,7 @@ void Individual::compute_non_coding() {
 }
 
 void Individual::save(gzFile backup_file) const {
-  printf("Appel à la sauvegarde de Individual\n");
+  //printf("Appel à la sauvegarde de Individual\n");
   // Write the name and "age" of the strain
   int8_t strain_string_len = strlen(_strain_name);
   gzwrite(backup_file, &strain_string_len, sizeof(strain_string_len));

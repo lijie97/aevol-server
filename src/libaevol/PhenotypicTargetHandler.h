@@ -99,10 +99,10 @@ class PhenotypicTargetHandler
   // ==========================================================================
   const PhenotypicTarget& phenotypic_target() const {
     return *phenotypic_target_;
-  };
+  }
   double get_geometric_area() const {
     return phenotypic_target_->fuzzy()->get_geometric_area();
-  };
+  }
   double area_by_feature(int8_t feature) const {
     return phenotypic_target_->area_by_feature(feature);
   }
@@ -111,6 +111,10 @@ class PhenotypicTargetHandler
   }
   const PhenotypicTargetVariationMethod& var_method() const {
     return var_method_;
+  }
+
+  virtual double mean_environmental_area() const {
+    return phenotypic_target_->area_by_feature(METABOLISM);
   }
 
   // ==========================================================================
@@ -130,7 +134,7 @@ class PhenotypicTargetHandler
                                          boundaries,
                                          features,
                                          separate_segments);
-  };
+  }
   void set_var_method(PhenotypicTargetVariationMethod var_method) {
     var_method_ = var_method;
   }

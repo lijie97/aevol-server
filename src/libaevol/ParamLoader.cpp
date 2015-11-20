@@ -1519,9 +1519,7 @@ void ParamLoader::load(ExpManager * exp_m, bool verbose,
   #ifndef __REGUL
   phenotypic_target_handler.BuildPhenotypicTarget();
   #else
-  phenotypic_target_handler.InitPhenotypicTargets();
-  phenotypic_target_handler.BuildPhenotypicTargets();
-  habitat.initializePhenotypicTargets( _nb_indiv_age );
+  phenotypic_target_handler.InitPhenotypicTargetsAndModels( _nb_indiv_age );
   #endif
 
   if (verbose) {
