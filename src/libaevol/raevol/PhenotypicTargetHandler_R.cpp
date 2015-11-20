@@ -88,6 +88,27 @@ PhenotypicTargetHandler_R::~PhenotypicTargetHandler_R() {
 // ============================================================================
 //                                   Methods
 // ============================================================================
+void PhenotypicTargetHandler_R::ApplyVariation() {
+  switch (var_method_) {
+    case NO_VAR :
+      return;
+    case AUTOREGRESSIVE_MEAN_VAR :
+      Utils::ExitWithDevMsg("Not implemented yet", __FILE__, __LINE__);
+      //ApplyAutoregressiveMeanVariation();
+      break;
+    case AUTOREGRESSIVE_HEIGHT_VAR :
+      Utils::ExitWithDevMsg("Not implemented yet", __FILE__, __LINE__);
+      //ApplyAutoregressiveHeightVariation();
+      break;
+    case SWITCH_IN_A_LIST : {
+      //TODO
+      break; }
+    default :
+      Utils::ExitWithDevMsg("Unknown variation method", __FILE__, __LINE__);
+      break;
+    }
+}
+
 
 void PhenotypicTargetHandler_R::ApplyVariation( Habitat_R& habitat ) {
   switch (var_method_) {
@@ -109,8 +130,7 @@ void PhenotypicTargetHandler_R::ApplyVariation( Habitat_R& habitat ) {
       int8_t nb_env_in_list = phenotypic_target_models_.size();
       int8_t last_age = habitat.number_of_phenotypic_targets();
       //printf("last_age = %d\n", last_age);
-      if ( nb_env_in_list <= 1 )
-      {
+      if ( nb_env_in_list <= 1 ) {
         break;
       }
 
@@ -123,11 +143,9 @@ void PhenotypicTargetHandler_R::ApplyVariation( Habitat_R& habitat ) {
       int8_t id_new_env = 0;
 
       //Special case for the first env that may change also :
-      if ( var_prng_->random() < env_switch_probability_)
-      {         
+      if ( var_prng_->random() < env_switch_probability_) {         
         //we have to change to a new env that have an id different from the old one
-        while( id_new_env == id_old_env )
-        {
+        while( id_new_env == id_old_env ) {
           id_new_env = var_prng_->random(nb_env_in_list);
         }
         //The environment has changed
@@ -136,16 +154,13 @@ void PhenotypicTargetHandler_R::ApplyVariation( Habitat_R& habitat ) {
       }
 
       // At each age we have to add the environment of this age to habitat
-      for (int8_t i = 1; i < last_age ; i++)
-      {
+      for (int8_t i = 1; i < last_age ; i++) {
         id_new_env = id_old_env;
 
         // if we have to change of environment :
-        if ( var_prng_->random() < env_switch_probability_)
-        {         
+        if ( var_prng_->random() < env_switch_probability_) {         
           //we have to change to a new env that have an id different from the old one
-          while( id_new_env == id_old_env )
-          {
+          while( id_new_env == id_old_env ) {
             id_new_env = var_prng_->random(nb_env_in_list);
           }
           //The environment has changed

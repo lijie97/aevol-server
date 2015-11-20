@@ -45,6 +45,7 @@
 //                            Project Files
 // =================================================================
 #include "Individual.h"
+#include "HabitatFactory.h"
 #ifndef __REGUL
 #include "Habitat.h"
 #else

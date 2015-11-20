@@ -83,6 +83,7 @@ Habitat::Habitat(gzFile backup_file,
 //                                   Methods
 // ============================================================================
 void Habitat::ApplyVariation() {
+  printf("Appel au apply_variation de habitat\n");
   phenotypic_target_handler_->ApplyVariation();
 }
 

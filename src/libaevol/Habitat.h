@@ -82,7 +82,7 @@ class Habitat
   // ==========================================================================
   //                              Public Methods
   // ==========================================================================
-  void ApplyVariation();
+  virtual void ApplyVariation();
   void save(gzFile backup_file,
             bool skip_phenotypic_target = false) const;
   void load(gzFile backup_file,

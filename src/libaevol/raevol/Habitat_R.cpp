@@ -120,6 +120,7 @@ Habitat_R::Habitat_R(gzFile backup_file,
 //                                   Methods
 // ============================================================================
 void Habitat_R::ApplyVariation() {
+  printf("Appel au apply_variation de habitat_R\n");
   dynamic_cast<PhenotypicTargetHandler_R*>(phenotypic_target_handler_)->ApplyVariation( *this );
 }
 void Habitat_R::save(gzFile backup_file,

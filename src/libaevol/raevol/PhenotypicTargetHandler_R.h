@@ -88,7 +88,8 @@ class PhenotypicTargetHandler_R : public virtual PhenotypicTargetHandler
   // ==========================================================================
   //                              Public Methods
   // ==========================================================================
-  virtual void ApplyVariation( Habitat_R& habitat );
+  virtual void ApplyVariation();
+  void ApplyVariation( Habitat_R& habitat );
   void BuildPhenotypicTargets();
   void InitPhenotypicTargets();
   void BuildPhenotypicTarget( int8_t id);
