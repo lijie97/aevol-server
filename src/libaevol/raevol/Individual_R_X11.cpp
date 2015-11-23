@@ -185,12 +185,12 @@ void Individual_R_X11::display_concentrations( X11Window* win )
                         (int16_t)((win->get_width() / 10) + (( i + 1)  * x_step)),
                         (int16_t)((9 * win->get_height() / 10)-(((Protein_R*)prot)->get_concentration()*y_step)) ,color2);
         concentrations[proti]=((Protein_R*)prot)->get_concentration();
-        printf("%d -- %f (%f) | ",proti,((Protein_R*)prot)->get_concentration(),((Protein_R*)prot)->get_mean());
+        //printf("%d -- %f (%f) | ",proti,((Protein_R*)prot)->get_concentration(),((Protein_R*)prot)->get_mean());
 
         delete[] color2;
         proti++;
       }
-    printf("\n");
+    //printf("\n");
   }
 
   //_protein_list.clear();
@@ -424,7 +424,7 @@ void Individual_R_X11::display_regulation( X11Window* win )
   delete[] color;
 }
 
-void Individual_R_X11::display_phenotype( X11Window* win )
+void Individual_R_X11::display_phenotype( X11Window* win, const Habitat_R& habitat )
 {
   double dist_temp = 0;
   char* color = new char[8];
@@ -504,8 +504,13 @@ void Individual_R_X11::display_phenotype( X11Window* win )
     update_phenotype();
 
     //  if (!(indiv_age % 2))
-    dynamic_cast<ExpManager_X11*>(get_exp_m())->display_3D(win, *_phenotype, WHITE, (life_time * 5) - (5 * i), (life_time * -3) + (3 * i),true);
-    dynamic_cast<ExpManager_X11*>(get_exp_m())->display_3D(win, *(habitat().phenotypic_target().fuzzy()), RED, (life_time * 5) - (5 * i), (life_time * -3) + (3 * i), false);
+    dynamic_cast<ExpManager_X11*>(get_exp_m())->display_3D(win, *_phenotype,
+                                                           WHITE, (life_time * 5) - (5 * i), (life_time * -3) + (3 * i),true);
+
+    dynamic_cast<ExpManager_X11*>(get_exp_m())->display_3D(win, *(habitat.phenotypic_target(i ).fuzzy()),
+                                                           RED, (life_time * 5) - (5 * i), (life_time * -3) + (3 * i), false);
+
+
     // if we have to change of environment
     /*if( ae_common::individual_environment_dates->search(indiv_age) != -1)
     {
@@ -525,37 +530,23 @@ void Individual_R_X11::display_phenotype( X11Window* win )
       }
     }*/
 
+
     // if its an evaluation date
     if (eval->find(i) != eval->end()) {
       //  printf("indiv_age : %d\n",indiv_age);
       dynamic_cast<ExpManager_X11*>(get_exp_m())->display_3D(win, *_phenotype, RED,  (life_time * 5) - (5 * i), (life_time * -3) + (3 * i),false);
       //    compute_distance_to_target( envir );
-
-      // Compute the difference between the (whole) phenotype and the environment
-      AbstractFuzzy* delta = FuzzyFactory::fuzzyFactory->create_fuzzy( *_phenotype );
-      delta->sub( *(habitat().phenotypic_target().fuzzy()) );
-      double dist_to_target = 0;
-
-      if ( habitat().phenotypic_target().nb_segments() == 1 )
-      {
-        dist_to_target = delta->get_geometric_area();
-      } else {
-        PhenotypicSegment ** segments = habitat().phenotypic_target().segments();
-        for (size_t i = 0 ; i < static_cast<size_t>(habitat().phenotypic_target().nb_segments()) ; i++) {
-          if (segments[i]->feature == METABOLISM) {
-            dist_to_target += delta->get_geometric_area(
-                segments[i]->start, segments[i]->stop);
-          }
-        }
+      for (int i=0; i<NB_FEATURES; i++) {
+        _dist_to_target_by_feature[i] = 0;
       }
 
-      delete delta;
+      compute_distance_to_target( habitat.phenotypic_target( i ) );
 
-      dist_temp += dist_to_target;
+      dist_temp += _dist_to_target_by_feature[METABOLISM];
       nb_eval++;
 
       //Draw the intermediate evaluation result
-      sprintf( display_string, " t = %" PRId32 ", dist_to_target =  %lf",i,dist_to_target);
+      sprintf( display_string, " t = %" PRId32 ", dist_to_target =  %lf",i,_dist_to_target_by_feature[METABOLISM]);
       win->draw_string( 15, 15*nb_eval, display_string );
     }
   }

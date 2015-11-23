@@ -572,13 +572,13 @@ void ExpManager_X11::display_3D(X11Window * win,
         for (int16_t i = cur_x; i < next_x; i++) {
           fill_color = X11Window::get_color(
               ((double) i / win->get_width()) * (X_MAX - X_MIN));
-          win->draw_line(i, (1 - ((0 - y_min) / delta_y)) * win->get_height(),
-                         i, cur_y + (((i - cur_x) * (next_y - cur_y)) /
+          win->draw_line(i + x0, (1 - ((0 - y_min) / delta_y)) * win->get_height(),
+                         i + x0, y0 + cur_y + (((i - cur_x) * (next_y - cur_y)) /
                                      (next_x - cur_x)), fill_color);
           delete[] fill_color;
         }
       }
-      win->draw_line(cur_x, cur_y, next_x, next_y, color);
+      win->draw_line(cur_x + x0, cur_y + y0, next_x + x0, next_y + y0, color);
     }
   } else {
     //  ae_list_node* node        = _points->get_first();
@@ -1048,14 +1048,14 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
           display(cur_win, *(indiv->get_genetic_unit(1).get_phenotypic_contribution()), GREEN);
         }
         #else
-        Individual_R_X11* indiv_r = dynamic_cast<Individual_R_X11*>(indiv);
+        /*Individual_R_X11* indiv_r = dynamic_cast<Individual_R_X11*>(indiv);
 
         display(cur_win, *(indiv_r->get_phenotype()), BLUE);
         if (indiv_r->get_allow_plasmids())
         {
           display(cur_win, *(indiv_r->get_genetic_unit(0).get_phenotypic_contribution()), YELLOW);
           display(cur_win, *(indiv_r->get_genetic_unit(1).get_phenotypic_contribution()), GREEN);
-        }
+        }*/
         #endif
       }
 
@@ -1065,7 +1065,7 @@ void ExpManager_X11::refresh_window(int8_t win_number) {
       display(cur_win, *(phenotypic_target.fuzzy()), RED, false, true);
       #else
       Individual_R_X11* indiv_r = dynamic_cast<Individual_R_X11*>(get_best_indiv());
-      indiv_r->display_phenotype(cur_win);
+      indiv_r->display_phenotype(cur_win, dynamic_cast<const Habitat_R&>(get_best_indiv()->get_grid_cell()->habitat()));
       //display_3D(cur_win, *(indiv_r->get_phenotype()), WHITE, true);
       #endif
 

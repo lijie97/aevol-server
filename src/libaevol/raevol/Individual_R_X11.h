@@ -83,7 +83,7 @@ class Individual_R_X11 : public Individual_R, Individual_X11
     // =================================================================
     virtual void display_regulation( X11Window* win );
     virtual void display_concentrations( X11Window* win );
-    virtual void display_phenotype( X11Window* win );
+    virtual void display_phenotype( X11Window* win, const Habitat_R& habitat );
     // =================================================================
     //                           Public Attributes
     // =================================================================

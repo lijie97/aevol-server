@@ -120,6 +120,8 @@ class Individual_R : public virtual Individual
 
     inline std::vector<Protein_R*> get_inherited_protein_list( void) const;
     inline void set_networked( bool networked );
+
+
     // =================================================================
     //                           Public Attributes
     // =================================================================

@@ -186,7 +186,7 @@ void Individual_R::EvaluateInContext(const Habitat_R& habitat) {
       one_step();
     }
 
-    id = habitat.phenotypic_target(i).get_id();
+    //id = habitat.phenotypic_target(i).get_id();
     //printf("Id de l'env à l'instant %d : %d\n", i, id);
 
 
