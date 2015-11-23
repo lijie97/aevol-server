@@ -62,42 +62,7 @@ namespace aevol {
 // ============================================================================
 //                                   Methods
 // ============================================================================
-int32_t Utils::mod(int32_t a, int32_t b)
-{
-  assert(b > 0);
 
-  while (a < 0)  a += b;
-  while (a >= b) a -= b;
-
-  return a;
-}
-
-int64_t Utils::mod(int64_t a, int64_t b)
-{
-  assert(b > 0);
-
-  while (a < 0)  a += b;
-  while (a >= b) a -= b;
-
-  return a;
-}
-
-int32_t Utils::min(int32_t a, int32_t b)
-{
-  return ((a < b)? a : b);
-}
-
-int32_t Utils::max(int32_t a, int32_t b)
-{
-  return ((a > b)? a : b);
-}
-
-void Utils::exchange(int32_t& a, int32_t& b)
-{
-  int32_t tmp = a;
-  a = b;
-  b = tmp;
-}
 
 /**
  * Compute value(t+1) with the provided parameters and prng

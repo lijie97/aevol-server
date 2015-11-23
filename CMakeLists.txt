@@ -4,4 +4,4 @@ project(aevol_regul)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set(SOURCE_FILES main.cpp)
-add_executable(aevol_regul ${SOURCE_FILES})
+add_executable(aevol_regul ${SOURCE_FILES} src/libaevol/HabitatFactory.cpp src/libaevol/HabitatFactory.h)

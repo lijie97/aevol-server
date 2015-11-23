@@ -298,9 +298,11 @@ void PhenotypicTargetHandler_R::BuildPhenotypicTargetModel( int8_t id) {
     for (int16_t i = 0; i <= sampling_; i++) {
       Point new_point = Point(
           X_MIN + (double) i * (X_MAX - X_MIN) / (double) sampling_, 0.0);
-      for (const Gaussian& g: env_gaussians_list_.at(id))
+      int gi = 0;
+      for (const Gaussian& g: env_gaussians_list_.at(id)) {
+        gi++;
         new_point.y += g.compute_y(new_point.x);
-      //printf("Ajout du point x = %f, y = %f\n", new_point.x, new_point.y);
+      }
       phenotypic_target->fuzzy()->add_point(new_point.x, new_point.y);
     }
 

@@ -50,11 +50,11 @@ class Utils
   Utils(const Utils&) = delete;
   Utils(Utils&&) = delete;
   ~Utils() = delete;
-  static int32_t mod(int32_t a, int32_t b);
-  static int64_t mod(int64_t a, int64_t b);
-  static int32_t min(int32_t a, int32_t b);
-  static int32_t max(int32_t a, int32_t b);
-  static void exchange(int32_t& a, int32_t& b);
+  static inline int32_t mod(int32_t a, int32_t b);
+  static inline int64_t mod(int64_t a, int64_t b);
+  static inline int32_t min(int32_t a, int32_t b);
+  static inline int32_t max(int32_t a, int32_t b);
+  static inline void exchange(int32_t& a, int32_t& b);
   static void ApplyAutoregressiveStochasticProcess(double& value,
                                                    double sigma,
                                                    int16_t tau,
@@ -66,5 +66,42 @@ class Utils
                              const std::string& file, int line);
   static void PrintAevolVersion();
 };
+
+inline int32_t Utils::mod(int32_t a, int32_t b)
+{
+  assert(b > 0);
+
+  while (a < 0)  a += b;
+  while (a >= b) a -= b;
+
+  return a;
+}
+
+inline int64_t Utils::mod(int64_t a, int64_t b)
+{
+  assert(b > 0);
+
+  while (a < 0)  a += b;
+  while (a >= b) a -= b;
+
+  return a;
+}
+
+inline int32_t Utils::min(int32_t a, int32_t b)
+{
+  return ((a < b)? a : b);
+}
+
+inline int32_t Utils::max(int32_t a, int32_t b)
+{
+  return ((a > b)? a : b);
+}
+
+inline void Utils::exchange(int32_t& a, int32_t& b)
+{
+  int32_t tmp = a;
+  a = b;
+  b = tmp;
+}
 } // namespace aevol
 #endif // AEVOL_UTILS_H__

@@ -131,6 +131,9 @@ class raevol_matrix(Engine):
                                     del threads[t]
                             logger.info('Waiting for threads to complete')
                             sleep(20)
+                            if not self.is_job_alive():
+                                job_is_dead = True
+                                break
                         break
                     
                     host = available_hosts[0]
@@ -262,17 +265,19 @@ class raevol_matrix(Engine):
 	    if os.path.isdir(bucketname) and os.path.exists(bucketname+'/last_gener.txt'):
 	      logger.info(thread_name + "Resuming AEVOL from NFS backup")
 	      
-	      lastGen = SshProcess('cat '+bucketname+'/last_gener.txt',
-			  host).run()
-	      
-	      last_gen = lastGen.stdout.strip()
+	      gen_file = open(bucketname+'/last_gener.txt', 'r')                                                                                                                                                                                   
+                                                                                                                                                                                                                                                   
+              last_gen = gen_file.read()
 	      
 	      if int(last_gen) < 500000:
-                logger.info(thread_name + "Resuming AEVOL Run from "+last_gen)
-                Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_diff_area/aevol/src/aevol_run -p 16'
-		      + ' -n 500000 -r '+last_gen+' >> aevol_run.log',
+                logger.info(thread_name + "Resuming AEVOL Run from "+str(int(last_gen)))
+                rem = Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_diff_area/aevol/src/aevol_run -p 16'
+		      + ' -e 500000 -r '+last_gen+' >> aevol_run.log',
 			  [host]).run()
-
+                if rem.ok:
+                    comb_ok = True
+              else:
+                  comb_ok = True
 	    else:
 	      Remote('mkdir -p '+bucketname,[host]).run()
 		
@@ -313,8 +318,10 @@ class raevol_matrix(Engine):
 			  [host]).run()
 	      
 	      logger.info(thread_name + "Launching AEVOL Run")
-	      Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_diff_area/aevol/src/aevol_run -p 16 -n 500000 > aevol_run.log',
+	      rem = Remote(self.export+'cd '+bucketname+'; /home/jorouzaudcornabas/aevol_diff_area/aevol/src/aevol_run -p 16 -n 500000 > aevol_run.log',
 			  [host]).run()
+              if rem.ok:
+                    comb_ok = True
             
 	    logger.info(thread_name + 'Get results ' + comb_dir + "/" + slugify(comb))
   
@@ -340,7 +347,6 @@ class raevol_matrix(Engine):
                         #slugify(comb))
                     #exit()
 
-            comb_ok = True
         finally:
             if comb_ok:
                 self.sweeper.done(comb)

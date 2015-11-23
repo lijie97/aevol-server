@@ -1022,7 +1022,7 @@ void GeneticUnit::do_translation()
       // Minimum number of bases needed is SHINE_DAL_SIZE + SHINE_START_SPACER + 3 * CODON_SIZE
       // (3 codons for START + STOP + at least one amino-acid)
       for (int32_t i = 0;
-           transcript_length - i >= SHINE_DAL_SIZE + SHINE_START_SPACER + 3 * CODON_SIZE;
+           transcript_length - i >= DO_TRANSLATION_LOOP;
            ++i) {
         if (is_shine_dalgarno(strand, Utils::mod(transcript_start
                                                     + (strand == LEADING ? i : -i), genome_length))
@@ -1348,20 +1348,21 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
     int32_t  len        = _dna->get_length();
 
     dist = 0;
-
+    bool ret = true;
     if ( strand == LEADING )
     {
       //~ printf( "LEADING\n" );
+
       for ( int16_t i = 0 ; i < PROM_SIZE ; i++ )
       {
         //~ printf( "  i : %" PRId32 " dist : %"PRId8"\n", i, dist );
-        if ( genome[(pos+i)%len] != PROM_SEQ[i] )
+        if ( genome[Utils::mod((pos + i), len)] != PROM_SEQ[i] )
         {
           dist++;
           if ( dist > PROM_MAX_DIFF )
           {
             //~ printf( "=============================================== END is_promoter\n" );
-            return false;
+            ret = false;
           }
         }
       }
@@ -1372,13 +1373,13 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
       for ( int16_t i = 0 ; i < PROM_SIZE ; i++ )
       {
         //~ printf( "  i : %"PRId32" dist : %"PRId8"\n", i, dist );
-        if ( genome[abs(pos-i)%len] == PROM_SEQ[i] ) // == and not != because we are on the complementary strand...
+        if ( genome[Utils::mod((pos - i), len)] == PROM_SEQ[i] ) // == and not != because we are on the complementary strand...
         {
           dist++;
           if ( dist > PROM_MAX_DIFF )
           {
             //~ printf( "=============================================== END is_promoter\n" );
-            return false;
+            ret = false;
           }
         }
       }
@@ -1386,7 +1387,7 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
 
 
     //~ printf( "=============================================== END is_promoter\n" );
-    return true;
+    return ret;
   }
 
   bool GeneticUnit::is_terminator( Strand strand, int32_t pos ) const
@@ -1408,7 +1409,36 @@ void GeneticUnit::compute_fitness(const PhenotypicTarget& target)
         if ( genome[Utils::mod(pos-i,len)] == genome[Utils::mod(pos-(TERM_SIZE-1)+i,len)] ) return false;
       }
     }
+/**
+ *     bool ret_1=true,ret_2=true,ret_3=true,ret_4=true,ret=true;
+    if ( strand == LEADING )
+    {
+      #pragma simd
+      for ( int8_t i = 0 ; i < TERM_STEM_SIZE ; i = i+4 )
+      {
+        ret_1 = ( genome[Utils::mod(pos+i,len)] == genome[Utils::mod(pos+(TERM_SIZE-1)-i,len)] ) ? false : true;
+        ret_2 = ( genome[Utils::mod(pos+i+1,len)] == genome[Utils::mod(pos+(TERM_SIZE-1)-(i+1),len)] ) ? false : true;
+        ret_3 = ( genome[Utils::mod(pos+i+2,len)] == genome[Utils::mod(pos+(TERM_SIZE-1)-(i+2),len)] ) ? false : true;
+        ret_4 = ( genome[Utils::mod(pos+i+3,len)] == genome[Utils::mod(pos+(TERM_SIZE-1)-(i+3),len)] ) ? false : true;
+        ret = ret & ret_1 & ret_2 & ret_3 & ret_4;
+      }
+    }
+    else // ( strand == LAGGING )
+    {
+      #pragma simd
+      for ( int16_t i = 0 ; i < TERM_STEM_SIZE ; i++ )
+      {
+        ret_1 = ( genome[Utils::mod(pos-i,len)] == genome[Utils::mod(pos-(TERM_SIZE-1)+i,len)] ) ? false : true;
+        ret_1 = ( genome[Utils::mod(pos-(i+1),len)] == genome[Utils::mod(pos-(TERM_SIZE-1)+(i+1),len)] ) ? false : true;
+        ret_1 = ( genome[Utils::mod(pos-(i+2),len)] == genome[Utils::mod(pos-(TERM_SIZE-1)+(i+2),len)] ) ? false : true;
+        ret_1 = ( genome[Utils::mod(pos-(i+3),len)] == genome[Utils::mod(pos-(TERM_SIZE-1)+(i+3),len)] ) ? false : true;
 
+        ret = ret & ret_1 & ret_2 & ret_3 & ret_4;
+      }
+    }
+
+    return ret;
+ */
     return true;
   }
 

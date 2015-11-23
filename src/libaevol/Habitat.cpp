@@ -83,13 +83,13 @@ Habitat::Habitat(gzFile backup_file,
 //                                   Methods
 // ============================================================================
 void Habitat::ApplyVariation() {
-  printf("Appel au apply_variation de habitat\n");
+  //printf("Appel au apply_variation de habitat\n");
   phenotypic_target_handler_->ApplyVariation();
 }
 
 void Habitat::save(gzFile backup_file,
                    bool skip_phenotypic_target /*=false*/) const {
-  printf("Appel a la sauvegarde de Habitat\n");
+  //printf("Appel a la sauvegarde de Habitat\n");
   gzwrite(backup_file, &compound_amount_, sizeof(compound_amount_));
   if (not skip_phenotypic_target)
     phenotypic_target_handler_->save(backup_file);
@@ -97,7 +97,7 @@ void Habitat::save(gzFile backup_file,
 
 void Habitat::load(gzFile backup_file,
                    PhenotypicTargetHandler* phenotypic_target_handler) {
-  printf("Appel au chargement de Habitat\n");
+  //printf("Appel au chargement de Habitat\n");
   gzread(backup_file, &compound_amount_, sizeof(compound_amount_));
   if (phenotypic_target_handler == nullptr)
     phenotypic_target_handler_ = new PhenotypicTargetHandler(backup_file);
