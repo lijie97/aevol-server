@@ -540,6 +540,9 @@ void Individual_R_X11::display_phenotype( X11Window* win, const Habitat_R& habit
         _dist_to_target_by_feature[i] = 0;
       }
 
+      _distance_to_target_computed = false;
+      _phenotype_computed = true;
+
       compute_distance_to_target( habitat.phenotypic_target( i ) );
 
       dist_temp += _dist_to_target_by_feature[METABOLISM];
